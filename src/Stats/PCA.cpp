@@ -768,7 +768,7 @@ void PCA::_variogramh(Db *db,
         DirParam dirparam = varioparam.getDirParam(idir0);
 
         // Reject the point as soon as one BiTargetChecker is not correct
-        if (! variogramKeep(vario, idir0, T1, T2, &dist)) continue;
+        if (! vario->keepPair(idir0, T1, T2, &dist)) continue;
 
         double lag = dirparam.getDPas();
         double h0  = ilag0 * lag;

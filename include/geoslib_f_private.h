@@ -60,18 +60,6 @@ int _lire_logical(const char *question, int flag_def, int valdef);
 void _erase_current_string(void);
 
 /****************************************/
-/* Prototyping the functions in vario.c */
-/****************************************/
-
-int _variogram_compute(Db *db,
-                       Vario *vario,
-                       int flag_gen = 0,
-                       int flag_sample = 0,
-                       int verr_mode = 0,
-                       Model *model = nullptr,
-                       int verbose = 0);
-
-/****************************************/
 /* Prototyping the functions in krige.c */
 /****************************************/
 

@@ -377,19 +377,6 @@ def __getDefinedValues(db, name, posX=0, posY=1, corner=None, useSel=True,
         
     return tab
 
-def __getBiDefinedValues(db1, name1, name2, db2, useSel=True):
-    
-    tabx = db1.getColumn(name1, useSel)
-    tabx = np.array(tabx).transpose()
-    
-    taby = db2.getColumn(name2, useSel)
-    taby = np.array(taby).transpose()
-    
-    sel  = np.logical_not(np.logical_or(np.isnan(tabx), np.isnan(taby)))
-    tabx = tabx[sel]
-    taby = taby[sel]
-    return tabx, taby
-
 def varioElem(vario, ivar=0, jvar=0, *args, **kwargs):
     """
     Plot a single experimental variogram (one direction and fixed pair of variable(s)).
@@ -1653,7 +1640,7 @@ def correlation(db, namex, namey, *args, **kwargs):
     ax = __getNewAxes(None, 0)
     return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
     
-def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True, 
+def __ax_correlation(ax, db, namex, namey, db2=None, 
                      asPoint = False,  flagSameAxes=False,
                      diagLine=False, diagColor="black", diagLineStyle='-',
                      bissLine=False, bissColor="red", bissLineStyle='-',
@@ -1669,9 +1656,11 @@ def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True,
         print("Db and Db2 should have the same number of samples")
         return None
 
-    tabx, taby = __getBiDefinedValues(db, namex, namey, db2, useSel)
+    res = gl.correlationPairs(db, db, namex, namey)
+    tabx = db.getValuesByNames(res[0], [namex])
     if len(tabx) == 0:
         return None
+    taby = db2.getValuesByNames(res[0], [namey])
     if len(taby) == 0:
         return None
     
@@ -1713,6 +1702,64 @@ def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True,
         v=[a+b*xmin, a+b*xmax]
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
         
+    ax.decoration(xlabel = db.getName(namex)[0], ylabel = db.getName(namey)[0])
+
+    return ax
+
+def hscatter(db, namex, namey, varioparam, ipas, *args, **kwargs):
+    '''
+    Plotting the scatter plot between two variables contained in a Db
+    
+    kwargs: additional arguments used in hist2d or scatter
+    '''
+    ax = __getNewAxes(None, 0)
+    return __ax_hscatter(ax, db=db, namex=namex, namey=namey, varioparam=varioparam, ipas=ipas, 
+                         *args, **kwargs)
+    
+def __ax_hscatter(ax, db, namex, namey, varioparam, ipas=0, idir=0, 
+                     asPoint = False,  flagSameAxes=False,
+                     diagLine=False, diagColor="black", diagLineStyle='-',
+                     bissLine=False, bissColor="red", bissLineStyle='-',
+                     **kwargs):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
+        return None
+        
+    res = gl.hscatterPairs(db, namex, namey, varioparam, ipas, idir)
+    tabx = db.getValuesByNames(res[0], [namex])
+    if len(tabx) == 0:
+        return None
+    taby = db.getValuesByNames(res[0], [namey])
+    if len(taby) == 0:
+        return None
+    
+    xmin = np.min(tabx)
+    xmax = np.max(tabx)
+    ymin = np.min(taby)
+    ymax = np.max(taby)
+    
+    range = None
+    if flagSameAxes:
+        xmin = ymin = min(xmin, ymin)
+        xmax = ymax = max(xmax, ymax)
+        ax.geometry(xlim=[xmin, xmax], ylim=[ymin, ymax])
+
+    if asPoint:
+        ax.scatter(tabx, taby, **kwargs)
+    else:
+        range = [[xmin,xmax],[ymin,ymax]]
+        ax.hist2d(tabx, taby, range=range, **kwargs)
+
+    if diagLine:
+        u=[xmin, xmax]
+        v=[ymin, ymax]
+        ax.plot(u,v,color=diagColor,linestyle=diagLineStyle)
+        
+    if bissLine:
+        bmin = min(xmin, ymin)
+        bmax = max(xmax, ymax)
+        u=[bmin, bmax]
+        ax.plot(u,u,color=bissColor,linestyle=bissLineStyle)
+
     ax.decoration(xlabel = db.getName(namex)[0], ylabel = db.getName(namey)[0])
 
     return ax
@@ -2121,6 +2168,7 @@ setattr(gl.Table,            "plot",             gp.table)
 setattr(gl.MeshETurbo,       "plot",             gp.mesh)
 setattr(gl.Db,               "histogram",        gp.histogram)
 setattr(gl.Db,               "correlation",      gp.correlation)
+setattr(gl.Db,               "hscatter",         gp.hscatter)
 setattr(gl.Db,               "grid1D"   ,        gp.grid1D)
 setattr(gl.Vario,            "varmod",           gp.varmod)
 
@@ -2144,6 +2192,7 @@ setattr(plt.Axes, "sortedcurve",   gp.__ax_sortedcurve)
 setattr(plt.Axes, "multisegments", gp.__ax_multisegments)
 setattr(plt.Axes, "histogram",     gp.__ax_histogram)
 setattr(plt.Axes, "correlation",   gp.__ax_correlation)
+setattr(plt.Axes, "hscatter",      gp.__ax_hscatter)
 setattr(plt.Axes, "table",         gp.__ax_table)
 
 setattr(plt.Axes, "model",         gp.__ax_model)

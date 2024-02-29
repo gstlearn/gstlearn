@@ -116,6 +116,7 @@ public:
   bool isDefinedForGrid() const;
 
   int hasDate() const { return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
+  bool isDateUsed(const Db *db1, const Db *db2 = nullptr) const;
 
   void setScale(double scale) { _scale = scale; }
   void setDates(VectorDouble dates) { _dates = dates; }
@@ -145,3 +146,5 @@ private:
   std::vector<DirParam> _dirparams;
   const Faults*         _faults; // Pointer copy (not to be deleted)
 };
+
+GSTLEARN_EXPORT Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam);

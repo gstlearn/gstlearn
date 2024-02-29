@@ -165,7 +165,7 @@ Nugget Effect
 - Sill         =      0.100
 K-Bessel (Third Parameter = 1)
 - Sill         =      0.420
-- Range        =    282.586
+- Range        =    282.583
 - Theo. Range  =     81.575
 Total Sill     =      0.520
 
@@ -180,7 +180,7 @@ External_Drift:0
 
 +#NO_DIFF#XXX+
 ----
-Trend coefficients: [ 3.97005867 -0.00659771]
+Trend coefficients: [ 3.97004997 -0.00659772]
 ----
 
 

@@ -464,6 +464,35 @@ int model_update_coreg(Model *model,
 
 /****************************************************************************/
 /*!
+ **  Fix plausible values for the Direction coefficients.
+ **  They must be defined and with norm equal to 1
+ **
+ ** \param[in]  ndim      Space dimension
+ ** \param[in,out]  codir Input/Output Direction coefficients
+ **
+ *****************************************************************************/
+static void st_fix_codir(int ndim, VectorDouble &codir)
+{
+  double norme;
+
+  if (codir.empty()) return;
+  norme = VH::innerProduct(codir, codir, ndim);
+  if (norme <= 0.)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      codir[idim] = 0.;
+    codir[0] = 1.;
+  }
+  else
+  {
+    norme = sqrt(norme);
+    for (int idim = 0; idim < ndim; idim++)
+      codir[idim] /= norme;
+  }
+}
+
+/****************************************************************************/
+/*!
  **  Calculate the value of the model for a set of distances
  **
  ** \return  Error return code
@@ -504,7 +533,7 @@ int model_evaluate(Model *model,
 
   /* Normalize the direction vector codir */
 
-  vario_fix_codir(ndim, codir);
+  st_fix_codir(ndim, codir);
 
   /* Loop on the lags */
 
@@ -569,7 +598,7 @@ int model_evaluate_nostat(Model *model,
 
   /* Normalize the direction vector codir */
 
-  vario_fix_codir(ndim, codir);
+  st_fix_codir(ndim, codir);
 
   /* Calculate the C(0) term (used only for covariance or covariogram) */
 
@@ -1359,20 +1388,20 @@ void model_covupdt(Model *model,
  ** \param[in]  ivar    Rank of the variable
  ** \param[in]  coef    Array of coefficients (optional)
  **
- ** \param[out] drftab  Working array
- **
  *****************************************************************************/
 double model_drift_evaluate(int /*verbose*/,
                             Model *model,
                             const Db *db,
                             int iech,
                             int ivar,
-                            double *coef,
-                            double *drftab)
+                            double *coef)
 {
   if (st_check_environ(model, db)) return TEST;
 
-  model_calcul_drift(model, ECalcMember::LHS, db, iech, drftab);
+  int nbfl = model->getDriftNumber();
+  VectorDouble drftab(nbfl);
+
+  model_calcul_drift(model, ECalcMember::LHS, db, iech, drftab.data());
 
   /* Check if all the drift terms are defined */
 

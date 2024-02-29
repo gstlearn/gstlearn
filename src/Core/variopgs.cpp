@@ -3459,18 +3459,18 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
     for (jjech = iiech + 1; jjech < nech; jjech++)
     {
       jech = rindex[jjech];
-      if (variogram_maximum_dist1D_reached(db, iech, jech, maxdist)) break;
+      if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
       if (st_discard_point(local_pgs, jech)) continue;
       db->getSampleAsST(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
-      if (! variogramKeep(vario, idir, T1, T2, &dist)) continue;
+      if (! vario->keepPair(idir, T1, T2, &dist)) continue;
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(dirparam, dist);
+      ipas = dirparam.getLagRank(dist);
       if (IFFFF(ipas)) continue;
 
       /* Add the sample (only positive lags are of interest) */
@@ -4454,6 +4454,95 @@ static double st_get_value(Local_Pgs *local_pgs,
 
 /****************************************************************************/
 /*!
+ **  Scale the variogram calculations
+ **
+ ** \param[in]  vario Vario structure
+ ** \param[in]  idir  Rank of the Direction
+ **
+ *****************************************************************************/
+static void st_variogram_scale(Vario *vario, int idir)
+{
+  int nvar = vario->getVariableNumber();
+
+  /* Scale the experimental variogram quantities */
+
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+      {
+        int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
+        if (vario->getSwByIndex(idir, j) <= 0)
+        {
+          vario->setHhByIndex(idir, j, TEST);
+          vario->setGgByIndex(idir, j, TEST);
+        }
+        else
+        {
+          vario->setHhByIndex(idir, j, vario->getHhByIndex(idir, j) / vario->getSwByIndex(idir, j));
+          if (vario->getFlagAsym() && i < vario->getLagNumber(idir))
+            vario->setHhByIndex(idir, j, -ABS(vario->getHhByIndex(idir, j)));
+          if (vario->getCalcul() != ECalcVario::COVARIOGRAM)
+            vario->setGgByIndex(idir, j,
+                         vario->getGgByIndex(idir, j) / vario->getSwByIndex(idir, j));
+        }
+      }
+    }
+
+  // Process the variogram transformations
+
+  if (vario->getCalcul() == ECalcVario::TRANS1)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+        {
+          int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
+          int j0 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
+          vario->setGgByIndex(idir, j,
+                       -vario->getGgByIndex(idir, j) / vario->getGgByIndex(idir, j0));
+        }
+      }
+  }
+  else if (vario->getCalcul() == ECalcVario::TRANS2)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+        {
+          int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
+          int j0 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
+          vario->setGgByIndex(idir, j,
+                       -vario->getGgByIndex(idir, j) / vario->getGgByIndex(idir, j0));
+        }
+      }
+  }
+  else if (vario->getCalcul() == ECalcVario::BINORMAL)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+        {
+          int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
+          int j1 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
+          int j2 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
+          vario->setGgByIndex(
+              idir,
+              j,
+              vario->getGgByIndex(idir, j) / sqrt(
+                  vario->getGgByIndex(idir, j1) * vario->getGgByIndex(idir, j2)));
+        }
+      }
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
  **  Performing the variogram calculations in the non-stationary case
  **
  ** \return  Error return code
@@ -4537,7 +4626,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
     /* Scale the variogram */
 
-    variogram_scale(vario, idir);
+    st_variogram_scale(vario, idir);
   }
   return (0);
 }

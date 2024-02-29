@@ -23,7 +23,7 @@ ASpace::ASpace(unsigned int ndim)
 {
   if (ndim <= 0)
   {
-    messerr(">>> Creating a Space with dimension 0 should be forbidden");
+    _nDim = 2;
   }
 }
 
