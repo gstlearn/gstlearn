@@ -14,13 +14,10 @@
 #include "geoslib_define.h"
 #include "geoslib_d.h"
 
-#include "Enum/ECalcVario.hpp"
-
+#include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Geometry/BiTargetCheckDistance.hpp"
-#include "Basic/ICloneable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
 class Db;
@@ -74,7 +71,7 @@ class AAnam;
  .
  *
  */
-class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public ICloneable
+class GSTLEARN_EXPORT Vario : public AVario, public ASerializable
 {
 public:
   Vario(const VarioParam& varioparam);
@@ -92,12 +89,20 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// AVario Interface
+  double _getIVAR(const Db *db, int iech, int ivar) const override;
+  void _setResult(int iech1,
+                  int iech2,
+                  int nvar,
+                  int ipas,
+                  int ivar,
+                  int jvar,
+                  int orient,
+                  double ww,
+                  double dist,
+                  double value) override;
+
   static Vario* create(const VarioParam& varioparam);
-  static Vario* createSkeleton(const VarioParam& varioparam,
-                               int nvar = 1,
-                               const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"),
-                               const VectorDouble& means = VectorDouble(),
-                               const VectorDouble& vars = VectorDouble());
   static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
   static Vario* createRegularizeFromModel(const Model& model,
                                           const VarioParam& varioparam,
@@ -116,19 +121,15 @@ public:
   static Vario* computeFromDb(const VarioParam& varioparam,
                               Db* db,
                               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
-                              bool flag_gen = false,
                               bool flag_sample = false,
                               bool verr_mode = false,
                               Model *model = nullptr,
                               bool verbose = false);
 
-  static const ECalcVario getCalculType(const String& calcul_name);
-
   void resetReduce(const VectorInt &varcols,
                    const VectorInt &dircols,
                    bool asSymmetric = false);
 
-  const ECalcVario& getCalcul() const { return _calcul; }
   bool              getFlagAsym() const { return _flagAsym; }
   bool              drawOnlyPositiveX(int ivar, int jvar) const;
   bool              drawOnlyPositiveY(int ivar, int jvar) const;
@@ -249,29 +250,30 @@ public:
 
   int compute(Db* db,
               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
-              bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
-              Model *model = nullptr,
+              Model* model = nullptr,
+              int niter_UK = 0,
               bool verbose = false);
   int computeIndic(Db* db,
                    const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
-                   bool flag_gen = false,
                    bool flag_sample = false,
                    bool verr_mode = false,
-                   Model *model = nullptr,
+                   Model* model = nullptr,
+                   int niter_UK = 0,
                    bool verbose = false,
                    int nfacmax = -1);
-  int transformZToY(const AAnam *anam);
-  int transformYToZ(const AAnam *anam);
+  int computeGeometry(Db *db, Vario_Order *vorder, int *npair);
+  int computeVarioVect(Db *db, int ncomp);
+  int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder);
+
   int modelRegularize(const Model& model,
                       const VectorDouble& ext,
                       const VectorInt& ndisc,
                       const VectorDouble& angles = VectorDouble(),
                       const CovCalcMode* mode = nullptr,
                       bool asCov = false);
-  int geometryCompute(Db *db, Vario_Order *vorder, int *npair);
-  int variovectCompute(Db *db, int ncomp);
+
   void getExtension(int ivar,
                     int jvar,
                     int idir0,
@@ -315,7 +317,6 @@ public:
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(int nvar) { _nVar = nvar; }
   void setCalculName(const String calcul_name);
-  void setCalcul(const ECalcVario &calcul) { _calcul = calcul; }
 
   int  prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), bool defineList = true);
 
@@ -323,6 +324,11 @@ public:
   int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
   bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist);
+  int getRankFromDirAndDate(int idir, int idate);
+
+  int transformCut(int nh, double ycut);
+  int transformZToY(const AAnam *anam);
+  int transformYToZ(const AAnam *anam);
 
 protected:
   /// Interface for ASerializable
@@ -351,63 +357,66 @@ private:
   int  _getBiPtsNumber() const { return (int) _bipts.size(); }
   int  _getBiPtsRank(int idir, int rank) const;
 
-  int _variogram_compute(Db *db,
-                         int flag_gen,
-                         int flag_sample,
-                         int verr_mode,
-                         Model *model,
-                         int verbose);
-  int _variogram_general(Db *db,
-                         Model *model,
-                         int flag_sample,
-                         int verr_mode,
-                         int verbose);
-  int _variogen_line_calcul(Db *db);
-  int _variogen_grid_calcul(DbGrid *db);
-  int _variogrid_calcul(DbGrid *db);
-  void _variogen_line(Db *db, int idir, int norder);
-  int _update_variogram_ku(Db *db, Vario_Order *vorder, int verbose);
-  double _calculate_bias_local(Db *db,
-                               Vario_Order *vorder,
-                               int ifirst,
-                               int ilast);
-  void _variogram_patch_c00(Db *db, int idir);
-  int _get_generalized_variogram_order();
-  void _variogram_stats(Db *db);
-  int _update_variogram_verr(Db *db,
-                             int idir,
-                             Vario_Order *vorder,
-                             int verr_mode);
+  int _compute(Db *db,
+               int flag_sample,
+               int verr_mode,
+               Model* model,
+               int niter_UK,
+               bool verbose);
+  int _calculateGeneral(Db *db,
+                        int flag_sample,
+                        int verr_mode);
+  int  _calculateGenOnLine(Db *db, int norder);
+  int  _calculateGenOnGrid(DbGrid *db, int norder);
+  int  _calculateOnGrid(DbGrid *db);
+
+  int  _getRelativeSampleRank(Db *db, int iech0);
+  int  _updateUK(Db *db, Vario_Order *vorder);
+  void _patchC00(Db *db, int idir);
+  int  _get_generalized_variogram_order();
+  void _getStatistics(Db *db);
+  int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
   double _s(Db *db, int iech, int jech);
   double _g(Db *db, int iech, int jech);
-  int _get_relative_sample_rank(Db *db, int iech0);
-  void _calculate_bias_global(Db *db, VectorDouble d1);
-  double _get_bias_value(Db *db, int nbfl, int iiech, int jjech);
-  void _variogram_calcul_internal(Db *db, int idir, Vario_Order *vorder);
-  int _variogram_calcul1(Db *db, int idir, int *rindex, Vario_Order *vorder);
-  int _variogram_calcul2(Db *db, int idir, int *rindex);
-  int _variogram_grid(DbGrid *db, int idir);
-  int _variogen_grid(DbGrid *db, int idir, int norder);
+  double _calculateBiasLocal(Db *db,
+                             Vario_Order *vorder,
+                             int ifirst,
+                             int ilast);
+  void _calculateBiasGlobal(Db *db);
+  double _getBias(Db *db, int iiech, int jjech);
 
-  void _print_debug(int iech1,
-                    int iech2,
-                    int ivar,
-                    int jvar,
-                    int ilag,
-                    double scale,
-                    double value);
-  void _covariance_center(Db *db, int idir);
-  int _variovect_calcul(Db *db, int idir, int ncomp, int *rindex);
-  void _variovect_stats(Db *db, int ncomp);
-  void _variogram_scale(int idir);
-  double _get_IVAR(const Db *db, int iech, int ivar);
+  void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
+  int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);
+  int  _calculateGeneralSolution2(Db *db, int idir, int *rindex);
+  int  _calculateOnGridSolution(DbGrid *db, int idir);
+  int  _calculateGenOnGridSolution(DbGrid *db, int idir, int norder);
+  int  _calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex);
+  void _calculateOnLineSolution(Db *db, int idir, int norder);
+
+  void _driftManage(Db *db);
+  int  _driftEstimateCoefficients(Db *db);
+
+  void _printDebug(int iech1,
+                   int iech2,
+                   int ivar,
+                   int jvar,
+                   int ilag,
+                   double scale,
+                   double value);
+  void _centerCovariance(Db *db, int idir);
+  void _getVarioVectStatistics(Db *db, int ncomp);
+  void _rescale(int idir);
+  bool _isCompatible(const Db *db) const;
+  double _linear_interpolate(int n,
+                             const VectorDouble &x,
+                             const VectorDouble &y,
+                             double x0);
 
 private:
   int                _nVar;
   VarioParam         _varioparam;
   VectorDouble       _means;
   VectorDouble       _vars;
-  ECalcVario         _calcul;
   bool               _flagSample;
   Db*                _db;
   VectorVectorDouble _sw;      /* Array for number of lags */
@@ -418,15 +427,15 @@ private:
   int _biPtsPerDirection;
   std::vector<ABiTargetCheck*> _bipts;
   mutable bool       _flagAsym;
-};
 
-GSTLEARN_EXPORT void variogram_set(const ECalcVario &calcul_type,
-                                   int /*nvar*/,
-                                   int ipas,
-                                   int ivar,
-                                   int jvar,
-                                   int orient,
-                                   double ww,
-                                   double dist,
-                                   double value);
-GSTLEARN_EXPORT ECalcVario identifyVarioTypeByName(const String &calcul_name);
+  bool _verbose;
+  bool _flag_UK;
+  int  _niter_UK;
+  mutable Model*              _model;  // Model pointer (not to be deleted) for drift removal
+  mutable VectorDouble        _BETA;
+  mutable VectorDouble        _DRFDIAG;
+  mutable MatrixRectangular   _DRFXA;
+  mutable MatrixRectangular   _DRFGX;
+  mutable MatrixRectangular   _DRFTAB;
+  mutable MatrixSquareGeneral _DRFXGX;
+};

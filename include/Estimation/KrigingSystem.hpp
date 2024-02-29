@@ -107,7 +107,7 @@ private:
   double _getIvar(int rank, int ivar) const;
   double _getVerr(int rank, int ivar) const;
   double _getMean(int ivar, bool flagLHS = false) const;
-  double _getDriftCoef(int ivar, int il, int ib) const;
+  double _getDriftCL(int ivar, int il, int ib) const;
   int    _getFLAG(int iech,int ivar) const;
   double _getCOVTAB(int ivar,int jvar) const;
   void   _setRHSF(int iech, int ivar, int jvCL, double value);

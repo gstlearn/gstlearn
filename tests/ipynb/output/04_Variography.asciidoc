@@ -35,7 +35,7 @@ Total number of samples      = 10000
 Grid characteristics:
 ---------------------
 Origin :      0.000     0.000
-Mesh   :      7.789     0.068
+Mesh   :      7.789     0.031
 Number :        100       100
 
 Variables

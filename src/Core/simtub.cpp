@@ -736,8 +736,8 @@ int simpgs(Db *dbin,
               igrf + 1, model1->getVariableNumber());
       goto label_end;
     }
-    if (model_stabilize(models[igrf], 1, percent)) goto label_end;
-    if (model_normalize(models[igrf], 1)) goto label_end;
+    if (models[igrf]->stabilize(percent, true)) goto label_end;
+    if (models[igrf]->standardize(true)) goto label_end;
     modvec.push_back(models[igrf]);
   }
 
@@ -1107,8 +1107,8 @@ int simbipgs(Db *dbin,
             igrf + 1, ipgs + 1, models[ipgs][igrf]->getVariableNumber());
         goto label_end;
       }
-      if (model_stabilize(models[ipgs][igrf], 1, percent)) goto label_end;
-      if (model_normalize(models[ipgs][igrf], 1)) goto label_end;
+      if (models[ipgs][igrf]->stabilize(percent, true)) goto label_end;
+      if (models[ipgs][igrf]->standardize(true)) goto label_end;
 
       modvec[ipgs].push_back(models[ipgs][igrf]);
     }
@@ -1560,11 +1560,11 @@ int gibbs_sampler(Db *dbin,
   nvar = model->getVariableNumber();
   if (!flag_propagation)
   {
-    if (model_stabilize(model, 1, percent)) goto label_end;
+    if (model->stabilize(percent, true)) goto label_end;
   }
   if (flag_norm)
   {
-    if (model_normalize(model, 1)) goto label_end;
+    if (model->standardize(true)) goto label_end;
   }
 
   /*******************/
@@ -2380,8 +2380,8 @@ int simpgs_spde(Db *dbin,
               igrf + 1, model1->getVariableNumber());
       goto label_end;
     }
-    if (model_stabilize(models[igrf], 1, percent)) goto label_end;
-    if (model_normalize(models[igrf], 1)) goto label_end;
+    if (models[igrf]->stabilize(percent, true)) goto label_end;
+    if (models[igrf]->standardize(true)) goto label_end;
   }
   if (spde_check(dbin, dbout, model1, model2, verbose, gext, true, true, true,
                  false, false, true, flag_prop)) goto label_end;

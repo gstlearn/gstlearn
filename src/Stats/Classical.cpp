@@ -19,6 +19,11 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Space/SpaceRN.hpp"
+#include "Space/SpaceTarget.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "Variogram/Vario.hpp"
+#include "Polygon/Polygons.hpp"
 
 #include <math.h>
 #include <Matrix/Table.hpp>
@@ -1921,3 +1926,323 @@ int dbStatisticsInGridTool(Db *db,
   return 0;
 }
 
+/****************************************************************************/
+/*!
+ **  Evaluate the correlation
+ **     Correl(Z1(x) , Z2(x))
+ **
+ ** \return  Array of the indices of pairs of samples (or VectorVectorInt())
+ **
+ ** \param[in]  db1          Db descriptor (first variable)
+ ** \param[in]  db2          Db descriptor (second variable for flag.same=T)
+ ** \param[in]  name1        Name of the first variable
+ ** \param[in]  name2        Name of the second variable
+ ** \param[in]  flagFrom1    Start numbering of indices from 1 if True
+ ** \param[in]  verbose      Verbose flag
+ **
+ ** \remarks The two input Db must match exactly (same number of samples with
+ ** \remarks same set of coordinates and same optional selection)
+ **
+ ** \remarks The returned Vector of Vector of integer 'indices' contain
+ ** \remarks the set of indices of the pairs of samples.
+ ** \remarks Its contents is i1,j1,i2,j2,...
+ ** \remarks The indices are numbered starting from 0
+ **
+ *****************************************************************************/
+VectorVectorInt correlationPairs(Db *db1,
+                                 Db *db2,
+                                 const String& name1,
+                                 const String& name2,
+                                 bool flagFrom1,
+                                 bool verbose)
+{
+  VectorVectorInt indices;
+
+  /* Initializations */
+
+  if (db1 == nullptr) return indices;
+  if (db2 == nullptr) return indices;
+  if (db1->getNDim() != db2->getNDim() || db1->getActiveSampleNumber() != db2->getActiveSampleNumber())
+  {
+    messerr("The two input 'db' are not compatible");
+    return indices;
+  }
+
+  int nech = db1->getSampleNumber();
+  int ndim = db1->getNDim();
+  int shift = (flagFrom1) ? 1 : 0;
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  /* Regular correlation */
+
+  indices.resize(2);
+  int nb = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db1->isActive(iech)) continue;
+    double val1 = db1->getValue(name1, iech);
+    if (FFFF(val1)) continue;
+    double val2 = db2->getValue(name2, iech);
+    if (FFFF(val2)) continue;
+
+    indices[0].push_back(iech + shift);
+    indices[1].push_back(iech + shift);
+    nb++;
+  }
+
+  /* Messages */
+
+  if (nb <= 0)
+  {
+    messerr("No sample found where all variables are defined");
+    return indices;
+  }
+  else
+  {
+    if (verbose)
+    {
+      message("Total number of samples = %d\n", nech);
+      message("Number of samples defined = %d\n", (int) nb);
+    }
+  }
+  return indices;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the shifted correlation calculated as follows:
+ **     Correl(Z1(x) , Z2(x+h))
+ **
+ ** \return  Vector of indices (or VectorVectorInt())
+ **
+ ** \param[in]  db           Db descriptor
+ ** \param[in]  name1        Name of the first variable
+ ** \param[in]  name2        Name of the second variable
+ ** \param[in]  varioparam   pointer to a VarioParam structure
+ ** \param[in]  ipas         Rank of the lag of interest
+ ** \param[in]  idir         Rank of the direction of interest (within VarioParam)
+ ** \param[in]  verbose      Verbose flag
+ **
+ ** \remarks The returned Vector of Vector of integer 'indices' contain
+ ** \remarks the set of indices of the pairs of samples.
+ ** \remarks Its contents is i1,j1,i2,j2,...
+ ** \remarks The indices are numbered starting from 1
+ **
+ *****************************************************************************/
+VectorVectorInt hscatterPairs(Db *db,
+                              const String& name1,
+                              const String& name2,
+                              VarioParam *varioparam,
+                              int ipas,
+                              int idir,
+                              bool verbose)
+{
+  VectorVectorInt indices;
+  double dist = 0.;
+
+  // Preliminary checks
+
+  if (db == nullptr) return indices;
+  if (varioparam == nullptr) return indices;
+  if (idir < 0 || idir >= varioparam->getDirectionNumber()) return indices;
+
+  /* Initializations */
+
+  const DirParam dirparam = varioparam->getDirParam(idir);
+  int nech = db->getSampleNumber();
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+  indices.resize(2);
+
+  // Creating a local Vario structure from VarioParam (in order to constitute the BiTargetCheck list)
+
+  Vario *vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  if (vario->prepare()) return 1;
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+
+  int nb = 0;
+  for (int iech = 0; iech < nech - 1; iech++)
+  {
+    if (hasSel && !db->isActive(iech)) continue;
+    double val1 = db->getValue(name1, iech);
+    if (FFFF(val1)) continue;
+    db->getSampleAsST(iech, T1);
+
+    for (int jech = iech + 1; jech < nech; jech++)
+    {
+      if (hasSel && !db->isActive(jech)) continue;
+      double val2 = db->getValue(name2, jech);
+      if (FFFF(val2)) continue;
+      db->getSampleAsST(jech, T2);
+
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (!vario->keepPair(0, T1, T2, &dist)) continue;
+
+      /* Get the rank of the lag */
+
+      int ipasloc = dirparam.getLagRank(dist);
+      if (IFFFF(ipasloc)) continue;
+      if (ipas != ipasloc) continue;
+
+      /* Point update */
+
+      indices[0].push_back(iech);
+      indices[1].push_back(jech);
+      nb++;
+    }
+  }
+
+  /* Messages */
+
+  if (nb <= 0)
+  {
+    messerr("No sample found where all variables are defined");
+  }
+  else
+  {
+    if (verbose)
+    {
+      message("Total number of samples = %d\n", nech);
+      message("Number of pairs used for translated correlation = %d\n", (int) nb);
+    }
+  }
+  return indices;
+}
+
+/****************************************************************************/
+/*!
+ **  Identify samples from scatter plot when included within a polygon
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db1          Db descriptor (first variable)
+ ** \param[in]  db2          Db descriptor (second variable for flag.same=T)
+ ** \param[in]  icol1        Rank of the first column
+ ** \param[in]  icol2        Rank of the second column
+ ** \param[in]  polygon      Polygons structure
+ **
+ ** \remarks The two input Db must match exactly (same number of samples with
+ ** \remarks same set of coordinates and same optional selection)
+ **
+ *****************************************************************************/
+int correlationIdentify(Db *db1,
+                        Db *db2,
+                        int icol1,
+                        int icol2,
+                        Polygons *polygon)
+{
+  if (db1 == nullptr) return (1);
+  if (db2 == nullptr) return (1);
+  int nech = db1->getSampleNumber();
+  int number = 0;
+
+  /* Correlation */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db1->isActive(iech)) continue;
+    double val1 = db1->getArray(iech, icol1);
+    if (FFFF(val1)) continue;
+    double val2 = db2->getArray(iech, icol2);
+    if (FFFF(val2)) continue;
+
+    /* Check of the sample belongs to the polygon */
+
+    VectorDouble coor(3, TEST);
+    coor[0] = val1;
+    coor[1] = val2;
+    if (!polygon->inside(coor, false)) continue;
+
+    /* Print the reference of the sample */
+
+    if (number == 0) mestitle(0, "Samples selected from scatter plot");
+    message("Sample #%d - Variable #1=%lf - Variable #2=%lf\n", iech + 1, val1, val2);
+    number++;
+  }
+
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental conditional expectation
+ **
+ ** \param[in]  db1           Db descriptor (for target variable)
+ ** \param[in]  db2           Db descriptor (for auxiliary variables)
+ ** \param[in]  icol1         Rank of the target variable
+ ** \param[in]  icol2         Rank of the explanatory variable
+ ** \param[in]  mini          Minimum value for the explanaroty variable
+ ** \param[in]  maxi          Maximum value for the explanaroty variable
+ ** \param[in]  nclass        Number of classes
+ ** \param[in]  verbose       Verbose flag
+ **
+ *****************************************************************************/
+VectorVectorDouble condexp(Db *db1,
+                           Db *db2,
+                           int icol1,
+                           int icol2,
+                           double mini,
+                           double maxi,
+                           int nclass,
+                           bool verbose)
+{
+  VectorVectorDouble xycond(2);
+  xycond[0].resize(nclass);
+  xycond[1].resize(nclass);
+  VectorInt ncond(nclass,0);
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
+  {
+    if (!db1->isActive(iech)) continue;
+    double val1 = db1->getArray(iech, icol1);
+    if (FFFF(val1)) continue;
+    double val2 = db2->getArray(iech, icol2);
+    if (FFFF(val2)) continue;
+    if (val2 < mini || val2 > maxi) continue;
+
+    int rank = int((nclass - 1.) * (val2 - mini) / (maxi - mini));
+
+    xycond[0][rank] += val1;
+    xycond[1][rank] += val2;
+    ncond[rank]++;
+  }
+
+  /* Normation */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    if (ncond[iclass] <= 0)
+    {
+      xycond[0][iclass] = TEST;
+      xycond[1][iclass] = TEST;
+    }
+    else
+    {
+      xycond[0][iclass] /= ncond[iclass];
+      xycond[1][iclass] /= ncond[iclass];
+    }
+  }
+
+  /* Optional printout */
+
+  if (verbose)
+  {
+    message("Experimental Conditional Expectation\n");
+    for (int iclass = 0; iclass < nclass; iclass++)
+    {
+      if (ncond[iclass] > 0)
+        message("Class %2d : V1=%lf V2=%lf\n", iclass + 1, xycond[0][iclass],
+                xycond[1][iclass]);
+    }
+  }
+  return xycond;
+}

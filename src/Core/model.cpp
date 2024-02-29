@@ -175,34 +175,6 @@ static void st_covtab_rescale(int nvar, double norme, double *covtab)
 
 /*****************************************************************************/
 /*!
- **  Evaluates a basic covariance structure for a vector of increments
- **  This basic structure is normalized
- **
- ** \return  Value of the basic structure
- **
- ** \param[in]  model       Structure containing the model
- ** \param[in]  icov        Rank of the Basic structure
- ** \param[in]  member      Member of the Kriging System (ECalcMember)
- ** \param[in]  d1          vector of increment (or NULL)
- **
- *****************************************************************************/
-double model_calcul_basic(Model *model,
-                          int icov,
-                          const ECalcMember &member,
-                          const VectorDouble &d1)
-{
-  // const CovAniso* cova = model->getCova(icov);
-  // TODO: Why having to use ACov rather than CovAniso?
-  const ACov *cova = dynamic_cast<const ACov*>(model->getCova(icov));
-
-  if (member != ECalcMember::LHS && model->isCovaFiltered(icov))
-    return (0.);
-  else
-    return cova->evalIvarIpas(1., d1);
-}
-
-/*****************************************************************************/
-/*!
  **  Returns the covariances for an increment
  **  This is the generic internal function
  **  It can be called for stationary or non-stationary case
@@ -263,30 +235,6 @@ const CovInternal* get_external_covariance()
 
 /****************************************************************************/
 /*!
- **  Returns the drift vector for a point
- **
- ** \param[in]  model  Model structure
- ** \param[in]  member Member of the Kriging System (ECalcMember)
- ** \param[in]  db     Db structure
- ** \param[in]  iech   Rank of the sample
- **
- ** \param[out] drftab  Array of drift values
- **
- *****************************************************************************/
-void model_calcul_drift(Model *model,
-                        const ECalcMember &member,
-                        const Db *db,
-                        int iech,
-                        double *drftab)
-{
-  VectorDouble drft = model->evalDriftVec(db, iech, member);
-  for (int il = 0; il < (int) drft.size(); il++)
-    drftab[il] = drft[il];
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Check if the non-stationary Model has a given non-stationary parameter
  **
  ** \return  1 if the given non-stationary parameter is defined; 0 otherwise
@@ -302,32 +250,6 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
   if (nostat->isDefinedByType(type0)) return 1;
 
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Create a generic Model with nugget effect only
- **
- ** \return  Pointer to the Model structure newly allocated
- **
- ** \param[in]  ndim Space dimension
- ** \param[in]  nvar Number of variables
- **
- *****************************************************************************/
-Model* model_default(int ndim, int nvar)
-{
-  /* Create the empty Model */
-
-  CovContext ctxt = CovContext(nvar, ndim, 1.);
-  Model* model = new Model(ctxt);
-
-  /* Add the nugget effect variogram model */
-
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cov(ECov::NUGGET, ctxt);
-  covs.addCov(&cov);
-  model->setCovList(&covs);
-  return model;
 }
 
 /****************************************************************************/
@@ -464,35 +386,6 @@ int model_update_coreg(Model *model,
 
 /****************************************************************************/
 /*!
- **  Fix plausible values for the Direction coefficients.
- **  They must be defined and with norm equal to 1
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in,out]  codir Input/Output Direction coefficients
- **
- *****************************************************************************/
-static void st_fix_codir(int ndim, VectorDouble &codir)
-{
-  double norme;
-
-  if (codir.empty()) return;
-  norme = VH::innerProduct(codir, codir, ndim);
-  if (norme <= 0.)
-  {
-    for (int idim = 0; idim < ndim; idim++)
-      codir[idim] = 0.;
-    codir[0] = 1.;
-  }
-  else
-  {
-    norme = sqrt(norme);
-    for (int idim = 0; idim < ndim; idim++)
-      codir[idim] /= norme;
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the value of the model for a set of distances
  **
  ** \return  Error return code
@@ -533,7 +426,7 @@ int model_evaluate(Model *model,
 
   /* Normalize the direction vector codir */
 
-  st_fix_codir(ndim, codir);
+  VH::normalizeCodir(ndim, codir);
 
   /* Loop on the lags */
 
@@ -598,7 +491,7 @@ int model_evaluate_nostat(Model *model,
 
   /* Normalize the direction vector codir */
 
-  st_fix_codir(ndim, codir);
+  VectorHelper::normalizeCodir(ndim, codir);
 
   /* Calculate the C(0) term (used only for covariance or covariogram) */
 
@@ -680,21 +573,6 @@ int model_nfex(Model *model)
 
 {
   return model->getExternalDriftNumber();
-}
-
-/****************************************************************************/
-/*!
- **  Filter a basic drift function
- **
- ** \param[in]  model   Model structure
- ** \param[in]  rank    Rank of the basic drift structure to be filtered
- **                     (numbered starting from 0)
- ** \param[in]  filter  1 to filter; 0 to unfilter
- **
- *****************************************************************************/
-void model_drift_filter(Model *model, int rank, int filter)
-{
-  model->setDriftFiltered(rank, filter);
 }
 
 /****************************************************************************/
@@ -920,7 +798,6 @@ int model_drift_mat(Model *model,
   int nbfl = model->getDriftNumber();
   int nfeq = model->getDriftEquationNumber();
   int nech = db->getSampleNumber();
-  VectorDouble drftab(nbfl,0.);
 
   /* Loop on the variables */
 
@@ -933,7 +810,7 @@ int model_drift_mat(Model *model,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      model_calcul_drift(model, member, db, iech, drftab.data());
+      VectorDouble drftab = model->evalDriftVec(db, iech, member);
 
       /* Loop on the drift functions */
 
@@ -943,7 +820,7 @@ int model_drift_mat(Model *model,
         {
           double value = 0.;
           for (int il = 0; il < nbfl; il++)
-            value += drftab[il] * model->getDriftCoef(ivar, il, ib);
+            value += drftab[il] * model->getDriftCL(ivar, il, ib);
           drfmat[ecr++] = value;
         }
       }
@@ -955,7 +832,7 @@ int model_drift_mat(Model *model,
             int jb = jvar + nvar * jl;
             double value = 0.;
             for (int il = 0; il < nbfl; il++)
-              value += drftab[il] * model->getDriftCoef(ivar, il, jb);
+              value += drftab[il] * model->getDriftCL(ivar, il, jb);
             drfmat[ecr++] = value;
           }
       }
@@ -988,13 +865,12 @@ int model_drift_vector(Model *model,
   int nvar = model->getVariableNumber();
   int nbfl = model->getDriftNumber();
   int nfeq = model->getDriftEquationNumber();
-  VectorDouble drftab(nbfl, 0.);
 
   /* Initialize the covariance matrix */
 
   for (int i = 0; i < nvar * nfeq; i++) vector[i] = TEST;
 
-  model_calcul_drift(model, member, db, iech, drftab.data());
+  VectorDouble drftab = model->evalDriftVec(db, iech, member);
 
   int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -1002,7 +878,7 @@ int model_drift_vector(Model *model,
     {
       double value = 0.;
       for (int il = 0; il < nbfl; il++)
-        value += drftab[il] * model->getDriftCoef(ivar, il, ib);
+        value += drftab[il] * model->getDriftCL(ivar, il, ib);
       vector[ecr++] = value;
     }
   return 0;
@@ -1123,110 +999,6 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   new_model->setDriftList(drifts);
 
   return (new_model);
-}
-
-/****************************************************************************/
-/*!
- **  Normalize the model
- **
- ** \param[in]  model         Model structure
- ** \param[in]  flag_verbose  1 for a verbose output
- **
- *****************************************************************************/
-int model_normalize(Model *model, int flag_verbose)
-
-{
-  int nvar = model->getVariableNumber();
-  int ncov = model->getCovaNumber();
-  VectorDouble total(nvar,0.);
-
-  /* Calculate the total sills for each variable */
-
-  int flag_norm = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    total[ivar] = model->getTotalSill(ivar, ivar);
-    if (total[ivar] == 0.) return 1;
-    total[ivar] = sqrt(total[ivar]);
-    if (ABS(total[ivar] - 1.) > EPSILON6) flag_norm = 1;
-  }
-
-  /* Scale the different sills for the different variables */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      for (int icov = 0; icov < ncov; icov++)
-      {
-        double sill = model->getSill(icov,ivar, jvar);
-        sill /= total[ivar] * total[jvar];
-        model->getCova(icov)->setSill(ivar, jvar, sill);
-      }
-
-  /* Printout */
-
-  if (flag_verbose && flag_norm)
-  {
-    message("The model has been normalized\n");
-    for (int ivar = 0; ivar < nvar; ivar++)
-      message("- Variable %d : Scaling factor = %lf\n", ivar + 1,
-              total[ivar] * total[ivar]);
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Stabilize the model (in the monovariate case)
- **
- ** \return  Error returned code
- **
- ** \param[in]  model         Model structure
- ** \param[in]  flag_verbose  1 for a verbose output
- ** \param[in]  percent       Percentage of nugget effect added
- **
- ** \remark  If the model only contains GAUSSIAN structures, add
- ** \remark  a NUGGET EFFECT structure with a sill equal to a percentage
- ** \remark  of the total sill of the GAUSSIAN component(s)
- **
- ** \remark  This function does not do anything in the multivariate case
- **
- *****************************************************************************/
-int model_stabilize(Model *model, int flag_verbose, double percent)
-{
-  int nvar = model->getVariableNumber();
-  if (nvar > 1) return 0;
-  if (percent <= 0.) return 0;
-  int ncov = model->getCovaNumber();
-
-  /* Check if the model only contains GAUSSIAN components */
-
-  double total = 0.;
-  for (int icov = 0; icov < ncov; icov++)
-  {
-    CovAniso* cova = model->getCova(icov);
-    if (cova->getType() != ECov::GAUSSIAN) return (0);
-    total += model->getSill(icov, 0, 0);
-  }
-  total = total * percent / 100.;
-
-  /* Update each Gaussian component */
-
-  for (int icov = 0; icov < ncov; icov++)
-    model->getCova(icov)->setSill(0, 0, 1. - total);
-
-  /* Add a NUGGET EFFECT component */
-
-  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                     VectorDouble(), VectorDouble(1, total), 0.)) return 1;
-
-  /* Printout */
-
-  if (flag_verbose)
-  {
-    message("The model which only contains Gaussian components\n");
-    message("has been stabilized by adding a small Nugget Effect\n");
-  }
-  return 0;
 }
 
 /****************************************************************************/
@@ -1372,8 +1144,7 @@ void model_covupdt(Model *model,
   *flag_nugget = flag_update && (rank_nugget < 0);
   if (flag_verbose && (*flag_nugget))
   {
-    message(
-        "A Nugget Effect component is added so as to match the experimental variance\n");
+    message("A Nugget Effect component is added so as to match the experimental variance\n");
   }
   return;
 }
@@ -1397,16 +1168,11 @@ double model_drift_evaluate(int /*verbose*/,
                             double *coef)
 {
   if (st_check_environ(model, db)) return TEST;
-
-  int nbfl = model->getDriftNumber();
-  VectorDouble drftab(nbfl);
-
-  model_calcul_drift(model, ECalcMember::LHS, db, iech, drftab.data());
+  VectorDouble drftab = model->evalDriftVec(db, iech, ECalcMember::LHS);
 
   /* Check if all the drift terms are defined */
 
-  for (int il = 0; il < model->getDriftNumber(); il++)
-    if (FFFF(drftab[il])) return (TEST);
+  if (VH::hasUndefined(drftab)) return TEST;
 
   /* Perform the correction */
 
@@ -1415,7 +1181,7 @@ double model_drift_evaluate(int /*verbose*/,
   {
     double value = 0.;
     for (int il = 0; il < model->getDriftNumber(); il++)
-      value += drftab[il] * model->getDriftCoef(ivar, il, ib);
+      value += drftab[il] * model->getDriftCL(ivar, il, ib);
     drift += value * coef[ib];
   }
   return (drift);
@@ -1647,27 +1413,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     ncov++;
   }
   return model;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the number of structures (different from Bugget)
- **
- ** \return  Number of structures (Nugget excluded)
- **
- ** \param[in]  model   Model structure
- **
- *****************************************************************************/
-int model_get_nonugget_cova(Model *model)
-
-{
-  int nstruc = 0;
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
-  {
-    CovAniso* cova = model->getCova(icov);
-    if (cova->getType() != ECov::NUGGET) nstruc++;
-  }
-  return nstruc;
 }
 
 /****************************************************************************/

@@ -371,7 +371,7 @@ static int st_readFileHeader(FILE *file,
 }
 
 static int st_read_trace(FILE *file,
-                         int code,
+                         int codefmt,
                          int numtrace,
                          int nPerTrace,
                          double delta,
@@ -393,13 +393,13 @@ static int st_read_trace(FILE *file,
   maxsamp    = -1;
 
   if (verbOption >= 2) message("Trace %5d: ", numtrace);
-  if (code == 1 || code == 5)
+  if (codefmt == 1 || codefmt == 5)
   {
     for (int i = 0; i < nPerTrace; i++)
     {
       if (fread(&fvalue, 4, 1, file) == 0) return (1);
 
-      if (code == 1) fvalue = st_ibm2ieee(fvalue);
+      if (codefmt == 1) fvalue = st_ibm2ieee(fvalue);
 
       if (fvalue > fmaxvalue)
       {
@@ -421,16 +421,16 @@ static int st_read_trace(FILE *file,
               maxsamp, fmaxvalue);
   }
 
-  if (code == 2 || code == 3)
+  if (codefmt == 2 || codefmt == 3)
   {
     for (int i = 0; i < nPerTrace; i++)
     {
-      if (code == 2)
+      if (codefmt == 2)
       {
         if (fread(&ivalue, 4, 1, file) == 0) return (1);
         ivalue = st_to_f(ivalue);
       }
-      if (code == 3)
+      if (codefmt == 3)
       {
         if (fread(&svalue, 2, 1, file) == 0) return (1);
         ivalue = (int) svalue;
@@ -1494,6 +1494,7 @@ static traceHead st_traceHead_init()
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)
+ ** \param[in]  codefmt     Reading format
  **
  ** \details In the case of Squeeze and Stretch (S&S), the number of layers
  ** \details is meaningless. It is fixed by the user.
@@ -1515,7 +1516,8 @@ SegYArg segy_array(const char *filesegy,
                    int xline_max,
                    double modif_high,
                    double modif_low,
-                   double modif_scale)
+                   double modif_scale,
+                   int codefmt)
 {
   double xtrace, ytrace;
   int nPerTrace, iatt_bot, iatt_top, iaux_top, iaux_bot;
@@ -1528,7 +1530,6 @@ SegYArg segy_array(const char *filesegy,
   // Initializations
 
   FILE* file = nullptr;
-  int code = 1;
   int nbrefpt = 0;
   int nz = 0;
   double delta = 0.;
@@ -1582,13 +1583,12 @@ SegYArg segy_array(const char *filesegy,
 
     // Read the Trace contents
 
-    if (st_read_trace(file, code, refstats.nbtrace, nPerTrace, delta,
+    if (st_read_trace(file, codefmt, refstats.nbtrace, nPerTrace, delta,
                       verbOption, values, cotes)) continue;
 
     // Reject trace due to trace boundary specifications
 
-    if (st_reject_trace(iline, xline, iline_min, iline_max, xline_min,
-                        xline_max)) continue;
+    if (st_reject_trace(iline, xline, iline_min, iline_max, xline_min, xline_max)) continue;
 
     // Store the reference point
 
@@ -1694,6 +1694,7 @@ SegYArg segy_array(const char *filesegy,
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)
+ ** \param[in]  codefmt     Reading format
  **
  ** \details: In the case of Squeeze and Stretch (S&S), the number of layers
  ** \details: is meaningless. It is fixed by the user, unless defined
@@ -1714,7 +1715,8 @@ Grid segy_summary(const char *filesegy,
                   int xline_max,
                   double modif_high,
                   double modif_low,
-                  double modif_scale)
+                  double modif_scale,
+                  int codefmt)
 {
   double   xtrace,ytrace;
   int      iline,xline,nbvalues;
@@ -1726,7 +1728,6 @@ Grid segy_summary(const char *filesegy,
 
   // Initializations
 
-  int code = 1;
   FILE* file = nullptr;
   int nbrefpt = 0;
   int nz = 0;
@@ -1740,7 +1741,7 @@ Grid segy_summary(const char *filesegy,
   // Preliminary checks
 
   bool flag_surf = (surf2D != nullptr);
-  bool flag_top = flag_surf && (option == 1 || option == -2);
+  bool flag_top = flag_surf && (option ==  1 || option == -2);
   bool flag_bot = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption, surf2D,
                           name_bot, flag_bot, &iatt_bot,
@@ -1783,7 +1784,7 @@ Grid segy_summary(const char *filesegy,
 
     // Read the Trace contents
 
-    if (st_read_trace(file, code, refstats.nbtrace, nPerTrace, delta,
+    if (st_read_trace(file, codefmt, refstats.nbtrace, nPerTrace, delta,
                       verbOption, values, cotes)) continue;
 
     // Reject trace due to trace boundary specifications
@@ -1866,6 +1867,7 @@ Grid segy_summary(const char *filesegy,
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)
+ ** \param[in]  codefmt     Reading format
  ** \param[in]  namconv     Naming convention
  **
  ** \details: In the case of Squeeze and Stretch (S&S), the number of layers
@@ -1893,6 +1895,7 @@ int db_segy(const char *filesegy,
             double modif_high,
             double modif_low,
             double modif_scale,
+            int codefmt,
             const NamingConvention& namconv)
 {
   DECLARE_UNUSED(nz_ss);
@@ -1906,7 +1909,6 @@ int db_segy(const char *filesegy,
   // Initializations
 
   int nPerTrace;
-  int code = 1;
   FILE* file = nullptr;
   int nbrefpt = 0;
   int nz = 0;
@@ -1971,7 +1973,7 @@ int db_segy(const char *filesegy,
 
     // Read the Trace contents
 
-    if (st_read_trace(file, code, refstats.nbtrace, nPerTrace, delta,
+    if (st_read_trace(file, codefmt, refstats.nbtrace, nPerTrace, delta,
                       verbOption, values, cotes)) continue;
 
     // Reject trace due to trace boundary specifications

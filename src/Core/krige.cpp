@@ -4539,7 +4539,8 @@ static double* st_calcul_drfmat(const char *title,
       if (!db1->isActive(ii1)) continue;
     }
 
-    model_calcul_drift(model, ECalcMember::LHS, db1, ii1, &drftab[i1 * nbfl]);
+    VectorDouble drfloc = model->evalDriftVec(db1, ii1, ECalcMember::LHS);
+    (void) memcpy(&drftab[i1 * nbfl], drfloc.data(), nbfl * sizeof(double));
     i1++;
   }
 
@@ -5018,9 +5019,10 @@ int inhomogeneous_kriging(Db *dbdat,
 {
   int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl;
   double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
-  double *data, *lambda, *driftp, *driftg, *ymat, *zmat, *mu, *maux, *rhs;
+  double *data, *lambda, *driftp, *ymat, *zmat, *mu, *maux, *rhs;
   double estim, stdev, auxval;
   VectorInt nbgh_ranks;
+  VectorDouble driftg;
 
   /* Preliminary checks */
 
@@ -5032,7 +5034,7 @@ int inhomogeneous_kriging(Db *dbdat,
   FLAG_STD = true;
   distps = distgs = prodgs = prodps = nullptr;
   covss = covpp = covgp = covgg = nullptr;
-  lambda = data = driftp = driftg = nullptr;
+  lambda = data = driftp = nullptr;
   ymat = zmat = mu = maux = nullptr;
   if (st_check_environment(1, 1, model_dat)) goto label_end;
 
@@ -5156,11 +5158,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Establish the drift at Target */
 
-  if (nbfl > 0)
-  {
-    driftg = (double*) mem_alloc(sizeof(double) * nbfl, 0);
-    if (driftg == nullptr) goto label_end;
-  }
+  if (nbfl > 0) driftg.resize(nbfl);
 
   /* Establish the variance at targets */
 
@@ -5193,7 +5191,7 @@ int inhomogeneous_kriging(Db *dbdat,
     /* Fill the drift at Target point (optional) */
 
     if (driftp != nullptr)
-      model_calcul_drift(model_dat, ECalcMember::LHS, dbout, IECH_OUT, driftg);
+      model_dat->evalDriftVecInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
 
     /* Calculate the Kriging weights */
 
@@ -5208,11 +5206,11 @@ int inhomogeneous_kriging(Db *dbdat,
 
       /* Evaluate the drift at Target */
 
-      model_calcul_drift(model_dat, ECalcMember::LHS, dbout, IECH_OUT, driftg);
+      model_dat->evalDriftVecInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
 
       /* Update the kriging weights */
 
-      st_drift_update(np, nbfl, rhs, driftg, ymat, zmat, maux, lambda, mu);
+      st_drift_update(np, nbfl, rhs, driftg.data(), ymat, zmat, maux, lambda, mu);
     }
 
     /* Perform the estimation */
@@ -5256,12 +5254,9 @@ int inhomogeneous_kriging(Db *dbdat,
   prodps = (double*) mem_free((char* ) prodps);
   prodgs = (double*) mem_free((char* ) prodgs);
   driftp = (double*) mem_free((char* ) driftp);
-  driftg = (double*) mem_free((char* ) driftg);
   covpp = (double*) mem_free((char* ) covpp);
   covgp = (double*) mem_free((char* ) covgp);
   covgg = (double*) mem_free((char* ) covgg);
-  driftp = (double*) mem_free((char* ) driftp);
-  driftg = (double*) mem_free((char* ) driftg);
   ymat = (double*) mem_free((char* ) ymat);
   zmat = (double*) mem_free((char* ) zmat);
   maux = (double*) mem_free((char* ) maux);

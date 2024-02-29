@@ -17,6 +17,7 @@
 #include "Enum/ECov.hpp"
 
 #include "Variogram/Vario.hpp"
+#include "Variogram/VMap.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
   // ==========================================
 
   mestitle(1, "Variogram Map on Isolated Data");
-  Db* vmapP = db_vmap_compute(db, ECalcVario::VARIOGRAM);
+  Db* vmapP = db_vmap(db, ECalcVario::VARIOGRAM);
   vmapP->display();
 
   // =================================
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
   // =================================
 
   mestitle(1, "Variogram Map on Grid");
-  Db* vmapG = db_vmap_compute(grid, ECalcVario::VARIOGRAM);
+  Db* vmapG = db_vmap(grid, ECalcVario::VARIOGRAM);
   DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
   vmapG->display(&dbfmt);
 

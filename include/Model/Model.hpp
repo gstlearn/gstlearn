@@ -87,6 +87,7 @@ public:
 
   static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromEnvironment(int nvar, int ndim = 2);
+  static Model* createNugget(int nvar, int ndim = 2, double sill = 1.);
   static Model* createFromParam(const ECov& type = ECov::fromKey("NUGGET"),
                                 double range = 1.,
                                 double sill = 1.,
@@ -131,7 +132,7 @@ public:
   const ACovAnisoList* getCovAnisoList() const;
   const CovAniso* getCova(unsigned int icov) const;
   CovAniso* getCova(unsigned int icov);
-  int getCovaNumber() const;
+  int getCovaNumber(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
   const MatrixSquareSymmetric getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
@@ -230,7 +231,6 @@ public:
   {
     _cova->evalMatInPlace(p1, p2, mat, mode);
   }
-
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const
   {
@@ -447,6 +447,11 @@ public:
                          const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const;
 
+
+  double evalCov(const VectorDouble& incr,
+                 int icov = 0,
+                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2);
@@ -454,6 +459,7 @@ public:
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
   int  getAnamNClass() const;
+
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -464,15 +470,15 @@ public:
   int getDriftNumber()                             const;
   int getExternalDriftNumber()                     const;
   int getRankFext(int il)                          const;
-  const VectorDouble& getDriftCoefs()              const;
-  double getDriftCoef(int ivar, int il, int ib)    const;
+  const VectorDouble& getDriftCLs()                const;
+  double getDriftCL(int ivar, int il, int ib)      const;
   int getDriftEquationNumber()                     const;
   bool isDriftFiltered(unsigned int il)            const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
   int getDriftMaxIRFOrder(void) const;
 
-  void resetDriftCoef() { _driftList->resetDriftCoeff(); }
+  void resetDriftCoef() { _driftList->resetDriftCL(); }
   void setDriftCoef(int ivar, int il, int ib, double coeff)    ;
   void setDriftFiltered(int il, bool filtered)                 ;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel=true);
@@ -485,18 +491,18 @@ public:
   VectorDouble evalDriftVec(const Db* db,
                             int iech,
                             const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  VectorDouble evalDrifts(const Db* db,
-                          const VectorDouble& coeffs,
-                          int ivar = 0,
-                          bool useSel = false) const;
+  VectorDouble evalDriftCoefVec(const Db *db,
+                                const VectorDouble &coeffs,
+                                int ivar = 0,
+                                bool useSel = false) const;
   void evalDriftVecInPlace(const Db* db,
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
-  double evalDriftCoef(const Db* db,
-                        int iech,
-                        int ivar,
-                        const double* coef) const;
+  double evalDriftCoef(const Db *db,
+                       int iech,
+                       int ivar,
+                       const VectorDouble &coeffs) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -594,6 +600,8 @@ public:
                   Option_AutoFit mauto = Option_AutoFit(),
                   bool verbose = false);
   int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP"));
+  int stabilize(double percent, bool verbose = false);
+  int standardize(bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
   void gofDisplay(double gof, bool byValue = true,

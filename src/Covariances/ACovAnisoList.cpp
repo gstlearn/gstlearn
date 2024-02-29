@@ -351,8 +351,20 @@ String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
   {
     sstr << _noStat->toString();
   }
-
   return sstr.str();
+}
+
+int  ACovAnisoList::getCovaNumber(bool skipNugget) const
+{
+  int ncov = (int) _covs.size();
+  if (! skipNugget) return ncov;
+
+  int nstruc = 0;
+  for (int icov = 0; icov < ncov; icov++)
+  {
+    if (getCova(icov)->getType() != ECov::NUGGET) nstruc++;
+  }
+  return nstruc;
 }
 
 bool ACovAnisoList::isFiltered(unsigned int i) const

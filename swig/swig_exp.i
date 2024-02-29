@@ -181,10 +181,13 @@
 %include Neigh/NeighBench.hpp
 %include Neigh/NeighCell.hpp
 
+%include Variogram/AVario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/DirParam.hpp
+%include Variogram/VMap.hpp
+%include Variogram/VCloud.hpp
 
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
