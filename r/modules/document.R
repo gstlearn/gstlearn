@@ -51,43 +51,43 @@ isInternetAvailable <- function()
 #'   urlGST + "/data" + '/' + directory + '/' + filename
 downloadRemoteFile <- function(directory, filename, where)
 {
-	# Generate local name
+  # Generate local name
 
+  if (where == 'graphics')
+  {
+    localname = paste0(c('Figures' ,filename), collapse='/')
+    if (!dir.exists('Figures')) {dir.create('Figures')}
+  }
+  else if (where == 'mdfile')
+    localname = paste0(c('.' ,filename), collapse='/')
+  else if (where == 'data')
+    localname = paste0(c('.' ,filename), collapse='/')
+  else
+  {
+    print("'downloadRemoteFile' does not know about 'where' = ", where)
+    exit()
+  }
+
+  if (isInternetAvailable())
+  {
     if (where == 'graphics')
-    {
-        localname = paste0(c('Figures' ,filename), collapse='/')
-        if (!dir.exists('Figures')) {dir.create('Figures')}
-    }
+        pathname = paste0(c(urlGST, 'references',  'Figures', filename), collapse='/')
     else if (where == 'mdfile')
-        localname = paste0(c('.' ,filename), collapse='/')
+        pathname = paste0(c(urlGST, 'references', filename), collapse='/')
     else if (where == 'data')
-        localname = paste0(c('.' ,filename), collapse='/')
+        pathname = paste0(c(urlGST, "data", directory, filename), collapse='/')
     else
-    {
         print("'downloadRemoteFile' does not know about 'where' = ", where)
-        exit()
-    }
-
-    if (isInternetAvailable())
-	{
-        if (where == 'graphics')
-            pathname = paste0(c(urlGST, 'references',  'Figures', filename), collapse='/')
-        else if (where == 'mdfile')
-            pathname = paste0(c(urlGST, 'references', filename), collapse='/')
-        else if (where == 'data')
-            pathname = paste0(c(urlGST, "data", directory, filename), collapse='/')
-        else
-            print("'downloadRemoteFile' does not know about 'where' = ", where)
-        
-        # The file is loaded in the local environment
-        err = download.file(pathname, localname, quiet=TRUE)
-	}
-    localname
+    
+    # The file is loaded in the local environment
+    err = download.file(pathname, localname, quiet=TRUE)
+  }
+  localname
 }
 
 loadFigure <- function(filename)
 {
-    downloadRemoteFile(None, filename, "graphics")
+  downloadRemoteFile(None, filename, "graphics")
 }
 
 #' Returns the decorated documentation (Markdown file) from 'references' directory
@@ -106,13 +106,13 @@ loadDoc <- function(filename)
   searchItem = "(Figures/"
   for (i in 1:length(multiline))
   {
-  	targetLine = multiline[i]
-  	if (grepl(searchItem, targetLine, fixed=TRUE))
-  	{
+    targetLine = multiline[i]
+    if (grepl(searchItem, targetLine, fixed=TRUE))
+    {
       graphicFile = sub(".*Figures/", "", targetLine)[1]         # Extract file name
       graphicFile = substr(graphicFile, 1, nchar(graphicFile)-1) # suppress last character
       filefig = downloadRemoteFile(NULL, graphicFile, "graphics")
-  	}
+    }
    }
   result = c(header, multiline, trailer)
   result
@@ -131,12 +131,12 @@ loadData <- function(directory, filename)
 #' This function is used to clean the files loaded for find_statement_documentation
 #' @param filename: Name of the target file
 cleanDoc <- function(filename)
-{     
-    # Remove the target file
-    if (file.exists(filename)) 
-	  file.remove(filename)
+{
+  # Remove the target file
+  if (file.exists(filename)) 
+  file.remove(filename)
 
-    # Remove the downloaded graphic files (in subdirectory 'Figures')
-    if (dir.exists('Figures'))
-      unlink('Figures', recursive=TRUE)
+  # Remove the downloaded graphic files (in subdirectory 'Figures')
+  if (dir.exists('Figures'))
+    unlink('Figures', recursive=TRUE)
 }
