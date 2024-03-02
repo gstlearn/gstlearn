@@ -2165,10 +2165,24 @@ int Vario::_compute(Db *db,
     _flag_UK = true;
     _driftManage(db);
     _niter_UK = niter_UK;
-    if (_niter_UK > 0 && isDefinedForGrid())
+    if (_niter_UK > 0)
     {
-      messerr("Drift Bias correction is not coded in the case of Grid");
-      return 1;
+      if (isDefinedForGrid())
+      {
+        messerr("Drift Bias correction is not coded in the case of Grid");
+        return 1;
+      }
+      // If the Model does not contain any covariance, add some defaulted basic structures, i.e.:
+      // - a nugget effect
+      // - an exponential covariance (with initial range set to 1 a,d sill to 1)
+      // - a spherical covariance (with initial range set to 2, and sill to 1)
+      int ncov = model->getCovaNumber();
+      if (ncov <= 0)
+      {
+        model->addCovFromParam(ECov::NUGGET);
+        model->addCovFromParam(ECov::EXPONENTIAL,  1.,  1.);
+        model->addCovFromParam(ECov::SPHERICAL, 2., 1.);
+      }
     }
   }
 
@@ -2298,7 +2312,7 @@ int Vario::_calculateGeneral(Db *db,
 
   /* Posterior update when filtering the bias attached to drift removal */
 
-  if (_flag_UK)
+  if (_flag_UK && _niter_UK > 0)
   {
     if (_updateUK(db, vorder)) return 1;
   }
@@ -2327,6 +2341,10 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
   int ifirst, ilast;
   Constraints constraints;
 
+  // Do not allow reducing the number of covariances in the Model during
+  // the different iterations.
+  optvar.setFlagNoreduce(true);
+
   /* Loop on the iterations */
 
   for (int iter = 0; iter < _niter_UK; iter++)
@@ -2334,7 +2352,7 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
 
     /* Perform the Automatic structure recognition */
 
-    if (model_auto_fit(this, _model, _verbose, mauto, constraints, optvar)) return 1;
+    if (model_auto_fit(this, _model, false, mauto, constraints, optvar)) return 1;
 
     /* Calculate the global bias correction terms */
 
@@ -2344,7 +2362,7 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
 
     if (_verbose)
     {
-      message("Drift removal at iteration #d/%d\n", iter + 1, _niter_UK);
+      message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
       print_matrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
                    _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
     }

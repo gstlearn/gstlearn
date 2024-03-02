@@ -1497,7 +1497,7 @@ void DbGrid::_interpolate(const DbGrid *grid3D,
  * - a 3D working grid containing the relevant information
  * - a 2D grid containing the top and bottom information
  * @param surf2D 2D grid of surfaces
- * @param gridin 3D grid of information
+ * @param grid3D 3D grid of information
  * @param nameTop Name of the variable in 'surf2D' containing the top information
  * @param nameBot Name of the variable in 'surf2D' containing the bottom information
  * @param names   Vector of names in 'grid3D' to be exported (after queez-and-stretch back transform)

@@ -190,7 +190,6 @@ int surface(Db *db_point,
     else
       gtab[igrid] = TEST;
   }
-
   return (0);
 }
 

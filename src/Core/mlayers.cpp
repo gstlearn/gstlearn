@@ -2019,10 +2019,11 @@ int multilayers_kriging(Db *dbin,
                         int colrefb,
                         int verbose)
 {
-  int iptr, nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
+  int nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
   double *a, *b, *b2, *baux, *dual, *covtab, *c00, *wgt;
   double *acov, *atot;
   double *fftab, *a0, *cc, *ss, *gs, *post_mean, *post_S;
+  bool flag_created;
   ELoc ptime;
   VectorInt seltab;
   VectorDouble zval;
@@ -2033,7 +2034,7 @@ int multilayers_kriging(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
-  iptr = -1;
+  flag_created = false;
   covtab = nullptr;
   a = b = b2 = baux = dual = nullptr;
   c00 = wgt = nullptr;
@@ -2113,13 +2114,13 @@ int multilayers_kriging(Db *dbin,
     messerr("must be equal to %d (nlayers) x %d (nbfl)", nlayers,
             st_get_number_drift(irf_rank, flag_ext));
   }
-  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &flag_created)) goto label_end;
 
   /* Allocating the output variables */
 
   nvar = nlayers;
   if (flag_std) nvar += nlayers;
-  iptr = dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
+  (void) dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2229,7 +2230,7 @@ int multilayers_kriging(Db *dbin,
 
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iptr);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
   covtab = (double*) mem_free((char* ) covtab);
   dual = (double*) mem_free((char* ) dual);
   atot = (double*) mem_free((char* ) atot);
@@ -2509,7 +2510,8 @@ int multilayers_vario(Db *dbin,
                       int colreft,
                       int verbose)
 {
-  int error, ilayer, nechmax, nech, iech, idir, iptr;
+  int error, ilayer, nechmax, nech, iech, idir;
+  bool flag_created;
   ELoc ptime;
   LMlayers *lmlayers;
   VectorInt seltab;
@@ -2520,6 +2522,7 @@ int multilayers_vario(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
+  flag_created = false;
   lmlayers = nullptr;
   vorder = nullptr;
   nechmax = dbin->getSampleNumber();
@@ -2556,7 +2559,7 @@ int multilayers_vario(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &flag_created)) goto label_end;
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2615,7 +2618,7 @@ int multilayers_vario(Db *dbin,
   error = 0;
 
   label_end:
-  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iptr);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
   vorder = vario_order_manage(-1, 1, sizeof(int), vorder);
   lmlayers = lmlayers_free(lmlayers);
   return (error);
@@ -2784,7 +2787,8 @@ int multilayers_get_prior(Db *dbin,
                           double **mean,
                           double **vars)
 {
-  int nlayers, ilayer, nechmax, nech, iech, npar, error, iptr, neq;
+  int nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
+  bool flag_created;
   double *fftab;
   VectorInt seltab;
   VectorDouble zval;
@@ -2795,7 +2799,7 @@ int multilayers_get_prior(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
-  iptr = -1;
+  flag_created = false;
   fftab = nullptr;
   lmlayers = nullptr;
   nlayers = model->getVariableNumber();
@@ -2839,7 +2843,7 @@ int multilayers_get_prior(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &flag_created)) goto label_end;
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2898,7 +2902,7 @@ int multilayers_get_prior(Db *dbin,
 
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iptr);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
   fftab = (double*) mem_free((char* ) fftab);
   lmlayers = lmlayers_free(lmlayers);
   if (error)

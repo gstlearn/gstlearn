@@ -92,6 +92,12 @@ private:
                                  int distType,
                                  const VectorDouble &dmax,
                                  VectorDouble &tab);
+  int _migrateGridToPoint(DbGrid *db_grid,
+                          Db *db_point,
+                          int iatt,
+                          int distType,
+                          const VectorDouble &dmax,
+                          VectorDouble &tab);
 
 private:
   int    _iattOut;
@@ -149,7 +155,7 @@ GSTLEARN_EXPORT int manageExternalInformation(int mode,
                                               const ELoc &locatorType,
                                               Db *dbin,
                                               Db *dbout,
-                                              int *istart);
+                                              bool* flag_created);
 GSTLEARN_EXPORT int interpolateVariableToPoint(DbGrid *db_grid,
                                                int iatt,
                                                int np,
@@ -194,9 +200,4 @@ GSTLEARN_EXPORT int expandPointToCoor(const Db *db1,
                                       int iatt,
                                       const VectorVectorDouble &coords,
                                       VectorDouble &tab);
-GSTLEARN_EXPORT int migrateGridToPoint(DbGrid *db_grid,
-                                       Db *db_point,
-                                       int iatt,
-                                       int distType,
-                                       const VectorDouble &dmax,
-                                       VectorDouble &tab);
+

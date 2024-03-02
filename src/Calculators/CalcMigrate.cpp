@@ -322,22 +322,30 @@ void st_get_closest_sample(DbGrid *dbgrid,
   }
 }
 
+/**
+ * Get the rank of the next sample just above the target
+ * To speed up the process, this operation is performed
+ * starting from the rank assigned to the previous sample
+ * (this assumes that samples are treated by increasing coordinate)
+ * @param ip0_init Rank of the previous sample
+ * @param rank     Array of sample ordering
+ * @param xtab     Array of sample coordinates
+ * @param xtarget  Target coordinate
+ * @return Rank of the sample just above the target (or equal)
+ */
 int st_next_sample(int ip0_init,
-                   const VectorInt &order,
+                   const VectorInt    &rank,
                    const VectorDouble &xtab,
                    double xtarget)
 {
-  const int* orderadd = &order[0];
-  const double* xtabadd = &xtab[0];
-  int ip0 = 0;
-  int np = (int) order.size();
-  for (int ip = ip0_init; ip < np; ip++)
+  int np = (int) rank.size();
+  for (int ip = 0; ip < np; ip++)
   {
-    int jp = *(orderadd + ip);
-    if (xtarget < *(xtabadd + jp)) return ip0;
-    ip0 = ip;
+    int jp = ip0_init + ip;
+    if (jp >= np) jp -= np;
+    if (xtarget <= xtab[rank[jp]]) return jp;
   }
-  return ip0;
+  return ip0_init;
 }
 
 /*****************************************************************************/
@@ -551,12 +559,12 @@ static void st_expand(int flag_size,
  ** \param[out]  tab      Output array (Dimension: number of samples in db_point)
  **
  *****************************************************************************/
-int migrateGridToPoint(DbGrid *db_grid,
-                       Db *db_point,
-                       int iatt,
-                       int distType,
-                       const VectorDouble &dmax,
-                       VectorDouble &tab)
+int CalcMigrate::_migrateGridToPoint(DbGrid *db_grid,
+                                     Db *db_point,
+                                     int iatt,
+                                     int distType,
+                                     const VectorDouble &dmax,
+                                     VectorDouble &tab)
 {
   if (!db_grid->hasLargerDimension(db_point)) return 1;
   int ndim_min = MIN(db_grid->getNDim(), db_point->getNDim());
@@ -886,7 +894,8 @@ int migrateByLocator(Db *dbin,
  ** \param[in]  locatorType Type of the pointer (ELoc)
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
- ** \param[in,out]  istart      Address of the first allocated external information
+ **
+ ** \param[out] flag_created True if variables have been created
  **
  ** \remark This function only functions when the Output Db is a grid
  ** \remark However, in case of a Point output Db, this function should not
@@ -899,83 +908,68 @@ int manageExternalInformation(int mode,
                               const ELoc &locatorType,
                               Db *dbin,
                               Db *dbout,
-                              int *istart)
+                              bool *flag_created)
 {
-  int info, jstart, iatt, jatt, nechin, ninfo;
-  VectorDouble tab;
-  DbGrid* dbgrid;
+//  VectorDouble tab;
 
-  if (dbin == nullptr) return (0);
-  nechin = dbin->getSampleNumber();
-  ninfo = get_LOCATOR_NITEM(dbout, locatorType);
-  if (ninfo <= 0) return (0);
+  if (dbin == nullptr) return 0;
+  int ninfo = get_LOCATOR_NITEM(dbout, locatorType);
+  if (ninfo <= 0) return 0;
 
   /* Case when the Output Db is not a grid */
 
   if (! dbout->isGrid())
   {
-    if (get_LOCATOR_NITEM(dbin, locatorType) == ninfo) return (0);
+    if (get_LOCATOR_NITEM(dbin, locatorType) == ninfo) return 0;
     messerr("The Output Db is not a Grid file");
     messerr("The Input Db does not contain the %d External Drifts");
-    return (1);
+    return 1;
   }
-  dbgrid = dynamic_cast<DbGrid*>(dbout);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
 
   /* Dispatch */
 
   if (mode > 0)
   {
+    /* If the drift vector is present in the input file, skip the rest */
 
-    /* Core allocation */
-
-    *istart = -1;
-    tab.resize(nechin, 0.);
-
-    /* Allocation */
-
-    for (info = 0; info < ninfo; info++)
+    if (dbin->getLocatorNumber(locatorType) >= ninfo)
+    {
+      *flag_created = false;
+      return 0;
+    }
+    else
     {
 
-      /* If the drift vector is present in the input file, skip the rest */
+      /* Creating variables */
 
-      if (dbin->getLocatorNumber(locatorType) > 0)
+      *flag_created = true;
+      for (int info = 0; info < ninfo; info++)
       {
-        jatt = db_attribute_identify(dbin, locatorType, info);
-        if (jatt >= 0) continue;
+        String name = dbgrid->getNameByLocator(locatorType, info);
+        if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false)) continue;
       }
-
-      /* Add the Drift vector in the Input file */
-
-      jatt = dbin->addColumnsByConstant(1, 0.);
-      if (jatt < 0) return (1);
-      if (*istart < 0) *istart = jatt;
-
-      /* Locate the variable in the Grid file */
-
-      iatt = db_attribute_identify(dbgrid, locatorType, info);
-      if (iatt < 0) return (1);
-      dbin->setLocatorByUID(jatt, locatorType, info);
-
-      /* Perform the migration */
-
-      if (migrateGridToPoint(dbgrid, dbin, iatt, 0, VectorDouble(), tab)) continue;
-
-      /* Save the migrated array */
-
-      dbin->setColumnByUID(tab, jatt);
     }
+    return 0;
   }
   else
   {
-    jstart = *istart;
-    if (jstart < 0) return (0);
-    for (info = 0; info < ninfo; info++)
+    if (*flag_created)
     {
-      jatt = db_attribute_identify(dbin, locatorType, info);
-      if (jatt >= *istart) dbin->deleteColumnByUID(jatt);
+      // If no variable has been created (when 'mode' == 0), then do nothing
+
+      return 0;
+    }
+    else
+    {
+      for (int info = 0; info < ninfo; info++)
+      {
+        int jatt = db_attribute_identify(dbin, locatorType, info);
+        dbin->deleteColumnByUID(jatt);
+      }
+      return 0;
     }
   }
-  return (0);
 }
 
 /*****************************************************************************/
@@ -1199,7 +1193,7 @@ int expandPointToGrid(Db *db_point,
                       VectorDouble &tab)
 {
   double dd1d, ddmin;
-  int ipmin;
+  int jpmin;
 
   /* Preliminary checks */
 
@@ -1259,12 +1253,12 @@ int expandPointToGrid(Db *db_point,
 
     /* Calculate minimum distance between the two closest ordered samples */
 
-    ipmin = -1;
+    jpmin = -1;
     ddmin = dmax_ref;
 
     /* Look for closer points for samples located below rank[ip0] */
 
-    for (int ip = ip0 - 1; ip >= 0; ip--)
+    for (int ip = ip0; ip >= 0; ip--)
     {
       int jp = rank[ip];
       dd1d = ABS(xtab[jp] - xtarget);
@@ -1272,7 +1266,7 @@ int expandPointToGrid(Db *db_point,
         break;
       st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso, iatt_time,
                             iatt_angle, iatt_scaleu, iatt_scalev, iatt_scalew,
-                            &ipmin, &ddmin, dvect);
+                            &jpmin, &ddmin, dvect);
     }
 
     /* Look for closer points for samples located above rank[ip0+1] */
@@ -1285,28 +1279,28 @@ int expandPointToGrid(Db *db_point,
         break;
       st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso, iatt_time,
                             iatt_angle, iatt_scaleu, iatt_scalev, iatt_scalew,
-                            &ipmin, &ddmin, dvect);
+                            &jpmin, &ddmin, dvect);
     }
 
     /* Truncation by 'dmax' if provided */
 
-    if (! dmax.empty() && ipmin >= 0)
+    if (! dmax.empty() && jpmin >= 0)
     {
-      (void) distance_inter(db_grid, db_point, ig, ipmin, dvect.data());
+      (void) distance_inter(db_grid, db_point, ig, jpmin, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
 
     /* Set the value */
 
     npin++;
-    if (ipmin < 0)
+    if (jpmin < 0)
       tab[ig] = TEST;
     else
     {
       if (flag_index)
-        tab[ig] = (double) ipmin;
+        tab[ig] = (double) jpmin;
       else
-        tab[ig] = db_point->getArray(ipmin, iatt);
+        tab[ig] = db_point->getArray(jpmin, iatt);
     }
   }
   return 0;
@@ -1767,7 +1761,7 @@ int CalcMigrate::_migrate(Db *db1,
     else
     {
       // Grid to Point (flag_inter = FALSE)
-      if (migrateGridToPoint(db1grid, db2, iatt1, distType, dmax, tab))
+      if (_migrateGridToPoint(db1grid, db2, iatt1, distType, dmax, tab))
         return 1;
     }
   }
@@ -1961,7 +1955,7 @@ int CalcMigrate::_migrateGridToGrid(DbGrid *db_gridin,
 
   VectorDouble coor(ndim_max);
   VectorDouble dvect(ndim_max);
-  VectorDouble dist(db_gridout->getSampleNumber(), 0);
+  VectorDouble dist(db_gridout->getSampleNumber(), 1.e30);
 
   // Initialize 'coor' as the first target sample
   db_gridout->rankToCoordinatesInPlace(0, coor);
