@@ -85,26 +85,6 @@ public:
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);
-  int reset(const VectorInt& nx,
-            const VectorDouble& dx = VectorDouble(),
-            const VectorDouble& x0 = VectorDouble(),
-            const VectorDouble& angles = VectorDouble(),
-            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
-            const VectorDouble& tab = VectorDouble(),
-            const VectorString& names = VectorString(),
-            const VectorString& locatorNames = VectorString(),
-            int flag_add_rank = 1,
-            bool flag_add_coordinates = true);
-  int resetCoveringDb(const Db* db,
-                      const VectorInt& nx = VectorInt(),
-                      const VectorDouble& dx = VectorDouble(),
-                      const VectorDouble& x0 = VectorDouble(),
-                      const VectorDouble& margin = VectorDouble());
-  int resetFromPolygon(Polygons* polygon,
-                       const VectorInt& nodes,
-                       const VectorDouble& dcell,
-                       int flag_add_rank = 1);
-
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -156,6 +136,30 @@ public:
                                                const String &nameBot,
                                                const VectorString &names,
                                                double dzout = 1.);
+  static DbGrid* createReduceFromVariableExtend(const DbGrid *surf2D,
+                                                const String &nameTop,
+                                                const String &nameBot,
+                                                const VectorInt &dimExclude = VectorInt());
+
+  int reset(const VectorInt& nx,
+            const VectorDouble& dx = VectorDouble(),
+            const VectorDouble& x0 = VectorDouble(),
+            const VectorDouble& angles = VectorDouble(),
+            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
+            const VectorDouble& tab = VectorDouble(),
+            const VectorString& names = VectorString(),
+            const VectorString& locatorNames = VectorString(),
+            int flag_add_rank = 1,
+            bool flag_add_coordinates = true);
+  int resetCoveringDb(const Db* db,
+                      const VectorInt& nx = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      const VectorDouble& x0 = VectorDouble(),
+                      const VectorDouble& margin = VectorDouble());
+  int resetFromPolygon(Polygons* polygon,
+                       const VectorInt& nodes,
+                       const VectorDouble& dcell,
+                       int flag_add_rank = 1);
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
@@ -297,6 +301,9 @@ public:
   VectorVectorDouble getAllCellsEdges(bool forceGridMesh = false) const;
   VectorVectorDouble getGridEdges() const;
   VectorDouble getCodir(const VectorInt& grincr) const;
+  VectorVectorInt reduceFromVariableExtend(const String &nameTop,
+                                           const String &nameBot,
+                                           const VectorInt &dimExclude = VectorInt()) const;
 
   int morpho(const EMorpho &oper,
              double vmin = 0.5,

@@ -1082,6 +1082,32 @@ VectorDouble VectorHelper::subtract(const VectorDouble &veca,
 }
 
 /**
+ * Return a vector containing vecb - veca (integer version)
+ * @param veca Input Vector
+ * @param vecb Input Vector
+ * @return
+ */
+VectorInt VectorHelper::subtract(const VectorInt &veca,
+                                 const VectorInt &vecb)
+{
+  if (veca.size() != vecb.size())
+    my_throw("Wrong size");
+
+  VectorInt res(veca.size());
+  VectorInt::iterator it(res.begin());
+  VectorInt::const_iterator ita(veca.begin());
+  VectorInt::const_iterator itb(vecb.begin());
+  while (it < res.end())
+  {
+    *it = *itb - *ita;
+    it++;
+    ita++;
+    itb++;
+  }
+  return res;
+}
+
+/**
  * Performs: veca -= vecb
  * @param dest Input/Output vector
  * @param src Auxiliary vector

@@ -199,7 +199,7 @@ public:
   VectorString getNamesByLocator(const ELoc& locatorType) const;
   VectorString getNamesByColIdx(const VectorInt& icols) const;
   VectorString getNamesByUID(const VectorInt& iuids) const;
-  VectorString getAllNames() const;
+  VectorString getAllNames(bool excludeRankAndCoordinates = false, bool verbose = false) const;
 
   void setName(const String& old_name, const String& name);
   void setName(const VectorString list, const String& name);

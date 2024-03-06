@@ -901,6 +901,12 @@ void DbGrid::setGridColumnInPlace(const String &name,
   int nz = getNX(idim0);
   if ((int) vec.size() != nz) return;
 
+  // If the variable does not exist, create it
+
+  int icol = getColIdx(name);
+  if (icol < 0)
+    addColumnsByConstant(1, 0, name);
+
   // Loop on the samples
 
   VectorInt indices = indg;
@@ -1615,6 +1621,117 @@ DbGrid* DbGrid::createGrid3DFromBacktransform(const DbGrid* surf2D,
       }
     }
   return grid;
+}
+
+/**
+ * Create a new grid as a copy of the input 'gridin' restricted
+ * to the the subgrid where variables 'nameTop' and 'nameBot' are both defined
+ * @param grindin Input grid containing the surface information
+ * @param nameTop Name of the Top variable
+ * @param nameBot Name of the Bottom variable
+ * @param dimExclude Array giving excluding dimension (see details)
+ * @return A pointer to the newly create 3-D grid
+ *
+ * @details: When a dimension is 'excluded', the reduction of the output grid
+ * should not be applied to this dimension
+ */
+DbGrid* DbGrid::createReduceFromVariableExtend(const DbGrid *gridin,
+                                               const String &nameTop,
+                                               const String &nameBot,
+                                               const VectorInt &dimExclude)
+{
+  DbGrid* gridout = nullptr;
+  if (gridin == nullptr) return gridout;
+
+  // Get the subgrid characteristics
+
+  VectorVectorInt vec = gridin->reduceFromVariableExtend(nameTop, nameBot, dimExclude);
+  if (vec.empty()) return gridout;
+  VectorInt indmin = vec[0];
+  VectorInt indmax = vec[1];
+
+  int rank = gridin->indiceToRank(indmin);
+  VectorDouble dx = gridin->getDXs();
+  VectorDouble angles = gridin->getAngles();
+
+  VectorDouble x0 = gridin->rankToCoordinates(rank);
+  VectorInt nx = VectorHelper::subtract(indmin, indmax);
+  for (int iexc = 0, nexc = (int) dimExclude.size(); iexc < nexc; iexc++)
+  {
+    x0[iexc] = gridin->getX0(iexc);
+    nx[iexc] = gridin->getNX(iexc);
+  }
+
+  // Create the resulting subgrid
+
+  gridout = create(nx, dx, x0, angles);
+
+  return gridout;
+}
+
+/**
+ * Returns the minimum and maximum indices of the subgrid
+ * where variables 'nameTop' and 'nameBot' are both defined
+ * @param nameTop Name of the Top variable
+ * @param nameBot Name of the Bottom variable
+ * @param dimExclude Array giving excluding dimension (see details)
+ * @return A vector of Min and Ma per space dimension
+ *
+ * @details: When a dimension is 'excluded', the reduction of the output grid
+ * should not be applied to this dimension
+ */
+VectorVectorInt DbGrid::reduceFromVariableExtend(const String &nameTop,
+                                                 const String &nameBot,
+                                                 const VectorInt &dimExclude) const
+{
+  VectorVectorInt vec;
+
+  // Find the set of Min and Max indices of the subgrid
+
+  int ndim = getNDim();
+  int nech = getActiveSampleNumber();
+  VectorInt indmin(ndim,  10000000);
+  VectorInt indmax(ndim, -10000000);
+  VectorInt indg(ndim);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    // Discard not relevant pixels
+    if (! isActive(iech)) continue;
+    double top = getValue(nameTop, iech);
+    double bot = getValue(nameBot, iech);
+    if (FFFF(top) || FFFF(bot) || bot > top) continue;
+
+    rankToIndice(iech, indg);
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      int indloc = indg[idim];
+      if (indloc < indmin[idim]) indmin[idim] = indloc;
+      if (indloc > indmax[idim]) indmax[idim] = indloc;
+    }
+  }
+
+  // Discard the case where the subgrid does not exist
+
+  bool flag_exist = true;
+  for (int idim = 0; idim < ndim && flag_exist; idim++)
+  {
+    if (indmin[idim] > indmax[idim]) flag_exist = false;
+  }
+  if (! flag_exist) return vec;
+
+  // Get the subgrid characteristics
+
+  vec.resize(2);
+  vec[0] = indmin;
+  vec[1] = indmax;
+
+  for (int iexc = 0, nexc = (int) dimExclude.size(); iexc < nexc; iexc++)
+  {
+    vec[0][iexc] = 0;
+    vec[1][iexc] = getNX(iexc);
+  }
+  return vec;
 }
 
 VectorInt DbGrid::locateDataInGrid(const Db *data,

@@ -1050,6 +1050,8 @@ int Grid::getMirrorIndex(int idim, int ix) const
  ** \param[in]  startFromZero True if numbering must start from 0 (1 otherwise)
  ** \param[in]  verbose Verbose flag
  **
+ ** \remark Example of string: "+x2-x1"
+ **
  *****************************************************************************/
 VectorInt Grid::generateGridIndices(const VectorInt& nx,
                                     const String& string,

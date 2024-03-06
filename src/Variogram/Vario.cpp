@@ -4367,7 +4367,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
 
   if (matdrf.invert()) return 1;
 
-  /* Calculate: A %*% t(X) %*% Y */
+  /* Calculate: _BETA = A %*% t(X) %*% Y */
 
   matdrf.prodMatVecInPlace(b, _BETA);
 

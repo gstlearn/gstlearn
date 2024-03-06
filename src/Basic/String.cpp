@@ -295,8 +295,8 @@ int decodeInList(const VectorString &symbols,
  * @return true if both keywords are identical; false otherwise
  */
 bool matchRegexp(const String &string1,
-                                 const String &string2,
-                                 bool caseSensitive)
+                 const String &string2,
+                 bool caseSensitive)
 {
   String local1 = string1;
   String local2 = string2;
@@ -319,8 +319,8 @@ bool matchRegexp(const String &string1,
  * @return true if both keywords are identical; false otherwise
  */
 bool matchKeyword(const String &string1,
-                                  const String &string2,
-                                  bool caseSensitive)
+                  const String &string2,
+                  bool caseSensitive)
 {
   String local1 = string1;
   String local2 = string2;

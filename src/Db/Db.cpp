@@ -2931,9 +2931,37 @@ VectorString Db::getNames(const VectorString& names) const
   return expandNameList(names);
 }
 
-VectorString Db::getAllNames() const
+VectorString Db::getAllNames(bool excludeRankAndCoordinates, bool verbose) const
 {
-  VectorString names = _colNames;
+  if (! excludeRankAndCoordinates)
+    return _colNames;
+  else
+  {
+    // From the list of all variables, exclude the following variables:
+    // - the one named 'rank' (if any)
+    // - the coordinates (if any)
+  }
+  VectorString allnames = _colNames;
+  VectorString names;
+  for (int ivar = 0, nvar = (int) allnames.size(); ivar < nvar; ivar++)
+  {
+    // Exclude variable named 'rank'
+    if (matchRegexp(allnames[ivar], "rank", false))
+    {
+      if (verbose) message("Excluding variable %s\n", allnames[ivar].c_str());
+      continue;
+    }
+
+    // Exclude coordinates
+    if (matchRegexp(allnames[ivar], "x*", false))
+    {
+      if (verbose) message("Excluding variable %s\n", allnames[ivar].c_str());
+      continue;
+    }
+
+    // Add the names to the output list
+    names.push_back(allnames[ivar]);
+  }
   return names;
 }
 

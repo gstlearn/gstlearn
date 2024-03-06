@@ -1147,9 +1147,7 @@ def cell(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_cell(ax, dbgrid, *args, **kwargs)
 
-def __ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
-    xext = dbgrid.getExtrema(posX)
-    yext = dbgrid.getExtrema(posY)
+def __ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
 
     indices = np.zeros(dbgrid.getNDim())
     for i in range(0,dbgrid.getNX(posX)+1,step):
@@ -1159,6 +1157,28 @@ def __ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
         indices[posY] = dbgrid.getNX(posY)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+    for i in range(0,dbgrid.getNX(posY)+1,step):
+        indices[posX] = 0
+        indices[posY] = i
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        indices[posX] = dbgrid.getNX(posX)
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+    return
+
+def __ax_box(ax, dbgrid, posX=0, posY=1, **kwargs):
+    indices = np.zeros(dbgrid.getNDim())
+    
+    step = dbgrid.getNX(posX)
+    for i in range(0,dbgrid.getNX(posX)+1,step):
+        indices[posX] = i
+        indices[posY] = 0
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        indices[posY] = dbgrid.getNX(posY)
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+    
+    step = dbgrid.getNX(posY)
     for i in range(0,dbgrid.getNX(posY)+1,step):
         indices[posX] = 0
         indices[posY] = i
@@ -1255,6 +1275,7 @@ def grid(dbgrid, *args, **kwargs):
     nameContour: Name of the variable tp be represented as contours
     useSel : Boolean to indicate if the selection has to be considered
     flagCell: When True, the edge of the grid cells are represented
+    flagBox: when True, the bounding box of the Grid is represented
     flagLegendRaster: Flag for representing the Raster Legend
     flagLegendContour: Flag for representing the Contour Legend
     legendNameColor: Title for the Raster Legend (set to 'nameRaster' if not defined)
@@ -1265,7 +1286,7 @@ def grid(dbgrid, *args, **kwargs):
     return __ax_grid(ax, dbgrid, *args, **kwargs)
 
 def __ax_grid(ax, dbgrid, nameRaster = None, nameContour = None, useSel = True, 
-              posX=0, posY=1, corner=None, flagCell=False,
+              posX=0, posY=1, corner=None, flagCell=False, flagBox=False,
               flagLegendRaster=False, flagLegendContour=False,
               legendNameRaster=None, legendNameContour=None,
               levels=None, **kwargs):
@@ -1291,9 +1312,12 @@ def __ax_grid(ax, dbgrid, nameRaster = None, nameContour = None, useSel = True,
         title = title + nameContour + " (Isoline) "
     
     if flagCell:
-        cl = __ax_cell(ax, dbgrid, posX=posX, posY=posY, corner=corner, 
-                       **kwargs)
+        cl = __ax_cell(ax, dbgrid, posX=posX, posY=posY, **kwargs)
+    
+    if flagBox:
+        cl = __ax_box(ax, dbgrid, posX=posX, posY=posY, **kwargs)
         
+
     ax.decoration(title = title)
     
     return ax
