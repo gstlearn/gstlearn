@@ -64,7 +64,7 @@ jobs:
 #        eigen-version: ${{env.EIGEN_VERSION}}
 
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=OFF -DUSE_HDF5=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check

@@ -25,7 +25,7 @@ jobs:
 
     - name: Build doxygen documentation and save generated folder name in the environment
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF -DUSE_HDF5=OFF
+        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         cmake --build ${{env.BUILD_DIR}} --target doxygen
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"

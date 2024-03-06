@@ -104,7 +104,7 @@ jobs:
 
     - name : Create Wheels
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
         cmake --build ${{env.BUILD_DIR}} --target python_build --config ${{env.BUILD_TYPE}}
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)

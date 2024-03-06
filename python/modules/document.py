@@ -11,14 +11,12 @@
 # This part is meant to facilitate the use of the web site where information
 # is collected 
 
-import numpy                 as np
-import numpy.ma              as ma
-import gstlearn              as gl
 import urllib.request
+import urllib.error
 import requests
 import os
-import shutil
-from os.path import join
+import re
+import base64
 from IPython.display import display, Javascript
 
 # The various pieces of documentation are supposed to be located
@@ -31,7 +29,7 @@ header = [
   "<md-block>\n"]
 trailer = ["</md-block>"]
 
-def isInternetAvailable(timeout=1):
+def internetAvailable(timeout=1):
     '''
     Check if Internet is available
     
@@ -65,99 +63,87 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 def setNoScroll():
     display(Javascript(disable_js))
 
-def deleteDownload():
-    print("calling deleteDownload")
-    
-def downloadRemoteFile(directory, filename, where):
+def locateFile(filename, where='references', directory=None):
     '''
-    Return the complete name of a file:
-    - if Internet is available, the file is retrieved from the web site
-    - if not, it is assumed to be present locally
+    Return the absolute path of a file:
+    - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
+    - if not, it is assumed to be present locally in './doc/<where>' or '../../<where>'
+    - if not, if Internet is available, the file is downloaded from the gstlearn website in temporary files
     
-    directory: Name of the target directory (used for 'where' = "data", "None" otherwise)
-    filename: Name of the file to be downloaded
-    where: 'data' or 'graphics' or 'mdfile'
-    
-    Remarks
-    -------
-    When retrieving file, and according to 'where', the origin is:
-    - when 'where' == "graphics"
-         urlGST + "/references' + '/Figures' + '/'
-    - when 'where' == "mdfile"
-        urlGST + "/references' + '/'
-    - when 'where' == "data"
-        urlGST + "/data" + '/' + directory + '/' + filename
+    filename: Name of the file to be located
+    where: 'data' or 'references'
+    directory: Name of the data file directory (only used for 'where' = "data")
     '''
-    # Construct the local name
-    if where == 'graphics':
-        localname = 'Figures' + '/' + filename
-        if not os.path.isdir('Figures'):
-            os.mkdir('Figures')
-    elif where == 'mdfile':
-        localname = '.' + '/' + filename
-    elif where == 'data':
-        localname = '.' + '/' + filename
-    else:
-        print("'downloadRemoteFile' does not know about 'where' = ", where)
+    
+    # Test current directory
+    localname = os.path.join('.', filename)
+    if os.path.isfile(localname):
+        return os.path.abspath(localname)
+    
+    # Test locally in other directories
+    if where not in ['references', 'data']:
+        print("'locateFile' does not know about 'where' = ", where)
         return None
+    if where == 'data' and directory is not None:
+        filename = os.path.join(directory, filename)
+    
+    folders = [os.path.join('.',"doc",where), os.path.join('..','..',where)]
+    for f in folders:
+        localname = os.path.join(f, filename)
+        if os.path.isfile(localname):
+            return os.path.abspath(localname)
+    
+    if not internetAvailable():
+        print("Error: Cannot access to", filename, "!")
+        return None
+    
+    # Download from Internet in a temporary file
+    urlFile = urlGST + '/' + where + '/' + filename
+    try:
+        localname, head = urllib.request.urlretrieve(urlFile)
+        return localname
+    except:
+        pass
+    
+    print("Cannot access URL:", urlFile, "!")
+    return None
 
-    if isInternetAvailable:
-
-        if where == 'graphics':
-            pathname = urlGST + '/references' + '/Figures' + '/' + filename
-        elif where == 'mdfile':
-            pathname = urlGST + '/references' + '/' + filename
-        elif where == 'data':
-            pathname = urlGST + '/data/' + directory + '/' + filename
-        else:
-            print("'downloadRemoteFile' does not know about 'where' = ", where)
-        
-        # The file is loaded in the local environment (with the same name)
-        localname, head = urllib.request.urlretrieve(pathname, localname)
-        
-    return localname
-    
-def loadFigure(filename):
-    '''
-    This function displays the contents of the figure file named 'filename' (from the web site)
-    
-    Arguments
-    ---------
-    filename: Name of the figure of interest
-    '''
-    return downloadRemoteFile(None, filename, "graphics")
-    
 def loadDoc(filename):
     '''
-    This function displays the contents of the Markdown file named 'filename' (from the web site)
-    The result is decorated so as to appear as a NOTE in HTML
+    This function return the contents of a Markdown file named 'filename'
+    The result is decorated so as to appear as a NOTE in HTML files
     
     Arguments
     ---------
-    filename: Name of the file of interest
+    filename: Name of the Markdown file of interest
     '''
     
-    filemd = downloadRemoteFile(None, filename, "mdfile")
-        
+    filemd = locateFile(filename)
+    if filemd is None:
+        return "File " + filename + " not found!"
+    
     multilines = open(filemd, 'r').read()
     lines = multilines.split('\n')
-
-    searchItem = "(Figure"
+    
+    # Capture Markdown images (beginning ![description](filename) ending)
+    pattern = re.compile(r'(.*)\!\[(.*)\]\((.+)\)(.*)')
     for i in range(len(lines)):
         targetLine = lines[i]
+        img = pattern.search(targetLine)
+        if img is not None:
+            beginning = img.group(1)
+            imgdesc = img.group(2)
+            imgfile = locateFile(img.group(3))
+            ending = img.group(4)
+            if imgfile is None:
+                return "File " + img.group(3) + " not found!"
+            # Convert in base64 for embedding the image
+            with open(imgfile, 'rb') as image_file:
+                imgfile = base64.b64encode(image_file.read())
+            # Reconstruct the full Markdown line
+            lines[i] = beginning + '![' + imgdesc + '](data:image/png;base64,' + imgfile.decode() + ')' + ending
     
-        # Look for the graphic dependency
-        if searchItem in targetLine:
-
-            begin = targetLine.index(searchItem) + 1
-            start = begin + len(searchItem) + 1 
-            end   = targetLine.index(")")
-        
-            # Extract the name of the Graphic File and download the file
-            graphicFile = targetLine[start:end]
-            filefig = downloadRemoteFile(None, graphicFile, "graphics")
-    
-    result = ''.join(header) + multilines + ''.join(trailer)
+    result = ''.join(header) + '\n'.join(lines) + ''.join(trailer)
     return result
     
 def loadData(directory, filename):
@@ -170,21 +156,4 @@ def loadData(directory, filename):
     filename: Name of the file of interest
     '''
     
-    return downloadRemoteFile(directory, filename, "data")
-
-def cleanDoc(filename):
-    '''
-    This function is used to clean the files loaded for find_statement_documentation
-    
-    Arguments
-    ---------
-    filename: Name of the target file
-    '''
-    
-    # Remove the target file
-    if os.path.isfile(filename):
-        os.remove(filename)
-    
-    # Remove the downloaded graphic files (in subdirectory 'Figures')
-    if os.path.isdir('Figures'):
-        shutil.rmtree('Figures')
+    return locateFile(filename, "data", directory)

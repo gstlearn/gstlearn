@@ -55,7 +55,7 @@
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
-#  - USE_HDF5=0         To remove HDF5 support (default =1)
+#  - USE_HDF5=0         To remove HDF5 support (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
 #  - EIGEN3_DIR=<path>  Path to Eigen3 library
 #
@@ -64,7 +64,7 @@
 #  make check N_PROC=2
 #
 
-ifndef USE_HDF5
+ifdef USE_HDF5
   USE_HDF5 = 1
 endif
 ifeq ($(USE_HDF5), 1)

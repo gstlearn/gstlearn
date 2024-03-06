@@ -24,7 +24,7 @@ trailer = c(
 #' Check if Internet is available
 #' This function requires the package 'lares' to be installed
 #' @return TRUE if Internet is available and FALSE otherwise
-isInternetAvailable <- function()
+internetAvailable <- function()
 {
   flag = FALSE
   if (require("lares", quietly=TRUE))
@@ -32,66 +32,57 @@ isInternetAvailable <- function()
   flag
 }
 
-#'
-#' Return the complete name of a file:
-#' - if Internet is available, the file is retrieved from the web site
-#' - if not, it is assumed to be present locally
-#'    
-#' @param directory: Name of the target directory (used for 'where' = "data", "None" otherwise)
-#' @param filename: Name of the file to be downloaded
-#' @param where: 'data' or 'graphics' or 'mdfile'
-#'    
-#' @remarks
-#' When retrieving file, and according to 'where', the origin is:
-#' - when 'where' == "graphics"
-#'   urlGST + "/references' + '/Figures' + '/'
-#' - when 'where' == "mdfile"
-#'   urlGST + "/references' + '/'
-#' - when 'where' == "data"
-#'   urlGST + "/data" + '/' + directory + '/' + filename
-downloadRemoteFile <- function(directory, filename, where)
+#' Return the absolute path of a file:
+#' - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
+#' - if not, it is assumed to be present locally in './doc/<where>' or '../../<where>'
+#' - if not, if Internet is available, the file is downloaded from the gstlearn website in temporary files
+#' 
+#' filename: Name of the file to be located
+#' where: 'data' or 'references'
+#' directory: Name of the data file directory (only used for 'where' = "data")
+#' 
+locateFile <- function (filename, where='references', directory=NULL)
 {
-  # Generate local name
-
-  if (where == 'graphics')
+  # Test current directory
+  localname = file.path('.', filename)
+  if (file.exists(localname))
+    return(normalizePath(localname))
+  
+  # Test locally in other directories
+  if (!(where %in% c('references', 'data')))
   {
-    localname = paste0(c('Figures' ,filename), collapse='/')
-    if (!dir.exists('Figures')) {dir.create('Figures')}
+    print(paste("'locateFile' does not know about 'where' = ", where))
+    return(NULL)
   }
-  else if (where == 'mdfile')
-    localname = paste0(c('.' ,filename), collapse='/')
-  else if (where == 'data')
-    localname = paste0(c('.' ,filename), collapse='/')
-  else
+  if (where == 'data' && !is.null(directory))
+    filename = file.path(directory, filename)
+  
+  folders = list(file.path('.',"doc",where), file.path('..','..',where))
+  for (f in folders)
   {
-    print("'downloadRemoteFile' does not know about 'where' = ", where)
-    exit()
+    localname = file.path(f, filename)
+    if (file.exists(localname))
+      return(normalizePath(localname))
   }
 
-  if (isInternetAvailable())
+  if (!internetAvailable())
   {
-    if (where == 'graphics')
-        pathname = paste0(c(urlGST, 'references',  'Figures', filename), collapse='/')
-    else if (where == 'mdfile')
-        pathname = paste0(c(urlGST, 'references', filename), collapse='/')
-    else if (where == 'data')
-        pathname = paste0(c(urlGST, "data", directory, filename), collapse='/')
-    else
-        print("'downloadRemoteFile' does not know about 'where' = ", where)
-    
-    # The file is loaded in the local environment
-    err = download.file(pathname, localname, quiet=TRUE)
+    print(paste("Error: Cannot access to", filename, "!"))
+    return(NULL)
   }
-  localname
-}
-
-loadFigure <- function(filename)
-{
-  downloadRemoteFile(None, filename, "graphics")
+  
+  # Download from Internet in a temporary file
+  urlFile = paste0(urlGST, '/', where, '/', filename)
+  localname = tempfile()
+  if (!download.file(pathname, localname, quiet=TRUE))
+    return(localname)
+  
+  print(paste("Cannot access URL:", urlFile, "!"))
+  return(NULL)
 }
 
 #' Returns the decorated documentation (Markdown file) from 'references' directory
-#' @param filename Name of the file containing the text to be displayed
+#' @param filename Name of the Markdown file containing the text to be displayed
 #' TODO: the color does not function... to be fixed.
 #' remark: the returned string must be displayed in a RMarkdown chunk as follows:
 #'   {r, echo=FALSE, result='asis'}
@@ -99,21 +90,39 @@ loadFigure <- function(filename)
 #'   }
 loadDoc <- function(filename)
 {
-  filepath = downloadRemoteFile(NULL, filename, "mdfile")
+  if (!require("stringr", quietly=TRUE))
+  {
+    print(paste("'stringr' package must be installed!"))
+    return("")
+  }
+    
+  filepath = locateFile(filename)
+  if (is.null(filepath))
+    return(paste("File ", filename, "not found!"))
+  
   multiline = readLines(filepath, warn=FALSE)
   
-  # Loop on the lines to detect graphic
-  searchItem = "(Figures/"
+  # Capture Markdown images (beginning ![description](filename) ending)
+  pattern = '(.*)\\!\\[(.*)\\]\\((.+)\\)(.*)'
   for (i in 1:length(multiline))
   {
     targetLine = multiline[i]
-    if (grepl(searchItem, targetLine, fixed=TRUE))
+    img = str_match(targetLine, pattern)
+    if (!is.na(img[1]))
     {
-      graphicFile = sub(".*Figures/", "", targetLine)[1]         # Extract file name
-      graphicFile = substr(graphicFile, 1, nchar(graphicFile)-1) # suppress last character
-      filefig = downloadRemoteFile(NULL, graphicFile, "graphics")
+      beginning = img[2]
+      imgdesc = img[3]
+      imgfile = locateFile(img[4])
+      ending = img[5]
+      if (is.null(imgfile))
+        return(paste("File", img[4], "not found!"))
+      # Convert in base64 for embedding the image (not needed n R)
+      #with open(imgfile, 'rb') as image_file: # this is python code
+      #    imgfile = base64.b64encode(image_file.read())
+      # Reconstruct the full Markdown line
+      multiline[i] = paste0(beginning,'![',imgdesc,'](',imgfile,')',ending)
     }
-   }
+  }
   result = c(header, multiline, trailer)
   result
 }
@@ -124,19 +133,5 @@ loadDoc <- function(filename)
 #' @return The name of the returned data file
 loadData <- function(directory, filename)
 {
-  downloadRemoteFile(directory, filename, "data")
-}
-
-#'
-#' This function is used to clean the files loaded for find_statement_documentation
-#' @param filename: Name of the target file
-cleanDoc <- function(filename)
-{
-  # Remove the target file
-  if (file.exists(filename)) 
-  file.remove(filename)
-
-  # Remove the downloaded graphic files (in subdirectory 'Figures')
-  if (dir.exists('Figures'))
-    unlink('Figures', recursive=TRUE)
+  locateFile(filename, "data", directory)
 }

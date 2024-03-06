@@ -44,7 +44,7 @@ jobs:
     - name : Create Wheels
       run : |
         export PATH=/opt/python/${{matrix.python}}/bin:$PATH
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DUSE_HDF5=OFF
+        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)

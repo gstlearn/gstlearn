@@ -83,7 +83,7 @@ jobs:
 
     - name : Build the package and save generated file name in the environment
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DUSE_HDF5=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
         cmake --build ${{env.BUILD_DIR}} --target r_install
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.zip" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append

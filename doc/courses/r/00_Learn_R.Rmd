@@ -1,7 +1,12 @@
 ---
 title: "gstlearn"
 author: "Didier RENARD,  Nicolas DESASSIS"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
+    toc: false
+  pdf_document:
+    toc: false
 ---
 
 ```{r setup,echo=FALSE}

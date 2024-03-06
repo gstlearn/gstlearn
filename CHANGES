@@ -7,6 +7,7 @@ Release 1.1.0
 - MacOS compatibility (Intel and Silicon architectures)
 - New dependency: Eigen library for matrices (dense and sparse)
 - Fix issue 88, 98, 102, 101, 119, 115, 111
+- loadDoc/loadData function convention improvement
 - Efficiency improvements (variography, moving neighborhood, kriging systems...)
 - Adding new tutorial (with widgets) to describe the calculation of experimental variograms and use of model for Cvv
 - Adding description of main classes (Db, Vario and daughter classes, Model and daughter classes).
@@ -16,6 +17,7 @@ Release 1.1.0
 - Improving the Tutorial_Model (building a Model by pieces)
 - Fix createFromCSV (accept all end-of-line conventions 'CR', 'LF', 'CRLF')
 - Fix input/output text file path creation under windows (input data CSV files)
+- Improve numerical precision of double values in neutral files (15 digits)
 - Function db_model() has been renamed as Model::buildVmapOnDbGrid()
 - Function model_stabilize() becomes Model::stabilize()
 - Function model_normalize() becomes Model::standardize()
@@ -26,6 +28,25 @@ Release 1.1.0
 - Function correlation_ident() is renamed as correlationIdentify()
 - Function variogram_mlayers() is renamed as Vario::computeGeometryMLayers()
 - Function variovect_compute() is renamed as Vario::computeVarioVect()
+- New method 'select' for ANeigh (gain of memory and time)
+- Pluging the library "eigen" for faster and more accurate algebra.
+- Adding the display of known mean (when relevant)
+- The class Neigh/ANeigh is introduced (generic for any neighborhood)
+- New class Geometry/ABiPointCheck checks if 2 points are connected (for Neighborhood, for Variogram, ...)
+- Class PolySet is now called PolyElem
+- The Python function display_file.py has been renamed into show_file.py
+- reduceComplexity in Polygons
+- New name for argument of migrate* functions: ldmax -> distType 
+  and change type for flag_inter and flag_fill (become boolean)
+- Correction in kribayes for multivariate aspect.
+- In DbGrid::createCoveringDb, argument names have changed: nodes -> nx, dcell -> dx, origin -> x0
+- Some Performance tests have been added (or renamed) in TestInter such as:
+. Bench_KrigingU.cpp
+. Bench_KrigingI.cpp
+- db_tool_duplicate() is renamed as DbHelper::findDuplicates()
+- db_normalize() is renamed as DbHelper::normalizeVariables()
+- db_grid_fill() is renamed as DbHelper::gridFilling()
+- Introducing the generic method "fromTL" to convert R object into gstlearn ones
 
 Release 1.0.0
 =============

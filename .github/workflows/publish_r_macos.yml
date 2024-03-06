@@ -86,7 +86,7 @@ jobs:
 
     - name : Build the package and save generated file name in the environment
       run : |
-        CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B${{env.BUILD_DIR}} -DCMAKE_OSX_ARCHITECTURES=${{matrix.arch[0]}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+        CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B${{env.BUILD_DIR}} -DCMAKE_OSX_ARCHITECTURES=${{matrix.arch[0]}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
         cmake --build ${{env.BUILD_DIR}} --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.tgz)" >> "$GITHUB_ENV"
 
