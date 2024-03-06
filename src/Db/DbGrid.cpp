@@ -1645,7 +1645,7 @@ DbGrid* DbGrid::createReduceFromVariableExtend(const DbGrid *gridin,
 
   // Get the subgrid characteristics
 
-  VectorVectorInt vec = gridin->reduceFromVariableExtend(nameTop, nameBot, dimExclude);
+  VectorVectorInt vec = gridin->getLimitsFromVariableExtend(nameTop, nameBot, dimExclude);
   if (vec.empty()) return gridout;
   VectorInt indmin = vec[0];
   VectorInt indmax = vec[1];
@@ -1680,7 +1680,7 @@ DbGrid* DbGrid::createReduceFromVariableExtend(const DbGrid *gridin,
  * @details: When a dimension is 'excluded', the reduction of the output grid
  * should not be applied to this dimension
  */
-VectorVectorInt DbGrid::reduceFromVariableExtend(const String &nameTop,
+VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
                                                  const String &nameBot,
                                                  const VectorInt &dimExclude) const
 {

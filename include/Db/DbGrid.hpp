@@ -301,9 +301,9 @@ public:
   VectorVectorDouble getAllCellsEdges(bool forceGridMesh = false) const;
   VectorVectorDouble getGridEdges() const;
   VectorDouble getCodir(const VectorInt& grincr) const;
-  VectorVectorInt reduceFromVariableExtend(const String &nameTop,
-                                           const String &nameBot,
-                                           const VectorInt &dimExclude = VectorInt()) const;
+  VectorVectorInt getLimitsFromVariableExtend(const String &nameTop,
+                                              const String &nameBot,
+                                              const VectorInt &dimExclude = VectorInt()) const;
 
   int morpho(const EMorpho &oper,
              double vmin = 0.5,
