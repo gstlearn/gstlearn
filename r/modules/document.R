@@ -44,7 +44,7 @@ internetAvailable <- function()
 locateFile <- function (filename, where='references', directory=NULL, verbose=FALSE)
 {
   if (verbose)
-    print("Current directory is", getwd())
+    print(paste("Current directory is", getwd()))
   
   # Test current directory
   localname = file.path('.', filename)
@@ -52,12 +52,12 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   {
     fullname = normalizePath(localname)
     if (verbose)
-      print(localname, "found... Full path is", fullname)
+      print(paste(localname, "found... Full path is", fullname))
     return(fullname)
   }
   else if (verbose)
   {
-    print(localname, "not found...")
+    print(paste(localname, "not found..."))
   }
   
   # Test locally in other directories
@@ -77,12 +77,12 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
     {
       fullname = normalizePath(localname)
       if (verbose)
-        print(localname, "found... Full path is", fullname)
+        print(paste(localname, "found... Full path is", fullname))
       return(fullname)
     }
     else if (verbose)
     {
-      print(localname, "not found...")
+      print(paste(localname, "not found..."))
     }
   }
 
@@ -98,12 +98,12 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   if (!download.file(pathname, fullname, quiet=TRUE))
   {
     if (verbose)
-      print(localname, "found... Full path is", fullname)
+      print(paste(localname, "found... Full path is", fullname))
     return(fullname)
   }
   else if (verbose)
   {
-    print(localname, "not found...")
+    print(paste(localname, "not found..."))
   }
   
   print(paste("Cannot access URL:", localname, "!"))
