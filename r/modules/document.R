@@ -41,12 +41,15 @@ internetAvailable <- function()
 #' where: 'data' or 'references'
 #' directory: Name of the data file directory (only used for 'where' = "data")
 #' 
-locateFile <- function (filename, where='references', directory=NULL)
+locateFile <- function (filename, where='references', directory=NULL, verbose=FALSE)
 {
   # Test current directory
   localname = file.path('.', filename)
   if (file.exists(localname))
-    return(normalizePath(localname))
+    fullname = normalizePath(localname)
+    if (verbose)
+      print(localname, "found... Loading", fullname)
+    return(fullname)
   
   # Test locally in other directories
   if (!(where %in% c('references', 'data')))
@@ -62,22 +65,27 @@ locateFile <- function (filename, where='references', directory=NULL)
   {
     localname = file.path(f, filename)
     if (file.exists(localname))
-      return(normalizePath(localname))
+      fullname = normalizePath(localname)
+      if (verbose)
+        print(localname, "found... Loading", fullname)
+      return(fullname)
   }
 
   if (!internetAvailable())
   {
-    print(paste("Error: Cannot access to", filename, "!"))
+    print(paste("Error: Cannot access to", filename, "(no Internet)!"))
     return(NULL)
   }
   
   # Download from Internet in a temporary file
-  urlFile = paste0(urlGST, '/', where, '/', filename)
-  localname = tempfile()
-  if (!download.file(pathname, localname, quiet=TRUE))
-    return(localname)
+  localname = paste0(urlGST, '/', where, '/', filename)
+  fullname = tempfile()
+  if (!download.file(pathname, fullname, quiet=TRUE))
+    if (verbose)
+      print(localname, "found... Loading", fullname)
+    return(fullname)
   
-  print(paste("Cannot access URL:", urlFile, "!"))
+  print(paste("Cannot access URL:", localname, "!"))
   return(NULL)
 }
 

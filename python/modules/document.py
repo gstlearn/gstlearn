@@ -63,7 +63,7 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 def setNoScroll():
     display(Javascript(disable_js))
 
-def locateFile(filename, where='references', directory=None):
+def locateFile(filename, where='references', directory=None, verbose=False):
     '''
     Return the absolute path of a file:
     - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
@@ -78,7 +78,10 @@ def locateFile(filename, where='references', directory=None):
     # Test current directory
     localname = os.path.join('.', filename)
     if os.path.isfile(localname):
-        return os.path.abspath(localname)
+        fullname = os.path.abspath(localname)
+        if (verbose):
+            print(localname, "found... Loading", fullname)
+        return fullname
     
     # Test locally in other directories
     if where not in ['references', 'data']:
@@ -91,21 +94,26 @@ def locateFile(filename, where='references', directory=None):
     for f in folders:
         localname = os.path.join(f, filename)
         if os.path.isfile(localname):
-            return os.path.abspath(localname)
+            fullname = os.path.abspath(localname)
+            if (verbose):
+                print(localname, "found... Loading", fullname)
+            return fullname
     
     if not internetAvailable():
-        print("Error: Cannot access to", filename, "!")
+        print("Error: Cannot access to", filename, "(no Internet)!")
         return None
     
     # Download from Internet in a temporary file
-    urlFile = urlGST + '/' + where + '/' + filename
+    localname = urlGST + '/' + where + '/' + filename
     try:
-        localname, head = urllib.request.urlretrieve(urlFile)
-        return localname
+        fullname, head = urllib.request.urlretrieve(localname)
+        if (verbose):
+            print(localname, "found... Loading", fullname)
+        return fullname
     except:
+        print("Cannot access URL:", localname, "!")
         pass
     
-    print("Cannot access URL:", urlFile, "!")
     return None
 
 def loadDoc(filename):
@@ -118,7 +126,7 @@ def loadDoc(filename):
     filename: Name of the Markdown file of interest
     '''
     
-    filemd = locateFile(filename)
+    filemd = locateFile(filename, verbose=True)
     if filemd is None:
         return "File " + filename + " not found!"
     
