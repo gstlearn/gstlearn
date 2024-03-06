@@ -48,8 +48,8 @@ foreach(COURSES_SOURCE_FILE ${COURSES_SOURCES})
                OUTPUT_VARIABLE COURSES_SOURCE_FILE)
     # Run the courses (and generate html in ${COURSES_DIR})
     add_custom_target(${COURSES_NAME}_ipynb_html
-                      COMMAND ${Python3_EXECUTABLE} ${RUN_COURSES_SCRIPT} ${COURSES_SOURCE_FILE} ${COURSES_DIR} html)
-                      
+                      COMMAND ${Python3_EXECUTABLE} -Xfrozen_modules=off ${RUN_COURSES_SCRIPT} ${COURSES_SOURCE_FILE} ${COURSES_DIR} html)
+
     # Add dependency
     add_dependencies(${COURSES_NAME}_ipynb_html prepare_build_courses_py)
 

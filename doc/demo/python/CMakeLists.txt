@@ -48,8 +48,8 @@ foreach(DEMO_SOURCE_FILE ${DEMO_SOURCES})
                OUTPUT_VARIABLE DEMO_SOURCE_FILE)
     # Run the demo (and generate html in ${DEMO_DIR})
     add_custom_target(${DEMO_NAME}_ipynb_html
-                      COMMAND ${Python3_EXECUTABLE} ${RUN_DEMO_SCRIPT} ${DEMO_SOURCE_FILE} ${DEMO_DIR} html)
-                      
+                      COMMAND ${Python3_EXECUTABLE} -Xfrozen_modules=off ${RUN_DEMO_SCRIPT} ${DEMO_SOURCE_FILE} ${DEMO_DIR} html)
+
     # Add dependency
     add_dependencies(${DEMO_NAME}_ipynb_html prepare_build_demos_py)
 
