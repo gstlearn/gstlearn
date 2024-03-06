@@ -13,6 +13,7 @@
 
 # The various pieces of documentation are supposed to be located at the following URL
 urlGST = "https://soft.minesparis.psl.eu/gstlearn"
+package_version = packageVersion("gstlearn")
 
 # Next definitions are used to decorate the MD files displayed in rstudio
 header = c(
@@ -93,7 +94,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   }
   
   # Download from Internet in a temporary file
-  localname = paste0(urlGST, '/', where, '/', filename)
+  localname = paste0(urlGST, '/', package_version, '/', where, '/', filename)
   fullname = tempfile()
   if (!download.file(pathname, fullname, quiet=TRUE))
   {

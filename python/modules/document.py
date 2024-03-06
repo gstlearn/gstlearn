@@ -17,11 +17,13 @@ import requests
 import os
 import re
 import base64
+import gstlearn as gl
 from IPython.display import display, Javascript
 
 # The various pieces of documentation are supposed to be located
 # at the following URL
 urlGST = 'https://soft.minesparis.psl.eu/gstlearn'
+package_version = gl.__version__
 
 # Next lines are used to decorate the MD files for rendering documentation
 header = [
@@ -111,7 +113,7 @@ def locateFile(filename, where='references', directory=None, verbose=False):
         return None
     
     # Download from Internet in a temporary file
-    localname = urlGST + '/' + where + '/' + filename
+    localname = urlGST + '/' + package_version + '/' + where + '/' + filename
     try:
         fullname, head = urllib.request.urlretrieve(localname)
         if (verbose):
@@ -126,7 +128,7 @@ def locateFile(filename, where='references', directory=None, verbose=False):
 
 def loadDoc(filename, verbose=True):
     '''
-    This function return the contents of a Markdown file named 'filename'
+    This function return the contents of a Markdown file from the 'references' directory named 'filename'
     The result is decorated so as to appear as a NOTE in HTML files
     
     Arguments
