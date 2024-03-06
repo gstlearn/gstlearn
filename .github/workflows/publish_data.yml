@@ -1,4 +1,4 @@
-name: publish_doxygen
+name: publish_data
 
 on:
   workflow_dispatch:
@@ -25,21 +25,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Build doxygen documentation and save generated folder name in the environment
+    
+    - name: Get project version
       id: main_step
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF
-        cmake --build ${{env.BUILD_DIR}} --target doxygen
+        cmake -B${{env.BUILD_DIR}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
-        echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
     - uses: actions/upload-artifact@v3 
       with:
         # This will become the folder name in the server
-        name: doxygen
-        path: ${{ env.HTML_FOLDER }}
+        name: data
+        path: doc/data
 
   publish:
     needs: build
@@ -48,7 +46,7 @@ jobs:
     
     steps:
       - env:
-            PROJECT_VERSION: ${{needs.build.outputs.project_version}}
+          PROJECT_VERSION: ${{needs.build.outputs.project_version}}
         uses: fabien-ors/folder-publish-action@v1
         with:
           host: ${{ secrets.CG_HOST }}
@@ -59,4 +57,4 @@ jobs:
       # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v2
         with:
-          name: doxygen
+          name: data
