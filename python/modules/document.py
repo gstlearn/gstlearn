@@ -120,13 +120,12 @@ def locateFile(filename, where='references', directory=None, verbose=False):
             print(localname, "found... Full path is", fullname)
         return fullname
     except:
-        if (verbose):
-            print("Cannot access URL", localname, "!")
         pass
     
+    print("Cannot access URL:", localname, "!")
     return None
 
-def loadDoc(filename, verbose=True):
+def loadDoc(filename, verbose=False):
     '''
     This function return the contents of a Markdown file from the 'references' directory named 'filename'
     The result is decorated so as to appear as a NOTE in HTML files

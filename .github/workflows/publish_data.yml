@@ -1,12 +1,26 @@
 name: publish_data
 
 on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
   workflow_dispatch:
     inputs:
       logLevel:
         description: 'Manual'
         required: false
         default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
 
 env:
   BUILD_TYPE: Release
@@ -41,6 +55,8 @@ jobs:
 
   publish:
     needs: build
+    if: ${{inputs.external_call == false}}
+    
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
     

@@ -102,11 +102,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
       print(paste(localname, "found... Full path is", fullname))
     return(fullname)
   }
-  else if (verbose)
-  {
-    print(paste(localname, "not found..."))
-  }
-  
+
   print(paste("Cannot access URL:", localname, "!"))
   return(NULL)
 }
@@ -118,7 +114,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
 #'   {r, echo=FALSE, result='asis'}
 #'    cat(XXX, sep="\n")
 #'   }
-loadDoc <- function(filename, verbose=TRUE)
+loadDoc <- function(filename, verbose=FALSE)
 {
   if (!require("stringr", quietly=TRUE))
   {
