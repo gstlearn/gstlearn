@@ -83,11 +83,10 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     if os.path.isfile(localname):
         fullname = os.path.abspath(localname)
         if (verbose):
-            print(localname, "found... Loading", fullname)
+            print(localname, "found... Full path is", fullname)
         return fullname
-    else:
-        if (verbose):
-            print(localname, "not found...")
+    elif (verbose):
+        print(localname, "not found...")
 
     # Test locally in other directories
     if where not in ['references', 'data']:
@@ -102,11 +101,10 @@ def locateFile(filename, where='references', directory=None, verbose=False):
         if os.path.isfile(localname):
             fullname = os.path.abspath(localname)
             if (verbose):
-                print(localname, "found... Loading", fullname)
+                print(localname, "found... Full path is", fullname)
             return fullname
-        else:
-            if (verbose):
-                print(localname, "not found...")
+        elif (verbose):
+            print(localname, "not found...")
                 
     if not internetAvailable():
         print("Error: Cannot access to", filename, "(no Internet)!")
@@ -117,7 +115,7 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     try:
         fullname, head = urllib.request.urlretrieve(localname)
         if (verbose):
-            print(localname, "found... Loading", fullname)
+            print(localname, "found... Full path is", fullname)
         return fullname
     except:
         if (verbose):
@@ -126,7 +124,7 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     
     return None
 
-def loadDoc(filename):
+def loadDoc(filename, verbose=False):
     '''
     This function return the contents of a Markdown file named 'filename'
     The result is decorated so as to appear as a NOTE in HTML files
@@ -136,7 +134,7 @@ def loadDoc(filename):
     filename: Name of the Markdown file of interest
     '''
     
-    filemd = locateFile(filename, verbose=True)
+    filemd = locateFile(filename, verbose=verbose)
     if filemd is None:
         return "File " + filename + " not found!"
     
