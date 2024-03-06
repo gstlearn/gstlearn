@@ -75,6 +75,9 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     directory: Name of the data file directory (only used for 'where' = "data")
     '''
     
+    if (verbose):
+        print("Current directory is", os.getcwd())
+
     # Test current directory
     localname = os.path.join('.', filename)
     if os.path.isfile(localname):
@@ -82,7 +85,10 @@ def locateFile(filename, where='references', directory=None, verbose=False):
         if (verbose):
             print(localname, "found... Loading", fullname)
         return fullname
-    
+    else:
+        if (verbose):
+            print(localname, "not found...")
+
     # Test locally in other directories
     if where not in ['references', 'data']:
         print("'locateFile' does not know about 'where' = ", where)
@@ -98,7 +104,10 @@ def locateFile(filename, where='references', directory=None, verbose=False):
             if (verbose):
                 print(localname, "found... Loading", fullname)
             return fullname
-    
+        else:
+            if (verbose):
+                print(localname, "not found...")
+                
     if not internetAvailable():
         print("Error: Cannot access to", filename, "(no Internet)!")
         return None
@@ -111,7 +120,8 @@ def locateFile(filename, where='references', directory=None, verbose=False):
             print(localname, "found... Loading", fullname)
         return fullname
     except:
-        print("Cannot access URL:", localname, "!")
+        if (verbose):
+            print("Cannot access URL", localname, "!")
         pass
     
     return None
