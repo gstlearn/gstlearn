@@ -14,6 +14,7 @@
 import urllib.request
 import urllib.error
 import requests
+import socket
 import os
 import re
 import base64
@@ -24,6 +25,7 @@ from IPython.display import display, Javascript
 # at the following URL
 urlGST = 'https://soft.minesparis.psl.eu/gstlearn'
 package_version = gl.__version__
+socket.setdefaulttimeout(20)
 
 # Next lines are used to decorate the MD files for rendering documentation
 header = [
