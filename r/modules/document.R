@@ -138,7 +138,7 @@ loadDoc <- function(filename, verbose=FALSE)
     {
       beginning = img[2]
       imgdesc = img[3]
-      imgfile = locateFile(img[4])
+      imgfile = locateFile(img[4], verbose=verbose)
       ending = img[5]
       if (is.null(imgfile))
         return(paste("File", img[4], "not found!"))
@@ -157,7 +157,7 @@ loadDoc <- function(filename, verbose=FALSE)
 #' @param directory Name of the Directory located in the 'data' sub-directory of the URL
 #' @param filename Name of the data file to be loaded
 #' @return The name of the returned data file
-loadData <- function(directory, filename)
+loadData <- function(directory, filename, verbose=FALSE)
 {
-  locateFile(filename, "data", directory)
+  locateFile(filename, "data", directory, verbose=verbose)
 }

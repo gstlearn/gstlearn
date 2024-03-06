@@ -1,0 +1,529 @@
++#NO_DIFF#XXX+
+----<IPython.core.display.Javascript object>----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 1
+Number of Columns            = 5
+Total number of samples      = 2470
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = NA
+Column = 3 - Name = Z - Locator = NA
+Column = 4 - Name = Z_1 - Locator = z1----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 2470
+Number of active samples     = 2470
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Z - Locator = lower1
+Column = 4 - Name = Z_1 - Locator = upper1
+Column = 5 - Name = Elev - Locator = z1
+Column = 6 - Name = Duplicate - Locator = sel----
+
+
++#NO_DIFF#XXX+
+XXX
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----(array([120., 787., 658., 447., 198., 118.,  63.,  51.,  22.,   6.]),
+ array([ 16. ,  24.4,  32.8,  41.2,  49.6,  58. ,  66.4,  74.8,  83.2,
+         91.6, 100. ]),
+ <BarContainer object of 10 artists>)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+XXX
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 1320000
+Number of active samples     = 138248
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = sel----
+
+
++#NO_DIFF#XXX+
+----(array([ 23.,  11.,   8.,  36., 238., 545., 700., 270.,  98.,  41.]),
+ array([-178.33971763, -142.50574587, -106.6717741 ,  -70.83780234,
+         -35.00383058,    0.83014118,   36.66411295,   72.49808471,
+         108.33205647,  144.16602824,  180.        ]),
+ <BarContainer object of 10 artists>)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 4802560
+
+Variables
+---------
+Column = 0 - Name = xx - Locator = x1
+Column = 1 - Name = yy - Locator = x2
+Column = 2 - Name = angles_interp - Locator = z1
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 1320000
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+ ----
+
+
++#NO_DIFF#XXX+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 1320000
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+Column = 4 - Name = Migrate.angles_interp - Locator = z1
+ ----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 1320000
+Number of active samples     = 278129
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+Column = 4 - Name = Migrate.angles_interp - Locator = z1
+Column = 5 - Name = angle_define - Locator = NA
+Column = 6 - Name = res - Locator = sel----
+
+
++#NO_DIFF#XXX+
+XXX
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 1320000
+Number of active samples     = 278129
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+Column = 4 - Name = Migrate.angles_interp - Locator = z1
+Column = 5 - Name = angle_define - Locator = NA
+Column = 6 - Name = res - Locator = sel----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 2334
+Number of active samples     = 2319
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Thickness - Locator = lower1
+Column = 4 - Name = Thickness_1 - Locator = upper1
+Column = 5 - Name = ThicknessSides - Locator = z1
+Column = 6 - Name = Duplicate - Locator = sel----
+
+
++#NO_DIFF#XXX+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 2334
+Number of active samples     = 1010
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Thickness - Locator = lower1
+Column = 4 - Name = Thickness_1 - Locator = upper1
+Column = 5 - Name = ThicknessSides - Locator = z1
+Column = 6 - Name = Duplicate - Locator = NA
+Column = 7 - Name = selVario - Locator = sel----
+
+
++#NO_DIFF#XXX+
+----
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variance-Covariance Matrix     8.283
+
+Direction #1
+------------
+Number of lags              = 40
+Direction coefficients      =      1.000     1.000
+Direction angles (degrees)  =     45.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =    800.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0  1491.000   222.985     4.285
+         1  4135.000   817.513     6.027
+         2  5005.000  1597.763     5.766
+         3  5177.000  2403.961     7.196
+         4  4931.000  3202.456     7.062
+         5  5414.000  3996.471     6.883
+         6  5969.000  4804.571     6.796
+         7  5993.000  5607.391     6.235
+         8  5918.000  6392.940     6.156
+         9  5849.000  7198.209     7.202
+        10  5641.000  8004.082     6.712
+        11  4824.000  8800.796     7.726
+        12  5439.000  9591.894     6.860
+        13  5085.000 10419.647     6.706
+        14  5724.000 11192.490     6.888
+        15  6188.000 12005.854     6.486
+        16  5405.000 12774.212     6.783
+        17  4865.000 13605.264     6.492
+        18  4534.000 14393.326     6.467
+        19  4769.000 15203.346     6.514
+        20  4627.000 16001.095     5.897
+        21  4445.000 16792.930     6.947
+        22  4752.000 17616.012     7.331
+        23  6299.000 18422.320     7.206
+        24  5733.000 19188.948     7.033
+        25  5351.000 19996.702     6.631
+        26  5152.000 20791.695     7.815
+        27  5461.000 21593.342     7.902
+        28  4816.000 22408.492     7.541
+        29  5391.000 23190.246     9.345
+        30  5021.000 24009.337     7.375
+        31  5194.000 24797.226     7.986
+        32  5192.000 25607.977     7.768
+        33  5401.000 26409.342     8.086
+        34  4927.000 27190.648     7.410
+        35  4718.000 27990.954     7.806
+        36  4509.000 28793.658     7.400
+        37  5346.000 29648.534     6.941
+        38  5449.000 30397.797     7.461
+        39  6073.000 31199.396     7.758
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =     -1.000     1.000
+Direction angles (degrees)  =    135.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =    400.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   596.000   119.136     2.768
+         1  1400.000   393.701     4.532
+         2  1453.000   793.785     6.290
+         3  1224.000  1196.400     6.529
+         4  1032.000  1596.868     7.385
+         5   858.000  1983.161     7.192
+         6   697.000  2404.699     7.787
+         7   675.000  2794.542     7.751
+         8   419.000  3189.263     8.768
+         9   354.000  3597.904    11.252
+        10   339.000  3996.583     9.995
+        11   260.000  4402.766     7.896
+        12   232.000  4792.850     7.453
+        13   177.000  5178.782     7.800
+        14   172.000  5586.833     6.960
+        15   100.000  5978.383     9.960
+        16    89.000  6394.625     9.218
+        17    55.000  6800.319     5.859
+        18    30.000  7199.585     9.574
+        19    39.000  7641.196     4.828
+ 
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.203
+K-Bessel (Third Parameter = 1)
+- Sill         =      4.715
+- Ranges       =   1045.034  1497.054
+- Theo. Ranges =    301.675   432.162
+- Angles       =     45.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.707    -0.707
+     [  1,]     0.707     0.707
+Total Sill     =      6.918
+Known Mean(s)     0.000
+ 
+#NO_DIFF#XXX
+
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.203
+K-Bessel (Third Parameter = 1)
+- Sill         =      4.715
+- Ranges       =   1045.034  1497.054
+- Theo. Ranges =    301.675   432.162
+- Angles       =     45.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.707    -0.707
+     [  1,]     0.707     0.707
+Total Sill     =      6.918
+Known Mean(s)     0.000
+ ----
+
+
++#NO_DIFF#XXX+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.200
+K-Bessel (Third Parameter = 1)
+- Sill         =      4.700
+- Ranges       =   2000.000   200.000
+- Theo. Ranges =    577.350    57.735
+Total Sill     =      6.900
+
+Drift Part
+----------
+Universality_Condition----
+
+
++#NO_DIFF#XXX+
+XXX
+#NO_DIFF#XXX
+----

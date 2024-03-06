@@ -4,7 +4,7 @@ with documentation written with Roxygen syntax (such as plot.R)
 
 We notice that the r_install command is creating internally an R package
 (in build/r/Release/gstlearn directory) that can be considered as a tentative R package.
-In praticular this directory contains the recommanded sub-directories
+In particular this directory contains the recommanded sub-directories
 (R, src) and the recommanded files (DESCRIPTION and NAMESPACE).
 
 1) We must clean this pseudo package from the undesirable files: these are the files 

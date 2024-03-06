@@ -150,7 +150,7 @@ def loadDoc(filename, verbose=False):
         if img is not None:
             beginning = img.group(1)
             imgdesc = img.group(2)
-            imgfile = locateFile(img.group(3))
+            imgfile = locateFile(img.group(3), verbose=verbose)
             ending = img.group(4)
             if imgfile is None:
                 return "File " + img.group(3) + " not found!"
@@ -163,7 +163,7 @@ def loadDoc(filename, verbose=False):
     result = ''.join(header) + '\n'.join(lines) + ''.join(trailer)
     return result
     
-def loadData(directory, filename):
+def loadData(directory, filename, verbose=False):
     '''
     This function loads a file named 'filename' in the 'directory' (from the web site)
     
@@ -173,4 +173,4 @@ def loadData(directory, filename):
     filename: Name of the file of interest
     '''
     
-    return locateFile(filename, "data", directory)
+    return locateFile(filename, "data", directory, verbose=verbose)
