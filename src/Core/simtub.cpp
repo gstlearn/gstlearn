@@ -2533,11 +2533,13 @@ int simcond(Db *dbin,
             int verbose)
 {
   PropDef *propdef;
-  int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
+  int nvar, error, iptr, iptr_ce, iptr_cstd, ndim;
 
   /* Initializations */
 
   error = 1;
+  bool flag_ext_created = false;
+  bool flag_nostat_created = false;
   nvar = model->getVariableNumber();
   ndim = model->getDimensionNumber();
   iptr = -1;
@@ -2549,9 +2551,8 @@ int simcond(Db *dbin,
   NeighUnique* neighU = NeighUnique::create(false, &space);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
-  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manageExternalInformation(1, ELoc::NOSTAT, dbin, dbout, &inostat))
-    goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &flag_ext_created)) goto label_end;
+  if (manageExternalInformation(1, ELoc::NOSTAT, dbin, dbout, &flag_nostat_created)) goto label_end;
 
   /* Limitations */
 
@@ -2650,8 +2651,8 @@ int simcond(Db *dbin,
 
   label_end:
   delete neighU;
-  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iext);
-  (void) manageExternalInformation(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_ext_created);
+  (void) manageExternalInformation(-1, ELoc::NOSTAT, dbin, dbout, &flag_nostat_created);
   return (error);
 }
 

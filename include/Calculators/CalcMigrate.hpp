@@ -56,42 +56,48 @@ private:
                bool flag_fill,
                bool flag_inter,
                bool flag_ball);
-  int _migrate_point_to_grid(Db *db_point,
+  int _migratePointToGrid(Db *db_point,
                              DbGrid *db_grid,
                              int iatt,
                              int distType,
                              const VectorDouble &dmax,
                              VectorDouble &tab);
-  int _expand_point_to_point_ball(Db *db1,
+  int _expandPointToPointBall(Db *db1,
                                   Db *db2,
                                   int iatt,
                                   int distType,
                                   const VectorDouble &dmax,
                                   VectorDouble &tab);
-  int _migrate_grid_to_grid(DbGrid *db_gridin,
+  int _migrateGridToGrid(DbGrid *db_gridin,
                             DbGrid *db_gridout,
                             int iatt,
                             int distType,
                             const VectorDouble &dmax,
                             VectorDouble &tab);
-  int _expand_point_to_point(Db *db1,
+  int _expandPointToPoint(Db *db1,
                              Db *db2,
                              int iatt,
                              int distType,
                              const VectorDouble &dmax,
                              VectorDouble &tab);
-  int _expand_grid_to_grid(DbGrid *db_gridin,
+  int _expandGridToGrid(DbGrid *db_gridin,
                            DbGrid *db_gridout,
                            int iatt,
                            int distType,
                            const VectorDouble &dmax,
                            VectorDouble &tab);
-  int _interpolate_grid_to_point(DbGrid *db_grid,
+  int _interpolateGridToPoint(DbGrid *db_grid,
                                  Db *db_point,
                                  int iatt,
                                  int distType,
                                  const VectorDouble &dmax,
                                  VectorDouble &tab);
+  int _migrateGridToPoint(DbGrid *db_grid,
+                          Db *db_point,
+                          int iatt,
+                          int distType,
+                          const VectorDouble &dmax,
+                          VectorDouble &tab);
 
 private:
   int    _iattOut;
@@ -149,7 +155,7 @@ GSTLEARN_EXPORT int manageExternalInformation(int mode,
                                               const ELoc &locatorType,
                                               Db *dbin,
                                               Db *dbout,
-                                              int *istart);
+                                              bool* flag_created);
 GSTLEARN_EXPORT int interpolateVariableToPoint(DbGrid *db_grid,
                                                int iatt,
                                                int np,
@@ -194,3 +200,4 @@ GSTLEARN_EXPORT int expandPointToCoor(const Db *db1,
                                       int iatt,
                                       const VectorVectorDouble &coords,
                                       VectorDouble &tab);
+

@@ -150,6 +150,12 @@ public:
                               double angle = 0.,
                               int flag_add_rank = 1,
                               const VectorDouble &tab = VectorDouble());
+  static DbGrid* createGrid3DFromBacktransform(const DbGrid *surf2D,
+                                               const DbGrid *grid3D,
+                                               const String &nameTop,
+                                               const String &nameBot,
+                                               const VectorString &names,
+                                               double dzout = 1.);
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
@@ -322,6 +328,15 @@ public:
                                          bool flagRandom = false,
                                          int seed = 132433) const;
 
+  void getGridColumnInPlace(const String &name,
+                            const VectorInt &indg,
+                            int idim0,
+                            VectorDouble &vec) const;
+  void setGridColumnInPlace(const String &name,
+                            const VectorInt &indg,
+                            int idim0,
+                            const VectorDouble &vec);
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -330,6 +345,12 @@ protected:
 
 private:
   void _createCoordinatesGrid(int icol0);
+  void _interpolate(const DbGrid *grid3D,
+                    int idim0,
+                    double top,
+                    double bot,
+                    const VectorDouble &vecin,
+                    VectorDouble &vecout);
 
 private:
   Grid _grid;                //!< Grid characteristics

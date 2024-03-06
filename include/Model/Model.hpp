@@ -543,7 +543,10 @@ public:
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
     // However, note used for Gradient (Functional type) in Potential
-      return _ctxt.getNVar();
+    int ncov = _cova->getNVariables();
+    if (ncov <= 0)
+      ncov = _ctxt.getNVar();
+    return ncov;
   }
 
   int hasExternalCov() const;
