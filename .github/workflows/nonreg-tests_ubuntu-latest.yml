@@ -29,6 +29,10 @@ env:
   NUMPY_VERSION : "1.23.5"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}/swig_420b
+  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}/eigen
+  EIGEN_VERSION : "3.4.0"
 
 jobs:
   build:
@@ -40,9 +44,21 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -yq libboost-all-dev libhdf5-dev
-        sudo apt-get install -yq libeigen3-dev
-#        sudo apt-get install -yq libopenmpi-dev
+        sudo apt-get install -yq libhdf5-dev
+        sudo apt-get install -yq libopenmpi-dev
+
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-unix
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
+
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-unix
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+        generator: "Unix Makefiles"
 
     - name: Setup Python Version
       uses: actions/setup-python@v4
