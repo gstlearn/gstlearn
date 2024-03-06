@@ -221,8 +221,7 @@ static void st_print_traceHead(traceHead *Theader, int numTrace)
   message("SWEEP_FREQ_END      : %hi\n", st_to_s(Theader->SWEEP_FREQ_END));
   message("SWEEP_LENGTH        : %hi\n", st_to_s(Theader->SWEEP_LENGTH));
   message("SWEEP_TYPE          : %hi\n", st_to_s(Theader->SWEEP_TYPE));
-  message("SWEEP_TAPER_LEN_STT : %hi\n",
-          st_to_s(Theader->SWEEP_TAPER_LEN_START));
+  message("SWEEP_TAPER_LEN_STT : %hi\n", st_to_s(Theader->SWEEP_TAPER_LEN_START));
   message("SWEEP_TAPER_LEN_END : %hi\n", st_to_s(Theader->SWEEP_TAPER_LEN_END));
   message("TAPER_TYPE          : %hi\n", st_to_s(Theader->TAPER_TYPE));
   message("ALIAS_FREQ          : %hi\n", st_to_s(Theader->ALIAS_FREQ));
@@ -287,10 +286,8 @@ static void st_print_BFileHead(binaryFileHeader *Bheader)
   message("SWEEP_LENGTH         :%hi \n", st_to_s(Bheader->SWEEP_LENGTH));
   message("SWEEP_TYPE           :%hi \n", st_to_s(Bheader->SWEEP_TYPE));
   message("SWEEP_NUM_CHANNEL    :%hi \n", st_to_s(Bheader->SWEEP_NUM_CHANNEL));
-  message("SWEEP_TAPER_LEN_START:%hi \n",
-          st_to_s(Bheader->SWEEP_TAPER_LEN_START));
-  message("SWEEP_TAPER_LEN_END  :%hi \n",
-          st_to_s(Bheader->SWEEP_TAPER_LEN_END));
+  message("SWEEP_TAPER_LEN_START:%hi \n", st_to_s(Bheader->SWEEP_TAPER_LEN_START));
+  message("SWEEP_TAPER_LEN_END  :%hi \n", st_to_s(Bheader->SWEEP_TAPER_LEN_END));
   message("TAPER_TYPE           :%hi \n", st_to_s(Bheader->TAPER_TYPE));
   message("CORRELATED           :%hi \n", st_to_s(Bheader->CORRELATED));
   message("BINARY_GAIN          :%hi \n", st_to_s(Bheader->BINARY_GAIN));
@@ -364,7 +361,7 @@ static int st_readFileHeader(FILE *file,
 
   if (fread(&TFileHead_, 1, sizeof(TFileHead_), file) == 0) return (1);
   if (fread(&BFileHead_, 1, sizeof(BFileHead_), file) == 0) return (1);
-  if (verbOption >= 2) st_print_BFileHead(&BFileHead_);
+  if (verbOption >= 1) st_print_BFileHead(&BFileHead_);
   *NPerTrace = st_to_s(BFileHead_.NUM_OF_SAMPLES);
   *delta = (double) st_to_s(BFileHead_.INTERVAL_MS) / 1000;
   return (0);
@@ -1196,7 +1193,6 @@ static int st_load_trace(int nPerTrace,
     if (refstats.thicl > refstats.thicg || FFFF(refstats.thicg))
       refstats.thicg = refstats.thicl;
   }
-
   return ((*nbvalues) <= 0);
 }
 
@@ -1819,7 +1815,8 @@ Grid segy_summary(const char *filesegy,
 
   if (nbrefpt == 3)
     st_grid_from_3refpt(refpt, refstats, delta, def_grid);
-  else if (nbrefpt == 2) st_grid_from_2refpt(refpt, refstats, delta, def_grid);
+  else if (nbrefpt == 2)
+    st_grid_from_2refpt(refpt, refstats, delta, def_grid);
   if (option == 2)
   {
     def_grid.setX0(2, 0.);

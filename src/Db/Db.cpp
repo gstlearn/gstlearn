@@ -1301,6 +1301,9 @@ int Db::addColumns(const VectorDouble &tab,
                    double valinit,
                    int nvar)
 {
+  // If the input array 'tab' is empty, nothing is done
+  if (tab.empty()) return 0;
+
   // Particular case where the Db is empty.
   // Set its dimension to the number of samples of the input array 'tab'
   if (_nech <= 0) _nech = static_cast<int> (tab.size()) / nvar;

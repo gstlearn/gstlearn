@@ -874,6 +874,44 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
   return vec;
 }
 
+void DbGrid::getGridColumnInPlace(const String &name,
+                                  const VectorInt &indg,
+                                  int idim0,
+                                  VectorDouble &vec) const
+{
+  int nz = getNX(idim0);
+  if (nz != (int) vec.size()) vec.resize(nz);
+
+  // Loop on the samples
+
+  VectorInt indices = indg;
+  for (int iz = 0; iz < nz; iz++)
+  {
+    indices[idim0] = iz;
+    int iabs = _grid.indiceToRank(indices);
+    vec[iz] =  getValue(name, iabs);
+  }
+}
+
+void DbGrid::setGridColumnInPlace(const String &name,
+                                  const VectorInt &indg,
+                                  int idim0,
+                                  const VectorDouble &vec)
+{
+  int nz = getNX(idim0);
+  if ((int) vec.size() != nz) return;
+
+  // Loop on the samples
+
+  VectorInt indices = indg;
+  for (int iz = 0; iz < nz; iz++)
+  {
+    indices[idim0] = iz;
+    int iabs = _grid.indiceToRank(indices);
+    setValue(name, iabs, vec[iz]);
+  }
+}
+
 void DbGrid::generateCoordinates(const String& radix)
 {
   if (! isGrid())
@@ -1419,6 +1457,164 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
                               VectorString(), flag_add_rank);
 
   return db;
+}
+
+void DbGrid::_interpolate(const DbGrid *grid3D,
+                          int idim0,
+                          double top,
+                          double bot,
+                          const VectorDouble &vecin,
+                          VectorDouble &vecout)
+{
+  int    nzin  = grid3D->getNX(idim0);
+  double z0out = getX0(idim0);
+  double dzout = getDX(idim0);
+  int    nzout = getNX(idim0);
+
+  // Blank out the output vector
+  vecout.fill(TEST);
+
+  // Get the top and bottom indices in the output vector
+  int indtop = ceil((top - z0out)  / dzout);
+  int indbot = floor((bot - z0out) / dzout);
+
+  for (int iz = indbot; iz <= indtop; iz++)
+  {
+    if (iz < 0 || iz >= nzout) continue;
+    double zz = z0out + iz * dzout;
+
+    // Find the index in the input vector
+    int izin = (int) (double(nzin) * (zz - bot) / (top - bot));
+    if (izin < 0 || izin <= nzin) continue;
+
+    // Assign the value
+    vecout[iz] = vecin[izin];
+  }
+}
+
+/**
+ * Creating a 3D structural grid from:
+ * - a 3D working grid containing the relevant information
+ * - a 2D grid containing the top and bottom information
+ * @param surf2D 2D grid of surfaces
+ * @param grid3D 3D grid of information
+ * @param nameTop Name of the variable in 'surf2D' containing the top information
+ * @param nameBot Name of the variable in 'surf2D' containing the bottom information
+ * @param names   Vector of names in 'grid3D' to be exported (after queez-and-stretch back transform)
+ * @param dzout   Vertical discretization (in structural scale)
+ * @return The output 3D structural grid (or nullptr in case of error)
+ *
+ * @remarks:
+ * - the grids 'surf2D' and 'grid3D' must share the same 2-D information
+ * - the grid 'surf2D' contains the top and bottom (identified by the corresponding locators)
+ * - the vertical extension of the output grid is obtained by getting the extrema of tops and bottoms
+ */
+DbGrid* DbGrid::createGrid3DFromBacktransform(const DbGrid* surf2D,
+                                              const DbGrid* grid3D,
+                                              const String& nameTop,
+                                              const String& nameBot,
+                                              const VectorString &names,
+                                              double dzout)
+{
+  DbGrid* grid = nullptr;
+
+  // Preliminary checks
+
+  if (surf2D == nullptr) return grid;
+  if (grid3D == nullptr) return grid;
+
+  if (surf2D->getNDim() != 2)
+  {
+    messerr("The grid 'surf2D' must be defined in the 2-D space");
+    return grid;
+  }
+  if (grid3D->getNDim() != 3)
+  {
+    messerr("The grid 'grid3D' must be defined in the 3-D space");
+    return grid;
+  }
+  if (! grid3D->isSameGrid(surf2D->getGrid()))
+  {
+    messerr("The grids 'surf2D' and 'grid3D' do not match (in 2D)");
+    return grid;
+  }
+  if (dzout <= 0.)
+  {
+    messerr("The vertical grid mesh 'dz' must be strictly positive");
+    return grid;
+  }
+
+  // Getting relevant information from the top and bottom surfaces
+  double botmin = TEST;
+  double topmax = TEST;
+  for (int ig = 0, ng = surf2D->getSampleNumber(); ig < ng; ig++)
+  {
+    double top = surf2D->getValue(nameTop, ig);
+    double bot = surf2D->getValue(nameBot, ig);
+    if (FFFF(top) || FFFF(bot)) continue;
+    if (top < bot) continue;
+    if (FFFF(botmin) || bot < botmin) botmin = bot;
+    if (FFFF(topmax) || top > topmax) topmax = top;
+  }
+  if (FFFF(topmax) || FFFF(botmin))
+  {
+    messerr("No valid information has been found from 'top' and 'bottom' variables");
+    return grid;
+  }
+
+  int nzout = ceil((topmax - botmin) / dzout);
+
+  // Defining the parameters of the output grid by:
+  // - extracting the information from the input "D GRID
+  VectorDouble X0s = grid3D->getX0s();
+  VectorDouble DXs = grid3D->getDXs();
+  VectorInt    NXs = grid3D->getNXs();
+  VectorDouble angles = grid3D->getAngles();
+
+  // - updating the information corresponding to the third dimension
+  int idim0 = 2;
+  int nzin = grid3D->getNX(idim0);
+  X0s[idim0] = botmin;
+  DXs[idim0] = dzout;
+  NXs[idim0] = nzout;
+  angles[idim0] = 0.;
+  VectorInt indg(3, 0);
+
+  // Creating the output grid and the add the variables
+
+  grid = create(NXs, DXs, X0s, angles);
+  for (int ivar = 0, nvar = (int) names.size(); ivar < nvar; ivar++)
+  {
+    grid->addColumnsByConstant(1, TEST, names[ivar]);
+  }
+
+  // Loop on the 3-D vertical columns of the 3-D grid
+
+  VectorDouble vecin(nzin);
+  VectorDouble vecout(nzout);
+  for (int ix = 0, nx = surf2D->getNX(0); ix < nx; ix++)
+    for (int iy = 0, ny = surf2D->getNX(1); iy < ny; iy++)
+    {
+      indg[0] = ix;
+      indg[1] = iy;
+
+      // Get the Top and bootm information from the surf2D grid
+
+      int ig = surf2D->indiceToRank(indg);
+      double top = surf2D->getValue(nameTop, ig);
+      double bot = surf2D->getValue(nameBot, ig);
+      if (bot > top) continue;
+
+      // Loop on the variables to be transformed
+
+      for (int ivar = 0, nvar = (int) names.size(); ivar < nvar; ivar++)
+      {
+        grid3D->getGridColumnInPlace(names[ivar], indg, idim0, vecin);
+        grid->_interpolate(grid3D, idim0, top, bot, vecin, vecout);
+        grid->setGridColumnInPlace(names[ivar], indg, idim0, vecout);
+      }
+    }
+  return grid;
 }
 
 VectorInt DbGrid::locateDataInGrid(const Db *data,
