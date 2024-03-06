@@ -117,7 +117,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
 #'   {r, echo=FALSE, result='asis'}
 #'    cat(XXX, sep="\n")
 #'   }
-loadDoc <- function(filename)
+loadDoc <- function(filename, verbose=TRUE)
 {
   if (!require("stringr", quietly=TRUE))
   {
@@ -125,7 +125,7 @@ loadDoc <- function(filename)
     return("")
   }
     
-  filepath = locateFile(filename)
+  filepath = locateFile(filename, verbose=verbose)
   if (is.null(filepath))
     return(paste("File ", filename, "not found!"))
   

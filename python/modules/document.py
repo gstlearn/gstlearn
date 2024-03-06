@@ -124,7 +124,7 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     
     return None
 
-def loadDoc(filename, verbose=False):
+def loadDoc(filename, verbose=True):
     '''
     This function return the contents of a Markdown file named 'filename'
     The result is decorated so as to appear as a NOTE in HTML files
