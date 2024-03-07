@@ -1,6 +1,6 @@
 Matrix used to demonstrate Cholesky Algebra
-Product Mat % V is validated
-Product Mat^{-1} % V is validated
+Product Mat * V is validated
+Product Mat^{-1} * V is validated
 The calculation of 'stdev' is not yet performed with Eigen Library
 Standard Deviation (by Matrix)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]

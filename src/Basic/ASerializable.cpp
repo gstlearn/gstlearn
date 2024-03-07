@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
-#if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
+#if __linux__ // Not operational under MacOS
 #include <wordexp.h>
 #endif
 
@@ -34,6 +34,10 @@
 #include <windows.h> // for CreateDirectory
 #else
 #include <unistd.h> // for readlink
+#endif
+
+#ifdef __APPLE__
+#include <mach-o/dyld.h> // for _NSGetExecutablePath
 #endif
 
 #include <sys/stat.h>
@@ -237,7 +241,7 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
   String filePath = fileLocal;
 
-#if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
+#if __linux__ // Not operational under MacOS
   // Check the presence of tilde character
   wordexp_t p;
   wordexp(fileLocal.c_str(), &p, 0);
@@ -437,7 +441,7 @@ bool ASerializable::createDirectory(const String& dir)
 #else
   struct stat sb;
   if ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
-  (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
+      (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
     return true;
 #endif
   return false;
@@ -454,10 +458,16 @@ String ASerializable::getExecDirectory()
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
-  dir = String(buffer);
-#else
+    dir = String(buffer);
+#elif __APPLE__
+  char buffer[PATH_MAX] = "";
+  uint32_t bufsize = PATH_MAX;
+  if(!_NSGetExecutablePath(buffer, &bufsize))
+    dir = String(buffer);
+#else // __linux__
   char buffer[LONG_SIZE] = "";
-  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1) dir = String(buffer);
+  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
+    dir = String(buffer);
 #endif
   return getDirectory(dir);
 }

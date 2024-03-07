@@ -120,10 +120,13 @@ bool ASerializable::_recordWrite(std::ostream& os,
     }
     else
     {
+      int prec = os.precision();
+      os.precision(15);
       if (title.empty())
         os << val << " ";
       else
         os << val << " # " << title << std::endl;
+      os.precision(prec);
     }
   }
   return os.good();
@@ -138,6 +141,9 @@ bool ASerializable::_recordWriteVec(std::ostream& os,
   {
     if (!title.empty())
       os << "# " << title << std::endl;
+
+    int prec = os.precision();
+    os.precision(15);
     for (auto val: vec)
     {
       if (isNA<T>(val))
@@ -146,6 +152,7 @@ bool ASerializable::_recordWriteVec(std::ostream& os,
         os << val << " ";
     }
     os << std::endl;
+    os.precision(prec);
   }
   return os.good();
 }

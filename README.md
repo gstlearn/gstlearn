@@ -64,9 +64,10 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 * Git client 2.30 or higher
 * CMake tool 3.20 or higher
 * A C++ compiler among:
-  * Linux/MacOS:
+  * Linux:
     * GCC 5.4 or higher
-    * Clang 12 or higher (not tested)
+  * MacOS:
+    * Clang (from llvm) or higher (not tested)
   * Windows:
     * Python users: Microsoft Visual Studio C++ 14 or higher
     * R users: MinGW 7 (RTools 4.2) or higher
@@ -113,6 +114,10 @@ or even faster:
 ```
 make
 ```
+
+Notes:
+
+* Under MacOS, if you experience "Could NOT find OpenMP_C" error message, you should use the appropriate clang compiler (see [required tools installation](#required-tools-installation) instructions below)
 
 #### Microsoft Visual Studio, ...
 
@@ -202,7 +207,10 @@ sudo apt install libhdf5-dev
 
 #### MacOS
 
+Install the dependencies:
+
 ```
+brew install llvm
 brew install git
 brew install cmake
 brew install texlive-latex-recommended
@@ -213,9 +221,19 @@ brew install libeigen3-dev
 brew install libhdf5-dev
 ```
 
+Define environment variables for the appropriate clang compiler:
+
+```
+export CC=/usr/local/opt/llvm/bin/clang
+export CXX=/usr/local/opt/llvm/bin/clang++
+```
+
 Notes:
 
 * These instructions for MacOS are currently not tested - above packages may not exist
+* Clang from llvm package is mandatory to support OpenMP
+* If you want to permanently define the `CC` and `CXX` environment variables, follow [this guide](https://phoenixnap.com/kb/set-environment-variable-mac#ftoc-heading-5)
+
   
 #### Windows - Microsoft Visual Studio
 
@@ -315,7 +333,7 @@ pacman -Sy mingw-w64-x86_64-doxygen
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows and MacOS**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
 * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can add `-DCMAKE_INSTALL_PREFIX="path/of/gstlearn/install/dir"` to the first cmake command above.
-* If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
+* If you want HDF5 support, add `-DUSE_HDF5=ON` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=1` after the `make` command
 * Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
 * Using MinGW on a Windows where another compiler is also installed may need to add `-G "MSYS Makefiles"` in the first cmake command above.
 * Using Visual Studio on a Windows where another compiler is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).

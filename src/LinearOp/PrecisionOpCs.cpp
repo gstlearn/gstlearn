@@ -11,12 +11,12 @@
 #include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/Cholesky.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
+#include "Polynomials/ClassicalPolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "Model/Model.hpp"
-#include "Polynomials/ClassicalPolynomial.hpp"
 #include "Matrix/NF_Triplet.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,

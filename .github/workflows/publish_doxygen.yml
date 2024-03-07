@@ -1,12 +1,26 @@
 name: publish_doxygen
 
 on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
   workflow_dispatch:
     inputs:
       logLevel:
         description: 'Manual'
         required: false
         default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
 
 env:
   BUILD_TYPE: Release
@@ -15,45 +29,50 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      # Corresponding docker file comes from:
+      # https://github.com/gstlearn/docker-generate
+      image: gstlearn/ubuntu-16-demos-rmd-ipynb
+    outputs:
+      # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+      project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
     - uses: actions/checkout@v3
 
-    # Boost and Eigen are not needed but our cmake for doxygen cannot ignore the dependency yet
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq doxygen libboost-all-dev libeigen3-dev 
-
     - name: Build doxygen documentation and save generated folder name in the environment
+      id: main_step
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF -DUSE_HDF5=OFF
+        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         cmake --build ${{env.BUILD_DIR}} --target doxygen
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"
-        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_ENV"
-
-    - name: Print version
-      run: echo "PROJECT_VERSION=${{ env.PROJECT_VERSION }}"
+        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
     - uses: actions/upload-artifact@v3 
       with:
         # This will become the folder name in the server
-        name: doxygen-${{ env.PROJECT_VERSION }}
+        name: doxygen
         path: ${{ env.HTML_FOLDER }}
 
   publish:
     needs: build
+    if: ${{inputs.external_call == false}}
+    
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
     
     steps:
-    - uses: fabien-ors/folder-publish-action@v1
-      with:
-        host: ${{ secrets.CG_HOST }}
-        username: ${{ secrets.CG_USR }}
-        password: ${{ secrets.CG_PWD }}
-        dest-path: "/var/www/html/gstlearn"
-
-    # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v2
-      with:
-        name: doxygen-*
+      - env:
+            PROJECT_VERSION: ${{needs.build.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v1
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+  
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: doxygen

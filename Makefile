@@ -55,15 +55,16 @@
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
-#  - USE_HDF5=0         To remove HDF5 support (default =1)
+#  - USE_HDF5=0         To remove HDF5 support (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
+#  - EIGEN3_DIR=<path>  Path to Eigen3 library
 #
 # Usage example:
 #
 #  make check N_PROC=2
 #
 
-ifndef USE_HDF5
+ifdef USE_HDF5
   USE_HDF5 = 1
 endif
 ifeq ($(USE_HDF5), 1)
@@ -78,6 +79,15 @@ ifeq ($(OS),Windows_NT)
 else
   # Standard GNU UNIX Makefiles otherwise
   GENERATOR = -G"Unix Makefiles"
+  # Set OS also for Linux or Darwin
+  OS := $(shell uname -s)
+endif
+
+ifeq ($(OS),Darwin)
+  # Particular clang compiler for supporting OpenMP
+  CC_CXX = CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++
+else
+  CC_CXX = 
 endif
 
 ifeq ($(DEBUG), 1)
@@ -106,33 +116,36 @@ else
   N_PROC_OPT = -j1
 endif
 
-
-CMAKE_DEFINES = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
+ifdef EIGEN3_DIR
+  CMAKE_DEFINES = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -DEigen3_DIR=$(EIGEN3_DIR)
+else
+  CMAKE_DEFINES = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
+endif
 
 .PHONY: all cmake cmake-python cmake-r cmake-python-r cmake-doxygen print_version static shared build_tests doxygen install uninstall
 
 all: shared install
 
 cmake:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES)
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES)
 
 cmake-python:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON
 
 cmake-r:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON
 
 cmake-python-r:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_R=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_R=ON
 
 cmake-doxygen:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOXYGEN=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOXYGEN=ON
 
 cmake-python-doxygen:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
 
 cmake-r-doxygen:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON -DBUILD_DOXYGEN=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON -DBUILD_DOXYGEN=ON
 
 print_version: cmake
 	@cmake --build $(BUILD_DIR) --target print_version -- --no-print-directory

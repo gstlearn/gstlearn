@@ -45,6 +45,7 @@ unsigned long long getTotalSystemMemory()
 }
 
 #else // assume Linux
+
 #include <unistd.h>
 
 unsigned long long getTotalSystemMemory()

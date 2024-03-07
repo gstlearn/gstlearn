@@ -1,12 +1,26 @@
-name: publish_python_ubuntu-16
+name: publish_python_ubuntu
 
 on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
   workflow_dispatch:
     inputs:
       logLevel:
         description: 'Manual'
         required: false
         default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
 
 env:
   BUILD_TYPE: Release
@@ -20,9 +34,9 @@ jobs:
       # Corresponding docker file comes from:
       # https://github.com/gstlearn/docker-generate
       image: gstlearn/ubuntu-16-gstlearn
-    strategy :
+    strategy:
       matrix:
-        python: ["py38","py39","py310","py311"]
+        python: [py38, py39, py310, py311, py312]
 
     steps:
     - uses: actions/checkout@v3
@@ -30,10 +44,10 @@ jobs:
     - name : Create Wheels
       run : |
         export PATH=/opt/python/${{matrix.python}}/bin:$PATH
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DUSE_HDF5=OFF
+        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
-        # Note: wheel must be declared pure (see setup.py)
+        # Note: wheel must be declared not pure (see setup.py)
         python3 setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
 
     - name : Upload

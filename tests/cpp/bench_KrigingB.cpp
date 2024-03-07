@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
-
   // Generate the data base
   String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
   CSVformat csv(false, 6);
@@ -54,7 +53,6 @@ int main(int argc, char *argv[])
   if (verbose) data->display();
   if (graphic)
     (void) data->dumpToNF("Data.ascii");
-
   // Generate the output grid
   bool flagSmall = false;
   VectorInt nx;
@@ -79,7 +77,6 @@ int main(int argc, char *argv[])
   Timer timer;
   kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 1800);
-
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
   grid->display(dbfmt);
@@ -87,7 +84,6 @@ int main(int argc, char *argv[])
 
   if (graphic)
     (void) grid->dumpToNF("Grid.ascii");
-
   if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;

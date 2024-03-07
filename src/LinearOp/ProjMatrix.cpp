@@ -9,10 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ProjMatrix.hpp"
-#include "Mesh/AMesh.hpp"
 #include "Db/Db.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Matrix/NF_Triplet.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 #include "geoslib_old_f.h"
 
 ProjMatrix::ProjMatrix() 

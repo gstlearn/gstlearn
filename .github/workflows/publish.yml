@@ -1,0 +1,50 @@
+name: publish
+
+on:
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+jobs:
+  call-python-macos:
+    uses: ./.github/workflows/publish_python_macos.yml
+    secrets: inherit
+  call-python-windows:
+    uses: ./.github/workflows/publish_python_windows.yml
+    secrets: inherit
+  call-python-ubuntu:
+    uses: ./.github/workflows/publish_python_ubuntu.yml
+    secrets: inherit
+  call-r-macos:
+    uses: ./.github/workflows/publish_r_macos.yml
+    secrets: inherit
+  call-r-windows:
+    uses: ./.github/workflows/publish_r_windows.yml
+    secrets: inherit
+  call-r-ubuntu:
+    uses: ./.github/workflows/publish_r_ubuntu.yml
+    secrets: inherit
+
+  call-r-publish:
+    needs: [call-r-macos, call-r-windows, call-r-ubuntu]
+    
+    # Only ubuntu can upload to CRAN easily (ssh)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: fabien-ors/cran-publish-action@v1
+        with:
+          host: ${{secrets.CG_HOST}}
+          username: ${{secrets.CG_USR}}
+          password: ${{secrets.CG_PWD}}
+          repo-path: "/var/www/html/cran"
+  
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: "*package*"
+

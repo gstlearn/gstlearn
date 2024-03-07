@@ -2,10 +2,10 @@
 title: "Tutorial on Variography"
 author: "gstlearn Team"
 output:
-  pdf_document:
-    toc: true
   html_document:
     df_print: paged
+    toc: true
+  pdf_document:
     toc: true
 ---
 

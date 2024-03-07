@@ -105,7 +105,7 @@
     {
       int v = 0;
       myres = SWIG_AsVal_int(obj, &v);
-      //std::cout << "convertToCpp(int): value=" << v << std::endl;
+      //std::cout << "convertToCpp(UChar): value=" << v << std::endl;
       if (myres == SWIG_OverflowError || 
           v < std::numeric_limits<UChar>::min() ||
           v > std::numeric_limits<UChar>::max()) // Out of bound value is error (no NA for UChar)
@@ -225,7 +225,7 @@
 %typemap(rtypecheck, noblock=1) const int&, int                               { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const double&, double                         { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const String&, String                         { length($arg) == 1 &&  is.character(unlist($arg)) }
-%typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.character(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const UChar&, UChar                           { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const bool&, bool                             { length($arg) == 1 &&  is.logical(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt                   { length($arg) == 0 || (length($arg) > 0 && (is.integer(unlist($arg)) || is.numeric(unlist($arg)))) }
@@ -281,7 +281,7 @@
     //std::cout << "convertFromCpp(UChar): value=" << value << std::endl;
     return value; // No special conversion provided
   }
-    template <> bool convertFromCpp(const bool& value)
+  template <> bool convertFromCpp(const bool& value)
   {
     //std::cout << "convertFromCpp(bool): value=" << value << std::endl;
     return value; // No special conversion provided

@@ -89,7 +89,6 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 void Cholesky::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
 {
   if (! isValid()) return;
-
   _matCS->prodMatVecInPlace(inv, outv);
 }
 

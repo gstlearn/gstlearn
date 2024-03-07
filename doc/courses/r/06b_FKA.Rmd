@@ -3,6 +3,9 @@ title: "Filtering by Kriging"
 author: "gstlearn Team"
 date: "February 2023"
 output:
+  html_document:
+    df_print: paged
+    toc: false
   beamer_presentation:
     colortheme: beaver
     fig_height: 6

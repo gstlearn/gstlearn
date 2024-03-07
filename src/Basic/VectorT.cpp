@@ -40,3 +40,9 @@ std::ostream& operator<<(std::ostream& os, const VectorT<UChar>& vec)
   os << vec.toString();
   return os;
 }
+template <>
+std::ostream& operator<<(std::ostream& os, const VectorT<char>& vec)
+{
+  os << vec.toString();
+  return os;
+}

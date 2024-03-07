@@ -1,0 +1,116 @@
+name: publish_python_macos
+
+on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}/eigen
+  EIGEN_VERSION : "3.4.0"
+#  HDF5_ROOT : hdf5 #do not use "." in the name 
+#  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
+#  HDF5_VERSION : hdf5-1.12.1
+
+jobs:
+  build:
+    runs-on: macos-12
+    strategy:
+      matrix:
+        python:
+          # Double quote for version is needed otherwise 3.10 => 3.1
+          - ["3.8",  1.20.3]
+          - ["3.9",  1.20.3]
+          - ["3.10", 1.21.6]
+          - ["3.11", 1.23.5]
+          - ["3.12", 1.26.3]
+        arch:
+          - [x86_64, macosx_12_0_x86_64]
+          - [arm64,  macosx_12_0_arm64]
+        exclude:
+          - arch: [arm64,  macosx_12_0_arm64]
+            python: ["3.8", "3.9"]
+            
+    steps:
+    - uses: actions/checkout@v3
+
+    - name : Download and install dependencies
+      run: |
+        brew install llvm
+        brew install doxygen
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{matrix.python[0]}}
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{matrix.python[1]}} twine wheel setuptools
+
+#    - name : Download and install HDF5
+#      run : |
+#        mkdir ${{env.HDF5_ROOT}}
+#        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}
+#        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
+#        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
+#        ls
+#        cd ${{env.HDF5_ROOT}} 
+#        ls
+#        cd CMake-${{env.HDF5_VERSION}}
+#        mkdir build
+#        cd build
+#        cmake -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
+#        cmake --build . --target all --config Release -- -j 3
+#        cmake --build . --target install --config Release
+
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-unix
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
+
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-unix
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+        generator: "Unix Makefiles"
+
+    - name : Create Wheels
+      run : |
+        # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
+        CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B${{env.BUILD_DIR}} -DCMAKE_OSX_ARCHITECTURES=${{matrix.arch[0]}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
+        cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
+        cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
+        # Note: wheel must be declared not pure (see setup.py)
+        python setup.py bdist_wheel --plat-name=${{matrix.arch[1]}}
+
+    - name : Upload
+      run : python -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
+        TWINE_REPOSITORY: pypi

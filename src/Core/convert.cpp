@@ -538,7 +538,6 @@ int csv_table_read(const String &filename,
 
   String line;
   String filepath = ASerializable::buildFileName(1, filename, true);
-
   // Open new stream
   std::ifstream file;
   file.open(filepath, std::ios::in);
@@ -549,10 +548,8 @@ int csv_table_read(const String &filename,
     messerr("Error when opening the CSV file %s for reading", filename.c_str());
     return 1;
   }
-
   // Remove windows stuff at the file beginning
   skipBOM(file);
-
   // Initialization
   names.clear();
   tab.clear();

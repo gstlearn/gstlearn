@@ -11,8 +11,8 @@ project(gstlearn
 ####################################################
 ## CONFIGURATION
 
-# By default, activate HDF5 support
-option(USE_HDF5 "Using HDF5 support" ON)
+# By default, do not activate HDF5 support
+option(USE_HDF5 "Using HDF5 support" OFF)
 
 # TODO : USE_NETCDF in CMake (mimicking USE_HDF5)
 # By default, do not activate NetCDF support
@@ -51,13 +51,14 @@ if (MSVC)
   # TODO : Reactivate HDF5 support for MSVC (currently: hdf5::sz-static target is not found)
   set(USE_HDF5 OFF)
 endif()
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # Clang compiler detected (define the shortcut variable)
+  set(CLANG ON)
+endif()
 message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
 message(STATUS "BUILD_DOXYGEN=" ${BUILD_DOXYGEN})
 message(STATUS "USE_HDF5="      ${USE_HDF5})
-
-# Universal binary for Mac (TODO : doesn't work for customized R)
-#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 
 # Create gstlearn cmake file path in the build tree
 cmake_path(APPEND GSTLEARN_CMAKE_FILE ${PROJECT_BINARY_DIR} "gstlearn.cmake")

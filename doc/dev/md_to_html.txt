@@ -1,7 +1,0 @@
-
-MD files from our github repository are converted to html using comrak
-https://github.com/kivikakk/comrak
-
-Follow installation instructions and execute:
-
-comrak README.md -o ~/gstlearn.html

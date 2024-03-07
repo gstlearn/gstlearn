@@ -76,8 +76,11 @@ void StdoutRedirect::stop()
   // https://stackoverflow.com/questions/32185512/output-to-console-from-a-win32-gui-application-on-windows-10
   SetStdHandle(STD_OUTPUT_HANDLE, _old_stdout);
   int fd = _open_osfhandle((intptr_t)_old_stdout, _O_WRONLY|_O_TEXT);
-  FILE* fp = _fdopen(fd, "w");
-  freopen_s( &fp, "CONOUT$", "w", stdout);
+  if (fd >= 0) // fd could be negative for an unknown reason (https://github.com/gstlearn/gstlearn/issues/111)
+  {
+    FILE* fp = _fdopen(fd, "w");
+    freopen_s( &fp, "CONOUT$", "w", stdout);
+  }
 #else
   std::cout.rdbuf(_coutbuf);
   _out.close();
@@ -103,9 +106,7 @@ FILE* gslFopen(const char* path, const char* mode)
 {
   FILE *file;
 
-#ifdef __unix
-  file = fopen(path, mode);
-#elif defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
   file = fopen(path, mode);
 #else
   errno_t err;

@@ -6,7 +6,7 @@ output:
     df_print: paged
     toc: true
   pdf_document:
-    toc: true_variogram_compute
+    toc: true
 ---
 
 <!-- SUMMARY: Using Stochastic Partial Derivative Equation framework to perform Estimation (extension to the use of External Drift)  -->
