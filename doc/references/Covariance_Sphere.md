@@ -11,7 +11,7 @@ $$P_1(x) = x$$
 
 $$P_{n+1}(x)=\frac{(2n+1)xP_n(x) - n P_{n-1}(x)}{n+1}$$
 
-For $n\geq 0$, $$f(n) = \frac{2 n}{ (R^2\kappa^2 + n ( n + 1))^\alpha}$$
+For $n\geq 0$, $$f(n) = \frac{2n+1}{ (R^2\kappa^2 + n ( n + 1))^\alpha}$$
 
 For numerical computations, the sums are truncated at **N**.
 

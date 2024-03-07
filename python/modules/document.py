@@ -69,8 +69,8 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     '''
     Return the absolute path of a file:
     - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
-    - if not, it is assumed to be present locally in './doc/<where>' or '../../<where>'
-    - if not, if Internet is available, the file is downloaded from the gstlearn website in temporary files
+    - if not, it is assumed to be present locally in './doc/<where>', '../../doc/<where>' or '../../<where>'
+    - if not, if Internet is available, the file is downloaded from the gstlearn website in a temporary file
     
     filename: Name of the file to be located
     where: 'data' or 'references'
@@ -97,7 +97,9 @@ def locateFile(filename, where='references', directory=None, verbose=False):
     if where == 'data' and directory is not None:
         filename = os.path.join(directory, filename)
     
-    folders = [os.path.join('.',"doc",where), os.path.join('..','..',where)]
+    folders = [os.path.join('.',"doc",where),
+               os.path.join('..','..',"doc",where),
+               os.path.join('..','..',where)]
     for f in folders:
         localname = os.path.join(f, filename)
         if os.path.isfile(localname):

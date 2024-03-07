@@ -35,8 +35,8 @@ internetAvailable <- function()
 
 #' Return the absolute path of a file:
 #' - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
-#' - if not, it is assumed to be present locally in './doc/<where>' or '../../<where>'
-#' - if not, if Internet is available, the file is downloaded from the gstlearn website in temporary files
+#' - if not, it is assumed to be present locally in './doc/<where>', '../../doc/<where>' or '../../<where>'
+#' - if not, if Internet is available, the file is downloaded from the gstlearn website in a temporary file
 #' 
 #' filename: Name of the file to be located
 #' where: 'data' or 'references'
@@ -70,7 +70,9 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   if (where == 'data' && !is.null(directory))
     filename = file.path(directory, filename)
   
-  folders = list(file.path('.',"doc",where), file.path('..','..',where))
+  folders = list(file.path('.',"doc",where),
+                 file.path('..','..',"doc",where),
+                 file.path('..','..',where))
   for (f in folders)
   {
     localname = file.path(f, filename)
