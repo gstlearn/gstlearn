@@ -2009,16 +2009,18 @@ void VectorHelper::squeezeAndStretchInPlaceForward(const VectorDouble &vecin,
 {
   int nzin  = (int) vecin.size();
   int nzout = (int) vecout.size();
+  double thick = top - bot;
+  double ratio = thick / nzout;
 
   // Loop on the positions of the pile in the sugar box system
   for (int iz = 0; iz < nzout; iz++)
   {
     // Corresponding coordinate of the sample in the structural system
-    double zzin = (top - bot) * iz / nzout;
+    double zzin = bot + (double) iz * ratio;
 
     // Find the index in the input vector
     int izin = (int) ((zzin - origin) / mesh);
-    if (izin < 0 || izin <= nzin) continue;
+    if (izin < 0 || izin >= nzin) continue;
 
     // Assign the value
     vecout[iz] = vecin[izin];
@@ -2051,6 +2053,8 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
 
   // Blank out the output vector
   vecout.fill(TEST);
+  double thick = top - bot;
+  if (thick <= 0) return;
 
   // Get the top and bottom indices in the output vector
   int indbot = floor((bot - origin) / mesh);
@@ -2058,7 +2062,7 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
   int indtop = ceil((top - origin)  / mesh);
   if (indtop >= nzout) indtop = nzout - 1;
 
-  double ratio = (double) nzin / (top - bot);
+  double ratio = (double) nzin / thick;
 
   // Loop on the positions of the pile in the structural system
   for (int izout = indbot; izout <= indtop; izout++)
@@ -2068,7 +2072,7 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
 
     // Find the index in the input vector (sugar box)
     int izin = ratio * (zzout - bot);
-    if (izin < 0 || izin <= nzin) continue;
+    if (izin < 0 || izin >= nzin) continue;
 
     // Assign the value
     vecout[izout] = vecin[izin];

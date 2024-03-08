@@ -135,7 +135,8 @@ public:
                                                 const String &nameTop,
                                                 const String &nameBot,
                                                 const VectorString &names,
-                                                int nzout);
+                                                int nzout,
+                                                double thickmin = 0.);
   static DbGrid* createSqueezeAndStretchBackward(const DbGrid *grid3Din,
                                                  const DbGrid *surf2D,
                                                  const String &nameTop,

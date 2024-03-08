@@ -1054,9 +1054,18 @@ int Grid::getMirrorIndex(int idim, int ix) const
  ** \param[in]  nx      Array giving the number of cells per direction
  ** \param[in]  string  String describing the sorting order
  ** \param[in]  startFromZero True if numbering must start from 0 (1 otherwise)
+ ** \param[in]  invert  Way to use the resulting array (see remark)
  ** \param[in]  verbose Verbose flag
  **
  ** \remark Example of string: "+x2-x1"
+ **
+ ** \remark if 'rank' designates the resulting vector of indices
+ ** \remark invert=True:
+ ** \remark   rank[i] is the location of element 'i' of the user's array
+ ** \remark   within a regular grid of gstlearn
+ ** \remark invert=False:
+ ** \remark   rank[i] is the rank of the element of the user's array
+ ** \remark   in position 'i' of the regular grid of gstlearn
  **
  *****************************************************************************/
 VectorInt Grid::gridIndices(const VectorInt &nx,

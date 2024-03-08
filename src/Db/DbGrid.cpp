@@ -1581,6 +1581,7 @@ DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool
  * @param nameBot Name of the variable in 'surf2D' containing the bottom information
  * @param names   Vector of names in 'grid3D' to be exported in output 3D grid
  * @param nzout   Number of Vertical meshes in the output 3D grid
+ * @param thickmin The algorithm is not applied if
  * @return The output 3D grid (or nullptr in case of error)
  *
  * @remarks:
@@ -1594,7 +1595,8 @@ DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
                                                const String &nameTop,
                                                const String &nameBot,
                                                const VectorString &names,
-                                               int nzout)
+                                               int nzout,
+                                               double thickmin)
 {
   DbGrid* grid3Dout = nullptr;
 
@@ -1658,8 +1660,9 @@ DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
   DXs[idim0] = (topmax - botmin) / (double) nzout;
   X0s[idim0] = 0.;
 
-  // Create the output 3D grid
-  grid3Dout = create(NXs, DXs, X0s, angles);
+  // Create the output 3D grid (with no coordinate)
+  grid3Dout = create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
+                     VectorDouble(), VectorString(), VectorString(), 1, false);
 
   // Create the variables in the 3D grid and identify their UIDs
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -1671,11 +1674,11 @@ DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
   int iuidBot = surf2D->getUID(nameBot);
   VectorDouble vecin(nzin);
   VectorDouble vecout(nzout);
-  VectorDouble vecoutEmpty(nzout, TEST);
   VectorInt indg(ndim, 0);
   int ig2D;
   double top;
   double bot;
+  double thick;
 
   // Loop on the 3-D vertical columns of the 3-D grid
   for (int ix = 0, nx = grid3Dout->getNX(0); ix < nx; ix++)
@@ -1687,32 +1690,25 @@ DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
       // Identify the corresponding node in 'surf2D'
       ig2D = surf2D->indiceToRank(indg);
 
-      if (surf2D->isActive(ig2D))
+      if (! surf2D->isActive(ig2D)) continue;
+
+      // Read the Top and Bottom
+      top = surf2D->getArray(ig2D, iuidTop);
+      bot = surf2D->getArray(ig2D, iuidBot);
+      thick = top - bot;
+      if (thick < thickmin) continue;
+
+      // Loop on the variables to be transformed
+      for (int ivar = 0; ivar < nvar; ivar++)
       {
-        // Read the Top and Bottom
-        top = surf2D->getArray(ig2D, iuidTop);
-        bot = surf2D->getArray(ig2D, iuidBot);
+        // Read the pile from the 3D input grid
+        grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
 
-        // Loop on the variables to be transformed
-        for (int ivar = 0; ivar < nvar; ivar++)
-        {
-          // Read the pile from the 3D input grid
-          grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
+        // Perform the squeeze-and-stretch forward operation
+        VH::squeezeAndStretchInPlaceForward(vecin, vecout, z0, dz, top, bot);
 
-          // Perform the squeeze-and-stretch operation forwards
-          VH::squeezeAndStretchInPlaceForward(vecin, vecout, z0, dz, top, bot);
-
-          // Write the resulting pile in the output 3D grid
-          grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
-        }
-      }
-      else
-      {
-        // Loop on the variables to be transformed
-        for (int ivar = 0; ivar < nvar; ivar++)
-        {
-          grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecoutEmpty);
-        }
+        // Write the resulting pile in the output 3D grid
+        grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
       }
     }
   return grid3Dout;
@@ -1794,15 +1790,13 @@ DbGrid* DbGrid::createSqueezeAndStretchBackward(const DbGrid *grid3Din,
 
   // Modify these characteristics for the output 3D Grid
   int nzin  = NXs[idim0];
-  double z0 = X0s[idim0];
-  double dz = DXs[idim0];
-
   NXs[idim0] = nzout;
   DXs[idim0] = dzout;
   X0s[idim0] = z0out;
 
   // Create the output 3D grid
-  grid3Dout = create(NXs, DXs, X0s, angles);
+  grid3Dout = create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
+                     VectorDouble(), VectorString(), VectorString(), 1, false);
 
   // Create the variables in the 3D grid and identify their UIDs
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -1814,7 +1808,6 @@ DbGrid* DbGrid::createSqueezeAndStretchBackward(const DbGrid *grid3Din,
   int iuidBot = surf2D->getUID(nameBot);
   VectorDouble vecin(nzin);
   VectorDouble vecout(nzout);
-  VectorDouble vecoutEmpty(nzout, TEST);
   VectorInt indg(ndim, 0);
   int ig2D;
   double top;
@@ -1830,32 +1823,23 @@ DbGrid* DbGrid::createSqueezeAndStretchBackward(const DbGrid *grid3Din,
       // Identify the corresponding node in 'surf2D'
       ig2D = surf2D->indiceToRank(indg);
 
-      if (surf2D->isActive(ig2D))
+      if (! surf2D->isActive(ig2D)) continue;
+
+      // Read the Top and Bottom
+      top = surf2D->getArray(ig2D, iuidTop);
+      bot = surf2D->getArray(ig2D, iuidBot);
+
+      // Loop on the variables to be transformed
+      for (int ivar = 0; ivar < nvar; ivar++)
       {
-        // Read the Top and Bottom
-        top = surf2D->getArray(ig2D, iuidTop);
-        bot = surf2D->getArray(ig2D, iuidBot);
+        // Read the pile from the 3D input grid
+        grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
 
-        // Loop on the variables to be transformed
-        for (int ivar = 0; ivar < nvar; ivar++)
-        {
-          // Read the pile from the 3D input grid
-          grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
+        // Perform the squeeze-and-stretch operation backwards
+        VH::squeezeAndStretchInPlaceBackward(vecin, vecout, z0out, dzout, top, bot);
 
-          // Perform the squeeze-and-stretch operation backwards
-          VH::squeezeAndStretchInPlaceBackward(vecin, vecout, z0, dz, top, bot);
-
-          // Write the resulting pile in the output 3D grid
-          grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
-        }
-      }
-      else
-      {
-        // Loop on the variables to be transformed
-        for (int ivar = 0; ivar < nvar; ivar++)
-        {
-          grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecoutEmpty);
-        }
+        // Write the resulting pile in the output 3D grid
+        grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
       }
     }
   return grid3Dout;
@@ -2089,10 +2073,9 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
       }
 
       // Loop on the variables
-      for (int ivar = 0; ivar < nvar; ivar++)
+      if (flagRead)
       {
-        // Process the column
-        if (flagRead)
+        for (int ivar = 0; ivar < nvar; ivar++)
         {
           // Partial update
           getGridPileInPlace(iuids[ivar], indg, idim0, vec);
@@ -2105,11 +2088,13 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
 
           setGridPileInPlace(iuids[ivar], indg, idim0, vec);
         }
-        else
+      }
+      else
+      {
+        // Complete update
+        nmodif2D ++;
+        for (int ivar = 0; ivar < nvar; ivar++, nmodif3D++)
         {
-          // Complete update
-          nmodif3D += nz;
-          nmodif2D ++;
           setGridPileInPlace(iuids[ivar], indg, idim0, vecempty);
         }
       }
