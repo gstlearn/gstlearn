@@ -415,11 +415,14 @@ public:
   void   setValue(const String& name, int iech, double value);
 
   double getArray(int iech, int iuid) const;
+  void   getArrayVec(const VectorInt& iechs, int iuid, VectorDouble& values) const;
   void   setArray(int iech, int iuid, double value);
+  void   setArrayVec(const VectorInt& iechs, int iuid, const VectorDouble& values);
   void   updArray(int iech, int iuid, int oper, double value);
+  void   updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& values);
   VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
   VectorDouble getArrayBySample(int iech) const;
-  void setArrayBySample(int iech, const VectorDouble& vec);
+  void   setArrayBySample(int iech, const VectorDouble& vec);
 
   std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
 

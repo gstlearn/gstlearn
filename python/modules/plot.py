@@ -1150,41 +1150,42 @@ def cell(dbgrid, *args, **kwargs):
 def __ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
 
     indices = np.zeros(dbgrid.getNDim())
+    shift = np.ones(dbgrid.getNDim()) * (-1)
     for i in range(0,dbgrid.getNX(posX)+1,step):
         indices[posX] = i
         indices[posY] = 0
-        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posY] = dbgrid.getNX(posY)
-        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     for i in range(0,dbgrid.getNX(posY)+1,step):
         indices[posX] = 0
         indices[posY] = i
-        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posX] = dbgrid.getNX(posX)
-        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     return
 
 def __ax_box(ax, dbgrid, posX=0, posY=1, **kwargs):
     indices = np.zeros(dbgrid.getNDim())
-    
+    shift = np.ones(dbgrid.getNDim()) * (-1)
     step = dbgrid.getNX(posX)
     for i in range(0,dbgrid.getNX(posX)+1,step):
         indices[posX] = i
         indices[posY] = 0
-        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posY] = dbgrid.getNX(posY)
-        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     
     step = dbgrid.getNX(posY)
     for i in range(0,dbgrid.getNX(posY)+1,step):
         indices[posX] = 0
         indices[posY] = i
-        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posX] = dbgrid.getNX(posX)
-        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     return
 

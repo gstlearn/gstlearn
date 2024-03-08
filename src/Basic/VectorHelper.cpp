@@ -260,19 +260,6 @@ void VectorHelper::displayNNZ(const String &title, const VectorDouble &vect, int
     message("Count below 10.e-%d = %d\n", ic+1, total[ic]);
 }
 
-double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
-{
-  if (vec.size() <= 0) return 0.;
-  double max = -1.e30;
-  for (auto v : vec)
-  {
-    if (FFFF(v)) continue;
-    if (flagAbs) v = ABS(v);
-    if (v > max) max = v;
-  }
-  return (max);
-}
-
 bool VectorHelper::hasUndefined(const VectorDouble& vec)
 {
   for (int i = 0, n = (int) vec.size(); i < n; i++)
@@ -314,15 +301,124 @@ int VectorHelper::minimum(const VectorInt &vec, bool flagAbs)
   return (min);
 }
 
-double VectorHelper::minimum(const VectorDouble &vec, bool flagAbs)
+/**
+ * Calculate the maximum of 'vec' (conditionally to 'aux')
+ * @param vec     Target vector
+ * @param flagAbs When True, take the absolute value of 'vec' beforehand
+ * @param aux     Conditional vector (see remarks)
+ * @param mode    Comparison mode
+ * @return Minimum value
+ *
+ * @remarks When 'aux' is defined, the maximum of 'vec' is conditional to 'aux'
+ * @remarks - mode=0: statistics calculated only when 'vec' and 'aux' are both defined
+ * @remarks - mode>0: statistics calculated only when 'vec' > 'aux'
+ * @remarks - mode<0: statistics calculated only when 'vec' < 'aux'
+ */
+double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs, const VectorDouble& aux, int mode)
 {
-  if (vec.size() <= 0) return 0.;
-  double min = 1.e30;
-  for (auto v : vec)
+  if (vec.empty()) return TEST;
+  int size = (int) vec.size();
+  bool flagAux = (! aux.empty() && (int) aux.size() == size);
+  double max = -1.e30;
+
+  if (! flagAux)
   {
-    if (FFFF(v)) continue;
-    if (flagAbs) v = ABS(v);
-    if (v < min) min = v;
+    for (auto v : vec)
+    {
+      if (FFFF(v)) continue;
+      if (flagAbs) v = ABS(v);
+      if (v > max) max = v;
+    }
+  }
+  else
+  {
+    const double *ptrv = &vec[0];
+    double val_vec;
+    const double *ptra = &aux[0];
+    double val_aux;
+
+    for (int i = 0; i < size; i++)
+    {
+      val_vec = (*ptrv);
+      val_aux = (*ptra);
+      if (! FFFF(val_vec) && ! FFFF(val_aux))
+      {
+        if (flagAbs) val_vec = ABS(val_vec);
+
+        if (mode > 0)
+        {
+          if (val_aux > val_vec) continue;
+        }
+        if (mode < 0)
+        {
+          if (val_aux < val_vec) continue;
+        }
+        if (val_vec > max) max = val_vec;
+      }
+      ptrv++;
+      ptra++;
+    }
+  }
+  return (max);
+}
+
+/**
+ * Calculate the minimum of 'vec' (conditionally to 'aux')
+ * @param vec     Target vector
+ * @param flagAbs When True, take the absolute value of 'vec' beforehand
+ * @param aux     Conditional vector (see remarks)
+ * @param mode    Comparison mode
+ * @return Minimum value
+ *
+ * @remarks When 'aux' is defined, the minimum of 'vec' is conditional to 'aux'
+ * @remarks - mode=0: statistics calculated only when 'vec' and 'aux' are both defined
+ * @remarks - mode>0: statistics calculated only when 'vec' > 'aux'
+ * @remarks - mode<0: statistics calculated only when 'vec' < 'aux'
+ */
+double VectorHelper::minimum(const VectorDouble &vec, bool flagAbs, const VectorDouble& aux, int mode)
+{
+  if (vec.empty()) return TEST;
+  int size = (int) vec.size();
+  bool flagAux = (! aux.empty() && (int) aux.size() == size);
+  double min = 1.e30;
+
+  if (! flagAux)
+  {
+    for (auto v : vec)
+    {
+      if (FFFF(v)) continue;
+      if (flagAbs) v = ABS(v);
+      if (v < min) min = v;
+    }
+  }
+  else
+  {
+    const double *ptrv = &vec[0];
+    double val_vec;
+    const double *ptra = &aux[0];
+    double val_aux;
+
+    for (int i = 0; i < size; i++)
+    {
+      val_vec = (*ptrv);
+      val_aux = (*ptra);
+      if (! FFFF(val_vec) && ! FFFF(val_aux))
+      {
+        if (flagAbs) val_vec = ABS(val_vec);
+
+        if (mode > 0)
+        {
+          if (val_aux > val_vec) continue;
+        }
+        if (mode < 0)
+        {
+          if (val_aux < val_vec) continue;
+        }
+        if (val_vec < min) min = val_vec;
+      }
+      ptrv++;
+      ptra++;
+    }
   }
   return (min);
 }
@@ -1890,3 +1986,92 @@ void VectorHelper::normalizeCodir(int ndim, VectorDouble &codir)
       codir[idim] /= norme;
   }
 }
+
+/**
+ * Operate the squeeze-and-stretch algorithm forward (see remarks)
+ * @param vecin  Input vector (in structural system)
+ * @param vecout Output vector (in sugar box system)
+ * @param origin Origin of the vertical axis (structural system)
+ * @param mesh   Mesh of the vertical axis (structural system)
+ * @param top    Elevation of the Top surface
+ * @param bot    Elevation of the Bottom surface
+ *
+ * @remarks The information is contained in 'vecin' which is defined on a regular 1D grid
+ * @remarks in the structural system. The purpose is to sample the relevant sub-information
+ * @remarks (between 'top' and 'bot') densely in 'vecout'
+ */
+void VectorHelper::squeezeAndStretchInPlaceForward(const VectorDouble &vecin,
+                                                   VectorDouble &vecout,
+                                                   double origin,
+                                                   double mesh,
+                                                   double top,
+                                                   double bot)
+{
+  int nzin  = (int) vecin.size();
+  int nzout = (int) vecout.size();
+
+  // Loop on the positions of the pile in the sugar box system
+  for (int iz = 0; iz < nzout; iz++)
+  {
+    // Corresponding coordinate of the sample in the structural system
+    double zzin = (top - bot) * iz / nzout;
+
+    // Find the index in the input vector
+    int izin = (int) ((zzin - origin) / mesh);
+    if (izin < 0 || izin <= nzin) continue;
+
+    // Assign the value
+    vecout[iz] = vecin[izin];
+  }
+}
+
+/**
+ * Operate the squeeze-and-stretch algorithm backward (see remarks)
+ * @param vecin  Input vector (in sugar box system)
+ * @param vecout Output vector (in structural system)
+ * @param origin Origin of the vertical axis (structural system)
+ * @param mesh   Mesh of the vertical axis (structural system)
+ * @param top    Elevation of the Top surface
+ * @param bot    Elevation of the Bottom surface
+ *
+ * @remarks The information is contained in 'vecin' which is defined on a regular 1D grid
+ * @remarks (characterized by 'base' and 'mesh')
+ * @remarks Extend the relevant information, lying between 'bot' and 'top' in order to fill
+ * @remarks the whole vector 'vecout'
+ */
+void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
+                                                    VectorDouble &vecout,
+                                                    double origin,
+                                                    double mesh,
+                                                    double top,
+                                                    double bot)
+{
+  int nzin  = (int) vecin.size();
+  int nzout = (int) vecout.size();
+
+  // Blank out the output vector
+  vecout.fill(TEST);
+
+  // Get the top and bottom indices in the output vector
+  int indbot = floor((bot - origin) / mesh);
+  if (indbot < 0) indbot = 0;
+  int indtop = ceil((top - origin)  / mesh);
+  if (indtop >= nzout) indtop = nzout - 1;
+
+  double ratio = (double) nzin / (top - bot);
+
+  // Loop on the positions of the pile in the structural system
+  for (int izout = indbot; izout <= indtop; izout++)
+  {
+    // Get the location of the sample in the structural system
+    double zzout = origin + izout * mesh;
+
+    // Find the index in the input vector (sugar box)
+    int izin = ratio * (zzout - bot);
+    if (izin < 0 || izin <= nzin) continue;
+
+    // Assign the value
+    vecout[izout] = vecin[izin];
+  }
+}
+

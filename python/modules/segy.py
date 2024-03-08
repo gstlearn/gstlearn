@@ -12,8 +12,6 @@ import gstlearn as gl
 import segyio
 from segyio import BinField
 from segyio import TraceField
-from mpl_toolkits.axes_grid1.inset_locator import AnchoredZoomLocator
-from pickle import NONE
 
 def open(filename):
     f = segyio.open(filename, ignore_geometry=False)
@@ -158,16 +156,23 @@ def getCornersFromGrid(nx, ny, x0, y0, dx, dy, theta):
     
     return xrec, yrec
 
-def defineGrid(f, verbose=False):
-    # Get the grid characteristics
+def create2DGrid(fileSEGY, verbose=False):
+    
+        # Open the SEGY file
+    f = open(fileSEGY)
+
+    # Retrieve the grid characteristics
     x0, y0, z0, dx, dy, dz, nx, ny, nz, theta, thetaD = getGridCharacteristics(f)
+
+    # Close the file
+    f.close()
     
     # Create the grid
     nxvec = [nx,ny]
     grid = gl.DbGrid.create(nx = nxvec, dx = [dx,dy], x0 = [x0,y0], angles = [thetaD,0])
     
     # Add a variable which contains the order of the traces
-    rankTrace = gl.Grid.generateGridIndices(nxvec, "+x2+x1")
+    rankTrace = gl.Grid.gridIndices(nxvec, "+x2+x1")
     grid["rankTrace"] = rankTrace
     
     # Optional display
@@ -210,9 +215,25 @@ def checkCompatible(fileSEGYs):
     
     return True
 
-def create3DGrid(fileSEGYs, dbsegy, limits2D=None, topName = None, botName = None, 
-                 limitZ = None, verbose=False):
+def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = None, 
+                 verbose=False):
+    '''
+    Create a 3D grid from the set of SEGY files and the 2D surface information ('dbsegy')
+
+    fileSEGYs: Vector of SEGY files
+    dblabel: 2D grid file containing the surface information
+    topName: Name of the Top surface (in 'dbsegy')
+    botName: Name of the Bottom surface (in 'dbsegy')
+    limitZ: Vector giving the vertical indices (optional)
+    restrictHorizontal: True if the horizontal extension must be restricted to the
+       only pixels where top and bottom are defined and correctly ordered
     
+    Remarks: 
+    - 'topName' and 'botName' are used (when both defined and correctly ordered) 
+      for the vertical extension of 3D grid
+    - If 'limitZ' is not defined, they are used to derive the vertical extension.
+    '''
+
     # Get the information on the vertical extension of SEGY file
     f = open(fileSEGYs[0])
     _, _, z0, _, _, dz, _, _, nz, _, _ = getGridCharacteristics(f)
@@ -220,81 +241,85 @@ def create3DGrid(fileSEGYs, dbsegy, limits2D=None, topName = None, botName = Non
     z00 = z0
     zmax = z0 + (nz - 1) * dz
     
+    # Extract the limits for horizontal extension
+    Limits2D = dblabel.getLimitsFromVariableExtend(topName, botName)
+    dbsegy2D = gl.DbGrid.createSubGrid(dblabel, Limits2D, False)
+
     # Characteristics of the initial SEGY (based on the SEGY grid 'dbsegy')
     nx = dbsegy.getNXs()
     dx = dbsegy.getDXs()
     x0 = dbsegy.getX0s()
     angles = dbsegy.getAngles()
 
+    # Get the grid of maximum extension (even if variables are not defined)
+    iuidSel = dbsegy.setSelectionFromVariableExtend(topName, botName)
+    
     # Calculating the vertical extension (if not specified in input)
     if limitZ is None:
-        limitZ = np.empty(2)
-        limitZ[0] = 0
-        limitZ[1] = nz
-    
+        limitZ = [0, nz]
+            
         if botName is not None:
-            botArray = dbsegy.getColumn(botName)
+            botArray = dbsegy.getColumn(botName, useSel=True)
             zbot = gl.VectorHelper.minimum(botArray)
             if zbot > z0:
-                limitZ[0] = (zbot - z0) // dz
-
+                limitZ[0] = int((zbot - z0) // dz)
     
         if topName is not None:
-            topArray = dbsegy.getColumn(topName)
+            topArray = dbsegy.getColumn(topName, useSel=True)
             ztop = gl.VectorHelper.maximum(topArray)
             if ztop < zmax:
-                limitZ[1] = (ztop - z0 + dz/2) // dz + 1
+                limitZ[1] = int((ztop - z0 + dz/2) // dz + 1)
     
+    # Number of nodes
     nx.resize(3)
-    if limits2D is not None:
-        limitX = limits2D[0]
-        limitY = limits2D[1]
-    else:
-        limitX = np.empty(2)
-        limitX[0] = 0
-        limitX[1] = nx[0]
-        limitY = np.empty(2)
-        limitY[0] = 0
-        limitY[1] = nx[1]
-
-    nx[0] = limitX[1] - limitX[0]
-    nx[1] = limitY[1] - limitY[0]
     nx[2] = limitZ[1] - limitZ[0]
     
+    # Size of the grid meshes
     dx.resize(3)
     dx[2] = dz 
     
-    indg = np.empty(3)
-    indg[0] = limitX[0]
-    indg[1] = limitY[0]
+    # Origin of the 3D grid
+    indg = np.zeros(3)
     indg[2] = limitZ[0]
     x0 = dbsegy.indicesToCoordinate(indg)
     x0.resize(3)
     x0[2] = z0 + dz * limitZ[0]
     
     if verbose:
-        print("Creating a 3-D:")
+        print("Creating the 3-D:")
         print("- Origin :", x0)
         print("- Mesh   :", dx)
         print("- Count  :", nx)
         print("- Angle  :", angles[0])
-        
-        print("- Limits along X :", limitX)
-        print("- Limits along Y :", limitY)
         print("- Limits along Z :", limitZ)
     
     # Creating the 3-D Grid
-    grid = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles)
+    grid = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles, flag_add_coordinates=False)
     
-    # Copy the traces
+    # Extract the traces and copy them to the output 3D file
     nfileSEGY = len(fileSEGYs)
     for iseg in range(nfileSEGY):
         mat = segyio.tools.cube(fileSEGYs[iseg])
-        matred = mat[int(limitX[0]):int(limitX[1]),:,:][:,int(limitY[0]):int(limitY[1]),:][:,:,int(limitZ[0]):int(limitZ[1])]
+        matred = mat[:,:,int(limitZ[0]):int(limitZ[1])]
         matred = matred.transpose(2,1,0)  
         matred = matred.reshape(-1)
     
         name = "SEGY." + str(iseg+1)
+        if verbose:
+            print("Processing variable", name)
+
         grid[name] = matred
     
     return grid
+
+def restrict2DGrid(dblabel, topName, botName):
+    '''
+    Create a new 2D grid restricted the bounding box of the samples
+    where both 'top' and 'bottom' variables are defined and correctly ordered
+    '''
+    
+    # Extract the limits for horizontal extension
+    Limits2D = dblabel.getLimitsFromVariableExtend(topName, botName)
+    
+    return gl.DbGrid.createSubGrid(dblabel, Limits2D, False)
+

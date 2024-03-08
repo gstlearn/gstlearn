@@ -89,4 +89,3 @@ protected:
   mutable VectorDouble _work1;
   mutable VectorDouble _work2;
 };
-

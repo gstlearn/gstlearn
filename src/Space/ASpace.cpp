@@ -77,7 +77,6 @@ bool ASpace::isEqual(const ASpace* space) const
   return false;
 }
 
-
 void ASpace::_getIncrementInPlaceVect(const SpacePoint &p1,
                                       const std::vector<SpacePoint> &pv,
                                       VectorVectorDouble &res) const
@@ -88,4 +87,3 @@ void ASpace::_getIncrementInPlaceVect(const SpacePoint &p1,
 		_getIncrementInPlace(p1,pv[i],res[i]);
 	}
 }
-

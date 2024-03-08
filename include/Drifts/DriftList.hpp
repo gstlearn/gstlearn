@@ -122,6 +122,6 @@ protected:
   VectorDouble         _driftCL;   /* Linear combination of Drift Coefficients */
   std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
   VectorBool           _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
-  CovContext           _ctxt;  /* Context (space, number of variables, ...) */
+  CovContext           _ctxt;      /* Context (space, number of variables, ...) */
 #endif
 };
