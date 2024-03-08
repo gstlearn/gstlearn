@@ -4217,9 +4217,8 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordReadVec<String>(is, "Locators", locators, ncol);
     ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
   }
-  if (! ret) return ret;
 
-  for (int iech = 0; iech < nrow; iech++)
+  for (int iech = 0; iech < nrow && ret; iech++)
   {
     ret = ret && _recordReadVec<double>(is, "Array of values", values, ncol);
     if (ret)
@@ -4232,28 +4231,31 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   ret = (nech == nrow);
 
   // Decode the locators
-  std::vector<ELoc> tabloc;
-  VectorInt tabnum;
-  int  inum = 0, mult = 0;
-  ELoc iloc;
-  for (auto loc : locators)
+  if (ret)
   {
-    if (locatorIdentify(loc, &iloc, &inum, &mult)) return 1;
-    tabloc.push_back(iloc);
-    tabnum.push_back(inum);
-  }
+    std::vector<ELoc> tabloc;
+    VectorInt tabnum;
+    int  inum = 0, mult = 0;
+    ELoc iloc;
+    for (auto loc : locators)
+    {
+      if (locatorIdentify(loc, &iloc, &inum, &mult)) return 1;
+      tabloc.push_back(iloc);
+      tabnum.push_back(inum);
+    }
 
-  // Initialize the Db
-  resetDims(ncol, nech);
+    // Initialize the Db
+    resetDims(ncol, nech);
 
-  // Load the values
-  _loadData(ELoadBy::SAMPLE, 0, allvalues);
+    // Load the values
+    _loadData(ELoadBy::SAMPLE, 0, allvalues);
 
-  // Update the column names and locators
-  for (int i = 0; i < ncol; i++)
-  {
-    setNameByUID(i, names[i]);
-    setLocatorByUID(i, tabloc[i], tabnum[i]);
+    // Update the column names and locators
+    for (int i = 0; i < ncol; i++)
+    {
+      setNameByUID(i, names[i]);
+      setLocatorByUID(i, tabloc[i], tabnum[i]);
+    }
   }
   return ret;
 }

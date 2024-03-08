@@ -59,11 +59,13 @@ public:
   VectorInt getCols(bool flag_from_1 = false) const;
   void appendInPlace(const NF_Triplet& T2);
 
+#ifndef SWIG
   cs* buildCsFromTriplet() const;
   Eigen::SparseMatrix<double> buildEigenFromTriplet() const;
 
   static NF_Triplet createFromCs(const cs* mat, int shiftRow=0, int shiftCol=0);
   static NF_Triplet createFromEigen(const Eigen::SparseMatrix<double>& mat, int shiftRow=0, int shiftCol=0);
+#endif
 
 private:
   int  _nrowmax;

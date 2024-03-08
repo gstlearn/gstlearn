@@ -83,8 +83,8 @@ For building the *gstlearn* R package, the requirements for building *gstlearn C
 * R 4.2 or higher
 * RTools 4.2 or higher (for Windows users only)
 * *devtools* R package (for generating R documentation)
-* *ggplot2*, *ggpubr*, *ggnewscale* R packages [Optional] (only for plotting)
-* *FNN*, *lares*, *Matrix*, *knitr* and *callr* R packages [Optional] (only for testing R Markdown scripts)
+* *ggplot2*, *vctrs*, *ggpubr*, *ggrepel*, *ggnewscale* R packages [Optional] (only for plotting)
+* *FNN*, *lares*, *Matrix*, *knitr*, *tidyr*, *geigen* and *callr* R packages [Optional] (only for testing R Markdown scripts)
 
 If you modified your system (or if you installed a new version or RTools), you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' and 'swig' existing source folders (if so).
 
@@ -133,9 +133,9 @@ sudo make install
 6. Finally, install the R packages from an R command prompt (only devtools is mandatory):
 
 ````
-install.packages(c("devtools"),                                 repos="https://cloud.r-project.org")
-install.packages(c("ggplot2", "ggpubr", "ggnewscale"),          repos="https://cloud.r-project.org")
-install.packages(c("FNN", "lares", "Matrix", "knitr", "callr"), repos="https://cloud.r-project.org")
+install.packages(c("devtools"), repos="https://cloud.r-project.org")
+install.packages(c("ggplot2", "vctrs", "ggpubr", "ggrepel", "ggnewscale"), repos="https://cloud.r-project.org")
+install.packages(c("FNN", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
 ````
 
 #### MacOS
@@ -178,9 +178,9 @@ sudo make install
 6. Finally, install the R optional packages from an R command prompt (only devtools is mandatory):
 
 ````
-install.packages(c("devtools"),                                 repos="https://cloud.r-project.org")
-install.packages(c("ggplot2", "ggpubr", "ggnewscale"),          repos="https://cloud.r-project.org")
-install.packages(c("FNN", "lares", "Matrix", "knitr", "callr"), repos="https://cloud.r-project.org")
+install.packages(c("devtools"), repos="https://cloud.r-project.org")
+install.packages(c("ggplot2", "vctrs", "ggpubr", "ggrepel", "ggnewscale"), repos="https://cloud.r-project.org")
+install.packages(c("FNN", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
 ````
 
 Note :
@@ -226,9 +226,9 @@ make install
 6. Finally, install the R optional packages from an R command prompt (only devtools is mandatory):
 
 ````
-install.packages(c("devtools"),                                 repos="https://cloud.r-project.org")
-install.packages(c("ggplot2", "ggpubr", "ggnewscale"),          repos="https://cloud.r-project.org")
-install.packages(c("FNN", "lares", "Matrix", "knitr", "callr"), repos="https://cloud.r-project.org")
+install.packages(c("devtools"), repos="https://cloud.r-project.org")
+install.packages(c("ggplot2", "vctrs", "ggpubr", "ggrepel", "ggnewscale"), repos="https://cloud.r-project.org")
+install.packages(c("FNN", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
 ````
 
 ### Installation from Source

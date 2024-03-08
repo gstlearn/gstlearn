@@ -163,6 +163,9 @@ To compute a non conditional simulation on the grid,
 
 ```{r ncsimu_step_0, echo=TRUE, eval=TRUE}
 # projection matrix of the latent vector on the grid
+#pm = ProjMatrix(grid, mesh)
+#ap = pm$getAproj()
+#A_g = ap$toTL()
 A_g  = ProjMatrix(grid, mesh)$getAproj()$toTL()
 ```
 

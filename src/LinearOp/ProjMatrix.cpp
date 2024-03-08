@@ -58,25 +58,24 @@ ProjMatrix::ProjMatrix(const ProjMatrix &m)
       _nApices(m._nApices),
       _AprojCS(nullptr)
 {
-  if (_AprojCS != nullptr) delete _AprojCS;
   _AprojCS = m._AprojCS->clone();
 }
 
 ProjMatrix& ProjMatrix::operator= (const ProjMatrix &m)
 {
   if (this != &m)
-   {
-     AStringable::operator =(m);
-     _nPoint = m._nPoint;
-     _nApices = m._nApices;
-     _AprojCS = m._AprojCS->clone();
-   }
+  {
+    AStringable::operator =(m);
+    _nPoint = m._nPoint;
+    _nApices = m._nApices;
+    _AprojCS = m._AprojCS->clone();
+  }
   return *this;
 }
 
 ProjMatrix::~ProjMatrix() 
 {
-  delete _AprojCS;
+  if (_AprojCS != nullptr) delete _AprojCS;
 }
 
 ProjMatrix* ProjMatrix::create(const Db* db, const AMesh *a_mesh, int rankZ, bool verbose)
@@ -86,6 +85,7 @@ ProjMatrix* ProjMatrix::create(const Db* db, const AMesh *a_mesh, int rankZ, boo
 
 int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int rankZ, bool verbose)
 {
+  if (_AprojCS != nullptr) delete _AprojCS;
   if (db != nullptr)
   {
     _AprojCS = a_mesh->getMeshToDb(db, rankZ, verbose);
@@ -105,6 +105,7 @@ int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int rankZ, bool v
 #ifndef SWIG
 int ProjMatrix::resetFromPoints(int npoint, int napices, MatrixSparse *aproj)
 {
+  if (_AprojCS != nullptr) delete _AprojCS;
   _AprojCS = aproj->clone();
   _nPoint  = npoint;
   _nApices = napices;
@@ -139,6 +140,7 @@ int ProjMatrix::resetFromDbByNeigh(const Db *db,
 {
   int nactive;
   int *ranks;
+  if (_AprojCS != nullptr) delete _AprojCS;
   _AprojCS = db_mesh_neigh(db, amesh, radius, flag_exact, verbose, &nactive, &ranks);
   if (_AprojCS == nullptr) return 1;
   if (ranks != nullptr) ranks = (int *) mem_free((char *) ranks);
@@ -151,14 +153,19 @@ int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
 {
   if ((int) inv.size() != _nPoint)
   {
-    messerr("Point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+    messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
             inv.size(),_nPoint);
     return 1;
   }
   if ((int) outv.size() != _nApices)
   {
-    messerr("Point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+    messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
             outv.size(),_nApices);
+    return 1;
+  }
+  if (_AprojCS == nullptr)
+  {
+    messerr("point2mesh: Error projection sparse matrix not initialized");
     return 1;
   }
 
@@ -180,6 +187,11 @@ int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
             outv.size(),_nPoint);
     return 1;
   }
+  if (_AprojCS == nullptr)
+  {
+    messerr("mesh2point: Error projection sparse matrix not initialized");
+    return 1;
+  }
 
   _AprojCS->prodMatVecInPlace(inv, outv, false);
   return 0;
@@ -189,11 +201,14 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << toStringDim("Projection Matrix",_AprojCS->getCS());
+  if (_AprojCS != nullptr)
+    sstr << toStringDim("Projection Matrix",_AprojCS->getCS());
+  else
+    sstr << "Projection Matrix is null";
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
-  if (sf.getLevel() > 0)
+  if (sf.getLevel() > 0 && _AprojCS != nullptr)
   {
     sstr << toStringRange(String(),_AprojCS->getCS());
     sstr << toMatrix(String(), *_AprojCS);
