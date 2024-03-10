@@ -266,6 +266,7 @@
   #include "Basic/Law.hpp"
   #include "Basic/MathFunc.hpp"
   #include "Basic/Indirection.hpp"
+  #include "Basic/WarningMacro.hpp"
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"
@@ -578,16 +579,17 @@
 }
 
 // Convert scalar argument by reference
+// Don't add String or char here otherwise "res2 not declared" / "alloc1 not declared"
 %typemap(in, fragment="ToCpp") int*       (int val), const int*       (int val),
                                int&       (int val), const int&       (int val),
                                double* (double val), const double* (double val),
-                               double& (double val), const double& (double val), // Don't add String here otherwise "res2 not declared"
+                               double& (double val), const double& (double val), 
                                float*   (float val), const float*   (float val),
                                float&   (float val), const float&   (float val),
                                UChar*   (UChar val), const UChar*   (UChar val),
                                UChar&   (UChar val), const UChar&   (UChar val),
-                               bool*     (bool val), const bool*    (bool val),
-                               bool&     (bool val), const bool&    (bool val)
+                               bool*     (bool val), const bool*     (bool val),
+                               bool&     (bool val), const bool&     (bool val)
 {
   try
   {

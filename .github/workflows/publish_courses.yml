@@ -1,12 +1,26 @@
 name: publish_courses
 
 on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
   workflow_dispatch:
     inputs:
       logLevel:
         description: 'Manual'
         required: false
         default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
 
 env:
   BUILD_TYPE: Release
@@ -19,46 +33,47 @@ jobs:
       # Corresponding docker file comes from:
       # https://github.com/gstlearn/docker-generate
       image: gstlearn/ubuntu-16-demos-rmd-ipynb
-      
+    outputs:
+      # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+      project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
+
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup personal R libraries directory
-      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
-      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile
-
     - name: Build demonstration HTMLs and save generated folder name in the environment
+      id: main_step
       run: |
         export PATH=/opt/python/py311/bin:$PATH
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DUSE_HDF5=OFF
+        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON
         cmake --build ${{env.BUILD_DIR}} --target build_courses
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "COURSES_FOLDER=${{env.BUILD_DIR}}/courses" >> "$GITHUB_ENV"
-        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_ENV"
-
-    - name: Print version
-      run: echo "PROJECT_VERSION=${{ env.PROJECT_VERSION }}"
+        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
     - uses: actions/upload-artifact@v3 
       with:
         # This will become the folder name in the server
-        name: courses-${{ env.PROJECT_VERSION }}
+        name: courses
         path: ${{ env.COURSES_FOLDER }}
 
   publish:
     needs: build
+    if: ${{inputs.external_call == false}}
+    
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
     
     steps:
-    - uses: fabien-ors/folder-publish-action@v1
-      with:
-        host: ${{ secrets.CG_HOST }}
-        username: ${{ secrets.CG_USR }}
-        password: ${{ secrets.CG_PWD }}
-        dest-path: "/var/www/html/gstlearn"
-
-    # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v2
-      with:
-        name: courses-*
+      - env:
+          PROJECT_VERSION: ${{needs.build.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v1
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
+  
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: courses

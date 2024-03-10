@@ -61,6 +61,13 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
         set(REF_FILE ${REF_FILE_MSYS})
       endif()
     endif()
+    # Use maybe a specific output log for clang
+    if (CLANG)
+      set(REF_FILE_CLANG ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}_clang.ref)
+      if(EXISTS ${REF_FILE_CLANG})
+        set(REF_FILE ${REF_FILE_CLANG})
+      endif()
+    endif()
     # Use git diff (cross-platform) with:
     # - no-index (no need to have files under git control)
     # - ignore lines starting with #NO_DIFF#

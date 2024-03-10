@@ -562,9 +562,6 @@ void exit_f(void)
 %extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorNumT<bool> {
-  std::string __repr__() {  return $self->toString(); }
-}
 %extend VectorT<int> {
   std::string __repr__() {  return $self->toString(); }
 }

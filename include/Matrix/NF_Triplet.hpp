@@ -11,12 +11,21 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
+//#include "geoslib_define.h"
 
+#include "Basic/WarningMacro.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 
+#ifndef SWIG
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_COND_EXPR_CONSTANT
+DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/Sparse>
+DISABLE_WARNING_POP
+
+typedef Eigen::Triplet<double> T;
+#endif
 
 class cs;
 
@@ -24,8 +33,6 @@ class cs;
  * Stores the contents of a sparse matrix in Triplet form
  * The format is adapter to Eigen or to csparse
  */
-
-typedef Eigen::Triplet<double> T;
 
 class GSTLEARN_EXPORT NF_Triplet
 {
@@ -61,5 +68,7 @@ public:
 private:
   int  _nrowmax;
   int  _ncolmax;
+#ifndef SWIG
   std::vector<T> _eigenT; // Triplet in Eigen format
+#endif
 };

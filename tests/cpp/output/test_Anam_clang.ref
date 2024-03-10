@@ -1,0 +1,101 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.250     0.250
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Total number of samples      = 441
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.050     0.050
+Number :         21        21
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = z1
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.9
+Maximum absolute value for Y  = 3
+Minimum absolute value for Z  = 0.259824
+Maximum absolute value for Z  = 5.79464
+Minimum practical value for Y = -2.9
+Maximum practical value for Y = 3
+Minimum practical value for Z = 0.259824
+Maximum practical value for Z = 5.79464
+Mean                          = 1.56866
+Variance                      = 0.756644
+Number of Hermite polynomials = 20
+Normalized coefficients for Hermite polynomials (punctual variable)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.569    -0.818     0.283    -0.055    -0.026     0.043    -0.022
+     [  7,]    -0.004     0.016    -0.010    -0.004     0.008    -0.002    -0.003
+     [ 14,]     0.003    -0.002    -0.002     0.004     0.000    -0.004

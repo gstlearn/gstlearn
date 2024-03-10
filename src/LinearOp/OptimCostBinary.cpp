@@ -257,10 +257,10 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       VH::displayStats("Calculated Proportions",propfac);
     }
   }
-
-  catch(const char * str)
+  catch(const std::string& str)
   {
-    messerr("%s", str);
+    // TODO : Check if std::exception can be used
+    messerr("%s", str.c_str());
   }
 
   delete(hess);

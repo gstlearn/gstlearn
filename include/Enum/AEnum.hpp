@@ -17,7 +17,6 @@
 #include "Basic/VectorT.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/RepeatMacro.hpp"
-#include "Basic/WarningMacro.hpp"
 #include "Basic/String.hpp"
 
 #include <iostream>

@@ -1278,7 +1278,7 @@ def grid(dbgrid, *args, **kwargs):
     flagBox: when True, the bounding box of the Grid is represented
     flagLegendRaster: Flag for representing the Raster Legend
     flagLegendContour: Flag for representing the Contour Legend
-    legendNameColor: Title for the Raster Legend (set to 'nameRaster' if not defined)
+    legendNameRaster: Title for the Raster Legend (set to 'nameRaster' if not defined)
     legendNameSize: Title for the Contour Legend (set to 'nameContour' if not defined)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''

@@ -274,12 +274,13 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
 
     _purge();
   }
-
-  catch(const char * str)
+  catch(const std::string& str)
   {
+    // TODO : Check if std::exception can be used
     error = 1;
-    messerr("%s", str);
+    messerr("%s", str.c_str());
   }
+
   return error;
 }
 

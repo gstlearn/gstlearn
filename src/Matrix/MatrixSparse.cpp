@@ -17,11 +17,16 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/WarningMacro.hpp"
 
 #include <iostream>
 #include <iomanip>
 
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_COND_EXPR_CONSTANT
+DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/SparseCholesky>
+DISABLE_WARNING_POP
 
 #include <csparse_f.h>
 
@@ -1144,6 +1149,28 @@ void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble&
     _csMatrix = res;
   }
 }
+
+
+#ifndef SWIG
+/*! Returns a pointer to the Sparse storage */
+const cs* MatrixSparse::getCS() const
+{
+  return _csMatrix;
+}
+void MatrixSparse::setCS(cs* cs)
+{
+  _csMatrix = cs_duplicate(cs);
+}
+void MatrixSparse::freeCS()
+{
+  _csMatrix = cs_spfree2(_csMatrix);
+}
+/*! Temporary function to get the CS contents of Sparse Matrix */
+cs* MatrixSparse::getCSUnprotected() const
+{
+  return _csMatrix;
+}
+#endif
 
 void MatrixSparse::prodNormMatMatInPlace(const MatrixSparse &a,
                                          const MatrixSparse &m,

@@ -5,7 +5,7 @@
 file(GLOB TEST_SOURCES *.cpp)
 # Without GLOB:
 #set(TEST_SOURCES 
-#  test_Anam.cpp)
+#    test_Cholesky.cpp)
 #  test_SPDEDrift.cpp)
 
 # Remove test_ppmt (not yet functional)
@@ -87,6 +87,13 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}_msys.ref)
         if(EXISTS ${REF_FILE_MSYS})
           set(REF_FILE ${REF_FILE_MSYS})
+        endif()
+      endif()
+      # Use maybe a specific output log for clang
+      if (CLANG)
+        set(REF_FILE_CLANG ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}_clang.ref)
+        if(EXISTS ${REF_FILE_CLANG})
+          set(REF_FILE ${REF_FILE_CLANG})
         endif()
       endif()
       # Use git diff (cross-platform) with:

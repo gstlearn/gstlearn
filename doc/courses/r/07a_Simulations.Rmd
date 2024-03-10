@@ -18,7 +18,7 @@ output:
 knitr::opts_chunk$set(
   echo = TRUE, 
   warning = FALSE,
-  cache=T,
+  cache=FALSE,
   fig.width=5,fig.height=5,fig.align="center"
 )
 ```

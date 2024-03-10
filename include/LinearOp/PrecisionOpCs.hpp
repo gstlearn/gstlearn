@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/Cholesky.hpp"
 
 class AMesh;
 class ShiftOpCs;

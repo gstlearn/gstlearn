@@ -13,7 +13,6 @@ import plotly.graph_objects as go
 import numpy                as np
 import gstlearn             as gl
 from numpy import pi
-from scipy.optimize._basinhopping import AdaptiveStepsize
 from matplotlib.animation import adjusted_figsize
 
 def getCscale():

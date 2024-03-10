@@ -1,21 +1,19 @@
-name: nonreg-tests_windows-2019-msvc
+name: nonreg-tests_windows-latest-msvc
 
 on:
-  # Deactivate the workflow
-  #push:
-  #  branches-ignore:
-  #    - '**'
+  # Permit calling trigger
+  workflow_call:
   # Activate the workflow at each push on dev branch
-  push:
-    branches: [ dev ]
+  #push:
+  #  branches: [ dev ]
   # Activate the workflow at each pull request on dev branch
-  pull_request:
-    branches: [ dev ]
-  # Permit manual trigger
+  #pull_request:
+  #  branches: [ dev ]
   # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
   #schedule:
   #  # * is a special character in YAML so you have to quote the string
   #  - cron:  '30 23 * * *'
+  # Permit manual trigger
   workflow_dispatch:
     inputs:
       logLevel:
@@ -24,20 +22,23 @@ on:
         default: ''
 
 env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_DIR : build
+  GENERATOR : "Visual Studio 17 2022"
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
-  GENERATOR : "Visual Studio 16 2019"
   BOOST_ROOT: ${{github.workspace}}\boost
   BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}\eigen
   EIGEN_VERSION : "3.4.0"
-  
+  #HDF5_ROOT : hdf5 #do not use "." in the name
+  #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
+  #HDF5_VERSION : hdf5-1.12.1
+
 jobs:
-  
   build:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -46,6 +47,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{env.PYTHON_VERSION}}
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
+        python -m pip install pandas scipy mlxtend
 
     - name: Install Python dependency
       run: |
@@ -66,7 +73,7 @@ jobs:
         generator: ${{env.GENERATOR}}
 
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A x64 -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
+      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DBUILD_PYTHON=ON -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}}
 
-    - name: Compile, install package and execute non-regression tests
+    - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check

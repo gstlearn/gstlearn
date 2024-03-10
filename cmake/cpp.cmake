@@ -22,6 +22,9 @@ if (MSVC)
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
   add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter)
+  if (APPLE)
+    add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
+  endif()
 endif()
 
 # C++ header location (keep the trailing '/')
@@ -55,17 +58,17 @@ find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 
 # Look for OpenMP
-FIND_PACKAGE(OpenMP REQUIRED)
+find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
   message(STATUS "OPENMP found")
   add_definitions(-DOPENMP)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-  if(${APPLE})
-    include_directories(${OpenMP_C_INCLUDE_DIR})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp")
-  endif()
+#  if(${APPLE})
+#    include_directories(${OpenMP_C_INCLUDE_DIR})
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp") # clang++: warning: -lomp: 'linker' input unused
+#  endif()
 endif()
 
 # Look for Eigen

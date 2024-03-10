@@ -16,6 +16,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Polynomials/Chebychev.hpp"
+#include "LinearOp/Cholesky.hpp"
 
 #include <functional>
 
