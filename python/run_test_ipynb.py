@@ -57,7 +57,7 @@ notebook_node, resources = exporter.from_notebook_node(nb)
 
 # Post treatment for asciidoc (for test comparison)
 if (out_type == "asciidoc"):
-    # TODO : I should have prefered using this feature, but don't know how to do with Exporters :
+    # TODO : I would prefer using this feature, but don't know how to do with Exporters :
     # https://stackoverflow.com/questions/52834910/remove-cells-from-jupyter-notebook-with-nbconvert
     
     # Remove all graphical 3D object identifiers from the output ascii file, i.e. :
@@ -67,6 +67,10 @@ if (out_type == "asciidoc"):
     notebook_node = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "XXX", notebook_node)
     notebook_node = re.sub("----<matplotlib.*", "XXX", notebook_node)
     notebook_node = re.sub("----\[<matplotlib.*", "XXX", notebook_node)
+    
+    # Remove images in base64 included by MD files
+    # image:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAA........
+    notebook_node = re.sub(".*image:data:image/png;base64,.*", "image:data:image/png;base64,XXX", notebook_node)
     
     # Remove all lines coming from data downloading (no need anymore as wget -q):
     # --2023-07-28 15:20:09--  https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF

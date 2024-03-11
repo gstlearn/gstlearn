@@ -57,13 +57,13 @@ $Z$ is a random variable with values in a countable space $H$.
 
 $Z$ is characterized by its probability mass function, $p(i)=p_i=P(Z=i)$ for all $i\in H$.
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/pmf.png)
+XXX
 
 ### A.1.4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$
 
 For all $i=1,\dots,n$, $$p_i=\frac{1}{n}$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/uniformdiscretpmf.png)
+XXX
 
 ### A.1.5) Binomial distribution of parameters $(n,p)$
 
@@ -73,7 +73,7 @@ $H = \{0,1,\dots,n\}$
 
 $$p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/binomialpmf.png)
+XXX
 
 ## A.2. Cumulative distribution 
 
@@ -81,7 +81,7 @@ Instead of working with the probability mass function, we can use the cumulative
 
 We can deduce $F$ from the probability mass function $p$  $$F(i) = \sum_{j=1}^i P(Z=j) = \sum_{j=1}^i p(j)$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/discretecdf.png)
+XXX
 
 
 And we can also deduce $p$ from $F$: $$p(i) = P(Z=i) = P(Z\leq i) - P(Z\leq i-1) = F(i)-F(i-1)$$
@@ -146,14 +146,14 @@ The output space $H$ is continuous e.g  $\mathbb{R}$ or an interval $[a,b]$.
 
 To characterize the distribution, one can use the cumulative distribution function (c.d.f) defined as $$F(z)=P(Z\leq z).$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/cdf.png)
+XXX
 
 When $F$ is differentiable, $Z$ has a probability density function (p.d.f) $f$ defined as $$f(z)=F'(z).$$ where $$\int_H f(t)dt =1$$
 
 
 Then, $$F(z) = \int_{-\infty}^z f(t)dt$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/density.png)
+XXX
 
 All the variables considered in this course will have a density.
 
@@ -172,13 +172,13 @@ $$f(x)=\frac{1}{\sqrt{2\pi}\sigma}\displaystyle e^{-\frac{(x-m)^2}{2\sigma^2}}$$
 $$f(x) = \left\{\begin{array}{ccc}\frac{1}{b-a} & \textrm{ if } & a<x\leq b\\
 0 & \textrm{ otherwise} & \end{array}\right.$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/uniformpdf.png)
+XXX
 
 $$F(x) = \left\{\begin{array}{ccc}0 & \textrm{ if } & x\geq a \\
 \frac{x-a}{b-a} & \textrm{ if } & a<x\leq b\\
 1 & \textrm{ if } & x\geq b\end{array}\right.$$
 
-![Description](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/uniformcdf.png)
+XXX
 
 ### Expectation 
 
@@ -209,7 +209,7 @@ The expectation of a random variable can be seen as the empirical average over a
 Let $Z$ a random variable over $H=\mathbb{R}$ with $E[Z]=m$.
 If $Z_1,\dots,Z_n,\dots$ is an infinite sequence of independent copies of $Z$, then the sample average variables $$\bar{Z}_n = \frac{Z_1+\dots,Z_n}{n}$$ converges to $m$ when $n\to\infty$.
 
-![lln](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/lln.png)
+XXX
 
 Let's consider the new (Bernouilli) variable $$1\!\!\!1_{a<Z \leq b}=\left\{\begin{array}{ccc}1 & \textrm{ if } & a<Z\leq b\\
 0 & \textrm{ otherwise} & \end{array}\right.$$
@@ -219,14 +219,14 @@ $$E[1\!\!\!1_{a<Z\leq b}] = P(a<Z\leq b)=\int_a^b f(t)dt$$
 
 So, if we subdivide $H$ into small intervals, we expect that the histogram of a large sample of (independent) realizations of $Z$ is close to its density $f$.
 
-![llnhisto](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/llnhisto.png)
+XXX
 
 ## Bivariate distribution
 
 If we have two random variables $X$ and $Y$, we can describe them independently but we can also be interested by their link. We can do that by using a joint distribution.
 Here we will suppose that the random vector $(X,Y)$ has a density $f(x,y)$.
 
-![g1](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/densitygauss.png)
+XXX
 
 The density can be seen as the probability 
 
@@ -236,11 +236,11 @@ We have seen that the density of a single variable plays the role of the histogr
 
 Let's observe a large number of realizations from the previous bivariate distribution.
 
-![g2](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/scattergauss.png)
+XXX
 
 Let's compute the 2d histogram and compare with the theoretical distribution:
 
-![g2](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/density2dhisto.png)
+XXX
 
 ### Marginalisation
 
@@ -250,7 +250,7 @@ $$f_X(x)=\int_{H_2}f(x,y)dy$$
 
 $$f_Y(y)=\int_{H_1}f(x,y)dx$$
 
-![m](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/marginal.png)
+XXX
 
 ###  Conditional distributions
 
@@ -264,7 +264,7 @@ It can be interpreted as
 
 $$P(y\leq Y\leq y+dy| x\leq X \leq x+dx) = f_{Y|X=x}(y)dy$$
 
-![f](/home/drenard/project_gstlearn/gstlearn/build/doc/references/Figures/conditional.png)
+XXX
 
 The conditional expectation $$E[Y|X=x]=\int_{H_2}yf_{Y|X=x}(y)dy$$
 

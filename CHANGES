@@ -50,7 +50,6 @@ Release 1.1.0
 - db_normalize() is renamed as DbHelper::normalizeVariables()
 - db_grid_fill() is renamed as DbHelper::gridFilling()
 - Introducing the generic method "fromTL" to convert R object into gstlearn ones
->>>>>>> refs/remotes/origin/dev
 
 Release 1.0.0
 =============
