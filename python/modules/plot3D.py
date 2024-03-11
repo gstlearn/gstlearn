@@ -224,12 +224,15 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, useSel=False,
     shape = list(grid.getNXs())
     shape.pop(section)
     vect = grid.getSlice(name, section, rank, useSel)
+    # The next two lines are meant to let NAN values be represented as transparent
+    zc = vect[2]
+    zc[np.isnan(vect[3])] = np.nan
     x = np.array(vect[0]).reshape(shape)
     y = np.array(vect[1]).reshape(shape)
-    z = np.array(vect[2]).reshape(shape)
+    z = np.array(zc).reshape(shape)
     values = np.array(vect[3]).reshape(shape)
     
-    slice = go.Surface(x=x, y=y, z=z, surfacecolor=values,
+    slice = go.Surface(x=x, y=y, z=z, surfacecolor=values, 
                        coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    

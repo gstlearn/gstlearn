@@ -2566,13 +2566,11 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
 
   int nech = db->getSampleNumber();
   int npas = getLagNumber(idir);
-  int ndim = db->getNDim();
   double dist0 = 0.;
   double dist = 0.;
 
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
@@ -3163,10 +3161,8 @@ int Vario::_calculateGeneralSolution1(Db *db,
                                       Vario_Order *vorder)
 {
   int iech, jech, ipas, npair, ideb;
-  int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   DirParam dirparam = getDirParam(idir);
   int nech = db->getSampleNumber();
@@ -3262,10 +3258,8 @@ int Vario::_calculateGeneralSolution1(Db *db,
 int Vario::_calculateGeneralSolution2(Db *db, int idir, int *rindex)
 {
   int iech, jech, i, ipas, ideb;
-  int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   /* Initializations */
 
@@ -3375,10 +3369,8 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, int *rindex)
 int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 {
   int *indg1, *indg2, jech;
-  int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   /* Initializations */
 
@@ -3474,11 +3466,8 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
   int *indg1, *indg2;
   int  idim, keep, nvar;
   double zz, value;
-
-  int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   /* Initializations */
 
@@ -3719,10 +3708,8 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
   double maxdist;
   int iiech, iech, jjech, jech, nech, ipas, idir, ideb;
   VectorInt rindex;
-  int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   /* Initializations */
 
@@ -3943,10 +3930,8 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex)
 {
   int iech, jech, ipas, i, icomp;
   double w1, w2, zi1, zi2, zj1, zj2, v12, v21, di1, di2, dj1, dj2;
-  int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   const DirParam &dirparam = getDirParam(idir);
   int nech = db->getSampleNumber();
@@ -4367,7 +4352,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
 
   if (matdrf.invert()) return 1;
 
-  /* Calculate: A %*% t(X) %*% Y */
+  /* Calculate: _BETA = A %*% t(X) %*% Y */
 
   matdrf.prodMatVecInPlace(b, _BETA);
 
@@ -4532,8 +4517,8 @@ int Vario::computeGeometryMLayers(Db *db,
                                   Vario_Order *vorder)
 {
   int iiech, iech, jjech, jech, ipas, npair;
-  SpaceTarget T1(_varioparam.getSpace());
-  SpaceTarget T2(_varioparam.getSpace());
+  SpaceTarget T1(getSpace());
+  SpaceTarget T2(getSpace());
 
   /* Initializations */
 

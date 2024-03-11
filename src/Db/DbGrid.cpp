@@ -23,6 +23,7 @@
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
@@ -635,9 +636,11 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
  */
 void DbGrid::_createCoordinatesGrid(int icol0)
 {
+  int ndim = getNDim();
+
   // Set the Names
 
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (int idim = 0; idim < ndim; idim++)
     _setNameByColIdx(icol0 + idim, getLocatorName(ELoc::X, idim));
 
   // Set the locators
@@ -646,12 +649,13 @@ void DbGrid::_createCoordinatesGrid(int icol0)
 
   // Generate the vector of coordinates
 
+  VectorDouble coors(ndim);
   _grid.iteratorInit();
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
-    VectorDouble coors = _grid.indicesToCoordinate(indices);
-    for (int idim = 0; idim < getNDim(); idim++)
+    _grid.indicesToCoordinateInPlace(indices, coors);
+    for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
       setArray(iech, icol0 + idim, coors[idim]);
   }
 }
@@ -874,10 +878,10 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
   return vec;
 }
 
-void DbGrid::getGridColumnInPlace(const String &name,
-                                  const VectorInt &indg,
-                                  int idim0,
-                                  VectorDouble &vec) const
+void DbGrid::getGridPileInPlace(int iuid,
+                                const VectorInt &indg,
+                                int idim0,
+                                VectorDouble &vec) const
 {
   int nz = getNX(idim0);
   if (nz != (int) vec.size()) vec.resize(nz);
@@ -885,18 +889,19 @@ void DbGrid::getGridColumnInPlace(const String &name,
   // Loop on the samples
 
   VectorInt indices = indg;
+  VectorInt iechs(nz);
   for (int iz = 0; iz < nz; iz++)
   {
     indices[idim0] = iz;
-    int iabs = _grid.indiceToRank(indices);
-    vec[iz] =  getValue(name, iabs);
+    iechs[iz] = _grid.indiceToRank(indices);
   }
+  getArrayVec(iechs, iuid, vec);
 }
 
-void DbGrid::setGridColumnInPlace(const String &name,
-                                  const VectorInt &indg,
-                                  int idim0,
-                                  const VectorDouble &vec)
+void DbGrid::setGridPileInPlace(int iuid,
+                                const VectorInt &indg,
+                                int idim0,
+                                const VectorDouble &vec)
 {
   int nz = getNX(idim0);
   if ((int) vec.size() != nz) return;
@@ -904,12 +909,13 @@ void DbGrid::setGridColumnInPlace(const String &name,
   // Loop on the samples
 
   VectorInt indices = indg;
+  VectorInt iechs(nz);
   for (int iz = 0; iz < nz; iz++)
   {
     indices[idim0] = iz;
-    int iabs = _grid.indiceToRank(indices);
-    setValue(name, iabs, vec[iz]);
+    iechs[iz] = _grid.indiceToRank(indices);
   }
+  setArrayVec(iechs, iuid, vec);
 }
 
 void DbGrid::generateCoordinates(const String& radix)
@@ -1493,128 +1499,619 @@ void DbGrid::_interpolate(const DbGrid *grid3D,
 }
 
 /**
- * Creating a 3D structural grid from:
- * - a 3D working grid containing the relevant information
+ * Create the sub-grid, extracted from 'gridIn' and reduced to the vector of limits
+ * @param gridIn Input grid
+ * @param limits A vector of Min and Max per space dimension (Dimension: [ndim][2])
+ * @param flag_add_coordinates True if the grid coordinates must be included in the output file
+ * @return
+ */
+DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool flag_add_coordinates)
+{
+  DbGrid* gridOut = nullptr;
+  if (gridIn == nullptr) return gridOut;
+  int ndim = gridIn->getNDim();
+
+  // Preliminary checks
+  if (ndim != (int) limits.size())
+  {
+    messerr("The argument 'limits' should have dimension ndim x 2");
+    return gridOut;
+  }
+
+  // Get the list of variables to be copied (rank and coordinates excluded)
+  VectorString names = gridIn->getAllNames(true);
+  VectorInt iuidIn = gridIn->getUIDs(names);
+  int nvar = (int) names.size();
+
+  // Create the characteristics of the new grid
+  VectorInt NXs       = gridIn->getNXs();
+  VectorDouble DXs    = gridIn->getDXs();
+  VectorDouble X0s    = gridIn->getX0s();
+  VectorDouble angles = gridIn->getAngles();
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    NXs[idim]  = limits[idim][1] - limits[idim][0];
+    X0s[idim] += limits[idim][0] * DXs[idim];
+  }
+
+  // Create the new grid
+  gridOut = DbGrid::create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
+                           VectorDouble(), VectorString(), VectorString(), 1,
+                           flag_add_coordinates);
+
+  // Add the variables of interest
+  VectorInt iuidOut(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    iuidOut[ivar] = gridOut->addColumnsByConstant(1, TEST, names[ivar]);
+
+  // Loop on the nodes of the output sub-grid
+  VectorInt indg(ndim);
+  double value;
+  int igin;
+  for (int igout = 0, nout = gridOut->getSampleNumber(); igout < nout; igout++)
+  {
+    // Get the indices in the output grid
+    gridOut->rankToIndice(igout, indg);
+
+    // Convert them to the indices in the input grid
+    for (int idim = 0; idim < ndim; idim++)
+      indg[idim] += limits[idim][0];
+
+    // Convert in rank in the input grid
+    igin = gridIn->indiceToRank(indg);
+
+    // Loop on the variables
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      value = gridIn->getArray(igin, iuidIn[ivar]);
+      gridOut->setArray(igout, iuidOut[ivar], value);
+    }
+  }
+  return gridOut;
+}
+
+/**
+ * Creating a 3D grid by squeeze-and-stretch forwards, i.e. from structural to sugar box, from:
+ * - a 3D grid containing the relevant information
  * - a 2D grid containing the top and bottom information
+ * @param grid3Din 3D input grid
  * @param surf2D 2D grid of surfaces
- * @param grid3D 3D grid of information
  * @param nameTop Name of the variable in 'surf2D' containing the top information
  * @param nameBot Name of the variable in 'surf2D' containing the bottom information
- * @param names   Vector of names in 'grid3D' to be exported (after queez-and-stretch back transform)
- * @param dzout   Vertical discretization (in structural scale)
- * @return The output 3D structural grid (or nullptr in case of error)
+ * @param names   Vector of names in 'grid3D' to be exported in output 3D grid
+ * @param nzout   Number of Vertical meshes in the output 3D grid
+ * @param thickmin The algorithm is not applied if
+ * @return The output 3D grid (or nullptr in case of error)
  *
  * @remarks:
- * - the grids 'surf2D' and 'grid3D' must share the same 2-D information
+ * - the grid files 'surf2D' and 'grid3Din' should match (in 2-D)
  * - the grid 'surf2D' contains the top and bottom (identified by the corresponding locators)
- * - the vertical extension of the output grid is obtained by getting the extrema of tops and bottoms
+ * - the grid 'surf2D' contains a selection which designates the only pixels where
+ *   'top' and 'bot' are defined and correctly ordered (o save time)
  */
-DbGrid* DbGrid::createGrid3DFromBacktransform(const DbGrid* surf2D,
-                                              const DbGrid* grid3D,
-                                              const String& nameTop,
-                                              const String& nameBot,
-                                              const VectorString &names,
-                                              double dzout)
+DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
+                                               const DbGrid *surf2D,
+                                               const String &nameTop,
+                                               const String &nameBot,
+                                               const VectorString &names,
+                                               int nzout,
+                                               double thickmin)
 {
-  DbGrid* grid = nullptr;
+  DbGrid* grid3Dout = nullptr;
 
   // Preliminary checks
 
-  if (surf2D == nullptr) return grid;
-  if (grid3D == nullptr) return grid;
+  if (surf2D == nullptr) return grid3Dout;
 
   if (surf2D->getNDim() != 2)
   {
     messerr("The grid 'surf2D' must be defined in the 2-D space");
-    return grid;
+    return grid3Dout;
   }
-  if (grid3D->getNDim() != 3)
+  if (grid3Din->getNDim() != 3)
   {
-    messerr("The grid 'grid3D' must be defined in the 3-D space");
-    return grid;
+    messerr("The grid 'grid3Din' must be defined in the 3-D space");
+    return grid3Dout;
   }
-  if (! grid3D->isSameGrid(surf2D->getGrid()))
+  if (! grid3Din->isSameGrid(surf2D->getGrid()))
   {
-    messerr("The grids 'surf2D' and 'grid3D' do not match (in 2D)");
-    return grid;
+    messerr("The grid files 'grid3Din' and 'surf2D' should match (in 2D)");
+    return grid3Dout;
   }
-  if (dzout <= 0.)
+  if (nzout <= 0.)
   {
-    messerr("The vertical grid mesh 'dz' must be strictly positive");
-    return grid;
+    messerr("The number of vertical grid meshes 'nzout' must be strictly positive");
+    return grid3Dout;
+  }
+  if (names.empty())
+  {
+    messerr("You must designate variable(s) to be copied from input to output 3D grid");
+    return grid3Dout;
+  }
+  int ndim = 3;
+  int idim0 = ndim - 1;
+  int nvar = (int) names.size();
+
+  // Getting relevant information from the top and bottom surfaces (using the selection)
+  VectorDouble botArray = surf2D->getColumn(nameBot, true);
+  double botmin = VH::minimum(botArray);
+  VectorDouble topArray = surf2D->getColumn(nameTop, true);
+  double topmax = VH::maximum(topArray);
+  if (topmax <= botmin)
+  {
+    messerr("The thickness of the target Layer seems too small for a Squeeze-and-Stretch");
+    return grid3Dout;
   }
 
-  // Getting relevant information from the top and bottom surfaces
-  double botmin = TEST;
-  double topmax = TEST;
-  for (int ig = 0, ng = surf2D->getSampleNumber(); ig < ng; ig++)
-  {
-    double top = surf2D->getValue(nameTop, ig);
-    double bot = surf2D->getValue(nameBot, ig);
-    if (FFFF(top) || FFFF(bot)) continue;
-    if (top < bot) continue;
-    if (FFFF(botmin) || bot < botmin) botmin = bot;
-    if (FFFF(topmax) || top > topmax) topmax = top;
-  }
-  if (FFFF(topmax) || FFFF(botmin))
-  {
-    messerr("No valid information has been found from 'top' and 'bottom' variables");
-    return grid;
-  }
+  // Retrieve information from the 3D input grid
+  VectorDouble X0s = grid3Din->getX0s();
+  VectorDouble DXs = grid3Din->getDXs();
+  VectorInt    NXs = grid3Din->getNXs();
+  VectorDouble angles = grid3Din->getAngles();
 
-  int nzout = ceil((topmax - botmin) / dzout);
+  // Modify these characteristics for the output 3D Grid
 
-  // Defining the parameters of the output grid by:
-  // - extracting the information from the input "D GRID
-  VectorDouble X0s = grid3D->getX0s();
-  VectorDouble DXs = grid3D->getDXs();
-  VectorInt    NXs = grid3D->getNXs();
-  VectorDouble angles = grid3D->getAngles();
+  int nzin  = NXs[idim0];
+  double z0 = X0s[idim0];
+  double dz = DXs[idim0];
 
-  // - updating the information corresponding to the third dimension
-  int idim0 = 2;
-  int nzin = grid3D->getNX(idim0);
-  X0s[idim0] = botmin;
-  DXs[idim0] = dzout;
   NXs[idim0] = nzout;
-  angles[idim0] = 0.;
-  VectorInt indg(3, 0);
+  DXs[idim0] = (topmax - botmin) / (double) nzout;
+  X0s[idim0] = 0.;
 
-  // Creating the output grid and the add the variables
+  // Create the output 3D grid (with no coordinate)
+  grid3Dout = create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
+                     VectorDouble(), VectorString(), VectorString(), 1, false);
 
-  grid = create(NXs, DXs, X0s, angles);
-  for (int ivar = 0, nvar = (int) names.size(); ivar < nvar; ivar++)
-  {
-    grid->addColumnsByConstant(1, TEST, names[ivar]);
-  }
+  // Create the variables in the 3D grid and identify their UIDs
+  for (int ivar = 0; ivar < nvar; ivar++)
+    grid3Dout->addColumnsByConstant(1, TEST, names[ivar]);
+  VectorInt iuids = grid3Dout->getUIDs(names);
 
-  // Loop on the 3-D vertical columns of the 3-D grid
-
+  // Define local variables
+  int iuidTop = surf2D->getUID(nameTop);
+  int iuidBot = surf2D->getUID(nameBot);
   VectorDouble vecin(nzin);
   VectorDouble vecout(nzout);
-  for (int ix = 0, nx = surf2D->getNX(0); ix < nx; ix++)
-    for (int iy = 0, ny = surf2D->getNX(1); iy < ny; iy++)
+  VectorInt indg(ndim, 0);
+  int ig2D;
+  double top;
+  double bot;
+  double thick;
+
+  // Loop on the 3-D vertical columns of the 3-D grid
+  for (int ix = 0, nx = grid3Dout->getNX(0); ix < nx; ix++)
+    for (int iy = 0, ny = grid3Dout->getNX(1); iy < ny; iy++)
     {
       indg[0] = ix;
       indg[1] = iy;
 
-      // Get the Top and bootm information from the surf2D grid
+      // Identify the corresponding node in 'surf2D'
+      ig2D = surf2D->indiceToRank(indg);
 
-      int ig = surf2D->indiceToRank(indg);
-      double top = surf2D->getValue(nameTop, ig);
-      double bot = surf2D->getValue(nameBot, ig);
-      if (bot > top) continue;
+      if (! surf2D->isActive(ig2D)) continue;
+
+      // Read the Top and Bottom
+      top = surf2D->getArray(ig2D, iuidTop);
+      bot = surf2D->getArray(ig2D, iuidBot);
+      thick = top - bot;
+      if (thick < thickmin) continue;
 
       // Loop on the variables to be transformed
-
-      for (int ivar = 0, nvar = (int) names.size(); ivar < nvar; ivar++)
+      for (int ivar = 0; ivar < nvar; ivar++)
       {
-        grid3D->getGridColumnInPlace(names[ivar], indg, idim0, vecin);
-        grid->_interpolate(grid3D, idim0, top, bot, vecin, vecout);
-        grid->setGridColumnInPlace(names[ivar], indg, idim0, vecout);
+        // Read the pile from the 3D input grid
+        grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
+
+        // Perform the squeeze-and-stretch forward operation
+        VH::squeezeAndStretchInPlaceForward(vecin, vecout, z0, dz, top, bot);
+
+        // Write the resulting pile in the output 3D grid
+        grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
       }
     }
-  return grid;
+  return grid3Dout;
+}
+
+/**
+ * Creating a 3D grid by squeeze-and-stretch backwards, i.e. from sugar box to structural, from:
+ * - a 3D grid containing the relevant information
+ * - a 2D grid containing the top and bottom information
+ * @param grid3Din 3D input grid
+ * @param surf2D 2D grid of surfaces
+ * @param nameTop Name of the variable in 'surf2D' containing the top information
+ * @param nameBot Name of the variable in 'surf2D' containing the bottom information
+ * @param names   Vector of names in 'grid3D' to be exported in output 3D grid
+ * @param nzout, z0out, dzout Specification along third dimension of the output 3D Grid
+ * @return The output 3D grid (or nullptr in case of error)
+ *
+ * @remarks:
+ * - the grid files 'surf2D' and 'grid3Din' should match (in 2-D)
+ * - the grid 'surf2D' contains the top and bottom (identified by the corresponding locators)
+ * - the grid 'surf2D' contains a selection which designates the only pixels where
+ *   'top' and 'bot' are defined and correctly ordered (o save time)
+ */
+DbGrid* DbGrid::createSqueezeAndStretchBackward(const DbGrid *grid3Din,
+                                                const DbGrid *surf2D,
+                                                const String &nameTop,
+                                                const String &nameBot,
+                                                const VectorString &names,
+                                                int nzout,
+                                                double z0out,
+                                                double dzout)
+{
+  DbGrid* grid3Dout = nullptr;
+
+  // Preliminary checks
+
+  if (surf2D == nullptr) return grid3Dout;
+
+  if (surf2D->getNDim() != 2)
+  {
+    messerr("The grid 'surf2D' must be defined in the 2-D space");
+    return grid3Dout;
+  }
+  if (grid3Din->getNDim() != 3)
+  {
+    messerr("The grid 'grid3Din' must be defined in the 3-D space");
+    return grid3Dout;
+  }
+  if (! grid3Din->isSameGrid(surf2D->getGrid()))
+  {
+    messerr("The grid files 'grid3Din' and 'surf2D' should match (in 2D)");
+    return grid3Dout;
+  }
+  if (names.empty())
+  {
+    messerr("You must designate variable(s) to be copied from input to output 3D grid");
+    return grid3Dout;
+  }
+  int ndim = 3;
+  int idim0 = ndim - 1;
+  int nvar = (int) names.size();
+
+  // Getting relevant information from the top and bottom surfaces (using the selection)
+  VectorDouble botArray = surf2D->getColumn(nameBot, true);
+  double botmin = VH::minimum(botArray);
+  VectorDouble topArray = surf2D->getColumn(nameTop, true);
+  double topmax = VH::maximum(topArray);
+  if (topmax <= botmin)
+  {
+    messerr("The thickness of the target Layer seems too small for a Squeeze-and-Stretch");
+    return grid3Dout;
+  }
+
+  // Retrieve information from the 3D input grid
+  VectorDouble X0s = grid3Din->getX0s();
+  VectorDouble DXs = grid3Din->getDXs();
+  VectorInt    NXs = grid3Din->getNXs();
+  VectorDouble angles = grid3Din->getAngles();
+
+  // Modify these characteristics for the output 3D Grid
+  int nzin  = NXs[idim0];
+  NXs[idim0] = nzout;
+  DXs[idim0] = dzout;
+  X0s[idim0] = z0out;
+
+  // Create the output 3D grid
+  grid3Dout = create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
+                     VectorDouble(), VectorString(), VectorString(), 1, false);
+
+  // Create the variables in the 3D grid and identify their UIDs
+  for (int ivar = 0; ivar < nvar; ivar++)
+    grid3Dout->addColumnsByConstant(1, TEST, names[ivar]);
+  VectorInt iuids = grid3Dout->getUIDs(names);
+
+  // Define local variables
+  int iuidTop = surf2D->getUID(nameTop);
+  int iuidBot = surf2D->getUID(nameBot);
+  VectorDouble vecin(nzin);
+  VectorDouble vecout(nzout);
+  VectorInt indg(ndim, 0);
+  int ig2D;
+  double top;
+  double bot;
+
+  // Loop on the 3-D vertical columns of the 3-D grid
+  for (int ix = 0, nx = grid3Dout->getNX(0); ix < nx; ix++)
+    for (int iy = 0, ny = grid3Dout->getNX(1); iy < ny; iy++)
+    {
+      indg[0] = ix;
+      indg[1] = iy;
+
+      // Identify the corresponding node in 'surf2D'
+      ig2D = surf2D->indiceToRank(indg);
+
+      if (! surf2D->isActive(ig2D)) continue;
+
+      // Read the Top and Bottom
+      top = surf2D->getArray(ig2D, iuidTop);
+      bot = surf2D->getArray(ig2D, iuidBot);
+
+      // Loop on the variables to be transformed
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        // Read the pile from the 3D input grid
+        grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
+
+        // Perform the squeeze-and-stretch operation backwards
+        VH::squeezeAndStretchInPlaceBackward(vecin, vecout, z0out, dzout, top, bot);
+
+        // Write the resulting pile in the output 3D grid
+        grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
+      }
+    }
+  return grid3Dout;
+}
+
+/**
+ * Returns the minimum and maximum indices of the subgrid
+ * where variables 'nameTop' and 'nameBot' are both defined
+ * @param nameTop Name of the Top variable
+ * @param nameBot Name of the Bottom variable
+ * @param dimExclude Array giving excluding dimension (see details)
+ * @return A vector of Min and Max per space dimension (Dimension: [ndim][2])
+ *
+ * @details: When a dimension is 'excluded', the reduction of the output grid
+ * should not be applied to this dimension
+ */
+VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
+                                                    const String &nameBot,
+                                                    const VectorInt &dimExclude) const
+{
+  int ndim = getNDim();
+  VectorVectorInt vec(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    vec[idim].resize(2);
+    vec[idim][0] = 0;
+    vec[idim][1] = getNX(idim);
+  }
+  if (nameTop.empty() || nameBot.empty()) return vec;
+
+  // Find the set of Min and Max indices of the subgrid
+
+  int nech = getActiveSampleNumber();
+  VectorInt indmin(ndim,  10000000);
+  VectorInt indmax(ndim, -10000000);
+  VectorInt indg(ndim);
+  int iuid_top = getUID(nameTop);
+  int iuid_bot = getUID(nameBot);
+
+  int nvalid = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    // Discard not relevant pixels
+    if (! isActive(iech)) continue;
+    double top = getArray(iech, iuid_top);
+    double bot = getArray(iech, iuid_bot);
+    if (FFFF(top) || FFFF(bot) || bot > top) continue;
+
+    nvalid++;
+    rankToIndice(iech, indg);
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      int indloc = indg[idim];
+      if (indloc < indmin[idim]) indmin[idim] = indloc;
+      if (indloc > indmax[idim]) indmax[idim] = indloc;
+    }
+  }
+
+  // Discard the case where the sub-grid does not exist
+
+  bool flag_exist = true;
+  for (int idim = 0; idim < ndim && flag_exist; idim++)
+  {
+    if (indmin[idim] > indmax[idim]) flag_exist = false;
+  }
+  if (! flag_exist) return vec;
+
+  // Get the sub-grid characteristics
+
+  vec.resize(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    vec[idim].resize(2);
+    vec[idim][0] = indmin[idim];
+    vec[idim][1] = indmax[idim];
+  }
+
+  for (int iexc = 0, nexc = (int) dimExclude.size(); iexc < nexc; iexc++)
+  {
+    vec[iexc][0] = 0;
+    vec[iexc][1] = getNX(iexc);
+  }
+  return vec;
+}
+
+/**
+ * Defines a selection in the current grid where variables 'nameTop' and 'nameBot'
+ * are both defined and ordered properly
+ * @param nameTop Name of the Top variable
+ * @param nameBot Name of the Bottom variable
+ *
+ * @details: This method also adds a selection in the current grid
+ * which masks off the pixels where 'nameTop' and 'nameBot' are defined
+ * but not correctly ordered.
+ * This is the reason why this method cannot be 'const'
+ */
+int DbGrid::setSelectionFromVariableExtend(const String &nameTop, const String &nameBot)
+{
+  // Create the selection new variable
+  int iuidSel = addColumnsByConstant(1, 1, "SelLayer", ELoc::SEL);
+
+  if (nameTop.empty() || nameBot.empty()) return -1;
+
+  // Find the set of Min and Max indices of the subgrid
+
+  int nech = getActiveSampleNumber();
+  int iuid_top = getUID(nameTop);
+  int iuid_bot = getUID(nameBot);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    // Discard not relevant pixels
+    if (! isActive(iech)) continue;
+    double top = getArray(iech, iuid_top);
+    double bot = getArray(iech, iuid_bot);
+    if (FFFF(top) || FFFF(bot) || bot > top)
+    {
+      setArray(iech, iuidSel, 0);
+      continue;
+    }
+  }
+  return iuidSel;
+}
+
+/**
+ * Clean the contents of a 3D file by using surfaces extracted from the 2D file
+ * @param names   Vector of variable of the current grid which must be processed
+ * @param surf2D  Name of the 2-D grid file containing the surfaces
+ * @param nameTop Name of the Top surface (optional)
+ * @param nameBot Name of the Bottom surface (optional)
+ * @param verbose Verbose flag
+ *
+ * @remark The input file 'surf2D' and the current grid should match (in 2-D)
+ */
+void DbGrid::clean3DFromSurfaces(const VectorString& names,
+                                 const DbGrid *surf2D,
+                                 const String &nameTop,
+                                 const String &nameBot,
+                                 bool verbose)
+{
+  if (surf2D == nullptr) return;
+  if (surf2D->getNDim() != 2)
+  {
+    messerr("The grid 'surf2D' must be defined in the 2-D space");
+    return;
+  }
+  if (getNDim() != 3)
+  {
+    messerr("The current grid must be defined in the 3-D space");
+    return;
+  }
+  if (! isSameGrid(surf2D->getGrid()))
+  {
+    messerr("The grid 'surf2D' and the current one should coincide horizontally");
+    return;
+  }
+  if (names.empty())
+  {
+    messerr("You must define some variable to be processed");
+    return;
+  }
+
+  bool limitsDefined = ! nameTop.empty() && ! nameBot.empty();
+  int nvar = (int) names.size();
+
+  // Loop on the vertical columns of the 3-D grid
+
+  int ndim  = 3;
+  int idim0 = ndim - 1;
+  double top = +1.e30;
+  double bot = -1.e30;
+  double z0 = getX0(idim0);
+  double dz = getDX(idim0);
+  int nz = getNX(idim0);
+  int indzmin = 0; // included
+  int indzmax = nz; // excluded
+  VectorInt indg(ndim, 0);
+  VectorDouble vec(nz);
+  VectorDouble vecempty(nz, TEST);
+  VectorInt iuids = getUIDs(names);
+
+  int nmodif3D = 0;
+  int nmodif2D = 0;
+  int rank2D   = 0;
+  double thick = 0;
+  double thickA = 0;
+  for (int ix = 0, nx = getNX(0); ix < nx; ix++)
+    for (int iy = 0, ny = getNX(1); iy < ny; iy++)
+    {
+      indg[0] = ix;
+      indg[1] = iy;
+      indg[2] = 0;
+
+      // Identify the corresponding node in 'surf2D'
+      rank2D = surf2D->indiceToRank(indg);
+
+      // Discard if the coordinate does not belong to 'surf2D' extension
+      bool flagRead = rank2D >= 0;
+
+      // Avoid processing the column if masked in the 2-D file
+      if (flagRead)
+      {
+        if (! surf2D->isActive(rank2D)) flagRead = false;
+      }
+
+      // Get the Top and bottom information from the surf2D grid
+      // Converts them into minimum (included) and maximum (excluded) layer indices
+      // Note: No use to test correct surface ordering as it is already captured in the selection
+      indzmin = 0;
+      indzmax = nz;
+      if (flagRead && limitsDefined)
+      {
+        top = surf2D->getValue(nameTop, rank2D);
+        if (FFFF(top)) flagRead = false;
+
+        if (flagRead)
+        {
+          bot = surf2D->getValue(nameBot, rank2D);
+          if (FFFF(bot)) flagRead = false;
+        }
+
+        if (flagRead)
+        {
+          indzmin = floor((bot - z0) / dz);
+          if (indzmin < 0) indzmin = 0;
+          indzmax = ceil((top - z0) / dz);
+          if (indzmax > nz) indzmax = nz;
+          thick   = dz * (indzmax - indzmin + 1);
+          if (thick > thickA) thickA = thick;
+        }
+      }
+
+      // Loop on the variables
+      if (flagRead)
+      {
+        for (int ivar = 0; ivar < nvar; ivar++)
+        {
+          // Partial update
+          getGridPileInPlace(iuids[ivar], indg, idim0, vec);
+
+          // Blank out
+          for (int iz = 0; iz < indzmin; iz++, nmodif3D++)
+            vec[iz] = TEST;
+          for (int iz = indzmax; iz < nz; iz++, nmodif3D++)
+            vec[iz] = TEST;
+
+          setGridPileInPlace(iuids[ivar], indg, idim0, vec);
+        }
+      }
+      else
+      {
+        // Complete update
+        nmodif2D ++;
+        for (int ivar = 0; ivar < nvar; ivar++, nmodif3D++)
+        {
+          setGridPileInPlace(iuids[ivar], indg, idim0, vecempty);
+        }
+      }
+    }
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Blanking out the 3-D grid file:\n");
+    message("- Number of nodes              = %d %d %d\n", getNX(0), getNX(1), getNX(2));
+    message("- Number of variables          = %d\n", nvar);
+    message("- Total number of piles        = %d\n", getNX(0) * getNX(1));
+    message("- Number of piles blanked out  = %d\n", nmodif2D);
+    message("- Number of values blanked out = %d\n", nmodif3D);
+    message("- Maximum Layer thickness      = %lf\n", thickA);
+  }
+  return;
 }
 
 VectorInt DbGrid::locateDataInGrid(const Db *data,

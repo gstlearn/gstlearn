@@ -2533,7 +2533,7 @@ int simcond(Db *dbin,
             int verbose)
 {
   PropDef *propdef;
-  int nvar, error, iptr, iptr_ce, iptr_cstd, ndim;
+  int nvar, error, iptr, iptr_ce, iptr_cstd;
 
   /* Initializations */
 
@@ -2541,14 +2541,12 @@ int simcond(Db *dbin,
   bool flag_ext_created = false;
   bool flag_nostat_created = false;
   nvar = model->getVariableNumber();
-  ndim = model->getDimensionNumber();
   iptr = -1;
   propdef = nullptr;
 
   /* Preliminary checks */
 
-  SpaceRN space(ndim);
-  NeighUnique* neighU = NeighUnique::create(false, &space);
+  NeighUnique* neighU = NeighUnique::create(false);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manageExternalInformation(1, ELoc::F, dbin, dbout, &flag_ext_created)) goto label_end;

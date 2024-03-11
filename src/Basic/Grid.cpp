@@ -733,6 +733,12 @@ void Grid::copyParams(int mode, const Grid& gridaux)
   }
 }
 
+/**
+ * Check that the current grid match the one provided as argument
+ * up to their common Space Dimension
+ * @param grid Target grid to be checked against the current one
+ * @return True if the grid match
+ */
 bool Grid::isSame(const Grid& grid) const
 {
   int ndim = MIN(_nDim, grid.getNDim());
@@ -1048,13 +1054,25 @@ int Grid::getMirrorIndex(int idim, int ix) const
  ** \param[in]  nx      Array giving the number of cells per direction
  ** \param[in]  string  String describing the sorting order
  ** \param[in]  startFromZero True if numbering must start from 0 (1 otherwise)
+ ** \param[in]  invert  Way to use the resulting array (see remark)
  ** \param[in]  verbose Verbose flag
  **
+ ** \remark Example of string: "+x2-x1"
+ **
+ ** \remark if 'rank' designates the resulting vector of indices
+ ** \remark invert=True:
+ ** \remark   rank[i] is the location of element 'i' of the user's array
+ ** \remark   within a regular grid of gstlearn
+ ** \remark invert=False:
+ ** \remark   rank[i] is the rank of the element of the user's array
+ ** \remark   in position 'i' of the regular grid of gstlearn
+ **
  *****************************************************************************/
-VectorInt Grid::generateGridIndices(const VectorInt& nx,
-                                    const String& string,
-                                    bool startFromZero,
-                                    bool verbose)
+VectorInt Grid::gridIndices(const VectorInt &nx,
+                            const String &string,
+                            bool startFromZero,
+                            bool invert,
+                            bool verbose)
 {
   int ndim = (int) nx.size();
   int ncell = VH::product(nx);
@@ -1080,23 +1098,34 @@ VectorInt Grid::generateGridIndices(const VectorInt& nx,
 
   // Invert order
 
-  VectorInt ind(ncell);
-  for (int i = 0; i < ncell; i++) ind[i] = i;
-  VH::arrangeInPlace(0, ind, dlp.tab, true, ncell);
-  VectorInt tab2(ncell);
-  for (int i = 0; i < ncell; i++)
+  VectorInt tab2(dlp.tab);
+  if (invert)
   {
-    tab2[i] = dlp.tab[ind[i]];
-    if (startFromZero) tab2[i] -= 1;
+    VectorInt ind(VH::sequence(ncell));
+    VH::arrangeInPlace(0, ind, dlp.tab, true, ncell);
+    for (int i = 0; i < ncell; i++)
+    {
+      tab2[i] = dlp.tab[ind[i]];
+    }
   }
-  return (tab2);
+
+  // Change the starting index
+  if (startFromZero)
+  {
+    for (int i = 0; i < ncell; i++)
+    {
+      tab2[i] -= 1;
+    }
+  }
+  return tab2;
 }
 
 VectorInt Grid::generateGridIndices(const String &string,
                                     bool startFromZero,
+                                    bool invert,
                                     bool verbose)
 {
-  return generateGridIndices(getNXs(), string, startFromZero, verbose);
+  return gridIndices(getNXs(), string, startFromZero, invert, verbose);
 }
 
 /****************************************************************************/

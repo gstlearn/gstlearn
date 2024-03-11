@@ -85,26 +85,6 @@ public:
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);
-  int reset(const VectorInt& nx,
-            const VectorDouble& dx = VectorDouble(),
-            const VectorDouble& x0 = VectorDouble(),
-            const VectorDouble& angles = VectorDouble(),
-            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
-            const VectorDouble& tab = VectorDouble(),
-            const VectorString& names = VectorString(),
-            const VectorString& locatorNames = VectorString(),
-            int flag_add_rank = 1,
-            bool flag_add_coordinates = true);
-  int resetCoveringDb(const Db* db,
-                      const VectorInt& nx = VectorInt(),
-                      const VectorDouble& dx = VectorDouble(),
-                      const VectorDouble& x0 = VectorDouble(),
-                      const VectorDouble& margin = VectorDouble());
-  int resetFromPolygon(Polygons* polygon,
-                       const VectorInt& nodes,
-                       const VectorDouble& dcell,
-                       int flag_add_rank = 1);
-
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -150,12 +130,44 @@ public:
                               double angle = 0.,
                               int flag_add_rank = 1,
                               const VectorDouble &tab = VectorDouble());
-  static DbGrid* createGrid3DFromBacktransform(const DbGrid *surf2D,
-                                               const DbGrid *grid3D,
-                                               const String &nameTop,
-                                               const String &nameBot,
-                                               const VectorString &names,
-                                               double dzout = 1.);
+  static DbGrid* createSqueezeAndStretchForward(const DbGrid* grid3Din,
+                                                const DbGrid *surf2D,
+                                                const String &nameTop,
+                                                const String &nameBot,
+                                                const VectorString &names,
+                                                int nzout,
+                                                double thickmin = 0.);
+  static DbGrid* createSqueezeAndStretchBackward(const DbGrid *grid3Din,
+                                                 const DbGrid *surf2D,
+                                                 const String &nameTop,
+                                                 const String &nameBot,
+                                                 const VectorString &names,
+                                                 int nzout,
+                                                 double z0out,
+                                                 double dzout);
+  static DbGrid* createSubGrid(const DbGrid *gridin,
+                               VectorVectorInt limits,
+                               bool flag_add_coordinates = false);
+
+  int reset(const VectorInt& nx,
+            const VectorDouble& dx = VectorDouble(),
+            const VectorDouble& x0 = VectorDouble(),
+            const VectorDouble& angles = VectorDouble(),
+            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
+            const VectorDouble& tab = VectorDouble(),
+            const VectorString& names = VectorString(),
+            const VectorString& locatorNames = VectorString(),
+            int flag_add_rank = 1,
+            bool flag_add_coordinates = true);
+  int resetCoveringDb(const Db* db,
+                      const VectorInt& nx = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      const VectorDouble& x0 = VectorDouble(),
+                      const VectorDouble& margin = VectorDouble());
+  int resetFromPolygon(Polygons* polygon,
+                       const VectorInt& nodes,
+                       const VectorDouble& dcell,
+                       int flag_add_rank = 1);
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
@@ -297,6 +309,15 @@ public:
   VectorVectorDouble getAllCellsEdges(bool forceGridMesh = false) const;
   VectorVectorDouble getGridEdges() const;
   VectorDouble getCodir(const VectorInt& grincr) const;
+  VectorVectorInt getLimitsFromVariableExtend(const String &nameTop,
+                                              const String &nameBot,
+                                              const VectorInt &dimExclude = VectorInt()) const;
+  int setSelectionFromVariableExtend(const String &nameTop, const String &nameBot);
+  void clean3DFromSurfaces(const VectorString& names,
+                           const DbGrid* surf2D,
+                           const String& nameTop = String(),
+                           const String& nameBot = String(),
+                           bool verbose = false);
 
   int morpho(const EMorpho &oper,
              double vmin = 0.5,
@@ -328,11 +349,11 @@ public:
                                          bool flagRandom = false,
                                          int seed = 132433) const;
 
-  void getGridColumnInPlace(const String &name,
+  void getGridPileInPlace(int iuid,
                             const VectorInt &indg,
                             int idim0,
                             VectorDouble &vec) const;
-  void setGridColumnInPlace(const String &name,
+  void setGridPileInPlace(int iuid,
                             const VectorInt &indg,
                             int idim0,
                             const VectorDouble &vec);

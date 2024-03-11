@@ -33,10 +33,11 @@ public:
   virtual ~Grid();
 
 public:
-  static VectorInt generateGridIndices(const VectorInt& nx,
-                                       const String& string,
-                                       bool startFromZero = true,
-                                       bool verbose = false);
+  static VectorInt gridIndices(const VectorInt &nx,
+                               const String &string,
+                               bool startFromZero = true,
+                               bool invert = true,
+                               bool verbose = false);
   static int generateMirrorIndex(int nx, int ix);
 
   void resetFromSpaceDimension(int ndim);
@@ -110,6 +111,7 @@ public:
   VectorInt getCenterIndices() const;
   VectorInt generateGridIndices(const String &string,
                                 bool startFromZero = true,
+                                bool invert = true,
                                 bool verbose = false);
   bool sampleBelongsToCell(const VectorDouble& coor,
                            const VectorDouble& center,

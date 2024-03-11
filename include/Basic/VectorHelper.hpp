@@ -44,8 +44,8 @@ public:
 
   static int maximum(const VectorInt &vec, bool flagAbs = false);
   static int minimum(const VectorInt &vec, bool flagAbs = false);
-  static double maximum(const VectorDouble &vec, bool flagAbs = false);
-  static double minimum(const VectorDouble &vec, bool flagAbs = false);
+  static double maximum(const VectorDouble &vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), int mode=0);
+  static double minimum(const VectorDouble &vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), int mode=0);
   static double maximum(const VectorVectorDouble &vec, bool flagAbs = false);
   static double minimum(const VectorVectorDouble &vec, bool flagAbs = false);
   static int product(const VectorInt& nx);
@@ -98,6 +98,7 @@ public:
                          const VectorVectorDouble &in2,
                          VectorVectorDouble &outv);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
+  static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);
   static void subtractInPlace(const VectorVectorDouble &in1,
@@ -213,6 +214,20 @@ public:
   static void mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
 
   static void transformVD(VectorDouble& tab, int oper_choice = 1);
+
+  static void squeezeAndStretchInPlaceForward(const VectorDouble &vecin,
+                                              VectorDouble &vecout,
+                                              double origin,
+                                              double mesh,
+                                              double top,
+                                              double bot);
+  static void squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
+                                               VectorDouble &vecout,
+                                               double origin,
+                                               double mesh,
+                                               double top,
+                                               double bot);
+
 };
 
 //typedef VectorHelper VH;
