@@ -10,29 +10,11 @@
 /******************************************************************************/
 #include "Enum/ESPDECalcMode.hpp"
 
-#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Basic/File.hpp"
-#include "Basic/CSVformat.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
-#include "Variogram/DirParam.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Variogram/Vario.hpp"
-#include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
-#include "Geometry/GeometryHelper.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Mesh/MeshSpherical.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "Stats/Classical.hpp"
-#include "Polygon/Polygons.hpp"
-#include "API/SPDE.hpp"
+#include "Mesh/MeshETurbo.hpp"
+#include "Matrix/MatrixSparse.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -47,19 +29,22 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AAA_");
 
-  DbGrid* grid = DbGrid::createFromNF("db.ascii");
-  grid->display();
+  // parameters of the final grid on [0,1]^2
+  VectorInt nx({200,200});
+  VectorDouble dx({1/199, 1/199});
+  VectorDouble x0({0,0});
 
-  Model* model = Model::createFromNF("Model.ascii");
-  NoStatArray NoStat({"A","R"},grid);
-  model->addNoStat(&NoStat);
-  model->display();
+  // Grid meshing on [-0.25, 1.25]^2
+  VectorInt nxm({100,100});
+  VectorDouble dxm({1.5/99, 1.5/99});
+  VectorDouble x0m({-0.25,-0.25});
 
-  model->display();
+  DbGrid* grid     = DbGrid::create(nx,dx,x0);
+  DbGrid* gridExt  = DbGrid::create(nxm,dxm,x0m);
+  MeshETurbo* mesh = new MeshETurbo(gridExt);
 
-  SPDE spde(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND);
-  spde.compute(grid);
-  (void) grid->dumpToNF("Result.ascii");
+  MatrixSparse* ap = ProjMatrix(grid, mesh).getAproj();
+  std::cout << ap->isSparse() << std::endl;
 
   return (0);
 }

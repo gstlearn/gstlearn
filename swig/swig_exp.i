@@ -248,7 +248,6 @@
 
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixDense.hpp
-%include Matrix/LinkMatrixSparse.hpp
 %include Matrix/MatrixSparse.hpp
 %include Matrix/MatrixRectangular.hpp
 %include Matrix/AMatrixSquare.hpp

@@ -23,7 +23,6 @@
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
-#include "Mesh/MeshETurbo.hpp"
 #include "Stats/PCA.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 

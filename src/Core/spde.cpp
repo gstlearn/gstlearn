@@ -3898,7 +3898,9 @@ int spde_chebychev_operate(MatrixSparse *S,
 
   error = 0;
 
-  label_end: return (error);
+label_end:
+  delete T1;
+  return (error);
 }
 #endif
 /****************************************************************************/

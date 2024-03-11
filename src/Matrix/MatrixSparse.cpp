@@ -625,7 +625,7 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
                                               int ncol,
                                               int opt_eigen)
 {
-  // If 'nrow' and 'ncol' are not defined, derive them from NF_T
+  // If 'nrow' a  nd 'ncol' are not defined, derive them from NF_T
   if (nrow <= 0 || ncol <= 0)
   {
     nrow = NF_T.getNRows() + 1;
