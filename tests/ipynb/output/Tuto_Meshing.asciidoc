@@ -120,7 +120,7 @@ Number of Apices          = 1830
 Bounding Box Extension
 ----------------------
 Dim #1 - Min:0.648392 - Max:142.336
-Dim #2 - Min:3.38503 - Max:97.8624
+Dim #2 - Min:3.38503 - Max:97.8622
 
 Mask Information
 ................
@@ -157,7 +157,7 @@ Number of Apices          = 1830
 Bounding Box Extension
 ----------------------
 Dim #1 - Min:0.648392 - Max:142.336
-Dim #2 - Min:3.38503 - Max:97.8624
+Dim #2 - Min:3.38503 - Max:97.8622
 
 Mask Information
 ................

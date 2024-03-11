@@ -764,6 +764,8 @@ def __ax_symbol(ax, db, nameColor=None, nameSize=None,
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     '''
     name = ''
+    if (nameColor is None) and (nameSize is None):
+        nameSize = __defaultVariable(db, None)
     
     # Read the coordinates
     tabx, taby = __readCoorPoint(db, nameCoorX, nameCoorY, useSel, posX, posY)
@@ -1108,7 +1110,7 @@ def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
         
     return ax
 
-def __readGrid(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading = "nearest"):
+def __readGrid(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading = "flat"):
     
     x0 = dbgrid.getX0(posX)
     y0 = dbgrid.getX0(posY)
@@ -1116,13 +1118,15 @@ def __readGrid(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading =
     ny = dbgrid.getNX(posY)
     dx = dbgrid.getDX(posX)
     dy = dbgrid.getDX(posY)
-    angles = dbgrid.getAngles()
+    angle = 0
+    if posX==0 and posY==1:
+        angle = dbgrid.getAngle(posX)
     
     data = __getDefinedValues(dbgrid, name, posX, posY, corner, useSel, 
                               compress=False, asGrid=True)
     data = np.reshape(data, (ny,nx))
 
-    tr = transform.Affine2D().rotate_deg_around(x0,y0,angles[0])
+    tr = transform.Affine2D().rotate_deg_around(x0,y0,angle)
     
     if shading == "nearest":
         X = np.linspace(x0, x0 + (nx-1)*dx, nx)
@@ -1147,24 +1151,45 @@ def cell(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_cell(ax, dbgrid, *args, **kwargs)
 
-def __ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
-    xext = dbgrid.getExtrema(posX)
-    yext = dbgrid.getExtrema(posY)
+def __ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
 
     indices = np.zeros(dbgrid.getNDim())
+    shift = np.ones(dbgrid.getNDim()) * (-1)
     for i in range(0,dbgrid.getNX(posX)+1,step):
         indices[posX] = i
         indices[posY] = 0
-        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posY] = dbgrid.getNX(posY)
-        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     for i in range(0,dbgrid.getNX(posY)+1,step):
         indices[posX] = 0
         indices[posY] = i
-        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posX] = dbgrid.getNX(posX)
-        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
+        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+    return
+
+def __ax_box(ax, dbgrid, posX=0, posY=1, **kwargs):
+    indices = np.zeros(dbgrid.getNDim())
+    shift = np.ones(dbgrid.getNDim()) * (-1)
+    step = dbgrid.getNX(posX)
+    for i in range(0,dbgrid.getNX(posX)+1,step):
+        indices[posX] = i
+        indices[posY] = 0
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
+        indices[posY] = dbgrid.getNX(posY)
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
+        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+    
+    step = dbgrid.getNX(posY)
+    for i in range(0,dbgrid.getNX(posY)+1,step):
+        indices[posX] = 0
+        indices[posY] = i
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
+        indices[posX] = dbgrid.getNX(posX)
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     return
 
@@ -1191,15 +1216,9 @@ def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=Non
         ax.decoration(title = dbgrid.getName(name)[0])
     
     x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner)
-    trans_data = tr + ax.transData
     
-    res = ax.pcolormesh(X, Y, data, **kwargs)
-    res.set_transform(trans_data)
+    res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
     
-    x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
-    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
-            transform=trans_data)
-   
     if flagLegend:
         if legendName is None:
             legendName = name
@@ -1233,7 +1252,8 @@ def __ax_isoline(ax, dbgrid, name=None, useSel = True,
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner)
+    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, 
+                                        corner=corner, shading="nearest")
     trans_data = tr + ax.transData
     
     res = ax.contour(X, Y, data, levels, **kwargs)
@@ -1255,6 +1275,7 @@ def grid(dbgrid, *args, **kwargs):
     nameContour: Name of the variable tp be represented as contours
     useSel : Boolean to indicate if the selection has to be considered
     flagCell: When True, the edge of the grid cells are represented
+    flagBox: when True, the bounding box of the Grid is represented
     flagLegendRaster: Flag for representing the Raster Legend
     flagLegendContour: Flag for representing the Contour Legend
     legendNameRaster: Title for the Raster Legend (set to 'nameRaster' if not defined)
@@ -1265,7 +1286,7 @@ def grid(dbgrid, *args, **kwargs):
     return __ax_grid(ax, dbgrid, *args, **kwargs)
 
 def __ax_grid(ax, dbgrid, nameRaster = None, nameContour = None, useSel = True, 
-              posX=0, posY=1, corner=None, flagCell=False,
+              posX=0, posY=1, corner=None, flagCell=False, flagBox=False,
               flagLegendRaster=False, flagLegendContour=False,
               legendNameRaster=None, legendNameContour=None,
               levels=None, **kwargs):
@@ -1291,9 +1312,12 @@ def __ax_grid(ax, dbgrid, nameRaster = None, nameContour = None, useSel = True,
         title = title + nameContour + " (Isoline) "
     
     if flagCell:
-        cl = __ax_cell(ax, dbgrid, posX=posX, posY=posY, corner=corner, 
-                       **kwargs)
+        cl = __ax_cell(ax, dbgrid, posX=posX, posY=posY, **kwargs)
+    
+    if flagBox:
+        cl = __ax_box(ax, dbgrid, posX=posX, posY=posY, **kwargs)
         
+
     ax.decoration(title = title)
     
     return ax

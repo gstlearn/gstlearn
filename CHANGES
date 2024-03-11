@@ -28,7 +28,9 @@ Release 1.1.0
 - Function correlation_ident() is renamed as correlationIdentify()
 - Function variogram_mlayers() is renamed as Vario::computeGeometryMLayers()
 - Function variovect_compute() is renamed as Vario::computeVarioVect()
-- New function for Squeeze-and-Stretch back transform in Grid format: DbGrid::createGrid3DFromBacktransform()
+- New functions for Squeeze-and-Stretch in Grid format: 
+  DbGrid::createSqueezeAndStretchForward() for forward processing and
+  DbGrid::createSqueezeAndStretchBackward() for backward processing
 - New method 'select' for ANeigh (gain of memory and time)
 - Pluging the library "eigen" for faster and more accurate algebra.
 - Adding the display of known mean (when relevant)
@@ -48,6 +50,7 @@ Release 1.1.0
 - db_normalize() is renamed as DbHelper::normalizeVariables()
 - db_grid_fill() is renamed as DbHelper::gridFilling()
 - Introducing the generic method "fromTL" to convert R object into gstlearn ones
+>>>>>>> refs/remotes/origin/dev
 
 Release 1.0.0
 =============

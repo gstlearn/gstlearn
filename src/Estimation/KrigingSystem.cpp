@@ -3050,8 +3050,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
 
-  SpaceRN space(_ndim);
-  NeighUnique neighU = NeighUnique::create(false, &space);
+  NeighUnique neighU = NeighUnique::create(false);
   neighU.attach(dbaux, dbaux);
 
   _iechOut = dbaux->getSampleNumber() / 2;

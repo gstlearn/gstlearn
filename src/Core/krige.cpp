@@ -5027,8 +5027,7 @@ int inhomogeneous_kriging(Db *dbdat,
   /* Preliminary checks */
 
   error = nvar = 1;
-  SpaceRN space(dbdat->getNDim());
-  NeighUnique* neighU = NeighUnique::create(false, &space);
+  NeighUnique* neighU = NeighUnique::create(false);
   st_global_init(dbdat, dbout);
   FLAG_EST = true;
   FLAG_STD = true;

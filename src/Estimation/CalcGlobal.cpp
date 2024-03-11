@@ -105,10 +105,8 @@ int CalcGlobal::_globalKriging()
 
   // Initializations
 
-  int ndim = getDbin()->getNDim();
   int nvar = getModel()->getVariableNumber();
-  SpaceRN space(ndim);
-  NeighUnique neighU = NeighUnique(false, &space);
+  NeighUnique neighU = NeighUnique(false);
   neighU.attach(getDbin(), getDbout());
 
   /* Setting options */

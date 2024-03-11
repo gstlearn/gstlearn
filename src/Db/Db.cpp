@@ -578,6 +578,21 @@ void Db::setArray(int iech, int iuid, double value)
 }
 
 /**
+ * Set the values of a series of samples
+ * @param iechs List of sample indices
+ * @param iuid Index of the UID
+ * @param values List of values to be written
+ * @remarks: for efficiency purpose, no check is performed on the sample ranks
+ */
+void Db::setArrayVec(const VectorInt& iechs, int iuid, const VectorDouble& values)
+{
+  int icol = getColIdxByUID(iuid);
+  if (!isColIdxValid(icol)) return;
+  for (int i = 0, n = (int) iechs.size(); i < n; i++)
+    _array[_getAddress(iechs[i], icol)] = values[i];
+}
+
+/**
  * Returns the value of the 'iech' sample of the variable 'name'
  *
  * This function does not use 'ids' mechanism in order to allow
@@ -615,6 +630,23 @@ double Db::getArray(int iech, int iuid) const
   int icol = getColIdxByUID(iuid);
   if (!isColIdxValid(icol)) return (TEST);
   return (_array[_getAddress(iech, icol)]);
+}
+
+/**
+ * Get the values of a series of samples
+ * @param iechs List of sample indices
+ * @param iuid Index of the UID
+ * @param values List of values to be written
+ * @remarks: for efficiency purpose, no check is performed on the sample ranks
+ */
+void Db::getArrayVec(const VectorInt& iechs, int iuid, VectorDouble& values) const
+{
+  int icol = getColIdxByUID(iuid);
+  if (!isColIdxValid(icol)) return;
+  for (int i = 0, n = (int) iechs.size(); i < n; i++)
+  {
+    values[i] = _array[_getAddress(iechs[i], icol)];
+  }
 }
 
 VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
@@ -664,10 +696,29 @@ void Db::updArray(int iech, int iuid, int oper, double value)
   if (!isSampleIndexValid(iech)) return;
 
   int icol = getColIdxByUID(iuid);
+  if (!isColIdxValid(icol)) return;
+
   int internalAddress = _getAddress(iech, icol);
   double oldval = _array[internalAddress];
   double newval = _updateValue(oper, oldval, value);
   _array[internalAddress] = newval;
+}
+
+void Db::updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& values)
+{
+  int icol = getColIdxByUID(iuid);
+  if (!isColIdxValid(icol)) return;
+
+  int iad;
+  double oldval;
+  double newval;
+  for (int i = 0, n = (int) iechs.size(); i < n; i++)
+  {
+    iad = _getAddress(iechs[i], icol);
+    oldval = _array[iad];
+    newval = _updateValue(oper, oldval, values[i]);
+    _array[iad] = newval;
+  }
 }
 
 VectorDouble Db::getSampleCoordinates(int iech) const
@@ -1398,10 +1449,11 @@ void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
   if (useSel) sel = getSelections();
 
   int lec = 0;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  bool defined = true;
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
-    bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    defined = true;
+    if (!sel.empty()) defined = (sel[iech] == 1);
 
     if (defined)
       setArray(iech, iuid, tab[lec++]);
@@ -2931,9 +2983,37 @@ VectorString Db::getNames(const VectorString& names) const
   return expandNameList(names);
 }
 
-VectorString Db::getAllNames() const
+VectorString Db::getAllNames(bool excludeRankAndCoordinates, bool verbose) const
 {
-  VectorString names = _colNames;
+  if (! excludeRankAndCoordinates)
+    return _colNames;
+  else
+  {
+    // From the list of all variables, exclude the following variables:
+    // - the one named 'rank' (if any)
+    // - the coordinates (if any)
+  }
+  VectorString allnames = _colNames;
+  VectorString names;
+  for (int ivar = 0, nvar = (int) allnames.size(); ivar < nvar; ivar++)
+  {
+    // Exclude variable named 'rank'
+    if (matchRegexp(allnames[ivar], "rank", false))
+    {
+      if (verbose) message("Excluding variable %s\n", allnames[ivar].c_str());
+      continue;
+    }
+
+    // Exclude coordinates
+    if (matchRegexp(allnames[ivar], "x*", false))
+    {
+      if (verbose) message("Excluding variable %s\n", allnames[ivar].c_str());
+      continue;
+    }
+
+    // Add the names to the output list
+    names.push_back(allnames[ivar]);
+  }
   return names;
 }
 

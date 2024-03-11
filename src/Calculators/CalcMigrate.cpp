@@ -309,10 +309,13 @@ void st_get_closest_sample(DbGrid *dbgrid,
   double dd = distance_inter(dbgrid, dbpoint, ig, ip, nullptr);
 
   // Distance modifier
-  double dd2 = st_distance_modify(dbgrid, ig, dbpoint, ip, dvect, flag_aniso,
-                                  iatt_time, iatt_angle,
-                                  iatt_scaleu, iatt_scalev, iatt_scalew);
-  if (! FFFF(dd2)) dd = dd2;
+  if (flag_aniso || iatt_time >= 0)
+  {
+    double dd2 = st_distance_modify(dbgrid, ig, dbpoint, ip, dvect, flag_aniso,
+                                    iatt_time, iatt_angle,
+                                    iatt_scaleu, iatt_scalev, iatt_scalew);
+    if (! FFFF(dd2)) dd = dd2;
+  }
 
   // Evaluate the closest distance
   if (dd < (*ddmin))
@@ -332,6 +335,8 @@ void st_get_closest_sample(DbGrid *dbgrid,
  * @param xtab     Array of sample coordinates
  * @param xtarget  Target coordinate
  * @return Rank of the sample just above the target (or equal)
+ *
+ * @note: The use of 'ip0_init' which could be different from 0 has been abandoned temporarily
  */
 int st_next_sample(int ip0_init,
                    const VectorInt    &rank,
@@ -1249,7 +1254,7 @@ int expandPointToGrid(Db *db_point,
 
     /* Locate the grid node within the ordered list (1D coordinate) */
 
-    ip0 = st_next_sample(ip0, rank, xtab, xtarget);
+    ip0 = st_next_sample(0, rank, xtab, xtarget);
 
     /* Calculate minimum distance between the two closest ordered samples */
 
