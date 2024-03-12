@@ -14,6 +14,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Basic/ASerializable.hpp"
 
@@ -137,13 +138,12 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
   }
   return mesh;
 }
-MatrixSparse* MeshManifold::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+void MeshManifold::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
 {
-  /// TODO getMeshToDb
+  /// TODO resetProjMatrix
   DECLARE_UNUSED(db);
   DECLARE_UNUSED(rankZ);
   DECLARE_UNUSED(verbose);
-  return nullptr;
 }
 void MeshManifold::_defineBoundingBox(void)
 {

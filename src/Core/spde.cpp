@@ -20,6 +20,7 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -5520,7 +5521,7 @@ int spde_prepar(Db *dbin,
       {
         if ((S_DECIDE.flag_several && !flag_AQ_defined) || !S_DECIDE.flag_mesh_dbin)
         {
-          Matelem.Aproj = Matelem.amesh->getMeshToDb(dbin, -1, false);
+          Matelem.Aproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(dbin, -1, false));
           if (Matelem.Aproj == nullptr) return 1;
         }
       }
@@ -8901,7 +8902,7 @@ int m2d_gibbs_spde(Db *dbin,
 
       /* Store the conditional simulation on the grid */
 
-      Bproj = Matelem.amesh->getMeshToDb(dbout, -1, false);
+      Bproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(dbout, -1, false));
       if (Bproj == nullptr) goto label_end;
       gwork = (double*) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
       if (gwork == nullptr) goto label_end;

@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixRectangular.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -262,8 +263,7 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
 **
-** \return A Sparse matrix (cs structure)
-**
+** \param[out] m         Projection matrix to be initialized
 ** \param[in]  db        Db structure
 ** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
 ** \param[in]  verbose   Verbose flag
@@ -272,14 +272,14 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+void MeshEStandard::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
 {
   int nmeshes       = getNMeshes();
   int ncorner       = getNApexPerMesh();
 
   // Preliminary checks 
 
-  if (isCompatibleDb(db)) return nullptr;
+  if (isCompatibleDb(db)) return;
 
   /* Core allocation */
 
@@ -357,7 +357,8 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  return MatrixSparse::createFromTriplet(NF_T);
+
+  return m->resetFromTriplet(NF_T);
 }
 
 /**

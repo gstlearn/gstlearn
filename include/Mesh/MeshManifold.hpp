@@ -42,7 +42,7 @@ public:
 
   static MeshManifold* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-  MatrixSparse* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
+  void    resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   int getVariety() const { return 2; }
 
   VectorVectorInt getMeshes() const { return _meshes.getMatrix(); }
