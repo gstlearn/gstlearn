@@ -62,6 +62,7 @@ void NF_Triplet::force(int nrow, int ncol)
     add(nrow - 1, ncol - 1, 0.);
 }
 
+#ifndef SWIG
 cs* NF_Triplet::buildCsFromTriplet() const
 {
   cs* local = cs_spalloc2(0,0,1,1,1);
@@ -104,6 +105,7 @@ NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, i
   NF_T._eigenT = v;
   return NF_T;
 }
+#endif
 
 int NF_Triplet::getRow(int i) const
 {

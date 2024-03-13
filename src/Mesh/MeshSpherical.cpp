@@ -16,6 +16,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/NF_Triplet.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -183,8 +184,7 @@ int MeshSpherical::reset(int ndim,
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
 **
-** \return A Sparse matrix (cs structure)
-**
+** \param[out] m         Projection matrix to be initialized
 ** \param[in]  db        Db structure
 ** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
 ** \param[in]  verbose   Verbose flag
@@ -193,7 +193,7 @@ int MeshSpherical::reset(int ndim,
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
 {
   bool flag_approx = true;
  
@@ -206,7 +206,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   // Preliminary checks 
 
-  if (isCompatibleDb(db)) return nullptr;
+  if (isCompatibleDb(db)) return;
 
   /* Core allocation */
 
@@ -273,7 +273,8 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  return MatrixSparse::createFromTriplet(NF_T);
+
+  return m->resetFromTriplet(NF_T);
 }
 
 /****************************************************************************/

@@ -13,6 +13,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
@@ -405,6 +406,15 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 {
   getApexCoordinatesInPlace(iapex, coords);
 }
+
+/*! Returns the Sparse Matrix for projecting the Mesh to a Db */
+ProjMatrix* AMesh::createProjMatrix(const Db* db, int rankZ, bool verbose) const
+{
+  ProjMatrix* m = new ProjMatrix();
+  resetProjMatrix(m, db, rankZ, verbose);
+  return m;
+}
+
 
 /**
  * Fill the array of coordinates of all apices of a mesh in embedded space

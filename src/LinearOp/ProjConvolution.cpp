@@ -87,12 +87,9 @@ int ProjConvolution::_buildAprojHoriz()
   // Create the Turbo Meshing on the Resolution 'ndim-1' grid
   MeshETurbo* mesh = MeshETurbo::createFromGrid(_gridRes2D);
 
-  ProjMatrix* proj = ProjMatrix::create(_gridSeis2D, mesh);
-
-  _AProjHoriz = proj->getAproj()->clone();
+  _AProjHoriz = ProjMatrix::create(_gridSeis2D, mesh);
 
   delete mesh;
-  delete proj;
 
   return 0;
 }

@@ -42,6 +42,7 @@ public:
 
   DbGrid* getResolutionGrid() const;
 
+  /// TODO : return a shared pointer ?
   const MatrixSparse* getAProjHoriz() const { return _AProjHoriz; }
 
   const VectorDouble& getConvolution() const { return _convolution; }

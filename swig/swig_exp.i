@@ -138,6 +138,18 @@
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
 
+%include Matrix/AMatrix.hpp
+%include Matrix/AMatrixDense.hpp
+%include Matrix/MatrixSparse.hpp
+%include Matrix/MatrixRectangular.hpp
+%include Matrix/AMatrixSquare.hpp
+%include Matrix/NF_Triplet.hpp
+%include Matrix/MatrixSquareGeneral.hpp
+%include Matrix/MatrixSquareSymmetric.hpp
+%include Matrix/MatrixFactory.hpp
+%include Matrix/MatrixInt.hpp
+%include Matrix/Table.hpp
+
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
 
@@ -245,19 +257,6 @@
 %include Drifts/DriftM.hpp
 %include Drifts/DriftF.hpp
 %include Drifts/DriftFactory.hpp
-
-%include Matrix/AMatrix.hpp
-%include Matrix/AMatrixDense.hpp
-%include Matrix/LinkMatrixSparse.hpp
-%include Matrix/MatrixSparse.hpp
-%include Matrix/MatrixRectangular.hpp
-%include Matrix/AMatrixSquare.hpp
-%include Matrix/MatrixSquareGeneral.hpp
-%include Matrix/MatrixSquareSymmetric.hpp
-%include Matrix/MatrixFactory.hpp
-%include Matrix/MatrixInt.hpp
-%include Matrix/Table.hpp
-%include Matrix/NF_Triplet.hpp
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp

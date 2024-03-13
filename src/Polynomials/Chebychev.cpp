@@ -317,5 +317,7 @@ void Chebychev::evalOp(MatrixSparse* S,const VectorDouble& x,VectorDouble& y) co
 
   for (int i=0; i<nvertex; i++)
     y[i] = px[i];
+
+  delete T1;
 }
 #endif
