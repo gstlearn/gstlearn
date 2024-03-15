@@ -22,6 +22,7 @@ Tensor::Tensor(unsigned int ndim)
    _tensorInverse(),
    _tensorDirect2(),
    _tensorInverse2(),
+   _tensorDirectSwap(),
    _radius(),
    _rotation(),
    _isotropic(true),
@@ -37,6 +38,7 @@ Tensor::Tensor(const Tensor& r)
    _tensorInverse(r._tensorInverse),
    _tensorDirect2(r._tensorDirect2),
    _tensorInverse2(r._tensorInverse2),
+   _tensorDirectSwap(r._tensorDirectSwap),
    _radius(r._radius),
    _rotation(r._rotation),
    _isotropic(r._isotropic),
@@ -54,6 +56,7 @@ Tensor& Tensor::operator=(const Tensor &r)
     _tensorInverse = r._tensorInverse;
     _tensorDirect2 = r._tensorDirect2;
     _tensorInverse2 = r._tensorInverse2;
+    _tensorDirectSwap = r._tensorDirectSwap;
     _radius = r._radius;
     _rotation = r._rotation;
     _isotropic = r._isotropic;
@@ -77,6 +80,7 @@ void Tensor::init(int ndim)
   // Squared tensor are easy to calculate as rotation is identity and radius is 1
   _tensorDirect2  = _rotation.getMatrixInverse();
   _tensorInverse2 = _rotation.getMatrixInverse();
+  _tensorDirectSwap = _rotation.getMatrixDirect();
   _isotropic = true;
 }
 
@@ -204,6 +208,12 @@ void Tensor::applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) cons
   _tensorDirect.prodMatVecInPlace(vec, out);
 }
 
+void Tensor::applyDirectSwapInPlace(const VectorDouble &vec, VectorDouble &out) const
+{
+  _tensorDirectSwap.prodMatVecInPlace(vec, out);
+}
+
+
 VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
@@ -239,6 +249,9 @@ void Tensor::_fillTensors()
   // Square of the Direct tensor
   _tensorDirect2 = MatrixSquareSymmetric(_nDim);
   _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
+
+  _tensorDirectSwap = _rotation.getMatrixDirect();
+  _tensorDirectSwap.multiplyRow(_radius);
 
   // Inverse of the Direct squared tensor
   _direct2ToInverse2();

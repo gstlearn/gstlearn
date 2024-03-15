@@ -107,7 +107,7 @@ double SpaceRN::getFrequentialDistance(const SpacePoint &p1,
                                        const Tensor &tensor) const
 {
   _getIncrementInPlace(p1, p2, _work1);
-  tensor.applyDirectInPlace(_work1, _work2);
+  tensor.applyDirectSwapInPlace(_work1, _work2);
   return VH::norm(_work2);
 }
 
