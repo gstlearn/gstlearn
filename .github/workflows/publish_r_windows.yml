@@ -30,11 +30,10 @@ env:
   SWIG_ROOT : ${{github.workspace}}\swig_420b
   DOXYGEN_ROOT : ${{github.workspace}}\doxygen
   DOXYGEN_VERSION : "1.9.8"
-# Boost and Eigen already provided by Rtools
-#  BOOST_ROOT: ${{github.workspace}}\boost
-#  BOOST_VERSION: "1.72.0"
-#  EIGEN_ROOT : ${{github.workspace}}\eigen
-#  EIGEN_VERSION : "3.4.0"
+  BOOST_ROOT: ${{github.workspace}}\boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}\eigen
+  EIGEN_VERSION : "3.4.0"
 
 jobs:
   
@@ -66,20 +65,19 @@ jobs:
       uses: fabien-ors/install-swig-windows-action@v2
       with:
         swig-root: ${{env.SWIG_ROOT}}
-#
-# Boost and Eigen already provided by Rtools
-#
-#    - name: Install the Boost headers
-#      uses: ./.github/workflows/install-boost-windows
-#      with:
-#        boost-root: ${{env.BOOST_ROOT}}
-#        boost-version: ${{env.BOOST_VERSION}}
-#
-#    - name: Install the Eigen headers
-#      uses: ./.github/workflows/install-eigen-windows
-#      with:
-#        eigen-root: ${{env.EIGEN_ROOT}}
-#        eigen-version: ${{env.EIGEN_VERSION}}
+
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-windows
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
+
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-windows
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+        generator: "Visual Studio 16 2019"
 
     - name : Build the package and save generated file name in the environment
       run : |

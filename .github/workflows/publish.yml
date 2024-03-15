@@ -16,9 +16,9 @@ jobs:
   call-python-windows:
     uses: ./.github/workflows/publish_python_windows.yml
     secrets: inherit
-  call-python-ubuntu:
-    uses: ./.github/workflows/publish_python_ubuntu.yml
-    secrets: inherit
+  #call-python-ubuntu:
+  #  uses: ./.github/workflows/publish_python_ubuntu.yml
+  #  secrets: inherit
   call-r-macos:
     uses: ./.github/workflows/publish_r_macos.yml
     secrets: inherit
