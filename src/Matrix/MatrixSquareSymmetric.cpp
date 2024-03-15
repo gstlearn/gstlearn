@@ -21,6 +21,8 @@
 #define SQ(i,j,neq)   ((j) * neq + (i))
 #define AT(i,j)        at[TRI(j)+(i)] /* for j >= i */
 #define AL(i,j)        al[SQ(i,j,neq)-TRI(j)] /* for i >= j */
+#define BS(i,j)        b[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
+#define XS(i,j)        x[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
     : AMatrixSquare(nrow, opt_eigen),
@@ -157,6 +159,18 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
   }
   else
     _setValueLocal(irow, icol, value);
+}
+
+void MatrixSquareSymmetric::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+  {
+    // Do not forget to make a symmetrical call (when stored in an Eigen format)
+    AMatrixDense::_updValue(irow, icol, oper, value);
+    if (irow != icol) AMatrixDense::_updValue(icol, irow, oper, value);
+  }
+  else
+    _updValueLocal(irow, icol, oper, value);
 }
 
 void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
@@ -403,6 +417,13 @@ void MatrixSquareSymmetric::_setValueLocal(int irow, int icol, double value)
   _squareSymMatrix[irank] = value;
 }
 
+void MatrixSquareSymmetric::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  int irank = _getIndexToRank(irow, icol);
+  _squareSymMatrix[irank] = modifyOperator(oper, _squareSymMatrix[irank], value);
+}
+
 void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
 {
   if (! _isRankValid(irank)) return;
@@ -487,8 +508,11 @@ int MatrixSquareSymmetric::_getMatrixPhysicalSizeLocal() const
 int MatrixSquareSymmetric::_solveLocal(const VectorDouble& b, VectorDouble& x) const
 {
   int pivot;
-  return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
-                      static_cast<int> (b.size()),1,&pivot);
+  int size = (int) b.size();
+  VectorDouble alocal = _squareSymMatrix;
+  VectorDouble blocal = b;
+  pivot = _matrix_solve(alocal, blocal, x, size, 1);
+  return (pivot != 0);
 }
 
 int MatrixSquareSymmetric::_computeEigenLocal(bool optionPositive)
@@ -646,4 +670,110 @@ void MatrixSquareSymmetric::_matrix_triangular_product(int neq,
     }
   }
   return;
+}
+
+/****************************************************************************/
+/*!
+ **  Check if a matrix is definite positive
+ **
+ ** \return  True if the matrix is definite positive; False otherwise
+ **
+ *****************************************************************************/
+bool MatrixSquareSymmetric::isDefinitePositive()
+{
+  /* Calculate the eigen values and vectors */
+
+  if (computeEigen()) messageAbort("matrix_eigen");
+
+  // Get the Eigen values
+
+  VectorDouble valpro = getEigenValues();
+
+  /* Check if the eigen values are all positive */
+
+  for (int i = 0, n = (int) valpro.size(); i < n; i++)
+  {
+    if (valpro[i] < -1.0e-10)
+    {
+      messerr("The matrix is not definite positive: Eigen value #%d = %lf",
+              i + 1, valpro[i]);
+      return false;
+    }
+  }
+  return true;
+}
+
+/*****************************************************************************/
+/*!
+ **  Solve a system of linear equations with symmetric coefficient
+ **  matrix upper triangular part of which is stored columnwise. Use
+ **  is restricted to matrices whose leading principal minors have
+ **  non-zero determinants.
+ **
+ ** \return  Return code:  0 no error
+ ** \return  -1 if neq<1 +k when zero pivot encountered at k-th iteration
+ **
+ ** \param[in]  neq  number of equations in the system
+ ** \param[in]  nrhs number of right-hand side vectors
+ ** \param[in]  at   upper triangular matrix by row (dimension = neq*(neq+1)/2)
+ ** \param[in]  b    right-hand side matrix (dimension = neq*nrhs)
+ **
+ ** \param[out] x: matrix of solutions (dimension = neq*nrhs)
+ **
+ ** \remark  1 - The algorithm is gauss elimination. pivots are taken along
+ ** \remark      main diagonal. There are no interchanges and no search for
+ ** \remark      maximal element. The equations remain in the same order as on
+ ** \remark      input and the right-hand sides are kept.
+ ** \remark      It is therefore possible to solve the system with the last
+ ** REMAKRS:      equation removed by simply applying back substitution on the
+ ** \remark      triangularized matrix 'a'.
+ ** \remark  2 - Return code=k at the rank k indicates that the determinant of
+ ** \remark      g(k), the leading principal minor of order k, is zero.
+ ** \remark      Generally, after triangularization the diagonal term of the
+ ** \remark      i-th row is : at*(i*(i+1)/2) = det(g(i)) / det(g(i-1))
+ ** \remark      therefore use of this function is restricted to matrices such
+ ** \remark      that det(g(i)) is never zero.
+ ** \remark   3- The arrays at and b are modified by this function The
+ ** \remark      arrays b and x may not coincide
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_matrix_solve(VectorDouble& at,
+                                         VectorDouble& b,
+                                         VectorDouble& x,
+                                         int neq,
+                                         int nrhs,
+                                         double eps) const
+
+{
+  double pivot, ratio;
+
+  for (int k = 0; k < neq - 1; k++)
+  {
+    pivot = AT(k, k);
+    if (ABS(pivot) < eps) return (k + 1);
+    for (int i = k + 1; i < neq; i++)
+    {
+      ratio = AT(k,i)/ pivot;
+      for (int j=i; j<neq; j++)  AT(i,j) -= AT(k,j) * ratio;
+      for (int l=0; l<nrhs; l++) BS(i,l) -= BS(k,l) * ratio;
+    }
+  }
+
+  pivot = AT(neq - 1, neq - 1);
+  if (ABS(pivot) < eps) return (neq);
+
+  for (int l = 0; l < nrhs; l++)
+    XS(neq-1,l) = BS(neq-1,l) / pivot;
+
+  for (int l = 0; l < nrhs; l++)
+  {
+    for (int k = neq - 2; k >= 0; k--)
+    {
+      ratio = BS(k, l);
+      for (int j = k + 1; j < neq; j++)
+        ratio -= AT(k,j)* XS(j,l);
+      XS(k,l)= ratio / AT(k,k);
+    }
+  }
+  return (0);
 }

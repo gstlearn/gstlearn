@@ -14,6 +14,8 @@
 #include "geoslib_define.h"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Enum/EOperator.hpp"
+
 #include <map>
 #include <cmath>
 #include <math.h>
@@ -110,3 +112,5 @@ GSTLEARN_EXPORT double operate_Square(double x);
 GSTLEARN_EXPORT double operate_InverseSquare(double x);
 GSTLEARN_EXPORT double operate_Sqrt(double x);
 GSTLEARN_EXPORT double operate_InverseSqrt(double x);
+GSTLEARN_EXPORT double modifyOperator(const EOperator& oper, double oldval, double value);
+

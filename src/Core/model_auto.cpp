@@ -65,11 +65,9 @@
 
 #define AD(ivar,jvar)            (ivar) + nvar * (jvar)
 #define VARS(ivar,jvar)          vario->vars[(ivar) * vario->getNVar() + (jvar)]
-#define VECPRO(ivar,jvar)        vecpro[AD(ivar,jvar)]
 #define VARCHOL(ivar,jvar)       varchol[COMP_INDEX(ivar,jvar)]
 
 #define AA(icov,jcov)            aa[(icov) * ncova + (jcov)]
-#define CC(ivar,jvar)            cc[AD(ivar,jvar)]
 #define AUX(ivar,jvar)           aux[AD(ivar,jvar)]
 
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
@@ -78,7 +76,6 @@
 #define CORRECT(idir,k)         (vario->getHhByIndex(idir,k) != 0. && ! FFFF(vario->getHhByIndex(idir,k)) && \
                                  vario->getSwByIndex(idir,k) != 0. && ! FFFF(vario->getSwByIndex(idir,k)) && \
                                  ! FFFF(vario->getGgByIndex(idir,k)))
-#define VALPRO(ivar)             valpro[(ivar)]
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define AIRKV(ipadir,ivar)       Airk_v[(ipadir)*nvar + (ivar)]
@@ -1471,6 +1468,8 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 {
   int allpos;
   double temp, crit, crit_mem, value;
+  VectorDouble valpro;
+  MatrixSquareGeneral* vecpro;
 
   /*******************/
   /* Initializations */
@@ -1483,13 +1482,11 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   /* Core allocation */
 
-  VectorDouble valpro(nvar);
-  VectorDouble vecpro(nvar * nvar);
   VectorDouble aic(ncova * nvs2);
-  VectorDouble cc(nvar * nvar);
   VectorDouble mp(npadir * nvs2);
   VectorDouble fk(npadir * nvs2 * ncova, 0.);
   VectorDouble alphak(ncova * nvs2);
+  MatrixSquareSymmetric cc(nvar);
 
   /********************/
   /* Pre-calculations */
@@ -1563,21 +1560,20 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
             MP(ijvar,ipadir)-= SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
             sum += FK(icov,ijvar,ipadir) * MP(ijvar,ipadir);
           }
-          CC(ivar,jvar)= AIC(icov,ijvar) - ALPHAK(icov,ijvar) * sum;
-          CC(jvar,ivar)= CC(ivar,jvar);
+          double value = AIC(icov,ijvar)- ALPHAK(icov,ijvar) * sum;
+          cc.setValue(ivar, jvar, value);
+          cc.setValue(jvar, ivar, value);
         }
       }
       /* Computing and sorting the eigen values and eigen vectors */
 
-      if (matrix_eigen(cc.data(),nvar,valpro.data(),vecpro.data())) return 1;
-
-      /* Store the values using the keypair mechanism */
-
-      st_keypair_results(1,icov,nvar,valpro.data(),vecpro.data());
+      if (cc.computeEigen()) return 1;
+      valpro = cc.getEigenValues();
+      vecpro = cc.getEigenVectors();
 
       int ivar = 0;
       allpos = 1;
-      while((ivar<nvar) && allpos)
+      while ((ivar < nvar) && allpos)
       {
         if (valpro[ivar++] < 0) allpos=0;
       }
@@ -1591,13 +1587,13 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
         {
           if (allpos)
           {
-            SILL(icov,ijvar) = CC(ivar,jvar);
+            SILL(icov,ijvar) = cc.getValue(ivar,jvar);
           }
           else
           {
             sum = 0.;
             for (int kvar=0; kvar<nvar; kvar++)
-              sum += (MAX(VALPRO(kvar),0.) * VECPRO(ivar,kvar) * VECPRO(jvar,kvar));
+              sum += (MAX(valpro[kvar],0.) * vecpro->getValue(ivar,kvar) * vecpro->getValue(jvar,kvar));
             SILL(icov,ijvar) = sum;
           }
           for (int ipadir=0; ipadir<npadir; ipadir++)
@@ -2457,9 +2453,7 @@ static int st_parid_match(StrMod *strmod,
 static int st_check_definite_positive(Model *model)
 {
   int nvar = model->getVariableNumber();
-  VectorDouble cc(nvar * nvar);
-  VectorDouble vecpro(nvar * nvar);
-  VectorDouble valpro(nvar);
+  MatrixSquareSymmetric cc(nvar);
 
   /* Loop on the basic structures */
 
@@ -2471,12 +2465,11 @@ static int st_check_definite_positive(Model *model)
 
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        CC(ivar,jvar)= model->getSill(icov,ivar,jvar);
+        cc.setValue(ivar,jvar,model->getSill(icov,ivar,jvar));
 
         /* Check definite positiveness */
 
-    if (!is_matrix_definite_positive(nvar, cc.data(), valpro.data(),
-                                     vecpro.data(), 1)) return 1;
+    if (! cc.isDefinitePositive()) return 1;
   }
   return (0);
 }
@@ -2500,24 +2493,22 @@ static int st_truncate_negative_eigen(int nvar,
                                       VectorDouble &matcoru)
 
 {
-  VectorDouble cc(nvar * nvar);
-  VectorDouble vecpro(nvar * nvar);
-  VectorDouble valpro(nvar);
-
-  /* Load into temporary arrays */
-
+  MatrixSquareSymmetric cc(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      CC(ivar,jvar)= MATCOR(icov0,ivar,jvar);
+      cc.setValue(ivar,jvar,MATCOR(icov0,ivar,jvar));
 
-  if (matrix_eigen(cc.data(), nvar, valpro.data(), vecpro.data()))
+  if (cc.computeEigen())
     messageAbort("st_truncate_negative_eigen");
+
+  VectorDouble valpro = cc.getEigenValues();
+  MatrixSquareGeneral* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */
 
   int flag_positive = 1;
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (VALPRO(ivar)<= 0) flag_positive = 0;
+    if (valpro[ivar]<= 0) flag_positive = 0;
   if (!flag_positive)
   {
 
@@ -2528,7 +2519,7 @@ static int st_truncate_negative_eigen(int nvar,
       {
         double sum = 0.;
         for (int kvar = 0; kvar < nvar; kvar++)
-          sum += MAX(VALPRO(kvar),0.) * VECPRO(ivar, kvar) * VECPRO(jvar, kvar);
+          sum += MAX(valpro[kvar],0.) * vecpro->getValue(ivar, kvar) * vecpro->getValue(jvar, kvar);
         MATCORU(icov0,ivar,jvar)= sum;
       }
     }

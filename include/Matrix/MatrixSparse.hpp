@@ -26,6 +26,7 @@ DISABLE_WARNING_POP
 
 class Cholesky;
 class cs;
+class EOperator;
 
 /**
  * Sparse Matrix
@@ -187,6 +188,7 @@ protected:
   virtual int     _getMatrixPhysicalSize() const override;
   virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValues(const double* values, bool byCol) override;
   virtual double  _getValueByRank(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;

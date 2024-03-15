@@ -3805,14 +3805,14 @@ int sampling_f(Db *db,
     {
       if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
                         1, data_est, data_var)) goto label_end;
-      best_rank = matrix_get_extreme(2, nech, data_est);
+      best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
       best_ecart = data_est[best_rank];
     }
     else
     {
       if (st_crit_global(db, model, nsize1, ranks1, rother, data_est))
         goto label_end;
-      best_rank = matrix_get_extreme(1, nech, data_est);
+      best_rank = VectorHelper::whereMinimum(VectorHelper::initVDouble(data_est, nech));
       best_ecart = data_est[best_rank];
     }
     if (verbose)
@@ -3829,7 +3829,7 @@ int sampling_f(Db *db,
   {
     if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
                       1, data_est, data_var)) goto label_end;
-    best_rank = matrix_get_extreme(2, nech, data_est);
+    best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
     best_ecart = data_est[best_rank];
     if (verbose)
       message("ACP   Pivots (%3d/%3d): Rank = %3d - value = %lf\n", nsize2 + 1,

@@ -252,14 +252,14 @@ public:
               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_sample = false,
               bool verr_mode = false,
-              Model* model = nullptr,
+              const Model* model = nullptr,
               int niter_UK = 0,
               bool verbose = false);
   int computeIndic(Db* db,
                    const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                    bool flag_sample = false,
                    bool verr_mode = false,
-                   Model* model = nullptr,
+                   const Model* model = nullptr,
                    int niter_UK = 0,
                    bool verbose = false,
                    int nfacmax = -1);
@@ -360,7 +360,7 @@ private:
   int _compute(Db *db,
                int flag_sample,
                int verr_mode,
-               Model* model,
+               const Model* model,
                int niter_UK,
                bool verbose);
   int _calculateGeneral(Db *db,

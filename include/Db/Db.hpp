@@ -418,8 +418,8 @@ public:
   void   getArrayVec(const VectorInt& iechs, int iuid, VectorDouble& values) const;
   void   setArray(int iech, int iuid, double value);
   void   setArrayVec(const VectorInt& iechs, int iuid, const VectorDouble& values);
-  void   updArray(int iech, int iuid, int oper, double value);
-  void   updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& values);
+  void   updArray(int iech, int iuid, const EOperator& oper, double value);
+  void   updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, VectorDouble& values);
   VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
   VectorDouble getArrayBySample(int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
@@ -484,7 +484,7 @@ public:
   bool   hasLocVariable(const ELoc& loctype) const;
   double getLocVariable(const ELoc& loctype, int iech, int item) const;
   void   setLocVariable(const ELoc& loctype, int iech, int item, double value);
-  void   updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value);
+  void   updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value);
   /**@}*/
 
   bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
@@ -545,7 +545,7 @@ public:
                  int icase,
                  int nbsimu,
                  int nvar,
-                 int oper,
+                 const EOperator& oper,
                  double value);
   /**@}*/
 
@@ -826,7 +826,6 @@ private:
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, bool flagCst = true, double valinit = TEST);
-  double _updateValue(int oper, double oldval, double value);
   String _summaryVariables(void) const;
   String _summaryExtensions(void) const;
   String _summaryStats(VectorInt cols, int mode = 1, int maxNClass = 50) const;

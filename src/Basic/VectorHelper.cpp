@@ -1547,7 +1547,7 @@ bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
 }
 
 /**
- * From an input list, filter out all the elements which do no lie within [vmin, vmax],
+ * From an input list, filter out all the elements which do no lie within [vmin, vmax[,
  * suppress double occurrences and sort them out (ascending or descending)
  * @param vecin Input array (integer)
  * @param vmin  lower bound included (or ITEST)
@@ -1595,6 +1595,49 @@ VectorInt VectorHelper::filter(const VectorInt &vecin,
     }
   }
   return vecout;
+}
+
+/**
+ * Returns the list complementary to 'sel' within 'vecin'
+ * @param vec Initial list
+ * @param sel Vector of forbidden elements
+ * @return Complementary list
+ */
+VectorInt VectorHelper::complement(const VectorInt& vec, const VectorInt& sel)
+{
+  VectorInt rest;
+  if (vec.empty()) return rest;
+  if (sel.empty()) return vec;
+
+  // Sort
+
+  VectorInt allVec = vec;
+  std::sort(allVec.begin(), allVec.end());
+
+  VectorInt offVec = sel;
+  std::sort(offVec.begin(), offVec.end());
+
+  int j, k, idx;
+  int nvec = (int) allVec.size();
+  int noff = (int) offVec.size();
+  for (int i = 0; i < nvec; i++)
+  {
+    j = allVec.at(i);
+
+    // I go through offVec as long as element is strictly less than j
+    k = 0;
+    idx = offVec.at(k);
+    while (idx < j && k < noff)
+    {
+        idx = offVec.at(k++);
+    }
+
+    if (idx != j) // idx not in offElemsVec
+    {
+      rest.push_back(j);
+    }
+  }
+  return rest;
 }
 
 /**
@@ -2079,3 +2122,48 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
   }
 }
 
+/*****************************************************************************/
+/*!
+ **  Find the location of the minimum value within a vector
+ **
+ ** \return Rank of the minimum value
+ **
+ ** \param[in]  tab  Vector of values
+ **
+ *****************************************************************************/
+int VectorHelper::whereMinimum(const VectorDouble& tab)
+{
+  int ibest = -1;
+  double vbest = 1.e30;
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (FFFF(tab[i])) continue;
+    if (tab[i] > vbest) continue;
+    vbest = tab[i];
+    ibest = i;
+  }
+  return ibest;
+}
+
+/*****************************************************************************/
+/*!
+ **  Find the location of the maximum value within a vector
+ **
+ ** \return Rank of the maximum value
+ **
+ ** \param[in]  tab  Vector of values
+ **
+ *****************************************************************************/
+int VectorHelper::whereMaximum(const VectorDouble& tab)
+{
+  int ibest = -1;
+  double vbest = -1.e30;
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (FFFF(tab[i])) continue;
+    if (tab[i] < vbest) continue;
+    vbest = tab[i];
+    ibest = i;
+  }
+  return ibest;
+}

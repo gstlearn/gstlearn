@@ -407,6 +407,21 @@ void MatrixSparse::_setValue(int irow, int icol, double value)
   }
 }
 
+void MatrixSparse::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+  {
+    double newval = modifyOperator(oper, _eigenMatrix.coeff(irow, icol), value);
+    _eigenMatrix.coeffRef(irow, icol) = newval;
+  }
+  else
+  {
+    if (! _isIndexValid(irow, icol)) return;
+    double newval = modifyOperator(oper, cs_get_value(_csMatrix, irow, icol), value);
+    cs_set_value(_csMatrix, irow, icol, newval);
+  }
+}
+
 int MatrixSparse::_getMatrixPhysicalSize() const
 {
   if (isFlagEigen())

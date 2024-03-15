@@ -347,11 +347,24 @@ void AMatrix::setValue_(int irow, int icol, double value)
   return _setValue(irow, icol, value);
 }
 
+/*! Updates the value at row 'irow' and column 'icol' (no test) */
+void AMatrix::updValue_(int irow, int icol, const EOperator& oper, double value)
+{
+  return _updValue(irow, icol, oper, value);
+}
+
 /*! Sets the value at row 'irow' and column 'icol' */
 void AMatrix::setValue(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   return _setValue(irow, icol, value);
+}
+
+/*! Update the value at row 'irow' and column 'icol' */
+void AMatrix::updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  return _updValue(irow, icol, oper, value);
 }
 
 /**
@@ -1339,7 +1352,6 @@ void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
   prodMatMatInPlace(this, matY, false, transposeY);
 }
 
-
 /**
  * Modify the parameter for using EIGEN library or not.
  * Warning: this must be performed very early in the script in order to forbid mixing two different styles.
@@ -1369,3 +1381,4 @@ bool isMultiThread()
 {
   return globalMultiThread > 0;
 }
+

@@ -342,7 +342,7 @@ int Vario::compute(Db* db,
                    const ECalcVario &calcul,
                    bool flag_sample,
                    bool verr_mode,
-                   Model *model,
+                   const Model *model,
                    int niter_UK,
                    bool verbose)
 {
@@ -363,7 +363,7 @@ int Vario::computeIndic(Db *db,
                         const ECalcVario& calcul,
                         bool flag_sample,
                         bool verr_mode,
-                        Model *model,
+                        const Model *model,
                         int niter_UK,
                         bool verbose,
                         int nfacmax)
@@ -2149,11 +2149,11 @@ double Vario::getCodir(int idir, int idim) const
 int Vario::_compute(Db *db,
                     int flag_sample,
                     int verr_mode,
-                    Model *model,
+                    const Model *model,
                     int niter_UK,
                     bool verbose)
 {
-  _model = model;
+  if (model != nullptr) _model = model->clone();
   _verbose = verbose;
   int norder = _get_generalized_variogram_order();
 
@@ -2176,12 +2176,12 @@ int Vario::_compute(Db *db,
       // - a nugget effect
       // - an exponential covariance (with initial range set to 1 a,d sill to 1)
       // - a spherical covariance (with initial range set to 2, and sill to 1)
-      int ncov = model->getCovaNumber();
+      int ncov = _model->getCovaNumber();
       if (ncov <= 0)
       {
-        model->addCovFromParam(ECov::NUGGET);
-        model->addCovFromParam(ECov::EXPONENTIAL,  1.,  1.);
-        model->addCovFromParam(ECov::SPHERICAL, 2., 1.);
+        _model->addCovFromParam(ECov::NUGGET);
+        _model->addCovFromParam(ECov::EXPONENTIAL,  1.,  1.);
+        _model->addCovFromParam(ECov::SPHERICAL, 2., 1.);
       }
     }
   }
@@ -2363,6 +2363,7 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
     if (_verbose)
     {
       message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
+      _model->display();
       print_matrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
                    _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
     }

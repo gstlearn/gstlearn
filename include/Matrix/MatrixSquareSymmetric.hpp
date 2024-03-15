@@ -16,6 +16,7 @@
 #include "Matrix/AMatrixSquare.hpp"
 
 class AMatrix;
+class EOperator;
 
 /**
  * Square Symmetric matrices are stored as Lower Triangular matrices stored by column
@@ -56,6 +57,8 @@ public:
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
+  bool isDefinitePositive();
+
 private:
   /// Interface for AMatrix
   virtual bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSymmetric()); }
@@ -69,6 +72,7 @@ private:
   virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValueByRank(int irank, double value) override;
   virtual void    _setValues(const double* values, bool byCol = true) override;
 
@@ -85,6 +89,7 @@ private:
   double  _getValueLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
+  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
@@ -108,6 +113,12 @@ private:
                                   const double *al,
                                   const double *b,
                                   double *x) const;
+  int _matrix_solve(VectorDouble &at,
+                    VectorDouble &b,
+                    VectorDouble &x,
+                    int neq,
+                    int nrhs,
+                    double eps = EPSILON20) const;
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

@@ -691,7 +691,7 @@ void Db::setArrayBySample(int iech, const VectorDouble& vec)
     setArray(iech, uids[iuid], vec[iuid]);
 }
 
-void Db::updArray(int iech, int iuid, int oper, double value)
+void Db::updArray(int iech, int iuid, const EOperator& oper, double value)
 {
   if (!isSampleIndexValid(iech)) return;
 
@@ -700,11 +700,11 @@ void Db::updArray(int iech, int iuid, int oper, double value)
 
   int internalAddress = _getAddress(iech, icol);
   double oldval = _array[internalAddress];
-  double newval = _updateValue(oper, oldval, value);
+  double newval = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
-void Db::updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& values)
+void Db::updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, VectorDouble& values)
 {
   int icol = getColIdxByUID(iuid);
   if (!isColIdxValid(icol)) return;
@@ -716,7 +716,7 @@ void Db::updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& v
   {
     iad = _getAddress(iechs[i], icol);
     oldval = _array[iad];
-    newval = _updateValue(oper, oldval, values[i]);
+    newval = modifyOperator(oper, oldval, values[i]);
     _array[iad] = newval;
   }
 }
@@ -2369,7 +2369,7 @@ void Db::setLocVariable(const ELoc& loctype, int iech, int item, double value)
  *  Update the value of the field corresponding to the target locator (and its target item) at the target sample
  *
  */
-void Db::updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value)
+void Db::updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value)
 {
   if (loctype == ELoc::UNKNOWN) return;
   if (!isSampleIndexValid(iech)) return;
@@ -2377,7 +2377,7 @@ void Db::updLocVariable(const ELoc& loctype, int iech, int item, int oper, doubl
   int internalAddress = _getAddress(iech, icol);
 
   double oldval = _array[internalAddress];
-  double newval = _updateValue(oper, oldval, value);
+  double newval = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -2766,7 +2766,7 @@ void Db::updSimvar(const ELoc& locatorType,
                    int icase,
                    int nbsimu,
                    int nvar,
-                   int oper,
+                   const EOperator& oper,
                    double value)
 {
   int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
@@ -2776,7 +2776,7 @@ void Db::updSimvar(const ELoc& locatorType,
   int internalAddress = _getAddress(iech, icol);
 
   double oldval = _array[internalAddress];
-  double newval = _updateValue(oper, oldval, value);
+  double newval = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -2828,60 +2828,6 @@ int Db::getActiveAndDefinedNumber(const String& name) const
     if (! FFFF(tab[iech])) nech++;
   }
   return (nech);
-}
-
-
-/**
- * Update an Old by a New value according to 'oper'
- * @param oper   0 : New = New + old
- *               1 : New = New * Old
- *               2 : New = New - Old
- *               3 : New = Old / New
- *               4 : New = New (only if 'Old' is defined)
- *               5 : New = MAX(New, Old)
- *               6 : New = MIN(New, Old)
- * @param oldval Old value
- * @param value  New value
- */
-double Db::_updateValue(int oper, double oldval, double value)
-{
-  if (oper == 0)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return (value + oldval);
-  }
-  else if (oper == 1)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return (value * oldval);
-  }
-  else if (oper == 2)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return (value - oldval);
-  }
-  else if (oper == 3)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return ((value == 0.) ? TEST : oldval / value);
-  }
-  else if (oper == 4)
-  {
-    return value;
-  }
-  else if (oper == 5)
-  {
-    if (FFFF(value)) return (oldval);
-    if (FFFF(oldval)) return (value);
-    return MAX(oldval, value);
-  }
-  else if (oper == 6)
-  {
-    if (FFFF(value)) return (oldval);
-    if (FFFF(oldval)) return (value);
-    return MIN(oldval, value);
-  }
-  return TEST;
 }
 
 /**

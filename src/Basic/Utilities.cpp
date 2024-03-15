@@ -1045,3 +1045,66 @@ double operate_InverseSqrt(double x)
 {
   return (x > 0) ? 1. / sqrt(x) : TEST;
 }
+
+/**
+ * Update an Old by a New value according to 'oper'
+ * @param oper   A keywork of EOperator enum
+ * @param oldval Old value
+ * @param value  New value
+ */
+double modifyOperator(const EOperator& oper, double oldval, double value)
+{
+  if (oper == EOperator::IDLE)
+  {
+    return (value);
+  }
+  else if (oper == EOperator::ADD)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value + oldval);
+  }
+  else if (oper == EOperator::PRODUCT)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value * oldval);
+  }
+  else if (oper == EOperator::SUBTRACT)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value - oldval);
+  }
+  else if (oper == EOperator::SUBOPP)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (oldval - value);
+  }
+  else if (oper == EOperator::DIVIDE)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return ((value == 0.) ? TEST : oldval / value);
+  }
+  else if (oper == EOperator::DIVOPP)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return ((oldval == 0.) ? TEST : value / oldval);
+  }
+  else if (oper == EOperator::DEFINE)
+  {
+    if (FFFF(oldval)) return (TEST);
+    return (value);
+  }
+  else if (oper == EOperator::MIN)
+  {
+    if (FFFF(value)) return (oldval);
+    if (FFFF(oldval)) return (value);
+    return MIN(oldval, value);
+  }
+  else if (oper == EOperator::MAX)
+  {
+    if (FFFF(value)) return (oldval);
+    if (FFFF(oldval)) return (value);
+    return MAX(oldval, value);
+  }
+  return TEST;
+}
+

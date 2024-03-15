@@ -824,15 +824,7 @@ compared to Initial
      [  2,]    -5.000     0.000    20.000
 B
      2.000     7.000     0.000
-Inverse using LU
-- Number of rows    = 3
-- Number of columns = 3
-  (using Eigen Library)
-               [,  0]    [,  1]    [,  2]
-     [  0,]    -4.000     0.000     0.600
-     [  1,]     0.500    -0.500     0.100
-     [  2,]    -1.000     0.000     0.200
-Inverse using invreal
+Inverse (using LU or invreal depending on the dimension)
 - Number of rows    = 3
 - Number of columns = 3
   (using Eigen Library)

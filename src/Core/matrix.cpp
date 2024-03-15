@@ -25,8 +25,6 @@
 #define SQ(i,j,neq)   ((j) * neq + (i))
 #define VECTOR(i,j)    vector[SQ(i,j,neq)]
 #define A(i,j)         a[SQ(i,j,neq)]
-#define TUS(i,j)       tus[SQ(i,j,neq)]
-#define TLS(i,j)       tls[SQ(i,j,neq)]
 #define ILS(i,j)       ils[SQ(i,j,neq)]
 #define B(i,j)         b[SQ(i,j,neq)]
 #define C(i,j)         c[SQ(i,j,neqm1)]
@@ -60,11 +58,6 @@
 
 static double Epsilon = 1.0e-06;
 
-static int LNG_LHS = 0;
-static int LNG_RHS = 0;
-static double *LHS_TAB = NULL;
-static double *RHS_TAB = NULL;
-
 static double _getTolInvert()
 {
   return 1.e-20;
@@ -76,81 +69,6 @@ static double _getTolInvGen()
 static double _getEpsMatrix()
 {
   return 2.3e-16;
-}
-static double _getEpsSVD()
-{
-  return 1.0e-5;
-}
-
-/*****************************************************************************/
-/*!
- **  Solve a system of linear equations with symmetric coefficient
- **  matrix upper triangular part of which is stored columnwise. Use
- **  is restricted to matrices whose leading principal minors have
- **  non-zero determinants.
- **
- ** \return  Return code:  0 no error
- ** \return  -1 if neq<1 +k when zero pivot encountered at k-th iteration
- **
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  nrhs number of right-hand side vectors
- ** \param[in]  at   upper triangular matrix by row (dimension = neq*(neq+1)/2)
- ** \param[in]  b    right-hand side matrix (dimension = neq*nrhs)
- **
- ** \param[out] x: matrix of solutions (dimension = neq*nrhs)
- **
- ** \remark  1 - The algorithm is gauss elimination. pivots are taken along
- ** \remark      main diagonal. There are no interchanges and no search for
- ** \remark      maximal element. The equations remain in the same order as on
- ** \remark      input and the right-hand sides are kept.
- ** \remark      It is therefore possible to solve the system with the last
- ** REMAKRS:      equation removed by simply applying back substitution on the
- ** \remark      triangularized matrix 'a'.
- ** \remark  2 - Return code=k at the rank k indicates that the determinant of
- ** \remark      g(k), the leading principal minor of order k, is zero.
- ** \remark      Generally, after triangularization the diagonal term of the
- ** \remark      i-th row is : at*(i*(i+1)/2) = det(g(i)) / det(g(i-1))
- ** \remark      therefore use of this function is restricted to matrices such
- ** \remark      that det(g(i)) is never zero.
- ** \remark   3- The arrays at and b are modified by this function The
- ** \remark      arrays b and x may not coincide
- **
- *****************************************************************************/
-static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
-
-{
-  double pivot, ratio;
-  int i, j, k, l;
-
-  for (k = 0; k < neq - 1; k++)
-  {
-    pivot = AT(k, k);
-    if (ABS(pivot) < _getTolInvert()) return (k + 1);
-    for (i = k + 1; i < neq; i++)
-    {
-      ratio = AT(k,i)/ pivot;
-      for (j=i; j<neq; j++) AT(i,j) -= AT(k,j) * ratio;
-      for (l=0; l<nrhs; l++) BS(i,l) -= BS(k,l) * ratio;
-    }
-  }
-
-  pivot = AT(neq - 1, neq - 1);
-  if (ABS(pivot) < _getTolInvert()) return (neq);
-
-  for (l = 0; l < nrhs; l++)
-    XS(neq-1,l)= BS(neq-1,l) / pivot;
-
-  for (l = 0; l < nrhs; l++)
-  {
-    for (k = neq - 2; k >= 0; k--)
-    {
-      ratio = BS(k, l);
-      for (j = k + 1; j < neq; j++)
-        ratio -= AT(k,j)* XS(j,l);
-      XS(k,l)= ratio / AT(k,k);
-    }
-  }
-  return (0);
 }
 
 /*****************************************************************************/
@@ -644,90 +562,6 @@ void matrix_transpose(int n1, int n2, double *v1, double *w1)
 
 /*****************************************************************************/
 /*!
- **  Transpose a (square or rectangular) matrix
- **
- ** \param[in]  n1 matrix dimension
- ** \param[in]  n2 matrix dimension
- ** \param[in]  v1 rectangular matrix (n1,n2)
- **
- ** \param[out] w1 rectangular matrix (n2,n1)
- **
- ** \remark  The matrix w1[] may NOT coincide with v1[]
- **
- *****************************************************************************/
-void matrix_int_transpose(int n1, int n2, int *v1, int *w1)
-{
-  int i1, i2, ecr;
-
-  ecr = 0;
-  for (i1 = 0; i1 < n1; i1++)
-    for (i2 = 0; i2 < n2; i2++)
-      w1[ecr++] = V1(i1, i2);
-
-  return;
-}
-
-
-/*****************************************************************************/
-/*!
- **  Transpose a matrix in place
- **
- ** \param[in]  n1 matrix dimension
- ** \param[in]  n2 matrix dimension
- ** \param[in,out]  v1 rectangular matrix (n1,n2)
- **
- *****************************************************************************/
-void matrix_transpose_in_place(int n1, int n2, double *v1)
-{
-  int i1, i2, ecr;
-  double *w1;
-
-  w1 = (double*) mem_alloc(sizeof(double) * n1 * n2, 1);
-
-  ecr = 0;
-  for (i1 = 0; i1 < n1; i1++)
-    for (i2 = 0; i2 < n2; i2++)
-      w1[ecr++] = V1(i1, i2);
-
-  for (int i = 0; i < n1 * n2; i++)
-    v1[i] = w1[i];
-
-  w1 = (double*) mem_free((char* ) w1);
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Transpose an integer matrix in place
- **
- ** \param[in]  n1 matrix dimension
- ** \param[in]  n2 matrix dimension
- ** \param[in,out]  v1 rectangular matrix (n1,n2)
- **
- *****************************************************************************/
-void matrix_int_transpose_in_place(int n1, int n2, int *v1)
-{
-  int i1, i2, ecr;
-  int *w1;
-
-  w1 = (int*) mem_alloc(sizeof(int) * n1 * n2, 1);
-
-  ecr = 0;
-  for (i1 = 0; i1 < n1; i1++)
-    for (i2 = 0; i2 < n2; i2++)
-      w1[ecr++] = V1(i1, i2);
-
-  for (int i = 0; i < n1 * n2; i++)
-    v1[i] = w1[i];
-
-  w1 = (int*) mem_free((char* ) w1);
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
  **  Invert a symmetric square matrix
  **  Pivots are assumed to be located on the diagonal
  **
@@ -811,86 +645,6 @@ int matrix_invert_copy(const double *a, int neq, double *b)
   error = matrix_invert(b, neq, 0);
 
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Solve a system of linear equations with symmetric coefficient
- **  matrix upper triangular part of which is stored columnwise. Use
- **  is restricted to matrices whose leading principal minors have
- **  non-zero determinants.
- **
- ** \return  Error return code : 1 for core problem; 0 otherwise
- **
- ** \param[in]  mode Storage: 0 for upper triangular, 1 for lower triangular
- ** \param[in]  a    triangular matrix (dimension = neq*(neq+1)/2)
- ** \param[in]  b    right-hand side matrix (dimension = neq*nrhs)
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  nrhs number of right-hand side vectors
- **
- ** \param[out] x     matrix of solutions (dimension = neq*nrhs)
- ** \param[out] pivot rank of the pivoting error (0 none)
- **
- *****************************************************************************/
-int matrix_solve(int mode,
-                 const double *a,
-                 const double *b,
-                 double *x,
-                 int neq,
-                 int nrhs,
-                 int *pivot)
-{
-  int i, loc_lhs, loc_rhs, error;
-
-  /* Calculate array dimensions */
-
-  error = 1;
-  loc_lhs = neq * (neq + 1) / 2;
-  loc_rhs = neq * nrhs;
-
-  /* Core management for the L.H.S.*/
-
-  if (loc_lhs > LNG_LHS)
-  {
-    if (LNG_LHS > 0 && LHS_TAB != nullptr)
-    {
-      LHS_TAB = (double*) mem_free((char* ) LHS_TAB);
-      LNG_LHS = 0;
-    }
-    LHS_TAB = (double*) mem_alloc(sizeof(double) * loc_lhs, 0);
-    if (LHS_TAB == nullptr) goto label_end;
-    LNG_LHS = loc_lhs;
-  }
-
-  /* Core management for R.H.S. */
-
-  if (loc_rhs > LNG_RHS)
-  {
-    if (LNG_RHS > 0 && RHS_TAB != nullptr)
-    {
-      RHS_TAB = (double*) mem_free((char* ) RHS_TAB);
-      LNG_RHS = 0;
-    }
-    RHS_TAB = (double*) mem_alloc(sizeof(double) * loc_rhs, 0);
-    if (RHS_TAB == nullptr) goto label_end;
-    LNG_RHS = loc_rhs;
-  }
-
-  /* Backup the arrays */
-
-  if (mode == 0)
-    for (i = 0; i < loc_lhs; i++)
-      LHS_TAB[i] = a[i];
-  else
-    matrix_tl2tu(neq, a, LHS_TAB);
-  for (i = 0; i < loc_rhs; i++)
-    RHS_TAB[i] = b[i];
-
-  *pivot = st_matrix_solve(LHS_TAB, RHS_TAB, x, neq, nrhs);
-
-  error = 0;
-
-  label_end: return (error);
 }
 
 /****************************************************************************/
@@ -990,34 +744,6 @@ int is_matrix_definite_positive(int neq,
     }
 
   label_end: return (code);
-}
-
-/****************************************************************************/
-/*!
- **  Check if all the elements of a matrix are non-negative
- **
- ** \return  1 if the matrix is non-negative; 0 otherwise
- **
- ** \param[in]  nrow     Number of rows
- ** \param[in]  ncol     Number of columns
- ** \param[in]  a        Array to be checked
- ** \param[in]  verbose  1 for the verbose option
- **
- *****************************************************************************/
-int is_matrix_non_negative(int nrow, int ncol, double *a, int verbose)
-{
-  int i;
-
-  for (i = 0; i < nrow * ncol; i++)
-  {
-    if (a[i] < 0.)
-    {
-      if (verbose) messerr("The matrix is not non-negative");
-      return (0);
-    }
-  }
-
-  return (1);
 }
 
 /****************************************************************************/
@@ -1648,240 +1374,6 @@ VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl)
 
 /*****************************************************************************/
 /*!
- **  Invert a symmetric square matrix (SVD method)
- **
- ** \return Error return code
- **
- ** \param[in]  a2   pre-allocated with 2n rows and n columns. The matrix to be
- **                  decomposed is contained in the first n rows of A.
- **                  On return, the n first rows of A contain the product US
- **                  and the lower n rows contain V (not V').
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- ** \param[out] s    the square of the singular values.
- **
- *****************************************************************************/
-static int st_svd(double *a2, double *s, int neq)
-{
-  int i, j, k, EstColRank, RotCount, SweepCount, slimit;
-  double e2, tol, vt, p, x0, y0, q, r, c0, s0, d1, d2;
-
-  /* Initializations */
-
-  SweepCount = 0;
-  EstColRank = neq;
-  RotCount = neq;
-  slimit = (neq < 120) ? 30 :
-                         neq / 4;
-  e2 = 10.0 * neq * _getEpsSVD() * _getEpsSVD();
-  tol = 0.10 * _getEpsSVD();
-
-  /* Processing */
-
-  for (i = 0; i < neq; i++)
-  {
-    for (j = 0; j < neq; j++)
-    {
-      A2(neq+i,j)= 0.0;
-    }
-    A2(neq+i,i) = 1.0;
-  }
-
-  while (RotCount != 0 && SweepCount++ <= slimit)
-  {
-    RotCount = EstColRank * (EstColRank - 1) / 2;
-    for (j = 0; j < EstColRank - 1; j++)
-      for (k = j + 1; k < EstColRank; k++)
-      {
-        p = q = r = 0.0;
-        for (i = 0; i < neq; i++)
-        {
-          x0 = A2(i, j);
-          y0 = A2(i, k);
-          p += x0 * y0;
-          q += x0 * x0;
-          r += y0 * y0;
-        }
-        s[j] = q;
-        s[k] = r;
-        if (q >= r)
-        {
-          if (q <= e2 * s[0] || ABS(p) <= tol * q)
-            RotCount--;
-          else
-          {
-            p /= q;
-            r = 1.0 - r / q;
-            vt = sqrt(4. * p * p + r * r);
-            c0 = sqrt(0.5 * (1.0 + r / vt));
-            s0 = p / (vt * c0);
-            for (i = 0; i < 2 * neq; i++)
-            {
-              d1 = A2(i, j);
-              d2 = A2(i, k);
-              A2(i,j)= d1*c0+d2*s0;
-              A2(i,k)= -d1*s0+d2*c0;
-            }
-          }
-        }
-        else
-        {
-          p /= r;
-          q = q/r - 1.0;
-          vt = sqrt(4.0*p*p + q*q);
-          s0 = sqrt(0.5*(1.0 - q/vt));
-          if (p < 0.) s0 = -s0;
-          c0 = p / (vt*s0);
-          for (i=0; i<2*neq; i++)
-          {
-            d1 = A2(i,j);
-            d2 = A2(i,k);
-            A2(i,j) = d1*c0+d2*s0;
-            A2(i,k) = -d1*s0+d2*c0;
-          }
-        }
-      }
-    while (EstColRank > 2 && s[EstColRank - 1] <= s[0] * tol + tol * tol)
-      EstColRank--;
-  }
-
-  if (SweepCount > slimit)
-  {
-    messerr("Warning: Reached maximum number of sweeps (%d) in SVD routine",
-            slimit);
-    return (1);
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a symmetric square matrix (SVD method)
- **
- ** \param[in]  neq  number of equations in the matrix 'a'
- ** \param[in]  s    input matrix (square)
- **
- ** \param[out] u       first decomposition matrix
- ** \param[out] v       second decomposition matrix
- ** \param[out] tabout  inverse matrix
- **
- ** \remark This routine has been adapted from a Pascal implementation
- ** \remark (c) 1988 J. C. Nash, "Compact numerical methods for computers",
- ** \remark Hilger 1990.
- **
- *****************************************************************************/
-void matrix_svd_inverse(int neq,
-                        double *s,
-                        double *u,
-                        double *v,
-                        double *tabout)
-{
-  int i, j, k, lec, number;
-  double maxval, thresh, value;
-
-  /* Unloading the results */
-
-  number = 0;
-  maxval = 0.;
-  for (i = 0; i < neq; i++)
-    if (s[i] > maxval) maxval = s[i];
-  thresh = _getEpsSVD() * neq * maxval;
-  thresh = 1.e-06;
-  for (i = 0; i < neq; i++)
-    if (s[i] < thresh) number++;
-
-  /* Compute the inverse */
-
-  for (i = lec = 0; i < neq; i++)
-    for (j = 0; j < neq; j++, lec++)
-    {
-      value = 0.;
-      for (k = 0; k < neq; k++)
-        if (s[k] > thresh) value += V(k,i)* (1./s[k]) * U(k,j);
-      tabout[lec] = value;
-    }
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a symmetric square matrix (SVD method)
- **
- ** \return  Error return code
- **
- ** \param[in]  mat  input matrix, destroyed in computation and replaced by
- **                  resultant inverse
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- ** \param[out] rank instability rank (if > 0)
- **
- ** \remark This routine has been adapted from a Pascal implementation
- ** \remark (c) 1988 J. C. Nash, "Compact numerical methods for computers",
- ** \remark Hilger 1990.
- **
- *****************************************************************************/
-int matrix_invsvdsym(double *mat, int neq, int rank)
-{
-  int i, j, lec, error;
-  double *a2, *s, *u, *v;
-
-  /* Core allocation */
-
-  error = 1;
-  a2 = (double*) mem_alloc(2 * neq * neq * sizeof(double), 1);
-  u = (double*) mem_alloc(neq * neq * sizeof(double), 1);
-  v = (double*) mem_alloc(neq * neq * sizeof(double), 1);
-  s = (double*) mem_alloc(neq * sizeof(double), 1);
-
-  /* Loading */
-
-  for (i = lec = 0; i < neq; i++)
-    for (j = 0; j < neq; j++, lec++)
-      A2(i,j)= mat[lec];
-
-      /* Calling the SVD routine */
-
-  if (st_svd(a2, s, (int) neq)) goto label_end;
-
-  /* Unloading the results */
-
-  for (i = 0; i < neq; i++)
-    s[i] = sqrt(s[i]);
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-      U(j,i)= (s[j] > 0.) ? A2(i,j) / s[j] : 0.;
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-      V(j,i)= A2(i+neq,j);
-
-      /* Compute the inverse */
-
-  matrix_svd_inverse(neq, s, u, v, mat);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Core deallocation */
-
-  label_end: if (error)
-  {
-    if (rank >= 0)
-      messerr("Error in SVD decomposition (rank=%d)", rank + 1);
-    else
-      messerr("Error in SVD decomposition");
-  }
-  a2 = (double*) mem_free((char* ) a2);
-  u = (double*) mem_free((char* ) u);
-  v = (double*) mem_free((char* ) v);
-  s = (double*) mem_free((char* ) s);
-
-  return (error);
-}
-
-/*****************************************************************************/
-/*!
  **  Check if the index match one element of a list
  **
  ** \return  1 if the target index is present in the list; -1 otherwise
@@ -1905,7 +1397,7 @@ static int st_match_index(int index, int nitem, int *items)
 
 /*****************************************************************************/
 /*!
- **  Manage a matrix and derive a submatrix
+ **  Manage a matrix and derive a sub-matrix
  **
  ** \param[in]  nrows   Number of rows of the input matrix
  ** \param[in]  ncols   Number of columns of the input matrix
@@ -2676,58 +2168,6 @@ double* matrix_bind(int mode,
   return (a);
 }
 
-/*****************************************************************************/
-/*!
- **  Find the minimum or maximum value within an array
- **
- ** \return Rank of the minimum or maximum value
- **
- ** \param[in]  mode 1 for minimum and 2 for maximum
- ** \param[in]  ntab Number of samples in the array
- ** \param[in]  tab  Array of values
- **
- *****************************************************************************/
-int matrix_get_extreme(int mode, int ntab, double *tab)
-{
-  int i, ibest;
-  double vbest;
-
-  /* Dispatch */
-
-  if (mode == 1)
-  {
-
-    // Find the minimum
-
-    ibest = -1;
-    vbest = 1.e30;
-    for (i = 0; i < ntab; i++)
-    {
-      if (FFFF(tab[i])) continue;
-      if (tab[i] > vbest) continue;
-      vbest = tab[i];
-      ibest = i;
-    }
-  }
-  else
-  {
-
-    // Find the maximum
-
-    ibest = -1;
-    vbest = -1.e30;
-    for (i = 0; i < ntab; i++)
-    {
-      if (FFFF(tab[i])) continue;
-      if (tab[i] < vbest) continue;
-      vbest = tab[i];
-      ibest = i;
-    }
-  }
-  return (ibest);
-}
-
-/*****************************************************************************/
 /*!
  **  Invert a square real full matrix
  **
@@ -2751,7 +2191,6 @@ int matrix_invreal(double *mat, int neq)
   /* Calculate the determinant */
 
   det = matrix_determinant(neq, mat);
-  //if (ABS(det) < _getEpsSVD()) return (1);
   if (ABS(det) < 1.e-12) return (1);
   if (std::isnan(det))
   {
@@ -2837,166 +2276,6 @@ void matrix_tl2tu(int neq, const double *tl, double *tu)
       TU(i,j)= TL(i,j);
     }
 
-/**
- * LU Decomposition of a square matrix (not necessarily symmetric)
- * @param neq Size of the matrix (number of rows or columns)
- * @param a    Input square matrix (stored column-wise)
- * @param tls  Output square matrix containing lower triangle (stored columnwise)
- * @param tus  Output square matrix containing upper triangle (stored linewise)
- *
- * @remarks The output matrices 'tus'  and 'tls' must be allocated beforehand
- */
-int matrix_LU_decompose(int neq, const double *a, double *tls, double *tus)
-{
-  for (int i = 0; i < neq; i++)
-    TLS(i,i) = 1.;
-
-  for (int i = 0; i < neq; i++)
-  {
-    int ip1 = i + 1;
-    int im1 = i - 1;
-
-    for (int j = 0; j < neq; j++)
-    {
-      TUS(i,j) = A(i,j);
-      if (im1 >= 0)
-      {
-        for (int k = 0; k <= im1; k++)
-        {
-          TUS(i,j) = TUS(i,j) - TLS(i,k) * TUS(k,j);
-        }
-      }
-    }
-    if (ip1 < neq)
-    {
-      for (int j = ip1; j < neq; j++)
-      {
-        TLS(j,i) = A(j,i);
-        if (im1 >= 0)
-        {
-          for (int k = 0; k <= im1; k++)
-          {
-            TLS(j,i) = TLS(j,i) - TLS(j,k) * TUS(k,i);
-          }
-        }
-        double pivot = TUS(i,i);
-        if (abs(pivot) < _getTolInvert()) return 1;
-        TLS(j,i) = TLS(j,i) / pivot;
-      }
-    }
-  }
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Get the solution of a linear system (after LU decomposition)
- **     L * x = b
- **
- ** \return  Error returned code
- ** \return   0 : Success
- ** \return  -1 : Core allocation problem
- ** \return  -2 : Singular matrix (zero pivot)
- **
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  tls  Square matrix containing lower triangle (stored column-wise)
- ** \param[in]  b    matrix (dimension neq)
- **
- ** \param[out] x    resulting matrix (dimension neq)
- **
- *****************************************************************************/
-static int st_matrix_LU_forward(int neq, const double *tls, const double *b, double *x)
-{
-  for (int i = 0; i < neq; i++) x[i] = 0.;
-  for (int i = 0; i < neq; i++)
-  {
-    double tmp = b[i];
-    for (int j = 0; j < i; j++)
-      tmp -= TLS(i,j) * x[j];
-
-    double pivot = TLS(i,i);
-    if (abs(pivot) < _getTolInvert()) return 1;
-    x[i] = tmp / pivot;
-  }
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Get the solution of a linear system (after LU decomposition)
- **     U * x = b
- **
- ** \return  Error returned code
- ** \return   0 : Success
- ** \return  -1 : Core allocation problem
- ** \return  -2 : Singular matrix (zero pivot)
- **
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  tus  square matrix containing upper triangle (stored line-wise)
- ** \param[in]  b    matrix (dimension neq)
- **
- ** \param[out] x    resulting matrix (dimension neq)
- **
- ** \remark As the Upper matrix is stored line-wise, it is considered
- ** \remark as the transposed version of a lower triangle
- **
- *****************************************************************************/
-static int st_matrix_LU_backward(int neq, const double *tus, const double *b, double *x)
-{
-  for (int i = neq-1; i >= 0; i--)
-  {
-    double tmp = b[i];
-    for (int j = i+1; j < neq; j++)
-      tmp -= TUS(i,j) * x[j];
-
-    double pivot = TUS(i,i);
-    if (abs(pivot) < _getTolInvert()) return 1;
-    x[i] = tmp / pivot;
-  }
-  return 0;
-}
-
-int matrix_LU_solve(int neq,
-                    const double* tus,
-                    const double* tls,
-                    const double* b,
-                    double* x)
-{
-  VectorDouble y(neq);
-  if (st_matrix_LU_forward(neq, tls, b, y.data())) return 1;
-  if (st_matrix_LU_backward(neq, tus, y.data(), x)) return 1;
-  return 0;
-}
-
-int matrix_LU_invert(int neq, double* a)
-{
-  // Perform the LU decomposition
-  int neq2 = neq * neq;
-  VectorDouble tls(neq2);
-  VectorDouble tus(neq2);
-  VectorDouble ais(neq2);
-  if (matrix_LU_decompose(neq, a, tls.data(), tus.data())) return 1;
-
-  VectorDouble b(neq);
-  VectorDouble x(neq);
-  int ecr = 0;
-  for (int i = 0; i < neq; i++)
-  {
-    // Preparing the right-hand side vector (column of the identity matrix)
-    VH::fill(b, 0.);
-    b[i] = 1.;
-
-    if (matrix_LU_solve(neq, tus.data(), tls.data(), b.data(), x.data())) return 1;
-
-    for (int j = 0; j < neq; j++)
-      ais[ecr++] = x[j];
-  }
-
-  // Copy the inverse matrix in the input matrix
-  for (int i = 0; i < neq2; i++) a[i] = ais[i];
-  return 0;
-}
-
 /*****************************************************************************/
 /*!
  **  Fill the matrix to take the symmetry into account
@@ -3016,4 +2295,3 @@ void matrix_fill_symmetry(int neq, double *a)
     for (j = i; j < neq; j++)
       A(j,i)= A(i,j);
     }
-

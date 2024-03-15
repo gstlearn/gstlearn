@@ -191,6 +191,7 @@ public:
                           int vmin = ITEST,
                           int vmax = ITEST,
                           bool ascending = true);
+  static VectorInt complement(const VectorInt& vec, const VectorInt& sel);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
 
@@ -228,6 +229,8 @@ public:
                                                double top,
                                                double bot);
 
+  static int whereMinimum(const VectorDouble& tab);
+  static int whereMaximum(const VectorDouble& tab);
 };
 
 //typedef VectorHelper VH;

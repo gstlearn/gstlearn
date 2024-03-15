@@ -2646,31 +2646,14 @@ static int st_get_prior(int nech,
                         double *mean,
                         double *vars)
 {
-  double *atab, *btab, *atab0, *btab0, *result;
-  int error, pivot, size, ecr;
+  MatrixSquareSymmetric atab(npar);
+  MatrixSquareSymmetric atab0(npar);
+  VectorDouble btab(npar);
+  VectorDouble btab0(npar);
+  VectorDouble result(npar);
 
-  /* Initializations */
-
-  error = 1;
-  atab = btab = atab0 = btab0 = result = nullptr;
-  size = npar * (npar + 1) / 2;
-
-  /* Core allocation */
-
-  atab = (double*) mem_alloc(sizeof(double) * size, 0);
-  if (atab == nullptr) goto label_end;
-  atab0 = (double*) mem_alloc(sizeof(double) * size, 0);
-  if (atab0 == nullptr) goto label_end;
-  btab = (double*) mem_alloc(sizeof(double) * npar, 0);
-  if (btab == nullptr) goto label_end;
-  btab0 = (double*) mem_alloc(sizeof(double) * npar, 0);
-  if (btab0 == nullptr) goto label_end;
-  result = (double*) mem_alloc(sizeof(double) * npar, 0);
-  if (result == nullptr) goto label_end;
-  for (int i = 0; i < npar; i++)
-    btab0[i] = 0.;
-  for (int i = 0; i < size; i++)
-    atab0[i] = 0.;
+  atab0.fill(0.);
+  btab0.fill(0.);
   for (int i = 0; i < npar; i++)
     mean[i] = 0.;
   for (int i = 0; i < npar * npar; i++)
@@ -2679,42 +2662,40 @@ static int st_get_prior(int nech,
   /* Loop on the data */
 
   for (int iech = 0; iech < nech; iech++)
-    for (int ipar = ecr = 0; ipar < npar; ipar++)
+    for (int ipar = 0; ipar < npar; ipar++)
     {
       btab0[ipar] += zval[iech] * FFTAB(ipar, iech);
-      for (int jpar = 0; jpar <= ipar; jpar++, ecr++)
-        atab0[ecr] += FFTAB(ipar,iech) * FFTAB(jpar, iech);
+      for (int jpar = 0; jpar <= ipar; jpar++)
+        atab0.updValue(ipar, jpar, 0, FFTAB(ipar,iech) * FFTAB(jpar, iech));
     }
 
   /* Optional printout */
 
   if (get_keypone("Bayes_Debug_Flag", 0))
   {
-    set_keypair("Bayes_Get_Prior_ATAB0", 1, size, 1, atab0);
-    set_keypair("Bayes_Get_Prior_BTAB0", 1, npar, 1, btab0);
+    set_keypair("Bayes_Get_Prior_ATAB0", 1, npar * npar, 1, atab0.getValues().data());
+    set_keypair("Bayes_Get_Prior_BTAB0", 1, npar, 1, btab0.data());
   }
 
   /* Bootstrap for the variance-covariance */
 
   for (int iech = 0; iech < nech; iech++)
   {
-    for (int i = 0; i < npar; i++)
-      btab[i] = btab0[i];
-    for (int i = 0; i < size; i++)
-      atab[i] = atab0[i];
+    btab = btab0;
+    atab = atab0;
 
     /* Update the arrays by suppressing the current data */
 
-    for (int ipar = ecr = 0; ipar < npar; ipar++)
+    for (int ipar = 0; ipar < npar; ipar++)
     {
       btab[ipar] -= zval[iech] * FFTAB(ipar, iech);
-      for (int jpar = 0; jpar <= ipar; jpar++, ecr++)
-        atab[ecr] -= FFTAB(ipar,iech) * FFTAB(jpar, iech);
+      for (int jpar = 0; jpar <= ipar; jpar++)
+        atab.setValue(ipar, jpar, atab.getValue(ipar, jpar) - FFTAB(ipar,iech) * FFTAB(jpar, iech));
     }
 
     /* Solve the system */
 
-    if (matrix_solve(0, atab, btab, result, npar, 1, &pivot)) goto label_end;
+    if (atab.solve(btab, result)) return 1;
 
     /* Update the statistics */
 
@@ -2735,16 +2716,7 @@ static int st_get_prior(int nech,
       VARS(npar,ipar,jpar) = VARS(npar,ipar,jpar) / nech
           - mean[ipar] * mean[jpar];
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: atab = (double*) mem_free((char* ) atab);
-  atab0 = (double*) mem_free((char* ) atab0);
-  btab = (double*) mem_free((char* ) btab);
-  btab0 = (double*) mem_free((char* ) btab0);
-  result = (double*) mem_free((char* ) result);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

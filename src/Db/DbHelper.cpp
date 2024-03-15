@@ -202,26 +202,31 @@ static int st_grid_fill_calculate(int ipos,
                                   int *tabind,
                                   double *tabval)
 {
-  double result, dist, dist2, top, bot, a[6], b[3], sol[3], f[4], dmin;
-  int iech, indg[3], j, k, l, pivot;
-  static int neq = 3;
+  double dist, dist2, f[4], dmin;
+  int indg[3];
 
   /* Initializations */
 
-  result = top = bot = 0.;
+  int neq = 3;
+  double result = 0.;
+  double top = 0.;
+  double bot = 0.;
 
   /* Dispatch according to the extrapolation mode */
 
   switch (mode)
   {
     case 0:
-      for (iech = 0; iech < nech; iech++)
+    {
+      for (int iech = 0; iech < nech; iech++)
         top += tabval[iech];
       result = top / (double) nech;
       break;
+    }
 
     case 1:
-      for (iech = 0; iech < nech; iech++)
+    {
+      for (int iech = 0; iech < nech; iech++)
       {
         dist = distance_intra(DB_GRID_FILL, ipos, tabind[iech], NULL);
         dist2 = dist * dist;
@@ -230,38 +235,47 @@ static int st_grid_fill_calculate(int ipos,
       }
       result = top / bot;
       break;
+    }
 
     case 2:
+    {
       if (nech < 3) return (1);
       f[0] = 1.;
-      for (iech = 0; iech < nech; iech++)
+      MatrixSquareSymmetric a(neq);
+      VectorDouble b(neq);
+      VectorDouble sol(neq);
+      a.fill(0.);
+      b.fill(0.);
+      for (int iech = 0; iech < nech; iech++)
       {
         db_index_sample_to_grid(DB_GRID_FILL, tabind[iech], indg);
         grid_to_point(DB_GRID_FILL, indg, NULL, &f[1]);
-        for (j = l = 0; j < neq; j++)
+        for (int j = 0; j < neq; j++)
         {
-          for (k = 0; k <= j; k++, l++)
-            a[l] += f[j] * f[k];
           b[j] += tabval[iech] * f[j];
+          for (int k = 0; k < neq; k++)
+            a.updValue(j, k, 0, f[j] * f[k]);
         }
       }
-      if (matrix_solve(0, a, b, sol, neq, 1, &pivot)) return (1);
-      if (pivot != 0) return (1);
+      if (a.solve(b, sol)) return 1;
       db_index_sample_to_grid(DB_GRID_FILL, ipos, indg);
       grid_to_point(DB_GRID_FILL, indg, NULL, &f[1]);
-      for (j = 0; j < neq; j++)
+      for (int j = 0; j < neq; j++)
         result += sol[j] * f[j];
       break;
+    }
 
     case 3:
+    {
       dmin = 0.;
-      for (iech = 0; iech < nech; iech++)
+      for (int iech = 0; iech < nech; iech++)
       {
         dist = tabval[iech];
         if (dist > dmin) dmin = dist;
       }
       result = dmin + 1.;
       break;
+    }
   }
 
   /* Assign the result */
@@ -489,8 +503,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
         double d1 = X[k + 1] - x;
         double d2 = x - X[k];
         double h6 = 6 * h[k];
-        y = (M[k] * pow(d1, 3) + M[k + 1] * pow(d2, 3)) / h6 + C[k] * d2
-            + Cp[k];
+        y = (M[k] * pow(d1, 3) + M[k + 1] * pow(d2, 3)) / h6 + C[k] * d2 + Cp[k];
       }
     }
     dbgrid->setLocVariable(ELoc::Z,iech, ivar, y);

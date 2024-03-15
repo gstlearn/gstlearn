@@ -149,6 +149,14 @@ void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
+void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+    AMatrixDense::_updValue(irow, icol, oper, value);
+  else
+    _updValueLocal(irow, icol, oper, value);
+}
+
 void MatrixSquareGeneral::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
@@ -286,6 +294,13 @@ void MatrixSquareGeneral::_setValueLocal(int irow, int icol, double value)
   _squareMatrix[rank] = value;
 }
 
+void MatrixSquareGeneral::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+{
+  if (!_isIndexValid(irow, icol)) return;
+  int rank = _getIndexToRank(irow, icol);
+  _squareMatrix[rank] = modifyOperator(oper, _squareMatrix[rank], value);
+}
+
 void MatrixSquareGeneral::_setValueLocal(int irank, double value)
 {
   if (!_isRankValid(irank)) return;
@@ -325,7 +340,7 @@ int MatrixSquareGeneral::_invertLocal()
     return matrix_invreal(_squareMatrix.data(), getNRows());
   else
   {
-    int error = matrix_LU_invert(getNRows(), _squareMatrix.data());
+    int error = _invertLU();
     return error;
   }
 }
@@ -348,3 +363,166 @@ MatrixSquareGeneral* prodNormMat(const AMatrixDense &a, const VectorDouble& vec,
   return mat;
 }
 
+int MatrixSquareGeneral::_invertLU()
+{
+  int neq = getNRows();
+
+  // Perform the LU decomposition
+  MatrixSquareGeneral tls(neq);
+  MatrixSquareGeneral tus(neq);
+  MatrixSquareGeneral ais(neq);
+  ais.fill(0.);
+  if (decomposeLU(tls, tus)) return 1;
+
+  VectorDouble b(neq);
+  VectorDouble x(neq);
+  for (int i = 0; i < neq; i++)
+  {
+    // Preparing the right-hand side vector (column of the identity matrix)
+    VH::fill(b, 0.);
+    b[i] = 1.;
+
+    if (_solveLU(tus, tls, b.data(), x.data())) return 1;
+
+    for (int j = 0; j < neq; j++)
+      ais.setValue(i, j, x[j]);
+  }
+
+  // Copy the inverse matrix in the input matrix
+  for (int irow = 0; irow < neq; irow++)
+    for (int icol = 0; icol < neq; icol++)
+      setValue(irow, icol, ais.getValue(irow, icol));
+  return 0;
+}
+
+int MatrixSquareGeneral::_solveLU(const MatrixSquareGeneral& tus,
+                                  const MatrixSquareGeneral& tls,
+                                  const double *b,
+                                  double *x)
+{
+  int neq = getNRows();
+  VectorDouble y(neq);
+  if (_forwardLU(tls, b, y.data())) return 1;
+  if (_backwardLU(tus, y.data(), x)) return 1;
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Get the solution of a linear system (after LU decomposition)
+ **     L * x = b
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  tls  Square matrix containing lower triangle (stored column-wise)
+ ** \param[in]  b    matrix (dimension neq)
+ ** \param[in]  eps  Tolerance
+ **
+ ** \param[out] x    resulting matrix (dimension neq)
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps)
+{
+  int neq = getNRows();
+  for (int i = 0; i < neq; i++) x[i] = 0.;
+  for (int i = 0; i < neq; i++)
+  {
+    double tmp = b[i];
+    for (int j = 0; j < i; j++)
+      tmp -= tls.getValue(i,j) * x[j];
+
+    double pivot = tls.getValue(i,i);
+    if (abs(pivot) < eps) return 1;
+    x[i] = tmp / pivot;
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Get the solution of a linear system (after LU decomposition)
+ **     U * x = b
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  tus  square matrix containing upper triangle (stored line-wise)
+ ** \param[in]  b    matrix (dimension neq)
+ ** \param[in]  eps  Tolerance
+ **
+ ** \param[out] x    resulting matrix (dimension neq)
+ **
+ ** \remark As the Upper matrix is stored line-wise, it is considered
+ ** \remark as the transposed version of a lower triangle
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps)
+{
+  int neq = getNRows();
+  for (int i = neq-1; i >= 0; i--)
+  {
+    double tmp = b[i];
+    for (int j = i+1; j < neq; j++)
+      tmp -= tus.getValue(i,j) * x[j];
+
+    double pivot = tus.getValue(i,i);
+    if (abs(pivot) < eps) return 1;
+    x[i] = tmp / pivot;
+  }
+  return 0;
+}
+
+/**
+ * LU Decomposition of a square matrix (not necessarily symmetric)
+ * @param tls  Output square matrix containing lower triangle (stored columnwise)
+ * @param tus  Output square matrix containing upper triangle (stored linewise)
+ * @param eps  Tolerance
+ *
+ * @remarks The output matrices 'tus'  and 'tls' must be dimensioned beforehand
+ */
+int MatrixSquareGeneral::decomposeLU(MatrixSquareGeneral& tls,
+                                     MatrixSquareGeneral& tus,
+                                     double eps)
+{
+  int neq = getNRows();
+  tls.fill(0.);
+  tus.fill(0.);
+
+  for (int i = 0; i < neq; i++)
+    tls.setValue(i, i, 1.);
+
+  for (int i = 0; i < neq; i++)
+  {
+    int ip1 = i + 1;
+    int im1 = i - 1;
+
+    for (int j = 0; j < neq; j++)
+    {
+      tus.setValue(i,j,getValue(i,j));
+      if (im1 >= 0)
+      {
+        for (int k = 0; k <= im1; k++)
+        {
+          tus.setValue(i,j, tus.getValue(i,j) - tls.getValue(i,k) * tus.getValue(k,j));
+        }
+      }
+    }
+    if (ip1 < neq)
+    {
+      for (int j = ip1; j < neq; j++)
+      {
+        tls.setValue(j,i,getValue(j,i));
+        if (im1 >= 0)
+        {
+          for (int k = 0; k <= im1; k++)
+          {
+            tls.setValue(j,i, tls.getValue(j,i) - tls.getValue(j,k) * tus.getValue(k,i));
+          }
+        }
+        double pivot = tus.getValue(i,i);
+        if (abs(pivot) < eps) return 1;
+        tls.setValue(j,i, tls.getValue(j,i) / pivot);
+      }
+    }
+  }
+  return 0;
+}

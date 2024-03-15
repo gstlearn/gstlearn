@@ -19,6 +19,7 @@
 /// TODO : Transform into template for storing something else than double
 
 class NF_Triplet;
+class EOperator;
 
 /**
  * Matrix
@@ -127,9 +128,13 @@ public:
   double getValue(int irow, int icol) const;
   /*! Sets the value at row 'irow' and column 'icol' */
   void setValue(int irow, int icol, double value);
+  /*! Update the value at row 'irow' and column 'icol' */
+  void updValue(int irow, int icol, const EOperator& oper, double value);
 #ifndef SWIG
   /*! Sets the value at row 'irow' and column 'icol' (no test performed) */
   void setValue_(int irow, int icol, double value);
+  /*! Update the value at row 'irow' and column 'icol' (no test performed) */
+  void updValue_(int irow, int icol, const EOperator& oper, double value);
   /*! Gets the value at row 'irow' and column 'icol' (no test) */
   double getValue_(int irow, int icol) const;
 #endif
@@ -165,6 +170,8 @@ public:
   int getNumberRowDefined() const;
   /*! Returns if the Matrix is built using Eigen Library or not */
   bool isFlagEigen() const { return _flagEigen; }
+  /*! Check if the matrix does not contain any negative element */
+  bool isNonNegative(bool verbose = false);
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -193,7 +200,6 @@ public:
                   const VectorInt &activeCols);
   void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
-  bool isNonNegative(bool verbose);
 
   void makePositiveColumn();
 
@@ -218,6 +224,7 @@ protected:
   virtual double  _getValue(int irow, int icol) const = 0;
   virtual double  _getValueByRank(int rank) const = 0;
   virtual void    _setValue(int irow, int icol, double value) = 0;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;

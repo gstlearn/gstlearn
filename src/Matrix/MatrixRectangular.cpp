@@ -14,6 +14,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Utilities.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
     : AMatrixDense(nrows, ncols, opt_eigen),
@@ -145,6 +146,14 @@ void MatrixRectangular::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
+void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+    AMatrixDense::_updValue(irow, icol, oper, value);
+  else
+    _updValueLocal(irow, icol, oper, value);
+}
+
 void MatrixRectangular::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
   if (isFlagEigen())
@@ -231,19 +240,26 @@ void MatrixRectangular::addColumn(int ncolumn_added)
       setValue(irow, icol, statsSave->getValue(irow, icol));
 }
 
-MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &validRows,
-                                             const VectorInt &validCols) const
+MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &selRows,
+                                                   const VectorInt &selCols,
+                                                   bool flagKeepRows,
+                                                   bool flagKeepCols) const
 {
   // Order and shrink the input vectors
-  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  VectorInt localValidCols = VH::filter(validCols, 0, getNCols());
-  int newNRows = (int) localValidRows.size();
-  int newNCols = (int) localValidCols.size();
+  int nrows = getNRows();
+  VectorInt localSelRows = VH::filter(selRows, 0, getNRows());
+  if (!flagKeepRows) localSelRows = VH::complement(VH::sequence(0,nrows), localSelRows);
+  int newNRows = (int) localSelRows.size();
   if (newNRows <= 0)
   {
     messerr("The new Matrix has no Row left");
     return nullptr;
   }
+
+  int ncols = getNCols();
+  VectorInt localSelCols = VH::filter(selCols, 0, getNCols());
+  if (!flagKeepCols) localSelCols = VH::complement(VH::sequence(0,ncols), localSelCols);
+  int newNCols = (int) localSelCols.size();
   if (newNCols <= 0)
   {
     messerr("The new Matrix has no Column left");
@@ -251,7 +267,7 @@ MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &validRows,
   }
 
   MatrixRectangular* res = new MatrixRectangular(newNRows, newNCols);
-  res->copyReduce(this, localValidRows, localValidCols);
+  res->copyReduce(this, localSelRows, localSelCols);
 
   return res;
 }
@@ -319,6 +335,13 @@ void MatrixRectangular::_setValueLocal(int irow, int icol, double value)
   _rectMatrix[rank] = value;
 }
 
+void MatrixRectangular::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  int rank = _getIndexToRank(irow, icol);
+  _rectMatrix[rank] = modifyOperator(oper, _rectMatrix[rank], value);
+}
+
 void MatrixRectangular::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
   if (! transpose)
@@ -350,3 +373,4 @@ int MatrixRectangular::_getIndexToRankLocal(int irow, int icol) const
 {
   return (icol * getNRows() + irow);
 }
+

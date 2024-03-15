@@ -27,6 +27,7 @@ DISABLE_WARNING_POP
 
 class MatrixSquareGeneral;
 class MatrixSquareSymmetric;
+class EOperator;
 
 /**
  * Square Matrix
@@ -110,6 +111,7 @@ protected:
   virtual double  _getValue(int irow, int icol) const override;
   virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
   virtual void    _transposeInPlace() override;
@@ -137,6 +139,7 @@ private:
   int     _getMatrixPhysicalSizeLocal() const;
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
+  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   double  _getValueLocal(int irank) const;
   double  _getValueLocal(int irow, int icol) const;

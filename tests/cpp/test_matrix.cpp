@@ -549,21 +549,16 @@ int main(int argc, char *argv[])
   MatrixSquareGeneral ai(a);
 
   // LU decomposition
-  VectorDouble tl(neq2,0.);
-  VectorDouble tu(neq2,0.);
+  MatrixSquareGeneral tl(neq);
+  MatrixSquareGeneral tu(neq);
 
-  matrix_LU_decompose(neq, a.getValues().data(), tl.data(), tu.data());
+  a.decomposeLU(tl, tu);
 
-  MatrixSquareGeneral atl(neq);
-  atl.resetFromArray(neq, neq, tl.data());
-  atl.display();
-
-  MatrixSquareGeneral atu(neq);
-  atu.resetFromArray(neq, neq, tu.data());
-  atu.display();
+  tl.display();
+  tu.display();
 
   MatrixSquareGeneral res(neq);
-  res.prodMatMatInPlace(&atl, &atu);
+  res.prodMatMatInPlace(&tl, &tu);
   message("\nChecking the product\n");
   res.display();
   message("compared to Initial\n");
@@ -574,17 +569,9 @@ int main(int argc, char *argv[])
   VectorDouble b = { 2., 7., 0.};
   VH::display("B",b);
 
-  message("Inverse using LU\n");
-  VectorDouble ais = a.getValues();
-  (void) matrix_LU_invert(neq, ais.data());
-  ai.resetFromArray(neq, neq, ais.data());
-  ai.display();
-
-  message("Inverse using invreal\n");
-  ais = a.getValues();
-  (void) matrix_invreal(ais.data(), neq);
-  ai.resetFromArray(neq, neq, ais.data());
-  ai.display();
+  message("Inverse (using LU or invreal depending on the dimension)\n");
+  (void) a.invert();
+  a.display();
 
   // Compare Eigen values calculated using Eigen Library or not (dense matrix only)
 
