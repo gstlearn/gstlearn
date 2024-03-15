@@ -146,6 +146,25 @@ void MatrixSparse::reset(const VectorVectorDouble& tab, bool byCol)
   _clearDecoration();
 }
 
+void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
+{
+  if (_csMatrix != nullptr)
+    delete _csMatrix;
+
+  if (isFlagEigen())
+  {
+    _eigenMatrix = NF_T.buildEigenFromTriplet();
+    _setNRows(_eigenMatrix.rows());
+    _setNCols(_eigenMatrix.cols());
+  }
+  else
+  {
+    _csMatrix = NF_T.buildCsFromTriplet();
+    _setNRows(_csMatrix->m);
+    _setNCols(_csMatrix->n);
+  }
+}
+
 void MatrixSparse::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);
@@ -640,7 +659,7 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
                                               int ncol,
                                               int opt_eigen)
 {
-  // If 'nrow' and 'ncol' are not defined, derive them from NF_T
+  // If 'nrow' a  nd 'ncol' are not defined, derive them from NF_T
   if (nrow <= 0 || ncol <= 0)
   {
     nrow = NF_T.getNRows() + 1;
@@ -648,10 +667,7 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
   }
   MatrixSparse* mat = new MatrixSparse(nrow, ncol, opt_eigen);
 
-  if (mat->isFlagEigen())
-    mat->_eigenMatrix = NF_T.buildEigenFromTriplet();
-  else
-    mat->_csMatrix = NF_T.buildCsFromTriplet();
+  mat->resetFromTriplet(NF_T);
 
   return mat;
 }
@@ -1484,7 +1500,7 @@ MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
   // Concatenate the two triplet lists
   T1.appendInPlace(T2);
 
-  // Create the new Eigen matrix from the resulting triplet list
+  // Create the new matrix from the resulting triplet list
   int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
   int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
 

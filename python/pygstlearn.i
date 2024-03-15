@@ -1068,6 +1068,7 @@ setattr(gl.MatrixRectangular, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 setattr(gl.MatrixSparse, "toTL", matrix_toTL)
+setattr(gl.ProjMatrix, "toTL", matrix_toTL)
 
 def Triplet_toTL(self):
   return sc.csc_matrix((np.array(self.getValues()), 

@@ -75,6 +75,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
     for (int is = 1; is < number; is++)
     {
       const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
+      if (Qmult != nullptr) delete Qmult;
       Qmult = MatrixSparse::glue(Qref, pmataux->getQ(), true, true);
       Qref = Qmult;
     }
@@ -95,27 +96,21 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
   // Particular case of a single registered covariance
   if (number == 1)
   {
-    const ProjMatrix* projElem = dynamic_cast<const ProjMatrix*>(getProjMatrix(0));
+    const ProjMatrix* projElem = getProjMatrix(0);
     if (projElem != nullptr) Pmult = new ProjMatrix(*projElem);
   }
-
   else
   {
-    MatrixSparse* Amult = nullptr;
-    const ProjMatrix* Pref = dynamic_cast<const ProjMatrix*>(getProjMatrix(0));
-    int npoint = Pref->getPointNumber();
-    int napices = Pref->getApexNumber();
-    const MatrixSparse* Aref = Pref->getAproj();
-
+    MatrixSparse* mstemp = nullptr;
+    const MatrixSparse* msref = dynamic_cast<const MatrixSparse*>(getProjMatrix(0));
     for (int is = 1; is < number; is++)
     {
-      const ProjMatrix* Paux = dynamic_cast<const ProjMatrix*>(getProjMatrix(is));
-      const MatrixSparse* Aaux = Paux->getAproj();
-      Amult = MatrixSparse::glue(Aref, Aaux, false, true);
-      napices += Paux->getApexNumber();
-      Aref = Amult;
+      const MatrixSparse* msaux = dynamic_cast<const MatrixSparse*>(getProjMatrix(is));
+      if (mstemp != nullptr) delete mstemp;
+      mstemp = MatrixSparse::glue(msref, msaux, false, true);
+      msref = mstemp;
     }
-    Pmult = new ProjMatrix(npoint, napices, Amult);
+    Pmult = new ProjMatrix(mstemp);
   }
   return Pmult;
 }
@@ -134,7 +129,7 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
 
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
-  MatrixSparse* AtAsVar = prodNormMat(*Amult->getAproj(), invsigma, true);
+  MatrixSparse* AtAsVar = prodNormMat(*Amult, invsigma, true);
   _Q = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
 
   // Prepare the Cholesky decomposition

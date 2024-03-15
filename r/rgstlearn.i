@@ -710,11 +710,11 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 "matrix_toTL" <- function(x)
 {
   Q = NULL
-  if (x$isSparse())
+  if (AMatrix_isSparse(x))
   {
     if (isNamespaceLoaded("Matrix"))
     {
-      NF_T = x$getMatrixToTriplet()
+      NF_T = MatrixSparse_getMatrixToTriplet(x)
       Q = Triplet_toTL(NF_T)
     }
     else
@@ -729,6 +729,7 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 "MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSparse_toTL" <- function(x) { matrix_toTL(x) }
+"ProjMatrix_toTL" <- function(x) { matrix_toTL(x) }
 
 "Table_toTL" <- function(tab)
 {

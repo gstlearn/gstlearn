@@ -20,17 +20,21 @@
 class AMesh;
 class Db;
 
-class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public AStringable
+class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public MatrixSparse
 {
 public:
   ProjMatrix();
   ProjMatrix(const Db* db, const AMesh *a_mesh, int rankZ = -1, bool verbose = false);
-#ifndef SWIG
-  ProjMatrix(int npoint, int napices, MatrixSparse *aproj);
-#endif
   ProjMatrix(const ProjMatrix &m);
+  ProjMatrix(const MatrixSparse* aproj);
   ProjMatrix& operator= (const ProjMatrix &m);
   virtual ~ProjMatrix();
+
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
+  /// Cloneable interface
+  IMPLEMENT_CLONING(ProjMatrix)
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -38,28 +42,20 @@ public:
   /// Interface for IProjMatrix
   int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
   int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
-  int getApexNumber() const override { return _nApices; }
-  int getPointNumber() const override { return _nPoint; }
+  int getApexNumber() const override { return getNCols(); }
+  int getPointNumber() const override { return getNRows(); }
 
   static ProjMatrix* create(const Db *db,
                             const AMesh *a_mesh,
                             int rankZ = -1,
                             bool verbose = false);
-  int resetFromDb(const Db *db,
-                  const AMesh *a_mesh,
-                  int rankZ = -1,
-                  bool verbose = false);
-  int resetFromPoints(int npoint, int napices, MatrixSparse *aproj);
-  int resetFromDbByNeigh(const Db *db,
-                         AMesh *amesh,
-                         double radius,
-                         int flag_exact = 0,
-                         bool verbose = false);
-
-  MatrixSparse* getAproj() const { return _AprojCS; }
-
-private:
-  int  _nPoint; // _nPoint = Number of rows of _Aproj
-  int  _nApices; // _nApices = number of columns of _Aproj
-  MatrixSparse* _AprojCS;
+  void resetFromMeshAndDb(const Db* db,
+                          const AMesh* a_mesh,
+                          int rankZ = -1,
+                          bool verbose = false);
+//  int resetFromDbByNeigh(const Db *db,   // currently unused feature
+//                         AMesh *amesh,
+//                         double radius,
+//                         int flag_exact = 0,
+//                         bool verbose = false);
 };

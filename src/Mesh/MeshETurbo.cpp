@@ -13,6 +13,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/NF_Triplet.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -486,8 +487,7 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
 **
-** \return A Sparse matrix (cs structure)
-**
+** \param[out] m         Projection matrix to be initialized
 ** \param[in]  db        Db structure
 ** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
 ** \param[in]  verbose   Verbose flag
@@ -496,16 +496,15 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
 {
-  MatrixSparse* A = nullptr;
-  int ndim     = getNDim();
+  int ndim = getNDim();
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
 
   // Preliminary checks
 
-  if (isCompatibleDb(db)) return NULL;
+  if (isCompatibleDb(db)) return;
 
   // Core allocation
 
@@ -584,15 +583,11 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   /* Convert the triplet into a sparse matrix */
 
-  A = MatrixSparse::createFromTriplet(NF_T);
-
-  // Set the error return code
-
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
 
-  return(A);
+  return m->resetFromTriplet(NF_T);
 }
 
 /****************************************************************************/

@@ -144,6 +144,8 @@ public:
              bool byCol = true);
   void reset(const VectorVectorDouble& tab, bool byCol = true);
 
+  void resetFromTriplet(const NF_Triplet& NF_T);
+
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
 
