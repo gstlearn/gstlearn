@@ -14,6 +14,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
+#define SQ(i,j,neq)   ((j) * neq + (i))
+#define A(i,j)         a[SQ(i,j,neq)]
+#define B(i,j)         b[SQ(i,j,neq)]
+#define C(i,j)         c[SQ(i,j,neqm1)]
+
 MatrixSquareGeneral::MatrixSquareGeneral(int nrow, int opt_eigen)
   : AMatrixSquare(nrow, opt_eigen)
   , _squareMatrix()
@@ -238,23 +243,6 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
   return 0;
 }
 
-MatrixSquareGeneral* MatrixSquareGeneral::createReduce(const VectorInt &validRows) const
-{
-  // Order and shrink the input vectors
-  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  int newNRows = (int) localValidRows.size();
-  if (newNRows <= 0)
-  {
-    messerr("The new Matrix has no Row left");
-    return nullptr;
-  }
-
-  MatrixSquareGeneral* res = new MatrixSquareGeneral(newNRows);
-  res->copyReduce(this, localValidRows, localValidRows);
-
-  return res;
-}
-
 /// ==========================================================================
 /// The subsequent methods rely on the specific local storage ('squareMatrix')
 /// ==========================================================================
@@ -328,7 +316,7 @@ void MatrixSquareGeneral::_transposeInPlaceLocal()
   int nrow = getNRows();
   int ncol = getNCols();
   VectorDouble old = _squareMatrix;
-  matrix_transpose(nrow, ncol, _squareMatrix.data(), old.data());
+  matrix_transpose(nrow, ncol, _squareMatrix, old);
   _squareMatrix = old;
   _setNCols(nrow);
   _setNRows(ncol);
@@ -337,7 +325,7 @@ void MatrixSquareGeneral::_transposeInPlaceLocal()
 int MatrixSquareGeneral::_invertLocal()
 {
   if (getNRows() <= 3)
-    return matrix_invreal(_squareMatrix.data(), getNRows());
+    return _matrix_invreal(_squareMatrix, getNRows());
   else
   {
     int error = _invertLU();
@@ -526,3 +514,103 @@ int MatrixSquareGeneral::decomposeLU(MatrixSquareGeneral& tls,
   }
   return 0;
 }
+
+/*****************************************************************************/
+/*!
+ **  Invert a square real full matrix
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  mat  input matrix, destroyed in computation and replaced by
+ **                  resultant inverse
+ ** \param[in]  neq  number of equations in the matrix 'a'
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_matrix_invreal(VectorDouble& mat, int neq)
+{
+  /* Calculate the determinant */
+
+  double det = matrix_determinant(neq, mat);
+  if (ABS(det) < EPSILON10) return 1;
+
+  if (neq > 1)
+  {
+
+    /* Core allocation */
+
+    VectorDouble cofac(neq * neq);
+
+    /* Calculate the cofactor */
+
+    if (_matrix_cofactor(neq, mat, cofac)) return 1;
+
+    /* Transpose the cofactor to obtain the adjoint matrix */
+
+    matrix_transpose(neq, neq, cofac, mat);
+  }
+
+  /* Final normation */
+
+  for (int i = 0; i < neq * neq; i++)
+    mat[i] /= det;
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the cofactor of the matrix
+ **
+ ** \return  Value of the determinant
+ **
+ ** \param[in]  neq    Size of the matrix
+ ** \param[in]  a      Square matrix to be checked
+ **
+ ** \param[out] b      Square cofactor
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b)
+{
+  // Process the case when the matrix A is of dimension 1
+
+  int neqm1 = neq - 1;
+  if (neqm1 <= 0)
+  {
+    B(0,0)= 1.;
+    return 0;
+  }
+  VectorDouble c(neqm1 * neqm1);
+
+  /* Processing */
+
+  for (int j = 0; j < neq; j++)
+  {
+    for (int i = 0; i < neq; i++)
+    {
+
+      /* Form the adjoint a_ij */
+
+      int i1 = 0;
+      for (int ii = 0; ii < neq; ii++)
+      {
+        if (ii == i) continue;
+        int j1 = 0;
+        for (int jj = 0; jj < neq; jj++)
+        {
+          if (jj == j) continue;
+          C(i1,j1) = A(ii,jj);
+          j1++;
+        }
+        i1++;
+      }
+
+      /* Calculate the determinate */
+      double det = matrix_determinant(neqm1, c);
+
+      /* Fill in the elements of the cofactor */
+      B(i,j) = pow(-1.0, i+j+2.0) * det;
+    }
+  }
+  return (0);
+}
+

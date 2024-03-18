@@ -61,6 +61,7 @@ public:
   static double variance(const VectorDouble &vec, bool scaleByN = false);
   static double stdv(const VectorDouble &vec, bool scaleByN = false);
   static double norm(const VectorDouble &vec);
+  static double norminf(const VectorDouble &vec);
   static double median(const VectorDouble& vec);
   static double normDistance(const VectorDouble& veca, const VectorDouble& vecb);
   static double correlation(const VectorDouble &veca, const VectorDouble &vecb);
@@ -231,6 +232,8 @@ public:
 
   static int whereMinimum(const VectorDouble& tab);
   static int whereMaximum(const VectorDouble& tab);
+  static VectorDouble reduceOne(const VectorDouble &vecin, int index);
+  static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
 };
 
 //typedef VectorHelper VH;

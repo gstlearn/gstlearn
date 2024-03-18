@@ -34,8 +34,15 @@ public:
                        bool transposeY = false);
   static AMatrixSquare* createMatrixSquare(const AMatrixSquare* x,int nrow);
   static AMatrix* createReduce(const AMatrix *x,
-                               const VectorInt &validRows = VectorInt(),
-                               const VectorInt &validCols = VectorInt());
+                               const VectorInt &selRows = VectorInt(),
+                               const VectorInt &selCols = VectorInt(),
+                               bool flagKeepRows = true,
+                               bool flagKeepCols = true);
+  static AMatrix* createReduceOne(const AMatrix *x,
+                                  int selRow = -1,
+                                  int selCol = -1,
+                                  bool flagKeepRow = true,
+                                  bool flagKeepCol = true);
 };
 
 /****************************************************************************/

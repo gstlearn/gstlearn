@@ -151,8 +151,8 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
   {
     if (!db->isActive(iech)) continue;
     simval = get_LOCATOR_ITEM(db, ELoc::SIMU, iptr_simu, iech);
-    db->updLocVariable(ELoc::Z,iech, 0, 0, simval);
-    db->updLocVariable(ELoc::Z,iech, 1, 0, simval * simval);
+    db->updLocVariable(ELoc::Z,iech, 0, EOperator::ADD, simval);
+    db->updLocVariable(ELoc::Z,iech, 1, EOperator::ADD, simval * simval);
   }
 
   /* Optional printout */
@@ -1425,9 +1425,9 @@ int db_simulations_to_ce(Db *db,
         // Arguments 'simu' and 'nvar' are interchanged to keep correct order
         value = db->getSimvar(locatorType, iech, ivar, isimu, 0, nvar, nbsimu);
         if (FFFF(value)) continue;
-        db->updArray(iech, iptr_ce + ivar, 0, value);
-        db->updArray(iech, iptr_cstd + ivar, 0, value * value);
-        db->updArray(iech, iptr_nb + ivar, 0, 1.);
+        db->updArray(iech, iptr_ce + ivar, EOperator::ADD, value);
+        db->updArray(iech, iptr_cstd + ivar, EOperator::ADD, value * value);
+        db->updArray(iech, iptr_nb + ivar, EOperator::ADD, 1.);
       }
     }
   }

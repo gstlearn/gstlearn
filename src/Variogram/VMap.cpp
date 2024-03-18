@@ -105,8 +105,8 @@ void VMap::_setResult(int iech1,
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(dist);
   int ijvar = _get_variable_order(nvar, ivar, jvar);
-  _dbmap->updArray(ipas, IPTV + ijvar, 0, ww * value);
-  _dbmap->updArray(ipas, IPTW + ijvar, 0, ww);
+  _dbmap->updArray(ipas, IPTV + ijvar, EOperator::ADD, ww * value);
+  _dbmap->updArray(ipas, IPTW + ijvar, EOperator::ADD, ww);
 }
 
 /****************************************************************************/
@@ -1218,7 +1218,7 @@ void VMap::_vmap_normalize(int nv2)
       if (value <= 0.)
         _dbmap->setArray(iech, IPTV + ijvar, TEST);
       else
-        _dbmap->updArray(iech, IPTV + ijvar, 3, value);
+        _dbmap->updArray(iech, IPTV + ijvar, EOperator::DIVIDE, value);
     }
   }
 }

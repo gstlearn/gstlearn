@@ -1810,18 +1810,18 @@ int dbStatisticsInGridTool(Db *db,
 
         if (oper == EStatOption::NUM)
         {
-          dbgrid->updArray(iad, iptr, 0, 1.);
+          dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else if (oper == EStatOption::MEAN)
         {
-          dbgrid->updArray(iad, iptn, 0, 1.);
-          dbgrid->updArray(iad, iptr, 0, value);
+          dbgrid->updArray(iad, iptn, EOperator::ADD, 1.);
+          dbgrid->updArray(iad, iptr, EOperator::ADD, value);
         }
         else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
         {
-          dbgrid->updArray(iad, iptn, 0, 1.);
-          dbgrid->updArray(iad, iptm, 0, value);
-          dbgrid->updArray(iad, iptr, 0, value * value);
+          dbgrid->updArray(iad, iptn, EOperator::ADD, 1.);
+          dbgrid->updArray(iad, iptm, EOperator::ADD, value);
+          dbgrid->updArray(iad, iptr, EOperator::ADD, value * value);
         }
         else if (oper == EStatOption::MINI)
         {
@@ -1839,15 +1839,15 @@ int dbStatisticsInGridTool(Db *db,
         }
         else if (oper == EStatOption::PLUS)
         {
-          if (value > 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+          if (value > 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else if (oper == EStatOption::MOINS)
         {
-          if (value < 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+          if (value < 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else if (oper == EStatOption::ZERO)
         {
-          if (value == 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+          if (value == 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else
         {
@@ -1866,7 +1866,7 @@ int dbStatisticsInGridTool(Db *db,
         if (ratio <= 0.)
           dbgrid->setArray(i, iptr, TEST);
         else
-          dbgrid->updArray(i, iptr, 3, ratio);
+          dbgrid->updArray(i, iptr, EOperator::DIVIDE, ratio);
       }
     }
     else if (oper == EStatOption::VAR || oper == EStatOption::STDV)

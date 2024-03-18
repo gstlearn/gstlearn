@@ -179,3 +179,19 @@ double AMatrixSquare::determinant(void) const
 
   return(deter);
 }
+
+double AMatrixSquare::normVec(const VectorDouble& vec)
+{
+  if (getNRows() != (int) vec.size())
+  {
+    messerr("Wrong dimension of 'vec' argument");
+    return TEST;
+  }
+  double value = 0.;
+  for (int irow = 0; irow < getNRows(); irow++)
+    for (int icol = 0; icol < getNCols(); icol++)
+      value += vec[irow] * getValue(irow, icol) * vec[icol];
+
+  return value;
+}
+

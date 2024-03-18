@@ -25,6 +25,9 @@
 #include "LithoRule/PropDef.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Enum/EOperator.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -36,8 +39,8 @@ typedef struct
   int npar;
   int flag_rho;
   double rho;
-  double params[4];
-  double modif[16];
+  VectorDouble params;
+  MatrixSquareSymmetric modif;
 } Local_CorPgs;
 
 typedef struct
@@ -559,10 +562,10 @@ static void st_set_rho(double rho, Local_Pgs *local_pgs)
 
   if (local_pgs->corpgs.opt_correl == 2)
   {
-    M_R(local_pgs->corpgs.modif,4,0,1) = rho;
-    M_R(local_pgs->corpgs.modif,4,0,2) = rho;
-    M_R(local_pgs->corpgs.modif,4,0,3) = rho2;
-    M_R(local_pgs->corpgs.modif,4,1,3) = 1 - rho2;
+    local_pgs->corpgs.modif.setValue(0,1,rho);
+    local_pgs->corpgs.modif.setValue(0,2,rho);
+    local_pgs->corpgs.modif.setValue(0,3,rho2);
+    local_pgs->corpgs.modif.setValue(1,3,1 - rho2);
   }
 }
 
@@ -608,8 +611,7 @@ static double st_get_proba_ind(double correl,
     {
       infin[0] = mvndst_infin(low[0], up[0]);
       infin[1] = mvndst_infin(low[1], up[1]);
-      mvndst(2, low, up, infin, &correl, maxpts, abseps, releps, &err, &proba,
-             &ier);
+      mvndst(2, low, up, infin, &correl, maxpts, abseps, releps, &err, &proba, &ier);
     }
   }
   else
@@ -972,8 +974,7 @@ static double st_func_search_stat(double correl, void *user_data)
       up[1] = STAT_THRESH(ifac2, igrf, 1);
       double proba = st_get_proba_ind(correl, low, up, iconf0);
 
-      double logp = (proba <= 0.) ? -1.e30 :
-                                    log(proba);
+      double logp = (proba <= 0.) ? -1.e30 : log(proba);
       int iad = vario->getDirAddress(idir, ifac1, ifac2, ipas, false, 1);
       double sw = vario->getSwByIndex(idir, iad);
       double gg = vario->getGgByIndex(idir, iad);
@@ -1077,28 +1078,23 @@ static void trace_define(Local_Pgs *local_pgs,
                          double value1,
                          int origin,
                          int number,
-                         double *values)
+                         double* values)
 {
-  Local_TracePgs *tracepgs;
-  int i, ncol, nrow, iad;
-
-  /* Initializations */
-
-  tracepgs = &local_pgs->tracepgs;
+  Local_TracePgs* tracepgs = &local_pgs->tracepgs;
   if (!tracepgs->flag_trace) return;
-  nrow = tracepgs->nrow;
-  ncol = tracepgs->ncol;
-  iad = ncol * (nrow - 1);
+  int nrow = tracepgs->nrow;
+  int ncol = tracepgs->ncol;
+  int iad = ncol * (nrow - 1);
   if (2 + origin + number > ncol)
-    messageAbort("Error in Trace dimension (ncol=%d origin=%d number=%d)", ncol,
-                 origin, number);
+    messageAbort("Error in Trace dimension (ncol=%d origin=%d number=%d)",
+                 ncol, origin, number);
 
   /* Store the information */
 
   tracepgs->trace[iad] = value0;
   tracepgs->trace[iad + 1] = value1;
 
-  for (i = 0; i < number; i++)
+  for (int i = 0; i < number; i++)
     tracepgs->trace[iad + 2 + origin + i] = values[i];
 }
 
@@ -2109,52 +2105,35 @@ void vario_order_get_bounds(Vario_Order *vorder,
  ** \return  Error returned code
  **
  ** \param[in]  a         Matrix to be inverted
- ** \param[in]  neq       Number of equations
  **
  ** \param[out] tabout    Inverted matrix
  **
  *****************************************************************************/
-static int invgen(double *a, int neq, double *tabout)
+static int invgen(MatrixSquareSymmetric& a, MatrixSquareSymmetric& tabout)
 {
-  double *eigvec, *eigval, value;
-  int i, j, k, error;
-
-  /* Initializations */
-
-  error = 1;
-  eigvec = eigval = nullptr;
-
-  /* Core allocation */
-
-  eigval = (double*) mem_alloc(sizeof(double) * neq, 0);
-  if (eigval == nullptr) goto label_end;
-  eigvec = (double*) mem_alloc(sizeof(double) * neq * neq, 0);
-  if (eigvec == nullptr) goto label_end;
+  int neq = a.getNRows();
+  tabout.fill(0.);
 
   /* Calculate the eigen vectors */
 
-  if (matrix_eigen(a, neq, eigval, eigvec)) goto label_end;
+  if (a.computeEigen()) return 1;
+  VectorDouble eigval = a.getEigenValues();
+  MatrixSquareGeneral* eigvec = a.getEigenVectors();
 
   /* Calculate the generalized inverse */
 
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
     {
-      value = 0.;
-      for (k = 0; k < neq; k++)
+      double value = 0.;
+      for (int k = 0; k < neq; k++)
       {
-        if (ABS(eigval[k]) > 1e-10) value += EIGVEC(k,i) * EIGVEC(k,j) / eigval[k];
+        if (ABS(eigval[k]) > 1e-10)
+          value += eigvec->getValue(k,i) * eigvec->getValue(k,j) / eigval[k];
       }
-      TABOUT(i,j)= value;
+      tabout.setValue(i,j,value);
     }
-
-    /* Set the error returned code */
-
-  error = 0;
-
-  label_end: eigval = (double*) mem_free((char* ) eigval);
-  eigvec = (double*) mem_free((char* ) eigvec);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -2203,15 +2182,14 @@ static int st_index(int i, int j)
  ** \param[in]  corpgs      Local_CorPgs structure
  ** \param[in]  params_in   Parameters (Dimension corpgs.npar)
  **
- ** \param[out] params      Parameters (Dimension = 4)
+ ** \return params      Parameters (Dimension = 4)
  **
  *****************************************************************************/
-static void st_compute_params(Local_CorPgs *corpgs,
-                              double *params_in,
-                              double *params)
+static VectorDouble st_compute_params(Local_CorPgs *corpgs,
+                                      VectorDouble& params_in)
 {
-  double rho, rho2;
-  rho = corpgs->rho;
+  VectorDouble params(4);
+  double rho = corpgs->rho;
 
   switch (corpgs->opt_correl)
   {
@@ -2229,12 +2207,13 @@ static void st_compute_params(Local_CorPgs *corpgs,
       break;
 
     case 2: /* Residual case */
-      rho2 = rho * rho;
+      double rho2 = rho * rho;
       params[0] = params_in[0];
       params[1] = params[2] = rho * params_in[0];
       params[3] = rho2 * params_in[0] + (1. - rho2) * params_in[1];
       break;
   }
+  return params;
 }
 
 /****************************************************************************/
@@ -2248,31 +2227,62 @@ static void st_compute_params(Local_CorPgs *corpgs,
  **
  *****************************************************************************/
 static void st_build_correl(Local_CorPgs *corpgs,
-                            double *params_in,
-                            double *correl)
+                            VectorDouble& params_in,
+                            MatrixSquareSymmetric& correl)
 {
+  VectorDouble params = st_compute_params(corpgs, params_in);
+  double rho = corpgs->rho;
 
-  int i;
-  double rho;
-  double params[4];
+  correl.fill(0.);
+  for (int i = 0; i < 4; i++)
+    correl.setValue(i,i,1.);
 
-  for (i = 0; i < 4; i++)
-    params[i] = 0.;
-  st_compute_params(corpgs, params_in, params);
-  rho = corpgs->rho;
+  correl.setValue(2,0, rho);
+  correl.setValue(3,1, rho);
 
-  for (i = 0; i < 4; i++)
-    M_R(correl,4,i,i) = 1.;
+  correl.setValue(1,0, params[0]);
+  correl.setValue(2,1, params[2]);
+  correl.setValue(3,0, params[1]);
+  correl.setValue(3,2, params[3]);
+}
 
-  M_R(correl,4,2,0) = rho;
-  M_R(correl,4,3,1) = rho;
+/****************************************************************************/
+/*!
+ **  Update the following matrices according to constraints on model
+ **
+ ** \param[in]  corpgs      Local_CorPgs structure
+ ** \param[in,out]  Grad        Vector of gradients (Dimension = npar)
+ ** \param[in,out]  Hess        Matrix of Hessian (Dimension = npar * npar)
+ **
+ *****************************************************************************/
+static void st_update_constraints(Local_CorPgs* corpgs,
+                                  VectorDouble& Grad,
+                                  MatrixSquareSymmetric& Hess)
+{
+  MatrixSquareSymmetric m;
+  int npar = corpgs->npar;
 
-  M_R(correl,4,1,0) = params[0];
-  M_R(correl,4,2,1) = params[2];
-  M_R(correl,4,3,0) = params[1];
-  M_R(correl,4,3,2) = params[3];
+  /* Update the Grad */
 
-  matrix_fill_symmetry(4, correl);
+  VectorDouble v = Grad;
+  for (int i = 0; i < npar; i++)
+  {
+    double value = 0.;
+    for (int j = 0; j < 4; j++)
+      value += v[j] * corpgs->modif.getValue(i, j);
+    Grad[i] = value;
+  }
+
+  /* Update the Hessian */
+
+  m = Hess;
+  Hess.fill(0.);
+  for (int i = 0; i < npar; i++)
+    for (int j = 0; j < npar; j++)
+      for (int k = 0; k < 4; k++)
+        for (int l = 0; l < 4; l++)
+          Hess.updValue(i,j, EOperator::ADD,
+                        corpgs->modif.getValue(i,k) * m.getValue(k,l) * corpgs->modif.getValue(j,l));
 }
 
 /****************************************************************************/
@@ -2285,51 +2295,27 @@ static void st_build_correl(Local_CorPgs *corpgs,
  ** \param[in,out]  JJ          Matrix of t(JJ) * JJ (Dimension = npar * npar)
  **
  *****************************************************************************/
-static void st_update_constraints(Local_CorPgs *corpgs,
-                                  double *Grad,
-                                  double *Hess,
-                                  double *JJ)
+static void st_update_constraints_with_JJ(Local_CorPgs *corpgs,
+                                          VectorDouble &Grad,
+                                          MatrixSquareSymmetric &Hess,
+                                          MatrixSquareSymmetric &JJ)
 {
-  double v[4], m[16], *modif;
-  int i, j, k, l, npar;
+  int npar = corpgs->npar;
 
-  /* Initializations */
+  /* Update the Grad and Hessian */
 
-  modif = corpgs->modif;
-  npar = corpgs->npar;
-
-  /* Update the Grad */
-
-  matrix_combine(4, 1., Grad, 0., NULL, v);
-  matrix_combine(4, 0., NULL, 0., NULL, Grad);
-  for (i = 0; i < npar; i++)
-    for (j = 0; j < 4; j++)
-      Grad[i] += v[j] * M_R(modif, 4, i, j);
-
-  /* Update the Hessian */
-
-  matrix_combine(16, 1., Hess, 0., NULL, m);
-  matrix_combine(16, 0., NULL, 0., NULL, Hess);
-  for (i = 0; i < npar; i++)
-    for (j = 0; j < npar; j++)
-      for (k = 0; k < 4; k++)
-        for (l = 0; l < 4; l++)
-          M_R(Hess,npar,i,j) +=
-          M_R(modif,4,i,k) * M_R(m, 4, k, l) * M_R(modif, 4, j, l);
+  st_update_constraints(corpgs, Grad, Hess);
 
   /* Update JJ */
 
-  if (JJ != NULL)
-  {
-    matrix_combine(16, 1., JJ, 0., NULL, m);
-    matrix_combine(16, 0., NULL, 0., NULL, JJ);
-    for (i = 0; i < npar; i++)
-      for (j = 0; j < npar; j++)
-        for (k = 0; k < 4; k++)
-          for (l = 0; l < 4; l++)
-            M_R(JJ,npar,i,j) +=
-            M_R(modif,4,i,k) * M_R(m, 4, l, k) * M_R(modif, 4, j, l);
-  }
+  MatrixSquareSymmetric m = JJ;
+  JJ.fill(0.);
+  for (int i = 0; i < npar; i++)
+    for (int j = 0; j < npar; j++)
+      for (int k = 0; k < 4; k++)
+        for (int l = 0; l < 4; l++)
+          JJ.updValue(i,j, EOperator::ADD,
+                      corpgs->modif.getValue(i,k) * m.getValue(l,k) * corpgs->modif.getValue(j,l));
 }
 
 /****************************************************************************/
@@ -2346,43 +2332,37 @@ static void st_update_constraints(Local_CorPgs *corpgs,
  *****************************************************************************/
 static void st_deriv_eigen(Local_CorPgs *corpgs,
                            double eigval,
-                           double *ev,
-                           double *d1,
-                           double *d2)
+                           MatrixSquareGeneral* ev,
+                           VectorDouble& d1,
+                           MatrixSquareSymmetric& d2)
 {
-  double temp[16], invGn[16];
-  int i, j;
-
-  matrix_combine(16, 0., NULL, 0., NULL, d2);
-  matrix_combine(16, 0., NULL, 0., NULL, temp);
+  MatrixSquareSymmetric temp(4);
+  temp.fill(0.);
+  MatrixSquareSymmetric invGn(4);
+  d2.fill(0.);
   st_build_correl(corpgs, corpgs->params, temp);
-  matrix_combine(16, -1., temp, 0., NULL, temp);
+  temp.linearComb(-1., &temp);
 
-  for (i = 0; i < 4; i++)
-    M_R(temp,4,i,i) += eigval;
+  for (int i = 0; i < 4; i++)
+    temp.updValue(i,i, EOperator::ADD, eigval);
 
-  invgen(temp, 4, invGn);
+  invgen(temp, invGn);
 
-  for (i = 0; i < 4; i++)
-    d1[i] = 2 * ev[12 + F(i, 0)] * ev[12 + F(i, 1)];
+  for (int i = 0; i < 4; i++)
+    d1[i] = 2 * ev->getValue(3,F(i, 0)) * ev->getValue(3, F(i, 1));
 
-  for (i = 0; i < 4; i++)
-    for (j = 0; j < i; j++)
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < i; j++)
     {
-      M_R(d2,4,i,j) = ev[12 + F(i, 0)] * ev[12 + F(j, 0)]
-                      * M_R(invGn, 4, F(i,1), F(j,1));
-      M_R(d2,4,i,j) += ev[12 + F(i, 1)] * ev[12 + F(j, 0)]
-                       * M_R(invGn, 4, F(i,0), F(j,1));
-      M_R(d2,4,i,j) += ev[12 + F(i, 0)] * ev[12 + F(j, 1)]
-                       * M_R(invGn, 4, F(i,1), F(j,0));
-      M_R(d2,4,i,j) += ev[12 + F(i, 1)] * ev[12 + F(j, 1)]
-                       * M_R(invGn, 4, F(i,0), F(j,0));
-      M_R(d2,4,i,j) *= 2;
+      double value = 0;
+      value  = ev->getValue(3, F(i, 0)) * ev->getValue(3, F(j, 0)) * invGn.getValue(F(i, 1), F(j, 1));
+      value += ev->getValue(3, F(i, 1)) * ev->getValue(3, F(j, 0)) * invGn.getValue(F(i, 0), F(j, 1));
+      value += ev->getValue(3, F(i, 0)) * ev->getValue(3, F(j, 1)) * invGn.getValue(F(i, 1), F(j, 0));
+      value += ev->getValue(3, F(i, 1)) * ev->getValue(3, F(j, 1)) * invGn.getValue(F(i, 0), F(j, 0));
+      d2.setValue(i, j, 2 * value);
     }
 
-  matrix_fill_symmetry(4, d2);
-  st_update_constraints(corpgs, d1, d2, NULL);
-
+  st_update_constraints(corpgs, d1, d2);
 }
 
 /****************************************************************************/
@@ -2455,39 +2435,34 @@ static double st_param_expand(Local_Pgs *local_pgs,
  **
  *****************************************************************************/
 static void st_set_modif(Local_CorPgs *corpgs)
-
 {
-  double *modif = corpgs->modif;
-  double rho, rho2;
-  int i;
-
-  rho = corpgs->rho;
-  matrix_combine(16, 0., NULL, 0., NULL, modif);
+  double rho = corpgs->rho;
+  corpgs->modif.fill(0.);
 
   switch (corpgs->opt_correl)
   {
     case 0: /* Full parameters */
       corpgs->npar = 4;
-      for (i = 0; i < 4; i++)
-        M_R(modif,4,i,i) = 1.;
+      for (int i = 0; i < 4; i++)
+        corpgs->modif.setValue(i,i,1.);
       break;
 
     case 1: /* Symmetrical case */
       corpgs->npar = 3;
-      M_R(modif,4,0,0) = 1;
-      M_R(modif,4,1,1) = 1;
-      M_R(modif,4,1,2) = 1;
-      M_R(modif,4,2,3) = 1;
+      corpgs->modif.setValue(0,0,1);
+      corpgs->modif.setValue(1,1,1);
+      corpgs->modif.setValue(1,2,1);
+      corpgs->modif.setValue(2,3,1);
       break;
 
     case 2: /* Residual case */
-      rho2 = rho * rho;
+      double rho2 = rho * rho;
       corpgs->npar = 2;
-      M_R(modif,4,0,0) = 1;
-      M_R(modif,4,0,1) = rho;
-      M_R(modif,4,0,2) = rho;
-      M_R(modif,4,0,3) = rho2;
-      M_R(modif,4,1,3) = 1 - rho2;
+      corpgs->modif.setValue(0,0,1);
+      corpgs->modif.setValue(0,1,rho);
+      corpgs->modif.setValue(0,2,rho);
+      corpgs->modif.setValue(0,3,rho2);
+      corpgs->modif.setValue(1,3,1. - rho2);
       break;
   }
 }
@@ -2511,7 +2486,6 @@ static void st_define_corpgs(int option,
                              Local_Pgs *local_pgs)
 {
   Local_CorPgs *corpgs;
-  int i;
 
   /* Initializations */
 
@@ -2519,10 +2493,7 @@ static void st_define_corpgs(int option,
   corpgs->rho = rho;
   corpgs->opt_correl = option;
   st_set_modif(corpgs);
-
-  for (i = 0; i < 4; i++)
-    corpgs->params[i] = 0.;
-
+  corpgs->params.fill(0.);
   corpgs->flag_rho = flag_rho;
 }
 
@@ -2537,20 +2508,19 @@ static void st_define_corpgs(int option,
  *****************************************************************************/
 static int st_get_count(Local_Pgs *local_pgs, int ifac1, int ifac2)
 {
-  int ipair, i1, i2, number;
-  double dist, w1, w2;
+  int i1, i2;
+  double dist;
 
   /* Initializations */
 
-  number = 0;
-
-  for (ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
+  int number = 0;
+  for (int ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
   {
     vario_order_get_indices(local_pgs->vorder, ipair, &i1, &i2, &dist);
     if (ifac1 != local_pgs->db->getLocVariable(ELoc::Z,i1, 0)) continue;
     if (ifac2 != local_pgs->db->getLocVariable(ELoc::Z,i2, 0)) continue;
-    w1 = local_pgs->db->getWeight(i1);
-    w2 = local_pgs->db->getWeight(i2);
+    double w1 = local_pgs->db->getWeight(i1);
+    double w2 = local_pgs->db->getWeight(i2);
     number += (int) (w1 * w2);
   }
   return (number);
@@ -2564,27 +2534,28 @@ static int st_get_count(Local_Pgs *local_pgs, int ifac1, int ifac2)
 static double st_rkl(int maxpts,
                      double x,
                      double y,
-                     double *lower,
-                     double *upper,
-                     double *corr1,
-                     double *covar,
-                     double *temp)
+                     VectorDouble& lower,
+                     VectorDouble& upper,
+                     MatrixSquareSymmetric& corr1,
+                     MatrixSquareGeneral& covar,
+                     MatrixSquareGeneral& temp)
 {
-  double cste[2], vect[2], mean[2], v1, v2, S, error;
+  double v2, error;
   int inform;
   static double abseps = 1.e-12;
   static double releps = 0.;
 
+  VectorDouble cste(2);
   cste[0] = 0.;
   cste[1] = 0.;
+  VectorDouble vect(2);
   vect[0] = x;
   vect[1] = y;
-  matrix_product_safe(2, 2, 1, temp, vect, mean);
-  v1 = law_df_bigaussian(vect, cste, corr1);
-  mvndst2n(lower, upper, mean, covar, maxpts, abseps, releps, &error, &v2,
-           &inform);
-  S = v1 * v2;
-  return (S);
+  VectorDouble mean = temp.prodMatVec(vect);
+  double v1 = law_df_bigaussian(vect, cste, corr1);
+  mvndst2n(lower.data(), upper.data(), mean.data(), covar.getValues().data(),
+           maxpts, abseps, releps, &error, &v2, &inform);
+  return (v1 * v2);
 }
 
 /****************************************************************************/
@@ -2608,57 +2579,62 @@ static double st_rkl(int maxpts,
 static double st_ikl(int maxpts,
                      int index1,
                      int index2,
-                     double *lower,
-                     double *upper,
-                     double *correl)
+                     VectorDouble& lower,
+                     VectorDouble& upper,
+                     MatrixSquareSymmetric& correl)
 {
-  double low[2], upp[2], value, x, y, S;
-  double corr1[4], corr2[4], corrc[4], covar[4], inv_corr1[4], temp[4];
-  int i, j, k, index[2];
+  double x, y;
 
   // Initializations 
+  VectorInt index(2);
   index[0] = index1;
   index[1] = index2;
 
   // Build submatrices
-  matrix_manage(4, 1, -2, 0, index, NULL, lower, low);
-  matrix_manage(4, 1, -2, 0, index, NULL, upper, upp);
-  matrix_manage(4, 4, 2, 2, index, index, correl, corr1);
-  matrix_manage(4, 4, -2, 2, index, index, correl, corrc);
-  matrix_manage(4, 4, -2, -2, index, index, correl, corr2);
-  if (matrix_invert_copy(corr1, 2, inv_corr1)) messageAbort("st_ikl #1");
-  matrix_product_safe(2, 2, 2, corrc, inv_corr1, temp);
+  VectorDouble low = VH::reduce(lower, index);
+  VectorDouble upp = VH::reduce(upper, index);
+  MatrixSquareSymmetric* corr1 = dynamic_cast<MatrixSquareSymmetric*>
+    (MatrixFactory::createReduce(&correl, index, index, true, true));
+  MatrixSquareSymmetric* corrc = dynamic_cast<MatrixSquareSymmetric*>
+    (MatrixFactory::createReduce(&correl, index, index, false, true));
+  MatrixSquareSymmetric* corr2 = dynamic_cast<MatrixSquareSymmetric*>
+    (MatrixFactory::createReduce(&correl, index, index, false, false));
+  MatrixSquareSymmetric inv_corr1(*corr1);
+  if (inv_corr1.invert()) messageAbort("st_ikl #1");
+  MatrixSquareGeneral* temp = dynamic_cast<MatrixSquareGeneral*>
+    (MatrixFactory::prodMatMat(corrc, &inv_corr1));
 
   // Derive covar
-  for (i = 0; i < 2; i++)
-    for (j = 0; j < 2; j++)
+  MatrixSquareGeneral covar(2);
+  for (int i = 0; i < 2; i++)
+    for (int j = 0; j < 2; j++)
     {
-      value = 0;
-      for (k = 0; k < 2; k++)
-        value += M_R(temp,2,k,i) * M_R(corrc, 2, k, j);
-      M_R(covar,2,i,j) = M_R(corr2,2,i,j) - value;
+      double value = 0;
+      for (int k = 0; k < 2; k++)
+        value += temp->getValue(k,i) * corrc->getValue(k, j);
+      covar.setValue(i,j, corr2->getValue(i,j) - value);
     }
 
-  S = 0.;
+  double S = 0.;
   x = upper[index1];
   if (IS_GAUSS_DEF(x))
   {
     y = upper[index2];
     if (IS_GAUSS_DEF(y))
-      S += st_rkl(maxpts, x, y, low, upp, corr1, covar, temp);
+      S += st_rkl(maxpts, x, y, low, upp, *corr1, covar, *temp);
     y = lower[index2];
     if (IS_GAUSS_DEF(y))
-      S -= st_rkl(maxpts, x, y, low, upp, corr1, covar, temp);
+      S -= st_rkl(maxpts, x, y, low, upp, *corr1, covar, *temp);
   }
   x = lower[index1];
   if (IS_GAUSS_DEF(x))
   {
     y = lower[index2];
     if (IS_GAUSS_DEF(y))
-      S += st_rkl(maxpts, x, y, low, upp, corr1, covar, temp);
+      S += st_rkl(maxpts, x, y, low, upp, *corr1, covar, *temp);
     y = upper[index2];
     if (IS_GAUSS_DEF(y))
-      S -= st_rkl(maxpts, x, y, low, upp, corr1, covar, temp);
+      S -= st_rkl(maxpts, x, y, low, upp, *corr1, covar, *temp);
   }
   return (S / 2.);
 }
@@ -2668,27 +2644,23 @@ static double st_ikl(int maxpts,
  ** \return  Calculate the other derivatives
  **
  *****************************************************************************/
-static double st_nkl(double *u,
+static double st_nkl(VectorDouble& u,
                      double lower,
                      double upper,
-                     double *invvari,
+                     VectorDouble& invvari,
                      int index2,
                      double meanj,
                      double varj,
                      double stdj)
 {
-  double dflow, dfupp, cdflow, cdfupp, invval, invpart[3], total, S;
-
-  dfupp = law_dnorm(upper, meanj, stdj);
-  dflow = law_dnorm(lower, meanj, stdj);
-  cdfupp = law_cdf_gaussian((upper - meanj) / stdj);
-  cdflow = law_cdf_gaussian((lower - meanj) / stdj);
-  invval = invvari[index2];
-  matrix_manage(4, 1, -1, 0, &index2, NULL, invvari, invpart);
-  matrix_product_safe(1, 3, 1, invpart, u, &total);
-
-  S = (dfupp - dflow) * varj * invval - (cdfupp - cdflow)
-      * (invval * meanj + total);
+  double dfupp  = law_dnorm(upper, meanj, stdj);
+  double dflow  = law_dnorm(lower, meanj, stdj);
+  double cdfupp = law_cdf_gaussian((upper - meanj) / stdj);
+  double cdflow = law_cdf_gaussian((lower - meanj) / stdj);
+  double invval = invvari[index2];
+  VectorDouble invpart = VH::reduceOne(invvari, index2);
+  double total = VH::innerProduct(invpart, u);
+  double S = (dfupp - dflow) * varj * invval - (cdfupp - cdflow) * (invval * meanj + total);
   return (S);
 }
 
@@ -2707,27 +2679,22 @@ static double st_nkl(double *u,
 static double st_d2_dkldkl(int maxpts,
                            int index1,
                            int index2,
-                           double *lower,
-                           double *upper,
-                           double *correl)
+                           VectorDouble& lower,
+                           VectorDouble& upper,
+                           MatrixSquareSymmetric& correl)
 {
-  double corri[16], v1, v2, S;
+  MatrixSquareSymmetric corri;
   double deltaparam = 1.e-6;
-  int i;
 
-  for (i = 0; i < 16; i++)
-    corri[i] = correl[i];
-  M_R(corri,4,index1,index2) += deltaparam;
-  M_R(corri,4,index2,index1) += deltaparam;
-  v1 = st_ikl(maxpts, index1, index2, lower, upper, corri);
+  corri = correl;
+  corri.updValue(index1, index2, EOperator::ADD, deltaparam);
+  double v1 = st_ikl(maxpts, index1, index2, lower, upper, corri);
 
-  for (i = 0; i < 16; i++)
-    corri[i] = correl[i];
-  M_R(corri,4,index1,index2) -= deltaparam;
-  M_R(corri,4,index2,index1) -= deltaparam;
-  v2 = st_ikl(maxpts, index1, index2, lower, upper, corri);
+  corri = correl;
+  corri.updValue(index1, index2, EOperator::SUBTRACT, deltaparam);
+  double v2 = st_ikl(maxpts, index1, index2, lower, upper, corri);
 
-  S = (v1 - v2) / (2. * deltaparam);
+  double S = (v1 - v2) / (2. * deltaparam);
   return (S / 2.);
 }
 
@@ -2742,24 +2709,26 @@ static double st_d2_dkldkl(int maxpts,
  ** \param[in]  correl       Correlation matrix (Dimension = 4*4)
  **
  *****************************************************************************/
-static double st_d2_dkldij(double *lower, double *upper, double *correl)
+static double st_d2_dkldij(VectorDouble& lower,
+                           VectorDouble& upper,
+                           MatrixSquareSymmetric& correl)
 {
-  int i, i1, i2, i3, i4, grid[4], flag_out;
-  double u[4], S;
+  int grid[4];
+  VectorDouble u(4);
 
-  S = 0.;
-  for (i4 = 0; i4 < 2; i4++)
-    for (i3 = 0; i3 < 2; i3++)
-      for (i2 = 0; i2 < 2; i2++)
-        for (i1 = 0; i1 < 2; i1++)
+  double S = 0.;
+  for (int i4 = 0; i4 < 2; i4++)
+    for (int i3 = 0; i3 < 2; i3++)
+      for (int i2 = 0; i2 < 2; i2++)
+        for (int i1 = 0; i1 < 2; i1++)
         {
           grid[0] = i1;
           grid[1] = i2;
           grid[2] = i3;
           grid[3] = i4;
 
-          flag_out = 0;
-          for (i = 0; i < 4 && flag_out == 0; i++)
+          bool flag_out = false;
+          for (int i = 0; i < 4 && flag_out == 0; i++)
           {
             u[i] = (grid[i]) ? upper[i] : lower[i];
             flag_out = !IS_GAUSS_DEF(u[i]);
@@ -2783,50 +2752,54 @@ static double st_d2_dkldij(double *lower, double *upper, double *correl)
  *****************************************************************************/
 static double st_d2_dkldkj(int index1,
                            int index2,
-                           double *lower,
-                           double *upper,
-                           double *correl)
+                           VectorDouble& lower,
+                           VectorDouble& upper,
+                           MatrixSquareSymmetric& correl)
 {
-  double varcori[9], invvarcor[16], invvarcori[4], corr1[9], crosscor[3];
-  double invcorr1[9], temp[3], lowi[3], uppi[3], u[3];
-  double lowj, uppj, corr2, covar, sdcovar, S, mu, random;
-  int i, i1, i2, i3, grid[3], flag_out;
+  MatrixSquareSymmetric* varcori = dynamic_cast<MatrixSquareSymmetric*>
+        (MatrixFactory::createReduceOne(&correl,index2, index2, false, false));
+  MatrixSquareSymmetric invvarcor(correl);
+  if (invvarcor.invert()) messageAbort("st_d2_dkldkj #1");
+  VectorDouble invvarcori = invvarcor.getRow(index1);
+  MatrixSquareSymmetric* corr1 = dynamic_cast<MatrixSquareSymmetric*>
+        (MatrixFactory::createReduceOne(&correl, index2, index2, false, false));
+  VectorDouble crosscor = correl.getRow(index2);
+  crosscor = VH::reduceOne(crosscor, index2);
+  double corr2 = correl.getValue(index2, index2);
 
-  matrix_manage(4, 4, -1, -1, &index2, &index2, correl, varcori);
-  if (matrix_invert_copy(correl, 4, invvarcor)) messageAbort("st_d2_dkldkj #1");
-  matrix_manage(4, 4, 1, 0, &index1, NULL, invvarcor, invvarcori);
-  matrix_manage(4, 4, -1, -1, &index2, &index2, correl, corr1);
-  matrix_manage(4, 4, 1, -1, &index2, &index2, correl, crosscor);
-  matrix_manage(4, 4, 1, 1, &index2, &index2, correl, &corr2);
-  if (matrix_invert_copy(corr1, 3, invcorr1)) messageAbort("st_d2_dkldkj #2");
-  matrix_product_safe(1, 3, 3, crosscor, invcorr1, temp);
-  matrix_product_safe(1, 3, 1, crosscor, temp, &covar);
-  covar = corr2 - covar;
-  sdcovar = sqrt(covar);
-  matrix_manage(4, 1, -1, 0, &index2, NULL, lower, lowi);
-  matrix_manage(4, 1, -1, 0, &index2, NULL, upper, uppi);
-  matrix_manage(4, 1, 1, 0, &index2, NULL, lower, &lowj);
-  matrix_manage(4, 1, 1, 0, &index2, NULL, upper, &uppj);
+  MatrixSquareSymmetric invcorr1(*corr1);
+  if (invcorr1.invert()) messageAbort("st_d2_dkldkj #2");
 
-  S = 0.;
-  for (i3 = 0; i3 < 2; i3++)
-    for (i2 = 0; i2 < 2; i2++)
-      for (i1 = 0; i1 < 2; i1++)
+  VectorDouble temp = invcorr1.prodMatVec(crosscor);
+  double covar = invcorr1.normVec(crosscor);
+  double sdcovar = sqrt(corr2 - covar);
+
+  VectorDouble lowi = VH::reduceOne(lower, index2);
+  VectorDouble uppi = VH::reduceOne(upper, index2);
+  int lowj = lower[index2];
+  int uppj = upper[index2];
+
+  double S = 0.;
+  VectorDouble u(3);
+  int grid[3];
+
+  for (int i3 = 0; i3 < 2; i3++)
+    for (int i2 = 0; i2 < 2; i2++)
+      for (int i1 = 0; i1 < 2; i1++)
       {
         grid[0] = i1;
         grid[1] = i2;
         grid[2] = i3;
 
-        for (i = flag_out = 0; i < 3 && flag_out == 0; i++)
+        bool flag_out = false;
+        for (int i = 0; i < 3 && ! flag_out; i++)
         {
-          u[i] = (grid[i]) ? uppi[i] :
-                             lowi[i];
+          u[i] = (grid[i]) ? uppi[i] : lowi[i];
           flag_out = !IS_GAUSS_DEF(u[i]);
         }
         if (flag_out) continue;
-
-        matrix_product_safe(1, 3, 1, temp, u, &mu);
-        random = law_df_multigaussian(3, u, varcori);
+        double mu = VH::innerProduct(temp, u);
+        double random = law_df_multigaussian(u, *varcori);
 
         S += pow(-1., 3 - i1 + i2 + i3) * random
              * st_nkl(u, lowj, uppj, invvarcori, index2, mu, covar, sdcovar);
@@ -2853,28 +2826,32 @@ static double st_d2_dkldkj(int index1,
 static double st_calcul_stat(Local_Pgs *local_pgs,
                              int flag_deriv,
                              int flag_reset,
-                             double *correl,
-                             double *Grad,
-                             double *Hess,
-                             double *JJ)
+                             MatrixSquareSymmetric& correl,
+                             VectorDouble& Grad,
+                             MatrixSquareSymmetric& Hess,
+                             MatrixSquareSymmetric& JJ)
 {
-  double grad[4], lower[4], upper[4], hess[16], gradgrad[16];
-  double s, S, rj2, erval, ggval;
-  int ifac1, ifac2, nfifj, i, j, inform;
+  double s, rj2, erval, ggval;
+  int inform;
   static double abseps = 1.e-6;
   static double releps = 0.;
   static int maxpts4 = 10000;
   static int maxpts2 = 4000;
+  MatrixSquareSymmetric hess(4);
+  MatrixSquareSymmetric gradgrad(4);
+  VectorDouble grad(4);
+  VectorDouble lower(4);
+  VectorDouble upper(4);
 
-  S = 0.;
-  matrix_combine(4, 0., NULL, 0., NULL, grad);
-  matrix_combine(16, 0., NULL, 0., NULL, hess);
+  double S = 0.;
+  grad.fill(0.);
+  hess.fill(0.);
 
-  for (ifac1 = 0; ifac1 < local_pgs->nfacies; ifac1++)
+  for (int ifac1 = 0; ifac1 < local_pgs->nfacies; ifac1++)
   {
-    for (ifac2 = 0; ifac2 < local_pgs->nfacies; ifac2++)
+    for (int ifac2 = 0; ifac2 < local_pgs->nfacies; ifac2++)
     {
-      nfifj = st_get_count(local_pgs, ifac1 + 1, ifac2 + 1);
+      int nfifj = st_get_count(local_pgs, ifac1 + 1, ifac2 + 1);
       if (nfifj <= 0) continue;
 
       /* Get the bounds */
@@ -2892,8 +2869,8 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
       lower[3] = bounds[3];
       if (flag_reset)
       {
-        mvndst4(lower, upper, correl, maxpts4, abseps, releps, &erval, &s,
-                &inform);
+        mvndst4(lower.data(), upper.data(), correl.getValues().data(), maxpts4, abseps, releps,
+                &erval, &s, &inform);
         STAT_PROBA(ifac1,ifac2) = s;
       }
       else
@@ -2909,27 +2886,30 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
       grad[1] = -st_ikl(maxpts2, 0, 3, lower, upper, correl) / s;
       grad[2] = -st_ikl(maxpts2, 1, 2, lower, upper, correl) / s;
       grad[3] = -st_ikl(maxpts2, 2, 3, lower, upper, correl) / s;
-      matrix_product_safe(4, 1, 4, grad, grad, gradgrad);
+      gradgrad.fill(0.);
+      for (int i = 0; i < 4; i++)
+        for (int j = 0; j <= i; j++)
+          gradgrad.setValue(i,j, grad[i] * grad[j]);
 
-      M_R(hess,4,3,0) = M_R(hess,4,2,1) = -st_d2_dkldij(lower, upper, correl);
-      M_R(hess,4,1,0) = st_d2_dkldkj(0, 2, lower, upper, correl);
-      M_R(hess,4,2,0) = st_d2_dkldkj(1, 3, lower, upper, correl);
-      M_R(hess,4,3,1) = st_d2_dkldkj(3, 1, lower, upper, correl);
-      M_R(hess,4,3,2) = st_d2_dkldkj(2, 0, lower, upper, correl);
-      M_R(hess,4,0,0) = st_d2_dkldkl(maxpts4, 0, 1, lower, upper, correl);
-      M_R(hess,4,1,1) = st_d2_dkldkl(maxpts4, 0, 3, lower, upper, correl);
-      M_R(hess,4,2,2) = st_d2_dkldkl(maxpts4, 1, 2, lower, upper, correl);
-      M_R(hess,4,3,3) = st_d2_dkldkl(maxpts4, 2, 3, lower, upper, correl);
-      matrix_fill_symmetry(4, hess);
+      hess.setValue(3,0, -st_d2_dkldij(lower, upper, correl));
+      hess.setValue(2,1, -st_d2_dkldij(lower, upper, correl));
+      hess.setValue(1,0,  st_d2_dkldkj(0, 2, lower, upper, correl));
+      hess.setValue(2,0,  st_d2_dkldkj(1, 3, lower, upper, correl));
+      hess.setValue(3,1,  st_d2_dkldkj(3, 1, lower, upper, correl));
+      hess.setValue(3,2,  st_d2_dkldkj(2, 0, lower, upper, correl));
+      hess.setValue(0,0,  st_d2_dkldkl(maxpts4, 0, 1, lower, upper, correl));
+      hess.setValue(1,1,  st_d2_dkldkl(maxpts4, 0, 3, lower, upper, correl));
+      hess.setValue(2,2,  st_d2_dkldkl(maxpts4, 1, 2, lower, upper, correl));
+      hess.setValue(3,3,  st_d2_dkldkl(maxpts4, 2, 3, lower, upper, correl));
 
-      for (i = 0; i < 4; i++)
+      for (int i = 0; i < 4; i++)
       {
         Grad[i] += nfifj * grad[i];
-        for (j = 0; j < 4; j++)
+        for (int j = 0; j <= i; j++)
         {
-          ggval = M_R(gradgrad, 4, i, j);
-          M_R(Hess,4,i,j) -= nfifj * (M_R(hess,4,i,j) / s - ggval);
-          M_R(JJ,4,i,j) += nfifj * ggval / rj2;
+          ggval = gradgrad.getValue(i, j);
+          Hess.updValue(i,j, EOperator::SUBTRACT, nfifj * (hess.getValue(i,j) / s - ggval));
+          JJ.updValue(i,j, EOperator::ADD, nfifj * ggval / rj2);
         }
       }
     }
@@ -2956,30 +2936,35 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
 static double st_calcul_nostat(Local_Pgs *local_pgs,
                                int flag_deriv,
                                int flag_reset,
-                               double *correl,
-                               double *Grad,
-                               double *Hess,
-                               double *JJ)
+                               MatrixSquareSymmetric& correl,
+                               VectorDouble& Grad,
+                               MatrixSquareSymmetric& Hess,
+                               MatrixSquareSymmetric& JJ)
 {
-  double grad[4], lower[4], upper[4], hess[16], gradgrad[16];
-  double s, S, rj2, erval, ggval, dist, w1, w2;
-  int i1, i2, ifac1, ifac2, i, j, inform, ipair;
+  double s, erval, dist;
+  int i1, i2, inform;
   static double abseps = 1.e-6;
   static double releps = 0.;
   static int maxpts4 = 10000;
   static int maxpts2 = 4000;
+  VectorDouble grad(4);
+  VectorDouble lower(4);
+  VectorDouble upper(4);
+  MatrixSquareSymmetric hess(4);
+  MatrixSquareSymmetric gradgrad(4);
 
-  S = 0.;
-  matrix_combine(4, 0., NULL, 0., NULL, grad);
-  matrix_combine(16, 0., NULL, 0., NULL, hess);
+  double S = 0.;
+  grad.fill(0.);
+  hess.fill(0.);
 
-  for (ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
+  for (int ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
   {
     vario_order_get_indices(local_pgs->vorder, ipair, &i1, &i2, &dist);
-    ifac1 = (int) local_pgs->db->getLocVariable(ELoc::Z,i1, 0);
-    ifac2 = (int) local_pgs->db->getLocVariable(ELoc::Z,i2, 0);
-    w1 = local_pgs->db->getWeight(i1);
-    w2 = local_pgs->db->getWeight(i2);
+    int ifac1 = (int) local_pgs->db->getLocVariable(ELoc::Z,i1, 0);
+    int ifac2 = (int) local_pgs->db->getLocVariable(ELoc::Z,i2, 0);
+    double w1 = local_pgs->db->getWeight(i1);
+    double w2 = local_pgs->db->getWeight(i2);
+
     /* Get the bounds */
 
     (void) rule_thresh_define(local_pgs->propdef, local_pgs->db,
@@ -2991,13 +2976,13 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
 
     if (flag_reset)
     {
-      mvndst4(lower, upper, correl, maxpts4, abseps, releps, &erval, &s,
-              &inform);
+      mvndst4(lower.data(), upper.data(), correl.getValues().data(), maxpts4, abseps, releps,
+              &erval, &s, &inform);
       MEMINT(ipair) = s;
     }
     else
       s = MEMINT(ipair);
-    rj2 = -2. * log(s);
+    double rj2 = -2. * log(s);
     S += w1 * w2 * rj2;
 
     /* Calculate the derivative */
@@ -3007,27 +2992,30 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
     grad[1] = -st_ikl(maxpts2, 0, 3, lower, upper, correl) / s;
     grad[2] = -st_ikl(maxpts2, 1, 2, lower, upper, correl) / s;
     grad[3] = -st_ikl(maxpts2, 2, 3, lower, upper, correl) / s;
-    matrix_product_safe(4, 1, 4, grad, grad, gradgrad);
+    gradgrad.fill(0.);
+    for (int i = 0; i < 4; i++)
+      for (int j = 0; j <= i; j++)
+        gradgrad.setValue(i,j, grad[i] * grad[j]);
 
-    M_R(hess,4,3,0) = M_R(hess,4,2,1) = -st_d2_dkldij(lower, upper, correl);
-    M_R(hess,4,1,0) = st_d2_dkldkj(0, 2, lower, upper, correl);
-    M_R(hess,4,2,0) = st_d2_dkldkj(1, 3, lower, upper, correl);
-    M_R(hess,4,3,1) = st_d2_dkldkj(3, 1, lower, upper, correl);
-    M_R(hess,4,3,2) = st_d2_dkldkj(2, 0, lower, upper, correl);
-    M_R(hess,4,0,0) = st_d2_dkldkl(maxpts4, 0, 1, lower, upper, correl);
-    M_R(hess,4,1,1) = st_d2_dkldkl(maxpts4, 0, 3, lower, upper, correl);
-    M_R(hess,4,2,2) = st_d2_dkldkl(maxpts4, 1, 2, lower, upper, correl);
-    M_R(hess,4,3,3) = st_d2_dkldkl(maxpts4, 2, 3, lower, upper, correl);
-    matrix_fill_symmetry(4, hess);
+    hess.setValue(3,0, -st_d2_dkldij(lower, upper, correl));
+    hess.setValue(2,1, -st_d2_dkldij(lower, upper, correl));
+    hess.setValue(1,0,  st_d2_dkldkj(0, 2, lower, upper, correl));
+    hess.setValue(2,0,  st_d2_dkldkj(1, 3, lower, upper, correl));
+    hess.setValue(3,1,  st_d2_dkldkj(3, 1, lower, upper, correl));
+    hess.setValue(3,2,  st_d2_dkldkj(2, 0, lower, upper, correl));
+    hess.setValue(0,0,  st_d2_dkldkl(maxpts4, 0, 1, lower, upper, correl));
+    hess.setValue(1,1,  st_d2_dkldkl(maxpts4, 0, 3, lower, upper, correl));
+    hess.setValue(2,2,  st_d2_dkldkl(maxpts4, 1, 2, lower, upper, correl));
+    hess.setValue(3,3,  st_d2_dkldkl(maxpts4, 2, 3, lower, upper, correl));
 
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
       Grad[i] += w1 * w2 * grad[i];
-      for (j = 0; j < 4; j++)
+      for (int j = 0; j <= i; j++)
       {
-        ggval = M_R(gradgrad, 4, i, j);
-        M_R(Hess,4,i,j) -= w1 * w2 * (M_R(hess,4,i,j) / s - ggval);
-        M_R(JJ,4,i,j) += w1 * w2 * ggval / rj2;
+        double ggval = gradgrad.getValue(i, j);
+        Hess.updValue(i,j, EOperator::SUBTRACT, w1 * w2 * (hess.getValue(i,j) / s - ggval));
+        JJ.updValue(i,j, EOperator::ADD, w1 * w2 * ggval / rj2);
       }
     }
   }
@@ -3053,34 +3041,32 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
 static double st_calcul(Local_Pgs *local_pgs,
                         int flag_deriv,
                         int flag_reset,
-                        double *params,
-                        double *Grad,
-                        double *Hess,
-                        double *JJ)
+                        VectorDouble& params,
+                        VectorDouble& Grad,
+                        MatrixSquareSymmetric& Hess,
+                        MatrixSquareSymmetric& JJ)
 {
-  double S, correl[16];
-
-  S = 0.;
+  MatrixSquareSymmetric correl(4);
+  double S = 0.;
 
   if (flag_deriv)
   {
-    matrix_combine(4, 0., NULL, 0., NULL, Grad);
-    matrix_combine(16, 0., NULL, 0., NULL, Hess);
-    matrix_combine(16, 0., NULL, 0., NULL, JJ);
+    Grad.fill(0.);
+    Hess.fill(0.);
+    JJ.fill(0.);
   }
 
   st_build_correl(&local_pgs->corpgs, params, correl);
 
   if (local_pgs->flag_stat)
-    S = st_calcul_stat(local_pgs, flag_deriv, flag_reset, correl, Grad, Hess,
-                       JJ);
+    S = st_calcul_stat(local_pgs, flag_deriv, flag_reset, correl, Grad, Hess, JJ);
   else
-    S = st_calcul_nostat(local_pgs, flag_deriv, flag_reset, correl, Grad, Hess,
-                         JJ);
+    S = st_calcul_nostat(local_pgs, flag_deriv, flag_reset, correl, Grad, Hess, JJ);
 
   /* Modify the results due to the constraints on parameters */
 
-  if (flag_deriv) st_update_constraints(&local_pgs->corpgs, Grad, Hess, JJ);
+  if (flag_deriv)
+    st_update_constraints_with_JJ(&local_pgs->corpgs, Grad, Hess, JJ);
 
   return (S / 2.);
 }
@@ -3128,14 +3114,22 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
                                   double tolsort,
                                   int new_val)
 {
-  Local_CorPgs *corpgs;
-  double Hess[16], JJ[16], eigval[4], eigvec[16], Gn[16], invGn[16], correl[16],
-      d2[16];
-  double hsd[4], hgn[4], step[4], a[4], gr[4], param_temp[4], hgna[4], Grad[4],
-      d1[4];
-  double normgrad, normgrad2, alpha, delta2, c, a2, beta, hgna2, niter;
-  double Sr, Snew, delta, mdiminution, mdiminution_pred, stepgr, rval;
-  int flag_sortie, flag_moved, npar, npar2, i;
+  MatrixSquareSymmetric invGn(4);
+  MatrixSquareSymmetric correl(4);
+  MatrixSquareSymmetric Hess(4);
+  MatrixSquareSymmetric Gn(4);
+  MatrixSquareSymmetric JJ(4);
+  MatrixSquareSymmetric d2(4);
+  VectorDouble Grad(4);
+  VectorDouble d1(4);
+  VectorDouble gr(4);
+  VectorDouble hgn(4);
+  VectorDouble step(4);
+  VectorDouble hsd(4);
+  VectorDouble a(4);
+  VectorDouble hgna(4);
+  VectorDouble eigval(4);
+  MatrixSquareGeneral* eigvec = nullptr;
 
   static double maxiter = 100;
   static double delta0 = 1;
@@ -3147,104 +3141,106 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
 
   /* Initializations */
 
-  corpgs = &local_pgs->corpgs;
-  npar = corpgs->npar;
-  npar2 = npar * npar;
-  delta = delta0;
-  mdiminution = 0.;
+  Local_CorPgs* corpgs = &local_pgs->corpgs;
+  int npar = corpgs->npar;
+  double delta = delta0;
+  double mdiminution = 0.;
 
   if (new_val) st_initialize_params(corpgs);
 
-  matrix_combine(npar, 1., corpgs->params, 0., NULL, param_temp);
-  matrix_combine(npar, 0., NULL, 0., NULL, Grad);
-  matrix_combine(npar2, 0., NULL, 0., NULL, Hess);
-  matrix_combine(npar2, 0., NULL, 0., NULL, JJ);
+  VectorDouble param_temp = corpgs->params;
+  Grad.fill(0.);
+  Hess.fill(0.);
+  JJ.fill(0.);
 
   /* Calculate the score and the derivatives */
 
-  Sr = st_calcul(local_pgs, 1, 1, corpgs->params, Grad, Hess, JJ);
+  double Sr = st_calcul(local_pgs, 1, 1, corpgs->params, Grad, Hess, JJ);
 
-  niter = 0.;
-  flag_sortie = 0;
-  flag_moved = 1;
+  double niter = 0.;
+  double Snew = 0.;
+  bool flag_sortie = false;
+  bool flag_moved = true;
 
   while (!flag_sortie)
   {
     if (barrier)
     {
       st_build_correl(corpgs, param_temp, correl);
-      matrix_eigen(correl, 4, eigval, eigvec);
+      correl.computeEigen();
+      eigval = correl.getEigenValues();
+      MatrixSquareGeneral* eigvec = correl.getEigenVectors();
       st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
       Srpen = Sr - penalize * log(eigval[3]);
-      matrix_combine(npar, 1, Grad, -penalize / eigval[3], d1, Grad);
-      matrix_combine(npar, npar, Hess, penalize / (eigval[3] * eigval[3]), d2,
-                     Hess);
-      matrix_combine(npar, npar, JJ, penalize / (eigval[3] * eigval[3]), d2,
-                     JJ);
-      penalize *= 0.5;
+      VH::linearComb(1., Grad, -penalize / eigval[3], d1, Grad);
+      Hess.linearComb(npar, &Hess, penalize / (eigval[3] * eigval[3]), &d2);
+      JJ.linearComb(npar, &JJ, penalize / (eigval[3] * eigval[3]), &d2);
+      penalize /= 2.;
     }
     niter++;
-    delta2 = delta * delta;
+    double delta2 = delta * delta;
     if (flag_moved)
     {
-      matrix_combine(npar, 1., Grad, 0., NULL, gr);
-      matrix_combine(npar2, 1., Hess, 0., NULL, Gn);
-      if (!is_matrix_definite_positive(npar, Gn, eigval, eigvec, 0))
-        matrix_combine(npar2, 1., JJ, 0., NULL, Gn);
-      matrix_combine(npar, -1., gr, 0., NULL, hsd);
-      if (invgen(Gn, npar, invGn)) messageAbort("st_optim_lag");
-      matrix_product_safe(npar, npar, 1, invGn, hsd, hgn);
+      gr = Grad;
+      Gn = Hess;
+      if (! Gn.isDefinitePositive()) Gn = JJ;
+      VH::linearComb(-1., gr, 0., VectorDouble(), hsd);
+      invGn = Gn;
+      if (invGn.invert()) messageAbort("st_optim_lag");
+      hgn = invGn.prodMatVec(hsd);
     }
 
-    /* Determine the lag (hgn, alpha*hsd) or a convex combinaison of both */
+    /* Determine the lag (hgn, alpha*hsd) or a convex combination of both */
 
     if (VH::innerProduct(hgn,  hgn, npar) <= delta2)
     {
-      matrix_combine(npar, 1., hgn, 0., NULL, step);
+      step = hgn;
     }
     else
     {
-      normgrad2 = VH::innerProduct(gr, gr, npar);
-      alpha = normgrad2 / matrix_normA(gr, Gn, npar, npar);
-      normgrad = sqrt(normgrad2);
+      double normgrad2 = VH::innerProduct(gr, gr, npar);
+      double alpha = normgrad2 / Gn.normVec(gr);
+      double normgrad = sqrt(normgrad2);
       if (normgrad > (delta / alpha))
       {
-        matrix_combine(npar, delta / normgrad, hsd, 0., NULL, step);
+        VH::linearComb(delta / normgrad, hsd, 0., VectorDouble(), step);
       }
       else
       {
-        matrix_combine(npar, alpha, hsd, 0., NULL, a);
-        matrix_combine(npar, 1., hgn, -1., a, hgna);
-        matrix_product_safe(1, npar, 1, a, hgn, &c);
-        a2 = VH::innerProduct(a, a, npar);
-        hgna2 = VH::innerProduct(hgna, hgna, npar);
+        VH::linearComb(alpha, hsd, 0., VectorDouble(), a);
+        VH::linearComb(1., hgn, -1., a, hgna);
+        double c = VH::innerProduct(a, hgn);
+        double a2 = VH::innerProduct(a, a, npar);
+        double hgna2 = VH::innerProduct(hgna, hgna, npar);
+        double beta = 0.;
         if (c <= 0.)
           beta = (-c + sqrt(c * c + hgna2 * (delta2 - a2))) / hgna2;
         else
           beta = (delta2 - a2) / (c + sqrt(c * c + hgna2 * (delta2 - a2)));
-        matrix_combine(npar, beta, hgn, (1. - beta), a, step);
+        VH::linearComb(beta, hgn, (1. - beta), a, step);
       }
     }
 
-    matrix_combine(npar, 1., step, 1., corpgs->params, param_temp);
+    VH::linearComb(1., step, 1., corpgs->params, param_temp);
     st_build_correl(corpgs, param_temp, correl);
-    while (!is_matrix_definite_positive(4, correl, eigval, eigvec, 0))
+    while (! correl.isDefinitePositive())
     {
-      matrix_combine(npar, 0.9, step, 0., NULL, step);
-      matrix_combine(npar, 1., step, 1., corpgs->params, param_temp);
+      VH::linearComb(0.9, step, 0., step, step);
+      VH::linearComb(1.0, step, 1., corpgs->params, param_temp);
       st_build_correl(corpgs, param_temp, correl);
     }
 
     Snew = st_calcul(local_pgs, 0, 1, param_temp, Grad, Hess, JJ);
 
     if (barrier) Spen = Snew - penalize * log(eigval[3]);
+    double rval = 0.;
     if (!FFFF(Snew))
     {
 
       mdiminution = Snew - Sr;
       if (barrier) mdiminution = Spen - Srpen;
-      matrix_product_safe(1, npar, 1, step, gr, &stepgr);
-      mdiminution_pred = stepgr + 0.5 * matrix_normA(step, Gn, npar, npar);
+      double stepgr = VH::innerProduct(step, gr);
+      double mdiminution_pred = stepgr + 0.5 * Gn.normVec(step);
       rval = mdiminution / mdiminution_pred;
       flag_moved = (mdiminution < 0);
     }
@@ -3258,24 +3254,22 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
     {
       Sr = Snew;
       Srpen = Spen;
-      matrix_combine(npar, 1, param_temp, 0, NULL, corpgs->params);
+      VH::linearComb(1, param_temp, 0, VectorDouble(), corpgs->params);
       Snew = st_calcul(local_pgs, 1, 0, corpgs->params, Grad, Hess, JJ);
       if (barrier)
       {
         st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
-        matrix_combine(npar, 1, Grad, penalize / eigval[3], d1, Grad);
-        matrix_combine(npar, npar, Hess, -penalize / (eigval[3] * eigval[3]),
-                       d2, Hess);
-        matrix_combine(npar, npar, JJ, -penalize / (eigval[3] * eigval[3]), d2,
-                       JJ);
+        VH::linearComb(1, Grad, penalize / eigval[3], d1, Grad);
+        Hess.linearComb(npar, &Hess, -penalize / (eigval[3] * eigval[3]), &d2);
+        JJ.linearComb(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
         penalize /= 2.;
       }
       if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProduct(step, step, npar)));
     }
     if (rval < 0.25) delta /= 2.;
 
-    flag_sortie = (matrix_norminf(npar, step) < tolsort || niter == maxiter
-                   || matrix_norminf(npar, Grad) < 0.05
+    flag_sortie = (VH::norminf(step) < tolsort || niter == maxiter
+                   || VH::norminf(Grad) < 0.05
                    || (fabs(mdiminution) < tolsort && flag_moved));
   }
 
@@ -3284,7 +3278,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Lag %d - S = %lf Parameters =", local_pgs->ipascur, Sr);
-    for (i = 0; i < corpgs->npar; i++)
+    for (int i = 0; i < corpgs->npar; i++)
       message(" %lf", corpgs->params[i]);
     message("\n");
   }
@@ -3292,7 +3286,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
   /* Store the trace */
 
   trace_add_row(local_pgs);
-  trace_define(local_pgs, niter, Snew, 0, npar, Grad);
+  trace_define(local_pgs, niter, Snew, 0, npar, Grad.data());
 
   return (Sr);
 }
@@ -3311,7 +3305,6 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
  *****************************************************************************/
 static int st_discard_point(Local_Pgs *local_pgs, int iech)
 {
-  int ifac;
   double low, up;
 
   /* This function is bypassed in the stationary case */
@@ -3324,7 +3317,7 @@ static int st_discard_point(Local_Pgs *local_pgs, int iech)
 
   /* Check on the facies */
 
-  ifac = (int) local_pgs->db->getLocVariable(ELoc::Z,iech, 0);
+  int ifac = (int) local_pgs->db->getLocVariable(ELoc::Z,iech, 0);
   if (ifac < 1 || ifac > local_pgs->nfacies) return (1);
 
   /* Check on the thresholds */
@@ -3337,9 +3330,8 @@ static int st_discard_point(Local_Pgs *local_pgs, int iech)
   }
   else
   {
-    if (get_LOCATOR_NITEM(local_pgs->db, ELoc::RKLOW) <= 0 && get_LOCATOR_NITEM(
-        local_pgs->db, ELoc::RKUP)
-                                                              <= 0) return (0);
+    if (get_LOCATOR_NITEM(local_pgs->db, ELoc::RKLOW) <= 0 &&
+        get_LOCATOR_NITEM(local_pgs->db, ELoc::RKUP)  <= 0) return (0);
     low = local_pgs->db->getLocVariable(ELoc::RKLOW,iech, local_pgs->igrfcur);
     up = local_pgs->db->getLocVariable(ELoc::RKUP,iech, local_pgs->igrfcur);
   }
@@ -3367,7 +3359,6 @@ static int st_variogram_geometry_pgs_final(Local_Pgs *local_pgs)
   {
     local_pgs->memint.resize(npair);
   }
-
   return (0);
 }
 
@@ -3384,13 +3375,12 @@ static void st_variogram_geometry_pgs_correct(Local_Pgs *local_pgs,
                                               Vario *vario,
                                               int idir)
 {
-  int ipas, igrf, jgrf, iad, ngrf;
+  int iad;
 
-  ngrf = local_pgs->ngrf;
-
-  for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
-    for (igrf = 0; igrf < ngrf; igrf++)
-      for (jgrf = 0; jgrf <= igrf; jgrf++)
+  int ngrf = local_pgs->ngrf;
+  for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+    for (int igrf = 0; igrf < ngrf; igrf++)
+      for (int jgrf = 0; jgrf <= igrf; jgrf++)
       {
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
@@ -3420,20 +3410,16 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
                                             Vario *vario,
                                             int idir)
 {
-  int iech, jech, iiech, jjech, nech, ipas, iad, ivar, jvar, nvar, error;
-  Db *db;
-  double maxdist;
-  VectorInt rindex;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  int iad;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Retrieve information from Local_pgs structure */
 
-  error = 1;
-  db = local_pgs->db;
-  nech = db->getSampleNumber();
-  nvar = vario->getVariableNumber();
-  maxdist = vario->getMaximumDistance(idir);
+  Db* db = local_pgs->db;
+  int nech = db->getSampleNumber();
+  int nvar = vario->getVariableNumber();
+  double maxdist = vario->getMaximumDistance(idir);
   const DirParam &dirparam = vario->getDirParam(idir);
 
   // Local variables to speed up calculations
@@ -3443,22 +3429,22 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
   /* Sort the data */
 
-  rindex = db->getSortArray();
+  VectorInt rindex = db->getSortArray();
 
   /* Loop on the first point */
 
-  for (iiech = 0; iiech < nech - 1; iiech++)
+  for (int iiech = 0; iiech < nech - 1; iiech++)
   {
-    iech = rindex[iiech];
+    int iech = rindex[iiech];
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
     if (st_discard_point(local_pgs, iech)) continue;
     db->getSampleAsST(iech, T1);
     mes_process("Calculating Variogram Geometry", nech, iech);
 
-    for (jjech = iiech + 1; jjech < nech; jjech++)
+    for (int jjech = iiech + 1; jjech < nech; jjech++)
     {
-      jech = rindex[jjech];
+      int jech = rindex[jjech];
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
@@ -3470,20 +3456,20 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
       /* Get the rank of the lag */
 
-      ipas = dirparam.getLagRank(dist);
+      int ipas = dirparam.getLagRank(dist);
       if (IFFFF(ipas)) continue;
 
       /* Add the sample (only positive lags are of interest) */
 
       if (ipas < 0) ipas = -ipas;
       if (vario_order_add(local_pgs->vorder, iech, jech, NULL, NULL, ipas, idir,
-                          dist)) goto label_end;
+                          dist)) return 1;
       dist = ABS(dist);
 
       /* Update the distance and weight for all GRFs */
 
-      for (ivar = 0; ivar < nvar; ivar++)
-        for (jvar = 0; jvar <= ivar; jvar++)
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++)
         {
           if (vario->getFlagAsym())
           {
@@ -3506,12 +3492,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
         }
     }
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3526,13 +3507,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 static void st_set_opt_correl(int opt, Local_CorPgs *corpgs)
 
 {
-  double params[4];
-  int i = 0;
-
-  for (i = 0; i < 4; i++)
-    params[i] = 0;
-
-  st_compute_params(corpgs, corpgs->params, params);
+  VectorDouble params = st_compute_params(corpgs, corpgs->params);
 
   switch (opt)
   {
@@ -3553,12 +3528,10 @@ static void st_set_opt_correl(int opt, Local_CorPgs *corpgs)
       corpgs->params[0] = params[0];
       corpgs->params[1] = params[3];
       break;
-
   }
 
   corpgs->opt_correl = opt;
   st_set_modif(corpgs);
-
 }
 
 /****************************************************************************/
@@ -3572,15 +3545,13 @@ static void st_set_opt_correl(int opt, Local_CorPgs *corpgs)
  *****************************************************************************/
 static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
 {
-  double value;
-  int ipas, iad, igrf, jgrf, opt_temp;
-  Vario *vario;
+  int iad;
 
-  opt_temp = local_pgs->corpgs.opt_correl;
-  value = 0.;
-  vario = local_pgs->vario;
+  int opt_temp = local_pgs->corpgs.opt_correl;
+  double value = 0.;
+  Vario* vario = local_pgs->vario;
 
-  for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+  for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
   {
     mes_process("Inverting Variogram Lag", vario->getLagNumber(idir), ipas);
     local_pgs->ipascur = ipas;
@@ -3597,8 +3568,8 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
     value += (vario->getUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas)
         * st_optim_onelag_pgs(local_pgs, 1e-3, 0));
 
-    for (igrf = 0; igrf < local_pgs->ngrf; igrf++)
-      for (jgrf = 0; jgrf <= igrf; jgrf++)
+    for (int igrf = 0; igrf < local_pgs->ngrf; igrf++)
+      for (int jgrf = 0; jgrf <= igrf; jgrf++)
       {
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
@@ -3619,17 +3590,12 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
 static void st_manage_corpgs(Local_CorPgs *local_corpgs)
 
 {
-  int i;
-
   local_corpgs->opt_correl = 0;
   local_corpgs->npar = 0;
   local_corpgs->flag_rho = 0;
   local_corpgs->rho = 0.;
-
-  for (i = 0; i < 4; i++)
-    local_corpgs->params[i] = 0.;
-  for (i = 0; i < 16; i++)
-    local_corpgs->modif[i] = 0.;
+  local_corpgs->params.resize(4,0.);
+  local_corpgs->modif.reset(4, 4, 0.);
 }
 
 /****************************************************************************/
@@ -3749,8 +3715,6 @@ static void st_manage_pgs(int mode,
       local_pgs->vorder = vario_order_manage(-1, 0, 0, local_pgs->vorder);
       break;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -3776,14 +3740,11 @@ static int st_variopgs_calcul_norho(Vario *vario,
                                     int opt_correl,
                                     int flag_geometry)
 {
-
-  int idir;
-
   st_set_rho(rule->getRho(), local_pgs);
 
   /* Loop on the directions */
 
-  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
   {
     local_pgs->idircur = idir;
 
@@ -3853,27 +3814,18 @@ static void st_make_all_lags_active(Vario *vario)
  *****************************************************************************/
 static double st_rho_search(double rho, void *user_data)
 {
-
-  double sum;
-  int idir, ndir;
-  Local_Pgs *local_pgs;
-
-  /* Initializations */
-
-  sum = 0;
-  local_pgs = (Local_Pgs*) user_data;
-  ndir = local_pgs->vario->getDirectionNumber();
+  double sum = 0;
+  Local_Pgs* local_pgs = (Local_Pgs*) user_data;
+  int ndir = local_pgs->vario->getDirectionNumber();
   st_set_rho(rho, local_pgs);
 
   /* Evaluation of the global cost-function */
 
-  for (idir = 0; idir < ndir; idir++)
+  for (int idir = 0; idir < ndir; idir++)
     sum += st_varcalc_correlated_grf(local_pgs, idir);
 
   if (OptDbg::query(EDbg::CONVERGE))
-    message("Value of the evaluating function = %lf - rho value %lf\n", sum,
-            rho);
-
+    message("Value of the evaluating function = %lf - rho value %lf\n", sum, rho);
   return (sum);
 }
 
@@ -3896,12 +3848,11 @@ static int st_variopgs_calcul_rho(Vario *vario,
                                   int ngrf,
                                   int opt_correl)
 {
-  int idir;
   double testval, niter;
 
   /* Calculate the geometry */
 
-  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
   {
     if (st_variogram_geometry_pgs_calcul(local_pgs, vario, idir)) return (1);
     st_variogram_geometry_pgs_correct(local_pgs, vario, idir);
@@ -3989,7 +3940,6 @@ static int st_vario_pgs_check(int flag_db,
                               Vario *varioind,
                               const Rule *rule)
 {
-
   /* Experimental variogram (compulsory) */
 
   if (vario == nullptr)
@@ -4344,9 +4294,7 @@ static void st_define_bounds(Local_Pgs *local_pgs,
                              double *up,
                              double *ploc)
 {
-  int nfacies;
-
-  nfacies = local_pgs->nfacies;
+  int nfacies = local_pgs->nfacies;
   if (local_pgs->flag_stat)
   {
     ploc[0] = local_pgs->propdef->propfix[ifac1];
@@ -4397,7 +4345,6 @@ static void st_define_bounds(Local_Pgs *local_pgs,
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -4554,17 +4501,16 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
 {
   double dist, cov[6];
-  int ipas, ifac, jfac, nfacies, ipair, iech, jech, i, idir, flag_ind, iconf[2];
-  Vario *vario;
+  int iech, jech, i, flag_ind, iconf[2];
 
   /* Initializations */
 
-  nfacies = local_pgs->nfacies;
-  vario = local_pgs->vario;
+  int nfacies = local_pgs->nfacies;
+  Vario* vario = local_pgs->vario;
 
   /* Loop on the directions */
 
-  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
   {
     /* Establish the geometry */
 
@@ -4573,15 +4519,15 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
     /* Loop on the lags */
 
-    for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
     {
-      vario_order_get_bounds(local_pgs->vorder, idir, ipas, &local_pgs->ifirst,
-                             &local_pgs->ilast);
+      vario_order_get_bounds(local_pgs->vorder, idir, ipas,
+                             &local_pgs->ifirst, &local_pgs->ilast);
       if (local_pgs->ifirst >= local_pgs->ilast) continue;
 
       /* Loop on the pairs of the lag */
 
-      for (ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
+      for (int ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
       {
         vario_order_get_indices(local_pgs->vorder, ipair, &iech, &jech, &dist);
 
@@ -4592,8 +4538,8 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
         /* Loops on the facies */
 
-        for (ifac = 0; ifac < nfacies; ifac++)
-          for (jfac = 0; jfac <= ifac; jfac++)
+        for (int ifac = 0; ifac < nfacies; ifac++)
+          for (int jfac = 0; jfac <= ifac; jfac++)
           {
             if (local_pgs->vario->getFlagAsym())
             {
@@ -4702,7 +4648,7 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
 {
   double cov[6];
-  int ii, flag_ind, iconf[2];
+  int iad, flag_ind, iconf[2];
 
   /* Initializations */
 
@@ -4742,17 +4688,17 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
         {
           if (local_pgs->vario->getFlagAsym())
           {
-            ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
-            vario->setGgByIndex(idir,ii,
+            iad = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
+            vario->setGgByIndex(idir,iad,
                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
-            ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
-            vario->setGgByIndex(idir,ii,
+            iad = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
+            vario->setGgByIndex(idir,iad,
                 st_get_value(local_pgs, flag_ind, 0, 0, jfac, ifac, iconf, cov));
           }
           else
           {
-            ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
-            vario->setGgByIndex(idir,ii,
+            iad = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
+            vario->setGgByIndex(idir,iad,
                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
           }
         }
@@ -4772,29 +4718,24 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 static void st_update_variance_stat(Local_Pgs *local_pgs)
 
 {
-  int ivar, jvar, idir, iad, nfacies;
-  double pivar, pjvar;
-  Vario *vario;
-
-  /* Initializations */
-
-  vario = local_pgs->vario;
-  nfacies = local_pgs->nfacies;
+  int iad;
+  Vario* vario = local_pgs->vario;
+  int nfacies = local_pgs->nfacies;
 
   /* Evaluate the theoretical variances */
 
-  for (ivar = 0; ivar < nfacies; ivar++)
-    for (jvar = 0; jvar < nfacies; jvar++)
+  for (int ivar = 0; ivar < nfacies; ivar++)
+    for (int jvar = 0; jvar < nfacies; jvar++)
     {
-      pivar = local_pgs->propdef->propfix[ivar];
-      pjvar = local_pgs->propdef->propfix[jvar];
+      double pivar = local_pgs->propdef->propfix[ivar];
+      double pjvar = local_pgs->propdef->propfix[jvar];
       if (ivar == jvar)
         vario->setVar(pivar * (1. - pivar), ivar, jvar);
       else
         vario->setVar(-pivar * pjvar, ivar, jvar);
       if (!vario->getFlagAsym()) continue;
 
-      for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+      for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
       {
         iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
         vario->setSwByIndex(idir, iad, 1);
@@ -4830,30 +4771,18 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
  ** \param[in]  local_pgs  Local_Pgs structure
  **
  *****************************************************************************/
-static int st_update_variance_nostat(Local_Pgs *local_pgs)
+static void st_update_variance_nostat(Local_Pgs *local_pgs)
 
 {
-  double *mean, *covs;
-
-  /* Initializations */
-
-  int error = 1;
   int number = 0;
   Db *dbin = local_pgs->db;
   Vario *vario = local_pgs->vario;
   int nfacies = local_pgs->nfacies;
-  mean = covs = nullptr;
 
   /* Core allocation */
 
-  mean = (double*) mem_alloc(nfacies * sizeof(double), 0);
-  if (mean == nullptr) goto label_end;
-  for (int i = 0; i < nfacies; i++)
-    mean[i] = 0.;
-  covs = (double*) mem_alloc(nfacies * nfacies * sizeof(double), 0);
-  if (covs == nullptr) goto label_end;
-  for (int i = 0; i < nfacies * nfacies; i++)
-    covs[i] = 0.;
+  VectorDouble mean(nfacies, 0.);
+  VectorDouble covs(nfacies * nfacies, 0.);
 
   /* Loop on the samples */
 
@@ -4883,8 +4812,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
     mean[ivar] /= (double) number;
   for (int ivar = 0; ivar < nfacies; ivar++)
     for (int jvar = 0; jvar < nfacies; jvar++)
-      COVS(ivar,jvar) = COVS(ivar,jvar) / (double) number
-          - mean[ivar] * mean[jvar];
+      COVS(ivar,jvar) = COVS(ivar,jvar) / (double) number - mean[ivar] * mean[jvar];
 
   /* Store the results */
 
@@ -4919,14 +4847,6 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
         }
       }
     }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: mean = (double*) mem_free((char* ) mean);
-  covs = (double*) mem_free((char* ) covs);
-  return (error);
 }
 
 /****************************************************************************/
@@ -5084,7 +5004,7 @@ Vario* model_pgs(Db *db,
     if (st_vario_pgs_variable(0, ngrf, nfacies, 0, 1, db, propdef, rule))
       goto label_end;
     if (st_vario_indic_model_nostat(&local_pgs)) goto label_end;
-    if (st_update_variance_nostat(&local_pgs)) goto label_end;
+    st_update_variance_nostat(&local_pgs);
   }
 
   /* Set the error return code */

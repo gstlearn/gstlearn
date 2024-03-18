@@ -42,6 +42,8 @@ public:
   /*! Divide the diagonal by a vector */
   void divideDiagByVector(const VectorDouble& diag);
 
+  double normVec(const VectorDouble& vec);
+
 protected:
   void   _setNSize(int nval);
 };

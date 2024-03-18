@@ -334,56 +334,6 @@ double cova_get_scale_factor(const ECov &type, double param)
   return scadef;
 }
 
-/*****************************************************************************/
-/*!
- **  Calculate the linear model of coregionalization starting from the
- **  coregionalization matrix
- **
- ** \return  Error return code.
- **
- ** \param[in]  model    Model structure
- **
- ** \param[out]  aic     array of 'aic' values
- ** \param[out]  valpro  array of eigen values
- ** \param[out]  vecpro  array of eigen vectors
- **
- ** \remark  In case of error, the message is printed by the routine
- ** \remark  Warning: in the case of linked drift, the test of definite
- ** \remark  positiveness is bypassed as we are not in the scope of the
- ** \remark  linear model of coregionalization anymore.
- ** \remark  As a consequence the array "aic()" is not evaluated
- **
- *****************************************************************************/
-int model_update_coreg(Model *model,
-                       double *aic,
-                       double *valpro,
-                       double *vecpro)
-{
-  int ncova = model->getCovaNumber();
-  int nvar  = model->getVariableNumber();
-
-  /* Calculate the eigen values and vectors of the coregionalization matrix */
-
-  for (int icov = 0; icov < ncova; icov++)
-  {
-    if (!is_matrix_definite_positive(
-        nvar, model->getCova(icov)->getSill().getValues().data(), valpro, vecpro, 0))
-    {
-      messerr("Warning: the model is not authorized");
-      messerr("The coregionalization matrix for the structure %d is not definite positive",
-          icov + 1);
-      return 1;
-    }
-
-    /* Calculate the factor matrix */
-
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        AIC(icov,ivar,jvar)= VECPRO(ivar,jvar) * sqrt(VALPRO(jvar));
-  }
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Calculate the value of the model for a set of distances

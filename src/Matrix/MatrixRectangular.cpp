@@ -240,38 +240,6 @@ void MatrixRectangular::addColumn(int ncolumn_added)
       setValue(irow, icol, statsSave->getValue(irow, icol));
 }
 
-MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &selRows,
-                                                   const VectorInt &selCols,
-                                                   bool flagKeepRows,
-                                                   bool flagKeepCols) const
-{
-  // Order and shrink the input vectors
-  int nrows = getNRows();
-  VectorInt localSelRows = VH::filter(selRows, 0, getNRows());
-  if (!flagKeepRows) localSelRows = VH::complement(VH::sequence(0,nrows), localSelRows);
-  int newNRows = (int) localSelRows.size();
-  if (newNRows <= 0)
-  {
-    messerr("The new Matrix has no Row left");
-    return nullptr;
-  }
-
-  int ncols = getNCols();
-  VectorInt localSelCols = VH::filter(selCols, 0, getNCols());
-  if (!flagKeepCols) localSelCols = VH::complement(VH::sequence(0,ncols), localSelCols);
-  int newNCols = (int) localSelCols.size();
-  if (newNCols <= 0)
-  {
-    messerr("The new Matrix has no Column left");
-    return nullptr;
-  }
-
-  MatrixRectangular* res = new MatrixRectangular(newNRows, newNCols);
-  res->copyReduce(this, localSelRows, localSelCols);
-
-  return res;
-}
-
 int MatrixRectangular::_getMatrixPhysicalSize() const
 {
   if (isFlagEigen())
@@ -362,7 +330,7 @@ void MatrixRectangular::_transposeInPlaceLocal()
 {
   VectorDouble old;
   old.resize(getNRows() * getNCols());
-  matrix_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
+  matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
   _rectMatrix = old;
   int temp = getNCols();
   _setNCols(getNRows());

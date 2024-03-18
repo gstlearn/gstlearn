@@ -4151,7 +4151,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
-    db->updArray(iech, iptr, 3, total);
+    db->updArray(iech, iptr, EOperator::DIVIDE, total);
   }
 }
 
@@ -4202,7 +4202,7 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
         dist += vect[idim] * vect[idim];
       }
       if (dist > 1) continue;
-      db->updArray(iech, iptr, 0, 1);
+      db->updArray(iech, iptr, EOperator::ADD, 1);
     }
   }
 

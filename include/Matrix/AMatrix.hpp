@@ -25,6 +25,15 @@ class EOperator;
  * Matrix
  */
 
+/**
+ * This class is the root of the Matrix organization in gstlearn
+ * A matrix is a 2-D organization: it is characterized by its number of rows
+ * and its number of columns.
+ * Although the user should not bother with this remark, the elements of a matrix
+ * processed in 'gstlearn' are stored in a Row-major format.
+ * This is to say that the internal rank of an element characterized by its row and column numbers is:
+ *  (icol * getNRows() + irow)
+ */
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
@@ -195,6 +204,7 @@ public:
   double getMeanByColumn(int icol) const;
   double getMinimum() const;
   double getMaximum() const;
+  double getNormInf() const;
   void copyReduce(const AMatrix *x,
                   const VectorInt &activeRows,
                   const VectorInt &activeCols);
@@ -202,6 +212,10 @@ public:
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   void makePositiveColumn();
+  void linearComb(double val1,
+                  const AMatrix *in1,
+                  double val2 = 1.,
+                  const AMatrix *in2 = nullptr);
 
 #ifndef SWIG
   /*! Get value operator override */

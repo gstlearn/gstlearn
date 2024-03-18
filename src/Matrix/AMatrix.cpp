@@ -1239,6 +1239,21 @@ double AMatrix::getMaximum() const
   return maximum;
 }
 
+double AMatrix::getNormInf() const
+{
+  double norminf = 0.;
+  for (int icol = 0; icol < getNCols(); icol++)
+    for (int irow = 0; irow < getNRows(); irow++)
+    {
+      if (!_isPhysicallyPresent(irow, icol)) continue;
+      double value = _getValue(irow, icol);
+      if (FFFF(value)) continue;
+      value = ABS(value);
+      if (value > norminf) norminf = value;
+  }
+  return norminf;
+}
+
 double& AMatrix::_getValueRef(int irow, int icol)
 {
   DECLARE_UNUSED(irow);
@@ -1350,6 +1365,34 @@ void AMatrix::makePositiveColumn()
 void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
 {
   prodMatMatInPlace(this, matY, false, transposeY);
+}
+
+void AMatrix::linearComb(double val1,
+                         const AMatrix *in1,
+                         double val2,
+                         const AMatrix *in2)
+{
+  // Check dimensions
+  if (in1 != nullptr && ! isSameSize(*in1))
+  {
+    messerr("Dimensions of 'in1' do not match dimensions of current matrix. Nothing is done");
+    return;
+  }
+  if (in2 != nullptr && ! isSameSize(*in2))
+  {
+    messerr("Dimensions of 'in2' do not match dimensions of current matrix. Nothing is done");
+    return;
+  }
+
+  // Calculations
+  for (int irow = 0; irow < getNRows(); irow++)
+    for (int icol = 0; icol < getNCols(); icol++)
+    {
+      double value = 0;
+      if (in1 != nullptr) value += val1 * in1->getValue(irow, icol);
+      if (in2 != nullptr) value += val2 * in2->getValue(irow, icol);
+      setValue(irow, icol, value);
+    }
 }
 
 /**

@@ -863,12 +863,12 @@ void CalcSimuEden::_calculateCumul(void)
     /* Update the Fluid statistics */
 
     int ifluid = _getFLUID(iech);
-    if (ifluid > 0) dbgrid->updArray(iech, _iptrStatFluid + ifluid - 1, 0, 1);
+    if (ifluid > 0) dbgrid->updArray(iech, _iptrStatFluid + ifluid - 1, EOperator::ADD, 1);
 
     /* Update the Cork statistics */
 
     int ifacies = (int) dbgrid->getArray(iech, _indFacies);
-    if (ifacies < 0) dbgrid->updArray(iech, _iptrStatCork, 0, 1);
+    if (ifacies < 0) dbgrid->updArray(iech, _iptrStatCork, EOperator::ADD, 1);
   }
   return;
 }
@@ -943,11 +943,11 @@ void CalcSimuEden::_normalizeCumul(int niter)
     /* Normalize the Fluid statistics */
 
     for (int ifluid = 0; ifluid < _nfluids; ifluid++)
-      dbgrid->updArray(iech, _iptrStatFluid + ifluid, 3, (double) niter);
+      dbgrid->updArray(iech, _iptrStatFluid + ifluid, EOperator::DIVIDE, (double) niter);
 
     /* Update the Cork statistics */
 
-    dbgrid->updArray(iech, _iptrStatCork, 3, (double) niter);
+    dbgrid->updArray(iech, _iptrStatCork, EOperator::DIVIDE, (double) niter);
   }
 
   return;

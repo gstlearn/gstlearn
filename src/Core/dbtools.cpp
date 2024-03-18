@@ -1486,7 +1486,7 @@ int db_streamline(DbGrid *dbgrid,
 
       date = MIN(dbgrid->getArray(knd, iptr_time), i + 1.);
       dbgrid->setArray(knd, iptr_time, date);
-      dbgrid->updArray(knd, iptr_accu, 0, 1.);
+      dbgrid->updArray(knd, iptr_accu, EOperator::ADD, 1.);
     }
 
     /* Add the endpoint */

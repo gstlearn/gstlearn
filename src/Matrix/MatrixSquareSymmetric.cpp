@@ -23,6 +23,8 @@
 #define AL(i,j)        al[SQ(i,j,neq)-TRI(j)] /* for i >= j */
 #define BS(i,j)        b[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
 #define XS(i,j)        x[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
+#define AS(i,j)        a[SQ(i,j,neq)]
+#define TL(i,j)        tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
     : AMatrixSquare(nrow, opt_eigen),
@@ -347,23 +349,6 @@ void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x,
     }
 }
 
-MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &validRows) const
-{
-  // Order and shrink the input vectors
-  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  int newNRows = (int) localValidRows.size();
-  if (newNRows <= 0)
-  {
-    messerr("The new Matrix has no Row left");
-    return nullptr;
-  }
-
-  MatrixSquareSymmetric* res = new MatrixSquareSymmetric(newNRows);
-  res->copyReduce(this, localValidRows, localValidRows);
-
-  return res;
-}
-
 int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
   if (isFlagEigen())
@@ -479,7 +464,7 @@ void MatrixSquareSymmetric::_setValuesLocal(const double *values, bool byCol)
 
 int MatrixSquareSymmetric::_invertLocal()
 {
-  return matrix_invert_triangle(getNRows(),_squareSymMatrix.data(), -1);
+  return _matrix_invert_triangle(getNRows(),_squareSymMatrix.data());
 }
 
 void MatrixSquareSymmetric::_allocateLocal()
@@ -717,6 +702,7 @@ bool MatrixSquareSymmetric::isDefinitePositive()
  ** \param[in]  nrhs number of right-hand side vectors
  ** \param[in]  at   upper triangular matrix by row (dimension = neq*(neq+1)/2)
  ** \param[in]  b    right-hand side matrix (dimension = neq*nrhs)
+ ** \param[in]  eps  tolerance
  **
  ** \param[out] x: matrix of solutions (dimension = neq*nrhs)
  **
@@ -777,3 +763,75 @@ int MatrixSquareSymmetric::_matrix_solve(VectorDouble& at,
   }
   return (0);
 }
+
+/*****************************************************************************/
+/*!
+ **  Invert a symmetric square matrix (stored as triangular)
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in,out] tl input matrix, destroyed in computation and replaced by
+ **                   resultant inverse
+ ** \param[in]  neq  number of equations in the matrix 'a'
+ **
+ ** \remark  It is unnecessary to edit a message if inversion problem occurs
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_matrix_invert_triangle(int neq, double *tl)
+{
+  VectorDouble a(neq * neq);
+  _matrix_tri2sq(neq, tl, a.data());
+  if (matrix_invert(a.data(), neq, -1)) return 1;
+  _matrix_sq2tri(0, neq, a.data(), tl);
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Transform a symmetrical matrix (entered as triangle)
+ **  into a square matrix
+ **
+ ** \param[in]  neq    number of equations in the system
+ ** \param[in]  tl     Upper Triangular matrix (columnwise)
+ **
+ ** \param[out] a      Resulting square matrix
+ **
+ *****************************************************************************/
+void MatrixSquareSymmetric::_matrix_tri2sq(int neq, const double *tl, double *a)
+{
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+    {
+      AS(i,j)= (j < i) ? TL(i,j) : TL(j,i);
+    }
+  }
+
+/*****************************************************************************/
+/*!
+ **  Transform a square symmetric matrix into a triangular one
+ **
+ ** \param[in]  mode   0: TL (upper); 1: TL (lower)
+ ** \param[in]  neq    number of equations in the system
+ ** \param[in]  a      Input square (symmetric) matrix
+ **
+ ** \param[out] tl     Triangular matrix (lower part)
+ **
+ ** \remark: No test is performed to check that the input matrix is symmetric
+ **
+ *****************************************************************************/
+void MatrixSquareSymmetric::_matrix_sq2tri(int mode, int neq, const double *a, double *tl)
+{
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+    {
+      if (mode == 0)
+      {
+        if (j <= i) TL(i,j)= AS(i,j);
+      }
+      else
+      {
+        if (j >= i) TL(j,i) = AS(i,j);
+      }
+    }
+  }
+

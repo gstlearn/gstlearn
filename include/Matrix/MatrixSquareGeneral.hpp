@@ -49,7 +49,6 @@ public:
                                            bool byCol = false,
                                            int opt_eigen = -1,
                                            bool invertColumnOrder = false);
-  MatrixSquareGeneral* createReduce(const VectorInt &validRows) const;
 
   int decomposeLU(MatrixSquareGeneral& tls,
                   MatrixSquareGeneral& tus,
@@ -98,6 +97,8 @@ private:
                    double *x);
   int     _forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps = EPSILON20);
   int     _backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps = EPSILON20);
+  int     _matrix_invreal(VectorDouble& mat, int neq);
+  int     _matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b);
 
 private:
   VectorDouble _squareMatrix; // Classical storage

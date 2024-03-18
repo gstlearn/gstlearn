@@ -56,8 +56,6 @@
 #define V(i,j)         v[SQ(j,i,neq)]
 /*! \endcond */
 
-static double Epsilon = 1.0e-06;
-
 static double _getTolInvert()
 {
   return 1.e-20;
@@ -548,15 +546,12 @@ int matrix_prod_norme(int transpose,
  ** \remark  The matrix w1[] may NOT coincide with v1[]
  **
  *****************************************************************************/
-void matrix_transpose(int n1, int n2, double *v1, double *w1)
+void matrix_transpose(int n1, int n2, VectorDouble& v1, VectorDouble& w1)
 {
-  int i1, i2, ecr;
-
-  ecr = 0;
-  for (i1 = 0; i1 < n1; i1++)
-    for (i2 = 0; i2 < n2; i2++)
+  int ecr = 0;
+  for (int i1 = 0; i1 < n1; i1++)
+    for (int i2 = 0; i2 < n2; i2++)
       w1[ecr++] = V1(i1, i2);
-
   return;
 }
 
@@ -567,7 +562,7 @@ void matrix_transpose(int n1, int n2, double *v1, double *w1)
  **
  ** \return  Return code: 0 no error; k if the k-th pivot is zero
  **
- ** \param[in,out] a    input matrix, destroyed in computation and replaced by
+ ** \param[in,out] a input matrix, destroyed in computation and replaced by
  **                  resultant inverse
  ** \param[in]  neq  number of equations in the matrix 'a'
  ** \param[in]  rank Type of message when inversion problem is encountered
@@ -580,12 +575,9 @@ void matrix_transpose(int n1, int n2, double *v1, double *w1)
  *****************************************************************************/
 int matrix_invert(double *a, int neq, int rank)
 {
-  int i, j, k;
-  double biga, hold;
-
-  for (k = 0; k < neq; k++)
+  for (int k = 0; k < neq; k++)
   {
-    biga = A(k, k);
+    double biga = A(k, k);
     if (ABS(biga) < _getTolInvert())
     {
       if (rank >= 0)
@@ -596,154 +588,24 @@ int matrix_invert(double *a, int neq, int rank)
       return (k + 1);
     }
 
-    for (i = 0; i < neq; i++)
+    for (int i = 0; i < neq; i++)
       if (i != k) A(i,k)= -A(i,k) / biga;
 
-    for (i = 0; i < neq; i++)
+    for (int i = 0; i < neq; i++)
     {
-      hold = A(i, k);
-      if (i != k) for (j = 0; j < neq; j++)
-        if (j != k) A(i,j)+= hold * A(k,j);
+      double hold = A(i, k);
+      if (i != k)
+        for (int j = 0; j < neq; j++)
+          if (j != k) A(i,j)+= hold * A(k,j);
     }
 
-    for (j = 0; j < neq; j++)
+    for (int j = 0; j < neq; j++)
       if (j != k) A(k,j)/= biga;
 
     A(k,k)= 1. / biga;
   }
 
   return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a symmetric square matrix
- **  Pivots are assumed to located on the diagonal
- **
- ** \return  Return code: 0 no error; k if the k-th pivot is zero
- **
- ** \param[in]  a    input matrix
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- ** \param[out] b    output matrix
- **
- ** \remark  The difference with matrix_invert() is that the output
- ** \remark  matrix is different from input matrix
- **
- *****************************************************************************/
-int matrix_invert_copy(const double *a, int neq, double *b)
-{
-  int i, error;
-
-  /* Copy the input matrix into the output matrix */
-
-  for (i = 0; i < neq * neq; i++)
-    b[i] = a[i];
-
-  /* Invert the matrix */
-
-  error = matrix_invert(b, neq, 0);
-
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Check if a matrix is symmetric
- **
- ** \return  1 if the matrix is symmetric; 0 otherwise
- **
- ** \param[in]  neq      Size of the matrix
- ** \param[in]  a        Symmetric square matrix to be checked
- ** \param[in]  verbose  1 for the verbose option
- **
- *****************************************************************************/
-int is_matrix_symmetric(int neq, const double *a, int verbose)
-{
-  int i, j;
-  double ratio;
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      ratio = ABS(A(i,j) + A(j,i));
-      if (ratio <= _getEpsMatrix()) ratio = 1.;
-      if (ABS(A(i,j) - A(j,i)) / ratio > Epsilon)
-      {
-        if (verbose)
-          messerr("The A[%d,%d]=%lf != A[%d,%d]=%lf", i, j, A(i, j), j, i,
-                  A(j, i));
-        return (0);
-      }
-    }
-  return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Check if a matrix is definite positive
- **
- ** \return  1 if the matrix is definite positive; 0 otherwise
- **
- ** \param[in]  neq      Size of the matrix
- ** \param[in]  a        Symmetric square matrix to be checked
- ** \param[in]  verbose  1 for the verbose option
- **
- ** \param[out]  valpro Array of eigen values  (Dimension: neq)
- ** \param[out]  vecpro Array of eigen vectors (Dimension: neq * neq)
- **
- *****************************************************************************/
-int is_matrix_definite_positive(int neq,
-                                const double *a,
-                                double *valpro,
-                                double *vecpro,
-                                int verbose)
-{
-  int i, code;
-
-  code = 1;
-  if (!is_matrix_symmetric(neq, a, verbose))
-  {
-    if (verbose) messerr("Matrix is not symmetric");
-    return (0);
-  }
-
-  /* Verbose option: Print the matrix */
-
-  if (verbose) print_matrix("Matrix to be checked", 0, 1, neq, neq, NULL, a);
-
-  /* Calculate the eigen values and vectors */
-
-  if (matrix_eigen(a, neq, valpro, vecpro)) messageAbort("matrix_eigen");
-
-  /* Verbose option: Print the Eigen values and vectors */
-
-  if (verbose)
-  {
-    print_matrix("Eigen Values", 0, 1, 1, neq, NULL, valpro);
-    print_matrix("Eigen Vectors", 0, 1, neq, neq, NULL, vecpro);
-  }
-
-  /* Check if the eigen values are all positive */
-
-  for (i = 0; i < neq; i++)
-    if (valpro[i] < 0.)
-    {
-      if (valpro[i] < -1.0e-10)
-      {
-        if (verbose)
-          messerr("The matrix is not definite positive: Eigen value #%d = %lf",
-                  i + 1, valpro[i]);
-        code = 0;
-        goto label_end;
-      }
-      else
-      {
-        valpro[i] = 0.;
-      }
-    }
-
-  label_end: return (code);
 }
 
 /****************************************************************************/
@@ -756,7 +618,7 @@ int is_matrix_definite_positive(int neq,
  ** \param[in]  b      Square matrix to be checked
  **
  *****************************************************************************/
-double matrix_determinant(int neq, const double *b)
+double matrix_determinant(int neq, const VectorDouble& b)
 {
   switch (neq)
   {
@@ -793,123 +655,11 @@ double matrix_determinant(int neq, const double *b)
             j2++;
           }
         }
-        deter += pow(-1.0,j1+2.0) * B(0,j1) * matrix_determinant(neqm1,c.data());
+        deter += pow(-1.0,j1+2.0) * B(0,j1) * matrix_determinant(neqm1,c);
       }
       return deter;
     }
   return TEST;
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the cofactor of the matrix
- **
- ** \return  Value of the determinant
- **
- ** \param[in]  neq    Size of the matrix
- ** \param[in]  a      Square matrix to be checked
- **
- ** \param[out] b      Square cofactor
- **
- *****************************************************************************/
-static int _matrix_cofactor(int neq, double *a, double *b)
-{
-  int i, j, ii, jj, i1, j1, neqm1;
-  double *c, det;
-
-  /* Core allocation */
-
-  neqm1 = neq - 1;
-
-  // Process the case when the matrix A is of dimension 1
-  if (neqm1 <= 0)
-  {
-    B(0,0)= 1.;
-    return 0;
-  }
-  c = (double*) mem_alloc(sizeof(double) * neqm1 * neqm1, 0);
-  if (c == nullptr) return (1);
-
-  /* Processing */
-
-  for (j = 0; j < neq; j++)
-  {
-    for (i = 0; i < neq; i++)
-    {
-
-      /* Form the adjoint a_ij */
-
-      i1 = 0;
-      for (ii = 0; ii < neq; ii++)
-      {
-        if (ii == i) continue;
-        j1 = 0;
-        for (jj = 0; jj < neq; jj++)
-        {
-          if (jj == j) continue;
-          C(i1,j1)= A(ii,jj);
-          j1++;
-        }
-        i1++;
-      }
-
-      /* Calculate the determinate */
-      det = matrix_determinant(neqm1, c);
-
-      /* Fill in the elements of the cofactor */
-      B(i,j)= pow(-1.0, i+j+2.0) * det;
-    }
-  }
-
-  c = (double*) mem_free((char* ) c);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Check if a matrix is a rotation matrix
- **
- ** \return  1 if the matrix is a rotation matrix; 0 otherwise
- **
- ** \param[in]  neq      Size of the matrix
- ** \param[in]  a        Square matrix to be checked
- ** \param[in]  verbose  1 for the verbose option
- **
- ** \remark  A rotation matrix must be orthogonal with determinant equal to 1
- **
- *****************************************************************************/
-int is_matrix_rotation(int neq, const double *a, int verbose)
-{
-  double deter, comp, prod;
-  int i, j, k;
-
-  /* Check product of matrix by its transpose and compare to unity matrix */
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      prod = 0.;
-      for (k = 0; k < neq; k++)
-        prod += A(i,k) * A(j,k);
-      comp = (i == j) ? 1 : 0.;
-      if (ABS(prod - comp) > Epsilon)
-      {
-        if (verbose)
-          messerr("The element (A*At)[%d,%d] = %lf (should be %lf)", i + 1,
-                  j + 1, prod, comp);
-        return (0);
-      }
-    }
-
-  deter = matrix_determinant(neq, a);
-
-  if (ABS(deter - 1.) > Epsilon)
-  {
-    if (verbose) messerr("The Determinant = %f (should be 1)", deter);
-    return (0);
-  }
-
-  return (1);
 }
 
 /*****************************************************************************/
@@ -1274,59 +1024,6 @@ void matrix_triangle_to_square(int mode, int neq, const double *tl, double *a)
 
 /*****************************************************************************/
 /*!
- **  Transform a symmetrical matrix (entered as triangle)
- **  into a square matrix
- **
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Upper Triangular matrix (columnwise)
- **
- ** \param[out] a      Resulting square matrix
- **
- *****************************************************************************/
-static void _matrix_tri2sq(int neq, const double *tl, double *a)
-{
-  int i, j;
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      AS(i,j)= (j < i) ? TL(i,j) : TL(j,i);
-    }
-  }
-
-/*****************************************************************************/
-/*!
- **  Transform a square symmetric matrix into a triangular one
- **
- ** \param[in]  mode   0: TL (upper); 1: TL (lower)
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  a      Input square (symmetric) matrix
- **
- ** \param[out] tl     Triangular matrix (lower part)
- **
- ** \remark: No test is performed to check that the input matrix is symmetric
- **
- *****************************************************************************/
-static void _matrix_sq2tri(int mode, int neq, const double *a, double *tl)
-{
-  int i, j;
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      if (mode == 0)
-      {
-        if (j <= i) TL(i,j)= AS(i,j);
-      }
-      else
-      {
-        if (j >= i) TL(j,i) = AS(i,j);
-      }
-    }
-  }
-
-/*****************************************************************************/
-/*!
  **  Calculate the product of 'tl' (lower triangle) by its transpose
  **
  ** \param[in]  neq    number of equations in the system
@@ -1477,28 +1174,6 @@ void matrix_combine(int nval,
     if (b != nullptr) value += coeffb * b[i];
     c[i] = value;
   }
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the maximum of the absolute values of a vector
- **
- ** \param[in]  nval  vector dimension
- ** \param[in]  tab   vector
- **
- *****************************************************************************/
-double matrix_norminf(int nval, double *tab)
-{
-  double value, retval;
-  int i;
-
-  retval = 0.;
-  for (i = 0; i < nval; i++)
-  {
-    value = ABS(tab[i]);
-    if (value > retval) retval = value;
-  }
-  return (retval);
 }
 
 /*****************************************************************************/
@@ -2168,130 +1843,3 @@ double* matrix_bind(int mode,
   return (a);
 }
 
-/*!
- **  Invert a square real full matrix
- **
- ** \return  Error return code
- **
- ** \param[in]  mat  input matrix, destroyed in computation and replaced by
- **                  resultant inverse
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- *****************************************************************************/
-int matrix_invreal(double *mat, int neq)
-{
-  double *cofac, det;
-  int error;
-
-  /* Initialization */
-
-  error = 1;
-  cofac = nullptr;
-
-  /* Calculate the determinant */
-
-  det = matrix_determinant(neq, mat);
-  if (ABS(det) < 1.e-12) return (1);
-  if (std::isnan(det))
-  {
-    print_matrix("Mat", 0, 1, neq, neq, NULL, mat);
-    messageAbort("Values NAN found in matrix");
-  }
-
-  if (neq > 1)
-  {
-
-    /* Core allocation */
-
-    cofac = (double*) mem_alloc(sizeof(double) * neq * neq, 0);
-    if (cofac == nullptr) goto label_end;
-
-    /* Calculate the cofactor */
-
-    if (_matrix_cofactor(neq, mat, cofac)) goto label_end;
-
-    /* Transpose the cofactor to obtain the adjoint matrix */
-
-    matrix_transpose(neq, neq, cofac, mat);
-  }
-
-  /* Final normation */
-
-  for (int i = 0; i < neq * neq; i++)
-    mat[i] /= det;
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: cofac = (double*) mem_free((char* ) cofac);
-  return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a symmetric square matrix (stored as triangular)
- **
- ** \return  Error returned code
- **
- ** \param[in,out] tl input matrix, destroyed in computation and replaced by
- **                   resultant inverse
- ** \param[in]  neq  number of equations in the matrix 'a'
- ** \param[in]  rank Type of message when inversion problem is encountered
- **                  >=0: message involves 'rank+1'
- **                  -1:  neutral message
- **                  -2:  no message
- **
- ** \remark  It is unnecessary to edit a message if inversion problem occurs
- **
- *****************************************************************************/
-int matrix_invert_triangle(int neq, double *tl, int rank)
-{
-  double *a;
-  int error;
-
-  a = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-
-  _matrix_tri2sq(neq, tl, a);
-  error = matrix_invert(a, neq, rank);
-  _matrix_sq2tri(0, neq, a, tl);
-
-  a = (double*) mem_free((char* ) a);
-  return error;
-}
-
-/*****************************************************************************/
-/*!
- **  Change the storage of triangular matrices (stored columnwise)
- **
- ** \param[in]  neq  Matrix dimension
- ** \param[in]  tl   Lower Triangular Matrix
- ** \param[in]  tu   Upper Triangular Matrix
- **
- *****************************************************************************/
-void matrix_tl2tu(int neq, const double *tl, double *tu)
-{
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j <= i; j++)
-      TU(i,j)= TL(i,j);
-    }
-
-/*****************************************************************************/
-/*!
- **  Fill the matrix to take the symmetry into account
- **
- ** \param[in]  neq   matrix dimension
- ** \param[in,out]  a square symmetric matrix (dimension = neq*neq)
- **
- ** \remark  We assume that, in the input matrix, the elements A[i,j] where
- ** \remark  i >= j have already been filled
- **
- *****************************************************************************/
-void matrix_fill_symmetry(int neq, double *a)
-{
-  int i, j;
-
-  for (i = 0; i < neq; i++)
-    for (j = i; j < neq; j++)
-      A(j,i)= A(i,j);
-    }

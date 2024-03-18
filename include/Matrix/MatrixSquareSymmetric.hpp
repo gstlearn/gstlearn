@@ -52,7 +52,6 @@ public:
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
                                              int nrow,
                                              int opt_eigen = -1);
-  MatrixSquareSymmetric* createReduce(const VectorInt &validRows) const;
 
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
@@ -119,6 +118,9 @@ private:
                     int neq,
                     int nrhs,
                     double eps = EPSILON20) const;
+  int _matrix_invert_triangle(int neq, double *tl);
+  void _matrix_tri2sq(int neq, const double *tl, double *a);
+  void _matrix_sq2tri(int mode, int neq, const double *a, double *tl);
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

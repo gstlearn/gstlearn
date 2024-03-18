@@ -585,6 +585,17 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
+double VectorHelper::norminf(const VectorDouble &vec)
+{
+  double norminf = 0.;
+  for (int i = 0, nval = (int) vec.size(); i < nval; i++)
+  {
+    double value = ABS(vec[i]);
+    if (value > norminf) norminf = value;
+  }
+  return norminf;
+}
+
 double VectorHelper::median(const VectorDouble &vec)
 {
   VectorDouble med;
@@ -1943,7 +1954,10 @@ void VectorHelper::linearComb(double val1,
   if (in1.empty() || in2.empty()) return;
   for (int i = 0, n = (int) in1.size(); i < n; i++)
   {
-    outv[i] = val1 * in1[i] + val2 * in2[i];
+    double value = 0.;
+    if (val1 != 0. && !in1.empty()) value += val1 * in1[i];
+    if (val2 != 0. && !in2.empty()) value += val2 * in2[i];
+    outv[i] = value;
   }
 }
 
@@ -2167,3 +2181,28 @@ int VectorHelper::whereMaximum(const VectorDouble& tab)
   }
   return ibest;
 }
+
+VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
+{
+  VectorInt vindex(1);
+  vindex[0] = index;
+  return reduce(vecin, vindex);
+}
+
+VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vindex)
+{
+  VectorDouble vecout = vecin;
+
+  // Sort the indices to be removed in ascending order
+  VectorInt indexLocal = vindex;
+  std::sort(indexLocal.begin(), indexLocal.end());
+
+  int nsel = (int) indexLocal.size();
+  for (int j = 0; j < nsel; j++)
+  {
+    int i = indexLocal[nsel - j - 1];
+    vecout.erase(vecout.begin()+i);
+  }
+  return vecout;
+}
+

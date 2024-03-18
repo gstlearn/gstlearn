@@ -254,7 +254,7 @@ static int st_grid_fill_calculate(int ipos,
         {
           b[j] += tabval[iech] * f[j];
           for (int k = 0; k < neq; k++)
-            a.updValue(j, k, 0, f[j] * f[k]);
+            a.updValue(j, k, EOperator::ADD, f[j] * f[k]);
         }
       }
       if (a.solve(b, sol)) return 1;

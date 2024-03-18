@@ -74,25 +74,6 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
 
 }
 
-/**
- * Returns the projection matrix of a set of points (contained in a Db) onto a meshing
- * @param db Db structure
- * @param amesh Meshing structure
- * @param radius Neighborhood radius
- * @param flag_exact Type of test
- * @param verbose Verbose flag
- *
- * @remarks When flag_exact is TRUE, for each active sample of Db, a vertex
- * @remarks of the mesh is active as soon as it lies within the vicinity
- * @remarks of the sample.
- * @remarks If flag_exact is FALSE, all vertices of a mesh are considered as
- * @remarks active as soon as the mesh intersects the ball around a sample.
- * @remarks The vicinity is defined as any point located at a distance
- * @remarks from the sample smaller than 'radius'. The distance is calculated
- * @remarks as the Euclidean distance over the space whose dimension is
- * @remarks if the smallest value between the Db et Mesh space dimensions.
- * @return
- */
 //int ProjMatrix::resetFromDbByNeigh(const Db *db,
 //                                   AMesh *amesh,
 //                                   double radius,

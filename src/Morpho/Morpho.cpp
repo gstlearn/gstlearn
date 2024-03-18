@@ -940,9 +940,9 @@ void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
           double zi = dbgrid->getArray(iad, iptrz);
           if (FFFF(zi)) continue;
           zi -= z0;
-          a.updValue(0, 0, 0, xi * xi);
-          a.updValue(0, 1, 0, xi * yi); // Do not perform upd(1,0) as it is already done due to symmetric matrix
-          a.updValue(1, 1, 0, yi * yi);
+          a.updValue(0, 0, EOperator::ADD, xi * xi);
+          a.updValue(0, 1, EOperator::ADD, xi * yi); // Do not perform upd(1,0) as it is already done due to symmetric matrix
+          a.updValue(1, 1, EOperator::ADD, yi * yi);
           b[0] += xi * zi;
           b[1] += yi * zi;
         }

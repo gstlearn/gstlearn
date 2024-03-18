@@ -74,7 +74,6 @@
 #define TP(j,i)              (tp[(i) * ndimp + (j)]) 
 #define VEC1(ip,idim)        (vec1[(ip) * ndim + (idim)])
 #define MAT(i,j)             (mat[(i) * ncorner + (j)])
-#define MATU(i,j)            (matu[(i) * ncorner + (j)])
 #define COTES(ip,i)          (cotes[(ip) * ncorner + (i)])
 #define CORVEC(idim,ip)      (coor[(idim) * nvertex + (ip)])
 #define TBLIN(ib,ip)         (tblin[nvertex * (ib) + (ip)])
@@ -1306,7 +1305,7 @@ static void st_calcul_update(void)
   st_compute_hh();
 
   // Calculate the determinant of HH
-  Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
+  Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
 }
 
 /****************************************************************************/
@@ -2212,7 +2211,8 @@ int spde_build_stdev(double *vcur)
 double* _spde_get_mesh_dimension(AMesh* amesh)
 
 {
-  double *units, mat[9];
+  double *units;
+  VectorDouble mat(9);
 
   /* Initializations */
 
@@ -2282,7 +2282,7 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
   {
     model->updateCovByMesh(imesh0);
     st_compute_hh();
-    Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
+    Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
   }
 
   /* Update the Spherical Rotation array */
@@ -2926,7 +2926,7 @@ static void st_tangent_calculate(double center[3],
  *****************************************************************************/
 MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
 {
-  double vald, mat[16], matu[16], matw[16], matinvw[16], mat1[16];
+  double vald, mat[16], mat1[16];
   double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
   int ecr, errcod, error, ndim, ncorner, flag_nostat;
   bool flag_sphere;
@@ -2946,6 +2946,9 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
   flag_sphere = isDefaultSpaceSphere();
   flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
+  MatrixSquareGeneral matu(4);
+  VectorDouble matw(16);
+  VectorDouble matinvw(16);
 
   /* Loop on the meshes */
 
@@ -2983,8 +2986,8 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
       for (int icorn = 0; icorn < ncorner; icorn++)
       {
         for (int idim = 0; idim < ndim; idim++)
-          MATU(idim,icorn) = coeff[icorn][idim];
-        MATU(ncorner-1,icorn) = 1.;
+          matu.setValue(icorn, idim, coeff[icorn][idim]);
+        matu.setValue(icorn, ncorner-1,1.);
       }
     }
     else
@@ -2995,14 +2998,14 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
       for (int icorn = 0; icorn < ncorner; icorn++)
       {
         for (int idim = 0; idim < ndim; idim++)
-          MATU(idim,icorn) = amesh->getCoor(imesh, icorn, idim);
-        MATU(ncorner-1,icorn) = 1.;
+          matu.setValue(icorn,idim,amesh->getCoor(imesh, icorn, idim));
+        matu.setValue(icorn,ncorner-1,1.);
       }
     }
 
     /* Invert the matrix 'matu'*/
 
-    errcod = matrix_invreal(matu, ncorner);
+    errcod = matu.invert();
     if (errcod)
     {
       messerr("Error in Mesh #%3d - Its volume is zero", imesh + 1);
@@ -3013,20 +3016,20 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
           message(" %lf", amesh->getCoor(imesh, icorn, idim));
         message(")\n");
       }
-      print_matrix("MATU", 0, 1, ncorner, ncorner, NULL, matu);
+      print_matrix("MATU", 0, 1, ncorner, ncorner, NULL, matu.getValues().data());
     }
     else
     {
       ecr = 0;
       for (int icorn = 0; icorn < ncorner; icorn++)
         for (int idim = 0; idim < ndim; idim++)
-          matw[ecr++] = MATU(icorn, idim);
+          matw[ecr++] = matu.getValue(idim, icorn);
       matrix_transpose(ndim, ncorner, matw, matinvw);
 
-      matrix_product_safe(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
+      matrix_product_safe(ncorner, ndim, ndim, matinvw.data(), Calcul.hh.data(), mat1);
       if (flag_nostat)
-        matrix_product_safe(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
-      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw, mat);
+        matrix_product_safe(ncorner, ndim, 1, matinvw.data(), Calcul.vv.data(), matv);
+      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw.data(), mat);
 
       for (int j0 = 0; j0 < ncorner; j0++)
         for (int j1 = 0; j1 < ncorner; j1++)

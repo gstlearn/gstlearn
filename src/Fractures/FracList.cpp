@@ -1274,7 +1274,7 @@ void FracList::_plungeSegment(DbGrid *dbgrid,
     coor[1] = y1 + deltay * i / number;
 
     int iech = dbgrid->coordinateToRank(coor);
-    if (iech >= 0) dbgrid->updArray(iech, iptr, 5, value);
+    if (iech >= 0) dbgrid->updArray(iech, iptr, EOperator::MAX, value);
   }
 }
 

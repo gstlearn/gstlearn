@@ -1355,7 +1355,7 @@ void KrigingSystem::_simulateCalcul(int status)
 
       /* Add the conditioning kriging to the NC simulation at target */
       _dbout->updSimvar(ELoc::SIMU, _iechOut, isimu, ivar, _rankPGS, _nbsimu, _nvar,
-                       0, simu);
+                        EOperator::ADD, simu);
     }
 
   return;
@@ -1431,7 +1431,7 @@ void KrigingSystem::_estimateCalcul(int status)
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
-          _dbin->updArray(iech, _iptrWeights, 0, wgt);
+          _dbin->updArray(iech, _iptrWeights, EOperator::ADD, wgt);
       }
     }
   }

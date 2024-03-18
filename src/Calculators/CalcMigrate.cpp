@@ -1488,7 +1488,7 @@ int pointToBlock(Db *dbpoint,
 
     /* Increment the volume by one */
 
-    dbpoint->updArray(val_iech, iatt_vol, 0, 1.);
+    dbpoint->updArray(val_iech, iatt_vol, EOperator::ADD, 1.);
 
     /* Loop on the neighborhood nodes */
 
@@ -1513,7 +1513,7 @@ int pointToBlock(Db *dbpoint,
 
         /* Increment the perimeter by one */
 
-        dbpoint->updArray(val_iech, iatt_surf, 0, 1.);
+        dbpoint->updArray(val_iech, iatt_surf, EOperator::ADD, 1.);
 
         /* Set the edge */
 
