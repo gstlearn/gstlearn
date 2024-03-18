@@ -101,7 +101,6 @@ jobs:
 
     - name : Create Wheels
       run : |
-        # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
         CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B${{env.BUILD_DIR}} -DCMAKE_OSX_ARCHITECTURES=${{matrix.arch[0]}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
