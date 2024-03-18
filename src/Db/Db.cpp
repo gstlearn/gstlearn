@@ -3178,7 +3178,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
     colnames.push_back(getNameByColIdx(icol));
   }
 
-  sstr << toMatrix(String(), colnames, VectorString(), 1, ncol, number, tab);
+  sstr << toMatrix(String(), colnames, VectorString(), true, ncol, number, tab);
 
   return sstr.str();
 }
