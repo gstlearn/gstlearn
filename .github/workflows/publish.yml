@@ -30,7 +30,8 @@ jobs:
     secrets: inherit
 
   call-python-publish:
-    needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
+#    needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
+    needs: [call-python-macos, call-r-macos, call-r-windows, call-r-ubuntu]
     
     runs-on: ubuntu-latest
     
