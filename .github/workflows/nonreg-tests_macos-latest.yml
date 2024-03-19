@@ -22,7 +22,6 @@ on:
         default: ''
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
@@ -40,10 +39,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-    - name : Download and install dependencies
+    
+    - name: Install dependencies
       run: brew install llvm
-
+      
     - name: Setup Python Version
       uses: actions/setup-python@v4
       with:

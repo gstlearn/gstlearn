@@ -40,7 +40,7 @@ jobs:
 
     - uses: actions/upload-artifact@v3 
       with:
-        name: ubuntu-package
+        name: ubuntu-r-package
         path: ${{env.MY_PKG}}
 
   publish:
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: fabien-ors/cran-publish-action@v1
+    - uses: fabien-ors/cran-publish-action@v3
       with:
         host: ${{secrets.CG_HOST}}
         username: ${{secrets.CG_USR}}
@@ -61,4 +61,4 @@ jobs:
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v2
       with:
-        name: ubuntu-package
+        name: ubuntu-r-package

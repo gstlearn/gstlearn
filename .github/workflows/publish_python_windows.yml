@@ -21,13 +21,13 @@ on:
         type: boolean
         required: false
         default: false
-        
+
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   GENERATOR : "Visual Studio 16 2019"
-  DOXYGEN_ROOT : Doxygen
-  DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.8.windows.x64.bin.zip
+  DOXYGEN_ROOT : ${{github.workspace}}\doxygen
+  DOXYGEN_VERSION : "1.9.8"
   BOOST_ROOT: ${{github.workspace}}\boost
   BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}\eigen
@@ -37,21 +37,23 @@ env:
   #HDF5_VERSION : hdf5-1.12.1
 
 jobs:
-
   build:
     runs-on: windows-2019
     strategy:
       matrix:
         # Python version + Numpy version
-        python:
-          - ["3.8",  1.20.3]
-          - ["3.9",  1.20.3]
-          - ["3.10", 1.21.6]
-          - ["3.11", 1.23.5]
-          - ["3.12", 1.26.3]
-        arch:
-          - [win_amd64, x64, x64]
-          - [win32,     x86, Win32] # TODO : Win32 to be removed ?
+        python: [
+          # Double quote for version is needed otherwise 3.10 => 3.1
+            {py: "3.8",  nu: 1.20.3},
+            {py: "3.9",  nu: 1.20.3},
+            {py: "3.10", nu: 1.21.6},
+            {py: "3.11", nu: 1.23.5},
+            {py: "3.12", nu: 1.26.3}
+          ]
+        arch: [
+            {pl: win_amd64, ar: x64, of: x64},
+            {pl: win32,     ar: x86, of: Win32} # TODO : Win32 to be removed ?
+          ]
 
     steps:
     - uses: actions/checkout@v3
@@ -59,23 +61,20 @@ jobs:
     - name: Setup Python Version
       uses: actions/setup-python@v3
       with:
-        python-version: ${{matrix.python[0]}}
-        architecture: ${{matrix.arch[1]}}
+        python-version: ${{matrix.python.py}}
+        architecture: ${{matrix.arch.ar}}
 
     - name: Install Python dependencies
       # Force specific old version for Numpy
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==${{matrix.python[1]}} twine wheel setuptools
+        python -m pip install numpy==${{matrix.python.nu}} twine wheel setuptools
 
-    - name : Download and install Doxygen
-      run: |
-        mkdir ${{env.DOXYGEN_ROOT}}
-        cd ${{env.DOXYGEN_ROOT}}
-        mkdir bin
-        cd .. 
-        curl --progress-bar --output ${{env.DOXYGEN_ROOT}}/download.zip ${{env.DOXYGEN_URL}}
-        7z -o${{env.DOXYGEN_ROOT}}/bin x ${{env.DOXYGEN_ROOT}}/download.zip
+    - name: Install Doxygen under windows
+      uses: fabien-ors/install-doxygen-windows-action@v1
+      with:
+        doxygen-root: ${{env.DOXYGEN_ROOT}}
+        doxygen-version: ${{env.DOXYGEN_VERSION}}
 
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-windows
@@ -104,15 +103,38 @@ jobs:
 
     - name : Create Wheels
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch.of}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
         cmake --build ${{env.BUILD_DIR}} --target python_build --config ${{env.BUILD_TYPE}}
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
-        python setup.py bdist_wheel --plat-name=${{matrix.arch[0]}}
+        python setup.py bdist_wheel --plat-name=${{matrix.arch.pl}}
+        cd ..\..\..
+        $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*" -File
+        echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-    - name : Upload
-      run : python -m twine upload ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}\dist\*
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
-        TWINE_REPOSITORY: pypi
+    - uses: actions/upload-artifact@v3
+      # Use specific artifact identifier for publishing all versions
+      with:
+        name: windows-python-package-${{matrix.arch.ar}}-${{matrix.python.py}}
+        path: ${{env.MY_PKG}}
+    
+  publish:
+    needs: build
+    if: ${{inputs.external_call == false}}
+    
+    # Only ubuntu can upload via ssh
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: fabien-ors/pypi-publish-action@v1
+      with:
+        repo: pypi
+        username: __token__
+        password: ${{secrets.TWINE_PYPI_PWD}}
+        pattern: windows-python-package-*
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: windows-python-package-*
+

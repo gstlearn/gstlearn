@@ -13,9 +13,9 @@ jobs:
   call-python-macos:
     uses: ./.github/workflows/publish_python_macos.yml
     secrets: inherit
-  call-python-windows:
-    uses: ./.github/workflows/publish_python_windows.yml
-    secrets: inherit
+  #call-python-windows:
+  #  uses: ./.github/workflows/publish_python_windows.yml
+  #  secrets: inherit
   #call-python-ubuntu:
   #  uses: ./.github/workflows/publish_python_ubuntu.yml
   #  secrets: inherit
@@ -29,22 +29,40 @@ jobs:
     uses: ./.github/workflows/publish_r_ubuntu.yml
     secrets: inherit
 
+  call-python-publish:
+    needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: fabien-ors/pypi-publish-action@v1
+        with:
+          repo: pypi
+          username: __token__
+          password: ${{secrets.TWINE_PYPI_PWD}}
+          pattern: "*python-package-*"
+  
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: "*python-package*"
+
   call-r-publish:
-    needs: [call-r-macos, call-r-windows, call-r-ubuntu]
+    needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
     
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
     
     steps:
-      - uses: fabien-ors/cran-publish-action@v1
+      - uses: fabien-ors/cran-publish-action@v3
         with:
           host: ${{secrets.CG_HOST}}
           username: ${{secrets.CG_USR}}
           password: ${{secrets.CG_PWD}}
           repo-path: "/var/www/html/cran"
+          pattern: "*r-package*"
   
       # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v2
         with:
-          name: "*package*"
-
+          name: "*r-package*"
