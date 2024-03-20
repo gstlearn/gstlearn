@@ -835,3 +835,70 @@ void MatrixSquareSymmetric::_matrix_sq2tri(int mode, int neq, const double *a, d
     }
   }
 
+/*****************************************************************************/
+/*!
+ **  Create the Symmetric matrix as the product of 'tl' (lower triangle) by its transpose
+ **
+ ** \param[in]  neq    Number of rows or columns in the system
+ ** \param[in]  tl     Lower triangular matrix defined by column (Dimension; neq*(neq+1)/2)
+ ** \param[in]  opt_eigen Option for use of Eigen Library
+ **
+ *****************************************************************************/
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangular(int neq,
+                                                                   const VectorDouble& tl,
+                                                                   int opt_eigen)
+{
+  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq, opt_eigen);
+
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+    {
+      double value = 0.;
+      for (int k = 0; k < neq; k++)
+      {
+        if (k > i || k > j) continue;
+        value += TL(i,k) * TL(j,k);
+      }
+      mat->setValue(i, j, value);
+    }
+  return mat;
+}
+
+/*****************************************************************************/
+/*!
+ **  Performs the Cholesky triangular decomposition of a definite
+ **  positive symmetric matrix
+ **         A = t(TL) * TL
+ **
+ ** \return  The lower triangular matrix defined by column
+ **
+ *****************************************************************************/
+VectorDouble MatrixSquareSymmetric::choleskyDecompose()
+{
+  int neq = getNRows();
+  int size = neq * (neq + 1) / 2;
+  VectorDouble tl(size);
+
+  for (int ip = 0; ip < neq; ip++)
+    for (int jp = 0; jp <= ip; jp++)
+      TL(ip,jp) = getValue(ip,jp);
+
+  for (int ip = 0; ip < neq; ip++)
+  {
+    double prod = TL(ip, ip);
+    for (int kp = 0; kp < ip; kp++)
+      prod -= TL(ip,kp) * TL(ip,kp);
+    if (prod < 0.) return (ip + 1);
+    TL(ip,ip) = sqrt(prod);
+
+    for (int jp = ip + 1; jp < neq; jp++)
+    {
+      prod = TL(jp, ip);
+      for (int kp = 0; kp < ip; kp++)
+        prod -= TL(ip,kp) * TL(jp,kp);
+      if (TL(ip,ip)<= 0.) return(ip+1);
+      TL(jp,ip) = prod / TL(ip,ip);
+    }
+  }
+  return tl;
+}

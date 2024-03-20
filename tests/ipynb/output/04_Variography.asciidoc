@@ -294,8 +294,8 @@ Cubic
 - Range        =     20.000
 Spherical
 - Sill         =      0.989
-- Range        =    144.544
-Total Sill     =      1.104
+- Range        =    144.628
+Total Sill     =      1.105
 Known Mean(s)     0.000----
 
 

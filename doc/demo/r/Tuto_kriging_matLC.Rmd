@@ -128,7 +128,6 @@ $$
 \sum_{k \in 1:n} \sum_{i,\alpha \in A_i} \beta_k \text{Cov}(Z_k(o),Z_i(\alpha))\, \lambda^{\alpha} - \sum_{k \in 1:n} \beta_k \, \mu_k
 $$
 
-
 ## Initialisation
 
 ```{r setup, include=FALSE, echo=TRUE}

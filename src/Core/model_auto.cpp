@@ -2167,10 +2167,8 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_rot) cova->setAnisoAngles(angles);
       if (flag_aic)
       {
-        VectorDouble sill = matrix_produit_cholesky_VD(nvar, tritab.data());
-        MatrixSquareGeneral mat(nvar);
-        mat.setValues(sill);
-        cova->setSill(mat);
+        MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTriangular(nvar, tritab);
+        cova->setSill(*mat);
       }
       flag_rot = flag_aic = 0;
     }
@@ -2241,10 +2239,8 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_rot) cova->setAnisoAngles(angles);
     if (flag_aic)
     {
-      VectorDouble sill = matrix_produit_cholesky_VD(nvar, tritab.data());
-      MatrixSquareGeneral mat(nvar);
-      mat.setValues(sill);
-      cova->setSill(mat);
+      MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTriangular(nvar, tritab);
+      cova->setSill(*mat);
     }
     flag_rot = flag_aic = 0;
   }
@@ -4332,42 +4328,42 @@ static void st_vario_varchol_manage(const Vario *vario,
                                     Model *model,
                                     VectorDouble &varchol)
 {
+  int ndim = model->getDimensionNumber();
   int nvar = vario->getVariableNumber();
-  int size = nvar * (nvar + 1) / 2;
-  int nvar2 = nvar * nvar;
-  Model* model_nugget = nullptr;
 
-  VectorDouble aux(nvar2);
-  varchol.resize(size);
+  MatrixSquareSymmetric mat(nvar);
 
   /* Particular case of Properties attached to the Model */
 
   if (model->getCovMode() != EModelProperty::NONE)
   {
-    model_nugget = Model::createNugget(model->getDimensionNumber(),
-                                       model->getVariableNumber());
-    model_calcul_cov(NULL,model, nullptr, 1, 1., VectorDouble(), aux.data());
-    for (int i = 0; i < nvar2; i++)
-      aux[i] = vario->getVarIndex(i) / aux[i];
+    Model* model_nugget = Model::createNugget(ndim, nvar);
+    VectorDouble aux(nvar * nvar);
+    model_calcul_cov(NULL, model, nullptr, 1, 1., VectorDouble(), aux.data());
+    int lec = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++, lec++)
+      {
+        double value = (ABS(aux[lec]) > 0.) ? vario->getVar(ivar, jvar) / aux[lec] : 0.;
+        mat.setValue(ivar, jvar, value);
+      }
+    delete model_nugget;
   }
   else
   {
-    for (int i = 0; i < nvar2; i++)
-      aux[i] = vario->getVarIndex(i);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
+        mat.setValue(ivar, jvar, vario->getVar(ivar, jvar));
   }
-
-  if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))
+  varchol = mat.choleskyDecompose();
+  if (varchol.empty())
   {
-
     /* The matrix is filled arbitrarily */
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        AUX(ivar,jvar)= (ivar == jvar);
-        (void) matrix_cholesky_decompose(aux.data(),varchol.data(),nvar);
-      }
+        mat.setValue(ivar, jvar, (ivar == jvar));
+    varchol = mat.choleskyDecompose();
   }
-  delete model_nugget;
 }
 
 /****************************************************************************/
@@ -4658,9 +4654,8 @@ int model_auto_fit(Vario *vario,
                                upper, npar, nbexp);
     if (npar > 0)
     {
-      status = foxleg_f(nbexp, npar, 0, VectorDouble(), param, lower, upper,
-                        scale, mauto, 0, st_strmod_vario_evaluate, RECINT.ggc,
-                        RECINT.wtc);
+      status = foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper,
+                        scale, mauto, 0, st_strmod_vario_evaluate, RECINT.ggc, RECINT.wtc);
     }
     else
     {
@@ -5096,9 +5091,8 @@ int vmap_auto_fit(const DbGrid *dbmap,
   {
     st_model_auto_strmod_print(1, strmod, constraints, mauto, param, lower,
                                upper, npar, nbexp);
-    status = foxleg_f(nbexp, npar, 0, VectorDouble(), param, lower, upper,
-                      scale, mauto, 0, st_strmod_vmap_evaluate, RECINT.gg,
-                      RECINT.wt);
+    status = foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper,
+                      scale, mauto, 0, st_strmod_vmap_evaluate, RECINT.gg, RECINT.wt);
     if (status > 0) goto label_end;
 
     st_model_auto_strmod_print(0, strmod, constraints, mauto, param, lower,

@@ -100,7 +100,7 @@ GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);
 GSTLEARN_EXPORT int foxleg_f(int ndat,
                              int npar,
                              int ncont,
-                             const VectorDouble &acont,
+                             const MatrixRectangular& acont,
                              VectorDouble &param,
                              VectorDouble &lower,
                              VectorDouble &upper,
@@ -294,7 +294,6 @@ GSTLEARN_EXPORT int matrix_prod_norme(int tranpose,
                                       const double *a,
                                       double *v2);
 GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, VectorDouble& v1, VectorDouble& w1);
-GSTLEARN_EXPORT double matrix_normA(double *b, double *a, int neq, int subneq);
 GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
                                               double *tl,
                                               int neq);
@@ -310,8 +309,6 @@ GSTLEARN_EXPORT void matrix_cholesky_norme(int mode,
                                            const double *tl,
                                            const double *a,
                                            double *b);
-GSTLEARN_EXPORT void matrix_produit_cholesky(int neq, const double *tl, double *a);
-GSTLEARN_EXPORT VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl);
 GSTLEARN_EXPORT double* matrix_bind(int mode,
                                     int n11,
                                     int n12,
@@ -930,9 +927,9 @@ GSTLEARN_EXPORT int db_diffusion(DbGrid *dbgrid1,
 
 GSTLEARN_EXPORT int cgi(Db *db,
                         int ivar,
-                        double *center,
-                        double *mvalue,
-                        double *mvector,
+                        VectorDouble& center,
+                        VectorDouble& mvalue,
+                        MatrixRectangular& mvector,
                         double *inertia,
                         double *wztot);
 GSTLEARN_EXPORT int spatial(Db *db,
@@ -1023,7 +1020,7 @@ GSTLEARN_EXPORT void krige_lhs_print(int nech,
                                      int neq,
                                      int nred,
                                      int *flag,
-                                     double *lhs);
+                                     const double *lhs);
 GSTLEARN_EXPORT void krige_rhs_print(int nvar,
                                      int nech,
                                      int neq,

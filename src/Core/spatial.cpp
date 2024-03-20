@@ -24,8 +24,8 @@
  ** \return  Error returned code
  **
  ** \param[in]  db     Db structure
- ** \param[in]  flag_z 1 if the variable is defined
- ** \param[in]  flag_w 1 if the weight is defined
+ ** \param[in]  flag_z True if the variable is defined
+ ** \param[in]  flag_w True if the weight is defined
  ** \param[in]  iech   Rank of the sample
  ** \param[in]  iatt   Rank of the attribute (used if flag_z)
  **
@@ -34,19 +34,16 @@
  **
  *****************************************************************************/
 static int st_cgi_data(Db *db,
-                       int flag_z,
-                       int flag_w,
+                       bool flag_z,
+                       bool flag_w,
                        int iech,
                        int iatt,
-                       double *coor,
+                       VectorDouble& coor,
                        double *wz)
 {
-  double value, weight;
-  int idim;
-
   /* Check if the variable is defined */
 
-  value = 1.;
+  double value = 1.;
   if (flag_z)
   {
     value = db->getArray(iech, iatt);
@@ -62,7 +59,7 @@ static int st_cgi_data(Db *db,
 
   /* Check if the weight is defined */
 
-  weight = 1.;
+  double weight = 1.;
   if (flag_w)
   {
     weight = db->getWeight(iech);
@@ -78,8 +75,8 @@ static int st_cgi_data(Db *db,
 
   /* Check if the sample has defined coordinates */
 
-  db_sample_load(db, ELoc::X, iech, coor);
-  for (idim = 0; idim < db->getNDim(); idim++)
+  db_sample_load(db, ELoc::X, iech, coor.data());
+  for (int idim = 0; idim < db->getNDim(); idim++)
     if (FFFF(coor[idim])) return (1);
 
   /* Returning argument */
@@ -104,106 +101,83 @@ static int st_cgi_data(Db *db,
  ** \param[out] inertia  Value of the inertia
  ** \param[out] wztot    Sum of weights
  **
- ** \remark The array mvalue must be dimensionned to ndim
- ** \remark The array mvector must be dimensionned to ndim * ndim
+ ** \remark 'mvalue' must be dimensioned to ndim
+ ** \remark 'mvector' must be dimensioned to ndim * ndim
  **
  *****************************************************************************/
 int cgi(Db *db,
-                        int iatt,
-                        double *center,
-                        double *mvalue,
-                        double *mvector,
-                        double *inertia,
-                        double *wztot)
+        int iatt,
+        VectorDouble& center,
+        VectorDouble& mvalue,
+        MatrixRectangular& mvector,
+        double *inertia,
+        double *wztot)
 {
-  int iech, nech, idim, jdim, ndim, error, flag_z, flag_w;
-  double *coor, *mm, wz, sum;
-
-  /* Initializations */
-
-  error = 1;
-  nech = db->getSampleNumber();
-  ndim = db->getNDim();
-  coor = mm = nullptr;
-  flag_z = db->isUIDDefined(iatt);
-  flag_w = db->hasLocVariable(ELoc::W);
-
-  /* Core allocation */
-
-  coor = db_sample_alloc(db, ELoc::X);
-  if (coor == nullptr) goto label_end;
-  mm = (double*) mem_alloc(sizeof(double) * ndim * ndim, 0);
-  if (mm == nullptr) goto label_end;
-
-  /* Initialize the arrays to zero */
-
-  for (idim = 0; idim < ndim; idim++)
-  {
-    coor[idim] = center[idim] = 0.;
-    for (jdim = 0; jdim < ndim; jdim++)
-      MM(idim,jdim) = 0.;
-  }
+  double wz;
+  int nech = db->getSampleNumber();
+  int ndim = db->getNDim();
+  bool flag_z = db->isUIDDefined(iatt);
+  bool flag_w = db->hasLocVariable(ELoc::W);
+  VectorDouble coor(ndim, 0.);
+  MatrixSquareSymmetric mm(ndim);
+  center.fill(0.);
 
   /* Calculate the Center of Gravity */
 
   (*wztot) = 0.;
-  for (iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
     if (st_cgi_data(db, flag_z, flag_w, iech, iatt, coor, &wz)) continue;
-    for (idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       center[idim] += wz * coor[idim];
     (*wztot) += wz;
   }
   if ((*wztot) <= 0.)
   {
     messerr("The sum of the weights must be positive : %lf", (*wztot));
-    goto label_end;
+    return 1;
   }
-  for (idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     center[idim] /= (*wztot);
 
   /* Calculate the inertia and the weighted PCA */
 
   (*inertia) = 0.;
-  for (iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
     if (st_cgi_data(db, flag_z, flag_w, iech, iatt, coor, &wz)) continue;
-    for (idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       coor[idim] -= center[idim];
-    for (idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
     {
       (*inertia) += wz * coor[idim] * coor[idim];
-      for (jdim = 0; jdim < ndim; jdim++)
-        MM(idim,jdim) += wz * coor[idim] * coor[jdim];
+      for (int jdim = 0; jdim <= idim; jdim++)
+        mm.updValue(idim,jdim, EOperator::ADD,wz * coor[idim] * coor[jdim]);
     }
   }
 
   /* Normation */
 
   (*inertia) /= (*wztot);
-  for (idim = 0; idim < ndim; idim++)
-    for (jdim = 0; jdim < ndim; jdim++)
-      MM(idim,jdim) /= (*wztot);
+  for (int idim = 0; idim < ndim; idim++)
+    for (int jdim = 0; jdim <= idim; jdim++)
+      mm.updValue(idim,jdim, EOperator::DIVOPP,*wztot);
 
   /* Calculate the eigen values and vectors */
 
-  if (matrix_eigen(mm, ndim, mvalue, mvector)) goto label_end;
+  if (mm.computeEigen()) return 1;
+  mvalue = mm.getEigenValues();
+  mvector = *mm.getEigenVectors();
 
   /* Normation */
 
-  sum = 0.;
-  for (idim = 0; idim < ndim; idim++)
+  double sum = 0.;
+  for (int idim = 0; idim < ndim; idim++)
     sum += mvalue[idim];
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: coor = db_sample_free(coor);
-  mm = (double*) mem_free((char* ) mm);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -222,28 +196,21 @@ int cgi(Db *db,
  ** \remark program Fisboat, DG-Fish, STREP #502572
  **
  *****************************************************************************/
-int spatial(Db *db,
-                            double *totab,
-                            double *parea,
-                            double *eqarea)
+int spatial(Db *db, double *totab, double *parea, double *eqarea)
 {
-  double w, z, sum, top, bot, maille;
-  int iech;
-
-  /* Initializations */
-
-  top = bot = sum = 0.;
-  maille = (db->isGrid()) ? db_grid_maille(db) :
-                           1.;
+  double top = 0.;
+  double bot = 0.;
+  double sum = 0.;
+  double maille = (db->isGrid()) ? db_grid_maille(db) : 1.;
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    z = db->getLocVariable(ELoc::Z,iech, 0);
+    double z = db->getLocVariable(ELoc::Z,iech, 0);
     if (FFFF(z)) continue;
-    w = db->getWeight(iech);
+    double w = db->getWeight(iech);
     if (FFFF(w)) continue;
     if (z > 0) sum += w;
     top += w * z;
@@ -256,8 +223,7 @@ int spatial(Db *db,
 
   *totab = top;
   *parea = sum;
-  *eqarea = (bot == 0.) ? TEST :
-                          top * top / bot;
+  *eqarea = (bot == 0.) ? TEST : top * top / bot;
   return (0);
 }
 

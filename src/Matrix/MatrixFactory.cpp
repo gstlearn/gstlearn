@@ -150,7 +150,7 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   else
   {
     localSelRows = VH::filter(selRows, 0, x->getNRows());
-    if (!flagKeepRows) localSelRows = VH::complement(VH::sequence(0,nrows), localSelRows);
+    if (!flagKeepRows) localSelRows = VH::complement(VH::sequence(nrows), localSelRows);
   }
   int newNRows = (int) localSelRows.size();
   if (newNRows <= 0)
@@ -166,7 +166,7 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   else
   {
     localSelCols = VH::filter(selCols, 0, x->getNCols());
-    if (!flagKeepCols) localSelCols = VH::complement(VH::sequence(0,ncols), localSelCols);
+    if (!flagKeepCols) localSelCols = VH::complement(VH::sequence(ncols), localSelCols);
   }
   int newNCols = (int) localSelCols.size();
   if (newNCols <= 0)

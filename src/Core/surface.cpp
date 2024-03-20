@@ -107,14 +107,13 @@ static void st_normalize_vector(double *vect)
  *****************************************************************************/
 static int st_reference_define(Db *db, int *iptr_init, Surf_Def *surf_reference)
 {
-  double mat[9], eigval[3], eigvec[9], gg[3], nn, x, y, z;
-  int ix, iy, iz;
+  double x, y, z;
+  VectorDouble gg(3, 0.);
+  MatrixSquareSymmetric mat(3);
 
   /* Calculate the center of gravity */
 
-  nn = 0;
-  for (int i = 0; i < 3; i++)
-    gg[i] = 0.;
+  double nn = 0.;
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
@@ -133,68 +132,64 @@ static int st_reference_define(Db *db, int *iptr_init, Surf_Def *surf_reference)
 
   /* Establish the mean plane */
 
-  for (int i = 0; i < 9; i++)
-    mat[i] = 0.;
+  mat.fill(0.);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     x = db->getArray(iech, iptr_init[0]) - surf_reference->xg;
     y = db->getArray(iech, iptr_init[1]) - surf_reference->yg;
     z = db->getArray(iech, iptr_init[2]) - surf_reference->zg;
-    MAT(0,0) += x * x;
-    MAT(0,1) += x * y;
-    MAT(0,2) += x * z;
-    MAT(1,0) += y * x;
-    MAT(1,1) += y * y;
-    MAT(1,2) += y * z;
-    MAT(2,0) += z * x;
-    MAT(2,1) += z * y;
-    MAT(2,2) += z * z;
+    mat.updValue(0,0,EOperator::ADD,x * x);
+    mat.updValue(0,1,EOperator::ADD,x * y);
+    mat.updValue(0,2,EOperator::ADD,x * z);
+    mat.updValue(1,1,EOperator::ADD,y * y);
+    mat.updValue(1,2,EOperator::ADD,y * z);
+    mat.updValue(2,2,EOperator::ADD,z * z);
   }
 
   /* Eigen values decomposition */
 
-  if (matrix_eigen(mat, 3, eigval, eigvec))
+  if (mat.computeEigen())
   {
     messerr("Error in the Plane determination");
     return (1);
   }
+  VectorDouble eigval = mat.getEigenValues();
+  MatrixSquareGeneral* eigvec = mat.getEigenVectors();
 
   /* Look for the smallest eigen value */
 
-  iz = 0;
+  int iz = 0;
   for (int i = 1; i < 3; i++)
     if (eigval[i] < eigval[iz]) iz = i;
-  ix = (iz >= 2) ? 0 :
-                   iz + 1;
-  iy = 3 - ix - iz;
+  int ix = (iz >= 2) ? 0 : iz + 1;
+  int iy = 3 - ix - iz;
 
   /* Calculate the direction vectors of the reference system */
 
-  surf_reference->vx[0] = EIGVEC(ix, 0);
-  surf_reference->vx[1] = EIGVEC(ix, 1);
-  surf_reference->vx[2] = EIGVEC(ix, 2);
+  surf_reference->vx[0] = eigvec->getValue(ix, 0);
+  surf_reference->vx[1] = eigvec->getValue(ix, 1);
+  surf_reference->vx[2] = eigvec->getValue(ix, 2);
   st_normalize_vector(surf_reference->vx);
 
-  surf_reference->vy[0] = EIGVEC(iy, 0);
-  surf_reference->vy[1] = EIGVEC(iy, 1);
-  surf_reference->vy[2] = EIGVEC(iy, 2);
+  surf_reference->vy[0] = eigvec->getValue(iy, 0);
+  surf_reference->vy[1] = eigvec->getValue(iy, 1);
+  surf_reference->vy[2] = eigvec->getValue(iy, 2);
   st_normalize_vector(surf_reference->vy);
 
-  surf_reference->vz[0] = EIGVEC(iz, 0);
-  surf_reference->vz[1] = EIGVEC(iz, 1);
-  surf_reference->vz[2] = EIGVEC(iz, 2);
+  surf_reference->vz[0] = eigvec->getValue(iz, 0);
+  surf_reference->vz[1] = eigvec->getValue(iz, 1);
+  surf_reference->vz[2] = eigvec->getValue(iz, 2);
   st_normalize_vector(surf_reference->vz);
 
   if (VERBOSE)
   {
-    print_matrix("Gravity Center ", 0, 1, 3, 1, NULL, gg);
-    print_matrix("Eigen Values   ", 0, 1, 3, 1, NULL, eigval);
+    print_matrix("Gravity Center ", 0, 1, 3, 1, NULL, gg.data());
+    print_matrix("Eigen Values   ", 0, 1, 3, 1, NULL, eigval.data());
     print_matrix("Eigen Vector #1", 0, 1, 3, 1, NULL, surf_reference->vx);
     print_matrix("Eigen Vector #2", 0, 1, 3, 1, NULL, surf_reference->vy);
     print_matrix("Eigen Vector #3", 0, 1, 3, 1, NULL, surf_reference->vz);
   }
-
   return (0);
 }
 

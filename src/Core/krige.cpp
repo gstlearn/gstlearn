@@ -1128,7 +1128,7 @@ void krige_lhs_print(int nech,
                      int neq,
                      int nred,
                      int *flagloc,
-                     double *lhs)
+                     const double *lhs)
 {
   int *rel, i, j, ipass, npass, ideb, ifin;
 
@@ -2967,9 +2967,6 @@ int anakexp_3D(DbGrid *db,
  **                       for the drift terms
  **
  ** \param[out] smean     Array for simulated posterior mean for the drift means
- **
- ** \remark The input array rcov is modified by this routine, due to
- ** \remark the use of the routine matrix_cholesky_decompose
  **
  *****************************************************************************/
 int bayes_simulate(Model *model,

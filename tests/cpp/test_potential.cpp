@@ -148,6 +148,10 @@ int main(int argc, char *argv[])
   // Visualize the results
   (void) grid->dumpToNF("Grid1D.ascii");
 
+  // Cross-validation
+  (void) potential_xvalid(dbiso, dbgrd, nullptr, model, neighU,
+                          0., 0., true, true);
+
   if (dbiso != nullptr) delete dbiso;
   if (dbgrd != nullptr) delete dbgrd;
   if (grid  != nullptr) delete grid;

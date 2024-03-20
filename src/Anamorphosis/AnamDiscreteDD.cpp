@@ -460,9 +460,6 @@ VectorDouble AnamDiscreteDD::z2factor(double z, const VectorInt& ifacs) const
 
 VectorDouble AnamDiscreteDD::factors_mod()
 {
-  VectorDouble chi;
-  VectorDouble q2_s, q_s, tri1, tri2, c_s, ptab;
-  VectorDouble stats, veca, vecb, vecc, eigval, eigvec;
 
   /* Initializations */
 
@@ -471,18 +468,17 @@ VectorDouble AnamDiscreteDD::factors_mod()
 
   /* Core allocation */
 
-  q2_s.resize(nclass);
-  q_s.resize(nclass * nclass);
-  tri1.resize(ntri);
-  tri2.resize(ntri);
-  ptab.resize(nclass * nclass);
-  c_s.resize(nclass * nclass);
+  VectorDouble q2_s(nclass);
+  VectorDouble q_s(nclass * nclass);
+  VectorDouble tri2(ntri);
+  VectorDouble ptab(nclass * nclass);
+  MatrixSquareSymmetric c_s(nclass);
 
-  veca.resize(nclass);
-  vecb.resize(nclass);
-  vecc.resize(nclass);
-  eigvec.resize(nclass * nclass);
-  eigval.resize(nclass);
+  VectorDouble veca(nclass);
+  VectorDouble vecb(nclass);
+  VectorDouble vecc(nclass);
+  VectorDouble eigvec(nclass * nclass);
+  VectorDouble eigval(nclass);
 
   /* Calculate the monomials */
 
@@ -498,15 +494,16 @@ VectorDouble AnamDiscreteDD::factors_mod()
   /* Covariance of monomials in L2(R,u) */
 
   for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<nclass; jclass++)
+    for (int jclass=0; jclass<=iclass; jclass++)
     {
       double value = 0.;
       for (int ic=0; ic<nclass; ic++)
         value += PTAB(iclass,ic) * getDDStatU(ic) * PTAB(jclass,ic);
-      C_S(iclass,jclass) = value;
+      c_s.setValue(iclass,jclass,value);
     }
 
-  if (matrix_cholesky_decompose(c_s.data(),tri1.data(),nclass)) return chi;
+  VectorDouble tri1 = c_s.choleskyDecompose();
+  if (tri1.empty()) return VectorDouble();
   matrix_cholesky_invert(nclass,tri1.data(),tri2.data());
   matrix_cholesky_product(2,nclass,nclass,tri2.data(),ptab.data(),q_s.data());
 
@@ -554,8 +551,7 @@ VectorDouble AnamDiscreteDD::factors_mod()
 
   /* Calculate the infinitesimal generator */
 
-  chi = _generator(vecc,veca,vecb,eigvec,eigval);
-  return chi;
+  return _generator(vecc,veca,vecb,eigvec,eigval);
 }
 
 /**
@@ -571,10 +567,6 @@ VectorDouble AnamDiscreteDD::factors_mod()
  */
 MatrixSquareGeneral AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
 {
-  VectorDouble stats;
-
-  /* Initializations */
-
   int nclass = getNClass();
   MatrixSquareGeneral chi2i(nclass);
   MatrixSquareGeneral mati(nclass);

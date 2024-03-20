@@ -3331,7 +3331,6 @@ void KrigingSystem::_bayesCorrectVariance()
 void KrigingSystem::_bayesPreSimulate()
 {
   if (_nfeq <= 0) return;
-  int nftri = _nfeq * (_nfeq + 1) / 2;
   int memo = law_get_random_seed();
 
   // Dimension '_postSimu' to store simulated posterior mean
@@ -3339,20 +3338,15 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Core allocation */
 
-  VectorDouble trimat(nftri);
   VectorDouble rndmat(_nfeq);
   VectorDouble simu(_nfeq);
-  // The array _postCov is duplicated as the copy is destroyed by matrix_cholesky_decompose
-  MatrixSquareSymmetric rcov = _postCov;
 
   /* Cholesky decomposition */
 
-  int rank = matrix_cholesky_decompose(rcov.getValues().data(), trimat.data(), _nfeq);
-
-  if (rank > 0)
+  VectorDouble trimat = _postCov.choleskyDecompose();
+  if (trimat.empty())
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
-    messerr("Rank of the Matrix = %d", rank);
     messerr("The Drift coefficients have been set to their posterior mean");
     for (int isimu = 0; isimu < _nbsimu; isimu++)
       for (int il = 0; il < _nfeq; il++)

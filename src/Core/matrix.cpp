@@ -962,36 +962,6 @@ int matrix_invgen(double *a, int neq, double *tabout, double *cond)
   return (error);
 }
 
-/****************************************************************************/
-/*!
- **  Calculate the square norm of a vector issued from the
- **  inner product relative to a matrix A
- **
- ** \return  Value of the norm
- **
- ** \param[in]  b         Vector (Dimension: neq)
- ** \param[in]  a         Matrix (Symmetric, Dimension neq x neq)
- ** \param[in]  neq       Space dimension
- ** \param[in]  subneq    Dimension of the subspace to be considered
- **
- *****************************************************************************/
-double matrix_normA(double *b, double *a, int neq, int subneq)
-{
-  double value;
-  int i, j;
-
-  value = 0.;
-  for (i = 0; i < (subneq - 1); i++)
-    for (j = i + 1; j < subneq; j++)
-      value += b[i] * A(i, j) * b[j];
-  value *= 2.;
-
-  for (i = 0; i < neq; i++)
-    value += b[i] * A(i, i) * b[i];
-
-  return (value);
-}
-
 /*****************************************************************************/
 /*!
  **  Fill a square matrix with a triangular matrix
@@ -1021,53 +991,6 @@ void matrix_triangle_to_square(int mode, int neq, const double *tl, double *a)
       }
     }
   }
-
-/*****************************************************************************/
-/*!
- **  Calculate the product of 'tl' (lower triangle) by its transpose
- **
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Lower triangular matrix defined by column
- **
- ** \param[out] a      Resulting square matrix
- **
- *****************************************************************************/
-void matrix_produit_cholesky(int neq, const double *tl, double *a)
-{
-  int i, j, k;
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      A(i,j)= 0.;
-      for (k=0; k<neq; k++)
-      {
-        if (k > i || k > j) continue;
-        A(i,j) += TL(i,k) * TL(j,k);
-      }
-    }
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the product of 'tl' (lower triangle) by its transpose
- **  and store the result in a VectorDouble
- **
- **  \return The resulting VectorDouble
- **
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Lower triangular matrix defined by column
- **
- *****************************************************************************/
-VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl)
-{
-  VectorDouble a;
-  a.resize(neq * neq);
-
-  matrix_produit_cholesky(neq, tl, a.data());
-  return a;
-}
 
 /*****************************************************************************/
 /*!
