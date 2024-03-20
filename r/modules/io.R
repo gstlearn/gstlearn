@@ -102,20 +102,20 @@ gstlearn_to_sf <- function(x, crs = NA)
       lp = list()
       for (i in 0:(x$getPolyElemNumber()-1)) {
         lp[[1+length(lp)]] <- list(matrix(c(x$getX(i), x$getY(i)),
-	                           ncol = 2, byrow = FALSE))
+                                          ncol = 2, byrow = FALSE))
       }
-      val = st_sf(geometry = st_sfc(st_multipolygon(lp))) |>
-          st_set_crs(crs)
+      val = st_sf(geometry = st_sfc(st_multipolygon(lp)))
+      st_set_crs(val, crs)
   }
   
   if (class(x)[1] == "_p_Db") {
     df <- x[]
-    val <- st_as_sf(df, coords = x$getNamesByLocator(ELoc_X())) |>
-      st_set_crs(crs)
+    val <- st_as_sf(df, coords = x$getNamesByLocator(ELoc_X()))
+    st_set_crs(val, crs)
   }
   if (is.null(val)) {
-   print(paste("gstlearn_to_sf: class = ", class(x)[1], " not yet implemented."))
- }
+    print(paste("gstlearn_to_sf: class = ", class(x)[1], " not yet implemented."))
+  }
  val
 }
 

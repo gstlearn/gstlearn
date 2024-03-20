@@ -26,7 +26,7 @@ env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   BUILD_PLAT: manylinux1_x86_64
-
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -49,15 +49,34 @@ jobs:
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
         python3 setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
+        cd ../../..
+        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
-    - name : Upload
-      run : |
-        export PATH=/opt/python/${{matrix.python}}/bin:$PATH
-        python3 -m twine upload --verbose ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
-        TWINE_REPOSITORY: pypi
+    - uses: actions/upload-artifact@v3
+      # Use specific artifact identifier for publishing all versions
+      with:
+        name: ubuntu-python-package-${{matrix.python}}
+        path: ${{env.MY_PKG}}
+    
+  publish:
+    needs: build
+    if: ${{inputs.external_call == false}}
+    
+    # Only ubuntu can upload via ssh
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: fabien-ors/pypi-publish-action@v1
+      with:
+        repo: pypi
+        username: __token__
+        password: ${{secrets.TWINE_PYPI_PWD}}
+        pattern: ubuntu-python-package-*
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: ubuntu-python-package-*
 
    
 

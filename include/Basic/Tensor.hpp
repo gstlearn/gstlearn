@@ -59,6 +59,8 @@ public:
   void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;
   void applyInverse2InPlace(const VectorDouble& vec, VectorDouble& out) const;
   void applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const;
+  void applyDirectSwapInPlace(const VectorDouble &vec, VectorDouble &out) const;
+
 
   bool isFlagDefinedByInverse2() const { return _flagDefinedBySquare; }
 
@@ -68,13 +70,14 @@ private:
   void _direct2ToInverse2();
 
 private:
-  unsigned int _nDim;                    /// Number of dimensions
-  MatrixSquareGeneral   _tensorDirect;   /// Direct Tensor matrix (definite positive)
-  MatrixSquareGeneral   _tensorInverse;  /// Inverse Tensor matrix (definite positive)
-  MatrixSquareSymmetric _tensorDirect2;  /// Square of Direct tensor
-  MatrixSquareSymmetric _tensorInverse2; /// Inverse of squared direct tensor
-  VectorDouble _radius;                  /// Ellipsoid radius
-  Rotation _rotation;                    /// Ellipsoid rotation
-  bool _isotropic;                       /// True if the tensor is isotropic
-  bool _flagDefinedBySquare;             /// True if Tensor has been defined using the squared elements (direct)
+  unsigned int _nDim;                      /// Number of dimensions
+  MatrixSquareGeneral   _tensorDirect;     /// Direct Tensor matrix (definite positive)
+  MatrixSquareGeneral   _tensorInverse;    /// Inverse Tensor matrix (definite positive)
+  MatrixSquareSymmetric _tensorDirect2;    /// Square of Direct tensor
+  MatrixSquareSymmetric _tensorInverse2;   /// Inverse of squared direct tensor
+  MatrixSquareGeneral   _tensorDirectSwap; /// If tensor = Radius x Rot, tensorSwap = Rot x Radius
+  VectorDouble _radius;                    /// Ellipsoid radius
+  Rotation _rotation;                      /// Ellipsoid rotation
+  bool _isotropic;                         /// True if the tensor is isotropic
+  bool _flagDefinedBySquare;               /// True if Tensor has been defined using the squared elements (direct)
 };
