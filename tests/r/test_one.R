@@ -208,7 +208,7 @@ err = MSP$prodMatVecInPlace(V1, V2)
 print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V2)))
 
 #
-# Linear solver
+# Linear solver [macos-14 => This is here]
 #
 
 err = mestitle(0,"Matrix Linear Solver")
