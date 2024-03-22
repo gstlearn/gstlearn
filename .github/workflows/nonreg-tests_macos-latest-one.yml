@@ -1,0 +1,83 @@
+name: nonreg-tests_macos-one
+
+on:
+  # Activate the workflow at each push on dev branch
+  push:
+    branches: [ dev ]
+  # Activate the workflow at each pull request on dev branch
+  pull_request:
+    branches: [ dev ]
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  RUNS_ON: macos-14
+  TEST_SCRIPT: tests/r/test_one.R
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  #PYTHON_VERSION : "3.11"
+  #NUMPY_VERSION : "1.23.5"
+  R_VERSION : "4.3.2"
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}/eigen
+  EIGEN_VERSION : "3.4.0"
+
+jobs:
+  build:
+    runs-on: ${{env.RUNS_ON}}
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: brew install llvm
+      
+    #- name: Setup Python Version
+    #  uses: actions/setup-python@v4
+    #  with:
+    #    python-version: ${{env.PYTHON_VERSION}}
+
+    #- name: Install Python dependencies
+    #  run: |
+    #    python -m pip install --upgrade pip
+    #    python -m pip install numpy==${{env.NUMPY_VERSION}}
+    #    python -m pip install pandas scipy mlxtend
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{env.R_VERSION}}
+
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
+
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-unix
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
+
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-unix
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+        generator: "Unix Makefiles"
+
+    - name: Configure CMake
+      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+
+    - name: Compile, install package and execute one test
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --target prepare_check_r
+        Rscript ${{env.TEST_SCRIPT}}
