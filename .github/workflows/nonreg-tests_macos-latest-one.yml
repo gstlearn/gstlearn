@@ -3,9 +3,6 @@ name: nonreg-tests_macos-one
 on:
   # Activate the workflow at each push on dev branch
   push:
-    branches: [ dev ]
-  # Activate the workflow at each pull request on dev branch
-  pull_request:
     branches: [ fix_one_coverage_test ]
   # Permit manual trigger
   workflow_dispatch:
