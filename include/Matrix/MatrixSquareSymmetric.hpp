@@ -43,7 +43,12 @@ public:
   /*! Say if the matrix must be diagonal constant */
   virtual bool mustBeDiagCst() const override { return false; }
   /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false) const final { DECLARE_UNUSED(printWhyNot); return true; }
+  bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const final
+  {
+    DECLARE_UNUSED(printWhyNot);
+    DECLARE_UNUSED(eps);
+    return true;
+  }
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 

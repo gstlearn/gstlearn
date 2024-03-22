@@ -52,7 +52,7 @@ public:
   /*! Check if the matrix is square and Identity */
   virtual bool isIdentity(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
-  virtual bool isSymmetric(bool printWhyNot = false) const;
+  virtual bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const;
   /*! Check if the matrix is (non empty) diagonal */
   virtual bool isDiagonal(bool printWhyNot = false) const;
   /*! Check if the contents of the matrix is constant and diagonal */

@@ -224,14 +224,14 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
     }
 }
 
-bool AMatrix::isSymmetric(bool printWhyNot) const
+bool AMatrix::isSymmetric(bool printWhyNot, double eps) const
 {
   if (empty() || ! isSquare()) return false;
 
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (getValue(irow,icol) != getValue(icol,irow))
+      if (ABS(getValue(irow,icol) - getValue(icol,irow)) > eps)
       {
         if (printWhyNot)
           messerr("Elements (%d;%d)=%lf and (%d;%d)=%kf should be equal",
