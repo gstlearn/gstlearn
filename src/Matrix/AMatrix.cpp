@@ -800,7 +800,7 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
     sstr << "- Sparse Format" << std::endl;
     flagSkipZero = true;
   }
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
                    getValues(), false, flagSkipZero);
 
   return sstr.str();
@@ -949,8 +949,8 @@ bool AMatrix::_checkLink(int nrow1,
 
   if (nrow3 > 0)
   {
-    int nr3 = (!transpose2) ? nrow3 : ncol3;
-    int nc3 = (!transpose2) ? ncol3 : nrow3;
+    int nr3 = (!transpose3) ? nrow3 : ncol3;
+    int nc3 = (!transpose3) ? ncol3 : nrow3;
     if (ncur != nr3) level = 3;
     ncur = nc3;
   }

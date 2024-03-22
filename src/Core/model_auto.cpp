@@ -1245,7 +1245,7 @@ static void st_load_wt(const Vario *vario,
     {
       double ratio = (vario->getVar(ivar, jvar) > 0 && vario->getVar(jvar, ivar) > 0) ?
           sqrt(vario->getVar(ivar,jvar) * vario->getVar(jvar,ivar)) : 1.;
-      int ipadir = 0;
+      ipadir = 0;
       for (int idir = 0; idir < ndir; idir++)
       {
         for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
@@ -1504,7 +1504,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    int ijvar = 0;
+    ijvar = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
@@ -1721,17 +1721,17 @@ static int st_compress_parid(int n_init,
                              VectorDouble &lower,
                              VectorDouble &upper)
 {
-  int n_tot = 0;
+  int ntot = 0;
   for (int i = 0; i < n_init; i++)
   {
     if (FFFF(param[i])) continue;
-    parid[n_tot] = parid[i];
-    param[n_tot] = param[i];
-    upper[n_tot] = upper[i];
-    lower[n_tot] = lower[i];
-    n_tot++;
+    parid[ntot] = parid[i];
+    param[ntot] = param[i];
+    upper[ntot] = upper[i];
+    lower[ntot] = lower[i];
+    ntot++;
   }
-  return (n_tot);
+  return (ntot);
 }
 
 /****************************************************************************/
@@ -2249,24 +2249,24 @@ static void st_model_auto_strmod_define(StrMod *strmod,
 
   if (strmod->optvar.getLockSamerot())
   {
-    for (int imod = 0; imod < strmod->nmodel; imod++)
+    for (int jmod = 0; jmod < strmod->nmodel; jmod++)
     {
-      model = strmod->models[imod];
+      model = strmod->models[jmod];
 
       // Look for the first basic structure with a rotation defined
 
       int found = -1;
-      for (int icov = 0; icov < model->getCovaNumber() && found < 0; icov++)
+      for (int jcov = 0; jcov < model->getCovaNumber() && found < 0; jcov++)
       {
-        if (model->getCova(icov)->hasRange()) found = icov;
+        if (model->getCova(jcov)->hasRange()) found = jcov;
       }
       if (found < 0) continue;
       cova1 = model->getCova(found);
 
-      for (int icov = 1; icov < model->getCovaNumber(); icov++)
+      for (int jcov = 1; jcov < model->getCovaNumber(); jcov++)
       {
-        if (icov == found) continue;
-        cova = model->getCova(icov);
+        if (jcov == found) continue;
+        cova = model->getCova(jcov);
         if (!cova->getAnisoRotMat().empty())
           cova->setAnisoAngles(cova1->getAnisoAngles());
       }
@@ -3650,10 +3650,9 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
                                        Constraints& constraints,
                                        Option_AutoFit &mauto)
 {
-  int ntot, icov, jcov, ncova, ivar, jvar, jmod, kcov, ncovleft;
-  int flag_modified, imod, nmodel;
-  int flag_range, flag_param, min_order, max_ndim, flag_int_1d;
-  int flag_int_2d, flag_aniso, flag_rotation, rank;
+  int icov, ncova, ivar, jvar, jmod, kcov, imod, nmodel, ncovleft, rank;
+  int flag_modified, flag_range, flag_param, min_order, max_ndim, flag_int_1d;
+  int flag_int_2d, flag_aniso, flag_rotation;
   int lost_rank, lost_imod, lost_icov;
   double scalfac, parmax;
   VectorInt flag_compress;
@@ -3663,6 +3662,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   /* Initializations */
 
   int nparloc = *npar;
+  int ntot = 0;
   Option_VarioFit optvar = strmod->optvar;
 
   /* Load the parameters in the Model */
@@ -3695,10 +3695,10 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   lost_rank = lost_imod = lost_icov = -1;
   ncovleft = 0;
-  for (imod = 0; imod < strmod->nmodel; imod++)
+  for (int imod = 0; imod < strmod->nmodel; imod++)
   {
     model = strmod->models[imod];
-    for (icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getCovaNumber(); icov++)
     {
       FLAG_COMPRESS(imod,icov) = st_structure_reduce(strmod, imod, icov, hmax,
                                                      gmax, mauto.getTolsigma());
@@ -3759,7 +3759,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   /* Loop on the basic structures */
 
-  for (ntot = 0; ntot < nparloc; ntot++)
+  for (int ntot = 0; ntot < nparloc; ntot++)
   {
     st_parid_decode(strmod->parid[ntot], &imod, &icov, &icons, &ivar, &jvar);
     if (imod == lost_imod && icov == lost_icov && icons == EConsElem::ANGLE)
@@ -3771,10 +3771,10 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   if (lost_rank >= 0)
   {
-    for (imod = 0; imod < strmod->nmodel; imod++)
+    for (int imod = 0; imod < strmod->nmodel; imod++)
     {
       model = strmod->models[imod];
-      for (icov = 0; icov < model->getCovaNumber(); icov++)
+      for (int icov = 0; icov < model->getCovaNumber(); icov++)
       {
         if (FLAG_COMPRESS(imod, icov)) continue;
         model_cova_characteristics(model->getCovaType(icov), cov_name,
@@ -3808,19 +3808,21 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   /* Compress the vector of parameters and bounds */
 
-  label_compress: nparloc = st_compress_parid(ntot, strmod->parid, param, lower,
-                                              upper);
+  label_compress:
+  nparloc = st_compress_parid(ntot, strmod->parid, param, lower, upper);
 
   /* Modifying the covariance ranks in parid */
 
-  for (imod = 0; imod < strmod->nmodel; imod++)
-    for (icov = jcov = 0; icov < strmod->models[imod]->getCovaNumber(); icov++)
+  for (int imod = 0; imod < strmod->nmodel; imod++)
+  {
+    int jcov = 0;
+    for (int icov = 0; icov < strmod->models[imod]->getCovaNumber(); icov++)
     {
       if (FLAG_COMPRESS(imod, icov)) continue;
 
       /* Shift icov parameter */
 
-      for (ntot = 0; ntot < nparloc; ntot++)
+      for (int ntot = 0; ntot < nparloc; ntot++)
       {
         st_parid_decode(strmod->parid[ntot], &jmod, &kcov, &icons, &ivar,
                         &jvar);
@@ -3829,22 +3831,24 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
       }
       jcov++;
     }
+  }
 
   // Suppress the basic structures from the model (
   // Warning: We start from the end in order to avoid having to compress
   // FLAG_COMPRESS consequently
 
-  for (imod = strmod->nmodel - 1; imod >= 0; imod--)
+  for (int imod = strmod->nmodel - 1; imod >= 0; imod--)
   {
     ncova = strmod->models[imod]->getCovaNumber();
-    for (icov = ncova - 1; icov >= 0; icov--)
+    for (int icov = ncova - 1; icov >= 0; icov--)
     {
       if (!FLAG_COMPRESS(imod, icov)) continue;
       strmod->models[imod]->delCova(icov);
     }
   }
 
-  label_end: *npar = nparloc;
+  label_end:
+  *npar = nparloc;
   return (flag_modified);
 }
 

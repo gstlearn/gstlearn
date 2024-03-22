@@ -70,12 +70,14 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
                              bool transposeX,
                              bool transposeY)
 {
+  T* res = new T();
+
   if (x->getNCols() != y->getNRows())
   {
-    my_throw("Incompatible dimensions when making product of two matrices");
+    messerr("Incompatible dimensions when making product of two matrices");
+    return res;
   }
 
-  T* res = new T();
   res->AMatrix::reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 

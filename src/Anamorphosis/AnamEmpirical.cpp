@@ -71,7 +71,7 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 
   if (! _isFitted()) return sstr.str();
 
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, 2, _nDisc, _tDisc);
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nDisc, 2, _tDisc);
 
   return sstr.str();
 }

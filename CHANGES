@@ -5,6 +5,7 @@ This file contains the logs between consecutive releases
 Release 1.2.0
 =============
 - Improvement of test_potential.cpp (include cross-validation)
+- Adding a special version to my_throw (i.e. my_throw_impossible)
 
 Release 1.1.0
 =============

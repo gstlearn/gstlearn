@@ -291,7 +291,7 @@ String MatrixInt::toString(const AStringFormat* /* strfmt*/) const
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
   sstr << "- Number of columns = " <<  _nCols << std::endl;
 
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
                    getValues());
   return sstr.str();
 }

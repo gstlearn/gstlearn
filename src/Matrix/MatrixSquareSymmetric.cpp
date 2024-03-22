@@ -436,11 +436,13 @@ void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
 
 void MatrixSquareSymmetric::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
+  DECLARE_UNUSED(transpose);
   _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 
 void MatrixSquareSymmetric::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
+  DECLARE_UNUSED(transpose);
   _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 

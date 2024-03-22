@@ -54,8 +54,8 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   sstr << toTitle(0,"Image Neighborhood");
 
   sstr << "Skipping factor = " << _skip << std::endl;
-  sstr << toMatrix("Image radius :", VectorString(), VectorString(), true, getNDim(),
-                  1, _imageRadius);
+  sstr << toMatrix("Image radius :", VectorString(), VectorString(), true,
+                   1, getNDim(), _imageRadius);
 
   return sstr.str();
 }

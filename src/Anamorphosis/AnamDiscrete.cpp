@@ -84,9 +84,9 @@ String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
     sstr << "Variance          = " << _variance << std::endl;
 
   sstr << std::endl;
-  sstr << toMatrix("Cutoffs", VectorString(), VectorString(), true, 1, _nCut, _zCut);
+  sstr << toMatrix("Cutoffs", VectorString(), VectorString(), true, _nCut, 1, _zCut);
 
-  sstr << toMatrix(String(),VectorString(),VectorString(),true,getNElem(),getNClass(),
+  sstr << toMatrix(String(),VectorString(),VectorString(),true,getNClass(),getNElem(),
                    getStats().getValues());
 
   return sstr.str();
