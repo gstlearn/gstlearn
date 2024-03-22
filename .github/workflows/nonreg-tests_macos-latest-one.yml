@@ -3,10 +3,7 @@ name: nonreg-tests_macos-one
 on:
   # Activate the workflow at each push on dev branch
   push:
-    branches: [ dev ]
-  # Activate the workflow at each pull request on dev branch
-  pull_request:
-    branches: [ dev ]
+    branches: [ fix_one_coverage_test ]
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -16,7 +13,6 @@ on:
         default: ''
 
 env:
-  RUNS_ON: macos-14
   TEST_SCRIPT: tests/r/test_one.R
   BUILD_TYPE: Release
   BUILD_DIR : build
@@ -31,7 +27,7 @@ env:
 
 jobs:
   build:
-    runs-on: ${{env.RUNS_ON}}
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v3
@@ -75,7 +71,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
     - name: Compile, install package and execute one test
       run: |
