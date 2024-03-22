@@ -13,7 +13,6 @@ on:
         default: ''
 
 env:
-  RUNS_ON: macos-14
   TEST_SCRIPT: tests/r/test_one.R
   BUILD_TYPE: Release
   BUILD_DIR : build
@@ -28,7 +27,7 @@ env:
 
 jobs:
   build:
-    runs-on: ${{env.RUNS_ON}}
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v3
