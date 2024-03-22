@@ -52,9 +52,9 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
-  virtual bool isDense() const { return false; }
+  virtual bool isDense() const = 0;
   /*! Returns if the current matrix is Sparse */
-  virtual bool isSparse() const { return false; }
+  virtual bool isSparse() const = 0;
   /*! Check if the matrix is (non empty) square */
   virtual bool isSquare(bool printWhyNot = false) const;
   /*! Indicate if the given indices are valid for the current matrix size */
@@ -212,10 +212,10 @@ public:
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   void makePositiveColumn();
-  void linearComb(double val1,
-                  const AMatrix *in1,
-                  double val2 = 1.,
-                  const AMatrix *in2 = nullptr);
+  void linearCombination(double val1,
+                         const AMatrix *mat1,
+                         double val2 = 1.,
+                         const AMatrix *mat2 = nullptr);
 
 #ifndef SWIG
   /*! Get value operator override */
@@ -226,6 +226,7 @@ public:
 protected:
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
+  /*! Check that 'm' has correct characteristics to be added (say) to 'this' */
   virtual bool    _isCompatible(const AMatrix& m) const { return isSameSize(m); }
   virtual double& _getValueRef(int irow, int icol);
   virtual int     _getMatrixPhysicalSize() const;

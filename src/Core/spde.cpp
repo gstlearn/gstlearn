@@ -1181,7 +1181,7 @@ double spde_compute_correc(int ndim, double param)
  *****************************************************************************/
 static void st_compute_blin(void)
 {
-  double ndims2, alpha, lambda, delta, correc, *m, *v;
+  double ndims2, alpha, lambda, delta, correc;
   int p, ndimp;
 
   /* Initializations */
@@ -1195,7 +1195,6 @@ static void st_compute_blin(void)
   lambda = alpha - floor(alpha);
   delta = lambda - alpha;
   correc = Calcul.correc;
-  m = v = nullptr;
 
   Calcul.blin.resize(NBLIN_TERMS, 0);
 
@@ -1203,19 +1202,20 @@ static void st_compute_blin(void)
   {
     /* Core allocation */
 
-    v = (double*) mem_alloc(sizeof(double) * ndimp, 1);
-    m = (double*) mem_alloc(sizeof(double) * ndimp * ndimp, 1);
+    VectorDouble v1(ndimp, 0);
+    VectorDouble v2(ndimp, 0);
+    MatrixSquareGeneral m(ndimp);
     MatrixSquareGeneral tp = ut_pascal(ndimp);
 
     for (int idim = 0; idim < ndimp; idim++)
     {
-      v[idim] = 1. / (2. * p - idim + delta);
+      v1[idim] = 1. / (2. * p - idim + delta);
       for (int jdim = 0; jdim < ndimp; jdim++)
-        M(idim,jdim) = 1. / (2. * p - idim - jdim + lambda);
+        m.setValue(idim,jdim, 1. / (2. * p - idim - jdim + lambda));
     }
-    (void) matrix_invert(m, ndimp, -1);
-    matrix_product(ndimp, ndimp, 1, m, v, v);
-    matrix_product_safe(ndimp, ndimp, 1, tp.getValues().data(), v, Calcul.blin.data());
+    (void) m.invert();
+    m.prodMatVecInPlace(v1, v2);
+    tp.prodMatVecInPlace(v2, Calcul.blin);
   }
   else
   {
@@ -1224,11 +1224,6 @@ static void st_compute_blin(void)
   }
 
   Calcul.blin.resize(ndimp);
-
-  /* Core deallocation */
-
-  v = (double*) mem_free((char* ) v);
-  m = (double*) mem_free((char* ) m);
 }
 
 /****************************************************************************/

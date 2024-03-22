@@ -202,7 +202,7 @@ double AnamEmpirical::transformToRawValue(double yy) const
 
 void AnamEmpirical::calculateMeanAndVariance()
 {
-  my_throw("This function is not available for Empirical Anamorphosis");
+  messerr("This function is not available for Empirical Anamorphosis");
 }
 
 int AnamEmpirical::fitFromArray(const VectorDouble& tab,

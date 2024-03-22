@@ -979,7 +979,7 @@ void VectorHelper::cumulate(VectorDouble &veca,
                             double addval)
 {
   if (veca.size() != vecb.size())
-    my_throw("Wrong size");
+    my_throw("Arguments 'veca' and 'vecb' should have the same dimension");
 
   VectorDouble::iterator ita(veca.begin());
   VectorDouble::const_iterator itb(vecb.begin());
@@ -1945,35 +1945,38 @@ VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
   return vecout;
 }
 
-void VectorHelper::linearComb(double val1,
-                              const VectorDouble &in1,
-                              double val2,
-                              const VectorDouble &in2,
-                              VectorDouble &outv)
+void VectorHelper::linearCombinationInPlace(double val1,
+                                            const VectorDouble &vd1,
+                                            double val2,
+                                            const VectorDouble &vd2,
+                                            VectorDouble &outv)
 {
-  if (in1.empty() || in2.empty()) return;
-  for (int i = 0, n = (int) in1.size(); i < n; i++)
+  if (vd1.empty() || vd2.empty()) return;
+  for (int i = 0, n = (int) vd1.size(); i < n; i++)
   {
     double value = 0.;
-    if (val1 != 0. && !in1.empty()) value += val1 * in1[i];
-    if (val2 != 0. && !in2.empty()) value += val2 * in2[i];
+    if (val1 != 0. && !vd1.empty()) value += val1 * vd1[i];
+    if (val2 != 0. && !vd2.empty()) value += val2 * vd2[i];
     outv[i] = value;
   }
 }
 
-void VectorHelper::linearCombVVD(double val1,
-                                 const VectorVectorDouble &in1,
-                                 double val2,
-                                 const VectorVectorDouble &in2,
-                                 VectorVectorDouble &outv)
+void VectorHelper::linearCombinationVVDInPlace(double val1,
+                                               const VectorVectorDouble &vvd1,
+                                               double val2,
+                                               const VectorVectorDouble &vvd2,
+                                               VectorVectorDouble &outv)
 {
-  if (in1.empty() || in2.empty()) return;
+  if (vvd1.empty() || vvd2.empty()) return;
 
-  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  for (int is = 0, ns = (int) vvd1.size(); is < ns; is++)
   {
-    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    for (int i = 0, n = (int) vvd1[is].size(); i < n; i++)
     {
-      outv[is][i] = val1 * in1[is][i] + val2 * in2[is][i];
+      double value = 0.;
+      if (val1 != 0. && ! vvd1.empty()) value += val1 * vvd1[is][i];
+      if (val2 != 0. && ! vvd2.empty()) value += val2 * vvd2[is][i];
+      outv[is][i] = value;
     }
   }
 }

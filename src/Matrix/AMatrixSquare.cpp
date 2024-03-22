@@ -195,3 +195,28 @@ double AMatrixSquare::normVec(const VectorDouble& vec)
   return value;
 }
 
+/*****************************************************************************/
+/*!
+ **  Performs the 'this' %*% diag(c) where c is a vector
+ **
+ ** \param[in]  mode  0: c as is; 1: sqrt(c); 2: 1/c; 3: 1/sqrt(c)
+ ** \param[in]  c     vector
+ **
+ *****************************************************************************/
+void AMatrixSquare::prodByDiagInPlace(int mode, const VectorDouble& c)
+{
+  int neq = getNRows();
+  for (int i1 = 0; i1 < neq; i1++)
+    for (int i2 = 0; i2 < neq; i2++)
+    {
+      double val = c[i2];
+      if (mode == 1)
+        val = sqrt(val);
+      else if (mode == 2)
+        val = 1. / val;
+      else if (mode == 3) val = 1. / sqrt(val);
+      setValue(i1, i2, getValue(i1, i2) * val);
+    }
+  return;
+}
+

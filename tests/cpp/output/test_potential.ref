@@ -82,11 +82,11 @@ Number of Equations     = 3
 Iso-Potential #1
 Cross-validation Error: Mean=-2.434777 St. Dev.=0.000000
 Standardized Error    : Mean=-2.011378 St. Dev.=0.000000
-Euclidean Distance    : Mean=0.424087 St. Dev.=0.000000
-Geodetic Distance     : Mean=0.059984 St. Dev.=0.000000
+Euclidean Distance    : Mean=4.127093 St. Dev.=0.000000
+Geodetic Distance     : Mean=34.831898 St. Dev.=0.000000
 
 Iso-Potential #2
 Cross-validation Error: Mean=-2.285751 St. Dev.=0.000000
 Standardized Error    : Mean=-1.747219 St. Dev.=0.000000
-Euclidean Distance    : Mean=0.460406 St. Dev.=0.000000
-Geodetic Distance     : Mean=0.065120 St. Dev.=0.000000
+Euclidean Distance    : Mean=10.815096 St. Dev.=0.000000
+Geodetic Distance     : Mean=41.333725 St. Dev.=0.000000

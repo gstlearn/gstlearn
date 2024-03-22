@@ -1266,14 +1266,12 @@ int foxleg_f(int ndat,
 
   /* Initializations */
 
-  for (int ipar = 0; ipar < NPAR; ipar++)
-  {
-    paramaux[ipar] = param[ipar];
-    hgn[ipar] = 0.;
-  }
-  for (int ipar = 0; ipar < NPCT; ipar++)
-    hgnc[ipar] = hgnadm[ipar] = 0.;
+  hgn.fill(0.);
+  hgnc.fill(0.);
+  hgnadm.fill(0.);
   gauss.fill(0.);
+  for (int ipar = 0; ipar < NPAR; ipar++)
+    paramaux[ipar] = param[ipar];
 
   st_constraints_init(ind_util, ai);
 

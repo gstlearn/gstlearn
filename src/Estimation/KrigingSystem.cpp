@@ -3343,8 +3343,7 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Cholesky decomposition */
 
-  VectorDouble trimat = _postCov.choleskyDecompose();
-  if (trimat.empty())
+  if (_postCov.choleskyDecompose())
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
     messerr("The Drift coefficients have been set to their posterior mean");
@@ -3354,6 +3353,7 @@ void KrigingSystem::_bayesPreSimulate()
   }
   else
   {
+    VectorDouble trimat = _postCov.getCholeskyTL();
     for (int isimu = 0; isimu < _nbsimu; isimu++)
     {
 

@@ -2087,8 +2087,8 @@ static void st_estimate_data(Pot_Env *pot_env,
  ** \param[in]  ic0           Rank of the isoline
  ** \param[in]  j0            Rank of the sample within this isoline
  ** \param[in]  zval          Data vector
- ** \param[in]  lhs_orig      Copy of the initial LHS (non inverted)
- ** \param[in]  rhs           Right-hand side
+ ** \param[in]  lhs_orig_arg  Copy of the initial LHS (non inverted)
+ ** \param[in]  rhs_arg       Right-hand side
  ** \param[in]  zdual         Dual vector (Dimension: nequa)
  **
  ** \param[out] dist_euc      Error converted into Euclidean distance
@@ -2108,14 +2108,13 @@ static void st_dist_convert(Pot_Env *pot_env,
                             int ic0,
                             int j0,
                             VectorDouble& zval,
-                            MatrixSquareSymmetric& lhs_orig,
-                            MatrixRectangular& rhs,
+                            MatrixSquareSymmetric& lhs_orig_arg,
+                            MatrixRectangular& rhs_arg,
                             VectorDouble& zdual,
                             double *dist_euc,
                             double *dist_geo)
 {
   DECLARE_UNUSED(dbiso, dbgrd, dbtgt);
-  double potval, delta;
   VectorDouble result(4);
   static int niter_max = 50;
   static double eps = 1.e-3;
@@ -2125,43 +2124,52 @@ static void st_dist_convert(Pot_Env *pot_env,
   int ndim  = pot_env->ndim;
   int nequa = pot_env->nequa;
   int neqm1 = nequa - 1;
-  int nsol  = 1 + ndim;
   int icol0 = ISC(ic0, j0);
   VectorDouble deuc(ndim, 0.);
   VectorDouble dgeo(ndim, 0.);
 
+  VectorDouble lhs_orig = lhs_orig_arg.getValues();
+  VectorDouble rhs;
+  MatrixSquareSymmetric* lhs_aux = nullptr;
+  MatrixRectangular* rhs_red = nullptr;
+
   /* Update the L.H.S. by dropping the current data point */
 
-  MatrixSquareSymmetric* lhs_loc = dynamic_cast<MatrixSquareSymmetric*>
-    (MatrixFactory::createReduceOne(&lhs_orig, icol0, icol0, false, false));
+  lhs_aux = dynamic_cast<MatrixSquareSymmetric*>
+    (MatrixFactory::createReduceOne(&lhs_orig_arg, icol0, icol0, false, false));
 
   /* Invert the new LHS */
 
-  if (lhs_loc->invert())
-  {
-    delete lhs_loc;
-    return;
-  }
+  if (lhs_aux->invert()) return;
 
   /* Calculate the dual system */
 
-  matrix_product_safe(neqm1, neqm1, 1, lhs_loc->getValues().data(), zval.data(), zdual.data());
+  VectorDouble zdual_red(neqm1);
+  VectorDouble zval_red = VH::reduceOne(zval, icol0);
+  lhs_aux->prodMatVecInPlace(zval_red, zdual_red);
+  delete lhs_aux;
 
   /* Evaluate the reference point */
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
-  st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs);
-  matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs.getValues().data(), rhs.getValues().data());
-  matrix_product_safe(1, neqm1, 1, zdual.data(), rhs.getValues().data(), &potval);
+  st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs_arg);
+  rhs_red = dynamic_cast<MatrixRectangular*>
+    (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
+  rhs_red->prodVecMatInPlace(zdual_red, result);
+//  double potval = result[0]; // TODO: check why is potval not used
+  delete rhs_red;
 
   /* Evaluate the target point */
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
-  st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs);
-  matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs.getValues().data(), rhs.getValues().data());
-  matrix_product_safe(1, neqm1, nsol, zdual.data(), rhs.getValues().data(), result.data());
+  st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs_arg);
+  rhs_red = dynamic_cast<MatrixRectangular*>
+    (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
+  rhs_red->prodVecMatInPlace(zdual_red, result);
+  delete rhs_red;
+
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, 0,
@@ -2179,13 +2187,16 @@ static void st_dist_convert(Pot_Env *pot_env,
     for (int idim = 0; idim < pot_env->ndim; idim++)
     {
       if (ABS(result[1+idim]) < eps) continue;
-      delta = 0.1 * result[0] / result[1 + idim];
+      double delta = 0.1 * result[0] / result[1 + idim];
       coor[idim] -= delta;
       dgeo[idim] += delta * delta;
     }
-    st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs);
-    matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs.getValues().data(), rhs.getValues().data());
-    matrix_product_safe(1, neqm1, nsol, zdual.data(), rhs.getValues().data(), result.data());
+    st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs_arg);
+    rhs_red = dynamic_cast<MatrixRectangular*>
+      (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
+    rhs_red->prodVecMatInPlace(zdual_red, result);
+    delete rhs_red;
+
     if (OptDbg::query(EDbg::CONVERGE))
     {
       message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, iter,
@@ -2200,7 +2211,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
   {
-    delta = coor[idim] - coor0[idim];
+    double delta = coor[idim] - coor0[idim];
     deuc[idim] = delta * delta;
   }
 
@@ -2215,7 +2226,6 @@ static void st_dist_convert(Pot_Env *pot_env,
   (*dist_euc) = sqrt(*dist_euc);
   (*dist_geo) = sqrt(*dist_geo);
 
-  delete lhs_loc;
   return;
 }
 

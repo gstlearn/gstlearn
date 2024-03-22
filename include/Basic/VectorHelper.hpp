@@ -200,16 +200,16 @@ public:
   static VectorVectorDouble unflatten(const VectorDouble& vd, const VectorInt& sizes);
   static void flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd);
   static void unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd);
-  static void linearComb(double val1,
-                         const VectorDouble &in1,
-                         double val2,
-                         const VectorDouble &in2,
-                         VectorDouble &outv);
-  static void linearCombVVD(double val1,
-                            const VectorVectorDouble &in1,
-                            double val2,
-                            const VectorVectorDouble &in2,
-                            VectorVectorDouble &outv);
+  static void linearCombinationInPlace(double val1,
+                                       const VectorDouble &vd1,
+                                       double val2,
+                                       const VectorDouble &vd2,
+                                       VectorDouble &outv);
+  static void linearCombinationVVDInPlace(double val1,
+                                          const VectorVectorDouble &vvd1,
+                                          double val2,
+                                          const VectorVectorDouble &vvd2,
+                                          VectorVectorDouble &outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
   static void extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);

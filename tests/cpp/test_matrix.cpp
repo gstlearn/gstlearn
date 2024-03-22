@@ -662,9 +662,11 @@ int main(int argc, char *argv[])
 
   // Gluing two sparse matrices
 
-  MatrixSparse* MSGlueEig = MatrixSparse::glue(MSEig, MSEig, true, true);
+  MatrixSparse* MSGlueEig = dynamic_cast<MatrixSparse*>
+    (MatrixFactory::createGlue(MSEig, MSEig, true, true));
   MSGlueEig->display();
-  MatrixSparse* MSGlueNoEig = MatrixSparse::glue(MSNoEig, MSNoEig, true, true);
+  MatrixSparse* MSGlueNoEig = dynamic_cast<MatrixSparse*>
+    (MatrixFactory::createGlue(MSNoEig, MSNoEig, true, true));
   MSGlueNoEig->display();
 
   // Compare Generalized Eigen values calculated using Eigen Library or not (dense matrix only)

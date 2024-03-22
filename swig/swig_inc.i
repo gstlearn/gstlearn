@@ -551,6 +551,7 @@
 %template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
 %template(VectorEPostStat)    std::vector< EPostStat >;
+%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

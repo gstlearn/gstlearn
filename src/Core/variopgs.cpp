@@ -2341,7 +2341,7 @@ static void st_deriv_eigen(Local_CorPgs *corpgs,
   MatrixSquareSymmetric invGn(4);
   d2.fill(0.);
   st_build_correl(corpgs, corpgs->params, temp);
-  temp.linearComb(-1., &temp);
+  temp.linearCombination(-1., &temp);
 
   for (int i = 0; i < 4; i++)
     temp.updValue(i,i, EOperator::ADD, eigval);
@@ -3172,9 +3172,9 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       MatrixSquareGeneral* eigvec = correl.getEigenVectors();
       st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
       Srpen = Sr - penalize * log(eigval[3]);
-      VH::linearComb(1., Grad, -penalize / eigval[3], d1, Grad);
-      Hess.linearComb(npar, &Hess, penalize / (eigval[3] * eigval[3]), &d2);
-      JJ.linearComb(npar, &JJ, penalize / (eigval[3] * eigval[3]), &d2);
+      VH::linearCombinationInPlace(1., Grad, -penalize / eigval[3], d1, Grad);
+      Hess.linearCombination(npar, &Hess, penalize / (eigval[3] * eigval[3]), &d2);
+      JJ.linearCombination(npar, &JJ, penalize / (eigval[3] * eigval[3]), &d2);
       penalize /= 2.;
     }
     niter++;
@@ -3184,7 +3184,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       gr = Grad;
       Gn = Hess;
       if (! Gn.isDefinitePositive()) Gn = JJ;
-      VH::linearComb(-1., gr, 0., VectorDouble(), hsd);
+      VH::linearCombinationInPlace(-1., gr, 0., VectorDouble(), hsd);
       invGn = Gn;
       if (invGn.invert()) messageAbort("st_optim_lag");
       hgn = invGn.prodMatVec(hsd);
@@ -3203,12 +3203,12 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       double normgrad = sqrt(normgrad2);
       if (normgrad > (delta / alpha))
       {
-        VH::linearComb(delta / normgrad, hsd, 0., VectorDouble(), step);
+        VH::linearCombinationInPlace(delta / normgrad, hsd, 0., VectorDouble(), step);
       }
       else
       {
-        VH::linearComb(alpha, hsd, 0., VectorDouble(), a);
-        VH::linearComb(1., hgn, -1., a, hgna);
+        VH::linearCombinationInPlace(alpha, hsd, 0., VectorDouble(), a);
+        VH::linearCombinationInPlace(1., hgn, -1., a, hgna);
         double c = VH::innerProduct(a, hgn);
         double a2 = VH::innerProduct(a, a, npar);
         double hgna2 = VH::innerProduct(hgna, hgna, npar);
@@ -3217,16 +3217,16 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
           beta = (-c + sqrt(c * c + hgna2 * (delta2 - a2))) / hgna2;
         else
           beta = (delta2 - a2) / (c + sqrt(c * c + hgna2 * (delta2 - a2)));
-        VH::linearComb(beta, hgn, (1. - beta), a, step);
+        VH::linearCombinationInPlace(beta, hgn, (1. - beta), a, step);
       }
     }
 
-    VH::linearComb(1., step, 1., corpgs->params, param_temp);
+    VH::linearCombinationInPlace(1., step, 1., corpgs->params, param_temp);
     st_build_correl(corpgs, param_temp, correl);
     while (! correl.isDefinitePositive())
     {
-      VH::linearComb(0.9, step, 0., step, step);
-      VH::linearComb(1.0, step, 1., corpgs->params, param_temp);
+      VH::linearCombinationInPlace(0.9, step, 0., step, step);
+      VH::linearCombinationInPlace(1.0, step, 1., corpgs->params, param_temp);
       st_build_correl(corpgs, param_temp, correl);
     }
 
@@ -3254,14 +3254,14 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
     {
       Sr = Snew;
       Srpen = Spen;
-      VH::linearComb(1, param_temp, 0, VectorDouble(), corpgs->params);
+      VH::linearCombinationInPlace(1, param_temp, 0, VectorDouble(), corpgs->params);
       Snew = st_calcul(local_pgs, 1, 0, corpgs->params, Grad, Hess, JJ);
       if (barrier)
       {
         st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
-        VH::linearComb(1, Grad, penalize / eigval[3], d1, Grad);
-        Hess.linearComb(npar, &Hess, -penalize / (eigval[3] * eigval[3]), &d2);
-        JJ.linearComb(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
+        VH::linearCombinationInPlace(1, Grad, penalize / eigval[3], d1, Grad);
+        Hess.linearCombination(npar, &Hess, -penalize / (eigval[3] * eigval[3]), &d2);
+        JJ.linearCombination(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
         penalize /= 2.;
       }
       if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProduct(step, step, npar)));

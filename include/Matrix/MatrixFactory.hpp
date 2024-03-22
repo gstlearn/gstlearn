@@ -43,6 +43,10 @@ public:
                                   int selCol = -1,
                                   bool flagKeepRow = true,
                                   bool flagKeepCol = true);
+  static AMatrix* createGlue(const AMatrix *a1,
+                             const AMatrix *a2,
+                             bool flagShiftRow,
+                             bool flagShiftCol);
 };
 
 /****************************************************************************/

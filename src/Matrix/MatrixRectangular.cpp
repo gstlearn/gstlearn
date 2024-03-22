@@ -342,3 +342,32 @@ int MatrixRectangular::_getIndexToRankLocal(int irow, int icol) const
   return (icol * getNRows() + irow);
 }
 
+MatrixRectangular* MatrixRectangular::glue(const AMatrix *A1,
+                                           const AMatrix *A2,
+                                           bool flagShiftRow,
+                                           bool flagShiftCol)
+{
+  // Create the new matrix
+  int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
+  int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
+
+  int nrows = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
+  int ncols = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
+
+  MatrixRectangular* mat = new MatrixRectangular(nrows, ncols);
+  mat->fill(0.);
+
+  // Copy the first input matrix
+
+  for (int irow = 0; irow < A1->getNRows(); irow++)
+    for (int icol = 0; icol < A1->getNCols(); icol++)
+      mat->setValue(irow, icol, A1->getValue(irow, icol));
+
+  // Copy the second input matrix
+
+  for (int irow = 0; irow < A2->getNRows(); irow++)
+    for (int icol = 0; icol < A2->getNCols(); icol++)
+      mat->setValue(irow + shiftRow, icol + shiftCol, A2->getValue(irow, icol));
+
+  return mat;
+}

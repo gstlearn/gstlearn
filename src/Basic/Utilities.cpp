@@ -1011,7 +1011,7 @@ operate_function operate_Identify( int oper )
   else if (oper == -3)
     oper_choice = operate_InverseSqrt;
   else
-    my_throw("Operate Function is not defined");
+    my_throw("Internal function: Operator is not defined. This should benever happen");
 
   return oper_choice;
 }

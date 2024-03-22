@@ -382,47 +382,6 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
  **
  ** \param[out] v3 rectangular matrix (n1,n3)
  **
- ** \remark  The matrix v3[] may coincide with one of the two initial ones
- **
- *****************************************************************************/
-void matrix_product(int n1,
-                    int n2,
-                    int n3,
-                    const double *v1,
-                    const double *v2,
-                    double *v3)
-{
-  double *v4;
-  int i1, i2, i3, i4;
-
-  v4 = (double*) mem_alloc(sizeof(double) * n1 * n3, 1);
-  for (i4 = 0; i4 < n1 * n3; i4++)
-    v4[i4] = 0.;
-
-  for (i3 = 0; i3 < n3; i3++)
-    for (i1 = 0; i1 < n1; i1++)
-      for (i2 = 0; i2 < n2; i2++)
-        V4(i1,i3)+= V1(i1,i2) * V2(i2,i3);
-
-  for (i4 = 0; i4 < n1 * n3; i4++)
-    v3[i4] = v4[i4];
-  v4 = (double*) mem_free((char* ) v4);
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the product of two matrices
- **
- ** \param[in]  n1 matrix dimension
- ** \param[in]  n2 matrix dimension
- ** \param[in]  n3 matrix dimension
- ** \param[in]  v1 rectangular matrix (n1,n2)
- ** \param[in]  v2 rectangular matrix (n2,n3)
- **
- ** \param[out] v3 rectangular matrix (n1,n3)
- **
  ** \remark  The matrix v3[] may NOT coincide with one of the two initial ones
  **
  *****************************************************************************/
@@ -685,21 +644,21 @@ int matrix_cholesky_decompose(const double *a, double *tl, int neq)
 
   for (ip = 0; ip < neq; ip++)
     for (jp = 0; jp <= ip; jp++)
-      TL(ip,jp)= AS(ip,jp);
+      TL(ip,jp) = AS(ip,jp);
 
   for (ip = 0; ip < neq; ip++)
   {
     prod = TL(ip, ip);
     for (kp = 0; kp < ip; kp++)
-      prod -= TL(ip,kp)* TL(ip,kp);
+      prod -= TL(ip,kp) * TL(ip,kp);
     if (prod < 0.) return (ip + 1);
-    TL(ip,ip)= sqrt(prod);
+    TL(ip,ip) = sqrt(prod);
 
     for (jp = ip + 1; jp < neq; jp++)
     {
       prod = TL(jp, ip);
       for (kp = 0; kp < ip; kp++)
-        prod -= TL(ip,kp)* TL(jp,kp);
+        prod -= TL(ip,kp) * TL(jp,kp);
       if (TL(ip,ip)<= 0.) return(ip+1);
       TL(jp,ip) = prod / TL(ip,ip);
     }
@@ -745,7 +704,7 @@ void matrix_cholesky_product(int mode,
       {
         val = 0.;
         for (j = i; j < neq; j++)
-          val += TL(j,i)* AS(j,irhs);
+          val += TL(j,i) * AS(j,irhs);
         XS(i,irhs)= val;
       }
     }
@@ -831,75 +790,17 @@ void matrix_cholesky_product(int mode,
  *****************************************************************************/
 void matrix_cholesky_invert(int neq, const double *tl, double *xl)
 {
-  double sum;
-  int i, j, l;
-
-  for (i = 0; i < neq; i++)
+  for (int i = 0; i < neq; i++)
   {
-    for (j = 0; j < i; j++)
+    for (int j = 0; j < i; j++)
     {
-      sum = 0.;
-      for (l = j; l < i; l++)
-        sum += TL(i,l)* XL(l,j);
-      XL(i,j)= - sum / TL(i,i);
+      double sum = 0.;
+      for (int l = j; l < i; l++)
+        sum += TL(i,l) * XL(l,j);
+      XL(i,j) = - sum / TL(i,i);
     }
     XL(i,i) = 1. / TL(i,i);
   }
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the product B = TL * A * TU or TU * A * TL
- **  where TL,TU is a triangular matrix and A a square symmetric matrix
- **
- ** \param[in]  mode  0: TL * A * TU; 1: TU * A * TL
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  tl   Triangular matrix defined by column
- ** \param[in]  a    Square symmetric matrix (optional)
- **
- ** \param[out] b    Square symmetric matrix
- **
- *****************************************************************************/
-void matrix_cholesky_norme(int mode,
-                           int neq,
-                           const double *tl,
-                           const double *a,
-                           double *b)
-{
-  int i, j, k, l;
-  double val, vala;
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      val = 0.;
-      if (mode == 0)
-      {
-        for (l = 0; l <= j; l++)
-          for (k = 0; k <= i; k++)
-          {
-            if (a != nullptr)
-              vala = AS(k, l);
-            else
-              vala = (k == l);
-            val += TL(i,k)* vala * TL(j,l);
-          }
-        }
-        else
-        {
-          for (l=j; l<neq; l++)
-          for (k=i; k<neq; k++)
-          {
-            if (a != nullptr)
-            vala = AS(k,l);
-            else
-            vala = (k == l);
-            val += TL(k,i) * vala * TL(l,j);
-          }
-        }
-      BS(i,j)= val;
-    }
-  return;
 }
 
 /****************************************************************************/
@@ -950,7 +851,7 @@ int matrix_invgen(double *a, int neq, double *tabout, double *cond)
       {
         if (ABS(eigval[k]) > valcond * _getTolInvGen()) value += EIGVEC(k,i)* EIGVEC(k,j) / eigval[k];
       }
-      TABOUT(i,j)= value;
+      TABOUT(i,j) = value;
     }
 
     /* Set the error returned code */
@@ -960,106 +861,6 @@ int matrix_invgen(double *a, int neq, double *tabout, double *cond)
   label_end: eigval = (double*) mem_free((char* ) eigval);
   eigvec = (double*) mem_free((char* ) eigvec);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Fill a square matrix with a triangular matrix
- **
- ** \param[in]  mode   0: TL (upper); 1: TL (lower)
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Triangular matrix (lower part)
- **
- ** \param[out] a      Resulting square matrix
- **
- *****************************************************************************/
-void matrix_triangle_to_square(int mode, int neq, const double *tl, double *a)
-{
-  for (int i = 0; i < neq * neq; i++)
-    a[i] = 0.;
-
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-    {
-      if (mode == 0)
-      {
-        if (j <= i) AS(i,j)= TL(i,j);
-      }
-      else
-      {
-        if (j >= i) AS(i,j) = TL(j,i);
-      }
-    }
-  }
-
-/*****************************************************************************/
-/*!
- **  Check if the index match one element of a list
- **
- ** \return  1 if the target index is present in the list; -1 otherwise
- **
- ** \param[in]  index   Target index
- ** \param[in]  nitem   Number of items in the list
- ** \param[in]  items   List of items
- **
- *****************************************************************************/
-static int st_match_index(int index, int nitem, int *items)
-{
-  int i;
-
-  if (nitem <= 0) return (-1);
-  for (i = 0; i < nitem; i++)
-  {
-    if (items[i] == index) return (1);
-  }
-  return (-1);
-}
-
-/*****************************************************************************/
-/*!
- **  Manage a matrix and derive a sub-matrix
- **
- ** \param[in]  nrows   Number of rows of the input matrix
- ** \param[in]  ncols   Number of columns of the input matrix
- ** \param[in]  nr      Number of rows of interest
- ** \li                  >0 : for extraction
- ** \li                   0 : no action
- ** \li                  <0 : for suppression
- ** \param[in]  nc      Number of columns of interest
- ** \li                  >0 : for extraction
- ** \li                   0 : no action
- ** \li                  <0 : for suppression
- ** \param[in]  rowsel  Array of rows indices of interest (starting from 0)
- **                     (Dimension: ABS(nr)
- ** \param[in]  colsel  Array of columns indices of interest (starting from 0)
- **                     (Dimension: ABS(nr)
- ** \param[in]  v1      Input rectangular matrix (Dimension: nrows * ncols)
- **
- ** \param[out] v2      Output rectangular matrix
- **
- *****************************************************************************/
-void matrix_manage(int nrows,
-                   int ncols,
-                   int nr,
-                   int nc,
-                   int *rowsel,
-                   int *colsel,
-                   double *v1,
-                   double *v2)
-{
-  int irow, icol, ecr, lec, flag_col, flag_row;
-
-  lec = ecr = 0;
-  for (icol = 0; icol < ncols; icol++)
-  {
-    flag_col = st_match_index(icol, ABS(nc), colsel);
-    for (irow = 0; irow < nrows; irow++, lec++)
-    {
-      flag_row = st_match_index(irow, ABS(nr), rowsel);
-      if (nr * flag_row < 0 || nc * flag_col < 0) continue;
-      v2[ecr++] = v1[lec];
-    }
-  }
 }
 
 /*****************************************************************************/
@@ -1097,40 +898,6 @@ void matrix_combine(int nval,
     if (b != nullptr) value += coeffb * b[i];
     c[i] = value;
   }
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the A %*% diag(c) where A is a square matrix and c a vector
- **
- ** \param[in]  mode  0: c as is; 1: sqrt(c); 2: 1/c; 3: 1/sqrt(c)
- ** \param[in]  neq   matrix dimension for A
- ** \param[in]  a     square matrix
- ** \param[in]  c     vector
- **
- ** \param[out] b   square matrix
- **
- ** \remark Matrices a() and b() may coincide
- **
- *****************************************************************************/
-void matrix_product_by_diag(int mode, int neq, double *a, double *c, double *b)
-{
-  double val;
-  int i1, i2;
-
-  for (i1 = 0; i1 < neq; i1++)
-    for (i2 = 0; i2 < neq; i2++)
-    {
-      val = c[i2];
-      if (mode == 1)
-        val = sqrt(val);
-      else if (mode == 2)
-        val = 1. / val;
-      else if (mode == 3) val = 1. / sqrt(val);
-      B(i1,i2)= A(i1,i2) * val;
-    }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -1652,117 +1419,5 @@ int matrix_qoci(int neq,
   aeimat = (double*) mem_free((char* ) aeimat);
   beimat = (double*) mem_free((char* ) beimat);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Concatenate two matrices
- **
- ** \return Pointer on the newly created concatenated matrix (or NULL)
- **
- ** \param[in]  mode Concatenation type:
- **                  1 : by row    (n31=n11+n21; n32=n12=n22)
- **                  2 : by column (n31=n11=n21; n32=n12+n22)
- ** \param[in]  n11  First dimension of the first matrix
- ** \param[in]  n12  Second dimension of the first matrix
- ** \param[in]  a1   Pointer to the first matrix
- ** \param[in]  n21  First dimension of the second matrix
- ** \param[in]  n22  Second dimension of the second matrix
- ** \param[in]  a2   Pointer to the second matrix
- **
- ** \param[out] n31  First dimension of the output matrix
- ** \param[out] n32  Second dimension of the output matrix
- **
- *****************************************************************************/
-double* matrix_bind(int mode,
-                    int n11,
-                    int n12,
-                    double *a1,
-                    int n21,
-                    int n22,
-                    double *a2,
-                    int *n31,
-                    int *n32)
-{
-  double *a, *v1, *v2;
-  int error, n1, n2, n3, i, j, neq;
-
-  /* Initializations */
-
-  error = 1;
-  (*n31) = (*n32) = 0;
-  a = nullptr;
-
-  /* Preliminary tests */
-
-  if (mode == 1)
-  {
-    if (n12 != n22)
-    {
-      messerr("Binding by row: Input matrices must share same column number");
-      goto label_end;
-    }
-    (*n31) = n1 = n11 + n21;
-    (*n32) = n2 = n12;
-  }
-  else if (mode == 2)
-  {
-    if (n11 != n21)
-    {
-      messerr("Binding by column: Input matrices must share same row number");
-      goto label_end;
-    }
-    (*n31) = n1 = n11;
-    (*n32) = n2 = n12 + n22;
-  }
-  else
-  {
-    messerr("The concatenation mode must be 1 or 2");
-    goto label_end;
-  }
-
-  /* Core allocation */
-
-  a = (double*) mem_alloc(sizeof(double) * (*n31) * (*n32), 0);
-  if (a == nullptr) goto label_end;
-
-  /* Copy the first matrix */
-
-  v1 = a1;
-  n1 = n11;
-  n2 = n12;
-  neq = (*n31);
-  for (i = 0; i < n1; i++)
-    for (j = 0; j < n2; j++)
-      A(i,j)= V1(i,j);
-
-      /* Concatenate the second matrix */
-
-  v2 = a2;
-  n2 = n21;
-  n3 = n22;
-  if (mode == 1)
-  {
-    // By row
-
-    for (i = 0; i < n2; i++)
-      for (j = 0; j < n3; j++)
-        A(n11+i,j)= V2(i,j);
-      }
-      else
-      {
-        // By column
-
-        for (i=0; i<n2; i++)
-        for (j=0; j<n3; j++)
-        A(i,n12+j) = V2(i,j);
-      }
-
-      /* Error return code */
-
-  error = 0;
-
-  label_end: if (error) a = (double*) mem_free((char* ) a);
-  return (a);
 }
 

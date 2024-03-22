@@ -244,3 +244,70 @@ AMatrix* MatrixFactory::createReduceOne(const AMatrix *x,
   }
   return MatrixFactory::createReduce(x, localSelRows, localSelCols, flagKeepRow, flagKeepCol);
 }
+
+/*****************************************************************************/
+/*!
+ **  Concatenate two matrices
+ **
+ ** \return Pointer on the newly created concatenated matrix (or NULL)
+ **
+ ** \param[in]  a1   Pointer to the first matrix
+ ** \param[in]  a2   Pointer to the second matrix
+ ** \param[in]  flagShiftRow Concatenate by Row
+ ** \param[in]  flagShiftCol Concatenate by Column
+ **
+ *****************************************************************************/
+AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
+                                   const AMatrix* a2,
+                                   bool flagShiftRow,
+                                   bool flagShiftCol)
+{
+  AMatrix *a = nullptr;
+
+  // Preliminary checks
+
+  bool isSparse = a1->isSparse();
+  if ((a1->isSparse() && ! a2->isSparse()) || (! a1->isSparse() && a2->isSparse()))
+  {
+    messerr("In 'createGlue()' both matrices should be sparse or not sparse");
+    return a;
+  }
+  int n11 = a1->getNRows();
+  int n12 = a1->getNCols();
+  int n21 = a2->getNRows();
+  int n22 = a2->getNCols();
+  int nrows = n11;
+  int ncols = n12;
+  if (flagShiftRow && ! isSparse)
+  {
+    if (n12 != n22)
+    {
+      messerr("Binding by row: Input matrices must share same column number");
+      return a;
+    }
+    nrows += n21;
+  }
+  if (flagShiftCol && ! isSparse)
+  {
+    if (n11 != n21)
+    {
+      messerr("Binding by column: Input matrices must share same row number");
+      return a;
+    }
+    ncols += n22;
+  }
+
+  /* Core allocation */
+
+
+  if (isSparse)
+  {
+    const MatrixSparse* aloc1 = dynamic_cast<const MatrixSparse*>(a1);
+    const MatrixSparse* aloc2 = dynamic_cast<const MatrixSparse*>(a2);
+    a = MatrixSparse::glue(aloc1, aloc2, flagShiftRow, flagShiftCol);
+  }
+  else
+    a = MatrixRectangular::glue(a1, a2, flagShiftRow, flagShiftCol);
+
+  return a;
+}

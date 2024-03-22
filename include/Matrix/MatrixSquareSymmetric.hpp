@@ -52,20 +52,45 @@ public:
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
                                              int nrow,
                                              int opt_eigen = -1);
-  static MatrixSquareSymmetric* createFromTriangular(int neq,
-                                                     const VectorDouble &tl,
-                                                     int opt_eigen = -1);
+  static MatrixSquareSymmetric* createFromTLTU(int neq,
+                                               const VectorDouble &tl,
+                                               int opt_eigen = -1);
+  static MatrixSquareSymmetric* createFromTriangle(int mode,
+                                                   int neq,
+                                                   const VectorDouble &tl,
+                                                   int opt_eigen = -1);
 
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
   bool isDefinitePositive();
 
-  VectorDouble choleskyDecompose();
+  // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
+  // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
+  // triangular storage.
+  // This is temporarily ensured as a VectorDouble handelde within this class. It should probably
+  // become a sperate class in the future.
+  int getTriangleSize() const;
+  int choleskyDecompose();
+  int choleskyInvert();
+  VectorDouble getCholeskyTL() const;
+  VectorDouble getCholeskyXL() const;
+  MatrixRectangular choleskyProductInPlace(int mode,
+                                           int neq,
+                                           int nrhs,
+                                           const VectorDouble &tl,
+                                           const MatrixRectangular &a);
+  MatrixSquareSymmetric choleskyNormInPlace(int mode,
+                                            int neq,
+                                            const VectorDouble &tl,
+                                            const MatrixSquareSymmetric &a);
 
 private:
   /// Interface for AMatrix
-  virtual bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSymmetric()); }
+  virtual bool   _isCompatible(const AMatrix& m) const override
+  {
+    return (isSameSize(m) && m.isSymmetric());
+  }
   virtual int    _getMatrixPhysicalSize() const override;
 
   virtual double& _getValueRef(int irow, int icol) override;
@@ -127,6 +152,12 @@ private:
   void _matrix_tri2sq(int neq, const double *tl, double *a);
   void _matrix_sq2tri(int mode, int neq, const double *a, double *tl);
 
+  bool _checkCholeskyAlreadyPerformed(int status) const;
+
 private:
   VectorDouble _squareSymMatrix; // Classical storage
+  bool _flagCholeskyDecompose;
+  bool _flagCholeskyInverse;
+  VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
+  VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
 };

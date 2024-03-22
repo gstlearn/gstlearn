@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.2.0
 =============
-
+- Improvement of test_potential.cpp (include cross-validation)
 
 Release 1.1.0
 =============

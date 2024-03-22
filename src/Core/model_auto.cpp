@@ -2167,7 +2167,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_rot) cova->setAnisoAngles(angles);
       if (flag_aic)
       {
-        MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTriangular(nvar, tritab);
+        MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
         cova->setSill(*mat);
       }
       flag_rot = flag_aic = 0;
@@ -2239,7 +2239,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_rot) cova->setAnisoAngles(angles);
     if (flag_aic)
     {
-      MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTriangular(nvar, tritab);
+      MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
       cova->setSill(*mat);
     }
     flag_rot = flag_aic = 0;
@@ -4355,15 +4355,16 @@ static void st_vario_varchol_manage(const Vario *vario,
       for (int jvar = 0; jvar <= ivar; jvar++)
         mat.setValue(ivar, jvar, vario->getVar(ivar, jvar));
   }
-  varchol = mat.choleskyDecompose();
-  if (varchol.empty())
+  if (mat.choleskyDecompose())
   {
     /* The matrix is filled arbitrarily */
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
         mat.setValue(ivar, jvar, (ivar == jvar));
-    varchol = mat.choleskyDecompose();
+    if (mat.choleskyDecompose())
+      messageAbort("Error in st_vario_varchol_manage(): This should never happen");
   }
+  varchol = mat.getCholeskyTL();
 }
 
 /****************************************************************************/

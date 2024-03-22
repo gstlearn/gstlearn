@@ -48,6 +48,10 @@ public:
                                          bool byCol = false,
                                          int opt_eigen = -1,
                                          bool invertColumnOrder = false);
+  static MatrixRectangular* glue(const AMatrix *A1,
+                                 const AMatrix *A2,
+                                 bool flagShiftRow,
+                                 bool flagShiftCol);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);

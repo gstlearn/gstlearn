@@ -40,8 +40,6 @@ public:
   bool mustBeDiagonal() const override { return false; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
-  /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
   static MatrixSquareGeneral* createFromVVD(const VectorVectorDouble& X, int opt_eigen = -1);
   static MatrixSquareGeneral* createFromVD(const VectorDouble &X,
@@ -56,7 +54,10 @@ public:
 
 private:
   /// Interface for AMatrix
-  virtual bool    _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSquare()); }
+  virtual bool    _isCompatible(const AMatrix& m) const override
+  {
+    return (isSameSize(m) && m.isSquare());
+  }
   virtual int     _getMatrixPhysicalSize() const override;
 
   virtual double& _getValueRef(int irow, int icol) override;
