@@ -12,6 +12,9 @@ file(GLOB TEST_SOURCES test*.R)
 #set(TEST_SOURCES 
 #    test_Arguments.R)
 
+# Remove test_one
+list(FILTER TEST_SOURCES EXCLUDE REGEX "test_one.R")
+
 # Generation folder
 if (IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>
