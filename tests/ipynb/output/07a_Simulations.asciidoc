@@ -16,9 +16,9 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Spherical
-- Sill         =      1.155
-- Range        =    135.133
-Total Sill     =      1.155
+- Sill         =      1.125
+- Range        =    151.997
+Total Sill     =      1.125
 Known Mean(s)     0.000
  ----
 

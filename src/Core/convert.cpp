@@ -228,7 +228,7 @@ DbGrid* db_grid_read_f2g(const char* filename, int /* verbose*/)
 static void st_csv_print_string(const char *string)
 {
   if (CSV_ENCODE == NULL)
-  my_throw("You must initiate CSV_ENCODING first");
+    my_throw_impossible("You must initiate CSV_ENCODING first");
 
   (void) fprintf(CSV_ENCODE->file, "%s", string);
   if (CSV_ENCODE->current < CSV_ENCODE->nitem - 1)
@@ -274,7 +274,7 @@ static void st_csv_print_eol(void)
 void csv_print_double(double value)
 {
   if (CSV_ENCODE == NULL)
-  my_throw("You must initiate CSV_ENCODING first");
+    my_throw_impossible("You must initiate CSV_ENCODING first");
 
   if (FFFF(value))
     (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->na_string.c_str());

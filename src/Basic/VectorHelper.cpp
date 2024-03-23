@@ -979,7 +979,10 @@ void VectorHelper::cumulate(VectorDouble &veca,
                             double addval)
 {
   if (veca.size() != vecb.size())
-    my_throw("Arguments 'veca' and 'vecb' should have the same dimension");
+  {
+    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return;
+  }
 
   VectorDouble::iterator ita(veca.begin());
   VectorDouble::const_iterator itb(vecb.begin());
@@ -1081,7 +1084,10 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
 VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
-    my_throw("Wrong size");
+  {
+    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return veca;
+  }
 
   VectorDouble res(veca.size());
   VectorDouble::iterator it(res.begin());
@@ -1106,7 +1112,10 @@ VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vec
 void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
 {
   if (dest.size() != src.size())
-    my_throw("Wrong size");
+  {
+    messerr("Arguments 'dest' and 'src' should have the same dimension. Nothing is done");
+    return;
+  }
 
   VectorDouble::iterator itd(dest.begin());
   VectorDouble::const_iterator its(src.begin());

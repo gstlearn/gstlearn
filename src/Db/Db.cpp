@@ -4063,7 +4063,10 @@ void Db::_createRank(int icol)
 void Db::_addRank(int nech)
 {
   if (getColumnNumber() > 0 || getSampleNumber() > 0)
-    my_throw("Error: the Db should be empty in order to call _addRank");
+  {
+    messerr("Error: the Db should be empty in order to call _addRank. Nothing is done");
+    return;
+  }
   VectorDouble ranks = VH::sequence(1., (double) nech);
   addColumns(ranks, "rank");
 }
@@ -4073,7 +4076,8 @@ void Db::_defineDefaultNames(int shift, const VectorString& names)
   int ncol = getColumnNumber() - shift;
   if (!names.empty())
   {
-    if ((int) names.size() != ncol) my_throw("Error in the dimension of 'names'");
+    if ((int) names.size() != ncol)
+      my_throw("Error in the dimension of 'names'");
   }
 
   for (int icol = 0; icol < ncol; icol++)
@@ -4107,7 +4111,8 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   if (names.empty()) return;
 
   int ncol = getColumnNumber() - shift;
-  if ((int) names.size() != ncol) my_throw("Error in the dimension of 'names'");
+  if ((int) names.size() != ncol)
+    my_throw("Error in the dimension of 'names'");
 
   ELoc locatorType;
   int locatorIndex, mult;

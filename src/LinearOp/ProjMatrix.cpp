@@ -60,7 +60,8 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
 {
   if (a_mesh == nullptr)
   {
-    my_throw("ProjMatrix::resetFromMeshAndDb: Mesh cannot be null");
+    messerr("ProjMatrix::resetFromMeshAndDb: Mesh cannot be null. Nothing is done");
+    return;
   }
   if (db != nullptr)
   {

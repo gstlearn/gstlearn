@@ -1288,7 +1288,7 @@ static void st_calcul_update(void)
   // Check that the structure has already been initiated
 
   if (Calcul.hh.size() <= 0)
-  my_throw("You should run 'st_calcul_init' beforehand");
+    my_throw("You should run 'st_calcul_init' beforehand");
 
   // Calculate the 'correc' term (from 'param')
   st_compute_correc();

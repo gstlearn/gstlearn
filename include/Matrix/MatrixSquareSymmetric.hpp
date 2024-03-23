@@ -44,7 +44,12 @@ public:
   /*! Say if the matrix must be diagonal constant */
   virtual bool mustBeDiagCst() const override { return false; }
   /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false) const final { DECLARE_UNUSED(printWhyNot); return true; }
+  bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const final
+  {
+    DECLARE_UNUSED(printWhyNot);
+    DECLARE_UNUSED(eps);
+    return true;
+  }
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
@@ -84,6 +89,12 @@ public:
                                             int neq,
                                             const VectorDouble &tl,
                                             const MatrixSquareSymmetric &a);
+  int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                     const MatrixRectangular& aemat,
+                                     const VectorDouble& bemat,
+                                     const MatrixRectangular& aimat,
+                                     const VectorDouble& bimat,
+                                     VectorDouble& xmat);
 
 private:
   /// Interface for AMatrix
@@ -152,6 +163,34 @@ private:
   void _matrix_tri2sq(int neq, const double *tl, double *a);
   void _matrix_sq2tri(int mode, int neq, const double *a, double *tl);
 
+  int _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
+  int _matrix_qoc(bool flag_invert,
+                  const VectorDouble& gmat,
+                  int na,
+                  const MatrixRectangular& amat,
+                  const VectorDouble& bmat,
+                  VectorDouble& xmat,
+                  VectorDouble& lambda);
+  int _constraintsError(const VectorInt& active,
+                        const MatrixRectangular& aimat,
+                        const VectorDouble& bimat,
+                        const VectorDouble& xmat,
+                        VectorDouble& vmat,
+                        VectorInt& flag);
+  int _constraintsConcatenateMat(int nae,
+                                 int nai,
+                                 int neq,
+                                 const VectorInt &active,
+                                 const MatrixRectangular &tabemat,
+                                 const MatrixRectangular &tabimat,
+                                 MatrixRectangular &tabout);
+  int _constraintsConcatenateVD(int nae,
+                                int nai,
+                                const VectorInt &active,
+                                const VectorDouble &tabemat,
+                                const VectorDouble &tabimat,
+                                VectorDouble &tabout);
+  int _constraintsCount(int nai, VectorInt& active);
   bool _checkCholeskyAlreadyPerformed(int status) const;
 
 private:

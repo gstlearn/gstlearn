@@ -29,6 +29,9 @@
 #define _TL(i,j)       _tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
 #define _XL(i,j)       _xl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
 
+#define HA(i,j)        ha[SQ(i,j,neq)]
+#define TEMP(i,j)      temp[SQ(i,j,na)]
+
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
     : AMatrixSquare(nrow, opt_eigen),
       _squareSymMatrix(),
@@ -1168,4 +1171,456 @@ MatrixSquareSymmetric MatrixSquareSymmetric::choleskyNormInPlace(int mode,
       b.setValue(i,j,val);
     }
   return b;
+}
+
+/*****************************************************************************/
+/*!
+ **  Solve a linear system: H %*% g = x
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  gmat    right-hand side vector (Dimension: neq)
+ **
+ ** \param[out] xmat    solution vector (Dimension: neq)
+ **
+ ** \remark In output, 'this' contains the inverse matrix
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
+{
+  int neq = getNRows();
+  double cond;
+
+  VectorDouble hmatret = getValues();
+  int error = matrix_invgen(hmatret.data(), neq, hmatret.data(), &cond);
+  setValues(hmatret);
+  if (error || cond > 1e13) return (1);
+  prodMatVecInPlace(gmat, xmat);
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Minimize 1/2 t(x) %*% H %*% x + t(g) %*% x under the constraints
+ **  t(A) %*% x = b
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  flag_invert Tells if the inverse has already been calculated
+ ** \param[in]  gmat   right-hand side vector (Dimension: neq)
+ ** \param[in]  na     Number of equalities
+ ** \param[in]  amat   matrix for inequalities (Dimension: neq * na)
+ ** \param[in]  bmat   inequality vector (Dimension: na)
+ ** \param[in]  xmat   solution of the linear system with no constraint.
+ **                    On return, solution with constraints (Dimension: neq)
+ **
+ ** \param[out] lambda working vector (Dimension: na)
+ **
+ ** \remark In input:
+ ** \remark If flag_invert== 1, H is provided as the generalized inverse
+ ** \remark and x contains the solution of the linear system with no constraint
+ ** \remark If flag_invert==0, H is the primal matrix
+ **
+ ** \remark In output, H contains the inverse matrix
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
+                                       const VectorDouble& gmat,
+                                       int na,
+                                       const MatrixRectangular& amat,
+                                       const VectorDouble& bmat,
+                                       VectorDouble& xmat,
+                                       VectorDouble& lambda)
+{
+  int error_int;
+  double value, cond;
+
+  /* Initializations */
+
+  int error = 1;
+  int neq = getNRows();
+
+  /* Core allocation */
+
+  double* ha   = (double*) mem_alloc(sizeof(double) * neq * na, 1);
+  double* temp = (double*) mem_alloc(sizeof(double) * na * na, 1);
+  double* evec = (double*) mem_alloc(sizeof(double) * na, 1);
+
+  /* Preliminary solution of the linear system with no constraint */
+
+  if (!flag_invert)
+  {
+    if (_matrix_qo(gmat, xmat)) goto label_end;
+  }
+
+  /* Product HA = H %*% A */
+
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < na; j++)
+    {
+      value = 0.;
+      for (int k = 0; k < neq; k++)
+        value += getValue(i,k) * amat.getValue(k,j);
+      HA(i,j) = value;
+    }
+
+    /* Product TEMP = t(A) %*% H %*% A */
+
+  for (int i = 0; i < na; i++)
+    for (int j = 0; j < na; j++)
+    {
+      value = 0.;
+      for (int k = 0; k < neq; k++)
+        value += amat.getValue(k,i) * HA(k,j);
+      TEMP(i,j) = value;
+    }
+
+    /* Generalized inverse of TEMP */
+
+  error_int = matrix_invgen(temp, na, temp, &cond);
+  if (error_int || cond > 1e13) goto label_end;
+
+  /* Evaluate evec = t(A) %*% x - b */
+
+  for (int i = 0; i < na; i++)
+  {
+    value = 0.;
+    for (int j = 0; j < neq; j++)
+      value += amat.getValue(j,i) * xmat[j];
+    evec[i] = value - bmat[i];
+  }
+
+  /* Evaluate lambda = TEMP %*% evec */
+
+  for (int i = 0; i < na; i++)
+  {
+    value = 0.;
+    for (int j = 0; j < na; j++)
+      value += TEMP(i,j) * evec[j];
+    lambda[i] = value;
+  }
+
+  /* Evaluate x = x - H %*% A %*% lambda */
+
+  for (int i = 0; i < neq; i++)
+  {
+    value = 0.;
+    for (int j = 0; j < na; j++)
+      value += HA(i,j) * lambda[j];
+    xmat[i] -= value;
+  }
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end:
+  ha   = (double*) mem_free((char* ) ha);
+  temp = (double*) mem_free((char* ) temp);
+  evec = (double*) mem_free((char* ) evec);
+  return (error);
+}
+
+/*****************************************************************************/
+/*!
+ **  Minimize 1/2 t(x) %*% H %*% x + t(g) %*% x under the constraints
+ **  t(Ae) %*% x = be and
+ **  t(Ai) %*% x = bi
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]     gmat   right-hand side vector (Dimension: neq)
+ ** \param[in]     aemat  Matrix rectangular for equalities (Dimension: neq * nae)
+ ** \param[in]     bemat  right-hand side for equalities (Dimension: nae)
+ ** \param[in]     aimat  Matrix rectangular for inequalities (Dimension: neq * nai)
+ ** \param[in]     bimat  right-hand side for inequalities (Dimension: nai)
+ **
+ ** \param[in,out] xmat solution of the linear system with constraints (neq)
+ **
+ ** REMARKS:    The initial xmat has to be satisfied by all the constraints.
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                                          const MatrixRectangular& aemat,
+                                                          const VectorDouble& bemat,
+                                                          const MatrixRectangular& aimat,
+                                                          const VectorDouble& bimat,
+                                                          VectorDouble& xmat)
+{
+  int ncur, first, lec;
+  double omega, omin, value;
+
+  /* Initializations */
+
+  int neq = getNRows();
+  int nae = aemat.getNCols();
+  int nai = aimat.getNCols();
+  int namax = nae + nai;
+
+  /* Case when there is no equality nor inequality constraints */
+
+  if (namax <= 0)
+  {
+    return _matrix_qo(gmat, xmat);
+  }
+
+  /* Core allocation */
+
+  VectorInt emptyInt;
+  VectorDouble emptyDouble;
+  VectorInt active(nai);
+  VectorDouble xcand(neq);
+  VectorDouble lambda(namax);
+  VectorDouble vmat(namax);
+  VectorDouble beimat(namax);
+  MatrixRectangular aeimat(neq, namax);
+
+  /* We first perform the optimization with equality constraints only */
+
+  if (_matrix_qoc(false, gmat, nae, aemat, bemat, xcand, lambda)) return 1;
+  if (nai <= 0)
+  {
+    for (int i = 0; i < neq; i++)
+      xmat[i] = xcand[i];
+    return 0;
+  }
+
+  /* Evaluate the array active */
+
+  if (_constraintsError(VectorInt(), aimat, bimat, xcand, emptyDouble, active) == 0)
+  {
+    for (int i = 0; i < neq; i++)
+      xmat[i] = xcand[i];
+    return 0;
+  }
+
+  /* Implicit loop */
+
+  bool sortie = false;
+  while (!sortie)
+  {
+
+    /* Construct the inequality matrices reduced to the active constraints */
+
+    ncur = _constraintsConcatenateMat(nae, nai, neq, active, aemat, aimat, aeimat);
+    ncur = _constraintsConcatenateVD(nae, nai, active, bemat, bimat, beimat);
+    if (_matrix_qoc(true, gmat, ncur, aeimat, beimat, xcand, lambda)) return 1;
+
+    if (_constraintsError(active, aimat, bimat, xcand, vmat, emptyInt) == 0)
+    {
+      for (int i = 0; i < neq; i++)
+        xmat[i] = xcand[i];
+
+      /* Look for the constraint that should not be used */
+
+      first = -1;
+      lec = nae;
+      for (int i = 0; i < nai; i++)
+      {
+        if (active[i] == 0) continue;
+        active[i] = lambda[lec] >= 0;
+        if (active[i]) first = i;
+        lec++;
+      }
+
+      if (_constraintsCount(nai, active) == 0)
+      {
+        /* If no constraint has been used, end of the implicit loop */
+        sortie = true;
+      }
+      else
+      {
+        /* Otherwise, relax the first active constraint */
+
+        active[first] = 0;
+      }
+    }
+    else
+    {
+
+      /* Find an admissible solution between previous and new candidates */
+
+      first = -1;
+      omin = 1.e30;
+      for (int i = 0; i < nai; i++)
+      {
+        if (active[i]) continue;
+        value = 0.;
+        for (int j = 0; j < neq; j++)
+          value += aimat.getValue(j,i)* (xcand[j] - xmat[j]);
+        omega = vmat[i] / value;
+        if (omega > omin) continue;
+        first = i;
+        omin = omega;
+      }
+
+      for (int i = 0; i < neq; i++)
+        xmat[i] += omin * (xcand[i] - xmat[i]);
+      active[first] = 1;
+    }
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate how constraints are fulfilled
+ **
+ **  \return Count of the constraints not fulfilled
+ **
+ ** \param[in]  active   Array of active/non active inequalities (optional)
+ ** \param[in]  aimat    Inequality material (Dimension: neq * nai)
+ ** \param[in]  bimat    right-hand side for inequalities (Dimension: nai)
+ ** \param[out] xmat     solution of the linear system with no constraint (neq)
+ **
+ ** \param[out] vmat     matrix of errors (if not NULL)
+ ** \param[out] flag     array specifying if constraint is active (if not NULL)
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_constraintsError(const VectorInt& active,
+                                             const MatrixRectangular& aimat,
+                                             const VectorDouble& bimat,
+                                             const VectorDouble& xmat,
+                                             VectorDouble& vmat,
+                                             VectorInt& flag)
+{
+  double eps = EPSILON10;
+
+  int neq = getNRows();
+  int nai = aimat.getNCols();
+  int number = 0;
+  int ecr = 0;
+  for (int i = 0; i < nai; i++)
+  {
+    if (! active.empty() && active[i]) continue;
+
+    /* Calculate: T(a) %*% x */
+
+    double value = 0.;
+    for (int j = 0; j < neq; j++)
+      value += aimat.getValue(j,i) * xmat[j];
+
+      /* Calculate: T(a) %*% x - b */
+
+    double ecart = value - bimat[i];
+
+    /* Store the results */
+
+    if (! vmat.empty()) vmat[ecr] = ecart;
+    bool flag_active = (ecart < -eps);
+    if (! flag.empty()) flag[ecr] = flag_active;
+    if (flag_active) number++;
+    ecr++;
+  }
+  return (number);
+}
+
+/*****************************************************************************/
+/*!
+ **  Concatenate the equality and the active inequality material
+ **
+ **  \return The total number of constraints
+ **
+ ** \param[in]  nae      Number of equalities
+ ** \param[in]  nai      Number of inequalities
+ ** \param[in]  neq      First dimension of the array
+ ** \param[in]  active   Array of active/non active inequalities
+ ** \param[in]  tabemat  Equality material (Dimension: neq * nai)
+ ** \param[in]  tabimat  Inequality material
+ **
+ ** \param[out] tabout   Output array
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_constraintsConcatenateMat(int nae,
+                                                      int nai,
+                                                      int neq,
+                                                      const VectorInt& active,
+                                                      const MatrixRectangular &tabemat,
+                                                      const MatrixRectangular &tabimat,
+                                                      MatrixRectangular &tabout)
+{
+  /* Copy the equalities */
+
+  int number = 0;
+  for (int i = 0; i < nae; i++)
+  {
+    for (int j = 0; j < neq; j++)
+    {
+      tabout.setValue(j,number,tabemat.getValue(j,i));
+    }
+    number++;
+  }
+
+    /* Copy the active inequalities */
+
+  for (int i = 0; i < nai; i++)
+  {
+    if (active[i] == 0) continue;
+    for (int j = 0; j < neq; j++)
+    {
+      tabout.setValue(j,number,tabimat.getValue(j,i));
+    }
+    number++;
+  }
+  return (number);
+}
+
+/*****************************************************************************/
+/*!
+ **  Concatenate the equality and the active inequality material
+ **
+ **  \return The total number of constraints
+ **
+ ** \param[in]  nae      Number of equalities
+ ** \param[in]  nai      Number of inequalities
+ ** \param[in]  active   Array of active/non active inequalities
+ ** \param[in]  tabemat  Equality material (Dimension: neq * nai)
+ ** \param[in]  tabimat  Inequality material
+ **
+ ** \param[out] tabout   Output array
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_constraintsConcatenateVD(int nae,
+                                                     int nai,
+                                                     const VectorInt &active,
+                                                     const VectorDouble &tabemat,
+                                                     const VectorDouble &tabimat,
+                                                     VectorDouble &tabout)
+{
+  /* Copy the equalities */
+
+  int number = 0;
+  for (int i = 0; i < nae; i++)
+  {
+    tabout[number] = tabemat[i];
+    number++;
+  }
+
+    /* Copy the active inequalities */
+
+  for (int i = 0; i < nai; i++)
+  {
+    if (active[i] == 0) continue;
+    tabout[number] = tabimat[i];
+    number++;
+  }
+  return (number);
+}
+
+/*****************************************************************************/
+/*!
+ **  Count the number of active constraints
+ **
+ ** \return  Number of active constraints
+ **
+ ** \param[in]  nai    Number of constraints
+ ** \param[in]  active Array of constraint status
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_constraintsCount(int nai, VectorInt& active)
+{
+  int number = 0;
+  for (int i = 0; i < nai; i++)
+    if (active[i]) number++;
+  return (number);
 }

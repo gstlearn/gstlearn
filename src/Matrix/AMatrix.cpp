@@ -224,14 +224,14 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
     }
 }
 
-bool AMatrix::isSymmetric(bool printWhyNot) const
+bool AMatrix::isSymmetric(bool printWhyNot, double eps) const
 {
   if (empty() || ! isSquare()) return false;
 
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (getValue(irow,icol) != getValue(icol,irow))
+      if (ABS(getValue(irow,icol) - getValue(icol,irow)) > eps)
       {
         if (printWhyNot)
           messerr("Elements (%d;%d)=%lf and (%d;%d)=%kf should be equal",
@@ -688,7 +688,10 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
 void AMatrix::multiplyRow(const VectorDouble& vec)
 {
   if (_nRows != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of rows");
+  {
+    messerr("The size of 'vec' must match the number of rows. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -700,7 +703,10 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
 void AMatrix::divideRow(const VectorDouble& vec)
 {
   if (_nRows != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of rows");
+  {
+    messerr("The size of 'vec' must match the number of rows. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -712,7 +718,10 @@ void AMatrix::divideRow(const VectorDouble& vec)
 void AMatrix::multiplyColumn(const VectorDouble& vec)
 {
   if (_nCols != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of columns");
+  {
+    messerr("The size of 'vec' must match the number of columns. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -723,7 +732,10 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
 void AMatrix::divideColumn(const VectorDouble& vec)
 {
   if (_nCols != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of columns");
+  {
+    messerr("The size of 'vec' must match the number of columns. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -770,16 +782,25 @@ double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
 int AMatrix::invert()
 {
   if (! isSquare())
-    my_throw("Invert method is restricted to Square matrices");
+  {
+    messerr("Invert method is restricted to Square matrices");
+    return 1;
+  }
   return _invert();
 }
 
 int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
 {
   if (! isSquare())
-    my_throw("Invert method is limited to Square Matrices");
+  {
+    messerr("Invert method is limited to Square Matrices");
+    return 1;
+  }
   if ((int) b.size() != _nRows || (int) x.size() != _nRows)
-    my_throw("b' and 'x' should have the same dimension as the Matrix");
+  {
+    messerr("b' and 'x' should have the same dimension as the Matrix");
+    return 1;
+  }
   return _solve(b, x);
 }
 
@@ -1015,7 +1036,10 @@ VectorDouble AMatrix::getValues(bool byCol) const
 double AMatrix::compare(const AMatrix& mat) const
 {
   if (mat.getNRows() != _nRows || mat.getNCols() != _nCols)
-    my_throw("We can only compare two matrices with same dimensions");
+  {
+    messerr("We can only compare two matrices with same dimensions");
+    return TEST;
+  }
 
   double diff = 0.;
   for (int icol = 0; icol < _nCols; icol++)
@@ -1031,7 +1055,10 @@ double AMatrix::compare(const AMatrix& mat) const
 VectorDouble AMatrix::getDiagonal(int shift) const
 {
   if (! isSquare())
-    my_throw("This function is only valid for Square matrices");
+  {
+    messerr("This function is only valid for Square matrices");
+    return VectorDouble();
+  }
 
   VectorDouble vect;
   for (int rank = 0; rank < getNRows(); rank++)
@@ -1055,7 +1082,10 @@ VectorDouble AMatrix::getDiagonal(int shift) const
 void AMatrix::setDiagonal(const VectorDouble& tab)
 {
   if (! isSquare())
-    my_throw("This function is only valid for Square matrices");
+  {
+    messerr("This function is only valid for Square matrices. Nothing is done");
+    return;
+  }
 
   fill(0.);
   for (int irow = 0; irow < getNRows(); irow++)
@@ -1069,7 +1099,10 @@ void AMatrix::setDiagonal(const VectorDouble& tab)
 void AMatrix::setDiagonalToConstant(double value)
 {
   if (! isSquare())
-    my_throw("This function is only valid for Square matrices");
+  {
+    messerr("This function is only valid for Square matrices. Nothing is done");
+    return;
+  }
 
   fill(0.);
   for (int irow = 0; irow < getNRows(); irow++)

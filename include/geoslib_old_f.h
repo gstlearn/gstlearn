@@ -319,29 +319,6 @@ GSTLEARN_EXPORT int matrix_eigen_tridiagonal(const double *vecdiag,
                                              int neq,
                                              double *eigvec,
                                              double *eigval);
-GSTLEARN_EXPORT int matrix_qo(int neq,
-                              double *hmat,
-                              double *gmat,
-                              double *xmat);
-GSTLEARN_EXPORT int matrix_qoc(int flag_invert,
-                               int neq,
-                               double *hmat,
-                               double *gmat,
-                               int na,
-                               double *amat,
-                               double *bmat,
-                               double *xmat,
-                               double *lambda);
-GSTLEARN_EXPORT int matrix_qoci(int neq,
-                                double *hmat,
-                                double *gmat,
-                                int nae,
-                                double *aemat,
-                                double *bemat,
-                                int nai,
-                                double *aimat,
-                                double *bimat,
-                                double *xmat);
 
 /****************************************/
 /* Prototyping the functions in ascii.c */

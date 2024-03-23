@@ -3178,26 +3178,22 @@ static int st_initialize_goulard(int nvar,
                                  const VectorDouble &consSill,
                                  VectorDouble &matcor)
 {
-  double be;
-
-  /* Core allocation */
-
-  VectorDouble aa(ncova * ncova);
+  MatrixSquareSymmetric aa(ncova);
   VectorDouble bb(ncova);
-  VectorDouble res(ncova);
-  VectorDouble Ae(ncova);
-  VectorDouble Ai(ncova * ncova);
+
+  MatrixRectangular Ae(ncova, 1);
+  VectorDouble be(1);
+  MatrixRectangular Ai(ncova, ncova);
   VectorDouble bi(ncova);
+  VectorDouble res(ncova);
 
   /* Initialize the constraints matrices */
 
+  Ae.fill(1.);
+  bi.fill(0.);
   for (int icov = 0; icov < ncova; icov++)
-  {
-    Ae[icov] = 1.;
-    bi[icov] = 0.;
     for (int jcov = 0; jcov < ncova; jcov++)
-      Ai[icov * ncova + jcov] = (icov == jcov);
-  }
+      Ai.setValue(icov, jcov, (icov == jcov));
 
   /* Loop on the variables */
 
@@ -3207,63 +3203,61 @@ static int st_initialize_goulard(int nvar,
     {
       /* Reset the arrays */
 
-      for (int icov = 0; icov < ncova; icov++)
+      bb.fill(0.);
+      aa.fill(0.);
+
+      for (int ipadir=0; ipadir<npadir; ipadir++)
       {
-        bb[icov] = 0.;
-        for (int jcov = 0; jcov < ncova; jcov++)
-          AA(icov,jcov)= 0.;
-        }
-
-        for (int ipadir=0; ipadir<npadir; ipadir++)
-        {
-          double wtloc = WT(ijvar,ipadir);
-          double ggloc = GG(ijvar,ipadir);
-          if (FFFF(wtloc) || FFFF(ggloc)) continue;
-          for (int icov=0; icov<ncova; icov++)
-          {
-            double geloc1 = GE(icov,ijvar,ipadir);
-            if (FFFF(geloc1)) continue;
-            bb[icov] += wtloc * ggloc * geloc1;
-            for (int jcov=0; jcov<ncova; jcov++)
-            {
-              double geloc2 = GE(jcov,ijvar,ipadir);
-              if (FFFF(geloc2)) continue;
-              AA(icov,jcov) += wtloc * geloc1 * geloc2;
-            }
-          }
-        }
-
-        int nae = 0;
-        int nai = 0;
-
-        if (ivar == jvar && ! consSill.empty() && !FFFF(consSill[ivar]))
-        {
-          be = consSill[ivar];
-          nae = 1;
-          nai = ncova;
-        }
-
-        /* Update (taking into account possible constraints) */
-
-        if (matrix_qoci(ncova,aa.data(),bb.data(),nae,Ae.data(),
-                        &be,nai,Ai.data(),bi.data(),res.data()))
-        {
-          for (int icov=0; icov<ncova; icov++)
-            res[icov] = (ivar == jvar);
-          if (ivar == jvar && ! consSill.empty() && !FFFF(consSill[ivar]))
-          {
-            double temp = consSill[ivar] / ncova;
-            for(int icov=0; icov<ncova; icov++)
-              res[icov] = temp;
-          }
-        }
-
-        /* Store in the output matrix */
-
+        double wtloc = WT(ijvar,ipadir);
+        double ggloc = GG(ijvar,ipadir);
+        if (FFFF(wtloc) || FFFF(ggloc)) continue;
         for (int icov=0; icov<ncova; icov++)
-          MATCOR(icov,ivar,jvar) = MATCOR(icov,jvar,ivar) = res[icov];
+        {
+          double geloc1 = GE(icov,ijvar,ipadir);
+          if (FFFF(geloc1)) continue;
+          bb[icov] += wtloc * ggloc * geloc1;
+          for (int jcov=0; jcov<=icov; jcov++)
+          {
+            double geloc2 = GE(jcov,ijvar,ipadir);
+            if (FFFF(geloc2)) continue;
+            aa.updValue(icov,jcov,EOperator::ADD,wtloc * geloc1 * geloc2);
+          }
+        }
       }
 
+      int retcode = 0;
+      if (ivar == jvar && ! consSill.empty() && !FFFF(consSill[ivar]))
+      {
+        be[0] = consSill[ivar];
+        retcode = aa.minimizeWithConstraintsInPlace(bb, Ae, be, Ai, bi, res);
+      }
+      else
+      {
+        retcode = aa.minimizeWithConstraintsInPlace(bb,
+                                                    MatrixRectangular(), VectorDouble(),
+                                                    MatrixRectangular(), VectorDouble(),
+                                                    res);
+      }
+
+      /* Update (taking into account possible constraints) */
+
+      if (retcode)
+      {
+        for (int icov=0; icov<ncova; icov++)
+          res[icov] = (ivar == jvar);
+        if (ivar == jvar && ! consSill.empty() && !FFFF(consSill[ivar]))
+        {
+          double temp = consSill[ivar] / ncova;
+          for(int icov=0; icov<ncova; icov++)
+            res[icov] = temp;
+        }
+      }
+
+      /* Store in the output matrix */
+
+      for (int icov=0; icov<ncova; icov++)
+        MATCOR(icov,ivar,jvar) = MATCOR(icov,jvar,ivar) = res[icov];
+    }
   return 0;
 }
 
@@ -4430,7 +4424,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
       if (!optvar.getAuthAniso())
       {
         if (!cova->isIsotropic())
-        my_throw("Posterior Check: The covariance should be isotropic");
+          my_throw("Posterior Check: The covariance should be isotropic");
       }
     }
   }

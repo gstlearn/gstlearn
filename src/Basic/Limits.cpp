@@ -32,17 +32,29 @@ Limits::Limits(const VectorDouble& mini,
                const VectorBool& incmini,
                const VectorBool& incmaxi)
 {
+  _bounds.clear();
   if (mini.size() != maxi.size())
-    my_throw("Arguments 'mini' and 'maxi' should have the same dimension");
+  {
+    messerr("Arguments 'mini' and 'maxi' should have the same dimension. Limits empty");
+    return;
+  }
   int nclass = static_cast<int> (mini.size());
   if (nclass <= 0)
-    my_throw("You must define at least one item in 'mini' and 'maxi'");
+  {
+    messerr("You must define at least one item in 'mini' and 'maxi'. Limits empty");
+    return;
+  }
   if (incmini.size() != 0 && (int) incmini.size() != nclass)
-    my_throw("Arguments 'incmini' and 'mini' should have the same dimension");
+  {
+    messerr("Arguments 'incmini' and 'mini' should have the same dimension. Limits empty");
+    return;
+  }
   if (incmaxi.size() != 0 && (int) incmaxi.size() != nclass)
-    my_throw("Arguments 'incmaxi' and 'maxi' should have the same dimension");
+  {
+    messerr("Arguments 'incmaxi' and 'maxi' should have the same dimension. Limits empty");
+    return;
+  }
 
-  _bounds.clear();
   for (int i = 0; i < nclass; i++)
   {
     bool incmini_loc = (incmini.empty()) ? true : incmini[i];
