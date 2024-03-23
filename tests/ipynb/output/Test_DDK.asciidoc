@@ -71,14 +71,14 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.195
-- Range        =      0.141
-- Theo. Range  =      0.047
+- Sill         =      0.196
+- Range        =      0.128
+- Theo. Range  =      0.043
 Exponential
-- Sill         =      0.165
-- Range        =      1.813
-- Theo. Range  =      0.605
-Total Sill     =      0.360
+- Sill         =      0.147
+- Range        =      1.282
+- Theo. Range  =      0.428
+Total Sill     =      0.343
 Known Mean(s)     0.000
  
 #NO_DIFF#XXX
@@ -99,14 +99,14 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.079
-- Range        =      0.093
-- Theo. Range  =      0.031
+- Sill         =      0.082
+- Range        =      0.085
+- Theo. Range  =      0.028
 Exponential
-- Sill         =      0.058
-- Range        =      0.937
-- Theo. Range  =      0.313
-Total Sill     =      0.136
+- Sill         =      0.057
+- Range        =      0.837
+- Theo. Range  =      0.279
+Total Sill     =      0.140
 Known Mean(s)     0.000
  
 #NO_DIFF#XXX
