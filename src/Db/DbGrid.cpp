@@ -655,7 +655,7 @@ void DbGrid::_createCoordinatesGrid(int icol0)
   {
     VectorInt indices = _grid.iteratorNext();
     _grid.indicesToCoordinateInPlace(indices, coors);
-    for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       setArray(iech, icol0 + idim, coors[idim]);
   }
 }

@@ -439,12 +439,12 @@ GSTLEARN_EXPORT int model_covmat(Model *model,
                                   int jvar,
                                   double *covmat,
                                   const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT MatrixSquareSymmetric model_covmatM(Model *model,
-                                                    Db *db1,
-                                                    Db *db2,
-                                                    int ivar0,
-                                                    int jvar0,
-                                                    const CovCalcMode* mode = nullptr);
+GSTLEARN_EXPORT MatrixRectangular model_covmatM(Model *model,
+                                                Db *db1,
+                                                Db *db2,
+                                                int ivar0,
+                                                int jvar0,
+                                                const CovCalcMode *mode = nullptr);
 GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
                                               Db *db1,
                                               int nsize1,
@@ -482,11 +482,6 @@ GSTLEARN_EXPORT int model_drift_mat(Model *model,
                                      const ECalcMember &member,
                                      Db *db,
                                      double *drfmat);
-GSTLEARN_EXPORT int model_drift_vector(Model *model,
-                                        const ECalcMember &member,
-                                        Db *db,
-                                        int iech,
-                                        double *vector);
 GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model *model,
                                        double ball_radius);
 GSTLEARN_EXPORT void model_covupdt(Model *model,

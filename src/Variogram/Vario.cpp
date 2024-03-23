@@ -4383,6 +4383,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
  *****************************************************************************/
 double Vario::_getBias(Db *db, int iiech, int jjech)
 {
+  DECLARE_UNUSED(db);
   int nbfl = _model->getDriftNumber();
 
   double bias0 = 0.;

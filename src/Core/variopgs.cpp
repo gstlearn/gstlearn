@@ -3169,7 +3169,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       st_build_correl(corpgs, param_temp, correl);
       correl.computeEigen();
       eigval = correl.getEigenValues();
-      MatrixSquareGeneral* eigvec = correl.getEigenVectors();
+      eigvec = correl.getEigenVectors();
       st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
       Srpen = Sr - penalize * log(eigval[3]);
       VH::linearCombinationInPlace(1., Grad, -penalize / eigval[3], d1, Grad);

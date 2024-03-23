@@ -266,9 +266,9 @@ DbGrid* db_vmap(Db *db,
   ** \param[in]  namconv      Naming convention
   **
   *****************************************************************************/
-int VMap::_grid_fft(DbGrid *dbgrid,
-                    const NamingConvention &namconv)
- {
+int VMap::_grid_fft(DbGrid *dbgrid, const NamingConvention &namconv)
+{
+  DECLARE_UNUSED(namconv);
    int dims[3], dinv[3], nxmap[3], nxgrid[3], sizemap, sizegrid;
    int ndim, nvar, ijvar;
    static bool verbose = false;
@@ -618,10 +618,9 @@ void VMap::_extract(int *nxmap,
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int VMap::_vmap_general(Db *db,
-                        int radius,
-                        const NamingConvention &namconv)
+int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(namconv);
   int error, nvar, nv2, i, idim, flag_out, nbmax;
   int *indg0, *indg1, *ind1, iech0, iech1, iech2, jech1, jech2, nech, ndim;
   double *delta, *mid, *coor, x0;
@@ -764,9 +763,9 @@ int VMap::_vmap_general(Db *db,
  ** \param[in]  namconv      Naming Convention
  **
  *****************************************************************************/
-int VMap::_vmap_grid(DbGrid *dbgrid,
-                     const NamingConvention &namconv)
+int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(namconv);
   int error, nvar, nv2, idim, delta;
   int *ind1, *ind2, *ind0, iech0, iech1, iech2, flag_out, ndim;
 
@@ -935,6 +934,7 @@ int VMap::_vmap_load_simple(DbGrid *dbgrid,
                             VectorVectorDouble &z2i1,
                             VectorVectorDouble &z2z1)
 {
+  DECLARE_UNUSED(sizetot);
   int ind1, ind2, indice[3];
 
   /* Initialize the complex array */
@@ -1013,6 +1013,7 @@ int VMap::_vmap_load_cross(DbGrid *dbgrid,
                            VectorVectorDouble &i2i2,
                            VectorVectorDouble &z2i2)
 {
+  DECLARE_UNUSED(sizetot);
   int ind1, ind2, indice[3];
 
   /* Initialize the complex array */

@@ -667,7 +667,7 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
   int n2 = (transpose) ? a.getNRows() : a.getNCols();
 
   if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
-                 vec.size(), 1, false)) return;
+                 (int) vec.size(), 1, false)) return;
 
   for (int i = 0; i < n1; i++)
     for (int j = 0; j < n1; j++)
@@ -748,7 +748,7 @@ VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
 {
   VectorDouble y;
 
-  if (!_checkLink(x.size(), 1, false, getNRows(), getNCols(), transpose)) return y;
+  if (!_checkLink((int) x.size(), 1, false, getNRows(), getNCols(), transpose)) return y;
 
   int nval = (! transpose) ? _nCols : _nRows;
   y.resize(nval, 0.);
@@ -760,7 +760,7 @@ VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
 {
   VectorDouble y;
 
-  if (!_checkLink(getNRows(), getNCols(), transpose, x.size(), 1, false)) return y;
+  if (!_checkLink(getNRows(), getNCols(), transpose, (int) x.size(), 1, false)) return y;
 
   int nval = (transpose) ? _nCols : _nRows;
   y.resize(nval, 0.);
@@ -770,9 +770,9 @@ VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
 
 double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
 {
-  if (!_checkLink(x.size(), 1, true,
+  if (!_checkLink((int) x.size(), 1, true,
                   getNRows(), getNCols(), false,
-                  y.size(), 1, false)) return TEST;
+                  (int) y.size(), 1, false)) return TEST;
 
   VectorDouble left(_nRows);
   prodMatVecInPlace(y, left, false);
@@ -875,7 +875,7 @@ bool AMatrix::_isIndexValid(int irow, int icol) const
 
 bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
 {
-  if (tab.size() != (unsigned) getNRows())
+  if ((int) tab.size() != getNRows())
   {
     messerr("Argument vector size should match the number of rows");
     return false;
@@ -885,7 +885,7 @@ bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
 
 bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
 {
-  if (tab.size() != (unsigned) getNCols())
+  if ((int) tab.size() != getNCols())
   {
     messerr("Argument vector size should match the number of columns");
     return false;
@@ -897,7 +897,7 @@ bool AMatrix::_isVectorSizeConsistent(int nrows,
                                       int ncols,
                                       const VectorDouble &tab)
 {
-  if (tab.size() != (unsigned) (nrows * ncols))
+  if ((int) tab.size() != nrows * ncols)
   {
     messerr("The VectorDouble argument does not have correct dimension");
     return false;

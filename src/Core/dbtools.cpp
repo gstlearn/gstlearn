@@ -1825,7 +1825,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   int nech = 0;
   for (int icode = 0; icode < ncode; icode++)
-    for (int iz = 0; iz < nz; iz++)
+    for (iz = 0; iz < nz; iz++)
     {
       double ratio = WCNT(iz, icode);
       if (ratio <= 0) continue;
@@ -1844,7 +1844,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   int ecr = 0;
   for (int icode = 0; icode < ncode; icode++)
-    for (int iz = 0; iz < nz; iz++)
+    for (iz = 0; iz < nz; iz++)
     {
       double ratio = WCNT(iz, icode);
       if (ratio <= 0) continue;

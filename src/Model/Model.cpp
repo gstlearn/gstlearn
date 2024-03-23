@@ -1573,13 +1573,21 @@ VectorDouble Model::covMatrixV(Db *db1,
   return model_covmatM(this, db1, db2, ivar, jvar, mode).getValues();
 }
 
-MatrixSquareSymmetric Model::covMatrixM(Db *db1,
-                                        Db *db2,
-                                        int ivar,
-                                        int jvar,
-                                        const CovCalcMode* mode)
+MatrixRectangular Model::covMatrixM(Db *db1,
+                                    Db *db2,
+                                    int ivar,
+                                    int jvar,
+                                    const CovCalcMode *mode)
 {
   return model_covmatM(this, db1, db2, ivar, jvar, mode);
+}
+
+MatrixSquareSymmetric Model::covMatrixM(Db *db1,
+                                        int ivar,
+                                        int jvar,
+                                        const CovCalcMode *mode)
+{
+  return model_covmatM(this, db1, db1, ivar, jvar, mode);
 }
 
 /**

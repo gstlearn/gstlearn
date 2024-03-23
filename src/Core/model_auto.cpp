@@ -1560,7 +1560,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
             MP(ijvar,ipadir)-= SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
             sum += FK(icov,ijvar,ipadir) * MP(ijvar,ipadir);
           }
-          double value = AIC(icov,ijvar)- ALPHAK(icov,ijvar) * sum;
+          value = AIC(icov,ijvar) - ALPHAK(icov,ijvar) * sum;
           cc.setValue(ivar, jvar, value);
           cc.setValue(jvar, ivar, value);
         }
@@ -1571,11 +1571,11 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       valpro = cc.getEigenValues();
       vecpro = cc.getEigenVectors();
 
-      int ivar = 0;
+      int kvar = 0;
       allpos = 1;
-      while ((ivar < nvar) && allpos)
+      while ((kvar < nvar) && allpos)
       {
-        if (valpro[ivar++] < 0) allpos=0;
+        if (valpro[kvar++] < 0) allpos=0;
       }
 
       /* Calculate the new coregionalization matrix */
@@ -3667,7 +3667,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   st_goulard_verbose(0, mauto);
   if (optvar.getFlagGoulardUsed())
-    for (int imod = 0; imod < strmod->nmodel; imod++)
+    for (imod = 0; imod < strmod->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
       (void) st_goulard_fitting(1, 1, STRMOD->models[imod], constraints, mauto);
@@ -3689,10 +3689,10 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   lost_rank = lost_imod = lost_icov = -1;
   ncovleft = 0;
-  for (int imod = 0; imod < strmod->nmodel; imod++)
+  for (imod = 0; imod < strmod->nmodel; imod++)
   {
     model = strmod->models[imod];
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (icov = 0; icov < model->getCovaNumber(); icov++)
     {
       FLAG_COMPRESS(imod,icov) = st_structure_reduce(strmod, imod, icov, hmax,
                                                      gmax, mauto.getTolsigma());
@@ -3753,7 +3753,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   /* Loop on the basic structures */
 
-  for (int ntot = 0; ntot < nparloc; ntot++)
+  for (ntot = 0; ntot < nparloc; ntot++)
   {
     st_parid_decode(strmod->parid[ntot], &imod, &icov, &icons, &ivar, &jvar);
     if (imod == lost_imod && icov == lost_icov && icons == EConsElem::ANGLE)
@@ -3765,10 +3765,10 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   if (lost_rank >= 0)
   {
-    for (int imod = 0; imod < strmod->nmodel; imod++)
+    for (imod = 0; imod < strmod->nmodel; imod++)
     {
       model = strmod->models[imod];
-      for (int icov = 0; icov < model->getCovaNumber(); icov++)
+      for (icov = 0; icov < model->getCovaNumber(); icov++)
       {
         if (FLAG_COMPRESS(imod, icov)) continue;
         model_cova_characteristics(model->getCovaType(icov), cov_name,
@@ -3807,10 +3807,10 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   /* Modifying the covariance ranks in parid */
 
-  for (int imod = 0; imod < strmod->nmodel; imod++)
+  for (imod = 0; imod < strmod->nmodel; imod++)
   {
     int jcov = 0;
-    for (int icov = 0; icov < strmod->models[imod]->getCovaNumber(); icov++)
+    for (icov = 0; icov < strmod->models[imod]->getCovaNumber(); icov++)
     {
       if (FLAG_COMPRESS(imod, icov)) continue;
 
@@ -3831,10 +3831,10 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   // Warning: We start from the end in order to avoid having to compress
   // FLAG_COMPRESS consequently
 
-  for (int imod = strmod->nmodel - 1; imod >= 0; imod--)
+  for (imod = strmod->nmodel - 1; imod >= 0; imod--)
   {
     ncova = strmod->models[imod]->getCovaNumber();
-    for (int icov = ncova - 1; icov >= 0; icov--)
+    for (icov = ncova - 1; icov >= 0; icov--)
     {
       if (!FLAG_COMPRESS(imod, icov)) continue;
       strmod->models[imod]->delCova(icov);

@@ -793,49 +793,6 @@ int model_drift_mat(Model *model,
 
 /****************************************************************************/
 /*!
- **  Establish the drift vector for a given sample of the Db
- **
- ** \param[in]  model  Model structure
- ** \param[in]  member Member of the Kriging System (ECalcMember)
- ** \param[in]  db     Db structure
- ** \param[in]  iech   Rank of the particular sample
- **
- ** \param[out] vector Returned vector
- **                    (Dimension = nvar * nfeq)
- **
- *****************************************************************************/
-int model_drift_vector(Model *model,
-                        const ECalcMember &member,
-                        Db *db,
-                        int iech,
-                        double *vector)
-{
-  if (st_check_model(model)) return 1;
-  if (st_check_environ(model, db)) return 1;
-  int nvar = model->getVariableNumber();
-  int nbfl = model->getDriftNumber();
-  int nfeq = model->getDriftEquationNumber();
-
-  /* Initialize the covariance matrix */
-
-  for (int i = 0; i < nvar * nfeq; i++) vector[i] = TEST;
-
-  VectorDouble drftab = model->evalDriftVec(db, iech, member);
-
-  int ecr = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int ib = 0; ib < nfeq; ib++)
-    {
-      double value = 0.;
-      for (int il = 0; il < nbfl; il++)
-        value += drftab[il] * model->getDriftCL(ivar, il, ib);
-      vector[ecr++] = value;
-    }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  Duplicates a Model from another Model for Gradients
  **
  ** \return  The modified Model structure
@@ -2028,17 +1985,18 @@ int model_covmat(Model *model,
   return 0;
 }
 
-MatrixSquareSymmetric model_covmatM(Model *model,
-                                    Db *db1,
-                                    Db *db2,
-                                    int ivar0,
-                                    int jvar0,
-                                    const CovCalcMode*  mode)
+MatrixRectangular model_covmatM(Model *model,
+                                Db *db1,
+                                Db *db2,
+                                int ivar0,
+                                int jvar0,
+                                const CovCalcMode *mode)
 {
+  MatrixRectangular covmat;
   if (db2 == nullptr) db2 = db1;
-  if (st_check_model(model)) return 1;
-  if (st_check_environ(model, db1)) return 1;
-  if (st_check_environ(model, db2)) return 1;
+  if (st_check_model(model)) return covmat;
+  if (st_check_environ(model, db1)) return covmat;
+  if (st_check_environ(model, db2)) return covmat;
   int ndim = model->getDimensionNumber();
   int nvar = model->getVariableNumber();
   int nech1 = db1->getSampleNumber();
@@ -2047,13 +2005,13 @@ MatrixSquareSymmetric model_covmatM(Model *model,
   if (ivar0 >= 0)
   {
     nvar1 = 1;
-    if (st_check_variable(nvar, ivar0)) return 1;
+    if (st_check_variable(nvar, ivar0)) return covmat;
   }
   int nvar2 = nvar;
   if (jvar0 >= 0)
   {
     nvar2 = 1;
-    if (st_check_variable(nvar, jvar0)) return 1;
+    if (st_check_variable(nvar, jvar0)) return covmat;
   }
   bool flag_verr = (db1 == db2 && db1->getLocNumber(ELoc::V) == nvar);
 
@@ -2064,7 +2022,7 @@ MatrixSquareSymmetric model_covmatM(Model *model,
 
   int nactive1 = db1->getSampleNumber(true);
   int nactive2 = db2->getSampleNumber(true);
-  MatrixRectangular covmat(nvar1 * nactive1, nvar2 * nactive2);
+  covmat.reset(nvar1 * nactive1, nvar2 * nactive2);
 
   /* Loop on the first variable */
 

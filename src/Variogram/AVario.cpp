@@ -220,6 +220,7 @@ void AVario::evaluate(Db *db,
 
 String AVario::_elemString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   // Print the calculation type

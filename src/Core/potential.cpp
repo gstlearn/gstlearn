@@ -1064,6 +1064,7 @@ static int st_extdrift_eval(const char *target,
                             double *extval,
                             VectorDouble& extgrd)
 {
+  DECLARE_UNUSED(target);
   if (dbgrid == nullptr) return 1;
   VectorDouble coor(3);
   coor[0] = x0;
@@ -2089,7 +2090,6 @@ static void st_estimate_data(Pot_Env *pot_env,
  ** \param[in]  zval          Data vector
  ** \param[in]  lhs_orig_arg  Copy of the initial LHS (non inverted)
  ** \param[in]  rhs_arg       Right-hand side
- ** \param[in]  zdual         Dual vector (Dimension: nequa)
  **
  ** \param[out] dist_euc      Error converted into Euclidean distance
  ** \param[out] dist_geo      Error converted into along surface distance
@@ -2110,7 +2110,6 @@ static void st_dist_convert(Pot_Env *pot_env,
                             VectorDouble& zval,
                             MatrixSquareSymmetric& lhs_orig_arg,
                             MatrixRectangular& rhs_arg,
-                            VectorDouble& zdual,
                             double *dist_euc,
                             double *dist_geo)
 {
@@ -2243,7 +2242,6 @@ static void st_dist_convert(Pot_Env *pot_env,
  ** \param[in]  flag_dist_conv Flag for converting into distance
  ** \param[in]  zval           Data vector
  ** \param[in]  lhs_orig       Copy of the Initial LHS
- ** \param[in]  lhs_aux        Working array for LHS
  ** \param[in]  rhs            Right-hand side
  ** \param[in]  zdual          Dual vector (Dimension: nequa)
  **
@@ -2260,7 +2258,6 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 bool flag_dist_conv,
                                 VectorDouble& zval,
                                 MatrixSquareSymmetric& lhs_orig,
-                                MatrixSquareSymmetric& lhs_aux,
                                 MatrixRectangular& rhs,
                                 VectorDouble& zdual)
 {
@@ -2308,7 +2305,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
 
       if (flag_dist_conv)
         st_dist_convert(pot_env, pot_ext, dbiso, dbgrd, dbtgt, model, ic, j,
-                        zval, lhs_orig, rhs, zdual, &dist_geo, &dist_euc);
+                        zval, lhs_orig, rhs, &dist_geo, &dist_euc);
 
       // Debugging option
 
@@ -2504,14 +2501,13 @@ static void st_simcond(Pot_Env *pot_env,
 
       // Perform the estimation of the simulated error
 
-      VectorDouble zdual = zduals.getColumn(isimu);
+      VectorDouble zdual_loc = zduals.getColumn(isimu);
       st_calc_point(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, dbout, model,
-                    zdual, rhs, dbout, iech, result);
+                    zdual_loc, rhs, dbout, iech, result);
 
       // Convert into simulation error
 
-      result[0] = (dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1)
-          - result[0]);
+      result[0] = (dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1) - result[0]);
       for (int idim = 0; idim < ndim; idim++)
         result[1 + idim] = (dbgrd->getSimvar(ELoc::SIMU, iech,
                                              isimu + idim * nbsimu, 0, 0,
@@ -3237,22 +3233,22 @@ int potential_simulate(Db *dbiso,
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    VectorDouble zdual = zduals.getColumn(isimu);
+    VectorDouble zdual_loc = zduals.getColumn(isimu);
 
     // Calculate the simulated value at the reference point
 
     refpot = st_evaluate_refpot(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
-                                model, zdual, rhs);
+                                model, zdual_loc, rhs);
 
     // Check that the information is fulfilled correctly
 
     st_check_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model, isimu,
-                  nbsimu, refpot, zdual, rhs);
+                  nbsimu, refpot, zdual_loc, rhs);
 
     // Calculate the simulated iso-value
 
     st_evaluate_potval(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                       refpot, isimu, nbsimu, zdual, rhs,
+                       refpot, isimu, nbsimu, zdual_loc, rhs,
                        &POTSIM(isimu, 0));
   }
 
@@ -3377,7 +3373,7 @@ int potential_xvalid(Db *dbiso,
   /* Process the estimate at masked-off isovalues */
 
   st_xvalid_potential(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, model, lhs,
-                      flag_dist_conv, zval, lhs_orig, lhs_aux, rhs, zdual);
+                      flag_dist_conv, zval, lhs_orig, rhs, zdual);
 
   // Set the error return code
 
