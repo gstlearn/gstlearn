@@ -2554,13 +2554,13 @@ static void st_print_result(Pot_Env *pot_env,
 {
   if (isimu >= 0) message("Simulation %2d - ", isimu + 1);
 
-  message(" - Pot* =%10.5lf", result[0]);
+  message(" - Pot* =%10.5lf", roundZero(result[0]));
 
   message(" - Grad* =");
   for (int idim = 0; idim < pot_env->ndim; idim++)
-    message(" %10.5lf", result[1 + idim]);
+    message(" %10.5lf", roundZero(result[1 + idim]));
 
-  if (!FFFF(tgtval)) message(" - Tangent= %10.5lf", tgtval);
+  if (!FFFF(tgtval)) message(" - Tangent= %10.5lf", roundZero(tgtval));
 
   message("\n");
 }
@@ -2626,8 +2626,7 @@ static void st_check_data(Pot_Env *pot_env,
           // Convert into simulation error
 
           if (nbsimu > 0)
-            result[0] = dbiso->getSimvar(ELoc::SIMU,iech,isimu,0,0,nbsimu,1)
-                        - result[0];
+            result[0] = dbiso->getSimvar(ELoc::SIMU,iech,isimu,0,0,nbsimu,1) - result[0];
 
           // Print the results
 

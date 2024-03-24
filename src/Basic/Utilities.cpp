@@ -1108,3 +1108,15 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
   return TEST;
 }
 
+/**
+ * Round off the value if close enough to zero.
+ * This ensures that the printout of a very small value does not come out with a non-significant negative sign
+ * @param value Input value
+ * @param eps   Tolerance to check that the value is considered as small
+ * @return The value itself or (sharp) zero if too small.
+ */
+double roundZero(double value, double eps)
+{
+  if (ABS(value > eps)) return value;
+  return 0.;
+}
