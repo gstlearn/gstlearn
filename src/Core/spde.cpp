@@ -1351,7 +1351,6 @@ int spde_attach_model(Model *model)
 {
   CovAniso *cova;
   int ndim, nvar;
-  double silltot;
 
   /* Check space dimension */
 
@@ -1371,11 +1370,9 @@ int spde_attach_model(Model *model)
 
   /* Checking the Model contents */
 
-  silltot = 0.;
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
     cova = model->getCova(icov);
-    silltot += cova->getSill(0, 0);
     if (cova->getType() == ECov::BESSEL_K)
     {
       continue;

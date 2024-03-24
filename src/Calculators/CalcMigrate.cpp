@@ -1245,7 +1245,6 @@ int expandPointToGrid(Db *db_point,
 
   /* Loop on the grid nodes */
 
-  int npin = 0;
   int ip0 = 0;
   for (int ig = 0; ig < ng; ig++)
   {
@@ -1297,7 +1296,6 @@ int expandPointToGrid(Db *db_point,
 
     /* Set the value */
 
-    npin++;
     if (jpmin < 0)
       tab[ig] = TEST;
     else

@@ -173,9 +173,9 @@ int cgi(Db *db,
 
   /* Normation */
 
-  double sum = 0.;
-  for (int idim = 0; idim < ndim; idim++)
-    sum += mvalue[idim];
+//  double sum = 0.;
+//  for (int idim = 0; idim < ndim; idim++)
+//    sum += mvalue[idim];
 
   return 0;
 }

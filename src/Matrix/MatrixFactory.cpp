@@ -276,8 +276,6 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
   int n12 = a1->getNCols();
   int n21 = a2->getNRows();
   int n22 = a2->getNCols();
-  int nrows = n11;
-  int ncols = n12;
   if (flagShiftRow && ! isSparse)
   {
     if (n12 != n22)
@@ -285,7 +283,6 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
       messerr("Binding by row: Input matrices must share same column number");
       return a;
     }
-    nrows += n21;
   }
   if (flagShiftCol && ! isSparse)
   {
@@ -294,7 +291,6 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
       messerr("Binding by column: Input matrices must share same row number");
       return a;
     }
-    ncols += n22;
   }
 
   /* Core allocation */

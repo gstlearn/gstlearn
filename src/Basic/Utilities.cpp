@@ -1117,6 +1117,6 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
  */
 double roundZero(double value, double eps)
 {
-  if (ABS(value > eps)) return value;
+  if (ABS(value) > eps) return value;
   return 0.;
 }

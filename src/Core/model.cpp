@@ -1282,7 +1282,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Add the covariance of the first Model */
 
-  int ncov = 0;
   for (int i = 0; i < model1->getCovaNumber(); i++)
   {
     const CovAniso* cova = model1->getCova(i);
@@ -1297,7 +1296,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
       delete model;
       return nullptr;
     }
-    ncov++;
   }
 
   /* Add the covariance of the second Model */
@@ -1316,8 +1314,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
       delete model;
       return nullptr;
     }
-
-    ncov++;
   }
   return model;
 }

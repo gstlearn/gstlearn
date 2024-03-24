@@ -448,18 +448,15 @@ int db_write_csv(Db *db,
     }
     else
     {
-      int rank = 0;
       if (flag_coor) for (int idim = 0; idim < ndim; idim++)
       {
         int iatt = db_attribute_identify(db, ELoc::X, idim);
         st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
-        rank++;
       }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         int iatt = db_attribute_identify(db, ELoc::Z, ivar);
         st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
-        rank++;
       }
     }
   }
@@ -477,18 +474,15 @@ int db_write_csv(Db *db,
     }
     else
     {
-      int rank = 0;
       if (flag_coor) for (int idim = 0; idim < ndim; idim++)
       {
         int iatt = db_attribute_identify(db, ELoc::X, idim);
         csv_print_double(db->getCoordinate(iech, iatt));
-        rank++;
       }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         int iatt = db_attribute_identify(db, ELoc::Z, ivar);
         csv_print_double(db->getLocVariable(ELoc::Z,iech, iatt));
-        rank++;
       }
     }
   }

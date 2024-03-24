@@ -976,7 +976,7 @@ int DbHelper::dbgrid_filling(DbGrid *dbgrid,
   /* Set the error return code */
 
   error = 0;
-  namconv.setNamesAndLocators(dbgrid, {iatt_in}, dbgrid, iatt_out);
+  namconv.setNamesAndLocators(dbgrid, iatt_in, dbgrid, iatt_out);
 
   label_end:
   delete skin;
