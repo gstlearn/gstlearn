@@ -1111,6 +1111,7 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
 /**
  * Round off the value if close enough to zero.
  * This ensures that the printout of a very small value does not come out with a non-significant negative sign
+ * This trick should only serve to make printouts similar on different platforms.
  * @param value Input value
  * @param eps   Tolerance to check that the value is considered as small
  * @return The value itself or (sharp) zero if too small.
