@@ -1592,7 +1592,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           else
           {
             sum = 0.;
-            for (int kvar=0; kvar<nvar; kvar++)
+            for (kvar=0; kvar<nvar; kvar++)
               sum += (MAX(valpro[kvar],0.) * vecpro->getValue(ivar,kvar) * vecpro->getValue(jvar,kvar));
             SILL(icov,ijvar) = sum;
           }
@@ -3816,7 +3816,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
       /* Shift icov parameter */
 
-      for (int ntot = 0; ntot < nparloc; ntot++)
+      for (ntot = 0; ntot < nparloc; ntot++)
       {
         st_parid_decode(strmod->parid[ntot], &jmod, &kcov, &icons, &ivar,
                         &jvar);

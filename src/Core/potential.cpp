@@ -2261,6 +2261,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 MatrixRectangular& rhs,
                                 VectorDouble& zdual)
 {
+  DECLARE_UNUSED(zdual);
   double stats[4][2];
   VectorDouble result(4);
 

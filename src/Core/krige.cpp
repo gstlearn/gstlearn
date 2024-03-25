@@ -274,166 +274,166 @@ static double st_get_idim(int loc_rank, int idim)
   return (value);
 }
 
-/****************************************************************************/
-/*!
- **  Calculate the covariance between two samples from two Db
- **
- ** \param[in]  model        Model structure
- ** \param[in]  flag_init    Initialize the array beforehand
- ** \param[in]  nugget_opt   Option for the nugget effect basic structure
- ** \li                       0 : no particular option
- ** \li                       1 : discard the nugget effect
- ** \li                      -1 : only consider the nugget effect
- ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
- ** \param[in]  member       Member of the Kriging System (ECalcMember)
- ** \param[in]  icov_r       rank of the target covariance or -1 for all
- ** \param[in]  weight       Weight attached to this calculation
- ** \param[in]  rank1        Rank of the first sample
- ** \param[in]  rank2        Rank of the second sample
- **
- ** \param[out] d1loc        Working array
- ** \param[out] covtab_loc   Output covariance array
- **
- *****************************************************************************/
-static void st_cov(Model *model,
-                   int flag_init,
-                   int nugget_opt,
-                   int nostd,
-                   const ECalcMember &member,
-                   int icov_r,
-                   double weight,
-                   int rank1,
-                   int rank2,
-                   VectorDouble d1loc,
-                   double *covtab_loc)
-{
-  DECLARE_UNUSED(nostd);
-  DECLARE_UNUSED(nugget_opt);
-
-  /* Initializations */
-
-  if (rank1 >= 0)
-  {
-    COVINT.setDb1(DBIN);
-    COVINT.setIcas1(1);
-    COVINT.setIech1(rank1);
-  }
-  else
-  {
-    COVINT.setDb1(DBOUT);
-    COVINT.setIcas1(2);
-    COVINT.setIech1(IECH_OUT);
-  }
-
-  if (rank2 >= 0)
-  {
-    COVINT.setDb2(DBIN);
-    COVINT.setIcas2(1);
-    COVINT.setIech2(rank2);
-  }
-  else
-  {
-    COVINT.setDb2(DBOUT);
-    COVINT.setIcas2(2);
-    COVINT.setIech2(IECH_OUT);
-  }
-
-  CovCalcMode mode(member);
-  mode.setActiveCovListFromOne(icov_r);
-  model_calcul_cov(&COVINT, model, &mode, flag_init, weight, d1loc, covtab_loc);
-}
-
-/****************************************************************************/
-/*!
- **  Internal recursive function for calculating covariance between data
- **  and data, when data are discretized
- **
- ** \param[in]  idim   Space dimension for current iteration (first point)
- ** \param[in]  jdim   Space dimension for current iteration (second point)
- ** \param[in]  it     Pointer to the Internal Disc_Structure
- **
- *****************************************************************************/
-static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
-{
-  double exts2, dsize, decal;
-
-  // Initialization
-
-  if (idim < it->model->getDimensionNumber() - 1)
-  {
-    idim = idim + 1;
-
-    // Loop in the current dimension
-
-    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
-    dsize = KOPTION->dsize[idim];
-
-    if (exts2 <= 0. || dsize <= 0.)
-    {
-
-      /* Punctual support */
-
-      d1_1_global[idim] = 0.;
-      st_data_discretize_dd(idim, jdim, it);
-    }
-    else
-    {
-
-      /* Implicit loop until reaching the edge of the data */
-
-      decal = -exts2 + dsize / 2.;
-      do
-      {
-        d1_1_global[idim] = decal;
-        st_data_discretize_dd(idim, jdim, it);
-        decal = decal + dsize;
-      }
-      while (decal < exts2);
-    }
-  }
-  else if (jdim < it->model->getDimensionNumber() - 1)
-  {
-    jdim = jdim + 1;
-
-    // Loop in the current dimension
-
-    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
-    dsize = KOPTION->dsize[jdim];
-
-    if (exts2 <= 0 || dsize <= 0.)
-    {
-      /* Punctual support */
-
-      d1_2_global[jdim] = 0.;
-      st_data_discretize_dd(idim, jdim, it);
-    }
-    else
-    {
-
-      /* Implicit loop until reaching the edge of the data */
-
-      decal = -exts2 + dsize / 2.;
-      do
-      {
-        d1_2_global[jdim] = decal;
-        st_data_discretize_dd(idim, jdim, it);
-        decal = decal + dsize;
-      }
-      while (decal < exts2);
-    }
-  }
-  else
-  {
-
-    // End of implicit loop on dimensions
-
-    it->ndtot++;
-    for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
-    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
-  }
-}
+///****************************************************************************/
+///*!
+// **  Calculate the covariance between two samples from two Db
+// **
+// ** \param[in]  model        Model structure
+// ** \param[in]  flag_init    Initialize the array beforehand
+// ** \param[in]  nugget_opt   Option for the nugget effect basic structure
+// ** \li                       0 : no particular option
+// ** \li                       1 : discard the nugget effect
+// ** \li                      -1 : only consider the nugget effect
+// ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
+// ** \param[in]  member       Member of the Kriging System (ECalcMember)
+// ** \param[in]  icov_r       rank of the target covariance or -1 for all
+// ** \param[in]  weight       Weight attached to this calculation
+// ** \param[in]  rank1        Rank of the first sample
+// ** \param[in]  rank2        Rank of the second sample
+// **
+// ** \param[out] d1loc        Working array
+// ** \param[out] covtab_loc   Output covariance array
+// **
+// *****************************************************************************/
+//static void st_cov(Model *model,
+//                   int flag_init,
+//                   int nugget_opt,
+//                   int nostd,
+//                   const ECalcMember &member,
+//                   int icov_r,
+//                   double weight,
+//                   int rank1,
+//                   int rank2,
+//                   VectorDouble d1loc,
+//                   double *covtab_loc)
+//{
+//  DECLARE_UNUSED(nostd);
+//  DECLARE_UNUSED(nugget_opt);
+//
+//  /* Initializations */
+//
+//  if (rank1 >= 0)
+//  {
+//    COVINT.setDb1(DBIN);
+//    COVINT.setIcas1(1);
+//    COVINT.setIech1(rank1);
+//  }
+//  else
+//  {
+//    COVINT.setDb1(DBOUT);
+//    COVINT.setIcas1(2);
+//    COVINT.setIech1(IECH_OUT);
+//  }
+//
+//  if (rank2 >= 0)
+//  {
+//    COVINT.setDb2(DBIN);
+//    COVINT.setIcas2(1);
+//    COVINT.setIech2(rank2);
+//  }
+//  else
+//  {
+//    COVINT.setDb2(DBOUT);
+//    COVINT.setIcas2(2);
+//    COVINT.setIech2(IECH_OUT);
+//  }
+//
+//  CovCalcMode mode(member);
+//  mode.setActiveCovListFromOne(icov_r);
+//  model_calcul_cov(&COVINT, model, &mode, flag_init, weight, d1loc, covtab_loc);
+//}
+//
+///****************************************************************************/
+///*!
+// **  Internal recursive function for calculating covariance between data
+// **  and data, when data are discretized
+// **
+// ** \param[in]  idim   Space dimension for current iteration (first point)
+// ** \param[in]  jdim   Space dimension for current iteration (second point)
+// ** \param[in]  it     Pointer to the Internal Disc_Structure
+// **
+// *****************************************************************************/
+//static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
+//{
+//  double exts2, dsize, decal;
+//
+//  // Initialization
+//
+//  if (idim < it->model->getDimensionNumber() - 1)
+//  {
+//    idim = idim + 1;
+//
+//    // Loop in the current dimension
+//
+//    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
+//    dsize = KOPTION->dsize[idim];
+//
+//    if (exts2 <= 0. || dsize <= 0.)
+//    {
+//
+//      /* Punctual support */
+//
+//      d1_1_global[idim] = 0.;
+//      st_data_discretize_dd(idim, jdim, it);
+//    }
+//    else
+//    {
+//
+//      /* Implicit loop until reaching the edge of the data */
+//
+//      decal = -exts2 + dsize / 2.;
+//      do
+//      {
+//        d1_1_global[idim] = decal;
+//        st_data_discretize_dd(idim, jdim, it);
+//        decal = decal + dsize;
+//      }
+//      while (decal < exts2);
+//    }
+//  }
+//  else if (jdim < it->model->getDimensionNumber() - 1)
+//  {
+//    jdim = jdim + 1;
+//
+//    // Loop in the current dimension
+//
+//    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
+//    dsize = KOPTION->dsize[jdim];
+//
+//    if (exts2 <= 0 || dsize <= 0.)
+//    {
+//      /* Punctual support */
+//
+//      d1_2_global[jdim] = 0.;
+//      st_data_discretize_dd(idim, jdim, it);
+//    }
+//    else
+//    {
+//
+//      /* Implicit loop until reaching the edge of the data */
+//
+//      decal = -exts2 + dsize / 2.;
+//      do
+//      {
+//        d1_2_global[jdim] = decal;
+//        st_data_discretize_dd(idim, jdim, it);
+//        decal = decal + dsize;
+//      }
+//      while (decal < exts2);
+//    }
+//  }
+//  else
+//  {
+//
+//    // End of implicit loop on dimensions
+//
+//    it->ndtot++;
+//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
+//    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
+//           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
+//  }
+//}
 
 int is_flag_data_disc_defined(void)
 {
@@ -450,66 +450,66 @@ void set_DBOUT(Db* dbout)
   DBOUT = dbout;
 }
 
-/****************************************************************************/
-/*!
- **  Internal recursive function for calculating covariance between data
- **  and target, when data is discretized
- **
- ** \param[in]  idim   Space dimension for current iteration
- ** \param[in]  it     Pointer to the Internal Disc_Structure
- **
- *****************************************************************************/
-static void st_data_discretize_dg(int idim, Disc_Structure *it)
-{
-  double exts2, dsize, decal;
-
-  // Initialization
-
-  if (idim < it->model->getDimensionNumber() - 1)
-  {
-    idim = idim + 1;
-
-    // Loop in the current dimension
-
-    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
-    dsize = KOPTION->dsize[idim];
-
-    if (exts2 <= 0. || dsize <= 0.)
-    {
-
-      /* Punctual support */
-
-      d1_1_global[idim] = 0.;
-      st_data_discretize_dg(idim, it);
-    }
-    else
-    {
-
-      /* Implicit loop until reaching the edge of the data */
-
-      decal = -exts2 + dsize / 2.;
-      do
-      {
-
-        d1_1_global[idim] = decal;
-        st_data_discretize_dg(idim, it);
-        decal = decal + dsize;
-      }
-      while (decal < exts2);
-    }
-  }
-  else
-  {
-
-    // End of implicit loop on dimensions
-
-    it->ndtot++;
-    for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t_global[i] = d1_global[i] + d1_1_global[i];
-    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
-  }
-}
+///****************************************************************************/
+///*!
+// **  Internal recursive function for calculating covariance between data
+// **  and target, when data is discretized
+// **
+// ** \param[in]  idim   Space dimension for current iteration
+// ** \param[in]  it     Pointer to the Internal Disc_Structure
+// **
+// *****************************************************************************/
+//static void st_data_discretize_dg(int idim, Disc_Structure *it)
+//{
+//  double exts2, dsize, decal;
+//
+//  // Initialization
+//
+//  if (idim < it->model->getDimensionNumber() - 1)
+//  {
+//    idim = idim + 1;
+//
+//    // Loop in the current dimension
+//
+//    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
+//    dsize = KOPTION->dsize[idim];
+//
+//    if (exts2 <= 0. || dsize <= 0.)
+//    {
+//
+//      /* Punctual support */
+//
+//      d1_1_global[idim] = 0.;
+//      st_data_discretize_dg(idim, it);
+//    }
+//    else
+//    {
+//
+//      /* Implicit loop until reaching the edge of the data */
+//
+//      decal = -exts2 + dsize / 2.;
+//      do
+//      {
+//
+//        d1_1_global[idim] = decal;
+//        st_data_discretize_dg(idim, it);
+//        decal = decal + dsize;
+//      }
+//      while (decal < exts2);
+//    }
+//  }
+//  else
+//  {
+//
+//    // End of implicit loop on dimensions
+//
+//    it->ndtot++;
+//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//      d1_t_global[i] = d1_global[i] + d1_1_global[i];
+//    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
+//           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
+//  }
+//}
 
 /****************************************************************************/
 /*!
@@ -786,6 +786,7 @@ static int st_krige_manage_basic(int mode,
                                  int nvar,
                                  int nfeq)
 {
+  DECLARE_UNUSED(nech);
   int neqmax, ncmax;
 
   /* Initializations */
@@ -793,7 +794,7 @@ static int st_krige_manage_basic(int mode,
   ncmax = nmax * nvar;
   neqmax = ncmax + nfeq;
   if (FLAG_COLK) neqmax += nvar;
-  if (FLAG_COLK) nech += 1;
+//  if (FLAG_COLK) nech += 1;
 
   /* Dispatch */
 

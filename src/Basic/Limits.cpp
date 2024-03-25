@@ -498,7 +498,6 @@ int Limits::_computeIndicator(Db *db,
 
   /* Loop on the samples */
 
-  int nactive = 0;
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
@@ -572,7 +571,6 @@ int Limits::_computeIndicator(Db *db,
     }
     if (!flag_indic)
       db->setArray(iech, iptr_mean, (double) iclass);
-    nactive++;
   }
 
   /* Calculate the statistics */

@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   CovLMC covs(ctxt.getSpace());
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);
-  cova.setSill({sill});
+  cova.setSill(sill);
   covs.addCov(&cova);
   model->setCovList(&covs);
   model->display();
