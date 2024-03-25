@@ -181,11 +181,12 @@ Vario* Vario::computeFromDb(const VarioParam& varioparam,
                             bool flag_sample,
                             bool verr_mode,
                             Model *model,
+                            int niter_UK,
                             bool verbose)
 {
   Vario* vario = nullptr;
   vario = new Vario(varioparam);
-  if (vario->compute(db, calcul, flag_sample, verr_mode, model, verbose))
+  if (vario->compute(db, calcul, flag_sample, verr_mode, model, niter_UK, verbose))
   {
     return nullptr;
   }
@@ -2337,28 +2338,47 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
 {
   Option_VarioFit optvar;
   Option_AutoFit mauto;
-  double newval;
   int ifirst, ilast;
   Constraints constraints;
 
   // Do not allow reducing the number of covariances in the Model during iterations
   optvar.setFlagNoreduce(true);
 
-  /* Loop on the iterations (when 'niter_UK' is positive*/
+  // Particular case when 'niter_UK' is negative, we want to exhibit the bias alone:
+  // - the Model is supposed to be provided in input
+  // - only one iteration is performed
 
+  if (_niter_UK < 0)
+  {
+    // Calculate the global bias correction terms
+    _calculateBiasGlobal(db);
+
+    // Loop on the directions
+    for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
+    {
+
+      // Loop on the lags
+      for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
+      {
+        vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+        if (ifirst > ilast) continue;
+        _calculateBiasLocal(db, idir, ipas, vorder, ifirst, ilast);
+      }
+    }
+    return 0;
+  }
+
+  // Loop on the iterations (when 'niter_UK' is positive
   for (int iter = 0; iter < _niter_UK; iter++)
   {
 
-    /* Perform the Automatic structure recognition */
-
+    // Perform the Automatic structure recognition
     if (model_auto_fit(this, _model, false, mauto, constraints, optvar)) return 1;
 
-    /* Calculate the global bias correction terms */
-
+    // Calculate the global bias correction terms
     _calculateBiasGlobal(db);
 
-    /* Optional printout */
-
+    // Optional printout
     if (_verbose)
     {
       message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
@@ -2367,25 +2387,16 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
                    _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
     }
 
-    /* Loop on the directions */
-
+    // Loop on the directions
     for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
     {
 
-      /* Loop on the lags */
-
+      // Loop on the lags
       for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
       {
         vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
         if (ifirst > ilast) continue;
-
-        /* Calculate the local bias correction terms */
-
-        newval = _calculateBiasLocal(db, vorder, ifirst, ilast);
-
-        /* Patch the new value */
-
-        setGg(idir, 0, 0, ipas, newval);
+        _calculateBiasLocal(db, idir, ipas, vorder, ifirst, ilast);
       }
     }
   }
@@ -2397,15 +2408,21 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
  **  Calculate the local bias terms
  **
  ** \param[in]  db        Db description
+ ** \param[in]  idir      Rank of the current direction
+ ** \param[in]  ipas      Rank of the current lag
  ** \param[in]  vorder    Vario_Order structure
  ** \param[in]  ifirst    Rank of the first lag
  ** \param[in]  ilast     Rank of the last lag
  **
+ ** \remarks: When '_niter_UK' < 0: the bias is stored instead of the variogram
+ **
  *****************************************************************************/
-double Vario::_calculateBiasLocal(Db *db,
-                                  Vario_Order *vorder,
-                                  int ifirst,
-                                  int ilast)
+void Vario::_calculateBiasLocal(Db *db,
+                                int idir,
+                                int ipas,
+                                Vario_Order *vorder,
+                                int ifirst,
+                                int ilast)
 {
   int iech, jech;
   double dist;
@@ -2432,12 +2449,15 @@ double Vario::_calculateBiasLocal(Db *db,
     tot2 += (_DRFDIAG[iiech] + _DRFDIAG[jjech]) / 2.;
     totnum += 1.;
   }
-
   tot0 /= 2.;
-  double result = tot0 - tot1 + tot2;
-  if (totnum > 0.) result /= totnum;
 
-  return (result);
+  if (totnum > 0.)
+  {
+    double oldval = tot0 / totnum;
+    double newval = (tot2 - tot1) / totnum;
+    if (_niter_UK > 0) newval += oldval;
+    setGg(idir, 0, 0, ipas, newval);
+  }
 }
 
 /****************************************************************************/

@@ -124,6 +124,7 @@ public:
                               bool flag_sample = false,
                               bool verr_mode = false,
                               Model *model = nullptr,
+                              int niter_UK = 0,
                               bool verbose = false);
 
   void resetReduce(const VectorInt &varcols,
@@ -378,10 +379,12 @@ private:
   int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
   double _s(Db *db, int iech, int jech);
   double _g(Db *db, int iech, int jech);
-  double _calculateBiasLocal(Db *db,
-                             Vario_Order *vorder,
-                             int ifirst,
-                             int ilast);
+  void _calculateBiasLocal(Db *db,
+                           int idir,
+                           int ipas,
+                           Vario_Order *vorder,
+                           int ifirst,
+                           int ilast);
   void _calculateBiasGlobal(Db *db);
   double _getBias(int iiech, int jjech);
 
