@@ -383,7 +383,7 @@ private:
                              int ifirst,
                              int ilast);
   void _calculateBiasGlobal(Db *db);
-  double _getBias(Db *db, int iiech, int jjech);
+  double _getBias(int iiech, int jjech);
 
   void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
   int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);

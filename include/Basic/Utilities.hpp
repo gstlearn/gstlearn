@@ -114,4 +114,4 @@ GSTLEARN_EXPORT double operate_Sqrt(double x);
 GSTLEARN_EXPORT double operate_InverseSqrt(double x);
 GSTLEARN_EXPORT double modifyOperator(const EOperator& oper, double oldval, double value);
 
-GSTLEARN_EXPORT double roundZero(double value, double eps = EPSILON5);
+GSTLEARN_EXPORT double roundZero(double value, double eps = EPSILON6);

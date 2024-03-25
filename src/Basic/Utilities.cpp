@@ -1114,10 +1114,9 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
  * This trick should only serve to make printouts similar on different platforms.
  * @param value Input value
  * @param eps   Tolerance to check that the value is considered as small
- * @return The value itself or (sharp) zero if too small.
+ * @return The value itself or a very small positive value if the input value is too small.
  */
 double roundZero(double value, double eps)
 {
-  if (ABS(value) > eps) return value;
-  return 0.;
+  return (ABS(value) > eps) ? value : eps;
 }

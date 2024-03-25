@@ -2165,7 +2165,7 @@ int Vario::_compute(Db *db,
     _flag_UK = true;
     _driftManage(db);
     _niter_UK = niter_UK;
-    if (_niter_UK > 0)
+    if (_niter_UK != 0)
     {
       if (isDefinedForGrid())
       {
@@ -2312,7 +2312,7 @@ int Vario::_calculateGeneral(Db *db,
 
   /* Posterior update when filtering the bias attached to drift removal */
 
-  if (_flag_UK && _niter_UK > 0)
+  if (_flag_UK && _niter_UK != 0)
   {
     if (_updateUK(db, vorder)) return 1;
   }
@@ -2341,11 +2341,10 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
   int ifirst, ilast;
   Constraints constraints;
 
-  // Do not allow reducing the number of covariances in the Model during
-  // the different iterations.
+  // Do not allow reducing the number of covariances in the Model during iterations
   optvar.setFlagNoreduce(true);
 
-  /* Loop on the iterations */
+  /* Loop on the iterations (when 'niter_UK' is positive*/
 
   for (int iter = 0; iter < _niter_UK; iter++)
   {
@@ -2429,7 +2428,7 @@ double Vario::_calculateBiasLocal(Db *db,
 
     double diff = v1 - v2;
     tot0 += diff * diff;
-    tot1 += _getBias(db, iiech, jjech);
+    tot1 += _getBias(iiech, jjech);
     tot2 += (_DRFDIAG[iiech] + _DRFDIAG[jjech]) / 2.;
     totnum += 1.;
   }
@@ -2504,7 +2503,7 @@ void Vario::_calculateBiasGlobal(Db *db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    _DRFDIAG[iiech] = _getBias(db, iiech, iiech);
+    _DRFDIAG[iiech] = _getBias(iiech, iiech);
     iiech++;
   }
 }
@@ -4344,16 +4343,16 @@ int Vario::_driftEstimateCoefficients(Db *db)
       _DRFTAB.setValue(iiech, il, drfloc[il]);
       b[il] += drfloc[il] * zval;
       for (int jl = 0; jl < nbfl; jl++)
-        matdrf.setValue(il,jl, matdrf(il,jl) + drfloc[il] * drfloc[jl]);
+        matdrf.setValue(il,jl, matdrf.getValue(il,jl) + drfloc[il] * drfloc[jl]);
     }
     iiech++;
   }
 
-  /* Calculate: A = (t(X) %*% X)-1 */
+  /* Calculate: matdrf = (t(X) %*% X)-1 */
 
   if (matdrf.invert()) return 1;
 
-  /* Calculate: _BETA = A %*% t(X) %*% Y */
+  /* Calculate: _BETA = (t(X) %*% X)-1 %*% t(X) %*% Y */
 
   matdrf.prodMatVecInPlace(b, _BETA);
 
@@ -4365,7 +4364,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
     print_matrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, NULL, matdrf.getValues().data());
   }
 
-  /* Pre-process the vector X %*% A */
+  /* Pre-process the vector X %*% (t(X) %*% X)-1 */
 
   _DRFXA.prodMatMatInPlace(&_DRFTAB, &matdrf);
 
@@ -4376,14 +4375,12 @@ int Vario::_driftEstimateCoefficients(Db *db)
 /*!
  **  Calculate the a bias term between samples iech and jech
  **
- ** \param[in]  db    Db structure
  ** \param[in]  iiech Relative rank of the first sample
  ** \param[in]  jjech Relative rank of the second sample
  **
  *****************************************************************************/
-double Vario::_getBias(Db *db, int iiech, int jjech)
+double Vario::_getBias(int iiech, int jjech)
 {
-  DECLARE_UNUSED(db);
   int nbfl = _model->getDriftNumber();
 
   double bias0 = 0.;
@@ -4393,7 +4390,7 @@ double Vario::_getBias(Db *db, int iiech, int jjech)
 
   double bias1 = 0.;
   for (int il = 0; il < nbfl; il++)
-    bias1 += _DRFXA(iiech, il) * _DRFGX.getValue(jjech, il);
+    bias1 += _DRFXA.getValue(iiech, il) * _DRFGX.getValue(jjech, il);
 
   double bias2 = 0.;
   for (int il = 0; il < nbfl; il++)
