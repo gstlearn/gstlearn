@@ -180,6 +180,7 @@ public:
                                         bool row_ok,
                                         bool col_ok);
   VectorInt colorCoding();
+  int getNonZeros() const { return _getMatrixPhysicalSize(); }
 
 protected:
   /// Interface for AMatrix

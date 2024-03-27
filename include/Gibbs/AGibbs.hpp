@@ -35,10 +35,11 @@ public:
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual int calculInitialize(VectorVectorDouble& y,
-                               int isimu,
-                               int ipgs) = 0;
+
+  /// Interface for AGibbs
+  virtual int calculInitialize(VectorVectorDouble &y, int isimu, int ipgs) = 0;
   virtual void update(VectorVectorDouble& y, int isimu, int ipgs, int iter) = 0;
   virtual int covmatAlloc(bool verbose, bool verboseTimer = false) = 0;
   virtual double getSimulate(VectorVectorDouble& y,
@@ -49,12 +50,6 @@ public:
                              int iact,
                              int iter) = 0;
   virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
-
-  virtual int run(VectorVectorDouble& y,
-                  int ipgs = 0,
-                  int isimu = 0,
-                  bool verbose = false,
-                  bool flagCheck = false);
   virtual void cleanup() { return; }
 
   void init(int npgs,
@@ -64,7 +59,11 @@ public:
             int seed = 3241,
             int flag_order = 0,
             bool flag_decay= true);
-  void getBoundsDecay(int iter, double *vmin, double *vmax) const;
+  int run(VectorVectorDouble &y,
+          int ipgs0 = 0,
+          int isimu0 = 0,
+          bool verboseTimer = false,
+          bool flagCheck = false);
 
   int getNvar() const { return _nvar; }
   void setNvar(int nvar) { _nvar = nvar; }
@@ -83,22 +82,18 @@ public:
   int getRank(int ipgs, int ivar) const;
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
-
   int getSampleNumber() const;
   int getSampleRankNumber() const;
   int getSampleRank(int i) const;
-  VectorInt calculateSampleRanks() const;
-  void updateStats(const VectorVectorDouble& y,
-                   int ipgs,
-                   int iter,
-                   double amort = 0.9);
-  bool isConstraintTight(int ipgs, int ivar, int iact, double* value) const;
-  void statsInit();
-
-  bool getFlagDecay() const { return _flagDecay; }
-  int  getRelativeRank(int iech);
 
 protected:
+  void _statsInit();
+  bool _isConstraintTight(int ipgs, int ivar, int iact, double* value) const;
+  void _updateStats(const VectorVectorDouble &y,
+                    int ipgs,
+                    int iter,
+                    double amort = 0.9);
+  void _getBoundsDecay(int iter, double *vmin, double *vmax) const;
   int _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax);
   void _printInequalities(int iact,
                           int ivar,
@@ -113,6 +108,10 @@ protected:
                              int isimu,
                              int ipgs) const;
   const VectorInt& _getRanks() const { return _ranks; }
+
+private:
+  VectorInt _calculateSampleRanks() const;
+  int  _getRelativeRank(int iech);
 
 private:
   int _npgs;

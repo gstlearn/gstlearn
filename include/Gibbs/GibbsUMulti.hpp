@@ -26,10 +26,7 @@ public:
   GibbsUMulti& operator=(const GibbsUMulti &r);
   virtual ~GibbsUMulti();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
+  void update(VectorVectorDouble &y, int isimu, int ipgs, int iter) override;
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
 private:

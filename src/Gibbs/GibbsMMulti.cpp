@@ -32,8 +32,6 @@ GibbsMMulti::GibbsMMulti()
   , _eps(EPSILON6)
   , _hdf5("Gibbs.hdf5","GibbsSet")
   , _flagStoreInternal(true)
-  , _b()
-  , _x()
   , _weights()
   , _areas()
 {
@@ -45,8 +43,6 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   , _eps(EPSILON6)
   , _hdf5("Gibbs.hdf5","GibbsSet")
   , _flagStoreInternal(true)
-  , _b()
-  , _x()
   , _weights()
   , _areas()
 {
@@ -58,8 +54,6 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   , _eps(r._eps)
   , _hdf5(r._hdf5)
   , _flagStoreInternal(r._flagStoreInternal)
-  , _b(r._b)
-  , _x(r._x)
   , _weights(r._weights)
   , _areas(r._areas)
 {
@@ -74,8 +68,6 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     _eps = r._eps;
     _hdf5 = r._hdf5;
     _flagStoreInternal = r._flagStoreInternal;
-    _b = r._b;
-    _x = r._x;
     _weights = r._weights;
     _areas = r._areas;
   }
@@ -104,7 +96,6 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   if (verboseTimer) verbose = true;
   if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
-  int n;
   Db* db = getDb();
   Model* model = getModel();
   int nvar   = _getVariableNumber();
@@ -123,9 +114,6 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   // Core allocation
 
-  n = nact * nvar;
-  _b.resize(n);
-  _x.resize(n);
   _weights.resize(nact * nvar * nvar);
 
   // Establish the covariance matrix as sparse (hopefully)
@@ -133,7 +121,8 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose)
     message("Building Covariance Sparse Matrix (Dimension = %d)\n",nact);
   Timer timer;
-  _Cmat = model_covmat_by_ranks_Mat(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1);
+  _Cmat = model_covmat_by_ranks_Mat(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1,
+                                    nullptr, EPSILON3, verbose);
   if (_Cmat == nullptr) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Building Covariance");
@@ -161,7 +150,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   // Initialize the statistics (optional)
 
-  statsInit();
+  _statsInit();
   return 0;
 }
 
@@ -175,10 +164,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 ** \param[in]  iter        Rank of the iteration
 **
 *****************************************************************************/
-void GibbsMMulti::update(VectorVectorDouble& y,
-                         int isimu,
-                         int ipgs,
-                         int iter)
+void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
 {
   double valsim, yk, vark;
 
@@ -192,30 +178,30 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
   /* Loop on the target */
 
-  for (int iact = 0; iact < nact; iact++)
+  for (int iact0 = 0; iact0 < nact; iact0++)
   {
     // Load the vector of weights
-    _getWeights(iact);
+    _getWeights(iact0);
 
-    for (int ivar = 0; ivar < nvar; ivar++)
+    for (int ivar0 = 0; ivar0 < nvar; ivar0++)
     {
-      int icase = getRank(ipgs,ivar);
-      if (! isConstraintTight(ipgs, ivar, iact, &valsim))
+      if (! _isConstraintTight(ipgs, ivar0, iact0, &valsim))
       {
         // Calculate the estimate and the variance of estimation
-        // at point 'íact' for target variable 'ivar'
-        _getEstimate(ipgs, ivar, iact, icase, y, &yk, &vark);
+        vark = 1. / WEIGHTS(ivar0, ivar0, iact0);
+        yk = _getEstimate(ipgs, ivar0, iact0, y) * vark;
 
         // Simulate the new value
-        valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar, iact, iter);
+        valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar0, iact0, iter);
       }
-      y[icase][iact] = valsim;
+      int icase = getRank(ipgs,ivar0);
+      y[icase][iact0] = valsim;
     }
   }
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  _updateStats(y, ipgs, iter);
 }
 
 int GibbsMMulti::_getVariableNumber() const
@@ -230,7 +216,7 @@ int GibbsMMulti::_getVariableNumber() const
  * @param tol     Tolerance below which weights are set to 0
  * @return Number of zero elements in the current vector
  */
-int GibbsMMulti::_calculateWeights(int iact0, double tol) const
+int GibbsMMulti::_calculateWeights(int iact0, VectorDouble& b, VectorDouble& x, double tol) const
 {
   int nvar  = _getVariableNumber();
   int nact  = getSampleRankNumber();
@@ -241,47 +227,46 @@ int GibbsMMulti::_calculateWeights(int iact0, double tol) const
 
   for (int ivar0 = 0; ivar0 < nvar; ivar0++)
   {
-    for (int i = 0; i < n; i++) _b[i] = 0.;
-    _b[iact0 + ivar0 * nact] = 1.;
+    b.fill(0.);
+    b[iact0 + ivar0 * nact] = 1.;
 
     // Solve the linear system and returns the result in 'x'
-    _Cmat->solveCholesky(_b, _x);
+    _Cmat->solveCholesky(b, x);
 
     // Discarding the values leading to small vector of weights
-
     for (int i = 0; i < n; i++)
     {
-      double wloc = ABS(_b[i]);
-      if (wloc < tol) _b[i] = 0.;
-      if (ABS(_b[i]) < EPSILON10) nzero++;
+      double wloc = ABS(x[i]);
+      if (wloc < tol) x[i] = 0.;
+      if (ABS(x[i]) < EPSILON10) nzero++;
     }
 
     // Storing the weights for the current sample and the current variable
-
     double *w_loc = &WEIGHTS(ivar0,0,0);
-    double *b_loc = &_b[0];
+    double *x_loc = &x[0];
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int iact = 0; iact < nact; iact++)
       {
-        *w_loc = *b_loc;
+        *w_loc = *x_loc;
         w_loc++;
-        b_loc++;
+        x_loc++;
       }
   }
-
   return nzero;
 }
 
 int GibbsMMulti::_storeAllWeights(bool verbose)
 {
-  VectorDouble weights;
-  int nvar   = _getVariableNumber();
-  int nact   = getSampleRankNumber();
+  int nvar = _getVariableNumber();
+  int nact = getSampleRankNumber();
+  int n    = nact * nvar;
+  VectorDouble b(n);
+  VectorDouble x(n);
   _areas.clear();
 
   // Decide if weights are stored internally or not
 
-  long ntotal = nact * nvar * nact * nvar;
+  long ntotal = n * n;
   if (verbose)
   {
     if (! _flagStoreInternal)
@@ -298,7 +283,7 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 #ifdef _USE_HDF5
     std::vector<hsize_t> dims(2);
     dims[0] = nact;
-    dims[1] = nvar * nact * nvar;
+    dims[1] = nvar * n;
     _hdf5.openNewFile("h5data3.h5");
     _hdf5.openNewDataSetDouble("Set3", 2, dims.data());
 #endif
@@ -306,37 +291,45 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
   // Loop on the samples
 
-  int nremain = 0;
+  int nzero = 0;
   for (int iact = 0; iact < nact; iact++)
   {
-    nremain += _calculateWeights(iact);
-
-    if (_flagStoreInternal)
-    {
-      // Store internally
-      _areas.push_back(_weights);
-    }
-    else
-    {
-      // Store in hdf5 file
-      _hdf5.writeDataDoublePartial(iact, _weights);
-    }
+    nzero += _calculateWeights(iact, b, x);
+    _storeWeights(iact);
   }
 
   // Optional printout of the number of zero weights
 
   if (verbose)
   {
-    message("- Number of zero weights = %d\n",nremain);
-    double reduc = 100. * (double) (ntotal - nremain) / (double) ntotal;
+    message("- Number of zero weights = %d\n",nzero);
+    double reduc = 100. * (double) (ntotal - nzero) / (double) ntotal;
     message("- Percentage             = %6.2lf\n",reduc);
   }
   return 0;
 }
 
+/**
+ * Storing the weights when processing the current sample
+ * @param iact Rank of the current sample
+ */
+void GibbsMMulti::_storeWeights(int iact0)
+{
+  if (_flagStoreInternal)
+  {
+    // Store internally
+    _areas.push_back(_weights);
+  }
+  else
+  {
+    // Store in hdf5 file
+    _hdf5.writeDataDoublePartial(iact0, _weights);
+  }
+}
+
 void GibbsMMulti::_getWeights(int iact0) const
 {
-  if (! _areas.empty())
+  if (_flagStoreInternal)
   {
     // Load from the internal storage
     _weights = _areas[iact0];
@@ -366,19 +359,15 @@ void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
 #endif
 }
 
-void GibbsMMulti::_getEstimate(int ipgs0,
-                               int ivar0,
-                               int iact0,
-                               int icase,
-                               VectorVectorDouble& y,
-                               double *yk_arg,
-                               double *vark_arg) const
+double GibbsMMulti::_getEstimate(int ipgs0,
+                                 int ivar0,
+                                 int iact0,
+                                 VectorVectorDouble &y) const
 {
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
-
+  int icase = getRank(ipgs0,ivar0);
   double yk   = 0.;
-  double vark = 1. / WEIGHTS(ivar0, ivar0, iact0);
 
   // The term of y corresponding to the current (variable, sample)
   // is set to 0 in order to avoid testing it in the next loop
@@ -395,8 +384,5 @@ void GibbsMMulti::_getEstimate(int ipgs0,
       wloc++;
     }
   }
-
-  // Setting returned arguments
-  *yk_arg = yk * vark;
-  *vark_arg = vark;
+  return yk;
 }

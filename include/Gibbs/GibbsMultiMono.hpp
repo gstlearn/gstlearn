@@ -30,17 +30,16 @@ public:
   double getRho() const { return _rho; }
   int getVariableNumber() const { return static_cast<int>(_models.size()); }
 
-  int calculInitialize(VectorVectorDouble& y,
-                       int isimu,
-                       int ipgs);
+  /// Interface for AGibbs
+  int calculInitialize(VectorVectorDouble &y, int isimu, int ipgs) override;
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,
                      int ipgs,
                      int ivar,
                      int iact,
-                     int iter);
-  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
+                     int iter) override;
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) override;
 
 private:
   std::vector<Model *> _models;

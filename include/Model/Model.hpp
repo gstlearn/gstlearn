@@ -142,6 +142,7 @@ public:
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
+  MatrixSquareGeneral getTotalSills() const;
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
 

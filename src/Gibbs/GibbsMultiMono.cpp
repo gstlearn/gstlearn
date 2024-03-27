@@ -139,7 +139,7 @@ double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
 
   // Apply optional decay
 
-  getBoundsDecay(iter, &vmin, &vmax);
+  _getBoundsDecay(iter, &vmin, &vmax);
 
   // In multi-mono case, correct from the previously (linked) variable
 

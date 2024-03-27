@@ -136,7 +136,7 @@ double GibbsMulti::getSimulate(VectorVectorDouble& /*y*/,
 
   // Apply optional decay
 
-  getBoundsDecay(iter, &vmin, &vmax);
+  _getBoundsDecay(iter, &vmin, &vmax);
 
   /* Update the definition interval */
 

@@ -464,7 +464,9 @@ GSTLEARN_EXPORT MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
                                                        const VectorInt& ranks2,
                                                        int ivar0 = -1,
                                                        int jvar0 = -1,
-                                                       const CovCalcMode *mode = nullptr);
+                                                       const CovCalcMode *mode = nullptr,
+                                                       double eps = EPSILON3,
+                                                       bool verbose = false);
 GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         Db *db,
                                         Model *model,

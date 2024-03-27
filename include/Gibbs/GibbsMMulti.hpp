@@ -30,10 +30,7 @@ public:
   GibbsMMulti& operator=(const GibbsMMulti &r);
   virtual ~GibbsMMulti();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
+  void update(VectorVectorDouble &y, int isimu, int ipgs, int iter) override;
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
   void setEps(double eps) { _eps = eps; }
@@ -44,27 +41,23 @@ public:
 
 private:
   int  _getVariableNumber() const;
+  void _storeWeights(int iact0);
   void _getWeights(int iact0) const;
-  int  _calculateWeights(int iact0, double tol = EPSILON3) const;
+  int  _calculateWeights(int iact0, VectorDouble& b, VectorDouble& x, double tol = EPSILON3) const;
   int  _storeAllWeights(bool verbose = false);
   int  _getSizeOfWeights(const VectorDouble& weights) const;
-  void _getEstimate(int ipgs0,
-                    int ivar0,
-                    int iact0,
-                    int icase,
-                    VectorVectorDouble& y,
-                    double *yk,
-                    double *vark) const;
+  double _getEstimate(int ipgs0,
+                      int ivar0,
+                      int iact0,
+                      VectorVectorDouble &y) const;
 
 private:
   MatrixSparse* _Cmat;
-  double     _eps;
-  HDF5format _hdf5;
-  bool       _flagStoreInternal;
+  double        _eps;
+  HDF5format    _hdf5;
+  bool          _flagStoreInternal;
 
   // Mutable arrays (declared to speed up the process)
-  mutable VectorDouble _b;
-  mutable VectorDouble _x;
   mutable VectorDouble _weights;
   mutable VectorVectorDouble _areas;
 };

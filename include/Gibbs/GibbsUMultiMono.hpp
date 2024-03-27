@@ -33,10 +33,7 @@ public:
   GibbsUMultiMono& operator=(const GibbsUMultiMono &r);
   virtual ~GibbsUMultiMono();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
+  void update(VectorVectorDouble &y, int isimu, int ipgs, int iter) override;
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
 private:

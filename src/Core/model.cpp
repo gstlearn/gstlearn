@@ -1751,7 +1751,8 @@ double model_calcul_stdev(Model* model,
  ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
  ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
- ** \param[in]  mode       CovCalcMode structure
+ ** \param[in]  mode   CovCalcMode structure
+ ** \param[in]  eps    Tolerance for discarding a covariance value
  **
  ** \remarks The covariance matrix (returned) must be freed by calling routine
  ** \remarks The covariance matrix is established for the first variable
@@ -1769,7 +1770,9 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
                                         const VectorInt& ranks2,
                                         int ivar0,
                                         int jvar0,
-                                        const CovCalcMode *mode)
+                                        const CovCalcMode *mode,
+                                        double eps,
+                                        bool verbose)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -1799,12 +1802,13 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
   // Constitute the triplet
 
   NF_Triplet NF_T;
+  MatrixSquareGeneral mat0 = model->getTotalSills();
 
   /* Loop on the number of variables */
 
-  for (int ivar = 0; ivar < nvar1; ivar++)
+  for (int iivar = 0; iivar < nvar1; iivar++)
   {
-    if (ivar0 >= 0) ivar = ivar0;
+    int ivar = (ivar0 >= 0) ? ivar0 : iivar;
 
     /* Loop on the first sample */
 
@@ -1815,9 +1819,9 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
 
       /* Loop on the second variable */
 
-      for (int jvar = 0; jvar < nvar2; jvar++)
+      for (int jjvar = 0; jjvar < nvar2; jjvar++)
       {
-        if (jvar0 >= 0) jvar = jvar0;
+        int jvar = (jvar0 >= 0) ? jvar0 : jjvar;
 
         /* Loop on the second sample */
 
@@ -1850,13 +1854,28 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
 
           model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
           value = COVTAB(ivar, jvar);
-          if (ABS(value) < EPSILON10) continue;
+          if (ABS(value) < eps * mat0.getValue(ivar, jvar)) continue;
           NF_T.add(ecr1, ecr2, value);
           if (ecr1 != ecr2)
             NF_T.add(ecr2, ecr1, value);
         }
       }
     }
+  }
+
+  // Optional printout
+
+  if (verbose)
+  {
+    double ntotal = nvar * nvar * nsize1 * nsize2;
+    message("Calculation of Covariance Sparse matrix between:\n");
+    message("- First Db (%d ranks / %d samples)\n",db1->getSampleNumber(),nsize1);
+    message("- Second Db (%d ranks / %d samples)\n",db2->getSampleNumber(),nsize2);
+    message("- Number of variables = %d\n", nvar);
+    message("- Tolerance (compared to the sill) = %lf\n", eps);
+    message("- Number of elements stored = %d\n", NF_T.getNumber());
+    double reduc = 100. * (ntotal - (double) NF_T.getNumber()) / ntotal;
+    message("- Reduction percentage = %6.3lf\n", reduc);
   }
 
   // Convert from triplet to sparse matrix

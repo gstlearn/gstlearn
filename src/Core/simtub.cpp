@@ -1613,7 +1613,7 @@ int gibbs_sampler(Db *dbin,
     // Invoke the Gibbs calculator
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
-      if (gibbs->run(y, 0, isimu, verbose)) goto label_end;
+      if (gibbs->run(y, 0, isimu)) goto label_end;
   }
 
   /* Convert the simulations */

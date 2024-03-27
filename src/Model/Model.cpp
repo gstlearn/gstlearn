@@ -1467,6 +1467,11 @@ double Model::getTotalSill(int ivar, int jvar) const
   return getCovAnisoList()->getTotalSill(ivar, jvar);
 }
 
+MatrixSquareGeneral Model::getTotalSills() const
+{
+  return getCovAnisoList()->getTotalSill();
+}
+
 /**
  * Returns the Ball radius (from the first covariance of _covaList)
  * @return Value of the Ball Radius (if defined, i.e. for Numerical Gradient calculation)

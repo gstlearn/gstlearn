@@ -97,7 +97,7 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   // Initialize the statistics (optional)
 
-  statsInit();
+  _statsInit();
 
   return 0;
 }
@@ -135,7 +135,7 @@ void GibbsUMulti::update(VectorVectorDouble& y,
     int icase = getRank(ipgs,ivar);
     for (int iact = 0; iact < nact; iact++, iecr++)
     {
-      if (!isConstraintTight(ipgs, ivar, iact, &valsim))
+      if (!_isConstraintTight(ipgs, ivar, iact, &valsim))
       {
 
         /* Loop on the Data */
@@ -160,5 +160,5 @@ void GibbsUMulti::update(VectorVectorDouble& y,
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  _updateStats(y, ipgs, iter);
 }
