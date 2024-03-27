@@ -79,12 +79,12 @@ public:
   void setOptionStats(int option_stats) { _optionStats = option_stats; }
   Db* getDb() const { return _db; }
   int getDimension() const;
-  int getRank(int ipgs, int ivar) const;
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
   int getSampleNumber() const;
   int getSampleRankNumber() const;
   int getSampleRank(int i) const;
+  int getRank(int ipgs, int ivar) const;
 
 protected:
   void _statsInit();

@@ -24,16 +24,15 @@
 
 #include <math.h>
 
-#define WEIGHTS(ivar, jvar, iact)  (_weights[iact + nact * (jvar + ivar * nvar)])
+#define WEIGHTS(ivar, jvar, iact)  (weights[iact + nact * (jvar + ivar * nvar)])
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
   , _Cmat(nullptr)
   , _eps(EPSILON6)
-  , _hdf5("Gibbs.hdf5","GibbsSet")
   , _flagStoreInternal(true)
-  , _weights()
   , _areas()
+  , _hdf5("Gibbs.hdf5","GibbsSet")
 {
 }
 
@@ -41,10 +40,9 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
   , _Cmat(nullptr)
   , _eps(EPSILON6)
-  , _hdf5("Gibbs.hdf5","GibbsSet")
   , _flagStoreInternal(true)
-  , _weights()
   , _areas()
+  , _hdf5("Gibbs.hdf5","GibbsSet")
 {
 }
 
@@ -52,10 +50,9 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
   , _Cmat(r._Cmat)
   , _eps(r._eps)
-  , _hdf5(r._hdf5)
   , _flagStoreInternal(r._flagStoreInternal)
-  , _weights(r._weights)
   , _areas(r._areas)
+  , _hdf5(r._hdf5)
 {
 }
 
@@ -66,10 +63,9 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     GibbsMulti::operator=(r);
     _Cmat  = r._Cmat;
     _eps = r._eps;
-    _hdf5 = r._hdf5;
     _flagStoreInternal = r._flagStoreInternal;
-    _weights = r._weights;
     _areas = r._areas;
+    _hdf5 = r._hdf5;
   }
   return *this;
 }
@@ -112,10 +108,6 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
     return 1;
   }
 
-  // Core allocation
-
-  _weights.resize(nact * nvar * nvar);
-
   // Establish the covariance matrix as sparse (hopefully)
 
   if (verbose)
@@ -136,7 +128,6 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
     messerr("Fail to perform Cholesky decomposition");
     return 1;
   }
-
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Cholesky Decomposition");
 
@@ -170,6 +161,7 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
 
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
+  VectorDouble weights(nact * nvar * nvar);
 
   /* Print the title */
 
@@ -181,20 +173,25 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
   for (int iact0 = 0; iact0 < nact; iact0++)
   {
     // Load the vector of weights
-    _getWeights(iact0);
+    _getWeights(iact0, weights);
 
     for (int ivar0 = 0; ivar0 < nvar; ivar0++)
     {
+      int icase = getRank(ipgs,ivar0);
       if (! _isConstraintTight(ipgs, ivar0, iact0, &valsim))
       {
+        // The term of y corresponding to the current (variable, sample)
+        // is set to 0 in order to avoid testing it in the next loop
+        y[icase][iact0] = 0.;
+
         // Calculate the estimate and the variance of estimation
         vark = 1. / WEIGHTS(ivar0, ivar0, iact0);
-        yk = _getEstimate(ipgs, ivar0, iact0, y) * vark;
+        yk = _getEstimate(ipgs, ivar0, iact0, y, weights) * vark;
 
         // Simulate the new value
         valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar0, iact0, iter);
       }
-      int icase = getRank(ipgs,ivar0);
+
       y[icase][iact0] = valsim;
     }
   }
@@ -213,10 +210,17 @@ int GibbsMMulti::_getVariableNumber() const
 /**
  * Calculate the set of (multivariate) weights for one given sample
  * @param iact0   Rank of the sample
+ * @param b       Right-hand side vector
+ * @param x       Vector of solution
+ * @param weights Vector of weights
  * @param tol     Tolerance below which weights are set to 0
  * @return Number of zero elements in the current vector
  */
-int GibbsMMulti::_calculateWeights(int iact0, VectorDouble& b, VectorDouble& x, double tol) const
+int GibbsMMulti::_calculateWeights(int iact0,
+                                   VectorDouble &b,
+                                   VectorDouble &x,
+                                   VectorDouble &weights,
+                                   double tol) const
 {
   int nvar  = _getVariableNumber();
   int nact  = getSampleRankNumber();
@@ -262,6 +266,7 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
   int n    = nact * nvar;
   VectorDouble b(n);
   VectorDouble x(n);
+  VectorDouble weights(n * nvar);
   _areas.clear();
 
   // Decide if weights are stored internally or not
@@ -294,8 +299,8 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
   int nzero = 0;
   for (int iact = 0; iact < nact; iact++)
   {
-    nzero += _calculateWeights(iact, b, x);
-    _storeWeights(iact);
+    nzero += _calculateWeights(iact, b, x, weights);
+    _storeWeights(iact, weights);
   }
 
   // Optional printout of the number of zero weights
@@ -311,33 +316,34 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
 /**
  * Storing the weights when processing the current sample
- * @param iact Rank of the current sample
+ * @param iact0 Rank of the current sample
+ * @param weights Vector of weights to be stored
  */
-void GibbsMMulti::_storeWeights(int iact0)
+void GibbsMMulti::_storeWeights(int iact0, const VectorDouble& weights)
 {
   if (_flagStoreInternal)
   {
     // Store internally
-    _areas.push_back(_weights);
+    _areas.push_back(weights);
   }
   else
   {
     // Store in hdf5 file
-    _hdf5.writeDataDoublePartial(iact0, _weights);
+    _hdf5.writeDataDoublePartial(iact0, weights);
   }
 }
 
-void GibbsMMulti::_getWeights(int iact0) const
+void GibbsMMulti::_getWeights(int iact0, VectorDouble& weights) const
 {
   if (_flagStoreInternal)
   {
     // Load from the internal storage
-    _weights = _areas[iact0];
+    weights = _areas[iact0];
   }
   else
   {
     // Read from the external file
-    _weights = _hdf5.getDataDoublePartial(iact0);
+    weights = _hdf5.getDataDoublePartial(iact0);
   }
 }
 
@@ -362,26 +368,22 @@ void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
 double GibbsMMulti::_getEstimate(int ipgs0,
                                  int ivar0,
                                  int iact0,
-                                 VectorVectorDouble &y) const
+                                 const VectorVectorDouble &y,
+                                 const VectorDouble& weights) const
 {
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
-  int icase = getRank(ipgs0,ivar0);
+
   double yk   = 0.;
-
-  // The term of y corresponding to the current (variable, sample)
-  // is set to 0 in order to avoid testing it in the next loop
-  y[icase][iact0] = 0.;
-
-  VectorDouble::iterator wloc = _weights.begin() + nact * nvar * ivar0;
+  const double *w_loc = &WEIGHTS(ivar0,0,0);
   for (int jvar = 0; jvar < nvar; jvar++)
   {
     int jcase = getRank(ipgs0, jvar);
     const VectorDouble& yloc = y[jcase];
     for (int jact = 0; jact < nact; jact++)
     {
-      yk -= yloc[jact] * (*wloc);
-      wloc++;
+      yk -= yloc[jact] * (*w_loc);
+      w_loc++;
     }
   }
   return yk;

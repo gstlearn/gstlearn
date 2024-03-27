@@ -1742,17 +1742,18 @@ double model_calcul_stdev(Model* model,
  **
  ** \return Array containing the covariance matrix
  **
- ** \param[in]  model  Model structure
- ** \param[in]  db1    First Db
- ** \param[in]  nsize1 Number of selected samples
- ** \param[in]  ranks1 Array giving ranks of selected samples (optional)
- ** \param[in]  db2    Second Db
- ** \param[in]  nsize2 Number of selected samples
- ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
- ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
- ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
- ** \param[in]  mode   CovCalcMode structure
- ** \param[in]  eps    Tolerance for discarding a covariance value
+ ** \param[in]  model   Model structure
+ ** \param[in]  db1     First Db
+ ** \param[in]  nsize1  Number of selected samples
+ ** \param[in]  ranks1  Array giving ranks of selected samples (optional)
+ ** \param[in]  db2     Second Db
+ ** \param[in]  nsize2  Number of selected samples
+ ** \param[in]  ranks2  Array giving ranks of selected samples (optional)
+ ** \param[in]  ivar0   Rank of the first variable (-1: all variables)
+ ** \param[in]  jvar0   Rank of the second variable (-1: all variables)
+ ** \param[in]  mode    CovCalcMode structure
+ ** \param[in]  verbose Verbose flag
+ ** \param[in]  eps     Tolerance for discarding a covariance value
  **
  ** \remarks The covariance matrix (returned) must be freed by calling routine
  ** \remarks The covariance matrix is established for the first variable

@@ -132,7 +132,7 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int icase   = getRank(ipgs,ivar);
+    int icase = getRank(ipgs,ivar);
     for (int iact = 0; iact < nact; iact++)
     {
       if (!_isConstraintTight(ipgs, ivar, iact, &valsim))

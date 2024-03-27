@@ -41,23 +41,26 @@ public:
 
 private:
   int  _getVariableNumber() const;
-  void _storeWeights(int iact0);
-  void _getWeights(int iact0) const;
-  int  _calculateWeights(int iact0, VectorDouble& b, VectorDouble& x, double tol = EPSILON3) const;
+  void _storeWeights(int iact0, const VectorDouble& weights);
+  void _getWeights(int iact0, VectorDouble& weights) const;
+  int _calculateWeights(int iact0,
+                        VectorDouble &b,
+                        VectorDouble &x,
+                        VectorDouble &weights,
+                        double tol = EPSILON3) const;
   int  _storeAllWeights(bool verbose = false);
   int  _getSizeOfWeights(const VectorDouble& weights) const;
   double _getEstimate(int ipgs0,
                       int ivar0,
                       int iact0,
-                      VectorVectorDouble &y) const;
+                      const VectorVectorDouble &y,
+                      const VectorDouble& weights) const;
 
 private:
   MatrixSparse* _Cmat;
   double        _eps;
-  HDF5format    _hdf5;
   bool          _flagStoreInternal;
 
-  // Mutable arrays (declared to speed up the process)
-  mutable VectorDouble _weights;
-  mutable VectorVectorDouble _areas;
+  VectorVectorDouble _areas;
+  HDF5format         _hdf5;
 };
