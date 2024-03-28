@@ -297,8 +297,6 @@ void GibbsMMulti::_updateStatWeights(int* nzero)
 
 int GibbsMMulti::_storeAllWeights(bool verbose)
 {
-  int nvar = _getVariableNumber();
-  int nact = _getSampleRankNumber();
   int nrow = _getSize();
   VectorDouble b(nrow);
 
@@ -378,7 +376,9 @@ void GibbsMMulti::_storeWeights(int icol)
   else
   {
     // Store in hdf5 file
+#ifdef _USE_HDF5
     _hdf5.writeDataDoublePartial(icol), _weights);
+#endif
   }
 }
 
