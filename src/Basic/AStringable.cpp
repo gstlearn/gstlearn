@@ -292,7 +292,7 @@ void message(const char *format, ...)
 
   va_start(ap, format);
   // TODO : use non old_style functions
-  (void) vsprintf(str, format, ap);
+  (void) gslSPrintf(str, format, ap);
   va_end(ap);
   message_extern(str);
 
@@ -311,7 +311,7 @@ void messageNoDiff(const char *format, ...)
 
   va_start(ap, format);
   // TODO : use non old_style functions
-  (void) vsprintf(str, format, ap);
+  (void) gslSPrintf(str, format, ap);
   va_end(ap);
   std::stringstream sstr;
   sstr << "#NO_DIFF# " << str;
@@ -353,7 +353,7 @@ void messerr(const char *format, ...)
 
   va_start(ap, format);
   // TODO : use non old_style functions
-  (void) vsprintf(str, format, ap);
+  (void) gslSPrintf(str, format, ap);
   va_end(ap);
 
   message_extern(str);
@@ -397,7 +397,7 @@ void mestitle(int level, const char *format, ...)
 
   message_extern("\n");
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  (void) gslSPrintf(STRING, format, ap);
   va_end(ap);
   int size = (int) strlen(STRING);
 
@@ -473,7 +473,7 @@ String toTitle(int level, const char* format, ...)
 
   sstr << std::endl;
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  (void) gslSPrintf(STRING, format, ap);
   va_end(ap);
   sstr << STRING << std::endl;
 
@@ -514,7 +514,7 @@ void messageAbort(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  (void) gslSPrintf(STRING, format, ap);
   va_end(ap);
   message_extern("Abort : ");
   message_extern(STRING);
