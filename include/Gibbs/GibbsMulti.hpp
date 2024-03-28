@@ -31,6 +31,7 @@ public:
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,
+                     int icase,
                      int ipgs,
                      int ivar,
                      int iact,

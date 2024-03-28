@@ -71,7 +71,7 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
                                  int ipgs)
 {
   const Model* model = getModel();
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int nvar = getNvar();
 
   /* Print the title */
@@ -109,6 +109,7 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
  * @param y     : Gaussian vector
  * @param yk    : Kriged value
  * @param sk    : Standard deviation
+ * @param icase : Rank in the 'y' array
  * @param ipgs  : Rank of the current GS
  * @param ivar  : Rank of the current Variable
  * @param iact  : Rank of the target sample (relative)
@@ -118,6 +119,7 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
 double GibbsMulti::getSimulate(VectorVectorDouble& /*y*/,
                                double yk,
                                double sk,
+                               int icase,
                                int ipgs,
                                int ivar,
                                int iact,
@@ -125,7 +127,6 @@ double GibbsMulti::getSimulate(VectorVectorDouble& /*y*/,
 {
   // Define the environment
 
-  int icase = getRank(ipgs, ivar);
   int iech  = getSampleRank(iact);
 
   // Read the Bounds
@@ -167,7 +168,7 @@ double GibbsMulti::getSimulate(VectorVectorDouble& /*y*/,
 int GibbsMulti::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
 {
   Db* db = getDb();
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int nvar = getNvar();
   mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
            ipgs+1,isimu+1);

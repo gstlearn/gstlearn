@@ -37,5 +37,9 @@ public:
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
 private:
+  double _getVariance(int ivar, int iact) const;
+  double _getEstimate(int icase, int ivar, int iact, VectorVectorDouble& y) const;
+
+private:
   VectorVectorDouble _covmat; // One matrix per variable
 };

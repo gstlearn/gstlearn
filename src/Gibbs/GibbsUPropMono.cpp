@@ -98,7 +98,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   Db* db = getDb();
   Model* model = getModels(0);
-  int nact  = getSampleRankNumber();
+  int nact  = _getSampleRankNumber();
   int ndim  = model->getDimensionNumber();
   int icase = getRank(ipgs,0);
 

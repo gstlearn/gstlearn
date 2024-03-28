@@ -291,14 +291,10 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
 {
   if (isFlagEigen())
   {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,icol); it; ++it)
     {
-      if (k != icol) continue;
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-      {
-        int irow = it.row();
-        it.valueRef() = tab[irow];
-      }
+      int irow = it.row();
+      it.valueRef() = tab[irow];
     }
   }
   else

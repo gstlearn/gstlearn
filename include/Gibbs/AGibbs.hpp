@@ -45,6 +45,7 @@ public:
   virtual double getSimulate(VectorVectorDouble& y,
                              double yk,
                              double sk,
+                             int icase,
                              int ipgs,
                              int ivar,
                              int iact,
@@ -78,23 +79,24 @@ public:
   bool getOptionStats() const { return _optionStats; }
   void setOptionStats(int option_stats) { _optionStats = option_stats; }
   Db* getDb() const { return _db; }
-  int getDimension() const;
+
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
   int getSampleNumber() const;
-  int getSampleRankNumber() const;
   int getSampleRank(int i) const;
   int getRank(int ipgs, int ivar) const;
 
 protected:
+  int  _getDimension() const;
+  int  _getSampleRankNumber() const;
   void _statsInit();
-  bool _isConstraintTight(int ipgs, int ivar, int iact, double* value) const;
+  bool _isConstraintTight(int icase, int iact, double* value) const;
   void _updateStats(const VectorVectorDouble &y,
                     int ipgs,
                     int iter,
                     double amort = 0.9);
   void _getBoundsDecay(int iter, double *vmin, double *vmax) const;
-  int _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax);
+  int  _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax);
   void _printInequalities(int iact,
                           int ivar,
                           double simval,

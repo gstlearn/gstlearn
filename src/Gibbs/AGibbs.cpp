@@ -241,7 +241,7 @@ void AGibbs::_displayCurrentVector(bool flag_init,
                                    int isimu,
                                    int ipgs) const
 {
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int nvar = getNvar();
 
   if (flag_init)
@@ -274,7 +274,7 @@ void AGibbs::_displayCurrentVector(bool flag_init,
   }
 }
 
-int AGibbs::getDimension() const
+int AGibbs::_getDimension() const
 {
   int nsize = _npgs * _nvar;
   return nsize;
@@ -294,8 +294,8 @@ int AGibbs::getRank(int ipgs, int ivar) const
  */
 VectorVectorDouble AGibbs::allocY() const
 {
-  int nact  = getSampleRankNumber();
-  VectorVectorDouble y(getDimension());
+  int nact  = _getSampleRankNumber();
+  VectorVectorDouble y(_getDimension());
   for (int i = 0, nsize = (int) y.size(); i < nsize; i++)
     y[i].resize(nact);
   return y;
@@ -313,8 +313,8 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
                          int isimu,
                          int ipgs)
 {
-  int nsize = getDimension();
-  int nact  = getSampleRankNumber();
+  int nsize = _getDimension();
+  int nact  = _getSampleRankNumber();
   int nvar  = getNvar();
 
   /* Loop on the variables */
@@ -356,7 +356,7 @@ VectorInt AGibbs::_calculateSampleRanks() const
   return ranks;
 }
 
-int AGibbs::getSampleRankNumber() const
+int AGibbs::_getSampleRankNumber() const
 {
   if (_ranks.empty())
     return _db->getSampleNumber();
@@ -440,7 +440,7 @@ int AGibbs::_getRowNumberStats() const
  */
 int AGibbs::_getColNumberStats() const
 {
-  int ncols = 2 * getDimension();
+  int ncols = 2 * _getDimension();
   return ncols;
 }
 
@@ -462,18 +462,15 @@ int AGibbs::_getColRankStats(int ipgs, int ivar, int mode) const
 
 /**
  * Test wheter a constraint is tight at a sample (data is a hard data)
- * @param ipgs  Rank of the GS
- * @param ivar  Rank of the variable
+ * @param icase Rank of the first storage index withon VectorVectorDouble 'y'
  * @param iact  Rank of the sample (within internal _ranks)
  * @param value Constraining value (if sample is an active constraint)
  * @return
  */
-bool AGibbs::_isConstraintTight(int ipgs,
-                               int ivar,
-                               int iact,
-                               double* value) const
+bool AGibbs::_isConstraintTight(int icase,
+                                int iact,
+                                double *value) const
 {
-  int icase = getRank(ipgs, ivar);
   int iech = getSampleRank(iact);
 
   double vmin = _db->getLocVariable(ELoc::L,iech, icase);
@@ -521,7 +518,7 @@ void AGibbs::_getBoundsDecay(int iter, double *vmin, double *vmax) const
  */
 int AGibbs::_getRelativeRank(int iech)
 {
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   for (int iact = 0; iact < nact; iact++)
   {
     if (getSampleRank(iact) == iech) return iact;
