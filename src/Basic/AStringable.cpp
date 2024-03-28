@@ -473,7 +473,7 @@ String toTitle(int level, const char* format, ...)
 
   sstr << std::endl;
   va_start(ap, format);
-  (void) gslSPrintf(STRING, format, ap);
+  (void) vsprintf(STRING, format, ap);
   va_end(ap);
   sstr << STRING << std::endl;
 
@@ -514,7 +514,7 @@ void messageAbort(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
-  (void) gslSPrintf(STRING, format, ap);
+  (void) vsprintf(STRING, format, ap);
   va_end(ap);
   message_extern("Abort : ");
   message_extern(STRING);
