@@ -1,0 +1,640 @@
+---
+title: "Gibbs sampler in gstlearn"
+author: "gstlearn Core Team"
+date: "2024-01-30"
+output:
+    pdf_document: default
+    html_document: default
+    editor_options: 
+    chunk_output_type: console
+---
+
+# Introduction
+
+This notebook presents the simulation of a Gaussian vector under equality/inequality constraints using 
+the Gibbs sampler. Gibbs sampling in **gstlearn** is illustrated with:
+
+* the conditional simulation of an excursion set (e.g. a possible model for binary variable valued in $\{0,1\}$),
+
+* the computation of the conditional expectation when the observations have been censored (e.g., to take into account the limit of quantification, or LOQ, on the sample analysis).
+
+## The Gibbs sampler
+
+The description of the Gibbs sampler given in Wikipedia is:
+
+"
+Gibbs sampling or a Gibbs sampler is a Markov chain Monte Carlo (MCMC) algorithm for sampling from a specified multivariate probability distribution when direct sampling from the joint distribution is difficult, but sampling from the conditional distribution is more practical. This sequence can be used 
+
+* to approximate the joint distribution (e.g., to generate a histogram of the distribution); 
+* to approximate the marginal distribution of one of the variables, or some subset of the variables (for example, the unknown parameters or latent variables); or
+* to compute an integral (such as the expected value of one of the variables). 
+
+Typically, some of the variables correspond to observations whose values are known, and hence do not need to be sampled.
+
+Gibbs sampling is commonly used as a means of statistical inference, especially Bayesian inference. It is a randomized algorithm (i.e. an algorithm that makes use of random numbers), and is an alternative to deterministic algorithms for statistical inference such as the expectation-maximization algorithm (EM).
+
+As with other MCMC algorithms, Gibbs sampling generates a Markov chain of samples, each of which is correlated with nearby samples. As a result, care must be taken if independent samples are desired. Generally, samples from the beginning of the chain (the burn-in period) may not accurately represent the desired distribution and are usually discarded.
+"
+
+## The Gaussian vectors under constraints
+
+We consider the Gaussian vector $\mathbf{Y}$ defined by the observations on a finite set $A = \{\alpha_1, \dots, \alpha_n \}$: $\mathbf{Y} = [Y(\alpha_i)]_{i \in 1:n}$ of a Gaussian random function. This random vector defined by 
+
+* its mean vector $\mathbf{m} = [\mathbb{E}\{Y(\alpha_i)\}]_{i \in 1:n}$ and 
+* its covariance matrix $\mathbf{\Sigma} = [\text{Cov}\{Y(\alpha_i), Y(\alpha_j)\}]_{i,j \in 1:n}$,
+
+follows the Gaussian probability density function:
+$$
+g_{\mathbf{m, \Sigma}}(y) = (\pi)^{-n/2} \, |\mathbf{\Sigma}|^{-1/2} \exp{(-\frac{1}{2} y^{t} \mathbf{\Sigma}^{-1} y)}.
+$$
+
+The Gibbs sampler defines a Markov chain of random vectors $\mathbf{Y^{(0)}, Y^{(1)}, \dots, Y^{(t)}}$ whose limiting distribution is the Gaussian distribution $\mathcal{N}(\mathbf{m, \Sigma})$. An iteration consists in a sequential update of all the components drawn from its univariate conditional distribution:
+$$
+Y_i^{(t)} \leftarrow y_i^{SK}(Y^{(t)}_{k < i }, Y^{(t-1)}_{i < k }) + \sigma^{SK}_i\mathcal{N}(0,1)
+$$
+where $y_i^{SK}(Y^{(t)}_{k < i }, Y^{(t-1)}_{i < k })$ is the simple kriging of the component $Y_i$ by the other components, those already updated $Y^{(t)}_{k < i }$ in the current iteration and the values of the previous iteration $Y^{(t-1)}_{k > i }$ for the others.
+
+If univariate inequality constraints are added on the vector: $\bigcap_{i \in 1:n} \{ l_i \leq Y_i \leq u_i\} = \bigcap_{i \in 1:n} \{ Y_i \in B_i\}$, the conditional distribution is the restriction of the Gaussian distribution to the n-dimensional polyhedron $B = B_1 \times \dots \times B_n$:
+
+$$
+Y | Y \in B \sim \frac{g(y) 1_{y \in B}}{\int_B g(u)du}
+$$
+The Gibbs sampler updates sequentially each component $Y_i$ using:
+$$
+Y_i^{(t)} \leftarrow y_i^{SK} + \mathcal{N}_{C_i^{(t)}}(0,1).
+$$
+The residual is drawn from the restriction of the univariate Gaussian distribution to the interval 
+$$
+C_i^{(t)} = [\frac{l_i-y_i^{SK}(Y^{(t)}_{k < i }, Y^{(t-1)}_{i < k })}{\sigma_i}, \frac{u_i-y_i^{SK}(Y^{(t)}_{k < i }, Y^{(t-1)}_{i < k })}{\sigma_i}].
+$$
+
+### Equality and inequality constraints
+
+1) A conditional simulation of the excursion set $I_{\tau} = (1_{Y(s) \geq \tau })_{s \in \mathcal{G}}$ 
+given the observed values
+$(1_{Y(\alpha_i) \geq \tau })_{i \in 1:n}$ is achieved by:
+
+* a conditional simulation of the Gaussian vector $\mathbf{Y}|\mathbf{Y} \in B$ using the Gibbs sampler,
+* a conditional simulation of the Gaussian vector $[Y(s)]_{s \in \mathcal{G}}$ given the constrained values, simulated using the turning band method and the conditioning simple kriging, and
+* a coding of the vector by the indicator $[1_{Y(s) \geq \tau}]_{s \in \mathcal{G}}$.
+
+2) The conditional expectation of a Gaussian transform $\phi(Y(s))$ with partially censored data $(\text{Max}(\text{LOQ}, \phi (Y(\alpha_i)))_{i \in 1:n}$, where LOQ is the limit of quantification of the measurement of $\phi(Y)$, is achieved by:
+
+* a coding of the observations into equality constraints, $Y(\alpha_i) = \phi^{-1}(z_i)$ when $z_i \geq \text{LOQ}$, and inequality constraints, $Y(\alpha_i) \leq  \phi^{-1}(\text{LOQ})$ when $z_i = \text{LOQ}$,
+* $N$ conditional simulations of the constrained Gaussian vector, $(Y(\alpha_i)^{(k)})_{k \in 1:N, i \in 1:n}$, using the Gibbs sampler,
+* the averaging of the conditional expectations 
+$$
+E\{\phi(Y(s))|data\} \approx \frac{1}{N} \sum_{k \in 1:N} \int \phi(y^{SK}_{(k)}(s)+ \sigma_{SK} \, u) g(u) du
+$$
+where $y^{SK}_{(k)}(s)$ is the simple kriging computed using the values of the k-th simulations produced by the Gibbs sampler.
+
+### Probabilistic constraints
+
+We can envisage more elaborate constraints using likelihood function. For example, if the observation model is defined by a likelihood function: $f(z|y)$ and if the observations $(Z_i)_{i \in 1:n}$ given the value of the latent field $(Y(\alpha_i))_{i \in 1:n}$, the posterior distribution of the latent field $y$ given the observed values $z$ is:
+$$g(y|z) \propto \Pi_{\alpha \in 1:n} f(z_i|y_i) g(y_1, \dots, y_n).$$
+
+This case corresponds to the conditional simulation of the intensity of a Cox point process given observed counting measures. This case is not currently available in **gstlearn**.
+
+## The Gibbs sampler in **gstlearn**
+
+The function **gibbs_sampler** generates simulations of a Gaussian vector using the iterative Gibbs algorithm.
+
+### Defining the model to be simulated
+
+The random vector to be simulated is defined by:
+
+* the point locations provided by the input *Db* and 
+* the *model* which is a Second Order model (i.e., its mean and its covariance function are known).  
+
+We have, $(Y(\alpha))_{\alpha \in A}$ whose covariance matrix is $\mathbf{C} = [\text{Cov}(Y(\alpha), Y(\beta)]$.
+
+**Notes:** 
+
+* If the model is not stationary, $Y(s) = m(s) + X(s)$ with $m(s) = \sum_{l \in 0:L} a_l f^{l}(s)$, the value of the coefficients $a_l$ of the drift should be known and the drift functions $f^{l}$ specified in the input database using the locators **ELoc_F()**.
+
+* The model can be multivariate and the covariance matrix is a block matrix in order to handle the different variables. In this case, the coefficients of the mean $a_l$ are vectors. 
+
+The argument *percent* and *flag_norm* can be used to alter the covariance matrix $\mathbf{C}$:
+
+* if *percent* $= \tau$, the covariance matrix is replaced by $\mathbf{C \leftarrow \tau I + C}$.
+
+* if *flag_norm* is TRUE, 
+$\mathbf{C} \leftarrow \mathbf{diag}(\mathbf{diag}(\mathbf{C})^{-1/2}) \times \mathbf{C} \times \mathbf{diag}(\mathbf{diag}(\mathbf{C})^{-1/2})$.
+
+The equality and inequality constraints are specified on the components of the vector to be simulated using the locators:
+
+* **ELoc_L**i for a lower bound on the i-th variables of the model,
+
+* **ELoc_U**i for a upper bound on the i-th variables of the model.
+
+Equality constraints are defined setting the lower bounds equal to upper bounds.
+
+The Gibbs algorithm can be used to simulate a Gaussian vector without condition. 
+
+## Controlling the outputs
+
+The following arguments control the outputs:
+
+* *nbsimu* is the number of independent simulations to be stored in the input *Db* using the *NamingConvention*.
+
+* *flag_ce* and *flag_cstd* allow to compute the *conditional* expectation and the *conditional* standard deviation using the Monte-Carlo method, 
+$$Y(\alpha)^{CE}= \frac{1}{n} \sum_{i \in 1:n} Y_{(k)}(\alpha)$$
+and
+$$Y(\alpha)^{STD} = \sqrt{\frac{1}{n} \sum_{i \in 1:n} (Y_{(k)}(\alpha))^2 - (Y(\alpha)^{CE})^2}$$
+
+where $Y_{(k)}$ is the k-th simulations. If *flag_ce OR flag_cstd* is TRUE, the simulations are not stored.
+
+* *seed* is the integer value used to initialize the random number generator.
+
+* The argument *verbose* controls the messages reported during the computation (in order to monitor the convergence ?).
+
+* The argument *gibbs_optstats* provides a control on the output of computed statistics with 0: No stats - 1: Print - 2: Save in Neutral file.
+
+### Controlling the iterations and the sampling method
+
+The parameters to control the Gibbs sampler are:
+
+* The Initial number of iterations for bootstrapping: *gibbs_nburn*
+* The Maximum number of iterations: *gibbs_niter*
+
+In both cases, an iteration is an update of all the components of the working vector (using a sequential or a random path).
+
+* flag_moving	(Boolean). The Gibbs sampler works when a unique neighbourhood is used. The update of the value of a component takes into account the values of the other components. In some cases (for large vectors or for a Markov Random Field), only the values of the neighbours are taken into account to compute the conditional marginal distribution from which the univariate is drawn. If the Boolean flag is equal to *TRUE*, the covariance/precision is simplified to define the *neighborhood* of each component.
+
+* flag_multi_mono	(Boolean). If this Boolean flag is equal to *TRUE*, the components are grouped into conditionally independent blocks and a block update is performed.
+
+* flag_propagation (Boolean). If this Boolean flag is equal to *TRUE*, the propagation algorithm is used. However, it can be used only if no constraints is defined.
+
+**Notes**:
+
+* *flag_sym_neigh* a Boolean is a deprecated argument.
+
+The function returns an error code.
+
+## Intialization of the **gstlearn** library
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.align="center")
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+### Auxiliary functions
+
+```{r fn_ qc_variogram, echo=TRUE, eval=TRUE }
+
+# ------------------------------------------------------------
+# QC of simulations
+# ------------------------------------------------------------
+#' @param db a Db data base with the simulations to evaluate
+#' @param names a list of strings with the names of the simulation in db
+#' @param vario_param defines the variogram parameters
+#' @param vario_model defines the simulated model
+#' @param title a string to be used as the title of the figures
+#' @param stat_keys a list of strings for statistics to be computed on the simulation
+#' @values no returned value (invisible)
+qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys) {
+  nsim = length(names)
+  # statistics
+  # tab = as.matrix(dbStatisticsMono(db, names = names, 
+  #                               opers = EStatOption_fromKeys(stat_keys))$toTL())
+  # 
+  # knitr::kable(tab, caption = title, digits = 4)
+  # histogram of simulation  #1
+  i = 1
+  p = ggDefault() +
+    plot.hist(db = db, name = names[i], useSel = TRUE, bins = 25, 
+              col = "orange", bg = "gray") +
+    plot.decoration(xlab = names[i], title = title)
+  ggPrint(p)
+  
+  # base map
+  p = ggDefaultGeographic()
+  if (db$isGrid()) {
+    p = p + plot.grid(db, name_raster = names[i], show.legend.raster = TRUE,
+                    legend.name.raster = "Y",  palette = "Spectral")
+  } else  {
+    p = p + plot.point(db, nameColor = names[i], flagLegendColor = TRUE, 
+                       palette = "Spectral")
+  }
+  p = p + plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
+  ggPrint(p)
+  
+  # variogram computations
+  vario_list = list()
+  for (i in 1:nsim) {
+    vario = Vario(vario_param)
+    err   = db$setLocator(name = names[i], locatorType = ELoc_Z(), 
+                          cleanSameLocator = TRUE)
+    err   = vario$compute(db)
+    vario_list[[1 + length(vario_list)]] <- vario
+  }
+  
+  # plot of mean variogram per direction
+  err = qc_variogram(vario_list = vario_list, vario_param = vario_param, 
+                     vario_model = vario_model, title = title)
+  
+  invisible()
+}
+
+# ------------------------------------------------------------
+# plot of mean variogram per direction
+# ------------------------------------------------------------
+#'  @param vario_list a list of variogram structure
+#'  @param vario_param defines the parameters used to compute the variograms
+#'  @param vario_model defines the variogram model used for the simulations
+#'  @param title a string to be used as the title of the figures
+#'  @values no returned value (invisible)
+qc_variogram <- function(vario_list, vario_param, vario_model, title) {
+  nsim = length(vario_list)
+  ndir = vario_param$getDirectionNumber()
+  # variogram matrices
+  res_gg = list()
+  for (idir in 1:ndir) {
+    nlags = vario_param$getDirParam(idir-1)$getLagNumber()
+    gg_sim = matrix(NaN, nrow = nlags, ncol = nsim)
+    for (i in 1:nsim) {
+      gg_sim[,i] = vario_list[[i]]$getGgVec(idir = idir-1, ivar = 0, jvar = 0)
+    }
+    res_gg[[1 + length(res_gg)]] <- gg_sim
+  }
+  
+  # plot for each direction
+  for (idir in 1:ndir) {
+    
+    nlags = vario_param$getDirParam(idir-1)$getLagNumber()
+    # hh = dx[idir]*(1:(nlags-1))
+    hh     = vario_list[[i]]$getHhVec(idir = idir-1, ivar = 0, jvar = 0)
+    v_mean = apply(X = res_gg[[idir]], MARGIN = 1, FUN = mean)
+    v_sd   = apply(X = res_gg[[idir]], MARGIN = 1, FUN = sd)
+    
+    # initial plot
+    dir = vario_param$getDirParam(idir - 1)$getCodirs()
+    sdir = sprintf("Direction = [%1d, %1d]", dir[1], dir[2])
+    plot(NULL, NULL, xaxs="i", yaxs="i",
+         xlim = c(0, max(hh)), 
+         ylim = 1.2*c(0, vario_model$getTotalSill(ivar = 0, jvar = 0)),
+         xlab = "Distance", ylab = "Variogram", main = paste0(title, "\n", sdir))
+    abline(h = 0, lty = 1, col = "black")
+    abline(v = 0, lty = 1, col = "black")
+    
+    # experimental variogram
+    lines(hh, v_mean, col = "orange", lw = 2)
+    lines(hh, v_mean + 2 * v_sd, col = "orange", lty = 2)
+    lines(hh, v_mean - 2 * v_sd, col = "orange", lty = 2)
+    for (s in 1:nsim) {
+      lines(hh, res_gg[[idir]][,s] , col = "gray", lty = 3)
+    }
+    
+    # variogram model
+    abline(h  = vario_model$getTotalSill(ivar = 0, jvar = 0), lty = 2, col = "skyblue")
+    lines(hh, vario_model$getTotalSill(ivar = 0, jvar = 0) - 
+            vario_model$sample(hh = hh, ivar = 0, jvar = 0,                                             codir = vario_param$getDirParam(idir - 1)$getCodirs()), 
+            lty = 1, lw = 2, col = "skyblue")
+    
+    # legend
+    legend("bottomright", 
+           legend = c("model", "mean variogram", "+/- 2 x Std.", 
+                      "empirical variograms"),
+           lty = c(1, 1, 2, 3), lw = c(2, 2, 1, 1), 
+           col = c("skyblue", "orange", "orange", "gray")
+    )
+  } # loop over the directions
+  invisible()
+}
+```
+
+### Defining a reference data set
+
+```{r data_set, echo=TRUE, eval=TRUE}
+# ---------------------------------------------
+# parameters
+# ---------------------------------------------
+seed = 1235
+set.seed(seed)
+OptDbg_setReference(0)
+# Defining a set of statistics
+stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
+opers = EStatOption_fromKeys(stat_keys)
+# defining the variogram parameters
+varioParam = VarioParam_createOmniDirection(npas=10, dpas=0.05)
+
+np = 1000 # total number of points
+n  = 50   # number of equality constraints
+p  = np - n # number of inequality constraints
+# ---------------------------------------------
+# Simulation of the data set
+# ---------------------------------------------
+data  = Db_createFillRandom(ndat = np, ndim = 2, nvar = 0)
+model = Model_createFromParam(type = ECov_EXPONENTIAL(), range = 0.5, sill = 1)
+err   = model$setMeans(0)
+err   = model$setDriftIRF(order = -1)
+err   = simtub(dbin = NULL, dbout = data, model = model, nbsimu = 1, seed = seed)
+
+# plot
+p = ggDefaultGeographic() +
+  plot.point(data, color = "red") +
+  plot.decoration(title = "Defined point constraints")
+ggPrint(p)
+```
+
+# Testing the Gibbs sampler
+
+```{r gibbs_param, echo = TRUE}
+nburn = 10
+niter = 300
+nbsimu = 10
+flag.moving = TRUE
+flag.mono = FALSE
+flag.prop = FALSE
+```
+
+
+## No constraints
+
+Test the standard vs. propagative algorithm.
+
+```{r no_constraints, echo=TRUE, eval=TRUE}
+prefix = "g1"
+err = data$deleteColumns(paste(prefix, "*", sep = "."))
+# simulation
+err = data$clearLocators(ELoc_Z())
+err = data$clearLocators(ELoc_U())
+err = data$clearLocators(ELoc_L())
+err = gibbs_sampler(dbin = data, model = model, 
+      nbsimu = nbsimu, flag_ce = FALSE, flag_cstd = FALSE, 
+      namconv = NamingConvention(prefix),
+      gibbs_nburn = nburn, gibbs_niter = niter,
+      flag_moving = flag.moving, flag_multi_mono = flag.mono, flag_propagation = flag.prop, 
+      flag_norm = FALSE, percent = 0,
+      seed = seed, verbose = TRUE, gibbs_optstats = 0,
+      flag_sym_neigh = FALSE 
+      )
+
+# variograms
+qc_simulations(db = data, names = paste(prefix, 1:nbsimu, sep = "."),
+               vario_param = varioParam, vario_model = model,
+               title = paste0("Gibbs sampler: np = ", np), stat_keys = stat_keys)
+# statistics
+tab = dbStatisticsMono(data, names = paste(prefix, 1:nbsimu, sep = "."), opers = opers)$toTL()
+knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
+```
+
+## Equality and inequality constraints
+
+```{r defining the constraints, echo=TRUE, eval=TRUE}
+# Excursion set cutoff: 1_{Y \geq y_c}
+MAX_VALUE = 10
+yc  = 1.0
+# observed values
+sel = rep(FALSE, np); sel[sample(1:np, n,)] <- TRUE
+# sel = sample(c(TRUE, FALSE), size = np, prob = c(n/np, p/np), replace = TRUE)
+# lowerBound
+lowerBound = rep(-MAX_VALUE, np)
+lowerBound[data["Simu"] >= yc] = yc
+lowerBound[sel] <- data["Simu"][sel]
+data["lowerBound"] = lowerBound
+# upperBound
+upperBound = rep(+MAX_VALUE, np)
+upperBound[data["Simu"] < yc] = yc
+upperBound[sel] <- data["Simu"][sel]
+data["upperBound"] = upperBound
+# code -1: below yc, 1: above yc, 0: known value
+code = rep(NaN, np)
+code[data["Simu"] <= yc] <- -1
+code[data["Simu"] >  yc] <- +1
+code[sel] <- 0
+data["code"] = code
+# defining the locators
+err = data$clearLocators(ELoc_Z())
+err = data$setLocators("lowerBound", locatorType = ELoc_L(), cleanSameLocator = TRUE)
+err = data$setLocators("upperBound", locatorType = ELoc_U(), cleanSameLocator = TRUE)
+```
+
+```{r inequality_constraints, echo=TRUE, eval=TRUE}
+prefix = "g2"
+err = data$deleteColumns(paste(prefix, "*", sep = "."))
+err = data$setLocators("lowerBound", locatorType = ELoc_L(), cleanSameLocator = TRUE)
+err = data$setLocators("upperBound", locatorType = ELoc_U(), cleanSameLocator = TRUE)
+err = data$clearLocators(locatorType = ELoc_Z())
+
+err = gibbs_sampler(dbin = data, model = model, 
+      nbsimu = nbsimu, flag_ce = FALSE, flag_cstd = FALSE, 
+      namconv = NamingConvention(prefix),
+      gibbs_nburn = nburn, gibbs_niter = niter,
+      flag_moving = flag.moving, flag_multi_mono = flag.mono, flag_propagation = flag.prop, 
+      flag_norm = FALSE, percent = 0,
+      seed = seed, verbose = TRUE, gibbs_optstats = 0,
+      flag_sym_neigh = FALSE 
+      )
+
+# QC of the simulations
+stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
+qc_simulations(db = data, names = paste(prefix, 1:nbsimu, sep = "."), 
+               vario_param = varioParam, vario_model = model, 
+               title = paste0("Gibbs sampler: np = ", np), stat_keys = stat_keys)
+
+tab = dbStatisticsMono(data, names = paste(prefix, 1:nbsimu, sep = "."), opers = opers)$toTL()
+knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
+
+# QC of inequality constraints
+qc_inBounds = rep(FALSE, nbsimu)
+for (s in 1:nbsimu){
+  vn = paste(prefix, s, sep = ".")
+  qc_inBounds[s] <- sum(
+    (data["upperBound"] >= data[vn])&(data["lowerBound"] <= data[vn]),
+    na.rm = TRUE)
+}
+stopifnot((range(qc_inBounds)[1] == np)&(range(qc_inBounds)[1] == np))
+```
+
+# Examples
+
+## General setting
+
+```{r example_output, echo=TRUE, eval=TRUE}
+neigh = NeighMoving_create(radius = 0.5, nmini = 25, nmaxi = 100)
+grid  = DbGrid_create(x0 = c(0,0), nx = c(256, 256), dx = 1/c(256, 256))
+nbsimu = 4
+seed_gb = sample(1:9999, size = nbsimu, replace = FALSE)
+seed_tb = sample(1:9999, size = nbsimu, replace = FALSE)
+```
+
+## Conditional simulation of an excursion set
+
+```{r excursion_set, echo=TRUE, eval=TRUE}
+yc = quantile(data["Simu"], probs = 0.75)
+err = data$deleteColumns(c("Ind", "es.y*"))
+err = grid$deleteColumns(c("Ind*", "es.y*"))
+
+# creating the indicator variable
+data["Ind"] = as.numeric(data["Simu"] >= yc)
+# coding the indicator into bounds
+lowerBound = rep(-MAX_VALUE, np)
+lowerBound[data["Ind"] == 1] <- yc
+data["lowerBound"] <- lowerBound
+upperBound = rep(MAX_VALUE, np)
+upperBound[data["Ind"] == 0] <- yc
+data["upperBound"] <- upperBound
+
+# loop over the simulations 
+p_list = list()
+for (s in 1:nbsimu) {
+  s_nm = paste("es.y", s, sep = ".")
+  i_nm = paste("Ind", s, sep = ".")
+  
+  # simulations of the observations
+  err = gibbs_sampler(dbin = data, model = model, 
+      nbsimu = 1, flag_ce = FALSE, flag_cstd = FALSE, 
+      namconv = NamingConvention(s_nm),
+      gibbs_nburn = nburn, gibbs_niter = niter,
+      flag_moving = flag.moving, 
+      flag_multi_mono = flag.mono, 
+      flag_propagation = flag.prop, 
+      flag_norm = FALSE, percent = 0,
+      seed = seed_gb[s], verbose = TRUE, gibbs_optstats = 0,
+      flag_sym_neigh = FALSE 
+      )
+
+  # computing the Gaussian on the grid given the Gibbs values
+  err = data$setLocators(s_nm, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+  err   = simtub(dbin = data, dbout = grid, model = model, 
+               neigh = neigh, nbsimu = 1, nbtuba = 1000, seed = seed_tb[s],
+               namconv = NamingConvention(""))
+  
+  # coding the indicator of the excursion set
+  grid[i_nm] <- as.numeric(grid[s_nm] >= yc)
+  
+  # plots
+  p = ggDefaultGeographic() +
+    plot.grid(grid, i_nm, palette = "Spectral") +
+    plot.decoration(title = paste0("Simulation #", s)) 
+  
+  p_list[[1 + length(p_list)]] <- p
+}
+
+grid["Ind.mean"] <- apply(
+  X = matrix(grid$getColumns(names = paste("Ind", 1:nbsimu, sep = ".")),
+      nrow = grid$getSampleNumber(FALSE),
+      ncol = nbsimu),
+  MARGIN = 1,
+  FUN = mean
+)
+
+p_mean <- ggDefaultGeographic() +
+    plot.grid(grid, "Ind.mean", palette = "Spectral") +
+    plot.decoration(title = 
+    paste0("Mean of the ", nbsimu, " simulations")) 
+
+# plot of 3 simulations and the proportions
+ggarrange(p_list[[1]], p_list[[2]], p_list[[3]], p_mean,
+          nrow = 2, ncol = 2)
+```
+
+## Conditional expectation with censored data
+
+```{r censored_data, echo=TRUE, eval=TRUE}
+# defining the censored observations of a log normal distribution (p = 25%)
+m_Z = 1.0
+sigma_Z = 1.0
+Z = m_Z * exp(sigma_Z * data["Simu"] - 1/2 * sigma_Z^2)
+LOQ = quantile(Z, probs = 0.25)
+Z[Z <= LOQ] <- 0
+data["Z"] <- Z
+# computing the Normal score of the simulated censored data
+Y = VectorHelper_normalScore(Z)
+LOQ_Y = quantile(Y, probs = 0.25)
+Y <- pmax(Y, LOQ_Y)
+data["Y"] <- Y 
+# defining the bounds to take into account the censored values
+upper.Y = rep(MAX_VALUE, length(Y))
+upper.Y[Y == LOQ_Y] = LOQ_Y
+lower.Y = rep(-MAX_VALUE, length(Y))
+lower.Y[Y != LOQ_Y] = LOQ_Y
+data["upper.Y"] <- upper.Y
+data["lower.Y"] <- lower.Y
+err = data$setLocators("upper.Y", locatorType = ELoc_U(), cleanSameLocator = TRUE)
+err = data$setLocators("lower.Y", locatorType = ELoc_L(), cleanSameLocator = TRUE)
+
+# defining the anamorphosis for computation of the conditional expectation
+anam = AnamHermite_create(nbpoly = 25)
+err  = data$setLocators("Z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+err  = anam$fit(data, name = "Z")
+# computing the true Hermite coefficient of the log normal distribution
+err  = anam$setPsiHns(hermiteLognormal(mean = m_Z, sigma = sigma_Z, nbpoly = 25))
+selectivity = Selectivity_createByKeys(c("Z"), flag_est=TRUE, flag_std=TRUE)
+
+# cleaning the grid
+err = data$deleteColumns(c("cs.y.*"))
+err = grid$deleteColumns(c("sk.cs.*", "ce.cs.*"))
+# computing the conditional expectation by Monte-Carlo
+for (s in 1:nbsimu) {
+  print(paste0(">>>> processing simulation #", s))
+  s_nm = paste("cs.y", s, sep = ".")
+  # simulations of the censored observations
+  err = gibbs_sampler(dbin = data, model = model, 
+      nbsimu = 1, flag_ce = FALSE, flag_cstd = FALSE, 
+      namconv = NamingConvention(s_nm),
+      gibbs_nburn = nburn, gibbs_niter = niter,
+      flag_moving = flag.moving, 
+      flag_multi_mono = flag.mono, 
+      flag_propagation = flag.prop, 
+      flag_norm = FALSE, percent = 0,
+      seed = seed_gb[s], verbose = FALSE, gibbs_optstats = 0,
+      flag_sym_neigh = FALSE 
+      )
+
+   # simple kriging of the Gaussian variable
+    err = data$setLocators(s_nm, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+    err = kriging(dbin = data, dbout = grid, model = model, neigh = neigh, 
+                  calcul = EKrigOpt_POINT(),
+                  flag_est = TRUE, flag_std = TRUE, flag_varz = FALSE,
+                  namconv = NamingConvention("sk"))
+    # conditional expectation
+    err = ConditionalExpectation(db = grid, anam = anam, selectivity = selectivity, 
+                   name_est = paste("sk", s_nm, "estim", sep = "."),
+                   name_std = paste("sk", s_nm, "stdev", sep = "."),
+                   # nbsimu=100,
+                   namconv=NamingConvention("ce",FALSE,TRUE,FALSE))
+
+    err = grid$setName("ce.Z-estim", paste("ce", "cs", "z", s, "estim", sep = "."))
+    err = grid$setName("ce.Z-stdev", paste("ce", "cs", "z", s, "stdev", sep = "."))
+}
+
+# computing the mean of CEs given the Gibbs values: estimation
+grid["CE.cs.Z.estim"] <- apply(
+  X = matrix(grid$getColumns(names = paste("ce.cs.z", 1:nbsimu, "estim", sep = ".")),
+      nrow = grid$getSampleNumber(FALSE),
+      ncol = nbsimu),
+  MARGIN = 1,
+  FUN = mean
+)
+
+# computing the mean of CEs given the Gibbs values: Std.
+grid["CE.cs.Z.stdev"] <- sqrt(apply(
+  X = matrix(grid$getColumns(names = paste("ce.cs.z", 1:nbsimu, "stdev", sep = "."))^2,
+      nrow = grid$getSampleNumber(FALSE),
+      ncol = nbsimu),
+  MARGIN = 1,
+  FUN = mean
+))
+
+# final plots
+p_ce <- ggDefaultGeographic() +
+    plot.grid(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.decoration(title = paste0("Conditional expectation")) 
+
+p_std <- ggDefaultGeographic() +
+    plot.grid(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "Std.") +
+    plot.decoration(title = paste0("Conditional Std.")) 
+
+ggarrange(p_ce, p_std, nrow = 1, ncol = 2)
+
+# statistics
+tab = dbStatisticsMono(grid, names = paste("CE.cs.Z", c("estim", "stdev"), sep = "."),
+                       opers = opers)$toTL()
+knitr::kable(tab, caption = paste0("Statistics for conditional expectation with censored data"), digits = 3)
+```

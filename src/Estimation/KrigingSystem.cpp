@@ -1355,7 +1355,7 @@ void KrigingSystem::_simulateCalcul(int status)
 
       /* Add the conditioning kriging to the NC simulation at target */
       _dbout->updSimvar(ELoc::SIMU, _iechOut, isimu, ivar, _rankPGS, _nbsimu, _nvar,
-                       0, simu);
+                        EOperator::ADD, simu);
     }
 
   return;
@@ -1431,7 +1431,7 @@ void KrigingSystem::_estimateCalcul(int status)
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
-          _dbin->updArray(iech, _iptrWeights, 0, wgt);
+          _dbin->updArray(iech, _iptrWeights, EOperator::ADD, wgt);
       }
     }
   }
@@ -3331,7 +3331,6 @@ void KrigingSystem::_bayesCorrectVariance()
 void KrigingSystem::_bayesPreSimulate()
 {
   if (_nfeq <= 0) return;
-  int nftri = _nfeq * (_nfeq + 1) / 2;
   int memo = law_get_random_seed();
 
   // Dimension '_postSimu' to store simulated posterior mean
@@ -3339,20 +3338,14 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Core allocation */
 
-  VectorDouble trimat(nftri);
   VectorDouble rndmat(_nfeq);
   VectorDouble simu(_nfeq);
-  // The array _postCov is duplicated as the copy is destroyed by matrix_cholesky_decompose
-  MatrixSquareSymmetric rcov = _postCov;
 
   /* Cholesky decomposition */
 
-  int rank = matrix_cholesky_decompose(rcov.getValues().data(), trimat.data(), _nfeq);
-
-  if (rank > 0)
+  if (_postCov.choleskyDecompose())
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
-    messerr("Rank of the Matrix = %d", rank);
     messerr("The Drift coefficients have been set to their posterior mean");
     for (int isimu = 0; isimu < _nbsimu; isimu++)
       for (int il = 0; il < _nfeq; il++)
@@ -3360,6 +3353,7 @@ void KrigingSystem::_bayesPreSimulate()
   }
   else
   {
+    VectorDouble trimat = _postCov.getCholeskyTL();
     for (int isimu = 0; isimu < _nbsimu; isimu++)
     {
 

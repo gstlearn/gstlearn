@@ -15,6 +15,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
 
 #include <math.h>
 
@@ -139,6 +140,14 @@ void AMatrixDense::_setValue(int irow, int icol, double value)
 {
   if (isFlagEigen())
     _setValueLocal(irow, icol, value);
+  else
+    my_throw("_setValue should never be called here");
+}
+
+void AMatrixDense::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+    _updValueLocal(irow, icol, oper, value);
   else
     my_throw("_setValue should never be called here");
 }
@@ -384,8 +393,8 @@ void AMatrixDense::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool t
 
 void AMatrixDense::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
-  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+  Eigen::Map<const Eigen::VectorXd> xm(x, getNRows());
+  Eigen::Map<Eigen::VectorXd> ym(y, getNCols());
   if (transpose)
     ym.noalias() = xm.transpose() * _eigenMatrix.transpose();
   else
@@ -405,13 +414,9 @@ VectorDouble AMatrixDense::prodVecMat(const VectorDouble& x, bool transpose) con
 VectorDouble AMatrixDense::prodMatVec(const VectorDouble& x, bool transpose) const
 {
   if (isFlagEigen())
-  {
     return _prodMatVecLocal(x, transpose);
-  }
   else
-  {
     return AMatrix::prodMatVec(x, transpose);
-  }
 }
 
 /*! Extract a Row */
@@ -521,6 +526,11 @@ double& AMatrixDense::_getValueRefLocal(int irow, int icol)
 void AMatrixDense::_setValueLocal(int irow, int icol, double value)
 {
   _eigenMatrix(irow, icol) = value;
+}
+
+void AMatrixDense::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+{
+  _eigenMatrix(irow, icol) = modifyOperator(oper, _eigenMatrix(irow, icol), value);
 }
 
 void AMatrixDense::_setValueLocal(int irank, double value)

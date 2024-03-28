@@ -124,6 +124,7 @@ public:
                               bool flag_sample = false,
                               bool verr_mode = false,
                               Model *model = nullptr,
+                              int niter_UK = 0,
                               bool verbose = false);
 
   void resetReduce(const VectorInt &varcols,
@@ -252,14 +253,14 @@ public:
               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_sample = false,
               bool verr_mode = false,
-              Model* model = nullptr,
+              const Model* model = nullptr,
               int niter_UK = 0,
               bool verbose = false);
   int computeIndic(Db* db,
                    const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                    bool flag_sample = false,
                    bool verr_mode = false,
-                   Model* model = nullptr,
+                   const Model* model = nullptr,
                    int niter_UK = 0,
                    bool verbose = false,
                    int nfacmax = -1);
@@ -360,7 +361,7 @@ private:
   int _compute(Db *db,
                int flag_sample,
                int verr_mode,
-               Model* model,
+               const Model* model,
                int niter_UK,
                bool verbose);
   int _calculateGeneral(Db *db,
@@ -378,12 +379,14 @@ private:
   int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
   double _s(Db *db, int iech, int jech);
   double _g(Db *db, int iech, int jech);
-  double _calculateBiasLocal(Db *db,
-                             Vario_Order *vorder,
-                             int ifirst,
-                             int ilast);
+  void _calculateBiasLocal(Db *db,
+                           int idir,
+                           int ipas,
+                           Vario_Order *vorder,
+                           int ifirst,
+                           int ilast);
   void _calculateBiasGlobal(Db *db);
-  double _getBias(Db *db, int iiech, int jjech);
+  double _getBias(int iiech, int jjech);
 
   void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
   int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);

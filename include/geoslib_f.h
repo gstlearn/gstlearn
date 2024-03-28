@@ -326,6 +326,6 @@ GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
                                      ANeigh *neigh,
                                      double nugget_grd = 0.,
                                      double nugget_tgt = 0.,
-                                     int flag_dist_conv = false,
+                                     bool flag_dist_conv = false,
                                      bool verbose = false);
 

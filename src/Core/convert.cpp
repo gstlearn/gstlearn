@@ -228,7 +228,7 @@ DbGrid* db_grid_read_f2g(const char* filename, int /* verbose*/)
 static void st_csv_print_string(const char *string)
 {
   if (CSV_ENCODE == NULL)
-  my_throw("You must initiate CSV_ENCODING first");
+    my_throw_impossible("You must initiate CSV_ENCODING first");
 
   (void) fprintf(CSV_ENCODE->file, "%s", string);
   if (CSV_ENCODE->current < CSV_ENCODE->nitem - 1)
@@ -274,7 +274,7 @@ static void st_csv_print_eol(void)
 void csv_print_double(double value)
 {
   if (CSV_ENCODE == NULL)
-  my_throw("You must initiate CSV_ENCODING first");
+    my_throw_impossible("You must initiate CSV_ENCODING first");
 
   if (FFFF(value))
     (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->na_string.c_str());
@@ -448,18 +448,15 @@ int db_write_csv(Db *db,
     }
     else
     {
-      int rank = 0;
       if (flag_coor) for (int idim = 0; idim < ndim; idim++)
       {
         int iatt = db_attribute_identify(db, ELoc::X, idim);
         st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
-        rank++;
       }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         int iatt = db_attribute_identify(db, ELoc::Z, ivar);
         st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
-        rank++;
       }
     }
   }
@@ -477,18 +474,15 @@ int db_write_csv(Db *db,
     }
     else
     {
-      int rank = 0;
       if (flag_coor) for (int idim = 0; idim < ndim; idim++)
       {
         int iatt = db_attribute_identify(db, ELoc::X, idim);
         csv_print_double(db->getCoordinate(iech, iatt));
-        rank++;
       }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         int iatt = db_attribute_identify(db, ELoc::Z, ivar);
         csv_print_double(db->getLocVariable(ELoc::Z,iech, iatt));
-        rank++;
       }
     }
   }

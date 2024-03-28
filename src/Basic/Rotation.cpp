@@ -67,7 +67,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
     if (! _rotMat.isSameSize(rotmat))
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
     VectorDouble local = rotmat.getValues();
-    if (! is_matrix_rotation(_nDim, local.data(), 1)) return 1;
+    if (! Rotation::isMatrixRotation(rotmat, true)) return 1;
     _rotMat = rotmat;
     GH::rotationGetAnglesInPlace(local, _angles);
     _directToInverse();
@@ -82,8 +82,10 @@ int Rotation::setMatrixDirectVec(const VectorDouble& rotmat)
   {
     if ((int) rotmat.size() != _rotMat.size())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
-    if (! is_matrix_rotation(_nDim, rotmat.data(), 1)) return 1;
-    _rotMat.setValues(rotmat);
+    MatrixSquareGeneral local(_nDim);
+    local.setValues(rotmat);
+    if (! Rotation::isMatrixRotation(local, true)) return 1;
+    _rotMat = local;
     GH::rotationGetAnglesInPlace(_nDim, rotmat.data(), _angles.data());
     _directToInverse();
     _checkRotForIdentity();
@@ -198,4 +200,47 @@ bool Rotation::isSame(const Rotation& rot) const
       if (_angles[idim] != getAngle(idim)) return 0;
   }
   return 1;
+}
+
+/****************************************************************************/
+/*!
+ **  Check if a matrix is a rotation matrix
+ **
+ ** \return  true if the matrix is a rotation matrix; false otherwise
+ **
+ ** \param[in]  rotmat   Square matrix to be checked
+ ** \param[in]  verbose  1 for the verbose option
+ **
+ ** \remark  A rotation matrix must be orthogonal with determinant equal to 1
+ **
+ *****************************************************************************/
+bool Rotation::isMatrixRotation(const MatrixSquareGeneral& rotmat, bool verbose)
+{
+
+  /* Check product of matrix by its transpose and compare to unity matrix */
+
+  int neq = rotmat.getNRows();
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+    {
+      double prod = 0.;
+      for (int k = 0; k < neq; k++)
+        prod += rotmat.getValue(i,k) * rotmat.getValue(j,k);
+      double comp = (i == j) ? 1 : 0.;
+      if (ABS(prod - comp) > EPSILON6)
+      {
+        if (verbose)
+          messerr("The element (A*At)[%d,%d] = %lf (should be %lf)", i + 1,
+                  j + 1, prod, comp);
+        return false;
+      }
+    }
+
+  double deter = rotmat.determinant();
+  if (ABS(deter - 1.) > EPSILON6)
+  {
+    if (verbose) messerr("The Determinant = %f (should be 1)", deter);
+    return false;
+  }
+  return true;
 }

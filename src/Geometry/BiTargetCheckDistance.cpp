@@ -118,7 +118,7 @@ String BiTargetCheckDistance::toString(const AStringFormat* /*strfmt*/) const
       for (int idim = 0; idim < _ndim; idim++)
         ranges[idim] = _radius * _anisoCoeffs[idim];
       sstr << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
-                      true, _ndim, 1, ranges);
+                      true, 1, _ndim, ranges);
 
       if (_flagRotation)
       {

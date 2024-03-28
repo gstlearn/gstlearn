@@ -26,11 +26,13 @@ public:
   GibbsUMulti& operator=(const GibbsUMulti &r);
   virtual ~GibbsUMulti();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
+  void update(VectorVectorDouble &y, int isimu, int ipgs, int iter) override;
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
+
+private:
+  int    _getSize() const;
+  double _getVariance(int iecr) const;
+  double _getEstimate(int ipgs, int iecr, VectorVectorDouble& y);
 
 private:
   VectorDouble _covmat;

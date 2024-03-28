@@ -897,8 +897,10 @@ VectorInt gridcell_neigh(int ndim,
 void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 {
   int iad;
-  int pivot = 0;
-  double a[3], b[2], x[2], result;
+  double result;
+  MatrixSquareSymmetric a(2);
+  VectorDouble b(2);
+  VectorDouble x(2);
 
   /* Initializations */
 
@@ -914,9 +916,9 @@ void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
   for (int iiy = 0; iiy < NX[1]; iiy++)
     for (int iix = 0; iix < NX[0]; iix++)
     {
-      for (int i = 0; i < 3; i++)  a[i] = 0.;
-      for (int i = 0; i < 2; i++)
-        b[i] = x[i] = 0.;
+      a.fill(0.);
+      b.fill(0.);
+      x.fill(0.);
       indg[0] = iix;
       indg[1] = iiy;
       iad = dbgrid->indiceToRank(indg);
@@ -938,13 +940,13 @@ void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
           double zi = dbgrid->getArray(iad, iptrz);
           if (FFFF(zi)) continue;
           zi -= z0;
-          a[0] += xi * xi;
-          a[1] += xi * yi;
-          a[2] += yi * yi;
+          a.updValue(0, 0, EOperator::ADD, xi * xi);
+          a.updValue(0, 1, EOperator::ADD, xi * yi); // Do not perform upd(1,0) as it is already done due to symmetric matrix
+          a.updValue(1, 1, EOperator::ADD, yi * yi);
           b[0] += xi * zi;
           b[1] += yi * zi;
         }
-      if (matrix_solve(0, a, b, x, 2, 1, &pivot)) continue;
+      if (a.solve(b, x)) continue;
 
       result = ut_rad2deg(atan2(x[1], x[0]));
       result += 90.;

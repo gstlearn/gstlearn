@@ -71,7 +71,7 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 
   if (! _isFitted()) return sstr.str();
 
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, 2, _nDisc, _tDisc);
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nDisc, 2, _tDisc);
 
   return sstr.str();
 }
@@ -202,7 +202,7 @@ double AnamEmpirical::transformToRawValue(double yy) const
 
 void AnamEmpirical::calculateMeanAndVariance()
 {
-  my_throw("This function is not available for Empirical Anamorphosis");
+  messerr("This function is not available for Empirical Anamorphosis");
 }
 
 int AnamEmpirical::fitFromArray(const VectorDouble& tab,

@@ -48,12 +48,14 @@ public:
                                          bool byCol = false,
                                          int opt_eigen = -1,
                                          bool invertColumnOrder = false);
+  static MatrixRectangular* glue(const AMatrix *A1,
+                                 const AMatrix *A2,
+                                 bool flagShiftRow,
+                                 bool flagShiftCol);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);
   void addColumn(int ncolumn_added = 1);
-
-  MatrixRectangular* createReduce(const VectorInt& validRows, const VectorInt& validCols) const;
 
 protected:
   virtual int _getIndexToRank(int irow,int icol) const override;
@@ -68,6 +70,7 @@ private:
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
 
   virtual void    _transposeInPlace() override;
   virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
@@ -86,6 +89,7 @@ private:
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irank, double value);
   void    _setValueLocal(int irow, int icol, double value);
+  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();

@@ -154,7 +154,6 @@ DbGrid* GridF2G::readGridFromFile()
   VectorDouble tab(size * ncol);
   for (int i = 0; i < size * ncol; i++) tab[i] = TEST;
 
-  int nused = 0;
   for (int iz = 0; iz < nx[2]; iz++)
     for (int ix = 0; ix < nx[0]; ix++)
       for (int iy = 0; iy < nx[1]; iy++)
@@ -164,10 +163,7 @@ DbGrid* GridF2G::readGridFromFile()
           if (!strcmp(valread, valtest))
             value = TEST;
           else
-          {
             value = atof(valread);
-            nused++;
-          }
           F2G(ix,iy,iz,icol) = value;
         }
 

@@ -915,7 +915,7 @@ void CalcSimuFFT::_final(DbGrid *db, int iad)
         int jx = ix + _shift[0];
         int jy = iy + _shift[1];
         int jz = iz + _shift[2];
-        db->updArray(ecr, iad, 4, U(jx, jy, jz));
+        db->updArray(ecr, iad, EOperator::DEFINE, U(jx, jy, jz));
       }
 
   return;

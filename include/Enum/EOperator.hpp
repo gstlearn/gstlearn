@@ -10,27 +10,18 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "Enum/AEnum.hpp"
 
-#include <exception>
-#include <string>
+#define ENUM_OPERATOR EOperator, IDLE, \
+                 IDLE,      0, "New = New",\
+                 ADD,       1, "New = New + Old", \
+                 PRODUCT,   2, "New = New * Old", \
+                 SUBTRACT,  3, "New = New - Old", \
+                 SUBOPP,    4, "New = Old - New", \
+                 DIVIDE,    5, "New = New / Old", \
+                 DIVOPP,    6, "New = Old / New", \
+                 DEFINE,    7, "New = New (if Old is defined) or TEST otherwise ", \
+                 MIN,       8, "New = MIN(New, Old)", \
+                 MAX,       9, "New = MAX(New, Old)"
 
-class GSTLEARN_EXPORT AException : public std::exception
-{
-public:
-  AException(const std::string& msg = "");
-  virtual ~AException();
-
-  const char* what() const noexcept;
-
-private:
-  std::string _msg;
-};
-
-GSTLEARN_EXPORT void throw_exp(const std::string& msg = "",
-                               const std::string& file = "",
-                               int line = 0);
-
-#define my_throw(msg) throw_exp(msg, __FILE__, __LINE__)
-
-#define my_throw_impossible(msg) throw_exp(msg, __FILE__, __LINE__)
+ENUM_DECLARE(ENUM_OPERATOR)

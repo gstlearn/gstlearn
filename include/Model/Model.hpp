@@ -142,6 +142,7 @@ public:
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
+  MatrixSquareGeneral getTotalSills() const;
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
 
@@ -552,10 +553,14 @@ public:
   int hasExternalCov() const;
 
   MatrixSquareSymmetric covMatrixM(Db *db1,
-                                   Db *db2 = nullptr,
                                    int ivar = -1,
                                    int jvar = -1,
-                                   const CovCalcMode* mode = nullptr);
+                                   const CovCalcMode *mode = nullptr);
+  MatrixRectangular covMatrixM(Db *db1,
+                               Db *db2,
+                               int ivar = -1,
+                               int jvar = -1,
+                               const CovCalcMode *mode = nullptr);
   VectorDouble covMatrixV(Db *db1,
                           Db *db2 = nullptr,
                           int ivar = 0,

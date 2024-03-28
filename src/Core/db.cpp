@@ -3518,11 +3518,11 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
  ** \param[in]  oper          >0 for larger; <0 for smaller
  ** \param[in]  verbose       Verbose flag
  **
- ** \remarks When '�ptr_rank' is defined (>=0), defined pixels of the current
+ ** \remarks When 'iptr_rank' is defined (>=0), defined pixels of the current
  ** \remarks sub-grid overwrites the corresponding pixel within the main grid
  ** \remarks only if its rank ('new_rank') is larger (oper>0) or smaller
  ** \remarks (oper<0)) than the rank of the same pixel in the main grid
- ** \remarks (attribute '�ptr_rank')
+ ** \remarks (attribute 'iptr_rank')
  ** \remarks When 'iptr_rank' is undefined, arguments 'new_rank', 'oper' are
  ** \remarks useless
  **

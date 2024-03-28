@@ -16,6 +16,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -1097,7 +1098,7 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
 
   // Modify the Matrix of sills
   newCovAniso->setContext(ctxt);
-  MatrixSquareSymmetric* newsill = _sill.createReduce(validVars);
+  MatrixSquareSymmetric* newsill = dynamic_cast<MatrixSquareSymmetric*>(MatrixFactory::createReduce(&_sill, validVars, validVars));
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }

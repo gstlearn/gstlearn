@@ -211,14 +211,12 @@ DbGrid*  GridZycor::readGridFromFile()
 
    /* Read the array of real values */
 
-   int lec = 0;
    for (int ix = 0; ix < nx[0]; ix++)
      for (int iy = 0; iy < nx[1]; iy++)
      {
        if (_record_read(_file, "%lf", &value)) break;
        if (value == test) value = TEST;
        tab[(nx[1] - iy - 1) * nx[0] + ix] = value;
-       lec++;
      }
 
    dbgrid = new DbGrid();

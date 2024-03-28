@@ -1219,7 +1219,7 @@ void dbStatisticsPrint(const Db *db,
  * @remark When performing the (forward) sphering, you must perform the following operation
  * @remark        X <- prodMatMat(X, S)
  */
-MatrixRectangular* sphering(const AMatrix* X)
+MatrixSquareGeneral* sphering(const AMatrix* X)
 {
   if (X->empty()) return nullptr;
   int nech = X->getNRows();
@@ -1227,17 +1227,15 @@ MatrixRectangular* sphering(const AMatrix* X)
 
   AMatrix* TX = X->transpose();
   AMatrix* prod = MatrixFactory::prodMatMat(TX, X);
-  prod->prodScalar(1. / (double) nech);
+  MatrixSquareSymmetric* prodsym = dynamic_cast<MatrixSquareSymmetric*>(prod);
+  if (prodsym == nullptr) return nullptr;
 
-  VectorDouble eigen_values(nvar);
-  VectorDouble eigen_vectors(nvar * nvar);
-  if (matrix_eigen(prod->getValues().data(), nvar,
-                   eigen_values.data(), eigen_vectors.data()))
-    return nullptr;
+  prodsym->prodScalar(1. / (double) nech);
+  if (prodsym->computeEigen()) return nullptr;
+  VectorDouble eigen_values = prodsym->getEigenValues();
+  MatrixSquareGeneral* S = prodsym->getEigenVectors()->clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
-  MatrixRectangular* S = new MatrixRectangular(nvar, nvar);
-  S->setValues(eigen_vectors,true);
   for (int ivar = 0; ivar < nvar ; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
@@ -1812,18 +1810,18 @@ int dbStatisticsInGridTool(Db *db,
 
         if (oper == EStatOption::NUM)
         {
-          dbgrid->updArray(iad, iptr, 0, 1.);
+          dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else if (oper == EStatOption::MEAN)
         {
-          dbgrid->updArray(iad, iptn, 0, 1.);
-          dbgrid->updArray(iad, iptr, 0, value);
+          dbgrid->updArray(iad, iptn, EOperator::ADD, 1.);
+          dbgrid->updArray(iad, iptr, EOperator::ADD, value);
         }
         else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
         {
-          dbgrid->updArray(iad, iptn, 0, 1.);
-          dbgrid->updArray(iad, iptm, 0, value);
-          dbgrid->updArray(iad, iptr, 0, value * value);
+          dbgrid->updArray(iad, iptn, EOperator::ADD, 1.);
+          dbgrid->updArray(iad, iptm, EOperator::ADD, value);
+          dbgrid->updArray(iad, iptr, EOperator::ADD, value * value);
         }
         else if (oper == EStatOption::MINI)
         {
@@ -1841,15 +1839,15 @@ int dbStatisticsInGridTool(Db *db,
         }
         else if (oper == EStatOption::PLUS)
         {
-          if (value > 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+          if (value > 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else if (oper == EStatOption::MOINS)
         {
-          if (value < 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+          if (value < 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else if (oper == EStatOption::ZERO)
         {
-          if (value == 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+          if (value == 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
         }
         else
         {
@@ -1868,7 +1866,7 @@ int dbStatisticsInGridTool(Db *db,
         if (ratio <= 0.)
           dbgrid->setArray(i, iptr, TEST);
         else
-          dbgrid->updArray(i, iptr, 3, ratio);
+          dbgrid->updArray(i, iptr, EOperator::DIVIDE, ratio);
       }
     }
     else if (oper == EStatOption::VAR || oper == EStatOption::STDV)

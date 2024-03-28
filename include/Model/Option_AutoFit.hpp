@@ -12,9 +12,22 @@
 
 #include "gstlearn_export.hpp"
 
-// WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
 
+/**
+ * This class defines the options and parameters used during the Variogram Fitting.
+ * All the parameters described hereafter are either available in the construction,
+ * or can be set using a specific get() function.
+ * - verbose: Ask for a verbose option during the Automatic Model fitting
+ * - wmode: Weighting option (see comments on the setWMode() function)
+ * - maxiter: Maximum number of iterations
+ * - flag_intrinsic: When True, fit a Model which includes at least one Intrinsic basic structure
+ * - tolstop: Define an absolute criterion used for stopping the iterations
+ * - tolred: Define the relative criterion used for stopping the iterations
+ * - epsdelta: Define the tolerance used for the search
+ * - tolsigma: Percentage of the variance below which a basic structure is discarded
+ * - initdelta: Initial radius of the trusting area
+ */
 class GSTLEARN_EXPORT Option_AutoFit : public AStringable
 {
  public:
@@ -57,10 +70,10 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   void setWmode(int wmode) { _wmode = wmode; }
 
  private:
-   bool _verbose;                   /* Verbose option */
-   int _wmode;                      /* Weighting option (used in Goulard) */
-   int _maxiter;                    /* Maximum number of iterations */
-   int _flag_intrinsic;             /* Ask for an intrinsic model */
+   bool   _verbose;                 /* Verbose option */
+   int    _wmode;                   /* Weighting option (used in Goulard) */
+   int    _maxiter;                 /* Maximum number of iterations */
+   int    _flag_intrinsic;          /* Ask for an intrinsic model */
    double _tolstop;                 /* Tolerance for the stopping criterion */
    double _tolred;                  /* Scaled tolerance (used in calculations) */
    double _epsdelta;                /* Tolerance for the search */

@@ -118,7 +118,7 @@ void VCloud::_setResult(int iech1,
   if (POLYGON == nullptr)
   {
     // Store in the output grid
-    _dbcloud->updArray(igrid, IPTR, 0, 1.);
+    _dbcloud->updArray(igrid, IPTR, EOperator::ADD, 1.);
   }
   else
   {

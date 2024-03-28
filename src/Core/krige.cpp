@@ -40,6 +40,7 @@
 #include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Matrix/MatrixFactory.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -273,166 +274,166 @@ static double st_get_idim(int loc_rank, int idim)
   return (value);
 }
 
-/****************************************************************************/
-/*!
- **  Calculate the covariance between two samples from two Db
- **
- ** \param[in]  model        Model structure
- ** \param[in]  flag_init    Initialize the array beforehand
- ** \param[in]  nugget_opt   Option for the nugget effect basic structure
- ** \li                       0 : no particular option
- ** \li                       1 : discard the nugget effect
- ** \li                      -1 : only consider the nugget effect
- ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
- ** \param[in]  member       Member of the Kriging System (ECalcMember)
- ** \param[in]  icov_r       rank of the target covariance or -1 for all
- ** \param[in]  weight       Weight attached to this calculation
- ** \param[in]  rank1        Rank of the first sample
- ** \param[in]  rank2        Rank of the second sample
- **
- ** \param[out] d1loc        Working array
- ** \param[out] covtab_loc   Output covariance array
- **
- *****************************************************************************/
-static void st_cov(Model *model,
-                   int flag_init,
-                   int nugget_opt,
-                   int nostd,
-                   const ECalcMember &member,
-                   int icov_r,
-                   double weight,
-                   int rank1,
-                   int rank2,
-                   VectorDouble d1loc,
-                   double *covtab_loc)
-{
-  DECLARE_UNUSED(nostd);
-  DECLARE_UNUSED(nugget_opt);
-
-  /* Initializations */
-
-  if (rank1 >= 0)
-  {
-    COVINT.setDb1(DBIN);
-    COVINT.setIcas1(1);
-    COVINT.setIech1(rank1);
-  }
-  else
-  {
-    COVINT.setDb1(DBOUT);
-    COVINT.setIcas1(2);
-    COVINT.setIech1(IECH_OUT);
-  }
-
-  if (rank2 >= 0)
-  {
-    COVINT.setDb2(DBIN);
-    COVINT.setIcas2(1);
-    COVINT.setIech2(rank2);
-  }
-  else
-  {
-    COVINT.setDb2(DBOUT);
-    COVINT.setIcas2(2);
-    COVINT.setIech2(IECH_OUT);
-  }
-
-  CovCalcMode mode(member);
-  mode.setActiveCovListFromOne(icov_r);
-  model_calcul_cov(&COVINT, model, &mode, flag_init, weight, d1loc, covtab_loc);
-}
-
-/****************************************************************************/
-/*!
- **  Internal recursive function for calculating covariance between data
- **  and data, when data are discretized
- **
- ** \param[in]  idim   Space dimension for current iteration (first point)
- ** \param[in]  jdim   Space dimension for current iteration (second point)
- ** \param[in]  it     Pointer to the Internal Disc_Structure
- **
- *****************************************************************************/
-static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
-{
-  double exts2, dsize, decal;
-
-  // Initialization
-
-  if (idim < it->model->getDimensionNumber() - 1)
-  {
-    idim = idim + 1;
-
-    // Loop in the current dimension
-
-    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
-    dsize = KOPTION->dsize[idim];
-
-    if (exts2 <= 0. || dsize <= 0.)
-    {
-
-      /* Punctual support */
-
-      d1_1_global[idim] = 0.;
-      st_data_discretize_dd(idim, jdim, it);
-    }
-    else
-    {
-
-      /* Implicit loop until reaching the edge of the data */
-
-      decal = -exts2 + dsize / 2.;
-      do
-      {
-        d1_1_global[idim] = decal;
-        st_data_discretize_dd(idim, jdim, it);
-        decal = decal + dsize;
-      }
-      while (decal < exts2);
-    }
-  }
-  else if (jdim < it->model->getDimensionNumber() - 1)
-  {
-    jdim = jdim + 1;
-
-    // Loop in the current dimension
-
-    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
-    dsize = KOPTION->dsize[jdim];
-
-    if (exts2 <= 0 || dsize <= 0.)
-    {
-      /* Punctual support */
-
-      d1_2_global[jdim] = 0.;
-      st_data_discretize_dd(idim, jdim, it);
-    }
-    else
-    {
-
-      /* Implicit loop until reaching the edge of the data */
-
-      decal = -exts2 + dsize / 2.;
-      do
-      {
-        d1_2_global[jdim] = decal;
-        st_data_discretize_dd(idim, jdim, it);
-        decal = decal + dsize;
-      }
-      while (decal < exts2);
-    }
-  }
-  else
-  {
-
-    // End of implicit loop on dimensions
-
-    it->ndtot++;
-    for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
-    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
-  }
-}
+///****************************************************************************/
+///*!
+// **  Calculate the covariance between two samples from two Db
+// **
+// ** \param[in]  model        Model structure
+// ** \param[in]  flag_init    Initialize the array beforehand
+// ** \param[in]  nugget_opt   Option for the nugget effect basic structure
+// ** \li                       0 : no particular option
+// ** \li                       1 : discard the nugget effect
+// ** \li                      -1 : only consider the nugget effect
+// ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
+// ** \param[in]  member       Member of the Kriging System (ECalcMember)
+// ** \param[in]  icov_r       rank of the target covariance or -1 for all
+// ** \param[in]  weight       Weight attached to this calculation
+// ** \param[in]  rank1        Rank of the first sample
+// ** \param[in]  rank2        Rank of the second sample
+// **
+// ** \param[out] d1loc        Working array
+// ** \param[out] covtab_loc   Output covariance array
+// **
+// *****************************************************************************/
+//static void st_cov(Model *model,
+//                   int flag_init,
+//                   int nugget_opt,
+//                   int nostd,
+//                   const ECalcMember &member,
+//                   int icov_r,
+//                   double weight,
+//                   int rank1,
+//                   int rank2,
+//                   VectorDouble d1loc,
+//                   double *covtab_loc)
+//{
+//  DECLARE_UNUSED(nostd);
+//  DECLARE_UNUSED(nugget_opt);
+//
+//  /* Initializations */
+//
+//  if (rank1 >= 0)
+//  {
+//    COVINT.setDb1(DBIN);
+//    COVINT.setIcas1(1);
+//    COVINT.setIech1(rank1);
+//  }
+//  else
+//  {
+//    COVINT.setDb1(DBOUT);
+//    COVINT.setIcas1(2);
+//    COVINT.setIech1(IECH_OUT);
+//  }
+//
+//  if (rank2 >= 0)
+//  {
+//    COVINT.setDb2(DBIN);
+//    COVINT.setIcas2(1);
+//    COVINT.setIech2(rank2);
+//  }
+//  else
+//  {
+//    COVINT.setDb2(DBOUT);
+//    COVINT.setIcas2(2);
+//    COVINT.setIech2(IECH_OUT);
+//  }
+//
+//  CovCalcMode mode(member);
+//  mode.setActiveCovListFromOne(icov_r);
+//  model_calcul_cov(&COVINT, model, &mode, flag_init, weight, d1loc, covtab_loc);
+//}
+//
+///****************************************************************************/
+///*!
+// **  Internal recursive function for calculating covariance between data
+// **  and data, when data are discretized
+// **
+// ** \param[in]  idim   Space dimension for current iteration (first point)
+// ** \param[in]  jdim   Space dimension for current iteration (second point)
+// ** \param[in]  it     Pointer to the Internal Disc_Structure
+// **
+// *****************************************************************************/
+//static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
+//{
+//  double exts2, dsize, decal;
+//
+//  // Initialization
+//
+//  if (idim < it->model->getDimensionNumber() - 1)
+//  {
+//    idim = idim + 1;
+//
+//    // Loop in the current dimension
+//
+//    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
+//    dsize = KOPTION->dsize[idim];
+//
+//    if (exts2 <= 0. || dsize <= 0.)
+//    {
+//
+//      /* Punctual support */
+//
+//      d1_1_global[idim] = 0.;
+//      st_data_discretize_dd(idim, jdim, it);
+//    }
+//    else
+//    {
+//
+//      /* Implicit loop until reaching the edge of the data */
+//
+//      decal = -exts2 + dsize / 2.;
+//      do
+//      {
+//        d1_1_global[idim] = decal;
+//        st_data_discretize_dd(idim, jdim, it);
+//        decal = decal + dsize;
+//      }
+//      while (decal < exts2);
+//    }
+//  }
+//  else if (jdim < it->model->getDimensionNumber() - 1)
+//  {
+//    jdim = jdim + 1;
+//
+//    // Loop in the current dimension
+//
+//    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
+//    dsize = KOPTION->dsize[jdim];
+//
+//    if (exts2 <= 0 || dsize <= 0.)
+//    {
+//      /* Punctual support */
+//
+//      d1_2_global[jdim] = 0.;
+//      st_data_discretize_dd(idim, jdim, it);
+//    }
+//    else
+//    {
+//
+//      /* Implicit loop until reaching the edge of the data */
+//
+//      decal = -exts2 + dsize / 2.;
+//      do
+//      {
+//        d1_2_global[jdim] = decal;
+//        st_data_discretize_dd(idim, jdim, it);
+//        decal = decal + dsize;
+//      }
+//      while (decal < exts2);
+//    }
+//  }
+//  else
+//  {
+//
+//    // End of implicit loop on dimensions
+//
+//    it->ndtot++;
+//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
+//    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
+//           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
+//  }
+//}
 
 int is_flag_data_disc_defined(void)
 {
@@ -449,66 +450,66 @@ void set_DBOUT(Db* dbout)
   DBOUT = dbout;
 }
 
-/****************************************************************************/
-/*!
- **  Internal recursive function for calculating covariance between data
- **  and target, when data is discretized
- **
- ** \param[in]  idim   Space dimension for current iteration
- ** \param[in]  it     Pointer to the Internal Disc_Structure
- **
- *****************************************************************************/
-static void st_data_discretize_dg(int idim, Disc_Structure *it)
-{
-  double exts2, dsize, decal;
-
-  // Initialization
-
-  if (idim < it->model->getDimensionNumber() - 1)
-  {
-    idim = idim + 1;
-
-    // Loop in the current dimension
-
-    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
-    dsize = KOPTION->dsize[idim];
-
-    if (exts2 <= 0. || dsize <= 0.)
-    {
-
-      /* Punctual support */
-
-      d1_1_global[idim] = 0.;
-      st_data_discretize_dg(idim, it);
-    }
-    else
-    {
-
-      /* Implicit loop until reaching the edge of the data */
-
-      decal = -exts2 + dsize / 2.;
-      do
-      {
-
-        d1_1_global[idim] = decal;
-        st_data_discretize_dg(idim, it);
-        decal = decal + dsize;
-      }
-      while (decal < exts2);
-    }
-  }
-  else
-  {
-
-    // End of implicit loop on dimensions
-
-    it->ndtot++;
-    for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t_global[i] = d1_global[i] + d1_1_global[i];
-    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
-  }
-}
+///****************************************************************************/
+///*!
+// **  Internal recursive function for calculating covariance between data
+// **  and target, when data is discretized
+// **
+// ** \param[in]  idim   Space dimension for current iteration
+// ** \param[in]  it     Pointer to the Internal Disc_Structure
+// **
+// *****************************************************************************/
+//static void st_data_discretize_dg(int idim, Disc_Structure *it)
+//{
+//  double exts2, dsize, decal;
+//
+//  // Initialization
+//
+//  if (idim < it->model->getDimensionNumber() - 1)
+//  {
+//    idim = idim + 1;
+//
+//    // Loop in the current dimension
+//
+//    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
+//    dsize = KOPTION->dsize[idim];
+//
+//    if (exts2 <= 0. || dsize <= 0.)
+//    {
+//
+//      /* Punctual support */
+//
+//      d1_1_global[idim] = 0.;
+//      st_data_discretize_dg(idim, it);
+//    }
+//    else
+//    {
+//
+//      /* Implicit loop until reaching the edge of the data */
+//
+//      decal = -exts2 + dsize / 2.;
+//      do
+//      {
+//
+//        d1_1_global[idim] = decal;
+//        st_data_discretize_dg(idim, it);
+//        decal = decal + dsize;
+//      }
+//      while (decal < exts2);
+//    }
+//  }
+//  else
+//  {
+//
+//    // End of implicit loop on dimensions
+//
+//    it->ndtot++;
+//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//      d1_t_global[i] = d1_global[i] + d1_1_global[i];
+//    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
+//           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
+//  }
+//}
 
 /****************************************************************************/
 /*!
@@ -785,6 +786,7 @@ static int st_krige_manage_basic(int mode,
                                  int nvar,
                                  int nfeq)
 {
+  DECLARE_UNUSED(nech);
   int neqmax, ncmax;
 
   /* Initializations */
@@ -792,7 +794,7 @@ static int st_krige_manage_basic(int mode,
   ncmax = nmax * nvar;
   neqmax = ncmax + nfeq;
   if (FLAG_COLK) neqmax += nvar;
-  if (FLAG_COLK) nech += 1;
+//  if (FLAG_COLK) nech += 1;
 
   /* Dispatch */
 
@@ -1128,7 +1130,7 @@ void krige_lhs_print(int nech,
                      int neq,
                      int nred,
                      int *flagloc,
-                     double *lhs)
+                     const double *lhs)
 {
   int *rel, i, j, ipass, npass, ideb, ifin;
 
@@ -2968,9 +2970,6 @@ int anakexp_3D(DbGrid *db,
  **
  ** \param[out] smean     Array for simulated posterior mean for the drift means
  **
- ** \remark The input array rcov is modified by this routine, due to
- ** \remark the use of the routine matrix_cholesky_decompose
- **
  *****************************************************************************/
 int bayes_simulate(Model *model,
                    int nbsimu,
@@ -3248,14 +3247,9 @@ static int* st_ranks_other(int nech,
  **
  ** \param[out] ntot_arg   Number of pivots
  ** \param[out] nutil_arg  Number of active samples
- ** \param[out] rutil_arg  Rank of the active samples
+ ** \param[out] rutil      Rank of the active samples
  ** \param[out] tutil_arg  Returned array for the U array
  ** \param[out] invsig_arg Returned array for Inverse Sigma
- **
- ** \remarks  The returned array must be freed by the calling function:
- ** \remarks  - rutil_arg  Array of integer - Dimension: nutil_arg
- ** \remarks  - tutil_arg  Array of float   - Dimension: nutil_arg * ntot_arg
- ** \remarks: - invsig_arg Array of float   - Dimension: ntot_arg * ntot_arg
  **
  *****************************************************************************/
 static int st_sampling_krige_data(Db *db,
@@ -3268,24 +3262,22 @@ static int st_sampling_krige_data(Db *db,
                                   int *rother,
                                   int *ntot_arg,
                                   int *nutil_arg,
-                                  int **rutil_arg,
+                                  VectorInt& rutil,
                                   double **tutil_arg,
                                   double **invsig_arg)
 {
-  int *isort, *ralls, *rutil;
-  int ndat, error, i, j, ntot, ntri, nother, npart, n1, ecr, nutil, nmax;
-  double *utab, *s, *tl, *xl, *c, *sq, *v, *tn1, *tn2, *eigval, *eigvec, *spart;
-  double *tutil, *invsig, *vsort, sumval;
+  int ndat, error, i, j, ntot, nother, npart, ecr, nutil, nmax;
+  double *utab, *s, *c, *tutil, *invsig, sumval;
+  VectorInt ralls;
+  VectorInt isort;
+  VectorDouble vsort;
 
   /* Initializations */
 
   error = 1;
-  utab = s = tl = xl = c = v = tn1 = tn2 = sq = nullptr;
-  eigval = eigvec = spart = vsort = tutil = invsig = nullptr;
-  isort = ralls = rutil = nullptr;
+  utab = s = c = tutil = invsig = nullptr;
   ndat = db->getSampleNumber(true);
   ntot = nsize1 + nsize2;
-  ntri = nsize2 * (nsize2 + 1) / 2;
   nother = ndat - ntot;
   npart = ndat - nsize1;
   nutil = 0;
@@ -3296,8 +3288,7 @@ static int st_sampling_krige_data(Db *db,
   if (utab == nullptr) goto label_end;
   for (i = 0; i < ndat * ntot; i++)
     utab[i] = 0.;
-  ralls = (int*) mem_alloc(sizeof(int) * ndat, 0);
-  if (ralls == nullptr) goto label_end;
+  ralls.resize(ndat, 0);
 
   /* Defining 'utab' for exact pivots */
 
@@ -3315,46 +3306,47 @@ static int st_sampling_krige_data(Db *db,
 
   if (nsize2 > 0)
   {
-    tl = (double*) mem_alloc(sizeof(double) * ntri, 0);
-    if (tl == nullptr) goto label_end;
-    xl = (double*) mem_alloc(sizeof(double) * ntri, 0);
-    if (xl == nullptr) goto label_end;
-    v = (double*) mem_alloc(sizeof(double) * nother * nsize2, 0);
-    if (v == nullptr) goto label_end;
-    sq = (double*) mem_alloc(sizeof(double) * nsize2 * nsize2, 0);
-    if (sq == nullptr) goto label_end;
-    tn1 = (double*) mem_alloc(sizeof(double) * nsize2 * nsize2, 0);
-    if (tn1 == nullptr) goto label_end;
-    tn2 = (double*) mem_alloc(sizeof(double) * nsize2 * nsize2, 0);
-    if (tn2 == nullptr) goto label_end;
-    eigval = (double*) mem_alloc(sizeof(double) * nsize2, 0);
-    if (eigval == nullptr) goto label_end;
-    eigvec = (double*) mem_alloc(sizeof(double) * nsize2 * nsize2, 0);
-    if (eigvec == nullptr) goto label_end;
     if (beta > 0.)
     {
-      vsort = (double*) mem_alloc(sizeof(double) * npart, 0);
-      if (vsort == nullptr) goto label_end;
-      isort = (int*) mem_alloc(sizeof(double) * npart, 0);
-      if (isort == nullptr) goto label_end;
+      vsort.resize(npart, 0);
+      isort.resize(npart, 0);
     }
 
     s = model_covmat_by_ranks(model, db, nsize2, ranks2, db, nsize2, ranks2, -1, -1);
     if (s == nullptr) goto label_end;
-    if (matrix_cholesky_decompose(s, tl, nsize2)) goto label_end;
-    matrix_triangle_to_square(0, nsize2, tl, sq);
-    matrix_cholesky_invert(nsize2, tl, xl);
+    MatrixSquareSymmetric mat_s = MatrixSquareSymmetric(nsize2);
+    mat_s.resetFromArray(nsize1, nsize1, s);
+
+    if (mat_s.choleskyDecompose()) goto label_end;
+    VectorDouble tl = mat_s.getCholeskyTL();
+
+    MatrixSquareSymmetric* sq = MatrixSquareSymmetric::createFromTriangle(0, nsize2, tl);
+
+    if (mat_s.choleskyInvert()) goto label_end;
+    VectorDouble xl = mat_s.getCholeskyXL();
+
     c = model_covmat_by_ranks(model, db, nsize2, ranks2, db, ndat, rother, -1, -1);
     if (c == nullptr) goto label_end;
-    matrix_cholesky_product(4, nsize2, nother, xl, c, v);
-    matrix_cholesky_norme(1, nsize2, tl, nullptr, tn1);
-    if (matrix_prod_norme(-1, nother, nsize2, v, NULL, tn2)) goto label_end;
-    matrix_combine(nsize2 * nsize2, 1, tn1, 1, tn2, tn1);
-    if (matrix_eigen(tn1, nsize2, eigval, eigvec)) goto label_end;
-    matrix_product_by_diag(3, nsize2, eigvec, eigval, eigvec);
-    spart = matrix_bind(1, nsize2, nsize2, sq, nother, nsize2, v, &npart, &n1);
-    if (spart == nullptr) goto label_end;
-    matrix_product(npart, nsize2, nsize2, spart, eigvec, spart);
+    MatrixRectangular mat_c = MatrixRectangular(nsize2, ndat);
+    mat_c.resetFromArray(nsize2, ndat, c);
+
+    MatrixRectangular v = mat_s.choleskyProductInPlace(4, nsize2, nother, xl, mat_c);
+
+    MatrixSquareSymmetric tn1 = mat_s.choleskyNormInPlace(1, nsize2, tl, MatrixSquareSymmetric());
+
+    MatrixSquareSymmetric* tn2 = dynamic_cast<MatrixSquareSymmetric*>
+      (MatrixFactory::prodMatMat(&v, &v, true, false));
+
+    tn1.linearCombination(1, &tn1, 1, tn2);
+
+    if (tn1.computeEigen()) goto label_end;
+    VectorDouble eigval = tn1.getEigenValues();
+    MatrixSquareGeneral* eigvec = tn1.getEigenVectors();
+
+    eigvec->prodByDiagInPlace(3, eigval);
+    MatrixRectangular* spart = dynamic_cast<MatrixRectangular*>
+      (MatrixFactory::createGlue(sq, &v, true, false));
+    spart->prodMatMatInPlace(spart, eigvec);
 
     if (beta > 0.)
     {
@@ -3362,36 +3354,28 @@ static int st_sampling_krige_data(Db *db,
       {
         sumval = 0.;
         for (j = 0; j < nsize2; j++)
-          sumval = MAX(sumval, ABS(SPART(i,j)));
+          sumval = MAX(sumval, ABS(spart->getValue(i,j)));
         vsort[i] = sumval;
         isort[i] = i;
       }
-      ut_sort_double(1, npart, isort, vsort);
+      ut_sort_double(1, npart, isort.data(), vsort.data());
       nmax = MIN(npart, (int ) (beta * (double ) npart));
       for (i = 0; i < nmax; i++)
         for (j = 0; j < nsize2; j++)
-          SPART(isort[i],j) = 0.;
+          spart->setValue(isort[i],j, 0.);
     }
 
     for (i = 0; i < npart; i++)
       for (j = 0; j < nsize2; j++)
-        UTAB(i+nsize1,j+nsize1) = -SPART(i, j);
+        UTAB(i+nsize1,j+nsize1) = -spart->getValue(i, j);
 
     /* Core deallocation */
 
-    tl = (double*) mem_free((char* ) tl);
-    xl = (double*) mem_free((char* ) xl);
-    v = (double*) mem_free((char* ) v);
     s = (double*) mem_free((char* ) s);
     c = (double*) mem_free((char* ) c);
-    sq = (double*) mem_free((char* ) sq);
-    tn1 = (double*) mem_free((char* ) tn1);
-    tn2 = (double*) mem_free((char* ) tn2);
-    spart = (double*) mem_free((char* ) spart);
-    vsort = (double*) mem_free((char* ) vsort);
-    eigval = (double*) mem_free((char* ) eigval);
-    eigvec = (double*) mem_free((char* ) eigvec);
-    isort = (int*) mem_free((char* ) isort);
+    delete sq;
+    delete tn2;
+    delete spart;
   }
 
   /* Count the number of active samples */
@@ -3407,8 +3391,7 @@ static int st_sampling_krige_data(Db *db,
 
   /* Create the output arrays */
 
-  rutil = (int*) mem_alloc(sizeof(int) * nutil, 0);
-  if (rutil == nullptr) goto label_end;
+  rutil.resize(nutil, 0);
   tutil = (double*) mem_alloc(sizeof(double) * ntot * nutil, 0);
   if (tutil == nullptr) goto label_end;
   invsig = (double*) mem_alloc(sizeof(double) * ntot * ntot, 0);
@@ -3425,19 +3408,17 @@ static int st_sampling_krige_data(Db *db,
       TUTIL(ecr,j) = UTAB(i, j);
     ecr++;
   }
-  s = model_covmat_by_ranks(model, db, nutil, rutil, db, nutil, rutil, -1, -1);
+  s = model_covmat_by_ranks(model, db, nutil, rutil.data(), db, nutil, rutil.data(), -1, -1);
   if (s == nullptr) goto label_end;
   if (matrix_prod_norme(-1, nutil, ntot, tutil, s, invsig)) goto label_end;
   if (matrix_invert(invsig, ntot, 0)) goto label_end;
   s = (double*) mem_free((char* ) s);
   utab = (double*) mem_free((char* ) utab);
-  ralls = (int*) mem_free((char* ) ralls);
 
   /* Returning arguments */
 
   *ntot_arg = ntot;
   *nutil_arg = nutil;
-  *rutil_arg = rutil;
   *tutil_arg = tutil;
   *invsig_arg = invsig;
 
@@ -3445,21 +3426,10 @@ static int st_sampling_krige_data(Db *db,
 
   error = 0;
 
-  label_end: utab = (double*) mem_free((char* ) utab);
-  tl = (double*) mem_free((char* ) tl);
-  xl = (double*) mem_free((char* ) xl);
-  v = (double*) mem_free((char* ) v);
+  label_end:
+  utab = (double*) mem_free((char* ) utab);
   s = (double*) mem_free((char* ) s);
   c = (double*) mem_free((char* ) c);
-  sq = (double*) mem_free((char* ) sq);
-  tn1 = (double*) mem_free((char* ) tn1);
-  tn2 = (double*) mem_free((char* ) tn2);
-  spart = (double*) mem_free((char* ) spart);
-  vsort = (double*) mem_free((char* ) vsort);
-  eigval = (double*) mem_free((char* ) eigval);
-  eigvec = (double*) mem_free((char* ) eigvec);
-  isort = (int*) mem_free((char* ) isort);
-  ralls = (int*) mem_free((char* ) ralls);
   return (error);
 }
 
@@ -3495,14 +3465,14 @@ int st_krige_data(Db *db,
                   double *data_est,
                   double *data_var)
 {
-  int *rutil, error, ntot, nutil, i, iech, nech;
+  int error, ntot, nutil, i, iech, nech;
   double *data, *tutil, *invsig, *s, *datm, *aux1, *aux2, *aux3, *aux4, *c00;
   double estim, variance, true_value;
+  VectorInt rutil;
 
   /* Initializations */
 
   error = 1;
-  rutil = nullptr;
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
 
@@ -3516,7 +3486,7 @@ int st_krige_data(Db *db,
   /* Perform local sampling */
 
   if (st_sampling_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2,
-                             rother, &ntot, &nutil, &rutil, &tutil, &invsig))
+                             rother, &ntot, &nutil, rutil, &tutil, &invsig))
     goto label_end;
 
   /* Second core allocation */
@@ -3549,7 +3519,7 @@ int st_krige_data(Db *db,
     if (rother[iech] < 0) continue;
     c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1);
     if (c00 == nullptr) goto label_end;
-    s = model_covmat_by_ranks(model, db, nutil, rutil, db, 1, &iech, -1, -1);
+    s = model_covmat_by_ranks(model, db, nutil, rutil.data(), db, 1, &iech, -1, -1);
     if (s == nullptr) goto label_end;
 
     matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
@@ -3578,7 +3548,6 @@ int st_krige_data(Db *db,
   error = 0;
 
   label_end: data = db_vector_free(data);
-  rutil = (int*) mem_free((char* ) rutil);
   tutil = (double*) mem_free((char* ) tutil);
   invsig = (double*) mem_free((char* ) invsig);
   datm = (double*) mem_free((char* ) datm);
@@ -3805,14 +3774,14 @@ int sampling_f(Db *db,
     {
       if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
                         1, data_est, data_var)) goto label_end;
-      best_rank = matrix_get_extreme(2, nech, data_est);
+      best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
       best_ecart = data_est[best_rank];
     }
     else
     {
       if (st_crit_global(db, model, nsize1, ranks1, rother, data_est))
         goto label_end;
-      best_rank = matrix_get_extreme(1, nech, data_est);
+      best_rank = VectorHelper::whereMinimum(VectorHelper::initVDouble(data_est, nech));
       best_ecart = data_est[best_rank];
     }
     if (verbose)
@@ -3829,7 +3798,7 @@ int sampling_f(Db *db,
   {
     if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
                       1, data_est, data_var)) goto label_end;
-    best_rank = matrix_get_extreme(2, nech, data_est);
+    best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
     best_ecart = data_est[best_rank];
     if (verbose)
       message("ACP   Pivots (%3d/%3d): Rank = %3d - value = %lf\n", nsize2 + 1,
@@ -3894,15 +3863,16 @@ int krigsampling_f(Db *dbin,
                    bool flag_std,
                    int verbose)
 {
-  int *rutil, *rother, error, nvar, ntot, nutil, i, nech;
+  int *rother, error, nvar, ntot, nutil, i, nech;
   double *tutil, *data, *invsig, *datm, *aux1, *aux2, *aux3, *aux4, *s, *c00;
   double estim, sigma;
+  VectorInt rutil;
 
   /* Preliminary checks */
 
   error = 1;
   sigma = 0.;
-  rutil = rother = nullptr;
+  rother = nullptr;
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
   st_global_init(dbin, dbout);
@@ -3946,7 +3916,7 @@ int krigsampling_f(Db *dbin,
   /* Perform local sampling */
 
   if (st_sampling_krige_data(dbin, model, beta, nsize1, ranks1, nsize2, ranks2,
-                             rother, &ntot, &nutil, &rutil, &tutil, &invsig))
+                             rother, &ntot, &nutil, rutil, &tutil, &invsig))
     goto label_end;
 
   /* Optional printout */
@@ -3954,7 +3924,7 @@ int krigsampling_f(Db *dbin,
   if (verbose)
   {
     message("Printout of intermediate arrays\n");
-    print_imatrix("Pivot ranks", 0, 1, 1, ntot, NULL, rutil);
+    print_imatrix("Pivot ranks", 0, 1, 1, ntot, NULL, rutil.data());
     print_matrix("Inv-Sigma", 0, 1, ntot, ntot, NULL, invsig);
     print_matrix("U", 0, 1, ntot, nutil, NULL, tutil);
   }
@@ -3998,7 +3968,7 @@ int krigsampling_f(Db *dbin,
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
     }
 
-    s = model_covmat_by_ranks(model, dbin, nutil, rutil, dbout, 1, &IECH_OUT, -1, -1);
+    s = model_covmat_by_ranks(model, dbin, nutil, rutil.data(), dbout, 1, &IECH_OUT, -1, -1);
     if (s == nullptr) goto label_end;
     if (FLAG_STD)
     {
@@ -4045,7 +4015,6 @@ int krigsampling_f(Db *dbin,
   error = 0;
 
   label_end: rother = (int*) mem_free((char* ) rother);
-  rutil = (int*) mem_free((char* ) rutil);
   tutil = (double*) mem_free((char* ) tutil);
   invsig = (double*) mem_free((char* ) invsig);
   data = (double*) mem_free((char* ) data);
@@ -4151,7 +4120,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
-    db->updArray(iech, iptr, 3, total);
+    db->updArray(iech, iptr, EOperator::DIVIDE, total);
   }
 }
 
@@ -4202,7 +4171,7 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
         dist += vect[idim] * vect[idim];
       }
       if (dist > 1) continue;
-      db->updArray(iech, iptr, 0, 1);
+      db->updArray(iech, iptr, EOperator::ADD, 1);
     }
   }
 

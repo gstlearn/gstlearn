@@ -739,23 +739,22 @@ double law_gaussian_between_bounds(double binf, double bsup)
  **
  ** \return  Gaussian density function
  **
- ** \param[in]  vect  Array of values (Dimension = 2)
- ** \param[in]  mean  Array of means (Dimension = 2)
- ** \param[in]  corr  Correlation matrix (Dimension: 2*2)
+ ** \param[in]  vect   Array of values (Dimension = 2)
+ ** \param[in]  mean   Array of means (Dimension = 2)
+ ** \param[in]  correl Correlation matrix (Dimension: 2*2)
  **
  *****************************************************************************/
-double law_df_bigaussian(double *vect, double *mean, double *corr)
-
+double law_df_bigaussian(VectorDouble &vect,
+                         VectorDouble &mean,
+                         MatrixSquareSymmetric& correl)
 {
-  double xc[2], detv, det2, logres, density;
-
+  VectorDouble xc(2);
   xc[0] = vect[0] - mean[0];
   xc[1] = vect[1] - mean[1];
-  detv = corr[0] * corr[3] - corr[1] * corr[2];
-  det2 = (corr[3] * xc[0] * xc[0] - corr[1] * xc[0] * xc[1] * 2.
-      + corr[0] * xc[1] * xc[1]);
-  logres = 2. * log(2. * GV_PI) + log(detv) + det2 / detv;
-  density = exp(-logres / 2.);
+  double detv = correl.getValue(0,0) * correl.getValue(1,1) - correl.getValue(0,1) * correl.getValue(1,0);
+  double det2 = (correl.getValue(1,1) * xc[0] * xc[0] - 2. * correl.getValue(0,1) * xc[0] * xc[1] + correl.getValue(0,0) * xc[1] * xc[1]);
+  double logres = 2. * log(2. * GV_PI) + log(detv) + det2 / detv;
+  double density = exp(-logres / 2.);
   return (density);
 }
 
@@ -765,33 +764,27 @@ double law_df_bigaussian(double *vect, double *mean, double *corr)
  **
  ** \return  Gaussian density function
  **
- ** \param[in]  vect  Array of values (Dimension = nvar)
- ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
+ ** \param[in]  vect   Array of values (Dimension = nvar)
+ ** \param[in]  correl Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-double law_df_quadgaussian(double *vect, double *corr)
+double law_df_quadgaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
 {
-  double eigval[4], eigvec[16], invcor[16], density;
-  int i, error, nvar;
+  int nvar = (int) vect.size();
+  double density = -2. * log(2 * GV_PI);
 
-  error = 1;
-  nvar = 4;
-  density = -2. * log(2 * GV_PI);
+  if (correl.computeEigen()) return TEST;
 
-  /* Processing */
+  VectorDouble eigval = correl.getEigenValues();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    density -= 0.5 * log(eigval[ivar]);
 
-  if (matrix_eigen(corr, nvar, eigval, eigvec)) goto label_end;
-  for (i = 0; i < nvar; i++)
-    density -= 0.5 * log(eigval[i]);
+  MatrixSquareSymmetric invcor = correl;
+  if (invcor.invert()) return TEST;
 
-  if (matrix_invert_copy(corr, nvar, invcor)) goto label_end;
-  density -= 0.5 * matrix_normA(vect, invcor, nvar, nvar);
-
+  density -= 0.5 * invcor.normVec(vect);
   density = exp(density);
-  error = 0;
-
-  label_end: if (error) density = TEST;
-  return (density);
+  return density;
 }
 
 /*****************************************************************************/
@@ -800,43 +793,27 @@ double law_df_quadgaussian(double *vect, double *corr)
  **
  ** \return  Gaussian density function
  **
- ** \param[in]  nvar  Number of variables
- ** \param[in]  vect  Array of values (Dimension = nvar)
- ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
+ ** \param[in]  vect   Array of values (Dimension = nvar)
+ ** \param[in]  correl Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-double law_df_multigaussian(int nvar, double *vect, double *corr)
+double law_df_multigaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
 
 {
-  double *eigval, *eigvec, *invcor, density;
-  int i, error;
+  int nvar = (int) vect.size();
+  double density = -0.5 * nvar * log(2 * GV_PI);
 
-  error = 1;
-  density = -0.5 * nvar * log(2 * GV_PI);
-  eigval = eigvec = invcor = nullptr;
+  if (correl.computeEigen()) return TEST;
+  VectorDouble eigval = correl.getEigenValues();
 
-  /* Core allocation */
-
-  eigval = (double*) mem_alloc(sizeof(double) * nvar, 1);
-  eigvec = (double*) mem_alloc(sizeof(double) * nvar * nvar, 1);
-  invcor = (double*) mem_alloc(sizeof(double) * nvar * nvar, 1);
-
-  /* Processing */
-
-  if (matrix_eigen(corr, nvar, eigval, eigvec)) goto label_end;
-  for (i = 0; i < nvar; i++)
+  for (int i = 0; i < nvar; i++)
     density -= 0.5 * log(eigval[i]);
 
-  if (matrix_invert_copy(corr, nvar, invcor)) goto label_end;
-  density -= 0.5 * matrix_normA(vect, invcor, nvar, nvar);
+  MatrixSquareSymmetric invcor(correl);
+  if (invcor.invert()) return TEST;
 
+  density -= invcor.normVec(vect);
   density = exp(density);
-  error = 0;
-
-  label_end: eigval = (double*) mem_free((char* ) eigval);
-  eigvec = (double*) mem_free((char* ) eigvec);
-  invcor = (double*) mem_free((char* ) invcor);
-  if (error) density = TEST;
   return (density);
 }
 

@@ -31,12 +31,12 @@ Gradient Information
 --------------------
   1 - Coor = 1.000000 6.000000 - Pot* =  -1.02142 - Grad* =    1.00000    0.00000
   2 - Coor = 9.000000 2.000000 - Pot* =  -1.28588 - Grad* =   -1.00000    1.00000
-  3 - Coor = 7.000000 8.000000 - Pot* =  -0.64295 - Grad* =   -0.00000   -1.00000
+  3 - Coor = 7.000000 8.000000 - Pot* =  -0.64295 - Grad* =    0.00000   -1.00000
 
 Tangent Information
 -------------------
   1 - Coor = 3.000000 7.000000 - Pot* =  -0.25454 - Grad* =    0.00000   -0.29469 - Tangent=    0.00000
-  2 - Coor = 9.000000 7.000000 - Pot* =  -0.78250 - Grad* =   -0.23520   -0.23520 - Tangent=   -0.00000
+  2 - Coor = 9.000000 7.000000 - Pot* =  -0.78250 - Grad* =   -0.23520   -0.23520 - Tangent=    0.00000
 
 Working in 1-D
 ==============
@@ -66,3 +66,27 @@ Iso-Potential Information
 Gradient Information
 --------------------
   1 - Coor = 0.000000 - Pot* =  -1.78509 - Grad* =    1.00000
+
+Environment summary
+===================
+Space dimension         = 1
+Number of Iso-Potential = 2
+Number of Gradients     = 1
+Number of Tangents      = 0
+Number of Isovalues     = 4
+Order of the drift      = 0
+Number of Drifts        = 0
+Number of Ext. Drifts   = 0
+Number of Equations     = 3
+
+Iso-Potential #1
+Cross-validation Error: Mean=-2.434777 St. Dev.=0.000000
+Standardized Error    : Mean=-2.011378 St. Dev.=0.000000
+Euclidean Distance    : Mean=4.127093 St. Dev.=0.000000
+Geodetic Distance     : Mean=34.831898 St. Dev.=0.000000
+
+Iso-Potential #2
+Cross-validation Error: Mean=-2.285751 St. Dev.=0.000000
+Standardized Error    : Mean=-1.747219 St. Dev.=0.000000
+Euclidean Distance    : Mean=10.815096 St. Dev.=0.000000
+Geodetic Distance     : Mean=41.333725 St. Dev.=0.000000

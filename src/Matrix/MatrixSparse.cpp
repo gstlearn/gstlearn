@@ -291,14 +291,10 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
 {
   if (isFlagEigen())
   {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,icol); it; ++it)
     {
-      if (k != icol) continue;
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-      {
-        int irow = it.row();
-        it.valueRef() = tab[irow];
-      }
+      int irow = it.row();
+      it.valueRef() = tab[irow];
     }
   }
   else
@@ -423,6 +419,21 @@ void MatrixSparse::_setValue(int irow, int icol, double value)
   {
     if (! _isIndexValid(irow, icol)) return;
     cs_set_value(_csMatrix, irow, icol, value);
+  }
+}
+
+void MatrixSparse::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+  {
+    double newval = modifyOperator(oper, _eigenMatrix.coeff(irow, icol), value);
+    _eigenMatrix.coeffRef(irow, icol) = newval;
+  }
+  else
+  {
+    if (! _isIndexValid(irow, icol)) return;
+    double newval = modifyOperator(oper, cs_get_value(_csMatrix, irow, icol), value);
+    cs_set_value(_csMatrix, irow, icol, newval);
   }
 }
 

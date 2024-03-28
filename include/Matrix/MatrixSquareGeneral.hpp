@@ -40,8 +40,6 @@ public:
   bool mustBeDiagonal() const override { return false; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
-  /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
   static MatrixSquareGeneral* createFromVVD(const VectorVectorDouble& X, int opt_eigen = -1);
   static MatrixSquareGeneral* createFromVD(const VectorDouble &X,
@@ -49,11 +47,17 @@ public:
                                            bool byCol = false,
                                            int opt_eigen = -1,
                                            bool invertColumnOrder = false);
-  MatrixSquareGeneral* createReduce(const VectorInt &validRows) const;
+
+  int decomposeLU(MatrixSquareGeneral& tls,
+                  MatrixSquareGeneral& tus,
+                  double eps = EPSILON20);
 
 private:
   /// Interface for AMatrix
-  virtual bool    _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSquare()); }
+  virtual bool    _isCompatible(const AMatrix& m) const override
+  {
+    return (isSameSize(m) && m.isSquare());
+  }
   virtual int     _getMatrixPhysicalSize() const override;
 
   virtual double& _getValueRef(int irow, int icol) override;
@@ -62,6 +66,7 @@ private:
   virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValueByRank(int irank, double value) override;
 
   virtual void    _transposeInPlace() override;
@@ -80,11 +85,21 @@ private:
   double  _getValueLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
+  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
   int     _invertLocal();
+  int     _invertLU();
+  int     _solveLU(const MatrixSquareGeneral& tus,
+                   const MatrixSquareGeneral& tls,
+                   const double *b,
+                   double *x);
+  int     _forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps = EPSILON20);
+  int     _backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps = EPSILON20);
+  int     _matrix_invreal(VectorDouble& mat, int neq);
+  int     _matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b);
 
 private:
   VectorDouble _squareMatrix; // Classical storage

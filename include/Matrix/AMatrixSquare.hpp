@@ -27,6 +27,8 @@ public:
 
 	/// Interface for AMatrix
   virtual double determinant(void) const;
+  /*! Check if the matrix is (non empty) square */
+  bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
 
   /*! Returns the size of the matrix (nrows=ncols) */
   int getNSize() const { return getNRows(); }
@@ -41,6 +43,10 @@ public:
   void prodDiagByVector(const VectorDouble& diag);
   /*! Divide the diagonal by a vector */
   void divideDiagByVector(const VectorDouble& diag);
+  /*! Multiply by a Diagonal matrix provided as VectorDouble (in place) */
+  void prodByDiagInPlace(int mode, const VectorDouble& c);
+
+  double normVec(const VectorDouble& vec);
 
 protected:
   void   _setNSize(int nval);

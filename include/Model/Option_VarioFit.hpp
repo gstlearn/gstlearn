@@ -15,6 +15,27 @@
 // WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
 
+/**
+ * This class defines the options and parameters used during the Variogram Fitting.
+ * All the parameters described hereafter are either available in the construction,
+ * or can be set using a specific get() function.
+ * - flag_noreduce: in the different iterations, some structures can be discarded
+ *                  if their importance is considered as too small.
+ *                  The current option forbids this simplification, which ensures
+ *                  that all the basic structures are kept and their number remains unchanged.
+ * - flag_ckec_bounds: Do not infer one parameter as soon as the two corresponding
+ *                  bounds are equal.
+ * - flag_goulard_used: This very efficient algorithm can be used for inferring
+ *                  the sill matrix for each basic structure. This option can be
+ *                  switched OFF on purpose (and replaced by the FOXLEG algorithm).
+ * - auth_aniso: When True, the inference looks for an anisotropic fit.
+ * - auth_rotation: When True, the inference looks for a possible rotation
+ * - lock_samerot: When True, the inference locks the same anisotropy for all basic structures
+ * - lock_rot2d: When True, the anisotropy is restricted to a rotation around Z-axis only
+ * - lock_no3D: When True, the inference parameters are limited to the 2-D space.
+ * - lock_iso2d: When True, the inference looks for a 2-D isotropic model
+ * - keep_instr: When True, at least ONE basic structure must be kept in the Model
+ */
 class GSTLEARN_EXPORT Option_VarioFit : public AStringable
 {
  public:

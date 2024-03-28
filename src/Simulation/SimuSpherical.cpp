@@ -140,7 +140,7 @@ int SimuSpherical::simulate(DbGrid *db,
         if (!db->isActive(jech)) continue;
         double phi = ut_deg2rad(db->getCoordinate(jech, 0));       // Longitude [0,360]
         double t2 = cos(phi * order_loc + phase_loc);
-        db->updArray(jech, iptr, 0, t1 * t2);
+        db->updArray(jech, iptr, EOperator::ADD, t1 * t2);
       }
     }
   }
@@ -150,7 +150,7 @@ int SimuSpherical::simulate(DbGrid *db,
   double val = 2. / sqrt((double) nbf);
   for (int iech = 0; iech < nech; iech++)
   {
-    if (db->isActive(iech)) db->updArray(iech, iptr, 3, val);
+    if (db->isActive(iech)) db->updArray(iech, iptr, EOperator::DIVIDE, val);
   }
   return 0;
 }

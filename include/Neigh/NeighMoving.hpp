@@ -80,7 +80,7 @@ public:
   const VectorDouble& getAnisoRotMats() const { return _biPtDist->getAnisoRotMats(); }
   const VectorDouble& getAnisoCoeffs() const { return _biPtDist->getAnisoCoeffs(); }
   double getAnisoCoeff(int i) const { return _biPtDist->getAnisoCoeff(i); }
-  const std::vector<ABiTargetCheck*> getBipts() const { return _bipts; }
+  const std::vector<ABiTargetCheck*>& getBipts() const { return _bipts; }
   const ABiTargetCheck* getBipts(int rank) const { return _bipts[rank]; }
 
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }

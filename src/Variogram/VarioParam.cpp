@@ -314,7 +314,7 @@ String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
   {
     sstr << "Number of Date Intervals    = " << getDateNumber() << std::endl;
     sstr << toMatrix("Matrix of Bounds for Data Intervals",VectorString(),VectorString(),
-                 false,2,getDateNumber(),getDates());
+                     false,getDateNumber(),2,getDates());
   }
 
   if (hasFaults())

@@ -1245,7 +1245,6 @@ int expandPointToGrid(Db *db_point,
 
   /* Loop on the grid nodes */
 
-  int npin = 0;
   int ip0 = 0;
   for (int ig = 0; ig < ng; ig++)
   {
@@ -1297,7 +1296,6 @@ int expandPointToGrid(Db *db_point,
 
     /* Set the value */
 
-    npin++;
     if (jpmin < 0)
       tab[ig] = TEST;
     else
@@ -1488,7 +1486,7 @@ int pointToBlock(Db *dbpoint,
 
     /* Increment the volume by one */
 
-    dbpoint->updArray(val_iech, iatt_vol, 0, 1.);
+    dbpoint->updArray(val_iech, iatt_vol, EOperator::ADD, 1.);
 
     /* Loop on the neighborhood nodes */
 
@@ -1513,7 +1511,7 @@ int pointToBlock(Db *dbpoint,
 
         /* Increment the perimeter by one */
 
-        dbpoint->updArray(val_iech, iatt_surf, 0, 1.);
+        dbpoint->updArray(val_iech, iatt_surf, EOperator::ADD, 1.);
 
         /* Set the edge */
 

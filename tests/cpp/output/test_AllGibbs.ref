@@ -48,8 +48,8 @@ Data Base Statistics
 6 - Name Gibbs - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -2.455
- Maximum value       =      2.486
- Mean value          =     -0.032
- Standard Deviation  =      1.088
- Variance            =      1.185
+ Minimum value       =     -1.895
+ Maximum value       =      1.837
+ Mean value          =     -0.187
+ Standard Deviation  =      0.745
+ Variance            =      0.556

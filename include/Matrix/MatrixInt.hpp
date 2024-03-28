@@ -33,7 +33,14 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static MatrixInt* createFromVI(const VectorInt &X,
+                                 int nrow,
+                                 int ncol,
+                                 bool byCol = false);
+  static MatrixInt* createFromVVI(const VectorVectorInt &X);
+
   void   reset(int nrows, int ncols);
+  void   resetFromArray(int nrows, int ncols, const int* tab, bool byCol = true);
   int    getValue(int irow, int icol) const;
   int    getValue(int irank) const;
 
@@ -56,8 +63,6 @@ public:
   int  getNRows() const { return _nRows; }
   void setNRows(int rows) { _nRows = rows; }
 
-  static MatrixInt* createFromVVD(const VectorVectorInt& X);
-
   /*! Get value operator override */
   int  operator()(int irow, int icol) const { return getValue(irow, icol); }
   /*! Set value operator override */
@@ -71,6 +76,7 @@ private:
   bool   _isNumbersValid(int nrows, int ncols) const;
   int    _getIndexToRank(int irow,int icol) const;
   int&   _getValueRef(int irow, int icol);
+  void   _transposeInPlace(int n1, int n2, int *v1, int *w1);
 
 private:
   int _nRows;

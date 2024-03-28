@@ -334,56 +334,6 @@ double cova_get_scale_factor(const ECov &type, double param)
   return scadef;
 }
 
-/*****************************************************************************/
-/*!
- **  Calculate the linear model of coregionalization starting from the
- **  coregionalization matrix
- **
- ** \return  Error return code.
- **
- ** \param[in]  model    Model structure
- **
- ** \param[out]  aic     array of 'aic' values
- ** \param[out]  valpro  array of eigen values
- ** \param[out]  vecpro  array of eigen vectors
- **
- ** \remark  In case of error, the message is printed by the routine
- ** \remark  Warning: in the case of linked drift, the test of definite
- ** \remark  positiveness is bypassed as we are not in the scope of the
- ** \remark  linear model of coregionalization anymore.
- ** \remark  As a consequence the array "aic()" is not evaluated
- **
- *****************************************************************************/
-int model_update_coreg(Model *model,
-                       double *aic,
-                       double *valpro,
-                       double *vecpro)
-{
-  int ncova = model->getCovaNumber();
-  int nvar  = model->getVariableNumber();
-
-  /* Calculate the eigen values and vectors of the coregionalization matrix */
-
-  for (int icov = 0; icov < ncova; icov++)
-  {
-    if (!is_matrix_definite_positive(
-        nvar, model->getCova(icov)->getSill().getValues().data(), valpro, vecpro, 0))
-    {
-      messerr("Warning: the model is not authorized");
-      messerr("The coregionalization matrix for the structure %d is not definite positive",
-          icov + 1);
-      return 1;
-    }
-
-    /* Calculate the factor matrix */
-
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        AIC(icov,ivar,jvar)= VECPRO(ivar,jvar) * sqrt(VALPRO(jvar));
-  }
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Calculate the value of the model for a set of distances
@@ -838,49 +788,6 @@ int model_drift_mat(Model *model,
       }
     }
   }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Establish the drift vector for a given sample of the Db
- **
- ** \param[in]  model  Model structure
- ** \param[in]  member Member of the Kriging System (ECalcMember)
- ** \param[in]  db     Db structure
- ** \param[in]  iech   Rank of the particular sample
- **
- ** \param[out] vector Returned vector
- **                    (Dimension = nvar * nfeq)
- **
- *****************************************************************************/
-int model_drift_vector(Model *model,
-                        const ECalcMember &member,
-                        Db *db,
-                        int iech,
-                        double *vector)
-{
-  if (st_check_model(model)) return 1;
-  if (st_check_environ(model, db)) return 1;
-  int nvar = model->getVariableNumber();
-  int nbfl = model->getDriftNumber();
-  int nfeq = model->getDriftEquationNumber();
-
-  /* Initialize the covariance matrix */
-
-  for (int i = 0; i < nvar * nfeq; i++) vector[i] = TEST;
-
-  VectorDouble drftab = model->evalDriftVec(db, iech, member);
-
-  int ecr = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int ib = 0; ib < nfeq; ib++)
-    {
-      double value = 0.;
-      for (int il = 0; il < nbfl; il++)
-        value += drftab[il] * model->getDriftCL(ivar, il, ib);
-      vector[ecr++] = value;
-    }
   return 0;
 }
 
@@ -1375,7 +1282,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Add the covariance of the first Model */
 
-  int ncov = 0;
   for (int i = 0; i < model1->getCovaNumber(); i++)
   {
     const CovAniso* cova = model1->getCova(i);
@@ -1390,7 +1296,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
       delete model;
       return nullptr;
     }
-    ncov++;
   }
 
   /* Add the covariance of the second Model */
@@ -1409,8 +1314,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
       delete model;
       return nullptr;
     }
-
-    ncov++;
   }
   return model;
 }
@@ -1839,16 +1742,18 @@ double model_calcul_stdev(Model* model,
  **
  ** \return Array containing the covariance matrix
  **
- ** \param[in]  model  Model structure
- ** \param[in]  db1    First Db
- ** \param[in]  nsize1 Number of selected samples
- ** \param[in]  ranks1 Array giving ranks of selected samples (optional)
- ** \param[in]  db2    Second Db
- ** \param[in]  nsize2 Number of selected samples
- ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
- ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
- ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
- ** \param[in]  mode       CovCalcMode structure
+ ** \param[in]  model   Model structure
+ ** \param[in]  db1     First Db
+ ** \param[in]  nsize1  Number of selected samples
+ ** \param[in]  ranks1  Array giving ranks of selected samples (optional)
+ ** \param[in]  db2     Second Db
+ ** \param[in]  nsize2  Number of selected samples
+ ** \param[in]  ranks2  Array giving ranks of selected samples (optional)
+ ** \param[in]  ivar0   Rank of the first variable (-1: all variables)
+ ** \param[in]  jvar0   Rank of the second variable (-1: all variables)
+ ** \param[in]  mode    CovCalcMode structure
+ ** \param[in]  verbose Verbose flag
+ ** \param[in]  eps     Tolerance for discarding a covariance value
  **
  ** \remarks The covariance matrix (returned) must be freed by calling routine
  ** \remarks The covariance matrix is established for the first variable
@@ -1866,7 +1771,9 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
                                         const VectorInt& ranks2,
                                         int ivar0,
                                         int jvar0,
-                                        const CovCalcMode *mode)
+                                        const CovCalcMode *mode,
+                                        double eps,
+                                        bool verbose)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -1896,12 +1803,13 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
   // Constitute the triplet
 
   NF_Triplet NF_T;
+  MatrixSquareGeneral mat0 = model->getTotalSills();
 
   /* Loop on the number of variables */
 
-  for (int ivar = 0; ivar < nvar1; ivar++)
+  for (int iivar = 0; iivar < nvar1; iivar++)
   {
-    if (ivar0 >= 0) ivar = ivar0;
+    int ivar = (ivar0 >= 0) ? ivar0 : iivar;
 
     /* Loop on the first sample */
 
@@ -1912,9 +1820,9 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
 
       /* Loop on the second variable */
 
-      for (int jvar = 0; jvar < nvar2; jvar++)
+      for (int jjvar = 0; jjvar < nvar2; jjvar++)
       {
-        if (jvar0 >= 0) jvar = jvar0;
+        int jvar = (jvar0 >= 0) ? jvar0 : jjvar;
 
         /* Loop on the second sample */
 
@@ -1947,13 +1855,28 @@ MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
 
           model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
           value = COVTAB(ivar, jvar);
-          if (ABS(value) < EPSILON10) continue;
+          if (ABS(value) < eps * mat0.getValue(ivar, jvar)) continue;
           NF_T.add(ecr1, ecr2, value);
           if (ecr1 != ecr2)
             NF_T.add(ecr2, ecr1, value);
         }
       }
     }
+  }
+
+  // Optional printout
+
+  if (verbose)
+  {
+    double ntotal = nvar * nvar * nsize1 * nsize2;
+    message("Calculation of Covariance Sparse matrix between:\n");
+    message("- First Db (%d ranks / %d samples)\n",db1->getSampleNumber(),nsize1);
+    message("- Second Db (%d ranks / %d samples)\n",db2->getSampleNumber(),nsize2);
+    message("- Number of variables = %d\n", nvar);
+    message("- Tolerance (compared to the sill) = %lf\n", eps);
+    message("- Number of elements stored = %d\n", NF_T.getNumber());
+    double reduc = 100. * (ntotal - (double) NF_T.getNumber()) / ntotal;
+    message("- Reduction percentage = %6.3lf\n", reduc);
   }
 
   // Convert from triplet to sparse matrix
@@ -2078,17 +2001,18 @@ int model_covmat(Model *model,
   return 0;
 }
 
-MatrixSquareSymmetric model_covmatM(Model *model,
-                                    Db *db1,
-                                    Db *db2,
-                                    int ivar0,
-                                    int jvar0,
-                                    const CovCalcMode*  mode)
+MatrixRectangular model_covmatM(Model *model,
+                                Db *db1,
+                                Db *db2,
+                                int ivar0,
+                                int jvar0,
+                                const CovCalcMode *mode)
 {
+  MatrixRectangular covmat;
   if (db2 == nullptr) db2 = db1;
-  if (st_check_model(model)) return 1;
-  if (st_check_environ(model, db1)) return 1;
-  if (st_check_environ(model, db2)) return 1;
+  if (st_check_model(model)) return covmat;
+  if (st_check_environ(model, db1)) return covmat;
+  if (st_check_environ(model, db2)) return covmat;
   int ndim = model->getDimensionNumber();
   int nvar = model->getVariableNumber();
   int nech1 = db1->getSampleNumber();
@@ -2097,13 +2021,13 @@ MatrixSquareSymmetric model_covmatM(Model *model,
   if (ivar0 >= 0)
   {
     nvar1 = 1;
-    if (st_check_variable(nvar, ivar0)) return 1;
+    if (st_check_variable(nvar, ivar0)) return covmat;
   }
   int nvar2 = nvar;
   if (jvar0 >= 0)
   {
     nvar2 = 1;
-    if (st_check_variable(nvar, jvar0)) return 1;
+    if (st_check_variable(nvar, jvar0)) return covmat;
   }
   bool flag_verr = (db1 == db2 && db1->getLocNumber(ELoc::V) == nvar);
 
@@ -2114,7 +2038,7 @@ MatrixSquareSymmetric model_covmatM(Model *model,
 
   int nactive1 = db1->getSampleNumber(true);
   int nactive2 = db2->getSampleNumber(true);
-  MatrixRectangular covmat(nvar1 * nactive1, nvar2 * nactive2);
+  covmat.reset(nvar1 * nactive1, nvar2 * nactive2);
 
   /* Loop on the first variable */
 

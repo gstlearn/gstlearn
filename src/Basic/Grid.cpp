@@ -496,7 +496,10 @@ void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
                                       bool flag_rotate) const
 {
   if ((int)coor.size() < _nDim)
-    my_throw("Argument coor should have the correct size");
+  {
+    messerr("Argument coor should have the correct size. Output argument 'coor' not modified.");
+    return;
+  }
 
   /* Calculate the coordinates in the grid system */
 
@@ -602,7 +605,10 @@ int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
                                      double eps) const
 {
   if ((int)indice.size() != _nDim)
-    my_throw("Argument indice should have the correct size");
+  {
+    messerr("Argument 'indice' should have the correct size. Output argument 'indice' not modified.");
+    return -1;
+  }
 
   // Check if all coordinates are defined
 
@@ -829,7 +835,13 @@ void Grid::iteratorInit(const VectorInt& order)
         if (rank == idim) found = true;
       }
       if (! found)
-        my_throw("When provided, 'order' should contain all Space dimensions");
+      {
+        messerr("When provided, 'order' should contain all Space dimensions. Iterator cancelled.");
+        _iter = 0;
+        _counts = VectorInt();
+        _order = VectorInt();
+        return;
+      }
     }
     _order = order;
   }

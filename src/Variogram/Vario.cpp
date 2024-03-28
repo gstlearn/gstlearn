@@ -181,11 +181,12 @@ Vario* Vario::computeFromDb(const VarioParam& varioparam,
                             bool flag_sample,
                             bool verr_mode,
                             Model *model,
+                            int niter_UK,
                             bool verbose)
 {
   Vario* vario = nullptr;
   vario = new Vario(varioparam);
-  if (vario->compute(db, calcul, flag_sample, verr_mode, model, verbose))
+  if (vario->compute(db, calcul, flag_sample, verr_mode, model, niter_UK, verbose))
   {
     return nullptr;
   }
@@ -342,7 +343,7 @@ int Vario::compute(Db* db,
                    const ECalcVario &calcul,
                    bool flag_sample,
                    bool verr_mode,
-                   Model *model,
+                   const Model *model,
                    int niter_UK,
                    bool verbose)
 {
@@ -363,7 +364,7 @@ int Vario::computeIndic(Db *db,
                         const ECalcVario& calcul,
                         bool flag_sample,
                         bool verr_mode,
-                        Model *model,
+                        const Model *model,
                         int niter_UK,
                         bool verbose,
                         int nfacmax)
@@ -2149,11 +2150,11 @@ double Vario::getCodir(int idir, int idim) const
 int Vario::_compute(Db *db,
                     int flag_sample,
                     int verr_mode,
-                    Model *model,
+                    const Model *model,
                     int niter_UK,
                     bool verbose)
 {
-  _model = model;
+  if (model != nullptr) _model = model->clone();
   _verbose = verbose;
   int norder = _get_generalized_variogram_order();
 
@@ -2165,7 +2166,7 @@ int Vario::_compute(Db *db,
     _flag_UK = true;
     _driftManage(db);
     _niter_UK = niter_UK;
-    if (_niter_UK > 0)
+    if (_niter_UK != 0)
     {
       if (isDefinedForGrid())
       {
@@ -2176,12 +2177,12 @@ int Vario::_compute(Db *db,
       // - a nugget effect
       // - an exponential covariance (with initial range set to 1 a,d sill to 1)
       // - a spherical covariance (with initial range set to 2, and sill to 1)
-      int ncov = model->getCovaNumber();
+      int ncov = _model->getCovaNumber();
       if (ncov <= 0)
       {
-        model->addCovFromParam(ECov::NUGGET);
-        model->addCovFromParam(ECov::EXPONENTIAL,  1.,  1.);
-        model->addCovFromParam(ECov::SPHERICAL, 2., 1.);
+        _model->addCovFromParam(ECov::NUGGET);
+        _model->addCovFromParam(ECov::EXPONENTIAL,  1.,  1.);
+        _model->addCovFromParam(ECov::SPHERICAL, 2., 1.);
       }
     }
   }
@@ -2312,7 +2313,7 @@ int Vario::_calculateGeneral(Db *db,
 
   /* Posterior update when filtering the bias attached to drift removal */
 
-  if (_flag_UK && _niter_UK > 0)
+  if (_flag_UK && _niter_UK != 0)
   {
     if (_updateUK(db, vorder)) return 1;
   }
@@ -2337,55 +2338,65 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
 {
   Option_VarioFit optvar;
   Option_AutoFit mauto;
-  double newval;
   int ifirst, ilast;
   Constraints constraints;
 
-  // Do not allow reducing the number of covariances in the Model during
-  // the different iterations.
+  // Do not allow reducing the number of covariances in the Model during iterations
   optvar.setFlagNoreduce(true);
 
-  /* Loop on the iterations */
+  // Particular case when 'niter_UK' is negative, we want to exhibit the bias alone:
+  // - the Model is supposed to be provided in input
+  // - only one iteration is performed
 
-  for (int iter = 0; iter < _niter_UK; iter++)
+  if (_niter_UK < 0)
   {
-
-    /* Perform the Automatic structure recognition */
-
-    if (model_auto_fit(this, _model, false, mauto, constraints, optvar)) return 1;
-
-    /* Calculate the global bias correction terms */
-
+    // Calculate the global bias correction terms
     _calculateBiasGlobal(db);
 
-    /* Optional printout */
-
-    if (_verbose)
-    {
-      message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
-      print_matrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
-                   _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
-    }
-
-    /* Loop on the directions */
-
+    // Loop on the directions
     for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
     {
 
-      /* Loop on the lags */
-
+      // Loop on the lags
       for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
       {
         vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
         if (ifirst > ilast) continue;
+        _calculateBiasLocal(db, idir, ipas, vorder, ifirst, ilast);
+      }
+    }
+    return 0;
+  }
 
-        /* Calculate the local bias correction terms */
+  // Loop on the iterations (when 'niter_UK' is positive
+  for (int iter = 0; iter < _niter_UK; iter++)
+  {
 
-        newval = _calculateBiasLocal(db, vorder, ifirst, ilast);
+    // Perform the Automatic structure recognition
+    if (model_auto_fit(this, _model, false, mauto, constraints, optvar)) return 1;
 
-        /* Patch the new value */
+    // Calculate the global bias correction terms
+    _calculateBiasGlobal(db);
 
-        setGg(idir, 0, 0, ipas, newval);
+    // Optional printout
+    if (_verbose)
+    {
+      message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
+      _model->display();
+      print_matrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
+                   _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
+    }
+
+    // Loop on the directions
+    for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
+    {
+
+      // Loop on the lags
+      for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
+      {
+        vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+        if (ifirst > ilast) continue;
+        _calculateBiasLocal(db, idir, ipas, vorder, ifirst, ilast);
       }
     }
   }
@@ -2397,15 +2408,21 @@ int Vario::_updateUK(Db *db, Vario_Order *vorder)
  **  Calculate the local bias terms
  **
  ** \param[in]  db        Db description
+ ** \param[in]  idir      Rank of the current direction
+ ** \param[in]  ipas      Rank of the current lag
  ** \param[in]  vorder    Vario_Order structure
  ** \param[in]  ifirst    Rank of the first lag
  ** \param[in]  ilast     Rank of the last lag
  **
+ ** \remarks: When '_niter_UK' < 0: the bias is stored instead of the variogram
+ **
  *****************************************************************************/
-double Vario::_calculateBiasLocal(Db *db,
-                                  Vario_Order *vorder,
-                                  int ifirst,
-                                  int ilast)
+void Vario::_calculateBiasLocal(Db *db,
+                                int idir,
+                                int ipas,
+                                Vario_Order *vorder,
+                                int ifirst,
+                                int ilast)
 {
   int iech, jech;
   double dist;
@@ -2428,16 +2445,19 @@ double Vario::_calculateBiasLocal(Db *db,
 
     double diff = v1 - v2;
     tot0 += diff * diff;
-    tot1 += _getBias(db, iiech, jjech);
+    tot1 += _getBias(iiech, jjech);
     tot2 += (_DRFDIAG[iiech] + _DRFDIAG[jjech]) / 2.;
     totnum += 1.;
   }
-
   tot0 /= 2.;
-  double result = tot0 - tot1 + tot2;
-  if (totnum > 0.) result /= totnum;
 
-  return (result);
+  if (totnum > 0.)
+  {
+    double oldval = tot0 / totnum;
+    double newval = (tot2 - tot1) / totnum;
+    if (_niter_UK > 0) newval += oldval;
+    setGg(idir, 0, 0, ipas, newval);
+  }
 }
 
 /****************************************************************************/
@@ -2503,7 +2523,7 @@ void Vario::_calculateBiasGlobal(Db *db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    _DRFDIAG[iiech] = _getBias(db, iiech, iiech);
+    _DRFDIAG[iiech] = _getBias(iiech, iiech);
     iiech++;
   }
 }
@@ -4343,16 +4363,16 @@ int Vario::_driftEstimateCoefficients(Db *db)
       _DRFTAB.setValue(iiech, il, drfloc[il]);
       b[il] += drfloc[il] * zval;
       for (int jl = 0; jl < nbfl; jl++)
-        matdrf.setValue(il,jl, matdrf(il,jl) + drfloc[il] * drfloc[jl]);
+        matdrf.setValue(il,jl, matdrf.getValue(il,jl) + drfloc[il] * drfloc[jl]);
     }
     iiech++;
   }
 
-  /* Calculate: A = (t(X) %*% X)-1 */
+  /* Calculate: matdrf = (t(X) %*% X)-1 */
 
   if (matdrf.invert()) return 1;
 
-  /* Calculate: _BETA = A %*% t(X) %*% Y */
+  /* Calculate: _BETA = (t(X) %*% X)-1 %*% t(X) %*% Y */
 
   matdrf.prodMatVecInPlace(b, _BETA);
 
@@ -4364,7 +4384,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
     print_matrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, NULL, matdrf.getValues().data());
   }
 
-  /* Pre-process the vector X %*% A */
+  /* Pre-process the vector X %*% (t(X) %*% X)-1 */
 
   _DRFXA.prodMatMatInPlace(&_DRFTAB, &matdrf);
 
@@ -4375,12 +4395,11 @@ int Vario::_driftEstimateCoefficients(Db *db)
 /*!
  **  Calculate the a bias term between samples iech and jech
  **
- ** \param[in]  db    Db structure
  ** \param[in]  iiech Relative rank of the first sample
  ** \param[in]  jjech Relative rank of the second sample
  **
  *****************************************************************************/
-double Vario::_getBias(Db *db, int iiech, int jjech)
+double Vario::_getBias(int iiech, int jjech)
 {
   int nbfl = _model->getDriftNumber();
 
@@ -4391,7 +4410,7 @@ double Vario::_getBias(Db *db, int iiech, int jjech)
 
   double bias1 = 0.;
   for (int il = 0; il < nbfl; il++)
-    bias1 += _DRFXA(iiech, il) * _DRFGX.getValue(jjech, il);
+    bias1 += _DRFXA.getValue(iiech, il) * _DRFGX.getValue(jjech, il);
 
   double bias2 = 0.;
   for (int il = 0; il < nbfl; il++)

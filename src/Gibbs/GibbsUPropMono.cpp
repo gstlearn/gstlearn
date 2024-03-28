@@ -72,7 +72,7 @@ int GibbsUPropMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   // Initialize the statistics (optional)
 
-  statsInit();
+  _statsInit();
 
   return 0;
 }
@@ -98,7 +98,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   Db* db = getDb();
   Model* model = getModels(0);
-  int nact  = getSampleRankNumber();
+  int nact  = _getSampleRankNumber();
   int ndim  = model->getDimensionNumber();
   int icase = getRank(ipgs,0);
 
@@ -164,5 +164,5 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  _updateStats(y, ipgs, iter);
 }

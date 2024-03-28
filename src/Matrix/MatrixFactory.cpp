@@ -124,26 +124,57 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
   return res;
 }
 
+/**
+ * Create a submatrix from an input matrix
+ * by specifying the list of rows and columns to be extracted or excluded
+ * @param x             Input matrix
+ * @param selRows       List of selected rows
+ * @param selCols       List of selected columns
+ * @param flagKeepRows  True if the selected rows must be kept (they must be excluded otherwise)
+ * @param flagKeepCols  True if the selected columns must be kept (they must be excluded otherwise)
+ * @return
+ *
+ * @remark If a list if not defined, the whole set of rows (resp. columns) is considered)
+ * @remark (this assumes that flagKeep is True)
+ */
 AMatrix* MatrixFactory::createReduce(const AMatrix *x,
-                                     const VectorInt &validRows,
-                                     const VectorInt &validCols)
+                                     const VectorInt &selRows,
+                                     const VectorInt &selCols,
+                                     bool flagKeepRows,
+                                     bool flagKeepCols)
 {
-  // Order and shrink the input vectors
-  VectorInt localValidRows = VH::filter(validRows, 0, x->getNRows());
-  VectorInt localValidCols = VH::filter(validCols, 0, x->getNCols());
-  int newNRows = (int) localValidRows.size();
-  int newNCols = (int) localValidCols.size();
+  int nrows = x->getNRows();
+  VectorInt localSelRows;
+  if (selRows.empty())
+    localSelRows = VH::sequence(nrows);
+  else
+  {
+    localSelRows = VH::filter(selRows, 0, x->getNRows());
+    if (!flagKeepRows) localSelRows = VH::complement(VH::sequence(nrows), localSelRows);
+  }
+  int newNRows = (int) localSelRows.size();
   if (newNRows <= 0)
   {
     messerr("The new Matrix has no Row left");
     return nullptr;
   }
+
+  int ncols = x->getNCols();
+  VectorInt localSelCols;
+  if (selCols.empty())
+    localSelCols = VH::sequence(ncols);
+  else
+  {
+    localSelCols = VH::filter(selCols, 0, x->getNCols());
+    if (!flagKeepCols) localSelCols = VH::complement(VH::sequence(ncols), localSelCols);
+  }
+  int newNCols = (int) localSelCols.size();
   if (newNCols <= 0)
   {
     messerr("The new Matrix has no Column left");
     return nullptr;
   }
-  bool flagSame = (localValidRows == localValidCols);
+  bool flagSame = (localSelRows == localSelCols);
 
   /// TODO : use typeinfo
   AMatrix* res = nullptr;
@@ -151,26 +182,128 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   const MatrixSquareGeneral*      mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
   const MatrixSquareSymmetric*    mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
 
-  if (mxrg != nullptr)
+  if (mxsym != nullptr)
   {
-    res = new MatrixRectangular(newNRows, newNCols);
-  }
-  else if (mxsg != nullptr)
-  {
-    if (flagSame)
-      res = new MatrixSquareGeneral(newNRows);
-    else
-      res = new MatrixRectangular(newNRows, newNCols);
-  }
-  else if (mxsym != nullptr)
-  {
+    // Case of a square symmetric input matrix
     if (flagSame)
       res = new MatrixSquareSymmetric(newNRows);
     else
       res = new MatrixRectangular(newNRows, newNCols);
   }
-  res->copyReduce(x, localValidRows, localValidCols);
+  else if (mxsg != nullptr)
+  {
+    // Case of a square general input matrix
+    if (flagSame)
+      res = new MatrixSquareGeneral(newNRows);
+    else
+      res = new MatrixRectangular(newNRows, newNCols);
+  }
+  else if (mxrg != nullptr)
+  {
+    // Case of a rectangular input matrix
+    res = new MatrixRectangular(newNRows, newNCols);
+  }
+  else
+    messageAbort("CreateReduce cannot be called for such matrix. This should never happen");
+
+  res->copyReduce(x, localSelRows, localSelCols);
 
   return res;
 }
 
+/**
+ * Create a submatrix from an input matrix by specifying the row and or column to be extracted or excluded
+ * @param x             Input matrix
+ * @param selRow        Rank of the selected row
+ * @param selCol        Rank of the selected column
+ * @param flagKeepRow   True if the selected row must be kept (it must be excluded otherwise)
+ * @param flagKeepCol   True if the selected column must be kept (it must be excluded otherwise)
+ * @return
+ *
+ * @remark If a rank is negative, the whole set of rows (resp. columns) is considered)
+ * @remark (this assumes that flagKeep is True)
+ */
+AMatrix* MatrixFactory::createReduceOne(const AMatrix *x,
+                                        int selRow,
+                                        int selCol,
+                                        bool flagKeepRow,
+                                        bool flagKeepCol)
+{
+  VectorInt localSelRows;
+  if (selRow >= 0)
+  {
+    localSelRows.resize(1);
+    localSelRows[0] = selRow;
+   }
+
+  VectorInt localSelCols;
+  if (selCol >= 0)
+  {
+    localSelCols.resize(1);
+    localSelCols[0] = selCol;
+  }
+  return MatrixFactory::createReduce(x, localSelRows, localSelCols, flagKeepRow, flagKeepCol);
+}
+
+/*****************************************************************************/
+/*!
+ **  Concatenate two matrices
+ **
+ ** \return Pointer on the newly created concatenated matrix (or NULL)
+ **
+ ** \param[in]  a1   Pointer to the first matrix
+ ** \param[in]  a2   Pointer to the second matrix
+ ** \param[in]  flagShiftRow Concatenate by Row
+ ** \param[in]  flagShiftCol Concatenate by Column
+ **
+ *****************************************************************************/
+AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
+                                   const AMatrix* a2,
+                                   bool flagShiftRow,
+                                   bool flagShiftCol)
+{
+  AMatrix *a = nullptr;
+
+  // Preliminary checks
+
+  bool isSparse = a1->isSparse();
+  if ((a1->isSparse() && ! a2->isSparse()) || (! a1->isSparse() && a2->isSparse()))
+  {
+    messerr("In 'createGlue()' both matrices should be sparse or not sparse");
+    return a;
+  }
+  int n11 = a1->getNRows();
+  int n12 = a1->getNCols();
+  int n21 = a2->getNRows();
+  int n22 = a2->getNCols();
+  if (flagShiftRow && ! isSparse)
+  {
+    if (n12 != n22)
+    {
+      messerr("Binding by row: Input matrices must share same column number");
+      return a;
+    }
+  }
+  if (flagShiftCol && ! isSparse)
+  {
+    if (n11 != n21)
+    {
+      messerr("Binding by column: Input matrices must share same row number");
+      return a;
+    }
+  }
+
+  /* Core allocation */
+
+
+  if (isSparse)
+  {
+    const MatrixSparse* aloc1 = dynamic_cast<const MatrixSparse*>(a1);
+    const MatrixSparse* aloc2 = dynamic_cast<const MatrixSparse*>(a2);
+    a = MatrixSparse::glue(aloc1, aloc2, flagShiftRow, flagShiftCol);
+  }
+  else
+    a = MatrixRectangular::glue(a1, a2, flagShiftRow, flagShiftCol);
+
+  return a;
+}

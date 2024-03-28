@@ -311,7 +311,7 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
   }
   else
   {
-    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
+    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
     {
       _covs[mode->getActiveCovList(i)]->evalMatInPlace(p1, p2, mat, mode);
     }

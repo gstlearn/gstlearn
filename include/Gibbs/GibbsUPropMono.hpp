@@ -33,10 +33,7 @@ public:
   GibbsUPropMono& operator=(const GibbsUPropMono &r);
   virtual ~GibbsUPropMono();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
+  void update(VectorVectorDouble &y, int isimu, int ipgs, int iter) override;
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
   double getEps() const { return _eps; }
