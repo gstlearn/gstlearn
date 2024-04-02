@@ -1,6 +1,6 @@
 New BSD License
 
-Copyright (c) 2023 MINES Paris - PSL
+Copyright (c) 2024 MINES Paris - PSL
 
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
@@ -11,11 +11,12 @@ modification, are permitted provided that the following conditions are met:
 * Redistributions in binary form must reproduce the above copyright
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
-* Neither the name of the University of California, Berkeley nor the
-  names of its contributors may be used to endorse or promote products
-  derived from this software without specific prior written permission.
+* Neither the name of the organizations to which the authors are
+  affiliated nor the names of its contributors may be used to endorse
+  or promote products derived from this software without specific prior
+  written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS "AS IS" AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
