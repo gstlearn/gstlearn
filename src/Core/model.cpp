@@ -315,27 +315,6 @@ int model_add_cova(Model *model,
 
 /****************************************************************************/
 /*!
- **  For a given basic structure, get the reduction factor to convert the
- **  theoretical to practical scale
- **
- ** \return  Conversion factor
- **
- ** \param[in]  type      Type of the basic structure
- ** \param[in]  param     Value of the third parameter
- **
- *****************************************************************************/
-double cova_get_scale_factor(const ECov &type, double param)
-{
-  CovContext ctxt = CovContext(1, 1);
-  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
-  cova->setParam(param);
-  double scadef = cova->getScadef();
-  delete cova;
-  return scadef;
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the value of the model for a set of distances
  **
  ** \return  Error return code
@@ -508,21 +487,6 @@ int model_grid(Model *model,
     g[iech] = COVTAB(ivar, jvar);
   }
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the number of external drift functions
- **
- ** \return  Number of external drift functions
- **
- ** \param[in]  model Model structure
- **
- *****************************************************************************/
-int model_nfex(Model *model)
-
-{
-  return model->getExternalDriftNumber();
 }
 
 /****************************************************************************/

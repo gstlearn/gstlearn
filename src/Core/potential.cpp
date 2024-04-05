@@ -515,7 +515,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     return false;
   }
 
-  int next = model_nfex(model);
+  int next = model->getExternalDriftNumber();
   if (dbout != NULL && next != dbout->getLocNumber(ELoc::F))
   {
     messerr("Inconsistency for External Drift between Model and Dbout");
@@ -810,7 +810,7 @@ static int st_update_model(Model *model, Pot_Env *pot_env)
   if (model->isDriftDefined(VectorInt(), 0)) nbfl--;
   pot_env->order =  model->getDriftMaxIRFOrder();
   pot_env->size_drf = nbfl;
-  pot_env->next = pot_env->size_ext = model_nfex(model);
+  pot_env->next = pot_env->size_ext = model->getExternalDriftNumber();
 
   return (0);
 }

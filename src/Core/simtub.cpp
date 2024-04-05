@@ -421,18 +421,18 @@ static int st_check_simtub_environment(Db *dbin,
       return 1;
     }
 
-    nfex = model_nfex(model);
+    nfex = model->getExternalDriftNumber();
     if (flag_cond && nfex != 0 && ! dbout->isGrid()
         && dbin->getLocNumber(ELoc::F) != nfex)
     {
-      messerr("The Model requires %d external drift(s)", model_nfex(model));
+      messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
       messerr("but the input Db refers to %d external drift variables",
               dbin->getLocNumber(ELoc::F));
       return 1;
     }
     if (nfex != 0 && dbout->getLocNumber(ELoc::F) != nfex)
     {
-      messerr("The Model requires %d external drift(s)", model_nfex(model));
+      messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
       messerr("but the output Db refers to %d external drift variables",
               dbout->getLocNumber(ELoc::F));
       return 1;

@@ -138,7 +138,7 @@ foreach(FLAVOR ${FLAVORS})
     
   # Link to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
-  target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
+  #target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
   
   # Link to HDF5
   if (USE_HDF5)

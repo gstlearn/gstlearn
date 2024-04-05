@@ -397,7 +397,6 @@ GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
                                         Model *model,
                                         const Constraints& constraints,
                                         const Option_AutoFit& mauto);
-GSTLEARN_EXPORT int model_nfex(Model *model);
 GSTLEARN_EXPORT int model_evaluate(Model *model,
                                    int ivar,
                                    int jvar,
@@ -509,7 +508,6 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
                                                 int *flag_rotation,
                                                 double *scale,
                                                 double *parmax);
-GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param);
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r);

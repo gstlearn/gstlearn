@@ -660,12 +660,12 @@ static int st_check_environment(int flag_in,
     }
 
     // External drifts
-    nfex = model_nfex(model);
+    nfex = model->getExternalDriftNumber();
     if (nfex > 0)
     {
       if (flag_out && DBOUT->getLocNumber(ELoc::F) != nfex)
       {
-        messerr("The Model requires %d external drift(s)", model_nfex(model));
+        messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
         messerr("but the output Db refers to %d external drift variables",
                 DBOUT->getLocNumber(ELoc::F));
         goto label_end;
@@ -675,7 +675,7 @@ static int st_check_environment(int flag_in,
       {
         if (!(flag_out && DBOUT->isGrid()))
         {
-          messerr("The Model requires %d external drift(s)", model_nfex(model));
+          messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
           messerr("but the input Db refers to %d external drift variables",
                   DBIN->getLocNumber(ELoc::F));
           goto label_end;
