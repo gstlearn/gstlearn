@@ -298,6 +298,8 @@ MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
  * @param db2  Pointer to the second Db
  * @param ivar Rank of the first variables
  * @param jvar Rank of the second variable
+ * @param eps  Epsilon used for randomization in calculation of CVV (optional)
+ * @param seed Seed for the randomization
  * @param mode CovCalcMode structure
  * @return
  */
@@ -305,8 +307,14 @@ double ACov::evalAverageDbToDb(const Db* db1,
                                const Db* db2,
                                int ivar,
                                int jvar,
+                               double eps,
+                               int seed,
                                const CovCalcMode* mode) const
 {
+  int memo = law_get_random_seed();
+  if (eps > 0. && seed > 0)
+    law_set_random_seed(seed);
+
   /* Loop on the first sample */
 
   double norme = 0.;
@@ -315,7 +323,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
   {
     if (!db1->isActive(iech1)) continue;
     double w1 = db1->getWeight(iech1);
-    if (w1 == 0.) continue;
+    if (isZero(w1)) continue;
     SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
 
     /* Loop on the second sample */
@@ -324,8 +332,14 @@ double ACov::evalAverageDbToDb(const Db* db1,
     {
       if (!db2->isActive(iech2)) continue;
       double w2 = db2->getWeight(iech2);
-      if (w2 == 0.) continue;
-      SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
+      if (isZero(w2)) continue;
+      VectorDouble coord2 = db2->getSampleCoordinates(iech2);
+      if (eps > 0)
+      {
+        for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+          coord2[idim] += eps * law_uniform(-0.5,  0.5);
+      }
+      SpacePoint p2(coord2,getSpace());
 
       /* Loop on the dimension of the space */
 
@@ -335,7 +349,10 @@ double ACov::evalAverageDbToDb(const Db* db1,
   }
 
   // Scaling
-  if (norme != 0.) total /= norme;
+  if (!isZero(norme)) total /= norme;
+
+  if (eps > 0. && seed > 0)
+    law_set_random_seed(memo);
 
   return total;
 }
@@ -398,7 +415,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   {
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
-    if (w2 == 0.) continue;
+    if (isZero(w2)) continue;
     SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
 
     /* Loop on the dimension of the space */
@@ -408,7 +425,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   }
 
   // Scaling
-  if (norme != 0.) total /= norme;
+  if (isZero(norme)) total /= norme;
 
   return total;
 }
@@ -520,7 +537,7 @@ double ACov::evalCvv(const VectorDouble& ext,
   Db* db = _discretizeBlockRandom(dbgrid);
   if (db == nullptr) return TEST;
 
-  double total = evalAverageDbToDb(dbgrid,  db, ivar, jvar, mode);
+  double total = evalAverageDbToDb(dbgrid,  db, ivar, jvar, 0., 0, mode);
   delete dbgrid;
   return total;
 }
@@ -569,7 +586,7 @@ double ACov::evalCvvShift(const VectorDouble& ext,
   DbGrid* dbgrid2 = _discretizeBlock(ext, ndisc, angles, shift);
   if (dbgrid2 == nullptr) return TEST;
 
-  double total = evalAverageDbToDb(dbgrid1,  dbgrid2, ivar, jvar, mode);
+  double total = evalAverageDbToDb(dbgrid1,  dbgrid2, ivar, jvar, 0., 0, mode);
   delete dbgrid1;
   delete dbgrid2;
   return total;
@@ -669,7 +686,7 @@ double ACov::evalCxv(const Db* db,
   double total = TEST;
   DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
-    total = evalAverageDbToDb(db, dbgrid, ivar, jvar, mode);
+    total = evalAverageDbToDb(db, dbgrid, ivar, jvar, 0., 0, mode);
   delete dbgrid;
 
   return total;

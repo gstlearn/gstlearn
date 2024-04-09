@@ -73,8 +73,8 @@
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
 #define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
-#define CORRECT(idir,k)         (vario->getHhByIndex(idir,k) != 0. && ! FFFF(vario->getHhByIndex(idir,k)) && \
-                                 vario->getSwByIndex(idir,k) != 0. && ! FFFF(vario->getSwByIndex(idir,k)) && \
+#define CORRECT(idir,k)         (! isZero(vario->getHhByIndex(idir,k)) && ! FFFF(vario->getHhByIndex(idir,k)) && \
+                                 ! isZero(vario->getSwByIndex(idir,k)) && ! FFFF(vario->getSwByIndex(idir,k)) && \
                                  ! FFFF(vario->getGgByIndex(idir,k)))
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
@@ -568,7 +568,7 @@ static int st_get_vario_dimension(Vario *vario,
         // The test on the number of pairs avoids hacking in the case
         // of a conventional construction where the number of pairs
         // for the first lag is arbitrarily set to 1.
-        if (hh0 == 0. && sw0 > 1.)
+        if (isZero(hh0) && sw0 > 1.)
         {
           int iad = vario->getNext(idir, ivar, jvar);
           double sw1 = vario->getSwByIndex(idir, iad);
@@ -788,15 +788,15 @@ static double st_get_c00(const Vario *vario, int idir, int ivar, int jvar)
 {
   int iad0 = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
   int iad = iad0;
-  if (vario->getGgByIndex(idir, iad) != 0. || vario->getSwByIndex(idir, iad) > 0)
+  if (! isZero(vario->getGgByIndex(idir, iad)) || vario->getSwByIndex(idir, iad) > 0)
     goto label_end;
 
   for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++)
   {
     iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-    if (vario->getGgByIndex(idir, iad) != 0) goto label_end;
+    if (! isZero(vario->getGgByIndex(idir, iad))) goto label_end;
     iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
-    if (vario->getGgByIndex(idir, iad) != 0) goto label_end;
+    if (! isZero(vario->getGgByIndex(idir, iad))) goto label_end;
   }
   iad = iad0;
 
@@ -1097,7 +1097,7 @@ static void st_load_wt(const Vario *vario,
       {
         for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
         {
-          if (flag[idir] == 0.) continue;
+          if (isZero(flag[idir])) continue;
           for (int ijvar = 0; ijvar < nvs2; ijvar++)
           {
             int shift = ijvar * vario->getLagTotalNumber(idir);
@@ -1125,7 +1125,7 @@ static void st_load_wt(const Vario *vario,
       {
         for (int ipas=0, npas = vario->getLagNumber(idir); ipas < npas; ipas++,ipadir++)
         {
-          if (flag[idir] == 0.) continue;
+          if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
           {
             int shift = ijvar * vario->getLagTotalNumber(idir);
@@ -1161,7 +1161,7 @@ static void st_load_wt(const Vario *vario,
       {
         for (int ipas=0, npas=vario->getLagNumber(idir); ipas < npas; ipas++,ipadir++)
         {
-          if (flag[idir] == 0.) continue;
+          if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
           {
             int shift = ijvar * vario->getLagTotalNumber(idir);
@@ -1189,7 +1189,7 @@ static void st_load_wt(const Vario *vario,
       {
         for (int ipas=0, npas=vario->getLagNumber(idir); ipas < npas; ipas++,ipadir++)
         {
-          if (flag[idir] == 0.) continue;
+          if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
           {
             int shift = ijvar * vario->getLagTotalNumber(idir);
@@ -1222,15 +1222,15 @@ static void st_load_wt(const Vario *vario,
       double total = 0.;
       for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
       {
-        if (flag[idir] == 0.) continue;
+        if (isZero(flag[idir])) continue;
         if (WT(ijvar,ipadir)> 0 && ! FFFF(WT(ijvar,ipadir)))
         total += WT(ijvar,ipadir);
       }
-      if (total == 0.) continue;
+      if (isZero(total)) continue;
       ipadir -= vario->getLagNumber(idir);
       for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
       {
-        if (flag[idir] == 0.) continue;
+        if (isZero(flag[idir])) continue;
         if (WT(ijvar,ipadir)> 0 && ! FFFF(WT(ijvar,ipadir)))
         WT(ijvar,ipadir) /= total;
       }
@@ -2300,16 +2300,16 @@ static int st_structure_reduce(StrMod *strmod,
   int nvar = model->getVariableNumber();
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, hmax);
-  VectorDouble tab(nvar * nvar);
+  MatrixSquareGeneral tab(nvar);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
   mode.setActiveCovListFromOne(icov);
   mode.setOrderVario(STRMOD->norder);
-  model_calcul_cov(NULL,model, &mode, 1, 1., d1, tab.data());
+  model->evaluateMatInPlace(nullptr, d1, tab, true, 1., &mode);
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    if (tab[ivar + nvar * ivar] > tolsigma * gmax / 100.) return (0);
+    if (tab.getValue(ivar, ivar) > tolsigma * gmax / 100.) return (0);
   }
   return (1);
 }
@@ -2756,11 +2756,11 @@ static double st_minimize_P4(int icov0,
         xt[k] = MAX(0., MIN(xrmax, xx[k]));
         xest[k] = (a * xt[k] * xt[k] * xt[k] * xt[k] + c * xt[k] * xt[k]
                    + d * xt[k]) / 2.;
-        if (xt[k] == xx[k]) nin++;
+        if (areEqual(xt[k], xx[k])) nin++;
       }
       if (nin == 1)
       {
-        retval = (xt[0] == xx[0]) ? xx[0] : xx[1];
+        retval = (areEqual(xt[0], xx[0])) ? xx[0] : xx[1];
       }
       else
       {
@@ -3089,7 +3089,7 @@ static int st_optimize_under_constraints(int nvar,
                                      xr, alpha, wt, gg, ge,
                                      constraints.getConstantSills());
 
-          if (xr[ivar0] == 0)
+          if (isZero(xr[ivar0]))
           {
             xr[ivar0] = 1.;
             for (int jcov = 0; jcov < ncova; jcov++)
@@ -3465,7 +3465,7 @@ static int st_sill_fitting_int(Model *model,
         double pivot = sill1[ijvar];
         for (int ipadir=0; ipadir<npadir; ipadir++)
         {
-          GG2(ijvar,ipadir) = (pivot == 0) ? 0. : GG(ijvar,ipadir) / pivot;
+          GG2(ijvar,ipadir) = (isZero(pivot)) ? 0. : GG(ijvar,ipadir) / pivot;
           WT2(ijvar,ipadir) = WT(ijvar,ipadir) * pivot * pivot;
           for (int icov=0; icov<ncova; icov++)
             GE2(icov,ijvar,ipadir) = GE(icov,ijvar,ipadir);
@@ -3930,7 +3930,7 @@ static int st_alter_model_optvar(const Vario *vario,
   {
     for (int idir = 0; idir < ndir; idir++)
     {
-      if (vario->getCodir(idir, 2) == 0)
+      if (isZero(vario->getCodir(idir, 2)))
         n_2d++;
       else
         n_3d++;
@@ -4235,7 +4235,7 @@ static void st_prepar_goulard_vmap(int imod)
   int nvs2 = nvar * (nvar + 1) / 2;
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
-  VectorDouble tab(nvar * nvar);
+  MatrixSquareGeneral tab(nvar);
   db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
@@ -4255,16 +4255,16 @@ static void st_prepar_goulard_vmap(int imod)
       db_index_sample_to_grid(DBMAP, ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
-      model_calcul_cov(NULL,model, &mode, 1, 1., d0, tab.data());
+      model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &mode);
 
       /* Loop on the variables */
 
       int ijvar = 0;
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          GE(icov,ijvar,ipadir) = tab[ijvar];
-        }
-      }
+          GE(icov,ijvar,ipadir) = tab.getValue(ivar, jvar);
+    }
+  }
   return;
 }
 
@@ -4336,13 +4336,14 @@ static void st_vario_varchol_manage(const Vario *vario,
   if (model->getCovMode() != EModelProperty::NONE)
   {
     Model* model_nugget = Model::createNugget(ndim, nvar);
-    VectorDouble aux(nvar * nvar);
-    model_calcul_cov(NULL, model, nullptr, 1, 1., VectorDouble(), aux.data());
-    int lec = 0;
+    MatrixSquareGeneral aux(nvar);
+    model->evaluateMatInPlace(nullptr, VectorDouble(), aux);
+
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++, lec++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
       {
-        double value = (ABS(aux[lec]) > 0.) ? vario->getVar(ivar, jvar) / aux[lec] : 0.;
+        double auxval = aux.getValue(ivar, jvar);
+        double value = (ABS(auxval) > 0.) ? vario->getVar(ivar, jvar) / auxval : 0.;
         mat.setValue(ivar, jvar, value);
       }
     delete model_nugget;

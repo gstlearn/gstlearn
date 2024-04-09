@@ -291,7 +291,7 @@ void GibbsMMulti::_updateStatWeights(int* nzero)
   for (int irow = 0, nrow = _getSize(); irow < nrow; irow++)
   {
     double wgt = _weights[irow];
-    if (ABS(wgt) < EPSILON10) (*nzero)++;
+    if (isZero(wgt)) (*nzero)++;
   }
 }
 

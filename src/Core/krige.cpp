@@ -340,7 +340,7 @@ static double st_get_idim(int loc_rank, int idim)
 //
 //  CovCalcMode mode(member);
 //  mode.setActiveCovListFromOne(icov_r);
-//  model_calcul_cov(&COVINT, model, &mode, flag_init, weight, d1loc, covtab_loc);
+//  model->evaluateMatInPlace(&COVINT, d1loc, covtab_loc, flag_init, weight, &mode);
 //}
 //
 ///****************************************************************************/
@@ -1635,39 +1635,33 @@ int global_transitive(DbGrid *dbgrid,
                       double *sse,
                       double *cvtrans)
 {
-  int idim, ndim, i, ix, iy, ix1, ix2, iy1, iy2, nx, ny, error, flag_value;
-  double c00, cvv, dx, dy, dsum, gint, dsse, wtot;
-  double value;
-  VectorDouble d1;
+  int i, ix, iy, ix1, ix2, iy1, iy2, nx, ny, flag_value;
+  double c00, cvv, dx, dy, dsum, gint, dsse, wtot, value;
   CovCalcMode mode;
 
   /* Initializations */
 
-  error = 1;
   cvv = wtot = dsse = gint = dsum = 0.;
   flag_value = 0;
   st_global_init(dbgrid, dbgrid);
-  if (st_check_environment(0, 1, model)) goto label_end;
-  ndim = dbgrid->getNDim();
-  d1.resize(2);
+  if (st_check_environment(0, 1, model)) return 1;;
+  int ndim = dbgrid->getNDim();
+  VectorDouble d1(ndim, 0.);
 
   if (ndim < 1 || ndim > 2)
   {
-    messerr(
-        "The transitive global estimation is implemented for 1 and 2 space only");
-    goto label_end;
+    messerr("The transitive global estimation is implemented for 1 and 2 space only");
+    return 1;
   }
   if (model->getVariableNumber() != 1)
   {
-    messerr(
-        "The transitive global estimation is implemented for 1 variable only");
-    goto label_end;
+    messerr("The transitive global estimation is implemented for 1 variable only");
+    return 1;
   }
 
   /* Core allocation */
 
-  for (idim = 0; idim < ndim; idim++) d1[idim] = 0.;
-  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &c00);
+  c00 = model->evaluateOneGeneric(nullptr, d1);
 
   /* Abundance estimation */
 
@@ -1699,12 +1693,13 @@ int global_transitive(DbGrid *dbgrid,
 
       /* Regular case */
 
+      dsse = 0.;
       for (ix = -nx + 1; ix <= nx; ix++)
         for (iy = -ny + 1; iy <= ny; iy++)
         {
           d1[0] = dx * ix;
           d1[1] = dy * iy;
-          model_calcul_cov(NULL,model, nullptr, 0, 1., d1, &dsse);
+          dsse += model->evaluateOneGeneric(nullptr, d1);
         }
       dsse *= dx * dy;
       // TODO : appeler model_integral
@@ -1716,6 +1711,7 @@ int global_transitive(DbGrid *dbgrid,
 
       /* Stratified case */
 
+      cvv = 0.;
       for (ix1 = 0; ix1 < ndisc; ix1++)
         for (iy1 = 0; iy1 < ndisc; iy1++)
           for (ix2 = 0; ix2 < ndisc; ix2++)
@@ -1723,7 +1719,7 @@ int global_transitive(DbGrid *dbgrid,
             {
               d1[0] = dx * (ix2 - ix1) / ndisc;
               d1[1] = dy * (iy2 - iy1) / ndisc;
-              model_calcul_cov(NULL,model, nullptr, 0, 1., d1, &cvv);
+              cvv += model->evaluateOneGeneric(nullptr, d1);
               wtot += 1.;
             }
       cvv /= wtot;
@@ -1744,12 +1740,13 @@ int global_transitive(DbGrid *dbgrid,
 
       /* Regular case */
 
+      dsse = 0.;
       for (ix = -nx + 1; ix <= nx; ix++)
       {
         d1[0] = dx * ix;
-        model_calcul_cov(NULL,model, nullptr, 0, 1., d1, &dsse);
+        dsse += model->evaluateOneGeneric(nullptr, d1);
       }
-      dsse *= dx;
+      dsse /= dx;
       // TODO: appeler model_integral
       // if (model_integral(model,ndisc,&gint)) goto label_end;
       *sse = dsse - gint;
@@ -1759,11 +1756,12 @@ int global_transitive(DbGrid *dbgrid,
 
       /* Stratified case */
 
+      cvv = 0.;
       for (ix1 = 0; ix1 < ndisc; ix1++)
         for (ix2 = 0; ix2 < ndisc; ix2++)
         {
           d1[0] = dx * (ix2 - ix1) / ndisc;
-          model_calcul_cov(NULL,model, nullptr, 0, 1., d1, &cvv);
+          cvv += model->evaluateOneGeneric(nullptr, d1);
           wtot += 1.;
         }
       cvv /= wtot;
@@ -1780,8 +1778,7 @@ int global_transitive(DbGrid *dbgrid,
   {
     *abundance = *cvtrans = TEST;
   }
-  (*sse) = (*sse > 0) ? sqrt(*sse) :
-                        0.;
+  (*sse) = (*sse > 0) ? sqrt(*sse) : 0.;
 
   /* Optional printout */
 
@@ -1813,12 +1810,7 @@ int global_transitive(DbGrid *dbgrid,
         message("Coefficient of Variation  = %lf\n", (*cvtrans));
     }
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -2239,23 +2231,21 @@ static void st_calculate_covres(DbGrid *db,
                                 int cov_nn[3],
                                 double *cov_res)
 {
-  double dx, dy, c00, covtot, covtab, covver;
-  int ix, iy, iz;
-  VectorDouble d1;
+  double covtab, covver;
 
   /* Initializations */
 
-  d1.resize(3,0.);
-  dx = db->getDX(0);
-  dy = db->getDX(1);
-  covtot = COV_REF(0);
-  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &c00);
+  VectorDouble d1(3,0.);
+  double dx = db->getDX(0);
+  double dy = db->getDX(1);
+  double covtot = COV_REF(0);
+  double c00 = model->evaluateOneGeneric(nullptr, d1);
 
   /* Evaluate the array of experimental covariance of the residual variable */
 
-  for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
-    for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
-      for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
+  for (int ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
+    for (int iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
+      for (int iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
       {
         if (!flag_sym)
           covver = COV_REF(iz);
@@ -2263,7 +2253,7 @@ static void st_calculate_covres(DbGrid *db,
           covver = (COV_REF(iz) + COV_REF(-iz)) / 2.;
         d1[0] = dx * ix;
         d1[1] = dy * iy;
-        model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &covtab);
+        covtab = model->evaluateOneGeneric(nullptr, d1);
         COV_RES(ix,iy,iz) = covver * (covtab + covtot - c00) / covtot;
       }
 
@@ -3156,7 +3146,7 @@ int krigsum(Db *dbin,
         seistot += lterm[ivar];
         seisloc -= estim;
       }
-      if (seistot == 0.)
+      if (isZero(seistot))
       {
         messerr("The sum of scaling terms is zero. No correction is possible");
         return 1;
@@ -4447,7 +4437,7 @@ static double* st_calcul_covmat(const char *title,
       for (int idim = 0; idim < db1->getNDim(); idim++)
         d1_global[idim] = db1->getDistance1D(ii1, ii2, idim);
 
-      model_calcul_cov(NULL,model, nullptr, 1, 1., d1_global, &COVGEN(i1, i2));
+      COVGEN(i1,i2) = model->evaluateOneGeneric(nullptr, d1_global);
       i2++;
     }
     i1++;
@@ -4782,32 +4772,20 @@ static double* st_inhomogeneous_covgp(Db *dbdat,
  ** \remarks The returned argument must be freed by the calling function
  **
  *****************************************************************************/
-static double* st_inhomogeneous_covgg(Db *dbsrc,
-                                      Db *dbout,
-                                      int flag_source,
-                                      Model *model_dat,
-                                      double *distgs,
-                                      double *prodgs)
+static VectorDouble st_inhomogeneous_covgg(Db *dbsrc,
+                                           Db *dbout,
+                                           int flag_source,
+                                           Model *model_dat,
+                                           double *distgs,
+                                           double *prodgs)
 {
-  int ng, ns, error;
-  double *covgg, c00;
-
-  /* Initializations */
-
-  error = 1;
-  covgg = nullptr;
-
-  ns = dbsrc->getSampleNumber(true);
-  ng = dbout->getSampleNumber(true);
-
-  /* Core allocation */
-
-  covgg = (double*) mem_alloc(sizeof(double) * ng, 0);
-  if (covgg == nullptr) goto label_end;
+  int ns = dbsrc->getSampleNumber(true);
+  int ng = dbout->getSampleNumber(true);
+  VectorDouble covgg(ng, 0);
 
   /* Calculate the variance term (for a zero-distance) */
 
-  model_calcul_cov(NULL,model_dat, nullptr, 1, 1., VectorDouble(), &c00);
+  double c00 = model_dat->evaluateOneGeneric(nullptr, VectorDouble());
 
   /* Calculate the variance vector */
 
@@ -4825,13 +4803,7 @@ static double* st_inhomogeneous_covgg(Db *dbsrc,
     for (int ig = 0; ig < ng; ig++)
       covgg[ig] = c00;
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error) covgg = (double*) mem_free((char* ) covgg);
-  return (covgg);
+  return covgg;
 }
 
 /****************************************************************************/
@@ -4987,11 +4959,12 @@ int inhomogeneous_kriging(Db *dbdat,
                           Model *model_src)
 {
   int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl;
-  double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
+  double *covss, *distps, *distgs, *covpp, *covgp, *prodps, *prodgs;
   double *data, *lambda, *driftp, *ymat, *zmat, *mu, *maux, *rhs;
   double estim, stdev, auxval;
   VectorInt nbgh_ranks;
   VectorDouble driftg;
+  VectorDouble covgg;
 
   /* Preliminary checks */
 
@@ -5001,7 +4974,7 @@ int inhomogeneous_kriging(Db *dbdat,
   FLAG_EST = true;
   FLAG_STD = true;
   distps = distgs = prodgs = prodps = nullptr;
-  covss = covpp = covgp = covgg = nullptr;
+  covss = covpp = covgp = nullptr;
   lambda = data = driftp = nullptr;
   ymat = zmat = mu = maux = nullptr;
   if (st_check_environment(1, 1, model_dat)) goto label_end;
@@ -5132,7 +5105,6 @@ int inhomogeneous_kriging(Db *dbdat,
 
   covgg = st_inhomogeneous_covgg(dbsrc, dbout, flag_source, model_dat, distgs,
                                  prodgs);
-  if (covgg == nullptr) goto label_end;
 
   /* Loop on the targets to be processed */
 
@@ -5224,7 +5196,6 @@ int inhomogeneous_kriging(Db *dbdat,
   driftp = (double*) mem_free((char* ) driftp);
   covpp = (double*) mem_free((char* ) covpp);
   covgp = (double*) mem_free((char* ) covgp);
-  covgg = (double*) mem_free((char* ) covgg);
   ymat = (double*) mem_free((char* ) ymat);
   zmat = (double*) mem_free((char* ) zmat);
   maux = (double*) mem_free((char* ) maux);

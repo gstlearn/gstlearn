@@ -20,6 +20,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Model/CovInternal.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
@@ -857,6 +858,23 @@ CovParamId Model::getCovParamId(int ipar) const
   return covalist->getCovParamId(ipar);
 }
 
+/****************************************************************************/
+/*!
+ **  Check if the non-stationary Model has a given non-stationary parameter
+ **
+ ** \return  1 if the given non-stationary parameter is defined; 0 otherwise
+ **
+ ** \param[in]   type0    Requested type (EConsElem)
+ **
+ *****************************************************************************/
+bool Model::isNostatParamDefined(const EConsElem &type0)
+{
+  if (! isNoStat()) return true;
+  const ANoStat *nostat = getNoStat();
+  if (nostat->isDefinedByType(type0)) return true;
+  return false;
+}
+
 const DriftList* Model::getDriftList() const
 {
   return _driftList;
@@ -1022,39 +1040,6 @@ VectorDouble Model::evalDriftCoefVec(const Db *db,
 }
 
 /**
- * Sample a Model for given variable(s) and given direction
- * @param hh     Vector of distances
- * @param ivar   Rank of the first variable
- * @param jvar   Rank of the second variable
- * @param codir  Vector of direction coefficients
- * @param mode   CovCalMode structure
- *
- * @return The array of variogram evaluated at discretized positions
- * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
- */
-VectorDouble Model::sample(const VectorDouble& hh,
-                           int ivar,
-                           int jvar,
-                           VectorDouble codir,
-                           const CovCalcMode* mode)
-{
-  VectorDouble gg;
-
-  if (ivar < 0 || ivar >= getVariableNumber()) return gg;
-  if (jvar < 0 || jvar >= getVariableNumber()) return gg;
-  int ndim = getDimensionNumber();
-  if (codir.empty())
-  {
-    (void) GH::rotationGetDirectionDefault(ndim, codir);
-  }
-  int nh = (int) hh.size();
-  gg.resize(nh);
-
-  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), gg.data());
-  return gg;
-}
-
-/**
  * Returns the value of the normalized covariance (by the variance/covariance value)
  * for a given pair of variables
  * @param hh    Vector of distances
@@ -1079,12 +1064,11 @@ VectorDouble Model::sampleUnitary(const VectorDouble &hh,
     (void) GH::rotationGetDirectionDefault(ndim, codir);
   }
   int nh = (int) hh.size();
-  VectorDouble gg(nh);
 
   double c00 = eval0(ivar, ivar, mode);
   double c11 = eval0(jvar, jvar, mode);
   c00 = sqrt(c00 * c11);
-  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), gg.data());
+  VectorDouble gg = sample(hh, codir, ivar, jvar, mode);
 
   for (int i = 0; i < nh; i++)
     gg[i] /= c00;
@@ -1110,11 +1094,8 @@ VectorDouble Model::envelop(const VectorDouble &hh,
   }
   int nh = (int) hh.size();
   VectorDouble gg(nh);
-  VectorDouble g1(nh);
-  VectorDouble g2(nh);
-
-  model_evaluate(this, ivar, ivar, mode, nh, codir, hh.data(), g1.data());
-  model_evaluate(this, jvar, jvar, mode, nh, codir, hh.data(), g2.data());
+  VectorDouble g1 = sample(hh, codir, ivar, ivar, mode);
+  VectorDouble g2 = sample(hh, codir, jvar, jvar, mode);
 
   for (int i = 0; i < nh; i++)
     gg[i] = isign * sqrt(abs(g1[i] * g2[i]));
@@ -1646,8 +1627,7 @@ double Model::gofToVario(const Vario *vario, bool verbose)
         // Evaluate the Model
 
         int npas = (int) gexp.size();
-        VectorDouble gmod(npas);
-        model_evaluate(this, ivar, jvar, &mode, npas, codir, hh.data(), gmod.data());
+        VectorDouble gmod = sample(hh, codir, ivar, jvar, &mode);
 
         // Evaluate the score
 
@@ -2026,7 +2006,7 @@ int Model::standardize(bool verbose)
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     total[ivar] = getTotalSill(ivar, ivar);
-    if (total[ivar] == 0.) return 1;
+    if (isZero(total[ivar])) return 1;
     total[ivar] = sqrt(total[ivar]);
     if (ABS(total[ivar] - 1.) > EPSILON6) flag_norm = true;
   }
@@ -2052,4 +2032,226 @@ int Model::standardize(bool verbose)
               total[ivar] * total[ivar]);
   }
   return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the value of the model for a set of distances
+ **
+ ** \return  Array containing the model values
+ **
+ ** \param[in]  ivar       Rank of the first variable
+ ** \param[in]  jvar       Rank of the second variable
+ ** \param[in]  codir      Array giving the direction coefficients (optional)
+ ** \param[in]  h          Vector of increments
+ ** \param[in]  mode       CovCalcMode structure
+ **
+ *****************************************************************************/
+VectorDouble Model::sample(const VectorDouble &h,
+                           const VectorDouble &codir,
+                           int ivar,
+                           int jvar,
+                           const CovCalcMode *mode)
+{
+  int nh   = (int) h.size();
+  int ndim = getDimensionNumber();
+  int nvar = getVariableNumber();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim);
+  MatrixSquareGeneral covtab(nvar);
+
+  /* Get the normalized direction vector */
+
+  VectorDouble codir_loc = codir;
+  if (codir_loc.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir_loc);
+  }
+  else
+  {
+    VH::normalizeCodir(ndim, codir_loc);
+  }
+
+  /* Loop on the lags */
+
+  VectorDouble g(nh);
+  for (int ih = 0; ih < nh; ih++)
+  {
+    double hh = h[ih];
+    for (int idim = 0; idim < ndim; idim++)
+      d1[idim] = hh * codir_loc[idim];
+    evaluateMatInPlace(NULL, d1, covtab, true, 1., mode);
+    g[ih] = covtab.getValue(ivar, jvar);
+  }
+  return g;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the value of the model for a set of distances
+ **
+ ** \return  The model value
+ **
+ ** \param[in]  ivar       Rank of the first variable
+ ** \param[in]  jvar       Rank of the second variable
+ ** \param[in]  mode       CovCalcMode structure
+ ** \param[in]  codir      Array giving the direction coefficients (optional)
+ ** \param[in]  hh         Vector of increments
+ **
+ *****************************************************************************/
+double Model::evaluateOneIncr(double hh,
+                              const VectorDouble &codir,
+                              int ivar,
+                              int jvar,
+                              const CovCalcMode *mode)
+{
+  int ndim = getDimensionNumber();
+  int nvar = getVariableNumber();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim);
+  MatrixSquareGeneral covtab(nvar);
+
+  /* Normalize the direction vector codir */
+
+  /* Get the normalized direction vector */
+
+  VectorDouble codir_loc = codir;
+  if (codir_loc.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir_loc);
+  }
+  else
+  {
+    VH::normalizeCodir(ndim, codir_loc);
+  }
+
+  for (int idim = 0; idim < ndim; idim++)
+    d1[idim] = hh * codir_loc[idim];
+  evaluateMatInPlace(NULL, d1, covtab, true, 1., mode);
+  return covtab.getValue(ivar, jvar);
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the covariances for an increment
+ **  This is the generic internal function
+ **  It can be called for stationary or non-stationary case
+ **
+ ** \param[in]  covint       Internal structure for non-stationarityAddress for the next term after the drift
+ **                          or NULL (for stationary case)
+ ** \param[in]  mode         CovCalcMode structure
+ ** \param[in]  flag_init    Initialize the array beforehand
+ ** \param[in]  weight       Multiplicative weight
+ ** \param[in]  d1           Distance vector
+ ** \param[out] covtab       Covariance array
+ **
+ *****************************************************************************/
+void Model::evaluateMatInPlace(CovInternal *covint,
+                               const VectorDouble &d1,
+                               MatrixSquareGeneral &covtab,
+                               bool flag_init,
+                               double weight,
+                               const CovCalcMode *mode)
+{
+  // Load the non-stationary parameters if needed
+
+  if (isNoStat() && covint != nullptr)
+  {
+    updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                      covint->getIcas2(), covint->getIech2());
+  }
+
+  // Evaluate the Model
+
+  MatrixSquareGeneral mat = evalNvarIpas(1., d1, mode);
+
+  int nvar = getVariableNumber();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double value = weight * mat.getValue(ivar, jvar);
+      if (flag_init)
+        covtab.setValue(ivar,jvar,value);
+      else
+        covtab.updValue(ivar,jvar, EOperator::ADD, value);
+      }
+  return;
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the covariance for an increment
+ **  This is the generic internal function
+ **  It can be called for stationary or non-stationary case
+ **
+ ** \param[in]  covint       Internal structure for non-stationarityAddress for the next term after the drift
+ **                          or NULL (for stationary case)
+ ** \param[in]  mode         CovCalcMode structure
+ ** \param[in]  weight       Multiplicative weight
+ ** \param[in]  d1           Distance vector
+ **
+ *****************************************************************************/
+double Model::evaluateOneGeneric(CovInternal *covint,
+                                 const VectorDouble &d1,
+                                 double weight,
+                                 const CovCalcMode *mode)
+{
+  // Load the non-stationary parameters if needed
+
+  if (isNoStat() && covint != nullptr)
+  {
+    updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                      covint->getIcas2(), covint->getIech2());
+  }
+
+  // Return the (weighted) Model value
+
+  return (weight * evalIvarIpas(1, d1, 0, 0, mode));
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the model on a Db
+ **
+ ** \param[in]  db         Db structure
+ ** \param[in]  ivar       Rank of the first variable
+ ** \param[in]  jvar       Rank of the second variable
+ ** \param[in]  mode       CovCalcMode structure
+ **
+ *****************************************************************************/
+VectorDouble Model::evaluateFromDb(Db *db,
+                                   int ivar,
+                                   int jvar,
+                                   const CovCalcMode *mode)
+{
+  if (getDimensionNumber() != db->getNDim())
+  {
+    messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
+            db->getNDim(), getDimensionNumber());
+    return VectorDouble();
+  }
+  int ndim = getDimensionNumber();
+  int nvar = getVariableNumber();
+  int nech = db->getSampleNumber();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim,0.);
+  MatrixSquareGeneral covtab(nvar);
+  VectorDouble gg(nech, TEST);
+
+  /* Loop on the lags */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    db_sample_load(db, ELoc::X, iech, d1.data());
+    evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
+    gg[iech] = covtab.getValue(ivar, jvar);
+  }
+  return gg;
 }

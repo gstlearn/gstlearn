@@ -26,7 +26,6 @@
 #define A(i,j)            (a[IAD(neq,i,j)])
 #define ACOV(i,j)         (acov[IAD(nech,i,j)])
 #define GS(i,j)           (gs[IAD(npar,i,j)])
-#define C(i,j)            (covtab[IAD(nlayers,i,j)])
 #define PHIA(i,ilayer)    (phia[IAD(nlayers,i,ilayer)])
 #define PHIB(i,ilayer)    (phib[IAD(nlayers,i,ilayer)])
 #define AA(i,ilayer2)     (aa[IAD(nlayer2,i,ilayer2)])
@@ -458,14 +457,14 @@ static double st_get_drift_data(LMlayers *lmlayers,
 static void st_covariance_c00(LMlayers *lmlayers,
                               Model  *model,
                               const VectorDouble& prop1,
-                              double *covtab,
+                              MatrixSquareGeneral& covtab,
                               double *c00)
 {
   int nlayers, flag_interrupt;
   double value;
 
   nlayers = lmlayers->nlayers;
-  model_calcul_cov(NULL,model, nullptr, 1, 1., VectorDouble(), covtab);
+  model->evaluateMatInPlace(nullptr, VectorDouble(), covtab, true);
 
   if (lmlayers->flag_cumul)
   {
@@ -479,7 +478,7 @@ static void st_covariance_c00(LMlayers *lmlayers,
           if (FFFF(prop1[i]) || FFFF(prop1[j]))
             flag_interrupt = 1;
           else
-            value += prop1[i] * prop1[j] * C(i, j);
+            value += prop1[i] * prop1[j] * covtab.getValue(i, j);
         }
       c00[k] = (flag_interrupt) ? TEST : value;
     }
@@ -487,7 +486,7 @@ static void st_covariance_c00(LMlayers *lmlayers,
   else
   {
     for (int k = 0; k < nlayers; k++)
-      c00[k] = C(k, k);
+      c00[k] = covtab.getValue(k, k);
   }
 }
 
@@ -517,16 +516,9 @@ static double st_cij(LMlayers *lmlayers,
                      int jlayer,
                      const VectorDouble& prop2,
                      double *dd,
-                     double *covtab)
+                     MatrixSquareGeneral& covtab)
 {
-  double value;
-  int i, j, nlayers;
-  VectorDouble d1;
-
-  /* Initializations */
-
-  nlayers = lmlayers->nlayers;
-  d1.resize(2);
+  VectorDouble d1(2);
   st_check_layer("st_cij", lmlayers, ilayer);
   st_check_layer("st_cij", lmlayers, jlayer);
 
@@ -534,17 +526,17 @@ static double st_cij(LMlayers *lmlayers,
 
   d1[0] = (dd != nullptr) ? dd[0] : 0.;
   d1[1] = (dd != nullptr) ? dd[1] : 0.;
-  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
+  model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
   /* Evaluate the covariance term */
 
-  value = 0.;
-  for (i = 0; i < ilayer; i++)
-    for (j = 0; j < jlayer; j++)
+  double value = 0.;
+  for (int i = 0; i < ilayer; i++)
+    for (int j = 0; j < jlayer; j++)
     {
       if (FFFF(prop1[i])) return (TEST);
       if (FFFF(prop2[j])) return (TEST);
-      value += prop1[i] * prop2[j] * C(i, j);
+      value += prop1[i] * prop2[j] * covtab.getValue(i, j);
     }
   return (value);
 }
@@ -573,16 +565,9 @@ static double st_ci0(LMlayers *lmlayers,
                      const VectorDouble& prop1,
                      int jlayer,
                      double *dd,
-                     double *covtab)
+                     MatrixSquareGeneral& covtab)
 {
-  double value;
-  int i, nlayers;
-  VectorDouble d1;
-
-  /* Initializations */
-
-  nlayers = lmlayers->nlayers;
-  d1.resize(2);
+  VectorDouble d1(2);
   st_check_layer("st_ci0", lmlayers, ilayer);
   st_check_layer("st_ci0", lmlayers, jlayer);
 
@@ -590,15 +575,15 @@ static double st_ci0(LMlayers *lmlayers,
 
   d1[0] = (dd != nullptr) ? dd[0] : 0.;
   d1[1] = (dd != nullptr) ? dd[1] : 0.;
-  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
+  model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
   /* Evaluate the covariance term */
 
-  value = 0.;
-  for (i = 0; i < ilayer; i++)
+  double value = 0.;
+  for (int i = 0; i < ilayer; i++)
   {
     if (FFFF(prop1[i])) return (1);
-    value += prop1[i] * C(i, jlayer - 1);
+    value += prop1[i] * covtab.getValue(i, jlayer - 1);
   }
   return (value);
 }
@@ -692,7 +677,7 @@ static int st_lhs_one(LMlayers *lmlayers,
                       double *coor,
                       VectorDouble& prop0,
                       VectorDouble& prop2,
-                      double *covtab,
+                      MatrixSquareGeneral& covtab,
                       VectorDouble& b)
 {
   int jech, jjech, jfois, jlayer, nlayers, i;
@@ -767,7 +752,7 @@ static int st_rhs(LMlayers *lmlayers,
                   int ilayer0,
                   VectorDouble& prop0,
                   VectorDouble& prop2,
-                  double *covtab,
+                  MatrixSquareGeneral& covtab,
                   VectorDouble& b)
 {
   int jech, jjech, i, jlayer, ipos, ifois, nlayers, ideb;
@@ -853,7 +838,7 @@ static int st_lhs(LMlayers *lmlayers,
                   VectorInt& seltab,
                   VectorDouble& prop1,
                   VectorDouble& prop2,
-                  double *covtab,
+                  MatrixSquareGeneral& covtab,
                   double *a,
                   double *acov)
 {
@@ -1238,7 +1223,7 @@ static int st_collocated_prepare(LMlayers *lmlayers,
                                  VectorDouble& zval,
                                  VectorDouble& prop1,
                                  VectorDouble& prop2,
-                                 double *covtab,
+                                 MatrixSquareGeneral& covtab,
                                  double *b2,
                                  VectorDouble& baux,
                                  double *ratio)
@@ -1458,7 +1443,7 @@ static void st_estimate(LMlayers *lmlayers,
                         double *dual,
                         VectorDouble& prop1,
                         VectorDouble& prop2,
-                        double *covtab,
+                        MatrixSquareGeneral& covtab,
                         VectorDouble& b,
                         double *b2,
                         VectorDouble& baux,
@@ -2016,8 +2001,9 @@ int multilayers_kriging(Db *dbin,
                         int verbose)
 {
   int nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
-  double *a, *b2, *dual, *covtab, *c00, *wgt;
+  double *a, *b2, *dual, *c00, *wgt;
   double *acov, *atot, *a0, *cc, *ss, *gs, *post_mean, *post_S;
+  MatrixSquareGeneral covtab;
   bool flag_created;
   ELoc ptime;
   VectorInt seltab;
@@ -2033,7 +2019,6 @@ int multilayers_kriging(Db *dbin,
 
   error = 1;
   flag_created = false;
-  covtab = nullptr;
   a = b2 = dual = nullptr;
   c00 = wgt = nullptr;
   acov = atot = nullptr;
@@ -2161,7 +2146,7 @@ int multilayers_kriging(Db *dbin,
   zval.resize(neq);
   dual = (double*) mem_alloc(sizeof(double) * neq, 1);
   wgt = (double*) mem_alloc(sizeof(double) * neq, 1);
-  covtab = (double*) mem_alloc(sizeof(double) * nlayers * nlayers, 1);
+  covtab = MatrixSquareGeneral(nlayers);
   c00 = (double*) mem_alloc(sizeof(double) * nlayers, 1);
   if (flag_bayes)
   {
@@ -2229,7 +2214,6 @@ int multilayers_kriging(Db *dbin,
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
-  covtab = (double*) mem_free((char* ) covtab);
   dual = (double*) mem_free((char* ) dual);
   atot = (double*) mem_free((char* ) atot);
   acov = (double*) mem_free((char* ) acov);

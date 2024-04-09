@@ -448,7 +448,7 @@ void AMatrix::setIdentity(double value)
  */
 void AMatrix::addScalar(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
   for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
     _setValueByRank(rank, _getValueByRank(rank) + v);
 }
@@ -459,7 +459,7 @@ void AMatrix::addScalar(double v)
  */
 void AMatrix::addScalarDiag(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
   for (int irow = 0; irow < _nRows; irow++)
   {
     for (int icol = 0; icol < _nCols; icol++)
@@ -479,7 +479,7 @@ void AMatrix::addScalarDiag(double v)
  */
 void AMatrix::prodScalar(double v)
 {
-  if (v == 1.) return;
+  if (isOne(v)) return;
   for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
     _setValueByRank(rank, _getValueByRank(rank) * v);
 }
@@ -1000,7 +1000,7 @@ NF_Triplet AMatrix::getMatrixToTriplet(int shiftRow, int shiftCol) const
     {
       if (!isValid(irow, icol)) continue;
       double value = getValue(irow, icol);
-      if (ABS(value) < EPSILON10) continue;
+      if (isZero(value)) continue;
       NF_T.add(irow+shiftRow, icol+shiftCol, value);
     }
 

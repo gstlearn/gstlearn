@@ -22,6 +22,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/FFT.hpp"
+#include "Basic/Utilities.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
@@ -826,7 +827,7 @@ const VectorDouble CovAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
   double max = VH::maximum(coef);
-  if (max < EPSILON10)
+  if (isZero(max))
   {
     messerr("Range is null");
     return VectorDouble();

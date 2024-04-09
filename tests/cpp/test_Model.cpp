@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   VectorDouble hh = VH::sequence(0., 3., 3./50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  VH::display("\nModel sampled",modellmc.sample(hh,0,0,VectorDouble(),&mode));
+  VH::display("\nModel sampled",modellmc.sample(hh,VectorDouble(),0,0,&mode));
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  VH::display("\nTapered Model",modeltape.sample(hh,0,0,VectorDouble(),&mode));
+  VH::display("\nTapered Model",modeltape.sample(hh,VectorDouble(),0,0,&mode));
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   modelconv.setCovList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  VH::display("\nConvoluted Model", modelconv.sample(hh,0,0,VectorDouble(),&mode));
+  VH::display("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));
 
   // Serialization of the Model
   Model* modelS = Model::createFromEnvironment(1, 3);

@@ -15,6 +15,7 @@
 #include "Estimation/KrigingSystem.hpp"
 #include "Estimation/CalcKrigingFactors.hpp"
 #include "Anamorphosis/AAnam.hpp"
+#include "Model/Model.hpp"
 
 CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
     : ACalcInterpolator(),

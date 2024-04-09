@@ -2483,7 +2483,6 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
 
   mestitle(1, "Checking Gaussian of data against closest grid node");
 
-
   /* Loop on the data */
 
   int number = 0;

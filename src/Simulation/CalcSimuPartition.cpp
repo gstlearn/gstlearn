@@ -230,12 +230,12 @@ bool CalcSimuPartition::_poisson()
   return true;
 }
 
-double CalcSimuPartition::_stackSearch(const std::vector<Stack>& stacks,
-                                   double valref)
+double CalcSimuPartition::_stackSearch(const std::vector<Stack> &stacks,
+                                       double valref)
 {
   for (int i = 0; i < (int) stacks.size(); i++)
   {
-    if (stacks[i].valref == valref) return stacks[i].valsim;
+    if (areEqual(stacks[i].valref,valref)) return stacks[i].valsim;
   }
   return TEST;
 }

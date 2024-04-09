@@ -661,7 +661,7 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    if (useSel && !sel.empty() && sel[iech] == 0) continue;
+    if (useSel && !sel.empty() && isZero(sel[iech])) continue;
     tab[ecr] = getArray(iech, iuid);
     ecr++;
   }
@@ -1393,7 +1393,7 @@ void Db::setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel)
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
 
     double value = TEST;
     if (defined)
@@ -1453,7 +1453,7 @@ void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
     defined = true;
-    if (!sel.empty()) defined = (sel[iech] == 1);
+    if (!sel.empty()) defined = (isOne(sel[iech]));
 
     if (defined)
       setArray(iech, iuid, tab[lec++]);
@@ -1589,7 +1589,7 @@ int Db::addSelection(const VectorDouble &tab,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      sel[iech] = (tab[iech] != 0.) ? 1. : 0.;
+      sel[iech] = (! isZero(tab[iech])) ? 1. : 0.;
     }
   }
 
@@ -2549,7 +2549,7 @@ int Db::getSelection(int iech) const
   if (!hasLocVariable(ELoc::SEL)) return 1;
   double value = getFromLocator(ELoc::SEL, iech, 0);
   if (FFFF(value)) return 0;
-  int sel = (value != 0) ? 1 :  0;
+  int sel = (! isZero(value)) ? 1 :  0;
   return (sel);
 }
 
@@ -2571,7 +2571,7 @@ GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
   int count = 0;
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    if (getFromLocator(ELoc::SEL, iech, 0) != 0) count++;
+    if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
   }
   return count;
 }
@@ -2626,7 +2626,7 @@ int Db::getSampleNumber(bool useSel) const
     int count = 0;
     for (int iech = 0; iech < getSampleNumber(); iech++)
     {
-      if (getFromLocator(ELoc::SEL, iech, 0) != 0) count++;
+      if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
     }
     return count;
   }
@@ -2669,7 +2669,7 @@ VectorDouble Db::getWeights(bool useSel) const
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    if (useSel && !sel.empty() && sel[iech] == 0) continue;
+    if (useSel && !sel.empty() && isZero(sel[iech])) continue;
     if (icol >= 0)
       tab[ecr] = getValueByColIdx(iech, icol);
     else

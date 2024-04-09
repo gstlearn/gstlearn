@@ -4129,54 +4129,56 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
                                 int *iconf,
                                 double *cov)
 {
-  double cov0[4], covh[4], cround;
+  double cround;
 
   const Rule *rule = local_pgs->rule;
   int nvar = local_pgs->model->getVariableNumber();
   int ngrf = local_pgs->rule->getGRFNumber();
+  MatrixSquareGeneral cov0(nvar);
+  MatrixSquareGeneral covh(nvar);
 
   /* Calculate the covariance for the zero distance */
   for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
     local_pgs->d0[i] = 0.;
-  model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, cov0);
+  local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, cov0);
 
   /* Calculate the covariance for the given shift */
-  model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d1, covh);
+  local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d1, covh);
 
   if (rule->getModeRule() == ERule::STD)
   {
-    cov[0] = covh[0]; /* C11(h)  */
+    cov[0] = covh.getValue(0,0); /* C11(h)  */
     if (ngrf > 1)
     {
-      cov[1] = cov0[1]; /* C21(0)  */
-      cov[2] = covh[2]; /* C21(-h) */
-      cov[3] = covh[1]; /* C21(h)  */
-      cov[4] = cov0[2]; /* C21(0)  */
-      cov[5] = covh[3]; /* C22(h)  */
+      cov[1] = cov0.getValue(1,0); /* C21(0)  */
+      cov[2] = covh.getValue(0,1); /* C21(-h) */
+      cov[3] = covh.getValue(1,0); /* C21(h)  */
+      cov[4] = cov0.getValue(0,1); /* C21(0)  */
+      cov[5] = covh.getValue(1,1); /* C22(h)  */
     }
   }
   else if (rule->getModeRule() == ERule::SHIFT)
   {
     RuleShift *ruleshift = (RuleShift*) rule;
-    cov[0] = covh[0]; /* C11(h)  */
-    cov[5] = (nvar == 1) ? covh[0] : covh[3]; /* C22(h)  */
+    cov[0] = covh.getValue(0,0); /* C11(h)  */
+    cov[5] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,1); /* C22(h)  */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = ruleshift->getShift(i);
 
-    model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, covh);
-    cov[1] = (nvar == 1) ? covh[0] : covh[1]; /* C21(s)  */
-    cov[4] = (nvar == 1) ? covh[0] : covh[1]; /* C21(s)  */
+    local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
+    cov[1] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(s)  */
+    cov[4] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(s)  */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] - ruleshift->getShift(i);
-    model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, covh);
-    cov[2] = (nvar == 1) ? covh[0] : covh[1]; /* C21(h-s) */
+    local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
+    cov[2] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(h-s) */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] + ruleshift->getShift(i);
-    model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, covh);
-    cov[3] = (nvar == 1) ? covh[0] : covh[1]; /* C21(h+s)  */
+    local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
+    cov[3] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(h+s)  */
   }
   else
     messageAbort("This rule is not expected in st_calcul_covmatrix");

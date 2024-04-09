@@ -203,7 +203,7 @@ Vario* Vario::createRegularizeFromModel(const Model& model,
   DECLARE_UNUSED(asCov);
   Vario* vario = nullptr;
   vario = new Vario(varioparam);
-  if (vario->modelRegularize(model, ext, ndisc, angles))
+  if (vario->regularizeFromModel(model, ext, ndisc, angles))
   {
     messerr("Error when calculating the regularized variogram");
     return nullptr;
@@ -680,12 +680,12 @@ int Vario::transformYToZ(const AAnam *anam)
  ** \param[in]  asCov     When true; produces a covariance
  **
  *****************************************************************************/
-int Vario::modelRegularize(const Model& model,
-                           const VectorDouble& ext,
-                           const VectorInt& ndisc,
-                           const VectorDouble& angles,
-                           const CovCalcMode* mode,
-                           bool asCov)
+int Vario::regularizeFromModel(const Model &model,
+                               const VectorDouble &ext,
+                               const VectorInt &ndisc,
+                               const VectorDouble &angles,
+                               const CovCalcMode *mode,
+                               bool asCov)
 {
   int ndim = model.getDimensionNumber();
   int nvar = model.getVariableNumber();
@@ -729,11 +729,102 @@ int Vario::modelRegularize(const Model& model,
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++)
         {
-          double value = model.evalCvvShift(ext, ndisc, shift, angles, ivar,
-                                            jvar, mode);
+          double value = model.evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
           if (! asCov) value = getVar(ivar, jvar) - value;
           int iad = getDirAddress(idir, ivar, jvar, ipas, false, 0);
           setGgByIndex(idir, iad, value);
+          setHhByIndex(idir, iad, dist);
+          setSwByIndex(idir, iad, 1);
+        }
+    }
+  }
+  return 0;
+}
+
+MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
+                                              const Db &db,
+                                              const VectorDouble &incr,
+                                              const CovCalcMode *mode)
+{
+  int nvar = getVariableNumber();
+  int nech = db.getSampleNumber(true);
+  int ndim = getDimensionNumber();
+  int norme = nech * nech;
+
+  MatrixSquareGeneral mat(nvar);
+  VectorDouble dd(ndim);
+  MatrixSquareGeneral covtab(nvar);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! db.isActive(iech)) continue;
+    for (int jech = 0; jech < nech; jech++)
+    {
+      if (! db.isActive(jech)) continue;
+
+      // Calculate the distance between the two samples
+      db.getDistanceVec(iech, jech, dd);
+      if (! incr.empty()) VH::addInPlace(dd, incr);
+
+      // Evaluate the covariance matrix between two samples
+      model->evaluateMatInPlace(nullptr, dd, covtab, false, 1., mode);
+    }
+  }
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      mat.setValue(ivar, jvar, covtab.getValue(ivar, jvar) / norme);
+  return mat;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the regularized model as an experimental variogram
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  model     Model structure
+ ** \param[in]  db        Db discretization structure
+ ** \param[in]  mode      CovCalcMode structure
+ **
+ *****************************************************************************/
+int Vario::regularizeFromDbGrid(Model* model,
+                                const Db& db,
+                                const CovCalcMode* mode)
+{
+  int nvar = model->getVariableNumber();
+  setNVar(nvar);
+  internalVariableResize();
+  internalDirectionResize();
+
+  /* Calculate the Cvv (for a zero-shift) */
+
+  MatrixSquareGeneral c00tab = _evalAverageDbIncr(model, db, VectorDouble(), mode);
+
+  /* Initialize the variance array */
+
+  setVars(c00tab.getValues());
+
+  /* Loop on the directions */
+
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+
+    /* Loop on the number of lags */
+
+    for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
+    {
+      double dist = ipas * getDPas(idir);
+      VectorDouble dd = getCodirs(idir);
+      VH::multiplyConstant(dd, dist);
+
+      MatrixSquareGeneral covtab = _evalAverageDbIncr(model, db, dd, mode);
+
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++)
+        {
+          int iad = getDirAddress(idir, ivar, jvar, ipas, false, 0);
+          setGgByIndex(idir, iad, c00tab.getValue(ivar,jvar) - covtab.getValue(ivar,jvar));
           setHhByIndex(idir, iad, dist);
           setSwByIndex(idir, iad, 1);
         }
@@ -1593,7 +1684,7 @@ int Vario::getNext(int ivar, int jvar, int idir, int shift) const
   {
     iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
     if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] != 0. && _hh[idir][iad] != 0.) count++;
+    if (! isZero(_sw[idir][iad]) && ! isZero(_hh[idir][iad])) count++;
   }
   return iad;
 }
@@ -2469,7 +2560,7 @@ void Vario::_calculateBiasLocal(Db *db,
  *****************************************************************************/
 void Vario::_calculateBiasGlobal(Db *db)
 {
-  double c00, covtab, value;
+  double covtab, value;
 
   /* Initializations */
 
@@ -2480,7 +2571,7 @@ void Vario::_calculateBiasGlobal(Db *db)
 
   /* Calculate the c00 term */
 
-  model_calcul_cov(NULL, _model, nullptr, 1, 1., d1, &c00);
+  double c00 = _model->evaluateOneGeneric(nullptr, d1);
 
   /* Calculate the term: G %*% X */
 
@@ -2497,7 +2588,7 @@ void Vario::_calculateBiasGlobal(Db *db)
         if (!db->isActiveAndDefined(jech, 0)) continue;
         for (int idim = 0; idim < ndim; idim++)
           d1[idim] = db->getDistance1D(iech, jech, idim);
-        model_calcul_cov(NULL,_model, nullptr, 1, 1., d1, &covtab);
+        covtab = _model->evaluateOneGeneric(nullptr, d1);
         value += (c00 - covtab) * _DRFTAB.getValue(jjech, il);
         jjech++;
       }
@@ -4591,4 +4682,66 @@ int Vario::computeGeometryMLayers(Db *db,
   }
   vorder = vario_order_final(vorder, &npair);
   return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculates variogram values by sampling a model
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  model     Model structure
+ ** \param[in]  mode      CovCalcMode structure
+ **
+ *****************************************************************************/
+int Vario::sampleModel(Model *model, const CovCalcMode*  mode)
+{
+  int ndim = getDimensionNumber();
+  int ndir = getDirectionNumber();
+  int nvar = model->getVariableNumber();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim,0.);
+  MatrixSquareGeneral covtab(nvar);
+
+  setNVar(nvar);
+  internalVariableResize();
+  internalDirectionResize();
+
+  /* Calculate the C(0) constant term */
+
+  model->evaluateMatInPlace(nullptr, VectorDouble(), covtab, true, 1., mode);
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++, ecr++)
+      setVarIndex(ecr, covtab.getValue(ivar,jvar));
+
+  /* Loop on the directions */
+
+  for (int idir = 0; idir < ndir; idir++)
+  {
+
+    /* Loop on the variogram lags */
+
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
+    {
+
+      /* Loop on the variables */
+
+      int ijvar = 0;
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+        {
+          int i = getDirAddress(idir, ivar, jvar, ipas, false, 0);
+          setSwByIndex(idir, i, 1.);
+          setHhByIndex(idir, i, ipas * getDPas(idir));
+          for (int idim = 0; idim < ndim; idim++)
+            d1[idim] = getHhByIndex(idir, i) * getCodir(idir, idim);
+          model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
+          setGgByIndex(idir, i, covtab.getValue(ivar, jvar));
+        }
+    }
+  }
+  return 0;
 }

@@ -182,6 +182,8 @@ public:
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
+                           double eps = 0.,
+                           int seed = 434132,
                            const CovCalcMode* mode = nullptr) const;
   double evalAverageIncrToIncr(const VectorVectorDouble& d1,
                                const VectorVectorDouble& d2,

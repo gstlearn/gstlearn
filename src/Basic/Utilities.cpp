@@ -67,6 +67,22 @@ bool isEven(int number)
     return true;
 }
 
+bool isZero(double value, double eps)
+{
+  return (ABS(value) < eps);
+}
+
+bool areEqual(double v1, double v2, double eps)
+{
+  return (ABS(v1 - v2) < eps);
+}
+
+bool isOne(double value, double eps)
+{
+  return (ABS(value - 1.) < eps);
+}
+
+
 double getMin(double val1, double val2)
 {
   if (FFFF(val1)) return (val2);
@@ -431,7 +447,7 @@ StatResults ut_statistics(int nech, const double *tab, const double *sel, const 
 
   for (int i = 0; i < nech; i++)
   {
-    if (sel != nullptr && sel[i] == 0.) continue;
+    if (sel != nullptr && isZero(sel[i])) continue;
     if (FFFF(tab[i])) continue;
     double weight = (wgt != nullptr && wgt[i] >= 0) ? wgt[i] : 1.;
     if (tab[i] < tmin) tmin = tab[i];
@@ -521,7 +537,7 @@ void ut_facies_statistics(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != nullptr && sel[i] == 0.) continue;
+    if (sel != nullptr && isZero(sel[i])) continue;
     if (FFFF(tab[i])) continue;
     facies = (int) tab[i];
     if (facies < 0) continue;
@@ -588,7 +604,7 @@ void ut_classify(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != nullptr && sel[i] == 0.)
+    if (sel != nullptr && isZero(sel[i]))
     {
       (*nmask)++;
       continue;
@@ -940,7 +956,7 @@ std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel, bool verbos
   int irel   = 0;
   for (int iabs = 0; iabs < nabs; iabs++)
   {
-    if (sel[iabs] == 0) continue;
+    if (isZero(sel[iabs])) continue;
     map[iabs] = irel++;
 
     if (IFFFF(ifirst)) ifirst = iabs;
@@ -1081,12 +1097,12 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
   else if (oper == EOperator::DIVIDE)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return ((value == 0.) ? TEST : oldval / value);
+    return ((isZero(value)) ? TEST : oldval / value);
   }
   else if (oper == EOperator::DIVOPP)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return ((oldval == 0.) ? TEST : value / oldval);
+    return ((isZero(oldval)) ? TEST : value / oldval);
   }
   else if (oper == EOperator::DEFINE)
   {

@@ -21,7 +21,6 @@
 
 #include <math.h>
 
-
 #define IND(ix,iy,iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
 #define U(ix,iy,iz)   (_u[IND(ix,iy,iz)])
 
@@ -383,21 +382,20 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
                                 int iz,
                                 double percent)
 {
-  double hh, value, refval;
   int ndim = _getNDim();
+  Model* model = getModel();
 
   /* Calculate the reference C(0) value */
 
-  VectorDouble d(ndim, 0.);
-  hh = VH::norm(d);
-  (void) model_evaluate(getModel(), 0, 0, nullptr, 1, d, &hh, &refval);
+  double refval = model->evaluateOneIncr(0.);
 
   /* Evaluate the covariance value */
 
+  VectorDouble d(ndim, 0.);
   for (int i = 0; i < ndim; i++)
     d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-  hh = VH::norm(d);
-  (void) model_evaluate(getModel(), 0, 0, nullptr, 1, d, &hh, &value);
+  double hh = VH::norm(d);
+  double value = model->evaluateOneIncr(hh);
 
   if (value / refval > percent / 100) return false;
   return true;
@@ -422,6 +420,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  Model* model = getModel();
 
   /* Initializations */
 
@@ -489,13 +488,13 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
           hnorm = VH::norm(del);
-          (void) model_evaluate(getModel(), 0, 0, nullptr, 1, del, &hnorm, &value);
+          value = model->evaluateOneIncr(hnorm);
           scale += value;
         }
     for (int i = 0; i < 3; i++)
       del[i] = 0.;
     hnorm = VH::norm(del);
-    (void) model_evaluate(getModel(), 0, 0, nullptr, 1, del, &hnorm, &value);
+    value = model->evaluateOneIncr(hnorm);
     double coeff = value / scale;
 
     int ecr = 0;
@@ -521,7 +520,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
                 hnorm = VH::norm(del);
-                (void) model_evaluate(getModel(), 0, 0, nullptr, 1, del, &hnorm, &value);
+                value = model->evaluateOneIncr(hnorm);
                 cplx[ecr] += coeff * value;
               }
         }
@@ -617,6 +616,9 @@ void CalcSimuFFT::_defineRandom()
           for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
             _setVariance(ix, iy, iz);
       break;
+
+    default:
+      break;
   }
 }
 
@@ -658,6 +660,9 @@ void CalcSimuFFT::_defineSymmetry(void)
 
     case 3:
       _defineSym3();
+      break;
+
+    default:
       break;
   }
   return;
@@ -933,7 +938,7 @@ void CalcSimuFFT::_final(DbGrid *db, int iad)
 double CalcSimuFFT::_support(double sigma)
 {
   double value = 0.;
-  if (sigma == 0.) return (TEST);
+  if (isZero(sigma)) return (TEST);
 
   switch (_getNDim())
   {
@@ -947,6 +952,9 @@ double CalcSimuFFT::_support(double sigma)
 
     case 3:
       value = _support3(sigma);
+      break;
+
+    default:
       break;
   }
 

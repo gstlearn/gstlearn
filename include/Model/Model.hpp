@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
 #include "Enum/ECalcMember.hpp"
@@ -141,7 +142,7 @@ public:
   bool isStationary() const;
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
-  double getTotalSill(int ivar, int jvar) const;
+  double getTotalSill(int ivar=0, int jvar=0) const;
   MatrixSquareGeneral getTotalSills() const;
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
@@ -321,9 +322,11 @@ public:
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
+                           double eps = 0.,
+                           int seed = 434132,
                            const CovCalcMode* mode = nullptr) const
   {
-    return _cova->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
+    return _cova->evalAverageDbToDb(db1, db2, ivar, jvar, eps, seed, mode);
   }
   double evalAverageIncrToIncr(const VectorVectorDouble& d1,
                                const VectorVectorDouble& d2,
@@ -530,6 +533,7 @@ public:
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);
   CovParamId getCovParamId(int ipar) const;
+  bool isNostatParamDefined(const EConsElem &type0);
   ////////////////////////////////////////////////
 
   const EModelProperty& getCovMode() const;
@@ -572,11 +576,6 @@ public:
                  int ivar = 0,
                  int jvar = 0,
                  const CovCalcMode* mode = nullptr);
-  VectorDouble sample(const VectorDouble& hh,
-                      int ivar = 0,
-                      int jvar = 0,
-                      VectorDouble codir = VectorDouble(),
-                      const CovCalcMode* mode = nullptr);
   VectorDouble sampleUnitary(const VectorDouble &hh,
                              int ivar = 0,
                              int jvar = 0,
@@ -617,6 +616,31 @@ public:
   VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
+
+  VectorDouble sample(const VectorDouble &h,
+                      const VectorDouble &codir = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode *mode = nullptr);
+  double evaluateOneIncr(double hh,
+                         const VectorDouble &codir = VectorDouble(),
+                         int ivar = 0,
+                         int jvar = 0,
+                         const CovCalcMode *mode = nullptr);
+  void evaluateMatInPlace(CovInternal *covint,
+                          const VectorDouble &d1,
+                          MatrixSquareGeneral &covtab,
+                          bool flag_init = false,
+                          double weight = 1.,
+                          const CovCalcMode *mode = nullptr);
+  double evaluateOneGeneric(CovInternal *covint,
+                            const VectorDouble &d1 = VectorDouble(),
+                            double weight = 1.,
+                            const CovCalcMode *mode = nullptr);
+  VectorDouble evaluateFromDb(Db *db,
+                              int ivar = 0,
+                              int jvar = 0,
+                              const CovCalcMode *mode = nullptr);
 
 protected:
   /// Interface to ASerializable

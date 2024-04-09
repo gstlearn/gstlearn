@@ -531,7 +531,7 @@ int MatrixSquareGeneral::_matrix_invreal(VectorDouble& mat, int neq)
   /* Calculate the determinant */
 
   double det = matrix_determinant(neq, mat);
-  if (ABS(det) < EPSILON10) return 1;
+  if (isZero(det)) return 1;
 
   if (neq > 1)
   {

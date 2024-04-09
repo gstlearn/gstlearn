@@ -268,13 +268,15 @@ public:
   int computeVarioVect(Db *db, int ncomp);
   int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder);
 
-  int modelRegularize(const Model& model,
-                      const VectorDouble& ext,
-                      const VectorInt& ndisc,
-                      const VectorDouble& angles = VectorDouble(),
-                      const CovCalcMode* mode = nullptr,
-                      bool asCov = false);
-
+  int regularizeFromModel(const Model &model,
+                          const VectorDouble &ext,
+                          const VectorInt &ndisc,
+                          const VectorDouble &angles = VectorDouble(),
+                          const CovCalcMode *mode = nullptr,
+                          bool asCov = false);
+  int regularizeFromDbGrid(Model* model,
+                           const Db& db,
+                           const CovCalcMode *mode = nullptr);
   void getExtension(int ivar,
                     int jvar,
                     int idir0,
@@ -291,6 +293,7 @@ public:
                     double *hmax,
                     double *gmin,
                     double *gmax);
+  int sampleModel(Model *model, const CovCalcMode*  mode = nullptr);
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }
@@ -414,6 +417,10 @@ private:
                              const VectorDouble &x,
                              const VectorDouble &y,
                              double x0);
+  MatrixSquareGeneral _evalAverageDbIncr(Model *model,
+                                         const Db &db,
+                                         const VectorDouble &incr = VectorDouble(),
+                                         const CovCalcMode *mode = nullptr);
 
 private:
   int                _nVar;

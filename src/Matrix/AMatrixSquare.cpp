@@ -8,11 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Matrix/AMatrixSquare.hpp>
-#include <Matrix/MatrixSquareGeneral.hpp>
-#include <Matrix/MatrixFactory.hpp>
-#include <Matrix/AMatrix.hpp>
+#include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
+
 #include <math.h>
 
 AMatrixSquare::AMatrixSquare(int nrow, int opt_eigen)
@@ -124,7 +126,7 @@ void AMatrixSquare::divideDiagByVector(const VectorDouble& diag)
 
   for (int i = 0; i < getNRows(); i++)
   {
-    if (ABS(diag[i]) < EPSILON10)
+    if (isZero(diag[i]))
       my_throw("Argument 'Diag' may not have too small values");
     setValue(i, i, getValue(i, i) / diag[i]);
   }

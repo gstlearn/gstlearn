@@ -1338,7 +1338,7 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
 
 void VectorHelper::divideConstant(VectorDouble &vec, double v)
 {
-  if (ABS(v) < EPSILON10)
+  if (isZero(v))
   my_throw("division by 0");
   std::for_each(vec.begin(), vec.end(), [v](double &d)
   { d /= v; });

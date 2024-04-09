@@ -540,7 +540,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   # Represent the Model
   mode = CovCalcMode()
   mode$setAsVario(! asCov)
-  gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
+  gg = model$sample(hh, codir=codir, ivar=ivar, jvar=jvar, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
   p = append(p, geom_line(data = df, 
                mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 

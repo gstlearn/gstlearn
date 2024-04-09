@@ -233,7 +233,7 @@ static int st_solve_hgnc(int npar,
   for (int i = 0; i < npar; i++)
   {
     double value = gauss.getValue(i,i);
-    value = (value < EPSILON10) ? 1 : value;
+    value = (isZero(value)) ? 1 : value;
     tempVec[i] = grad[i] / sqrt(value);
     for (int j = 0; j < npar; j++)
     {
@@ -255,7 +255,7 @@ static int st_solve_hgnc(int npar,
   for (int i = 0; i < npar; i++)
   {
     double value = gauss.getValue(i,i);
-    value = (value < EPSILON10) ? 1 : value;
+    value = (isZero(value)) ? 1 : value;
     hgnc[i] = signe * hgnc[i] / sqrt(value);
   }
   return (0);
@@ -1351,7 +1351,7 @@ int foxleg_f(int ndat,
     }
 
     double denom = st_essai(hgnadm, grad_red, gauss_red);
-    if (ABS(denom) < EPSILON10) goto label_ok;
+    if (isZero(denom)) goto label_ok;
     if (denom > 0)
       st_linear_interpolate(mscur, param, acont, tabexp, tabwgt, bords, grad,
                             &msaux, paramaux, residuals, tabmod1);

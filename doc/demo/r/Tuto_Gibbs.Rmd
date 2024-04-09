@@ -290,9 +290,10 @@ qc_variogram <- function(vario_list, vario_param, vario_model, title) {
     }
     
     # variogram model
-    abline(h  = vario_model$getTotalSill(ivar = 0, jvar = 0), lty = 2, col = "skyblue")
-    lines(hh, vario_model$getTotalSill(ivar = 0, jvar = 0) - 
-            vario_model$sample(hh = hh, ivar = 0, jvar = 0,                                             codir = vario_param$getDirParam(idir - 1)$getCodirs()), 
+    c00 = vario_model$getTotalSill()
+    abline(h  = c00, lty = 2, col = "skyblue")
+    lines(hh, c00 - 
+            vario_model$sample(h = hh, codir = vario_param$getDirParam(idir - 1)$getCodirs()),
             lty = 1, lw = 2, col = "skyblue")
     
     # legend

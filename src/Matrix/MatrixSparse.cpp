@@ -342,7 +342,7 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
     cs *local = cs_spalloc2(0, 0, 1, 1, 1);
     for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
     {
-      if (ABS(tab[icol]) < EPSILON10) continue;
+      if (isZero(tab[icol])) continue;
       (void) cs_entry2(local, icol, icol, tab[icol]);
     }
     _csMatrix = cs_triplet2(local);
@@ -631,7 +631,7 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
       for (int icol = 0; icol < getNCols(); icol++)
         for (int irow = 0; irow < getNRows(); irow++, lec++)
         {
-          if (ABS(values[lec]) < EPSILON10) continue;
+          if (isZero(values[lec])) continue;
           (void) cs_entry2(local, irow, icol, values[lec]);
         }
     }
@@ -640,7 +640,7 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
       for (int irow = 0; irow < getNRows(); irow++)
         for (int icol = 0; icol < getNCols(); icol++, lec++)
         {
-          if (ABS(values[lec]) < EPSILON10) continue;
+          if (isZero(values[lec])) continue;
           (void) cs_entry2(local, irow, icol, values[lec]);
         }
     }
@@ -1434,7 +1434,7 @@ int MatrixSparse::_eigen_findColor(int imesh,
 
   for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,imesh); it; ++it)
   {
-    if (ABS(it.value()) < EPSILON10) continue;
+    if (isZero(it.value())) continue;
     int irow = it.row();
     if (!IFFFF(colors[irow])) temp[colors[irow] - 1]++;
   }

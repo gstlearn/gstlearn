@@ -116,7 +116,6 @@ GSTLEARN_EXPORT int db_model_nostat(Db *db,
                                     Model *model,
                                     int icov = 0,
                                     const NamingConvention& namconv = NamingConvention("Nostat"));
-GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem &type0);
 GSTLEARN_EXPORT void set_test_discrete(bool flag_discret);
 GSTLEARN_EXPORT Vario* model_pgs(Db *db,
                                  const VarioParam *varioparam,

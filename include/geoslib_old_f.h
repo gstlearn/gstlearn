@@ -361,9 +361,6 @@ GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
 /* Prototyping the functions in model.c */
 /****************************************/
 
-GSTLEARN_EXPORT void model_covtab_init(int flag_init,
-                                       Model *model,
-                                       double *covtab);
 GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           Db *db1,
                                           int iech1,
@@ -383,28 +380,10 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    const VectorDouble &aniso_rotmat,
                                    const VectorDouble &coreg,
                                    double ball_radius);
-GSTLEARN_EXPORT int model_sample(Vario *vario,
-                                 Model *model,
-                                 const CovCalcMode* mode);
-GSTLEARN_EXPORT void model_calcul_cov(CovInternal *covint,
-                                      Model *model,
-                                      const CovCalcMode* mode,
-                                      int flag_init,
-                                      double weight,
-                                      VectorDouble d1,
-                                      double *covtab);
 GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
                                         Model *model,
                                         const Constraints& constraints,
                                         const Option_AutoFit& mauto);
-GSTLEARN_EXPORT int model_evaluate(Model *model,
-                                   int ivar,
-                                   int jvar,
-                                   const CovCalcMode* mode,
-                                   int nh,
-                                   VectorDouble &codir,
-                                   const double *h,
-                                   double *g);
 GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
                                           int ivar,
                                           int jvar,
@@ -417,20 +396,6 @@ GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
                                           VectorDouble &codir,
                                           double *h,
                                           double *g);
-GSTLEARN_EXPORT int model_grid(Model *model,
-                               Db *db,
-                               int ivar,
-                               int jvar,
-                               const CovCalcMode* mode,
-                               double *g);
-GSTLEARN_EXPORT double model_cxx(Model *model,
-                                 Db *db1,
-                                 Db *db2,
-                                 int ivar,
-                                 int jvar,
-                                 int seed,
-                                 double epsdist,
-                                 const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT int model_covmat(Model *model,
                                   Db *db1,
                                   Db *db2,
@@ -511,10 +476,6 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r);
-GSTLEARN_EXPORT int model_regularize(Model *model,
-                                     Vario *vario,
-                                     DbGrid *dbgrid,
-                                     const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,
@@ -524,7 +485,6 @@ GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        int v2);
 GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
 GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
-GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 
 /***************************************/
 /* Prototyping the functions in anam.c */
