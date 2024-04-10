@@ -863,7 +863,7 @@ int MatrixSparse::scaleByDiag()
  */
 void MatrixSparse::addScalar(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
   if (isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
@@ -887,7 +887,7 @@ void MatrixSparse::addScalar(double v)
  */
 void MatrixSparse::addScalarDiag(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
 
   if (isFlagEigen())
   {
@@ -914,7 +914,7 @@ void MatrixSparse::addScalarDiag(double v)
  */
 void MatrixSparse::prodScalar(double v)
 {
-  if (v == 1.) return;
+  if (isOne(v)) return;
   if (isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)

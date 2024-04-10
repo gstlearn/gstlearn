@@ -200,7 +200,7 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
     cc = work[2][n2] * work[2][n2];
     a22 = work[3][n1];
     a12 = a22 - work[3][n2];
-    if (bb != 0. || cc != 0.) a12 -= cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
+    if (! isZero(bb) || ! isZero(cc)) a12 -= cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
     a23 = work[2][n1 + 1];
     a13 = a23;
     for (i = n1; i < n2; i++)
@@ -246,7 +246,7 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
       bb = (value[n2] - value[n2 - 1]) / 2.;
       cc = work[2][n2] * work[2][n2];
       a22 = value[n2];
-      if (bb != 0. || cc != 0.) a22 += cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
+      if (! isZero(bb) || ! isZero(cc)) a22 += cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
       for (i = 0; i < n2; i++)
         if (ABS(hold-a22) > ABS(work[3][i] - a22))
         {
@@ -315,7 +315,7 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
 
   if (neq > 2) for (j = 0; j < neq; j++)
     for (i = neq - 2; i > 0; i--)
-      if (work[1][i] != 0)
+      if (! isZero(work[1][i]))
       {
         pp = 0.;
         for (ki = i; ki < neq; ki++)
@@ -454,7 +454,7 @@ int matrix_prod_norme(int transpose,
           for (i1 = 0; i1 < n1; i1++)
           {
             vi = V1(i1, i2);
-            if (vi != 0.) for (j1 = 0; j1 < n1; j1++)
+            if (! isZero(vi)) for (j1 = 0; j1 < n1; j1++)
             {
               if (a != nullptr)
                 vala = AS(i1, j1);
@@ -476,7 +476,7 @@ int matrix_prod_norme(int transpose,
           for (i2 = 0; i2 < n2; i2++)
           {
             vi = V1(i1, i2);
-            if (vi != 0.) for (j2 = 0; j2 < n2; j2++)
+            if (! isZero(vi)) for (j2 = 0; j2 < n2; j2++)
             {
               if (a != nullptr)
                 vala = AS(i2, j2);
@@ -487,6 +487,9 @@ int matrix_prod_norme(int transpose,
           }
           w[ecr++] = value;
         }
+      break;
+
+    default:
       break;
   }
   return (0);
@@ -938,9 +941,9 @@ int matrix_eigen_tridiagonal(const double *vecdiag,
   {
     h = vecinf[i] * vecsup[i - 1];
     if (h < 0) return (1);
-    if (h == 0)
+    if (isZero(h))
     {
-      if (vecinf[i] != 0. || vecsup[i - 1] != 0.) return (2);
+      if (! isZero(vecinf[i]) || ! isZero(vecsup[i - 1])) return (2);
       e[i] = 0.;
     }
     else
@@ -964,7 +967,7 @@ int matrix_eigen_tridiagonal(const double *vecdiag,
   e[0] = 1.;
   for (i = 1; i < neq; i++)
   {
-    if (e[i] != 0.0)
+    if (! isZero(e[i]))
       e[i] *= e[i - 1] / vecsup[i - 1];
     else
       e[i] = 1.;

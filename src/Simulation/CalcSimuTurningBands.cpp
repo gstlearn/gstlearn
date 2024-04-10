@@ -739,7 +739,7 @@ void CalcSimuTurningBands::_power1D(int ib,
       coeff3;
   static double alpha_mem = -1.;
 
-  if (ib == 0 || alpha != alpha_mem)
+  if (ib == 0 || ! areEqual(alpha,alpha_mem))
   {
     as2 = alpha / 2.;
     twoPI = 2. * GV_PI;
@@ -2494,7 +2494,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     // Find the index of the closest grid node and derive tolerance
     int jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
-    double eps = model_calcul_stdev(model, dbin, iech, dbgrid, jech, 0, 2.);
+    double eps = model->calculateStdev(dbin, iech, dbgrid, jech, false, 2.);
     if (eps < 1.e-6) eps = 1.e-6;
 
     for (int isimu = 0; isimu < nbsimu; isimu++)

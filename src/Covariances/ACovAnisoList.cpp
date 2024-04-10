@@ -573,7 +573,7 @@ void ACovAnisoList::normalize(double sill, int ivar, int jvar)
   for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     covval += _covs[i]->eval0(ivar, jvar);
 
-  if (covval <= 0. || covval == sill) return;
+  if (covval <= 0. || areEqual(covval, sill)) return;
   double ratio = sill / covval;
 
   for (unsigned int i=0, n=getCovaNumber(); i<n; i++)

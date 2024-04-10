@@ -3301,7 +3301,7 @@ VectorDouble Db::getColumnByColIdx(int icol,
   for (int iech = 0; iech < nech; iech++)
   {
     bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
     if (! defined)
     {
       if (flagCompress) continue;
@@ -3873,7 +3873,7 @@ VectorDouble Db::getCoordinates(int idim, bool useSel, bool flag_rotate) const
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
     if (!defined) continue;
     tab[ecr] = getCoordinate(iech, idim, flag_rotate);
     ecr++;
@@ -4671,7 +4671,7 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
     else if (combine == "xor")
     {
       for (int iech = 0; iech < nech; iech++)
-        sel[iech] = sel[iech] != oldsel[iech];
+        sel[iech] = ! areEqual(sel[iech], oldsel[iech]);
       return;
     }
   }

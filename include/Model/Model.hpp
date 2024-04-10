@@ -355,6 +355,18 @@ public:
   {
     return _cova->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
   }
+  MatrixSparse* evalCovMatrixSparse(Db *db1,
+                                    Db *db2 = nullptr,
+                                    int ivar0 = 0,
+                                    int jvar0 = 0,
+                                    const VectorInt &nbgh1 = VectorInt(),
+                                    const VectorInt &nbgh2 = VectorInt(),
+                                    const CovCalcMode *mode = nullptr,
+                                    double eps = EPSILON3)
+  {
+    return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
+  }
+
   /**
    * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
    * @param icas1 Origin of the Db containing the first point
@@ -492,21 +504,24 @@ public:
                    int iech,
                    int il,
                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  double evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const;
   VectorDouble evalDriftVec(const Db* db,
                             int iech,
                             const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  VectorDouble evalDriftCoefVec(const Db *db,
-                                const VectorDouble &coeffs,
-                                int ivar = 0,
-                                bool useSel = false) const;
   void evalDriftVecInPlace(const Db* db,
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
-  double evalDriftCoef(const Db *db,
-                       int iech,
-                       int ivar,
-                       const VectorDouble &coeffs) const;
+  double evalDriftVarCoef(const Db *db,
+                          int iech,
+                          int ivar,
+                          const VectorDouble &coeffs) const;
+  VectorDouble evalDriftVarCoefVec(const Db *db,
+                                   const VectorDouble &coeffs,
+                                   int ivar = 0,
+                                   bool useSel = false) const;
+  VectorDouble evalDriftMat(const Db *db,
+                            const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -556,10 +571,7 @@ public:
 
   int hasExternalCov() const;
 
-  MatrixSquareSymmetric covMatrixM(Db *db1,
-                                   int ivar = -1,
-                                   int jvar = -1,
-                                   const CovCalcMode *mode = nullptr);
+  MatrixSquareSymmetric covMatrixMS(Db *db1, const CovCalcMode *mode = nullptr);
   MatrixRectangular covMatrixM(Db *db1,
                                Db *db2,
                                int ivar = -1,
@@ -570,12 +582,6 @@ public:
                           int ivar = 0,
                           int jvar = 0,
                           const CovCalcMode* mode = nullptr);
-  void covMatrix(VectorDouble& covmat,
-                 Db *db1,
-                 Db *db2 = nullptr,
-                 int ivar = 0,
-                 int jvar = 0,
-                 const CovCalcMode* mode = nullptr);
   VectorDouble sampleUnitary(const VectorDouble &hh,
                              int ivar = 0,
                              int jvar = 0,
@@ -621,19 +627,20 @@ public:
                       const VectorDouble &codir = VectorDouble(),
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode *mode = nullptr);
+                      const CovCalcMode* mode = nullptr,
+                      const CovInternal* covint = nullptr);
   double evaluateOneIncr(double hh,
                          const VectorDouble &codir = VectorDouble(),
                          int ivar = 0,
                          int jvar = 0,
                          const CovCalcMode *mode = nullptr);
-  void evaluateMatInPlace(CovInternal *covint,
+  void evaluateMatInPlace(const CovInternal *covint,
                           const VectorDouble &d1,
                           MatrixSquareGeneral &covtab,
                           bool flag_init = false,
                           double weight = 1.,
                           const CovCalcMode *mode = nullptr);
-  double evaluateOneGeneric(CovInternal *covint,
+  double evaluateOneGeneric(const CovInternal *covint,
                             const VectorDouble &d1 = VectorDouble(),
                             double weight = 1.,
                             const CovCalcMode *mode = nullptr);
@@ -641,6 +648,14 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode *mode = nullptr);
+  double calculateStdev(Db *db1,
+                        int iech1,
+                        Db *db2,
+                        int iech2,
+                        bool verbose = false,
+                        double factor = 1.,
+                        const CovCalcMode *mode = nullptr);
+  void nostatUpdate(CovInternal *covint);
 
 protected:
   /// Interface to ASerializable

@@ -979,64 +979,31 @@ double Model::evalDrift(const Db *db,
                         int il,
                         const ECalcMember &member) const
 {
-  if (member != ECalcMember::LHS && isDriftFiltered(il))
-    return 0.;
-  else
-  {
-    if (_driftList == nullptr) return TEST;
-    ADrift *drift = _driftList->getDrift(il);
-    if (drift != nullptr) return drift->eval(db, iech);
-  }
-  return TEST;
+  if (_driftList == nullptr) return TEST;
+  return _driftList->evalDrift(db, iech, il, member);
 }
 
-VectorDouble Model::evalDriftVec(const Db* db,
+VectorDouble Model::evalDriftVec(const Db *db,
                                  int iech,
-                                 const ECalcMember& member) const
+                                 const ECalcMember &member) const
 {
-  int ndrift = getDriftNumber();
-  VectorDouble drftab(ndrift);
-  for (int il = 0; il < ndrift; il++)
-     drftab[il] = evalDrift(db, iech, il, member);
-  return drftab;
+  if (_driftList == nullptr) return VectorDouble();
+  return _driftList->evalDriftVec(db, iech, member);
 }
 
-void Model::evalDriftVecInPlace(const Db* db,
+void Model::evalDriftVecInPlace(const Db *db,
                                 int iech,
-                                const ECalcMember& member,
-                                VectorDouble& drftab) const
+                                const ECalcMember &member,
+                                VectorDouble &drftab) const
 {
-  int ndrift = getDriftNumber();
-  for (int il = 0; il < ndrift; il++)
-     drftab[il] = evalDrift(db, iech, il, member);
+  if (_driftList == nullptr) return;
+  _driftList->evalDriftVecInPlace(db, iech, member, drftab);
 }
 
-/**
- * A vector of the drift evaluation
- * @param db     Db structure
- * @param coeffs Vector of drift coefficients
- * @param ivar   Variable rank (used for constant drift value)
- * @param useSel When TRUE, only non masked samples are returned
- * @return The vector of values
- * @remark When no drift is defined, a vector is returned filled with the variable mean
- */
-VectorDouble Model::evalDriftCoefVec(const Db *db,
-                                     const VectorDouble &coeffs,
-                                     int ivar,
-                                     bool useSel) const
+VectorDouble Model::evalDriftMat(const Db *db, const ECalcMember &member) const
 {
-  VectorDouble vec;
-  if (_driftList == nullptr && db != nullptr)
-  {
-    int nech = db->getSampleNumber(useSel);
-    double mean = getMean(ivar);
-    vec = VectorDouble(nech, mean);
-  }
-  else
-  {
-    vec = _driftList->evalDriftCoefVec(db, coeffs, useSel);
-  }
-  return vec;
+  if (_driftList == nullptr) return VectorDouble();
+  return _driftList->evalDriftMat(db, member);
 }
 
 /**
@@ -1529,34 +1496,23 @@ Model* Model::createReduce(const VectorInt& validVars) const
 /**
  * Calculate the covariance matrix between active samples of Db1
  * and active samples of Db2.
- * @param covmat Returned matrix (returned as a vector).
  * @param db1 First Data Base
  * @param db2 Second Data Base (if not provided, the first Db is provided instead)
- * @param ivar Rank of the first variable (all variables if not defined)
- * @param jvar Rank of the second variable (all variables if not defined)
+ * @param ivar Rank of the first variable (-1 for all variables)
+ * @param jvar Rank of the second variable (-1 for all variables)
  * @param mode CovCalcMode structure
  *
  * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
  * @remark -nvar stands for the number of (active) variables
  * @remark -nechA stands for the number of active samples
  */
-void Model::covMatrix(VectorDouble& covmat,
-                      Db *db1,
-                      Db *db2,
-                      int ivar,
-                      int jvar,
-                      const CovCalcMode* mode)
-{
-  model_covmat(this, db1, db2, ivar, jvar, covmat.data(), mode);
-}
-
 VectorDouble Model::covMatrixV(Db *db1,
                                Db *db2,
                                int ivar,
                                int jvar,
                                const CovCalcMode* mode)
 {
-  return model_covmatM(this, db1, db2, ivar, jvar, mode).getValues();
+  return evalCovMatrix(db1, db2, ivar, jvar, VectorInt(), VectorInt(), mode).getValues();
 }
 
 MatrixRectangular Model::covMatrixM(Db *db1,
@@ -1565,15 +1521,18 @@ MatrixRectangular Model::covMatrixM(Db *db1,
                                     int jvar,
                                     const CovCalcMode *mode)
 {
-  return model_covmatM(this, db1, db2, ivar, jvar, mode);
+  return evalCovMatrix(db1, db2, ivar, jvar, VectorInt(), VectorInt(), mode);
 }
 
-MatrixSquareSymmetric Model::covMatrixM(Db *db1,
-                                        int ivar,
-                                        int jvar,
-                                        const CovCalcMode *mode)
+/**
+ * Returns the covariance matrix for all samples and all variables
+ * By construction, this matrix is square and symmetrical
+ * @param db1  Pointer to the Db structure
+ * @param mode CovCalcMode description
+ */
+MatrixSquareSymmetric Model::covMatrixMS(Db *db1, const CovCalcMode *mode)
 {
-  return model_covmatM(this, db1, db1, ivar, jvar, mode);
+  return evalCovMatrix(db1, db1, -1, -1, VectorInt(), VectorInt(), mode);
 }
 
 /**
@@ -1737,7 +1696,8 @@ bool Model::isFlagGradientFunctional() const
 
 /****************************************************************************/
 /*!
- **  Evaluate the drift with a given set of coefficients
+ **  Evaluate the drift with a given sample and a given variable
+ **  The value is scaled by 'coeffs'
  **
  ** \param[in]  db      Db structure
  ** \param[in]  iech    Rank of the sample
@@ -1745,29 +1705,53 @@ bool Model::isFlagGradientFunctional() const
  ** \param[in]  coeffs  Vector of coefficients
  **
  *****************************************************************************/
-double Model::evalDriftCoef(const Db *db,
+double Model::evalDriftVarCoef(const Db *db,
                             int iech,
                             int ivar,
                             const VectorDouble &coeffs) const
 {
-
+  if (_driftList == nullptr) return TEST;
   VectorDouble drftab = evalDriftVec(db, iech, ECalcMember::LHS);
-
-  /* Check if all the drift terms are defined */
-
   if (VH::hasUndefined(drftab)) return TEST;
 
-  /* Perform the correction */
-
   double drift = 0.;
-  for (int ib = 0; ib < getDriftEquationNumber(); ib++)
-  {
-    double value = 0.;
-    for (int il = 0; il < getDriftNumber(); il++)
-      value += drftab[il] * getDriftCL(ivar, il, ib);
-    drift += value * coeffs[ib];
-  }
+  for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
+    drift += evalDriftValue(ivar, ib, drftab) * coeffs[ib];
   return drift;
+}
+
+/**
+ * A vector of the drift evaluation (for all samples)
+ * @param db     Db structure
+ * @param coeffs Vector of drift coefficients
+ * @param ivar   Variable rank (used for constant drift value)
+ * @param useSel When TRUE, only non masked samples are returned
+ * @return The vector of values
+ * @remark When no drift is defined, a vector is returned filled with the variable mean
+ */
+VectorDouble Model::evalDriftVarCoefVec(const Db *db,
+                                     const VectorDouble &coeffs,
+                                     int ivar,
+                                     bool useSel) const
+{
+  VectorDouble vec;
+  if (_driftList == nullptr && db != nullptr)
+  {
+    int nech = db->getSampleNumber(useSel);
+    double mean = getMean(ivar);
+    vec = VectorDouble(nech, mean);
+  }
+  else
+  {
+    vec = _driftList->evalDriftCoefVec(db, coeffs, useSel);
+  }
+  return vec;
+}
+
+double Model::evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const
+{
+  if (_driftList == nullptr) return TEST;
+  return _driftList->evalDriftValue(ivar, ib, drftab);
 }
 
 VectorECov Model::initCovList(const VectorInt & covranks)
@@ -2045,13 +2029,15 @@ int Model::standardize(bool verbose)
  ** \param[in]  codir      Array giving the direction coefficients (optional)
  ** \param[in]  h          Vector of increments
  ** \param[in]  mode       CovCalcMode structure
+ ** \param[in]  covint     Non-stationary parameters
  **
  *****************************************************************************/
 VectorDouble Model::sample(const VectorDouble &h,
                            const VectorDouble &codir,
                            int ivar,
                            int jvar,
-                           const CovCalcMode *mode)
+                           const CovCalcMode *mode,
+                           const CovInternal *covint)
 {
   int nh   = (int) h.size();
   int ndim = getDimensionNumber();
@@ -2082,7 +2068,7 @@ VectorDouble Model::sample(const VectorDouble &h,
     double hh = h[ih];
     for (int idim = 0; idim < ndim; idim++)
       d1[idim] = hh * codir_loc[idim];
-    evaluateMatInPlace(NULL, d1, covtab, true, 1., mode);
+    evaluateMatInPlace(covint, d1, covtab, true, 1., mode);
     g[ih] = covtab.getValue(ivar, jvar);
   }
   return g;
@@ -2131,7 +2117,7 @@ double Model::evaluateOneIncr(double hh,
 
   for (int idim = 0; idim < ndim; idim++)
     d1[idim] = hh * codir_loc[idim];
-  evaluateMatInPlace(NULL, d1, covtab, true, 1., mode);
+  evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
   return covtab.getValue(ivar, jvar);
 }
 
@@ -2150,7 +2136,7 @@ double Model::evaluateOneIncr(double hh,
  ** \param[out] covtab       Covariance array
  **
  *****************************************************************************/
-void Model::evaluateMatInPlace(CovInternal *covint,
+void Model::evaluateMatInPlace(const CovInternal *covint,
                                const VectorDouble &d1,
                                MatrixSquareGeneral &covtab,
                                bool flag_init,
@@ -2195,7 +2181,7 @@ void Model::evaluateMatInPlace(CovInternal *covint,
  ** \param[in]  d1           Distance vector
  **
  *****************************************************************************/
-double Model::evaluateOneGeneric(CovInternal *covint,
+double Model::evaluateOneGeneric(const CovInternal *covint,
                                  const VectorDouble &d1,
                                  double weight,
                                  const CovCalcMode *mode)
@@ -2255,3 +2241,66 @@ VectorDouble Model::evaluateFromDb(Db *db,
   }
   return gg;
 }
+
+/*****************************************************************************/
+/*!
+ **  Returns the standard deviation at a given increment for a given model
+ **  between two samples of two Dbs
+ **
+ ** \param[in]  db1         First Db
+ ** \param[in]  iech1       Rank in the first Db
+ ** \param[in]  db2         Second Db
+ ** \param[in]  iech2       Rank in the second Db
+ ** \param[in]  verbose     Verbose flag
+ ** \param[in]  factor      Multiplicative factor for standard deviation
+ ** \param[in]  mode        CovCalcMode structure
+ **
+ *****************************************************************************/
+double Model::calculateStdev(Db *db1,
+                             int iech1,
+                             Db *db2,
+                             int iech2,
+                             bool verbose,
+                             double factor,
+                             const CovCalcMode *mode)
+{
+
+  /* Covariance at origin */
+
+  int ndim = db1->getNDim();
+  VectorDouble dd(ndim, 0.);
+  double c00 = evaluateOneGeneric(nullptr, dd, 1., mode);
+
+  /* Covariance at increment */
+
+  if (db1->getDistanceVec(iech1, iech2, dd, db2)) return TEST;
+  double cov = evaluateOneGeneric(nullptr, dd, 1., mode);
+  double stdev = factor * sqrt(c00 - cov);
+
+  if (verbose)
+  {
+    message("Db1(%d) - Db2(%d)", iech1 + 1, iech2 + 1);
+    message(" - Incr=");
+    for (int idim = 0; idim < ndim; idim++)
+      message(" %lf", dd[idim]);
+    message(" - c(0)=%lf cov=%lf stdev=%lf\n", c00, cov, stdev);
+  }
+  return stdev;
+}
+
+/*****************************************************************************/
+/*!
+ **  Update the Model in the case of Non-stationary parameters
+ **  This requires the knowledge of the two end-points
+ **
+ ** \param[in]  covint       Internal structure for non-stationarity
+ **                          or NULL (for stationary case)
+ **
+ *****************************************************************************/
+void Model::nostatUpdate(CovInternal *covint)
+{
+  if (covint == NULL) return;
+  updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                    covint->getIcas2(), covint->getIech2());
+}
+

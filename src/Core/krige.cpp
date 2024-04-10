@@ -3192,32 +3192,24 @@ int krigsum(Db *dbin,
  ** \return  Pointer to the newly create integer vector
  **
  ** \param[in]  nech       Number of samples
- ** \param[in]  nsize1     Number of exact pivots currently selected
  ** \param[in]  ranks1     Ranks of exact pivots
- ** \param[in]  nsize2     Number of ACP pivots currently selected
  ** \param[in]  ranks2     Ranks of ACP pivots
  **
  ** \remarks The output array must be free by the calling function
  **
  *****************************************************************************/
-static int* st_ranks_other(int nech,
-                           int nsize1,
-                           int *ranks1,
-                           int nsize2,
-                           int *ranks2)
+static VectorInt st_ranks_other(int nech,
+                                const VectorInt &ranks1,
+                                const VectorInt &ranks2)
 {
-  int *rother, i;
-
-  rother = (int*) mem_alloc(sizeof(int) * nech, 0);
-  if (rother == nullptr) return (rother);
-
-  for (i = 0; i < nech; i++)
+  VectorInt rother(nech, 0);
+  for (int i = 0; i < nech; i++)
     rother[i] = i;
-  for (i = 0; i < nsize1; i++)
+  for (int i = 0, nsize1 = (int) ranks1.size(); i < nsize1; i++)
     rother[ranks1[i]] = -1;
-  for (i = 0; i < nsize2; i++)
+  for (int i = 0, nsize2 = (int) ranks2.size(); i < nsize2; i++)
     rother[ranks2[i]] = -1;
-  return (rother);
+  return rother;
 }
 
 /****************************************************************************/
@@ -3229,9 +3221,7 @@ static int* st_ranks_other(int nech,
  ** \param[in]  db        Db structure
  ** \param[in]  model     Model structure
  ** \param[in]  beta      Thresholding value
- ** \param[in]  nsize1    Number of samples (exact)
  ** \param[in]  ranks1    Ranks of samples (exact)
- ** \param[in]  nsize2    Number of samples (ACP)
  ** \param[in]  ranks2    Ranks of samples (ACP)
  ** \param[in]  rother    Ranks of the idle samples (modified by routine)
  **
@@ -3245,32 +3235,34 @@ static int* st_ranks_other(int nech,
 static int st_sampling_krige_data(Db *db,
                                   Model *model,
                                   double beta,
-                                  int nsize1,
-                                  int *ranks1,
-                                  int nsize2,
-                                  int *ranks2,
-                                  int *rother,
+                                  VectorInt& ranks1,
+                                  VectorInt& ranks2,
+                                  VectorInt& rother,
                                   int *ntot_arg,
                                   int *nutil_arg,
                                   VectorInt& rutil,
                                   double **tutil_arg,
                                   double **invsig_arg)
 {
-  int ndat, error, i, j, ntot, nother, npart, ecr, nutil, nmax;
-  double *utab, *s, *c, *tutil, *invsig, sumval;
+  int i, j, ecr, nmax;
+  double *utab, *tutil, *invsig, sumval;
   VectorInt ralls;
   VectorInt isort;
   VectorDouble vsort;
 
   /* Initializations */
 
-  error = 1;
-  utab = s = c = tutil = invsig = nullptr;
-  ndat = db->getSampleNumber(true);
-  ntot = nsize1 + nsize2;
-  nother = ndat - ntot;
-  npart = ndat - nsize1;
-  nutil = 0;
+  int error = 1;
+  int ndat = db->getSampleNumber(true);
+  int nsize1 = (int) ranks1.size();
+  int nsize2 = (int) ranks2.size();
+  int ntot = nsize1 + nsize2;
+  int nother = ndat - ntot;
+  int npart = ndat - nsize1;
+  int nutil = 0;
+  MatrixSquareSymmetric mat_s;
+
+  utab = tutil = invsig = nullptr;
 
   /* Core allocation */
 
@@ -3302,10 +3294,7 @@ static int st_sampling_krige_data(Db *db,
       isort.resize(npart, 0);
     }
 
-    s = model_covmat_by_ranks(model, db, nsize2, ranks2, db, nsize2, ranks2, -1, -1);
-    if (s == nullptr) goto label_end;
-    MatrixSquareSymmetric mat_s = MatrixSquareSymmetric(nsize2);
-    mat_s.resetFromArray(nsize1, nsize1, s);
+    mat_s = model->covMatrixMS(db);
 
     if (mat_s.choleskyDecompose()) goto label_end;
     VectorDouble tl = mat_s.getCholeskyTL();
@@ -3315,10 +3304,7 @@ static int st_sampling_krige_data(Db *db,
     if (mat_s.choleskyInvert()) goto label_end;
     VectorDouble xl = mat_s.getCholeskyXL();
 
-    c = model_covmat_by_ranks(model, db, nsize2, ranks2, db, ndat, rother, -1, -1);
-    if (c == nullptr) goto label_end;
-    MatrixRectangular mat_c = MatrixRectangular(nsize2, ndat);
-    mat_c.resetFromArray(nsize2, ndat, c);
+    MatrixRectangular mat_c = model->evalCovMatrix(db, db, -1, -1, ranks2, rother);
 
     MatrixRectangular v = mat_s.choleskyProductInPlace(4, nsize2, nother, xl, mat_c);
 
@@ -3361,8 +3347,6 @@ static int st_sampling_krige_data(Db *db,
 
     /* Core deallocation */
 
-    s = (double*) mem_free((char* ) s);
-    c = (double*) mem_free((char* ) c);
     delete sq;
     delete tn2;
     delete spart;
@@ -3398,11 +3382,9 @@ static int st_sampling_krige_data(Db *db,
       TUTIL(ecr,j) = UTAB(i, j);
     ecr++;
   }
-  s = model_covmat_by_ranks(model, db, nutil, rutil.data(), db, nutil, rutil.data(), -1, -1);
-  if (s == nullptr) goto label_end;
-  if (matrix_prod_norme(-1, nutil, ntot, tutil, s, invsig)) goto label_end;
+  mat_s = model->evalCovMatrix(db, db, -1, -1, rutil, rutil);
+  if (matrix_prod_norme(-1, nutil, ntot, tutil, mat_s.getValues().data(), invsig)) goto label_end;
   if (matrix_invert(invsig, ntot, 0)) goto label_end;
-  s = (double*) mem_free((char* ) s);
   utab = (double*) mem_free((char* ) utab);
 
   /* Returning arguments */
@@ -3418,8 +3400,6 @@ static int st_sampling_krige_data(Db *db,
 
   label_end:
   utab = (double*) mem_free((char* ) utab);
-  s = (double*) mem_free((char* ) s);
-  c = (double*) mem_free((char* ) c);
   return (error);
 }
 
@@ -3427,14 +3407,12 @@ static int st_sampling_krige_data(Db *db,
 /*!
  **  Perform the estimation at the data points
  **
- ** \return  Error retun code
+ ** \return  Error return code
  **
  ** \param[in]  db         Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  beta       Thresholding value
- ** \param[in]  nsize1     Number of exact pivots currently selected
  ** \param[in]  ranks1     Ranks of exact pivots
- ** \param[in]  nsize2     Number of ACP pivots currently selected
  ** \param[in]  ranks2     Ranks of ACP pivots
  ** \param[in]  rother     Ranks of the idle samples
  ** \param[in]  flag_abs   1 Modify 'daata_est' to store the estimation error
@@ -3446,11 +3424,9 @@ static int st_sampling_krige_data(Db *db,
 int st_krige_data(Db *db,
                   Model *model,
                   double beta,
-                  int nsize1,
-                  int *ranks1,
-                  int nsize2,
-                  int *ranks2,
-                  int *rother,
+                  VectorInt& ranks1,
+                  VectorInt& ranks2,
+                  VectorInt& rother,
                   int flag_abs,
                   double *data_est,
                   double *data_var)
@@ -3475,8 +3451,8 @@ int st_krige_data(Db *db,
 
   /* Perform local sampling */
 
-  if (st_sampling_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2,
-                             rother, &ntot, &nutil, rutil, &tutil, &invsig))
+  if (st_sampling_krige_data(db, model, beta, ranks1, ranks2, rother,
+                             &ntot, &nutil, rutil, &tutil, &invsig))
     goto label_end;
 
   /* Second core allocation */
@@ -3507,10 +3483,9 @@ int st_krige_data(Db *db,
     data_est[iech] = data_var[iech] = TEST;
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
-    c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1);
-    if (c00 == nullptr) goto label_end;
-    s = model_covmat_by_ranks(model, db, nutil, rutil.data(), db, 1, &iech, -1, -1);
-    if (s == nullptr) goto label_end;
+    VectorInt vech = {iech};
+    c00 = model->evalCovMatrix(db, db, -1, -1, vech, vech).getValues().data();
+    s   = model->evalCovMatrix(db, db, -1, -1, rutil, vech).getValues().data();
 
     matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
     matrix_product_safe(1, ntot, 1, aux2, aux3, &estim);
@@ -3558,7 +3533,6 @@ int st_krige_data(Db *db,
  **
  ** \param[in]  db         Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  nsize1     Number of exact pivots currently selected
  ** \param[in]  ranks1     Ranks of exact pivots
  ** \param[in]  rother     Ranks of the idle samples
  **
@@ -3567,26 +3541,22 @@ int st_krige_data(Db *db,
  *****************************************************************************/
 int st_crit_global(Db *db,
                    Model *model,
-                   int nsize1,
-                   int *ranks1,
-                   int *rother,
+                   VectorInt& ranks1,
+                   VectorInt& rother,
                    double *crit)
 {
-  int error, ndat, i, iech, nutil, ecr;
+  int i, iech, ecr;
   double *c00, *invc, *data, *datm, *cs, *temp, *olderr, *olddiv, *aux1, *cs1;
   double *temp_loc, estim, sigma, value;
 
   /* Initializations */
 
-  error = 1;
-  ndat = db->getSampleNumber(true);
-  nutil = ndat - nsize1;
-  c00 = invc = data = datm = cs = temp = olderr = olddiv = nullptr;
-  aux1 = cs1 = nullptr;
-
-  /* Preliminary checks */
-
-  if (nsize1 <= 0) goto label_end;
+  int error  = 1;
+  int nsize1 = (int) ranks1.size();
+  int ndat   = db->getSampleNumber(true);
+  int nutil  = ndat - nsize1;
+  c00 = invc = data = datm = cs = temp = olderr = olddiv = aux1 = cs1 = nullptr;
+  if (nsize1 <= 0) return 1;
 
   /* Core allocation */
 
@@ -3605,7 +3575,7 @@ int st_crit_global(Db *db,
 
   /* Establish the Kriging matrix on the pivot samples */
 
-  invc = model_covmat_by_ranks(model, db, nsize1, ranks1, db, nsize1, ranks1, -1, -1);
+  invc = model->evalCovMatrix(db, db, -1, -1, ranks1, ranks1).getValues().data();
   if (invc == nullptr) goto label_end;
   if (matrix_invert(invc, nsize1, 0)) goto label_end;
 
@@ -3623,10 +3593,11 @@ int st_crit_global(Db *db,
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
-    c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1);
+    VectorInt vech = { iech };
+    c00 = model->evalCovMatrix(db, db, -1, -1, vech, vech).getValues().data();
     if (c00 == nullptr) goto label_end;
 
-    cs = model_covmat_by_ranks(model, db, nsize1, ranks1, db, 1, &iech, -1, -1);
+    cs = model->evalCovMatrix(db, db, -1, -1, ranks1, vech).getValues().data();
     if (cs == nullptr) goto label_end;
 
     matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
@@ -3649,10 +3620,11 @@ int st_crit_global(Db *db,
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
-    cs = model_covmat_by_ranks(model, db, 1, &iech, db, nsize1, ranks1, -1, -1);
+    VectorInt vech = { iech };
+    cs = model->evalCovMatrix(db, db, -1, -1, vech, ranks1).getValues().data();
     if (cs == nullptr) goto label_end;
 
-    cs1 = model_covmat_by_ranks(model, db, 1, &iech, db, ndat, rother, -1, -1);
+    cs1 = model->evalCovMatrix(db, db, -1, -1, vech, rother).getValues().data();
     if (cs1 == nullptr) goto label_end;
 
     matrix_product_safe(1, nsize1, nutil, cs, temp, aux1);
@@ -3664,7 +3636,7 @@ int st_crit_global(Db *db,
       value += cs1[i] * cs1[i];
     crit[iech] = value / nutil;
 
-    cs = (double*) mem_free((char* ) cs);
+    cs  = (double*) mem_free((char* ) cs);
     cs1 = (double*) mem_free((char* ) cs1);
     ecr++;
   }
@@ -3673,7 +3645,8 @@ int st_crit_global(Db *db,
 
   error = 0;
 
-  label_end: data = db_vector_free(data);
+  label_end:
+  data = db_vector_free(data);
   c00 = (double*) mem_free((char* ) c00);
   invc = (double*) mem_free((char* ) invc);
   datm = (double*) mem_free((char* ) datm);
@@ -3699,13 +3672,11 @@ int st_crit_global(Db *db,
  **                        1 : Local evaluation
  **                        2 : Global evaluation
  ** \param[in]  nsize1_max Maximum number of exact pivots
- ** \param[in]  nsize1     Number of exact pivots currently selected
  ** \param[in]  ranks1     Ranks of exact pivots
  ** \param[in]  method2    Criterion for choosing ACP pivots
  **                        1 : Local evaluation
  **                        2 : Global evaluation
  ** \param[in]  nsize2_max Maximum number of ACP pivots
- ** \param[in]  nsize2     Number of ACP pivots currently selected
  ** \param[in]  ranks2     Ranks of ACP pivots
  ** \param[in]  verbose    1 for a verbose output
  **
@@ -3715,22 +3686,22 @@ int sampling_f(Db *db,
                double beta,
                int method1,
                int nsize1_max,
-               int nsize1,
-               int *ranks1,
+               VectorInt& ranks1,
                int method2,
                int nsize2_max,
-               int nsize2,
-               int *ranks2,
+               VectorInt& ranks2,
                int verbose)
 {
-  int *rother, error, best_rank, nech;
+  int best_rank, nech;
   double *data_est, *data_var, best_ecart;
+  VectorInt rother;
 
   /* Initializations */
 
-  error = 1;
+  int error = 1;
+  int nsize1 = (int) ranks1.size();
+  int nsize2 = (int) ranks2.size();
   data_est = data_var = nullptr;
-  rother = nullptr;
   nech = db->getSampleNumber();
 
   /* Preliminary checks */
@@ -3753,8 +3724,7 @@ int sampling_f(Db *db,
   if (data_est == nullptr) goto label_end;
   data_var = db_vector_alloc(db);
   if (data_var == nullptr) goto label_end;
-  rother = st_ranks_other(nech, nsize1, ranks1, nsize2, ranks2);
-  if (rother == nullptr) goto label_end;
+  rother = st_ranks_other(nech, ranks1, ranks2);
 
   /* Sample the exact pivots */
 
@@ -3762,14 +3732,14 @@ int sampling_f(Db *db,
   {
     if (method1 == 1)
     {
-      if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
+      if (st_krige_data(db, model, beta, ranks1, ranks2, rother,
                         1, data_est, data_var)) goto label_end;
       best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
       best_ecart = data_est[best_rank];
     }
     else
     {
-      if (st_crit_global(db, model, nsize1, ranks1, rother, data_est))
+      if (st_crit_global(db, model, ranks1, rother, data_est))
         goto label_end;
       best_rank = VectorHelper::whereMinimum(VectorHelper::initVDouble(data_est, nech));
       best_ecart = data_est[best_rank];
@@ -3786,7 +3756,7 @@ int sampling_f(Db *db,
 
   while (nsize2 < nsize2_max)
   {
-    if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
+    if (st_krige_data(db, model, beta, ranks1, ranks2, rother,
                       1, data_est, data_var)) goto label_end;
     best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
     best_ecart = data_est[best_rank];
@@ -3802,7 +3772,7 @@ int sampling_f(Db *db,
 
   if (verbose)
   {
-    if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
+    if (st_krige_data(db, model, beta, ranks1, ranks2, rother,
                       1, data_est, data_var)) goto label_end;
     StatResults stats = ut_statistics(nech, data_est);
     mestitle(1, "Statistics on estimation errors");
@@ -3817,9 +3787,9 @@ int sampling_f(Db *db,
 
   error = 0;
 
-  label_end: data_est = db_vector_free(data_est);
+  label_end:
+  data_est = db_vector_free(data_est);
   data_var = db_vector_free(data_var);
-  rother = (int*) mem_free((char* ) rother);
   return (error);
 }
 
@@ -3834,9 +3804,7 @@ int sampling_f(Db *db,
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  beta       Thresholding value
- ** \param[in]  nsize1     Number of exact pivots currently selected
  ** \param[in]  ranks1     Ranks of exact pivots
- ** \param[in]  nsize2     Number of ACP pivots currently selected
  ** \param[in]  ranks2     Ranks of ACP pivots
  ** \param[in]  flag_std   Option for storing the standard deviation
  ** \param[in]  verbose    Verbose flag
@@ -3846,23 +3814,23 @@ int krigsampling_f(Db *dbin,
                    Db *dbout,
                    Model *model,
                    double beta,
-                   int nsize1,
-                   int *ranks1,
-                   int nsize2,
-                   int *ranks2,
+                   VectorInt& ranks1,
+                   VectorInt& ranks2,
                    bool flag_std,
                    int verbose)
 {
-  int *rother, error, nvar, ntot, nutil, i, nech;
+  int nvar, ntot, nutil, i, nech;
   double *tutil, *data, *invsig, *datm, *aux1, *aux2, *aux3, *aux4, *s, *c00;
-  double estim, sigma;
+  double estim;
   VectorInt rutil;
+  VectorInt rother;
 
   /* Preliminary checks */
 
-  error = 1;
-  sigma = 0.;
-  rother = nullptr;
+  int error = 1;
+  int nsize1 = (int) ranks1.size();
+  int nsize2 = (int) ranks2.size();
+  double sigma = 0.;
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
   st_global_init(dbin, dbout);
@@ -3900,12 +3868,11 @@ int krigsampling_f(Db *dbin,
 
   /* Core allocation */
 
-  rother = st_ranks_other(nech, nsize1, ranks1, nsize2, ranks2);
-  if (rother == nullptr) goto label_end;
+  rother = st_ranks_other(nech, ranks1, ranks2);
 
   /* Perform local sampling */
 
-  if (st_sampling_krige_data(dbin, model, beta, nsize1, ranks1, nsize2, ranks2,
+  if (st_sampling_krige_data(dbin, model, beta, ranks1, ranks2,
                              rother, &ntot, &nutil, rutil, &tutil, &invsig))
     goto label_end;
 
@@ -3958,11 +3925,12 @@ int krigsampling_f(Db *dbin,
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
     }
 
-    s = model_covmat_by_ranks(model, dbin, nutil, rutil.data(), dbout, 1, &IECH_OUT, -1, -1);
+    VectorInt vech = { IECH_OUT };
+    s = model->evalCovMatrix(dbin, dbout, -1, -1, rutil, vech).getValues().data();
     if (s == nullptr) goto label_end;
     if (FLAG_STD)
     {
-      c00 = model_covmat_by_ranks(model, dbout, 1, &IECH_OUT, dbout, 1, &IECH_OUT, -1, -1);
+      c00 = model->evalCovMatrix(dbout, dbout, -1, -1, vech, vech).getValues().data();
       if (c00 == nullptr) goto label_end;
     }
 
@@ -4004,17 +3972,17 @@ int krigsampling_f(Db *dbin,
 
   error = 0;
 
-  label_end: rother = (int*) mem_free((char* ) rother);
-  tutil = (double*) mem_free((char* ) tutil);
+  label_end:
+  tutil  = (double*) mem_free((char* ) tutil);
   invsig = (double*) mem_free((char* ) invsig);
-  data = (double*) mem_free((char* ) data);
-  datm = (double*) mem_free((char* ) datm);
-  s = (double*) mem_free((char* ) s);
-  c00 = (double*) mem_free((char* ) c00);
-  aux1 = (double*) mem_free((char* ) aux1);
-  aux2 = (double*) mem_free((char* ) aux2);
-  aux3 = (double*) mem_free((char* ) aux3);
-  aux4 = (double*) mem_free((char* ) aux4);
+  data   = (double*) mem_free((char* ) data);
+  datm   = (double*) mem_free((char* ) datm);
+  s      = (double*) mem_free((char* ) s);
+  c00    = (double*) mem_free((char* ) c00);
+  aux1   = (double*) mem_free((char* ) aux1);
+  aux2   = (double*) mem_free((char* ) aux2);
+  aux3   = (double*) mem_free((char* ) aux3);
+  aux4   = (double*) mem_free((char* ) aux4);
   return (error);
 }
 

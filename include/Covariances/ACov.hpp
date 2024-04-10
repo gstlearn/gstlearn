@@ -24,6 +24,7 @@
 class Db;
 class DbGrid;
 class MatrixRectangular;
+class MatrixSparse;
 class ANoStat;
 
 /**
@@ -197,11 +198,19 @@ public:
                               const CovCalcMode* mode = nullptr) const;
   MatrixRectangular evalCovMatrix(Db* db1_arg,
                                   Db* db2_arg = nullptr,
-                                  int ivar = 0,
-                                  int jvar = 0,
+                                  int ivar0 = 0,
+                                  int jvar0 = 0,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr);
+  MatrixSparse* evalCovMatrixSparse(Db *db1_arg,
+                                    Db *db2_arg = nullptr,
+                                    int ivar0 = 0,
+                                    int jvar0 = 0,
+                                    const VectorInt &nbgh1 = VectorInt(),
+                                    const VectorInt &nbgh2 = VectorInt(),
+                                    const CovCalcMode *mode = nullptr,
+                                    double eps = EPSILON3);
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -250,6 +259,19 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
+
+  int _getAuxiliaryParameters(const Db *db1,
+                              const Db *db2,
+                              int ivar0,
+                              int jvar0,
+                              const VectorInt &nbgh1,
+                              const VectorInt &nbgh2,
+                              int *nvar1,
+                              int *nvar2,
+                              int *nsize1,
+                              int *nsize2,
+                              int *nechtot1,
+                              int *nechtot2);
 
 protected:
   bool _isOptimEnabled;

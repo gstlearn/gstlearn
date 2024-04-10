@@ -74,17 +74,13 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   int nact = _getSampleRankNumber();
   int neq  = nvar * nact;
 
-  // Core allocation
-
-  _covmat.resize(neq * neq,0.);
-
   // Establish Covariance Matrix
 
   if (verbose) message("Establish Covariance matrix\n");
 
   /* Establish the covariance matrix and invert it */
 
-  model_covmat(model,db,db,-1,-1,_covmat.data());
+  _covmat = model->covMatrixV(db, db, -1, -1);
 
   // Invert Covariance Matrix
 

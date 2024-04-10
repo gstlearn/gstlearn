@@ -1749,6 +1749,9 @@ int Vario::getDirAddress(int idir,
         case 0:
           iad = npas;
           break;
+
+        default:
+          break;
       }
     }
   }
@@ -4353,7 +4356,7 @@ double Vario::_getIVAR(const Db *db, int iech, int ivar) const
 
   if (_BETA.empty()) return (zz);
   if (ivar != 0) return (TEST);
-  double drfval = model_drift_evaluate(0, _model, db, iech, 0, _BETA.data());
+  double drfval = _model->evalDriftVarCoef(db, iech, 0, _BETA);
   if (FFFF(drfval)) return (TEST);
   return (zz - drfval);
 }

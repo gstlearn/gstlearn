@@ -135,8 +135,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose)
     message("Building Covariance Sparse Matrix (Dimension = %d)\n",nact);
   Timer timer;
-  _Cmat = model_covmat_by_ranks_Mat(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1,
-                                    nullptr, EPSILON3, verbose);
+  _Cmat = model->evalCovMatrixSparse(db, db, -1, -1, _getRanks(), _getRanks());
   if (_Cmat == nullptr) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Building Covariance");

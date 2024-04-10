@@ -405,7 +405,7 @@ static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Solve the kriging system */
 
-  MatrixSquareSymmetric a = pot_ext->model->covMatrixM(pot_ext->db);
+  MatrixSquareSymmetric a = pot_ext->model->covMatrixMS(pot_ext->db);
   if (a.invert()) return 1;
 
   MatrixRectangular b = st_extdrift_establish(pot_ext, number);
@@ -458,6 +458,9 @@ static int st_potext_manage(int mode,
       delete pot_ext->model;
       pot_ext->model = nullptr;
       return (0);
+
+    default:
+      break;
   }
   return (1);
 }
@@ -1648,6 +1651,9 @@ static void st_rhs_part(Pot_Env *pot_env, MatrixRectangular& rhs)
       ideb = pot_env->start_ext;
       ifin = ideb + pot_env->size_ext;
       break;
+
+    default:
+      break;
   }
 
   /* Blank out the R.H.S. */
@@ -2434,6 +2440,9 @@ static void st_tempere(DbGrid *dbout,
       result[0] = reskrige;
       break;
     }
+
+    default:
+      break;
   }
 }
 
@@ -3414,6 +3423,8 @@ static void st_print_type(int rank, int type)
     case 3:
       message("IsoPotential\n");
       break;
+    default:
+      break;
   }
 }
 
@@ -3451,7 +3462,6 @@ int potential_cov(Model *model,
                   const VectorDouble& x2p,
                   const VectorDouble& tx2,
                   VectorDouble& covtab)
-
 {
   VectorDouble covGp(3, 0.);
   VectorDouble cov2Gp(3, 0.);
@@ -3562,6 +3572,8 @@ int potential_cov(Model *model,
           n2 = 1;
           break;
         }
+        default:
+          break;
       }
       break;
 
@@ -3623,6 +3635,9 @@ int potential_cov(Model *model,
           n2 = 1;
           break;
         }
+
+        default:
+          break;
       }
       break;
 
@@ -3691,8 +3706,14 @@ int potential_cov(Model *model,
           n2 = 1;
           break;
         }
+
+        default:
+          break;
       }
       break;
+
+        default:
+          break;
   }
 
   /* Printout (verbose option) */

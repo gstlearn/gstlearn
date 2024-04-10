@@ -547,7 +547,7 @@ void KrigingSystem::_flagDefine()
     for (int il = 0; il < _nbfl; il++)
       for (int ivar = 0; ivar < _nvar; ivar++)
       {
-        if (_getDriftCL(ivar, il, ib) == 0.) continue;
+        if (isZero(_getDriftCL(ivar, il, ib))) continue;
         for (int iech = 0; iech < _nech; iech++)
           if (!FFFF(_getIvar(_nbgh[iech], ivar))) valid++;
       }
@@ -708,11 +708,10 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
     db = _dbout;
     jech = _iechOut;
   }
-  VectorDouble drft = _model->evalDriftVec(db, jech, member);
-  for (int il = 0; il < (int) drft.size(); il++)
+  _drftab = _model->evalDriftVec(db, jech, member);
+  for (int il = 0; il < (int) _drftab.size(); il++)
   {
-    if (FFFF(drft[il])) return 1;
-    _drftab[il] = drft[il];
+    if (FFFF(_drftab[il])) return 1;
   }
   return 0;
 }
@@ -786,9 +785,7 @@ void KrigingSystem::_lhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = 0.;
-        for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getDriftCL(ivar, il, ib);
+        double value = _model->evalDriftValue(ivar, ib, _drftab);
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
@@ -1072,9 +1069,7 @@ int KrigingSystem::_rhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = 0.;
-        for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getDriftCL(ivar, il, ib);
+        double value = _model->evalDriftValue(ivar, ib, _drftab);
         _setRHSF(ib,_nvar,ivar,value);
       }
   }
@@ -1086,9 +1081,7 @@ int KrigingSystem::_rhsCalcul()
       for (int jvar = 0; jvar < _nvar; jvar++)
         for (int jl = 0; jl < _nbfl; jl++, ib++)
         {
-          double value = 0.;
-          for (int il = 0; il < _nbfl; il++)
-            value += _drftab[il] * _getDriftCL(jvar, il, ib);
+          double value = _model->evalDriftValue(jvar, ib, _drftab);
           value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
         }
@@ -1322,7 +1315,7 @@ void KrigingSystem::_simulateCalcul(int status)
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
+          simu = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
         int lec = ivar * _nred;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1333,7 +1326,7 @@ void KrigingSystem::_simulateCalcul(int status)
             double mean = 0.;
             if (_nfeq <= 0) mean = _getMean(jvar);
             if (_flagBayes)
-              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
+              mean = _model->evalDriftVarCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
             simu -= _wgt.getValue_(lec++,0) * (data + mean);
           }
@@ -1642,7 +1635,7 @@ void KrigingSystem::_estimateEstim(int status)
     if (_nfeq <= 0)
       estim0 = _getMean(ivarCL);
     if (_flagBayes)
-      estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean);
+      estim0 = _model->evalDriftVarCoef(_dbout, _iechOut, ivarCL, _postMean);
 
     if (status == 0)
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, _results.getValue_(ivarCL,0) + estim0);
@@ -1780,7 +1773,7 @@ void KrigingSystem::_dualCalcul()
       if (_nfeq <= 0)
         mean = _getMean(ivar, true);
       if (_flagBayes)
-        mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean);
+        mean = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
       _zext.setValue_(ecr, 0, _getIvar(_nbgh[iech], ivar) - mean);
       ecr++;
     }
@@ -3303,10 +3296,7 @@ void KrigingSystem::_bayesCorrectVariance()
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int ib = 0; ib < _nfeq; ib++)
     {
-      double value = 0.;
-      for (int il = 0; il < _nbfl; il++)
-        value += _drftab[il] * _getDriftCL(ivar, il, ib);
-      FF0(ib,ivar) = value;
+      FF0(ib,ivar) = _model->evalDriftValue(ivar, ib, _drftab);
     }
 
   /* Correct the arrays */

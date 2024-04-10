@@ -1253,7 +1253,7 @@ double AMatrix::getMinimum() const
       if (FFFF(value)) continue;
       if (value < minimum) minimum = value;
     }
-  if (minimum == 1.e30) minimum = TEST;
+  if (areEqual(minimum,1.e30)) minimum = TEST;
   return minimum;
 }
 
@@ -1268,7 +1268,7 @@ double AMatrix::getMaximum() const
       if (FFFF(value)) continue;
       if (value > maximum) maximum = value;
     }
-  if (maximum == -1.e30) maximum = TEST;
+  if (areEqual(maximum,-1.e30)) maximum = TEST;
   return maximum;
 }
 

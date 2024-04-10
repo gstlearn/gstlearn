@@ -561,6 +561,9 @@ int db_edit(Db *db, int *flag_valid)
 
       case 9: /* Display the current selection */
         break;
+
+      default:
+        break;
     }
   }
   return (0);
@@ -1570,7 +1573,7 @@ int db_model_nostat(Db *db,
 
     covint.setIech1(iech);
     covint.setIech2(iech);
-    model_nostat_update(&covint, model);
+    model->nostatUpdate(&covint);
     CovAniso *cova = model->getCova(icov);
 
     /* Store the variables */
@@ -1793,7 +1796,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     int icode = -1;
     for (int i = 0; i < ncode && icode < 0; i++)
-      if (code == codes[i]) icode = i;
+      if (areEqual(code,codes[i])) icode = i;
     if (icode < 0) continue;
 
     // Load the coordinates

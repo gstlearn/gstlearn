@@ -147,14 +147,14 @@ double AnamHermite::rawToTransformValue(double z) const
     if (_az.isOutsideAbove(z)) return(_ay.getVmax());
     if (_pz.isOutsideBelow(z))
     {
-      if(_pz.getVmin() == _az.getVmin()) return(_py.getVmin());
+      if(areEqual(_pz.getVmin(),_az.getVmin())) return(_py.getVmin());
       return(_ay.getVmin() + (_py.getVmin() - _ay.getVmin()) *
           (z - _az.getVmin()) / (_pz.getVmin() - _az.getVmin()));
     }
 
     if (_pz.isOutsideAbove(z))
     {
-      if(_pz.getVmax() == _az.getVmax()) return(_py.getVmax());
+      if(areEqual(_pz.getVmax(),_az.getVmax())) return(_py.getVmax());
       return(_ay.getVmax() + (_py.getVmax() - _ay.getVmax()) *
           (z - _az.getVmax()) / (_pz.getVmax() - _az.getVmax()));
     }
@@ -226,7 +226,7 @@ double AnamHermite::rawToTransformValue(double z) const
   }
 
   dz = z2 - z1;
-  if(dz == 0.)
+  if(isZero(dz))
     y = (y1 + y2)/2.;
   else
     y = y1 + (z - z1)*(y2 - y1)/dz;
@@ -254,14 +254,14 @@ double AnamHermite::transformToRawValue(double y) const
 
     if (_py.isOutsideBelow(y))
     {
-      if (_py.getVmin() == _ay.getVmin()) return(_pz.getVmin());
+      if (areEqual(_py.getVmin(),_ay.getVmin())) return(_pz.getVmin());
       return(_az.getVmin() + (_pz.getVmin() - _az.getVmin()) *
           (y - _ay.getVmin()) / (_py.getVmin() - _ay.getVmin()));
     }
 
     if (_py.isOutsideAbove(y))
     {
-      if (_py.getVmax() == _ay.getVmax()) return(_pz.getVmax());
+      if (areEqual(_py.getVmax(),_ay.getVmax())) return(_pz.getVmax());
       return(_az.getVmax() + (_pz.getVmax() - _az.getVmax()) *
           (y - _ay.getVmax()) / (_py.getVmax() - _ay.getVmax()));
     }

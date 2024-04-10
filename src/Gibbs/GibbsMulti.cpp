@@ -125,6 +125,9 @@ double GibbsMulti::getSimulate(VectorVectorDouble& /*y*/,
                                int iact,
                                int iter)
 {
+  DECLARE_UNUSED(ivar);
+  DECLARE_UNUSED(ipgs);
+
   // Define the environment
 
   int iech  = getSampleRank(iact);
