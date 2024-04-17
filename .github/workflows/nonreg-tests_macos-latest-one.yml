@@ -76,4 +76,4 @@ jobs:
     - name: Compile, install package and execute one test
       run: |
         cmake --build ${{env.BUILD_DIR}} --target prepare_check_py
-        Rscript ${{env.TEST_SCRIPT}}
+        python ${{env.TEST_SCRIPT}}
