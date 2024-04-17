@@ -35,27 +35,27 @@ jobs:
     - name: Install dependencies
       run: brew install llvm
       
-    #- name: Setup Python Version
-    #  uses: actions/setup-python@v4
-    #  with:
-    #    python-version: ${{env.PYTHON_VERSION}}
+    - name: Setup Python Version
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
 
-    #- name: Install Python dependencies
-    #  run: |
-    #    python -m pip install --upgrade pip
-    #    python -m pip install numpy==${{env.NUMPY_VERSION}}
-    #    python -m pip install pandas scipy mlxtend
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
+        python -m pip install pandas scipy mlxtend
 
     #- name: Setup R Version
     #  uses: r-lib/actions/setup-r@v2
     #  with:
     #    r-version: ${{env.R_VERSION}}
 
-    #- name: Install the customized SWIG from source
-    #  uses: fabien-ors/install-swig-unix-action@v1
-    #  with:
-    #    swig-root: ${{env.SWIG_ROOT}}
-    #    generator: "Unix Makefiles"
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
 
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-unix
@@ -75,4 +75,4 @@ jobs:
 
     - name: Compile, install package and execute test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check_data
+        cmake --build ${{env.BUILD_DIR}} --target check_py
