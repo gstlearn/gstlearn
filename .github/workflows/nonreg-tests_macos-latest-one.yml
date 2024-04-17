@@ -75,4 +75,4 @@ jobs:
 
     - name: Compile, install package and execute test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check_cpp
+        cmake --build ${{env.BUILD_DIR}} --target check_data
