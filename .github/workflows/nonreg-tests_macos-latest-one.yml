@@ -13,7 +13,7 @@ on:
         default: ''
 
 env:
-  TEST_SCRIPT: tests/r/test_one.R
+  TEST_SCRIPT: tests/python/test_Matrix.py
   BUILD_TYPE: Release
   BUILD_DIR : build
   #PYTHON_VERSION : "3.11"
@@ -35,21 +35,21 @@ jobs:
     - name: Install dependencies
       run: brew install llvm
       
-    #- name: Setup Python Version
-    #  uses: actions/setup-python@v4
-    #  with:
-    #    python-version: ${{env.PYTHON_VERSION}}
-
-    #- name: Install Python dependencies
-    #  run: |
-    #    python -m pip install --upgrade pip
-    #    python -m pip install numpy==${{env.NUMPY_VERSION}}
-    #    python -m pip install pandas scipy mlxtend
-
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
+    - name: Setup Python Version
+      uses: actions/setup-python@v4
       with:
-        r-version: ${{env.R_VERSION}}
+        python-version: ${{env.PYTHON_VERSION}}
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
+        python -m pip install pandas scipy mlxtend
+
+    #- name: Setup R Version
+    #  uses: r-lib/actions/setup-r@v2
+    #  with:
+    #    r-version: ${{env.R_VERSION}}
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
@@ -75,5 +75,5 @@ jobs:
 
     - name: Compile, install package and execute one test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target prepare_check_r
+        cmake --build ${{env.BUILD_DIR}} --target prepare_check_py
         Rscript ${{env.TEST_SCRIPT}}
