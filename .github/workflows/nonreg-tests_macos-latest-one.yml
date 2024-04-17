@@ -35,21 +35,21 @@ jobs:
     - name: Install dependencies
       run: brew install llvm
       
-    - name: Setup Python Version
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{env.PYTHON_VERSION}}
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy==${{env.NUMPY_VERSION}}
-        python -m pip install pandas scipy mlxtend
-
-    #- name: Setup R Version
-    #  uses: r-lib/actions/setup-r@v2
+    #- name: Setup Python Version
+    #  uses: actions/setup-python@v4
     #  with:
-    #    r-version: ${{env.R_VERSION}}
+    #    python-version: ${{env.PYTHON_VERSION}}
+
+    #- name: Install Python dependencies
+    #  run: |
+    #    python -m pip install --upgrade pip
+    #    python -m pip install numpy==${{env.NUMPY_VERSION}}
+    #    python -m pip install pandas scipy mlxtend
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{env.R_VERSION}}
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
@@ -71,8 +71,8 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
     - name: Compile, install package and execute test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check_py
+        cmake --build ${{env.BUILD_DIR}} --target check_r
