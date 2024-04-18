@@ -96,7 +96,7 @@ For building the *gstlearn* Python package, the requirements for compiling *gstl
 
 * SWIG 4 or higher
 * Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11[global]* and *matplotlib* modules installed
-* *pypandoc*, *scikit-sparse*, *plotly* and *jupyter* Python modules [Optional]
+* *pypandoc*, *scikit-sparse*, *plotly*, *jupyter* and *notebook* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
 
@@ -121,7 +121,7 @@ python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 
 ````
 sudo apt install pandoc jupyter libsuitesparse-dev
-python3 -m pip install pypandoc plotly jupyter scikit-sparse
+python3 -m pip install pypandoc plotly jupyter notebook scikit-sparse
 ````
 
 #### MacOS
@@ -140,7 +140,7 @@ python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 
 ````
 brew install pandoc jupyter libsuitesparse-dev
-python3 -m pip install pypandoc plotly jupyter scikit-sparse
+python3 -m pip install pypandoc plotly jupyter notebook scikit-sparse
 ````
 
 Notes:
@@ -168,7 +168,7 @@ python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 4. Finally, install optional Python modules by running following instructions in a command prompt:
 
 ````
-python -m pip install pypandoc plotly jupyter scikit-sparse
+python -m pip install pypandoc plotly jupyter notebook scikit-sparse
 ````
 
 ##### Update the Path environment variable
@@ -263,14 +263,16 @@ cmake --build build --target check_ipynb --config Release
 ### Important Notes
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* You may need to reconnect to your session after installing some requirements
 * You may have to add the directory containing `pybind11-config` executable to the PATH environment variable
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * The Windows C++ Compiler used must be the same that the one used for compiling Python (Visual C++). Using another compiler than Visual C++ is not supported.
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
+* You may need to precise the location of Boost, Eigen3, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
   * `-DBoost_ROOT="path/to/boost"`
+  * `-DEigen3_ROOT="path/to/eigen3"`
   * `-DSWIG_ROOT="path/to/swig"`
   * `-DDoxygen_ROOT="path/to/doxygen"`
   * `-DHDF5_ROOT="path/to/hdf5"`

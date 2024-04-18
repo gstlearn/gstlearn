@@ -13,11 +13,11 @@ on:
         default: ''
 
 env:
-  TEST_SCRIPT: tests/r/test_one.R
+  TEST_SCRIPT: tests/py/test_Matrix.py
   BUILD_TYPE: Release
   BUILD_DIR : build
-  #PYTHON_VERSION : "3.11"
-  #NUMPY_VERSION : "1.23.5"
+  PYTHON_VERSION : "3.11"
+  NUMPY_VERSION : "1.23.5"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}/swig_420b
   BOOST_ROOT: ${{github.workspace}}/boost
@@ -27,7 +27,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -71,9 +71,8 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
-    - name: Compile, install package and execute one test
+    - name: Compile, install package and execute test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target prepare_check_r
-        Rscript ${{env.TEST_SCRIPT}}
+        cmake --build ${{env.BUILD_DIR}} --target check_r

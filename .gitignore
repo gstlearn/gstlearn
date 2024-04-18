@@ -8,6 +8,7 @@ __pycache__
 .pydevproject
 .cproject
 .settings
+.vscode
 core
 nano.save
 doc/demo/*/*.md
