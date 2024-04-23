@@ -47,16 +47,16 @@ jobs:
     #    python -m pip install numpy==${{env.NUMPY_VERSION}}
     #    python -m pip install pandas scipy mlxtend
 
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: ${{env.R_VERSION}}
+    #- name: Setup R Version
+    #  uses: r-lib/actions/setup-r@v2
+    #  with:
+    #    r-version: ${{env.R_VERSION}}
 
-    - name: Install the customized SWIG from source
-      uses: fabien-ors/install-swig-unix-action@v1
-      with:
-        swig-root: ${{env.SWIG_ROOT}}
-        generator: "Unix Makefiles"
+    #- name: Install the customized SWIG from source
+    #  uses: fabien-ors/install-swig-unix-action@v1
+    #  with:
+    #    swig-root: ${{env.SWIG_ROOT}}
+    #    generator: "Unix Makefiles"
 
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-unix
@@ -72,8 +72,12 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: CC=${{env.LLVM_ROOT}}/opt/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=${{env.LLVM_ROOT}}/opt/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+
+    #- name: Compile, install package and execute test
+    #  run: |
+    #    cmake --build ${{env.BUILD_DIR}} --target check_r
 
     - name: Compile, install package and execute test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check_r
+        make check_test_cpp test_fracture
