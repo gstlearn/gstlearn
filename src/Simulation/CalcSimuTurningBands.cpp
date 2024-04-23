@@ -2408,6 +2408,7 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
   return 0;
 }
 
+/// TODO : To be moved in ACovFunc
 bool isCovValidForTurningBands(const ECov& type)
 {
   switch (type.toEnum())
