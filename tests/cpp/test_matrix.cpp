@@ -27,7 +27,6 @@ void st_invgen()
 {
   MatrixSquareSymmetric aaa(4);
   MatrixSquareSymmetric bbb(4);
-  double cond;
 
   aaa.setValue(0,0, 2.);
   aaa.setValue(1,0, 1.);
@@ -35,7 +34,7 @@ void st_invgen()
   aaa.setValue(1,1, 4.);
   aaa.display();
 
-  (void) aaa.computeGeneralizedInverse(bbb, &cond);
+  (void) aaa.computeGeneralizedInverse(bbb);
 
   message("Generalized Inverse\n");
   bbb.display();
