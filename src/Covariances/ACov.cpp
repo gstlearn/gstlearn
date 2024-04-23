@@ -1019,8 +1019,6 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
           int ecr1 = nvar1 * irow + ivar1;
           int ecr2 = nvar2 * icol + ivar2;
           NF_T.add(ecr1, ecr2, value);
-          if (ecr1 != ecr2)
-            NF_T.add(ecr2, ecr1, value);
         }
       }
       icol++;

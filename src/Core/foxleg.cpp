@@ -150,11 +150,10 @@ static double st_residuals(VectorDouble &param,
  *****************************************************************************/
 static void st_determine_gauss(MatrixRectangular& Jr, MatrixSquareGeneral& gauss)
 {
-  double value;
   for (int ipar = 0; ipar < NPAR; ipar++)
     for (int jpar = 0; jpar < NPAR; jpar++)
     {
-      value = 0.;
+      double value = 0.;
       for (int idat = 0; idat < NDAT; idat++)
         value += Jr.getValue(idat,ipar) * Jr.getValue(idat, jpar);
       gauss.setValue(ipar,jpar,value);
@@ -217,47 +216,48 @@ static double st_essai(VectorDouble &hgnadm,
  **
  *****************************************************************************/
 static int st_solve_hgnc(int npar,
-                         VectorDouble &grad,
-                         MatrixSquareGeneral& gauss,
+                         const VectorDouble &grad,
+                         const MatrixSquareGeneral& gauss,
                          VectorDouble &invhess,
                          VectorDouble &hgnc,
                          int flaginvsign)
 {
-  VectorDouble tempMat(NPCT2 * NPCT2);
-  VectorDouble tempVec(NPCT2);
+  VectorDouble tempMatVD(npar * npar);
+  VectorDouble tempVec(npar);
+  MatrixSquareSymmetric tempMat(npar);
 
-  for (int i = 0; i < npar; i++)
-    for (int j = 0; j < npar; j++)
-      tempMat[i * npar + j] = gauss.getValue(j,i);
+  double signe = (flaginvsign) ? -1 : 1.;
 
   for (int i = 0; i < npar; i++)
   {
-    double value = gauss.getValue(i,i);
-    value = (isZero(value)) ? 1 : value;
-    tempVec[i] = grad[i] / sqrt(value);
+    double vali = gauss.getValue(i, i);
+    vali = (isZero(vali)) ? 1 : sqrt(vali);
+    tempVec[i] = grad[i] / vali;
     for (int j = 0; j < npar; j++)
     {
-      tempMat[j * npar + i] /= sqrt(value);
-      tempMat[i * npar + j] /= sqrt(value);
+      double valj = gauss.getValue(j, j);
+      valj = (isZero(valj)) ? 1 : sqrt(valj);
+      tempMat.setValue(i, j, gauss.getValue(i, j) / (vali * valj));
     }
   }
 
-  if (matrix_invgen(tempMat.data(), npar, invhess.data(), NULL))
+  if (tempMat.computeGeneralizedInverse(tempMat))
   {
     messerr("Error: Singularity in the Generalized Inverse");
     messerr("The Automatic Fitting Procedure failed");
     return (1);
   }
 
-  matrix_product_safe(npar, npar, 1, invhess.data(), tempVec.data(), hgnc.data());
+  matrix_product_safe(npar, npar, 1, tempMat.getValues().data(), tempVec.data(),
+                      hgnc.data());
 
-  double signe = (flaginvsign) ? -1 : 1.;
   for (int i = 0; i < npar; i++)
   {
     double value = gauss.getValue(i,i);
-    value = (isZero(value)) ? 1 : value;
-    hgnc[i] = signe * hgnc[i] / sqrt(value);
+    value = (isZero(value)) ? 1 : sqrt(value);
+    hgnc[i] = signe * hgnc[i] / value;
   }
+
   return (0);
 }
 

@@ -3,13 +3,6 @@ NULL
 Gibbs using Moving Neighborhood
 -------------------------------
 Building Covariance Sparse Matrix (Dimension = 1000)
-Calculation of Covariance Sparse matrix between:
-- First Db (1000 ranks / 1000 samples)
-- Second Db (1000 ranks / 1000 samples)
-- Number of variables = 1
-- Tolerance (compared to the sill) = 0.001000
-- Number of elements stored = 996812
-- Reduction percentage =  0.319
 Cholesky Decomposition of Covariance Matrix
 Calculating and storing the weights
 Weights are stored internally
@@ -36,13 +29,6 @@ Table: Statistics for case g1
 Gibbs using Moving Neighborhood
 -------------------------------
 Building Covariance Sparse Matrix (Dimension = 1000)
-Calculation of Covariance Sparse matrix between:
-- First Db (1000 ranks / 1000 samples)
-- Second Db (1000 ranks / 1000 samples)
-- Number of variables = 1
-- Tolerance (compared to the sill) = 0.001000
-- Number of elements stored = 996812
-- Reduction percentage =  0.319
 Cholesky Decomposition of Covariance Matrix
 Calculating and storing the weights
 Weights are stored internally
@@ -69,13 +55,6 @@ Table: Statistics for case g2
 Gibbs using Moving Neighborhood
 -------------------------------
 Building Covariance Sparse Matrix (Dimension = 1000)
-Calculation of Covariance Sparse matrix between:
-- First Db (1000 ranks / 1000 samples)
-- Second Db (1000 ranks / 1000 samples)
-- Number of variables = 1
-- Tolerance (compared to the sill) = 0.001000
-- Number of elements stored = 996812
-- Reduction percentage =  0.319
 Cholesky Decomposition of Covariance Matrix
 Calculating and storing the weights
 Weights are stored internally
@@ -86,13 +65,6 @@ Weights are stored internally
 Gibbs using Moving Neighborhood
 -------------------------------
 Building Covariance Sparse Matrix (Dimension = 1000)
-Calculation of Covariance Sparse matrix between:
-- First Db (1000 ranks / 1000 samples)
-- Second Db (1000 ranks / 1000 samples)
-- Number of variables = 1
-- Tolerance (compared to the sill) = 0.001000
-- Number of elements stored = 996812
-- Reduction percentage =  0.319
 Cholesky Decomposition of Covariance Matrix
 Calculating and storing the weights
 Weights are stored internally
@@ -103,13 +75,6 @@ Weights are stored internally
 Gibbs using Moving Neighborhood
 -------------------------------
 Building Covariance Sparse Matrix (Dimension = 1000)
-Calculation of Covariance Sparse matrix between:
-- First Db (1000 ranks / 1000 samples)
-- Second Db (1000 ranks / 1000 samples)
-- Number of variables = 1
-- Tolerance (compared to the sill) = 0.001000
-- Number of elements stored = 996812
-- Reduction percentage =  0.319
 Cholesky Decomposition of Covariance Matrix
 Calculating and storing the weights
 Weights are stored internally
@@ -120,13 +85,6 @@ Weights are stored internally
 Gibbs using Moving Neighborhood
 -------------------------------
 Building Covariance Sparse Matrix (Dimension = 1000)
-Calculation of Covariance Sparse matrix between:
-- First Db (1000 ranks / 1000 samples)
-- Second Db (1000 ranks / 1000 samples)
-- Number of variables = 1
-- Tolerance (compared to the sill) = 0.001000
-- Number of elements stored = 996812
-- Reduction percentage =  0.319
 Cholesky Decomposition of Covariance Matrix
 Calculating and storing the weights
 Weights are stored internally

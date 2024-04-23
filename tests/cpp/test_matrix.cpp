@@ -23,6 +23,24 @@
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 
+void st_invgen()
+{
+  MatrixSquareSymmetric aaa(4);
+  MatrixSquareSymmetric bbb(4);
+  double cond;
+
+  aaa.setValue(0,0, 2.);
+  aaa.setValue(1,0, 1.);
+  aaa.setValue(0,1, 1.);
+  aaa.setValue(1,1, 4.);
+  aaa.display();
+
+  (void) aaa.computeGeneralizedInverse(bbb, &cond);
+
+  message("Generalized Inverse\n");
+  bbb.display();
+}
+
 void reset_to_initial_contents(AMatrix* M,
                                MatrixRectangular& MRR,
                                MatrixSquareGeneral& MSG,
@@ -50,6 +68,10 @@ int main(int argc, char *argv[])
   setGlobalFlagEigen(true); // Check the Eigen version or not. Essential for first part.
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
+
+  // Checking the inverse generalized matrix
+  message("Checking the inverse generalized matrix\n");
+  st_invgen();
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);

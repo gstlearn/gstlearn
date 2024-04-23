@@ -266,10 +266,6 @@ GSTLEARN_EXPORT void time_report(void);
 /*****************************************/
 
 GSTLEARN_EXPORT int matrix_invert(double *a, int neq, int rank);
-GSTLEARN_EXPORT int matrix_invgen(double *a,
-                                  int neq,
-                                  double *tabout,
-                                  double *cond);
 GSTLEARN_EXPORT double matrix_determinant(int neq, const VectorDouble& b);
 GSTLEARN_EXPORT int matrix_eigen(const double *a,
                                  int neq,

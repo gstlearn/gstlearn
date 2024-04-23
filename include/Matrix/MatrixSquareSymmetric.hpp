@@ -67,7 +67,9 @@ public:
 
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
-
+  int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
+                                double maxicond = 1.e13,
+                                double eps = EPSILON20);
   bool isDefinitePositive();
 
   // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
@@ -95,6 +97,7 @@ public:
                                      const MatrixRectangular& aimat,
                                      const VectorDouble& bimat,
                                      VectorDouble& xmat);
+
 
 private:
   /// Interface for AMatrix

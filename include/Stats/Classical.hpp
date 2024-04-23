@@ -20,6 +20,7 @@
 
 class Db;
 class Table;
+class VarioParam;
 
 GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);

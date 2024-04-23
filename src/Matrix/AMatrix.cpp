@@ -126,7 +126,7 @@ bool AMatrix::isSameSize(const AMatrix& m) const
   return (_nRows == m.getNRows() && _nCols == m.getNCols());
 }
 
-bool AMatrix::isSame(const AMatrix& m, double eps)
+bool AMatrix::isSame(const AMatrix& m, double eps, bool printWhyNot)
 {
   if (! isSameSize(m)) return false;
 
@@ -135,7 +135,20 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
   for (int icol=0; icol<ncols; icol++)
     for (int irow=0; irow<nrows; irow++)
     {
-      if (ABS(getValue(irow, icol) - m.getValue(irow, icol)) > eps) return false;
+      double v1 = getValue(irow, icol);
+      double v2 = m.getValue(irow, icol);
+      if (ABS(v1 - v2) > eps)
+      {
+        if (printWhyNot)
+        {
+          messerr("Element (%d;%d) are different between:\n",irow,icol);
+          messerr("- First matrix");
+          m.display();
+          messerr("- Second matrix");
+          display();
+        }
+        return false;
+      }
     }
   return true;
 }

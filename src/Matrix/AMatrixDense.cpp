@@ -792,4 +792,3 @@ int AMatrixDense::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b, 
 
   return 0;
 }
-

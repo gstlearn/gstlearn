@@ -40,6 +40,16 @@ Exponential
 Total Sill     =      1.000
 Known Mean(s)     0.000
 
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 100)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 10000
+- Number of zero weights = 6688
+- Percentage             =  33.12
+
 Data Base Grid Characteristics
 ==============================
 

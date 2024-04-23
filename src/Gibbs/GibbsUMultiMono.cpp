@@ -106,7 +106,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 double GibbsUMultiMono::_getVariance(int ivar, int iact) const
 {
   int nact = _getSampleRankNumber();
-  return 1. / COVMAT(ivar, iact, iact);
+  return (1. / COVMAT(ivar, iact, iact));
 }
 
 double GibbsUMultiMono::_getEstimate(int icase, int ivar, int iact, VectorVectorDouble& y) const

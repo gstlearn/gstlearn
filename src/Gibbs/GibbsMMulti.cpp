@@ -170,11 +170,11 @@ double GibbsMMulti::_getVariance(int icol) const
 {
   if (storeSparse)
   {
-    return 1. / _matWgt->getValue(icol, icol);
+    return (1. / _matWgt->getValue(icol, icol));
   }
   else
   {
-    return 1. / _weights[icol];
+    return (1. / _weights[icol]);
   }
 }
 

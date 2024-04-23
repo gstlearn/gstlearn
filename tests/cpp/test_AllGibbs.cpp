@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   double sill  = 1.;
   int nlag     = 20;
   VectorDouble ranges = { range, range};
-  bool verbose          = false;
+  bool verbose          = true;
   bool flag_moving      = true;
   bool flag_propagation = false;
   bool flag_multi_mono  = false;

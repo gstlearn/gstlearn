@@ -336,6 +336,9 @@ static int st_keep(int flag_gaus, int flag_prop, int file, int type)
       case 2: /* Proportion */
         keep = (flag_prop);
         break;
+
+      default:
+        break;
     }
   }
 

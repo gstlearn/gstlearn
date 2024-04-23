@@ -26,6 +26,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Stats/Classical.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
@@ -53,6 +54,26 @@ static Db* createLocalDb(int nech, int ndim, int nvar)
   return data;
 }
 
+void st_mini_test()
+{
+  Db* db = Db::createFillRandom(4, 2, 2);
+  db->setValue("z-1",0, TEST);
+  db->setValue("z-2",1, TEST);
+  db->setValue("z-1",2, TEST);
+  db->setValue("z-2",2, TEST);
+  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, false, false, false, true);
+  db->display(dbfmt);
+
+  Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), {3,1,1,2});
+  NeighMoving* neigh = NeighMoving::create(false, 100, 10);
+
+  DbGrid* grid = DbGrid::create({3,3});
+  (void) simtub(db, grid, model, neigh, 2);
+  dbStatisticsPrint(grid, { "z*" },
+                    EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }),
+                    false);
+}
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -61,7 +82,8 @@ static Db* createLocalDb(int nech, int ndim, int nvar)
 int main(int argc, char *argv[])
 {
   std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
+//  sfn << gslBaseName(__FILE__) << ".out";
+
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Simtub-");
@@ -75,6 +97,8 @@ int main(int argc, char *argv[])
   DbGrid* grid_res;
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS,{"Simu*"});
+
+  st_mini_test();
 
   // Generate the output grid
   VectorInt nx = {50,50};

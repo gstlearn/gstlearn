@@ -150,7 +150,7 @@ public:
   /*! Add a value to a matrix term */
   void addValue(int irow, int icol, double value);
   /*! Check if a matrix is the same as me (norm L1) */
-  bool isSame(const AMatrix& m, double eps = EPSILON10);
+  bool isSame(const AMatrix& m, double eps = EPSILON4, bool printWhyNot = EPSILON3);
   /*! Check that both matrix have the same number of rows and columns */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */

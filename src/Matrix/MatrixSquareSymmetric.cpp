@@ -30,7 +30,6 @@
 #define _XL(i,j)       _xl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
 
 #define HA(i,j)        ha[SQ(i,j,neq)]
-#define TEMP(i,j)      temp[SQ(i,j,na)]
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
     : AMatrixSquare(nrow, opt_eigen),
@@ -1188,15 +1187,9 @@ MatrixSquareSymmetric MatrixSquareSymmetric::choleskyNormInPlace(int mode,
  *****************************************************************************/
 int MatrixSquareSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
 {
-  int neq = getNRows();
-  double cond;
-
-  VectorDouble hmatret = getValues();
-  int error = matrix_invgen(hmatret.data(), neq, hmatret.data(), &cond);
-  setValues(hmatret);
-  if (error || cond > 1e13) return (1);
+  if (computeGeneralizedInverse(*this)) return 1;
   prodMatVecInPlace(gmat, xmat);
-  return (0);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -1232,8 +1225,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
                                        VectorDouble& xmat,
                                        VectorDouble& lambda)
 {
-  int error_int;
-  double value, cond;
+  double value;
 
   /* Initializations */
 
@@ -1243,8 +1235,8 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
   /* Core allocation */
 
   double* ha   = (double*) mem_alloc(sizeof(double) * neq * na, 1);
-  double* temp = (double*) mem_alloc(sizeof(double) * na * na, 1);
   double* evec = (double*) mem_alloc(sizeof(double) * na, 1);
+  MatrixSquareSymmetric temp(na);
 
   /* Preliminary solution of the linear system with no constraint */
 
@@ -1264,7 +1256,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
       HA(i,j) = value;
     }
 
-    /* Product TEMP = t(A) %*% H %*% A */
+    /* Product temp = t(A) %*% H %*% A */
 
   for (int i = 0; i < na; i++)
     for (int j = 0; j < na; j++)
@@ -1272,13 +1264,12 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
       value = 0.;
       for (int k = 0; k < neq; k++)
         value += amat.getValue(k,i) * HA(k,j);
-      TEMP(i,j) = value;
+      temp.setValue(i,j,value);
     }
 
-    /* Generalized inverse of TEMP */
+    /* Generalized inverse of temp */
 
-  error_int = matrix_invgen(temp, na, temp, &cond);
-  if (error_int || cond > 1e13) goto label_end;
+  if (temp.computeGeneralizedInverse(temp)) goto label_end;
 
   /* Evaluate evec = t(A) %*% x - b */
 
@@ -1290,13 +1281,13 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
     evec[i] = value - bmat[i];
   }
 
-  /* Evaluate lambda = TEMP %*% evec */
+  /* Evaluate lambda = temp %*% evec */
 
   for (int i = 0; i < na; i++)
   {
     value = 0.;
     for (int j = 0; j < na; j++)
-      value += TEMP(i,j) * evec[j];
+      value += temp.getValue(i,j) * evec[j];
     lambda[i] = value;
   }
 
@@ -1316,7 +1307,6 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
 
   label_end:
   ha   = (double*) mem_free((char* ) ha);
-  temp = (double*) mem_free((char* ) temp);
   evec = (double*) mem_free((char* ) evec);
   return (error);
 }
@@ -1623,4 +1613,55 @@ int MatrixSquareSymmetric::_constraintsCount(int nai, VectorInt& active)
   for (int i = 0; i < nai; i++)
     if (active[i]) number++;
   return (number);
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the generalized inverse of the input square symmetric matrix
+ **
+ ** \return  Error returned code
+ **
+
+ ** \param[out] tabout    Inverted matrix (suqrae symmetric)
+ ** \param[out] maxicond  Maximum value for the Condition Index (MAX(ABS(eigval)))
+ ** \param[in]  eps       Tolerance
+ **
+ ** \remark The input and output matrices can match
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
+                                                     double maxicond,
+                                                     double eps)
+{
+  if (! isSameSize(tabout))
+  {
+    messerr("The argument 'tabout' must have same dimensions as input matrix");
+    return 1;
+  }
+
+  // Calculate the Eigen vectors
+  if (computeEigen()) return 1;
+  VectorDouble eigval = getEigenValues();
+  MatrixSquareGeneral *eigvec = getEigenVectors();
+
+  // Compute the conditioning
+
+  double valcond = VH::maximum(eigval, true);
+  if (valcond > maxicond) return 1;
+
+  /* Calculate the generalized inverse */
+
+  int neq = getNRows();
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+    {
+      double value = 0.;
+      for (int k = 0; k < neq; k++)
+      {
+        if (ABS(eigval[k]) > valcond * eps)
+          value += eigvec->getValue(i,k) * eigvec->getValue(j,k) / eigval[k];
+      }
+      tabout.setValue(i, j, value);
+    }
+  return 0;
 }

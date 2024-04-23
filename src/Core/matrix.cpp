@@ -60,10 +60,6 @@ static double _getTolInvert()
 {
   return 1.e-20;
 }
-static double _getTolInvGen()
-{
-  return 1.e-20;
-}
 static double _getEpsMatrix()
 {
   return 2.3e-16;
@@ -806,70 +802,10 @@ void matrix_cholesky_invert(int neq, const double *tl, double *xl)
   }
 }
 
-/****************************************************************************/
-/*!
- **  Calculate the generalized inverse of a square symmetric matrix
- **
- ** \return  Error returned code
- **
- ** \param[in]  a         Symmetric matrix to be inverted
- ** \param[in]  neq       Number of equations
- **
- ** \param[out] tabout    Inverted matrix
- ** \param[out] cond      Condition number (MAX(ABS(eigval))/MIN(ABS(eigval)))
- **
- ** \remark The input and output matrices can matchprint
- **
- *****************************************************************************/
-int matrix_invgen(double *a, int neq, double *tabout, double *cond)
-{
-  double *eigvec, *eigval, value, valcond;
-  int i, j, k, error;
-
-  /* Initializations */
-
-  error = 1;
-  eigvec = eigval = nullptr;
-
-  /* Core allocation */
-
-  eigval = (double*) mem_alloc(sizeof(double) * neq, 0);
-  if (eigval == nullptr) goto label_end;
-  eigvec = (double*) mem_alloc(sizeof(double) * neq * neq, 0);
-  if (eigvec == nullptr) goto label_end;
-
-  /* Calculate the eigen vectors */
-
-  if (matrix_eigen(a, neq, eigval, eigvec)) goto label_end;
-  valcond = MAX(ABS(eigval[0]), ABS(eigval[neq-1]));
-  if (cond != nullptr) *cond = valcond;
-
-  /* Calculate the generalized inverse */
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      value = 0.;
-      for (k = 0; k < neq; k++)
-      {
-        if (ABS(eigval[k]) > valcond * _getTolInvGen()) value += EIGVEC(k,i)* EIGVEC(k,j) / eigval[k];
-      }
-      TABOUT(i,j) = value;
-    }
-
-    /* Set the error returned code */
-
-  error = 0;
-
-  label_end: eigval = (double*) mem_free((char* ) eigval);
-  eigvec = (double*) mem_free((char* ) eigvec);
-  return (error);
-}
-
 /*****************************************************************************/
 /*!
- **  Perform a linear combinaison of matrices or vectors
- **            [C] = coeffa * [A] + coeffb * [B]
+ **  Perform a linear combination of matrices or vectors
+ **            [C] = 'coeffa' * [A] + 'coeffb' * [B]
  **
  ** \param[in]  nval    Number of elements of the matrices or vectors
  ** \param[in]  coeffa  Coefficient applied to the first matrix or vector
