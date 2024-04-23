@@ -342,9 +342,9 @@ bool ANeigh::_discardUndefined(int iech)
   }
   else
   {
-    // In the case of simulations, the test is performed on the
-    // simulation error for the first variable and first simulation
-    if (! FFFF(_dbin->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 0))) return 0;
+    // Here the check is performed on all variables belonging to ELoc::SIMU
+    // The number of variables is equal to 'nbsimu' * 'nvar'
+    if (_dbin->isAllUndefinedByType(ELoc::SIMU, iech)) return 0;
   }
   return 1;
 }

@@ -409,15 +409,15 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
 
     if (! _flagSimu)
 
-      // Particular case of simulations
+      // Case of the traditional kriging based on Z-variables
 
       return _dbin->getLocVariable(ELoc::Z,rank, ivar);
 
     else
 
-      // Case of the traditional kriging based on Z-variables
+      // Case of simulations
 
-      return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, 1, 0);
+      return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, _nbsimu, _nvar);
   }
   else
   {
@@ -521,8 +521,11 @@ void KrigingSystem::_flagDefine()
   {
     int nbgh_iech = _nbgh[iech];
     for (int ivar = 0; ivar < _nvar; ivar++)
+    {
+      double val = _getIvar(nbgh_iech, ivar);
       if (FFFF(_getIvar(nbgh_iech, ivar)))
         _setFlag(iech,ivar,0);
+    }
   }
 
   /* Check on the external drifts */
@@ -1328,7 +1331,8 @@ void KrigingSystem::_simulateCalcul(int status)
             if (_flagBayes)
               mean = _model->evalDriftVarCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
-            simu -= _wgt.getValue_(lec++,0) * (data + mean);
+            if (! FFFF(data))
+              simu -= _wgt.getValue_(lec++,0) * (data + mean);
           }
 
         if (OptDbg::query(EDbg::KRIGING))

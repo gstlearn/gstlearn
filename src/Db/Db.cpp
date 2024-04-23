@@ -2445,12 +2445,23 @@ bool Db::isIsotopic(int iech, int nvar_max) const
 
 bool Db::isAllUndefined(int iech) const
 {
+  if (!isSampleIndexValid(iech)) return false;
   int nvar = getLocNumber(ELoc::Z);
   if (nvar <= 0) return false;
-  if (!isSampleIndexValid(iech)) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
     if (! FFFF(getLocVariable(ELoc::Z,iech, ivar))) return true;
+  return false;
+}
+
+bool Db::isAllUndefinedByType(const ELoc& loctype, int iech) const
+{
+  if (!isSampleIndexValid(iech)) return false;
+  int natt = getLocNumber(loctype);
+  if (natt <= 0) return false;
+
+  for (int iatt = 0; iatt < natt; iatt++)
+    if (! FFFF(getLocVariable(loctype, iech, iatt))) return true;
   return false;
 }
 
@@ -2718,14 +2729,6 @@ bool Db::isActiveDomain(int iech) const
 }
 
 /**
- * Returns the rank of the Column corresponding to the simulation / variable choice
- */
-int Db::getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar)
-{
-  return (_getSimrank(isimu, ivar, icase, nbsimu, nvar));
-}
-
-/**
  * Returns the value of a simulation / variable for a given sample
  */
 double Db::getSimvar(const ELoc& locatorType,
@@ -2736,7 +2739,7 @@ double Db::getSimvar(const ELoc& locatorType,
                      int nbsimu,
                      int nvar) const
 {
-  int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
+  int item = getSimRank(isimu, ivar, icase, nbsimu, nvar);
   return getFromLocator(locatorType, iech, item);
 }
 
@@ -2752,7 +2755,7 @@ void Db::setSimvar(const ELoc& locatorType,
                    int nvar,
                    double value)
 {
-  int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
+  int item = getSimRank(isimu, ivar, icase, nbsimu, nvar);
   setFromLocator(locatorType, iech, item, value);
 }
 
@@ -2769,7 +2772,7 @@ void Db::updSimvar(const ELoc& locatorType,
                    const EOperator& oper,
                    double value)
 {
-  int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
+  int item = getSimRank(isimu, ivar, icase, nbsimu, nvar);
 
   // This direct addressing is meant to save time
   int icol = getColIdxByLocator(locatorType, item);
@@ -4184,7 +4187,7 @@ VectorDouble Db::statisticsMulti(const VectorString &names,
  ** \param[in]  nvar      Number of variables
  **
  *****************************************************************************/
-int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
+int Db::getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
 {
   return (isimu + nbsimu * (ivar + nvar * icase));
 }

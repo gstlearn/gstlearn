@@ -1996,7 +1996,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
           {
             simval = r * simval + sqrt(1. - r * r) * law_gaussian();
           }
-          double simunc = (!FFFF(zvar) && !FFFF(simval)) ? simval - zvar : TEST;
+          double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
           dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
                           simunc);
         }

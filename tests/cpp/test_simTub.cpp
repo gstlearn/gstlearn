@@ -26,6 +26,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Estimation/CalcKriging.hpp"
 #include "Stats/Classical.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
@@ -67,11 +68,14 @@ void st_mini_test()
   Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), {3,1,1,2});
   NeighMoving* neigh = NeighMoving::create(false, 100, 10);
 
-  DbGrid* grid = DbGrid::create({3,3});
+  DbGrid* grid = DbGrid::create({2,2});
+  OptDbg::setReference(1);
+
+  // Perform Kriging first
+  (void) kriging(db, grid, model, neigh);
+
+  // Perform conditional simulations
   (void) simtub(db, grid, model, neigh, 2);
-  dbStatisticsPrint(grid, { "z*" },
-                    EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }),
-                    false);
 }
 
 /****************************************************************************/
@@ -98,6 +102,7 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS,{"Simu*"});
 
+  // Perform a preliminary test to check heterotopic conditional simulation
   st_mini_test();
 
   // Generate the output grid

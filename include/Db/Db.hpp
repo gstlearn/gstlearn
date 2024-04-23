@@ -490,6 +490,7 @@ public:
   bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
+  bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
 
   void   setInterval(int iech, int item, double rklow = TEST, double rkup = TEST);
   int    getIntervalNumber() const;
@@ -522,7 +523,7 @@ public:
    * @param value Value to be assigned
    *  @{
    */
-  int getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
+  int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
   double getSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
@@ -834,7 +835,6 @@ private:
   String _summaryArrays(VectorInt cols, bool useSel = true) const;
 
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
-  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu=1, int nvar=1) const;
   VectorInt _getUIDsBasic(const VectorString& names) const;
 
   int _getLastColumn(int number = 0) const;

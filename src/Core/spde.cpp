@@ -5142,7 +5142,7 @@ int spde_process(Db *dbin,
 
         /* Saving operation */
 
-        iatt_simu = dbout->getSimvarRank(isimuw, 0, igrf, nbsimuw, 1);
+        iatt_simu = dbout->getSimRank(isimuw, 0, igrf, nbsimuw, 1);
         st_save_result(zcur, dbout, ELoc::SIMU, iatt_simu);
       }
 

@@ -143,7 +143,7 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
 
   check_mandatory_attribute("simu_func_continuous_update", db, ELoc::SIMU);
   check_mandatory_attribute("simu_func_continuous_update", db, ELoc::Z);
-  iptr_simu = db->getSimvarRank(isimu, 0, 0, nbsimu, 1);
+  iptr_simu = db->getSimRank(isimu, 0, 0, nbsimu, 1);
 
   /* Loop on the grid cells */
 
@@ -181,7 +181,7 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
   ipgs = ModCat.ipgs;
   check_mandatory_attribute("simu_func_categorical_update", db, ELoc::FACIES);
   check_mandatory_attribute("simu_func_categorical_update", db, ELoc::P);
-  iptr_simu = db->getSimvarRank(isimu, 0, ipgs, nbsimu, 1);
+  iptr_simu = db->getSimRank(isimu, 0, ipgs, nbsimu, 1);
 
   /* Loop on the grid cells */
 
