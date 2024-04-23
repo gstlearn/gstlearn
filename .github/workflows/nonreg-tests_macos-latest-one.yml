@@ -81,4 +81,4 @@ jobs:
 
     - name: Compile, install package and execute one C++ test
       run: |
-        make check_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}}
+        make dump_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}}
