@@ -71,13 +71,14 @@ jobs:
         eigen-version: ${{env.EIGEN_VERSION}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
-      run: CC=${{env.LLVM_ROOT}}/opt/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
-
-    #- name: Compile, install package and execute test
+    #- name: Compile, install package and execute one R test
     #  run: |
-    #    cmake --build ${{env.BUILD_DIR}} --target check_r
+    #    make check_test_r TEST=test_Matrix_r LLVM_ROOT=${{env.LLVM_ROOT}}
 
-    - name: Compile, install package and execute test
+    #- name: Compile, install package and execute one python test
+    #  run: |
+    #    make check_test_py TEST=test_Matrix_py LLVM_ROOT=${{env.LLVM_ROOT}}
+
+    - name: Compile, install package and execute one C++ test
       run: |
-        make check_test_cpp TEST=test_fracture
+        make check_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}}

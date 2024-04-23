@@ -84,7 +84,9 @@ else
 endif
 
 ifeq ($(OS),Darwin)
-  LLVM_ROOT = /opt/homebrew
+  ifndef LLVM_ROOT
+  	LLVM_ROOT = /opt/homebrew
+  endif
   # Particular clang compiler for supporting OpenMP
   CC_CXX = CC=$(LLVM_ROOT)/opt/llvm/bin/clang CXX=$(LLVM_ROOT)/opt/llvm/bin/clang++
 else
@@ -94,7 +96,7 @@ endif
 ifeq ($(DEBUG), 1)
   BUILD_TYPE = Debug
  else
-  BUILD_TYPE = Release 
+  BUILD_TYPE = Release
 endif
 
 ifndef BUILD_DIR
@@ -226,6 +228,9 @@ check_test_py: cmake-python
 
 check_test_r: cmake-r-doxygen
 	@cd $(BUILD_DIR); make prepare_check_r; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+
+dump_test_cpp: cmake
+	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy
 
 build_demos: cmake-python-r
 	@cmake --build $(BUILD_DIR) --target build_demos -- --no-print-directory $(N_PROC_OPT)
