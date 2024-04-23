@@ -32,6 +32,7 @@ env:
   BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}/eigen
   EIGEN_VERSION : "3.4.0"
+  LLVM_ROOT : /opt/homebrew
 
 jobs:
   build:
@@ -79,7 +80,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=${{env.LLVM_ROOT}}/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check

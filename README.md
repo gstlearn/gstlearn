@@ -221,7 +221,7 @@ brew install libeigen3-dev
 brew install libhdf5-dev
 ```
 
-Define environment variables for the appropriate clang compiler:
+Define environment variables for the appropriate clang compiler (adapt llvm installation path):
 
 ```
 export CC=/usr/local/opt/llvm/bin/clang

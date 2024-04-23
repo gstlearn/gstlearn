@@ -84,8 +84,9 @@ else
 endif
 
 ifeq ($(OS),Darwin)
+  LLVM_ROOT = /opt/homebrew
   # Particular clang compiler for supporting OpenMP
-  CC_CXX = CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++
+  CC_CXX = CC=$(LLVM_ROOT)/llvm/bin/clang CXX=$(LLVM_ROOT)/llvm/bin/clang++
 else
   CC_CXX = 
 endif
