@@ -1,3 +1,21 @@
+Checking the inverse generalized matrix
+- Number of rows    = 4
+- Number of columns = 4
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     2.000     1.000     0.000     0.000
+     [  1,]     1.000     4.000     0.000     0.000
+     [  2,]     0.000     0.000     0.000     0.000
+     [  3,]     0.000     0.000     0.000     0.000
+Generalized Inverse
+- Number of rows    = 4
+- Number of columns = 4
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     0.571    -0.143     0.000     0.000
+     [  1,]    -0.143     0.286     0.000     0.000
+     [  2,]     0.000     0.000     0.000     0.000
+     [  3,]     0.000     0.000     0.000     0.000
 Cloning Matrix of integers
 - Number of rows    = 2
 - Number of columns = 3

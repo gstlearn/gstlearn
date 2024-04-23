@@ -82,7 +82,7 @@ void st_mini_test()
 int main(int argc, char *argv[])
 {
   std::stringstream sfn;
-//  sfn << gslBaseName(__FILE__) << ".out";
+  sfn << gslBaseName(__FILE__) << ".out";
 
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setContainerName(true);
