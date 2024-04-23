@@ -80,4 +80,4 @@ jobs:
 
     - name: Compile, install package and execute test
       run: |
-        make check_test_cpp test_fracture
+        make check_test_cpp TEST=test_fracture
