@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
     vario->compute(dbout, ECalcVario::VARIOGRAM);
     ascii_filename("Vario",0,1,filename);
   }
+  vario->display();
   if (! vario->dumpToNF("Vario.dat",verbose))
     messageAbort("ascii_vario_write");
   
@@ -133,8 +134,7 @@ int main(int argc, char *argv[])
 //  OptDbg::define(EDbg::CONVERGE);
 //  verbose = true;
   (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
-// Model is not printed any more to avoid differences among platforms
-//    model->display();
+  model->display();
   ascii_filename("Model",0,1,filename);
   if (! model->dumpToNF("Model.out",verbose))
     messageAbort("ascii_model_write");
