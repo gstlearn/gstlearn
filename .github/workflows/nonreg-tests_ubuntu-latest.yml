@@ -42,8 +42,8 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install dependencies
+      #  sudo apt-get update --allow-insecure-repositories
       run: |
-        sudo apt-get update --allow-insecure-repositories
         sudo apt-get install -yq libhdf5-dev
         sudo apt-get install -yq libopenmpi-dev
 
