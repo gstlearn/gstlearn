@@ -522,7 +522,6 @@ void KrigingSystem::_flagDefine()
     int nbgh_iech = _nbgh[iech];
     for (int ivar = 0; ivar < _nvar; ivar++)
     {
-      double val = _getIvar(nbgh_iech, ivar);
       if (FFFF(_getIvar(nbgh_iech, ivar)))
         _setFlag(iech,ivar,0);
     }

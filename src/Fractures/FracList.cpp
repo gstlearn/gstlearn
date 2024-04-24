@@ -1269,8 +1269,6 @@ void FracList::_plungeSegment(DbGrid *dbgrid,
                               double x2,
                               double y2)
 {
-  if (FFFF(x1) || FFFF(y1) || FFFF(x2) || FFFF(y2)) return;
-
   VectorDouble coor(2);
   double deltax = x2 - x1;
   double deltay = y2 - y1;
