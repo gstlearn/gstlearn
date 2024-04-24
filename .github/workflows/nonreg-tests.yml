@@ -1,12 +1,16 @@
 name: nonreg-tests
 
 on:
-  # Activate the workflow at each push on main branch
+  # Activate the workflow at each push on dev branch
   push:
     branches: [ dev ]
-  # Activate the workflow at each pull request on main branch
+  # Activate the workflow at each pull request on dev branch
   pull_request:
     branches: [ dev ]
+  schedule:
+    # Nightly non regression on default branch (dev)
+    # * is a special character in YAML so you have to quote the string
+    - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:

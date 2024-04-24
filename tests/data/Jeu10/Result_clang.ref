@@ -1,0 +1,114 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 13
+
+Data Base Extension
+-------------------
+Coor #1 - Min = 422626.800 - Max = 424583.900 - Ext = 1957.1
+Coor #2 - Min = 6622949.000 - Max = 6624963.000 - Ext = 2014
+
+Data Base Statistics
+--------------------
+1 - Name x1 - Locator x1
+ Nb of data          =         13
+ Nb of active values =         13
+ Minimum value       = 422626.800
+ Maximum value       = 424583.900
+ Mean value          = 423577.977
+ Standard Deviation  =    605.441
+ Variance            = 366559.372
+2 - Name x2 - Locator x2
+ Nb of data          =         13
+ Nb of active values =         13
+ Minimum value       = 6622949.000
+ Maximum value       = 6624963.000
+ Mean value          = 6624113.385
+ Standard Deviation  =    586.240
+ Variance            = 343677.153
+3 - Name z1 - Locator z1
+ Nb of data          =         13
+ Nb of active values =         13
+ Minimum value       =   3234.000
+ Maximum value       =   3403.000
+ Mean value          =   3317.191
+ Standard Deviation  =     41.126
+ Variance            =   1691.381
+4 - Name f1 - Locator f1
+ Nb of data          =         13
+ Nb of active values =         13
+ Minimum value       =   2690.737
+ Maximum value       =   2764.898
+ Mean value          =   2739.565
+ Standard Deviation  =     21.510
+ Variance            =    462.682
+
+Data Base Contents
+------------------
+                   x1        x2        z1        f1
+     [  0,]424120.0006624515.000  3347.210  2760.045
+     [  1,]424583.9006623571.000  3234.000  2690.737
+     [  2,]423661.7006622949.000  3291.890  2714.950
+     [  3,]424424.3006624454.000  3276.660  2728.197
+     [  4,]424342.4006624525.000  3290.190  2736.451
+     [  5,]423413.6006624502.000  3328.010  2761.740
+     [  6,]422789.8006623453.000  3302.510  2726.999
+(Nrows=7[from 13])
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Total number of samples      = 30616
+
+Grid characteristics:
+---------------------
+Origin : 422500.0006622920.000
+Mesh   :     12.500    12.500
+Number :        172       178
+
+Data Base Extension
+-------------------
+Coor #1 - Min = 422500.000 - Max = 424637.500 - Ext = 2137.5
+Coor #2 - Min = 6622920.000 - Max = 6625132.500 - Ext = 2212.5
+
+Data Base Statistics
+--------------------
+1 - Name f1 - Locator f1
+ Nb of data          =      30616
+ Nb of active values =      30616
+ Minimum value       =   2677.968
+ Maximum value       =   2792.425
+ Mean value          =   2740.171
+ Standard Deviation  =     23.619
+ Variance            =    557.871
+2 - Name Simu.z1 - Locator z1
+ Nb of data          =      30616
+ Nb of active values =      30616
+ Minimum value       =   3145.744
+ Maximum value       =   3515.873
+ Mean value          =   3320.930
+ Standard Deviation  =     63.357
+ Variance            =   4014.050
+
+Data Base Contents
+------------------
+                   f1   Simu.z1
+     [  0,]  2722.353  3214.172
+     [  1,]  2722.231  3215.140
+     [  2,]  2722.100  3228.656
+     [  3,]  2721.979  3225.128
+     [  4,]  2721.872  3238.652
+     [  5,]  2721.767  3239.370
+     [  6,]  2721.682  3244.392
+(Nrows=7[from 30616])

@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
 
   // Global parameters
   int ndim = 2;
+  bool verbose = true;
+  int ndisc = 1000.;
   law_set_random_seed(32131);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
@@ -91,14 +93,15 @@ int main(int argc, char *argv[])
   // Simulating fractures
   FracList flist = FracList();
   int seed = 432431;
-  flist.simulate(env, true, true, seed, false, VectorDouble());
+  flist.simulate(env, true, true, seed, verbose, VectorDouble());
   flist.display();
 
   // Plunge the set of fractures on the Grid
   VectorDouble permtab = { 20., 10., 15. };
   double perm_mat   = 0.;
   double perm_bench = 5.;
-  (void) flist.fractureToBlock(grid, xmax, permtab, perm_mat, perm_bench);
+  (void) flist.fractureToBlock(grid, xmax, permtab, perm_mat, perm_bench,
+                               ndisc, verbose);
 
   grid->display(&dbfmt);
   (void) grid->dumpToNF("Grid.ascii");
