@@ -1,8 +1,4 @@
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
-
 
 # We create a grid of 150 by 100 square cells of 1m edge.
 
