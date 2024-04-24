@@ -1,1 +1,136 @@
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 2
+Number of direction(s)      = 2
+Space dimension             = 3
+Variance-Covariance Matrix
+               [,  0]    [,  1]
+     [  0,]     3.700     3.828
+     [  1,]     3.828     4.024
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      0.000     1.000     0.000
+Direction angles (degrees)  =     90.000     0.000     0.000
+Tolerance on direction      =      0.000 (degrees)
+Calculation lag             =    480.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1    70.000   480.000     2.283
+         2    60.000   960.000     3.556
+         3    50.000  1440.000     4.602
+         4    40.000  1920.000     5.678
+         5    30.000  2400.000     5.304
+         6    20.000  2880.000     4.970
+         7    10.000  3360.000     2.777
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         1    70.000   480.000     2.449
+         2    60.000   960.000     3.667
+         3    50.000  1440.000     4.751
+         4    40.000  1920.000     5.855
+         5    30.000  2400.000     5.478
+         6    20.000  2880.000     5.354
+         7    10.000  3360.000     2.637
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         1    70.000   480.000     2.696
+         2    60.000   960.000     3.835
+         3    50.000  1440.000     4.967
+         4    40.000  1920.000     6.104
+         5    30.000  2400.000     5.735
+         6    20.000  2880.000     5.864
+         7    10.000  3360.000     2.562
+
+Direction #2
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000     0.000
+Direction angles (degrees)  =      0.000     0.000     0.000
+Tolerance on direction      =      0.000 (degrees)
+Calculation lag             =    350.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1    72.000   350.000     0.761
+         2    64.000   700.000     1.584
+         3    56.000  1050.000     2.418
+         4    48.000  1400.000     3.282
+         5    40.000  1750.000     3.652
+         6    32.000  2100.000     3.862
+         7    24.000  2450.000     4.156
+         8    16.000  2800.000     4.347
+         9     8.000  3150.000     4.344
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         1    72.000   350.000     0.745
+         2    64.000   700.000     1.666
+         3    56.000  1050.000     2.499
+         4    48.000  1400.000     3.430
+         5    40.000  1750.000     3.816
+         6    32.000  2100.000     4.057
+         7    24.000  2450.000     4.404
+         8    16.000  2800.000     4.658
+         9     8.000  3150.000     4.895
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         1    72.000   350.000     0.768
+         2    64.000   700.000     1.789
+         3    56.000  1050.000     2.637
+         4    48.000  1400.000     3.640
+         5    40.000  1750.000     4.055
+         6    32.000  2100.000     4.331
+         7    24.000  2450.000     4.761
+         8    16.000  2800.000     5.124
+         9     8.000  3150.000     5.714
+
+Model characteristics
+=====================
+Space dimension              = 3
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     0.938     1.081
+     [  1,]     1.081     1.295
+- Ranges       =    420.002  2054.133   420.002
+- Angles       =     90.000     0.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.000    -1.000     0.000
+     [  1,]     1.000     0.000     0.000
+     [  2,]     0.000     0.000     1.000
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.354     4.379
+     [  1,]     4.379     4.417
+- Ranges       =   2261.018  3974.422  2261.018
+- Angles       =     90.000     0.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.000    -1.000     0.000
+     [  1,]     1.000     0.000     0.000
+     [  2,]     0.000     0.000     1.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     5.292     5.460
+     [  1,]     5.460     5.712
+
+Known Mean(s)     0.000     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)
