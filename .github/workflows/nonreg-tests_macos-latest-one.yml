@@ -13,7 +13,6 @@ on:
         default: ''
 
 env:
-  TEST_SCRIPT: tests/py/test_Matrix.py
   BUILD_TYPE: Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
@@ -71,23 +70,14 @@ jobs:
         eigen-version: ${{env.EIGEN_VERSION}}
         generator: "Unix Makefiles"
 
-    #- name: Configure CMake for R test
-    #  run: CC=${{env.LLVM_ROOT}}/opt/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
-
     #- name: Compile, install package and execute one R test
     #  run: |
-    #    make check_test_r TEST=test_Matrix_r LLVM_ROOT=${{env.LLVM_ROOT}}
-
-    #- name: Configure CMake for python test
-    #  run: CC=${{env.LLVM_ROOT}}/opt/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+    #    make check_test_r TEST=test_Matrix_r LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
 
     #- name: Compile, install package and execute one python test
     #  run: |
-    #    make check_test_py TEST=test_Matrix_py LLVM_ROOT=${{env.LLVM_ROOT}}
-
-    - name: Configure CMake for C++ test
-      run: CC=${{env.LLVM_ROOT}}/opt/llvm/bin/clang CXX=${{env.LLVM_ROOT}}/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+    #    make check_test_py TEST=test_Matrix_py LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
 
     - name: Compile, install package and execute one C++ test
       run: |
-        make dump_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}}
+        make dump_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
