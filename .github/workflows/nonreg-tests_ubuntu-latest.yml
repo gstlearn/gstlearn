@@ -43,7 +43,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
+        sudo apt-get update --allow-insecure-repositories
         sudo apt-get install -yq libhdf5-dev
         sudo apt-get install -yq libopenmpi-dev
 
