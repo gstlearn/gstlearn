@@ -134,7 +134,6 @@ int FracList::simulate(const FracEnviron& envir,
 
   if (_verbose)
   {
-    message("Options set by the keypair mechanism:\n");
     message("Fracture_Discretization_Count = %d \n", _ndisc);
     message("Fracture_Check_Intersect      = %d \n", _flagCheck);
     message("Fracture_Repulsion_Low0       = %lg\n", _low0);
@@ -1196,7 +1195,6 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
   double dmin = 1.e30;
   for (int idim = 0; idim < dbgrid->getNDim(); idim++)
   {
-    std::cout << "Dim" << idim << std::endl;
     if (dbgrid->getDX(idim) < dmin) dmin = dbgrid->getDX(idim);
   }
   double delta = dmin / (double) ndisc;
@@ -1211,7 +1209,6 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
   {
     for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
-      std::cout << "Layer" << ilayer << std::endl;
       double cote = _getMemLayer(ilayer);
       _plungeSegment(dbgrid, iptr, delta, perm_bench, 0., cote, xmax, cote);
     }
@@ -1221,7 +1218,6 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
 
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
-    std::cout << "Frac" << ifrac << std::endl;
     FracDesc &desc = _descs[ifrac];
     int ifam = desc.getFamily();
     double perm = 0.;
@@ -1238,7 +1234,6 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
     double permval = permtab[desc.getFamily()];
     for (int ip = 0; ip < npoint - 1; ip++)
     {
-      std::cout << "  Point" << ip << std::endl;
       int jp = ip + 1;
       _plungeSegment(dbgrid, iptr, delta, permval,
                      desc.getXXF(ip), desc.getYYF(ip),
