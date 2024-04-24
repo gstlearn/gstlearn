@@ -43,6 +43,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
         sudo apt-get install -yq libhdf5-dev
         sudo apt-get install -yq libopenmpi-dev
