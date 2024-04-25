@@ -573,7 +573,7 @@ public:
 
   MatrixSquareSymmetric covMatrixMS(Db *db1, const CovCalcMode *mode = nullptr);
   MatrixRectangular covMatrixM(Db *db1,
-                               Db *db2,
+                               Db *db2 = nullptr,
                                int ivar = -1,
                                int jvar = -1,
                                const CovCalcMode *mode = nullptr);

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  StdoutRedirect sr("Result.out");
+  StdoutRedirect sr("Result.out", argc, argv, 2);
 
   /* Create the output name (for storage of dump files) */
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
   /* Getting the Study name */
 
-  if (argc != 2) messageAbort("Wrong number of arguments");
+  if (argc < 2) messageAbort("Wrong number of arguments");
   ascii_study_define(argv[1]);
 
   /* Define the environment */
@@ -131,8 +131,8 @@ int main(int argc, char *argv[])
 
   if (flag_norm_sill) constraints.setConstantSillValue(1.);
   options.setFlagGoulardUsed(flag_goulard_used);
-//  OptDbg::define(EDbg::CONVERGE);
-//  verbose = true;
+  OptDbg::define(EDbg::CONVERGE);
+  verbose = true;
   (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
   model->display();
   ascii_filename("Model",0,1,filename);
