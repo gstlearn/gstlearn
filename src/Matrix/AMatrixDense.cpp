@@ -761,6 +761,9 @@ int AMatrixDense::_computeEigenLocal(bool optionPositive)
 
   VectorDouble vec(nrows * ncols);
   Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
+
+  // Clean previous version (if any)
+  if (_eigenVectors != nullptr) delete _eigenVectors;
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
 
   if (optionPositive) _eigenVectors->makePositiveColumn();
@@ -786,6 +789,9 @@ int AMatrixDense::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b, 
 
   VectorDouble vec(nrows * ncols);
   Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
+
+  // Clean previous version (if any)
+  if (_eigenVectors != nullptr) delete _eigenVectors;
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
 
   if (optionPositive) _eigenVectors->makePositiveColumn();

@@ -106,6 +106,7 @@ void MatrixInt::_deallocate()
 void MatrixInt::_allocate()
 {
   _rectMatrix.resize(getMatrixSize(),0);
+  fill(0);
 }
 
 int MatrixInt::_getIndexToRank(int irow, int icol) const

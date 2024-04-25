@@ -210,7 +210,6 @@ static double st_essai(VectorDouble &hgnadm,
  ** \param[in] npar         Current number of parameters
  ** \param[in] grad         Gradient matrix
  ** \param[in] gauss        Gauss matrix
- ** \param[in] invhess      Inverse Hessian matrix
  ** \param[in] hgnc         Resulting hgnc array
  ** \param[in] flaginvsign  if 1, the result is multiplied by -1
  **
@@ -218,12 +217,11 @@ static double st_essai(VectorDouble &hgnadm,
 static int st_solve_hgnc(int npar,
                          const VectorDouble &grad,
                          const MatrixSquareGeneral& gauss,
-                         VectorDouble &invhess,
                          VectorDouble &hgnc,
                          int flaginvsign)
 {
-  VectorDouble tempMatVD(npar * npar);
-  VectorDouble tempVec(npar);
+  VectorDouble tempMatVD(npar * npar,0.);
+  VectorDouble tempVec(npar,0.);
   MatrixSquareSymmetric tempMat(npar);
 
   double signe = (flaginvsign) ? -1 : 1.;
@@ -303,7 +301,6 @@ static void st_fill_constraints(const MatrixRectangular& acont,
  ** \param[out] Jr         Array of gradients
  ** \param[out] grad       Gradient matrix
  ** \param[out] gauss      Gauss matrix
- ** \param[out] invhess    Inverse Hessian matrix
  ** \param[out] hgnc       Resulting hgnc array
  ** \param[out] param1     Working array (Dimension: NPAR)
  ** \param[out] param2     Working array (Dimension: NPAR)
@@ -321,7 +318,6 @@ static int st_calcul0(VectorDouble &param,
                       MatrixRectangular& Jr,
                       VectorDouble &grad,
                       MatrixSquareGeneral& gauss,
-                      VectorDouble &invhess,
                       VectorDouble &hgnc,
                       VectorDouble &param1,
                       VectorDouble &param2,
@@ -332,7 +328,7 @@ static int st_calcul0(VectorDouble &param,
   matrix_product_safe(1, NDAT, NPAR, residuals.data(), Jr.getValues().data(), grad.data());
   st_determine_gauss(Jr, gauss);
   st_fill_constraints(acont, grad, gauss);
-  return st_solve_hgnc(NPAR + NCONT, grad, gauss, invhess, hgnc, 1);
+  return st_solve_hgnc(NPAR + NCONT, grad, gauss, hgnc, 1);
 }
 
 /****************************************************************************/
@@ -537,7 +533,6 @@ static void st_update_bords(MatrixRectangular &bords,
  ** \param[in]  ai         AI matrix
  ** \param[in]  grad       Gradient matrix
  ** \param[in]  gauss      Gaussian matrix
- ** \param[in]  invhess    Inverse Hessian matrix
  ** \param[in]  hgnc       hgnc array
  **
  ** \param[out]  ind_util   List of retained constraint indices
@@ -554,7 +549,6 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
                                           VectorDouble &ai,
                                           VectorDouble &grad,
                                           MatrixSquareGeneral& gauss,
-                                          VectorDouble &invhess,
                                           VectorDouble &hgnc,
                                           VectorInt &ind_util,
                                           MatrixRectangular &bords_red,
@@ -634,7 +628,7 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
 
       /* Update the Hessian and gradient matrices */
 
-      if (st_solve_hgnc(NPARAC + NCONT, grad_red, gauss_red, invhess, hgnc, 1))
+      if (st_solve_hgnc(NPARAC + NCONT, grad_red, gauss_red, hgnc, 1))
         return (1);
 
       /* Update the number of constraints */
@@ -681,16 +675,14 @@ static int st_establish_minimization(int nactive,
                                      VectorDouble &b,
                                      VectorDouble &temp)
 {
-  int size, i, ic, iparac, jparac, iparac2, iecr;
+  int size, ic, iparac, jparac, iparac2, iecr;
 
   /* Initialization */
 
   *lambda_neg = -1;
   size = NPARAC + NCONT + nactive;
   a.fill(0.);
-  for (i = 0; i < size; i++)
-    b[i] = 0.;
-  VectorDouble TEMPAUX(NPCT2 * NPCT2);
+  b.fill(0.);
 
   /* Fill the L.H.S. and R.H.S. matrices */
 
@@ -716,7 +708,7 @@ static int st_establish_minimization(int nactive,
 
   /* Solve the system */
 
-  if (st_solve_hgnc(size, b, a, TEMPAUX, temp, 0)) return (1);
+  if (st_solve_hgnc(size, b, a, temp, 0)) return (1);
 
   /* Store the final result */
 
@@ -1231,31 +1223,32 @@ int foxleg_f(int ndat,
 
   /* Core allocation */
 
-  VectorInt ind_util(NPCT);
-  VectorInt flag_active(NPAR2);
-  VectorInt flag_actaux(NPAR2);
+  VectorInt ind_util(NPCT, 0);
+  VectorInt flag_active(NPAR2, 0);
+  VectorInt flag_actaux(NPAR2, 0);
+
+  VectorDouble b1(NPCT2, 0.);
+  VectorDouble b2(NPAR2, 0.);
+  VectorDouble b3(NPAR2, 0.);
+  VectorDouble temp(NPCT2, 0.);
+  VectorDouble param1(NPAR, 0.);
+  VectorDouble param2(NPAR, 0.);
+  VectorDouble grad(NPCT, 0.);
+  VectorDouble grad_red(NPCT, 0.);
+  VectorDouble hgn(NPAR, 0.);
+  VectorDouble hgnc(NPCT, 0.);
+  VectorDouble hgnadm(NPCT, 0.);
+  VectorDouble paramaux(NPAR, 0.);
+  VectorDouble residuals(NDAT, 0.);
+  VectorDouble tabmod1(NDAT, 0.);
+  VectorDouble tabmod2(NDAT, 0.);
+  VectorDouble ai(NPAR * NPAR2, 0.);
+  VectorDouble ai_red(NPAR * NPAR2, 0.);
+
   MatrixSquareGeneral a(NPCT2);
-  VectorDouble b1(NPCT2);
-  VectorDouble b2(NPAR2);
-  VectorDouble b3(NPAR2);
-  VectorDouble temp(NPCT2);
-  VectorDouble param1(NPAR);
-  VectorDouble param2(NPAR);
-  VectorDouble grad(NPCT);
-  VectorDouble grad_red(NPCT);
-  VectorDouble hgn(NPAR);
-  VectorDouble hgnc(NPCT);
-  VectorDouble hgnadm(NPCT);
-  VectorDouble paramaux(NPAR);
   MatrixSquareGeneral gauss(NPCT);
   MatrixSquareGeneral gauss_red(NPCT);
-  VectorDouble invhess(NPCT * NPCT);
   MatrixRectangular Jr(NDAT, NPAR);
-  VectorDouble residuals(NDAT);
-  VectorDouble tabmod1(NDAT);
-  VectorDouble tabmod2(NDAT);
-  VectorDouble ai(NPAR * NPAR2);
-  VectorDouble ai_red(NPAR * NPAR2);
   MatrixRectangular consts(2,NPAR);
   MatrixRectangular bords(2,NPAR);
   MatrixRectangular bords_red(2,NPAR);
@@ -1279,7 +1272,7 @@ int foxleg_f(int ndat,
   double ms0 = st_residuals(param, tabexp, tabwgt, tabmod1, residuals);
   double mscur = ms0;
   if (st_calcul0(param, lower, upper, scale, acont, tabwgt, residuals, Jr, grad,
-                 gauss, invhess, hgnc, param1, param2, tabmod1, tabmod2)) return 1;
+                 gauss, hgnc, param1, param2, tabmod1, tabmod2)) return 1;
 
   st_foxleg_debug_title();
 
@@ -1304,7 +1297,7 @@ int foxleg_f(int ndat,
 
     if (flag_moved)
     {
-      if (st_suppress_unused_constraints(bords, ai, grad, gauss, invhess, hgnc,
+      if (st_suppress_unused_constraints(bords, ai, grad, gauss, hgnc,
                                          ind_util, bords_red, ai_red, grad_red,
                                          gauss_red, flag_active, flag_actaux,
                                          temp)) break;
@@ -1366,7 +1359,7 @@ int foxleg_f(int ndat,
       for (int ipar = 0; ipar < NPAR; ipar++)
         param[ipar] = paramaux[ipar];
       if (st_calcul0(param, lower, upper, scale, acont, tabwgt, residuals, Jr,
-                     grad, gauss, invhess, hgnc, param1, param2, tabmod1,
+                     grad, gauss, hgnc, param1, param2, tabmod1,
                      tabmod2)) return 1;
       st_constraints_init(ind_util, ai);
       flag_moved = true;
@@ -1428,4 +1421,3 @@ int add_unit_sill_constraints(Constraints& constraints)
   constraints.setConstantSillValue(1.);
   return (0);
 }
-

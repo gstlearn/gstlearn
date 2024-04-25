@@ -230,6 +230,7 @@ void MatrixSquareGeneral::_allocate()
     AMatrixDense::_allocate();
   else
     _allocateLocal();
+  fill(0.);
 }
 
 int MatrixSquareGeneral::_getMatrixPhysicalSize() const

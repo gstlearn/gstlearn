@@ -194,6 +194,7 @@ void MatrixRectangular::_allocate()
     AMatrixDense::_allocate();
   else
     _allocateLocal();
+  fill(0.);
 }
 
 int MatrixRectangular::_getIndexToRank(int irow, int icol) const

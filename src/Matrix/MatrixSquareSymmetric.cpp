@@ -533,6 +533,8 @@ int MatrixSquareSymmetric::_computeEigenLocal(bool optionPositive)
   int err = matrix_eigen(this->getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
   if (err == 0)
   {
+    // Clean previous array (if present)
+    if (_eigenVectors != nullptr) delete _eigenVectors;
     _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, false);
 
     if (optionPositive) _eigenVectors->makePositiveColumn();
@@ -551,6 +553,9 @@ int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymme
   int err = _matrix_geigen(this->getValues().data(),b.getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
   if (err == 0)
   {
+    // Clean previous array (if present)
+    if (_eigenVectors != nullptr) delete _eigenVectors;
+
     std::reverse(_eigenValues.begin(), _eigenValues.end());
     _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, true);
 
