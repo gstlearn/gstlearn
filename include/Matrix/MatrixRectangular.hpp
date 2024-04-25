@@ -65,7 +65,6 @@ private:
   virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
   virtual void    _allocate() override;
-  virtual void    _deallocate() override;
   virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValueByRank(int rank, double value) override;

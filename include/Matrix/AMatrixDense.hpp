@@ -102,7 +102,7 @@ public:
                                   bool transpose = false);
 
   VectorDouble         getEigenValues()  const { return _eigenValues; }
-  MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
+  const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -178,8 +178,8 @@ private:
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble         _eigenValues;
-  MatrixSquareGeneral* _eigenVectors;
+  VectorDouble         _eigenValues; // only when ! flag_eigen()
+  MatrixSquareGeneral* _eigenVectors; // only when ! flag_eigen()
 
 private:
 #ifndef SWIG

@@ -915,7 +915,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
     if (mat.computeEigen()) return VectorDouble();
     VectorDouble valpro = mat.getEigenValues();
-    MatrixSquareGeneral* vecpro = mat.getEigenVectors();
+    const MatrixSquareGeneral* vecpro = mat.getEigenVectors();
 
     /* Calculate the factor matrix */
 

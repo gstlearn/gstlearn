@@ -61,6 +61,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
       _tl(),
       _xl()
 {
+  // TODO: clean this code or move it upwards
   if (!m.isSymmetric())
   {
     messerr("The input matrix should be Symmetric");
@@ -235,16 +236,6 @@ int MatrixSquareSymmetric::_invert()
     return _invertLocal();
 }
 
-void MatrixSquareSymmetric::_deallocate()
-{
-  if (isFlagEigen())
-    AMatrixDense::_deallocate();
-  else
-  {
-    delete _eigenVectors;
-  }
-}
-
 void MatrixSquareSymmetric::_allocate()
 {
   if (isFlagEigen())
@@ -394,8 +385,6 @@ void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
   _flagCholeskyDecompose = r._flagCholeskyDecompose;
   _flagCholeskyInverse   = r._flagCholeskyInverse;
   _flagEigenDecompose    = r._flagEigenDecompose;
-  _eigenValues = r._eigenValues;
-  if (_eigenVectors != nullptr) _eigenVectors = r._eigenVectors->clone();
 }
 
 double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
@@ -1647,7 +1636,7 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
   // Calculate the Eigen vectors
   if (computeEigen()) return 1;
   VectorDouble eigval = getEigenValues();
-  MatrixSquareGeneral *eigvec = getEigenVectors();
+  const MatrixSquareGeneral *eigvec = getEigenVectors();
 
   // Compute the conditioning
 

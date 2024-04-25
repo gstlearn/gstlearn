@@ -2118,7 +2118,7 @@ static int invgen(MatrixSquareSymmetric& a, MatrixSquareSymmetric& tabout)
 
   if (a.computeEigen()) return 1;
   VectorDouble eigval = a.getEigenValues();
-  MatrixSquareGeneral* eigvec = a.getEigenVectors();
+  const MatrixSquareGeneral* eigvec = a.getEigenVectors();
 
   /* Calculate the generalized inverse */
 
@@ -2332,7 +2332,7 @@ static void st_update_constraints_with_JJ(Local_CorPgs *corpgs,
  *****************************************************************************/
 static void st_deriv_eigen(Local_CorPgs *corpgs,
                            double eigval,
-                           MatrixSquareGeneral* ev,
+                           const MatrixSquareGeneral* ev,
                            VectorDouble& d1,
                            MatrixSquareSymmetric& d2)
 {
@@ -3129,7 +3129,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
   VectorDouble a(4);
   VectorDouble hgna(4);
   VectorDouble eigval(4);
-  MatrixSquareGeneral* eigvec = nullptr;
+  const MatrixSquareGeneral* eigvec = nullptr;
 
   static double maxiter = 100;
   static double delta0 = 1;

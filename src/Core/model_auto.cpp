@@ -1469,7 +1469,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
   int allpos;
   double temp, crit, crit_mem, value;
   VectorDouble valpro;
-  MatrixSquareGeneral* vecpro;
+  const MatrixSquareGeneral* vecpro;
 
   /*******************/
   /* Initializations */
@@ -2498,7 +2498,7 @@ static int st_truncate_negative_eigen(int nvar,
     messageAbort("st_truncate_negative_eigen");
 
   VectorDouble valpro = cc.getEigenValues();
-  MatrixSquareGeneral* vecpro = cc.getEigenVectors();
+  const MatrixSquareGeneral* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */
 

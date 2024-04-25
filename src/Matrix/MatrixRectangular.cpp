@@ -178,16 +178,6 @@ void MatrixRectangular::_transposeInPlace()
     _transposeInPlaceLocal();
 }
 
-void MatrixRectangular::_deallocate()
-{
-  if (isFlagEigen())
-    AMatrixDense::_deallocate();
-  else
-  {
-    // Potential code for this class would be located here
-  }
-}
-
 void MatrixRectangular::_allocate()
 {
   if (isFlagEigen())

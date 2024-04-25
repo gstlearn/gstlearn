@@ -111,7 +111,6 @@ private:
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
   virtual void    _allocate() override;
-  virtual void    _deallocate() override;
   virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValue(int irow, int icol, double value) override;

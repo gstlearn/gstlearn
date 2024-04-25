@@ -72,7 +72,11 @@ AMatrixDense& AMatrixDense::operator= (const AMatrixDense &r)
 
 AMatrixDense::~AMatrixDense()
 {
-  delete _eigenVectors;
+  if (_eigenVectors != nullptr)
+  {
+    delete _eigenVectors;
+    _eigenVectors = nullptr;
+  }
 }
 
 bool AMatrixDense::_isNumberValid(int nrows, int ncols) const
@@ -100,14 +104,8 @@ void AMatrixDense::_allocate()
 
 void AMatrixDense::_deallocate()
 {
-  if (isFlagEigen())
-  {
-    // Possible code for Eigen should be placed here
-  }
-  else
-  {
-    // Nothing to be done as the child will perform necessary duty
-  }
+  delete _eigenVectors;
+  _eigenVectors = nullptr;
 }
 
 double AMatrixDense::_getValue(int irow, int icol) const
@@ -559,7 +557,12 @@ void AMatrixDense::_recopyLocal(const AMatrixDense &r)
   _eigenMatrix = r._eigenMatrix;
   _flagEigenDecompose = r._flagEigenDecompose;
   _eigenValues = r._eigenValues;
-  if (_eigenVectors != nullptr) _eigenVectors = r._eigenVectors->clone();
+  delete _eigenVectors;
+  _eigenVectors = nullptr;
+  if (r._eigenVectors != nullptr)
+  {
+    _eigenVectors = r._eigenVectors->clone();
+  }
 }
 
 void AMatrixDense::_setColumnLocal(int icol, const VectorDouble& tab)

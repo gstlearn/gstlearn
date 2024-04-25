@@ -611,16 +611,14 @@ int main(int argc, char *argv[])
   (void) MEig->computeEigen();
   VectorDouble eigVal = MEig->getEigenValues();
   VH::display("Eigen Values (Eigen Library)", eigVal);
-  MatrixSquareGeneral* eigVec = MEig->getEigenVectors();
+  const MatrixSquareGeneral* eigVec = MEig->getEigenVectors();
   eigVec->display();
-  delete eigVec;
 
   (void) MNoEig->computeEigen();
   VectorDouble eigNoVal = MNoEig->getEigenValues();
   VH::display("Eigen Values (no Eigen Library)", eigNoVal);
-  MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
+  const MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
-  delete eigNoVec;
 
   // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
 
@@ -711,10 +709,9 @@ int main(int argc, char *argv[])
   // Extract the Generalized Eigen values and vectors (both matrix types)
   (void) MEig->computeGeneralizedEigen(*BEig);
   VectorDouble genEigVal = MEig->getEigenValues();
-  MatrixSquareGeneral* genEigVec = MEig->getEigenVectors();
+  const MatrixSquareGeneral* genEigVec = MEig->getEigenVectors();
   VH::display("Generalized Eigen Values (Eigen Library)", genEigVal);
   genEigVec->display();
-  delete genEigVec;
   delete BEig;
 
   MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 0);
@@ -725,10 +722,9 @@ int main(int argc, char *argv[])
 
   (void) MNoEig->computeGeneralizedEigen(*BNoEig);
   VectorDouble genEigNoVal = MNoEig->getEigenValues();
-  MatrixSquareGeneral* genEigNoVec = MNoEig->getEigenVectors();
+  const MatrixSquareGeneral* genEigNoVec = MNoEig->getEigenVectors();
   VH::display("Generalized Eigen Values (no Eigen Library)", genEigNoVal);
   genEigNoVec->display();
-  delete genEigNoVec;
   delete BNoEig;
 
   // Free the pointers
