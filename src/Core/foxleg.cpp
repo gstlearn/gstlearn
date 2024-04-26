@@ -561,6 +561,13 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
 {
   int n_imposs, ic, ipar, jpar, iparac, jparac, ipar2, iparac2;
 
+  // Blanking out the arrays
+
+  grad_red.fill(0.);
+  gauss_red.fill(0.);
+  bords_red.fill(0.);
+  ai_red.fill(0.);
+
   /* Get the set of constraints to be discarded */
 
   for (ipar2 = 0; ipar2 < NPAR2; ipar2++)
@@ -811,6 +818,9 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
   double min_adm_cur, min_adm_best;
   static int nitermax = 2000;
 
+  // Clean out arrays
+  hgnadm.fill(0.);
+
   /* Calculate the constraints vector */
 
   nactaux = st_define_constraints(-1, bords_red, ai_red, hgnc, consts,
@@ -825,8 +835,6 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
 
   /* Find an initial admissible point */
 
-  for (iparac = 0; iparac < NPARAC; iparac++)
-    hgnadm[iparac] = 0.;
   matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
@@ -1217,7 +1225,7 @@ int foxleg_f(int ndat,
   NPAR = NPARAC = npar;
   NCONT = ncont;
   NPAR2 = NPARAC2 = npar * 2;
-  NPCT = NPAR + NCONT;
+  NPCT  = NPAR + NCONT;
   NPCT2 = NPAR2 + NCONT;
   FUNC_EVALUATE = func_evaluate;
 
@@ -1259,10 +1267,6 @@ int foxleg_f(int ndat,
 
   /* Initializations */
 
-  hgn.fill(0.);
-  hgnc.fill(0.);
-  hgnadm.fill(0.);
-  gauss.fill(0.);
   for (int ipar = 0; ipar < NPAR; ipar++)
     paramaux[ipar] = param[ipar];
 

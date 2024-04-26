@@ -60,8 +60,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
 ACovAnisoList::~ACovAnisoList()
 {
   delAllCov();
-  delete _noStat;
-  _noStat = nullptr;
+  delNoStat();
 }
 
 void ACovAnisoList::addCovList(const ACovAnisoList* covs)
@@ -620,6 +619,12 @@ const ACovAnisoList* ACovAnisoList::createReduce(const VectorInt &validVars) con
     newcovlist->setCova(is,covs->createReduce(validVars));
   }
   return newcovlist;
+}
+
+void ACovAnisoList::delNoStat()
+{
+  delete _noStat;
+  _noStat = nullptr;
 }
 
 /**
