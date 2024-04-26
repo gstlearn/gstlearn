@@ -57,15 +57,15 @@ Covariance Part
 Nugget Effect
 - Sill         =      0.128
 Gaussian
-- Sill         =      0.248
-- Ranges       =     67.930    67.930   961.780
-- Theo. Ranges =     39.248    39.248   555.680
+- Sill         =      0.247
+- Ranges       =     67.838    67.838   545.520
+- Theo. Ranges =     39.194    39.194   315.180
 Cubic
 - Sill         =      0.284
-- Ranges       =      1.583     1.583  1462.989
+- Ranges       =      1.583     1.583   954.766
 Spherical
-- Sill         =      0.974
-- Ranges       =   1229.618  1229.618     6.184
-Total Sill     =      1.633
+- Sill         =      0.976
+- Ranges       =   1218.578  1218.578     6.206
+Total Sill     =      1.634
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)
