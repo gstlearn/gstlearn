@@ -1,0 +1,143 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 151
+Number of active samples     = 151
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = x1
+Column = 1 - Name = Latitude - Locator = x2
+Column = 2 - Name = Elevation - Locator = f1
+Column = 3 - Name = January_temp - Locator = z1
+Column = 4 - Name = sel - Locator = sel
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 11097
+Number of active samples     = 3092
+
+Grid characteristics:
+---------------------
+Origin :     65.000   535.000
+Mesh   :      4.938     4.963
+Number :         81       137
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Elevation - Locator = f1
+Column = 3 - Name = inshore - Locator = sel
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 2
+Number of drift equation(s)  = 2
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.100
+K-Bessel (Third Parameter = 1)
+- Sill         =      0.420
+- Range        =    282.574
+- Theo. Range  =     81.572
+Total Sill     =      0.520
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     0.363
+
+Direction #1
+------------
+Number of lags              = 18
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =     25.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    78.000     7.681     0.102
+         1   512.000    26.905     0.163
+         2   915.000    50.556     0.211
+         3  1135.000    74.820     0.264
+         4  1285.000   100.070     0.265
+         5  1190.000   124.927     0.321
+         6  1117.000   149.550     0.363
+         7  1004.000   175.060     0.444
+         8   924.000   199.603     0.466
+         9   769.000   224.493     0.547
+        10   594.000   249.105     0.561
+        11   438.000   274.605     0.582
+        12   363.000   298.685     0.472
+        13   236.000   323.920     0.565
+        14   153.000   349.725     0.424
+        15   105.000   373.088     0.345
+        16    76.000   399.464     0.410
+        17    58.000   426.095     0.411
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 2
+Number of drift equation(s)  = 2
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.100
+K-Bessel (Third Parameter = 1)
+- Sill         =      0.420
+- Range        =    282.574
+- Theo. Range  =     81.572
+Total Sill     =      0.520
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+
+Unique Neighborhood
+===================
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+5 - Name spde.January_temp.estim - Locator NA
+ Nb of data          =      11097
+ Nb of active values =       3092
+ Minimum value       =     -5.630
+ Maximum value       =      4.938
+ Mean value          =      1.838
+ Standard Deviation  =      1.524
+ Variance            =      2.324

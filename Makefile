@@ -57,7 +57,10 @@
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
 #  - USE_HDF5=0         To remove HDF5 support (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
-#  - EIGEN3_DIR=<path>  Path to Eigen3 library
+#  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
+#  - BOOST_ROOT=<path>  Path to Boost library (optional)
+#  - LLVM_ROOT=<path>   Path to llvm compiler for MacOS only (optional)
+#  - SWIG_EXEC=<path>   Path to swig executable (optional)
 #
 # Usage example:
 #
@@ -84,8 +87,11 @@ else
 endif
 
 ifeq ($(OS),Darwin)
+  ifndef LLVM_ROOT
+  	LLVM_ROOT = /opt/homebrew
+  endif
   # Particular clang compiler for supporting OpenMP
-  CC_CXX = CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++
+  CC_CXX = CC=$(LLVM_ROOT)/opt/llvm/bin/clang CXX=$(LLVM_ROOT)/opt/llvm/bin/clang++
 else
   CC_CXX = 
 endif
@@ -93,7 +99,7 @@ endif
 ifeq ($(DEBUG), 1)
   BUILD_TYPE = Debug
  else
-  BUILD_TYPE = Release 
+  BUILD_TYPE = Release
 endif
 
 ifndef BUILD_DIR
@@ -116,10 +122,15 @@ else
   N_PROC_OPT = -j1
 endif
 
-ifdef EIGEN3_DIR
-  CMAKE_DEFINES = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -DEigen3_DIR=$(EIGEN3_DIR)
-else
-  CMAKE_DEFINES = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
+CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
+ifdef SWIG_EXEC
+  CMAKE_DEFINES := $(CMAKE_DEFINES) -DSWIG_EXECUTABLE=$(SWIG_EXEC)
+endif
+ifdef EIGEN3_ROOT
+  CMAKE_DEFINES := $(CMAKE_DEFINES) -DEigen3_ROOT=$(EIGEN3_ROOT)
+endif
+ifdef BOOST_ROOT
+  CMAKE_DEFINES := $(CMAKE_DEFINES) -DBoost_ROOT=$(BOOST_ROOT)
 endif
 
 .PHONY: all cmake cmake-python cmake-r cmake-python-r cmake-doxygen print_version static shared build_tests doxygen install uninstall
@@ -225,6 +236,9 @@ check_test_py: cmake-python
 
 check_test_r: cmake-r-doxygen
 	@cd $(BUILD_DIR); make prepare_check_r; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+
+dump_test_cpp: cmake
+	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy
 
 build_demos: cmake-python-r
 	@cmake --build $(BUILD_DIR) --target build_demos -- --no-print-directory $(N_PROC_OPT)

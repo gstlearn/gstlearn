@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 label_end:
   delete model;
   delete dbout;
-  delete filename;
+  delete[] filename;
   delete vario;
   return(0);
 }

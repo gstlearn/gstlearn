@@ -13,7 +13,6 @@ on:
         default: ''
 
 env:
-  TEST_SCRIPT: tests/py/test_Matrix.py
   BUILD_TYPE: Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
@@ -24,6 +23,7 @@ env:
   BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}/eigen
   EIGEN_VERSION : "3.4.0"
+  LLVM_ROOT : /opt/homebrew
 
 jobs:
   build:
@@ -46,16 +46,16 @@ jobs:
     #    python -m pip install numpy==${{env.NUMPY_VERSION}}
     #    python -m pip install pandas scipy mlxtend
 
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: ${{env.R_VERSION}}
+    #- name: Setup R Version
+    #  uses: r-lib/actions/setup-r@v2
+    #  with:
+    #    r-version: ${{env.R_VERSION}}
 
-    - name: Install the customized SWIG from source
-      uses: fabien-ors/install-swig-unix-action@v1
-      with:
-        swig-root: ${{env.SWIG_ROOT}}
-        generator: "Unix Makefiles"
+    #- name: Install the customized SWIG from source
+    #  uses: fabien-ors/install-swig-unix-action@v1
+    #  with:
+    #    swig-root: ${{env.SWIG_ROOT}}
+    #    generator: "Unix Makefiles"
 
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-unix
@@ -70,9 +70,14 @@ jobs:
         eigen-version: ${{env.EIGEN_VERSION}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
-      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+    #- name: Compile, install package and execute one R test
+    #  run: |
+    #    make check_test_r TEST=test_Matrix_r LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
 
-    - name: Compile, install package and execute test
+    #- name: Compile, install package and execute one python test
+    #  run: |
+    #    make check_test_py TEST=test_Matrix_py LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
+
+    - name: Compile, install package and execute one C++ test
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check_r
+        make dump_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
