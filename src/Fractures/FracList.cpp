@@ -441,7 +441,7 @@ void FracList::_checkFractureIntersect(double cote, int ifrac0)
 
     /* Perform the intersection between two segments */
 
-    if (GH::segmentIntersect(xd1, yd1, xe1, ye1, xd2, yd2, xe2, ye2, &x, &y))
+    if (! GH::segmentIntersect(xd1, yd1, xe1, ye1, xd2, yd2, xe2, ye2, &x, &y))
       continue;
 
     /* Update the end-point in case of intersection */
@@ -1344,9 +1344,11 @@ VectorDouble FracList::fractureToWell(int nval,
 
       for (int ip = 0; ip < npoint - 1; ip++)
       {
-        if (GH::segmentIntersect(x1, y1, x2, y2, desc.getXXF(ip),
-                                 desc.getYYF(ip), desc.getXXF(ip + 1),
-                                 desc.getYYF(ip + 1), &x, &y)) continue;
+        int jp = ip + 1;
+        if (! GH::segmentIntersect(x1, y1, x2, y2,
+                                   desc.getXXF(ip), desc.getYYF(ip),
+                                   desc.getXXF(jp), desc.getYYF(jp),
+                                   &x, &y)) continue;
         if (y <= -_eps || x <= -_eps || x >= xmax + _eps) continue;
 
         /* Store the new intersection */
