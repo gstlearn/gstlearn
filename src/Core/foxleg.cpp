@@ -222,7 +222,7 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar, 0);
+  MatrixSquareSymmetric tempMat(npar);
 
   double signe = (flaginvsign) ? -1 : 1.;
 
