@@ -71,18 +71,18 @@ Nugget Effect
 - Sill matrix:
                [,  0]    [,  1]
      [  0,]     0.017    -0.073
-     [  1,]    -0.073     0.315
+     [  1,]    -0.073     0.314
 Gaussian
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.168    -0.374
-     [  1,]    -0.374     0.833
-- Range        =     41.373
-- Theo. Range  =     23.904
+     [  0,]     0.167    -0.372
+     [  1,]    -0.372     0.827
+- Range        =     41.196
+- Theo. Range  =     23.801
 Cubic
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.673     0.480
+     [  0,]     0.672     0.480
      [  1,]     0.480     0.343
 - Range        =      7.693
 Spherical
@@ -90,11 +90,11 @@ Spherical
                [,  0]    [,  1]
      [  0,]     0.220     0.173
      [  1,]     0.173     0.136
-- Range        =      6.436
+- Range        =      6.435
 Total Sill
                [,  0]    [,  1]
-     [  0,]     1.078     0.206
-     [  1,]     0.206     1.626
+     [  0,]     1.077     0.208
+     [  1,]     0.208     1.620
 
 Known Mean(s)     0.000     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #4 (1 for very good)

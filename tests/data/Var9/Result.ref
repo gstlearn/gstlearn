@@ -291,16 +291,16 @@ Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Gaussian
-- Sill         =      0.008
-- Ranges       =    251.008   205.268   251.008
-- Theo. Ranges =    145.023   118.596   145.023
+Exponential
+- Sill         =      0.022
+- Ranges       =   1157.764   922.552  1157.764
+- Theo. Ranges =    386.471   307.955   386.471
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -308,24 +308,14 @@ Gaussian
      [  1,]     0.766     0.643     0.000
      [  2,]     0.000     0.000     1.000
 Cubic
-- Sill         =      0.011
-- Ranges       =   3566.275  1032.609  3566.275
+- Sill         =      0.035
+- Ranges       =   5508.624256461.949  5508.624
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.643    -0.766     0.000
      [  1,]     0.766     0.643     0.000
      [  2,]     0.000     0.000     1.000
-Exponential
-- Sill         =      0.039
-- Ranges       =   6997.019138899.433  6997.019
-- Theo. Ranges =   2335.662 46365.774  2335.662
-- Angles       =     50.000     0.000     0.000
-- Rotation Matrix
-               [,  0]    [,  1]    [,  2]
-     [  0,]     0.643    -0.766     0.000
-     [  1,]     0.766     0.643     0.000
-     [  2,]     0.000     0.000     1.000
-Total Sill     =      0.059
+Total Sill     =      0.056
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)

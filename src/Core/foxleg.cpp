@@ -33,6 +33,7 @@ static int VERBOSE_GQO = 0;
 
 static int NPAR, NPAR2, NPARAC, NPARAC2, NDAT, NCONT, NPCT, NPCT2;
 static int ITERATION, SOUSITER;
+static int USE_EIGEN_LIBRARY = 0;
 static void (*FUNC_EVALUATE)(int ndat,
                              int npar,
                              VectorDouble &param,
@@ -222,7 +223,7 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar);
+  MatrixSquareSymmetric tempMat(npar, USE_EIGEN_LIBRARY);
   double eps = EPSILON10;
 
   double signe = (flaginvsign) ? -1 : 1.;
@@ -671,7 +672,7 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
 **
 *****************************************************************************/
 static int st_establish_minimization(int nactive,
-                                     VectorInt& /*ind_util*/,
+                                     VectorInt& ind_util,
                                      VectorInt &flag_active,
                                      MatrixRectangular &bords_red,
                                      VectorDouble &ai_red,
@@ -684,6 +685,7 @@ static int st_establish_minimization(int nactive,
                                      VectorDouble &temp)
 {
   int size, ic, iparac, jparac, iparac2, iecr;
+  DECLARE_UNUSED(ind_util);
 
   /* Initialization */
 
