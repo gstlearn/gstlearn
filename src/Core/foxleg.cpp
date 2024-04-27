@@ -658,6 +658,7 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
 ** \return  Error returned code
 **
 ** \param[in]  nactive      Number of active constraints
+** \param[in]  ind_util   List of retained constraint indices
 ** \param[in]  flag_active  Array of indices with zero valid constraint
 ** \param[in]  bords_red    Reduced array containing the bounds
 ** \param[in]  ai_red       Reduced AI matrix
