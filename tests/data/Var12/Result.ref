@@ -53,13 +53,13 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Linear
-- Slope        =      0.002
-- Aniso, Coeff =    134.672   134.672     4.144
 Exponential
-- Sill         =      0.694
-- Ranges       =     46.417    46.417     5.220
-- Theo. Ranges =     15.494    15.494     1.743
-
+- Sill         =      0.811
+- Ranges       =     96.130    96.130     6.049
+- Theo. Ranges =     32.089    32.089     2.019
+Spherical
+- Sill         =      0.154
+- Ranges       =      2.887     2.887     3.534
+Total Sill     =      0.965
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

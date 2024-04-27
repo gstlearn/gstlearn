@@ -178,25 +178,24 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Exponential
-- Sill         =    200.091
-- Ranges       =  13889.975  2840.824 13889.975
-- Theo. Ranges =   4636.588   948.290  4636.588
-- Angles       =     90.000     0.000     0.000
-- Rotation Matrix
-               [,  0]    [,  1]    [,  2]
-     [  0,]     0.000    -1.000     0.000
-     [  1,]     1.000     0.000     0.000
-     [  2,]     0.000     0.000     1.000
 Spherical
-- Sill         =     96.013
-- Ranges       =   5184.630 11454.575  5184.630
+- Sill         =    164.941
+- Ranges       =   4455.204  1560.805  4455.204
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.000    -1.000     0.000
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
-Total Sill     =    296.104
+Linear
+- Slope        =      0.010
+- Aniso, Coeff =  10365.100  5702.874 10365.100
+- Angles       =     90.000     0.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.000    -1.000     0.000
+     [  1,]     1.000     0.000     0.000
+     [  2,]     0.000     0.000     1.000
+
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #3 (1 for very good)

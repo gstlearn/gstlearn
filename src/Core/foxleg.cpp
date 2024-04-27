@@ -222,19 +222,20 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar, 0);
+  MatrixSquareSymmetric tempMat(npar);
+  double eps = EPSILON10;
 
   double signe = (flaginvsign) ? -1 : 1.;
 
   for (int i = 0; i < npar; i++)
   {
     double vali = gauss.getValue(i, i);
-    vali = (isZero(vali, 0.)) ? 1 : sqrt(vali);
+    vali = (isZero(vali,eps)) ? 1 : sqrt(vali);
     tempVec[i] = grad[i] / vali;
     for (int j = 0; j < npar; j++)
     {
       double valj = gauss.getValue(j, j);
-      valj = (isZero(valj, 0.)) ? 1 : sqrt(valj);
+      valj = (isZero(valj,eps)) ? 1 : sqrt(valj);
       tempMat.setValue(i, j, gauss.getValue(i, j) / (vali * valj));
     }
   }
@@ -252,7 +253,7 @@ static int st_solve_hgnc(int npar,
   for (int i = 0; i < npar; i++)
   {
     double value = gauss.getValue(i,i);
-    value = (isZero(value)) ? 1 : sqrt(value);
+    value = (isZero(value,eps)) ? 1 : sqrt(value);
     hgnc[i] = signe * hgnc[i] / value;
   }
 
