@@ -135,7 +135,8 @@ int main(int argc, char *argv[])
 //  verbose = true;
   // Discard use of Eigen library in order to prevent diffs across platforms
   setGlobalFlagEigen(false);
-  (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
+  if (model_auto_fit(vario,model,verbose,mauto,constraints,options))
+    messageAbort("model_auto_fit");
   model->display();
   ascii_filename("Model",0,1,filename);
   if (! model->dumpToNF("Model.out",verbose))

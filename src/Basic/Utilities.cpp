@@ -69,19 +69,18 @@ bool isEven(int number)
 
 bool isZero(double value, double eps)
 {
-  return (ABS(value) < eps);
+  return (ABS(value) <= eps);
 }
 
 bool areEqual(double v1, double v2, double eps)
 {
-  return (ABS(v1 - v2) < eps);
+  return (ABS(v1 - v2) <= eps);
 }
 
 bool isOne(double value, double eps)
 {
-  return (ABS(value - 1.) < eps);
+  return (ABS(value - 1.) <= eps);
 }
-
 
 double getMin(double val1, double val2)
 {

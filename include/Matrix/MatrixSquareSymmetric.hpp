@@ -68,7 +68,7 @@ public:
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
   int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
-                                double maxicond = 1.e13,
+                                double maxicond = 1.e20,
                                 double eps = EPSILON20);
   bool isDefinitePositive();
 

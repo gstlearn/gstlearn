@@ -1641,7 +1641,8 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
   // Compute the conditioning
 
   double valcond = VH::maximum(eigval, true);
-  if (valcond > maxicond) return 1;
+  if (valcond > maxicond)
+    return 1;
 
   /* Calculate the generalized inverse */
 

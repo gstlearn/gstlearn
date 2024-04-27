@@ -58,7 +58,7 @@
 
 static double _getTolInvert()
 {
-  return 1.e-20;
+  return 1.e-25;
 }
 static double _getEpsMatrix()
 {
