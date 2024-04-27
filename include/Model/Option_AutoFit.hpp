@@ -47,6 +47,7 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   double getTolstop() const { return _tolstop; }
   bool getVerbose() const { return _verbose; }
   int getWmode() const { return _wmode; }
+  bool isUseEigenLibrary() const { return _useEigenLibrary; }
 
   void setEpsdelta(double epsdelta) { _epsdelta = epsdelta; }
   void setFlagIntrinsic(int flagIntrinsic) { _flag_intrinsic = flagIntrinsic; }
@@ -68,6 +69,7 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
  * @note The default value for wmode is 2 
  */
   void setWmode(int wmode) { _wmode = wmode; }
+  void setUseEigenLibrary(bool useEigenLibrary) { _useEigenLibrary = useEigenLibrary; }
 
  private:
    bool   _verbose;                 /* Verbose option */
@@ -79,4 +81,5 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
    double _epsdelta;                /* Tolerance for the search */
    double _tolsigma;                /* Percentage of variance below which a structure is discarded */
    double _initdelta;               /* Initial radius of the trusting area */
+   bool   _useEigenLibrary;         /* Force/discard use of Eigen library for computing eigen factors */
 };

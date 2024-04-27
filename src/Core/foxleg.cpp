@@ -1232,6 +1232,7 @@ int foxleg_f(int ndat,
   NPCT  = NPAR + NCONT;
   NPCT2 = NPAR2 + NCONT;
   FUNC_EVALUATE = func_evaluate;
+  USE_EIGEN_LIBRARY = mauto.isUseEigenLibrary();
 
   /* Core allocation */
 

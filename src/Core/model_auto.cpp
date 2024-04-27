@@ -83,8 +83,6 @@
 #define ALPHA(icov,ivar,jvar)    alpha[(icov)*nvar*nvar + AD(ivar,jvar)]
 #define MUOLD(ivar,jvar)         muold[AD(ivar,jvar)]
 
-#define USE_EIGEN_LIBRARY 0
-
 typedef struct
 {
   int npadir;
@@ -1488,7 +1486,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
   VectorDouble mp(npadir * nvs2);
   VectorDouble fk(npadir * nvs2 * ncova, 0.);
   VectorDouble alphak(ncova * nvs2);
-  MatrixSquareSymmetric cc(nvar, USE_EIGEN_LIBRARY);
+  MatrixSquareSymmetric cc(nvar, MAUTO.isUseEigenLibrary());
 
   /********************/
   /* Pre-calculations */
@@ -2491,7 +2489,7 @@ static int st_truncate_negative_eigen(int nvar,
                                       VectorDouble &matcoru)
 
 {
-  MatrixSquareSymmetric cc(nvar, USE_EIGEN_LIBRARY);
+  MatrixSquareSymmetric cc(nvar, MAUTO.isUseEigenLibrary());
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       cc.setValue(ivar,jvar,MATCOR(icov0,ivar,jvar));
