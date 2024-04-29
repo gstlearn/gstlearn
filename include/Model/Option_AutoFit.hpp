@@ -27,6 +27,7 @@
  * - epsdelta: Define the tolerance used for the search
  * - tolsigma: Percentage of the variance below which a basic structure is discarded
  * - initdelta: Initial radius of the trusting area
+ * - useEigenLibrary: Use or discard use of Eigen library when calculating Eigen Values
  */
 class GSTLEARN_EXPORT Option_AutoFit : public AStringable
 {

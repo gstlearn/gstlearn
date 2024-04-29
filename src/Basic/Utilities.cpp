@@ -23,6 +23,7 @@
 #define MINI        10
 
 static EDbg _debugOptions = EDbg::DB;
+static bool _internalDebug = false;
 
 bool isInteger(double value, double eps)
 {
@@ -1137,4 +1138,13 @@ double roundZero(double value, double eps)
     return value;
   else
     return eps;
+}
+
+void setInternalDebug(bool status)
+{
+  _internalDebug = status;
+}
+bool isInternalDebug()
+{
+  return _internalDebug;
 }

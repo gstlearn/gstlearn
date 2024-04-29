@@ -240,6 +240,8 @@ static int st_solve_hgnc(int npar,
       tempMat.setValue(i, j, gauss.getValue(i, j) / (vali * valj));
     }
   }
+  if (isInternalDebug())
+    VH::dump("tempMat", tempMat.getValues());
 
   if (tempMat.computeGeneralizedInverse(tempMat))
   {
@@ -258,6 +260,8 @@ static int st_solve_hgnc(int npar,
     hgnc[i] = signe * hgnc[i] / value;
   }
 
+  if (isInternalDebug())
+    VH::dump("hgnc", hgnc);
   return (0);
 }
 
@@ -409,6 +413,8 @@ static int st_define_constraints(int mode,
       consts.setValue(ic,iparac,(temp[iparac2] - bords_red.getValue(ic,iparac)) * SIGNE(ic));
       if (ABS(consts.getValue(ic,iparac)) < EPSILON9) consts.setValue(ic,iparac,0.);
     }
+  if (isInternalDebug())
+    VH::dump("consts", consts.getValues());
 
   /* Count the number of constraints */
 
@@ -495,6 +501,8 @@ static void st_minimum(VectorInt& /*ind_util*/,
     hgnadm[iparac] += alpha_inf * (hgnc[iparac] - hgnadm[iparac]);
   hgnadm[jparac] = bordval;
 
+  if (isInternalDebug())
+    VH::dump("hgnadm", hgnadm);
   return;
 }
 
@@ -522,6 +530,8 @@ static void st_update_bords(MatrixRectangular &bords,
       iparac++;
     }
   }
+  if (isInternalDebug())
+    VH::dump("bords_red", bords_red.getValues());
 }
 
 /****************************************************************************/
@@ -614,6 +624,8 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
       }
       iparac++;
     }
+    if (isInternalDebug())
+      VH::dump("gauss_red", gauss_red.getValues());
 
     // Reduce the array 'bords'
     st_update_bords(bords, ind_util, bords_red);
@@ -631,6 +643,8 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
         }
         iparac++;
       }
+    if (isInternalDebug())
+      VH::dump("ai_red", ai_red);
 
     if (n_imposs > 0)
     {
@@ -980,6 +994,8 @@ static void st_define_bounds(VectorDouble &param,
       bords.setValue(1,ipar,diff);
     }
   }
+  if (isInternalDebug())
+    VH::dump("bords", bords.getValues(1));
 }
 
 /****************************************************************************/

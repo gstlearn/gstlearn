@@ -118,3 +118,6 @@ GSTLEARN_EXPORT double operate_InverseSqrt(double x);
 GSTLEARN_EXPORT double modifyOperator(const EOperator& oper, double oldval, double value);
 
 GSTLEARN_EXPORT double roundZero(double value, double eps = EPSILON6);
+
+GSTLEARN_EXPORT void setInternalDebug(bool status);
+GSTLEARN_EXPORT bool isInternalDebug();

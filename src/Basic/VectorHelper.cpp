@@ -80,6 +80,19 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
   return vec;
 }
 
+void VectorHelper::dump(const String &title, const VectorDouble& tab)
+{
+  std::stringstream sstr;
+  if (!title.empty())
+  {
+    sstr << title.c_str() << std::endl;
+  }
+  sstr.precision(20);
+  for (int i = 0, n = (int) tab.size(); i < n; i++)
+    sstr << std::fixed << tab[i] << std::endl;
+  messageFlush(sstr.str());
+}
+
 void VectorHelper::display(const String &title, const VectorDouble &vect, bool skipLine)
 {
   if (!title.empty())
