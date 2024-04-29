@@ -137,6 +137,12 @@ static double st_residuals(VectorDouble &param,
     residuals[idat] = value;
   }
 
+  if (isInternalDebug())
+  {
+    VH::dump("st_residuals: tabexp",tabexp);
+    VH::dump("st_residuals: tabmod",tabmod);
+    VH::dump("st_residuals: residuals",residuals);
+  }
   return (msse / 2.);
 }
 
@@ -265,8 +271,6 @@ static int st_solve_hgnc(int npar,
     hgnc[i] = signe * hgnc[i] / value;
   }
 
-  if (isInternalDebug())
-    VH::dump("hgnc", hgnc);
   return (0);
 }
 
@@ -1305,6 +1309,7 @@ int foxleg_f(int ndat,
                  gauss, hgnc, param1, param2, tabmod1, tabmod2)) return 1;
 
   st_foxleg_debug_title();
+  if (isInternalDebug()) message("<<< Sortie du premier calcul0 >>>\n");
 
   /***********************/
   /* Iterative procedure */
