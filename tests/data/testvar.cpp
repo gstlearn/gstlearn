@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   String outname = concatenateStrings("", subparts[nargs-2], subparts[nargs-1], "-");
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
-  setInternalDebug(subparts[nargs-1].compare("20") == 0);
+  setInternalDebug(subparts[nargs-1].compare("12") == 0);
 
   /* Setup constants */
 

@@ -124,6 +124,8 @@ static double st_residuals(VectorDouble &param,
 {
   /* Evaluate the Model at conditioning points */
 
+  if (isInternalDebug())
+    VH::dump("st_residuals:", param);
   FUNC_EVALUATE(NDAT, NPAR, param, tabmod);
 
   /* Evaluate the residuals */
