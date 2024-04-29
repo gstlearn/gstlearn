@@ -228,6 +228,11 @@ static int st_solve_hgnc(int npar,
 
   double signe = (flaginvsign) ? -1 : 1.;
 
+  if (isInternalDebug())
+    VH::dump("grad dans st_solve_hgnc",grad);
+  if (isInternalDebug())
+    VH::dump("gauss dans st_solve_hgnc", gauss.getValues(1));
+
   for (int i = 0; i < npar; i++)
   {
     double vali = gauss.getValue(i, i);
