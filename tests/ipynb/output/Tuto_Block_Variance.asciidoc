@@ -1,20 +1,16 @@
 +#NO_DIFF#XXX+
 ----
+<style>md-block { color:gray; background-color:white; }</style><md-block>
 # Covariance over block
 
-To compute
-latexmath:[\[\bar{C}(v,v)=\frac{1}{|v|^2}\int_v\int_v C(x,y)dxdy\]], you
-need to define latexmath:[$v$] and the model.
+To compute $$\bar{C}(v,v)=\frac{1}{|v|^2}\int_v\int_v C(x,y)dxdy$$, you need to define $v$ and the model.
 
-The support latexmath:[$v$] must be defined by its extension spanned
-over the space dimension.
+The support $v$ must be defined by its extension spanned over the space dimension.
 
-We also need to define the discretization latexmath:[$[N_1,N_2]$] since
-latexmath:[$\bar{C}(v,v)$] is approximated by
+We also need to define the discretization $[N_1,N_2]$ since $\bar{C}(v,v)$ is approximated by
 
-latexmath:[\[\frac{1}{N_1}\frac{1}{N_2}\sum_{i=1}^{N_1}\sum_{j=1}^{N_2} C(x_i,x_j)\]]
-where latexmath:[$x_i$] and latexmath:[$x_j$] are some points inside the
-block latexmath:[$v$].
+$$\frac{1}{N_1}\frac{1}{N_2}\sum_{i=1}^{N_1}\sum_{j=1}^{N_2} C(x_i,x_j)$$ where $x_i$ and $x_j$ are some points inside the block $v$.
+</md-block>
 ----
 
 
@@ -32,25 +28,25 @@ Gammavv = 0.51
 
 +#NO_DIFF#XXX+
 ----
+<style>md-block { color:gray; background-color:white; }</style><md-block>
 # Variance reduction with support
 
-Here we compare the empirical variance reduction with the one given by
-the model :
+Here we compare the empirical variance reduction with the one given by the model :
 
-The empirical punctual variance is obtained by
+The empirical punctual variance is obtained by 
 
-latexmath:[\[\hat\sigma^2 = \frac{1}{N}\sum_{i=1}^N z^2(x_i)- \left(\frac{1}{N}\sum_{i=1}^N z(x_i))\right)^2\]]
+$$\hat\sigma^2 = \frac{1}{N}\sum_{i=1}^N z^2(x_i)- \left(\frac{1}{N}\sum_{i=1}^N z(x_i))\right)^2$$
 
-The empirical block variance
+The empirical block variance 
 
-latexmath:[\[\hat\sigma_v^2 = \frac{1}{N_v}\sum_{i=1}^{N_v} z^2(v_i)- \left(\frac{1}{N_v}\sum_{i=1}^{N_v} z(v_i))\right)^2\]]
+$$\hat\sigma_v^2 = \frac{1}{N_v}\sum_{i=1}^{N_v} z^2(v_i)- \left(\frac{1}{N_v}\sum_{i=1}^{N_v} z(v_i))\right)^2$$
 
-The true (empirical) variance reduction is
-latexmath:[\[Empirical = \hat\sigma^2-\hat\sigma_v^2\]]
+The true (empirical) variance reduction is $$Empirical = \hat\sigma^2-\hat\sigma_v^2$$
 
-The variance reduction computed by the model is
+The variance reduction computed by the model is 
 
-latexmath:[\[Theoretical = \bar{\gamma}(v,v) = C(0)-\bar{C}(v,v)\]]
+$$Theoretical = \bar{\gamma}(v,v) = C(0)-\bar{C}(v,v)$$
+</md-block>
 ----
 
 

@@ -1,21 +1,22 @@
 +#NO_DIFF#XXX+
 ----
-*Spatio-Temporal Model*
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Spatio-Temporal Model**
 
-This Spatio_temporal model corresponds to the following family of SPDEs
-:
+This Spatio_temporal model corresponds to the following family of SPDEs :
 
-latexmath:[\[\left(\frac{\partial}{\partial t} + c\left[(1-\nabla H. \nabla)^{\alpha} + v.\nabla\right]\right)Z(s,t)=\sqrt{c}W_T(t)\otimes X_S(s)\]]
+$$\left(\frac{\partial}{\partial t} + c\left[(1-\nabla H. \nabla)^{\alpha} + v.\nabla\right]\right)Z(s,t)=\sqrt{c}W_T(t)\otimes X_S(s)$$
 
-where
+where 
 
-* latexmath:[$c>0$] is a time scale parameter
-* latexmath:[$H$] is an anisotropic matrix
-* latexmath:[$v$] is a velocity vector
-* latexmath:[$W_T$] is a temporal white-noise
-* latexmath:[$X_S$] is a spatially structured noise, solution of
-+
-latexmath:[\[(1-\nabla H_S \nabla)X_S = \mathcal{W}_S\]]
+- $c>0$ is a time scale parameter
+- $H$ is an anisotropic matrix 
+- $v$ is a velocity vector
+- $W_T$ is a temporal white-noise
+- $X_S$ is a spatially structured  noise, solution of
+
+    $$(1-\nabla H_S \nabla)X_S = \mathcal{W}_S$$
+    </md-block>
 ----
 
 
