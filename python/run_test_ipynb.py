@@ -77,7 +77,7 @@ if (out_type == "asciidoc"):
     # [[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
     # -----<matplotlib.collections.QuadMesh at 0x7f3a056e6320>
     # ----[<matplotlib.lines.Line2D at 0x7f3918a78550>]
-    notebook_node = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "XXX", notebook_node)
+    notebook_node = re.sub("\[\[[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]\]", "", notebook_node)
     notebook_node = re.sub("----<matplotlib.*", "XXX", notebook_node)
     notebook_node = re.sub("----\[<matplotlib.*", "XXX", notebook_node)
     
@@ -108,13 +108,14 @@ if (out_type == "asciidoc"):
     
     # Remove panda frame decoration that can vary according the version/OS i.e. :
     notebook_node = re.sub("\\|====+", "|===", notebook_node)
+    notebook_node = re.sub("\[.*options=\"header\"\,]", "", notebook_node)
     
     # Remove pip install output
     notebook_node = re.sub("\[notice\].*", "#NO_DIFF#XXX", notebook_node)
     notebook_node = re.sub(".*site-packages is not writeable", "#NO_DIFF#XXX", notebook_node)
     notebook_node = re.sub("Requirement already satisfied.*", "#NO_DIFF#XXX", notebook_node)
-    # Remove this: *Out[3]:*
-    notebook_node = re.sub("\*Out\[[0-9]+\]:\*", "#NO_DIFF#XXX", notebook_node)
+    # Remove this: +*Out[3]:*+
+    notebook_node = re.sub("\+\*Out\[[0-9]+\]:\*\+", "#NO_DIFF#XXX", notebook_node)
     # Remove this: [png]
     notebook_node = re.sub("\!\[png\].*", "#NO_DIFF#XXX", notebook_node)
 

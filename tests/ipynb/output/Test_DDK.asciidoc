@@ -1,4 +1,4 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 
@@ -6,7 +6,7 @@
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
        Coupures sur la variable Z       
@@ -20,13 +20,13 @@ Bound( 4 ) : [ 1.23252 ; 1.77013 [
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Proportions =  [0.3 0.2 0.2 0.2 0.1]
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Characteristics
@@ -57,7 +57,7 @@ Column = 9 - Name = Indicator.Z.Mean - Locator = z1
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -85,7 +85,7 @@ Known Mean(s)     0.000
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -113,13 +113,13 @@ Known Mean(s)     0.000
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 PCA Contents
@@ -159,7 +159,7 @@ Z = m + Y * MF2Z
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----array([ 1.        ,  1.        ,  1.        ,  1.        ,  1.        ,
        -0.21511164, -1.73554145,  4.66799531, -2.51529891, -0.18897498,
         1.40892758, -4.27892662, -0.00818796,  2.74807398, -1.14870153,
@@ -167,7 +167,7 @@ Z = m + Y * MF2Z
         2.14789627,  1.37532738, -0.36412288, -1.85713926, -4.75181928])----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Correlation between factors MAF
 [[ 1.         -0.         -0.         -0.         -0.        ]
@@ -180,26 +180,26 @@ Correlation between factors MAF
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 The number of factors is less than the number of variables. The other factors will be neglected.
 The number of factors is less than the number of variables. The other factors will be neglected.
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 

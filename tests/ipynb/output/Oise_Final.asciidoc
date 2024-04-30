@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -23,7 +23,7 @@ Column = 3 - Name = Z - Locator = NA
 Column = 4 - Name = Z_1 - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -47,13 +47,13 @@ Column = 5 - Name = Elev - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 XXX
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----(array([120., 787., 658., 447., 198., 118.,  63.,  51.,  22.,   6.]),
  array([ 16. ,  24.4,  32.8,  41.2,  49.6,  58. ,  66.4,  74.8,  83.2,
          91.6, 100. ]),
@@ -62,19 +62,19 @@ XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 XXX
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -110,7 +110,7 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----(array([ 23.,  11.,   8.,  36., 238., 545., 700., 270.,  98.,  41.]),
  array([-178.33971763, -142.50574587, -106.6717741 ,  -70.83780234,
          -35.00383058,    0.83014118,   36.66411295,   72.49808471,
@@ -120,7 +120,7 @@ Column = 3 - Name = Polygon - Locator = sel----
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Characteristics
@@ -173,7 +173,7 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -211,7 +211,7 @@ Column = 4 - Name = Migrate.angles_interp - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -250,13 +250,13 @@ Column = 5 - Name = angle_define - Locator = NA
 Column = 6 - Name = res - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 XXX
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -295,7 +295,7 @@ Column = 5 - Name = angle_define - Locator = NA
 Column = 6 - Name = res - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -319,7 +319,7 @@ Column = 5 - Name = ThicknessSides - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -344,7 +344,7 @@ Column = 6 - Name = Duplicate - Locator = NA
 Column = 7 - Name = selVario - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Variogram characteristics
@@ -442,7 +442,7 @@ For variable 1
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -498,7 +498,7 @@ Known Mean(s)     0.000
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -523,7 +523,7 @@ Drift Part
 Universality_Condition----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 XXX
 #NO_DIFF#XXX
 ----

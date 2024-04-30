@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 <style>md-block { color:gray; background-color:white; }</style><md-block>
 **Variogram Cloud**
@@ -18,7 +18,7 @@ In **gstlearn**, variogram clouds are computed as grids.
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -46,13 +46,13 @@ Column = 3 - Name = Cloud.January_temp - Locator = NA
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 <style>md-block { color:gray; background-color:white; }</style><md-block>
 **Experimental Variogram**
@@ -78,7 +78,7 @@ In the next example, we compute an experimental variogram with $40$ lags separat
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Variogram characteristics
 =========================
@@ -140,25 +140,25 @@ For variable 1
         39     7.000   389.619     0.731----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -177,7 +177,7 @@ Total Sill     =      1.123
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
   -2 -     UNKNOWN : Unknown covariance
    -1 -    FUNCTION : External covariance function
@@ -212,13 +212,13 @@ Known Mean(s)     0.000----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -240,13 +240,13 @@ Total Sill     =      1.275
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -270,13 +270,13 @@ Total Sill     =      1.104
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -300,7 +300,7 @@ Total Sill     =      1.395
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 <style>md-block { color:gray; background-color:white; }</style><md-block>
 **Directional Variogram**
@@ -324,19 +324,19 @@ In the following example, we create an experimental variogram in the $4$ directi
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 <style>md-block { color:gray; background-color:white; }</style><md-block>
 **Variogram Map**
@@ -347,13 +347,13 @@ To compute an experimental variogram map, we use the function `db_vmap` which we
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -379,13 +379,13 @@ Total Sill     =      1.200
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
