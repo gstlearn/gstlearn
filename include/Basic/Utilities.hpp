@@ -119,5 +119,8 @@ GSTLEARN_EXPORT double modifyOperator(const EOperator& oper, double oldval, doub
 
 GSTLEARN_EXPORT double roundZero(double value, double eps = EPSILON6);
 
+GSTLEARN_EXPORT double roundDecimals(double value, int ndec = 0);
+GSTLEARN_EXPORT double roundDigits(double value, int ndigits);
+
 GSTLEARN_EXPORT void setInternalDebug(bool status);
 GSTLEARN_EXPORT bool isInternalDebug();

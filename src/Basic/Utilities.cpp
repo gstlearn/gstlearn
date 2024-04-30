@@ -1140,6 +1140,40 @@ double roundZero(double value, double eps)
     return eps;
 }
 
+/**
+ * Rounding a double to a given number of decimals
+ * (from: https://stackoverflow.com/questions/304011/truncate-a-decimal-value-in-c/304013#304013)
+ *
+ * @param value Value to be rounded up
+ * @param ndec  Number of significant decimals
+ */
+double roundDecimals(double value, int ndec)
+{
+  int iSigned = value > 0 ? 1 : -1;
+  value *= iSigned;
+  double precision = pow(10., ndec);
+  unsigned int uiTemp = (value * precision); //Note I'm using unsigned int so that I can increase the precision of the truncate
+  value = ((double) uiTemp) / precision;
+  return value * iSigned;
+}
+
+/**
+ * Rounding a double to a given number of decimals
+ *
+ * @param value Value to be rounded up
+ * @param ndigits  Number of significant digits
+ */
+double roundDigits(double value, int ndigits)
+{
+  if (ndigits <= 0) return TEST;
+  int iSigned = value > 0 ? 1 : -1;
+  value *= iSigned;
+  int order = (int) log10(value);
+  int ndec = (value > 1) ? ndigits - order - 1 : ndigits - order;
+  value = roundDecimals(value, ndec) * iSigned;
+  return value;
+}
+
 void setInternalDebug(bool status)
 {
   _internalDebug = status;

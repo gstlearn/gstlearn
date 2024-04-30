@@ -2231,3 +2231,20 @@ VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vi
   return vecout;
 }
 
+void VectorHelper::roundDecimalsInPlace(VectorDouble& vec, int ndec)
+{
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+  {
+    if (FFFF(vec[i])) continue;
+    vec[i] = roundDecimals(vec[i], ndec);
+  }
+}
+
+void VectorHelper::roundDigitsInPlace(VectorDouble& vec, int ndec)
+{
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+  {
+    if (FFFF(vec[i])) continue;
+    vec[i] = roundDigits(vec[i], ndec);
+  }
+}

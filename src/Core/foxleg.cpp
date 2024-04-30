@@ -125,6 +125,11 @@ static double st_residuals(VectorDouble &param,
   /* Evaluate the Model at conditioning points */
 
   FUNC_EVALUATE(NDAT, NPAR, param, tabmod);
+  // The next statement is meant to round the values to 10 digits (maximum)
+  // It is conditional to the use within testvar, so as the results
+  // on the different plateforms are comparable
+  if (isInternalDebug())
+    VH::roundDigitsInPlace(tabmod, 7);
 
   /* Evaluate the residuals */
 
@@ -137,13 +142,6 @@ static double st_residuals(VectorDouble &param,
     residuals[idat] = value;
   }
 
-  if (isInternalDebug())
-  {
-    VH::dump("st_residuals: params", param);
-    VectorDouble tabmod_local(2);
-    VH::copy(tabmod, tabmod_local,2);
-    VH::dump("st_residuals: tabmod",tabmod_local);
-  }
   return (msse / 2.);
 }
 
