@@ -48,24 +48,20 @@ Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 4
+Number of basic structure(s) = 3
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.205
-Gaussian
-- Sill         =      0.085
-- Ranges       =     83.359    83.359   153.017
-- Theo. Ranges =     48.162    48.162    88.407
-Cubic
-- Sill         =      0.301
-- Ranges       =     37.840    37.840     5.630
+- Sill         =      0.188
 Spherical
-- Sill         =      0.510
-- Ranges       =    388.423   388.423     6.765
-Total Sill     =      1.100
+- Sill         =      0.317
+- Ranges       =     34.096    34.096     9.163
+Spherical
+- Sill         =      0.933
+- Ranges       =    482.300   482.300     9.992
+Total Sill     =      1.438
 Known Mean(s)     0.000
-Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)
+Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)

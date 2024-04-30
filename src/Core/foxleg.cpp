@@ -33,7 +33,6 @@ static int VERBOSE_GQO = 0;
 
 static int NPAR, NPAR2, NPARAC, NPARAC2, NDAT, NCONT, NPCT, NPCT2;
 static int ITERATION, SOUSITER;
-static int USE_EIGEN_LIBRARY = 0;
 static void (*FUNC_EVALUATE)(int ndat,
                              int npar,
                              VectorDouble &param,
@@ -89,12 +88,7 @@ static void st_gradient(VectorDouble &param,
     if (!FFFF(lower[ipar])) ratio2 = MIN(epsloc, param[ipar] - lower[ipar]);
 
     FUNC_EVALUATE(NDAT, NPAR, param1, tabmod1);
-    if (isInternalDebug())
-      VH::roundDigitsInPlace(tabmod1, 8);
     FUNC_EVALUATE(NDAT, NPAR, param2, tabmod2);
-    if (isInternalDebug())
-      VH::roundDigitsInPlace(tabmod2, 8);
-
 
     double bot = ratio1 + ratio2;
     for (int idat = 0; idat < NDAT; idat++)
@@ -130,11 +124,6 @@ static double st_residuals(VectorDouble &param,
   /* Evaluate the Model at conditioning points */
 
   FUNC_EVALUATE(NDAT, NPAR, param, tabmod);
-  // The next statement is meant to round the values to 10 digits (maximum)
-  // It is conditional to the use within testvar, so as the results
-  // on the different plateforms are comparable
-  if (isInternalDebug())
-    VH::roundDigitsInPlace(tabmod, 8);
 
   /* Evaluate the residuals */
 
@@ -146,7 +135,6 @@ static double st_residuals(VectorDouble &param,
     msse += value * value;
     residuals[idat] = value;
   }
-
   return (msse / 2.);
 }
 
@@ -233,7 +221,7 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar, USE_EIGEN_LIBRARY);
+  MatrixSquareSymmetric tempMat(npar);
   double eps = EPSILON10;
 
   double signe = (flaginvsign) ? -1 : 1.;
@@ -1242,7 +1230,6 @@ int foxleg_f(int ndat,
   NPCT  = NPAR + NCONT;
   NPCT2 = NPAR2 + NCONT;
   FUNC_EVALUATE = func_evaluate;
-  USE_EIGEN_LIBRARY = mauto.isUseEigenLibrary();
 
   /* Core allocation */
 

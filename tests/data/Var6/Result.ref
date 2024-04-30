@@ -48,13 +48,13 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Exponential
-- Sill         =     19.408
-- Range        =   9681.076
-- Theo. Range  =   3231.623
-Spherical
-- Sill         =    120.914
-- Range        =  54495.331
-Total Sill     =    140.323
+Gaussian
+- Sill         =     35.731
+- Range        =   5237.429
+- Theo. Range  =   3025.985
+Cubic
+- Sill         =    104.489
+- Range        =  63806.211
+Total Sill     =    140.220
 Known Mean(s)     0.000
-Goodness-of-fit (as a percentage of the variance) corresponds to level #4 (1 for very good)
+Goodness-of-fit (as a percentage of the variance) corresponds to level #3 (1 for very good)

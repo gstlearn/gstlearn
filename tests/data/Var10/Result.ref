@@ -70,32 +70,21 @@ Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Nugget Effect
-- Sill         =      5.952
-Cubic
-- Sill         =     32.376
-- Ranges       =    675.489 61686.513   675.489
-- Angles       =     50.000     0.000     0.000
-- Rotation Matrix
-               [,  0]    [,  1]    [,  2]
-     [  0,]     0.643    -0.766     0.000
-     [  1,]     0.766     0.643     0.000
-     [  2,]     0.000     0.000     1.000
 Spherical
-- Sill         =     33.240
-- Ranges       = 100368.765    55.601100368.765
+- Sill         =     39.044
+- Ranges       =    580.129    51.486   580.129
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.643    -0.766     0.000
      [  1,]     0.766     0.643     0.000
      [  2,]     0.000     0.000     1.000
-Total Sill     =     71.568
+Total Sill     =     39.044
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

@@ -70,31 +70,31 @@ Covariance Part
 Nugget Effect
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.016    -0.060
-     [  1,]    -0.060     0.222
+     [  0,]     0.001    -0.009
+     [  1,]    -0.009     0.102
 Exponential
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.026     0.038
-     [  1,]     0.038     0.077
-- Range        =      1.145
-- Theo. Range  =      0.382
+     [  0,]     0.040    -0.016
+     [  1,]    -0.016     0.202
+- Range        =      1.211
+- Theo. Range  =      0.404
 Spherical
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.124    -0.283
-     [  1,]    -0.283     0.645
-- Range        =     49.339
+     [  0,]     0.738    -1.697
+     [  1,]    -1.697     3.902
+- Range        =    312.004
 Cubic
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.862     0.619
-     [  1,]     0.619     0.445
-- Range        =      7.690
+     [  0,]     0.864     0.619
+     [  1,]     0.619     0.444
+- Range        =      7.670
 Total Sill
                [,  0]    [,  1]
-     [  0,]     1.028     0.314
-     [  1,]     0.314     1.388
+     [  0,]     1.643    -1.103
+     [  1,]    -1.103     4.650
 
 Known Mean(s)     0.000     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #4 (1 for very good)

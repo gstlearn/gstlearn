@@ -179,8 +179,8 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Spherical
-- Sill         =    164.957
-- Ranges       =   4455.361  1560.819  4455.361
+- Sill         =    164.941
+- Ranges       =   4455.204  1560.805  4455.204
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -189,7 +189,7 @@ Spherical
      [  2,]     0.000     0.000     1.000
 Linear
 - Slope        =      0.010
-- Aniso, Coeff =  10365.100  5700.291 10365.100
+- Aniso, Coeff =  10365.100  5702.874 10365.100
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]

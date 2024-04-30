@@ -1486,7 +1486,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
   VectorDouble mp(npadir * nvs2);
   VectorDouble fk(npadir * nvs2 * ncova, 0.);
   VectorDouble alphak(ncova * nvs2);
-  MatrixSquareSymmetric cc(nvar, MAUTO.isUseEigenLibrary());
+  MatrixSquareSymmetric cc(nvar);
 
   /********************/
   /* Pre-calculations */

@@ -57,8 +57,8 @@ Exponential
                [,  0]    [,  1]
      [  0,]     0.001     0.032
      [  1,]     0.032     0.755
-- Range        =      2.346
-- Theo. Range  =      0.783
+- Range        =      2.344
+- Theo. Range  =      0.782
 Spherical
 - Sill matrix:
                [,  0]    [,  1]

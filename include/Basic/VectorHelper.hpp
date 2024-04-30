@@ -236,8 +236,8 @@ public:
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
 
-  static void roundDecimalsInPlace(VectorDouble& vec, int ndec);
-  static void roundDigitsInPlace(VectorDouble& vec, int ndec);
+  static void truncateDecimalsInPlace(VectorDouble& vec, int ndec);
+  static void truncateDigitsInPlace(VectorDouble& vec, int ndec);
 };
 
 //typedef VectorHelper VH;
