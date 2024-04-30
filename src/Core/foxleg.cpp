@@ -140,9 +140,9 @@ static double st_residuals(VectorDouble &param,
   if (isInternalDebug())
   {
     VH::dump("st_residuals: params", param);
-    VH::dump("st_residuals: tabexp",tabexp);
-    VH::dump("st_residuals: tabmod",tabmod);
-    VH::dump("st_residuals: residuals",residuals);
+    VectorDouble tabmod_local(10);
+    VH::copy(tabmod, tabmod_local,10);
+    VH::dump("st_residuals: tabmod",tabmod_local);
   }
   return (msse / 2.);
 }
