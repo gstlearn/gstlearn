@@ -219,9 +219,9 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =     39.845
+- Sill         =     39.831
 Spherical
-- Sill         =     19.954
+- Sill         =     16.834
 - Ranges       =      0.000     0.000     0.000
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
@@ -229,6 +229,6 @@ Spherical
      [  0,]     0.000    -1.000     0.000
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
-Total Sill     =     59.799
+Total Sill     =     56.665
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

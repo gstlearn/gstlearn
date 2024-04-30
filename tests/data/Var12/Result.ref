@@ -42,32 +42,26 @@ For variable 1
          1199148.000     0.742     0.297
          2172636.000     1.740     0.571
          3146124.000     2.739     0.755
-<<< Sortie du premier calcul0 >>>
-<<< Sortie du premier calcul0 >>>
 
 Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 4
+Number of basic structure(s) = 3
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.600
-- Ranges       =    193.982   193.982    10.642
-- Theo. Ranges =     64.753    64.753     3.552
+- Sill         =      0.652
+- Ranges       =     53.968    53.968   940.478
+- Theo. Ranges =     18.015    18.015   313.939
 Spherical
-- Sill         =      0.380
-- Ranges       =     27.059    27.059     3.302
-Gaussian
-- Sill         =      0.195
-- Ranges       =    521.678   521.678   309.288
-- Theo. Ranges =    301.406   301.406   178.695
+- Sill         =      0.735
+- Ranges       =    525.712   525.712     3.541
 Nugget Effect
-- Sill         =      0.062
-Total Sill     =      1.237
+- Sill         =      0.068
+Total Sill     =      1.455
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

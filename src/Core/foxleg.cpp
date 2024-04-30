@@ -89,7 +89,12 @@ static void st_gradient(VectorDouble &param,
     if (!FFFF(lower[ipar])) ratio2 = MIN(epsloc, param[ipar] - lower[ipar]);
 
     FUNC_EVALUATE(NDAT, NPAR, param1, tabmod1);
+    if (isInternalDebug())
+      VH::roundDigitsInPlace(tabmod1, 8);
     FUNC_EVALUATE(NDAT, NPAR, param2, tabmod2);
+    if (isInternalDebug())
+      VH::roundDigitsInPlace(tabmod2, 8);
+
 
     double bot = ratio1 + ratio2;
     for (int idat = 0; idat < NDAT; idat++)
@@ -129,7 +134,7 @@ static double st_residuals(VectorDouble &param,
   // It is conditional to the use within testvar, so as the results
   // on the different plateforms are comparable
   if (isInternalDebug())
-    VH::roundDigitsInPlace(tabmod, 7);
+    VH::roundDigitsInPlace(tabmod, 8);
 
   /* Evaluate the residuals */
 
@@ -228,7 +233,8 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar, USE_EIGEN_LIBRARY);
+//  MatrixSquareSymmetric tempMat(npar, USE_EIGEN_LIBRARY);
+  MatrixSquareSymmetric tempMat(npar);
   double eps = EPSILON10;
 
   double signe = (flaginvsign) ? -1 : 1.;
@@ -1289,7 +1295,6 @@ int foxleg_f(int ndat,
                  gauss, hgnc, param1, param2, tabmod1, tabmod2)) return 1;
 
   st_foxleg_debug_title();
-  if (isInternalDebug()) message("<<< Sortie du premier calcul0 >>>\n");
 
   /***********************/
   /* Iterative procedure */

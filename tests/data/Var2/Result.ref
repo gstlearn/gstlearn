@@ -80,15 +80,14 @@ Covariance Part
 ---------------
 Gaussian
 - Sill         =      0.007
-- Range        =    283.089
-- Theo. Range  =    163.558
-Exponential
+- Range        =    298.779
+- Theo. Range  =    172.623
+Cubic
 - Sill         =      0.002
-- Range        =    273.979
-- Theo. Range  =     91.456
+- Range        =    159.314
 Spherical
 - Sill         =      0.018
-- Range        =   1800.085
+- Range        =   1805.835
 Total Sill     =      0.027
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

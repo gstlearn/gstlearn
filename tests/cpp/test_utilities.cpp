@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
 
   double a = 1234.5678;
   double b = 0.000012345678;
+  message("Value of a = %20.13lf\n",a);
+  message("Value of b = %20.13lf\n",b);
 
   // Use of round operations
 

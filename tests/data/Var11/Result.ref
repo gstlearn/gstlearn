@@ -55,17 +55,17 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.128
+- Sill         =      0.205
 Gaussian
-- Sill         =      0.247
-- Ranges       =     67.838    67.838   545.520
-- Theo. Ranges =     39.194    39.194   315.180
+- Sill         =      0.085
+- Ranges       =     84.023    84.023   147.460
+- Theo. Ranges =     48.545    48.545    85.197
 Cubic
-- Sill         =      0.284
-- Ranges       =      1.583     1.583   954.766
+- Sill         =      0.302
+- Ranges       =     37.895    37.895     5.625
 Spherical
-- Sill         =      0.976
-- Ranges       =   1218.578  1218.578     6.206
-Total Sill     =      1.634
+- Sill         =      0.507
+- Ranges       =    388.076   388.076     6.742
+Total Sill     =      1.099
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

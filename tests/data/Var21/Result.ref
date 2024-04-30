@@ -39,10 +39,10 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    235.442
+- Sill         =    235.440
 Spherical
-- Sill         =    191.921
-- Range        =  51535.821
+- Sill         =    191.923
+- Range        =  51534.362
 Total Sill     =    427.363
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)
