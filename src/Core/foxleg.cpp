@@ -124,8 +124,6 @@ static double st_residuals(VectorDouble &param,
 {
   /* Evaluate the Model at conditioning points */
 
-  if (isInternalDebug())
-    VH::dump("st_residuals:", param);
   FUNC_EVALUATE(NDAT, NPAR, param, tabmod);
 
   /* Evaluate the residuals */
@@ -141,6 +139,7 @@ static double st_residuals(VectorDouble &param,
 
   if (isInternalDebug())
   {
+    VH::dump("st_residuals: params", param);
     VH::dump("st_residuals: tabexp",tabexp);
     VH::dump("st_residuals: tabmod",tabmod);
     VH::dump("st_residuals: residuals",residuals);
@@ -236,11 +235,6 @@ static int st_solve_hgnc(int npar,
 
   double signe = (flaginvsign) ? -1 : 1.;
 
-  if (isInternalDebug())
-    VH::dump("grad dans st_solve_hgnc",grad);
-  if (isInternalDebug())
-    VH::dump("gauss dans st_solve_hgnc", gauss.getValues(1));
-
   for (int i = 0; i < npar; i++)
   {
     double vali = gauss.getValue(i, i);
@@ -253,8 +247,6 @@ static int st_solve_hgnc(int npar,
       tempMat.setValue(i, j, gauss.getValue(i, j) / (vali * valj));
     }
   }
-  if (isInternalDebug())
-    VH::dump("tempMat", tempMat.getValues());
 
   if (tempMat.computeGeneralizedInverse(tempMat))
   {
@@ -424,8 +416,6 @@ static int st_define_constraints(int mode,
       consts.setValue(ic,iparac,(temp[iparac2] - bords_red.getValue(ic,iparac)) * SIGNE(ic));
       if (ABS(consts.getValue(ic,iparac)) < EPSILON9) consts.setValue(ic,iparac,0.);
     }
-  if (isInternalDebug())
-    VH::dump("consts", consts.getValues());
 
   /* Count the number of constraints */
 
@@ -512,8 +502,6 @@ static void st_minimum(VectorInt& /*ind_util*/,
     hgnadm[iparac] += alpha_inf * (hgnc[iparac] - hgnadm[iparac]);
   hgnadm[jparac] = bordval;
 
-  if (isInternalDebug())
-    VH::dump("hgnadm", hgnadm);
   return;
 }
 
@@ -541,8 +529,6 @@ static void st_update_bords(MatrixRectangular &bords,
       iparac++;
     }
   }
-  if (isInternalDebug())
-    VH::dump("bords_red", bords_red.getValues());
 }
 
 /****************************************************************************/
@@ -635,8 +621,6 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
       }
       iparac++;
     }
-    if (isInternalDebug())
-      VH::dump("gauss_red", gauss_red.getValues());
 
     // Reduce the array 'bords'
     st_update_bords(bords, ind_util, bords_red);
@@ -654,8 +638,6 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
         }
         iparac++;
       }
-    if (isInternalDebug())
-      VH::dump("ai_red", ai_red);
 
     if (n_imposs > 0)
     {
@@ -1005,8 +987,6 @@ static void st_define_bounds(VectorDouble &param,
       bords.setValue(1,ipar,diff);
     }
   }
-  if (isInternalDebug())
-    VH::dump("bords", bords.getValues(1));
 }
 
 /****************************************************************************/
