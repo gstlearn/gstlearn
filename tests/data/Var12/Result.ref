@@ -47,21 +47,19 @@ Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.652
-- Ranges       =     53.968    53.968   940.478
-- Theo. Ranges =     18.015    18.015   313.939
+- Sill         =      0.693
+- Ranges       =     46.347    46.347     5.219
+- Theo. Ranges =     15.471    15.471     1.742
 Spherical
-- Sill         =      0.735
-- Ranges       =    525.712   525.712     3.541
-Nugget Effect
-- Sill         =      0.068
-Total Sill     =      1.455
+- Sill         =      1.805
+- Ranges       =   1155.088  1155.088    35.606
+Total Sill     =      2.498
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)
