@@ -1177,8 +1177,8 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
-                                         const VectorDouble &aic,
-                                         double delta)
+                                             const VectorDouble &aic,
+                                             double delta)
 {
   int jsimu;
   int icase = 0;
