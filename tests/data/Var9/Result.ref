@@ -297,7 +297,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Gaussian
+Exponential
 - Sill         =      0.022
 - Ranges       =   1157.628   922.545  1157.628
 - Theo. Ranges =    386.426   307.953   386.426
