@@ -299,8 +299,8 @@ Covariance Part
 ---------------
 Exponential
 - Sill         =      0.022
-- Ranges       =   1157.768   922.542  1157.768
-- Theo. Ranges =    386.473   307.952   386.473
+- Ranges       =   1157.144   921.937  1157.144
+- Theo. Ranges =    386.264   307.750   386.264
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -309,7 +309,7 @@ Exponential
      [  2,]     0.000     0.000     1.000
 Cubic
 - Sill         =      0.035
-- Ranges       =   5508.461255432.611  5508.461
+- Ranges       =   5506.476219637.936  5506.476
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
