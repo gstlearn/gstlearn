@@ -16,6 +16,7 @@
 #include "Variogram/Vario.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Basic/Law.hpp"
 
 /**
  * This file is used as a demonstration showing the versatility of 'gstlearn'.
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, 2);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Basic-");
+  law_set_old_style(true); // Added to ensure the similarity of non-regression tests per platform
 
   // We create a grid of 150 by 100 square cells of 1m edge, called mygrid.
 

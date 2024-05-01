@@ -39,23 +39,26 @@ int main(int argc, char *argv[])
 
   mestitle(1, "RoundDecimals (all numbers are printed with 10 decimals)");
   for (int i = -3; i <= 4; i++)
-    message("roundDecimals( a,%2d) = %20.10lf\n", i, truncateDecimals(a,i));
+    message("roundDecimals( a,%2d) = %20.*lf\n", i, MAX(i,0), truncateDecimals(a,i));
   for (int i = -3; i <= 4; i++)
-    message("roundDecimals(-a,%2d) = %20.10lf\n", i, truncateDecimals(-a,i));
+    message("roundDecimals(-a,%2d) = %20.*lf\n", i, MAX(i,0), truncateDecimals(-a,i));
   for (int i = 5; i <= 10; i++)
-    message("roundDecimals( b,%2d) = %20.10lf\n", i, truncateDecimals(b,i));
+    message("roundDecimals( b,%2d) = %20.*lf\n", i, MAX(i,0), truncateDecimals(b,i));
   for (int i = 5; i <= 10; i++)
-    message("roundDecimals(-b,%2d) = %20.10lf\n", i, truncateDecimals(-b,i));
+    message("roundDecimals(-b,%2d) = %20.*lf\n", i, MAX(i,0), truncateDecimals(-b,i));
 
   mestitle(1, "RoundDigits (all numbers are printed with 13 decimals)");
+  // norder stands for the number of digits before decimal point
+  int norder = 4;
   for (int i = 1; i <= 8; i++)
-    message("roundDigits( a,%d) = %20.13lf\n", i, truncateDigits(a,i));
+    message("roundDigits( a,%d) = %20.*lf\n", i, MAX(i-norder,0), truncateDigits(a,i));
   for (int i = 1; i <= 8; i++)
-    message("roundDigits(-a,%d) = %20.13lf\n", i, truncateDigits(-a,i));
+    message("roundDigits(-a,%d) = %20.*lf\n", i, MAX(i-norder,0), truncateDigits(-a,i));
+  norder = -4;
   for (int i = 1; i <= 8; i++)
-    message("roundDigits( b,%d) = %20.13lf\n", i, truncateDigits(b,i));
+    message("roundDigits( b,%d) = %20.*lf\n", i, MAX(i-norder, 0), truncateDigits(b,i));
   for (int i = 1; i <= 8; i++)
-    message("roundDigits(-b,%d) = %20.13lf\n", i, truncateDigits(-b,i));
+    message("roundDigits(-b,%d) = %20.*lf\n", i, MAX(i-norder,0), truncateDigits(-b,i));
 
   return(0);
 }
