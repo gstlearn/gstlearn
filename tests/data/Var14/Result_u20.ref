@@ -236,8 +236,8 @@ Covariance Part
 Nugget Effect
 - Sill         =      0.399
 Cubic
-- Sill         =      1.041
-- Ranges       =   1874.667  1442.606  1874.667
+- Sill         =      1.044
+- Ranges       =   1877.429  1453.091  1877.429
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -245,9 +245,9 @@ Cubic
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
 Exponential
-- Sill         =      0.577
-- Ranges       =   1318.004   847.815  1318.004
-- Theo. Ranges =    439.961   283.008   439.961
+- Sill         =      0.598
+- Ranges       =   1346.159   871.573  1346.159
+- Theo. Ranges =    449.359   290.938   449.359
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -255,8 +255,8 @@ Exponential
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
 Spherical
-- Sill         =      0.844
-- Ranges       =   1608.435 16407.221  1608.435
+- Sill         =      0.825
+- Ranges       =   1615.534 20703.192  1615.534
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]

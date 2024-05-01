@@ -47,19 +47,16 @@ Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 2
+Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.694
-- Ranges       =     46.405    46.405     5.220
-- Theo. Ranges =     15.490    15.490     1.742
-Spherical
-- Sill         =      0.345
-- Ranges       =   4084.874  4084.874    125.736
-Total Sill     =      7.039
+- Sill         =      0.937
+- Ranges       =     71.703    71.703     5.714
+- Theo. Ranges =     23.935    23.935     1.907
+Total Sill     =      0.937
 Known Mean(s)     0.000
-Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)
+Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)

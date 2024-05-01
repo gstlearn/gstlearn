@@ -58,10 +58,10 @@ Nugget Effect
 - Sill         =      0.188
 Spherical
 - Sill         =      0.317
-- Ranges       =     34.096    34.096     9.163
+- Ranges       =     34.086    34.086     9.178
 Spherical
 - Sill         =      0.933
-- Ranges       =    482.300   482.300     9.992
+- Ranges       =    482.473   482.473     9.981
 Total Sill     =      1.438
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)
