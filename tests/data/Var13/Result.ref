@@ -83,7 +83,6 @@ Cubic
      [  0,]    -0.940    -0.342     0.000
      [  1,]     0.342    -0.940     0.000
      [  2,]     0.000     0.000     1.000
-
 Total Sill     =  65836.005
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #3 (1 for very good)
