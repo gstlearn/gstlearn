@@ -265,8 +265,8 @@ Cubic
 - Range        =     20.000
 Spherical
 - Sill         =      0.989
-- Range        =    144.628
-Total Sill     =      1.105
+- Range        =    144.544
+Total Sill     =      1.104
 Known Mean(s)     0.000----
 
 
@@ -366,15 +366,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.256
+- Sill         =      0.251
 Cubic
-- Sill         =      0.944
-- Ranges       =    213.285   157.422
-- Angles       =     65.161     0.000
+- Sill         =      0.949
+- Ranges       =    154.810   215.452
+- Angles       =    154.991     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]    -0.420     0.907
-     [  1,]    -0.907    -0.420
+     [  0,]     0.906     0.423
+     [  1,]    -0.423     0.906
 Total Sill     =      1.200
 Known Mean(s)     0.000----
 
