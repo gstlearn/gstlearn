@@ -124,7 +124,7 @@ void AGibbs::init(int npgs,
   _flagDecay = flag_decay;
 
   // Evaluate the array of active sample ranks
-  _ranks = calculateSampleRanks();
+  _ranks = _calculateSampleRanks();
 
   // Initialize the series of Random Numbers
   law_set_random_seed(seed);
@@ -241,7 +241,7 @@ void AGibbs::_displayCurrentVector(bool flag_init,
                                    int isimu,
                                    int ipgs) const
 {
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int nvar = getNvar();
 
   if (flag_init)
@@ -274,7 +274,7 @@ void AGibbs::_displayCurrentVector(bool flag_init,
   }
 }
 
-int AGibbs::getDimension() const
+int AGibbs::_getDimension() const
 {
   int nsize = _npgs * _nvar;
   return nsize;
@@ -286,14 +286,17 @@ int AGibbs::getRank(int ipgs, int ivar) const
   return rank;
 }
 
+/**
+ * Returns a Vector of Vector Double used to store one simulation.
+ * Its first dimension is set to 'npgs' * 'nvar'
+ * Its second dimension if set to the number of samples
+ * @return
+ */
 VectorVectorDouble AGibbs::allocY() const
 {
-  VectorVectorDouble y;
-
-  int nsize = getDimension();
-  int nact  = getSampleRankNumber();
-  y.resize(nsize);
-  for (int i = 0; i < nsize; i++)
+  int nact  = _getSampleRankNumber();
+  VectorVectorDouble y(_getDimension());
+  for (int i = 0, nsize = (int) y.size(); i < nsize; i++)
     y[i].resize(nact);
   return y;
 }
@@ -310,8 +313,8 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
                          int isimu,
                          int ipgs)
 {
-  int nsize = getDimension();
-  int nact  = getSampleRankNumber();
+  int nsize = _getDimension();
+  int nact  = _getSampleRankNumber();
   int nvar  = getNvar();
 
   /* Loop on the variables */
@@ -339,7 +342,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
     _stats.plot(isimu);
 }
 
-VectorInt AGibbs::calculateSampleRanks() const
+VectorInt AGibbs::_calculateSampleRanks() const
 {
 
   if (! _db->hasLocVariable(ELoc::SEL))
@@ -353,7 +356,7 @@ VectorInt AGibbs::calculateSampleRanks() const
   return ranks;
 }
 
-int AGibbs::getSampleRankNumber() const
+int AGibbs::_getSampleRankNumber() const
 {
   if (_ranks.empty())
     return _db->getSampleNumber();
@@ -377,7 +380,7 @@ int AGibbs::getSampleNumber() const
     return _db->getSampleNumber();
 }
 
-void AGibbs::updateStats(const VectorVectorDouble& y,
+void AGibbs::_updateStats(const VectorVectorDouble& y,
                          int ipgs,
                          int jter,
                          double amort)
@@ -437,7 +440,7 @@ int AGibbs::_getRowNumberStats() const
  */
 int AGibbs::_getColNumberStats() const
 {
-  int ncols = 2 * getDimension();
+  int ncols = 2 * _getDimension();
   return ncols;
 }
 
@@ -459,24 +462,21 @@ int AGibbs::_getColRankStats(int ipgs, int ivar, int mode) const
 
 /**
  * Test wheter a constraint is tight at a sample (data is a hard data)
- * @param ipgs  Rank of the GS
- * @param ivar  Rank of the variable
+ * @param icase Rank of the first storage index withon VectorVectorDouble 'y'
  * @param iact  Rank of the sample (within internal _ranks)
  * @param value Constraining value (if sample is an active constraint)
  * @return
  */
-bool AGibbs::isConstraintTight(int ipgs,
-                               int ivar,
-                               int iact,
-                               double* value) const
+bool AGibbs::_isConstraintTight(int icase,
+                                int iact,
+                                double *value) const
 {
-  int icase = getRank(ipgs, ivar);
   int iech = getSampleRank(iact);
 
   double vmin = _db->getLocVariable(ELoc::L,iech, icase);
   double vmax = _db->getLocVariable(ELoc::U,iech, icase);
 
-  bool isActive = !FFFF(vmin) && !FFFF(vmax) && vmin == vmax;
+  bool isActive = !FFFF(vmin) && !FFFF(vmax) && areEqual(vmin,vmax);
   if (isActive)
     *value = vmin;
   else
@@ -484,7 +484,7 @@ bool AGibbs::isConstraintTight(int ipgs,
   return isActive;
 }
 
-void AGibbs::statsInit()
+void AGibbs::_statsInit()
 {
   if (_optionStats == 0) return;
   _stats.init(_getRowNumberStats(), _getColNumberStats());
@@ -497,7 +497,7 @@ void AGibbs::statsInit()
  * @param vmin: Lower bound (in/out)
  * @param vmax: Upper bound (in/out)
  */
-void AGibbs::getBoundsDecay(int iter, double *vmin, double *vmax) const
+void AGibbs::_getBoundsDecay(int iter, double *vmin, double *vmax) const
 {
   // Do not modify the bounds if no Decay is defined
   if (! _flagDecay) return;
@@ -516,9 +516,9 @@ void AGibbs::getBoundsDecay(int iter, double *vmin, double *vmax) const
  * @param iech Absolute sample rank
  * @return The rank within the vector if relative ranks (or -1)
  */
-int AGibbs::getRelativeRank(int iech)
+int AGibbs::_getRelativeRank(int iech)
 {
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   for (int iact = 0; iact < nact; iact++)
   {
     if (getSampleRank(iact) == iech) return iact;
@@ -526,30 +526,39 @@ int AGibbs::getRelativeRank(int iech)
   return -1;
 }
 
-int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool flagCheck)
+/**
+ * Simulate a vector for the current 'ipgs' and current 'isimu'
+ * @param y Simulation vector (used in input and output)
+ * @param ipgs0 Rank of the current 'pgs'
+ * @param isimu0 Rank of the current simulation
+ * @param verboseTimer Verbose option for time consumption
+ * @param flagCheck True if the checks must be performed
+ * @return
+ */
+int AGibbs::run(VectorVectorDouble& y, int ipgs0, int isimu0, bool verboseTimer, bool flagCheck)
 {
-  if (calculInitialize(y, isimu, ipgs)) return 1;
+  if (calculInitialize(y, isimu0, ipgs0)) return 1;
   if (flagCheck)
-    _displayCurrentVector(true, y, isimu, ipgs);
+    _displayCurrentVector(true, y, isimu0, ipgs0);
 
   /* Iterations of the Gibbs sampler */
 
   Timer timer;
   for (int iter = 0; iter < getNiter(); iter++)
-    update(y, isimu, ipgs, iter);
-  if (verbose) timer.displayIntervalMilliseconds("Gibbs iterations");
+    update(y, isimu0, ipgs0, iter);
+  if (verboseTimer) timer.displayIntervalMilliseconds("Gibbs iterations");
 
   /* Check the validity of the Gibbs results (optional) */
 
   if (flagCheck)
   {
-    checkGibbs(y, isimu, ipgs);
-    _displayCurrentVector(false, y, isimu, ipgs);
+    checkGibbs(y, isimu0, ipgs0);
+    _displayCurrentVector(false, y, isimu0, ipgs0);
   }
 
   // Store the results
 
-  storeResult(y, isimu, ipgs);
+  storeResult(y, isimu0, ipgs0);
 
   // Clean the spurious elements
 

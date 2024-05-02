@@ -16,11 +16,13 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/FFT.hpp"
+#include "Basic/Utilities.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
@@ -825,7 +827,7 @@ const VectorDouble CovAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
   double max = VH::maximum(coef);
-  if (max < EPSILON10)
+  if (isZero(max))
   {
     messerr("Range is null");
     return VectorDouble();
@@ -1097,7 +1099,7 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
 
   // Modify the Matrix of sills
   newCovAniso->setContext(ctxt);
-  MatrixSquareSymmetric* newsill = _sill.createReduce(validVars);
+  MatrixSquareSymmetric* newsill = dynamic_cast<MatrixSquareSymmetric*>(MatrixFactory::createReduce(&_sill, validVars, validVars));
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }

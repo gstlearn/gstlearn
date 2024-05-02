@@ -655,7 +655,7 @@ void DbGrid::_createCoordinatesGrid(int icol0)
   {
     VectorInt indices = _grid.iteratorNext();
     _grid.indicesToCoordinateInPlace(indices, coors);
-    for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       setArray(iech, icol0 + idim, coors[idim]);
   }
 }
@@ -1879,7 +1879,6 @@ VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
   int iuid_top = getUID(nameTop);
   int iuid_bot = getUID(nameBot);
 
-  int nvalid = 0;
   for (int iech = 0; iech < nech; iech++)
   {
     // Discard not relevant pixels
@@ -1888,7 +1887,6 @@ VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
     double bot = getArray(iech, iuid_bot);
     if (FFFF(top) || FFFF(bot) || bot > top) continue;
 
-    nvalid++;
     rankToIndice(iech, indg);
     for (int idim = 0; idim < ndim; idim++)
     {

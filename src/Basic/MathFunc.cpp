@@ -1381,24 +1381,26 @@ void mvndst(int n,
 **
 *****************************************************************************/
 void mvndst4(double *lower,
-                             double *upper,
-                             double *correl,
-                             int maxpts,
-                             double abseps,
-                             double releps,
-                             double *error,
-                             double *value,
-                             int *inform)
+             double *upper,
+             double *correl,
+             int maxpts,
+             double abseps,
+             double releps,
+             double *error,
+             double *value,
+             int *inform)
 {
-  int    i,j,ecr,infin[4];
+  int    infin[4];
   double corloc[6];
 
   /* Initializations */
 
-  for (i=ecr=0; i<4; i++)
+  int ecr = 0;
+  for (int i=0; i<4; i++)
   {
     infin[i] = mvndst_infin(lower[i],upper[i]);
-    for (j=0; j<i; j++,ecr++) corloc[ecr] = M_R(correl,4,i,j);
+    for (int j=0; j<i; j++,ecr++)
+      corloc[ecr] = M_R(correl,4,i,j);
   }
 
   mvndst(4,lower,upper,infin,corloc,maxpts,abseps,releps,
@@ -1425,15 +1427,15 @@ void mvndst4(double *lower,
 **
 *****************************************************************************/
 void mvndst2n(double *lower,
-                              double *upper,
-                              double *means,
-                              double *correl,
-                              int maxpts,
-                              double abseps,
-                              double releps,
-                              double *error,
-                              double *value,
-                              int *inform)
+              double *upper,
+              double *means,
+              double *correl,
+              int maxpts,
+              double abseps,
+              double releps,
+              double *error,
+              double *value,
+              int *inform)
 {
   int    i,infin[2];
   double scale,covar,low[2],upp[2];

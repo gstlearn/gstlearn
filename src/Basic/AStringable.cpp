@@ -288,11 +288,10 @@ String _printTrailer(int ncols, int nrows, int ncols_util, int nrows_util)
 void message(const char *format, ...)
 {
   char str[LONG_SIZE];
-  va_list ap;
 
+  va_list ap;
   va_start(ap, format);
-  // TODO : use non old_style functions
-  (void) vsprintf(str, format, ap);
+  (void) vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
   message_extern(str);
 
@@ -310,8 +309,7 @@ void messageNoDiff(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
-  // TODO : use non old_style functions
-  (void) vsprintf(str, format, ap);
+  (void) vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
   std::stringstream sstr;
   sstr << "#NO_DIFF# " << str;
@@ -352,8 +350,7 @@ void messerr(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
-  // TODO : use non old_style functions
-  (void) vsprintf(str, format, ap);
+  (void) vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
 
   message_extern(str);
@@ -397,7 +394,7 @@ void mestitle(int level, const char *format, ...)
 
   message_extern("\n");
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  (void) vsnprintf(STRING, sizeof(STRING), format, ap);
   va_end(ap);
   int size = (int) strlen(STRING);
 
@@ -473,7 +470,7 @@ String toTitle(int level, const char* format, ...)
 
   sstr << std::endl;
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  (void) vsnprintf(STRING, sizeof(STRING), format, ap);
   va_end(ap);
   sstr << STRING << std::endl;
 
@@ -514,7 +511,7 @@ void messageAbort(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  (void) vsnprintf(STRING, sizeof(STRING), format, ap);
   va_end(ap);
   message_extern("Abort : ");
   message_extern(STRING);
@@ -561,8 +558,8 @@ String toMatrix(const String &title,
  * @param colnames     Names of the columns (optional)
  * @param rownames     Names of the rows (optional)
  * @param bycol        true if values as sorted by column; false otherwise
- * @param ncols        Number of columns
  * @param nrows        Number of rows
+ * @param ncols        Number of columns
  * @param tab          VectorDouble containing the values
  * @param flagOverride true to override printout limitations
  * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
@@ -571,8 +568,8 @@ String toMatrix(const String& title,
                 const VectorString& colnames,
                 const VectorString& rownames,
                 bool bycol,
-                int ncols,
                 int nrows,
+                int ncols,
                 const VectorDouble &tab,
                 bool flagOverride,
                 bool flagSkipZero)
@@ -654,8 +651,8 @@ String toMatrix(const String& title,
  * @param colnames     Names of the columns (optional)
  * @param rownames     Names of the rows (optional)
  * @param bycol        true if values as sorted by column; false otherwise
- * @param ncols        Number of columns
  * @param nrows        Number of rows
+ * @param ncols        Number of columns
  * @param tab          VectorInt containing the values
  * @param flagOverride true to override printout limitations
  * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
@@ -665,8 +662,8 @@ String toMatrix(const String& title,
                 const VectorString& colnames,
                 const VectorString& rownames,
                 bool bycol,
-                int ncols,
                 int nrows,
+                int ncols,
                 const VectorInt &tab,
                 bool flagOverride,
                 bool flagSkipZero)

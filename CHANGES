@@ -4,6 +4,10 @@ This file contains the logs between consecutive releases
 
 Release 1.2.0
 =============
+- Improvements in the different Gibbs sampler versions + new tutorial
+- Function matrix_qoci() becomes MatrixSquareSymmetric::minimizeWithConstraintsInPlace()
+- Improvement of test_potential.cpp (include cross-validation)
+- Adding a special version to my_throw (i.e. my_throw_impossible)
 - Fix AMatrix::isSymmetric (usefull for macos-14)
 
 Release 1.1.0

@@ -23,6 +23,7 @@
 #define MINI        10
 
 static EDbg _debugOptions = EDbg::DB;
+static bool _internalDebug = false;
 
 bool isInteger(double value, double eps)
 {
@@ -65,6 +66,21 @@ bool isEven(int number)
     return false;
   else
     return true;
+}
+
+bool isZero(double value, double eps)
+{
+  return (ABS(value) <= eps);
+}
+
+bool areEqual(double v1, double v2, double eps)
+{
+  return (ABS(v1 - v2) <= eps);
+}
+
+bool isOne(double value, double eps)
+{
+  return (ABS(value - 1.) <= eps);
 }
 
 double getMin(double val1, double val2)
@@ -431,7 +447,7 @@ StatResults ut_statistics(int nech, const double *tab, const double *sel, const 
 
   for (int i = 0; i < nech; i++)
   {
-    if (sel != nullptr && sel[i] == 0.) continue;
+    if (sel != nullptr && isZero(sel[i])) continue;
     if (FFFF(tab[i])) continue;
     double weight = (wgt != nullptr && wgt[i] >= 0) ? wgt[i] : 1.;
     if (tab[i] < tmin) tmin = tab[i];
@@ -521,7 +537,7 @@ void ut_facies_statistics(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != nullptr && sel[i] == 0.) continue;
+    if (sel != nullptr && isZero(sel[i])) continue;
     if (FFFF(tab[i])) continue;
     facies = (int) tab[i];
     if (facies < 0) continue;
@@ -588,7 +604,7 @@ void ut_classify(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != nullptr && sel[i] == 0.)
+    if (sel != nullptr && isZero(sel[i]))
     {
       (*nmask)++;
       continue;
@@ -940,7 +956,7 @@ std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel, bool verbos
   int irel   = 0;
   for (int iabs = 0; iabs < nabs; iabs++)
   {
-    if (sel[iabs] == 0) continue;
+    if (isZero(sel[iabs])) continue;
     map[iabs] = irel++;
 
     if (IFFFF(ifirst)) ifirst = iabs;
@@ -1011,7 +1027,7 @@ operate_function operate_Identify( int oper )
   else if (oper == -3)
     oper_choice = operate_InverseSqrt;
   else
-    my_throw("Operate Function is not defined");
+    my_throw_impossible("Internal function: Operator is not defined. This should benever happen");
 
   return oper_choice;
 }
@@ -1044,4 +1060,125 @@ double operate_Sqrt(double x)
 double operate_InverseSqrt(double x)
 {
   return (x > 0) ? 1. / sqrt(x) : TEST;
+}
+
+/**
+ * Update an Old by a New value according to 'oper'
+ * @param oper   A keywork of EOperator enum
+ * @param oldval Old value
+ * @param value  New value
+ */
+double modifyOperator(const EOperator& oper, double oldval, double value)
+{
+  if (oper == EOperator::IDLE)
+  {
+    return (value);
+  }
+  else if (oper == EOperator::ADD)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value + oldval);
+  }
+  else if (oper == EOperator::PRODUCT)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value * oldval);
+  }
+  else if (oper == EOperator::SUBTRACT)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value - oldval);
+  }
+  else if (oper == EOperator::SUBOPP)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (oldval - value);
+  }
+  else if (oper == EOperator::DIVIDE)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return ((isZero(value)) ? TEST : oldval / value);
+  }
+  else if (oper == EOperator::DIVOPP)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return ((isZero(oldval)) ? TEST : value / oldval);
+  }
+  else if (oper == EOperator::DEFINE)
+  {
+    if (FFFF(oldval)) return (TEST);
+    return (value);
+  }
+  else if (oper == EOperator::MIN)
+  {
+    if (FFFF(value)) return (oldval);
+    if (FFFF(oldval)) return (value);
+    return MIN(oldval, value);
+  }
+  else if (oper == EOperator::MAX)
+  {
+    if (FFFF(value)) return (oldval);
+    if (FFFF(oldval)) return (value);
+    return MAX(oldval, value);
+  }
+  return TEST;
+}
+
+/**
+ * Round off the value if close enough to zero.
+ * This ensures that the printout of a very small value does not come out with a non-significant negative sign
+ * This trick should only serve to make printouts similar on different platforms.
+ * @param value Input value
+ * @param eps   Tolerance to check that the value is considered as small
+ * @return The value itself or a very small positive value if the input value is too small.
+ */
+double roundZero(double value, double eps)
+{
+  if (ABS(value) > eps)
+    return value;
+  else
+    return eps;
+}
+
+/**
+ * Rounding a double to a given number of decimals
+ * (from: https://stackoverflow.com/questions/304011/truncate-a-decimal-value-in-c/304013#304013)
+ *
+ * @param value Value to be rounded up
+ * @param ndec  Number of significant decimals
+ */
+double truncateDecimals(double value, int ndec)
+{
+  double precision = pow(10., ndec);
+  if (value > 0)
+    value =  floor( value * precision) / precision;
+  else
+    value = -floor(-value * precision) / precision;
+  return value;
+}
+
+/**
+ * Rounding a double to a given number of decimals
+ *
+ * @param value Value to be rounded up
+ * @param ndigits  Number of significant digits
+ */
+double truncateDigits(double value, int ndigits)
+{
+  if (ndigits <= 0) return TEST;
+  int iSigned = value > 0 ? 1 : -1;
+  value *= iSigned;
+  int order = (int) log10(value);
+  int ndec = (value > 1) ? ndigits - order - 1 : ndigits - order;
+  value = truncateDecimals(value, ndec) * iSigned;
+  return value;
+}
+
+void setInternalDebug(bool status)
+{
+  _internalDebug = status;
+}
+bool isInternalDebug()
+{
+  return _internalDebug;
 }

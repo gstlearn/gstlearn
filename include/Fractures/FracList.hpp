@@ -61,6 +61,7 @@ public:
                       double perm_mat,
                       double perm_bench,
                       int ndisc = 1000.,
+                      bool verbose = false,
                       const NamingConvention& namconv = NamingConvention("Fractures"));
   VectorDouble fractureToWell(int nval,
                               const VectorDouble& well,

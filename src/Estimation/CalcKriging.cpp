@@ -13,6 +13,7 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Model/Model.hpp"
 
 #include <math.h>
 

@@ -1,0 +1,105 @@
+NULL
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 1000)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 1000000
+- Number of zero weights = 936730
+- Percentage             =   6.33
+
+
+Table: Statistics for case g1
+
+|      | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:-----|------:|-------:|-------:|------:|--------:|
+|g1.1  |   1000|  -1.883|   3.143|  0.815|    0.811|
+|g1.2  |   1000|  -2.431|   3.309|  0.077|    0.864|
+|g1.3  |   1000|  -2.058|   2.228|  0.117|    0.868|
+|g1.4  |   1000|  -2.388|   2.054| -0.009|    0.830|
+|g1.5  |   1000|  -3.025|   3.642|  0.302|    1.026|
+|g1.6  |   1000|  -2.051|   2.616|  0.655|    0.814|
+|g1.7  |   1000|  -2.170|   2.308|  0.214|    0.807|
+|g1.8  |   1000|  -4.301|   2.977|  0.202|    1.210|
+|g1.9  |   1000|  -2.200|   4.039|  0.723|    1.063|
+|g1.10 |   1000|  -2.454|   3.024|  0.209|    0.898|
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 1000)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 1000000
+- Number of zero weights = 936730
+- Percentage             =   6.33
+
+
+Table: Statistics for case g2
+
+|      | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:-----|------:|-------:|-------:|------:|--------:|
+|g2.1  |   1000|  -2.792|   2.500| -0.291|    0.898|
+|g2.2  |   1000|  -3.355|   2.084| -0.488|    0.944|
+|g2.3  |   1000|  -3.120|   2.378| -0.308|    0.879|
+|g2.4  |   1000|  -2.832|   2.445| -0.268|    0.856|
+|g2.5  |   1000|  -2.809|   2.302| -0.306|    0.862|
+|g2.6  |   1000|  -3.168|   2.304| -0.291|    0.865|
+|g2.7  |   1000|  -3.032|   2.937| -0.311|    0.881|
+|g2.8  |   1000|  -2.705|   1.811| -0.373|    0.860|
+|g2.9  |   1000|  -3.162|   2.167| -0.383|    0.947|
+|g2.10 |   1000|  -2.863|   2.352| -0.314|    0.879|
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 1000)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 1000000
+- Number of zero weights = 936730
+- Percentage             =   6.33
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 1000)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 1000000
+- Number of zero weights = 936730
+- Percentage             =   6.33
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 1000)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 1000000
+- Number of zero weights = 936730
+- Percentage             =   6.33
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 1000)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 1000000
+- Number of zero weights = 936730
+- Percentage             =   6.33
+[1] ">>>> processing simulation #1"
+[1] ">>>> processing simulation #2"
+[1] ">>>> processing simulation #3"
+[1] ">>>> processing simulation #4"
+
+
+Table: Statistics for conditional expectation with censored data
+
+|              | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:-------------|------:|-------:|-------:|-----:|--------:|
+|CE.cs.Z.estim |  65536|   0.069|  10.352| 0.841|    0.743|
+|CE.cs.Z.stdev |  65536|   0.007|   5.419| 0.319|    0.378|

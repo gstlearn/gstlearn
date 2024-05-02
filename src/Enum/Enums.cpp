@@ -24,6 +24,7 @@
 #include "Enum/ETape.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ELoc.hpp"
+#include "Enum/EOperator.hpp"
 #include "Enum/ERotation.hpp"
 #include "Enum/EPowerPT.hpp"
 #include "Enum/EProcessOper.hpp"
@@ -56,6 +57,7 @@ ENUM_DEFINE(ENUM_CONS_TYPE)
 ENUM_DEFINE(ENUM_JUSTIFY)
 ENUM_DEFINE(ENUM_DEBUG)
 ENUM_DEFINE(ENUM_CST)
+ENUM_DEFINE(ENUM_OPERATOR)
 ENUM_DEFINE(ENUM_PROCESS_OPER)
 ENUM_DEFINE(ENUM_POWER_PT)
 ENUM_DEFINE(ENUM_SPDE_CALC_MODE)

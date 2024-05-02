@@ -22,7 +22,8 @@ Option_AutoFit::Option_AutoFit()
       _tolred(1.e-6),
       _epsdelta(1.e-5),
       _tolsigma(5.),
-      _initdelta(1.)
+      _initdelta(1.),
+      _useEigenLibrary(isGlobalFlagEigen())
 {
 }
 
@@ -36,7 +37,8 @@ Option_AutoFit::Option_AutoFit(const Option_AutoFit &m)
       _tolred(m._tolred),
       _epsdelta(m._epsdelta),
       _tolsigma(m._tolsigma),
-      _initdelta(m._initdelta)
+      _initdelta(m._initdelta),
+      _useEigenLibrary(m._useEigenLibrary)
 {
 
 }
@@ -55,6 +57,7 @@ Option_AutoFit& Option_AutoFit::operator=(const Option_AutoFit &m)
     _epsdelta = m._epsdelta;
     _tolsigma = m._tolsigma;
     _initdelta = m._initdelta;
+    _useEigenLibrary = m._useEigenLibrary;
   }
   return *this;
 }
@@ -80,6 +83,7 @@ String Option_AutoFit::toString(const AStringFormat* /*strfmt*/) const
   sstr << "- Initial increment value           " << getInitdelta() << std::endl;
   if (getFlagIntrinsic())
     sstr << "- Resulting Multivariate Model should be Intrinsic"   << std::endl;
+  sstr << "- Use of Eigen library when computing Eigen vectors" << isUseEigenLibrary() << std::endl;
 
   return sstr.str();
 }

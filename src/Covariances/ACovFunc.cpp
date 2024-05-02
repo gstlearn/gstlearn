@@ -63,7 +63,7 @@ void ACovFunc::setParam(double param)
 
 void ACovFunc::setField(double field)
 {
-  if (field < EPSILON10)
+  if (isZero(field))
     my_throw("Cannot scale with zero");
   _ctxt.setField(field);
 }
@@ -80,7 +80,7 @@ double ACovFunc::evalCovDerivative(int degree, double h) const
 double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
 {
   double s = 0.;
-  if (alpha == 0.)
+  if (isZero(alpha))
   {
     for (int i = 0; i < degree; i++)
     {

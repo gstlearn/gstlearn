@@ -36,7 +36,7 @@ static int flagUpdateNonzero = 0;
 static int _cs_update_nonzero_value(int row, int col, double value)
 {
   if (flagUpdateNonzero == 0) return 0;
-  if (ABS(value) < EPSILON10) return 0;
+  if (isZero(value)) return 0;
   if (flagUpdateNonzero == 1)
   {
     messerr("Attempt to modify a nonzero element (row=%d; col=%d) with value (%lf)", row, col, value);
@@ -461,6 +461,9 @@ static void st_path_define(cs_MGS *mgs, int nlevels, int path_type)
                                      sizeof(int) * mgs->npath, 1);
       for (int i = 0; i < nlevels; i++)
         mgs->path[i + n] = -1;
+      break;
+
+    default:
       break;
   }
 }
@@ -3059,7 +3062,7 @@ cs* cs_compress(cs *A)
   for (int i = 0; i < NF_T.getNumber(); i++)
   {
     double value = NF_T.getValue(i);
-    if (ABS(value) < EPSILON10) continue;
+    if (isZero(value)) continue;
     NF_Tout.add(NF_T.getRow(i), NF_T.getCol(i), value);
   }
   return NF_Tout.buildCsFromTriplet();

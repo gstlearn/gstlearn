@@ -18,6 +18,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Covariances/CovCalcMode.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;

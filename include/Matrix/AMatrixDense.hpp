@@ -20,6 +20,7 @@ DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 DISABLE_WARNING_MAYBE_UNINITIALIZED
+DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 DISABLE_WARNING_POP
@@ -27,6 +28,7 @@ DISABLE_WARNING_POP
 
 class MatrixSquareGeneral;
 class MatrixSquareSymmetric;
+class EOperator;
 
 /**
  * Square Matrix
@@ -44,6 +46,8 @@ public:
   /// Interface for AMatrix
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
   virtual bool isDense() const { return true; }
+  /*! Returns if the current matrix is Sparse */
+  virtual bool isSparse() const { return false; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -98,7 +102,7 @@ public:
                                   bool transpose = false);
 
   VectorDouble         getEigenValues()  const { return _eigenValues; }
-  MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
+  const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -110,6 +114,7 @@ protected:
   virtual double  _getValue(int irow, int icol) const override;
   virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
   virtual void    _transposeInPlace() override;
@@ -137,6 +142,7 @@ private:
   int     _getMatrixPhysicalSizeLocal() const;
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
+  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   double  _getValueLocal(int irank) const;
   double  _getValueLocal(int irow, int icol) const;
@@ -172,8 +178,8 @@ private:
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble         _eigenValues;
-  MatrixSquareGeneral* _eigenVectors;
+  VectorDouble         _eigenValues; // only when ! flag_eigen()
+  MatrixSquareGeneral* _eigenVectors; // only when ! flag_eigen()
 
 private:
 #ifndef SWIG

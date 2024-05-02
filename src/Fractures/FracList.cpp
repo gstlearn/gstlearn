@@ -134,7 +134,6 @@ int FracList::simulate(const FracEnviron& envir,
 
   if (_verbose)
   {
-    message("Options set by the keypair mechanism:\n");
     message("Fracture_Discretization_Count = %d \n", _ndisc);
     message("Fracture_Check_Intersect      = %d \n", _flagCheck);
     message("Fracture_Repulsion_Low0       = %lg\n", _low0);
@@ -187,7 +186,7 @@ int FracList::simulate(const FracEnviron& envir,
   }
 
   if (_verbose)
-    message("Total number of main faults        = %d \n", getNFracs());
+    message("Number of main faults        = %d \n", getNFracs());
 
   if (!flag_sim_fract) return 0;
 
@@ -394,8 +393,6 @@ int FracList::_fracAdd(int ifrac,
 
   if (desc.getNPoint() == 0)
   {
-    desc.setFamily(ifam);
-    desc.setOrient(orient);
     desc.addPoint(xx, cote);
   }
   desc.setFamily(ifam);
@@ -403,6 +400,11 @@ int FracList::_fracAdd(int ifrac,
   desc.addPoint(thick * tan(ut_deg2rad(orient)) + xx, thick + cote);
   *xp = desc.getXXF(desc.getNPoint() - 1);
 
+  if (_verbose)
+    message("- Adding fracture: (%lf; %lf) to (%lf; %lf)\n",
+            xx, cote,
+            desc.getXXF(desc.getNPoint() - 1),
+            desc.getYYF(desc.getNPoint() - 1));
   _checkFractureIntersect(cote, ifrac);
 
   return (ifrac);
@@ -1006,7 +1008,7 @@ int FracList::_simulateFractures(const FracEnviron& envir,
   }
 
   if (_verbose)
-    message("New Simulated fractures in Layer  = %d \n", neff);
+    message("Number of Simulated fractures in Layer  = %d \n", neff);
 
   return (nfracs);
 }
@@ -1172,6 +1174,7 @@ void FracList::addDescription(const FracDesc& description)
  ** \param[in]  perm_mat     Permability for the matrix
  ** \param[in]  perm_bench   Permability along the bench edge
  ** \param[in]  ndisc        Number of discretization steps
+ ** \param[in]  verbose      Verbose flag
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
@@ -1181,6 +1184,7 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
                               double perm_mat,
                               double perm_bench,
                               int ndisc,
+                              bool verbose,
                               const NamingConvention& namconv)
 {
   if (dbgrid->getNDim() != 2)
@@ -1223,10 +1227,15 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
     /* Loop on the segments */
 
     int npoint = desc.getNPoint();
+
+    if (verbose)
+      message("Fracture %d/%d (Number of end-points = %d)\n", ifrac+1, getNFracs(), npoint);
+
+    double permval = permtab[desc.getFamily()];
     for (int ip = 0; ip < npoint - 1; ip++)
     {
       int jp = ip + 1;
-      _plungeSegment(dbgrid, iptr, delta, permtab[desc.getFamily()],
+      _plungeSegment(dbgrid, iptr, delta, permval,
                      desc.getXXF(ip), desc.getYYF(ip),
                      desc.getXXF(jp), desc.getYYF(jp));
     }
@@ -1260,7 +1269,6 @@ void FracList::_plungeSegment(DbGrid *dbgrid,
                               double y2)
 {
   VectorDouble coor(2);
-
   double deltax = x2 - x1;
   double deltay = y2 - y1;
   double dist = sqrt(deltax * deltax + deltay * deltay);
@@ -1274,7 +1282,7 @@ void FracList::_plungeSegment(DbGrid *dbgrid,
     coor[1] = y1 + deltay * i / number;
 
     int iech = dbgrid->coordinateToRank(coor);
-    if (iech >= 0) dbgrid->updArray(iech, iptr, 5, value);
+    if (iech >= 0) dbgrid->updArray(iech, iptr, EOperator::MAX, value);
   }
 }
 

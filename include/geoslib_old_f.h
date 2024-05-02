@@ -100,7 +100,7 @@ GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);
 GSTLEARN_EXPORT int foxleg_f(int ndat,
                              int npar,
                              int ncont,
-                             const VectorDouble &acont,
+                             const MatrixRectangular& acont,
                              VectorDouble &param,
                              VectorDouble &lower,
                              VectorDouble &upper,
@@ -265,32 +265,12 @@ GSTLEARN_EXPORT void time_report(void);
 /* Prototyping the functions in matrix.c */
 /*****************************************/
 
-GSTLEARN_EXPORT int matrix_get_extreme(int mode, int ntab, double *tab);
 GSTLEARN_EXPORT int matrix_invert(double *a, int neq, int rank);
-GSTLEARN_EXPORT int matrix_invert_triangle(int neq, double *tl, int rank);
-GSTLEARN_EXPORT int matrix_invert_copy(const double *a, int neq, double *b);
-GSTLEARN_EXPORT int matrix_invgen(double *a,
-                                  int neq,
-                                  double *tabout,
-                                  double *cond);
-GSTLEARN_EXPORT int matrix_invsvdsym(double *a, int neq, int rank);
-GSTLEARN_EXPORT int matrix_invreal(double *mat, int neq);
-GSTLEARN_EXPORT void matrix_svd_inverse(int neq,
-                                        double *s,
-                                        double *u,
-                                        double *v,
-                                        double *tabout);
-GSTLEARN_EXPORT double matrix_determinant(int neq, const double *b);
+GSTLEARN_EXPORT double matrix_determinant(int neq, const VectorDouble& b);
 GSTLEARN_EXPORT int matrix_eigen(const double *a,
                                  int neq,
                                  double *value,
                                  double *vector);
-GSTLEARN_EXPORT void matrix_product(int n1,
-                                    int n2,
-                                    int n3,
-                                    const double *v1,
-                                    const double *v2,
-                                    double *v3);
 GSTLEARN_EXPORT void matrix_product_safe(int n1,
                                          int n2,
                                          int n3,
@@ -303,32 +283,10 @@ GSTLEARN_EXPORT int matrix_prod_norme(int tranpose,
                                       const double *v1,
                                       const double *a,
                                       double *v2);
-GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, double *v1, double *w1);
-GSTLEARN_EXPORT void matrix_int_transpose(int n1, int n2, int *v1, int *w1);
-GSTLEARN_EXPORT void matrix_transpose_in_place(int n1, int n2, double *v1);
-GSTLEARN_EXPORT void matrix_int_transpose_in_place(int n1, int n2, int *v1);
-GSTLEARN_EXPORT int matrix_solve(int mode,
-                                 const double *a,
-                                 const double *b,
-                                 double *x,
-                                 int neq,
-                                 int nrhs,
-                                 int *pivot);
-GSTLEARN_EXPORT double matrix_normA(double *b, double *a, int neq, int subneq);
+GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, VectorDouble& v1, VectorDouble& w1);
 GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
                                               double *tl,
                                               int neq);
-GSTLEARN_EXPORT int matrix_LU_decompose(int neq,
-                                        const double *a,
-                                        double *tl,
-                                        double *tu);
-GSTLEARN_EXPORT int matrix_LU_solve(int neq,
-                                    const double *tu,
-                                    const double *tl,
-                                    const double *b,
-                                    double *x);
-GSTLEARN_EXPORT int matrix_LU_invert(int neq, double* a);
-GSTLEARN_EXPORT void matrix_fill_symmetry(int neq, double *a);
 GSTLEARN_EXPORT void matrix_cholesky_product(int mode,
                                              int neq,
                                              int nrhs,
@@ -336,48 +294,12 @@ GSTLEARN_EXPORT void matrix_cholesky_product(int mode,
                                              const double *a,
                                              double *x);
 GSTLEARN_EXPORT void matrix_cholesky_invert(int neq, const double *tl, double *xl);
-GSTLEARN_EXPORT void matrix_cholesky_norme(int mode,
-                                           int neq,
-                                           const double *tl,
-                                           const double *a,
-                                           double *b);
-GSTLEARN_EXPORT int is_matrix_definite_positive(int neq,
-                                                const double *a,
-                                                double *valpro,
-                                                double *vecpro,
-                                                int verbose);
-GSTLEARN_EXPORT int is_matrix_non_negative(int nrow,
-                                           int ncol,
-                                           double *a,
-                                           int verbose);
-GSTLEARN_EXPORT int is_matrix_symmetric(int neq, const double *a, int verbose);
-GSTLEARN_EXPORT int is_matrix_rotation(int neq, const double *a, int verbose);
-GSTLEARN_EXPORT void matrix_produit_cholesky(int neq, const double *tl, double *a);
-GSTLEARN_EXPORT VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl);
-GSTLEARN_EXPORT double* matrix_bind(int mode,
-                                    int n11,
-                                    int n12,
-                                    double *a1,
-                                    int n21,
-                                    int n22,
-                                    double *a2,
-                                    int *n31,
-                                    int *n32);
-GSTLEARN_EXPORT void matrix_manage(int nrows,
-                                   int ncols,
-                                   int nr,
-                                   int nc,
-                                   int *rowsel,
-                                   int *colsel,
-                                   double *v1,
-                                   double *v2);
 GSTLEARN_EXPORT void matrix_combine(int nval,
                                     double coeffa,
                                     double *a,
                                     double coeffb,
                                     double *b,
                                     double *c);
-GSTLEARN_EXPORT double matrix_norminf(int neq, double *a);
 GSTLEARN_EXPORT void matrix_product_by_diag(int mode,
                                             int neq,
                                             double *a,
@@ -387,36 +309,12 @@ GSTLEARN_EXPORT void matrix_triangle_to_square(int mode,
                                                int neq,
                                                const double *tl,
                                                double *a);
-GSTLEARN_EXPORT void matrix_tl2tu(int neq, const double *tl, double *tu);
 GSTLEARN_EXPORT int matrix_eigen_tridiagonal(const double *vecdiag,
                                              const double *vecinf,
                                              const double *vecsup,
                                              int neq,
                                              double *eigvec,
                                              double *eigval);
-GSTLEARN_EXPORT int matrix_qo(int neq,
-                              double *hmat,
-                              double *gmat,
-                              double *xmat);
-GSTLEARN_EXPORT int matrix_qoc(int flag_invert,
-                               int neq,
-                               double *hmat,
-                               double *gmat,
-                               int na,
-                               double *amat,
-                               double *bmat,
-                               double *xmat,
-                               double *lambda);
-GSTLEARN_EXPORT int matrix_qoci(int neq,
-                                double *hmat,
-                                double *gmat,
-                                int nae,
-                                double *aemat,
-                                double *bemat,
-                                int nai,
-                                double *aimat,
-                                double *bimat,
-                                double *xmat);
 
 /****************************************/
 /* Prototyping the functions in ascii.c */
@@ -459,114 +357,10 @@ GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
 /* Prototyping the functions in model.c */
 /****************************************/
 
-GSTLEARN_EXPORT void model_covtab_init(int flag_init,
-                                       Model *model,
-                                       double *covtab);
-GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
-                                          Db *db1,
-                                          int iech1,
-                                          Db *db2,
-                                          int iech2,
-                                          int verbose,
-                                          double factor,
-                                          const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model);
-GSTLEARN_EXPORT int model_add_cova(Model *model,
-                                   const ECov &type,
-                                   int flag_anisotropy,
-                                   int flag_rotation,
-                                   double range,
-                                   double param,
-                                   const VectorDouble &aniso_ranges,
-                                   const VectorDouble &aniso_rotmat,
-                                   const VectorDouble &coreg,
-                                   double ball_radius);
-GSTLEARN_EXPORT int model_sample(Vario *vario,
-                                 Model *model,
-                                 const CovCalcMode* mode);
-GSTLEARN_EXPORT void model_calcul_cov(CovInternal *covint,
-                                      Model *model,
-                                      const CovCalcMode* mode,
-                                      int flag_init,
-                                      double weight,
-                                      VectorDouble d1,
-                                      double *covtab);
 GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
                                         Model *model,
                                         const Constraints& constraints,
                                         const Option_AutoFit& mauto);
-GSTLEARN_EXPORT int model_nfex(Model *model);
-GSTLEARN_EXPORT int model_update_coreg(Model *model,
-                                       double *aic,
-                                       double *valpro,
-                                       double *vecpro);
-GSTLEARN_EXPORT int model_evaluate(Model *model,
-                                   int ivar,
-                                   int jvar,
-                                   const CovCalcMode* mode,
-                                   int nh,
-                                   VectorDouble &codir,
-                                   const double *h,
-                                   double *g);
-GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
-                                          int ivar,
-                                          int jvar,
-                                          const CovCalcMode* mode,
-                                          Db *db1,
-                                          int iech1,
-                                          Db *db2,
-                                          int iech2,
-                                          int nh,
-                                          VectorDouble &codir,
-                                          double *h,
-                                          double *g);
-GSTLEARN_EXPORT int model_grid(Model *model,
-                               Db *db,
-                               int ivar,
-                               int jvar,
-                               const CovCalcMode* mode,
-                               double *g);
-GSTLEARN_EXPORT double model_cxx(Model *model,
-                                 Db *db1,
-                                 Db *db2,
-                                 int ivar,
-                                 int jvar,
-                                 int seed,
-                                 double epsdist,
-                                 const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT int model_covmat(Model *model,
-                                  Db *db1,
-                                  Db *db2,
-                                  int ivar,
-                                  int jvar,
-                                  double *covmat,
-                                  const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT MatrixSquareSymmetric model_covmatM(Model *model,
-                                                    Db *db1,
-                                                    Db *db2,
-                                                    int ivar0,
-                                                    int jvar0,
-                                                    const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
-                                              Db *db1,
-                                              int nsize1,
-                                              const int *ranks1,
-                                              Db *db2,
-                                              int nsize2,
-                                              const int *ranks2,
-                                              int ivar0 = -1,
-                                              int jvar0 = -1,
-                                              const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
-                                                       Db *db1,
-                                                       int nsize1,
-                                                       const VectorInt& ranks1,
-                                                       Db *db2,
-                                                       int nsize2,
-                                                       const VectorInt& ranks2,
-                                                       int ivar0 = -1,
-                                                       int jvar0 = -1,
-                                                       const CovCalcMode *mode = nullptr);
 GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         Db *db,
                                         Model *model,
@@ -580,15 +374,6 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         int **Pret,
                                         double **Gret,
                                         const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT int model_drift_mat(Model *model,
-                                     const ECalcMember &member,
-                                     Db *db,
-                                     double *drfmat);
-GSTLEARN_EXPORT int model_drift_vector(Model *model,
-                                        const ECalcMember &member,
-                                        Db *db,
-                                        int iech,
-                                        double *vector);
 GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model *model,
                                        double ball_radius);
 GSTLEARN_EXPORT void model_covupdt(Model *model,
@@ -596,12 +381,6 @@ GSTLEARN_EXPORT void model_covupdt(Model *model,
                                    int flag_verbose,
                                    int *flag_nugget,
                                    double *nugget);
-GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
-                                            Model *model,
-                                            const Db *db,
-                                            int iech,
-                                            int ivar,
-                                            double *coef);
 GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
                                                 char cov_name[STRING_LENGTH],
                                                 int *flag_range,
@@ -614,14 +393,9 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
                                                 int *flag_rotation,
                                                 double *scale,
                                                 double *parmax);
-GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param);
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r);
-GSTLEARN_EXPORT int model_regularize(Model *model,
-                                     Vario *vario,
-                                     DbGrid *dbgrid,
-                                     const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,
@@ -631,7 +405,6 @@ GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        int v2);
 GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
 GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
-GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 
 /***************************************/
 /* Prototyping the functions in anam.c */
@@ -978,9 +751,9 @@ GSTLEARN_EXPORT int db_diffusion(DbGrid *dbgrid1,
 
 GSTLEARN_EXPORT int cgi(Db *db,
                         int ivar,
-                        double *center,
-                        double *mvalue,
-                        double *mvector,
+                        VectorDouble& center,
+                        VectorDouble& mvalue,
+                        MatrixRectangular& mvector,
                         double *inertia,
                         double *wztot);
 GSTLEARN_EXPORT int spatial(Db *db,
@@ -1071,7 +844,7 @@ GSTLEARN_EXPORT void krige_lhs_print(int nech,
                                      int neq,
                                      int nred,
                                      int *flag,
-                                     double *lhs);
+                                     const double *lhs);
 GSTLEARN_EXPORT void krige_rhs_print(int nvar,
                                      int nech,
                                      int neq,
@@ -1092,10 +865,8 @@ GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
                                    Db *dbout,
                                    Model *model,
                                    double beta,
-                                   int nsize1,
-                                   int *ranks1,
-                                   int nsize2,
-                                   int *ranks2,
+                                   VectorInt& ranks1,
+                                   VectorInt& ranks2,
                                    bool flag_std,
                                    int verbose);
 GSTLEARN_EXPORT int global_transitive(DbGrid *dbgrid,
@@ -1131,12 +902,10 @@ GSTLEARN_EXPORT int sampling_f(Db *db,
                                double beta,
                                int method1,
                                int nsz1_max,
-                               int nsize1,
-                               int *ranks1,
+                               VectorInt& ranks1,
                                int method2,
                                int nsz2_max,
-                               int nsize2,
-                               int *ranks2,
+                               VectorInt& ranks2,
                                int verbose);
 GSTLEARN_EXPORT int inhomogeneous_kriging(Db *dbdat,
                                           Db *dbsrc,

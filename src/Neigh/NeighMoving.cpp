@@ -684,7 +684,6 @@ int NeighMoving::_movingSectorDefine(double dx, double dy)
  *****************************************************************************/
 void NeighMoving::_movingSectorNsmax(int nsel, VectorInt& ranks)
 {
-  int n_end = 0;
   for (int isect = 0; isect < getNSect(); isect++)
   {
     int n_ang = 0;
@@ -697,7 +696,6 @@ void NeighMoving::_movingSectorNsmax(int nsel, VectorInt& ranks)
       else
         ranks[j] = -1;
     }
-    n_end += n_ang;
   }
   return;
 }

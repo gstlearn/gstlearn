@@ -126,7 +126,7 @@ bool AMatrix::isSameSize(const AMatrix& m) const
   return (_nRows == m.getNRows() && _nCols == m.getNCols());
 }
 
-bool AMatrix::isSame(const AMatrix& m, double eps)
+bool AMatrix::isSame(const AMatrix& m, double eps, bool printWhyNot)
 {
   if (! isSameSize(m)) return false;
 
@@ -135,7 +135,20 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
   for (int icol=0; icol<ncols; icol++)
     for (int irow=0; irow<nrows; irow++)
     {
-      if (ABS(getValue(irow, icol) - m.getValue(irow, icol)) > eps) return false;
+      double v1 = getValue(irow, icol);
+      double v2 = m.getValue(irow, icol);
+      if (ABS(v1 - v2) > eps)
+      {
+        if (printWhyNot)
+        {
+          messerr("Element (%d;%d) are different between:\n",irow,icol);
+          messerr("- First matrix");
+          m.display();
+          messerr("- Second matrix");
+          display();
+        }
+        return false;
+      }
     }
   return true;
 }
@@ -347,11 +360,24 @@ void AMatrix::setValue_(int irow, int icol, double value)
   return _setValue(irow, icol, value);
 }
 
+/*! Updates the value at row 'irow' and column 'icol' (no test) */
+void AMatrix::updValue_(int irow, int icol, const EOperator& oper, double value)
+{
+  return _updValue(irow, icol, oper, value);
+}
+
 /*! Sets the value at row 'irow' and column 'icol' */
 void AMatrix::setValue(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   return _setValue(irow, icol, value);
+}
+
+/*! Update the value at row 'irow' and column 'icol' */
+void AMatrix::updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  return _updValue(irow, icol, oper, value);
 }
 
 /**
@@ -435,7 +461,7 @@ void AMatrix::setIdentity(double value)
  */
 void AMatrix::addScalar(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
   for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
     _setValueByRank(rank, _getValueByRank(rank) + v);
 }
@@ -446,7 +472,7 @@ void AMatrix::addScalar(double v)
  */
 void AMatrix::addScalarDiag(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
   for (int irow = 0; irow < _nRows; irow++)
   {
     for (int icol = 0; icol < _nCols; icol++)
@@ -466,7 +492,7 @@ void AMatrix::addScalarDiag(double v)
  */
 void AMatrix::prodScalar(double v)
 {
-  if (v == 1.) return;
+  if (isOne(v)) return;
   for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
     _setValueByRank(rank, _getValueByRank(rank) * v);
 }
@@ -654,7 +680,7 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
   int n2 = (transpose) ? a.getNRows() : a.getNCols();
 
   if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
-                 vec.size(), 1, false)) return;
+                 (int) vec.size(), 1, false)) return;
 
   for (int i = 0; i < n1; i++)
     for (int j = 0; j < n1; j++)
@@ -675,7 +701,10 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
 void AMatrix::multiplyRow(const VectorDouble& vec)
 {
   if (_nRows != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of rows");
+  {
+    messerr("The size of 'vec' must match the number of rows. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -687,7 +716,10 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
 void AMatrix::divideRow(const VectorDouble& vec)
 {
   if (_nRows != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of rows");
+  {
+    messerr("The size of 'vec' must match the number of rows. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -699,7 +731,10 @@ void AMatrix::divideRow(const VectorDouble& vec)
 void AMatrix::multiplyColumn(const VectorDouble& vec)
 {
   if (_nCols != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of columns");
+  {
+    messerr("The size of 'vec' must match the number of columns. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -710,7 +745,10 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
 void AMatrix::divideColumn(const VectorDouble& vec)
 {
   if (_nCols != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of columns");
+  {
+    messerr("The size of 'vec' must match the number of columns. Nothing is done");
+    return;
+  }
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
@@ -723,7 +761,7 @@ VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
 {
   VectorDouble y;
 
-  if (!_checkLink(x.size(), 1, false, getNRows(), getNCols(), transpose)) return y;
+  if (!_checkLink((int) x.size(), 1, false, getNRows(), getNCols(), transpose)) return y;
 
   int nval = (! transpose) ? _nCols : _nRows;
   y.resize(nval, 0.);
@@ -735,7 +773,7 @@ VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
 {
   VectorDouble y;
 
-  if (!_checkLink(getNRows(), getNCols(), transpose, x.size(), 1, false)) return y;
+  if (!_checkLink(getNRows(), getNCols(), transpose, (int) x.size(), 1, false)) return y;
 
   int nval = (transpose) ? _nCols : _nRows;
   y.resize(nval, 0.);
@@ -745,9 +783,9 @@ VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
 
 double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
 {
-  if (!_checkLink(x.size(), 1, true,
+  if (!_checkLink((int) x.size(), 1, true,
                   getNRows(), getNCols(), false,
-                  y.size(), 1, false)) return TEST;
+                  (int) y.size(), 1, false)) return TEST;
 
   VectorDouble left(_nRows);
   prodMatVecInPlace(y, left, false);
@@ -757,16 +795,25 @@ double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
 int AMatrix::invert()
 {
   if (! isSquare())
-    my_throw("Invert method is restricted to Square matrices");
+  {
+    messerr("Invert method is restricted to Square matrices");
+    return 1;
+  }
   return _invert();
 }
 
 int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
 {
   if (! isSquare())
-    my_throw("Invert method is limited to Square Matrices");
+  {
+    messerr("Invert method is limited to Square Matrices");
+    return 1;
+  }
   if ((int) b.size() != _nRows || (int) x.size() != _nRows)
-    my_throw("b' and 'x' should have the same dimension as the Matrix");
+  {
+    messerr("b' and 'x' should have the same dimension as the Matrix");
+    return 1;
+  }
   return _solve(b, x);
 }
 
@@ -787,7 +834,7 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
     sstr << "- Sparse Format" << std::endl;
     flagSkipZero = true;
   }
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
                    getValues(), false, flagSkipZero);
 
   return sstr.str();
@@ -841,7 +888,7 @@ bool AMatrix::_isIndexValid(int irow, int icol) const
 
 bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
 {
-  if (tab.size() != (unsigned) getNRows())
+  if ((int) tab.size() != getNRows())
   {
     messerr("Argument vector size should match the number of rows");
     return false;
@@ -851,7 +898,7 @@ bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
 
 bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
 {
-  if (tab.size() != (unsigned) getNCols())
+  if ((int) tab.size() != getNCols())
   {
     messerr("Argument vector size should match the number of columns");
     return false;
@@ -863,7 +910,7 @@ bool AMatrix::_isVectorSizeConsistent(int nrows,
                                       int ncols,
                                       const VectorDouble &tab)
 {
-  if (tab.size() != (unsigned) (nrows * ncols))
+  if ((int) tab.size() != nrows * ncols)
   {
     messerr("The VectorDouble argument does not have correct dimension");
     return false;
@@ -936,8 +983,8 @@ bool AMatrix::_checkLink(int nrow1,
 
   if (nrow3 > 0)
   {
-    int nr3 = (!transpose2) ? nrow3 : ncol3;
-    int nc3 = (!transpose2) ? ncol3 : nrow3;
+    int nr3 = (!transpose3) ? nrow3 : ncol3;
+    int nc3 = (!transpose3) ? ncol3 : nrow3;
     if (ncur != nr3) level = 3;
     ncur = nc3;
   }
@@ -966,7 +1013,7 @@ NF_Triplet AMatrix::getMatrixToTriplet(int shiftRow, int shiftCol) const
     {
       if (!isValid(irow, icol)) continue;
       double value = getValue(irow, icol);
-      if (ABS(value) < EPSILON10) continue;
+      if (isZero(value)) continue;
       NF_T.add(irow+shiftRow, icol+shiftCol, value);
     }
 
@@ -1002,7 +1049,10 @@ VectorDouble AMatrix::getValues(bool byCol) const
 double AMatrix::compare(const AMatrix& mat) const
 {
   if (mat.getNRows() != _nRows || mat.getNCols() != _nCols)
-    my_throw("We can only compare two matrices with same dimensions");
+  {
+    messerr("We can only compare two matrices with same dimensions");
+    return TEST;
+  }
 
   double diff = 0.;
   for (int icol = 0; icol < _nCols; icol++)
@@ -1018,7 +1068,10 @@ double AMatrix::compare(const AMatrix& mat) const
 VectorDouble AMatrix::getDiagonal(int shift) const
 {
   if (! isSquare())
-    my_throw("This function is only valid for Square matrices");
+  {
+    messerr("This function is only valid for Square matrices");
+    return VectorDouble();
+  }
 
   VectorDouble vect;
   for (int rank = 0; rank < getNRows(); rank++)
@@ -1042,7 +1095,10 @@ VectorDouble AMatrix::getDiagonal(int shift) const
 void AMatrix::setDiagonal(const VectorDouble& tab)
 {
   if (! isSquare())
-    my_throw("This function is only valid for Square matrices");
+  {
+    messerr("This function is only valid for Square matrices. Nothing is done");
+    return;
+  }
 
   fill(0.);
   for (int irow = 0; irow < getNRows(); irow++)
@@ -1056,7 +1112,10 @@ void AMatrix::setDiagonal(const VectorDouble& tab)
 void AMatrix::setDiagonalToConstant(double value)
 {
   if (! isSquare())
-    my_throw("This function is only valid for Square matrices");
+  {
+    messerr("This function is only valid for Square matrices. Nothing is done");
+    return;
+  }
 
   fill(0.);
   for (int irow = 0; irow < getNRows(); irow++)
@@ -1207,7 +1266,7 @@ double AMatrix::getMinimum() const
       if (FFFF(value)) continue;
       if (value < minimum) minimum = value;
     }
-  if (minimum == 1.e30) minimum = TEST;
+  if (areEqual(minimum,1.e30)) minimum = TEST;
   return minimum;
 }
 
@@ -1222,8 +1281,23 @@ double AMatrix::getMaximum() const
       if (FFFF(value)) continue;
       if (value > maximum) maximum = value;
     }
-  if (maximum == -1.e30) maximum = TEST;
+  if (areEqual(maximum,-1.e30)) maximum = TEST;
   return maximum;
+}
+
+double AMatrix::getNormInf() const
+{
+  double norminf = 0.;
+  for (int icol = 0; icol < getNCols(); icol++)
+    for (int irow = 0; irow < getNRows(); irow++)
+    {
+      if (!_isPhysicallyPresent(irow, icol)) continue;
+      double value = _getValue(irow, icol);
+      if (FFFF(value)) continue;
+      value = ABS(value);
+      if (value > norminf) norminf = value;
+  }
+  return norminf;
 }
 
 double& AMatrix::_getValueRef(int irow, int icol)
@@ -1339,6 +1413,33 @@ void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
   prodMatMatInPlace(this, matY, false, transposeY);
 }
 
+void AMatrix::linearCombination(double val1,
+                                const AMatrix *mat1,
+                                double val2,
+                                const AMatrix *mat2)
+{
+  // Check dimensions
+  if (mat1 != nullptr && ! isSameSize(*mat1))
+  {
+    messerr("Dimensions of 'in1' do not match dimensions of current matrix. Nothing is done");
+    return;
+  }
+  if (mat2 != nullptr && ! isSameSize(*mat2))
+  {
+    messerr("Dimensions of 'in2' do not match dimensions of current matrix. Nothing is done");
+    return;
+  }
+
+  // Calculations
+  for (int irow = 0; irow < getNRows(); irow++)
+    for (int icol = 0; icol < getNCols(); icol++)
+    {
+      double value = 0;
+      if (mat1 != nullptr) value += val1 * mat1->getValue(irow, icol);
+      if (mat2 != nullptr) value += val2 * mat2->getValue(irow, icol);
+      setValue(irow, icol, value);
+    }
+}
 
 /**
  * Modify the parameter for using EIGEN library or not.
@@ -1369,3 +1470,4 @@ bool isMultiThread()
 {
   return globalMultiThread > 0;
 }
+

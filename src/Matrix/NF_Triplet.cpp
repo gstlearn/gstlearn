@@ -77,6 +77,7 @@ Eigen::SparseMatrix<double> NF_Triplet::buildEigenFromTriplet() const
 {
   Eigen::SparseMatrix<double> mat(_nrowmax+1, _ncolmax+1);
   mat.setFromTriplets(_eigenT.begin(), _eigenT.end());
+//  mat.prune(EPSILON10);
   return mat;
 }
 

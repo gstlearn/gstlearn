@@ -16,6 +16,7 @@
 #include "Enum/EAnam.hpp"
 
 #include "Anamorphosis/AnamDiscrete.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Stats/PCA.hpp"
@@ -56,7 +57,7 @@ public:
   VectorDouble factors_exp(bool verbose = false);
   VectorDouble factors_maf(bool verbose = false);
   VectorDouble factors_mod();
-  VectorDouble chi2I(const VectorDouble& chi, int mode);
+  MatrixSquareGeneral chi2I(const VectorDouble& chi, int mode);
 
   AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
   void reset(int ncut,
@@ -70,7 +71,7 @@ public:
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
   double getSCoef() const { return _sCoef; }
-  const VectorDouble& getI2Chi() const { return _i2Chi; }
+  const MatrixSquareGeneral& getI2Chi() const { return _i2Chi; }
   MatrixSquareGeneral getPcaZ2Fs() const { return _maf.getZ2Fs(); }
   MatrixSquareGeneral getPcaF2Zs() const { return _maf.getF2Zs(); }
 
@@ -78,7 +79,7 @@ public:
   void setRCoef(double rcoef) { _sCoef = rcoef; }
   void setPcaZ2F(MatrixSquareGeneral pcaz2f) { _maf.setZ2Fs(pcaz2f); }
   void setPcaF2Z(MatrixSquareGeneral pcaf2z) { _maf.setF2Zs(pcaf2z); }
-  void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
+  void setI2Chi(const MatrixSquareGeneral& i2Chi) { _i2Chi = i2Chi; }
 
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
@@ -107,7 +108,7 @@ private:
   double _mu;
   double _sCoef;
   PCA    _maf;
-  VectorDouble _i2Chi;
+  MatrixSquareGeneral _i2Chi; // Dimension: nclass * nfacies
 
   friend class Selectivity;
 };

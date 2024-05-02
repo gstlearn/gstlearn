@@ -14,6 +14,8 @@
 #include "geoslib_define.h"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Enum/EOperator.hpp"
+
 #include <map>
 #include <cmath>
 #include <math.h>
@@ -34,6 +36,9 @@ GSTLEARN_EXPORT int    getClosestInteger(double value);
 GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);
 GSTLEARN_EXPORT bool   isOdd(int number);
 GSTLEARN_EXPORT bool   isEven(int number);
+GSTLEARN_EXPORT bool   isZero(double value, double eps = EPSILON10);
+GSTLEARN_EXPORT bool   isOne(double value, double eps = EPSILON10);
+GSTLEARN_EXPORT bool   areEqual(double v1, double v2, double eps = EPSILON10);
 GSTLEARN_EXPORT double getMin(double val1, double val2);
 GSTLEARN_EXPORT double getMax(double val1, double val2);
 GSTLEARN_EXPORT double ut_deg2rad(double angle);
@@ -110,3 +115,12 @@ GSTLEARN_EXPORT double operate_Square(double x);
 GSTLEARN_EXPORT double operate_InverseSquare(double x);
 GSTLEARN_EXPORT double operate_Sqrt(double x);
 GSTLEARN_EXPORT double operate_InverseSqrt(double x);
+GSTLEARN_EXPORT double modifyOperator(const EOperator& oper, double oldval, double value);
+
+GSTLEARN_EXPORT double roundZero(double value, double eps = EPSILON6);
+
+GSTLEARN_EXPORT double truncateDecimals(double value, int ndec = 0);
+GSTLEARN_EXPORT double truncateDigits(double value, int ndigits);
+
+GSTLEARN_EXPORT void setInternalDebug(bool status);
+GSTLEARN_EXPORT bool isInternalDebug();

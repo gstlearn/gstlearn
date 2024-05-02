@@ -11,6 +11,8 @@
 #include "Covariances/ACov.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -298,6 +300,8 @@ MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
  * @param db2  Pointer to the second Db
  * @param ivar Rank of the first variables
  * @param jvar Rank of the second variable
+ * @param eps  Epsilon used for randomization in calculation of CVV (optional)
+ * @param seed Seed for the randomization
  * @param mode CovCalcMode structure
  * @return
  */
@@ -305,8 +309,14 @@ double ACov::evalAverageDbToDb(const Db* db1,
                                const Db* db2,
                                int ivar,
                                int jvar,
+                               double eps,
+                               int seed,
                                const CovCalcMode* mode) const
 {
+  int memo = law_get_random_seed();
+  if (eps > 0. && seed > 0)
+    law_set_random_seed(seed);
+
   /* Loop on the first sample */
 
   double norme = 0.;
@@ -315,7 +325,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
   {
     if (!db1->isActive(iech1)) continue;
     double w1 = db1->getWeight(iech1);
-    if (w1 == 0.) continue;
+    if (isZero(w1)) continue;
     SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
 
     /* Loop on the second sample */
@@ -324,8 +334,14 @@ double ACov::evalAverageDbToDb(const Db* db1,
     {
       if (!db2->isActive(iech2)) continue;
       double w2 = db2->getWeight(iech2);
-      if (w2 == 0.) continue;
-      SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
+      if (isZero(w2)) continue;
+      VectorDouble coord2 = db2->getSampleCoordinates(iech2);
+      if (eps > 0)
+      {
+        for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+          coord2[idim] += eps * law_uniform(-0.5,  0.5);
+      }
+      SpacePoint p2(coord2,getSpace());
 
       /* Loop on the dimension of the space */
 
@@ -335,7 +351,10 @@ double ACov::evalAverageDbToDb(const Db* db1,
   }
 
   // Scaling
-  if (norme != 0.) total /= norme;
+  if (!isZero(norme)) total /= norme;
+
+  if (eps > 0. && seed > 0)
+    law_set_random_seed(memo);
 
   return total;
 }
@@ -398,7 +417,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   {
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
-    if (w2 == 0.) continue;
+    if (isZero(w2)) continue;
     SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
 
     /* Loop on the dimension of the space */
@@ -408,7 +427,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   }
 
   // Scaling
-  if (norme != 0.) total /= norme;
+  if (isZero(norme)) total /= norme;
 
   return total;
 }
@@ -520,7 +539,7 @@ double ACov::evalCvv(const VectorDouble& ext,
   Db* db = _discretizeBlockRandom(dbgrid);
   if (db == nullptr) return TEST;
 
-  double total = evalAverageDbToDb(dbgrid,  db, ivar, jvar, mode);
+  double total = evalAverageDbToDb(dbgrid,  db, ivar, jvar, 0., 0, mode);
   delete dbgrid;
   return total;
 }
@@ -569,7 +588,7 @@ double ACov::evalCvvShift(const VectorDouble& ext,
   DbGrid* dbgrid2 = _discretizeBlock(ext, ndisc, angles, shift);
   if (dbgrid2 == nullptr) return TEST;
 
-  double total = evalAverageDbToDb(dbgrid1,  dbgrid2, ivar, jvar, mode);
+  double total = evalAverageDbToDb(dbgrid1,  dbgrid2, ivar, jvar, 0., 0, mode);
   delete dbgrid1;
   delete dbgrid2;
   return total;
@@ -669,7 +688,7 @@ double ACov::evalCxv(const Db* db,
   double total = TEST;
   DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
-    total = evalAverageDbToDb(db, dbgrid, ivar, jvar, mode);
+    total = evalAverageDbToDb(db, dbgrid, ivar, jvar, 0., 0, mode);
   delete dbgrid;
 
   return total;
@@ -738,21 +757,79 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
   return db;
 }
 
+int ACov::_getAuxiliaryParameters(const Db *db1,
+                                  const Db *db2,
+                                  int ivar0,
+                                  int jvar0,
+                                  const VectorInt &nbgh1,
+                                  const VectorInt &nbgh2,
+                                  int *nvar1,
+                                  int *nvar2,
+                                  int *nsize1,
+                                  int *nsize2,
+                                  int *nechtot1,
+                                  int *nechtot2)
+{
+  int nvar = getNVariables();
+  if (nbgh1.empty())
+  {
+    *nechtot1 = db1->getSampleNumber(false);
+    *nsize1 = db1->getSampleNumber(true);
+  }
+  else
+  {
+    *nechtot1 = (int) nbgh1.size();
+    *nsize1 = (int) nbgh1.size();
+  }
+  *nvar1 = nvar;
+  if (ivar0 >= 0)
+  {
+    if (ivar0 >= nvar)
+    {
+      mesArg("Argument 'ivar0'",ivar0,nvar);
+      return 1;
+    }
+    *nvar1 = 1;
+  }
+
+  if (nbgh2.empty())
+  {
+    *nechtot2 = db2->getSampleNumber(false);
+    *nsize2 = db2->getSampleNumber(true);
+  }
+  else
+  {
+    *nechtot2 = (int) nbgh2.size();
+    *nsize2 = (int) nbgh2.size();
+  }
+  *nvar2 = nvar;
+  if (jvar0 >= 0)
+  {
+    if (jvar0 >= nvar)
+    {
+      mesArg("Argument 'jvar0'", jvar0, nvar);
+      return 1;
+    }
+    *nvar2 = 1;
+  }
+  return 0;
+}
+
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs
  **
  ** \param[in]  db1   First Db
  ** \param[in]  db2   Second Db (=db1 if absent)
- ** \param[in]  ivar  Rank of the first variable (-1: all variables)
- ** \param[in]  jvar  Rank of the second variable (-1: all variables)
+ ** \param[in]  ivar0 Rank of the first variable (-1 for all variables)
+ ** \param[in]  jvar0 Rank of the second variable (-1 for all variables)
  ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
  ** \param[in]  nbgh2 Vector of indices of active samples in db2 (optional)
  ** \param[in]  mode  CovCalcMode structure
  **
  ** \remarks The returned matrix if dimension to nrows * ncols where
- ** \remarks nrows is the number of active samples in db1
- ** \remarks ncols is the number of active samples in db2
+ ** \remarks nrows is the number of active samples in db1 * nvar1
+ ** \remarks ncols is the number of active samples in db2 * nvar2
  **
  ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
  ** \note due to the presence of 'nostat'
@@ -760,8 +837,8 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
  *****************************************************************************/
 MatrixRectangular ACov::evalCovMatrix(Db* db1,
                                       Db* db2,
-                                      int ivar,
-                                      int jvar,
+                                      int ivar0,
+                                      int jvar0,
                                       const VectorInt& nbgh1,
                                       const VectorInt& nbgh2,
                                       const CovCalcMode* mode)
@@ -770,49 +847,39 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   if (db1 == nullptr || db2 == nullptr) return MatrixRectangular();
   ANoStat *nostat = getNoStatModify();
 
+  int nechtot1, nechtot2, nsize1, nsize2, nvar1, nvar2;
+  if (_getAuxiliaryParameters(db1, db2, ivar0, jvar0, nbgh1, nbgh2,
+                              &nvar1, &nvar2, &nsize1, &nsize2, &nechtot1, &nechtot2))
+    return MatrixRectangular();
+
+  // Play the non-stationarity (if needed)
+
   if (isNoStat())
   {
     if (nostat->manageInfo(1, db1, db2)) return MatrixRectangular();
   }
 
-  int nechtot1, nechtot2, nsize1, nsize2;
-  if (nbgh1.empty())
-  {
-    nechtot1 = db1->getSampleNumber(false);
-    nsize1 = db1->getSampleNumber(true);
-  }
-  else
-  {
-    nechtot1 = (int) nbgh1.size();
-    nsize1 = (int) nbgh1.size();
-  }
-  if (nbgh2.empty())
-  {
-    nechtot2 = db2->getSampleNumber(false);
-    nsize2 = db2->getSampleNumber(true);
-  }
-  else
-  {
-    nechtot2 = (int) nbgh2.size();
-    nsize2 = (int) nbgh2.size();
-  }
-  MatrixRectangular mat(nsize1, nsize2);
+  // Creating the matrix
+
+  MatrixRectangular mat(nsize1 * nvar1, nsize2 * nvar2);
 
   /* Loop on the first sample */
 
-  int jech1 = 0;
+  int irow = 0;
   for (int kech1 = 0; kech1 < nechtot1; kech1++)
   {
     int iech1 = (nbgh1.empty()) ? kech1 : nbgh1[kech1];
+    if (iech1 < 0) continue;
     if (!db1->isActive(iech1)) continue;
     SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
 
     /* Loop on the second sample */
 
-    int jech2 = 0;
+    int icol = 0;
     for (int kech2 = 0; kech2 < nechtot2; kech2++)
     {
       int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
+      if (iech2 < 0) continue;
       if (!db2->isActive(iech2)) continue;
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
 
@@ -820,13 +887,22 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
 
       if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
 
-      /* Loop on the dimension of the space */
+      for (int ivar = 0; ivar < nvar1; ivar++)
+      {
+        int ivar1 = (ivar0 < 0) ? ivar : ivar0;
+        for (int jvar = 0; jvar < nvar2; jvar++)
+        {
+          int ivar2 = (jvar0 < 0) ? jvar : jvar0;
 
-      double value = eval(p1, p2, ivar, jvar, mode);
-      mat.setValue(jech1, jech2, value);
-      jech2++;
+          /* Loop on the dimension of the space */
+
+          double value = eval(p1, p2, ivar1, ivar2, mode);
+          mat.setValue(nvar1 * irow + ivar1, nvar2 * icol + ivar2, value);
+        }
+      }
+      icol++;
     }
-    jech1++;
+    irow++;
   }
 
   // Free the non-stationary specific allocation
@@ -836,6 +912,123 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
     if (nostat->manageInfo(-1, db1, db2)) return MatrixRectangular();
   }
   return mat;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the covariance matrix between two Dbs where samples are selected by ranks
+ **  The output is stored in a Sparse Matrix
+ **
+ ** \return Array containing the covariance matrix
+ **
+ ** \param[in]  db1     First Db
+ ** \param[in]  nbgh1   Array giving ranks of selected samples (optional)
+ ** \param[in]  db2     Second Db
+ ** \param[in]  nbgh2   Array giving ranks of selected samples (optional)
+ ** \param[in]  ivar0   Rank of the first variable (-1: all variables)
+ ** \param[in]  jvar0   Rank of the second variable (-1: all variables)
+ ** \param[in]  mode    CovCalcMode structure
+ ** \param[in]  eps     Tolerance for discarding a covariance value
+ **
+ ** \remarks The covariance matrix (returned) must be freed by calling routine
+ ** \remarks The covariance matrix is established for the first variable
+ ** \remarks and returned as a covariance
+ ** \remarks As the ranks are used, no test is performed on any selection
+ ** \remarks but only ranks positive or null are considered
+ **
+ *****************************************************************************/
+MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
+                                        Db *db2,
+                                        int ivar0,
+                                        int jvar0,
+                                        const VectorInt &nbgh1,
+                                        const VectorInt &nbgh2,
+                                        const CovCalcMode *mode,
+                                        double eps)
+{
+  MatrixSparse* mat = nullptr;
+  if (db2 == nullptr) db2 = db1;
+  if (db1 == nullptr || db2 == nullptr) return mat;
+  ANoStat *nostat = getNoStatModify();
+
+  int nechtot1, nechtot2, nsize1, nsize2, nvar1, nvar2;
+  if (_getAuxiliaryParameters(db1, db2, ivar0, jvar0, nbgh1, nbgh2,
+                              &nvar1, &nvar2, &nsize1, &nsize2, &nechtot1, &nechtot2))
+    return mat;
+
+  // Play the non-stationarity (if needed)
+
+  if (isNoStat())
+  {
+    if (nostat->manageInfo(1, db1, db2)) return mat;
+  }
+
+  // Constitute the triplet
+
+  NF_Triplet NF_T;
+
+  // Evaluate the matrix of sills
+  MatrixRectangular mat0(nvar1, nvar2);
+  for (int ivar = 0; ivar < nvar1; ivar++)
+  {
+    int ivar1 = (ivar0 < 0) ? ivar : ivar0;
+    for (int jvar = 0; jvar < nvar2; jvar++)
+    {
+      int ivar2 = (jvar0 < 0) ? jvar : jvar0;
+
+      double value = eval0(ivar1, ivar2, mode);
+      mat0.setValue(ivar1, ivar2, value);
+    }
+  }
+
+  /* Loop on the first sample */
+
+  int irow = 0;
+  for (int kech1 = 0; kech1 < nechtot1; kech1++)
+  {
+    int iech1 = (nbgh1.empty()) ? kech1 : nbgh1[kech1];
+    if (iech1 < 0) continue;
+    if (!db1->isActive(iech1)) continue;
+    SpacePoint p1(db1->getSampleCoordinates(iech1), getSpace());
+
+    /* Loop on the second sample */
+
+    int icol = 0;
+    for (int kech2 = 0; kech2 < nechtot2; kech2++)
+    {
+      int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
+      if (iech2 < 0) continue;
+      if (!db2->isActive(iech2)) continue;
+      SpacePoint p2(db2->getSampleCoordinates(iech2), getSpace());
+
+      // Modify the covariance (if non stationary)
+
+      if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+
+      for (int ivar = 0; ivar < nvar1; ivar++)
+      {
+        int ivar1 = (ivar0 < 0) ? ivar : ivar0;
+        for (int jvar = 0; jvar < nvar2; jvar++)
+        {
+          int ivar2 = (jvar0 < 0) ? jvar : jvar0;
+
+          /* Loop on the dimension of the space */
+
+          double value = eval(p1, p2, ivar1, ivar2, mode);
+          if (ABS(value) < eps * mat0.getValue(ivar1, ivar2)) continue;
+          int ecr1 = nvar1 * irow + ivar1;
+          int ecr2 = nvar2 * icol + ivar2;
+          NF_T.add(ecr1, ecr2, value);
+        }
+      }
+      icol++;
+    }
+    irow++;
+  }
+
+  // Convert from triplet to sparse matrix
+
+  return MatrixSparse::createFromTriplet(NF_T);
 }
 
 /**

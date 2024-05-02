@@ -55,7 +55,7 @@ String FracDesc::toString(const AStringFormat* strfmt) const
   if (getNPoint() <= 0) return sstr.str();
 
   sstr << "Fracture: family=" << _family+1 << " : " <<
-      getNPoint()-1 << " segment(s) starting at level #" << getYYF(0) << std::endl;
+      getNPoint()-1 << " segment(s) starting at level: " << getYYF(0) << std::endl;
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;

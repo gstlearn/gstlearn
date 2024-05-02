@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  StdoutRedirect sr("Result.out");
+  StdoutRedirect sr("Result.out", argc, argv, 2);
 
   /* Create the output name (for storage of dump files) */
 
@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
   String outname = concatenateStrings("", subparts[nargs-2], subparts[nargs-1], "-");
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
+  setInternalDebug(true);
 
   /* Setup constants */
 
@@ -68,7 +69,7 @@ int main(int argc, char *argv[])
 
   /* Getting the Study name */
 
-  if (argc != 2) messageAbort("Wrong number of arguments");
+  if (argc < 2) messageAbort("Wrong number of arguments");
   ascii_study_define(argv[1]);
 
   /* Define the environment */
@@ -123,6 +124,7 @@ int main(int argc, char *argv[])
     vario->compute(dbout, ECalcVario::VARIOGRAM);
     ascii_filename("Vario",0,1,filename);
   }
+  vario->display();
   if (! vario->dumpToNF("Vario.dat",verbose))
     messageAbort("ascii_vario_write");
   
@@ -132,9 +134,12 @@ int main(int argc, char *argv[])
   options.setFlagGoulardUsed(flag_goulard_used);
 //  OptDbg::define(EDbg::CONVERGE);
 //  verbose = true;
-  (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
-// Model is not printed any more to avoid differences among platforms
-//    model->display();
+  // Discard use of Eigen library in order to prevent diffs across platforms
+//  setGlobalFlagEigen(false);
+  mauto.setUseEigenLibrary(false);
+  if (model_auto_fit(vario,model,verbose,mauto,constraints,options))
+    messageAbort("model_auto_fit");
+  model->display();
   ascii_filename("Model",0,1,filename);
   if (! model->dumpToNF("Model.out",verbose))
     messageAbort("ascii_model_write");
@@ -149,7 +154,7 @@ int main(int argc, char *argv[])
 label_end:
   delete model;
   delete dbout;
-  delete[] filename;
   delete vario;
+  delete[] filename;
   return(0);
 }

@@ -31,7 +31,6 @@
 #define ARRAY(ix,iy)      (array[(iy) * NX + (ix)])
 #define LIMIT(ix,iy)      (limit[(iy) * NX + (ix)])
 #define VV(itr,iz)        (db_v->getArray(iatt_v,NTRACE * (iz) + itr) / VFACT)
-#define COVTAB(ivar,jvar) (covtab[(jvar) * NVAR + (ivar)])
 #define C00(ivar,jvar)    (c00   [(jvar) * NVAR + (ivar)])
 #define LB(ivar,jvar)     (lb    [(jvar) * NVAR + (ivar)])
 #define IND(iech,ivar)    ((iech) + (ivar) * nech)
@@ -39,7 +38,7 @@
 #define RHS(i,iv,jv)      (rhs [IND(i,iv) + neqmax * (jv)])
 /*! \endcond */
 
-static double *covtab;
+static MatrixSquareGeneral covtab;
 static double DX, DZ;
 static int NX, NY, NZ, NVAR, NTRACE;
 static double VFACT = 1000.;
@@ -2509,10 +2508,10 @@ static void st_estimate_var0(Model *model, double *var0)
 {
   VectorDouble d1(model->getDimensionNumber());
   CovCalcMode mode(ECalcMember::VAR);
-  model_calcul_cov(NULL,model, &mode, 1, 1., d1, covtab);
+  model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
 
   for (int ivar = 0; ivar < NVAR; ivar++)
-    var0[ivar] = COVTAB(ivar, ivar);
+    var0[ivar] = covtab.getValue(ivar, ivar);
 
   return;
 }
@@ -2530,11 +2529,11 @@ static void st_estimate_c00(Model *model, double *c00)
 {
   VectorDouble d1(model->getDimensionNumber());
   CovCalcMode mode(ECalcMember::VAR);
-  model_calcul_cov(NULL,model, &mode, 1, 1., d1, covtab);
+  model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     for (int jvar = 0; jvar < NVAR; jvar++)
-      C00(ivar,jvar) = COVTAB(ivar, jvar);
+      C00(ivar,jvar) = covtab.getValue(ivar, jvar);
 
   return;
 }
@@ -2580,11 +2579,11 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
     {
       d1[0] = DX * (ngh->ix_ngh[iech] - ngh->ix_ngh[jech]);
       d1[2] = DZ * (ngh->iz_ngh[iech] - ngh->iz_ngh[jech]);
-      model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
+      model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
       for (ivar = 0; ivar < NVAR; ivar++)
         for (jvar = 0; jvar < NVAR; jvar++)
-          LHS(iech,ivar,jech,jvar) = COVTAB(ivar, jvar);
+          LHS(iech,ivar,jech,jvar) = covtab.getValue(ivar, jvar);
     }
 
   /* Establish the drift part */
@@ -2654,11 +2653,11 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
   {
     d1[0] = DX * ngh->ix_ngh[iech];
     d1[2] = DZ * ngh->iz_ngh[iech];
-    model_calcul_cov(NULL,model, &mode, 1, 1., d1, covtab);
+    model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
     for (ivar = 0; ivar < NVAR; ivar++)
       for (jvar = 0; jvar < NVAR; jvar++)
-        RHS(iech,ivar,jvar) = COVTAB(ivar, jvar);
+        RHS(iech,ivar,jvar) = covtab.getValue(ivar, jvar);
   }
 
   /* Establish the drift part */
@@ -3077,10 +3076,9 @@ int seismic_estimate_XZ(DbGrid *db,
 
   error = 1;
   nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
-  lhs = rhs = wgt = var0 = covtab = nullptr;
+  lhs = rhs = wgt = var0 = nullptr;
   flag = rank = nullptr;
-  nfeq = (flag_ks) ? 0 :
-                     1;
+  nfeq = (flag_ks) ? 0 : 1;
   ngh_cur = ngh_old = nullptr;
   for (i = 0; i < 2; i++)
   {
@@ -3142,8 +3140,7 @@ int seismic_estimate_XZ(DbGrid *db,
   if (ngh_cur == nullptr) goto label_end;
   ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
   if (ngh_old == nullptr) goto label_end;
-  covtab = (double*) mem_alloc(sizeof(double) * NVAR * NVAR, 0);
-  if (covtab == nullptr) goto label_end;
+  covtab = MatrixSquareGeneral(NVAR);
   lhs = (double*) mem_alloc(sizeof(double) * size * size, 0);
   if (lhs == nullptr) goto label_end;
   rhs = (double*) mem_alloc(sizeof(double) * size * NVAR, 0);
@@ -3259,7 +3256,6 @@ int seismic_estimate_XZ(DbGrid *db,
   rhs = (double*) mem_free((char* ) rhs);
   wgt = (double*) mem_free((char* ) wgt);
   var0 = (double*) mem_free((char* ) var0);
-  covtab = (double*) mem_free((char* ) covtab);
   ngh_cur = st_estimate_neigh_management(-1, nvois, ngh_cur);
   ngh_old = st_estimate_neigh_management(-1, nvois, ngh_old);
 
@@ -3344,7 +3340,7 @@ int seismic_simulate_XZ(DbGrid *db,
 
   error = 1;
   nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
-  lhs = rhs = wgt = c00 = covtab = nullptr;
+  lhs = rhs = wgt = c00 = nullptr;
   flag = rank = nullptr;
   nfeq = (flag_ks) ? 0 :
                      1;
@@ -3406,8 +3402,7 @@ int seismic_simulate_XZ(DbGrid *db,
   if (ngh_cur == nullptr) goto label_end;
   ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
   if (ngh_old == nullptr) goto label_end;
-  covtab = (double*) mem_alloc(sizeof(double) * NVAR * NVAR, 0);
-  if (covtab == nullptr) goto label_end;
+  covtab = MatrixSquareGeneral(NVAR);
   lhs = (double*) mem_alloc(sizeof(double) * size * size, 0);
   if (lhs == nullptr) goto label_end;
   rhs = (double*) mem_alloc(sizeof(double) * size * NVAR, 0);
@@ -3521,7 +3516,6 @@ int seismic_simulate_XZ(DbGrid *db,
   rhs = (double*) mem_free((char* ) rhs);
   wgt = (double*) mem_free((char* ) wgt);
   c00 = (double*) mem_free((char* ) c00);
-  covtab = (double*) mem_free((char* ) covtab);
   ngh_cur = st_estimate_neigh_management(-1, nvois, ngh_cur);
   ngh_old = st_estimate_neigh_management(-1, nvois, ngh_old);
 

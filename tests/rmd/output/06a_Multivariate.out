@@ -180,11 +180,11 @@ Mean squared standardized error: 0.855
 Statistics on the Kriging with External Drift predictions
 ---------------------------------------------------------
                           Number    Minimum    Maximum       Mean   St. Dev.
-KED.Temperature.estim       3092     -6.004      4.773      1.778      1.540
-KED.Temperature.stdev       3092      0.312      0.615      0.396      0.051
+KED.Temperature.estim       3092     -6.247      5.072      1.786      1.594
+KED.Temperature.stdev       3092      0.391      0.607      0.410      0.021
 
-Mean squared cross-validation error: 0.172 
-Mean squared standardized error: 1.143 
+Mean squared cross-validation error: 0.187 
+Mean squared standardized error: 1.159 
 
 Mean-squared cross-validation errors
 ------------------------------------
@@ -192,7 +192,7 @@ Mean-squared cross-validation errors
 CV_OK.Temperature.esterr         151     -1.355      1.509     -0.012      0.504
 CV_COK.Temperature.esterr        151     -1.759      1.648     -0.105      0.517
 CV_UK.Temperature.esterr         151     -1.713      1.477     -0.003      0.501
-CV_KED.Temperature.esterr        151     -1.577      1.001     -0.009      0.414
+CV_KED.Temperature.esterr        151     -1.321      1.043      0.000      0.432
 
 
 Statistics of the predictors
@@ -203,7 +203,7 @@ COK.Temperature.estim              3092      0.200      5.094      2.671      0.
 ROK.RegRes.Temperature.estim       3092     -0.771      1.586      0.019      0.455
 KR.Temperature.estim               3092     -8.097      5.108      1.445      1.906
 UK.Temperature.estim               3092      0.613      5.051      2.841      0.923
-KED.Temperature.estim              3092     -6.004      4.773      1.778      1.540
+KED.Temperature.estim              3092     -6.247      5.072      1.786      1.594
 
 
 Statistics of the standard-deviation of each predictors
@@ -213,5 +213,5 @@ OK.Temperature.stdev               3092      0.077      0.992      0.492      0.
 COK.Temperature.stdev              3092      0.231      0.948      0.448      0.109
 ROK.RegRes.Temperature.stdev       3092      0.304      0.504      0.362      0.031
 UK.Temperature.stdev               3092      0.083      0.919      0.555      0.138
-KED.Temperature.stdev              3092      0.312      0.615      0.396      0.051
+KED.Temperature.stdev              3092      0.391      0.607      0.410      0.021
 
