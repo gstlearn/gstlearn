@@ -51,6 +51,7 @@ jobs:
         cd ${{env.BUILD_DIR}}/tests
         find . -type f \( -name "*.asciidoc" -o -name "*.out" \) -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
 
+    # Keep v3 because ubuntu 16 docker
     - name: Publish output logs as artefact
       if: always()
       uses: actions/upload-artifact@v3
