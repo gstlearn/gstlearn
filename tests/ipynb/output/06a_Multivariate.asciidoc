@@ -133,7 +133,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  Statistics on the Ordinary Kriging:
  -----------------------------------
                                 Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim             3092            0.604            5.083            2.834            0.954 
+ OK.Temperature.estim             3092            0.604            5.082            2.835            0.954 
  OK.Temperature.stdev             3092            0.077            0.992            0.492            0.145 
  
  ----
@@ -211,7 +211,7 @@ Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
  Comparison between Ordinary and Universal kriging predictions
  -------------------------------------------------------------
                                  Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim              3092            0.604            5.083            2.834            0.954 
+ OK.Temperature.estim              3092            0.604            5.082            2.835            0.954 
  COK.Temperature.estim             3092            0.200            5.094            2.671            0.970 
  
  ----
@@ -291,7 +291,7 @@ Linear Regression
  Comparison between Ordinary and Residual kriging predictions
  ------------------------------------------------------------
                                 Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim             3092            0.604            5.083            2.834            0.954 
+ OK.Temperature.estim             3092            0.604            5.082            2.835            0.954 
  KR.Temperature.estim             3092           -8.097            5.108            1.445            1.906 
  
  ----
@@ -415,7 +415,7 @@ Mean squared standardized error: 1.143
  Mean-squared cross-validation errors
  ------------------------------------
                                      Number          Minimum          Maximum             Mean         St. Dev. 
- CV_OK.Temperature.esterr               151           -1.354            1.508           -0.012            0.504 
+ CV_OK.Temperature.esterr               151           -1.355            1.509           -0.012            0.504  
  CV_COK.Temperature.esterr              151           -1.759            1.648           -0.105            0.517 
  CV_UK.Temperature.esterr               151           -1.713            1.477           -0.003            0.501 
  CV_KED.Temperature.esterr              151           -1.577            1.001           -0.009            0.414 
@@ -429,7 +429,7 @@ Mean squared standardized error: 1.143
  Statistics of the predictors
  ----------------------------
                                         Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim                     3092            0.604            5.083            2.834            0.954 
+ OK.Temperature.estim                     3092            0.604            5.082            2.835            0.954 
  COK.Temperature.estim                    3092            0.200            5.094            2.671            0.970 
  ROK.RegRes.Temperature.estim             3092           -0.771            1.586            0.019            0.455 
  KR.Temperature.estim                     3092           -8.097            5.108            1.445            1.906 

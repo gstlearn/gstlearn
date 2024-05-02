@@ -40,6 +40,7 @@ jobs:
     - name: Compile and execute demos and courses tests
       run: |
         export PATH=/opt/python/py311/bin:$PATH
+        alias pip="python3 -m pip"
         cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON
         cmake --build ${{env.BUILD_DIR}} --target check_ipynb -- -j 3
         cmake --build ${{env.BUILD_DIR}} --target check_rmd -- -j 3
