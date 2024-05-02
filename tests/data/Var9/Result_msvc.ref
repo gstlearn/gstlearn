@@ -310,6 +310,7 @@ Exponential
 Gaussian
 - Sill         =      0.013
 - Ranges       =    287.804169836.648   287.804
+- Theo. Ranges =    166.282 98125.076   166.282
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
