@@ -199,8 +199,7 @@ String PCA::toString(const AStringFormat* strfmt) const
 
   if (dsf.getflagCenter())
   {
-    sstr << toMatrix("Means", VectorString(), VectorString(), true, 1, _nVar,
-                    _mean);
+    sstr << toMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
   }
   if (dsf.getflagStats())
   {

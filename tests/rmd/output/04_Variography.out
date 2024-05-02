@@ -202,8 +202,8 @@ Cubic
 - Range        =     20.000
 Spherical
 - Sill         =      0.989
-- Range        =    144.544
-Total Sill     =      1.104
+- Range        =    144.628
+Total Sill     =      1.105
 Known Mean(s)     0.000
 
 Model characteristics
@@ -272,12 +272,12 @@ Nugget Effect
 - Sill         =      0.256
 Cubic
 - Sill         =      0.944
-- Ranges       =    155.954   216.469
-- Angles       =    154.811     0.000
+- Ranges       =    213.285   157.422
+- Angles       =     65.161     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.905     0.426
-     [  1,]    -0.426     0.905
+     [  0,]    -0.420     0.907
+     [  1,]    -0.907    -0.420
 Total Sill     =      1.200
 Known Mean(s)     0.000
 

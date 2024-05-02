@@ -264,9 +264,9 @@ VectorDouble DriftList::getDriftBySample(const Db* db, int iech) const
 
 VectorDouble DriftList::getDriftCLByPart(int ivar, int ib) const
 {
-  int number = getDriftNumber();
-  VectorDouble coef(number,0.);
-  for (int il = 0; il < number; il++)
+  int nbfl = getDriftNumber();
+  VectorDouble coef(nbfl,0.);
+  for (int il = 0; il < nbfl; il++)
     coef[il] = getDriftCL(ivar, il, ib);
   return coef;
 }
@@ -305,7 +305,7 @@ double DriftList::evalDriftCoef(const Db *db, int iech, const VectorDouble &coef
 {
   int ndrift = getDriftNumber();
   int ncoeff = (int) coeffs.size();
-  if (ncoeff != ndrift)
+  if (ndrift != ncoeff)
   {
     messerr("Dimension of 'coeffs' (%d) should match number of drift functions (%d)",
         ncoeff, ndrift);
@@ -419,4 +419,110 @@ bool DriftList::hasExternalDrift() const
     if (getDrift(il)->isDriftExternal()) return true;
   }
   return false;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the drift rectangular matrix for a given Db
+ **
+ ** \return Returned matrix as a VD (Dimension = nech * nvar * nfeq * nvar)
+ **
+ ** \param[in]  db     Db structure
+ ** \param[in]  member Member of the Kriging System (ECalcMember)
+ **
+ *****************************************************************************/
+VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
+{
+  int nvar = getNVariables();
+  int nbfl = getDriftNumber();
+  int nfeq = getDriftEquationNumber();
+  int nech = db->getSampleNumber();
+  VectorDouble drfmat(nech * nvar * nfeq * nvar, 0.);
+
+  /* Loop on the variables */
+
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+
+    /* Loop on the samples */
+
+    for (int iech = 0; iech < nech; iech++)
+    {
+      if (!db->isActive(iech)) continue;
+      VectorDouble drftab = evalDriftVec(db, iech, member);
+
+      /* Loop on the drift functions */
+
+      if (isFlagLinked())
+      {
+        for (int ib = 0; ib < nfeq; ib++)
+        {
+          drfmat[ecr++] = evalDriftValue(ivar, ib, drftab);
+        }
+      }
+      else
+      {
+        for (int jvar = 0; jvar < nvar; jvar++)
+          for (int jl = 0; jl < nbfl; jl++)
+          {
+            int jb = jvar + nvar * jl;
+            drfmat[ecr++] = evalDriftValue(ivar, jb, drftab);
+          }
+      }
+    }
+  }
+  return 0;
+}
+
+VectorDouble DriftList::evalDriftVec(const Db *db,
+                                     int iech,
+                                     const ECalcMember &member) const
+{
+  int ndrift = getDriftNumber();
+  VectorDouble drftab(ndrift);
+  for (int il = 0; il < ndrift; il++)
+     drftab[il] = evalDrift(db, iech, il, member);
+  return drftab;
+}
+
+void DriftList::evalDriftVecInPlace(const Db *db,
+                                    int iech,
+                                    const ECalcMember &member,
+                                    VectorDouble &drftab) const
+{
+  int ndrift = getDriftNumber();
+  for (int il = 0; il < ndrift; il++)
+     drftab[il] = evalDrift(db, iech, il, member);
+}
+
+double DriftList::evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const
+{
+  double value = 0.;
+  for (int il = 0, nbfl = getDriftNumber(); il < nbfl; il++)
+    value += drftab[il] * getDriftCL(ivar, il, ib);
+  return value;
+}
+
+/**
+ * Evaluate a given drift function for a given sample
+ * @param db     Db structure
+ * @param iech   Rank of the target sample
+ * @param il     Rank of the drift function
+ * @param member Member type (used to check filtering)
+ * @return
+ */
+double DriftList::evalDrift(const Db *db,
+                            int iech,
+                            int il,
+                            const ECalcMember &member) const
+{
+  if (member != ECalcMember::LHS && isFiltered(il))
+    return 0.;
+  else
+  {
+    if (! _isDriftIndexValid(il)) return TEST;
+    return _drifts[il]->eval(db, iech);
+  }
+  return TEST;
 }

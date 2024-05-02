@@ -14,6 +14,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Utilities.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
     : AMatrixDense(nrows, ncols, opt_eigen),
@@ -145,6 +146,14 @@ void MatrixRectangular::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
+void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+    AMatrixDense::_updValue(irow, icol, oper, value);
+  else
+    _updValueLocal(irow, icol, oper, value);
+}
+
 void MatrixRectangular::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
   if (isFlagEigen())
@@ -169,22 +178,13 @@ void MatrixRectangular::_transposeInPlace()
     _transposeInPlaceLocal();
 }
 
-void MatrixRectangular::_deallocate()
-{
-  if (isFlagEigen())
-    AMatrixDense::_deallocate();
-  else
-  {
-    // Potential code for this class would be located here
-  }
-}
-
 void MatrixRectangular::_allocate()
 {
   if (isFlagEigen())
     AMatrixDense::_allocate();
   else
     _allocateLocal();
+  fill(0.);
 }
 
 int MatrixRectangular::_getIndexToRank(int irow, int icol) const
@@ -229,31 +229,6 @@ void MatrixRectangular::addColumn(int ncolumn_added)
   for (int irow=0; irow< nrows; irow++)
     for (int icol=0; icol<ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
-}
-
-MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &validRows,
-                                             const VectorInt &validCols) const
-{
-  // Order and shrink the input vectors
-  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  VectorInt localValidCols = VH::filter(validCols, 0, getNCols());
-  int newNRows = (int) localValidRows.size();
-  int newNCols = (int) localValidCols.size();
-  if (newNRows <= 0)
-  {
-    messerr("The new Matrix has no Row left");
-    return nullptr;
-  }
-  if (newNCols <= 0)
-  {
-    messerr("The new Matrix has no Column left");
-    return nullptr;
-  }
-
-  MatrixRectangular* res = new MatrixRectangular(newNRows, newNCols);
-  res->copyReduce(this, localValidRows, localValidCols);
-
-  return res;
 }
 
 int MatrixRectangular::_getMatrixPhysicalSize() const
@@ -319,6 +294,13 @@ void MatrixRectangular::_setValueLocal(int irow, int icol, double value)
   _rectMatrix[rank] = value;
 }
 
+void MatrixRectangular::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  int rank = _getIndexToRank(irow, icol);
+  _rectMatrix[rank] = modifyOperator(oper, _rectMatrix[rank], value);
+}
+
 void MatrixRectangular::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
   if (! transpose)
@@ -339,7 +321,7 @@ void MatrixRectangular::_transposeInPlaceLocal()
 {
   VectorDouble old;
   old.resize(getNRows() * getNCols());
-  matrix_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
+  matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
   _rectMatrix = old;
   int temp = getNCols();
   _setNCols(getNRows());
@@ -349,4 +331,34 @@ void MatrixRectangular::_transposeInPlaceLocal()
 int MatrixRectangular::_getIndexToRankLocal(int irow, int icol) const
 {
   return (icol * getNRows() + irow);
+}
+
+MatrixRectangular* MatrixRectangular::glue(const AMatrix *A1,
+                                           const AMatrix *A2,
+                                           bool flagShiftRow,
+                                           bool flagShiftCol)
+{
+  // Create the new matrix
+  int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
+  int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
+
+  int nrows = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
+  int ncols = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
+
+  MatrixRectangular* mat = new MatrixRectangular(nrows, ncols);
+  mat->fill(0.);
+
+  // Copy the first input matrix
+
+  for (int irow = 0; irow < A1->getNRows(); irow++)
+    for (int icol = 0; icol < A1->getNCols(); icol++)
+      mat->setValue(irow, icol, A1->getValue(irow, icol));
+
+  // Copy the second input matrix
+
+  for (int irow = 0; irow < A2->getNRows(); irow++)
+    for (int icol = 0; icol < A2->getNCols(); icol++)
+      mat->setValue(irow + shiftRow, icol + shiftCol, A2->getValue(irow, icol));
+
+  return mat;
 }

@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Enum/ECalcMember.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -107,6 +108,20 @@ public:
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
 
   void updateDriftList();
+
+  double evalDrift(const Db* db,
+                   int iech,
+                   int il,
+                   const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  VectorDouble evalDriftVec(const Db* db,
+                            int iech,
+                            const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  void evalDriftVecInPlace(const Db* db,
+                           int iech,
+                           const ECalcMember& member,
+                           VectorDouble& drftab) const;
+  VectorDouble evalDriftMat(const Db *db, const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  double evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const;
 
 private:
   bool _isDriftIndexValid(int i) const;

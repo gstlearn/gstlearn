@@ -61,7 +61,7 @@ public:
   virtual bool   isIndexable() const override { return true; }
   virtual bool   isNoStat() const override { return _noStat != nullptr; }
   virtual const ANoStat* getNoStat() const override { return _noStat; }
-  virtual ANoStat* getNoStatModify() const override { return _noStat; }
+  virtual ANoStat* getNoStatModify() const override { return _noStat; } // TODO: to be suppressed
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
@@ -154,6 +154,7 @@ public:
   const ACovAnisoList* createReduce(const VectorInt &validVars) const;
 
   int addNoStat(const ANoStat *anostat);
+  void delNoStat();
   int getNoStatElemNumber() const;
   const EConsElem& getNoStatElemType(int ipar) const;
   int addNoStatElem(int igrf,

@@ -84,7 +84,7 @@ void MatrixInt::setValue(int irow, int icol, int value)
 void MatrixInt::transposeInPlace()
 {
   VectorInt old(getNRows() * getNCols());
-  matrix_int_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
+  _transposeInPlace(getNRows(), getNCols(), _rectMatrix.data(), old.data());
   _rectMatrix = old;
   int temp = getNCols();
   setNCols(getNRows());
@@ -106,6 +106,7 @@ void MatrixInt::_deallocate()
 void MatrixInt::_allocate()
 {
   _rectMatrix.resize(getMatrixSize(),0);
+  fill(0);
 }
 
 int MatrixInt::_getIndexToRank(int irow, int icol) const
@@ -250,6 +251,25 @@ void MatrixInt::reset(int nrows, int ncols)
   _allocate();
 }
 
+void MatrixInt::resetFromArray(int nrows, int ncols, const int* tab, bool byCol)
+{
+  reset(nrows, ncols);
+
+  int lec = 0;
+  if (byCol)
+  {
+    for (int icol=0; icol<ncols; icol++)
+      for (int irow=0; irow<nrows; irow++)
+        setValue(irow,icol,tab[lec++]);
+  }
+  else
+  {
+    for (int irow=0; irow<nrows; irow++)
+      for (int icol=0; icol<ncols; icol++)
+        setValue(irow,icol,tab[lec++]);
+  }
+}
+
 bool MatrixInt::_isNumbersValid(int nrows, int ncols) const
 {
   if (nrows < 0)
@@ -272,7 +292,7 @@ String MatrixInt::toString(const AStringFormat* /* strfmt*/) const
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
   sstr << "- Number of columns = " <<  _nCols << std::endl;
 
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
                    getValues());
   return sstr.str();
 }
@@ -285,7 +305,7 @@ String MatrixInt::toString(const AStringFormat* /* strfmt*/) const
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixInt* MatrixInt::createFromVVD(const VectorVectorInt& X)
+MatrixInt* MatrixInt::createFromVVI(const VectorVectorInt& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
@@ -296,5 +316,62 @@ MatrixInt* MatrixInt::createFromVVD(const VectorVectorInt& X)
       mat->setValue(irow, icol, X[irow][icol]);
 
   return mat;
+}
+
+MatrixInt* MatrixInt::createFromVI(const VectorInt &X,
+                                   int nrow,
+                                   int ncol,
+                                   bool byCol)
+{
+  if (nrow * ncol != (int) X.size())
+  {
+    messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
+    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+  }
+  MatrixInt* mat = new MatrixInt(nrow, ncol);
+
+  int lec = 0;
+  if (byCol)
+  {
+    for (int irow = 0; irow < nrow; irow++)
+      for (int icol = 0; icol < ncol; icol++)
+      {
+        mat->setValue(irow, icol, X[lec++]);
+      }
+  }
+  else
+  {
+    for (int icol = 0; icol < ncol; icol++)
+      for (int irow = 0; irow < nrow; irow++)
+      {
+        mat->setValue(irow, icol, X[lec++]);
+      }
+  }
+  return mat;
+}
+
+/*****************************************************************************/
+/*!
+ **  Transpose a (square or rectangular) matrix
+ **
+ ** \param[in]  n1 matrix dimension
+ ** \param[in]  n2 matrix dimension
+ ** \param[in]  v1 rectangular matrix (n1,n2)
+ **
+ ** \param[out] w1 rectangular matrix (n2,n1)
+ **
+ ** \remark  The matrix w1[] may NOT coincide with v1[]
+ **
+ *****************************************************************************/
+void MatrixInt::_transposeInPlace(int n1, int n2, int *v1, int *w1)
+{
+#define SQ(i,j,neq)   ((j) * neq + (i))
+#define V1(i,j)        v1[SQ(i,j,n1)]
+  int ecr = 0;
+  for (int i1 = 0; i1 < n1; i1++)
+    for (int i2 = 0; i2 < n2; i2++)
+      w1[ecr++] = V1(i1, i2);
+
+  return;
 }
 

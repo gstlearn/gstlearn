@@ -14,6 +14,7 @@
 #include "Model/ElemNostat.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovFactory.hpp"
 
 ModelNostat::ModelNostat()
     : AStringable(),
@@ -157,8 +158,8 @@ void ModelNostat::define(int icov, const CovAniso* cova)
         }
       _param1  = elem->getVal1();
       _param2  = elem->getVal2();
-      _scadef1 = cova_get_scale_factor(cova->getType(),_param1);
-      _scadef2 = cova_get_scale_factor(cova->getType(),_param2);
+      _scadef1 = CovFactory::getScaleFactor(cova->getType(),_param1);
+      _scadef2 = CovFactory::getScaleFactor(cova->getType(),_param2);
 
       // Convert back from range to scale
       if (flag_range)

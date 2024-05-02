@@ -1,1 +1,48 @@
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix   400.000
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =      0.500 (degrees)
+Calculation lag             =  50000.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   597.000 12083.320   299.181
+         1  3043.000 51596.530   433.613
+         2  4681.000100815.710   408.411
+         3  5846.000149132.050   414.139
+         4  5599.000198992.930   469.768
+         5  4633.000249519.430   408.895
+         6  4089.000297915.200   389.809
+         7  2926.000348182.200   475.455
+         8  1470.000394388.820   528.991
+         9   453.000443368.520   383.270
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =    235.442
+Spherical
+- Sill         =    191.921
+- Range        =  51535.821
+Total Sill     =    427.363
+Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)

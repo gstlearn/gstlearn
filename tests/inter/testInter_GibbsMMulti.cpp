@@ -89,8 +89,7 @@ int main()
     db->addColumnsByConstant(1, TEST, "Lower", ELoc::L);
     db->addColumnsByConstant(1, TEST, "Upper", ELoc::U);
   }
-  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0.,
-                               &iptr)) return 1;
+  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr)) return 1;
 
   // Model
 

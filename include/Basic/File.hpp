@@ -26,9 +26,25 @@
 
 // Standard output stream redirection
 
+/**
+ * Redirection facility
+ * This function is used to redirect the output of the script to an auxiliary file
+ * This facility is used within the non-regression tests calling:
+ *       std::stringstream sfn;
+ *       sfn << gslBaseName(__FILE__) << ".out";
+ *       StdoutRedirect sr(sfn.str(), argc, argv);
+ * The redirection can be cancelled (with no argument modification)
+ * if the number of arguments 'argc' is larger than a given threshold
+ * By default, this threshold is set to 1 (name of executable itself)
+ * This can even be modified by adding 'number' different from 1 if some arguments
+ * are compulsory.
+ */
 class GSTLEARN_EXPORT StdoutRedirect {
 public:
-  StdoutRedirect(const String& file = "", int argc = 0, char *argv[] = nullptr);
+  StdoutRedirect(const String &file = "",
+                 int argc = 0,
+                 char *argv[] = nullptr,
+                 int number = 1);
   ~StdoutRedirect();
   StdoutRedirect(const StdoutRedirect&) = delete;
   StdoutRedirect& operator=(const StdoutRedirect&) = delete;

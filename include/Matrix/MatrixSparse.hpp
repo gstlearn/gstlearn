@@ -20,12 +20,14 @@
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
+DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 #include <Eigen/Sparse>
 DISABLE_WARNING_POP
 #endif
 
 class Cholesky;
 class cs;
+class EOperator;
 
 /**
  * Sparse Matrix
@@ -50,6 +52,8 @@ public:
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const { return true; }
+  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
+  virtual bool isDense() const { return false; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -177,11 +181,16 @@ public:
                                         bool row_ok,
                                         bool col_ok);
   VectorInt colorCoding();
+  int getNonZeros() const { return _getMatrixPhysicalSize(); }
 
 protected:
   /// Interface for AMatrix
   bool    _isPhysicallyPresent(int irow, int icol) const { DECLARE_UNUSED(irow, icol); return true; }
-  bool    _isCompatible(const AMatrix& m) const override { DECLARE_UNUSED(m); return (isSparse()); }
+  bool    _isCompatible(const AMatrix& m) const override
+  {
+    DECLARE_UNUSED(m);
+    return (m.isSparse());
+  }
   void    _allocate() override;
   void    _deallocate() override;
 
@@ -189,6 +198,7 @@ protected:
   virtual int     _getMatrixPhysicalSize() const override;
   virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValues(const double* values, bool byCol) override;
   virtual double  _getValueByRank(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;

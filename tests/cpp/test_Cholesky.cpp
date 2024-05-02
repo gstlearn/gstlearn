@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
   double res1 = log(M.determinant());
   double res2 = Qchol.getLogDeterminant();
-  if (ABS(res1 - res2) < EPSILON10)
+  if (isZero(res1 - res2))
     message("Log(Det) is validated\n");
   else
   {

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 
 GSTLEARN_EXPORT void law_set_old_style(bool style);
@@ -42,13 +43,13 @@ GSTLEARN_EXPORT double law_dnorm(double value, double mean, double std);
 GSTLEARN_EXPORT double law_cdf_gaussian(double value);
 GSTLEARN_EXPORT double law_invcdf_gaussian(double value);
 GSTLEARN_EXPORT double law_gaussian_between_bounds(double binf, double bsup);
-GSTLEARN_EXPORT double law_df_bigaussian(double *vect,
-                                         double *mean,
-                                         double *corr);
-GSTLEARN_EXPORT double law_df_quadgaussian(double *vect, double *corr);
-GSTLEARN_EXPORT double law_df_multigaussian(int nvar,
-                                            double *vect,
-                                            double *corr);
+GSTLEARN_EXPORT double law_df_bigaussian(VectorDouble& vect,
+                                         VectorDouble& mean,
+                                         MatrixSquareSymmetric& correl);
+GSTLEARN_EXPORT double law_df_quadgaussian(VectorDouble &vect,
+                                           MatrixSquareSymmetric &correl);
+GSTLEARN_EXPORT double law_df_multigaussian(VectorDouble &vect,
+                                            MatrixSquareSymmetric& correl);
 GSTLEARN_EXPORT VectorInt law_random_path(int nech);
 GSTLEARN_EXPORT double* law_exp_sample(double *tabin,
                                        int mode,

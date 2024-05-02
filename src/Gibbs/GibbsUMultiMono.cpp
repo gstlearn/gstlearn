@@ -70,7 +70,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   // Initialization
 
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood in MultiMono case");
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int nvar = getVariableNumber();
   _covmat.resize(nvar);
 
@@ -84,7 +84,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
     // Establish Covariance Matrix (always based on the first variable in MultiMono case)
 
     if (verbose) message("Establish Covariance matrix (Var=%d)\n",ivar+1);
-    model_covmat(model, db, db, 0, 0, _covmat[ivar].data());
+    _covmat[ivar] = model->covMatrixV(db, db, 0, 0);
 
     // Invert Covariance Matrix
 
@@ -98,9 +98,27 @@ int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   // Initialize the statistics (optional)
 
-  statsInit();
+  _statsInit();
 
   return 0;
+}
+
+double GibbsUMultiMono::_getVariance(int ivar, int iact) const
+{
+  int nact = _getSampleRankNumber();
+  return (1. / COVMAT(ivar, iact, iact));
+}
+
+double GibbsUMultiMono::_getEstimate(int icase, int ivar, int iact, VectorVectorDouble& y) const
+{
+  int nact = _getSampleRankNumber();
+
+  double yk = 0.;
+  for (int jact = 0; jact < nact; jact++)
+  {
+    yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
+  }
+  return yk;
 }
 
 /****************************************************************************/
@@ -119,7 +137,7 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
                              int iter)
 {
   double valsim;
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int nvar = getNvar();
 
   /* Print the title */
@@ -132,23 +150,21 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int icase   = getRank(ipgs,ivar);
+    int icase = getRank(ipgs,ivar);
     for (int iact = 0; iact < nact; iact++)
     {
-      if (!isConstraintTight(ipgs, ivar, iact, &valsim))
+      if (!_isConstraintTight(icase, iact, &valsim))
       {
+        // The term of y corresponding to the current (variable, sample)
+        // is set to 0 in order to avoid testing it next.
+        y[icase][iact] = 0.;
 
-         /* Loop on the Data */
+        // Calculate the estimate and the variance of estimation
+        double vk = _getVariance(ivar, iact);
+        double yk = _getEstimate(icase, ivar, iact, y) * vk;
 
-        double yk = 0.;
-        double sk = 1. / COVMAT(ivar, iact, iact);
-        for (int jact = 0; jact < nact; jact++)
-        {
-          if (iact != jact) yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
-        }
-        yk *= sk;
-        sk  = sqrt(sk);
-        valsim = getSimulate(y, yk, sk, ipgs, ivar, iact, iter);
+        // Simulate the new value
+        valsim = getSimulate(y, yk, sqrt(vk), icase, ipgs, ivar, iact, iter);
       }
       y[icase][iact] = valsim;
     }
@@ -156,5 +172,5 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  _updateStats(y, ipgs, iter);
 }

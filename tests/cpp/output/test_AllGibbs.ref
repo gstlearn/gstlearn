@@ -40,6 +40,16 @@ Exponential
 Total Sill     =      1.000
 Known Mean(s)     0.000
 
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 100)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 10000
+- Number of zero weights = 6688
+- Percentage             =  33.12
+
 Data Base Grid Characteristics
 ==============================
 
@@ -48,8 +58,8 @@ Data Base Statistics
 6 - Name Gibbs - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -2.455
- Maximum value       =      2.486
- Mean value          =     -0.032
- Standard Deviation  =      1.088
- Variance            =      1.185
+ Minimum value       =     -1.895
+ Maximum value       =      1.837
+ Mean value          =     -0.187
+ Standard Deviation  =      0.745
+ Variance            =      0.556

@@ -23,6 +23,23 @@
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 
+void st_invgen()
+{
+  MatrixSquareSymmetric aaa(4);
+  MatrixSquareSymmetric bbb(4);
+
+  aaa.setValue(0,0, 2.);
+  aaa.setValue(1,0, 1.);
+  aaa.setValue(0,1, 1.);
+  aaa.setValue(1,1, 4.);
+  aaa.display();
+
+  (void) aaa.computeGeneralizedInverse(bbb);
+
+  message("Generalized Inverse\n");
+  bbb.display();
+}
+
 void reset_to_initial_contents(AMatrix* M,
                                MatrixRectangular& MRR,
                                MatrixSquareGeneral& MSG,
@@ -50,6 +67,10 @@ int main(int argc, char *argv[])
   setGlobalFlagEigen(true); // Check the Eigen version or not. Essential for first part.
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
+
+  // Checking the inverse generalized matrix
+  message("Checking the inverse generalized matrix\n");
+  st_invgen();
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);
@@ -549,21 +570,16 @@ int main(int argc, char *argv[])
   MatrixSquareGeneral ai(a);
 
   // LU decomposition
-  VectorDouble tl(neq2,0.);
-  VectorDouble tu(neq2,0.);
+  MatrixSquareGeneral tl(neq);
+  MatrixSquareGeneral tu(neq);
 
-  matrix_LU_decompose(neq, a.getValues().data(), tl.data(), tu.data());
+  a.decomposeLU(tl, tu);
 
-  MatrixSquareGeneral atl(neq);
-  atl.resetFromArray(neq, neq, tl.data());
-  atl.display();
-
-  MatrixSquareGeneral atu(neq);
-  atu.resetFromArray(neq, neq, tu.data());
-  atu.display();
+  tl.display();
+  tu.display();
 
   MatrixSquareGeneral res(neq);
-  res.prodMatMatInPlace(&atl, &atu);
+  res.prodMatMatInPlace(&tl, &tu);
   message("\nChecking the product\n");
   res.display();
   message("compared to Initial\n");
@@ -574,17 +590,9 @@ int main(int argc, char *argv[])
   VectorDouble b = { 2., 7., 0.};
   VH::display("B",b);
 
-  message("Inverse using LU\n");
-  VectorDouble ais = a.getValues();
-  (void) matrix_LU_invert(neq, ais.data());
-  ai.resetFromArray(neq, neq, ais.data());
-  ai.display();
-
-  message("Inverse using invreal\n");
-  ais = a.getValues();
-  (void) matrix_invreal(ais.data(), neq);
-  ai.resetFromArray(neq, neq, ais.data());
-  ai.display();
+  message("Inverse (using LU or invreal depending on the dimension)\n");
+  (void) a.invert();
+  a.display();
 
   // Compare Eigen values calculated using Eigen Library or not (dense matrix only)
 
@@ -603,16 +611,14 @@ int main(int argc, char *argv[])
   (void) MEig->computeEigen();
   VectorDouble eigVal = MEig->getEigenValues();
   VH::display("Eigen Values (Eigen Library)", eigVal);
-  MatrixSquareGeneral* eigVec = MEig->getEigenVectors();
+  const MatrixSquareGeneral* eigVec = MEig->getEigenVectors();
   eigVec->display();
-  delete eigVec;
 
   (void) MNoEig->computeEigen();
   VectorDouble eigNoVal = MNoEig->getEigenValues();
   VH::display("Eigen Values (no Eigen Library)", eigNoVal);
-  MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
+  const MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
-  delete eigNoVec;
 
   // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
 
@@ -675,9 +681,11 @@ int main(int argc, char *argv[])
 
   // Gluing two sparse matrices
 
-  MatrixSparse* MSGlueEig = MatrixSparse::glue(MSEig, MSEig, true, true);
+  MatrixSparse* MSGlueEig = dynamic_cast<MatrixSparse*>
+    (MatrixFactory::createGlue(MSEig, MSEig, true, true));
   MSGlueEig->display();
-  MatrixSparse* MSGlueNoEig = MatrixSparse::glue(MSNoEig, MSNoEig, true, true);
+  MatrixSparse* MSGlueNoEig = dynamic_cast<MatrixSparse*>
+    (MatrixFactory::createGlue(MSNoEig, MSNoEig, true, true));
   MSGlueNoEig->display();
 
   // Compare Generalized Eigen values calculated using Eigen Library or not (dense matrix only)
@@ -701,10 +709,9 @@ int main(int argc, char *argv[])
   // Extract the Generalized Eigen values and vectors (both matrix types)
   (void) MEig->computeGeneralizedEigen(*BEig);
   VectorDouble genEigVal = MEig->getEigenValues();
-  MatrixSquareGeneral* genEigVec = MEig->getEigenVectors();
+  const MatrixSquareGeneral* genEigVec = MEig->getEigenVectors();
   VH::display("Generalized Eigen Values (Eigen Library)", genEigVal);
   genEigVec->display();
-  delete genEigVec;
   delete BEig;
 
   MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 0);
@@ -715,10 +722,9 @@ int main(int argc, char *argv[])
 
   (void) MNoEig->computeGeneralizedEigen(*BNoEig);
   VectorDouble genEigNoVal = MNoEig->getEigenValues();
-  MatrixSquareGeneral* genEigNoVec = MNoEig->getEigenVectors();
+  const MatrixSquareGeneral* genEigNoVec = MNoEig->getEigenVectors();
   VH::display("Generalized Eigen Values (no Eigen Library)", genEigNoVal);
   genEigNoVec->display();
-  delete genEigNoVec;
   delete BNoEig;
 
   // Free the pointers

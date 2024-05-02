@@ -561,6 +561,9 @@ int db_edit(Db *db, int *flag_valid)
 
       case 9: /* Display the current selection */
         break;
+
+      default:
+        break;
     }
   }
   return (0);
@@ -1486,7 +1489,7 @@ int db_streamline(DbGrid *dbgrid,
 
       date = MIN(dbgrid->getArray(knd, iptr_time), i + 1.);
       dbgrid->setArray(knd, iptr_time, date);
-      dbgrid->updArray(knd, iptr_accu, 0, 1.);
+      dbgrid->updArray(knd, iptr_accu, EOperator::ADD, 1.);
     }
 
     /* Add the endpoint */
@@ -1570,7 +1573,7 @@ int db_model_nostat(Db *db,
 
     covint.setIech1(iech);
     covint.setIech2(iech);
-    model_nostat_update(&covint, model);
+    model->nostatUpdate(&covint);
     CovAniso *cova = model->getCova(icov);
 
     /* Store the variables */
@@ -1793,7 +1796,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     int icode = -1;
     for (int i = 0; i < ncode && icode < 0; i++)
-      if (code == codes[i]) icode = i;
+      if (areEqual(code,codes[i])) icode = i;
     if (icode < 0) continue;
 
     // Load the coordinates
@@ -1825,7 +1828,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   int nech = 0;
   for (int icode = 0; icode < ncode; icode++)
-    for (int iz = 0; iz < nz; iz++)
+    for (iz = 0; iz < nz; iz++)
     {
       double ratio = WCNT(iz, icode);
       if (ratio <= 0) continue;
@@ -1844,7 +1847,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   int ecr = 0;
   for (int icode = 0; icode < ncode; icode++)
-    for (int iz = 0; iz < nz; iz++)
+    for (iz = 0; iz < nz; iz++)
     {
       double ratio = WCNT(iz, icode);
       if (ratio <= 0) continue;

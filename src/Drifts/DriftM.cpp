@@ -103,12 +103,12 @@ DriftM* DriftM::createByIdentifier(const String &driftname)
   std::size_t found;
 
   // Looking for Universality Condition
-  substring = {"Universality_Condition"};
+  substring = "Universality_Condition";
   found = input.find(substring);
   if (found == 0) return new DriftM();
 
   // Looking for other drift conditions
-  substring = {"Drift:"};
+  substring = "Drift:";
   found = input.find(substring);
   if (found != 0) return nullptr;
 
@@ -121,7 +121,7 @@ DriftM* DriftM::createByIdentifier(const String &driftname)
   while (input.size() > 0)
   {
     // Decode the character "x"
-    substring = {"x"};
+    substring = "x";
     found = input.find(substring);
     if (found != 0) return nullptr;
     input = input.substr(substring.size(), input.size()-1);
@@ -133,7 +133,7 @@ DriftM* DriftM::createByIdentifier(const String &driftname)
 
     // Attempt to read the exponentiation
     int power = 1;
-    substring = {"^"};
+    substring = "^";
     found = input.find(substring);
     if (found == 0)
     {
@@ -144,7 +144,7 @@ DriftM* DriftM::createByIdentifier(const String &driftname)
     }
 
     // Attempt to read the character "*"
-    substring = {"*"};
+    substring = "*";
     found = input.find(substring);
 
     // Concatenate the results

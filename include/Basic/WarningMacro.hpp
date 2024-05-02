@@ -19,6 +19,7 @@
   #define DISABLE_WARNING(warningName)   DO_PRAGMA(clang diagnostic ignored #warningName)
 
   #define DISABLE_WARNING_DECLARATION_MASKED               // TODO : Warning equivalence ?
+  #define DISABLE_WARNING_DECLARATION_HIDE_GLOBAL          //
   #define DISABLE_WARNING_EXPR_COND_ASSIGNMENT             //
   #define DISABLE_WARNING_COND_EXPR_CONSTANT               //
   #define DISABLE_WARNING_NOT_EXPORTED_FROM_DLL            //
@@ -40,6 +41,7 @@
   #define DISABLE_WARNING(warningName)   DO_PRAGMA(GCC diagnostic ignored #warningName)
 
   #define DISABLE_WARNING_DECLARATION_MASKED               // TODO : Warning equivalence ?
+  #define DISABLE_WARNING_DECLARATION_HIDE_GLOBAL          //
   #define DISABLE_WARNING_EXPR_COND_ASSIGNMENT             //
   #define DISABLE_WARNING_COND_EXPR_CONSTANT               //
   #define DISABLE_WARNING_NOT_EXPORTED_FROM_DLL            //
@@ -60,6 +62,7 @@
   #define DISABLE_WARNING(warningNumber) __pragma(warning( disable : warningNumber ))
 
   #define DISABLE_WARNING_DECLARATION_MASKED               DISABLE_WARNING(4456)
+  #define DISABLE_WARNING_DECLARATION_HIDE_GLOBAL          DISABLE_WARNING(4459)
   #define DISABLE_WARNING_EXPR_COND_ASSIGNMENT             DISABLE_WARNING(4706)
   #define DISABLE_WARNING_COND_EXPR_CONSTANT               DISABLE_WARNING(4127)
   #define DISABLE_WARNING_NOT_EXPORTED_FROM_DLL            DISABLE_WARNING(4251)
@@ -81,6 +84,7 @@
 
   // TODO : Warning equivalence ?
   #define DISABLE_WARNING_DECLARATION_MASKED
+  #define DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
   #define DISABLE_WARNING_EXPR_COND_ASSIGNMENT
   #define DISABLE_WARNING_COND_EXPR_CONSTANT
   #define DISABLE_WARNING_NOT_EXPORTED_FROM_DLL

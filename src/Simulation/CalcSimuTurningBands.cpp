@@ -739,7 +739,7 @@ void CalcSimuTurningBands::_power1D(int ib,
       coeff3;
   static double alpha_mem = -1.;
 
-  if (ib == 0 || alpha != alpha_mem)
+  if (ib == 0 || ! areEqual(alpha,alpha_mem))
   {
     as2 = alpha / 2.;
     twoPI = 2. * GV_PI;
@@ -896,17 +896,14 @@ VectorDouble CalcSimuTurningBands::_createAIC()
   int ncova = _getNCova();
   int nvar  = _getNVar();
 
-  VectorDouble valpro(nvar);
-  VectorDouble vecpro(nvar * nvar);
   VectorDouble aic(ncova * nvar * nvar);
 
   /* Calculate the eigen values and vectors of the coregionalization matrix */
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    if (!is_matrix_definite_positive(
-        nvar, getModel()->getSillValues(icov).getValues().data(),
-        valpro.data(), vecpro.data(), 0))
+    MatrixSquareSymmetric mat = getModel()->getSillValues(icov);
+    if (! mat.isDefinitePositive())
     {
       messerr("Warning: the model is not authorized");
       messerr("The coregionalization matrix for the structure %d is not definite positive",
@@ -914,13 +911,19 @@ VectorDouble CalcSimuTurningBands::_createAIC()
       return VectorDouble();
     }
 
+    // Calculate the Eigen decomposition
+
+    if (mat.computeEigen()) return VectorDouble();
+    VectorDouble valpro = mat.getEigenValues();
+    const MatrixSquareGeneral* vecpro = mat.getEigenVectors();
+
     /* Calculate the factor matrix */
 
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
       {
         int ijvar = ivar + nvar * jvar;
-        aic[icov*nvar*nvar + ijvar] = vecpro[ijvar] * sqrt(valpro[ivar]);
+        aic[icov*nvar*nvar + ijvar] = vecpro->getValue(ivar, jvar) * sqrt(valpro[ivar]);
       }
   }
   return aic;
@@ -1140,7 +1143,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               if (activeArray[iech])
                 for (int jvar = 0; jvar < nvar; jvar++)
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
-                                nbsimu, nvar, 0,
+                                nbsimu, nvar, EOperator::ADD,
                                 tab[iech] * correc * _getAIC(aic, is, jvar, ivar));
         }
   }
@@ -1152,7 +1155,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
       for (int jvar = 0; jvar < nvar; jvar++)
         if (activeArray[iech])
           db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
-                        nvar, 1, norme);
+                        nvar, EOperator::PRODUCT, norme);
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
@@ -1174,8 +1177,8 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
-                                         const VectorDouble &aic,
-                                         double delta)
+                                             const VectorDouble &aic,
+                                             double delta)
 {
   int jsimu;
   int icase = 0;
@@ -1677,7 +1680,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               if (activeArray[iech])
                 for (int jvar = 0; jvar < nvar; jvar++)
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
-                                nbsimu, nvar, 0,
+                                nbsimu, nvar, EOperator::ADD,
                                 tab[iech] * correc * _getAIC(aic, is, jvar, ivar));
         }
   }
@@ -1689,7 +1692,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
       for (int jvar = 0; jvar < nvar; jvar++)
         if (activeArray[iech])
           db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
-                        nvar, 1, norme);
+                        nvar, EOperator::PRODUCT, norme);
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
@@ -1909,7 +1912,8 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
           if (! activeArray[iech]) continue;
           double nugget = law_gaussian();
           for (int jvar = 0; jvar < nvar; jvar++)
-            db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar, 0,
+            db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar,
+                          EOperator::ADD,
                           nugget * _getAIC(aic, is, jvar, ivar));
         }
       }
@@ -1992,7 +1996,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
           {
             simval = r * simval + sqrt(1. - r * r) * law_gaussian();
           }
-          double simunc = (!FFFF(zvar) && !FFFF(simval)) ? simval - zvar : TEST;
+          double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
           dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
                           simunc);
         }
@@ -2016,7 +2020,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
         double zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase,
                                       nbsimu, 1);
         if (!FFFF(zvar))
-          dbin->updSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1, 0,
+          dbin->updSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1, EOperator::ADD,
                           -zvar);
       }
     }
@@ -2054,7 +2058,7 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
       {
         if (! activeArray[iech]) continue;
         dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
-                         nvar, 0, getModel()->getMean(ivar));
+                         nvar, EOperator::ADD, getModel()->getMean(ivar));
       }
     }
   }
@@ -2480,7 +2484,6 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
 
   mestitle(1, "Checking Gaussian of data against closest grid node");
 
-
   /* Loop on the data */
 
   int number = 0;
@@ -2492,7 +2495,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     // Find the index of the closest grid node and derive tolerance
     int jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
-    double eps = model_calcul_stdev(model, dbin, iech, dbgrid, jech, 0, 2.);
+    double eps = model->calculateStdev(dbin, iech, dbgrid, jech, false, 2.);
     if (eps < 1.e-6) eps = 1.e-6;
 
     for (int isimu = 0; isimu < nbsimu; isimu++)

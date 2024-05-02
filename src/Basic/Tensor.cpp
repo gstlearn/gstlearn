@@ -14,6 +14,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Utilities.hpp"
 
 Tensor::Tensor(unsigned int ndim)
 :  AStringable(),
@@ -95,7 +96,7 @@ String Tensor::toString(const AStringFormat* /*strfmt*/) const
 
 void Tensor::setRadiusIsotropic(double radius)
 {
-  if (ABS(radius) < EPSILON10)
+  if (isZero(radius))
     my_throw ("Ellipsoid radius cannot be null");
   VH::fill(_radius, radius, static_cast<int> (_radius.size()));
   _isotropic = true;
@@ -120,7 +121,7 @@ void Tensor::setRadiusDir(unsigned int idim, double radius)
 {
   if (idim >= _nDim)
     my_throw ("Wrong index of dimension");
-  if (ABS(radius) < EPSILON10)
+  if (isZero(radius))
     my_throw ("Radius cannot be null");
   _radius[idim] = radius;
   _updateIsotropic();

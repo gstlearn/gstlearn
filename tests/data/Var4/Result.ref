@@ -1,1 +1,42 @@
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 3
+Variance-Covariance Matrix     0.944
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      0.000     1.000     0.000
+Direction angles (degrees)  =     90.000     0.000     0.000
+Tolerance on direction      =      0.500 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         3    76.000     3.000     0.470
+         4    64.000     4.243     0.661
+         6    62.000     6.000     0.655
+         7   104.000     6.708     0.677
+         8    42.000     8.485     0.671
+         9   128.000     9.304     0.875
+
+Model characteristics
+=====================
+Space dimension              = 3
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      0.743
+- Range        =      6.521
+Total Sill     =      0.743
+Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #3 (1 for very good)

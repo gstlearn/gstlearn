@@ -74,7 +74,6 @@
 #define TP(j,i)              (tp[(i) * ndimp + (j)]) 
 #define VEC1(ip,idim)        (vec1[(ip) * ndim + (idim)])
 #define MAT(i,j)             (mat[(i) * ncorner + (j)])
-#define MATU(i,j)            (matu[(i) * ncorner + (j)])
 #define COTES(ip,i)          (cotes[(ip) * ncorner + (i)])
 #define CORVEC(idim,ip)      (coor[(idim) * nvertex + (ip)])
 #define TBLIN(ib,ip)         (tblin[nvertex * (ib) + (ip)])
@@ -1182,7 +1181,7 @@ double spde_compute_correc(int ndim, double param)
  *****************************************************************************/
 static void st_compute_blin(void)
 {
-  double ndims2, alpha, lambda, delta, correc, *m, *v;
+  double ndims2, alpha, lambda, delta, correc;
   int p, ndimp;
 
   /* Initializations */
@@ -1196,7 +1195,6 @@ static void st_compute_blin(void)
   lambda = alpha - floor(alpha);
   delta = lambda - alpha;
   correc = Calcul.correc;
-  m = v = nullptr;
 
   Calcul.blin.resize(NBLIN_TERMS, 0);
 
@@ -1204,19 +1202,20 @@ static void st_compute_blin(void)
   {
     /* Core allocation */
 
-    v = (double*) mem_alloc(sizeof(double) * ndimp, 1);
-    m = (double*) mem_alloc(sizeof(double) * ndimp * ndimp, 1);
+    VectorDouble v1(ndimp, 0);
+    VectorDouble v2(ndimp, 0);
+    MatrixSquareGeneral m(ndimp);
     MatrixSquareGeneral tp = ut_pascal(ndimp);
 
     for (int idim = 0; idim < ndimp; idim++)
     {
-      v[idim] = 1. / (2. * p - idim + delta);
+      v1[idim] = 1. / (2. * p - idim + delta);
       for (int jdim = 0; jdim < ndimp; jdim++)
-        M(idim,jdim) = 1. / (2. * p - idim - jdim + lambda);
+        m.setValue(idim,jdim, 1. / (2. * p - idim - jdim + lambda));
     }
-    (void) matrix_invert(m, ndimp, -1);
-    matrix_product(ndimp, ndimp, 1, m, v, v);
-    matrix_product_safe(ndimp, ndimp, 1, tp.getValues().data(), v, Calcul.blin.data());
+    (void) m.invert();
+    m.prodMatVecInPlace(v1, v2);
+    tp.prodMatVecInPlace(v2, Calcul.blin);
   }
   else
   {
@@ -1225,11 +1224,6 @@ static void st_compute_blin(void)
   }
 
   Calcul.blin.resize(ndimp);
-
-  /* Core deallocation */
-
-  v = (double*) mem_free((char* ) v);
-  m = (double*) mem_free((char* ) m);
 }
 
 /****************************************************************************/
@@ -1294,7 +1288,7 @@ static void st_calcul_update(void)
   // Check that the structure has already been initiated
 
   if (Calcul.hh.size() <= 0)
-  my_throw("You should run 'st_calcul_init' beforehand");
+    my_throw("You should run 'st_calcul_init' beforehand");
 
   // Calculate the 'correc' term (from 'param')
   st_compute_correc();
@@ -1306,7 +1300,7 @@ static void st_calcul_update(void)
   st_compute_hh();
 
   // Calculate the determinant of HH
-  Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
+  Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
 }
 
 /****************************************************************************/
@@ -1357,7 +1351,6 @@ int spde_attach_model(Model *model)
 {
   CovAniso *cova;
   int ndim, nvar;
-  double silltot;
 
   /* Check space dimension */
 
@@ -1377,11 +1370,9 @@ int spde_attach_model(Model *model)
 
   /* Checking the Model contents */
 
-  silltot = 0.;
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
     cova = model->getCova(icov);
-    silltot += cova->getSill(0, 0);
     if (cova->getType() == ECov::BESSEL_K)
     {
       continue;
@@ -1538,14 +1529,12 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (S_DECIDE.flag_mesh_dbin && !flag_nugget)
   {
     nugval = silltot / 1000.;
-    VectorDouble sill;
-    sill.resize(nvar * nvar);
+    VectorDouble sill(nvar * nvar, 0.);
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
         sill[ecr++] = (ivar == jvar) ? nugval : 0.;
-    if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                       VectorDouble(), sill,0.)) return (1);
+    model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), sill);
   }
 
   /* Check incompatibility between non-stationary and multivariate */
@@ -2212,7 +2201,8 @@ int spde_build_stdev(double *vcur)
 double* _spde_get_mesh_dimension(AMesh* amesh)
 
 {
-  double *units, mat[9];
+  double *units;
+  VectorDouble mat(9);
 
   /* Initializations */
 
@@ -2282,7 +2272,7 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
   {
     model->updateCovByMesh(imesh0);
     st_compute_hh();
-    Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
+    Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
   }
 
   /* Update the Spherical Rotation array */
@@ -2398,8 +2388,7 @@ static int st_fill_Csill(void)
 
   /* Load the sills of continuous covariance elements */
 
-  if (matrix_cholesky_decompose(
-      model->getSillValues(icov).getValues().data(), mcova, nvar))
+  if (matrix_cholesky_decompose(model->getSillValues(icov).getValues().data(), mcova, nvar))
     goto label_end;
 
   /* Optional printout */
@@ -2926,7 +2915,7 @@ static void st_tangent_calculate(double center[3],
  *****************************************************************************/
 MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
 {
-  double vald, mat[16], matu[16], matw[16], matinvw[16], mat1[16];
+  double vald, mat[16], mat1[16];
   double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
   int ecr, errcod, error, ndim, ncorner, flag_nostat;
   bool flag_sphere;
@@ -2946,6 +2935,9 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
   flag_sphere = isDefaultSpaceSphere();
   flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
+  MatrixSquareGeneral matu(4);
+  VectorDouble matw(16);
+  VectorDouble matinvw(16);
 
   /* Loop on the meshes */
 
@@ -2983,8 +2975,8 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
       for (int icorn = 0; icorn < ncorner; icorn++)
       {
         for (int idim = 0; idim < ndim; idim++)
-          MATU(idim,icorn) = coeff[icorn][idim];
-        MATU(ncorner-1,icorn) = 1.;
+          matu.setValue(icorn, idim, coeff[icorn][idim]);
+        matu.setValue(icorn, ncorner-1,1.);
       }
     }
     else
@@ -2995,14 +2987,14 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
       for (int icorn = 0; icorn < ncorner; icorn++)
       {
         for (int idim = 0; idim < ndim; idim++)
-          MATU(idim,icorn) = amesh->getCoor(imesh, icorn, idim);
-        MATU(ncorner-1,icorn) = 1.;
+          matu.setValue(icorn,idim,amesh->getCoor(imesh, icorn, idim));
+        matu.setValue(icorn,ncorner-1,1.);
       }
     }
 
     /* Invert the matrix 'matu'*/
 
-    errcod = matrix_invreal(matu, ncorner);
+    errcod = matu.invert();
     if (errcod)
     {
       messerr("Error in Mesh #%3d - Its volume is zero", imesh + 1);
@@ -3013,20 +3005,20 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
           message(" %lf", amesh->getCoor(imesh, icorn, idim));
         message(")\n");
       }
-      print_matrix("MATU", 0, 1, ncorner, ncorner, NULL, matu);
+      print_matrix("MATU", 0, 1, ncorner, ncorner, NULL, matu.getValues().data());
     }
     else
     {
       ecr = 0;
       for (int icorn = 0; icorn < ncorner; icorn++)
         for (int idim = 0; idim < ndim; idim++)
-          matw[ecr++] = MATU(icorn, idim);
+          matw[ecr++] = matu.getValue(idim, icorn);
       matrix_transpose(ndim, ncorner, matw, matinvw);
 
-      matrix_product_safe(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
+      matrix_product_safe(ncorner, ndim, ndim, matinvw.data(), Calcul.hh.data(), mat1);
       if (flag_nostat)
-        matrix_product_safe(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
-      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw, mat);
+        matrix_product_safe(ncorner, ndim, 1, matinvw.data(), Calcul.vv.data(), matv);
+      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw.data(), mat);
 
       for (int j0 = 0; j0 < ncorner; j0++)
         for (int j1 = 0; j1 < ncorner; j1++)
@@ -5150,7 +5142,7 @@ int spde_process(Db *dbin,
 
         /* Saving operation */
 
-        iatt_simu = dbout->getSimvarRank(isimuw, 0, igrf, nbsimuw, 1);
+        iatt_simu = dbout->getSimRank(isimuw, 0, igrf, nbsimuw, 1);
         st_save_result(zcur, dbout, ELoc::SIMU, iatt_simu);
       }
 

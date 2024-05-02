@@ -328,7 +328,7 @@ void GeometryHelper::rotationGetAnglesInPlace(int ndim,
 
 //    double s1 = -rot[2];
 //    double c1 = sqrt(rot[0] * rot[0] + rot[1] * rot[1]);
-//    if (ABS(c1) < EPSILON10)
+//    if (isZero(c1))
 //    {
 //      if (s1 > 0.)
 //      {

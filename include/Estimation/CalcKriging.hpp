@@ -18,6 +18,8 @@
 
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Anamorphosis/AAnam.hpp"
 
 class Db;
 class DbGrid;

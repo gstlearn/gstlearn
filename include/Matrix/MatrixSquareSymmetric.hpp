@@ -16,6 +16,7 @@
 #include "Matrix/AMatrixSquare.hpp"
 
 class AMatrix;
+class EOperator;
 
 /**
  * Square Symmetric matrices are stored as Lower Triangular matrices stored by column
@@ -56,24 +57,64 @@ public:
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
                                              int nrow,
                                              int opt_eigen = -1);
-  MatrixSquareSymmetric* createReduce(const VectorInt &validRows) const;
+  static MatrixSquareSymmetric* createFromTLTU(int neq,
+                                               const VectorDouble &tl,
+                                               int opt_eigen = -1);
+  static MatrixSquareSymmetric* createFromTriangle(int mode,
+                                                   int neq,
+                                                   const VectorDouble &tl,
+                                                   int opt_eigen = -1);
 
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
+  int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
+                                double maxicond = 1.e20,
+                                double eps = EPSILON20);
+  bool isDefinitePositive();
+
+  // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
+  // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
+  // triangular storage.
+  // This is temporarily ensured as a VectorDouble handelde within this class. It should probably
+  // become a sperate class in the future.
+  int getTriangleSize() const;
+  int choleskyDecompose();
+  int choleskyInvert();
+  VectorDouble getCholeskyTL() const;
+  VectorDouble getCholeskyXL() const;
+  MatrixRectangular choleskyProductInPlace(int mode,
+                                           int neq,
+                                           int nrhs,
+                                           const VectorDouble &tl,
+                                           const MatrixRectangular &a);
+  MatrixSquareSymmetric choleskyNormInPlace(int mode,
+                                            int neq,
+                                            const VectorDouble &tl,
+                                            const MatrixSquareSymmetric &a);
+  int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                     const MatrixRectangular& aemat,
+                                     const VectorDouble& bemat,
+                                     const MatrixRectangular& aimat,
+                                     const VectorDouble& bimat,
+                                     VectorDouble& xmat);
+
 
 private:
   /// Interface for AMatrix
-  virtual bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSymmetric()); }
+  virtual bool   _isCompatible(const AMatrix& m) const override
+  {
+    return (isSameSize(m) && m.isSymmetric());
+  }
   virtual int    _getMatrixPhysicalSize() const override;
 
   virtual double& _getValueRef(int irow, int icol) override;
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
   virtual void    _allocate() override;
-  virtual void    _deallocate() override;
   virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValueByRank(int irank, double value) override;
   virtual void    _setValues(const double* values, bool byCol = true) override;
 
@@ -90,6 +131,7 @@ private:
   double  _getValueLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
+  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
@@ -113,7 +155,50 @@ private:
                                   const double *al,
                                   const double *b,
                                   double *x) const;
+  int _matrix_solve(VectorDouble &at,
+                    VectorDouble &b,
+                    VectorDouble &x,
+                    int neq,
+                    int nrhs,
+                    double eps = EPSILON20) const;
+  int  _matrix_invert_triangle(int neq, double *tl);
+  void _matrix_tri2sq(int neq, const double *tl, double *a);
+  void _matrix_sq2tri(int mode, int neq, const double *a, double *tl);
+
+  int _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
+  int _matrix_qoc(bool flag_invert,
+                  const VectorDouble& gmat,
+                  int na,
+                  const MatrixRectangular& amat,
+                  const VectorDouble& bmat,
+                  VectorDouble& xmat,
+                  VectorDouble& lambda);
+  int _constraintsError(const VectorInt& active,
+                        const MatrixRectangular& aimat,
+                        const VectorDouble& bimat,
+                        const VectorDouble& xmat,
+                        VectorDouble& vmat,
+                        VectorInt& flag);
+  int _constraintsConcatenateMat(int nae,
+                                 int nai,
+                                 int neq,
+                                 const VectorInt &active,
+                                 const MatrixRectangular &tabemat,
+                                 const MatrixRectangular &tabimat,
+                                 MatrixRectangular &tabout);
+  int _constraintsConcatenateVD(int nae,
+                                int nai,
+                                const VectorInt &active,
+                                const VectorDouble &tabemat,
+                                const VectorDouble &tabimat,
+                                VectorDouble &tabout);
+  int _constraintsCount(int nai, VectorInt& active);
+  bool _checkCholeskyAlreadyPerformed(int status) const;
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage
+  bool _flagCholeskyDecompose;
+  bool _flagCholeskyInverse;
+  VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
+  VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
 };
