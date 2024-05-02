@@ -92,11 +92,11 @@ jobs:
     - name: Compress output logs
       run: |
         cd ${{env.BUILD_DIR}}/tests
-        find . -type f -name "*.out" -print0 | tar -czvf logs.tar.gz --null -T -
+        find . -type f -name "*.out" -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
 
     - name: Publish output logs as artefact
       uses: actions/upload-artifact@v3 
       with:
         name: ubuntu-nonreg-logs
-        path: ${{env.BUILD_DIR}}/tests/logs.tar.gz
+        path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
       

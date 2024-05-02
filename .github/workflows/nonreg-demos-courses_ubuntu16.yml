@@ -44,3 +44,14 @@ jobs:
         cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON
         cmake --build ${{env.BUILD_DIR}} --target check_ipynb -- -j 3
         cmake --build ${{env.BUILD_DIR}} --target check_rmd -- -j 3
+
+    - name: Compress output logs
+      run: |
+        cd ${{env.BUILD_DIR}}/tests
+        find . -type f \( -name "*.asciidoc" -o -name "*.out" \) -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
+
+    - name: Publish output logs as artefact
+      uses: actions/upload-artifact@v3 
+      with:
+        name: ubuntu-nonreg-logs
+        path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz

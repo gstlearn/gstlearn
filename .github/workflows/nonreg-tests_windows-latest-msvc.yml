@@ -77,3 +77,19 @@ jobs:
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
+
+    - name: Compress output logs
+      shell: powershell
+      run: |
+        cd ${{env.BUILD_DIR}}/tests
+        Get-ChildItem -Recurse -Filter '*.out' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > logs.txt
+        foreach ($filename in Get-Content .\logs.txt)
+        {
+            Compress-Archive -Update $filename .\msvc-logs.zip
+        }
+
+    - name: Publish output logs as artefact
+      uses: actions/upload-artifact@v3 
+      with:
+        name: msvc-nonreg-logs
+        path: ${{env.BUILD_DIR}}/tests/msvc-logs.zip

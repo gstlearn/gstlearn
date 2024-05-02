@@ -65,3 +65,19 @@ jobs:
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+
+    - name: Compress output logs
+      shell: powershell
+      run: |
+        cd ${{env.BUILD_DIR}}/tests
+        Get-ChildItem -Recurse -Filter '*.out' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > logs.txt
+        foreach ($filename in Get-Content .\logs.txt)
+        {
+            Compress-Archive -Update $filename .\msys-logs.zip
+        }
+
+    - name: Publish output logs as artefact
+      uses: actions/upload-artifact@v3 
+      with:
+        name: msys-nonreg-logs
+        path: ${{env.BUILD_DIR}}/tests/msys-logs.zip
