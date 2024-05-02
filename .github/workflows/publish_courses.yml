@@ -51,7 +51,7 @@ jobs:
         echo "COURSES_FOLDER=${{env.BUILD_DIR}}/courses" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v3
       with:
         # This will become the folder name in the server
         name: courses
