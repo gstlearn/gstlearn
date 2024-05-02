@@ -53,7 +53,7 @@ jobs:
 
     - name: Publish output logs as artefact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: ubuntu-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
