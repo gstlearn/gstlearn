@@ -1063,6 +1063,7 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
                                     int optSort)
 {
   if (proportion <= 0. && number <= 0) return VectorInt();
+  law_set_random_seed(seed);
 
   // Find the number of expected values
   int count;
@@ -1074,10 +1075,7 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
     count = number;
   count = MIN(ntotal, MAX(1, count));
 
-  VectorInt ranks(ntotal);
-  for (int i = 0; i < ntotal; i++) ranks[i] = i;
-
-  shuffle (ranks.begin(), ranks.end(), std::default_random_engine(seed));
+  VectorInt ranks = law_random_path(ntotal);
 
   ranks.resize(count);
 
