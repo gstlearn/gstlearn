@@ -79,6 +79,7 @@ jobs:
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
 
     - name: Compress output logs
+      if: always()
       shell: powershell
       run: |
         cd ${{env.BUILD_DIR}}/tests
@@ -89,7 +90,8 @@ jobs:
         }
 
     - name: Publish output logs as artefact
-      uses: actions/upload-artifact@v3 
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
         name: msvc-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/msvc-logs.zip

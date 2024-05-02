@@ -47,7 +47,7 @@ jobs:
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v3 
+    - uses: actions/upload-artifact@v4
       with:
         # This will become the folder name in the server
         name: data

@@ -67,6 +67,7 @@ jobs:
       run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
 
     - name: Compress output logs
+      if: always()
       shell: powershell
       run: |
         cd ${{env.BUILD_DIR}}/tests
@@ -77,7 +78,8 @@ jobs:
         }
 
     - name: Publish output logs as artefact
-      uses: actions/upload-artifact@v3 
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
         name: msys-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/msys-logs.zip
