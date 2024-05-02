@@ -353,7 +353,7 @@ Linear Regression
  Comparison between Ordinary and Universal kriging predictions:
  --------------------------------------------------------------
                                 Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim             3092            0.604            5.083            2.834            0.954 
+ OK.Temperature.estim             3092            0.604            5.082            2.835            0.954
  UK.Temperature.estim             3092            0.613            5.051            2.841            0.923 
  
  ----
