@@ -88,3 +88,17 @@ jobs:
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+
+    - name: Compress output logs
+      if: always()
+      run: |
+        cd ${{env.BUILD_DIR}}/tests
+        find . -type f -name "*.out" -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
+
+    - name: Publish output logs as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-nonreg-logs
+        path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
+      

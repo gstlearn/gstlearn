@@ -1,4 +1,4 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -23,7 +23,7 @@ Total Sill     =      5.000
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 
@@ -31,23 +31,23 @@ Known Mean(s)     0.000----
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----1.009----

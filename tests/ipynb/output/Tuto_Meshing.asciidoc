@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -21,13 +21,13 @@ Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Grid characteristics:
@@ -51,13 +51,13 @@ Dim #2 - Min:0 - Max:100
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Grid characteristics:
@@ -94,13 +94,13 @@ Grid Masking Indexing
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Grid characteristics:
@@ -137,7 +137,7 @@ Grid Masking Indexing
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Grid characteristics:
@@ -174,7 +174,7 @@ Grid Masking Indexing
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -212,7 +212,7 @@ Column = 2 - Name = x2 - Locator = x2
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -238,7 +238,7 @@ Known Mean(s)     0.000
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Grid characteristics:
@@ -272,7 +272,7 @@ Dim #2 - Min:8.76696 - Max:20.767
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

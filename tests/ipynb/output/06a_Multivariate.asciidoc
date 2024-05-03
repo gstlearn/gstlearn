@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -29,13 +29,13 @@ Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -56,7 +56,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = Temperature - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Number of observations
@@ -68,7 +68,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics of observations
@@ -80,7 +80,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics of target
@@ -91,7 +91,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Filtered statistics of observations
@@ -103,50 +103,50 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics on the Ordinary Kriging:
  -----------------------------------
                                 Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim             3092            0.604            5.082            2.834            0.954 
- OK.Temperature.stdev             3092            0.077            0.992            0.492            0.145 
+ OK.Temperature.estim             3092            0.588            5.153            2.826            0.976 
+ OK.Temperature.stdev             3092            0.036            0.990            0.407            0.187 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-Mean squared cross-validation error: 0.254
-Mean squared standardized error: 1.117
+Mean squared cross-validation error: 0.281
+Mean squared standardized error: 2.635
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -169,25 +169,25 @@ Column = 5 - Name = CV_OK.Temperature.esterr - Locator = NA
 Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics on the CoKriging predictions
@@ -199,39 +199,39 @@ Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Comparison between Ordinary and Universal kriging predictions
  -------------------------------------------------------------
                                  Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim              3092            0.604            5.082            2.834            0.954 
+ OK.Temperature.estim              3092            0.588            5.153            2.826            0.976 
  COK.Temperature.estim             3092            0.200            5.094            2.671            0.970 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Mean squared cross-validation error: 0.279
 Mean squared standardized error: 1.227
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Mean squared cross-validation error: 17849.434
 Mean squared standardized error: 1.206
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Linear Regression
@@ -244,7 +244,7 @@ Linear Regression
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics on the residuals
@@ -255,61 +255,61 @@ Linear Regression
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Comparison between Ordinary and Residual kriging predictions
  ------------------------------------------------------------
                                 Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim             3092            0.604            5.082            2.834            0.954 
+ OK.Temperature.estim             3092            0.588            5.153            2.826            0.976 
  KR.Temperature.estim             3092           -8.097            5.108            1.445            1.906 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Linear Regression
@@ -323,13 +323,13 @@ Linear Regression
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics on the Universal Kriging:
@@ -341,114 +341,114 @@ Linear Regression
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Comparison between Ordinary and Universal kriging predictions:
  --------------------------------------------------------------
                                 Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim             3092            0.604            5.082            2.834            0.954 
+ OK.Temperature.estim             3092            0.588            5.153            2.826            0.976 
  UK.Temperature.estim             3092            0.613            5.051            2.841            0.923 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Mean squared cross-validation error: 0.251
 Mean squared standardized error: 0.855
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics on the Kriging with External Drift predictions
  ---------------------------------------------------------
                                  Number          Minimum          Maximum             Mean         St. Dev. 
- KED.Temperature.estim             3092           -6.247            5.072            1.786            1.594 
- KED.Temperature.stdev             3092            0.391            0.607            0.410            0.021 
+ KED.Temperature.estim             3092           -6.004            4.773            1.778            1.540 
+ KED.Temperature.stdev             3092            0.312            0.615            0.396            0.051 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-Mean squared cross-validation error: 0.187
-Mean squared standardized error: 1.159
+Mean squared cross-validation error: 0.172
+Mean squared standardized error: 1.143
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Mean-squared cross-validation errors
  ------------------------------------
                                      Number          Minimum          Maximum             Mean         St. Dev. 
- CV_OK.Temperature.esterr               151           -1.354            1.508           -0.012            0.504 
+ CV_OK.Temperature.esterr               151           -1.411            1.644           -0.017            0.530 
  CV_COK.Temperature.esterr              151           -1.759            1.648           -0.105            0.517 
  CV_UK.Temperature.esterr               151           -1.713            1.477           -0.003            0.501 
- CV_KED.Temperature.esterr              151           -1.321            1.043            0.000            0.432 
+ CV_KED.Temperature.esterr              151           -1.577            1.001           -0.009            0.414 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics of the predictors
  ----------------------------
                                         Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.estim                     3092            0.604            5.082            2.834            0.954 
+ OK.Temperature.estim                     3092            0.588            5.153            2.826            0.976 
  COK.Temperature.estim                    3092            0.200            5.094            2.671            0.970 
  ROK.RegRes.Temperature.estim             3092           -0.771            1.586            0.019            0.455 
  KR.Temperature.estim                     3092           -8.097            5.108            1.445            1.906 
  UK.Temperature.estim                     3092            0.613            5.051            2.841            0.923 
- KED.Temperature.estim                    3092           -6.247            5.072            1.786            1.594 
+ KED.Temperature.estim                    3092           -6.004            4.773            1.778            1.540 
  
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Statistics of the standard-deviation of each predictors
  -------------------------------------------------------
                                         Number          Minimum          Maximum             Mean         St. Dev. 
- OK.Temperature.stdev                     3092            0.077            0.992            0.492            0.145 
+ OK.Temperature.stdev                     3092            0.036            0.990            0.407            0.187 
  COK.Temperature.stdev                    3092            0.231            0.948            0.448            0.109 
  ROK.RegRes.Temperature.stdev             3092            0.304            0.504            0.362            0.031 
  UK.Temperature.stdev                     3092            0.083            0.919            0.555            0.138 
- KED.Temperature.stdev                    3092            0.391            0.607            0.410            0.021 
+ KED.Temperature.stdev                    3092            0.312            0.615            0.396            0.051 
  
  ----

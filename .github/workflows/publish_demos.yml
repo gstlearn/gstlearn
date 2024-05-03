@@ -44,13 +44,14 @@ jobs:
       id: main_step
       run: |
         export PATH=/opt/python/py311/bin:$PATH
+        alias pip="python3 -m pip"
         cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON
         cmake --build ${{env.BUILD_DIR}} --target build_demos
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "DEMO_FOLDER=${{env.BUILD_DIR}}/demo" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v3 
+    - uses: actions/upload-artifact@v3
       with:
         # This will become the folder name in the server
         name: demos

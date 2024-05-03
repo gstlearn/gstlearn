@@ -102,45 +102,45 @@ Table: Statistics of the sampled data on the point support
 
 |   | Number| Minimum| Maximum| Mean| St. Dev.|
 |:--|------:|-------:|-------:|----:|--------:|
-|Y  |    500|   -3.42|    2.99| 0.03|     1.04|
-|Z  |    500|    0.24|    5.92| 1.54|     0.84|
+|Y  |    500|   -3.42|    3.03| 0.02|     1.05|
+|Z  |    500|    0.24|    6.03| 1.53|     0.85|
 
 Hermitian Anamorphosis
 ----------------------
-Minimum absolute value for Y  = -2.8
-Maximum absolute value for Y  = 3.9
-Minimum absolute value for Z  = 0.274228
-Maximum absolute value for Z  = 5.99041
-Minimum practical value for Y = -2.8
+Minimum absolute value for Y  = -3
+Maximum absolute value for Y  = 3.1
+Minimum absolute value for Z  = 0.2413
+Maximum absolute value for Z  = 6.07942
+Minimum practical value for Y = -3
 Maximum practical value for Y = 3.1
-Minimum practical value for Z = 0.274228
-Maximum practical value for Z = 5.86055
-Mean                          = 1.53861
-Variance                      = 0.709613
+Minimum practical value for Z = 0.2413
+Maximum practical value for Z = 6.07942
+Mean                          = 1.53264
+Variance                      = 0.720254
 Number of Hermite polynomials = 20
 Normalized coefficients for Hermite polynomials (punctual variable)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.539    -0.792     0.273    -0.061    -0.009     0.032    -0.031
-     [  7,]     0.010     0.018    -0.021    -0.001     0.016    -0.009    -0.007
-     [ 14,]     0.012     0.000    -0.012     0.004     0.010    -0.006
+     [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
+     [  7,]     0.009     0.002    -0.012     0.008     0.003    -0.010     0.005
+     [ 14,]     0.006    -0.008    -0.002     0.007    -0.002    -0.004
 NULL
 
 Selectivity curves computed on data set
 ---------------------------------------
       Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.539      1.539      1.539
-      0.500      0.972      1.527      1.041      1.571
-      0.750      0.858      1.453      0.810      1.694
-      1.000      0.718      1.330      0.612      1.853
+      0.000      1.000      1.533      1.533      1.533
+      0.500      0.974      1.522      1.035      1.563
+      0.750      0.864      1.452      0.804      1.680
+      1.000      0.700      1.306      0.606      1.866
 NULL
 
 Selectivity curves computed on anamorphosis
 -------------------------------------------
       Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.539      1.539      1.539
-      0.500      0.972      1.527      1.041      1.570
-      0.750      0.867      1.461      0.810      1.684
-      1.000      0.716      1.327      0.611      1.853
+      0.000      1.000      1.533      1.533      1.533
+      0.500      0.976      1.523      1.035      1.561
+      0.750      0.864      1.451      0.803      1.680
+      1.000      0.706      1.313      0.607      1.859
 
 Data Base Characteristics
 =========================
@@ -172,13 +172,15 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Nugget Effect
-- Sill         =      0.114
 Exponential
-- Sill         =      0.597
-- Range        =      0.124
-- Theo. Range  =      0.041
-Total Sill     =      0.711
+- Sill         =      0.461
+- Range        =      0.051
+- Theo. Range  =      0.017
+Exponential
+- Sill         =      0.260
+- Range        =      0.256
+- Theo. Range  =      0.085
+Total Sill     =      0.721
 Known Mean(s)     0.000
 NULL
 
@@ -193,11 +195,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.234
-- Range        =      0.017
-- Theo. Range  =      0.006
+- Sill         =      0.215
+- Range        =      0.033
+- Theo. Range  =      0.011
 Exponential
-- Sill         =      0.766
+- Sill         =      0.785
 - Range        =      0.140
 - Theo. Range  =      0.047
 Total Sill     =      1.000
@@ -407,19 +409,19 @@ Table: Statistics of the estimated values
 
 |           | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:----------|------:|-------:|-------:|-----:|--------:|
-|Z          |   9500|   0.154|   8.198| 1.562|    0.846|
-|SK.Z.estim |   9500|   0.591|   4.734| 1.553|    0.481|
-|DK.Z.estim |   9500|   0.499|   4.178| 1.555|    0.452|
-|CE.Z.estim |   9500|   0.510|   4.349| 1.554|    0.457|
-|SK.Z.stdev |   9500|   0.515|   0.833| 0.683|    0.061|
-|DK.Z.stdev |   9500|   0.538|   0.831| 0.699|    0.054|
-|CE.Z.stdev |   9500|   0.206|   1.374| 0.679|    0.194|
+|Z          |   9500|   0.154|   8.198| 1.563|    0.845|
+|SK.Z.estim |   9500|   0.425|   4.555| 1.521|    0.455|
+|DK.Z.estim |   9500|   0.395|   4.130| 1.520|    0.474|
+|CE.Z.estim |   9500|   0.407|   4.242| 1.518|    0.476|
+|SK.Z.stdev |   9500|   0.472|   0.831| 0.703|    0.069|
+|DK.Z.stdev |   9500|   0.459|   0.836| 0.683|    0.072|
+|CE.Z.stdev |   9500|   0.135|   1.286| 0.648|    0.194|
 
 
 Table: Scores of point estimators of Z using 500 data points
 
-|   |     ME|    MAE|   RMSE|     MSE|   MASE|  RMSSE|
-|:--|------:|------:|------:|-------:|------:|------:|
-|SK | 0.0091| 0.4849| 0.6726|  0.0157| 0.7079| 0.9785|
-|DK | 0.0075| 0.4818| 0.6712|  0.0131| 0.6868| 0.9539|
-|CE | 0.0085| 0.4804| 0.6691| -0.0072| 0.6980| 0.9122|
+|   |     ME|    MAE|   RMSE|    MSE|   MASE|  RMSSE|
+|:--|------:|------:|------:|------:|------:|------:|
+|SK | 0.0417| 0.4788| 0.6740| 0.0560| 0.6805| 0.9541|
+|DK | 0.0429| 0.4771| 0.6726| 0.0595| 0.6980| 0.9807|
+|CE | 0.0450| 0.4764| 0.6718| 0.0559| 0.7303| 0.9680|

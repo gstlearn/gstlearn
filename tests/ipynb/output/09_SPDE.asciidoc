@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Characteristics
@@ -29,7 +29,7 @@ Column = 5 - Name = sel - Locator = sel
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -60,7 +60,7 @@ Column = 3 - Name = inshore - Locator = sel
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Variogram characteristics
@@ -104,7 +104,7 @@ For variable 1
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Variogram characteristics
@@ -148,7 +148,7 @@ For variable 1
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -164,10 +164,10 @@ Covariance Part
 Nugget Effect
 - Sill         =      0.100
 K-Bessel (Third Parameter = 1)
-- Sill         =      0.419
-- Range        =    282.215
-- Theo. Range  =     81.469
-Total Sill     =      0.519
+- Sill         =      0.420
+- Range        =    282.574
+- Theo. Range  =     81.572
+Total Sill     =      0.520
 
 Drift Part
 ----------
@@ -178,31 +178,31 @@ External_Drift:0
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-Trend coefficients: [ 3.9693178  -0.00659846]
+Trend coefficients: [ 3.97002567 -0.00659772]
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -232,7 +232,7 @@ Column = 5 - Name = Kriging.January_temp.estim - Locator = z1
 Column = 6 - Name = Kriging.January_temp.stdev - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
