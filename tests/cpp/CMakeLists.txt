@@ -75,6 +75,12 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     if (NOT ${TARGET_EXE} STREQUAL ${EXCLUDE_FROM_DIFF})
       # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
       set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref)
+      # Use maybe a specific output log for the local computer
+      cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR myoutput ${TARGET_EXE}.ref
+                  OUTPUT_VARIABLE REF_FILE_LOCAL)
+      if(EXISTS ${REF_FILE_LOCAL})
+        set(REF_FILE ${REF_FILE_LOCAL})
+      endif()
       # Use maybe a specific output log for MSVC
       if (MSVC)
         set(REF_FILE_MSVC ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}_msvc.ref)
