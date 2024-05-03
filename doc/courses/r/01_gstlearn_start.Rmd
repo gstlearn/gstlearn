@@ -28,7 +28,8 @@ The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn 
 
 To install the **gstlearn** R Package, you need R 4.2 (or higher). You can then execute the following R command:
 ```{r eval=FALSE}
-install.packages("gstlearn",repos="https://soft.mines-paristech.fr/cran")
+# Uncomment next line for installing last release of gstlearn package (remove '#' character) 
+#install.packages("gstlearn",repos="https://soft.mines-paristech.fr/cran")
 ```
 
 ### Loading the  package

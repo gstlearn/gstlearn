@@ -77,8 +77,8 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Use git diff (cross-platform) with:
     # - no-index (no need to have files under git control)
     # - ignore lines starting with #NO_DIFF#
-    # - ignore whitespaces (-w) and blanck lines (-b) TODO : doesn't work ?
+    # - ignore ALL whitespaces (https://stackoverflow.com/a/65462731)
     add_test(NAME ${TEST_NAME}_py_cmp
-             COMMAND git diff --no-index -I "#NO_DIFF#" -b -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND git diff --no-index -I "#NO_DIFF#" --ignore-blank-lines --ignore-all-space --ignore-cr-at-eol ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 

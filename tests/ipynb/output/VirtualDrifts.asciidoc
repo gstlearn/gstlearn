@@ -1,6 +1,6 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----0.4335----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 -----0.7408----

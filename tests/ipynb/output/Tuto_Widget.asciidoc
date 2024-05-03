@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----('NUGGET',
  'EXPONENTIAL',
  'SPHERICAL',
@@ -14,43 +14,43 @@
  'STABLE')----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(IntSlider(value=10, continuous_update=False, description='Number', min=1), Checkbox(value=False…<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=300, min=10)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----FloatSlider(value=20.0, continuous_update=False, description='Range', min=5.0, step=1.0)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----Dropdown(description='Structure', index=1, options=('NUGGET', 'EXPONENTIAL', 'SPHERICAL', 'GAUSSIAN', 'CUBIC',…<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----Checkbox(value=True, description='Draw Title', indent=False)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=300, min=10), FloatS…<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----

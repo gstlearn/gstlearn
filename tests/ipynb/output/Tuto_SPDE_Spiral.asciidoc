@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -29,13 +29,13 @@ Known Mean(s)     0.000
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -64,13 +64,13 @@ Column = 5 - Name = SimuSPDE.3 - Locator = z3
 Column = 6 - Name = SimuSPDE.4 - Locator = z4----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -90,13 +90,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = data - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -126,13 +126,13 @@ Column = 6 - Name = SimuSPDE.4 - Locator = NA
 Column = 7 - Name = KrigingSPDE.data.estim - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -166,7 +166,7 @@ Column = 10 - Name = CondSimu.data.3 - Locator = z3
 Column = 11 - Name = CondSimu.data.4 - Locator = z4----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

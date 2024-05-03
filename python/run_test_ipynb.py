@@ -19,15 +19,27 @@ test_output = os.path.join(out_dir, test_name + "." + out_type)
 # Inspired from https://stackoverflow.com/questions/65502005/convert-a-jupyter-notebook-to-html-output-in-native-python
 # See manual here : https://buildmedia.readthedocs.org/media/pdf/nbconvert/latest/nbconvert.pdf
 import nbformat
+import tempfile
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import ASCIIDocExporter
 from nbconvert import HTMLExporter
 from nbconvert import PDFExporter
 
-# Read source notebook
-# https://github.com/mwouts/jupytext/issues/770#issuecomment-1257559895
-with open(test_script, encoding='utf8') as f:
-    nb = nbformat.read(f, as_version=4)
+# Read [and hack source notebook in a temporary notebook]
+f = open(test_script, 'r', encoding='utf8')
+if (out_type == "asciidoc"):
+    # Kill some cells that pollute nonregression
+    nbs = f.read()
+    nbs = re.sub("from IPython.display import Markdown", "", nbs)
+    nbs = re.sub("Markdown", "print", nbs)
+    print(type(nbs))
+    new_file, filename = tempfile.mkstemp(text=True)
+    os.write(new_file, nbs.encode('utf8'))
+    os.close(new_file)
+    f = open(filename, 'r', encoding='utf8')
+
+# Really read the notebook
+nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
 
 # Execute the Notebook
 ep = ExecutePreprocessor(timeout=-1, kernel_name='python3')
@@ -65,13 +77,13 @@ if (out_type == "asciidoc"):
     # [[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
     # -----<matplotlib.collections.QuadMesh at 0x7f3a056e6320>
     # ----[<matplotlib.lines.Line2D at 0x7f3918a78550>]
-    notebook_node = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "XXX", notebook_node)
+    notebook_node = re.sub("\[\[[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]\]", "", notebook_node)
     notebook_node = re.sub("----<matplotlib.*", "XXX", notebook_node)
     notebook_node = re.sub("----\[<matplotlib.*", "XXX", notebook_node)
     
     # Remove images in base64 included by MD files
-    # image:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAA........
-    notebook_node = re.sub(".*image:data:image/png;base64,.*", "image:data:image/png;base64,XXX", notebook_node)
+    # data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAA........
+    notebook_node = re.sub(".*data:image/png;base64,.*", "data:image/png;base64,XXX", notebook_node)
     
     # Remove all lines coming from data downloading (no need anymore as wget -q):
     # --2023-07-28 15:20:09--  https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF
@@ -96,13 +108,14 @@ if (out_type == "asciidoc"):
     
     # Remove panda frame decoration that can vary according the version/OS i.e. :
     notebook_node = re.sub("\\|====+", "|===", notebook_node)
+    notebook_node = re.sub("\[.*options=\"header\"\,]", "", notebook_node)
     
     # Remove pip install output
     notebook_node = re.sub("\[notice\].*", "#NO_DIFF#XXX", notebook_node)
     notebook_node = re.sub(".*site-packages is not writeable", "#NO_DIFF#XXX", notebook_node)
     notebook_node = re.sub("Requirement already satisfied.*", "#NO_DIFF#XXX", notebook_node)
-    # Remove this: *Out[3]:*
-    notebook_node = re.sub("\*Out\[[0-9]+\]:\*", "#NO_DIFF#XXX", notebook_node)
+    # Remove this: +*Out[3]:*+
+    notebook_node = re.sub("\+\*Out\[[0-9]+\]:\*\+", "#NO_DIFF#XXX", notebook_node)
     # Remove this: [png]
     notebook_node = re.sub("\!\[png\].*", "#NO_DIFF#XXX", notebook_node)
 

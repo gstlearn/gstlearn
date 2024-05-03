@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----('NUGGET',
  'EXPONENTIAL',
  'SPHERICAL',
@@ -14,13 +14,13 @@
  'STABLE')----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----WModel(children=(Dropdown(description='Type', index=2, options=('Nugget effect', 'Exponential', 'Spherical', '…<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================

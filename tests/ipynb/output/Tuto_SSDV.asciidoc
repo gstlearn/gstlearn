@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -23,31 +23,31 @@ Total Sill     =     10.000
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Extension Variance = 2.697
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Spatial Sampling Density Variance = 26972.85 m².m²
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Specific Area (case #1) = 269.73 m²
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Specific Area (small block) = 45.77 m²
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Model characteristics
 =====================
@@ -68,19 +68,19 @@ Total Sill     =     12.000
 Known Mean(s)     0.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Specific Area (case #2) = 518.70 m²
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Coefficient of Variation = 21.20
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Specific area (case #1) = 107891.40 m²
 Specific area (case #2) = 207479.07 m²

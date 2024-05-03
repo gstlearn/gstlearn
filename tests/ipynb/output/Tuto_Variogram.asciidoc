@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -23,68 +23,67 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-*Variogram Cloud*
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Variogram Cloud**
 
-The data is modeled as _samples of a regionalized_ variable
-latexmath:[$z$], i.e. as evaluations at locations
-latexmath:[$x_1,..,x_n$] of a variable latexmath:[$z$] defined across a
-spatial domain:
-latexmath:[\[\lbrace z_i = z(x_i) : i = 1, ..., n\rbrace.\]]
+The data is modeled as *samples of a regionalized* variable $z$, i.e. as evaluations at locations $x_1,..,x_n$ of a variable $z$ defined across a spatial domain: 
+$$\lbrace z_i = z(x_i) : i = 1, ..., n\rbrace.$$
 
 The variogram cloud is the set of pair of points defined as
-latexmath:[\[ \big\lbrace \big( \Vert x_i - x_j\Vert,  \big\vert z(x_i)-z(x_j)\big\vert^2 \big) \quad\text{where}\quad 1\le i\le j\le n \big\rbrace \]]
+$$ \big\lbrace \big( \Vert x_i - x_j\Vert,  \big\vert z(x_i)-z(x_j)\big\vert^2 \big) \quad\text{where}\quad 1\le i\le j\le n \big\rbrace $$
 
-In *gstlearn*, variogram clouds are computed as grids.
+In **gstlearn**, variogram clouds are computed as grids.
+</md-block>
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 (59.075, 479.825, 496.47499999999997, 1242.825)----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 (0.0, 11.109000000000002)----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 (0.0, 5.0)----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 (0.0, 11.109000000000002)----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(FloatSlider(value=70.0, continuous_update=False, description='Lag Size', max=200.0, min=5.0, st…IntSlider(value=4, continuous_update=False, description='Lag Index', max=10)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(FloatSlider(value=70.0, continuous_update=False, description='Lag Size', max=200.0, min=5.0, st…IntSlider(value=4, continuous_update=False, description='Lag Index', max=10)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(FloatSlider(value=70.0, continuous_update=False, description='Lag Size', max=200.0, min=5.0, st…<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-[cols=",,,",options="header",]
+
 |===
 | |Npairs |Distance |Value
 |0 |520.0 |22.745 |0.336
@@ -101,19 +100,19 @@ In *gstlearn*, variogram clouds are computed as grids.
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 (-500.0, 500.0)----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -140,49 +139,49 @@ Column = 3 - Name = VMAP.January_temp.Var - Locator = z1
 Column = 4 - Name = VMAP.January_temp.Nb - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----IntSlider(value=4, continuous_update=False, description='Lag Index', max=10)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(IntSlider(value=125, continuous_update=False, description='Angle', max=360), IntSlider(value=20…IntSlider(value=4, continuous_update=False, description='Lag Index', max=10)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(IntSlider(value=125, continuous_update=False, description='Angle', max=360), IntSlider(value=20…IntSlider(value=4, continuous_update=False, description='Lag Index', max=10)<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----HBox(children=(IntSlider(value=125, continuous_update=False, description='Angle', max=360), IntSlider(value=20…<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----

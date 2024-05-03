@@ -1,4 +1,4 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Markov (Third Parameter = 1)
 - Sill         =      3.000
@@ -7,15 +7,15 @@ Markov (Third Parameter = 1)
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----array([1., 2., 1.])----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----0.24989756768264187----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 
@@ -23,19 +23,19 @@ Markov (Third Parameter = 1)
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
