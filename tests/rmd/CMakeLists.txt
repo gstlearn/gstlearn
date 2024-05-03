@@ -60,6 +60,12 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
              COMMAND ${R_EXECUTABLE} CMD BATCH --no-save --no-restore "--args ${TEST_SOURCE_FILE} ${TEST_DST_DIR}" ${RUN_TEST_SCRIPT} ${TEST_DST_DIR}/${TEST_NAME}.Rout)
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out)
+    # Use maybe a specific output log for the local computer
+    cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR myoutput ${TEST_NAME}.out
+                OUTPUT_VARIABLE REF_FILE_LOCAL)
+    if(EXISTS ${REF_FILE_LOCAL})
+      set(REF_FILE ${REF_FILE_LOCAL})
+    endif()
     # Use maybe a specific output log for MinGW
     if (MINGW)
       set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}_msys.out)
