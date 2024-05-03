@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.2.0
 =============
+- Correcting the multivariate heterotopic conditional simulations
 - Improvements in the different Gibbs sampler versions + new tutorial
 - Function matrix_qoci() becomes MatrixSquareSymmetric::minimizeWithConstraintsInPlace()
 - Improvement of test_potential.cpp (include cross-validation)

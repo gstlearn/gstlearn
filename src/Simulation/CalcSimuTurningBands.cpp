@@ -1969,8 +1969,6 @@ void CalcSimuTurningBands::_difference(Db *dbin,
     /* Standard case (multivariate) */
     /********************************/
 
-    /* Processing */
-
     for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
@@ -1996,6 +1994,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
           {
             simval = r * simval + sqrt(1. - r * r) * law_gaussian();
           }
+
           double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
           dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
                           simunc);
@@ -2009,8 +2008,6 @@ void CalcSimuTurningBands::_difference(Db *dbin,
     /*********************************************************/
     /* Case of PGS: Data varies per simulation (monovariate) */
     /*********************************************************/
-
-    /* Processing */
 
     for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
@@ -2039,9 +2036,9 @@ void CalcSimuTurningBands::_difference(Db *dbin,
 void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
 {
   int nbsimu = getNbSimu();
-  int nvar = _getNVar();
-  int nech = dbout->getSampleNumber();
-  int ecr = 0;
+  int nvar   = _getNVar();
+  int nech   = dbout->getSampleNumber();
+
   VectorBool activeArray = dbout->getActiveArray();
 
   // Loop on the simulations
@@ -2049,11 +2046,10 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
   {
 
     // Loop on the variables
-    for (int ivar = 0; ivar < nvar; ivar++, ecr++)
+    for (int ivar = 0; ivar < nvar; ivar++)
     {
 
       // Loop on the samples
-
       for (int iech = 0; iech < nech; iech++)
       {
         if (! activeArray[iech]) continue;
@@ -2273,6 +2269,7 @@ bool CalcSimuTurningBands::_run()
   if (flag_cond)
   {
     _simulatePoint(getDbin(), aic, _icase, 0);
+    _meanCorrect(getDbin(), _icase);
 
     // Calculate the simulated error
 
@@ -2285,10 +2282,12 @@ bool CalcSimuTurningBands::_run()
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     _simulateGrid(dbgrid, aic, _icase, 0);
+    _meanCorrect(getDbout(), _icase);
   }
   else
   {
     _simulatePoint(getDbout(), aic, _icase, 0);
+    _meanCorrect(getDbout(), _icase);
   }
 
   /* Add the contribution of Nugget effect (optional) */
@@ -2302,13 +2301,6 @@ bool CalcSimuTurningBands::_run()
     if (_krigsim(getDbin(), getDbout(), getModel(), getNeigh(),
                  _flagBayes, _bayesMean, _bayesCov, _icase,
                  nbsimu, _flagDGM)) return 1;
-  }
-  else
-  {
-
-    /* In non-conditional case, correct for the mean */
-
-    _meanCorrect(getDbout(), _icase);
   }
 
   /* Copy value from data to coinciding grid node */

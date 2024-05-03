@@ -19,6 +19,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -55,27 +56,71 @@ static Db* createLocalDb(int nech, int ndim, int nvar)
   return data;
 }
 
-void st_mini_test()
+/**
+ * Test of heterotopic kriging and simulation
+ * Returns 1 if the rest of the test must be discarded
+ */
+int st_mini_test()
 {
-  Db* db = Db::createFillRandom(4, 2, 2);
+  // Global parameters
+  int nbsimu = 2;
+  int mode = 0; // 1: NCsimu; 2: Kriging; 3: CDsimu; 0: All
+  bool debug = true;
+  bool end_test = false;
+  OptCst::define(ECst::NTCOL, -1);
+
+  // Create the Data Base
+  Db* db = Db::createFillRandom(5, 2, 2);
   db->setValue("z-1",0, TEST);
-  db->setValue("z-2",1, TEST);
   db->setValue("z-1",2, TEST);
+  db->setValue("z-1",4, TEST);
+
+  db->setValue("z-2",1, TEST);
   db->setValue("z-2",2, TEST);
-  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, false, false, false, true);
+
+  VectorDouble means = {100., 0};
+
+  // Modify the variables by adding their mean
+  VectorDouble z1 = db->getColumn("z-1");
+  VH::addConstant(z1, means[0]);
+  db->setColumn(z1, "z-1");
+
+  VectorDouble z2 = db->getColumn("z-2");
+  VH::addConstant(z2, means[1]);
+  db->setColumn(z2, "z-2");
+
+  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
   db->display(dbfmt);
 
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), {3,1,1,2});
+  Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1,
+                                        VectorDouble(), {3,1,1,2});
+  model->setMeans(means);
+
   NeighMoving* neigh = NeighMoving::create(false, 100, 10);
 
+  // Creating the output grid
   DbGrid* grid = DbGrid::create({2,2});
-  OptDbg::setReference(1);
 
-  // Perform Kriging first
-  (void) kriging(db, grid, model, neigh);
+  // Set the debugging option
+  if (debug) OptDbg::setReference(1);
+
+  // Perform non-conditional simulations
+  if (mode == 0 || mode == 1)
+    (void) simtub(nullptr, grid, model, neigh, nbsimu);
+
+  // Perform Kriging
+  if (mode == 0 || mode == 2)
+    (void) kriging(db, grid, model, neigh);
 
   // Perform conditional simulations
-  (void) simtub(db, grid, model, neigh, 2);
+  if (mode == 0 || mode == 3)
+    (void) simtub(db, grid, model, neigh, nbsimu);
+
+  grid->display(dbfmt);
+
+  OptDbg::setReference(0);
+
+  return end_test;
 }
 
 /****************************************************************************/
@@ -103,7 +148,7 @@ int main(int argc, char *argv[])
   DbStringFormat dbfmt(FLAG_STATS,{"Simu*"});
 
   // Perform a preliminary test to check heterotopic conditional simulation
-  st_mini_test();
+  if (st_mini_test()) return 0;
 
   // Generate the output grid
   VectorInt nx = {50,50};

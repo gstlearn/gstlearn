@@ -1221,8 +1221,7 @@ void KrigingSystem::_wgtDump(int status)
 
     /* Loop on the samples */
 
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      sum[ivarCL] = 0.;
+    sum.fill(0.);
     for (int iech = 0; iech < _nech; iech++, lec++)
     {
       int flag_value = (! _flag.empty()) ? _flag[lec] : 1;
@@ -1312,36 +1311,28 @@ void KrigingSystem::_simulateCalcul(int status)
     for (int ivar = 0; ivar < _nvar; ivar++, ecr++)
     {
       double simu = 0.;
-      if (_nfeq <= 0) simu = _getMean(ivar);
 
       if (status == 0)
       {
         if (_flagBayes)
           simu = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
-        int lec = ivar * _nred;
+        int lec = 0;
         for (int jvar = 0; jvar < _nvar; jvar++)
           for (int iech = 0; iech < _nech; iech++)
           {
             int jech = _nbgh[iech];
 
-            double mean = 0.;
-            if (_nfeq <= 0) mean = _getMean(jvar);
-            if (_flagBayes)
-              mean = _model->evalDriftVarCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
-            double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
-            if (! FFFF(data))
-              simu -= _wgt.getValue_(lec++,0) * (data + mean);
-          }
+            // Get the simulated difference at data point (Simu - Data)
+            double diff = _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
+            if (FFFF(diff)) continue;
 
-        if (OptDbg::query(EDbg::KRIGING))
-        {
-          double value = _dbout->getArray(_iechOut, _iptrEst + ecr);
-          message("Non-conditional simulation #%d = %lf\n", isimu + 1, value);
-          message("Kriged difference = %lf\n", -simu);
-          message("Conditional simulation #%d = %lf\n", isimu + 1,
-                  value + simu);
-        }
+            // Get the kriging weight
+            double wgt = _wgt.getValue_(lec++,ivar);
+
+            // Calculate the Kriging of simulated differences: -sum {wgt * diff}
+            simu -= wgt * diff;
+          }
       }
       else
       {
