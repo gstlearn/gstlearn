@@ -84,6 +84,12 @@ foreach(TARGET_EXE ${TARGETS_EXE})
                  WORKING_DIRECTORY ${TEST_DST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
         set(REF_FILE ${TEST_SRC_DIR}/Result.ref)
+        # Use maybe a specific output log for the local computer
+        cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR myoutput ${DIR_NAME} Result.ref
+                   OUTPUT_VARIABLE REF_FILE_LOCAL)
+        if(EXISTS ${REF_FILE_LOCAL})
+          set(REF_FILE ${REF_FILE_LOCAL})
+        endif()
         # Use maybe a specific output log for MSVC
         if (MSVC)
           set(REF_FILE_MSVC ${TEST_SRC_DIR}/Result_msvc.ref)
