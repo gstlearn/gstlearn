@@ -2035,6 +2035,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
  *****************************************************************************/
 void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
 {
+  if (_flagBayes) return;
   int nbsimu = getNbSimu();
   int nvar   = _getNVar();
   int nech   = dbout->getSampleNumber();

@@ -270,9 +270,9 @@ Data Base Statistics
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =   -124.070
- Maximum value       =   -121.670
- Mean value          =   -123.000
+ Minimum value       =     -1.070
+ Maximum value       =      1.330
+ Mean value          =      0.000
  Standard Deviation  =      0.470
  Variance            =      0.221
 6 - Name Xvalid.Var.stdev - Locator NA
@@ -567,9 +567,9 @@ Data Base Statistics
 6 - Name Bayes.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -2.065
- Maximum value       =      0.654
- Mean value          =     -0.409
+ Minimum value       =     -2.066
+ Maximum value       =      0.653
+ Mean value          =     -0.410
  Standard Deviation  =      0.454
  Variance            =      0.206
 7 - Name Bayes.Var.stdev - Locator NA
