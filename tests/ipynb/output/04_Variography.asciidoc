@@ -1,0 +1,391 @@
+#NO_DIFF#XXX
+----<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Variogram Cloud**
+
+The data is modeled as *samples of a regionalized* variable $z$, i.e. as evaluations at locations $x_1,..,x_n$ of a variable $z$ defined across a spatial domain: 
+$$\lbrace z_i = z(x_i) : i = 1, ..., n\rbrace.$$
+
+The variogram cloud is the set of pair of points defined as
+$$ \big\lbrace \big( \Vert x_i - x_j\Vert,  \big\vert z(x_i)-z(x_j)\big\vert^2 \big) \quad\text{where}\quad 1\le i\le j\le n \big\rbrace $$
+
+In **gstlearn**, variogram clouds are computed as grids.
+</md-block>
+----
+
+
+#NO_DIFF#XXX
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      7.789     0.031
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Cloud.January_temp - Locator = NA
+ ----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Experimental Variogram**
+
+The experimental (isotropic) variogram $\gamma$ is a  function defined as
+
+$$\gamma(h)=\frac{1}{2\vert N(h)\vert}\sum_{(i,j) \in N(h)}\big\vert z(x_i)-z(x_j)\big\vert^2, \quad h\ge 0,$$
+
+where $N(h)$ is set of all pairs of data points separated by a distance $h$ (called *lag*):
+$$ N(h) = \bigg\lbrace (i,j) : \Vert x_j-x_i\Vert = h\bigg\rbrace_{1\le i\le j\le n},$$
+
+and $\vert N(h)\vert$ is the cardinal of $N(h)$. In practice, when computing $\gamma(h)$, we look for pairs of data points separated by a distance $h \pm \tau h$ where $\tau > 0$ is a tolerance on the separation distance $h$. In other words, $N(h)$ is replaced by
+$$ \widehat N(h) = \bigg\lbrace (i,j) : (1-\tau)h \le \Vert x_j-x_i\Vert \le (1+\tau) h\bigg\rbrace_{1\le i\le j\le n}$$
+
+To compute an experimental variogram, we start by creating a `VarioParam` object containing the parameters of the variogram. This is done using the function `VarioParam_createOmniDirection`. We can specify the number of lags $h$ for which the experimental variogram is computed (argument `npas`), and the distance between these lags (argument `dpas`), as well as the tolerance $\tau$ on the lags (argument `toldis`).
+
+Then, the experimental variogram is computed in two steps. First, a `Vario` object is initialized from the `VarioParam` object  and the `Db` containing the data points. Then, the values of the experimental variogram at the lags specified by  the `VarioParam` object  are computed using the method `compute` of the `Vario` object (which returns an error code, `0` meaning that no error was detected).
+
+Note : The variable $z$ for which we wish to define the experimental variogram should be the only variable in the `Db` with a `z` locator (i.e. it should have locator `z1` and the other variables should not have a locator starting with `z`). This can be done bu using the method `setLocator` of the `Db` object containing the data. If several variables with `z` locators are present in the `Db`, then cross-variograms between are also computed (this subject will be covered in the course on multivariate analysis). 
+
+In the next example, we compute an experimental variogram with $40$ lags separated by a distance $10$ (meaning that we take $h =10i$ for $i=0, ..., 39$), and consider a tolerance $\tau = 10\%$ for the variogram computations. We use the `Db` `dat`, and select the variable `January_temp` as our variable of interest (by setting its locator to "z").
+</md-block>
+----
+
+
+#NO_DIFF#XXX
+----
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     1.020
+
+Direction #1
+------------
+Number of lags              = 40
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =     10.000
+Tolerance on distance       =     10.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     2.000     0.141     0.002
+         1    12.000     9.973     0.129
+         2    31.000    20.131     0.270
+         3    48.000    30.003     0.470
+         4    61.000    40.019     0.599
+         5    72.000    50.011     0.582
+         6    82.000    59.995     0.586
+         7    77.000    69.926     0.907
+         8    92.000    80.027     0.899
+         9    96.000    89.985     0.980
+        10    96.000   100.013     0.856
+        11    96.000   109.991     0.905
+        12    95.000   120.064     1.013
+        13    69.000   129.945     1.247
+        14   101.000   139.943     1.001
+        15    98.000   150.020     0.942
+        16    80.000   159.974     1.022
+        17    81.000   170.051     1.330
+        18    75.000   179.943     1.058
+        19    85.000   189.976     1.185
+        20    78.000   200.100     0.957
+        21    73.000   210.005     1.117
+        22    68.000   220.027     1.685
+        23    78.000   230.014     1.405
+        24    49.000   239.927     1.406
+        25    48.000   250.034     1.248
+        26    34.000   260.056     1.364
+        27    39.000   269.806     1.728
+        28    28.000   279.716     1.308
+        29    40.000   289.998     1.223
+        30    29.000   299.826     0.981
+        31    19.000   310.007     1.461
+        32    18.000   319.904     1.154
+        33    13.000   330.008     1.329
+        34    12.000   340.078     1.396
+        35    19.000   349.855     1.428
+        36    11.000   359.903     1.128
+        37    13.000   370.069     0.959
+        38     9.000   379.623     0.629
+        39     7.000   389.619     0.731----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      1.123
+- Range        =    129.766
+Total Sill     =      1.123
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
+  -2 -     UNKNOWN : Unknown covariance
+   -1 -    FUNCTION : External covariance function
+    0 -      NUGGET : Nugget effect
+    1 - EXPONENTIAL : Exponential
+    2 -   SPHERICAL : Spherical
+    3 -    GAUSSIAN : Gaussian
+    4 -       CUBIC : Cubic
+    5 -     SINCARD : Sine Cardinal
+    6 -    BESSEL_J : Bessel J
+    7 -    BESSEL_K : Bessel K
+    8 -       GAMMA : Gamma
+    9 -      CAUCHY : Cauchy
+   10 -      STABLE : Stable
+   11 -      LINEAR : Linear
+   12 -       POWER : Power
+   13 -   ORDER1_GC : First Order Generalized covariance
+   14 -   SPLINE_GC : Spline Generalized covariance
+   15 -   ORDER3_GC : Third Order Generalized covariance
+   16 -   ORDER5_GC : Fifth Order Generalized covariance
+   17 -     COSINUS : Cosine
+   18 -    TRIANGLE : Triangle
+   19 -      COSEXP : Cosine Exponential
+   20 -       REG1D : 1-D Regular
+   21 -       PENTA : Pentamodel
+   22 -  SPLINE2_GC : Order-2 Spline
+   23 -     STORKEY : Storkey covariance in 1-D
+   24 -   WENDLAND0 : Wendland covariance (2,0)
+   25 -   WENDLAND1 : Wendland covariance (3,1)
+   26 -   WENDLAND2 : Wendland covariance (4,2)
+   27 -      MARKOV : Markovian covariances
+ ----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      0.371
+- Range        =     58.088
+Spherical
+- Sill         =      0.904
+- Range        =    237.071
+Total Sill     =      1.275
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.001
+Cubic
+- Sill         =      0.115
+- Range        =     20.000
+Spherical
+- Sill         =      0.989
+- Range        =    144.544
+Total Sill     =      1.104
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.001
+Cubic
+- Sill         =      0.400
+- Range        =   1000.000
+Spherical
+- Sill         =      0.994
+- Range        =    112.870
+Total Sill     =      1.395
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Directional Variogram**
+
+The experimental directional variogram $\gamma$ is a  function defined as
+$$\gamma(\theta,h)=\frac{1}{2\vert N(\theta, h)\vert}\sum_{(i,j) \in N(\theta, h)}\big\vert z(x_i)-z(x_j)\big\vert^2, \quad 0^{\circ}\le \theta <360^{\circ}, \quad h\ge 0$$
+
+where $N(\theta, h)$ is set of all pairs of data points separated by a vector of size $h$ and along the direction $\theta$ (in degrees):
+$$ N(\theta, h) = \bigg\lbrace (i,j) : \Vert x_j-x_i\Vert = h \quad\text{and the vector } \vec{u}=(x_j-x_i) \text{ is along the direction } \theta\bigg\rbrace_{1\le i\le j\le n},$$
+
+In practice, when computing $\gamma(\theta, h)$, we once gain consider a tolerance $\tau$ on the separation distance $h$, and also consider a tolerance $\eta>0$ is also considered for the direction angle. In other words, $N(h)$ is replaced by
+ $$\widehat N(\theta, h) = \bigg\lbrace (i,j) : (1-\tau)h \le \Vert x_j-x_i\Vert \le (1+\tau) h \quad\text{and the vector } \vec{u}=(x_j-x_i) \text{ is along the direction } \theta \pm \eta \bigg\rbrace_{1\le i\le j\le n},$$
+ 
+ Much like their isotropic counterparts, experimental directional variograms are computed as `Vario` objects, which can be created from he `VarioParam` object (containing the parameters of the variogram) and a `Db` containing the data points. 
+
+This time, the `VarioParam` object is created using the function `VarioParam_createMultiple`. There, we specify the number $K$ of directions $\theta$ for which we wish to compute the an experimental variogram (argument `ndir`), as well as the reference angle $\theta_0$ of the first direction (argument `angref`, default = $0$) so that the directions $\theta$ = $\theta_0 + i(180/K)$ for $i=0,..., K-1$ are considered. We can also specify the number of lags $h$ for which the experimental variogram is computed (argument `npas`), and the distance between these lags (argument `npas`), as well as the tolerance $\tau$ on the lags (argument `toldis`). Then, the experimental variogram is computed just as in the isotropic case.
+
+Note: When initializing the `VarioParam` object as described above, the angle tolerance $\eta$ is automatically set to $\eta = (90/K)$, meaning that we span the set of possible directions.
+
+In the following example, we create an experimental variogram in the $4$ directions $\theta = 0^{\circ}, 45^{\circ}, 90^{\circ}, 135^{\circ}$.</md-block>
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Variogram Map**
+
+The experimental variogram map is a map centered at the origin, which represents the value of experimental directional variogram across all directions $0^{\circ} \le \theta< 360^{\circ}$.
+
+To compute an experimental variogram map, we use the function `db_vmap` which we supply with the `Db` containing the data. The output is a `Db` containing a grid representing the variogram map values.</md-block>
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.251
+Cubic
+- Sill         =      0.949
+- Ranges       =    154.810   215.452
+- Angles       =    154.991     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.906     0.423
+     [  1,]    -0.423     0.906
+Total Sill     =      1.200
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
