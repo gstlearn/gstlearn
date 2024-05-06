@@ -83,3 +83,17 @@ jobs:
       with:
         name: msys-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/msys-logs.zip
+
+    - name: Compress neutral files
+      if: always()
+      run: |
+        cd $HOME/gstlearn_dir
+        find . -type f -name "*.*" -print0 | tar -czvf rtools-neutral.tar.gz --null -T -
+        mv rtools-neutral.tar.gz ${{github.workspace}}/
+  
+    - name: Publish output neutral files as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: rtools-neutral-files
+        path: ${{github.workspace}}/rtools-neutral.tar.gz
