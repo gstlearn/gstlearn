@@ -107,12 +107,12 @@ jobs:
       run: |
         cd $HOME/gstlearn_dir
         find . -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
-        mv ubuntu-neutral.tar.gz ${{env.BUILD_DIR}}/
+        mv ubuntu-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output neutral files as artefact
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-neutral-files
-        path: ${{env.BUILD_DIR}}/ubuntu-neutral.tar.gz
+        path: ${{github.workspace}}/ubuntu-neutral.tar.gz
 
