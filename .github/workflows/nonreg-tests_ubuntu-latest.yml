@@ -105,8 +105,8 @@ jobs:
     - name: Compress neutral files
       if: always()
       run: |
-        cd $HOME/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf ${{env.BUILD_DIR}}/ubuntu-neutral.tar.gz --null -T -
+        cd ${{env.BUILD_DIR}}
+        find . -type f -name "$HOME/gstlearn_dir/*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
         ls ${{env.BUILD_DIR}}
 
     - name: Publish output neutral files as artefact
