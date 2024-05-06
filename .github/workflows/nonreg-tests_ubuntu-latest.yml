@@ -106,8 +106,7 @@ jobs:
       if: always()
       run: |
         cd ${{env.BUILD_DIR}}
-        find . -type f -name "$HOME/gstlearn_dir/*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
-        ls ${{env.BUILD_DIR}}
+        find $HOME/gstlearn_dir -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
 
     - name: Publish output neutral files as artefact
       if: always()
