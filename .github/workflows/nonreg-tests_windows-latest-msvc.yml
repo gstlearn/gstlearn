@@ -100,12 +100,16 @@ jobs:
       if: always()
       run: |
         cd $HOME/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf msvc-neutral.tar.gz --null -T -
-        mv msvc-neutral.tar.gz ${{github.workspace}}/
+        Get-ChildItem -Recurse -Filter '*.*' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > neutral.txt
+        foreach ($filename in Get-Content .\neutral.txt)
+        {
+            Compress-Archive -Update $filename .\msvc-neutral.zip
+        }
+        Move-Item -Path msvc-neutral.zip -Destination ${{github.workspace}}
   
     - name: Publish output neutral files as artefact
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: msvc-neutral-files
-        path: ${{github.workspace}}/msvc-neutral.tar.gz
+        path: ${{github.workspace}}/msvc-neutral.zip
