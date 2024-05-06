@@ -110,6 +110,7 @@ jobs:
       run: |
         cd $HOME/gstlearn_dir
         find . -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
+        ls $HOME/gstlearn_dir/
 
     - name: Publish output neutral files as artefact
       if: always()
@@ -117,4 +118,4 @@ jobs:
       with:
         name: ubuntu-neutral-files
         path: $HOME/gstlearn_dir/ubuntu-neutral.tar.gz
-          
+
