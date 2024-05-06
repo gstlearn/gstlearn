@@ -102,3 +102,10 @@ jobs:
         name: ubuntu-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
       
+    - name: Publish output neutral files as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-neutral-files
+        path: $HOME/gstlearn_dir
+          
