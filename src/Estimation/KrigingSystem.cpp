@@ -464,17 +464,28 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
  */
 double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 {
-  double value = 0.;
+  if (_nfeq > 0) return 0.;
+
   if (_flagNoMatLC || flagLHS)
   {
-    value = _model->getMean(ivar);
+    double mean = _model->getMean(ivar);
+    if (_flagBayes)
+      mean = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
+    return mean;
   }
   else
   {
+    double value = 0.;
     for (int jvar = 0; jvar < _nvar; jvar++)
-      value += _matLC->getValue(ivar,jvar) * _model->getMean(jvar);
+    {
+      double mean = _model->getMean(jvar);
+      if (_flagBayes)
+        mean = _model->evalDriftVarCoef(_dbout, _iechOut, jvar, _postMean);
+      value += _matLC->getValue(ivar,jvar) * mean;
+    }
+    return value;
   }
-  return value;
+  return TEST;
 }
 
 double KrigingSystem::_getDriftCL(int ivar, int il, int ib) const
@@ -1221,8 +1232,7 @@ void KrigingSystem::_wgtDump(int status)
 
     /* Loop on the samples */
 
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      sum[ivarCL] = 0.;
+    sum.fill(0.);
     for (int iech = 0; iech < _nech; iech++, lec++)
     {
       int flag_value = (! _flag.empty()) ? _flag[lec] : 1;
@@ -1312,36 +1322,28 @@ void KrigingSystem::_simulateCalcul(int status)
     for (int ivar = 0; ivar < _nvar; ivar++, ecr++)
     {
       double simu = 0.;
-      if (_nfeq <= 0) simu = _getMean(ivar);
 
       if (status == 0)
       {
         if (_flagBayes)
           simu = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
-        int lec = ivar * _nred;
+        int lec = 0;
         for (int jvar = 0; jvar < _nvar; jvar++)
           for (int iech = 0; iech < _nech; iech++)
           {
             int jech = _nbgh[iech];
 
-            double mean = 0.;
-            if (_nfeq <= 0) mean = _getMean(jvar);
-            if (_flagBayes)
-              mean = _model->evalDriftVarCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
-            double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
-            if (! FFFF(data))
-              simu -= _wgt.getValue_(lec++,0) * (data + mean);
-          }
+            // Get the simulated difference at data point (Simu - Data)
+            double diff = _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
+            if (FFFF(diff)) continue;
 
-        if (OptDbg::query(EDbg::KRIGING))
-        {
-          double value = _dbout->getArray(_iechOut, _iptrEst + ecr);
-          message("Non-conditional simulation #%d = %lf\n", isimu + 1, value);
-          message("Kriged difference = %lf\n", -simu);
-          message("Conditional simulation #%d = %lf\n", isimu + 1,
-                  value + simu);
-        }
+            // Get the kriging weight
+            double wgt = _wgt.getValue_(lec++,ivar);
+
+            // Calculate the Kriging of simulated differences: -sum {wgt * diff}
+            simu -= wgt * diff;
+          }
       }
       else
       {
@@ -1476,8 +1478,7 @@ void KrigingSystem::_estimateCalculImage(int status)
 
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
-    double estim = 0.;
-    if (_nfeq <= 0) estim = _getMean(ivar);
+    double estim = _getMean(ivar);
 
     if (status == 0)
     {
@@ -1499,7 +1500,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           }
           else
           {
-            if (_nfeq <= 0) data -= _getMean(jvar, true);
+            data -= _getMean(jvar, true);
             estim += data * _wgt.getValue_(ecr++,0);
           }
         }
@@ -1532,8 +1533,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 
     /* Perform the estimation */
 
-    double valest = 0.;
-    if (_nfeq <= 0) valest = _getMean(0, true);
+    double valest = _getMean(0, true);
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
@@ -1634,12 +1634,7 @@ void KrigingSystem::_estimateEstim(int status)
 
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
   {
-    double estim0 = 0.;
-    if (_nfeq <= 0)
-      estim0 = _getMean(ivarCL);
-    if (_flagBayes)
-      estim0 = _model->evalDriftVarCoef(_dbout, _iechOut, ivarCL, _postMean);
-
+    double estim0 = _getMean(ivarCL);
     if (status == 0)
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, _results.getValue_(ivarCL,0) + estim0);
     else
@@ -1772,11 +1767,7 @@ void KrigingSystem::_dualCalcul()
     for (int iech = 0; iech < _nech; iech++)
     {
       if (! _getFLAG(iech, ivar)) continue;
-      double mean = 0.;
-      if (_nfeq <= 0)
-        mean = _getMean(ivar, true);
-      if (_flagBayes)
-        mean = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
+      double mean = _getMean(ivar, true);
       _zext.setValue_(ecr, 0, _getIvar(_nbgh[iech], ivar) - mean);
       ecr++;
     }

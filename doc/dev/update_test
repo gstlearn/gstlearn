@@ -22,48 +22,62 @@ set nametest = $argv[2]
 set option = "Release"
 
 if ($name1 == "data") then
-		set direcref = $nametest
+		set directref = $nametest
 		set directest = $nametest
+		set directaux = $nametest
 		set nameref = "Result.ref"
 		set namecmp = "Result.out"
 endif
 if ($name1 == "cpp") then
-		set direcref = "output"
+		set directref = "output"
 		set directest = ""
+		set directaux = "myoutput"
 		set nametest = `basename $nametest .cpp`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 if ($name1 == "py") then
-		set direcref = "output"
+		set directref = "output"
 		set directest = ""
+		set directaux = "myoutput"
 		set nametest = `basename $nametest .py`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 if ($name1 == "r") then
-		set direcref = "output"
+		set directref = "output"
 		set directest = ""
+		set directaux = "myoutput"
 		set nametest = `basename $nametest .r`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 if ($name1 == "ipynb") then
-		set direcref = "output"
+		set directref = "output"
 		set directest = ""
+		set directaux = "myoutput"
 		set nametest = `basename $nametest .ipynb`
 		set nameref = $nametest.asciidoc
 		set namecmp = $nametest.asciidoc
 endif
 if ($name1 == "rmd") then
-		set direcref = "output"
+		set directref = "output"
 		set directest = ""
+		set directaux = "myoutput"
 		set nametest = `basename $nametest .Rmd`
 		set nameref = $nametest.out
 		set namecmp = $nametest.out
 endif
 
-set FILEREF = $DIR/tests/$name1/$direcref/$nameref
+set FILEREF = $DIR/tests/$name1/$directref/$nameref
+set FILEAUX = $DIR/tests/$name1/$directaux/$nameref
+set FILETMP = $FILEREF
+if (-e $FILEAUX) then
+	set FILETMP = $FILEAUX
+	echo ">>> Using non-standard reference for :" $nameref
+endif
+echo $FILETMP
+
 set FILECMP = $DIR/build/tests/$name1/$option/$directest/$namecmp
 
-cp $FILECMP $FILEREF
+cp $FILECMP $FILETMP
