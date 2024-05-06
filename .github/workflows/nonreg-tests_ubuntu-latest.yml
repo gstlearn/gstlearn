@@ -101,4 +101,18 @@ jobs:
       with:
         name: ubuntu-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
-      
+
+    - name: Compress neutral files
+      if: always()
+      run: |
+        cd $HOME/gstlearn_dir
+        find . -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
+        mv ubuntu-neutral.tar.gz ${{github.workspace}}/
+
+    - name: Publish output neutral files as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-neutral-files
+        path: ${{github.workspace}}/ubuntu-neutral.tar.gz
+

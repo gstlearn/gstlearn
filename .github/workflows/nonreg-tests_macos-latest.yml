@@ -97,3 +97,17 @@ jobs:
       with:
         name: macos-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/macos-logs.tar.gz
+
+    - name: Compress neutral files
+      if: always()
+      run: |
+        cd $HOME/gstlearn_dir
+        find . -type f -name "*.*" -print0 | tar -czvf macos-neutral.tar.gz --null -T -
+        mv macos-neutral.tar.gz ${{github.workspace}}/
+  
+    - name: Publish output neutral files as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-neutral-files
+        path: ${{github.workspace}}/macos-neutral.tar.gz
