@@ -83,9 +83,6 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name: ls HOME
-      run: ls $HOME
-
     - name: Configure CMake
       run: cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
@@ -109,13 +106,13 @@ jobs:
       if: always()
       run: |
         cd $HOME/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
-        ls $HOME/gstlearn_dir/
+        find . -type f -name "*.*" -print0 | tar -czvf ${{env.BUILD_DIR}}/ubuntu-neutral.tar.gz --null -T -
+        ls ${{env.BUILD_DIR}}
 
     - name: Publish output neutral files as artefact
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-neutral-files
-        path: $HOME/gstlearn_dir/ubuntu-neutral.tar.gz
+        path: ${{env.BUILD_DIR}}/ubuntu-neutral.tar.gz
 
