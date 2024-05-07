@@ -243,7 +243,7 @@ neigh = NeighUnique()
                namconv = NamingConvention("kriging"))
 
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
-               flag_est = TRUE, flag_std = FALSE, flag_varz = FALSE, 
+               flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
 
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
@@ -354,7 +354,7 @@ neigh = NeighUnique()
                namconv = NamingConvention("kriging"))
 
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
-               flag_est = TRUE, flag_std = FALSE, flag_varz = FALSE, 
+               flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
 
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,

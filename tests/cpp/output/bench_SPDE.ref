@@ -1,24 +1,28 @@
 Use of Eigen Library = 1
-#NO_DIFF# Establishing S: 104 ms. (Ref = 150 ms.)
-#NO_DIFF# Kriging.NoChol1: 689 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.NoChol1: 3576 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.NoChol1: 6435 ms. (Ref = 3130 ms.)
-#NO_DIFF# Kriging.Chol1: 268 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.Chol1: 1293 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.Chol1: 1697 ms. (Ref = 3130 ms.)
-#NO_DIFF# Establishing S: 109 ms. (Ref = 150 ms.)
-#NO_DIFF# Establishing S: 106 ms. (Ref = 150 ms.)
-#NO_DIFF# Kriging.NoChol2: 689 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.NoChol2: 3215 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.NoChol2: 8453 ms. (Ref = 3130 ms.)
-#NO_DIFF# Kriging.Chol2: 462 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.Chol2: 1895 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.Chol2: 3322 ms. (Ref = 3130 ms.)
+#NO_DIFF# Establishing S: 123 ms. (Ref = 150 ms.)
+#NO_DIFF# Kriging.NoChol1: 6262 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.NoChol1: 1800 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.NoChol1: 5939 ms. (Ref = 3130 ms.)
+#NO_DIFF# Kriging.Chol1: 1813 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.Chol1: 1134 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.Chol1: 1752 ms. (Ref = 3130 ms.)
+#NO_DIFF# Establishing S: 100 ms. (Ref = 150 ms.)
+#NO_DIFF# Establishing S: 99 ms. (Ref = 150 ms.)
+#NO_DIFF# Kriging.NoChol2: 9199 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.NoChol2: 2985 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.NoChol2: 8836 ms. (Ref = 3130 ms.)
+#NO_DIFF# Kriging.Chol2: 2943 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.Chol2: 1760 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.Chol2: 2870 ms. (Ref = 3130 ms.)
                            Minimum    Maximum       Mean   St. Dev.
 Kriging.NoChol1.z.estim      -3.23       1.70      -0.28       0.52
+Kriging.NoChol1.z.stdev       0.00       1.76       0.26       0.38
 Kriging.Chol1.z.estim        -3.23       1.70      -0.28       0.52
+Kriging.Chol1.z.stdev         0.00       1.58       0.26       0.37
 Kriging.NoChol2.z.estim      -3.27       1.31      -0.34       0.54
+Kriging.NoChol2.z.stdev       0.00       2.09       0.31       0.48
 Kriging.Chol2.z.estim        -3.27       1.31      -0.34       0.54
+Kriging.Chol2.z.stdev         0.00       2.10       0.32       0.48
 Simu.NC.NoChol1.1            -3.57       3.10      -0.22       1.04
 Simu.NC.NoChol1.2            -3.22       2.63      -0.08       0.98
 Simu.NC.NoChol1.3            -3.64       3.17       0.03       0.98

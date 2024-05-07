@@ -14,8 +14,9 @@
 
 #define ENUM_SPDE_CALC_MODE ESPDECalcMode, KRIGING, \
                             KRIGING,      0,  "Kriging", \
-                            SIMUCOND,     1,  "Conditional simulations", \
-                            SIMUNONCOND,  2,  "Non conditional simulations", \
-                            LIKELIHOOD,   3,  "Likelihood computations"
+                            KRIGVAR,      1,  "Kriging and St. Dev;", \
+                            SIMUCOND,     2,  "Conditional simulations", \
+                            SIMUNONCOND,  3,  "Non conditional simulations", \
+                            LIKELIHOOD,   4,  "Likelihood computations"
 
 ENUM_DECLARE(ENUM_SPDE_CALC_MODE)

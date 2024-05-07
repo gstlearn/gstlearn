@@ -1138,6 +1138,29 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
   }
 }
 
+/**
+ * Performs: veca += vecb**2
+ * @param dest Input/Output vector
+ * @param src Auxiliary vector
+ */
+void VectorHelper::addSquareInPlace(VectorDouble &dest, const VectorDouble &src)
+{
+  if (dest.size() != src.size())
+  {
+    messerr("Arguments 'dest' and 'src' should have the same dimension. Nothing is done");
+    return;
+  }
+
+  VectorDouble::iterator itd(dest.begin());
+  VectorDouble::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd += (*its) * (*its);
+    itd++;
+    its++;
+  }
+}
+
 void VectorHelper::addInPlace(const VectorDouble &veca,
                               const VectorDouble &vecb,
                               VectorDouble &res,
@@ -1408,6 +1431,37 @@ void VectorHelper::addConstant(VectorInt &vec, int v)
 {
   std::for_each(vec.begin(), vec.end(), [v](int &d)
   { d += v;});
+}
+
+void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
+                                        const VectorDouble &mean2,
+                                        VectorDouble &std,
+                                        int number)
+{
+  int size = (int) mean1.size();
+  if ((int) mean2.size() != size)
+  {
+    messerr("Arguments 'mean1'(%d) and 'mean2'(%d) should have same dimension",
+            size, (int) mean2.size());
+    return;
+  }
+  if ((int) std.size() != size)
+  {
+    messerr("Arguments 'mean1'(%d) and 'std'(%d) should have same dimension",
+            size, (int) std.size());
+    return;
+  }
+
+  for (int i = 0; i < size; i++)
+  {
+    if (FFFF(mean1[i] || FFFF(mean2[i])))
+      std[i] = TEST;
+    else
+    {
+      double value = (mean2[i] - mean1[i] * mean1[i]) / (double) number;
+      std[i] = (value > 0) ? sqrt(value) : 0.;
+    }
+  }
 }
 
 VectorDouble VectorHelper::power(const VectorDouble &vec, double power)
