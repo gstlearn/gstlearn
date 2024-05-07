@@ -564,19 +564,6 @@ int SPDE::compute(Db *dbout,
     namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
                                 "", ncols);
   }
-
-  if (_calcul == ESPDECalcMode::LIKELIHOOD)
-  {
-    result.fill(0.);
-    _computeLk();
-    for(int icov = 0, ncov = (int) _meshingKrig.size() ; icov < ncov; icov++)
-      _projecLocal(dbout, _meshingKrig[icov], _workingKrig[icov], result);
-    _addDrift(dbout, result);
-    dbout->setColumnByUID(result, iptr, useSel);
-    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
-                                "likelihood", ncols);
-  }
-
   return iptr;
 }
 
@@ -609,8 +596,7 @@ bool SPDE::_isKrigingRequested() const
 {
   return _calcul == ESPDECalcMode::SIMUCOND
       || _calcul == ESPDECalcMode::KRIGING
-      || _calcul == ESPDECalcMode::KRIGVAR
-      || _calcul == ESPDECalcMode::LIKELIHOOD;
+      || _calcul == ESPDECalcMode::KRIGVAR;
 }
 
 double SPDE::computeLogDet(int nbsimu,int seed) const
@@ -664,6 +650,42 @@ double SPDE::_computeLogLike(int nbsimu, int seed) const
  */
 double SPDE::computeLogLike(int nbsimu, int seed) const
 {
+  VectorDouble dataVect;
+  bool useSel = true;
+  int ivar = 0;
+
+  // Preliminary checks
+  if (_isKrigingRequested())
+  {
+    if (_data == nullptr)
+    {
+      messerr("For this calculation option, you must define some Data");
+      return 1;
+    }
+    if (_data->getLocNumber(ELoc::Z) != 1)
+    {
+      messerr("The Input dbin must contain ONE variable (Z locator)");
+      return 1;
+    }
+  }
+
+  if (_isKrigingRequested())
+    _precisionsKrig->makeReady();
+
+  // Preliminary tasks
+  if (_data != nullptr)
+  {
+    dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
+    // Suppress any TEST value and center by the drift
+    dataVect = VH::suppressTest(dataVect);
+    _centerByDrift(dataVect,ivar,useSel);
+  }
+
+  // Dispatch
+
+  _workingData = _workingDataInit;
+  _computeKriging();
+
   // we assume that covariance parameters have changed when using this function:
   // so driftCoeffs have to be recomputed
   _isCoeffsComputed = false;
@@ -783,4 +805,19 @@ int simulateSPDE(Db *dbin,
   SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
             showStats);
   return spde.compute(dbout, nbsimu, seed, namconv);
+}
+
+double logLikelihoodSPDE(Db *dbin,
+                         Db *dbout,
+                         Model *model,
+                         const AMesh *mesh,
+                         int useCholesky,
+                         int nbsimu,
+                         int seed,
+                         SPDEParam params,
+                         bool verbose)
+{
+  SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
+            params, verbose, false);
+  return spde.computeLogLike(nbsimu, seed);
 }

@@ -141,13 +141,11 @@ spde = SPDE_create(model, domain = gridExt, calcul = ESPDECalcMode_SIMUNONCOND()
 
 Possible values for the *calcul* parameter are:
 
-* **KRIGING** for "Kriging",
+* **KRIGING** for "Kriging or Likelihood",
 
 * **SIMUCOND** for "Conditional simulations",
 
 * **SIMUNONCOND** for "Non conditional simulations",
-
-* **LIKELIHOOD** for "Likelihood computations"
 
 # Non conditional simulations
 
