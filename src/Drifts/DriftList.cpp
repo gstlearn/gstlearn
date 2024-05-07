@@ -431,17 +431,19 @@ bool DriftList::hasExternalDrift() const
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
  *****************************************************************************/
-VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
+MatrixRectangular DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
 {
   int nvar = getNVariables();
   int nbfl = getDriftNumber();
   int nfeq = getDriftEquationNumber();
-  int nech = db->getSampleNumber();
-  VectorDouble drfmat(nech * nvar * nfeq * nvar, 0.);
+  int nech = db->getSampleNumber(true);
+  int nrows = nech * nvar;
+  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  MatrixRectangular drfmat(nrows, ncols);
 
   /* Loop on the variables */
 
-  int ecr = 0;
+  int irow = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
 
@@ -454,11 +456,13 @@ VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
 
       /* Loop on the drift functions */
 
+      int icol = 0;
       if (isFlagLinked())
       {
         for (int ib = 0; ib < nfeq; ib++)
         {
-          drfmat[ecr++] = evalDriftValue(ivar, ib, drftab);
+          drfmat.setValue(irow, icol, evalDriftValue(ivar, ib, drftab));
+          icol++;
         }
       }
       else
@@ -467,9 +471,11 @@ VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
           for (int jl = 0; jl < nbfl; jl++)
           {
             int jb = jvar + nvar * jl;
-            drfmat[ecr++] = evalDriftValue(ivar, jb, drftab);
+            drfmat.setValue(irow, icol, evalDriftValue(ivar, jb, drftab));
+            icol++;
           }
       }
+      irow++;
     }
   }
   return 0;

@@ -17,6 +17,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 class ASpace;
 class SpacePoint;
@@ -120,7 +121,7 @@ public:
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
-  VectorDouble evalDriftMat(const Db *db, const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMat(const Db *db, const ECalcMember &member = ECalcMember::fromKey("LHS"));
   double evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const;
 
 private:

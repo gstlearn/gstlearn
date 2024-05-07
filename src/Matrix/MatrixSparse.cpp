@@ -242,7 +242,7 @@ int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
   return _factor->simulate(b, x);
 }
 
-double MatrixSparse::getCholeskyLogDeterminant()
+double MatrixSparse::computeCholeskyLogDeterminant()
 {
   if (_factor == nullptr)
     _factor = new Cholesky(this);

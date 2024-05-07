@@ -49,7 +49,7 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) cons
   DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
-  return _Q->getCholeskyLogDeterminant();
+  return _Q->computeCholeskyLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const

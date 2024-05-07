@@ -1000,9 +1000,9 @@ void Model::evalDriftVecInPlace(const Db *db,
   _driftList->evalDriftVecInPlace(db, iech, member, drftab);
 }
 
-VectorDouble Model::evalDriftMat(const Db *db, const ECalcMember &member) const
+MatrixRectangular Model::evalDriftMat(const Db *db, const ECalcMember &member) const
 {
-  if (_driftList == nullptr) return VectorDouble();
+  if (_driftList == nullptr) return MatrixRectangular();
   return _driftList->evalDriftMat(db, member);
 }
 
@@ -2304,3 +2304,30 @@ void Model::nostatUpdate(CovInternal *covint)
                     covint->getIcas2(), covint->getIech2());
 }
 
+double Model::computeLogLikelihood(Db* db, bool verbose)
+{
+  int nvar = db->getLocatorNumber(ELoc::Z);
+  if (nvar < 1)
+  {
+    messerr("The 'db' should have at least one variable defined");
+    return TEST;
+  }
+  if (! db->isAllIsotopic())
+  {
+    messerr("This method is only available for isotopic data set");
+    return TEST;
+  }
+
+  // Calculate the covariance matrix
+  MatrixSquareSymmetric cov = covMatrixMS(db);
+
+  // Cholesky decomposition (using Eigen library)
+  if (cov.choleskyDecompose())
+  {
+    messerr("Cholesky decomposition of Covariance matrix failed");
+    return TEST;
+  }
+  double logdet = 2. * cov.computeCholeskyLogDeterminant();
+
+  return TEST;
+}

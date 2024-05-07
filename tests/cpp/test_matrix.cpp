@@ -620,8 +620,15 @@ int main(int argc, char *argv[])
   const MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
 
-  // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
+  // Compute Log Det
+  (void) MEig->choleskyDecompose();
+  double logdet = 2. * MEig->computeCholeskyLogDeterminant();
+  message("Log-determinant = %lf\n", logdet);
 
+  double deter = MEig->determinant();
+  message("Log(determinant) = %lf\n", log(deter));
+
+  // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
   mestitle(0,"Cholesky Decomposition for Sparse matrices");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
 
@@ -658,8 +665,8 @@ int main(int argc, char *argv[])
 
   // Log Determinant
 
-  message("Log Determinant (Eigen Library) = %lf\n",    MSEig->getCholeskyLogDeterminant());
-  message("Log Determinant (No Eigen Library) = %lf\n", MSNoEig->getCholeskyLogDeterminant());
+  message("Log Determinant (Eigen Library) = %lf\n",    MSEig->computeCholeskyLogDeterminant());
+  message("Log Determinant (No Eigen Library) = %lf\n", MSNoEig->computeCholeskyLogDeterminant());
 
   // Product by Diagonal built from a vector
 

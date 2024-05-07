@@ -37,7 +37,8 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
       _flagCholeskyDecompose(false),
       _flagCholeskyInverse(false),
       _tl(),
-      _xl()
+      _xl(),
+      _factor()
 {
   _allocate();
 }
@@ -48,7 +49,8 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r)
    _flagCholeskyDecompose(r._flagCholeskyDecompose),
    _flagCholeskyInverse(r._flagCholeskyInverse),
    _tl(),
-   _xl()
+   _xl(),
+   _factor()
 {
   _recopyLocal(r);
 }
@@ -59,7 +61,8 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
       _flagCholeskyDecompose(false),
       _flagCholeskyInverse(false),
       _tl(),
-      _xl()
+      _xl(),
+      _factor()
 {
   // TODO: clean this code or move it upwards
   if (!m.isSymmetric())
@@ -385,6 +388,7 @@ void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
   _flagCholeskyDecompose = r._flagCholeskyDecompose;
   _flagCholeskyInverse   = r._flagCholeskyInverse;
   _flagEigenDecompose    = r._flagEigenDecompose;
+  _factor                = r._factor;
 }
 
 double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
@@ -933,33 +937,56 @@ int MatrixSquareSymmetric::getTriangleSize() const
  *****************************************************************************/
 int MatrixSquareSymmetric::choleskyDecompose()
 {
-  int neq = getNRows();
-  _tl.resize(getTriangleSize());
   _flagCholeskyDecompose = false;
-
-  for (int ip = 0; ip < neq; ip++)
-    for (int jp = 0; jp <= ip; jp++)
-      _TL(ip,jp) = getValue(ip,jp);
-
-  for (int ip = 0; ip < neq; ip++)
+  if (isFlagEigen())
   {
-    double prod = _TL(ip, ip);
-    for (int kp = 0; kp < ip; kp++)
-      prod -= _TL(ip,kp) * _TL(ip,kp);
-    if (prod < 0.) return 1;
-    _TL(ip,ip) = sqrt(prod);
+    _factor = _eigenMatrix.llt();
+  }
+  else
+  {
+    int neq = getNRows();
+    _tl.resize(getTriangleSize());
 
-    for (int jp = ip + 1; jp < neq; jp++)
+    for (int ip = 0; ip < neq; ip++)
+      for (int jp = 0; jp <= ip; jp++)
+        _TL(ip,jp)= getValue(ip,jp);
+
+    for (int ip = 0; ip < neq; ip++)
     {
-      prod = _TL(jp, ip);
+      double prod = _TL(ip, ip);
       for (int kp = 0; kp < ip; kp++)
-        prod -= _TL(ip,kp) * _TL(jp,kp);
-      if (_TL(ip,ip)<= 0.) return 1;
-      _TL(jp,ip) = prod / _TL(ip,ip);
+        prod -= _TL(ip,kp)* _TL(ip,kp);
+      if (prod < 0.) return 1;
+      _TL(ip,ip)= sqrt(prod);
+
+      for (int jp = ip + 1; jp < neq; jp++)
+      {
+        prod = _TL(jp, ip);
+        for (int kp = 0; kp < ip; kp++)
+          prod -= _TL(ip,kp)* _TL(jp,kp);
+        if (_TL(ip,ip)<= 0.) return 1;
+        _TL(jp,ip)= prod / _TL(ip,ip);
+      }
     }
   }
   _flagCholeskyDecompose = true;
   return 0;
+}
+
+double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
+{
+  if (! isFlagEigen())
+  {
+    messerr("LogDet from Cholesky is only coded for Eigen library");
+    return TEST;
+  }
+  if (! _checkCholeskyAlreadyPerformed(1)) return TEST;
+
+  auto diag = _factor.matrixLLT().diagonal();
+  double det = 0.;
+  for (int i = 0; i < _factor.rows(); i++)
+    det += log(diag[i]);
+  return det;
 }
 
 bool MatrixSquareSymmetric::_checkCholeskyAlreadyPerformed(int status) const

@@ -520,8 +520,8 @@ public:
                                    const VectorDouble &coeffs,
                                    int ivar = 0,
                                    bool useSel = false) const;
-  VectorDouble evalDriftMat(const Db *db,
-                            const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
+  MatrixRectangular evalDriftMat(const Db *db,
+                                 const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -656,6 +656,8 @@ public:
                         double factor = 1.,
                         const CovCalcMode *mode = nullptr);
   void nostatUpdate(CovInternal *covint);
+
+  double computeLogLikelihood(Db* db, bool verbose = false);
 
 protected:
   /// Interface to ASerializable

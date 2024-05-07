@@ -97,7 +97,7 @@ public:
                                      const MatrixRectangular& aimat,
                                      const VectorDouble& bimat,
                                      VectorDouble& xmat);
-
+  double computeCholeskyLogDeterminant() const;
 
 private:
   /// Interface for AMatrix
@@ -201,4 +201,6 @@ private:
   bool _flagCholeskyInverse;
   VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
   VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
+
+  Eigen::LLT<Eigen::MatrixXd> _factor; // Cholesky decomposition (Eigen format)
 };

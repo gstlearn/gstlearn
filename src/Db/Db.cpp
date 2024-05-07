@@ -2443,6 +2443,19 @@ bool Db::isIsotopic(int iech, int nvar_max) const
   return true;
 }
 
+/**
+ * Check that all the active samples are isotopic
+ */
+bool Db::isAllIsotopic() const
+{
+  int nvar = getLocNumber(ELoc::Z);
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  {
+    if (! isIsotopic(iech)) return false;
+  }
+  return true;
+}
+
 bool Db::isAllUndefined(int iech) const
 {
   if (!isSampleIndexValid(iech)) return false;

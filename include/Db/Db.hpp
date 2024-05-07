@@ -491,6 +491,7 @@ public:
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
+  bool   isAllIsotopic() const;
 
   void   setInterval(int iech, int item, double rklow = TEST, double rkup = TEST);
   int    getIntervalNumber() const;

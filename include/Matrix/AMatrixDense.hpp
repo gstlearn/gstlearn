@@ -181,7 +181,7 @@ protected:
   VectorDouble         _eigenValues; // only when ! flag_eigen()
   MatrixSquareGeneral* _eigenVectors; // only when ! flag_eigen()
 
-private:
+protected:
 #ifndef SWIG
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 #endif

@@ -159,7 +159,7 @@ public:
   int    computeCholesky();
   int    solveCholesky(const VectorDouble& b, VectorDouble& x);
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
-  double getCholeskyLogDeterminant();
+  double computeCholeskyLogDeterminant();
 
   void   addValue(int row, int col, double value);
   double getValue(int row, int col) const;

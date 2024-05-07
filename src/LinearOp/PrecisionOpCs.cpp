@@ -139,7 +139,7 @@ double PrecisionOpCs::getLogDeterminant(int nbsimu, int seed)
   DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
-  return _Q->getCholeskyLogDeterminant();
+  return _Q->computeCholeskyLogDeterminant();
 }
 
 void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam, const EPowerPT& power)
