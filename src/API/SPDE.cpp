@@ -599,7 +599,7 @@ double SPDE::computeQuad() const
   return _precisionsKrig->computeQuadratic(_workingData);
 }
 
-double SPDE::computeLogLike(int nbsimu, int seed) const
+double SPDE::_computeLogLike(int nbsimu, int seed) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -614,13 +614,16 @@ double SPDE::computeLogLike(int nbsimu, int seed) const
   return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad());
 }
 
-double SPDE::computeProfiledLogLike(int nbsimu, int seed) const
+/**
+ * Calculate the Log-Likelihood profiling the Drift parameters
+ */
+double SPDE::computeLogLike(int nbsimu, int seed) const
 {
   // we assume that covariance parameters have changed when using this function:
   // so driftCoeffs have to be recomputed
   _isCoeffsComputed = false;
 
-  return computeLogLike(nbsimu,seed);
+  return _computeLogLike(nbsimu,seed);
 }
 
 void SPDE::_computeDriftCoeffs() const
