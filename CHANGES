@@ -4,7 +4,9 @@ This file contains the logs between consecutive releases
 
 Release 1.2.0
 =============
+- Adding calculation of variance of estimation error in SPDE
 - Updating internal procedures compare_test and update_test to allow personal reference files
+  (for any type of non-regression file)
 - Correcting the multivariate heterotopic conditional simulations
 - Improvements in the different Gibbs sampler versions + new tutorial
 - Function matrix_qoci() becomes MatrixSquareSymmetric::minimizeWithConstraintsInPlace()

@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, 2);
   int seed  = 123;
   int nsim  = 10;
+  int nbMC  = 10;
   int ndat  = 50;
   int nxref = 101;
   double matern_param = 1.0;
@@ -148,8 +149,8 @@ int main(int argc, char *argv[])
       {
         timer.reset();
         String namconv = "Kriging" + option + sncov;
-        (void) krigingSPDE(dat, grid, model, true, false, false, nullptr,
-                           useCholesky, SPDEParam(), verbose, showStats,
+        (void) krigingSPDE(dat, grid, model, true, true, nullptr,
+                           useCholesky, SPDEParam(), nbMC, 13243, verbose, showStats,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }

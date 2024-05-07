@@ -28,12 +28,17 @@ else
 		set ajout = ""
 endif
 
+set RADIX_FROM = $DIR/tests/$name1
+set RADIX_AUX  = $DIR/tests/$name1
+set RADIX_TO   = $DIR/build/tests/$name1
+
 if ($name1 == "data") then
 		set directref = $nametest
 		set directest = $nametest
 		set directaux = $nametest
 		set nameref = "Result.ref"
 		set namecmp = "Result.out"
+		set RADIX_AUX = $DIR/tests/data/myoutput
 endif
 if ($name1 == "cpp") then
 		set directref = "output"
@@ -76,15 +81,15 @@ if ($name1 == "rmd") then
 		set namecmp = $nametest.out
 endif
 
-set FILEREF = $DIR/tests/$name1/$directref/$nameref
-set FILEAUX = $DIR/tests/$name1/$directaux/$nameref
+set FILEREF = $RADIX_FROM/$directref/$nameref
+set FILEAUX = $RADIX_AUX/$directaux/$nameref
 set FILETMP = $FILEREF
 if (-e $FILEAUX) then
 	set FILETMP = $FILEAUX
-	echo ">>> Using non-standard reference for :" $nameref
+	echo ">>> Using non-standard reference"
 endif
 
-set FILECMP = $DIR/build/tests/$name1/$option/$directest/$namecmp
+set FILECMP = $RADIX_TO/$option/$directest/$namecmp
 
 if ($ajout == "full") then
 	diff -b $FILETMP $FILECMP --side | more

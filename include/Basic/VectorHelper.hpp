@@ -99,6 +99,7 @@ public:
   static void addInPlace(const VectorVectorDouble &in1,
                          const VectorVectorDouble &in2,
                          VectorVectorDouble &outv);
+  static void addSquareInPlace(VectorDouble &dest, const VectorDouble &src);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
   static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
@@ -121,6 +122,10 @@ public:
   static void copy(const VectorVectorDouble &inv, VectorVectorDouble &outv);
   static void addConstant(VectorDouble& vec, double v);
   static void addConstant(VectorInt& vec, int v);
+  static void mean1AndMean2ToStdev(const VectorDouble &mean1,
+                                   const VectorDouble &mean2,
+                                   VectorDouble &std,
+                                   int number);
 
   static void normalize(VectorDouble& vec);
   static void normalize(double *tab, int ntab);
