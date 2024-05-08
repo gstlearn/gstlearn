@@ -430,6 +430,10 @@ bool DriftList::hasExternalDrift() const
  ** \param[in]  db     Db structure
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
+ ** \remarks: The function can be used for monovariate of multivariate.
+ ** \remarks: It is based on the set of ACTIVE samples... but does not take
+ ** \remarks: heterotpy into account.
+ **
  *****************************************************************************/
 MatrixRectangular DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
 {
