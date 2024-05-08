@@ -2329,5 +2329,6 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   }
   double logdet = 2. * cov.computeCholeskyLogDeterminant();
 
-  return TEST;
+  // TODO: the returning value is not sufficient. It is a temporary version
+  return logdet;
 }

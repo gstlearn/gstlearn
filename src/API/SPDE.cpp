@@ -743,7 +743,7 @@ VectorDouble SPDE::getCoeffs()
  * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
  * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
  *
- * @remakrs Note that switching 'flag_std' to ON implies that 'flag_est' is ON.
+ * @remarks Note that switching 'flag_std' to ON implies that 'flag_est' is ON.
  */
 int krigingSPDE(Db *dbin,
                 Db *dbout,
