@@ -425,7 +425,7 @@ bool DriftList::hasExternalDrift() const
 /*!
  **  Establish the drift rectangular matrix for a given Db
  **
- ** \return Returned matrix as a VD (Dimension = nech * nvar * nfeq * nvar)
+ ** \return Returned matrix (Dimension/ nrows = nvar * nech; ncols = nfeq * nvar)
  **
  ** \param[in]  db     Db structure
  ** \param[in]  member Member of the Kriging System (ECalcMember)
