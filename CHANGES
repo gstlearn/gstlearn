@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.2.0
 =============
-- Adding calculation of Log-Likelihood in SPDE.
+- Adding calculation of Log-Likelihood in SPDE (still temporary version)
 - Adding calculation of variance of estimation error in SPDE
 - Updating internal procedures compare_test and update_test to allow personal reference files
   (for any type of non-regression file)
