@@ -941,6 +941,13 @@ int MatrixSquareSymmetric::computeCholesky()
   if (isFlagEigen())
   {
     _factor = _eigenMatrix.llt();
+    int neq = getNRows();
+
+    _tl.resize(getTriangleSize());
+    Eigen::MatrixXd mymat = _factor.matrixL();
+    for (int ip = 0; ip < neq; ip++)
+      for (int jp = 0; jp <= ip; jp++)
+        _TL(ip,jp) = mymat(ip,jp);
   }
   else
   {
