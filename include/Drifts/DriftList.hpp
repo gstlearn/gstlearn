@@ -77,6 +77,7 @@ public:
   ////////////////////////////////////////////////
 
   const VectorDouble& getDriftCL() const { return _driftCL; }
+  const VectorDouble& getBetaHat() const { return _betaHat; }
 
   /**
    *
@@ -107,6 +108,7 @@ public:
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
+  void setBetaHat(const VectorDouble &betaHat) { _betaHat = betaHat; }
 
   void updateDriftList();
 
@@ -137,6 +139,7 @@ protected:
   bool                 _flagLinked;
   VectorDouble         _driftCL;   /* Linear combination of Drift Coefficients */
   std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
+  VectorDouble         _betaHat;   /* Drift coefficients by ML */
   VectorBool           _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
   CovContext           _ctxt;      /* Context (space, number of variables, ...) */
 #endif

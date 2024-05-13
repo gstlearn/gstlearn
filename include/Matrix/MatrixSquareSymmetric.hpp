@@ -70,7 +70,12 @@ public:
   int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
                                 double maxicond = 1.e20,
                                 double eps = EPSILON20);
-  bool isDefinitePositive();
+  bool isDefinitePositive();  int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                                                 const MatrixRectangular& aemat,
+                                                                 const VectorDouble& bemat,
+                                                                 const MatrixRectangular& aimat,
+                                                                 const VectorDouble& bimat,
+                                                                 VectorDouble& xmat);
 
   // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
   // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
@@ -78,25 +83,21 @@ public:
   // This is temporarily ensured as a VectorDouble handelde within this class. It should probably
   // become a sperate class in the future.
   int getTriangleSize() const;
-  int choleskyDecompose();
-  int choleskyInvert();
+  int computeCholesky();
+  int invertCholesky();
+  int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
+  int solveCholesky(const VectorDouble& b, VectorDouble& x);
   VectorDouble getCholeskyTL() const;
   VectorDouble getCholeskyXL() const;
-  MatrixRectangular choleskyProductInPlace(int mode,
+  MatrixRectangular productCholeskyInPlace(int mode,
                                            int neq,
                                            int nrhs,
                                            const VectorDouble &tl,
                                            const MatrixRectangular &a);
-  MatrixSquareSymmetric choleskyNormInPlace(int mode,
+  MatrixSquareSymmetric normCholeskyInPlace(int mode,
                                             int neq,
                                             const VectorDouble &tl,
                                             const MatrixSquareSymmetric &a);
-  int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                     const MatrixRectangular& aemat,
-                                     const VectorDouble& bemat,
-                                     const MatrixRectangular& aimat,
-                                     const VectorDouble& bimat,
-                                     VectorDouble& xmat);
   double computeCholeskyLogDeterminant() const;
 
 private:

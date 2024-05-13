@@ -2448,7 +2448,6 @@ bool Db::isIsotopic(int iech, int nvar_max) const
  */
 bool Db::isAllIsotopic() const
 {
-  int nvar = getLocNumber(ELoc::Z);
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
     if (! isIsotopic(iech)) return false;
@@ -3388,7 +3387,6 @@ VectorDouble Db::getColumnsByLocator(const ELoc &locatorType,
 
 /**
  * Returns the contents of a set of Columns identified by their user-identified ranks
- *
  */
 VectorDouble Db::getColumnsByUID(const VectorInt &iuids,
                                  bool useSel,
@@ -3850,7 +3848,6 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString &names,
 
 /**
  * Returns the contents of the columns specified by their names
- *
  */
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
                                          bool useSel,

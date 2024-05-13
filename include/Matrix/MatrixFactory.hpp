@@ -72,13 +72,18 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
 {
   T* res = new T();
 
-  if (x->getNCols() != y->getNRows())
+  int nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
+  int nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
+  int nyrows = (! transposeY) ? y->getNRows() : y->getNCols();
+  int nycols = (! transposeY) ? y->getNCols() : y->getNRows();
+
+  if (nxcols != nyrows)
   {
     messerr("Incompatible dimensions when making product of two matrices");
     return res;
   }
 
-  res->AMatrix::reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
+  res->AMatrix::reset(nxrows, nycols, 0., x->isFlagEigen());
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

@@ -594,7 +594,9 @@ int main(int argc, char *argv[])
   (void) a.invert();
   a.display();
 
-  // Compare Eigen values calculated using Eigen Library or not (dense matrix only)
+  // ************
+  // Eigen values
+  // ************
 
   mestitle(0,"Eigen values calculation for Dense matrices");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
@@ -620,13 +622,12 @@ int main(int argc, char *argv[])
   const MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
 
-  // Compute Log Det
-  (void) MEig->choleskyDecompose();
-  double logdet = 2. * MEig->computeCholeskyLogDeterminant();
-  message("Log-determinant = %lf\n", logdet);
+  // *********************
+  // Cholesky calculations
+  // *********************
 
-  double deter = MEig->determinant();
-  message("Log(determinant) = %lf\n", log(deter));
+  // Compute Cholesky factorization (only for comparison)
+  (void) MEig->computeCholesky();
 
   // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
   mestitle(0,"Cholesky Decomposition for Sparse matrices");
@@ -660,13 +661,42 @@ int main(int argc, char *argv[])
   VectorDouble resNoEig = MSNoEig->prodVecMat(XNoEig);
   VH::display("Verification (no Eigen Library)",resNoEig);
   MSNoEig->simulateCholesky(B, XNoEig);
-  // Simulation using Cholesky cannot be compared due to different choices in embedded permutations
-  //  VH::display("Cholesky Simulate (No Eigen Library)", XNoEig);
 
   // Log Determinant
+  mestitle(0,"Cholesky Log Determinant");
+  message("Log Determinant Sparse (No Eigen Library)   = %lf\n", MSNoEig->computeCholeskyLogDeterminant());
+  message("Log Determinant Dense  (traditional method) = %lf\n", log(MEig->determinant()));
+  message("Log Determinant Dense  (Eigen Library)      = %lf\n",    2. * MEig->computeCholeskyLogDeterminant());
 
-  message("Log Determinant (Eigen Library) = %lf\n",    MSEig->computeCholeskyLogDeterminant());
-  message("Log Determinant (No Eigen Library) = %lf\n", MSNoEig->computeCholeskyLogDeterminant());
+  // Compute Cholesky factorization (for dense matrix (Eigen library)
+  mestitle(0,"Cholesky Decomposition for Dense matrices");
+  message("Input Square Symmetric Matrix (Dense format)\n");
+  MEig->display();
+
+  // Solving a Linear system after Cholesky decomposition
+  mestitle(0,"Solving a Linear system after Cholesky decomposition");
+  VH::display("Input Vector B =", B);
+  (void) MEig->solveCholesky(B, XEig);
+  VH::display("Result Vector X =", XEig);
+  message("Is M * X = B: %d\n",VH::isSame(B,MEig->prodMatVec(XEig)));
+
+  // Solving a linear system after Cholesky decomposition (matrix RHS)
+  mestitle(0,"Solving a Linear system after Cholesky decomposition (matrix RHS)");
+  int nrows = MEig->getNRows();
+  int ncols = 5;
+  MatrixRectangular Bmat(nrows, ncols);
+  MatrixRectangular Bres(nrows, ncols);
+  for (int icol = 0; icol < ncols; icol++)
+    Bmat.setColumn(icol, B);
+  message("Input Matrix B =\n");
+  Bmat.display();
+  (void) MEig->solveCholeskyMat(Bmat, Bres);
+  message("Result Matrix X =\n");
+  Bres.display();
+
+  MatrixRectangular* Bcheck = MatrixFactory::prodMatMat<MatrixRectangular>(MEig, &Bres);
+  message("Is M * X = B: %d\n", Bmat.isSame(*Bcheck));
+  delete Bcheck;
 
   // Product by Diagonal built from a vector
 

@@ -24,6 +24,7 @@ DriftList::DriftList(const CovContext &ctxt)
       _flagLinked(false),
       _driftCL(),
       _drifts(),
+      _betaHat(),
       _filtered(),
       _ctxt(ctxt)
 {
@@ -34,6 +35,7 @@ DriftList::DriftList(const DriftList &r)
       _flagLinked(r._flagLinked),
       _driftCL(r._driftCL),
       _drifts(),
+      _betaHat(r._betaHat),
       _filtered(r._filtered),
       _ctxt(r._ctxt)
 {
@@ -54,6 +56,7 @@ DriftList& DriftList::operator=(const DriftList &r)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
     }
+    _betaHat = r._betaHat;
     _filtered = r._filtered;
     _ctxt = r._ctxt;
   }
@@ -83,6 +86,7 @@ void DriftList::addDrift(const ADrift* drift)
   if (drift == nullptr) return;
   _drifts.push_back(dynamic_cast<ADrift*>(drift->clone()));
   _filtered.push_back(false);
+  _betaHat.push_back(0.);
   updateDriftList();
 }
 
@@ -92,6 +96,7 @@ void DriftList::delDrift(unsigned int i)
   if (! _isDriftIndexValid(i)) return;
   _drifts.erase(_drifts.begin() + i);
   _filtered.erase(_filtered.begin() + i);
+  _betaHat.erase(_betaHat.begin() + i);
   updateDriftList();
 }
 
@@ -104,6 +109,7 @@ void DriftList::delAllDrifts()
     }
   _drifts.clear();
   _filtered.clear();
+  _betaHat.clear();
   _driftCL.clear();
 }
 

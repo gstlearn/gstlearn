@@ -4354,13 +4354,13 @@ static void st_vario_varchol_manage(const Vario *vario,
       for (int jvar = 0; jvar <= ivar; jvar++)
         mat.setValue(ivar, jvar, vario->getVar(ivar, jvar));
   }
-  if (mat.choleskyDecompose())
+  if (mat.computeCholesky())
   {
     /* The matrix is filled arbitrarily */
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
         mat.setValue(ivar, jvar, (ivar == jvar));
-    if (mat.choleskyDecompose())
+    if (mat.computeCholesky())
       messageAbort("Error in st_vario_varchol_manage(): This should never happen");
   }
   varchol = mat.getCholeskyTL();

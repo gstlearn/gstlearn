@@ -3327,7 +3327,7 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Cholesky decomposition */
 
-  if (_postCov.choleskyDecompose())
+  if (_postCov.computeCholesky())
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
     messerr("The Drift coefficients have been set to their posterior mean");
