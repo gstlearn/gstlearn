@@ -90,7 +90,7 @@ jobs:
         }
 
     - name: Publish output logs as artefact
-      if: always()
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: msvc-nonreg-logs
@@ -108,7 +108,7 @@ jobs:
         Move-Item -Path msvc-neutral.zip -Destination ${{github.workspace}}
   
     - name: Publish output neutral files as artefact
-      if: always()
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: msvc-neutral-files

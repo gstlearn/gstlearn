@@ -92,7 +92,7 @@ jobs:
         find . -type f -name "*.out" -print0 | tar -czvf macos-logs.tar.gz --null -T -
 
     - name: Publish output logs as artefact
-      if: always()
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: macos-nonreg-logs
@@ -106,7 +106,7 @@ jobs:
         mv macos-neutral.tar.gz ${{github.workspace}}/
   
     - name: Publish output neutral files as artefact
-      if: always()
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: macos-neutral-files
