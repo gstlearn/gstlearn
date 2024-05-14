@@ -488,7 +488,7 @@ MatrixRectangular DriftList::evalDriftMat(const Db *db, const ECalcMember &membe
       irow++;
     }
   }
-  return 0;
+  return drfmat;
 }
 
 VectorDouble DriftList::evalDriftVec(const Db *db,

@@ -2381,10 +2381,10 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   MatrixSquareSymmetric* XCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
 
   // Establish the vector of multivariate data
-  VectorDouble D = db->getColumnsByLocator(ELoc::Z, false, true);
+  VectorDouble Z = db->getColumnsByLocator(ELoc::Z, false, true);
 
   // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
-  VectorDouble ZCm1X = Cm1X.prodMatVec(D);
+  VectorDouble ZCm1X = Cm1X.prodVecMat(Z);
   if (XCm1X->computeCholesky())
   {
     messerr("Cholesky decomposition of XCm1X matrix failed");
@@ -2408,6 +2408,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   }
 
   // Center the data by the drift evaluated using the optimal coefficients
+
 
   delete XCm1X;
   return TEST;
