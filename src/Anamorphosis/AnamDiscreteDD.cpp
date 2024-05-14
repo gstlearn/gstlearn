@@ -502,7 +502,7 @@ VectorDouble AnamDiscreteDD::factors_mod()
       c_s.setValue(iclass,jclass,value);
     }
 
-  if (c_s.choleskyDecompose()) return VectorDouble();
+  if (c_s.computeCholesky()) return VectorDouble();
   VectorDouble tri1 = c_s.getCholeskyTL();
   matrix_cholesky_invert(nclass,tri1.data(),tri2.data());
   matrix_cholesky_product(2,nclass,nclass,tri2.data(),ptab.data(),q_s.data());

@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   int n = 10;
   double proba = 0.05;
 
-  // We create a square matrix (not necessarily sparse)
+  // We create a square matrix
   NF_Triplet NF_T;
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
   VectorDouble vecout2(n);
 
   // Create the corresponding Symmetric matrix
-
   MatrixSquareSymmetric M(n);
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
@@ -64,8 +63,8 @@ int main(int argc, char *argv[])
       double value = Q->getValue(irow, icol);
       M.setValue(irow, icol, value);
     }
-  // Create the Cholesky object
 
+  // Create the Cholesky object
   Cholesky Qchol(Q);
   message("Matrix used to demonstrate Cholesky Algebra\n");
 
@@ -92,8 +91,8 @@ int main(int argc, char *argv[])
     VH::display("Product Mat^{-1} * V (by Matrix)", vecout1);
     VH::display("Product Mat^{-1} * V (by Cholesky)", vecout2);
   }
-  // Checking the Estimation of the Stdev vector
 
+  // Checking the Estimation of the Stdev vector
   MatrixSquareSymmetric MP(M);
   (void) MP.invert();
   VectorDouble vecout1b = MP.getDiagonal();
@@ -105,8 +104,8 @@ int main(int argc, char *argv[])
     VH::display("Standard Deviation (by Matrix)", vecout1b);
     VH::display("Standard Deviation (by Cholesky)", vecout2);
   }
-  // Checking the calculation of Log(Det)
 
+  // Checking the calculation of Log(Det)
   double res1 = log(M.determinant());
   double res2 = Qchol.getLogDeterminant();
   if (isZero(res1 - res2))
@@ -116,8 +115,8 @@ int main(int argc, char *argv[])
     message("Log(Det) (by Matrix) = %lf\n", res1);
     message("Log(Det) (by Cholesky) = %lf\n", res2);
   }
-  // Free the pointers
 
+  // Free the pointers
   delete A;
   delete At;
   delete Q;

@@ -37,7 +37,8 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
       _flagCholeskyDecompose(false),
       _flagCholeskyInverse(false),
       _tl(),
-      _xl()
+      _xl(),
+      _factor()
 {
   _allocate();
 }
@@ -48,7 +49,8 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r)
    _flagCholeskyDecompose(r._flagCholeskyDecompose),
    _flagCholeskyInverse(r._flagCholeskyInverse),
    _tl(),
-   _xl()
+   _xl(),
+   _factor()
 {
   _recopyLocal(r);
 }
@@ -59,7 +61,8 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
       _flagCholeskyDecompose(false),
       _flagCholeskyInverse(false),
       _tl(),
-      _xl()
+      _xl(),
+      _factor()
 {
   // TODO: clean this code or move it upwards
   if (!m.isSymmetric())
@@ -385,6 +388,7 @@ void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
   _flagCholeskyDecompose = r._flagCholeskyDecompose;
   _flagCholeskyInverse   = r._flagCholeskyInverse;
   _flagEigenDecompose    = r._flagEigenDecompose;
+  _factor                = r._factor;
 }
 
 double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
@@ -931,35 +935,65 @@ int MatrixSquareSymmetric::getTriangleSize() const
  ** \return  Error return code
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::choleskyDecompose()
+int MatrixSquareSymmetric::computeCholesky()
 {
-  int neq = getNRows();
-  _tl.resize(getTriangleSize());
   _flagCholeskyDecompose = false;
-
-  for (int ip = 0; ip < neq; ip++)
-    for (int jp = 0; jp <= ip; jp++)
-      _TL(ip,jp) = getValue(ip,jp);
-
-  for (int ip = 0; ip < neq; ip++)
+  if (isFlagEigen())
   {
-    double prod = _TL(ip, ip);
-    for (int kp = 0; kp < ip; kp++)
-      prod -= _TL(ip,kp) * _TL(ip,kp);
-    if (prod < 0.) return 1;
-    _TL(ip,ip) = sqrt(prod);
+    _factor = _eigenMatrix.llt();
+    int neq = getNRows();
 
-    for (int jp = ip + 1; jp < neq; jp++)
+    _tl.resize(getTriangleSize());
+    Eigen::MatrixXd mymat = _factor.matrixL();
+    for (int ip = 0; ip < neq; ip++)
+      for (int jp = 0; jp <= ip; jp++)
+        _TL(ip,jp) = mymat(ip,jp);
+  }
+  else
+  {
+    int neq = getNRows();
+    _tl.resize(getTriangleSize());
+
+    for (int ip = 0; ip < neq; ip++)
+      for (int jp = 0; jp <= ip; jp++)
+        _TL(ip,jp)= getValue(ip,jp);
+
+    for (int ip = 0; ip < neq; ip++)
     {
-      prod = _TL(jp, ip);
+      double prod = _TL(ip, ip);
       for (int kp = 0; kp < ip; kp++)
-        prod -= _TL(ip,kp) * _TL(jp,kp);
-      if (_TL(ip,ip)<= 0.) return 1;
-      _TL(jp,ip) = prod / _TL(ip,ip);
+        prod -= _TL(ip,kp)* _TL(ip,kp);
+      if (prod < 0.) return 1;
+      _TL(ip,ip)= sqrt(prod);
+
+      for (int jp = ip + 1; jp < neq; jp++)
+      {
+        prod = _TL(jp, ip);
+        for (int kp = 0; kp < ip; kp++)
+          prod -= _TL(ip,kp)* _TL(jp,kp);
+        if (_TL(ip,ip)<= 0.) return 1;
+        _TL(jp,ip)= prod / _TL(ip,ip);
+      }
     }
   }
   _flagCholeskyDecompose = true;
   return 0;
+}
+
+double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
+{
+  if (! isFlagEigen())
+  {
+    messerr("LogDet from Cholesky is only coded for Eigen library");
+    return TEST;
+  }
+  if (! _checkCholeskyAlreadyPerformed(1)) return TEST;
+
+  auto diag = _factor.matrixLLT().diagonal();
+  double det = 0.;
+  for (int i = 0; i < _factor.rows(); i++)
+    det += log(diag[i]);
+  return det;
 }
 
 bool MatrixSquareSymmetric::_checkCholeskyAlreadyPerformed(int status) const
@@ -994,7 +1028,7 @@ VectorDouble MatrixSquareSymmetric::getCholeskyXL() const
  **  Invert the Cholesky matrix
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::choleskyInvert()
+int MatrixSquareSymmetric::invertCholesky()
 {
   if (! _checkCholeskyAlreadyPerformed(1)) return 1;
 
@@ -1018,6 +1052,48 @@ int MatrixSquareSymmetric::choleskyInvert()
   return 0;
 }
 
+int MatrixSquareSymmetric::solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x)
+{
+  if (! isFlagEigen())
+  {
+    messerr("solve from Cholesky is only coded for Eigen library");
+    return 1;
+  }
+  if (! _checkCholeskyAlreadyPerformed(1)) return 1;
+
+  int nrows = b.getNRows();
+  int ncols = b.getNCols();
+  x.resize(nrows, ncols);
+
+  VectorDouble xcol(nrows);
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    VectorDouble bcol = b.getColumn(icol);
+    solveCholesky(bcol, xcol);
+    x.setColumn(icol, xcol);
+  }
+  return 0;
+}
+
+int MatrixSquareSymmetric::solveCholesky(const VectorDouble& b, VectorDouble& x)
+{
+  if (! isFlagEigen())
+  {
+    messerr("solve from Cholesky is only coded for Eigen library");
+    return 1;
+  }
+  if (! _checkCholeskyAlreadyPerformed(1)) return 1;
+
+  int size = (int) b.size();
+  Eigen::Map<const Eigen::VectorXd> bm(b.data(), size);
+  Eigen::VectorXd xm = _factor.solve(bm);
+
+  x.resize(size);
+  Eigen::Map<Eigen::VectorXd>(&x[0], size) = xm;
+
+  return 0;
+}
+
 /*****************************************************************************/
 /*!
  **  Performs the product between a triangular and a square matrix
@@ -1036,7 +1112,7 @@ int MatrixSquareSymmetric::choleskyInvert()
  ** \param[in]  a    matrix (dimension neq * nrhs)
  **
  *****************************************************************************/
-MatrixRectangular MatrixSquareSymmetric::choleskyProductInPlace(int mode,
+MatrixRectangular MatrixSquareSymmetric::productCholeskyInPlace(int mode,
                                                                 int neq,
                                                                 int nrhs,
                                                                 const VectorDouble &tl,
@@ -1125,7 +1201,7 @@ MatrixRectangular MatrixSquareSymmetric::choleskyProductInPlace(int mode,
  ** \param[in]  a    Square symmetric matrix (optional)
  **
  *****************************************************************************/
-MatrixSquareSymmetric MatrixSquareSymmetric::choleskyNormInPlace(int mode,
+MatrixSquareSymmetric MatrixSquareSymmetric::normCholeskyInPlace(int mode,
                                                                  int neq,
                                                                  const VectorDouble &tl,
                                                                  const MatrixSquareSymmetric &a)

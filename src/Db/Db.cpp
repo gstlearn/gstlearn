@@ -2443,6 +2443,18 @@ bool Db::isIsotopic(int iech, int nvar_max) const
   return true;
 }
 
+/**
+ * Check that all the active samples are isotopic
+ */
+bool Db::isAllIsotopic() const
+{
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  {
+    if (! isIsotopic(iech)) return false;
+  }
+  return true;
+}
+
 bool Db::isAllUndefined(int iech) const
 {
   if (!isSampleIndexValid(iech)) return false;
@@ -3375,7 +3387,6 @@ VectorDouble Db::getColumnsByLocator(const ELoc &locatorType,
 
 /**
  * Returns the contents of a set of Columns identified by their user-identified ranks
- *
  */
 VectorDouble Db::getColumnsByUID(const VectorInt &iuids,
                                  bool useSel,
@@ -3837,7 +3848,6 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString &names,
 
 /**
  * Returns the contents of the columns specified by their names
- *
  */
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
                                          bool useSel,

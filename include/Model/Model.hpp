@@ -463,7 +463,6 @@ public:
                          const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const;
 
-
   double evalCov(const VectorDouble& incr,
                  int icov = 0,
                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
@@ -494,11 +493,12 @@ public:
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
   int getDriftMaxIRFOrder(void) const;
 
-  void resetDriftCoef() { _driftList->resetDriftCL(); }
+  void resetDriftCoef();
   void setDriftCoef(int ivar, int il, int ib, double coeff)    ;
   void setDriftFiltered(int il, bool filtered)                 ;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;
+  void setBetaHat(const VectorDouble &betaHat);
 
   double evalDrift(const Db* db,
                    int iech,
@@ -520,8 +520,8 @@ public:
                                    const VectorDouble &coeffs,
                                    int ivar = 0,
                                    bool useSel = false) const;
-  VectorDouble evalDriftMat(const Db *db,
-                            const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
+  MatrixRectangular evalDriftMat(const Db *db,
+                                 const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -656,6 +656,8 @@ public:
                         double factor = 1.,
                         const CovCalcMode *mode = nullptr);
   void nostatUpdate(CovInternal *covint);
+
+  double computeLogLikelihood(Db* db, bool verbose = false);
 
 protected:
   /// Interface to ASerializable

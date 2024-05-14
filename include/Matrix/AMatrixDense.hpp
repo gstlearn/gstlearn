@@ -133,15 +133,15 @@ private:
   /// =========================================================================
   void    _recopyLocal(const AMatrixDense &r);
   void    _allocateLocal();
-  int     _solveLocal(const VectorDouble &b, VectorDouble &x) const;
-  int     _invertLocal();
+  int     _solveEigen(const VectorDouble &b, VectorDouble &x) const;
+  int     _invertEigen();
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _transposeInPlaceLocal();
-  int     _getIndexToRankLocal(int irow, int icol) const;
-  int     _getMatrixPhysicalSizeLocal() const;
-  double& _getValueRefLocal(int irow, int icol);
-  void    _setValueLocal(int irow, int icol, double value);
+  void    _transposeInPlaceEigen();
+  int     _getIndexToRankEigen(int irow, int icol) const;
+  int     _getMatrixPhysicalSizeEigen() const;
+  double& _getValueRefEigen(int irow, int icol);
+  void    _setValueEigen(int irow, int icol, double value);
   void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   double  _getValueLocal(int irank) const;
@@ -181,7 +181,7 @@ protected:
   VectorDouble         _eigenValues; // only when ! flag_eigen()
   MatrixSquareGeneral* _eigenVectors; // only when ! flag_eigen()
 
-private:
+protected:
 #ifndef SWIG
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 #endif

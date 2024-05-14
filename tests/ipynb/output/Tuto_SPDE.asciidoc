@@ -180,6 +180,12 @@ log_det_Q_api 11255.7151
 #NO_DIFF#XXX
 ----
 likelihood api 71.4371
-likelihood_chol 71.3714
--> Relative Difference = -0.09 %
+likelihood_chol 71.4371
+-> Relative Difference = 0.0 %
+----
+
+
+#NO_DIFF#XXX
+----
+likelihood by API 71.4371
 ----

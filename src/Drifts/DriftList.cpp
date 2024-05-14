@@ -24,6 +24,7 @@ DriftList::DriftList(const CovContext &ctxt)
       _flagLinked(false),
       _driftCL(),
       _drifts(),
+      _betaHat(),
       _filtered(),
       _ctxt(ctxt)
 {
@@ -34,6 +35,7 @@ DriftList::DriftList(const DriftList &r)
       _flagLinked(r._flagLinked),
       _driftCL(r._driftCL),
       _drifts(),
+      _betaHat(r._betaHat),
       _filtered(r._filtered),
       _ctxt(r._ctxt)
 {
@@ -54,6 +56,7 @@ DriftList& DriftList::operator=(const DriftList &r)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
     }
+    _betaHat = r._betaHat;
     _filtered = r._filtered;
     _ctxt = r._ctxt;
   }
@@ -83,6 +86,7 @@ void DriftList::addDrift(const ADrift* drift)
   if (drift == nullptr) return;
   _drifts.push_back(dynamic_cast<ADrift*>(drift->clone()));
   _filtered.push_back(false);
+  _betaHat.push_back(0.);
   updateDriftList();
 }
 
@@ -92,6 +96,7 @@ void DriftList::delDrift(unsigned int i)
   if (! _isDriftIndexValid(i)) return;
   _drifts.erase(_drifts.begin() + i);
   _filtered.erase(_filtered.begin() + i);
+  _betaHat.erase(_betaHat.begin() + i);
   updateDriftList();
 }
 
@@ -104,6 +109,7 @@ void DriftList::delAllDrifts()
     }
   _drifts.clear();
   _filtered.clear();
+  _betaHat.clear();
   _driftCL.clear();
 }
 
@@ -425,23 +431,29 @@ bool DriftList::hasExternalDrift() const
 /*!
  **  Establish the drift rectangular matrix for a given Db
  **
- ** \return Returned matrix as a VD (Dimension = nech * nvar * nfeq * nvar)
+ ** \return Returned matrix (Dimension/ nrows = nvar * nech; ncols = nfeq * nvar)
  **
  ** \param[in]  db     Db structure
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
+ ** \remarks: The function can be used for monovariate of multivariate.
+ ** \remarks: It is based on the set of ACTIVE samples... but does not take
+ ** \remarks: heterotpy into account.
+ **
  *****************************************************************************/
-VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
+MatrixRectangular DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
 {
   int nvar = getNVariables();
   int nbfl = getDriftNumber();
   int nfeq = getDriftEquationNumber();
-  int nech = db->getSampleNumber();
-  VectorDouble drfmat(nech * nvar * nfeq * nvar, 0.);
+  int nech = db->getSampleNumber(true);
+  int nrows = nech * nvar;
+  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  MatrixRectangular drfmat(nrows, ncols);
 
   /* Loop on the variables */
 
-  int ecr = 0;
+  int irow = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
 
@@ -454,11 +466,13 @@ VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
 
       /* Loop on the drift functions */
 
+      int icol = 0;
       if (isFlagLinked())
       {
         for (int ib = 0; ib < nfeq; ib++)
         {
-          drfmat[ecr++] = evalDriftValue(ivar, ib, drftab);
+          drfmat.setValue(irow, icol, evalDriftValue(ivar, ib, drftab));
+          icol++;
         }
       }
       else
@@ -467,9 +481,11 @@ VectorDouble DriftList::evalDriftMat(const Db *db, const ECalcMember &member)
           for (int jl = 0; jl < nbfl; jl++)
           {
             int jb = jvar + nvar * jl;
-            drfmat[ecr++] = evalDriftValue(ivar, jb, drftab);
+            drfmat.setValue(irow, icol, evalDriftValue(ivar, jb, drftab));
+            icol++;
           }
       }
+      irow++;
     }
   }
   return 0;

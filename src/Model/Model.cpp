@@ -25,6 +25,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -945,10 +946,20 @@ bool Model::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
   if (_driftList == nullptr) return false;
   return _driftList->isDriftDifferentDefined(powers, rank_fex);
 }
+void Model::resetDriftCoef()
+{
+  if (_driftList == nullptr) return;
+  _driftList->resetDriftCL();
+}
 void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr) return;
   _driftList->setDriftCL(ivar, il, ib, coeff);
+}
+void Model::setBetaHat(const VectorDouble &betaHat)
+{
+  if (_driftList == nullptr) return;
+  _driftList->setBetaHat(betaHat);
 }
 int Model::getDriftMaxIRFOrder(void) const
 {
@@ -1000,9 +1011,9 @@ void Model::evalDriftVecInPlace(const Db *db,
   _driftList->evalDriftVecInPlace(db, iech, member, drftab);
 }
 
-VectorDouble Model::evalDriftMat(const Db *db, const ECalcMember &member) const
+MatrixRectangular Model::evalDriftMat(const Db *db, const ECalcMember &member) const
 {
-  if (_driftList == nullptr) return VectorDouble();
+  if (_driftList == nullptr) return MatrixRectangular();
   return _driftList->evalDriftMat(db, member);
 }
 
@@ -2304,3 +2315,100 @@ void Model::nostatUpdate(CovInternal *covint)
                     covint->getIcas2(), covint->getIech2());
 }
 
+/**
+ * Compute the log-likelihood (traditional method)
+ *
+ * @param db  Db structure where variable are loaded from
+ * @param verbose Verbose flag
+ *
+ * @remarks The calculation considers all the active samples.
+ * @remarks It can work in multivariate case with or without drift conditions (linked or not)
+ * @remarks The algorithm is stopped (with a message) in the heterotopic case
+ * // TODO; improve for heterotopic case
+ */
+double Model::computeLogLikelihood(Db* db, bool verbose)
+{
+  int nvar = db->getLocatorNumber(ELoc::Z);
+  if (nvar < 1)
+  {
+    messerr("The 'db' should have at least one variable defined");
+    return TEST;
+  }
+  if (_driftList == nullptr)
+  {
+    messerr("This function only makes sense when Drift is defined");
+    return TEST;
+  }
+  if (! db->isAllIsotopic())
+  {
+    messerr("This method is only available for isotopic data set");
+    return TEST;
+  }
+  int nech = db->getSampleNumber(true);
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("- Number of active samples   = %d\n", nech);
+    message("- Number of variables        = %d\n", nvar);
+    message("- Number of drift conditions = %d\n", getDriftEquationNumber());
+  }
+
+  // Calculate the covariance matrix C and perform its Cholesky decomposition
+  MatrixSquareSymmetric cov = covMatrixMS(db);
+  if (cov.computeCholesky())
+  {
+    messerr("Cholesky decomposition of Covariance matrix failed");
+    return TEST;
+  }
+  double logdet = 2. * cov.computeCholeskyLogDeterminant();
+  if (verbose)
+  {
+    message("Log-Determinant = %lf\n", logdet);
+  }
+
+  // Extract the matrix of drifts at samples X
+  MatrixRectangular X = evalDriftMat(db);
+
+  // Calculate Cm1X = Cm1 * X
+  MatrixRectangular Cm1X;
+  if (cov.solveCholeskyMat(X, Cm1X))
+  {
+    messerr("Problem when solving a Linear System after Cholesky decomposition");
+    return TEST;
+  }
+
+  // Calculate XCm1X = Xt * Cm1X
+  MatrixSquareSymmetric* XCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
+
+  // Establish the vector of multivariate data
+  VectorDouble D = db->getColumnsByLocator(ELoc::Z, false, true);
+
+  // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
+  VectorDouble ZCm1X = Cm1X.prodMatVec(D);
+  if (XCm1X->computeCholesky())
+  {
+    messerr("Cholesky decomposition of XCm1X matrix failed");
+    delete XCm1X;
+    return TEST;
+  }
+
+  // Calculate beta = (XCm1X)-1 * ZCm1X
+  VectorDouble beta;
+  if (XCm1X->solveCholesky(ZCm1X, beta))
+  {
+    messerr("Error when calculating Maximum Likelihood criterion");
+    delete XCm1X;
+    return TEST;
+  }
+  setBetaHat(beta);
+
+  if (verbose)
+  {
+    VH::display("Optimal Drift coefficients = ", beta);
+  }
+
+  // Center the data by the drift evaluated using the optimal coefficients
+
+  delete XCm1X;
+  return TEST;
+}
