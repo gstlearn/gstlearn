@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.2.1
+=============
+- Fix artifact upload/download for github action
+
 Release 1.2.0
 =============
 - Adding calculation of log-likelihood evaluation in the general case (class Model)
