@@ -54,7 +54,7 @@ jobs:
     # Keep v3 because ubuntu 16 docker
     - name: Publish output logs as artefact
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ubuntu-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
