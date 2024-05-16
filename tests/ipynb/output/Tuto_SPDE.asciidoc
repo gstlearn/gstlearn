@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -41,13 +41,13 @@ Column = 3 - Name = spde - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Characteristics
@@ -79,7 +79,7 @@ Column = 2 - Name = spde - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -127,13 +127,13 @@ Column = 4 - Name = spde.spde.estim - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Variance = 1.1733
 
@@ -141,13 +141,13 @@ Variance = 1.1733
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 logdet_chol -1261.3613
 quad_chol 1118.4871
@@ -155,13 +155,13 @@ like_chol 71.4371
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 -> Relative difference quadratic = 0.01 %
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 log_det_op_chol 12296.9389
 log_det_op_api 12296.9389
@@ -169,7 +169,7 @@ log_det_op_api 12296.9389
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 log_det_Q_chol 11255.7151
 log_det_Q_api 11255.7151
@@ -177,9 +177,15 @@ log_det_Q_api 11255.7151
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 likelihood api 71.4371
-likelihood_chol 71.3714
--> Relative Difference = -0.09 %
+likelihood_chol 71.4371
+-> Relative Difference = 0.0 %
+----
+
+
+#NO_DIFF#XXX
+----
+likelihood by API 71.4371
 ----

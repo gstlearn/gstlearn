@@ -1,10 +1,10 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-[cols=",,,,,,",options="header",]
+
 |===
 | |X |Y |LANU |HyGeo |NO3 |BG
 |0 |428575.6629 |5.541444e+06 |2 |1 |0.5 |-99.0
@@ -16,14 +16,14 @@
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Polygons
 --------
 Number of Polygon Sets = 1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -42,13 +42,13 @@ Column = 1 - Name = Y - Locator = x2
 Column = 2 - Name = LANU - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Proportion of facies 1 = 0.2726197516262567
 Proportion of facies 2 = 0.46954464813719693
@@ -58,7 +58,7 @@ Proportion of facies 5 = 0.006505026611472502
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -134,33 +134,33 @@ Column = 7 - Name = Prop.5 - Locator = p5
  ----
 
 
-+#NO_DIFF#XXX+
-----
-#NO_DIFF#XXX
-
-#NO_DIFF#XXX
-
-#NO_DIFF#XXX
-
-#NO_DIFF#XXX
-
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+
+#NO_DIFF#XXX
+
+#NO_DIFF#XXX
+
+#NO_DIFF#XXX
+
+#NO_DIFF#XXX
+----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Number of GRF = 1
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Non-centered Covariance characteristics
@@ -223,7 +223,7 @@ For variable 1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Variogram characteristics
@@ -266,7 +266,7 @@ For variable 1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Model characteristics
@@ -279,28 +279,28 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 0.802094)
+K-Bessel (Third Parameter = 0.791416)
 - Sill         =      1.000
-- Range        =   1818.905
-- Theo. Range  =    586.283
+- Range        =   1815.867
+- Theo. Range  =    589.238
 Total Sill     =      1.000
 Known Mean(s)     0.000
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

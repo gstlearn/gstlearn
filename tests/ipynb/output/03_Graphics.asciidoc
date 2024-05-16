@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Non geographical defaults:
 - Figure dimensions = [6, 6]
@@ -17,7 +17,7 @@ Geographical defaults:
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -39,13 +39,13 @@ Column = 4 - Name = z-2 - Locator = z2
 Column = 5 - Name = z-3 - Locator = z3----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Help on function point in module gstlearn.plot:
 
@@ -87,59 +87,59 @@ point(db, *args, **kwargs)
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Latex object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -168,31 +168,31 @@ Column = 4 - Name = Simu.2 - Locator = z2
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Non geographical defaults:
 - Figure dimensions = [6, 6]
@@ -207,49 +207,49 @@ Geographical defaults:
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Characteristics
@@ -275,37 +275,37 @@ Column = 6 - Name = sel - Locator = sel
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Characteristics
@@ -334,67 +334,67 @@ Column = 3 - Name = z - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

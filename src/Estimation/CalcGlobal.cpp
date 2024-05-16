@@ -10,22 +10,24 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Estimation/CalcGlobal.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Estimation/CalcGlobal.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Model/Model.hpp"
 
 #include <math.h>
 
-CalcGlobal::CalcGlobal(int ivar0,
-                       bool verbose)
-    : ACalcInterpolator(),
-      _flagArithmetic(false),
-      _flagKriging(false),
-      _ivar0(ivar0),
-      _verbose(verbose)
+CalcGlobal::CalcGlobal(int ivar0, bool verbose)
+    :
+    ACalcInterpolator(),
+    _flagArithmetic(false),
+    _flagKriging(false),
+    _ivar0(ivar0),
+    _verbose(verbose)
 {
 }
 
@@ -102,16 +104,17 @@ bool CalcGlobal::_run()
 int CalcGlobal::_globalKriging()
 {
   VectorDouble rhsCum;
+  Model* model = getModel();
 
   // Initializations
 
-  int nvar = getModel()->getVariableNumber();
+  int nvar = model->getVariableNumber();
   NeighUnique neighU = NeighUnique(false);
   neighU.attach(getDbin(), getDbout());
 
   /* Setting options */
 
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), &neighU);
+  KrigingSystem ksys(getDbin(), getDbout(), model, &neighU);
   if (ksys.setKrigOptFlagGlobal(true)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -145,8 +148,8 @@ int CalcGlobal::_globalKriging()
 
   /* Average covariance over the territory */
 
-  double cvv = model_cxx(getModel(), getDbout(), getDbout(), _ivar0, _ivar0, 0,
-                         db_epsilon_distance(getDbin()));
+  double cvv = model->evalAverageDbToDb(getDbout(), getDbout(), _ivar0, _ivar0,
+                                        0, db_epsilon_distance(getDbin()));
 
   /* Load the scaled cumulated R.H.S. in the array rhs */
 
@@ -165,7 +168,7 @@ int CalcGlobal::_globalKriging()
   double estim = VH::innerProduct(rhsCum, zam);
   double stdv = cvv - VH::innerProduct(rhsCum, wgt);
   stdv = (stdv > 0) ? sqrt(stdv) : 0.;
-  double cvgeo = (estim == 0. || FFFF(estim)) ? TEST : stdv / estim;
+  double cvgeo = (isZero(estim) || FFFF(estim)) ? TEST : stdv / estim;
 
   /* Store the results in the output Global_Result struture */
 
@@ -209,8 +212,7 @@ int CalcGlobal::_globalKriging()
 
 int CalcGlobal::_globalArithmetic()
 {
-  /* Preliminary assignments */
-
+  Model* model = getModel();
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   int ntot = getDbin()->getSampleNumber(false);
   int np = getDbin()->getSampleNumber(true);
@@ -219,16 +221,19 @@ int CalcGlobal::_globalArithmetic()
 
   /* Average covariance over the data */
 
-  double cxx = model_cxx(getModel(), getDbin(), getDbin(), _ivar0, _ivar0, 0, 0.);
+  double cxx = model->evalAverageDbToDb(getDbin(), getDbin(),
+                                        _ivar0, _ivar0, 0, 0.);
 
   /* Average covariance between the data and the territory */
 
-  double cxv = model_cxx(getModel(), getDbin(), dbgrid, _ivar0, _ivar0, 0, 0.);
+  double cxv = model->evalAverageDbToDb(getDbin(), dbgrid,
+                                        _ivar0, _ivar0, 0, 0.);
 
   /* Average covariance over the territory */
 
-  double cvv = model_cxx(getModel(), dbgrid, dbgrid, _ivar0, _ivar0, 0,
-                         db_epsilon_distance(dbgrid));
+  double cvv = model->evalAverageDbToDb(dbgrid, dbgrid,
+                                        _ivar0, _ivar0, 0,
+                                        db_epsilon_distance(dbgrid));
 
   /* Calculating basic statistics */
 
@@ -244,9 +249,9 @@ int CalcGlobal::_globalArithmetic()
 
   double sse = cvv - 2. * cxv + cxx;
   sse = (sse > 0) ? sqrt(sse) : 0.;
-  double cvsam = (ave != 0.) ? sqrt(var) / ave : TEST;
+  double cvsam = (! isZero(ave)) ? sqrt(var) / ave : TEST;
   double cviid = cvsam / sqrt(np);
-  double cvgeo = (ave != 0.) ? sse / ave : TEST;
+  double cvgeo = (! isZero(ave)) ? sse / ave : TEST;
 
   /* Filling the output structure */
 

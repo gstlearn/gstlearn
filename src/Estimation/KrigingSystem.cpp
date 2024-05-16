@@ -409,15 +409,15 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
 
     if (! _flagSimu)
 
-      // Particular case of simulations
+      // Case of the traditional kriging based on Z-variables
 
       return _dbin->getLocVariable(ELoc::Z,rank, ivar);
 
     else
 
-      // Case of the traditional kriging based on Z-variables
+      // Case of simulations
 
-      return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, 1, 0);
+      return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, _nbsimu, _nvar);
   }
   else
   {
@@ -464,17 +464,28 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
  */
 double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 {
-  double value = 0.;
+  if (_nfeq > 0) return 0.;
+
   if (_flagNoMatLC || flagLHS)
   {
-    value = _model->getMean(ivar);
+    double mean = _model->getMean(ivar);
+    if (_flagBayes)
+      mean = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
+    return mean;
   }
   else
   {
+    double value = 0.;
     for (int jvar = 0; jvar < _nvar; jvar++)
-      value += _matLC->getValue(ivar,jvar) * _model->getMean(jvar);
+    {
+      double mean = _model->getMean(jvar);
+      if (_flagBayes)
+        mean = _model->evalDriftVarCoef(_dbout, _iechOut, jvar, _postMean);
+      value += _matLC->getValue(ivar,jvar) * mean;
+    }
+    return value;
   }
-  return value;
+  return TEST;
 }
 
 double KrigingSystem::_getDriftCL(int ivar, int il, int ib) const
@@ -521,8 +532,10 @@ void KrigingSystem::_flagDefine()
   {
     int nbgh_iech = _nbgh[iech];
     for (int ivar = 0; ivar < _nvar; ivar++)
+    {
       if (FFFF(_getIvar(nbgh_iech, ivar)))
         _setFlag(iech,ivar,0);
+    }
   }
 
   /* Check on the external drifts */
@@ -547,7 +560,7 @@ void KrigingSystem::_flagDefine()
     for (int il = 0; il < _nbfl; il++)
       for (int ivar = 0; ivar < _nvar; ivar++)
       {
-        if (_getDriftCL(ivar, il, ib) == 0.) continue;
+        if (isZero(_getDriftCL(ivar, il, ib))) continue;
         for (int iech = 0; iech < _nech; iech++)
           if (!FFFF(_getIvar(_nbgh[iech], ivar))) valid++;
       }
@@ -708,11 +721,10 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
     db = _dbout;
     jech = _iechOut;
   }
-  VectorDouble drft = _model->evalDriftVec(db, jech, member);
-  for (int il = 0; il < (int) drft.size(); il++)
+  _drftab = _model->evalDriftVec(db, jech, member);
+  for (int il = 0; il < (int) _drftab.size(); il++)
   {
-    if (FFFF(drft[il])) return 1;
-    _drftab[il] = drft[il];
+    if (FFFF(_drftab[il])) return 1;
   }
   return 0;
 }
@@ -786,9 +798,7 @@ void KrigingSystem::_lhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = 0.;
-        for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getDriftCL(ivar, il, ib);
+        double value = _model->evalDriftValue(ivar, ib, _drftab);
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
@@ -1072,9 +1082,7 @@ int KrigingSystem::_rhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = 0.;
-        for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getDriftCL(ivar, il, ib);
+        double value = _model->evalDriftValue(ivar, ib, _drftab);
         _setRHSF(ib,_nvar,ivar,value);
       }
   }
@@ -1086,9 +1094,7 @@ int KrigingSystem::_rhsCalcul()
       for (int jvar = 0; jvar < _nvar; jvar++)
         for (int jl = 0; jl < _nbfl; jl++, ib++)
         {
-          double value = 0.;
-          for (int il = 0; il < _nbfl; il++)
-            value += _drftab[il] * _getDriftCL(jvar, il, ib);
+          double value = _model->evalDriftValue(jvar, ib, _drftab);
           value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
         }
@@ -1226,8 +1232,7 @@ void KrigingSystem::_wgtDump(int status)
 
     /* Loop on the samples */
 
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      sum[ivarCL] = 0.;
+    sum.fill(0.);
     for (int iech = 0; iech < _nech; iech++, lec++)
     {
       int flag_value = (! _flag.empty()) ? _flag[lec] : 1;
@@ -1317,35 +1322,28 @@ void KrigingSystem::_simulateCalcul(int status)
     for (int ivar = 0; ivar < _nvar; ivar++, ecr++)
     {
       double simu = 0.;
-      if (_nfeq <= 0) simu = _getMean(ivar);
 
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
+          simu = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
-        int lec = ivar * _nred;
+        int lec = 0;
         for (int jvar = 0; jvar < _nvar; jvar++)
           for (int iech = 0; iech < _nech; iech++)
           {
             int jech = _nbgh[iech];
 
-            double mean = 0.;
-            if (_nfeq <= 0) mean = _getMean(jvar);
-            if (_flagBayes)
-              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
-            double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
-            simu -= _wgt.getValue_(lec++,0) * (data + mean);
-          }
+            // Get the simulated difference at data point (Simu - Data)
+            double diff = _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
+            if (FFFF(diff)) continue;
 
-        if (OptDbg::query(EDbg::KRIGING))
-        {
-          double value = _dbout->getArray(_iechOut, _iptrEst + ecr);
-          message("Non-conditional simulation #%d = %lf\n", isimu + 1, value);
-          message("Kriged difference = %lf\n", -simu);
-          message("Conditional simulation #%d = %lf\n", isimu + 1,
-                  value + simu);
-        }
+            // Get the kriging weight
+            double wgt = _wgt.getValue_(lec++,ivar);
+
+            // Calculate the Kriging of simulated differences: -sum {wgt * diff}
+            simu -= wgt * diff;
+          }
       }
       else
       {
@@ -1355,7 +1353,7 @@ void KrigingSystem::_simulateCalcul(int status)
 
       /* Add the conditioning kriging to the NC simulation at target */
       _dbout->updSimvar(ELoc::SIMU, _iechOut, isimu, ivar, _rankPGS, _nbsimu, _nvar,
-                       0, simu);
+                        EOperator::ADD, simu);
     }
 
   return;
@@ -1431,7 +1429,7 @@ void KrigingSystem::_estimateCalcul(int status)
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
-          _dbin->updArray(iech, _iptrWeights, 0, wgt);
+          _dbin->updArray(iech, _iptrWeights, EOperator::ADD, wgt);
       }
     }
   }
@@ -1480,8 +1478,7 @@ void KrigingSystem::_estimateCalculImage(int status)
 
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
-    double estim = 0.;
-    if (_nfeq <= 0) estim = _getMean(ivar);
+    double estim = _getMean(ivar);
 
     if (status == 0)
     {
@@ -1503,7 +1500,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           }
           else
           {
-            if (_nfeq <= 0) data -= _getMean(jvar, true);
+            data -= _getMean(jvar, true);
             estim += data * _wgt.getValue_(ecr++,0);
           }
         }
@@ -1536,8 +1533,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 
     /* Perform the estimation */
 
-    double valest = 0.;
-    if (_nfeq <= 0) valest = _getMean(0, true);
+    double valest = _getMean(0, true);
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
@@ -1638,12 +1634,7 @@ void KrigingSystem::_estimateEstim(int status)
 
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
   {
-    double estim0 = 0.;
-    if (_nfeq <= 0)
-      estim0 = _getMean(ivarCL);
-    if (_flagBayes)
-      estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean);
-
+    double estim0 = _getMean(ivarCL);
     if (status == 0)
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, _results.getValue_(ivarCL,0) + estim0);
     else
@@ -1776,11 +1767,7 @@ void KrigingSystem::_dualCalcul()
     for (int iech = 0; iech < _nech; iech++)
     {
       if (! _getFLAG(iech, ivar)) continue;
-      double mean = 0.;
-      if (_nfeq <= 0)
-        mean = _getMean(ivar, true);
-      if (_flagBayes)
-        mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean);
+      double mean = _getMean(ivar, true);
       _zext.setValue_(ecr, 0, _getIvar(_nbgh[iech], ivar) - mean);
       ecr++;
     }
@@ -3303,10 +3290,7 @@ void KrigingSystem::_bayesCorrectVariance()
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int ib = 0; ib < _nfeq; ib++)
     {
-      double value = 0.;
-      for (int il = 0; il < _nbfl; il++)
-        value += _drftab[il] * _getDriftCL(ivar, il, ib);
-      FF0(ib,ivar) = value;
+      FF0(ib,ivar) = _model->evalDriftValue(ivar, ib, _drftab);
     }
 
   /* Correct the arrays */
@@ -3331,7 +3315,6 @@ void KrigingSystem::_bayesCorrectVariance()
 void KrigingSystem::_bayesPreSimulate()
 {
   if (_nfeq <= 0) return;
-  int nftri = _nfeq * (_nfeq + 1) / 2;
   int memo = law_get_random_seed();
 
   // Dimension '_postSimu' to store simulated posterior mean
@@ -3339,20 +3322,14 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Core allocation */
 
-  VectorDouble trimat(nftri);
   VectorDouble rndmat(_nfeq);
   VectorDouble simu(_nfeq);
-  // The array _postCov is duplicated as the copy is destroyed by matrix_cholesky_decompose
-  MatrixSquareSymmetric rcov = _postCov;
 
   /* Cholesky decomposition */
 
-  int rank = matrix_cholesky_decompose(rcov.getValues().data(), trimat.data(), _nfeq);
-
-  if (rank > 0)
+  if (_postCov.computeCholesky())
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
-    messerr("Rank of the Matrix = %d", rank);
     messerr("The Drift coefficients have been set to their posterior mean");
     for (int isimu = 0; isimu < _nbsimu; isimu++)
       for (int il = 0; il < _nfeq; il++)
@@ -3360,6 +3337,7 @@ void KrigingSystem::_bayesPreSimulate()
   }
   else
   {
+    VectorDouble trimat = _postCov.getCholeskyTL();
     for (int isimu = 0; isimu < _nbsimu; isimu++)
     {
 

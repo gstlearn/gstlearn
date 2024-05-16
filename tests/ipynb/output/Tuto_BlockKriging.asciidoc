@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -27,7 +27,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -47,7 +47,7 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Moving Neighborhood
 ===================
@@ -58,7 +58,7 @@ Maximum number of points per sector = 3
 Maximum horizontal distance         = 30----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -85,19 +85,19 @@ Column = 3 - Name = Point_Kriging.Simu.estim - Locator = z1
 Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Target location
@@ -198,7 +198,7 @@ Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -227,31 +227,31 @@ Column = 5 - Name = Block_Kriging.Simu.estim - Locator = z1
 Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Target location
@@ -352,7 +352,7 @@ Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -385,31 +385,31 @@ Column = 9 - Name = Irregular_Kriging.Simu.estim - Locator = z1
 Column = 10 - Name = Irregular_Kriging.Simu.stdev - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Target location

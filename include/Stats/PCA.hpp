@@ -58,7 +58,7 @@ public:
   void setEigVecs(const MatrixRectangular& eigvec) { _eigvec = eigvec; }
   void setEigVec(int ivar, int jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
 
-  int pca_compute(const Db *db, bool verbose = false);
+  int pca_compute(const Db *db, bool verbose = false, bool optionPositive = true);
   int maf_compute(Db *db,
                   const VarioParam &varioparam,
                   int ilag0 = 1,
@@ -81,7 +81,7 @@ private:
 
   VectorBool _getVectorIsotopic(const Db* db);
   void _loadData(const Db* db, int iech, VectorDouble& data);
-  int  _calculateEigen(bool verbose = false);
+  int  _calculateEigen(bool verbose = false, bool optionPositive = true);
   int  _calculateGEigen(bool verbose);
   void _calculateNormalization(const Db *db,
                                const VectorBool &isoFlag,

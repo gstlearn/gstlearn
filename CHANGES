@@ -2,6 +2,24 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.2.1
+=============
+- Fix artifact upload/download for github action
+
+Release 1.2.0
+=============
+- Adding calculation of log-likelihood evaluation in the general case (class Model)
+- Adding calculation of Log-Likelihood in SPDE
+- Adding calculation of variance of estimation error in SPDE
+- Updating internal procedures compare_test and update_test to allow personal reference files
+  (for any type of non-regression file)
+- Correcting the multivariate heterotopic conditional simulations
+- Improvements in the different Gibbs sampler versions + new tutorial
+- Function matrix_qoci() becomes MatrixSquareSymmetric::minimizeWithConstraintsInPlace()
+- Improvement of test_potential.cpp (include cross-validation)
+- Adding a special version to my_throw (i.e. my_throw_impossible)
+- Fix AMatrix::isSymmetric (usefull for macos-14)
+
 Release 1.1.0
 =============
 - MacOS compatibility (Intel and Silicon architectures)

@@ -1,3 +1,21 @@
+Checking the inverse generalized matrix
+- Number of rows    = 4
+- Number of columns = 4
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     2.000     1.000     0.000     0.000
+     [  1,]     1.000     4.000     0.000     0.000
+     [  2,]     0.000     0.000     0.000     0.000
+     [  3,]     0.000     0.000     0.000     0.000
+Generalized Inverse
+- Number of rows    = 4
+- Number of columns = 4
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     0.571    -0.143     0.000     0.000
+     [  1,]    -0.143     0.286     0.000     0.000
+     [  2,]     0.000     0.000     0.000     0.000
+     [  3,]     0.000     0.000     0.000     0.000
 Cloning Matrix of integers
 - Number of rows    = 2
 - Number of columns = 3
@@ -824,15 +842,7 @@ compared to Initial
      [  2,]    -5.000     0.000    20.000
 B
      2.000     7.000     0.000
-Inverse using LU
-- Number of rows    = 3
-- Number of columns = 3
-  (using Eigen Library)
-               [,  0]    [,  1]    [,  2]
-     [  0,]    -4.000     0.000     0.600
-     [  1,]     0.500    -0.500     0.100
-     [  2,]    -1.000     0.000     0.200
-Inverse using invreal
+Inverse (using LU or invreal depending on the dimension)
 - Number of rows    = 3
 - Number of columns = 3
   (using Eigen Library)
@@ -929,8 +939,63 @@ Cholesky Solve (No Eigen Library)
    150.073    13.626   -13.211    33.918    68.755    27.353    14.990
 Verification (no Eigen Library)
      2.165    -0.502    -0.259     0.650     1.364    -0.059     1.768
-Log Determinant (Eigen Library) = -0.500607
-Log Determinant (No Eigen Library) = -0.500607
+
+Cholesky Log Determinant
+========================
+Log Determinant Sparse (No Eigen Library)   = -0.500607
+Log Determinant Dense  (traditional method) = -0.500607
+Log Determinant Dense  (Eigen Library)      = -0.500607
+
+Cholesky Decomposition for Dense matrices
+=========================================
+Input Square Symmetric Matrix (Dense format)
+- Number of rows    = 7
+- Number of columns = 7
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
+     [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
+     [  2,]    -0.122    -1.184     6.055    -1.074     1.714     0.000     2.190
+     [  3,]     0.108    -1.113    -1.074     2.876    -1.879     0.464     0.291
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
+     [  5,]     0.009     0.427     0.000     0.464    -1.519     2.980     0.000
+     [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
+
+Solving a Linear system after Cholesky decomposition
+====================================================
+Input Vector B =
+     2.165    -0.502    -0.259     0.650     1.364    -0.059     1.768
+Result Vector X =
+   150.073    13.626   -13.211    33.918    68.755    27.353    14.990
+Is M * X = B: 1
+
+Solving a Linear system after Cholesky decomposition (matrix RHS)
+=================================================================
+Input Matrix B =
+- Number of rows    = 7
+- Number of columns = 5
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
+     [  0,]     2.165     2.165     2.165     2.165     2.165
+     [  1,]    -0.502    -0.502    -0.502    -0.502    -0.502
+     [  2,]    -0.259    -0.259    -0.259    -0.259    -0.259
+     [  3,]     0.650     0.650     0.650     0.650     0.650
+     [  4,]     1.364     1.364     1.364     1.364     1.364
+     [  5,]    -0.059    -0.059    -0.059    -0.059    -0.059
+     [  6,]     1.768     1.768     1.768     1.768     1.768
+Result Matrix X =
+- Number of rows    = 7
+- Number of columns = 5
+  (using Eigen Library)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
+     [  0,]   150.073   150.073   150.073   150.073   150.073
+     [  1,]    13.626    13.626    13.626    13.626    13.626
+     [  2,]   -13.211   -13.211   -13.211   -13.211   -13.211
+     [  3,]    33.918    33.918    33.918    33.918    33.918
+     [  4,]    68.755    68.755    68.755    68.755    68.755
+     [  5,]    27.353    27.353    27.353    27.353    27.353
+     [  6,]    14.990    14.990    14.990    14.990    14.990
+Is M * X = B: 1
 Product by Diagonal from Vector (Eigen)
 - Number of rows    = 7
 - Number of columns = 7

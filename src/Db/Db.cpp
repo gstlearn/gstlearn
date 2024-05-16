@@ -661,7 +661,7 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    if (useSel && !sel.empty() && sel[iech] == 0) continue;
+    if (useSel && !sel.empty() && isZero(sel[iech])) continue;
     tab[ecr] = getArray(iech, iuid);
     ecr++;
   }
@@ -691,7 +691,7 @@ void Db::setArrayBySample(int iech, const VectorDouble& vec)
     setArray(iech, uids[iuid], vec[iuid]);
 }
 
-void Db::updArray(int iech, int iuid, int oper, double value)
+void Db::updArray(int iech, int iuid, const EOperator& oper, double value)
 {
   if (!isSampleIndexValid(iech)) return;
 
@@ -700,11 +700,11 @@ void Db::updArray(int iech, int iuid, int oper, double value)
 
   int internalAddress = _getAddress(iech, icol);
   double oldval = _array[internalAddress];
-  double newval = _updateValue(oper, oldval, value);
+  double newval = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
-void Db::updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& values)
+void Db::updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, VectorDouble& values)
 {
   int icol = getColIdxByUID(iuid);
   if (!isColIdxValid(icol)) return;
@@ -716,7 +716,7 @@ void Db::updArrayVec(const VectorInt& iechs, int iuid, int oper, VectorDouble& v
   {
     iad = _getAddress(iechs[i], icol);
     oldval = _array[iad];
-    newval = _updateValue(oper, oldval, values[i]);
+    newval = modifyOperator(oper, oldval, values[i]);
     _array[iad] = newval;
   }
 }
@@ -1393,7 +1393,7 @@ void Db::setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel)
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
 
     double value = TEST;
     if (defined)
@@ -1453,7 +1453,7 @@ void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
     defined = true;
-    if (!sel.empty()) defined = (sel[iech] == 1);
+    if (!sel.empty()) defined = (isOne(sel[iech]));
 
     if (defined)
       setArray(iech, iuid, tab[lec++]);
@@ -1589,7 +1589,7 @@ int Db::addSelection(const VectorDouble &tab,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      sel[iech] = (tab[iech] != 0.) ? 1. : 0.;
+      sel[iech] = (! isZero(tab[iech])) ? 1. : 0.;
     }
   }
 
@@ -2369,7 +2369,7 @@ void Db::setLocVariable(const ELoc& loctype, int iech, int item, double value)
  *  Update the value of the field corresponding to the target locator (and its target item) at the target sample
  *
  */
-void Db::updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value)
+void Db::updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value)
 {
   if (loctype == ELoc::UNKNOWN) return;
   if (!isSampleIndexValid(iech)) return;
@@ -2377,7 +2377,7 @@ void Db::updLocVariable(const ELoc& loctype, int iech, int item, int oper, doubl
   int internalAddress = _getAddress(iech, icol);
 
   double oldval = _array[internalAddress];
-  double newval = _updateValue(oper, oldval, value);
+  double newval = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -2443,14 +2443,37 @@ bool Db::isIsotopic(int iech, int nvar_max) const
   return true;
 }
 
+/**
+ * Check that all the active samples are isotopic
+ */
+bool Db::isAllIsotopic() const
+{
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  {
+    if (! isIsotopic(iech)) return false;
+  }
+  return true;
+}
+
 bool Db::isAllUndefined(int iech) const
 {
+  if (!isSampleIndexValid(iech)) return false;
   int nvar = getLocNumber(ELoc::Z);
   if (nvar <= 0) return false;
-  if (!isSampleIndexValid(iech)) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
     if (! FFFF(getLocVariable(ELoc::Z,iech, ivar))) return true;
+  return false;
+}
+
+bool Db::isAllUndefinedByType(const ELoc& loctype, int iech) const
+{
+  if (!isSampleIndexValid(iech)) return false;
+  int natt = getLocNumber(loctype);
+  if (natt <= 0) return false;
+
+  for (int iatt = 0; iatt < natt; iatt++)
+    if (! FFFF(getLocVariable(loctype, iech, iatt))) return true;
   return false;
 }
 
@@ -2549,7 +2572,7 @@ int Db::getSelection(int iech) const
   if (!hasLocVariable(ELoc::SEL)) return 1;
   double value = getFromLocator(ELoc::SEL, iech, 0);
   if (FFFF(value)) return 0;
-  int sel = (value != 0) ? 1 :  0;
+  int sel = (! isZero(value)) ? 1 :  0;
   return (sel);
 }
 
@@ -2571,7 +2594,7 @@ GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
   int count = 0;
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    if (getFromLocator(ELoc::SEL, iech, 0) != 0) count++;
+    if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
   }
   return count;
 }
@@ -2626,7 +2649,7 @@ int Db::getSampleNumber(bool useSel) const
     int count = 0;
     for (int iech = 0; iech < getSampleNumber(); iech++)
     {
-      if (getFromLocator(ELoc::SEL, iech, 0) != 0) count++;
+      if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
     }
     return count;
   }
@@ -2669,7 +2692,7 @@ VectorDouble Db::getWeights(bool useSel) const
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    if (useSel && !sel.empty() && sel[iech] == 0) continue;
+    if (useSel && !sel.empty() && isZero(sel[iech])) continue;
     if (icol >= 0)
       tab[ecr] = getValueByColIdx(iech, icol);
     else
@@ -2718,14 +2741,6 @@ bool Db::isActiveDomain(int iech) const
 }
 
 /**
- * Returns the rank of the Column corresponding to the simulation / variable choice
- */
-int Db::getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar)
-{
-  return (_getSimrank(isimu, ivar, icase, nbsimu, nvar));
-}
-
-/**
  * Returns the value of a simulation / variable for a given sample
  */
 double Db::getSimvar(const ELoc& locatorType,
@@ -2736,7 +2751,7 @@ double Db::getSimvar(const ELoc& locatorType,
                      int nbsimu,
                      int nvar) const
 {
-  int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
+  int item = getSimRank(isimu, ivar, icase, nbsimu, nvar);
   return getFromLocator(locatorType, iech, item);
 }
 
@@ -2752,7 +2767,7 @@ void Db::setSimvar(const ELoc& locatorType,
                    int nvar,
                    double value)
 {
-  int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
+  int item = getSimRank(isimu, ivar, icase, nbsimu, nvar);
   setFromLocator(locatorType, iech, item, value);
 }
 
@@ -2766,17 +2781,17 @@ void Db::updSimvar(const ELoc& locatorType,
                    int icase,
                    int nbsimu,
                    int nvar,
-                   int oper,
+                   const EOperator& oper,
                    double value)
 {
-  int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
+  int item = getSimRank(isimu, ivar, icase, nbsimu, nvar);
 
   // This direct addressing is meant to save time
   int icol = getColIdxByLocator(locatorType, item);
   int internalAddress = _getAddress(iech, icol);
 
   double oldval = _array[internalAddress];
-  double newval = _updateValue(oper, oldval, value);
+  double newval = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -2828,60 +2843,6 @@ int Db::getActiveAndDefinedNumber(const String& name) const
     if (! FFFF(tab[iech])) nech++;
   }
   return (nech);
-}
-
-
-/**
- * Update an Old by a New value according to 'oper'
- * @param oper   0 : New = New + old
- *               1 : New = New * Old
- *               2 : New = New - Old
- *               3 : New = Old / New
- *               4 : New = New (only if 'Old' is defined)
- *               5 : New = MAX(New, Old)
- *               6 : New = MIN(New, Old)
- * @param oldval Old value
- * @param value  New value
- */
-double Db::_updateValue(int oper, double oldval, double value)
-{
-  if (oper == 0)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return (value + oldval);
-  }
-  else if (oper == 1)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return (value * oldval);
-  }
-  else if (oper == 2)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return (value - oldval);
-  }
-  else if (oper == 3)
-  {
-    if (FFFF(value) || FFFF(oldval)) return (TEST);
-    return ((value == 0.) ? TEST : oldval / value);
-  }
-  else if (oper == 4)
-  {
-    return value;
-  }
-  else if (oper == 5)
-  {
-    if (FFFF(value)) return (oldval);
-    if (FFFF(oldval)) return (value);
-    return MAX(oldval, value);
-  }
-  else if (oper == 6)
-  {
-    if (FFFF(value)) return (oldval);
-    if (FFFF(oldval)) return (value);
-    return MIN(oldval, value);
-  }
-  return TEST;
 }
 
 /**
@@ -3232,7 +3193,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
     colnames.push_back(getNameByColIdx(icol));
   }
 
-  sstr << toMatrix(String(), colnames, VectorString(), 1, ncol, number, tab);
+  sstr << toMatrix(String(), colnames, VectorString(), true, number, ncol, tab);
 
   return sstr.str();
 }
@@ -3355,7 +3316,7 @@ VectorDouble Db::getColumnByColIdx(int icol,
   for (int iech = 0; iech < nech; iech++)
   {
     bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
     if (! defined)
     {
       if (flagCompress) continue;
@@ -3426,7 +3387,6 @@ VectorDouble Db::getColumnsByLocator(const ELoc &locatorType,
 
 /**
  * Returns the contents of a set of Columns identified by their user-identified ranks
- *
  */
 VectorDouble Db::getColumnsByUID(const VectorInt &iuids,
                                  bool useSel,
@@ -3888,7 +3848,6 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString &names,
 
 /**
  * Returns the contents of the columns specified by their names
- *
  */
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
                                          bool useSel,
@@ -3927,7 +3886,7 @@ VectorDouble Db::getCoordinates(int idim, bool useSel, bool flag_rotate) const
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     bool defined = true;
-    if (useSel && !sel.empty()) defined = (sel[iech] == 1);
+    if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
     if (!defined) continue;
     tab[ecr] = getCoordinate(iech, idim, flag_rotate);
     ecr++;
@@ -4117,7 +4076,10 @@ void Db::_createRank(int icol)
 void Db::_addRank(int nech)
 {
   if (getColumnNumber() > 0 || getSampleNumber() > 0)
-    my_throw("Error: the Db should be empty in order to call _addRank");
+  {
+    messerr("Error: the Db should be empty in order to call _addRank. Nothing is done");
+    return;
+  }
   VectorDouble ranks = VH::sequence(1., (double) nech);
   addColumns(ranks, "rank");
 }
@@ -4127,7 +4089,8 @@ void Db::_defineDefaultNames(int shift, const VectorString& names)
   int ncol = getColumnNumber() - shift;
   if (!names.empty())
   {
-    if ((int) names.size() != ncol) my_throw("Error in the dimension of 'names'");
+    if ((int) names.size() != ncol)
+      my_throw("Error in the dimension of 'names'");
   }
 
   for (int icol = 0; icol < ncol; icol++)
@@ -4161,7 +4124,8 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   if (names.empty()) return;
 
   int ncol = getColumnNumber() - shift;
-  if ((int) names.size() != ncol) my_throw("Error in the dimension of 'names'");
+  if ((int) names.size() != ncol)
+    my_throw("Error in the dimension of 'names'");
 
   ELoc locatorType;
   int locatorIndex, mult;
@@ -4233,7 +4197,7 @@ VectorDouble Db::statisticsMulti(const VectorString &names,
  ** \param[in]  nvar      Number of variables
  **
  *****************************************************************************/
-int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
+int Db::getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
 {
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
@@ -4720,7 +4684,7 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
     else if (combine == "xor")
     {
       for (int iech = 0; iech < nech; iech++)
-        sel[iech] = sel[iech] != oldsel[iech];
+        sel[iech] = ! areEqual(sel[iech], oldsel[iech]);
       return;
     }
   }

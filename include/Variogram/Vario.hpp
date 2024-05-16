@@ -124,6 +124,7 @@ public:
                               bool flag_sample = false,
                               bool verr_mode = false,
                               Model *model = nullptr,
+                              int niter_UK = 0,
                               bool verbose = false);
 
   void resetReduce(const VectorInt &varcols,
@@ -252,14 +253,14 @@ public:
               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_sample = false,
               bool verr_mode = false,
-              Model* model = nullptr,
+              const Model* model = nullptr,
               int niter_UK = 0,
               bool verbose = false);
   int computeIndic(Db* db,
                    const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                    bool flag_sample = false,
                    bool verr_mode = false,
-                   Model* model = nullptr,
+                   const Model* model = nullptr,
                    int niter_UK = 0,
                    bool verbose = false,
                    int nfacmax = -1);
@@ -267,13 +268,15 @@ public:
   int computeVarioVect(Db *db, int ncomp);
   int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder);
 
-  int modelRegularize(const Model& model,
-                      const VectorDouble& ext,
-                      const VectorInt& ndisc,
-                      const VectorDouble& angles = VectorDouble(),
-                      const CovCalcMode* mode = nullptr,
-                      bool asCov = false);
-
+  int regularizeFromModel(const Model &model,
+                          const VectorDouble &ext,
+                          const VectorInt &ndisc,
+                          const VectorDouble &angles = VectorDouble(),
+                          const CovCalcMode *mode = nullptr,
+                          bool asCov = false);
+  int regularizeFromDbGrid(Model* model,
+                           const Db& db,
+                           const CovCalcMode *mode = nullptr);
   void getExtension(int ivar,
                     int jvar,
                     int idir0,
@@ -290,6 +293,7 @@ public:
                     double *hmax,
                     double *gmin,
                     double *gmax);
+  int sampleModel(Model *model, const CovCalcMode*  mode = nullptr);
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }
@@ -360,7 +364,7 @@ private:
   int _compute(Db *db,
                int flag_sample,
                int verr_mode,
-               Model* model,
+               const Model* model,
                int niter_UK,
                bool verbose);
   int _calculateGeneral(Db *db,
@@ -378,12 +382,14 @@ private:
   int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
   double _s(Db *db, int iech, int jech);
   double _g(Db *db, int iech, int jech);
-  double _calculateBiasLocal(Db *db,
-                             Vario_Order *vorder,
-                             int ifirst,
-                             int ilast);
+  void _calculateBiasLocal(Db *db,
+                           int idir,
+                           int ipas,
+                           Vario_Order *vorder,
+                           int ifirst,
+                           int ilast);
   void _calculateBiasGlobal(Db *db);
-  double _getBias(Db *db, int iiech, int jjech);
+  double _getBias(int iiech, int jjech);
 
   void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
   int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);
@@ -411,6 +417,10 @@ private:
                              const VectorDouble &x,
                              const VectorDouble &y,
                              double x0);
+  MatrixSquareGeneral _evalAverageDbIncr(Model *model,
+                                         const Db &db,
+                                         const VectorDouble &incr = VectorDouble(),
+                                         const CovCalcMode *mode = nullptr);
 
 private:
   int                _nVar;

@@ -141,13 +141,11 @@ spde = SPDE_create(model, domain = gridExt, calcul = ESPDECalcMode_SIMUNONCOND()
 
 Possible values for the *calcul* parameter are:
 
-* **KRIGING** for "Kriging",
+* **KRIGING** for "Kriging or Likelihood",
 
 * **SIMUCOND** for "Conditional simulations",
 
 * **SIMUNONCOND** for "Non conditional simulations",
-
-* **LIKELIHOOD** for "Likelihood computations"
 
 # Non conditional simulations
 
@@ -458,7 +456,7 @@ err = grid$deleteColumns(names = c("spde.fn.Z.kriging", "spde.fn.Z.stdev", "spde
 
 # kriging value
 err = krigingSPDE(dbin = dat, dbout = grid, model = model, 
-                  flag_est = TRUE, flag_std = TRUE, flag_varz = TRUE,
+                  flag_est = TRUE, flag_std = TRUE, nbMC=0, seed=0,
                   namconv = NamingConvention("spde.fn"))
 
 # cross plot for kriging values

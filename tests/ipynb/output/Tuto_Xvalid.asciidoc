@@ -1,20 +1,20 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -38,12 +38,12 @@ Column = 6 - Name = Xvalid2.data.estim - Locator = NA
 Column = 7 - Name = Xvalid2.data.stdev - Locator = NA----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----array([ 1.        , 22.70134452, 83.64117505,  2.50180018, -1.95167723,
        -1.09498517,  0.55012296,  1.78237778])----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Target location
@@ -126,7 +126,7 @@ Column = 7 - Name = Xvalid2.data.stdev - Locator = NA----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
  Target location
@@ -231,7 +231,7 @@ Column = 7 - Name = Xvalid2.data.stdev - Locator = NA----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

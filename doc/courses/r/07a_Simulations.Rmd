@@ -2,11 +2,13 @@
 title: "Gaussian simulations"
 author: "gstlearn Team"
 output:
+  pdf_document:
+    toc: true
   html_document:
     df_print: paged
     toc: true
-  pdf_document:
-    toc: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Simulations using Turning Bands method: derive the probability of exceeding a threshold. Extension when using an External Drift  -->

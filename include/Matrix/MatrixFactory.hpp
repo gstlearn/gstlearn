@@ -34,8 +34,19 @@ public:
                        bool transposeY = false);
   static AMatrixSquare* createMatrixSquare(const AMatrixSquare* x,int nrow);
   static AMatrix* createReduce(const AMatrix *x,
-                               const VectorInt &validRows = VectorInt(),
-                               const VectorInt &validCols = VectorInt());
+                               const VectorInt &selRows = VectorInt(),
+                               const VectorInt &selCols = VectorInt(),
+                               bool flagKeepRows = true,
+                               bool flagKeepCols = true);
+  static AMatrix* createReduceOne(const AMatrix *x,
+                                  int selRow = -1,
+                                  int selCol = -1,
+                                  bool flagKeepRow = true,
+                                  bool flagKeepCol = true);
+  static AMatrix* createGlue(const AMatrix *a1,
+                             const AMatrix *a2,
+                             bool flagShiftRow,
+                             bool flagShiftCol);
 };
 
 /****************************************************************************/
@@ -59,13 +70,20 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
                              bool transposeX,
                              bool transposeY)
 {
-  if (x->getNCols() != y->getNRows())
+  T* res = new T();
+
+  int nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
+  int nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
+  int nyrows = (! transposeY) ? y->getNRows() : y->getNCols();
+  int nycols = (! transposeY) ? y->getNCols() : y->getNRows();
+
+  if (nxcols != nyrows)
   {
-    my_throw("Incompatible dimensions when making product of two matrices");
+    messerr("Incompatible dimensions when making product of two matrices");
+    return res;
   }
 
-  T* res = new T();
-  res->AMatrix::reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
+  res->AMatrix::reset(nxrows, nycols, 0., x->isFlagEigen());
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

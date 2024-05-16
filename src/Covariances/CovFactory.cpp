@@ -212,3 +212,12 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
   return ECov::UNKNOWN;
 }
 
+double CovFactory::getScaleFactor(const ECov &type, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double scadef = cova->getScadef();
+  delete cova;
+  return scadef;
+}

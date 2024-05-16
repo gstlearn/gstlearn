@@ -1,4 +1,5 @@
 # Make Release version the default (only for single configuration generators)
+# TODO : Differentiate build directories for Debug and Release
 if(NOT IS_MULTI_CONFIG)
   if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Release' as none was specified")
@@ -18,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
   # Warning level 4 (4 = maximum, 0 = none)
-  add_compile_options(/W4 /wd4251 /wd4244) # Except those two warnings
+  add_compile_options(/bigobj /W4 /wd4251 /wd4244) # Except those two warnings
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
   add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter)
@@ -60,7 +61,6 @@ find_package(Boost REQUIRED)
 # Look for OpenMP
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
-  message(STATUS "OPENMP found")
   add_definitions(-DOPENMP)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -74,9 +74,15 @@ endif()
 # Look for Eigen
 find_package(Eigen3 REQUIRED) 
 if(EIGEN3_FOUND)
-  message(STATUS "Eigen3 found")
-  message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
-  #message(STATUS "EIGEN3_USER_DIR: ${EIGEN3_USER_DIR}")
+  file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" eigen_macros_h)
+  string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" eigen_world "${eigen_macros_h}")
+  set(EIGEN_VERSION_WORLD "${CMAKE_MATCH_1}")
+  string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" eigen_major "${eigen_macros_h}")
+  set(EIGEN_VERSION_MAJOR "${CMAKE_MATCH_1}")
+  string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" eigen_minor "${eigen_macros_h}")
+  set(EIGEN_VERSION_MINOR "${CMAKE_MATCH_1}")
+  set(EIGEN_VERSION ${EIGEN_VERSION_WORLD}.${EIGEN_VERSION_MAJOR}.${EIGEN_VERSION_MINOR})
+  message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR} (found version ${EIGEN_VERSION})")
 endif()
 
 # Look for HDF5

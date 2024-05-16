@@ -8,8 +8,10 @@ __pycache__
 .pydevproject
 .cproject
 .settings
+.vscode
 core
 nano.save
+myoutput
 doc/demo/*/*.md
 doc/demo/*/Figures
 doc/demo/*/*.csv*

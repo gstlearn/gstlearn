@@ -281,14 +281,16 @@ make check_r
 
 * Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs/swig4.2.0b` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* You may need to reconnect to your session after installing some requirements
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command (at least one time). This will create a *personal R library folder* having writing permissions.
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Under Windows, using RTools is mandatory for compiling R packages
 * Under Windows, you may need to add `-G "MSYS Makefiles"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
+* You may need to precise the location of Boost, Eigen3, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
   * `-DBoost_ROOT="path/to/boost"`
+  * `-DEigen3_ROOT="path/to/eigen3"`
   * `-DSWIG_ROOT="path/to/swig"`
   * `-DDoxygen_ROOT="path/to/doxygen"`
   * `-DHDF5_ROOT="path/to/hdf5"``

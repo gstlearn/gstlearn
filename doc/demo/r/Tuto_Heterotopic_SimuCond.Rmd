@@ -1,0 +1,147 @@
+---
+title: "Homotopic / Heterotopic conditional simulations"
+author: "gstlearn Core Team"
+date: "2024-04-12"
+output: pdf_document
+---
+
+# Loading the libraries and the dataset
+
+```{r setup, echo=FALSE, message=FALSE, eval=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gstlearn) # loading gstlearn
+library(ggplot2)
+library(ggpubr)   # added for multiple plots
+```
+
+```{r init, echo=TRUE, eval=TRUE}
+# initialisation
+graphics.off()
+rm(list = ls())
+
+# global parameters
+flag.verbose = FALSE
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+set.seed(25854)
+```
+
+# Initial data set
+
+```{r environment, echo=TRUE, eval=TRUE}
+# grid
+nx  = c(100, 100)
+dx  = 1/nx
+x0  = c(0., 0.)
+grd = DbGrid_create(nx = nx, dx = dx, x0 = x0)
+
+# neighborhood
+neigh = NeighMoving_create(nmaxi = 50, nmini = 10, radius = 1.0)
+
+# model
+rho = 0.7
+c0  = matrix(c(1.0, rho, rho, 1), nrow = 2, ncol = 2)
+mod = Model_createFromParam(type = ECov_EXPONENTIAL(), range = 0.1, sills = c0)
+err = mod$setMeans(c(100, 0))
+```
+
+```{r data_set, echo=TRUE, eval=TRUE}
+# Initial simulation
+err = simtub(dbin = NULL, dbout = grd, model = mod, nbsimu = 1, 
+             namconv = NamingConvention("Y"))
+
+err = grd$setName("Y.1", "Z1")
+err = grd$setName("Y.2", "Z2")
+
+knitr::kable(dbStatisticsMono(grd, names = "Z*", opers = opers, flagIso = FALSE)$toTL(),
+             digits = 3, 
+             caption = "Statistics on the initial simulations")
+print(paste0("Correlation = ", round(cor(grd["Z1"], grd["Z2"]), 3)))
+```
+
+Deriving a heterotopic data base
+
+```{r data_heterotopic, echo=TRUE, eval=TRUE}
+np = 200
+
+dat = Db_createSamplingDb(db = grd, number = np, names = c("x1", "x2", "Z1", "Z2"), 
+                          seed = 123)
+
+# discarding 1/4 of the initial data on Z1
+sel = sort(sample(1:np, np/4, replace = FALSE))
+Z1 <- dat["Z1"]
+Z1[sel] <- NaN
+dat["Z1.heterotopic"] <- Z1
+
+# discarding 1/5 of the initial data on Z2
+sel = sort(sample(1:np, np/5, replace = FALSE))
+Z2 <- dat["Z2"]
+Z2[sel] <- NaN
+dat["Z2.heterotopic"] <- Z2
+
+knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers, 
+                              flagIso = FALSE)$toTL(), digits = 3, 
+             caption = "Statistics on the heterotopic data set")
+
+knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers, 
+                              flagIso = TRUE)$toTL(), digits = 3, 
+             caption = "Statistics on the homotopic sub set")
+```
+
+# Conditional simulations
+
+## - with homotopic data set
+
+```{r simu_homotopic, echo=TRUE, eval=TRUE}
+err = dat$setLocators(names = paste(c("Z1", "Z2"), sep = "."), 
+                      locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+err = simtub(dbin = dat, dbout = grd, model = mod, neigh = neigh, nbsimu = 1, 
+             seed = 2597,
+             namconv = NamingConvention("homotopic"))
+
+# statistics
+knitr::kable(
+  rbind(
+    dbStatisticsMono(grd, names = paste0("homotopic*"), opers = opers, 
+                     flagIso = FALSE)$toTL()
+  ), digits = 4, caption = "Statistics on simulated data"
+)
+
+# histogram and base map
+p1 = ggDefault() + plot.hist(grd, name = "homotopic.Z1")
+p2 = ggDefault() + plot.hist(grd, name = "homotopic.Z2")
+p3 = ggDefault() + plot.grid(grd, nameRaster = "homotopic.Z1", palette = "Spectral", 
+                             flagLegendRaster = TRUE, legendNameRaster = "Z1")
+p4 = ggDefault() + plot.grid(grd, nameRaster = "homotopic.Z2", palette = "Spectral", 
+                             flagLegendRaster = TRUE, legendNameRaster = "Z2")
+ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
+```
+
+## - with heterotopic data set
+
+```{r simu_heterotopic, echo=TRUE, eval=TRUE}
+err = dat$setLocators(names = paste(c("Z1", "Z2"), "heterotopic", sep = "."), 
+                      locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+err = simtub(dbin = dat, dbout = grd, model = mod, neigh = neigh, nbsimu = 1, 
+             seed = 2597,
+             namconv = NamingConvention("heterotopic"))
+
+# statistics
+knitr::kable(
+  rbind(
+    dbStatisticsMono(grd, names = paste0("heterotopic*"), opers = opers, 
+                     flagIso = FALSE)$toTL()
+  ), digits = 4, caption = "Statistics on simulated data"
+)
+
+# histogram and base map
+p1 = ggDefault() + plot.hist(grd, name = "heterotopic.Z1.heterotopic")
+p2 = ggDefault() + plot.hist(grd, name = "heterotopic.Z2.heterotopic")
+p3 = ggDefault() + plot.grid(grd, nameRaster = "heterotopic.Z1.heterotopic", 
+                             palette = "Spectral", 
+                             flagLegendRaster = TRUE, legendNameRaster = "Z1")
+p4 = ggDefault() + plot.grid(grd, nameRaster = "heterotopic.Z2.heterotopic", 
+                             palette = "Spectral", 
+                             flagLegendRaster = TRUE, legendNameRaster = "Z2")
+ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
+```
+

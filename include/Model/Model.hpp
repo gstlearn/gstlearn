@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
 #include "Enum/ECalcMember.hpp"
@@ -141,7 +142,8 @@ public:
   bool isStationary() const;
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
-  double getTotalSill(int ivar, int jvar) const;
+  double getTotalSill(int ivar=0, int jvar=0) const;
+  MatrixSquareGeneral getTotalSills() const;
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
 
@@ -320,9 +322,11 @@ public:
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
+                           double eps = 0.,
+                           int seed = 434132,
                            const CovCalcMode* mode = nullptr) const
   {
-    return _cova->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
+    return _cova->evalAverageDbToDb(db1, db2, ivar, jvar, eps, seed, mode);
   }
   double evalAverageIncrToIncr(const VectorVectorDouble& d1,
                                const VectorVectorDouble& d2,
@@ -351,6 +355,18 @@ public:
   {
     return _cova->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
   }
+  MatrixSparse* evalCovMatrixSparse(Db *db1,
+                                    Db *db2 = nullptr,
+                                    int ivar0 = 0,
+                                    int jvar0 = 0,
+                                    const VectorInt &nbgh1 = VectorInt(),
+                                    const VectorInt &nbgh2 = VectorInt(),
+                                    const CovCalcMode *mode = nullptr,
+                                    double eps = EPSILON3)
+  {
+    return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
+  }
+
   /**
    * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
    * @param icas1 Origin of the Db containing the first point
@@ -447,7 +463,6 @@ public:
                          const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const;
 
-
   double evalCov(const VectorDouble& incr,
                  int icov = 0,
                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
@@ -478,31 +493,35 @@ public:
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
   int getDriftMaxIRFOrder(void) const;
 
-  void resetDriftCoef() { _driftList->resetDriftCL(); }
+  void resetDriftCoef();
   void setDriftCoef(int ivar, int il, int ib, double coeff)    ;
   void setDriftFiltered(int il, bool filtered)                 ;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;
+  void setBetaHat(const VectorDouble &betaHat);
 
   double evalDrift(const Db* db,
                    int iech,
                    int il,
                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  double evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const;
   VectorDouble evalDriftVec(const Db* db,
                             int iech,
                             const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  VectorDouble evalDriftCoefVec(const Db *db,
-                                const VectorDouble &coeffs,
-                                int ivar = 0,
-                                bool useSel = false) const;
   void evalDriftVecInPlace(const Db* db,
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
-  double evalDriftCoef(const Db *db,
-                       int iech,
-                       int ivar,
-                       const VectorDouble &coeffs) const;
+  double evalDriftVarCoef(const Db *db,
+                          int iech,
+                          int ivar,
+                          const VectorDouble &coeffs) const;
+  VectorDouble evalDriftVarCoefVec(const Db *db,
+                                   const VectorDouble &coeffs,
+                                   int ivar = 0,
+                                   bool useSel = false) const;
+  MatrixRectangular evalDriftMat(const Db *db,
+                                 const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -529,6 +548,7 @@ public:
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);
   CovParamId getCovParamId(int ipar) const;
+  bool isNostatParamDefined(const EConsElem &type0);
   ////////////////////////////////////////////////
 
   const EModelProperty& getCovMode() const;
@@ -551,27 +571,17 @@ public:
 
   int hasExternalCov() const;
 
-  MatrixSquareSymmetric covMatrixM(Db *db1,
-                                   Db *db2 = nullptr,
-                                   int ivar = -1,
-                                   int jvar = -1,
-                                   const CovCalcMode* mode = nullptr);
+  MatrixSquareSymmetric covMatrixMS(Db *db1, const CovCalcMode *mode = nullptr);
+  MatrixRectangular covMatrixM(Db *db1,
+                               Db *db2 = nullptr,
+                               int ivar = -1,
+                               int jvar = -1,
+                               const CovCalcMode *mode = nullptr);
   VectorDouble covMatrixV(Db *db1,
                           Db *db2 = nullptr,
                           int ivar = 0,
                           int jvar = 0,
                           const CovCalcMode* mode = nullptr);
-  void covMatrix(VectorDouble& covmat,
-                 Db *db1,
-                 Db *db2 = nullptr,
-                 int ivar = 0,
-                 int jvar = 0,
-                 const CovCalcMode* mode = nullptr);
-  VectorDouble sample(const VectorDouble& hh,
-                      int ivar = 0,
-                      int jvar = 0,
-                      VectorDouble codir = VectorDouble(),
-                      const CovCalcMode* mode = nullptr);
   VectorDouble sampleUnitary(const VectorDouble &hh,
                              int ivar = 0,
                              int jvar = 0,
@@ -612,6 +622,42 @@ public:
   VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
+
+  VectorDouble sample(const VectorDouble &h,
+                      const VectorDouble &codir = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode* mode = nullptr,
+                      const CovInternal* covint = nullptr);
+  double evaluateOneIncr(double hh,
+                         const VectorDouble &codir = VectorDouble(),
+                         int ivar = 0,
+                         int jvar = 0,
+                         const CovCalcMode *mode = nullptr);
+  void evaluateMatInPlace(const CovInternal *covint,
+                          const VectorDouble &d1,
+                          MatrixSquareGeneral &covtab,
+                          bool flag_init = false,
+                          double weight = 1.,
+                          const CovCalcMode *mode = nullptr);
+  double evaluateOneGeneric(const CovInternal *covint,
+                            const VectorDouble &d1 = VectorDouble(),
+                            double weight = 1.,
+                            const CovCalcMode *mode = nullptr);
+  VectorDouble evaluateFromDb(Db *db,
+                              int ivar = 0,
+                              int jvar = 0,
+                              const CovCalcMode *mode = nullptr);
+  double calculateStdev(Db *db1,
+                        int iech1,
+                        Db *db2,
+                        int iech2,
+                        bool verbose = false,
+                        double factor = 1.,
+                        const CovCalcMode *mode = nullptr);
+  void nostatUpdate(CovInternal *covint);
+
+  double computeLogLikelihood(Db* db, bool verbose = false);
 
 protected:
   /// Interface to ASerializable

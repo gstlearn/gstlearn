@@ -26,17 +26,17 @@ public:
   GibbsMulti& operator=(const GibbsMulti &r);
   virtual ~GibbsMulti();
 
-  int calculInitialize(VectorVectorDouble& y,
-                       int isimu,
-                       int ipgs);
+  /// Interface for AGibbs
+  int calculInitialize(VectorVectorDouble &y, int isimu, int ipgs) override;
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,
+                     int icase,
                      int ipgs,
                      int ivar,
                      int iact,
-                     int iter);
-  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
+                     int iter) override;
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) override;
 
   Model* getModel() const { return _model; } // protect using const asap
 

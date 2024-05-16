@@ -221,6 +221,7 @@
   #include "Enum/ETape.hpp"
   #include "Enum/ELoadBy.hpp"
   #include "Enum/ELoc.hpp"
+  #include "Enum/EOperator.hpp"
   #include "Enum/EPowerPT.hpp"
   #include "Enum/ERule.hpp"
   #include "Enum/EConsElem.hpp"
@@ -550,6 +551,7 @@
 %template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
 %template(VectorEPostStat)    std::vector< EPostStat >;
+%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

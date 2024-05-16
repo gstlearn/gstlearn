@@ -14,6 +14,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
+#define SQ(i,j,neq)   ((j) * neq + (i))
+#define A(i,j)         a[SQ(i,j,neq)]
+#define B(i,j)         b[SQ(i,j,neq)]
+#define C(i,j)         c[SQ(i,j,neqm1)]
+
 MatrixSquareGeneral::MatrixSquareGeneral(int nrow, int opt_eigen)
   : AMatrixSquare(nrow, opt_eigen)
   , _squareMatrix()
@@ -149,6 +154,14 @@ void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
+void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+    AMatrixDense::_updValue(irow, icol, oper, value);
+  else
+    _updValueLocal(irow, icol, oper, value);
+}
+
 void MatrixSquareGeneral::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
@@ -217,6 +230,7 @@ void MatrixSquareGeneral::_allocate()
     AMatrixDense::_allocate();
   else
     _allocateLocal();
+  fill(0.);
 }
 
 int MatrixSquareGeneral::_getMatrixPhysicalSize() const
@@ -228,23 +242,6 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;
-}
-
-MatrixSquareGeneral* MatrixSquareGeneral::createReduce(const VectorInt &validRows) const
-{
-  // Order and shrink the input vectors
-  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  int newNRows = (int) localValidRows.size();
-  if (newNRows <= 0)
-  {
-    messerr("The new Matrix has no Row left");
-    return nullptr;
-  }
-
-  MatrixSquareGeneral* res = new MatrixSquareGeneral(newNRows);
-  res->copyReduce(this, localValidRows, localValidRows);
-
-  return res;
 }
 
 /// ==========================================================================
@@ -286,6 +283,13 @@ void MatrixSquareGeneral::_setValueLocal(int irow, int icol, double value)
   _squareMatrix[rank] = value;
 }
 
+void MatrixSquareGeneral::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+{
+  if (!_isIndexValid(irow, icol)) return;
+  int rank = _getIndexToRank(irow, icol);
+  _squareMatrix[rank] = modifyOperator(oper, _squareMatrix[rank], value);
+}
+
 void MatrixSquareGeneral::_setValueLocal(int irank, double value)
 {
   if (!_isRankValid(irank)) return;
@@ -313,7 +317,7 @@ void MatrixSquareGeneral::_transposeInPlaceLocal()
   int nrow = getNRows();
   int ncol = getNCols();
   VectorDouble old = _squareMatrix;
-  matrix_transpose(nrow, ncol, _squareMatrix.data(), old.data());
+  matrix_transpose(nrow, ncol, _squareMatrix, old);
   _squareMatrix = old;
   _setNCols(nrow);
   _setNRows(ncol);
@@ -322,10 +326,10 @@ void MatrixSquareGeneral::_transposeInPlaceLocal()
 int MatrixSquareGeneral::_invertLocal()
 {
   if (getNRows() <= 3)
-    return matrix_invreal(_squareMatrix.data(), getNRows());
+    return _matrix_invreal(_squareMatrix, getNRows());
   else
   {
-    int error = matrix_LU_invert(getNRows(), _squareMatrix.data());
+    int error = _invertLU();
     return error;
   }
 }
@@ -346,5 +350,268 @@ MatrixSquareGeneral* prodNormMat(const AMatrixDense &a, const VectorDouble& vec,
   MatrixSquareGeneral *mat = new MatrixSquareGeneral(nsym, a.isFlagEigen());
   mat->prodNormMatInPlace(a, vec, transpose);
   return mat;
+}
+
+int MatrixSquareGeneral::_invertLU()
+{
+  int neq = getNRows();
+
+  // Perform the LU decomposition
+  MatrixSquareGeneral tls(neq);
+  MatrixSquareGeneral tus(neq);
+  MatrixSquareGeneral ais(neq);
+  ais.fill(0.);
+  if (decomposeLU(tls, tus)) return 1;
+
+  VectorDouble b(neq);
+  VectorDouble x(neq);
+  for (int i = 0; i < neq; i++)
+  {
+    // Preparing the right-hand side vector (column of the identity matrix)
+    VH::fill(b, 0.);
+    b[i] = 1.;
+
+    if (_solveLU(tus, tls, b.data(), x.data())) return 1;
+
+    for (int j = 0; j < neq; j++)
+      ais.setValue(i, j, x[j]);
+  }
+
+  // Copy the inverse matrix in the input matrix
+  for (int irow = 0; irow < neq; irow++)
+    for (int icol = 0; icol < neq; icol++)
+      setValue(irow, icol, ais.getValue(irow, icol));
+  return 0;
+}
+
+int MatrixSquareGeneral::_solveLU(const MatrixSquareGeneral& tus,
+                                  const MatrixSquareGeneral& tls,
+                                  const double *b,
+                                  double *x)
+{
+  int neq = getNRows();
+  VectorDouble y(neq);
+  if (_forwardLU(tls, b, y.data())) return 1;
+  if (_backwardLU(tus, y.data(), x)) return 1;
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Get the solution of a linear system (after LU decomposition)
+ **     L * x = b
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  tls  Square matrix containing lower triangle (stored column-wise)
+ ** \param[in]  b    matrix (dimension neq)
+ ** \param[in]  eps  Tolerance
+ **
+ ** \param[out] x    resulting matrix (dimension neq)
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps)
+{
+  int neq = getNRows();
+  for (int i = 0; i < neq; i++) x[i] = 0.;
+  for (int i = 0; i < neq; i++)
+  {
+    double tmp = b[i];
+    for (int j = 0; j < i; j++)
+      tmp -= tls.getValue(i,j) * x[j];
+
+    double pivot = tls.getValue(i,i);
+    if (abs(pivot) < eps) return 1;
+    x[i] = tmp / pivot;
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Get the solution of a linear system (after LU decomposition)
+ **     U * x = b
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  tus  square matrix containing upper triangle (stored line-wise)
+ ** \param[in]  b    matrix (dimension neq)
+ ** \param[in]  eps  Tolerance
+ **
+ ** \param[out] x    resulting matrix (dimension neq)
+ **
+ ** \remark As the Upper matrix is stored line-wise, it is considered
+ ** \remark as the transposed version of a lower triangle
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps)
+{
+  int neq = getNRows();
+  for (int i = neq-1; i >= 0; i--)
+  {
+    double tmp = b[i];
+    for (int j = i+1; j < neq; j++)
+      tmp -= tus.getValue(i,j) * x[j];
+
+    double pivot = tus.getValue(i,i);
+    if (abs(pivot) < eps) return 1;
+    x[i] = tmp / pivot;
+  }
+  return 0;
+}
+
+/**
+ * LU Decomposition of a square matrix (not necessarily symmetric)
+ * @param tls  Output square matrix containing lower triangle (stored columnwise)
+ * @param tus  Output square matrix containing upper triangle (stored linewise)
+ * @param eps  Tolerance
+ *
+ * @remarks The output matrices 'tus'  and 'tls' must be dimensioned beforehand
+ */
+int MatrixSquareGeneral::decomposeLU(MatrixSquareGeneral& tls,
+                                     MatrixSquareGeneral& tus,
+                                     double eps)
+{
+  int neq = getNRows();
+  tls.fill(0.);
+  tus.fill(0.);
+
+  for (int i = 0; i < neq; i++)
+    tls.setValue(i, i, 1.);
+
+  for (int i = 0; i < neq; i++)
+  {
+    int ip1 = i + 1;
+    int im1 = i - 1;
+
+    for (int j = 0; j < neq; j++)
+    {
+      tus.setValue(i,j,getValue(i,j));
+      if (im1 >= 0)
+      {
+        for (int k = 0; k <= im1; k++)
+        {
+          tus.setValue(i,j, tus.getValue(i,j) - tls.getValue(i,k) * tus.getValue(k,j));
+        }
+      }
+    }
+    if (ip1 < neq)
+    {
+      for (int j = ip1; j < neq; j++)
+      {
+        tls.setValue(j,i,getValue(j,i));
+        if (im1 >= 0)
+        {
+          for (int k = 0; k <= im1; k++)
+          {
+            tls.setValue(j,i, tls.getValue(j,i) - tls.getValue(j,k) * tus.getValue(k,i));
+          }
+        }
+        double pivot = tus.getValue(i,i);
+        if (abs(pivot) < eps) return 1;
+        tls.setValue(j,i, tls.getValue(j,i) / pivot);
+      }
+    }
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Invert a square real full matrix
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  mat  input matrix, destroyed in computation and replaced by
+ **                  resultant inverse
+ ** \param[in]  neq  number of equations in the matrix 'a'
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_matrix_invreal(VectorDouble& mat, int neq)
+{
+  /* Calculate the determinant */
+
+  double det = matrix_determinant(neq, mat);
+  if (isZero(det)) return 1;
+
+  if (neq > 1)
+  {
+
+    /* Core allocation */
+
+    VectorDouble cofac(neq * neq);
+
+    /* Calculate the cofactor */
+
+    if (_matrix_cofactor(neq, mat, cofac)) return 1;
+
+    /* Transpose the cofactor to obtain the adjoint matrix */
+
+    matrix_transpose(neq, neq, cofac, mat);
+  }
+
+  /* Final normation */
+
+  for (int i = 0; i < neq * neq; i++)
+    mat[i] /= det;
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the cofactor of the matrix
+ **
+ ** \return  Value of the determinant
+ **
+ ** \param[in]  neq    Size of the matrix
+ ** \param[in]  a      Square matrix to be checked
+ **
+ ** \param[out] b      Square cofactor
+ **
+ *****************************************************************************/
+int MatrixSquareGeneral::_matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b)
+{
+  // Process the case when the matrix A is of dimension 1
+
+  int neqm1 = neq - 1;
+  if (neqm1 <= 0)
+  {
+    B(0,0)= 1.;
+    return 0;
+  }
+  VectorDouble c(neqm1 * neqm1);
+
+  /* Processing */
+
+  for (int j = 0; j < neq; j++)
+  {
+    for (int i = 0; i < neq; i++)
+    {
+
+      /* Form the adjoint a_ij */
+
+      int i1 = 0;
+      for (int ii = 0; ii < neq; ii++)
+      {
+        if (ii == i) continue;
+        int j1 = 0;
+        for (int jj = 0; jj < neq; jj++)
+        {
+          if (jj == j) continue;
+          C(i1,j1) = A(ii,jj);
+          j1++;
+        }
+        i1++;
+      }
+
+      /* Calculate the determinate */
+      double det = matrix_determinant(neqm1, c);
+
+      /* Fill in the elements of the cofactor */
+      B(i,j) = pow(-1.0, i+j+2.0) * det;
+    }
+  }
+  return (0);
 }
 

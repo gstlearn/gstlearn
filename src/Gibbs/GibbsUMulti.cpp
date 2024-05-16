@@ -71,12 +71,8 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   Db* db = getDb();
   Model* model = getModel();
   int nvar = model->getVariableNumber();
-  int nact = getSampleRankNumber();
+  int nact = _getSampleRankNumber();
   int neq  = nvar * nact;
-
-  // Core allocation
-
-  _covmat.resize(neq * neq,0.);
 
   // Establish Covariance Matrix
 
@@ -84,7 +80,7 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   /* Establish the covariance matrix and invert it */
 
-  model_covmat(model,db,db,-1,-1,_covmat.data());
+  _covmat = model->covMatrixV(db, db, -1, -1);
 
   // Invert Covariance Matrix
 
@@ -97,9 +93,40 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   // Initialize the statistics (optional)
 
-  statsInit();
+  _statsInit();
 
   return 0;
+}
+
+int GibbsUMulti::_getSize() const
+{
+  int nact = _getSampleRankNumber();
+  int nvar = getNvar();
+  return nact * nvar;
+}
+
+double GibbsUMulti::_getVariance(int iecr) const
+{
+  int neq  = _getSize();
+  return (1. / COVMAT(iecr, iecr));
+}
+
+double GibbsUMulti::_getEstimate(int ipgs, int iecr, VectorVectorDouble& y)
+{
+  int nvar = getNvar();
+  int nact = _getSampleRankNumber();
+  int neq  = _getSize();
+
+  double yk = 0.;
+  for (int jvar = 0, jecr = 0; jvar < nvar; jvar++)
+  {
+    int jcase = getRank(ipgs, jvar);
+    for (int jact = 0; jact < nact; jact++, jecr++)
+    {
+      yk -= y[jcase][jact] * COVMAT(iecr, jecr);
+    }
+  }
+  return yk;
 }
 
 /****************************************************************************/
@@ -117,10 +144,9 @@ void GibbsUMulti::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
-  double valsim;
+  double valsim, yk, vk;
   int nvar = getNvar();
-  int nact = getSampleRankNumber();
-  int neq  = nvar * nact;
+  int nact = _getSampleRankNumber();
 
   /* Print the title */
 
@@ -135,24 +161,18 @@ void GibbsUMulti::update(VectorVectorDouble& y,
     int icase = getRank(ipgs,ivar);
     for (int iact = 0; iact < nact; iact++, iecr++)
     {
-      if (!isConstraintTight(ipgs, ivar, iact, &valsim))
+      if (!_isConstraintTight(icase, iact, &valsim))
       {
+        // The term of y corresponding to the current (variable, sample)
+        // is set to 0 in order to avoid testing it next.
+        y[icase][iact] = 0.;
 
-        /* Loop on the Data */
+        // Calculate the estimate and the variance of estimation
+        vk = _getVariance(iecr);
+        yk = _getEstimate(ipgs, iecr, y) * vk;
 
-        double yk = 0.;
-        double vark = 1. / COVMAT(iecr, iecr);
-        for (int jvar = 0, jecr = 0; jvar < nvar; jvar++)
-        {
-          int jcase = getRank(ipgs, jvar);
-          for (int jact = 0; jact < nact; jact++, jecr++)
-          {
-            if (ivar != jvar || iact != jact)
-              yk -= y[jcase][jact] * COVMAT(iecr, jecr);
-          }
-        }
-        yk *= vark;
-        valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar, iact, iter);
+        // Simulate the new value
+        valsim = getSimulate(y, yk, sqrt(vk), icase, ipgs, ivar, iact, iter);
       }
       y[icase][iact] = valsim;
     }
@@ -160,5 +180,5 @@ void GibbsUMulti::update(VectorVectorDouble& y,
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  _updateStats(y, ipgs, iter);
 }

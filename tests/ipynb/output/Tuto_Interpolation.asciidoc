@@ -1,4 +1,4 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -43,13 +43,13 @@ Column = 3 - Name = Simu - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Moving Neighborhood
@@ -60,7 +60,7 @@ Maximum horizontal distance         = 0.2
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -89,13 +89,13 @@ Column = 4 - Name = MovAve.Simu.estim - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -125,13 +125,13 @@ Column = 5 - Name = InvDist.Simu.estim - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Moving Neighborhood
@@ -142,7 +142,7 @@ Maximum horizontal distance         = 0.5
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics
@@ -173,7 +173,7 @@ Column = 6 - Name = LstSqr.Simu.estim - Locator = z1
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

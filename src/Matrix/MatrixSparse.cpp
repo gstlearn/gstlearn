@@ -242,7 +242,7 @@ int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
   return _factor->simulate(b, x);
 }
 
-double MatrixSparse::getCholeskyLogDeterminant()
+double MatrixSparse::computeCholeskyLogDeterminant()
 {
   if (_factor == nullptr)
     _factor = new Cholesky(this);
@@ -291,14 +291,10 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
 {
   if (isFlagEigen())
   {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,icol); it; ++it)
     {
-      if (k != icol) continue;
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-      {
-        int irow = it.row();
-        it.valueRef() = tab[irow];
-      }
+      int irow = it.row();
+      it.valueRef() = tab[irow];
     }
   }
   else
@@ -346,7 +342,7 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
     cs *local = cs_spalloc2(0, 0, 1, 1, 1);
     for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
     {
-      if (ABS(tab[icol]) < EPSILON10) continue;
+      if (isZero(tab[icol])) continue;
       (void) cs_entry2(local, icol, icol, tab[icol]);
     }
     _csMatrix = cs_triplet2(local);
@@ -423,6 +419,21 @@ void MatrixSparse::_setValue(int irow, int icol, double value)
   {
     if (! _isIndexValid(irow, icol)) return;
     cs_set_value(_csMatrix, irow, icol, value);
+  }
+}
+
+void MatrixSparse::_updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (isFlagEigen())
+  {
+    double newval = modifyOperator(oper, _eigenMatrix.coeff(irow, icol), value);
+    _eigenMatrix.coeffRef(irow, icol) = newval;
+  }
+  else
+  {
+    if (! _isIndexValid(irow, icol)) return;
+    double newval = modifyOperator(oper, cs_get_value(_csMatrix, irow, icol), value);
+    cs_set_value(_csMatrix, irow, icol, newval);
   }
 }
 
@@ -620,7 +631,7 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
       for (int icol = 0; icol < getNCols(); icol++)
         for (int irow = 0; irow < getNRows(); irow++, lec++)
         {
-          if (ABS(values[lec]) < EPSILON10) continue;
+          if (isZero(values[lec])) continue;
           (void) cs_entry2(local, irow, icol, values[lec]);
         }
     }
@@ -629,7 +640,7 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
       for (int irow = 0; irow < getNRows(); irow++)
         for (int icol = 0; icol < getNCols(); icol++, lec++)
         {
-          if (ABS(values[lec]) < EPSILON10) continue;
+          if (isZero(values[lec])) continue;
           (void) cs_entry2(local, irow, icol, values[lec]);
         }
     }
@@ -852,7 +863,7 @@ int MatrixSparse::scaleByDiag()
  */
 void MatrixSparse::addScalar(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
   if (isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
@@ -876,7 +887,7 @@ void MatrixSparse::addScalar(double v)
  */
 void MatrixSparse::addScalarDiag(double v)
 {
-  if (v == 0.) return;
+  if (isZero(v)) return;
 
   if (isFlagEigen())
   {
@@ -903,7 +914,7 @@ void MatrixSparse::addScalarDiag(double v)
  */
 void MatrixSparse::prodScalar(double v)
 {
-  if (v == 1.) return;
+  if (isOne(v)) return;
   if (isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
@@ -1423,7 +1434,7 @@ int MatrixSparse::_eigen_findColor(int imesh,
 
   for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,imesh); it; ++it)
   {
-    if (ABS(it.value()) < EPSILON10) continue;
+    if (isZero(it.value())) continue;
     int irow = it.row();
     if (!IFFFF(colors[irow])) temp[colors[irow] - 1]++;
   }

@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
   dat->display();
 
   // Estimation and simulations
-  (void) krigingSPDE(dat,grid,model, true, false, false, nullptr, useCholesky, SPDEParam(), false, false,
-                     NamingConvention("K-spirale"));
+  (void) krigingSPDE(dat,grid,model, true, false, nullptr, useCholesky, SPDEParam(),
+                     0, 0, false, false, NamingConvention("K-spirale"));
   (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, useCholesky, SPDEParam(), 132341, false, false,
                       NamingConvention("NCS-spirale"));
   (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, useCholesky, SPDEParam(), 132341,false, false,

@@ -1,36 +1,14 @@
-+#NO_DIFF#XXX+
-----
 #NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-----
-
-
-+#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 
 Data Base Grid Characteristics

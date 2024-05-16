@@ -3,6 +3,8 @@ title: "Evaluation of the simulation functions (Turning bands vs. SPDE)"
 author: "gstlearn Team"
 date: "2023-09-05"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Comparing simulations using Turning Bands and SPDE  -->
@@ -181,9 +183,9 @@ for (idir in 1:ndir) {
   }
   
   # variogram model
-  abline(h  = var_model$getTotalSill(ivar = 0, jvar = 0), lty = 2, col = "skyblue")
-  lines(hh, var_model$getTotalSill(ivar = 0, jvar = 0) - var_model$sample(hh = hh, ivar = 0, jvar = 0, 
-        codir = var_param$getDirParam(idir - 1)$getCodirs()), 
+  c00 = var_model$getTotalSill()
+  abline(h  = c00, lty = 2, col = "skyblue")
+  lines(hh, c00 - var_model$sample(h = hh, codir = var_param$getDirParam(idir - 1)$getCodirs()), 
         lty = 1, lw = 2, col = "skyblue")
   
   # legend TODO
@@ -241,7 +243,7 @@ neigh = NeighUnique()
                namconv = NamingConvention("kriging"))
 
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
-               flag_est = TRUE, flag_std = FALSE, flag_varz = FALSE, 
+               flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
 
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
@@ -352,7 +354,7 @@ neigh = NeighUnique()
                namconv = NamingConvention("kriging"))
 
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
-               flag_est = TRUE, flag_std = FALSE, flag_varz = FALSE, 
+               flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
 
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,

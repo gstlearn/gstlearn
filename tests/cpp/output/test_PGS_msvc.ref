@@ -371,7 +371,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.9095)
+K-Bessel (Third Parameter = 99.4094)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -388,14 +388,14 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.0963)
-- Sill         =      0.654
-- Range        =      0.184
+K-Bessel (Third Parameter = 99.0338)
+- Sill         =      0.706
+- Range        =      0.183
 - Theo. Range  =      0.005
 Exponential
-- Sill         =      0.346
-- Range        =      0.092
-- Theo. Range  =      0.031
+- Sill         =      0.294
+- Range        =      0.064
+- Theo. Range  =      0.022
 Total Sill     =      1.000
 Known Mean(s)     0.000
 
@@ -440,7 +440,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.9095)
+K-Bessel (Third Parameter = 99.4094)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -457,7 +457,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.9095)
+K-Bessel (Third Parameter = 99.4094)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -486,8 +486,8 @@ Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.046
-         1  2009.000     0.029     0.081
+         0   277.000     0.009     0.048
+         1  2009.000     0.029     0.082
          2  3964.000     0.053     0.108
          3  5931.000     0.079     0.128
          4  7553.000     0.106     0.142
@@ -508,10 +508,10 @@ For variable 1
 
 For variables 2 and 1
       Rank    Npairs  Distance     Value
-         0   277.000     0.009    -0.039
-         1  2009.000     0.029    -0.062
+         0   277.000     0.009    -0.042
+         1  2009.000     0.029    -0.063
          2  3964.000     0.053    -0.075
-         3  5931.000     0.079    -0.084
+         3  5931.000     0.079    -0.083
          4  7553.000     0.106    -0.089
          5  9094.000     0.132    -0.093
          6 10192.000     0.158    -0.096
@@ -530,11 +530,11 @@ For variables 2 and 1
 
 For variable 2
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.056
-         1  2009.000     0.029     0.109
+         0   277.000     0.009     0.058
+         1  2009.000     0.029     0.110
          2  3964.000     0.053     0.158
          3  5931.000     0.079     0.195
-         4  7553.000     0.106     0.221
+         4  7553.000     0.106     0.220
          5  9094.000     0.132     0.236
          6 10192.000     0.158     0.244
          7 11761.000     0.184     0.247
@@ -626,7 +626,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.9095)
+K-Bessel (Third Parameter = 99.4094)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004

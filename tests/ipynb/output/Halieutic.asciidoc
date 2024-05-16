@@ -1,6 +1,6 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-[cols=",,,,,,,",options="header",]
+
 |===
 | |survey |year |time |x |y |NASC |sp
 |0 |AC_SPRING_IBBB |2018 |04/05/2018 19:20:00 |-9.295565 |40.381000 |0.0
@@ -21,7 +21,7 @@
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----

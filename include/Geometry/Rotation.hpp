@@ -27,6 +27,8 @@ public:
   Rotation& operator=(const Rotation& r);
   virtual ~Rotation();
 
+  static bool isMatrixRotation(const MatrixSquareGeneral& rotmat, bool verbose);
+
   unsigned int getNDim() const { return _nDim; }
   bool isRotated() const { return _flagRot; }
   const MatrixSquareGeneral& getMatrixDirect() const { return _rotMat; }

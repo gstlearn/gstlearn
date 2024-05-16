@@ -61,7 +61,7 @@ To report a bug or contact us:
 This library has been successfully tested with Ubuntu 18/20/22 LTS and Windows 10 (MacOS: not tested).
 For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
-* Git client 2.30 or higher
+* Git client 2.16 or higher
 * CMake tool 3.20 or higher
 * A C++ compiler among:
   * Linux:
@@ -221,7 +221,7 @@ brew install libeigen3-dev
 brew install libhdf5-dev
 ```
 
-Define environment variables for the appropriate clang compiler:
+Define environment variables for the appropriate clang compiler (adapt llvm installation path):
 
 ```
 export CC=/usr/local/opt/llvm/bin/clang
@@ -329,6 +329,7 @@ pacman -Sy mingw-w64-x86_64-doxygen
 ### Important Notes
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* You may need to reconnect to your session after installing some requirements
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows and MacOS**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.

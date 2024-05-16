@@ -146,13 +146,13 @@ void PCA::_mafFunctions(bool verbose)
   }
 }
 
-int PCA::_calculateEigen(bool verbose)
+int PCA::_calculateEigen(bool verbose, bool optionPositive)
 {
   int nvar = _nVar;
 
   // Eigen decomposition
 
-  if (_c0.computeEigen()) return 1;
+  if (_c0.computeEigen(optionPositive)) return 1;
   _eigval = _c0.getEigenValues();
   _eigvec = *_c0.getEigenVectors();
 
@@ -199,8 +199,7 @@ String PCA::toString(const AStringFormat* strfmt) const
 
   if (dsf.getflagCenter())
   {
-    sstr << toMatrix("Means", VectorString(), VectorString(), true, 1, _nVar,
-                    _mean);
+    sstr << toMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
   }
   if (dsf.getflagStats())
   {
@@ -562,7 +561,7 @@ void PCA::_pcaF2Z(int iptr,
   }
 }
 
-int PCA::pca_compute(const Db *db, bool verbose)
+int PCA::pca_compute(const Db *db, bool verbose, bool optionPositive)
 {
 
   /* Initializations */
@@ -595,7 +594,7 @@ int PCA::pca_compute(const Db *db, bool verbose)
 
   // Establish the transfer functions
 
-  if (_calculateEigen(verbose)) return 1;
+  if (_calculateEigen(verbose, optionPositive)) return 1;
 
   _pcaFunctions(verbose);
 

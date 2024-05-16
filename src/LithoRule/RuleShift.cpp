@@ -198,7 +198,7 @@ int RuleShift::particularities(Db* db,
 
   for (int idim = 0; idim < ndim; idim++)
     wxyz[idim] = _xyz[idim];
-  model_evaluate(model, 0, 0, nullptr, 1, wxyz, &hval, &rhoval);
+  rhoval = model->evaluateOneIncr(hval, wxyz);
   setRho(rhoval);
 
   /* Translate the shift into grid increments */

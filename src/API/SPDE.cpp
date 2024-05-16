@@ -155,13 +155,9 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
       _useCholesky = false;
   }
   else if (useCholesky == 1)
-  {
     _useCholesky = true;
-  }
   else
-  {
     _useCholesky = false;
-  }
 
   // Optional printout
   if (verbose)
@@ -399,7 +395,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
   else
   {
-    _workingDataInit = _model->evalDriftCoefVec(_data,_driftCoeffs,ivar,useSel);
+    _workingDataInit = _model->evalDriftVarCoefVec(_data,_driftCoeffs,ivar,useSel);
 
     for(int iech = 0, nech = (int) _workingDataInit.size(); iech<nech; iech++)
     {
@@ -411,11 +407,14 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
 void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
 {
   if (! _requireCoeffs) return;
-  VectorDouble temp_out = _model->evalDriftCoefVec(db, _driftCoeffs, ivar, useSel);
+  VectorDouble temp_out = _model->evalDriftVarCoefVec(db, _driftCoeffs, ivar, useSel);
   VH::addInPlace(result, temp_out);
 }
 
-int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namconv)
+int SPDE::compute(Db *dbout,
+                  int nbsimu,
+                  int seed,
+                  const NamingConvention &namconv)
 {
   VectorDouble dataVect;
   bool useSel = true;
@@ -435,10 +434,13 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
       return 1;
     }
   }
-  if (_isSimulationRequested() && nbsimu < 0)
+  if (_isSimulationRequested())
   {
-    messerr("For this option, you must define a positive number of simulations");
-    return 1;
+    if (nbsimu < 0)
+    {
+      messerr("For this option, you must define a positive number of simulations");
+      return 1;
+    }
   }
 
   if (_isSimulationRequested())
@@ -453,99 +455,127 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
   if (_data != nullptr)
   {
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
-    // Suppress any TEST value
+    // Suppress any TEST value and center by the drift
     dataVect = VH::suppressTest(dataVect);
     _centerByDrift(dataVect,ivar,useSel);
   }
 
-  // Add the vectors in the output Db
-  int ncols = 1;
-  if (_isSimulationRequested()) ncols = nbsimu;
+  // Create the output vectors in the output Db
+  int ncols = 0;
+  if (_calcul == ESPDECalcMode::KRIGING)
+    ncols = 1;
+  else if (_calcul == ESPDECalcMode::KRIGVAR)
+    ncols = 2;
+  else
+    ncols = nbsimu;
+  if (ncols <= 0)
+  {
+    messerr("The number of output attributes should be positive");
+    return 1;
+  }
   int iptr = dbout->addColumnsByConstant(ncols);
 
   // Dispatch
 
-  VectorDouble temp_out(dbout->getSampleNumber(true));
-  String suffix = "";
-  bool useVarName = false;
+  VectorDouble result(dbout->getSampleNumber(true));
 
   if (_calcul == ESPDECalcMode::KRIGING)
   {
-    VectorDouble result(dbout->getSampleNumber(true),0.);
+    result.fill(0.);
     _workingData = _workingDataInit;
     _computeKriging();
-    for(int icov = 0, ncov = (int) _meshingKrig.size() ; icov < ncov; icov++)
-    {
-      ProjMatrix projKriging(dbout,_meshingKrig[icov]);
-      projKriging.mesh2point(_workingKrig[icov],temp_out);
-      VH::addInPlace(result,temp_out);
-    }
+    for (int icov = 0, ncov = (int) _meshingKrig.size(); icov < ncov; icov++)
+      _projecLocal(dbout, _meshingKrig[icov], _workingKrig[icov], result);
     _addDrift(dbout, result);
     dbout->setColumnByUID(result, iptr, useSel);
-    useVarName = true;
-    suffix = "estim";
+    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
+                                "estim", ncols);
+  }
+
+  if (_calcul == ESPDECalcMode::KRIGVAR)
+  {
+    // Estimation by Kriging
+    result.fill(0.);
+    _workingData = _workingDataInit;
+    _computeKriging();
+    for (int icov = 0, ncov = (int) _meshingKrig.size(); icov < ncov; icov++)
+      _projecLocal(dbout, _meshingKrig[icov], _workingKrig[icov], result);
+    _addDrift(dbout, result);
+    dbout->setColumnByUID(result, iptr, useSel);
+    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
+                                "estim", 1);
+
+
+    // Standard Deviation using Monte-Carlo simulations
+    VectorDouble temp_mean(dbout->getSampleNumber(true), 0.);
+    VectorDouble temp_mean2(dbout->getSampleNumber(true), 0.);
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+    {
+      result.fill(0.);
+      _computeSimuCond();
+      for (int icov = 0, ncov = (int) _meshingSimu.size(); icov < ncov; icov++)
+      {
+        _projecLocal(dbout, _meshingSimu[icov], _workingSimu[icov], result);
+        _projecLocal(dbout, _meshingKrig[icov], _workingKrig[icov], result);
+      }
+      _addNuggetOnResult(result);
+      _addDrift(dbout, result);
+
+      VH::addInPlace(temp_mean, result);
+      VH::addSquareInPlace(temp_mean2, result);
+    }
+    VH::mean1AndMean2ToStdev(temp_mean, temp_mean2, result, nbsimu);
+    dbout->setColumnByUID(result, iptr + 1, useSel);
+    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr+1,
+                                "stdev", 1);
   }
 
   if (_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     for(int isimu = 0; isimu < nbsimu; isimu++)
     {
-      VectorDouble result(dbout->getSampleNumber(true),0.);
+      result.fill(0.);
       _computeSimuNonCond();
       for(int icov = 0, ncov = (int) _meshingSimu.size() ; icov < ncov; icov++)
-      {
-        ProjMatrix projSimu(dbout,_meshingSimu[icov]);
-        projSimu.mesh2point(_workingSimu[icov],temp_out);
-        VH::addInPlace(result,temp_out);
-      }
+        _projecLocal(dbout, _meshingSimu[icov], _workingSimu[icov], result);
       _addNuggetOnResult(result);
       _addDrift(dbout, result);
       dbout->setColumnByUID(result, iptr + isimu, useSel);
     }
+    namconv.setNamesAndLocators(dbout, iptr, "", ncols);
   }
 
   if (_calcul == ESPDECalcMode::SIMUCOND)
   {
     for(int isimu = 0; isimu < nbsimu; isimu++)
     {
-      VectorDouble result(dbout->getSampleNumber(true),0.);
+      result.fill(0.);
       _computeSimuCond();
       for(int icov = 0, ncov = (int) _meshingSimu.size(); icov < ncov; icov++)
       {
-        ProjMatrix projSimu(dbout,_meshingSimu[icov]);
-        projSimu.mesh2point(_workingSimu[icov],temp_out);
-        VH::addInPlace(result,temp_out);
-        ProjMatrix projKriging(dbout,_meshingKrig[icov]);
-        projKriging.mesh2point(_workingKrig[icov],temp_out);
-        VH::addInPlace(result,temp_out);
+        _projecLocal(dbout, _meshingSimu[icov], _workingSimu[icov], result);
+        _projecLocal(dbout, _meshingKrig[icov], _workingKrig[icov], result);
        }
       _addNuggetOnResult(result);
       _addDrift(dbout, result);
       dbout->setColumnByUID(result, iptr + isimu, useSel);
     }
-    useVarName = true;
+    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
+                                "", ncols);
   }
-
-  if (_calcul == ESPDECalcMode::LIKELIHOOD)
-  {
-    VectorDouble result(dbout->getSampleNumber(true),0.);
-    _computeLk();
-    for(int icov = 0, ncov = (int) _meshingKrig.size() ; icov < ncov; icov++)
-    {
-      ProjMatrix proj(dbout,_meshingKrig[icov]);
-      proj.mesh2point(_workingKrig[icov],temp_out);
-      VH::addInPlace(result,temp_out);
-    }
-    _addDrift(dbout, result);
-    dbout->setColumnByUID(result, iptr, useSel);
-    suffix = "likelihood";
-  }
-
-  if (useVarName)
-    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr, suffix, ncols);
-  else
-    namconv.setNamesAndLocators(dbout, iptr, suffix, ncols);
   return iptr;
+}
+
+void SPDE::_projecLocal(Db* dbout,
+                        const AMesh* meshing,
+                        VectorDouble& working,
+                        VectorDouble& result)
+{
+  VectorDouble temp_out(dbout->getSampleNumber(true));
+  ProjMatrix proj(dbout,meshing);
+  proj.mesh2point(working,temp_out);
+  VH::addInPlace(result,temp_out);
 }
 
 void SPDE::_addNuggetOnResult(VectorDouble &result)
@@ -557,7 +587,8 @@ void SPDE::_addNuggetOnResult(VectorDouble &result)
 
 bool SPDE::_isSimulationRequested() const
 {
-  return _calcul == ESPDECalcMode::SIMUCOND
+  return _calcul == ESPDECalcMode::KRIGVAR
+      || _calcul == ESPDECalcMode::SIMUCOND
       || _calcul == ESPDECalcMode::SIMUNONCOND;
 }
 
@@ -565,7 +596,7 @@ bool SPDE::_isKrigingRequested() const
 {
   return _calcul == ESPDECalcMode::SIMUCOND
       || _calcul == ESPDECalcMode::KRIGING
-      || _calcul == ESPDECalcMode::LIKELIHOOD;
+      || _calcul == ESPDECalcMode::KRIGVAR;
 }
 
 double SPDE::computeLogDet(int nbsimu,int seed) const
@@ -599,7 +630,7 @@ double SPDE::computeQuad() const
   return _precisionsKrig->computeQuadratic(_workingData);
 }
 
-double SPDE::computeLogLike(int nbsimu, int seed) const
+double SPDE::_computeLogLike(int nbsimu, int seed) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -614,13 +645,52 @@ double SPDE::computeLogLike(int nbsimu, int seed) const
   return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad());
 }
 
-double SPDE::computeProfiledLogLike(int nbsimu, int seed) const
+/**
+ * Calculate the Log-Likelihood profiling the Drift parameters
+ */
+double SPDE::computeLogLike(int nbsimu, int seed) const
 {
+  VectorDouble dataVect;
+  bool useSel = true;
+  int ivar = 0;
+
+  // Preliminary checks
+  if (_isKrigingRequested())
+  {
+    if (_data == nullptr)
+    {
+      messerr("For this calculation option, you must define some Data");
+      return 1;
+    }
+    if (_data->getLocNumber(ELoc::Z) != 1)
+    {
+      messerr("The Input dbin must contain ONE variable (Z locator)");
+      return 1;
+    }
+  }
+
+  if (_isKrigingRequested())
+    _precisionsKrig->makeReady();
+
+  // Preliminary tasks
+  if (_data != nullptr)
+  {
+    dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
+    // Suppress any TEST value and center by the drift
+    dataVect = VH::suppressTest(dataVect);
+    _centerByDrift(dataVect,ivar,useSel);
+  }
+
+  // Dispatch
+
+  _workingData = _workingDataInit;
+  _computeKriging();
+
   // we assume that covariance parameters have changed when using this function:
   // so driftCoeffs have to be recomputed
   _isCoeffsComputed = false;
 
-  return computeLogLike(nbsimu,seed);
+  return _computeLogLike(nbsimu,seed);
 }
 
 void SPDE::_computeDriftCoeffs() const
@@ -657,10 +727,11 @@ VectorDouble SPDE::getCoeffs()
  * @param model Model definition
  * @param flag_est True for the estimation
  * @param flag_std True for the standard deviation of estimation error
- * @param flag_varz True for the variance of the estimator
  * @param mesh Mesh description (optional)
  * @param useCholesky Define the choice regarding Cholesky
  * @param params Set of parameters
+ * @param nbMC Number of Monte-Carlo simulations used for variance calculation
+ * @param seed Seed used for the Random Number generator
  * @param verbose Verbose flag
  * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
@@ -671,29 +742,28 @@ VectorDouble SPDE::getCoeffs()
  * @remarks Each mesh is created using the Turbo Meshing facility... based on an internal grid.
  * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
  * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
+ *
+ * @remarks Note that switching 'flag_std' to ON implies that 'flag_est' is ON.
  */
 int krigingSPDE(Db *dbin,
                 Db *dbout,
                 Model *model,
                 bool flag_est,
                 bool flag_std,
-                bool flag_varz,
                 const AMesh *mesh,
                 int useCholesky,
                 SPDEParam params,
+                int nbMC,
+                int seed,
                 bool verbose,
                 bool showStats,
                 const NamingConvention &namconv)
 {
-  DECLARE_UNUSED(flag_est);
-
-  // Preliminary checks
-  if (flag_std || flag_varz)
-  {
-    messerr("These options have not been implemented yet. Not taken into account");
-  }
-  SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky, params, verbose, showStats);
-  return spde.compute(dbout, 0, 0, namconv);
+  const ESPDECalcMode mode = (flag_std) ?
+      ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
+  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
+            showStats);
+  return spde.compute(dbout, nbMC, seed, namconv);
 }
 
 /**
@@ -730,7 +800,24 @@ int simulateSPDE(Db *dbin,
                  bool showStats,
                  const NamingConvention &namconv)
 {
-  const ESPDECalcMode mode = (dbin == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
-  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose, showStats);
+  const ESPDECalcMode mode = (dbin == nullptr) ?
+      ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
+  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
+            showStats);
   return spde.compute(dbout, nbsimu, seed, namconv);
+}
+
+double logLikelihoodSPDE(Db *dbin,
+                         Db *dbout,
+                         Model *model,
+                         const AMesh *mesh,
+                         int useCholesky,
+                         int nbsimu,
+                         int seed,
+                         SPDEParam params,
+                         bool verbose)
+{
+  SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
+            params, verbose, false);
+  return spde.computeLogLike(nbsimu, seed);
 }

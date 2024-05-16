@@ -232,23 +232,23 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Exponential
-- Sill         =      1.035
-- Ranges       =      1.786     0.366
-- Theo. Ranges =      0.596     0.122
-- Angles       =     45.023     0.000
+- Sill         =      1.039
+- Ranges       =      2.103     0.386
+- Theo. Ranges =      0.702     0.129
+- Angles       =     44.853     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.707    -0.707
-     [  1,]     0.707     0.707
+     [  0,]    -0.709     0.705
+     [  1,]    -0.705    -0.709
 Spherical
-- Sill         =      1.621
-- Ranges       =      7.051     5.132
-- Angles       =    136.897     0.000
+- Sill         =      1.606
+- Ranges       =      6.909     5.009
+- Angles       =    136.493     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]    -0.730    -0.683
-     [  1,]     0.683    -0.730
-Total Sill     =      2.656
+     [  0,]    -0.725    -0.688
+     [  1,]     0.688    -0.725
+Total Sill     =      2.645
 
 Drift Part
 ----------
@@ -450,16 +450,16 @@ Column = 17 - Name = Simu.Y.Pb.9 - Locator = z9
 Column = 18 - Name = Simu.Y.Pb.10 - Locator = z10
 NULL
                    Mean   St. Dev.    Minimum    Maximum
- Simu.Y.Pb.1     -0.052      1.582     -6.234      6.963
- Simu.Y.Pb.2      0.081      1.451     -5.167      6.113
- Simu.Y.Pb.3      0.133      1.529     -5.363      5.639
- Simu.Y.Pb.4      0.453      1.478     -6.322      5.836
- Simu.Y.Pb.5     -0.084      1.577     -6.403      5.578
- Simu.Y.Pb.6      0.316      1.551     -4.816      6.297
- Simu.Y.Pb.7      0.185      1.598     -6.441      6.127
- Simu.Y.Pb.8      0.705      1.599     -4.713      7.175
- Simu.Y.Pb.9      0.159      1.639     -6.660      7.135
-Simu.Y.Pb.10      0.310      1.553     -5.955      4.807
+ Simu.Y.Pb.1      0.243      1.540     -5.005      6.252
+ Simu.Y.Pb.2      0.120      1.535     -5.932      6.299
+ Simu.Y.Pb.3      0.088      1.561     -5.267      6.493
+ Simu.Y.Pb.4      0.550      1.567     -4.711      6.481
+ Simu.Y.Pb.5     -0.177      1.463     -4.892      5.080
+ Simu.Y.Pb.6     -0.046      1.526     -5.146      5.780
+ Simu.Y.Pb.7      0.483      1.510     -6.760      5.942
+ Simu.Y.Pb.8      0.281      1.623     -6.199      6.288
+ Simu.Y.Pb.9     -0.105      1.617     -6.527      5.630
+Simu.Y.Pb.10      0.384      1.577     -5.693      5.862
 NULL
 NULL
 
@@ -502,16 +502,16 @@ Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = z9
 Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = z10
 NULL
                      Mean   St. Dev.    Minimum    Maximum
- Z.Simu.Y.Pb.1      5.965      2.647      3.003     12.978
- Z.Simu.Y.Pb.2      6.113      2.550      3.003     12.978
- Z.Simu.Y.Pb.3      6.238      2.703      3.003     12.978
- Z.Simu.Y.Pb.4      6.777      2.817      3.003     12.978
- Z.Simu.Y.Pb.5      5.937      2.599      3.003     12.978
- Z.Simu.Y.Pb.6      6.568      2.858      3.003     12.978
- Z.Simu.Y.Pb.7      6.384      2.829      3.003     12.978
- Z.Simu.Y.Pb.8      7.270      3.087      3.003     12.978
- Z.Simu.Y.Pb.9      6.362      2.862      3.003     12.978
-Z.Simu.Y.Pb.10      6.575      2.851      3.003     12.978
+ Z.Simu.Y.Pb.1      6.432      2.791      3.003     12.978
+ Z.Simu.Y.Pb.2      6.233      2.734      3.003     12.978
+ Z.Simu.Y.Pb.3      6.196      2.710      3.003     12.978
+ Z.Simu.Y.Pb.4      6.975      3.001      3.003     12.978
+ Z.Simu.Y.Pb.5      5.703      2.379      3.003     12.978
+ Z.Simu.Y.Pb.6      5.942      2.598      3.003     12.978
+ Z.Simu.Y.Pb.7      6.852      2.872      3.003     12.978
+ Z.Simu.Y.Pb.8      6.536      2.905      3.003     12.978
+ Z.Simu.Y.Pb.9      5.933      2.694      3.003     12.978
+Z.Simu.Y.Pb.10      6.710      2.909      3.003     12.978
 NULL
 NULL
 

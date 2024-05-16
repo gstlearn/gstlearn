@@ -1,0 +1,83 @@
+name: nonreg-tests_macos-one
+
+on:
+  # Activate the workflow at each push on dev branch
+  push:
+    branches: [ fix_one_coverage_test ]
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  PYTHON_VERSION : "3.11"
+  NUMPY_VERSION : "1.23.5"
+  R_VERSION : "4.3.2"
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}/eigen
+  EIGEN_VERSION : "3.4.0"
+  LLVM_ROOT : /opt/homebrew
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: brew install llvm
+      
+    #- name: Setup Python Version
+    #  uses: actions/setup-python@v4
+    #  with:
+    #    python-version: ${{env.PYTHON_VERSION}}
+
+    #- name: Install Python dependencies
+    #  run: |
+    #    python -m pip install --upgrade pip
+    #    python -m pip install numpy==${{env.NUMPY_VERSION}}
+    #    python -m pip install pandas scipy mlxtend
+
+    #- name: Setup R Version
+    #  uses: r-lib/actions/setup-r@v2
+    #  with:
+    #    r-version: ${{env.R_VERSION}}
+
+    #- name: Install the customized SWIG from source
+    #  uses: fabien-ors/install-swig-unix-action@v1
+    #  with:
+    #    swig-root: ${{env.SWIG_ROOT}}
+    #    generator: "Unix Makefiles"
+
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-unix
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
+
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-unix
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+        generator: "Unix Makefiles"
+
+    #- name: Compile, install package and execute one R test
+    #  run: |
+    #    make check_test_r TEST=test_Matrix_r LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
+
+    #- name: Compile, install package and execute one python test
+    #  run: |
+    #    make check_test_py TEST=test_Matrix_py LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}
+
+    - name: Compile, install package and execute one C++ test
+      run: |
+        make dump_test_cpp TEST=test_fracture LLVM_ROOT=${{env.LLVM_ROOT}} SWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig EIGEN3_ROOT=${{env.EIGEN_ROOT}} BOOST_ROOT=${{env.BOOST_ROOT}}

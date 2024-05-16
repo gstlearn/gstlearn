@@ -684,7 +684,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     hh = np.linspace(0, hmax, nh+1)
     mode = gl.CovCalcMode()
     mode.setAsVario(not asCov)
-    gg = modelobj.sample(hh, ivar, jvar, codir, mode)
+    gg = modelobj.sample(hh, codir, ivar, jvar, mode)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)

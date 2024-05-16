@@ -15,6 +15,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/Cholesky.hpp"
 
@@ -48,7 +49,7 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) cons
   DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
-  return _Q->getCholeskyLogDeterminant();
+  return _Q->computeCholeskyLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
@@ -76,7 +77,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
     {
       const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
       if (Qmult != nullptr) delete Qmult;
-      Qmult = MatrixSparse::glue(Qref, pmataux->getQ(), true, true);
+      Qmult = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(Qref, pmataux->getQ(), true, true));
       Qref = Qmult;
     }
   }
@@ -107,7 +108,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
     {
       const MatrixSparse* msaux = dynamic_cast<const MatrixSparse*>(getProjMatrix(is));
       if (mstemp != nullptr) delete mstemp;
-      mstemp = MatrixSparse::glue(msref, msaux, false, true);
+      mstemp = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(msref, msaux, false, true));
       msref = mstemp;
     }
     Pmult = new ProjMatrix(mstemp);

@@ -270,9 +270,9 @@ Data Base Statistics
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =   -124.070
- Maximum value       =   -121.670
- Mean value          =   -123.000
+ Minimum value       =     -1.070
+ Maximum value       =      1.330
+ Mean value          =      0.000
  Standard Deviation  =      0.470
  Variance            =      0.221
 6 - Name Xvalid.Var.stdev - Locator NA
@@ -399,10 +399,10 @@ CVsample                         = 341.740127
 CViid                            = 34.174013
 Cxx                              = 2.021313
 Cxv                              = 2.046101
-Cvv                              = 11.207063
+Cvv                              = 11.213306
 Estimation by arithmetic average = 0.002885
-Estimation St. dev. of the mean  = 3.022610
-CVgeo                            = 1047.652768
+Estimation St. dev. of the mean  = 3.023643
+CVgeo                            = 1048.010658
 Surface                          = 2500.000000
 Q (Estimation * Surface)         = 7.212815
 
@@ -414,10 +414,10 @@ Global estimation kriging
 Total number of data             = 100
 Number of active data            = 100
 Number of variables              = 1
-Cvv                              = 11.192991
+Cvv                              = 11.213306
 Estimation by kriging            = -0.076458
-Estimation St. Dev. of the mean  = 1.238003
-CVgeo                            = -16.191933
+Estimation St. Dev. of the mean  = 1.246181
+CVgeo                            = -16.298890
 Surface                          = 2500.000000
 Q (Estimation * Surface)         = -191.145069
 
@@ -567,9 +567,9 @@ Data Base Statistics
 6 - Name Bayes.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -2.065
- Maximum value       =      0.654
- Mean value          =     -0.409
+ Minimum value       =     -2.066
+ Maximum value       =      0.653
+ Mean value          =     -0.410
  Standard Deviation  =      0.454
  Variance            =      0.206
 7 - Name Bayes.Var.stdev - Locator NA

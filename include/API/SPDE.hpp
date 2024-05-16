@@ -69,7 +69,6 @@ public:
   double computeLogDet(int nbsimu = 1,int seed = 1234) const;
   double computeQuad() const;
   double computeLogLike(int nbsimu = 1, int seed = 131323) const;
-  double computeProfiledLogLike(int nbsimu = 1, int seed = 131323) const;
   VectorDouble getCoeffs();
 
   void setDriftCoeffs(VectorDouble coeffs);
@@ -98,6 +97,11 @@ private:
   void _addNuggetOnResult(VectorDouble &result);
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
+  double _computeLogLike(int nbsimu = 1, int seed = 131323) const;
+  void _projecLocal(Db *dbout,
+                    const AMesh *meshing,
+                    VectorDouble &working,
+                    VectorDouble &result);
 
 private:
   const Db*                    _data; // External Pointer
@@ -131,10 +135,11 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 Model *model,
                                 bool flag_est = true,
                                 bool flag_std = false,
-                                bool flag_varz = false,
                                 const AMesh* mesh = nullptr,
                                 int useCholesky = -1,
                                 SPDEParam params = SPDEParam(),
+                                int nbMC = 10,
+                                int seed = 42331,
                                 bool verbose = false,
                                 bool showStats = false,
                                 const NamingConvention &namconv = NamingConvention("KrigingSPDE"));
@@ -149,3 +154,12 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  bool verbose = false,
                                  bool showStats = false,
                                  const NamingConvention &namconv = NamingConvention("SimuSPDE"));
+GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
+                                         Db *dbout,
+                                         Model *model,
+                                         const AMesh *mesh = nullptr,
+                                         int useCholesky = -1,
+                                         int nbsimu = 1,
+                                         int seed = 131323,
+                                         SPDEParam params = SPDEParam(),
+                                         bool verbose = false);

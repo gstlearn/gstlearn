@@ -20,14 +20,9 @@
 
 #define EIGVEC(i,j)      eigvec[(i)*nclass+(j)]
 #define CHI(i,j)         chi[(i)*nclass+(j)]
-#define I2CHI(i,j)       _i2Chi[(i)*nclass+(j)]
 #define PTAB(i,j)        ptab[(i)*nclass+(j)]
 #define C_S(i,j)         c_s[(i)*nclass+(j)]
 #define Q_S(i,j)         q_s[(i)*nclass+(j)]
-#define MATI(i,j)        mati[(i)*nclass+(j)]
-#define CT(i,j)         (ct[(i)*nclass+(j)])
-#define CQ(i,j)         (cq[(i)*nclass+(j)])
-#define CB(i,j)         (cb[(i)*nclass+(j)])
 
 AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
     : AnamDiscrete(),
@@ -171,8 +166,8 @@ int AnamDiscreteDD::fitFromArray(const VectorDouble& tab,
 
   /* Invert the anamorphosis */
 
-  VectorDouble chi2i = chi2I(chi, 1);
-  matrix_invert_copy(chi2i.data(), getNClass(), _i2Chi.data());
+  _i2Chi = chi2I(chi, 1);
+  _i2Chi.invert();
 
   // Update statistics
 
@@ -359,11 +354,11 @@ VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
  * @param eigval Returned Eigen values
  * @return Calculate the infinitesimal generator
  */
-VectorDouble AnamDiscreteDD::_generator(const VectorDouble& vecc,
-                                          const VectorDouble& veca,
-                                          const VectorDouble& vecb,
-                                          VectorDouble& eigvec,
-                                          VectorDouble& eigval)
+VectorDouble AnamDiscreteDD::_generator(const VectorDouble &vecc,
+                                        const VectorDouble &veca,
+                                        const VectorDouble &vecb,
+                                        VectorDouble &eigvec,
+                                        VectorDouble &eigval)
 {
   VectorDouble hvar, chi;
 
@@ -455,7 +450,7 @@ VectorDouble AnamDiscreteDD::z2factor(double z, const VectorInt& ifacs) const
     for (int iclass=0; iclass<nclass; iclass++)
     {
       double zmax   = (iclass == nclass-1) ? 1.e30 : getZCut(iclass);
-      value += I2CHI(ifacs[ifac],iclass);
+      value += _i2Chi.getValue(iclass,ifacs[ifac]);
       if (zmax > z) break;
     }
     factors[ifac] = value;
@@ -465,9 +460,6 @@ VectorDouble AnamDiscreteDD::z2factor(double z, const VectorInt& ifacs) const
 
 VectorDouble AnamDiscreteDD::factors_mod()
 {
-  VectorDouble chi;
-  VectorDouble q2_s, q_s, tri1, tri2, c_s, ptab;
-  VectorDouble stats, veca, vecb, vecc, eigval, eigvec;
 
   /* Initializations */
 
@@ -476,18 +468,17 @@ VectorDouble AnamDiscreteDD::factors_mod()
 
   /* Core allocation */
 
-  q2_s.resize(nclass);
-  q_s.resize(nclass * nclass);
-  tri1.resize(ntri);
-  tri2.resize(ntri);
-  ptab.resize(nclass * nclass);
-  c_s.resize(nclass * nclass);
+  VectorDouble q2_s(nclass);
+  VectorDouble q_s(nclass * nclass);
+  VectorDouble tri2(ntri);
+  VectorDouble ptab(nclass * nclass);
+  MatrixSquareSymmetric c_s(nclass);
 
-  veca.resize(nclass);
-  vecb.resize(nclass);
-  vecc.resize(nclass);
-  eigvec.resize(nclass * nclass);
-  eigval.resize(nclass);
+  VectorDouble veca(nclass);
+  VectorDouble vecb(nclass);
+  VectorDouble vecc(nclass);
+  VectorDouble eigvec(nclass * nclass);
+  VectorDouble eigval(nclass);
 
   /* Calculate the monomials */
 
@@ -503,15 +494,16 @@ VectorDouble AnamDiscreteDD::factors_mod()
   /* Covariance of monomials in L2(R,u) */
 
   for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<nclass; jclass++)
+    for (int jclass=0; jclass<=iclass; jclass++)
     {
       double value = 0.;
       for (int ic=0; ic<nclass; ic++)
         value += PTAB(iclass,ic) * getDDStatU(ic) * PTAB(jclass,ic);
-      C_S(iclass,jclass) = value;
+      c_s.setValue(iclass,jclass,value);
     }
 
-  if (matrix_cholesky_decompose(c_s.data(),tri1.data(),nclass)) return chi;
+  if (c_s.computeCholesky()) return VectorDouble();
+  VectorDouble tri1 = c_s.getCholeskyTL();
   matrix_cholesky_invert(nclass,tri1.data(),tri2.data());
   matrix_cholesky_product(2,nclass,nclass,tri2.data(),ptab.data(),q_s.data());
 
@@ -559,8 +551,7 @@ VectorDouble AnamDiscreteDD::factors_mod()
 
   /* Calculate the infinitesimal generator */
 
-  chi = _generator(vecc,veca,vecb,eigvec,eigval);
-  return chi;
+  return _generator(vecc,veca,vecb,eigvec,eigval);
 }
 
 /**
@@ -574,46 +565,43 @@ VectorDouble AnamDiscreteDD::factors_mod()
 **  i.e. Indicator, Metal Quantity or Benefit (according to mode)
 **  (Diffusion Discrete)
  */
-VectorDouble AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
+MatrixSquareGeneral AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
 {
-  VectorDouble stats, chi2i, mati;
-
-  /* Initializations */
-
   int nclass = getNClass();
-  chi2i.resize(nclass * nclass,0);
-  mati.resize(nclass * nclass,0);
+  MatrixSquareGeneral chi2i(nclass);
+  MatrixSquareGeneral mati(nclass);
+  chi2i.fill(0.);
+  mati.fill(0.);
 
-  /* MATI contains the matrix of indicators */
+  /* 'mati' contains the matrix of indicators */
 
   for (int iclass=0; iclass<nclass; iclass++)
     for (int jclass=0; jclass<nclass; jclass++)
       switch (mode)
       {
         case 1:
-          MATI(iclass,jclass) = (jclass >= iclass);
+          mati.setValue(iclass,jclass,jclass >= iclass);
           break;
 
         case 2:
-          MATI(iclass,jclass) = (jclass >= iclass) * getDDStatZmoy(jclass);
+          mati.setValue(iclass,jclass,(jclass >= iclass) * getDDStatZmoy(jclass));
           break;
 
         case 3:
-          MATI(iclass,jclass) = (jclass >= iclass) *
-            (getDDStatZmoy(jclass) - getDDStatZmoy(iclass));
+          mati.setValue(iclass,jclass, (jclass >= iclass) *
+            (getDDStatZmoy(jclass) - getDDStatZmoy(iclass)));
           break;
       }
 
   /* Calculate the matrix for CHI_2_I */
 
-  int ecr = 0;
   for (int iclass=0; iclass<nclass; iclass++)
     for (int jclass=0; jclass<nclass; jclass++)
     {
       double value = 0;
       for (int ic=0; ic<nclass; ic++)
-        value += MATI(iclass,ic) * getDDStatProp(ic) * CHI(jclass,ic);
-      chi2i[ecr++] = value;
+        value += mati.getValue(iclass,ic) * getDDStatProp(ic) * CHI(jclass,ic);
+      chi2i.setValue(iclass, jclass, value);
     }
   return chi2i;
 }
@@ -876,9 +864,9 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
 
   VectorDouble chi = factors_mod();
   if (chi.empty()) return 1;
-  VectorDouble ct = chi2I(chi, 1);
-  VectorDouble cq = chi2I(chi, 2);
-  VectorDouble cb = chi2I(chi, 3);
+  MatrixSquareGeneral ct = chi2I(chi, 1);
+  MatrixSquareGeneral cq = chi2I(chi, 2);
+  MatrixSquareGeneral cb = chi2I(chi, 3);
 
   /* Calculate the Recovery Functions from the factors */
 
@@ -890,11 +878,11 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
 
     for (int iclass = 0; iclass < ncleff; iclass++)
     {
-      double total = CT(iclass, 0);
+      double total = ct.getValue(0, iclass);
       for (int ivar = 0; ivar < nb_est; ivar++)
       {
         double value = db->getArray(iech, cols_est[ivar]);
-        total += value * CT(iclass, ivar + 1);
+        total += value * ct.getValue(ivar + 1, iclass);
       }
       selloc->setTest(iclass, total);
     }
@@ -913,7 +901,7 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
         for (int ivar = 0; ivar < ncleff - 1; ivar++)
         {
           double value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
-          double prod = value * CT(iclass, ivar + 1);
+          double prod = value * ct.getValue(ivar + 1, iclass);
           total += prod * prod;
         }
         selloc->setTstd(iclass, sqrt(total));
@@ -943,7 +931,7 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
         {
           double value = (ivar < nb_std) ?
               db->getArray(iech, cols_std[ivar]) : 1.;
-          double prod = value * CQ(iclass, ivar + 1);
+          double prod = value * cq.getValue(ivar + 1, iclass);
           total += prod * prod;
         }
         selloc->setQstd(iclass, sqrt(total));

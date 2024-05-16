@@ -80,6 +80,19 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
   return vec;
 }
 
+void VectorHelper::dump(const String &title, const VectorDouble& tab)
+{
+  std::stringstream sstr;
+  if (!title.empty())
+  {
+    sstr << title.c_str() << std::endl;
+  }
+  sstr.precision(20);
+  for (int i = 0, n = (int) tab.size(); i < n; i++)
+    sstr << std::fixed << tab[i] << std::endl;
+  messageFlush(sstr.str());
+}
+
 void VectorHelper::display(const String &title, const VectorDouble &vect, bool skipLine)
 {
   if (!title.empty())
@@ -585,6 +598,17 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
+double VectorHelper::norminf(const VectorDouble &vec)
+{
+  double norminf = 0.;
+  for (int i = 0, nval = (int) vec.size(); i < nval; i++)
+  {
+    double value = ABS(vec[i]);
+    if (value > norminf) norminf = value;
+  }
+  return norminf;
+}
+
 double VectorHelper::median(const VectorDouble &vec)
 {
   VectorDouble med;
@@ -968,7 +992,10 @@ void VectorHelper::cumulate(VectorDouble &veca,
                             double addval)
 {
   if (veca.size() != vecb.size())
-    my_throw("Wrong size");
+  {
+    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return;
+  }
 
   VectorDouble::iterator ita(veca.begin());
   VectorDouble::const_iterator itb(vecb.begin());
@@ -1036,6 +1063,7 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
                                     int optSort)
 {
   if (proportion <= 0. && number <= 0) return VectorInt();
+  law_set_random_seed(seed);
 
   // Find the number of expected values
   int count;
@@ -1047,10 +1075,7 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
     count = number;
   count = MIN(ntotal, MAX(1, count));
 
-  VectorInt ranks(ntotal);
-  for (int i = 0; i < ntotal; i++) ranks[i] = i;
-
-  shuffle (ranks.begin(), ranks.end(), std::default_random_engine(seed));
+  VectorInt ranks = law_random_path(ntotal);
 
   ranks.resize(count);
 
@@ -1070,7 +1095,10 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
 VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
-    my_throw("Wrong size");
+  {
+    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return veca;
+  }
 
   VectorDouble res(veca.size());
   VectorDouble::iterator it(res.begin());
@@ -1095,13 +1123,39 @@ VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vec
 void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
 {
   if (dest.size() != src.size())
-    my_throw("Wrong size");
+  {
+    messerr("Arguments 'dest' and 'src' should have the same dimension. Nothing is done");
+    return;
+  }
 
   VectorDouble::iterator itd(dest.begin());
   VectorDouble::const_iterator its(src.begin());
   while (itd < dest.end())
   {
     *itd += *its;
+    itd++;
+    its++;
+  }
+}
+
+/**
+ * Performs: veca += vecb**2
+ * @param dest Input/Output vector
+ * @param src Auxiliary vector
+ */
+void VectorHelper::addSquareInPlace(VectorDouble &dest, const VectorDouble &src)
+{
+  if (dest.size() != src.size())
+  {
+    messerr("Arguments 'dest' and 'src' should have the same dimension. Nothing is done");
+    return;
+  }
+
+  VectorDouble::iterator itd(dest.begin());
+  VectorDouble::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd += (*its) * (*its);
     itd++;
     its++;
   }
@@ -1318,7 +1372,7 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
 
 void VectorHelper::divideConstant(VectorDouble &vec, double v)
 {
-  if (ABS(v) < EPSILON10)
+  if (isZero(v))
   my_throw("division by 0");
   std::for_each(vec.begin(), vec.end(), [v](double &d)
   { d /= v; });
@@ -1377,6 +1431,37 @@ void VectorHelper::addConstant(VectorInt &vec, int v)
 {
   std::for_each(vec.begin(), vec.end(), [v](int &d)
   { d += v;});
+}
+
+void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
+                                        const VectorDouble &mean2,
+                                        VectorDouble &std,
+                                        int number)
+{
+  int size = (int) mean1.size();
+  if ((int) mean2.size() != size)
+  {
+    messerr("Arguments 'mean1'(%d) and 'mean2'(%d) should have same dimension",
+            size, (int) mean2.size());
+    return;
+  }
+  if ((int) std.size() != size)
+  {
+    messerr("Arguments 'mean1'(%d) and 'std'(%d) should have same dimension",
+            size, (int) std.size());
+    return;
+  }
+
+  for (int i = 0; i < size; i++)
+  {
+    if (FFFF(mean1[i] || FFFF(mean2[i])))
+      std[i] = TEST;
+    else
+    {
+      double value = (mean2[i] - mean1[i] * mean1[i]) / (double) number;
+      std[i] = (value > 0) ? sqrt(value) : 0.;
+    }
+  }
 }
 
 VectorDouble VectorHelper::power(const VectorDouble &vec, double power)
@@ -1547,7 +1632,7 @@ bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
 }
 
 /**
- * From an input list, filter out all the elements which do no lie within [vmin, vmax],
+ * From an input list, filter out all the elements which do no lie within [vmin, vmax[,
  * suppress double occurrences and sort them out (ascending or descending)
  * @param vecin Input array (integer)
  * @param vmin  lower bound included (or ITEST)
@@ -1595,6 +1680,49 @@ VectorInt VectorHelper::filter(const VectorInt &vecin,
     }
   }
   return vecout;
+}
+
+/**
+ * Returns the list complementary to 'sel' within 'vecin'
+ * @param vec Initial list
+ * @param sel Vector of forbidden elements
+ * @return Complementary list
+ */
+VectorInt VectorHelper::complement(const VectorInt& vec, const VectorInt& sel)
+{
+  VectorInt rest;
+  if (vec.empty()) return rest;
+  if (sel.empty()) return vec;
+
+  // Sort
+
+  VectorInt allVec = vec;
+  std::sort(allVec.begin(), allVec.end());
+
+  VectorInt offVec = sel;
+  std::sort(offVec.begin(), offVec.end());
+
+  int j, k, idx;
+  int nvec = (int) allVec.size();
+  int noff = (int) offVec.size();
+  for (int i = 0; i < nvec; i++)
+  {
+    j = allVec.at(i);
+
+    // I go through offVec as long as element is strictly less than j
+    k = 0;
+    idx = offVec.at(k);
+    while (idx < j && k < noff)
+    {
+        idx = offVec.at(k++);
+    }
+
+    if (idx != j) // idx not in offElemsVec
+    {
+      rest.push_back(j);
+    }
+  }
+  return rest;
 }
 
 /**
@@ -1891,32 +2019,38 @@ VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
   return vecout;
 }
 
-void VectorHelper::linearComb(double val1,
-                              const VectorDouble &in1,
-                              double val2,
-                              const VectorDouble &in2,
-                              VectorDouble &outv)
+void VectorHelper::linearCombinationInPlace(double val1,
+                                            const VectorDouble &vd1,
+                                            double val2,
+                                            const VectorDouble &vd2,
+                                            VectorDouble &outv)
 {
-  if (in1.empty() || in2.empty()) return;
-  for (int i = 0, n = (int) in1.size(); i < n; i++)
+  if (vd1.empty() || vd2.empty()) return;
+  for (int i = 0, n = (int) vd1.size(); i < n; i++)
   {
-    outv[i] = val1 * in1[i] + val2 * in2[i];
+    double value = 0.;
+    if (val1 != 0. && !vd1.empty()) value += val1 * vd1[i];
+    if (val2 != 0. && !vd2.empty()) value += val2 * vd2[i];
+    outv[i] = value;
   }
 }
 
-void VectorHelper::linearCombVVD(double val1,
-                                 const VectorVectorDouble &in1,
-                                 double val2,
-                                 const VectorVectorDouble &in2,
-                                 VectorVectorDouble &outv)
+void VectorHelper::linearCombinationVVDInPlace(double val1,
+                                               const VectorVectorDouble &vvd1,
+                                               double val2,
+                                               const VectorVectorDouble &vvd2,
+                                               VectorVectorDouble &outv)
 {
-  if (in1.empty() || in2.empty()) return;
+  if (vvd1.empty() || vvd2.empty()) return;
 
-  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  for (int is = 0, ns = (int) vvd1.size(); is < ns; is++)
   {
-    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    for (int i = 0, n = (int) vvd1[is].size(); i < n; i++)
     {
-      outv[is][i] = val1 * in1[is][i] + val2 * in2[is][i];
+      double value = 0.;
+      if (val1 != 0. && ! vvd1.empty()) value += val1 * vvd1[is][i];
+      if (val2 != 0. && ! vvd2.empty()) value += val2 * vvd2[is][i];
+      outv[is][i] = value;
     }
   }
 }
@@ -2079,3 +2213,90 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble &vecin,
   }
 }
 
+/*****************************************************************************/
+/*!
+ **  Find the location of the minimum value within a vector
+ **
+ ** \return Rank of the minimum value
+ **
+ ** \param[in]  tab  Vector of values
+ **
+ *****************************************************************************/
+int VectorHelper::whereMinimum(const VectorDouble& tab)
+{
+  int ibest = -1;
+  double vbest = 1.e30;
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (FFFF(tab[i])) continue;
+    if (tab[i] > vbest) continue;
+    vbest = tab[i];
+    ibest = i;
+  }
+  return ibest;
+}
+
+/*****************************************************************************/
+/*!
+ **  Find the location of the maximum value within a vector
+ **
+ ** \return Rank of the maximum value
+ **
+ ** \param[in]  tab  Vector of values
+ **
+ *****************************************************************************/
+int VectorHelper::whereMaximum(const VectorDouble& tab)
+{
+  int ibest = -1;
+  double vbest = -1.e30;
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (FFFF(tab[i])) continue;
+    if (tab[i] < vbest) continue;
+    vbest = tab[i];
+    ibest = i;
+  }
+  return ibest;
+}
+
+VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
+{
+  VectorInt vindex(1);
+  vindex[0] = index;
+  return reduce(vecin, vindex);
+}
+
+VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vindex)
+{
+  VectorDouble vecout = vecin;
+
+  // Sort the indices to be removed in ascending order
+  VectorInt indexLocal = vindex;
+  std::sort(indexLocal.begin(), indexLocal.end());
+
+  int nsel = (int) indexLocal.size();
+  for (int j = 0; j < nsel; j++)
+  {
+    int i = indexLocal[nsel - j - 1];
+    vecout.erase(vecout.begin()+i);
+  }
+  return vecout;
+}
+
+void VectorHelper::truncateDecimalsInPlace(VectorDouble& vec, int ndec)
+{
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+  {
+    if (FFFF(vec[i])) continue;
+    vec[i] = truncateDecimals(vec[i], ndec);
+  }
+}
+
+void VectorHelper::truncateDigitsInPlace(VectorDouble& vec, int ndec)
+{
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+  {
+    if (FFFF(vec[i])) continue;
+    vec[i] = truncateDigits(vec[i], ndec);
+  }
+}

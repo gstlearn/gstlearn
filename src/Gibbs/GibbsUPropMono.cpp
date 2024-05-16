@@ -72,7 +72,7 @@ int GibbsUPropMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   // Initialize the statistics (optional)
 
-  statsInit();
+  _statsInit();
 
   return 0;
 }
@@ -98,7 +98,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   Db* db = getDb();
   Model* model = getModels(0);
-  int nact  = getSampleRankNumber();
+  int nact  = _getSampleRankNumber();
   int ndim  = model->getDimensionNumber();
   int icase = getRank(ipgs,0);
 
@@ -130,10 +130,12 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
     if (model->isNoStat())
     {
       CovInternal covint(1, iech, 1, iech, ndim, db, db);
-      model_calcul_cov(&covint, model, nullptr, 1, 1., d1, &sigval);
+      sigval = model->evaluateOneGeneric(&covint, d1);
     }
     else
-      model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &sigval);
+    {
+      sigval = model->evaluateOneGeneric(nullptr, d1);
+    }
     if (sigval <= 0) continue;
     sigval = sqrt(sigval);
     double delta = (r - 1.) * y[icase][iact] + sigval * sqr * law_gaussian();
@@ -151,10 +153,12 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
       if (model->isNoStat())
       {
         CovInternal covint(1, iech, 1, jech, ndim, db, db);
-        model_calcul_cov(&covint, model, nullptr, 1, 1., d1, &sigloc);
+        sigloc = model->evaluateOneGeneric(&covint, d1);
       }
       else
-        model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &sigloc);
+      {
+        sigloc = model->evaluateOneGeneric(nullptr, d1);
+      }
 
       bool flag_affect = (ABS(sigloc) > sigval * eps);
       if (iter <= 0) img[nact * iact + jact] = flag_affect;
@@ -164,5 +168,5 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  _updateStats(y, ipgs, iter);
 }

@@ -6,6 +6,7 @@
     pdf_document: default
     html_document: default
   editor_options: 
+    chunk_output_type: console
   chunk_output_type: console
 ---
 
@@ -253,6 +254,17 @@ We now compare with the linear transforms implemented in *gstlearn*.
 
 ## PCA
 
+```{r}
+change_sign <- function(data, namex, namey)
+{
+  v1 = data[namex]
+  v2 = data[namey]
+  if (sum(abs(v1 + v2) < sum(abs(v1 - v2))))
+    data[namey] = -data[namey]
+}
+```
+
+
 ```{r PCA_in_gstlearn}
 err = data$setLocators("Z*", ELoc_Z())
 pca = PCA(nvar = nv)
@@ -263,7 +275,8 @@ err = pca$dbZ2F(data, verbose = FALSE, namconv = NamingConvention(prefix = "PCA"
 range(abs(abs(pca$getEigVals()) - abs(res$values)))
 
 # getting the computed factors
-data_gsPCA = matrix(data$getColumns(names = "PCA.*"), nrow = data$getSampleNumber(), ncol = nv)
+data_gsPCA = matrix(data$getColumns(names = "PCA.*"), 
+                    nrow = data$getSampleNumber(), ncol = nv)
 
 # Statistics (mean and variance) compared to the values of eigen
 apply(X = data_gsPCA, MARGIN = 2, mean)
@@ -272,6 +285,7 @@ round(t(data_gsPCA) %*% data_gsPCA / (np-1), 8)
 
 for (i in 1:nv) {
   titre = paste0("PCA #", i)
+  change_sign(data, paste0("PCA.",i), paste0("U",i))
   p = ggplot() +
     plot.correlation(data, 
                    namex = paste0("U",i), 
@@ -306,21 +320,30 @@ maf = PCA(nvar = nv)
 err = maf$maf_compute(db = data, varioparam = varioparam, ilag0 = ilag-1, verbose = FALSE)
 err = maf$dbZ2F(data, verbose = FALSE, namconv = NamingConvention(prefix = "MAF", FALSE))
 
-# The eigen values are identical (they are between 0 and 1 as 1-lambda is a correlation,
-# ranked in decreasing order)
-range(abs(abs(maf$getEigVals()) - abs(res_maf$values)))
+# Check the ordering of the Generalized Eigen values
+reorder = (abs(maf$getEigVal(0)) - abs(res_maf$values[1])) > 0.001
+
+# The eigen values are identical (they are between 0 and 1 as 1-lambda is a correlation
+
+sequence = seq(1, nv)
+if (reorder) 
+  sequence = seq(nv, 1)
+range(abs(abs(maf$getEigVals()) - abs(res_maf$values[sequence])))
 
 # computing the factors
-data_gsMAF = matrix(data$getColumns(names = "MAF.*"), nrow = data$getSampleNumber(), ncol = nv)
+data_gsMAF = matrix(data$getColumns(names = "MAF.*"), 
+                    nrow = data$getSampleNumber(), ncol = nv)
 # Statistics (mean and variance)
 apply(X = data_gsMAF, MARGIN = 2, mean)
 round(t(data_gsMAF) %*% data_gsMAF / (np -1), 8)
 
 for (i in 1:nv) {
+  j = sequence[i]
   titre = paste0("MAF #", i)
+  change_sign(data, paste0("MAF.",i), paste0("F",j))
   p = ggplot() +
     plot.correlation(data, 
-                   namex = paste0("F",i), 
+                   namex = paste0("F",j), 
                    namey = paste0("MAF.", i), 
                    asPoint = TRUE, col = "red", 
                    flagDiag = TRUE) +   

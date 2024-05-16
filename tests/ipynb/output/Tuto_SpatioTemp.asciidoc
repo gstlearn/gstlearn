@@ -1,38 +1,39 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
-*Spatio-Temporal Model*
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+**Spatio-Temporal Model**
 
-This Spatio_temporal model corresponds to the following family of SPDEs
-:
+This Spatio_temporal model corresponds to the following family of SPDEs :
 
-latexmath:[\[\left(\frac{\partial}{\partial t} + c\left[(1-\nabla H. \nabla)^{\alpha} + v.\nabla\right]\right)Z(s,t)=\sqrt{c}W_T(t)\otimes X_S(s)\]]
+$$\left(\frac{\partial}{\partial t} + c\left[(1-\nabla H. \nabla)^{\alpha} + v.\nabla\right]\right)Z(s,t)=\sqrt{c}W_T(t)\otimes X_S(s)$$
 
-where
+where 
 
-* latexmath:[$c>0$] is a time scale parameter
-* latexmath:[$H$] is an anisotropic matrix
-* latexmath:[$v$] is a velocity vector
-* latexmath:[$W_T$] is a temporal white-noise
-* latexmath:[$X_S$] is a spatially structured noise, solution of
-+
-latexmath:[\[(1-\nabla H_S \nabla)X_S = \mathcal{W}_S\]]
+- $c>0$ is a time scale parameter
+- $H$ is an anisotropic matrix 
+- $v$ is a velocity vector
+- $W_T$ is a temporal white-noise
+- $X_S$ is a spatially structured  noise, solution of
+
+    $$(1-\nabla H_S \nabla)X_S = \mathcal{W}_S$$
+    </md-block>
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
   cholP = cholesky(P)
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
-[[XXX]]
+
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----array([-1.        , -0.99215686, -0.98431373, -0.97647059, -0.96862745,
        -0.96078431, -0.95294118, -0.94509804, -0.9372549 , -0.92941176,
        -0.92156863, -0.91372549, -0.90588235, -0.89803922, -0.89019608,
@@ -87,5 +88,5 @@ XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC 
         1.        ])----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----357.4611315408981----

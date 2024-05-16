@@ -19,11 +19,21 @@
 /// TODO : Transform into template for storing something else than double
 
 class NF_Triplet;
+class EOperator;
 
 /**
  * Matrix
  */
 
+/**
+ * This class is the root of the Matrix organization in gstlearn
+ * A matrix is a 2-D organization: it is characterized by its number of rows
+ * and its number of columns.
+ * Although the user should not bother with this remark, the elements of a matrix
+ * processed in 'gstlearn' are stored in a Row-major format.
+ * This is to say that the internal rank of an element characterized by its row and column numbers is:
+ *  (icol * getNRows() + irow)
+ */
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
@@ -42,9 +52,9 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
-  virtual bool isDense() const { return false; }
+  virtual bool isDense() const = 0;
   /*! Returns if the current matrix is Sparse */
-  virtual bool isSparse() const { return false; }
+  virtual bool isSparse() const = 0;
   /*! Check if the matrix is (non empty) square */
   virtual bool isSquare(bool printWhyNot = false) const;
   /*! Indicate if the given indices are valid for the current matrix size */
@@ -52,7 +62,7 @@ public:
   /*! Check if the matrix is square and Identity */
   virtual bool isIdentity(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
-  virtual bool isSymmetric(bool printWhyNot = false) const;
+  virtual bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const;
   /*! Check if the matrix is (non empty) diagonal */
   virtual bool isDiagonal(bool printWhyNot = false) const;
   /*! Check if the contents of the matrix is constant and diagonal */
@@ -127,16 +137,20 @@ public:
   double getValue(int irow, int icol) const;
   /*! Sets the value at row 'irow' and column 'icol' */
   void setValue(int irow, int icol, double value);
+  /*! Update the value at row 'irow' and column 'icol' */
+  void updValue(int irow, int icol, const EOperator& oper, double value);
 #ifndef SWIG
   /*! Sets the value at row 'irow' and column 'icol' (no test performed) */
   void setValue_(int irow, int icol, double value);
+  /*! Update the value at row 'irow' and column 'icol' (no test performed) */
+  void updValue_(int irow, int icol, const EOperator& oper, double value);
   /*! Gets the value at row 'irow' and column 'icol' (no test) */
   double getValue_(int irow, int icol) const;
 #endif
   /*! Add a value to a matrix term */
   void addValue(int irow, int icol, double value);
   /*! Check if a matrix is the same as me (norm L1) */
-  bool isSame(const AMatrix& m, double eps = EPSILON10);
+  bool isSame(const AMatrix& m, double eps = EPSILON4, bool printWhyNot = false);
   /*! Check that both matrix have the same number of rows and columns */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
@@ -165,6 +179,8 @@ public:
   int getNumberRowDefined() const;
   /*! Returns if the Matrix is built using Eigen Library or not */
   bool isFlagEigen() const { return _flagEigen; }
+  /*! Check if the matrix does not contain any negative element */
+  bool isNonNegative(bool verbose = false);
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -188,14 +204,18 @@ public:
   double getMeanByColumn(int icol) const;
   double getMinimum() const;
   double getMaximum() const;
+  double getNormInf() const;
   void copyReduce(const AMatrix *x,
                   const VectorInt &activeRows,
                   const VectorInt &activeCols);
   void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
-  bool isNonNegative(bool verbose);
 
   void makePositiveColumn();
+  void linearCombination(double val1,
+                         const AMatrix *mat1,
+                         double val2 = 1.,
+                         const AMatrix *mat2 = nullptr);
 
 #ifndef SWIG
   /*! Get value operator override */
@@ -206,6 +226,7 @@ public:
 protected:
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
+  /*! Check that 'm' has correct characteristics to be added (say) to 'this' */
   virtual bool    _isCompatible(const AMatrix& m) const { return isSameSize(m); }
   virtual double& _getValueRef(int irow, int icol);
   virtual int     _getMatrixPhysicalSize() const;
@@ -218,6 +239,7 @@ protected:
   virtual double  _getValue(int irow, int icol) const = 0;
   virtual double  _getValueByRank(int rank) const = 0;
   virtual void    _setValue(int irow, int icol, double value) = 0;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;

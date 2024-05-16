@@ -84,6 +84,12 @@ foreach(TARGET_EXE ${TARGETS_EXE})
                  WORKING_DIRECTORY ${TEST_DST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
         set(REF_FILE ${TEST_SRC_DIR}/Result.ref)
+        # Use maybe a specific output log for the local computer
+        cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR myoutput ${DIR_NAME} Result.ref
+                   OUTPUT_VARIABLE REF_FILE_LOCAL)
+        if(EXISTS ${REF_FILE_LOCAL})
+          set(REF_FILE ${REF_FILE_LOCAL})
+        endif()
         # Use maybe a specific output log for MSVC
         if (MSVC)
           set(REF_FILE_MSVC ${TEST_SRC_DIR}/Result_msvc.ref)
@@ -108,9 +114,9 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         # Use git diff (cross-platform) with:
         # - no-index (no need to have files under git control)
         # - ignore lines starting with #NO_DIFF#
-        # - ignore whitespaces (-w)
+        # - ignore ALL whitespaces (https://stackoverflow.com/a/65462731)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND git diff --no-index -I "#NO_DIFF#" -w ${REF_FILE} ${TEST_DST_DIR}/Result.out
+                 COMMAND git diff --no-index -I "#NO_DIFF#" --ignore-blank-lines --ignore-all-space --ignore-cr-at-eol ${REF_FILE} ${TEST_DST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DST_DIR})
     endforeach(TEST_SRC_DIR ${TEST_SRC_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})

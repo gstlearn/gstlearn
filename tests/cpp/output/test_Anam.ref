@@ -83,19 +83,19 @@ Column = 4 - Name = Z - Locator = z1
 
 Hermitian Anamorphosis
 ----------------------
-Minimum absolute value for Y  = -2.8
-Maximum absolute value for Y  = 3.9
-Minimum absolute value for Z  = 0.274228
-Maximum absolute value for Z  = 5.99041
-Minimum practical value for Y = -2.8
+Minimum absolute value for Y  = -3
+Maximum absolute value for Y  = 3.1
+Minimum absolute value for Z  = 0.2413
+Maximum absolute value for Z  = 6.07942
+Minimum practical value for Y = -3
 Maximum practical value for Y = 3.1
-Minimum practical value for Z = 0.274228
-Maximum practical value for Z = 5.86055
-Mean                          = 1.53861
-Variance                      = 0.709613
+Minimum practical value for Z = 0.2413
+Maximum practical value for Z = 6.07942
+Mean                          = 1.53264
+Variance                      = 0.720254
 Number of Hermite polynomials = 20
 Normalized coefficients for Hermite polynomials (punctual variable)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.539    -0.792     0.273    -0.061    -0.009     0.032    -0.031
-     [  7,]     0.010     0.018    -0.021    -0.001     0.016    -0.009    -0.007
-     [ 14,]     0.012     0.000    -0.012     0.004     0.010    -0.006
+     [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
+     [  7,]     0.009     0.002    -0.012     0.008     0.003    -0.010     0.005
+     [ 14,]     0.006    -0.008    -0.002     0.007    -0.002    -0.004

@@ -1,0 +1,68 @@
+Value of a =   1234.5678000000000
+Value of b =      0.0000123456780
+
+RoundDecimals (all numbers are printed with 10 decimals)
+--------------------------------------------------------
+roundDecimals( a,-3) =                 1000
+roundDecimals( a,-2) =                 1200
+roundDecimals( a,-1) =                 1230
+roundDecimals( a, 0) =                 1234
+roundDecimals( a, 1) =               1234.5
+roundDecimals( a, 2) =              1234.56
+roundDecimals( a, 3) =             1234.567
+roundDecimals( a, 4) =            1234.5678
+roundDecimals(-a,-3) =                -1000
+roundDecimals(-a,-2) =                -1200
+roundDecimals(-a,-1) =                -1230
+roundDecimals(-a, 0) =                -1234
+roundDecimals(-a, 1) =              -1234.5
+roundDecimals(-a, 2) =             -1234.56
+roundDecimals(-a, 3) =            -1234.567
+roundDecimals(-a, 4) =           -1234.5678
+roundDecimals( b, 5) =              0.00001
+roundDecimals( b, 6) =             0.000012
+roundDecimals( b, 7) =            0.0000123
+roundDecimals( b, 8) =           0.00001234
+roundDecimals( b, 9) =          0.000012345
+roundDecimals( b,10) =         0.0000123456
+roundDecimals(-b, 5) =             -0.00001
+roundDecimals(-b, 6) =            -0.000012
+roundDecimals(-b, 7) =           -0.0000123
+roundDecimals(-b, 8) =          -0.00001234
+roundDecimals(-b, 9) =         -0.000012345
+roundDecimals(-b,10) =        -0.0000123456
+
+RoundDigits (all numbers are printed with 13 decimals)
+------------------------------------------------------
+roundDigits( a,1) =                 1000
+roundDigits( a,2) =                 1200
+roundDigits( a,3) =                 1230
+roundDigits( a,4) =                 1234
+roundDigits( a,5) =               1234.5
+roundDigits( a,6) =              1234.56
+roundDigits( a,7) =             1234.567
+roundDigits( a,8) =            1234.5678
+roundDigits(-a,1) =                -1000
+roundDigits(-a,2) =                -1200
+roundDigits(-a,3) =                -1230
+roundDigits(-a,4) =                -1234
+roundDigits(-a,5) =              -1234.5
+roundDigits(-a,6) =             -1234.56
+roundDigits(-a,7) =            -1234.567
+roundDigits(-a,8) =           -1234.5678
+roundDigits( b,1) =              0.00001
+roundDigits( b,2) =             0.000012
+roundDigits( b,3) =            0.0000123
+roundDigits( b,4) =           0.00001234
+roundDigits( b,5) =          0.000012345
+roundDigits( b,6) =         0.0000123456
+roundDigits( b,7) =        0.00001234567
+roundDigits( b,8) =       0.000012345678
+roundDigits(-b,1) =             -0.00001
+roundDigits(-b,2) =            -0.000012
+roundDigits(-b,3) =           -0.0000123
+roundDigits(-b,4) =          -0.00001234
+roundDigits(-b,5) =         -0.000012345
+roundDigits(-b,6) =        -0.0000123456
+roundDigits(-b,7) =       -0.00001234567
+roundDigits(-b,8) =      -0.000012345678

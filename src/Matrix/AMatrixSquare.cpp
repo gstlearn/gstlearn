@@ -8,11 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Matrix/AMatrixSquare.hpp>
-#include <Matrix/MatrixSquareGeneral.hpp>
-#include <Matrix/MatrixFactory.hpp>
-#include <Matrix/AMatrix.hpp>
+#include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
+
 #include <math.h>
 
 AMatrixSquare::AMatrixSquare(int nrow, int opt_eigen)
@@ -124,7 +126,7 @@ void AMatrixSquare::divideDiagByVector(const VectorDouble& diag)
 
   for (int i = 0; i < getNRows(); i++)
   {
-    if (ABS(diag[i]) < EPSILON10)
+    if (isZero(diag[i]))
       my_throw("Argument 'Diag' may not have too small values");
     setValue(i, i, getValue(i, i) / diag[i]);
   }
@@ -179,3 +181,44 @@ double AMatrixSquare::determinant(void) const
 
   return(deter);
 }
+
+double AMatrixSquare::normVec(const VectorDouble& vec)
+{
+  if (getNRows() != (int) vec.size())
+  {
+    messerr("Wrong dimension of 'vec' argument");
+    return TEST;
+  }
+  double value = 0.;
+  for (int irow = 0; irow < getNRows(); irow++)
+    for (int icol = 0; icol < getNCols(); icol++)
+      value += vec[irow] * getValue(irow, icol) * vec[icol];
+
+  return value;
+}
+
+/*****************************************************************************/
+/*!
+ **  Performs the 'this' %*% diag(c) where c is a vector
+ **
+ ** \param[in]  mode  0: c as is; 1: sqrt(c); 2: 1/c; 3: 1/sqrt(c)
+ ** \param[in]  c     vector
+ **
+ *****************************************************************************/
+void AMatrixSquare::prodByDiagInPlace(int mode, const VectorDouble& c)
+{
+  int neq = getNRows();
+  for (int i1 = 0; i1 < neq; i1++)
+    for (int i2 = 0; i2 < neq; i2++)
+    {
+      double val = c[i2];
+      if (mode == 1)
+        val = sqrt(val);
+      else if (mode == 2)
+        val = 1. / val;
+      else if (mode == 3) val = 1. / sqrt(val);
+      setValue(i1, i2, getValue(i1, i2) * val);
+    }
+  return;
+}
+

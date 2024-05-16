@@ -1,4 +1,4 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 The number of samples = 1000
 
@@ -6,13 +6,13 @@ The number of samples = 1000
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Number of samples = 910
 
@@ -20,7 +20,7 @@ Number of samples = 910
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 The number of samples = 200
 
@@ -28,7 +28,7 @@ The number of samples = 200
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Number of samples = 145
 

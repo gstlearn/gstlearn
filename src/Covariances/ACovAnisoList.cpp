@@ -60,8 +60,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
 ACovAnisoList::~ACovAnisoList()
 {
   delAllCov();
-  delete _noStat;
-  _noStat = nullptr;
+  delNoStat();
 }
 
 void ACovAnisoList::addCovList(const ACovAnisoList* covs)
@@ -311,7 +310,7 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
   }
   else
   {
-    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
+    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
     {
       _covs[mode->getActiveCovList(i)]->evalMatInPlace(p1, p2, mat, mode);
     }
@@ -573,7 +572,7 @@ void ACovAnisoList::normalize(double sill, int ivar, int jvar)
   for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     covval += _covs[i]->eval0(ivar, jvar);
 
-  if (covval <= 0. || covval == sill) return;
+  if (covval <= 0. || areEqual(covval, sill)) return;
   double ratio = sill / covval;
 
   for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
@@ -620,6 +619,12 @@ const ACovAnisoList* ACovAnisoList::createReduce(const VectorInt &validVars) con
     newcovlist->setCova(is,covs->createReduce(validVars));
   }
   return newcovlist;
+}
+
+void ACovAnisoList::delNoStat()
+{
+  delete _noStat;
+  _noStat = nullptr;
 }
 
 /**

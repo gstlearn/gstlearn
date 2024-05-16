@@ -201,11 +201,10 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu , int seed ) const
 {
-  double result = 0;
-  result += computeLogDetOp(nbsimu,seed);
-  result -= computeLogDetQ(nbsimu,seed);
-  result += sumLogVar();
-  return result;
+  double a1 = computeLogDetOp(nbsimu,seed);
+  double a2 = computeLogDetQ(nbsimu,seed);
+  double a3 = sumLogVar();
+  return a1 - a2 + a3;
 }
 
 double PrecisionOpMultiConditional::computeQuadratic(const VectorDouble& x) const

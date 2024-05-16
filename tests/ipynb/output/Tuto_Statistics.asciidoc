@@ -1,8 +1,8 @@
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -30,7 +30,7 @@ Column = 4 - Name = SG2 - Locator = NA
 Column = 5 - Name = SG3 - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Characteristics
 =========================
@@ -52,27 +52,27 @@ Column = 4 - Name = SD2 - Locator = NA
 Column = 5 - Name = SD3 - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----        Number       Mean   St. Dev.
 SD1    100.000      0.161      1.028
 SD2    100.000     -0.293      1.020
 SD3    100.000      0.118      0.910----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----           SD1        SD2        SD3
 SD1      1.000     -0.006     -0.186
 SD2     -0.006      1.000      0.002
 SD3     -0.186      0.002      1.000----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
          Number        Mean    St. Dev. 
  SD1         100       0.161       1.028 
@@ -89,7 +89,7 @@ SD3     -0.186      0.002      1.000----
  ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Mean
 ----
@@ -98,7 +98,7 @@ SD2     -0.293
 SD3      0.118----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Mean
 ----
@@ -108,7 +108,7 @@ SD2     -0.293     -0.293     -0.293
 SD3      0.118      0.118      0.118----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 Data Base Grid Characteristics
 ==============================
@@ -136,25 +136,25 @@ Column = 4 - Name = SG2 - Locator = NA
 Column = 5 - Name = SG3 - Locator = z1----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
 
 
-+#NO_DIFF#XXX+
+#NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
 ----
