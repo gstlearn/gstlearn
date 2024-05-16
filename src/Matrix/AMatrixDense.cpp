@@ -139,7 +139,7 @@ void AMatrixDense::_setValue(int irow, int icol, double value)
   if (isFlagEigen())
     _setValueEigen(irow, icol, value);
   else
-    my_throw("_setValue should never be called here");
+    _setValueLocal(irow, icol, value);
 }
 
 void AMatrixDense::_updValue(int irow, int icol, const EOperator& oper, double value)

@@ -47,6 +47,9 @@ public:
     return true;
   }
 
+  /// Interface for AMatrixDense
+  void    _setValueLocal(int irow, int icol, double value) override;
+
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
   static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X, int opt_eigen = -1);
@@ -127,7 +130,7 @@ private:
   double  _getValueLocal(int irow, int icol) const;
   double  _getValueLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
-  void    _setValueLocal(int irow, int icol, double value);
+
   void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;

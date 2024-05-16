@@ -298,11 +298,6 @@ double AMatrix::getValue(int irow, int icol) const
   return _getValue(irow, icol);
 }
 
-/*! Sets the value at row 'irow' and column 'icol' (no test) */
-void AMatrix::setValue_(int irow, int icol, double value)
-{
-  return _setValue(irow, icol, value);
-}
 
 /*! Updates the value at row 'irow' and column 'icol' (no test) */
 void AMatrix::updValue_(int irow, int icol, const EOperator& oper, double value)
@@ -314,6 +309,11 @@ void AMatrix::updValue_(int irow, int icol, const EOperator& oper, double value)
 void AMatrix::setValue(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
+  return _setValue(irow, icol, value);
+}
+/*! Sets the value at row 'irow' and column 'icol' (no test) */
+void AMatrix::setValue_(int irow, int icol, double value)
+{
   return _setValue(irow, icol, value);
 }
 

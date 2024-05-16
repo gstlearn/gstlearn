@@ -138,14 +138,6 @@ void MatrixRectangular::_setValueByRank(int irank, double value)
     _setValueLocal(irank, value);
 }
 
-void MatrixRectangular::_setValue(int irow, int icol, double value)
-{
-  if (isFlagEigen())
-    AMatrixDense::_setValue(irow, icol, value);
-  else
-    _setValueLocal(irow, icol, value);
-}
-
 void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
   if (isFlagEigen())

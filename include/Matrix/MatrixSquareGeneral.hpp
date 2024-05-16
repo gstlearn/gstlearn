@@ -48,6 +48,9 @@ public:
                   MatrixSquareGeneral& tus,
                   double eps = EPSILON20);
 
+  /// Interface for AMatrixDense
+  void    _setValueLocal(int irow, int icol, double value) override;
+
 private:
   /// Interface for AMatrix
   virtual bool    _isCompatible(const AMatrix& m) const override
@@ -71,6 +74,7 @@ private:
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
+
 private:
   /// ==========================================================================
   /// The subsequent methods rely on the specific local storage ('squareMatrix')
@@ -80,7 +84,7 @@ private:
   double  _getValueLocal(int irow, int icol) const;
   double  _getValueLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
-  void    _setValueLocal(int irow, int icol, double value);
+
   void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _setValueLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;

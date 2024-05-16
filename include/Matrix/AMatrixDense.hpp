@@ -127,6 +127,9 @@ protected:
   int             _computeEigen(bool optionPositive = true);
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
+protected:
+  virtual void    _setValueLocal(int irow, int icol, double value) = 0;
+
 private:
   /// ===================================================================
   /// The subsequent methods rely on the specific storage (Eigen Library)

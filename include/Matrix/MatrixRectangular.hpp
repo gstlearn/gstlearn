@@ -64,7 +64,6 @@ private:
   virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValueByRank(int rank, double value) override;
-  virtual void    _setValue(int irow, int icol, double value) override;
   virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
 
   virtual void    _transposeInPlace() override;
@@ -72,6 +71,9 @@ private:
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
+
+  /// Interface for AMatrixDense
+  void _setValueLocal(int irow, int icol, double value) override;
 
 private:
   /// ========================================================================
@@ -83,7 +85,6 @@ private:
   double  _getValueLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irank, double value);
-  void    _setValueLocal(int irow, int icol, double value);
   void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
