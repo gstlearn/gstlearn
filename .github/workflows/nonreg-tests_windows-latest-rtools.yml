@@ -78,7 +78,7 @@ jobs:
         }
 
     - name: Publish output logs as artefact
-      if: always()
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: msys-nonreg-logs
@@ -96,7 +96,7 @@ jobs:
         Move-Item -Path rtools-neutral.zip -Destination ${{github.workspace}}
   
     - name: Publish output neutral files as artefact
-      if: always()
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: rtools-neutral-files
