@@ -206,8 +206,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Number of variable(s)        = " << getVariableNumber() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
-  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber()
-       << std::endl;
+  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber() << std::endl;
 
   /* Covariance part */
 
@@ -223,6 +222,9 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   {
     sstr << toTitle(1, "Drift Part");
     sstr << _driftList->toString();
+
+    if (isFlagLinked())
+      sstr << "Drifts are linked" << std::endl;
   }
 
   /* Mean Part */
@@ -392,6 +394,12 @@ void Model::setDriftIRF(int order, int nfex)
 {
   if (_driftList != nullptr) delete _driftList;
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
+}
+
+void Model::setFlagLinked(bool flagLinked)
+{
+  if (_driftList == nullptr) return;
+  _driftList->setFlagLinked(flagLinked);
 }
 
 void Model::addDrift(const ADrift *drift)
@@ -2421,7 +2429,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   double quad = VH::innerProduct(Z, Cm1Zc);
 
   // Derive the log-likelihood
-  double loglike = -0.5 * (logdet + quad + nech * log(GV_PI));
+  double loglike = -0.5 * (logdet + quad + nvar * nech * log(GV_PI));
 
   // Optional printout
   if (verbose)

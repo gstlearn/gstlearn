@@ -115,6 +115,7 @@ public:
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
   void   setDriftIRF(int order = 0, int nfex = 0);
+  void   setFlagLinked(bool flagLinked);
   void   addDrift(const ADrift* drift);  // TODO: check that the same driftM has not been already defined
   void   setDrifts(const VectorString& driftSymbols);
   void   delDrift(int rank);

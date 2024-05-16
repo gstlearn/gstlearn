@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.2.0
 =============
+- Correct the functions evalCovMat() and evalDriftMat()
 - Adding calculation of log-likelihood evaluation in the general case (class Model)
 - Adding calculation of Log-Likelihood in SPDE
 - Adding calculation of variance of estimation error in SPDE
