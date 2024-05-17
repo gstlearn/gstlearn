@@ -112,7 +112,7 @@ jobs:
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v3
       # Use specific artifact identifier for publishing all versions
       with:
         name: windows-python-package-${{matrix.arch.ar}}-${{matrix.python.py}}
