@@ -229,7 +229,7 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
     for (int icol = 0; icol <_nCols; icol++)
     {
       if (! _isPhysicallyPresent(irow, icol)) continue;
-      if (!mustBeDiagCst() && law_uniform(0.,1.) < zeroPercent)
+      if (law_uniform(0.,1.) < zeroPercent)
         value = 0.;
       else
         value = law_gaussian();
@@ -268,62 +268,6 @@ bool AMatrix::isIdentity(bool printWhyNot) const
           messerr("The term (%d,%d) should be equal to %lf (%lf)", irow + 1,
                   icol + 1, refval, getValue(irow, icol));
         return false;
-      }
-    }
-  return true;
-}
-
-bool AMatrix::isDiagonal(bool printWhyNot) const
-{
-  if (empty() || ! isSquare()) return false;
-
-  for (int irow = 0; irow <_nRows; irow++)
-    for (int icol = 0; icol < _nCols; icol++)
-    {
-      if (irow != icol)
-      {
-        if (ABS(getValue_(irow,icol)) > EPSILON10)
-        {
-          if (printWhyNot)
-            messerr("The element (%d;%d)=%lf should be zero", irow, icol,
-                    getValue_(irow, icol));
-          return false;
-        }
-      }
-    }
-  return true;
-}
-
-bool AMatrix::isDiagCst(bool printWhyNot) const
-{
-  if (empty() || ! isSquare()) return false;
-
-  double refval = TEST;
-  for (int irow = 0; irow <_nRows; irow++)
-    for (int icol = 0; icol < _nCols; icol++)
-    {
-      if (irow != icol)
-      {
-        if (ABS(getValue(irow, icol)) > EPSILON10)
-        {
-          if (printWhyNot)
-            messerr("The element (%d,%d) is not zero (%lf)", irow, icol,
-                    getValue(irow, icol));
-          return false;
-        }
-      }
-      else
-      {
-        if (FFFF(refval))
-          refval = getValue(irow,icol);
-        else
-          if (ABS(refval - getValue(irow,icol)) > EPSILON10)
-          {
-            if (printWhyNot)
-              messerr("The element(%d,%d) has value (%lf) different from a previous one (%lf)",
-                      irow,icol,getValue(irow,icol),refval);
-            return false;
-          }
       }
     }
   return true;

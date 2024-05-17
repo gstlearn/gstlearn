@@ -466,17 +466,16 @@ MatrixRectangular DriftList::evalDriftMat(const Db *db, const ECalcMember &membe
 
       /* Loop on the drift functions */
 
-      int icol = 0;
       if (isFlagLinked())
       {
         for (int ib = 0; ib < nfeq; ib++)
         {
-          drfmat.setValue(irow, icol, evalDriftValue(ivar, ib, drftab));
-          icol++;
+          drfmat.setValue(irow, ib, drftab[ib]); // TODO: use evalDriftValue instead
         }
       }
       else
       {
+        int icol = 0;
         for (int jvar = 0; jvar < nvar; jvar++)
           for (int jl = 0; jl < nbfl; jl++)
           {
@@ -488,7 +487,7 @@ MatrixRectangular DriftList::evalDriftMat(const Db *db, const ECalcMember &membe
       irow++;
     }
   }
-  return 0;
+  return drfmat;
 }
 
 VectorDouble DriftList::evalDriftVec(const Db *db,

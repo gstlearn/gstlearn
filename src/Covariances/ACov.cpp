@@ -865,7 +865,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
 
   /* Loop on the first sample */
 
-  int irow = 0;
+  int rank1 = 0;
   for (int kech1 = 0; kech1 < nechtot1; kech1++)
   {
     int iech1 = (nbgh1.empty()) ? kech1 : nbgh1[kech1];
@@ -875,7 +875,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
 
     /* Loop on the second sample */
 
-    int icol = 0;
+    int rank2 = 0;
     for (int kech2 = 0; kech2 < nechtot2; kech2++)
     {
       int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
@@ -897,12 +897,14 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
           /* Loop on the dimension of the space */
 
           double value = eval(p1, p2, ivar1, ivar2, mode);
-          mat.setValue(nvar1 * irow + ivar1, nvar2 * icol + ivar2, value);
+          int irow = ivar1 * nsize1 + rank1;
+          int icol = ivar2 * nsize2 + rank2;
+          mat.setValue(irow, icol, value);
         }
       }
-      icol++;
+      rank2++;
     }
-    irow++;
+    rank1++;
   }
 
   // Free the non-stationary specific allocation
@@ -983,7 +985,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   /* Loop on the first sample */
 
-  int irow = 0;
+  int rank1 = 0;
   for (int kech1 = 0; kech1 < nechtot1; kech1++)
   {
     int iech1 = (nbgh1.empty()) ? kech1 : nbgh1[kech1];
@@ -993,7 +995,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
     /* Loop on the second sample */
 
-    int icol = 0;
+    int rank2 = 0;
     for (int kech2 = 0; kech2 < nechtot2; kech2++)
     {
       int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
@@ -1016,14 +1018,14 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
           double value = eval(p1, p2, ivar1, ivar2, mode);
           if (ABS(value) < eps * mat0.getValue(ivar1, ivar2)) continue;
-          int ecr1 = nvar1 * irow + ivar1;
-          int ecr2 = nvar2 * icol + ivar2;
-          NF_T.add(ecr1, ecr2, value);
+          int irow = ivar1 * nsize1 + rank1;
+          int icol = ivar2 * nsize2 + rank2;
+          NF_T.add(irow, icol, value);
         }
       }
-      icol++;
+      rank2++;
     }
-    irow++;
+    rank1++;
   }
 
   // Convert from triplet to sparse matrix
