@@ -62,27 +62,12 @@ find_package(Boost REQUIRED)
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
   add_definitions(-DOPENMP)
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-#  if(${APPLE})
-#    include_directories(${OpenMP_C_INCLUDE_DIR})
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp") # clang++: warning: -lomp: 'linker' input unused
-#  endif()
 endif()
 
 # Look for Eigen
 find_package(Eigen3 REQUIRED) 
 if(EIGEN3_FOUND)
-  file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" eigen_macros_h)
-  string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" eigen_world "${eigen_macros_h}")
-  set(EIGEN_VERSION_WORLD "${CMAKE_MATCH_1}")
-  string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" eigen_major "${eigen_macros_h}")
-  set(EIGEN_VERSION_MAJOR "${CMAKE_MATCH_1}")
-  string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" eigen_minor "${eigen_macros_h}")
-  set(EIGEN_VERSION_MINOR "${CMAKE_MATCH_1}")
-  set(EIGEN_VERSION ${EIGEN_VERSION_WORLD}.${EIGEN_VERSION_MAJOR}.${EIGEN_VERSION_MINOR})
-  message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR} (found version ${EIGEN_VERSION})")
+  message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR} (found version ${Eigen3_VERSION})")
 endif()
 
 # Look for HDF5
@@ -118,8 +103,6 @@ foreach(FLAVOR ${FLAVORS})
     $<BUILD_INTERFACE: ${INCLUDES}>
     # Add binary directory to find generated version.h and export.hpp
     $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
-    # Add Eigen include directories
-    $<BUILD_INTERFACE: ${EIGEN3_INCLUDE_DIR}>
   )
 
   # Set some target properties
@@ -139,9 +122,15 @@ foreach(FLAVOR ${FLAVORS})
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
   
+  # Enable OpenMP
+  target_link_libraries(${FLAVOR} PRIVATE OpenMP::OpenMP_CXX)
+
   # Link to csparse and gmtsph
   target_link_libraries(${FLAVOR} PRIVATE csparse gmtsph)
     
+  # Link to Eigen
+  target_link_libraries(${FLAVOR} PUBLIC Eigen3::Eigen)
+
   # Link to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
   target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
@@ -150,10 +139,7 @@ foreach(FLAVOR ${FLAVORS})
   if (USE_HDF5)
     # Define _USE_HDF5 macro
     target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
-    
-    # CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
-    target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})
-    target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
+    target_link_libraries(${FLAVOR} PUBLIC hdf5::hdf5_cpp)
   endif()
   
   # Exclude [L]GPL features from Eigen
