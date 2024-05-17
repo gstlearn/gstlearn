@@ -28,10 +28,7 @@ env:
   GENERATOR : "Visual Studio 16 2019"
   DOXYGEN_ROOT : ${{github.workspace}}\doxygen
   DOXYGEN_VERSION : "1.9.8"
-  BOOST_ROOT: ${{github.workspace}}\boost
-  BOOST_VERSION: "1.72.0"
-  EIGEN_ROOT : ${{github.workspace}}\eigen
-  EIGEN_VERSION : "3.4.0"
+  CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
   #HDF5_ROOT : hdf5 #do not use "." in the name
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
@@ -64,6 +61,10 @@ jobs:
         python-version: ${{matrix.python.py}}
         architecture: ${{matrix.arch.ar}}
 
+    - name: Install dependencies
+      run: |
+        vcpkg install boost-math eigen3
+
     - name: Install Python dependencies
       # Force specific old version for Numpy
       run: |
@@ -75,19 +76,6 @@ jobs:
       with:
         doxygen-root: ${{env.DOXYGEN_ROOT}}
         doxygen-version: ${{env.DOXYGEN_VERSION}}
-
-    - name: Install the Boost headers
-      uses: ./.github/workflows/install-boost-windows
-      with:
-        boost-root: ${{env.BOOST_ROOT}}
-        boost-version: ${{env.BOOST_VERSION}}
-
-    - name: Install the Eigen headers
-      uses: ./.github/workflows/install-eigen-windows
-      with:
-        eigen-root: ${{env.EIGEN_ROOT}}
-        eigen-version: ${{env.EIGEN_VERSION}}
-        generator: ${{env.GENERATOR}}
 
 #    - name : Download and install HDF5
 #      run: | 
@@ -103,7 +91,7 @@ jobs:
 
     - name : Create Wheels
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch.of}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch.of}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
         cmake --build ${{env.BUILD_DIR}} --target python_build --config ${{env.BUILD_TYPE}}
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
