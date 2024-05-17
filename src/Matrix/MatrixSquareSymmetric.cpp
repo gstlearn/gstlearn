@@ -148,20 +148,12 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
   return mat;
 }
 
-double MatrixSquareSymmetric::_getValue(int irow, int icol) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getValue(irow, icol);
-  else
-    return _getValueLocal(irow, icol);
-}
-
 double MatrixSquareSymmetric::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
-    return _getValueLocal(irank);
+    return _getValueByRankLocal(irank);
 }
 
 double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
@@ -172,36 +164,12 @@ double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
     return _getValueRef(irow, icol);
 }
 
-void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
-{
-  if (isFlagEigen())
-  {
-    // Do not forget to make a symmetrical call (when stored in an Eigen format)
-    AMatrixDense::_setValue(irow, icol, value);
-    if (irow != icol) AMatrixDense::_setValue(icol, irow, value);
-  }
-  else
-    _setValueLocal(irow, icol, value);
-}
-
-void MatrixSquareSymmetric::_updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  if (isFlagEigen())
-  {
-    // Do not forget to make a symmetrical call (when stored in an Eigen format)
-    AMatrixDense::_updValue(irow, icol, oper, value);
-    if (irow != icol) AMatrixDense::_updValue(icol, irow, oper, value);
-  }
-  else
-    _updValueLocal(irow, icol, oper, value);
-}
-
 void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
-    _setValueLocal(irank, value);
+    _setValueByRankLocal(irank, value);
 }
 
 void MatrixSquareSymmetric::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
@@ -391,14 +359,14 @@ void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
   _factor                = r._factor;
 }
 
-double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
+double MatrixSquareSymmetric::_getValueSpecific(int irow, int icol) const
 {
   if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
 
-double MatrixSquareSymmetric::_getValueLocal(int irank) const
+double MatrixSquareSymmetric::_getValueByRankLocal(int irank) const
 {
   return _squareSymMatrix[irank];
 }
@@ -409,21 +377,21 @@ double& MatrixSquareSymmetric::_getValueRefLocal(int irow, int icol)
   return _squareSymMatrix[rank];
 }
 
-void MatrixSquareSymmetric::_setValueLocal(int irow, int icol, double value)
+void MatrixSquareSymmetric::_setValueSpecific(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixSquareSymmetric::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+void MatrixSquareSymmetric::_updValueSpecific(int irow, int icol, const EOperator& oper, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = modifyOperator(oper, _squareSymMatrix[irank], value);
 }
 
-void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
+void MatrixSquareSymmetric::_setValueByRankLocal(int irank, double value)
 {
   if (! _isRankValid(irank)) return;
   _squareSymMatrix[irank] = value;

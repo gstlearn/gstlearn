@@ -68,7 +68,7 @@ int& MatrixInt::_getValueRef(int irow, int icol)
   return _rectMatrix[rank];
 }
 
-void MatrixInt::setValue(int irank, int value)
+void MatrixInt::setValueByRank(int irank, int value)
 {
   _isRankValid(irank);
   _rectMatrix[irank] = value;

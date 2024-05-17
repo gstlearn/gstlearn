@@ -122,20 +122,12 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-double MatrixSquareGeneral::_getValue(int irow, int icol) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getValue(irow, icol);
-  else
-    return _getValueLocal(irow, icol);
-}
-
 double MatrixSquareGeneral::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
-    return _getValueLocal(irank);
+    return _getValueByRankLocal(irank);
 }
 
 double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
@@ -146,28 +138,12 @@ double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
     return _getValueRefLocal(irow, icol);
 }
 
-void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
-{
-  if (isFlagEigen())
-    AMatrixDense::_setValue(irow, icol, value);
-  else
-    _setValueLocal(irow, icol, value);
-}
-
-void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  if (isFlagEigen())
-    AMatrixDense::_updValue(irow, icol, oper, value);
-  else
-    _updValueLocal(irow, icol, oper, value);
-}
-
 void MatrixSquareGeneral::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
-    _setValueLocal(irank, value);
+    _setValueByRankLocal(irank, value);
 }
 
 /**
@@ -258,14 +234,14 @@ void MatrixSquareGeneral::_recopyLocal(const MatrixSquareGeneral &r)
   _squareMatrix = r._squareMatrix;
 }
 
-double MatrixSquareGeneral::_getValueLocal(int irow, int icol) const
+double MatrixSquareGeneral::_getValueSpecific(int irow, int icol) const
 {
   if (!_isIndexValid(irow, icol)) return TEST;
   int rank = _getIndexToRank(irow, icol);
   return _squareMatrix[rank];
 }
 
-double MatrixSquareGeneral::_getValueLocal(int irank) const
+double MatrixSquareGeneral::_getValueByRankLocal(int irank) const
 {
   return _squareMatrix[irank];
 }
@@ -276,21 +252,21 @@ double& MatrixSquareGeneral::_getValueRefLocal(int irow, int icol)
   return _squareMatrix[rank];
 }
 
-void MatrixSquareGeneral::_setValueLocal(int irow, int icol, double value)
+void MatrixSquareGeneral::_setValueSpecific(int irow, int icol, double value)
 {
   if (!_isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _squareMatrix[rank] = value;
 }
 
-void MatrixSquareGeneral::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+void MatrixSquareGeneral::_updValueSpecific(int irow, int icol, const EOperator& oper, double value)
 {
   if (!_isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _squareMatrix[rank] = modifyOperator(oper, _squareMatrix[rank], value);
 }
 
-void MatrixSquareGeneral::_setValueLocal(int irank, double value)
+void MatrixSquareGeneral::_setValueByRankLocal(int irank, double value)
 {
   if (!_isRankValid(irank)) return;
   _squareMatrix[irank] = value;

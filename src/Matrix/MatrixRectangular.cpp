@@ -114,20 +114,12 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-double MatrixRectangular::_getValue(int irow, int icol) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getValue(irow, icol);
-  else
-    return _getValueLocal(irow, icol);
-}
-
 double MatrixRectangular::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
-    return _getValueLocal(irank);
+    return _getValueByRankLocal(irank);
 }
 
 void MatrixRectangular::_setValueByRank(int irank, double value)
@@ -135,15 +127,7 @@ void MatrixRectangular::_setValueByRank(int irank, double value)
   if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
-    _setValueLocal(irank, value);
-}
-
-void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  if (isFlagEigen())
-    AMatrixDense::_updValue(irow, icol, oper, value);
-  else
-    _updValueLocal(irow, icol, oper, value);
+    _setValueByRankLocal(irank, value);
 }
 
 void MatrixRectangular::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
@@ -253,14 +237,14 @@ void MatrixRectangular::_recopyLocal(const MatrixRectangular& r)
   _rectMatrix = r._rectMatrix;
 }
 
-double MatrixRectangular::_getValueLocal(int irow, int icol) const
+double MatrixRectangular::_getValueSpecific(int irow, int icol) const
 {
   if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
-double MatrixRectangular::_getValueLocal(int irank) const
+double MatrixRectangular::_getValueByRankLocal(int irank) const
 {
   if (! _isRankValid(irank)) return TEST;
   return _rectMatrix[irank];
@@ -273,20 +257,20 @@ double& MatrixRectangular::_getValueRefLocal(int irow, int icol)
   return _rectMatrix[rank];
 }
 
-void MatrixRectangular::_setValueLocal(int irank, double value)
+void MatrixRectangular::_setValueByRankLocal(int irank, double value)
 {
   if (! _isRankValid(irank)) return;
   _rectMatrix[irank] = value;
 }
 
-void MatrixRectangular::_setValueLocal(int irow, int icol, double value)
+void MatrixRectangular::_setValueSpecific(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }
 
-void MatrixRectangular::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
+void MatrixRectangular::_updValueSpecific(int irow, int icol, const EOperator& oper, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);

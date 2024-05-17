@@ -112,8 +112,8 @@ protected:
   virtual void    _deallocate() override;
   virtual double  _getValueByRank(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;
-  virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
@@ -128,7 +128,9 @@ protected:
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 protected:
-  virtual void    _setValueLocal(int irow, int icol, double value) = 0;
+  virtual void    _setValueSpecific(int irow, int icol, double value) = 0;
+  virtual double  _getValueSpecific(int irow, int icol) const = 0;
+  virtual void    _updValueSpecific(int irow, int icol, const EOperator& oper, double value) = 0;
 
 private:
   /// ===================================================================

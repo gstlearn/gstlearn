@@ -290,14 +290,12 @@ double AMatrix::getValue_(int irow, int icol) const
 {
   return _getValue(irow, icol);
 }
-
 /*! Gets the value at row 'irow' and column 'icol' */
 double AMatrix::getValue(int irow, int icol) const
 {
   if (! _isIndexValid(irow, icol)) return TEST;
   return _getValue(irow, icol);
 }
-
 
 /*! Updates the value at row 'irow' and column 'icol' (no test) */
 void AMatrix::updValue_(int irow, int icol, const EOperator& oper, double value)

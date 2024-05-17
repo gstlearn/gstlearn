@@ -113,8 +113,7 @@ double AMatrixDense::_getValue(int irow, int icol) const
   if (isFlagEigen())
     return _getValueEigen(irow, icol);
   else
-    my_throw("_getValue should never be called here");
-  return TEST;
+    return _getValueSpecific(irow, icol);
 }
 
 double AMatrixDense::_getValueByRank(int irank) const
@@ -139,7 +138,7 @@ void AMatrixDense::_setValue(int irow, int icol, double value)
   if (isFlagEigen())
     _setValueEigen(irow, icol, value);
   else
-    _setValueLocal(irow, icol, value);
+    _setValueSpecific(irow, icol, value);
 }
 
 void AMatrixDense::_updValue(int irow, int icol, const EOperator& oper, double value)
@@ -147,7 +146,7 @@ void AMatrixDense::_updValue(int irow, int icol, const EOperator& oper, double v
   if (isFlagEigen())
     _updValueEigen(irow, icol, oper, value);
   else
-    my_throw("_setValue should never be called here");
+    _updValueSpecific(irow, icol, oper, value);
 }
 
 double& AMatrixDense::_getValueRef(int irow, int icol)
@@ -517,11 +516,14 @@ double& AMatrixDense::_getValueRefEigen(int irow, int icol)
 void AMatrixDense::_setValueEigen(int irow, int icol, double value)
 {
   _eigenMatrix(irow, icol) = value;
+  if (isSymmetric() && irow != icol) _eigenMatrix(icol, irow) = value;
 }
 
 void AMatrixDense::_updValueEigen(int irow, int icol, const EOperator& oper, double value)
 {
   _eigenMatrix(irow, icol) = modifyOperator(oper, _eigenMatrix(irow, icol), value);
+  if (isSymmetric() && irow != icol)
+    _eigenMatrix(icol, irow) = modifyOperator(oper, _eigenMatrix(icol, irow), value);
 }
 
 void AMatrixDense::_setValueEigen(int irank, double value)

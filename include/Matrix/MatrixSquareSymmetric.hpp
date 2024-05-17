@@ -48,7 +48,9 @@ public:
   }
 
   /// Interface for AMatrixDense
-  void    _setValueLocal(int irow, int icol, double value) override;
+  void    _setValueSpecific(int irow, int icol, double value) override;
+  double  _getValueSpecific(int irow, int icol) const override;
+  void    _updValueSpecific(int irow, int icol, const EOperator& oper, double value) override;
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
@@ -111,10 +113,7 @@ private:
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
   virtual void    _allocate() override;
-  virtual double  _getValue(int irow, int icol) const override;
   virtual double  _getValueByRank(int irank) const override;
-  virtual void    _setValue(int irow, int icol, double value) override;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValueByRank(int irank, double value) override;
   virtual void    _setValues(const double* values, bool byCol = true) override;
 
@@ -127,12 +126,11 @@ private:
 private:
   // The subsequent methods rely on the specific local storage ('squareSymMatrix')
   void    _recopyLocal(const MatrixSquareSymmetric& r);
-  double  _getValueLocal(int irow, int icol) const;
-  double  _getValueLocal(int irank) const;
+  double  _getValueByRankLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
 
-  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
-  void    _setValueLocal(int irank, double value);
+
+  void    _setValueByRankLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _setValuesLocal(const double *values, bool byCol);

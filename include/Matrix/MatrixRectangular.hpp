@@ -61,10 +61,9 @@ private:
   virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
   virtual void    _allocate() override;
-  virtual double  _getValue(int irow, int icol) const override;
+
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValueByRank(int rank, double value) override;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
 
   virtual void    _transposeInPlace() override;
   virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
@@ -73,7 +72,9 @@ private:
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   /// Interface for AMatrixDense
-  void _setValueLocal(int irow, int icol, double value) override;
+  void    _setValueSpecific(int irow, int icol, double value) override;
+  double  _getValueSpecific(int irow, int icol) const override;
+  void    _updValueSpecific(int irow, int icol, const EOperator& oper, double value) override;
 
 private:
   /// ========================================================================
@@ -81,11 +82,9 @@ private:
   /// ========================================================================
   void    _allocateLocal();
   void    _recopyLocal(const MatrixRectangular& r);
-  double  _getValueLocal(int irow, int icol) const;
-  double  _getValueLocal(int irank) const;
+  double  _getValueByRankLocal(int irank) const;
   double& _getValueRefLocal(int irow, int icol);
-  void    _setValueLocal(int irank, double value);
-  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
+  void    _setValueByRankLocal(int irank, double value);
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
