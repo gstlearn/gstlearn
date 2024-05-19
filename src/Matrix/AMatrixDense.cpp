@@ -94,7 +94,8 @@ void AMatrixDense::_allocate()
 {
   if (isFlagEigen())
   {
-    _allocateLocal();
+    if (isMultiThread()) omp_set_num_threads(getMultiThread()); // TODO Move to multithread handling class
+    _eigenMatrix = Eigen::MatrixXd::Constant(getNRows(),getNCols(),0.);
   }
   else
   {
@@ -108,18 +109,23 @@ void AMatrixDense::_deallocate()
   _eigenVectors = nullptr;
 }
 
-double AMatrixDense::_getValue(int irow, int icol) const
+double AMatrixDense::getValue(int irow, int icol) const
+{
+  if (! _isIndexValid(irow, icol)) return TEST;
+  return getValue_(irow, icol);
+}
+double AMatrixDense::getValue_(int irow, int icol) const
 {
   if (isFlagEigen())
-    return _getValueEigen(irow, icol);
+    return _eigenMatrix(irow, icol);
   else
-    return _getValueSpecific(irow, icol);
+    return _getValue(irow, icol);
 }
 
 double AMatrixDense::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
-    return _getValueEigen(irank);
+    return *(_eigenMatrix.data() + irank);
   else
     my_throw("_getValue should never be called here");
   return TEST;
@@ -128,25 +134,44 @@ double AMatrixDense::_getValueByRank(int irank) const
 void AMatrixDense::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
-    _setValueEigen(irank, value);
+  {
+    *(_eigenMatrix.data() + irank) = value;
+  }
   else
     my_throw("_setValue should never be called here");
 }
 
-void AMatrixDense::_setValue(int irow, int icol, double value)
+void AMatrixDense::setValue(int irow, int icol, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  setValue_(irow, icol ,value);
+}
+void AMatrixDense::setValue_(int irow, int icol, double value)
 {
   if (isFlagEigen())
-    _setValueEigen(irow, icol, value);
+  {
+    _eigenMatrix(irow, icol) = value;
+    if (isSymmetric() && irow != icol) _eigenMatrix(icol, irow) = value;
+  }
   else
-    _setValueSpecific(irow, icol, value);
+    _setValue(irow, icol, value);
 }
 
-void AMatrixDense::_updValue(int irow, int icol, const EOperator& oper, double value)
+void AMatrixDense::updValue(int irow, int icol, const EOperator& oper, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  updValue(irow, icol, oper, value);
+}
+void AMatrixDense::updValue_(int irow, int icol, const EOperator& oper, double value)
 {
   if (isFlagEigen())
-    _updValueEigen(irow, icol, oper, value);
+  {
+    _eigenMatrix(irow, icol) = modifyOperator(oper, _eigenMatrix(irow, icol), value);
+    if (isSymmetric() && irow != icol)
+      _eigenMatrix(icol, irow) = modifyOperator(oper, _eigenMatrix(icol, irow), value);
+  }
   else
-    _updValueSpecific(irow, icol, oper, value);
+    _updValue(irow, icol, oper, value);
 }
 
 double& AMatrixDense::_getValueRef(int irow, int icol)
@@ -222,7 +247,10 @@ int AMatrixDense::_solve(const VectorDouble &b, VectorDouble &x) const
 void AMatrixDense::setColumn(int icol, const VectorDouble& tab)
 {
   if (isFlagEigen())
-    _setColumnEigen(icol, tab);
+  {
+    Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
+    _eigenMatrix.col(icol) = tabm;
+  }
   else
     AMatrix::setColumn(icol, tab);
 }
@@ -230,7 +258,10 @@ void AMatrixDense::setColumn(int icol, const VectorDouble& tab)
 void AMatrixDense::setRow(int irow, const VectorDouble& tab)
 {
   if (isFlagEigen())
-    _setRowEigen(irow, tab);
+  {
+    Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
+    _eigenMatrix.row(irow) = tabm;
+  }
   else
     AMatrix::setRow(irow, tab);
 }
@@ -238,7 +269,11 @@ void AMatrixDense::setRow(int irow, const VectorDouble& tab)
 void AMatrixDense::setDiagonal(const VectorDouble& tab)
 {
   if (isFlagEigen())
-    _setDiagonalEigen(tab);
+  {
+    _eigenMatrix.setZero();
+    Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
+    _eigenMatrix.diagonal() = tabm;
+  }
   else
     AMatrix::setDiagonal(tab);
 }
@@ -246,7 +281,10 @@ void AMatrixDense::setDiagonal(const VectorDouble& tab)
 void AMatrixDense::setDiagonalToConstant(double value)
 {
   if (isFlagEigen())
-    _setDiagonalToConstantEigen(value);
+  {
+    _eigenMatrix.setZero();
+    _eigenMatrix.diagonal() = Eigen::VectorXd::Constant(getNRows(),value);
+  }
   else
     AMatrix::setDiagonalToConstant(value);
 }
@@ -254,7 +292,7 @@ void AMatrixDense::setDiagonalToConstant(double value)
 void AMatrixDense::addScalar(double v)
 {
   if (isFlagEigen())
-    _addScalarEigen(v);
+    _eigenMatrix.array() += v;
   else
     AMatrix::addScalar(v);
 }
@@ -262,7 +300,7 @@ void AMatrixDense::addScalar(double v)
 void AMatrixDense::addScalarDiag(double v)
 {
   if (isFlagEigen())
-    _addScalarDiagonalEigen(v);
+    _eigenMatrix.diagonal() += Eigen::VectorXd::Constant(getNRows(),v);
   else
     AMatrix::addScalarDiag(v);
 }
@@ -270,7 +308,7 @@ void AMatrixDense::addScalarDiag(double v)
 void AMatrixDense::prodScalar(double v)
 {
   if (isFlagEigen())
-    _prodScalarEigen(v);
+    _eigenMatrix.array() *= v;
   else
     AMatrix::prodScalar(v);
 }
@@ -323,7 +361,7 @@ void AMatrixDense::prodNormMatInPlace(const AMatrixDense &a, const VectorDouble&
 void AMatrixDense::fill(double value)
 {
   if (isFlagEigen())
-    _fillEigen(value);
+    _eigenMatrix.setConstant(value);
   else
     AMatrix::fill(value);
 }
@@ -333,7 +371,8 @@ void AMatrixDense::multiplyRow(const VectorDouble& vec)
 {
   if (isFlagEigen())
   {
-    _multiplyRowEigen(vec);
+    Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
+    _eigenMatrix = vecm.asDiagonal() * _eigenMatrix;
   }
   else
   {
@@ -346,7 +385,8 @@ void AMatrixDense::multiplyColumn(const VectorDouble& vec)
 {
   if (isFlagEigen())
   {
-    _multiplyColumnEigen(vec);
+    Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
+    _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
   }
   else
   {
@@ -359,7 +399,9 @@ void AMatrixDense::divideRow(const VectorDouble& vec)
 {
   if (isFlagEigen())
   {
-    _divideRowEigen(vec);
+    VectorDouble temp = VH::inverse(vec);
+    Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
+    _eigenMatrix = vecm.asDiagonal() * _eigenMatrix;
   }
   else
   {
@@ -372,7 +414,9 @@ void AMatrixDense::divideColumn(const VectorDouble& vec)
 {
   if (isFlagEigen())
   {
-    _divideColumnEigen(vec);
+    VectorDouble temp = VH::inverse(vec);
+    Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNRows());
+    _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
   }
   else
   {
@@ -423,7 +467,8 @@ VectorDouble AMatrixDense::getRow(int irow) const
 {
   if (isFlagEigen())
   {
-    return _getRowEigen(irow);
+    Eigen::VectorXd resm = _eigenMatrix.row(irow);
+    return VectorDouble(resm.data(), resm.data() + resm.size());
   }
   else
   {
@@ -436,7 +481,8 @@ VectorDouble AMatrixDense::getColumn(int icol) const
 {
   if (isFlagEigen())
   {
-    return _getColumnEigen(icol);
+    Eigen::VectorXd resm = _eigenMatrix.col(icol);
+    return VectorDouble(resm.data(), resm.data() + resm.size());
   }
   else
   {
@@ -513,40 +559,6 @@ double& AMatrixDense::_getValueRefEigen(int irow, int icol)
   return *(_eigenMatrix.data() + _getIndexToRank(irow, icol));
 }
 
-void AMatrixDense::_setValueEigen(int irow, int icol, double value)
-{
-  _eigenMatrix(irow, icol) = value;
-  if (isSymmetric() && irow != icol) _eigenMatrix(icol, irow) = value;
-}
-
-void AMatrixDense::_updValueEigen(int irow, int icol, const EOperator& oper, double value)
-{
-  _eigenMatrix(irow, icol) = modifyOperator(oper, _eigenMatrix(irow, icol), value);
-  if (isSymmetric() && irow != icol)
-    _eigenMatrix(icol, irow) = modifyOperator(oper, _eigenMatrix(icol, irow), value);
-}
-
-void AMatrixDense::_setValueEigen(int irank, double value)
-{
-  *(_eigenMatrix.data() + irank) = value;
-}
-
-double AMatrixDense::_getValueEigen(int irank) const
-{
-  return *(_eigenMatrix.data() + irank);
-}
-
-double AMatrixDense::_getValueEigen(int irow, int icol) const
-{
-  return _eigenMatrix(irow, icol);
-}
-
-void AMatrixDense::_allocateLocal()
-{
-  if (isMultiThread()) omp_set_num_threads(getMultiThread()); // TODO Move to multithread handling class
-  _eigenMatrix = Eigen::MatrixXd::Constant(getNRows(),getNCols(),0.);
-}
-
 void AMatrixDense::_recopyLocal(const AMatrixDense &r)
 {
   _eigenMatrix = r._eigenMatrix;
@@ -558,46 +570,6 @@ void AMatrixDense::_recopyLocal(const AMatrixDense &r)
   {
     _eigenVectors = r._eigenVectors->clone();
   }
-}
-
-void AMatrixDense::_setColumnEigen(int icol, const VectorDouble& tab)
-{
-  Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
-  _eigenMatrix.col(icol) = tabm;
-}
-
-void AMatrixDense::_setRowEigen(int irow, const VectorDouble& tab)
-{
-  Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
-  _eigenMatrix.row(irow) = tabm;
-}
-
-void AMatrixDense::_setDiagonalEigen(const VectorDouble& tab)
-{
-  _eigenMatrix.setZero();
-  Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
-  _eigenMatrix.diagonal() = tabm;
-}
-
-void AMatrixDense::_setDiagonalToConstantEigen(double value)
-{
-  _eigenMatrix.setZero();
-  _eigenMatrix.diagonal() = Eigen::VectorXd::Constant(getNRows(),value);
-}
-
-void AMatrixDense::_addScalarEigen(double v)
-{
-  _eigenMatrix.array() += v;
-}
-
-void AMatrixDense::_addScalarDiagonalEigen(double v)
-{
-  _eigenMatrix.diagonal() += Eigen::VectorXd::Constant(getNRows(),v);
-}
-
-void AMatrixDense::_prodScalarEigen(double v)
-{
-  _eigenMatrix.array() *= v;
 }
 
 void AMatrixDense::_addMatInPlaceEigen(const AMatrixDense& y, double cx, double cy)
@@ -670,37 +642,6 @@ void AMatrixDense::_prodNormMatInPlaceEigen(const AMatrixDense& a, const VectorD
   }
 }
 
-void AMatrixDense::_fillEigen(double value)
-{
-  _eigenMatrix.setConstant(value);
-}
-
-void AMatrixDense::_multiplyRowEigen(const VectorDouble& vec)
-{
-  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
-  _eigenMatrix = vecm.asDiagonal() * _eigenMatrix;
-}
-
-void AMatrixDense::_multiplyColumnEigen(const VectorDouble& vec)
-{
-  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
-  _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
-}
-
-void AMatrixDense::_divideRowEigen(const VectorDouble& vec)
-{
-  VectorDouble temp = VH::inverse(vec);
-  Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
-  _eigenMatrix = vecm.asDiagonal() * _eigenMatrix;
-}
-
-void AMatrixDense::_divideColumnEigen(const VectorDouble& vec)
-{
-  VectorDouble temp = VH::inverse(vec);
-  Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNRows());
-  _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
-}
-
 VectorDouble AMatrixDense::_prodMatVecEigen(const VectorDouble& x, bool transpose) const
 {
   Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
@@ -723,22 +664,6 @@ VectorDouble AMatrixDense::_prodVecMatEigen(const VectorDouble& x, bool transpos
     ym = xm.transpose() * _eigenMatrix;
   VectorDouble y(ym.data(), ym.data() + ym.size());
   return y;
-}
-
-/*! Extract a Row */
-VectorDouble AMatrixDense::_getRowEigen(int irow) const
-{
-  Eigen::VectorXd resm = _eigenMatrix.row(irow);
-  VectorDouble res(resm.data(), resm.data() + resm.size());
-  return res;
-}
-
-/*! Extract a Column */
-VectorDouble AMatrixDense::_getColumnEigen(int icol) const
-{
-  Eigen::VectorXd resm = _eigenMatrix.col(icol);
-  VectorDouble res(resm.data(), resm.data() + resm.size());
-  return res;
 }
 
 int AMatrixDense::_computeEigenEigen(bool optionPositive)

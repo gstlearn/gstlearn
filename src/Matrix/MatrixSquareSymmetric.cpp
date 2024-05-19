@@ -359,7 +359,7 @@ void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
   _factor                = r._factor;
 }
 
-double MatrixSquareSymmetric::_getValueSpecific(int irow, int icol) const
+double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
   if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
@@ -377,14 +377,14 @@ double& MatrixSquareSymmetric::_getValueRefLocal(int irow, int icol)
   return _squareSymMatrix[rank];
 }
 
-void MatrixSquareSymmetric::_setValueSpecific(int irow, int icol, double value)
+void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixSquareSymmetric::_updValueSpecific(int irow, int icol, const EOperator& oper, double value)
+void MatrixSquareSymmetric::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);

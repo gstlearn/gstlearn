@@ -234,7 +234,7 @@ void MatrixSquareGeneral::_recopyLocal(const MatrixSquareGeneral &r)
   _squareMatrix = r._squareMatrix;
 }
 
-double MatrixSquareGeneral::_getValueSpecific(int irow, int icol) const
+double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
   if (!_isIndexValid(irow, icol)) return TEST;
   int rank = _getIndexToRank(irow, icol);
@@ -252,14 +252,14 @@ double& MatrixSquareGeneral::_getValueRefLocal(int irow, int icol)
   return _squareMatrix[rank];
 }
 
-void MatrixSquareGeneral::_setValueSpecific(int irow, int icol, double value)
+void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 {
   if (!_isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _squareMatrix[rank] = value;
 }
 
-void MatrixSquareGeneral::_updValueSpecific(int irow, int icol, const EOperator& oper, double value)
+void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
   if (!_isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);

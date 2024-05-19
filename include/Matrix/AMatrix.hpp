@@ -51,6 +51,7 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// Interface to AMatrix
   /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
   virtual bool isDense() const = 0;
   /*! Returns if the current matrix is Sparse */
@@ -107,7 +108,6 @@ public:
                                  const AMatrix *y,
                                  bool transposeX = false,
                                  bool transposeY = false);
-
   /*! Extract the contents of the matrix */
   virtual NF_Triplet getMatrixToTriplet(int shiftRow=0, int shiftCol=0) const;
   /*! Add a matrix (multiplied by a constant) */
@@ -126,19 +126,20 @@ public:
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
   /*! Gets the value at row 'irow' and column 'icol' */
-  double getValue(int irow, int icol) const;
+  virtual double getValue(int irow, int icol) const = 0;
   /*! Sets the value at row 'irow' and column 'icol' */
-  void setValue(int irow, int icol, double value);
+  virtual void setValue(int irow, int icol, double value) = 0;
   /*! Update the value at row 'irow' and column 'icol' */
-  void updValue(int irow, int icol, const EOperator& oper, double value);
+  virtual void updValue(int irow, int icol, const EOperator& oper, double value) = 0;
 #ifndef SWIG
   /*! Sets the value at row 'irow' and column 'icol' (no test performed) */
-  void setValue_(int irow, int icol, double value);
-  /*! Update the value at row 'irow' and column 'icol' (no test performed) */
-  void updValue_(int irow, int icol, const EOperator& oper, double value);
+  virtual void setValue_(int irow, int icol, double value) = 0;
   /*! Gets the value at row 'irow' and column 'icol' (no test) */
-  double getValue_(int irow, int icol) const;
+  virtual double getValue_(int irow, int icol) const = 0;
+  /*! Update the value at row 'irow' and column 'icol' (no test performed) */
+  virtual void updValue_(int irow, int icol, const EOperator& oper, double value) = 0;
 #endif
+
   /*! Add a value to a matrix term */
   void addValue(int irow, int icol, double value);
   /*! Check if a matrix is the same as me (norm L1) */
@@ -228,10 +229,7 @@ protected:
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
   virtual void    _setValueByRank(int rank, double value) = 0;
-  virtual double  _getValue(int irow, int icol) const = 0;
   virtual double  _getValueByRank(int rank) const = 0;
-  virtual void    _setValue(int irow, int icol, double value) = 0;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;

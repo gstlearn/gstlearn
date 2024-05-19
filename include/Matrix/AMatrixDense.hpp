@@ -49,6 +49,16 @@ public:
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const { return false; }
 
+  /*! Set the value for in a matrix cell */
+  void setValue(int irow, int icol, double value) override;
+  void setValue_(int irow, int icol, double value) override;
+  /*! Get the value from a matrix cell */
+  virtual double getValue(int irow, int icol) const override;
+  virtual double getValue_(int irow, int icol) const override;
+  /*! Update the contents of a matrix cell */
+  void updValue(int irow, int icol, const EOperator& oper, double value) override;
+  void updValue_(int irow, int icol, const EOperator& oper, double value) override;
+
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
   /*! Set the contents of a Row */
@@ -111,12 +121,8 @@ protected:
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
   virtual double  _getValueByRank(int rank) const override;
-  virtual double  _getValue(int irow, int icol) const override;
-  virtual void    _setValue(int irow, int icol, double value) override;
   virtual void    _setValueByRank(int rank, double value) override;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
-
   virtual void    _transposeInPlace() override;
   virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
@@ -128,16 +134,15 @@ protected:
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 protected:
-  virtual void    _setValueSpecific(int irow, int icol, double value) = 0;
-  virtual double  _getValueSpecific(int irow, int icol) const = 0;
-  virtual void    _updValueSpecific(int irow, int icol, const EOperator& oper, double value) = 0;
+  virtual void    _setValue(int irow, int icol, double value) = 0;
+  virtual double  _getValue(int irow, int icol) const = 0;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
 
 private:
-  /// ===================================================================
-  /// The subsequent methods rely on the specific storage (Eigen Library)
-  /// ===================================================================
+  /// ================================================
+  /// The subsequent methods rely on the Eigen storage
+  /// ================================================
   void    _recopyLocal(const AMatrixDense &r);
-  void    _allocateLocal();
   int     _solveEigen(const VectorDouble &b, VectorDouble &x) const;
   int     _invertEigen();
   void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
@@ -146,19 +151,7 @@ private:
   int     _getIndexToRankEigen(int irow, int icol) const;
   int     _getMatrixPhysicalSizeEigen() const;
   double& _getValueRefEigen(int irow, int icol);
-  void    _setValueEigen(int irow, int icol, double value);
-  void    _updValueEigen(int irow, int icol, const EOperator& oper, double value);
-  void    _setValueEigen(int irank, double value);
-  double  _getValueEigen(int irank) const;
-  double  _getValueEigen(int irow, int icol) const;
 
-  void _setColumnEigen(int icol, const VectorDouble& tab);
-  void _setRowEigen(int irow, const VectorDouble& tab);
-  void _setDiagonalEigen(const VectorDouble& tab);
-  void _setDiagonalToConstantEigen(double value = 1.);
-  void _addScalarEigen(double v);
-  void _addScalarDiagonalEigen(double v);
-  void _prodScalarEigen(double v);
   void _addMatInPlaceEigen(const AMatrixDense& y, double cx = 1., double cy = 1.);
   void _prodMatMatInPlaceEigen(const AMatrixDense *x,
                                const AMatrixDense *y,
@@ -168,15 +161,8 @@ private:
   void _prodNormMatInPlaceEigen(const AMatrixDense &a,
                                 const VectorDouble &vec = VectorDouble(),
                                 bool transpose = false);
-  void _fillEigen(double value);
-  void _multiplyRowEigen(const VectorDouble& vec);
-  void _multiplyColumnEigen(const VectorDouble& vec);
-  void _divideRowEigen(const VectorDouble& vec);
-  void _divideColumnEigen(const VectorDouble& vec);
   VectorDouble _prodMatVecEigen(const VectorDouble& x, bool transpose = false) const;
   VectorDouble _prodVecMatEigen(const VectorDouble& x, bool transpose = false) const;
-  VectorDouble _getRowEigen(int irow) const;
-  VectorDouble _getColumnEigen(int icol) const;
 
   int _computeEigenEigen(bool optionPositive = true);
   int _computeGeneralizedEigenEigen(const MatrixSquareSymmetric &b,

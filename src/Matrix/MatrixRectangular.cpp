@@ -237,7 +237,7 @@ void MatrixRectangular::_recopyLocal(const MatrixRectangular& r)
   _rectMatrix = r._rectMatrix;
 }
 
-double MatrixRectangular::_getValueSpecific(int irow, int icol) const
+double MatrixRectangular::_getValue(int irow, int icol) const
 {
   if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
@@ -263,14 +263,14 @@ void MatrixRectangular::_setValueByRankLocal(int irank, double value)
   _rectMatrix[irank] = value;
 }
 
-void MatrixRectangular::_setValueSpecific(int irow, int icol, double value)
+void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }
 
-void MatrixRectangular::_updValueSpecific(int irow, int icol, const EOperator& oper, double value)
+void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);

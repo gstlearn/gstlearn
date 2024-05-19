@@ -55,6 +55,16 @@ public:
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
   virtual bool isDense() const { return false; }
 
+  /*! Set the value for a matrix cell */
+  void setValue(int irow, int icol, double value) override;
+  void setValue_(int irow, int icol, double value) override;
+  /*! Get the value from a matrix cell */
+  double getValue(int row, int col) const override;
+  double getValue_(int row, int col) const override;
+  /*! Modifies the contents of a matrix cell */
+  void updValue(int irow, int icol, const EOperator& oper, double value) override;
+  void updValue_(int irow, int icol, const EOperator& oper, double value) override;
+
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
   /*! Set the contents of a Row */
@@ -162,7 +172,7 @@ public:
   double computeCholeskyLogDeterminant();
 
   void   addValue(int row, int col, double value);
-  double getValue(int row, int col) const;
+
   double L1Norm() const;
   void   getStats(int *nrows, int *ncols, int *count, double *percent) const;
   int    scaleByDiag();
@@ -197,11 +207,8 @@ protected:
   virtual double& _getValueRef(int irow, int icol) override;
   virtual int     _getMatrixPhysicalSize() const override;
   virtual void    _setValueByRank(int rank, double value) override;
-  virtual void    _setValue(int irow, int icol, double value) override;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
   virtual void    _setValues(const double* values, bool byCol) override;
   virtual double  _getValueByRank(int rank) const override;
-  virtual double  _getValue(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
   virtual void    _transposeInPlace() override;
 

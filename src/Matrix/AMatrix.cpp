@@ -136,7 +136,7 @@ bool AMatrix::isSame(const AMatrix& m, double eps, bool printWhyNot)
     for (int irow=0; irow<nrows; irow++)
     {
       double v1 = getValue(irow, icol);
-      double v2 = m.getValue(irow, icol);
+      double v2 = m.getValue_(irow, icol);
       if (ABS(v1 - v2) > eps)
       {
         if (printWhyNot)
@@ -178,13 +178,13 @@ void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol
   {
     for (int icol=0; icol<ncols; icol++)
       for (int irow=0; irow<nrows; irow++)
-        _setValue(irow,icol,tab[lec++]);
+        setValue(irow,icol,tab[lec++]);
   }
   else
   {
     for (int irow=0; irow<nrows; irow++)
       for (int icol=0; icol<ncols; icol++)
-        _setValue(irow,icol,tab[lec++]);
+        setValue(irow,icol,tab[lec++]);
   }
   _clearDecoration();
 }
@@ -205,7 +205,7 @@ void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol, int opt_ei
     _allocate();
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
-        _setValue(irow, icol, tab[irow][icol]);
+        setValue(irow, icol, tab[irow][icol]);
   }
   else
   {
@@ -215,7 +215,7 @@ void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol, int opt_ei
     _allocate();
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
-        _setValue(irow, icol, tab[icol][irow]);
+        setValue(irow, icol, tab[icol][irow]);
   }
   _clearDecoration();
 }
@@ -244,12 +244,12 @@ bool AMatrix::isSymmetric(bool printWhyNot, double eps) const
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (ABS(getValue(irow,icol) - getValue(icol,irow)) > eps)
+      if (ABS(getValue_(irow,icol) - getValue_(icol,irow)) > eps)
       {
         if (printWhyNot)
           messerr("Elements (%d;%d)=%lf and (%d;%d)=%kf should be equal",
-                  irow,icol,getValue(irow,icol),
-                  icol,irow,getValue(icol,irow));
+                  irow,icol,getValue_(irow,icol),
+                  icol,irow,getValue_(icol,irow));
         return false;
       }
     }
@@ -266,7 +266,7 @@ bool AMatrix::isIdentity(bool printWhyNot) const
       {
         if (printWhyNot)
           messerr("The term (%d,%d) should be equal to %lf (%lf)", irow + 1,
-                  icol + 1, refval, getValue(irow, icol));
+                  icol + 1, refval, getValue_(irow, icol));
         return false;
       }
     }
@@ -283,43 +283,6 @@ AMatrix* AMatrix::transpose() const
   AMatrix* mat = dynamic_cast<AMatrix*>(clone());
   mat->transposeInPlace();
   return mat;
-}
-
-/*! Gets the value at row 'irow' and column 'icol' (no test) */
-double AMatrix::getValue_(int irow, int icol) const
-{
-  return _getValue(irow, icol);
-}
-/*! Gets the value at row 'irow' and column 'icol' */
-double AMatrix::getValue(int irow, int icol) const
-{
-  if (! _isIndexValid(irow, icol)) return TEST;
-  return _getValue(irow, icol);
-}
-
-/*! Updates the value at row 'irow' and column 'icol' (no test) */
-void AMatrix::updValue_(int irow, int icol, const EOperator& oper, double value)
-{
-  return _updValue(irow, icol, oper, value);
-}
-
-/*! Sets the value at row 'irow' and column 'icol' */
-void AMatrix::setValue(int irow, int icol, double value)
-{
-  if (! _isIndexValid(irow, icol)) return;
-  return _setValue(irow, icol, value);
-}
-/*! Sets the value at row 'irow' and column 'icol' (no test) */
-void AMatrix::setValue_(int irow, int icol, double value)
-{
-  return _setValue(irow, icol, value);
-}
-
-/*! Update the value at row 'irow' and column 'icol' */
-void AMatrix::updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  if (! _isIndexValid(irow, icol)) return;
-  return _updValue(irow, icol, oper, value);
 }
 
 /**
@@ -535,7 +498,7 @@ void AMatrix::addMatInPlace(const AMatrix& y, double cx, double cy)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, cx * _getValue(irow, icol) + cy * y.getValue(irow, icol));
+      setValue_(irow, icol, cx * getValue(irow, icol) + cy * y.getValue(irow, icol));
     }
 }
 
@@ -651,7 +614,7 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) * vec[irow]);
+      setValue_(irow, icol, getValue_(irow, icol) * vec[irow]);
     }
 }
 
@@ -666,7 +629,7 @@ void AMatrix::divideRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) / vec[irow]);
+      setValue_(irow, icol, getValue_(irow, icol) / vec[irow]);
     }
 }
 
@@ -681,7 +644,7 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) * vec[icol]);
+      setValue_(irow, icol, getValue_(irow, icol) * vec[icol]);
     }
 }
 void AMatrix::divideColumn(const VectorDouble& vec)
@@ -695,7 +658,7 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
+      setValue_(irow, icol, getValue_(irow, icol) / vec[icol]);
     }
 }
 
@@ -1169,9 +1132,9 @@ int AMatrix::getNumberRowDefined() const
 
 void AMatrix::addValue(int irow, int icol, double value)
 {
-  double oldval = _getValue(irow, icol);
+  double oldval = getValue(irow, icol);
   if (FFFF(oldval)) return;
-  _setValue(irow, icol, oldval + value);
+  setValue(irow, icol, oldval + value);
 }
 
 void AMatrix::_clear()
@@ -1204,7 +1167,7 @@ double AMatrix::getMinimum() const
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = _getValue(irow, icol);
+      double value = getValue_(irow, icol);
       if (FFFF(value)) continue;
       if (value < minimum) minimum = value;
     }
@@ -1219,7 +1182,7 @@ double AMatrix::getMaximum() const
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = _getValue(irow, icol);
+      double value = getValue_(irow, icol);
       if (FFFF(value)) continue;
       if (value > maximum) maximum = value;
     }
@@ -1234,7 +1197,7 @@ double AMatrix::getNormInf() const
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = _getValue(irow, icol);
+      double value = getValue_(irow, icol);
       if (FFFF(value)) continue;
       value = ABS(value);
       if (value > norminf) norminf = value;

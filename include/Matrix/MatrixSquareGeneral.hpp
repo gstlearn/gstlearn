@@ -49,9 +49,9 @@ public:
                   double eps = EPSILON20);
 
   /// Interface for AMatrixDense
-  void    _setValueSpecific(int irow, int icol, double value) override;
-  double  _getValueSpecific(int irow, int icol) const override;
-  void    _updValueSpecific(int irow, int icol, const EOperator& oper, double value) override;
+  void    _setValue(int irow, int icol, double value) override;
+  double  _getValue(int irow, int icol) const override;
+  void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
 
 private:
   /// Interface for AMatrix
