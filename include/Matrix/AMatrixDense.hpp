@@ -31,7 +31,11 @@ class MatrixSquareSymmetric;
 class EOperator;
 
 /**
- * Square Matrix
+ * Dense Matrix
+ * This class provides all the functions that can be performed using a Matrix stored
+ * in "Dense" format (in opposition to the "Sparse" format).
+ * This class can be derived in the case the matrix is Square, and even more if it is
+ * Square and Symmetric.
  */
 
 class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
@@ -100,6 +104,7 @@ public:
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
   /// rather than manipulating AMatrix. They are not generic of AMatrix anymore.
   /// WARNING: output matrix should not match any of input matrices (speed up).
+
   /*! Add a matrix (multiplied by a constant) */
   void addMatInPlace(const AMatrixDense& y, double cx = 1., double cy = 1.);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
@@ -111,13 +116,15 @@ public:
                                   const VectorDouble& vec = VectorDouble(),
                                   bool transpose = false);
 
-  VectorDouble         getEigenValues()  const { return _eigenValues; }
+  VectorDouble               getEigenValues()  const { return _eigenValues; }
   const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
 
 protected:
+  virtual void    _setValue(int irow, int icol, double value) = 0;
+  virtual double  _getValue(int irow, int icol) const = 0;
+  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
   virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
-
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
   virtual double  _getValueByRank(int rank) const override;
@@ -133,40 +140,14 @@ protected:
   int             _computeEigen(bool optionPositive = true);
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
-protected:
-  virtual void    _setValue(int irow, int icol, double value) = 0;
-  virtual double  _getValue(int irow, int icol) const = 0;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
-
 private:
   /// ================================================
   /// The subsequent methods rely on the Eigen storage
   /// ================================================
-  void    _recopyLocal(const AMatrixDense &r);
-  int     _solveEigen(const VectorDouble &b, VectorDouble &x) const;
-  int     _invertEigen();
-  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _transposeInPlaceEigen();
-  int     _getIndexToRankEigen(int irow, int icol) const;
-  int     _getMatrixPhysicalSizeEigen() const;
-  double& _getValueRefEigen(int irow, int icol);
-
-  void _addMatInPlaceEigen(const AMatrixDense& y, double cx = 1., double cy = 1.);
-  void _prodMatMatInPlaceEigen(const AMatrixDense *x,
-                               const AMatrixDense *y,
-                               bool transposeX = false,
-                               bool transposeY = false);
-  void _prodNormMatMatInPlaceEigen(const AMatrixDense& a, const AMatrixDense& m, bool transpose = false);
-  void _prodNormMatInPlaceEigen(const AMatrixDense &a,
-                                const VectorDouble &vec = VectorDouble(),
-                                bool transpose = false);
-  VectorDouble _prodMatVecEigen(const VectorDouble& x, bool transpose = false) const;
-  VectorDouble _prodVecMatEigen(const VectorDouble& x, bool transpose = false) const;
-
-  int _computeEigenEigen(bool optionPositive = true);
-  int _computeGeneralizedEigenEigen(const MatrixSquareSymmetric &b,
-                                    bool optionPositive = true);
+  void _recopyLocal(const AMatrixDense &r);
+  void _terminateEigen(const Eigen::VectorXd &eigenValues,
+                       const Eigen::MatrixXd &eigenVectors,
+                       bool optionPositive = true);
 
 protected:
   bool _flagEigenDecompose;
