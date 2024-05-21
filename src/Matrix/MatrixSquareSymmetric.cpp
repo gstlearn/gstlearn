@@ -359,15 +359,17 @@ int MatrixSquareSymmetric::computeEigen(bool optionPositive)
   {
     return AMatrixDense::_computeEigen(optionPositive);
   }
-  int nrows = getNRows();
-  VectorDouble eigenValues(nrows, 0.);
-  VectorDouble eigenVectors(nrows * nrows, 0);
+  else
+  {
+    int nrows = getNRows();
+    VectorDouble eigenValues(nrows, 0.);
+    VectorDouble eigenVectors(nrows * nrows, 0);
 
-  if (matrix_eigen(this->getValues().data(), nrows,
-                   eigenValues.data(),
-                   eigenVectors.data())) return 1;
+    if (matrix_eigen(this->getValues().data(), nrows, eigenValues.data(),
+                     eigenVectors.data())) return 1;
 
-  return _terminateEigen(eigenValues, eigenVectors, optionPositive, false);
+    return _terminateEigen(eigenValues, eigenVectors, optionPositive, false);
+  }
 }
 
 int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
@@ -376,14 +378,17 @@ int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& 
   {
     return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
   }
-  int nrows = getNRows();
-  VectorDouble eigenValues(nrows, 0.);
-  VectorDouble eigenVectors(nrows * nrows, 0);
+  else
+  {
+    int nrows = getNRows();
+    VectorDouble eigenValues(nrows, 0.);
+    VectorDouble eigenVectors(nrows * nrows, 0);
 
-  if (_matrix_geigen(this->getValues().data(), b.getValues().data(), nrows,
-                     eigenValues.data(), eigenVectors.data())) return 1;
+    if (_matrix_geigen(this->getValues().data(), b.getValues().data(), nrows,
+                       eigenValues.data(), eigenVectors.data())) return 1;
 
-  return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
+    return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
+  }
 }
 
 /// =============================================================================
@@ -846,7 +851,7 @@ double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
 {
   if (! isFlagEigen())
   {
-    messerr("LogDet from Cholesky is only coded for Eigen library");
+    messerr("computeCholeskyLogDeterminant is only coded for Eigen library");
     return TEST;
   }
   if (! _checkCholeskyAlreadyPerformed(1)) return TEST;
@@ -918,7 +923,7 @@ int MatrixSquareSymmetric::solveCholeskyMat(const MatrixRectangular& b, MatrixRe
 {
   if (! isFlagEigen())
   {
-    messerr("solve from Cholesky is only coded for Eigen library");
+    messerr("solveCholeskyMat is only coded for Eigen library");
     return 1;
   }
   if (! _checkCholeskyAlreadyPerformed(1)) return 1;
@@ -941,7 +946,7 @@ int MatrixSquareSymmetric::solveCholesky(const VectorDouble& b, VectorDouble& x)
 {
   if (! isFlagEigen())
   {
-    messerr("solve from Cholesky is only coded for Eigen library");
+    messerr("solveCholesky is only coded for Eigen library");
     return 1;
   }
   if (! _checkCholeskyAlreadyPerformed(1)) return 1;
