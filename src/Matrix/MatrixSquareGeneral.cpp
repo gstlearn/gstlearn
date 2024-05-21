@@ -30,7 +30,7 @@ MatrixSquareGeneral::MatrixSquareGeneral(const MatrixSquareGeneral &r)
   : AMatrixSquare(r),
     _squareMatrix()
 {
-  _recopyLocal(r);
+  _recopy(r);
 }
 
 MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
@@ -39,7 +39,7 @@ MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
 {
   const MatrixSquareGeneral* matrixLoc = dynamic_cast<const MatrixSquareGeneral*>(&m);
   if (matrixLoc != nullptr)
-    _recopyLocal(*matrixLoc);
+    _recopy(*matrixLoc);
   else
   {
     _allocate();
@@ -52,7 +52,7 @@ MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &
   if (this != &r)
   {
     AMatrixSquare::operator=(r);
-    _recopyLocal(r);
+    _recopy(r);
   }
   return *this;
 }
@@ -127,7 +127,7 @@ double MatrixSquareGeneral::_getValueByRank(int irank) const
   if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
-    return _getValueByRankLocal(irank);
+    return _squareMatrix[irank];
 }
 
 double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
@@ -135,7 +135,10 @@ double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
   if (isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
-    return _getValueRefLocal(irow, icol);
+  {
+    int rank = _getIndexToRank(irow,icol);
+    return _squareMatrix[rank];
+  }
 }
 
 void MatrixSquareGeneral::_setValueByRank(int irank, double value)
@@ -143,7 +146,10 @@ void MatrixSquareGeneral::_setValueByRank(int irank, double value)
   if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
-    _setValueByRankLocal(irank, value);
+  {
+    if (!_isRankValid(irank)) return;
+    _squareMatrix[irank] = value;
+  }
 }
 
 /**
@@ -157,7 +163,12 @@ void MatrixSquareGeneral::_prodMatVecInPlacePtr(const double *x, double *y, bool
   if (isFlagEigen())
     AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
   else
-    _prodMatVecInPlacePtrLocal(x, y, transpose);
+  {
+    if (transpose)
+      matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
+    else
+      matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), x, y);
+  }
 }
 
 /**
@@ -171,7 +182,12 @@ void MatrixSquareGeneral::_prodVecMatInPlacePtr(const double *x, double *y, bool
   if (isFlagEigen())
     AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
   else
-    _prodVecMatInPlacePtrLocal(x, y, transpose);
+  {
+    if (transpose)
+      matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), x, y);
+    else
+      matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
+  }
 }
 
 void MatrixSquareGeneral::_transposeInPlace()
@@ -179,7 +195,15 @@ void MatrixSquareGeneral::_transposeInPlace()
   if (isFlagEigen())
     AMatrixDense::_transposeInPlace();
   else
-    _transposeInPlaceLocal();
+  {
+    int nrow = getNRows();
+    int ncol = getNCols();
+    VectorDouble old = _squareMatrix;
+    matrix_transpose(nrow, ncol, _squareMatrix, old);
+    _squareMatrix = old;
+    _setNCols(nrow);
+    _setNRows(ncol);
+  }
 }
 
 int MatrixSquareGeneral::_invert()
@@ -187,7 +211,15 @@ int MatrixSquareGeneral::_invert()
   if (isFlagEigen())
     return AMatrixDense::_invert();
   else
-    return _invertLocal();
+  {
+    if (getNRows() <= 3)
+      return _matrix_invreal(_squareMatrix, getNRows());
+    else
+    {
+      int error = _invertLU();
+      return error;
+    }
+  }
 }
 
 void MatrixSquareGeneral::_deallocate()
@@ -205,7 +237,7 @@ void MatrixSquareGeneral::_allocate()
   if (isFlagEigen())
     AMatrixDense::_allocate();
   else
-    _allocateLocal();
+    _squareMatrix.resize(_getMatrixPhysicalSize());
   fill(0.);
 }
 
@@ -224,12 +256,7 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
 /// The subsequent methods rely on the specific local storage ('squareMatrix')
 /// ==========================================================================
 
-void MatrixSquareGeneral::_allocateLocal()
-{
-  _squareMatrix.resize(_getMatrixPhysicalSize());
-}
-
-void MatrixSquareGeneral::_recopyLocal(const MatrixSquareGeneral &r)
+void MatrixSquareGeneral::_recopy(const MatrixSquareGeneral &r)
 {
   _squareMatrix = r._squareMatrix;
 }
@@ -238,17 +265,6 @@ double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
   if (!_isIndexValid(irow, icol)) return TEST;
   int rank = _getIndexToRank(irow, icol);
-  return _squareMatrix[rank];
-}
-
-double MatrixSquareGeneral::_getValueByRankLocal(int irank) const
-{
-  return _squareMatrix[irank];
-}
-
-double& MatrixSquareGeneral::_getValueRefLocal(int irow, int icol)
-{
-  int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }
 
@@ -264,50 +280,6 @@ void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, d
   if (!_isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _squareMatrix[rank] = modifyOperator(oper, _squareMatrix[rank], value);
-}
-
-void MatrixSquareGeneral::_setValueByRankLocal(int irank, double value)
-{
-  if (!_isRankValid(irank)) return;
-  _squareMatrix[irank] = value;
-}
-
-void MatrixSquareGeneral::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
-{
-  if (transpose)
-    matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
-  else
-    matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), x, y);
-}
-
-void MatrixSquareGeneral::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
-{
-  if (transpose)
-    matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), x, y);
-  else
-    matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
-}
-
-void MatrixSquareGeneral::_transposeInPlaceLocal()
-{
-  int nrow = getNRows();
-  int ncol = getNCols();
-  VectorDouble old = _squareMatrix;
-  matrix_transpose(nrow, ncol, _squareMatrix, old);
-  _squareMatrix = old;
-  _setNCols(nrow);
-  _setNRows(ncol);
-}
-
-int MatrixSquareGeneral::_invertLocal()
-{
-  if (getNRows() <= 3)
-    return _matrix_invreal(_squareMatrix, getNRows());
-  else
-  {
-    int error = _invertLU();
-    return error;
-  }
 }
 
 MatrixSquareGeneral* prodNormMatMat(const AMatrixDense &a,

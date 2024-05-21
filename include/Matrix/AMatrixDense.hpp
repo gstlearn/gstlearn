@@ -145,7 +145,7 @@ private:
   /// The subsequent methods rely on the Eigen storage
   /// ================================================
   void _recopyLocal(const AMatrixDense &r);
-  void _terminateEigen(const Eigen::VectorXd &eigenValues,
+  int  _terminateEigen(const Eigen::VectorXd &eigenValues,
                        const Eigen::MatrixXd &eigenVectors,
                        bool optionPositive = true);
 

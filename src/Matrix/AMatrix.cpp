@@ -312,23 +312,18 @@ int AMatrix::_getMatrixPhysicalSize() const
 #ifndef SWIG
 void AMatrix::_setValues(const double *values, bool byCol)
 {
+  int ecr = 0;
   if (byCol)
   {
-    int ecr = 0;
     for (int icol = 0; icol < getNCols(); icol++)
       for (int irow = 0; irow < getNRows(); irow++, ecr++)
-      {
         setValue(irow, icol, values[ecr]);
-      }
   }
   else
   {
-    int ecr = 0;
     for (int irow = 0; irow < getNRows(); irow++)
       for (int icol = 0; icol < getNCols(); icol++, ecr++)
-      {
         setValue(irow, icol, values[ecr]);
-      }
   }
 }
 #endif

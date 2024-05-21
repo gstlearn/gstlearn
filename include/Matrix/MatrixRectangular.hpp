@@ -80,15 +80,7 @@ private:
   /// ========================================================================
   /// The subsequent methods rely on the specific local storage ('rectMatrix')
   /// ========================================================================
-  void    _allocateLocal();
-  void    _recopyLocal(const MatrixRectangular& r);
-  double  _getValueByRankLocal(int irank) const;
-  double& _getValueRefLocal(int irow, int icol);
-  void    _setValueByRankLocal(int irank, double value);
-  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _transposeInPlaceLocal();
-  int     _getIndexToRankLocal(int irow, int icol) const;
+  void    _recopy(const MatrixRectangular& r);
 
 private:
   VectorDouble _rectMatrix; // Classical storage

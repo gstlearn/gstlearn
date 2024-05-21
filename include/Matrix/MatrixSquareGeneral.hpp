@@ -76,15 +76,7 @@ private:
   /// ==========================================================================
   /// The subsequent methods rely on the specific local storage ('squareMatrix')
   /// ==========================================================================
-  void    _allocateLocal();
-  void    _recopyLocal(const MatrixSquareGeneral &r);
-  double  _getValueByRankLocal(int irank) const;
-  double& _getValueRefLocal(int irow, int icol);
-  void    _setValueByRankLocal(int irank, double value);
-  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _transposeInPlaceLocal();
-  int     _invertLocal();
+  void    _recopy(const MatrixSquareGeneral &r);
   int     _invertLU();
   int     _solveLU(const MatrixSquareGeneral& tus,
                    const MatrixSquareGeneral& tls,

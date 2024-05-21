@@ -27,7 +27,7 @@ MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
   : AMatrixDense(r),
     _rectMatrix()
 {
-  _recopyLocal(r);
+  _recopy(r);
 }
 
 MatrixRectangular::MatrixRectangular(const AMatrix &m)
@@ -36,7 +36,7 @@ MatrixRectangular::MatrixRectangular(const AMatrix &m)
 {
   const MatrixRectangular* matrixLoc = dynamic_cast<const MatrixRectangular*>(&m);
   if (matrixLoc != nullptr)
-    _recopyLocal(*matrixLoc);
+    _recopy(*matrixLoc);
   else
   {
     _allocate();
@@ -49,7 +49,7 @@ MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
   if (this != &r)
   {
     AMatrixDense::operator=(r);
-    _recopyLocal(r);
+    _recopy(r);
   }
   return *this;
 }
@@ -119,7 +119,10 @@ double MatrixRectangular::_getValueByRank(int irank) const
   if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
-    return _getValueByRankLocal(irank);
+  {
+    if (! _isRankValid(irank)) return TEST;
+    return _rectMatrix[irank];
+  }
 }
 
 void MatrixRectangular::_setValueByRank(int irank, double value)
@@ -127,7 +130,10 @@ void MatrixRectangular::_setValueByRank(int irank, double value)
   if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
-    _setValueByRankLocal(irank, value);
+  {
+    if (! _isRankValid(irank)) return;
+    _rectMatrix[irank] = value;
+  }
 }
 
 void MatrixRectangular::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
@@ -135,7 +141,12 @@ void MatrixRectangular::_prodMatVecInPlacePtr(const double *x, double *y, bool t
   if (isFlagEigen())
     AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
   else
-    _prodMatVecInPlacePtrLocal(x, y, transpose);
+  {
+    if (! transpose)
+      matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
+    else
+      matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
+  }
 }
 
 void MatrixRectangular::_prodVecMatInPlacePtr(const double *x, double *y, bool transpose) const
@@ -143,7 +154,12 @@ void MatrixRectangular::_prodVecMatInPlacePtr(const double *x, double *y, bool t
   if (isFlagEigen())
     AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
   else
-    _prodVecMatInPlacePtrLocal(x, y, transpose);
+  {
+    if (! transpose)
+      matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
+    else
+      matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
+  }
 }
 
 void MatrixRectangular::_transposeInPlace()
@@ -151,7 +167,14 @@ void MatrixRectangular::_transposeInPlace()
   if (isFlagEigen())
     AMatrixDense::_transposeInPlace();
   else
-    _transposeInPlaceLocal();
+  {
+    VectorDouble old(getNRows() * getNCols());
+    matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
+    _rectMatrix = old;
+    int temp = getNCols();
+    _setNCols(getNRows());
+    _setNRows(temp);
+  }
 }
 
 void MatrixRectangular::_allocate()
@@ -159,7 +182,7 @@ void MatrixRectangular::_allocate()
   if (isFlagEigen())
     AMatrixDense::_allocate();
   else
-    _allocateLocal();
+    _rectMatrix.resize(_getMatrixPhysicalSize(),0.);
   fill(0.);
 }
 
@@ -168,7 +191,7 @@ int MatrixRectangular::_getIndexToRank(int irow, int icol) const
   if (isFlagEigen())
     return AMatrixDense::_getIndexToRank(irow, icol);
   else
-    return _getIndexToRankLocal(irow, icol);
+    return (icol * getNRows() + irow);
 }
 
 int MatrixRectangular::_invert()
@@ -220,19 +243,17 @@ double& MatrixRectangular::_getValueRef(int irow, int icol)
   if (isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
-    return _getValueRefLocal(irow, icol);
+  {
+    int rank = _getIndexToRank(irow,icol);
+    return _rectMatrix[rank];
+  }
 }
 
 /// ========================================================================
 /// The subsequent methods rely on the specific local storage ('rectMatrix')
 /// ========================================================================
 
-void MatrixRectangular::_allocateLocal()
-{
-  _rectMatrix.resize(_getMatrixPhysicalSize(),0.);
-}
-
-void MatrixRectangular::_recopyLocal(const MatrixRectangular& r)
+void MatrixRectangular::_recopy(const MatrixRectangular& r)
 {
   _rectMatrix = r._rectMatrix;
 }
@@ -242,25 +263,6 @@ double MatrixRectangular::_getValue(int irow, int icol) const
   if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
-}
-
-double MatrixRectangular::_getValueByRankLocal(int irank) const
-{
-  if (! _isRankValid(irank)) return TEST;
-  return _rectMatrix[irank];
-}
-
-/*! Gets a reference to the value at row 'irow' and column 'icol' */
-double& MatrixRectangular::_getValueRefLocal(int irow, int icol)
-{
-  int rank = _getIndexToRank(irow,icol);
-  return _rectMatrix[rank];
-}
-
-void MatrixRectangular::_setValueByRankLocal(int irank, double value)
-{
-  if (! _isRankValid(irank)) return;
-  _rectMatrix[irank] = value;
 }
 
 void MatrixRectangular::_setValue(int irow, int icol, double value)
@@ -275,38 +277,6 @@ void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, dou
   if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = modifyOperator(oper, _rectMatrix[rank], value);
-}
-
-void MatrixRectangular::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
-{
-  if (! transpose)
-    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
-  else
-    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
-}
-
-void MatrixRectangular::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
-{
-  if (! transpose)
-    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
-  else
-    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
-}
-
-void MatrixRectangular::_transposeInPlaceLocal()
-{
-  VectorDouble old;
-  old.resize(getNRows() * getNCols());
-  matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
-  _rectMatrix = old;
-  int temp = getNCols();
-  _setNCols(getNRows());
-  _setNRows(temp);
-}
-
-int MatrixRectangular::_getIndexToRankLocal(int irow, int icol) const
-{
-  return (icol * getNRows() + irow);
 }
 
 MatrixRectangular* MatrixRectangular::glue(const AMatrix *A1,

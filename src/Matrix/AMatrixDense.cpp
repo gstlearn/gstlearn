@@ -151,7 +151,7 @@ void AMatrixDense::setValue_(int irow, int icol, double value)
   if (isFlagEigen())
   {
     _eigenMatrix(irow, icol) = value;
-    if (isSymmetric() && irow != icol) _eigenMatrix(icol, irow) = value;
+    if (mustBeSymmetric() && irow != icol) _eigenMatrix(icol, irow) = value;
   }
   else
     _setValue(irow, icol, value);
@@ -160,14 +160,14 @@ void AMatrixDense::setValue_(int irow, int icol, double value)
 void AMatrixDense::updValue(int irow, int icol, const EOperator& oper, double value)
 {
   if (! _isIndexValid(irow, icol)) return;
-  updValue(irow, icol, oper, value);
+  updValue_(irow, icol, oper, value);
 }
 void AMatrixDense::updValue_(int irow, int icol, const EOperator& oper, double value)
 {
   if (isFlagEigen())
   {
     _eigenMatrix(irow, icol) = modifyOperator(oper, _eigenMatrix(irow, icol), value);
-    if (isSymmetric() && irow != icol)
+    if (mustBeSymmetric() && irow != icol)
       _eigenMatrix(icol, irow) = modifyOperator(oper, _eigenMatrix(icol, irow), value);
   }
   else
@@ -584,7 +584,7 @@ int AMatrixDense::_computeEigen(bool optionPositive)
   if (isFlagEigen())
   {
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(_eigenMatrix);
-    _terminateEigen(solver.eigenvalues().real(), solver.eigenvectors().real(), optionPositive);
+    return _terminateEigen(solver.eigenvalues().real(), solver.eigenvectors().real(), optionPositive);
   }
   else
     my_throw("'_computeEigen' should never be called here");
@@ -602,7 +602,7 @@ int AMatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool 
   if (isFlagEigen())
   {
     Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(_eigenMatrix, b._eigenMatrix);
-    _terminateEigen(solver.eigenvalues().real(), solver.eigenvectors().real(), optionPositive);
+    return _terminateEigen(solver.eigenvalues().real(), solver.eigenvectors().real(), optionPositive);
   }
   else
     my_throw("'_computeGeneralizedEigen' should never be called here");
@@ -626,9 +626,9 @@ void AMatrixDense::_recopyLocal(const AMatrixDense &r)
   }
 }
 
-void AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
-                                   const Eigen::MatrixXd &eigenVectors,
-                                   bool optionPositive)
+int AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
+                                  const Eigen::MatrixXd &eigenVectors,
+                                  bool optionPositive)
 {
   _flagEigenDecompose = true;
 
@@ -647,4 +647,6 @@ void AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
 
   if (optionPositive) _eigenVectors->makePositiveColumn();
+
+  return 0;
 }

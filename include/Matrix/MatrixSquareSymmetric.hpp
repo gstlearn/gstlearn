@@ -103,12 +103,11 @@ public:
 
 private:
   /// Interface for AMatrix
-  virtual bool   _isCompatible(const AMatrix& m) const override
+  virtual bool    _isCompatible(const AMatrix& m) const override
   {
     return (isSameSize(m) && m.isSymmetric());
   }
-  virtual int    _getMatrixPhysicalSize() const override;
-
+  virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
@@ -116,7 +115,6 @@ private:
   virtual double  _getValueByRank(int irank) const override;
   virtual void    _setValueByRank(int irank, double value) override;
   virtual void    _setValues(const double* values, bool byCol = true) override;
-
   virtual void    _transposeInPlace() override { return ; } // Nothing to do
   virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
@@ -125,22 +123,7 @@ private:
 
 private:
   // The subsequent methods rely on the specific local storage ('squareSymMatrix')
-  void    _recopyLocal(const MatrixSquareSymmetric& r);
-  double  _getValueByRankLocal(int irank) const;
-  double& _getValueRefLocal(int irow, int icol);
-
-
-  void    _setValueByRankLocal(int irank, double value);
-  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _setValuesLocal(const double *values, bool byCol);
-  int     _invertLocal();
-  void    _allocateLocal();
-  int     _getIndexToRankLocal(int irow, int icol) const;
-  int     _getMatrixPhysicalSizeLocal() const;
-  int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
-  int     _computeEigenLocal(bool optionPositive = true);
-  int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive = true);
+  void    _recopy(const MatrixSquareSymmetric& r);
 
   // Local functions (old style algebra)
   int _matrix_geigen(const double *a,
@@ -192,6 +175,9 @@ private:
                                 VectorDouble &tabout);
   int _constraintsCount(int nai, VectorInt& active);
   bool _checkCholeskyAlreadyPerformed(int status) const;
+  int _terminateEigen(const VectorDouble &eigenValues,
+                      const VectorDouble &eigenVectors,
+                      bool optionPositive);
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage
