@@ -152,6 +152,10 @@ protected:
   virtual void    _prodVecMatInPlacePtr_(const double *x,
                                          double *y,
                                          bool transpose = false) const = 0;
+  virtual int     _getIndexToRank_(int irow, int icol) const = 0;
+  virtual int     _getMatrixPhysicalSize_() const = 0;
+  virtual void    _allocate_() = 0;
+  virtual void    _transposeInPlace_() = 0;
 
 private:
   void _recopy(const AMatrixDense &r);

@@ -40,7 +40,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
       _xl(),
       _factor()
 {
-  _allocate();
+  _allocate_();
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
@@ -76,7 +76,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
     _recopy(*matrixLoc);
   else
   {
-    _allocate();
+    _allocate_();
     AMatrix::copyElements(m);
   }
 }
@@ -155,7 +155,7 @@ double MatrixSquareSymmetric::_getValueByRank_(int irank) const
 
 double& MatrixSquareSymmetric::_getValueRef_(int irow, int icol)
 {
-  int rank = _getIndexToRank(irow, icol);
+  int rank = _getIndexToRank_(irow, icol);
   return _squareSymMatrix[rank];
 }
 
@@ -207,37 +207,24 @@ int MatrixSquareSymmetric::_invert()
     return _matrix_invert_triangle(getNRows(),_squareSymMatrix.data());
 }
 
-void MatrixSquareSymmetric::_allocate()
+void MatrixSquareSymmetric::_allocate_()
 {
-  if (isFlagEigen())
-    AMatrixDense::_allocate();
-  else
-    _squareSymMatrix.resize(_getMatrixPhysicalSize());
+  _squareSymMatrix.resize(_getMatrixPhysicalSize_());
 }
 
-int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
+int MatrixSquareSymmetric::_getIndexToRank_(int irow, int icol) const
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getIndexToRank(irow, icol);
+  int n = getNRows();
+  if (irow >= icol)
+    return (icol * n + irow - icol * (icol + 1) / 2);
   else
-  {
-    int n = getNRows();
-    if (irow >= icol)
-      return (icol * n + irow - icol * (icol + 1) / 2);
-    else
-      return (irow * n + icol - irow * (irow + 1) / 2);
-  }
+    return (irow * n + icol - irow * (irow + 1) / 2);
 }
 
-int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
+int MatrixSquareSymmetric::_getMatrixPhysicalSize_() const
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getMatrixPhysicalSize();
-  else
-  {
-    int n = getNRows();
-    return (n * (n + 1) / 2);
-  }
+  int n = getNRows();
+  return (n * (n + 1) / 2);
 }
 
 int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
@@ -417,19 +404,19 @@ void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric& r)
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  int rank = _getIndexToRank(irow,icol);
+  int rank = _getIndexToRank_(irow,icol);
   return _squareSymMatrix[rank];
 }
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  int irank = _getIndexToRank(irow, icol);
+  int irank = _getIndexToRank_(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
 void MatrixSquareSymmetric::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
-  int irank = _getIndexToRank(irow, icol);
+  int irank = _getIndexToRank_(irow, icol);
   _squareSymMatrix[irank] = modifyOperator(oper, _squareSymMatrix[irank], value);
 }
 

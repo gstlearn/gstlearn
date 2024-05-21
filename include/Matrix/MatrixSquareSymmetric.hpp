@@ -107,17 +107,19 @@ private:
   {
     return (isSameSize(m) && m.isSymmetric());
   }
-  virtual int     _getMatrixPhysicalSize() const override;
+  virtual int     _getMatrixPhysicalSize_() const override;
   virtual double& _getValueRef_(int irow, int icol) override;
-  virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
-  virtual int     _getIndexToRank(int irow,int icol) const override;
-  virtual void    _allocate() override;
+
+  virtual int     _getIndexToRank_(int irow,int icol) const override;
+  virtual void    _allocate_() override;
   virtual double  _getValueByRank_(int irank) const override;
   virtual void    _setValueByRank_(int irank, double value) override;
-  virtual void    _setValues(const double* values, bool byCol = true) override;
-  virtual void    _transposeInPlace() override { return ; } // Nothing to do
+  virtual void    _transposeInPlace_() override { return ; } // Nothing to do
   virtual void    _prodMatVecInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
+
+  virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
+  virtual void    _setValues(const double* values, bool byCol = true) override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 

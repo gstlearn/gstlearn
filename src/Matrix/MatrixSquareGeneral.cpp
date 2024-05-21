@@ -23,7 +23,7 @@ MatrixSquareGeneral::MatrixSquareGeneral(int nrow, int opt_eigen)
   : AMatrixSquare(nrow, opt_eigen)
   , _squareMatrix()
 {
-  _allocate();
+  _allocate_();
 }
 
 MatrixSquareGeneral::MatrixSquareGeneral(const MatrixSquareGeneral &r) 
@@ -42,7 +42,7 @@ MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
     _recopy(*matrixLoc);
   else
   {
-    _allocate();
+    _allocate_();
     AMatrix::copyElements(m);
   }
 }
@@ -129,7 +129,7 @@ double MatrixSquareGeneral::_getValueByRank_(int irank) const
 
 double& MatrixSquareGeneral::_getValueRef_(int irow, int icol)
 {
-  int rank = _getIndexToRank(irow,icol);
+  int rank = _getIndexToRank_(irow,icol);
   return _squareMatrix[rank];
 }
 
@@ -166,20 +166,15 @@ void MatrixSquareGeneral::_prodVecMatInPlacePtr_(const double *x, double *y, boo
     matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
 }
 
-void MatrixSquareGeneral::_transposeInPlace()
+void MatrixSquareGeneral::_transposeInPlace_()
 {
-  if (isFlagEigen())
-    AMatrixDense::_transposeInPlace();
-  else
-  {
-    int nrow = getNRows();
-    int ncol = getNCols();
-    VectorDouble old = _squareMatrix;
-    matrix_transpose(nrow, ncol, _squareMatrix, old);
-    _squareMatrix = old;
-    _setNCols(nrow);
-    _setNRows(ncol);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  VectorDouble old = _squareMatrix;
+  matrix_transpose(nrow, ncol, _squareMatrix, old);
+  _squareMatrix = old;
+  _setNCols(nrow);
+  _setNRows(ncol);
 }
 
 int MatrixSquareGeneral::_invert()
@@ -208,18 +203,15 @@ void MatrixSquareGeneral::_deallocate()
   }
 }
 
-void MatrixSquareGeneral::_allocate()
+void MatrixSquareGeneral::_allocate_()
 {
-  if (isFlagEigen())
-    AMatrixDense::_allocate();
-  else
-    _squareMatrix.resize(_getMatrixPhysicalSize());
+  _squareMatrix.resize(_getMatrixPhysicalSize_());
   fill(0.);
 }
 
-int MatrixSquareGeneral::_getMatrixPhysicalSize() const
+int MatrixSquareGeneral::_getMatrixPhysicalSize_() const
 {
-  return(getNRows() * getNCols());
+  return(getNRows() * getNRows());
 }
 
 int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
@@ -239,19 +231,19 @@ void MatrixSquareGeneral::_recopy(const MatrixSquareGeneral &r)
 
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
-  int rank = _getIndexToRank(irow, icol);
+  int rank = _getIndexToRank_(irow, icol);
   return _squareMatrix[rank];
 }
 
 void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 {
-  int rank = _getIndexToRank(irow, icol);
+  int rank = _getIndexToRank_(irow, icol);
   _squareMatrix[rank] = value;
 }
 
 void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
-  int rank = _getIndexToRank(irow, icol);
+  int rank = _getIndexToRank_(irow, icol);
   _squareMatrix[rank] = modifyOperator(oper, _squareMatrix[rank], value);
 }
 

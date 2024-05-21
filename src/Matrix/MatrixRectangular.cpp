@@ -20,7 +20,7 @@ MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
     : AMatrixDense(nrows, ncols, opt_eigen),
       _rectMatrix()
 {
-  _allocate();
+  _allocate_();
 }
 
 MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
@@ -39,7 +39,7 @@ MatrixRectangular::MatrixRectangular(const AMatrix &m)
     _recopy(*matrixLoc);
   else
   {
-    _allocate();
+    _allocate_();
     AMatrix::copyElements(m);
   }
 }
@@ -140,36 +140,25 @@ void MatrixRectangular::_prodVecMatInPlacePtr_(const double *x, double *y, bool 
     matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
 }
 
-void MatrixRectangular::_transposeInPlace()
+void MatrixRectangular::_transposeInPlace_()
 {
-  if (isFlagEigen())
-    AMatrixDense::_transposeInPlace();
-  else
-  {
-    VectorDouble old(getNRows() * getNCols());
-    matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
-    _rectMatrix = old;
-    int temp = getNCols();
-    _setNCols(getNRows());
-    _setNRows(temp);
-  }
+  VectorDouble old(getNRows() * getNCols());
+  matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
+  _rectMatrix = old;
+  int temp = getNCols();
+  _setNCols(getNRows());
+  _setNRows(temp);
 }
 
-void MatrixRectangular::_allocate()
+void MatrixRectangular::_allocate_()
 {
-  if (isFlagEigen())
-    AMatrixDense::_allocate();
-  else
-    _rectMatrix.resize(_getMatrixPhysicalSize(),0.);
+  _rectMatrix.resize(_getMatrixPhysicalSize_(),0.);
   fill(0.);
 }
 
-int MatrixRectangular::_getIndexToRank(int irow, int icol) const
+int MatrixRectangular::_getIndexToRank_(int irow, int icol) const
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getIndexToRank(irow, icol);
-  else
-    return (icol * getNRows() + irow);
+  return (icol * getNRows() + irow);
 }
 
 int MatrixRectangular::_invert()
@@ -208,17 +197,14 @@ void MatrixRectangular::addColumn(int ncolumn_added)
       setValue(irow, icol, statsSave->getValue(irow, icol));
 }
 
-int MatrixRectangular::_getMatrixPhysicalSize() const
+int MatrixRectangular::_getMatrixPhysicalSize_() const
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getMatrixPhysicalSize();
-  else
-    return AMatrix::_getMatrixPhysicalSize();
+  return getNRows() * getNCols();
 }
 
 double& MatrixRectangular::_getValueRef_(int irow, int icol)
 {
-  int rank = _getIndexToRank(irow,icol);
+  int rank = _getIndexToRank_(irow,icol);
   return _rectMatrix[rank];
 }
 
@@ -233,19 +219,19 @@ void MatrixRectangular::_recopy(const MatrixRectangular& r)
 
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
-  int rank = _getIndexToRank(irow,icol);
+  int rank = _getIndexToRank_(irow,icol);
   return _rectMatrix[rank];
 }
 
 void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
-  int rank = _getIndexToRank(irow, icol);
+  int rank = _getIndexToRank_(irow, icol);
   _rectMatrix[rank] = value;
 }
 
 void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
-  int rank = _getIndexToRank(irow, icol);
+  int rank = _getIndexToRank_(irow, icol);
   _rectMatrix[rank] = modifyOperator(oper, _rectMatrix[rank], value);
 }
 

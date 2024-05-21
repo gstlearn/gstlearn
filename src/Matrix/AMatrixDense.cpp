@@ -99,7 +99,7 @@ void AMatrixDense::_allocate()
   }
   else
   {
-    // Nothing to be done as the child will perform necessary duty
+    _allocate_();
   }
 }
 
@@ -177,7 +177,7 @@ int AMatrixDense::_getMatrixPhysicalSize() const
   if (isFlagEigen())
     return _eigenMatrix.size();
   else
-    my_throw("_getMatrixPhysicalSize should never be called here");
+    return _getMatrixPhysicalSize_();
   return ITEST;
 }
 
@@ -188,7 +188,7 @@ int AMatrixDense::_getIndexToRank(int irow, int icol) const
     // Default storage in Eigen is column-major (see https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html)
     return (icol * getNRows() + irow);
   else
-    my_throw("_getIndexToRank should never be called here");
+    return _getIndexToRank_(irow, icol);
   return ITEST;
 }
 
@@ -197,7 +197,7 @@ void AMatrixDense::_transposeInPlace()
   if (isFlagEigen())
     _eigenMatrix.transposeInPlace();
   else
-    my_throw("_transposeInPlace should never be called here");
+    _transposeInPlace_();
 }
 
 void AMatrixDense::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
