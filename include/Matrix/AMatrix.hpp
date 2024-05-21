@@ -126,20 +126,15 @@ public:
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
   /*! Gets the value at row 'irow' and column 'icol' */
-  virtual double getValue(int irow, int icol) const = 0;
+  virtual double getValue(int irow, int icol, bool flagCheck=true) const = 0;
   /*! Sets the value at row 'irow' and column 'icol' */
-  virtual void setValue(int irow, int icol, double value) = 0;
+  virtual void setValue(int irow, int icol, double value, bool flagCheck=true) = 0;
   /*! Update the value at row 'irow' and column 'icol' */
-  virtual void updValue(int irow, int icol, const EOperator& oper, double value) = 0;
-#ifndef SWIG
-  /*! Sets the value at row 'irow' and column 'icol' (no test performed) */
-  virtual void setValue_(int irow, int icol, double value) = 0;
-  /*! Gets the value at row 'irow' and column 'icol' (no test) */
-  virtual double getValue_(int irow, int icol) const = 0;
-  /*! Update the value at row 'irow' and column 'icol' (no test performed) */
-  virtual void updValue_(int irow, int icol, const EOperator& oper, double value) = 0;
-#endif
-
+  virtual void updValue(int irow,
+                        int icol,
+                        const EOperator &oper,
+                        double value,
+                        bool flagCheck = true) = 0;
   /*! Add a value to a matrix term */
   void addValue(int irow, int icol, double value);
   /*! Check if a matrix is the same as me (norm L1) */
@@ -233,8 +228,12 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;
-  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const = 0;
-  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const = 0;
+  virtual void    _prodMatVecInPlacePtr(const double *x,
+                                        double *y,
+                                        bool transpose = false) const = 0;
+  virtual void    _prodVecMatInPlacePtr(const double *x,
+                                        double *y,
+                                        bool transpose = false) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
 

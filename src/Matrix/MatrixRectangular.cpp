@@ -114,52 +114,30 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-double MatrixRectangular::_getValueByRank(int irank) const
+double MatrixRectangular::_getValueByRank_(int irank) const
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getValueByRank(irank);
-  else
-  {
-    if (! _isRankValid(irank)) return TEST;
-    return _rectMatrix[irank];
-  }
+  return _rectMatrix[irank];
 }
 
-void MatrixRectangular::_setValueByRank(int irank, double value)
+void MatrixRectangular::_setValueByRank_(int irank, double value)
 {
-  if (isFlagEigen())
-    AMatrixDense::_setValueByRank(irank, value);
-  else
-  {
-    if (! _isRankValid(irank)) return;
-    _rectMatrix[irank] = value;
-  }
+  _rectMatrix[irank] = value;
 }
 
-void MatrixRectangular::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
+void MatrixRectangular::_prodMatVecInPlacePtr_(const double *x, double *y, bool transpose) const
 {
-  if (isFlagEigen())
-    AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
+  if (! transpose)
+    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
   else
-  {
-    if (! transpose)
-      matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
-    else
-      matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
-  }
+    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
 }
 
-void MatrixRectangular::_prodVecMatInPlacePtr(const double *x, double *y, bool transpose) const
+void MatrixRectangular::_prodVecMatInPlacePtr_(const double *x, double *y, bool transpose) const
 {
-  if (isFlagEigen())
-    AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
+  if (! transpose)
+    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
   else
-  {
-    if (! transpose)
-      matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
-    else
-      matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
-  }
+    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
 }
 
 void MatrixRectangular::_transposeInPlace()
@@ -238,15 +216,10 @@ int MatrixRectangular::_getMatrixPhysicalSize() const
     return AMatrix::_getMatrixPhysicalSize();
 }
 
-double& MatrixRectangular::_getValueRef(int irow, int icol)
+double& MatrixRectangular::_getValueRef_(int irow, int icol)
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getValueRef(irow, icol);
-  else
-  {
-    int rank = _getIndexToRank(irow,icol);
-    return _rectMatrix[rank];
-  }
+  int rank = _getIndexToRank(irow,icol);
+  return _rectMatrix[rank];
 }
 
 /// ========================================================================
@@ -260,21 +233,18 @@ void MatrixRectangular::_recopy(const MatrixRectangular& r)
 
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
-  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
 void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }
 
 void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = modifyOperator(oper, _rectMatrix[rank], value);
 }

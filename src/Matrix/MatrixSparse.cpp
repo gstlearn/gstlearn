@@ -132,7 +132,7 @@ void MatrixSparse::reset(const VectorVectorDouble& tab, bool byCol)
     _allocate();
     for (int icol = 0; icol < getNCols(); icol++)
       for (int irow = 0; irow < getNRows(); irow++)
-        setValue_(irow, icol, tab[irow][icol]);
+        setValue(irow, icol, tab[irow][icol], false);
   }
   else
   {
@@ -141,7 +141,7 @@ void MatrixSparse::reset(const VectorVectorDouble& tab, bool byCol)
     _allocate();
     for (int icol = 0; icol < getNCols(); icol++)
       for (int irow = 0; irow < getNRows(); irow++)
-        setValue_(irow, icol, tab[icol][irow]);
+        setValue(irow, icol, tab[icol][irow], false);
   }
   _clearDecoration();
 }
@@ -393,17 +393,12 @@ void MatrixSparse::_setValueByRank(int rank, double value)
 {
   DECLARE_UNUSED(rank);
   DECLARE_UNUSED(value);
-  _forbiddenForSparse("_setValue (by rank)");
+  _forbiddenForSparse("_setValueByRank");
 }
 
-void MatrixSparse::setValue(int irow, int icol, double value)
+void MatrixSparse::setValue(int irow, int icol, double value, bool flagCheck)
 {
-  if (! _isIndexValid(irow, icol)) return;
-  setValue_(irow, icol, value);
-}
-void MatrixSparse::setValue_(int irow, int icol, double value)
-{
-  if (! _isIndexValid(irow, icol)) return;
+  if (flagCheck && ! _isIndexValid(irow, icol)) return;
   if (isFlagEigen())
   {
     _eigenMatrix.coeffRef(irow, icol) = value;
@@ -415,13 +410,13 @@ void MatrixSparse::setValue_(int irow, int icol, double value)
   }
 }
 
-void MatrixSparse::updValue(int irow, int icol, const EOperator& oper, double value)
+void MatrixSparse::updValue(int irow,
+                            int icol,
+                            const EOperator &oper,
+                            double value,
+                            bool flagCheck)
 {
-  if (! _isIndexValid(irow, icol)) return;
-  updValue_(irow, icol, oper, value);
-}
-void MatrixSparse::updValue_(int irow, int icol, const EOperator& oper, double value)
-{
+  if (flagCheck && ! _isIndexValid(irow, icol)) return;
   if (isFlagEigen())
   {
     double newval = modifyOperator(oper, _eigenMatrix.coeff(irow, icol), value);
@@ -760,13 +755,9 @@ void MatrixSparse::addValue(int row, int col, double value)
     cs_add_value(_csMatrix, row, col, value);
 }
 
-double MatrixSparse::getValue(int row, int col) const
+double MatrixSparse::getValue(int row, int col, bool flagCheck) const
 {
-  if (! _isIndexValid(row, col)) return TEST;
-  return getValue_(row, col);
-}
-double MatrixSparse::getValue_(int row, int col) const
-{
+  if (flagCheck && ! _isIndexValid(row, col)) return TEST;
   if (isFlagEigen())
     return _eigenMatrix.coeff(row, col);
   else
@@ -879,7 +870,7 @@ void MatrixSparse::addScalar(double v)
       for (int icol = 0; icol < getNCols(); icol++)
       {
         if (_isElementPresent(irow, icol))
-          setValue_(irow, icol, getValue_(irow, icol) + v);
+          setValue(irow, icol, getValue(irow, icol, false) + v, false);
       }
   }
 }

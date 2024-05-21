@@ -56,14 +56,15 @@ public:
   virtual bool isDense() const { return false; }
 
   /*! Set the value for a matrix cell */
-  void setValue(int irow, int icol, double value) override;
-  void setValue_(int irow, int icol, double value) override;
+  void setValue(int irow, int icol, double value, bool flagCheck=true) override;
   /*! Get the value from a matrix cell */
-  double getValue(int row, int col) const override;
-  double getValue_(int row, int col) const override;
+  double getValue(int row, int col, bool flagCheck=true) const override;
   /*! Modifies the contents of a matrix cell */
-  void updValue(int irow, int icol, const EOperator& oper, double value) override;
-  void updValue_(int irow, int icol, const EOperator& oper, double value) override;
+  void updValue(int irow,
+                int icol,
+                const EOperator &oper,
+                double value,
+                bool flagCheck = true) override;
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;

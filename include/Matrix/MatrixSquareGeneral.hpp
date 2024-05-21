@@ -60,15 +60,15 @@ private:
     return (isSameSize(m) && m.isSquare());
   }
   virtual int     _getMatrixPhysicalSize() const override;
-  virtual double& _getValueRef(int irow, int icol) override;
+  virtual double& _getValueRef_(int irow, int icol) override;
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
-  virtual double  _getValueByRank(int irank) const override;
-  virtual void    _setValueByRank(int irank, double value) override;
+  virtual double  _getValueByRank_(int irank) const override;
+  virtual void    _setValueByRank_(int irank, double value) override;
 
   virtual void    _transposeInPlace() override;
-  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
-  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodMatVecInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 

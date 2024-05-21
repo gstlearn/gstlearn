@@ -54,14 +54,15 @@ public:
   virtual bool isSparse() const { return false; }
 
   /*! Set the value for in a matrix cell */
-  void setValue(int irow, int icol, double value) override;
-  void setValue_(int irow, int icol, double value) override;
+  void setValue(int irow, int icol, double value, bool flagCheck = true) override;
   /*! Get the value from a matrix cell */
-  virtual double getValue(int irow, int icol) const override;
-  virtual double getValue_(int irow, int icol) const override;
+  virtual double getValue(int irow, int icol, bool flagCheck = true) const override;
   /*! Update the contents of a matrix cell */
-  void updValue(int irow, int icol, const EOperator& oper, double value) override;
-  void updValue_(int irow, int icol, const EOperator& oper, double value) override;
+  void updValue(int irow,
+                int icol,
+                const EOperator &oper,
+                double value,
+                bool flagCheck = true) override;
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -140,14 +141,24 @@ protected:
   int             _computeEigen(bool optionPositive = true);
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
+  /**
+   * These block of functions are protected must be overloaded by concrete classes
+   */
+  virtual double  _getValueByRank_(int rank) const = 0;
+  virtual void    _setValueByRank_(int irank, double value) = 0;
+  virtual double& _getValueRef_(int irow, int icol) = 0;
+  virtual void    _prodMatVecInPlacePtr_(const double *x, double *y,
+                                         bool transpose = false) const = 0;
+  virtual void    _prodVecMatInPlacePtr_(const double *x,
+                                         double *y,
+                                         bool transpose = false) const = 0;
+
 private:
-  /// ================================================
-  /// The subsequent methods rely on the Eigen storage
-  /// ================================================
-  void _recopyLocal(const AMatrixDense &r);
+  void _recopy(const AMatrixDense &r);
   int  _terminateEigen(const Eigen::VectorXd &eigenValues,
                        const Eigen::MatrixXd &eigenVectors,
-                       bool optionPositive = true);
+                       bool optionPositive = true,
+                       bool changeOrder = false);
 
 protected:
   bool _flagEigenDecompose;

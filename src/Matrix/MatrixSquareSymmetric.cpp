@@ -148,50 +148,30 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
   return mat;
 }
 
-double MatrixSquareSymmetric::_getValueByRank(int irank) const
+double MatrixSquareSymmetric::_getValueByRank_(int irank) const
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getValueByRank(irank);
-  else
-    return _squareSymMatrix[irank];
+  return _squareSymMatrix[irank];
 }
 
-double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
+double& MatrixSquareSymmetric::_getValueRef_(int irow, int icol)
 {
-  if (isFlagEigen())
-    return AMatrixDense::_getValueRef(irow, icol);
-  else
-  {
-    int rank = _getIndexToRank(irow, icol);
-    return _squareSymMatrix[rank];
-  }
+  int rank = _getIndexToRank(irow, icol);
+  return _squareSymMatrix[rank];
 }
 
-void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
+void MatrixSquareSymmetric::_setValueByRank_(int irank, double value)
 {
-  if (isFlagEigen())
-    AMatrixDense::_setValueByRank(irank, value);
-  else
-  {
-    if (! _isRankValid(irank)) return;
-    _squareSymMatrix[irank] = value;
-  }
+  _squareSymMatrix[irank] = value;
 }
 
-void MatrixSquareSymmetric::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
+void MatrixSquareSymmetric::_prodMatVecInPlacePtr_(const double *x, double *y, bool transpose) const
 {
-  if (isFlagEigen())
-    AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
-  else
-    _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
+  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 
-void MatrixSquareSymmetric::_prodVecMatInPlacePtr(const double *x, double *y, bool transpose) const
+void MatrixSquareSymmetric::_prodVecMatInPlacePtr_(const double *x, double *y, bool transpose) const
 {
-  if (isFlagEigen())
-    AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
-  else
-    _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
+  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 
 /**
@@ -363,38 +343,61 @@ void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x,
     }
 }
 
+int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
+                                           const VectorDouble &eigenVectors,
+                                           bool optionPositive,
+                                           bool changeOrder)
+{
+  int nrows = getNRows();
+
+  _eigenValues = eigenValues;
+
+  if (_eigenVectors != nullptr) delete _eigenVectors;
+
+  if (changeOrder)
+    std::reverse(_eigenValues.begin(), _eigenValues.end());
+
+  _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false,
+                                                    0, changeOrder);
+
+  if (optionPositive) _eigenVectors->makePositiveColumn();
+
+  _flagEigenDecompose = true;
+
+  return 0;
+}
+
 int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
   if (isFlagEigen())
-    return AMatrixDense::_computeEigen(optionPositive);
-  else
   {
-    int nrows = getNRows();
-    VectorDouble eigenValues(nrows, 0.);
-    VectorDouble eigenVectors(nrows * nrows, 0);
-
-    if (matrix_eigen(this->getValues().data(), nrows, eigenValues.data(), eigenVectors.data()))
-      return 1;
-
-    return _terminateEigen(eigenValues, eigenVectors, optionPositive);
+    return AMatrixDense::_computeEigen(optionPositive);
   }
+  int nrows = getNRows();
+  VectorDouble eigenValues(nrows, 0.);
+  VectorDouble eigenVectors(nrows * nrows, 0);
+
+  if (matrix_eigen(this->getValues().data(), nrows,
+                   eigenValues.data(),
+                   eigenVectors.data())) return 1;
+
+  return _terminateEigen(eigenValues, eigenVectors, optionPositive, false);
 }
 
 int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
   if (isFlagEigen())
-    return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
-  else
   {
-    int nrows = getNRows();
-    VectorDouble eigenValues(nrows, 0);
-    VectorDouble eigenVectors(nrows * nrows, 0);
-
-    if (_matrix_geigen(this->getValues().data(), b.getValues().data(), nrows,
-                       eigenValues.data(), eigenVectors.data())) return 1;
-
-    return _terminateEigen(eigenValues, eigenVectors, optionPositive);
+    return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
   }
+  int nrows = getNRows();
+  VectorDouble eigenValues(nrows, 0.);
+  VectorDouble eigenVectors(nrows * nrows, 0);
+
+  if (_matrix_geigen(this->getValues().data(), b.getValues().data(), nrows,
+                     eigenValues.data(), eigenVectors.data())) return 1;
+
+  return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
 }
 
 /// =============================================================================
@@ -414,40 +417,20 @@ void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric& r)
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
 void MatrixSquareSymmetric::_updValue(int irow, int icol, const EOperator& oper, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = modifyOperator(oper, _squareSymMatrix[irank], value);
-}
-
-int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
-                                           const VectorDouble &eigenVectors,
-                                           bool optionPositive)
-{
-  int nrows = getNRows();
-  _flagEigenDecompose = true;
-
-  _eigenValues = eigenValues;
-
-  if (_eigenVectors != nullptr) delete _eigenVectors;
-  _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, false);
-
-  if (optionPositive) _eigenVectors->makePositiveColumn();
-
-  return 0;
 }
 
 /*****************************************************************************/

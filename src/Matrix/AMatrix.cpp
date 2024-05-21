@@ -135,8 +135,8 @@ bool AMatrix::isSame(const AMatrix& m, double eps, bool printWhyNot)
   for (int icol=0; icol<ncols; icol++)
     for (int irow=0; irow<nrows; irow++)
     {
-      double v1 = getValue(irow, icol);
-      double v2 = m.getValue_(irow, icol);
+      double v1 = getValue(irow, icol, false);
+      double v2 = m.getValue(irow, icol, false);
       if (ABS(v1 - v2) > eps)
       {
         if (printWhyNot)
@@ -244,12 +244,12 @@ bool AMatrix::isSymmetric(bool printWhyNot, double eps) const
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (ABS(getValue_(irow,icol) - getValue_(icol,irow)) > eps)
+      if (ABS(getValue(irow,icol,false) - getValue(icol,irow,false)) > eps)
       {
         if (printWhyNot)
           messerr("Elements (%d;%d)=%lf and (%d;%d)=%kf should be equal",
-                  irow,icol,getValue_(irow,icol),
-                  icol,irow,getValue_(icol,irow));
+                  irow,icol,getValue(irow,icol,false),
+                  icol,irow,getValue(icol,irow,false));
         return false;
       }
     }
@@ -262,11 +262,11 @@ bool AMatrix::isIdentity(bool printWhyNot) const
     for (int icol = 0; icol < getNCols(); icol++)
     {
       double refval = (irow == icol) ? 1. : 0.;
-      if (ABS(getValue_(irow, icol) - refval) > EPSILON10)
+      if (ABS(getValue(irow, icol, false) - refval) > EPSILON10)
       {
         if (printWhyNot)
           messerr("The term (%d,%d) should be equal to %lf (%lf)", irow + 1,
-                  icol + 1, refval, getValue_(irow, icol));
+                  icol + 1, refval, getValue(irow, icol,false));
         return false;
       }
     }
@@ -352,7 +352,7 @@ void AMatrix::setIdentity(double value)
 {
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
-      setValue_(irow, icol, value * (irow == icol));
+      setValue(irow, icol, value * (irow == icol), false);
 }
 
 /**
@@ -493,7 +493,7 @@ void AMatrix::addMatInPlace(const AMatrix& y, double cx, double cy)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue_(irow, icol, cx * getValue(irow, icol) + cy * y.getValue(irow, icol));
+      setValue(irow, icol, cx * getValue(irow, icol) + cy * y.getValue(irow, icol), false);
     }
 }
 
@@ -609,7 +609,7 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue_(irow, icol, getValue_(irow, icol) * vec[irow]);
+      setValue(irow, icol, getValue(irow, icol, false) * vec[irow], false);
     }
 }
 
@@ -624,7 +624,7 @@ void AMatrix::divideRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue_(irow, icol, getValue_(irow, icol) / vec[irow]);
+      setValue(irow, icol, getValue(irow, icol, false) / vec[irow], false);
     }
 }
 
@@ -639,7 +639,7 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue_(irow, icol, getValue_(irow, icol) * vec[icol]);
+      setValue(irow, icol, getValue(irow, icol, false) * vec[icol], false);
     }
 }
 void AMatrix::divideColumn(const VectorDouble& vec)
@@ -653,7 +653,7 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue_(irow, icol, getValue_(irow, icol) / vec[icol]);
+      setValue(irow, icol, getValue(irow, icol, false) / vec[icol], false);
     }
 }
 
@@ -930,7 +930,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
       {
-        (*itvect) = getValue_(irow, icol);
+        (*itvect) = getValue(irow, icol, false);
         itvect++;
       }
   }
@@ -939,7 +939,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
     for (int irow = 0; irow < _nRows; irow++)
       for (int icol = 0; icol < _nCols; icol++)
       {
-        (*itvect) = getValue_(irow, icol);
+        (*itvect) = getValue(irow, icol, false);
         itvect++;
       }
   }
@@ -1162,7 +1162,7 @@ double AMatrix::getMinimum() const
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = getValue_(irow, icol);
+      double value = getValue(irow, icol, false);
       if (FFFF(value)) continue;
       if (value < minimum) minimum = value;
     }
@@ -1177,7 +1177,7 @@ double AMatrix::getMaximum() const
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = getValue_(irow, icol);
+      double value = getValue(irow, icol, false);
       if (FFFF(value)) continue;
       if (value > maximum) maximum = value;
     }
@@ -1192,7 +1192,7 @@ double AMatrix::getNormInf() const
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = getValue_(irow, icol);
+      double value = getValue(irow, icol, false);
       if (FFFF(value)) continue;
       value = ABS(value);
       if (value > norminf) norminf = value;
@@ -1213,7 +1213,7 @@ void AMatrix::copyReduce(const AMatrix *x,
 {
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
-      setValue_(irow, icol, x->getValue_(validRows[irow], validCols[icol]));
+      setValue(irow, icol, x->getValue(validRows[irow], validCols[icol], false), false);
 }
 
 /**
@@ -1226,7 +1226,7 @@ void AMatrix::copyElements(const AMatrix &m, double factor)
 {
   for (int icol = 0; icol < m.getNCols(); icol++)
     for (int irow = 0; irow < m.getNRows(); irow++)
-      setValue_(irow, icol, factor * m.getValue_(irow, icol));
+      setValue(irow, icol, factor * m.getValue(irow, icol, false), false);
 }
 
 /**
