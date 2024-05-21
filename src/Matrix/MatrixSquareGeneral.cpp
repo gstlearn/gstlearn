@@ -59,7 +59,6 @@ MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &
 
 MatrixSquareGeneral::~MatrixSquareGeneral()
 {
-  _deallocate();
 }
 
 /**
@@ -190,16 +189,6 @@ int MatrixSquareGeneral::_invert()
       int error = _invertLU();
       return error;
     }
-  }
-}
-
-void MatrixSquareGeneral::_deallocate()
-{
-  if (isFlagEigen())
-    AMatrixDense::_deallocate();
-  else
-  {
-    // Specific code for this class should be placed here
   }
 }
 

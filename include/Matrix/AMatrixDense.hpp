@@ -155,6 +155,7 @@ protected:
   virtual int     _getIndexToRank_(int irow, int icol) const = 0;
   virtual int     _getMatrixPhysicalSize_() const = 0;
   virtual void    _allocate_() = 0;
+  virtual void    _deallocate_() {};
   virtual void    _transposeInPlace_() = 0;
 
 private:

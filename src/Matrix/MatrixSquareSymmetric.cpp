@@ -93,7 +93,6 @@ MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymme
 
 MatrixSquareSymmetric::~MatrixSquareSymmetric()
 {
-  _deallocate();
 }
 
 /**

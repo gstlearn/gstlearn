@@ -105,8 +105,13 @@ void AMatrixDense::_allocate()
 
 void AMatrixDense::_deallocate()
 {
-  delete _eigenVectors;
-  _eigenVectors = nullptr;
+  if (isFlagEigen())
+  {
+    delete _eigenVectors;
+    _eigenVectors = nullptr;
+  }
+  else
+    _deallocate_();
 }
 
 double AMatrixDense::getValue(int irow, int icol, bool flagCheck) const

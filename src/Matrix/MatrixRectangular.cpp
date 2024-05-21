@@ -56,7 +56,6 @@ MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
 
 MatrixRectangular::~MatrixRectangular()
 {
-  _deallocate();
 }
 
 /**

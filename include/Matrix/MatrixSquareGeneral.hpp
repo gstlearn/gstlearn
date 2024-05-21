@@ -62,11 +62,9 @@ private:
   virtual int     _getMatrixPhysicalSize_() const override;
   virtual double& _getValueRef_(int irow, int icol) override;
   virtual void    _allocate_() override;
-  virtual void    _deallocate() override;
   virtual double  _getValueByRank_(int irank) const override;
   virtual void    _setValueByRank_(int irank, double value) override;
   virtual void    _transposeInPlace_() override;
-
   virtual void    _prodMatVecInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
