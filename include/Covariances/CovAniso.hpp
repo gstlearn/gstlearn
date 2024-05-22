@@ -104,7 +104,7 @@ public:
                            int icas2,
                            int iech2,
                            MatrixSquareGeneral &mat,
-                           const CovCalcMode *mode = nullptr) const;
+                           const CovCalcMode *mode = nullptr) const override;
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
