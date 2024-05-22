@@ -51,9 +51,9 @@ public:
 
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
-  bool isSparse() const { return true; }
+  bool isSparse() const override { return true; }
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isDense() const { return false; }
+   bool isDense() const override { return false; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -185,7 +185,7 @@ public:
 
 protected:
   /// Interface for AMatrix
-  bool    _isPhysicallyPresent(int irow, int icol) const { DECLARE_UNUSED(irow, icol); return true; }
+  bool    _isPhysicallyPresent(int irow, int icol) const override { DECLARE_UNUSED(irow, icol); return true; }
   bool    _isCompatible(const AMatrix& m) const override
   {
     DECLARE_UNUSED(m);

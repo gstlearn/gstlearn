@@ -45,9 +45,9 @@ public:
 
   /// Interface for AMatrix
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isDense() const { return true; }
+   bool isDense() const override { return true; }
   /*! Returns if the current matrix is Sparse */
-  virtual bool isSparse() const { return false; }
+   bool isSparse() const override { return false; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
