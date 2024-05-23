@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.2.2
+=============
+- R 4.4.0 support
+
 Release 1.2.1
 =============
 - Fix artifact upload/download for github action
