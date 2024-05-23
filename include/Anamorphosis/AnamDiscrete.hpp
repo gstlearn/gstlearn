@@ -31,7 +31,7 @@ public:
 
   /// AAnam interface
   bool hasGaussian() const override { return false; }
-  int getNClass() const { return _nCut + 1; }
+  int getNClass() const override { return _nCut + 1; }
 
   /// Interface for AnamDiscrete
   virtual void calculateMeanAndVariance();

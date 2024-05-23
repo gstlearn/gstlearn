@@ -597,7 +597,7 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
 
     delete[] dims;
     delete[] md;
-    delete data;
+    delete[] data;
     return v;
   }
   catch (H5::Exception& error)

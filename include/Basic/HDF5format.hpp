@@ -256,7 +256,7 @@ void HDF5format::writeData(const VectorT<VectorNumT<T> > &data)
   char* myh5type = (char*) (typeid(a[0]).name());
   _writeAll(myh5type, (void* ) a);
   delete[] md;
-  delete a;
+  delete[] a;
 #endif
 }
 

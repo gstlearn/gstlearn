@@ -53,7 +53,7 @@ public:
             bool byCol,
             bool verbose = false);
   void resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
-  int  getVariety() const { return 1; }
+  int  getVariety() const override { return 1; }
 
   const MatrixRectangular& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
