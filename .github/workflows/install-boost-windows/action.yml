@@ -13,12 +13,14 @@ runs:
   using: "composite"
   steps:
   
+  # https://stackoverflow.com/a/43007490
   - name : Download and uncompressed Boost headers
     shell: powershell
     run: |
       $BOOST_VERSION="${{inputs.boost-version}}" -replace '\.','_'
       $BOOST_URL="https://netix.dl.sourceforge.net/project/boost/boost/${{inputs.boost-version}}/boost_$BOOST_VERSION.tar.bz2"
       mkdir ${{inputs.boost-root}}
+      ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11;
       Invoke-WebRequest -Uri "$BOOST_URL" -OutFile ${{inputs.boost-root}}/download.tar.bz2
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar.bz2 -y -bd
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar -y -bd
