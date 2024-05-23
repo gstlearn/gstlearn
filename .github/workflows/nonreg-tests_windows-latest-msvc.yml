@@ -54,11 +54,6 @@ jobs:
         python -m pip install numpy==${{env.NUMPY_VERSION}}
         python -m pip install pandas scipy mlxtend
 
-    - name: Install Python dependency
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy==${{env.NUMPY_VERSION}} mlxtend
-
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-windows
       with:
