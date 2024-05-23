@@ -13,7 +13,6 @@ runs:
   using: "composite"
   steps:
   
-  # https://stackoverflow.com/a/43007490
   - name : Download and uncompressed Boost headers
     shell: powershell
     run: |
