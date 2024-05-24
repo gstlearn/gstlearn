@@ -18,6 +18,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 class Db;

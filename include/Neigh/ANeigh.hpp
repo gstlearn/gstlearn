@@ -19,6 +19,7 @@
 #include "geoslib_define.h"
 
 class Db;
+class DbGrid;
 
 class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
 {

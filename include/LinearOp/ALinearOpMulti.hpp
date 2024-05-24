@@ -11,9 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "LinearOp/LogStats.hpp"
-
-#include <vector>
 
 class ALinearOpMulti;
 
