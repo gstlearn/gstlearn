@@ -40,7 +40,6 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
       _xl(),
       _factor()
 {
-  _allocate_();
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
@@ -74,11 +73,6 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
   const MatrixSquareSymmetric* matrixLoc = dynamic_cast<const MatrixSquareSymmetric*>(&m);
   if (matrixLoc != nullptr)
     _recopy(*matrixLoc);
-  else
-  {
-    _allocate_();
-    AMatrix::copyElements(m);
-  }
 }
 
 MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)

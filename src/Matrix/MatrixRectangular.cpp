@@ -20,7 +20,6 @@ MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
     : AMatrixDense(nrows, ncols, opt_eigen),
       _rectMatrix()
 {
-  _allocate_();
 }
 
 MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
@@ -37,11 +36,6 @@ MatrixRectangular::MatrixRectangular(const AMatrix &m)
   const MatrixRectangular* matrixLoc = dynamic_cast<const MatrixRectangular*>(&m);
   if (matrixLoc != nullptr)
     _recopy(*matrixLoc);
-  else
-  {
-    _allocate_();
-    AMatrix::copyElements(m);
-  }
 }
 
 MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)

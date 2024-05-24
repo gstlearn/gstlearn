@@ -51,6 +51,7 @@ public:
   void    _setValue(int irow, int icol, double value) override;
   double  _getValue(int irow, int icol) const override;
   void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
+  void    _allocate_() override;
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
@@ -111,7 +112,7 @@ private:
   virtual double& _getValueRef_(int irow, int icol) override;
 
   virtual int     _getIndexToRank_(int irow,int icol) const override;
-  virtual void    _allocate_() override;
+
   virtual double  _getValueByRank_(int irank) const override;
   virtual void    _setValueByRank_(int irank, double value) override;
   virtual void    _transposeInPlace_() override { return ; } // Nothing to do
@@ -181,6 +182,7 @@ private:
                       const VectorDouble &eigenVectors,
                       bool optionPositive = true,
                       bool changeOrder = false);
+
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

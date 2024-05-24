@@ -126,7 +126,7 @@ protected:
   virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
   virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
-  virtual void    _allocate() override;
+  void    _allocate() override;
   virtual void    _deallocate() override;
   virtual double  _getValueByRank(int rank) const override;
   virtual void    _setValueByRank(int rank, double value) override;

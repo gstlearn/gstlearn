@@ -221,7 +221,7 @@ protected:
   virtual void    _setValues(const double* values, bool byCol);
   virtual void    _clearDecoration() {};
 
-  virtual void    _allocate() = 0;
+  virtual void    _allocate() {};
   virtual void    _deallocate() = 0;
   virtual void    _setValueByRank(int rank, double value) = 0;
   virtual double  _getValueByRank(int rank) const = 0;

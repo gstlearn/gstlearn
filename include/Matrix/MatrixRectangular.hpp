@@ -60,11 +60,8 @@ private:
   /// Interface for AMatrix
   virtual int     _getMatrixPhysicalSize_() const override;
   virtual double& _getValueRef_(int irow, int icol) override;
-  virtual void    _allocate_() override;
-
   virtual double  _getValueByRank_(int irank) const override;
   virtual void    _setValueByRank_(int rank, double value) override;
-
   virtual void    _transposeInPlace_() override;
   virtual void    _prodMatVecInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr_(const double *x,double *y, bool transpose = false) const override;
@@ -75,6 +72,7 @@ private:
   void    _setValue(int irow, int icol, double value) override;
   double  _getValue(int irow, int icol) const override;
   void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
+  void    _allocate_() override;
 
 private:
   /// ========================================================================
