@@ -1,0 +1,167 @@
+name: check_code
+
+on:
+  # Permit calling trigger
+  workflow_call:
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+concurrency:
+  # allow a failing job inside a matrix to stop the other jobs
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CMAKE_EXPORT_COMPILE_COMMANDS: ON
+
+
+jobs:
+
+  # ----------------------- #
+  # Check source formatting #
+  # ----------------------- #
+  check-formatting:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install latest clang-format
+      run: |
+        sudo apt update
+        sudo apt install -y clang-format
+
+    - name: Use clang-format to detect formatting issues
+      run: |
+        git ls-files | grep -E "\.cpp$|\.cxx$|\.h$|\.hpp$" | xargs clang-format -n -Werror
+
+    - name: Check line endings (Unix rather than DOS)
+      run: |
+        ! git ls-files | xargs file "{}" ";" | grep CRLF
+
+    - name: Check files not ending with a newline [NOT ENFORCED]
+      run: |
+        for f in $(git ls-files | grep -Ev 'png$|ico$' ); do
+          test $(tail -c 1 $f | wc -l) -eq 0 && echo $f || true
+        done
+
+    - name: Check for files containing Unicode characters [NOT ENFORCED]
+      run: |
+        git ls-files | xargs file | grep Unicode || true
+
+    - name: Check for empty files
+      run: |
+        ! git ls-files | xargs file | grep empty
+
+    - name: No "using namespace" directive in header files
+      run: |
+        ! git ls-files \
+          | grep -E "\.h$|\.hpp$" \
+          | xargs grep "using namespace"
+
+
+  # ----------------------- #
+  # Check compiler warnings #
+  # ----------------------- #
+  check-warnings:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        hdf5: [USE_HDF5=ON, USE_HDF5=OFF]
+        opt: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Ubuntu dependencies
+      run: |
+        sudo apt update
+        # gstlearn dependencies
+        sudo apt install -y \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-system-dev \
+          libeigen3-dev \
+          libomp-dev \
+          clang-tools
+
+    - name: Create & configure gstlearn build directory
+      run: |
+        mkdir build
+        cd build
+        cmake \
+          -DCMAKE_BUILD_TYPE=${{ matrix.opt }} \
+          -D${{ matrix.hdf5 }} \
+          $GITHUB_WORKSPACE
+
+    - name: Use clang-check for compiler warnings
+      run: |
+        git ls-files \
+        | grep src \
+        | grep -E "\.cpp$|\.cxx$" \
+        | xargs -n1 -P$(nproc) clang-check -p build --extra-arg=-Werror
+
+
+  # ------------- #
+  # Code lint job #
+  # ------------- #
+  lint-code:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config:
+          - {tidy: true, sa: false, dox: false}
+          - {tidy: false, sa: true, dox: false}
+          - {tidy: false, sa: false, dox: true}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Ubuntu dependencies
+      run: |
+        sudo apt update
+        # gstlearn dependencies
+        sudo apt install -y \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-system-dev \
+          libeigen3-dev \
+          libomp-dev \
+          clang-tools \
+          clang-tidy \
+          doxygen \
+
+    - name: Create & configure gstlearn build directory
+      run: |
+        mkdir build
+        cd build
+        cmake \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_DOXYGEN=ON \
+          $GITHUB_WORKSPACE
+
+    - name: Use clang-tidy to lint code
+      if: matrix.config.tidy
+      run: |
+        git ls-files \
+        | grep src \
+        | grep -E "\.cpp$|\.cxx$" \
+        | xargs -n1 -P$(nproc) clang-tidy -p build --warnings-as-errors="*" 2> /dev/null
+
+    - name: Use Clang static analyzer
+      if: matrix.config.sa
+      run: |
+        git ls-files \
+        | grep src \
+        | grep -E "\.cpp$|\.cxx$" \
+        | xargs -n1 -P$(nproc) clang-tidy -p build --checks="-*,clang-analyzer-*" --warnings-as-errors="*" 2> /dev/null
+
+    - name: Check Doxygen documentation warnings
+      if: matrix.config.dox
+      run: |
+        cd build
+        ! cmake --build . --target doxygen |& grep warning
