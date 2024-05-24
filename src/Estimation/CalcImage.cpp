@@ -166,7 +166,7 @@ bool CalcImage::_run()
 
   if (_flagSmooth)
   {
-    const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
+    const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh().get());
     _image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
   }
 
@@ -187,7 +187,7 @@ bool CalcImage::_run()
  *****************************************************************************/
 int krimage(DbGrid *dbgrid,
             Model *model,
-            ANeigh *neigh,
+            std::shared_ptr<ANeigh>& neigh,
             const NamingConvention& namconv)
 {
   CalcImage image;
@@ -219,7 +219,7 @@ int krimage(DbGrid *dbgrid,
  **
  *****************************************************************************/
 int dbSmoother(DbGrid *dbgrid,
-               ANeigh *neigh,
+               std::shared_ptr<ANeigh>& neigh,
                int type,
                double range,
                const NamingConvention &namconv)

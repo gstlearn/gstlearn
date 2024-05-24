@@ -217,7 +217,7 @@ bool CalcKrigingFactors::_run()
 int krigingFactors(Db *dbin,
                    Db *dbout,
                    Model *model,
-                   ANeigh *neigh,
+                   std::shared_ptr<ANeigh> &neigh,
                    const EKrigOpt &calcul,
                    const VectorInt& ndiscs,
                    bool flag_est,

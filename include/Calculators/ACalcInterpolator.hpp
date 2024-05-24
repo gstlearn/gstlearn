@@ -28,10 +28,10 @@ public:
   virtual ~ACalcInterpolator();
 
   void setModel(Model *model)  { _model = model; }
-  void setNeigh(ANeigh *neigh) { _neigh = neigh; }
+  void setNeigh(std::shared_ptr<ANeigh> &neigh) { _neigh = neigh; }
 
   Model*  getModel() const { return _model; }
-  ANeigh* getNeigh() const { return _neigh; }
+  std::shared_ptr<ANeigh> getNeigh() const { return _neigh; }
 
   bool hasModel(bool verbose = true) const;
   bool hasNeigh(bool verbose = true) const;
@@ -47,5 +47,5 @@ protected:
 
 private:
   Model* _model;
-  ANeigh* _neigh;
+  std::shared_ptr<ANeigh> _neigh;
 };

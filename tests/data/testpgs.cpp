@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   DbGrid    *dbout;
   Vario     *vario;
   Model     *model[2][2];
-  NeighUnique *neighU;
+  std::shared_ptr<NeighUnique> neighU;
   Rule      *rule[2];
   Option_VarioFit options;
   RuleStringFormat rulefmt;
@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
   dbin     = nullptr;
   dbout    = nullptr;
   vario    = nullptr;
-  neighU   = nullptr;
   ruleprop = nullptr;
   for (i=0; i<2; i++)
   {
@@ -185,7 +184,7 @@ int main(int argc, char *argv[])
 
   /* Define the neighborhood */
 
-  neighU = NeighUnique::create();
+  neighU.reset(NeighUnique::create());
 
   /* Perform the Pluri-Gaussian Simulations */
 
@@ -226,7 +225,6 @@ label_end:
       delete model[i][j];
   }
   delete ruleprop;
-  delete neighU;
 
   return(0);
 }

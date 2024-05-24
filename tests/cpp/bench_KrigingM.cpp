@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   int nsmax = 3;
   double radius = 50000;
 
-  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
+  auto neighM = std::shared_ptr<ANeigh>(NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax));
   if (verbose) neighM->display();
 
   Timer timer;
@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
   if (graphic)
     (void) grid->dumpToNF("Grid.ascii");
 
-  if (neighM    != nullptr) delete neighM;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (model     != nullptr) delete model;

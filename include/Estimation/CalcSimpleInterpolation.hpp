@@ -107,7 +107,7 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
                                         "Nearest"));
 GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                   Db *dbout,
-                                  ANeigh *neigh,
+                                  std::shared_ptr<ANeigh> &neigh,
                                   bool flag_est = true,
                                   bool flag_std = false,
                                   Model *model = nullptr,
@@ -115,7 +115,7 @@ GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                       "MovAve"));
 GSTLEARN_EXPORT int movingMedian(Db *dbin,
                                  Db *dbout,
-                                 ANeigh *neigh,
+                                 std::shared_ptr<ANeigh>& neigh,
                                  bool flag_est = true,
                                  bool flag_std = false,
                                  Model *model = nullptr,
@@ -123,7 +123,7 @@ GSTLEARN_EXPORT int movingMedian(Db *dbin,
                                      "MovMed"));
 GSTLEARN_EXPORT int leastSquares(Db *dbin,
                                  Db *dbout,
-                                 ANeigh *neigh,
+                                 std::shared_ptr<ANeigh>& neigh,
                                  int order = 0,
                                  const NamingConvention &namconv = NamingConvention(
                                      "LstSqr"));

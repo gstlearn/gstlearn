@@ -61,7 +61,7 @@ private:
 GSTLEARN_EXPORT int krigingFactors(Db *dbin,
                                    Db *dbout,
                                    Model *model,
-                                   ANeigh *neigh,
+                                   std::shared_ptr<ANeigh> &neigh,
                                    const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
                                    const VectorInt& ndiscs = VectorInt(),
                                    bool flag_est = true,

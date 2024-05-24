@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   // Generate the Model and the Neighborhood (for simulation)
   double range = 0.3;
   Model* model = Model::createFromParam(ECov::CUBIC,range);
-  NeighUnique* neigh = NeighUnique::create();
+  auto neigh = std::shared_ptr<ANeigh>(NeighUnique::create());
 
   // Generate the data set
   int nech = 10000;
@@ -173,7 +173,6 @@ int main(int argc, char *argv[])
   if (data     != nullptr) delete data;
   if (grid     != nullptr) delete grid;
   if (model    != nullptr) delete model;
-  if (neigh    != nullptr) delete neigh;
 
   return (0);
 }

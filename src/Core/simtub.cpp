@@ -360,7 +360,7 @@ static int st_keep(int flag_gaus, int flag_prop, int file, int type)
 static int st_check_simtub_environment(Db *dbin,
                                        Db *dbout,
                                        Model *model,
-                                       ANeigh *neigh)
+                                       std::shared_ptr<ANeigh> neigh)
 {
   int nvar = 0;
   int nfex = 0;
@@ -656,7 +656,7 @@ int simpgs(Db *dbin,
            RuleProp *ruleprop,
            Model *model1,
            Model *model2,
-           ANeigh *neigh,
+           std::shared_ptr<ANeigh> neigh,
            int nbsimu,
            int seed,
            int flag_gaus,
@@ -992,7 +992,7 @@ int simbipgs(Db *dbin,
              Model *model12,
              Model *model21,
              Model *model22,
-             ANeigh *neigh,
+             std::shared_ptr<ANeigh> neigh,
              int nbsimu,
              int seed,
              int flag_gaus,
@@ -1716,7 +1716,7 @@ label_end:
 int simtub_constraints(Db *dbin,
                        Db *dbout,
                        Model *model,
-                       ANeigh *neigh,
+                       std::shared_ptr<ANeigh> neigh,
                        int seed,
                        int nbtuba,
                        int nbsimu_min,
@@ -2553,7 +2553,7 @@ int simcond(Db *dbin,
 
   /* Preliminary checks */
 
-  NeighUnique* neighU = NeighUnique::create(false);
+  std::shared_ptr<ANeigh> neighU = std::make_shared<NeighUnique>(NeighUnique::create(false));
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manageExternalInformation(1, ELoc::F, dbin, dbout, &flag_ext_created)) goto label_end;
@@ -2655,7 +2655,6 @@ int simcond(Db *dbin,
   error = 0;
 
   label_end:
-  delete neighU;
   (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_ext_created);
   (void) manageExternalInformation(-1, ELoc::NOSTAT, dbin, dbout, &flag_nostat_created);
   return (error);

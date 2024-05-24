@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   (void) model2->dumpToNF("truemodel2.ascii");
 
   // Creating the Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
   neighU->display();
 
   // Creating the Rule
@@ -160,7 +160,6 @@ int main(int argc, char *argv[])
 
   delete db;
   delete dbprop;
-  delete neighU;
   delete rule;
   delete ruleprop;
   delete ruleprop2;

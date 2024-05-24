@@ -117,17 +117,17 @@ bool CalcSimpleInterpolation::_run()
 {
   if (_flagMovAve)
   {
-    if (_movave(getDbin(), getDbout(), getNeigh())) return false;
+    if (_movave(getDbin(), getDbout(), getNeigh().get())) return false;
   }
 
   if (_flagMovMed)
   {
-    if (_movmed(getDbin(), getDbout(), getNeigh())) return false;
+    if (_movmed(getDbin(), getDbout(), getNeigh().get())) return false;
   }
 
   if (_flagLstSqr)
    {
-     if (_lstsqr(getDbin(), getDbout(), getNeigh())) return false;
+     if (_lstsqr(getDbin(), getDbout(), getNeigh().get())) return false;
    }
 
   if (_flagInvDist)
@@ -137,7 +137,7 @@ bool CalcSimpleInterpolation::_run()
 
   if (_flagNearest)
   {
-    if (_nearest(getDbin(), getDbout(), getNeigh())) return false;
+    if (_nearest(getDbin(), getDbout(), getNeigh().get())) return false;
   }
 
   return true;
@@ -205,7 +205,7 @@ int inverseDistance(Db *dbin,
  *****************************************************************************/
 GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                   Db *dbout,
-                                  ANeigh *neigh,
+                                  std::shared_ptr<ANeigh> &neigh,
                                   bool flag_est,
                                   bool flag_std,
                                   Model *model,
@@ -244,7 +244,7 @@ GSTLEARN_EXPORT int movingAverage(Db *dbin,
  *****************************************************************************/
 GSTLEARN_EXPORT int movingMedian(Db *dbin,
                                  Db *dbout,
-                                 ANeigh *neigh,
+                                 std::shared_ptr<ANeigh>& neigh,
                                  bool flag_est,
                                  bool flag_std,
                                  Model* model,
@@ -294,8 +294,8 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
   interpol.setFlagStd(flag_std);
   interpol.setModel(model);
 
-  NeighMoving neighM(false, 1, 1.e6);
-  interpol.setNeigh(&neighM);
+  std::shared_ptr<ANeigh> neighM = std::make_shared<NeighMoving>(false, 1, 1.e6);
+  interpol.setNeigh(neighM);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagNearest(true);
@@ -320,7 +320,7 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
  *****************************************************************************/
 GSTLEARN_EXPORT int leastSquares(Db *dbin,
                                  Db *dbout,
-                                 ANeigh *neigh,
+                                 std::shared_ptr<ANeigh>& neigh,
                                  int order,
                                  const NamingConvention &namconv)
 {

@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
   // Bench Neighborhood
   double width = 100000.;
-  NeighBench* neighB = NeighBench::create(false, width);
+  auto neighB = std::shared_ptr<ANeigh>(NeighBench::create(false, width));
   if (verbose) neighB->display();
 
   Timer timer;
@@ -84,7 +84,6 @@ int main(int argc, char *argv[])
 
   if (graphic)
     (void) grid->dumpToNF("Grid.ascii");
-  if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (model     != nullptr) delete model;

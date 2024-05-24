@@ -36,7 +36,7 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 const Model* model,
-                ANeigh* neigh);
+                std::shared_ptr<ANeigh> neigh);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
@@ -193,7 +193,7 @@ private:
   Db*                  _dbin;
   Db*                  _dbout;
   Model*               _modelInit; // Copy of the input model
-  ANeigh*              _neigh;
+  std::shared_ptr<ANeigh>              _neigh;
   const AAnam*         _anam;
   bool                 _isReady;
 

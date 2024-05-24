@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   // Due to the small number of points, we decide to use the whole set of available samples,
   // wherever the target is located: this is known as a Unique neighborhood.
 
-  NeighUnique* myneigh = NeighUnique::create();
+  auto myneigh = std::shared_ptr<ANeigh>(NeighUnique::create());
 
   // We have all the ingredients to perform the estimation using Kriging.
   // When typing the name of the (output) grid data base, we can check that 2 variables have been added:

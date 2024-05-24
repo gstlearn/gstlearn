@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   (void) model->fit(vario,structs,constraints);
   model->display();
 
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
   neighU->display();
 
   //////////////////////
@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
   delete temperatures;
   delete grid;
   delete model;
-  delete neighU;
 
   return 0;
 }

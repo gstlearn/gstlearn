@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   (void) model4.dumpToNF("PGSmodel4.ascii");
 
   // Creating the Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
   neighU->display();
 
   // Creating the Rules
@@ -172,6 +172,5 @@ int main(int argc, char *argv[])
   delete rulepropbi;
   delete rulepropshift;
   delete rulepropshadow;
-  delete neighU;
   return(error);
 }

@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   DbGrid    *dbout;
   Vario     *vario;
   Model     *model,*new_model;
-  ANeigh    *neigh;
+  std::shared_ptr<ANeigh> neigh;
   Option_AutoFit mauto;
   Constraints constraints;
   DbStringFormat dbfmt;
@@ -163,13 +163,13 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   ascii_filename("Neigh",0,0,filename);
-  neigh = NeighUnique::createFromNF(filename,verbose);
+  neigh = std::shared_ptr<ANeigh>(NeighUnique::createFromNF(filename,verbose));
   if (neigh == nullptr)
-    neigh = NeighImage::createFromNF(filename, verbose);
+    neigh = std::shared_ptr<ANeigh>(NeighImage::createFromNF(filename, verbose));
   if (neigh == nullptr)
-    neigh = NeighBench::createFromNF(filename, verbose);
+    neigh = std::shared_ptr<ANeigh>(NeighBench::createFromNF(filename, verbose));
   if (neigh == nullptr)
-    neigh = NeighMoving::createFromNF(filename, verbose);
+    neigh = std::shared_ptr<ANeigh>(NeighMoving::createFromNF(filename, verbose));
 
   /* Look for simulations */
 
@@ -236,7 +236,6 @@ label_end:
   delete dbout;
   delete model;
   delete new_model;
-  delete neigh;
   delete vario;
   return(0);
 }

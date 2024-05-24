@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   int nmini = 5;
   int nmaxi = 5;
   double radius = 1.;
-  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini);
+  auto neighM = std::shared_ptr<ANeigh>(NeighMoving::create(false, nmaxi, radius, nmini));
   neighM->display();
 
   // ====================== Conditional Expectation =====================
@@ -302,7 +302,6 @@ int main(int argc, char *argv[])
   if (vario_b1_Z != nullptr) delete vario_b1_Z;
   if (vario_b1_Y != nullptr) delete vario_b1_Y;
   if (vario_b2_Y != nullptr) delete vario_b2_Y;
-  if (neighM     != nullptr) delete neighM;
 
   return (0);
 }

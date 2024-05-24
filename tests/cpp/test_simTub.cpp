@@ -96,7 +96,7 @@ int st_mini_test()
                                         VectorDouble(), {3,1,1,2});
   model->setMeans(means);
 
-  NeighMoving* neigh = NeighMoving::create(false, 100, 10);
+  auto neigh = std::shared_ptr<ANeigh>(NeighMoving::create(false, 100, 10));
 
   // Creating the output grid
   DbGrid* grid = DbGrid::create({2,2});
@@ -165,11 +165,11 @@ int main(int argc, char *argv[])
   model->display();
 
   // Creating a Moving Neighborhood
-  NeighMoving* neighM = NeighMoving::create(false, 25);
+  auto neighM = std::shared_ptr<ANeigh>(NeighMoving::create(false, 25));
   neighM->display();
 
   // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
   neighU->display();
 
   Timer timer;
@@ -189,8 +189,6 @@ int main(int argc, char *argv[])
   timer.displayIntervalMilliseconds("Turning Band Simulations", 773);
 
   // ====================== Free pointers ==================================
-  if (neighM    != nullptr) delete neighM;
-  if (neighU    != nullptr) delete neighU;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (grid_res  != nullptr) delete grid_res;

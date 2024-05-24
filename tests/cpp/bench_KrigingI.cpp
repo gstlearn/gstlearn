@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   if (verbose) model->display();
 
   // Image Neighborhood
-  NeighImage* neighI = NeighImage::create({10,10}, 3);
+  auto neighI = std::shared_ptr<ANeigh>(NeighImage::create({10,10}, 3));
   if (verbose) neighI->display();
 
   Timer timer;
@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
   image->display(dbfmt);
   delete dbfmt;
 
-  if (neighI    != nullptr) delete neighI;
   if (image     != nullptr) delete image;
   if (model     != nullptr) delete model;
 

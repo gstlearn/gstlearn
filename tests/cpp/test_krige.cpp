@@ -176,15 +176,15 @@ int main(int argc, char *argv[])
   model->display();
 
   // Image Neighborhood
-  NeighImage* neighI = NeighImage::create({2,2}, 2);
+  auto neighI = std::shared_ptr<ANeigh>(NeighImage::create({2,2}, 2));
   neighI->display();
 
   // Creating a Moving Neighborhood
-  NeighMoving* neighM = NeighMoving::create(false, 25);
+  auto neighM = std::shared_ptr<ANeigh>(NeighMoving::create(false, 25));
   neighM->display();
 
   // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
   neighU->display();
 
   // Block discretization
@@ -352,9 +352,6 @@ int main(int argc, char *argv[])
   grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================
-  if (neighM    != nullptr) delete neighM;
-  if (neighU    != nullptr) delete neighU;
-  if (neighI    != nullptr) delete neighI;
   if (data      != nullptr) delete data;
   if (data_res  != nullptr) delete data_res;
   if (grid      != nullptr) delete grid;

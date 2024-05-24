@@ -109,12 +109,12 @@ int CalcGlobal::_globalKriging()
   // Initializations
 
   int nvar = model->getVariableNumber();
-  NeighUnique neighU = NeighUnique(false);
-  neighU.attach(getDbin(), getDbout());
+  auto neighU = std::make_shared<NeighUnique>(false);
+  neighU->attach(getDbin(), getDbout());
 
   /* Setting options */
 
-  KrigingSystem ksys(getDbin(), getDbout(), model, &neighU);
+  KrigingSystem ksys(getDbin(), getDbout(), model, neighU);
   if (ksys.setKrigOptFlagGlobal(true)) return 1;
   if (! ksys.isReady()) return 1;
 

@@ -1406,7 +1406,7 @@ int DbGrid::morpho(const EMorpho &oper,
   return dbMorpho(this, oper, vmin, vmax, option, radius, flagDistErode, verbose, namconv);
 }
 
-int DbGrid::smooth(ANeigh *neigh,
+int DbGrid::smooth(std::shared_ptr<ANeigh>& neigh,
                    int type,
                    double range,
                    const NamingConvention &namconv)

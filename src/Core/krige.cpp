@@ -1566,7 +1566,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
 int _krigsim(Db* dbin,
              Db* dbout,
              const Model* model,
-             ANeigh* neigh,
+             std::shared_ptr<ANeigh> neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
              const MatrixSquareSymmetric& dcov,
@@ -3066,7 +3066,7 @@ int bayes_simulate(Model *model,
 int krigsum(Db *dbin,
             Db *dbout,
             Model *model,
-            ANeigh *neigh,
+            std::shared_ptr<ANeigh>& neigh,
             bool flag_positive,
             const NamingConvention& namconv)
 {
@@ -4167,7 +4167,7 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
  *****************************************************************************/
 static int st_declustering_2(Db *db,
                              Model *model,
-                             ANeigh* neigh,
+                             std::shared_ptr<ANeigh>& neigh,
                              int iptr)
 {
   KrigingSystem ksys(db, db, model, neigh);
@@ -4202,7 +4202,7 @@ static int st_declustering_2(Db *db,
 static int st_declustering_3(Db *db,
                              Db *dbgrid,
                              Model *model,
-                             ANeigh *neigh,
+                             std::shared_ptr<ANeigh>& neigh,
                              const VectorInt& ndiscs,
                              int iptr)
 {
@@ -4268,7 +4268,7 @@ static int st_declustering_3(Db *db,
 int declustering(Db *dbin,
                  Model *model,
                  int method,
-                 ANeigh *neigh,
+                 std::shared_ptr<ANeigh> neigh,
                  DbGrid *dbgrid,
                  const VectorDouble& radius,
                  const VectorInt& ndiscs,

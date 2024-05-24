@@ -74,7 +74,7 @@ private:
 
 GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
                             Model *model,
-                            ANeigh *neigh,
+                            std::shared_ptr<ANeigh>& neigh,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const EMorpho &oper,
@@ -87,7 +87,7 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const NamingConvention &namconv = NamingConvention(
                                  "Morpho"));
 GSTLEARN_EXPORT int dbSmoother(DbGrid *dbgrid,
-                               ANeigh *neigh,
+                               std::shared_ptr<ANeigh>& neigh,
                                int type = 1,
                                double range = 1.,
                                const NamingConvention &namconv = NamingConvention(

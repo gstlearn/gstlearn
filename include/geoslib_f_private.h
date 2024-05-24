@@ -66,7 +66,7 @@ void _erase_current_string(void);
 int _krigsim(Db* dbin,
              Db* dbout,
              const Model* model,
-             ANeigh* neigh,
+             std::shared_ptr<ANeigh> neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
              const MatrixSquareSymmetric& dcov,

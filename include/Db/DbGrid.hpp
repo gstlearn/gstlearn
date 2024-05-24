@@ -327,7 +327,7 @@ public:
              bool flagDistErode = false,
              bool verbose = false,
              const NamingConvention &namconv = NamingConvention("Morpho"));
-  int smooth(ANeigh *neigh,
+  int smooth(std::shared_ptr<ANeigh>& neigh,
              int type = 1,
              double range = 1.,
              const NamingConvention &namconv = NamingConvention("Smooth"));

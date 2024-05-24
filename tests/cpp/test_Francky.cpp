@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 3243);
 
   // Creating the Neighborhood (Unique)
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
 
   // Creating the Non-stationary Model
   Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
 
   delete dat;
   delete grid;
-  delete neighU;
   delete model;
 
   return 0;

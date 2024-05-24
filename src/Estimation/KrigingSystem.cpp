@@ -46,7 +46,7 @@
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const Model* model,
-                             ANeigh* neigh)
+                             std::shared_ptr<ANeigh> neigh)
     : _dbin(dbin),
       _dbout(dbout),
       _modelInit(nullptr),
@@ -675,7 +675,7 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
 {
   if (_neigh == nullptr) return (0.);
   if (_neigh->getType() != ENeigh::MOVING) return (0.);
-  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neigh);
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neigh.get());
   VectorDouble dd(_ndim);
 
   /* Calculate the distance increment */
@@ -1786,7 +1786,7 @@ bool KrigingSystem::isReady()
   if (_neigh->getType() == ENeigh::IMAGE)
   {
     // Perform some preliminary work in the case of Image
-    const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neigh);
+    const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neigh.get());
     if (_prepareForImage(neighI)) return false;
 
     // Prepare the projection of data on different covariances of the Model

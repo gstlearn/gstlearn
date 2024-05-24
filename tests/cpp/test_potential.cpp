@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   model->switchToGradient();
 
   // Create the Neighborhood (unique)
-  NeighUnique* neighU = NeighUnique::create();
+  auto neighU = std::shared_ptr<ANeigh>(NeighUnique::create());
 
   // Launch the Potential estimation
   (void) potential_kriging(dbiso, dbgrd, dbtgt, grid, model, neighU,
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
   // Create the Neighborhood (unique)
   SpaceRN space(ndim);
-  neighU = NeighUnique::create(false, &space);
+  neighU.reset(NeighUnique::create(false, &space));
 
   // Launch the Potential estimation
   // In case we would like to examine the calculation details,
