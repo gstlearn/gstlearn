@@ -39,10 +39,6 @@ public:
   /// Interface to AMatrix
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const final { return true; }
-  /*! Say if the matrix must be diagonal */
-  virtual bool mustBeDiagonal() const override { return false; }
-  /*! Say if the matrix must be diagonal constant */
-  virtual bool mustBeDiagCst() const override { return false; }
   /// Is the matrix symmetrical ?
   bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const final
   {

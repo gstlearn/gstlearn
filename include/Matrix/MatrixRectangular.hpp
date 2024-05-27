@@ -36,10 +36,6 @@ public:
   /// Interface for AMatrix
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
-  /*! Say if the matrix must be diagonal */
-  bool mustBeDiagonal() const override { return false; }
-  /*! Say if the matrix must be diagonal constant */
-  bool mustBeDiagCst() const override { return false; }
 
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, int opt_eigen = -1);
   static MatrixRectangular* createFromVD(const VectorDouble &X,

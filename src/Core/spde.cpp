@@ -240,20 +240,7 @@ static void st_matelem_print(int icov)
  *****************************************************************************/
 void spde_option_update(SPDE_Option &s_option, const String &triswitch)
 {
-  /* Add a new SPDE_SS_Option structure */
-
-  int noption = static_cast<int>(s_option.options.size());
-
-  /* Resize the array 'options' */
-
-  s_option.options.resize(noption + 1);
-
-  /* Initialize this new 'SPDE_SS_Option' structure */
-
-  SPDE_SS_Option ss_option = s_option.options[noption];
-  s_option.options[noption].mesh_dbin = 0;
-  s_option.options[noption].mesh_dbout = 0;
-  s_option.options[noption].triswitch = triswitch;
+  s_option.options.push_back({false, false, triswitch});
 }
 
 /****************************************************************************/

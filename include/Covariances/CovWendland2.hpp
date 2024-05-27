@@ -37,6 +37,6 @@ public:
 
 protected:
   double _evaluateCov(double h) const override;
-  double _evaluateCovDerivative(int degree, double h) const;
+  double _evaluateCovDerivative(int degree, double h) const override;
 };
 

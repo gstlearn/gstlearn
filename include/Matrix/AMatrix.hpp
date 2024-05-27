@@ -63,16 +63,8 @@ public:
   virtual bool isIdentity(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
   virtual bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const;
-  /*! Check if the matrix is (non empty) diagonal */
-  virtual bool isDiagonal(bool printWhyNot = false) const;
-  /*! Check if the contents of the matrix is constant and diagonal */
-  virtual bool isDiagCst(bool printWhyNot = false) const;
   /*! Say if the matrix must be symmetric */
   virtual bool mustBeSymmetric() const { return false; }
-  /*! Say if the matrix must be diagonal */
-  virtual bool mustBeDiagonal() const { return false; }
-  /*! Say if the matrix must be diagonal constant */
-  virtual bool mustBeDiagCst() const { return false; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab);

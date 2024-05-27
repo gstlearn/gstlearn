@@ -19,6 +19,6 @@ runs:
       $BOOST_VERSION="${{inputs.boost-version}}" -replace '\.','_'
       $BOOST_URL="https://netix.dl.sourceforge.net/project/boost/boost/${{inputs.boost-version}}/boost_$BOOST_VERSION.tar.bz2"
       mkdir ${{inputs.boost-root}}
-      Invoke-WebRequest -Uri "$BOOST_URL" -OutFile ${{inputs.boost-root}}/download.tar.bz2
+      Invoke-WebRequest -Uri "$BOOST_URL" -OutFile ${{inputs.boost-root}}/download.tar.bz2 -TimeoutSec 300
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar.bz2 -y -bd
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar -y -bd

@@ -60,7 +60,7 @@ private:
                         int ix0,
                         int iy0,
                         int iz0);
-  int _getNDim() const;
+  int _getNDim() const override;
 
 private:
   SimuRefineParam _param;
