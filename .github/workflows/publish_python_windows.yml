@@ -98,6 +98,7 @@ jobs:
     - name : Create Wheels
       run : |
         cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A ${{matrix.arch.of}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
+        cmake --build ${{env.BUILD_DIR}} --target python_build --config ${{env.BUILD_TYPE}}
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
         python setup.py bdist_wheel --plat-name=${{matrix.arch.pl}}
