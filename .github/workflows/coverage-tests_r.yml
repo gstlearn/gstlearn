@@ -25,6 +25,8 @@ jobs:
             r_version: 4.3.3
           - os: macos-14
             r_version: 4.0.5
+          - os: windows-2022
+            r_version: 4.0.5
           
     steps:
     - uses: actions/checkout@v3
