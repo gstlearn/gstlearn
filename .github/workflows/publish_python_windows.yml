@@ -62,8 +62,14 @@ jobs:
         architecture: ${{matrix.arch.ar}}
 
     - name: Install dependencies
+      if: ${{ matrix.arch.pl == 'win_amd64' }}
       run: |
         vcpkg install boost-math eigen3
+
+    - name: Install dependencies
+      if: ${{ matrix.arch.pl == 'win32' }}
+      run: |
+        vcpkg install boost-math:x86-windows eigen3:x86-windows
 
     - name: Install Python dependencies
       # Force specific old version for Numpy
