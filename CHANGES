@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.2.3
+=============
+- Fix windows python package
+
 Release 1.2.2
 =============
 - R 4.4.0 support
