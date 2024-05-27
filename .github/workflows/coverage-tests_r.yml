@@ -23,6 +23,8 @@ jobs:
         exclude:
           - os: macos-12
             r_version: 4.3.3
+          - os: macos-12
+            r_version: 4.4.0
           - os: macos-14
             r_version: 4.0.5
           - os: windows-2022
