@@ -1061,7 +1061,7 @@ def matrix_toTL(self):
   	NF_T = self.getMatrixToTriplet()
   	return Triplet_toTL(NF_T)
   else:
-    return np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
+    return np.array(self.getValues(False)).reshape(self.getNRows(),self.getNCols())
   return
 
 setattr(gl.MatrixRectangular, "toTL", matrix_toTL)

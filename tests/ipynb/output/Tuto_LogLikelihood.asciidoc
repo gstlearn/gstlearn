@@ -1,0 +1,231 @@
+#NO_DIFF#XXX
+----<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Nugget Effect
+- Sill         =      0.100
+Total Sill     =      1.100
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = drift - Locator = NA
+Column = 4 - Name = Simu - Locator = z1----
+
+
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = drift - Locator = NA
+Column = 4 - Name = Simu - Locator = z1----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Nugget Effect
+- Sill         =      0.100
+Total Sill     =      1.100
+
+Drift Part
+----------
+Universality_Condition----
+
+
+#NO_DIFF#XXX
+----array([0.3])----
+
+
+#NO_DIFF#XXX
+----array([0.72774768])----
+
+
+#NO_DIFF#XXX
+----
+Likelihood calculation:
+ - Number of active samples   = 100
+ - Number of variables        = 1
+ - Number of drift conditions = 1
+ Optimal Drift coefficients =  
+      0.728
+ Log-Determinant = -16.939572
+ Quadratic term = 90.846364
+ Log-likelihood = -94.189890
+ ----
+
+
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = f-1 - Locator = f1
+Column = 4 - Name = f-2 - Locator = f2
+Column = 5 - Name = drift - Locator = NA
+Column = 6 - Name = Simu.1 - Locator = z1
+Column = 7 - Name = Simu.2 - Locator = z2----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+XXX
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+No Constraint =  [ 0.59138302  3.04949823  1.96840598 -2.14045187]
+----
+
+
+#NO_DIFF#XXX
+----
+Likelihood calculation:
+ - Number of active samples   = 200
+ - Number of variables        = 2
+ - Number of drift conditions = 4
+ Optimal Drift coefficients =  
+      0.591     3.049     1.968    -2.140
+ Log-Determinant = -338.258519
+ Quadratic term = 484.076013
+ Log-likelihood = -301.854724
+ ----
+
+
+#NO_DIFF#XXX
+XXX
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+a0=0.5 and b0=1.5) =  [ 0.5         3.17779706  1.5        -1.48282494]
+----
+
+
+#NO_DIFF#XXX
+XXX
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+a0=b0 and a1=b1 [0.3618792  3.91448991 0.3618792  3.91448991]
+----
+
+
+#NO_DIFF#XXX
+----
+Likelihood calculation:
+ - Number of active samples   = 200
+ - Number of variables        = 2
+ - Number of drift conditions = 2
+ Optimal Drift coefficients =  
+      0.362     3.914
+ Log-Determinant = -338.258519
+ Quadratic term = 528.711994
+ Log-likelihood = -324.172715
+ ----
+
+
+#NO_DIFF#XXX
+XXX
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+a0 = b0 [0.3618792  3.37171422 0.3618792  0.11506005]
+----
+
+
+#NO_DIFF#XXX
+XXX
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+a0=b0 and a1=1  [ 1.24506848  1.          1.24506848 -5.65188878]
+----

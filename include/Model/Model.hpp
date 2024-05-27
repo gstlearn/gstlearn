@@ -115,6 +115,7 @@ public:
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
   void   setDriftIRF(int order = 0, int nfex = 0);
+  void   setFlagLinked(bool flagLinked);
   void   addDrift(const ADrift* drift);  // TODO: check that the same driftM has not been already defined
   void   setDrifts(const VectorString& driftSymbols);
   void   delDrift(int rank);
@@ -347,8 +348,8 @@ public:
   }
   MatrixRectangular evalCovMatrix(Db* db1,
                                   Db* db2 = nullptr,
-                                  int ivar = 0,
-                                  int jvar = 0,
+                                  int ivar = -1,
+                                  int jvar = -1,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr)
@@ -357,8 +358,8 @@ public:
   }
   MatrixSparse* evalCovMatrixSparse(Db *db1,
                                     Db *db2 = nullptr,
-                                    int ivar0 = 0,
-                                    int jvar0 = 0,
+                                    int ivar0 = -1,
+                                    int jvar0 = -1,
                                     const VectorInt &nbgh1 = VectorInt(),
                                     const VectorInt &nbgh2 = VectorInt(),
                                     const CovCalcMode *mode = nullptr,

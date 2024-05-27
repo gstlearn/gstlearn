@@ -128,7 +128,7 @@ jobs:
         pattern: windows-python-package-*
 
     # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v3
+    - uses: geekyeggo/delete-artifact@v2
       with:
         name: windows-python-package-*
 

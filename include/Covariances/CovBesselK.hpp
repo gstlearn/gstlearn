@@ -37,7 +37,7 @@ public:
   void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
   VectorDouble getMarkovCoeffs() const override;
   double getCorrec() const override { return _correc;}
-  void   computeCorrec(int ndim);
+  void   computeCorrec(int ndim) override;
   void   setCorrec(double val) override { _correc = val;}
   void   computeMarkovCoeffs(int dim) override;
 

@@ -206,8 +206,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Number of variable(s)        = " << getVariableNumber() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
-  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber()
-       << std::endl;
+  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber() << std::endl;
 
   /* Covariance part */
 
@@ -223,6 +222,9 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   {
     sstr << toTitle(1, "Drift Part");
     sstr << _driftList->toString();
+
+    if (isFlagLinked())
+      sstr << "Drifts are linked" << std::endl;
   }
 
   /* Mean Part */
@@ -392,6 +394,12 @@ void Model::setDriftIRF(int order, int nfex)
 {
   if (_driftList != nullptr) delete _driftList;
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
+}
+
+void Model::setFlagLinked(bool flagLinked)
+{
+  if (_driftList == nullptr) return;
+  _driftList->setFlagLinked(flagLinked);
 }
 
 void Model::addDrift(const ADrift *drift)
@@ -2360,11 +2368,6 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     messerr("Cholesky decomposition of Covariance matrix failed");
     return TEST;
   }
-  double logdet = 2. * cov.computeCholeskyLogDeterminant();
-  if (verbose)
-  {
-    message("Log-Determinant = %lf\n", logdet);
-  }
 
   // Extract the matrix of drifts at samples X
   MatrixRectangular X = evalDriftMat(db);
@@ -2381,10 +2384,10 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   MatrixSquareSymmetric* XCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
 
   // Establish the vector of multivariate data
-  VectorDouble D = db->getColumnsByLocator(ELoc::Z, false, true);
+  VectorDouble Z = db->getColumnsByLocator(ELoc::Z, false, true);
 
   // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
-  VectorDouble ZCm1X = Cm1X.prodMatVec(D);
+  VectorDouble ZCm1X = Cm1X.prodVecMat(Z);
   if (XCm1X->computeCholesky())
   {
     messerr("Cholesky decomposition of XCm1X matrix failed");
@@ -2401,14 +2404,39 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     return TEST;
   }
   setBetaHat(beta);
+  delete XCm1X;
 
   if (verbose)
   {
     VH::display("Optimal Drift coefficients = ", beta);
   }
 
-  // Center the data by the drift evaluated using the optimal coefficients
+  // Center the data by the optimal drift: Z = Z - beta * X
+  VH::subtractInPlace(Z, X.prodMatVec(beta));
 
-  delete XCm1X;
-  return TEST;
+  // Calculate Cm1Zc = Cm1 * Z
+  VectorDouble Cm1Zc;
+  if (cov.solveCholesky(Z, Cm1Zc))
+  {
+    messerr("Error when calculating Cm1Zc");
+    return TEST;
+  }
+
+  // Calculate the log-determinant
+  double logdet = cov.computeCholeskyLogDeterminant();
+
+  // Calculate quad = Zt * Cm1Z
+  double quad = VH::innerProduct(Z, Cm1Zc);
+
+  // Derive the log-likelihood
+  double loglike = -0.5 * (logdet + quad + nvar * nech * log(GV_PI));
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Log-Determinant = %lf\n", logdet);
+    message("Quadratic term = %lf\n", quad);
+    message("Log-likelihood = %lf\n", loglike);
+  }
+  return loglike;
 }

@@ -182,7 +182,7 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
       for (int icol = 0; icol < getNCols(); icol++)
       {
         if (!_isPhysicallyPresent(irow, icol)) continue;
-        if (!mustBeDiagCst() && law_uniform(0., 1.) < zeroPercent) continue;
+        if (law_uniform(0., 1.) < zeroPercent) continue;
         cs_entry2(local, irow, icol, law_gaussian());
       }
     _csMatrix = cs_triplet2(local);

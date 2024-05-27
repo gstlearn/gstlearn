@@ -45,9 +45,9 @@ public:
 
   /// Interface for AMatrix
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isDense() const { return true; }
+   bool isDense() const override { return true; }
   /*! Returns if the current matrix is Sparse */
-  virtual bool isSparse() const { return false; }
+   bool isSparse() const override { return false; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -128,9 +128,9 @@ protected:
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
-  /// =========================================================================
-  /// The subsequent methods rely on the specific local storage ('eigenMatrix')
-  /// =========================================================================
+  /// ===================================================================
+  /// The subsequent methods rely on the specific storage (Eigen Library)
+  /// ===================================================================
   void    _recopyLocal(const AMatrixDense &r);
   void    _allocateLocal();
   int     _solveEigen(const VectorDouble &b, VectorDouble &x) const;
@@ -142,43 +142,44 @@ private:
   int     _getMatrixPhysicalSizeEigen() const;
   double& _getValueRefEigen(int irow, int icol);
   void    _setValueEigen(int irow, int icol, double value);
-  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
-  void    _setValueLocal(int irank, double value);
-  double  _getValueLocal(int irank) const;
-  double  _getValueLocal(int irow, int icol) const;
+  void    _updValueEigen(int irow, int icol, const EOperator& oper, double value);
+  void    _setValueEigen(int irank, double value);
+  double  _getValueEigen(int irank) const;
+  double  _getValueEigen(int irow, int icol) const;
 
-  void _setColumnLocal(int icol, const VectorDouble& tab);
-  void _setRowLocal(int irow, const VectorDouble& tab);
-  void _setDiagonalLocal(const VectorDouble& tab);
-  void _setDiagonalToConstantLocal(double value = 1.);
-  void _addScalarLocal(double v);
-  void _addScalarDiagLocal(double v);
-  void _prodScalarLocal(double v);
-  void _addMatInPlaceLocal(const AMatrixDense& y, double cx = 1., double cy = 1.);
-  void _prodMatMatInPlaceLocal(const AMatrixDense *x,
+  void _setColumnEigen(int icol, const VectorDouble& tab);
+  void _setRowEigen(int irow, const VectorDouble& tab);
+  void _setDiagonalEigen(const VectorDouble& tab);
+  void _setDiagonalToConstantEigen(double value = 1.);
+  void _addScalarEigen(double v);
+  void _addScalarDiagonalEigen(double v);
+  void _prodScalarEigen(double v);
+  void _addMatInPlaceEigen(const AMatrixDense& y, double cx = 1., double cy = 1.);
+  void _prodMatMatInPlaceEigen(const AMatrixDense *x,
                                const AMatrixDense *y,
                                bool transposeX = false,
                                bool transposeY = false);
-  void _prodNormMatMatInPlaceLocal(const AMatrixDense& a, const AMatrixDense& m, bool transpose = false);
-  void _prodNormMatInPlaceLocal(const AMatrixDense &a,
+  void _prodNormMatMatInPlaceEigen(const AMatrixDense& a, const AMatrixDense& m, bool transpose = false);
+  void _prodNormMatInPlaceEigen(const AMatrixDense &a,
                                 const VectorDouble &vec = VectorDouble(),
                                 bool transpose = false);
-  void _fillLocal(double value);
-  void _multiplyRowLocal(const VectorDouble& vec);
-  void _multiplyColumnLocal(const VectorDouble& vec);
-  void _divideRowLocal(const VectorDouble& vec);
-  void _divideColumnLocal(const VectorDouble& vec);
-  VectorDouble _prodMatVecLocal(const VectorDouble& x, bool transpose = false) const;
-  VectorDouble _prodVecMatLocal(const VectorDouble& x, bool transpose = false) const;
-  VectorDouble _getRowLocal(int irow) const;
-  VectorDouble _getColumnLocal(int icol) const;
+  void _fillEigen(double value);
+  void _multiplyRowEigen(const VectorDouble& vec);
+  void _multiplyColumnEigen(const VectorDouble& vec);
+  void _divideRowEigen(const VectorDouble& vec);
+  void _divideColumnEigen(const VectorDouble& vec);
+  VectorDouble _prodMatVecEigen(const VectorDouble& x, bool transpose = false) const;
+  VectorDouble _prodVecMatEigen(const VectorDouble& x, bool transpose = false) const;
+  VectorDouble _getRowEigen(int irow) const;
+  VectorDouble _getColumnEigen(int icol) const;
 
-  int _computeEigenLocal(bool optionPositive = true);
-  int _computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b, bool optionPositive = true);
+  int _computeEigenEigen(bool optionPositive = true);
+  int _computeGeneralizedEigenEigen(const MatrixSquareSymmetric &b,
+                                    bool optionPositive = true);
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble         _eigenValues; // only when ! flag_eigen()
+  VectorDouble         _eigenValues;  // only when ! flag_eigen()
   MatrixSquareGeneral* _eigenVectors; // only when ! flag_eigen()
 
 protected:

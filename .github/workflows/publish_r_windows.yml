@@ -55,7 +55,7 @@ jobs:
     - name: Install dependencies
       run: |
         vcpkg install boost-math eigen3
-        
+
     - name: Install Doxygen under windows
       uses: fabien-ors/install-doxygen-windows-action@v1
       with:
