@@ -71,7 +71,7 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
                              bool transposeX,
                              bool transposeY)
 {
-  T* res = new T(); /// TODO : if MatrixSparse => x or y eigen flag is ignored
+  T* res = new T(); /// TODO : if MatrixSparse => x or y 'eigen flag' is ignored
 
   int nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
   int nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
@@ -84,7 +84,7 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
     return res;
   }
 
-  res->AMatrix::resetFromValue(nxrows, nycols, 0.); // TODO: Could fill a MatrixSparse!!
+  res->reset(nxrows, nycols);
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

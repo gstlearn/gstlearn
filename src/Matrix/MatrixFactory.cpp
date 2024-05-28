@@ -50,20 +50,20 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
   {
     // Case of a resulting Sparse matrix
 
-    res = new MatrixSparse(mxsparse->isFlagEigen());
+    res = new MatrixSparse(mxsparse->isFlagEigen() ? 1 : 0);
   }
   else
   {
 
     // Case of a resulting Dense matrix
 
+    const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+    const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+
     if (x->getNRows() == y->getNCols())
     {
 
       // Case of a resulting Square matrix
-
-      const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-      const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
       if (mxsym != nullptr || mysym != nullptr)
       {
@@ -89,7 +89,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
     }
   }
 
-  res->resetFromValue(x->getNRows(), y->getNCols(), 0.); // TODO: Will fail if res is MatrixSparse
+  res->reset(x->getNRows(), y->getNCols());
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;
