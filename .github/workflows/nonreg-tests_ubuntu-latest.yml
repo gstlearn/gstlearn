@@ -82,7 +82,7 @@ jobs:
         find . -type f -name "*.out" -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-nonreg-logs
@@ -96,7 +96,7 @@ jobs:
         mv ubuntu-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-neutral-files

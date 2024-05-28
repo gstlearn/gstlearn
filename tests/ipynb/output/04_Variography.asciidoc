@@ -349,22 +349,22 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Cubic
-- Sill         =      0.469
-- Ranges       =  22549.621    43.241
-- Angles       =    163.441     0.000
+- Sill         =      0.470
+- Ranges       =  19117.739    43.250
+- Angles       =    163.437     0.000
 - Rotation Matrix
                [,  0]    [,  1]
      [  0,]     0.959     0.285
      [  1,]    -0.285     0.959
 Spherical
-- Sill         =     26.462
-- Ranges       =  31251.070  5262.653
-- Angles       =     82.755     0.000
+- Sill         =     53.699
+- Ranges       =  63730.642 10684.461
+- Angles       =     82.745     0.000
 - Rotation Matrix
                [,  0]    [,  1]
      [  0,]    -0.126     0.992
      [  1,]    -0.992    -0.126
-Total Sill     =     26.931
+Total Sill     =     54.168
 Known Mean(s)     0.000----
 
 
