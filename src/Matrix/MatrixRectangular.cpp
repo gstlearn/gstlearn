@@ -16,26 +16,19 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 
-MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
-    : AMatrixDense(nrows, ncols, opt_eigen),
-      _rectMatrix()
+MatrixRectangular::MatrixRectangular(int nrows, int ncols)
+  : AMatrixDense(nrows, ncols)
 {
 }
 
 MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
-  : AMatrixDense(r),
-    _rectMatrix()
+  : AMatrixDense(r)
 {
-  _recopy(r);
 }
 
 MatrixRectangular::MatrixRectangular(const AMatrix &m)
-    : AMatrixDense(m),
-      _rectMatrix()
+  : AMatrixDense(m)
 {
-  const MatrixRectangular* matrixLoc = dynamic_cast<const MatrixRectangular*>(&m);
-  if (matrixLoc != nullptr)
-    _recopy(*matrixLoc);
 }
 
 MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
@@ -43,7 +36,6 @@ MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
   if (this != &r)
   {
     AMatrixDense::operator=(r);
-    _recopy(r);
   }
   return *this;
 }
@@ -56,17 +48,16 @@ MatrixRectangular::~MatrixRectangular()
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param  X Input VectorVectorDouble argument
- * @param opt_eigen Option for use of Eigen Library
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
+MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
 
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, opt_eigen);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
   mat->_fillFromVVD(X);
   return mat;
 }
@@ -75,7 +66,6 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
                                                    int nrow,
                                                    int ncol,
                                                    bool byCol,
-                                                   int opt_eigen,
                                                    bool invertColumnOrder)
 {
   if (nrow * ncol != (int) X.size())
@@ -83,7 +73,7 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
     messerr("and the dimension of the input Vector (%d)", (int) X.size());
   }
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, opt_eigen);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
 
   int lec = 0;
   if (byCol)
@@ -105,127 +95,6 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
       }
   }
   return mat;
-}
-
-double MatrixRectangular::_getValueByRank_(int irank) const
-{
-  return _rectMatrix[irank];
-}
-
-void MatrixRectangular::_setValueByRank_(int irank, double value)
-{
-  _rectMatrix[irank] = value;
-}
-
-void MatrixRectangular::_prodMatVecInPlacePtr_(const double *x, double *y, bool transpose) const
-{
-  if (! transpose)
-    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
-  else
-    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
-}
-
-void MatrixRectangular::_prodVecMatInPlacePtr_(const double *x, double *y, bool transpose) const
-{
-  if (! transpose)
-    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
-  else
-    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
-}
-
-void MatrixRectangular::_transposeInPlace_()
-{
-  VectorDouble old(getNRows() * getNCols());
-  matrix_transpose(getNRows(), getNCols(), _rectMatrix, old);
-  _rectMatrix = old;
-  int temp = getNCols();
-  _setNCols(getNRows());
-  _setNRows(temp);
-}
-
-void MatrixRectangular::_allocate_()
-{
-  _rectMatrix.resize(_getMatrixPhysicalSize_(),0.);
-  fill(0.);
-}
-
-int MatrixRectangular::_getIndexToRank_(int irow, int icol) const
-{
-  return (icol * getNRows() + irow);
-}
-
-int MatrixRectangular::_invert()
-{
-  my_throw("Invert method is limited to Square matrices");
-  return 0;
-}
-
-int MatrixRectangular::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
-{
-  my_throw("Invert method is limited to Square Symmetrical Matrices");
-  return 0;
-}
-
-void MatrixRectangular::addRow(int nrow_added)
-{
-  int nrows = getNRows();
-  int ncols = getNCols();
-
-  AMatrix* statsSave = this->clone();
-  reset(nrows+nrow_added, ncols);
-  for (int irow=0; irow< nrows; irow++)
-    for (int icol=0; icol<ncols; icol++)
-      setValue(irow, icol, statsSave->getValue(irow, icol));
-}
-
-void MatrixRectangular::addColumn(int ncolumn_added)
-{
-  int nrows = getNRows();
-  int ncols = getNCols();
-
-  AMatrix* statsSave = this->clone();
-  reset(nrows, ncols+ncolumn_added);
-  for (int irow=0; irow< nrows; irow++)
-    for (int icol=0; icol<ncols; icol++)
-      setValue(irow, icol, statsSave->getValue(irow, icol));
-}
-
-int MatrixRectangular::_getMatrixPhysicalSize_() const
-{
-  return getNRows() * getNCols();
-}
-
-double& MatrixRectangular::_getValueRef_(int irow, int icol)
-{
-  int rank = _getIndexToRank_(irow,icol);
-  return _rectMatrix[rank];
-}
-
-/// ========================================================================
-/// The subsequent methods rely on the specific local storage ('rectMatrix')
-/// ========================================================================
-
-void MatrixRectangular::_recopy(const MatrixRectangular& r)
-{
-  _rectMatrix = r._rectMatrix;
-}
-
-double MatrixRectangular::_getValue(int irow, int icol) const
-{
-  int rank = _getIndexToRank_(irow,icol);
-  return _rectMatrix[rank];
-}
-
-void MatrixRectangular::_setValue(int irow, int icol, double value)
-{
-  int rank = _getIndexToRank_(irow, icol);
-  _rectMatrix[rank] = value;
-}
-
-void MatrixRectangular::_updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  int rank = _getIndexToRank_(irow, icol);
-  _rectMatrix[rank] = modifyOperator(oper, _rectMatrix[rank], value);
 }
 
 MatrixRectangular* MatrixRectangular::glue(const AMatrix *A1,
@@ -256,4 +125,28 @@ MatrixRectangular* MatrixRectangular::glue(const AMatrix *A1,
       mat->setValue(irow + shiftRow, icol + shiftCol, A2->getValue(irow, icol));
 
   return mat;
+}
+
+void MatrixRectangular::addRow(int nrow_added)
+{
+  int nrows = getNRows();
+  int ncols = getNCols();
+
+  AMatrix* statsSave = this->clone();
+  reset(nrows+nrow_added, ncols);
+  for (int irow=0; irow< nrows; irow++)
+    for (int icol=0; icol<ncols; icol++)
+      setValue(irow, icol, statsSave->getValue(irow, icol));
+}
+
+void MatrixRectangular::addColumn(int ncolumn_added)
+{
+  int nrows = getNRows();
+  int ncols = getNCols();
+
+  AMatrix* statsSave = this->clone();
+  reset(nrows, ncols+ncolumn_added);
+  for (int irow=0; irow< nrows; irow++)
+    for (int icol=0; icol<ncols; icol++)
+      setValue(irow, icol, statsSave->getValue(irow, icol));
 }

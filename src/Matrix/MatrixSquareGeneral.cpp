@@ -19,26 +19,25 @@
 #define B(i,j)         b[SQ(i,j,neq)]
 #define C(i,j)         c[SQ(i,j,neqm1)]
 
-MatrixSquareGeneral::MatrixSquareGeneral(int nrow, int opt_eigen)
-  : AMatrixSquare(nrow, opt_eigen)
-  , _squareMatrix()
+MatrixSquareGeneral::MatrixSquareGeneral(int nrow)
+  : AMatrixSquare(nrow)
 {
 }
 
 MatrixSquareGeneral::MatrixSquareGeneral(const MatrixSquareGeneral &r) 
-  : AMatrixSquare(r),
-    _squareMatrix()
+  : AMatrixSquare(r)
 {
-  _recopy(r);
 }
 
 MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
-  : AMatrixSquare(m),
-    _squareMatrix()
+  : AMatrixSquare(m)
 {
-  const MatrixSquareGeneral* matrixLoc = dynamic_cast<const MatrixSquareGeneral*>(&m);
-  if (matrixLoc != nullptr)
-    _recopy(*matrixLoc);
+  if (!m.isSquare())
+  {
+    messerr("The input matrix should be Square");
+    _clear();
+    return;
+  }
 }
 
 MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &r)
@@ -46,7 +45,6 @@ MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &
   if (this != &r)
   {
     AMatrixSquare::operator=(r);
-    _recopy(r);
   }
   return *this;
 }
@@ -64,7 +62,7 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
+MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
@@ -74,7 +72,7 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble
     return nullptr;
   }
 
-  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow, opt_eigen);
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }
@@ -82,7 +80,6 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble
 MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
                                                        int nrow,
                                                        bool byCol,
-                                                       int opt_eigen,
                                                        bool invertColumnOrder)
 {
   int ncol = nrow;
@@ -91,7 +88,7 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
     messerr("and the dimension of the input Vector (%d)", (int) X.size());
   }
-  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow, opt_eigen);
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow);
 
   int lec = 0;
   if (byCol)
@@ -115,127 +112,12 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-double MatrixSquareGeneral::_getValueByRank_(int irank) const
-{
-  return _squareMatrix[irank];
-}
-
-double& MatrixSquareGeneral::_getValueRef_(int irow, int icol)
-{
-  int rank = _getIndexToRank_(irow,icol);
-  return _squareMatrix[rank];
-}
-
-void MatrixSquareGeneral::_setValueByRank_(int irank, double value)
-{
-  _squareMatrix[irank] = value;
-}
-
-/**
- * Returns 'y' = 'this' %*% 'x'
- * @param x  Input Vector
- * @param y Output Vector
- * @param transpose True if the matrix 'this' must be transposed
- */
-void MatrixSquareGeneral::_prodMatVecInPlacePtr_(const double *x, double *y, bool transpose) const
-{
-  if (transpose)
-    matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
-  else
-    matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), x, y);
-}
-
-/**
- * Returns 'y' = 'this' %*% 'x'
- * @param x  Input Vector
- * @param y Output Vector
- * @param transpose True if the matrix 'this' must be transposed
- */
-void MatrixSquareGeneral::_prodVecMatInPlacePtr_(const double *x, double *y, bool transpose) const
-{
-  if (transpose)
-    matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), x, y);
-  else
-    matrix_product_safe(1, getNRows(), getNCols(), x, _squareMatrix.data(), y);
-}
-
-void MatrixSquareGeneral::_transposeInPlace_()
-{
-  int nrow = getNRows();
-  int ncol = getNCols();
-  VectorDouble old = _squareMatrix;
-  matrix_transpose(nrow, ncol, _squareMatrix, old);
-  _squareMatrix = old;
-  _setNCols(nrow);
-  _setNRows(ncol);
-}
-
-int MatrixSquareGeneral::_invert()
-{
-  if (isFlagEigen())
-    return AMatrixDense::_invert();
-  else
-  {
-    if (getNRows() <= 3)
-      return _matrix_invreal(_squareMatrix, getNRows());
-    else
-    {
-      int error = _invertLU();
-      return error;
-    }
-  }
-}
-
-void MatrixSquareGeneral::_allocate_()
-{
-  _squareMatrix.resize(_getMatrixPhysicalSize_());
-  fill(0.);
-}
-
-int MatrixSquareGeneral::_getMatrixPhysicalSize_() const
-{
-  return(getNRows() * getNRows());
-}
-
-int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
-{
-  my_throw("Invert method is limited to Square Symmetrical Matrices");
-  return 0;
-}
-
-/// ==========================================================================
-/// The subsequent methods rely on the specific local storage ('squareMatrix')
-/// ==========================================================================
-
-void MatrixSquareGeneral::_recopy(const MatrixSquareGeneral &r)
-{
-  _squareMatrix = r._squareMatrix;
-}
-
-double MatrixSquareGeneral::_getValue(int irow, int icol) const
-{
-  int rank = _getIndexToRank_(irow, icol);
-  return _squareMatrix[rank];
-}
-
-void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
-{
-  int rank = _getIndexToRank_(irow, icol);
-  _squareMatrix[rank] = value;
-}
-
-void MatrixSquareGeneral::_updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  int rank = _getIndexToRank_(irow, icol);
-  _squareMatrix[rank] = modifyOperator(oper, _squareMatrix[rank], value);
-}
-
 MatrixSquareGeneral* prodNormMatMat(const AMatrixDense &a,
                                     const AMatrixDense &m,
                                     bool transpose)
 {
   int nrow = (transpose) ? a.getNCols() : a.getNRows();
-  MatrixSquareGeneral *mat = new MatrixSquareGeneral(nrow, a.isFlagEigen());
+  MatrixSquareGeneral *mat = new MatrixSquareGeneral(nrow);
   mat->prodNormMatMatInPlace(a, m, transpose);
   return mat;
 }
@@ -243,7 +125,7 @@ MatrixSquareGeneral* prodNormMatMat(const AMatrixDense &a,
 MatrixSquareGeneral* prodNormMat(const AMatrixDense &a, const VectorDouble& vec, bool transpose)
 {
   int nsym = (transpose) ? a.getNCols() : a.getNRows();
-  MatrixSquareGeneral *mat = new MatrixSquareGeneral(nsym, a.isFlagEigen());
+  MatrixSquareGeneral *mat = new MatrixSquareGeneral(nsym);
   mat->prodNormMatInPlace(a, vec, transpose);
   return mat;
 }

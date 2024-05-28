@@ -54,7 +54,7 @@ AMesh::~AMesh()
 }
 
 int AMesh::_setExtend(const VectorDouble extendmin,
-                     const VectorDouble extendmax)
+                      const VectorDouble extendmax)
 {
   _extendMin = extendmin;
   _extendMax = extendmax;

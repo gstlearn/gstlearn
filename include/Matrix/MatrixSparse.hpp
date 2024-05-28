@@ -31,13 +31,17 @@ class EOperator;
 
 /**
  * Sparse Matrix
+ * 
+ * Handle a sparse matrix that can be symmetrical, square or not.
+ * Storage relies either on Eigen3 Library (see opt_eigen flag) or cs code.
+ * Default storage option can be set globally by using setGlobalFlagEigen
  */
 class GSTLEARN_EXPORT MatrixSparse : public AMatrix {
 
 public:
-  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen=-1);
+  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen = -1);
 #ifndef SWIG
-  MatrixSparse(const cs* A, int opt_eigen = -1);
+  MatrixSparse(const cs* A);
 #endif
   MatrixSparse(const MatrixSparse &m);
   MatrixSparse& operator= (const MatrixSparse &m);
@@ -49,6 +53,7 @@ public:
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
 
+  bool isFlagEigen() const { return _flagEigen; }
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
@@ -117,15 +122,16 @@ public:
                                  const MatrixSparse *y,
                                  double cx = 1.,
                                  double cy = 1.);
-  static MatrixSparse* diagVec(const VectorDouble& vec, int opt_eigen = -1);
-  static MatrixSparse* diagConstant(int number, double value = 1., int opt_eigen = -1);
-  static MatrixSparse* diagMat(MatrixSparse *A, int oper_choice, int opt_eigen = -1);
+  static MatrixSparse* diagVec(const VectorDouble& vec,
+                               int opt_eigen = -1);
+  static MatrixSparse* diagConstant(int number, double value = 1.,
+                                    int opt_eigen = -1);
+  static MatrixSparse* diagMat(MatrixSparse *A, int oper_choice,
+                                    int opt_eigen = -1);
   static MatrixSparse* glue(const MatrixSparse *A1,
                             const MatrixSparse *A2,
                             bool flagShiftRow,
                             bool flagShiftCol);
-
-  void init(int nrows, int ncols);
 
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
   /// rather than manipulating AMatrix. They are no more generic of AMatrix
@@ -149,14 +155,11 @@ public:
   cs* getCSUnprotected() const;
 #endif
 
-  void reset(int nrows, int ncols);
-  void reset(int nrows, int ncols, double value);
-  void reset(int nrows, int ncols, const double* tab, bool byCol = true);
-  void reset(int nrows,
-             int ncols,
-             const VectorDouble &tab,
-             bool byCol = true);
-  void reset(const VectorVectorDouble& tab, bool byCol = true);
+  //virtual void reset(int nrows, int ncols) override; // Use base class method
+  virtual void resetFromValue(int nrows, int ncols, double value) override;
+  virtual void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true) override;
+  virtual void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true) override;
+  virtual void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
 
   void resetFromTriplet(const NF_Triplet& NF_T);
 
@@ -196,14 +199,9 @@ public:
 
 protected:
   /// Interface for AMatrix
-  bool    _isPhysicallyPresent(int irow, int icol) const override { DECLARE_UNUSED(irow, icol); return true; }
-  bool    _isCompatible(const AMatrix& m) const override
-  {
-    DECLARE_UNUSED(m);
-    return (m.isSparse());
-  }
-  void    _allocate() override;
-  void    _deallocate() override;
+          bool    _isPhysicallyPresent(int irow, int icol) const override { DECLARE_UNUSED(irow, icol); return true; }
+  virtual void    _allocate() override;
+  virtual void    _deallocate() override;
 
   virtual double& _getValueRef(int irow, int icol) override;
   virtual int     _getMatrixPhysicalSize() const override;
@@ -221,11 +219,8 @@ protected:
   void _clear();
   bool _isElementPresent(int irow, int icol) const;
 
-#ifndef SWIG
-  String _toMatrixLocal(const String& title, bool flagOverride);
-#endif
-
 private:
+  bool _defineFlagEigen(int opt_eigen) const;
   void _forbiddenForSparse(const String& func) const;
   int _eigen_findColor(int imesh,
                        int ncolor,
@@ -234,14 +229,15 @@ private:
 
 private:
 #ifndef SWIG
-  cs*  _csMatrix; // Classical storage for Sparse matrix
+  cs* _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 #endif
   Cholesky* _factor; // Cholesky decomposition
+  bool _flagEigen;
 };
 
 /*! Transform any matrix into a Sparse format */
-GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat);
+GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat, int opt_eigen = -1);
 GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
 
@@ -257,3 +253,8 @@ GSTLEARN_EXPORT MatrixSparse* prodNormMat(const MatrixSparse& a,
 GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse& a,
                                               const VectorDouble& vec,
                                               int oper_choice = 1);
+
+
+/// Manage global flag for EIGEN
+GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
+GSTLEARN_EXPORT bool isGlobalFlagEigen();

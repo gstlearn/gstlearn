@@ -2384,7 +2384,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
       local_mean.resize(nfeq, 0.);
     if (local_cov.empty())
     {
-      local_cov.reset(nfeq, nfeq, 0.);
+      local_cov.resetFromValue(nfeq, nfeq, 0.);
       for (int i = 0; i < nfeq; i++)
         local_cov.setValue(i,i, 1.);
     }

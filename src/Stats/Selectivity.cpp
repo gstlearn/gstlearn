@@ -63,7 +63,7 @@ Selectivity::Selectivity(const VectorDouble &zcuts,
       _rankQT(),
       _flagOnlyZDefined(false)
 {
-  _stats.init(getNCuts(), NCOLS);
+  _stats.reset(getNCuts(), NCOLS);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
@@ -152,7 +152,7 @@ Selectivity* Selectivity::createByKeys(const VectorString& keys,
 void Selectivity::resetCuts(const VectorDouble& zcuts)
 {
   _Zcut = zcuts;
-  _stats.init(getNCuts(), NCOLS);
+  _stats.reset(getNCuts(), NCOLS);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }

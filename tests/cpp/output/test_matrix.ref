@@ -1,7 +1,6 @@
 Checking the inverse generalized matrix
 - Number of rows    = 4
 - Number of columns = 4
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]
      [  0,]     2.000     1.000     0.000     0.000
      [  1,]     1.000     4.000     0.000     0.000
@@ -10,7 +9,6 @@ Checking the inverse generalized matrix
 Generalized Inverse
 - Number of rows    = 4
 - Number of columns = 4
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]
      [  0,]     0.571    -0.143     0.000     0.000
      [  1,]    -0.143     0.286     0.000     0.000
@@ -36,20 +34,17 @@ Initial value of mati(1,2) = 6
 Cloning Matrix of doubles
 - Number of rows    = 2
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]     1.000     3.000     5.000
      [  1,]     2.000     4.000     6.000
 - Number of rows    = 2
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]     1.000     3.000     5.000
      [  1,]     2.000     4.000     6.000
 Matrix MR
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.000     0.000     1.917     0.107     0.000     0.000     1.193
      [  1,]    -0.083    -1.060     1.471    -0.389     0.966     0.000     0.000
@@ -62,7 +57,6 @@ Initial value of M(1,2) = 1.471107
 Modifying it to new value = 111.111000
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.000     0.000     1.917     0.107     0.000     0.000     1.193
      [  1,]    -0.083    -1.060   111.111    -0.389     0.966     0.000     0.000
@@ -74,7 +68,6 @@ Modifying it to new value = 111.111000
 Resetting to initial value
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.000     0.000     1.917     0.107     0.000     0.000     1.193
      [  1,]    -0.083    -1.060     1.471    -0.389     0.966     0.000     0.000
@@ -85,7 +78,6 @@ Resetting to initial value
      [  6,]    -0.277     0.402     0.000     0.000     0.000     1.061     0.000
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.000    -0.083    -0.091     0.000     0.000     0.222    -0.277
      [  1,]     0.000    -1.060     1.339     0.984     0.000     0.000     0.402
@@ -97,7 +89,6 @@ Resetting to initial value
 Matrix M (should be symmetric). Checking = 1
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -109,7 +100,6 @@ Matrix M (should be symmetric). Checking = 1
 Matrix MRR
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -121,7 +111,6 @@ Matrix MRR
 Matrix MSG
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -133,7 +122,6 @@ Matrix MSG
 Matrix MSS
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -145,7 +133,6 @@ Matrix MSS
 Matrix MSP
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009         .
@@ -162,7 +149,6 @@ Adding a constant value to the diagonal of a matrix
 Reference MRR (before addition)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -174,7 +160,6 @@ Reference MRR (before addition)
 Reference MRR (after addition)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.573    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     5.480    -1.184    -1.113    -0.340     0.427     0.000
@@ -192,7 +177,6 @@ Multiplying a Matrix by a constant
 Reference MRR (before multiplication)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -204,7 +188,6 @@ Reference MRR (before multiplication)
 Reference MRR (after multiplication)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.452    -0.465    -0.392     0.345    -1.050     0.027     0.000
      [  1,]    -0.465    12.953    -3.788    -3.561    -1.089     1.365     0.000
@@ -222,7 +205,6 @@ Adding a constant value to the whole matrix
 Reference MRR (before addition)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -234,7 +216,6 @@ Reference MRR (before addition)
 Reference MRR (after addition)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.573     1.287     1.310     1.540     1.104     1.441     1.432
      [  1,]     1.287     5.480     0.248     0.319     1.092     1.859     1.432
@@ -251,7 +232,6 @@ Linear combination of matrices
 Reference MRR (before linear combination)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -263,7 +243,6 @@ Reference MRR (before linear combination)
 Reference MRR (after linear combination)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.113    -0.116    -0.098     0.086    -0.262     0.007     0.000
      [  1,]    -0.116     3.238    -0.947    -0.890    -0.272     0.341     0.000
@@ -281,7 +260,6 @@ Extracting Vectors from Matrix
 MRR and MSP matrices are used as Reference
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -316,7 +294,6 @@ Product of the matrix by a vector
 Reference Matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -339,7 +316,6 @@ Solve X from A*X=B. Compute A*X and compare with B
 Reference Matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -361,7 +337,6 @@ Calculate B=A^{-1}. Compute A*B and compare to Identity
 Reference Matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -373,7 +348,6 @@ Reference Matrix
 Inverse Matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    50.845     4.979    -3.166    11.416    21.787     8.466     2.835
      [  1,]     4.979     1.000     0.085     1.598     2.212     0.721    -0.365
@@ -391,7 +365,6 @@ Setting various Elements to known values
 Reference Square matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -403,7 +376,6 @@ Reference Square matrix
 Setting Column (1) to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141     1.000    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     2.000    -1.184    -1.113    -0.340     0.427     0.000
@@ -415,7 +387,6 @@ Setting Column (1) to a vector (sequence from 1 to 7)
 Setting Row (2) to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141     1.000    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     2.000    -1.184    -1.113    -0.340     0.427     0.000
@@ -427,7 +398,6 @@ Setting Row (2) to a vector (sequence from 1 to 7)
 Adding constant 12.000000 to all terms of matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    12.141    13.000    11.878    12.108    11.672    12.009    12.000
      [  1,]    11.855    14.000    10.816    10.887    11.660    12.427    12.000
@@ -439,7 +409,6 @@ Adding constant 12.000000 to all terms of matrix
 Adding constant -23.000000 to diagonal terms of matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]   -10.859    13.000    11.878    12.108    11.672    12.009    12.000
      [  1,]    11.855    -9.000    10.816    10.887    11.660    12.427    12.000
@@ -451,7 +420,6 @@ Adding constant -23.000000 to diagonal terms of matrix
 Product of all terms of matrix by constant 1.200000
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]   -13.031    15.600    14.253    14.530    14.006    14.410    14.400
      [  1,]    14.225   -10.800    12.979    13.064    13.992    14.912    14.400
@@ -463,7 +431,6 @@ Product of all terms of matrix by constant 1.200000
 Adding the matrix to itself
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]   -26.061    31.200    28.506    29.059    28.013    28.821    28.800
      [  1,]    28.451   -21.600    25.959    26.129    27.984    29.824    28.800
@@ -475,7 +442,6 @@ Adding the matrix to itself
 Making the linear combination of the matrix (multiplied by 1.200000) and itself (multiplied by -2.300000)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
      [  1,]   -31.296    23.760   -28.555   -28.742   -30.782   -32.806   -31.680
@@ -487,7 +453,6 @@ Making the linear combination of the matrix (multiplied by 1.200000) and itself 
 Multiplying current matrix column-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -68.640   -94.070  -127.860  -154.071  -190.216  -221.760
      [  1,]   -31.296    47.520   -85.664  -114.968  -153.909  -196.838  -221.760
@@ -499,7 +464,6 @@ Multiplying current matrix column-wise by a vector (sequence)
 Dividing current matrix column-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
      [  1,]   -31.296    23.760   -28.555   -28.742   -30.782   -32.806   -31.680
@@ -511,7 +475,6 @@ Dividing current matrix column-wise by a vector (sequence)
 Multiplying current matrix row-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
      [  1,]   -62.592    47.520   -57.109   -57.484   -61.564   -65.613   -63.360
@@ -523,7 +486,6 @@ Multiplying current matrix row-wise by a vector (sequence)
 Dividing current matrix row-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
      [  1,]   -31.296    23.760   -28.555   -28.742   -30.782   -32.806   -31.680
@@ -547,7 +509,6 @@ Resulting Vector
 Making the product of the matrix by itself
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]  6952.014  5188.360  3647.575  3603.496  3634.700  3944.001  3977.223
      [  1,]  3250.150  8437.570  3869.393  3837.115  3513.971  3676.131  3825.689
@@ -559,7 +520,6 @@ Making the product of the matrix by itself
 Clearing matrix and Setting Diagonal to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.000     0.000     0.000     0.000     0.000     0.000     0.000
      [  1,]     0.000     2.000     0.000     0.000     0.000     0.000     0.000
@@ -571,7 +531,6 @@ Clearing matrix and Setting Diagonal to a vector (sequence from 1 to 7)
 Clearing matrix and Setting Diagonal to -4.000000
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    -4.000     0.000     0.000     0.000     0.000     0.000     0.000
      [  1,]     0.000    -4.000     0.000     0.000     0.000     0.000     0.000
@@ -583,7 +542,6 @@ Clearing matrix and Setting Diagonal to -4.000000
 Reference Sparse matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009         .
@@ -597,7 +555,6 @@ Reference Sparse matrix
 Setting non-zero terms of Column (1) to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141     1.000    -0.122     0.108    -0.328     0.009         .
@@ -611,7 +568,6 @@ Setting non-zero terms of Column (1) to a vector (sequence from 1 to 7)
 Setting non-zero terms of Row (2) to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141     1.000    -0.122     0.108    -0.328     0.009         .
@@ -625,7 +581,6 @@ Setting non-zero terms of Row (2) to a vector (sequence from 1 to 7)
 Adding constant 12.000000 to all non-zero terms of matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    12.141    13.000    11.878    12.108    11.672    12.009         .
@@ -639,7 +594,6 @@ Adding constant 12.000000 to all non-zero terms of matrix
 Adding constant -23.000000 to diagonal non-zero terms of matrix
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]   -10.859    13.000    11.878    12.108    11.672    12.009         .
@@ -653,7 +607,6 @@ Adding constant -23.000000 to diagonal non-zero terms of matrix
 Product of all non-zero terms of matrix by constant 1.200000
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]   -13.031    15.600    14.253    14.530    14.006    14.410         .
@@ -667,7 +620,6 @@ Product of all non-zero terms of matrix by constant 1.200000
 Adding the matrix to itself
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]   -26.061    31.200    28.506    29.059    28.013    28.821         .
@@ -681,7 +633,6 @@ Adding the matrix to itself
 Making the linear combination of the matrix (multiplied by 1.200000) and itself (multiplied by -2.300000)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703         .
@@ -695,7 +646,6 @@ Making the linear combination of the matrix (multiplied by 1.200000) and itself 
 Multiplying current matrix column-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -68.640   -94.070  -127.860  -154.071  -190.216         .
@@ -709,7 +659,6 @@ Multiplying current matrix column-wise by a vector (sequence)
 Dividing current matrix column-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703         .
@@ -723,7 +672,6 @@ Dividing current matrix column-wise by a vector (sequence)
 Multiplying current matrix row-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703         .
@@ -737,7 +685,6 @@ Multiplying current matrix row-wise by a vector (sequence)
 Dividing current matrix row-wise by a vector (sequence)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703         .
@@ -763,7 +710,6 @@ Resulting Vector
 Making the product of the matrix by itself
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]  5948.392  3599.291  1456.456  2575.511  2634.219  1450.304  3583.225
@@ -777,7 +723,6 @@ Making the product of the matrix by itself
 Clearing matrix and Setting Diagonal to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.000         .         .         .         .         .         .
@@ -791,7 +736,6 @@ Clearing matrix and Setting Diagonal to a vector (sequence from 1 to 7)
 Clearing matrix and Setting Diagonal to -4.000000
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    -4.000         .         .         .         .         .         .
@@ -804,21 +748,18 @@ Clearing matrix and Setting Diagonal to -4.000000
 
 - Number of rows    = 3
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]    -1.000     0.000     3.000
      [  1,]    -2.000    -2.000     7.000
      [  2,]    -5.000     0.000    20.000
 - Number of rows    = 3
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]     1.000     0.000     0.000
      [  1,]     2.000     1.000     0.000
      [  2,]     5.000     0.000     1.000
 - Number of rows    = 3
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]    -1.000     0.000     3.000
      [  1,]     0.000    -2.000     1.000
@@ -827,7 +768,6 @@ Clearing matrix and Setting Diagonal to -4.000000
 Checking the product
 - Number of rows    = 3
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]    -1.000     0.000     3.000
      [  1,]    -2.000    -2.000     7.000
@@ -835,7 +775,6 @@ Checking the product
 compared to Initial
 - Number of rows    = 3
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]    -1.000     0.000     3.000
      [  1,]    -2.000    -2.000     7.000
@@ -845,7 +784,6 @@ B
 Inverse (using LU or invreal depending on the dimension)
 - Number of rows    = 3
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]    -4.000     0.000     0.600
      [  1,]     0.500    -0.500     0.100
@@ -855,7 +793,6 @@ Eigen values calculation for Dense matrices
 ===========================================
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -866,7 +803,6 @@ Eigen values calculation for Dense matrices
      [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
 - Number of rows    = 7
 - Number of columns = 7
-  (not using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -879,7 +815,6 @@ Eigen Values (Eigen Library)
      8.218     5.170     4.149     2.061     0.501     0.218     0.015
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    -0.028     0.050    -0.007     0.016    -0.458    -0.141     0.876
      [  1,]    -0.207    -0.592     0.611     0.385     0.183    -0.208     0.087
@@ -892,7 +827,6 @@ Eigen Values (no Eigen Library)
      8.218     5.170     4.149     2.061     0.501     0.218     0.015
 - Number of rows    = 7
 - Number of columns = 7
-  (not using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    -0.028     0.050    -0.007     0.016    -0.458    -0.141     0.876
      [  1,]    -0.207    -0.592     0.611     0.385     0.183    -0.208     0.087
@@ -906,7 +840,6 @@ Cholesky Decomposition for Sparse matrices
 ==========================================
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009         .
@@ -919,7 +852,6 @@ Cholesky Decomposition for Sparse matrices
 
 - Number of rows    = 7
 - Number of columns = 7
-  (not using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009         .
@@ -951,7 +883,6 @@ Cholesky Decomposition for Dense matrices
 Input Square Symmetric Matrix (Dense format)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -974,7 +905,6 @@ Solving a Linear system after Cholesky decomposition (matrix RHS)
 Input Matrix B =
 - Number of rows    = 7
 - Number of columns = 5
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]     2.165     2.165     2.165     2.165     2.165
      [  1,]    -0.502    -0.502    -0.502    -0.502    -0.502
@@ -986,7 +916,6 @@ Input Matrix B =
 Result Matrix X =
 - Number of rows    = 7
 - Number of columns = 5
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]   150.073   150.073   150.073   150.073   150.073
      [  1,]    13.626    13.626    13.626    13.626    13.626
@@ -999,7 +928,6 @@ Is M * X = B: 1
 Product by Diagonal from Vector (Eigen)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.662     0.158     0.069     0.152    -0.969    -0.001         .
@@ -1013,7 +941,6 @@ Product by Diagonal from Vector (Eigen)
 Product by Diagonal from Vector In Place with operation (Eigen)
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     3.104    -0.172    -0.038     0.214    -2.861     0.000         .
@@ -1027,7 +954,6 @@ Product by Diagonal from Vector In Place with operation (Eigen)
 Product by Diagonal from Vector (No Eigen)
 - Number of rows    = 7
 - Number of columns = 7
-  (not using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.662     0.158     0.069     0.152    -0.969    -0.001         .
@@ -1040,7 +966,6 @@ Product by Diagonal from Vector (No Eigen)
 Product by Diagonal from Vector In Place with operation (No Eigen)
 - Number of rows    = 7
 - Number of columns = 7
-  (not using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     3.104    -0.172    -0.038     0.214    -2.861     0.000         .
@@ -1052,7 +977,6 @@ Product by Diagonal from Vector In Place with operation (No Eigen)
      [  6,]         .         .     0.459     0.385    -0.219         .    15.265
 - Number of rows    = 14
 - Number of columns = 14
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     3.104    -0.172    -0.038     0.214    -2.861     0.000         .
@@ -1087,7 +1011,6 @@ Product by Diagonal from Vector In Place with operation (No Eigen)
 
 - Number of rows    = 14
 - Number of columns = 14
-  (not using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     3.104    -0.172    -0.038     0.214    -2.861     0.000         .
@@ -1125,7 +1048,6 @@ Generalized Eigen values calculation for Dense matrices
 Verify the input for Generalized Eigen calculation
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
      [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
@@ -1136,7 +1058,6 @@ Verify the input for Generalized Eigen calculation
      [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     7.553    -1.551    -4.459    -4.082    -1.547     0.357    -0.723
      [  1,]    -1.551     7.683     0.936     7.702     4.596    -0.425     0.938
@@ -1149,7 +1070,6 @@ Generalized Eigen Values (Eigen Library)
     15.533     6.062     0.565     0.175     0.047     0.021     0.002
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.435     0.365     0.166     0.057    -0.193    -0.078     0.329
      [  1,]    -1.020    -0.413     0.227     0.069    -0.042     0.070     0.033
@@ -1162,7 +1082,6 @@ Generalized Eigen Values (no Eigen Library)
     15.533     6.062     0.565     0.175     0.047     0.021     0.002
 - Number of rows    = 7
 - Number of columns = 7
-  (not using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.435     0.365     0.166     0.057    -0.193    -0.078     0.329
      [  1,]    -1.020    -0.413     0.227     0.069    -0.042     0.070     0.033

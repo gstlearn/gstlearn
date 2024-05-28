@@ -41,7 +41,7 @@ class EOperator;
 class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
 public:
-  AMatrixDense(int nrow = 0, int ncol = 0, int opt_eigen=-1);
+  AMatrixDense(int nrow = 0, int ncol = 0);
   AMatrixDense(const AMatrixDense &m);
   AMatrixDense(const AMatrix &m);
   AMatrixDense& operator= (const AMatrixDense &r);
@@ -121,13 +121,11 @@ public:
   const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
 
 protected:
-  virtual void    _setValue(int irow, int icol, double value) = 0;
-  virtual double  _getValue(int irow, int icol) const = 0;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) = 0;
+  virtual void    _allocate() override;
+  virtual void    _deallocate() override;
+
   virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
-  void    _allocate() override;
-  virtual void    _deallocate() override;
   virtual double  _getValueByRank(int rank) const override;
   virtual void    _setValueByRank(int rank, double value) override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
@@ -137,26 +135,8 @@ protected:
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
-  bool            _isNumberValid(int nrows,int ncols) const;
   int             _computeEigen(bool optionPositive = true);
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
-
-  /**
-   * These block of functions are protected must be overloaded by concrete classes
-   */
-  virtual double  _getValueByRank_(int rank) const = 0;
-  virtual void    _setValueByRank_(int irank, double value) = 0;
-  virtual double& _getValueRef_(int irow, int icol) = 0;
-  virtual void    _prodMatVecInPlacePtr_(const double *x, double *y,
-                                         bool transpose = false) const = 0;
-  virtual void    _prodVecMatInPlacePtr_(const double *x,
-                                         double *y,
-                                         bool transpose = false) const = 0;
-  virtual int     _getIndexToRank_(int irow, int icol) const = 0;
-  virtual int     _getMatrixPhysicalSize_() const = 0;
-  virtual void    _allocate_() = 0;
-  virtual void    _deallocate_() {};
-  virtual void    _transposeInPlace_() = 0;
 
 private:
   void _recopy(const AMatrixDense &r);
@@ -167,12 +147,10 @@ private:
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble         _eigenValues;  // only when ! flag_eigen()
-  MatrixSquareGeneral* _eigenVectors; // only when ! flag_eigen()
+  VectorDouble         _eigenValues;  // Used only when ! flag_eigen()
+  MatrixSquareGeneral* _eigenVectors; // Used only when ! flag_eigen()
 
 protected:
-#ifndef SWIG
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
-#endif
 };
 

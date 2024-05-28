@@ -156,7 +156,7 @@ void CovAniso::setSill(double sill)
     messerr("Number of provided sill doesn't match number of variables");
     return;
   }
-  _sill.reset(1, 1, sill);
+  _sill.resetFromValue(1, 1, sill);
 }
 
 void CovAniso::setSill(const MatrixSquareSymmetric &sill)
@@ -853,7 +853,7 @@ void CovAniso::_initFromContext()
 {
   int ndim = getNDim();
   int nvar = getNVariables();
-  _sill.reset(nvar, nvar, 1.);
+  _sill.resetFromValue(nvar, nvar, 1.);
   _aniso.init(ndim);
   _updateFromContext();
 }

@@ -22,10 +22,6 @@ class NF_Triplet;
 class EOperator;
 
 /**
- * Matrix
- */
-
-/**
  * This class is the root of the Matrix organization in gstlearn
  * A matrix is a 2-D organization: it is characterized by its number of rows
  * and its number of columns.
@@ -33,20 +29,24 @@ class EOperator;
  * processed in 'gstlearn' are stored in a Row-major format.
  * This is to say that the internal rank of an element characterized by its row and column numbers is:
  *  (icol * getNRows() + irow)
+ * 
+ * Since gstlearn version v1.3:
+ * - Dense Matrices storage and algebra rely on Eigen3 library only
+ * - Sparse Matrices storage and algebra rely on Eigen3 or cs library (see MatrixSparse.hpp)
  */
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
-  AMatrix(int nrow = 0, int ncol = 0, int opt_eigen = -1);
+  AMatrix(int nrow = 0, int ncol = 0);
   AMatrix(const AMatrix &m);
   AMatrix& operator= (const AMatrix &m);
   virtual ~AMatrix();
 
-  void init(int nrows, int ncols, int opt_eigen = -1);
-  void reset(int nrows, int ncols, double value = 0., int opt_eigen = -1);
-  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true, int opt_eigen = -1);
-  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true, int opt_eigen = -1);
-  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true, int opt_eigen = -1);
+  virtual void reset(int nrows, int ncols);
+  virtual void resetFromValue(int nrows, int ncols, double value);
+  virtual void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true);
+  virtual void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true);
+  virtual void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true);
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -123,7 +123,7 @@ public:
                           const VectorDouble &vec = VectorDouble(),
                           bool transpose = false);
 
-  /*! Modify the dimension of the matrix */
+  /*! Modify the dimension of the matrix (if needed) */
   void resize(int nrows, int ncols);
   /*! Gets the value at row 'irow' and column 'icol' */
   virtual double getValue(int irow, int icol, bool flagCheck=true) const = 0;
@@ -165,8 +165,6 @@ public:
   int getNumberColumnDefined() const;
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
-  /*! Returns if the Matrix is built using Eigen Library or not */
-  bool isFlagEigen() const { return _flagEigen; }
   /*! Check if the matrix does not contain any negative element */
   bool isNonNegative(bool verbose = false);
 
@@ -212,17 +210,15 @@ public:
   double &operator()(int row, int col)       { return _getValueRef(row, col); }
 
 protected:
+  virtual void    _allocate() = 0;
+  virtual void    _deallocate() = 0;
+
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
-  /*! Check that 'm' has correct characteristics to be added (say) to 'this' */
-  virtual bool    _isCompatible(const AMatrix& m) const { return isSameSize(m); }
   virtual double& _getValueRef(int irow, int icol);
   virtual int     _getMatrixPhysicalSize() const;
   virtual void    _setValues(const double* values, bool byCol);
-  virtual void    _clearDecoration() {};
 
-  virtual void    _allocate() {};
-  virtual void    _deallocate() = 0;
   virtual void    _setValueByRank(int rank, double value) = 0;
   virtual double  _getValueByRank(int rank) const = 0;
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
@@ -236,10 +232,11 @@ protected:
                                         bool transpose = false) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
+  virtual void    _clear();
+  virtual bool    _isNumbersValid(int nrows, int ncols) const;
 
   void _setNCols(int ncols) { _nCols = ncols; }
   void _setNRows(int nrows) { _nRows = nrows; }
-  bool _isNumbersValid(int nrows,int ncols) const;
   bool _isColumnValid(int icol) const;
   bool _isRowValid(int irow) const;
   bool _isIndexValid(int irow, int icol) const;
@@ -247,11 +244,9 @@ protected:
   bool _isColVectorConsistent(const VectorDouble& tab);
   bool _isVectorSizeConsistent(int nrows, int ncols, const VectorDouble& tab);
   bool _isRankValid(int rank) const;
-  void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
-  bool _defineFlagEigen(int opt_eigen) const;
 
   bool _checkLink(int nrow1,
                   int ncol1,
@@ -266,15 +261,12 @@ protected:
 private:
   int  _nRows;
   int  _nCols;
-  bool _flagEigen;
   bool _flagCheckAddress;
   double _nullTerm; // Used for returning a null constant address
 #endif
 };
 
 /* Shortcut functions for C style aficionados */
-GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
-GSTLEARN_EXPORT bool isGlobalFlagEigen();
 GSTLEARN_EXPORT void setMultiThread(int nthreads);
 GSTLEARN_EXPORT int  getMultiThread();
 GSTLEARN_EXPORT bool isMultiThread();

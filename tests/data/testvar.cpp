@@ -136,7 +136,6 @@ int main(int argc, char *argv[])
 //  verbose = true;
   // Discard use of Eigen library in order to prevent diffs across platforms
 //  setGlobalFlagEigen(false);
-  mauto.setUseEigenLibrary(false);
   if (model_auto_fit(vario,model,verbose,mauto,constraints,options))
     messageAbort("model_auto_fit");
   model->display();

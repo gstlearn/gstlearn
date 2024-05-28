@@ -487,7 +487,7 @@ bool AGibbs::_isConstraintTight(int icase,
 void AGibbs::_statsInit()
 {
   if (_optionStats == 0) return;
-  _stats.init(_getRowNumberStats(), _getColNumberStats());
+  _stats.reset(_getRowNumberStats(), _getColNumberStats());
 }
 
 /**
