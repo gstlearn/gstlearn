@@ -395,7 +395,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
   else
   {
-    _workingDataInit = _model->evalDriftVarCoefVec(_data,_driftCoeffs,ivar,useSel);
+    _workingDataInit = _model->evalDriftVarCoefs(_data,_driftCoeffs,ivar,useSel);
 
     for(int iech = 0, nech = (int) _workingDataInit.size(); iech<nech; iech++)
     {
@@ -407,7 +407,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
 void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
 {
   if (! _requireCoeffs) return;
-  VectorDouble temp_out = _model->evalDriftVarCoefVec(db, _driftCoeffs, ivar, useSel);
+  VectorDouble temp_out = _model->evalDriftVarCoefs(db, _driftCoeffs, ivar, useSel);
   VH::addInPlace(result, temp_out);
 }
 

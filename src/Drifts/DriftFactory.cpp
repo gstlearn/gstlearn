@@ -177,7 +177,7 @@ DriftList* DriftFactory::createDriftListFromIRF(int order,
       drifts->addDrift(new DriftF(ifex));
   }
 
-  drifts->updateDriftList();
+  drifts->resetDriftList();
   return drifts;
 }
 
@@ -251,7 +251,7 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
   }
 
   // Updating the auxiliary arrays
-  newdrifts->updateDriftList();
+  newdrifts->resetDriftList();
 
   // Defining the coefficients
 

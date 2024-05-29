@@ -4443,7 +4443,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
   for (int iech = iiech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    VectorDouble drfloc = _model->evalDriftVec(db, iech, ECalcMember::LHS);
+    VectorDouble drfloc = _model->evalDriftBySample(db, iech, ECalcMember::LHS);
     double zval = db->getLocVariable(ELoc::Z, iech, 0);
 
     for (int il = 0; il < nbfl; il++)

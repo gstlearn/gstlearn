@@ -4467,7 +4467,7 @@ static double* st_calcul_drfmat(const char *title,
       if (!db1->isActive(ii1)) continue;
     }
 
-    VectorDouble drfloc = model->evalDriftVec(db1, ii1, ECalcMember::LHS);
+    VectorDouble drfloc = model->evalDriftBySample(db1, ii1, ECalcMember::LHS);
     (void) memcpy(&drftab[i1 * nbfl], drfloc.data(), nbfl * sizeof(double));
     i1++;
   }
@@ -5100,7 +5100,7 @@ int inhomogeneous_kriging(Db *dbdat,
     /* Fill the drift at Target point (optional) */
 
     if (driftp != nullptr)
-      model_dat->evalDriftVecInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
+      model_dat->evalDriftBySampleInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
 
     /* Calculate the Kriging weights */
 
@@ -5115,7 +5115,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
       /* Evaluate the drift at Target */
 
-      model_dat->evalDriftVecInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
+      model_dat->evalDriftBySampleInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
 
       /* Update the kriging weights */
 

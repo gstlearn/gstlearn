@@ -893,11 +893,6 @@ const ADrift* Model::getDrift(int il) const
   if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
 }
-ADrift* Model::getDrift(int il)
-{
-  if (_driftList == nullptr) return nullptr;
-  return _driftList->getDrift(il);
-}
 int Model::getDriftNumber() const
 {
   if (_driftList == nullptr) return 0;
@@ -918,16 +913,14 @@ int Model::getRankFext(int il) const
   if (_driftList == nullptr) return ITEST;
   return _driftList->getRankFex(il);
 }
-const VectorDouble& Model::getDriftCLs() const
+bool Model::isDriftSampleDefined(const Db *db,
+                                 int ib,
+                                 int nech,
+                                 const VectorInt &nbgh,
+                                 const ELoc &loctype) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
-  return _driftList->getDriftCL();
-}
-double Model::getDriftCL(int ivar, int il, int ib) const
-{
-  if (_driftList == nullptr) return TEST;
-  return _driftList->getDriftCL(ivar, il, ib);
+  if (_driftList == nullptr) return false;
+  return _driftList->isDriftSampleDefined(db,ib,nech,nbgh,loctype);
 }
 int Model::getDriftEquationNumber() const
 {
@@ -954,16 +947,6 @@ bool Model::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
   if (_driftList == nullptr) return false;
   return _driftList->isDriftDifferentDefined(powers, rank_fex);
 }
-void Model::resetDriftCoef()
-{
-  if (_driftList == nullptr) return;
-  _driftList->resetDriftCL();
-}
-void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
-{
-  if (_driftList == nullptr) return;
-  _driftList->setDriftCL(ivar, il, ib, coeff);
-}
 void Model::setBetaHat(const VectorDouble &betaHat)
 {
   if (_driftList == nullptr) return;
@@ -973,11 +956,6 @@ int Model::getDriftMaxIRFOrder(void) const
 {
   if (_driftList == nullptr) return -1;
   return _driftList->getDriftMaxIRFOrder();
-}
-VectorDouble Model::getDriftByColumn(const Db *db, int ib, bool useSel)
-{
-  if (_driftList == nullptr) return VectorDouble();
-  return _driftList->getDriftByColumn(db, ib, useSel);
 }
 VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
 {
@@ -1002,21 +980,21 @@ double Model::evalDrift(const Db *db,
   return _driftList->evalDrift(db, iech, il, member);
 }
 
-VectorDouble Model::evalDriftVec(const Db *db,
-                                 int iech,
-                                 const ECalcMember &member) const
+VectorDouble Model::evalDriftBySample(const Db *db,
+                                      int iech,
+                                      const ECalcMember &member) const
 {
   if (_driftList == nullptr) return VectorDouble();
-  return _driftList->evalDriftVec(db, iech, member);
+  return _driftList->evalDriftBySample(db, iech, member);
 }
 
-void Model::evalDriftVecInPlace(const Db *db,
-                                int iech,
-                                const ECalcMember &member,
-                                VectorDouble &drftab) const
+void Model::evalDriftBySampleInPlace(const Db *db,
+                                     int iech,
+                                     const ECalcMember &member,
+                                     VectorDouble &drftab) const
 {
   if (_driftList == nullptr) return;
-  _driftList->evalDriftVecInPlace(db, iech, member, drftab);
+  _driftList->evalDriftBySampleInPlace(db, iech, member, drftab);
 }
 
 MatrixRectangular Model::evalDriftMat(const Db *db, const ECalcMember &member) const
@@ -1725,18 +1703,22 @@ bool Model::isFlagGradientFunctional() const
  **
  *****************************************************************************/
 double Model::evalDriftVarCoef(const Db *db,
-                            int iech,
-                            int ivar,
-                            const VectorDouble &coeffs) const
+                               int iech,
+                               int ivar,
+                               const VectorDouble &coeffs) const
 {
-  if (_driftList == nullptr) return TEST;
-  VectorDouble drftab = evalDriftVec(db, iech, ECalcMember::LHS);
-  if (VH::hasUndefined(drftab)) return TEST;
-
-  double drift = 0.;
-  for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
-    drift += evalDriftValue(ivar, ib, drftab) * coeffs[ib];
-  return drift;
+  if (_driftList == nullptr)
+  {
+    double mean = getMean(ivar);
+    return mean;
+  }
+  else
+  {
+    double drift = 0.;
+    for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
+      drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
+    return drift;
+  }
 }
 
 /**
@@ -1746,12 +1728,13 @@ double Model::evalDriftVarCoef(const Db *db,
  * @param ivar   Variable rank (used for constant drift value)
  * @param useSel When TRUE, only non masked samples are returned
  * @return The vector of values
+ *
  * @remark When no drift is defined, a vector is returned filled with the variable mean
  */
-VectorDouble Model::evalDriftVarCoefVec(const Db *db,
-                                     const VectorDouble &coeffs,
-                                     int ivar,
-                                     bool useSel) const
+VectorDouble Model::evalDriftVarCoefs(const Db *db,
+                                      const VectorDouble &coeffs,
+                                      int ivar,
+                                      bool useSel) const
 {
   VectorDouble vec;
   if (_driftList == nullptr && db != nullptr)
@@ -1762,15 +1745,19 @@ VectorDouble Model::evalDriftVarCoefVec(const Db *db,
   }
   else
   {
-    vec = _driftList->evalDriftCoefVec(db, coeffs, useSel);
+    vec = _driftList->evalDriftCoefs(db, coeffs, useSel);
   }
   return vec;
 }
 
-double Model::evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const
+double Model::evalDriftValue(const Db *db,
+                             int iech,
+                             int ivar,
+                             int ib,
+                             const ECalcMember &member) const
 {
   if (_driftList == nullptr) return TEST;
-  return _driftList->evalDriftValue(ivar, ib, drftab);
+  return _driftList->evalDriftValue(db, iech, ivar, ib, member);
 }
 
 VectorECov Model::initCovList(const VectorInt & covranks)
