@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
-#if __linux__ // Not operational under MacOS
+#ifdef __linux__ // Not operational under MacOS
 #include <wordexp.h>
 #endif
 
@@ -241,7 +241,7 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
   String filePath = fileLocal;
 
-#if __linux__ // Not operational under MacOS
+#ifdef __linux__ // Not operational under MacOS
   // Check the presence of tilde character
   wordexp_t p;
   wordexp(fileLocal.c_str(), &p, 0);
@@ -459,7 +459,7 @@ String ASerializable::getExecDirectory()
   char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
     dir = String(buffer);
-#elif __APPLE__
+#elif defined (__APPLE__)
   char buffer[PATH_MAX] = "";
   uint32_t bufsize = PATH_MAX;
   if(!_NSGetExecutablePath(buffer, &bufsize))

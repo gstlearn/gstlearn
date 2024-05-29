@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Basic/VectorT.hpp"
 
 class GSTLEARN_EXPORT CovHelper
 {

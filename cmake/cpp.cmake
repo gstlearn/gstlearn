@@ -22,7 +22,7 @@ if (MSVC)
   add_compile_options(/bigobj /W4 /wd4251 /wd4244) # Except those two warnings
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
-  add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter)
+  add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wundef)
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
   endif()

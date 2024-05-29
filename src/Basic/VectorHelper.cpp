@@ -2082,7 +2082,6 @@ void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout,
  * Transform a vector of double values as follows
  * @param tab  Vector of double values
  * @param oper_choice Operation on the diagonal term (see Utilities::operate_XXX)
- * @return
  */
 void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
 {

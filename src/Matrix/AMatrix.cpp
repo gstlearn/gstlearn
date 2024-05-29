@@ -125,8 +125,6 @@ void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool by
 /**
  * @brief Reset the matrix from an array of double values
  * 
- * @param nrows New number of rows
- * @param ncols New number of columns
  * @param tab The array of values
  * @param byCol True if values are column-major in the array
  */

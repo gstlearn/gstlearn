@@ -12,6 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/VectorNumT.hpp"
+
 class GSTLEARN_EXPORT IOptimCost {
 
 public:

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
 /// TODO : to be kept ?
 
