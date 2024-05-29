@@ -8,6 +8,11 @@ on:
         description: 'Manual'
         required: false
         default: ''
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   call-python-macos:
@@ -31,7 +36,8 @@ jobs:
 
   call-python-publish:
     needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
-    
+    if: ${{inputs.dry_publish == false}}
+
     runs-on: ubuntu-latest
     
     steps:
@@ -49,6 +55,7 @@ jobs:
 
   call-r-publish:
     needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
+    if: ${{inputs.dry_publish == false}}
     
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
