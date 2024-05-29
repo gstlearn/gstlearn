@@ -1,14 +1,6 @@
-name: publish_doxygen
+name: publish_doc
 
 on:
-  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
-  workflow_call:
-    inputs:
-      dry_publish:
-        description: 'Dry publish (no upload)'
-        type: boolean
-        required: false
-        default: true
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -16,17 +8,13 @@ on:
         description: 'Manual'
         required: false
         default: ''
-      dry_publish:
-        description: 'Dry publish (no upload)'
-        type: boolean
-        required: false
-        default: false
+
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-
+  
 jobs:
-  build:
+  get-version:
     runs-on: ubuntu-latest
     container:
       # Corresponding docker file comes from:
@@ -38,33 +26,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Build doxygen documentation and save generated folder name in the environment
+    
+    - name: Get project version
       id: main_step
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF
-        cmake --build ${{env.BUILD_DIR}} --target doxygen
+        cmake -B${{env.BUILD_DIR}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
-        echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v3
-      with:
-        # This will become the folder name in the server
-        name: doxygen
-        path: ${{ env.HTML_FOLDER }}
+  call-data:
+    uses: ./.github/workflows/publish_data.yml
+    secrets: inherit
+  call-references:
+    uses: ./.github/workflows/publish_references.yml
+    secrets: inherit
+  call-doxygen:
+    uses: ./.github/workflows/publish_doxygen.yml
+    secrets: inherit
+  call-courses:
+    uses: ./.github/workflows/publish_courses.yml
+    secrets: inherit
+  call-demos:
+    uses: ./.github/workflows/publish_demos.yml
+    secrets: inherit
 
-  publish:
-    needs: build
-    if: ${{inputs.dry_publish == false}}
+  call-publish:
+    needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
     
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
     
     steps:
       - env:
-            PROJECT_VERSION: ${{needs.build.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v1
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v2
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -74,4 +69,4 @@ jobs:
       # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v2
         with:
-          name: doxygen
+          name: data

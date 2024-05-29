@@ -4,8 +4,8 @@ on:
   # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
   workflow_call:
     inputs:
-      external_call:
-        description: 'To distinguish workflow_call from other events'
+      dry_publish:
+        description: 'Dry publish (no upload)'
         type: boolean
         required: false
         default: true
@@ -16,8 +16,8 @@ on:
         description: 'Manual'
         required: false
         default: ''
-      external_call:
-        description: 'To distinguish workflow_call from other events'
+      dry_publish:
+        description: 'Dry publish (no upload)'
         type: boolean
         required: false
         default: false
@@ -60,7 +60,7 @@ jobs:
     
   publish:
     needs: build
-    if: ${{inputs.external_call == false}}
+    if: ${{inputs.dry_publish == false}}
     
     # Only ubuntu can upload via ssh
     runs-on: ubuntu-latest
