@@ -186,6 +186,25 @@ private:
                     double* szp,
                     double* c0z,
                     double* s0z);
+  void _spreadOnGrid1(int nx,
+                      int ny,
+                      int nz,
+                      double t00,
+                      double dxp,
+                      double dyp,
+                      double dzp,
+                      const VectorBool &activeArray,
+                      VectorDouble& tab);
+  void _spreadOnGridSpectral(int nx,
+                             int ny,
+                             int nz,
+                             int ibs,
+                             int is,
+                             double correc0,
+                             double omega,
+                             double phi,
+                             const VectorBool &activeArray,
+                             VectorDouble &tab);
 
 private:
   int  _nbtuba;

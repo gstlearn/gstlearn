@@ -1282,6 +1282,91 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
     }
 }
 
+void CalcSimuTurningBands::_spreadOnGrid1(int nx,
+                                          int ny,
+                                          int nz,
+                                          double t00,
+                                          double dxp,
+                                          double dyp,
+                                          double dzp,
+                                          const VectorBool &activeArray,
+                                          VectorDouble& tab)
+{
+  double t0y, t0z, t0;
+
+  t0z = t00;
+  int ind = 0;
+  for (int iz = 0; iz < nz; iz++)
+  {
+    t0y = t0z;
+    t0z += dzp;
+    for (int iy = 0; iy < ny; iy++)
+    {
+      t0 = t0y;
+      t0y += dyp;
+      for (int ix = 0; ix < nx; ix++)
+      {
+        if (activeArray[ind])
+        {
+//          int nt0 = _rankInPoisson(nt0, t0, t);
+//          tab[ind] = _irfProcessSample(type, nt0, t0, t, v0, v1, v2);
+        }
+        t0 += dxp;
+
+        ind++;
+      }
+    }
+  }
+}
+
+void CalcSimuTurningBands::_spreadOnGridSpectral(int nx,
+                                                 int ny,
+                                                 int nz,
+                                                 int ibs,
+                                                 int is,
+                                                 double correc0,
+                                                 double omega,
+                                                 double phi,
+                                                 const VectorBool &activeArray,
+                                                 VectorDouble &tab)
+{
+  double c1, s1, c0x, s0x, c0y, s0y, c0z, s0z, cxp, sxp, cyp, syp, czp, szp;
+
+  _getOmegaPhi(ibs, omega, phi,
+               &cxp, &sxp, &cyp, &syp, &czp, &szp, &c0z, &s0z);
+
+  int ind = 0;
+  for (int iz = 0; iz < nz; iz++)
+  {
+    c0y = c0z;
+    s0y = s0z;
+    c1 = c0z * czp - s0z * szp;
+    s1 = s0z * czp + c0z * szp;
+    c0z = c1;
+    s0z = s1;
+    for (int iy = 0; iy < ny; iy++)
+    {
+      c0x = c0y;
+      s0x = s0y;
+      c1 = c0y * cyp - s0y * syp;
+      s1 = s0y * cyp + c0y * syp;
+      c0y = c1;
+      s0y = s1;
+      for (int ix = 0; ix < nx; ix++)
+      {
+        if (activeArray[ind])
+          tab[ind] = c0x - correc0;
+        c1 = c0x * cxp - s0x * sxp;
+        s1 = s0x * cxp + c0x * sxp;
+        c0x = c1;
+        s0x = s1;
+
+        ind++;
+      }
+    }
+  }
+}
+
 /*****************************************************************************/
 /*!
  **  Perform non-conditional simulations on a grid using the
@@ -1299,7 +1384,6 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                                          int shift)
 {
   double vexp, phi, tdeb, omega, dt0, dt, t0, t0y, t0z;
-  double cxp, sxp, cyp, syp, czp, szp, c0x, s0x, c0y, s0y, c0z, s0z, c1, s1;
   int nt0, ind;
   VectorDouble t;
   VectorDouble v0;
@@ -1364,35 +1448,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               {
                 correc = sqrt(2.);
                 _spectral(type, scale, param, &omega, &phi);
-                _getOmegaPhi(ibs, omega, phi,
-                             &cxp, &sxp, &cyp, &syp, &czp, &szp, &c0z, &s0z);
-                ind = 0;
-                for (int iz = 0; iz < nz; iz++)
-                {
-                  c0y = c0z;
-                  s0y = s0z;
-                  c1 = c0z * czp - s0z * szp;
-                  s1 = s0z * czp + c0z * szp;
-                  c0z = c1;
-                  s0z = s1;
-                  for (int iy = 0; iy < ny; iy++)
-                  {
-                    c0x = c0y;
-                    s0x = s0y;
-                    c1 = c0y * cyp - s0y * syp;
-                    s1 = s0y * cyp + c0y * syp;
-                    c0y = c1;
-                    s0y = s1;
-                    for (int ix = 0; ix < nx; ix++, ind++)
-                    {
-                      if (activeArray[ind]) tab[ind] = c0x - correc0;
-                      c1 = c0x * cxp - s0x * sxp;
-                      s1 = s0x * cxp + c0x * sxp;
-                      c0x = c1;
-                      s0x = s1;
-                    }
-                  }
-                }
+                _spreadOnGridSpectral(nx, ny, nz, ibs, is, correc0, omega, phi,
+                                      activeArray, tab);
               }
               else
               {
@@ -1400,8 +1457,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                 scale = _computeScale(param, scale);
                 t = _migration(tmin, tmax, scale);
                 vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-                t0z = t00;
 
+                t0z = t00;
                 nt0 = 0;
                 ind = 0;
                 for (int iz = 0; iz < nz; iz++)
@@ -1431,35 +1488,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               {
                 correc = sqrt(2.);
                 _spectral(type, scale, param, &omega, &phi);
-                _getOmegaPhi(ibs, omega, phi,
-                             &cxp, &sxp, &cyp, &syp, &czp, &szp, &c0z, &s0z);
-                ind = 0;
-                for (int iz = 0; iz < nz; iz++)
-                {
-                  c0y = c0z;
-                  s0y = s0z;
-                  c1 = c0z * czp - s0z * szp;
-                  s1 = s0z * czp + c0z * szp;
-                  c0z = c1;
-                  s0z = s1;
-                  for (int iy = 0; iy < ny; iy++)
-                  {
-                    c0x = c0y;
-                    s0x = s0y;
-                    c1 = c0y * cyp - s0y * syp;
-                    s1 = s0y * cyp + c0y * syp;
-                    c0y = c1;
-                    s0y = s1;
-                    for (int ix = 0; ix < nx; ix++, ind++)
-                    {
-                      if (activeArray[ind]) tab[ind] = c0x - correc0;
-                      c1 = c0x * cxp - s0x * sxp;
-                      s1 = s0x * cxp + c0x * sxp;
-                      c0x = c1;
-                      s0x = s1;
-                    }
-                  }
-                }
+                _spreadOnGridSpectral(nx, ny, nz, ibs, is, correc0, omega, phi,
+                                      activeArray, tab);
               }
               else
               {
@@ -1608,35 +1638,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                   break;
               }
 
-              _getOmegaPhi(ibs, omega, phi,
-                           &cxp, &sxp, &cyp, &syp, &czp, &szp, &c0z, &s0z);
-              ind = 0;
-              for (int iz = 0; iz < nz; iz++)
-              {
-                c0y = c0z;
-                s0y = s0z;
-                c1 = c0z * czp - s0z * szp;
-                s1 = s0z * czp + c0z * szp;
-                c0z = c1;
-                s0z = s1;
-                for (int iy = 0; iy < ny; iy++)
-                {
-                  c0x = c0y;
-                  s0x = s0y;
-                  c1 = c0y * cyp - s0y * syp;
-                  s1 = s0y * cyp + c0y * syp;
-                  c0y = c1;
-                  s0y = s1;
-                  for (int ix = 0; ix < nx; ix++, ind++)
-                  {
-                    if (activeArray[ind]) tab[ind] = c0x - correc0;
-                    c1 = c0x * cxp - s0x * sxp;
-                    s1 = s0x * cxp + c0x * sxp;
-                    c0x = c1;
-                    s0x = s1;
-                  }
-                }
-              }
+              _spreadOnGridSpectral(nx, ny, nz, ibs, is, correc0, omega, phi,
+                                    activeArray, tab);
               break;
 
             case ECov::E_LINEAR:
