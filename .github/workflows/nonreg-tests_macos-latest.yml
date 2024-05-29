@@ -72,11 +72,14 @@ jobs:
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check
 
-    - name: Compress output logs
-      if: always()
+    - name: Compress output logs and neutral files
+      if: success() || failure()
       run: |
         cd ${{env.BUILD_DIR}}/tests
         find . -type f -name "*.out" -print0 | tar -czvf macos-logs.tar.gz --null -T -
+        cd $HOME/gstlearn_dir
+        find . -type f -name "*.*" -print0 | tar -czvf macos-neutral.tar.gz --null -T -
+        mv macos-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output logs as artefact
       if: success()
@@ -84,13 +87,6 @@ jobs:
       with:
         name: macos-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/macos-logs.tar.gz
-
-    - name: Compress neutral files
-      if: always()
-      run: |
-        cd $HOME/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf macos-neutral.tar.gz --null -T -
-        mv macos-neutral.tar.gz ${{github.workspace}}/
   
     - name: Publish output neutral files as artefact
       if: success()

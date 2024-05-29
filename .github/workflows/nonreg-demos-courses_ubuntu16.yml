@@ -46,7 +46,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --target check_rmd -- -j 3
 
     - name: Compress output logs
-      if: always()
+      if: success() || failure()
       run: |
         cd ${{env.BUILD_DIR}}/tests
         find . -type f \( -name "*.asciidoc" -o -name "*.out" \) -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
