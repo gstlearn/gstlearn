@@ -132,13 +132,14 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
   const ACovAnisoList* getCovAnisoList() const;
-  const CovAniso* getCova(unsigned int icov) const;
-  CovAniso* getCova(unsigned int icov);
+  const CovAniso* getCova(int icov) const;
+  CovAniso* getCova(int icov);
   int getCovaNumber(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
   const MatrixSquareSymmetric getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
   double getParam(int icov) const;
+  double getRange(int icov) const;
   bool isCovaFiltered(int icov) const;
   bool isStationary() const;
   String getCovName(int icov) const;
@@ -469,6 +470,8 @@ public:
                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
 
   void setSill(int icov, int ivar, int jvar, double value);
+  void setRangeIsotropic(int icov, double range);
+  void setMarkovCoeffs(int icov, VectorDouble coeffs);
   void setCovaFiltered(int icov, bool filtered);
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2);
   void updateCovByMesh(int imesh);

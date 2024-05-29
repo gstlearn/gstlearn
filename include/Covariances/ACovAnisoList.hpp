@@ -98,14 +98,14 @@ public:
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure
-  void delCov(unsigned int i);
+  void delCov(int icov);
   // Remove all elementary covariance structures
   void delAllCov();
   // Filter a covariance
-  void setFiltered(unsigned int i, bool filtered);
+  void setFiltered(int icov, bool filtered);
 
   int             getCovaNumber(bool skipNugget = false) const;
-  bool            isFiltered(unsigned int i) const;
+  bool            isFiltered(int icov) const;
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
@@ -123,13 +123,16 @@ public:
   void               setCova(int icov, CovAniso* covs);
   const ECov&        getType(int icov) const;
   String             getCovName(int icov) const;
-  double             getParam(unsigned int icov) const;
-  const MatrixSquareSymmetric& getSill(unsigned int icov) const;
-  double             getSill(unsigned int icov, int ivar, int jvar) const;
-  int                getGradParamNumber(unsigned int icov) const;
-  void               setSill(unsigned int icov, int ivar, int jvar, double value);
-  void               setType(unsigned int icov, const ECov& type);
-  void               setParam(unsigned int icov, double value);
+  double             getParam(int icov) const;
+  double             getRange(int icov) const;
+  const MatrixSquareSymmetric& getSill(int icov) const;
+  double             getSill(int icov, int ivar, int jvar) const;
+  int                getGradParamNumber(int icov) const;
+  void               setSill(int icov, int ivar, int jvar, double value);
+  void               setRangeIsotropic(int icov, double range);
+  void               setType(int icov, const ECov& type);
+  void               setParam(int icov, double value);
+  void               setMarkovCoeffs(int icov, VectorDouble coeffs);
   CovAniso           extractCova(int icov) const;
   int                getCovaMinIRFOrder() const;
 
@@ -167,7 +170,7 @@ public:
   int getNoStatElemIcov(int ipar) const;
 
 protected:
-  bool   _isCovarianceIndexValid(unsigned int i) const;
+  bool   _isCovarianceIndexValid(int icov) const;
 
 private:
   bool _considerAllCovariances(const CovCalcMode* mode) const;

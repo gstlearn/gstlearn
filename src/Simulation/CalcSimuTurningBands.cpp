@@ -1400,8 +1400,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                 scale = _computeScale(param, scale);
                 t = _migration(tmin, tmax, scale);
                 vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-                t0z = t00;
 
+                t0z = t00;
                 nt0 = 0;
                 ind = 0;
                 for (int iz = 0; iz < nz; iz++)
@@ -1466,8 +1466,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                 scale = _computeScaleKB(param, scale) * 2;
                 t = _migration(tmin, tmax, scale);
                 vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-                t0z = t00;
 
+                t0z = t00;
                 nt0 = 0;
                 ind = 0;
                 for (int iz = 0; iz < nz; iz++)

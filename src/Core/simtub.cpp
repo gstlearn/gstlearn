@@ -2032,7 +2032,7 @@ int simmaxstable(Db *dbout,
     /* Update the model for next iteration */
 
     for (icov = 0; icov < model->getCovaNumber(); icov++)
-      model->getCova(icov)->setRangeIsotropic(model->getCova(icov)->getRange() * ratio);
+      model->setRangeIsotropic(icov, model->getRange(icov) * ratio);
   }
 
   if (verbose)

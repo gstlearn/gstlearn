@@ -439,14 +439,14 @@ void Model::delAllDrifts()
   _driftList->delAllDrifts();
 }
 
-const CovAniso* Model::getCova(unsigned int icov) const
+const CovAniso* Model::getCova(int icov) const
 {
   if (_cova == nullptr) return nullptr;
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
 }
-CovAniso* Model::getCova(unsigned int icov)
+CovAniso* Model::getCova(int icov)
 {
   if (_cova == nullptr) return nullptr;
   ACovAnisoList* covalist = _castInCovAnisoList(icov);
@@ -488,6 +488,13 @@ double Model::getParam(int icov) const
   if (covalist == nullptr) return TEST;
   return covalist->getParam(icov);
 }
+double Model::getRange(int icov) const
+{
+  if (_cova == nullptr) return TEST;
+  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  if (covalist == nullptr) return TEST;
+  return covalist->getRange(icov);
+}
 bool Model::isCovaFiltered(int icov) const
 {
   if (_cova == nullptr) return false;
@@ -522,6 +529,20 @@ void Model::setSill(int icov, int ivar, int jvar, double value)
   ACovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return;
   covalist->setSill(icov, ivar, jvar, value);
+}
+void Model::setRangeIsotropic(int icov, double range)
+{
+  if (_cova == nullptr) return;
+  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  if (covalist == nullptr) return;
+  covalist->setRangeIsotropic(icov, range);
+}
+void Model::setMarkovCoeffs(int icov, VectorDouble coeffs)
+{
+  if (_cova == nullptr) return;
+  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  if (covalist == nullptr) return;
+  covalist->setMarkovCoeffs(icov, coeffs);
 }
 void Model::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 {
@@ -1960,7 +1981,7 @@ int Model::stabilize(double percent, bool verbose)
   /* Update each Gaussian component */
 
   for (int icov = 0; icov < ncov; icov++)
-    getCova(icov)->setSill(0, 0, 1. - total);
+    setSill(icov, 0, 0, 1. - total);
 
   /* Add a NUGGET EFFECT component */
 
@@ -2009,7 +2030,7 @@ int Model::standardize(bool verbose)
       {
         double sill = getSill(icov,ivar, jvar);
         sill /= total[ivar] * total[jvar];
-        getCova(icov)->setSill(ivar, jvar, sill);
+        setSill(icov, ivar, jvar, sill);
       }
 
   /* Printout */
