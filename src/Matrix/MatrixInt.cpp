@@ -68,7 +68,7 @@ int& MatrixInt::_getValueRef(int irow, int icol)
   return _rectMatrix[rank];
 }
 
-void MatrixInt::setValue(int irank, int value)
+void MatrixInt::setValueByRank(int irank, int value)
 {
   _isRankValid(irank);
   _rectMatrix[irank] = value;
@@ -98,15 +98,17 @@ void MatrixInt::fill(int value)
     _rectMatrix[i] = value;
 }
 
-void MatrixInt::_deallocate()
-{
-  // Nothing to be done here
-}
-
 void MatrixInt::_allocate()
 {
   _rectMatrix.resize(getMatrixSize(),0);
   fill(0);
+}
+
+void MatrixInt::_deallocate()
+{
+  _nRows = 0;
+  _nCols = 0;
+  _rectMatrix.clear();
 }
 
 int MatrixInt::_getIndexToRank(int irow, int icol) const

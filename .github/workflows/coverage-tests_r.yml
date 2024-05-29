@@ -47,7 +47,7 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install swigex
+    - name: Install gstlearn
       run: Rscript -e "install.packages(c('gstlearn'), repos='https://soft.mines-paristech.fr/cran/', dependencies = TRUE)"
 
     - name: Run the r test

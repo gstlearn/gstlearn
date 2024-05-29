@@ -19,12 +19,12 @@ class AMatrix;
 class EOperator;
 
 /**
- * Square Symmetric matrices are stored as Lower Triangular matrices stored by column
+ * Square Symmetric matrices
  */
 class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
-  MatrixSquareSymmetric(int nrow = 0, int opt_eigen = -1);
+  MatrixSquareSymmetric(int nrow = 0);
   MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
   MatrixSquareSymmetric(const AMatrix &m);
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
@@ -49,29 +49,27 @@ public:
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
-  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X, int opt_eigen = -1);
+  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X);
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
-                                             int nrow,
-                                             int opt_eigen = -1);
+                                             int nrow);
   static MatrixSquareSymmetric* createFromTLTU(int neq,
-                                               const VectorDouble &tl,
-                                               int opt_eigen = -1);
+                                               const VectorDouble &tl);
   static MatrixSquareSymmetric* createFromTriangle(int mode,
                                                    int neq,
-                                                   const VectorDouble &tl,
-                                                   int opt_eigen = -1);
+                                                   const VectorDouble &tl);
 
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
   int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
                                 double maxicond = 1.e20,
                                 double eps = EPSILON20);
-  bool isDefinitePositive();  int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                                                 const MatrixRectangular& aemat,
-                                                                 const VectorDouble& bemat,
-                                                                 const MatrixRectangular& aimat,
-                                                                 const VectorDouble& bimat,
-                                                                 VectorDouble& xmat);
+  bool isDefinitePositive();
+  int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                     const MatrixRectangular& aemat,
+                                     const VectorDouble& bemat,
+                                     const MatrixRectangular& aimat,
+                                     const VectorDouble& bimat,
+                                     VectorDouble& xmat);
 
   // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
   // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
@@ -95,73 +93,14 @@ public:
                                             const VectorDouble &tl,
                                             const MatrixSquareSymmetric &a);
   double computeCholeskyLogDeterminant() const;
-
-private:
-  /// Interface for AMatrix
-  virtual bool   _isCompatible(const AMatrix& m) const override
-  {
-    return (isSameSize(m) && m.isSymmetric());
-  }
-  virtual int    _getMatrixPhysicalSize() const override;
-
-  virtual double& _getValueRef(int irow, int icol) override;
+  
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
-  virtual int     _getIndexToRank(int irow,int icol) const override;
-  virtual void    _allocate() override;
-  virtual double  _getValue(int irow, int icol) const override;
-  virtual double  _getValueByRank(int irank) const override;
-  virtual void    _setValue(int irow, int icol, double value) override;
-  virtual void    _updValue(int irow, int icol, const EOperator& oper, double value) override;
-  virtual void    _setValueByRank(int irank, double value) override;
   virtual void    _setValues(const double* values, bool byCol = true) override;
-
-  virtual void    _transposeInPlace() override { return ; } // Nothing to do
-  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
-  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
-  virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
-private:
-  // The subsequent methods rely on the specific local storage ('squareSymMatrix')
-  void    _recopyLocal(const MatrixSquareSymmetric& r);
-  double  _getValueLocal(int irow, int icol) const;
-  double  _getValueLocal(int irank) const;
-  double& _getValueRefLocal(int irow, int icol);
-  void    _setValueLocal(int irow, int icol, double value);
-  void    _updValueLocal(int irow, int icol, const EOperator& oper, double value);
-  void    _setValueLocal(int irank, double value);
-  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
-  void    _setValuesLocal(const double *values, bool byCol);
-  int     _invertLocal();
-  void    _allocateLocal();
-  int     _getIndexToRankLocal(int irow, int icol) const;
-  int     _getMatrixPhysicalSizeLocal() const;
-  int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
-  int     _computeEigenLocal(bool optionPositive = true);
-  int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive = true);
+  void    _recopy(const MatrixSquareSymmetric& r);
 
   // Local functions (old style algebra)
-  int _matrix_geigen(const double *a,
-                     const double *b,
-                     int neq,
-                     double *value,
-                     double *vector) const;
-  void _matrix_triangular_product(int neq,
-                                  int mode,
-                                  const double *al,
-                                  const double *b,
-                                  double *x) const;
-  int _matrix_solve(VectorDouble &at,
-                    VectorDouble &b,
-                    VectorDouble &x,
-                    int neq,
-                    int nrhs,
-                    double eps = EPSILON20) const;
-  int  _matrix_invert_triangle(int neq, double *tl);
-  void _matrix_tri2sq(int neq, const double *tl, double *a);
-  void _matrix_sq2tri(int mode, int neq, const double *a, double *tl);
-
   int _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
   int _matrix_qoc(bool flag_invert,
                   const VectorDouble& gmat,
@@ -191,9 +130,13 @@ private:
                                 VectorDouble &tabout);
   int _constraintsCount(int nai, VectorInt& active);
   bool _checkCholeskyAlreadyPerformed(int status) const;
+  int _terminateEigen(const VectorDouble &eigenValues,
+                      const VectorDouble &eigenVectors,
+                      bool optionPositive = true,
+                      bool changeOrder = false);
+
 
 private:
-  VectorDouble _squareSymMatrix; // Classical storage
   bool _flagCholeskyDecompose;
   bool _flagCholeskyInverse;
   VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)

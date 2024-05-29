@@ -2489,7 +2489,7 @@ static int st_truncate_negative_eigen(int nvar,
                                       VectorDouble &matcoru)
 
 {
-  MatrixSquareSymmetric cc(nvar, MAUTO.isUseEigenLibrary());
+  MatrixSquareSymmetric cc(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       cc.setValue(ivar,jvar,MATCOR(icov0,ivar,jvar));

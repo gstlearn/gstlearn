@@ -127,7 +127,6 @@ Case of a Standard Matrix
 
 - Number of rows    = 4
 - Number of columns = 5
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]     0.269     0.262     0.214     0.165     0.417
      [  1,]     0.245     0.558     0.457     0.374     0.733
@@ -140,7 +139,6 @@ Case of a Sparse Matrix
 
 - Number of rows    = 4
 - Number of columns = 5
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]     0.269     0.262     0.214     0.165     0.417

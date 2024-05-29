@@ -338,6 +338,38 @@ In the following example, we create an experimental variogram in the $4$ directi
 
 #NO_DIFF#XXX
 ----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      0.470
+- Ranges       =  19117.739    43.250
+- Angles       =    163.437     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.959     0.285
+     [  1,]    -0.285     0.959
+Spherical
+- Sill         =     53.699
+- Ranges       =  63730.642 10684.461
+- Angles       =     82.745     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]    -0.126     0.992
+     [  1,]    -0.992    -0.126
+Total Sill     =     54.168
+Known Mean(s)     0.000----
+
+
+#NO_DIFF#XXX
+----
 <style>md-block { color:gray; background-color:white; }</style><md-block>
 **Variogram Map**
 

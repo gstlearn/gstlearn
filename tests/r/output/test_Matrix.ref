@@ -13,20 +13,17 @@
 [1] "Cloning Matrix of doubles"
 - Number of rows    = 2
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]     1.000     3.000     5.000
      [  1,]     2.000     4.000     6.000
 - Number of rows    = 2
 - Number of columns = 3
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]
      [  0,]     1.000     3.000     5.000
      [  1,]     2.000     4.000     6.000
 [1] "Matrix M is symmetric? TRUE"
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
      [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
@@ -38,7 +35,6 @@
 [1] "Matrix MRR"
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
      [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
@@ -50,7 +46,6 @@
 [1] "Matrix MSG"
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
      [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
@@ -62,7 +57,6 @@
 [1] "Matrix MSS"
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
      [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
@@ -74,7 +68,6 @@
 [1] "Matrix MSP"
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
@@ -114,7 +107,6 @@ Extracting Vectors from Matrix
 [1] "MRR and MSP matrices are used as Reference"
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
      [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
