@@ -39,7 +39,7 @@ Cholesky::~Cholesky()
 void Cholesky::_clean()
 {
   if (_matCS == nullptr) return;
-  if (_matCS->isFlagEigen())
+  if (_matCS->isFlagEigen()) // TODO : We should not be aware of _matCS internal storage
   {
     // Nothing to be done
   }

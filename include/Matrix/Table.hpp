@@ -36,6 +36,8 @@ public:
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixRectangular)
 
+  virtual void reset(int nrows, int ncols) override;
+
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Table* create(int nrow = 0, int ncol = 0);
@@ -68,7 +70,9 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Table"; }
-  void    _clearDecoration() override;
+
+private:
+  void _clearDecoration();
 
 private:
   String _title;

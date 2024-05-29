@@ -29,10 +29,6 @@ env:
   NUMPY_VERSION : "1.23.5"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}/swig_420b
-  BOOST_ROOT: ${{github.workspace}}/boost
-  BOOST_VERSION: "1.72.0"
-  EIGEN_ROOT : ${{github.workspace}}/eigen
-  EIGEN_VERSION : "3.4.0"
 
 jobs:
   build:
@@ -45,21 +41,11 @@ jobs:
       run: |
         sudo rm /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
-        sudo apt-get install -yq libhdf5-dev
-        sudo apt-get install -yq libopenmpi-dev
-
-    - name: Install the Boost headers
-      uses: ./.github/workflows/install-boost-unix
-      with:
-        boost-root: ${{env.BOOST_ROOT}}
-        boost-version: ${{env.BOOST_VERSION}}
-
-    - name: Install the Eigen headers
-      uses: ./.github/workflows/install-eigen-unix
-      with:
-        eigen-root: ${{env.EIGEN_ROOT}}
-        eigen-version: ${{env.EIGEN_VERSION}}
-        generator: "Unix Makefiles"
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev
 
     - name: Setup Python Version
       uses: actions/setup-python@v4
@@ -84,7 +70,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
@@ -96,7 +82,7 @@ jobs:
         find . -type f -name "*.out" -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-nonreg-logs
@@ -110,7 +96,7 @@ jobs:
         mv ubuntu-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-neutral-files

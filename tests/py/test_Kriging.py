@@ -280,7 +280,7 @@ if general:
                                                          seed=1234,tol=1e-6,eps=1e-3,verbose=verbose)
                                         nbtests += 1
 
-    print("Number of tests performed =",nbtests)
+    print(f"Number of tests performed = {nbtests}")
 
 # Individual test
 

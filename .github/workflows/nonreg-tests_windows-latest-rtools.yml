@@ -24,10 +24,7 @@ env:
   GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}\swig_420b
-  BOOST_ROOT: ${{github.workspace}}\boost
-  BOOST_VERSION: "1.72.0"
-  EIGEN_ROOT : ${{github.workspace}}\eigen
-  EIGEN_VERSION : "3.4.0"
+  CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
   
@@ -42,26 +39,22 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
+    - name: Install dependencies
+      run: |
+        echo '{
+          "dependencies": [ "boost-math", "eigen3" ],
+          "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
+        }' > vcpkg.json
+        vcpkg install
+
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-windows-action@v2
       with:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Visual Studio 17 2022"
 
-    - name: Install the Boost headers
-      uses: ./.github/workflows/install-boost-windows
-      with:
-        boost-root: ${{env.BOOST_ROOT}}
-        boost-version: ${{env.BOOST_VERSION}}
-
-    - name: Install the Eigen headers
-      uses: ./.github/workflows/install-eigen-windows
-      with:
-        eigen-root: ${{env.EIGEN_ROOT}}
-        eigen-version: ${{env.EIGEN_VERSION}}
-
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DBoost_ROOT=${{env.BOOST_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
+      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
@@ -78,7 +71,7 @@ jobs:
         }
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: msys-nonreg-logs
@@ -96,7 +89,7 @@ jobs:
         Move-Item -Path rtools-neutral.zip -Destination ${{github.workspace}}
   
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: rtools-neutral-files

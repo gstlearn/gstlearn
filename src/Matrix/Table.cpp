@@ -26,7 +26,7 @@ Table::Table(int nrow, int ncol, bool skip_title, bool skip_description)
     _skipTitle(skip_title),
     _skipDescription(skip_description)
 {
-  init(nrow, ncol);
+  reset(nrow, ncol);
 }
 
 Table::Table(const Table &m)
@@ -60,11 +60,16 @@ Table::~Table()
 {
 }
 
+void Table::reset(int nrows, int ncols)
+{
+  AMatrixDense::reset(nrows, ncols);
+  _clearDecoration();
+}
+
 void Table::_clearDecoration()
 {
   _rowNames.clear();
   _colNames.clear();
-  return;
 }
 
 Table* Table::create(int nrow, int ncol)

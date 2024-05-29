@@ -18,7 +18,6 @@
 
 #include <sstream>
 class AMatrix;
-class MatrixSparse;
 
 class GSTLEARN_EXPORT AStringable
 {

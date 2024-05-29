@@ -4416,10 +4416,10 @@ void Vario::_driftManage(Db *db)
 
   _BETA.resize(nbfl,0.);
   _DRFDIAG.resize(nech, 0.);
-  _DRFTAB.reset(nech, nbfl, 0.);
-  _DRFXA.reset (nech, nbfl, 0.);
-  _DRFGX.reset (nech, nbfl, 0.);
-  _DRFXGX.reset(nbfl, nbfl, 0.);
+  _DRFTAB.resetFromValue(nech, nbfl, 0.);
+  _DRFXA.resetFromValue(nech, nbfl, 0.);
+  _DRFGX.resetFromValue(nech, nbfl, 0.);
+  _DRFXGX.resetFromValue(nbfl, nbfl, 0.);
 }
 
 /****************************************************************************/
@@ -4436,7 +4436,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
   int iiech;
   int nbfl = _model->getDriftNumber();
   VectorDouble b(nbfl, 0.);
-  MatrixSquareGeneral matdrf(nbfl, nbfl);
+  MatrixSquareGeneral matdrf(nbfl);
 
   /* Calculate: t(X) %*% X */
 

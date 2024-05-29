@@ -17,6 +17,7 @@
 
 #include <vector>
 
+class MatrixSparse;
 class Db;
 class Model;
 class cs; // TODO to be removed

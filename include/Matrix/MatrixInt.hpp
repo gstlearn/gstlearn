@@ -44,7 +44,7 @@ public:
   int    getValue(int irow, int icol) const;
   int    getValue(int irank) const;
 
-  void   setValue(int rank, int value);
+  void   setValueByRank(int rank, int value);
   void   setValue(int irow, int icol, int value);
   int    getMatrixSize() const;
   int    size() const { return getMatrixSize(); }
