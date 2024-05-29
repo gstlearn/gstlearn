@@ -85,7 +85,7 @@ jobs:
         path: ${{env.BUILD_DIR}}/tests/msys-logs.zip
   
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: rtools-neutral-files

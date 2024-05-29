@@ -85,14 +85,14 @@ jobs:
         mv ubuntu-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
 
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-neutral-files

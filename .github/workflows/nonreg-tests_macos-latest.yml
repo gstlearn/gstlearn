@@ -82,14 +82,14 @@ jobs:
         mv macos-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: macos-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/macos-logs.tar.gz
   
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: macos-neutral-files

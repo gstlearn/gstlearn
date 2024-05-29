@@ -261,7 +261,7 @@ double hermiteCondStdElement(double krigest,
   MatrixSquareGeneral JJ;
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
-  JJ.reset(nbpoly, nbpoly, TEST);
+  JJ.resetFromValue(nbpoly, nbpoly, TEST);
   _calculateJJ(JJ, In, krigest, krigstd, TEST, VectorDouble(), phi);
 
   double constd = 0.;
@@ -389,7 +389,7 @@ VectorDouble hermiteMetalStd(double yc,
   int nech = static_cast<int>(krigest.size());
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
-  JJ.reset(nbpoly, nbpoly, TEST);
+  JJ.resetFromValue(nbpoly, nbpoly, TEST);
 
   VectorDouble metstd(nech, 0.);
   VectorDouble hnYc = hermitePolynomials(yc, 1., nbpoly);
@@ -418,7 +418,7 @@ double hermiteMetalStdElement(double yc,
   MatrixSquareGeneral JJ;
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
-  JJ.reset(nbpoly, nbpoly, TEST);
+  JJ.resetFromValue(nbpoly, nbpoly, TEST);
   VectorDouble hnYc = hermitePolynomials(yc, 1., nbpoly);
 
   double u = _convert2u(yc, krigest, krigstd);
@@ -480,7 +480,7 @@ MatrixSquareGeneral hermiteIncompleteIntegral(double yc, int nbpoly)
 {
   MatrixSquareGeneral TAU;
 
-  TAU.reset(nbpoly, nbpoly, 0.);
+  TAU.resetFromValue(nbpoly, nbpoly, 0.);
   VectorDouble hn = hermitePolynomials(yc, 1., nbpoly);
   double gy = law_df_gaussian(yc);
 

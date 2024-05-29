@@ -1148,7 +1148,7 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
 
   if (! layinfo.empty())
   {
-    frac_list->_layinfo.init(nlayer, number);
+    frac_list->_layinfo.reset(nlayer, number);
     int ecr = 0;
     for (int i = 0; i < number; i++)
       for (int ilayer = 0; ilayer < nlayer; ilayer++)

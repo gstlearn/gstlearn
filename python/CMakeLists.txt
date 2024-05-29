@@ -34,7 +34,7 @@ endif()
 # DOCUMENTATION
 
 # Ensure documentation.i is existing
-# TODO : put documentation.i out of the source (be careful of pyswigex.i)
+# TODO : put documentation.i out of the source (be careful of pygstlearn.i)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMENT "Ensure that documentation.i exists")

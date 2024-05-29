@@ -50,7 +50,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
   {
     // Case of a resulting Sparse matrix
 
-    res = new MatrixSparse();
+    res = new MatrixSparse(mxsparse->isFlagEigen() ? 1 : 0);
   }
   else
   {
@@ -89,7 +89,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
     }
   }
 
-  res->reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
+  res->reset(x->getNRows(), y->getNCols());
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

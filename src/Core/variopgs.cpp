@@ -3595,7 +3595,7 @@ static void st_manage_corpgs(Local_CorPgs *local_corpgs)
   local_corpgs->flag_rho = 0;
   local_corpgs->rho = 0.;
   local_corpgs->params.resize(4,0.);
-  local_corpgs->modif.reset(4, 4, 0.);
+  local_corpgs->modif.resetFromValue(4, 4, 0.);
 }
 
 /****************************************************************************/
