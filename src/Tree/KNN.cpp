@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Tree/KNN.hpp"
 #include "Tree/ball_algorithm.h"
-#include "Db/Db.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 
 KNN::KNN()
@@ -22,10 +22,10 @@ KNN::KNN()
 }
 
 KNN::KNN(const KNN &m)
-    : _distances(nullptr),
-      _indices(nullptr),
-      _n_samples(m._n_samples),
-      _n_neighbors(m._n_neighbors)
+  : _distances(nullptr),
+    _indices(nullptr),
+    _n_samples(m._n_samples),
+    _n_neighbors(m._n_neighbors)
 {
   _distances = copy_double_arr((const double**) m._distances, m._n_samples, m._n_neighbors);
   _indices = copy_int_arr((const int**) m._indices, m._n_samples, m._n_neighbors);
