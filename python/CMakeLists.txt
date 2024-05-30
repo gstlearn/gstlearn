@@ -128,8 +128,6 @@ endif()
 
 # Set some properties on SWIG target
 set_target_properties(python_build PROPERTIES
-  # Do not build python package by default
-  EXCLUDE_FROM_ALL ON
   # Modify the generated library name
   OUTPUT_NAME ${PROJECT_NAME}
   # Compiler flags for the SWIG library
