@@ -9,6 +9,8 @@ __pycache__
 .cproject
 .settings
 .vscode
+.cache
+compile_commands.json
 core
 nano.save
 myoutput

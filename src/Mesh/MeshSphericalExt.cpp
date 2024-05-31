@@ -13,10 +13,7 @@
 #include "Mesh/LinkSphTriangle.hpp"
 #include "geoslib_old_f.h"
 
-#include "Matrix/MatrixRectangular.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Mesh/MeshEStandard.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Db/Db.hpp"
 
 // External library /// TODO : Dependency to gmtsph to be removed

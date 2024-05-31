@@ -11,21 +11,23 @@
 #include "Geometry/BiTargetCheckDistance.hpp"
 #include "geoslib_old_f.h"
 
+#include "Basic/VectorHelper.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckDistance::BiTargetCheckDistance(double radius,
                                              const VectorDouble coeffs,
                                              const VectorDouble angles)
-    : ABiTargetCheck(),
-      _ndim(2),
-      _flagAniso(false),
-      _flagRotation(false),
-      _radius(TEST),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _dist(TEST),
-      _movingIncr(),
-      _movingAux()
+  : ABiTargetCheck(),
+    _ndim(2),
+    _flagAniso(false),
+    _flagRotation(false),
+    _radius(TEST),
+    _anisoCoeffs(),
+    _anisoRotMat(),
+    _dist(TEST),
+    _movingIncr(),
+    _movingAux()
 {
   _radius = radius;
   _anisoCoeffs.resize(_ndim);
@@ -59,16 +61,16 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
 }
 
 BiTargetCheckDistance::BiTargetCheckDistance(const BiTargetCheckDistance &r)
-    : ABiTargetCheck(r),
-      _ndim(r._ndim),
-      _flagAniso(r._flagAniso),
-      _flagRotation(r._flagRotation),
-      _radius(r._radius),
-      _anisoCoeffs(r._anisoCoeffs),
-      _anisoRotMat(r._anisoRotMat),
-      _dist(r._dist),
-      _movingIncr(r._movingIncr),
-      _movingAux(r._movingAux)
+  : ABiTargetCheck(r),
+    _ndim(r._ndim),
+    _flagAniso(r._flagAniso),
+    _flagRotation(r._flagRotation),
+    _radius(r._radius),
+    _anisoCoeffs(r._anisoCoeffs),
+    _anisoRotMat(r._anisoRotMat),
+    _dist(r._dist),
+    _movingIncr(r._movingIncr),
+    _movingAux(r._movingAux)
 {
 }
 

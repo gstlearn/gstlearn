@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
@@ -18,9 +17,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
-#include "Basic/AException.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include <math.h>
