@@ -12,6 +12,8 @@
 
 #include "Covariances/CovBesselK.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include "math.h"
@@ -118,4 +120,14 @@ void CovBesselK::computeCorrec(int ndim)
 VectorDouble CovBesselK::getMarkovCoeffs()const
 {
   return _markovCoeffs;
+}
+
+double CovBesselK::simulateTurningBand(double t0,
+                                       const VectorDouble &t,
+                                       TurningBandOperate &operTB) const
+{
+  if (getParam() > 0.5)
+    return operTB.cosineOne(t0, t);
+  else
+    return operTB.spectralOne(t0, t);
 }

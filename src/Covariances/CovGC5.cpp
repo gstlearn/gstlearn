@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovGC5.hpp"
 
+#include "Basic/Law.hpp"
+#include "Simulation/TurningBandOperate.hpp"
 #include "Covariances/CovContext.hpp"
 
 CovGC5::CovGC5(const CovContext& ctxt)
@@ -54,4 +56,11 @@ double CovGC5::_evaluateCov(double h) const
     cov = h4 * (h - 6. * r) + r3 * (40. * h2 - 96. * r2);
 
   return (-cov);
+}
+
+double CovGC5::simulateTurningBand(double t0,
+                                   const VectorDouble &t,
+                                   TurningBandOperate &operTB) const
+{
+  return operTB.IRFProcessOne(t0, t);
 }

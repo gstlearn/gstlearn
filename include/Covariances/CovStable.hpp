@@ -14,6 +14,7 @@
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CovStable : public ACovFunc
 {
@@ -30,6 +31,11 @@ public:
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "Stable"; }
   int            getMinOrder() const override { return -1; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0,
+                             const VectorDouble &t,
+                             TurningBandOperate &operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;

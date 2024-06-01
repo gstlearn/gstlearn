@@ -16,6 +16,7 @@
 /* Be careful ! This is not a real covariance */
 
 class CovContext;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CovGCspline : public ACovFunc
 {
@@ -28,6 +29,11 @@ public:
   int            hasRange() const override { return -1; }
   String         getCovName() const override { return "Spline G.C."; }
   int            getMinOrder() const override { return 1; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0,
+                             const VectorDouble &t,
+                             TurningBandOperate &operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;

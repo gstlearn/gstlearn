@@ -12,6 +12,8 @@
 
 #include "math.h"
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 
 CovExponential::CovExponential(const CovContext& ctxt)
 : ACovFunc(ECov::EXPONENTIAL, ctxt)
@@ -51,4 +53,11 @@ double CovExponential::_evaluateCov(double h) const
 String CovExponential::getFormula() const
 {
   return "C(h)=exp \\left( -\\frac{h}{a_t} \\right)";
+}
+
+double CovExponential::simulateTurningBand(double t0,
+                                           const VectorDouble &t,
+                                           TurningBandOperate &operTB) const
+{
+  return operTB.spectralOne(t0, t);
 }

@@ -9,9 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovSincard.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 
 #include "math.h"
-#include "Covariances/CovContext.hpp"
 
 CovSincard::CovSincard(const CovContext& ctxt)
 : ACovFunc(ECov::SINCARD, ctxt)
@@ -52,4 +54,11 @@ double CovSincard::_evaluateCov(double h) const
 String CovSincard::getFormula() const
 {
   return "C(h)=\\frac{sin(\\frac{h}{a})}{\\frac{h}{a}}";
+}
+
+double CovSincard::simulateTurningBand(double t0,
+                                       const VectorDouble &t,
+                                       TurningBandOperate &operTB) const
+{
+  return operTB.cosineOne(t0, t);
 }

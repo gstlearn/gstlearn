@@ -29,6 +29,8 @@ public:
 
   int    hasRange() const override { return 0; }
 
+  bool isValidForTurningBand() const override { return true; }
+
 protected:
   double _evaluateCov(double h) const override;
 };

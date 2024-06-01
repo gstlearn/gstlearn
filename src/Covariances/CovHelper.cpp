@@ -21,7 +21,7 @@ bool _isSelected(ACovFunc* cov, int ndim, int minorder, bool hasrange, bool flag
   if (ndim > (int) cov->getMaxNDim()) return false;
   if (minorder < cov->getMinOrder()) return false;
   if (hasrange && ! cov->hasRange()) return false;
-  if (flagSimtub && ! isCovValidForTurningBands(cov->getType())) return false;
+  if (flagSimtub && ! cov->isValidForTurningBand()) return false;
   return true;
 }
 

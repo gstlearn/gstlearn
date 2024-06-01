@@ -9,9 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovGCspline.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 
 #include <math.h>
-#include "Covariances/CovContext.hpp"
 
 CovGCspline::CovGCspline(const CovContext& ctxt)
 : ACovFunc(ECov::SPLINE_GC, ctxt)
@@ -54,4 +56,11 @@ double CovGCspline::_evaluateCov(double h) const
     cov = 1.5 * r2 - h2 * (11. / 6. - log(2) - logval);
 
   return (cov);
+}
+
+double CovGCspline::simulateTurningBand(double t0,
+                                        const VectorDouble &t,
+                                        TurningBandOperate &operTB) const
+{
+  return operTB.cosineOne(t0, t);
 }

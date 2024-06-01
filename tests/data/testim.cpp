@@ -89,7 +89,16 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  StdoutRedirect sr("Result.out");
+  StdoutRedirect sr("Result.out", argc, argv, 2);
+
+  /* Create the output name (for storage of dump files) */
+
+  VectorString subparts = separateKeywords(argv[1]);
+  int nargs = (int) subparts.size();
+  String outname = concatenateStrings("", subparts[nargs-2], subparts[nargs-1], "-");
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName(outname);
+  setInternalDebug(true);
 
   /* Setup constants */
 
@@ -193,6 +202,7 @@ int main(int argc, char *argv[])
         messageAbort("Simulations");
       dbfmt.setFlags(true, false, true, true, true);
       dbout->display(&dbfmt);
+      dbout->dumpToNF("Simu.out",verbose);
     }
     else
     {
@@ -214,8 +224,7 @@ int main(int argc, char *argv[])
                     1,1,0)) messageAbort("kriging");
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);
-        delete dbout;
-        dbout = nullptr;
+        dbout->dumpToNF("Krige.out",verbose);
       }
     }
   }
