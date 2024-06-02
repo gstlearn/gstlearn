@@ -49,9 +49,7 @@ String CovSpherical::getFormula() const
   return "C(h)=1-\\frac{3}{2}\\left(\\frac{h}{a}\\right)+ \\frac{1}{2}\\left(\\frac{h}{a}\\right)^3";
 }
 
-double CovSpherical::simulateTurningBand(double t0,
-                                         const VectorDouble &t,
-                                         TurningBandOperate &operTB) const
+double CovSpherical::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.shotNoiseAffineOne(t0, t);
+  return operTB.shotNoiseAffineOne(t0);
 }

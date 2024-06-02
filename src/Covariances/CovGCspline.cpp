@@ -58,9 +58,7 @@ double CovGCspline::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovGCspline::simulateTurningBand(double t0,
-                                        const VectorDouble &t,
-                                        TurningBandOperate &operTB) const
+double CovGCspline::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.cosineOne(t0, t);
+  return operTB.cosineOne(t0);
 }

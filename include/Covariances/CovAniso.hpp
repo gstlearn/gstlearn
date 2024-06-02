@@ -106,9 +106,7 @@ public:
                            MatrixSquareGeneral &mat,
                            const CovCalcMode *mode = nullptr) const override;
   bool isValidForTurningBand() const;
-  double simulateTurningBand(double t0,
-                             const VectorDouble &t,
-                             TurningBandOperate &operTB) const;
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,

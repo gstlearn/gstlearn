@@ -57,12 +57,7 @@ public:
 
   // Specific to Turning Band Simulation Method
   virtual bool isValidForTurningBand() const { return false; }
-  virtual double simulateTurningBand(double t0,
-                                     const VectorDouble &t,
-                                     TurningBandOperate &operTB) const
-  {
-    return TEST;
-  }
+  virtual double simulateTurningBand(double t0, TurningBandOperate &operTB) const { return TEST; }
 
   ///////////////////////////////////////////////////
 

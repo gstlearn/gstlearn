@@ -56,9 +56,7 @@ String CovSincard::getFormula() const
   return "C(h)=\\frac{sin(\\frac{h}{a})}{\\frac{h}{a}}";
 }
 
-double CovSincard::simulateTurningBand(double t0,
-                                       const VectorDouble &t,
-                                       TurningBandOperate &operTB) const
+double CovSincard::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.cosineOne(t0, t);
+  return operTB.cosineOne(t0);
 }

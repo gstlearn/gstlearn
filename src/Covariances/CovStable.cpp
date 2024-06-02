@@ -52,12 +52,10 @@ double CovStable::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovStable::simulateTurningBand(double t0,
-                                      const VectorDouble &t,
-                                      TurningBandOperate &operTB) const
+double CovStable::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
   if (getParam() > 1)
-    return operTB.cosineOne(t0, t);
+    return operTB.cosineOne(t0);
   else
-    return operTB.spectralOne(t0, t);
+    return operTB.spectralOne(t0);
 }

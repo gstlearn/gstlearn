@@ -20,6 +20,7 @@
       _phi(0.),
       _offset(0.),
       _scale(1.),
+      _t(),
       _v0(),
       _v1(),
       _v2()
@@ -35,6 +36,7 @@
       _phi(r._phi),
       _offset(r._offset),
       _scale(r._scale),
+      _t(r._t),
       _v0(r._v0),
       _v1(r._v1),
       _v2(r._v2)
@@ -53,6 +55,7 @@
     _phi = r._phi;
     _offset = r._offset;
     _scale = r._scale;
+    _t = r._t;
     _v0 = r._v0;
     _v1 = r._v1;
     _v2 = r._v2;
@@ -73,12 +76,13 @@ void TurningBandOperate::reset()
   _phi = 0.;
   _offset = 0.;
   _scale = 1.;
+  _t.clear();
   _v0.clear();
   _v1.clear();
   _v2.clear();
 }
 
-double TurningBandOperate::shotNoiseAffineOne(double t0, const VectorDouble& t)
+double TurningBandOperate::shotNoiseAffineOne(double t0)
 {
   double scale = getScale();
   double tdeb = getTdeb() / scale;
@@ -87,10 +91,10 @@ double TurningBandOperate::shotNoiseAffineOne(double t0, const VectorDouble& t)
   double dt = t0 - tdeb;
   int nt0 = (int) (dt);
   double dt0 = dt - nt0;
-  return t[nt0] * (2. * dt0 - 1.);
+  return _t[nt0] * (2. * dt0 - 1.);
 }
 
-double TurningBandOperate::shotNoiseCubicOne(double t0, const VectorDouble& t)
+double TurningBandOperate::shotNoiseCubicOne(double t0)
 {
   double scale = getScale();
   double tdeb = getTdeb() / scale;
@@ -99,31 +103,27 @@ double TurningBandOperate::shotNoiseCubicOne(double t0, const VectorDouble& t)
   double dt = t0 - tdeb;
   int nt0 = (int) (dt);
   double dt0 = dt - nt0;
-  return t[nt0] * dt0 * (dt0 - 0.5) * (dt0 - 1.);
+  return _t[nt0] * dt0 * (dt0 - 0.5) * (dt0 - 1.);
 }
 
-double TurningBandOperate::spectralOne(double t0, const VectorDouble& t)
+double TurningBandOperate::spectralOne(double t0)
 {
-  int nt0 = _rankInPoisson(getNt0(), t0, t);
+  int nt0 = _rankInPoisson(getNt0(), t0, _t);
   setNt0(nt0);
 
   double vexp = getVexp();
-  return (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp : vexp;
+  return (2. * t0 > _t[nt0 + 1] + _t[nt0]) ? -vexp : vexp;
 }
 
-double TurningBandOperate::IRFProcessOne(double t0, const VectorDouble &t)
+double TurningBandOperate::IRFProcessOne(double t0)
 {
-  VectorDouble v0 = getV0();
-  VectorDouble v1 = getV1();
-  VectorDouble v2 = getV2();
-
-  int nt0 = _rankInPoisson(getNt0(), t0, t);
+  int nt0 = _rankInPoisson(getNt0(), t0, _t);
   setNt0(nt0);
 
-  return _irfProcessSample(nt0, t0, t, v0, v1, v2);
+  return _irfProcessSample(nt0, t0);
 }
 
-double TurningBandOperate::cosineOne(double t0, const VectorDouble &t)
+double TurningBandOperate::cosineOne(double t0)
 {
   double offset = getOffset();
   if (isFlagScaled())
@@ -144,39 +144,30 @@ double TurningBandOperate::cosineOne(double t0, const VectorDouble &t)
  **
  ** \param[in]  nt0    Rank of the Poisson point
  ** \param[in]  t0     starting time
- ** \param[in]  t      Poisson point process
- ** \param[in]  v0     Wiener-Levy process
- ** \param[in]  v1     First integration of the Wiener-Levy process
- ** \param[in]  v2     Second integration of the Wiener-Levy process
  **
  *****************************************************************************/
-double TurningBandOperate::_irfProcessSample(int nt0,
-                                             double t0,
-                                             const VectorDouble &t,
-                                             const VectorDouble &v0,
-                                             const VectorDouble &v1,
-                                             const VectorDouble &v2)
+double TurningBandOperate::_irfProcessSample(int nt0, double t0)
 {
   double value;
 
   /* Initializations */
 
-  double delta = t0 - t[nt0];
-  if (v0.empty()) return TEST;
+  double delta = t0 - _t[nt0];
+  if (_v0.empty()) return TEST;
 
   /* Wiener-Levy process */
 
-  value = v0[nt0];
-  if (v1.empty()) return value;
+  value = _v0[nt0];
+  if (_v1.empty()) return value;
 
   /* First integration of the Wiener-Levy process */
 
-  value = v1[nt0] + v0[nt0] * delta;
-  if (v2.empty()) return value;
+  value = _v1[nt0] + _v0[nt0] * delta;
+  if (_v2.empty()) return value;
 
   /* Second integration of the Wiener-Levy process */
 
-  value = v2[nt0] + v1[nt0] * delta + v0[nt0] * delta * delta / 2.;
+  value = _v2[nt0] + _v1[nt0] * delta + _v0[nt0] * delta * delta / 2.;
   return value;
 }
 
@@ -221,3 +212,22 @@ int TurningBandOperate::_rankInPoisson(int def_rank,
   return (itp);
 }
 
+void TurningBandOperate::pushT(double value)
+{
+  _t.push_back(value);
+}
+
+void TurningBandOperate::pushV0(double value)
+{
+  _v0.push_back(value);
+}
+
+void TurningBandOperate::pushV1(double value)
+{
+  _v1.push_back(value);
+}
+
+void TurningBandOperate::pushV2(double value)
+{
+  _v2.push_back(value);
+}

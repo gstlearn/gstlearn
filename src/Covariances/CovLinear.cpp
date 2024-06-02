@@ -54,9 +54,7 @@ double CovLinear::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovLinear::simulateTurningBand(double t0,
-                                      const VectorDouble &t,
-                                      TurningBandOperate &operTB) const
+double CovLinear::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.IRFProcessOne(t0, t);
+  return operTB.IRFProcessOne(t0);
 }

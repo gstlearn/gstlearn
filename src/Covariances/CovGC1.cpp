@@ -53,9 +53,7 @@ double CovGC1::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovGC1::simulateTurningBand(double t0,
-                                   const VectorDouble &t,
-                                   TurningBandOperate &operTB) const
+double CovGC1::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.IRFProcessOne(t0, t);
+  return operTB.IRFProcessOne(t0);
 }

@@ -402,8 +402,6 @@ ECov CalcSimuTurningBands::_particularCase(const ECov &type, double param)
  *****************************************************************************/
 int CalcSimuTurningBands::_initializeSeedBands()
 {
-  double correc;
-  VectorDouble t;
   TurningBandOperate operTB;
 
   /* Initializations */
@@ -438,75 +436,75 @@ int CalcSimuTurningBands::_initializeSeedBands()
               break;
 
             case ECov::E_EXPONENTIAL:
-              t = _migrationInit(ibs, is, 2. * scale, operTB);
+              _migrationInit(ibs, is, 2. * scale, operTB);
               break;
 
             case ECov::E_SPHERICAL:
-              t = _dilutionInit(ibs, is, operTB, &correc);
+              (void) _dilutionInit(ibs, is, operTB);
               break;
 
             case ECov::E_CUBIC:
-              t = _dilutionInit(ibs, is, operTB, &correc);
+              (void) _dilutionInit(ibs, is, operTB);
               break;
 
             case ECov::E_GAUSSIAN:
-              _spectralInit(ibs, is, operTB, &correc);
+              (void) _spectralInit(ibs, is, operTB);
               break;
 
             case ECov::E_SINCARD:
-              _spectralInit(ibs, is, operTB, &correc);
+              (void) _spectralInit(ibs, is, operTB);
               break;
 
             case ECov::E_BESSEL_J:
-              _spectralInit(ibs, is, operTB, &correc);
+              (void) _spectralInit(ibs, is, operTB);
               break;
 
             case ECov::E_BESSEL_K:
               if (param > 0.5)
-                _spectralInit(ibs, is, operTB, &correc);
+                (void) _spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScaleKB(param, scale) * 2;
-                t = _migrationInit(ibs, is, scale, operTB);
+                _migrationInit(ibs, is, scale, operTB);
               }
               break;
 
             case ECov::E_STABLE:
               if (param > 1)
-                _spectralInit(ibs, is, operTB, &correc);
+                (void) _spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScale(param, 2. * scale);
-                t = _migrationInit(ibs, is, scale, operTB);
+                _migrationInit(ibs, is, scale, operTB);
               }
               break;
 
             case ECov::E_POWER:
-              _power1DInit(ibs, is, operTB, &correc);
+              (void) _power1DInit(ibs, is, operTB);
               break;
 
             case ECov::E_SPLINE_GC:
-              _spline1DInit(ibs, 1, operTB, &correc);
+              (void) _spline1DInit(ibs, 1, operTB);
               break;
 
             case ECov::E_LINEAR:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
+              _migrationInit(ibs, is, theta1, operTB);
+              (void) _irfProcessInit(ibs, is, operTB);
               break;
 
             case ECov::E_ORDER1_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
+              _migrationInit(ibs, is, theta1, operTB);
+              (void) _irfProcessInit(ibs, is, operTB);
               break;
 
             case ECov::E_ORDER3_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
+              _migrationInit(ibs, is, theta1, operTB);
+              (void) _irfProcessInit(ibs, is, operTB);
               break;
 
             case ECov::E_ORDER5_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
+              _migrationInit(ibs, is, theta1, operTB);
+              (void) _irfProcessInit(ibs, is, operTB);
               break;
 
             default:
@@ -535,15 +533,14 @@ int CalcSimuTurningBands::_initializeSeedBands()
  ** \param[out] operTB TurningBandOperate structure
  **
  *****************************************************************************/
-VectorDouble CalcSimuTurningBands::_migrationInit(int ibs,
-                                                  int is,
-                                                  double scale,
-                                                  TurningBandOperate &operTB,
-                                                  double eps)
+void CalcSimuTurningBands::_migrationInit(int ibs,
+                                          int is,
+                                          double scale,
+                                          TurningBandOperate &operTB,
+                                          double eps)
 {
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
-  VectorDouble tab;
 
   double tmin  = _getCodirTmin(ibs);
   double tmax  = _getCodirTmax(ibs);
@@ -555,26 +552,25 @@ VectorDouble CalcSimuTurningBands::_migrationInit(int ibs,
   {
     int count = (int) ceil(delta / eps);
     for (int i = 0; i < count; i++)
-      tab.push_back(law_gaussian());
+      operTB.pushT(law_gaussian());
   }
   else
   {
     double value;
     value = tmin + scale * log(law_uniform(0., 1.));
-    tab.push_back(value);
+    operTB.pushT(value);
     value = tmin - scale * log(law_uniform(0., 1.));
-    tab.push_back(value);
+    operTB.pushT(value);
 
     while (value <= tmax)
     {
       value -= scale * log(law_uniform(0., 1.));
-      tab.push_back(value);
+      operTB.pushT(value);
     }
   }
 
   double vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
   operTB.setVexp(vexp);
-  return tab;
 }
 
 /*****************************************************************************/
@@ -585,16 +581,14 @@ VectorDouble CalcSimuTurningBands::_migrationInit(int ibs,
  ** \param[in]  is  Rank of the covariance
  **
  ** \param[out] operTB TurningBandOperate structure
- ** \param[out] correc Correction factor
+ **
+ ** \return Correction factor
  **
  *****************************************************************************/
-VectorDouble CalcSimuTurningBands::_dilutionInit(int ibs,
-                                                 int is,
-                                                 TurningBandOperate &operTB,
-                                                 double *correc)
+double CalcSimuTurningBands::_dilutionInit(int ibs,
+                                           int is,
+                                           TurningBandOperate &operTB)
 {
-  VectorDouble tab;
-
   double scale = _getCodirScale(ibs);
   double tmin  = _getCodirTmin(ibs);
   double tmax  = _getCodirTmax(ibs);
@@ -604,28 +598,30 @@ VectorDouble CalcSimuTurningBands::_dilutionInit(int ibs,
   while (tdeb + count * scale <= tmax)
   {
     double value = (law_uniform(0., 1.) < 0.5) ? -1. : 1.;
-    tab.push_back(value);
+    operTB.pushT(value);
     count++;
   }
 
   operTB.setTdeb(tdeb);
 
   ECov type = getModel()->getCovaType(is);
+  double correc;
   switch (type.toEnum())
   {
     case ECov::E_SPHERICAL:
-      *correc = sqrt(3.);
+      correc = sqrt(3.);
       break;
 
     case ECov::E_CUBIC:
-      *correc = sqrt(840.);
+      correc = sqrt(840.);
       break;
 
     default:
-      *correc = TEST;
+      correc = TEST;
       break;
   }
-  return tab;
+
+  return correc;
 }
 
 /*****************************************************************************/
@@ -636,13 +632,12 @@ VectorDouble CalcSimuTurningBands::_dilutionInit(int ibs,
  ** \param[in]  is     Rank of the covariance
  ** \param[in]  operTB TurningBandOperate structure
  **
- ** \param[out] correc Correction factor
+ ** \return Correction factor
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_spectralInit(int ibs,
-                                         int is,
-                                         TurningBandOperate &operTB,
-                                         double *correc)
+double CalcSimuTurningBands::_spectralInit(int ibs,
+                                           int is,
+                                           TurningBandOperate &operTB)
 {
   double scale = _getCodirScale(ibs);
   double param = getModel()->getParam(is);
@@ -698,8 +693,7 @@ void CalcSimuTurningBands::_spectralInit(int ibs,
   operTB.setOmega(period);
   operTB.setPhi(2. * GV_PI * law_uniform(0., 1.));
   operTB.setOffset(0.);
-  *correc = sqrt(2.);
-  return;
+  return sqrt(2.);
 }
 
 /****************************************************************************/
@@ -745,7 +739,8 @@ double CalcSimuTurningBands::_computeScaleKB(double param, double scale)
  ** \param[in]  is      Rank of the covariance
  **
  ** \param[out] operTB  TurningBandOperate structure
- ** \param[out] theta_3 value of theta_alpha,3(R)
+ **
+ ** \return Value of theta_alpha,3(R)
  **
  **  \remark Y_alpha_1=theta_alpha_1(R)cos(2pi R.x+phi)
  **  \remark used to simulate a GRF with a power semi-variogram h^alpha
@@ -756,10 +751,9 @@ double CalcSimuTurningBands::_computeScaleKB(double param, double scale)
  **  \remark In Computational Geosciences 12:121-132
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_power1DInit(int ibs,
-                                        int is,
-                                        TurningBandOperate &operTB,
-                                        double *theta_3)
+double CalcSimuTurningBands::_power1DInit(int ibs,
+                                          int is,
+                                          TurningBandOperate &operTB)
 {
   double R, theta_1;
   static double log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff, coeff3;
@@ -782,13 +776,13 @@ void CalcSimuTurningBands::_power1DInit(int ibs,
 
   R = law_beta2(1 - as2, as2);
   theta_1 = coeff * sqrt((R + 1.) / pow(R, as2 + 1));
-  *theta_3 = theta_1 / coeff3;
   double phi = 2. * GV_PI * law_uniform(0., 1.);
 
-  *theta_3 = theta_1 / coeff3;
   operTB.setOmega(2. * GV_PI * R);
   operTB.setPhi(phi);
   operTB.setOffset(cos(phi));
+
+  return theta_1 / coeff3;
 }
 
 /*****************************************************************************/
@@ -799,7 +793,8 @@ void CalcSimuTurningBands::_power1DInit(int ibs,
  ** \param[in]  k       power of the variogram h^(2k)log(h)
  **
  ** \param[out] operTB  TurningBandOperate structure
- ** \param[out] xi_3    value of xi_2k,3(R)
+ **
+ ** \return    value of xi_2k,3(R)
  **
  **  \remark Compute the random elements
  **  \remark used to simulate a GRF with a power semi-variogram GC h^(2k)log(h)
@@ -810,10 +805,9 @@ void CalcSimuTurningBands::_power1DInit(int ibs,
  **  \remark In Computational Geosciences 12:121-132
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_spline1DInit(int ibs,
-                                         int k,
-                                         TurningBandOperate &operTB,
-                                         double *xi_3)
+double CalcSimuTurningBands::_spline1DInit(int ibs,
+                                           int k,
+                                           TurningBandOperate &operTB)
 {
   double R;
   int twokm1;
@@ -836,12 +830,13 @@ void CalcSimuTurningBands::_spline1DInit(int ibs,
   }
 
   R = law_beta2(1. / 2, 1. / 2);
-  *xi_3 = coeff * sqrt((R + 1.) / pow(R, twokp1s2));
   double phi = twoPI * law_uniform(0., 1.);
 
   operTB.setOmega(twoPI * R * pow(scale, twok));
   operTB.setPhi(phi);
   operTB.setOffset(cos(phi));
+
+  return coeff * sqrt((R + 1.) / pow(R, twokp1s2));
 }
 
 /*****************************************************************************/
@@ -853,19 +848,17 @@ void CalcSimuTurningBands::_spline1DInit(int ibs,
  **
  ** \param[in]  ibs    Rank of the turning band
  ** \param[in]  is     Rank of the covariance
- ** \param[in]  t      Vector of Poisson delimitors
  **
  ** \param[out] operTB TruningBandOperate structure
- ** \param[out] correc Correction factor
+ **
+ ** \return Correction factor
  **
  ** \remark  This procedure allocates memory that should be freed
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_irfProcessInit(int ibs,
-                                           int is,
-                                           TurningBandOperate &operTB,
-                                           const VectorDouble &t,
-                                           double *correc)
+double CalcSimuTurningBands::_irfProcessInit(int ibs,
+                                             int is,
+                                             TurningBandOperate &operTB)
 {
   ECov type = getModel()->getCovaType(is);
   double delta;
@@ -875,44 +868,36 @@ void CalcSimuTurningBands::_irfProcessInit(int ibs,
   if (type == ECov::ORDER1_GC) level = 0;
   if (type == ECov::ORDER3_GC) level = 1;
   if (type == ECov::ORDER5_GC) level = 2;
-
-  int nt = (int) t.size();
-
-  VectorDouble v0;
-  VectorDouble v1;
-  VectorDouble v2;
+  int nt = operTB.getTsize();
+  VectorDouble t = operTB.getT();
 
   /* Generation of the Wiener-Levy process and its integrations */
 
   double val0 = 0.;
   double val1 = 0.;
   double val2 = 0.;
-  if (level >= 0) v0.push_back(val0);
-  if (level >= 1) v1.push_back(val1);
-  if (level >= 2) v2.push_back(val2);
+  if (level >= 0) operTB.pushV0(val0);
+  if (level >= 1) operTB.pushV1(val1);
+  if (level >= 2) operTB.pushV2(val2);
 
   for (int i = 1; i < nt; i++)
   {
     val0 += law_gaussian();
-    v0.push_back(val0);
+    operTB.pushV0(val0);
 
     if (level == 0) continue;
     delta = t[i] - t[i - 1];
     val1 += val0 * delta;
-    v1.push_back(val1);
+    operTB.pushV1(val1);
 
     if (level == 1) continue;
     val2 += val1 * delta + val0 * delta * delta / 2.;
-    v2.push_back(val2);
+    operTB.pushV2(val2);
   }
-
-  operTB.setV0(v0);
-  operTB.setV1(v1);
-  operTB.setV2(v2);
 
   double scale = _getCodirScale(ibs);
   double theta1 = 1. / _theta;
-  *correc = _irfCorrec(type, theta1, scale);
+  return _irfCorrec(type, theta1, scale);
 }
 
 /*****************************************************************************/
@@ -974,7 +959,6 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(int nx,
                                                 int is,
                                                 TurningBandOperate& operTB,
                                                 const VectorBool &activeArray,
-                                                const VectorDouble &t,
                                                 VectorDouble &tab)
 {
   CovAniso* cova = getModel()->getCova(is);
@@ -1000,7 +984,7 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(int nx,
       for (int ix = 0; ix < nx; ix++)
       {
         if (activeArray[ind])
-          tab[ind] = cova->simulateTurningBand(t0, t, operTB);
+          tab[ind] = cova->simulateTurningBand(t0, operTB);
         t0 += dxp;
 
         ind++;
@@ -1043,7 +1027,7 @@ void CalcSimuTurningBands::_spreadSpectralOnGrid(int nx,
       for (int ix = 0; ix < nx; ix++)
       {
         if (activeArray[ind])
-          tab[ind] = cova->simulateTurningBand(c0x, VectorDouble(), operTB);
+          tab[ind] = cova->simulateTurningBand(c0x, operTB);
         c1 = c0x * cxp - s0x * sxp;
         s1 = s0x * cxp + c0x * sxp;
         c0x = c1;
@@ -1060,7 +1044,6 @@ void CalcSimuTurningBands::_spreadRegularOnPoint(const Db *db,
                                                  int is,
                                                  TurningBandOperate &operTB,
                                                  const VectorBool &activeArray,
-                                                 const VectorDouble &t,
                                                  VectorDouble &tab)
 {
   CovAniso* cova = getModel()->getCova(is);
@@ -1069,7 +1052,7 @@ void CalcSimuTurningBands::_spreadRegularOnPoint(const Db *db,
   {
     if (! activeArray[iech]) continue;
     t0 = _codirs[ibs].projectPoint(db, iech);
-    tab[iech] = cova->simulateTurningBand(t0, t, operTB);
+    tab[iech] = cova->simulateTurningBand(t0, operTB);
   }
 }
 
@@ -1086,7 +1069,7 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
   {
     if (!activeArray[iech]) continue;
     t0 = _codirs[ibs].projectPoint(db, iech);
-    tab[iech] = cova->simulateTurningBand(t0, VectorDouble(), operTB);
+    tab[iech] = cova->simulateTurningBand(t0, operTB);
   }
 }
 
@@ -1106,11 +1089,6 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                                           int icase,
                                           int shift)
 {
-  VectorDouble t;
-  TurningBandOperate operTB;
-
-  /* Initializations */
-
   int nech   = db->getSampleNumber();
   int ncova  = _getNCova();
   int nvar   = _getNVar();
@@ -1122,6 +1100,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
 
   VectorDouble tab(nech,0.);
   VectorBool activeArray = db->getActiveArray();
+  TurningBandOperate operTB;
 
   /*****************************/
   /* Performing the simulation */
@@ -1153,109 +1132,93 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
             case ECov::E_STABLE:
               if (param > 1)
               {
-                _spectralInit(ibs, is, operTB, &correc);
-                _spreadSpectralOnPoint(db, ibs, is,
-                                       operTB, activeArray, tab);
+                correc = _spectralInit(ibs, is, operTB);
+                _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               }
               else
               {
                 scale = _computeScale(param, 2. * scale);
-                t = _migrationInit(ibs, is, scale, operTB);
-                _spreadRegularOnPoint(db, ibs, is,
-                                      operTB, activeArray, t, tab);
+                _migrationInit(ibs, is, scale, operTB);
+                _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               }
               break;
 
             case ECov::E_EXPONENTIAL:
-              t = _migrationInit(ibs, is, 2. * scale, operTB);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, 2. * scale, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_SPHERICAL:
-              t = _dilutionInit(ibs, is, operTB, &correc);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              correc = _dilutionInit(ibs, is, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_CUBIC:
-              t = _dilutionInit(ibs, is, operTB, &correc);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              correc = _dilutionInit(ibs, is, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_POWER:
-              _power1DInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnPoint(db, ibs, is,
-                                     operTB, activeArray, tab);
+              correc = _power1DInit(ibs, is, operTB);
+              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_SPLINE_GC:
-              _spline1DInit(ibs, 1, operTB, &correc);
-              _spreadSpectralOnPoint(db, ibs, is,
-                                     operTB, activeArray, tab);
+              correc = _spline1DInit(ibs, 1, operTB);
+              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_GAUSSIAN:
-              _spectralInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnPoint(db, ibs, is,
-                                     operTB, activeArray, tab);
+              correc = _spectralInit(ibs, is, operTB);
+              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_SINCARD:
-              _spectralInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnPoint(db, ibs, is,
-                                     operTB, activeArray, tab);
+              correc = _spectralInit(ibs, is, operTB);
+              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_BESSEL_J:
-              _spectralInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnPoint(db, ibs, is,
-                                     operTB, activeArray, tab);
+              correc = _spectralInit(ibs, is, operTB);
+              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_BESSEL_K:
               if (param > 0.5)
               {
-                _spectralInit(ibs, is, operTB, &correc);
-                _spreadSpectralOnPoint(db, ibs, is,
-                                       operTB, activeArray, tab);
+                correc = _spectralInit(ibs, is, operTB);
+                _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               }
               else
               {
                 scale = _computeScaleKB(param, scale) * 2;
-                t = _migrationInit(ibs, is, scale, operTB);
-                _spreadRegularOnPoint(db, ibs, is,
-                                      operTB, activeArray, t, tab);
+                _migrationInit(ibs, is, scale, operTB);
+                _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               }
               break;
 
              case ECov::E_LINEAR:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_ORDER1_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_ORDER3_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_ORDER5_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnPoint(db, ibs, is,
-                                    operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
             default:
@@ -1301,10 +1264,6 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                                          int icase,
                                          int shift)
 {
-  VectorDouble t;
-
-  /* Initializations */
-
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
   int nvar   = _getNVar();
@@ -1352,109 +1311,93 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
             case ECov::E_STABLE:
               if (param > 1)
               {
-                _spectralInit(ibs, is, operTB, &correc);
-                _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                      operTB, activeArray, tab);
+                correc = _spectralInit(ibs, is, operTB);
+                _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               }
               else
               {
                 scale = _computeScale(param, 2. * scale);
-                t = _migrationInit(ibs, is, scale, operTB);
-                _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                     operTB, activeArray, t, tab);
+                _migrationInit(ibs, is, scale, operTB);
+                _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               }
               break;
 
             case ECov::E_BESSEL_K:
               if (param > 0.5)
               {
-                _spectralInit(ibs, is, operTB, &correc);
-                _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                      operTB, activeArray, tab);
+                correc = _spectralInit(ibs, is, operTB);
+                _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               }
               else
               {
                 scale = _computeScaleKB(param, scale) * 2;
-                t = _migrationInit(ibs, is, scale, operTB);
-                _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                     operTB, activeArray, t, tab);
+                _migrationInit(ibs, is, scale, operTB);
+                _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               }
               break;
 
             case ECov::E_EXPONENTIAL:
-              t = _migrationInit(ibs, is, 2. * scale, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, 2. * scale, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_SPHERICAL:
-              t = _dilutionInit(ibs, is, operTB, &correc);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              correc = _dilutionInit(ibs, is, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_CUBIC:
-              t = _dilutionInit(ibs, is, operTB, &correc);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              correc = _dilutionInit(ibs, is, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_GAUSSIAN:
-              _spectralInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                    operTB, activeArray, tab);
+              correc = _spectralInit(ibs, is, operTB);
+              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_SINCARD:
-              _spectralInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                    operTB, activeArray, tab);
+              correc = _spectralInit(ibs, is, operTB);
+              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_POWER:
-              _power1DInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                    operTB, activeArray, tab);
+              correc = _power1DInit(ibs, is, operTB);
+              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_SPLINE_GC:
-              _spline1DInit(ibs, 1, operTB, &correc);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                    operTB, activeArray, tab);
+              correc = _spline1DInit(ibs, 1, operTB);
+              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_BESSEL_J:
-              _spectralInit(ibs, is, operTB, &correc);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is,
-                                    operTB, activeArray, tab);
+              correc = _spectralInit(ibs, is, operTB);
+              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_LINEAR:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_ORDER1_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_ORDER3_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_ORDER5_GC:
-              t = _migrationInit(ibs, is, theta1, operTB);
-              _irfProcessInit(ibs, is, operTB, t, &correc);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is,
-                                   operTB, activeArray, t, tab);
+              _migrationInit(ibs, is, theta1, operTB);
+              correc = _irfProcessInit(ibs, is, operTB);
+              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             default:

@@ -67,9 +67,7 @@ String CovBesselJ::getFormula() const
   return "C(h)=2^\\alpha\\Gamma(\\alpha+1) \\frac{ J_\\alpha\\left( \\frac{h}{a_t} \\right) } {\\left( \\frac{h}{a_t} \\right)^\\alpha}";
 }
 
-double CovBesselJ::simulateTurningBand(double t0,
-                                       const VectorDouble &t,
-                                       TurningBandOperate &operTB) const
+double CovBesselJ::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.cosineOne(t0, t);
+  return operTB.cosineOne(t0);
 }

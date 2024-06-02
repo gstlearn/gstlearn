@@ -31,9 +31,7 @@ public:
   String getCovName() const override { return "Linear"; }
 
   bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0,
-                             const VectorDouble &t,
-                             TurningBandOperate &operTB) const override;
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;

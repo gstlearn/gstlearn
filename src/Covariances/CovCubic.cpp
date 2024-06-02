@@ -72,9 +72,7 @@ String CovCubic::getFormula() const
   return "C(h)=1 - h^2 * \\left(7 + h * \\left(-8.75 + h^2 * \\left(3.5 - 0.75 * h^2 \\right) \\right) \\right)";
 }
 
-double CovCubic::simulateTurningBand(double t0,
-                                     const VectorDouble &t,
-                                     TurningBandOperate &operTB) const
+double CovCubic::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.shotNoiseCubicOne(t0, t);
+  return operTB.shotNoiseCubicOne(t0);
 }

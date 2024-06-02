@@ -122,12 +122,10 @@ VectorDouble CovBesselK::getMarkovCoeffs()const
   return _markovCoeffs;
 }
 
-double CovBesselK::simulateTurningBand(double t0,
-                                       const VectorDouble &t,
-                                       TurningBandOperate &operTB) const
+double CovBesselK::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
   if (getParam() > 0.5)
-    return operTB.cosineOne(t0, t);
+    return operTB.cosineOne(t0);
   else
-    return operTB.spectralOne(t0, t);
+    return operTB.spectralOne(t0);
 }

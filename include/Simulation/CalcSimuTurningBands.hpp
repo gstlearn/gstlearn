@@ -138,29 +138,16 @@ private:
   double _computeScale(double alpha, double scale);
   double _computeScaleKB(double param, double scale);
 
-  VectorDouble _migrationInit(int ibs,
-                              int is,
-                              double scale,
-                              TurningBandOperate &operTB,
-                              double eps = EPSILON5);
-  VectorDouble _dilutionInit(int ibs,
-                             int is,
-                             TurningBandOperate &operTB,
-                             double *correc);
-  void _spectralInit(int ibs,
-                     int is,
-                     TurningBandOperate &operTB,
-                     double *correc);
-  void _power1DInit(int ibs,
-                    int is,
-                    TurningBandOperate &operTB,
-                    double *theta_3);
-  void _spline1DInit(int ibs, int k, TurningBandOperate &operTB, double *xi_3);
-  void _irfProcessInit(int ibs,
-                       int is,
-                       TurningBandOperate &operTB,
-                       const VectorDouble &t,
-                       double *correc);
+  void _migrationInit(int ibs,
+                      int is,
+                      double scale,
+                      TurningBandOperate &operTB,
+                      double eps = EPSILON5);
+  double _dilutionInit(int ibs, int is, TurningBandOperate &operTB);
+  double _spectralInit(int ibs, int is, TurningBandOperate &operTB);
+  double _power1DInit(int ibs, int is, TurningBandOperate &operTB);
+  double _spline1DInit(int ibs, int k, TurningBandOperate &operTB);
+  double _irfProcessInit(int ibs, int is, TurningBandOperate &operTB);
 
   double _irfCorrec(const ECov &type, double theta1, double scale);
   void _getOmegaPhi(int ibs,
@@ -181,14 +168,12 @@ private:
                             int is,
                             TurningBandOperate& operTB,
                             const VectorBool &activeArray,
-                            const VectorDouble &t,
                             VectorDouble &tab);
   void _spreadRegularOnPoint(const Db *db,
                              int ibs,
                              int is,
                              TurningBandOperate& operTB,
                              const VectorBool &activeArray,
-                             const VectorDouble &t,
                              VectorDouble &tab);
   void _spreadSpectralOnGrid(int nx,
                              int ny,

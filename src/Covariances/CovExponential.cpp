@@ -55,9 +55,7 @@ String CovExponential::getFormula() const
   return "C(h)=exp \\left( -\\frac{h}{a_t} \\right)";
 }
 
-double CovExponential::simulateTurningBand(double t0,
-                                           const VectorDouble &t,
-                                           TurningBandOperate &operTB) const
+double CovExponential::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return operTB.spectralOne(t0, t);
+  return operTB.spectralOne(t0);
 }
