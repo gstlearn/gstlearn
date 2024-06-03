@@ -14,6 +14,7 @@
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CovBesselJ : public ACovFunc
 {
@@ -29,6 +30,9 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "J-Bessel"; }
   int            getMinOrder() const override { return -1; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;

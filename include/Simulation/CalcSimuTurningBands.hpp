@@ -21,6 +21,7 @@
 
 class Model;
 class ANeigh;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CalcSimuTurningBands : public ACalcSimulation
 {
@@ -135,49 +136,22 @@ private:
   double _getAIC(const VectorDouble& aic, int icov, int ivar, int jvar);
 
   double _computeScale(double alpha, double scale);
-  VectorDouble _migration(double tmin,
-                          double tmax,
-                          double scale,
-                          double eps = EPSILON5);
-  VectorDouble _dilution(double tmin, double tmax, double mesh, double *start);
-  void _spectral(const ECov &type,
-                 double scale,
-                 double param,
-                 double *omega,
-                 double *phi);
   double _computeScaleKB(double param, double scale);
-  void _power1D(int ib,
-                double scale,
-                double alpha,
-                double *omega,
-                double *phi,
-                double *theta_3,
-                double *correc0);
-  void _spline1D(int ib,
-                 double scale,
-                 int k,
-                 double *omega,
-                 double *phi,
-                 double *xi_3,
-                 double *correc0);
-  void _irfProcess(const ECov &type,
-                   const VectorDouble& t,
-                   VectorDouble& v0,
-                   VectorDouble& v1,
-                   VectorDouble& v2);
-  int _rankInPoisson(int def_rank, double t0, const VectorDouble& t);
-  int _rankRegular(double t0, double tdeb, double scale);
+
+  void _migrationInit(int ibs,
+                      int is,
+                      double scale,
+                      TurningBandOperate &operTB,
+                      double eps = EPSILON5);
+  double _dilutionInit(int ibs, int is, TurningBandOperate &operTB);
+  double _spectralInit(int ibs, int is, TurningBandOperate &operTB);
+  double _power1DInit(int ibs, int is, TurningBandOperate &operTB);
+  double _spline1DInit(int ibs, int k, TurningBandOperate &operTB);
+  double _irfProcessInit(int ibs, int is, TurningBandOperate &operTB);
+
   double _irfCorrec(const ECov &type, double theta1, double scale);
-  double _irfProcessSample(const ECov &type,
-                           int nt0,
-                           double t0,
-                           const VectorDouble& t,
-                           const VectorDouble& v0,
-                           const VectorDouble& v1,
-                           const VectorDouble& v2);
   void _getOmegaPhi(int ibs,
-                    double omega,
-                    double phi,
+                    TurningBandOperate& operTB,
                     double* cxp,
                     double* sxp,
                     double* cyp,
@@ -186,6 +160,35 @@ private:
                     double* szp,
                     double* c0z,
                     double* s0z);
+
+  void _spreadRegularOnGrid(int nx,
+                            int ny,
+                            int nz,
+                            int ibs,
+                            int is,
+                            TurningBandOperate& operTB,
+                            const VectorBool &activeArray,
+                            VectorDouble &tab);
+  void _spreadRegularOnPoint(const Db *db,
+                             int ibs,
+                             int is,
+                             TurningBandOperate& operTB,
+                             const VectorBool &activeArray,
+                             VectorDouble &tab);
+  void _spreadSpectralOnGrid(int nx,
+                             int ny,
+                             int nz,
+                             int ibs,
+                             int is,
+                             TurningBandOperate& operTB,
+                             const VectorBool &activeArray,
+                             VectorDouble &tab);
+  void _spreadSpectralOnPoint(const Db *db,
+                              int ibs,
+                              int is,
+                              TurningBandOperate& operTB,
+                              const VectorBool &activeArray,
+                              VectorDouble &tab);
 
 private:
   int  _nbtuba;
@@ -227,4 +230,3 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
                              int nbtuba = 100,
                              bool flag_check = false,
                              const NamingConvention& namconv = NamingConvention("SimBayes"));
-GSTLEARN_EXPORT bool isCovValidForTurningBands(const ECov& type);

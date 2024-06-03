@@ -10,7 +10,9 @@
 /******************************************************************************/
 #include "Covariances/CovLinear.hpp"
 
+#include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
 
 CovLinear::CovLinear(const CovContext& ctxt)
 : ACovFunc(ECov::LINEAR, ctxt)
@@ -50,4 +52,9 @@ double CovLinear::_evaluateCov(double h) const
     cov = r * 2 - h;
 
   return (cov);
+}
+
+double CovLinear::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  return operTB.IRFProcessOne(t0);
 }
