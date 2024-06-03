@@ -105,14 +105,14 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 
 * The objects manipulated through *gstlearn* R package (Database, Variograms, Polygons, etc...) are now **external pointers**.
 
-* If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `iCloneable` have this capability.
+* If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `iCloneable` have this capability ([see here](https://soft.mines-paristech.fr/gstlearn/doxygen-latest/classICloneable.html)).
 
 * The *gstlearn* objects memory content is not stored in the R workspace anymore. This means that saving the R workspace (`.RData`) is dangerous because it stores only memory pointers that won't be valid when loading the workspace in a future R session.
 
-* People who want to recover the objects content for a future R session, have to save them to 'Neutral Files' using `dumpToNF` method before quitting R. All classes that inherits from `ASerializable` have this capability. The following R code explains how to create a 'Neutral File' and load it later:
+* People who want to recover the objects content for a future R session, have to save them to 'Neutral Files' using `dumpToNF` method before quitting R. All classes that inherits from `ASerializable` have this capability ([see here](https://soft.mines-paristech.fr/gstlearn/doxygen-latest/classASerializable.html)). The following R code explains how to create a 'Neutral File' and load it later:
 
 ```{r , eval=FALSE}
-# Create a Neutral File storing mygrid content
+# Create a Neutral File storing db content
 db$dumpToNF("mygrid.backup.nf") # This could produce an error - see below
 #...
 # Restart the R session
