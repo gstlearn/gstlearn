@@ -28,3 +28,5 @@ jobs:
     uses: ./.github/workflows/nonreg-tests_windows-latest-rtools.yml
   call-ubuntu-latest:
     uses: ./.github/workflows/nonreg-tests_ubuntu-latest.yml
+  call-check-code:
+    uses: ./.github/workflows/check_code.yml
