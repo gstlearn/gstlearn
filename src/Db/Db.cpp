@@ -2587,13 +2587,12 @@ int Db::getSelection(int iech) const
  */
 GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
 {
-  int nech = getSampleNumber();
-  if (!hasLocVariable(ELoc::SEL)) return (nech);
+  if (!hasLocVariable(ELoc::SEL)) return (getSampleNumber());
 
   /* Case when a selection is present */
 
   int count = 0;
-  for (int iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
   }
@@ -2648,7 +2647,7 @@ int Db::getSampleNumber(bool useSel) const
   else
   {
     int count = 0;
-    for (int iech = 0; iech < _nech; iech++)
+    for (int iech = 0; iech < getSampleNumber(); iech++)
     {
       if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
     }
@@ -2664,7 +2663,7 @@ int Db::getSampleNumber(bool useSel) const
 int Db::getNumberActiveAndDefined(int item) const
 {
   int count = 0;
-  for (int iech = 0; iech < _nech; iech++)
+  for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     if (isActiveAndDefined(iech, item)) count++;
   }
@@ -3294,7 +3293,6 @@ VectorInt Db::getSelectionRanks() const
     if (value > 0) ranks.push_back(iech);
   }
   return ranks;
-
 }
 
 /**
