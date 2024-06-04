@@ -80,8 +80,13 @@ include(cmake/install.cmake)
 ####################################################
 ## PACKAGES
 
-add_subdirectory(python)
-add_subdirectory(r)
+if(BUILD_PYTHON)
+  add_subdirectory(python)
+endif()
+
+if(BUILD_R)
+  add_subdirectory(r)
+endif()
 
 ####################################################
 ## TESTING
