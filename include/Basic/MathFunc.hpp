@@ -50,8 +50,9 @@ GSTLEARN_EXPORT void mvndst4(double *lower,
 GSTLEARN_EXPORT int bessel_j(double x, double alpha, int nb, double *b);
 GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk);
 GSTLEARN_EXPORT double loggamma(double parameter);
-GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v);
-GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta);
+GSTLEARN_EXPORT double ut_legendre(int n, double v, bool flagNorm = true);
+GSTLEARN_EXPORT double ut_flegendre(int n, int k0, double theta, bool flagNorm = true);
+GSTLEARN_EXPORT double ut_sphericalHarmonic(int n, int k, double theta, double phi);
 GSTLEARN_EXPORT double golden_search(double (*func_evaluate)(double test,
                                                              void *user_data),
                                      void *user_data,
@@ -82,3 +83,7 @@ GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
 GSTLEARN_EXPORT MatrixRectangular* vanDerCorput(int n, int nd);
 GSTLEARN_EXPORT MatrixRectangular fillLegendreMatrix(const VectorDouble &r,
                                                      int legendreOrder);
+GSTLEARN_EXPORT VectorDouble ut_sphericalHarmonicVec(int n,
+                                                     int k,
+                                                     VectorDouble theta,
+                                                     VectorDouble phi);

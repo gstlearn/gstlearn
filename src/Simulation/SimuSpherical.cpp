@@ -132,7 +132,7 @@ int SimuSpherical::simulate(DbGrid *db,
       double degree_loc = degree[ibf];
       double order_loc = order[ibf];
       double phase_loc = phase[ibf];
-      double t1 = ut_flegendre(1, (int) degree_loc, (int) order_loc, theta);
+      double t1 = ut_flegendre((int) degree_loc, (int) order_loc, theta);
       for (int ix = 0; ix < nx; ix++, ecr++)
       {
         int jech = IPTR(ix, iy);
@@ -220,7 +220,7 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical *mesh,
       double degree_loc = degree[ibf];
       double order_loc = order[ibf];
       double phase_loc = phase[ibf];
-      double t1 = ut_flegendre(1, (int) degree_loc, (int) order_loc, theta);
+      double t1 = ut_flegendre((int) degree_loc, (int) order_loc, theta);
 
       double phi = ut_deg2rad(mesh->getApexCoor(iech, 0));  // Longitude [0,360]
       double t2 = cos(phi * order_loc + phase_loc);
@@ -380,7 +380,7 @@ VectorDouble SimuSpherical::_spectrum_any(Model *model,
       double alpha = DISCRET(idisc);
       double cosa = cos(alpha);
       double sina = sin(alpha);
-      an += covs[idisc] * sina * ut_legendre(1, ifreq, cosa);
+      an += covs[idisc] * sina * ut_legendre(ifreq, cosa);
     }
     double value = an * dincr * sqrt((2. * ifreq + 1) / 2.);
     freqs.push_back(value);
