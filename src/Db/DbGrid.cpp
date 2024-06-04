@@ -1872,7 +1872,7 @@ VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getActiveSampleNumber();
+  int nech = getSampleNumber(true);
   VectorInt indmin(ndim,  10000000);
   VectorInt indmax(ndim, -10000000);
   VectorInt indg(ndim);
@@ -1943,7 +1943,7 @@ int DbGrid::setSelectionFromVariableExtend(const String &nameTop, const String &
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getActiveSampleNumber();
+  int nech = getSampleNumber(true);
   int iuid_top = getUID(nameTop);
   int iuid_bot = getUID(nameBot);
 

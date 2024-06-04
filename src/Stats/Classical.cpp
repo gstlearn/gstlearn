@@ -1960,7 +1960,8 @@ VectorVectorInt correlationPairs(Db *db1,
 
   if (db1 == nullptr) return indices;
   if (db2 == nullptr) return indices;
-  if (db1->getNDim() != db2->getNDim() || db1->getActiveSampleNumber() != db2->getActiveSampleNumber())
+  if (db1->getNDim() != db2->getNDim() ||
+      db1->getSampleNumber(true) != db2->getSampleNumber(true))
   {
     messerr("The two input 'db' are not compatible");
     return indices;

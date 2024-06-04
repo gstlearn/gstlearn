@@ -2588,8 +2588,8 @@ static int st_fill_Bnugget(Db *dbin)
 static int *st_get_vertex_ranks(AMesh *amesh, Db* dbin, Db* dbout)
 {
   int nvertex = amesh->getNApices();
-  int n_in  = (dbin != nullptr) ? dbin->getActiveSampleNumber() : 0;
-  int n_out = dbout->getActiveSampleNumber();
+  int n_in  = (dbin != nullptr) ? dbin->getSampleNumber(true) : 0;
+  int n_out = dbout->getSampleNumber(true);
   if (nvertex < (n_in + n_out))
     messageAbort("Nvertex(%d) must be larger than n_in(%d) + n_out(%d)",
                  nvertex, n_in, n_out);

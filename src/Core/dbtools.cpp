@@ -923,24 +923,24 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
   /* Evaluate the density */
 
-  int ngrid = dbgrid->getActiveSampleNumber();
+  int ngrid = dbgrid->getSampleNumber(true);
   VectorDouble dens;
   dens.resize(ngrid,0.);
   double denstot = 0.;
   if (flag_dens)
   {
-    for (int ig = 0; ig < ngrid; ig++)
+    int ig = 0;
+    for (int jg = 0, ng = dbgrid->getActiveSampleNumber(); jg < ng; jg++)
     {
-      if (!dbgrid->isActive(ig)) continue;
-      double densloc = dbgrid->getLocVariable(ELoc::Z,ig, 0);
-      if (FFFF(densloc) || densloc < 0) continue;
-      denstot += densloc;
-      dens[ig] = denstot;
+      if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
+      double densloc = dbgrid->getLocVariable(ELoc::Z,jg, 0);
+      if (densloc >= 0) denstot += densloc;
+      dens[ig++] = denstot;
     }
   }
   else
   {
-    denstot = dbgrid->getActiveSampleNumber();
+    denstot = dbgrid->getSampleNumber(true);
   }
 
   /* Point generation */
