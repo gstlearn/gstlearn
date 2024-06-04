@@ -3279,18 +3279,23 @@ VectorDouble Db::getSelections(void) const
   return tab;
 }
 
-VectorInt Db::getSelectionRanks() const
+VectorInt Db::getRanksActive() const
 {
   int nech = getSampleNumber();
   VectorInt ranks;
 
   int icol = getColIdxByLocator(ELoc::SEL,0);
-  if (!isColIdxValid(icol)) return ranks;
-
-  for (int iech = 0; iech < nech; iech++)
+  if (!isColIdxValid(icol))
   {
-    double value = getValueByColIdx(iech, icol);
-    if (value > 0) ranks.push_back(iech);
+    ranks = VH::sequence(nech);
+  }
+  else
+  {
+    for (int iech = 0; iech < nech; iech++)
+    {
+      double value = getValueByColIdx(iech, icol);
+      if (value > 0) ranks.push_back(iech);
+    }
   }
   return ranks;
 }
@@ -4580,7 +4585,7 @@ int Db::resetReduce(const Db *dbin,
   if (ranksel.empty())
   {
     if (dbin->hasLocVariable(ELoc::SEL))
-      ranksel = dbin->getSelectionRanks();
+      ranksel = dbin->getRanksActive();
     else
       ranksel = VH::sequence(dbin->getSampleNumber());
   }

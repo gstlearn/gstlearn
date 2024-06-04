@@ -500,11 +500,11 @@ public:
   VectorDouble getTangent(int item, bool useSel = false) const;
   VectorDouble getCodeList(void);
 
-  int    getSelection(int iech) const;
+  int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getSelectionRanks() const;
+  VectorInt    getRanksActive() const;
 
-  double getWeight(int iech) const;
+  double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
   /** @addtogroup DB_1 Variable designation (used for simulations in particular)
