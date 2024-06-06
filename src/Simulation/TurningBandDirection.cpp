@@ -8,11 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Simulation/TurningBandDirection.hpp"
 #include "geoslib_old_f.h"
-#include "Simulation/TurningDirection.hpp"
 #include "Db/DbGrid.hpp"
 
-TurningDirection::TurningDirection()
+TurningBandDirection::TurningBandDirection()
     : _tmin(0.),
       _tmax(0.),
       _scale(0.),
@@ -25,7 +25,7 @@ TurningDirection::TurningDirection()
   _ang.resize(3);
 }
 
-TurningDirection::TurningDirection(const TurningDirection &r)
+TurningBandDirection::TurningBandDirection(const TurningBandDirection &r)
     : _tmin(r._tmin),
       _tmax(r._tmax),
       _scale(r._scale),
@@ -37,7 +37,7 @@ TurningDirection::TurningDirection(const TurningDirection &r)
 {
 }
 
-TurningDirection& TurningDirection::operator=(const TurningDirection &r)
+TurningBandDirection& TurningBandDirection::operator=(const TurningBandDirection &r)
 {
   if (this != &r)
   {
@@ -53,7 +53,7 @@ TurningDirection& TurningDirection::operator=(const TurningDirection &r)
   return *this;
 }
 
-TurningDirection::~TurningDirection()
+TurningBandDirection::~TurningBandDirection()
 {
 }
 
@@ -69,7 +69,7 @@ TurningDirection::~TurningDirection()
  ** \param[in]  iz      grid index along Z
  **
  *****************************************************************************/
-double TurningDirection::projectGrid(const DbGrid* db,
+double TurningBandDirection::projectGrid(const DbGrid* db,
                                      int ix,
                                      int iy,
                                      int iz) const
@@ -98,7 +98,7 @@ double TurningDirection::projectGrid(const DbGrid* db,
  ** \param[in]  iech    rank of the sample
  **
  *****************************************************************************/
-double TurningDirection::projectPoint(const Db *db, int iech) const
+double TurningBandDirection::projectPoint(const Db *db, int iech) const
 {
   double t = 0.;
   for (int idim = 0; idim < db->getNDim(); idim++)

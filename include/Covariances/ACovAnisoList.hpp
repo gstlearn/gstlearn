@@ -124,6 +124,8 @@ public:
   const ECov&        getType(int icov) const;
   String             getCovName(int icov) const;
   double             getParam(unsigned int icov) const;
+  double             getRange(int icov) const;
+  VectorDouble       getRanges(int icov) const;
   const MatrixSquareSymmetric& getSill(unsigned int icov) const;
   double             getSill(unsigned int icov, int ivar, int jvar) const;
   int                getGradParamNumber(unsigned int icov) const;

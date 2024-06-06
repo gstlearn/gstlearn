@@ -378,7 +378,14 @@ double CovAniso::simulateTurningBand(double t0, TurningBandOperate &operTB) cons
 {
   return _cova->simulateTurningBand(t0, operTB);
 }
-
+bool CovAniso::isValidForSpectral() const
+{
+  return _cova->isValidForSpectral();
+}
+MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
+{
+  return _cova->simulateSpectralOmega(nb);
+}
 bool CovAniso::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : check something in CovAniso::isConsistent?
@@ -951,24 +958,6 @@ int CovAniso::getGradParamNumber() const
   return number;
 }
 
-double CovAniso::scale2range(const ECov &type, double scale, double param)
-{
-  CovContext ctxt = CovContext(1, 1);
-  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
-  cova->setParam(param);
-  double scadef = cova->getScadef();
-  return scale * scadef;
-}
-
-double CovAniso::range2scale(const ECov &type, double range, double param)
-{
-  CovContext ctxt = CovContext(1, 1);
-  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
-  cova->setParam(param);
-  double scadef = cova->getScadef();
-  return range / scadef;
-}
-
 CovAniso* CovAniso::createIsotropic(const CovContext &ctxt,
                                     const ECov &type,
                                     double range,
@@ -1154,3 +1143,20 @@ void CovAniso::optimizationPostProcess() const
 	_p1As.clear();
 }
 
+double scale2range(const ECov &type, double scale, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double scadef = cova->getScadef();
+  return scale * scadef;
+}
+
+double range2scale(const ECov &type, double range, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double scadef = cova->getScadef();
+  return range / scadef;
+}

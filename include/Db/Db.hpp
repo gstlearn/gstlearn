@@ -404,6 +404,7 @@ public:
 
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
+  MatrixRectangular getAllCoordinatesMat() const;
   void   setCoordinate(int iech, int idim, double value);
 
   double getDistance1D(int iech, int jech, int idim=0, bool flagAbs = false) const;

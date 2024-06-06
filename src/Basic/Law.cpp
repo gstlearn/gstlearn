@@ -21,7 +21,7 @@
 static int Random_factor     = 105;
 static int Random_congruent  = 20000159;
 static int Random_value      = 43241421;
-static bool Random_Old_Style = true;
+static bool Random_Old_Style = false;
 std::mt19937 Random_gen;
 
 /*! \cond */

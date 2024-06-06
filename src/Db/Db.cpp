@@ -361,6 +361,9 @@ int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
+  int number = p.getLocatorNumber();
+  if (number <= 0) return -1;
+  if (locatorIndex >= number) return -1;
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
@@ -894,7 +897,7 @@ int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) cons
 }
 
 /**
- * Constitute a Vector of Vector of coordinates at a given sample, for all (active) samples
+ * Constitute a Vector of Vector of coordinates for all (active) samples
  * - the first dimension is the space dimension
  * - the second dimension is the number of (active) samples
  * @param useSel
@@ -909,6 +912,29 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
     result.push_back(local);
   }
   return result;
+}
+
+/**
+ * Constitute a Matrix of coordinates for all (active) samples
+ * - one row per sample
+ * - one column by Space Dimension
+ * @return
+ */
+MatrixRectangular Db::getAllCoordinatesMat() const
+{
+  int nech = getSampleNumber(true);
+  int ndim = getNDim();
+
+  MatrixRectangular mat(nech, ndim);
+
+  VectorInt ranks = getRanksActive();
+  for (int jech = 0; jech < nech; jech++)
+  {
+    int iech = ranks[jech];
+    VectorDouble coors = getSampleCoordinates(iech);
+    mat.setRow(iech, coors);
+  }
+  return mat;
 }
 
 void Db::setCoordinate(int iech, int idim, double value)
@@ -3285,7 +3311,7 @@ VectorInt Db::getRanksActive() const
   VectorInt ranks;
 
   int icol = getColIdxByLocator(ELoc::SEL,0);
-  if (!isColIdxValid(icol))
+  if (icol < 0)
   {
     ranks = VH::sequence(nech);
   }

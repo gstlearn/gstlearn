@@ -138,6 +138,8 @@ public:
   const ECov& getCovaType(int icov) const;
   const MatrixSquareSymmetric getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
+  double getRange(int icov) const;
+  VectorDouble getRanges(int icov) const;
   double getParam(int icov) const;
   bool isCovaFiltered(int icov) const;
   bool isStationary() const;

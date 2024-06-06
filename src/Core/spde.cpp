@@ -1304,10 +1304,10 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   if (cova->getType() != ECov::EXPONENTIAL) return;
 
   range_exp = cova->getRange();
-  scale_exp = CovAniso::range2scale(ECov::EXPONENTIAL, range_exp, 0.);
+  scale_exp = range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
-  range_bes = CovAniso::scale2range(ECov::BESSEL_K, scale_bes, 0.5);
+  range_bes = scale2range(ECov::BESSEL_K, scale_bes, 0.5);
 
   cova->setType(ECov::BESSEL_K);
   cova->setParam(0.5);
