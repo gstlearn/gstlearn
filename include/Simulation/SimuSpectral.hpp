@@ -24,7 +24,7 @@ class MatrixRectangular;
 class GSTLEARN_EXPORT  SimuSpectral
 {
 public:
-  SimuSpectral(const Model *model);
+  SimuSpectral(const Model *model = nullptr);
   SimuSpectral(const SimuSpectral &r);
   SimuSpectral& operator=(const SimuSpectral &r);
   virtual ~ SimuSpectral();

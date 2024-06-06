@@ -1,0 +1,258 @@
+---
+title: "Spectral simulation of random functions"
+author: "gstlearn Core Team"
+date: '2024-02-13'
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+
+# global parameters
+flag.verbose = FALSE
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+
+source(file = "./function_auxiliary.R")
+```
+
+# Second order stationary random functions
+
+Selection of the covariance model. It can only be:
+- GAUSSIAN
+- EXPONENTIAL
+- BESSEL_K
+
+```{r cov_type, echo = TRUE, eval = TRUE}
+# type_cov <- "GAUSSIAN"; nu = 10
+type_cov <- "EXPONENTIAL"; nu = 1/2
+# type_cov <- "BESSEL_K"; nu <- 1
+
+# Define the title (used for plots)
+title = paste0(type_cov, " model")
+if (type_cov == "BESSEL_K") {title = paste0(title, " (nu = ", nu, ")")}
+```
+
+## 1D simulation of a random function
+
+```{r 1d_simulation, echo = TRUE, eval = TRUE}
+# Definition of the Space
+err = defineDefaultSpace(ESpaceType_RN(), 1)
+
+# specification of the model (theoretical range is provided in 'a')
+a <- c(25)
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+                             ranges = a, param = nu, flagRange=FALSE)
+
+# target data base
+nx <- c(10000)
+dx <- c(1.)
+grid = DbGrid_create(nx = nx, dx = dx)
+
+# initialization of the simulator
+nb <- 1000 # number of spectral components
+ns <- 10   # number of simulations
+seed <- 13112 # Seed for the first simulation
+
+sims = SimuSpectral(mod)
+for (n in 1:ns) {
+  sims$simulate(nb = nb, seed = seed)
+  sims$compute(grid, namconv = NamingConvention(paste("S", n, sep = "."))) 
+  seed = 0 # The seed for the next simulations is not given anymore
+}
+```
+
+
+```{r 1d_controls, echo = TRUE, eval = TRUE}
+# statistics
+knitr::kable(dbStatisticsMono(db = grid, names = "S.*", opers = opers)$toTL(),
+             digits = 3, caption = title)
+
+# histogram
+p = ggDefault() + 
+  plot.hist(db = grid, name = "S.1", bins = 25, col = "skyblue") +
+  plot.decoration(title = title)
+ggPrint(p)
+
+# experimental variogram for the first simulation and simulated model
+nlag = 50
+varioPar = VarioParam_createMultipleFromGrid(grid, npas = nlag)
+err = grid$setLocator(name = "S.1", locatorType = ELoc_Z(), 
+                      cleanSameLocator = TRUE)
+vario = Vario_computeFromDb(varioPar, grid)
+p = ggDefault() + 
+  plot.varmod(vario = vario, model = mod, flagLegend=TRUE) +
+  plot.decoration(title = title)
+ggPrint(p)
+
+# variograms on all simulations
+vl = list()
+for (s in 1:ns) {
+  err = grid$setLocator(name = paste("S", s, sep = "."), 
+                        locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+  vl[[1 + length(vl)]] <- Vario_computeFromDb(varioPar, grid)
+}
+err = qc_variogram_s(var_list = vl, var_param = varioPar, title = title)
+hh = as.matrix((0:nlag)*dx)
+gg = mod$sample(hh, mode=CovCalcMode_create(asVario=TRUE))
+lines(hh, gg, col = "skyblue" )
+```
+
+## 2D simulation of a random function
+
+```{r 2d_simulation, echo = TRUE, eval = TRUE}
+err = defineDefaultSpace(ESpaceType_RN(), 2)
+
+# specification of the model (theoretical range is provided in 'a')
+a  = c(10, 20)
+angles = c(30., 0)
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+                             ranges = a, param = nu, angles=angles,
+                             flagRange=FALSE)
+
+# Two intersecting grids
+grid1 = DbGrid_create(nx = c(256, 256))
+grid2 = DbGrid_create(nx = c(100, 100), x0 = c(200, 200), dx = c(1,1))
+
+# Initialization of the simulator
+seed <- 3132
+sims = SimuSpectral(mod)
+sims$simulate(nb = nb, seed = seed)
+
+# computing the simulation on two intersecting grids
+err = sims$compute(db = grid1, namconv = NamingConvention("S1"))
+err = sims$compute(db = grid2, namconv = NamingConvention("S1"))
+
+p = ggDefaultGeographic() +
+  plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
+  plot.grid(grid2, nameRaster = "S1", palette = "Spectral") + 
+  plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
+ggPrint(p)
+
+# Control that the values on the intersection of the two grids are identical
+err = migrate(dbin = grid1, dbout = grid2, name = "S1", 
+              namconv = NamingConvention("grid1"))
+p = ggDefault() +
+  plot.correlation(grid2, namex = "S1", namey = "grid1.S1", asPoint = TRUE,
+                   flagDiag = TRUE, flagSameAxes = TRUE) +
+  plot.decoration(xlab = "simulation on grid1", ylab = "simulation on grid2",
+                  title = title)
+ggPrint(p)
+
+# computing the simulation on scattered points (extracted from grid1)
+grid1["sel"] <- sample(c(1, 0), size = grid1$getSampleNumber(), replace = TRUE,
+                       prob = c(0.005, 0.995))
+err = grid1$setLocator("sel", ELoc_SEL(), cleanSameLocator = TRUE)
+db = Db()
+db["x1"] <- grid1$getColumn(name = "x1", useSel = TRUE)
+db["x2"] <- grid1$getColumn(name = "x2", useSel = TRUE)
+db["grid1.S1"] <- grid1$getColumn(name = "S1", useSel = TRUE)
+err = db$setLocators(c("x1", "x2"), ELoc_X(), cleanSameLocator = TRUE)
+err = grid1$clearSelection()
+
+# computing the simulation on scattered points
+err = sims$compute(db = db, namconv = NamingConvention("S1"))
+
+p1 = ggDefaultGeographic() +
+  plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
+  plot.point(db, color = "red") + 
+  plot.decoration(xlab = "Easting", ylab = "Norhting", title = title)
+
+# control that the values on the intersection of the two grids are identical
+p2 = ggDefault() +
+  plot.correlation(db, namex = "S1", namey = "grid1.S1", asPoint = TRUE, 
+                   flagDiag = TRUE, flagSameAxes = TRUE) +
+  plot.decoration(xlab = "simulation on db", ylab = "simulation on grid1", 
+                  title = title)
+
+ggarrange(p1, p2, nrow = 1, ncol = 2)
+```
+
+```{r 2d_controls, echo = TRUE, eval = TRUE}
+# statistics
+knitr::kable(rbind(
+  dbStatisticsMono(db = grid1, names = "S1", opers = opers)$toTL(),
+  dbStatisticsMono(db = grid2, names = c("S1"), opers = opers, 
+                   flagIso = TRUE)$toTL(),
+  dbStatisticsMono(db = db, names = c("S1"), opers = opers, 
+                   flagIso = TRUE)$toTL()),
+  digits = 3, caption = title)
+
+# variogram on the simulations
+nlag = 25
+coldir = c("green", "blue", "red")
+err = grid1$setLocator("S1", ELoc_Z(), cleanSameLocator = TRUE)
+varioPar = VarioParam_createMultipleFromGrid(grid1, npas=nlag)
+
+# computing the experimental variogram  
+vario = Vario_computeFromDb(varioPar, grid1)
+
+p = ggDefault() + 
+  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
+  plot.decoration(title = title)
+ggPrint(p)
+```
+
+## 3D simulation of a random function
+
+```{r 3d_simulation, echo = TRUE, eval = TRUE}
+err = defineDefaultSpace(ESpaceType_RN(), 3)
+
+# specification of the model (theoretical range is provided in 'a')
+a  = c(10, 20, 10)
+angles = c(30., 0, 0.)
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+                             ranges = a, param = nu, angles=angles,
+                             flagRange=FALSE)
+
+# Two intersecting grids
+nx <- c(100, 100, 20)
+dx <- c(1., 1., 1.)
+x0 <- c(10, 1000, 2)
+grid = DbGrid_create(nx = nx, x0 = x0, dx = dx)
+
+# Initialization of the simulator
+sims = SimuSpectral(mod)
+sims$simulate(nb = nb, seed = seed)
+
+# computing the simulation on the grid
+err = sims$compute(dbout = grid, namconv = NamingConvention("S1"))
+```
+
+```{r 3d_controls, echo = TRUE, eval = TRUE}
+# statistics
+knitr::kable(dbStatisticsMono(db = grid, names = "S1", opers = opers)$toTL(),
+             digits = 3, caption = title)
+
+# histogram
+p = ggDefault() + 
+  plot.hist(db = grid, name = "S1", bins = 25, col = "skyblue")
+ggPrint(p)
+
+# map
+p = ggDefaultGeographic() + 
+  plot.grid(grid, nameRaster = "S1", palette = "Spectral") +
+  plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
+ggPrint(p)
+
+# variogram on the simulations
+nlag = 20
+coldir = c("green", "red", "blue")
+err = grid$setLocator("S1", ELoc_Z(), cleanSameLocator = TRUE)
+varioPar = VarioParam_createMultipleFromGrid(grid, npas=nlag)
+
+# computing the experimental variogram  
+vario = Vario_computeFromDb(varioPar, grid)
+
+p = ggDefault() + 
+  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
+  plot.decoration(title = title)
+ggPrint(p)
+```
