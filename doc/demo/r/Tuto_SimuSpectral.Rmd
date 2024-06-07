@@ -19,8 +19,6 @@ library(ggpubr)
 # global parameters
 flag.verbose = FALSE
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
-
-source(file = "./function_auxiliary.R")
 ```
 
 # Second order stationary random functions
@@ -99,7 +97,7 @@ for (s in 1:ns) {
                         locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   vl[[1 + length(vl)]] <- Vario_computeFromDb(varioPar, grid)
 }
-err = qc_variogram_s(var_list = vl, var_param = varioPar, title = title)
+err = compare_variograms(var_list = vl, title = title)
 hh = as.matrix((0:nlag)*dx)
 gg = mod$sample(hh, mode=CovCalcMode_create(asVario=TRUE))
 lines(hh, gg, col = "skyblue" )
