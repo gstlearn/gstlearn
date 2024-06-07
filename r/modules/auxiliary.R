@@ -21,10 +21,10 @@
 #' @param title    Title to be printed
 #' @param idir     Rank of the direction to be plotted (0: all)
 #'
-compare_variograms <- function(var_list, title, dir = 0) {
-  nsim = length(var_list)
-  ndir = var_list[[0]]$getDirectionNumber()
-  nlags = var_list[[0]]$getLagNumber(idir-1)
+compare_variograms <- function(var_list, title, idir = 0) {
+  nsim  = length(var_list)
+  ndir  = var_list[[1]]$getDirectionNumber()
+  nlags = var_list[[1]]$getLagNumber(0)
   if (idir == 0) {
 	ldir = 1:ndir
   } else {
