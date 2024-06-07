@@ -5227,7 +5227,7 @@ void _image_smoother(DbGrid *dbgrid,
                           dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
                           { ELoc::Z.getKey() }, 1);
 
-  int nb_neigh = dbaux->getActiveSampleNumber();
+  int nb_neigh = dbaux->getSampleNumber(true);
   dbaux->rankToIndice(nb_neigh/2, indn0);
 
   /* Loop on the targets to be processed */

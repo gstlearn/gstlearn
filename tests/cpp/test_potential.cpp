@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   grid = DbGrid::create(nx, dx);
 
   // Create the model
-  double range = CovAniso::scale2range(ECov::GAUSSIAN, 20.);
+  double range = scale2range(ECov::GAUSSIAN, 20.);
   model = Model::createFromParam(ECov::GAUSSIAN, range);
   model->switchToGradient();
 

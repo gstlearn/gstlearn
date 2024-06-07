@@ -12,8 +12,8 @@
 #include "geoslib_f_private.h"
 
 #include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/TurningDirection.hpp"
 #include "Simulation/TurningBandOperate.hpp"
+#include "Simulation/TurningBandDirection.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Model/Model.hpp"
 #include "Anamorphosis/AAnam.hpp"
@@ -28,6 +28,7 @@
 #include "Db/DbGrid.hpp"
 
 #include <math.h>
+
 
 CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
     : ACalcSimulation(nbsimu, seed),
@@ -83,7 +84,7 @@ bool CalcSimuTurningBands::_resize()
     int nbands = nbsimu * _nbtuba * ncova;
     _codirs.resize(nbands);
     for (int i = 0; i < nbands; i++)
-      _codirs[i] = TurningDirection();
+      _codirs[i] = TurningBandDirection();
   }
 
   return true;
@@ -2156,8 +2157,7 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-bool CalcSimuTurningBands::isTurningBandsWorkable(const Model *model)
-
+bool CalcSimuTurningBands::isValidForTurningBands(const Model *model)
 {
   /* Loop on the structures */
 
@@ -2446,4 +2446,3 @@ int simbayes(Db *dbin,
   int error = (situba.run()) ? 0 : 1;
   return error;
 }
-

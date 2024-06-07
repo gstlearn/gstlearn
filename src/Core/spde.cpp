@@ -1304,10 +1304,10 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   if (cova->getType() != ECov::EXPONENTIAL) return;
 
   range_exp = cova->getRange();
-  scale_exp = CovAniso::range2scale(ECov::EXPONENTIAL, range_exp, 0.);
+  scale_exp = range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
-  range_bes = CovAniso::scale2range(ECov::BESSEL_K, scale_bes, 0.5);
+  range_bes = scale2range(ECov::BESSEL_K, scale_bes, 0.5);
 
   cova->setType(ECov::BESSEL_K);
   cova->setParam(0.5);
@@ -2588,8 +2588,8 @@ static int st_fill_Bnugget(Db *dbin)
 static int *st_get_vertex_ranks(AMesh *amesh, Db* dbin, Db* dbout)
 {
   int nvertex = amesh->getNApices();
-  int n_in  = (dbin != nullptr) ? dbin->getActiveSampleNumber() : 0;
-  int n_out = dbout->getActiveSampleNumber();
+  int n_in  = (dbin != nullptr) ? dbin->getSampleNumber(true) : 0;
+  int n_out = dbout->getSampleNumber(true);
   if (nvertex < (n_in + n_out))
     messageAbort("Nvertex(%d) must be larger than n_in(%d) + n_out(%d)",
                  nvertex, n_in, n_out);

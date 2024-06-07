@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 class TurningBandOperate;
 
@@ -58,6 +59,10 @@ public:
   // Specific to Turning Band Simulation Method
   virtual bool isValidForTurningBand() const { return false; }
   virtual double simulateTurningBand(double t0, TurningBandOperate &operTB) const { return TEST; }
+
+  // Specific for Spectral Simulation Method
+  virtual bool isValidForSpectral() const { return false; }
+  virtual MatrixRectangular simulateSpectralOmega(int nb) const { return MatrixRectangular(); }
 
   ///////////////////////////////////////////////////
 

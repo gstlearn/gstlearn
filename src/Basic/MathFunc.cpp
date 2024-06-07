@@ -2313,7 +2313,7 @@ double loggamma(double parameter)
  **
  ** \param[in]  n           Degree
  ** \param[in]  v           Value
- ** \param[in]  flag_norm   True for normalized and 0 otherwise
+ ** \param[in]  flagNorm    True for normalized and 0 otherwise
  **
  *****************************************************************************/
 double ut_legendre(int n, double v, bool flagNorm)
@@ -2334,7 +2334,7 @@ double ut_legendre(int n, double v, bool flagNorm)
  ** \param[in]  n           Degree
  ** \param[in]  k0          Order (ABS(k0) <= n)
  ** \param[in]  theta       Theta angle in radian
- ** \param[in]  flag_norm 1 for normalized and 0 otherwise
+ ** \param[in]  flagNorm    for normalized and 0 otherwise
  **
  *****************************************************************************/
 double ut_flegendre(int n, int k0, double theta, bool flagNorm)
@@ -2357,7 +2357,7 @@ double ut_flegendre(int n, int k0, double theta, bool flagNorm)
  **  Returns the Spherical harmonic
  **
  ** \param[in]  n           Degree of HS (n >= 0)
- ** \param[in]  k0          Order of the HS (-n <= k <= n)
+ ** \param[in]  k           Order of the HS (-n <= k <= n)
  ** \param[in]  theta       Colatitude angle in radian (0 <= theta <= pi
  ** \param[in]  phi         Longitude angle in radian (0 <= phi <= 2* pi)
  **

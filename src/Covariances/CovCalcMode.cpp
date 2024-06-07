@@ -53,9 +53,11 @@ CovCalcMode::~CovCalcMode()
 {
 }
 
-CovCalcMode* CovCalcMode::create(const ECalcMember &member)
+CovCalcMode* CovCalcMode::create(const ECalcMember &member, bool asVario)
 {
-  return new CovCalcMode(member);
+  CovCalcMode* local = new CovCalcMode(member);
+  local->setAsVario(asVario);
+  return local;
 }
 
 void CovCalcMode::setActiveCovListFromOne(int keepOnlyCovIdx)

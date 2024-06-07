@@ -22,13 +22,13 @@ class Db;
  * Class for management of Directions used in Turning Band algorithm
  * Remark: The 3-D definition is compulsory (even in 2-D)
  */
-class GSTLEARN_EXPORT TurningDirection
+class GSTLEARN_EXPORT TurningBandDirection
 {
 public:
-  TurningDirection();
-  TurningDirection(const TurningDirection& r);
-  TurningDirection& operator=(const TurningDirection& r);
-  virtual ~TurningDirection();
+  TurningBandDirection();
+  TurningBandDirection(const TurningBandDirection& r);
+  TurningBandDirection& operator=(const TurningBandDirection& r);
+  virtual ~TurningBandDirection();
 
   const VectorDouble& getAng() const { return _ang; }
   double getAng(int i) const { return _ang[i]; }

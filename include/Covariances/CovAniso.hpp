@@ -28,6 +28,7 @@
 
 class Rotation;
 class MatrixSquareGeneral;
+class MatrixRectangular;
 
 /**
  * \brief
@@ -107,6 +108,9 @@ public:
                            const CovCalcMode *mode = nullptr) const override;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
+  bool isValidForSpectral() const ;
+  MatrixRectangular simulateSpectralOmega(int nb) const;
+
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,
@@ -208,9 +212,6 @@ public:
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrum() const { return _cova->hasSpectrum(); }
 
-  static double scale2range(const ECov& type, double scale, double param = 1.);
-  static double range2scale(const ECov& type, double range, double param = 1.);
-
   VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
   Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
@@ -243,3 +244,7 @@ private:
   Tensor _aniso;               /// Anisotropy parameters
   double _noStatFactor;        /// Correcting factor for non-stationarity
 };
+
+GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);
+GSTLEARN_EXPORT double range2scale(const ECov& type, double range, double param = 1.);
+

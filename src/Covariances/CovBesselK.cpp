@@ -13,6 +13,7 @@
 #include "Covariances/CovBesselK.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
@@ -128,4 +129,19 @@ double CovBesselK::simulateTurningBand(double t0, TurningBandOperate &operTB) co
     return operTB.cosineOne(t0);
   else
     return operTB.spectralOne(t0);
+}
+
+MatrixRectangular CovBesselK::simulateSpectralOmega(int nb) const
+{
+  int ndim = getContext().getNDim();
+  double param = getParam();
+  MatrixRectangular mat(nb, ndim);
+
+  for (int irow = 0; irow < nb; irow++)
+  {
+    double scale = sqrt(param / law_gamma(param));
+    for (int icol = 0; icol < ndim; icol++)
+      mat.setValue(irow, icol, scale * law_gaussian());
+  }
+  return mat;
 }
