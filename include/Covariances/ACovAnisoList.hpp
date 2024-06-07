@@ -123,16 +123,17 @@ public:
   void               setCova(int icov, CovAniso* covs);
   const ECov&        getType(int icov) const;
   String             getCovName(int icov) const;
-  double             getParam(int icov) const;
-  double             getRange(int icov) const;
-  const MatrixSquareSymmetric& getSill(int icov) const;
-  double             getSill(int icov, int ivar, int jvar) const;
-  int                getGradParamNumber(int icov) const;
-  void               setSill(int icov, int ivar, int jvar, double value);
   void               setRangeIsotropic(int icov, double range);
   void               setType(int icov, const ECov& type);
   void               setParam(int icov, double value);
+  void               setSill(int icov, int ivar, int jvar, double value);
   void               setMarkovCoeffs(int icov, VectorDouble coeffs);
+  double             getParam(int icov) const;
+  double             getRange(int icov) const;
+  VectorDouble       getRanges(int icov) const;
+  const MatrixSquareSymmetric& getSill(int icov) const;
+  double             getSill(int icov, int ivar, int jvar) const;
+  int                getGradParamNumber(int icov) const;
   CovAniso           extractCova(int icov) const;
   int                getCovaMinIRFOrder() const;
 

@@ -481,19 +481,26 @@ double Model::getSill(int icov, int ivar, int jvar) const
   if (covalist == nullptr) return TEST;
   return covalist->getSill(icov, ivar, jvar);
 }
-double Model::getParam(int icov) const
-{
-  if (_cova == nullptr) return TEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return TEST;
-  return covalist->getParam(icov);
-}
 double Model::getRange(int icov) const
 {
   if (_cova == nullptr) return TEST;
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
   return covalist->getRange(icov);
+}
+VectorDouble Model::getRanges(int icov) const
+{
+  if (_cova == nullptr) return VectorDouble();
+  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  if (covalist == nullptr) return VectorDouble();
+  return covalist->getRanges(icov);
+}
+double Model::getParam(int icov) const
+{
+  if (_cova == nullptr) return TEST;
+  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  if (covalist == nullptr) return TEST;
+  return covalist->getParam(icov);
 }
 bool Model::isCovaFiltered(int icov) const
 {

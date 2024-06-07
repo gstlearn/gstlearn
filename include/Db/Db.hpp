@@ -404,6 +404,7 @@ public:
 
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
+  MatrixRectangular getAllCoordinatesMat() const;
   void   setCoordinate(int iech, int idim, double value);
 
   double getDistance1D(int iech, int jech, int idim=0, bool flagAbs = false) const;
@@ -500,11 +501,11 @@ public:
   VectorDouble getTangent(int item, bool useSel = false) const;
   VectorDouble getCodeList(void);
 
-  int    getSelection(int iech) const;
+  int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getSelectionRanks() const;
+  VectorInt    getRanksActive() const;
 
-  double getWeight(int iech) const;
+  double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
   /** @addtogroup DB_1 Variable designation (used for simulations in particular)

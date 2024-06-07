@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Simulation/TurningBandDirection.hpp"
 #include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/TurningDirection.hpp"
 #include "Model/Model.hpp"
 #include "Basic/VectorNumT.hpp"
 
@@ -56,7 +56,7 @@ public:
                         Model* model,
                         double delta);
 
-  static bool isTurningBandsWorkable(const Model *model);
+  static bool isValidForTurningBands(const Model *model);
 
   const MatrixSquareSymmetric& getBayesCov() const { return _bayesCov; }
   void setBayesCov(const MatrixSquareSymmetric &bayes_cov) { _bayesCov = bayes_cov; }
@@ -206,7 +206,7 @@ private:
   double _field;
   double _theta;
   VectorInt _seedBands;
-  std::vector<TurningDirection> _codirs;
+  std::vector<TurningBandDirection> _codirs;
 };
 
 GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,

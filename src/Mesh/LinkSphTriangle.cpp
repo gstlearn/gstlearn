@@ -104,7 +104,7 @@ int meshes_2D_sph_from_db(Db *db, SphTriangle *t)
 
   /* Count the number of active samples */
 
-  neff = db->getActiveSampleNumber();
+  neff = db->getSampleNumber(true);
 
   /* Core allocation */
 
