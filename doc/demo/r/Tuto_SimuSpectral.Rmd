@@ -145,8 +145,7 @@ p = ggDefault() +
 ggPrint(p)
 
 # computing the simulation on scattered points (extracted from grid1)
-grid1["sel"] <- sample(c(1, 0), size = grid1$getSampleNumber(), replace = TRUE,
-                       prob = c(0.005, 0.995))
+grid1["sel"] <- VectorHelper_simulateBernoulli(grid1$getSampleNumber(), proba=0.005)
 err = grid1$setLocator("sel", ELoc_SEL(), cleanSameLocator = TRUE)
 db = Db()
 db["x1"] <- grid1$getColumn(name = "x1", useSel = TRUE)
