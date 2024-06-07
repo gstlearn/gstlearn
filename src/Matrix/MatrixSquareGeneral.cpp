@@ -57,7 +57,6 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
- * @param opt_eigen Option for use of Eigen Library
  * @return The returned square matrix
  *
  * @remark: the matrix is transposed implicitly while reading

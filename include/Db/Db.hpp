@@ -16,7 +16,6 @@
 #include "Enum/EStatOption.hpp"
 
 #include "Db/PtrGeos.hpp"
-#include "Basic/Grid.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"

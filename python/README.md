@@ -95,7 +95,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11[global]* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy* and *matplotlib* modules installed
 * *pypandoc*, *scikit-sparse*, *plotly*, *jupyter* and *notebook* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
@@ -114,7 +114,7 @@ Note :
 sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
-python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
+python3 -m pip install numpy pandas scipy matplotlib
 ````
 
 3. Finally, execute the following commands (optional):
@@ -133,7 +133,7 @@ python3 -m pip install pypandoc plotly jupyter notebook scikit-sparse
 ````
 brew install python3
 brew install swig
-python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
+python3 -m pip install numpy pandas scipy matplotlib
 ````
 
 3. Finally, execute the following commands (optional):
@@ -162,7 +162,7 @@ Notes:
 3. Then, install additional Python modules by running following instructions in a command prompt:
 
 ````
-python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
+python -m pip install numpy pandas scipy matplotlib
 ````
 
 4. Finally, install optional Python modules by running following instructions in a command prompt:
@@ -264,7 +264,6 @@ cmake --build build --target check_ipynb --config Release
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
-* You may have to add the directory containing `pybind11-config` executable to the PATH environment variable
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).

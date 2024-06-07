@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovBesselJ.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include <math.h>
@@ -63,4 +65,9 @@ double CovBesselJ::_evaluateCov(double h) const
 String CovBesselJ::getFormula() const
 {
   return "C(h)=2^\\alpha\\Gamma(\\alpha+1) \\frac{ J_\\alpha\\left( \\frac{h}{a_t} \\right) } {\\left( \\frac{h}{a_t} \\right)^\\alpha}";
+}
+
+double CovBesselJ::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  return operTB.cosineOne(t0);
 }

@@ -1236,3 +1236,4 @@ double* law_exp_sample(double *tabin,
 
   return (tabout);
 }
+

@@ -14,6 +14,7 @@
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CovBesselK : public ACovFunc
 {
@@ -41,6 +42,9 @@ public:
   void   setCorrec(double val) override { _correc = val;}
   void   computeMarkovCoeffs(int dim) override;
 
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
@@ -48,5 +52,4 @@ protected:
 private:
   double _correc;
   VectorDouble _markovCoeffs;
-
 };

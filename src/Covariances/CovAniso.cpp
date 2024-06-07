@@ -370,6 +370,15 @@ void CovAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
   _aniso.setRotationAnglesAndRadius(angles, scales_local);
 }
 
+bool CovAniso::isValidForTurningBand() const
+{
+  return _cova->isValidForTurningBand();
+}
+double CovAniso::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  return _cova->simulateTurningBand(t0, operTB);
+}
+
 bool CovAniso::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : check something in CovAniso::isConsistent?

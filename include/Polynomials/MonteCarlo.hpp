@@ -12,6 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/VectorNumT.hpp"
+
 #define NBSIMU_DEF 1000
 
 GSTLEARN_EXPORT double integralGaussHermite(double yc,

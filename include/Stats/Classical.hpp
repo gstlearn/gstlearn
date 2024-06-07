@@ -19,6 +19,8 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
+class DbGrid;
+class Polygons;
 class Table;
 class VarioParam;
 

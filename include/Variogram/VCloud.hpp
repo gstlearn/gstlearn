@@ -23,6 +23,7 @@
 
 class Db;
 class ECalcVario;
+class Polygons;
 
 /**
  * \brief

@@ -20,7 +20,7 @@ unsigned long long getTotalSystemMemory()
   if (GlobalMemoryStatusEx(&status) == 0) return 0;
   return status.ullTotalPhys;
 }
-#elif __APPLE__
+#elif defined (__APPLE__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/vmmeter.h>

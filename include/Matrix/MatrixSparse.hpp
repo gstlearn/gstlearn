@@ -216,7 +216,7 @@ protected:
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
-  void _clear();
+  void _clear() override;
   bool _isElementPresent(int irow, int icol) const;
 
 private:

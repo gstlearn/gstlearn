@@ -2311,15 +2311,15 @@ double loggamma(double parameter)
 /*!
  **  Returns the Associated Legendre Function
  **
- ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
  ** \param[in]  v           Value
+ ** \param[in]  flag_norm   True for normalized and 0 otherwise
  **
  *****************************************************************************/
-double ut_legendre(int flag_norm, int n, double v)
+double ut_legendre(int n, double v, bool flagNorm)
 {
   double result = boost::math::legendre_p<double>(n, v);
-  if (flag_norm)
+  if (flagNorm)
   {
     double norme = sqrt((2. * ((double) n) + 1.) / 2.);
     result *= norme;
@@ -2331,25 +2331,53 @@ double ut_legendre(int flag_norm, int n, double v)
 /*!
  **  Returns the Spherical Legendre normalized function
  **
- ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
  ** \param[in]  k0          Order (ABS(k0) <= n)
  ** \param[in]  theta       Theta angle in radian
+ ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  **
  *****************************************************************************/
-double ut_flegendre(int flag_norm, int n, int k0, double theta)
+double ut_flegendre(int n, int k0, double theta, bool flagNorm)
 {
   int k = ABS(k0);
   std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
       n, k, theta, 0.);
   double result = resbis.real();
 
-  if (flag_norm)
+  if (flagNorm)
   {
     double norme = 1. / sqrt(2 * GV_PI);
     result /= norme;
   }
-  return (result);
+  return result;
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the Spherical harmonic
+ **
+ ** \param[in]  n           Degree of HS (n >= 0)
+ ** \param[in]  k0          Order of the HS (-n <= k <= n)
+ ** \param[in]  theta       Colatitude angle in radian (0 <= theta <= pi
+ ** \param[in]  phi         Longitude angle in radian (0 <= phi <= 2* pi)
+ **
+ *****************************************************************************/
+double ut_sphericalHarmonic(int n, int k, double theta, double phi)
+{
+  return boost::math::spherical_harmonic<double, double>(
+      n, k, theta, phi).real();
+}
+
+VectorDouble ut_sphericalHarmonicVec(int n,
+                                     int k,
+                                     VectorDouble theta,
+                                     VectorDouble phi)
+{
+  int size = (int) theta.size();
+  VectorDouble res(size);
+  for (int i = 0; i < size; i++)
+    res[i] = ut_sphericalHarmonic(n, k, theta[i], phi[i]);
+  return res;
 }
 
 /****************************************************************************/

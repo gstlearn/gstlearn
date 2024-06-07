@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovCubic.hpp"
 
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 
 CovCubic::CovCubic(const CovContext& ctxt)
@@ -68,4 +70,9 @@ double CovCubic::_evaluateCovDerivative(int degree, double h) const
 String CovCubic::getFormula() const
 {
   return "C(h)=1 - h^2 * \\left(7 + h * \\left(-8.75 + h^2 * \\left(3.5 - 0.75 * h^2 \\right) \\right) \\right)";
+}
+
+double CovCubic::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  return operTB.shotNoiseCubicOne(t0);
 }

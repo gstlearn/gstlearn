@@ -428,8 +428,8 @@ int Vario::computeIndic(Db *db,
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
 void Vario::resetReduce(const VectorInt &varcols,
-                   const VectorInt &dircols,
-                   bool asSymmetric)
+                        const VectorInt &dircols,
+                        bool asSymmetric)
 {
   VectorInt selvars;
   VectorInt seldirs;

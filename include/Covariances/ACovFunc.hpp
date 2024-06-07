@@ -18,6 +18,8 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 
+class TurningBandOperate;
+
 /* Covariance basic function for normalized sill and distance:
  * Positive definite function
  * */
@@ -52,6 +54,11 @@ public:
   virtual bool         hasCovOnSphere()   const { return false; }
   virtual bool         hasSpectrum()      const { return false; }
   virtual bool         hasMarkovCoeffs()  const { return false; }
+
+  // Specific to Turning Band Simulation Method
+  virtual bool isValidForTurningBand() const { return false; }
+  virtual double simulateTurningBand(double t0, TurningBandOperate &operTB) const { return TEST; }
+
   ///////////////////////////////////////////////////
 
   void setParam(double param);

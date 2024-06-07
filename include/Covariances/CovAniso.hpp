@@ -105,7 +105,8 @@ public:
                            int iech2,
                            MatrixSquareGeneral &mat,
                            const CovCalcMode *mode = nullptr) const override;
-
+  bool isValidForTurningBand() const;
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,
@@ -219,7 +220,7 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  int getDimensionNumber() const        { return _ctxt.getNDim(); }
+  int getDimensionNumber() const { return _ctxt.getNDim(); }
 
   CovAniso* createReduce(const VectorInt &validVars) const;
 

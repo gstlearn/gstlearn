@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Enum/ECov.hpp"
 
 GSTLEARN_EXPORT void law_set_old_style(bool style);
 GSTLEARN_EXPORT int law_get_random_seed(void);

@@ -292,6 +292,7 @@ set(SRC
   Simulation/ACalcSimulation.cpp
   Simulation/CalcSimuTurningBands.cpp
   Simulation/TurningDirection.cpp
+  Simulation/TurningBandOperate.cpp
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp
