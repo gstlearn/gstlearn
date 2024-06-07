@@ -18,10 +18,20 @@ option(USE_HDF5 "Using HDF5 support" OFF)
 # By default, do not activate NetCDF support
 #option(USE_NETCDF "Using NetCDF support" OFF)
 
-# Create gstlearn_DATE, gstlearn_YEAR and gstlearn_MONTH variables
-string(TIMESTAMP ${PROJECT_NAME}_DATE "%Y/%m/%d - %H:%M")
-string(TIMESTAMP ${PROJECT_NAME}_YEAR "%Y")
-string(TIMESTAMP ${PROJECT_NAME}_MONTH "%B")
+# Extract Git commit timestamp, hash
+find_package(Git)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} show -s --format=%ci
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE ${PROJECT_NAME}_DATE
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE ${PROJECT_NAME}_COMMIT
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 # Convert project name to uppercase
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
@@ -80,8 +90,13 @@ include(cmake/install.cmake)
 ####################################################
 ## PACKAGES
 
-add_subdirectory(python)
-add_subdirectory(r)
+if(BUILD_PYTHON)
+  add_subdirectory(python)
+endif()
+
+if(BUILD_R)
+  add_subdirectory(r)
+endif()
 
 ####################################################
 ## TESTING
