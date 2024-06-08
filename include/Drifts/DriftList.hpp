@@ -22,6 +22,7 @@
 class ASpace;
 class SpacePoint;
 class Db;
+class ELoc;
 
 /**
  * \brief
@@ -71,36 +72,25 @@ public:
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const ADrift*  getDrift(int il) const;
-  ADrift*        getDrift(int il); /// beurk :(
   int            getRankFex(int il) const;
   String         getDriftName(int il) const;
   ////////////////////////////////////////////////
 
-  const VectorDouble& getDriftCL() const { return _driftCL; }
-  const VectorDouble& getBetaHat() const { return _betaHat; }
+  const VectorDouble& getBetaHats() const { return _betaHat; }
 
-  /**
-   *
-   * @param ivar Rank of the variable (_nVar)
-   * @param il Rank of the drift function
-   * @param ib Rank of the drift equation (_driftEquationNumber)
-   * @return
-   */
-  double getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
-  void setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }
-  void resetDriftCL() { VectorHelper::fill(_driftCL, 0.); }
-  VectorDouble getDriftCLByPart(int ivar, int ib) const;
   void setDriftCLByPart(int ivar, int ib, const VectorDouble& coef);
+  void resetDriftList();
 
+  bool isDriftSampleDefined(const Db *db,
+                            int ib,
+                            int nech,
+                            const VectorInt &nbgh,
+                            const ELoc &loctype) const;
   double getDrift(const Db* db, int ib, int iech) const;
-  VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;
-  VectorDouble getDriftBySample(const Db* db, int iech) const;
+
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
-  double evalDriftCoef(const Db *db, int iech, const VectorDouble &coeffs) const;
-  VectorDouble evalDriftCoefVec(const Db *db,
-                                const VectorDouble &coeffs,
-                                bool useSel = false) const;
+  bool isFlagCombined() const { return _flagCombined; }
   int getDriftMaxIRFOrder(void) const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
@@ -108,23 +98,30 @@ public:
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
+  void setFlagCombined(bool flagCombined) { _flagCombined = flagCombined; }
   void setBetaHat(const VectorDouble &betaHat) { _betaHat = betaHat; }
-
-  void updateDriftList();
 
   double evalDrift(const Db* db,
                    int iech,
                    int il,
                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  VectorDouble evalDriftVec(const Db* db,
-                            int iech,
-                            const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  void evalDriftVecInPlace(const Db* db,
-                           int iech,
-                           const ECalcMember& member,
-                           VectorDouble& drftab) const;
+  double evalDriftCoef(const Db *db, int iech, const VectorDouble &coeffs) const;
+  VectorDouble evalDriftCoefs(const Db *db,
+                              const VectorDouble &coeffs,
+                              bool useSel = false) const;
+  VectorDouble evalDriftBySample(const Db *db,
+                                 int iech,
+                                 const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
+  void evalDriftBySampleInPlace(const Db *db,
+                                int iech,
+                                const ECalcMember &member,
+                                VectorDouble &drftab) const;
   MatrixRectangular evalDriftMat(const Db *db, const ECalcMember &member = ECalcMember::fromKey("LHS"));
-  double evalDriftValue(int ivar, int ib, const VectorDouble &drftab) const;
+  double evalDriftValue(const Db *db,
+                        int iech,
+                        int ivar,
+                        int ib,
+                        const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
 
 private:
   bool _isDriftIndexValid(int i) const;
@@ -133,14 +130,17 @@ private:
   {
     return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
   }
+  double _getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
+  void   _setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }
 
 #ifndef SWIG
 protected:
-  bool                 _flagLinked;
-  VectorDouble         _driftCL;   /* Linear combination of Drift Coefficients */
-  std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
-  VectorDouble         _betaHat;   /* Drift coefficients by ML */
-  VectorBool           _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
-  CovContext           _ctxt;      /* Context (space, number of variables, ...) */
+  bool                 _flagLinked;   /* True when Drift equations are linked */
+  bool                 _flagCombined; /* True when Drift is obtained by Linear Combination */
+  VectorDouble         _driftCL;      /* Linear combination of Drift Coefficients */
+  std::vector<ADrift*> _drifts;       /* Vector of elementary drift functions */
+  VectorDouble         _betaHat;      /* Drift coefficients by ML */
+  VectorBool           _filtered;     /* Vector of filtered flags (Dimension: as _drifts) */
+  CovContext           _ctxt;         /* Context (space, number of variables, ...) */
 #endif
 };

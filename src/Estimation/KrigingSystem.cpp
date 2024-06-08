@@ -411,7 +411,7 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
 
       // Case of the traditional kriging based on Z-variables
 
-      return _dbin->getLocVariable(ELoc::Z,rank, ivar);
+      return _dbin->getLocVariable(ELoc::Z, rank, ivar);
 
     else
 
@@ -488,11 +488,6 @@ double KrigingSystem::_getMean(int ivar, bool flagLHS) const
   return TEST;
 }
 
-double KrigingSystem::_getDriftCL(int ivar, int il, int ib) const
-{
-  return _model->getDriftCL(ivar, il, ib);
-}
-
 void KrigingSystem::_setFlag(int iech, int ivar, int value)
 {
   _flag[iech + ivar * _nech]= value;
@@ -552,19 +547,12 @@ void KrigingSystem::_flagDefine()
     }
   }
 
-  /* Check on the drift */
+  /* Check is a drift equation must be suppressed (if it is systematically undefined for all samples) */
 
   for (int ib = 0; ib < _nfeq; ib++)
   {
-    int valid = 0;
-    for (int il = 0; il < _nbfl; il++)
-      for (int ivar = 0; ivar < _nvar; ivar++)
-      {
-        if (isZero(_getDriftCL(ivar, il, ib))) continue;
-        for (int iech = 0; iech < _nech; iech++)
-          if (!FFFF(_getIvar(_nbgh[iech], ivar))) valid++;
-      }
-    if (valid <= 0) _setFlag(_nech+ib, _nvar-1, 0);
+    if (! _model->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
+      _setFlag(_nech + ib, _nvar - 1, 0);
   }
 
   /* Calculate the new number of equations */
@@ -707,28 +695,6 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   return (var);
 }
 
-int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
-{
-  const Db* db;
-  int jech;
-  if (iech >= 0)
-  {
-    db = _dbin;
-    jech = iech;
-  }
-  else
-  {
-    db = _dbout;
-    jech = _iechOut;
-  }
-  _drftab = _model->evalDriftVec(db, jech, member);
-  for (int il = 0; il < (int) _drftab.size(); il++)
-  {
-    if (FFFF(_drftab[il])) return 1;
-  }
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Establish the kriging L.H.S.
@@ -794,11 +760,10 @@ void KrigingSystem::_lhsCalcul()
   if (_nfeq <= 0 || _nbfl <= 0) return;
   for (int iech = 0; iech < _nech; iech++)
   {
-    (void) _drftabCalcul(ECalcMember::LHS, _nbgh[iech]);
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = _model->evalDriftValue(ivar, ib, _drftab);
+        double value = _model->evalDriftValue(_dbin, _nbgh[iech], ivar, ib, ECalcMember::LHS);
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
@@ -1076,13 +1041,13 @@ int KrigingSystem::_rhsCalcul()
 
   if (_nfeq <= 0) return 0;
 
-  if (_drftabCalcul(ECalcMember::RHS, -1)) return 1;
   if (_flagNoMatLC)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = _model->evalDriftValue(ivar, ib, _drftab);
+        double value = _model->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
+        if (FFFF(value)) return 1;
         _setRHSF(ib,_nvar,ivar,value);
       }
   }
@@ -1094,7 +1059,8 @@ int KrigingSystem::_rhsCalcul()
       for (int jvar = 0; jvar < _nvar; jvar++)
         for (int jl = 0; jl < _nbfl; jl++, ib++)
         {
-          double value = _model->evalDriftValue(jvar, ib, _drftab);
+          double value = _model->evalDriftValue(_dbout, _iechOut, jvar, ib, ECalcMember::RHS);
+          if (FFFF(value)) return 1;
           value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
         }
@@ -3290,7 +3256,7 @@ void KrigingSystem::_bayesCorrectVariance()
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int ib = 0; ib < _nfeq; ib++)
     {
-      FF0(ib,ivar) = _model->evalDriftValue(ivar, ib, _drftab);
+      FF0(ib,ivar) = _model->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
     }
 
   /* Correct the arrays */

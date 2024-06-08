@@ -537,7 +537,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
        int jech1 = nbgh[jech];
        double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
        if (FFFF(zval)) continue;
-       VectorDouble Vdata = drft->getDriftBySample(dbin, jech1);
+       VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
 
        // Double loop on the drift terms
        for (int id1 = 0; id1 < ndrift; id1++)
@@ -554,7 +554,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
      if (A.solve(B, X) > 0) continue;
 
      // Evaluate the vector of drift terms at target
-     VectorDouble Vtarget = drft->getDriftBySample(dbout,  iech);
+     VectorDouble Vtarget = drft->evalDriftBySample(dbout,  iech);
 
      // Perform the estimation
      double result = VH::innerProduct(X, Vtarget);

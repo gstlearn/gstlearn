@@ -281,7 +281,7 @@ void model_covupdt(Model *model,
       if (cova->getType() == ECov::NUGGET) continue;
       for (ivar = 0; ivar < nvar; ivar++)
         for (jvar = 0; jvar < nvar; jvar++)
-          model->getCova(icov)->setSill(ivar, jvar, 0.);
+          model->setSill(icov, ivar, jvar, 0.);
     }
 
     /* Update the cumulated sill */
