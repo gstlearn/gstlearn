@@ -50,7 +50,7 @@ jobs:
         r-version: ${{matrix.r_version}}
 
     - name: Install devtools
-      run: Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/')"
+      run: Rscript -e "options(pkgType = 'binary'); install.packages(c('devtools'), repos='https://cloud.r-project.org/')"
 
     - name: Install dependencies
       run: |
