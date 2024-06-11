@@ -54,7 +54,7 @@
   return *this;
 }
 
-  SimuSpectral::~  SimuSpectral()
+  SimuSpectral::~SimuSpectral()
 {
 }
 

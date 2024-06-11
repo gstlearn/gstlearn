@@ -4,6 +4,10 @@ This file contains the logs between consecutive releases
 
 Release 1.3.0
 =============
+- Model::evalDriftMat() is replaced by Model::evalDriftMatrix()
+- Model::covMatrixMS() is replaced by evalCovMatrixSymmetric()
+- Model::covMatrixM() is replaced by evalCovMatrix()
+- Model::covMatrixV() is replaced by evalCovMatrixV() (option added)
 - Db::getActiveSampleNumber() (deprecated) is replaced by getSampleNumber(true)
 - Use Eigen library for content storage of all dense matrices
 

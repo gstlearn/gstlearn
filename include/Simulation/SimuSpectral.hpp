@@ -27,7 +27,7 @@ public:
   SimuSpectral(const Model *model = nullptr);
   SimuSpectral(const SimuSpectral &r);
   SimuSpectral& operator=(const SimuSpectral &r);
-  virtual ~ SimuSpectral();
+  virtual ~SimuSpectral();
 
   int simulate(int nb, int seed = 4273);
   int compute(Db *dbout,

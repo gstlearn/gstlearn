@@ -1,0 +1,485 @@
+#NO_DIFF#XXX
+----<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+- Range        =     30.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+
+Known Mean(s)     0.000     0.000
+
+----
+
+
+#NO_DIFF#XXX
+----
+====================================================
+Kriging Variable #1
+====================================================
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1    -10.000      0.000
+          2          2     15.000      0.000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 2
+Total number of equations   = 2
+Reduced number of equations = 2
+
+       Rank                     1          2
+                  Flag          1          2
+          1          1      1.000      0.039
+          2          2      0.039      1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 2
+Total number of equations   = 2
+Reduced number of equations = 2
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank       Flag          1
+          1          1      0.519
+          2          2      0.312
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*
+          1    -10.000      0.000     -1.000      0.507
+          2     15.000      0.000      2.000      0.293
+Sum of weights                                    0.800
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       0.078
+ - Std. Dev. =       0.804
+ - Variance  =       0.646
+ - Cov(h=0)  =       1.000
+====================================================
+Kriging Variable #2
+====================================================
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1    -10.000      0.000
+          2          2     15.000      0.000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 2
+Total number of equations   = 2
+Reduced number of equations = 2
+
+       Rank                     1          2
+                  Flag          1          2
+          1          1      1.000      0.039
+          2          2      0.039      1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 2
+Total number of equations   = 2
+Reduced number of equations = 2
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank       Flag          1
+          1          1      0.519
+          2          2      0.312
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*
+          1    -10.000      0.000      3.000      0.507
+          2     15.000      0.000      5.000      0.293
+Sum of weights                                    0.800
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       2.984
+ - Std. Dev. =       0.804
+ - Variance  =       0.646
+ - Cov(h=0)  =       1.000
+====================================================
+CoKriging
+====================================================
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1    -10.000      0.000
+          2          2     15.000      0.000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 2
+Total number of equations   = 4
+Reduced number of equations = 4
+
+       Rank                     1          2          3          4
+                  Flag          1          2          3          4
+          1          1      1.000      0.039      0.000      0.000
+          2          2      0.039      1.000      0.000      0.000
+          3          3      0.000      0.000      1.000      0.039
+          4          4      0.000      0.000      0.039      1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 2
+Total number of equations   = 4
+Reduced number of equations = 4
+Number of right-hand sides  = 2
+Punctual Estimation
+
+       Rank       Flag          1          2
+          1          1      0.519      0.000
+          2          2      0.312      0.000
+          3          3      0.000      0.519
+          4          4      0.000      0.312
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*        Z2*
+Using variable Z1 
+          1    -10.000      0.000     -1.000      0.507      0.000
+          2     15.000      0.000      2.000      0.293      0.000
+Sum of weights                                    0.800      0.000
+Using variable Z2 
+          1    -10.000      0.000      3.000      0.000      0.507
+          2     15.000      0.000      5.000      0.000      0.293
+Sum of weights                                    0.000      0.800
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       0.078
+ - Std. Dev. =       0.804
+ - Variance  =       0.646
+ - Cov(h=0)  =       1.000
+Variable Z2 
+ - Estimate  =       2.984
+ - Std. Dev. =       0.804
+ - Variance  =       0.646
+ - Cov(h=0)  =       1.000
+----
+
+
+#NO_DIFF#XXX
+----
+====================================================
+Kriging Variable #1
+====================================================
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.507
+     [  1,]     0.293
+
+====================================================
+Kriging Variable #2
+====================================================
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.507
+     [  1,]     0.293
+
+====================================================
+CoKriging
+====================================================
+- Number of rows    = 4
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.507     0.000
+     [  1,]     0.293     0.000
+     [  2,]     0.000     0.507
+     [  3,]     0.000     0.293
+
+----
+
+
+#NO_DIFF#XXX
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     8.000    -2.000
+     [  1,]    -2.000     5.000
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]    32.000    -8.000
+     [  1,]    -8.000    20.000
+- Range        =     20.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]    40.000   -10.000
+     [  1,]   -10.000    25.000
+
+Known Mean(s)     0.000     0.000
+
+----
+
+
+#NO_DIFF#XXX
+----
+====================================================
+Kriging Variable #1
+====================================================
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.250
+     [  1,]     0.069
+
+====================================================
+Kriging Variable #2
+====================================================
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.250
+     [  1,]     0.069
+
+====================================================
+CoKriging
+====================================================
+- Number of rows    = 4
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.250     0.000
+     [  1,]     0.069     0.000
+     [  2,]     0.000     0.250
+     [  3,]     0.000     0.069
+
+----
+
+
+#NO_DIFF#XXX
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.000     2.000
+     [  1,]     2.000     4.000
+- Range        =     50.000
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     0.000     0.000
+     [  1,]     0.000     9.000
+- Range        =     20.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     1.000     2.000
+     [  1,]     2.000    13.000
+
+Known Mean(s)     0.000     0.000
+
+----
+
+
+#NO_DIFF#XXX
+----
+====================================================
+Kriging Variable #1
+====================================================
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.685
+     [  1,]     0.433
+
+====================================================
+Kriging Variable #2
+====================================================
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.444
+     [  1,]     0.211
+
+====================================================
+CoKriging
+====================================================
+- Number of rows    = 4
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.685     0.745
+     [  1,]     0.433     0.695
+     [  2,]     0.000     0.312
+     [  3,]     0.000     0.086
+
+----
