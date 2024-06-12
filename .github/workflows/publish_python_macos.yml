@@ -67,7 +67,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==${{matrix.python.nu}} twine wheel setuptools
+        python -m pip install numpy==${{matrix.python.nu}} twine build
 
 #    - name : Download and install HDF5
 #      run : |
@@ -91,7 +91,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
-        python setup.py bdist_wheel
+        python -m build --wheel
         cd ../../..
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 

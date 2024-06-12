@@ -41,6 +41,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install Python dependencies
+      run: |
+        export PATH=/opt/python/${{matrix.python}}/bin:$PATH
+        python3 -m pip install build
+
     - name : Create Wheels
       run : |
         export PATH=/opt/python/${{matrix.python}}/bin:$PATH
@@ -48,7 +53,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
-        python3 setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
+        python3 -m build --wheel -C="--build-option=--plat-name=${{env.BUILD_PLAT}}"
         cd ../../..
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
