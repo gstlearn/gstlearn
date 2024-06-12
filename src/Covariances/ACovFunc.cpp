@@ -129,7 +129,7 @@ String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-/// Test consistency toward the current context
+/// Test consistency with the current context
 bool ACovFunc::isConsistent() const
 {
   unsigned int maxndim = getMaxNDim();
@@ -321,3 +321,4 @@ void ACovFunc::computeCorrec(int ndim)
   double correc = res.getValue(Nv);
   setCorrec(correc);
 }
+

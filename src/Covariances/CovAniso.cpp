@@ -386,10 +386,17 @@ MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
 {
   return _cova->simulateSpectralOmega(nb);
 }
-bool CovAniso::isConsistent(const ASpace* /*space*/) const
+bool CovAniso::isConsistent(const ASpace* space) const
 {
-  /// TODO : check something in CovAniso::isConsistent?
-  return _cova->isConsistent();
+  // Check against the Space Type
+  if (space->getType() == ESpaceType::RN && ! _cova->getCompatibleSpaceR()) return false;
+  if (space->getType() == ESpaceType::SN && ! _cova->getCompatibleSpaceS()) return false;
+
+  // Check against the space dimension
+  unsigned int maxndim = _cova->getMaxNDim();
+  if ((maxndim > 0 && (maxndim < space->getNDim()))) return false;
+
+  return true;
 }
 
 /**

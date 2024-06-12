@@ -596,6 +596,7 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   const CovContext& getContext() const { return _ctxt; }
+  const ASpace*     getASpace() const { return _ctxt.getASpace(); }
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }

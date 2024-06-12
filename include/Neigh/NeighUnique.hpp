@@ -21,6 +21,17 @@
 
 class Db;
 
+/**
+ * \brief
+ * Unique Neighborhood definition.
+ *
+ * The Neighborhood is usually meant to select a sub-population from the input Data Base,
+ * containing the active samples close to the target.
+ *
+ * The Unique Neighborhood selects all the active samples. Nevertheless, it offers
+ * the possibility to suppress any sample which would be too close to (or coincide with)
+ * the target: this is the cross-validation option.
+ */
 class GSTLEARN_EXPORT NeighUnique: public ANeigh
 {
 public:

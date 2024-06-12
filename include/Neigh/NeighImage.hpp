@@ -21,6 +21,20 @@
 
 class Db;
 
+/**
+ * \brief
+ * Image Neighborhood definition.
+ *
+ * The Neighborhood is usually meant to select a sub-population from the input Data Base,
+ * containing the active samples close to the target.
+ *
+ * This Neighborhood is only defined in the case when the Data and the Target belong
+ * to the same grid.
+ * This neighborhood is defined as a rectangular set of pixels, located around the target.
+ * This rectangle is given by its half-extension in each space dimension (called 'radius')
+ * As the number of pixels grows fast with the space dimension, it is offered to sample
+ * them by specifying a skipping factor, so as to retain only 1 / (1 + skip) of them.
+ */
 class GSTLEARN_EXPORT NeighImage: public ANeigh
 {
 public:

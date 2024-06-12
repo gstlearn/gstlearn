@@ -41,11 +41,8 @@ public:
   ///////////////////////////////////////////////////
   /// ACovFunc Interface
   virtual String       getFormula()   const { return String("Equation not yet implemented"); }
-  virtual bool         isConsistent() const;
   virtual double       getScadef()    const { return 1; }
   virtual double       getParMax()    const { return 0; }
-  virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
-  virtual int          getMinOrder()  const { return -1; } // Valid for FAST
   virtual bool         hasInt1D()     const;
   virtual bool         hasInt2D()     const;
   virtual int          hasRange()     const { return 1 ; } // 0:No; 1:Yes; -1:from Sill
@@ -55,6 +52,12 @@ public:
   virtual bool         hasCovOnSphere()   const { return false; }
   virtual bool         hasSpectrum()      const { return false; }
   virtual bool         hasMarkovCoeffs()  const { return false; }
+
+  virtual bool         isConsistent() const;
+  virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
+  virtual int          getMinOrder()  const { return -1; } // Valid for FAST
+  virtual bool         getCompatibleSpaceR() const { return true; }
+  virtual bool         getCompatibleSpaceS() const { return false; }
 
   // Specific to Turning Band Simulation Method
   virtual bool isValidForTurningBand() const { return false; }

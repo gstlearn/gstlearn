@@ -26,6 +26,24 @@
 
 class Db;
 
+/**
+ * \brief
+ * Moving Neighborhood definition.
+ *
+ * The Neighborhood is usually meant to select a sub-population from the input Data Base,
+ * containing the active samples close to the target.
+ *
+ * The Moving Neighborhood selects these active samples based on a series of criteria
+ * (the corresponding parameters are given between parentheses), such as:
+ * - the selected samples should belong to a circle (ellipse) centered on the target sample
+ * (circle radius, ellipse orientation and extensions)
+ * - the minimum and maximum number of selected samples
+ * - the previous circle can be subdivided into angular sectors: the selected samples are
+ * taken regularly per sector (maximum number of samples per sector)
+ *
+ * The neighborhood also offers the possibility to suppress any sample which would be too close to (or coincide with)
+ * the target: this is the cross-validation option.
+ */
 class GSTLEARN_EXPORT NeighMoving: public ANeigh
 {
 public:
