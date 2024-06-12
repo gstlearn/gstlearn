@@ -1131,6 +1131,7 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
  */
 void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 {
+  if (isOptimizationInitialized()) return;
   int n = (int) p1s.size();
 
 	_p1As.resize(n);
@@ -1147,7 +1148,13 @@ void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 
 void CovAniso::optimizationPostProcess() const
 {
+  if (! isOptimizationInitialized()) return;
 	_p1As.clear();
+}
+
+bool CovAniso::isOptimizationInitialized() const
+{
+  return (! _p1As.empty());
 }
 
 double scale2range(const ECov &type, double scale, double param)

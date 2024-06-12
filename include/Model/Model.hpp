@@ -425,6 +425,13 @@ public:
 
   /**@}*/
 
+  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
+                                        const Db *db2 = nullptr,
+                                        int ivar = 0,
+                                        int jvar = 0,
+                                        const CovCalcMode *mode = nullptr);
+
+
   /**
    * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
    * @param icas1 Origin of the Db containing the first point
@@ -445,12 +452,6 @@ public:
   {
     _cova->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
   }
-
-  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
-                                        const Db *db2 = nullptr,
-                                        int ivar = 0,
-                                        int jvar = 0,
-                                        const CovCalcMode *mode = nullptr);
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,

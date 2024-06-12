@@ -176,8 +176,7 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
 }
 
 /**
- * Evaluate the set of covariance vectors between samples of input 'db1' and
- * samples of output 'db2'
+ * Evaluate the set of covariance vectors between samples of input 'db1' and 'db2'
  * @param db1 Input Db
  * @param db2 Output db
  * @param ivar Rank of the first variable

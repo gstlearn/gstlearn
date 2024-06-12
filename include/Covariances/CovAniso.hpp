@@ -92,6 +92,7 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
+  bool isOptimizationInitialized() const;
   void optimizationPreProcess(const std::vector<SpacePoint>& vec) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint& pt) const;
