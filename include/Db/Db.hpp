@@ -503,7 +503,13 @@ public:
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt    getRanksActive() const;
+  VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
+                           bool useSel = true,
+                           int item = -1) const;
+  void getMultipleRanksActive(const VectorInt &ivars,
+                              const VectorInt &nbgh,
+                              VectorVectorInt &index,
+                              VectorInt &nech) const;
 
   double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;

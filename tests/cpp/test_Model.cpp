@@ -17,6 +17,7 @@
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
@@ -26,6 +27,7 @@
 #include "Drifts/DriftF.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/OptCst.hpp"
 
 /****************************************************************************/
 /*!
@@ -47,14 +49,17 @@ int main(int argc, char *argv[])
 
   ///////////////////////
   // Creating the Db
-  auto nx={ 3,3 };
-  DbGrid* workingDbc = DbGrid::create(nx);
-
-  ///////////////////////
-  // Creating the Model
+  auto nx = { 2, 3 };
+  auto x0 = { 5.2, 8.3 };
+  auto dx = { 1.3, 0.6 };
+  DbGrid* workingDbc = DbGrid::create(nx, dx, x0);
 
   // Building the Covariance Context
   CovContext ctxt(nvar, ndim);
+
+  ///////////////////////
+  // Creating the Model
+  Model modellmc = Model(ctxt);
   // Build the List of Covariances
   CovLMC covlmc = CovLMC(ctxt.getSpace());
   // Build the Elementary Covariances
@@ -65,17 +70,13 @@ int main(int argc, char *argv[])
   CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);
   cov2.setSill(0.5);
   covlmc.addCov(&cov2);
-  // Building the Model
-  Model modellmc = Model(ctxt);
+  // Assembling the Model
   modellmc.setCovList(&covlmc);
   modellmc.display();
 
-  ///////////////////////
   // Building the Covariance Matrix
-  VectorDouble result = modellmc.covMatrixV(workingDbc, nullptr, 0, 0);
-
-  // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
-  VH::displayStats("\nStatistics on Covariance Matrix",result);
+  MatrixSquareSymmetric result = modellmc.evalCovMatrixSymmetric(workingDbc);
+  result.display();
 
   // Sample the Model at regular steps
   VectorDouble hh = VH::sequence(0., 3., 3./50.);
@@ -110,22 +111,91 @@ int main(int argc, char *argv[])
   // Sample the Tapered Model at regular steps
   VH::display("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));
 
-  // Serialization of the Model
+  /////////////////////////////////////////
+  // Creating Covariance and Drift matrices
   Model* modelS = Model::createFromEnvironment(1, 3);
   modelS->addCovFromParam(ECov::CUBIC, 10., 12.);
   modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.}, VectorDouble(),
                           {10., 20., 30.});
   modelS->addDrift(new DriftM());
   modelS->addDrift(new DriftM(VectorInt({1})));
-  modelS->addDrift(new DriftF(0));
-  modelS->addDrift(new DriftF(1));
+  modelS->addDrift(new DriftM(VectorInt({2})));
   modelS->display();
-  modelS->dumpToNF("Complex");
 
+  /////////////////////////////
+  // Serialization of the Model
+  modelS->dumpToNF("Complex");
   Model* modelSS = Model::createFromNF("Complex");
   modelSS->display();
 
-  delete workingDbc;
+  /////////////////////////////////////////////
+  // Building the Covariance and Drift Matrices
+  // (selection and heterotopy)
+  MatrixSquareSymmetric covM;
+  MatrixRectangular driftM;
+
+  Model* modelM = Model::createFromEnvironment(2, 2);
+  modelM->addCovFromParam(ECov::CUBIC, 10., TEST, 0., {}, {2., 1., 1., 4.});
+  modelM->addDrift(new DriftM());                  // Universality Condition
+  modelM->addDrift(new DriftM(VectorInt({1})));    // Drift: X
+  modelM->addDrift(new DriftM(VectorInt({0,1})));  // Dirft: Y
+  modelM->display();
+
+  int nsample = workingDbc->getSampleNumber();
+  // Adding a first variable (filled completely)
+  VectorDouble rnd1 = VH::simulateGaussian(nsample);
+  workingDbc->addColumns(rnd1, "Z1");
+  // Adding a second variable (with one TEST values)
+  VectorDouble rnd2 = VH::simulateGaussian(nsample);
+  rnd2[1] = TEST;
+  workingDbc->addColumns(rnd2, "Z2");
+  // Adding a Selection
+  workingDbc->addColumns({1, 1, 1, 0, 1, 0}, "Sel");
+  OptCst::define(ECst::NTCOL, -1);
+  OptCst::define(ECst::NTROW, -1);
+  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, true, false, false, true);
+  workingDbc->display(dbfmt);
+
+  // Complete Matrices on the whole grid
+  message("Covariance Matrix (complete)\n");
+  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM.display();
+
+  message("Drift Matrix (complete)\n");
+  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM.display();
+
+  // Adding the selection
+  workingDbc->setLocator("Sel", ELoc::SEL);
+  message("Covariance Matrix (selection)\n");
+  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM.display();
+
+  message("Drift Matrix (selection)\n");
+  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM.display();
+
+  // Adding the variables (accounting for heterotopy)
+  workingDbc->setLocators({"Z*"}, ELoc::Z);
+  message("Covariance Matrix (selection & heterotopy)\n");
+  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM.display();
+
+  message("Drift Matrix (selection & heterotopy)\n");
+  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM.display();
+
+  // Selecting samples
+  VectorInt nbgh = {0, 2, 3, 5};
+  VH::display("Ranks of selected samples = ",nbgh);
+
+  message("Covariance Matrix (selection & heterotopy &sampling)\n");
+  covM = modelM->evalCovMatrixSymmetric(workingDbc, -1, nbgh);
+  covM.display();
+
+  message("Drift Matrix (selection & heterotopy & sampling)\n");
+  driftM = modelM->evalDriftMatrix(workingDbc, -1, nbgh);
+  driftM.display();
+
   return 0;
 }
-

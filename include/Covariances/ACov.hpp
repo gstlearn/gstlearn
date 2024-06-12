@@ -203,6 +203,10 @@ public:
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr);
+  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
+                                               int ivar0,
+                                               const VectorInt &nbgh1,
+                                               const CovCalcMode *mode);
   MatrixSparse* evalCovMatrixSparse(Db *db1_arg,
                                     Db *db2_arg = nullptr,
                                     int ivar0 = -1,
@@ -259,19 +263,7 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-
-  int _getAuxiliaryParameters(const Db *db1,
-                              const Db *db2,
-                              int ivar0,
-                              int jvar0,
-                              const VectorInt &nbgh1,
-                              const VectorInt &nbgh2,
-                              int *nvar1,
-                              int *nvar2,
-                              int *nsize1,
-                              int *nsize2,
-                              int *nechtot1,
-                              int *nechtot2);
+  VectorInt _getActiveVariables(int ivar0);
 
 protected:
   bool _isOptimEnabled;
