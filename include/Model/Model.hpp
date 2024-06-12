@@ -348,15 +348,56 @@ public:
   {
     return _cova->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
   }
+  /**
+   * \defgroup Model Model: Set of classes for processing Model contents
+   *
+   **/
+
+  /** @addtogroup Model_0 Calculating Covariance Matrix
+   * \ingroup Model
+   *
+   * These functions are meant to calculate the covariance Matrix between two Dbs
+   * or between a Db and itself.
+   * They take into account the presence of a possible selection
+   * They also account for heterotopy (if Z-variables are defined in the Db(s)
+   *
+   * @param  db1   First Db
+   * @param  db2   (Optional second Db)
+   * @param  ivar0 Rank of the selected variable in the first Db (-1 for all variables)
+   * @param  jvar0 Rank of the selected variable in the second Db (-1 for all variables)
+   * @param  nbgh1 Vector of indices of active samples in first Db (optional)
+   * @param  nbgh2 Vector of indices of active samples in second Db (optional)
+   * @param  mode  CovCalcMode structure
+   *
+   * @remarks The returned matrix if dimension to nrows * ncols where
+   * @remarks each term is the product of the number of active samples
+   * @remarks by the number of samples where the variable is defined
+   *
+   * @note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+   * @note due to the presence of 'nostat'
+   *
+   * @return A Matrix either in Dense or Sparse format
+   *
+   *  @{
+   */
   MatrixRectangular evalCovMatrix(Db* db1,
                                   Db* db2 = nullptr,
-                                  int ivar = -1,
-                                  int jvar = -1,
+                                  int ivar0 = -1,
+                                  int jvar0 = -1,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr)
   {
-    return _cova->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
+    if (_cova == nullptr) return MatrixRectangular();
+    return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
+  }
+  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
+                                               int ivar0 = -1,
+                                               const VectorInt &nbgh1 = VectorInt(),
+                                               const CovCalcMode *mode = nullptr)
+  {
+    if (_cova == nullptr) return MatrixSquareSymmetric();
+    return _cova->evalCovMatrixSymmetric(db1, ivar0, nbgh1, mode);
   }
   MatrixSparse* evalCovMatrixSparse(Db *db1,
                                     Db *db2 = nullptr,
@@ -367,8 +408,22 @@ public:
                                     const CovCalcMode *mode = nullptr,
                                     double eps = EPSILON3)
   {
+    if (_cova == nullptr) return nullptr;
     return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
   }
+  VectorDouble evalCovMatrixV(Db *db1,
+                              Db *db2 = nullptr,
+                              int ivar0 = -1,
+                              int jvar0 = -1,
+                              const VectorInt &nbgh1 = VectorInt(),
+                              const VectorInt &nbgh2 = VectorInt(),
+                              const CovCalcMode *mode = nullptr)
+  {
+    if (_cova == nullptr) return VectorDouble();
+    return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
+  }
+
+  /**@}*/
 
   /**
    * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
@@ -519,8 +574,15 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMat(const Db *db,
-                                 const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
+  MatrixRectangular evalDriftMatrix(const Db *db,
+                                    int ivar0 = -1,
+                                    const VectorInt& nbgh = VectorInt(),
+                                    const ECalcMember &member = ECalcMember::fromKey("LHS")) const
+  {
+    if (_driftList == nullptr) return MatrixRectangular();
+    return _driftList->evalDriftMatrix(db, ivar0, nbgh, member);
+  }
+
   double evalDriftVarCoef(const Db *db,
                           int iech,
                           int ivar,
@@ -578,17 +640,6 @@ public:
 
   int hasExternalCov() const;
 
-  MatrixSquareSymmetric covMatrixMS(Db *db1, const CovCalcMode *mode = nullptr);
-  MatrixRectangular covMatrixM(Db *db1,
-                               Db *db2 = nullptr,
-                               int ivar = -1,
-                               int jvar = -1,
-                               const CovCalcMode *mode = nullptr);
-  VectorDouble covMatrixV(Db *db1,
-                          Db *db2 = nullptr,
-                          int ivar = 0,
-                          int jvar = 0,
-                          const CovCalcMode* mode = nullptr);
   VectorDouble sampleUnitary(const VectorDouble &hh,
                              int ivar = 0,
                              int jvar = 0,

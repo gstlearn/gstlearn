@@ -590,9 +590,9 @@ int kriggam(Db *dbin,
  * @param model Model structure
  * @param neigh ANeigh structure
  * @param flag_kfold True if a code (K-FOLD) is used
- * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for Z*
- * @param flag_xvalid_std Option for storing the standard deviation: 1:for (Z*-Z)/S; -1 for S
- * @param flag_xvalid_varz Option for storing the variance of the estimator
+ * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for Z*; 0 not stored
+ * @param flag_xvalid_std Option for storing the standard deviation: 1:for (Z*-Z)/S; -1 for S; 0 not stored
+ * @param flag_xvalid_varz Option for storing the variance of the estimator: 1 to store and 0 not stored
  * @param rank_colcok Option for running Collocated Cokriging
  * @param namconv Naming Convention
  * @return Error return code

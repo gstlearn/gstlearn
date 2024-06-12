@@ -3294,7 +3294,7 @@ static int st_sampling_krige_data(Db *db,
       isort.resize(npart, 0);
     }
 
-    mat_s = model->covMatrixMS(db);
+    mat_s = model->evalCovMatrixSymmetric(db);
 
     if (mat_s.computeCholesky()) goto label_end;
     VectorDouble tl = mat_s.getCholeskyTL();

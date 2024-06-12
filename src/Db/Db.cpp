@@ -3305,22 +3305,100 @@ VectorDouble Db::getSelections(void) const
   return tab;
 }
 
-VectorInt Db::getRanksActive() const
+/**
+ * Returns the list of indices 'index' for valid samples for the set of variables 'ivars'
+ * as well as the count of samples (per variable)
+ *
+ * @param ivars Vector giving the indices of the variables of interest
+ * @param nbgh  Vector giving the ranks of the elligible samples (optional)
+ * @param index Vector of vectors of valid sample indices for each variable
+ * @param nech  Number of valid samples per variable
+ *
+ * @note: if the current 'db' has some Z-variable defined, only samples where
+ * @note a variable is defined is considered (search for heterotopy).
+ */
+void Db::getMultipleRanksActive(const VectorInt &ivars,
+                                const VectorInt &nbgh,
+                                VectorVectorInt &index,
+                                VectorInt &nech) const
 {
-  int nech = getSampleNumber();
-  VectorInt ranks;
+  int nvardb = getLocNumber(ELoc::Z);
 
-  int icol = getColIdxByLocator(ELoc::SEL,0);
-  if (icol < 0)
+  int nvar = (int) ivars.size();
+  index.resize(nvar);
+  nech.resize(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    ranks = VH::sequence(nech);
+    int jvar = ivars[ivar];
+
+    // If variable rank is larger than the count of Z-variable in the Db: do not check for variable existence
+    if (jvar >= nvardb) jvar = -1;
+
+    VectorInt list = getRanksActive(nbgh, true, jvar);
+    index[ivar] = list;
+    nech[ivar] = (int) list.size();
+  }
+}
+
+VectorInt Db::getRanksActive(const VectorInt& nbgh, bool useSel, int item) const
+{
+  int nech_tot = getSampleNumber();
+
+  // Create a vector of ranks of samples to be searched (using input 'nbgh' or not)
+  VectorInt nbgh_init;
+  if (nbgh.empty())
+    nbgh_init = VH::sequence(nech_tot);
+  else
+    nbgh_init = nbgh;
+  int nech_init = (int) nbgh_init.size();
+
+  // Create the column index for the selection (whether 'useSel' or not)
+  int icol = (useSel) ? getColIdxByLocator(ELoc::SEL,0) : -1;
+
+  VectorInt ranks;
+  if (item < 0)
+  {
+    if (icol < 0)
+    {
+      // No check on selection nor on variable
+      ranks = nbgh_init;
+    }
+    else
+    {
+      // Check on selection, not on variable
+      for (int jech = 0; jech < nech_init; jech++)
+      {
+        int iech = nbgh_init[jech];
+        double value = getValueByColIdx(iech, icol);
+        if (value > 0) ranks.push_back(iech);
+      }
+    }
   }
   else
   {
-    for (int iech = 0; iech < nech; iech++)
+    if (icol < 0)
     {
-      double value = getValueByColIdx(iech, icol);
-      if (value > 0) ranks.push_back(iech);
+      // Check on variable, not on selection
+      for (int jech = 0; jech < nech_init; jech++)
+      {
+        int iech = nbgh_init[jech];
+        double value = getLocVariable(ELoc::Z,iech, item);
+        if (! FFFF(value)) ranks.push_back(iech);
+      }
+    }
+    else
+    {
+      // Check on selection and on variable
+      for (int jech = 0; jech < nech_init; jech++)
+      {
+        int iech = nbgh_init[jech];
+        double value = getValueByColIdx(iech, icol);
+        if (value > 0)
+        {
+          double value = getLocVariable(ELoc::Z,iech, item);
+          if (! FFFF(value)) ranks.push_back(iech);
+        }
+     }
     }
   }
   return ranks;

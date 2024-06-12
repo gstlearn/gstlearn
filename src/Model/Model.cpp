@@ -1025,12 +1025,6 @@ void Model::evalDriftBySampleInPlace(const Db *db,
   _driftList->evalDriftBySampleInPlace(db, iech, member, drftab);
 }
 
-MatrixRectangular Model::evalDriftMat(const Db *db, const ECalcMember &member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMat(db, member);
-}
-
 /**
  * Returns the value of the normalized covariance (by the variance/covariance value)
  * for a given pair of variables
@@ -1516,48 +1510,6 @@ Model* Model::createReduce(const VectorInt& validVars) const
   model->addNoStat(getNoStat());
 
   return model;
-}
-
-/**
- * Calculate the covariance matrix between active samples of Db1
- * and active samples of Db2.
- * @param db1 First Data Base
- * @param db2 Second Data Base (if not provided, the first Db is provided instead)
- * @param ivar Rank of the first variable (-1 for all variables)
- * @param jvar Rank of the second variable (-1 for all variables)
- * @param mode CovCalcMode structure
- *
- * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
- * @remark -nvar stands for the number of (active) variables
- * @remark -nechA stands for the number of active samples
- */
-VectorDouble Model::covMatrixV(Db *db1,
-                               Db *db2,
-                               int ivar,
-                               int jvar,
-                               const CovCalcMode* mode)
-{
-  return evalCovMatrix(db1, db2, ivar, jvar, VectorInt(), VectorInt(), mode).getValues();
-}
-
-MatrixRectangular Model::covMatrixM(Db *db1,
-                                    Db *db2,
-                                    int ivar,
-                                    int jvar,
-                                    const CovCalcMode *mode)
-{
-  return evalCovMatrix(db1, db2, ivar, jvar, VectorInt(), VectorInt(), mode);
-}
-
-/**
- * Returns the covariance matrix for all samples and all variables
- * By construction, this matrix is square and symmetrical
- * @param db1  Pointer to the Db structure
- * @param mode CovCalcMode description
- */
-MatrixSquareSymmetric Model::covMatrixMS(Db *db1, const CovCalcMode *mode)
-{
-  return evalCovMatrix(db1, db1, -1, -1, VectorInt(), VectorInt(), mode);
 }
 
 /**
@@ -2377,7 +2329,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   }
 
   // Calculate the covariance matrix C and perform its Cholesky decomposition
-  MatrixSquareSymmetric cov = covMatrixMS(db);
+  MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
   if (cov.computeCholesky())
   {
     messerr("Cholesky decomposition of Covariance matrix failed");
@@ -2385,7 +2337,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   }
 
   // Extract the matrix of drifts at samples X
-  MatrixRectangular X = evalDriftMat(db);
+  MatrixRectangular X = evalDriftMatrix(db);
 
   // Calculate Cm1X = Cm1 * X
   MatrixRectangular Cm1X;

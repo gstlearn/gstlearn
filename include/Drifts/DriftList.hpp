@@ -116,7 +116,10 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMat(const Db *db, const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMatrix(const Db *db,
+                                    int ivar0 = -1,
+                                    const VectorInt &nbgh = VectorInt(),
+                                    const ECalcMember &member = ECalcMember::fromKey("LHS"));
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,
@@ -132,6 +135,7 @@ private:
   }
   double _getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
   void   _setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }
+  VectorInt _getActiveVariables(int ivar0);
 
 #ifndef SWIG
 protected:
