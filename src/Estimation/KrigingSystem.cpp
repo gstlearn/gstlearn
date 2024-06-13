@@ -1793,7 +1793,7 @@ bool KrigingSystem::isReady()
     if (_optimEnabled)
     {
       if (_model != nullptr && _dbaux != nullptr)
-        _model->getCovAnisoList()->optimizationPreProcess(_dbaux->getSamplesAsSP());
+        _model->getCovAnisoList()->optimizationPreProcess(_dbaux);
     }
 
     // Setup the Kriging pre-processings
@@ -1805,10 +1805,10 @@ bool KrigingSystem::isReady()
     {
       // Prepare the projection of data on different covariances of the Model
       if (_model != nullptr && _dbin != nullptr)
-        _model->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
+        _model->getCovAnisoList()->optimizationPreProcess(_dbin);
 
       if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
-        _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
+        _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin);
     }
   }
 

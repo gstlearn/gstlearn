@@ -757,7 +757,7 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
   return db;
 }
 
-VectorInt ACov::_getActiveVariables(int ivar0)
+VectorInt ACov::_getActiveVariables(int ivar0) const
 {
   int nvar = getNVariables();
 
@@ -766,7 +766,7 @@ VectorInt ACov::_getActiveVariables(int ivar0)
   {
     if (ivar0 >= nvar)
     {
-      mesArg("Argument 'ivar0'",ivar0,nvar);
+      mesArg("Argument 'ivar0'", ivar0, nvar);
       return VectorInt();
     }
     ivars.push_back(ivar0);
@@ -831,17 +831,12 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1;
-  VectorInt nech1;
-  db1->getMultipleRanksActive(ivars, nbgh1, index1, nech1);
-
-  VectorVectorInt index2;
-  VectorInt nech2;
-  db2->getMultipleRanksActive(jvars, nbgh2, index2, nech2);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
 
   // Creating the matrix
-  int neq1 = VH::cumul(nech1);
-  int neq2 = VH::cumul(nech2);
+  int neq1 = VH::count(index1);
+  int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix does not have any valid sample for any valid variable");
@@ -860,7 +855,8 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
     int ivar1 = ivars[ivar];
 
     // Loop on the first sample
-    for (int jech1 = 0, nech1s = nech1[ivar]; jech1 < nech1s; jech1++)
+    int nech1s = (int) index1[ivar].size();
+    for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
       db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
@@ -872,7 +868,8 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
         int jvar2 = jvars[jvar];
 
         // Loop on the second sample
-        for (int jech2 = 0, nech2s = nech2[jvar]; jech2 < nech2s; jech2++)
+        int nech2s = (int) index2[jvar].size();
+        for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
           db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
@@ -944,12 +941,10 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1;
-  VectorInt nech1;
-  db1->getMultipleRanksActive(ivars, nbgh1, index1, nech1);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
 
   // Creating the matrix
-  int neq1 = VH::cumul(nech1);
+  int neq1 = VH::count(index1);
   if (neq1 <= 0)
   {
     messerr("The returned matrix does not have any valid sample for any valid variable");
@@ -968,7 +963,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
     int ivar1 = ivars[ivar];
 
     // Loop on the first sample
-    for (int jech1 = 0, nech1s = nech1[ivar]; jech1 < nech1s; jech1++)
+    int nech1s = (int) index1[ivar].size();
+    for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
       db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
@@ -980,7 +976,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
         int jvar2 = ivars[jvar];
 
         // Loop on the second sample
-        for (int jech2 = 0, nech2s = nech1[jvar]; jech2 < nech2s; jech2++)
+        int nech2s = (int) index1[jvar].size();
+        for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           // Perform calculation only in upper triangle of the Symmetric Matrix
           if (icol >= irow)
@@ -1060,13 +1057,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1;
-  VectorInt nech1;
-  db1->getMultipleRanksActive(ivars, nbgh1, index1, nech1);
-
-  VectorVectorInt index2;
-  VectorInt nech2;
-  db2->getMultipleRanksActive(jvars, nbgh2, index2, nech2);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
 
   // Evaluate the matrix of sills
   int nvar1 = (int) ivars.size();
@@ -1097,7 +1089,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
     int ivar1 = ivars[ivar];
 
     // Loop on the first sample
-    for (int jech1 = 0, nech1s = nech1[ivar]; jech1 < nech1s; jech1++)
+    int nech1s = (int) index1[ivar].size();
+    for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
       db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
@@ -1109,7 +1102,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
         int jvar2 = jvars[jvar];
 
         // Loop on the second sample
-        for (int jech2 = 0, nech2s = nech2[jvar]; jech2 < nech2s; jech2++)
+        int nech2s = (int) index2[jvar].size();
+        for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
           db2->getSampleCoordinatesAsSPInPlace(iech2, p2);

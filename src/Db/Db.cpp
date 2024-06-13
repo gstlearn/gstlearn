@@ -3311,22 +3311,18 @@ VectorDouble Db::getSelections(void) const
  *
  * @param ivars Vector giving the indices of the variables of interest
  * @param nbgh  Vector giving the ranks of the elligible samples (optional)
- * @param index Vector of vectors of valid sample indices for each variable
- * @param nech  Number of valid samples per variable
  *
  * @note: if the current 'db' has some Z-variable defined, only samples where
  * @note a variable is defined is considered (search for heterotopy).
  */
-void Db::getMultipleRanksActive(const VectorInt &ivars,
-                                const VectorInt &nbgh,
-                                VectorVectorInt &index,
-                                VectorInt &nech) const
+VectorVectorInt Db::getMultipleRanksActive(const VectorInt &ivars,
+                                           const VectorInt &nbgh) const
 {
   int nvardb = getLocNumber(ELoc::Z);
 
   int nvar = (int) ivars.size();
-  index.resize(nvar);
-  nech.resize(nvar);
+
+  VectorVectorInt index(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar = ivars[ivar];
@@ -3336,8 +3332,8 @@ void Db::getMultipleRanksActive(const VectorInt &ivars,
 
     VectorInt list = getRanksActive(nbgh, true, jvar);
     index[ivar] = list;
-    nech[ivar] = (int) list.size();
   }
+  return index;
 }
 
 VectorInt Db::getRanksActive(const VectorInt& nbgh, bool useSel, int item) const

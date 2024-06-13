@@ -471,6 +471,26 @@ int VectorHelper::cumul(const VectorInt& vec)
   return total;
 }
 
+int VectorHelper::cumul(const VectorVectorInt& vec)
+{
+  int total = 0.;
+  for (auto &v : vec)
+  {
+    total += cumul(v);
+  }
+  return total;
+}
+
+int VectorHelper::count(const VectorVectorInt& vec)
+{
+  int total = 0.;
+  for (auto &v : vec)
+  {
+    total += v.size();
+  }
+  return total;
+}
+
 double VectorHelper::cumul(const VectorDouble& vec)
 {
   double total = 0.;

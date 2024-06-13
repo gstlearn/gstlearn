@@ -127,9 +127,9 @@ int main(int argc, char *argv[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    VectorVectorDouble vecvec = model->evalCovMatrixOptim(dbin, dbout);
+    MatrixRectangular matvec = model->evalCovMatrixOptim(dbin, dbout);
     for (int i = 0; i < nout; i++)
-      VH::addInPlace(cumul, vecvec[i]);
+      VH::addInPlace(cumul, matvec.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
 
     // Some printout for comparison

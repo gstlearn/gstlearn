@@ -23,7 +23,7 @@ public:
   CovCosinus& operator= (const CovCosinus &r);
   virtual ~CovCosinus();
 
-  unsigned int getMaxNDim()   const  override { return 1; }
+  unsigned int getMaxNDim() const override { return 1; }
 
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "Cosinus"; }

@@ -422,6 +422,13 @@ public:
     if (_cova == nullptr) return VectorDouble();
     return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
   }
+  MatrixRectangular evalCovMatrixOptim(const Db *db1,
+                                       const Db *db2 = nullptr,
+                                       int ivar0 = -1,
+                                       int jvar0 = -1,
+                                       const VectorInt &nbgh1 = VectorInt(),
+                                       const VectorInt &nbgh2 = VectorInt(),
+                                       const CovCalcMode *mode = nullptr);
 
   /**@}*/
 
@@ -445,12 +452,6 @@ public:
   {
     _cova->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
   }
-
-  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
-                                        const Db *db2 = nullptr,
-                                        int ivar = 0,
-                                        int jvar = 0,
-                                        const CovCalcMode *mode = nullptr);
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
@@ -596,6 +597,7 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   const CovContext& getContext() const { return _ctxt; }
+  const ASpace*     getASpace() const { return _ctxt.getASpace(); }
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }

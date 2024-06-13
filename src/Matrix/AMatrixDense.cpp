@@ -114,7 +114,7 @@ void AMatrixDense::updValue(int irow,
   if (flagCheck && ! _isIndexValid(irow, icol)) return;
   _eigenMatrix(irow, icol) = modifyOperator(oper, _eigenMatrix(irow, icol), value);
   if (mustBeSymmetric() && irow != icol)
-    _eigenMatrix(icol, irow) = modifyOperator(oper, _eigenMatrix(icol, irow), value);
+    _eigenMatrix(icol, irow) = _eigenMatrix(irow, icol);
 }
 
 double& AMatrixDense::_getValueRef(int irow, int icol)

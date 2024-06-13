@@ -138,18 +138,17 @@ public:
   int                getCovaMinIRFOrder() const;
 
   // Methods necessary for Optimization
-  void optimizationPreProcess(const std::vector<SpacePoint> &vec) const;
+  bool isOptimizationInitialized(const Db* db = nullptr) const;
+  void optimizationPreProcess(const Db* db) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint &pt) const;
-  void evalOptimInPlace(VectorDouble &res,
-                        int ivar = 0,
-                        int jvar = 0,
-                        const CovCalcMode *mode = nullptr) const;
-  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
-                                        const Db *db2,
-                                        int ivar,
-                                        int jvar,
-                                        const CovCalcMode *mode) const;
+  MatrixRectangular evalCovMatrixOptim(const Db *db1,
+                                       const Db *db2,
+                                       int ivar0 = -1,
+                                       int jvar0 = -1,
+                                       const VectorInt& nbgh1 = VectorInt(),
+                                       const VectorInt& nbgh2 = VectorInt(),
+                                       const CovCalcMode *mode = nullptr) const;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

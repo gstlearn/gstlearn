@@ -506,10 +506,8 @@ public:
   VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
                            bool useSel = true,
                            int item = -1) const;
-  void getMultipleRanksActive(const VectorInt &ivars,
-                              const VectorInt &nbgh,
-                              VectorVectorInt &index,
-                              VectorInt &nech) const;
+  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
+                                         const VectorInt &nbgh) const;
 
   double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
