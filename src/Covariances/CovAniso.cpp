@@ -11,6 +11,7 @@
 #include "geoslib_f_private.h"
 
 #include "Arrays/Array.hpp"
+#include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
@@ -516,33 +517,44 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
  * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
  * and the target (recorded in _p2A)
  * @param res  Vector of covariances
- * @param ivar Rank of the first variable
- * @param jvar Rank of the second variable
+ * @param ivars Arrays of ranks for the first point
+ * @param index1 Arrays of sample indices for the first point
+ * @param jvar  Rank of the variable for the second point
+ * @param jech2 Rank of the sample for the second point
  * @param mode CovCalcMode structure
  *
  * @remark: The optimized version is not compatible with Franck's non-stationarity.
  * Then no correction must be applied to cov(h)
  */
-void CovAniso::evalOptimInPlace(VectorDouble &res,
-                                int ivar,
+void CovAniso::evalOptimInPlace(MatrixRectangular& res,
+                                const VectorInt& ivars,
+                                const VectorVectorInt& index1,
                                 int jvar,
+                                int jech2,
                                 const CovCalcMode *mode) const
 {
-  double sill = 0.;
-  if (mode == nullptr || ! mode->getUnitary())
-    sill = _sill.getValue(ivar, jvar);
-  else
-    sill = 1.;
+  double cov, hoptim;
+  double sill = 1.;
 
-  int ecr = 0;
-  double cov = 0.;
-  for (int i = 0; i < (int) _p1As.size(); i++)
+  // Loop on the first variable
+  int irow = 0;
+  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
   {
-    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-    double hoptim = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-    cov = _evalCovFromH(hoptim, mode);
+    int ivar1 = ivars[ivar];
+    if (mode == nullptr || ! mode->getUnitary())
+      sill = _sill.getValue(ivar1, jvar);
 
-    res[ecr++] += sill * cov;
+    // Loop on the first sample
+    int nech1s = (int) index1[ivar].size();
+    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    {
+      int iech1 = index1[ivar][jech1];
+      hoptim = VH::normDistance(_p1As[iech1].getCoord(), _p2A.getCoord());
+      cov = _evalCovFromH(hoptim, mode);
+
+      res.updValue(irow, jech2, EOperator::ADD, sill * cov);
+      irow++;
+    }
   }
 }
 /**
@@ -563,17 +575,8 @@ void CovAniso::evalMatOptimInPlace(int icas1,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode) const
 {
-  SpacePoint* p1A;
-  if (icas1 == 1)
-    p1A = &_p1As[iech1];
-  else
-    p1A = &_p2A;
-
-  SpacePoint* p2A;
-  if (icas2 == 1)
-    p2A = &_p1As[iech2];
-  else
-    p2A = &_p2A;
+  SpacePoint* p1A = (icas1 == 1) ? &_p1As[iech1] : &_p2A;
+  SpacePoint* p2A = (icas2 == 1) ? &_p1As[iech2] : &_p2A;
 
   // Calculate covariance between two points
   double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
@@ -1127,13 +1130,15 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
- * @param p1s Set of input Space Points
+ * Note that ALL samples are processed, independently from the presence of a selection
+ * or checking for heterotopy.
+ * @param db Input Db
  */
-void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
+void CovAniso::optimizationPreProcess(const Db* db) const
 {
-  if (isOptimizationInitialized()) return;
+  if (isOptimizationInitialized(db)) return;
+  const std::vector<SpacePoint>& p1s = db->getSamplesAsSP();
   int n = (int) p1s.size();
-
 	_p1As.resize(n);
 	for(int i = 0; i < n ; i++)
 	{
@@ -1152,9 +1157,20 @@ void CovAniso::optimizationPostProcess() const
 	_p1As.clear();
 }
 
-bool CovAniso::isOptimizationInitialized() const
+/**
+ * Checks that the Optimization has already been initiated, by:
+ * - checking that the storage (for Sample Points projected in the Covariance
+ * rotation system) is already allocated
+ * - checking that the dimension of this storage is correct (only if 'db' is provided):
+ * in particular, this check is not necessary when freeing this storage.
+ */
+bool CovAniso::isOptimizationInitialized(const Db* db) const
 {
-  return (! _p1As.empty());
+  if (_p1As.empty()) return false;
+  if (db == nullptr) return true;
+  int n = (int) _p1As.size();
+  if (n != db->getSampleNumber()) return false;
+  return true;
 }
 
 double scale2range(const ECov &type, double scale, double param)

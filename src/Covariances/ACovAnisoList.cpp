@@ -179,58 +179,70 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
  * Evaluate the set of covariance vectors between samples of input 'db1' and 'db2'
  * @param db1 Input Db
  * @param db2 Output db
- * @param ivar Rank of the first variable
- * @param jvar Rank of the second variable
+ * @param ivar0 Rank of the first variable (-1 for all variables)
+ * @param jvar0 Rank of the second variable (-1 for all variables)
+ * @param nbgh1 Vector of indices of active samples in db1 (optional)
+ * @param nbgh2 Vector of indices of active samples in db2 (optional)
  * @param mode CovCalcMode structure
  * @return
  */
-VectorVectorDouble ACovAnisoList::evalCovMatrixOptim(const Db *db1,
-                                                     const Db *db2,
-                                                     int ivar,
-                                                     int jvar,
-                                                     const CovCalcMode *mode) const
+MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
+                                                    const Db *db2,
+                                                    int ivar0,
+                                                    int jvar0,
+                                                    const VectorInt& nbgh1,
+                                                    const VectorInt& nbgh2,
+                                                    const CovCalcMode *mode) const
 {
-  if (db2 == nullptr) db2 = db1;
-  int nechtot2 = db2->getSampleNumber(false);
-  int nech2 = db2->getSampleNumber(true);
-  int nech1 = db1->getSampleNumber(true);
-  VectorVectorDouble mat(nech2);
-
-  for (auto &e : mat)
-  {
-    e = VectorDouble(nech1);
-  }
-
-  // Constitute the list of ALL samples contained in 'db1' (masked or active)
-  std::vector<SpacePoint> p1s = db1->getSamplesAsSP();
-  optimizationPreProcess(p1s);
-
+  MatrixRectangular mat;
   SpacePoint p2;
 
-  int jech2 = 0;
-  for (int iech2 = 0; iech2 < nechtot2; iech2++)
+  if (db2 == nullptr) db2 = db1;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return mat;
+
+  // Prepare the Optimization for covariance calculation
+  optimizationPreProcess(db1);
+
+  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
+
+  // Creating the matrix
+  int neq1 = VH::count(index1);
+  int neq2 = VH::count(index2);
+  if (neq1 <= 0 || neq2 <= 0)
   {
-    if (!db2->isActive(iech2)) continue;
-    db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
-    optimizationSetTarget(p2);
-    evalOptimInPlace(mat[jech2], ivar, jvar, mode);
-    jech2++;
+    messerr("The returned matrix does not have any valid sample for any valid variable");
+    return mat;
+  }
+  mat.resize(neq1, neq2);
+
+  // Loop on the second variable
+  for (int jvar = 0, nvar2 = (int) jvars.size(); jvar < nvar2; jvar++)
+  {
+    int jvar2 = jvars[jvar];
+
+    // Loop on the second sample
+    int nech2s = (int) index2[jvar].size();
+    for (int jech2 = 0; jech2 < nech2s; jech2++)
+    {
+      int iech2 = index2[jvar][jech2];
+      db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
+      optimizationSetTarget(p2);
+
+      // Loop on the basic structures
+      for (int i = 0, n = getCovaNumber(); i < n; i++)
+         _covs[i]->evalOptimInPlace(mat, ivars, index1, jvar2, jech2, mode);
+    }
   }
 
   optimizationPostProcess();
   return mat;
 }
 
-void ACovAnisoList::evalOptimInPlace(VectorDouble &res,
-                                     int ivar,
-                                     int jvar,
-                                     const CovCalcMode *mode) const
-{
-  for (auto &e : res)
-    e = 0;
-  for (int i = 0, n = getCovaNumber(); i < n; i++)
-    _covs[i]->evalOptimInPlace(res, ivar, jvar, mode);
-}
 /**
  * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
  * @param icas1 Origin of the Db containing the first point
@@ -609,10 +621,17 @@ bool ACovAnisoList::hasNugget() const
   return false;
 }
 
-void ACovAnisoList::optimizationPreProcess(const std::vector<SpacePoint>& vec) const
+bool ACovAnisoList::isOptimizationInitialized(const Db* db) const
+{
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    if (! _covs[is]->isOptimizationInitialized(db)) return false;
+  return true;
+}
+
+void ACovAnisoList::optimizationPreProcess(const Db* db) const
 {
 	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-		_covs[is]->optimizationPreProcess(vec);
+		_covs[is]->optimizationPreProcess(db);
 }
 
 void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const

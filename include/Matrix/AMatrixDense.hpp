@@ -54,15 +54,15 @@ public:
    bool isSparse() const override { return false; }
 
   /*! Set the value for in a matrix cell */
-  void setValue(int irow, int icol, double value, bool flagCheck = true) override;
+  void setValue(int irow, int icol, double value, bool flagCheck = false) override;
   /*! Get the value from a matrix cell */
-  virtual double getValue(int irow, int icol, bool flagCheck = true) const override;
+  virtual double getValue(int irow, int icol, bool flagCheck = false) const override;
   /*! Update the contents of a matrix cell */
   void updValue(int irow,
                 int icol,
                 const EOperator &oper,
                 double value,
-                bool flagCheck = true) override;
+                bool flagCheck = false) override;
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;

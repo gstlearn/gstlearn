@@ -36,7 +36,7 @@ bool _isSelected(ACovFunc *cov,
  *
  * @param ndim     Space dimension
  * @param minorder Minimum degree of the IRF (-1 for stationary, 0 for Intrinsic, ...)
- * @param hasRange Check if the Covariance has a Range defined
+ * @param hasrange Check if the Covariance has a Range defined
  * @param flagSimtub Check that the Covariance can be simulated using Turning Band Method
  * @param flagSimuSpectral Check if the Covariance can be simulated using the Spectral Method
  */

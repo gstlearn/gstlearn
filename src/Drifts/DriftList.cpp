@@ -495,12 +495,10 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
   if (ivars.empty()) return drfmat;
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index;
-  VectorInt nech;
-  db->getMultipleRanksActive(ivars, nbgh, index, nech);
+  VectorVectorInt index = db->getMultipleRanksActive(ivars, nbgh);
 
   // Creating the matrix
-  int neq = VH::cumul(nech);
+  int neq = VH::count(index);
   if (neq <= 0)
   {
     messerr("The returned matrix does not have any valid sample for any valid variable");
@@ -517,7 +515,8 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
 
     /* Loop on the samples */
 
-    for (int jech = 0, nechs = (int) nech[ivar]; jech < nechs; jech++)
+    int nechs = (int) index[ivar].size();
+    for (int jech = 0; jech < nechs; jech++)
     {
       int iech = index[ivar][jech];
 

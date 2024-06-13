@@ -23,7 +23,6 @@
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
 
-
 #include <vector>
 
 class Rotation;
@@ -92,14 +91,16 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  bool isOptimizationInitialized() const;
-  void optimizationPreProcess(const std::vector<SpacePoint>& vec) const;
+  bool isOptimizationInitialized(const Db* db = nullptr) const;
+  void optimizationPreProcess(const Db* db) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint& pt) const;
 
-  void evalOptimInPlace(VectorDouble &res,
-                        int ivar = 0,
+  void evalOptimInPlace(MatrixRectangular& res,
+                        const VectorInt& ivars,
+                        const VectorVectorInt& index,
                         int jvar = 0,
+                        int jech2 = 0,
                         const CovCalcMode *mode = nullptr) const;
   void evalMatOptimInPlace(int icas1,
                            int iech1,

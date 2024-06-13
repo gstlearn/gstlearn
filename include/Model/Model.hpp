@@ -422,15 +422,15 @@ public:
     if (_cova == nullptr) return VectorDouble();
     return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
   }
+  MatrixRectangular evalCovMatrixOptim(const Db *db1,
+                                       const Db *db2 = nullptr,
+                                       int ivar0 = -1,
+                                       int jvar0 = -1,
+                                       const VectorInt &nbgh1 = VectorInt(),
+                                       const VectorInt &nbgh2 = VectorInt(),
+                                       const CovCalcMode *mode = nullptr);
 
   /**@}*/
-
-  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
-                                        const Db *db2 = nullptr,
-                                        int ivar = 0,
-                                        int jvar = 0,
-                                        const CovCalcMode *mode = nullptr);
-
 
   /**
    * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)

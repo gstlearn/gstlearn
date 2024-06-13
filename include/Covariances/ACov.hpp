@@ -256,6 +256,9 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
+protected:
+  VectorInt _getActiveVariables(int ivar0) const;
+
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -263,7 +266,6 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-  VectorInt _getActiveVariables(int ivar0);
 
 protected:
   bool _isOptimEnabled;
