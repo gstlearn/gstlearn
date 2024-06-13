@@ -24,7 +24,7 @@ public:
   static VectorString getAllCovariances(int ndim = 2,
                                         int minorder = -1,
                                         bool hasrange = false,
-                                        bool flagSimtub = true,
-                                        bool flagSimuSpectral = true);
+                                        bool flagSimtub = false,
+                                        bool flagSimuSpectral = false);
 };
 
