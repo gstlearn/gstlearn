@@ -2450,12 +2450,12 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
  * Isotopic means that all variables (for this sample) are defined
  * @param iech Rank of the sample
  * @param nvar_max Maximum number of variables to be checked (or -1)
- * @return
  *
- * @remark The returned answer is false is there is no variable defined
- * @remark or if the sample rank is not valid.
- * @remark If 'nvar-max' is defined, the test is performed on the 'nvar_max'
- * @remark first variables. Otherwise, it is performed on all ELOC.Z variables
+ * @remark
+ * The returned answer is false is there is no variable defined
+ * or if the sample rank is not valid.
+ * If 'nvar-max' is defined, the test is performed on the 'nvar_max'
+ * first variables. Otherwise, it is performed on all ELOC.Z variables
  */
 bool Db::isIsotopic(int iech, int nvar_max) const
 {
