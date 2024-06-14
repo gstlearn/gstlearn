@@ -428,7 +428,21 @@ public:
                                        int jvar0 = -1,
                                        const VectorInt &nbgh1 = VectorInt(),
                                        const VectorInt &nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr);
+                                       const CovCalcMode *mode = nullptr)
+  {
+    const ACovAnisoList *covalist = _castInCovAnisoListConst();
+    if (covalist == nullptr) return MatrixRectangular();
+    return covalist->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
+  }
+  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
+                                                    int ivar0 = -1,
+                                                    const VectorInt &nbgh1 = VectorInt(),
+                                                    const CovCalcMode *mode = nullptr)
+  {
+    const ACovAnisoList *covalist = _castInCovAnisoListConst();
+    if (covalist == nullptr) return MatrixRectangular();
+    return covalist->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode);
+  }
 
   /**@}*/
 

@@ -549,7 +549,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      hoptim = VH::normDistance(_p1As[iech1].getCoord(), _p2A.getCoord());
+      hoptim = _p2A.getDistance(_p1As[iech1]);
       cov = _evalCovFromH(hoptim, mode);
 
       res.updValue(irow, jech2, EOperator::ADD, sill * cov);
@@ -557,6 +557,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
     }
   }
 }
+
 /**
  * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
  * @param icas1 Origin of the Db containing the first point
@@ -579,7 +580,7 @@ void CovAniso::evalMatOptimInPlace(int icas1,
   SpacePoint* p2A = (icas2 == 1) ? &_p1As[iech2] : &_p2A;
 
   // Calculate covariance between two points
-  double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  double hoptim = p2A->getDistance(*p1A);
   double cov = _evalCovFromH(hoptim, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
@@ -1112,9 +1113,25 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
   return newCovAniso;
 }
 
+/**
+ * Define the second Space Point by transforming the input Space Point 'pt'
+ * on the basis of the current covariance
+ *
+ * @param pt Target sample provided as a Space Point
+ */
 void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
 {
   _optimizationTransformSP(pt, _p2A);
+}
+
+/**
+ * Define the Second Space Point as coinciding with the Input Space Point #iech.
+ * Note that, as the Input Space Points are already transfored in the basis
+ * of the current structure, it is just an assignment.
+ */
+void CovAniso::optimizationSetTarget(int iech) const
+{
+  _p2A = _p1As[iech];
 }
 
 /**

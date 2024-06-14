@@ -791,18 +791,17 @@ std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
 {
   std::vector<SpacePoint> pvec;
   VectorDouble coord(getNDim());
+  SpacePoint p;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
     if (isActive(iech))
     {
-      SpacePoint p;
       getSampleCoordinatesAsSPInPlace(iech, p);
       pvec.push_back(p);
     }
     else
     {
       if (useSel) continue;
-      SpacePoint p;
       p.setFFFF();
       pvec.push_back(p);
     }
@@ -3330,8 +3329,7 @@ VectorVectorInt Db::getMultipleRanksActive(const VectorInt &ivars,
     // If variable rank is larger than the count of Z-variable in the Db: do not check for variable existence
     if (jvar >= nvardb) jvar = -1;
 
-    VectorInt list = getRanksActive(nbgh, true, jvar);
-    index[ivar] = list;
+    index[ivar] = getRanksActive(nbgh, true, jvar);
   }
   return index;
 }
