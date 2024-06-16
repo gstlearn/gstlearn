@@ -19,7 +19,8 @@ List of Debug Options
     Proportions or Intensities[     PROPS] : 0
                      Upscaling[   UPSCALE] : 0
          S.P.D.E. calculations[      SPDE] : 0
-Use 'OptCst::define' or 'OptCst::setReference' to modify previous values
+Use 'OptDbg::define' to modify the previous values
+Use 'OptDbg::setReference' to define the target index where all flags are turned ON
 Current value of Neighborhood Debug = 1
 
 Checking 'OptCst' functionalities
@@ -36,7 +37,7 @@ List of Options of internal Constant values
             Maximum Number of characters for Ranks [ NTRANK] : 3
   Number of Quantiles for Display the Progress Bar [  NPROC] : 0
                        Default for setting Locator [ LOCMOD] : 1
-Use 'OptCst::define' to modify previous values
+Use 'OptCst::define' to modify the previous values
 
 Vector Display (initial)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
@@ -55,7 +56,7 @@ List of Options of internal Constant values
             Maximum Number of characters for Ranks [ NTRANK] : 3
   Number of Quantiles for Display the Progress Bar [  NPROC] : 0
                        Default for setting Locator [ LOCMOD] : 1
-Use 'OptCst::define' to modify previous values
+Use 'OptCst::define' to modify the previous values
 
 Vector Display (modified)
                    [,  0]      [,  1]      [,  2]      [,  3]      [,  4]      [,  5]
