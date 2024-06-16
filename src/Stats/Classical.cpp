@@ -360,6 +360,13 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
   return options;
 }
 
+/**
+ * \copydoc STATS_2
+ *
+ * @return Store several statistics calculated on a set of variables of a Db and store them
+ * in this same Db in variables already created.
+ * These functions should not be used in Target Language.
+ */
 void dbStatisticsVariables(Db *db,
                            const VectorString &names,
                            const std::vector<EStatOption> &opers,
@@ -462,7 +469,7 @@ void dbStatisticsVariables(Db *db,
 }
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param opers      List of the operator ranks
  * @param flagIso    Restrain statistics to isotopic samples
@@ -694,7 +701,7 @@ double dbStatisticsIndicator(Db *db)
 }
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param flagIso    Restrain statistics to isotopic samples
  *
@@ -1017,7 +1024,7 @@ void _getRowname(const String &radix,
 }
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param opers      List of the operator ranks
  * @param flagIso    Restrain statistics to isotopic samples
@@ -1251,9 +1258,10 @@ MatrixSquareGeneral* sphering(const AMatrix* X)
 }
 
 /**
- * \copydoc Stats3
- * @param name1 Name of the primary variable
- * @param name2 Name of the secondary variable
+ * \copydoc STATS_1
+ *
+ * @return Vector of results
+ *
  */
 VectorDouble dbStatisticsPerCell(Db *db,
                                  DbGrid *dbgrid,
@@ -1508,7 +1516,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
 
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param oper       Operator
  * @param flagMono   When True, statistics by variable; otherwise, statistics by pair of variables

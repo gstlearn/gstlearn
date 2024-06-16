@@ -96,6 +96,19 @@ public:
   virtual bool mayChangeSampleNumber() const { return true; }
   virtual void resetDims(int ncol, int nech);
 
+  /**
+   * \defgroup DB Db: Numerical Data Base
+   *
+   **/
+
+  /** @addtogroup DB_Reset Reset the contents of an already existing Db
+   * \ingroup DB
+   *
+   * All methods enabling to Reset the contents of an already existing Db.
+   *
+   * They clean the initial contents and replace it by the new one.
+   *  @{
+   */
   int resetFromSamples(int nech,
                        const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
                        const VectorDouble& tab = VectorDouble(),
@@ -128,6 +141,16 @@ public:
                   const VectorString &names = VectorString(),
                   const VectorInt &ranks = VectorInt(),
                   bool verbose = false);
+  /**@}*/
+
+  /** @addtogroup DB_Creators Creating a Db structure
+   * \ingroup DB
+   *
+   * All methods enabling to Create a new Db in various conditions.
+   *
+   * They all return a pointer to the newly created Db structure.
+   *  @{
+   */
   static Db* create();
   static Db* createFromNF(const String& neutralFilename,
                            bool verbose = true);
@@ -186,9 +209,17 @@ public:
                               const VectorDouble& coormax = VectorDouble(),
                               int seed = 124234,
                               int flag_add_rank = 1);
+  /**@}*/
 
   const VectorDouble& getArrays() const { return _array; }
 
+  /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
+   * \ingroup DB
+   *
+   * All methods used to manipulated Names of one or several Variables
+   * contained in a Db.
+   *  @{
+   */
   String getNameByLocator(const ELoc& locatorType, int locatorIndex=0) const;
   String getNameByColIdx(int icol) const;
   String getNameByUID(int iuid) const;
@@ -206,6 +237,11 @@ public:
   void setNameByColIdx(int icol, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
 
+  VectorString expandNameList(const VectorString& names) const;
+  VectorString expandNameList(const String& names) const;
+  VectorString identifyNames(const VectorString& names) const;
+  /**@}*/
+
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
@@ -215,12 +251,6 @@ public:
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;
   int getRankAbsoluteToRelative(int iabs) const;
-
-  VectorString expandNameList(const VectorString& names) const;
-  VectorString expandNameList(const String& names) const;
-  VectorString identifyNames(const VectorString& names) const;
-
-  // Locator and UID methods
 
   void clearLocators(const ELoc& locatorType);
   void clearSelection() { clearLocators(ELoc::SEL); }
@@ -450,15 +480,6 @@ public:
                            const VectorDouble &values,
                            bool bySample = false);
 
-  /**
-   * \defgroup DB Db: Numerical Data Base
-   *
-   * Here are the implementation of several functions regarding the manipulation of the Numerical Data Base
-   *
-   * These operations are generic: they are available for any class derived from the Db one (such as DbGrid).
-   *
-   **/
-
   /** @addtogroup DB_0 Getting and Setting functions by Locator
    * \ingroup DB
    *
@@ -512,7 +533,7 @@ public:
   double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
-  /** @addtogroup DB_1 Variable designation (used for simulations in particular)
+  /** @addtogroup DB_1 Designating Variables (used for simulations in particular)
    * \ingroup DB
    *
    * These functions allow designation of columns which contain the results of one simulation

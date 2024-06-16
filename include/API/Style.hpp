@@ -119,9 +119,12 @@ public:
   static void myFunction(int myArgInt, double myArgDoubleDef = 2.);
 
   /**
-   * \defgroup Getters Style: Accessors to private members value
+   * \defgroup Getters Style: Defining the Style
    *
-   * \brief Inline trivial functions grouped with a unique comment
+   **/
+
+  /** @addtogroup Getters_0 Accessors to private members value
+   * \ingroup Getters
    *
    * This is the demonstration that you can write a unique doxygen documentation
    * for a group of functions. This is useful when all functions handle
@@ -136,10 +139,8 @@ public:
   inline const VectorInt&    getArgVectorInt()    const { return _argVectorInt; }
   /**@}*/
 
-  /**
-   * \defgroup Setters Style: Function that update private members value
-   *
-   * \brief Inline trivial functions grouped with a unique comment
+  /** @addtogroup Getters_1 Function that update private members value
+   * \ingroup Getters
    *
    * Usually, a class should not have these kind of simple accessors (setters).
    * Otherwise, defining member attributes as *private* makes no sense.

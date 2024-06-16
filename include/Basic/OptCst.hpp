@@ -17,7 +17,17 @@
 #include <map>
 
 /**
- * Operate the list of Constant options
+ * Operate the list of Constant options.
+ * These options correspond to various keywords chosen from a close list (see ECst.hpp).
+ *
+ * One option should be used according to the following example:
+ *
+ *     OptCst::define(ECst::NTCAR, 20)
+ *
+ * to set that the printing format for a variable should now be on 20 characters (max).
+ *
+ * To know the current status of all these environmental parameters,
+ * use the display() function.
  */
 class GSTLEARN_EXPORT OptCst
 {

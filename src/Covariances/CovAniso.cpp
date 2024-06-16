@@ -1125,9 +1125,11 @@ void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
 }
 
 /**
- * Define the Second Space Point as coinciding with the Input Space Point #iech.
- * Note that, as the Input Space Points are already transfored in the basis
+ * Define the Second Space Point as coinciding with the Input Space Point 'iech'.
+ * Note that, as the Input Space Points are already transformed in the basis
  * of the current structure, it is just an assignment.
+ *
+ * @param iech Rank of the sample among the recorded Space Points
  */
 void CovAniso::optimizationSetTarget(int iech) const
 {
