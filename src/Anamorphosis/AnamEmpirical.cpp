@@ -132,16 +132,16 @@ void AnamEmpirical::setTDisc(const VectorDouble& tdisc)
 
 double AnamEmpirical::rawToTransformValue(double zz) const
 {
-  double yy,za,zb,ya,yb;
+  double za,zb,ya,yb;
   int    idisc,found;
 
   /* Initialization */
 
   if (zz < ZD(0))        zz = ZD(0);
   if (zz > ZD(_nDisc-1)) zz = ZD(_nDisc-1);
-  yy = ya = yb = za = zb = zz;
+  ya = yb = za = zb = zz;
 
-  for (idisc=found=0; idisc<_nDisc && found==0; idisc++)
+  for (idisc = found = 0; idisc < _nDisc && found == 0; idisc++)
   {
     if (zz > ZD(idisc)) continue;
     yb = YD(idisc);
@@ -149,7 +149,7 @@ double AnamEmpirical::rawToTransformValue(double zz) const
     found = 1;
   }
 
-  for (idisc=_nDisc-1, found=0; idisc>=0 && found==0; idisc--)
+  for (idisc = _nDisc - 1, found = 0; idisc >= 0 && found == 0; idisc--)
   {
     if (zz < ZD(idisc)) continue;
     ya = YD(idisc);
@@ -157,6 +157,7 @@ double AnamEmpirical::rawToTransformValue(double zz) const
     found = 1;
   }
 
+  double yy;
   if (za >= zb)
     yy = ya;
   else

@@ -583,21 +583,19 @@ double law_invcdf_gaussian(double value)
 double law_gaussian_between_bounds(double binf, double bsup)
 {
   double atab[4], btab[4], ptab[4];
-  double a, b, aa, bb, total, a2, b2, c2, u, wgt, x;
+  double a, b, aa, bb, total, a2, b2, c2, u, x;
   int k, n, isim, type, ok, rank, itab[4];
   static double seuil = 2.;
   static double large = 20.;
   static double sqe = 1.6487212707;
 
-  wgt = x = 0.;
+  x = 0.;
 
   /* Loop on the intervals */
 
   n = 0;
-  a = (FFFF(binf)) ? -large :
-                     binf;
-  b = (FFFF(bsup)) ? large :
-                     bsup;
+  a = (FFFF(binf)) ? -large : binf;
+  b = (FFFF(bsup)) ? large : bsup;
   aa = a;
   bb = b;
 
@@ -629,7 +627,9 @@ double law_gaussian_between_bounds(double binf, double bsup)
   btab[n] = bb;
   itab[n++] = 4;
 
-  label_norme: total = 0.;
+  label_norme:
+  total = 0.;
+  double wgt;
   for (k = 0; k < n; k++)
   {
     aa = atab[k];
@@ -1227,11 +1227,12 @@ double* law_exp_sample(double *tabin,
 
   error = 0;
 
-  label_end: temp = (double*) mem_free((char* ) temp);
-  mean = (double*) mem_free((char* ) mean);
-  stdv = (double*) mem_free((char* ) stdv);
-  mini = (double*) mem_free((char* ) mini);
-  maxi = (double*) mem_free((char* ) maxi);
+  label_end:
+  (void*) (double*) mem_free((char* ) temp);
+  (void*) (double*) mem_free((char* ) mean);
+  (void*) (double*) mem_free((char* ) stdv);
+  (void*) (double*) mem_free((char* ) mini);
+  (void*) (double*) mem_free((char* ) maxi);
   if (error) tabout = (double*) mem_free((char* ) tabout);
 
   return (tabout);

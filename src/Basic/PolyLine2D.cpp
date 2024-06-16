@@ -294,7 +294,7 @@ double PolyLine2D::distanceBetweenPoints(double ap,
   /* Calculate the minimum distance */
 
   dist = 1.e30;
-  dh = dv = 0.;
+  dv = 0.;
   d1 = pldist1.dist;
   d2 = pldist2.dist;
   dh = ap * ABS(d1 - d2);
