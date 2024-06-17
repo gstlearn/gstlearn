@@ -57,6 +57,9 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
         
+    - name: Install devtools
+      run: Rscript -e "options(pkgType = 'binary'); install.packages(c('devtools'), repos='https://cloud.r-project.org/')"
+
     # Not yet operational (devtools cannot be installed) => BUILD_DOXYGEN=OFF
     #- name : Install doxygen
     #  run: brew install doxygen
