@@ -17,8 +17,7 @@ Timer::Timer()
 }
 
 Timer::Timer(const Timer &m)
-    :
-    _refTime(m._refTime)
+    : _refTime(m._refTime)
 {
 
 }

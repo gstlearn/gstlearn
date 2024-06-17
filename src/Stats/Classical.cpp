@@ -363,7 +363,7 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
 /**
  * \copydoc STATS_2
  *
- * @return Store several statistics calculated on a set of variables of a Db and store them
+ * Store several statistics calculated on a set of variables of a Db and store them
  * in this same Db in variables already created.
  * These functions should not be used in Target Language.
  */

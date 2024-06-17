@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
 #include "Enum/ELoc.hpp"
 
 #include "Basic/NamingConvention.hpp"
