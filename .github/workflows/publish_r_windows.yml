@@ -49,8 +49,11 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install devtools
-      run: Rscript -e "options(pkgType = 'binary'); install.packages(c('devtools'), repos='https://cloud.r-project.org/')"
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2, pkgbuild
+        install-pandoc: false
 
     - name: Install dependencies
       run: |
