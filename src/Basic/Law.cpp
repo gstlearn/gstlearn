@@ -694,7 +694,6 @@ double law_gaussian_between_bounds(double binf, double bsup)
         break;
 
       case 2:
-        wgt = exp(aa) * (1. - u) + exp(bb) * u;
         x = log(exp(aa) * (1. - u) + exp(bb) * u);
         break;
 
@@ -1228,11 +1227,11 @@ double* law_exp_sample(double *tabin,
   error = 0;
 
   label_end:
-  (void*) (double*) mem_free((char* ) temp);
-  (void*) (double*) mem_free((char* ) mean);
-  (void*) (double*) mem_free((char* ) stdv);
-  (void*) (double*) mem_free((char* ) mini);
-  (void*) (double*) mem_free((char* ) maxi);
+  (void*) mem_free((char* ) temp);
+  (void*) mem_free((char* ) mean);
+  (void*) mem_free((char* ) stdv);
+  (void*) mem_free((char* ) mini);
+  (void*) mem_free((char* ) maxi);
   if (error) tabout = (double*) mem_free((char* ) tabout);
 
   return (tabout);

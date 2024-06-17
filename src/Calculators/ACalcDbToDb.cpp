@@ -103,7 +103,7 @@ bool ACalcDbToDb::_checkSpaceDimension()
      }
      else
      {
-       ndim = _dbout->getNDim();
+//       ndim = _dbout->getNDim(); // Never reached
      }
    }
    return true;
@@ -127,7 +127,7 @@ bool ACalcDbToDb::_checkVariableNumber()
     }
     else
     {
-      nvar = _dbin->getLocNumber(ELoc::Z);
+//      nvar = _dbin->getLocNumber(ELoc::Z); // Never reached
     }
   }
   return true;

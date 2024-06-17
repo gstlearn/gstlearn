@@ -132,7 +132,7 @@ bool ACalcInterpolator::_check()
     }
     else
     {
-      nvar = _model->getVariableNumber();
+//      nvar = _model->getVariableNumber(); // Never reached
     }
   }
 

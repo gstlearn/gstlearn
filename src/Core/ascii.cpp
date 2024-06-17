@@ -80,9 +80,8 @@ static char Fichier_frac[]    = "Frac";
 static int st_record_read(const char *title, const char *format, ...)
 {
   va_list ap;
-  int error;
 
-  error = 0;
+  int error;
   va_start(ap, format);
 
   if (FILE_MEM != nullptr)
