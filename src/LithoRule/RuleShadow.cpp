@@ -431,7 +431,6 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
   error = 1;
   del = nullptr;
-  dy = 0.;
   nstep = 0;
   ndim = dbgrid->getNDim();
   icase = get_rank_from_propdef(propdef, ipgs, 0);
@@ -506,7 +505,8 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
   error = 0;
 
-  label_end: del = db_vector_free(del);
+  label_end:
+  db_vector_free(del);
   return (error);
 }
 

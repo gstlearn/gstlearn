@@ -1423,7 +1423,7 @@ int pointToBlock(Db *dbpoint,
 
   error = 1;
   indg = indg0 = nullptr;
-  iatt_edge = iatt_rank = iatt_surf = iatt_vol = iatt_code = -1;
+  iatt_rank = -1;
   if (!dbgrid->hasSameDimension(dbpoint)) goto label_end;
   ndim = dbgrid->getNDim();
   flag_index = (int) get_keypone("PTB_Flag_Index", 0.);

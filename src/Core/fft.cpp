@@ -373,7 +373,6 @@ static int fftradix(double Re[],
         break;
 
       case 4: /* transform for factor of 4 */
-        ispan = kspan;
         kspan /= 4;
 
         do

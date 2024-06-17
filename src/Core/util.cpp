@@ -1191,7 +1191,7 @@ int* ut_split_into_two(int ncolor, int flag_half, int verbose, int *nposs)
       np++;
     }
   }
-  comb = (int*) mem_free((char* ) comb);
+  mem_free((char* ) comb);
 
   /* Resize */
 

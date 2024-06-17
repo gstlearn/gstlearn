@@ -3032,7 +3032,7 @@ int potential_kriging(Db *dbiso,
   label_end:
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  potval = (double*) mem_free((char* ) potval);
+  mem_free((char* ) potval);
   return (error);
 }
 
@@ -3273,8 +3273,8 @@ int potential_simulate(Db *dbiso,
   label_end: if (flag_tempere) dbout->deleteColumnsByLocator(ELoc::Z);
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  potval = (double*) mem_free((char* ) potval);
-  potsim = (double*) mem_free((char* ) potsim);
+  mem_free((char* ) potval);
+  mem_free((char* ) potsim);
   return (error);
 }
 

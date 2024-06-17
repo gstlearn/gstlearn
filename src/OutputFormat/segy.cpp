@@ -492,6 +492,7 @@ static int st_surface_identify(int verbOption,
                                int* iaux_bot)
 {
   *iatt_bot = -1;
+  if (surfaces == nullptr) return 1;
 
   if (flag_bot)
   {
@@ -1915,7 +1916,6 @@ int db_segy(const char *filesegy,
   double cztop = 0.;
   for (int i = 0; i < 3; i++)
     indg[i] = 0;
-  iatt = -1;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
   traceHead traceHead_ = st_traceHead_init();
 

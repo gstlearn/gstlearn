@@ -69,7 +69,7 @@ cs* NF_Triplet::buildCsFromTriplet() const
   for (int i = 0, n = getNumber(); i < n; i++)
     (void) cs_entry2(local, getRow(i), getCol(i), getValue(i));
   cs* Q = cs_triplet2(local);
-  local = cs_spfree2(local);
+  cs_spfree2(local);
   return Q;
 }
 

@@ -680,7 +680,6 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 
   valtab0 = valtab1 = valtab2 = numtab0 = numtab1 = numtab2 = nullptr;
   error = 1;
-  flag_save = 0;
   iech_save = (int) get_keypone("Upscale.Converge.Block", 0);
 
   /* Preliminary checks */
@@ -771,12 +770,12 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
   error = 0;
 
   label_end: OptDbg::setCurrentIndex(0);
-  numtab0 = (double*) mem_free((char* ) numtab0);
-  numtab1 = (double*) mem_free((char* ) numtab1);
-  numtab2 = (double*) mem_free((char* ) numtab2);
-  valtab0 = (double*) mem_free((char* ) valtab0);
-  valtab1 = (double*) mem_free((char* ) valtab1);
-  valtab2 = (double*) mem_free((char* ) valtab2);
+  mem_free((char* ) numtab0);
+  mem_free((char* ) numtab1);
+  mem_free((char* ) numtab2);
+  mem_free((char* ) valtab0);
+  mem_free((char* ) valtab1);
+  mem_free((char* ) valtab2);
   return (error);
 }
 
@@ -1276,7 +1275,6 @@ int db_diffusion(DbGrid *dbgrid1,
 
   valtab0 = valwrk = numtab0 = cvdist2 = cvsave = trsave = nullptr;
   tabini = tabcur = tabwrk = numrank = nullptr;
-  n_nbgh = flag_save = 0;
   error = 1;
   iech_save = (int) get_keypone("Diffusion.Converge.Block", 0);
   opt_morpho = (int) get_keypone("Diffusion.Converge.Morpho", 1);
@@ -1405,16 +1403,16 @@ int db_diffusion(DbGrid *dbgrid1,
   error = 0;
 
   label_end: OptDbg::setCurrentIndex(0);
-  tabini = (int*) mem_free((char* ) tabini);
-  tabcur = (int*) mem_free((char* ) tabcur);
-  tabwrk = (int*) mem_free((char* ) tabwrk);
-  numrank = (int*) mem_free((char* ) numrank);
-  valwrk = (double*) mem_free((char* ) valwrk);
-  numtab0 = (double*) mem_free((char* ) numtab0);
-  valtab0 = (double*) mem_free((char* ) valtab0);
-  cvdist2 = (double*) mem_free((char* ) cvdist2);
-  cvsave = (double*) mem_free((char* ) cvsave);
-  trsave = (double*) mem_free((char* ) trsave);
+  mem_free((char* ) tabini);
+  mem_free((char* ) tabcur);
+  mem_free((char* ) tabwrk);
+  mem_free((char* ) numrank);
+  mem_free((char* ) valwrk);
+  mem_free((char* ) numtab0);
+  mem_free((char* ) valtab0);
+  mem_free((char* ) cvdist2);
+  mem_free((char* ) cvsave);
+  mem_free((char* ) trsave);
   return (error);
 }
 

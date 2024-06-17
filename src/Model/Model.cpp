@@ -1706,8 +1706,9 @@ VectorDouble Model::evalDriftVarCoefs(const Db *db,
                                       bool useSel) const
 {
   VectorDouble vec;
-  if (_driftList == nullptr && db != nullptr)
+  if (_driftList == nullptr)
   {
+    if (db == nullptr) return vec;
     int nech = db->getSampleNumber(useSel);
     double mean = getMean(ivar);
     vec = VectorDouble(nech, mean);

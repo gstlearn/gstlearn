@@ -1322,7 +1322,7 @@ int cs_ltsolve(const cs *L, double *x)
   Li = L->i;
   Lx = L->x;
 
-  Lpj = Lpjp1 = Lp[n];
+  Lpj = Lp[n];
   for (j = n - 1; j >= 0; j--)
   {
     Lpjp1 = Lpj;

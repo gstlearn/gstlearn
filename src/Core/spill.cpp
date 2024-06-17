@@ -328,7 +328,7 @@ static SPIMG* st_image_free(SPIMG* image)
   if (image == (SPIMG*) NULL) return (image);
 
   if (image->bitmap != nullptr)
-    image->bitmap = (double*) mem_free((char* ) image->bitmap);
+    mem_free((char* ) image->bitmap);
   image = (SPIMG*) mem_free((char* ) image);
 
   return (image);
@@ -647,7 +647,6 @@ int spill_point(DbGrid *dbgrid,
 
   /* Define global variables */
 
-  found = 0;
   hspill = TEST;
   HMAX = hmax;
   SIGNE = (flag_up) ? 1 : -1;

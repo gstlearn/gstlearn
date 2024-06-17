@@ -201,9 +201,9 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
       ACovFunc* cova = createCovFunc(*it, ctxt);
       String cn = toUpper(cov_name);
       String ccn = toUpper(cova->getCovName());
+      delete cova;
       if (cn == ccn)
         return *it;
-      delete cova;
     }
     it.toNext();
   }

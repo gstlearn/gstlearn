@@ -209,7 +209,7 @@ void AnamEmpirical::calculateMeanAndVariance()
 int AnamEmpirical::fitFromArray(const VectorDouble& tab,
                                 const VectorDouble& /*wt*/)
 {
-  int     iech,number,idisc,id,ndisc_util;
+  int     iech,number,idisc,ndisc_util;
   double  value,dmean,dmean2,dmini,dmaxi,sigma,zval,total,variance;
   double  disc_val,disc_init,pzmin,pzmax,pymin,pymax,ecart;
 
@@ -255,7 +255,7 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
 
   /* Fill the discretized array */
 
-  idisc = id = 0;
+  idisc = 0;
   ZD(0) = disc_init - disc_val;
   ZD(1) = disc_init;
   for (idisc=2; idisc<_nDisc; idisc++)

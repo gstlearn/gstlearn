@@ -757,6 +757,7 @@ void Rule::_ruleDefine(std::ostream& os,
     ret = ret && _recordWrite(os, "", cur_rank);
     ret = ret && _recordWrite(os, "", node->getFacies());
   }
+  DECLARE_UNUSED(ret);
 
   /* Comment */
 
@@ -986,7 +987,7 @@ int Rule::evaluateBounds(PropDef* propdef,
   /* Initializations */
 
   if (dbin == nullptr) return(0);
-  nadd = nstep = 0;
+  nadd = 0;
   nech = dbin->getSampleNumber();
 
   /* Dispatch */

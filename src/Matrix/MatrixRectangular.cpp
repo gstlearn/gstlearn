@@ -137,6 +137,7 @@ void MatrixRectangular::addRow(int nrow_added)
   for (int irow=0; irow< nrows; irow++)
     for (int icol=0; icol<ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
+  delete statsSave;
 }
 
 void MatrixRectangular::addColumn(int ncolumn_added)
@@ -149,4 +150,5 @@ void MatrixRectangular::addColumn(int ncolumn_added)
   for (int irow=0; irow< nrows; irow++)
     for (int icol=0; icol<ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
+  delete statsSave;
 }

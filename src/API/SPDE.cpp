@@ -296,7 +296,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Evaluation of the variance at data point
-  if (_isKrigingRequested())
+  if (_isKrigingRequested() && _data != nullptr)
   {
     if (_data->getLocNumber(ELoc::V) > 0)
     {

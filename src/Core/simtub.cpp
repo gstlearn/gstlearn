@@ -599,7 +599,7 @@ static void st_check_facies_data2grid(Db *dbin,
   }
 
   label_end: if (flag_check && number <= 0) message("No problem found\n");
-  coor = db_sample_free(coor);
+  db_sample_free(coor);
   return;
 }
 
@@ -940,8 +940,8 @@ int simpgs(Db *dbin,
   error = 0;
 
   label_end:
-    propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                dbin, dbprop, propcst, propdef);
+    proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                      dbin, dbprop, propcst, propdef);
   st_suppress_added_samples(dbin, nechin);
   return (error);
 }
@@ -1364,8 +1364,8 @@ int simbipgs(Db *dbin,
 
 label_end:
   st_suppress_added_samples(dbin,nechin);
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf[0], ngrf[1], nfac[0],
-                              nfac[1], dbin, dbprop, propcst, propdef);
+  proportion_manage(-1, 1, flag_stat, ngrf[0], ngrf[1], nfac[0],
+                    nfac[1], dbin, dbprop, propcst, propdef);
   return (error);
 }
 
@@ -1464,8 +1464,8 @@ int db_simulations_to_ce(Db *db,
 
   error = 0;
 
-  label_end: (void) db_attribute_del_mult(db, iptr_nb, nvar);
-  iptr_nb = -1;
+  label_end:
+  (void) db_attribute_del_mult(db, iptr_nb, nvar);
   if (error)
   {
     (void) db_attribute_del_mult(db, iptr_ce, nvar);
@@ -1535,6 +1535,7 @@ int gibbs_sampler(Db *dbin,
 
   error = 1;
   npgs = 1;
+  nvar = 0;
   iptr_ce = iptr_cstd = -1;
   propdef = nullptr;
 
@@ -1648,10 +1649,7 @@ int gibbs_sampler(Db *dbin,
                               nbsimu);
 
 label_end:
-  propdef = proportion_manage(-1, 0, 1, 1, 0, model->getVariableNumber(), 0,
-                              dbin,
-                              NULL,
-                              VectorDouble(), propdef);
+  proportion_manage(-1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
   return (error);
 }
 
@@ -1846,9 +1844,10 @@ int simtub_constraints(Db *dbin,
 
   error = 0;
 
-  label_end: nx = (int*) mem_free((char* ) nx);
-  dx = (double*) mem_free((char* ) dx);
-  x0 = (double*) mem_free((char* ) x0);
+  label_end:
+  mem_free((char* ) nx);
+  mem_free((char* ) dx);
+  mem_free((char* ) x0);
   return (error);
 }
 
@@ -2003,7 +2002,7 @@ int simmaxstable(Db *dbout,
   }
 
   tpois = 0.;
-  niter = nleft = last = 0;
+  niter = last = 0;
   while (1)
   {
     niter++;
@@ -2237,9 +2236,10 @@ int simRI(Db *dbout,
 
   error = 0;
 
-  label_end: sort = (double*) mem_free((char* ) sort);
-  pton = (double*) mem_free((char* ) pton);
-  pres = (double*) mem_free((char* ) pres);
+  label_end:
+  mem_free((char* ) sort);
+  mem_free((char* ) pton);
+  mem_free((char* ) pres);
   if (iptrs >= 0) dbout->deleteColumnByUID(iptrs);
   return (error);
 }
@@ -2483,15 +2483,19 @@ int simpgs_spde(Db *dbin,
   if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS))
     dbout->deleteColumnsByLocator(ELoc::SIMU);
 
-  dbin->deleteColumnsByLocator(ELoc::L);
-  dbin->deleteColumnsByLocator(ELoc::U);
+  if (dbin != nullptr)
+  {
+    dbin->deleteColumnsByLocator(ELoc::L);
+    dbin->deleteColumnsByLocator(ELoc::U);
+  }
 
   /* Set the error return flag */
 
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         dbin, dbprop, propcst, propdef);
+  label_end:
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                    dbin, dbprop, propcst, propdef);
   st_suppress_added_samples(dbin, nechin);
   return (error);
 }

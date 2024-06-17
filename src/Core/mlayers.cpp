@@ -1134,11 +1134,8 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
   error = 0;
 
   label_end:
-
-  /* Core deallocation */
-
-  atab = (double*) mem_free((char* ) atab);
-  btab = (double*) mem_free((char* ) btab);
+  mem_free((char* ) atab);
+  mem_free((char* ) btab);
   return (error);
 }
 
@@ -1396,9 +1393,9 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 
   /* Core deallocation */
 
-  temp = (double*) mem_free((char* ) temp);
-  fsf0 = (double*) mem_free((char* ) fsf0);
-  c2 = (double*) mem_free((char* ) c2);
+  mem_free((char* ) temp);
+  mem_free((char* ) fsf0);
+  mem_free((char* ) c2);
 }
 
 /****************************************************************************/
@@ -1653,7 +1650,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
   /* Initializations */
 
   nlayers = lmlayers->nlayers;
-  time = depth = stdv = 0.;
+  time = stdv = 0.;
 
   /* If Depth converion is not required, nothing to be done */
 
@@ -1943,11 +1940,12 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   error = 0;
 
-  label_end: ffc = (double*) mem_free((char* ) ffc);
-  fm1z = (double*) mem_free((char* ) fm1z);
-  gg = (double*) mem_free((char* ) gg);
-  invH = (double*) mem_free((char* ) invH);
-  invS = (double*) mem_free((char* ) invS);
+  label_end:
+  mem_free((char* ) ffc);
+  mem_free((char* ) fm1z);
+  mem_free((char* ) gg);
+  mem_free((char* ) invH);
+  mem_free((char* ) invS);
   return (error);
 }
 
@@ -2214,18 +2212,18 @@ int multilayers_kriging(Db *dbin,
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
-  dual = (double*) mem_free((char* ) dual);
-  atot = (double*) mem_free((char* ) atot);
-  acov = (double*) mem_free((char* ) acov);
-  b2 = (double*) mem_free((char* ) b2);
-  c00 = (double*) mem_free((char* ) c00);
-  wgt = (double*) mem_free((char* ) wgt);
-  a0 = (double*) mem_free((char* ) a0);
-  cc = (double*) mem_free((char* ) cc);
-  ss = (double*) mem_free((char* ) ss);
-  gs = (double*) mem_free((char* ) gs);
-  post_S = (double*) mem_free((char* ) post_S);
-  post_mean = (double*) mem_free((char* ) post_mean);
+  mem_free((char* ) dual);
+  mem_free((char* ) atot);
+  mem_free((char* ) acov);
+  mem_free((char* ) b2);
+  mem_free((char* ) c00);
+  mem_free((char* ) wgt);
+  mem_free((char* ) a0);
+  mem_free((char* ) cc);
+  mem_free((char* ) ss);
+  mem_free((char* ) gs);
+  mem_free((char* ) post_S);
+  mem_free((char* ) post_mean);
   lmlayers = lmlayers_free(lmlayers);
   return (error);
 }
@@ -2451,10 +2449,10 @@ static int st_varioexp_chh(LMlayers *lmlayers,
   error = 0;
 
   label_end:
-  atab = (double*) mem_free((char* ) atab);
-  btab = (double*) mem_free((char* ) btab);
-  sill = (double*) mem_free((char* ) sill);
-  stat = (int*) mem_free((char* ) stat);
+  mem_free((char* ) atab);
+  mem_free((char* ) btab);
+  mem_free((char* ) sill);
+  mem_free((char* ) stat);
   return (error);
 }
 
@@ -2598,8 +2596,8 @@ int multilayers_vario(Db *dbin,
 
   label_end:
   (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
-  vorder = vario_order_manage(-1, 1, sizeof(int), vorder);
-  lmlayers = lmlayers_free(lmlayers);
+  vario_order_manage(-1, 1, sizeof(int), vorder);
+  lmlayers_free(lmlayers);
   return (error);
 }
 

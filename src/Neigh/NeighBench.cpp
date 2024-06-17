@@ -133,7 +133,6 @@ int NeighBench::getMaxSampleNumber(const Db* db) const
 {
   bool useSel = false;
   int nech = db->getSampleNumber();
-  int nmax = nech;
   int ndim = db->getNDim();
   if (db->getNDim() <= 2) return nech;
 
@@ -144,7 +143,7 @@ int NeighBench::getMaxSampleNumber(const Db* db) const
   VectorDouble tab = VH::sort(vec, true);
 
   /* Loop on the first point */
-  nmax = 0;
+  int nmax = 0;
   for (int iech = 0; iech < nech - 1; iech++)
   {
 

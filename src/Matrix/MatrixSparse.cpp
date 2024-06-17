@@ -1074,7 +1074,7 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
   {
     cs* local = cs_matvecnorm(a.getCS(), vec.data(), oper_choice);
     mat->setCS(local);
-    local = cs_spfree2(local);
+    cs_spfree2(local);
   }
   return mat;
 }

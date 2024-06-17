@@ -140,7 +140,7 @@ void time_chunk_add(const char *call_name)
     // Glue the new Time Chunk to the Global array
 
     TimeStat = (TimeChunk**) realloc((char*) TimeStat,
-                                     (NB_TIME_CHUNK + 1) * sizeof(TimeChunk));
+                                     (NB_TIME_CHUNK + 1) * sizeof(TimeChunk*));
     if (TimeStat == NULL)
     {
       messerr("Memory problem: Timer procedure is interrupted");
@@ -242,7 +242,7 @@ static void st_memory_leak_add(const char *call_file,
   // Glue the new chunk to the Global array
 
   MemLeak = (MemChunk**) realloc((char*) MemLeak,
-                                 (NB_MEM_CHUNK + 1) * sizeof(MemChunk));
+                                 (NB_MEM_CHUNK + 1) * sizeof(MemChunk*));
   if (MemLeak == NULL)
   {
     messerr("Memory problem: Memory Leak procedure is interrupted");
@@ -297,7 +297,7 @@ static void st_memory_leak_delete(const char *call_file,
 
   MemLeak[found] = MemLeak[NB_MEM_CHUNK - 1];
   MemLeak = (MemChunk**) realloc((char*) MemLeak,
-                                 (NB_MEM_CHUNK - 1) * sizeof(MemChunk));
+                                 (NB_MEM_CHUNK - 1) * sizeof(MemChunk*));
   NB_MEM_CHUNK--;
 }
 

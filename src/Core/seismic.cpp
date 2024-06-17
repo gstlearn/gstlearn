@@ -600,7 +600,8 @@ int seismic_z2t_grid(int verbose,
 
   error = 0;
 
-  label_end: vv = (double*) mem_free((char* ) vv);
+  label_end:
+  mem_free((char* ) vv);
   return (error);
 }
 
@@ -679,7 +680,8 @@ int seismic_t2z_grid(int verbose,
 
   error = 0;
 
-  label_end: vv = (double*) mem_free((char* ) vv);
+  label_end:
+  mem_free((char* ) vv);
   return (error);
 }
 
@@ -1030,7 +1032,7 @@ static int st_seismic_operate(Db *db,
                               double dt)
 {
   int it, iatt, itrace, count;
-  double x, y, max, denom, sum, avg;
+  double x, y, max, denom, sum;
 
   /* Dispatch */
 
@@ -1344,15 +1346,14 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || x == 0.) ? TEST :
-                                          1. / x);
+                   (FFFF(x) || x == 0.) ? TEST : 1. / x);
           }
         break;
 
       case SEISMIC_AVG:
         for (iatt = 0; iatt < natt; iatt++)
         {
-          sum = avg = count = 0;
+          sum = count = 0;
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
@@ -1364,8 +1365,7 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || count <= 0) ? TEST :
-                                             x - sum / count);
+                   (FFFF(x) || count <= 0) ? TEST : x - sum / count);
           }
         }
         break;
@@ -1609,10 +1609,11 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
 
   error = 0;
 
-  label_end: zt = (double*) mem_free((char* ) zt);
-  tz = (double*) mem_free((char* ) tz);
-  az = (double*) mem_free((char* ) az);
-  at = (double*) mem_free((char* ) at);
+  label_end:
+  mem_free((char* ) zt);
+  mem_free((char* ) tz);
+  mem_free((char* ) az);
+  mem_free((char* ) at);
   return (error);
 }
 
@@ -1680,10 +1681,11 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
 
   error = 0;
 
-  label_end: tz = (double*) mem_free((char* ) tz);
-  zt = (double*) mem_free((char* ) zt);
-  az = (double*) mem_free((char* ) az);
-  at = (double*) mem_free((char* ) at);
+  label_end:
+  mem_free((char* ) tz);
+  mem_free((char* ) zt);
+  mem_free((char* ) az);
+  mem_free((char* ) at);
   return (error);
 }
 
@@ -1873,7 +1875,7 @@ int seismic_convolve(DbGrid *db,
   natt = db->getLocNumber(ELoc::Z);
   nz = db->getNX(ndim - 1);
   dz = db->getDX(ndim - 1);
-  error = size = 0;
+  error = 0;
 
   /* Generation of the wavelet */
 
@@ -1955,10 +1957,11 @@ int seismic_convolve(DbGrid *db,
 
   error = 0;
 
-  label_end: tab0 = (double*) mem_free((char* ) tab0);
-  tab1 = (double*) mem_free((char* ) tab1);
-  tab2 = (double*) mem_free((char* ) tab2);
-  if (type >= 0) wavelet = (double*) mem_free((char* ) wavelet);
+  label_end:
+  mem_free((char* ) tab0);
+  mem_free((char* ) tab1);
+  mem_free((char* ) tab2);
+  if (type >= 0) mem_free((char* ) wavelet);
   return (error);
 }
 
@@ -2183,12 +2186,13 @@ static ST_Seismic_Neigh* st_estimate_neigh_management(int mode,
   }
   else
   {
-    label_free: if (ngh == nullptr) return (ngh);
-    ngh->ix_ngh = (int*) mem_free((char* ) ngh->ix_ngh);
-    ngh->iz_ngh = (int*) mem_free((char* ) ngh->iz_ngh);
-    ngh->v1_ngh = (double*) mem_free((char* ) ngh->v1_ngh);
-    ngh->v2_ngh = (double*) mem_free((char* ) ngh->v2_ngh);
-    ngh = (ST_Seismic_Neigh*) mem_free((char* ) ngh);
+    label_free:
+    if (ngh == nullptr) return (ngh);
+    mem_free((char* ) ngh->ix_ngh);
+    mem_free((char* ) ngh->iz_ngh);
+    mem_free((char* ) ngh->v1_ngh);
+    mem_free((char* ) ngh->v2_ngh);
+    mem_free((char* ) ngh);
   }
   return (ngh);
 }
@@ -3034,7 +3038,7 @@ static int st_estimate_sort(int *presence, int *rank)
 
   /* Core deallocation */
 
-  dist = (double*) mem_free((char* ) dist);
+  mem_free((char* ) dist);
   return (0);
 }
 
@@ -3075,7 +3079,7 @@ int seismic_estimate_XZ(DbGrid *db,
   /* Initializations */
 
   error = 1;
-  nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
+  nvois = nred = nb_total = nb_process = nb_calcul = 0;
   lhs = rhs = wgt = var0 = nullptr;
   flag = rank = nullptr;
   nfeq = (flag_ks) ? 0 : 1;
@@ -3251,13 +3255,13 @@ int seismic_estimate_XZ(DbGrid *db,
     if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
   }
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  flag = (int*) mem_free((char* ) flag);
-  lhs = (double*) mem_free((char* ) lhs);
-  rhs = (double*) mem_free((char* ) rhs);
-  wgt = (double*) mem_free((char* ) wgt);
-  var0 = (double*) mem_free((char* ) var0);
-  ngh_cur = st_estimate_neigh_management(-1, nvois, ngh_cur);
-  ngh_old = st_estimate_neigh_management(-1, nvois, ngh_old);
+  mem_free((char* ) flag);
+  mem_free((char* ) lhs);
+  mem_free((char* ) rhs);
+  mem_free((char* ) wgt);
+  mem_free((char* ) var0);
+  st_estimate_neigh_management(-1, nvois, ngh_cur);
+  st_estimate_neigh_management(-1, nvois, ngh_old);
 
   return (error);
 }
@@ -3339,7 +3343,7 @@ int seismic_simulate_XZ(DbGrid *db,
   /* Initializations */
 
   error = 1;
-  nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
+  nvois = nred = nb_total = nb_process = nb_calcul = 0;
   lhs = rhs = wgt = c00 = nullptr;
   flag = rank = nullptr;
   nfeq = (flag_ks) ? 0 :
@@ -3506,18 +3510,18 @@ int seismic_simulate_XZ(DbGrid *db,
   }
   for (i = 0; i < 2; i++)
   {
-    presence[i] = (int*) mem_free((char* ) presence[i]);
+    mem_free((char* ) presence[i]);
     if (error) for (isimu = 0; isimu < nbsimu; isimu++)
       db->deleteColumnByUID(iatt_sim[i] + isimu);
   }
-  flag = (int*) mem_free((char* ) flag);
-  rank = (int*) mem_free((char* ) rank);
-  lhs = (double*) mem_free((char* ) lhs);
-  rhs = (double*) mem_free((char* ) rhs);
-  wgt = (double*) mem_free((char* ) wgt);
-  c00 = (double*) mem_free((char* ) c00);
-  ngh_cur = st_estimate_neigh_management(-1, nvois, ngh_cur);
-  ngh_old = st_estimate_neigh_management(-1, nvois, ngh_old);
+  mem_free((char* ) flag);
+  mem_free((char* ) rank);
+  mem_free((char* ) lhs);
+  mem_free((char* ) rhs);
+  mem_free((char* ) wgt);
+  mem_free((char* ) c00);
+  st_estimate_neigh_management(-1, nvois, ngh_cur);
+  st_estimate_neigh_management(-1, nvois, ngh_old);
 
   return (error);
 }

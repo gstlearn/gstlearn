@@ -670,11 +670,11 @@ int* kmedoids(double *data,
 
   error = 0;
 
-  label_end: if (error || ifound <= 0) free(tclusterid);
-  tclusterid = (int*) mem_free((char* ) tclusterid);
-  centroids = (int*) mem_free((char* ) centroids);
-  saved = (int*) mem_free((char* ) saved);
-  errors = (double*) mem_free((char* ) errors);
-  distmatrix = (double*) mem_free((char* ) distmatrix);
+  label_end:
+  if (error || ifound <= 0) free(tclusterid);
+  mem_free((char* ) centroids);
+  mem_free((char* ) saved);
+  mem_free((char* ) errors);
+  mem_free((char* ) distmatrix);
   return (clusterid);
 }
