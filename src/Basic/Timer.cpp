@@ -17,7 +17,8 @@ Timer::Timer()
 }
 
 Timer::Timer(const Timer &m)
-    : _refTime(m._refTime)
+    :
+    _refTime(m._refTime)
 {
 
 }
@@ -62,7 +63,8 @@ double Timer::getIntervalSeconds(bool flag_reset)
 {
   auto newTime = hrc::now();
   sec fs = newTime - _refTime;
-  if (flag_reset) _refTime = newTime;
+  if (flag_reset)
+    _refTime = newTime;
   return fs.count();
 }
 

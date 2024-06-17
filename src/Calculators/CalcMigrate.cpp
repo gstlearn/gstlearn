@@ -1550,8 +1550,8 @@ int pointToBlock(Db *dbpoint,
   /* Core deallocation */
 
   label_end: if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
-  (void*) db_indg_free(indg);
-  (void*) db_indg_free(indg0);
+  db_indg_free(indg);
+  db_indg_free(indg0);
   return (error);
 }
 
