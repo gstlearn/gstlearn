@@ -498,13 +498,13 @@ double* kclusters(double *data,
 
   label_end: if (error || ifound <= 0)
     cdata = (double*) mem_free((char* ) cdata);
-  (void*) (int*) mem_free((char* ) clusterid);
-  (void*) (int*) mem_free((char* ) tclusterid);
-  (void*) (int*) mem_free((char* ) saved);
-  (void*) (int*) mem_free((char* ) counts);
-  (void*) (int*) mem_free((char* ) cmask);
-  (void*) (int*) mem_free((char* ) mapping);
-  (void*) (double*) mem_free((char* ) cache);
+  mem_free((char* ) clusterid);
+  mem_free((char* ) tclusterid);
+  mem_free((char* ) saved);
+  mem_free((char* ) counts);
+  mem_free((char* ) cmask);
+  mem_free((char* ) mapping);
+  mem_free((char* ) cache);
   return (cdata);
 }
 

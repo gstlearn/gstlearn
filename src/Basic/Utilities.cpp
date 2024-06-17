@@ -418,7 +418,7 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
     }
   }
 
-  if (safe) (void*) mem_free((char* ) tab);
+  if (safe) mem_free((char* ) tab);
   return;
 }
 
@@ -876,7 +876,7 @@ int* ut_combinations(int n, int maxk, int *ncomb)
   (*ncomb) = 0;
   comb = nullptr;
   st_combinations(v, 1, n, 1, maxk, ncomb, &comb);
-  (void*) mem_free((char* ) v);
+  mem_free((char* ) v);
   return (comb);
 }
 

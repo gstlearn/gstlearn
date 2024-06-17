@@ -1227,11 +1227,11 @@ double* law_exp_sample(double *tabin,
   error = 0;
 
   label_end:
-  (void*) mem_free((char* ) temp);
-  (void*) mem_free((char* ) mean);
-  (void*) mem_free((char* ) stdv);
-  (void*) mem_free((char* ) mini);
-  (void*) mem_free((char* ) maxi);
+  mem_free((char* ) temp);
+  mem_free((char* ) mean);
+  mem_free((char* ) stdv);
+  mem_free((char* ) mini);
+  mem_free((char* ) maxi);
   if (error) tabout = (double*) mem_free((char* ) tabout);
 
   return (tabout);
