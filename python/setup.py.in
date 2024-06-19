@@ -10,19 +10,22 @@
 ################################################################################
 
 import setuptools
+from setuptools.command.build_ext import build_ext
 
-# Set pure is mandatory in order to ensure that wheel names are python dependent
-# Decorate wheel output file with platform name
-# https://stackoverflow.com/questions/45150304/how-to-force-a-python-wheel-to-be-platform-specific-when-building-it
-try:
-    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
-    class bdist_wheel(_bdist_wheel):
-        def finalize_options(self):
-            _bdist_wheel.finalize_options(self)
-            self.root_is_pure = False
-except ImportError:
-    bdist_wheel = None
+
+class DummyExtensionBuild(build_ext):
+    def run(self) -> None:
+        return
+
 
 setuptools.setup(
-    cmdclass={"bdist_wheel": bdist_wheel},
+    # we add an empty dummy extension to get a platform wheel...
+    ext_modules=[
+        setuptools.Extension(
+            name="dummy_extension_for_platform_wheel",
+            sources=[],
+        )
+    ],
+    # ...and we make sure to skip its compilation
+    cmdclass={"build_ext": DummyExtensionBuild},
 )
