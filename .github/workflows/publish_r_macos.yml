@@ -57,6 +57,12 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
         
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2, pkgbuild
+        install-pandoc: false
+
     # Not yet operational (devtools cannot be installed) => BUILD_DOXYGEN=OFF
     #- name : Install doxygen
     #  run: brew install doxygen
