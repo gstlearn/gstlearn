@@ -318,7 +318,8 @@ int meshes_2D_sph_from_auxiliary(const String &triswitch, SphTriangle *t)
 
   error = 0;
 
-  label_end: coord = (double*) mem_free((char* ) coord);
+  label_end:
+  mem_free((char* ) coord);
   if (error) meshes_2D_sph_free(t, 0);
   return (error);
 }
@@ -467,10 +468,11 @@ int meshes_2D_sph_create(int verbose, SphTriangle *t)
 
   meshes_2D_sph_free(t, 1);
 
-  label_end: loc_near = (int*) mem_free((char* ) loc_near);
-  loc_next = (int*) mem_free((char* ) loc_next);
-  loc_lnew = (int*) mem_free((char* ) loc_lnew);
-  loc_dist = (double*) mem_free((char* ) loc_dist);
+  label_end:
+  mem_free((char* ) loc_near);
+  mem_free((char* ) loc_next);
+  mem_free((char* ) loc_lnew);
+  mem_free((char* ) loc_dist);
   return (error);
 }
 

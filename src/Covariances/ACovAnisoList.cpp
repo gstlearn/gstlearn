@@ -176,7 +176,7 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
 }
 
 /**
- * Evaluate the set of covariance vectors between samples of input 'db1' and 'db2'
+ * Evaluate the covariance rectangular matrix between samples of input 'db1' and 'db2'
  * @param db1 Input Db
  * @param db2 Output db
  * @param ivar0 Rank of the first variable (-1 for all variables)
@@ -242,6 +242,63 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
   optimizationPostProcess();
   return mat;
 }
+
+/**
+ * Evaluate the covariance matrix between samples of input 'db1'
+ * @param db1 Input Db
+ * @param ivar0 Rank of the first variable (-1 for all variables)
+ * @param nbgh1 Vector of indices of active samples in db1 (optional)
+ * @param mode CovCalcMode structure
+ * @return
+ */
+MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
+                                                                 int ivar0,
+                                                                 const VectorInt &nbgh1,
+                                                                 const CovCalcMode *mode) const
+{
+  MatrixSquareSymmetric mat;
+  SpacePoint p2;
+
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+
+  // Prepare the Optimization for covariance calculation
+  optimizationPreProcess(db1);
+
+  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
+
+  // Creating the matrix
+  int neq1 = VH::count(index1);
+  if (neq1 <= 0)
+  {
+    messerr("The returned matrix does not have any valid sample for any valid variable");
+    return mat;
+  }
+  mat.resize(neq1, neq1);
+
+  // Loop on the second variable
+  for (int jvar = 0, nvar2 = (int) ivars.size(); jvar < nvar2; jvar++)
+  {
+    int jvar2 = ivars[jvar];
+
+    // Loop on the second sample
+    int nech2s = (int) index1[jvar].size();
+    for (int jech2 = 0; jech2 < nech2s; jech2++)
+    {
+      int iech2 = index1[jvar][jech2];
+      optimizationSetTarget(iech2);
+
+      // Loop on the basic structures
+      for (int i = 0, n = getCovaNumber(); i < n; i++)
+         _covs[i]->evalOptimInPlace(mat, ivars, index1, jvar2, jech2, mode);
+    }
+  }
+
+  optimizationPostProcess();
+  return mat;
+}
+
 
 /**
  * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
@@ -638,6 +695,12 @@ void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
 {
   for (int is = 0, ns = getCovaNumber(); is < ns; is++)
     _covs[is]->optimizationSetTarget(pt);
+}
+
+void ACovAnisoList::optimizationSetTarget(int iech) const
+{
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    _covs[is]->optimizationSetTarget(iech);
 }
 
 void ACovAnisoList::optimizationPostProcess() const

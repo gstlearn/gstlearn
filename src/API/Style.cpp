@@ -133,5 +133,6 @@ int Style::UnusedArgument(int a)
  */
 int Style::_increment(int arg) const
 {
-  return arg++;
+  arg++;
+  return arg;
 }

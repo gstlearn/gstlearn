@@ -8,12 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_enum.h"
 
-#include "Variogram/Vario.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
@@ -28,7 +26,6 @@
 #include "LithoRule/Rule.hpp"
 #include "Model/Model.hpp"
 
-#include <string.h>
 #include <algorithm>
 
 /*! \cond */
@@ -80,9 +77,8 @@ static char Fichier_frac[]    = "Frac";
 static int st_record_read(const char *title, const char *format, ...)
 {
   va_list ap;
-  int error;
 
-  error = 0;
+  int error;
   va_start(ap, format);
 
   if (FILE_MEM != nullptr)

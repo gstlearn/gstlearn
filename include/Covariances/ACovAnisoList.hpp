@@ -142,6 +142,7 @@ public:
   void optimizationPreProcess(const Db* db) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint &pt) const;
+  void optimizationSetTarget(int iech) const;
   MatrixRectangular evalCovMatrixOptim(const Db *db1,
                                        const Db *db2,
                                        int ivar0 = -1,
@@ -149,6 +150,10 @@ public:
                                        const VectorInt& nbgh1 = VectorInt(),
                                        const VectorInt& nbgh2 = VectorInt(),
                                        const CovCalcMode *mode = nullptr) const;
+  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
+                                                    int ivar0 = -1,
+                                                    const VectorInt &nbgh1 = VectorInt(),
+                                                    const CovCalcMode *mode = nullptr) const;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

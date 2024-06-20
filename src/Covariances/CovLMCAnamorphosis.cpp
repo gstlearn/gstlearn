@@ -177,22 +177,25 @@ double CovLMCAnamorphosis::eval0(int ivar,
   }
 
   EAnam type = _anam->getType();
+  double value = TEST;
   if (type == EAnam::HERMITIAN)
   {
-    return _evalHermite0(ivar, jvar, modeloc);
+    value = _evalHermite0(ivar, jvar, modeloc);
   }
 
   if (type == EAnam::DISCRETE_DD)
   {
-    return _evalDiscreteDD0(ivar, jvar, modeloc);
+    value = _evalDiscreteDD0(ivar, jvar, modeloc);
   }
 
   if (type == EAnam::DISCRETE_IR)
   {
-    return _evalDiscreteIR0(ivar, jvar, modeloc);
+    value = _evalDiscreteIR0(ivar, jvar, modeloc);
   }
 
-  return TEST;
+  if (mode == nullptr) delete modeloc;
+
+  return value;
 }
 
 double CovLMCAnamorphosis::eval(const SpacePoint& p1,
@@ -214,21 +217,25 @@ double CovLMCAnamorphosis::eval(const SpacePoint& p1,
   }
 
   EAnam type = _anam->getType();
+  double value = TEST;
   if (type == EAnam::HERMITIAN)
   {
-    return _evalHermite(ivar, jvar, p1, p2, modeloc);
+    value = _evalHermite(ivar, jvar, p1, p2, modeloc);
   }
 
   if (type == EAnam::DISCRETE_DD)
   {
-    return _evalDiscreteDD(ivar, jvar, p1, p2, modeloc);
+    value = _evalDiscreteDD(ivar, jvar, p1, p2, modeloc);
   }
 
   if (type == EAnam::DISCRETE_IR)
   {
-    return _evalDiscreteIR(ivar, jvar, p1, p2, modeloc);
+    value = _evalDiscreteIR(ivar, jvar, p1, p2, modeloc);
   }
-  return TEST;
+
+  if (mode == nullptr) delete modeloc;
+
+  return value;
 }
 
 double CovLMCAnamorphosis::_evalHermite(int ivar,
@@ -605,7 +612,6 @@ void CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
     messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);
     messerr("or be set to 0 to estimate the whole discretized grade");
     messerr("The rank is set back to 0 (Gaussian Variable)");
-    anam_iclass = 0;
     return;
   }
   _activeFactor = anam_iclass;

@@ -2598,10 +2598,11 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
 
   error = 0;
 
-  label_end: x1 = (double*) mem_free((char* ) x1);
-  y1 = (double*) mem_free((char* ) y1);
-  x2 = (double*) mem_free((char* ) x2);
-  y2 = (double*) mem_free((char* ) y2);
+  label_end:
+  mem_free((char* ) x1);
+  mem_free((char* ) y1);
+  mem_free((char* ) x2);
+  mem_free((char* ) y2);
   return (error);
 }
 

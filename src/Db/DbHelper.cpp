@@ -849,9 +849,10 @@ int DbHelper::normalizeVariables(Db *db,
     }
   }
 
-  label_end: num = (double*) mem_free((char* ) num);
-  mm = (double*) mem_free((char* ) mm);
-  vv = (double*) mem_free((char* ) vv);
+  label_end:
+  mem_free((char* ) num);
+  mem_free((char* ) mm);
+  mem_free((char* ) vv);
 
   return (0);
 }

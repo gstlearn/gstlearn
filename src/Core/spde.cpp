@@ -1706,7 +1706,7 @@ static void st_gibbs(int igrf,
   Ai = A->i;
   Ax = A->x;
   sk = yk = 0.;
-  iech = jech = 0;
+  iech = 0;
   niter = MAX(1, ngibbs_int);
 
   /* Loop on the Gibbs samples */
@@ -2161,16 +2161,16 @@ int spde_build_stdev(double *vcur)
   error = 0;
 
   label_end:
-  wZdiagp = (int*) mem_free((char* ) wZdiagp);
-  wLmunch = (int*) mem_free((char* ) wLmunch);
-  wz = (double*) mem_free((char* ) wz);
-  d2 = (double*) mem_free((char* ) d2);
-  diag = (double*) mem_free((char* ) diag);
-  z = (double*) mem_free((char* ) z);
-  Dinv = cs_spfree2(Dinv);
-  LDinv = cs_spfree2(LDinv);
-  TLDinv = cs_spfree2(TLDinv);
-  Pattern = cs_spfree2(Pattern);
+  mem_free((char* ) wZdiagp);
+  mem_free((char* ) wLmunch);
+  mem_free((char* ) wz);
+  mem_free((char* ) d2);
+  mem_free((char* ) diag);
+  mem_free((char* ) z);
+  cs_spfree2(Dinv);
+  cs_spfree2(LDinv);
+  cs_spfree2(TLDinv);
+  cs_spfree2(Pattern);
   return (error);
 }
 
@@ -2557,10 +2557,10 @@ static int st_fill_Bnugget(Db *dbin)
   if (error) st_clean_Bnugget();
   MATGRF(SPDE_CURRENT_IGRF)->Bnugget = Bnugget;
   MATGRF(SPDE_CURRENT_IGRF)->ndata = ndata;
-  ind = (int*) mem_free((char* ) ind);
-  local = (double*) mem_free((char* ) local);
-  local0 = (double*) mem_free((char* ) local0);
-  mat = (double*) mem_free((char* ) mat);
+  mem_free((char* ) ind);
+  mem_free((char* ) local);
+  mem_free((char* ) local0);
+  mem_free((char* ) mat);
   return (error);
 }
 
@@ -2763,7 +2763,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   MATGRF(SPDE_CURRENT_IGRF)->ndata = ndata;
   MATGRF(SPDE_CURRENT_IGRF)->ndata1 = ndata1;
   MATGRF(SPDE_CURRENT_IGRF)->ntarget1 = ntarget1;
-  ranks = (int*) mem_free((char* ) ranks);
+  mem_free((char* ) ranks);
   if (error) st_clean_Bhetero();
   return (error);
 }
@@ -3505,7 +3505,8 @@ int spde_build_matrices(Model *model, int verbose)
 
   error = 0;
 
-  label_end: units = (double*) mem_free((char* ) units);
+  label_end:
+  mem_free((char* ) units);
   return (error);
 }
 
@@ -3547,7 +3548,7 @@ static void st_load_data(AMesh *amesh,
 
   /* Loop on the variables */
 
-  ecrd = ecr = 0;
+  ecrd = 0;
   for (int jvar = 0; jvar < nvar; jvar++)
   {
     ecr = jvar * nvertex;
@@ -4036,7 +4037,6 @@ static int st_kriging_several_rhs(double *data,
   SS = MATGRF(SPDE_CURRENT_IGRF);
   ncova = st_get_ncova();
   nvar = S_ENV.nvar;
-  ncur = st_get_nvertex_max();
   size = st_get_dimension();
   ndata = SS->ndata;
   temp = nullptr;
@@ -4139,7 +4139,7 @@ static int st_kriging_several_rhs(double *data,
 
   label_end:
   delete B0;
-  temp = (double*) mem_free((char* ) temp);
+  mem_free((char* ) temp);
   return (error);
 }
 
@@ -4340,10 +4340,10 @@ static int st_kriging_several_loop(int flag_crit,
   error = 0;
 
   label_end:
-  delete tAicov;
-  delete B0;
-  delete B2;
-  delete Bf;
+  if (tAicov != nullptr) delete tAicov;
+  if (B0 != nullptr) delete B0;
+  if (B2 != nullptr) delete B2;
+  if (Bf != nullptr) delete Bf;
   return (error);
 }
 
@@ -4469,7 +4469,8 @@ static int st_kriging_several_results(double *xcur, double *z)
 
   error = 0;
 
-  label_end: ranks = (int*) mem_free((char* ) ranks);
+  label_end:
+  mem_free((char* ) ranks);
   return (error);
 }
 
@@ -4565,9 +4566,9 @@ static int st_kriging_several(double *data,
   error = 0;
 
   label_end:
-  xcur = (double*) mem_free((char* ) xcur);
-  rhsloc = (double*) mem_free((char* ) rhsloc);
-  rhscur = (double*) mem_free((char* ) rhscur);
+  mem_free((char* ) xcur);
+  mem_free((char* ) rhsloc);
+  mem_free((char* ) rhscur);
   return (error);
 }
 
@@ -4636,8 +4637,8 @@ static int st_kriging(AMesh *amesh, double *data, double *zkrig)
   error = 0;
 
   label_end:
-  rhs = (double*) mem_free((char* ) rhs);
-  zkdat = (double*) mem_free((char* ) zkdat);
+  mem_free((char* ) rhs);
+  mem_free((char* ) zkdat);
   return (error);
 }
 
@@ -5012,7 +5013,7 @@ int spde_process(Db *dbin,
 
     // Saving operation
     nv_krige = 0;
-    amesh = spde_get_current_matelem(-1).amesh;
+    spde_get_current_matelem(-1).amesh;
     if (S_DECIDE.flag_est)
       st_save_result(zkrig, dbout, ELoc::Z, nv_krige++);
     if (S_DECIDE.flag_std)
@@ -5154,13 +5155,14 @@ int spde_process(Db *dbin,
 
   error = 0;
 
-  label_end: data = (double*) mem_free((char* ) data);
-  zdat = (double*) mem_free((char* ) zdat);
-  zkrig = (double*) mem_free((char* ) zkrig);
-  zout = (double*) mem_free((char* ) zout);
-  zsnc = (double*) mem_free((char* ) zsnc);
-  zcur = (double*) mem_free((char* ) zcur);
-  vcur = (double*) mem_free((char* ) vcur);
+  label_end:
+  mem_free((char* ) data);
+  mem_free((char* ) zdat);
+  mem_free((char* ) zkrig);
+  mem_free((char* ) zout);
+  mem_free((char* ) zsnc);
+  mem_free((char* ) zcur);
+  mem_free((char* ) vcur);
   return (error);
 }
 
@@ -5223,9 +5225,11 @@ static AMesh* st_create_meshes(Db *dbin,
     Db* dbloc = NULL;
     if (!flag_force)
     {
-      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) && dbout->isGrid()))
+      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) &&
+          dbout != nullptr && dbout->isGrid()))
         dbloc = dbout;
-      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && dbin->isGrid()))
+      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) &&
+          dbin != nullptr && dbin->isGrid()))
         dbloc = dbin;
     }
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
@@ -5612,7 +5616,7 @@ static void st_environ_print(const Db *dbout, const VectorDouble &gext)
 
   if (S_DECIDE.flag_gibbs) message("- Gibbs iterations\n");
 
-  if (dbout->isGrid() && !gext.empty())
+  if (dbout != nullptr && dbout->isGrid() && !gext.empty())
   {
     message("- The resulting Grid is dilated: %lf", gext[0]);
     for (int idim = 1; idim < dbout->getNDim(); idim++)
@@ -6048,9 +6052,9 @@ int kriging2D_spde(Db *dbin,
   error = 0;
 
   label_end:
-  zcur = (double*) mem_free((char* ) zcur);
-  work = (double*) mem_free((char* ) work);
-  data = (double*) mem_free((char* ) data);
+  mem_free((char* ) zcur);
+  mem_free((char* ) work);
+  mem_free((char* ) data);
   return (error);
 }
 
@@ -6590,7 +6594,7 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
   error = 0;
 
   label_end: if (error && iptr >= 0) dbc->deleteColumnByUID(iptr);
-  tab = (double*) mem_free((char* ) tab);
+  mem_free((char* ) tab);
   return (iptr);
 }
 
@@ -7130,7 +7134,8 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
   error = 0;
 
-  label_end: dval = (double*) mem_free((char* ) dval);
+  label_end:
+  mem_free((char* ) dval);
   return (error);
 }
 
@@ -7305,8 +7310,9 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
   error = 0;
 
-  label_end: a = (double*) mem_free((char* ) a);
-  b = (double*) mem_free((char* ) b);
+  label_end:
+  mem_free((char* ) a);
+  mem_free((char* ) b);
   return (error);
 }
 
@@ -7564,8 +7570,6 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   error = 1;
   db = nullptr;
-  nechin = nechout = 0;
-
   nechin = dbin->getSampleNumber(true);
   nechout = dbout->getSampleNumber(true);
   nech = nechin + nechout;
@@ -7885,8 +7889,8 @@ MatrixSparse* db_mesh_neigh(const Db *db,
   *ranks_arg = ranks;
 
   label_end:
-  pts = (int*) mem_free((char* ) pts);
-  coor = db_sample_free(coor);
+  mem_free((char* ) pts);
+  db_sample_free(coor);
   if (error)
   {
     delete A;
@@ -8971,10 +8975,10 @@ int m2d_gibbs_spde(Db *dbin,
   error = 0;
 
   label_end: (void) st_m2d_drift_inc_manage(m2denv, -1, nlayer, icol_pinch, dbc, dbout);
-  m2denv = m2denv_manage(-1, flag_ed, 0., m2denv);
-  Qc = qchol_manage(-1, Qc);
+  m2denv_manage(-1, flag_ed, 0., m2denv);
+  qchol_manage(-1, Qc);
   delete Bproj;
-  gwork = (double*) mem_free((char* ) gwork);
+  mem_free((char* ) gwork);
   if (iatt_f >= 0) (void) db_attribute_del_mult(dbin, iatt_f, nlayer);
   if (error && iatt_out >= 0)
     (void) db_attribute_del_mult(dbout, iatt_out, nlayer);

@@ -262,11 +262,11 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
 
     /* Set the error return code */
 
-label_end:
-    Dinv = cs_spfree2(Dinv);
-    LDinv = cs_spfree2(LDinv);
-    TLDinv = cs_spfree2(TLDinv);
-    Pattern = cs_spfree2(Pattern);
+    label_end:
+    cs_spfree2(Dinv);
+    cs_spfree2(LDinv);
+    cs_spfree2(TLDinv);
+    cs_spfree2(Pattern);
   }
   return 0;
 }

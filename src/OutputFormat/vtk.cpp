@@ -960,9 +960,9 @@ void write_regular_mesh(const char *filename, int ub, int *dims,
   write_rectilinear_mesh(filename, ub, dims, x, y, z, nvars, vardim,
                          centering, varnames, vars);
  
-  x = (float *) mem_free((char *) x);
-  y = (float *) mem_free((char *) y);
-  z = (float *) mem_free((char *) z);
+  mem_free((char *) x);
+  mem_free((char *) y);
+  mem_free((char *) z);
 }
  
  

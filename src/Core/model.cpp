@@ -84,7 +84,6 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   int nvar  = model->getVariableNumber();
   int ndim  = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
-  nfact = new_nvar = 0;
 
   // Create the new model (linked drift functions)
 
@@ -207,7 +206,7 @@ void model_covupdt(Model *model,
   rank = nullptr;
   nvar = model->getVariableNumber();
   ncova = model->getCovaNumber();
-  flag_update = flag_rescale = 0;
+  flag_update = 0;
 
   /* Core allocation */
 
@@ -314,9 +313,9 @@ void model_covupdt(Model *model,
 
   /* Returning arguments */
 
-  rank = (int*) mem_free((char* ) rank);
-  range = (double*) mem_free((char* ) range);
-  silltot = (double*) mem_free((char* ) silltot);
+  mem_free((char* ) rank);
+  mem_free((char* ) range);
+  mem_free((char* ) silltot);
   *flag_nugget = flag_update && (rank_nugget < 0);
   if (flag_verbose && (*flag_nugget))
   {
@@ -536,7 +535,6 @@ int model_covmat_inchol(int verbose,
   pvec = nullptr;
   diag = crit = G = Gmatrix = nullptr;
   flag_incr = (center != nullptr);
-  c00 = 0.;
 
   if (npivot_max <= 0) npivot_max = nech;
   npivot_max = MIN(npivot_max, nech);
@@ -570,7 +568,7 @@ int model_covmat_inchol(int verbose,
     residual += diag[i];
   }
   tol = (!FFFF(eta)) ? eta * residual : 0.;
-  jstar = npivot = 0;
+  npivot = 0;
 
   // Main loop
 
@@ -740,9 +738,10 @@ int model_covmat_inchol(int verbose,
 
   /* Core deallocation */
 
-  label_end: diag = (double*) mem_free((char* ) diag);
-  crit = (double*) mem_free((char* ) crit);
-  G = (double*) mem_free((char* ) G);
+  label_end:
+  mem_free((char* ) diag);
+  mem_free((char* ) crit);
+  mem_free((char* ) G);
   return (error);
 }
 

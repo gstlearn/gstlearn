@@ -40,7 +40,7 @@ CovSpherical::~CovSpherical()
 double CovSpherical::_evaluateCov(double h) const
 {
   double cov = 0.;
-  if (h < 1) cov = 1 - 0.5 * h * (3 - h * h);
+  if (h < 1) cov = 1 - 0.5 * h * (3. - h * h);
   return (cov);
 }
 

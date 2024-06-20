@@ -800,8 +800,8 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
   error = 0;
 
   label_end:
-  ha   = (double*) mem_free((char* ) ha);
-  evec = (double*) mem_free((char* ) evec);
+  mem_free((char* ) ha);
+  mem_free((char* ) evec);
   return (error);
 }
 

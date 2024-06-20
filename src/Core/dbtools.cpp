@@ -499,10 +499,11 @@ int db_edit(Db *db, int *flag_valid)
   nech = db->getSampleNumber();
   nvar = db->getColumnNumber();
   ivar = iech = 0;
-  ok = nrds = nrdv = incr = 1;
+  nrds = nrdv = incr = 1;
   vmin = vmax = TEST;
   if (nech < 1 || nvar < 1) return (1);
 
+  ok = 1;
   while (ok)
   {
     st_edit_display(db, nrdv, nrds, ivar, iech);
@@ -603,7 +604,7 @@ void ut_trace_discretize(int nseg,
 
   xp = yp = dd = nullptr;
   (*np_arg) = np = 0;
-  (*dist_arg) = x0 = y0 = x1 = y1 = 0.;
+  (*dist_arg) = x1 = y1 = 0.;
   del = (double*) mem_alloc(sizeof(double) * nseg, 1);
   del[0] = 0.;
 
@@ -1168,7 +1169,7 @@ int db_gradient_components(DbGrid *dbgrid)
   /* Preliminary check */
 
   error = number = 1;
-  iptrz = iptr = -1;
+  iptr = -1;
   indg = nullptr;
   ndim = dbgrid->getNDim();
   if (! dbgrid->isGrid())
@@ -1256,7 +1257,7 @@ int db_gradient_components(DbGrid *dbgrid)
     (void) db_attribute_del_mult(dbgrid, iptr, ndim);
     iptr = -1;
   }
-  indg = db_indg_free(indg);
+  db_indg_free(indg);
   return (iptr);
 }
 
@@ -1388,7 +1389,7 @@ int db_streamline(DbGrid *dbgrid,
 
   error = 1;
   nbline = nquant = 0;
-  iptr_grad = iptr_accu = iptr_time = -1;
+  iptr_grad = -1;
   indg = nullptr;
   coor0 = line = nullptr;
   if (dbpoint == nullptr) dbpoint = dbgrid;
@@ -1465,7 +1466,7 @@ int db_streamline(DbGrid *dbgrid,
 
     for (int i = 0; i < niter; i++)
     {
-      for (idim = ecr = 0; idim < ndim; idim++)
+      for (idim = 0; idim < ndim; idim++)
         coor[idim] -= step * dbgrid->getArray(knd, iptr_grad + idim);
       if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
@@ -1519,8 +1520,9 @@ int db_streamline(DbGrid *dbgrid,
   *line_loc = line;
   error = 0;
 
-  label_end: indg = db_indg_free(indg);
-  coor0 = db_sample_free(coor0);
+  label_end:
+  db_indg_free(indg);
+  db_sample_free(coor0);
   if (!use_grad && !save_grad && iptr_grad >= 0)
     db_attribute_del_mult(dbgrid, iptr_grad, ndim);
   return (error);
@@ -1704,9 +1706,10 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
 
   error = 0;
 
-  label_end: prop1 = (double*) mem_free((char* ) prop1);
-  prop2 = (double*) mem_free((char* ) prop2);
-  kernel = (double*) mem_free((char* ) kernel);
+  label_end:
+  mem_free((char* ) prop1);
+  mem_free((char* ) prop2);
+  mem_free((char* ) kernel);
   return (error);
 }
 
@@ -1870,6 +1873,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   ecr += 1;
   dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z);
   ecr += nvar;
+  DECLARE_UNUSED(ecr);
 
   label_end:
   return dbnew;
@@ -1917,7 +1921,6 @@ int db_grid2point_sampling(DbGrid *dbgrid,
   *nech_ret = 0;
 
   error = 1;
-  nech = 0;
   coor = data = nullptr;
   retain = nullptr;
   ndim = dbgrid->getNDim();
@@ -2106,6 +2109,7 @@ Db* db_point_init(int nech,
     ndim = (int) coormin.size();
   else
     ndim = dbgrid->getNDim();
+  if (ndim <= 0) return db;
 
   // Initiate the pseudo-random number generator
 

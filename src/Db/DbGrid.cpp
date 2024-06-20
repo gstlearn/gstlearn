@@ -368,7 +368,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                              int flag_cell,
                              int flag_add_rank)
 {
-  DbGrid *dbgrid = new DbGrid;
+  DbGrid *dbgrid;
   int ndim = dbin->getNDim();
 
   // Get the new grid characteristics
@@ -564,7 +564,7 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
                              int flag_cell,
                              int flag_add_rank)
 {
-  DbGrid *dbgrid = new DbGrid;
+  DbGrid *dbgrid;
   int ndim = dbin->getNDim();
 
   // Get the new grid characteristics
@@ -2013,7 +2013,7 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
   double dz = getDX(idim0);
   int nz = getNX(idim0);
   int indzmin = 0; // included
-  int indzmax = nz; // excluded
+  int indzmax;
   VectorInt indg(ndim, 0);
   VectorDouble vec(nz);
   VectorDouble vecempty(nz, TEST);

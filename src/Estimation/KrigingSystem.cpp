@@ -2687,7 +2687,7 @@ bool KrigingSystem::_isCorrect()
   /* Checking the Validity of the Model */
   /**************************************/
 
-  if (! _model->isValid()) return false;
+  if (_model != nullptr && ! _model->isValid()) return false;
 
   /******************************************/
   /* Checking the Number of External Drifts */
@@ -2992,6 +2992,7 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 {
   DECLARE_UNUSED(neighI);
+  if (dbaux == nullptr) return 1;
 
   // Save pointers to previous Data Base (must be restored at the end)
   Db* dbin_loc  = _dbin;
@@ -3008,11 +3009,11 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 
   _iechOut = dbaux->getSampleNumber() / 2;
   neighU.select(_iechOut, _nbgh);
-  bool status = _setInternalShortCutVariablesNeigh();
+  if (_setInternalShortCutVariablesNeigh()) return error;
 
   /* Establish the L.H.S. */
 
-  status = _prepar();
+  int status = _prepar();
   if (status) goto label_end;
   _dualCalcul();
 
@@ -3131,6 +3132,7 @@ VectorDouble KrigingSystem::getZamC() const
  *****************************************************************************/
 int KrigingSystem::_bayesPreCalculations()
 {
+  if (_dbin == nullptr) return 1;
   _iechOut = _dbin->getSampleNumber() / 2;
 
   // Elaborate the (Unique) Neighborhood

@@ -238,7 +238,8 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
   // Loop on directions
 
   AnamHermite* anam = nullptr;
-  if (getMethodTrans() == EGaussInv::HMT) anam = new AnamHermite(getNbpoly());
+  const bool flagHermite = (getMethodTrans() == EGaussInv::HMT);
+  if (flagHermite) anam = new AnamHermite(getNbpoly());
 
   for (int id = 0; id < getNdir(); id++)
   {
@@ -261,13 +262,13 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
     }
   }
 
-  if (getMethodTrans() == EGaussInv::HMT) anam->fitFromArray(Y0);
+  if (flagHermite) anam->fitFromArray(Y0);
   _shiftForward(Y, idmax, anam, Y0, R0, N0);
 
   // Returning arguments
   _serieAngle.push_back(idmax);
   _serieScore.push_back(ddmax);
-  if (getMethodTrans() == EGaussInv::HMT) _anams.push_back(anam);
+  if (flagHermite) _anams.push_back(anam);
 }
 
 void PPMT::_shiftForward(AMatrix *Y,

@@ -95,6 +95,7 @@ public:
   void optimizationPreProcess(const Db* db) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint& pt) const;
+  void optimizationSetTarget(int iech) const;
 
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,

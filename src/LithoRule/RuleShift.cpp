@@ -353,7 +353,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
   /* Initializations */
 
   if (dbin == nullptr) return(0);
-  nadd = nstep = 0;
+  nadd = 0;
   nech = dbin->getSampleNumber();
 
   /* Dispatch */

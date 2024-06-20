@@ -21,6 +21,35 @@
 class Db;
 class DbGrid;
 
+/**
+ * \brief
+ * Class to define the a subset of an input Data Base ('Db') called a Neighborhood.
+ * This Neighborhood feature is invoked when the geostatistical processing cannot
+ * handle the whole data set (usually due to core limitations) and requires a fine
+ * selection of the most suitable part of the data set.
+ *
+ * Several implementations can be defined, such as:
+ * - Unique Neighborhood: all active samples are selected (see NeighUnique)
+ * - Moving Neighborhood: the sub-population essentially selects the samples close
+ * enough to the target. This sub-population evolves with the location of the target,
+ * hence the name of this Neighborhood feature (see NeighMoving).
+ * - Bench Neighborhood: the sub-population selects all samples located in the same
+ * 'bench' as the target. A bench is a portion of the space characterized sliced
+ * along the highest dimension of the space (e.g. horizontal bench for 3D space) (see NeighBench).
+ * - Cell Neighborhood: the sub-population selects all samples belonging to the same
+ * 'cell' as the target. Obviously this feature is only valid if the target data base
+ * is defined as a Grid (see NeighCell).
+ * - Image Neighborhood: the sub-population selects a pattern of constant dimensions
+ * centered on the target. This Neighborhood is only valid when the target and
+ * the input data base are matching grids (usually they are the same file) (see NeighImage).
+ *
+ * Several other topics are considered as belonging to the Neighborhood selection procedure,
+ * such as:
+ * - Possibility to add some information, collected from the Target File, in the
+ * Neighborhood calculated from the input data file: this is the Colocation option
+ * - Possibility to exclude the target (or samples sharing some characteristics with
+ * the Target). This is the cross-validation option.
+ */
 class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
 {
 public:

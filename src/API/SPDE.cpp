@@ -224,7 +224,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Loop on the basic structures
-  for(int icov = 0 ; icov < _model->getCovaNumber(); icov++)
+  for (int icov = 0, ncov = _model->getCovaNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
@@ -296,7 +296,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Evaluation of the variance at data point
-  if (_isKrigingRequested())
+  if (_isKrigingRequested() && _data != nullptr)
   {
     if (_data->getLocNumber(ELoc::V) > 0)
     {

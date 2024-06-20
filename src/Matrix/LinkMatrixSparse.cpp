@@ -128,7 +128,7 @@ cs* cs_diag(VectorDouble diag, double tol)
 
   cs_force_dimension(Striplet, number, number);
   cs* Q = cs_triplet(Striplet);
-  Striplet = cs_spfree(Striplet);
+  cs_spfree(Striplet);
   return Q;
 }
 
@@ -882,6 +882,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
       mg->IhH->setCS(cs_interpolate(mg->A->Q->getCS(), L, indCo));
       if (flag_print) cs_print_file("IhH", ilevel, mg->IhH->getCS());
       delete L;
+      L = nullptr;
 
       // Calculate the sum of rows per column
 
@@ -911,8 +912,9 @@ int cs_multigrid_setup(cs_MGS *mgs,
   if (flag_sel) *sel_arg = sel;
   error = 0;
 
-  label_end: if (error) sel = (double*) mem_free((char* ) sel);
-  indCo = (int*) mem_free((char* ) indCo);
+  label_end:
+  if (error) mem_free((char* ) sel);
+  mem_free((char* ) indCo);
   delete L;
   return (error);
 }
@@ -1166,9 +1168,10 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
 
   error = 0;
 
-  label_end: xcr = (double*) mem_free((char* ) xcr);
-  rhs = (double*) mem_free((char* ) rhs);
-  scores = (double*) mem_free((char* ) scores);
+  label_end:
+  mem_free((char* ) xcr);
+  mem_free((char* ) rhs);
+  mem_free((char* ) scores);
   return (error);
 }
 
@@ -1273,11 +1276,12 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
 
   error = 0;
 
-  label_end: p = (double*) mem_free((char* ) p);
-  z = (double*) mem_free((char* ) z);
-  resid = (double*) mem_free((char* ) resid);
-  temp = (double*) mem_free((char* ) temp);
-  scores = (double*) mem_free((char* ) scores);
+  label_end:
+  mem_free((char* ) p);
+  mem_free((char* ) z);
+  mem_free((char* ) resid);
+  mem_free((char* ) temp);
+  mem_free((char* ) scores);
   return (error);
 }
 
@@ -1353,7 +1357,7 @@ NF_Triplet csToTriplet(const cs *A, int shiftRow, int shiftCol, double tol)
   cs *AT = cs_transpose(A, 1);
   if (AT != nullptr)
   {
-    AT = cs_spfree(AT);
+    cs_spfree(AT);
   }
 
   int *Ap = A->p;
@@ -1385,7 +1389,7 @@ String toStringDim(const String &title, const cs *A)
   if (AT != nullptr) n2 = cs_getncol(AT);
   if (!title.empty()) sstr << title << " : ";
   sstr << "Nrows=" << n2 << " - Ncols=" << n1 << std::endl;
-  if (AT != nullptr) AT = cs_spfree(AT);
+  if (AT != nullptr) cs_spfree(AT);
   return sstr.str();
 }
 
@@ -1579,7 +1583,7 @@ int cs_get_ncell(const cs *A)
   int ncol = cs_getncol(A);
   cs *AT = cs_transpose(A, 1);
   int nrow = cs_getncol(AT);
-  AT = cs_spfree(AT);
+  cs_spfree(AT);
   return (nrow * ncol);
 }
 
@@ -1635,7 +1639,8 @@ cs* cs_eye(int number, double value)
 
   A = cs_triplet(Atriplet);
 
-  label_end: Atriplet = cs_spfree(Atriplet);
+  label_end:
+  cs_spfree(Atriplet);
   return (A);
 }
 
@@ -1664,7 +1669,7 @@ cs* cs_extract_diag(const cs *C, int oper_choice)
   A = cs_triplet(Atriplet);
 
   label_end:
-  Atriplet = cs_spfree(Atriplet);
+  cs_spfree(Atriplet);
   return (A);
 }
 
@@ -1714,7 +1719,7 @@ VectorDouble csd_extract_diag_VD(const cs *C, int oper_choice)
   for (int i = 0; i < number; i++)
     result[i] = diag[i];
 
-  diag = (double *) mem_free((char *) diag);
+  mem_free((char *) diag);
   return result;
 }
 
@@ -1786,7 +1791,7 @@ void cs_rowcol(const cs *A, int *nrows, int *ncols, int *count, double *percent)
   *ncols = cs_getncol(A);
   AT = cs_transpose(A, 1);
   *nrows = cs_getncol(AT);
-  AT = cs_spfree(AT);
+  cs_spfree(AT);
 
   if ((*nrows) > 0 && (*ncols) > 0)
     (*percent) = ((100. * (double) (*count))
@@ -1957,7 +1962,8 @@ cs* cs_eye_tab(int number, double *values)
 
   A = cs_triplet(Atriplet);
 
-  label_end: Atriplet = cs_spfree(Atriplet);
+  label_end:
+  cs_spfree(Atriplet);
   return (A);
 }
 
@@ -1967,7 +1973,7 @@ cs* cs_multiply_and_release(cs *b1, const cs *b2, int flag_release)
 
   bres = cs_multiply(b1, b2);
   if (bres == nullptr) goto label_end;
-  if (flag_release) b1 = cs_spfree(b1);
+  if (flag_release) cs_spfree(b1);
 
   label_end: return (bres);
 }
@@ -1982,7 +1988,7 @@ cs* cs_add_and_release(cs *b1,
 
   bres = cs_add(b1, b2, alpha, beta);
   if (bres == nullptr) goto label_end;
-  if (flag_release) b1 = cs_spfree(b1);
+  if (flag_release) cs_spfree(b1);
 
   label_end: return (bres);
 }
@@ -2004,9 +2010,10 @@ cs* cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_release)
   if (bres1 == nullptr) goto label_end;
   bres2 = cs_multiply(bres1, lambda);
   if (bres2 == nullptr) goto label_end;
-  if (flag_release) b1 = cs_spfree(b1);
+  if (flag_release) cs_spfree(b1);
 
-  label_end: bres1 = cs_spfree(bres1);
+  label_end:
+  cs_spfree(bres1);
   return (bres2);
 }
 
@@ -2080,7 +2087,8 @@ double* cs_col_sumrow(const cs *A, int *ncol, int *nrow)
   *nrow = cs_getncol(AT);
   error = 0;
 
-  label_end: AT = cs_spfree(AT);
+  label_end:
+  cs_spfree(AT);
   if (error) vect = (double*) mem_free((char* ) vect);
   return (vect);
 }
@@ -2176,7 +2184,8 @@ cs* cs_normalize_by_diag_and_release(cs *Q, int flag_release)
   Qp = cs_prod_norm_and_release(Q, diag, flag_release);
   if (Qp == nullptr) goto label_end;
 
-  label_end: diag = cs_spfree(diag);
+  label_end:
+  cs_spfree(diag);
   return (Qp);
 }
 
@@ -2473,12 +2482,13 @@ static int st_coarse_type0(const cs *Q,
   *Lret = L;
   *Ltret = Lt;
 
-  label_end: lambda = (int*) mem_free((char* ) lambda);
-  Ltriplet = cs_spfree(Ltriplet);
+  label_end:
+  mem_free((char* ) lambda);
+  cs_spfree(Ltriplet);
   if (error)
   {
-    L = cs_spfree(L);
-    Lt = cs_spfree(Lt);
+    cs_spfree(L);
+    cs_spfree(Lt);
   }
   return (error);
 }
@@ -2577,10 +2587,11 @@ static int st_coarse_typen(cs* /*L*/,
 
   error = 0;
 
-  label_end: lambda = (int*) mem_free((char* ) lambda);
-  Lout = cs_spfree(Lout);
-  Loutt = cs_spfree(Loutt);
-  Ltriplet = cs_spfree(Ltriplet);
+  label_end:
+  mem_free((char* ) lambda);
+  cs_spfree(Lout);
+  cs_spfree(Loutt);
+  cs_spfree(Ltriplet);
   return (error);
 }
 
@@ -2641,9 +2652,9 @@ int cs_coarsening(const cs *Q, int type, int **indCo_ret, cs **L_ret)
   error = 0;
 
   label_end:
-  indUd = (int*) mem_free((char* ) indUd);
-  indFi = (int*) mem_free((char* ) indFi);
-  L = cs_spfree(L);
+  mem_free((char* ) indUd);
+  mem_free((char* ) indFi);
+  cs_spfree(L);
   if (error)
   {
     indCo = (int*) mem_free((char* ) indCo);
@@ -2807,11 +2818,12 @@ cs* cs_interpolate(const cs *AA, const cs *Lt, int *Co)
   // Set the error return code
   error = 0;
 
-  label_end: u = (double*) mem_free((char* ) u);
-  indCo = (int*) mem_free((char* ) indCo);
-  Nip = (int*) mem_free((char* ) Nip);
-  Pip = (int*) mem_free((char* ) Pip);
-  IHtriplet = cs_spfree(IHtriplet);
+  label_end:
+  mem_free((char* ) u);
+  mem_free((char* ) indCo);
+  mem_free((char* ) Nip);
+  mem_free((char* ) Pip);
+  cs_spfree(IHtriplet);
   if (error) IH = cs_spfree(IH);
   return (IH);
 }
@@ -2848,9 +2860,10 @@ cs* cs_prod_norm(int mode, const cs *A, const cs *B)
     Res = cs_multiply(BA, Bt);
     if (Res == nullptr) goto label_end;
   }
-  label_end: Bt = cs_spfree(Bt);
-  BA = cs_spfree(BA);
-  BtA = cs_spfree(BtA);
+  label_end:
+  cs_spfree(Bt);
+  cs_spfree(BA);
+  cs_spfree(BtA);
   return (Res);
 }
 
@@ -2883,7 +2896,7 @@ cs* cs_prod_norm_single(int mode, const cs *B)
     if (Res == nullptr) goto label_end;
   }
   label_end:
-  Bt = cs_spfree(Bt);
+  cs_spfree(Bt);
   return (Res);
 }
 
@@ -3407,7 +3420,7 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
 
   error = 0;
 
-  label_end: Qtriplet = cs_spfree(Qtriplet);
+  label_end: cs_spfree(Qtriplet);
   if (error) Q = cs_spfree(Q);
   return (Q);
 }

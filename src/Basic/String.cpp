@@ -139,7 +139,7 @@ String concatenateStrings(const String &delim,
   {
     if (started) ss << delim;
     ss << string4;
-    started = true;
+//    started = true; // never reached
   }
   return ss.str();
 }

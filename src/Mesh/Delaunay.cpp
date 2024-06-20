@@ -166,8 +166,9 @@ double* extend_grid(DbGrid *db, const double *gext, int *nout)
   error = 0;
   *nout = number;
 
-  label_end: indg = db_indg_free(indg);
-  coor = (double*) mem_free((char* ) coor);
+  label_end:
+  db_indg_free(indg);
+  mem_free((char* ) coor);
   if (error) ext = (double*) mem_free((char* ) ext);
   return (ext);
 }

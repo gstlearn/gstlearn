@@ -354,11 +354,12 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
 
   error = 0;
 
-  label_end: a = (double*) mem_free((char* ) a);
-  ind = (int*) mem_free((char* ) ind);
-  tmp = (double*) mem_free((char* ) tmp);
+  label_end:
+  mem_free((char* ) a);
+  mem_free((char* ) ind);
+  mem_free((char* ) tmp);
   for (i = 0; i < 4; i++)
-    work[i] = (double*) mem_free((char* ) work[i]);
+    mem_free((char* ) work[i]);
 
   if (error)
     print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
@@ -914,7 +915,7 @@ int matrix_eigen_tridiagonal(const double *vecdiag,
 
       /* Core deallocation */
 
-  b = (double*) mem_free((char* ) b);
-  e = (double*) mem_free((char* ) e);
+  mem_free((char* ) b);
+  mem_free((char* ) e);
   return (0);
 }

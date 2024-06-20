@@ -498,14 +498,13 @@ double* kclusters(double *data,
 
   label_end: if (error || ifound <= 0)
     cdata = (double*) mem_free((char* ) cdata);
-  clusterid = (int*) mem_free((char* ) clusterid);
-  tclusterid = (int*) mem_free((char* ) tclusterid);
-  saved = (int*) mem_free((char* ) saved);
-  counts = (int*) mem_free((char* ) counts);
-  cmask = (int*) mem_free((char* ) cmask);
-  mapping = (int*) mem_free((char* ) mapping);
-  cache = (double*) mem_free((char* ) cache);
-  cache = (double*) mem_free((char* ) cache);
+  mem_free((char* ) clusterid);
+  mem_free((char* ) tclusterid);
+  mem_free((char* ) saved);
+  mem_free((char* ) counts);
+  mem_free((char* ) cmask);
+  mem_free((char* ) mapping);
+  mem_free((char* ) cache);
   return (cdata);
 }
 
@@ -671,11 +670,11 @@ int* kmedoids(double *data,
 
   error = 0;
 
-  label_end: if (error || ifound <= 0) free(tclusterid);
-  tclusterid = (int*) mem_free((char* ) tclusterid);
-  centroids = (int*) mem_free((char* ) centroids);
-  saved = (int*) mem_free((char* ) saved);
-  errors = (double*) mem_free((char* ) errors);
-  distmatrix = (double*) mem_free((char* ) distmatrix);
+  label_end:
+  if (error || ifound <= 0) free(tclusterid);
+  mem_free((char* ) centroids);
+  mem_free((char* ) saved);
+  mem_free((char* ) errors);
+  mem_free((char* ) distmatrix);
   return (clusterid);
 }

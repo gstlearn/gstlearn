@@ -36,7 +36,6 @@ Website: https://gstlearn.org
 #ifndef _CS_F_H
 #define _CS_F_H
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include "csparse_d.h"
