@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "numpy",
+    "numpy==@Python3_NumPy_VERSION@",
     "matplotlib",
     "scipy",
     "plotly",
