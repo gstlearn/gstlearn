@@ -31,6 +31,7 @@ public:
   int    hasRange()    const override { return -1; }
   int    getMinOrder() const override { return 0; }
   String getCovName()  const override { return "Order-1 G.C."; }
+  bool   getCompatibleSpaceR() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0,TurningBandOperate &operTB) const override;

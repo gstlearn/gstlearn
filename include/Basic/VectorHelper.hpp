@@ -64,6 +64,7 @@ public:
   static double variance(const VectorDouble &vec, bool scaleByN = false);
   static double stdv(const VectorDouble &vec, bool scaleByN = false);
   static double norm(const VectorDouble &vec);
+  static double normL1(const VectorDouble &vec);
   static double norminf(const VectorDouble &vec);
   static double median(const VectorDouble& vec);
   static double normDistance(const VectorDouble& veca, const VectorDouble& vecb);
@@ -129,7 +130,7 @@ public:
                                    VectorDouble &std,
                                    int number);
 
-  static void normalize(VectorDouble& vec);
+  static void normalize(VectorDouble& vec, int norm=2);
   static void normalize(double *tab, int ntab);
   static void normalizeFromGaussianDistribution(VectorDouble &vec,
                                                 double mini = 0.,

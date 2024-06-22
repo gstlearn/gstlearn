@@ -24,8 +24,10 @@
                _9, _10, _11, _12, _13, _14, _15, _16,\
               _17, _18, _19, _20, _21, _22, _23, _24,\
               _25, _26, _27, _28, _29, _30, _31, _32,\
+              _33, _34, _35, _36, _37, _38, _39, _40,\
               N, ...) N
-#define RSEQ_N() 32, 31, 30, 29, 28, 27, 26, 25,\
+#define RSEQ_N() 40, 39, 38, 37, 36, 35, 34, 33,\
+                 32, 31, 30, 29, 28, 27, 26, 25,\
                  24, 23, 22, 21, 20, 19, 18, 17,\
                  16, 15, 14, 13, 12, 11, 10,  9,\
                   8,  7,  6,  5,  4,  3,  2,  1,  0
@@ -125,6 +127,31 @@
 #define REPEAT_32(what, x, ...)\
   what(x)\
   EXPAND(REPEAT_31(what, __VA_ARGS__))
+#define REPEAT_33(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_32(what, __VA_ARGS__))
+#define REPEAT_34(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_33(what, __VA_ARGS__))
+#define REPEAT_35(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_34(what, __VA_ARGS__))
+#define REPEAT_36(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_35(what, __VA_ARGS__))
+#define REPEAT_37(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_36(what, __VA_ARGS__))
+#define REPEAT_38(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_37(what, __VA_ARGS__))
+#define REPEAT_39(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_38(what, __VA_ARGS__))
+#define REPEAT_40(what, x, ...)\
+  what(x)\
+  EXPAND(REPEAT_39(what, __VA_ARGS__))
+
   
 #define REPEAT_(N, what, ...) EXPAND(CONCATENATE(REPEAT_, N)(what, __VA_ARGS__))
 #define REPEAT(what, ...) REPEAT_(NARG(__VA_ARGS__), what, __VA_ARGS__)
@@ -141,8 +168,12 @@
                _21a, _21b, _22a, _22b, _23a, _23b, _24a, _24b,\
                _25a, _25b, _26a, _26b, _27a, _27b, _28a, _28b,\
                _29a, _29b, _30a, _30b, _31a, _31b, _32a, _32b,\
+               _33a, _33b, _34a, _34b, _35a, _35b, _36a, _36b,\
+               _37a, _37b, _38a, _38b, _39a, _39b, _40a, _40b,\
                N, ...) N
-#define RSEQ2_N() 32, 32, 31, 31, 30, 30, 29, 29,\
+#define RSEQ2_N() 40, 40, 39, 39, 38, 38, 37, 37,\
+                  36, 36, 35, 35, 34, 34, 33, 33,\
+                  32, 32, 31, 31, 30, 30, 29, 29,\
                   28, 28, 27, 27, 26, 26, 25, 25,\
                   24, 24, 23, 23, 22, 22, 21, 21,\
                   20, 20, 19, 19, 18, 18, 17, 17,\
@@ -245,6 +276,31 @@
 #define REPEAT2_32(what, x, y, ...)\
   what(x, y)\
   EXPAND(REPEAT2_31(what, __VA_ARGS__))
+#define REPEAT2_33(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_32(what, __VA_ARGS__))
+#define REPEAT2_34(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_33(what, __VA_ARGS__))
+#define REPEAT2_35(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_34(what, __VA_ARGS__))
+#define REPEAT2_36(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_35(what, __VA_ARGS__))
+#define REPEAT2_37(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_36(what, __VA_ARGS__))
+#define REPEAT2_38(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_37(what, __VA_ARGS__))
+#define REPEAT2_39(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_38(what, __VA_ARGS__))
+#define REPEAT2_40(what, x, y, ...)\
+  what(x, y)\
+  EXPAND(REPEAT2_39(what, __VA_ARGS__))
+
 
 #define REPEAT2_(N, what, ...) EXPAND(CONCATENATE(REPEAT2_, N)(what, __VA_ARGS__))
 #define REPEAT2(what, ...) REPEAT2_(NARG2(__VA_ARGS__), what, __VA_ARGS__)
@@ -262,15 +318,22 @@
                _22a, _22b, _22c, _23a, _23b, _23c, _24a, _24b, _24c,\
                _25a, _25b, _25c, _26a, _26b, _26c, _27a, _27b, _27c,\
                _28a, _28b, _28c, _29a, _29b, _29c, _30a, _30b, _30c,\
-               _31a, _31b, _31c, _32a, _32b, _32c, N, ...) N
-#define RSEQ3_N() 32, 32, 32, 31, 31, 31, 30, 30, 30, 29, 29, 29,\
+               _31a, _31b, _31c, _32a, _32b, _32c, _33a, _33b, _33c,\
+               _34a, _34b, _34c, _35a, _35b, _35c, _36a, _36b, _36c,\
+               _37a, _37b, _37c, _38a, _38b, _38c, _39a, _39b, _39c,\
+               _40a, _40b, _40c,\
+               N, ...) N
+#define RSEQ3_N() 40, 40, 40, 39, 39, 39, 38, 38, 38, 37, 37, 37,\
+                  36, 36, 36, 35, 35, 35, 34, 34, 34, 33, 33, 33,\
+                  32, 32, 32, 31, 31, 31, 30, 30, 30, 29, 29, 29,\
                   28, 28 ,28, 27, 27, 27, 26, 26, 26, 25, 25, 25,\
                   24, 24, 24, 23, 23, 23, 22, 22, 22, 21, 21, 21,\
                   20, 20, 20, 19, 19, 19, 18, 18, 18, 17, 17, 17,\
                   16, 16, 16, 15, 15, 15, 14, 14, 14, 13, 13, 13,\
                   12, 12, 12, 11, 11, 11, 10, 10, 10,  9,  9,  9,\
                    8,  8,  8,  7,  7,  7,  6,  6,  6,  5,  5,  5,\
-                   4,  4,  4,  3,  3,  3,  2,  2,  2,  1,  1,  1,  0,  0,  0
+                   4,  4,  4,  3,  3,  3,  2,  2,  2,  1,  1,  1,\
+                   0,  0,  0
 
 #define REPEAT3_1(what, a, x, y, z) what(a, x, y, z)
 #define REPEAT3_2(what, a, x, y, z, ...)\
@@ -366,6 +429,31 @@
 #define REPEAT3_32(what, a, x, y, z, ...)\
   what(a, x, y, z)\
   EXPAND(REPEAT3_31(what, a, __VA_ARGS__))
+#define REPEAT3_33(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_32(what, a, __VA_ARGS__))
+#define REPEAT3_34(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_33(what, a, __VA_ARGS__))
+#define REPEAT3_35(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_34(what, a, __VA_ARGS__))
+#define REPEAT3_36(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_35(what, a, __VA_ARGS__))
+#define REPEAT3_37(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_36(what, a, __VA_ARGS__))
+#define REPEAT3_38(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_37(what, a, __VA_ARGS__))
+#define REPEAT3_39(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_38(what, a, __VA_ARGS__))
+#define REPEAT3_40(what, a, x, y, z, ...)\
+  what(a, x, y, z)\
+  EXPAND(REPEAT3_39(what, a, __VA_ARGS__))
+
 
 #define REPEAT3_(N, what, a, x, y, z, ...) EXPAND(CONCATENATE(REPEAT3_, N)(what, a, x, y, z, __VA_ARGS__))
 #define REPEAT3(what, a, x, y, z, ...) REPEAT3_(NARG3(x, y, z, __VA_ARGS__), what, a, x, y, z, __VA_ARGS__)

@@ -23,6 +23,8 @@ GSTLEARN_EXPORT int law_int_uniform(int mini, int maxi);
 GSTLEARN_EXPORT double law_gaussian(double mean = 0., double sigma = 1.);
 GSTLEARN_EXPORT double law_exponential(double lambda = 1.);
 GSTLEARN_EXPORT double law_gamma(double alpha, double beta = 1.);
+GSTLEARN_EXPORT double law_df_poisson(int i, double parameter);
+GSTLEARN_EXPORT VectorDouble law_df_poisson_vec(VectorInt is, double parameter);
 GSTLEARN_EXPORT int law_poisson(double parameter);
 GSTLEARN_EXPORT double law_stable_standard_agd(double alpha, double beta);
 GSTLEARN_EXPORT double law_stable_standard_a1gd(double beta);

@@ -618,6 +618,18 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
+double VectorHelper::normL1(const VectorDouble &vec)
+{
+  int nval = (int) vec.size();
+  double normL1 = 0.;
+  for (int i = 0; i < nval; i++)
+  {
+    double value = ABS(vec[i]);
+    normL1 += value;
+  }
+  return (normL1);
+}
+
 double VectorHelper::norminf(const VectorDouble &vec)
 {
   double norminf = 0.;
@@ -690,9 +702,13 @@ double VectorHelper::product(const VectorDouble& vec)
   return nprod;
 }
 
-void VectorHelper::normalize(VectorDouble &vec)
+void VectorHelper::normalize(VectorDouble &vec, int norm)
 {
-  double ratio = VH::norm(vec);
+  double ratio;
+  if (norm == 2)
+    ratio = VH::norm(vec);
+  else
+    ratio = VH::normL1(vec);
   if (ratio <= 0.) return;
   for (auto &v : vec)
      v /= ratio;

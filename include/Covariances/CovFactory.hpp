@@ -29,4 +29,3 @@ public:
                                          const CovContext& ctxt);
   static double       getScaleFactor(const ECov &type, double param);
 };
-

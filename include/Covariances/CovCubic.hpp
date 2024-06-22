@@ -29,6 +29,7 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "Cubic"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
   virtual bool   hasCovDerivative() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }

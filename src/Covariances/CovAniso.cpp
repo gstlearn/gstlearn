@@ -593,24 +593,47 @@ void CovAniso::evalMatOptimInPlace(int icas1,
   }
 }
 
-double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
+double CovAniso::evalCovOnSphere(double alpha, int degree, bool flagScale, bool normalize) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
   const ASpace* space = getDefaultSpace();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-  if (spaceSn == nullptr)
-    my_throw("Should never happen");
-  double radius = spaceSn->getRadius();
-  double scale = getScale() / radius;
+  if (spaceSn == nullptr) return TEST;
+
+  double scale = getScale();
+  if (flagScale)
+  {
+    double radius = spaceSn->getRadius();
+    scale = scale / radius;
+    alpha = alpha / radius;
+  }
   double sill = getSill(0, 0);
 
-  double cov = _cova->evalCovOnSphere(alpha / radius, scale, degree);
+  double cov = _cova->evalCovOnSphere(alpha, scale, degree);
   if (normalize)
   {
     double cov0 = _cova->evalCovOnSphere(0., scale, degree);
     cov /= cov0;
   }
   return sill * cov;
+}
+
+VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNorm) const
+{
+  if (!_cova->hasSpectrumOnSphere()) return VectorDouble();
+  const ASpace* space = getDefaultSpace();
+  const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  if (spaceSn == nullptr) return VectorDouble();
+
+  double scale = getScale();
+  double param = getParam();
+  if (flagNorm)
+  {
+    double radius = spaceSn->getRadius();
+    scale /= radius;
+  }
+
+  return _cova->evalSpectrumOnSphere(n, scale, param);
 }
 
 void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
@@ -668,6 +691,7 @@ double CovAniso::_getDetTensor() const
   }
   return detTensor;
 }
+
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
   if (!_cova->hasSpectrum()) return TEST;
@@ -689,15 +713,15 @@ VectorDouble CovAniso::getMarkovCoeffs() const
   return _cova->getMarkovCoeffs();
 }
 
-VectorDouble CovAniso::evalCovOnSphere(const VectorDouble &alpha,
-                                       int degree) const
+VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble &alpha,
+                                          int degree,
+                                          bool flagScale,
+                                          bool flagNormalize) const
 {
   int n = (int) alpha.size();
   VectorDouble vec(n);
-  double c0 = evalCovOnSphere(0., degree);
   for (int i = 0; i < n; i++)
-    vec[i] = evalCovOnSphere(alpha[i], degree, false) / c0;
-
+    vec[i] = evalCovOnSphere(alpha[i], degree, flagScale, flagNormalize);
   return vec;
 }
 

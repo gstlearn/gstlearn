@@ -50,13 +50,14 @@ public:
   virtual String       getCovName()   const = 0;
   virtual bool         hasCovDerivative() const { return false; }
   virtual bool         hasCovOnSphere()   const { return false; }
+  virtual bool         hasSpectrumOnSphere()   const { return false; }
   virtual bool         hasSpectrum()      const { return false; }
   virtual bool         hasMarkovCoeffs()  const { return false; }
 
   virtual bool         isConsistent() const;
   virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
   virtual int          getMinOrder()  const { return -1; } // Valid for FAST
-  virtual bool         getCompatibleSpaceR() const { return true; }
+  virtual bool         getCompatibleSpaceR() const { return false; }
   virtual bool         getCompatibleSpaceS() const { return false; }
 
   // Specific to Turning Band Simulation Method
@@ -74,6 +75,7 @@ public:
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
   double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const;
+  VectorDouble evalSpectrumOnSphere(int n, double scale = 1., double param = 1.) const;
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
   const ECov&          getType()    const { return _type; }
@@ -92,9 +94,15 @@ public:
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
-  virtual double _evaluateCov(double h) const = 0;
+  virtual double _evaluateCov(double h) const { return TEST; };
   virtual double _evaluateCovDerivative(int degree, double h) const;
-  virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
+  virtual double _evaluateCovOnSphere(double alpha,
+                                      double scale = 1.,
+                                      double param = 1.,
+                                      int degree = 50) const;
+  virtual VectorDouble _evaluateSpectrumOnSphere(int n,
+                                                 double scale = 1.,
+                                                 double param = 1.) const;
 
 private:
   Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;

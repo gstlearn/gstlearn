@@ -67,6 +67,6 @@ private:
   VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */
 
 private:
-  int _getIndex(int ivar, int jvar) const;
+  int  _getIndex(int ivar, int jvar) const;
   void _update();
 };

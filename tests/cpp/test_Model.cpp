@@ -28,6 +28,7 @@
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
+#include "Enum/ESpaceType.hpp"
 
 /****************************************************************************/
 /*!
@@ -196,6 +197,27 @@ int main(int argc, char *argv[])
   message("Drift Matrix (selection & heterotopy & sampling)\n");
   driftM = modelM->evalDriftMatrix(workingDbc, -1, nbgh);
   driftM.display();
+
+  // Testing Models on the Sphere
+
+  defineDefaultSpace(ESpaceType::SN, 2);
+  int ns = 20;
+  int nincr = 30;
+  VectorDouble incr = VH::sequence(0., GV_PI + EPSILON10, GV_PI / (nincr-1.));
+  double mu = 1.0;
+  double kappa = 2.0;
+
+//  Model* modelSph = Model::createFromParam(ECov::LINEARSPH);
+//  Model* modelSph = Model::createFromParam(ECov::GEOMETRIC, 0.9);
+//  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
+//  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
+//                                           VectorDouble(), VectorDouble(), VectorDouble(),
+//                                           nullptr, true);
+  Model *modelSph = Model::createFromParam(ECov::BESSEL_K, 1./kappa, 1., mu,
+                                           VectorDouble(), VectorDouble(),
+                                           VectorDouble(), nullptr, false);
+  VH::display("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
+  VH::display("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));
 
   return 0;
 }

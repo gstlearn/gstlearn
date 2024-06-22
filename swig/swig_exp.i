@@ -250,6 +250,9 @@
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
 %include Covariances/CovMarkov.hpp
+%include Covariances/CovGeometric.hpp
+%include Covariances/CovPoisson.hpp
+%include Covariances/CovLinearSph.hpp
 %include Covariances/CovDiffusionAdvection.hpp
 %include Covariances/CovHelper.hpp
 

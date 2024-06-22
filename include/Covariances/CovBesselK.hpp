@@ -28,11 +28,14 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "K-Bessel"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+  bool           getCompatibleSpaceS() const override { return true; }
 
   bool   hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
   bool   hasCovOnSphere() const override { return true; }
+  bool   hasSpectrumOnSphere() const override { return true; }
   bool   hasSpectrum() const override { return true; }
   bool   hasMarkovCoeffs() const override { return true; }
   double evaluateSpectrum(double freq, int ndim) const override;
@@ -51,7 +54,13 @@ public:
 
 protected:
   double _evaluateCov(double h) const override;
-  double _evaluateCovOnSphere(double scale, int degree = 50) const override;
+  double _evaluateCovOnSphere(double alpha,
+                              double scale = 1.,
+                              double param = 1.,
+                              int degree = 50) const override;
+  VectorDouble _evaluateSpectrumOnSphere(int n,
+                                         double scale = 1.,
+                                         double param = 1.) const override;
 
 private:
   double _correc;

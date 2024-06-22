@@ -80,11 +80,18 @@ double ACovFunc::evalCovDerivative(int degree, double h) const
 double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
 {
   double s = 0.;
+  // This shortcut has been introduced in order to avoid evaluating the covariance
+  // using the serie development.
+  if (degree == 0)
+  {
+    return _evaluateCovOnSphere(alpha, scale, _param, degree);
+  }
+
   if (isZero(alpha))
   {
     for (int i = 0; i < degree; i++)
     {
-      s += _evaluateCovOnSphere(scale, i);
+      s += _evaluateCovOnSphere(0., scale, 0., i); // TODO: correct it for alpha=0
     }
   }
   else
@@ -96,12 +103,17 @@ double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
     for (int i = 1; i < (degree + 2); i++)
     {
       u2 = 1. / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
-      s += u0 * _evaluateCovOnSphere(scale, i-1);
+      s += u0 * _evaluateCovOnSphere(0., scale, 0., i-1); // TODO: correct it for alpha=0
       u0 = u1;
       u1 = u2;
     }
   }
   return s;
+}
+
+VectorDouble ACovFunc::evalSpectrumOnSphere(int n, double scale, double param) const
+{
+  return _evaluateSpectrumOnSphere(n, scale, param);
 }
 
 VectorDouble ACovFunc::evalCovVec(const VectorDouble& vech) const
@@ -207,17 +219,41 @@ double ACovFunc::evaluateSpectrum(double /*freq*/, int /*ndim*/) const
   return 0.;
 }
 
-double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
+double ACovFunc::_evaluateCovOnSphere(double alpha,
+                                      double scale,
+                                      double param,
+                                      int degree) const
 {
+  DECLARE_UNUSED(scale);
+  DECLARE_UNUSED(param);
+  DECLARE_UNUSED(degree);
   if (! hasCovOnSphere())
   {
     messerr("This covariance does not allow On Sphere calculations");
     return TEST;
   }
   messerr("This covariance should have On Sphere calculations");
-  messerr("But _evaluateCovOnSphere has not been coded");
+  messerr("But '_evaluateCovOnSphere()' has not been coded");
   my_throw("This should never happen");
-  return 0.;
+  return TEST;
+}
+
+VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n,
+                                                 double scale,
+                                                 double param) const
+{
+  DECLARE_UNUSED(n);
+  DECLARE_UNUSED(scale);
+  DECLARE_UNUSED(param);
+  if (!hasSpectrum())
+  {
+    messerr("This covariance does not allow On Sphere calculations");
+    return VectorDouble();
+  }
+  messerr("This covariance should have On Sphere calculations");
+  messerr("But '_evaluateSpectrumOnSphere()' has not been coded");
+  my_throw("This should never happen");
+  return VectorDouble();
 }
 
 Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const

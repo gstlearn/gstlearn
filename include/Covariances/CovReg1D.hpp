@@ -23,12 +23,13 @@ public:
   CovReg1D& operator= (const CovReg1D &r);
   virtual ~CovReg1D();
 
-  virtual String getFormula() const override { return String("Equation not yet implemented"); }
+  double         getScadef() const override;
   String         getCovName() const override { return "1-D Regularized"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
 
   unsigned int getMaxNDim()   const  override { return 1; }
-  double getScadef() const override;
+
 
 protected:
   double _evaluateCov(double h) const override;

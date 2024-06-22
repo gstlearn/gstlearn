@@ -13,6 +13,7 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
 
 #include <math.h>
@@ -814,6 +815,20 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
   density -= invcor.normVec(vect);
   density = exp(density);
   return (density);
+}
+
+VectorDouble law_df_poisson_vec(VectorInt is, double parameter)
+{
+  int size = (int) is.size();
+  VectorDouble res(size);
+  for (int ii = 0; ii < size; ii++)
+    res[ii] = law_df_poisson(is[ii], parameter);
+  return res;
+}
+
+double law_df_poisson(int i, double parameter)
+{
+  return (exp(-parameter) * pow(parameter, i) / ut_factorial(i));
 }
 
 /****************************************************************************/
