@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "@PYTHON_PACKAGE_NAME@"
+version = "@PROJECT_VERSION@"
+authors = [
+  {name = "Team gstlearn", email = "gstlearn@groupes.mines-paristech.fr"}
+]
+description = "@PROJECT_DESCRIPTION@"
+readme = "README.md"
+license = {text = 'BSD-3-Clause'}
+requires-python = '>=3.8'
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+    "Development Status :: 4 - Beta",
+    "Environment :: Other Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "numpy==@Python3_NumPy_VERSION@",
+    "matplotlib",
+    "scipy",
+    "plotly",
+    "pandas",
+    "shapely",
+]
+
+[project.urls]
+Homepage = "@PROJECT_HOMEPAGE_URL@"
+Issues = "@PROJECT_HOMEPAGE_URL@/issues"
+
+[tool.setuptools]
+py-modules = []
+packages = ["@PYTHON_PACKAGE_NAME@"]
+package-data = {"@PYTHON_PACKAGE_NAME@" = ["$<TARGET_FILE_NAME:python_build>"]}
+platforms = ["Windows", "Linux", "Mac OS-X"]

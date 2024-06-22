@@ -152,8 +152,13 @@ endif()
 # Generate setup.py automatically for each configuration
 # First step: replace variables (@VAR@)
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in 
+  ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
+  @ONLY
+)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml.in
+  ${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml.in
   @ONLY
 )
 
@@ -161,6 +166,10 @@ configure_file(
 file(GENERATE
   OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/setup.py
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
+)
+file(GENERATE
+  OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/pyproject.toml
+  INPUT ${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml.in
 )
 
 # Generate version.py automatically for each configuration
