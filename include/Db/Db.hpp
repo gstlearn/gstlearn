@@ -525,8 +525,9 @@ public:
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
   VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
+                           int item = -1,
                            bool useSel = true,
-                           int item = -1) const;
+                           bool useVerr = true) const;
   VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
                                          const VectorInt &nbgh) const;
 

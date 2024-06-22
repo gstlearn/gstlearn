@@ -106,8 +106,8 @@ public:
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,
                         const VectorVectorInt& index,
-                        int jvar = 0,
-                        int jech2 = 0,
+                        int ivar2 = 0,
+                        int icol = 0,
                         const CovCalcMode *mode = nullptr) const;
   void evalMatOptimInPlace(int icas1,
                            int iech1,

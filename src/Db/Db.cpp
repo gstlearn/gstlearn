@@ -3329,13 +3329,14 @@ VectorVectorInt Db::getMultipleRanksActive(const VectorInt &ivars,
     // If variable rank is larger than the count of Z-variable in the Db: do not check for variable existence
     if (jvar >= nvardb) jvar = -1;
 
-    index[ivar] = getRanksActive(nbgh, true, jvar);
+    index[ivar] = getRanksActive(nbgh, jvar);
   }
   return index;
 }
 
-VectorInt Db::getRanksActive(const VectorInt& nbgh, bool useSel, int item) const
+VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool useVerr) const
 {
+  double value;
   int nech_tot = getSampleNumber();
 
   // Create a vector of ranks of samples to be searched (using input 'nbgh' or not)
@@ -3346,54 +3347,45 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, bool useSel, int item) const
     nbgh_init = nbgh;
   int nech_init = (int) nbgh_init.size();
 
-  // Create the column index for the selection (whether 'useSel' or not)
+  // Create the column index for the selection (only if 'useSel')
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL,0) : -1;
 
-  VectorInt ranks;
-  if (item < 0)
+  // Check the presence of variance of measurement error variable (only if 'useVerr')
+  bool useV = false;
+  if (useVerr && item >= 0)
   {
-    if (icol < 0)
-    {
-      // No check on selection nor on variable
-      ranks = nbgh_init;
-    }
-    else
-    {
-      // Check on selection, not on variable
-      for (int jech = 0; jech < nech_init; jech++)
-      {
-        int iech = nbgh_init[jech];
-        double value = getValueByColIdx(iech, icol);
-        if (value > 0) ranks.push_back(iech);
-      }
-    }
+    if (getColIdxByLocator(ELoc::V, item) >= 0) useV = true;
   }
-  else
+
+  // Constitute the resulting vector osf selected sample ranks
+  VectorInt ranks;
+  for (int jech = 0; jech < nech_init; jech++)
   {
-    if (icol < 0)
+    int iech = nbgh_init[jech];
+
+    // Check against a possible selection
+    if (icol >= 0)
     {
-      // Check on variable, not on selection
-      for (int jech = 0; jech < nech_init; jech++)
-      {
-        int iech = nbgh_init[jech];
-        double value = getLocVariable(ELoc::Z,iech, item);
-        if (! FFFF(value)) ranks.push_back(iech);
-      }
+      value = getValueByColIdx(iech, icol);
+      if (value <= 0) continue;
     }
-    else
+
+    // Check against the existence of a target variable
+    if (item >= 0)
     {
-      // Check on selection and on variable
-      for (int jech = 0; jech < nech_init; jech++)
-      {
-        int iech = nbgh_init[jech];
-        double value = getValueByColIdx(iech, icol);
-        if (value > 0)
-        {
-          double value = getLocVariable(ELoc::Z,iech, item);
-          if (! FFFF(value)) ranks.push_back(iech);
-        }
-     }
+      value = getLocVariable(ELoc::Z, iech, item);
+      if (FFFF(value)) continue;
     }
+
+    // Check against the validity of the Variance of Measurement Error variable
+    if (useV)
+    {
+      value = getLocVariable(ELoc::V, iech, item);
+      if (FFFF(value)) continue;
+    }
+
+    // The sample is finally accepted
+    ranks.push_back(iech);
   }
   return ranks;
 }

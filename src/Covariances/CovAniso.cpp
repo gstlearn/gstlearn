@@ -519,8 +519,8 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
  * @param res  Vector of covariances
  * @param ivars Arrays of ranks for the first point
  * @param index1 Arrays of sample indices for the first point
- * @param jvar  Rank of the variable for the second point
- * @param jech2 Rank of the sample for the second point
+ * @param ivar2 Rank of the variable for the second point
+ * @param icol  Rank of the column (variable + sample) for the second point
  * @param mode CovCalcMode structure
  *
  * @remark: The optimized version is not compatible with Franck's non-stationarity.
@@ -529,8 +529,8 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
 void CovAniso::evalOptimInPlace(MatrixRectangular& res,
                                 const VectorInt& ivars,
                                 const VectorVectorInt& index1,
-                                int jvar,
-                                int jech2,
+                                int ivar2,
+                                int icol,
                                 const CovCalcMode *mode) const
 {
   double cov, hoptim;
@@ -538,21 +538,21 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
 
   // Loop on the first variable
   int irow = 0;
-  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
   {
-    int ivar1 = ivars[ivar];
+    int ivar1 = ivars[rvar1];
     if (mode == nullptr || ! mode->getUnitary())
-      sill = _sill.getValue(ivar1, jvar);
+      sill = _sill.getValue(ivar1, ivar2);
 
     // Loop on the first sample
-    int nech1s = (int) index1[ivar].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    int nech1s = (int) index1[rvar1].size();
+    for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      int iech1 = index1[ivar][jech1];
+      int iech1 = index1[rvar1][rech1];
       hoptim = _p2A.getDistance(_p1As[iech1]);
       cov = _evalCovFromH(hoptim, mode);
 
-      res.updValue(irow, jech2, EOperator::ADD, sill * cov);
+      res.updValue(irow, icol, EOperator::ADD, sill * cov);
       irow++;
     }
   }

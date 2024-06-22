@@ -926,6 +926,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
                                                    const CovCalcMode *mode)
 {
   MatrixSquareSymmetric mat;
+  int icolVerr = -1;
+  double verr = 0.;
 
   // Preliminary checks
   if (db1 == nullptr) return MatrixRectangular();
@@ -943,6 +945,9 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
 
+  // Update the Covariance matrix in case of presence of Variance of Measurement error
+  bool useVerr = db1->hasLocVariable(ELoc::V);
+
   // Creating the matrix
   int neq1 = VH::count(index1);
   if (neq1 <= 0)
@@ -958,39 +963,45 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
 
   // Loop on the first variable
   int irow = 0;
-  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
   {
-    int ivar1 = ivars[ivar];
+    int ivar1 = ivars[rvar1];
+    if (useVerr) icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
 
     // Loop on the first sample
-    int nech1s = (int) index1[ivar].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    int nech1s = (int) index1[rvar1].size();
+    for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      int iech1 = index1[ivar][jech1];
+      int iech1 = index1[rvar1][rech1];
       db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      if (icolVerr >= 0) verr = db1->getValueByColIdx(iech1, icolVerr);
 
       // Loop on the second variable
       int icol = 0;
-      for (int jvar = 0, nvar2 = (int) ivars.size(); jvar < nvar2; jvar++)
+      for (int rvar2 = 0, nvar2 = (int) ivars.size(); rvar2 < nvar2; rvar2++)
       {
-        int jvar2 = ivars[jvar];
+        int ivar2 = ivars[rvar2];
 
         // Loop on the second sample
-        int nech2s = (int) index1[jvar].size();
-        for (int jech2 = 0; jech2 < nech2s; jech2++)
+        int nech2s = (int) index1[rvar2].size();
+        for (int rech2 = 0; rech2 < nech2s; rech2++)
         {
           // Perform calculation only in upper triangle of the Symmetric Matrix
           if (icol >= irow)
           {
-            int iech2 = index1[jvar][jech2];
+            int iech2 = index1[rvar2][rech2];
             db1->getSampleCoordinatesAsSPInPlace(iech2, p2);
 
             // Modify the covariance (if non stationary)
             if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
 
             /* Loop on the dimension of the space */
-            double value = eval(p1, p2, ivar1, jvar2, mode);
+            double value = eval(p1, p2, ivar1, ivar2, mode);
             mat.setValue(irow, icol, value);
+
+            // Update the Diagonal due to the presence of Variance of Measurement Error
+            if (icolVerr >= 0 && irow == icol)
+              mat.updValue(irow, icol, EOperator::ADD, verr);
           }
           icol++;
         }
