@@ -522,6 +522,7 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
  * @param ivar2 Rank of the variable for the second point
  * @param icol  Rank of the column (variable + sample) for the second point
  * @param mode CovCalcMode structure
+ * @param flagSym True if used for a Symmetric matrix (should only fill upper triangle)
  *
  * @remark: The optimized version is not compatible with Franck's non-stationarity.
  * Then no correction must be applied to cov(h)
@@ -531,7 +532,8 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
                                 const VectorVectorInt& index1,
                                 int ivar2,
                                 int icol,
-                                const CovCalcMode *mode) const
+                                const CovCalcMode *mode,
+                                bool flagSym) const
 {
   double cov, hoptim;
   double sill = 1.;
@@ -548,11 +550,13 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
     int nech1s = (int) index1[rvar1].size();
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      int iech1 = index1[rvar1][rech1];
-      hoptim = _p2A.getDistance(_p1As[iech1]);
-      cov = _evalCovFromH(hoptim, mode);
-
-      res.updValue(irow, icol, EOperator::ADD, sill * cov);
+      if (! (flagSym && irow > icol))
+      {
+        int iech1 = index1[rvar1][rech1];
+        hoptim = _p2A.getDistance(_p1As[iech1]);
+        cov = _evalCovFromH(hoptim, mode);
+        res.updValue(irow, icol, EOperator::ADD, sill * cov);
+      }
       irow++;
     }
   }

@@ -3349,8 +3349,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL,0) : -1;
 
   // Update the search for variable, if no variable is defined
-  int nvarDb = getLocNumber(ELoc::Z);
-  if (item > nvarDb) item = 0;
+  if (getLocNumber(ELoc::Z) <= 0) item = -1;
 
   // Check the presence of variance of measurement error variable (only if 'useVerr')
   bool useV = false;
@@ -3383,7 +3382,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
     if (useV)
     {
       value = getLocVariable(ELoc::V, iech, item);
-      if (FFFF(value) || value > 0) continue;
+      if (FFFF(value) || value < 0) continue;
     }
 
     // The sample is finally accepted

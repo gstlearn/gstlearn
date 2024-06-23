@@ -108,7 +108,8 @@ public:
                         const VectorVectorInt& index,
                         int ivar2 = 0,
                         int icol = 0,
-                        const CovCalcMode *mode = nullptr) const;
+                        const CovCalcMode *mode = nullptr,
+                        bool flagSym = false) const;
   void evalMatOptimInPlace(int icas1,
                            int iech1,
                            int icas2,

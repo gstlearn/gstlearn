@@ -236,7 +236,7 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
 
       // Loop on the basic structures
       for (int i = 0, n = getCovaNumber(); i < n; i++)
-         _covs[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode);
+         _covs[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
       icol++;
     }
   }
@@ -295,7 +295,7 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
 
       // Loop on the basic structures
       for (int i = 0, n = getCovaNumber(); i < n; i++)
-         _covs[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode);
+         _covs[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, true);
 
       icol++;
     }
