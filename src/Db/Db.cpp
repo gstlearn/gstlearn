@@ -3308,28 +3308,26 @@ VectorDouble Db::getSelections(void) const
  * Returns the list of indices 'index' for valid samples for the set of variables 'ivars'
  * as well as the count of samples (per variable)
  *
- * @param ivars Vector giving the indices of the variables of interest
- * @param nbgh  Vector giving the ranks of the elligible samples (optional)
+ * @param ivars   Vector giving the indices of the variables of interest
+ * @param nbgh    Vector giving the ranks of the elligible samples (optional)
+ * @param useSel  Discard the masked samples (if True)
+ * @param useVerr Discard the samples where Verr (if it exists) is not correctly defined
  *
  * @note: if the current 'db' has some Z-variable defined, only samples where
  * @note a variable is defined is considered (search for heterotopy).
  */
 VectorVectorInt Db::getMultipleRanksActive(const VectorInt &ivars,
-                                           const VectorInt &nbgh) const
+                                           const VectorInt &nbgh,
+                                           bool useSel,
+                                           bool useVerr) const
 {
-  int nvardb = getLocNumber(ELoc::Z);
-
   int nvar = (int) ivars.size();
 
   VectorVectorInt index(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar = ivars[ivar];
-
-    // If variable rank is larger than the count of Z-variable in the Db: do not check for variable existence
-    if (jvar >= nvardb) jvar = -1;
-
-    index[ivar] = getRanksActive(nbgh, jvar);
+    index[ivar] = getRanksActive(nbgh, jvar, useSel, useVerr);
   }
   return index;
 }
@@ -3349,6 +3347,10 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
 
   // Create the column index for the selection (only if 'useSel')
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL,0) : -1;
+
+  // Update the search for variable, if no variable is defined
+  int nvarDb = getLocNumber(ELoc::Z);
+  if (item > nvarDb) item = 0;
 
   // Check the presence of variance of measurement error variable (only if 'useVerr')
   bool useV = false;
@@ -3381,7 +3383,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
     if (useV)
     {
       value = getLocVariable(ELoc::V, iech, item);
-      if (FFFF(value)) continue;
+      if (FFFF(value) || value > 0) continue;
     }
 
     // The sample is finally accepted

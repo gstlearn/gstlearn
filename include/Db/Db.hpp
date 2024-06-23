@@ -527,9 +527,11 @@ public:
   VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
                            int item = -1,
                            bool useSel = true,
-                           bool useVerr = true) const;
+                           bool useVerr = false) const;
   VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
-                                         const VectorInt &nbgh) const;
+                                         const VectorInt &nbgh,
+                                         bool useSel = true,
+                                         bool useVerr = false) const;
 
   double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;

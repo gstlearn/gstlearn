@@ -896,6 +896,42 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   return mat;
 }
 
+void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
+                                         AMatrix *mat,
+                                         const VectorInt &ivars,
+                                         const VectorVectorInt &index1) const
+{
+  // Check if the correction can take place at all
+  if (! db1->hasLocVariable(ELoc::V)) return;
+
+  // Initializations
+  int icolVerr = -1;
+  double verr = 0.;
+
+  // Loop on the first variable
+  int irow = 0;
+  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
+  {
+    int ivar1 = ivars[rvar1];
+    icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
+
+    // Loop on the first sample
+    int nech1s = (int) index1[rvar1].size();
+    for (int rech1 = 0; rech1 < nech1s; rech1++)
+    {
+      int iech1 = index1[rvar1][rech1];
+
+      // Update the Diagonal due to the presence of Variance of Measurement Error
+      if (icolVerr >= 0)
+      {
+        verr = db1->getValueByColIdx(iech1, icolVerr);
+        mat->updValue(irow, irow, EOperator::ADD, verr);
+      }
+      irow++;
+    }
+  }
+}
+
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix within a Db
@@ -926,8 +962,6 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
                                                    const CovCalcMode *mode)
 {
   MatrixSquareSymmetric mat;
-  int icolVerr = -1;
-  double verr = 0.;
 
   // Preliminary checks
   if (db1 == nullptr) return MatrixRectangular();
@@ -943,10 +977,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
-
-  // Update the Covariance matrix in case of presence of Variance of Measurement error
-  bool useVerr = db1->hasLocVariable(ELoc::V);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true);
 
   // Creating the matrix
   int neq1 = VH::count(index1);
@@ -966,7 +997,6 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
   {
     int ivar1 = ivars[rvar1];
-    if (useVerr) icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
 
     // Loop on the first sample
     int nech1s = (int) index1[rvar1].size();
@@ -974,7 +1004,6 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
     {
       int iech1 = index1[rvar1][rech1];
       db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
-      if (icolVerr >= 0) verr = db1->getValueByColIdx(iech1, icolVerr);
 
       // Loop on the second variable
       int icol = 0;
@@ -998,10 +1027,6 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
             /* Loop on the dimension of the space */
             double value = eval(p1, p2, ivar1, ivar2, mode);
             mat.setValue(irow, icol, value);
-
-            // Update the Diagonal due to the presence of Variance of Measurement Error
-            if (icolVerr >= 0 && irow == icol)
-              mat.updValue(irow, icol, EOperator::ADD, verr);
           }
           icol++;
         }
@@ -1009,6 +1034,9 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
       irow++;
     }
   }
+
+  // Update the matrix due to presence of Variance of Measurement Error
+  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
 
   // Free the non-stationary specific allocation
 
@@ -1054,6 +1082,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
   MatrixSparse* mat = nullptr;
   if (db2 == nullptr) db2 = db1;
   if (db1 == nullptr || db2 == nullptr) return mat;
+  bool flagSameDb = (db1 == db2);
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
   VectorInt jvars = _getActiveVariables(jvar0);
@@ -1068,8 +1097,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
-  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, flagSameDb);
+  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2, true, flagSameDb);
 
   // Evaluate the matrix of sills
   int nvar1 = (int) ivars.size();
@@ -1136,7 +1165,13 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   // Convert from triplet to sparse matrix
 
-  return MatrixSparse::createFromTriplet(NF_T);
+  mat = MatrixSparse::createFromTriplet(NF_T);
+
+  // Update the matrix due to presence of Variance of Measurement Error
+  if (flagSameDb)
+    _updateCovMatrixSymmetricVerr(db1, mat, ivars, index1);
+
+  return mat;
 }
 
 /**
