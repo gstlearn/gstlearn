@@ -64,7 +64,6 @@ String CovMarkov::getFormula() const
 
 double CovMarkov::_evaluateCovOnSphere(double alpha,
                                        double scale,
-                                       double param,
                                        int degree) const
 {
   double s = 0.;

@@ -75,7 +75,7 @@ public:
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
   double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const;
-  VectorDouble evalSpectrumOnSphere(int n, double scale = 1., double param = 1.) const;
+  VectorDouble evalSpectrumOnSphere(int n, double scale = 1.) const;
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
   const ECov&          getType()    const { return _type; }
@@ -98,7 +98,6 @@ protected:
   virtual double _evaluateCovDerivative(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double alpha,
                                       double scale = 1.,
-                                      double param = 1.,
                                       int degree = 50) const;
   virtual VectorDouble _evaluateSpectrumOnSphere(int n,
                                                  double scale = 1.,

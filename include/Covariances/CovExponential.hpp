@@ -43,7 +43,6 @@ protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double alpha,
                               double scale = 1.,
-                              double param = 1.,
                               int degree = 50) const override;
   VectorDouble _evaluateSpectrumOnSphere(int n,
                                          double scale = 1.,

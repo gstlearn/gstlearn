@@ -92,7 +92,6 @@ public:
                               int ivar = 0,
                               int jvar = 0) const override;
 
-
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }

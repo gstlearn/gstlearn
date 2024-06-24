@@ -630,14 +630,12 @@ VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNorm) const
   if (spaceSn == nullptr) return VectorDouble();
 
   double scale = getScale();
-  double param = getParam();
   if (flagNorm)
   {
     double radius = spaceSn->getRadius();
     scale /= radius;
   }
-
-  return _cova->evalSpectrumOnSphere(n, scale, param);
+  return _cova->evalSpectrumOnSphere(n, scale);
 }
 
 void CovAniso::setMarkovCoeffs(VectorDouble coeffs)

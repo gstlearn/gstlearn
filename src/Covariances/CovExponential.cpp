@@ -80,7 +80,6 @@ MatrixRectangular CovExponential::simulateSpectralOmega(int nb) const
 
 double CovExponential::_evaluateCovOnSphere(double alpha,
                                             double scale,
-                                            double param,
                                             int degree) const
 {
   double nu = scale * getScadef();

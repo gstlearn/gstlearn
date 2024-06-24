@@ -164,6 +164,9 @@ Known Mean(s)     0.000
   25 -   WENDLAND1 : Wendland covariance (3,1)
   26 -   WENDLAND2 : Wendland covariance (4,2)
   27 -      MARKOV : Markovian covariances
+  28 -   GEOMETRIC : Geometric (Sphere only)
+  29 -     POISSON : Poisson (Sphere only)
+  30 -   LINEARSPH : Linear (Sphere only)
 NULL
 
 Model characteristics

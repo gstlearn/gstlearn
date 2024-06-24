@@ -42,7 +42,6 @@ CovLinearSph::~CovLinearSph()
 
 double CovLinearSph::_evaluateCovOnSphere(double alpha,
                                           double scale,
-                                          double param,
                                           int degree) const
 {
   return 1. - 2. * alpha / GV_PI;
