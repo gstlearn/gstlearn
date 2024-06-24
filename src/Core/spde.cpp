@@ -5013,7 +5013,7 @@ int spde_process(Db *dbin,
 
     // Saving operation
     nv_krige = 0;
-    spde_get_current_matelem(-1).amesh;
+    spde_get_current_matelem(-1);
     if (S_DECIDE.flag_est)
       st_save_result(zkrig, dbout, ELoc::Z, nv_krige++);
     if (S_DECIDE.flag_std)

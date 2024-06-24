@@ -134,12 +134,9 @@ int main(int argc, char *argv[])
 
   // Testing miscellaneous functions
 
-  int nu = 0;
-  double x = 5.2;
-  message("Bessel_J function = %lf\n", bessel_j(x, nu));
+  message("Bessel_J value = %lf\n", bessel_j(5.2, 0));
 
-  lambda = 5.2;
   VectorInt ipois = VH::sequence(10);
-  VH::display("Poisson density", law_df_poisson_vec(ipois, lambda));
+  VH::display("Poisson intensity", law_df_poisson_vec(ipois, 5.2));
   return 0;
 }
