@@ -182,7 +182,7 @@ VectorDouble ACovFunc::getMarkovCoeffs() const
 
 double ACovFunc::evaluateSpectrum(double freq, int ndim) const
 {
-  DECLARE UNUSED(freq);
+  DECLARE_UNUSED(freq);
   DECLARE_UNUSED(ndim);
   if (! hasSpectrum())
   {
