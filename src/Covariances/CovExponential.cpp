@@ -86,9 +86,7 @@ double CovExponential::_evaluateCovOnSphere(double alpha,
   return exp(-nu * alpha);
 }
 
-VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n,
-                                                       double scale,
-                                                       double param) const
+VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) const
 {
   double nu = scale * getScadef();
   double nu2 = nu * nu;

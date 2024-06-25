@@ -47,9 +47,7 @@ double CovLinearSph::_evaluateCovOnSphere(double alpha,
   return 1. - 2. * alpha / GV_PI;
 }
 
-VectorDouble CovLinearSph::_evaluateSpectrumOnSphere(int n,
-                                                   double scale,
-                                                   double param) const
+VectorDouble CovLinearSph::_evaluateSpectrumOnSphere(int n, double scale) const
 {
   VectorDouble sp(n + 1, 0.);
 

@@ -80,20 +80,21 @@ public:
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
   virtual double evalCovOnSphere(double alpha,
-                                 int degree,
-                                 bool flagScale,
-                                 bool normalize) const
+                                 int degree = 0,
+                                 bool flagScaleDistance = false,
+                                 const CovCalcMode* mode = nullptr) const
   {
     DECLARE_UNUSED(alpha);
     DECLARE_UNUSED(degree);
-    DECLARE_UNUSED(flagScale);
-    DECLARE_UNUSED(normalize);
+    DECLARE_UNUSED(flagScaleDistance);
+    DECLARE_UNUSED(mode);
     return TEST;
   }
-  virtual VectorDouble evalSpectrumOnSphere(int n, bool flagNorm = false) const
+  virtual VectorDouble evalSpectrumOnSphere(int n,
+                                            bool flagNormDistance = false) const
   {
     DECLARE_UNUSED(n);
-    DECLARE_UNUSED(flagNorm);
+    DECLARE_UNUSED(flagNormDistance);
     return VectorDouble();
   }
   virtual double evalSpectrum(const VectorDouble &freq,

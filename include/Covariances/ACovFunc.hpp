@@ -15,6 +15,7 @@
 #include "Enum/ECov.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -83,7 +84,9 @@ public:
   void setField(double field);
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
-  double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const;
+  double evalCovOnSphere(double alpha,
+                         double scale = 1.,
+                         int degree = 50) const;
   VectorDouble evalSpectrumOnSphere(int n, double scale = 1.) const;
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
@@ -119,9 +122,7 @@ protected:
   virtual double _evaluateCovOnSphere(double alpha,
                                       double scale = 1.,
                                       int degree = 50) const;
-  virtual VectorDouble _evaluateSpectrumOnSphere(int n,
-                                                 double scale = 1.,
-                                                 double param = 1.) const;
+  virtual VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const;
 
 private:
   Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;

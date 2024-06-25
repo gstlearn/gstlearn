@@ -295,7 +295,7 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
         print("- Limits along Z :", limitZ)
     
     # Creating the 3-D Grid
-    dbsegy3D = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles, flag_add_coordinates=False)
+    dbsegy3D = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles, flagAddCoordinates=False)
     
     # Extract the traces and copy them to the output 3D file
     nfileSEGY = len(fileSEGYs)

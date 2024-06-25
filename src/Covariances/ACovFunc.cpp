@@ -77,7 +77,9 @@ double ACovFunc::evalCovDerivative(int degree, double h) const
   return _evaluateCovDerivative(degree, h);
 }
 
-double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
+double ACovFunc::evalCovOnSphere(double alpha,
+                                 double scale,
+                                 int degree) const
 {
   return _evaluateCovOnSphere(alpha, scale, degree);
 }
@@ -225,13 +227,10 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
   return s;
 }
 
-VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n,
-                                                 double scale,
-                                                 double param) const
+VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n, double scale) const
 {
   DECLARE_UNUSED(n);
   DECLARE_UNUSED(scale);
-  DECLARE_UNUSED(param);
   if (!hasSpectrumOnSphere())
   {
     messerr("This covariance does not allow On Sphere calculations");

@@ -49,11 +49,9 @@ double CovPoisson::_evaluateCovOnSphere(double alpha,
   return exp(lambda * (cos(alpha) - 1.)) * valbes;
 }
 
-VectorDouble CovPoisson::_evaluateSpectrumOnSphere(int n,
-                                                   double scale,
-                                                   double param) const
+VectorDouble CovPoisson::_evaluateSpectrumOnSphere(int n, double scale) const
 {
-  double lambda = param;
+  double lambda = getParam();
   VectorInt x = VH::sequence(n+1);
   VectorDouble sp = law_df_poisson_vec(x, lambda);
   VH::normalize(sp, 1);

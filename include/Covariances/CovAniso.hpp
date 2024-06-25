@@ -84,10 +84,11 @@ public:
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
   virtual double evalCovOnSphere(double alpha,
-                                 int degree,
-                                 bool flagScale = false,
-                                 bool normalize = false) const override;
-  virtual VectorDouble evalSpectrumOnSphere(int n, bool flagNorm = false) const override;
+                                 int degree = 0,
+                                 bool flagScaleDistance = false,
+                                 const CovCalcMode* mode = nullptr) const override;
+  virtual VectorDouble evalSpectrumOnSphere(int n,
+                                            bool flagNormDistance = false) const override;
   virtual double evalSpectrum(const VectorDouble &freq,
                               int ivar = 0,
                               int jvar = 0) const override;
@@ -224,8 +225,8 @@ public:
 
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
                                   int degree = 0,
-                                  bool flagScale = false,
-                                  bool flagNormalize = false) const;
+                                  bool flagScaleDistance = false,
+                                  const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);

@@ -47,19 +47,32 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AAA_");
 
-  DbGrid* grid = DbGrid::createFromNF("db.ascii");
-  grid->display();
+  int option = 1;
 
-  Model* model = Model::createFromNF("Model.ascii");
-  NoStatArray NoStat({"A","R"},grid);
-  model->addNoStat(&NoStat);
-  model->display();
+  DbGrid* dbgrid = DbGrid::create({800,800,800},VectorDouble(),VectorDouble(),
+                                  VectorDouble(),ELoadBy::COLUMN,
+                                  VectorDouble(),VectorString(), VectorString(),
+                                  0, false);
+  VectorDouble x = VectorDouble(dbgrid->getSampleNumber());
+  dbgrid->display();
 
-  model->display();
+  if (option == 0 || option == 1)
+  {
+    dbgrid->addColumnsByConstant(1, 12., "val0");
+    dbgrid->display();
 
-  SPDE spde(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND);
-  spde.compute(grid);
-  (void) grid->dumpToNF("Result.ascii");
+    dbgrid->deleteColumn("val0");
+    dbgrid->display();
+  }
+
+  if (option == 0 || option == 2)
+  {
+    dbgrid->addColumns(x, "val");
+    dbgrid->display();
+
+    dbgrid->deleteColumn("val");
+    dbgrid->display();
+  }
 
   return (0);
 }

@@ -843,7 +843,7 @@ protected:
                  const VectorString& locatorNames,
                  const ELoadBy& order,
                  int shift);
-  void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
+  void _loadData(const ELoadBy& order, bool flagAddSampleRank, const VectorDouble& tab);
   void _defineDefaultNames(int shift, const VectorString& names);
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
   void _setNameByColIdx(int icol, const String& name);

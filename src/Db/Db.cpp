@@ -4387,7 +4387,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     resetDims(ncol, nech);
 
     // Load the values
-    _loadData(ELoadBy::SAMPLE, 0, allvalues);
+    _loadData(ELoadBy::SAMPLE, false, allvalues);
 
     // Update the column names and locators
     for (int i = 0; i < ncol; i++)
@@ -4399,7 +4399,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab)
+void Db::_loadData(const ELoadBy& order, bool flagAddSampleRank, const VectorDouble& tab)
 {
   // Preliminary check
 
@@ -4408,7 +4408,7 @@ void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& 
 
   // Add the rank (optional)
 
-  if (flag_add_rank)
+  if (flagAddSampleRank)
   {
     for (int iech = 0; iech < getSampleNumber(); iech++)
       setValueByColIdx(iech, jcol, iech + 1);
@@ -4419,7 +4419,7 @@ void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& 
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flag_add_rank) ? getColumnNumber() - 1 : getColumnNumber();
+  int ntab = (flagAddSampleRank) ? getColumnNumber() - 1 : getColumnNumber();
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {

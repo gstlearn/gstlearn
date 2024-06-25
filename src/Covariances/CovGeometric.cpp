@@ -46,11 +46,8 @@ double CovGeometric::_evaluateCovOnSphere(double alpha,
   return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
 }
 
-VectorDouble CovGeometric::_evaluateSpectrumOnSphere(int n,
-                                                     double scale,
-                                                     double param) const
+VectorDouble CovGeometric::_evaluateSpectrumOnSphere(int n, double scale) const
 {
-  DECLARE_UNUSED(param);
   double rho = scale;
   VectorDouble sp(1+n, 0.);
 
