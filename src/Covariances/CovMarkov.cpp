@@ -62,7 +62,9 @@ String CovMarkov::getFormula() const
   return "C(h)=\\int_{R^d} \\frac{e^{-i\\omega^t.h}}{P(||\\omega||^2)}d\\omega";
 }
 
-double CovMarkov::_evaluateCovOnSphere(double scale, int degree) const
+double CovMarkov::_evaluateCovOnSphere(double alpha,
+                                       double scale,
+                                       int degree) const
 {
   double s = 0.;
   int n = (int)_markovCoeffs.size();

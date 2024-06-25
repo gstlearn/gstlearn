@@ -2341,7 +2341,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   MatrixSquareSymmetric* XCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
 
   // Establish the vector of multivariate data
-  VectorDouble Z = db->getColumnsByLocator(ELoc::Z, false, true);
+  VectorDouble Z = db->getColumnsByLocator(ELoc::Z, true, true);
 
   // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
   VectorDouble ZCm1X = Cm1X.prodVecMat(Z);

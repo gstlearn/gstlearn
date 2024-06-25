@@ -525,10 +525,13 @@ public:
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
   VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
+                           int item = -1,
                            bool useSel = true,
-                           int item = -1) const;
+                           bool useVerr = false) const;
   VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
-                                         const VectorInt &nbgh) const;
+                                         const VectorInt &nbgh,
+                                         bool useSel = true,
+                                         bool useVerr = false) const;
 
   double       getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
@@ -840,7 +843,7 @@ protected:
                  const VectorString& locatorNames,
                  const ELoadBy& order,
                  int shift);
-  void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
+  void _loadData(const ELoadBy& order, bool flagAddSampleRank, const VectorDouble& tab);
   void _defineDefaultNames(int shift, const VectorString& names);
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
   void _setNameByColIdx(int icol, const String& name);

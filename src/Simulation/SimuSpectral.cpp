@@ -173,6 +173,7 @@ int SimuSpectral::compute(Db *dbout,
  *****************************************************************************/
 bool SimuSpectral::isValidForSpectral(const Model* model)
 {
+  ESpaceType type = getDefaultSpaceType();
   if (model->getCovaNumber() != 1)
   {
     messerr("This method only considers Model with a single covariance structure");
@@ -188,7 +189,7 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
       messerr("The current structure is not valid for Spectral Simulation");
       return false;
     }
+    // Check that the model is valid for the current space type
   }
   return true;
 }
-

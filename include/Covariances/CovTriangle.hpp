@@ -25,9 +25,9 @@ public:
 
   unsigned int   getMaxNDim()   const  override { return 1; }
 
-  virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "Triangle"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
 
 protected:
   double _evaluateCov(double h) const override;

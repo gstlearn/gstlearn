@@ -79,13 +79,46 @@ public:
   /// Tell if the use of Optimization is enabled or not
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
-  virtual double evalCovOnSphere(double /*alpha*/,
-                                 int /*degree*/,
-                                 bool /*normalize*/) const { return TEST; }
-  virtual double evalSpectrum(const VectorDouble& /*freq*/,
-                              int /*ivar*/, int /*jvar*/) const { return TEST; }
-  virtual void updateCovByPoints(int /*icas1*/, int /*iech1*/, int /*icas2*/, int /*iech2*/) { return; }
-  virtual void updateCovByMesh(int /*imesh*/) { return; }
+  virtual double evalCovOnSphere(double alpha,
+                                 int degree = 0,
+                                 bool flagScaleDistance = false,
+                                 const CovCalcMode* mode = nullptr) const
+  {
+    DECLARE_UNUSED(alpha);
+    DECLARE_UNUSED(degree);
+    DECLARE_UNUSED(flagScaleDistance);
+    DECLARE_UNUSED(mode);
+    return TEST;
+  }
+  virtual VectorDouble evalSpectrumOnSphere(int n,
+                                            bool flagNormDistance = false) const
+  {
+    DECLARE_UNUSED(n);
+    DECLARE_UNUSED(flagNormDistance);
+    return VectorDouble();
+  }
+  virtual double evalSpectrum(const VectorDouble &freq,
+                              int ivar,
+                              int jvar) const
+  {
+    DECLARE_UNUSED(freq);
+    DECLARE_UNUSED(ivar);
+    DECLARE_UNUSED(jvar);
+    return TEST;
+  }
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+  {
+    DECLARE_UNUSED(icas1);
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(icas2);
+    DECLARE_UNUSED(iech2);
+    return;
+  }
+  virtual void updateCovByMesh(int imesh)
+  {
+    DECLARE_UNUSED(imesh);
+    return;
+  }
   /////////////////////////////////////////////////////////////////////////////////
   ///
   void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
@@ -258,6 +291,10 @@ public:
 
 protected:
   VectorInt _getActiveVariables(int ivar0) const;
+  void _updateCovMatrixSymmetricVerr(const Db *db1,
+                                     AMatrix *mat,
+                                     const VectorInt &ivars,
+                                     const VectorVectorInt &index1) const;
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,

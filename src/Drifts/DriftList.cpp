@@ -493,9 +493,10 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
   int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return drfmat;
+  bool useVerr = (member == ECalcMember::LHS);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index = db->getMultipleRanksActive(ivars, nbgh);
+  VectorVectorInt index = db->getMultipleRanksActive(ivars, nbgh, true, useVerr);
 
   // Creating the matrix
   int neq = VH::count(index);

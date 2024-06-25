@@ -19,7 +19,6 @@
 class CovAniso;
 class GSTLEARN_EXPORT CovDiffusionAdvection
 {
-
 public:
   CovDiffusionAdvection();
   CovDiffusionAdvection(const CovDiffusionAdvection& r);

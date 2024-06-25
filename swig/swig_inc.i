@@ -106,6 +106,9 @@
 %shared_ptr(CovWendland0)
 %shared_ptr(CovWendland1)
 %shared_ptr(CovWendland2)
+%shared_ptr(CovGeometric)
+%shared_ptr(CovPoisson)
+%shared_ptr(CovLinearSph)
 %shared_ptr(CSVformat)
 %shared_ptr(Db)
 %shared_ptr(DbGrid)
@@ -412,6 +415,9 @@
   #include "Covariances/CovWendland0.hpp"
   #include "Covariances/CovWendland1.hpp"
   #include "Covariances/CovWendland2.hpp"
+  #include "Covariances/CovGeometric.hpp"
+  #include "Covariances/CovPoisson.hpp"
+  #include "Covariances/CovLinearSph.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
   #include "Covariances/CovHelper.hpp"
   

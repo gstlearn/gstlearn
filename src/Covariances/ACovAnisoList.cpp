@@ -221,21 +221,23 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
   mat.resize(neq1, neq2);
 
   // Loop on the second variable
-  for (int jvar = 0, nvar2 = (int) jvars.size(); jvar < nvar2; jvar++)
+  int icol = 0;
+  for (int rvar2 = 0, nvar2 = (int) jvars.size(); rvar2 < nvar2; rvar2++)
   {
-    int jvar2 = jvars[jvar];
+    int ivar2 = jvars[rvar2];
 
     // Loop on the second sample
-    int nech2s = (int) index2[jvar].size();
-    for (int jech2 = 0; jech2 < nech2s; jech2++)
+    int nech2s = (int) index2[rvar2].size();
+    for (int rech2 = 0; rech2 < nech2s; rech2++)
     {
-      int iech2 = index2[jvar][jech2];
+      int iech2 = index2[rvar2][rech2];
       db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
       for (int i = 0, n = getCovaNumber(); i < n; i++)
-         _covs[i]->evalOptimInPlace(mat, ivars, index1, jvar2, jech2, mode);
+         _covs[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
+      icol++;
     }
   }
 
@@ -266,7 +268,7 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
   optimizationPreProcess(db1);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true);
 
   // Creating the matrix
   int neq1 = VH::count(index1);
@@ -278,22 +280,29 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
   mat.resize(neq1, neq1);
 
   // Loop on the second variable
-  for (int jvar = 0, nvar2 = (int) ivars.size(); jvar < nvar2; jvar++)
+  int icol = 0;
+  for (int rvar2 = 0, nvar2 = (int) ivars.size(); rvar2 < nvar2; rvar2++)
   {
-    int jvar2 = ivars[jvar];
+    int ivar2 = ivars[rvar2];
 
     // Loop on the second sample
-    int nech2s = (int) index1[jvar].size();
-    for (int jech2 = 0; jech2 < nech2s; jech2++)
+    int nech2s = (int) index1[rvar2].size();
+    for (int rech2 = 0; rech2 < nech2s; rech2++)
     {
-      int iech2 = index1[jvar][jech2];
+      int iech2 = index1[rvar2][rech2];
+
       optimizationSetTarget(iech2);
 
       // Loop on the basic structures
       for (int i = 0, n = getCovaNumber(); i < n; i++)
-         _covs[i]->evalOptimInPlace(mat, ivars, index1, jvar2, jech2, mode);
+         _covs[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, true);
+
+      icol++;
     }
   }
+
+  // Update the matrix due to presence of Variance of Measurement Error
+  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
 
   optimizationPostProcess();
   return mat;

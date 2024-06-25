@@ -11,14 +11,14 @@ For all standard covariances
 Number of basic functions = 1000
 Number of discretization  = 360
 Spectrum Tolerance        = 1e-05
- Random generation seed    = 23234
- Number of frequencies     = 116
- Cumulated Spectrum        = 1.000166
- Sum of negative weights   = 0.000000
- Maximum degree            = 115
- Minimum order             = -96
- Maximum order             = 83
- ----
+Random generation seed    = 23234
+Number of frequencies     = 27
+Cumulated Spectrum        = 1.003436
+Sum of negative weights   = 0.000000
+Maximum degree            = 26
+Minimum order             = -25
+Maximum order             = 23
+----
 
 
 #NO_DIFF#XXX

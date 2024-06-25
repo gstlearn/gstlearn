@@ -3308,34 +3308,33 @@ VectorDouble Db::getSelections(void) const
  * Returns the list of indices 'index' for valid samples for the set of variables 'ivars'
  * as well as the count of samples (per variable)
  *
- * @param ivars Vector giving the indices of the variables of interest
- * @param nbgh  Vector giving the ranks of the elligible samples (optional)
+ * @param ivars   Vector giving the indices of the variables of interest
+ * @param nbgh    Vector giving the ranks of the elligible samples (optional)
+ * @param useSel  Discard the masked samples (if True)
+ * @param useVerr Discard the samples where Verr (if it exists) is not correctly defined
  *
  * @note: if the current 'db' has some Z-variable defined, only samples where
  * @note a variable is defined is considered (search for heterotopy).
  */
 VectorVectorInt Db::getMultipleRanksActive(const VectorInt &ivars,
-                                           const VectorInt &nbgh) const
+                                           const VectorInt &nbgh,
+                                           bool useSel,
+                                           bool useVerr) const
 {
-  int nvardb = getLocNumber(ELoc::Z);
-
   int nvar = (int) ivars.size();
 
   VectorVectorInt index(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar = ivars[ivar];
-
-    // If variable rank is larger than the count of Z-variable in the Db: do not check for variable existence
-    if (jvar >= nvardb) jvar = -1;
-
-    index[ivar] = getRanksActive(nbgh, true, jvar);
+    index[ivar] = getRanksActive(nbgh, jvar, useSel, useVerr);
   }
   return index;
 }
 
-VectorInt Db::getRanksActive(const VectorInt& nbgh, bool useSel, int item) const
+VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool useVerr) const
 {
+  double value;
   int nech_tot = getSampleNumber();
 
   // Create a vector of ranks of samples to be searched (using input 'nbgh' or not)
@@ -3346,54 +3345,48 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, bool useSel, int item) const
     nbgh_init = nbgh;
   int nech_init = (int) nbgh_init.size();
 
-  // Create the column index for the selection (whether 'useSel' or not)
+  // Create the column index for the selection (only if 'useSel')
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL,0) : -1;
 
-  VectorInt ranks;
-  if (item < 0)
+  // Update the search for variable, if no variable is defined
+  if (getLocNumber(ELoc::Z) <= 0) item = -1;
+
+  // Check the presence of variance of measurement error variable (only if 'useVerr')
+  bool useV = false;
+  if (useVerr && item >= 0)
   {
-    if (icol < 0)
-    {
-      // No check on selection nor on variable
-      ranks = nbgh_init;
-    }
-    else
-    {
-      // Check on selection, not on variable
-      for (int jech = 0; jech < nech_init; jech++)
-      {
-        int iech = nbgh_init[jech];
-        double value = getValueByColIdx(iech, icol);
-        if (value > 0) ranks.push_back(iech);
-      }
-    }
+    if (getColIdxByLocator(ELoc::V, item) >= 0) useV = true;
   }
-  else
+
+  // Constitute the resulting vector osf selected sample ranks
+  VectorInt ranks;
+  for (int jech = 0; jech < nech_init; jech++)
   {
-    if (icol < 0)
+    int iech = nbgh_init[jech];
+
+    // Check against a possible selection
+    if (icol >= 0)
     {
-      // Check on variable, not on selection
-      for (int jech = 0; jech < nech_init; jech++)
-      {
-        int iech = nbgh_init[jech];
-        double value = getLocVariable(ELoc::Z,iech, item);
-        if (! FFFF(value)) ranks.push_back(iech);
-      }
+      value = getValueByColIdx(iech, icol);
+      if (value <= 0) continue;
     }
-    else
+
+    // Check against the existence of a target variable
+    if (item >= 0)
     {
-      // Check on selection and on variable
-      for (int jech = 0; jech < nech_init; jech++)
-      {
-        int iech = nbgh_init[jech];
-        double value = getValueByColIdx(iech, icol);
-        if (value > 0)
-        {
-          double value = getLocVariable(ELoc::Z,iech, item);
-          if (! FFFF(value)) ranks.push_back(iech);
-        }
-     }
+      value = getLocVariable(ELoc::Z, iech, item);
+      if (FFFF(value)) continue;
     }
+
+    // Check against the validity of the Variance of Measurement Error variable
+    if (useV)
+    {
+      value = getLocVariable(ELoc::V, iech, item);
+      if (FFFF(value) || value < 0) continue;
+    }
+
+    // The sample is finally accepted
+    ranks.push_back(iech);
   }
   return ranks;
 }
@@ -4394,7 +4387,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     resetDims(ncol, nech);
 
     // Load the values
-    _loadData(ELoadBy::SAMPLE, 0, allvalues);
+    _loadData(ELoadBy::SAMPLE, false, allvalues);
 
     // Update the column names and locators
     for (int i = 0; i < ncol; i++)
@@ -4406,7 +4399,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab)
+void Db::_loadData(const ELoadBy& order, bool flagAddSampleRank, const VectorDouble& tab)
 {
   // Preliminary check
 
@@ -4415,7 +4408,7 @@ void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& 
 
   // Add the rank (optional)
 
-  if (flag_add_rank)
+  if (flagAddSampleRank)
   {
     for (int iech = 0; iech < getSampleNumber(); iech++)
       setValueByColIdx(iech, jcol, iech + 1);
@@ -4426,7 +4419,7 @@ void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& 
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flag_add_rank) ? getColumnNumber() - 1 : getColumnNumber();
+  int ntab = (flagAddSampleRank) ? getColumnNumber() - 1 : getColumnNumber();
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {

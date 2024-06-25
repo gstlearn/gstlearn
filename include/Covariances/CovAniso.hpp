@@ -83,9 +83,15 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-
-  virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
-  virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
+  virtual double evalCovOnSphere(double alpha,
+                                 int degree = 0,
+                                 bool flagScaleDistance = false,
+                                 const CovCalcMode* mode = nullptr) const override;
+  virtual VectorDouble evalSpectrumOnSphere(int n,
+                                            bool flagNormDistance = false) const override;
+  virtual double evalSpectrum(const VectorDouble &freq,
+                              int ivar = 0,
+                              int jvar = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }
@@ -100,9 +106,10 @@ public:
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,
                         const VectorVectorInt& index,
-                        int jvar = 0,
-                        int jech2 = 0,
-                        const CovCalcMode *mode = nullptr) const;
+                        int ivar2 = 0,
+                        int icol = 0,
+                        const CovCalcMode *mode = nullptr,
+                        bool flagSym = false) const;
   void evalMatOptimInPlace(int icas1,
                            int iech1,
                            int icas2,
@@ -212,10 +219,14 @@ public:
   int    getGradParamNumber() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
+  bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrum() const { return _cova->hasSpectrum(); }
 
-  VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
+  VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
+                                  int degree = 0,
+                                  bool flagScaleDistance = false,
+                                  const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);

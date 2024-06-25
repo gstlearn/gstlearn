@@ -104,6 +104,9 @@ set(SRC
   Covariances/CovFactory.cpp
   Covariances/CovStable.cpp
   Covariances/CovMarkov.cpp
+  Covariances/CovGeometric.cpp
+  Covariances/CovPoisson.cpp
+  Covariances/CovLinearSph.cpp
   Covariances/CovDiffusionAdvection.cpp
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp

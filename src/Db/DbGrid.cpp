@@ -103,7 +103,7 @@ String DbGrid::toString(const AStringFormat* strfmt) const
  * @param names         Variable names (size = nvar)
  * @param locatorNames  Locators for each variable (size = nvar)
  * @param flag_add_rank If 1, add an automatic rank variable
- * @param flag_add_coordinates If TRUE, add the grid coordinates
+ * @param flagAddCoordinates If TRUE, add the grid coordinates
  */
 int DbGrid::reset(const VectorInt& nx,
                   const VectorDouble& dx,
@@ -114,7 +114,7 @@ int DbGrid::reset(const VectorInt& nx,
                   const VectorString& names,
                   const VectorString& locatorNames,
                   int flag_add_rank,
-                  bool flag_add_coordinates)
+                  bool flagAddCoordinates)
 {
   _clear();
 
@@ -125,7 +125,7 @@ int DbGrid::reset(const VectorInt& nx,
   int ntab = (tab.empty()) ? 0 : (int) (tab.size() / nech);
   int number = 0;
   if (flag_add_rank) number += 1;
-  if (flag_add_coordinates) number += ndim;
+  if (flagAddCoordinates) number += ndim;
   int ncol = number + ntab;
 
   // Create the grid
@@ -141,7 +141,7 @@ int DbGrid::reset(const VectorInt& nx,
 
   if (flag_add_rank) _createRank(0);
 
-  if (flag_add_coordinates) _createCoordinatesGrid(flag_add_rank);
+  if (flagAddCoordinates) _createCoordinatesGrid(flag_add_rank);
 
   // Create the names (for the remaining variables)
 
@@ -149,7 +149,7 @@ int DbGrid::reset(const VectorInt& nx,
 
   // Create the locators
 
-  if (flag_add_coordinates)
+  if (flagAddCoordinates)
   {
     int jcol = 0;
     if (flag_add_rank) jcol++;
@@ -313,11 +313,11 @@ DbGrid* DbGrid::create(const VectorInt& nx,
                        const VectorString& names,
                        const VectorString& locatorNames,
                        int flag_add_rank,
-                       bool flag_add_coordinates)
+                       bool flagAddCoordinates)
 {
   DbGrid* dbgrid = new DbGrid;
   if (dbgrid->reset(nx, dx, x0, angles, order, tab, names, locatorNames,
-                    flag_add_rank, flag_add_coordinates))
+                    flag_add_rank, flagAddCoordinates))
   {
     messerr("Error when creating DbGrid from Grid");
     delete dbgrid;
@@ -1502,10 +1502,10 @@ void DbGrid::_interpolate(const DbGrid *grid3D,
  * Create the sub-grid, extracted from 'gridIn' and reduced to the vector of limits
  * @param gridIn Input grid
  * @param limits A vector of Min and Max per space dimension (Dimension: [ndim][2])
- * @param flag_add_coordinates True if the grid coordinates must be included in the output file
+ * @param flagAddCoordinates True if the grid coordinates must be included in the output file
  * @return
  */
-DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool flag_add_coordinates)
+DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool flagAddCoordinates)
 {
   DbGrid* gridOut = nullptr;
   if (gridIn == nullptr) return gridOut;
@@ -1538,7 +1538,7 @@ DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool
   // Create the new grid
   gridOut = DbGrid::create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
                            VectorDouble(), VectorString(), VectorString(), 1,
-                           flag_add_coordinates);
+                           flagAddCoordinates);
 
   // Add the variables of interest
   VectorInt iuidOut(nvar);

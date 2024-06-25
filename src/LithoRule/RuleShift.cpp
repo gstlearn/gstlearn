@@ -347,7 +347,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
                               int ipgs,
                               int nbsimu) const
 {
-  int    iech,jech,nadd,nech,idim,facies,nstep;
+  int    iech,jech,nadd,nech,idim,facies;
   double t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max;
 
   /* Initializations */

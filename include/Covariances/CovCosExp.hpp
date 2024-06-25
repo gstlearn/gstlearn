@@ -29,6 +29,7 @@ public:
 
   String getCovName() const override { return "Cosexp"; }
   int    getMinOrder() const override { return -1; }
+  bool   getCompatibleSpaceR() const override { return true; }
 
 protected:
   double _evaluateCov(double h) const override;

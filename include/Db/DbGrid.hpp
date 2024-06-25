@@ -94,7 +94,7 @@ public:
                         const VectorString& names = VectorString(),
                         const VectorString& locatorNames = VectorString(),
                         int flag_add_rank = 1,
-                        bool flag_add_coordinates = true);
+                        bool flagAddCoordinates = true);
   static DbGrid* createCoveringDb(const Db* dbin,
                                   const VectorInt& nx = VectorInt(),
                                   const VectorDouble& dx = VectorDouble(),
@@ -147,7 +147,7 @@ public:
                                                  double dzout);
   static DbGrid* createSubGrid(const DbGrid *gridin,
                                VectorVectorInt limits,
-                               bool flag_add_coordinates = false);
+                               bool flagAddCoordinates = false);
 
   int reset(const VectorInt& nx,
             const VectorDouble& dx = VectorDouble(),
@@ -158,7 +158,7 @@ public:
             const VectorString& names = VectorString(),
             const VectorString& locatorNames = VectorString(),
             int flag_add_rank = 1,
-            bool flag_add_coordinates = true);
+            bool flagAddCoordinates = true);
   int resetCoveringDb(const Db* db,
                       const VectorInt& nx = VectorInt(),
                       const VectorDouble& dx = VectorDouble(),

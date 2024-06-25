@@ -56,7 +56,7 @@ double CovBesselJ::_evaluateCov(double h) const
   cov = 1.;
   if (h > 0)
   {
-    if (bessel_j(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
+    if (bessel_j_table(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
     cov = TAB[nb] * exp(loggamma(third + 1.)) / coeff;
   }
   return (cov);

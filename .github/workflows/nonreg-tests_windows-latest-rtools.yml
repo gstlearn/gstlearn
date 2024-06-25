@@ -73,7 +73,7 @@ jobs:
         Get-ChildItem -Recurse -Filter '*.out' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > logs.txt
         foreach ($filename in Get-Content .\logs.txt)
         {
-            Compress-Archive -Update $filename .\msys-logs.zip
+            Compress-Archive -Update $filename .\rtools-logs.zip
         }
         cd $HOME/gstlearn_dir
         Get-ChildItem -Recurse -Filter '*.*' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > neutral.txt
@@ -84,11 +84,11 @@ jobs:
         Move-Item -Path rtools-neutral.zip -Destination ${{github.workspace}}
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: msys-nonreg-logs
-        path: ${{env.BUILD_DIR}}/tests/msys-logs.zip
+        name: rtools-nonreg-logs
+        path: ${{env.BUILD_DIR}}/tests/rtools-logs.zip
   
     - name: Publish output neutral files as artefact
       if: always()

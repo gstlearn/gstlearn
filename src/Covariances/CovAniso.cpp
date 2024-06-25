@@ -519,9 +519,10 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
  * @param res  Vector of covariances
  * @param ivars Arrays of ranks for the first point
  * @param index1 Arrays of sample indices for the first point
- * @param jvar  Rank of the variable for the second point
- * @param jech2 Rank of the sample for the second point
+ * @param ivar2 Rank of the variable for the second point
+ * @param icol  Rank of the column (variable + sample) for the second point
  * @param mode CovCalcMode structure
+ * @param flagSym True if used for a Symmetric matrix (should only fill upper triangle)
  *
  * @remark: The optimized version is not compatible with Franck's non-stationarity.
  * Then no correction must be applied to cov(h)
@@ -529,30 +530,33 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
 void CovAniso::evalOptimInPlace(MatrixRectangular& res,
                                 const VectorInt& ivars,
                                 const VectorVectorInt& index1,
-                                int jvar,
-                                int jech2,
-                                const CovCalcMode *mode) const
+                                int ivar2,
+                                int icol,
+                                const CovCalcMode *mode,
+                                bool flagSym) const
 {
   double cov, hoptim;
   double sill = 1.;
 
   // Loop on the first variable
   int irow = 0;
-  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
   {
-    int ivar1 = ivars[ivar];
+    int ivar1 = ivars[rvar1];
     if (mode == nullptr || ! mode->getUnitary())
-      sill = _sill.getValue(ivar1, jvar);
+      sill = _sill.getValue(ivar1, ivar2);
 
     // Loop on the first sample
-    int nech1s = (int) index1[ivar].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    int nech1s = (int) index1[rvar1].size();
+    for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      int iech1 = index1[ivar][jech1];
-      hoptim = _p2A.getDistance(_p1As[iech1]);
-      cov = _evalCovFromH(hoptim, mode);
-
-      res.updValue(irow, jech2, EOperator::ADD, sill * cov);
+      if (! (flagSym && irow > icol))
+      {
+        int iech1 = index1[rvar1][rech1];
+        hoptim = _p2A.getDistance(_p1As[iech1]);
+        cov = _evalCovFromH(hoptim, mode);
+        res.updValue(irow, icol, EOperator::ADD, sill * cov);
+      }
       irow++;
     }
   }
@@ -593,24 +597,49 @@ void CovAniso::evalMatOptimInPlace(int icas1,
   }
 }
 
-double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
+double CovAniso::evalCovOnSphere(double alpha,
+                                 int degree,
+                                 bool flagScaleDistance,
+                                 const CovCalcMode* mode) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
   const ASpace* space = getDefaultSpace();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-  if (spaceSn == nullptr)
-    my_throw("Should never happen");
-  double radius = spaceSn->getRadius();
-  double scale = getScale() / radius;
-  double sill = getSill(0, 0);
+  if (spaceSn == nullptr) return TEST;
 
-  double cov = _cova->evalCovOnSphere(alpha / radius, scale, degree);
-  if (normalize)
+  double scale = getScale();
+  if (flagScaleDistance)
   {
-    double cov0 = _cova->evalCovOnSphere(0., scale, degree);
-    cov /= cov0;
+    double radius = spaceSn->getRadius();
+    scale = scale / radius;
+    alpha = alpha / radius;
   }
-  return sill * cov;
+
+  double cov = _cova->evalCovOnSphere(alpha, scale, degree);
+
+  if (mode != nullptr && mode->getAsVario())
+    cov = _cova->evalCovOnSphere(0., scale, degree) - cov;
+
+  if (mode == nullptr || ! mode->getUnitary())
+    cov *= getSill(0,0);
+
+  return cov;
+}
+
+VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance) const
+{
+  if (!_cova->hasSpectrumOnSphere()) return VectorDouble();
+  const ASpace* space = getDefaultSpace();
+  const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  if (spaceSn == nullptr) return VectorDouble();
+
+  double scale = getScale();
+  if (flagNormDistance)
+  {
+    double radius = spaceSn->getRadius();
+    scale /= radius;
+  }
+  return _cova->evalSpectrumOnSphere(n, scale);
 }
 
 void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
@@ -668,6 +697,7 @@ double CovAniso::_getDetTensor() const
   }
   return detTensor;
 }
+
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
   if (!_cova->hasSpectrum()) return TEST;
@@ -689,15 +719,15 @@ VectorDouble CovAniso::getMarkovCoeffs() const
   return _cova->getMarkovCoeffs();
 }
 
-VectorDouble CovAniso::evalCovOnSphere(const VectorDouble &alpha,
-                                       int degree) const
+VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble &alpha,
+                                          int degree,
+                                          bool flagScaleDistance,
+                                          const CovCalcMode* mode) const
 {
   int n = (int) alpha.size();
   VectorDouble vec(n);
-  double c0 = evalCovOnSphere(0., degree);
   for (int i = 0; i < n; i++)
-    vec[i] = evalCovOnSphere(alpha[i], degree, false) / c0;
-
+    vec[i] = evalCovOnSphere(alpha[i], degree, flagScaleDistance, mode);
   return vec;
 }
 

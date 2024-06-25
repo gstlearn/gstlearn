@@ -42,6 +42,9 @@
                  WENDLAND0,  24, "Wendland covariance (2,0)",\
                  WENDLAND1,  25, "Wendland covariance (3,1)",\
                  WENDLAND2,  26, "Wendland covariance (4,2)",\
-                 MARKOV,     27, "Markovian covariances"
+                 MARKOV,     27, "Markovian covariances",\
+                 GEOMETRIC,  28, "Geometric (Sphere only)",\
+                 POISSON,    29, "Poisson (Sphere only)",\
+                 LINEARSPH,  30, "Linear (Sphere only)"
 
 ENUM_DECLARE(ENUM_COV)
