@@ -48,11 +48,11 @@ public:
   virtual int          hasRange()     const { return 1 ; } // 0:No; 1:Yes; -1:from Sill
   virtual bool         hasParam()     const { return false; }
   virtual String       getCovName()   const = 0;
-  virtual bool         hasCovDerivative() const { return false; }
-  virtual bool         hasCovOnSphere()   const { return false; }
-  virtual bool         hasSpectrumOnSphere()   const { return false; }
-  virtual bool         hasSpectrum()      const { return false; }
-  virtual bool         hasMarkovCoeffs()  const { return false; }
+  virtual bool         hasCovDerivative()    const { return false; }
+  virtual bool         hasCovOnSphere()      const { return false; }
+  virtual bool         hasSpectrumOnSphere() const { return false; }
+  virtual bool         hasSpectrum()         const { return false; }
+  virtual bool         hasMarkovCoeffs()     const { return false; }
 
   virtual bool         isConsistent() const;
   virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
@@ -62,11 +62,20 @@ public:
 
   // Specific to Turning Band Simulation Method
   virtual bool isValidForTurningBand() const { return false; }
-  virtual double simulateTurningBand(double t0, TurningBandOperate &operTB) const { return TEST; }
+  virtual double simulateTurningBand(double t0, TurningBandOperate &operTB) const
+  {
+    DECLARE_UNUSED(t0);
+    DECLARE_UNUSED(operTB);
+    return TEST;
+  }
 
   // Specific for Spectral Simulation Method
   virtual bool isValidForSpectral() const { return false; }
-  virtual MatrixRectangular simulateSpectralOmega(int nb) const { return MatrixRectangular(); }
+  virtual MatrixRectangular simulateSpectralOmega(int nb) const
+  {
+    DECLARE_UNUSED(nb);
+    return MatrixRectangular();
+  }
 
   ///////////////////////////////////////////////////
 
@@ -87,14 +96,25 @@ public:
   virtual VectorDouble getMarkovCoeffs() const;
   virtual void setMarkovCoeffs(VectorDouble coeffs);
   virtual double getCorrec() const {return 1.;}
-  virtual void setCorrec(double /*val*/){}
+  virtual void setCorrec(double val)
+  {
+    DECLARE_UNUSED(val);
+  }
   virtual void computeCorrec(int ndim);
-  virtual void computeMarkovCoeffs(int /*dim*/){};
+  virtual void computeMarkovCoeffs(int dim)
+  {
+    DECLARE_UNUSED(dim);
+  }
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
-  virtual double _evaluateCov(double h) const { return TEST; };
+  virtual double _evaluateCov(double h) const
+  {
+    DECLARE_UNUSED(h);
+    return TEST;
+  }
+  ;
   virtual double _evaluateCovDerivative(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double alpha,
                                       double scale = 1.,

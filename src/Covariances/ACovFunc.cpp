@@ -140,8 +140,10 @@ bool ACovFunc::hasInt2D() const
   * @param h Normalized distance
   * @return
   */
-double ACovFunc::_evaluateCovDerivative(int /*degree*/, double /*h*/) const
+double ACovFunc::_evaluateCovDerivative(int degree, double h) const
 {
+  DECLARE_UNUSED(degree);
+  DECLARE_UNUSED(h);
   if (! hasCovDerivative())
   {
     messerr("This covariance does not allow Derivative calculations");
@@ -153,8 +155,9 @@ double ACovFunc::_evaluateCovDerivative(int /*degree*/, double /*h*/) const
   return 0.;
 }
 
-void ACovFunc::setMarkovCoeffs(VectorDouble /* coeffs */)
+void ACovFunc::setMarkovCoeffs(VectorDouble coeffs)
 {
+  DECLARE_UNUSED(coeffs);
   if (! hasMarkovCoeffs())
   {
     messerr("This covariance is not known to be Markovian");
@@ -177,8 +180,10 @@ VectorDouble ACovFunc::getMarkovCoeffs() const
   return VectorDouble();
 }
 
-double ACovFunc::evaluateSpectrum(double /*freq*/, int /*ndim*/) const
+double ACovFunc::evaluateSpectrum(double freq, int ndim) const
 {
+  DECLARE UNUSED(freq);
+  DECLARE_UNUSED(ndim);
   if (! hasSpectrum())
   {
       messerr("This covariance does not allow spectrum calculations");

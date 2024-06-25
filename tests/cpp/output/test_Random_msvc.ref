@@ -23,10 +23,10 @@ Old Style
 - St. Dev. =      0.993
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  =     -3.917
-- Maximum  =      3.931
-- Mean     =      0.002
-- St. Dev. =      0.999
+- Minimum  =     -3.373
+- Maximum  =      3.784
+- Mean     =     -0.003
+- St. Dev. =      0.987
 
 Exponential Distribution: param=2.000000
 Old Style
@@ -51,10 +51,10 @@ Old Style
 - St. Dev. =      1.849
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  =      0.197
-- Maximum  =     20.296
-- Mean     =      4.078
-- St. Dev. =      2.201
+- Minimum  =      0.085
+- Maximum  =     20.352
+- Mean     =      4.082
+- St. Dev. =      2.220
 
 Poisson Distribution: lambda=4.600000
 Old Style
@@ -67,8 +67,8 @@ New Style
 - Number of samples = 100000 / 100000
 - Minimum  =     0.0000
 - Maximum  =    16.0000
-- Mean     =     4.6058
-- St. Dev. =     2.1452
+- Mean     =     4.6045
+- St. Dev. =     2.1445
 
 Using New Style Random Number Generator
 Getting the seed = 432432
