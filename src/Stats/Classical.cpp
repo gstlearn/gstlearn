@@ -488,6 +488,7 @@ Table dbStatisticsMono(Db *db,
                        double vmax,
                        const String& title)
 {
+  Table table;
   VectorInt iuids = db->getUIDs(names);
   int niuid = static_cast<int>(iuids.size());
   int noper = static_cast<int>(opers.size());
@@ -525,6 +526,8 @@ Table dbStatisticsMono(Db *db,
     double metal = 0.;
     double mini = 1.e30;
     double maxi = -1.e30;
+    double median = TEST;
+    VectorDouble valmed;
 
     /* Loop on the samples */
 
@@ -545,6 +548,7 @@ Table dbStatisticsMono(Db *db,
       if (!FFFF(vmin) && value < vmin) continue;
       if (!FFFF(vmax) && value > vmax) continue;
       metal += value;
+      valmed.push_back(value);
       nperc++;
     }
 
@@ -555,51 +559,70 @@ Table dbStatisticsMono(Db *db,
       mean /= neff;
       var = var / neff - mean * mean;
       stdv = (var >= 0) ? sqrt(var) : 0.;
+      VH::sortInPlace(valmed);
+      if (isOdd(neff))
+        median = valmed[neff/2];
+      else
+      {
+        median = 0.5 * (valmed[neff/2] + valmed[neff/2 - 1]);
+      }
     }
 
     // Constitute the array to be printed
 
     for (int i = 0; i < noper; i++)
     {
-      if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
       if (neff > 0)
       {
-        if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
-        if (opers[i] == EStatOption::VAR)  tab.push_back(var);
-        if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
-        if (opers[i] == EStatOption::MINI) tab.push_back(mini);
-        if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
-        if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
-        if (opers[i] == EStatOption::PROP)
+        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
+        else if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
+        else if (opers[i] == EStatOption::VAR)  tab.push_back(var);
+        else if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
+        else if (opers[i] == EStatOption::MINI) tab.push_back(mini);
+        else if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
+        else if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
+        else if (opers[i] == EStatOption::PROP)
           tab.push_back((double) nperc / (double) neff);
-        if (opers[i] == EStatOption::QUANT)
+        else if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
-        if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
-        if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
-        if (opers[i] == EStatOption::M)
+        else if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
+        else if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
+        else if (opers[i] == EStatOption::M)
           tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
-        if (opers[i] == EStatOption::B)
+        else if (opers[i] == EStatOption::B)
           tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
+        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(median);
+        else
+        {
+          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          return table;
+        }
       }
       else
       {
-        if (opers[i] == EStatOption::MEAN)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::VAR)   tab.push_back(TEST);
-        if (opers[i] == EStatOption::STDV)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::MINI)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::MAXI)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::SUM)   tab.push_back(TEST);
-        if (opers[i] == EStatOption::PROP)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::QUANT) tab.push_back(TEST);
-        if (opers[i] == EStatOption::T)     tab.push_back(TEST);
-        if (opers[i] == EStatOption::Q)     tab.push_back(TEST);
-        if (opers[i] == EStatOption::M)     tab.push_back(TEST);
-        if (opers[i] == EStatOption::B)     tab.push_back(TEST);
+        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
+        else if (opers[i] == EStatOption::MEAN)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::VAR)    tab.push_back(TEST);
+        else if (opers[i] == EStatOption::STDV)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::MINI)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::MAXI)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::SUM)    tab.push_back(TEST);
+        else if (opers[i] == EStatOption::PROP)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::QUANT)  tab.push_back(TEST);
+        else if (opers[i] == EStatOption::T)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::Q)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::M)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::B)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(TEST);
+        else
+        {
+          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          return table;
+        }
       }
     }
   }
 
-  Table table;
   if (title.empty())
     table.setSkipTitle(true);
   else

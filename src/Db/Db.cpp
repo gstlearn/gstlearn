@@ -1398,8 +1398,6 @@ int Db::addColumns(const VectorDouble &tab,
   int iuid = addColumnsByConstant(nvar, valinit, radix, locatorType, locatorIndex);
   if (iuid < 0) return 1;
 
-  setColumnByUID(tab, iuid, useSel);
-
   const double* local = tab.data();
   for (int ivar = 0; ivar < nvar; ivar++)
     setColumnByUIDOldStyle(&local[ivar * nech], iuid + ivar, useSel);
