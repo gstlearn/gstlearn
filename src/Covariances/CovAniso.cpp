@@ -615,15 +615,15 @@ double CovAniso::evalCovOnSphere(double alpha,
     alpha = alpha / radius;
   }
 
-  double cov = _cova->evalCovOnSphere(alpha, scale, degree);
+  double value = _cova->evalCovOnSphere(alpha, scale, degree);
 
   if (mode != nullptr && mode->getAsVario())
-    cov = _cova->evalCovOnSphere(0., scale, degree) - cov;
+    value = _cova->evalCovOnSphere(0., scale, degree) - value;
 
   if (mode == nullptr || ! mode->getUnitary())
-    cov *= getSill(0,0);
+    value *= getSill(0,0);
 
-  return cov;
+  return value;
 }
 
 VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance) const

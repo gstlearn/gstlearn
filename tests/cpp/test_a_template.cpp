@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AAA_");
 
-  int option = 1;
+  int option = 2;
 
   DbGrid* dbgrid = DbGrid::create({800,800,800},VectorDouble(),VectorDouble(),
                                   VectorDouble(),ELoadBy::COLUMN,
@@ -74,5 +74,6 @@ int main(int argc, char *argv[])
     dbgrid->display();
   }
 
+  delete dbgrid;
   return (0);
 }
