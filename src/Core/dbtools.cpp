@@ -2085,7 +2085,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
  ** \param[in]  beta        Bending coefficient
  ** \param[in]  extend      Extension of the bounding box (when positive)
  ** \param[in]  seed        Seed for the random number generator
- ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
+ ** \param[in]  flagAddSampleRank true if the Rank must be generated in the output Db
  **
  ** \remarks Arguments 'extend' is only valid when 'dbgrid' is not defined
  **
@@ -2100,7 +2100,7 @@ Db* db_point_init(int nech,
                   double beta,
                   double extend,
                   int seed,
-                  int flag_add_rank)
+                  bool flagAddSampleRank)
 {
   VectorDouble tab;
   Db* db = nullptr;
@@ -2153,15 +2153,16 @@ Db* db_point_init(int nech,
 
   number = (int) tab.size() / ndim;
   db = Db::createFromSamples(number, ELoadBy::SAMPLE, tab, VectorString(),
-                                 VectorString(), flag_add_rank);
+                                 VectorString(), flagAddSampleRank);
 
   /* Set the locators */
 
   VectorString names = generateMultipleNames("x", ndim);
   for (int idim = 0; idim < ndim; idim++)
   {
-    db->setNameByUID(idim + flag_add_rank, names[idim]);
-    db->setLocatorByUID(idim + flag_add_rank, ELoc::X, idim);
+    int jdim = (flagAddSampleRank) ? idim + 1 : idim;
+    db->setNameByUID(jdim, names[idim]);
+    db->setLocatorByUID(jdim, ELoc::X, idim);
   }
   return (db);
 }

@@ -301,7 +301,7 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
     nfileSEGY = len(fileSEGYs)
     for iseg in range(nfileSEGY):
         mat = segyio.tools.cube(fileSEGYs[iseg])
-        matred = mat[int(limitX[0]):int(limitX[1]),:,:][:,int(limitY[0]):int(limitY[1]),:][:,:,int(limitZ[0]):int(limitZ[1])]
+        matred = mat[int(limitX[0]):int(limitX[1]),:,:][:,int(limitY[0]):int(limitY[1]),:][:,:,int(limitZ[1]):int(limitZ[0])]
         matred = matred.transpose(2,1,0)  
         matred = matred.reshape(-1)
     

@@ -93,7 +93,7 @@ public:
                         const VectorDouble& tab = VectorDouble(),
                         const VectorString& names = VectorString(),
                         const VectorString& locatorNames = VectorString(),
-                        int flag_add_rank = 1,
+                        bool flagAddSampleRank = true,
                         bool flagAddCoordinates = true);
   static DbGrid* createCoveringDb(const Db* dbin,
                                   const VectorInt& nx = VectorInt(),
@@ -103,15 +103,15 @@ public:
   static DbGrid* createFromPolygon(Polygons* polygon,
                                    const VectorInt& nodes,
                                    const VectorDouble& dcell,
-                                   int flag_add_rank = 1);
+                                   bool flagAddSampleRank = true);
   static DbGrid* createCoarse(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_cell = 1,
-                              int flag_add_rank = 1);
+                              bool flagAddSampleRank = true);
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_cell = 1,
-                              int flag_add_rank = 1);
+                              bool flagAddSampleRank = true);
   static DbGrid* createFromGridExtend(const DbGrid& gridIn,
                                       const VectorString &tops,
                                       const VectorString &bots,
@@ -128,7 +128,7 @@ public:
                               double dx = 1.,
                               double dy = 1.,
                               double angle = 0.,
-                              int flag_add_rank = 1,
+                              bool flagAddSampleRank = true,
                               const VectorDouble &tab = VectorDouble());
   static DbGrid* createSqueezeAndStretchForward(const DbGrid* grid3Din,
                                                 const DbGrid *surf2D,
@@ -157,7 +157,7 @@ public:
             const VectorDouble& tab = VectorDouble(),
             const VectorString& names = VectorString(),
             const VectorString& locatorNames = VectorString(),
-            int flag_add_rank = 1,
+            bool flagAddSampleRank = true,
             bool flagAddCoordinates = true);
   int resetCoveringDb(const Db* db,
                       const VectorInt& nx = VectorInt(),
@@ -167,11 +167,11 @@ public:
   int resetFromPolygon(Polygons* polygon,
                        const VectorInt& nodes,
                        const VectorDouble& dcell,
-                       int flag_add_rank = 1);
+                       bool flagAddSampleRank = true);
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
-  static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank = 1);
+  static bool migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank = true);
 
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");

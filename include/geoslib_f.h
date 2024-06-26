@@ -243,7 +243,7 @@ GSTLEARN_EXPORT Db* db_read_csv(const char *filename,
                                 int verbose = 0,
                                 int ncol_max = -1,
                                 int nrow_max = -1,
-                                int flag_add_rank = 0);
+                                bool flagAddSampleRank = false);
 GSTLEARN_EXPORT int db_write_csv(Db *db,
                                  const char *filename,
                                  const CSVformat& csv,
