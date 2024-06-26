@@ -45,7 +45,7 @@ struct CSV_Encoding
   int nitem;                 // Number of items per line
   int current;               // Rank of the current item
   int nlines;                // Number of lines printed
-  bool flag_integer;         // true for Integer encoding
+  bool flagInteger;          // true for Integer encoding
   char char_sep;             // Separator between consecutive fields
   String na_string;          // Substitute for NA
 };
@@ -280,7 +280,7 @@ void csv_print_double(double value)
     (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->na_string.c_str());
   else
   {
-    if (CSV_ENCODE->flag_integer)
+    if (CSV_ENCODE->flagInteger)
       (void) fprintf(CSV_ENCODE->file, "%d", (int) value);
     else
       (void) fprintf(CSV_ENCODE->file, "%lf", value);
@@ -308,7 +308,7 @@ void csv_print_double(double value)
  ** \param[in]  csv          CSVFormat description
  ** \param[in]  mode         1 for opening File; -1 for closing File
  ** \param[in]  nitem        Number of items per line
- ** \param[in]  flag_integer true if the numerical values must be printed as integer
+ ** \param[in]  flagInteger  true if the numerical values must be printed as integer
  ** \param[in]  verbose      Verbose flag
  **
  ** \remark: This procedure manages an internal structure (declared as static)
@@ -321,7 +321,7 @@ int csv_manage(const char *filename,
                const CSVformat& csv,
                int mode,
                int nitem,
-               bool flag_integer,
+               bool flagInteger,
                bool verbose)
 {
   char char_sep = csv.getCharSep();
@@ -340,13 +340,13 @@ int csv_manage(const char *filename,
     if (CSV_ENCODE->file == nullptr)
     {
       messerr("Error when opening the CSV file %s for writing", filename);
-      (void) csv_manage(filename, csv, -1, nitem, flag_integer);
+      (void) csv_manage(filename, csv, -1, nitem, flagInteger);
       return 1;
     }
     CSV_ENCODE->nitem = nitem;
     CSV_ENCODE->current = 0;
     CSV_ENCODE->nlines = 0;
-    CSV_ENCODE->flag_integer = flag_integer;
+    CSV_ENCODE->flagInteger = flagInteger;
     CSV_ENCODE->char_sep = char_sep;
     CSV_ENCODE->na_string = na_string;
 
@@ -354,7 +354,7 @@ int csv_manage(const char *filename,
 
     if (verbose)
     {
-      if (CSV_ENCODE->flag_integer)
+      if (CSV_ENCODE->flagInteger)
         mestitle(1, "CSV Integer Encoding");
       else
         mestitle(1, "CSV Float Encoding\n");
@@ -374,7 +374,7 @@ int csv_manage(const char *filename,
     // Option printout
     if (verbose)
     {
-      if (CSV_ENCODE->flag_integer)
+      if (CSV_ENCODE->flagInteger)
         message("CSV Integer Encoding : Summary\n");
       else
         message("CSV Float Encoding : Summary\n");
@@ -399,7 +399,7 @@ int csv_manage(const char *filename,
  ** \param[in]  csvfmt       CSVformat structure
  ** \param[in]  flag_allcol  1 if all the columns available must be dumped out
  ** \param[in]  flag_coor    1 if the coordinates must be dumped out
- ** \param[in]  flag_integer true if the numerical values must be printed as integer
+ ** \param[in]  flagInteger true if the numerical values must be printed as integer
  **
  ** \remarks: This procedure dumps the Z-variables and optionally the X-variables
  **
@@ -409,7 +409,7 @@ int db_write_csv(Db *db,
                  const CSVformat& csvfmt,
                  int flag_allcol,
                  int flag_coor,
-                 bool flag_integer)
+                 bool flagInteger)
 {
   if (db == nullptr) return 1;
   int ncol = db->getColumnNumber();
@@ -431,7 +431,7 @@ int db_write_csv(Db *db,
 
   // Initiate the CSV_Encoding structure
 
-  if (csv_manage(filename, csvfmt, 1, nitem, flag_integer)) return 1;
+  if (csv_manage(filename, csvfmt, 1, nitem, flagInteger)) return 1;
 
   /* Dump the header */
 
@@ -489,7 +489,7 @@ int db_write_csv(Db *db,
 
   // Close the file
 
-  (void) csv_manage(filename, csvfmt, -1, nitem, flag_integer);
+  (void) csv_manage(filename, csvfmt, -1, nitem, flagInteger);
 
   return 0;
 }

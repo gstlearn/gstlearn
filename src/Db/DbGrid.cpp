@@ -141,7 +141,7 @@ int DbGrid::reset(const VectorInt& nx,
 
   if (flagAddSampleRank) _createRank(0);
 
-  if (flagAddCoordinates) _createCoordinatesGrid(flagAddSampleRank);
+  if (flagAddCoordinates) _createGridCoordinates(flagAddSampleRank);
 
   // Create the names (for the remaining variables)
 
@@ -225,7 +225,7 @@ int DbGrid::resetCoveringDb(const Db* db,
 
   /// Load the data
 
-  _createCoordinatesGrid(0);
+  _createGridCoordinates(0);
 
   // Create the locators
 
@@ -293,7 +293,7 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
   /// Load the data
 
   if (flagAddSampleRank) _createRank(0);
-  _createCoordinatesGrid(flagAddSampleRank);
+  _createGridCoordinates(flagAddSampleRank);
 
   // Create the locators
 
@@ -365,7 +365,7 @@ DbGrid* DbGrid::coarsify(const VectorInt &nmult)
 
 DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                              const VectorInt &nmult,
-                             int flag_cell,
+                             bool flagCell,
                              bool flagAddSampleRank)
 {
   DbGrid *dbgrid;
@@ -375,7 +375,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().multiple(nmult, flag_cell, nx, dx, x0);
+  dbin->getGrid().multiple(nmult, flagCell, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
@@ -561,7 +561,7 @@ DbGrid* DbGrid::refine(const VectorInt &nmult)
 
 DbGrid* DbGrid::createRefine(DbGrid *dbin,
                              const VectorInt &nmult,
-                             int flag_cell,
+                             bool flagCell,
                              bool flagAddSampleRank)
 {
   DbGrid *dbgrid;
@@ -571,7 +571,7 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().divider(nmult, flag_cell, nx, dx, x0);
+  dbin->getGrid().divider(nmult, flagCell, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
@@ -634,7 +634,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank)
  * Paint the ndim columns starting from 'icol0' with grid coordinates
  * @param icol0 Starting column
  */
-void DbGrid::_createCoordinatesGrid(int icol0)
+void DbGrid::_createGridCoordinates(int icol0)
 {
   int ndim = getNDim();
 
@@ -959,7 +959,7 @@ VectorDouble DbGrid::getOneSlice(const String& name,
   int ndim = getNDim();
   if (getNDim() < 2)
   {
-    messerr("This method is limited to Grid with space dimension >= 1");
+    messerr("This method is limited to Grid with space dimension >= 2");
     return tab;
   }
   if (posx < 0 || posx >= ndim)

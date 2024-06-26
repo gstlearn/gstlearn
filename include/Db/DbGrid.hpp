@@ -106,11 +106,11 @@ public:
                                    bool flagAddSampleRank = true);
   static DbGrid* createCoarse(DbGrid *dbin,
                               const VectorInt &nmult,
-                              int flag_cell = 1,
+                              bool flagCell = true,
                               bool flagAddSampleRank = true);
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
-                              int flag_cell = 1,
+                              bool flagCell = true,
                               bool flagAddSampleRank = true);
   static DbGrid* createFromGridExtend(const DbGrid& gridIn,
                                       const VectorString &tops,
@@ -365,7 +365,7 @@ protected:
   String _getNFName() const override { return "DbGrid"; }
 
 private:
-  void _createCoordinatesGrid(int icol0);
+  void _createGridCoordinates(int icol0);
   void _interpolate(const DbGrid *grid3D,
                     int idim0,
                     double top,
