@@ -341,7 +341,7 @@ public:
                                  const NamingConvention &namconv = NamingConvention("Morpho", false, false, true,
                                      ELoc::fromKey("SEL")));
 
-  void getSampleAsST(int iech, SpaceTarget& P) const;
+  void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
 
   VectorVectorDouble getDiscretizedBlock(const VectorInt &ndiscs,
                                          int iech = 0,

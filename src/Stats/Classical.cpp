@@ -2103,14 +2103,14 @@ VectorVectorInt hscatterPairs(Db *db,
     if (hasSel && !db->isActive(iech)) continue;
     double val1 = db->getValue(name1, iech);
     if (FFFF(val1)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     for (int jech = iech + 1; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
       double val2 = db->getValue(name2, jech);
       if (FFFF(val2)) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (!vario->keepPair(0, T1, T2, &dist)) continue;

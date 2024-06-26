@@ -231,7 +231,7 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
     for (int rech2 = 0; rech2 < nech2s; rech2++)
     {
       int iech2 = index2[rvar2][rech2];
-      db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
+      db2->getSampleAsSPInPlace(iech2, p2);
       optimizationSetTarget(p2);
 
       // Loop on the basic structures

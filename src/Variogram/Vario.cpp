@@ -2695,7 +2695,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
   for (int iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     for (int ipas = 1; ipas < npas; ipas++)
     {
@@ -2709,7 +2709,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
         jech = iech + iwgt * ipas;
         if (jech < 0 || jech > nech) break;
         if (hasSel && !db->isActive(jech)) break;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3296,7 +3296,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
     iech = rindex[iiech];
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     ideb = (hasDate) ? 0 : iiech + 1;
     for (int jjech = ideb; jjech < nech; jjech++)
@@ -3305,7 +3305,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3407,7 +3407,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, int *rindex)
       w1 = db->getWeight(iech);
       if (FFFF(w1)) continue;
     }
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     /* Looking for the second sample */
 
@@ -3418,7 +3418,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, int *rindex)
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3512,7 +3512,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
   {
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
     db_index_sample_to_grid(db, iech, indg1);
 
     for (int ipas = 1; ipas < npas; ipas++)
@@ -3524,7 +3524,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3608,7 +3608,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
   for (int iech = 0; iech < nech; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
     db_index_sample_to_grid(db, iech, indg1);
 
     for (int ipas = 1; ipas < npas; ipas++)
@@ -3626,7 +3626,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
         int jech = db_index_grid_to_sample(db, indg2);
         if (jech < 0) continue;
         if (hasSel && !db->isActive(jech)) continue;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3863,7 +3863,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
       iech = rindex[iiech];
       if (hasSel && !db->isActive(iech)) continue;
       if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsST(iech, T1);
+      db->getSampleAsSTInPlace(iech, T1);
 
       ideb = (hasDate) ? 0 : iiech + 1;
       for (jjech = ideb; jjech < nech; jjech++)
@@ -3872,7 +3872,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
         if (db->getDistance1D(iech, jech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -4064,7 +4064,7 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex)
     iech = rindex[iiech];
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     for (int jjech = iiech + 1; jjech < nech; jjech++)
     {
@@ -4072,7 +4072,7 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex)
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -4654,7 +4654,7 @@ int Vario::computeGeometryMLayers(Db *db,
     for (iech = iiech = 0; iech < nech; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
-      db->getSampleAsST(iech, T1);
+      db->getSampleAsSTInPlace(iech, T1);
 
       if (seltab[iech] == 0) continue;
       for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
@@ -4663,7 +4663,7 @@ int Vario::computeGeometryMLayers(Db *db,
         {
           if (hasSel && !db->isActive(jech)) continue;
           if (seltab[jech] == 0) continue;
-          db->getSampleAsST(jech, T2);
+          db->getSampleAsSTInPlace(jech, T2);
 
           for (int jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
           {

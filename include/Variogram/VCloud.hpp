@@ -14,12 +14,8 @@
 #include "geoslib_define.h"
 #include "geoslib_d.h"
 
-#include "Enum/ECalcVario.hpp"
-
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Covariances/CovCalcMode.hpp"
-#include "Geometry/BiTargetCheckDistance.hpp"
 
 class Db;
 class ECalcVario;
