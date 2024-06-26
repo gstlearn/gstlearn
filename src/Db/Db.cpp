@@ -4680,6 +4680,7 @@ int Db::resetReduce(const Db *dbin,
       ranksel = VH::sequence(dbin->getSampleNumber());
   }
   _nech = static_cast<int> (ranksel.size());
+  bool flagMask = _nech != dbin->getSampleNumber();
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", dbin->getSampleNumber(),_nech);
 
@@ -4688,10 +4689,10 @@ int Db::resetReduce(const Db *dbin,
   VectorString namloc = names;
   if (namloc.empty())
     namloc = dbin->getAllNames();
-  _ncol = static_cast<int> (namloc.size());
 
   // Create the (empty) architecture
 
+  _ncol = static_cast<int> (namloc.size());
   resetDims(_ncol, _nech);
 
   // Define the variables and the Locators
@@ -4701,6 +4702,37 @@ int Db::resetReduce(const Db *dbin,
   // Load samples
 
   _loadValues(dbin, namloc, ranksel);
+
+  // When the number of coordinates is 0 and if the input Db is a grid,
+  // Create the coordinates before running the reduction.
+  // Otherwise, the resulting Db (which is a 'point' Db) will have no coordinate
+  // the coordinates are added before reduction
+
+  if (getLocatorNumber(ELoc::X) <= 0)
+  {
+    // Extract vector of coordinates from input 'Db' (converted into a 'DbGrid')
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbin);
+    if (dbgrid != nullptr)
+    {
+      int ndim = dbin->getNDim();
+      VectorVectorDouble coors = dbgrid->getAllCoordinates();
+      VectorString names = generateMultipleNames("Coor", ndim);
+
+      // Save the coordinates in the output file (after possible sample selection)
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (flagMask)
+        {
+          VectorDouble coor = VH::reduce(coors[idim], ranksel);
+          addColumns(coor, names[idim], ELoc::X, idim);
+        }
+        else
+        {
+          addColumns(coors[idim], names[idim], ELoc::X, idim);
+        }
+      }
+    }
+  }
 
   return 0;
 }

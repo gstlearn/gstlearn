@@ -297,7 +297,8 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
     # Creating the 3-D Grid
     dbsegy3D = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles, flagAddCoordinates=False)
     
-    # Extract the traces and copy them to the output 3D file
+    # Extract the traces and copy them to the output 3D file        mat = segyio.tools.cube(fileSEGYs[iseg])
+
     nfileSEGY = len(fileSEGYs)
     for iseg in range(nfileSEGY):
         mat = segyio.tools.cube(fileSEGYs[iseg])

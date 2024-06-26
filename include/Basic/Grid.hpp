@@ -60,9 +60,9 @@ public:
   int     getNX(int idim) const;
   int     getNTotal() const;
   double  getCellSize() const;
-  double  getExtend(int idim, bool flag_cell = false) const;
-  double  getVolume(bool flag_cell = false) const;
-  VectorDouble  getExtends(bool flag_cell = false) const;
+  double  getExtend(int idim, bool flagCell = false) const;
+  double  getVolume(bool flagCell = false) const;
+  VectorDouble  getExtends(bool flagCell = false) const;
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -142,12 +142,12 @@ public:
               VectorDouble& dx,
               VectorDouble& x0) const;
   void multiple(const VectorInt& nmult,
-                int flag_cell,
+                bool flagCell,
                 VectorInt& nx,
                 VectorDouble& dx,
                 VectorDouble& x0) const;
   void divider(const VectorInt& nmult,
-               int flag_cell,
+               bool flagCell,
                VectorInt& nx,
                VectorDouble& dx,
                VectorDouble& x0) const;
