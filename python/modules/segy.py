@@ -96,7 +96,7 @@ def getGridCharacteristics(f, verbose=False):
     # Get vertical information
     bin = f.bin
     nz  = bin.__getitem__(BinField.Samples)
-    dz  = bin.__getitem__(BinField.Samples) / 1000
+    dz  = bin.__getitem__(BinField.Interval) / 1000
     z00 = -dz * nz
     
     # Coordinates of the several key nodes
@@ -254,6 +254,9 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
     dx = dbsegy2D.getDXs()
     x0 = dbsegy2D.getX0s()
     angles = dbsegy2D.getAngles()
+    
+    nx[0] = limitX[1] - limitX[0]
+    nx[1] = limitY[1] - limitY[0]
 
     # Get the grid of maximum extension (even if variables are not defined)
     iuidSel = dbsegy2D.setSelectionFromVariableExtend(topName, botName)
@@ -299,10 +302,19 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
     
     # Extract the traces and copy them to the output 3D file
     nfileSEGY = len(fileSEGYs)
+    flipforward = True
+    flipback = False
     for iseg in range(nfileSEGY):
         mat = segyio.tools.cube(fileSEGYs[iseg])
-        mat = np.flip(mat, 2)
+        if flipforward:
+            print("Flip forward is performed")
+            mat = np.flip(mat, 2)
+       
         matred = mat[int(limitX[0]):int(limitX[1]),:,:][:,int(limitY[0]):int(limitY[1]),:][:,:,int(limitZ[0]):int(limitZ[1])]
+        
+        if flipback:
+           print("Flip backward is perfomed")
+           np.flip(matred,2)
         matred = matred.transpose(2,1,0)  
         matred = matred.reshape(-1)
     
