@@ -626,7 +626,7 @@ double CovAniso::evalCovOnSphere(double alpha,
   return value;
 }
 
-VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance) const
+VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
 {
   if (!_cova->hasSpectrumOnSphere()) return VectorDouble();
   const ASpace* space = getDefaultSpace();
@@ -639,7 +639,9 @@ VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance) const
     double radius = spaceSn->getRadius();
     scale /= radius;
   }
-  return _cova->evalSpectrumOnSphere(n, scale);
+  VectorDouble vec = _cova->evalSpectrumOnSphere(n, scale);
+  if (flagCumul) VH::cumulateInPlace(vec);
+  return vec;
 }
 
 void CovAniso::setMarkovCoeffs(VectorDouble coeffs)

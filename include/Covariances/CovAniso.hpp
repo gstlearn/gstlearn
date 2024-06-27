@@ -88,7 +88,8 @@ public:
                                  bool flagScaleDistance = false,
                                  const CovCalcMode* mode = nullptr) const override;
   virtual VectorDouble evalSpectrumOnSphere(int n,
-                                            bool flagNormDistance = false) const override;
+                                            bool flagNormDistance = false,
+                                            bool flagCumul = false) const override;
   virtual double evalSpectrum(const VectorDouble &freq,
                               int ivar = 0,
                               int jvar = 0) const override;

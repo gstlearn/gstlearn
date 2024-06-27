@@ -89,6 +89,54 @@ int SimuSpectral::simulate(int nb, int seed)
   return 0;
 }
 
+int SimuSpectral::simulateOnSphere(int nb, int seed)
+{
+  if (_model == nullptr)
+  {
+    messerr("A Model should be attached beforehand");
+    return 1;
+  }
+  if (! isValidForSpectral(_model)) return 1;
+  if (nb <= 0)
+  {
+    messerr("The number of spectral components should be positive");
+    return 1;
+  }
+
+  _ndim = _model->getDimensionNumber();
+  _nb = nb;
+
+  //  NK_  = simulate_spectrum_V2(ns = ns, spectrum = sp, seed = seed)
+
+  law_set_random_seed(seed);
+
+  _phi = VectorDouble(_nb);
+  for (int ib = 0; ib < _nb; ib++)
+    _phi[ib] = 2. * GV_PI * law_uniform();
+
+  _isPrepared = true;
+  return 0;
+}
+
+/**
+ * Simulation of the spectral components (N,K) from spectrum values (version 2)
+ *
+ * @param verbose Verbose flag
+ *
+ * @return It returns the list with two vectors of length _nb
+ * @return N contains the simulated degrees, K contains the simulated order -N <= K <= N)
+ */
+VectorVectorInt SimuSpectral::_simulateOnSphereV0()
+{
+  return VectorVectorInt();
+}
+
+
+VectorVectorInt SimuSpectral::_simulateOnSphere()
+{
+  return VectorVectorInt();
+}
+
 int SimuSpectral::compute(Db *dbout,
                           const VectorDouble &xref,
                           bool verbose,
@@ -112,7 +160,7 @@ int SimuSpectral::compute(Db *dbout,
   }
   if (! _isPrepared)
   {
-    messerr("You should run 'prepar' beforehand");
+    messerr("You should run 'simulate' beforehand");
     return 1;
   }
 
@@ -159,6 +207,13 @@ int SimuSpectral::compute(Db *dbout,
 
   // Modify the name of the output
   namconv.setNamesAndLocators(dbout, iuid);
+  return 0;
+}
+
+int SimuSpectral::computeOnSphere(Db *dbout,
+                                  bool verbose,
+                                  const NamingConvention &namconv)
+{
   return 0;
 }
 

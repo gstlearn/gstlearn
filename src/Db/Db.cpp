@@ -4723,7 +4723,7 @@ int Db::resetReduce(const Db *dbin,
       {
         if (flagMask)
         {
-          VectorDouble coor = VH::reduce(coors[idim], ranksel);
+          VectorDouble coor = VH::compress(coors[idim], ranksel);
           addColumns(coor, names[idim], ELoc::X, idim);
         }
         else

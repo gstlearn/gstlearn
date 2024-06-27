@@ -91,10 +91,12 @@ public:
     return TEST;
   }
   virtual VectorDouble evalSpectrumOnSphere(int n,
-                                            bool flagNormDistance = false) const
+                                            bool flagNormDistance = false,
+                                            bool flagCumul = false) const
   {
     DECLARE_UNUSED(n);
     DECLARE_UNUSED(flagNormDistance);
+    DECLARE_UNUSED(flagCumul);
     return VectorDouble();
   }
   virtual double evalSpectrum(const VectorDouble &freq,

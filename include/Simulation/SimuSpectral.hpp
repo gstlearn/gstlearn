@@ -30,14 +30,21 @@ public:
   virtual ~SimuSpectral();
 
   int simulate(int nb, int seed = 4273);
+  int simulateOnSphere(int nb, int seed = 4273);
   int compute(Db *dbout,
               const VectorDouble &xref = VectorDouble(),
               bool verbose = false,
               const NamingConvention& namconv = NamingConvention("Simu"));
-
+  int computeOnSphere(Db *dbout,
+                      bool verbose = false,
+                      const NamingConvention& namconv = NamingConvention("Simu"));
   void setModel(const Model *&model) { _model = model; }
 
   static bool isValidForSpectral(const Model *model);
+
+private:
+  VectorVectorInt _simulateOnSphereV0();
+  VectorVectorInt _simulateOnSphere();
 
 private:
   int _ndim;    // Space dimension

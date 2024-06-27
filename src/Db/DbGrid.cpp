@@ -2011,7 +2011,7 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
   double bot = -1.e30;
   double z0 = getX0(idim0);
   double dz = getDX(idim0);
-  int nz = getNX(idim0);
+  int nz    = getNX(idim0);
   int indzmin = 0; // included
   int indzmax;
   VectorInt indg(ndim, 0);

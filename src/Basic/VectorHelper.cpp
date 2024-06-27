@@ -1022,6 +1022,18 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
   return res;
 }
 
+void VectorHelper::cumulateInPlace(VectorDouble& vec)
+{
+  VectorDouble::iterator it(vec.begin());
+  double old = 0.;
+  while (it < vec.end())
+  {
+    *it += old;
+    old = *it;
+    it++;
+  }
+}
+
 void VectorHelper::cumulate(VectorDouble &veca,
                             const VectorDouble &vecb,
                             double coeff,
@@ -2294,6 +2306,12 @@ int VectorHelper::whereMaximum(const VectorDouble& tab)
   return ibest;
 }
 
+/**
+ * Reduce the input vector 'vecin' by suppressing the element referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param index Index to be suppressed
+ */
 VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
 {
   VectorInt vindex(1);
@@ -2301,6 +2319,12 @@ VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
   return reduce(vecin, vindex);
 }
 
+/**
+ * Reduce the input vector 'vecin' by suppressing the elements referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param index Vector of indices to be suppressed
+ */
 VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vindex)
 {
   VectorDouble vecout = vecin;
@@ -2314,6 +2338,23 @@ VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vi
   {
     int i = indexLocal[nsel - j - 1];
     vecout.erase(vecout.begin()+i);
+  }
+  return vecout;
+}
+
+/**
+ * Reduce the input vector 'vecin' by returning the only elements referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param index Vector of indices to be kept
+ */
+VectorDouble VectorHelper::compress(const VectorDouble &vecin, const VectorInt& vindex)
+{
+  VectorDouble vecout;
+  for (int j = 0, nsel = (int) vindex.size(); j < nsel; j++)
+  {
+    int i = vindex[j];
+    vecout.push_back(vecin[i]);
   }
   return vecout;
 }
