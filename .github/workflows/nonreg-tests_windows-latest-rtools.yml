@@ -19,15 +19,15 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug)
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
-  GENERATOR : "MSYS Makefiles"
+  CMAKE_GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}\swig_420b
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
-  
+
   build:
     runs-on: windows-latest
 
@@ -60,10 +60,18 @@ jobs:
         generator: "Visual Studio 17 2022"
 
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      run: |
+        cmake `
+          -B${{env.BUILD_DIR}} `
+          -DBUILD_R=ON `
+          -DBUILD_PYTHON=OFF `
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Compile, install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+    - name: Build gstlearn
+      run: cmake --build ${{env.BUILD_DIR}} --parallel 3
+
+    - name: Install packages and execute non-regression tests
+      run: cmake --build ${{env.BUILD_DIR}} --target check --parallel 3
 
     - name: Compress output logs and neutral files
       if: success() || failure()
@@ -89,7 +97,7 @@ jobs:
       with:
         name: rtools-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/rtools-logs.zip
-  
+
     - name: Publish output neutral files as artefact
       if: always()
       uses: actions/upload-artifact@v4
