@@ -23,7 +23,7 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
 
 jobs:
@@ -37,11 +37,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Configure CMake
+      run: |
+        cmake \
+          -B${{env.BUILD_DIR}} \
+          -DBUILD_R=ON \
+          -DBUILD_PYTHON=OFF \
+          -DBUILD_DOXYGEN=ON
+
     - name: Build the package and save generated file name in the environment
       run: |
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON
         cmake --build ${{env.BUILD_DIR}} --target r_install
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
+        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v3
       with:
@@ -51,10 +58,10 @@ jobs:
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: fabien-ors/cran-publish-action@v3
       with:
