@@ -23,9 +23,9 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
-#  HDF5_ROOT : hdf5 #do not use "." in the name 
+#  HDF5_ROOT : hdf5 #do not use "." in the name
 #  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
 #  HDF5_VERSION : hdf5-1.12.1
 
@@ -55,10 +55,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Install dependencies
       run: brew install llvm swig doxygen boost eigen
-      
+
     - name: Setup Python Version
       uses: actions/setup-python@v3
       with:
@@ -76,7 +76,7 @@ jobs:
 #        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
 #        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
 #        ls
-#        cd ${{env.HDF5_ROOT}} 
+#        cd ${{env.HDF5_ROOT}}
 #        ls
 #        cd CMake-${{env.HDF5_VERSION}}
 #        mkdir build
@@ -85,29 +85,42 @@ jobs:
 #        cmake --build . --target all --config Release -- -j 3
 #        cmake --build . --target install --config Release
 
+    - name : Configure CMake
+      run : |
+        cmake \
+          -B${{env.BUILD_DIR}} \
+          -DPython3_ROOT_DIR="${{env.pythonLocation}}" \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_DOXYGEN=ON
+      env:
+        CC: ${{matrix.arch.pat}}/opt/llvm/bin/clang
+        CXX: ${{matrix.arch.pat}}/opt/llvm/bin/clang++
+
+    - name : Build gstlearn
+      run : |
+        cmake --build ${{env.BUILD_DIR}} --target python_build --parallel 3
+
     - name : Create Wheels
       run : |
-        CC=${{matrix.arch.pat}}/opt/llvm/bin/clang CXX=${{matrix.arch.pat}}/opt/llvm/bin/clang++ cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
-        cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
-        cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
+        cd ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
         python -m build --wheel
         cd ../../..
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
+        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v3
       # Use specific artifact identifier for publishing all versions
       with:
         name: macos-python-package-${{matrix.arch.os}}-${{matrix.python.py}}
         path: ${{env.MY_PKG}}
-    
+
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload via ssh
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: fabien-ors/pypi-publish-action@v1
       with:
@@ -120,4 +133,3 @@ jobs:
     - uses: geekyeggo/delete-artifact@v2
       with:
         name: macos-python-package-*
-
