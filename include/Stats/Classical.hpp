@@ -130,6 +130,10 @@ GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
                                            int nclass,
                                            bool verbose = false);
 
+GSTLEARN_EXPORT std::map<int, int> contingencyTable(const VectorInt& values);
+GSTLEARN_EXPORT std::map<int, std::map<int,int>> contingencyTable2(const VectorInt& values,
+                                                                   const VectorInt& bins);
+
 #ifndef SWIG
 // All the following functions assume that the variables in the output Db used to store
 // the results are already created.

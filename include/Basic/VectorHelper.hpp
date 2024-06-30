@@ -242,6 +242,7 @@ public:
 
   static int whereMinimum(const VectorDouble& tab);
   static int whereMaximum(const VectorDouble& tab);
+  static int whereElement(const VectorInt& tab, int target);
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
   static VectorDouble compress(const VectorDouble &vecin, const VectorInt& vindex);

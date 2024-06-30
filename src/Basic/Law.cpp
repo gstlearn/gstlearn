@@ -1252,3 +1252,17 @@ double* law_exp_sample(double *tabin,
   return (tabout);
 }
 
+/**
+ * Returns an integer sampled uniformly wihtin the interval [mini, maxi]
+ *
+ * @param mini Lower bound (included)
+ * @param maxi Upper bound (included)
+ */
+int sampleInteger(int mini, int maxi)
+{
+  double rmini = mini - 0.5;
+  double rmaxi = maxi + 0.5;
+  double rand = law_uniform(rmini, rmaxi);
+  int retval = (rand > 0) ? (int) trunc(rand + 0.5) : (int) -trunc(-rand + 0.5);
+  return retval;
+}

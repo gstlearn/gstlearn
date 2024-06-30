@@ -64,3 +64,4 @@ GSTLEARN_EXPORT double* law_exp_sample(double *tabin,
                                        double *consts,
                                        int seed,
                                        double percent);
+GSTLEARN_EXPORT int sampleInteger(int minit, int maxi);

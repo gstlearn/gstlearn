@@ -11,28 +11,10 @@
 #include "Enum/ESPDECalcMode.hpp"
 
 #include "Db/Db.hpp"
-#include "Basic/File.hpp"
-#include "Basic/CSVformat.hpp"
-#include "Db/DbStringFormat.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/DirParam.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Variogram/Vario.hpp"
-#include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
-#include "Geometry/GeometryHelper.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Mesh/MeshSpherical.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "Stats/Classical.hpp"
-#include "Polygon/Polygons.hpp"
-#include "API/SPDE.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Simulation/SimuSpectral.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -47,33 +29,29 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AAA_");
 
-  int option = 2;
+  defineDefaultSpace(ESpaceType::SN);
 
-  DbGrid* dbgrid = DbGrid::create({800,800,800},VectorDouble(),VectorDouble(),
-                                  VectorDouble(),ELoadBy::COLUMN,
-                                  VectorDouble(),VectorString(), VectorString(),
-                                  0, false);
-  VectorDouble x = VectorDouble(dbgrid->getSampleNumber());
-  dbgrid->display();
+  int ndim = 2;
+  VectorInt nx = {360, 180};
+  VectorDouble dx(2);
+  for (int idim = 0; idim < ndim; idim++)
+    dx[idim] = nx[idim] / (nx[idim]-1) * GV_PI / 180.;
+  DbGrid* grd = DbGrid::create(nx,dx,{0,0});
+  (void) grd->setName("x1", "phi");
+  (void) grd->setName("x2", "theta");
+  grd->display();
 
-  if (option == 0 || option == 1)
-  {
-    dbgrid->addColumnsByConstant(1, 12., "val0");
-    dbgrid->display();
+  int nd = 100;
+  int ns = 100; // 10000;
+  int seed = 132674;
 
-    dbgrid->deleteColumn("val0");
-    dbgrid->display();
-  }
+  String model_type = "POISSON";
+  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
 
-  if (option == 0 || option == 2)
-  {
-    dbgrid->addColumns(x, "val");
-    dbgrid->display();
+  SimuSpectral sim(modelSph);
+  sim.simulateOnSphere(ns, nd, seed, false);
+  sim.computeOnSphere(grd, false);
 
-    dbgrid->deleteColumn("val");
-    dbgrid->display();
-  }
-
-  delete dbgrid;
-  return (0);
+  grd->display();
+  return(0);
 }

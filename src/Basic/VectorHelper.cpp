@@ -2306,6 +2306,23 @@ int VectorHelper::whereMaximum(const VectorDouble& tab)
   return ibest;
 }
 
+/*
+ * Returns the rank where 'target' has been found within 'tab'
+ *
+ * @param tab Vector of integer values to be searched
+ * @param target Target value to be searched for
+ *
+ * @return Rank at which the target value has been found (-1 if not found)
+ */
+int VectorHelper::whereElement(const VectorInt& tab, int target)
+{
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (tab[i] == target) return i;
+  }
+  return -1;
+}
+
 /**
  * Reduce the input vector 'vecin' by suppressing the element referred by 'index'
  *
@@ -2323,7 +2340,7 @@ VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
  * Reduce the input vector 'vecin' by suppressing the elements referred by 'index'
  *
  * @param vecin Input vector (double)
- * @param index Vector of indices to be suppressed
+ * @param vindex Vector of indices to be suppressed
  */
 VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vindex)
 {
@@ -2346,7 +2363,7 @@ VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vi
  * Reduce the input vector 'vecin' by returning the only elements referred by 'index'
  *
  * @param vecin Input vector (double)
- * @param index Vector of indices to be kept
+ * @param vindex Vector of indices to be kept
  */
 VectorDouble VectorHelper::compress(const VectorDouble &vecin, const VectorInt& vindex)
 {
