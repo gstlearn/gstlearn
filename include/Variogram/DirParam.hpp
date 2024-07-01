@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
 

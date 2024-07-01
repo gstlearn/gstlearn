@@ -762,8 +762,8 @@ void PCA::_variogramh(Db *db,
 
       if (idir0 >= 0)
       {
-        db->getSampleAsST(iech, T1);
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(iech, T1);
+        db->getSampleAsSTInPlace(jech, T2);
         DirParam dirparam = varioparam.getDirParam(idir0);
 
         // Reject the point as soon as one BiTargetChecker is not correct

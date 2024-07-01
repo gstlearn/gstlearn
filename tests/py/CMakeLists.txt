@@ -7,7 +7,7 @@ endif()
 # With GLOB:
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
-file(GLOB TEST_SOURCES test*.py)
+file(GLOB TEST_SOURCES *.py)
 
 # Without GLOB:
 #set(TEST_SOURCES 

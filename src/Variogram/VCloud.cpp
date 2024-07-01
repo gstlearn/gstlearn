@@ -233,13 +233,13 @@ void VCloud::_variogram_cloud(Db *db, int idir)
   for (int iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     int ideb = (_varioparam->isDateUsed(db)) ? 0 : iech + 1;
     for (int jech = ideb; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! vario->keepPair(idir, T1, T2, &dist)) continue;

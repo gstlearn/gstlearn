@@ -633,11 +633,11 @@ void KrigingSystem::_covtabCalcul(int icas1,
   else
   {
     if (icas1 == 1)
-      _dbin->getSampleCoordinatesAsSPInPlace(iech1, _p1);
+      _dbin->getSampleAsSPInPlace(iech1, _p1);
     else
       _p1 = _p0;
     if (icas2 == 1)
-      _dbin->getSampleCoordinatesAsSPInPlace(iech2, _p2);
+      _dbin->getSampleAsSPInPlace(iech2, _p2);
     else
       _p2 = _p0;
     _model->evalMatInPlace(_p1, _p2, _covtab, mode);
@@ -1006,7 +1006,7 @@ void KrigingSystem::_rhsCalculDGM()
  *****************************************************************************/
 int KrigingSystem::_rhsCalcul()
 {
-  _dbout->getSampleCoordinatesAsSPInPlace(_iechOut, _p0);
+  _dbout->getSampleAsSPInPlace(_iechOut, _p0);
 
   /* Establish the covariance part */
 
@@ -1535,7 +1535,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  _dbout->getSampleCoordinatesAsSPInPlace(_iechOut, _p0);
+  _dbout->getSampleAsSPInPlace(_iechOut, _p0);
   if (_optimEnabled)
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 

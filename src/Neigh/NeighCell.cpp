@@ -175,7 +175,7 @@ int NeighCell::_cell(int iech_out, VectorInt& ranks)
   int nech = _dbin->getSampleNumber();
 
   // Load the target sample as a Space Target
-  _dbgrid->getSampleAsST(iech_out, _T1);
+  _dbgrid->getSampleAsSTInPlace(iech_out, _T1);
 
   /* Loop on samples */
 
@@ -197,7 +197,7 @@ int NeighCell::_cell(int iech_out, VectorInt& ranks)
       if (_xvalid(iech, iech_out)) continue;
     }
 
-    _dbin->getSampleAsST(iech, _T2);
+    _dbin->getSampleAsSTInPlace(iech, _T2);
 
     /* Discard sample located outside the bench */
 
