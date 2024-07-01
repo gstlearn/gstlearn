@@ -47,11 +47,6 @@ if (NOT IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
 endif()
 
-# Change the name of the output file (to distinguish lib files under Windows)
-if (WIN32)
-  set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
-endif()
-
 # Debug find package instruction
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 

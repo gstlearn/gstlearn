@@ -16,7 +16,6 @@
 #include "Enum/EJustify.hpp"
 #include "Basic/AStringFormat.hpp"
 
-#include <sstream>
 class AMatrix;
 
 class GSTLEARN_EXPORT AStringable

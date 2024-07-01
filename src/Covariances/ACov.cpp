@@ -30,7 +30,7 @@ ACov::ACov(const ASpace *space)
     : ASpaceObject(space),
       _isOptimEnabled(true),
       _p1As(),
-      _p2A()
+      _p2A(space)
 {
 }
 

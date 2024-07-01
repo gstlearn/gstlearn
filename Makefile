@@ -119,13 +119,15 @@ endif
 ifdef N_PROC
   ifeq ($(OS),Windows_NT)
     # Otherwise, tons of undefined references when compiling (don't know why)
-    N_PROC_OPT = -j1
+    N_PROC_OPT = -j1 | tee /dev/null
   else
-    N_PROC_OPT = -j$(N_PROC)
+    N_PROC_OPT = -j$(N_PROC) | tee /dev/null
   endif
 else
-  N_PROC_OPT = -j1
+  N_PROC_OPT = -j1 | tee /dev/null
 endif
+# Add  "| tee /dev/null" because Ninja prints output in a signe line :
+# https://stackoverflow.com/questions/46970462/how-to-enable-multiline-logs-instead-of-single-line-progress-logs
 
 CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
 ifdef SWIG_EXEC

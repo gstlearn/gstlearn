@@ -18,10 +18,6 @@
 SpaceRN::SpaceRN(unsigned int ndim)
     : ASpace(ndim)
 {
-  if (ndim == 0)
-  {
-    _nDim = 2;
-  }
 }
 
 SpaceRN::SpaceRN(const SpaceRN &r)
@@ -47,7 +43,7 @@ SpaceRN* SpaceRN::create(unsigned int ndim)
   return new SpaceRN(ndim);
 }
 
-void SpaceRN::move(SpacePoint &p1, const VectorDouble &vec) const
+void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const
 {
   p1.setCoord(VH::add(p1.getCoord(), vec));
 }
@@ -62,7 +58,7 @@ void SpaceRN::move(SpacePoint &p1, const VectorDouble &vec) const
  \note The code has been optimized in order to avoid using '_work1' for storing
  \note temporary results
  */
-double SpaceRN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
+double SpaceRN::_getDistance(const SpacePoint &p1, const SpacePoint &p2) const
 {
 //  _getIncrementInPlace(p1, p2, _work1);
 //  return VH::norm(_work1);
@@ -76,9 +72,9 @@ double SpaceRN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
   return sqrt(dist);
 }
 
-double SpaceRN::getDistance(const SpacePoint &p1,
-                            const SpacePoint &p2,
-                            const Tensor &tensor) const
+double SpaceRN::_getDistance(const SpacePoint &p1,
+                             const SpacePoint &p2,
+                             const Tensor &tensor) const
 {
   _getIncrementInPlace(p1, p2, _work1);
 
@@ -94,9 +90,9 @@ double SpaceRN::getDistance(const SpacePoint &p1,
   }
 }
 
-double SpaceRN::getDistance1D(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              int idim) const
+double SpaceRN::_getDistance1D(const SpacePoint &p1,
+                               const SpacePoint &p2,
+                               int idim) const
 {
   _getIncrementInPlace(p1, p2, _work1);
   if (idim > (int) getNDim())
@@ -105,25 +101,28 @@ double SpaceRN::getDistance1D(const SpacePoint &p1,
     return _work1[idim];
 }
 
-void SpaceRN::_getIncrementInPlace(const SpacePoint &p1,
-                                   const SpacePoint &p2,
-                                   VectorDouble &ptemp) const
-{
-  for (unsigned int i = 0; i < _nDim; i++)
-    ptemp[i] = p2.getCoord(i) - p1.getCoord(i);
-}
-
-double SpaceRN::getFrequentialDistance(const SpacePoint &p1,
-                                       const SpacePoint &p2,
-                                       const Tensor &tensor) const
+double SpaceRN::_getFrequentialDistance(const SpacePoint &p1,
+                                        const SpacePoint &p2,
+                                        const Tensor &tensor) const
 {
   _getIncrementInPlace(p1, p2, _work1);
   tensor.applyDirectSwapInPlace(_work1, _work2);
   return VH::norm(_work2);
 }
 
-VectorDouble SpaceRN::getIncrement(const SpacePoint &p1,
-                                   const SpacePoint &p2) const
+VectorDouble SpaceRN::_getIncrement(const SpacePoint &p1,
+                                    const SpacePoint &p2) const
 {
+  // We can think that this is more rapid, but no (bench_Db.py)
+  //_getIncrementInPlace(p1, p2, _work1);
+  //return _work1;
   return VH::subtract(p1.getCoord(), p2.getCoord());
+}
+
+void SpaceRN::_getIncrementInPlace(const SpacePoint &p1,
+                                   const SpacePoint &p2,
+                                   VectorDouble &ptemp) const
+{
+  for (unsigned int i = 0; i < _nDim; i++)
+    ptemp[i] = p2.getCoord(i) - p1.getCoord(i);
 }

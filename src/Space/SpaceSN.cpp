@@ -8,11 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
 #include "Space/SpaceSN.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius)
     : ASpace(ndim),
@@ -42,67 +43,94 @@ SpaceSN::~SpaceSN()
 {
 }
 
-bool SpaceSN::isEqual(const ASpace *space) const
+String SpaceSN::_toString(const AStringFormat* strfmt, int idx) const
 {
-  if (!ASpace::isEqual(space)) return false;
+  std::stringstream sstr;
+  sstr << ASpace::_toString(strfmt, idx);
+  if (strfmt->getLevel() == 1)
+  {
+    if (idx < 0)
+    {
+      sstr << "Sphere Radius   = " << _radius << std::endl;
+    }
+    else
+    {
+      sstr << "Sphere Radius   [" << idx << "] = " << _radius << std::endl;
+    }
+  }
+  return sstr.str();
+}
+
+bool SpaceSN::_isEqual(const ASpace *space) const
+{
+  if (!ASpace::_isEqual(space)) return false;
   const SpaceSN *s = dynamic_cast<const SpaceSN*>(space);
   if (s == nullptr || _radius != s->_radius) return false;
   return true;
 }
 
-void SpaceSN::move(SpacePoint &p1, const VectorDouble &vec) const
+void SpaceSN::_move(SpacePoint &p1, const VectorDouble &vec) const
 {
-  /// TODO : SpaceSN::move
+  /// TODO : SpaceSN::_move
   p1.setCoord(VH::add(p1.getCoord(), vec));
 }
 
-double SpaceSN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
+double SpaceSN::_getDistance(const SpacePoint &p1, const SpacePoint &p2) const
 {
-  double long1 = p1.getCoord(0);
-  double lat1  = p1.getCoord(1);
-  double long2 = p2.getCoord(0);
-  double lat2  = p2.getCoord(1);
-  double dist  = GH::geodeticAngularDistance(long1, lat1, long2, lat2, _radius);
-  return dist;
+  return GH::geodeticAngularDistance(p1.getCoord(0),
+                                     p1.getCoord(1),
+                                     p2.getCoord(0),
+                                     p2.getCoord(1),
+                                     _radius);
 }
 
-double SpaceSN::getDistance(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            const Tensor& /*tensor*/) const
+double SpaceSN::_getDistance(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             const Tensor& tensor) const
 {
-  return GH::geodeticAngularDistance(p1.getCoord(0), p1.getCoord(1),
-                                     p2.getCoord(0), p2.getCoord(1), _radius);
+  /// TODO : SpaceSN::_getDistance with tensor
+  DECLARE_UNUSED(tensor);
+  return GH::geodeticAngularDistance(p1.getCoord(0),
+                                     p1.getCoord(1),
+                                     p2.getCoord(0),
+                                     p2.getCoord(1), 
+                                     _radius);
 }
 
-double SpaceSN::getDistance1D(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              int idim) const
+double SpaceSN::_getDistance1D(const SpacePoint &p1,
+                               const SpacePoint &p2,
+                               int idim) const
 {
+  /// TODO : SpaceSN::_getDistance1D
   DECLARE_UNUSED(p1);
   DECLARE_UNUSED(p2);
   DECLARE_UNUSED(idim);
   return 0;
 }
 
-double SpaceSN::getFrequentialDistance(const SpacePoint& /*p1*/,
-                                       const SpacePoint& /*p2*/,
-                                       const Tensor& /*tensor*/) const
+double SpaceSN::_getFrequentialDistance(const SpacePoint& p1,
+                                        const SpacePoint& p2,
+                                        const Tensor& tensor) const
 {
+  /// TODO : SpaceSN::_getFrequentialDistance
+  DECLARE_UNUSED(p1);
+  DECLARE_UNUSED(p2);
+  DECLARE_UNUSED(tensor);
   return 0.;
 }
 
-VectorDouble SpaceSN::getIncrement(const SpacePoint &p1,
-                                   const SpacePoint &p2) const
+VectorDouble SpaceSN::_getIncrement(const SpacePoint &p1,
+                                    const SpacePoint &p2) const
 {
-  /// TODO : SpaceSN::getIncrement
-  return VH::subtract(p1.getCoord(), p2.getCoord());
+  _getIncrementInPlace(p1, p2, _work1);
+  return _work1;
 }
 
-String SpaceSN::toString(const AStringFormat* /*strfmt*/) const
+/// Return the increment vector between two space points in a given vector
+void SpaceSN::_getIncrementInPlace(const SpacePoint &p1,
+                                   const SpacePoint &p2,
+                                   VectorDouble &ptemp) const
 {
-  std::stringstream sstr;
-  sstr << "Space Type      = " << getType().getKey() << std::endl;
-  sstr << "Space Dimension = " << getNDim() << std::endl;
-  sstr << "Sphere Radius   = " << _radius << std::endl;
-  return sstr.str();
+  /// TODO : SpaceSN::_getIncrementInPlace
+  ptemp = VH::subtract(p1.getCoord(), p2.getCoord());
 }
