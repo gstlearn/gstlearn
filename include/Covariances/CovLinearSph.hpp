@@ -26,6 +26,7 @@ public:
   String         getCovName() const override { return "LinearSph"; }
   int            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceS() const override { return true; }
+  bool           hasCovOnRn() const override { return false; }
   bool           hasCovOnSphere() const override { return true; }
   bool           hasSpectrumOnSphere() const override { return true; }
 

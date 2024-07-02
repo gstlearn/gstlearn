@@ -28,6 +28,7 @@ public:
   double         getParMax() const override { return MAX_PARAM; }
   int            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceS() const override { return true; }
+  bool           hasCovOnRn() const override { return false; }
   bool           hasCovOnSphere() const override { return true; }
   bool           hasSpectrumOnSphere() const override { return true; }
 

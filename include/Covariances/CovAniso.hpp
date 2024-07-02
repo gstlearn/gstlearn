@@ -85,7 +85,7 @@ public:
                               const CovCalcMode *mode = nullptr) const override;
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 0,
-                                 bool flagScaleDistance = false,
+                                 bool flagScaleDistance = true,
                                  const CovCalcMode* mode = nullptr) const override;
   virtual VectorDouble evalSpectrumOnSphere(int n,
                                             bool flagNormDistance = false,
@@ -222,7 +222,7 @@ public:
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
   bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
-  bool   hasSpectrum() const { return _cova->hasSpectrum(); }
+  bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
                                   int degree = 0,

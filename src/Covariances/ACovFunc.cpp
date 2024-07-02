@@ -114,6 +114,13 @@ String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
+bool ACovFunc::hasCovOnSphere() const
+{
+  // If a spectrum is available, the covariance can be calculated
+  if (hasSpectrumOnSphere()) return true;
+  return false;
+}
+
 /// Test consistency with the current context
 bool ACovFunc::isConsistent() const
 {
@@ -186,7 +193,7 @@ double ACovFunc::evaluateSpectrum(double freq, int ndim) const
 {
   DECLARE_UNUSED(freq);
   DECLARE_UNUSED(ndim);
-  if (! hasSpectrum())
+  if (! hasSpectrumOnRn())
   {
       messerr("This covariance does not allow spectrum calculations");
       return TEST;
@@ -203,11 +210,13 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
 {
   double s = 0.;
 
+  VectorDouble spectrum = _evaluateSpectrumOnSphere(degree, scale);
+
   if (isZero(alpha))
   {
     for (int i = 0; i < degree; i++)
     {
-      s += _evaluateCovOnSphere(0., scale, i); // TODO: correct it for alpha=0
+      s += spectrum[i];
     }
   }
   else
@@ -219,7 +228,7 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
     for (int i = 1; i < (degree + 2); i++)
     {
       u2 = 1. / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
-      s += u0 * _evaluateCovOnSphere(0., scale, i-1); // TODO: correct it for alpha=0
+      s += u0 * spectrum[i-1];
       u0 = u1;
       u1 = u2;
     }
@@ -330,7 +339,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
 
 void ACovFunc::computeCorrec(int ndim)
 {
-  if (! hasSpectrum()) return;
+  if (! hasSpectrumOnRn()) return;
   int N = (int) pow(2,8);
   VectorInt Nv(ndim);
   VectorDouble hmax(ndim);

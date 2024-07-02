@@ -702,7 +702,7 @@ double CovAniso::_getDetTensor() const
 
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
-  if (!_cova->hasSpectrum()) return TEST;
+  if (!_cova->hasSpectrumOnRn()) return TEST;
 
   double sill = getSill(ivar, jvar);
 
@@ -1120,7 +1120,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            int ivar,
                            int jvar) const
 {
-  if (! hasSpectrum()) return Array();
+  if (! hasSpectrumOnRn()) return Array();
 
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble &freq)
