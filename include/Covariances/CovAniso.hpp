@@ -84,7 +84,7 @@ public:
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
   virtual double evalCovOnSphere(double alpha,
-                                 int degree = 0,
+                                 int degree = 50,
                                  bool flagScaleDistance = true,
                                  const CovCalcMode* mode = nullptr) const override;
   virtual VectorDouble evalSpectrumOnSphere(int n,
@@ -225,7 +225,7 @@ public:
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
-                                  int degree = 0,
+                                  int degree = 50,
                                   bool flagScaleDistance = false,
                                   const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;

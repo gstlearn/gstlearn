@@ -80,7 +80,7 @@ public:
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
   virtual double evalCovOnSphere(double alpha,
-                                 int degree = 0,
+                                 int degree = 50,
                                  bool flagScaleDistance = false,
                                  const CovCalcMode* mode = nullptr) const
   {
