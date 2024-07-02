@@ -268,29 +268,29 @@ int Grid::getNTotal() const
   return ntotal;
 }
 
-double Grid::getVolume(bool flag_cell) const
+double Grid::getVolume(bool flagCell) const
 {
   double volume = 1;
   for (int idim = 0; idim < _nDim; idim++)
-    volume *= getExtend(idim, flag_cell);
+    volume *= getExtend(idim, flagCell);
   return volume;
 }
 
-double Grid::getExtend(int idim, bool flag_cell) const
+double Grid::getExtend(int idim, bool flagCell) const
 {
   double ext;
-  if (flag_cell)
+  if (flagCell)
     ext = _nx[idim] * _dx[idim];
   else
     ext = (_nx[idim] - 1) * _dx[idim];
   return ext;
 }
 
-VectorDouble Grid::getExtends(bool flag_cell) const
+VectorDouble Grid::getExtends(bool flagCell) const
 {
   VectorDouble ext(_nDim);
   for (int idim = 0; idim < _nDim; idim++)
-      ext[idim] = getExtend(idim, flag_cell);
+      ext[idim] = getExtend(idim, flagCell);
   return ext;
 }
 
@@ -930,7 +930,7 @@ void Grid::dilate(int mode,
  **  Returns the characteristics of a multiple grid
  **
  ** \param[in]  nmult Array of multiplicity coefficients
- ** \param[in]  flag_cell 1 for cell matching; 0 for point matching
+ ** \param[in]  flagCell true for cell matching; 0 for point matching
  **
  ** \param[out] nx    Array of number of grid meshes
  ** \param[out] dx    Array of grid meshes
@@ -938,7 +938,7 @@ void Grid::dilate(int mode,
  **
  *****************************************************************************/
 void Grid::multiple(const VectorInt &nmult,
-                    int flag_cell,
+                    bool flagCell,
                     VectorInt &nx,
                     VectorDouble &dx,
                     VectorDouble &x0) const
@@ -952,7 +952,7 @@ void Grid::multiple(const VectorInt &nmult,
   for (int idim = 0; idim < _nDim; idim++)
   {
     double value = (double) getNX(idim);
-    if (flag_cell)
+    if (flagCell)
       nx[idim] = (int) floor(value / (double) nmult[idim]);
     else
       nx[idim] = 1 + (int) floor((value - 1.) / (double) nmult[idim]);
@@ -976,7 +976,7 @@ void Grid::multiple(const VectorInt &nmult,
   for (int idim = 0; idim < _nDim; idim++)
   {
     double delta = (coor2[idim] - coor1[idim]) / 2.;
-    if (flag_cell)
+    if (flagCell)
       x0[idim] = coor1[idim] + delta * (double) nmult[idim];
     else
       x0[idim] = getX0(idim);
@@ -988,7 +988,7 @@ void Grid::multiple(const VectorInt &nmult,
  **  Returns the characteristics of a divider grid
  **
  ** \param[in]  nmult Array of subdivision coefficients
- ** \param[in]  flag_cell 1 for cell matching; 0 for point matching
+ ** \param[in]  flagCell true for cell matching; 0 for point matching
  **
  ** \param[out] nx    Array of number of grid meshes
  ** \param[out] dx    Array of grid meshes
@@ -996,7 +996,7 @@ void Grid::multiple(const VectorInt &nmult,
  **
  *****************************************************************************/
 void Grid::divider(const VectorInt &nmult,
-                   int flag_cell,
+                   bool flagCell,
                    VectorInt &nx,
                    VectorDouble &dx,
                    VectorDouble &x0) const
@@ -1009,7 +1009,7 @@ void Grid::divider(const VectorInt &nmult,
 
   for (int idim = 0; idim < _nDim; idim++)
   {
-    if (flag_cell)
+    if (flagCell)
       nx[idim] = getNX(idim) * nmult[idim];
     else
       nx[idim] = 1 + (getNX(idim) - 1) * nmult[idim];
@@ -1033,7 +1033,7 @@ void Grid::divider(const VectorInt &nmult,
   for (int idim = 0; idim < _nDim; idim++)
   {
     double delta = (coor2[idim] - coor1[idim]) / 2.;
-    if (flag_cell)
+    if (flagCell)
       x0[idim] = coor1[idim] + delta / (double) nmult[idim];
     else
       x0[idim] = getX0(idim);

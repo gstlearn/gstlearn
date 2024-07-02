@@ -1022,6 +1022,18 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
   return res;
 }
 
+void VectorHelper::cumulateInPlace(VectorDouble& vec)
+{
+  VectorDouble::iterator it(vec.begin());
+  double old = 0.;
+  while (it < vec.end())
+  {
+    *it += old;
+    old = *it;
+    it++;
+  }
+}
+
 void VectorHelper::cumulate(VectorDouble &veca,
                             const VectorDouble &vecb,
                             double coeff,
@@ -2294,6 +2306,29 @@ int VectorHelper::whereMaximum(const VectorDouble& tab)
   return ibest;
 }
 
+/*
+ * Returns the rank where 'target' has been found within 'tab'
+ *
+ * @param tab Vector of integer values to be searched
+ * @param target Target value to be searched for
+ *
+ * @return Rank at which the target value has been found (-1 if not found)
+ */
+int VectorHelper::whereElement(const VectorInt& tab, int target)
+{
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (tab[i] == target) return i;
+  }
+  return -1;
+}
+
+/**
+ * Reduce the input vector 'vecin' by suppressing the element referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param index Index to be suppressed
+ */
 VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
 {
   VectorInt vindex(1);
@@ -2301,6 +2336,12 @@ VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
   return reduce(vecin, vindex);
 }
 
+/**
+ * Reduce the input vector 'vecin' by suppressing the elements referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param vindex Vector of indices to be suppressed
+ */
 VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vindex)
 {
   VectorDouble vecout = vecin;
@@ -2314,6 +2355,23 @@ VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vi
   {
     int i = indexLocal[nsel - j - 1];
     vecout.erase(vecout.begin()+i);
+  }
+  return vecout;
+}
+
+/**
+ * Reduce the input vector 'vecin' by returning the only elements referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param vindex Vector of indices to be kept
+ */
+VectorDouble VectorHelper::compress(const VectorDouble &vecin, const VectorInt& vindex)
+{
+  VectorDouble vecout;
+  for (int j = 0, nsel = (int) vindex.size(); j < nsel; j++)
+  {
+    int i = vindex[j];
+    vecout.push_back(vecin[i]);
   }
   return vecout;
 }
