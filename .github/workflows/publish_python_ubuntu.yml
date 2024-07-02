@@ -23,10 +23,10 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
   BUILD_PLAT: manylinux1_x86_64
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,30 +46,40 @@ jobs:
         export PATH=/opt/python/${{matrix.python}}/bin:$PATH
         python3 -m pip install build
 
-    - name : Create Wheels
+    - name: Configure build directory
+      run: |
+        export PATH=/opt/python/${{matrix.python}}/bin:$PATH
+        cmake \
+          -B${{ env.BUILD_DIR }} \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_DOXYGEN=ON
+
+    - name : Build gstlearn with Python API
+      run : |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target python_build
+
+    - name : Create Wheel
       run : |
         export PATH=/opt/python/${{matrix.python}}/bin:$PATH
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
-        cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
-        cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
+        cd ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
         python3 -m build --wheel -C="--build-option=--plat-name=${{env.BUILD_PLAT}}"
         cd ../../..
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
+        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v3
       # Use specific artifact identifier for publishing all versions
       with:
         name: ubuntu-python-package-${{matrix.python}}
         path: ${{env.MY_PKG}}
-    
+
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload via ssh
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: fabien-ors/pypi-publish-action@v1
       with:
@@ -82,6 +92,3 @@ jobs:
     - uses: geekyeggo/delete-artifact@v2
       with:
         name: ubuntu-python-package-*
-
-   
-

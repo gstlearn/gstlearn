@@ -23,7 +23,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
 
 jobs:
@@ -37,13 +37,27 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Compile and execute demos and courses tests
+    - name: Configure CMake
+      run: |
+        export PATH=/opt/python/py311/bin:$PATH
+        cmake \
+          -B${{env.BUILD_DIR}} \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_R=ON
+
+    - name: Build gstlearn
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
+
+    - name: Execute Python demos and courses tests
       run: |
         export PATH=/opt/python/py311/bin:$PATH
         alias pip="python3 -m pip"
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON
-        cmake --build ${{env.BUILD_DIR}} --target check_ipynb -- -j 3
-        cmake --build ${{env.BUILD_DIR}} --target check_rmd -- -j 3
+        cmake --build ${{env.BUILD_DIR}} --target check_ipynb --parallel 3
+
+    - name: Execute R demos and courses tests
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --target check_rmd --parallel 3
 
     - name: Compress output logs
       if: success() || failure()
@@ -51,7 +65,7 @@ jobs:
         cd ${{env.BUILD_DIR}}/tests
         find . -type f \( -name "*.asciidoc" -o -name "*.out" \) -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
 
-    # Keep v3 because ubuntu 16 docker
+    # Keep v3 because ubuntu 16 docker
     - name: Publish output logs as artefact
       if: always()
       uses: actions/upload-artifact@v3
