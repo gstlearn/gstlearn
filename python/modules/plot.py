@@ -109,7 +109,7 @@ def getColorMap(n, name='gist_rainbow'):
     n: requested number of different colors
     name: this argument must be a standard mpl colormap name.
     '''
-    return plt.cm.get_cmap(name, n)
+    return plt.colormaps[name].resampled(5)
     
 def __selectItems(nvalues, sitem=-1):
     outs = range(0, nvalues)
@@ -1925,7 +1925,7 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         table(object, ranks, **kwargs)
 
     elif filetype == "Polygons":
-        poly(object, **kwargs)
+        polygon(object, **kwargs)
         
     else:
         print("Unknown type:",filetype)
