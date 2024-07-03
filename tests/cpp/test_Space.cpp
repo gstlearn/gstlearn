@@ -12,6 +12,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
+#include <iostream>
 
 /**
  * Demonstration of space composit features
