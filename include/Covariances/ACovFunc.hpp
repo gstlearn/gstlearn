@@ -87,13 +87,18 @@ public:
   double evalCovDerivative(int degree, double h) const;
   double evalCovOnSphere(double alpha,
                          double scale = 1.,
-                         int degree = 50) const;
-  VectorDouble evalSpectrumOnSphere(int n, double scale = 1.) const;
+                         int degree = 50,
+                         bool flagNormalizeSpectrum = true);
+  VectorDouble evalSpectrumOnSphere(int degree,
+                                    double scale = 1.,
+                                    bool flagNormalizeSpectrum = true);
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
   const ECov&          getType()    const { return _type; }
   const CovContext&    getContext() const { return _ctxt; }
   double               getParam()   const { return _param; }
+  int                  getDegree() const { return _degree; }
+  bool                 isFlagNormalizeSpectrum() const { return _flagNormalizeSpectrum; }
 
   void    copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
   virtual double evaluateSpectrum(double freq, int ndim) const;
@@ -110,6 +115,7 @@ public:
     DECLARE_UNUSED(dim);
   }
 
+
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
@@ -118,17 +124,17 @@ protected:
     DECLARE_UNUSED(h);
     return TEST;
   }
-  ;
   virtual double _evaluateCovDerivative(int degree, double h) const;
-  virtual double _evaluateCovOnSphere(double alpha,
-                                      double scale = 1.,
-                                      int degree = 50) const;
-  virtual VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const;
+  virtual double _evaluateCovOnSphere(double alpha, double scale = 1.) const;
+  virtual VectorDouble _evaluateSpectrumOnSphere(double scale = 1.) const;
 
 private:
   Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;
   ECov        _type;    /*! Covariance function type */
   CovContext  _ctxt;    /*! Context (space, number of variables, ...) */
   double      _param;   /*! Third parameter (TEST if not used) */
+
+  bool       _flagNormalizeSpectrum; /*! Normalize Spectrum to calculate Covariance on Sphere */
+  int        _degree;        /*! Degree of the summation for Covariance on Sphere */
 };
 

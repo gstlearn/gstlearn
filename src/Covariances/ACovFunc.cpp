@@ -21,7 +21,9 @@ ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
 : AStringable(),
   _type(type),
   _ctxt(ctxt),
-  _param(TEST)
+  _param(TEST),
+  _flagNormalizeSpectrum(true),
+  _degree(50)
 {
   if (!isConsistent())
     my_throw ("Cannot create such covariance function in that context");
@@ -31,7 +33,9 @@ ACovFunc::ACovFunc(const ACovFunc &r)
 : AStringable(r),
   _type(r._type),
   _ctxt(r._ctxt),
-  _param(r._param)
+  _param(r._param),
+  _flagNormalizeSpectrum(r._flagNormalizeSpectrum),
+  _degree(r._degree)
 {
 }
 
@@ -43,6 +47,7 @@ ACovFunc& ACovFunc::operator=(const ACovFunc &r)
     _type = r._type;
     _ctxt = r._ctxt;
     _param = r._param;
+    _flagNormalizeSpectrum = r._flagNormalizeSpectrum;
   }
   return *this;
 }
@@ -79,14 +84,21 @@ double ACovFunc::evalCovDerivative(int degree, double h) const
 
 double ACovFunc::evalCovOnSphere(double alpha,
                                  double scale,
-                                 int degree) const
+                                 int degree,
+                                 bool flagNormalizeSpectrum)
 {
-  return _evaluateCovOnSphere(alpha, scale, degree);
+  _flagNormalizeSpectrum = flagNormalizeSpectrum;
+  _degree = degree;
+  return _evaluateCovOnSphere(alpha, scale);
 }
 
-VectorDouble ACovFunc::evalSpectrumOnSphere(int n, double scale) const
+VectorDouble ACovFunc::evalSpectrumOnSphere(int degree,
+                                            double scale,
+                                            bool flagNormalizeSpectrum)
 {
-  return _evaluateSpectrumOnSphere(n, scale);
+  _degree = degree;
+  _flagNormalizeSpectrum = flagNormalizeSpectrum;
+  return _evaluateSpectrumOnSphere(scale);
 }
 
 VectorDouble ACovFunc::evalCovVec(const VectorDouble& vech) const
@@ -204,13 +216,18 @@ double ACovFunc::evaluateSpectrum(double freq, int ndim) const
   return 0.;
 }
 
-double ACovFunc::_evaluateCovOnSphere(double alpha,
-                                      double scale,
-                                      int degree) const
+/**
+ * Calculate the covariance over the sphere for a given distance (angle)
+ *
+ * @param alpha Angle giving the distance between two points
+ * @param scale Scaling parameter
+ */
+double ACovFunc::_evaluateCovOnSphere(double alpha, double scale) const
 {
   double s = 0.;
+  int degree = getDegree();
 
-  VectorDouble spectrum = _evaluateSpectrumOnSphere(degree, scale);
+  VectorDouble spectrum = _evaluateSpectrumOnSphere(scale);
 
   if (isZero(alpha))
   {
@@ -227,7 +244,7 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
     double u1 = calpha;
     for (int i = 1; i < (degree + 2); i++)
     {
-      u2 = 1. / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
+      u2 = ((2 * i + 1) * calpha * u1 - i * u0) / (i + 1.);
       s += u0 * spectrum[i-1];
       u0 = u1;
       u1 = u2;
@@ -236,9 +253,8 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
   return s;
 }
 
-VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble ACovFunc::_evaluateSpectrumOnSphere(double scale) const
 {
-  DECLARE_UNUSED(n);
   DECLARE_UNUSED(scale);
   if (!hasSpectrumOnSphere())
   {

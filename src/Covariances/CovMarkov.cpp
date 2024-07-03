@@ -57,34 +57,33 @@ String CovMarkov::getFormula() const
   return "C(h)=\\int_{R^d} \\frac{e^{-i\\omega^t.h}}{P(||\\omega||^2)}d\\omega";
 }
 
-VectorDouble CovMarkov::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovMarkov::_evaluateSpectrumOnSphere(double scale) const
 {
-  VectorDouble sp(1+n, 0.);
+  int degree = getDegree();
+  int nm = (int) _markovCoeffs.size();
+  VectorDouble sp(1+degree, 0.);
 
-  double nnp1 = scale * scale * (double) n * ((double) n + 1.);
-  for (int j = 0; j <= n; j++)
+  for (int k = 0; k <= degree; k++)
   {
+    double nnp1 = scale * scale * (double) k * ((double) k + 1.);
+
     double s = 0.;
-    for (int i = 0, degree = (int) _markovCoeffs.size(); i < degree; i++)
-    {
+    for (int i = 0; i < nm; i++)
       s += _markovCoeffs[i] * pow(nnp1,i);
-    }
-    sp[j] = scale * scale * (2. * n + 1.) / (4 * GV_PI * s);
+    sp[k] = scale * scale * (2. * k + 1.) / (4. * GV_PI * s);
   }
+
+  if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);
+
   return sp;
 }
 
 double CovMarkov::evaluateSpectrum(double freq, int /*ndim*/) const
 {
   double s = 0.;
-  int n = (int)_markovCoeffs.size();
-  if (n == 0)
-  {
-    return TEST;
-  }
-  for (int i = 0; i < n; i++)
-  {
+  int nm = (int)_markovCoeffs.size();
+  if (nm == 0) return TEST;
+  for (int i = 0; i < nm; i++)
     s += _markovCoeffs[i] * pow(freq,i);
-  }
   return 1. /  s;
 }

@@ -38,27 +38,27 @@ CovGeometric::~CovGeometric()
 {
 }
 
-double CovGeometric::_evaluateCovOnSphere(double alpha,
-                                          double scale,
-                                          int degree) const
+double CovGeometric::_evaluateCovOnSphere(double alpha, double scale) const
 {
   double rho = scale;
   return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
 }
 
-VectorDouble CovGeometric::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovGeometric::_evaluateSpectrumOnSphere(double scale) const
 {
   double rho = scale;
-  VectorDouble sp(1+n, 0.);
+  int degree = getDegree();
+
+  VectorDouble sp(1+degree, 0.);
 
   double rhoprod = 1.;
-  for (int k = 0; k <= n; k++)
+  for (int k = 0; k <= degree; k++)
   {
     sp[k] = rhoprod;
     rhoprod *= rho;
   }
 
-  VH::normalize(sp, 1);
+  if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);
 
   return sp;
 }

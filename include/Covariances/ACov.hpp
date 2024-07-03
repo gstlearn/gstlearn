@@ -81,12 +81,12 @@ public:
 
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
-                                 bool flagScaleDistance = false,
+                                 bool flagNormalizeSpectrum = true,
                                  const CovCalcMode* mode = nullptr) const
   {
     DECLARE_UNUSED(alpha);
     DECLARE_UNUSED(degree);
-    DECLARE_UNUSED(flagScaleDistance);
+    DECLARE_UNUSED(flagNormalizeSpectrum);
     DECLARE_UNUSED(mode);
     return TEST;
   }

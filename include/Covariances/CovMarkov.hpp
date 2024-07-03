@@ -32,6 +32,7 @@ public:
   double getScadef() const override;
   bool   hasCovOnRn() const override { return false; }
   bool   hasSpectrumOnRn() const override { return true; }
+  bool   hasSpectrumOnSphere() const override { return true; }
   bool   hasMarkovCoeffs() const override { return true; }
 
   double evaluateSpectrum(double freq, int ndim) const override;
@@ -41,7 +42,7 @@ public:
   void   setCorrec(double val) override { _correc = val;}
 
 protected:
-  VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const override;
+  VectorDouble _evaluateSpectrumOnSphere(double scale = 1.) const override;
 
 private :
   VectorDouble _markovCoeffs;

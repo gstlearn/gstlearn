@@ -40,21 +40,20 @@ CovPoisson::~CovPoisson()
 {
 }
 
-double CovPoisson::_evaluateCovOnSphere(double alpha,
-                                        double scale,
-                                        int degree) const
+double CovPoisson::_evaluateCovOnSphere(double alpha, double scale) const
 {
   double lambda = getParam();
   double valbes = bessel_j(lambda * sin(alpha), 0);
   return exp(lambda * (cos(alpha) - 1.)) * valbes;
 }
 
-VectorDouble CovPoisson::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovPoisson::_evaluateSpectrumOnSphere(double scale) const
 {
   double lambda = getParam();
-  VectorInt x = VH::sequence(n+1);
+  int degree = getDegree();
+  VectorInt x = VH::sequence(degree+1);
   VectorDouble sp = law_df_poisson_vec(x, lambda);
-  VH::normalize(sp, 1);
+  if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);
 
   return sp;
 }

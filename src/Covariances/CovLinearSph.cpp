@@ -40,28 +40,27 @@ CovLinearSph::~CovLinearSph()
 {
 }
 
-double CovLinearSph::_evaluateCovOnSphere(double alpha,
-                                          double scale,
-                                          int degree) const
+double CovLinearSph::_evaluateCovOnSphere(double alpha, double scale) const
 {
   return 1. - 2. * alpha / GV_PI;
 }
 
-VectorDouble CovLinearSph::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovLinearSph::_evaluateSpectrumOnSphere(double scale) const
 {
-  VectorDouble sp(n + 1, 0.);
+  int degree = getDegree();
+  VectorDouble sp(degree + 1, 0.);
 
   int k = 1;
   sp[k] = 3. / 4.;
   while (1)
   {
     k += 2;
-    if (k >= n + 1) break;
+    if (k >= degree + 1) break;
     double v = (k - 2.) / (k + 1.);
     sp[k] = (2. * k + 1.) / (2. * k - 3.) * v * v * sp[k - 2];
   }
 
-  VH::normalize(sp, 1);
+  if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);
 
   return sp;
 }

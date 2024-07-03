@@ -78,21 +78,20 @@ MatrixRectangular CovExponential::simulateSpectralOmega(int nb) const
   return mat;
 }
 
-double CovExponential::_evaluateCovOnSphere(double alpha,
-                                            double scale,
-                                            int degree) const
+double CovExponential::_evaluateCovOnSphere(double alpha, double scale) const
 {
   double nu = scale * getScadef();
   return exp(-nu * alpha);
 }
 
-VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovExponential::_evaluateSpectrumOnSphere(double scale) const
 {
   double nu = scale * getScadef();
   double nu2 = nu * nu;
   double expnu = exp(-nu * GV_PI);
+  int degree = getDegree();
 
-  VectorDouble sp(1+n, 0.);
+  VectorDouble sp(1+degree, 0.);
   int k;
 
   k = 0;
@@ -103,12 +102,12 @@ VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) cons
   while(1)
   {
     k++;
-    if (k >= n + 1) break;
+    if (k >= degree + 1) break;
     sp[k] = (2. * k + 1.) / (2. * k - 3.) * (nu2 + (k - 2.) * (k - 2.))
         / (nu2 + (k + 1.) * (k + 1.)) * sp[k - 2];
   }
 
-  VH::normalize(sp, 1);
+  if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);
 
   return sp;
 }

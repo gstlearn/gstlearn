@@ -227,7 +227,6 @@ VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 void Tensor::_updateIsotropic()
 {
   double rad0 = _radius[0];
-  // for (const auto& rad1 : _radius) // (rad1 is forbidden under windows)
   for (const auto& r : _radius)
   {
     if (ABS(r - rad0) > EPSILON10 * (ABS(r) + ABS(rad0)))

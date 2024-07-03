@@ -152,9 +152,13 @@ public:
   int getDirSize(int idir) const;
 
   double getGgByIndex(int idir = 0, int i = 0) const;
+  double getGgByIndex_(int idir = 0, int i = 0) const;
   double getHhByIndex(int idir = 0, int i = 0) const;
+  double getHhByIndex_(int idir = 0, int i = 0) const;
   double getSwByIndex(int idir = 0, int i = 0) const;
+  double getSwByIndex_(int idir = 0, int i = 0) const;
   double getUtilizeByIndex(int idir = 0, int i = 0) const;
+  double getUtilizeByIndex_(int idir = 0, int i = 0) const;
 
   double getGg(int idir = 0,
                int ivar = 0,
@@ -202,9 +206,13 @@ public:
   const VectorDouble& getAllUtilize(int idir = 0) const;
 
   void setGgByIndex(int idir, int i, double gg);
+  void setGgByIndex_(int idir, int i, double gg);
   void setHhByIndex(int idir, int i, double hh);
+  void setHhByIndex_(int idir, int i, double hh);
   void setSwByIndex(int idir, int i, double sw);
+  void setSwByIndex_(int idir, int i, double sw);
   void setUtilizeByIndex(int idir, int i, double utilize);
+  void setUtilizeByIndex_(int idir, int i, double utilize);
 
   void setSw(int idir, int ivar, int jvar, int ipas, double sw);
   void setHh(int idir, int ivar, int jvar, int ipas, double hh);
@@ -212,8 +220,11 @@ public:
   void setUtilize(int idir, int ivar, int jvar, int ipas, double utilize);
 
   void updateSwByIndex(int idir, int i, double sw);
+  void updateSwByIndex_(int idir, int i, double sw);
   void updateHhByIndex(int idir, int i, double hh);
+  void updateHhByIndex_(int idir, int i, double hh);
   void updateGgByIndex(int idir, int i, double gg);
+  void updateGgByIndex_(int idir, int i, double gg);
 
   int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
   int getNext(int ivar = 0, int jvar = 0, int idir = 0, int shift = 1) const;
@@ -240,6 +251,12 @@ public:
            const VectorDouble& gg,
            const VectorDouble& hh);
 
+  int getDirAddress_(int idir,
+                     int ivar,
+                     int jvar,
+                     int ipas,
+                     bool flag_abs = false,
+                     int sens = 0) const;
   int getDirAddress(int idir,
                     int ivar,
                     int jvar,

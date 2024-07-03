@@ -1133,52 +1133,92 @@ void Vario::setVar(double value, int ivar, int jvar)
   _vars[iad] = value;
 }
 
+double Vario::getGgByIndex_(int idir, int i) const
+{
+  return _gg[idir][i];
+}
+
 double Vario::getGgByIndex(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
-  return _gg[idir][i];
+  return getGgByIndex_(idir, i);
+}
+
+double Vario::getHhByIndex_(int idir, int i) const
+{
+  return _hh[idir][i];
 }
 
 double Vario::getHhByIndex(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
-  return _hh[idir][i];
+  return getHhByIndex_(idir, i);
+}
+
+double Vario::getSwByIndex_(int idir, int i) const
+{
+  return _sw[idir][i];
 }
 
 double Vario::getSwByIndex(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
-  return _sw[idir][i];
+  return getSwByIndex_(idir, i);
+}
+
+double Vario::getUtilizeByIndex_(int idir, int i) const
+{
+  return _utilize[idir][i];
 }
 
 double Vario::getUtilizeByIndex(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
-  return _utilize[idir][i];
+  return getUtilizeByIndex_(idir, i);
+}
+
+void Vario::setGgByIndex_(int idir, int i, double gg)
+{
+  _gg[idir][i] = gg;
 }
 
 void Vario::setGgByIndex(int idir, int i, double gg)
 {
   if (! _isAddressValid(idir, i)) return;
-  _gg[idir][i] = gg;
+  setGgByIndex_(idir, i, gg);
+}
+
+void Vario::setHhByIndex_(int idir, int i, double hh)
+{
+  _hh[idir][i] = hh;
 }
 
 void Vario::setHhByIndex(int idir, int i, double hh)
 {
   if (! _isAddressValid(idir, i)) return;
-  _hh[idir][i] = hh;
+  setHhByIndex_(idir, i, hh);
+}
+
+void Vario::setSwByIndex_(int idir, int i, double sw)
+{
+  _sw[idir][i] = sw;
 }
 
 void Vario::setSwByIndex(int idir, int i, double sw)
 {
   if (! _isAddressValid(idir, i)) return;
-  _sw[idir][i] = sw;
+  setSwByIndex_(idir, i, sw);
+}
+
+void Vario::setUtilizeByIndex_(int idir, int i, double utilize)
+{
+  _utilize[idir][i] = utilize;
 }
 
 void Vario::setUtilizeByIndex(int idir, int i, double utilize)
 {
   if (! _isAddressValid(idir, i)) return;
-  _utilize[idir][i] = utilize;
+  setUtilizeByIndex_(idir, i, utilize);
 }
 
 void Vario::setSw(int idir, int ivar, int jvar, int ipas, double sw)
@@ -1217,22 +1257,37 @@ void Vario::setUtilize(int idir, int ivar, int jvar, int ipas, double utilize)
   _utilize[idir][iad] = utilize;
 }
 
+void Vario::updateSwByIndex_(int idir, int i, double sw)
+{
+  _sw[idir][i] += sw;
+}
+
 void Vario::updateSwByIndex(int idir, int i, double sw)
 {
   if (! _isAddressValid(idir, i)) return;
-  _sw[idir][i] += sw;
+  updateSwByIndex_(idir, i, sw);
+}
+
+void Vario::updateHhByIndex_(int idir, int i, double hh)
+{
+  _hh[idir][i] += hh;
 }
 
 void Vario::updateHhByIndex(int idir, int i, double hh)
 {
   if (! _isAddressValid(idir, i)) return;
-  _hh[idir][i] += hh;
+  updateHhByIndex_(idir, i, hh);
+}
+
+void Vario::updateGgByIndex_(int idir, int i, double gg)
+{
+  _gg[idir][i] += gg;
 }
 
 void Vario::updateGgByIndex(int idir, int i, double gg)
 {
   if (! _isAddressValid(idir, i)) return;
-  _gg[idir][i] += gg;
+  updateGgByIndex_(idir, i, gg);
 }
 
 double Vario::getGg(int idir,
@@ -1697,17 +1752,13 @@ int Vario::getVarAddress(int ivar, int jvar) const
   return ivar + _nVar * jvar;
 }
 
-int Vario::getDirAddress(int idir,
-                         int ivar,
-                         int jvar,
-                         int ipas,
-                         bool flag_abs,
+int Vario::getDirAddress_(int idir,
+                          int ivar,
+                          int jvar,
+                          int ipas,
+                          bool flag_abs,
                          int sens) const
 {
-  if (!_isDirectionValid(idir)) return ITEST;
-  if (!_isVariableValid(ivar))  return ITEST;
-  if (!_isVariableValid(jvar))  return ITEST;
-
   int rank;
 
   /* Get the order of the variables */
@@ -1758,6 +1809,20 @@ int Vario::getDirAddress(int idir,
   }
   iad += rank * getLagTotalNumber(idir);
   return (iad);
+}
+
+int Vario::getDirAddress(int idir,
+                         int ivar,
+                         int jvar,
+                         int ipas,
+                         bool flag_abs,
+                         int sens) const
+{
+  if (!_isDirectionValid(idir)) return ITEST;
+  if (!_isVariableValid(ivar))  return ITEST;
+  if (!_isVariableValid(jvar))  return ITEST;
+
+  return getDirAddress_(idir, ivar, jvar, ipas, flag_abs, sens);
 }
 
 bool Vario::_isVariableValid(int ivar) const
@@ -3703,11 +3768,11 @@ void Vario::_setResult(int iech1,
   DECLARE_UNUSED(iech2);
   DECLARE_UNUSED(nvar);
   int i = getDirAddress(IDIRLOC, ivar, jvar, ipas, false, orient);
-  updateGgByIndex(IDIRLOC, i, ww * value);
+  updateGgByIndex_(IDIRLOC, i, ww * value);
   if (getCalcul() == ECalcVario::POISSON)
-    updateGgByIndex(IDIRLOC, i, -getMean(ivar) / 2.);
-  updateHhByIndex(IDIRLOC, i, ww * dist);
-  updateSwByIndex(IDIRLOC, i, ww);
+    updateGgByIndex_(IDIRLOC, i, -getMean(ivar) / 2.);
+  updateHhByIndex_(IDIRLOC, i, ww * dist);
+  updateSwByIndex_(IDIRLOC, i, ww);
   return;
 }
 
