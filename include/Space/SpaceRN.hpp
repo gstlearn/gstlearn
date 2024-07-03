@@ -21,7 +21,7 @@ class Tensor;
 class GSTLEARN_EXPORT SpaceRN : public ASpace {
 
 public:
-  SpaceRN(unsigned int ndim);
+  SpaceRN(unsigned int ndim, bool addtime = false);
   SpaceRN(const SpaceRN& r);
   SpaceRN& operator=(const SpaceRN& r);
   virtual ~SpaceRN();
@@ -29,7 +29,7 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceRN)
 
-  static SpaceRN* create(unsigned int ndim);
+  static SpaceRN* create(unsigned int ndim, bool addtime = false);
 
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::RN; }
@@ -45,10 +45,9 @@ protected:
   double _getDistance(const SpacePoint &p1,
                       const SpacePoint &p2,
                       const Tensor &tensor) const override;
-  /// Return the distance along one direction between two space points
-  double _getDistance1D(const SpacePoint &p1,
-                        const SpacePoint &p2,
-                        int idim = 0) const override;
+
+  /// Return the distance for a given pair of coordinates along one direction
+  double _getDistance1D(double c1, double c2) const override;
 
   /// Return the distance in frequential domain between two space points with the given tensor
   double _getFrequentialDistance(const SpacePoint& p1,

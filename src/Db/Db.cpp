@@ -1055,7 +1055,7 @@ void Db::clearLocators(const ELoc& locatorType)
 
 /**
  * Setting the locator for a set of variables designated by their names
- * @param names        Vector if variable names
+ * @param names        Vector of variable names
  * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand

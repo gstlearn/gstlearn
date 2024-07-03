@@ -15,8 +15,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Geometry/GeometryHelper.hpp"
 
-SpaceSN::SpaceSN(unsigned int ndim, double radius)
-    : ASpace(ndim),
+SpaceSN::SpaceSN(unsigned int ndim, double radius, bool addtime)
+    : ASpace(ndim, addtime),
       _radius(radius)
 {
   if (ndim != 2)
@@ -47,7 +47,7 @@ String SpaceSN::_toString(const AStringFormat* strfmt, int idx) const
 {
   std::stringstream sstr;
   sstr << ASpace::_toString(strfmt, idx);
-  if (strfmt->getLevel() == 1)
+  if (strfmt == nullptr || strfmt->getLevel() == 1)
   {
     if (idx < 0)
     {
@@ -72,15 +72,19 @@ bool SpaceSN::_isEqual(const ASpace *space) const
 void SpaceSN::_move(SpacePoint &p1, const VectorDouble &vec) const
 {
   /// TODO : SpaceSN::_move
-  p1.setCoord(VH::add(p1.getCoord(), vec));
+  for (unsigned int i = _iDimOffset; i < _nDim + _iDimOffset; i++)
+  {
+    p1.setCoord(i, p1.getCoord(i) + vec[i]);
+  }
 }
 
-double SpaceSN::_getDistance(const SpacePoint &p1, const SpacePoint &p2) const
+double SpaceSN::_getDistance(const SpacePoint &p1, 
+                             const SpacePoint &p2) const
 {
-  return GH::geodeticAngularDistance(p1.getCoord(0),
-                                     p1.getCoord(1),
-                                     p2.getCoord(0),
-                                     p2.getCoord(1),
+  return GH::geodeticAngularDistance(p1.getCoord(_iDimOffset),
+                                     p1.getCoord(_iDimOffset + 1),
+                                     p2.getCoord(_iDimOffset),
+                                     p2.getCoord(_iDimOffset + 1),
                                      _radius);
 }
 
@@ -90,21 +94,18 @@ double SpaceSN::_getDistance(const SpacePoint& p1,
 {
   /// TODO : SpaceSN::_getDistance with tensor
   DECLARE_UNUSED(tensor);
-  return GH::geodeticAngularDistance(p1.getCoord(0),
-                                     p1.getCoord(1),
-                                     p2.getCoord(0),
-                                     p2.getCoord(1), 
+  return GH::geodeticAngularDistance(p1.getCoord(_iDimOffset),
+                                     p1.getCoord(_iDimOffset + 1),
+                                     p2.getCoord(_iDimOffset),
+                                     p2.getCoord(_iDimOffset + 1), 
                                      _radius);
 }
 
-double SpaceSN::_getDistance1D(const SpacePoint &p1,
-                               const SpacePoint &p2,
-                               int idim) const
+double SpaceSN::_getDistance1D(double c1, double c2) const
 {
   /// TODO : SpaceSN::_getDistance1D
-  DECLARE_UNUSED(p1);
-  DECLARE_UNUSED(p2);
-  DECLARE_UNUSED(idim);
+  DECLARE_UNUSED(c1);
+  DECLARE_UNUSED(c2);
   return 0;
 }
 
@@ -132,5 +133,7 @@ void SpaceSN::_getIncrementInPlace(const SpacePoint &p1,
                                    VectorDouble &ptemp) const
 {
   /// TODO : SpaceSN::_getIncrementInPlace
-  ptemp = VH::subtract(p1.getCoord(), p2.getCoord());
+  int j = 0;
+  for (unsigned int i = _iDimOffset; i < _nDim + _iDimOffset; i++)
+    ptemp[j++] = p2.getCoord(i) - p1.getCoord(i);
 }

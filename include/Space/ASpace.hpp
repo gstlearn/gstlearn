@@ -35,22 +35,26 @@ public:
   virtual ESpaceType getType() const = 0;
 
   /// Add a space component to me (for exemple RN(1) for time dimension)
+  /// Note: The given argument is cloned
   void addSpaceComponent(const ASpace* comp);
-
-  /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const final;
-
-  /// Update the origin coordinates
-  void setOrigin(const VectorDouble& origin);
-
-  /// Get the number of dimensions
-  unsigned int getNDim() const;
 
   /// Get the number of space components
   unsigned int getNComponents() const;
 
+  /// Interface for AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const final;
+
+  /// Update the origin of the space (must take into account composits)
+  void setOrigin(const VectorDouble& origin);
+
+  /// Get the number of dimensions (if ispace is negative, return the global number of )
+  unsigned int getNDim(int ispace = -1) const;
+
   /// Return the space origin coordinates
-  const VectorDouble& getOrigin() const;
+  const VectorDouble& getOrigin(int ispace = -1) const;
+
+  /// Return the dimension offset index
+  unsigned int getDimOffset() const { return _iDimOffset; }
 
   /// Return true if the given space is equal to me (same dimension and space definition)
   bool isEqual(const ASpace* space) const;
@@ -60,28 +64,39 @@ public:
 
   /// Return the distance between two space points
   double getDistance(const SpacePoint &p1,
-                     const SpacePoint &p2) const;
+                     const SpacePoint &p2,
+                     int ispace = 0) const;
 
   /// Return the distance between two space points with the given tensor
   double getDistance(const SpacePoint& p1,
                      const SpacePoint& p2,
-                     const Tensor& tensor) const;
+                     const Tensor& tensor,
+                     int ispace = 0) const;
+
+  /// Return all the distances (one by space component) between two space points
+  VectorDouble getDistances(const SpacePoint &p1,
+                            const SpacePoint &p2) const;
 
   /// Return the distance along one direction between two space points
   double getDistance1D(const SpacePoint &p1,
                        const SpacePoint &p2,
-                       int idim = 0) const;
+                       unsigned int idim = 0) const;
 
   /// Return the distance in frequential domain between two space points with the given tensor
   double getFrequentialDistance(const SpacePoint& p1,
                                 const SpacePoint& p2,
-                                const Tensor& tensor) const;
+                                const Tensor& tensor,
+                                int ispace = 0) const;
 
   /// Return the increment vector between two space points
   VectorDouble getIncrement(const SpacePoint& p1,
-                            const SpacePoint& p2) const;
+                            const SpacePoint& p2,
+                            int ispace = 0) const;
 
 protected:
+
+  /// Internal usage only
+  void _setDimOffset(unsigned int idim) { _iDimOffset = idim; }
 
   /// Dump a space in a string
   virtual String _toString(const AStringFormat* strfmt, int idx = -1) const;
@@ -101,10 +116,8 @@ protected:
                               const SpacePoint& p2,
                               const Tensor& tensor) const = 0;
 
-  /// Return the distance along one direction between two space points
-  virtual double _getDistance1D(const SpacePoint &p1,
-                                const SpacePoint &p2,
-                                int idim = 0) const = 0;
+  /// Return the distance for a given pair of coordinates along one direction
+  virtual double _getDistance1D(double c1, double c2) const = 0;
 
   /// Return the distance in frequential domain between two space points with the given tensor
   virtual double _getFrequentialDistance(const SpacePoint& p1,
@@ -121,13 +134,17 @@ protected:
                                     VectorDouble &ptemp) const = 0;
 
 protected:
-  /// Space composits list
-  std::vector<ASpace*> _comps;
-  
-  /// Number of space dimensions
+  /// Number of space dimensions (not taking into account composits)
   unsigned int _nDim;
-  /// Coordinates of the origin (not a space point... ex: sphere center in a long/lat space)
+  /// Coordinates of the origin (not taking into account composits)
   VectorDouble _origin;
+  /// Dimension offset index (for space composit)
+  unsigned int _iDimOffset;
+
+  /// Space composits list
+  std::vector<ASpace *> _comps;
+  /// Numnber of space dimensions  (taking into account composits)
+  unsigned int _globalNDim;
   /// Coordinates of the global origin (taking into account composits)
   VectorDouble _globalOrigin;
 

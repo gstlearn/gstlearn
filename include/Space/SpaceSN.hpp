@@ -21,7 +21,7 @@ class GSTLEARN_EXPORT SpaceSN: public ASpace
 {
 
 public:
-  SpaceSN(unsigned int ndim, double radius);
+  SpaceSN(unsigned int ndim, double radius, bool addtime = false);
   SpaceSN(const SpaceSN &r);
   SpaceSN& operator=(const SpaceSN &r);
   virtual ~SpaceSN();
@@ -47,17 +47,16 @@ protected:
   void _move(SpacePoint &p1, const VectorDouble &vec) const override;
 
   /// Return the distance between two space points
-  double _getDistance(const SpacePoint &p1, const SpacePoint &p2) const override;
+  double _getDistance(const SpacePoint &p1,
+                      const SpacePoint &p2) const override;
 
   /// Return the distance between two space points with the given tensor
   double _getDistance(const SpacePoint &p1,
                       const SpacePoint &p2,
                       const Tensor &tensor) const override;
 
-  /// Return the distance along one direction between two space points
-  double _getDistance1D(const SpacePoint &p1,
-                        const SpacePoint &p2,
-                        int idim = 0) const override;
+  /// Return the distance for a given pair of coordinates along one direction
+  double _getDistance1D(double c1, double c2) const override;
 
   /// Return the distance in frequential domain between two space points with the given tensor
   double _getFrequentialDistance(const SpacePoint &p1,
