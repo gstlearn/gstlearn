@@ -36,13 +36,15 @@ int main(int argc, char *argv[])
   std::cout << "Dimension space #0: " << pt1.getNDim(0) << std::endl;
   std::cout << "Dimension space #1: " << pt1.getNDim(1) << std::endl;
 
-  std::cout << "Global distances: " << pt1.getDistances(pt2) << std::endl;
+  // Why this works only under linux ?
+  // std::cout << "Global distances: " << pt1.getDistances(pt2) << std::endl;
+  std::cout << "Global distances: " << pt1.getDistances(pt2).toString() << std::endl;
 
   std::cout << "Distance space #0: " << pt1.getDistance(pt2, 0) << std::endl;
   std::cout << "Distance space #1: " << pt1.getDistance(pt2, 1) << std::endl;
 
-  std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0) << std::endl;
-  std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1) << std::endl;
+  std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0).toString() << std::endl;
+  std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1).toString() << std::endl;
 
   std::cout << "Distance dim#0: " << pt1.getDistance1D(pt2, 0) << std::endl;
   std::cout << "Distance dim#1: " << pt1.getDistance1D(pt2, 1) << std::endl;
