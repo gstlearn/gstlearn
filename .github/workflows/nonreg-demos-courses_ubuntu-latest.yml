@@ -72,8 +72,21 @@ jobs:
     # Separate installation from roxygen2 (pak dependency conflicts)
     - name: Install R dependencies
       run: |
-        Rscript -e "install.packages (c('ggplot2', 'vctrs', 'ggpubr', 'ggrepel', 'ggnewscale', 'lares', 'Matrix', 'FNN', 'tidyr', 'geigen', 'callr'), repos='https://cloud.r-project.org/')"
-
+        Rscript -e "install.packages (
+          c('ggplot2', 
+            'vctrs', 
+            'ggpubr', 
+            'ggrepel', 
+            'ggnewscale', 
+            'lares', 
+            'Matrix', 
+            'FNN', 
+            'rgl', 
+            'tidyr', 
+            'geigen', 
+            'callr'),
+            repos='https://cloud.r-project.org/')"
+            
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
