@@ -112,13 +112,13 @@ jobs:
       run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
-    - name: Execute R demos and courses
-      run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
-
     - name: Execute Python demos and courses
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_ipynb
+
+    - name: Execute R demos and courses
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
 
     - name: Compress output logs
       if: success() || failure()
