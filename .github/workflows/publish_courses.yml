@@ -23,30 +23,82 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
+  PYTHON_VERSION : "3.11"
+  NUMPY_VERSION : "1.23.5"
+  R_VERSION : "4.3.2"
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      # Corresponding docker file comes from:
-      # https://github.com/gstlearn/docker-generate
-      image: gstlearn/ubuntu-16-demos-rmd-ipynb
     outputs:
       # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
     - uses: actions/checkout@v3
-    
+
+    - name: Install dependencies
+      run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
+        python -m pip install jupyter
+        python -m pip install notebook==6.1.6
+        python -m pip install matplotlib
+        python -m pip install plotly
+        python -m pip install pandas
+        python -m pip install scipy
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{env.R_VERSION}}
+
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2
+        install-pandoc: false
+
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
+
+    - name: Configure CMake
+      run: |
+        cmake \
+          -B ${{env.BUILD_DIR}} \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_R=ON \
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+
+    - name: Compile the package
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
+
     - name: Build demonstration HTMLs and save generated folder name in the environment
       id: main_step
       run: |
-        export PATH=/opt/python/py311/bin:$PATH
-        alias pip="python3 -m pip"
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON
-        cmake --build ${{env.BUILD_DIR}} --target build_courses
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target build_courses
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "COURSES_FOLDER=${{env.BUILD_DIR}}/courses" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"

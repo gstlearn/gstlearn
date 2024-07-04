@@ -95,7 +95,7 @@ jobs:
 #        cmake --build . --target all --config Release
 #        cmake --build . --target install --config Release
 
-    - name : Configure CMake
+    - name : Configure build directory
       run : |
         cmake `
           -B${{env.BUILD_DIR}} `
@@ -104,7 +104,7 @@ jobs:
           -DBUILD_PYTHON=ON `
           -DBUILD_DOXYGEN=ON `
 
-    - name : Build gstlearn
+    - name : Build the package
       run : |
         cmake --build ${{env.BUILD_DIR}} --target python_build --config ${{env.BUILD_TYPE}}
 

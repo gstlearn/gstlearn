@@ -23,36 +23,61 @@ on:
         default: false
 
 env:
-  CMAKE_BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container:
-      # Corresponding docker file comes from:
-      # https://github.com/gstlearn/docker-generate
-      image: gstlearn/ubuntu-16-gstlearn
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        # Last releases from here https://cran.r-project.org/src/base/R-4/
+        # Only last version of R for Linux (fake source package)
+        r_version: [4.4.1]
+        # Only one old Linux
+        os: [ubuntu-20.04]
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Configure CMake
+    - name: Install dependencies
       run: |
+        sudo apt install doxygen
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{matrix.r_version}}
+
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2, pkgbuild
+        install-pandoc: false
+
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
+
+    - name : Configure CMake
+      run : |
         cmake \
           -B${{env.BUILD_DIR}} \
-          -DBUILD_R=ON \
           -DBUILD_PYTHON=OFF \
-          -DBUILD_DOXYGEN=ON
+          -DBUILD_R=ON \
+          -DBUILD_DOXYGEN=ON \
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Build the package and save generated file name in the environment
-      run: |
-        cmake --build ${{env.BUILD_DIR}} --target r_install
+    - name : Build the package and save generated file name in the environment
+      run : |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v3
       with:
-        name: ubuntu-r-package
+        name: ubuntu-r-package-${{matrix.os}}-r-${{matrix.r_version}}
         path: ${{env.MY_PKG}}
 
   publish:
@@ -73,4 +98,4 @@ jobs:
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v2
       with:
-        name: ubuntu-r-package
+        name: ubuntu-r-package-${{matrix.os}}-r-${{matrix.r_version}}

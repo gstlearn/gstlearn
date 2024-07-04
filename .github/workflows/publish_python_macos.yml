@@ -98,7 +98,7 @@ jobs:
 
     - name : Build gstlearn
       run : |
-        cmake --build ${{env.BUILD_DIR}} --target python_build --parallel 3
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target python_build
 
     - name : Create Wheels
       run : |
