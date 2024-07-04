@@ -107,7 +107,7 @@ jobs:
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - nam : Build the package
+    - name: Build the package
       run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
