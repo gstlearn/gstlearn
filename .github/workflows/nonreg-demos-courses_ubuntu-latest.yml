@@ -72,7 +72,7 @@ jobs:
     - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: roxygen2, ggplot2, vctrs, ggpubr, ggrepel, ggnewscale, Matrix, lares, callr, FNN, knitr, tidyr, geigen, callr
+        packages: ggplot2, vctrs, ggpubr, ggrepel, ggnewscale, Matrix, lares, callr, FNN, knitr, tidyr, geigen, callr, roxygen2
         install-pandoc: false
 
     - name: Install the customized SWIG from source
