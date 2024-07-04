@@ -13,7 +13,6 @@ Suggests:
     ggnewscale,
     Matrix,
     lares,
-    FNN
 Description: @PROJECT_DESCRIPTION@
 Encoding: UTF-8
 License: GPL v3
