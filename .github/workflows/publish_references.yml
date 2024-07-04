@@ -35,7 +35,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
+    # TODO : This shoudn't be needed for PRINT_VERSION target
+    - name: Install dependencies
+      run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev
+
     - name: Get project version
       id: main_step
       run: |
