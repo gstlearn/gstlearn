@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
                                            VectorDouble(), VectorDouble(),
                                            VectorDouble(), nullptr, false);
   VH::display("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
-  VH::display("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));
+  VH::display("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr, false));
 
   return 0;
 }

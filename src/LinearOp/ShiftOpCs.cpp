@@ -1307,7 +1307,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();
-    correc = cova->evalCovOnSphere(0, 50, false) * pow(r, 2. * param) / sill;
+    correc = cova->evalCovOnSphere(0, true, 50, false) * pow(r, 2. * param) / sill;
 
     if (_isGlobalHH(igrf, icov))
     {

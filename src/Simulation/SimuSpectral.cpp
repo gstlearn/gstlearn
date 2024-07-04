@@ -464,7 +464,7 @@ int SimuSpectral::computeOnSphere(Db *dbout,
   {
     // From m-1 to m
     if (m == 0)
-      Pmm.fill(0);
+      Pmm.fill(1.);
     else
     {
       double scale = sqrt((2.*m+1.)/(2.*m));
@@ -535,6 +535,9 @@ int SimuSpectral::computeOnSphere(Db *dbout,
       }
     }
   }
+
+  // Normalize
+  VH::multiplyConstant(val, sqrt(2./nb));
 
   // Save the resulting array
   dbout->setColumnByUID(val, iuid);

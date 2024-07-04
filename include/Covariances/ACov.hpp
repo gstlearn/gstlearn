@@ -79,12 +79,27 @@ public:
   /// Tell if the use of Optimization is enabled or not
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
+  /**
+   * Evaluate the covariance on the Sphere
+   *
+   * @param alpha Geodetic distance between two points (see remarks)
+   * @param flagByDistance True if 'alpha' (and 'scale') are provided in Geodetic distance
+   * @param degree Number of components for calculating the Spectrum
+   * @param flagNormalizeSpectrum True if the Spectrum must be normalized
+   * @param mode CovCalcMode structure
+   *
+   * @remarks The distance can be given either in Geodetic distance or as the Angle
+   * @remarks Arguments 'degree' and 'flagNormalizeSpectrum' are used if covariance
+   * is derived from the Spectrum.
+   */
   virtual double evalCovOnSphere(double alpha,
+                                 bool flagByDistance = false,
                                  int degree = 50,
                                  bool flagNormalizeSpectrum = true,
                                  const CovCalcMode* mode = nullptr) const
   {
     DECLARE_UNUSED(alpha);
+    DECLARE_UNUSED(flagByDistance);
     DECLARE_UNUSED(degree);
     DECLARE_UNUSED(flagNormalizeSpectrum);
     DECLARE_UNUSED(mode);
