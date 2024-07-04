@@ -46,6 +46,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq \
           libhdf5-dev \
+          libsuitesparse-dev \
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev
