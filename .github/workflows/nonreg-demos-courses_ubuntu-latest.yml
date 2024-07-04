@@ -117,6 +117,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_ipynb
 
     - name: Execute R demos and courses
+      if: success() || failure()
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
 
