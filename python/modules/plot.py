@@ -110,9 +110,9 @@ def getColorMap(n, cmap=None):
     n: requested number of different colors
     cmap: name of a standard matplotlib colormap, or an instance of ListedColormap or None.
     '''
-    name = cmap
     if isinstance(cmap, matplotlib.colors.ListedColormap):
-        name = cmap.name
+        return cmap.resampled(n)
+    name = cmap
     if name is None:
         name = 'viridis'
     return plt.colormaps[name].resampled(n)
