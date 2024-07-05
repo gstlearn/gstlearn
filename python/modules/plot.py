@@ -102,13 +102,15 @@ def printDefault():
         else:
             print("- Aspect (not defined)")
         
-def getColorMap(n, name='gist_rainbow'):
+def getColorMap(n, name=None):
     '''
     Returns a function that maps each index in 0, 1, ..., n-1 to a distinct RGB color
     
     n: requested number of different colors
-    name: this argument must be a standard mpl colormap name.
+    name: this argument must be a standard mpl colormap name or None.
     '''
+    if name is None:
+        name = 'gist_rainbow'
     return plt.colormaps[name].resampled(n)
     
 def __selectItems(nvalues, sitem=-1):
