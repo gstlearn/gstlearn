@@ -109,7 +109,7 @@ def getColorMap(n, name='gist_rainbow'):
     n: requested number of different colors
     name: this argument must be a standard mpl colormap name.
     '''
-    return plt.colormaps[name].resampled(5)
+    return plt.colormaps[name].resampled(n)
     
 def __selectItems(nvalues, sitem=-1):
     outs = range(0, nvalues)
