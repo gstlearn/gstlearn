@@ -8,6 +8,11 @@ on:
         description: 'Manual'
         required: false
         default: ''
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: false
 
 env:
   BUILD_TYPE: Release
@@ -48,6 +53,7 @@ jobs:
 
   call-publish:
     needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
+    if: ${{inputs.dry_publish == false}}
     
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
