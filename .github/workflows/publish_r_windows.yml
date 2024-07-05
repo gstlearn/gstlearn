@@ -49,6 +49,7 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
+    # pkgbuild needed for R < 4.2 under windows only
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
@@ -81,6 +82,7 @@ jobs:
           -DBUILD_R=ON `
           -DBUILD_PYTHON=OFF `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig `
+          -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} `
           -DBUILD_DOXYGEN=ON
 
     - name : Build the package and save generated file name in the environment
