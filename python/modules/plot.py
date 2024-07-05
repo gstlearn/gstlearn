@@ -6,6 +6,7 @@
 # License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
+import matplotlib
 import matplotlib.pyplot     as plt
 import matplotlib.patches    as ptc
 import matplotlib.transforms as transform
@@ -102,13 +103,16 @@ def printDefault():
         else:
             print("- Aspect (not defined)")
         
-def getColorMap(n, name=None):
+def getColorMap(n, cmap=None):
     '''
     Returns a function that maps each index in 0, 1, ..., n-1 to a distinct RGB color
     
     n: requested number of different colors
-    name: this argument must be a standard mpl colormap name or None.
+    cmap: name of a standard matplotlib colormap, or an instance of ListedColormap or None.
     '''
+    name = cmap
+    if isinstance(cmap, matplotlib.colors.ListedColormap):
+        name = cmap.name
     if name is None:
         name = 'viridis'
     return plt.colormaps[name].resampled(n)
