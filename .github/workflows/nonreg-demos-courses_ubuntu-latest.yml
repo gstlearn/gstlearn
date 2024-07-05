@@ -1,14 +1,18 @@
-name: publish_courses
+name: nonreg-demos-courses_ubuntu-latest
 
 on:
-  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  # Permit calling trigger
   workflow_call:
-    inputs:
-      dry_publish:
-        description: 'Dry publish (no upload)'
-        type: boolean
-        required: false
-        default: true
+  # Activate the workflow at each push on dev branch
+  push:
+    branches: [ dev ]
+  # Activate the workflow at each pull request on dev branch
+  pull_request:
+    branches: [ dev ]
+  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -16,14 +20,9 @@ on:
         description: 'Manual'
         required: false
         default: ''
-      dry_publish:
-        description: 'Dry publish (no upload)'
-        type: boolean
-        required: false
-        default: false
 
 env:
-  CMAKE_BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
@@ -33,9 +32,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
-      project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
     - uses: actions/checkout@v3
@@ -46,6 +42,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq \
           libhdf5-dev \
+          libsuitesparse-dev \
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev
@@ -66,6 +63,7 @@ jobs:
         python -m pip install pandas
         python -m pip install scipy
         python -m pip install dash
+        python -m pip install scikit-sparse
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
@@ -89,8 +87,8 @@ jobs:
             'geigen', 
             'callr'),
             repos='https://cloud.r-project.org/')"
-
-    - name: Install R dependencies
+            
+    - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         packages: roxygen2
@@ -105,47 +103,33 @@ jobs:
     - name: Configure CMake
       run: |
         cmake \
-          -B ${{env.BUILD_DIR}} \
+          -B ${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Compile the package
-      run: |
+    - name: Build the package
+      run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
-    - name: Build demonstration HTMLs and save generated folder name in the environment
-      id: main_step
+    - name: Execute Python demos and courses
       run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target build_courses
-        PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
-        echo "COURSES_FOLDER=${{env.BUILD_DIR}}/courses" >> "$GITHUB_ENV"
-        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_ipynb
 
-    - uses: actions/upload-artifact@v3
+    - name: Execute R demos and courses
+      if: success() || failure()
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
+
+    - name: Compress output logs
+      if: success() || failure()
+      run: |
+        cd ${{env.BUILD_DIR}}/tests
+        find . -type f \( -name "*.asciidoc" -o -name "*.out" \) -print0 | tar -czvf demos-courses-logs.tar.gz --null -T -
+
+    - name: Publish output logs as artefact
+      if: always()
+      uses: actions/upload-artifact@v3
       with:
-        # This will become the folder name in the server
-        name: courses
-        path: ${{ env.COURSES_FOLDER }}
-
-  publish:
-    needs: build
-    if: ${{inputs.dry_publish == false}}
-    
-    # Only ubuntu can upload to a server easily (ssh)
-    runs-on: ubuntu-latest
-    
-    steps:
-      - env:
-          PROJECT_VERSION: ${{needs.build.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v1
-        with:
-          host: ${{ secrets.CG_HOST }}
-          username: ${{ secrets.CG_USR }}
-          password: ${{ secrets.CG_PWD }}
-          dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
-  
-      # Delete the artifacts (for freeing storage space under github)
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: courses
+        name: demos-courses-logs
+        path: ${{env.BUILD_DIR}}/tests/demos-courses-logs.tar.gz

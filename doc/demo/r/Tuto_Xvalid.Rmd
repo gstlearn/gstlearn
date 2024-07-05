@@ -11,8 +11,8 @@ loading libraries
 ```{r}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
-library("gstlearn")
-library("ggplot2")
+library(gstlearn)
+library(ggplot2)
 library(ggpubr)
 
 OptCst_defineByKey("ASP",0)
