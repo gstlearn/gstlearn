@@ -59,12 +59,8 @@ nb <- 1000 # number of spectral components
 ns <- 10   # number of simulations
 seed <- 13112 # Seed for the first simulation
 
-sims = SimuSpectral(mod)
-for (n in 1:ns) {
-  sims$simulate(nb = nb, seed = seed)
-  sims$compute(grid, namconv = NamingConvention(paste("S", n, sep = "."))) 
-  seed = 0 # The seed for the next simulations is not given anymore
-}
+err = simuSpectral(NULL, grid, mod, nbsimu = ns, ns=nb, seed=seed,
+                   namconv = NamingConvention("S")) 
 ```
 
 
@@ -122,7 +118,7 @@ grid2 = DbGrid_create(nx = c(100, 100), x0 = c(200, 200), dx = c(1,1))
 # Initialization of the simulator
 seed <- 3132
 sims = SimuSpectral(mod)
-sims$simulate(nb = nb, seed = seed)
+err = sims$simulate(ns = nb, seed = seed)
 
 # computing the simulation on two intersecting grids
 err = sims$compute(db = grid1, namconv = NamingConvention("S1"))
@@ -215,12 +211,8 @@ dx <- c(1., 1., 1.)
 x0 <- c(10, 1000, 2)
 grid = DbGrid_create(nx = nx, x0 = x0, dx = dx)
 
-# Initialization of the simulator
-sims = SimuSpectral(mod)
-sims$simulate(nb = nb, seed = seed)
-
-# computing the simulation on the grid
-err = sims$compute(dbout = grid, namconv = NamingConvention("S1"))
+# Simulation on the grid
+err = simuSpectral(NULL, grid, mod, ns=nb, seed=seed, namconv = NamingConvention("S1"))
 ```
 
 ```{r 3d_controls, echo = TRUE, eval = TRUE}
