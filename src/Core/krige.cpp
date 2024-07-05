@@ -602,18 +602,14 @@ static int st_check_environment(int flag_in,
                                 int flag_out,
                                 Model *model)
 {
-  int error, ndim, nvar, nfex;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = nfex = 0;
+  int error = 1;
+  int ndim = 0;
+  int nfex = 0;
 
   /*********************************/
   /* Compatibility between two Dbs */
   /*********************************/
 
-  ndim = 0;
   if (flag_in && ndim == 0) ndim = DBIN->getNDim();
   if (flag_out && ndim == 0) ndim = DBOUT->getNDim();
   if (flag_in && flag_out && !DBIN->hasSameDimension(DBOUT)) goto label_end;
@@ -624,7 +620,7 @@ static int st_check_environment(int flag_in,
 
   if (model != nullptr)
   {
-    nvar = model->getVariableNumber();
+    int nvar = model->getVariableNumber();
     if (nvar <= 0)
     {
       messerr("The number of variables must be positive = %d",
@@ -731,11 +727,7 @@ static int st_check_environment(int flag_in,
 static int st_model_manage(int mode, Model *model)
 
 {
-  int nvar;
-
-  /* Initializations */
-
-  nvar = model->getVariableNumber();
+  int nvar = model->getVariableNumber();
 
   /* Dispatch */
 
@@ -2841,7 +2833,7 @@ int anakexp_3D(DbGrid *db,
 
   /* Loop on the grid nodes */
 
-  status = nech = neq = 0;
+  status = nech = 0;
   IECH_OUT = ecr = 0;
   for (ix = 0; ix < db->getNX(0); ix++)
     for (iy = 0; iy < db->getNX(1); iy++)

@@ -70,7 +70,7 @@ VectorDouble CovMarkov::_evaluateSpectrumOnSphere(double scale) const
     double s = 0.;
     for (int i = 0; i < nm; i++)
       s += _markovCoeffs[i] * pow(nnp1,i);
-    sp[k] = scale * scale * (2. * k + 1.) / (4. * GV_PI * s);
+    sp[k] = (2. * k + 1.) / (4. * GV_PI * s);
   }
 
   if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);

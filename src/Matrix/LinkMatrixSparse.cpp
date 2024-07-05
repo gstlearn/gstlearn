@@ -842,7 +842,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
     cs* local = cs_normalize_by_diag_and_release(qctt->Q->getCSUnprotected(), 1);
     qctt->Q->freeCS();
     qctt->Q->setCS(local);
-    local = cs_spfree(local);
+    (void) cs_spfree(local);
   }
   if (flag_print) cs_print_file("QTT_apres", ITEST, qctt->Q->getCS());
 
@@ -1380,9 +1380,9 @@ String toStringDim(const String &title, const cs *A)
 {
   std::stringstream sstr;
   cs *AT;
-  int n1, n2;
 
-  n1 = n2 = 0;
+  int n1 = 0;
+  int n2 = 0;
   if (A == nullptr) return sstr.str();
   n1 = cs_getncol(A);
   AT = cs_transpose(A, 1);
@@ -1521,8 +1521,9 @@ bool cs_isDefinitePositive(cs *A, bool verbose)
 
   // Free memory
 
-  label_end: N = cs_nfree(N);
-  S = cs_sfree(S);
+  label_end:
+  (void) cs_nfree(N);
+  (void) cs_sfree(S);
 
   // Optional message
 
@@ -3323,7 +3324,7 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
 
   /* Loop on the elements */
 
-  Apj = Apjp1 = Ap[0];
+  Apjp1 = Ap[0];
   for (int j = 0; j < n; j++)
   {
     Apj = Apjp1;

@@ -28,6 +28,7 @@ public:
   bool           getCompatibleSpaceS() const override { return true; }
   bool           hasCovOnSphere() const override { return true; }
   bool           hasSpectrumOnSphere() const override { return true; }
+  bool           isValidForSpectral() const override { return true; }
 
 protected:
   double _evaluateCovOnSphere(double alpha, double scale = 1.) const override;

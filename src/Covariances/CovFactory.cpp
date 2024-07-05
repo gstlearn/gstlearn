@@ -197,14 +197,13 @@ VectorString CovFactory::getCovList(const CovContext& ctxt, int order)
  * @param cov_name  Name of the required covariance
  * @param ctxt      Context from which we want authorized covariances
  */
-ECov CovFactory::identifyCovariance(const String& cov_name,
-                                    const CovContext& ctxt)
+ECov CovFactory::identifyCovariance(const String& cov_name,const CovContext& ctxt)
 {
   auto it = ECov::getIterator();
   while (it.hasNext())
   {
     // Test covariance name using ACovFunc::getCovName (not the ECov keys!)
-    // (This permits to ensure RGeostats scripts retro compatibility)
+    // (This permits to ensure RGeostats scripts retro-compatibility)
     if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
     {
       ACovFunc* cova = createCovFunc(*it, ctxt);

@@ -4234,8 +4234,8 @@ static double st_get_proba(Local_Pgs *local_pgs,
   {
     if (flag_ind)
     {
-      proba = st_get_proba_ind(cov[0], &low[0], &up[0], iconf[0])
-          * st_get_proba_ind(cov[5], &low[2], &up[2], iconf[1]);
+      proba = st_get_proba_ind(cov[0], &low[0], &up[0], iconf[0]) *
+          st_get_proba_ind(cov[5], &low[2], &up[2], iconf[1]);
     }
     else
     {

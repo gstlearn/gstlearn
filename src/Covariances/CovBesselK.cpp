@@ -141,15 +141,14 @@ MatrixRectangular CovBesselK::simulateSpectralOmega(int nb) const
 
 VectorDouble CovBesselK::_evaluateSpectrumOnSphere(double scale) const
 {
-  double kappa = 1. / scale;
   double param = getParam();
-  double kappa2 = kappa * kappa;
+  double scale2 = scale * scale;
   int degree = getDegree();
-
+  double alpha = param + 1.;
   VectorDouble sp(1+degree, 0.);
 
   for (int k = 0; k <= degree; k++)
-    sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(kappa2 + k * (k + 1.), 1. + param);
+    sp[k] =  (2. * k + 1.) / (4. * GV_PI) / pow(1. + scale2 * k * (k + 1.), alpha);
 
   if (isFlagNormalizeSpectrum()) VH::normalize(sp, 1);
 

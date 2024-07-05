@@ -1225,14 +1225,14 @@ static int st_collocated_prepare(LMlayers *lmlayers,
                                  VectorDouble& baux,
                                  double *ratio)
 {
-  double botval, c0, coefa, coefz;
+  double c0, coefa, coefz;
   int nlayers, neq;
 
   (*ratio) = 0.;
   neq = lmlayers->neq;
   nlayers = lmlayers->nlayers;
 
-  botval = dbout->getArray(iechout, lmlayers->colrefb);
+  double botval = dbout->getArray(iechout, lmlayers->colrefb);
   if (lmlayers->colrefd >= 0)
     botval -= dbout->getArray(iechout, lmlayers->colrefd);
   if (st_get_props_result(lmlayers, dbout, iechout, nlayers, prop1)) return (1);
@@ -1454,14 +1454,15 @@ static void st_estimate(LMlayers *lmlayers,
                         double * /*prior_mean*/,
                         double *post_mean)
 {
-  double estim, cx, coor[2], coefb, botval, ratio, stdv;
+  double estim, cx, coor[2], stdv;
   int iechout, ilayer, flag_correc, nlayers, neq;
 
   /* Loop on the grid nodes */
 
   nlayers = lmlayers->nlayers;
   neq = lmlayers->neq;
-  coefb = ratio = botval = stdv = 0.;
+  double coefb = 0.;
+  double ratio = 0.;
   if (flag_std && !lmlayers->flag_cumul)
     st_covariance_c00(lmlayers, model, VectorDouble(), covtab, c00);
 
@@ -2224,7 +2225,7 @@ int multilayers_kriging(Db *dbin,
   mem_free((char* ) gs);
   mem_free((char* ) post_S);
   mem_free((char* ) post_mean);
-  lmlayers = lmlayers_free(lmlayers);
+  (void) lmlayers_free(lmlayers);
   return (error);
 }
 
@@ -2851,7 +2852,7 @@ int multilayers_get_prior(Db *dbin,
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
-  lmlayers = lmlayers_free(lmlayers);
+  (void) lmlayers_free(lmlayers);
   if (error)
   {
     *mean = (double*) mem_free((char* ) *mean);

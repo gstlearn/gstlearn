@@ -1705,8 +1705,7 @@ static void st_gibbs(int igrf,
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
-  sk = yk = 0.;
-  iech = 0;
+  sk = 0.;
   niter = MAX(1, ngibbs_int);
 
   /* Loop on the Gibbs samples */
@@ -3438,7 +3437,7 @@ static int st_build_Q(SPDE_Matelem &Matelem)
   error = 0;
 
   label_end:
-  if (error) QC = qchol_manage(-1, QC);
+  if (error) (void) qchol_manage(-1, QC);
   return (error);
 }
 
@@ -4374,7 +4373,6 @@ static int st_kriging_several_results(double *xcur, double *z)
   ranks = nullptr;
   valdat = TEST;
   amesh = spde_get_current_matelem(0).amesh;
-  flag_data = 0;
 
   /* Sample designation */
 
@@ -4955,7 +4953,6 @@ int spde_process(Db *dbin,
   flag_mult_data = (int) get_keypone("Flag_Mult_Data", 0);
   error = 1;
   data = zcur = zkrig = zout = vcur = zsnc = zdat = nullptr;
-  ndata = 0;
   ngrf = st_get_number_grf();
   nvar = S_ENV.nvar;
   ncur = st_get_nvertex_max();
@@ -5198,9 +5195,6 @@ static AMesh* st_create_meshes(Db *dbin,
       message("- Output targets do not participate to the Meshing\n");
   }
 
-  int ndim_loc = 0;
-  if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
-  if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
   bool flag_sphere = isDefaultSpaceSphere();
 
   // Processing
@@ -6173,7 +6167,8 @@ int spde_eval(const VectorDouble& blin,
 
   error = 0;
 
-  label_end: cheb_elem = spde_cheb_manage(-1, 0, 0, VectorDouble(), NULL, cheb_elem);
+  label_end:
+  (void) spde_cheb_manage(-1, 0, 0, VectorDouble(), NULL, cheb_elem);
   return (error);
 }
 #endif
@@ -6224,7 +6219,8 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
 
   error = 0;
 
-  label_end: tab = db_vector_free(tab);
+  label_end:
+  (void) db_vector_free(tab);
   return (error);
 }
 
@@ -6558,21 +6554,19 @@ static void st_m2d_set_M(M2D_Environ *m2denv,
 static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 {
   double *tab;
-  int iptr, error;
   VectorInt cols(1);
   cols[0] = icol_pinch;
 
   // Initializations
 
-  error = 1;
-  iptr = -1;
+  int error = 1;
   tab = nullptr;
   if (dbout == nullptr) return (0);
   if (icol_pinch < 0) return (0);
 
   // Add an attribute
 
-  iptr = dbc->addColumnsByConstant(1, TEST);
+  int iptr = dbc->addColumnsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   // Core allocation
@@ -6621,12 +6615,11 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
                                    Db *dbout)
 {
   double M, S;
-  int iptr;
 
   /* Initializations */
 
   if (m2denv == (M2D_Environ*) NULL) return (1);
-  iptr = -1;
+  int iptr = -1;
 
   /* Dispatch */
 

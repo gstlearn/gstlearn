@@ -967,7 +967,6 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
     // Prepare M matrix
 
     bool flagSphere = (amesh->getVariety() != 0);
-    flagSphere = false; // Modif DR a valider
     if (! flagSphere)
     {
       if (_prepareMatricesSVariety(amesh, imesh, coords, matM, matMtM, matP, &detMtM))
@@ -1111,7 +1110,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
     // Prepare M matrix
     _loadHH(amesh, hh, imesh);
     bool flagSphere = (amesh->getVariety() == 1);
-    flagSphere = false; // Modif DR a valider
     if (! flagSphere)
     {
       if (_prepareMatricesSVariety(amesh, imesh, coords, matM, matMtM, matP, &detMtM))
@@ -1307,14 +1305,13 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();
-    correc = cova->evalCovOnSphere(0, true, 50, false) * pow(r, 2. * param) / sill;
+    correc =  cova->evalCovOnSphere(0, true, 50, false) * pow(r, -2.) / sill;
 
     if (_isGlobalHH(igrf, icov))
     {
       _loadHH(amesh, hh, 0);
-      sqdethh = sqrt(hh.determinant());
+      factor = sqrt(hh.determinant());
       // The next term compensate all what is needed to run on the Sphere
-        factor = pow(sqdethh, - (2. * param  - 1.)/3.);
     }
   }
 

@@ -30,8 +30,9 @@ plot.initialize <- function()
 
 #' Check if an argument is defined
 #' @param arg Argument to be checked
+#' @param testNA TRUE if NA is not authorized
 #' @noRd
-.isNotDef <- function(arg)
+.isNotDef <- function(arg, testNA = TRUE)
 {
   if (is.null(arg)) return (TRUE)
   warn.old = options("warn")
@@ -48,7 +49,7 @@ plot.initialize <- function()
   {
     for (i in 1:length(arg))
     {
-      if (is.na(arg[i])) 
+      if (testNA && is.na(arg[i])) 
       {
         options(warn.old)
         return (TRUE)
@@ -99,14 +100,14 @@ plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
   	local.defaultDims[[mode]] <- dims
     assign("plot.defaultDims", local.defaultDims, pos=pos)
   }
-  if (!.isNotDef(xlim))
+  if (!.isNotDef(xlim, FALSE))
   {
     unlockBinding("plot.defaultXlim", env=gstlearnEnv)
     local.defaultXlim = plot.defaultXlim
     local.defaultXlim[[mode]] <- xlim
     assign("plot.defaultXlim", local.defaultXlim, pos=pos)
   }
-  if (!.isNotDef(ylim))
+  if (!.isNotDef(ylim, FALSE))
   {
     unlockBinding("plot.defaultYlim", env=gstlearnEnv)
     local.defaultYlim = plot.defaultYlim
@@ -282,10 +283,10 @@ ggDefault <- function(figsize=NA)
 #' @param arg Input argument
 #' @param ndim Required dimension for the input argument (no check is performed if NA)
 #' @noRd
-.isArray <- function(arg, ndim=NA)
+.isArray <- function(arg, ndim=NA, testNA=TRUE)
 {
   if (length(arg) <= 1) return (FALSE)
-  if (.isNotDef(arg)) return (FALSE)
+  if (.isNotDef(arg, testNA)) return (FALSE)
   if (length(arg) != ndim) return (FALSE)
   
   TRUE
@@ -367,12 +368,12 @@ plot.geometry <- function(xlim=NA, ylim=NA, asp=NA, expand=waiver())
 {
   p = list()
   
-  if (.isArray(xlim, 2))
+  if (.isArray(xlim, 2, FALSE))
   {
     p <- append(p, scale_x_continuous(limits=xlim, expand=expand))
   }
 
-  if (.isArray(ylim, 2))
+  if (.isArray(ylim, 2, FALSE))
   {
     p <- append(p, scale_y_continuous(limits=ylim, expand=expand))
   }

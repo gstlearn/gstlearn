@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
   (void) grd->setName("x2", "theta");
   grd->display();
 
-  int nd = 100;
   int ns = 100; // 10000;
   int seed = 132674;
 
@@ -49,7 +48,7 @@ int main(int argc, char *argv[])
   Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
 
   SimuSpectral sim(modelSph);
-  sim.simulateOnSphere(ns, nd, seed, false);
+  sim.simulateOnSphere(ns, seed, false);
   sim.computeOnSphere(grd, false);
 
   grd->display();

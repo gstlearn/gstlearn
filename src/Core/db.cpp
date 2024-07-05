@@ -1567,7 +1567,7 @@ int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
   for (idim = 0; idim < ndim; idim++)
     ntotal *= nx[idim];
 
-  for (lec = ecr = 0; lec < ntotal; lec++)
+  for (lec = 0; lec < ntotal; lec++)
   {
     nval = ntotal;
     iech = lec;
