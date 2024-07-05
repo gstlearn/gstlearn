@@ -18,10 +18,21 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 # Define the prepare target to create the output directory for logs
 if (WIN32)
   # Need to copy C++ shared library to tests directory
-  add_custom_target(prepare_data
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${GLOBAL_DST_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${GLOBAL_DST_DIR}
-  )
+  if(MSYS)
+    add_custom_target(prepare_data
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${GLOBAL_DST_DIR}"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${GLOBAL_DST_DIR}
+      # have both lib${PROJECT_NAME}.dll and ${PROJECT_NAME}.dll in ${GLOBAL_DST_DIR}
+      # this fixes a bug on MSYS when building R wrappers with shared
+      # objects before linking C++ test binaries
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GLOBAL_DST_DIR}/lib${PROJECT_NAME}.dll ${GLOBAL_DST_DIR}/${PROJECT_NAME}.dll
+    )
+  else()
+    add_custom_target(prepare_data
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${GLOBAL_DST_DIR}"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${GLOBAL_DST_DIR}
+    )
+  endif()
 else()
   add_custom_target(prepare_data
     COMMAND ${CMAKE_COMMAND} -E make_directory "${GLOBAL_DST_DIR}"

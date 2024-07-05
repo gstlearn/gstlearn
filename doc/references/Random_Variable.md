@@ -56,7 +56,7 @@ $Z$ is characterized by its probability mass function, $p(i)=p_i=P(Z=i)$ for all
 
 ![Description](Figures/pmf.png)
 
-### A.1.4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$
+### A.1.4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$
 
 For all $i=1,\dots,n$, $$p_i=\frac{1}{n}$$
 
@@ -66,7 +66,7 @@ For all $i=1,\dots,n$, $$p_i=\frac{1}{n}$$
 
 It models the sum of $n$ independent Bernouilli variables with parameters $p$.
 
-$H = \{0,1,\dots,n\}$
+$H = \{0,1,\dots,n\}$
 
 $$p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}$$
 

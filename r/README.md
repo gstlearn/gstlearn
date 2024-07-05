@@ -84,7 +84,7 @@ For building the *gstlearn* R package, the requirements for building *gstlearn C
 * RTools 4.2 or higher (for Windows users only)
 * *roxygen2* R package (for generating R documentation)
 * *ggplot2*, *vctrs*, *ggpubr*, *ggrepel*, *ggnewscale* R packages [Optional] (only for plotting)
-* *FNN*, *lares*, *Matrix*, *knitr*, *tidyr*, *geigen* and *callr* R packages [Optional] (only for testing R Markdown scripts)
+* *FNN*, *rgl*, *lares*, *Matrix*, *knitr*, *tidyr*, *geigen* and *callr* R packages [Optional] (only for testing R Markdown scripts)
 
 If you modified your system (or if you installed a new version or RTools), you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' and 'swig' existing source folders (if so).
 
@@ -135,7 +135,7 @@ sudo make install
 ````
 install.packages(c("roxygen2"), repos="https://cloud.r-project.org")
 install.packages(c("ggplot2", "vctrs", "ggpubr", "ggrepel", "ggnewscale"), repos="https://cloud.r-project.org")
-install.packages(c("FNN", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
+install.packages(c("FNN", "rgl", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
 ````
 
 #### MacOS
@@ -180,7 +180,7 @@ sudo make install
 ````
 install.packages(c("roxygen2"), repos="https://cloud.r-project.org")
 install.packages(c("ggplot2", "vctrs", "ggpubr", "ggrepel", "ggnewscale"), repos="https://cloud.r-project.org")
-install.packages(c("FNN", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
+install.packages(c("FNN", "rgl", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
 ````
 
 Note :
@@ -228,7 +228,7 @@ make install
 ````
 install.packages(c("roxygen2"), repos="https://cloud.r-project.org")
 install.packages(c("ggplot2", "vctrs", "ggpubr", "ggrepel", "ggnewscale"), repos="https://cloud.r-project.org")
-install.packages(c("FNN", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
+install.packages(c("FNN", "rgl", "lares", "Matrix", "knitr", "callr", "tidyr", "geigen"), repos="https://cloud.r-project.org")
 ````
 
 ### Installation from Source

@@ -28,12 +28,11 @@ dependencies = [
     "scipy",
     "plotly",
     "pandas",
-    "shapely",
 ]
 
 [project.urls]
 Homepage = "@PROJECT_HOMEPAGE_URL@"
-Issues = "@PROJECT_HOMEPAGE_URL@/issues"
+Issues = "@PROJECT_HOMEPAGE_URL@/?page_id=468"
 
 [tool.setuptools]
 py-modules = []

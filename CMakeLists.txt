@@ -82,10 +82,15 @@ add_subdirectory(3rd-party/csparse)
 ## BUILD & INSTALL
 
 include(cmake/version.cmake)
-include(cmake/cpp.cmake)
-include(cmake/doxygen.cmake)
 include(cmake/doc.cmake)
-include(cmake/install.cmake)
+# TODO : Add BUILD_CPP option (not needed for print_version or doxygen targets)
+#if(BUILD_CPP)
+  include(cmake/cpp.cmake)
+  include(cmake/install.cmake)
+#endif()
+if(BUILD_DOXYGEN)
+  include(cmake/doxygen.cmake)
+endif()
 
 ####################################################
 ## PACKAGES

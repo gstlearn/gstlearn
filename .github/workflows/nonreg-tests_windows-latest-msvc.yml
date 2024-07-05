@@ -9,10 +9,6 @@ on:
   # Activate the workflow at each pull request on dev branch
   #pull_request:
   #  branches: [ dev ]
-  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
-  #schedule:
-  #  # * is a special character in YAML so you have to quote the string
-  #  - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -25,7 +21,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_DIR : build
-  GENERATOR : "Visual Studio 17 2022"
+  CMAKE_GENERATOR : "Visual Studio 17 2022"
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
@@ -60,9 +56,16 @@ jobs:
         python -m pip install pandas scipy mlxtend
 
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DBUILD_PYTHON=ON -DPython3_ROOT_DIR="${{env.pythonLocation}}"
+      run: |
+        cmake `
+          -B${{env.BUILD_DIR}} `
+          -DBUILD_PYTHON=ON `
+          -DPython3_ROOT_DIR="${{env.pythonLocation}}"
 
-    - name: Compile, install packages and execute non-regression tests
+    - name: Build gstlearn
+      run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}}
+
+    - name: Install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
 
     - name: Compress output logs and neutral files
@@ -89,7 +92,7 @@ jobs:
       with:
         name: msvc-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/msvc-logs.zip
-  
+
     - name: Publish output neutral files as artefact
       if: always()
       uses: actions/upload-artifact@v4
