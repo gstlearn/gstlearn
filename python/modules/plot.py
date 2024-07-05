@@ -110,7 +110,7 @@ def getColorMap(n, name=None):
     name: this argument must be a standard mpl colormap name or None.
     '''
     if name is None:
-        name = 'gist_rainbow'
+        name = 'viridis'
     return plt.colormaps[name].resampled(n)
     
 def __selectItems(nvalues, sitem=-1):
