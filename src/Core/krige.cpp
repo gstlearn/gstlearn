@@ -2833,7 +2833,7 @@ int anakexp_3D(DbGrid *db,
 
   /* Loop on the grid nodes */
 
-  status = nech = 0;
+  status = 0;
   IECH_OUT = ecr = 0;
   for (ix = 0; ix < db->getNX(0); ix++)
     for (iy = 0; iy < db->getNX(1); iy++)
@@ -3828,7 +3828,8 @@ int krigsampling_f(Db *dbin,
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
   st_global_init(dbin, dbout);
-  FLAG_EST = true;
+  const bool flag_est = true;
+  FLAG_EST = flag_est;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model)) goto label_end;
   nvar = model->getVariableNumber();
@@ -3849,12 +3850,12 @@ int krigsampling_f(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST)
+  if (flag_est)
   {
     IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
-  if (FLAG_STD)
+  if (flag_std)
   {
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
@@ -3892,7 +3893,7 @@ int krigsampling_f(Db *dbin,
   if (aux2 == nullptr) goto label_end;
   aux3 = (double*) mem_alloc(sizeof(double) * ntot, 0);
   if (aux3 == nullptr) goto label_end;
-  if (FLAG_STD)
+  if (flag_std)
   {
     aux4 = (double*) mem_alloc(sizeof(double) * ntot, 0);
     if (aux4 == nullptr) goto label_end;
@@ -3922,7 +3923,7 @@ int krigsampling_f(Db *dbin,
     VectorInt vech = { IECH_OUT };
     s = model->evalCovMatrix(dbin, dbout, -1, -1, rutil, vech).getValues().data();
     if (s == nullptr) goto label_end;
-    if (FLAG_STD)
+    if (flag_std)
     {
       c00 = model->evalCovMatrix(dbout, dbout, -1, -1, vech, vech).getValues().data();
       if (c00 == nullptr) goto label_end;
@@ -3933,7 +3934,7 @@ int krigsampling_f(Db *dbin,
     estim += model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
-    if (FLAG_STD)
+    if (flag_std)
     {
       matrix_product_safe(1, ntot, ntot, aux3, invsig, aux4);
       matrix_product_safe(1, ntot, 1, aux3, aux4, &sigma);
