@@ -25,6 +25,7 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
 
 jobs:
   build:
@@ -42,7 +43,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install doxygen
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev \
+          doxygen
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
