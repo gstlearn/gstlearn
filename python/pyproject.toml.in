@@ -28,7 +28,6 @@ dependencies = [
     "scipy",
     "plotly",
     "pandas",
-    "shapely",
 ]
 
 [project.urls]

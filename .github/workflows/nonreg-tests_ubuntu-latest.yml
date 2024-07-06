@@ -9,10 +9,6 @@ on:
   # Activate the workflow at each pull request on dev branch
   #pull_request:
   #  branches: [ dev ]
-  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
-  #schedule:
-  #  # * is a special character in YAML so you have to quote the string
-  #  - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -23,7 +19,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
@@ -76,10 +72,19 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      run: |
+        cmake \
+          -B ${{ env.BUILD_DIR }} \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_R=ON \
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Compile, install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+    - name: Build gstlearn
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
+
+    - name: Install packages and execute non-regression tests
+      run: cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()
@@ -103,4 +108,3 @@ jobs:
       with:
         name: ubuntu-neutral-files
         path: ${{github.workspace}}/ubuntu-neutral.tar.gz
-

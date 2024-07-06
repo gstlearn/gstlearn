@@ -2276,3 +2276,25 @@ VectorVectorDouble condexp(Db *db1,
   }
   return xycond;
 }
+
+std::map<int, int> contingencyTable(const VectorInt& values)
+{
+  std::map<int, int> table;
+  for (int i = 0, size = (int) values.size(); i < size; i++)
+    table[values[i]]++;
+  return table;
+}
+
+std::map<int, std::map<int, int>> contingencyTable2(const VectorInt& values,
+                                                    const VectorInt& bins)
+{
+  std::map<int, std::map<int, int>> table;
+  if ((int) values.size() != (int) bins.size())
+  {
+    messerr("Arguments 'values' and 'bins' should have the same dimension");
+    return table;
+  }
+  for (int i = 0, size = (int) values.size(); i < size; i++)
+    table[values[i]][bins[i]]++;
+  return table;
+}

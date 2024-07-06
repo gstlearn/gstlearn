@@ -151,6 +151,7 @@ public:
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
 
+  static void cumulateInPlace(VectorDouble& vec);
   static void cumulate(VectorDouble &veca, const VectorDouble &vecb, double coeff = 1., double addval = 0.);
   static void getMostSignificant(const VectorDouble& vec, double tol = EPSILON6, int nmax = -1);
 
@@ -241,8 +242,10 @@ public:
 
   static int whereMinimum(const VectorDouble& tab);
   static int whereMaximum(const VectorDouble& tab);
+  static int whereElement(const VectorInt& tab, int target);
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
+  static VectorDouble compress(const VectorDouble &vecin, const VectorInt& vindex);
 
   static void truncateDecimalsInPlace(VectorDouble& vec, int ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, int ndec);

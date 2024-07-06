@@ -626,7 +626,7 @@ double CovAniso::evalCovOnSphere(double alpha,
   return value;
 }
 
-VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance) const
+VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
 {
   if (!_cova->hasSpectrumOnSphere()) return VectorDouble();
   const ASpace* space = getDefaultSpace();
@@ -639,7 +639,9 @@ VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance) const
     double radius = spaceSn->getRadius();
     scale /= radius;
   }
-  return _cova->evalSpectrumOnSphere(n, scale);
+  VectorDouble vec = _cova->evalSpectrumOnSphere(n, scale);
+  if (flagCumul) VH::cumulateInPlace(vec);
+  return vec;
 }
 
 void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
@@ -700,7 +702,7 @@ double CovAniso::_getDetTensor() const
 
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
-  if (!_cova->hasSpectrum()) return TEST;
+  if (!_cova->hasSpectrumOnRn()) return TEST;
 
   double sill = getSill(ivar, jvar);
 
@@ -1118,7 +1120,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            int ivar,
                            int jvar) const
 {
-  if (! hasSpectrum()) return Array();
+  if (! hasSpectrumOnRn()) return Array();
 
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble &freq)

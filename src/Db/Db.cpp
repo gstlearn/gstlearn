@@ -90,18 +90,18 @@ int Db::resetFromSamples(int nech,
                          const VectorDouble& tab,
                          const VectorString& names,
                          const VectorString& locatorNames,
-                         int flag_add_rank)
+                         bool flagAddSampleRank)
 {
   _clear();
   int ncol = (tab.empty()) ? 0 : (int) (tab.size() / nech);
-  _ncol = ncol + flag_add_rank;
+  _ncol = (flagAddSampleRank) ? ncol + 1 : ncol;
   _nech = nech;
   resetDims(_ncol, _nech);
 
   // Load data (if defined)
 
-  if (flag_add_rank) _createRank(0);
-  _loadData(tab, names, locatorNames, order, flag_add_rank);
+  if (flagAddSampleRank) _createRank(0);
+  _loadData(tab, names, locatorNames, order, flagAddSampleRank);
 
   return 0;
 }
@@ -114,14 +114,14 @@ int Db::resetFromSamples(int nech,
  * @param csvfmt     Description of the CSV format
  * @param ncol_max   Maximum number of columns
  * @param nrow_max   Maximum number of rows
- * @param flag_add_rank 1 if the sample rank must be generated
+ * @param flagAddSampleRank true if the sample rank must be generated
  */
 int Db::resetFromCSV(const String& filename,
                      bool verbose,
                      const CSVformat& csvfmt,
                      int ncol_max,
                      int nrow_max,
-                     int flag_add_rank)
+                     bool flagAddSampleRank)
 {
   _clear();
   VectorString names;
@@ -138,20 +138,20 @@ int Db::resetFromCSV(const String& filename,
   }
 
   ncol = (tab.empty()) ? 0 : (int) (tab.size() / nrow);
-  _ncol = ncol + flag_add_rank;
+  _ncol = (flagAddSampleRank) ? ncol + 1 : ncol;
   _nech = nrow;
   resetDims(_ncol, _nech);
 
   // Load data (if defined)
 
-  if (flag_add_rank) _createRank(0);
-  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
+  if (flagAddSampleRank) _createRank(0);
+  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flagAddSampleRank);
 
   // Set the names
-  _defineDefaultNames(flag_add_rank, names);
+  _defineDefaultNames(flagAddSampleRank, names);
 
   // Locators: Try to guess them from the Names
-  _defineDefaultLocatorsByNames(flag_add_rank, names);
+  _defineDefaultLocatorsByNames(flagAddSampleRank, names);
 
   return 0;
 }
@@ -165,7 +165,7 @@ int Db::resetFromCSV(const String& filename,
  * @param ndim    Space dimension (used if 'coormin' and 'coormax' are empty)
  * @param extend  Extension of the bounding box (if positive)
  * @param seed    Seed for the random number generator
- * @param flag_add_rank 1 if the Sample ranks must be generated
+ * @param flagAddSampleRank true if the Sample ranks must be generated
  */
 int Db::resetFromBox(int nech,
                      const VectorDouble& coormin,
@@ -173,17 +173,17 @@ int Db::resetFromBox(int nech,
                      int ndim,
                      double extend,
                      int seed,
-                     int flag_add_rank)
+                     bool flagAddSampleRank)
 {
   _clear();
   if (! coormin.empty()) ndim = (int) coormin.size();
   if (! coormax.empty()) ndim = MIN(ndim, (int) coormax.size());
-  _ncol = ndim + flag_add_rank;
+  _ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
   _nech = nech;
   resetDims(_ncol, _nech);
 
   // Generate the sample number
-  if (flag_add_rank) _createRank(0);
+  if (flagAddSampleRank) _createRank(0);
 
   // Generate the coordinates
   law_set_random_seed(seed);
@@ -203,10 +203,10 @@ int Db::resetFromBox(int nech,
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, flag_add_rank);
+  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, flagAddSampleRank);
 
   int jcol = 0;
-  if (flag_add_rank) jcol++;
+  if (flagAddSampleRank) jcol++;
   setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
@@ -215,28 +215,28 @@ int Db::resetFromBox(int nech,
 /**
  * Create a Db from a single sample whose coordinates are provided in 'tab'
  * @param tab Array containing the coordinates of the single sample
- * @param flag_add_rank 1 if the Sample ranks must be generated
+ * @param flagAddSampleRank true if the Sample ranks must be generated
  */
-int Db::resetFromOnePoint(const VectorDouble& tab, int flag_add_rank)
+int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 {
   _clear();
 
   int ndim = static_cast<int> (tab.size());
-  _ncol = ndim + flag_add_rank;
+  _ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
   _nech = 1;
   resetDims(_ncol, _nech);
 
   // Generate the sample number
-  if (flag_add_rank) _createRank(0);
+  if (flagAddSampleRank) _createRank(0);
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
   VectorDouble tabloc = tab;
   if (tabloc.empty()) tabloc.resize(ndim,0.);
-  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
+  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, flagAddSampleRank);
 
   int jcol = 0;
-  if (flag_add_rank) jcol++;
+  if (flagAddSampleRank) jcol++;
   setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
@@ -4572,7 +4572,7 @@ double Db::getCosineToDirection(int iech1,
  * @param names      Vector of Names to be copied (empty: all names)
  * @param seed       Seed used for the random number generator
  * @param verbose    Verbose flag
- * @param flag_add_rank 1 if the sample rank must be generated
+ * @param flagAddSampleRank true if the sample rank must be generated
  *
  * @remark A possible selection in 'dbin' will not be taken into account
  * @remark You can use either 'proportion' or 'number'
@@ -4583,7 +4583,7 @@ int Db::resetSamplingDb(const Db* dbin,
                         const VectorString& names,
                         int seed,
                         bool verbose,
-                        int flag_add_rank)
+                        bool flagAddSampleRank)
 {
   if (proportion <= 0. && number <= 0)
   {
@@ -4609,17 +4609,18 @@ int Db::resetSamplingDb(const Db* dbin,
 
   // Create the (empty) architecture
 
-  resetDims(_ncol + flag_add_rank, _nech);
+  int ncol = (flagAddSampleRank) ? _ncol + 1: _ncol;
+  resetDims(ncol, _nech);
 
-  if (flag_add_rank) _createRank(0);
+  if (flagAddSampleRank) _createRank(0);
 
   // Define the variables and the Locators
 
-  _defineVariableAndLocators(dbin, namloc, flag_add_rank);
+  _defineVariableAndLocators(dbin, namloc, flagAddSampleRank);
 
   // Load samples
 
-  _loadValues(dbin, namloc, ranks, flag_add_rank);
+  _loadValues(dbin, namloc, ranks, flagAddSampleRank);
 
   return 0;
 }
@@ -4679,6 +4680,7 @@ int Db::resetReduce(const Db *dbin,
       ranksel = VH::sequence(dbin->getSampleNumber());
   }
   _nech = static_cast<int> (ranksel.size());
+  bool flagMask = _nech != dbin->getSampleNumber();
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", dbin->getSampleNumber(),_nech);
 
@@ -4687,10 +4689,10 @@ int Db::resetReduce(const Db *dbin,
   VectorString namloc = names;
   if (namloc.empty())
     namloc = dbin->getAllNames();
-  _ncol = static_cast<int> (namloc.size());
 
   // Create the (empty) architecture
 
+  _ncol = static_cast<int> (namloc.size());
   resetDims(_ncol, _nech);
 
   // Define the variables and the Locators
@@ -4700,6 +4702,37 @@ int Db::resetReduce(const Db *dbin,
   // Load samples
 
   _loadValues(dbin, namloc, ranksel);
+
+  // When the number of coordinates is 0 and if the input Db is a grid,
+  // Create the coordinates before running the reduction.
+  // Otherwise, the resulting Db (which is a 'point' Db) will have no coordinate
+  // the coordinates are added before reduction
+
+  if (getLocatorNumber(ELoc::X) <= 0)
+  {
+    // Extract vector of coordinates from input 'Db' (converted into a 'DbGrid')
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbin);
+    if (dbgrid != nullptr)
+    {
+      int ndim = dbin->getNDim();
+      VectorVectorDouble coors = dbgrid->getAllCoordinates();
+      VectorString names = generateMultipleNames("Coor", ndim);
+
+      // Save the coordinates in the output file (after possible sample selection)
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (flagMask)
+        {
+          VectorDouble coor = VH::compress(coors[idim], ranksel);
+          addColumns(coor, names[idim], ELoc::X, idim);
+        }
+        else
+        {
+          addColumns(coors[idim], names[idim], ELoc::X, idim);
+        }
+      }
+    }
+  }
 
   return 0;
 }
@@ -4717,7 +4750,7 @@ int Db::resetReduce(const Db *dbin,
  ** \param[in]  flag_repulsion True if repulsion is processed
  ** \param[in]  range       Repulsion range
  ** \param[in]  beta        Bending coefficient
- ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
+ ** \param[in]  flagAddSampleRank true if the Rank must be generated in the output Db
  **
  *****************************************************************************/
 Db* Db::createFromDbGrid(int nech,
@@ -4727,11 +4760,11 @@ Db* Db::createFromDbGrid(int nech,
                          bool flag_repulsion,
                          double range,
                          double beta,
-                         int flag_add_rank)
+                         bool flagAddSampleRank)
 {
   Db* db = db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid,
                          flag_exact, flag_repulsion, range, beta,
-                         0., seed, flag_add_rank);
+                         0., seed, flagAddSampleRank);
   return db;
 }
 
@@ -4803,10 +4836,10 @@ Db* Db::createFromSamples(int nech,
                           const VectorDouble& tab,
                           const VectorString& names,
                           const VectorString& locatorNames,
-                          int flag_add_rank)
+                          bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetFromSamples(nech, order, tab, names, locatorNames, flag_add_rank))
+  if (db->resetFromSamples(nech, order, tab, names, locatorNames, flagAddSampleRank))
   {
     messerr("Error when creating Db from Samples");
     delete db;
@@ -4819,10 +4852,10 @@ Db* Db::createFromCSV(const String& filename,
                       bool verbose,
                       int ncol_max,
                       int nrow_max,
-                      int flag_add_rank)
+                      bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetFromCSV(filename, verbose, csv, ncol_max, nrow_max, flag_add_rank))
+  if (db->resetFromCSV(filename, verbose, csv, ncol_max, nrow_max, flagAddSampleRank))
   {
     messerr("Error when creating Db from Grid");
     delete db;
@@ -4840,18 +4873,18 @@ Db* Db::createFromBox(int nech,
                       double range,
                       double beta,
                       double extend,
-                      int flag_add_rank)
+                      bool flagAddSampleRank)
 {
   Db* db = db_point_init(nech, coormin, coormax, nullptr,
                          flag_exact, flag_repulsion, range, beta, extend, seed,
-                         flag_add_rank);
+                         flagAddSampleRank);
   return db;
 }
 
-Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
+Db* Db::createFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetFromOnePoint(tab, flag_add_rank))
+  if (db->resetFromOnePoint(tab, flagAddSampleRank))
   {
     messerr("Error when creating Db from One Point");
     delete db;
@@ -4866,10 +4899,10 @@ Db* Db::createSamplingDb(const Db* dbin,
                          const VectorString& names,
                          int seed,
                          bool verbose,
-                         int flag_add_rank)
+                         bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose, flag_add_rank))
+  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose, flagAddSampleRank))
   {
     messerr("Error when clearing Db by Sampling another Db");
     delete db;
@@ -5018,7 +5051,7 @@ VectorInt Db::getSampleRanks() const
  * @param coormin Vector of minima of the rectangle containing data (0s if not defined)
  * @param coormax Vector of maxima of the rectangle containing data (1s if not defined)
  * @param seed Value for the Random Generator seed
- * @param flag_add_rank 1 if the sample rank must be generated
+ * @param flagAddSampleRank true if the sample rank must be generated
  * @return A pointer to the newly created Db
  *
  * @remarks
@@ -5038,7 +5071,7 @@ Db* Db::createFillRandom(int ndat,
                          const VectorDouble& coormin,
                          const VectorDouble& coormax,
                          int seed,
-                         int flag_add_rank)
+                         bool flagAddSampleRank)
 {
   // Set the seed
   law_set_random_seed(seed);
@@ -5047,7 +5080,7 @@ Db* Db::createFillRandom(int ndat,
   Db* db = Db::create();
 
   // Add the sample rank attribute
-  if (flag_add_rank) db->_addRank(ndat);
+  if (flagAddSampleRank) db->_addRank(ndat);
 
   // Generate the vector of coordinates
   VectorVectorDouble coor(ndim);

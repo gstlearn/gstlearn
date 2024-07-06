@@ -1278,10 +1278,10 @@ int db_grid_define_coordinates(DbGrid *db)
  **
  ** \param[in]  target Array containing the target coordinates
  ** \param[in]  ndim   Space dimension
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank True to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
+Db* db_create_from_target(const double *target, int ndim, bool flagAddSampleRank)
 {
   Db *db;
   int idim;
@@ -1292,7 +1292,7 @@ Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
 
   /* Create a Db with point organization */
 
-  db = Db::createFromOnePoint(VectorDouble(), flag_add_rank);
+  db = Db::createFromOnePoint(VectorDouble(), flagAddSampleRank);
 
   /* Add the coordinates */
 
@@ -1300,12 +1300,15 @@ Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
 
   /* Create the locators */
 
-  db->setLocatorsByUID(ndim, flag_add_rank, ELoc::X);
+  db->setLocatorsByUID(ndim, flagAddSampleRank, ELoc::X);
 
   /* Copy the target locations */
 
   for (idim = 0; idim < ndim; idim++)
-    db->setArray(0, idim + flag_add_rank, target[idim]);
+  {
+    int jdim = (flagAddSampleRank) ? idim + 1 : idim;
+    db->setArray(0, jdim, target[idim]);
+  }
 
   return (db);
 }
@@ -2931,12 +2934,12 @@ int is_grid_multiple(DbGrid *db1, DbGrid *db2)
  **
  ** \param[in]  dbin      Initial Db Grid
  ** \param[in]  nmult     Array of multiplicity coefficients
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
  **  **
  *****************************************************************************/
 DbGrid* db_create_grid_multiple(DbGrid *dbin,
                                 const VectorInt &nmult,
-                                int flag_add_rank)
+                                bool flagAddSampleRank)
 {
   DbGrid *dbout = nullptr;
   if (dbin == nullptr) return (dbin);
@@ -2955,7 +2958,7 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   return dbout;
 }
@@ -2968,12 +2971,12 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
  **
  ** \param[in]  dbin      Initial Db Grid
  ** \param[in]  nmult     Array of subdivision coefficients
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
  **
  *****************************************************************************/
 DbGrid* db_create_grid_divider(DbGrid *dbin,
                                const VectorInt &nmult,
-                               int flag_add_rank)
+                               bool flagAddSampleRank)
 {
   DbGrid *dbout = nullptr;
   if (dbin == nullptr) return dbin;
@@ -2990,7 +2993,7 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   return dbout;
 }
@@ -3004,13 +3007,13 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
  ** \param[in]  dbin      Initial Db Grid
  ** \param[in]  mode      1 for extending; -1 for compressing
  ** \param[in]  nshift    Array of shifts
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
  **
  *****************************************************************************/
 DbGrid* db_create_grid_dilate(DbGrid *dbin,
                               int mode,
                               const VectorInt &nshift,
-                              int flag_add_rank)
+                              bool flagAddSampleRank)
 {
   DbGrid *dbout = nullptr;
   if (dbin == nullptr) return dbin;
@@ -3026,7 +3029,7 @@ DbGrid* db_create_grid_dilate(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   return (dbout);
 }

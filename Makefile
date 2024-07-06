@@ -253,6 +253,19 @@ build_demos: cmake-python-r
 build_courses: cmake-python-r
 	@cmake --build $(BUILD_DIR) --target build_courses -- $(N_PROC_OPT)
 
+.PHONY: scan_build clang_tidy clang_check
+
+scan_build: clean_all
+	@scan-build cmake -B$(BUILD_DIR) -S. $(CMAKE_DEFINES) -DBUILD_TESTING=ON
+	@CCACHE_DISABLE=1 scan-build -V --exclude Eigen --exclude 3rd-party cmake --build $(BUILD_DIR)
+
+clang_tidy: clean_all
+	@cmake -B$(BUILD_DIR) -S. $(CMAKE_DEFINES) -DBUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+	@run-clang-tidy -p $(BUILD_DIR)
+
+clang_check: clean_all
+	@cmake -B$(BUILD_DIR) -S. $(CMAKE_DEFINES) -DBUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+	@git ls-files | grep -E "src.*\.cpp|include.*\.hpp" | xargs -n1 -P$(shell nproc) clang-check -p $(BUILD_DIR)
 
 .PHONY: clean clean_all
 

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Define project here
 project(gstlearn
-        VERSION      1.3.0 # Make it consistent with CHANGES
+        VERSION      1.4.0 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -82,10 +82,15 @@ add_subdirectory(3rd-party/csparse)
 ## BUILD & INSTALL
 
 include(cmake/version.cmake)
-include(cmake/cpp.cmake)
-include(cmake/doxygen.cmake)
 include(cmake/doc.cmake)
-include(cmake/install.cmake)
+# TODO : Add BUILD_CPP option (not needed for print_version or doxygen targets)
+#if(BUILD_CPP)
+  include(cmake/cpp.cmake)
+  include(cmake/install.cmake)
+#endif()
+if(BUILD_DOXYGEN)
+  include(cmake/doxygen.cmake)
+endif()
 
 ####################################################
 ## PACKAGES

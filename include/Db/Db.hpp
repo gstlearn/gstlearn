@@ -114,29 +114,29 @@ public:
                        const VectorDouble& tab = VectorDouble(),
                        const VectorString& names = VectorString(),
                        const VectorString& locatorNames = VectorString(),
-                       int flag_add_rank = 1);
+                       bool flagAddSampleRank = true);
   int resetFromCSV(const String& filename,
                    bool verbose,
                    const CSVformat& csvfmt,
                    int ncol_max = -1,
                    int nrow_max = -1,
-                   int flag_add_rank = 1);
+                   bool flagAddSampleRank = true);
   int resetFromBox(int nech,
                    const VectorDouble& coormin,
                    const VectorDouble& coormax,
                    int ndim = 2,
                    double extend = 0.,
                    int seed = 321415,
-                   int flag_add_rank = 1);
+                   bool flagAddSampleRank = true);
   int resetFromOnePoint(const VectorDouble &tab = VectorDouble(),
-                        int flag_add_rank = 1);
+                        bool flagAddSampleRank = true);
   int resetSamplingDb(const Db* dbin,
                       double proportion = 0,
                       int number = 0,
                       const VectorString& names = VectorString(),
                       int seed = 23241,
                       bool verbose = false,
-                      int flag_add_rank = 1);
+                      bool flagAddSampleRank = true);
   int resetReduce(const Db *dbin,
                   const VectorString &names = VectorString(),
                   const VectorInt &ranks = VectorInt(),
@@ -159,13 +159,13 @@ public:
                                const VectorDouble& tab = VectorDouble(),
                                const VectorString& names = VectorString(),
                                const VectorString& locatorNames = VectorString(),
-                               int flag_add_rank = 1);
+                               bool flagAddSampleRank = true);
   static Db* createFromCSV(const String& filename,
                            const CSVformat& csv = CSVformat(),
                            bool verbose = false,
                            int ncol_max = -1,
                            int nrow_max = -1,
-                           int flag_add_rank = 1);
+                           bool flagAddSampleRank = true);
   static Db* createFromBox(int nech,
                            const VectorDouble& coormin,
                            const VectorDouble& coormax,
@@ -175,16 +175,16 @@ public:
                            double range = 0.,
                            double beta = 0.,
                            double extend = 0.,
-                           int flag_add_rank = 1);
+                           bool flagAddSampleRank = true);
   static Db* createFromOnePoint(const VectorDouble &tab = VectorDouble(),
-                                int flag_add_rank = 1);
+                                bool flagAddSampleRank = true);
   static Db* createSamplingDb(const Db* dbin,
                               double proportion = 0.,
                               int number = 0,
                               const VectorString& names = VectorString(),
                               int seed = 23241,
                               bool verbose = false,
-                              int flag_add_rank = 1);
+                              bool flagAddSampleRank = true);
   static Db* createFromDbGrid(int nech,
                               DbGrid* dbgrid,
                               int seed = 432423,
@@ -192,7 +192,7 @@ public:
                               bool flag_repulsion = false,
                               double range = 0.,
                               double beta = 0.,
-                              int flag_add_rank = 1);
+                              bool flagAddSampleRank = true);
   static Db* createReduce(const Db *dbin,
                           const VectorString &names = VectorString(),
                           const VectorInt &ranks = VectorInt(),
@@ -208,7 +208,7 @@ public:
                               const VectorDouble& coormin = VectorDouble(),
                               const VectorDouble& coormax = VectorDouble(),
                               int seed = 124234,
-                              int flag_add_rank = 1);
+                              bool flagAddSampleRank = true);
   /**@}*/
 
   const VectorDouble& getArrays() const { return _array; }

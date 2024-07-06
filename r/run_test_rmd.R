@@ -16,7 +16,7 @@ outpath   = file.path(outdir, paste0(scriptname, ".out"))
 if (out_type == 'R') {
   
   # Load dependency
-  library("callr")
+  library(callr)
   
   # 1. Convert Rmd to R script (no documentation)
   # https://stackoverflow.com/questions/71183578/how-to-extract-all-code-from-an-rmarkdown-rmd-file
@@ -36,7 +36,7 @@ if (out_type == 'R') {
 } else if (out_type == "html") {
   
   # Load dependency
-  library("knitr")
+  library(knitr)
   
   # Execute Rmd script and dump output in a html file (self_contained see html header in Rmd)
   rmarkdown::render(script, output_format='html_document', quiet=FALSE, output_dir=outdir)

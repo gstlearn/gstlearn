@@ -50,9 +50,10 @@ public:
   virtual bool         hasParam()     const { return false; }
   virtual String       getCovName()   const = 0;
   virtual bool         hasCovDerivative()    const { return false; }
-  virtual bool         hasCovOnSphere()      const { return false; }
+  virtual bool         hasCovOnRn()          const { return true;  }
+  virtual bool         hasCovOnSphere()      const;
   virtual bool         hasSpectrumOnSphere() const { return false; }
-  virtual bool         hasSpectrum()         const { return false; }
+  virtual bool         hasSpectrumOnRn()     const { return false; }
   virtual bool         hasMarkovCoeffs()     const { return false; }
 
   virtual bool         isConsistent() const;
@@ -94,7 +95,7 @@ public:
   const CovContext&    getContext() const { return _ctxt; }
   double               getParam()   const { return _param; }
 
-  void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
+  void    copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
   virtual double evaluateSpectrum(double freq, int ndim) const;
   virtual VectorDouble getMarkovCoeffs() const;
   virtual void setMarkovCoeffs(VectorDouble coeffs);
