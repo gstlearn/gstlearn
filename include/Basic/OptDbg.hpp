@@ -17,6 +17,24 @@
 
 /**
  * Operate the list of active Debug options
+ * These options correspond to various keywords chosen from a close list (see EDbg.hpp).
+ * When one of these options is switched ON, some statements are printed each time
+ * this particular option is concerned
+ *
+ * As example, to produce specific output during all Kriging steps, you should use;
+ *
+ *     OptCst::define(EDbg::KRIGING)
+ *
+ * To cancel this option, it suffices to use:
+ *
+ *     OptCst::undefine(EDbg::KRIGING)
+ *
+ * To know the current status of all these environmental parameters,
+ * use the display() function.
+ *
+ * A complementary option is to use the Reference: this is an index such that, when the
+ * rank of the target matches this number, all the flags are turned ON automatically.
+ * This Reference index is provided as a 1-based number.
  */
 class GSTLEARN_EXPORT OptDbg
 {

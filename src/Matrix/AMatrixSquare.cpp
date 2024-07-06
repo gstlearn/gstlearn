@@ -17,8 +17,8 @@
 
 #include <math.h>
 
-AMatrixSquare::AMatrixSquare(int nrow, int opt_eigen)
-  : MatrixRectangular(nrow, nrow, opt_eigen)
+AMatrixSquare::AMatrixSquare(int nrow)
+  : MatrixRectangular(nrow, nrow)
 {
 }
 
@@ -160,7 +160,7 @@ double AMatrixSquare::determinant(void) const
 
     default:
       int neqm1 = neq - 1;
-      MatrixSquareGeneral c(neqm1); // TODO Merge AMtrixSquare and MatrixSquareGeneral into MatrixSquare
+      MatrixSquareGeneral c(neqm1); // TODO Merge AMatrixSquare and MatrixSquareGeneral into MatrixSquare
 
       for (int j1 = 0; j1 < neq; j1++)
       {
@@ -222,3 +222,13 @@ void AMatrixSquare::prodByDiagInPlace(int mode, const VectorDouble& c)
   return;
 }
 
+bool AMatrixSquare::_isNumbersValid(int nrows, int ncols) const
+{
+  AMatrix::_isNumbersValid(nrows,ncols);
+  if (nrows != ncols)
+  {
+    messerr("Arguments 'nrows' and 'ncols' should be equal for Square Matrices");
+    return false;
+  }
+  return true;
+}

@@ -250,6 +250,9 @@
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
 %include Covariances/CovMarkov.hpp
+%include Covariances/CovGeometric.hpp
+%include Covariances/CovPoisson.hpp
+%include Covariances/CovLinearSph.hpp
 %include Covariances/CovDiffusionAdvection.hpp
 %include Covariances/CovHelper.hpp
 
@@ -323,7 +326,9 @@
 
 %include Simulation/ACalcSimulation.hpp
 %include Simulation/CalcSimuTurningBands.hpp
-%include Simulation/TurningDirection.hpp
+%include Simulation/TurningBandDirection.hpp
+%include Simulation/TurningBandOperate.hpp
+%include Simulation/SimuSpectral.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp
@@ -344,8 +349,6 @@
 %include Fractures/FracFault.hpp
 %include Fractures/FracDesc.hpp
 %include Fractures/FracList.hpp
-
-%include Skin/Skin.hpp
 
 %include Tree/Ball.hpp
 %include Tree/KNN.hpp

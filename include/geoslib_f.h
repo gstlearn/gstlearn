@@ -71,7 +71,7 @@ GSTLEARN_EXPORT int csv_manage(const char *filename,
                                const CSVformat& csv,
                                int mode,
                                int nitem,
-                               bool flag_integer = 0,
+                               bool flagInteger = false,
                                bool verbose = false);
 GSTLEARN_EXPORT void csv_print_double(double value);
 
@@ -243,13 +243,13 @@ GSTLEARN_EXPORT Db* db_read_csv(const char *filename,
                                 int verbose = 0,
                                 int ncol_max = -1,
                                 int nrow_max = -1,
-                                int flag_add_rank = 0);
+                                bool flagAddSampleRank = false);
 GSTLEARN_EXPORT int db_write_csv(Db *db,
                                  const char *filename,
                                  const CSVformat& csv,
                                  int flag_allcol = 1,
                                  int flag_coor = 1,
-                                 bool flag_integer = false);
+                                 bool flagInteger = false);
 GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            DbGrid *dbout,
                                            Model *model,

@@ -61,7 +61,6 @@ public:
   void applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const;
   void applyDirectSwapInPlace(const VectorDouble &vec, VectorDouble &out) const;
 
-
   bool isFlagDefinedByInverse2() const { return _flagDefinedBySquare; }
 
 private:

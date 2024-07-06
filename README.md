@@ -58,10 +58,10 @@ To report a bug or contact us:
 
 ### Requirements
 
-This library has been successfully tested with Ubuntu 18/20/22 LTS and Windows 10 (MacOS: not tested).
+This library has been successfully tested with Ubuntu 18/20/22 LTS, Windows 10 and MacOS 12/14 ([see here](https://github.com/gstlearn/gstlearn/actions/workflows/coverage-tests.yml)).
 For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
-* Git client 2.16 or higher
+* Git client 2.30 or higher
 * CMake tool 3.20 or higher
 * A C++ compiler among:
   * Linux:

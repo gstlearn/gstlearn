@@ -14,6 +14,7 @@
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CovSpherical : public ACovFunc
 {
@@ -27,6 +28,10 @@ public:
   String         getFormula() const override;
   String         getCovName() const override { return "Spherical"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;

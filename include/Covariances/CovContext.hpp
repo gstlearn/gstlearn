@@ -20,16 +20,13 @@ class Db;
 class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
-  CovContext(int nvar = 1,
-             const ASpace* space = nullptr);
+  CovContext(int nvar = 1, const ASpace *space = nullptr);
   CovContext(int nvar,
              int ndim,
              const VectorDouble& mean = VectorDouble(),
              const VectorDouble& covar0 = VectorDouble());
-  CovContext(const Db *db,
-             const ASpace* space = nullptr);
-  CovContext(const Vario* vario,
-             const ASpace* space = nullptr);
+  CovContext(const Db *db, const ASpace *space = nullptr);
+  CovContext(const Vario *vario, const ASpace *space = nullptr);
   CovContext(const CovContext &r);
   CovContext& operator= (const CovContext &r);
   virtual ~CovContext();
@@ -48,6 +45,7 @@ public:
   double              getField()        const { return _field; }
   const VectorDouble& getMean()         const { return _mean; }
   const VectorDouble& getCovar0()       const { return _covar0; }
+  const ASpace*       getASpace()       const { return _space; }
   double getMean(int ivar) const;
   double getCovar0(int ivar, int jvar) const;
 
@@ -69,6 +67,6 @@ private:
   VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */
 
 private:
-  int _getIndex(int ivar, int jvar) const;
+  int  _getIndex(int ivar, int jvar) const;
   void _update();
 };

@@ -251,34 +251,6 @@ void GeometryHelper::rotationCopy(int ndim, const double *rotin, double *rotout)
     rotout[i] = rotin[i];
 }
 
-/****************************************************************************/
-/*!
- **  Merge the extensions of the boxes (parallel to main axes)
- **
- ** \param[in]  mini1    Input array containing the minimum along each axis
- ** \param[in]  maxi1    Input array containing the maximum along each axis
- ** \param[in]  mini2    Output array containing the minimum along each axis
- ** \param[in]  maxi2    Output array containing the maximum along each axis
- **
- *****************************************************************************/
-void GeometryHelper::mergeBoxes(VectorDouble &mini1,
-                                VectorDouble &maxi1,
-                                VectorDouble &mini2,
-                                VectorDouble &maxi2)
-{
-  int ndim = (int) mini1.size();
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    double mini = 1.e30;
-    if (!mini1.empty()) mini = MIN(mini, mini1[idim]);
-    if (!mini2.empty()) mini = MIN(mini, mini2[idim]);
-
-    double maxi = -1.e30;
-    if (!maxi1.empty()) maxi = MAX(maxi, maxi1[idim]);
-    if (!maxi2.empty()) maxi = MAX(maxi, maxi2[idim]);
-  }
-}
-
 void GeometryHelper::rotationGetAnglesInPlace(const VectorDouble &rot,
                                               VectorDouble &angles)
 {

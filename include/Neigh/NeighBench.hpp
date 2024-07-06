@@ -24,6 +24,20 @@
 
 class Db;
 
+/**
+ * \brief
+ * Neighborhood definition by Bench.
+ *
+ * The Neighborhood is usually meant to select a sub-population from the input Data Base,
+ * containing the active samples close to the target.
+ *
+ * The selected samples belong to the same 'bench' as the target: the distance (according
+ * to the last space coordinate, e.g. the elevation in the 3-D case) between a selected sample
+ * and the target is smaller than the bench width.
+ *
+ * The neighborhood also offers the possibility to suppress any sample which would be too close to (or coincide with)
+ * the target: this is the cross-validation option.
+ */
 class GSTLEARN_EXPORT NeighBench: public ANeigh
 {
 public:

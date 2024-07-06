@@ -772,7 +772,7 @@ int db_trisurf(Db *db,
 
   /* Free memory */
 
-  surf_reference = st_reference_manage(-1, surf_reference);
+  st_reference_manage(-1, surf_reference);
 
   /* Delete new temporary variables */
 

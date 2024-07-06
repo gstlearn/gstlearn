@@ -102,8 +102,8 @@ String DbGrid::toString(const AStringFormat* strfmt) const
  * @param tab           Variable values array (size = nvar * nsamples)
  * @param names         Variable names (size = nvar)
  * @param locatorNames  Locators for each variable (size = nvar)
- * @param flag_add_rank If 1, add an automatic rank variable
- * @param flag_add_coordinates If TRUE, add the grid coordinates
+ * @param flagAddSampleRank If true, add an automatic rank variable
+ * @param flagAddCoordinates If TRUE, add the grid coordinates
  */
 int DbGrid::reset(const VectorInt& nx,
                   const VectorDouble& dx,
@@ -113,8 +113,8 @@ int DbGrid::reset(const VectorInt& nx,
                   const VectorDouble& tab,
                   const VectorString& names,
                   const VectorString& locatorNames,
-                  int flag_add_rank,
-                  bool flag_add_coordinates)
+                  bool flagAddSampleRank,
+                  bool flagAddCoordinates)
 {
   _clear();
 
@@ -124,8 +124,8 @@ int DbGrid::reset(const VectorInt& nx,
     nech *= nx[idim];
   int ntab = (tab.empty()) ? 0 : (int) (tab.size() / nech);
   int number = 0;
-  if (flag_add_rank) number += 1;
-  if (flag_add_coordinates) number += ndim;
+  if (flagAddSampleRank) number += 1;
+  if (flagAddCoordinates) number += ndim;
   int ncol = number + ntab;
 
   // Create the grid
@@ -139,9 +139,9 @@ int DbGrid::reset(const VectorInt& nx,
 
   // Additional fields
 
-  if (flag_add_rank) _createRank(0);
+  if (flagAddSampleRank) _createRank(0);
 
-  if (flag_add_coordinates) _createCoordinatesGrid(flag_add_rank);
+  if (flagAddCoordinates) _createGridCoordinates(flagAddSampleRank);
 
   // Create the names (for the remaining variables)
 
@@ -149,10 +149,10 @@ int DbGrid::reset(const VectorInt& nx,
 
   // Create the locators
 
-  if (flag_add_coordinates)
+  if (flagAddCoordinates)
   {
     int jcol = 0;
-    if (flag_add_rank) jcol++;
+    if (flagAddSampleRank) jcol++;
     setLocatorsByUID(ndim, jcol, ELoc::X);
     _defineDefaultLocators(number, locatorNames);
   }
@@ -225,7 +225,7 @@ int DbGrid::resetCoveringDb(const Db* db,
 
   /// Load the data
 
-  _createCoordinatesGrid(0);
+  _createGridCoordinates(0);
 
   // Create the locators
 
@@ -241,12 +241,12 @@ int DbGrid::resetCoveringDb(const Db* db,
  * @param polygon    Pointer to the input Polygon
  * @param nodes      Vector of the expected number of nodes
  * @param dcell      Vector of the expected dimensions for the grid cells
- * @param flag_add_rank 1 if the sample rank must be generated
+ * @param flagAddSampleRank true if the sample rank must be generated
  */
 int DbGrid::resetFromPolygon(Polygons* polygon,
                              const VectorInt& nodes,
                              const VectorDouble& dcell,
-                             int flag_add_rank)
+                             bool flagAddSampleRank)
 {
   _clear();
   double xmin, xmax, ymin, ymax;
@@ -283,7 +283,7 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
     dx_tab.push_back(dx);
     nech *= nx;
   }
-  int ncol = ndim + flag_add_rank;
+  int ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
 
   // Create the grid
 
@@ -292,13 +292,13 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
 
   /// Load the data
 
-  if (flag_add_rank) _createRank(0);
-  _createCoordinatesGrid(flag_add_rank);
+  if (flagAddSampleRank) _createRank(0);
+  _createGridCoordinates(flagAddSampleRank);
 
   // Create the locators
 
   int jcol = 0;
-  if (flag_add_rank) jcol++;
+  if (flagAddSampleRank) jcol++;
   setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
@@ -312,12 +312,12 @@ DbGrid* DbGrid::create(const VectorInt& nx,
                        const VectorDouble& tab,
                        const VectorString& names,
                        const VectorString& locatorNames,
-                       int flag_add_rank,
-                       bool flag_add_coordinates)
+                       bool flagAddSampleRank,
+                       bool flagAddCoordinates)
 {
   DbGrid* dbgrid = new DbGrid;
   if (dbgrid->reset(nx, dx, x0, angles, order, tab, names, locatorNames,
-                    flag_add_rank, flag_add_coordinates))
+                    flagAddSampleRank, flagAddCoordinates))
   {
     messerr("Error when creating DbGrid from Grid");
     delete dbgrid;
@@ -346,10 +346,10 @@ DbGrid* DbGrid::createCoveringDb(const Db* db,
 DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
                                   const VectorInt& nodes,
                                   const VectorDouble& dcell,
-                                  int flag_add_rank)
+                                  bool flagAddSampleRank)
 {
   DbGrid* dbgrid = new DbGrid;
-  if (dbgrid->resetFromPolygon(polygon, nodes, dcell, flag_add_rank))
+  if (dbgrid->resetFromPolygon(polygon, nodes, dcell, flagAddSampleRank))
   {
     messerr("Error when creating DbGrid from Polygon");
     delete dbgrid;
@@ -365,24 +365,24 @@ DbGrid* DbGrid::coarsify(const VectorInt &nmult)
 
 DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                              const VectorInt &nmult,
-                             int flag_cell,
-                             int flag_add_rank)
+                             bool flagCell,
+                             bool flagAddSampleRank)
 {
-  DbGrid *dbgrid = new DbGrid;
+  DbGrid *dbgrid;
   int ndim = dbin->getNDim();
 
   // Get the new grid characteristics
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().multiple(nmult, flag_cell, nx, dx, x0);
+  dbin->getGrid().multiple(nmult, flagCell, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
-                  VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                  VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank' and coordinates
-  (void) migrateAllVariables(dbin, dbgrid, flag_add_rank);
+  (void) migrateAllVariables(dbin, dbgrid, flagAddSampleRank);
 
   return dbgrid;
 }
@@ -561,24 +561,24 @@ DbGrid* DbGrid::refine(const VectorInt &nmult)
 
 DbGrid* DbGrid::createRefine(DbGrid *dbin,
                              const VectorInt &nmult,
-                             int flag_cell,
-                             int flag_add_rank)
+                             bool flagCell,
+                             bool flagAddSampleRank)
 {
-  DbGrid *dbgrid = new DbGrid;
+  DbGrid *dbgrid;
   int ndim = dbin->getNDim();
 
   // Get the new grid characteristics
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().divider(nmult, flag_cell, nx, dx, x0);
+  dbin->getGrid().divider(nmult, flagCell, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
-                  VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                  VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank'  and coordinates
-  (void) migrateAllVariables(dbin, dbgrid, flag_add_rank);
+  (void) migrateAllVariables(dbin, dbgrid, flagAddSampleRank);
 
   return dbgrid;
 }
@@ -587,10 +587,10 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
  * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'dbout' (grid)
  * @param dbin  Input Db
  * @param dbout Output db
- * @param flag_add_rank 1 if the rank of the samples must be aaded
+ * @param flagAddSampleRank true if the rank of the samples must be aaded
  * @return
  */
-bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
+bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank)
 {
   ELoc locatorType;
   int  locatorIndex;
@@ -601,7 +601,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
   for (int icol = 0; icol < dbin->getColumnNumber(); icol++)
   {
     // Skip the rank
-    if (flag_add_rank && icol == 0) continue;
+    if (flagAddSampleRank && icol == 0) continue;
 
     // Skip the coordinates
     String name = dbin->getNameByColIdx(icol);
@@ -634,7 +634,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
  * Paint the ndim columns starting from 'icol0' with grid coordinates
  * @param icol0 Starting column
  */
-void DbGrid::_createCoordinatesGrid(int icol0)
+void DbGrid::_createGridCoordinates(int icol0)
 {
   int ndim = getNDim();
 
@@ -959,7 +959,7 @@ VectorDouble DbGrid::getOneSlice(const String& name,
   int ndim = getNDim();
   if (getNDim() < 2)
   {
-    messerr("This method is limited to Grid with space dimension >= 1");
+    messerr("This method is limited to Grid with space dimension >= 2");
     return tab;
   }
   if (posx < 0 || posx >= ndim)
@@ -1422,7 +1422,7 @@ int DbGrid::smooth(ANeigh *neigh,
  **
  ** \param[in]  order     Manner in which values in tab are ordered
  **                       (ELoadBy)
- ** \param[in]  flag_add_rank 1 to add 'rank' as a supplementary field
+ ** \param[in]  flagAddSampleRank true to add 'rank' as a supplementary field
  **
  ** \param[in]  nx        Number of grid nodes along X
  ** \param[in]  ny        Number of grid nodes along Y
@@ -1442,7 +1442,7 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
                              double dx,
                              double dy,
                              double angle,
-                             int flag_add_rank,
+                             bool flagAddSampleRank,
                              const VectorDouble &tab)
 {
   VectorInt nn(2);
@@ -1460,7 +1460,7 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
   angles[1] = 0.;
 
   DbGrid *db = DbGrid::create(nn, dd, xx, angles, order, tab, VectorString(),
-                              VectorString(), flag_add_rank);
+                              VectorString(), flagAddSampleRank);
 
   return db;
 }
@@ -1502,10 +1502,10 @@ void DbGrid::_interpolate(const DbGrid *grid3D,
  * Create the sub-grid, extracted from 'gridIn' and reduced to the vector of limits
  * @param gridIn Input grid
  * @param limits A vector of Min and Max per space dimension (Dimension: [ndim][2])
- * @param flag_add_coordinates True if the grid coordinates must be included in the output file
+ * @param flagAddCoordinates True if the grid coordinates must be included in the output file
  * @return
  */
-DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool flag_add_coordinates)
+DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool flagAddCoordinates)
 {
   DbGrid* gridOut = nullptr;
   if (gridIn == nullptr) return gridOut;
@@ -1538,7 +1538,7 @@ DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool
   // Create the new grid
   gridOut = DbGrid::create(NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"),
                            VectorDouble(), VectorString(), VectorString(), 1,
-                           flag_add_coordinates);
+                           flagAddCoordinates);
 
   // Add the variables of interest
   VectorInt iuidOut(nvar);
@@ -1872,7 +1872,7 @@ VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getActiveSampleNumber();
+  int nech = getSampleNumber(true);
   VectorInt indmin(ndim,  10000000);
   VectorInt indmax(ndim, -10000000);
   VectorInt indg(ndim);
@@ -1943,7 +1943,7 @@ int DbGrid::setSelectionFromVariableExtend(const String &nameTop, const String &
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getActiveSampleNumber();
+  int nech = getSampleNumber(true);
   int iuid_top = getUID(nameTop);
   int iuid_bot = getUID(nameBot);
 
@@ -2011,9 +2011,9 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
   double bot = -1.e30;
   double z0 = getX0(idim0);
   double dz = getDX(idim0);
-  int nz = getNX(idim0);
+  int nz    = getNX(idim0);
   int indzmin = 0; // included
-  int indzmax = nz; // excluded
+  int indzmax;
   VectorInt indg(ndim, 0);
   VectorDouble vec(nz);
   VectorDouble vecempty(nz, TEST);

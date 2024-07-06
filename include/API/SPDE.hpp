@@ -15,7 +15,6 @@
 
 #include "Enum/ESPDECalcMode.hpp"
 
-#include "Basic/NamingConvention.hpp"
 #include "API/SPDEParam.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"

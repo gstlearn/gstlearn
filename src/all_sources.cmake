@@ -104,6 +104,9 @@ set(SRC
   Covariances/CovFactory.cpp
   Covariances/CovStable.cpp
   Covariances/CovMarkov.cpp
+  Covariances/CovGeometric.cpp
+  Covariances/CovPoisson.cpp
+  Covariances/CovLinearSph.cpp
   Covariances/CovDiffusionAdvection.cpp
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
@@ -291,7 +294,9 @@ set(SRC
   OutputFormat/segy.cpp
   Simulation/ACalcSimulation.cpp
   Simulation/CalcSimuTurningBands.cpp
-  Simulation/TurningDirection.cpp
+  Simulation/TurningBandDirection.cpp
+  Simulation/TurningBandOperate.cpp
+  Simulation/SimuSpectral.cpp
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp

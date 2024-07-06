@@ -13,11 +13,10 @@ Suggests:
     ggnewscale,
     Matrix,
     lares,
-    FNN
 Description: @PROJECT_DESCRIPTION@
 Encoding: UTF-8
 License: GPL v3
 LazyLoad: yes
 Maintainer: Team gstlearn <gstlearn@groupes.mines-paristech.fr>
 URL: @PROJECT_HOMEPAGE_URL@
-BugReports: @PROJECT_HOMEPAGE_URL@
+BugReports: @PROJECT_HOMEPAGE_URL@/?page_id=468

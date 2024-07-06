@@ -17,24 +17,11 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 find_package(SWIG 4.0 REQUIRED)
 include(${SWIG_USE_FILE})
 
-# Look for pybind11
-find_package(pybind11 QUIET) # try locally
-if(NOT pybind11_FOUND) # else fetch it from github (keep this as long as runner have no pybind11-global)
-  message(STATUS "Could NOT find pybind11 (fetching it from GitHub)")
-  include(FetchContent)
-  FetchContent_Declare(
-    pybind11
-    GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    #GIT_TAG v2.6.1 # Comment: Use last pybind11 version available
-  )
-  FetchContent_MakeAvailable(pybind11)
-endif()
-
 ######################################  
 # DOCUMENTATION
 
 # Ensure documentation.i is existing
-# TODO : put documentation.i out of the source (be careful of pyswigex.i)
+# TODO : put documentation.i out of the source (be careful of pygstlearn.i)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMENT "Ensure that documentation.i exists")
@@ -111,8 +98,23 @@ if (APPLE)
   set_target_properties(python_build PROPERTIES SUFFIX ".so")
 endif()
 
-# Link to static library and NumPy
-target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static Python3::NumPy)
+# Reuse shared library objects
+target_sources(
+  python_build
+  PRIVATE
+  $<TARGET_OBJECTS:${PROJECT_NAME}::shared>
+)
+target_include_directories(python_build
+  PRIVATE
+  $<TARGET_PROPERTY:${PROJECT_NAME}::shared,INCLUDE_DIRECTORIES>
+)
+target_link_libraries(python_build
+  PRIVATE
+  $<TARGET_PROPERTY:${PROJECT_NAME}::shared,LINK_LIBRARIES>
+)
+
+# Link to NumPy
+target_link_libraries(python_build PUBLIC Python3::NumPy)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
@@ -128,8 +130,6 @@ endif()
 
 # Set some properties on SWIG target
 set_target_properties(python_build PROPERTIES
-  # Do not build python package by default
-  EXCLUDE_FROM_ALL ON
   # Modify the generated library name
   OUTPUT_NAME ${PROJECT_NAME}
   # Compiler flags for the SWIG library
@@ -146,17 +146,19 @@ if (MSVC OR APPLE)
   target_link_libraries(python_build PRIVATE Python3::Module)
 endif()
 
-# Link to pybind11
-target_link_libraries(python_build PRIVATE pybind11::module) # TODO: use swig_link_library
-
 ########################################
 # PACKAGING (target independent)
 
 # Generate setup.py automatically for each configuration
 # First step: replace variables (@VAR@)
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in 
+  ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
+  @ONLY
+)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml.in
+  ${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml.in
   @ONLY
 )
 
@@ -164,6 +166,10 @@ configure_file(
 file(GENERATE
   OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/setup.py
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
+)
+file(GENERATE
+  OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/pyproject.toml
+  INPUT ${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml.in
 )
 
 # Generate version.py automatically for each configuration

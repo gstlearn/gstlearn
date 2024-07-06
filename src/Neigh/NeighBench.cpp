@@ -133,7 +133,6 @@ int NeighBench::getMaxSampleNumber(const Db* db) const
 {
   bool useSel = false;
   int nech = db->getSampleNumber();
-  int nmax = nech;
   int ndim = db->getNDim();
   if (db->getNDim() <= 2) return nech;
 
@@ -144,7 +143,7 @@ int NeighBench::getMaxSampleNumber(const Db* db) const
   VectorDouble tab = VH::sort(vec, true);
 
   /* Loop on the first point */
-  nmax = 0;
+  int nmax = 0;
   for (int iech = 0; iech < nech - 1; iech++)
   {
 
@@ -192,9 +191,7 @@ bool NeighBench::_isSameTargetBench(int iech_out) const
 /**
  * Select the neighborhood
  * @param iech_out Valid Rank of the sample in the output Db
- * @param ranks Vector of input / output sample ranks
- *
- * @return Vector of sample ranks in neighborhood (empty when error)
+ * @param ranks Vector of sample ranks in neighborhood (empty when error)
  */
 void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
 {

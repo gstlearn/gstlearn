@@ -92,7 +92,7 @@ void OptCst::display()
         e.second << std::endl;
   }
 
-  sstr << "Use 'OptCst::define' to modify previous values" << std::endl;
+  sstr << "Use 'OptCst::define' to modify the previous values" << std::endl;
 
   messageFlush(sstr.str());
 }

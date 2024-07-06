@@ -28,11 +28,10 @@ public:
   CovWendland2& operator= (const CovWendland2 &r);
   virtual ~CovWendland2();
 
-  unsigned int getMaxNDim()   const  override { return 3; }
-
-  virtual String getFormula() const override { return String("Equation not yet implemented"); }
+  unsigned int   getMaxNDim() const  override { return 3; }
   String         getCovName() const override { return "Wendland-4,2"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
   virtual bool   hasCovDerivative() const override { return true; }
 
 protected:

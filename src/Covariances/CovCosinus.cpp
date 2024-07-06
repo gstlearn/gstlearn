@@ -41,4 +41,3 @@ double CovCosinus::_evaluateCov(double h) const
   double cov = cos(2. * GV_PI * h);
   return (cov);
 }
-

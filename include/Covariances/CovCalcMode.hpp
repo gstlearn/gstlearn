@@ -24,7 +24,7 @@ public:
   CovCalcMode& operator= (const CovCalcMode &r);
   virtual ~CovCalcMode();
 
-  static CovCalcMode* create(const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  static CovCalcMode* create(const ECalcMember &member = ECalcMember::fromKey("LHS"), bool asVario = false);
 
   const ECalcMember&    getMember()             const { return _member; }
   bool                  getAsVario()            const { return _asVario; }

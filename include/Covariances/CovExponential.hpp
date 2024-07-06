@@ -14,6 +14,7 @@
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
+class TurningBandOperate;
 
 class GSTLEARN_EXPORT CovExponential : public ACovFunc
 {
@@ -23,12 +24,25 @@ public:
   CovExponential& operator= (const CovExponential &r);
   virtual ~CovExponential();
 
-  double getScadef() const override;
   virtual String getFormula() const override;
+  double         getScadef() const override;
   String         getCovName() const override { return "Exponential"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+  bool           getCompatibleSpaceS() const override { return true; }
+  bool           hasCovOnSphere() const override { return true; }
+  bool           hasSpectrumOnSphere() const override { return true; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+
+  bool isValidForSpectral() const override { return true; }
+  MatrixRectangular simulateSpectralOmega(int nb) const override;
 
 protected:
   double _evaluateCov(double h) const override;
+  double _evaluateCovOnSphere(double alpha,
+                              double scale = 1.,
+                              int degree = 50) const override;
+  VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const override;
 };
-

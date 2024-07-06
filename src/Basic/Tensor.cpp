@@ -17,33 +17,35 @@
 #include "Basic/Utilities.hpp"
 
 Tensor::Tensor(unsigned int ndim)
-:  AStringable(),
-   _nDim(ndim),
-   _tensorDirect(),
-   _tensorInverse(),
-   _tensorDirect2(),
-   _tensorInverse2(),
-   _tensorDirectSwap(),
-   _radius(),
-   _rotation(),
-   _isotropic(true),
-   _flagDefinedBySquare(false)
+    :
+    AStringable(),
+    _nDim(ndim),
+    _tensorDirect(),
+    _tensorInverse(),
+    _tensorDirect2(),
+    _tensorInverse2(),
+    _tensorDirectSwap(),
+    _radius(),
+    _rotation(),
+    _isotropic(true),
+    _flagDefinedBySquare(false)
 {
   init(ndim);
 }
 
-Tensor::Tensor(const Tensor& r)
-:  AStringable(r),
-   _nDim(r._nDim),
-   _tensorDirect(r._tensorDirect),
-   _tensorInverse(r._tensorInverse),
-   _tensorDirect2(r._tensorDirect2),
-   _tensorInverse2(r._tensorInverse2),
-   _tensorDirectSwap(r._tensorDirectSwap),
-   _radius(r._radius),
-   _rotation(r._rotation),
-   _isotropic(r._isotropic),
-   _flagDefinedBySquare(r._flagDefinedBySquare)
+Tensor::Tensor(const Tensor &r)
+    :
+    AStringable(r),
+    _nDim(r._nDim),
+    _tensorDirect(r._tensorDirect),
+    _tensorInverse(r._tensorInverse),
+    _tensorDirect2(r._tensorDirect2),
+    _tensorInverse2(r._tensorInverse2),
+    _tensorDirectSwap(r._tensorDirectSwap),
+    _radius(r._radius),
+    _rotation(r._rotation),
+    _isotropic(r._isotropic),
+    _flagDefinedBySquare(r._flagDefinedBySquare)
 {
 }
 

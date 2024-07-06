@@ -12,6 +12,8 @@
 
 #include <math.h>
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 
 CovStable::CovStable(const CovContext& ctxt)
 : ACovFunc(ECov::STABLE, ctxt)
@@ -50,3 +52,10 @@ double CovStable::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovStable::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  if (getParam() > 1)
+    return operTB.cosineOne(t0);
+  else
+    return operTB.spectralOne(t0);
+}

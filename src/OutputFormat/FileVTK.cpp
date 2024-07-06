@@ -199,8 +199,8 @@ int FileVTK::writeInFile()
                      nactive, points.data(), ncol, vardim.data(), vc.data(), tab);
 
   for (int icol = 0; icol < ncol; icol++)
-    tab[icol] = (float*) mem_free((char* ) tab[icol]);
-  tab = (float**) mem_free((char* ) tab);
+    mem_free((char* ) tab[icol]);
+  mem_free((char* ) tab);
 
   _fileClose();
   return 0;

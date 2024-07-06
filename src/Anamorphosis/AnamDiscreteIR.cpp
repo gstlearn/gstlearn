@@ -194,9 +194,10 @@ int AnamDiscreteIR::fitFromArray(const VectorDouble& tab,
 
   error = 0;
 
-  label_end: residuals = (double *) mem_free((char * ) residuals);
-  T = (double *) mem_free((char * ) T);
-  Q = (double *) mem_free((char * ) Q);
+  label_end:
+  mem_free((char * ) residuals);
+  mem_free((char * ) T);
+  mem_free((char * ) Q);
   return (error);
 }
 

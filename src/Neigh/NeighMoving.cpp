@@ -494,9 +494,7 @@ bool NeighMoving::hasChanged(int iech_out) const
 /**
  * Select the neighborhood
  * @param iech_out Valid Rank of the sample in the output Db
- * @param ranks Vector of input / output sample ranks
- *
- * @return Vector of sample ranks in neighborhood (empty when error)
+ * @param ranks Vector of sample ranks in neighborhood (empty when error)
  */
 void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 {

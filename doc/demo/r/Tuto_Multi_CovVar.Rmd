@@ -1,0 +1,151 @@
+---
+title: "Multivariate Covariance and Variogram"
+author: "D. Renard"
+date: "5 avril 2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+library(ggnewscale)
+```
+
+## Introduction
+
+This slideshow is meant to demonstrate the experimental multivariate covariance vs. variogram. It is demonstrated in 1-D space.
+
+```{r}
+err = defineDefaultSpace(ESpaceType_RN(), 1)
+```
+
+
+Building the data sets
+
+```{r}
+grid = DbGrid_create(nx=500)
+```
+
+Creating three models
+
+```{r}
+m1 = Model_createFromParam(type=ECov_GAUSSIAN(),range=100)
+m2 = Model_createFromParam(type=ECov_SPHERICAL(),range=30)
+m3 = Model_createFromParam(type=ECov_NUGGET())
+```
+
+Simulating independent (normalized) components
+
+```{r}
+err = simtub(NULL,grid,m1,nbtuba=1000)
+err = grid$setName("Simu","Long")
+err = simtub(NULL,grid,m2,nbtuba=1000)
+err = grid$setName("Simu","Short")
+err = simtub(NULL,grid,m3,nbtuba=1000)
+err = grid$setName("Simu","Nugget")
+```
+
+Graphic representation
+
+```{r}
+p1 = ggDefault() + plot.curve(grid["Nugget"]) + plot.decoration(xlab="Nugget")
+p2 = ggDefault() + plot.curve(grid["Short"]) + plot.decoration(xlab="Short Range")
+p3 = ggDefault() + plot.curve(grid["Long"]) + plot.decoration(xlab="Long Range")
+ggarrange(p1, p2, p3, ncol = 3, nrow = 1)
+```
+
+Building the final variables
+
+```{r}
+grid["Z1"] =  2*grid["Short"] + 3*grid["Long"] + grid["Nugget"] - 5
+grid["Z2"] = -3*grid["Short"] + 4*grid["Long"]
+```
+
+Plotting the variables
+
+```{r}
+p = ggDefault() + 
+  plot.curve(grid["Z1"], col="black") + 
+  plot.curve(grid["Z2"], col="blue") + 
+  plot.decoration(title="Z1 and Z2")
+ggPrint(p)
+```
+
+Computing Variograms (Simple and Cross)
+
+```{r}
+err = grid$setLocators("Z*",ELoc_Z())
+varioparam = VarioParam_createMultipleFromGrid(grid, npas=100)
+vario = Vario_computeFromDb(varioparam, grid)
+
+p = ggDefault() + 
+  plot(vario, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+  plot(vario, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
+  plot(vario, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
+  plot.decoration(title="Simple and Cross-Variograms")
+ggPrint(p)
+```
+
+Computing Covariances (Simple and Cross)
+
+```{r}
+err = grid$setLocators("Z*",ELoc_Z())
+covar = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_COVARIANCE())
+
+p = ggDefault() + 
+  plot(covar, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+  plot(covar, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
+  plot(covar, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
+  plot.decoration(title="Simple and Cross-Covariances")
+ggPrint(p)
+```
+
+## Covariance with delay
+
+```{r}
+shift = 30
+v2 = grid["Z2"]
+grid["Z3"] = c(v2[-{1:shift}],rep(NA,shift))
+```
+
+Plotting the variables
+
+```{r}
+p = ggDefault() + 
+  plot.curve(grid["Z2"], col="black") + 
+  plot.curve(grid["Z3"], col="blue") + 
+  plot.decoration(title="Z2 and Z3")
+ggPrint(p)
+```
+
+Calculate the cross-variogram
+
+```{r}
+grid$setLocators(c("Z2","Z3"),ELoc_Z(),cleanSameLocator=TRUE)
+covarh = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_VARIOGRAM())
+
+p = ggDefault() + 
+  plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+  plot(covarh, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
+  plot(covarh, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
+  plot.decoration(title="Simple and Cross-Variograms (shift)")
+ggPrint(p)
+```
+
+Calculate the cross-covariance
+
+```{r}
+covarh = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_COVARIANCE())
+
+p = ggDefault() + 
+  plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+  plot(covarh, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
+  plot(covarh, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
+  plot.decoration(title="Simple and Cross-Covariances (shift)")
+ggPrint(p)
+```

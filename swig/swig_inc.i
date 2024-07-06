@@ -106,6 +106,9 @@
 %shared_ptr(CovWendland0)
 %shared_ptr(CovWendland1)
 %shared_ptr(CovWendland2)
+%shared_ptr(CovGeometric)
+%shared_ptr(CovPoisson)
+%shared_ptr(CovLinearSph)
 %shared_ptr(CSVformat)
 %shared_ptr(Db)
 %shared_ptr(DbGrid)
@@ -184,6 +187,7 @@
 %shared_ptr(SimuSpherical)
 %shared_ptr(SimuSphericalParam)
 %shared_ptr(SimuSubstitutionParam)
+%shared_ptr(SimuSpectral)
 %shared_ptr(SpacePoint)
 %shared_ptr(SpaceTarget)
 %shared_ptr(SpaceRN)
@@ -411,6 +415,9 @@
   #include "Covariances/CovWendland0.hpp"
   #include "Covariances/CovWendland1.hpp"
   #include "Covariances/CovWendland2.hpp"
+  #include "Covariances/CovGeometric.hpp"
+  #include "Covariances/CovPoisson.hpp"
+  #include "Covariances/CovLinearSph.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
   #include "Covariances/CovHelper.hpp"
   
@@ -496,7 +503,9 @@
   #include "Polynomials/Chebychev.hpp"
   #include "Simulation/ACalcSimulation.hpp"
   #include "Simulation/CalcSimuTurningBands.hpp"
-  #include "Simulation/TurningDirection.hpp"
+  #include "Simulation/TurningBandDirection.hpp"
+  #include "Simulation/TurningBandOperate.hpp"
+  #include "Simulation/SimuSpectral.hpp"
   #include "Simulation/BooleanObject.hpp"
   #include "Simulation/SimuBoolean.hpp"
   #include "Simulation/SimuBooleanParam.hpp"

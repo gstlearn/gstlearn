@@ -56,12 +56,15 @@ public:
   static bool hasUndefined(const VectorDouble& vec);
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);
 
+  static int    count(const VectorVectorInt& vec);
   static int    cumul(const VectorInt& vec);
+  static int    cumul(const VectorVectorInt& vec);
   static double cumul(const VectorDouble &vec);
   static double mean(const VectorDouble &vec);
   static double variance(const VectorDouble &vec, bool scaleByN = false);
   static double stdv(const VectorDouble &vec, bool scaleByN = false);
   static double norm(const VectorDouble &vec);
+  static double normL1(const VectorDouble &vec);
   static double norminf(const VectorDouble &vec);
   static double median(const VectorDouble& vec);
   static double normDistance(const VectorDouble& veca, const VectorDouble& vecb);
@@ -127,7 +130,7 @@ public:
                                    VectorDouble &std,
                                    int number);
 
-  static void normalize(VectorDouble& vec);
+  static void normalize(VectorDouble& vec, int norm=2);
   static void normalize(double *tab, int ntab);
   static void normalizeFromGaussianDistribution(VectorDouble &vec,
                                                 double mini = 0.,
@@ -148,6 +151,7 @@ public:
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
 
+  static void cumulateInPlace(VectorDouble& vec);
   static void cumulate(VectorDouble &veca, const VectorDouble &vecb, double coeff = 1., double addval = 0.);
   static void getMostSignificant(const VectorDouble& vec, double tol = EPSILON6, int nmax = -1);
 
@@ -238,8 +242,10 @@ public:
 
   static int whereMinimum(const VectorDouble& tab);
   static int whereMaximum(const VectorDouble& tab);
+  static int whereElement(const VectorInt& tab, int target);
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
+  static VectorDouble compress(const VectorDouble &vecin, const VectorInt& vindex);
 
   static void truncateDecimalsInPlace(VectorDouble& vec, int ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, int ndec);

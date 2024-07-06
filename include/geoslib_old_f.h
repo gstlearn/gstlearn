@@ -489,18 +489,18 @@ GSTLEARN_EXPORT void db_grid_print(Db *db);
 
 GSTLEARN_EXPORT DbGrid* db_create_grid_multiple(DbGrid *dbin,
                                                 const VectorInt &nmult,
-                                                int flag_add_rank);
+                                                bool flagAddSampleRank);
 GSTLEARN_EXPORT DbGrid* db_create_grid_divider(DbGrid *dbin,
                                                const VectorInt &nmult,
-                                               int flag_add_rank);
+                                               bool flagAddSampleRank);
 GSTLEARN_EXPORT DbGrid* db_create_grid_dilate(DbGrid *dbin,
                                               int mode,
                                               const VectorInt &nshift,
-                                              int flag_add_rank);
+                                              bool flagAddSampleRank);
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
 GSTLEARN_EXPORT Db* db_create_from_target(const double *target,
                                           int ndim,
-                                          int flag_add_rank);
+                                          bool flagAddSampleRank);
 GSTLEARN_EXPORT void db_sample_print(Db *db,
                                      int iech,
                                      int flag_ndim,
@@ -692,7 +692,7 @@ GSTLEARN_EXPORT Db* db_point_init(int nech,
                                   double beta = 0.,
                                   double extend = 0.,
                                   int seed = 43241,
-                                  int flag_add_rank = 1);
+                                  bool flagAddSampleRank = true);
 GSTLEARN_EXPORT int db_smooth_vpc(DbGrid *db, int width, double range);
 GSTLEARN_EXPORT double* dbgridLineSampling(DbGrid *dbgrid,
                                          double *x1,

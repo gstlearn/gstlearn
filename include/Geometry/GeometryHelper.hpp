@@ -60,11 +60,6 @@ public:
                                           "SXYZ"),
                                       double eps = EPSILON10);
 
-  static void mergeBoxes(VectorDouble &mini1,
-                         VectorDouble &maxi1,
-                         VectorDouble &mini2,
-                         VectorDouble &maxi2);
-
   static double distancePointToSegment(double x0,
                                        double y0,
                                        double x1,

@@ -15,6 +15,7 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>
@@ -1475,6 +1476,14 @@ int mvndst_infin(double low, double sup)
   return(2);
 }
 
+double bessel_j(double x, int n)
+{
+  VectorDouble tab(n+1);
+  if (x <= 0.) return 1.;
+  if (bessel_j_table(x, 0., n+1, tab.data()) < 0) return TEST;
+  return tab[n];
+}
+
 /*****************************************************************************/
 /*!
 **   This routine calculates Bessel functions J SUB(NB+ALPHA) (X) for
@@ -1482,8 +1491,8 @@ int mvndst_infin(double low, double sup)
 **
 ** \return  Error return code : NCALC
 ** \return  NCALC < -1:  An argument is out of range.
-** \return  1 < NCALC < NB: Not all requested function values could be
-** \return  calculated accurately. BY(I) contains correct function values
+** \return  1 < NCALC < NB: Not all requested function values could be calculated accurately.
+** \return  BY(I) contains correct function values
 **
 ** \param[in]  x      Working precision non-negative real argument for which
 **                    J's are to be calculated.
@@ -1494,7 +1503,7 @@ int mvndst_infin(double low, double sup)
 **                    and the last is of order (NB - 1 + ALPHA).
 **
 ** \param[out] b      Working precision output vector of length NB. If the
-**                    routine terminates normally (NCALC=NB), the vector by[]
+**                    routine terminates normally (NCALC=NB), the vector b[]
 **                    contains the functions Y(ALPHA,X), ... ,Y(NB-1+ALPHA,X),
 **
 ** \remark  This program is based on a program written by David J. Sookne (2)
@@ -1509,7 +1518,7 @@ int mvndst_infin(double low, double sup)
 ** \remark  J., NBS Jour. of Res. B. 77B, 1973, pp 125-132.
 **
 *****************************************************************************/
-int bessel_j(double x, double alpha, int nb, double *b)
+int bessel_j_table(double x, double alpha, int nb, double *b)
 {
   static double enten = 1e38;
   static double ensig = 1e17;
@@ -1880,10 +1889,11 @@ int bessel_j(double x, double alpha, int nb, double *b)
 **   kind, K SUB(N+ALPHA) (X), for non-negative argument X and
 **   non-negative order N+ALPHA
 **
-** \return  Error return code : NCALC NCALC < -1:  An argument is out of
-** \return  range. 0 < NCALC < NB: Not all requested function values could be
-** \return  calculated accurately.  BK(I) contains correct function values
-** \return  for I <= NCALC, and contains the ratios
+** \return  Error return code :
+** \return   NCALC < -1:  An argument is out of range.
+** \return   0 < NCALC < NB: Not all requested function values could be calculated accurately.
+**
+** \return  BK(I) contains correct function values for I <= NCALC, and contains the ratios
 ** \return  K(ALPHA+I-1,X)/K(ALPHA+I-2,X) for the rest of the array.
 **
 ** \param[in]  x      Working precision non-negative real argument for which
@@ -2309,47 +2319,300 @@ double loggamma(double parameter)
 
 /*****************************************************************************/
 /*!
- **  Returns the Associated Legendre Function
+ **  Returns the Legendre Function described as follows:
  **
- ** \param[in]  flag_norm 1 for normalized and 0 otherwise
- ** \param[in]  n           Degree
- ** \param[in]  v           Value
+ **     legendre_p(n,v) = 1/{2^n n!) d^n/dx^n [x^2-1)^n with |x|<=1
+ **
+ **  If flagNorm is switched ON, the Boost library cannot be used anymore.
+ **  We have to rely on the ode provided by X; Freulon.
+ **
+ ** \param[in]  n           Degree of the Legendre Polynomial to be computed (n >= 0)
+ ** \param[in]  v           Value for which the polynomial is evaluated (-1 <= v <= 1)
+ ** \param[in]  flagNorm    True for normalized and 0 otherwise
+ **
+ ** \return Value of the Legendre polynomial.
  **
  *****************************************************************************/
-double ut_legendre(int flag_norm, int n, double v)
+double ut_legendre(int n, double v, bool flagNorm)
 {
-  double result = boost::math::legendre_p<double>(n, v);
-  if (flag_norm)
+  if (!flagNorm)
   {
-    double norme = sqrt((2. * ((double) n) + 1.) / 2.);
-    result *= norme;
+    return boost::math::legendre_p<double>(n, v);
   }
-  return (result);
+  else
+  {
+    double P0, P1, Pn, value;
+
+    if (n == 0)
+      value = 1.;
+    else if (n == 1)
+      value = v * sqrt(2.*n+1.);
+    else
+    {
+      P0 = 1.;
+      P1 = v * sqrt(2.*1.+1.);
+      for (int ii = 1; ii < n; ii++)
+      {
+        double i = (double) ii;
+        double a = sqrt((2.*i+1.) * (2.*i+3.)) / (i+1.);
+        double b = i / (i+1.) * sqrt((2.*i+3.) / (2.*i-1.));
+        Pn = a * v * P1 - b * P0;
+        P0 = P1;
+        P1 = Pn;
+      }
+      value = P1;
+    }
+    return value;
+  }
+}
+
+VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm)
+{
+  int size = (int) vecin.size();
+  VectorDouble vecout(size);
+  for (int i = 0; i < size; i++)
+    vecout[i] = ut_legendre(n, vecin[i], flagNorm);
+  return vecout;
+}
+
+MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v)
+{
+  int nrow = (int) v.size();
+  int ncol = n + 1;
+  MatrixRectangular res(nrow, ncol);
+
+  VectorDouble P0(nrow, 0.);
+  VectorDouble P1(nrow, 0.);
+  VectorDouble val(nrow);
+  double l;
+  for (int ll = 0; ll <= n; ll++)
+  {
+    l = (double) ll;
+    if (ll == 0)
+    {
+      val.fill(1.);
+    }
+    else if (ll == 1)
+    {
+      for (int k = 0; k < nrow; k++)
+        val[k] = v[k] * sqrt(2.*l+1.);
+    }
+    else
+    {
+      double a = sqrt((2.*l+1.) * (2.*l-1.)) / l;
+      double b = (l-1.) / l * sqrt((2.*l+1.) / (2.*l-3.));
+      for (int k = 0; k < nrow; k++)
+        val[k] = a * v[k] * P1[k] - b * P0[k];
+    }
+    res.setColumn(l, val);
+    P0 = P1;
+    P1 = val;
+  }
+  return res;
 }
 
 /*****************************************************************************/
 /*!
- **  Returns the Spherical Legendre normalized function
+ **  Returns the Associated Legendre Function described as follows:
  **
- ** \param[in]  flag_norm 1 for normalized and 0 otherwise
+ ** >>> In the case flagNorm=true
+ ** Using the relations:
+ ** P_0^0 (x) = 1
+ ** P_{l+1}^{l+1} (x) = - sqrt((2l+3)/(2l+2)) * (1-x^2)^{1/2} * P_{l}^{l}(x)
+ ** P_{l+1}^{m} (x)   =  sqrt((2l+3)(2l+1)/((l-m+1)(l+m+1))) * x * P_{l}^{m}(x) -
+ **                      sqrt((2l+3)/(2l-1)*(l+m)/(l+m+1)*(l-m)/(l-m+1)) P_{l-1}^m(x)
+ ** Changing l to l-1,
+ ** P_{l}^{l} (x) = - a0 * (1-x^2)^{1/2} * P_{l-1}^{l-1}(x) with a0 = sqrt((2l+1)/(2l))
+ ** P_{l}^{m} (x) =   a * x * P_{l-1}^{m}(x) - b P_{l-2}^m(x)
+ ** with
+ ** a = sqrt((2l+1)(2l-1)/(l-m)/(l+m)) and
+ ** b = sqrt((2l+1)/(2l-3)*(l+m-1)/(l+m)*(l-m-1)/(l-m))
+ **
+ ** >>> In the case flagNorm=false
+ ** Using the relations:
+ ** P_0^0 (x) = 1
+ ** P_{l+1}^{l+1} (x) = - sqrt((2l+3)/(2l+2)) * (1-x^2)^{1/2} * P_{l}^{l}(x)
+ ** P_{l+1}^{m} (x)   =  sqrt((2l+3)(2l+1)/((l-m+1)(l+m+1))) * x * P_{l}^{m}(x) -
+ **                      sqrt((2l+3)/(2l-1)*(l+m)/(l+m+1)*(l-m)/(l-m+1)) P_{l-1}^m(x)
+ ** Changing l to l-1,
+ ** P_{l}^{l} (x) = - a0 * (1-x^2)^{1/2} * P_{l-1}^{l-1}(x) with a0 = sqrt((2l+1)/(2l))
+ ** P_{l}^{m} (x) =   a * x * P_{l-1}^{m}(x) - b P_{l-2}^m(x)
+ ** with a = sqrt((2l+1)(2l-1)/(l-m)/(l+m)) and b = sqrt((2l+1)/(2l-3)*(l+m-1)/(l+m)*(l-m-1)/(l-m))
+ **
+ ** \param[in]  l           Degree of the Legendre Polynomial to be computed (n >= 0)
+ ** \param[in]  v           Value for which the polynomial is evaluated (-1 <= v <= 1)
+ ** \param[in]  flagNorm    Normalized when True
+ **
+ ** \returns A matrix of the (normalized) associated Legendre functions:
+ **       P_l^m (x) for 0 <= m <= l
+ **
+ *****************************************************************************/
+MatrixRectangular ut_legendreAssociatedMat(int l, const VectorDouble& v, bool flagNorm)
+{
+  int nrow = (int) v.size();
+  int ncol = l + 1;
+  MatrixRectangular res(nrow, ncol);
+
+  VectorDouble w(nrow);
+  VectorDouble Pmm(nrow);
+  double m, n;
+
+  for (int k = 0; k < nrow; k++)
+    w[k] = sqrt(1. - v[k] * v[k]);
+
+  if (flagNorm)
+  {
+    VectorDouble P2(nrow);
+    VectorDouble P1(nrow);
+    VectorDouble Plm(nrow);
+
+    for (int mm = 0; mm <= l; mm++)
+    {
+      m = (double) mm;
+
+      // From m-1 to m
+      if (mm == 0)
+      {
+        Pmm.fill(1.);
+      }
+      else
+      {
+        for (int k = 0; k < nrow; k++)
+          Pmm[k] = -sqrt((2. * m + 1.) / (2. * m)) * w[k] * Pmm[k];
+      }
+
+      // From n-1 to n
+      for (int nn = mm; nn <= l; nn++)
+      {
+        n = (double) nn;
+        if (nn == mm)
+        {
+          Plm = Pmm;
+          P2.fill(0.);
+          P1 = Plm;
+        }
+        else
+        {
+          double a = sqrt((2. * n + 1.) * (2. * n - 1.) / (n - m) / (n + m));
+          double b = sqrt((2. * n + 1.) / (2. * n - 3.) * (n - 1. - m) / (n - m) * (n - 1. + m) / (n + m));
+          for (int k = 0; k < nrow; k++)
+            Plm[k] = a * v[k] * P1[k] - b * P2[k];
+          P2 = P1;
+          P1 = Plm;
+        }
+      }
+      res.setColumn(m, Plm);
+    }
+  }
+  else
+  {
+    VectorDouble Pnm(nrow);
+    VectorDouble Pn1m(nrow);
+    VectorDouble Pn2m(nrow);
+
+    Pmm.fill(1.);
+
+    // Evaluation of P_l^0 = P_l (Legendre polynomial)
+    res.setColumn(0, ut_legendreVec(l, v, false));
+
+    if (l > 0)
+    {
+      // evaluation of P_l^m (m > 0)
+      for (int mm = 1; mm <= l; mm++)
+      {
+        m = (double) mm;
+        // computing P_{m}^{m} from P_{m-1}^{m-1}
+        double a0 = (2. * m - 1.);
+        for (int k = 0; k < nrow; k++)
+          Pmm[k] = -a0 * w[k] * Pmm[k];
+
+        if (mm < l)
+        {
+          Pn2m.fill(0.);
+          Pn1m = Pmm;
+          for (int nn = mm + 1; nn <= l; nn++)
+          {
+            n = (double) nn;
+            double a = (2. * n - 1.) / (n - m);
+            double b = (n + m - 1.) / (n - m);
+            for (int k = 0; k < nrow; k++)
+              Pnm[k] = a * v[k] * Pn1m[k] - b * Pn2m[k];
+            Pn2m = Pn1m;
+            Pn1m = Pnm;
+          }
+          res.setColumn(m, Pnm);
+        }
+        else
+        {
+          res.setColumn(m, Pmm);
+        }
+      }
+    }
+  }
+  return res;
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the Spherical Legendre normalized function.
+ **  According to boost Library documentation, this returns
+ **
+ **  Y_n^m(theta, phi) = sqrt{{(2n+1)(n-m)!} / {4pi(n+m)!}} P_n^m(cos(theta))e{imphi}
+ **
+ **  with phi=0 and m = |k0|
+ **
+ **  If flagNorm is switched ON, the previous result is multiplied by:
+ **
+ **   sqrt(2 * pi)
+ **
  ** \param[in]  n           Degree
  ** \param[in]  k0          Order (ABS(k0) <= n)
  ** \param[in]  theta       Theta angle in radian
+ ** \param[in]  flagNorm    for normalized and 0 otherwise
  **
  *****************************************************************************/
-double ut_flegendre(int flag_norm, int n, int k0, double theta)
+double ut_flegendre(int n, int k0, double theta, bool flagNorm)
 {
-  int k = ABS(k0);
+  int m = ABS(k0);
+  double phi = 0.;
   std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
-      n, k, theta, 0.);
+      n, m, theta, phi);
   double result = resbis.real();
 
-  if (flag_norm)
+  if (flagNorm)
   {
-    double norme = 1. / sqrt(2 * GV_PI);
-    result /= norme;
+    double norme = sqrt(2 * GV_PI);
+    result *= norme;
   }
-  return (result);
+  return result;
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the Spherical harmonic
+ **
+ ** \param[in]  n           Degree of HS (n >= 0)
+ ** \param[in]  k           Order of the HS (-n <= k <= n)
+ ** \param[in]  theta       Colatitude angle in radian (0 <= theta <= pi
+ ** \param[in]  phi         Longitude angle in radian (0 <= phi <= 2* pi)
+ **
+ *****************************************************************************/
+double ut_sphericalHarmonic(int n, int k, double theta, double phi)
+{
+  return boost::math::spherical_harmonic<double, double>(
+      n, k, theta, phi).real();
+}
+
+VectorDouble ut_sphericalHarmonicVec(int n,
+                                     int k,
+                                     VectorDouble theta,
+                                     VectorDouble phi)
+{
+  int size = (int) theta.size();
+  VectorDouble res(size);
+  for (int i = 0; i < size; i++)
+    res[i] = ut_sphericalHarmonic(n, k, theta[i], phi[i]);
+  return res;
 }
 
 /****************************************************************************/
@@ -2570,10 +2833,11 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
 
   error = 0;
 
-  label_end: x1 = (double*) mem_free((char* ) x1);
-  y1 = (double*) mem_free((char* ) y1);
-  x2 = (double*) mem_free((char* ) x2);
-  y2 = (double*) mem_free((char* ) y2);
+  label_end:
+  mem_free((char* ) x1);
+  mem_free((char* ) y1);
+  mem_free((char* ) x2);
+  mem_free((char* ) y2);
   return (error);
 }
 

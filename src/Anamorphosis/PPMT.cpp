@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
@@ -18,9 +17,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
-#include "Basic/AException.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include <math.h>
@@ -240,7 +238,8 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
   // Loop on directions
 
   AnamHermite* anam = nullptr;
-  if (getMethodTrans() == EGaussInv::HMT) anam = new AnamHermite(getNbpoly());
+  const bool flagHermite = (getMethodTrans() == EGaussInv::HMT);
+  if (flagHermite) anam = new AnamHermite(getNbpoly());
 
   for (int id = 0; id < getNdir(); id++)
   {
@@ -263,13 +262,13 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
     }
   }
 
-  if (getMethodTrans() == EGaussInv::HMT) anam->fitFromArray(Y0);
+  if (flagHermite) anam->fitFromArray(Y0);
   _shiftForward(Y, idmax, anam, Y0, R0, N0);
 
   // Returning arguments
   _serieAngle.push_back(idmax);
   _serieScore.push_back(ddmax);
-  if (getMethodTrans() == EGaussInv::HMT) _anams.push_back(anam);
+  if (flagHermite) _anams.push_back(anam);
 }
 
 void PPMT::_shiftForward(AMatrix *Y,

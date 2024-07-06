@@ -607,7 +607,7 @@ static int st_check_environment(int flag_in,
   /* Initializations */
 
   error = 1;
-  nvar = ndim = nfex = 0;
+  ndim = nfex = 0;
 
   /*********************************/
   /* Compatibility between two Dbs */
@@ -1186,7 +1186,7 @@ void krige_lhs_print(int nech,
     }
   }
 
-  rel = st_relative_position_array(-1, neq, rel);
+  st_relative_position_array(-1, neq, rel);
   return;
 }
 
@@ -1274,7 +1274,7 @@ void krige_rhs_print(int nvar,
     message("\n");
   }
 
-  rel = st_relative_position_array(-1, neq, rel);
+  st_relative_position_array(-1, neq, rel);
   return;
 }
 
@@ -1321,7 +1321,7 @@ void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
     message("\n");
   }
 
-  rel = st_relative_position_array(-1, neq, rel);
+  st_relative_position_array(-1, neq, rel);
   return;
 }
 
@@ -1445,7 +1445,7 @@ static void krige_wgt_print(int status,
     message("\n");
   }
 
-  sum = (double*) mem_free((char* ) sum);
+  mem_free((char* ) sum);
   if (nfeq <= 0 || wgt == nullptr) return;
 
   /* Header */
@@ -1642,7 +1642,6 @@ int global_transitive(DbGrid *dbgrid,
   /* Initializations */
 
   cvv = wtot = dsse = gint = dsum = 0.;
-  flag_value = 0;
   st_global_init(dbgrid, dbgrid);
   if (st_check_environment(0, 1, model)) return 1;;
   int ndim = dbgrid->getNDim();
@@ -2077,7 +2076,7 @@ int anakexp_f(DbGrid *db,
   ndim = db->getNDim();
   nvarin = db->getLocNumber(ELoc::Z);
   nbefore_mem = nafter_mem = -1;
-  size = nech = 0;
+  size = 0;
 
   /* Prepare the Koption structure */
 
@@ -2938,11 +2937,11 @@ int anakexp_3D(DbGrid *db,
   label_end: OptDbg::setCurrentIndex(0);
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   st_krige_manage_basic(-1, size_nei, size_nei, 1, nfeq);
-  num_tot = (int*) mem_free((char* ) num_tot);
-  nei_cur = (int*) mem_free((char* ) nei_cur);
-  nei_ref = (int*) mem_free((char* ) nei_ref);
-  cov_tot = (double*) mem_free((char* ) cov_tot);
-  cov_res = (double*) mem_free((char* ) cov_res);
+  mem_free((char* ) num_tot);
+  mem_free((char* ) nei_cur);
+  mem_free((char* ) nei_ref);
+  mem_free((char* ) cov_tot);
+  mem_free((char* ) cov_res);
   return (error);
 }
 
@@ -3038,8 +3037,9 @@ int bayes_simulate(Model *model,
 
   error = 0;
 
-  label_end: trimat = (double*) mem_free((char* ) trimat);
-  rndmat = (double*) mem_free((char* ) rndmat);
+  label_end:
+  mem_free((char* ) trimat);
+  mem_free((char* ) rndmat);
   law_set_random_seed(memo);
   return (error);
 }
@@ -3294,7 +3294,7 @@ static int st_sampling_krige_data(Db *db,
       isort.resize(npart, 0);
     }
 
-    mat_s = model->covMatrixMS(db);
+    mat_s = model->evalCovMatrixSymmetric(db);
 
     if (mat_s.computeCholesky()) goto label_end;
     VectorDouble tl = mat_s.getCholeskyTL();
@@ -3400,7 +3400,7 @@ static int st_sampling_krige_data(Db *db,
   error = 0;
 
   label_end:
-  utab = (double*) mem_free((char* ) utab);
+  mem_free((char* ) utab);
   return (error);
 }
 
@@ -3513,16 +3513,17 @@ int st_krige_data(Db *db,
 
   error = 0;
 
-  label_end: data = db_vector_free(data);
-  tutil = (double*) mem_free((char* ) tutil);
-  invsig = (double*) mem_free((char* ) invsig);
-  datm = (double*) mem_free((char* ) datm);
-  s = (double*) mem_free((char* ) s);
-  c00 = (double*) mem_free((char* ) c00);
-  aux1 = (double*) mem_free((char* ) aux1);
-  aux2 = (double*) mem_free((char* ) aux2);
-  aux3 = (double*) mem_free((char* ) aux3);
-  aux4 = (double*) mem_free((char* ) aux4);
+  label_end:
+  db_vector_free(data);
+  mem_free((char* ) tutil);
+  mem_free((char* ) invsig);
+  mem_free((char* ) datm);
+  mem_free((char* ) s);
+  mem_free((char* ) c00);
+  mem_free((char* ) aux1);
+  mem_free((char* ) aux2);
+  mem_free((char* ) aux3);
+  mem_free((char* ) aux4);
   return (error);
 }
 
@@ -3647,16 +3648,16 @@ int st_crit_global(Db *db,
   error = 0;
 
   label_end:
-  data = db_vector_free(data);
-  c00 = (double*) mem_free((char* ) c00);
-  invc = (double*) mem_free((char* ) invc);
-  datm = (double*) mem_free((char* ) datm);
-  cs = (double*) mem_free((char* ) cs);
-  cs1 = (double*) mem_free((char* ) cs1);
-  temp = (double*) mem_free((char* ) temp);
-  aux1 = (double*) mem_free((char* ) aux1);
-  olderr = (double*) mem_free((char* ) olderr);
-  olddiv = (double*) mem_free((char* ) olddiv);
+  db_vector_free(data);
+  mem_free((char* ) c00);
+  mem_free((char* ) invc);
+  mem_free((char* ) datm);
+  mem_free((char* ) cs);
+  mem_free((char* ) cs1);
+  mem_free((char* ) temp);
+  mem_free((char* ) aux1);
+  mem_free((char* ) olderr);
+  mem_free((char* ) olddiv);
   return (error);
 }
 
@@ -3789,8 +3790,8 @@ int sampling_f(Db *db,
   error = 0;
 
   label_end:
-  data_est = db_vector_free(data_est);
-  data_var = db_vector_free(data_var);
+  db_vector_free(data_est);
+  db_vector_free(data_var);
   return (error);
 }
 
@@ -3974,16 +3975,16 @@ int krigsampling_f(Db *dbin,
   error = 0;
 
   label_end:
-  tutil  = (double*) mem_free((char* ) tutil);
-  invsig = (double*) mem_free((char* ) invsig);
-  data   = (double*) mem_free((char* ) data);
-  datm   = (double*) mem_free((char* ) datm);
-  s      = (double*) mem_free((char* ) s);
-  c00    = (double*) mem_free((char* ) c00);
-  aux1   = (double*) mem_free((char* ) aux1);
-  aux2   = (double*) mem_free((char* ) aux2);
-  aux3   = (double*) mem_free((char* ) aux3);
-  aux4   = (double*) mem_free((char* ) aux4);
+  mem_free((char* ) tutil);
+  mem_free((char* ) invsig);
+  mem_free((char* ) data);
+  mem_free((char* ) datm);
+  mem_free((char* ) s);
+  mem_free((char* ) c00);
+  mem_free((char* ) aux1);
+  mem_free((char* ) aux2);
+  mem_free((char* ) aux3);
+  mem_free((char* ) aux4);
   return (error);
 }
 
@@ -4467,7 +4468,7 @@ static double* st_calcul_drfmat(const char *title,
       if (!db1->isActive(ii1)) continue;
     }
 
-    VectorDouble drfloc = model->evalDriftVec(db1, ii1, ECalcMember::LHS);
+    VectorDouble drfloc = model->evalDriftBySample(db1, ii1, ECalcMember::LHS);
     (void) memcpy(&drftab[i1 * nbfl], drfloc.data(), nbfl * sizeof(double));
     i1++;
   }
@@ -5100,7 +5101,7 @@ int inhomogeneous_kriging(Db *dbdat,
     /* Fill the drift at Target point (optional) */
 
     if (driftp != nullptr)
-      model_dat->evalDriftVecInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
+      model_dat->evalDriftBySampleInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
 
     /* Calculate the Kriging weights */
 
@@ -5115,7 +5116,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
       /* Evaluate the drift at Target */
 
-      model_dat->evalDriftVecInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
+      model_dat->evalDriftBySampleInPlace(dbout, IECH_OUT, ECalcMember::LHS, driftg);
 
       /* Update the kriging weights */
 
@@ -5157,20 +5158,20 @@ int inhomogeneous_kriging(Db *dbdat,
   error = 0;
 
   label_end: OptDbg::setCurrentIndex(0);
-  covss = (double*) mem_free((char* ) covss);
-  distps = (double*) mem_free((char* ) distps);
-  distgs = (double*) mem_free((char* ) distgs);
-  prodps = (double*) mem_free((char* ) prodps);
-  prodgs = (double*) mem_free((char* ) prodgs);
-  driftp = (double*) mem_free((char* ) driftp);
-  covpp = (double*) mem_free((char* ) covpp);
-  covgp = (double*) mem_free((char* ) covgp);
-  ymat = (double*) mem_free((char* ) ymat);
-  zmat = (double*) mem_free((char* ) zmat);
-  maux = (double*) mem_free((char* ) maux);
-  mu = (double*) mem_free((char* ) mu);
-  data = (double*) mem_free((char* ) data);
-  lambda = (double*) mem_free((char* ) lambda);
+  mem_free((char* ) covss);
+  mem_free((char* ) distps);
+  mem_free((char* ) distgs);
+  mem_free((char* ) prodps);
+  mem_free((char* ) prodgs);
+  mem_free((char* ) driftp);
+  mem_free((char* ) covpp);
+  mem_free((char* ) covgp);
+  mem_free((char* ) ymat);
+  mem_free((char* ) zmat);
+  mem_free((char* ) maux);
+  mem_free((char* ) mu);
+  mem_free((char* ) data);
+  mem_free((char* ) lambda);
   (void) st_model_manage(-1, model_dat);
   (void) st_krige_manage(-1, 1, model_dat, neighU);
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
@@ -5227,7 +5228,7 @@ void _image_smoother(DbGrid *dbgrid,
                           dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
                           { ELoc::Z.getKey() }, 1);
 
-  int nb_neigh = dbaux->getActiveSampleNumber();
+  int nb_neigh = dbaux->getSampleNumber(true);
   dbaux->rankToIndice(nb_neigh/2, indn0);
 
   /* Loop on the targets to be processed */

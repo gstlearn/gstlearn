@@ -1017,7 +1017,7 @@ knitr::kable(dbStatisticsMono(grid, nm, opers=opers)$toTL(), digits=3,
 scoringRules <- function(db, nm_val, nm_est, nm_std){
   val  <- matrix(
     db$getColumns(names = c(nm_val, nm_est, nm_std), useSel = TRUE),
-    nrow = db$getActiveSampleNumber(),
+    nrow = db$getSampleNumber(TRUE),
     ncol = 3, byrow = FALSE)
   err  <- (val[,1] - val[,2])
   nerr <- err / val[,3]

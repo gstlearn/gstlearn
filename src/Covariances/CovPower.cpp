@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovPower.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include <math.h>
@@ -60,3 +62,7 @@ double CovPower::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovPower::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  return operTB.cosineOne(t0);
+}

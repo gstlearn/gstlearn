@@ -79,13 +79,48 @@ public:
   /// Tell if the use of Optimization is enabled or not
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
-  virtual double evalCovOnSphere(double /*alpha*/,
-                                 int /*degree*/,
-                                 bool /*normalize*/) const { return TEST; }
-  virtual double evalSpectrum(const VectorDouble& /*freq*/,
-                              int /*ivar*/, int /*jvar*/) const { return TEST; }
-  virtual void updateCovByPoints(int /*icas1*/, int /*iech1*/, int /*icas2*/, int /*iech2*/) { return; }
-  virtual void updateCovByMesh(int /*imesh*/) { return; }
+  virtual double evalCovOnSphere(double alpha,
+                                 int degree = 50,
+                                 bool flagScaleDistance = false,
+                                 const CovCalcMode* mode = nullptr) const
+  {
+    DECLARE_UNUSED(alpha);
+    DECLARE_UNUSED(degree);
+    DECLARE_UNUSED(flagScaleDistance);
+    DECLARE_UNUSED(mode);
+    return TEST;
+  }
+  virtual VectorDouble evalSpectrumOnSphere(int n,
+                                            bool flagNormDistance = false,
+                                            bool flagCumul = false) const
+  {
+    DECLARE_UNUSED(n);
+    DECLARE_UNUSED(flagNormDistance);
+    DECLARE_UNUSED(flagCumul);
+    return VectorDouble();
+  }
+  virtual double evalSpectrum(const VectorDouble &freq,
+                              int ivar,
+                              int jvar) const
+  {
+    DECLARE_UNUSED(freq);
+    DECLARE_UNUSED(ivar);
+    DECLARE_UNUSED(jvar);
+    return TEST;
+  }
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+  {
+    DECLARE_UNUSED(icas1);
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(icas2);
+    DECLARE_UNUSED(iech2);
+    return;
+  }
+  virtual void updateCovByMesh(int imesh)
+  {
+    DECLARE_UNUSED(imesh);
+    return;
+  }
   /////////////////////////////////////////////////////////////////////////////////
   ///
   void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
@@ -203,6 +238,10 @@ public:
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr);
+  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
+                                               int ivar0,
+                                               const VectorInt &nbgh1,
+                                               const CovCalcMode *mode);
   MatrixSparse* evalCovMatrixSparse(Db *db1_arg,
                                     Db *db2_arg = nullptr,
                                     int ivar0 = -1,
@@ -252,6 +291,13 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
+protected:
+  VectorInt _getActiveVariables(int ivar0) const;
+  void _updateCovMatrixSymmetricVerr(const Db *db1,
+                                     AMatrix *mat,
+                                     const VectorInt &ivars,
+                                     const VectorVectorInt &index1) const;
+
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -259,19 +305,6 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-
-  int _getAuxiliaryParameters(const Db *db1,
-                              const Db *db2,
-                              int ivar0,
-                              int jvar0,
-                              const VectorInt &nbgh1,
-                              const VectorInt &nbgh2,
-                              int *nvar1,
-                              int *nvar2,
-                              int *nsize1,
-                              int *nsize2,
-                              int *nechtot1,
-                              int *nechtot2);
 
 protected:
   bool _isOptimEnabled;

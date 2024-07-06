@@ -358,7 +358,7 @@ static void st_relem_subdivide(Relem *relem0, int half, int noper)
 
   divs = ut_split_into_two(ncur, half, verbose, &ndiv);
   number = ndiv * noper;
-  divs = (int*) mem_free((char* ) divs);
+  mem_free((char* ) divs);
 
   relem0->splits.resize(number);
 
@@ -379,7 +379,7 @@ static void st_relem_subdivide(Relem *relem0, int half, int noper)
         st_relem_subdivide(split->relems[i], 0, NGRF);
       }
     }
-    divs = (int*) mem_free((char* ) divs);
+    mem_free((char* ) divs);
   }
 
   relem0->splits.resize(number);
@@ -1280,7 +1280,6 @@ static double st_rule_calcul(Local_Pgs *local_pgs, int *string)
 
   /* Preliminary assignments */
 
-  score = 0.;
   local_pgs->rule = st_rule_encode(string);
   local_pgs->ngrf = local_pgs->rule->getGRFNumber();
   local_pgs->vario->setNVar(local_pgs->ngrf);
@@ -3595,7 +3594,7 @@ static void st_manage_corpgs(Local_CorPgs *local_corpgs)
   local_corpgs->flag_rho = 0;
   local_corpgs->rho = 0.;
   local_corpgs->params.resize(4,0.);
-  local_corpgs->modif.reset(4, 4, 0.);
+  local_corpgs->modif.resetFromValue(4, 4, 0.);
 }
 
 /****************************************************************************/
@@ -4108,8 +4107,8 @@ static int st_variogram_pgs_nostat(Db *db,
   st_manage_pgs(-1, &local_pgs, db, rule, vario, nullptr, nullptr, propdef,
                 flag_stat, 1, 0, ngrf, nfacies, vario->getCalcul());
   (void) st_vario_pgs_variable(-1, ngrf, nfacies, 1, 0, db, propdef, rule);
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
-                              propcst, propdef);
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
+                    propcst, propdef);
   return (error);
 }
 
@@ -5013,14 +5012,15 @@ Vario* model_pgs(Db *db,
 
   error = 0;
 
-  label_end: if (TEST_DISCRET)
+  label_end:
+  if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1, 0, 1, 200, 100, -1., 1., CTABLES);
   st_manage_pgs(-1, &local_pgs, db, rule, vario, varioind, new_model, propdef,
                 flag_stat, 0, 1, ngrf, nfacies, vario->getCalcul());
   delete new_model;
   (void) st_vario_pgs_variable(-1, ngrf, nfacies, 0, 1, db, propdef, rule);
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
-                              propcst, propdef);
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
+                    propcst, propdef);
   if (error)
   {
     delete vario;
@@ -5109,8 +5109,8 @@ static int st_variogram_pgs_stat(Db *db,
   label_end: (void) st_extract_trace(&local_pgs);
   st_manage_pgs(-1, &local_pgs, db, rule, vario, varioind, NULL, propdef,
                 flag_stat, 1, 0, ngrf, nfacies, vario->getCalcul());
-  propdef = proportion_manage(-1, 1, 1, ngrf, 0, nfacies, 0, NULL,
-                              NULL, propcst, propdef);
+  proportion_manage(-1, 1, 1, ngrf, 0, nfacies, 0, NULL,
+                    NULL, propcst, propdef);
   return (error);
 }
 
@@ -5411,15 +5411,16 @@ Rule* _rule_auto(Db *db,
 
   error = 0;
 
-  label_end: Pile_Relem = st_relem_free(Pile_Relem);
+  label_end:
+  st_relem_free(Pile_Relem);
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1, 0, 1, 200, 100, -1., 1., CTABLES);
   st_manage_pgs(-1, &local_pgs, db, nullptr, vario, varioind, nullptr, propdef,
                 flag_stat, 1, 0, NGRF, NCOLOR, vario->getCalcul());
   (void) st_vario_pgs_variable(-1, NGRF, NCOLOR, 1, 0, db, propdef, NULL);
 
-  propdef = proportion_manage(-1, 1, flag_stat, NGRF, 0, NCOLOR, 0, db, dbprop,
-                              propcst, propdef);
+  proportion_manage(-1, 1, flag_stat, NGRF, 0, NCOLOR, 0, db, dbprop,
+                    propcst, propdef);
   if (varioind != nullptr) delete varioind;
   if (vario != nullptr) delete vario;
   if (error) rule = rule_free(rule);

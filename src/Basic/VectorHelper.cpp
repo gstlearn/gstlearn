@@ -471,6 +471,26 @@ int VectorHelper::cumul(const VectorInt& vec)
   return total;
 }
 
+int VectorHelper::cumul(const VectorVectorInt& vec)
+{
+  int total = 0.;
+  for (auto &v : vec)
+  {
+    total += cumul(v);
+  }
+  return total;
+}
+
+int VectorHelper::count(const VectorVectorInt& vec)
+{
+  int total = 0.;
+  for (auto &v : vec)
+  {
+    total += v.size();
+  }
+  return total;
+}
+
 double VectorHelper::cumul(const VectorDouble& vec)
 {
   double total = 0.;
@@ -598,6 +618,18 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
+double VectorHelper::normL1(const VectorDouble &vec)
+{
+  int nval = (int) vec.size();
+  double normL1 = 0.;
+  for (int i = 0; i < nval; i++)
+  {
+    double value = ABS(vec[i]);
+    normL1 += value;
+  }
+  return (normL1);
+}
+
 double VectorHelper::norminf(const VectorDouble &vec)
 {
   double norminf = 0.;
@@ -670,9 +702,13 @@ double VectorHelper::product(const VectorDouble& vec)
   return nprod;
 }
 
-void VectorHelper::normalize(VectorDouble &vec)
+void VectorHelper::normalize(VectorDouble &vec, int norm)
 {
-  double ratio = VH::norm(vec);
+  double ratio;
+  if (norm == 2)
+    ratio = VH::norm(vec);
+  else
+    ratio = VH::normL1(vec);
   if (ratio <= 0.) return;
   for (auto &v : vec)
      v /= ratio;
@@ -984,6 +1020,18 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
   for (auto &e: vecb)
     res.push_back(e);
   return res;
+}
+
+void VectorHelper::cumulateInPlace(VectorDouble& vec)
+{
+  VectorDouble::iterator it(vec.begin());
+  double old = 0.;
+  while (it < vec.end())
+  {
+    *it += old;
+    old = *it;
+    it++;
+  }
 }
 
 void VectorHelper::cumulate(VectorDouble &veca,
@@ -2082,7 +2130,6 @@ void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout,
  * Transform a vector of double values as follows
  * @param tab  Vector of double values
  * @param oper_choice Operation on the diagonal term (see Utilities::operate_XXX)
- * @return
  */
 void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
 {
@@ -2259,6 +2306,29 @@ int VectorHelper::whereMaximum(const VectorDouble& tab)
   return ibest;
 }
 
+/*
+ * Returns the rank where 'target' has been found within 'tab'
+ *
+ * @param tab Vector of integer values to be searched
+ * @param target Target value to be searched for
+ *
+ * @return Rank at which the target value has been found (-1 if not found)
+ */
+int VectorHelper::whereElement(const VectorInt& tab, int target)
+{
+  for (int i = 0, ntab = (int) tab.size(); i < ntab; i++)
+  {
+    if (tab[i] == target) return i;
+  }
+  return -1;
+}
+
+/**
+ * Reduce the input vector 'vecin' by suppressing the element referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param index Index to be suppressed
+ */
 VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
 {
   VectorInt vindex(1);
@@ -2266,6 +2336,12 @@ VectorDouble VectorHelper::reduceOne(const VectorDouble &vecin, int index)
   return reduce(vecin, vindex);
 }
 
+/**
+ * Reduce the input vector 'vecin' by suppressing the elements referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param vindex Vector of indices to be suppressed
+ */
 VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vindex)
 {
   VectorDouble vecout = vecin;
@@ -2279,6 +2355,23 @@ VectorDouble VectorHelper::reduce(const VectorDouble &vecin, const VectorInt& vi
   {
     int i = indexLocal[nsel - j - 1];
     vecout.erase(vecout.begin()+i);
+  }
+  return vecout;
+}
+
+/**
+ * Reduce the input vector 'vecin' by returning the only elements referred by 'index'
+ *
+ * @param vecin Input vector (double)
+ * @param vindex Vector of indices to be kept
+ */
+VectorDouble VectorHelper::compress(const VectorDouble &vecin, const VectorInt& vindex)
+{
+  VectorDouble vecout;
+  for (int j = 0, nsel = (int) vindex.size(); j < nsel; j++)
+  {
+    int i = vindex[j];
+    vecout.push_back(vecin[i]);
   }
   return vecout;
 }

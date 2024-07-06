@@ -26,30 +26,36 @@ DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/SparseCholesky>
+#include <omp.h>
 DISABLE_WARNING_POP
 
 #include <csparse_f.h>
 
+/**
+ * This variable switches ON/OFF the ability to use Eigen library for Algebra
+ */
+static bool globalFlagEigen = true;
+
 MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
-    : AMatrix(nrow, ncol, opt_eigen),
-      _csMatrix(nullptr),
-      _eigenMatrix(),
-      _factor(nullptr)
+  : AMatrix(nrow, ncol),
+    _csMatrix(nullptr),
+    _eigenMatrix(),
+    _factor(nullptr),
+    _flagEigen(false)
 {
+  _flagEigen = _defineFlagEigen(opt_eigen);
   _allocate();
 }
 
 #ifndef SWIG
-MatrixSparse::MatrixSparse(const cs *A, int opt_eigen)
-    : AMatrix(cs_get_nrow(A), cs_get_ncol(A), opt_eigen),
-      _csMatrix(nullptr),
-      _eigenMatrix(),
-      _factor(nullptr)
+MatrixSparse::MatrixSparse(const cs *A)
+  : AMatrix(cs_get_nrow(A), cs_get_ncol(A)),
+    _csMatrix(nullptr),
+    _eigenMatrix(),
+    _factor(nullptr),
+    _flagEigen(false)
 {
-  if (isFlagEigen())
-    my_throw("Cannot copy a cs into an Eigen"); // TODO: improve convert cs to MatrixSparse
-  else
-    _csMatrix = cs_duplicate(A);
+  _csMatrix = cs_duplicate(A);
 }
 #endif
 
@@ -57,7 +63,8 @@ MatrixSparse::MatrixSparse(const MatrixSparse &m)
     : AMatrix(m),
       _csMatrix(nullptr),
       _eigenMatrix(),
-      _factor(nullptr) // recompute cholesky (if needed)
+      _factor(nullptr), // recompute cholesky (if needed)
+      _flagEigen(m._flagEigen)
 {
   if (isFlagEigen())
     _eigenMatrix = m._eigenMatrix;
@@ -70,7 +77,8 @@ MatrixSparse& MatrixSparse::operator=(const MatrixSparse &m)
   if (this != &m)
   {
     AMatrix::operator=(m);
-    if (isFlagEigen())
+    _flagEigen = m._flagEigen;
+    if (_flagEigen)
       _eigenMatrix = m._eigenMatrix;
     else
     {
@@ -86,64 +94,37 @@ MatrixSparse::~MatrixSparse()
   _deallocate();
 }
 
-void MatrixSparse::init(int nrows, int ncols)
+void MatrixSparse::resetFromValue(int nrows, int ncols, double value)
 {
-  _deallocate();
-  _setNRows(nrows);
-  _setNCols(ncols);
-  _allocate();
-}
-
-void MatrixSparse::reset(int nrows, int ncols)
-{
-  if (! _isNumbersValid(nrows, ncols)) return;
-  _setNRows(nrows);
-  _setNCols(ncols);
-  _clearDecoration();
-}
-
-void MatrixSparse::reset(int nrows, int ncols, double value)
-{
+  DECLARE_UNUSED(nrows);
+  DECLARE_UNUSED(ncols);
   DECLARE_UNUSED(value);
-  if (! _isNumbersValid(nrows, ncols)) return;
-  _forbiddenForSparse("reset");
+  _forbiddenForSparse("resetFromValue");
 }
 
-void MatrixSparse::reset(int nrows, int ncols, const double* tab, bool byCol)
+void MatrixSparse::resetFromArray(int nrows, int ncols, const double* tab, bool byCol)
 {
-  DECLARE_UNUSED(byCol);
+  DECLARE_UNUSED(nrows);
+  DECLARE_UNUSED(ncols);
   DECLARE_UNUSED(tab);
-  if (! _isNumbersValid(nrows, ncols)) return;
-  _forbiddenForSparse("reset");
+  DECLARE_UNUSED(byCol);
+  _forbiddenForSparse("resetFromArray");
 }
 
-void MatrixSparse::reset(int nrows, int ncols, const VectorDouble& tab, bool byCol)
+void MatrixSparse::resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol)
 {
-  if (! _isNumbersValid(nrows, ncols)) return;
-  reset(nrows, ncols, tab.data(), byCol);
+  DECLARE_UNUSED(nrows);
+  DECLARE_UNUSED(ncols);
+  DECLARE_UNUSED(tab);
+  DECLARE_UNUSED(byCol);
+  _forbiddenForSparse("resetFromVD");
 }
 
-void MatrixSparse::reset(const VectorVectorDouble& tab, bool byCol)
+void MatrixSparse::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 {
-  if (byCol)
-  {
-    _setNRows((int) tab.size());
-    _setNCols((int) tab[0].size());
-    _allocate();
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++)
-        _setValue(irow, icol, tab[irow][icol]);
-  }
-  else
-  {
-    _setNCols((int) tab.size());
-    _setNRows((int) tab[0].size());
-    _allocate();
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++)
-        _setValue(irow, icol, tab[icol][irow]);
-  }
-  _clearDecoration();
+  DECLARE_UNUSED(tab);
+  DECLARE_UNUSED(byCol);
+  _forbiddenForSparse("resetFromVVD");
 }
 
 void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
@@ -381,19 +362,6 @@ double MatrixSparse::_getValueByRank(int rank) const
   return TEST;
 }
 
-double MatrixSparse::_getValue(int irow, int icol) const
-{
-  if (isFlagEigen())
-  {
-    return _eigenMatrix.coeff(irow, icol);
-  }
-  else
-  {
-    if (!_isIndexValid(irow, icol)) return TEST;
-    return cs_get_value(_csMatrix, irow, icol);
-  }
-}
-
 double& MatrixSparse::_getValueRef(int irow, int icol)
 {
   DECLARE_UNUSED(irow);
@@ -406,11 +374,12 @@ void MatrixSparse::_setValueByRank(int rank, double value)
 {
   DECLARE_UNUSED(rank);
   DECLARE_UNUSED(value);
-  _forbiddenForSparse("_setValue (by rank)");
+  _forbiddenForSparse("_setValueByRank");
 }
 
-void MatrixSparse::_setValue(int irow, int icol, double value)
+void MatrixSparse::setValue(int irow, int icol, double value, bool flagCheck)
 {
+  if (flagCheck && ! _isIndexValid(irow, icol)) return;
   if (isFlagEigen())
   {
     _eigenMatrix.coeffRef(irow, icol) = value;
@@ -422,8 +391,13 @@ void MatrixSparse::_setValue(int irow, int icol, double value)
   }
 }
 
-void MatrixSparse::_updValue(int irow, int icol, const EOperator& oper, double value)
+void MatrixSparse::updValue(int irow,
+                            int icol,
+                            const EOperator &oper,
+                            double value,
+                            bool flagCheck)
 {
+  if (flagCheck && ! _isIndexValid(irow, icol)) return;
   if (isFlagEigen())
   {
     double newval = modifyOperator(oper, _eigenMatrix.coeff(irow, icol), value);
@@ -668,7 +642,9 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
   return mat;
 }
 
-MatrixSparse* MatrixSparse::addMatMat(const MatrixSparse *x, const MatrixSparse *y, double cx, double cy)
+MatrixSparse* MatrixSparse::addMatMat(const MatrixSparse *x,
+                                      const MatrixSparse *y,
+                                      double cx, double cy)
 {
   MatrixSparse* mat = new MatrixSparse(x->getNRows(), x->getNCols(), x->isFlagEigen());
   if (x->isFlagEigen() && y->isFlagEigen())
@@ -762,8 +738,9 @@ void MatrixSparse::addValue(int row, int col, double value)
     cs_add_value(_csMatrix, row, col, value);
 }
 
-double MatrixSparse::getValue(int row, int col) const
+double MatrixSparse::getValue(int row, int col, bool flagCheck) const
 {
+  if (flagCheck && ! _isIndexValid(row, col)) return TEST;
   if (isFlagEigen())
     return _eigenMatrix.coeff(row, col);
   else
@@ -876,7 +853,7 @@ void MatrixSparse::addScalar(double v)
       for (int icol = 0; icol < getNCols(); icol++)
       {
         if (_isElementPresent(irow, icol))
-          _setValue(irow, icol, _getValue(irow, icol) + v);
+          setValue(irow, icol, getValue(irow, icol, false) + v, false);
       }
   }
 }
@@ -1062,7 +1039,7 @@ MatrixSparse* prodNormMatMat(const MatrixSparse &a,
 {
   int nrow = (transpose) ? a.getNCols() : a.getNRows();
   int ncol = (transpose) ? a.getNRows() : a.getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen());
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen() ? 1 : 0);
   mat->prodNormMatMatInPlace(a, m, transpose);
   return mat;
 }
@@ -1070,7 +1047,7 @@ MatrixSparse* prodNormMatMat(const MatrixSparse &a,
 MatrixSparse* prodNormMat(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
 {
   int nsym = (transpose) ? a.getNCols() : a.getNRows();
-  MatrixSparse *mat = new MatrixSparse(nsym, nsym, a.isFlagEigen());
+  MatrixSparse *mat = new MatrixSparse(nsym, nsym, a.isFlagEigen() ? 1 : 0);
   mat->prodNormMatInPlace(a, vec, transpose);
   return mat;
 }
@@ -1081,7 +1058,7 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
 {
   int nrow = a.getNRows();
   int ncol = a.getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen());
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen() ? 1 : 0);
 
   if (a.isFlagEigen())
   {
@@ -1097,7 +1074,7 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
   {
     cs* local = cs_matvecnorm(a.getCS(), vec.data(), oper_choice);
     mat->setCS(local);
-    local = cs_spfree2(local);
+    cs_spfree2(local);
   }
   return mat;
 }
@@ -1307,7 +1284,6 @@ String MatrixSparse::toString(const AStringFormat* strfmt) const
   {
     sstr << "- Number of rows    = " << getNRows() << std::endl;
     sstr << "- Number of columns = " << getNCols() << std::endl;
-    sstr << "  (not using Eigen Library)" << std::endl;
     sstr << "- Sparse Format" << std::endl;
     sstr << toMatrix(String(), *this);
   }
@@ -1405,12 +1381,12 @@ int MatrixSparse::_getIndexToRank(int irow,int icol) const
   return ITEST;
 }
 
-MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
+MatrixSparse* createFromAnyMatrix(const AMatrix* matin, int opt_eigen)
 {
   return MatrixSparse::createFromTriplet(matin->getMatrixToTriplet(),
                                          matin->getNRows(),
                                          matin->getNCols(),
-                                         matin->isFlagEigen());
+                                         opt_eigen);
 }
 
 void setUpdateNonZeroValue(int status)
@@ -1500,7 +1476,7 @@ MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
   int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
   int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
 
-  return MatrixSparse::createFromTriplet(T1, nrow, ncol, A1->isFlagEigen());
+  return MatrixSparse::createFromTriplet(T1, nrow, ncol, A1->isFlagEigen() ? 1 : 0);
 }
 
 /* Extract a sparse sub-matrix */
@@ -1585,5 +1561,37 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
     NF_Tout.add(ir, ic, NF_Tin.getValue(i));
   }
 
-  return MatrixSparse::createFromTriplet(NF_Tout,0,0,isFlagEigen());
+  return MatrixSparse::createFromTriplet(NF_Tout,0,0, isFlagEigen() ? 1 : 0);
+}
+
+/**
+ * Define the use of Eigen Library according to the value of input argulent 'opt_eigen'
+ * @param opt_eigen Choice: 0: Do not use Eigen library; 1; Use Eigen library; -1: use global environment
+ * @return Option for using the Eigen library
+ */
+bool MatrixSparse::_defineFlagEigen(int opt_eigen) const
+{
+  // Dispatch
+
+  if (opt_eigen == 1)
+    return true;
+  else if (opt_eigen == 0)
+    return false;
+  else
+    return globalFlagEigen;
+}
+
+/**
+ * Modify the parameter for using EIGEN library or not.
+ * Warning: this must be performed very early in the script in order to forbid mixing two different styles.
+ * @param flagEigen True if EIGEN library must be used; False otherwise (cs is used)
+ */
+void setGlobalFlagEigen(bool flagEigen)
+{
+  globalFlagEigen = flagEigen;
+}
+
+bool isGlobalFlagEigen()
+{
+  return globalFlagEigen;
 }

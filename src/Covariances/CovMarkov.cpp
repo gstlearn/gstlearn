@@ -52,26 +52,26 @@ double CovMarkov::getScadef() const
   return sqrt(12. * _markovCoeffs.size());
 }
 
-double CovMarkov::_evaluateCov(double /*h*/) const
-{
-  return TEST;
-}
-
 String CovMarkov::getFormula() const
 {
   return "C(h)=\\int_{R^d} \\frac{e^{-i\\omega^t.h}}{P(||\\omega||^2)}d\\omega";
 }
 
-double CovMarkov::_evaluateCovOnSphere(double scale, int degree) const
+VectorDouble CovMarkov::_evaluateSpectrumOnSphere(int n, double scale) const
 {
-  double s = 0.;
-  int n = (int)_markovCoeffs.size();
-  double nnp1 = scale * scale * (double) degree * ((double) degree + 1.);
-  for(int i = 0; i< n;i++)
+  VectorDouble sp(1+n, 0.);
+
+  double nnp1 = scale * scale * (double) n * ((double) n + 1.);
+  for (int j = 0; j <= n; j++)
   {
-    s += _markovCoeffs[i] * pow(nnp1,i);
+    double s = 0.;
+    for (int i = 0, degree = (int) _markovCoeffs.size(); i < degree; i++)
+    {
+      s += _markovCoeffs[i] * pow(nnp1,i);
+    }
+    sp[j] = scale * scale * (2. * n + 1.) / (4 * GV_PI * s);
   }
-  return scale * scale * (2. * degree + 1.) / (4 * GV_PI * s);
+  return sp;
 }
 
 double CovMarkov::evaluateSpectrum(double freq, int /*ndim*/) const

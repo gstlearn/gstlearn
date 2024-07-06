@@ -31,81 +31,68 @@
 
 #define HA(i,j)        ha[SQ(i,j,neq)]
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
-    : AMatrixSquare(nrow, opt_eigen),
-      _squareSymMatrix(),
-      _flagCholeskyDecompose(false),
-      _flagCholeskyInverse(false),
-      _tl(),
-      _xl(),
-      _factor()
+MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
+  : AMatrixSquare(nrow),
+    _flagCholeskyDecompose(false),
+    _flagCholeskyInverse(false),
+    _tl(),
+    _xl(),
+    _factor()
 {
-  _allocate();
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
   : AMatrixSquare(r),
-   _squareSymMatrix(),
    _flagCholeskyDecompose(r._flagCholeskyDecompose),
    _flagCholeskyInverse(r._flagCholeskyInverse),
    _tl(),
    _xl(),
    _factor()
 {
-  _recopyLocal(r);
+  _recopy(r);
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
-    : AMatrixSquare(m),
-      _squareSymMatrix(),
-      _flagCholeskyDecompose(false),
-      _flagCholeskyInverse(false),
-      _tl(),
-      _xl(),
-      _factor()
+  : AMatrixSquare(m),
+    _flagCholeskyDecompose(false),
+    _flagCholeskyInverse(false),
+    _tl(),
+    _xl(),
+    _factor()
 {
-  // TODO: clean this code or move it upwards
   if (!m.isSymmetric())
   {
     messerr("The input matrix should be Symmetric");
     _clear();
     return;
   }
-  const MatrixSquareSymmetric* matrixLoc = dynamic_cast<const MatrixSquareSymmetric*>(&m);
-  if (matrixLoc != nullptr)
-    _recopyLocal(*matrixLoc);
-  else
-  {
-    _allocate();
-    AMatrix::copyElements(m);
-  }
+  copyElements(m);
 }
+
 
 MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)
 {
   if (this != &r)
   {
     AMatrixSquare::operator=(r);
-    _recopyLocal(r);
+    _recopy(r);
   }
   return *this;
 }
 
 MatrixSquareSymmetric::~MatrixSquareSymmetric()
 {
-  _deallocate();
 }
 
 /**
  * Converts a VectorVectorDouble into a Square Symmetric Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param  X Input VectorVectorDouble argument
- * @param opt_eigen Option for use of Eigen Library
  * @return The returned square symmetric matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
@@ -114,14 +101,13 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
     messerr("The matrix does not seem to be square");
     return nullptr;
   }
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow, opt_eigen);
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }
 
 MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X,
-                                                           int nrow,
-                                                           int opt_eigen)
+                                                           int nrow)
 {
   int ncol = nrow;
   if (nrow * ncol != (int) X.size())
@@ -139,7 +125,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
   }
   delete mattemp;
 
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(nrow, opt_eigen);
+  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(nrow);
 
   int lec = 0;
   for (int irow = 0; irow < nrow; irow++)
@@ -148,127 +134,34 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
   return mat;
 }
 
-double MatrixSquareSymmetric::_getValue(int irow, int icol) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getValue(irow, icol);
-  else
-    return _getValueLocal(irow, icol);
-}
-
-double MatrixSquareSymmetric::_getValueByRank(int irank) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getValueByRank(irank);
-  else
-    return _getValueLocal(irank);
-}
-
-double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getValueRef(irow, icol);
-  else
-    return _getValueRef(irow, icol);
-}
-
-void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
-{
-  if (isFlagEigen())
-  {
-    // Do not forget to make a symmetrical call (when stored in an Eigen format)
-    AMatrixDense::_setValue(irow, icol, value);
-    if (irow != icol) AMatrixDense::_setValue(icol, irow, value);
-  }
-  else
-    _setValueLocal(irow, icol, value);
-}
-
-void MatrixSquareSymmetric::_updValue(int irow, int icol, const EOperator& oper, double value)
-{
-  if (isFlagEigen())
-  {
-    // Do not forget to make a symmetrical call (when stored in an Eigen format)
-    AMatrixDense::_updValue(irow, icol, oper, value);
-    if (irow != icol) AMatrixDense::_updValue(icol, irow, oper, value);
-  }
-  else
-    _updValueLocal(irow, icol, oper, value);
-}
-
-void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
-{
-  if (isFlagEigen())
-    AMatrixDense::_setValueByRank(irank, value);
-  else
-    _setValueLocal(irank, value);
-}
-
-void MatrixSquareSymmetric::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
-{
-  if (isFlagEigen())
-    AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
-  else
-    _prodMatVecInPlacePtrLocal(x, y, transpose);
-}
-
-void MatrixSquareSymmetric::_prodVecMatInPlacePtr(const double *x, double *y, bool transpose) const
-{
-  if (isFlagEigen())
-    AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
-  else
-    _prodVecMatInPlacePtrLocal(x, y, transpose);
-}
-
 /**
  * \warning : values is provided as a square complete matrix
  */
 void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 {
-  if (isFlagEigen())
-    AMatrixDense::_setValues(values, byCol);
-  else
-    _setValuesLocal(values, byCol);
+  // Check that the input argument corresponds to a square symmetric matrix
+  for (int icol = 0; icol < getNCols(); icol++)
+    for (int irow = 0; irow < getNRows(); irow++)
+    {
+      double val1 = values[icol * getNRows() + irow];
+      double val2 = values[irow * getNCols() + icol];
+      if (ABS(val1 - val2) > EPSILON10)
+      {
+        messerr(
+            "Argument 'values' must correspond to a Square Symmetric Matrix");
+        messerr("- Element[%d,%d] = %lf", icol, irow, val1);
+        messerr("- Element(%d,%d) = %lf", irow, icol, val2);
+        messerr("Operation is aborted");
+        return;
+      }
+    }
+
+  AMatrixDense::_setValues(values, byCol);
 }
 
 int MatrixSquareSymmetric::_invert()
 {
-  if (isFlagEigen())
-    return AMatrixDense::_invert();
-  else
-    return _invertLocal();
-}
-
-void MatrixSquareSymmetric::_allocate()
-{
-  if (isFlagEigen())
-    AMatrixDense::_allocate();
-  else
-    _allocateLocal();
-}
-
-int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getIndexToRank(irow, icol);
-  else
-    return _getIndexToRankLocal(irow, icol);
-}
-
-int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_getMatrixPhysicalSize();
-  else
-    return _getMatrixPhysicalSizeLocal();
-}
-
-int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
-{
-  if (isFlagEigen())
-    return AMatrixDense::_solve(b, x);
-  else
-    return _solveLocal(b, x);
+  return AMatrixDense::_invert();
 }
 
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
@@ -362,320 +255,45 @@ void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x,
 
 int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
-  if (isFlagEigen())
-    return AMatrixDense::_computeEigen(optionPositive);
-  else
-    return _computeEigenLocal(optionPositive);
+  return AMatrixDense::_computeEigen(optionPositive);
 }
 
 int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
-  if (isFlagEigen())
-    return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
-  else
-    return _computeGeneralizedEigenLocal(b, optionPositive);
+  return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
 }
 
-/// =============================================================================
-/// The subsequent methods rely on the specific local storage ('squareSymMatrix')
-/// =============================================================================
-
-void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
+int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
+                                           const VectorDouble &eigenVectors,
+                                           bool optionPositive,
+                                           bool changeOrder)
 {
-  _squareSymMatrix = r._squareSymMatrix;
+  int nrows = getNRows();
+
+  _eigenValues = eigenValues;
+
+  if (_eigenVectors != nullptr) delete _eigenVectors;
+
+  if (changeOrder)
+    std::reverse(_eigenValues.begin(), _eigenValues.end());
+
+  _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, changeOrder);
+
+  if (optionPositive) _eigenVectors->makePositiveColumn();
+
+  _flagEigenDecompose = true;
+
+  return 0;
+}
+
+void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric& r)
+{
   _tl = r._tl;
   _xl = r._xl;
   _flagCholeskyDecompose = r._flagCholeskyDecompose;
   _flagCholeskyInverse   = r._flagCholeskyInverse;
   _flagEigenDecompose    = r._flagEigenDecompose;
   _factor                = r._factor;
-}
-
-double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
-{
-  if (! _isIndexValid(irow,icol)) return TEST;
-  int rank = _getIndexToRank(irow,icol);
-  return _squareSymMatrix[rank];
-}
-
-double MatrixSquareSymmetric::_getValueLocal(int irank) const
-{
-  return _squareSymMatrix[irank];
-}
-
-double& MatrixSquareSymmetric::_getValueRefLocal(int irow, int icol)
-{
-  int rank = _getIndexToRank(irow, icol);
-  return _squareSymMatrix[rank];
-}
-
-void MatrixSquareSymmetric::_setValueLocal(int irow, int icol, double value)
-{
-  if (! _isIndexValid(irow, icol)) return;
-  int irank = _getIndexToRank(irow, icol);
-  _squareSymMatrix[irank] = value;
-}
-
-void MatrixSquareSymmetric::_updValueLocal(int irow, int icol, const EOperator& oper, double value)
-{
-  if (! _isIndexValid(irow, icol)) return;
-  int irank = _getIndexToRank(irow, icol);
-  _squareSymMatrix[irank] = modifyOperator(oper, _squareSymMatrix[irank], value);
-}
-
-void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
-{
-  if (! _isRankValid(irank)) return;
-  _squareSymMatrix[irank] = value;
-}
-
-void MatrixSquareSymmetric::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
-{
-  DECLARE_UNUSED(transpose);
-  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
-}
-
-void MatrixSquareSymmetric::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
-{
-  DECLARE_UNUSED(transpose);
-  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
-}
-
-/**
- * \warning : values is provided as a square complete matrix
- */
-void MatrixSquareSymmetric::_setValuesLocal(const double *values, bool byCol)
-{
-  // Check that the input argument corresponds to a square symmetric matrix
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++)
-    {
-      double val1 = values[icol * getNRows() + irow];
-      double val2 = values[irow * getNCols() + icol];
-      if (ABS(val1 - val2) > EPSILON10)
-      {
-        messerr(
-            "Argument 'values' must correspond to a Square Symmetric Matrix");
-        messerr("- Element[%d,%d] = %lf", icol, irow, val1);
-        messerr("- Element(%d,%d) = %lf", irow, icol, val2);
-        messerr("Operation is aborted");
-        return;
-      }
-    }
-
-  int ecr = 0;
-  if (byCol)
-  {
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++)
-        setValue(irow, icol, values[ecr++]);
-  }
-  else
-  {
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++)
-        setValue(irow, icol, values[ecr++]);
-  }
-}
-
-int MatrixSquareSymmetric::_invertLocal()
-{
-  return _matrix_invert_triangle(getNRows(),_squareSymMatrix.data());
-}
-
-void MatrixSquareSymmetric::_allocateLocal()
-{
-  _squareSymMatrix.resize(_getMatrixPhysicalSize());
-}
-
-int MatrixSquareSymmetric::_getIndexToRankLocal(int irow, int icol) const
-{
-  int rank;
-  int n = getNRows();
-  if (irow >= icol)
-    rank = icol * n + irow - icol * (icol + 1) / 2;
-  else
-    rank = irow * n + icol - irow * (irow + 1) / 2;
-  return rank;
-}
-
-int MatrixSquareSymmetric::_getMatrixPhysicalSizeLocal() const
-{
-  int n = getNRows();
-  int size = n * (n + 1) / 2;
-  return size;
-}
-
-int MatrixSquareSymmetric::_solveLocal(const VectorDouble& b, VectorDouble& x) const
-{
-  int pivot;
-  int size = (int) b.size();
-  VectorDouble alocal = _squareSymMatrix;
-  VectorDouble blocal = b;
-  pivot = _matrix_solve(alocal, blocal, x, size, 1);
-  return (pivot != 0);
-}
-
-int MatrixSquareSymmetric::_computeEigenLocal(bool optionPositive)
-{
-  int nrows = getNRows();
-  _flagEigenDecompose = true;
-  _eigenValues = VectorDouble(nrows, 0.);
-  VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
-
-  int err = matrix_eigen(this->getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
-  if (err == 0)
-  {
-    // Clean previous array (if present)
-    if (_eigenVectors != nullptr) delete _eigenVectors;
-    _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, false);
-
-    if (optionPositive) _eigenVectors->makePositiveColumn();
-  }
-
-  return err;
-}
-
-int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive)
-{
-  int nrows = getNRows();
-  _flagEigenDecompose = true;
-  _eigenValues = VectorDouble(nrows, 0.);
-  VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
-
-  int err = _matrix_geigen(this->getValues().data(),b.getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
-  if (err == 0)
-  {
-    // Clean previous array (if present)
-    if (_eigenVectors != nullptr) delete _eigenVectors;
-
-    std::reverse(_eigenValues.begin(), _eigenValues.end());
-    _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, true);
-
-    if (optionPositive) _eigenVectors->makePositiveColumn();
-  }
-  return err;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculates the generalized eigen value problem
- **           A X = B X l
- **
- ** \return  Return code:
- ** \return   0 no error
- ** \return   1 convergence problem
- **
- ** \param[in]  a     square symmetric matrix (dimension = neq * neq)
- ** \param[in]  b     square symmetric matrix (dimension = neq * neq)
- ** \param[in]  neq   matrix dimension
- **
- ** \param[out] value  matrix of the eigen values (dimension: neq)
- ** \param[out] vector matrix of the eigen vectors (dimension: neq*neq)
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::_matrix_geigen(const double *a,
-                                          const double *b,
-                                          int neq,
-                                          double *value,
-                                          double *vector) const
-{
-  // Compute eigen decomposition of B
-  VectorDouble LB(neq);
-  VectorDouble PhiB(neq * neq);
-  if (matrix_eigen(b, neq, LB.data(), PhiB.data())) return 1;
-
-  // Compute auxiliary terms
-  VectorDouble PhiBm = PhiB;
-  int ecr = 0;
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++, ecr++)
-      PhiBm[ecr] /= sqrt(LB[i]);
-
-  VectorDouble Am(neq * neq, 0.);
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      for (int k = 0; k < neq; k++)
-        for (int l = 0; l < neq; l++)
-          Am[i * neq + j] += PhiBm[i * neq + k] * a[l * neq + k] * PhiBm[j * neq + l];
-
-  // Compute eigen decomposition of Am
-  VectorDouble LA(neq);
-  VectorDouble PhiA(neq * neq);
-  if (matrix_eigen(Am.data(), neq, LA.data(), PhiA.data())) return 1;
-
-  VectorDouble Phi(neq * neq,0.);
-  ecr = 0;
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      for (int k = 0; k < neq; k++)
-        Phi[j * neq + i] += PhiBm[k * neq + i] * PhiA[j * neq + k];
-
-  // Sort the eigen values by increasing values
-  VectorInt ranks = VH::sortRanks(LA, true, neq);
-
-  // Ultimate assignments
-  for (int i = 0; i < neq; i++)
-    value[i] = LA[ranks[i]];
-
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      vector[i * neq + j] = -Phi[ranks[i] * neq + j];
-
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the product of a symmetric matrix by a vector
- **
- ** \param[in]  neq    Dimension of the matrix
- ** \param[in]  mode   1 if the Lower matrix is stored linewise
- **                      (or if the Upper matrix is stored columnwise)
- **                    2 if the Lower matrix is stored columnwise
- **                      (or the Upper matrix is stored linewise)
- ** \param[in]  al     Lower triangular matrix defined by column
- ** \param[in]  b      Vector
- **
- ** \param[out] x      Resulting product vector
- **
- *****************************************************************************/
-void MatrixSquareSymmetric::_matrix_triangular_product(int neq,
-                                                       int mode,
-                                                       const double *al,
-                                                       const double *b,
-                                                       double *x) const
-{
-  int i, j;
-  const double *at;
-  double value;
-
-  if (mode == 1)
-  {
-    at = al;
-    for (i = 0; i < neq; i++)
-    {
-      value = 0.;
-      for (j = 0; j <= i; j++)
-        value += AT(j,i) * b[j];
-      for (j = i + 1; j < neq; j++)
-        value += AT(i,j) * b[j];
-      x[i] = value;
-    }
-  }
-  else
-  {
-    for (i = 0; i < neq; i++)
-    {
-      value = 0.;
-      for (j = 0; j <= i; j++)
-        value += AL(i,j) * b[j];
-      for (j = i + 1; j < neq; j++)
-        value += AL(j,i) * b[j];
-      x[i] = value;
-    }
-  }
-  return;
 }
 
 /****************************************************************************/
@@ -711,165 +329,16 @@ bool MatrixSquareSymmetric::isDefinitePositive()
 
 /*****************************************************************************/
 /*!
- **  Solve a system of linear equations with symmetric coefficient
- **  matrix upper triangular part of which is stored columnwise. Use
- **  is restricted to matrices whose leading principal minors have
- **  non-zero determinants.
- **
- ** \return  Return code:  0 no error
- ** \return  -1 if neq<1 +k when zero pivot encountered at k-th iteration
- **
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  nrhs number of right-hand side vectors
- ** \param[in]  at   upper triangular matrix by row (dimension = neq*(neq+1)/2)
- ** \param[in]  b    right-hand side matrix (dimension = neq*nrhs)
- ** \param[in]  eps  tolerance
- **
- ** \param[out] x: matrix of solutions (dimension = neq*nrhs)
- **
- ** \remark  1 - The algorithm is gauss elimination. pivots are taken along
- ** \remark      main diagonal. There are no interchanges and no search for
- ** \remark      maximal element. The equations remain in the same order as on
- ** \remark      input and the right-hand sides are kept.
- ** \remark      It is therefore possible to solve the system with the last
- ** REMAKRS:      equation removed by simply applying back substitution on the
- ** \remark      triangularized matrix 'a'.
- ** \remark  2 - Return code=k at the rank k indicates that the determinant of
- ** \remark      g(k), the leading principal minor of order k, is zero.
- ** \remark      Generally, after triangularization the diagonal term of the
- ** \remark      i-th row is : at*(i*(i+1)/2) = det(g(i)) / det(g(i-1))
- ** \remark      therefore use of this function is restricted to matrices such
- ** \remark      that det(g(i)) is never zero.
- ** \remark   3- The arrays at and b are modified by this function The
- ** \remark      arrays b and x may not coincide
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::_matrix_solve(VectorDouble& at,
-                                         VectorDouble& b,
-                                         VectorDouble& x,
-                                         int neq,
-                                         int nrhs,
-                                         double eps) const
-
-{
-  double pivot, ratio;
-
-  for (int k = 0; k < neq - 1; k++)
-  {
-    pivot = AT(k, k);
-    if (ABS(pivot) < eps) return (k + 1);
-    for (int i = k + 1; i < neq; i++)
-    {
-      ratio = AT(k,i)/ pivot;
-      for (int j=i; j<neq; j++)  AT(i,j) -= AT(k,j) * ratio;
-      for (int l=0; l<nrhs; l++) BS(i,l) -= BS(k,l) * ratio;
-    }
-  }
-
-  pivot = AT(neq - 1, neq - 1);
-  if (ABS(pivot) < eps) return (neq);
-
-  for (int l = 0; l < nrhs; l++)
-    XS(neq-1,l) = BS(neq-1,l) / pivot;
-
-  for (int l = 0; l < nrhs; l++)
-  {
-    for (int k = neq - 2; k >= 0; k--)
-    {
-      ratio = BS(k, l);
-      for (int j = k + 1; j < neq; j++)
-        ratio -= AT(k,j) * XS(j,l);
-      XS(k,l) = ratio / AT(k,k);
-    }
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a symmetric square matrix (stored as triangular)
- **
- ** \return  Error returned code
- **
- ** \param[in,out] tl input matrix, destroyed in computation and replaced by
- **                   resultant inverse
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- ** \remark  It is unnecessary to edit a message if inversion problem occurs
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::_matrix_invert_triangle(int neq, double *tl)
-{
-  VectorDouble a(neq * neq);
-  _matrix_tri2sq(neq, tl, a.data());
-  if (matrix_invert(a.data(), neq, -1)) return 1;
-  _matrix_sq2tri(0, neq, a.data(), tl);
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Transform a symmetrical matrix (entered as triangle)
- **  into a square matrix
- **
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Upper Triangular matrix (columnwise)
- **
- ** \param[out] a      Resulting square matrix
- **
- *****************************************************************************/
-void MatrixSquareSymmetric::_matrix_tri2sq(int neq, const double *tl, double *a)
-{
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-    {
-      AS(i,j)= (j < i) ? TL(i,j) : TL(j,i);
-    }
-  }
-
-/*****************************************************************************/
-/*!
- **  Transform a square symmetric matrix into a triangular one
- **
- ** \param[in]  mode   0: TL (upper); 1: TL (lower)
- ** \param[in]  neq    number of equations in the system
- ** \param[in]  a      Input square (symmetric) matrix
- **
- ** \param[out] tl     Triangular matrix (lower part)
- **
- ** \remark: No test is performed to check that the input matrix is symmetric
- **
- *****************************************************************************/
-void MatrixSquareSymmetric::_matrix_sq2tri(int mode, int neq, const double *a, double *tl)
-{
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-    {
-      if (mode == 0)
-      {
-        if (j <= i) TL(i,j) = AS(i,j);
-      }
-      else
-      {
-        if (j >= i) TL(j,i) = AS(i,j);
-      }
-    }
-  }
-
-/*****************************************************************************/
-/*!
  **  Create the Symmetric matrix as the product of 'tl' (lower triangle) by its transpose
  **
  ** \param[in]  neq    Number of rows or columns in the system
  ** \param[in]  tl     Lower triangular matrix defined by column (Dimension; neq*(neq+1)/2)
- ** \param[in]  opt_eigen Option for use of Eigen Library
  **
  *****************************************************************************/
 MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTLTU(int neq,
-                                                             const VectorDouble &tl,
-                                                             int opt_eigen)
+                                                             const VectorDouble &tl)
 {
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq, opt_eigen);
+  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq);
 
   for (int i = 0; i < neq; i++)
     for (int j = 0; j < neq; j++)
@@ -892,15 +361,13 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTLTU(int neq,
  ** \param[in]  mode   0: TL (upper); 1: TL (lower)
  ** \param[in]  neq    number of equations in the system
  ** \param[in]  tl     Triangular matrix (lower part)
- ** \param[in]  opt_eigen Option for use of Eigen Library
  **
  *****************************************************************************/
 MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
                                                                  int neq,
-                                                                 const VectorDouble &tl,
-                                                                 int opt_eigen)
+                                                                 const VectorDouble &tl)
 {
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq, opt_eigen);
+  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq);
 
   mat->fill(0.);
 
@@ -938,62 +405,18 @@ int MatrixSquareSymmetric::getTriangleSize() const
 int MatrixSquareSymmetric::computeCholesky()
 {
   _flagCholeskyDecompose = false;
-  if (isFlagEigen())
-  {
-    _factor = _eigenMatrix.llt();
-    int neq = getNRows();
 
-    _tl.resize(getTriangleSize());
-    Eigen::MatrixXd mymat = _factor.matrixL();
-    for (int ip = 0; ip < neq; ip++)
-      for (int jp = 0; jp <= ip; jp++)
-        _TL(ip,jp) = mymat(ip,jp);
-  }
-  else
-  {
-    int neq = getNRows();
-    _tl.resize(getTriangleSize());
+  _factor = _eigenMatrix.llt();
+  int neq = getNRows();
 
-    for (int ip = 0; ip < neq; ip++)
-      for (int jp = 0; jp <= ip; jp++)
-        _TL(ip,jp)= getValue(ip,jp);
+  _tl.resize(getTriangleSize());
+  Eigen::MatrixXd mymat = _factor.matrixL();
+  for (int ip = 0; ip < neq; ip++)
+    for (int jp = 0; jp <= ip; jp++)
+      _TL(ip,jp) = mymat(ip,jp);
 
-    for (int ip = 0; ip < neq; ip++)
-    {
-      double prod = _TL(ip, ip);
-      for (int kp = 0; kp < ip; kp++)
-        prod -= _TL(ip,kp)* _TL(ip,kp);
-      if (prod < 0.) return 1;
-      _TL(ip,ip)= sqrt(prod);
-
-      for (int jp = ip + 1; jp < neq; jp++)
-      {
-        prod = _TL(jp, ip);
-        for (int kp = 0; kp < ip; kp++)
-          prod -= _TL(ip,kp)* _TL(jp,kp);
-        if (_TL(ip,ip)<= 0.) return 1;
-        _TL(jp,ip)= prod / _TL(ip,ip);
-      }
-    }
-  }
   _flagCholeskyDecompose = true;
   return 0;
-}
-
-double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
-{
-  if (! isFlagEigen())
-  {
-    messerr("LogDet from Cholesky is only coded for Eigen library");
-    return TEST;
-  }
-  if (! _checkCholeskyAlreadyPerformed(1)) return TEST;
-
-  auto diag = _factor.matrixLLT().diagonal();
-  double det = 0.;
-  for (int i = 0; i < _factor.rows(); i++)
-    det += log(diag[i]);
-  return det;
 }
 
 bool MatrixSquareSymmetric::_checkCholeskyAlreadyPerformed(int status) const
@@ -1054,11 +477,6 @@ int MatrixSquareSymmetric::invertCholesky()
 
 int MatrixSquareSymmetric::solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x)
 {
-  if (! isFlagEigen())
-  {
-    messerr("solve from Cholesky is only coded for Eigen library");
-    return 1;
-  }
   if (! _checkCholeskyAlreadyPerformed(1)) return 1;
 
   int nrows = b.getNRows();
@@ -1077,11 +495,6 @@ int MatrixSquareSymmetric::solveCholeskyMat(const MatrixRectangular& b, MatrixRe
 
 int MatrixSquareSymmetric::solveCholesky(const VectorDouble& b, VectorDouble& x)
 {
-  if (! isFlagEigen())
-  {
-    messerr("solve from Cholesky is only coded for Eigen library");
-    return 1;
-  }
   if (! _checkCholeskyAlreadyPerformed(1)) return 1;
 
   int size = (int) b.size();
@@ -1242,6 +655,17 @@ MatrixSquareSymmetric MatrixSquareSymmetric::normCholeskyInPlace(int mode,
   return b;
 }
 
+double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
+{
+  if (! _checkCholeskyAlreadyPerformed(1)) return TEST;
+
+  auto diag = _factor.matrixLLT().diagonal();
+  double det = 0.;
+  for (int i = 0; i < _factor.rows(); i++)
+    det += log(diag[i]);
+  return det;
+}
+
 /*****************************************************************************/
 /*!
  **  Solve a linear system: H %*% g = x
@@ -1376,8 +800,8 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
   error = 0;
 
   label_end:
-  ha   = (double*) mem_free((char* ) ha);
-  evec = (double*) mem_free((char* ) evec);
+  mem_free((char* ) ha);
+  mem_free((char* ) evec);
   return (error);
 }
 

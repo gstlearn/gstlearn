@@ -140,7 +140,7 @@ double AnamHermite::rawToTransformValue(double z) const
 
   /* Check the bounds */
 
-  y = y1 = y2 = z1 = z2 = 0.;
+  y1 = y2 = 0.;
   if (_flagBound)
   {
     if (_az.isOutsideBelow(z)) return(_ay.getVmin());
@@ -556,7 +556,7 @@ int AnamHermite::_data_sort(int nech,
 
   /* Initializations */
 
-  frc = ncl = nval = 0;
+  frc = ncl = 0;
 
   /* Copy the variable in arrays zs and ys eliminating undefined values */
 

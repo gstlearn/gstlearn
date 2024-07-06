@@ -9,10 +9,6 @@ on:
   # Activate the workflow at each pull request on dev branch
   #pull_request:
   #  branches: [ dev ]
-  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
-  #schedule:
-  #  # * is a special character in YAML so you have to quote the string
-  #  - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -23,7 +19,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
@@ -63,6 +59,12 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2
+        install-pandoc: false
+
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
       with:
@@ -70,35 +72,39 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      run: |
+        cmake \
+          -B ${{ env.BUILD_DIR }} \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_R=ON \
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Compile, install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+    - name: Build gstlearn
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
 
-    - name: Compress output logs
-      if: always()
+    - name: Install packages and execute non-regression tests
+      run: cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
+
+    - name: Compress output logs and neutral files
+      if: success() || failure()
       run: |
         cd ${{env.BUILD_DIR}}/tests
         find . -type f -name "*.out" -print0 | tar -czvf ubuntu-logs.tar.gz --null -T -
+        cd $HOME/gstlearn_dir
+        find . -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
+        mv ubuntu-neutral.tar.gz ${{github.workspace}}/
 
     - name: Publish output logs as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-nonreg-logs
         path: ${{env.BUILD_DIR}}/tests/ubuntu-logs.tar.gz
 
-    - name: Compress neutral files
-      if: always()
-      run: |
-        cd $HOME/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf ubuntu-neutral.tar.gz --null -T -
-        mv ubuntu-neutral.tar.gz ${{github.workspace}}/
-
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-neutral-files
         path: ${{github.workspace}}/ubuntu-neutral.tar.gz
-

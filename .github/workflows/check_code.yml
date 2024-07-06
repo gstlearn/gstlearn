@@ -101,8 +101,8 @@ jobs:
     - name: Use clang-check for compiler warnings
       run: |
         git ls-files \
-        | grep src \
-        | grep -E "\.cpp$|\.cxx$" \
+        | grep -E "src|include" \
+        | grep -E "\.cpp$|\.hpp$" \
         | xargs -n1 -P$(nproc) clang-check -p build --extra-arg=-Werror
 
 

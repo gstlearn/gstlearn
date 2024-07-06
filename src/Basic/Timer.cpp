@@ -62,7 +62,8 @@ double Timer::getIntervalSeconds(bool flag_reset)
 {
   auto newTime = hrc::now();
   sec fs = newTime - _refTime;
-  if (flag_reset) _refTime = newTime;
+  if (flag_reset)
+    _refTime = newTime;
   return fs.count();
 }
 

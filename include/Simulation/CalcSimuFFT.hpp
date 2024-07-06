@@ -15,6 +15,7 @@
 #include "geoslib_define.h"
 
 #include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/SimuFFTParam.hpp"
 #include "Basic/Plane.hpp"
 #include "Basic/VectorNumT.hpp"
 

@@ -603,9 +603,8 @@ int db_rule_shadow(Db *db,
   error = 0;
 
   label_end:
-
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                              db, dbprop, props, propdef);
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                    db, dbprop, props, propdef);
   return (error);
 }
 
@@ -702,9 +701,8 @@ int _db_rule(Db *db,
   error = 0;
 
   label_end:
-
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                              db, dbprop, propcst, propdef);
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                    db, dbprop, propcst, propdef);
   return (error);
 }
 
@@ -806,10 +804,9 @@ int db_bounds_shadow(Db *db,
   error = 0;
 
   label_end:
-
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                              db, dbprop, props, propdef);
-  coor = db_sample_free(coor);
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                    db, dbprop, props, propdef);
+  db_sample_free(coor);
   return (error);
 }
 
@@ -906,10 +903,8 @@ int _db_bounds(Db *db,
   error = 0;
 
   label_end:
-
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                              db, dbprop, propcst, propdef);
-
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                    db, dbprop, propcst, propdef);
   return (error);
 }
 
@@ -1212,9 +1207,8 @@ int _db_threshold(Db *db,
   error = 0;
 
   label_end:
-
-  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                              db, dbprop, propcst, propdef);
+  proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                    db, dbprop, propcst, propdef);
 
   return (error);
 }
@@ -1242,7 +1236,6 @@ Model* model_rule_combine(const Model *model1,
 
   /* Initializations */
 
-  ngrf = 0;
   new_model = nullptr;
 
   /* Preliminary checks */

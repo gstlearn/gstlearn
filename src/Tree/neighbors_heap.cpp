@@ -51,7 +51,7 @@ t_nheap	*nheap_init(int n_pts, int n_nbrs)
 	}
 	h->indices = (int**)malloc(sizeof(int*) * n_pts);
 	for (int i = 0; i < n_pts; i++)
-		h->indices[i] = (int*)calloc(sizeof(int), n_nbrs);
+      h->indices[i] = (int*)calloc(n_nbrs, sizeof(int));
 	return (h);
 }
 

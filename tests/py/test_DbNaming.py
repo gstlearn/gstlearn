@@ -30,7 +30,7 @@ dbfmt.setFlags(flag_locator=True)
 
 grid = gl.DbGrid.create([5,5], [1,1], [10,20])
 nech = grid.getSampleNumber()
-print("Number of sample =",nech)
+print(f"Number of sample = {nech}")
 grid
 
 # The data base contains 3 fields, created automatically and respectively called *rank*, *x1* and *x2*. Note that the last two fields are considered as coordinates (locator *x*).
@@ -43,7 +43,7 @@ grid
 
 tab = gl.VH.simulateUniform(nech)
 iatt1 = grid.addColumns(tab,"first")
-print("Attribute corresponding to 'first' =",iatt1)
+print(f"Attribute corresponding to 'first' = {iatt1}")
 
 # We can double-check the attribute information by visiting the current contents of the *grid* Db. We check that the field *first* is the fourth (i.e. attribute #3).
 
@@ -53,7 +53,7 @@ grid
 # Note the returned value: it corresponds to the attribute number assigned to the first new variable.
 
 iatt2 = grid.addColumnsByConstant(3,5.,"second",gl.ELoc.Z)
-print("Attribute corresponding to the first variable named 'second-x' =",iatt2)
+print(f"Attribute corresponding to the first variable named 'second-x' = {iatt2}")
 grid
 
 # Note that the newly created fields are automatically named using the provided string (*second*) as a radix: the variables names are "second-1", "second-2" and "second-3".

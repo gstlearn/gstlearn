@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
 #include "Enum/ELoc.hpp"
 
 #include "Basic/NamingConvention.hpp"
@@ -1424,7 +1423,7 @@ int pointToBlock(Db *dbpoint,
 
   error = 1;
   indg = indg0 = nullptr;
-  iatt_edge = iatt_rank = iatt_surf = iatt_vol = iatt_code = -1;
+  iatt_rank = -1;
   if (!dbgrid->hasSameDimension(dbpoint)) goto label_end;
   ndim = dbgrid->getNDim();
   flag_index = (int) get_keypone("PTB_Flag_Index", 0.);
@@ -1550,8 +1549,8 @@ int pointToBlock(Db *dbpoint,
   /* Core deallocation */
 
   label_end: if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
-  indg = db_indg_free(indg);
-  indg0 = db_indg_free(indg0);
+  db_indg_free(indg);
+  db_indg_free(indg0);
   return (error);
 }
 

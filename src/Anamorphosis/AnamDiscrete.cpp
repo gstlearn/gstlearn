@@ -67,7 +67,7 @@ void AnamDiscrete::_resize()
   int nelem  = getNElem();
 
   _zCut.resize(ncut,0.);
-  _stats.reset(nclass,nelem,0.);
+  _stats.resetFromValue(nclass,nelem,0.);
 }
 
 String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const

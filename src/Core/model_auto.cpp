@@ -1522,7 +1522,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       }
   }
 
-  crit = crit_mem = 0.;
+  crit = 0.;
   ijvar = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
@@ -2242,7 +2242,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
       cova->setSill(*mat);
     }
-    flag_rot = flag_aic = 0;
+    flag_aic = 0;
   }
 
   // If 'lock_samerot' is ON, copy the rotation to all structures
@@ -2489,7 +2489,7 @@ static int st_truncate_negative_eigen(int nvar,
                                       VectorDouble &matcoru)
 
 {
-  MatrixSquareSymmetric cc(nvar, MAUTO.isUseEigenLibrary());
+  MatrixSquareSymmetric cc(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       cc.setValue(ivar,jvar,MATCOR(icov0,ivar,jvar));
@@ -4706,7 +4706,7 @@ int model_auto_fit(Vario *vario,
   error = 0;
 
   label_end:
-  strmod = st_model_auto_strmod_free(strmod);
+  st_model_auto_strmod_free(strmod);
   return (error);
 }
 
@@ -5131,7 +5131,7 @@ int vmap_auto_fit(const DbGrid *dbmap,
   label_end:
   INDG1 = db_indg_free(INDG1);
   INDG2 = db_indg_free(INDG2);
-  strmod = st_model_auto_strmod_free(strmod);
+  st_model_auto_strmod_free(strmod);
   return (error);
 }
 

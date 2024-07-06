@@ -363,7 +363,7 @@ int main (int argc, char *argv[])
     st_print_condition(verbose,ndim,dims,count0,start,stride,block);
     void* rdata1 = hdf5.readRegular(0, start, stride, count0, block, dimout);
     st_print(flag_print, type, ndim, dimout, rdata1);
-    rdata1 = (void *) mem_free((char * ) rdata1);
+    mem_free((char * ) rdata1);
 
     // Reading with compression
 
@@ -371,7 +371,7 @@ int main (int argc, char *argv[])
     st_print_condition(verbose,ndim,dims,count0,start,stride,block);
     void* rdata2 = hdf5.readRegular(1, start, stride, count0, block, dimout);
     st_print(flag_print, type, ndim, dimout, rdata2);
-    rdata2 = (void *) mem_free((char * ) rdata2);
+    mem_free((char * ) rdata2);
 
     // Loop on multiple of chunk dimensions
 
@@ -397,7 +397,7 @@ int main (int argc, char *argv[])
 
         hdf5.writeRegular(start, stride, count, block, rdata3);
         st_print(flag_print, type, ndim, dimout, rdata3);
-        rdata3 = (void *) mem_free((char * ) rdata3);
+        mem_free((char * ) rdata3);
       }
     }
 

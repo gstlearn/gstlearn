@@ -12,6 +12,9 @@
 
 #include "Covariances/CovBesselK.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include "math.h"
@@ -77,13 +80,6 @@ String CovBesselK::getFormula() const
   return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
 }
 
-double CovBesselK::_evaluateCovOnSphere(double scale, int degree) const
-{
-  double kappa2 = 1. / ( scale * scale );
-  double cons = 1. / (4 * GV_PI);
-  return  cons * (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
-}
-
 double CovBesselK::evaluateSpectrum(double freq, int ndim) const
 {
   double alpha = (double) ndim / 2. + getParam();
@@ -118,4 +114,64 @@ void CovBesselK::computeCorrec(int ndim)
 VectorDouble CovBesselK::getMarkovCoeffs()const
 {
   return _markovCoeffs;
+}
+
+double CovBesselK::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+{
+  if (getParam() > 0.5)
+    return operTB.cosineOne(t0);
+  else
+    return operTB.spectralOne(t0);
+}
+
+MatrixRectangular CovBesselK::simulateSpectralOmega(int nb) const
+{
+  int ndim = getContext().getNDim();
+  double param = getParam();
+  MatrixRectangular mat(nb, ndim);
+
+  for (int irow = 0; irow < nb; irow++)
+  {
+    double scale = sqrt(param / law_gamma(param));
+    for (int icol = 0; icol < ndim; icol++)
+      mat.setValue(irow, icol, scale * law_gaussian());
+  }
+  return mat;
+}
+
+//double CovBesselK::_evaluateCovOnSphere(double alpha,
+//                                        double scale,
+//                                        int degree) const
+//{
+////  double kappa = 1. / scale;
+////  double mu = param;
+////  double kappa2 = kappa * kappa;
+////  double cons = 1. / (4 * GV_PI);
+////  return  cons * (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + mu);
+//
+//  int deg_max = 100;
+//  VectorDouble sp_norm = _evaluateSpectrumOnSphere(deg_max, scale);
+//  for (int k = 0; k <= deg_max; k++)
+//    sp_norm[k] /= sqrt(2. * k + 1.);
+//  VectorDouble v(1);
+//  v[0] = cos(alpha);
+//  MatrixRectangular lp = ut_legendreMatNorm(deg_max, v);
+//  VectorDouble covvec = lp.prodMatVec(sp_norm);
+//  return covvec[0];
+//}
+
+VectorDouble CovBesselK::_evaluateSpectrumOnSphere(int n, double scale) const
+{
+  double kappa = 1. / scale;
+  double mu = getParam();
+  double kappa2 = kappa * kappa;
+
+  VectorDouble sp(1+n, 0.);
+
+  for (int k = 0; k <= n; k++)
+    sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(kappa2 + k * (k + 1.), 2. * mu);
+
+  VH::normalize(sp, 1);
+
+  return sp;
 }

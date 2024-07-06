@@ -28,12 +28,12 @@ this Module; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-
 /*
 Modified by MINES Paris / ARMINES (2023)
 Authors: gstlearn Team
 Website: https://gstlearn.org
 */
+
 #include <math.h>
 #include <limits.h>
 #include <stdarg.h>
@@ -1322,7 +1322,7 @@ int cs_ltsolve(const cs *L, double *x)
   Li = L->i;
   Lx = L->x;
 
-  Lpj = Lpjp1 = Lp[n];
+  Lpj = Lp[n];
   for (j = n - 1; j >= 0; j--)
   {
     Lpjp1 = Lpj;

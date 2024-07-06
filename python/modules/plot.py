@@ -6,6 +6,7 @@
 # License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
+import matplotlib
 import matplotlib.pyplot     as plt
 import matplotlib.patches    as ptc
 import matplotlib.transforms as transform
@@ -102,14 +103,19 @@ def printDefault():
         else:
             print("- Aspect (not defined)")
         
-def getColorMap(n, name='gist_rainbow'):
+def getColorMap(n, cmap=None):
     '''
     Returns a function that maps each index in 0, 1, ..., n-1 to a distinct RGB color
     
     n: requested number of different colors
-    name: this argument must be a standard mpl colormap name.
+    cmap: name of a standard matplotlib colormap, or an instance of ListedColormap or None.
     '''
-    return plt.cm.get_cmap(name, n)
+    if isinstance(cmap, matplotlib.colors.ListedColormap):
+        return cmap.resampled(n)
+    name = cmap
+    if name is None:
+        name = 'viridis'
+    return plt.colormaps[name].resampled(n)
     
 def __selectItems(nvalues, sitem=-1):
     outs = range(0, nvalues)
@@ -1925,7 +1931,7 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         table(object, ranks, **kwargs)
 
     elif filetype == "Polygons":
-        poly(object, **kwargs)
+        polygon(object, **kwargs)
         
     else:
         print("Unknown type:",filetype)

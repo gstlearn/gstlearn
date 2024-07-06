@@ -2,9 +2,24 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.3.1
+=============
+- Fix getColormap in plot.py
+
 Release 1.3.0
 =============
-- 
+- R 4.4.1 support
+- Modify 'flag_cell' into 'flagCell'
+- Modify 'flag_integer' into 'flagInteger'
+- Modify flag_add_rank into flagAddSampleRank
+- change 'flag_add_coordinates' into 'flagAddCoordinates' in DbGrid::createSubGrid() and DbGrid::reset()
+- Increase the size of the Enums from 32 to 40.
+- Model::evalDriftMat() is replaced by Model::evalDriftMatrix()
+- Model::covMatrixMS() is replaced by evalCovMatrixSymmetric()
+- Model::covMatrixM() is replaced by evalCovMatrix()
+- Model::covMatrixV() is replaced by evalCovMatrixV() (option added)
+- Db::getActiveSampleNumber() (deprecated) is replaced by getSampleNumber(true)
+- Use Eigen library for content storage of all dense matrices
 
 Release 1.2.3
 =============

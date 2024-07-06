@@ -19,15 +19,15 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug)
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
-  GENERATOR : "MSYS Makefiles"
+  CMAKE_GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}\swig_420b
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
-  
+
   build:
     runs-on: windows-latest
 
@@ -39,9 +39,19 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2
+        install-pandoc: false
+
     - name: Install dependencies
       run: |
-        vcpkg install boost-math eigen3
+        echo '{
+          "dependencies": [ "boost-math", "eigen3" ],
+          "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
+        }' > vcpkg.json
+        vcpkg install
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-windows-action@v2
@@ -50,32 +60,29 @@ jobs:
         generator: "Visual Studio 17 2022"
 
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      run: |
+        cmake `
+          -B${{env.BUILD_DIR}} `
+          -DBUILD_R=ON `
+          -DBUILD_PYTHON=OFF `
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Compile, install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+    - name: Build gstlearn
+      run: cmake --build ${{env.BUILD_DIR}} --parallel 3
 
-    - name: Compress output logs
-      if: always()
+    - name: Install packages and execute non-regression tests
+      run: cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
+
+    - name: Compress output logs and neutral files
+      if: success() || failure()
       shell: powershell
       run: |
         cd ${{env.BUILD_DIR}}/tests
         Get-ChildItem -Recurse -Filter '*.out' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > logs.txt
         foreach ($filename in Get-Content .\logs.txt)
         {
-            Compress-Archive -Update $filename .\msys-logs.zip
+            Compress-Archive -Update $filename .\rtools-logs.zip
         }
-
-    - name: Publish output logs as artefact
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: msys-nonreg-logs
-        path: ${{env.BUILD_DIR}}/tests/msys-logs.zip
-
-    - name: Compress neutral files
-      if: always()
-      run: |
         cd $HOME/gstlearn_dir
         Get-ChildItem -Recurse -Filter '*.*' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > neutral.txt
         foreach ($filename in Get-Content .\neutral.txt)
@@ -83,9 +90,16 @@ jobs:
             Compress-Archive -Update $filename .\rtools-neutral.zip
         }
         Move-Item -Path rtools-neutral.zip -Destination ${{github.workspace}}
-  
+
+    - name: Publish output logs as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: rtools-nonreg-logs
+        path: ${{env.BUILD_DIR}}/tests/rtools-logs.zip
+
     - name: Publish output neutral files as artefact
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: rtools-neutral-files

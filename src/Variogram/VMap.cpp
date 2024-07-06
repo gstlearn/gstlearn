@@ -744,12 +744,12 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   error = 0;
 
   label_end:
-  indg0 = db_indg_free(indg0);
-  indg1 = db_indg_free(indg1);
-  ind1 = (int*) mem_free((char* ) ind1);
-  delta = db_sample_free(delta);
-  mid = db_sample_free(mid);
-  coor = db_vector_free(coor);
+  db_indg_free(indg0);
+  db_indg_free(indg1);
+  mem_free((char* ) ind1);
+  db_sample_free(delta);
+  db_sample_free(mid);
+  db_vector_free(coor);
   return (error);
 }
 
@@ -855,9 +855,9 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
   error = 0;
 
   label_end:
-  ind0 = db_indg_free(ind0);
-  ind1 = db_indg_free(ind1);
-  ind2 = db_indg_free(ind2);
+  db_indg_free(ind0);
+  db_indg_free(ind1);
+  db_indg_free(ind2);
   return (error);
 }
 

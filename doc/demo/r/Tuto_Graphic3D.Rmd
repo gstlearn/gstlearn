@@ -1,0 +1,58 @@
+---
+title: "Graphics in 3D"
+author: "gstlearn Team"
+date: "2023-09-06"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+<!-- SUMMARY: Perform Graphic representations in 3D  -->
+
+<!-- CATEGORY: Graphics -->
+
+# Introduction
+
+In this tutorial, we show how to use the graphics in 3D. It is essentially focused on the representation of a variable on the skin of a sphere.
+
+Initialization of *gstlearn*
+
+```{r intialization, include=FALSE}
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+library(rgl) # used for 3D vizualisation
+rm(list = ls())
+```
+
+Initialization of the sphere
+
+```{r create_S2, echo=TRUE, eval = TRUE}
+nx = c(360, 180)
+dx = nx/(nx-1)*pi/180
+x0 = c(0,0)
+grd = DbGrid_create(nx = nx, x0 = x0, dx = dx)
+err = grd$setName("x1", "phi")
+err = grd$setName("x2", "theta")
+grd["x"] = sin(grd["theta"]) * cos(grd["phi"])
+grd["y"] = sin(grd["theta"]) * sin(grd["phi"])
+grd["z"] = cos(grd["theta"])
+x = grd["x"]
+y = grd["y"]
+z = grd["z"]
+```
+
+Display of a variable on the skin of the 3D sphere. This variable is known as the Spherical Harmonic (a kind of primary function which stands as the traditional polynomials and which used in many simulation engines on the sphere).
+
+```{r display, echo = TRUE, eval = TRUE}
+# Calculate the (real part of) spherical harmonics
+val = ut_sphericalHarmonicVec(n = 15, k = 5, theta = grd["theta"], phi = grd["phi"])
+
+# Initialization of S2 for 3d viewer
+viz_S2_in_3D = IniView_S2_in_3D(grd)
+
+err = viz_S2_in_3D$display(val = val, ncol = 50, palette = "rainbow")
+rglwidget()
+```

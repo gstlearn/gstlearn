@@ -1,0 +1,120 @@
+name: publish-doc
+
+on:
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+      project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev
+          
+    - name: Get project version
+      id: main_step
+      run: |
+        cmake -B${{env.BUILD_DIR}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF
+        PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
+        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+
+  call-data:
+    uses: ./.github/workflows/publish_data.yml
+    secrets: inherit
+  call-references:
+    uses: ./.github/workflows/publish_references.yml
+    secrets: inherit
+  call-doxygen:
+    uses: ./.github/workflows/publish_doxygen.yml
+    secrets: inherit
+  call-courses:
+    uses: ./.github/workflows/publish_courses.yml
+    secrets: inherit
+  call-demos:
+    uses: ./.github/workflows/publish_demos.yml
+    secrets: inherit
+
+  call-publish:
+    needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
+    if: ${{inputs.dry_publish == false}}
+    
+    # Only ubuntu can upload to a server easily (ssh)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          name: demos
+
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          name: courses
+
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          name: doxygen
+
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          name: data
+
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/folder-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          name: references
+

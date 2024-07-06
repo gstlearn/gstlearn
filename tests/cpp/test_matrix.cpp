@@ -54,7 +54,7 @@ void reset_to_initial_contents(AMatrix* M,
 
 /****************************************************************************/
 /*!
-** Main Program for testing the new classes of matrix algebra
+** Main program for testing the new classes of matrix algebra
 **
 *****************************************************************************/
 int main(int argc, char *argv[])
@@ -604,9 +604,9 @@ int main(int argc, char *argv[])
   // Get a Dense matrix
   VectorDouble temp = MSS.getValues();
   int ntemp = MSS.getNRows();
-  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp, ntemp, 1);
+  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp, ntemp);
   MEig->display();
-  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp, ntemp, 0);
+  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp, ntemp);
   MNoEig->display();
 
   // Extract the Eigen values and vectors (both matrix types)
@@ -733,7 +733,7 @@ int main(int argc, char *argv[])
   // We must construct another square symmetric matrix (B)
   VectorDouble vbh = VH::simulateGaussian(nrow * ncol);
 
-  MatrixRectangular* MREig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 1);
+  MatrixRectangular* MREig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false);
   AMatrix* MREigt = MREig->transpose();
   MatrixSquareSymmetric* BEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MREig, MREigt);
   delete MREig;
@@ -751,7 +751,7 @@ int main(int argc, char *argv[])
   genEigVec->display();
   delete BEig;
 
-  MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 0);
+  MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false);
   AMatrix* MRNoEigt = MRNoEig->transpose();
   MatrixSquareSymmetric* BNoEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MRNoEig, MRNoEigt);
   delete MRNoEig;

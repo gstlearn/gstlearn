@@ -757,6 +757,7 @@ void Rule::_ruleDefine(std::ostream& os,
     ret = ret && _recordWrite(os, "", cur_rank);
     ret = ret && _recordWrite(os, "", node->getFacies());
   }
+  DECLARE_UNUSED(ret);
 
   /* Comment */
 
@@ -980,13 +981,13 @@ int Rule::evaluateBounds(PropDef* propdef,
                          int ipgs,
                          int nbsimu) const
 {
-  int    iech,nadd,nech,facies,nstep;
+  int    iech,nadd,nech,facies;
   double t1min,t1max,t2min,t2max;
 
   /* Initializations */
 
   if (dbin == nullptr) return(0);
-  nadd = nstep = 0;
+  nadd = 0;
   nech = dbin->getSampleNumber();
 
   /* Dispatch */

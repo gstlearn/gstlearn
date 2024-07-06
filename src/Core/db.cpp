@@ -1039,9 +1039,9 @@ int db_center(Db *db, double *center)
     center[idim] = stats.mean;
   }
 
-  tab = db_vector_free(tab);
-  sel = db_vector_free(sel);
-  wgt = db_vector_free(wgt);
+  db_vector_free(tab);
+  db_vector_free(sel);
+  db_vector_free(wgt);
 
   return (0);
 }
@@ -1107,8 +1107,8 @@ int db_extension_diag(const Db *db, double *diag)
     (*diag) = ut_distance(2, coor[0], coor[1]);
   }
 
-  tab = db_vector_free(tab);
-  sel = db_vector_free(sel);
+  db_vector_free(tab);
+  db_vector_free(sel);
   return (0);
 }
 
@@ -1200,8 +1200,9 @@ int db_attribute_range(const Db *db,
 
   error = 0;
 
-  label_end: tab = db_vector_free(tab);
-  sel = db_vector_free(sel);
+  label_end:
+  db_vector_free(tab);
+  db_vector_free(sel);
   return (error);
 }
 
@@ -1277,10 +1278,10 @@ int db_grid_define_coordinates(DbGrid *db)
  **
  ** \param[in]  target Array containing the target coordinates
  ** \param[in]  ndim   Space dimension
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank True to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
+Db* db_create_from_target(const double *target, int ndim, bool flagAddSampleRank)
 {
   Db *db;
   int idim;
@@ -1291,7 +1292,7 @@ Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
 
   /* Create a Db with point organization */
 
-  db = Db::createFromOnePoint(VectorDouble(), flag_add_rank);
+  db = Db::createFromOnePoint(VectorDouble(), flagAddSampleRank);
 
   /* Add the coordinates */
 
@@ -1299,12 +1300,15 @@ Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
 
   /* Create the locators */
 
-  db->setLocatorsByUID(ndim, flag_add_rank, ELoc::X);
+  db->setLocatorsByUID(ndim, flagAddSampleRank, ELoc::X);
 
   /* Copy the target locations */
 
   for (idim = 0; idim < ndim; idim++)
-    db->setArray(0, idim + flag_add_rank, target[idim]);
+  {
+    int jdim = (flagAddSampleRank) ? idim + 1 : idim;
+    db->setArray(0, jdim, target[idim]);
+  }
 
   return (db);
 }
@@ -1534,7 +1538,6 @@ int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
 
   error = 1;
   rank = ind1 = nullptr;
-  idim = jdim = 0;
 
   /* Core allocation */
 
@@ -1598,8 +1601,9 @@ int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
 
   /* Core deallocation */
 
-  label_end: rank = (int*) mem_free((char* ) rank);
-  ind1 = (int*) mem_free((char* ) ind1);
+  label_end:
+  mem_free((char* ) rank);
+  mem_free((char* ) ind1);
   return (error);
 }
 
@@ -1631,7 +1635,8 @@ int db_locate_in_grid(DbGrid *db_grid, double *coor)
 
   indabs = db_index_grid_to_sample(db_grid, indg);
 
-  label_end: indg = db_indg_free(indg);
+  label_end:
+  db_indg_free(indg);
   return (indabs);
 }
 
@@ -1844,7 +1849,8 @@ int db_grid_copy_dilate(DbGrid *db1,
 
   error = 0;
 
-  label_end: indg = db_indg_free(indg);
+  label_end:
+  db_indg_free(indg);
   return (error);
 }
 
@@ -2183,7 +2189,6 @@ void db_monostat(Db *db,
 
   /* Initializations */
 
-  weight = 1.;
   (*mini) = 1.e30;
   (*maxi) = -1.e30;
   (*wtot) = (*mean) = (*var) = 0.;
@@ -2357,9 +2362,9 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
   error = 0;
 
   label_end: *nclout = nclass;
-  tab = db_vector_free(tab);
-  sel = db_vector_free(sel);
-  coor = db_sample_free(coor);
+  db_vector_free(tab);
+  db_vector_free(sel);
+  db_sample_free(coor);
   return (error);
 }
 
@@ -2913,10 +2918,11 @@ int is_grid_multiple(DbGrid *db1, DbGrid *db2)
 
   error = 0;
 
-  label_end: indg = (int*) mem_free((char* ) indg);
-  perc = (double*) mem_free((char* ) perc);
-  coor1 = (double*) mem_free((char* ) coor1);
-  coor2 = (double*) mem_free((char* ) coor2);
+  label_end:
+  mem_free((char* ) indg);
+  mem_free((char* ) perc);
+  mem_free((char* ) coor1);
+  mem_free((char* ) coor2);
   return (1 - error);
 }
 
@@ -2928,12 +2934,12 @@ int is_grid_multiple(DbGrid *db1, DbGrid *db2)
  **
  ** \param[in]  dbin      Initial Db Grid
  ** \param[in]  nmult     Array of multiplicity coefficients
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
  **  **
  *****************************************************************************/
 DbGrid* db_create_grid_multiple(DbGrid *dbin,
                                 const VectorInt &nmult,
-                                int flag_add_rank)
+                                bool flagAddSampleRank)
 {
   DbGrid *dbout = nullptr;
   if (dbin == nullptr) return (dbin);
@@ -2952,7 +2958,7 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   return dbout;
 }
@@ -2965,12 +2971,12 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
  **
  ** \param[in]  dbin      Initial Db Grid
  ** \param[in]  nmult     Array of subdivision coefficients
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
  **
  *****************************************************************************/
 DbGrid* db_create_grid_divider(DbGrid *dbin,
                                const VectorInt &nmult,
-                               int flag_add_rank)
+                               bool flagAddSampleRank)
 {
   DbGrid *dbout = nullptr;
   if (dbin == nullptr) return dbin;
@@ -2987,7 +2993,7 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   return dbout;
 }
@@ -3001,13 +3007,13 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
  ** \param[in]  dbin      Initial Db Grid
  ** \param[in]  mode      1 for extending; -1 for compressing
  ** \param[in]  nshift    Array of shifts
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
  **
  *****************************************************************************/
 DbGrid* db_create_grid_dilate(DbGrid *dbin,
                               int mode,
                               const VectorInt &nshift,
-                              int flag_add_rank)
+                              bool flagAddSampleRank)
 {
   DbGrid *dbout = nullptr;
   if (dbin == nullptr) return dbin;
@@ -3023,7 +3029,7 @@ DbGrid* db_create_grid_dilate(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   return (dbout);
 }
@@ -3096,8 +3102,9 @@ int db_gradient_modang_to_component(Db *db,
 
   error = 0;
 
-  label_end: v1 = db_vector_free(v1);
-  v2 = db_vector_free(v2);
+  label_end:
+  db_vector_free(v1);
+  db_vector_free(v2);
   return (error);
 }
 
@@ -3195,8 +3202,9 @@ int db_gradient_component_to_modang(Db *db,
 
   error = 0;
 
-  label_end: v1 = db_vector_free(v1);
-  v2 = db_vector_free(v2);
+  label_end:
+  db_vector_free(v1);
+  db_vector_free(v2);
   return (error);
 }
 
@@ -3495,10 +3503,10 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
     delete ss_grid;
     ss_grid = nullptr;
   }
-  indcur = db_indg_free(indcur);
-  indmin = db_indg_free(indmin);
-  indmax = db_indg_free(indmax);
-  coor = db_sample_free(coor);
+  db_indg_free(indcur);
+  db_indg_free(indmin);
+  db_indg_free(indmax);
+  db_sample_free(coor);
   return (ss_grid);
 }
 
@@ -3689,10 +3697,11 @@ int db_grid_patch(DbGrid *ss_grid,
 
   error = 0;
 
-  label_end: indg0 = db_indg_free(indg0);
-  indg = db_indg_free(indg);
-  coor1 = (double*) mem_free((char* ) coor1);
-  coor2 = (double*) mem_free((char* ) coor2);
+  label_end:
+  db_indg_free(indg0);
+  db_indg_free(indg);
+  mem_free((char* ) coor1);
+  mem_free((char* ) coor2);
   return (error);
 }
 

@@ -47,19 +47,32 @@ GSTLEARN_EXPORT void mvndst4(double *lower,
                              double *error,
                              double *value,
                              int *inform);
-GSTLEARN_EXPORT int bessel_j(double x, double alpha, int nb, double *b);
+GSTLEARN_EXPORT int bessel_j_table(double x, double alpha, int nb, double *b);
+GSTLEARN_EXPORT double bessel_j(double x, int n);
 GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk);
 GSTLEARN_EXPORT double loggamma(double parameter);
-GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v);
-GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta);
+
+GSTLEARN_EXPORT double ut_legendre(int n, double v, bool flagNorm = true);
+GSTLEARN_EXPORT VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm);
+GSTLEARN_EXPORT MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v);
+GSTLEARN_EXPORT MatrixRectangular ut_legendreAssociatedMat(int l,
+                                                           const VectorDouble &v,
+                                                           bool flagNorm = true);
+
+GSTLEARN_EXPORT double ut_flegendre(int n, int k0, double theta, bool flagNorm = true);
+GSTLEARN_EXPORT double ut_sphericalHarmonic(int n, int k, double theta, double phi);
+GSTLEARN_EXPORT VectorDouble ut_sphericalHarmonicVec(int n,
+                                                     int k,
+                                                     VectorDouble theta,
+                                                     VectorDouble phi);
 GSTLEARN_EXPORT double golden_search(double (*func_evaluate)(double test,
                                                              void *user_data),
-                                     void *user_data,
-                                     double tolstop,
-                                     double a0,
-                                     double c0,
-                                     double *test_loc,
-                                     double *niter);
+                                                             void *user_data,
+                                                             double tolstop,
+                                                             double a0,
+                                                             double c0,
+                                                             double *test_loc,
+                                                             double *niter);
 GSTLEARN_EXPORT int ut_chebychev_count(double (*func)(double,
                                                       double,
                                                       const VectorDouble&),

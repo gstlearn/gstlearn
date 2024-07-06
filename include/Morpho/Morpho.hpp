@@ -31,14 +31,6 @@ public:
 /**
  * \defgroup MORPHO Mathematical Morphology:
  *
- * Here are the implementation of the traditional Mathematical Morphology functions.
- *
- * These operations can be performed using Binary Image format (BImage) or colored arrays (double).
- * Some functions are applied to DbGrid (the input if a field of the DbGrid and results are written as
- * new fields in the same DbGrid); most functions are activated on BImage directly.
- *
- * For examples, see #!TUTORIALS!Tuto_Morpho
- *
  **/
 
 /** @addtogroup MORPHO_0 Initial manipulations

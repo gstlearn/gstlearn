@@ -11,28 +11,10 @@
 #include "Enum/ESPDECalcMode.hpp"
 
 #include "Db/Db.hpp"
-#include "Basic/File.hpp"
-#include "Basic/CSVformat.hpp"
-#include "Db/DbStringFormat.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/DirParam.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Variogram/Vario.hpp"
-#include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
-#include "Geometry/GeometryHelper.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Mesh/MeshSpherical.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "Stats/Classical.hpp"
-#include "Polygon/Polygons.hpp"
-#include "API/SPDE.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Simulation/SimuSpectral.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -47,19 +29,29 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AAA_");
 
-  DbGrid* grid = DbGrid::createFromNF("db.ascii");
-  grid->display();
+  defineDefaultSpace(ESpaceType::SN);
 
-  Model* model = Model::createFromNF("Model.ascii");
-  NoStatArray NoStat({"A","R"},grid);
-  model->addNoStat(&NoStat);
-  model->display();
+  int ndim = 2;
+  VectorInt nx = {360, 180};
+  VectorDouble dx(2);
+  for (int idim = 0; idim < ndim; idim++)
+    dx[idim] = nx[idim] / (nx[idim]-1) * GV_PI / 180.;
+  DbGrid* grd = DbGrid::create(nx,dx,{0,0});
+  (void) grd->setName("x1", "phi");
+  (void) grd->setName("x2", "theta");
+  grd->display();
 
-  model->display();
+  int nd = 100;
+  int ns = 100; // 10000;
+  int seed = 132674;
 
-  SPDE spde(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND);
-  spde.compute(grid);
-  (void) grid->dumpToNF("Result.ascii");
+  String model_type = "POISSON";
+  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
 
-  return (0);
+  SimuSpectral sim(modelSph);
+  sim.simulateOnSphere(ns, nd, seed, false);
+  sim.computeOnSphere(grd, false);
+
+  grd->display();
+  return(0);
 }

@@ -253,7 +253,7 @@ String VectorT<T>::toString() const
 template <typename T>
 void VectorT<T>::_detach()
 {
-  if (_v.unique())
+  if (_v.use_count() == 1)
     return;
   _v = std::make_shared<Vector>(*_v);
 }

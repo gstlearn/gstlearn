@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Define project here
 project(gstlearn
-        VERSION      1.3.0 # Make it consistent with CHANGES
+        VERSION      1.3.1 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -18,10 +18,20 @@ option(USE_HDF5 "Using HDF5 support" OFF)
 # By default, do not activate NetCDF support
 #option(USE_NETCDF "Using NetCDF support" OFF)
 
-# Create gstlearn_DATE, gstlearn_YEAR and gstlearn_MONTH variables
-string(TIMESTAMP ${PROJECT_NAME}_DATE "%Y/%m/%d - %H:%M")
-string(TIMESTAMP ${PROJECT_NAME}_YEAR "%Y")
-string(TIMESTAMP ${PROJECT_NAME}_MONTH "%B")
+# Extract Git commit timestamp, hash
+find_package(Git)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} show -s --format=%ci
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE ${PROJECT_NAME}_DATE
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE ${PROJECT_NAME}_COMMIT
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 # Convert project name to uppercase
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
@@ -72,16 +82,26 @@ add_subdirectory(3rd-party/csparse)
 ## BUILD & INSTALL
 
 include(cmake/version.cmake)
-include(cmake/cpp.cmake)
-include(cmake/doxygen.cmake)
 include(cmake/doc.cmake)
-include(cmake/install.cmake)
+# TODO : Add BUILD_CPP option (not needed for print_version or doxygen targets)
+#if(BUILD_CPP)
+  include(cmake/cpp.cmake)
+  include(cmake/install.cmake)
+#endif()
+if(BUILD_DOXYGEN)
+  include(cmake/doxygen.cmake)
+endif()
 
 ####################################################
 ## PACKAGES
 
-add_subdirectory(python)
-add_subdirectory(r)
+if(BUILD_PYTHON)
+  add_subdirectory(python)
+endif()
+
+if(BUILD_R)
+  add_subdirectory(r)
+endif()
 
 ####################################################
 ## TESTING

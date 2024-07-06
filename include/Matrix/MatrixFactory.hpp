@@ -63,6 +63,7 @@ public:
  ** \remarks: To be called as follows:
  **      MatrixSparse* mat = MatrixFactory::prodMatMat<MatrixSparse>(x, y);
  **
+ ** TODO : Why 2 methods for MatrixFactory::prodMatMat ?
  *****************************************************************************/
 template<typename T>
 T* MatrixFactory::prodMatMat(const AMatrix *x,
@@ -70,7 +71,7 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
                              bool transposeX,
                              bool transposeY)
 {
-  T* res = new T();
+  T* res = new T(); /// TODO : if MatrixSparse => x or y 'eigen flag' is ignored
 
   int nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
   int nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
@@ -83,7 +84,7 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
     return res;
   }
 
-  res->AMatrix::reset(nxrows, nycols, 0., x->isFlagEigen());
+  res->reset(nxrows, nycols);
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

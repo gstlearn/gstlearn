@@ -14,6 +14,8 @@
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
+class TurningBandOperate;
+class MatrixRectangular;
 
 class GSTLEARN_EXPORT CovBesselK : public ACovFunc
 {
@@ -26,12 +28,14 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "K-Bessel"; }
   int            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+  bool           getCompatibleSpaceS() const override { return true; }
 
   bool   hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
-  bool   hasCovOnSphere() const override { return true; }
-  bool   hasSpectrum() const override { return true; }
+  bool   hasSpectrumOnSphere() const override { return true; }
+  bool   hasSpectrumOnRn() const override { return true; }
   bool   hasMarkovCoeffs() const override { return true; }
   double evaluateSpectrum(double freq, int ndim) const override;
   void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
@@ -41,12 +45,17 @@ public:
   void   setCorrec(double val) override { _correc = val;}
   void   computeMarkovCoeffs(int dim) override;
 
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+
+  bool isValidForSpectral() const override { return true; }
+  MatrixRectangular simulateSpectralOmega(int nb) const override;
+
 protected:
   double _evaluateCov(double h) const override;
-  double _evaluateCovOnSphere(double scale, int degree = 50) const override;
+  VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const override;
 
 private:
   double _correc;
   VectorDouble _markovCoeffs;
-
 };

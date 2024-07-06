@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/MathFunc.hpp"
 
 /**
  * This test is meant to check the generation of random values
@@ -131,5 +132,11 @@ int main(int argc, char *argv[])
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
   VH::display("New Style", tab);
 
+  // Testing miscellaneous functions
+
+  message("Bessel_J value = %lf\n", bessel_j(5.2, 0));
+
+  VectorInt ipois = VH::sequence(10);
+  VH::display("Poisson intensity", law_df_poisson_vec(ipois, 5.2));
   return 0;
 }

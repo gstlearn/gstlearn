@@ -511,20 +511,14 @@
 #include <string>
 #include <sstream>
 
-// Use pybind11 for printing text directly to jupyter notebook output cells
-#include <pybind11/pybind11.h>
-namespace py = pybind11;
-//https://github.com/pybind/pybind11/pull/372/files
-using namespace py::literals; // To get access to _a literal below 
-
 void write_f(const char * str)
 {
-  py::print(str, "end"_a=" ");  // pybind11 print wrapper with no new line
+  PySys_FormatStdout("%s", str);
 }
 
 void warn_f(const char * str)
 {
-  py::print(str, "end"_a=" ");  // pybind11 print wrapper with no new line
+  PySys_FormatStdout("%s", str);
 }
 
 void read_f(const char * str, char * out)

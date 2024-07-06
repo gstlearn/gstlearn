@@ -224,7 +224,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Loop on the basic structures
-  for(int icov = 0 ; icov < _model->getCovaNumber(); icov++)
+  for (int icov = 0, ncov = _model->getCovaNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
@@ -296,7 +296,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Evaluation of the variance at data point
-  if (_isKrigingRequested())
+  if (_isKrigingRequested() && _data != nullptr)
   {
     if (_data->getLocNumber(ELoc::V) > 0)
     {
@@ -395,7 +395,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
   else
   {
-    _workingDataInit = _model->evalDriftVarCoefVec(_data,_driftCoeffs,ivar,useSel);
+    _workingDataInit = _model->evalDriftVarCoefs(_data,_driftCoeffs,ivar,useSel);
 
     for(int iech = 0, nech = (int) _workingDataInit.size(); iech<nech; iech++)
     {
@@ -407,7 +407,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
 void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
 {
   if (! _requireCoeffs) return;
-  VectorDouble temp_out = _model->evalDriftVarCoefVec(db, _driftCoeffs, ivar, useSel);
+  VectorDouble temp_out = _model->evalDriftVarCoefs(db, _driftCoeffs, ivar, useSel);
   VH::addInPlace(result, temp_out);
 }
 

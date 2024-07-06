@@ -58,11 +58,22 @@ void SpaceRN::move(SpacePoint &p1, const VectorDouble &vec) const
  \param[in] p1 First point
  \param[in] p2 Second point
  \return The distance between p1 and p2
+
+ \note The code has been optimized in order to avoid using '_work1' for storing
+ \note temporary results
  */
 double SpaceRN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
 {
-  _getIncrementInPlace(p1, p2, _work1);
-  return VH::norm(_work1);
+//  _getIncrementInPlace(p1, p2, _work1);
+//  return VH::norm(_work1);
+  double dist = 0.;
+  double delta = 0.;
+  for (unsigned int i = 0; i < _nDim; i++)
+  {
+    delta = p2.getCoord(i) - p1.getCoord(i);
+    dist += delta * delta;
+  }
+  return sqrt(dist);
 }
 
 double SpaceRN::getDistance(const SpacePoint &p1,

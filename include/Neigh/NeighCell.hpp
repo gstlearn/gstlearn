@@ -24,6 +24,19 @@
 
 class Db;
 
+/**
+ * \brief
+ * Neighborhood definition by Cell.
+ *
+ * The Neighborhood is usually meant to select a sub-population from the input Data Base,
+ * containing the active samples close to the target.
+ *
+ * The selected samples belong to the same 'cell' as the target. This obviously requires
+ * that the target belongs to a Grid.
+ *
+ * The neighborhood also offers the possibility to suppress any sample which would be too close to (or coincide with)
+ * the target: this is the cross-validation option.
+ */
 class GSTLEARN_EXPORT NeighCell: public ANeigh
 {
 public:

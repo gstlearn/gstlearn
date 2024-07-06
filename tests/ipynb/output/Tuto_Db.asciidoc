@@ -30,12 +30,12 @@ Column = 2 - Name = x-2 - Locator = x2----
 #NO_DIFF#XXX
 ----
 Statistics on the Selection vector
- - Number of samples = 500 / 500
- - Minimum  =      0.000
- - Maximum  =      1.000
- - Mean     =      0.186
- - St. Dev. =      0.389
- ----
+- Number of samples = 500 / 500
+- Minimum  =      0.000
+- Maximum  =      1.000
+- Mean     =      0.186
+- St. Dev. =      0.389
+----
 
 
 #NO_DIFF#XXX
@@ -68,7 +68,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = sel - Locator = NA
- ----
+----
 
 
 #NO_DIFF#XXX

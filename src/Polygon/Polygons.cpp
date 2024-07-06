@@ -57,7 +57,11 @@ int Polygons::resetFromDb(const Db* db, double dilate, bool verbose)
   if (db == nullptr) return 1;
 
   Polygons *polygons = new Polygons();
-  if (polygons->_buildHull(db, dilate, verbose)) return 1;
+  if (polygons->_buildHull(db, dilate, verbose))
+  {
+    delete polygons;
+    return 1;
+  }
 
   *this = *polygons;
   delete polygons;

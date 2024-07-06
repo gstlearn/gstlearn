@@ -360,6 +360,13 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
   return options;
 }
 
+/**
+ * \copydoc STATS_2
+ *
+ * Store several statistics calculated on a set of variables of a Db and store them
+ * in this same Db in variables already created.
+ * These functions should not be used in Target Language.
+ */
 void dbStatisticsVariables(Db *db,
                            const VectorString &names,
                            const std::vector<EStatOption> &opers,
@@ -462,7 +469,7 @@ void dbStatisticsVariables(Db *db,
 }
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param opers      List of the operator ranks
  * @param flagIso    Restrain statistics to isotopic samples
@@ -481,6 +488,7 @@ Table dbStatisticsMono(Db *db,
                        double vmax,
                        const String& title)
 {
+  Table table;
   VectorInt iuids = db->getUIDs(names);
   int niuid = static_cast<int>(iuids.size());
   int noper = static_cast<int>(opers.size());
@@ -518,6 +526,8 @@ Table dbStatisticsMono(Db *db,
     double metal = 0.;
     double mini = 1.e30;
     double maxi = -1.e30;
+    double median = TEST;
+    VectorDouble valmed;
 
     /* Loop on the samples */
 
@@ -538,6 +548,7 @@ Table dbStatisticsMono(Db *db,
       if (!FFFF(vmin) && value < vmin) continue;
       if (!FFFF(vmax) && value > vmax) continue;
       metal += value;
+      valmed.push_back(value);
       nperc++;
     }
 
@@ -548,51 +559,70 @@ Table dbStatisticsMono(Db *db,
       mean /= neff;
       var = var / neff - mean * mean;
       stdv = (var >= 0) ? sqrt(var) : 0.;
+      VH::sortInPlace(valmed);
+      if (isOdd(neff))
+        median = valmed[neff/2];
+      else
+      {
+        median = 0.5 * (valmed[neff/2] + valmed[neff/2 - 1]);
+      }
     }
 
     // Constitute the array to be printed
 
     for (int i = 0; i < noper; i++)
     {
-      if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
       if (neff > 0)
       {
-        if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
-        if (opers[i] == EStatOption::VAR)  tab.push_back(var);
-        if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
-        if (opers[i] == EStatOption::MINI) tab.push_back(mini);
-        if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
-        if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
-        if (opers[i] == EStatOption::PROP)
+        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
+        else if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
+        else if (opers[i] == EStatOption::VAR)  tab.push_back(var);
+        else if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
+        else if (opers[i] == EStatOption::MINI) tab.push_back(mini);
+        else if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
+        else if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
+        else if (opers[i] == EStatOption::PROP)
           tab.push_back((double) nperc / (double) neff);
-        if (opers[i] == EStatOption::QUANT)
+        else if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
-        if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
-        if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
-        if (opers[i] == EStatOption::M)
+        else if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
+        else if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
+        else if (opers[i] == EStatOption::M)
           tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
-        if (opers[i] == EStatOption::B)
+        else if (opers[i] == EStatOption::B)
           tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
+        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(median);
+        else
+        {
+          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          return table;
+        }
       }
       else
       {
-        if (opers[i] == EStatOption::MEAN)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::VAR)   tab.push_back(TEST);
-        if (opers[i] == EStatOption::STDV)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::MINI)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::MAXI)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::SUM)   tab.push_back(TEST);
-        if (opers[i] == EStatOption::PROP)  tab.push_back(TEST);
-        if (opers[i] == EStatOption::QUANT) tab.push_back(TEST);
-        if (opers[i] == EStatOption::T)     tab.push_back(TEST);
-        if (opers[i] == EStatOption::Q)     tab.push_back(TEST);
-        if (opers[i] == EStatOption::M)     tab.push_back(TEST);
-        if (opers[i] == EStatOption::B)     tab.push_back(TEST);
+        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
+        else if (opers[i] == EStatOption::MEAN)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::VAR)    tab.push_back(TEST);
+        else if (opers[i] == EStatOption::STDV)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::MINI)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::MAXI)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::SUM)    tab.push_back(TEST);
+        else if (opers[i] == EStatOption::PROP)   tab.push_back(TEST);
+        else if (opers[i] == EStatOption::QUANT)  tab.push_back(TEST);
+        else if (opers[i] == EStatOption::T)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::Q)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::M)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::B)      tab.push_back(TEST);
+        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(TEST);
+        else
+        {
+          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          return table;
+        }
       }
     }
   }
 
-  Table table;
   if (title.empty())
     table.setSkipTitle(true);
   else
@@ -694,7 +724,7 @@ double dbStatisticsIndicator(Db *db)
 }
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param flagIso    Restrain statistics to isotopic samples
  *
@@ -1017,7 +1047,7 @@ void _getRowname(const String &radix,
 }
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param opers      List of the operator ranks
  * @param flagIso    Restrain statistics to isotopic samples
@@ -1251,9 +1281,10 @@ MatrixSquareGeneral* sphering(const AMatrix* X)
 }
 
 /**
- * \copydoc Stats3
- * @param name1 Name of the primary variable
- * @param name2 Name of the secondary variable
+ * \copydoc STATS_1
+ *
+ * @return Vector of results
+ *
  */
 VectorDouble dbStatisticsPerCell(Db *db,
                                  DbGrid *dbgrid,
@@ -1508,7 +1539,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
 
 
 /**
- * \copydoc Stats1
+ * \copydoc STATS_0
  *
  * @param oper       Operator
  * @param flagMono   When True, statistics by variable; otherwise, statistics by pair of variables
@@ -1960,7 +1991,8 @@ VectorVectorInt correlationPairs(Db *db1,
 
   if (db1 == nullptr) return indices;
   if (db2 == nullptr) return indices;
-  if (db1->getNDim() != db2->getNDim() || db1->getActiveSampleNumber() != db2->getActiveSampleNumber())
+  if (db1->getNDim() != db2->getNDim() ||
+      db1->getSampleNumber(true) != db2->getSampleNumber(true))
   {
     messerr("The two input 'db' are not compatible");
     return indices;
@@ -2243,4 +2275,26 @@ VectorVectorDouble condexp(Db *db1,
     }
   }
   return xycond;
+}
+
+std::map<int, int> contingencyTable(const VectorInt& values)
+{
+  std::map<int, int> table;
+  for (int i = 0, size = (int) values.size(); i < size; i++)
+    table[values[i]]++;
+  return table;
+}
+
+std::map<int, std::map<int, int>> contingencyTable2(const VectorInt& values,
+                                                    const VectorInt& bins)
+{
+  std::map<int, std::map<int, int>> table;
+  if ((int) values.size() != (int) bins.size())
+  {
+    messerr("Arguments 'values' and 'bins' should have the same dimension");
+    return table;
+  }
+  for (int i = 0, size = (int) values.size(); i < size; i++)
+    table[values[i]][bins[i]]++;
+  return table;
 }

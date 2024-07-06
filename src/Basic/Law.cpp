@@ -13,6 +13,7 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
 
 #include <math.h>
@@ -583,21 +584,19 @@ double law_invcdf_gaussian(double value)
 double law_gaussian_between_bounds(double binf, double bsup)
 {
   double atab[4], btab[4], ptab[4];
-  double a, b, aa, bb, total, a2, b2, c2, u, wgt, x;
+  double a, b, aa, bb, total, a2, b2, c2, u, x;
   int k, n, isim, type, ok, rank, itab[4];
   static double seuil = 2.;
   static double large = 20.;
   static double sqe = 1.6487212707;
 
-  wgt = x = 0.;
+  x = 0.;
 
   /* Loop on the intervals */
 
   n = 0;
-  a = (FFFF(binf)) ? -large :
-                     binf;
-  b = (FFFF(bsup)) ? large :
-                     bsup;
+  a = (FFFF(binf)) ? -large : binf;
+  b = (FFFF(bsup)) ? large : bsup;
   aa = a;
   bb = b;
 
@@ -629,7 +628,9 @@ double law_gaussian_between_bounds(double binf, double bsup)
   btab[n] = bb;
   itab[n++] = 4;
 
-  label_norme: total = 0.;
+  label_norme:
+  total = 0.;
+  double wgt;
   for (k = 0; k < n; k++)
   {
     aa = atab[k];
@@ -694,7 +695,6 @@ double law_gaussian_between_bounds(double binf, double bsup)
         break;
 
       case 2:
-        wgt = exp(aa) * (1. - u) + exp(bb) * u;
         x = log(exp(aa) * (1. - u) + exp(bb) * u);
         break;
 
@@ -815,6 +815,20 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
   density -= invcor.normVec(vect);
   density = exp(density);
   return (density);
+}
+
+VectorDouble law_df_poisson_vec(VectorInt is, double parameter)
+{
+  int size = (int) is.size();
+  VectorDouble res(size);
+  for (int ii = 0; ii < size; ii++)
+    res[ii] = law_df_poisson(is[ii], parameter);
+  return res;
+}
+
+double law_df_poisson(int i, double parameter)
+{
+  return (exp(-parameter) * pow(parameter, i) / ut_factorial(i));
 }
 
 /****************************************************************************/
@@ -1227,12 +1241,28 @@ double* law_exp_sample(double *tabin,
 
   error = 0;
 
-  label_end: temp = (double*) mem_free((char* ) temp);
-  mean = (double*) mem_free((char* ) mean);
-  stdv = (double*) mem_free((char* ) stdv);
-  mini = (double*) mem_free((char* ) mini);
-  maxi = (double*) mem_free((char* ) maxi);
+  label_end:
+  mem_free((char* ) temp);
+  mem_free((char* ) mean);
+  mem_free((char* ) stdv);
+  mem_free((char* ) mini);
+  mem_free((char* ) maxi);
   if (error) tabout = (double*) mem_free((char* ) tabout);
 
   return (tabout);
+}
+
+/**
+ * Returns an integer sampled uniformly wihtin the interval [mini, maxi]
+ *
+ * @param mini Lower bound (included)
+ * @param maxi Upper bound (included)
+ */
+int sampleInteger(int mini, int maxi)
+{
+  double rmini = mini - 0.5;
+  double rmaxi = maxi + 0.5;
+  double rand = law_uniform(rmini, rmaxi);
+  int retval = (rand > 0) ? (int) trunc(rand + 0.5) : (int) -trunc(-rand + 0.5);
+  return retval;
 }

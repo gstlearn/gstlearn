@@ -198,7 +198,7 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
 
   /* Initialization */
 
-  inddev = inddeu = 0;
+  inddev = 0;
   if (safe)
   {
     tab = (double*) mem_alloc(sizeof(double) * nech, 1);
@@ -418,7 +418,7 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
     }
   }
 
-  if (safe) tab = (double*) mem_free((char* ) tab);
+  if (safe) mem_free((char* ) tab);
   return;
 }
 
@@ -876,7 +876,7 @@ int* ut_combinations(int n, int maxk, int *ncomb)
   (*ncomb) = 0;
   comb = nullptr;
   st_combinations(v, 1, n, 1, maxk, ncomb, &comb);
-  v = (int*) mem_free((char* ) v);
+  mem_free((char* ) v);
   return (comb);
 }
 

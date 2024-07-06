@@ -230,6 +230,7 @@ Vario* Vario::createTransformYToZ(const Vario& varioY,
   if (varioZ->transformYToZ(anam))
   {
     messerr("Error when transforming Gaussian Variogram into Raw");
+    delete varioZ;
     return nullptr;
   }
   return varioZ;
@@ -428,8 +429,8 @@ int Vario::computeIndic(Db *db,
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
 void Vario::resetReduce(const VectorInt &varcols,
-                   const VectorInt &dircols,
-                   bool asSymmetric)
+                        const VectorInt &dircols,
+                        bool asSymmetric)
 {
   VectorInt selvars;
   VectorInt seldirs;
@@ -2414,7 +2415,7 @@ int Vario::_calculateGeneral(Db *db,
 
   /* Set the error return code */
 
-  vorder = vario_order_manage(-1, 1, 0, vorder);
+  vario_order_manage(-1, 1, 0, vorder);
   return 0;
 }
 
@@ -2769,7 +2770,6 @@ void Vario::_patchC00(Db *db, int idir)
       int i = getDirAddress(idir, ivar, jvar, 0, false, 0);
       setHhByIndex(idir, i, 0.);
 
-      scale = 1.;
       m1 = m2 = s12w = s12wzz = sumw = 0.;
 
       /* Calculate the statistics for each variable */
@@ -3338,7 +3338,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
 
   if (vorder != (Vario_Order*) NULL)
   {
-    vorder = vario_order_final(vorder, &npair);
+    vario_order_final(vorder, &npair);
   }
   else
   {
@@ -3559,8 +3559,8 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 
   /* Core deallocation */
 
-  indg1 = db_indg_free(indg1);
-  indg2 = db_indg_free(indg2);
+  db_indg_free(indg1);
+  db_indg_free(indg2);
   return (error);
 }
 
@@ -3667,8 +3667,8 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 
   /* Core deallocation */
 
-  indg1 = db_indg_free(indg1);
-  indg2 = db_indg_free(indg2);
+  db_indg_free(indg1);
+  db_indg_free(indg2);
   return (error);
 }
 
@@ -4353,9 +4353,9 @@ double Vario::_getIVAR(const Db *db, int iech, int ivar) const
 {
   double zz = db->getLocVariable(ELoc::Z, iech, ivar);
   if (FFFF(zz)) return (TEST);
-
   if (_BETA.empty()) return (zz);
   if (ivar != 0) return (TEST);
+  if (_model == nullptr) return TEST;
   double drfval = _model->evalDriftVarCoef(db, iech, 0, _BETA);
   if (FFFF(drfval)) return (TEST);
   return (zz - drfval);
@@ -4416,10 +4416,10 @@ void Vario::_driftManage(Db *db)
 
   _BETA.resize(nbfl,0.);
   _DRFDIAG.resize(nech, 0.);
-  _DRFTAB.reset(nech, nbfl, 0.);
-  _DRFXA.reset (nech, nbfl, 0.);
-  _DRFGX.reset (nech, nbfl, 0.);
-  _DRFXGX.reset(nbfl, nbfl, 0.);
+  _DRFTAB.resetFromValue(nech, nbfl, 0.);
+  _DRFXA.resetFromValue(nech, nbfl, 0.);
+  _DRFGX.resetFromValue(nech, nbfl, 0.);
+  _DRFXGX.resetFromValue(nbfl, nbfl, 0.);
 }
 
 /****************************************************************************/
@@ -4433,17 +4433,18 @@ void Vario::_driftManage(Db *db)
  *****************************************************************************/
 int Vario::_driftEstimateCoefficients(Db *db)
 {
+  if (_model == nullptr) return 1;
   int iiech;
   int nbfl = _model->getDriftNumber();
   VectorDouble b(nbfl, 0.);
-  MatrixSquareGeneral matdrf(nbfl, nbfl);
+  MatrixSquareGeneral matdrf(nbfl);
 
   /* Calculate: t(X) %*% X */
 
   for (int iech = iiech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    VectorDouble drfloc = _model->evalDriftVec(db, iech, ECalcMember::LHS);
+    VectorDouble drfloc = _model->evalDriftBySample(db, iech, ECalcMember::LHS);
     double zval = db->getLocVariable(ELoc::Z, iech, 0);
 
     for (int il = 0; il < nbfl; il++)
@@ -4683,7 +4684,7 @@ int Vario::computeGeometryMLayers(Db *db,
       }
     }
   }
-  vorder = vario_order_final(vorder, &npair);
+  vario_order_final(vorder, &npair);
   return (0);
 }
 

@@ -19,6 +19,8 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
+class DbGrid;
+class Polygons;
 class Table;
 class VarioParam;
 
@@ -26,10 +28,12 @@ GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& op
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
 
 /**
- * \defgroup Stats1 Statistics on variables of a Db
+ * \defgroup STATS Statistics calculations
  *
- * \brief Compute one or several statistics (oper/opers) on a set of variables (names)
- * contained in a Db and produce the results as a Table or as variables added to the input Db
+ **/
+
+/** @addtogroup STATS_0 Statistics on variables of a Db
+ * \ingroup STATS
  *
  * @param db         Db structure
  * @param names      Vector of n describing the target variables
@@ -63,16 +67,15 @@ GSTLEARN_EXPORT Table dbStatisticsMulti(Db *db,
 
 /**@}*/
 
-/**
- * \defgroup Stats3 Statistics from Db to DbGrid
- *
- * \brief Compute Statistics of points per cell
+/** @addtogroup STATS_1 Statistics from Db to DbGrid
+ * \ingroup STATS
  *
  * @param  db         Input Db
  * @param  dbgrid     Output Grid Db
+ * @param  name1      Name of the primary variable
+ * @param  name2      Name of the secondary variable
  * @param  oper       Statistical operator
  * @param  cuts       Array of cutoffs (when needed)
- * @return Vector of results
  *  @{
  */
 GSTLEARN_EXPORT VectorDouble dbStatisticsPerCell(Db *db,
@@ -127,17 +130,17 @@ GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
                                            int nclass,
                                            bool verbose = false);
 
+GSTLEARN_EXPORT std::map<int, int> contingencyTable(const VectorInt& values);
+GSTLEARN_EXPORT std::map<int, std::map<int,int>> contingencyTable2(const VectorInt& values,
+                                                                   const VectorInt& bins);
+
 #ifndef SWIG
 // All the following functions assume that the variables in the output Db used to store
 // the results are already created.
 // This is the reason why they are not supposed to be presented to the Target Language.
 
-/**
- * \defgroup Stats4 Statistics stored in already created variables
- *
- * \brief Store several statistics calculated on a set of variables of a Db and store them
- * in this same Db in variables already created.
- * These functions should not be used in Target Language.
+ /** @addtogroup STATS_2 Statistics stored in already created variables
+ * \ingroup STATS
  *
  * @param db Input Data Base
  * @param names List of target variables

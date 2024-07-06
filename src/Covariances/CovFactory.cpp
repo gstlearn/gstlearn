@@ -43,6 +43,9 @@
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
 #include "Covariances/CovMarkov.hpp"
+#include "Covariances/CovGeometric.hpp"
+#include "Covariances/CovPoisson.hpp"
+#include "Covariances/CovLinearSph.hpp"
 
 #include <iostream>
 #include <cctype>
@@ -86,6 +89,9 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_WENDLAND1:   return new CovWendland1(ctxt);
     case ECov::E_WENDLAND2:   return new CovWendland2(ctxt);
     case ECov::E_MARKOV:      return new CovMarkov(ctxt);
+    case ECov::E_GEOMETRIC:   return new CovGeometric(ctxt);
+    case ECov::E_POISSON:     return new CovPoisson(ctxt);
+    case ECov::E_LINEARSPH:   return new CovLinearSph(ctxt);
     default: break;
   }
   return nullptr;
@@ -124,6 +130,9 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     case ECov::E_WENDLAND1:   return new CovWendland1(  dynamic_cast<const CovWendland1&>  (cov));
     case ECov::E_WENDLAND2:   return new CovWendland2(  dynamic_cast<const CovWendland2&>  (cov));
     case ECov::E_MARKOV:      return new CovMarkov(     dynamic_cast<const CovMarkov&>     (cov));
+    case ECov::E_POISSON:     return new CovPoisson(    dynamic_cast<const CovPoisson&>    (cov));
+    case ECov::E_GEOMETRIC:   return new CovGeometric(  dynamic_cast<const CovGeometric&>  (cov));
+    case ECov::E_LINEARSPH:   return new CovLinearSph(  dynamic_cast<const CovLinearSph&>  (cov));
     default: break;
   }
   my_throw ("Covariance function not yet implemented!");
@@ -201,9 +210,9 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
       ACovFunc* cova = createCovFunc(*it, ctxt);
       String cn = toUpper(cov_name);
       String ccn = toUpper(cova->getCovName());
+      delete cova;
       if (cn == ccn)
         return *it;
-      delete cova;
     }
     it.toNext();
   }

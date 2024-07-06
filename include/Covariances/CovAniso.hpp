@@ -23,11 +23,11 @@
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
 
-
 #include <vector>
 
 class Rotation;
 class MatrixSquareGeneral;
+class MatrixRectangular;
 
 /**
  * \brief
@@ -83,28 +83,44 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-
-  virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
-  virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
+  virtual double evalCovOnSphere(double alpha,
+                                 int degree = 50,
+                                 bool flagScaleDistance = true,
+                                 const CovCalcMode* mode = nullptr) const override;
+  virtual VectorDouble evalSpectrumOnSphere(int n,
+                                            bool flagNormDistance = false,
+                                            bool flagCumul = false) const override;
+  virtual double evalSpectrum(const VectorDouble &freq,
+                              int ivar = 0,
+                              int jvar = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  void optimizationPreProcess(const std::vector<SpacePoint>& vec) const;
+  bool isOptimizationInitialized(const Db* db = nullptr) const;
+  void optimizationPreProcess(const Db* db) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint& pt) const;
+  void optimizationSetTarget(int iech) const;
 
-  void evalOptimInPlace(VectorDouble &res,
-                        int ivar = 0,
-                        int jvar = 0,
-                        const CovCalcMode *mode = nullptr) const;
+  void evalOptimInPlace(MatrixRectangular& res,
+                        const VectorInt& ivars,
+                        const VectorVectorInt& index,
+                        int ivar2 = 0,
+                        int icol = 0,
+                        const CovCalcMode *mode = nullptr,
+                        bool flagSym = false) const;
   void evalMatOptimInPlace(int icas1,
                            int iech1,
                            int icas2,
                            int iech2,
                            MatrixSquareGeneral &mat,
                            const CovCalcMode *mode = nullptr) const override;
+  bool isValidForTurningBand() const;
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
+  bool isValidForSpectral() const ;
+  MatrixRectangular simulateSpectralOmega(int nb) const;
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
@@ -204,13 +220,14 @@ public:
   int    getGradParamNumber() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
+  bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
-  bool   hasSpectrum() const { return _cova->hasSpectrum(); }
+  bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
 
-  static double scale2range(const ECov& type, double scale, double param = 1.);
-  static double range2scale(const ECov& type, double range, double param = 1.);
-
-  VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
+  VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
+                                  int degree = 50,
+                                  bool flagScaleDistance = false,
+                                  const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
@@ -219,7 +236,7 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  int getDimensionNumber() const        { return _ctxt.getNDim(); }
+  int getDimensionNumber() const { return _ctxt.getNDim(); }
 
   CovAniso* createReduce(const VectorInt &validVars) const;
 
@@ -242,3 +259,7 @@ private:
   Tensor _aniso;               /// Anisotropy parameters
   double _noStatFactor;        /// Correcting factor for non-stationarity
 };
+
+GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);
+GSTLEARN_EXPORT double range2scale(const ECov& type, double range, double param = 1.);
+
