@@ -46,7 +46,8 @@ public:
              double aymax,
              double azmax,
              double sigma2e,
-             const VectorDouble &tdisc);
+             const VectorDouble& zdisc,
+             const VectorDouble& ydisc);
 
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::fromKey("EMPIRICAL"); }
@@ -63,12 +64,12 @@ public:
   AnamEmpirical* create(int ndisc = 100, double sigma2e = TEST);
   int    getNDisc() const { return _nDisc; }
   double getSigma2e() const { return _sigma2e; }
-  const  VectorDouble& getTDisc() const { return _tDisc; }
+  const  VectorDouble& getZDisc() const { return _ZDisc; }
+  const  VectorDouble& getYDisc() const { return _YDisc; }
   void   setSigma2e(double sigma2e) { _sigma2e = sigma2e; }
 
   void   setNDisc(int ndisc);
-  void   setTDisc(const VectorDouble& tdisc);
-  bool   isTDiscIndexValid(int i) const;
+  void   setDisc(const VectorDouble& zdisc, const VectorDouble& ydisc);
 
 protected:
   /// Interface for ASerializable
@@ -77,7 +78,13 @@ protected:
   String _getNFName() const override { return "AnamEmpirical"; }
 
 private:
+  int _fitWithDilution(const VectorDouble &tab);
+  int _fitNormalScore(const VectorDouble &tab);
+
+private:
+  bool   _flagDilution;
   int    _nDisc;
   double _sigma2e;
-  VectorDouble _tDisc;
+  VectorDouble _ZDisc;
+  VectorDouble _YDisc;
 };
