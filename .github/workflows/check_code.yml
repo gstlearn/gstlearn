@@ -28,7 +28,7 @@ jobs:
   check-formatting:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install latest clang-format
       run: |
@@ -75,7 +75,7 @@ jobs:
         opt: [Debug, Release]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Ubuntu dependencies
       run: |
@@ -119,7 +119,7 @@ jobs:
           - {tidy: false, sa: false, dox: true}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Ubuntu dependencies
       run: |

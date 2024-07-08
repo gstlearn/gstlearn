@@ -33,7 +33,7 @@ jobs:
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # TODO : This shoudn't be needed for PRINT_VERSION target
     - name: Install dependencies
