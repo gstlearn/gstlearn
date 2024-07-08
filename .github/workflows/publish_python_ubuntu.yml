@@ -90,7 +90,7 @@ jobs:
         cd ../../..
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
         name: ubuntu-python-package-${{matrix.os}}-${{matrix.python.py}}

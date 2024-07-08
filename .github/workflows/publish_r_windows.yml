@@ -91,7 +91,7 @@ jobs:
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.zip" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all R versions
       with:
         name: windows-r-package-${{matrix.r_version}}

@@ -83,7 +83,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ubuntu-r-package-${{matrix.os}}-r-${{matrix.r_version}}
         path: ${{env.MY_PKG}}
