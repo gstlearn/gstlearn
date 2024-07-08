@@ -85,6 +85,6 @@ jobs:
           dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
   
       # Delete the artifacts (for freeing storage space under github)
-      - uses: geekyeggo/delete-artifact@v2
+      - uses: geekyeggo/delete-artifact@v5
         with:
           name: doxygen

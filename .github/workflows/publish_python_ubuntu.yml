@@ -112,7 +112,7 @@ jobs:
         pattern: ubuntu-python-package-*
 
     # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v5
       with:
         name: ubuntu-python-package-*
 
