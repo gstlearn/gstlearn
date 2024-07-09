@@ -98,9 +98,8 @@ jobs:
     - name : Configure build directory
       run : |
         cmake `
-          -B${{env.BUILD_DIR}} `
+          -B${{ env.BUILD_DIR }} `
           -A ${{matrix.arch.of}} `
-          -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
           -DBUILD_PYTHON=ON `
           -DBUILD_DOXYGEN=ON `
 

@@ -41,15 +41,22 @@ jobs:
         sudo rm /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
         sudo apt-get install -yq \
+          doxygen \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev \
-          doxygen
+          libeigen3-dev
 
+    - name: Configure build directory
+      run: |
+        cmake \
+          -B${{ env.BUILD_DIR }} \
+          -DBUILD_PYTHON=OFF \
+          -DBUILD_R=OFF \
+          -DBUILD_DOXYGEN=ON
+          
     - name: Build doxygen documentation and save generated folder name in the environment
       id: main_step
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         cmake --build ${{env.BUILD_DIR}} --target doxygen
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"

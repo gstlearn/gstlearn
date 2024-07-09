@@ -48,7 +48,7 @@ jobs:
       with:
         python-version: ${{env.PYTHON_VERSION}}
 
-    - name: Install Python dependencies
+    - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install numpy==${{env.NUMPY_VERSION}}
@@ -71,20 +71,21 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
+    - name: Configure build directory
       run: |
         cmake \
-          -B ${{ env.BUILD_DIR }} \
+          -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Build gstlearn
+    - name: Build the package
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()

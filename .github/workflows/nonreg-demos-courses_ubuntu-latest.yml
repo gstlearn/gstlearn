@@ -87,7 +87,7 @@ jobs:
             'geigen', 
             'callr'),
             repos='https://cloud.r-project.org/')"
-            
+
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
@@ -100,16 +100,16 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
+    - name: Configure build directory
       run: |
         cmake \
-          -B ${{ env.BUILD_DIR }} \
+          -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Build the package
-      run : |
+      run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Execute Python demos and courses

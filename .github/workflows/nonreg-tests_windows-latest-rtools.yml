@@ -19,7 +19,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug)
-  CMAKE_BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
@@ -59,16 +59,17 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Visual Studio 17 2022"
 
-    - name: Configure CMake
+    - name: Configure build directory
       run: |
         cmake `
-          -B${{env.BUILD_DIR}} `
+          -B${{ env.BUILD_DIR }} `
           -DBUILD_R=ON `
           -DBUILD_PYTHON=OFF `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
-    - name: Build gstlearn
-      run: cmake --build ${{env.BUILD_DIR}} --parallel 3
+    - name: Build the package
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check

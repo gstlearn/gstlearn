@@ -92,7 +92,7 @@ jobs:
             'callr'),
             repos='https://cloud.r-project.org/')"
       
-    - name: Install R dependencies
+    - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         packages: roxygen2
@@ -104,10 +104,10 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
+    - name: Configure build directory
       run: |
         cmake \
-          -B ${{env.BUILD_DIR}} \
+          -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
@@ -146,7 +146,7 @@ jobs:
           username: ${{ secrets.CG_USR }}
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
-  
+
       # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v2
         with:

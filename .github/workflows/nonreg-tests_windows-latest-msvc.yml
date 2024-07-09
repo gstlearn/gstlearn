@@ -19,7 +19,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : "Visual Studio 17 2022"
   PYTHON_VERSION : "3.11"
@@ -30,6 +30,7 @@ env:
   #HDF5_VERSION : hdf5-1.12.1
 
 jobs:
+
   build:
     runs-on: windows-latest
 
@@ -55,18 +56,19 @@ jobs:
         python -m pip install numpy==${{env.NUMPY_VERSION}}
         python -m pip install pandas scipy mlxtend
 
-    - name: Configure CMake
+    - name: Configure build directory
       run: |
         cmake `
-          -B${{env.BUILD_DIR}} `
-          -DBUILD_PYTHON=ON `
-          -DPython3_ROOT_DIR="${{env.pythonLocation}}"
+          -B${{ env.BUILD_DIR }} `
+          -DBUILD_PYTHON=ON
 
-    - name: Build gstlearn
-      run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}}
+    - name: Build the package
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --config ${{env.BUILD_TYPE}}
 
     - name: Install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()
