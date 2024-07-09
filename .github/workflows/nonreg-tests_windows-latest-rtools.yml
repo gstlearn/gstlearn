@@ -72,7 +72,8 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()

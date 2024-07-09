@@ -101,7 +101,9 @@ jobs:
           -B${{ env.BUILD_DIR }} `
           -A ${{matrix.arch.of}} `
           -DBUILD_PYTHON=ON `
-          -DBUILD_DOXYGEN=ON `
+          -DBUILD_R=OFF `
+          -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
+          -DBUILD_DOXYGEN=ON
 
     - name : Build the package
       run : |
@@ -141,3 +143,4 @@ jobs:
     - uses: geekyeggo/delete-artifact@v2
       with:
         name: windows-python-package-*
+

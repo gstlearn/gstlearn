@@ -96,6 +96,7 @@ jobs:
           -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
+          -DPython3_ROOT_DIR="${{env.pythonLocation}}" \
           -DBUILD_DOXYGEN=ON
       env:
         CC: ${{matrix.arch.pat}}/opt/llvm/bin/clang

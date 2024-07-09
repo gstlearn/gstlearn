@@ -23,7 +23,6 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
   BUILD_DIR : build
 
 jobs:
