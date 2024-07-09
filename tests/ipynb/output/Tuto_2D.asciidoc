@@ -27,7 +27,7 @@ Column = 1 - Name = X - Locator = x1
 Column = 2 - Name = Y - Locator = x2
 Column = 3 - Name = Zn - Locator = z1
 Column = 4 - Name = Pb - Locator = p1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -109,7 +109,7 @@ Column = 2 - Name = Y - Locator = x2
 Column = 3 - Name = Zn - Locator = NA
 Column = 4 - Name = Pb - Locator = z1
 Column = 5 - Name = sel - Locator = sel
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -138,7 +138,7 @@ Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -155,7 +155,7 @@ For variable 1
          7   187.000     7.000     2.708
          8   204.000     7.996     2.772
          9   184.000     8.990     2.868
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -178,7 +178,7 @@ Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -200,7 +200,7 @@ Direction #2
 ------------
 Number of lags              = 10
 Direction coefficients      =      0.707     0.707
-Direction angles (degrees)  =     45.000     0.000
+Direction angles (degrees)  =     45.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -222,7 +222,7 @@ Direction #3
 ------------
 Number of lags              = 10
 Direction coefficients      =      0.000     1.000
-Direction angles (degrees)  =     90.000     0.000
+Direction angles (degrees)  =     90.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -243,7 +243,7 @@ Direction #4
 ------------
 Number of lags              = 10
 Direction coefficients      =     -0.707     0.707
-Direction angles (degrees)  =    135.000     0.000
+Direction angles (degrees)  =    135.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -260,7 +260,7 @@ For variable 1
          7    49.000     6.975     3.425
          8    60.000     8.004     2.408
          9    53.000     8.972     3.996
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -295,7 +295,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = VMAP.Pb.Var - Locator = z1
 Column = 4 - Name = VMAP.Pb.Nb - Locator = NA
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -364,7 +364,7 @@ Total Sill     =      2.645
 Drift Part
 ----------
 Universality_Condition
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -375,7 +375,7 @@ Moving Neighborhood
 Minimum number of samples           = 1
 Maximum number of samples           = 6
 Maximum horizontal distance         = 10
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -401,7 +401,7 @@ Variables
 ---------
 Column = 0 - Name = x1 - Locator = x1
 Column = 1 - Name = x2 - Locator = x2
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -432,7 +432,7 @@ Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
 Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
 Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -471,7 +471,7 @@ Column = 4 - Name = Pb - Locator = NA
 Column = 5 - Name = sel - Locator = sel
 Column = 6 - Name = Xvalid.Pb.esterr - Locator = z1
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -585,7 +585,7 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = z1
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -623,7 +623,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [ 14,]     0.037     0.007    -0.031     0.010     0.018    -0.019    -0.003
      [ 21,]     0.019    -0.010    -0.014     0.019     0.006    -0.023     0.004
      [ 28,]     0.022    -0.013
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -657,7 +657,7 @@ Column = 5 - Name = sel - Locator = sel
 Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -706,7 +706,7 @@ Column = 15 - Name = Simu.Y.Pb.7 - Locator = z7
 Column = 16 - Name = Simu.Y.Pb.8 - Locator = z8
 Column = 17 - Name = Simu.Y.Pb.9 - Locator = z9
 Column = 18 - Name = Simu.Y.Pb.10 - Locator = z10
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -940,7 +940,7 @@ Column = 19 - Name = Stats.MINI - Locator = NA
 Column = 20 - Name = Stats.MAXI - Locator = NA
 Column = 21 - Name = Stats.MEAN - Locator = NA
 Column = 22 - Name = Stats.STDV - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -989,7 +989,7 @@ Column = 15 - Name = Z.Simu.Y.Pb.7 - Locator = z7
 Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = z8
 Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = z9
 Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = z10
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1223,7 +1223,7 @@ Column = 19 - Name = Stats.MINI - Locator = NA
 Column = 20 - Name = Stats.MAXI - Locator = NA
 Column = 21 - Name = Stats.MEAN - Locator = NA
 Column = 22 - Name = Stats.STDV - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1436,7 +1436,7 @@ Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = NA
 Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = NA
 Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = NA
 Column = 19 - Name = Stats.MEAN - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1468,7 +1468,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [ 14,]     0.005     0.044    -0.026    -0.020     0.034     0.001    -0.033
      [ 21,]     0.010     0.027    -0.016    -0.019     0.016     0.012    -0.014
      [ 28,]    -0.005     0.011
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1503,7 +1503,7 @@ Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = NA
 Column = 9 - Name = Y.Zn - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1563,7 +1563,7 @@ Column = 26 - Name = Simu.Y.Zn.7 - Locator = z17
 Column = 27 - Name = Simu.Y.Zn.8 - Locator = z18
 Column = 28 - Name = Simu.Y.Zn.9 - Locator = z19
 Column = 29 - Name = Simu.Y.Zn.10 - Locator = z20
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1887,7 +1887,7 @@ Column = 29 - Name = Stats.MINI - Locator = NA
 Column = 30 - Name = Stats.MAXI - Locator = NA
 Column = 31 - Name = Stats.MEAN - Locator = NA
 Column = 32 - Name = Stats.STDV - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1895,7 +1895,7 @@ Column = 32 - Name = Stats.STDV - Locator = z1
 Bound( 1 ) : ] -Inf ; 4 [
 Bound( 2 ) : [ 4 ; 6 [
 Bound( 3 ) : [ 6 ;  +Inf [
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1927,7 +1927,7 @@ Column = 9 - Name = Y.Zn - Locator = NA
 Column = 10 - Name = Indicator.Pb.Class.1 - Locator = z1
 Column = 11 - Name = Indicator.Pb.Class.2 - Locator = z2
 Column = 12 - Name = Indicator.Pb.Class.3 - Locator = z3
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -1948,7 +1948,7 @@ Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -2030,7 +2030,7 @@ For variable 3
          7   187.000     7.000     0.270
          8   204.000     7.996     0.240
          9   184.000     8.990     0.226
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -2078,4 +2078,4 @@ Column = 10 - Name = Indicator.Pb.Class.1 - Locator = NA
 Column = 11 - Name = Indicator.Pb.Class.2 - Locator = NA
 Column = 12 - Name = Indicator.Pb.Class.3 - Locator = NA
 Column = 13 - Name = Category.Pb - Locator = z1
- ----
+----

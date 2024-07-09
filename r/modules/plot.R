@@ -154,10 +154,21 @@ plot.printDefault <- function()
   }  
 }
 
-#' Define the color map
+#' Allow redefining a new aesthetic element (if already defined)
+#' @param aestype Should be "colour" or "fill" or "linetype"
+appendNewScale <- function(p, aestype)
+{
+	p <- append(p, list(new_scale(aestype)))
+ 	p
+}
+
+#' Define the "colour" using input 'palette' definition
+#' @param p Already existing list of ggplot commands
 #' @param palette Reference palette used for defining the current color map
+#' @param naColor Color used for representing NA values
+#' @param flagDiscrete True for defining a Discrete Color scale
 #' @noRd
-.scaleColorFill <- function(palette, naColor=NA, ...)
+.defineColour <- function(palette, naColor=NA, flagDiscrete=FALSE, ...)
 {
   rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
       "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
@@ -167,43 +178,88 @@ plot.printDefault <- function()
       "A", "B", "C", "D", "E", "F", "G", "H")
   rcb_num <- 1:18
   
-  aes_list = c("colour", "fill")
-  if (length(palette) == 0) 
+  aes_list = c("colour")
+  
+  if (flagDiscrete)
   {
-    layer = scale_color_gradient(na.value=naColor, ...)
+  	layer = scale_colour_manual(name="colors", values= palette, aesthetics=aes_list, 
+            na.value = naColor, ...)
   }
-  else if(length(palette) == 1) 
+  else
   {
-    if (any(palette == rcb) | any(palette == rcb_num)) 
-    {
-      layer = scale_color_distiller(palette=palette, aesthetics=aes_list, 
-          na.value=naColor, ...)
-    } 
-    else if(any(palette == v)) 
-    {
-      layer = scale_color_viridis_c(option=palette, aesthetics=aes_list, 
-          na.value = naColor, ...)
-    } 
-  } 
-  else if(length(palette) == 2) 
+  	if (length(palette) == 0) 
+ 	{
+ 		layer = scale_colour_gradient(na.value=naColor, aesthetics=aes_list,...)
+ 	}
+	else if(length(palette) == 1) 
+ 	{
+ 	    if (any(palette == rcb) | any(palette == rcb_num)) 
+ 	    {
+ 	    	layer = scale_colour_distiller(palette=palette, aesthetics=aes_list, 
+  	                na.value=naColor, ...)
+  	    } 
+ 	  	else if(any(palette == v)) 
+ 	    {
+	        layer = scale_colour_viridis_c(option=palette, aesthetics=aes_list, 
+	                na.value = naColor, ...)
+ 	    } 
+ 	} 
+ 	else 
+	{
+ 	    layer = scale_colour_gradientn(colors=palette, aesthetics=aes_list, 
+  	            na.value=naColor, ...)
+  	} 
+  }
+  layer
+}
+
+#' Define the "fill" using input 'palette' definition
+#' @param p Already existing list of ggplot commands
+#' @param palette Reference palette used for defining the current color map
+#' @param naColor Color used for representing NA values
+#' @param flagDiscrete True for defining a Discrete Color scale
+#' @noRd
+.defineFill <- function(palette, naColor=NA, flagDiscrete=FALSE, ...)
+{
+  rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
+      "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
+      "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
+      "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
+  v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
+      "A", "B", "C", "D", "E", "F", "G", "H")
+  rcb_num <- 1:18
+  
+  aes_list = c("fill")
+  
+  if (flagDiscrete)
   {
-    low = palette[1]
-    high = palette[2]
-    layer = scale_color_gradient(low= low, high= high, aesthetics=aes_list, 
-        na.value=naColor, ...)
-  } 
-  else if(length(palette) == 3) 
+  	layer = scale_fill_manual(name="colors", values= palette, aesthetics=aes_list, 
+            na.value = naColor, ...)
+  }
+  else
   {
-    low = palette[1]
-    mid = palette[2]
-    high = palette[3]
-    layer = scale_color_gradient2(low= low, mid= mid, high= high, 
-        aesthetics=aes_list, na.value=naColor, ...)
-  } 
-  else 
-  {
-    layer = scale_colour_manual(values= palette, aesthetics=aes_list, 
-        na.value = naColor, ...)
+  	if (length(palette) == 0) 
+ 	{
+ 		layer = scale_fill_gradient(na.value=naColor, aesthetics=aes_list,...)
+ 	}
+	else if(length(palette) == 1) 
+ 	{
+ 	    if (any(palette == rcb) | any(palette == rcb_num)) 
+ 	    {
+ 	    	layer = scale_fill_distiller(palette=palette, aesthetics=aes_list, 
+  	                na.value=naColor, ...)
+  	    } 
+ 	  	else if(any(palette == v)) 
+ 	    {
+	        layer = scale_fill_viridis_c(option=palette, aesthetics=aes_list, 
+	                na.value = naColor, ...)
+ 	    } 
+ 	} 
+ 	else 
+	{
+ 	    layer = scale_fill_gradientn(colors=palette, aesthetics=aes_list, 
+  	            na.value=naColor, ...)
+  	} 
   }
   layer
 }
@@ -212,7 +268,7 @@ plot.printDefault <- function()
 #' @noRd
 .getColors <- function()
 {
-  c("blue", "red", "green", "brown", "orange", "purple", "yellow")
+	c("blue", "red", "green", "brown", "orange", "purple", "yellow")
 }
 
 #' Print the contents of a ggplot, possibly without warnings
@@ -585,6 +641,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 #' @param envColor Color used for representing coregionalization envelop
 #' @param envLinetype Linetype used for representing coregionalization envelop
 #' @param envSize Size used for representing coregionalization envelop
+#' @param cols List of colors (optional)
 #' @param drawVario Flag for representing the experimental variogram (used when 'vario' is defined)
 #' @param flagLegend Flag for displaying the legend
 #' @param ... Arguments passed to varioElementary() and modelElementary()
@@ -595,7 +652,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5, 
     envColor='black', envLinetype="dashed", envSize=0.5,
-    drawVario=TRUE, flagLegend=FALSE, ...)
+    cols=NA, drawVario=TRUE, flagLegend=FALSE, ...)
 {
   if (!require(ggnewscale, quietly=TRUE))
     stop("Package ggnewscale is mandatory to use this function!")
@@ -612,7 +669,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   nvar = 1
   if (! .isNotDef(vario)) nvar = vario$getVariableNumber()
   if (! .isNotDef(model)) nvar = model$getVariableNumber()
-  cols = .getColors()
+  if (missing(cols)) cols = .getColors()
   
   idirUtil = .selectItemsInList(ndir, idir)
   ivarUtil = .selectItemsInList(nvar, ivar)
@@ -628,14 +685,15 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
       hhmax = 1
   }
   
+  p <- appendNewScale(p, "linetype")
+  p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
+  p <- appendNewScale(p, "colour")
+  p <- append(p, scale_color_manual(name="Directions", values = cols))
+  
   # Loop on the variables
   flag_allow_negative_X = FALSE
   flag_allow_negative_Y = FALSE
   
-  # Allow redefining color and linetypes
-  p <- append(p, list(new_scale("color")))
-  p <- append(p, list(new_scale("linetype")))
- 
   for (ivar in ivarUtil)
   {
     for (jvar in jvarUtil)
@@ -644,8 +702,11 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
       # Define the current plot
       for (idir in idirUtil)
       {
-          if (! .isNotDef(vario))
-          dirName = paste("Vario dir =", paste(round(vario$getCodirs(idir),3), collapse=' '))
+         if (! .isNotDef(vario))
+         {
+          angles = GeometryHelper_rotationGetAngles(vario$getCodirs(idir),TRUE)
+          dirName = paste("Vario dir =", paste(round(angles,3), collapse=' '))
+         }
          else
            dirName = paste("Direction :",idir)
         
@@ -689,9 +750,6 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   p = append(p, plot.decoration(xlab = "Distance", ylab = "Variogram"))
   
   # Constructing the Legend
-
-  p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
-  p <- append(p, scale_color_manual(name="Directions", values = cols))
   if (! flagLegend)
     p <- append(p, list(theme(legend.position='none')))
   
@@ -958,9 +1016,6 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     flagCst = TRUE
   }
 
-  # Allow redefining color and linetypes
-  p <- append(p, list(new_scale_color()))
-  
   if (! is.null(nameColor) || ! is.null(nameSize))
   {
     p <- append(p, pointSymbol(db, nameColor=nameColor, nameSize=nameSize,
@@ -974,8 +1029,11 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
       
     # Palette definition (if defined)
     if (! is.null(palette))
-      p <- append(p, .scaleColorFill(palette, ...))
-    
+    {
+      p <- appendNewScale(p, "colour")
+      p <- append(p, .defineColour(palette, ...))
+    }
+
     # Set the default title
     if (! is.null(nameColor))
       title = paste(title, nameColor, "(color)", sep=" ")
@@ -1006,6 +1064,7 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
   if (! is.null(nameLabel))
   {
     p <- append(p, pointLabel(db, name=nameLabel, ...))
+    p <- appendNewScale(p, "colour")
     p <- append(p, scale_color_manual(values = textColor))
     
     # Set the title              
@@ -1023,7 +1082,6 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     }
   }
 
-  
   # Decoration
   if (flagTitleDefault) title = "Sample Location"
   p <- append(p, plot.decoration(title = title))
@@ -1093,7 +1151,7 @@ gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, 
 #' @param flagLegendContour Display the legend for grid representation as contour lines
 #' @param legendNameRaster Name of the Legend for representation as an image (set to 'nameRaster' if not defined)
 #' @param legendNameContour Name of the Legend for representation as contour lines (set to 'nameContour' if not defined)
-#' @param ... Arguments passed to gridRaster( ), gridContour(), .scaleColorFill()
+#' @param ... Supplementary arguments
 #' @return The ggplot object
 plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
     useSel = TRUE, palette=NULL, naColor = "white", limits = NULL, 
@@ -1118,7 +1176,7 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   }
   
   # Allow redefining color and linetypes
-  p <- append(p, list(new_scale_color()))
+  p <- appendNewScale(p, "colour")
   
   # Raster representation
   if (! is.null(nameRaster))
@@ -1158,7 +1216,10 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   
   # Palette definition (if defined)
   if (! is.null(palette))
-    p <- append(p, .scaleColorFill(palette, naColor=naColor, limits=limits, ...))
+  {
+    p <- appendNewScale(p, "fill")
+    p <- append(p, .defineFill(palette, naColor=naColor, limits=limits, ...))
+  }
   
   # Decoration
   p <- append(p, plot.decoration(title = title))
@@ -1168,17 +1229,18 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
 
 #' Representing a Polygon
 #' @param poly A Polygon object from the gstlearn library
+#' @param cols List of colors (optional)
 #' @param flagTitle Plot the decoration attached to the figure
 #' @param ... List of arguments passed to geom_polygon( )
 #' @return The ggplot object
-plot.polygon <- function(poly, flagTitle=FALSE, ...)
+plot.polygon <- function(poly, cols=NA, flagTitle=FALSE, ...)
 {
   dots = list(...)
   has_color = "color" %in% names(dots)
   
   p = list()
   npol = poly$getPolyElemNumber()
-  cols = .getColors()
+  if (missing(cols)) cols = .getColors()
   
   dotloc = dots
   for (ipol in 1:npol)
@@ -1479,9 +1541,13 @@ plot.hscatter <- function(db, namex, namey, varioparam, ipas=0, idir=0,
 #' @param rule A Rule object from gstlearn library
 #' @param proportions The vector of facies proportions. When defined it is used to dimension the facies rectangles
 #' @param maxG Maximum gaussian value (in absolute value)
+#' @param cols List of colors (optional)
+#' @param flagLegend Display the legend 
+#' @param legendName Name of the Legend
 #' @param ... List of arguments passed to geom_rect()
 #' @return The ggplot object
-plot.rule <- function(rule, proportions=NULL, maxG = 3., ...)
+plot.rule <- function(rule, proportions=NULL, maxG = 3., cols=NA, 
+	flagLegend=FALSE, legendName="Facies", ...)
 {
   p = list()
   nrect = rule$getFaciesNumber()
@@ -1489,11 +1555,10 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., ...)
     rule$setProportions(proportions)
   else
     rule$setProportions()
-  cols = .getColors()
+  if (missing(cols)) cols = .getColors()
   
   df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
-      ymin=rep(0,nrect),ymax=rep(0,nrect),
-      colors=cols[1:nrect])
+      ymin=rep(0,nrect),ymax=rep(0,nrect), colors=rep(0,nrect))
   for (ifac in 1:nrect)
   {
     rect = rule$getThresh(ifac) # This function is 1-based
@@ -1501,10 +1566,25 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., ...)
     df$xmax[ifac] = min(rect[2], +maxG)
     df$ymin[ifac] = max(rect[3], -maxG)
     df$ymax[ifac] = min(rect[4], +maxG)
+    df$colors[ifac] = ifac
   }
   
   p = append(p, geom_rect(data = df, mapping=aes(xmin = xmin, xmax = xmax, 
-          ymin = ymin, ymax = ymax, fill = colors), na.rm=TRUE, ...))
+             ymin = ymin, ymax = ymax, fill = as.factor(colors)), na.rm=TRUE, ...))
+  
+  p <- appendNewScale(p, "fill")       
+  p <- append(p, .defineFill(cols, flagDiscrete=TRUE, ...))
+  
+  # Set the legend
+  if (flagLegend)
+  {
+    p <- append(p, list(labs(color = legendName)))
+  }
+  else
+  {
+    p <- append(p, list(guides(color = "none")))
+  }
+  
   p = append(p, plot.geometry(xlim=c(-maxG,+maxG), ylim=c(-maxG,+maxG)))
   p
 }

@@ -24,7 +24,7 @@ Column = 2 - Name = Latitude - Locator = x2
 Column = 3 - Name = Elevation - Locator = f1
 Column = 4 - Name = January_temp - Locator = z1
 Column = 5 - Name = sel - Locator = sel
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -55,7 +55,7 @@ Column = 0 - Name = Longitude - Locator = x1
 Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -74,7 +74,7 @@ Direction #1
 ------------
 Number of lags              = 18
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =     25.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -99,7 +99,7 @@ For variable 1
         15   105.000   373.088     1.219
         16    76.000   399.464     0.802
         17    58.000   426.095     0.677
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -118,7 +118,7 @@ Direction #1
 ------------
 Number of lags              = 18
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =     25.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -143,7 +143,7 @@ For variable 1
         15   105.000   373.088     0.345
         16    76.000   399.464     0.410
         17    58.000   426.095     0.411
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -173,7 +173,7 @@ Drift Part
 ----------
 Universality_Condition
 External_Drift:0
- 
+
 #NO_DIFF#XXX
 ----
 

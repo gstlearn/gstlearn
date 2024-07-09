@@ -180,7 +180,7 @@ dat[10:15, 3:4]
 
 This is not recommended as the Column index of a given variable may vary over time.
 
-A particular function is available to convert all the data base in an appropriate object of the Target Langage (here R). A gstlearn Db is converted into a data.frame using toTL.
+A particular function is available to convert all the data base in an appropriate object of the Target Language (here R). A gstlearn Db is converted into a data.frame using toTL.
 
 ```{r}
 dat$toTL()

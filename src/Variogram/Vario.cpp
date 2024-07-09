@@ -3329,7 +3329,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
         IDIRLOC = idir;
         IECH1 = iech;
         IECH2 = jech;
-        evaluate(db, getVariableNumber(), iech, jech, ipas, dist);
+        evaluate(db, getVariableNumber(), iech, jech, ipas, dist, 1);
       }
     }
   }

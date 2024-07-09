@@ -804,7 +804,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 {
   names = x$getAllNames()
   nc = x$getColumnNumber()
-  vals = list()
+  vals = NULL
   for (i in seq(0,nc-1)) {
     vals = cbind(vals,x$getColumnsByColIdx(i))
   }
@@ -942,12 +942,27 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 	gstobj
 }
 
-"Db_fromTL" <- function(Robj)
+"Db_fromTL" <- function(Robj, coordnames=NULL)
 {
 	dat = Db()
 	types = unlist(lapply(Robj, is.numeric))
 	for (field in names(Robj))
 	   	if (types[field] == TRUE) dat[field] = Robj[field]
+	   	
+	if (length(coordnames) > 0)
+	{
+		## Check names
+		if (length(intersect(colnames(data[]),coordnames))!=length(coordnames))
+		{
+   		    stop("Check the variable names: one or several of the supplied names are absent from the dataframe")
+    	}
+  	  	else
+   		{
+			## Add coordinates
+  			err = dat$setLocators(names = coordnames, locatorType = ELoc_X(), 
+  			cleanSameLocator = TRUE)
+  		}
+  	}
 	dat
 }
 

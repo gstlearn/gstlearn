@@ -27,7 +27,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = W1 - Locator = NA
 Column = 3 - Name = W2 - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -64,7 +64,7 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = sel - Locator = sel
 Column = 4 - Name = aniso - Locator = nostat1
 Column = 5 - Name = ratio - Locator = nostat2
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -103,12 +103,6 @@ Non-Stationary Parameters
 Angle      : GRF=1 Str=1 V#1=1
 Range      : GRF=1 Str=1 V#1=2
 Known Mean(s)     0.000
- ----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
 ----
 
 
@@ -126,70 +120,17 @@ Known Mean(s)     0.000
 
 #NO_DIFF#XXX
 ----
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 8
-Total number of samples      = 100000
-Number of active samples     = 43700
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        500       200
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = sel - Locator = sel
-Column = 4 - Name = aniso - Locator = nostat1
-Column = 5 - Name = ratio - Locator = nostat2
-Column = 6 - Name = spde.simu - Locator = NA
-Column = 7 - Name = spde.estim - Locator = z1
- 
 #NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
 
-Data Base Grid Characteristics
-==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 9
-Total number of samples      = 100000
-Number of active samples     = 43700
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        500       200
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = sel - Locator = sel
-Column = 4 - Name = aniso - Locator = nostat1
-Column = 5 - Name = ratio - Locator = nostat2
-Column = 6 - Name = spde.simu - Locator = NA
-Column = 7 - Name = spde.estim - Locator = NA
-Column = 8 - Name = spde.condsimu - Locator = z1
- 
+#NO_DIFF#XXX
+----
 #NO_DIFF#XXX
 ----
