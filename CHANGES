@@ -2,6 +2,9 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.4.0
+=============
+
 Release 1.3.2
 =============
 - Fix Windows package for python 3.10 (Numpy compatibility)
