@@ -1,6 +1,10 @@
 name: publish-doc
 
 on:
+  # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron: '30 23 */15 * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -61,7 +65,7 @@ jobs:
 
   call-publish:
     needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
-    if: ${{inputs.dry_publish == false}}
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
     
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest

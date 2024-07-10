@@ -1,6 +1,10 @@
 name: publish
 
 on:
+  # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron: '30 23 */15 * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -36,7 +40,7 @@ jobs:
 
   call-python-publish:
     needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
-    if: ${{inputs.dry_publish == false}}
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
 
     runs-on: ubuntu-latest
     
@@ -55,7 +59,7 @@ jobs:
 
   call-r-publish:
     needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
-    if: ${{inputs.dry_publish == false}}
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
     
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
