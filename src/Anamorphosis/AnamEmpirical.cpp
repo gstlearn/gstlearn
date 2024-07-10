@@ -22,13 +22,10 @@
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.
 
-#define YD(i)           (_tDisc[(i)])
-#define ZD(i)           (_tDisc[(i) + _nDisc])
-#define ZDC(i)          (_tDisc[(i) + ndisc_util])
-
-AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e)
+AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e, bool flagDilution, bool flagGaussian)
     : AnamContinuous(),
-      _flagDilution(false),
+      _flagDilution(flagDilution),
+      _flagGaussian(flagGaussian),
       _nDisc(ndisc),
       _sigma2e(sigma2e),
       _ZDisc(),
@@ -41,6 +38,7 @@ AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e)
 AnamEmpirical::AnamEmpirical(const AnamEmpirical &m)
     : AnamContinuous(m),
       _flagDilution(m._flagDilution),
+      _flagGaussian(m._flagGaussian),
       _nDisc(m._nDisc),
       _sigma2e(m._sigma2e),
       _ZDisc(m._ZDisc),
@@ -54,6 +52,7 @@ AnamEmpirical& AnamEmpirical::operator=(const AnamEmpirical &m)
   {
     AnamContinuous::operator=(m);
     _flagDilution = m._flagDilution;
+    _flagGaussian = m._flagGaussian;
     _nDisc = m._nDisc;
     _sigma2e = m._sigma2e;
     _ZDisc = m._ZDisc;
@@ -73,10 +72,14 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 
   sstr << toTitle(1,"Empirical Anamorphosis");
 
-  sstr << "Number of discretization lags = " << _nDisc << std::endl;
-
   if (_flagDilution)
   {
+    if (_flagGaussian)
+      sstr << "Using Gaussian Dilution" << std::endl;
+    else
+      sstr << "Using Lognormal Dilution" << std::endl;
+
+    sstr << "Number of discretization lags = " << _nDisc << std::endl;
     sstr << "Additional variance           = " << _sigma2e << std::endl;
   }
 
@@ -231,12 +234,14 @@ void AnamEmpirical::calculateMeanAndVariance()
   messerr("This function is not available for Empirical Anamorphosis");
 }
 
-int AnamEmpirical::_fitWithDilution(const VectorDouble &tab)
+int AnamEmpirical::_getStatistics(const VectorDouble &tab,
+                                  int *count,
+                                  double *mean,
+                                  double *mean2,
+                                  double *mini,
+                                  double *maxi,
+                                  double *var)
 {
-  double value,zval,total;
-
-  /* Calculate the constants */
-
   int nech = static_cast<int> (tab.size());
   int number = 0;
   double dmean  = 0.;
@@ -245,14 +250,8 @@ int AnamEmpirical::_fitWithDilution(const VectorDouble &tab)
   double dmini  =  1.e30;
   for (int iech = 0; iech < nech; iech++)
   {
-    value = tab[iech];
+    double value = tab[iech];
     if (FFFF(value)) continue;
-    if (value < 0.)
-    {
-      messerr("The Anamorphosis by lognormal dilution");
-      messerr("is not compatible with negative data values");
-      return 1;
-    }
     number ++;
     dmean  += value;
     dmean2 += value * value;
@@ -267,12 +266,94 @@ int AnamEmpirical::_fitWithDilution(const VectorDouble &tab)
   dmean /= number;
   dmean2 = dmean2 / number;
   double variance = dmean2 - dmean * dmean;
-  if (FFFF(_sigma2e)) _sigma2e = variance / (2. * number);
-  double sigma  = sqrt(log(1. + _sigma2e / dmean2));
-  double ecart  = dmaxi - dmini;
+
+  // Returning arguments
+
+  *count = number;
+  *mean = dmean;
+  *mean2 = dmean2;
+  *mini = dmini;
+  *maxi = dmaxi;
+  *var = variance;
+  return 0;
+}
+
+int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble &tab)
+{
+  int number;
+  double dmean, dmean2, dmini, dmaxi, variance;
+
+  /* Calculate the constants */
+
+  if (_getStatistics(tab, &number, &dmean, &dmean2, &dmini, &dmaxi, &variance)) return 1;
+  int nech = static_cast<int> (tab.size());
 
   /* Calculation parameters */
 
+  if (FFFF(_sigma2e)) _sigma2e = variance / (2. * number);
+  double sigma = sqrt(_sigma2e);
+  double ecart  = dmaxi - dmini;
+  double disc_val  = 3 * ecart / (_nDisc - 2);
+  double disc_init = dmini - MIN(disc_val / 2., dmini / 10000.);
+
+  /* Fill the discretized array */
+
+  _ZDisc[0] = disc_init - disc_val;
+  _ZDisc[1] = disc_init;
+  for (int idisc = 2; idisc < _nDisc; idisc++)
+    _ZDisc[idisc] = disc_init + (idisc - 1) * disc_val;
+
+  for (int idisc = 0; idisc < _nDisc; idisc++)
+  {
+    double zval  = _ZDisc[idisc];
+    double total = 0.;
+    for (int iech = 0; iech < nech; iech++)
+    {
+      double value = tab[iech];
+      if (FFFF(value) || value <= 0) continue;
+      total += law_cdf_gaussian((zval - value) / sigma);
+    }
+    _YDisc[idisc] = total / number;
+  }
+
+  /* Re-allocate memory to the only necessary bits */
+
+  int ndisc_util = 0;
+  for (int idisc = 0; idisc < _nDisc; idisc++)
+  {
+    if (_YDisc[idisc] >= 1.) break;
+    ndisc_util++;
+  }
+  _ZDisc.resize(ndisc_util);
+  _YDisc.resize(ndisc_util);
+  _nDisc = ndisc_util;
+
+  for (int idisc=0; idisc<_nDisc; idisc++)
+    _YDisc[idisc] = law_invcdf_gaussian(_YDisc[idisc]);
+
+  return 0;
+}
+
+int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble &tab)
+{
+  int number;
+  double dmean, dmean2, dmini, dmaxi, variance;
+
+  /* Calculate the constants */
+
+  if (_getStatistics(tab, &number, &dmean, &dmean2, &dmini, &dmaxi, &variance)) return 1;
+  int nech = static_cast<int> (tab.size());
+  if (dmini < 0.)
+  {
+    messerr("The Anamorphosis by Lognormal Dilution is not compatible with negative data values");
+    return 1;
+  }
+
+  /* Calculation parameters */
+
+  if (FFFF(_sigma2e)) _sigma2e = variance / (2. * number);
+  double sigma  = sqrt(log(1. + _sigma2e / dmean2));
+  double ecart  = dmaxi - dmini;
   double disc_val  = 3 * ecart / (_nDisc - 2);
   double disc_init = dmini - MIN(disc_val / 2., dmini / 10000.);
 
@@ -286,11 +367,11 @@ int AnamEmpirical::_fitWithDilution(const VectorDouble &tab)
   _YDisc[0] = 1.;
   for (int idisc = 1; idisc < _nDisc; idisc++)
   {
-    zval  = _ZDisc[idisc];
-    total = 0.;
+    double zval  = _ZDisc[idisc];
+    double total = 0.;
     for (int iech = 0; iech < nech; iech++)
     {
-      value = tab[iech];
+      double value = tab[iech];
       if (FFFF(value) || value <= 0) continue;
       total += 1. - law_cdf_gaussian(sigma / 2. + log(zval / value) / sigma);
     }
@@ -301,16 +382,13 @@ int AnamEmpirical::_fitWithDilution(const VectorDouble &tab)
 
   int ndisc_util = 0;
   for (int idisc = 0; idisc < _nDisc; idisc++)
-    if (_YDisc[idisc] > 0 && idisc > ndisc_util) ndisc_util = idisc;
+    if (_YDisc[idisc] > 0) ndisc_util++;
   _ZDisc.resize(ndisc_util);
   _YDisc.resize(ndisc_util);
   _nDisc = ndisc_util;
 
   for (int idisc=0; idisc<_nDisc; idisc++)
-  {
     _YDisc[idisc] = law_invcdf_gaussian(1. - _YDisc[idisc]);
-  }
-
   return 0;
 }
 
@@ -325,6 +403,8 @@ int AnamEmpirical::_fitNormalScore(const VectorDouble &tab)
     _ZDisc.push_back(tab[iech]);
   }
 
+  // Sort the Z-values by ascending order
+  VH::sortInPlace(_ZDisc);
   _YDisc = VH::normalScore(_ZDisc);
   _nDisc = (int) _ZDisc.size();
 
@@ -338,7 +418,14 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
 
   if (_flagDilution)
   {
-    if (_fitWithDilution(tab)) return 1;
+    if (_flagGaussian)
+    {
+      if (_fitWithDilutionGaussian(tab)) return 1;
+    }
+    else
+    {
+      if (_fitWithDilutionLognormal(tab)) return 1;
+    }
   }
   else
   {
