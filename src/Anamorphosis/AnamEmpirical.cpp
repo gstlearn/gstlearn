@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Matrix/Table.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 
@@ -26,18 +28,23 @@
 
 AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e)
     : AnamContinuous(),
+      _flagDilution(false),
       _nDisc(ndisc),
       _sigma2e(sigma2e),
-      _tDisc()
+      _ZDisc(),
+      _YDisc()
 {
-  _tDisc.resize(2 * ndisc);
+  _ZDisc.resize(ndisc);
+  _YDisc.resize(ndisc);
 }
 
 AnamEmpirical::AnamEmpirical(const AnamEmpirical &m)
     : AnamContinuous(m),
+      _flagDilution(m._flagDilution),
       _nDisc(m._nDisc),
       _sigma2e(m._sigma2e),
-      _tDisc(m._tDisc)
+      _ZDisc(m._ZDisc),
+      _YDisc(m._YDisc)
 {
 }
 
@@ -46,9 +53,11 @@ AnamEmpirical& AnamEmpirical::operator=(const AnamEmpirical &m)
   if (this != &m)
   {
     AnamContinuous::operator=(m);
+    _flagDilution = m._flagDilution;
     _nDisc = m._nDisc;
     _sigma2e = m._sigma2e;
-    _tDisc = m._tDisc;
+    _ZDisc = m._ZDisc;
+    _YDisc = m._YDisc;
   }
   return *this;
 }
@@ -65,14 +74,21 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
   sstr << toTitle(1,"Empirical Anamorphosis");
 
   sstr << "Number of discretization lags = " << _nDisc << std::endl;
-  sstr << "Additional variance           = " << _sigma2e << std::endl;
-  sstr << std::endl;
-  sstr << "Discretization intervals Y - Z" << std::endl;
+
+  if (_flagDilution)
+  {
+    sstr << "Additional variance           = " << _sigma2e << std::endl;
+  }
 
   if (! _isFitted()) return sstr.str();
 
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nDisc, 2, _tDisc);
-
+  Table ZY(_nDisc, 2, false, true);
+  ZY.setTitle("Discretization Intervals");
+  ZY.setColumnName(0, "Z");
+  ZY.setColumnName(1, "Y");
+  ZY.setColumn(0, _ZDisc);
+  ZY.setColumn(1, _YDisc);
+  sstr << ZY.toString() << std::endl;
   return sstr.str();
 }
 
@@ -104,11 +120,12 @@ void AnamEmpirical::reset(int ndisc,
                           double aymax,
                           double azmax,
                           double sigma2e,
-                          const VectorDouble &tdisc)
+                          const VectorDouble& zdisc,
+                          const VectorDouble& ydisc)
 {
   setNDisc(ndisc);
   setSigma2e(sigma2e);
-  setTDisc(tdisc);
+  setDisc(zdisc, ydisc);
   setABounds(azmin, azmax, aymin, aymax);
   setPBounds(pzmin, pzmax, pymin, pymax);
 }
@@ -121,13 +138,21 @@ AnamEmpirical* AnamEmpirical::create(int ndisc, double sigma2e)
 void AnamEmpirical::setNDisc(int ndisc)
 {
   _nDisc = ndisc;
-  _tDisc.resize(2 * ndisc);
+  _ZDisc.resize(ndisc);
+  _YDisc.resize(ndisc);
 }
 
-void AnamEmpirical::setTDisc(const VectorDouble& tdisc)
+void AnamEmpirical::setDisc(const VectorDouble& zdisc,
+                            const VectorDouble& ydisc)
 {
-  _tDisc = tdisc;
-  _nDisc = static_cast<int> (tdisc.size()) / 2;
+  if ((int) zdisc.size() != (int) ydisc.size())
+  {
+    messerr("Argumznts 'zdisc' and 'ydisc' should have the same dimension");
+    return;
+  }
+  _ZDisc = zdisc;
+  _YDisc = ydisc;
+  _nDisc = static_cast<int> (zdisc.size());
 }
 
 double AnamEmpirical::rawToTransformValue(double zz) const
@@ -137,23 +162,23 @@ double AnamEmpirical::rawToTransformValue(double zz) const
 
   /* Initialization */
 
-  if (zz < ZD(0))        zz = ZD(0);
-  if (zz > ZD(_nDisc-1)) zz = ZD(_nDisc-1);
+  if (zz < _ZDisc[0])        zz = _ZDisc[0];
+  if (zz > _ZDisc[_nDisc-1]) zz = _ZDisc[_nDisc-1];
   ya = yb = za = zb = zz;
 
   for (idisc = found = 0; idisc < _nDisc && found == 0; idisc++)
   {
-    if (zz > ZD(idisc)) continue;
-    yb = YD(idisc);
-    zb = ZD(idisc);
+    if (zz > _ZDisc[idisc]) continue;
+    yb = _YDisc[idisc];
+    zb = _ZDisc[idisc];
     found = 1;
   }
 
   for (idisc = _nDisc - 1, found = 0; idisc >= 0 && found == 0; idisc--)
   {
-    if (zz < ZD(idisc)) continue;
-    ya = YD(idisc);
-    za = ZD(idisc);
+    if (zz < _ZDisc[idisc]) continue;
+    ya = _YDisc[idisc];
+    za = _ZDisc[idisc];
     found = 1;
   }
 
@@ -173,23 +198,23 @@ double AnamEmpirical::transformToRawValue(double yy) const
 
   /* Initialization */
 
-  if (yy < YD(0))        yy = YD(0);
-  if (yy > YD(_nDisc-1)) yy = YD(_nDisc-1);
+  if (yy < _YDisc[0])        yy = _YDisc[0];
+  if (yy > _YDisc[_nDisc-1]) yy = _YDisc[_nDisc-1];
   zz = za = zb = ya = yb = yy;
 
   for (idisc=found=0; idisc<_nDisc && found==0; idisc++)
   {
-    if (yy > YD(idisc)) continue;
-    yb = YD(idisc);
-    zb = ZD(idisc);
+    if (yy > _YDisc[idisc]) continue;
+    yb = _YDisc[idisc];
+    zb = _ZDisc[idisc];
     found = 1;
   }
 
   for (idisc=_nDisc-1, found=0; idisc>=0 && found==0; idisc--)
   {
-    if (yy < YD(idisc)) continue;
-    ya = YD(idisc);
-    za = ZD(idisc);
+    if (yy < _YDisc[idisc]) continue;
+    ya = _YDisc[idisc];
+    za = _ZDisc[idisc];
     found = 1;
   }
 
@@ -206,21 +231,19 @@ void AnamEmpirical::calculateMeanAndVariance()
   messerr("This function is not available for Empirical Anamorphosis");
 }
 
-int AnamEmpirical::fitFromArray(const VectorDouble& tab,
-                                const VectorDouble& /*wt*/)
+int AnamEmpirical::_fitWithDilution(const VectorDouble &tab)
 {
-  int     iech,number,idisc,ndisc_util;
-  double  value,dmean,dmean2,dmini,dmaxi,sigma,zval,total,variance;
-  double  disc_val,disc_init,pzmin,pzmax,pymin,pymax,ecart;
+  double value,zval,total;
 
   /* Calculate the constants */
 
   int nech = static_cast<int> (tab.size());
-  number = 0;
-  dmean  = dmean2 = 0.;
-  dmaxi  = -1.e30;
-  dmini  =  1.e30;
-  for (iech=0; iech<nech; iech++)
+  int number = 0;
+  double dmean  = 0.;
+  double dmean2 = 0.;
+  double dmaxi  = -1.e30;
+  double dmini  =  1.e30;
+  for (int iech = 0; iech < nech; iech++)
   {
     value = tab[iech];
     if (FFFF(value)) continue;
@@ -243,64 +266,103 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
   }
   dmean /= number;
   dmean2 = dmean2 / number;
-  variance = dmean2 - dmean * dmean;
+  double variance = dmean2 - dmean * dmean;
   if (FFFF(_sigma2e)) _sigma2e = variance / (2. * number);
-  sigma  = sqrt(log(1. + _sigma2e / dmean2));
-  ecart  = dmaxi - dmini;
+  double sigma  = sqrt(log(1. + _sigma2e / dmean2));
+  double ecart  = dmaxi - dmini;
 
   /* Calculation parameters */
 
-  disc_val  = 3 * ecart / (_nDisc - 2);
-  disc_init = dmini - MIN(disc_val / 2., dmini / 10000.);
+  double disc_val  = 3 * ecart / (_nDisc - 2);
+  double disc_init = dmini - MIN(disc_val / 2., dmini / 10000.);
 
   /* Fill the discretized array */
 
-  idisc = 0;
-  ZD(0) = disc_init - disc_val;
-  ZD(1) = disc_init;
-  for (idisc=2; idisc<_nDisc; idisc++)
-    ZD(idisc) = disc_init + (idisc - 1) * disc_val;
+  _ZDisc[0] = disc_init - disc_val;
+  _ZDisc[1] = disc_init;
+  for (int idisc = 2; idisc < _nDisc; idisc++)
+    _ZDisc[idisc] = disc_init + (idisc - 1) * disc_val;
 
-  YD(0) = 1.;
-  for (idisc=1; idisc<_nDisc; idisc++)
+  _YDisc[0] = 1.;
+  for (int idisc = 1; idisc < _nDisc; idisc++)
   {
-    zval  = ZD(idisc);
+    zval  = _ZDisc[idisc];
     total = 0.;
-    for (iech=0; iech<nech; iech++)
+    for (int iech = 0; iech < nech; iech++)
     {
       value = tab[iech];
       if (FFFF(value) || value <= 0) continue;
       total += 1. - law_cdf_gaussian(sigma / 2. + log(zval / value) / sigma);
     }
-    YD(idisc) = total / number;
+    _YDisc[idisc] = total / number;
   }
 
   /* Re-allocate memory to the only necessary bits */
 
-  ndisc_util = 0;
-  for (idisc=0; idisc<_nDisc; idisc++)
-    if (YD(idisc) > 0 && idisc > ndisc_util) ndisc_util = idisc;
-  for (idisc=0; idisc<ndisc_util; idisc++) ZDC(idisc) = ZD(idisc);
-  _tDisc.resize(2 * ndisc_util);
+  int ndisc_util = 0;
+  for (int idisc = 0; idisc < _nDisc; idisc++)
+    if (_YDisc[idisc] > 0 && idisc > ndisc_util) ndisc_util = idisc;
+  _ZDisc.resize(ndisc_util);
+  _YDisc.resize(ndisc_util);
   _nDisc = ndisc_util;
 
-  for (idisc=0; idisc<_nDisc; idisc++)
+  for (int idisc=0; idisc<_nDisc; idisc++)
   {
-    YD(idisc) = law_invcdf_gaussian(1. - YD(idisc));
-    if (YD(idisc) < ANAM_YMIN) YD(idisc) = ANAM_YMIN;
-    if (YD(idisc) > ANAM_YMAX) YD(idisc) = ANAM_YMAX;
+    _YDisc[idisc] = law_invcdf_gaussian(1. - _YDisc[idisc]);
+  }
+
+  return 0;
+}
+
+int AnamEmpirical::_fitNormalScore(const VectorDouble &tab)
+{
+  _ZDisc.clear();
+  _YDisc.clear();
+
+  for (int iech = 0, nech = (int) tab.size(); iech < nech; iech++)
+  {
+    if (FFFF(tab[iech])) continue;
+    _ZDisc.push_back(tab[iech]);
+  }
+
+  _YDisc = VH::normalScore(_ZDisc);
+  _nDisc = (int) _ZDisc.size();
+
+  return 0;
+}
+
+int AnamEmpirical::fitFromArray(const VectorDouble& tab,
+                                const VectorDouble& wt)
+{
+  DECLARE_UNUSED(wt);
+
+  if (_flagDilution)
+  {
+    if (_fitWithDilution(tab)) return 1;
+  }
+  else
+  {
+    if (_fitNormalScore(tab)) return 1;
+  }
+
+  for (int idisc=0; idisc<_nDisc; idisc++)
+  {
+    if (_YDisc[idisc] < ANAM_YMIN) _YDisc[idisc] = ANAM_YMIN;
+    if (_YDisc[idisc] > ANAM_YMAX) _YDisc[idisc] = ANAM_YMAX;
   }
 
   /* Evaluate the bounds */
 
-  pzmin = pymin =  1.e30;
-  pzmax = pymax = -1.e30;
-  for (idisc=0; idisc<_nDisc; idisc++)
+  double pzmin =  1.e30;
+  double pymin =  1.e30;
+  double pzmax = -1.e30;
+  double pymax = -1.e30;
+  for (int idisc=0; idisc<_nDisc; idisc++)
   {
-    if (ZD(idisc) < pzmin) pzmin = ZD(idisc);
-    if (ZD(idisc) > pzmax) pzmax = ZD(idisc);
-    if (YD(idisc) < pymin) pymin = YD(idisc);
-    if (YD(idisc) > pymax) pymax = YD(idisc);
+    if (_ZDisc[idisc] < pzmin) pzmin = _ZDisc[idisc];
+    if (_ZDisc[idisc] > pzmax) pzmax = _ZDisc[idisc];
+    if (_YDisc[idisc] < pymin) pymin = _YDisc[idisc];
+    if (_YDisc[idisc] > pymax) pymax = _YDisc[idisc];
   }
 
   /* Save the results */
@@ -311,23 +373,14 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
   return 0;
 }
 
-bool AnamEmpirical::isTDiscIndexValid(int i) const
-{
-  if (i < 0 || i >= 2 * _nDisc)
-  {
-    mesArg("TDisc Index",i,2 * _nDisc);
-    return false;
-  }
-  return true;
-}
-
 bool AnamEmpirical::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
   ret = ret && AnamContinuous::_serialize(os, verbose);
   ret = ret && _recordWrite<int>(os, "Number of Discretization lags", getNDisc());
   ret = ret && _recordWrite<double>(os, "additional variance", getSigma2e());
-  ret = ret && _tableWrite(os, "Coefficients", 2 * getNDisc(), getTDisc());
+  ret = ret && _tableWrite(os, "Z Values", getNDisc(), getZDisc());
+  ret = ret && _tableWrite(os, "Y Values", getNDisc(), getYDisc());
   return ret;
 }
 
@@ -335,7 +388,7 @@ bool AnamEmpirical::_deserialize(std::istream& is, bool verbose)
 {
   int ndisc = 0;
   double sigma2e = TEST;
-  VectorDouble tdisc;
+  VectorDouble zdisc, ydisc;
 
   bool ret = true;
   ret = ret && AnamContinuous::_deserialize(is, verbose);
@@ -344,15 +397,17 @@ bool AnamEmpirical::_deserialize(std::istream& is, bool verbose)
 
   if (ret)
   {
-    tdisc.resize(2 * ndisc);
-    ret = ret && _tableRead(is, "Coefficients", 2 * ndisc, tdisc.data());
+    zdisc.resize(ndisc);
+    ret = ret && _tableRead(is, "Z Values", ndisc, zdisc.data());
+    ydisc.resize(ndisc);
+    ret = ret && _tableRead(is, "Y Values", ndisc, ydisc.data());
   }
 
   if (ret)
   {
     setNDisc(ndisc);
     setSigma2e(sigma2e);
-    setTDisc(tdisc);
+    setDisc(zdisc, ydisc);
   }
   return ret;
 }

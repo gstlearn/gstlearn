@@ -154,7 +154,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -296,7 +296,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -334,7 +334,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -479,7 +479,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)

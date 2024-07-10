@@ -5073,8 +5073,7 @@ static int st_variogram_pgs_stat(Db *db,
   /*******************/
 
   rule->statistics(0, &node_tot, &nfacies, &nmax_tot, &ny1, &ny2, &prop_tot);
-  propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0,
-  NULL,
+  propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, NULL,
                               NULL, propcst, propdef);
   if (propdef == nullptr) goto label_end;
   if (rule->particularities(NULL, NULL, NULL, 1, flag_stat)) goto label_end;

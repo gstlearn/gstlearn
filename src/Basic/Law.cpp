@@ -491,7 +491,6 @@ double law_dnorm(double value, double mean, double std)
  **
  *****************************************************************************/
 double law_cdf_gaussian(double value)
-
 {
   static double b[] = { 0.319381530,
                         -0.356563782,
