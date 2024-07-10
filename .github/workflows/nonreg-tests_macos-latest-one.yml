@@ -13,7 +13,7 @@ on:
         default: ''
 
 env:
-  BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
@@ -26,13 +26,13 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install dependencies
       run: brew install llvm boost eigen
       
     #- name: Setup Python Version
-    #  uses: actions/setup-python@v4
+    #  uses: actions/setup-python@v5
     #  with:
     #    python-version: ${{env.PYTHON_VERSION}}
 

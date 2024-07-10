@@ -7,11 +7,6 @@ set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/)
 # C++ source path
 set(SOURCES gmtsph.cpp)
 
-# Change the name of the output file (to distinguish lib files under Windows)
-#if (WIN32)
-#  set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
-#endif()
-
 # Static library
 add_library(gmtsph STATIC ${SOURCES})
 

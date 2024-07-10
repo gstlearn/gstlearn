@@ -2198,9 +2198,9 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
   return err;
 }
 
-void DbGrid::getSampleAsST(int iech, SpaceTarget& P) const
+void DbGrid::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
-  Db::getSampleAsST(iech, P);
+  Db::getSampleAsSTInPlace(iech, P);
 
   // Load the target extension
   P.setExtend(getBlockExtensions(iech));

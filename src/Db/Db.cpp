@@ -731,7 +731,7 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
-void Db::getSampleCoordinatesAsSPInPlace(int iech, SpacePoint& P) const
+void Db::getSampleAsSPInPlace(int iech, SpacePoint& P) const
 {
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     P.setCoord(idim, getCoordinate(iech, idim));
@@ -758,8 +758,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    getSampleCoordinatesAsSPInPlace(iechs[ip], P1);
-    getSampleCoordinatesAsSPInPlace(jechs[ip], P2);
+    getSampleAsSPInPlace(iechs[ip], P1);
+    getSampleAsSPInPlace(jechs[ip], P2);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -773,10 +773,10 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
  * @param iech Rank of the target sample
  * @param P    Space Target (used to store information)
  */
-void Db::getSampleAsST(int iech, SpaceTarget& P) const
+void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  getSampleCoordinatesAsSPInPlace(iech, P);
+  getSampleAsSPInPlace(iech, P);
 
   // Load the code (optional)
   if (hasLocVariable(ELoc::C))
@@ -796,7 +796,7 @@ std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
   {
     if (isActive(iech))
     {
-      getSampleCoordinatesAsSPInPlace(iech, p);
+      getSampleAsSPInPlace(iech, p);
       pvec.push_back(p);
     }
     else
@@ -1055,7 +1055,7 @@ void Db::clearLocators(const ELoc& locatorType)
 
 /**
  * Setting the locator for a set of variables designated by their names
- * @param names        Vector if variable names
+ * @param names        Vector of variable names
  * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand

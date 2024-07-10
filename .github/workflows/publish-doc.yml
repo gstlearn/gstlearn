@@ -15,7 +15,6 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
   BUILD_DIR : build
   
 jobs:
@@ -26,7 +25,7 @@ jobs:
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |

@@ -18,7 +18,7 @@ on:
         default: ''
 
 env:
-  CMAKE_BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
@@ -31,17 +31,20 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: brew install llvm boost eigen
+      run: |
+        brew install llvm
+        brew install boost
+        brew install eigen
 
     - name: Setup Python Version
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{env.PYTHON_VERSION}}
 
-    - name: Install Python dependencies
+    - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install numpy==${{env.NUMPY_VERSION}}
@@ -64,10 +67,10 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
+    - name: Configure build directory
       run: |
         cmake \
-          -B ${{env.BUILD_DIR}} \
+          -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
@@ -75,11 +78,13 @@ jobs:
         CC: ${{env.LLVM_ROOT}}/opt/llvm/bin/clang
         CXX: ${{env.LLVM_ROOT}}/opt/llvm/bin/clang++
 
-    - name: Build gstlearn
-      run: cmake --build ${{env.BUILD_DIR}}
+    - name: Build the package
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --target check
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()
@@ -103,3 +108,4 @@ jobs:
       with:
         name: macos-neutral-files
         path: ${{github.workspace}}/macos-neutral.tar.gz
+

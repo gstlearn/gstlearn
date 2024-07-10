@@ -27,7 +27,7 @@ jobs:
             python: "3.9"
           
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -35,9 +35,9 @@ jobs:
           brew install llvm
         fi
       shell: bash
-      
+
     - name: Setup Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: ${{matrix.python}}
 
@@ -46,7 +46,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install gstlearn
 
-    - name: Run the python test
+    - name: Run the python tests
       run: |
         python tests/py/test_Arguments.py
         python tests/py/test_Assessors.py

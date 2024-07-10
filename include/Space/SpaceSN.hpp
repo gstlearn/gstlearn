@@ -21,52 +21,57 @@ class GSTLEARN_EXPORT SpaceSN: public ASpace
 {
 
 public:
-  SpaceSN(unsigned int ndim, double radius);
+  SpaceSN(unsigned int ndim, double radius, bool addtime = false);
   SpaceSN(const SpaceSN &r);
   SpaceSN& operator=(const SpaceSN &r);
   virtual ~SpaceSN();
 
   /// ICloneable interface
-IMPLEMENT_CLONING(SpaceSN)
-
-  virtual String toString(const AStringFormat *strfmt = nullptr) const override;
-
-  /// Return true if the given space is equal to me
-  virtual bool isEqual(const ASpace *space) const override;
+  IMPLEMENT_CLONING(SpaceSN)
 
   /// Return the concrete space type
-  ESpaceType getType() const override
-  {
-    return ESpaceType::fromKey("SN");
-  }
+  ESpaceType getType() const override { return ESpaceType::SN; };
+
+  /// Return the sphere radius
+  double getRadius() const { return _radius; }
+
+protected:
+
+  /// Dump a space in a string
+  virtual String _toString(const AStringFormat *strfmt, int idx = -1) const override;
+
+  /// Return true if the given space is equal to me
+  virtual bool _isEqual(const ASpace *space) const override;
 
   /// Move the given space point by the given vector
-  void move(SpacePoint &p1, const VectorDouble &vec) const override;
+  void _move(SpacePoint &p1, const VectorDouble &vec) const override;
+
   /// Return the distance between two space points
-  double getDistance(const SpacePoint &p1, const SpacePoint &p2) const override;
+  double _getDistance(const SpacePoint &p1,
+                      const SpacePoint &p2) const override;
+
   /// Return the distance between two space points with the given tensor
-  double getDistance(const SpacePoint &p1,
-                     const SpacePoint &p2,
-                     const Tensor &tensor) const override;
-  /// Return the distance along one direction between two space points
-  double getDistance1D(const SpacePoint &p1,
-                       const SpacePoint &p2,
-                       int idim = 0) const override;
+  double _getDistance(const SpacePoint &p1,
+                      const SpacePoint &p2,
+                      const Tensor &tensor) const override;
+
+  /// Return the distance for a given pair of coordinates along one direction
+  double _getDistance1D(double c1, double c2) const override;
 
   /// Return the distance in frequential domain between two space points with the given tensor
-  double getFrequentialDistance(const SpacePoint &p1,
-                                const SpacePoint &p2,
-                                const Tensor &tensor) const override;
+  double _getFrequentialDistance(const SpacePoint &p1,
+                                 const SpacePoint &p2,
+                                 const Tensor &tensor) const override;
 
   /// Return the increment vector between two space points for the current space context
-  VectorDouble getIncrement(const SpacePoint &p1, const SpacePoint &p2) const
-      override;
+  VectorDouble _getIncrement(const SpacePoint &p1,
+                             const SpacePoint &p2) const override;
 
-  double getRadius() const
-  {
-    return _radius;
-  }
-
+  /// Return the increment vector between two space points in a given vector
+  void _getIncrementInPlace(const SpacePoint &p1,
+                            const SpacePoint &p2,
+                            VectorDouble &ptemp) const override;
+                            
 private:
   /// Sphere radius
   double _radius;

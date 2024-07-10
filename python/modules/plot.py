@@ -105,12 +105,12 @@ def printDefault():
         
 def getColorMap(n, cmap=None):
     '''
-    Returns a function that maps each index in 0, 1, ..., n-1 to a distinct RGB color
+    Returns a resampled Matplotlib colormap for a given number of colors
     
     n: requested number of different colors
-    cmap: name of a standard matplotlib colormap, or an instance of ListedColormap or None.
+    cmap: name of a listed matplotlib colormap, or an instance of Colormap or None.
     '''
-    if isinstance(cmap, matplotlib.colors.ListedColormap):
+    if isinstance(cmap, matplotlib.colors.Colormap):
         return cmap.resampled(n)
     name = cmap
     if name is None:
