@@ -43,7 +43,7 @@ jobs:
           # Double quote for version is needed otherwise 3.10 => 3.1
             {py: "3.8",  nu: 1.20.3},
             {py: "3.9",  nu: 1.20.3},
-            {py: "3.10", nu: 1.21.6},
+            {py: "3.10", nu: 1.22.4},
             {py: "3.11", nu: 1.23.5},
             {py: "3.12", nu: 1.26.3}
           ]
