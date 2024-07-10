@@ -18,6 +18,26 @@
 #include "Basic/ASerializable.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 
+/**
+ * Gaussian Anamorphosis using Empirical Method
+ *
+ * This class is meant in order to construct the transfer function from Raw to Gaussian scale
+ * directly based on the data.
+ *
+ * It essentially maps the cumulative function (CDF) of the raw values into the CDF of
+ * the theoretical Gaussian distribution.
+ *
+ * This can be performed directly on the experimental CDF (normal score) or by diluting the data
+ * values beforehand. In the latter solution, each (valid) datum is replaced by a small local
+ * distribution. This is meant to smooth the stepwise CDF.
+ *
+ * The dilution function (implemented at any data point) can be either a Gaussian or a Lognormal one.
+ * In the Gaussian case, the variance (width of the dilution function) is considered as constant
+ * (either provided by the user or defaulted by the program)*
+ * In the lognormal case, the logarithmic variance is constant (hence the width is proportional
+ * to the square of the value).
+ */
+
 class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
 {
 public:
