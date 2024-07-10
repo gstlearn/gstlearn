@@ -21,7 +21,10 @@
 class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
 {
 public:
-  AnamEmpirical(int ndisc = 100, double sigma2e = TEST);
+  AnamEmpirical(int ndisc = 100,
+                double sigma2e = TEST,
+                bool flagDilution = false,
+                bool flagGaussian = true);
   AnamEmpirical(const AnamEmpirical &m);
   AnamEmpirical& operator= (const AnamEmpirical &m);
   virtual ~AnamEmpirical();
@@ -66,10 +69,14 @@ public:
   double getSigma2e() const { return _sigma2e; }
   const  VectorDouble& getZDisc() const { return _ZDisc; }
   const  VectorDouble& getYDisc() const { return _YDisc; }
-  void   setSigma2e(double sigma2e) { _sigma2e = sigma2e; }
+  bool isFlagDilution() const { return _flagDilution; }
+  bool isFlagGaussian() const { return _flagGaussian; }
 
-  void   setNDisc(int ndisc);
-  void   setDisc(const VectorDouble& zdisc, const VectorDouble& ydisc);
+  void setSigma2e(double sigma2e) { _sigma2e = sigma2e; }
+  void setNDisc(int ndisc);
+  void setDisc(const VectorDouble& zdisc, const VectorDouble& ydisc);
+  void setFlagDilution(bool flagDilution) { _flagDilution = flagDilution; }
+  void setFlagGaussian(bool flagGaussian) { _flagGaussian = flagGaussian; }
 
 protected:
   /// Interface for ASerializable
@@ -78,11 +85,20 @@ protected:
   String _getNFName() const override { return "AnamEmpirical"; }
 
 private:
-  int _fitWithDilution(const VectorDouble &tab);
+  int _getStatistics(const VectorDouble &tab,
+                     int *count,
+                     double *mean,
+                     double *mean2,
+                     double *mini,
+                     double *maxi,
+                     double *var);
+  int _fitWithDilutionGaussian(const VectorDouble &tab);
+  int _fitWithDilutionLognormal(const VectorDouble &tab);
   int _fitNormalScore(const VectorDouble &tab);
 
 private:
   bool   _flagDilution;
+  bool   _flagGaussian;
   int    _nDisc;
   double _sigma2e;
   VectorDouble _ZDisc;
