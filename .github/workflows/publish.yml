@@ -48,7 +48,7 @@ jobs:
           password: ${{secrets.TWINE_PYPI_PWD}}
           pattern: "*python-package-*"
   
-      # Delete the artifacts (for freeing storage space under github)
+      # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v5
         with:
           name: "*python-package*"
@@ -69,7 +69,7 @@ jobs:
           repo-path: "/var/www/html/cran"
           pattern: "*r-package*"
   
-      # Delete the artifacts (for freeing storage space under github)
+      # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v5
         with:
           name: "*r-package*"

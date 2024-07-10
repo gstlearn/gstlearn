@@ -95,6 +95,7 @@ jobs:
         cd build
         cmake \
           -DCMAKE_BUILD_TYPE=${{ matrix.opt }} \
+          -DBUILD_TESTING=ON \
           -D${{ matrix.hdf5 }} \
           $GITHUB_WORKSPACE
 
@@ -141,6 +142,7 @@ jobs:
         cd build
         cmake \
           -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_TESTING=ON \
           -DBUILD_DOXYGEN=ON \
           $GITHUB_WORKSPACE
 

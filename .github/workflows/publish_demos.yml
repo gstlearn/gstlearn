@@ -126,7 +126,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        # This will become the folder name in the server
+        # This will become the folder name in the server
         name: demos
         path: ${{ env.DEMO_FOLDER }}
 
@@ -147,7 +147,7 @@ jobs:
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
 
-      # Delete the artifacts (for freeing storage space under github)
+      # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v5
         with:
           name: demos

@@ -60,6 +60,7 @@ jobs:
       run: |
         cmake `
           -B${{ env.BUILD_DIR }} `
+          -DBUILD_TESTING=ON `
           -DBUILD_PYTHON=ON
 
     - name: Build the package

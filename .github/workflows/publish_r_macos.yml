@@ -111,7 +111,7 @@ jobs:
         password: ${{secrets.CG_PWD}}
         repo-path: "/var/www/html/cran"
 
-    # Delete the artifacts (for freeing storage space under github)
+    # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v5
       with:
         name: macos-r-package-*

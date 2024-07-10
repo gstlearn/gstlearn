@@ -49,7 +49,7 @@ jobs:
           ]
         arch: [
             {pl: win_amd64, ar: x64, of: x64},
-            {pl: win32,     ar: x86, of: Win32} # TODO : Win32 to be removed ?
+            {pl: win32,     ar: x86, of: Win32} # TODO : Win32 to be removed ?
           ]
 
     steps:
@@ -143,4 +143,3 @@ jobs:
     - uses: geekyeggo/delete-artifact@v5
       with:
         name: windows-python-package-*
-
