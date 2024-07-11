@@ -839,18 +839,16 @@ void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2
 
     if (type == EConsElem::SILL)
     {
-      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
-      {
-        int iv1  = _noStat->getIV1(ipar);
-        int iv2  = _noStat->getIV2(ipar);
-        setSill(icov, iv1, iv2, sqrt(val1 * val2));
-      }
+      (void) _noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      int iv1  = _noStat->getIV1(ipar);
+      int iv2  = _noStat->getIV2(ipar);
+      setSill(icov, iv1, iv2, sqrt(val1 * val2));
     }
     else if (type == EConsElem::PARAM)
 
     {
-      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
-        setParam(icov, 0.5 * (val1 + val2));
+      (void) _noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      setParam(icov, 0.5 * (val1 + val2));
     }
   }
 
