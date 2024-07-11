@@ -948,6 +948,7 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 	types = unlist(lapply(Robj, is.numeric))
 	for (field in names(Robj))
 	   	if (types[field] == TRUE) dat[field] = Robj[field]
+	# TODO: changer ce test qui supprime les colonnes des la presence d'un NA
 	   	
 	if (length(coordnames) > 0)
 	{

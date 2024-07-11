@@ -25,7 +25,6 @@ class Polygons;
  * \brief
  * Class containing the Variogram Cloud which uses an DbGrid provided by the user
  * This function simply calculate and add the results as new field in this DbGrid.
- *
  */
 class GSTLEARN_EXPORT VCloud : public AVario
 {
