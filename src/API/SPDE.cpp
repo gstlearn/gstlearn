@@ -840,17 +840,29 @@ MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam params)
   VectorInt ivars = VH::sequence(nvar);
 
   // Play the non-stationarity (if needed)
-
   ANoStat *nostat = model->getNoStatModify();
-  if (model->isNoStat())
+  bool flag_nostat = model->isNoStat();
+  if (flag_nostat)
   {
     if (nostat->manageInfo(1, dbin, dbin)) return mat;
   }
+
+  // Elaborate the matrix of sills for the Nugget Effect component
+  int icov = model->getRankNugget();
+  MatrixSquareSymmetric sills(nvar);
+  if (icov >= 0)
+    sills = model->getSillValues(icov);
+  else
+    sills.fill(0);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = dbin->getMultipleRanksActive(ivars);
 
   // Check the various possibilities
+  // - flag_verr: True if Variance of Measurement Error variable is defined
+  // - flag_isotropic: True in Isotopic case
+  // - flag_uniqueVerr: True if the Variance of Measurement Error is constant per variable
+  // - flag_nostat: True is somme non-stationarity is defined
   bool flag_verr = (dbin->getLocNumber(ELoc::V) == nvar);
   bool flag_isotopic = true;
   for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)
@@ -861,6 +873,7 @@ MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam params)
     VectorDouble verr = dbin->getColumnByLocator(ELoc::V, ivar);
     if ((int) VH::unique(verr).size() > 1) flag_uniqueVerr = false;
   }
+
 
   // Constitute the triplet
   NF_Triplet NF_T;
