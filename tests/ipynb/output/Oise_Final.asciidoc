@@ -352,6 +352,7 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
+Variable(s)                 = [ThicknessSides]
 Variance-Covariance Matrix     8.283
 
 Direction #1

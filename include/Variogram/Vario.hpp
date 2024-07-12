@@ -321,6 +321,8 @@ public:
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(int nvar) { _nVar = nvar; }
   void setCalculName(const String calcul_name);
+  void setVariableNames(const VectorString &variableNames) { _variableNames = variableNames; }
+  void setVariableName(int ivar, const String &variableName);
 
   int  prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), bool defineList = true);
 
@@ -329,6 +331,8 @@ public:
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
   bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist);
   int getRankFromDirAndDate(int idir, int idate);
+  const VectorString& getVariableNames() const { return _variableNames; }
+  String getVariableName(int ivar) const;
 
   int transformCut(int nh, double ycut);
   int transformZToY(const AAnam *anam);
@@ -441,6 +445,8 @@ private:
   bool _verbose;
   bool _flag_UK;
   int  _niter_UK;
+
+  VectorString                _variableNames;
   mutable Model*              _model;  // Model pointer (not to be deleted) for drift removal
   mutable VectorDouble        _BETA;
   mutable VectorDouble        _DRFDIAG;

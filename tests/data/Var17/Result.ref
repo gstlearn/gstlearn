@@ -4,6 +4,7 @@ Variogram characteristics
 Number of variable(s)       = 2
 Number of direction(s)      = 1
 Space dimension             = 3
+Variable(s)                 = [Unknown Unknown]
 Variance-Covariance Matrix
                [,  0]    [,  1]
      [  0,]     0.937     0.365
