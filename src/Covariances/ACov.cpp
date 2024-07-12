@@ -824,7 +824,8 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   // Play the non-stationarity (if needed)
 
   ANoStat *nostat = getNoStatModify();
-  if (isNoStat())
+  bool flag_isNoStat = isNoStat();
+  if (flag_isNoStat)
   {
     if (nostat->manageInfo(1, db1, db2)) return MatrixRectangular();
   }
@@ -874,7 +875,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
           db2->getSampleAsSPInPlace(iech2, p2);
 
           // Modify the covariance (if non stationary)
-          if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+          if (flag_isNoStat) updateCovByPoints(1, iech1, 2, iech2);
 
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, jvar2, mode);
