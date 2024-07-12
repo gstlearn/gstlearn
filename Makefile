@@ -93,7 +93,7 @@ endif
 
 ifeq ($(OS),Darwin)
   ifndef LLVM_ROOT
-  	LLVM_ROOT = /opt/homebrew
+	LVM_ROOT = /opt/homebrew
   endif
   # Particular clang compiler for supporting OpenMP
   CC_CXX = CC=$(LLVM_ROOT)/opt/llvm/bin/clang CXX=$(LLVM_ROOT)/opt/llvm/bin/clang++
@@ -145,7 +145,7 @@ endif
 all: shared install
 
 cmake:
-	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES)
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_TESTING=ON
 
 cmake-python:
 	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON
