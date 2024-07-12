@@ -110,7 +110,7 @@ public:
   bool            isStationary() const;
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar, int jvar) const;
-  MatrixSquareGeneral getTotalSill() const;
+  MatrixSquareSymmetric getTotalSill() const;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;

@@ -823,68 +823,185 @@ double logLikelihoodSPDE(Db *dbin,
   return spde.computeLogLike(nbsimu, seed);
 }
 
-MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam params)
+static int _loadPositions(int iech,
+                          const VectorVectorInt &index1,
+                          const VectorInt &cumul,
+                          VectorInt& positions,
+                          VectorInt& identity)
+{
+  int nvar = (int) cumul.size();
+  int ndef = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    int ipos = VH::whereElement(index1[ivar], iech);
+    if (ipos < 0)
+      positions[ivar] = -1;
+    else
+    {
+      positions[ivar] = ipos + cumul[ivar];
+      identity[ndef] = ivar;
+      ndef++;
+    }
+  }
+  return ndef;
+}
+
+/**
+ * Build the inverse of the Nugget Effect matrix
+ * It is established for:
+ * - the number of variables defined in 'dbin' (and in 'Model')
+ * - the active samples of 'dbin'
+ * - the samples where Z-variable (and possibly V-variable) is defined
+ *
+ * @param db Input Db structure
+ * @model Input Model
+ */
+MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam params)
 {
   MatrixSparse* mat = nullptr;
-  if (dbin == nullptr) return mat;
+  if (db == nullptr) return mat;
+  int nech = db->getSampleNumber();
   if (model == nullptr) return mat;
-  int nvar = dbin->getLocNumber(ELoc::Z);
+  int nvar = db->getLocNumber(ELoc::Z);
   if (nvar != model->getVariableNumber())
   {
-    messerr("'dbin' and 'model' should have the same number of variables");
+    messerr("'db' and 'model' should have the same number of variables");
     return mat;
   }
-
-  MatrixSquareGeneral totalSill = model->getTotalSills();
-  double eps = params.getEpsNugget();
   VectorInt ivars = VH::sequence(nvar);
+
+  // Get the minimum value for diagonal terms
+  double eps = params.getEpsNugget();
+  VectorDouble minNug(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    minNug[ivar] = eps * model->getTotalSill(ivar, ivar);
 
   // Play the non-stationarity (if needed)
   ANoStat *nostat = model->getNoStatModify();
   bool flag_nostat = model->isNoStat();
   if (flag_nostat)
   {
-    if (nostat->manageInfo(1, dbin, dbin)) return mat;
+    if (nostat->manageInfo(1, db, db)) return mat;
   }
 
   // Elaborate the matrix of sills for the Nugget Effect component
   int icov = model->getRankNugget();
-  MatrixSquareSymmetric sills(nvar);
-  if (icov >= 0)
-    sills = model->getSillValues(icov);
-  else
-    sills.fill(0);
+  MatrixSquareSymmetric sillsRef(nvar);
+  if (icov >= 0) sillsRef = model->getSillValues(icov);
+  MatrixSquareSymmetric sills = sillsRef;
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = dbin->getMultipleRanksActive(ivars);
+  VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
+  // 'cumul' counts the number of valid positions for all variables before 'ivar'
+  VectorInt cumul(nvar, 0);
+  int number = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    cumul[ivar] = number;
+    number += (int) index1[ivar].size();
+  }
 
   // Check the various possibilities
   // - flag_verr: True if Variance of Measurement Error variable is defined
   // - flag_isotropic: True in Isotopic case
   // - flag_uniqueVerr: True if the Variance of Measurement Error is constant per variable
-  // - flag_nostat: True is somme non-stationarity is defined
-  bool flag_verr = (dbin->getLocNumber(ELoc::V) == nvar);
+  // - flag_nostat: True is some non-stationarity is defined
+  int nverr = db->getLocNumber(ELoc::V);
+  bool flag_verr = (nverr > 0);
   bool flag_isotopic = true;
   for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)
     if (! VH::isSame(index1[ivar], index1[0])) flag_isotopic = false;
   bool flag_uniqueVerr = true;
-  for (int ivar = 0; ivar < nvar && flag_uniqueVerr; ivar++)
+  VectorDouble verrDef(nverr, 0.);
+  if (flag_verr)
   {
-    VectorDouble verr = dbin->getColumnByLocator(ELoc::V, ivar);
-    if ((int) VH::unique(verr).size() > 1) flag_uniqueVerr = false;
+    for (int iverr = 0; iverr < nverr && flag_uniqueVerr; iverr++)
+    {
+      VectorDouble verr = db->getColumnByLocator(ELoc::V, iverr);
+      if ((int) VH::unique(verr).size() > 1) flag_uniqueVerr = false;
+      verrDef[iverr] = verr[0];
+    }
+  }
+  bool flag_constant = (! flag_nostat && (! flag_verr || flag_uniqueVerr));
+
+  // In case of Unique Variance of measurement error per variable, patch sill matrix
+  if (flag_verr && flag_uniqueVerr)
+  {
+    for (int iverr = 0; iverr < nverr; iverr++)
+      sills.updValue(iverr, iverr, EOperator::ADD, verrDef[iverr]);
   }
 
+  // Check that the diagonal of the Sill matrix is large enough
+  for (int ivar = 0; ivar < nvar; ivar++)
+    sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
+
+  // Invert the matrix of sills (conditional)
+  if (flag_constant)
+  {
+    if (sills.invert()) return mat;
+  }
 
   // Constitute the triplet
   NF_Triplet NF_T;
+
+  // Loop on the samples
+  int ndef = nvar;
+  VectorInt position(nvar);
+  VectorInt identity(nvar);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! db->isActive(iech)) continue;
+
+    // Count the number of variables for which current sample is valid
+    ndef = _loadPositions(iech, index1, cumul, position, identity);
+    if (ndef <= 0) continue;
+
+    // If all samples are defined, in the stationary case, use the inverted sills matrix
+    if (flag_constant && ndef == nvar)
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          NF_T.add(position[ivar], position[jvar], sills.getValue(ivar,jvar));
+    }
+    else
+    {
+      // Establish a local matrix
+      MatrixSquareSymmetric local(ndef);
+      for (int idef = 0; idef < ndef; idef++)
+        for (int jdef = 0; jdef <= idef; jdef++)
+        {
+          // Load the sill value of the Nugget Effect component
+          double value = sillsRef.getValue(identity[idef], identity[jdef]);
+
+          // Patch the diagonal term of the local matrix
+          if (idef == jdef)
+          {
+            // Add the Variance of measurement error (optional)
+            if (flag_verr && idef < nverr)
+              value += db->getFromLocator(ELoc::V, iech, identity[idef]);
+
+            // Check the minimum values over the diagonal
+            value = MAX(value, MAX(local.getValue(idef, idef), minNug[idef]));
+          }
+
+          local.setValue(idef, jdef, value);
+        }
+      if (local.invert()) return mat;
+
+      for (int idef = 0; idef < ndef; idef++)
+         for (int jdef = 0; jdef < ndef; jdef++)
+           NF_T.add(position[identity[idef]],
+                    position[identity[jdef]],
+                    local.getValue(idef,jdef));
+    }
+  }
 
   // Convert from triplet to sparse matrix
   mat = MatrixSparse::createFromTriplet(NF_T);
 
   // Free the non-stationary specific allocation
   if (model->isNoStat())
-    (void) nostat->manageInfo(-1, dbin, dbin);
+    (void) nostat->manageInfo(-1, db, db);
 
   return mat;
-
 }

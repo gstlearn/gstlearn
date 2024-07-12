@@ -1429,7 +1429,7 @@ double Model::getTotalSill(int ivar, int jvar) const
   return getCovAnisoList()->getTotalSill(ivar, jvar);
 }
 
-MatrixSquareGeneral Model::getTotalSills() const
+MatrixSquareSymmetric Model::getTotalSills() const
 {
   return getCovAnisoList()->getTotalSill();
 }

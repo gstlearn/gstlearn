@@ -617,12 +617,12 @@ double ACovAnisoList::getTotalSill(int ivar, int jvar) const
   return sill_total;
 }
 
-MatrixSquareGeneral ACovAnisoList::getTotalSill() const
+MatrixSquareSymmetric ACovAnisoList::getTotalSill() const
 {
   int nvar = getNVariables();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquareSymmetric mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
       mat.setValue(ivar,jvar,getTotalSill(ivar,jvar));
   return mat;
 }
