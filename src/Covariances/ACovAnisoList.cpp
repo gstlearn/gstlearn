@@ -687,6 +687,15 @@ bool ACovAnisoList::hasNugget() const
   return false;
 }
 
+int ACovAnisoList::getRankNugget() const
+{
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+  {
+    if (getType(is) == ECov::NUGGET) return is;
+  }
+  return -1;
+}
+
 bool ACovAnisoList::isOptimizationInitialized(const Db* db) const
 {
   for (int is = 0, ns = getCovaNumber(); is < ns; is++)

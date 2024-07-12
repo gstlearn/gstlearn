@@ -157,6 +157,7 @@ public:
   bool isChangeSupportDefined() const;
   void normalize(double sill);
   bool hasNugget() const;
+  int  getRankNugget() const;
   VectorInt getActiveCovList() const;
   VectorInt getAllActiveCovList() const;
   bool isAllActiveCovList() const;

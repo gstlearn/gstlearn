@@ -158,6 +158,7 @@ public:
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
+  int  getRankNugget() const;
 
   const ACovAnisoList* createReduce(const VectorInt &validVars) const;
 

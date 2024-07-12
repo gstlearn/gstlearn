@@ -12,6 +12,7 @@
 
 #include "API/SPDE.hpp"
 #include "Model/ANoStat.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
@@ -820,4 +821,57 @@ double logLikelihoodSPDE(Db *dbin,
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
             params, verbose, false);
   return spde.computeLogLike(nbsimu, seed);
+}
+
+MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam params)
+{
+  MatrixSparse* mat = nullptr;
+  if (dbin == nullptr) return mat;
+  if (model == nullptr) return mat;
+  int nvar = dbin->getLocNumber(ELoc::Z);
+  if (nvar != model->getVariableNumber())
+  {
+    messerr("'dbin' and 'model' should have the same number of variables");
+    return mat;
+  }
+
+  MatrixSquareGeneral totalSill = model->getTotalSills();
+  double eps = params.getEpsNugget();
+  VectorInt ivars = VH::sequence(nvar);
+
+  // Play the non-stationarity (if needed)
+
+  ANoStat *nostat = model->getNoStatModify();
+  if (model->isNoStat())
+  {
+    if (nostat->manageInfo(1, dbin, dbin)) return mat;
+  }
+
+  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = dbin->getMultipleRanksActive(ivars);
+
+  // Check the various possibilities
+  bool flag_verr = (dbin->getLocNumber(ELoc::V) == nvar);
+  bool flag_isotopic = true;
+  for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)
+    if (! VH::isSame(index1[ivar], index1[0])) flag_isotopic = false;
+  bool flag_uniqueVerr = true;
+  for (int ivar = 0; ivar < nvar && flag_uniqueVerr; ivar++)
+  {
+    VectorDouble verr = dbin->getColumnByLocator(ELoc::V, ivar);
+    if ((int) VH::unique(verr).size() > 1) flag_uniqueVerr = false;
+  }
+
+  // Constitute the triplet
+  NF_Triplet NF_T;
+
+  // Convert from triplet to sparse matrix
+  mat = MatrixSparse::createFromTriplet(NF_T);
+
+  // Free the non-stationary specific allocation
+  if (model->isNoStat())
+    (void) nostat->manageInfo(-1, dbin, dbin);
+
+  return mat;
+
 }

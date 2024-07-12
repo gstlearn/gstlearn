@@ -529,7 +529,7 @@ public:
                            bool useSel = true,
                            bool useVerr = false) const;
   VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
-                                         const VectorInt &nbgh,
+                                         const VectorInt &nbgh = VectorInt(),
                                          bool useSel = true,
                                          bool useVerr = false) const;
 
