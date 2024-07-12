@@ -80,8 +80,9 @@ String CovBesselK::getFormula() const
   return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
 }
 
-double CovBesselK::evaluateSpectrum(double freq, int ndim) const
+double CovBesselK::evaluateSpectrum(double freq) const
 {
+  int ndim = getContext().getNDim();
   double alpha = (double) ndim / 2. + getParam();
   return 1. /  pow(1. + freq, alpha);
 }
@@ -138,27 +139,6 @@ MatrixRectangular CovBesselK::simulateSpectralOmega(int nb) const
   }
   return mat;
 }
-
-//double CovBesselK::_evaluateCovOnSphere(double alpha,
-//                                        double scale,
-//                                        int degree) const
-//{
-////  double kappa = 1. / scale;
-////  double mu = param;
-////  double kappa2 = kappa * kappa;
-////  double cons = 1. / (4 * GV_PI);
-////  return  cons * (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + mu);
-//
-//  int deg_max = 100;
-//  VectorDouble sp_norm = _evaluateSpectrumOnSphere(deg_max, scale);
-//  for (int k = 0; k <= deg_max; k++)
-//    sp_norm[k] /= sqrt(2. * k + 1.);
-//  VectorDouble v(1);
-//  v[0] = cos(alpha);
-//  MatrixRectangular lp = ut_legendreMatNorm(deg_max, v);
-//  VectorDouble covvec = lp.prodMatVec(sp_norm);
-//  return covvec[0];
-//}
 
 VectorDouble CovBesselK::_evaluateSpectrumOnSphere(int n, double scale) const
 {
