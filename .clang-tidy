@@ -17,5 +17,6 @@ Checks: >-
   -readability-identifier-length,
   -readability-isolate-declaration,
   -readability-magic-numbers,
+  -readability-redundant-access-specifiers,
 HeaderFilterRegex: 'include'
 UseColor: true
