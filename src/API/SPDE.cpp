@@ -827,12 +827,15 @@ static int _loadPositions(int iech,
                           const VectorVectorInt &index1,
                           const VectorInt &cumul,
                           VectorInt& positions,
-                          VectorInt& identity)
+                          VectorInt& identity,
+                          int *rank_arg)
 {
   int nvar = (int) cumul.size();
   int ndef = 0;
+  int rank = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
+    rank = 2 * rank;
     int ipos = VH::whereElement(index1[ivar], iech);
     if (ipos < 0)
       positions[ivar] = -1;
@@ -841,9 +844,58 @@ static int _loadPositions(int iech,
       positions[ivar] = ipos + cumul[ivar];
       identity[ndef] = ivar;
       ndef++;
+      rank += 1;
     }
   }
+  *rank_arg = rank;
   return ndef;
+}
+
+static void _addVerrConstant(MatrixSquareSymmetric& sills, const VectorDouble& verrDef)
+{
+  int nverr = (int) verrDef.size();
+  if (nverr > 0)
+  {
+    for (int iverr = 0; iverr < nverr; iverr++)
+      sills.updValue(iverr, iverr, EOperator::ADD, verrDef[iverr]);
+  }
+}
+
+static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& minNug)
+{
+  int nvar = (int) minNug.size();
+
+  // Check that the diagonal of the Sill matrix is large enough
+  for (int ivar = 0; ivar < nvar; ivar++)
+    sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
+}
+
+static MatrixSquareSymmetric _getSillGlobalMatrix(Model *model, int icovNug)
+{
+  int nvar = model->getVariableNumber();
+
+  // Elaborate the matrix of sills for the Nugget Effect component
+   MatrixSquareSymmetric sills(nvar);
+   if (icovNug >= 0) sills = model->getSillValues(icovNug);
+   return sills;
+}
+
+static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric &sillsRef,
+                                                     int nvar,
+                                                     int ndef,
+                                                     const VectorInt &identity)
+{
+  MatrixSquareSymmetric sills;
+  if (ndef == nvar)
+    sills = sillsRef;
+  else
+  {
+    sills = MatrixSquareSymmetric(ndef);
+    for (int idef = 0; idef < ndef; idef++)
+      for (int jdef = 0; jdef <= idef; jdef++)
+        sills.setValue(idef, jdef, sillsRef.getValue(identity[idef], identity[jdef]));
+  }
+  return sills;
 }
 
 /**
@@ -878,17 +930,11 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam params)
 
   // Play the non-stationarity (if needed)
   ANoStat *nostat = model->getNoStatModify();
-  bool flag_nostat = model->isNoStat();
-  if (flag_nostat)
+  bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
+  if (flag_nostat_sill)
   {
     if (nostat->manageInfo(1, db, db)) return mat;
   }
-
-  // Elaborate the matrix of sills for the Nugget Effect component
-  int icov = model->getRankNugget();
-  MatrixSquareSymmetric sillsRef(nvar);
-  if (icov >= 0) sillsRef = model->getSillValues(icov);
-  MatrixSquareSymmetric sills = sillsRef;
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
@@ -922,29 +968,30 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam params)
       verrDef[iverr] = verr[0];
     }
   }
-  bool flag_constant = (! flag_nostat && (! flag_verr || flag_uniqueVerr));
+  bool flag_constant = (! flag_nostat_sill && (! flag_verr || flag_uniqueVerr));
 
-  // In case of Unique Variance of measurement error per variable, patch sill matrix
-  if (flag_verr && flag_uniqueVerr)
-  {
-    for (int iverr = 0; iverr < nverr; iverr++)
-      sills.updValue(iverr, iverr, EOperator::ADD, verrDef[iverr]);
-  }
+  // Elaborate the Sill matrix for the Nugget Effect component
+  int icovNug = model->getRankNugget();
+  MatrixSquareSymmetric sillsRef = _getSillGlobalMatrix(model, icovNug);
+  int count = (int) pow(2, nvar);
+  std::vector<MatrixSquareSymmetric> sillsInv(count);
 
-  // Check that the diagonal of the Sill matrix is large enough
-  for (int ivar = 0; ivar < nvar; ivar++)
-    sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
+  // Pre-calculate the inverse of the sill matrix (if constant)
 
-  // Invert the matrix of sills (conditional)
   if (flag_constant)
   {
-    if (sills.invert()) return mat;
+    // In case of (Unique) Variance of measurement error, patch sill matrix
+    if (flag_verr) _addVerrConstant(sillsRef, verrDef);
+
+    // Check that the diagonal of the Sill matrix is large enough
+    _checkMinNugget(sillsRef, minNug);
   }
 
   // Constitute the triplet
   NF_Triplet NF_T;
 
   // Loop on the samples
+  int rank;
   int ndef = nvar;
   VectorInt position(nvar);
   VectorInt identity(nvar);
@@ -953,18 +1000,31 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam params)
     if (! db->isActive(iech)) continue;
 
     // Count the number of variables for which current sample is valid
-    ndef = _loadPositions(iech, index1, cumul, position, identity);
+    ndef = _loadPositions(iech, index1, cumul, position, identity, &rank);
     if (ndef <= 0) continue;
 
-    // If all samples are defined, in the stationary case, use the inverted sills matrix
-    if (flag_constant && ndef == nvar)
+    // If all samples are defined, in the stationary case, use the inverted sill matrix
+    if (flag_constant)
     {
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar < nvar; jvar++)
-          NF_T.add(position[ivar], position[jvar], sills.getValue(ivar,jvar));
+      if (sillsInv[rank].empty())
+      {
+        sillsInv[rank] = _buildSillPartialMatrix(sillsRef, nvar, ndef, identity);
+        if (sillsInv[rank].invert()) return mat;
+      }
+      for (int idef = 0; idef < ndef; idef++)
+        for (int jdef = 0; jdef < ndef; jdef++)
+          NF_T.add(position[identity[idef]], position[identity[jdef]],
+                   sillsInv[rank].getValue(idef,jdef));
     }
     else
     {
+      // Update due to non-stationarity (optional)
+      if (flag_nostat_sill)
+      {
+        model->updateCovByPoints(1, iech, 1, iech);
+        sillsRef = _getSillGlobalMatrix(model, icovNug);
+      }
+
       // Establish a local matrix
       MatrixSquareSymmetric local(ndef);
       for (int idef = 0; idef < ndef; idef++)
@@ -990,8 +1050,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam params)
 
       for (int idef = 0; idef < ndef; idef++)
          for (int jdef = 0; jdef < ndef; jdef++)
-           NF_T.add(position[identity[idef]],
-                    position[identity[jdef]],
+           NF_T.add(position[identity[idef]],position[identity[jdef]],
                     local.getValue(idef,jdef));
     }
   }

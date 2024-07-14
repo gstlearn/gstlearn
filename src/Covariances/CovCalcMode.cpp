@@ -12,14 +12,19 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
-CovCalcMode::CovCalcMode(const ECalcMember &member)
+CovCalcMode::CovCalcMode(const ECalcMember &member,
+                         bool asVario,
+                         bool unitary,
+                         int orderVario,
+                         bool allActiveCov,
+                         const VectorInt &activeCovList)
     : AStringable(),
       _member(member),
-      _asVario(false),
-      _unitary(false),
-      _orderVario(0),
-      _allActiveCov(true),
-      _activeCovList()
+      _asVario(asVario),
+      _unitary(unitary),
+      _orderVario(orderVario),
+      _allActiveCov(allActiveCov),
+      _activeCovList(activeCovList)
 {
 }
 
@@ -53,11 +58,14 @@ CovCalcMode::~CovCalcMode()
 {
 }
 
-CovCalcMode* CovCalcMode::create(const ECalcMember &member, bool asVario)
+CovCalcMode* CovCalcMode::create(const ECalcMember &member,
+                                 bool asVario,
+                                 bool unitary,
+                                 int orderVario,
+                                 bool allActiveCov,
+                                 const VectorInt& activeCovList)
 {
-  CovCalcMode* local = new CovCalcMode(member);
-  local->setAsVario(asVario);
-  return local;
+  return new CovCalcMode(member, asVario, unitary, orderVario, allActiveCov, activeCovList);
 }
 
 void CovCalcMode::setActiveCovListFromOne(int keepOnlyCovIdx)
