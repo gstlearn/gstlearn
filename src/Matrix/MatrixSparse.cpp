@@ -150,25 +150,17 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);
 
-  if (isFlagEigen())
-  {
-    for (int k=0; k<_eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-        it.valueRef() = law_gaussian();
-  }
-  else
-  {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++)
-      {
-        if (!_isPhysicallyPresent(irow, icol)) continue;
-        if (law_uniform(0., 1.) < zeroPercent) continue;
-        cs_entry2(local, irow, icol, law_gaussian());
-      }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  NF_Triplet NF_T;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+    {
+      if (law_uniform(0., 1.) < zeroPercent) continue;
+      NF_T.add(irow, icol, law_gaussian());
+    }
+  NF_T.force(nrow,ncol);
+  resetFromTriplet(NF_T);
 }
 
 int MatrixSparse::computeCholesky()
@@ -425,16 +417,14 @@ int MatrixSparse::_getMatrixPhysicalSize() const
  */
 void MatrixSparse::fill(double value)
 {
-  if (isFlagEigen())
-  {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-        it.valueRef() = value;
-  }
-  else
-  {
-    cs_set_cste(_csMatrix, value);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  NF_Triplet NF_T;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      NF_T.add(irow, icol, value);
+
+  resetFromTriplet(NF_T);
 }
 
 /*! Multiply a Matrix row-wise */

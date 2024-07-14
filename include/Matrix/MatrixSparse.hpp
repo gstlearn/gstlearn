@@ -58,7 +58,7 @@ public:
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-   bool isDense() const override { return false; }
+  bool isDense() const override { return false; }
 
   /*! Set the value for a matrix cell */
   void setValue(int irow, int icol, double value, bool flagCheck=true) override;
@@ -222,10 +222,10 @@ protected:
 private:
   bool _defineFlagEigen(int opt_eigen) const;
   void _forbiddenForSparse(const String& func) const;
-  int _eigen_findColor(int imesh,
-                       int ncolor,
-                       VectorInt &colors,
-                       VectorInt &temp);
+  int  _eigen_findColor(int imesh,
+                        int ncolor,
+                        VectorInt &colors,
+                        VectorInt &temp);
 
 private:
 #ifndef SWIG
