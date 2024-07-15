@@ -944,6 +944,13 @@ void Db::setCoordinate(int iech, int idim, double value)
   _array[_getAddress(iech, icol)] = value;
 }
 
+void Db::setCoordinates(int idim, const VectorDouble& coor, bool useSel)
+{
+  int icol = getColIdxByLocator(ELoc::X, idim);
+  if (!isColIdxValid(icol)) return;
+  setColumnByColIdx(coor, icol, useSel);
+}
+
 void Db::setFromLocator(const ELoc& locatorType,
                         int iech,
                         int locatorIndex,

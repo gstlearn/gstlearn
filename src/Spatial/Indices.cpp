@@ -8,18 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-#include "Basic/Utilities.hpp"
+#include <Spatial/Indices.hpp>
 #include "Db/Db.hpp"
-
-/*! \cond */
-#define F_IATT(iatt)  ((iatt) < 0 || (iatt) >= db->getNMax())
-#define MM(idim,jdim) (mm[(idim) * ndim + jdim])
-/*! \endcond */
+#include "Db/DbGrid.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /****************************************************************************/
 /*!
- **  Load the valid data and calculate the its weight
+ **  Load the valid data and calculate its weight
  **
  ** \return  Error returned code
  **
@@ -75,7 +71,7 @@ static int st_cgi_data(Db *db,
 
   /* Check if the sample has defined coordinates */
 
-  db_sample_load(db, ELoc::X, iech, coor.data());
+  db->getCoordinatesPerSampleInPlace(iech, coor);
   for (int idim = 0; idim < db->getNDim(); idim++)
     if (FFFF(coor[idim])) return (1);
 
@@ -140,7 +136,6 @@ int cgi(Db *db,
   }
   for (int idim = 0; idim < ndim; idim++)
     center[idim] /= (*wztot);
-
   /* Calculate the inertia and the weighted PCA */
 
   (*inertia) = 0.;
@@ -201,7 +196,12 @@ int spatial(Db *db, double *totab, double *parea, double *eqarea)
   double top = 0.;
   double bot = 0.;
   double sum = 0.;
-  double maille = (db->isGrid()) ? db_grid_maille(db) : 1.;
+  double maille = 1.;
+  if (db->isGrid())
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+    maille = dbgrid->getCellSize();
+  }
 
   /* Loop on the samples */
 
@@ -226,4 +226,3 @@ int spatial(Db *db, double *totab, double *parea, double *eqarea)
   *eqarea = (bot == 0.) ? TEST : top * top / bot;
   return (0);
 }
-
