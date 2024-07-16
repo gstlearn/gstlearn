@@ -129,8 +129,7 @@ void MatrixSparse::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 
 void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
 {
-  if (_csMatrix != nullptr)
-    delete _csMatrix;
+  delete _csMatrix;
 
   if (isFlagEigen())
   {
