@@ -124,7 +124,11 @@ private:
   void _movingSectorNsmax(int nsel, VectorInt& ranks);
   void _movingSelect(int nsel, VectorInt& ranks);
   double _getRadius() const { return _biPtDist->getRadius(); }
-  bool  _getAnisotropyElements(double *rx, double *ry, double *cosp, double *sinp) const;
+  bool _getAnisotropyElements(double *rx,
+                              double *ry,
+                              double *theta,
+                              double *cosp,
+                              double *sinp) const;
 
 private:
   int _nMini;                    /* Minimum number of points in neigh. */

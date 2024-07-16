@@ -100,8 +100,8 @@ String DbGrid::toString(const AStringFormat* strfmt) const
  *                      The dimension of this array cannot exceed the space dimension.
  * @param order         Flag for values order in 'tab' (defined ELoadBy.hpp)
  * @param tab           Variable values array (size = nvar * nsamples)
- * @param names         Variable names (size = nvar)
- * @param locatorNames  Locators for each variable (size = nvar)
+ * @param names         Names of the Variables of 'tab' (size = nvar)
+ * @param locatorNames  Locators for each variable of array 'tab' (size = nvar)
  * @param flagAddSampleRank If true, add an automatic rank variable
  * @param flagAddCoordinates If TRUE, add the grid coordinates
  */

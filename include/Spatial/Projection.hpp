@@ -17,6 +17,7 @@
 #include "Basic/VectorNumT.hpp"
 
 class Db;
+class Polygons;
 
 class GSTLEARN_EXPORT Projection
 {
@@ -27,9 +28,15 @@ public:
   Projection& operator=(const Projection& r);
   virtual ~Projection();
 
-  int operateInPlace(VectorDouble& x, VectorDouble& y);
+  void operateInPlace(VectorDouble& coor);
+  VectorDouble operateInvert(const VectorDouble& coor);
+  int operateVecInPlace(VectorDouble& x, VectorDouble& y);
+  int operateOnDb(Db *db);
+  int operateOnPolygons(Polygons* poly);
 
-  int db_projection(Db *db);
+  bool isFlagMean() const { return _flagMean; }
+  double getXcenter() const { return _xcenter; }
+  double getYcenter() const { return _ycenter; }
 
 private:
   bool _flagMean;

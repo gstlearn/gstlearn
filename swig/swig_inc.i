@@ -112,7 +112,7 @@
 %shared_ptr(CSVformat)
 %shared_ptr(Db)
 %shared_ptr(DbGrid)
-%shared_ptr(DbStringFormat)Chebychev
+%shared_ptr(DbStringFormat)
 %shared_ptr(DirParam)
 %shared_ptr(DriftM)
 %shared_ptr(DriftF)
@@ -174,7 +174,7 @@
 %shared_ptr(ShapeEllipsoid)
 %shared_ptr(ShapeHalfEllipsoid)
 %shared_ptr(ShapeHalfParaboloid)
-%shared_ptr(ShapeHalfSinusoid)Chebychev
+%shared_ptr(ShapeHalfSinusoid)
 %shared_ptr(ShapeParaboloid)
 %shared_ptr(ShapeParallelepiped)
 %shared_ptr(ShapeParameter)
@@ -214,7 +214,7 @@
   
   #include "Enum/AEnum.hpp"
   #include "Enum/EKrigOpt.hpp"
-  #include "Enum/ESPDECalcMode.hpp"Chebychev
+  #include "Enum/ESPDECalcMode.hpp"
   #include "Enum/EAnam.hpp"
   #include "Enum/ECst.hpp"
   #include "Enum/EDbg.hpp"

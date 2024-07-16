@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Spatial/Projection.hpp"
+
+#include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
 
 Projection::Projection(bool flag_mean, double xcenter, double ycenter)
@@ -61,8 +63,58 @@ Projection::~Projection()
 {
 }
 
+void Projection::operateInPlace(VectorDouble& coor)
+{
+  double xx = coor[0];
+  double yy = coor[1];
+  if (FFFF(xx) || FFFF(yy)) return;
 
-int Projection::operateInPlace(VectorDouble& x, VectorDouble& y)
+  double deltax = xx - _xcenter;
+  double deltay = yy - _ycenter;
+
+  if (_flagMean)
+  {
+    // Mean projection
+
+    xx = deltax * 60 * cos(_ycenter * GV_PI / 180.);
+    yy = deltay * 60.;
+  }
+  else
+  {
+    xx = deltax * 60 * cos((deltay + _ycenter * GV_PI) / 180);
+    yy = deltay * 60.;
+  }
+
+  coor[0] = xx;
+  coor[1] = yy;
+}
+
+VectorDouble Projection::operateInvert(const VectorDouble& coor)
+{
+  VectorDouble res(2);
+  double xx = coor[0];
+  double yy = coor[1];
+  if (FFFF(xx) || FFFF(yy)) return res;
+
+  if (_flagMean)
+  {
+    // Mean projection
+
+    xx = _xcenter + xx / (60. * cos(_ycenter * GV_PI / 180.));
+    yy = _ycenter + yy / 60.;
+  }
+  else
+  {
+    yy = _ycenter + yy / 60.;
+    xx = _xcenter + xx / (60. * cos((yy - _ycenter + _ycenter * GV_PI) / 180.));
+  }
+
+  res[0] = xx;
+  res[1] = yy;
+  return res;
+}
+
+int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y)
 {
   int nech = (int) x.size();
   if (nech != (int) y.size())
@@ -71,40 +123,24 @@ int Projection::operateInPlace(VectorDouble& x, VectorDouble& y)
     return 1;
   }
 
-  // Read the global parameters
-  double xc = _xcenter;
-  double yc = _ycenter;
+  // Loop on the samples to be projected
 
-  double xx, yy;
-  if (_flagMean)
+  VectorDouble coor(2);
+  for (int iech = 0; iech < nech; iech++)
   {
-    // Mean projection
-
-    for (int iech = 0; iech < nech; iech++)
-    {
-      xx = x[iech];
-      yy = y[iech];
-      x[iech] = (xx - xc) * 60 * cos(yc * GV_PI / 180.);
-      y[iech] = (yy - yc) * 60.;
-    }
+    coor[0] = x[iech];
+    coor[1] = y[iech];
+    operateInPlace(coor);
+    x[iech] = coor[0];
+    y[iech] = coor[1];
   }
-  else
-  {
-    // Cosine projection
 
-    for (int iech = 0; iech < nech; iech++)
-    {
-      xx = x[iech];
-      yy = y[iech];
-      x[iech] = (xx - xc) * 60 * cos((yy - yc + yc * GV_PI) / 180);
-      y[iech] = (yy - yc) * 60.;
-    }
-  }
   return 0;
 }
 
-int Projection::db_projection(Db *db)
+int Projection::operateOnDb(Db *db)
 {
+  if (db == nullptr) return 0;
   if (db->getLocNumber(ELoc::X) < 2)
   {
     messerr("This method is dedicated to 2-D space (or more)");
@@ -116,11 +152,31 @@ int Projection::db_projection(Db *db)
   VectorDouble y = db->getCoordinates(1, true);
 
   // Perform the projection
-//  if (projectionInPlace(x,  y)) return 1;
+  if (operateVecInPlace(x, y)) return 1;
 
   // Store the coordinates (in place)
   db->setCoordinates(0, x, true);
   db->setCoordinates(1, y, true);
 
+  return 0;
+}
+
+int Projection::operateOnPolygons(Polygons* poly)
+{
+  if (poly == nullptr) return 0;
+  int npol = poly->getPolyElemNumber();
+
+  // Loop on the Polygon elements
+  for (int ipol = 0; ipol < npol; ipol++)
+  {
+    VectorDouble xx = poly->getX(ipol);
+    VectorDouble yy = poly->getY(ipol);
+
+    // Perform the projection
+    if (operateVecInPlace(xx, yy)) return 1;
+
+    poly->setX(ipol, xx);
+    poly->setY(ipol, yy);
+  }
   return 0;
 }
