@@ -170,6 +170,7 @@ set(SRC
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
+  LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp

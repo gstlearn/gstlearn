@@ -343,6 +343,7 @@
   #include "LinearOp/TurboOptimizer.hpp"
   #include "LinearOp/IProjMatrix.hpp"
   #include "LinearOp/ProjMatrix.hpp"
+  #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
