@@ -79,6 +79,8 @@ jobs:
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      env:
+        CXXFLAGS: -Werror
 
     - name: Build the package
       run: |
