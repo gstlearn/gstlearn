@@ -12,39 +12,25 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/CGParam.hpp"
-#include "LinearOp/LogStats.hpp"
-#include "Basic/VectorNumT.hpp"
+#include "LinearOp/ALinearOpEigenCG.hpp"
 
-class GSTLEARN_EXPORT ALinearOp
+DECLARE_EIGEN_TRAITS(IdentityEigenCG)
+
+class GSTLEARN_EXPORT IdentityEigenCG: public ALinearOpEigenCG<IdentityEigenCG>
 {
 
 public:
-  ALinearOp(const CGParam params = CGParam());
-  ALinearOp(const ALinearOp &m);
-  ALinearOp& operator=(const ALinearOp &m);
-  virtual ~ALinearOp();
+  IdentityEigenCG(int n);
+  virtual ~IdentityEigenCG();
 
-  virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
-  virtual int getSize() const = 0;
-
-  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
-
-  void setX0(const VectorDouble& x0) { _params.setX0(x0); }
-  void mustShowStats(bool status) { _logStats.mustShowStats(status); }
-
-  const LogStats& getLogStats() const { return _logStats; }
+  //void evalInverse(const VectorDouble& inv, VectorDouble& outv) const override;
+  int getSize() const override { return _n; }
 
 protected:
-  virtual void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const = 0;
+  void _evalDirect(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
 
 private:
-  double _prod(const VectorDouble& x, const VectorDouble& y) const;
-
-private:
-  CGParam _params;
-
-protected:
-  LogStats _logStats;
+  int _n;
 };
 
+DECLARE_EIGEN_PRODUCT(IdentityEigenCG)
