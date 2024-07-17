@@ -133,8 +133,6 @@ public:
   int documentedWithFormula(int myArg) const;
   // Example of a method where argument is not used (do not use doxygen here!)
   int unusedArgument(int a);
-  // Just a tentative for formating while typing
-  int tentative(int a);
 
   // Special static function (global) with a default argument (do not use
   // doxygen here!)
