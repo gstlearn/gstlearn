@@ -1405,6 +1405,16 @@ void VectorHelper::multiplyConstantInPlace(const VectorDouble &vecin, double v, 
   }
 }
 
+void VectorHelper::multiplyConstantInPlaceSelf(VectorDouble &vec, double v)
+{
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = (*it) * v;
+    it++;
+  }
+}
+
 void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const VectorVectorDouble &in1,
                                               VectorVectorDouble &outv)

@@ -33,11 +33,12 @@ public:
 
   int setModel(Model* model);
   int setMeshes(const std::vector<AMesh*>& meshes);
+  void evalDirect(const VectorDouble &vecin, VectorDouble &vecout);
 
 private:
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<AMesh*>& meshes);
-  bool _matchModelAndMeshes() const;
+  bool _matchModelAndMeshes();
   int  _getNVar() const;
   int  _getNCov() const;
   int  _getNMesh() const;
@@ -49,6 +50,7 @@ private:
   VectorInt _covList;
   VectorInt _nmeshList;
   std::vector<MatrixSquareSymmetric> _invSills;
+  std::vector<PrecisionOp> _pops;
 
   Model* _model; // Not to be deleted
   std::vector<AMesh*> _meshes; // Not to be deleted
