@@ -12,6 +12,7 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [Data]
 Variance-Covariance Matrix     0.773
 
 Direction #1
@@ -52,6 +53,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Calculation takes Faults into account
+Variable(s)                 = [Data]
 Variance-Covariance Matrix     0.773
 
 Direction #1
