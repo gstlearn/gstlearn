@@ -1,0 +1,52 @@
+---
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: AcrossEmptyLinesAndComments
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignEscapedNewlines: Right
+AlignTrailingComments: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: 'Yes'
+# AlignOperands: AlignAfterOperator # clang-format 12
+# AlignConsecutiveShortCaseStatements: # clang-format 17
+#  Enabled: true
+#  AcrossEmptyLines: true
+#  AcrossComments: true
+#  AlignCaseColons: false
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Allman
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+# EmptyLineBeforeAccessModifier: Always # clang-format 13
+IndentCaseLabels: true
+IndentWidth: 2
+IndentPPDirectives: AfterHash
+NamespaceIndentation: All
+# PackConstructorInitializers: Never # clang-format 14
+# PPIndentWidth: 2 # clang-format 14
+PointerAlignment: Left
+# ReferenceAlignment: Left # clang-format 14
+ReflowComments: true
+SortIncludes: false
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeInheritanceColon: false
+SpaceBeforeParens: ControlStatementsExceptControlMacros
+SpaceBeforeRangeBasedForLoopColon: false
+# SpaceBeforeSquareBrackets: false # clang-format 11
+# SpaceInEmptyBlock: false # clang-format 11
+SpaceInEmptyParentheses: false
+# SpacesInAngles: Never #clang-format 14
+SpacesInCStyleCastParentheses: false
+# SpacesInConditionalStatement: false # clang-format 11
+SpacesInContainerLiterals: false
+SpacesInSquareBrackets: false
+UseTab: Never
+...
