@@ -15,6 +15,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model, const std::vector<AMesh*>& mesh
     _covList(),
     _nmeshList(),
     _invSills(),
+    _pops(),
     _model(nullptr),
     _meshes()
 {
@@ -79,9 +80,9 @@ bool PrecisionOpMulti::_isValidMeshes(const std::vector<AMesh*>& meshes)
 
   // Check that all meshes share the same number of vertices
   _nmeshList.clear();
-  for (int imesh = 0; imesh < nmeshes; imesh++)
+  for (int i = 0; i < nmeshes; i++)
   {
-    int nmesh = meshes[imesh]->getNMeshes();
+    int nmesh = meshes[i]->getNMeshes();
     _nmeshList.push_back(nmesh);
   }
 
@@ -90,9 +91,16 @@ bool PrecisionOpMulti::_isValidMeshes(const std::vector<AMesh*>& meshes)
   return true;
 }
 
-bool PrecisionOpMulti::_matchModelAndMeshes() const
+bool PrecisionOpMulti::_matchModelAndMeshes()
 {
-  return (_getNCov() == _getNMesh());
+  if (_getNCov() != _getNMesh()) return false;
+
+  // Create the vector of PrecisionOp
+
+  _pops.clear();
+  for (int i = 0, number = _getNCov(); i < number; i++)
+    _pops.push_back(PrecisionOp(_meshes[i], _model, _covList[i]));
+  return true;
 }
 
 int PrecisionOpMulti::_getNVar() const
@@ -159,4 +167,54 @@ int PrecisionOpMulti::_buildInvSills()
   }
 
   return 0;
+}
+
+/**
+ * Evaluate the product of this phantom matrix by the input vector
+ * @param vecin Input array
+ * @param vecout Output array
+ */
+void PrecisionOpMulti::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
+{
+  int size = _getSize();
+  if ((int) vecin.size() != size)
+  {
+    messerr("'vecin' (%d) should be of dimension (%d)", (int) vecin.size(), size);
+    return;
+  }
+  if ((int) vecout.size() != size)
+  {
+    messerr("'vecout' (%d) should be of dimension (%d)", (int) vecout.size(), size);
+    return;
+  }
+
+  // Blank out the output vector
+  vecout.fill(0);
+
+  int nvar = _getNVar();
+  int ncov = _getNCov();
+
+  int iad_x = 0;
+  int iad_y = 0;
+  for (int icov = 0; icov < ncov; icov++)
+  {
+    int nmesh = _nmeshList[icov];
+    VectorDouble x(nmesh);
+    VectorDouble y(nmesh);
+    VectorDouble ysum(nmesh);
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      int iad = iad_x;
+      for (int jvar = 0; jvar < nvar; jvar++)
+      {
+       VH::extractInPlace(vecin, x, iad);
+       _pops[icov].evalDirect(x, y);
+       VH::multiplyConstantInPlaceSelf(y, _invSills[icov].getValue(ivar,jvar));
+       VH::addInPlace(ysum, y);
+        iad += nmesh;
+      }
+      VH::mergeInPlace(ysum, vecout, iad_y);
+      iad_y += nmesh;
+    }
+  }
 }
