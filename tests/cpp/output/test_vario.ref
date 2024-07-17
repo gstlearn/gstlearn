@@ -102,6 +102,7 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
+Variable(s)                 = [Simu]
 Variance-Covariance Matrix     0.859
 
 Direction #1
@@ -200,6 +201,7 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
+Variable(s)                 = [Simu]
 Variance-Covariance Matrix     0.874
 
 Direction #1

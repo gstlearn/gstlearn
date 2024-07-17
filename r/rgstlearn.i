@@ -945,15 +945,16 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 "Db_fromTL" <- function(Robj, coordnames=NULL)
 {
 	dat = Db()
-	types = unlist(lapply(Robj, is.numeric))
+	# Copy all the fields.
+	# Note that any non-numeric character is convereted automatically (and silently)
+	# into NA.
 	for (field in names(Robj))
-	   	if (types[field] == TRUE) dat[field] = Robj[field]
-	# TODO: changer ce test qui supprime les colonnes des la presence d'un NA
+	   	dat[field] = suppressWarnings(as.numeric(unlist(Robj[field])))
 	   	
 	if (length(coordnames) > 0)
 	{
 		## Check names
-		if (length(intersect(colnames(data[]),coordnames))!=length(coordnames))
+		if (length(intersect(colnames(dat[]),coordnames))!=length(coordnames))
 		{
    		    stop("Check the variable names: one or several of the supplied names are absent from the dataframe")
     	}
