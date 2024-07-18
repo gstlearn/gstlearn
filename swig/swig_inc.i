@@ -336,12 +336,15 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
+  #include "LinearOp/ILinearOpEigenCG.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
   #include "LinearOp/PrecisionOp.hpp"
   #include "LinearOp/PrecisionOpCs.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
   #include "LinearOp/IProjMatrix.hpp"
+  #include "LinearOp/Identity.hpp"
+  #include "LinearOp/IdentityEigenCG.hpp"
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
@@ -439,6 +442,7 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
+  #include "Matrix/VectorEigen.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
@@ -553,14 +557,14 @@
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
 
-%template(VectorECov)         std::vector< ECov >;
-%template(VectorEStatOption)  std::vector< EStatOption >;
-%template(VectorESelectivity) std::vector< ESelectivity >;
-%template(VectorDirParam)     std::vector< DirParam >;
-%template(VectorPolyElem)     std::vector< PolyElem >;
-%template(VectorInterval)     std::vector< Interval >; 
-%template(VectorEPostStat)    std::vector< EPostStat >;
-%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
+%template(VectorECov)           std::vector< ECov >;
+%template(VectorEStatOption)    std::vector< EStatOption >;
+%template(VectorESelectivity)   std::vector< ESelectivity >;
+%template(VectorDirParam)       std::vector< DirParam >;
+%template(VectorPolyElem)       std::vector< PolyElem >;
+%template(VectorInterval)       std::vector< Interval >; 
+%template(VectorEPostStat)      std::vector< EPostStat >;
+%template(VectorABiTargetCheck) std::vector< ABiTargetCheck* >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

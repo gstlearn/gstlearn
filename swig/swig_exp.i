@@ -150,6 +150,7 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include Matrix/VectorEigen.hpp
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
@@ -169,7 +170,10 @@
 %include LinearOp/CGParam.hpp
 %include LinearOp/LogStats.hpp
 %include LinearOp/ALinearOp.hpp
+%include LinearOp/ILinearOpEigenCG.hpp
 %include LinearOp/ALinearOpMulti.hpp
+%include LinearOp/Identity.hpp
+%include LinearOp/IdentityEigenCG.hpp
 %include LinearOp/ShiftOpCs.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp

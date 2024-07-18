@@ -101,7 +101,7 @@ private:
 };
 
 
-// Implementation of ALinearOpEigenCG * Eigen::DenseVector though a specialization of internal::generic_product_impl:
+// Implementation of ALinearOpEigenCG * Eigen::DenseVector through a specialization of internal::generic_product_impl:
 namespace Eigen {
 namespace internal {
  

@@ -8,7 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <LinearOp/IdentityEigenCG.hpp>
+#include "LinearOp/IdentityEigenCG.hpp"
+#include "LinearOp/ALinearOpEigenCG.hpp"
 
 IdentityEigenCG::IdentityEigenCG(int n) 
   : ALinearOpEigenCG<IdentityEigenCG>()
@@ -18,6 +19,44 @@ IdentityEigenCG::IdentityEigenCG(int n)
 
 IdentityEigenCG::~IdentityEigenCG() 
 {
+}
+void IdentityEigenCG::evalInverse(const VectorDouble& inv,
+                                  VectorDouble& outv) const
+{
+  ALinearOpEigenCG<IdentityEigenCG>::evalInverse(inv, outv);
+}
+
+void IdentityEigenCG::evalInverse(const VectorEigen& inv,
+                                  VectorEigen& outv) const
+{
+  ALinearOpEigenCG<IdentityEigenCG>::evalInverse(inv, outv);
+}
+
+void IdentityEigenCG::evalDirect(const VectorDouble& inv,
+                                 VectorDouble& outv) const
+{
+  ALinearOpEigenCG<IdentityEigenCG>::evalDirect(inv, outv);
+}
+
+void IdentityEigenCG::evalDirect(const VectorEigen& inv,
+                                 VectorEigen& outv) const
+{
+  ALinearOpEigenCG<IdentityEigenCG>::evalDirect(inv, outv);
+}
+
+void IdentityEigenCG::setX0(const VectorDouble& x0)
+{
+  ALinearOpEigenCG<IdentityEigenCG>::setX0(x0);
+}
+
+void IdentityEigenCG::mustShowStats(bool status)
+{
+  ALinearOpEigenCG<IdentityEigenCG>::mustShowStats(status);
+}
+
+const LogStats& IdentityEigenCG::getLogStats() const
+{
+  return ALinearOpEigenCG<IdentityEigenCG>::getLogStats();
 }
 
 /*****************************************************************************/
@@ -29,15 +68,10 @@ IdentityEigenCG::~IdentityEigenCG()
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void IdentityEigenCG::_evalDirect(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+void IdentityEigenCG::_evalDirectEigen(const Eigen::VectorXd& inv,
+                                        Eigen::VectorXd& outv) const
 {
-  for(int i=0, n=_n; i<n; i++)
-    outv[i] = 2*inv[i];
+for (int i = 0, n = _n; i < n; i++)
+  /// TODO : Add a scale parameter and rename in ScaleEigenCG ?
+  outv[i] = 2*inv[i];
 }
-
-/* Force execution of Eigen conjugate gradient
-void IdentityEigenCG::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
-{
-  evalDirect(inv,outv);
-}
-*/

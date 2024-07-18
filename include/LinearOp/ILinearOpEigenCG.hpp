@@ -8,37 +8,27 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/File.hpp"
-#include "LinearOp/MatrixReplacement.hpp"
-#include "LinearOp/IdentityEigenCG.hpp"
+#pragma once
+
+#include "gstlearn_export.hpp"
+
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/VectorEigen.hpp"
+#include "LinearOp/LogStats.hpp"
 
-#include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/IterativeLinearSolvers>
-#include <unsupported/Eigen/IterativeSolvers>
-
-int main(int argc, char *argv[])
+class GSTLEARN_EXPORT ILinearOpEigenCG
 {
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
+public:
+  virtual int getSize() const = 0;
+  
+  virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const = 0;
+  virtual void evalInverse(const VectorEigen& inv, VectorEigen& outv) const =  0;
 
-  int n = 5;
+  virtual void evalDirect(const VectorDouble& inv, VectorDouble& outv) const = 0;
+  virtual void evalDirect(const VectorEigen& inv, VectorEigen& outv) const = 0;
 
-  VectorDouble b({2, 4, 6, 8, 10});
-  VectorEigen B(b);
-  VectorDouble x(n, 0.);
-  VectorEigen X(x);
+  virtual void setX0(const VectorDouble& x0) = 0;
+  virtual void mustShowStats(bool status) = 0;
 
-  IdentityEigenCG I(n);
-
-  std::cout << "b = " << b.toString() << std::endl;
-
-  I.evalInverse(b, x);
-  std::cout << "x = " << x << std::endl;
-
-  I.evalInverse(B, X);
-  std::cout << "X = " << X << std::endl;
-}
+  virtual const LogStats& getLogStats() const = 0;
+};
