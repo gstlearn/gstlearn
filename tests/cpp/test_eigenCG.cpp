@@ -11,8 +11,10 @@
 #include "Basic/File.hpp"
 #include "LinearOp/MatrixReplacement.hpp"
 #include "LinearOp/IdentityEigenCG.hpp"
+#include "LinearOp/LinearOpEigenCGSolver.hpp"
 #include "Matrix/VectorEigen.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -41,4 +43,9 @@ int main(int argc, char *argv[])
 
   I.evalInverse(B, X);
   std::cout << "X = " << X << std::endl;
+
+  LinearOpEigenCGSolver<IdentityEigenCG> s(&I);
+  VectorEigen out(n);
+  s.solve(B, out);
+  std::cout << "X' = " << out<< std::endl;
 }

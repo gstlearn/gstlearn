@@ -337,6 +337,7 @@
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
   #include "LinearOp/ILinearOpEigenCG.hpp"
+  #include "LinearOp/LinearOpEigenCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
   #include "LinearOp/PrecisionOp.hpp"
@@ -555,16 +556,16 @@
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
-%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
+%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
 
-%template(VectorECov)           std::vector< ECov >;
-%template(VectorEStatOption)    std::vector< EStatOption >;
-%template(VectorESelectivity)   std::vector< ESelectivity >;
-%template(VectorDirParam)       std::vector< DirParam >;
-%template(VectorPolyElem)       std::vector< PolyElem >;
-%template(VectorInterval)       std::vector< Interval >; 
-%template(VectorEPostStat)      std::vector< EPostStat >;
-%template(VectorABiTargetCheck) std::vector< ABiTargetCheck* >;
+%template(VectorECov)              std::vector< ECov >;
+%template(VectorEStatOption)       std::vector< EStatOption >;
+%template(VectorESelectivity)      std::vector< ESelectivity >;
+%template(VectorDirParam)          std::vector< DirParam >;
+%template(VectorPolyElem)          std::vector< PolyElem >;
+%template(VectorInterval)          std::vector< Interval >; 
+%template(VectorEPostStat)         std::vector< EPostStat >;
+%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

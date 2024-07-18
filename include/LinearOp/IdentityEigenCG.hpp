@@ -33,16 +33,8 @@ public:
 
   int getSize() const override { return _n; }
 
-  void evalInverse(const VectorDouble& inv, VectorDouble& outv) const override;
-  void evalInverse(const VectorEigen& inv, VectorEigen& outv) const override;
-
-  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
-  void evalDirect(const VectorEigen& inv, VectorEigen& outv) const override;
-
-  void setX0(const VectorDouble& x0) override;
-  void mustShowStats(bool status) override;
-
-  const LogStats& getLogStats() const override;
+  // Shortcut
+  DECLARE_LINEAROP_EIGEN_CG_INTERFACE
 
 #ifndef SWIG
 protected:

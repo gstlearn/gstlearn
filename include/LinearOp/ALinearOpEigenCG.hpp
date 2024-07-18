@@ -231,6 +231,7 @@ template <typename TLinOP>
 void ALinearOpEigenCG<TLinOP>::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
 {
   Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
+  //Eigen::Map<Eigen::VectorXd> myOut(outv.data(), outv.size()); // Doesn't work
   Eigen::VectorXd myOut;
   // Assume outv has the good size
   evalInverseEigen(myInv, myOut);

@@ -58,5 +58,7 @@ private:
   
 };
 
+#ifndef SWIG
 GSTLEARN_EXPORT std::ostream& operator<<(std::ostream& os,
                                          const VectorEigen& vec);
+#endif
