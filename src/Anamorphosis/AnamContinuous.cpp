@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Db/Db.hpp"
-#include "Basic/String.hpp"
-#include "Basic/NamingConvention.hpp"
 
 AnamContinuous::AnamContinuous()
     : AAnam(),

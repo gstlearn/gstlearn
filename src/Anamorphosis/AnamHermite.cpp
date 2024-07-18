@@ -9,11 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
-#include "Enum/ECalcMember.hpp"
-
-#include "Space/ASpaceObject.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Polynomials/Hermite.hpp"

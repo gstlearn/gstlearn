@@ -335,7 +335,7 @@ int ANoStat::_understandCode(const String& code,
                              int *icov,
                              EConsElem *type,
                              int *iv1,
-                             int *iv2)
+                             int *iv2) const
 {
   *igrf = *icov = *iv1 = *iv2 = 0;
   *type = EConsElem::UNKNOWN;
@@ -411,19 +411,27 @@ int ANoStat::_understandCode(const String& code,
   if (lec < size)
   {
     if (matchKeyword(keywords[lec],"-",false))
-     {
-       flagV2 = true;
-       lec++;
-     }
+    {
+      flagV2 = true;
+      lec++;
+    }
   }
 
   // Decoding the rank of the second variable (conditional)
-  if (lec < size && flagV2)
+  if (lec < size)
   {
-    *iv2 = toInteger(keywords[lec]);
-    if (IFFFF(*iv2)) return 1;
-    (*iv2)--;
-    lec++;
+    if (flagV2)
+    {
+      *iv2 = toInteger(keywords[lec]);
+      if (IFFFF(*iv2)) return 1;
+      (*iv2)--;
+      lec++;
+    }
+    else
+    {
+      messerr("Wrong character ('%s') found in code %s", keywords[lec].c_str(), code.c_str());
+      return 1;
+    }
   }
   return 0;
 }
@@ -651,4 +659,19 @@ int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout)
     }
   }
   return (0);
+}
+
+void ANoStat::checkCode(const String& code) const
+{
+  int igrf, icov, iv1, iv2;
+  EConsElem type;
+
+  if (ANoStat::_understandCode(code, &igrf, &icov, &type, &iv1, &iv2)) return;
+
+  message("Code '%s' decodes as follows (1-based)\n", code.c_str());
+  message("TYPE = %s\n", type.getDescr().c_str());
+  message("IGRF = %d\n", igrf+1);
+  message("ICOV = %d\n", icov+1);
+  message("IV1  = %d\n", iv1+1);
+  message("IV2  = %d\n", iv2+1);
 }

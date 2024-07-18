@@ -317,10 +317,7 @@ bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  bool ok = p.isLocatorIndexValid(locatorIndex);
-  if (! ok)
-    messerr("Problem in the identification of Locator %d", locatorType.getValue());
-  return ok;
+  return p.isLocatorIndexValid(locatorIndex);
 }
 
 int Db::getColIdxByUID(int iuid) const

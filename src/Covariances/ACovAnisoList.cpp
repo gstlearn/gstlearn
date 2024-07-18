@@ -617,12 +617,12 @@ double ACovAnisoList::getTotalSill(int ivar, int jvar) const
   return sill_total;
 }
 
-MatrixSquareGeneral ACovAnisoList::getTotalSill() const
+MatrixSquareSymmetric ACovAnisoList::getTotalSill() const
 {
   int nvar = getNVariables();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquareSymmetric mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
       mat.setValue(ivar,jvar,getTotalSill(ivar,jvar));
   return mat;
 }
@@ -685,6 +685,15 @@ bool ACovAnisoList::hasNugget() const
     if (getType(is) == ECov::NUGGET) return true;
   }
   return false;
+}
+
+int ACovAnisoList::getRankNugget() const
+{
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+  {
+    if (getType(is) == ECov::NUGGET) return is;
+  }
+  return -1;
 }
 
 bool ACovAnisoList::isOptimizationInitialized(const Db* db) const
@@ -839,18 +848,16 @@ void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2
 
     if (type == EConsElem::SILL)
     {
-      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
-      {
-        int iv1  = _noStat->getIV1(ipar);
-        int iv2  = _noStat->getIV2(ipar);
-        setSill(icov, iv1, iv2, sqrt(val1 * val2));
-      }
+      (void) _noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      int iv1  = _noStat->getIV1(ipar);
+      int iv2  = _noStat->getIV2(ipar);
+      setSill(icov, iv1, iv2, sqrt(val1 * val2));
     }
     else if (type == EConsElem::PARAM)
 
     {
-      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
-        setParam(icov, 0.5 * (val1 + val2));
+      (void) _noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      setParam(icov, 0.5 * (val1 + val2));
     }
   }
 
