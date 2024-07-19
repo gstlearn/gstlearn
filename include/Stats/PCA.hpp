@@ -16,7 +16,6 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class Db;
@@ -38,7 +37,7 @@ public:
   double getEigVal(int ivar) const { return _eigval[ivar]; }
   const MatrixRectangular& getEigVecs() const { return _eigvec; }
   double getEigVec(int ivar, int jvar) const { return _eigvec.getValue(ivar,jvar); }
-  const VectorDouble getVarianceRatio() const;
+  VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
   const MatrixSquareSymmetric& getC0() const { return _c0; }
@@ -111,7 +110,7 @@ private:
                  bool flag_scale = false);
   void _pcaZ2F(int iptr,
                Db *db,
-               const VectorBool isoFlag,
+               const VectorBool& isoFlag,
                const VectorDouble &mean,
                const VectorDouble &sigma);
   void _pcaF2Z(int iptr,

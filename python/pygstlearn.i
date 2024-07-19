@@ -739,6 +739,9 @@ void exit_f(void)
 %extend Grid {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend PrecisionOpMulti {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
@@ -1031,9 +1034,6 @@ def Db_toTL(self, flagLocate=False):
   dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
     columns = self.getAllNames())
     
-#  dat = pd.DataFrame(self.getAllColumns().reshape(-1, self.getSampleNumber()), 
-#    columns = self.getAllNames())
-
   if flagLocate:
     for j,i in enumerate(self.getAllNames()):
       dat[i].locator = self.getLocators()[j] 

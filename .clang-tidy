@@ -19,5 +19,6 @@ Checks: >-
   -readability-magic-numbers,
   -readability-redundant-member-init,
   -readability-redundant-access-specifiers,
+  -readability-function-cognitive-complexity,
 HeaderFilterRegex: 'include'
 UseColor: true

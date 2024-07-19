@@ -16,14 +16,15 @@
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/AStringable.hpp"
 
 class Model;
 
 /**
  * Class to store objects for SPDE
  */
-class GSTLEARN_EXPORT PrecisionOpMulti : public ALinearOpMulti {
-
+class GSTLEARN_EXPORT PrecisionOpMulti : public ALinearOpMulti, public AStringable
+{
 public:
   PrecisionOpMulti(Model* model = nullptr, 
                    const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
@@ -31,26 +32,41 @@ public:
   PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMulti();
 
-  int setModel(Model* model);
-  int setMeshes(const std::vector<AMesh*>& meshes);
-  void evalDirect(const VectorDouble &vecin, VectorDouble &vecout);
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-private:
-  bool _isValidModel(Model* model);
+  /// ALinearOpMulti Interface
+  virtual int sizes() const override;
+  virtual int size(int imesh) const override;
+  virtual void _evalDirect(const VectorVectorDouble &inv,
+                           VectorVectorDouble &outv) const override { ; }
+
+  int  setModel(Model* model);
+  int  setMeshes(const std::vector<AMesh*>& meshes);
+  void clearMeshes();
+  void addMesh(AMesh* mesh);
+
+  VectorDouble evalDirect(const VectorDouble& vecin);
+  VectorDouble evalSimulate(const VectorDouble& vecin);
+
+    private: bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<AMesh*>& meshes);
   bool _matchModelAndMeshes();
   int  _getNVar() const;
   int  _getNCov() const;
   int  _getNMesh() const;
-  int  _getSize() const;
   int  _buildInvSills();
+  int  _buildCholSills();
+  void _popsClear();
 
 private:
   bool _isValid;
   VectorInt _covList;
   VectorInt _nmeshList;
-  std::vector<MatrixSquareSymmetric> _invSills;
-  std::vector<PrecisionOp> _pops;
+  std::vector<PrecisionOp*> _pops;
+
+  std::vector<MatrixSquareSymmetric> _invSills; // Inverse of the Sills
+  std::vector<MatrixSquareSymmetric> _cholSills; // Cholesky of the Sills
 
   Model* _model; // Not to be deleted
   std::vector<AMesh*> _meshes; // Not to be deleted

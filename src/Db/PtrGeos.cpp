@@ -13,8 +13,6 @@
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 
-#include "geoslib_enum.h"
-
 #include <string.h>
 #include <sstream>
 
@@ -170,14 +168,14 @@ int getLocatorTypeFromName(const String& name_type)
  * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
  * @return Error code
  */
-int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* ret_mult)
+int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex, int* ret_mult)
 {
-  *ret_locatorType   = ELoc::UNKNOWN;
-  *ret_item     = -1;
-  *ret_mult     =  1;
-  int  inum  = -1;
-  int  found = -1;
-  bool mult  =  0;
+  *ret_locatorType = ELoc::UNKNOWN;
+  *ret_locatorIndex = -1;
+  *ret_mult = 1;
+  int inum = -1;
+  int found = -1;
+  bool mult = false;
 
   // Transform the input argument into lower case for comparison
   String string_loc = string;
@@ -198,7 +196,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
   {
     // The locator has not been matched. It is returned as UNKNOWN
     *ret_locatorType = ELoc::UNKNOWN;
-    *ret_item   = 0;
+    *ret_locatorIndex = 0;
     *ret_mult   = 0;
     return 0;
   }
@@ -217,8 +215,8 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
   /* Returning arguments */
 
   *ret_locatorType = ELoc::fromValue(found);
-  *ret_item   = MAX(inum-1, 0);
-  *ret_mult   = mult;
+  *ret_locatorIndex = MAX(inum-1, 0);
+  *ret_mult = (int)mult;
   return 0;
 }
 
@@ -231,7 +229,7 @@ void printLocatorList()
     if (*it != ELoc::UNKNOWN)
     {
       int i = it.getValue();
-      if (DEF_LOCATOR[i].IREF)
+      if (DEF_LOCATOR[i].IREF == 1)
         message(" %10s %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
       else
         message(" %7s(*) %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
@@ -239,7 +237,6 @@ void printLocatorList()
     it.toNext();
   }
   message("(*) These keywords must be followed by a number\n");
-  return;
 }
 
 VectorString getLocatorNames()

@@ -152,7 +152,7 @@ int PCA::_calculateEigen(bool verbose, bool optionPositive)
 
   // Eigen decomposition
 
-  if (_c0.computeEigen(optionPositive)) return 1;
+  if (_c0.computeEigen(optionPositive) != 0) return 1;
   _eigval = _c0.getEigenValues();
   _eigvec = *_c0.getEigenVectors();
 
@@ -172,7 +172,7 @@ int PCA::_calculateGEigen(bool verbose)
 
   // Generalized Eigen decomposition
 
-  if (_gh.computeGeneralizedEigen(_c0)) return 1;
+  if (_gh.computeGeneralizedEigen(_c0) != 0) return 1;
   _eigval = _gh.getEigenValues();
   _eigvec = *_gh.getEigenVectors();
 
@@ -254,7 +254,7 @@ int PCA::dbZ2F(Db* db,
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
     VectorString names = db->getNamesByUID(cols);
-    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Factors","Factor");
+    dbStatisticsPrint(db, names, {}, true, true, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
@@ -301,7 +301,7 @@ int PCA::dbF2Z(Db* db,
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
     VectorString names = db->getNamesByUID(cols);
-    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Variables", "Variable");
+    dbStatisticsPrint(db, names, {}, true, true, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */
@@ -310,7 +310,7 @@ int PCA::dbF2Z(Db* db,
   return 0;
 }
 
-const VectorDouble PCA::getVarianceRatio() const
+VectorDouble PCA::getVarianceRatio() const
 {
   double total = VectorHelper::cumul(_eigval);
   VectorDouble eignorm = _eigval;
@@ -503,7 +503,7 @@ void PCA::_uncenter(VectorDouble& data,
  *****************************************************************************/
 void PCA::_pcaZ2F(int iptr,
                   Db *db,
-                  const VectorBool isoFlag,
+                  const VectorBool& isoFlag,
                   const VectorDouble& mean,
                   const VectorDouble& sigma)
 {
@@ -594,7 +594,7 @@ int PCA::pca_compute(const Db *db, bool verbose, bool optionPositive)
 
   // Establish the transfer functions
 
-  if (_calculateEigen(verbose, optionPositive)) return 1;
+  if (_calculateEigen(verbose, optionPositive) != 0) return 1;
 
   _pcaFunctions(verbose);
 
@@ -701,7 +701,7 @@ int PCA::_mafCompute(Db *db,
 
   // Derive the MAF decomposition
 
-  if (_calculateGEigen(verbose)) return 1;
+  if (_calculateGEigen(verbose) != 0) return 1;
 
   // Establish the transfer functions
 
@@ -741,7 +741,7 @@ void PCA::_variogramh(Db *db,
   {
     vario = Vario::create(varioparam);
     vario->setDb(db);
-    if (vario->prepare()) return;
+    if (vario->prepare() != 0) return;
   }
 
   /* Loop on samples */
@@ -764,7 +764,7 @@ void PCA::_variogramh(Db *db,
       {
         db->getSampleAsSTInPlace(iech, T1);
         db->getSampleAsSTInPlace(jech, T2);
-        DirParam dirparam = varioparam.getDirParam(idir0);
+        const DirParam& dirparam = varioparam.getDirParam(idir0);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! vario->keepPair(idir0, T1, T2, &dist)) continue;
@@ -807,7 +807,7 @@ void PCA::_variogramh(Db *db,
 
     if (idir0 >= 0)
     {
-      DirParam dirparam = varioparam.getDirParam(idir0);
+      const DirParam& dirparam = varioparam.getDirParam(idir0);
       dirparam.display();
       message("Reference Lag               = %d\n", ilag0);
     }

@@ -49,7 +49,7 @@ public:
   static double minimum(const VectorDouble &vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), int mode=0);
   static double maximum(const VectorVectorDouble &vec, bool flagAbs = false);
   static double minimum(const VectorVectorDouble &vec, bool flagAbs = false);
-  static int product(const VectorInt& nx);
+  static int product(const VectorInt& vec);
   static double product(const VectorDouble& vec);
   static int countUndefined(const VectorDouble& vec);
   static int countDefined(const VectorDouble& vec);
@@ -116,7 +116,7 @@ public:
 
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
-  static void multiplyConstantInPlaceSelf(VectorDouble &vec, double v);
+  static void multiplyConstantSelfInPlace(VectorDouble &vec, double v);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorVectorDouble &in1,
                                          VectorVectorDouble &outv);

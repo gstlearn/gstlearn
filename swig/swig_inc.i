@@ -201,6 +201,9 @@
 %shared_ptr(VCloud)
 %shared_ptr(Ball)
 %shared_ptr(KNN)
+%shared_ptr(ALinearOpMulti)
+%shared_ptr(PrecisionOpMulti)
+%shared_ptr(PrecisionOpMultiConditional)
 
 %{
   #include "gstlearn_export.hpp"
@@ -554,14 +557,15 @@
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
 
-%template(VectorECov)         std::vector< ECov >;
-%template(VectorEStatOption)  std::vector< EStatOption >;
-%template(VectorESelectivity) std::vector< ESelectivity >;
-%template(VectorDirParam)     std::vector< DirParam >;
-%template(VectorPolyElem)     std::vector< PolyElem >;
-%template(VectorInterval)     std::vector< Interval >; 
-%template(VectorEPostStat)    std::vector< EPostStat >;
-%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
+%template(VectorECov)               std::vector< ECov >;
+%template(VectorEStatOption)        std::vector< EStatOption >;
+%template(VectorESelectivity)       std::vector< ESelectivity >;
+%template(VectorDirParam)           std::vector< DirParam >;
+%template(VectorPolyElem)           std::vector< PolyElem >;
+%template(VectorInterval)           std::vector< Interval >; 
+%template(VectorEPostStat)          std::vector< EPostStat >;
+%template(VectorABiTargetCheck)     std::vector<ABiTargetCheck*>;
+%template(VectorAMesh)              std::vector<AMesh*>;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

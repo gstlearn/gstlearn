@@ -43,7 +43,7 @@ public:
        const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
        const AMesh* mesh = nullptr,
        int useCholesky = -1,
-       SPDEParam params = SPDEParam(),
+       const SPDEParam& params = SPDEParam(),
        bool verbose = false,
        bool showStats = false);
   SPDE(const SPDE& r) = delete;
@@ -56,7 +56,7 @@ public:
                       const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
                       const AMesh* mesh = nullptr,
                       int useCholesky = -1,
-                      SPDEParam params = SPDEParam(),
+                      const SPDEParam& params = SPDEParam(),
                       bool verbose = false,
                       bool showStats = false);
 
@@ -70,7 +70,7 @@ public:
   double computeLogLike(int nbsimu = 1, int seed = 131323) const;
   VectorDouble getCoeffs();
 
-  void setDriftCoeffs(VectorDouble coeffs);
+  void setDriftCoeffs(const VectorDouble& coeffs);
 
   const PrecisionOpCs* getPrecisionOpCs(int i = 0) const  { return (PrecisionOpCs*) _pilePrecisions[i];}
   const ProjMatrix* getProjMatrix(int i = 0) const  { return _pileProjMatrix[i];}
@@ -93,7 +93,7 @@ private:
   void _computeKriging() const;
   void _computeSimuNonCond() const;
   void _computeSimuCond() const;
-  void _addNuggetOnResult(VectorDouble &result);
+  void _addNuggetOnResult(VectorDouble &result) const;
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
   double _computeLogLike(int nbsimu = 1, int seed = 131323) const;
@@ -136,7 +136,7 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 bool flag_std = false,
                                 const AMesh* mesh = nullptr,
                                 int useCholesky = -1,
-                                SPDEParam params = SPDEParam(),
+                                const SPDEParam& params = SPDEParam(),
                                 int nbMC = 10,
                                 int seed = 42331,
                                 bool verbose = false,
@@ -148,7 +148,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  int nbsimu = 1,
                                  const AMesh *mesh = nullptr,
                                  int useCholesky = -1,
-                                 SPDEParam params = SPDEParam(),
+                                 const SPDEParam& params = SPDEParam(),
                                  int seed = 121423,
                                  bool verbose = false,
                                  bool showStats = false,
@@ -160,6 +160,6 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
                                          int useCholesky = -1,
                                          int nbsimu = 1,
                                          int seed = 131323,
-                                         SPDEParam params = SPDEParam(),
+                                         const SPDEParam& params = SPDEParam(),
                                          bool verbose = false);
-GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam params = SPDEParam());
+GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam& params = SPDEParam());

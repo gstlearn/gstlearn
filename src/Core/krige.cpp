@@ -13,20 +13,16 @@
 #include "geoslib_f_private.h"
 #include "geoslib_define.h"
 
-#include "Enum/EAnam.hpp"
 #include "Enum/ECalcMember.hpp"
 
-#include "Polynomials/Hermite.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/ANeigh.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/String.hpp"
@@ -35,11 +31,9 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"
-#include "Space/SpaceRN.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
 #include <math.h>
@@ -247,7 +241,6 @@ static void st_global_init(Db *dbin, Db *dbout)
 
   COVINT = CovInternal();
 
-  return;
 }
 
 /****************************************************************************/
@@ -1129,7 +1122,7 @@ int krige_koption_manage(int mode,
 void krige_lhs_print(int nech,
                      int neq,
                      int nred,
-                     int *flagloc,
+                     const int *flagloc,
                      const double *lhs)
 {
   int *rel, i, j, ipass, npass, ideb, ifin;
@@ -1187,7 +1180,6 @@ void krige_lhs_print(int nech,
   }
 
   st_relative_position_array(-1, neq, rel);
-  return;
 }
 
 /****************************************************************************/
@@ -1206,7 +1198,7 @@ void krige_rhs_print(int nvar,
                      int nech,
                      int neq,
                      int nred,
-                     int *flag,
+                     const int *flag,
                      double *rhs)
 {
   int *rel, i, ivar, idim;
@@ -1275,7 +1267,6 @@ void krige_rhs_print(int nvar,
   }
 
   st_relative_position_array(-1, neq, rel);
-  return;
 }
 
 /****************************************************************************/
@@ -1289,7 +1280,7 @@ void krige_rhs_print(int nvar,
  ** \param[in]  dual     Kriging Dual matrix
  **
  *****************************************************************************/
-void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
+void krige_dual_print(int nech, int neq, int nred, const int *flag, double *dual)
 {
   int *rel, i;
 
@@ -1322,7 +1313,6 @@ void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
   }
 
   st_relative_position_array(-1, neq, rel);
-  return;
 }
 
 /****************************************************************************/
@@ -1350,8 +1340,8 @@ static void krige_wgt_print(int status,
                             const VectorInt& nbgh_ranks,
                             int nred,
                             int icase,
-                            int *flag,
-                            double *wgt)
+                            const int *flag,
+                            const double *wgt)
 {
   double *sum, value;
   int iwgt, ivar, jvar_m, ivar_m, iech, lec, cumflag, idim, ndim, ib, number,
@@ -1473,8 +1463,6 @@ static void krige_wgt_print(int status,
 
     message("\n");
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1538,7 +1526,6 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1909,7 +1896,7 @@ static int st_get_neigh(int ideb,
  ** \param[in]  flag_sym      1 for symmetrized covariance
  **
  *****************************************************************************/
-static double st_cov_exp(int dist, double *cov, int cov_radius, int flag_sym)
+static double st_cov_exp(int dist, const double *cov, int cov_radius, int flag_sym)
 {
   double val1, val2, val;
 
@@ -1970,7 +1957,6 @@ static void st_lhs_exp(double *covdd,
     LHS_EXP(neq-1,i+nbefore) = 1.;
   }
   LHS_EXP(neq-1,neq-1) = 0.;
-  return;
 }
 
 /****************************************************************************/
@@ -2006,7 +1992,6 @@ static void st_rhs_exp(double *covd0,
 
   if (nfeq == 0) return;
   RHS_EXP(neq-1) = 1.;
-  return;
 }
 
 /****************************************************************************/
@@ -2020,7 +2005,7 @@ static void st_rhs_exp(double *covd0,
  ** \param[in]  nafter        Number of samples in neighborhood after target
  **
  *****************************************************************************/
-static double st_estim_exp(Db *db, double *wgt, int nbefore, int nafter)
+static double st_estim_exp(Db *db, const double *wgt, int nbefore, int nafter)
 {
   int i;
   double result;
@@ -2223,11 +2208,11 @@ int anakexp_f(DbGrid *db,
  *****************************************************************************/
 static void st_calculate_covres(DbGrid *db,
                                 Model *model,
-                                double *cov_ref,
+                                const double *cov_ref,
                                 int cov_radius,
                                 int flag_sym,
-                                int cov_ss[3],
-                                int cov_nn[3],
+                                const int cov_ss[3],
+                                const int cov_nn[3],
                                 double *cov_res)
 {
   double covtab, covver;
@@ -2256,7 +2241,6 @@ static void st_calculate_covres(DbGrid *db,
         COV_RES(ix,iy,iz) = covver * (covtab + covtot - c00) / covtot;
       }
 
-  return;
 }
 
 /****************************************************************************/
@@ -2276,14 +2260,14 @@ static void st_calculate_covres(DbGrid *db,
  **                           variable
  **
  *****************************************************************************/
-static void st_calculate_covtot(DbGrid *db,
+static void st_calculate_covtot(DbGrid* db,
                                 int ix0,
                                 int iy0,
                                 int flag_sym,
-                                int cov_ss[3],
-                                int cov_nn[3],
-                                int *num_tot,
-                                double *cov_tot)
+                                const int cov_ss[3],
+                                const int cov_nn[3],
+                                int* num_tot,
+                                double* cov_tot)
 {
   int ix, iy, iz, ix1, iy1, iz1, jx1, jy1, jz1, jx2, jy2, jz2, indg[3];
   int idx, idy, idz, jdx, jdy, iad, jad;
@@ -2295,11 +2279,11 @@ static void st_calculate_covtot(DbGrid *db,
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
       for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
       {
-        COV_TOT(ix,iy,iz)= 0.;
-        NUM_TOT(ix,iy,iz) = 0;
+        COV_TOT(ix, iy, iz) = 0.;
+        NUM_TOT(ix, iy, iz) = 0;
       }
 
-      /* Loop on the first point */
+  /* Loop on the first point */
 
   for (iz1 = 0; iz1 < db->getNX(2); iz1++)
     for (iy1 = -cov_nn[1]; iy1 <= cov_nn[1]; iy1++)
@@ -2316,7 +2300,7 @@ static void st_calculate_covtot(DbGrid *db,
         indg[2] = jz1;
         iad = db_index_grid_to_sample(db, indg);
         if (!db->isActive(iad)) continue;
-        val1 = db->getLocVariable(ELoc::Z,iad, 0);
+        val1 = db->getLocVariable(ELoc::Z, iad, 0);
         if (FFFF(val1)) continue;
 
         /* Loop on the second point within the covariance array */
@@ -2342,34 +2326,34 @@ static void st_calculate_covtot(DbGrid *db,
               indg[2] = jz2;
               jad = db_index_grid_to_sample(db, indg);
               if (!db->isActive(jad)) continue;
-              val2 = db->getLocVariable(ELoc::Z,jad, 0);
+              val2 = db->getLocVariable(ELoc::Z, jad, 0);
               if (FFFF(val2)) continue;
 
               /* Update the Covariance */
 
-              COV_TOT(idx,idy,idz)+= val1 * val2;
-              NUM_TOT(idx,idy,idz)+= 1;
+              COV_TOT(idx, idy, idz) += val1 * val2;
+              NUM_TOT(idx, idy, idz) += 1;
             }
-          }
+      }
 
-          /* Scaling */
+  /* Scaling */
 
   ratio = NUM_TOT(0, 0, 0);
   for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
       for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
       {
-        if (NUM_TOT(ix,iy,iz)<= 0.)
+        if (NUM_TOT(ix, iy, iz) <= 0.)
         {
-          COV_TOT(ix,iy,iz) = TEST;
+          COV_TOT(ix, iy, iz) = TEST;
         }
         else
         {
-          COV_TOT(ix,iy,iz) /= ratio;
+          COV_TOT(ix, iy, iz) /= ratio;
         }
       }
 
-      /* Symmetry */
+  /* Symmetry */
 
   for (ix = -cov_nn[0]; ix < 0; ix++)
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
@@ -2378,7 +2362,7 @@ static void st_calculate_covtot(DbGrid *db,
         val1 = COV_TOT(ix, iy, iz);
         val2 = COV_TOT(-ix, iy, iz);
         val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
-        COV_TOT( ix,iy,iz)= COV_TOT(-ix,iy,iz) = val;
+        COV_TOT(ix, iy, iz) = COV_TOT(-ix, iy, iz) = val;
       }
 
   for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
@@ -2388,20 +2372,19 @@ static void st_calculate_covtot(DbGrid *db,
         val1 = COV_TOT(ix, -iy, iz);
         val2 = COV_TOT(ix, iy, iz);
         val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
-        COV_TOT(ix, iy,iz)= COV_TOT(ix,-iy,iz) = val;
+        COV_TOT(ix, iy, iz) = COV_TOT(ix, -iy, iz) = val;
       }
 
-  if (flag_sym) for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
-    for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
-      for (iz = -cov_nn[2]; iz < 0; iz++)
-      {
-        val1 = COV_TOT(ix, iy, -iz);
-        val2 = COV_TOT(ix, iy, iz);
-        val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
-        COV_TOT(ix,iy,-iz)= COV_TOT(ix,iy, iz) = val;
-}
-
-  return;
+  if (flag_sym)
+    for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
+      for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
+        for (iz = -cov_nn[2]; iz < 0; iz++)
+        {
+          val1 = COV_TOT(ix, iy, -iz);
+          val2 = COV_TOT(ix, iy, iz);
+          val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
+          COV_TOT(ix, iy, -iz) = COV_TOT(ix, iy, iz) = val;
+        }
 }
 
 /****************************************************************************/
@@ -2422,8 +2405,8 @@ static VectorInt st_neigh_find(DbGrid *db,
                                int ix0,
                                int iy0,
                                int iz0,
-                               int nei_ss[3],
-                               int nei_nn[3],
+                               const int nei_ss[3],
+                               const int nei_nn[3],
                                int *nei_cur)
 {
   int ix, iy, iz, jx, jy, jz, indg[3], number, locrank;
@@ -2471,10 +2454,10 @@ static VectorInt st_neigh_find(DbGrid *db,
  ** \param[in]  nei_cur       Array containing the current neighborhood
  **
  *****************************************************************************/
-static int st_neigh_diff(int nei_ss[3],
-                         int nei_nn[3],
+static int st_neigh_diff(const int nei_ss[3],
+                         const int nei_nn[3],
                          int *nei_ref,
-                         int *nei_cur)
+                         const int *nei_cur)
 {
   int ix, iy, iz, flag1, flag2, flag_diff;
 
@@ -2520,12 +2503,12 @@ static int st_neigh_diff(int nei_ss[3],
  *****************************************************************************/
 static void st_lhs_exp_3D(int nech,
                           int nfeq,
-                          int nei_ss[3],
-                          int nei_nn[3],
-                          int cov_ss[3],
-                          int cov_nn[3],
-                          int *nei_cur,
-                          double *cov_tot,
+                          const int nei_ss[3],
+                          const int nei_nn[3],
+                          const int cov_ss[3],
+                          const int cov_nn[3],
+                          const int *nei_cur,
+                          const double *cov_tot,
                           double nugget)
 {
   int ix, iy, iz, jx, jy, jz, i, j, neq;
@@ -2542,33 +2525,31 @@ static void st_lhs_exp_3D(int nech,
     for (iy = -nei_nn[1]; iy <= nei_nn[1]; iy++)
       for (iz = -nei_nn[2]; iz <= nei_nn[2]; iz++)
       {
-        if (NEI_CUR(ix,iy,iz)< 0) continue;
+        if (NEI_CUR(ix, iy, iz) < 0) continue;
 
         j = 0;
-        for (jx=-nei_nn[0]; jx<=nei_nn[0]; jx++)
-        for (jy=-nei_nn[1]; jy<=nei_nn[1]; jy++)
-        for (jz=-nei_nn[2]; jz<=nei_nn[2]; jz++)
-        {
-          if (NEI_CUR(jx,jy,jz) < 0) continue;
-          value = COV_TOT(ix-jx,iy-jy,iz-jz);
-          LHS_EXP(i,j) = LHS_EXP(j,i) = value;
-          if (i == j) LHS_EXP(i,j) += nugget;
-          j++;
-        }
+        for (jx = -nei_nn[0]; jx <= nei_nn[0]; jx++)
+          for (jy = -nei_nn[1]; jy <= nei_nn[1]; jy++)
+            for (jz = -nei_nn[2]; jz <= nei_nn[2]; jz++)
+            {
+              if (NEI_CUR(jx, jy, jz) < 0) continue;
+              value = COV_TOT(ix - jx, iy - jy, iz - jz);
+              LHS_EXP(i, j) = LHS_EXP(j, i) = value;
+              if (i == j) LHS_EXP(i, j) += nugget;
+              j++;
+            }
         i++;
       }
 
-      /* Drift part */
+  /* Drift part */
 
   if (nfeq == 0) return;
   for (i = 0; i < nech; i++)
   {
-    LHS_EXP(i,neq-1) = 1.;
-    LHS_EXP(neq-1,i) = 1.;
+    LHS_EXP(i, neq - 1) = 1.;
+    LHS_EXP(neq - 1, i) = 1.;
   }
-  LHS_EXP(neq-1,neq-1) = 0.;
-
-  return;
+  LHS_EXP(neq - 1, neq - 1) = 0.;
 }
 
 /****************************************************************************/
@@ -2587,12 +2568,12 @@ static void st_lhs_exp_3D(int nech,
  *****************************************************************************/
 static void st_rhs_exp_3D(int nech,
                           int nfeq,
-                          int nei_ss[3],
-                          int nei_nn[3],
-                          int cov_ss[3],
-                          int cov_nn[3],
-                          int *nei_cur,
-                          double *cov_res)
+                          const int nei_ss[3],
+                          const int nei_nn[3],
+                          const int cov_ss[3],
+                          const int cov_nn[3],
+                          const int *nei_cur,
+                          const double *cov_res)
 {
   int ix, iy, iz, neq, i;
 
@@ -2616,8 +2597,6 @@ static void st_rhs_exp_3D(int nech,
 
   if (nfeq == 0) return;
   RHS_EXP(neq-1) = 1.;
-
-  return;
 }
 
 /****************************************************************************/
@@ -2634,10 +2613,10 @@ static void st_rhs_exp_3D(int nech,
  **
  *****************************************************************************/
 static double st_estim_exp_3D(Db *db,
-                              int nei_ss[3],
-                              int nei_nn[3],
+                              const int nei_ss[3],
+                              const int nei_nn[3],
                               int *nei_cur,
-                              double *weight)
+                              const double *weight)
 {
   int i, ix, iy, iz;
   double result;
@@ -2674,10 +2653,10 @@ static double st_estim_exp_3D(Db *db,
 static void st_vario_dump(FILE *file,
                           int ix0,
                           int iy0,
-                          int cov_ss[3],
-                          int cov_nn[3],
-                          int *num_tot,
-                          double *cov_tot)
+                          const int cov_ss[3],
+                          const int cov_nn[3],
+                          const int *num_tot,
+                          const double *cov_tot)
 {
   int ix, iy, iz, num;
   double cov;
@@ -2692,7 +2671,6 @@ static void st_vario_dump(FILE *file,
         cov = COV_TOT(ix, iy, iz);
         fprintf(file, "%3d %3d %3d %3d %lf\n", ix, iy, iz, num, cov);
       }
-  return;
 }
 
 /****************************************************************************/
@@ -4581,8 +4559,8 @@ static double* st_calcul_distmat(const char *title,
 static double* st_calcul_product(const char *title,
                                  int n1,
                                  int ns,
-                                 double *covss,
-                                 double *distgen)
+                                 const double *covss,
+                                 const double *distgen)
 {
   double *prodgen;
 
@@ -4621,8 +4599,8 @@ static double* st_calcul_product(const char *title,
 static double* st_inhomogeneous_covpp(Db *dbdat,
                                       Db *dbsrc,
                                       Model *model_dat,
-                                      double *distps,
-                                      double *prodps)
+                                      const double *distps,
+                                      const double *prodps)
 {
   double *covpp;
   int np, ns, error;
@@ -4681,9 +4659,9 @@ static double* st_inhomogeneous_covgp(Db *dbdat,
                                       Db *dbout,
                                       int flag_source,
                                       Model *model_dat,
-                                      double *distps,
-                                      double *prodps,
-                                      double *prodgs)
+                                      const double *distps,
+                                      const double *prodps,
+                                      const double *prodgs)
 {
   double *covgp;
   int np, ns, ng, error;
@@ -4746,8 +4724,8 @@ static VectorDouble st_inhomogeneous_covgg(Db *dbsrc,
                                            Db *dbout,
                                            int flag_source,
                                            Model *model_dat,
-                                           double *distgs,
-                                           double *prodgs)
+                                           const double *distgs,
+                                           const double *prodgs)
 {
   int ns = dbsrc->getSampleNumber(true);
   int ng = dbout->getSampleNumber(true);
@@ -4796,8 +4774,8 @@ static VectorDouble st_inhomogeneous_covgg(Db *dbsrc,
  *****************************************************************************/
 static int st_drift_prepar(int np,
                            int nbfl,
-                           double *covpp,
-                           double *drftab,
+                           const double *covpp,
+                           const double *drftab,
                            double **yloc,
                            double **zloc)
 {
@@ -4875,9 +4853,9 @@ static int st_drift_prepar(int np,
  *****************************************************************************/
 static void st_drift_update(int np,
                             int nbfl,
-                            double *covgp,
-                            double *driftg,
-                            double *ymat,
+                            const double *covgp,
+                            const double *driftg,
+                            const double *ymat,
                             double *zmat,
                             double *maux,
                             double *lambda,
@@ -4901,8 +4879,6 @@ static void st_drift_update(int np,
   for (int ip = 0; ip < np; ip++)
     for (int il = 0; il < nbfl; il++)
       lambda[ip] -= YMAT(ip,il) * mu[il];
-
-  return;
 }
 
 /****************************************************************************/

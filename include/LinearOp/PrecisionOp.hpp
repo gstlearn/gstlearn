@@ -33,10 +33,10 @@ public:
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
-              const CGParam params = CGParam(),
+              const CGParam& params = CGParam(),
               bool verbose = false);
-  PrecisionOp(const PrecisionOp &m);
-  PrecisionOp& operator=(const PrecisionOp &m);
+  PrecisionOp(const PrecisionOp &pmat);
+  PrecisionOp& operator=(const PrecisionOp &pmat);
   virtual ~PrecisionOp();
 
   // Interface functions for using PrecisionOp
@@ -50,9 +50,10 @@ public:
   static PrecisionOp* createFromShiftOp(ShiftOpCs *shiftop = nullptr,
                                         const CovAniso *cova = nullptr,
                                         bool verbose = false);
-  static PrecisionOp* create(const AMesh *mesh,
-                             Model *model,
+  static PrecisionOp* create(const AMesh* mesh,
+                             Model* model,
                              int icov = 0,
+                             const CGParam& params = CGParam(),
                              bool verbose = false);
 
   int reset(const ShiftOpCs *shiftop,
@@ -99,7 +100,7 @@ public:
   bool getTraining() const {return _training;}
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
-  VectorDouble getPolyCoeffs(EPowerPT power);
+  VectorDouble getPolyCoeffs(const EPowerPT& power);
   void setPolynomialFromPoly(APolynomial* polynomial);
   bool isCovaDefined() const { return _cova != nullptr; }
   VectorDouble getCoeffs();
@@ -108,7 +109,7 @@ public:
   {
     _shiftOp->mustShowStats(status);
   }
-  const LogStats& getLogStats() { return getShiftOp()->getLogStats(); }
+  const LogStats& getLogStats() const { return getShiftOp()->getLogStats(); }
 
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
@@ -123,7 +124,7 @@ private:
 
 private:
   mutable ShiftOpCs*               _shiftOp;
-  const CovAniso*                  _cova;
+  const CovAniso*                  _cova; // Not to be deleted
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
   bool                             _training;

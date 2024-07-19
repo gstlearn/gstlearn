@@ -19,14 +19,12 @@
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/CovInternal.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
@@ -164,7 +162,7 @@ Model* Model::createFromParam(const ECov& type,
 Model* Model::createFromDb(const Db* db)
 {
   Model* model = new Model();
-  if (model->resetFromDb(db))
+  if (model->resetFromDb(db) != 0)
   {
     messerr("Problem when creating Model from Db");
     delete model;
@@ -262,7 +260,7 @@ void Model::delAllCovas()
 void Model::setCovList(const ACovAnisoList* covalist)
 {
   if (covalist == nullptr) return;
-  if (_cova != nullptr) delete _cova;
+  delete _cova;
   _cova = dynamic_cast<ACov*>(covalist->clone());
 }
 
@@ -359,7 +357,6 @@ void Model::addCovFromParam(const ECov& type,
   if (! angles.empty())
     cov.setAnisoAngles(angles);
   addCov(&cov);
-  return;
 }
 
 /**
@@ -371,7 +368,7 @@ void Model::addCovFromParam(const ECov& type,
 void Model::setDriftList(const DriftList* driftlist)
 {
   if (driftlist == nullptr) return;
-  if (_driftList != nullptr) delete _driftList;
+  delete _driftList;
   _driftList = driftlist->clone();
 
   // Check that the DriftList has the same type of CovContext as the Model
@@ -392,7 +389,7 @@ void Model::setDriftList(const DriftList* driftlist)
  */
 void Model::setDriftIRF(int order, int nfex)
 {
-  if (_driftList != nullptr) delete _driftList;
+  delete _driftList;
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
 }
 
@@ -467,11 +464,11 @@ const ECov& Model::getCovaType(int icov) const
   if (covalist == nullptr) return ECov::UNKNOWN;
   return covalist->getType(icov);
 }
-const MatrixSquareSymmetric Model::getSillValues(int icov) const
+const MatrixSquareSymmetric& Model::getSillValues(int icov) const
 {
-  if (_cova == nullptr) return MatrixSquareSymmetric();
+  if (_cova == nullptr) return _dummy;
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return MatrixSquareSymmetric();
+  if (covalist == nullptr) return _dummy;
   return covalist->getSill(icov);
 }
 double Model::getSill(int icov, int ivar, int jvar) const
@@ -544,7 +541,7 @@ void Model::setRangeIsotropic(int icov, double range)
   if (covalist == nullptr) return;
   covalist->setRangeIsotropic(icov, range);
 }
-void Model::setMarkovCoeffs(int icov, VectorDouble coeffs)
+void Model::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 {
   if (_cova == nullptr) return;
   ACovAnisoList* covalist = _castInCovAnisoList(icov);
@@ -698,8 +695,7 @@ double Model::evalCov(const VectorDouble &incr,
 
   if (member != ECalcMember::LHS && isCovaFiltered(icov))
     return (0.);
-  else
-    return getCova(icov)->evalIvarIpas(1., incr);
+  return getCova(icov)->evalIvarIpas(1., incr);
 }
 
 /**
@@ -798,8 +794,6 @@ int Model::unsetAnam()
     // ACovAnisoList does not have any Anam: do nothing
     return 0;
   }
-  else
-  {
     CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
     if (cov == nullptr)
     {
@@ -816,7 +810,6 @@ int Model::unsetAnam()
 
     // Replace it by the newly create one (CovLMC)
     _cova = newcov;
-  }
   return 0;
 }
 
@@ -899,12 +892,11 @@ CovParamId Model::getCovParamId(int ipar) const
  ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-bool Model::isNostatParamDefined(const EConsElem &type0)
+bool Model::isNostatParamDefined(const EConsElem &type0) const
 {
   if (! isNoStat()) return true;
   const ANoStat *nostat = getNoStat();
-  if (nostat->isDefinedByType(type0)) return true;
-  return false;
+  return (nostat->isDefinedByType(type0));
 }
 
 const DriftList* Model::getDriftList() const
@@ -1099,8 +1091,8 @@ VectorDouble Model::envelop(const VectorDouble &hh,
 int Model::fitFromCovIndices(Vario *vario,
                              const VectorECov &types,
                              const Constraints &constraints,
-                             Option_VarioFit optvar,
-                             Option_AutoFit mauto,
+                             const Option_VarioFit& optvar,
+                             const Option_AutoFit& mauto,
                              bool verbose)
 {
   if (vario == nullptr) return 1;
@@ -1139,8 +1131,8 @@ int Model::fitFromCovIndices(Vario *vario,
 int Model::fit(Vario *vario,
                const VectorECov &types,
                const Constraints &constraints,
-               Option_VarioFit optvar,
-               Option_AutoFit mauto,
+               const Option_VarioFit& optvar,
+               const Option_AutoFit& mauto,
                bool verbose)
 {
   if (vario == nullptr) return 1;
@@ -1172,11 +1164,11 @@ int Model::fit(Vario *vario,
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fitFromVMap(DbGrid *dbmap,
-                       const VectorECov &types,
-                       const Constraints &constraints,
-                       Option_VarioFit optvar,
-                       Option_AutoFit mauto,
+int Model::fitFromVMap(DbGrid* dbmap,
+                       const VectorECov& types,
+                       const Constraints& constraints,
+                       const Option_VarioFit& optvar,
+                       const Option_AutoFit& mauto,
                        bool verbose)
 {
   if (dbmap == nullptr) return 1;
@@ -1241,7 +1233,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordRead<double>(is, "Model third Parameter", param);
     ret = ret && _recordRead(is, "Flag for Anisotropy", flag_aniso);
     if (! ret) return ret;
-    if (flag_aniso)
+    if (flag_aniso != 0)
     {
       aniso_ranges.resize(ndim);
       // In fact, the file contains the anisotropy coefficients
@@ -1254,7 +1246,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
       ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
       if (! ret) return ret;
-      if (flag_rotation)
+      if (flag_rotation != 0)
       {
         // Warning: the storage in the File is performed by column
         // whereas the internal storage is by column (TODO : ???)
@@ -1269,10 +1261,10 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
     CovAniso cova(ECov::fromValue(type), _ctxt);
     cova.setParam(param);
-    if (flag_aniso)
+    if (flag_aniso != 0)
     {
       cova.setRanges(aniso_ranges);
-      if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
+      if (flag_rotation != 0) cova.setAnisoRotation(aniso_rotmat);
     }
     else
       cova.setRangeIsotropic(range);
@@ -1353,14 +1345,14 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
     // Writing the Anisotropy information
 
-    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", cova->getFlagAniso());
+    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", (int) cova->getFlagAniso());
 
     if (!cova->getFlagAniso()) continue;
 
     for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
       ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeffs(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
-    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", cova->getFlagRotation());
+    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int) cova->getFlagRotation());
 
     if (!cova->getFlagRotation()) continue;
 
@@ -1596,16 +1588,13 @@ void Model::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
     message(" = %5.2lf\n", gof);
     return;
   }
-  else
+  int nclass = (int)thresholds.size();
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
-    int nclass = (int) thresholds.size();
-    for (int iclass = 0; iclass < nclass; iclass++)
+    if (gof < thresholds[iclass])
     {
-      if (gof < thresholds[iclass])
-      {
-        message(" corresponds to level #%d (1 for very good)\n", iclass+1);
-        return;
-      }
+      message(" corresponds to level #%d (1 for very good)\n", iclass + 1);
+      return;
     }
   }
 }
@@ -1650,8 +1639,7 @@ bool Model::isFlagGradientNumerical() const
   const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
   const CovGradientNumerical* cova = dynamic_cast<const CovGradientNumerical*>(covalist->getCova(0));
-  if (cova != nullptr) return true;
-  return false;
+  return (cova != nullptr);
 }
 
 bool Model::isFlagGradientFunctional() const
@@ -1662,8 +1650,7 @@ bool Model::isFlagGradientFunctional() const
   const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
   const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCova(0));
-  if (cova != nullptr) return true;
-  return false;
+  return (cova != nullptr);
 }
 
 /****************************************************************************/
@@ -1687,13 +1674,10 @@ double Model::evalDriftVarCoef(const Db *db,
     double mean = getMean(ivar);
     return mean;
   }
-  else
-  {
-    double drift = 0.;
-    for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
-      drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
-    return drift;
-  }
+  double drift = 0.;
+  for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
+    drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
+  return drift;
 }
 
 /**
@@ -1854,7 +1838,7 @@ CovAniso Model::extractCova(int icov) const
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv)
+int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) const
 {
   if (dbgrid == nullptr) return 1;
 
@@ -2147,7 +2131,6 @@ void Model::evaluateMatInPlace(const CovInternal *covint,
       else
         covtab.updValue(ivar,jvar, EOperator::ADD, value);
       }
-  return;
 }
 
 /*****************************************************************************/
@@ -2255,7 +2238,7 @@ double Model::calculateStdev(Db *db1,
 
   /* Covariance at increment */
 
-  if (db1->getDistanceVec(iech1, iech2, dd, db2)) return TEST;
+  if (db1->getDistanceVecInPlace(iech1, iech2, dd, db2) != 0) return TEST;
   double cov = evaluateOneGeneric(nullptr, dd, 1., mode);
   double stdev = factor * sqrt(c00 - cov);
 
@@ -2326,7 +2309,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
-  if (cov.computeCholesky())
+  if (cov.computeCholesky() != 0)
   {
     messerr("Cholesky decomposition of Covariance matrix failed");
     return TEST;
@@ -2337,7 +2320,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate Cm1X = Cm1 * X
   MatrixRectangular Cm1X;
-  if (cov.solveCholeskyMat(X, Cm1X))
+  if (cov.solveCholeskyMat(X, Cm1X) != 0)
   {
     messerr("Problem when solving a Linear System after Cholesky decomposition");
     return TEST;
@@ -2351,7 +2334,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
   VectorDouble ZCm1X = Cm1X.prodVecMat(Z);
-  if (XCm1X->computeCholesky())
+  if (XCm1X->computeCholesky() != 0)
   {
     messerr("Cholesky decomposition of XCm1X matrix failed");
     delete XCm1X;
@@ -2360,7 +2343,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate beta = (XCm1X)-1 * ZCm1X
   VectorDouble beta;
-  if (XCm1X->solveCholesky(ZCm1X, beta))
+  if (XCm1X->solveCholesky(ZCm1X, beta) != 0)
   {
     messerr("Error when calculating Maximum Likelihood criterion");
     delete XCm1X;
@@ -2379,7 +2362,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate Cm1Zc = Cm1 * Z
   VectorDouble Cm1Zc;
-  if (cov.solveCholesky(Z, Cm1Zc))
+  if (cov.solveCholesky(Z, Cm1Zc) != 0)
   {
     messerr("Error when calculating Cm1Zc");
     return TEST;

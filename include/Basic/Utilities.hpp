@@ -47,8 +47,8 @@ GSTLEARN_EXPORT double ut_rad2deg(double angle);
 // No need this stuff through SWIG (because we use target language NAs)
 #ifndef SWIG
 
-GSTLEARN_EXPORT int    FFFF(double value); // TODO isNA<double>
-GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int>
+GSTLEARN_EXPORT bool   FFFF(double value); // TODO isNA<double>
+GSTLEARN_EXPORT bool   IFFFF(int value);   // TODO isNA<int>
 GSTLEARN_EXPORT double getTEST();  // TODO getNA<double>
 GSTLEARN_EXPORT int    getITEST(); // TODO getNA<int>
 

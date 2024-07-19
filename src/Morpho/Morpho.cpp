@@ -13,6 +13,7 @@
 
 #include "Enum/EMorpho.hpp"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
