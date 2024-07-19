@@ -1054,6 +1054,7 @@ VectorDouble AMatrix::getDiagonal(int shift) const
  * Reset the contents of a matrix by setting all terms to 0 and
  * update diagonal terms from the input argument 'tab'
  * @param tab Input vector to be copied to the diagonal of the output matrix
+ * @param flagCheck When True, check the input arguments
  */
 void AMatrix::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {

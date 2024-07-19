@@ -256,6 +256,7 @@ MatrixSparse* MatrixSparse::transpose() const
  * The input 'tab' corresponds to the whole column contents
  * @param icol Column rank
  * @param tab  Vector containing the information (Dimension: nrows)
+ * @param flagCheck When True, check the consistency of arguments
  */
 void MatrixSparse::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {

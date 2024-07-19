@@ -181,7 +181,7 @@ set(SRC
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
   Spatial/Projection.cpp
-  Spatial/Indices.cpp
+  Spatial/SpatialIndices.cpp
   Variogram/AVario.cpp
   Variogram/VMap.cpp
   Variogram/VCloud.cpp

@@ -37,8 +37,6 @@ Projection::Projection(bool flag_mean, Db* db)
 
   _xcenter = VH::mean(x);
   _ycenter = VH::mean(y);
-
-  return;
 }
 
 Projection::Projection(const Projection &r)

@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Db/Db.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class Db;

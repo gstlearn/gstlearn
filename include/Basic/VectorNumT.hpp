@@ -16,8 +16,6 @@
 #include "VectorT.hpp"
 
 #include <vector>
-#include <sstream>
-#include <memory>
 #include <limits>
 #include <algorithm>
 #include <cmath>
