@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   std::cout << "b = " << b.toString() << std::endl;
 
   I.evalInverse(b, x);
-  std::cout << "x = " << x << std::endl;
+  std::cout << "x = " << x.toString() << std::endl;
 
   I.evalInverse(B, X);
   std::cout << "X = " << X << std::endl;
@@ -46,5 +46,5 @@ int main(int argc, char *argv[])
   LinearOpCGSolver<ScaleOp> s(&I);
   VectorEigen out(n);
   s.solve(B, out);
-  std::cout << "X' = " << out<< std::endl;
+  std::cout << "X' = " << out << std::endl;
 }
