@@ -48,4 +48,10 @@ private:
 
 #ifndef SWIG
 DECLARE_EIGEN_PRODUCT(ScaleOp)
+
+// Force instantiation for ALinearOpEigenCG (for Windows MSVC export)
+#  ifdef _MSC_VER
+GSTLEARN_TEMPLATE_EXPORT template class ALinearOpEigenCG<ScaleOp>;
+#  endif
+
 #endif
