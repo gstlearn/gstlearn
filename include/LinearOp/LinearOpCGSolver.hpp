@@ -25,10 +25,10 @@
 #endif
 
 template<typename TLinOP>
-class GSTLEARN_EXPORT LinearOpEigenCGSolver
+class GSTLEARN_EXPORT LinearOpCGSolver
 {
 public:
-  LinearOpEigenCGSolver(ILinearOpEigenCG* linop);
+  LinearOpCGSolver(ILinearOpEigenCG* linop);
 
   void solve(const VectorEigen& rhs, VectorEigen& out);
 
@@ -40,14 +40,14 @@ private:
 
 #ifndef SWIG
 template<typename TLinOP>
-LinearOpEigenCGSolver<TLinOP>::LinearOpEigenCGSolver(ILinearOpEigenCG* linop)
+LinearOpCGSolver<TLinOP>::LinearOpCGSolver(ILinearOpEigenCG* linop)
 {
   ALinearOpEigenCG<TLinOP>* op = dynamic_cast<ALinearOpEigenCG<TLinOP>*>(linop);
   cg.compute(*op);
 }
 
 template<typename TLinOP>
-void LinearOpEigenCGSolver<TLinOP>::solve(const VectorEigen& rhs, VectorEigen& out)
+void LinearOpCGSolver<TLinOP>::solve(const VectorEigen& rhs, VectorEigen& out)
 {
   out.getVector() = cg.solve(rhs.getVector());
 }

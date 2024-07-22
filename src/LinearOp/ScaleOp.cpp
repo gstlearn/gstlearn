@@ -8,32 +8,32 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/IdentityEigenCG.hpp"
+#include "LinearOp/ScaleOp.hpp"
 #include "LinearOp/ALinearOpEigenCG.hpp"
 
-IMPLEMENT_LINEAROP_EIGEN_CG_INTERFACE(IdentityEigenCG)
+IMPLEMENT_LINEAROP_EIGEN_CG_INTERFACE(ScaleOp)
 
-IdentityEigenCG::IdentityEigenCG(int n) 
-  : ALinearOpEigenCG<IdentityEigenCG>()
+ScaleOp::ScaleOp(int n, double scale)
+  : ALinearOpEigenCG<ScaleOp>()
   , _n(n)
+  , _scale(scale)
 {
 }
 
-IdentityEigenCG::~IdentityEigenCG() {}
+ScaleOp::~ScaleOp() {}
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product (by the IdentityEigenCG) : 'outv' = I * 'inv' = 'inv'
+**  Evaluate the product (by the ScaleOp) : 'outv' = I * 'inv' = 'inv'
 **
 ** \param[in]  inv     Array of input values
 **
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void IdentityEigenCG::_evalDirectEigen(const Eigen::VectorXd& inv,
+void ScaleOp::_evalDirectEigen(const Eigen::VectorXd& inv,
                                        Eigen::VectorXd& outv) const
 {
-  /// TODO : Add a scale parameter and rename in ScaleEigenCG ?
   for (int i = 0, n = _n; i < n; i++)
-    outv[i] = 2*inv[i];
+    outv[i] = _scale*inv[i];
 }

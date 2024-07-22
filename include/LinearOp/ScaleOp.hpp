@@ -14,22 +14,22 @@
 
 #ifndef SWIG
 #include "LinearOp/ALinearOpEigenCG.hpp"
-DECLARE_EIGEN_TRAITS(IdentityEigenCG)
+DECLARE_EIGEN_TRAITS(ScaleOp)
 #else
 #include "LinearOp/ILinearOpEigenCG.hpp"
 #endif
 
-class GSTLEARN_EXPORT IdentityEigenCG:
+class GSTLEARN_EXPORT ScaleOp:
 #ifndef SWIG
-  public ALinearOpEigenCG<IdentityEigenCG>
+  public ALinearOpEigenCG<ScaleOp>
 #else
   public ILinearOpEigenCG
 #endif
 {
 
 public:
-  IdentityEigenCG(int n);
-  virtual ~IdentityEigenCG();
+  ScaleOp(int n, double scale = 1.);
+  virtual ~ScaleOp();
 
   int getSize() const override { return _n; }
 
@@ -43,8 +43,9 @@ protected:
 
 private:
   int _n;
+  double _scale;
 };
 
 #ifndef SWIG
-DECLARE_EIGEN_PRODUCT(IdentityEigenCG)
+DECLARE_EIGEN_PRODUCT(ScaleOp)
 #endif

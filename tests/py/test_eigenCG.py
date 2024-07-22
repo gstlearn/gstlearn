@@ -1,7 +1,7 @@
 import gstlearn as gl
 
 n = 5
-I = gl.IdentityEigenCG(n)
+I = gl.ScaleOp(n, 2.)
 x = gl.VectorDouble(n, 0)
 X = gl.VectorEigen(x)
 
@@ -18,6 +18,6 @@ I.evalInverse(B, X)
 print(X.getValues())
 
 X.fill(0)
-s = gl.LinearOpEigenCGSolver(I)
+s = gl.LinearOpCGSolver(I)
 s.solve(B, X)
 print(X.getValues())

@@ -187,7 +187,7 @@ public:
 
 private:
   // Example of a private method
-  int _increment(int arg) const;
+  int _increment(int arg, bool verbose = false) const;
 
 private:
   // Use same line documentation for private members

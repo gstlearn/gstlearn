@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "LinearOp/IdentityEigenCG.hpp"
-#include "LinearOp/LinearOpEigenCGSolver.hpp"
+#include "LinearOp/ScaleOp.hpp"
+#include "LinearOp/LinearOpCGSolver.hpp"
 #include "Matrix/VectorEigen.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   VectorDouble x(n, 0.);
   VectorEigen X(x);
 
-  IdentityEigenCG I(n);
+  ScaleOp I(n, 2.0);
 
   std::cout << "b = " << b.toString() << std::endl;
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   I.evalInverse(B, X);
   std::cout << "X = " << X << std::endl;
 
-  LinearOpEigenCGSolver<IdentityEigenCG> s(&I);
+  LinearOpCGSolver<ScaleOp> s(&I);
   VectorEigen out(n);
   s.solve(B, out);
   std::cout << "X' = " << out<< std::endl;

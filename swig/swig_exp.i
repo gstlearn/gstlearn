@@ -171,10 +171,10 @@
 %include LinearOp/LogStats.hpp
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ILinearOpEigenCG.hpp
-%include LinearOp/LinearOpEigenCGSolver.hpp
+%include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/Identity.hpp
-%include LinearOp/IdentityEigenCG.hpp
+%include LinearOp/ScaleOp.hpp
 %include LinearOp/ShiftOpCs.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp
@@ -364,4 +364,4 @@
 #pragma SWIG nowarn=509
 
 
-%template(LinearOpEigenCGSolver) LinearOpEigenCGSolver< IdentityEigenCG >;
+%template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;

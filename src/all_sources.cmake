@@ -167,7 +167,7 @@ set(SRC
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
   LinearOp/Identity.cpp
-  LinearOp/IdentityEigenCG.cpp
+  LinearOp/ScaleOp.cpp
   LinearOp/ProdMatVect.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
