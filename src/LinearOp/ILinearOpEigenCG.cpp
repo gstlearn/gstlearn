@@ -28,7 +28,7 @@ void ILinearOpEigenCG::evalDirect(const VectorDouble& inv,
     Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
     Eigen::VectorXd myOut;
     // Assume outv has the good size
-    _evalDirectEigen(myInv, myOut);
+    evalDirectEigen(myInv, myOut);
     Eigen::Map<Eigen::VectorXd>(outv.data(), outv.size()) = myOut;
   }
   catch (const std::string& str)

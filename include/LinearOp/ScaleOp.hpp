@@ -33,9 +33,6 @@ public:
 
   int getSize() const override { return _n; }
 
-  // Shortcut
-  DECLARE_LINEAROP_EIGEN_CG_INTERFACE
-
 #ifndef SWIG
 protected:
   void _evalDirectEigen(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;

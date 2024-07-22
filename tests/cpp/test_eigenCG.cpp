@@ -30,21 +30,18 @@ int main(int argc, char *argv[])
 
   VectorDouble b({2, 4, 6, 8, 10});
   VectorEigen B(b);
-  VectorDouble x(n, 0.);
-  VectorEigen X(x);
+
+  VectorDouble o(n);
+  VectorEigen O(n);
 
   ScaleOp I(n, 2.0);
+  LinearOpCGSolver<ScaleOp> s(&I);
 
   std::cout << "b = " << b.toString() << std::endl;
 
-  I.evalInverse(b, x);
-  std::cout << "x = " << x.toString() << std::endl;
+  s.solve(b, o);
+  std::cout << "o = " << o.toString() << std::endl;
 
-  I.evalInverse(B, X);
-  std::cout << "X = " << X << std::endl;
-
-  LinearOpCGSolver<ScaleOp> s(&I);
-  VectorEigen out(n);
-  s.solve(B, out);
-  std::cout << "X' = " << out << std::endl;
+  s.solve(B, O);
+  std::cout << "O = " << O << std::endl;
 }

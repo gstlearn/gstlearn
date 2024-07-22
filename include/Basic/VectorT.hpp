@@ -296,6 +296,6 @@ VectorT<T>& VectorT<T>::operator<<(const VectorT<T>& v)
 typedef VectorT<UChar>  VectorBool; // Use UChar because std::vector of bool has a specific implementation
 typedef VectorT<String> VectorString;
 
-template <typename T>
+template<typename T>
+// TODO : Warning : Do not use under Windows and Mac (doesn't link)
 std::ostream& operator<<(std::ostream& os, const VectorT<T>& vec);
-
