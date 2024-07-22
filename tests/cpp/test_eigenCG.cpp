@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "LinearOp/MatrixReplacement.hpp"
 #include "LinearOp/IdentityEigenCG.hpp"
 #include "LinearOp/LinearOpEigenCGSolver.hpp"
 #include "Matrix/VectorEigen.hpp"
