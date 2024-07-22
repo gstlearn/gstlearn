@@ -56,12 +56,8 @@ public:
   VectorDouble evalSimulate(const VectorDouble& vecin);
 
   private: 
-  int _evalOperator(const VectorDouble& vecin,
-                          VectorDouble& vecout,
-                    const std::function<int()> &func,
-                    const std::function<int(int)> & jvarlimit,
-                    const std::function<double(int,int,int)> & getTerm,
-                    const std::function<void(int,VectorDouble&,VectorDouble&)> &opFunc) const;
+  int _prepareOperator(const VectorDouble& vecin,
+                              VectorDouble& vecout) const;
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<AMesh*>& meshes);
   bool _matchModelAndMeshes();
