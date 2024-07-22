@@ -8,6 +8,22 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#define BUILDOP(prepare,var,tab,getmat,op) \
+  std::function<int()> func = [this](){return prepare();}; \
+  std::function<int(int)> jvarlimit = [](int ivar){return var;};\
+  std::function<double(int,int,int)> getTerm = [this](int icov, int ivar, int jvar)\
+  {\
+    return  tab[icov].getmat(ivar,jvar);\
+  };\
+  std::function<void(int,VectorDouble&,VectorDouble&)> opFunc = [this] \
+                                                                (int icov,\
+                                                                 VectorDouble &x,\
+                                                                 VectorDouble &y)\
+  { \
+     _pops[icov]->op(x, y);\
+  };\
+  return _evalOperator(vecin, vecout, func,jvarlimit,getTerm,opFunc);
+
 #include "LinearOp/PrecisionOpMulti.hpp"
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
@@ -235,54 +251,45 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
 
 /**
  * Evaluate the product of this phantom matrix by the input vector
+ * @param vecin  Input array
+ * @param vecout Output array
+ */
+
+int PrecisionOpMulti::evalDirectInPlace(const VectorDouble& vecin,
+                                              VectorDouble& vecout)
+{
+  BUILDOP(_buildInvSills,0,_invSills,getValue,evalDirect)                                         
+}
+
+/**
+ * Evaluate the product of this phantom matrix by the input vector
  * @param vecin Input array
  */
 VectorDouble PrecisionOpMulti::evalDirect(const VectorDouble& vecin)
 {
   int totsize = sizes();
-  if ((int)vecin.size() != totsize)
-  {
-    messerr("'vecin' (%d) should be of dimension (%d)", (int)vecin.size(), totsize);
-    return VectorDouble();
-  }
-  // Invert the matrices of sills
-  if (_buildInvSills() != 0)
-  {
-    messerr("Problem when inverting the matrices of sills");
-    return VectorDouble();
-  }
-
+  
   // Blank out the output vector
   VectorDouble vecout(totsize, 0.);
-
-  int nvar = _getNVar();
-  int ncov = _getNCov();
-
-  int iad_x = 0;
-  int iad_y = 0;
-  for (int icov = 0; icov < ncov; icov++)
+  if (evalDirectInPlace(vecin,vecout))
   {
-    int napices = size(icov);
-    VectorDouble x(napices);
-    VectorDouble y(napices);
-    VectorDouble ysum(napices);
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      int iad = iad_x;
-      ysum.fill(0.);
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        VH::extractInPlace(vecin, x, iad);
-        _pops[icov]->evalDirect(x, y);
-        VH::multiplyConstantSelfInPlace(y, _invSills[icov].getValue(ivar, jvar));
-        VH::addInPlace(ysum, y);
-        iad += napices;
-      }
-      VH::mergeInPlace(ysum, vecout, iad_y);
-      iad_y += napices;
-    }
+    return VectorDouble();
   }
+
   return vecout;
+
+}
+
+/**
+ * Simulate based on an input random gaussian vector (Matrix free version)
+ * @param vecin  Input array
+ * @param vecout Output array
+ */
+
+int PrecisionOpMulti::evalSimulateInPlace(const VectorDouble& vecin,
+                                                VectorDouble& vecout)
+{
+  BUILDOP(_buildCholSills,ivar,_cholSills,getCholeskyTL,evalSimulate)
 }
 
 /**
@@ -292,47 +299,73 @@ VectorDouble PrecisionOpMulti::evalDirect(const VectorDouble& vecin)
 VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vecin)
 {
   int totsize = sizes();
+  
+  VectorDouble vecout(totsize, 0.);
+  if (evalSimulateInPlace(vecin,vecout))
+  {
+    return VectorDouble();
+  }
+
+  return vecout;
+}
+
+/**
+ * Simulate based on an input random gaussian vector (Matrix free version)
+ * @param vecin  Input array
+ * @param vecout Output array
+ */
+int PrecisionOpMulti::_evalOperator(const VectorDouble& vecin,
+                                          VectorDouble& vecout,
+                                    const std::function<int()> &func,
+                                    const std::function<int(int)> &jvarlimit,
+                                    const std::function<double(int,int,int)> &getTerm,
+                                    const std::function<void(int,VectorDouble&,VectorDouble&)> &opFunc) const
+{
+  int totsize = sizes();
   if ((int)vecin.size() != totsize)
   {
     messerr("'vecin' (%d) should be of dimension (%d)", (int)vecin.size(), totsize);
-    return VectorDouble();
+    return 1;
   }
+  if ((int)vecout.size() != totsize)
+  {
+    vecout.resize(totsize);
+  }
+
+  vecout.fill(0.);
   // Invert the matrices of sills
-  if (_buildCholSills() != 0)
+  if (func() != 0)
   {
     messerr("Problem when inverting the matrices of sills");
-    return VectorDouble();
+    return 1;
   }
 
   // Blank out the output vector
-  VectorDouble vecout(totsize, 0.);
-
+  
   int nvar = _getNVar();
   int ncov = _getNCov();
 
   int iad_x = 0;
-  int iad_y = 0;
+  int iad_struct = 0;
+
   for (int icov = 0; icov < ncov; icov++)
   {
     int napices = size(icov);
     VectorDouble x(napices);
     VectorDouble y(napices);
-    VectorDouble ysum(napices);
     for (int ivar = 0; ivar < nvar; ivar++)
     {
-      int iad = iad_x;
-      ysum.fill(0.);
-      for (int jvar = 0; jvar <= ivar; jvar++)
+      VH::extractInPlace(vecin, x, iad_x);
+      iad_x+= napices;
+      opFunc(icov,x, y);
+      int iad_y = iad_struct;
+      for (int jvar = 0; jvar < nvar; jvar++)
       {
-        VH::extractInPlace(vecin, x, iad);
-        _pops[icov]->evalSimulate(x, y);
-          VH::multiplyConstantSelfInPlace(y, _cholSills[icov].getCholeskyTL(jvar, ivar));
-        VH::addInPlace(ysum, y);
-        iad += napices;
-      }
-      VH::mergeInPlace(ysum, vecout, iad_y);
-      iad_y += napices;
+        VH::addMultiplyConstantInPlace(getTerm(icov,jvar,ivar),y,vecout,iad_y);
+        iad_y += napices;
+      }     
     }
+    iad_struct = iad_x;
   }
-  return vecout;
+  return 0;
 }

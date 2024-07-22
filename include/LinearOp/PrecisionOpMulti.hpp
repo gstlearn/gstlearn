@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include <functional>
 
 #include "Model/Model.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
@@ -46,10 +47,22 @@ public:
   void clearMeshes();
   void addMesh(AMesh* mesh);
 
+  int evalSimulateInPlace(const VectorDouble& vecin,
+                                VectorDouble& vecout);
+  
+  int evalDirectInPlace(const VectorDouble& vecin,
+                              VectorDouble& vecout);
   VectorDouble evalDirect(const VectorDouble& vecin);
   VectorDouble evalSimulate(const VectorDouble& vecin);
 
-    private: bool _isValidModel(Model* model);
+  private: 
+  int _evalOperator(const VectorDouble& vecin,
+                          VectorDouble& vecout,
+                    const std::function<int()> &func,
+                    const std::function<int(int)> & jvarlimit,
+                    const std::function<double(int,int,int)> & getTerm,
+                    const std::function<void(int,VectorDouble&,VectorDouble&)> &opFunc) const;
+  bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<AMesh*>& meshes);
   bool _matchModelAndMeshes();
   int  _getNVar() const;
