@@ -11,6 +11,7 @@ set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox | <a href=ht
 set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/doc/logos/gstlearn_logo_blue_th.png)
 set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
 set(DOXYGEN_EXTRACT_ALL YES)
+set(DOXYGEN_EXTRACT_STATIC YES)
 set(DOXYGEN_WARN_NO_PARAMDOC YES)
 set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
 set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
