@@ -30,12 +30,17 @@ class GSTLEARN_EXPORT LinearOpCGSolver
 public:
   LinearOpCGSolver(ILinearOpEigenCG* linop);
 
+  void solve(const VectorDouble& rhs, VectorDouble& out);
   void solve(const VectorEigen& rhs, VectorEigen& out);
+
+#ifndef SWIG
+  void solve(const Eigen::VectorXd& rhs, Eigen::VectorXd& out);
 
 private:
   Eigen::ConjugateGradient<TLinOP,
                            Eigen::Lower | Eigen::Upper,
                            Eigen::IdentityPreconditioner> cg;
+#endif
 };
 
 #ifndef SWIG
@@ -43,12 +48,33 @@ template<typename TLinOP>
 LinearOpCGSolver<TLinOP>::LinearOpCGSolver(ILinearOpEigenCG* linop)
 {
   ALinearOpEigenCG<TLinOP>* op = dynamic_cast<ALinearOpEigenCG<TLinOP>*>(linop);
+  if (op == nullptr)
+    throw("linop must inherit from ALinearOpEigenCG to use Eigen CG");
+
   cg.compute(*op);
+}
+
+template<typename TLinOP>
+void LinearOpCGSolver<TLinOP>::solve(const VectorDouble& rhs, VectorDouble& out)
+{
+  Eigen::Map<const Eigen::VectorXd> myRhs(rhs.data(), rhs.size());
+  Eigen::VectorXd myOut;
+  // Assume outv has the good size
+  solve(myRhs, myOut);
+  Eigen::Map<Eigen::VectorXd>(out.data(), out.size()) = myOut;
 }
 
 template<typename TLinOP>
 void LinearOpCGSolver<TLinOP>::solve(const VectorEigen& rhs, VectorEigen& out)
 {
-  out.getVector() = cg.solve(rhs.getVector());
+  solve(rhs.getVector(), out.getVector());
 }
+
+template<typename TLinOP>
+void LinearOpCGSolver<TLinOP>::solve(const Eigen::VectorXd& rhs,
+                                     Eigen::VectorXd& out)
+{
+  out = cg.solve(rhs);
+}
+
 #endif

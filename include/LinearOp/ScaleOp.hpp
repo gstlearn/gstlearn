@@ -33,9 +33,6 @@ public:
 
   int getSize() const override { return _n; }
 
-  // Shortcut
-  DECLARE_LINEAROP_EIGEN_CG_INTERFACE
-
 #ifndef SWIG
 protected:
   void _evalDirectEigen(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
@@ -48,4 +45,10 @@ private:
 
 #ifndef SWIG
 DECLARE_EIGEN_PRODUCT(ScaleOp)
+
+// Force instantiation for ALinearOpEigenCG (for Windows MSVC export)
+#  ifdef _MSC_VER
+GSTLEARN_TEMPLATE_EXPORT template class ALinearOpEigenCG<ScaleOp>;
+#  endif
+
 #endif

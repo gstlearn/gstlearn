@@ -11,8 +11,6 @@
 #include "LinearOp/ScaleOp.hpp"
 #include "LinearOp/ALinearOpEigenCG.hpp"
 
-IMPLEMENT_LINEAROP_EIGEN_CG_INTERFACE(ScaleOp)
-
 ScaleOp::ScaleOp(int n, double scale)
   : ALinearOpEigenCG<ScaleOp>()
   , _n(n)
@@ -32,7 +30,7 @@ ScaleOp::~ScaleOp() {}
 **
 *****************************************************************************/
 void ScaleOp::_evalDirectEigen(const Eigen::VectorXd& inv,
-                                       Eigen::VectorXd& outv) const
+                               Eigen::VectorXd& outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
     outv[i] = _scale*inv[i];
