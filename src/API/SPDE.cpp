@@ -12,9 +12,9 @@
 
 #include "API/SPDE.hpp"
 #include "Model/ANoStat.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -25,9 +25,7 @@
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 
-#include <iostream>
 #include <math.h>
 
 /**
@@ -58,7 +56,7 @@ SPDE::SPDE(Model* model,
            const ESPDECalcMode& calcul,
            const AMesh* meshUser,
            int useCholesky,
-           SPDEParam params,
+           const SPDEParam& params,
            bool verbose,
            bool showStats)
     : _data(data),
@@ -97,11 +95,9 @@ SPDE::~SPDE()
 
 void SPDE::_purge()
 {
-  if (_precisionsKrig != nullptr)
-    delete _precisionsKrig;
+  delete _precisionsKrig;
   _precisionsKrig = nullptr;
-  if (_precisionsSimu != nullptr)
-    delete _precisionsSimu;
+  delete _precisionsSimu;
   _precisionsSimu = nullptr;
 
   for (int i = 0, n = (int) _pilePrecisions.size(); i < n; i++)
@@ -133,7 +129,7 @@ SPDE* SPDE::create(Model *model,
                    const ESPDECalcMode &calcul,
                    const AMesh* meshUser,
                    int useCholesky,
-                   SPDEParam params,
+                   const SPDEParam& params,
                    bool verbose,
                    bool showStats)
 {
@@ -149,10 +145,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 {
   if (useCholesky == -1)
   {
-    if (_model->getDimensionNumber() == 2)
-      _useCholesky = true;
-    else
-      _useCholesky = false;
+    _useCholesky = (_model->getDimensionNumber() == 2);
   }
   else if (useCholesky == 1)
     _useCholesky = true;
@@ -250,16 +243,16 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingSimu.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, _params.getCGparams(), verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, verbose);
+          precision = new PrecisionOp(mesh, _model, icov, _params.getCGparams(), verbose);
         precision->mustShowStats(showStats);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        if (_precisionsSimu->push_back(precision, proj)) return 1;
+        if (_precisionsSimu->push_back(precision, proj) != 0) return 1;
         _precisionsSimu->setVarianceDataVector(varianceData);
         _workingSimu.push_back(VectorDouble(precision->getSize()));
       }
@@ -284,7 +277,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        if (_precisionsKrig->push_back(precision, proj)) return 1;
+        if (_precisionsKrig->push_back(precision, proj) != 0) return 1;
         _workingKrig.push_back(VectorDouble(precision->getSize()));
       }
     }
@@ -578,7 +571,7 @@ void SPDE::_projecLocal(Db* dbout,
   VH::addInPlace(result,temp_out);
 }
 
-void SPDE::_addNuggetOnResult(VectorDouble &result)
+void SPDE::_addNuggetOnResult(VectorDouble &result) const
 {
   if (_nugget <= 0) return;
   for (int iech = 0, nech = (int) result.size(); iech < nech; iech++)
@@ -707,7 +700,7 @@ void SPDE::_computeDriftCoeffs() const
   }
 }
 
-void SPDE::setDriftCoeffs(VectorDouble coeffs)
+void SPDE::setDriftCoeffs(const VectorDouble& coeffs)
 {
   _driftCoeffs  = coeffs;
   _isCoeffsComputed = true;
@@ -752,7 +745,7 @@ int krigingSPDE(Db *dbin,
                 bool flag_std,
                 const AMesh *mesh,
                 int useCholesky,
-                SPDEParam params,
+                const SPDEParam& params,
                 int nbMC,
                 int seed,
                 bool verbose,
@@ -794,7 +787,7 @@ int simulateSPDE(Db *dbin,
                  int nbsimu,
                  const AMesh *mesh,
                  int useCholesky,
-                 SPDEParam params,
+                 const SPDEParam& params,
                  int seed,
                  bool verbose,
                  bool showStats,
@@ -814,10 +807,253 @@ double logLikelihoodSPDE(Db *dbin,
                          int useCholesky,
                          int nbsimu,
                          int seed,
-                         SPDEParam params,
+                         const SPDEParam& params,
                          bool verbose)
 {
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
             params, verbose, false);
   return spde.computeLogLike(nbsimu, seed);
+}
+
+static int _loadPositions(int iech,
+                          const VectorVectorInt &index1,
+                          const VectorInt &cumul,
+                          VectorInt& positions,
+                          VectorInt& identity,
+                          int *rank_arg)
+{
+  int nvar = (int) cumul.size();
+  int ndef = 0;
+  int rank = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    rank = 2 * rank;
+    int ipos = VH::whereElement(index1[ivar], iech);
+    if (ipos < 0)
+      positions[ivar] = -1;
+    else
+    {
+      positions[ivar] = ipos + cumul[ivar];
+      identity[ndef] = ivar;
+      ndef++;
+      rank += 1;
+    }
+  }
+  *rank_arg = rank;
+  return ndef;
+}
+
+static void _addVerrConstant(MatrixSquareSymmetric& sills, const VectorDouble& verrDef)
+{
+  int nverr = (int) verrDef.size();
+  if (nverr > 0)
+  {
+    for (int iverr = 0; iverr < nverr; iverr++)
+      sills.updValue(iverr, iverr, EOperator::ADD, verrDef[iverr]);
+  }
+}
+
+static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& minNug)
+{
+  int nvar = (int) minNug.size();
+
+  // Check that the diagonal of the Sill matrix is large enough
+  for (int ivar = 0; ivar < nvar; ivar++)
+    sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
+}
+
+static MatrixSquareSymmetric _getSillGlobalMatrix(Model *model, int icovNug)
+{
+  int nvar = model->getVariableNumber();
+
+  // Elaborate the matrix of sills for the Nugget Effect component
+   MatrixSquareSymmetric sills(nvar);
+   if (icovNug >= 0) sills = model->getSillValues(icovNug);
+   return sills;
+}
+
+static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric &sillsRef,
+                                                     int nvar,
+                                                     int ndef,
+                                                     const VectorInt &identity)
+{
+  MatrixSquareSymmetric sills;
+  if (ndef == nvar)
+    sills = sillsRef;
+  else
+  {
+    sills = MatrixSquareSymmetric(ndef);
+    for (int idef = 0; idef < ndef; idef++)
+      for (int jdef = 0; jdef <= idef; jdef++)
+        sills.setValue(idef, jdef, sillsRef.getValue(identity[idef], identity[jdef]));
+  }
+  return sills;
+}
+
+/**
+ * Build the inverse of the Nugget Effect matrix
+ * It is established for:
+ * - the number of variables defined in 'dbin' (and in 'Model')
+ * - the active samples of 'dbin'
+ * - the samples where Z-variable (and possibly V-variable) is defined
+ *
+ * @param db Input Db structure
+ * @param model Input Model
+ * @param params SPDEParam structure
+ */
+MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
+{
+  MatrixSparse* mat = nullptr;
+  if (db == nullptr) return mat;
+  int nech = db->getSampleNumber();
+  if (model == nullptr) return mat;
+  int nvar = db->getLocNumber(ELoc::Z);
+  if (nvar != model->getVariableNumber())
+  {
+    messerr("'db' and 'model' should have the same number of variables");
+    return mat;
+  }
+  VectorInt ivars = VH::sequence(nvar);
+
+  // Get the minimum value for diagonal terms
+  double eps = params.getEpsNugget();
+  VectorDouble minNug(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    minNug[ivar] = eps * model->getTotalSill(ivar, ivar);
+
+  // Play the non-stationarity (if needed)
+  ANoStat *nostat = model->getNoStatModify();
+  bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
+  if (flag_nostat_sill)
+  {
+    if (nostat->manageInfo(1, db, db) != 0) return mat;
+  }
+
+  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
+  // 'cumul' counts the number of valid positions for all variables before 'ivar'
+  VectorInt cumul(nvar, 0);
+  int number = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    cumul[ivar] = number;
+    number += (int) index1[ivar].size();
+  }
+
+  // Check the various possibilities
+  // - flag_verr: True if Variance of Measurement Error variable is defined
+  // - flag_isotropic: True in Isotopic case
+  // - flag_uniqueVerr: True if the Variance of Measurement Error is constant per variable
+  // - flag_nostat: True is some non-stationarity is defined
+  int nverr = db->getLocNumber(ELoc::V);
+  bool flag_verr = (nverr > 0);
+  bool flag_isotopic = true;
+  for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)
+    if (! VH::isSame(index1[ivar], index1[0])) flag_isotopic = false;
+  bool flag_uniqueVerr = true;
+  VectorDouble verrDef(nverr, 0.);
+  if (flag_verr)
+  {
+    for (int iverr = 0; iverr < nverr && flag_uniqueVerr; iverr++)
+    {
+      VectorDouble verr = db->getColumnByLocator(ELoc::V, iverr);
+      if ((int) VH::unique(verr).size() > 1) flag_uniqueVerr = false;
+      verrDef[iverr] = verr[0];
+    }
+  }
+  bool flag_constant = (! flag_nostat_sill && (! flag_verr || flag_uniqueVerr));
+
+  // Elaborate the Sill matrix for the Nugget Effect component
+  int icovNug = model->getRankNugget();
+  MatrixSquareSymmetric sillsRef = _getSillGlobalMatrix(model, icovNug);
+  int count = (int) pow(2, nvar);
+  std::vector<MatrixSquareSymmetric> sillsInv(count);
+
+  // Pre-calculate the inverse of the sill matrix (if constant)
+
+  if (flag_constant)
+  {
+    // In case of (Unique) Variance of measurement error, patch sill matrix
+    if (flag_verr) _addVerrConstant(sillsRef, verrDef);
+
+    // Check that the diagonal of the Sill matrix is large enough
+    _checkMinNugget(sillsRef, minNug);
+  }
+
+  // Constitute the triplet
+  NF_Triplet NF_T;
+
+  // Loop on the samples
+  int rank;
+  int ndef = nvar;
+  VectorInt position(nvar);
+  VectorInt identity(nvar);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! db->isActive(iech)) continue;
+
+    // Count the number of variables for which current sample is valid
+    ndef = _loadPositions(iech, index1, cumul, position, identity, &rank);
+    if (ndef <= 0) continue;
+
+    // If all samples are defined, in the stationary case, use the inverted sill matrix
+    if (flag_constant)
+    {
+      if (sillsInv[rank].empty())
+      {
+        sillsInv[rank] = _buildSillPartialMatrix(sillsRef, nvar, ndef, identity);
+        if (sillsInv[rank].invert() != 0) return mat;
+      }
+      for (int idef = 0; idef < ndef; idef++)
+        for (int jdef = 0; jdef < ndef; jdef++)
+          NF_T.add(position[identity[idef]], position[identity[jdef]],
+                   sillsInv[rank].getValue(idef,jdef));
+    }
+    else
+    {
+      // Update due to non-stationarity (optional)
+      if (flag_nostat_sill)
+      {
+        model->updateCovByPoints(1, iech, 1, iech);
+        sillsRef = _getSillGlobalMatrix(model, icovNug);
+      }
+
+      // Establish a local matrix
+      MatrixSquareSymmetric local(ndef);
+      for (int idef = 0; idef < ndef; idef++)
+        for (int jdef = 0; jdef <= idef; jdef++)
+        {
+          // Load the sill value of the Nugget Effect component
+          double value = sillsRef.getValue(identity[idef], identity[jdef]);
+
+          // Patch the diagonal term of the local matrix
+          if (idef == jdef)
+          {
+            // Add the Variance of measurement error (optional)
+            if (flag_verr && idef < nverr)
+              value += db->getFromLocator(ELoc::V, iech, identity[idef]);
+
+            // Check the minimum values over the diagonal
+            value = MAX(value, MAX(local.getValue(idef, idef), minNug[idef]));
+          }
+
+          local.setValue(idef, jdef, value);
+        }
+      if (local.invert() != 0) return mat;
+
+      for (int idef = 0; idef < ndef; idef++)
+         for (int jdef = 0; jdef < ndef; jdef++)
+           NF_T.add(position[identity[idef]],position[identity[jdef]],
+                    local.getValue(idef,jdef));
+    }
+  }
+
+  // Convert from triplet to sparse matrix
+  mat = MatrixSparse::createFromTriplet(NF_T);
+
+  // Free the non-stationary specific allocation
+  if (model->isNoStat())
+    (void) nostat->manageInfo(-1, db, db);
+
+  return mat;
 }

@@ -156,8 +156,7 @@ static LMlayers* lmlayers_alloc(int flag_same,
   lmlayers->colreft = colreft;
   lmlayers->colrefb = colrefb;
   lmlayers->match_time = match_time;
-  lmlayers->ptime = (match_time) ? ELoc::F :
-                                   ELoc::TIME;
+  lmlayers->ptime = (match_time) ? ELoc::F : ELoc::TIME;
   lmlayers->nlayers = nlayers;
   lmlayers->nbfl = st_get_number_drift(irf_rank, flag_ext);
   lmlayers->nech = 0;
@@ -208,7 +207,6 @@ static void lmlayers_print(LMlayers *lmlayers)
   message("Number of active samples (including collocated duplicates) = %d\n",
           lmlayers->nech);
   message("\n");
-  return;
 }
 
 /****************************************************************************/
@@ -515,7 +513,7 @@ static double st_cij(LMlayers *lmlayers,
                      const VectorDouble& prop1,
                      int jlayer,
                      const VectorDouble& prop2,
-                     double *dd,
+                     const double *dd,
                      MatrixSquareGeneral& covtab)
 {
   VectorDouble d1(2);
@@ -564,7 +562,7 @@ static double st_ci0(LMlayers *lmlayers,
                      int ilayer,
                      const VectorDouble& prop1,
                      int jlayer,
-                     double *dd,
+                     const double *dd,
                      MatrixSquareGeneral& covtab)
 {
   VectorDouble d1(2);
@@ -605,7 +603,7 @@ static double st_ci0(LMlayers *lmlayers,
  **
  *****************************************************************************/
 static int st_drift(LMlayers *lmlayers,
-                    double *coor,
+                    const double *coor,
                     double propval,
                     double drext,
                     int *ipos_loc,
@@ -1155,7 +1153,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 static int st_get_close_sample(LMlayers *lmlayers,
                                Db *dbin,
                                int iech0,
-                               double *coor)
+                               const double *coor)
 {
   int iech, ilayer;
   double dx, dy;
@@ -1329,7 +1327,7 @@ static void st_estimate_regular(LMlayers *lmlayers,
 static void st_estimate_bayes(LMlayers *lmlayers,
                               int flag_std,
                               double c00,
-                              double *acov,
+                              const double *acov,
                               VectorDouble& zval,
                               VectorDouble& b,
                               double *wgt,
@@ -1337,7 +1335,7 @@ static void st_estimate_bayes(LMlayers *lmlayers,
                               double *a0,
                               double *cc,
                               double *ss,
-                              double *gs,
+                              const double *gs,
                               double *estim,
                               double *stdev)
 {
@@ -1349,7 +1347,7 @@ static void st_estimate_bayes(LMlayers *lmlayers,
   *estim = *stdev = TEST;
   nech = lmlayers->nech;
   npar = lmlayers->npar;
-  rhs = &b[0];
+  rhs = b.data();
   ff0 = &b[nech];
 
   /* Core allocation */
@@ -1621,8 +1619,8 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
     nechtot += newval;
     continue;
 
-    label_suppress: seltab[iech] = 0;
-    continue;
+  label_suppress:
+    seltab[iech] = 0;
   }
 
   return (nechtot);
@@ -1807,7 +1805,7 @@ static int st_drift_data(LMlayers *lmlayers,
 static int st_drift_bayes(LMlayers *lmlayers,
                           int verbose,
                           double *prior_mean,
-                          double *prior_vars,
+                          const double *prior_vars,
                           double *acov,
                           VectorDouble& zval,
                           VectorDouble& fftab,
@@ -2088,8 +2086,7 @@ int multilayers_kriging(Db *dbin,
     goto label_end;
   }
   if (prior_mean == nullptr || prior_vars == nullptr) flag_bayes = 0;
-  if (flag_bayes && dim_prior
-      != st_get_number_drift(irf_rank, flag_ext) * nlayers)
+  if (flag_bayes && dim_prior != st_get_number_drift(irf_rank, flag_ext) * nlayers)
   {
     messerr("The dimension of the Prior information (%d)", dim_prior);
     messerr("must be equal to %d (nlayers) x %d (nbfl)", nlayers,

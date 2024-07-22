@@ -24,7 +24,16 @@ if (MSVC)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
-  add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wundef)
+  add_compile_options(
+    -Wall
+    -Wextra
+    -Wno-deprecated-copy
+    -Wno-unused-parameter
+    -Wtype-limits
+    -Wnon-virtual-dtor
+    -Wvla
+    -Wundef
+  )
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
   endif()

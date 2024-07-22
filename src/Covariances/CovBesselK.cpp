@@ -80,8 +80,9 @@ String CovBesselK::getFormula() const
   return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
 }
 
-double CovBesselK::evaluateSpectrum(double freq, int ndim) const
+double CovBesselK::evaluateSpectrum(double freq) const
 {
+  int ndim = getContext().getNDim();
   double alpha = (double) ndim / 2. + getParam();
   return 1. /  pow(1. + freq, alpha);
 }

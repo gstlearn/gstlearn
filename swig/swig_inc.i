@@ -201,6 +201,9 @@
 %shared_ptr(VCloud)
 %shared_ptr(Ball)
 %shared_ptr(KNN)
+%shared_ptr(ALinearOpMulti)
+%shared_ptr(PrecisionOpMulti)
+%shared_ptr(PrecisionOpMultiConditional)
 
 %{
   #include "gstlearn_export.hpp"
@@ -347,6 +350,7 @@
   #include "LinearOp/Identity.hpp"
   #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
+  #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
@@ -566,6 +570,7 @@
 %template(VectorInterval)          std::vector< Interval >; 
 %template(VectorEPostStat)         std::vector< EPostStat >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
+%template(VectorAMesh)             std::vector< AMesh* >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

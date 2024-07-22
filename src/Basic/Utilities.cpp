@@ -28,8 +28,7 @@ static bool _internalDebug = false;
 bool isInteger(double value, double eps)
 {
   int iclose = getClosestInteger(value);
-  if (ABS((double) iclose - value) > eps) return false;
-  return true;
+  return (ABS((double) iclose - value) <= eps);
 }
 
 int getClosestInteger(double value)
@@ -51,10 +50,7 @@ bool isOdd(int number)
   int middle;
 
   middle = number / 2;
-  if (number != 2 * middle)
-    return true;
-  else
-    return false;
+  return (number != 2 * middle);
 }
 
 bool isEven(int number)
@@ -62,10 +58,7 @@ bool isEven(int number)
   int middle;
 
   middle = number / 2;
-  if (number != 2 * middle)
-    return false;
-  else
-    return true;
+  return (number == 2 * middle);
 }
 
 bool isZero(double value, double eps)
@@ -113,39 +106,30 @@ int getITEST()
 /*!
  **  Checks if a double value is TEST
  **
- ** \return  1 if a TEST value is encountered; 0 otherwise
+ ** \return  true if a TEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int FFFF(double value)
+bool FFFF(double value)
 {
-  int rep;
-
-  rep = 0;
-  if (std::isnan(value)) rep = 1; // TODO : what about std::isinf ?
-  if (value > TEST_COMP) rep = 1;
-
-  return (rep);
+  if (std::isnan(value)) return true; // TODO : what about std::isinf ?
+  if (value > TEST_COMP) return true;
+  return false;
 }
 
 /****************************************************************************/
 /*!
  **  Checks if an integer value is TEST
  **
- ** \return  1 if a ITEST value is encountered; 0 otherwise
+ ** \return  true if a ITEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int IFFFF(int value)
+bool IFFFF(int value)
 {
-  int rep;
-
-  rep = 0;
-  if (value == ITEST) rep = 1;
-
-  return (rep);
+  return (value == ITEST);
 }
 
 #endif //SWIG
@@ -419,7 +403,6 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
   }
 
   if (safe) mem_free((char* ) tab);
-  return;
 }
 
 /****************************************************************************/
@@ -559,7 +542,6 @@ void ut_facies_statistics(int nech,
     *maxi = facmax;
     *nval = number;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -623,7 +605,6 @@ void ut_classify(int nech,
     }
     classe[rank]++;
   }
-  return;
 }
 
 /*****************************************************************************/

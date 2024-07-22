@@ -181,6 +181,7 @@
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp
+%include LinearOp/PrecisionOpMulti.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
 %include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp

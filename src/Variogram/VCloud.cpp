@@ -137,6 +137,7 @@ void VCloud::_setResult(int iech1,
 /****************************************************************************/
 /*!
  **  Evaluate the experimental variogram cloud on irregular data
+ **  This method creates one variable per direction of 'dirparam'
  **
  ** \return  Error return code
  **
@@ -289,6 +290,8 @@ int VCloud::_update_discretization_grid(double x, double y)
  ** \param[in]  varnb        Number of discretization steps along variance axis
  ** \param[in]  namconv      Naming convention
  **
+ ** \remarks If 'lagmax' is not provided, it is set to the diagonal of the
+ ** area covered by the active samples within 'db'.
  ** \remarks If 'varmax' is not defined, it is set to 3 times the experimental
  ** variance of the first variable (Z_locator)
  **

@@ -58,6 +58,7 @@
 class GSTLEARN_EXPORT ILinearOpEigenCG
 {
 public:
+  virtual ~ILinearOpEigenCG() {}
   virtual int getSize() const = 0;
   
   virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const = 0;

@@ -168,10 +168,10 @@ set(SRC
   LinearOp/ALinearOp.cpp
   LinearOp/Identity.cpp
   LinearOp/ScaleOp.cpp
-  LinearOp/ProdMatVect.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
+  LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp

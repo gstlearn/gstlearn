@@ -27,6 +27,7 @@ private:
   std::string _msg;
 };
 
+[[noreturn]]
 GSTLEARN_EXPORT void throw_exp(const std::string& msg = "",
                                const std::string& file = "",
                                int line = 0);

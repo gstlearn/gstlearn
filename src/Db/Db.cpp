@@ -27,7 +27,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/Table.hpp"
@@ -35,8 +34,6 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
 
-#include <algorithm>
-#include <functional>
 #include <math.h>
 #include <stdio.h>
 
@@ -101,7 +98,7 @@ int Db::resetFromSamples(int nech,
   // Load data (if defined)
 
   if (flagAddSampleRank) _createRank(0);
-  _loadData(tab, names, locatorNames, order, flagAddSampleRank);
+  _loadData(tab, names, locatorNames, order, (int) flagAddSampleRank);
 
   return 0;
 }
@@ -131,7 +128,7 @@ int Db::resetFromCSV(const String& filename,
   /* Reading the CSV file */
 
   if (csv_table_read(filename, csvfmt, (int) verbose, ncol_max, nrow_max,
-                     &ncol, &nrow, names, tab))
+                     &ncol, &nrow, names, tab) != 0)
   {
     messerr("Problem when reading CSV file");
     return 1;
@@ -145,13 +142,13 @@ int Db::resetFromCSV(const String& filename,
   // Load data (if defined)
 
   if (flagAddSampleRank) _createRank(0);
-  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flagAddSampleRank);
+  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, (int) flagAddSampleRank);
 
   // Set the names
-  _defineDefaultNames(flagAddSampleRank, names);
+  _defineDefaultNames((int) flagAddSampleRank, names);
 
   // Locators: Try to guess them from the Names
-  _defineDefaultLocatorsByNames(flagAddSampleRank, names);
+  _defineDefaultLocatorsByNames((int) flagAddSampleRank, names);
 
   return 0;
 }
@@ -203,7 +200,7 @@ int Db::resetFromBox(int nech,
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, flagAddSampleRank);
+  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, (int) flagAddSampleRank);
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
@@ -233,7 +230,7 @@ int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
   VectorString names = generateMultipleNames("x", ndim);
   VectorDouble tabloc = tab;
   if (tabloc.empty()) tabloc.resize(ndim,0.);
-  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, flagAddSampleRank);
+  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, (int) flagAddSampleRank);
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
@@ -317,10 +314,7 @@ bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  bool ok = p.isLocatorIndexValid(locatorIndex);
-  if (! ok)
-    messerr("Problem in the identification of Locator %d", locatorType.getValue());
-  return ok;
+  return p.isLocatorIndexValid(locatorIndex);
 }
 
 int Db::getColIdxByUID(int iuid) const
@@ -330,7 +324,7 @@ int Db::getColIdxByUID(int iuid) const
   return icol;
 }
 
-VectorInt Db::getColIdxsByUID(const VectorInt iuids) const
+VectorInt Db::getColIdxsByUID(const VectorInt& iuids) const
 {
   VectorInt cols(iuids.size());
   for (unsigned int i = 0; i < iuids.size(); i++)
@@ -860,7 +854,7 @@ double Db::getDistance(int iech, int jech) const
 {
   int ndim = getNDim();
   VectorDouble dd(ndim);
-  if (getDistanceVec(iech, jech, dd)) return TEST;
+  if (getDistanceVecInPlace(iech, jech, dd) != 0) return TEST;
   double dist = 0.;
   for (int idim = 0; idim < ndim; idim++)
   {
@@ -879,7 +873,7 @@ double Db::getDistance(int iech, int jech) const
  * @return
  */
 // TODO to be corrected to use SpaceDistance
-int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) const
+int Db::getDistanceVecInPlace(int iech, int jech, VectorDouble& dd, const Db* db2) const
 {
   int ndim = getNDim();
   VectorDouble v1(ndim);
@@ -1334,20 +1328,18 @@ int Db::addColumnsRandom(int nadd,
   return (nmax);
 }
 
-void Db::addColumnsByVVD(const VectorVectorDouble tab,
+void Db::addColumnsByVVD(const VectorVectorDouble& tab,
                          const String &radix,
                          const ELoc &locatorType,
                          int locatorIndex,
                          bool useSel)
 {
   VectorDouble tabv;
-  int nvar = (int) tab.size();
-  for(auto &e : tab)
-    for(auto &f : e)
-      tabv.push_back(f);
-  addColumns(tabv,radix,locatorType,locatorIndex,useSel,TEST,nvar);
+  int nvar = (int)tab.size();
+  for (const auto& e: tab)
+    for (const auto& f: e) tabv.push_back(f);
+  addColumns(tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar);
 }
-
 
 /**
  * Add one or several columns to an already existing Db. This is performed
@@ -1770,7 +1762,7 @@ int Db::deleteSamples(const VectorInt& e_dels)
   VectorInt v = VH::sort(e_dels, false);
 
   for (unsigned int i = 0; i < v.size(); i++)
-    if (deleteSample(v[i])) return 1;
+    if (deleteSample(v[i]) != 0) return 1;
 
   return 0;
 }
@@ -2005,7 +1997,7 @@ double Db::getExtensionDiagonal(bool useSel) const
  * Returns the extensions (distance between minimum and maximum) for all space dimensions
  *
  */
-void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel)
+void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel) const
 {
   int ndim = getNDim();
   if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
@@ -2076,7 +2068,7 @@ VectorString Db::identifyNames(const VectorString& names) const
     {
       for (int j = 0; j < (int) namloc.size(); j++)
       {
-        if (locatorIdentify(namloc[j], &locatorType, &locatorIndex, &mult)) continue;
+        if (locatorIdentify(namloc[j], &locatorType, &locatorIndex, &mult) != 0) continue;
         String local = getNameByLocator(locatorType, locatorIndex);
         ret_names.push_back(local);
       }
@@ -2226,7 +2218,6 @@ void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
           _array[iad] = TEST;
       }
   }
-  return;
 }
 
 void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
@@ -2363,8 +2354,8 @@ int Db::getLocNumber(const ELoc& loctype) const
  */
 bool Db::hasLocVariable(const ELoc& loctype) const
 {
-  if (loctype == ELoc::UNKNOWN) return 0;
-  return getFromLocatorNumber(loctype);
+  if (loctype == ELoc::UNKNOWN) return false;
+  return getFromLocatorNumber(loctype) > 0;
 }
 
 /**
@@ -2663,19 +2654,15 @@ int Db::getRankAbsoluteToRelative(int iabs) const
  */
 int Db::getSampleNumber(bool useSel) const
 {
-  if (! hasLocVariable(ELoc::SEL)) return _nech;
+  if (!hasLocVariable(ELoc::SEL)) return _nech;
 
-  if (! useSel)
-    return _nech;
-  else
+  if (!useSel) return _nech;
+  int count = 0;
+  for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    int count = 0;
-    for (int iech = 0; iech < getSampleNumber(); iech++)
-    {
-      if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
-    }
-    return count;
+    if (!isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
   }
+  return count;
 }
 
 /**
@@ -2733,7 +2720,7 @@ VectorDouble Db::getWeights(bool useSel) const
  ** \return  Pointer to the array containing a single occurence of each code
  **
  *****************************************************************************/
-VectorDouble Db::getCodeList(void)
+VectorDouble Db::getCodeList(void) const
 {
   VectorDouble work(_nech);
 
@@ -2820,14 +2807,13 @@ void Db::updSimvar(const ELoc& locatorType,
 
 bool Db::isActive(int iech) const
 {
-  return (getSelection(iech) && isActiveDomain(iech));
+  return (getSelection(iech) != 0 && isActiveDomain(iech));
 }
 
 bool Db::isActiveAndDefined(int iech, int item) const
 {
   if (!isActive(iech)) return false;;
-  if (FFFF(getLocVariable(ELoc::Z,iech, item))) return false;
-  return true;
+  return (! FFFF(getLocVariable(ELoc::Z,iech, item)));
 }
 
 /**
@@ -2881,8 +2867,7 @@ int Db::getLastUID(int number) const
   int size = static_cast<int> (ranks.size());
   if (number > size)
     return -1;
-  else
-    return ranks[size - number - 1];
+  return ranks[size - number - 1];
 }
 
 String Db::getLastName(int number) const
@@ -2896,8 +2881,7 @@ int Db::_getLastColumn(int number) const
 {
   if (number > _ncol)
     return -1;
-  else
-    return (_ncol - number);
+  return (_ncol - number);
 }
 
 String Db::getNameByLocator(const ELoc& locatorType, int locatorIndex) const
@@ -2969,14 +2953,11 @@ VectorString Db::getNames(const VectorString& names) const
 
 VectorString Db::getAllNames(bool excludeRankAndCoordinates, bool verbose) const
 {
-  if (! excludeRankAndCoordinates)
-    return _colNames;
-  else
-  {
-    // From the list of all variables, exclude the following variables:
-    // - the one named 'rank' (if any)
-    // - the coordinates (if any)
-  }
+  if (!excludeRankAndCoordinates) return _colNames;
+
+  // From the list of all variables, exclude the following variables:
+  // - the one named 'rank' (if any)
+  // - the coordinates (if any)
   VectorString allnames = _colNames;
   VectorString names;
   for (int ivar = 0, nvar = (int) allnames.size(); ivar < nvar; ivar++)
@@ -3030,7 +3011,7 @@ void Db::setName(const String& old_name, const String& name)
   correctNewNameForDuplicates(_colNames, icol);
 }
 
-void Db::setName(const VectorString list, const String& name)
+void Db::setName(const VectorString& list, const String& name)
 {
   for (int i = 0; i < (int) list.size(); i++)
   {
@@ -3052,7 +3033,6 @@ void Db::setNameByLocator(const ELoc& locatorType, const String& name)
     _colNames[icol] = incrementStringVersion(name, i+ 1);
   }
   correctNamesForDuplicates(_colNames);
-  return;
 }
 
 String Db::_summaryString(void) const
@@ -3785,15 +3765,15 @@ VectorVectorDouble Db::getItem(const ELoc& locatorType, bool useSel) const
   return values;
 }
 
-VectorString Db::getItemNames(const VectorString& colnames)
+VectorString Db::getItemNames(const VectorString& colnames) const
 {
   return expandNameList(colnames);
 }
-VectorString Db::getItemNames(const String& colname)
+VectorString Db::getItemNames(const String& colname) const
 {
   return expandNameList(colname);
 }
-VectorString Db::getItemNames(const ELoc& locatorType)
+VectorString Db::getItemNames(const ELoc& locatorType) const
 {
   return getNamesByLocator(locatorType);
 }
@@ -4113,7 +4093,7 @@ void Db::_loadData(const VectorDouble& tab,
     messerr("It should be a multiple of the number of samples (%d)", _nech);
     return;
   }
-  int ntab = static_cast<int> (tab.size()) / _nech;
+  int ntab = static_cast<int>(tab.size()) / _nech;
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {
@@ -4132,8 +4112,6 @@ void Db::_loadData(const VectorDouble& tab,
 
   // Set the locators
   _defineDefaultLocators(shift, locatorNames);
-
-  return;
 }
 
 void Db::generateRank(const String& radix)
@@ -4207,7 +4185,7 @@ void Db::_defineDefaultLocators(int shift, const VectorString& locatorNames)
   int locatorIndex, mult;
   for (int icol = 0; icol < ncol; icol++)
   {
-    if (!locatorIdentify(locatorNames[icol], &locatorType, &locatorIndex, &mult))
+    if (locatorIdentify(locatorNames[icol], &locatorType, &locatorIndex, &mult) == 0)
       setLocatorByUID(icol + shift, locatorType, locatorIndex);
   }
 }
@@ -4224,18 +4202,18 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   int locatorIndex, mult;
   for (int icol = 0; icol < ncol; icol++)
   {
-    if (!locatorIdentify(names[icol], &locatorType, &locatorIndex, &mult))
+    if (locatorIdentify(names[icol], &locatorType, &locatorIndex, &mult) == 0)
       setLocatorByUID(icol + shift, locatorType, locatorIndex);
   }
 }
 
-void Db::statisticsBySample(const VectorString &names,
-                            const std::vector<EStatOption> &opers,
+void Db::statisticsBySample(const VectorString& names,
+                            const std::vector<EStatOption>& opers,
                             bool flagIso,
-                            double proba,
                             double vmin,
                             double vmax,
-                            const NamingConvention &namconv)
+                            double proba,
+                            const NamingConvention& namconv)
 {
   DECLARE_UNUSED(flagIso);
   if (names.empty()) return;
@@ -4254,7 +4232,7 @@ void Db::statisticsBySample(const VectorString &names,
   namconv.setNamesAndLocators(this, iuidn);
   for (int i = 0; i < noper; i++)
   {
-    EStatOption oper = opers[i];
+    const EStatOption& oper = opers[i];
     namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
   }
 }
@@ -4319,7 +4297,7 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
 {
   int ncol = getColumnNumber();
-  VectorString locators = getLocators(1);
+  VectorString locators = getLocators(true);
   VectorString names = getName("*");
   bool ret = true;
 
@@ -4374,9 +4352,9 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     VectorInt tabnum;
     int  inum = 0, mult = 0;
     ELoc iloc;
-    for (auto loc : locators)
+    for (const auto& loc : locators)
     {
-      if (locatorIdentify(loc, &iloc, &inum, &mult)) return 1;
+      if (locatorIdentify(loc, &iloc, &inum, &mult) != 0) return true;
       tabloc.push_back(iloc);
       tabnum.push_back(inum);
     }
@@ -4430,29 +4408,25 @@ void Db::_loadData(const ELoadBy& order, bool flagAddSampleRank, const VectorDou
     }
     jcol++;
   }
-  return;
 }
 
-bool Db::_isCountValid(const VectorInt iuids, bool flagOne, bool verbose) const
+bool Db::_isCountValid(const VectorInt& iuids, bool flagOne, bool verbose) const
 {
   if (iuids.empty() && flagOne)
   {
     if (verbose) messerr("No variable name corresponding to your criterion");
     return false;
   }
-  else
+  if (iuids.size() > 1 && flagOne)
   {
-    if (iuids.size() > 1 && flagOne)
+    if (verbose)
     {
-      if (verbose)
-      {
-        messerr("You wanted to designate a SINGLE variable.");
-        messerr("There are several variables matching your criterion:");
-        for (unsigned int i = 0; i < iuids.size(); i++)
-          messerr("- %s", getNameByUID(iuids[i]).c_str());
-      }
-      return false;
+      messerr("You wanted to designate a SINGLE variable.");
+      messerr("There are several variables matching your criterion:");
+      for (unsigned int i = 0; i < iuids.size(); i++)
+        messerr("- %s", getNameByUID(iuids[i]).c_str());
     }
+    return false;
   }
   return true;
 }
@@ -4616,11 +4590,11 @@ int Db::resetSamplingDb(const Db* dbin,
 
   // Define the variables and the Locators
 
-  _defineVariableAndLocators(dbin, namloc, flagAddSampleRank);
+  _defineVariableAndLocators(dbin, namloc, (int) flagAddSampleRank);
 
   // Load samples
 
-  _loadValues(dbin, namloc, ranks, flagAddSampleRank);
+  _loadValues(dbin, namloc, ranks, (int) flagAddSampleRank);
 
   return 0;
 }
@@ -4780,39 +4754,40 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
   if (nech <= 0) return;
 
   if (combine == "set")
+  {
     return;
+  }
 
-  else if (combine == "not")
+  if (combine == "not")
   {
     for (int iech = 0; iech < nech; iech++)
       sel[iech] = 1. - sel[iech];
     return;
   }
 
-  else
-  {
-    // Read an already existing selection
-    VectorDouble oldsel = getColumnByLocator(ELoc::SEL, 0);
-    if (oldsel.empty()) return;
+  // Read an already existing selection
+  VectorDouble oldsel = getColumnByLocator(ELoc::SEL, 0);
+  if (oldsel.empty()) return;
 
-    if (combine == "or")
-    {
-      for (int iech = 0; iech < nech; iech++)
-        sel[iech] = sel[iech] || oldsel[iech];
-      return;
-    }
-    else if (combine == "and")
-    {
-      for (int iech = 0; iech < nech; iech++)
-        sel[iech] = sel[iech] && oldsel[iech];
-      return;
-    }
-    else if (combine == "xor")
-    {
-      for (int iech = 0; iech < nech; iech++)
-        sel[iech] = ! areEqual(sel[iech], oldsel[iech]);
-      return;
-    }
+  if (combine == "or")
+  {
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = (double) ((sel[iech] != 0) || (oldsel[iech] != 0));
+    return;
+  }
+
+  if (combine == "and")
+  {
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = (double) ((sel[iech] != 0) && (oldsel[iech] != 0));
+    return;
+  }
+
+  if (combine == "xor")
+  {
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = (double) !areEqual(sel[iech], oldsel[iech]);
+    return;
   }
 
   // The 'combine' argument is not valid
@@ -4839,7 +4814,7 @@ Db* Db::createFromSamples(int nech,
                           bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetFromSamples(nech, order, tab, names, locatorNames, flagAddSampleRank))
+  if (db->resetFromSamples(nech, order, tab, names, locatorNames, flagAddSampleRank) != 0)
   {
     messerr("Error when creating Db from Samples");
     delete db;
@@ -4855,7 +4830,7 @@ Db* Db::createFromCSV(const String& filename,
                       bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetFromCSV(filename, verbose, csv, ncol_max, nrow_max, flagAddSampleRank))
+  if (db->resetFromCSV(filename, verbose, csv, ncol_max, nrow_max, flagAddSampleRank) != 0)
   {
     messerr("Error when creating Db from Grid");
     delete db;
@@ -4884,7 +4859,7 @@ Db* Db::createFromBox(int nech,
 Db* Db::createFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetFromOnePoint(tab, flagAddSampleRank))
+  if (db->resetFromOnePoint(tab, flagAddSampleRank) != 0)
   {
     messerr("Error when creating Db from One Point");
     delete db;
@@ -4902,7 +4877,7 @@ Db* Db::createSamplingDb(const Db* dbin,
                          bool flagAddSampleRank)
 {
   Db* db = new Db;
-  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose, flagAddSampleRank))
+  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose, flagAddSampleRank) != 0)
   {
     messerr("Error when clearing Db by Sampling another Db");
     delete db;
@@ -4917,7 +4892,7 @@ Db* Db::createReduce(const Db *dbin,
                      bool verbose)
 {
   Db* db = new Db;
-  if (db->resetReduce(dbin, names, ranks, verbose))
+  if (db->resetReduce(dbin, names, ranks, verbose) != 0)
   {
     db = dbin->clone();
   }
@@ -4928,7 +4903,7 @@ bool Db::areSame(const String& name1,
                  const String& name2,
                  double eps,
                  bool useSel,
-                 bool verbose)
+                 bool verbose) const
 {
   int ndiff = 0;
   VectorDouble tab1 = getColumn(name1, useSel);
@@ -4992,7 +4967,7 @@ VectorInt Db::filter(const String& name,
   return rows;
 }
 
-VectorInt Db::shrinkToValidRows(const VectorInt& rows)
+VectorInt Db::shrinkToValidRows(const VectorInt& rows) const
 {
   if (rows.empty()) return rows;
 
@@ -5004,7 +4979,7 @@ VectorInt Db::shrinkToValidRows(const VectorInt& rows)
   return new_rows;
 }
 
-VectorInt Db::shrinkToValidCols(const VectorInt& cols)
+VectorInt Db::shrinkToValidCols(const VectorInt& cols) const
 {
   if (cols.empty()) return cols;
 

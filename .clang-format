@@ -1,7 +1,7 @@
 ---
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: AcrossEmptyLinesAndComments
-AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+# AlignConsecutiveAssignments: AcrossEmptyLinesAndComments # clang-format > 10
+# AlignConsecutiveMacros: AcrossEmptyLinesAndComments # clang-format > 10
 AlignEscapedNewlines: Right
 AlignTrailingComments: true
 AllowShortFunctionsOnASingleLine: Inline
@@ -35,10 +35,10 @@ SortIncludes: false
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeCaseColon: false
+# SpaceBeforeCaseColon: false # clang-format > 10
 SpaceBeforeCpp11BracedList: true
 SpaceBeforeInheritanceColon: false
-SpaceBeforeParens: ControlStatementsExceptControlMacros
+# SpaceBeforeParens: ControlStatementsExceptControlMacros # clang-format > 10
 SpaceBeforeRangeBasedForLoopColon: false
 # SpaceBeforeSquareBrackets: false # clang-format 11
 # SpaceInEmptyBlock: false # clang-format 11

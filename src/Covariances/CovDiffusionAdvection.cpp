@@ -213,7 +213,7 @@ Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax, double time, i
 {
   std::function<std::complex<double>(VectorDouble, double)> funcSpectrum;
   funcSpectrum = [this](VectorDouble freq, double time)
-      { return evalSpatialSpectrum(freq, time);};
+         { return evalSpatialSpectrum(freq, time);};
 
  return evalCovFFTTimeSlice(hmax, time, N, funcSpectrum);
 }

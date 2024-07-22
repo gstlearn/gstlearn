@@ -47,6 +47,9 @@ class ACov;
  *             C : Velocity (advection)
  *             I : Rotation angle for Sphere
  *             H : Anisotropy matrix terms
+ *
+ * - In the Multivariate case, use "V1-2" for the sill of the cross-variogram between variables 1 and 2
+ *   Pay attention: "V1" is equivalent to "V1-1" and "V2" is equivalent to "V2-1" (not to "V2-2").
  */
 class GSTLEARN_EXPORT ANoStat : public AStringable, public ICloneable
 {
@@ -126,6 +129,8 @@ public:
                      double *val1,
                      double *val2) const;
 
+  void checkCode(const String& code) const;
+
 protected:
   void _setAmesh(const AMesh* amesh) const { _amesh = amesh; }
   void _setDbin(const Db* dbin) const { _dbin = dbin; }
@@ -138,7 +143,7 @@ private:
                       int *icov,
                       EConsElem *type,
                       int *iv1,
-                      int *iv2);
+                      int *iv2) const;
   void _updateFromModel(const Model* model);
   bool _checkConsistency() const;
 

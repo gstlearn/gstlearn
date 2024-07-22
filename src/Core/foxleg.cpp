@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"

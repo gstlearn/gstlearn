@@ -40,9 +40,13 @@ private:
   VectorInt _r;    /* Rank of the attribute */
 };
 
-GSTLEARN_EXPORT int    getLocatorTypeFromName(const String& name_type);
-GSTLEARN_EXPORT int    locatorIdentify(String string, ELoc* locatorType, int* locatorIndex, int *mult);
-GSTLEARN_EXPORT bool   isLocatorTypeValid(const ELoc& locatorType, bool unknownValid = false);
+GSTLEARN_EXPORT int getLocatorTypeFromName(const String& name_type);
+GSTLEARN_EXPORT int locatorIdentify(String string,
+                                    ELoc* ret_locatorType,
+                                    int* ret_locatorIndex,
+                                    int* ret_mult);
+GSTLEARN_EXPORT bool isLocatorTypeValid(const ELoc& locatorType,
+                                        bool unknownValid = false);
 GSTLEARN_EXPORT String getLocatorName(const ELoc& locatorType, int locatorIndex=1);
 GSTLEARN_EXPORT void   printLocatorList();
 GSTLEARN_EXPORT VectorString getLocatorNames();

@@ -13,12 +13,9 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Polygon/Polygons.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 
 #include <math.h>
 
@@ -197,15 +194,15 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  **
  ** \param[in]  db     Db descriptor
  ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  item   Rank of the item in the pointer
+ ** \param[in]  locatorIndex Rank of the item in the pointer
  **
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-int db_vector_get(Db *db, const ELoc& locatorType, int item, double *tab)
+int db_vector_get(Db *db, const ELoc& locatorType, int locatorIndex, double *tab)
 {
-  int iatt = db->getUIDByLocator(locatorType, item);
-  if (st_vector_get_att(db, iatt, tab)) return (1);
+  int iatt = db->getUIDByLocator(locatorType, locatorIndex);
+  if (st_vector_get_att(db, iatt, tab) != 0) return (1);
   return (0);
 }
 
@@ -224,7 +221,7 @@ int db_vector_get(Db *db, const ELoc& locatorType, int item, double *tab)
 int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getUIDByLocator(ELoc::SEL, item);
-  if (st_vector_get_att(db, iatt, tab)) return (1);
+  if (st_vector_get_att(db, iatt, tab) != 0) return (1);
   return (0);
 }
 
@@ -245,7 +242,7 @@ int db_vector_put(Db *db,
 {
   int icol = db->getColIdxByLocator(locatorType, locatorIndex);
   if (!db->isColIdxValid(icol)) return (1);
-  if (st_vector_put_col(db, icol, tab)) return (1);
+  if (st_vector_put_col(db, icol, tab) != 0) return (1);
   return (0);
 }
 
@@ -264,8 +261,7 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
-  else
-    return (db->getFromLocatorNumber(locatorType));
+  return (db->getFromLocatorNumber(locatorType));
 }
 
 /****************************************************************************/
@@ -278,9 +274,9 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-int exist_LOCATOR(Db *db, const ELoc& locatorType)
+bool exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
-  if (db == nullptr) return (0);
+  if (db == nullptr) return false;
   return (db->getFromLocatorNumber(locatorType) > 0);
 }
 
@@ -292,15 +288,15 @@ int exist_LOCATOR(Db *db, const ELoc& locatorType)
  **
  ** \param[in]  db     Db structure
  ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  item   Rank of the item in the pointer
+ ** \param[in]  locatorIndex Rank of the item in the pointer
  ** \param[in]  iech   Rank of the sample
  **
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int item, int iech)
+double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int locatorIndex, int iech)
 {
-  return db->getFromLocator(locatorType, iech, item);
+  return db->getFromLocator(locatorType, iech, locatorIndex);
 }
 
 /****************************************************************************/
@@ -309,7 +305,7 @@ double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int item, int iech)
  **
  ** \param[in]  db     Db structure
  ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  item   Rank of the item in the pointer
+ ** \param[in]  locatorIndex Rank of the item in the pointer
  ** \param[in]  iech   Rank of the sample
  ** \param[in]  value  Value of be written
  **
@@ -318,12 +314,11 @@ double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int item, int iech)
  *****************************************************************************/
 void set_LOCATOR_ITEM(Db *db,
                       const ELoc& locatorType,
-                      int item,
+                      int locatorIndex,
                       int iech,
                       double value)
 {
-  db->setFromLocator(locatorType, iech, item, value);
-  return;
+  db->setFromLocator(locatorType, iech, locatorIndex, value);
 }
 
 /****************************************************************************/
@@ -472,12 +467,9 @@ int db_coorvec_put(Db *db, int idim, double *tab)
       messerr("This operation is forbidden on a Grid Db");
       return (1);
     }
-    else
-    {
-      int icol = db->getColIdxByLocator(ELoc::X, idim);
-      if (!db->isColIdxValid(icol)) return (1);
-      db->setValueByColIdx(iech, icol, tab[iech]);
-    }
+    int icol = db->getColIdxByLocator(ELoc::X, idim);
+    if (!db->isColIdxValid(icol)) return (1);
+    db->setValueByColIdx(iech, icol, tab[iech]);
   }
   return (0);
 }
@@ -490,12 +482,12 @@ int db_coorvec_put(Db *db, int idim, double *tab)
  **
  ** \param[in]  db     Db descriptor
  ** \param[in]  locatorType Rank of the pointer
- ** \param[in]  item   Rank of the attribute in the pointer
+ ** \param[in]  locatorIndex Rank of the attribute in the pointer
  **
  *****************************************************************************/
-int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
+int db_attribute_identify(const Db *db, const ELoc& locatorType, int locatorIndex)
 {
-  int iatt = db->getUIDByLocator(locatorType, item);
+  int iatt = db->getUIDByLocator(locatorType, locatorIndex);
   return (iatt);
 }
 
@@ -623,7 +615,6 @@ void db_sample_put_att(Db *db, int iech, int number, int iatt, double *tab)
 
   for (ivar = 0; ivar < number; ivar++)
     db->setArray(iech, iatt + ivar, tab[ivar]);
-  return;
 }
 
 /****************************************************************************/
@@ -748,7 +739,7 @@ double distance_grid(DbGrid *db,
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
     int number = ABS(iwork1[idim] - iwork2[idim]);
-    if (flag_moins1 && number > 1) number--;
+    if (flag_moins1 != 0 && number > 1) number--;
     double delta = number * db->getDX(idim);
     if (dist_vect != nullptr) dist_vect[idim] = delta;
     dist += delta * delta;
@@ -855,7 +846,6 @@ void db_index_sample_to_grid(const DbGrid *db, int iech, int *indg)
     indg[idim] = iech / nval;
     iech -= indg[idim] * nval;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -907,7 +897,7 @@ void db_sample_print(Db *db,
                      int flag_nerr)
 {
   message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
-  if (flag_ndim)
+  if (flag_ndim != 0)
   {
     for (int idim = 0; idim < db->getNDim(); idim++)
     {
@@ -919,7 +909,7 @@ void db_sample_print(Db *db,
                 db->getCoordinate(iech, idim));
     }
   }
-  if (flag_nvar)
+  if (flag_nvar != 0)
   {
     for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
@@ -930,7 +920,7 @@ void db_sample_print(Db *db,
         message("Variable   #%d = %lf\n", ivar + 1, db->getLocVariable(ELoc::Z,iech, ivar));
     }
   }
-  if (flag_nerr)
+  if (flag_nerr != 0)
   {
     for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
     {
@@ -950,7 +940,6 @@ void db_sample_print(Db *db,
     else
       message("Code          = %d\n", (int) value);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1136,7 +1125,7 @@ double db_epsilon_distance(Db *db)
   }
   else
   {
-    if (db_extension_diag(db, &diag))
+    if (db_extension_diag(db, &diag) != 0)
       diag = 1.e-6;
     else
       diag /= 100.;
@@ -1180,7 +1169,7 @@ int db_attribute_range(const Db *db,
 
   tab = db_vector_alloc(db);
   if (tab == nullptr) goto label_end;
-  if (db_vector_get_att(db, iatt, tab)) goto label_end;
+  if (db_vector_get_att(db, iatt, tab) != 0) goto label_end;
 
   if (db->hasLocVariable(ELoc::SEL))
   {
@@ -1300,7 +1289,7 @@ Db* db_create_from_target(const double *target, int ndim, bool flagAddSampleRank
 
   /* Create the locators */
 
-  db->setLocatorsByUID(ndim, flagAddSampleRank, ELoc::X);
+  db->setLocatorsByUID(ndim, (int) flagAddSampleRank, ELoc::X);
 
   /* Copy the target locations */
 
@@ -1381,7 +1370,6 @@ void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
     db->setArray(iech, iatt_out, db->getArray(iech, iatt_in));
-  return;
 }
 
 /****************************************************************************/
@@ -1408,12 +1396,8 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
         db->setArray(iech, icol, valinit);
     else
       for (iech = 0; iech < db->getSampleNumber(); iech++)
-        if (db->getLocVariable(ELoc::DATE,iech,0))
-          db->setArray(iech, icol, valinit);
-        else
-          db->setArray(iech, icol, TEST);
+        db->setArray(iech, icol, db->getLocVariable(ELoc::DATE, iech, 0));
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1529,10 +1513,9 @@ int db_gradient_update(Db *db)
  ** \param[out] tabout Output array
  **
  *****************************************************************************/
-int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
+int db_selref(int ndim, const int *nx, const int *ref, const double *tabin, double *tabout)
 {
-  int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, skip, ival, error,
-      neff_ndim;
+  int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, ival, error, neff_ndim;
 
   /* Initializations */
 
@@ -1567,16 +1550,17 @@ int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
   for (idim = 0; idim < ndim; idim++)
     ntotal *= nx[idim];
 
+  bool skip;
   for (lec = ecr = 0; lec < ntotal; lec++)
   {
     nval = ntotal;
     iech = lec;
-    skip = 0;
-    for (idim = ndim - 1; idim >= 0 && skip == 0; idim--)
+    skip = false;
+    for (idim = ndim - 1; idim >= 0 && ! skip; idim--)
     {
       nval /= nx[idim];
       ival = iech / nval;
-      if (ref[idim] > 0 && ival != ref[idim] - 1) skip = 1;
+      if (ref[idim] > 0 && ival != ref[idim] - 1) skip = true;
       ind1[idim] = ival;
       iech -= ival * nval;
     }
@@ -1712,7 +1696,7 @@ int db_locator_attribute_add(Db *db,
  *****************************************************************************/
 int db_grid_copy(DbGrid *db1,
                  DbGrid *db2,
-                 int *ind1,
+                 const int *ind1,
                  int *ind2,
                  int ncol,
                  int *cols)
@@ -1803,7 +1787,7 @@ int db_grid_copy_dilate(DbGrid *db1,
                         DbGrid *db2,
                         int iatt2,
                         int mode,
-                        int *nshift)
+                        const int *nshift)
 {
   int *indg, iech1, iech2, idim, ndim, error;
   double value;
@@ -1866,7 +1850,7 @@ int db_grid_copy_dilate(DbGrid *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-void grid_to_point(const DbGrid *db, int *indg, double *percent, double *coor)
+void grid_to_point(const DbGrid *db, const int *indg, const double *percent, double *coor)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -1890,7 +1874,6 @@ void grid_to_point(const DbGrid *db, int *indg, double *percent, double *coor)
   for (int idim = 0; idim < ndim; idim++)
     coor[idim] = work2[idim] + db->getX0(idim);
 
-  return;
 }
 
 /*****************************************************************************/
@@ -1903,7 +1886,7 @@ void grid_to_point(const DbGrid *db, int *indg, double *percent, double *coor)
  ** \param[in]  coor  array of coordinates of the point
  **
  *****************************************************************************/
-int point_to_point(Db *db, double *coor)
+int point_to_point(Db *db, const double *coor)
 {
   double dist, distmin, delta, x;
   int idim, iech, iechmin;
@@ -2220,7 +2203,6 @@ void db_monostat(Db *db,
     (*mean) /= (*wtot);
     (*var) = (*var) / (*wtot) - (*mean) * (*mean);
   }
-  return;
 }
 
 
@@ -2276,7 +2258,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
     {
       tab = db_vector_alloc(db);
       if (tab == nullptr) goto label_end;
-      if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
+      if (db_vector_get(db, ELoc::Z, ivar, tab) != 0) continue;
       if (db->hasLocVariable(ELoc::SEL))
       {
         sel = db_vector_alloc(db);
@@ -3342,8 +3324,8 @@ void set_grid_value(DbGrid *dbgrid,
  *****************************************************************************/
 DbGrid* db_grid_reduce(DbGrid *db_grid,
                        int iptr,
-                       int *margin,
-                       int *limmin,
+                       const int *margin,
+                       const int *limmin,
                        int flag_sel,
                        int flag_copy,
                        int verbose,
@@ -3852,8 +3834,6 @@ void db_extension_rotated(Db *db,
     mini[idim] = minrot[idim];
     maxi[idim] = maxrot[idim];
   }
-
-  return;
 }
 
 /****************************************************************************/

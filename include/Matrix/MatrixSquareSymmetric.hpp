@@ -27,7 +27,7 @@ public:
   MatrixSquareSymmetric(int nrow = 0);
   MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
   MatrixSquareSymmetric(const AMatrix &m);
-  MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
+  MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &m);
 	virtual ~MatrixSquareSymmetric();
 
   /// Has a specific implementation in the Target language
@@ -82,7 +82,9 @@ public:
   int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
   int solveCholesky(const VectorDouble& b, VectorDouble& x);
   VectorDouble getCholeskyTL() const;
+  double getCholeskyTL(int i, int j) const;
   VectorDouble getCholeskyXL() const;
+  double getCholeskyXL(int i, int j) const;
   MatrixRectangular productCholeskyInPlace(int mode,
                                            int neq,
                                            int nrhs,
