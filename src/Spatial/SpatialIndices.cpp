@@ -546,15 +546,9 @@ double SpatialIndices::getMicroStructure(const String &name, double h0,
   return g0;
 }
 
-/**
- * @brief 
- * 
- * @param a 
- */
 void tot(double a) {
-  int b = 2;
-  int c = 3;
-}
+  double b = 12.;
+    }
 
 static void
 _updateGravityCenter(const VectorDouble &xxs, const VectorDouble &yys,
