@@ -151,7 +151,8 @@ public:
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
 
-  static void cumulateInPlace(VectorDouble& vec);
+  static VectorDouble cumsum(const VectorDouble &vecin, bool flagAddZero, bool revert=false);
+  static void cumulateInPlace(VectorDouble &vec);
   static void cumulate(VectorDouble &veca, const VectorDouble &vecb, double coeff = 1., double addval = 0.);
   static void getMostSignificant(const VectorDouble& vec, double tol = EPSILON6, int nmax = -1);
 
@@ -188,6 +189,8 @@ public:
   static VectorInt    sortRanks(const VectorDouble& vecin, bool ascending = true, int size = -1);
   static VectorInt    reorder(const VectorInt& vecin, const VectorInt& order, int size = -1);
   static VectorDouble reorder(const VectorDouble& vecin, const VectorInt& order, int size = -1);
+  static VectorDouble revert(const VectorDouble& vecin);
+  static VectorInt    revert(const VectorInt& vecin);
   static void arrangeInPlace(int safe,
                              VectorInt &ranks,
                              VectorDouble &values,

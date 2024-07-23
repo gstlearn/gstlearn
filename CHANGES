@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.3.0
 =============
+- migrateAllVariables() is now a method of DbGrid (not a static) with additional arguments
 - R 4.4.1 support
 - Modify 'flag_cell' into 'flagCell'
 - Modify 'flag_integer' into 'flagInteger'

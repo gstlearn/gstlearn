@@ -558,14 +558,15 @@
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
 
-%template(VectorECov)         std::vector< ECov >;
-%template(VectorEStatOption)  std::vector< EStatOption >;
-%template(VectorESelectivity) std::vector< ESelectivity >;
-%template(VectorDirParam)     std::vector< DirParam >;
-%template(VectorPolyElem)     std::vector< PolyElem >;
-%template(VectorInterval)     std::vector< Interval >; 
-%template(VectorEPostStat)    std::vector< EPostStat >;
-%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
+%template(VectorECov)               std::vector< ECov >;
+%template(VectorEStatOption)        std::vector< EStatOption >;
+%template(VectorESelectivity)       std::vector< ESelectivity >;
+%template(VectorDirParam)           std::vector< DirParam >;
+%template(VectorPolyElem)           std::vector< PolyElem >;
+%template(VectorInterval)           std::vector< Interval >; 
+%template(VectorEPostStat)          std::vector< EPostStat >;
+%template(VectorABiTargetCheck)     std::vector< ABiTargetCheck* >;
+%template(VectorSpacePoint)         std::vector< SpacePoint >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

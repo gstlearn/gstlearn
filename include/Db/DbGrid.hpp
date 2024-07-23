@@ -171,8 +171,9 @@ public:
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
-  static bool migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank = true);
-
+  bool migrateAllVariables(Db *dbin, bool flag_fill = true,
+                           bool flag_inter = true, bool flag_ball = false,
+                           bool flagAddSampleRank = true);
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");
 

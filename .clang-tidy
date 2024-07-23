@@ -17,5 +17,6 @@ Checks: >-
   -readability-identifier-length,
   -readability-isolate-declaration,
   -readability-magic-numbers,
+  -readability-implicit-bool-conversion, # TODO: to be removed
 HeaderFilterRegex: 'include'
 UseColor: true

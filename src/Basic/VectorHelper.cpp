@@ -1034,6 +1034,29 @@ void VectorHelper::cumulateInPlace(VectorDouble& vec)
   }
 }
 
+VectorDouble VectorHelper::cumsum(const VectorDouble &vecin, bool flagAddZero, bool revert)
+{
+  VectorDouble vecout;
+  if (flagAddZero)
+    vecout.push_back(0.);
+
+  double total = 0.;
+  for (int i = 0, n = (int)vecin.size(); i < n; i++)
+  {
+    total += vecin[i];
+    vecout.push_back(total);
+  }
+
+  if (revert)
+  {
+    int size = (int) vecout.size();
+    double lastval = vecout[size - 1];
+    for (int i = 0; i < size; i++)
+      vecout[i] = lastval - vecout[i];
+  }
+  return vecout;
+}
+
 void VectorHelper::cumulate(VectorDouble &veca,
                             const VectorDouble &vecb,
                             double coeff,
@@ -1862,6 +1885,22 @@ VectorDouble VectorHelper::reorder(const VectorDouble& vecin, const VectorInt& o
   VectorDouble vecout(size);
   for (int i = 0; i< size; i++)
     vecout[i] = vecin[order[i]];
+  return vecout;
+}
+
+VectorDouble VectorHelper::revert(const VectorDouble &vecin) {
+  int nech = (int)vecin.size();
+  VectorDouble vecout(nech);
+  for (int iech = 0; iech < nech; iech++)
+    vecout[nech - 1 -iech] = vecin[iech];
+  return vecout;
+}
+
+VectorInt VectorHelper::revert(const VectorInt &vecin) {
+  int nech = (int)vecin.size();
+  VectorInt vecout(nech);
+  for (int iech = 0; iech < nech; iech++)
+    vecout[nech - 1 - iech] = vecin[iech];
   return vecout;
 }
 

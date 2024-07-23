@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include "Enum/EJustify.hpp"
 
@@ -17,10 +16,8 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 
-#include <string>
 #include <iostream>
 #include <sstream>
 #include <typeinfo>

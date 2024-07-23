@@ -382,7 +382,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                   VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank' and coordinates
-  (void) migrateAllVariables(dbin, dbgrid, flagAddSampleRank);
+  (void) dbgrid->migrateAllVariables(dbin, true, true, false, flagAddSampleRank);
 
   return dbgrid;
 }
@@ -578,20 +578,23 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
                   VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank'  and coordinates
-  (void) migrateAllVariables(dbin, dbgrid, flagAddSampleRank);
+  (void) dbgrid->migrateAllVariables(dbin, true, true, false, flagAddSampleRank);
 
   return dbgrid;
 }
 
 /**
- * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'dbout' (grid)
+ * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'this'
+(grid)
  * @param dbin  Input Db
- * @param dbout Output db
  * @param flagAddSampleRank true if the rank of the samples must be aaded
+ * @param flag_fill  Filling option
+ * @param flag_inter Interpolation
+ * @param flag_ball  Use BallTree sorting algorithm when available
  * @return
  */
-bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank)
-{
+bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
+                                 bool flag_ball, bool flagAddSampleRank) {
   ELoc locatorType;
   int  locatorIndex;
 
@@ -615,17 +618,18 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank)
   if (ncol <= 0) return true;
 
   // Migrate the variables
-  int icolOut = dbout->getColumnNumber();
-  if (migrateByAttribute(dbin, dbout, icols, 2, VectorDouble(), true, true, false,
-                         NamingConvention(String()))) return false;
+  int icolOut = getColumnNumber();
+  if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
+                         flag_inter, flag_ball, NamingConvention(String())))
+    return false;
 
   // Duplicate the locators
   for (int icol = 0; icol < ncol; icol++)
   {
     if (dbin->getLocatorByColIdx(icols[icol], &locatorType, &locatorIndex))
-      dbout->setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
+      setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
     else
-      dbout->setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
+      setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
   }
   return true;
 }
