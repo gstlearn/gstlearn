@@ -72,8 +72,8 @@ endif()
 
 # Look for Eigen
 find_package(Eigen3 REQUIRED) 
-if(EIGEN3_FOUND)
-  message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR} (found version ${Eigen3_VERSION})")
+if(Eigen3_FOUND) 
+    message(STATUS "Found Eigen3 version ${Eigen3_VERSION} in ${Eigen3_DIR}")
 endif()
 
 # Look for HDF5
