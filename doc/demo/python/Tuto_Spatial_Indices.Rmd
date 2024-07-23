@@ -1,0 +1,187 @@
+---
+title: "Spatial_Indices"
+output: html_document
+date: '2024-07-15'
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+library(ggnewscale)
+```
+
+This Tutorial has been established from:
+
+ICES Cooperative Research Report
+Handbook of Geostatistics in R for fisheries and marine ecology
+
+Based on: 
+ICES Training Course
+Application of Geostatistics to analyse spatially explicit Survey data
+in an Ecosystem Approach
+December 2013-2014, Fontainebleau, Centre de Geosciences, Mines ParisTech 
+chapter:      Indices of spatial distribution
+Author:       Mathieu Woillez, Ifremer
+Date:         14/01/2015
+
+Bez N., and Rivoirard J., 2000, Indices of collocation between populations. In: Checkley D.M., Hunter J.R., Motos L., von der Lingen C.D. (Eds.).Workshop on the Use of Continuous Underway Fish Egg Sampler (CUFES) for mapping spawning habitat of pelagic fish. GLOBEC Rep., pp. 48-52.
+
+Loading the **two** files from the official depository. It consists in two files:
+- the Data file containing the captures on Bay of Biscay
+- the Polygon delineating the area of interest
+
+The Data file contains a series of samples with **three** variables of interest:
+- the captures of age 0 (called *A0*)
+- the captures of age 1 (called *A1*)
+- the area of Influence attached to each datum.
+
+```{r Loading_Data}
+db.data = Db_createFromNF(loadData("halieutic", "Hake_Bob_Db.NF"))
+poly.data = Polygons_createFromNF(loadData("halieutic", "Hake_Bob_Polygon.NF"))
+```
+
+Visualizing the data set
+
+```{r Plot_Data}
+ggplot() + 
+  plot.polygon(poly.data, fill="NA") + 
+  plot.point(db.data, nameSize="A0", colour="blue") +
+  plot.decoration(title="Age-0 hake density")
+```
+
+We define a projection, based on the center of gravity of the data. Modify the coordinates of the Data Base and of the Polygon consequently.
+
+```{r Define_projection}
+projec = Projection(TRUE, db.data)
+
+err = projec$operateOnDb(db.data)
+err = projec$operateOnPolygons(poly.data)
+```
+
+Display in the projected system
+
+```{r Plot_Data_Projected}
+ggplot() + 
+  plot.polygon(poly.data, fill="NA") + 
+  plot.point(db.data, nameSize="A0", color="blue") +
+  plot.decoration(title="Age-0 hake density (in projected space)")
+```
+
+Instantiate the class for calculating the Spatial Indices.
+
+```{r Initiate_Spatial_Indices}
+cg = SpatialIndices(db.data)
+```
+
+Calculate the center of gravity, the Inertia and the Isotropy of the fish densities. The Center of Gravity and Inertia are calculated from the data location. If the argument 'name' is specified, the calculations take it into account. Finally a weight can be attached to each datum (if a variable is assigned to the locator "w").
+
+```{r Compute_Center_Gravity_A0}
+err = cg$computeCGI("A0")
+cgAxesA0 = cg$getAxes()
+```
+
+Get the results of the calculation of the Center of gravity (the calculations are performed in the projected space). The results are back transformed into the initial system prior to displaying them.
+
+```{r Print_Center_Gravity, eval=TRUE}
+vec = projec$operateInvert(cg$getCenter())
+cat("Center of gravity = ",vec,"\n")
+cat("Inertia =           ",cg$getInertia(),"\n")
+cat("Isotropy =          ",cg$getIso(),"\n")
+```
+
+Compute the center of gravity of the samples (without considering any specific variable).
+
+```{r Compute_Center_Gravity}
+err = cg$computeCGI("")
+cgAxesP0 = cg$getAxes()
+```
+
+Get the results of the calculation of the Center of gravity (in the initial system)
+
+```{r Print_Center_Gravity, eval=TRUE}
+vec = projec$operateInvert(cg$getCenter())
+cat("Center of gravity = ",vec,"\n")
+cat("Inertia =           ",cg$getInertia(),"\n")
+cat("Isotropy =          ",cg$getIso(),"\n")
+```
+
+Display the sample within the Polygon, together with the two inertia calculated beforehand: the one using the sample locations only (in blue) and the one using the weighted variable A0 into account (in red).
+
+```{r}
+ggplot() + 
+  plot.polygon(poly.data, fill="NA") + 
+  plot.point(db.data, color="black") +
+  plot.decoration(title="Center of gravity and Inertia of densities and Samples") +
+  plot.XY(cgAxesA0[[1]], cgAxesA0[[2]], linewidth=1, col="red") + 
+  plot.XY(cgAxesA0[[3]], cgAxesA0[[4]], linewidth=1, col="red") +
+  plot.XY(cgAxesP0[[1]], cgAxesP0[[2]], linewidth=1, col="blue") + 
+  plot.XY(cgAxesP0[[3]], cgAxesP0[[4]], linewidth=1, col="blue")
+```
+
+The two populations (variables *A0* and *A1*) are displayed simultaneously.
+
+```{r}
+ggplot() + 
+  plot.polygon(poly.data, fill="NA") + 
+  plot.point(db.data, nameSize="A0", color="red") +
+  plot.point(db.data, nameSize="A1", color="blue") +
+  plot.decoration(title="Age-0 and age-1 hake densities") 
+```
+
+The Local overlapping between two populations is addressed using the local index of collocation, that is, the non-centered correlation between their densities.
+
+```{r}
+lic = cg$getLIC("A0", "A1")
+cat("Local index of collocation = ",lic,"\n")
+```
+
+Calculate the Global Index of Collocation which looks at how geographically distinct two populations are by comparing the distance between their centers of gravity and the mean distance between individual fish taken at random and independently from each population.
+
+```{r}
+gic = cg$getGIC("A0", "A1")
+cat("Global index of collocation = ",gic,"\n")
+```
+
+Calculate:
+- the Abundance index
+- the Positive area
+- the Spreading area
+- the Equivalent area
+
+The spreading area 'sparea' (expressed in square nautical miles) is derived from
+ the curve expressing (Q-Q(T))/Q as a function of T. T being the cumulated area 
+occupied by the density values, ranked in decreasing order. Q(T) the correspondi
+ng cumulated abundance and Q the overall abundance. The spreading area is simply
+ defined as twice the area below this curve.
+
+```{r}
+err = cg$spatial("A0")
+
+VDD = cg$getQT("A0")
+ggplot() + 
+  plot.XY(VDD[[1]], VDD[[2]], flagPoint=TRUE) + 
+  plot.decoration(title="Curve: (Q - Q(T)) / Q", xlab="T", ylab="(Q-Q(T))/Q") 
+```
+
+Calculate the patches and represent them by color.
+
+```{r}
+centers = cg$getPatches("A0", 100, 10)
+ggplot() + 
+  plot.polygon(poly.data, fill="NA") + 
+  plot.point(db.data, nameColor="Patch", palette=c("blue", "red", "green", "black"),
+             asFactor=TRUE) +
+  plot.decoration(title="Patches")
+```
+
+Calculate the Microstructure index which measures the relative importance of structural components that have a smaller scale than the sampling lag (including random noise). This calculation is not completed in the current version of the package gstlearn.
+
+```{r, eval=FALSE}
+micro = cg$getMicroStructure("A0",10.,NULL,50,400)
+cat("Microstructure Index = ",micro,"\n")
+```

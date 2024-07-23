@@ -44,15 +44,21 @@ public:
   double getInertia() const { return _inertia; }
   double getIso() const { return _iso; }
   VectorVectorDouble getQT(const String &name) const;
-  double getMicroStructure(const String &name, double h0,
-                           const Polygons *polygon = nullptr,
-                           double dlim = 0., int ndisc = 100);
+  double getMicroStructure(const String& name,
+                           double h0,
+                           const Polygons* polygon = nullptr,
+                           double dlim             = 0.,
+                           int ndisc               = 100);
   std::vector<SpacePoint> getPatches(const String &name, double Dmin, double Amin = 0);
 
 private:
-  bool _discardData(bool flag_w, int iech, const String &name,
-                    VectorDouble &coor, double *value, double *weight,
-                    double *wz) const;
+  bool _discardData(bool flag_w,
+                    int iech,
+                    const String& name,
+                    VectorDouble& coor,
+                    double* value,
+                    double* weight,
+                    double* wvalue) const;
 
 private:
   Db *_db;                     // Not to be deleted

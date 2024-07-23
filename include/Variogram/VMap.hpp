@@ -18,8 +18,6 @@
 
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Covariances/CovCalcMode.hpp"
-#include "Geometry/BiTargetCheckDistance.hpp"
 
 class Db;
 class ECalcVario;

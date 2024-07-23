@@ -162,4 +162,4 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
                                          int seed = 131323,
                                          SPDEParam params = SPDEParam(),
                                          bool verbose = false);
-GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam params = SPDEParam());
+GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam& params = SPDEParam());

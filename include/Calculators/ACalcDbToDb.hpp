@@ -57,14 +57,14 @@ protected:
                      int number = 1,
                      double valinit = 0.);
   void _renameVariable(int whichDb,
-                       const VectorString &names,
-                       const ELoc &locatorType,
+                       const VectorString& names,
+                       const ELoc& locatorType,
                        int nvar,
                        int iptr,
-                       const String &name,
+                       const String& qualifier,
                        int count,
                        bool flagSetLocator = true,
-                       int shift = 0);
+                       int locatorShift    = 0);
   void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
   int  _expandInformation(int mode, const ELoc& locatorType);
   void _cleanVariableDb(int status);

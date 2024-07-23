@@ -13,7 +13,6 @@
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Polygon/Polygons.hpp"
@@ -21,19 +20,33 @@
 #include "Space/SpacePoint.hpp"
 #include "Variogram/VMap.hpp"
 
-SpatialIndices::SpatialIndices(Db *db)
-    : _db(db),
-      _center(), _mvalues(), _mvectors(), 
-      _inertia(TEST), _wztot(TEST), _iso(TEST), _nvalid(0), _theta(TEST),
-      _ra(TEST), _rb(TEST)
+SpatialIndices::SpatialIndices(Db* db)
+  : _db(db)
+  , _center()
+  , _mvalues()
+  , _mvectors()
+  , _inertia(TEST)
+  , _wztot(TEST)
+  , _iso(TEST)
+  , _nvalid(0)
+  , _theta(TEST)
+  , _ra(TEST)
+  , _rb(TEST)
 {
 }
 
-SpatialIndices::SpatialIndices(const SpatialIndices &r)
-    : AStringable(r), _center(r._center), _mvalues(r._mvalues),
-      _mvectors(r._mvectors), _inertia(r._inertia), _wztot(r._wztot),
-      _iso(r._iso), _nvalid(r._nvalid), _theta(r._theta), _ra(r._ra),
-      _rb(r._rb)
+SpatialIndices::SpatialIndices(const SpatialIndices& r)
+  : AStringable(r)
+  , _center(r._center)
+  , _mvalues(r._mvalues)
+  , _mvectors(r._mvectors)
+  , _inertia(r._inertia)
+  , _wztot(r._wztot)
+  , _iso(r._iso)
+  , _nvalid(r._nvalid)
+  , _theta(r._theta)
+  , _ra(r._ra)
+  , _rb(r._rb)
 {
 }
 
@@ -76,9 +89,13 @@ SpatialIndices::~SpatialIndices()
  ** \param[out]  wvalue Weighted value
  **
  *****************************************************************************/
-bool SpatialIndices::_discardData(bool flag_w, int iech, const String &name,
-                                  VectorDouble &coor, double *value,
-                                  double *weight, double *wvalue) const
+bool SpatialIndices::_discardData(bool flag_w,
+                                  int iech,
+                                  const String& name,
+                                  VectorDouble& coor,
+                                  double* value,
+                                  double* weight,
+                                  double* wvalue) const
 {
   // Check if the sample is masked off
 
@@ -267,7 +284,8 @@ double SpatialIndices::getGIC(const String &name1, const String &name2)
  *
  * \return The vector containing successively: xl1, yl1, xl2, yl2
  */
-VectorVectorDouble SpatialIndices::getAxes() const {
+VectorVectorDouble SpatialIndices::getAxes() const
+{
   VectorVectorDouble vec(4);
   if (_mvalues.empty())
   {
@@ -283,7 +301,8 @@ VectorVectorDouble SpatialIndices::getAxes() const {
   return vec;
 }
 
-VectorDouble SpatialIndices::getAxe(int rank) const {
+VectorDouble SpatialIndices::getAxe(int rank) const
+{
   VectorDouble vec;
   if (rank < 0 || rank > 3)
   {
@@ -467,8 +486,10 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   return vec;
 }
 
-double SpatialIndices::getMicroStructure(const String &name, double h0,
-                                         const Polygons *polygon, double dlim,
+double SpatialIndices::getMicroStructure(const String& name,
+                                         double h0,
+                                         const Polygons* polygon,
+                                         double dlim,
                                          int ndisc)
 {
   // Initializations
@@ -521,33 +542,48 @@ double SpatialIndices::getMicroStructure(const String &name, double h0,
 
   // Migrate the Data to the Grid
   migrate(_db, grid, name, 1, VectorDouble(), true);
+  double g0 = 0.;
+  for (int i = 0; i < ndisc * ndisc; i++)
+  {
+    double value = grid->getValue("VMAP.Migrate.Var", i);
+    g0 += value * value;
+  }
+  g0 *= maille;
   grid->dumpToNF("coucou.ascii");
   grid->display();
 
   // Prepare the variogram map calculation
   int nlag = ceil((3. * h0 / 2.) / MIN(dx, dy));
-  nlag=3;
   int nrow = 2 * nlag + 1;
   int ncol = 2 * nlag + 1;
   message("nrow=%d ncol=%d dx=%lf dy=%lf maille=%lf\n", nrow, ncol, dx, dy, maille);
-  DbGrid *vmap = db_vmap(grid, ECalcVario::E_COVARIANCE_NC, {nlag, nlag}, {dx, dy});
+  DbGrid* vmap =
+    db_vmap(grid, ECalcVario::E_COVARIOGRAM, {nlag, nlag}, {dx, dy});
+  vmap->dumpToNF("vmap.ascii");
 
   // Calculate the Microstructure index
   int icenter = nrow * ncol / 2;
-  double g0 = vmap->getValue("VMAP.Migrate.Var", icenter);
+  double gh0 = vmap->getValue("VMAP.Migrate.Var", icenter);
+
+  double mi   = (g0 - gh0) / g0;
 
   // Delete the internal storage
   delete grid;
   delete vmap;
 
-  return g0;
+  return mi;
 }
 
-static void
-_updateGravityCenter(const VectorDouble &xxs, const VectorDouble &yys,
-                     const VectorDouble &zzs, const VectorDouble &wws,
-                     std::vector<SpacePoint> &centers, VectorDouble &pa,
-                     VectorDouble &pb, VectorInt &ig, int found) {
+static void _updateGravityCenter(const VectorDouble& xxs,
+                                 const VectorDouble& yys,
+                                 const VectorDouble& zzs,
+                                 const VectorDouble& wws,
+                                 std::vector<SpacePoint>& centers,
+                                 VectorDouble& pa,
+                                 VectorDouble& pb,
+                                 VectorInt& ig,
+                                 int found)
+{
   // Review the list of SpacePoints assigned to the current target group
   // to update the center of gravity
 
@@ -576,11 +612,12 @@ _updateGravityCenter(const VectorDouble &xxs, const VectorDouble &yys,
   pb[found] = pbval;
 }
 
-static SpacePoint _calculateGlobalGravityCenter(const VectorDouble &xxs,
-                                                const VectorDouble &yys,
-                                                const VectorDouble &zzs,
-                                                const VectorDouble &wws,
-                                                double *patot, double *pbtot)
+static SpacePoint _calculateGlobalGravityCenter(const VectorDouble& xxs,
+                                                const VectorDouble& yys,
+                                                const VectorDouble& zzs,
+                                                const VectorDouble& wws,
+                                                double* patot,
+                                                double* pbtot)
 {
   double xt = 0.;
   double xb = 0.;
@@ -604,11 +641,14 @@ static SpacePoint _calculateGlobalGravityCenter(const VectorDouble &xxs,
   return centerG;
 }
 
-static void _createNewPatch(int iech, const VectorDouble &xxs,
-                            const VectorDouble &yys, const VectorDouble &zzs,
-                            const VectorDouble &wws,
-                            std::vector<SpacePoint> &centers, VectorDouble &pa,
-                            VectorDouble &pb)
+static void _createNewPatch(int iech,
+                            const VectorDouble& xxs,
+                            const VectorDouble& yys,
+                            const VectorDouble& zzs,
+                            const VectorDouble& wws,
+                            std::vector<SpacePoint>& centers,
+                            VectorDouble& pa,
+                            VectorDouble& pb)
 {
   SpacePoint current;
   current.setCoord(0, xxs[iech]);
