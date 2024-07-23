@@ -138,7 +138,7 @@ Variables
 Column = 0 - Name = xx - Locator = x1
 Column = 1 - Name = yy - Locator = x2
 Column = 2 - Name = angles_interp - Locator = z1
- 
+
 Data Base Grid Characteristics
 ==============================
 
@@ -170,7 +170,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = NA
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -208,7 +208,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = NA
 Column = 4 - Name = Migrate.angles_interp - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -352,13 +352,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
+Variable(s)                 = [ThicknessSides]
 Variance-Covariance Matrix     8.283
 
 Direction #1
 ------------
 Number of lags              = 40
 Direction coefficients      =      1.000     1.000
-Direction angles (degrees)  =     45.000     0.000
+Direction angles (degrees)  =     45.000
 Tolerance on direction      =     45.000 (degrees)
 Calculation lag             =    800.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -410,7 +411,7 @@ Direction #2
 ------------
 Number of lags              = 20
 Direction coefficients      =     -1.000     1.000
-Direction angles (degrees)  =    135.000     0.000
+Direction angles (degrees)  =    135.000
 Tolerance on direction      =     45.000 (degrees)
 Calculation lag             =    400.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -437,7 +438,7 @@ For variable 1
         17    55.000  6800.319     5.859
         18    30.000  7199.585     9.574
         19    39.000  7641.196     4.828
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -468,7 +469,7 @@ K-Bessel (Third Parameter = 1)
      [  1,]     0.707     0.707
 Total Sill     =      6.918
 Known Mean(s)     0.000
- 
+
 #NO_DIFF#XXX
 
 
@@ -495,7 +496,7 @@ K-Bessel (Third Parameter = 1)
      [  1,]     0.707     0.707
 Total Sill     =      6.918
 Known Mean(s)     0.000
- ----
+----
 
 
 #NO_DIFF#XXX

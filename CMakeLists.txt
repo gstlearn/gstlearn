@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Define project here
 project(gstlearn
-        VERSION      1.3.0 # Make it consistent with CHANGES
+        VERSION      1.4.0 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -50,6 +50,7 @@ get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 # Options
 option(BUILD_PYTHON  "Build Python package"        OFF)
 option(BUILD_R       "Build R package"             OFF)
+option(BUILD_TESTING "Build tests"                 OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 if (MINGW)
   set(BUILD_PYTHON OFF)
@@ -67,6 +68,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
+message(STATUS "BUILD_TESTING=" ${BUILD_TESTING})
 message(STATUS "BUILD_DOXYGEN=" ${BUILD_DOXYGEN})
 message(STATUS "USE_HDF5="      ${USE_HDF5})
 
@@ -107,10 +109,12 @@ endif()
 ## TESTING
 
 # Add non-regression test target
-include(CTest)
-enable_testing()
+if(BUILD_TESTING)
+  include(CTest)
+  enable_testing()
 
-add_subdirectory(tests)
+  add_subdirectory(tests)
+endif()
 
 ####################################################
 ## DEMONSTRATION SCRIPTS

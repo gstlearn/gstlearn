@@ -35,9 +35,7 @@ public:
 
   void setCoord(double coord);
   void setCoord(const VectorDouble& coord);
-  void setCoord(int i, double val){_coord[i] = val;}
-  const double* getCoordsP() const {return _coord.data();}
-  double* getCoordsPM()  {return _coord.data();}
+  void setCoord(int i, double val) { _coord[i] = val; }
 
   /// Return true if the point is consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
@@ -45,11 +43,13 @@ public:
   /// Move me by the given vector
   void move(const VectorDouble& vec);
   /// Return the distance between me and another point
-  double getDistance(const SpacePoint& pt) const;
+  double getDistance(const SpacePoint& pt, int ispace = 0) const;
+  /// Return all the distance (space composits) between me and another point
+  VectorDouble getDistances(const SpacePoint& pt) const;
   /// Return the distance along one direction between me and another point
   double getDistance1D(const SpacePoint &pt, int idim = 0) const;
   /// Return the increment vector between me and another point
-  VectorDouble getIncrement(const SpacePoint& pt) const;
+  VectorDouble getIncrement(const SpacePoint& pt, int ispace = 0) const;
   /// Fill with TEST values to simulate a missing Space Point
   void setFFFF();
   /// Check if the SpacePoint is actually defined

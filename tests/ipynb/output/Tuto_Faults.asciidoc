@@ -12,13 +12,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [Data]
 Variance-Covariance Matrix     0.773
 
 Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      5.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -34,7 +35,7 @@ For variable 1
          7    19.000    34.891     0.816
          8    15.000    40.427     0.772
          9    19.000    44.683     1.114
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -52,13 +53,14 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Calculation takes Faults into account
+Variable(s)                 = [Data]
 Variance-Covariance Matrix     0.773
 
 Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      5.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -74,7 +76,7 @@ For variable 1
          7    11.000    34.600     0.874
          8     9.000    40.303     0.693
          9    11.000    44.188     0.843
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -121,4 +123,4 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Kriging.Data.estim - Locator = z1
 Column = 4 - Name = Kriging.Data.stdev - Locator = NA
- ----
+----

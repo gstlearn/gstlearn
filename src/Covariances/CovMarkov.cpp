@@ -74,7 +74,7 @@ VectorDouble CovMarkov::_evaluateSpectrumOnSphere(int n, double scale) const
   return sp;
 }
 
-double CovMarkov::evaluateSpectrum(double freq, int /*ndim*/) const
+double CovMarkov::evaluateSpectrum(double freq) const
 {
   double s = 0.;
   int n = (int)_markovCoeffs.size();

@@ -24,7 +24,16 @@ if (MSVC)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
-  add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wundef)
+  add_compile_options(
+    -Wall
+    -Wextra
+    -Wno-deprecated-copy
+    -Wno-unused-parameter
+    -Wtype-limits
+    -Wnon-virtual-dtor
+    -Wvla
+    -Wundef
+  )
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
   endif()
@@ -45,11 +54,6 @@ if (NOT IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-endif()
-
-# Change the name of the output file (to distinguish lib files under Windows)
-if (WIN32)
-  set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 endif()
 
 # Debug find package instruction

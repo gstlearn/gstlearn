@@ -59,22 +59,32 @@ public:
   /// Shortcuts to ASpace methods
 
   /// Return the number of dimension of the current space context
-  unsigned int getNDim() const;
+  unsigned int getNDim(int ispace = -1) const;
 
   /// Return the current space context origin coordinates
-  const VectorDouble& getOrigin() const;
+  const VectorDouble& getOrigin(int ispace = -1) const;
 
   /// Return the distance between two space points for the current space context
-  double getDistance(const SpacePoint& p1, const SpacePoint& p2) const;
+  double getDistance(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ispace = 0) const;
+
+  /// Return all the distances (space composits) between two space points for the current space context
+  VectorDouble getDistances(const SpacePoint& p1,
+                            const SpacePoint& p2) const;
 
   /// Return the distance along one direction between two space points
-  double getDistance1D(const SpacePoint& p1, const SpacePoint& p2, int idim) const;
+  double getDistance1D(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       int idim) const;
 
   /// Return the increment vector between two space points for the current space context
-  VectorDouble getIncrement(const SpacePoint& p1, const SpacePoint& p2) const;
+  VectorDouble getIncrement(const SpacePoint& p1,
+                            const SpacePoint& p2,
+                            int ispace = 0) const;
 
 protected:
-  /// Modify the Space dimension of an already created item
+  /// Modify the Space dimension of an already created item (and create RN space)
   /// (To be used only during creation ... in particular when reading NF)
   void setNDim(int ndim);
 
@@ -86,7 +96,8 @@ protected:
 /// (Re)Defining the unique default global space
 GSTLEARN_EXPORT void defineDefaultSpace(ESpaceType type,
                                         unsigned int ndim = 2,
-                                        double param = 0.);
+                                        double param = 0.,
+                                        bool addtime = false);
 /// Return a clone of the unique default global space
 GSTLEARN_EXPORT const ASpace* cloneDefaultSpace();
 

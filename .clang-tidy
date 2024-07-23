@@ -18,5 +18,7 @@ Checks: >-
   -readability-isolate-declaration,
   -readability-magic-numbers,
   -readability-implicit-bool-conversion, # TODO: to be removed
+  -readability-redundant-member-init,
+  -readability-redundant-access-specifiers,
 HeaderFilterRegex: 'include'
 UseColor: true

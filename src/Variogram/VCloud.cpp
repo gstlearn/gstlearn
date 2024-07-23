@@ -137,6 +137,7 @@ void VCloud::_setResult(int iech1,
 /****************************************************************************/
 /*!
  **  Evaluate the experimental variogram cloud on irregular data
+ **  This method creates one variable per direction of 'dirparam'
  **
  ** \return  Error return code
  **
@@ -233,13 +234,13 @@ void VCloud::_variogram_cloud(Db *db, int idir)
   for (int iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     int ideb = (_varioparam->isDateUsed(db)) ? 0 : iech + 1;
     for (int jech = ideb; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! vario->keepPair(idir, T1, T2, &dist)) continue;
@@ -289,6 +290,8 @@ int VCloud::_update_discretization_grid(double x, double y)
  ** \param[in]  varnb        Number of discretization steps along variance axis
  ** \param[in]  namconv      Naming convention
  **
+ ** \remarks If 'lagmax' is not provided, it is set to the diagonal of the
+ ** area covered by the active samples within 'db'.
  ** \remarks If 'varmax' is not defined, it is set to 3 times the experimental
  ** variance of the first variable (Z_locator)
  **

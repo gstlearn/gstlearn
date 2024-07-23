@@ -3438,7 +3438,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
     if (st_discard_point(local_pgs, iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
     mes_process("Calculating Variogram Geometry", nech, iech);
 
     for (int jjech = iiech + 1; jjech < nech; jjech++)
@@ -3448,7 +3448,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
       if (st_discard_point(local_pgs, jech)) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! vario->keepPair(idir, T1, T2, &dist)) continue;
@@ -5073,8 +5073,7 @@ static int st_variogram_pgs_stat(Db *db,
   /*******************/
 
   rule->statistics(0, &node_tot, &nfacies, &nmax_tot, &ny1, &ny2, &prop_tot);
-  propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0,
-  NULL,
+  propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, NULL,
                               NULL, propcst, propdef);
   if (propdef == nullptr) goto label_end;
   if (rule->particularities(NULL, NULL, NULL, 1, flag_stat)) goto label_end;

@@ -4,13 +4,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [Simu]
 Variance-Covariance Matrix     0.616
 
 Direction #1
 ------------
 Number of lags              = 20
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =     50.000 (Percent of the lag value)

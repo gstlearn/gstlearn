@@ -1,4 +1,10 @@
 #NO_DIFF#XXX
+----<IPython.core.display.Javascript object>
+
+----
+
+
+#NO_DIFF#XXX
 ----
 <style>md-block { color:gray; background-color:white; }</style><md-block>
 # Covariance over block
@@ -51,6 +57,4 @@ $$Theoretical = \bar{\gamma}(v,v) = C(0)-\bar{C}(v,v)$$
 
 
 #NO_DIFF#XXX
-----FloatSlider(value=20.0, continuous_update=False, description='Range', max=50.0, min=1.0, step=1.0)HBox(children=(IntSlider(value=10, continuous_update=False, description='Coarsify', max=14, min=1),))HBox(children=(Text(value='', description='Empirical', placeholder=''), Text(value='', description='Theoretica…<IPython.core.display.Javascript object>
-
-----
+----FloatSlider(value=20.0, continuous_update=False, description='Range', max=50.0, min=1.0, step=1.0)HBox(children=(IntSlider(value=10, continuous_update=False, description='Coarsify', max=14, min=1),))HBox(children=(Text(value='', description='Empirical', placeholder=''), Text(value='', description='Theoretica…----

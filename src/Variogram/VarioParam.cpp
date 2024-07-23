@@ -488,7 +488,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
       int iech = rindex[iiech];
       if (hasSel && !db->isActive(iech)) continue;
       if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsST(iech, T1);
+      db->getSampleAsSTInPlace(iech, T1);
 
       int ideb = (hasDate) ? 0 : iiech + 1;
       for (int jjech = ideb; jjech < nech; jjech++)
@@ -497,7 +497,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
         if (db->getDistance1D(iech, jech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! vario.keepPair(idir, T1, T2, &dist)) continue;

@@ -621,6 +621,12 @@ bool Model::hasNugget() const
   if (covalist == nullptr) return false;
   return covalist->hasNugget();
 }
+int Model::getRankNugget() const
+{
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return -1;
+  return covalist->getRankNugget();
+}
 VectorInt Model::getActiveCovList() const
 {
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
@@ -1423,7 +1429,7 @@ double Model::getTotalSill(int ivar, int jvar) const
   return getCovAnisoList()->getTotalSill(ivar, jvar);
 }
 
-MatrixSquareGeneral Model::getTotalSills() const
+MatrixSquareSymmetric Model::getTotalSills() const
 {
   return getCovAnisoList()->getTotalSill();
 }

@@ -23,7 +23,6 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
   BUILD_DIR : build
 
 jobs:
@@ -34,30 +33,37 @@ jobs:
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
         sudo rm /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
         sudo apt-get install -yq \
+          doxygen \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev \
-          doxygen
+          libeigen3-dev
 
+    - name: Configure build directory
+      run: |
+        cmake \
+          -B${{ env.BUILD_DIR }} \
+          -DBUILD_PYTHON=OFF \
+          -DBUILD_R=OFF \
+          -DBUILD_DOXYGEN=ON
+          
     - name: Build doxygen documentation and save generated folder name in the environment
       id: main_step
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_DOXYGEN=ON -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         cmake --build ${{env.BUILD_DIR}} --target doxygen
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
-        # This will become the folder name in the server
+        # This will become the folder name in the server
         name: doxygen
         path: ${{ env.HTML_FOLDER }}
 
@@ -78,7 +84,7 @@ jobs:
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
   
-      # Delete the artifacts (for freeing storage space under github)
-      - uses: geekyeggo/delete-artifact@v2
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v5
         with:
           name: doxygen

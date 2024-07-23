@@ -1,6 +1,10 @@
 name: publish-doc
 
 on:
+  # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron: '30 23 */15 * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -8,9 +12,13 @@ on:
         description: 'Manual'
         required: false
         default: ''
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: false
 
 env:
-  BUILD_TYPE: Release
   BUILD_DIR : build
   
 jobs:
@@ -21,8 +29,17 @@ jobs:
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev
+          
     - name: Get project version
       id: main_step
       run: |
@@ -48,6 +65,7 @@ jobs:
 
   call-publish:
     needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
     
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest

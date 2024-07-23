@@ -12,6 +12,10 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Look for Python3
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
+  Python3_NumPy_VERSION_MATCH ${Python3_NumPy_VERSION})
+set(Python3_NumPy_VERSION_MAJOR ${CMAKE_MATCH_1})
+math(EXPR Python3_NumPy_NEXT_MAJOR "${Python3_NumPy_VERSION_MAJOR} + 1")
 
 # Look for SWIG 4 [No need for customized swig]
 find_package(SWIG 4.0 REQUIRED)

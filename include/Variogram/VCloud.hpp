@@ -14,12 +14,8 @@
 #include "geoslib_define.h"
 #include "geoslib_d.h"
 
-#include "Enum/ECalcVario.hpp"
-
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Covariances/CovCalcMode.hpp"
-#include "Geometry/BiTargetCheckDistance.hpp"
 
 class Db;
 class ECalcVario;
@@ -29,7 +25,6 @@ class Polygons;
  * \brief
  * Class containing the Variogram Cloud which uses an DbGrid provided by the user
  * This function simply calculate and add the results as new field in this DbGrid.
- *
  */
 class GSTLEARN_EXPORT VCloud : public AVario
 {

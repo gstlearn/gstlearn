@@ -15,7 +15,6 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/ANoStat.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
@@ -31,7 +30,7 @@ ACov::ACov(const ASpace *space)
     : ASpaceObject(space),
       _isOptimEnabled(true),
       _p1As(),
-      _p2A()
+      _p2A(space)
 {
 }
 
@@ -825,7 +824,8 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   // Play the non-stationarity (if needed)
 
   ANoStat *nostat = getNoStatModify();
-  if (isNoStat())
+  bool flag_isNoStat = isNoStat();
+  if (flag_isNoStat)
   {
     if (nostat->manageInfo(1, db1, db2)) return MatrixRectangular();
   }
@@ -859,7 +859,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      db1->getSampleAsSPInPlace(iech1, p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -872,10 +872,10 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
+          db2->getSampleAsSPInPlace(iech2, p2);
 
           // Modify the covariance (if non stationary)
-          if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+          if (flag_isNoStat) updateCovByPoints(1, iech1, 2, iech2);
 
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, jvar2, mode);
@@ -1003,7 +1003,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
       int iech1 = index1[rvar1][rech1];
-      db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      db1->getSampleAsSPInPlace(iech1, p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -1019,7 +1019,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
           if (icol >= irow)
           {
             int iech2 = index1[rvar2][rech2];
-            db1->getSampleCoordinatesAsSPInPlace(iech2, p2);
+            db1->getSampleAsSPInPlace(iech2, p2);
 
             // Modify the covariance (if non stationary)
             if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
@@ -1133,7 +1133,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      db1->getSampleAsSPInPlace(iech1, p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -1146,7 +1146,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
+          db2->getSampleAsSPInPlace(iech2, p2);
 
           // Modify the covariance (if non stationary)
           if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);

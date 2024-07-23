@@ -289,7 +289,10 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   {
     VectorDouble angles(ndim);
     (void) GH::rotationGetAnglesFromCodirInPlace(_codir,angles);
-    sstr << toVector("Direction angles (degrees)  = ", angles);
+    if (ndim > 2)
+      sstr << toVector("Direction angles (degrees)  = ", angles);
+    else
+      sstr << "Direction angles (degrees)  = " << toDouble(angles[0]) << std::endl;
   }
 
   if (! FFFF(_tolAngle))

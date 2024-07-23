@@ -70,6 +70,7 @@ Vario::Vario(const VarioParam& varioparam)
       _verbose(false),
       _flag_UK(false),
       _niter_UK(0),
+      _variableNames(),
       _model(),
       _BETA(),
       _DRFDIAG(),
@@ -99,6 +100,7 @@ Vario::Vario(const Vario& r)
       _verbose(r._verbose),
       _flag_UK(r._flag_UK),
       _niter_UK(r._niter_UK),
+      _variableNames(r._variableNames),
       _model(r._model),
       _BETA(r._BETA),
       _DRFDIAG(r._DRFDIAG),
@@ -132,6 +134,7 @@ Vario& Vario::operator=(const Vario& r)
     _verbose = r._verbose;
     _flag_UK = r._flag_UK;
     _niter_UK = r._niter_UK;
+    _variableNames = r._variableNames;
     _model = r._model;
     _BETA = r._BETA;
     _DRFDIAG = r._DRFDIAG;
@@ -1009,6 +1012,11 @@ String Vario::toString(const AStringFormat* strfmt) const
 
   sstr << _varioparam.toStringMain(strfmt);
 
+  // Print the variable names
+
+  if (! _variableNames.empty())
+    sstr << "Variable(s)                 = " << _variableNames.toString() << std::endl;
+
   // Print the variance matrix
 
   sstr << toMatrix("Variance-Covariance Matrix",VectorString(),VectorString(),
@@ -1824,16 +1832,27 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<int>(is, "Number of Variogram Directions", ndir);
   ret = ret && _recordRead<double>(is, "Scale", scale);
 
+  // Reading the calculation flag
+  ret = ret && _recordRead<int>(is, "Calculation Flag", flag_calcul);
+
+  // Reading the variable names
+  _variableNames.resize(nvar, "Unknown");
+  if (flag_calcul == 2)
+  {
+    // Reading the variable names
+    for (int ivar = 0; ivar < nvar; ivar++)
+      ret = ret && _recordRead<String>(is, "Variable Name", _variableNames[ivar]);
+  }
+
   /* Read the variances (optional) */
 
-  ret = ret && _recordRead<int>(is, "Variogram calculation Option", flag_calcul);
   vars.resize(nvar * nvar);
   if (flag_calcul)
   {
     int ecr = 0;
     for (int ivar = 0; ret && ivar < nvar; ivar++)
       for (int jvar = 0; ret && jvar < nvar; jvar++, ecr++)
-        ret = ret && _recordRead<double>(is, "Experimental Variance term", vars[ecr]);
+        ret = ret && _recordRead<double>(is, "Variance", vars[ecr]);
   }
   if (! ret) return ret;
 
@@ -1910,7 +1929,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
 bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   double value;
-  static int flag_calcul = 1;
+  static int flag_calcul = 2;
 
   /* Write the Vario structure */
 
@@ -1920,6 +1939,18 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Number of directions", getDirectionNumber());
   ret = ret && _recordWrite<double>(os, "Scale", _varioparam.getScale());
   ret = ret && _recordWrite<int>(os, "Calculation Flag", flag_calcul);
+
+  // Dump the variable names
+
+  ret = ret && _commentWrite(os, "Variable Names");
+  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+  {
+    if (ivar < (int) _variableNames.size())
+      ret = ret && _recordWrite<String>(os, "", _variableNames[ivar]);
+    else
+      ret = ret && _recordWrite<String>(os, "", "Unknown");
+  }
+  ret = ret && _commentWrite(os, "");
 
   /* Dumping the Variances */
 
@@ -2280,6 +2311,15 @@ int Vario::_compute(Db *db,
         _model->addCovFromParam(ECov::SPHERICAL, 2., 1.);
       }
     }
+  }
+
+  // Save the variable names
+  int nvar = getVariableNumber();
+  _variableNames.resize(nvar, "Unknown");
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    if (ivar < db->getLocatorNumber(ELoc::Z))
+      setVariableName(ivar, db->getNameByLocator(ELoc::Z, ivar));
   }
 
   // Dispatch
@@ -2695,7 +2735,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
   for (int iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     for (int ipas = 1; ipas < npas; ipas++)
     {
@@ -2709,7 +2749,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
         jech = iech + iwgt * ipas;
         if (jech < 0 || jech > nech) break;
         if (hasSel && !db->isActive(jech)) break;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3296,7 +3336,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
     iech = rindex[iiech];
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     ideb = (hasDate) ? 0 : iiech + 1;
     for (int jjech = ideb; jjech < nech; jjech++)
@@ -3305,7 +3345,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3329,7 +3369,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
         IDIRLOC = idir;
         IECH1 = iech;
         IECH2 = jech;
-        evaluate(db, getVariableNumber(), iech, jech, ipas, dist);
+        evaluate(db, getVariableNumber(), iech, jech, ipas, dist, 1);
       }
     }
   }
@@ -3407,7 +3447,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, int *rindex)
       w1 = db->getWeight(iech);
       if (FFFF(w1)) continue;
     }
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     /* Looking for the second sample */
 
@@ -3418,7 +3458,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, int *rindex)
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3512,7 +3552,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
   {
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
     db_index_sample_to_grid(db, iech, indg1);
 
     for (int ipas = 1; ipas < npas; ipas++)
@@ -3524,7 +3564,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3608,7 +3648,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
   for (int iech = 0; iech < nech; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
     db_index_sample_to_grid(db, iech, indg1);
 
     for (int ipas = 1; ipas < npas; ipas++)
@@ -3626,7 +3666,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
         int jech = db_index_grid_to_sample(db, indg2);
         if (jech < 0) continue;
         if (hasSel && !db->isActive(jech)) continue;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -3863,7 +3903,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
       iech = rindex[iiech];
       if (hasSel && !db->isActive(iech)) continue;
       if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsST(iech, T1);
+      db->getSampleAsSTInPlace(iech, T1);
 
       ideb = (hasDate) ? 0 : iiech + 1;
       for (jjech = ideb; jjech < nech; jjech++)
@@ -3872,7 +3912,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
         if (db->getDistance1D(iech, jech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -4064,7 +4104,7 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex)
     iech = rindex[iiech];
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     for (int jjech = iiech + 1; jjech < nech; jjech++)
     {
@@ -4072,7 +4112,7 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex)
       if (db->getDistance1D(iech, jech) > maxdist) break;
       if (hasSel && !db->isActive(jech)) continue;
       if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! keepPair(idir, T1, T2, &dist)) continue;
@@ -4654,7 +4694,7 @@ int Vario::computeGeometryMLayers(Db *db,
     for (iech = iiech = 0; iech < nech; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
-      db->getSampleAsST(iech, T1);
+      db->getSampleAsSTInPlace(iech, T1);
 
       if (seltab[iech] == 0) continue;
       for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
@@ -4663,7 +4703,7 @@ int Vario::computeGeometryMLayers(Db *db,
         {
           if (hasSel && !db->isActive(jech)) continue;
           if (seltab[jech] == 0) continue;
-          db->getSampleAsST(jech, T2);
+          db->getSampleAsSTInPlace(jech, T2);
 
           for (int jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
           {
@@ -4748,4 +4788,16 @@ int Vario::sampleModel(Model *model, const CovCalcMode*  mode)
     }
   }
   return 0;
+}
+
+void Vario::setVariableName(int ivar, const String &variableName)
+{
+  if (! _isVariableValid(ivar)) return;
+  _variableNames[ivar] = variableName;
+}
+
+String Vario::getVariableName(int ivar) const
+{
+  if (! _isVariableValid(ivar)) return String();
+  return _variableNames[ivar];
 }
