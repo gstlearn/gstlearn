@@ -10,14 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Basic/AException.hpp"
 
 #include <vector>
 #include <sstream>
 #include <memory>
-#include <limits>
 #include <algorithm>
 #include <cmath>
 
@@ -28,7 +26,7 @@
  **
  ***************************************************************************/
 template <typename T>
-class GSTLEARN_EXPORT VectorT
+class VectorT
 {
 public:
   typedef std::vector<T> Vector;
@@ -278,25 +276,15 @@ VectorT<T>& VectorT<T>::operator<<(const VectorT<T>& v)
 }
 #endif
 
-
-// Force instantiation for VectorT (for Windows MSVC export)
-#ifdef _MSC_VER
-  // Do not export VectorXXX to SWIG (no more instantiation needed)
-  #ifndef SWIG
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<int>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<double>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<String>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<float>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<UChar>;
-//    GSTLEARN_TEMPLATE_EXPORT template class VectorT<bool>;
-  #endif
-#endif
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const VectorT<T>& vec)
+{
+  os << vec.toString();
+  return os;
+}
 
 //typedef VectorT<bool> VectorBool; TODO : Build a real VectorBool
 // https://stackoverflow.com/a/61158013/3952924
 typedef VectorT<UChar>  VectorBool; // Use UChar because std::vector of bool has a specific implementation
 typedef VectorT<String> VectorString;
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const VectorT<T>& vec);
 
