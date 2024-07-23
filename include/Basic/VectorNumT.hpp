@@ -51,11 +51,8 @@ public:
 #endif
   inline ~VectorNumT() = default;
 
-// Only for C++ users
-// These functions are not available in target language
-// because numerical vectors are converted in target language vectors
 public:
-  inline bool isSame(const VectorNumT& v, double eps = 1.e-10) const;
+  inline bool isSame(const VectorNumT& other, double eps = 1.e-10) const;
 
   inline T sum() const;
   inline T minimum() const;
@@ -216,6 +213,7 @@ const VectorNumT<T>& VectorNumT<T>::divide(const T& v)
   return *this;
 }
 
+#ifndef SWIG
 template <typename T>
 std::ostream& operator<<(std::ostream& os,
                          const VectorT<VectorNumT<T>>& vec)
@@ -229,6 +227,7 @@ std::ostream& operator<<(std::ostream& os,
   os << "]";
   return os;
 }
+#endif
 
 typedef VectorNumT<int>       VectorInt;
 typedef VectorNumT<double>    VectorDouble;

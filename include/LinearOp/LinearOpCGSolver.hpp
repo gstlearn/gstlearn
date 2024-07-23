@@ -11,7 +11,6 @@
 #pragma once
 
 #include "Matrix/VectorEigen.hpp"
-#include "gstlearn_export.hpp"
 
 #include "LinearOp/ILinearOpEigenCG.hpp"
 
@@ -25,7 +24,7 @@
 #endif
 
 template<typename TLinOP>
-class LinearOpCGSolver  // No Export because it's a template
+class LinearOpCGSolver
 {
 public:
   LinearOpCGSolver(ILinearOpEigenCG* linop);

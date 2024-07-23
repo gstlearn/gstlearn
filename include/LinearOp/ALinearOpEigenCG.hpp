@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "LinearOp/ILinearOpEigenCG.hpp"
 
 #ifndef SWIG
