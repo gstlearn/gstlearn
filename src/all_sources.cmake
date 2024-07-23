@@ -222,8 +222,6 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/PolyLine2D.cpp
-  Basic/VectorNumT.cpp
-  Basic/VectorT.cpp
   Geometry/GeometryHelper.cpp
   Geometry/ABiTargetCheck.cpp
   Geometry/BiTargetCheckDistance.cpp

@@ -71,6 +71,9 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.5
+
     - name: Configure build directory
       run: |
         cmake \
@@ -81,6 +84,9 @@ jobs:
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
       env:
         CXXFLAGS: -Werror
+        SCCACHE_GHA_ENABLED: "true"
+        CMAKE_CC_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
     - name: Build the package
       run: |

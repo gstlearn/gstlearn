@@ -226,7 +226,7 @@ check_py: cmake-python
 check_r: cmake-r #cmake-r-doxygen
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_r -- $(N_PROC_OPT)
 
-check: cmake-python-r
+check: cmake-python-r cmake
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check -- $(N_PROC_OPT)
 
 check_ipynb: cmake-python
