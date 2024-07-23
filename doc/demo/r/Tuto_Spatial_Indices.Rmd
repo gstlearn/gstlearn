@@ -87,7 +87,7 @@ cgAxesA0 = cg$getAxes()
 
 Get the results of the calculation of the Center of gravity (the calculations are performed in the projected space). The results are back transformed into the initial system prior to displaying them.
 
-```{r Print_Center_Gravity, eval=TRUE}
+```{r Print_Center_Gravity_A0, eval=TRUE}
 vec = projec$operateInvert(cg$getCenter())
 cat("Center of gravity = ",vec,"\n")
 cat("Inertia =           ",cg$getInertia(),"\n")
@@ -103,7 +103,7 @@ cgAxesP0 = cg$getAxes()
 
 Get the results of the calculation of the Center of gravity (in the initial system)
 
-```{r Print_Center_Gravity, eval=TRUE}
+```{r Print_Center_Gravity_P0, eval=TRUE}
 vec = projec$operateInvert(cg$getCenter())
 cat("Center of gravity = ",vec,"\n")
 cat("Inertia =           ",cg$getInertia(),"\n")

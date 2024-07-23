@@ -552,7 +552,7 @@ Reference Sparse matrix
      [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
      [  6,]         .         .     2.190     0.291    -0.038         .     1.561
 
-Setting non-zero terms of Column (1) to a vector (sequence from 1 to 7)
+Setting terms of Column (1) to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
 - Sparse Format
@@ -565,7 +565,7 @@ Setting non-zero terms of Column (1) to a vector (sequence from 1 to 7)
      [  5,]     0.009     6.000         .     0.464    -1.519     2.980         .
      [  6,]         .     7.000     2.190     0.291    -0.038         .     1.561
 
-Setting non-zero terms of Row (2) to a vector (sequence from 1 to 7)
+Setting terms of Row (2) to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
 - Sparse Format
