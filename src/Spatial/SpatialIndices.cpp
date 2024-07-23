@@ -503,7 +503,6 @@ double SpatialIndices::getMicroStructure(const String &name, double h0,
 
   double dx = xmax - xmin;
   double dy = ymax - ymin;
-  message("Initial dx=%lf dy=%lf\n", dx, dy);
   double extend = 2. * MAX(dlim / dx, dlim / dy);
   xmin -= dx * extend;
   xmax += dx * extend;
@@ -512,8 +511,6 @@ double SpatialIndices::getMicroStructure(const String &name, double h0,
   dx = (xmax - xmin) / (double) ndisc;
   dy = (ymax - ymin) / (double) ndisc;
   double maille = dx * dy;
-  message("xmin=%lf xmax=%lf ymin=%lf ymax=%lf\n", xmin, xmax, ymin, ymax);
-  message("dx=%lf dy=%lf nx=%d ny=%d\n", dx,dy,ndisc,ndisc);
 
   // Create the internal Grid
   DbGrid *grid = DbGrid::create({ndisc, ndisc}, {dx, dy}, {xmin, ymin});
@@ -523,9 +520,9 @@ double SpatialIndices::getMicroStructure(const String &name, double h0,
     db_polygon(grid, polygon);
 
   // Migrate the Data to the Grid
-  migrate(_db, grid, name);
+  migrate(_db, grid, name, 1, VectorDouble(), true);
+  grid->dumpToNF("coucou.ascii");
   grid->display();
-
 
   // Prepare the variogram map calculation
   int nlag = ceil((3. * h0 / 2.) / MIN(dx, dy));
@@ -545,10 +542,6 @@ double SpatialIndices::getMicroStructure(const String &name, double h0,
 
   return g0;
 }
-
-void tot(double a) {
-  double b = 12.;
-    }
 
 static void
 _updateGravityCenter(const VectorDouble &xxs, const VectorDouble &yys,
