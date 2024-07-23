@@ -25,7 +25,7 @@
 #endif
 
 template<typename TLinOP>
-class GSTLEARN_EXPORT LinearOpCGSolver
+class LinearOpCGSolver  // No Export because it's a template
 {
 public:
   LinearOpCGSolver(ILinearOpEigenCG* linop);

@@ -51,14 +51,12 @@ struct Eigen::internal::generic_product_impl<TLinOP, Rhs, Eigen::SparseShape, Ei
 #endif
 
 template<typename TLinOP>
-class GSTLEARN_EXPORT ALinearOpEigenCG: public Eigen::EigenBase<TLinOP>,
-                                        public ILinearOpEigenCG
+class ALinearOpEigenCG : public Eigen::EigenBase<TLinOP>, // No Export because it's a template
+                         public ILinearOpEigenCG
 {
 public:
-  ALinearOpEigenCG();
-  ALinearOpEigenCG(const ALinearOpEigenCG &m);
-  ALinearOpEigenCG& operator=(const ALinearOpEigenCG &m);
-  virtual ~ALinearOpEigenCG();
+  ALinearOpEigenCG() {};
+  virtual ~ALinearOpEigenCG() {};
 
 #ifndef SWIG
 public:
@@ -83,30 +81,3 @@ public:
 #endif
 };
 
-#ifndef SWIG
-
-template<typename TLinOP>
-ALinearOpEigenCG<TLinOP>::ALinearOpEigenCG()
-{
-}
-
-template<typename TLinOP>
-ALinearOpEigenCG<TLinOP>::ALinearOpEigenCG(const ALinearOpEigenCG& m)
-{
-}
-
-template <typename TLinOP>
-ALinearOpEigenCG<TLinOP>& ALinearOpEigenCG<TLinOP>::operator=(const ALinearOpEigenCG<TLinOP> &m)
-{
-  if (this != &m)
-  {
-  }
-  return *this;
-}
-
-template <typename TLinOP>
-ALinearOpEigenCG<TLinOP>::~ALinearOpEigenCG() 
-{
-}
-
-#endif
