@@ -898,8 +898,8 @@ static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric
  * - the samples where Z-variable (and possibly V-variable) is defined
  *
  * @param db Input Db structure
- * @param model Input Model
- * @param params SPDEParam structure
+ * @param model Input Model structure
+ * @param params A structure for ruling the parameters of SPDE
  */
 MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 {

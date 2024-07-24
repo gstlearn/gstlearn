@@ -175,20 +175,34 @@ int AMatrixDense::_solve(const VectorDouble &b, VectorDouble &x) const
   return 0;
 }
 
-void AMatrixDense::setColumn(int icol, const VectorDouble& tab)
+void AMatrixDense::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
+  if (flagCheck)
+  {
+    if (! _isColumnValid(icol)) return;
+    if (! _isColumnSizeConsistent(tab)) return;
+  }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
   _eigenMatrix.col(icol) = tabm;
 }
 
-void AMatrixDense::setRow(int irow, const VectorDouble& tab)
+void AMatrixDense::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
+  if (flagCheck)
+  {
+    if (! _isRowValid(irow)) return;
+    if (! _isRowSizeConsistent(tab)) return;
+  }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
   _eigenMatrix.row(irow) = tabm;
 }
 
-void AMatrixDense::setDiagonal(const VectorDouble& tab)
+void AMatrixDense::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {
+  if (flagCheck)
+  {
+    if (! _isRowSizeConsistent(tab)) return;
+  }
   _eigenMatrix.setZero();
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
   _eigenMatrix.diagonal() = tabm;

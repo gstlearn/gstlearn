@@ -248,7 +248,7 @@ void ACalcDbToDb::_renameVariable(int whichDb,
                                   const ELoc& locatorType,
                                   int nvar,
                                   int iptr,
-                                  const String &qualifier,
+                                  const String& qualifier,
                                   int count,
                                   bool flagSetLocator,
                                   int locatorShift)
@@ -413,7 +413,14 @@ int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
 
   if (mode > 0)
   {
-    if (migrateByLocator(dbgrid, getDbin(), locatorType)) return 1;
+    // Here, the naming Convention is modified in order to anticipate the
+    // locator of the newly created variables
+    NamingConvention* namconv = NamingConvention::create("Migrate");
+    namconv->setLocatorOutType(locatorType);
+    int error = migrateByLocator(dbgrid, getDbin(), locatorType, 1,
+                                 VectorDouble(), false, false, false, *namconv);
+    delete namconv;
+    if (error != 0) return 1;
   }
   else
   {

@@ -460,12 +460,12 @@ int main(int argc, char *argv[])
   setUpdateNonZeroValue(0); // Allow flexible update of sparse matrix
   MSP->display();
 
-  message("Setting non-zero terms of Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
+  message("Setting terms of Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
   myCol = VH::sequence(1., (double) nrow);
   MSP->setColumn(icol0, myCol);
   MSP->display();
 
-  message("Setting non-zero terms of Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
+  message("Setting terms of Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
   myRow = VH::sequence(1., (double) ncol);
   MSP->setRow(irow0, myRow);
   MSP->display();

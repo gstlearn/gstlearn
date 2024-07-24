@@ -740,22 +740,6 @@ GSTLEARN_EXPORT int db_diffusion(DbGrid *dbgrid1,
                                  int verbose);
 
 /******************************************/
-/* Prototyping the functions in spatial.c */
-/******************************************/
-
-GSTLEARN_EXPORT int cgi(Db *db,
-                        int ivar,
-                        VectorDouble& center,
-                        VectorDouble& mvalue,
-                        MatrixRectangular& mvector,
-                        double *inertia,
-                        double *wztot);
-GSTLEARN_EXPORT int spatial(Db *db,
-                            double *totab,
-                            double *parea,
-                            double *eqarea);
-
-/******************************************/
 /* Prototyping the functions in convert.c */
 /******************************************/
 

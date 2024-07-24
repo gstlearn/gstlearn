@@ -662,7 +662,7 @@ int dbPolygonDistance(Db *db,
  ** \remarks belongs to one PolyElem
  **
  *****************************************************************************/
-bool Polygons::inside(const VectorDouble& coor, bool flag_nested)
+bool Polygons::inside(const VectorDouble& coor, bool flag_nested) const
 {
   bool flag3d = (int) coor.size() > 2;
   if (flag_nested)
@@ -929,7 +929,7 @@ Polygons Polygons::reduceComplexity(double distmin) const
  **
  *****************************************************************************/
 void db_polygon(Db *db,
-                Polygons *polygon,
+                const Polygons *polygon,
                 bool flag_sel,
                 bool flag_period,
                 bool flag_nested,
@@ -965,8 +965,6 @@ void db_polygon(Db *db,
 
   // Setting the output variable
   namconv.setNamesAndLocators(db, iatt);
-
-  return;
 }
 
 /*****************************************************************************/

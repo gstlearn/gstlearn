@@ -641,8 +641,7 @@ bool CalcMigrate::_preprocess()
 {
   int nvar = _getNVar();
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
-  if (_iattOut < 0) return false;
-  return true;
+  return (_iattOut >= 0);
 }
 
 bool CalcMigrate::_postprocess()

@@ -58,7 +58,7 @@ public:
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-   bool isDense() const override { return false; }
+  bool isDense() const override { return false; }
 
   /*! Set the value for a matrix cell */
   void setValue(int irow, int icol, double value, bool flagCheck=true) override;
@@ -72,11 +72,15 @@ public:
                 bool flagCheck = true) override;
 
   /*! Set the contents of a Column */
-  virtual void setColumn(int icol, const VectorDouble& tab) override;
+  virtual void setColumn(int icol,
+                         const VectorDouble &tab,
+                         bool flagCheck = true) override;
   /*! Set the contents of a Row */
-  virtual void setRow(int irow, const VectorDouble& tab) override;
+  virtual void setRow(int irow,
+                      const VectorDouble& tab,
+                      bool flagCheck=true) override;
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab) override;
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) override;
   /*! Transpose the matrix and return it as a copy*/
@@ -222,10 +226,10 @@ protected:
 private:
   bool _defineFlagEigen(int opt_eigen) const;
   void _forbiddenForSparse(const String& func) const;
-  int _eigen_findColor(int imesh,
-                       int ncolor,
-                       VectorInt &colors,
-                       VectorInt &temp);
+  int  _eigen_findColor(int imesh,
+                        int ncolor,
+                        VectorInt &colors,
+                        VectorInt &temp);
 
 private:
 #ifndef SWIG

@@ -290,7 +290,7 @@ bool NeighMoving::getFlagSector() const
   return (getNDim() > 1 && _nSect > 1);
 }
 
-bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, double *sinp) const
+bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *theta, double *cosp, double *sinp) const
 {
   double radius = _getRadius();
   if (FFFF(radius)) return false;
@@ -301,7 +301,8 @@ bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, d
   *ry = radius * anisoRatio[1];
   VectorDouble angrot(ndim);
   GH::rotationGetAnglesInPlace(getAnisoRotMats(), angrot);
-  double angref = angrot[0] * 2. * GV_PI / 360.;
+  double angref = angrot[0] * GV_PI / 180.;
+  *theta = angrot[0];
   *cosp = cos(angref);
   *sinp = sin(angref);
   return true;
@@ -309,31 +310,16 @@ bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, d
 
 VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int count) const
 {
-  double rx, ry, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &cosp, &sinp)) return VectorVectorDouble();
+  double rx, ry, theta, cosp, sinp;
+  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
-  VectorVectorDouble coords(2);
-  coords[0].resize(count+1,0.);
-  coords[1].resize(count+1,0.);
-
-  for (int i = 0; i < count; i++)
-  {
-    double angle = 2. * i * GV_PI / count;
-    double cosa = cos(angle);
-    double sina = sin(angle);
-    coords[0][i] = target[0] + rx * cosa * cosp - ry * sina * sinp;
-    coords[1][i] = target[1] + rx * cosa * sinp + ry * sina * cosp;
-  }
-
-  coords[0][count] = coords[0][0];
-  coords[1][count] = coords[1][0];
-  return coords;
+  return GH::getEllipse(target, theta, rx, ry, count);
 }
 
 VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const
 {
-  double rx, ry, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &cosp, &sinp)) return VectorVectorDouble();
+  double rx, ry, theta, cosp, sinp;
+  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
   double radius = MAX(rx, ry);
 
   VectorVectorDouble coords(2);
@@ -354,8 +340,8 @@ VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double
  */
 VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
 {
-  double rx, ry, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &cosp, &sinp)) return VectorVectorDouble();
+  double rx, ry, theta, cosp, sinp;
+  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
   VectorVectorDouble coords(2);
   coords[0].resize(_nSect,0.);

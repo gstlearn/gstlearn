@@ -359,6 +359,9 @@
 %include Tree/Ball.hpp
 %include Tree/KNN.hpp
 
+%include Spatial/Projection.hpp
+%include Spatial/SpatialIndices.hpp
+
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506

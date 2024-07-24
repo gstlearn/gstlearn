@@ -155,6 +155,12 @@ public:
 
   static double getCosineAngularTolerance(double tolang);
 
+  static VectorVectorDouble getEllipse(const VectorDouble &center,
+                                       double rx,
+                                       double ry,
+                                       double theta,
+                                       int count = 360);
+
 private:
   static void _decodeConvRot(const ERotation &convrot,
                              int *firstaxis,
