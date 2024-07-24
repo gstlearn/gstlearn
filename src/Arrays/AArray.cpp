@@ -106,8 +106,7 @@ int AArray::getNDims(int idim) const
 {
   if (idim < getNDim())
     return _ndims[idim];
-  else
-    return 1;
+  return 1;
 }
 
 VectorInt AArray::getNDimsExt(int ndimMax) const

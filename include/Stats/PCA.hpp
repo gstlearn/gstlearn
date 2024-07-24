@@ -16,7 +16,6 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class Db;
@@ -51,7 +50,7 @@ public:
   void setMeans(const VectorDouble &mean) { _mean = mean; }
   void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
   void setZ2Fs(const MatrixSquareGeneral& z2f) { _Z2F = z2f; }
-  void setF2Zs(MatrixSquareGeneral& f2z) { _F2Z = f2z; }
+  void setF2Zs(const MatrixSquareGeneral& f2z) { _F2Z = f2z; }
 
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
   void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }

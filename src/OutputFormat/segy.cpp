@@ -15,7 +15,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -138,8 +137,7 @@ static float st_ibm2ieee(const float ibm)
 
   if (src.c[0] & 0x80)
     return -PosResult;
-  else
-    return PosResult;
+  return PosResult;
 }
 
 /****************************************************************************/
@@ -845,7 +843,7 @@ static int st_store_refpt(int nbrefpt,
 
   if (nbrefpt >= 3)
     return (nbrefpt);
-  else if (nbrefpt == 1)
+  if (nbrefpt == 1)
   {
     ref1 = &refpt[0];
     if (ref1->iline == iline && ref1->xline == xline) return (nbrefpt);

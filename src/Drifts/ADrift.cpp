@@ -8,12 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Drifts/ADrift.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 
 ADrift::ADrift()
     : AStringable()

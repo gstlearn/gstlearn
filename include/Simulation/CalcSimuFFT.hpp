@@ -44,8 +44,8 @@ private:
 
   bool _simulate();
   void _alloc();
-  int _getOptimalEvenNumber(int number, int largeFactor = 11);
-  VectorInt _getFactors(int number);
+  static int _getOptimalEvenNumber(int number, int largeFactor = 11);
+  static VectorInt _getFactors(int number);
   void _gridDilate();
   bool _checkCorrect(const VectorVectorDouble& xyz,
                      int ix,

@@ -35,7 +35,7 @@ Chebychev::~Chebychev()
   // TODO Auto-generated destructor stub
 }
 
-Chebychev* Chebychev::createFromCoeffs(const VectorDouble coeffs)
+Chebychev* Chebychev::createFromCoeffs(const VectorDouble& coeffs)
 {
   Chebychev* cheb = new Chebychev();
   cheb->setCoeffs(coeffs);
@@ -61,7 +61,7 @@ int Chebychev::fit2(AFunction* f,
 
 }
 
-int Chebychev::fit(std::function<double(double)> f, double a, double b, double tol)
+int Chebychev::fit(const std::function<double(double)>& f, double a, double b, double tol)
 {
 
   _coeffs.resize(_ncMax,0.);
@@ -128,7 +128,7 @@ double Chebychev::eval(double x) const
 }
 
 
-int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,double b,double tol)const
+int Chebychev::_countCoeffs(const std::function<double(double)>& f,double x,double a,double b,double tol)const
 {
   double y, y0, y_2, xc, Tx, Tm1, Tm2;
 
@@ -160,7 +160,7 @@ int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,do
   return (_ncMax);
 }
 
-void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
+void Chebychev::_fillCoeffs(const std::function<double(double)>& f,double a, double b)
 {
   VectorDouble coeffs, x1, y1, x2, y2;
   int n;
@@ -168,7 +168,7 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
   /* Initializations */
 
   double minsubdiv = pow(2., 20.);
-  if (minsubdiv >= (_ncMax + 1) / 2)
+  if (minsubdiv >= (_ncMax + 1.) / 2.)
     n = static_cast<int> (minsubdiv);
   else
     n = static_cast<int> (ceil((double) (_ncMax + 1) / 2));

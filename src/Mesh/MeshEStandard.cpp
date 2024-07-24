@@ -17,7 +17,6 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
 
 MeshEStandard::MeshEStandard()
   : AMesh()

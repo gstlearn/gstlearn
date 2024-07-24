@@ -95,10 +95,7 @@ String DbStringFormat::toString(const AStringFormat* strfmt) const
 bool DbStringFormat::_matchFlag(int flag) const
 {
   int reste = _params & flag;
-  if (reste > 0)
-    return true;
-  else
-    return false;
+  return (reste > 0);
 }
 
 DbStringFormat* DbStringFormat::create(unsigned char params,

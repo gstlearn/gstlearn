@@ -219,10 +219,8 @@ void CalcKriging::_rollback()
 
 int CalcKriging::_getNVar() const
 {
-  if (_matLC == nullptr)
-    return getModel()->getVariableNumber();
-  else
-    return _matLC->getNRows();
+  if (_matLC == nullptr) return getModel()->getVariableNumber();
+  return _matLC->getNRows();
 }
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)

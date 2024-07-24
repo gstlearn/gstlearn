@@ -20,7 +20,7 @@
 class GSTLEARN_EXPORT ShapeParameter: public AStringable
 {
 public:
-  ShapeParameter(ELaw law = ELaw::fromKey("CONSTANT"), double value = 0.);
+  ShapeParameter(const ELaw& law = ELaw::fromKey("CONSTANT"), double value = 0.);
   ShapeParameter(const ShapeParameter &r);
   ShapeParameter& operator=(const ShapeParameter &r);
   virtual ~ShapeParameter();
@@ -33,7 +33,7 @@ public:
   double getValarg(int iarg) const;
   int getNbValarg() const { return (int) _valarg.size(); }
 
-  void setLaw(ELaw law) { _law = law; }
+  void setLaw(const ELaw& law) { _law = law; }
   void setValarg(int iarg, double value);
 
   double generateValue() const;

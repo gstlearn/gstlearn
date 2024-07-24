@@ -19,6 +19,10 @@ Checks: >-
   -readability-magic-numbers,
   -readability-redundant-member-init,
   -readability-redundant-access-specifiers,
+  -readability-suspicious-call-argument,
   -readability-implicit-bool-conversion, # TODO: to be removed
+CheckOptions:
+  - key: readability-function-cognitive-complexity.Threshold
+    value: 200
 HeaderFilterRegex: 'include'
 UseColor: true

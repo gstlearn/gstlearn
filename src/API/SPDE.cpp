@@ -15,7 +15,6 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -26,9 +25,7 @@
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 
-#include <iostream>
 #include <math.h>
 
 /**
@@ -59,7 +56,7 @@ SPDE::SPDE(Model* model,
            const ESPDECalcMode& calcul,
            const AMesh* meshUser,
            int useCholesky,
-           SPDEParam params,
+           const SPDEParam& params,
            bool verbose,
            bool showStats)
     : _data(data),
@@ -98,11 +95,9 @@ SPDE::~SPDE()
 
 void SPDE::_purge()
 {
-  if (_precisionsKrig != nullptr)
-    delete _precisionsKrig;
+  delete _precisionsKrig;
   _precisionsKrig = nullptr;
-  if (_precisionsSimu != nullptr)
-    delete _precisionsSimu;
+  delete _precisionsSimu;
   _precisionsSimu = nullptr;
 
   for (int i = 0, n = (int) _pilePrecisions.size(); i < n; i++)
@@ -134,7 +129,7 @@ SPDE* SPDE::create(Model *model,
                    const ESPDECalcMode &calcul,
                    const AMesh* meshUser,
                    int useCholesky,
-                   SPDEParam params,
+                   const SPDEParam& params,
                    bool verbose,
                    bool showStats)
 {
@@ -150,10 +145,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 {
   if (useCholesky == -1)
   {
-    if (_model->getDimensionNumber() == 2)
-      _useCholesky = true;
-    else
-      _useCholesky = false;
+    useCholesky = (_model->getDimensionNumber() == 2);
   }
   else if (useCholesky == 1)
     _useCholesky = true;
@@ -579,7 +571,7 @@ void SPDE::_projecLocal(Db* dbout,
   VH::addInPlace(result,temp_out);
 }
 
-void SPDE::_addNuggetOnResult(VectorDouble &result)
+void SPDE::_addNuggetOnResult(VectorDouble &result) const
 {
   if (_nugget <= 0) return;
   for (int iech = 0, nech = (int) result.size(); iech < nech; iech++)
@@ -708,7 +700,7 @@ void SPDE::_computeDriftCoeffs() const
   }
 }
 
-void SPDE::setDriftCoeffs(VectorDouble coeffs)
+void SPDE::setDriftCoeffs(const VectorDouble& coeffs)
 {
   _driftCoeffs  = coeffs;
   _isCoeffsComputed = true;
@@ -753,7 +745,7 @@ int krigingSPDE(Db *dbin,
                 bool flag_std,
                 const AMesh *mesh,
                 int useCholesky,
-                SPDEParam params,
+                const SPDEParam& params,
                 int nbMC,
                 int seed,
                 bool verbose,
@@ -795,7 +787,7 @@ int simulateSPDE(Db *dbin,
                  int nbsimu,
                  const AMesh *mesh,
                  int useCholesky,
-                 SPDEParam params,
+                 const SPDEParam& params,
                  int seed,
                  bool verbose,
                  bool showStats,
@@ -815,7 +807,7 @@ double logLikelihoodSPDE(Db *dbin,
                          int useCholesky,
                          int nbsimu,
                          int seed,
-                         SPDEParam params,
+                         const SPDEParam& params,
                          bool verbose)
 {
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,

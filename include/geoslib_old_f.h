@@ -12,16 +12,11 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Enum/EAnam.hpp"
-#include "Enum/EJustify.hpp"
-#include "Enum/ECalcMember.hpp"
-#include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
 #include "Enum/EProcessOper.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Enum/EConsType.hpp"
-#include "Enum/ENeigh.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -29,7 +24,6 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
 class AAnam;
@@ -444,7 +438,7 @@ GSTLEARN_EXPORT int db_vector_put(Db *db,
                                   int locatorIndex,
                                   double *tab);
 GSTLEARN_EXPORT int db_vector_get_att_sel_compress(Db *db,
-                                                   int icol,
+                                                   int iatt,
                                                    int *number,
                                                    double *tab);
 GSTLEARN_EXPORT int db_vector_get_att(const Db *db, int iatt, double *tab);
@@ -517,7 +511,7 @@ GSTLEARN_EXPORT void db_extension_rotated(Db *db,
                                           VectorDouble& maxi,
                                           VectorDouble& delta);
 GSTLEARN_EXPORT int db_attribute_range(const Db *db,
-                                       int icol,
+                                       int iatt,
                                        double *mini,
                                        double *maxi,
                                        double *delta);
@@ -527,9 +521,9 @@ GSTLEARN_EXPORT int db_index_grid_to_sample(const DbGrid *db, const int *indg);
 GSTLEARN_EXPORT void db_index_sample_to_grid(const DbGrid *db, int iech, int *indg);
 GSTLEARN_EXPORT int db_index_sorted_in_grid(const DbGrid *db, int iech, int *indg);
 GSTLEARN_EXPORT int db_selref(int ndim,
-                              int *nx,
-                              int *ref,
-                              double *tabin,
+                              const int *nx,
+                              const int *ref,
+                              const double *tabin,
                               double *tabout);
 GSTLEARN_EXPORT Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center);
 GSTLEARN_EXPORT int compat_NDIM(Db *db1, Db *db2);
@@ -563,8 +557,8 @@ GSTLEARN_EXPORT int is_grid_multiple(DbGrid *db1, DbGrid *db2);
 GSTLEARN_EXPORT int db_grid_copy_params(DbGrid *dbin, int mode, DbGrid *dbout);
 GSTLEARN_EXPORT DbGrid* db_grid_reduce(DbGrid *db_grid,
                                        int iptr,
-                                       int *margin,
-                                       int *limmin,
+                                       const int *margin,
+                                       const int *limmin,
                                        int flag_sel,
                                        int flag_copy,
                                        int verbose,
@@ -601,22 +595,22 @@ GSTLEARN_EXPORT double cylinder_radius(const Db *db,
 GSTLEARN_EXPORT double db_grid_maille(Db *db);
 GSTLEARN_EXPORT int point_to_grid(const DbGrid *db,
                                   const double *coor,
-                                  int flag_expand,
+                                  int flag_outside,
                                   int *indg);
 GSTLEARN_EXPORT int point_to_bench(const DbGrid *db,
                                    double *coor,
                                    int flag_outside,
                                    int *indb);
 GSTLEARN_EXPORT void grid_to_point(const DbGrid *db,
-                                   int *indg,
-                                   double *percent,
+                                   const int *indg,
+                                   const double *percent,
                                    double *coor);
 GSTLEARN_EXPORT int index_point_to_grid(const Db *db,
                                         int iech,
-                                        int flag_expand,
+                                        int flag_outside,
                                         const DbGrid *dbout,
                                         double *coor);
-GSTLEARN_EXPORT int point_to_point(Db *db, double *coor);
+GSTLEARN_EXPORT int point_to_point(Db *db, const double *coor);
 GSTLEARN_EXPORT int point_inside_grid(Db *db, int iech, const DbGrid *dbgrid);
 GSTLEARN_EXPORT int db_gradient_components(DbGrid *dbgrid);
 GSTLEARN_EXPORT int db_streamline(DbGrid *dbgrid,
@@ -629,9 +623,9 @@ GSTLEARN_EXPORT int db_streamline(DbGrid *dbgrid,
                                   int *nbline_loc,
                                   int *npline_loc,
                                   double **line_loc);
-GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *dbgrid, double *coor);
+GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *db_grid, double *coor);
 GSTLEARN_EXPORT void db_monostat(Db *db,
-                                 int ivar,
+                                 int iatt,
                                  double *wtot,
                                  double *mean,
                                  double *var,
@@ -647,8 +641,8 @@ GSTLEARN_EXPORT int surface(Db *db_point,
 GSTLEARN_EXPORT int db_edit(Db *db, int *flag_valid);
 GSTLEARN_EXPORT int db_grid_copy(DbGrid *db1,
                                  DbGrid *db2,
-                                 int *ind1,
-                                 int *ind2,
+                                 const int *ind1,
+                                 const int *ind2,
                                  int ncol,
                                  int *cols);
 GSTLEARN_EXPORT int db_grid_copy_dilate(DbGrid *db1,
@@ -656,7 +650,7 @@ GSTLEARN_EXPORT int db_grid_copy_dilate(DbGrid *db1,
                                         DbGrid *db2,
                                         int iatt2,
                                         int mode,
-                                        int *nshift);
+                                        const int *nshift);
 GSTLEARN_EXPORT int db_proportion(Db *db,
                                   DbGrid *dbgrid,
                                   int nfac1max,
@@ -694,13 +688,6 @@ GSTLEARN_EXPORT Db* db_point_init(int nech,
                                   int seed = 43241,
                                   bool flagAddSampleRank = true);
 GSTLEARN_EXPORT int db_smooth_vpc(DbGrid *db, int width, double range);
-GSTLEARN_EXPORT double* dbgridLineSampling(DbGrid *dbgrid,
-                                         double *x1,
-                                         double *x2,
-                                         int ndisc,
-                                         int ncut,
-                                         double *cuts,
-                                         int *nval_ret);
 GSTLEARN_EXPORT int db_grid2point_sampling(DbGrid *dbgrid,
                                            int nvar,
                                            int *vars,
@@ -1242,7 +1229,7 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
 GSTLEARN_EXPORT double* get_db_extension(Db *dbin, Db *dbout, int *nout);
 GSTLEARN_EXPORT double* extend_grid(DbGrid *db, const double *gext, int *nout);
 GSTLEARN_EXPORT double* extend_point(Db *db, const double *gext, int *nout);
-GSTLEARN_EXPORT int MSS(int idim, int ipol, int icas, int icorn, int icoor);
+GSTLEARN_EXPORT int MSS(int ndim, int ipol, int icas, int icorn, int idim);
 GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                     const char *obj_name,
                                     int verbose,
@@ -1260,8 +1247,8 @@ GSTLEARN_EXPORT AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid);
 GSTLEARN_EXPORT void mesh_stats(int ndim,
                                 int ncorner,
                                 int nmesh,
-                                int *meshes,
-                                double *points);
+                                const int *meshes,
+                                const double *points);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

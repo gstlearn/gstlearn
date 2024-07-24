@@ -8,15 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Drifts/ADrift.hpp>
+#include "Drifts/ADrift.hpp"
 #include "Drifts/DriftList.hpp"
-#include "Space/ASpace.hpp"
-#include "Space/SpaceRN.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Drifts/DriftF.hpp"
-#include "Drifts/DriftM.hpp"
 #include "Db/Db.hpp"
 
 DriftList::DriftList(const CovContext &ctxt)
@@ -41,7 +37,7 @@ DriftList::DriftList(const DriftList &r)
       _filtered(r._filtered),
       _ctxt(r._ctxt)
 {
-  for (auto e: r._drifts)
+  for (const auto& e: r._drifts)
   {
     _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
   }
@@ -55,7 +51,7 @@ DriftList& DriftList::operator=(const DriftList &r)
     _flagLinked = r._flagLinked;
     _flagCombined = r._flagCombined;
     _driftCL  = r._driftCL;
-    for (auto e: r._drifts)
+    for (const auto& e: r._drifts)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
     }
@@ -106,7 +102,7 @@ void DriftList::delDrift(unsigned int i)
 void DriftList::delAllDrifts()
 {
   if (! _drifts.empty())
-    for (auto e: _drifts)
+    for (const auto& e: _drifts)
     {
       delete e;
     }
@@ -448,7 +444,7 @@ bool DriftList::hasExternalDrift() const
   return false;
 }
 
-VectorInt DriftList::_getActiveVariables(int ivar0)
+VectorInt DriftList::_getActiveVariables(int ivar0) const
 {
   int nvar = getNVariables();
 
@@ -623,12 +619,8 @@ double DriftList::evalDrift(const Db *db,
                             int il,
                             const ECalcMember &member) const
 {
-  if (member != ECalcMember::LHS && isFiltered(il))
-    return 0.;
-  else
-  {
-    if (! _isDriftIndexValid(il)) return TEST;
-    return _drifts[il]->eval(db, iech);
-  }
+  if (member != ECalcMember::LHS && isFiltered(il)) return 0.;
+  if (!_isDriftIndexValid(il)) return TEST;
+  return _drifts[il]->eval(db, iech);
   return TEST;
 }

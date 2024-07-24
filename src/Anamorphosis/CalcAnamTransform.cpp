@@ -11,11 +11,8 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
-#include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/Table.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -218,16 +215,14 @@ bool CalcAnamTransform::_preprocess()
   {
     int nvar = _getNVar();
     _iattVar = getDb()->addColumnsByConstant(nvar);
-    if (_iattVar < 0) return false;
-    return true;
+    return (_iattVar >= 0);
   }
 
   if (_flagToFactors)
   {
     int nfact = _getNfact();
     _iattFac = getDb()->addColumnsByConstant(nfact);
-    if (_iattFac < 0) return false;
-    return true;
+    return (_iattFac >= 0);
   }
 
   if (_flagDisjKrig)
@@ -339,30 +334,26 @@ bool CalcAnamTransform::_run()
 
   if (_flagToFactors)
   {
-    if (_ZToFactors()) return true;
-    return false;
+    return _ZToFactors();
   }
 
   if (_flagDisjKrig)
   {
-    if (_FactorsToSelectivity()) return true;
-    return false;
+    return _FactorsToSelectivity();
   }
 
   if (_flagCondExp)
   {
-    if (!_conditionalExpectation(getDb(), _anam, _selectivity, _iattSel,
+    return (!_conditionalExpectation(getDb(), _anam, _selectivity, _iattSel,
                                  _iptrEst[0], _iptrStd[0], _flagOK, _proba,
-                                 _nbsimu)) return true;
-    return false;
+                                 _nbsimu));
   }
 
   if (_flagUniCond)
   {
     AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    if (!_uniformConditioning(getDb(), anam_hermite, _selectivity, _iattSel,
-                              _iptrEst[0], _iptrStd[0])) return true;
-    return false;
+    return (!_uniformConditioning(getDb(), anam_hermite, _selectivity, _iattSel,
+                              _iptrEst[0], _iptrStd[0]));
   }
 
   return false;

@@ -18,7 +18,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-#include <iostream>
 
 class Grid;
 
@@ -191,7 +190,7 @@ GSTLEARN_EXPORT Grid segy_summary(const char *filesegy,
                                   double thickmin = TEST,
                                   int option = 0,
                                   int nz_ss = ITEST,
-                                  int verbose = 1,
+                                  int verbOption = 1,
                                   int iline_min = ITEST,
                                   int iline_max = ITEST,
                                   int xline_min = ITEST,
@@ -199,17 +198,17 @@ GSTLEARN_EXPORT Grid segy_summary(const char *filesegy,
                                   double modif_high = TEST,
                                   double modif_low = TEST,
                                   double modif_scale = TEST,
-                                  int code = 1);
+                                  int codefmt = 1);
 GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
                                    DbGrid *surf2D = nullptr,
-                                   const String& name_top = "",
-                                   const String& name_bot = "",
+                                   const String& top_name = "",
+                                   const String& bot_name = "",
                                    const String& top_aux  = "",
                                    const String& bot_aux  = "",
                                    double thickmin = TEST,
                                    int option = 0,
                                    int nz_ss = ITEST,
-                                   int verbose = 0,
+                                   int verbOption = 0,
                                    int iline_min = ITEST,
                                    int iline_max = ITEST,
                                    int xline_min = ITEST,
@@ -217,7 +216,7 @@ GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
                                    double modif_high = TEST,
                                    double modif_low = TEST,
                                    double modif_scale = TEST,
-                                   int code = 1);
+                                   int codefmt = 1);
 GSTLEARN_EXPORT int db_segy(const char *filesegy,
                             DbGrid *grid3D,
                             DbGrid *surf2D = nullptr,
@@ -226,7 +225,7 @@ GSTLEARN_EXPORT int db_segy(const char *filesegy,
                             double thickmin = TEST,
                             int option = 0,
                             int nz_ss = ITEST,
-                            int verbose = 0,
+                            int verbOption = 0,
                             int iline_min = ITEST,
                             int iline_max = ITEST,
                             int xline_min = ITEST,
@@ -234,6 +233,6 @@ GSTLEARN_EXPORT int db_segy(const char *filesegy,
                             double modif_high = TEST,
                             double modif_low = TEST,
                             double modif_scale = TEST,
-                            int icode = 1,
+                            int codefmt = 1,
                             const NamingConvention& namconv = NamingConvention("SEGY"));
 

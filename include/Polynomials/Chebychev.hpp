@@ -32,19 +32,19 @@ public:
 
   /// Interface for Apolynomial
 #ifndef SWIG
-  void evalOp(MatrixSparse* Op,const VectorDouble& inv, VectorDouble& outv) const override;
+  void evalOp(MatrixSparse* S,const VectorDouble& x, VectorDouble& y) const override;
 #endif
   void evalOp(const ALinearOpMulti *Op,
               const VectorVectorDouble &inv,
               VectorVectorDouble &outv) const override;
   double eval(double x) const override;
-  int fit(std::function<double(double)> f,
+  int fit(const std::function<double(double)>& f,
           double a = 0.,
           double b = 1.,
           double tol = EPSILON5) override;
 
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
-  static Chebychev* createFromCoeffs(const VectorDouble coeffs);
+  static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
   void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}
   int getNcMax() const {return _ncMax;}
   int getNDisc() const {return _nDisc;}
@@ -61,8 +61,8 @@ public:
 
 private:
   bool _isReady() const { return !_coeffs.empty(); }
-  void _fillCoeffs(std::function<double(double)>, double a, double b);
-  int _countCoeffs(std::function<double(double)> f,
+  void _fillCoeffs(const std::function<double(double)>& f, double a, double b);
+  int _countCoeffs(const std::function<double(double)>& f,
                    double x,
                    double a,
                    double b,

@@ -12,12 +12,9 @@
 #include "geoslib_f_private.h"
 
 #include "Basic/Utilities.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/MathFunc.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/MeshEStandard.hpp"
-#include "Geometry/GeometryHelper.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -742,7 +739,7 @@ int meshes_2D_write(const char *file_name,
  ** \param[in]  points    Array of 'ndim' coordinates for mesh vertex
  **
  *****************************************************************************/
-void mesh_stats(int ndim, int ncorner, int nmesh, int *meshes, double *points)
+void mesh_stats(int ndim, int ncorner, int nmesh, const int* meshes, const double* points)
 {
   VectorDouble mini(ndim, 0.);
   VectorDouble maxi(ndim, 0.);
@@ -786,7 +783,6 @@ void mesh_stats(int ndim, int ncorner, int nmesh, int *meshes, double *points)
     for (int idim = 0; idim < ndim; idim++)
       message("- Coord#%d: from %lf to %lf\n", idim + 1, mini[idim], maxi[idim]);
   }
-  return;
 }
 
 /*****************************************************************************/

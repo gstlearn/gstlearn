@@ -17,8 +17,6 @@
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Stats/Selectivity.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 
 class Db;
 
@@ -53,7 +51,7 @@ public:
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
 
-  AnamDiscreteIR* create(double rcoef = 0.);
+  static AnamDiscreteIR* create(double rcoef = 0.);
   void reset(int ncut,
              double r_coef,
              const VectorDouble &zcut,

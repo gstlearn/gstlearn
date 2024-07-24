@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Polynomials/Hermite.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Utilities.hpp"
@@ -20,15 +18,8 @@
 
 double _convert2u(double yc, double krigest, double krigstd)
 {
-  if (ABS(krigstd) < EPSILON6)
-  {
-    return ((yc >= krigest) ? +10. :
-                              -10.);
-  }
-  else
-  {
-    return ((yc - krigest) / krigstd);
-  }
+  if (ABS(krigstd) < EPSILON6) return ((yc >= krigest) ? +10. : -10.);
+  return ((yc - krigest) / krigstd);
 }
 
 /**

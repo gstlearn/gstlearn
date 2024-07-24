@@ -33,7 +33,7 @@ public:
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& inv,
                    VectorDouble& outv,int iapex,int igparam)const;
   void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
-                       VectorDouble& outv,const VectorVectorDouble workpoly,int iapex,int igparam)const;
+                       VectorDouble& outv,const VectorVectorDouble& workpoly,int iapex,int igparam)const;
   void evalOp(const ALinearOpMulti* /*Op*/,
               const VectorVectorDouble& /*inv*/,
               VectorVectorDouble& /*outv*/) const override { }

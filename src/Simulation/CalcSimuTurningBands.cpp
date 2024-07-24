@@ -331,7 +331,6 @@ void CalcSimuTurningBands::_minmax(const Db *db)
   }
 
   _npointSimulated += db->getSampleNumber();
-  return;
 }
 
 /****************************************************************************/
@@ -432,87 +431,119 @@ int CalcSimuTurningBands::_initializeSeedBands()
           switch (type.toEnum())
           {
             case ECov::E_NUGGET:
+            {
               // Next line is simply to let the random number cycle
-              (void) law_gaussian();
+              (void)law_gaussian();
               break;
+            }
 
             case ECov::E_EXPONENTIAL:
+            {
               _migrationInit(ibs, is, 2. * scale, operTB);
               break;
+            }
 
             case ECov::E_SPHERICAL:
-              (void) _dilutionInit(ibs, is, operTB);
+            {
+              (void)_dilutionInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_CUBIC:
-              (void) _dilutionInit(ibs, is, operTB);
+            {
+              (void)_dilutionInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_GAUSSIAN:
-              (void) _spectralInit(ibs, is, operTB);
+            {
+              (void)_spectralInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_SINCARD:
-              (void) _spectralInit(ibs, is, operTB);
+            {
+              (void)_spectralInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_BESSEL_J:
-              (void) _spectralInit(ibs, is, operTB);
+            {
+              (void)_spectralInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_BESSEL_K:
+            {
               if (param > 0.5)
-                (void) _spectralInit(ibs, is, operTB);
+                (void)_spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScaleKB(param, scale) * 2;
                 _migrationInit(ibs, is, scale, operTB);
               }
               break;
+            }
 
             case ECov::E_STABLE:
+            {
               if (param > 1)
-                (void) _spectralInit(ibs, is, operTB);
+                (void)_spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScale(param, 2. * scale);
                 _migrationInit(ibs, is, scale, operTB);
               }
               break;
+            }
 
             case ECov::E_POWER:
-              (void) _power1DInit(ibs, is, operTB);
+            {
+              (void)_power1DInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_SPLINE_GC:
-              (void) _spline1DInit(ibs, 1, operTB);
+            {
+              (void)_spline1DInit(ibs, 1, operTB);
               break;
+            }
 
             case ECov::E_LINEAR:
+            {
               _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
+              (void)_irfProcessInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_ORDER1_GC:
+            {
               _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
+              (void)_irfProcessInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_ORDER3_GC:
+            {
               _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
+              (void)_irfProcessInit(ibs, is, operTB);
               break;
+            }
 
             case ECov::E_ORDER5_GC:
+            {
               _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
+              (void)_irfProcessInit(ibs, is, operTB);
               break;
+            }
 
             default:
+            {
               messerr("The structure (%s) cannot be simulated",
                       type.getDescr().c_str());
               messerr("using the Turning Bands algorithm");
               return 1;
+            }
           }
         }
   }
@@ -712,8 +743,7 @@ double CalcSimuTurningBands::_computeScale(double alpha, double scale)
 {
   if (alpha < 1)
     return scale / law_stable_standard_abgd(alpha);
-  else
-    return scale / sqrt(law_stable_standard_abgd(alpha / 2.));
+  return scale / sqrt(law_stable_standard_abgd(alpha / 2.));
 }
 
 /****************************************************************************/
@@ -1667,7 +1697,6 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
-  return;
 }
 
 double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
@@ -1769,7 +1798,6 @@ void CalcSimuTurningBands::_difference(Db *dbin,
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2234,7 +2262,6 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     }
   }
   if (number <= 0) message("No problem found\n");
-  return;
 }
 
 bool CalcSimuTurningBands::_check()

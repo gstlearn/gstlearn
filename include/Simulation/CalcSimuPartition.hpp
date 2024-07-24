@@ -50,7 +50,7 @@ private:
 
   bool _voronoi();
   bool _poisson();
-  double _stackSearch(const std::vector<Stack>& stacks, double valref);
+  static double _stackSearch(const std::vector<Stack>& stacks, double valref);
 
 private:
   int  _mode;

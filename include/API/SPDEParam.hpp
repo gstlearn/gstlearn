@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/CGParam.hpp"
-#include "Basic/VectorNumT.hpp"
 
 class ALinearOp;
 
@@ -24,13 +23,13 @@ public:
             int refineS = 18,
             int border = 8,
             double epsNugget = EPSILON2,
-            const CGParam cgparams = CGParam());
+            const CGParam& cgparams = CGParam());
   SPDEParam(const SPDEParam &m);
   SPDEParam& operator=(const SPDEParam &m);
   virtual ~SPDEParam();
 
   int getBorder() const { return _border; }
-  const CGParam getCGparams() const { return _CGparams; }
+  CGParam getCGparams() const { return _CGparams; }
   double getEpsNugget() const { return _epsNugget; }
   int getRefineK() const { return _refineK; }
   int getRefineS() const { return _refineS; }

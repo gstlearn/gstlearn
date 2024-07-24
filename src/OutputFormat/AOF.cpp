@@ -133,7 +133,7 @@ void AOF::_fileClose()
   _file = nullptr;
 }
 
-void AOF::setCols(int ncol, int* icols)
+void AOF::setCols(int ncol, const int* icols)
 {
   _cols = VectorInt(ncol);
   for (int icol = 0; icol < ncol; icol++)

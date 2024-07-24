@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Simulation/CalcSimuSubstitution.hpp"
@@ -355,11 +354,10 @@ bool CalcSimuSubstitution::_check()
 
 bool CalcSimuSubstitution::_preprocess()
 {
-  if (!ACalcInterpolator::_check()) return false;
+  if (!ACalcSimulation::_check()) return false;
 
   _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-  if (_iattOut < 0) return false;
-  return true;
+  return (_iattOut >= 0);
 }
 
 bool CalcSimuSubstitution::_run()

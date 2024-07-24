@@ -13,7 +13,6 @@
 #include "Enum/EPostUpscale.hpp"
 
 #include "Db/Db.hpp"
-#include "Basic/Grid.hpp"
 #include "Matrix/Table.hpp"
 #include "Calculators/CalcSimuPost.hpp"
 
@@ -477,8 +476,7 @@ int CalcSimuPost::_getNEff() const
 {
   if (_getTransfoNvar() > 0)
     return _getTransfoNvar();
-  else
-    return _getNVar();
+  return _getNVar();
 }
 
 VectorInt CalcSimuPost::_samplesInCellIdenticalSpaceDimension(const VectorInt& indblock) const
@@ -521,10 +519,9 @@ int CalcSimuPost::_getSortingCase() const
 {
   if (! _flagUpscale)
     return 0;
-  else if (getDbin()->getNDim() == getDbout()->getNDim())
+  if (getDbin()->getNDim() == getDbout()->getNDim())
     return 1;
-  else
-    return 2;
+  return 2;
 }
 
 int CalcSimuPost::_process()

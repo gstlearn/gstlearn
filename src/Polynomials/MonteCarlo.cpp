@@ -171,8 +171,8 @@ double MCIndicatorElement(double yc, double krigest, double krigstd, int nbsimu)
 }
 
 VectorDouble MCIndicatorStd(double yc,
-                            VectorDouble krigest,
-                            VectorDouble krigstd,
+                            const VectorDouble& krigest,
+                            const VectorDouble& krigstd,
                             int nbsimu)
 {
   VectorDouble probstd = MCIndicator(yc, krigest, krigstd, nbsimu);

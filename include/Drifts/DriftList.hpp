@@ -15,7 +15,6 @@
 #include "Enum/ECalcMember.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
@@ -135,7 +134,7 @@ private:
   }
   double _getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
   void   _setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }
-  VectorInt _getActiveVariables(int ivar0);
+  VectorInt _getActiveVariables(int ivar0) const;
 
 #ifndef SWIG
 protected:

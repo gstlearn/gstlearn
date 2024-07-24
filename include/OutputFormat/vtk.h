@@ -74,7 +74,7 @@
 //  Arguments:
 //      filename   The name of the file to write.  If the extension ".vtk" is
 //                 not present, it will be added.
-//      useBinary  '0' to write ASCII, !0 to write binary
+//      ub         '0' to write ASCII, !0 to write binary
 //      npts       The number of points in the mesh.
 //      pts        The spatial locations of the points.  This array should
 //                 be size 3*npts.  The points should be encoded as:
@@ -90,13 +90,15 @@
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
- 
-void write_point_mesh(const char *filename, int useBinary, int npts,
-                      float *pts, int nvars, int *vardim,
-                      const char * const *varnames, float **vars);
- 
- 
- 
+void write_point_mesh(const char* filename,
+                      int ub,
+                      int npts,
+                      float* pts,
+                      int nvars,
+                      int* vardim,
+                      const char* const* varnames,
+                      float** vars);
+
 /* ****************************************************************************
 //  Function: write_unstructured_mesh
 //
@@ -107,7 +109,7 @@ void write_point_mesh(const char *filename, int useBinary, int npts,
 //  Arguments:
 //      filename   The name of the file to write.  If the extension ".vtk" is
 //                 not present, it will be added.
-//      useBinary  '0' to write ASCII, !0 to write binary
+//      ub         '0' to write ASCII, !0 to write binary
 //      npts       The number of points in the mesh.
 //      pts        The spatial locations of the points.  This array should
 //                 be size 3*npts.  The points should be encoded as:
@@ -172,14 +174,20 @@ void write_point_mesh(const char *filename, int useBinary, int npts,
 #define VISIT_HEXAHEDRON    12
 #define VISIT_WEDGE         13
 #define VISIT_PYRAMID       14
- 
-void write_unstructured_mesh(const char *filename, int useBinary, int npts,
-                             float *pts, int ncells, int *celltypes, int *conn,
-                             int nvars, int *vardim, int *centering,
-                             const char * const *varnames, float **vars);
- 
- 
- 
+
+void write_unstructured_mesh(const char* filename,
+                             int ub,
+                             int npts,
+                             float* pts,
+                             int ncells,
+                             int* celltypes,
+                             int* conn,
+                             int nvars,
+                             int* vardim,
+                             int* centering,
+                             const char* const* varnames,
+                             float** vars);
+
 /* ****************************************************************************
 //  Function: write_regular_mesh
 //
@@ -193,7 +201,7 @@ void write_unstructured_mesh(const char *filename, int useBinary, int npts,
 //  Arguments:
 //      filename   The name of the file to write.  If the extension ".vtk" is
 //                 not present, it will be added.
-//      useBinary  '0' to write ASCII, !0 to write binary
+//      ub         '0' to write ASCII, !0 to write binary
 //      dims       An array of size 3 = { nX, nY, nZ }, where nX is the
 //                 number of points in the X-dimension, etc.
 //      nvars      The number of variables.
@@ -212,14 +220,15 @@ void write_unstructured_mesh(const char *filename, int useBinary, int npts,
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
- 
-void write_regular_mesh(const char *filename, int useBinary, int *dims,
-                        int nvars, int *vardim, int *centering,
-                        const char * const *varnames, float **vars);
- 
- 
- 
- 
+void write_regular_mesh(const char* filename,
+                        int ub,
+                        int* dims,
+                        int nvars,
+                        int* vardim,
+                        int* centering,
+                        const char* const* varnames,
+                        float** vars);
+
 /* ****************************************************************************
 //  Function: write_rectilinear_mesh
 //
@@ -230,7 +239,7 @@ void write_regular_mesh(const char *filename, int useBinary, int *dims,
 //  Arguments:
 //      filename   The name of the file to write.  If the extension ".vtk" is
 //                 not present, it will be added.
-//      useBinary  '0' to write ASCII, !0 to write binary
+//      ub         '0' to write ASCII, !0 to write binary
 //      dims       An array of size 3 = { nX, nY, nZ }, where nX is the
 //                 number of points in the X-dimension, etc.
 //      x          An array of size dims[0] that contains the x-coordinates.
@@ -258,15 +267,18 @@ void write_regular_mesh(const char *filename, int useBinary, int *dims,
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
- 
-void write_rectilinear_mesh(const char *filename, int useBinary,
-                            int *dims, float *x, float *y, float *z,
-                            int nvars, int *vardim, int *centering,
-                            const char * const *varnames, float **vars);
- 
- 
- 
- 
+void write_rectilinear_mesh(const char* filename,
+                            int ub,
+                            int* dims,
+                            float* x,
+                            float* y,
+                            float* z,
+                            int nvars,
+                            int* vardim,
+                            int* centering,
+                            const char* const* varnames,
+                            float** vars);
+
 /* ****************************************************************************
 //  Function: write_curvilinear_mesh
 //
@@ -277,7 +289,7 @@ void write_rectilinear_mesh(const char *filename, int useBinary,
 //  Arguments:
 //      filename   The name of the file to write.  If the extension ".vtk" is
 //                 not present, it will be added.
-//      useBinary  '0' to write ASCII, !0 to write binary
+//      ub         '0' to write ASCII, !0 to write binary
 //      dims       An array of size 3 = { nI, nJ, nK }, where nI is the
 //                 number of points in the logical I dimension, etc.
 //      pts        An array of size nI*nJ*nK*3.  The array should be layed
@@ -299,8 +311,12 @@ void write_rectilinear_mesh(const char *filename, int useBinary,
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
- 
-void write_curvilinear_mesh(const char *filename, int useBinary,
-                            int *dims, float *pts,
-                            int nvars, int *vardim, int *centering,
-                            const char * const *varnames, float **vars);
+void write_curvilinear_mesh(const char* filename,
+                            int ub,
+                            int* dims,
+                            float* pts,
+                            int nvars,
+                            int* vardim,
+                            int* centering,
+                            const char* const* varnames,
+                            float** vars);

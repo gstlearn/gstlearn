@@ -171,10 +171,7 @@ private:
   bool _isCorrect();
   bool _preparNoStat();
 
-  void   _checkAddress(const String& title,
-                       const String& theme,
-                       int ival,
-                       int nval) const;
+  static void _checkAddress(const String& title, const String& theme, int ival, int nval);
   bool   _prepareForImage(const NeighImage* neighI);
   bool   _prepareForImageKriging(Db* dbaux, const NeighImage* neighI);
   int    _bayesPreCalculations();

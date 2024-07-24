@@ -18,7 +18,6 @@
 #include "Db/Db.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Geometry/GeometryHelper.hpp"
 #include "Variogram/Vario.hpp"
 
 #include <math.h>

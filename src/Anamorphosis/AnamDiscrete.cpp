@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/AMatrix.hpp"
 #include <Stats/Selectivity.hpp>
 
 #include <math.h>

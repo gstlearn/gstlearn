@@ -14,8 +14,6 @@
 #include "Basic/AStringFormat.hpp"
 #include "Basic/VectorNumT.hpp"
 
-#include "geoslib_define.h"
-
 class GSTLEARN_EXPORT BImageStringFormat: public AStringFormat
 {
 public:
@@ -29,7 +27,7 @@ public:
 
   char getCharOne() const { return _charOne; }
   char getCharZero() const { return _charZero; }
-  const VectorInt getIndMax() const { return _indMax; }
+  VectorInt getIndMax() const { return _indMax; }
   int getIndMin(int idim) const;
   const VectorInt& getIndMin() const { return _indMin; }
   int getIndMax(int idim) const;

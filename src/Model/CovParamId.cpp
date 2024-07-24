@@ -8,11 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Space/ASpaceObject.hpp"
 #include "Model/CovParamId.hpp"
-#include "Basic/Utilities.hpp"
 
 CovParamId::CovParamId(int igrf,
                        int icov,
