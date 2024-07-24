@@ -95,7 +95,7 @@ void _morpho_gradients(DbGrid *dbgrid, int iptr0);
 /***************************************/
 
 double* _spde_get_mesh_dimension(AMesh *amesh);
-MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units);
+MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, const double *units);
 VectorDouble _spde_fill_TildeC(AMesh* amesh, double* units);
 VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
