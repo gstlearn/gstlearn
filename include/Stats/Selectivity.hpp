@@ -76,7 +76,7 @@ public:
 
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
-  int    getNQT() const { return static_cast<int>(ESelectivity::getSize()); }
+  static int getNQT() { return static_cast<int>(ESelectivity::getSize()); }
   int    getVariableNumber() const;
   String getVariableName(const ESelectivity& code, int icut, int mode) const;
   String getVariableName(int rank0) const;
@@ -129,7 +129,7 @@ public:
   bool isOnlyZDefined() const { return _flagOnlyZDefined; }
 
   const Table getStats() const;
-  const Table getAllStats() const { return _stats; }
+  Table getAllStats() const { return _stats; }
 
   const MatrixInt& getNumberQt() const { return _numberQT; }
   const MatrixInt& getRankQt() const { return _rankQT; }

@@ -29,7 +29,7 @@ public:
   int remains(bool verbose = false);
   void getNext(int *rank, int *ipos);
   int unstack(int rank0, int ipos0);
-  void skinPrint();
+  void skinPrint() const;
 
 private:
   double _getWeight(int ipos, int idir);

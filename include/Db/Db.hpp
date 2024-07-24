@@ -553,7 +553,7 @@ public:
    * @param value Value to be assigned
    *  @{
    */
-  static int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
+  int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
   double getSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,

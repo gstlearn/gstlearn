@@ -41,7 +41,7 @@
 Rule* rule_free(const Rule *rule)
 
 {
-  if (rule != nullptr) delete rule;
+  delete rule;
   return (nullptr);
 }
 
@@ -170,8 +170,6 @@ void proportion_rule_process(PropDef *propdef, const EProcessOper &mode)
   /* In the stationary case, transform the proportions (from CST to WRK) */
 
   if (propdef->case_stat) st_proportion_transform(propdef);
-
-  return;
 }
 
 /****************************************************************************/
@@ -531,11 +529,11 @@ int rule_thresh_define(PropDef *propdef,
  ** \remark It will be changed in this function to locator ELoc::SIMU
  **
  *****************************************************************************/
-int db_rule_shadow(Db *db,
-                   Db *dbprop,
-                   RuleShadow *rule,
-                   Model *model,
-                   const VectorDouble &props,
+int db_rule_shadow(Db* db,
+                   Db* dbprop,
+                   RuleShadow* rule,
+                   Model* model,
+                   const VectorDouble& props,
                    int flag_stat,
                    int nfacies)
 {
@@ -722,11 +720,11 @@ int _db_rule(Db *db,
  ** \param[in]  nfacies   Number of facies
  **
  *****************************************************************************/
-int db_bounds_shadow(Db *db,
-                     Db *dbprop,
-                     RuleShadow *rule,
-                     Model *model,
-                     const VectorDouble &props,
+int db_bounds_shadow(Db* db,
+                     Db* dbprop,
+                     RuleShadow* rule,
+                     Model* model,
+                     const VectorDouble& props,
                      int flag_stat,
                      int nfacies)
 {
@@ -1075,7 +1073,7 @@ PropDef* proportion_manage(int mode,
 
   if (error)
   {
-    if (propdef != nullptr) delete propdef;
+    delete propdef;
     propdef = nullptr;
   }
   return (propdef);

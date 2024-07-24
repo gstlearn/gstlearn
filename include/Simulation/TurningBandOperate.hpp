@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "ACalcSimulation.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class Db;
@@ -66,11 +65,11 @@ public:
   double shotNoiseCubicOne(double t0);
   double spectralOne(double t0);
   double IRFProcessOne(double t0);
-  double cosineOne(double t0);
+  double cosineOne(double t0) const;
 
 private:
   double _irfProcessSample(int nt0, double t0);
-  int _rankInPoisson(int def_rank, double t0, const VectorDouble &t);
+  static int _rankInPoisson(int def_rank, double t0, const VectorDouble &t);
 
 private:
   int _nt0;

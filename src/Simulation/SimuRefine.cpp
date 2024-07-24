@@ -552,6 +552,5 @@ int SimuRefine::_getNDim() const
 {
   if (_model != nullptr)
     return _model->getDimensionNumber();
-  else
-    return 0;
+  return 0;
 }

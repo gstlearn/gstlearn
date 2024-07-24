@@ -16,9 +16,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Stats/Classical.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
@@ -35,15 +33,15 @@ VarioParam::VarioParam(double scale,
 {
 }
 
-VarioParam::VarioParam(const VarioParam &VarioParam,
-                       const VectorInt &dircols,
-                       const Faults *faults)
-    : AStringable(),
-      ICloneable(),
-      _scale(),
-      _dates(),
-      _dirparams(),
-      _faults(faults)
+VarioParam::VarioParam(const VarioParam& VarioParam,
+                       const VectorInt& dircols,
+                       const Faults* faults)
+  : AStringable()
+  , ICloneable()
+  , _scale()
+  , _dates()
+  , _dirparams()
+  , _faults(faults)
 {
     _scale = VarioParam.getScale();
     _dates = VarioParam.getDates();
@@ -477,7 +475,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
 
   for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
   {
-    DirParam dirparam = varioparam.getDirParam(idir);
+    const DirParam& dirparam = varioparam.getDirParam(idir);
     int nech = db->getSampleNumber();
     double maxdist = dirparam.getMaximumDistance();
 

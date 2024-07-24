@@ -136,7 +136,7 @@ private:
   double _getAIC(const VectorDouble& aic, int icov, int ivar, int jvar);
 
   static double _computeScale(double alpha, double scale);
-  double _computeScaleKB(double param, double scale);
+  static double _computeScaleKB(double param, double scale);
 
   void _migrationInit(int ibs,
                       int is,

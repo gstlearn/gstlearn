@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorNumT.hpp"
 
 class GSTLEARN_EXPORT SimuFFTParam: public AStringable
 {

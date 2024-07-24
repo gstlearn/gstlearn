@@ -217,7 +217,7 @@ static void st_relem_define(Relem *relem,
                             int nfacies,
                             const VectorInt &facies,
                             int side,
-                            int *poss)
+                            const int *poss)
 {
   int ecr, number;
 
@@ -2094,7 +2094,6 @@ void vario_order_get_bounds(Vario_Order *vorder,
     *ilast = vorder->npair;
     return;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2399,28 +2398,25 @@ static double st_param_expand(Local_Pgs *local_pgs,
       {
         if (idir > 0)
           return (corpgs->params[1]);
-        else
-          return (corpgs->params[2]);
+        return (corpgs->params[2]);
       }
       break;
 
     case 1:
       if (igrf == 0 && jgrf == 0)
         return (corpgs->params[0]);
-      else if (igrf == 1 && jgrf == 1)
+      if (igrf == 1 && jgrf == 1)
         return (corpgs->params[2]);
-      else
-        return (corpgs->params[1]);
+      return (corpgs->params[1]);
       break;
 
     case 2:
       rho2 = rho * rho;
       if (igrf == 0 && jgrf == 0)
         return (corpgs->params[0]);
-      else if (igrf == 1 && jgrf == 1)
+      if (igrf == 1 && jgrf == 1)
         return (corpgs->params[0] * rho2 + corpgs->params[1] * (1. - rho2));
-      else
-        return (corpgs->params[0] * rho);
+      return (corpgs->params[0] * rho);
       break;
   }
   return (0.);
@@ -4199,7 +4195,6 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
     if (local_pgs->ngrf > 1)
       iconf[1] = ct_tableone_covrank(CTABLES, cov[5], &cround);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -4486,7 +4481,6 @@ static void st_variogram_scale(Vario *vario, int idir)
         }
       }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -4759,7 +4753,6 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
         }
       }
     }
-  return;
 }
 
 /****************************************************************************/
@@ -5236,7 +5229,7 @@ Vario* variogram_pgs(Db *db,
 
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1, 0, 1, 200, 100, -1., 1., CTABLES);
-  if (varioind != nullptr) delete varioind;
+  delete varioind;
   if (error) delete vario;
   return vario;
 }
@@ -5420,8 +5413,8 @@ Rule* _rule_auto(Db *db,
 
   proportion_manage(-1, 1, flag_stat, NGRF, 0, NCOLOR, 0, db, dbprop,
                     propcst, propdef);
-  if (varioind != nullptr) delete varioind;
-  if (vario != nullptr) delete vario;
+  delete varioind;
+  delete vario;
   if (error) rule = rule_free(rule);
   return (rule);
 }

@@ -13,30 +13,18 @@
 #include "geoslib_f_private.h"
 #include "geoslib_f.h"
 
-#include "Enum/EAnam.hpp"
-
 #include "Variogram/VCloud.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Stats/Classical.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Space/SpacePoint.hpp"
-#include "Space/SpaceRN.hpp"
-#include "Geometry/BiTargetCheckCode.hpp"
-#include "Geometry/BiTargetCheckDate.hpp"
-#include "Geometry/BiTargetCheckFaults.hpp"
-#include "Geometry/BiTargetCheckGeometry.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Polygon/Polygons.hpp"
 
 static int IPTR;
@@ -250,7 +238,6 @@ void VCloud::_variogram_cloud(Db *db, int idir)
   }
 
   delete vario;
-  return;
 }
 
 /****************************************************************************/

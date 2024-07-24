@@ -61,7 +61,7 @@ Projection::~Projection()
 {
 }
 
-void Projection::operateInPlace(VectorDouble& coor)
+void Projection::operateInPlace(VectorDouble& coor) const
 {
   double xx = coor[0];
   double yy = coor[1];
@@ -87,7 +87,7 @@ void Projection::operateInPlace(VectorDouble& coor)
   coor[1] = yy;
 }
 
-VectorDouble Projection::operateInvert(const VectorDouble& coor)
+VectorDouble Projection::operateInvert(const VectorDouble& coor) const
 {
   VectorDouble res(2);
   double xx = coor[0];
@@ -112,7 +112,7 @@ VectorDouble Projection::operateInvert(const VectorDouble& coor)
   return res;
 }
 
-int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y)
+int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
 {
   int nech = (int) x.size();
   if (nech != (int) y.size())
@@ -136,7 +136,7 @@ int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y)
   return 0;
 }
 
-int Projection::operateOnDb(Db *db)
+int Projection::operateOnDb(Db *db) const
 {
   if (db == nullptr) return 0;
   if (db->getLocNumber(ELoc::X) < 2)
@@ -159,7 +159,7 @@ int Projection::operateOnDb(Db *db)
   return 0;
 }
 
-int Projection::operateOnPolygons(Polygons* poly)
+int Projection::operateOnPolygons(Polygons* poly) const
 {
   if (poly == nullptr) return 0;
   int npol = poly->getPolyElemNumber();

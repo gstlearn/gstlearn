@@ -87,7 +87,6 @@ static void st_tableone_manage(CTables *ctables,
       return;
     }
   }
-  return;
 }
 
 /****************************************************************************
@@ -367,7 +366,6 @@ void ct_tables_print(CTables *ctables, int flag_print)
     }
     message("\n");
   }
-  return;
 }
 
 /****************************************************************************
@@ -532,8 +530,6 @@ static void st_tableone_getrank(const CTables *ctables,
     }
     if (*indmax < 0) *indmax = nelem;
   }
-
-  return;
 }
 
 /****************************************************************************

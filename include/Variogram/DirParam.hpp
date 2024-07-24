@@ -153,8 +153,8 @@ public:
   void setTolAngle(double tolang);
 
   void setTolCode(double tolcode) {_tolCode = tolcode; }
-  void setBreaks(VectorDouble breaks) {_breaks = breaks; }
-  void setCodir(VectorDouble codir) {_codir = codir; }
+  void setBreaks(const VectorDouble& breaks) {_breaks = breaks; }
+  void setCodir(const VectorDouble& codir) {_codir = codir; }
   void setGrincr(const VectorInt &grincr) { _grincr = grincr; }
 
   bool isLagValid(int ilag, bool flagAsym = false) const;

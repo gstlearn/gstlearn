@@ -9,13 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_enum.h"
-
-#include "Enum/ECst.hpp"
 
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/OptCst.hpp"
 
 #include <math.h>
 #include <cmath>
@@ -83,7 +78,7 @@ static double _getEpsMatrix()
  ** \remark  a_in is protected
  **
  *****************************************************************************/
-int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
+int matrix_eigen(const double* a_in, int neq, double* value, double* vector)
 
 {
   double a11, a12, a13, a21, a22, a23, a33, a34;
@@ -96,26 +91,23 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
   error = 1;
   ind   = nullptr;
   a = tmp = nullptr;
-  for (i = 0; i < 4; i++)
-    work[i] = nullptr;
+  for (i = 0; i < 4; i++) work[i] = nullptr;
 
   a34 = 0.0;
   if (neq == 1)
   {
-    value[0] = a_in[0];
-    VECTOR(0,0)= 1;
+    value[0]     = a_in[0];
+    VECTOR(0, 0) = 1;
     return (0);
   }
 
-  a = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-  for (i = 0; i < neq * neq; i++)
-    a[i] = a_in[i];
+  a = (double*)mem_alloc(sizeof(double) * neq * neq, 1);
+  for (i = 0; i < neq * neq; i++) a[i] = a_in[i];
 
   for (i = 0; i < 4; i++)
   {
-    work[i] = (double*) mem_alloc(sizeof(double) * neq, 1);
-    for (j = 0; j < neq; j++)
-      work[i][j] = 0.;
+    work[i] = (double*)mem_alloc(sizeof(double) * neq, 1);
+    for (j = 0; j < neq; j++) work[i][j] = 0.;
   }
 
   work[0][0] = AS(0, 0);
@@ -129,53 +121,46 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
     for (j = 1; j < neq; j++)
     {
       work[0][j] = AS(j, j);
-      for (i = 0; i < j; i++)
-        AS(i,j)= AS(j,i);
-      }
-
-      for (i=0; i<neq-2; i++)
-      {
-        pp = 0.;
-        i1 = i+1;
-        for (j=i1; j<neq; j++) pp += AS(i,j)*AS(i,j);
-        work[1][i1] = SIGN (AS(i,i1),-sqrt(pp));
-        if (pp <= 0) continue;
-        hold = pp - work[1][i1]*AS(i,i1);
-        AS(i,i1) -= work[1][i1];
-        for (ki=i1; ki<neq; ki++)
-        {
-          qj = 0.;
-          for (kj=i1; kj<=ki; kj++)
-          qj += AS(kj,ki) * AS(i,kj);
-          for (kj=ki+1; kj<neq; kj++)
-          qj += AS(ki,kj) * AS(i,kj);
-          work[2][ki] = qj/hold;
-        }
-        bigk = 0.;
-        for (kj=i1; kj<neq; kj++)
-        bigk += AS(i,kj) * work[2][kj];
-        bigk /= 2.0 * hold;
-        for (kj=i1; kj<neq; kj++)
-        work[2][kj] -= bigk * AS(i,kj);
-        for (ki=i1; ki<neq; ki++)
-        for (kj=ki; kj<neq; kj++)
-        AS(ki,kj) -=
-        work[2][ki] * AS(i,kj) + work[2][kj] * AS(i,ki);
-      }
-
-      for (i=1; i<neq; i++)
-      {
-        hold = work[0][i];
-        work[0][i] = AS(i,i);
-        AS(i,i) = hold;
-      }
-      work[1][neq-1] = AS(neq-2,neq-1);
+      for (i = 0; i < j; i++) AS(i, j) = AS(j, i);
     }
+
+    for (i = 0; i < neq - 2; i++)
+    {
+      pp = 0.;
+      i1 = i + 1;
+      for (j = i1; j < neq; j++) pp += AS(i, j) * AS(i, j);
+      work[1][i1] = SIGN(AS(i, i1), -sqrt(pp));
+      if (pp <= 0) continue;
+      hold = pp - work[1][i1] * AS(i, i1);
+      AS(i, i1) -= work[1][i1];
+      for (ki = i1; ki < neq; ki++)
+      {
+        qj = 0.;
+        for (kj = i1; kj <= ki; kj++) qj += AS(kj, ki) * AS(i, kj);
+        for (kj = ki + 1; kj < neq; kj++) qj += AS(ki, kj) * AS(i, kj);
+        work[2][ki] = qj / hold;
+      }
+      bigk = 0.;
+      for (kj = i1; kj < neq; kj++) bigk += AS(i, kj) * work[2][kj];
+      bigk /= 2.0 * hold;
+      for (kj = i1; kj < neq; kj++) work[2][kj] -= bigk * AS(i, kj);
+      for (ki = i1; ki < neq; ki++)
+        for (kj = ki; kj < neq; kj++)
+          AS(ki, kj) -= work[2][ki] * AS(i, kj) + work[2][kj] * AS(i, ki);
+    }
+
+    for (i = 1; i < neq; i++)
+    {
+      hold       = work[0][i];
+      work[0][i] = AS(i, i);
+      AS(i, i)   = hold;
+    }
+    work[1][neq - 1] = AS(neq - 2, neq - 1);
+  }
 
   work[3][0] = work[0][0];
   for (i = 1; i < neq; i++)
-    for (j = 0; j < 2; j++)
-      work[3 - j][i] = work[j][i];
+    for (j = 0; j < 2; j++) work[3 - j][i] = work[j][i];
 
   iter = 0;
   do
@@ -185,51 +170,50 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
     {
       n1 = 0;
       for (i1 = i2; i1 > 0 && n1 == 0; i1--)
-        if (ABS(work[2][i1]) <= _getEpsMatrix() * neq
-                                * (ABS(work[3][i1-1]) + ABS(work[3][i1])))
+        if (ABS(work[2][i1]) <=
+            _getEpsMatrix() * neq * (ABS(work[3][i1 - 1]) + ABS(work[3][i1])))
           n1 = i1;
       if (n1 != i2) n2 = i2;
     }
     if (n2 < 1) break;
 
-    bb = (work[3][n2] - work[3][n2 - 1]) / 2.;
-    cc = work[2][n2] * work[2][n2];
+    bb  = (work[3][n2] - work[3][n2 - 1]) / 2.;
+    cc  = work[2][n2] * work[2][n2];
     a22 = work[3][n1];
     a12 = a22 - work[3][n2];
-    if (! isZero(bb) || ! isZero(cc)) a12 -= cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
+    if (!isZero(bb) || !isZero(cc))
+      a12 -= cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
     a23 = work[2][n1 + 1];
     a13 = a23;
     for (i = n1; i < n2; i++)
     {
       a33 = work[3][i + 1];
       if (i != n2 - 1) a34 = work[2][i + 2];
-      s = sqrt(a12 * a12 + a13 * a13);
+      s  = sqrt(a12 * a12 + a13 * a13);
       si = a13 / s;
       co = a12 / s;
       if (i != n1) work[2][i] = s;
-      a11 = co * a22 + si * a23;
-      a12 = co * a23 + si * a33;
-      a13 = si * a34;
-      a21 = co * a23 - si * a22;
-      a22 = co * a33 - si * a23;
-      a23 = co * a34;
-      work[3][i] = a11 * co + a12 * si;
-      a12 = -a11 * si + a12 * co;
+      a11            = co * a22 + si * a23;
+      a12            = co * a23 + si * a33;
+      a13            = si * a34;
+      a21            = co * a23 - si * a22;
+      a22            = co * a33 - si * a23;
+      a23            = co * a34;
+      work[3][i]     = a11 * co + a12 * si;
+      a12            = -a11 * si + a12 * co;
       work[2][i + 1] = a12;
-      a22 = a22 * co - a21 * si;
+      a22            = a22 * co - a21 * si;
     }
     work[3][n2] = a22;
     iter++;
-  }
-  while (iter < 10 * neq && n2 != -1);
+  } while (iter < 10 * neq && n2 != -1);
 
   for (i = 0; i < neq; i++)
   {
-    value[i] = work[0][i];
+    value[i]   = work[0][i];
     work[2][i] = work[1][i];
-    for (j = 0; j < neq; j++)
-      VECTOR(j,i)= 0.;
-    VECTOR(i,i)= 1.;
+    for (j = 0; j < neq; j++) VECTOR(j, i) = 0.;
+    VECTOR(i, i) = 1.;
   }
 
   k = 0;
@@ -239,22 +223,24 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
     iter = 0;
     do
     {
-      bb = (value[n2] - value[n2 - 1]) / 2.;
-      cc = work[2][n2] * work[2][n2];
+      bb  = (value[n2] - value[n2 - 1]) / 2.;
+      cc  = work[2][n2] * work[2][n2];
       a22 = value[n2];
-      if (! isZero(bb) || ! isZero(cc)) a22 += cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
+      if (!isZero(bb) || !isZero(cc))
+        a22 += cc / (bb + SIGN(bb, sqrt(bb * bb + cc)));
       for (i = 0; i < n2; i++)
-        if (ABS(hold-a22) > ABS(work[3][i] - a22))
+        if (ABS(hold - a22) > ABS(work[3][i] - a22))
         {
-          hold = work[3][i];
-          work[3][i] = work[3][n2];
+          hold        = work[3][i];
+          work[3][i]  = work[3][n2];
           work[3][n2] = hold;
         }
 
       n1 = 0;
       for (i1 = n2; i1 > 0 && n1 == 0; i1--)
-        if (ABS(work[2][i1]) <= _getEpsMatrix() * neq
-                                * (ABS(value[i1-1]) + ABS(value[i1]))) n1 = i1;
+        if (ABS(work[2][i1]) <=
+            _getEpsMatrix() * neq * (ABS(value[i1 - 1]) + ABS(value[i1])))
+          n1 = i1;
       if (n2 == n1) break;
 
       if (iter >= 3) hold = a22;
@@ -267,86 +253,81 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
       {
         a33 = value[i + 1];
         if (i != n2 - 1) a34 = work[2][i + 2];
-        s = SIGN(a12, sqrt(a12 * a12 + a13 * a13));
+        s  = SIGN(a12, sqrt(a12 * a12 + a13 * a13));
         si = a13 / s;
         co = a12 / s;
         for (ji = 0; ji <= MIN(neq - 1, i + k); ji++)
         {
-          v1 = VECTOR(ji, i);
-          v2 = VECTOR(ji, i + 1);
-          VECTOR(ji,i)= v1*co+v2*si;
-          VECTOR(ji,i+1)= v2*co-v1*si;
+          v1                = VECTOR(ji, i);
+          v2                = VECTOR(ji, i + 1);
+          VECTOR(ji, i)     = v1 * co + v2 * si;
+          VECTOR(ji, i + 1) = v2 * co - v1 * si;
         }
         if (i != n1) work[2][i] = s;
-        a11 = co * a22 + si * a23;
-        a12 = co * a23 + si * a33;
-        a13 = si * a34;
-        a21 = co * a23 - si * a22;
-        a22 = co * a33 - si * a23;
-        a23 = co * a34;
-        value[i] = a11 * co + a12 * si;
-        a12 = -a11 * si + a12 * co;
+        a11            = co * a22 + si * a23;
+        a12            = co * a23 + si * a33;
+        a13            = si * a34;
+        a21            = co * a23 - si * a22;
+        a22            = co * a33 - si * a23;
+        a23            = co * a34;
+        value[i]       = a11 * co + a12 * si;
+        a12            = -a11 * si + a12 * co;
         work[2][i + 1] = a12;
-        a22 = a22 * co - a21 * si;
+        a22            = a22 * co - a21 * si;
       }
       value[n2] = a22;
       iter++;
-    }
-    while (iter < 20 && n2 != n1);
+    } while (iter < 20 && n2 != n1);
     if (iter == 20) goto label_end;
   }
 
   for (j = 0; j < neq; j++)
   {
-    v2 = VECTOR(0,j)*VECTOR(0,j);
+    v2 = VECTOR(0, j) * VECTOR(0, j);
     v1 = v2 * work[0][0];
-    for (i=1; i<neq; i++)
+    for (i = 1; i < neq; i++)
     {
-      v2 += VECTOR(i,j)*VECTOR(i,j);
-      v1 += VECTOR(i,j)*
-      (2.*work[1][i]*VECTOR(i-1,j)+work[0][i]*VECTOR(i,j));
+      v2 += VECTOR(i, j) * VECTOR(i, j);
+      v1 += VECTOR(i, j) *
+            (2. * work[1][i] * VECTOR(i - 1, j) + work[0][i] * VECTOR(i, j));
     }
-    value[j] = v1/v2;
+    value[j] = v1 / v2;
   }
 
-  if (neq > 2) for (j = 0; j < neq; j++)
-    for (i = neq - 2; i > 0; i--)
-      if (! isZero(work[1][i]))
-      {
-        pp = 0.;
-        for (ki = i; ki < neq; ki++)
-          pp += AS(i-1,ki)* VECTOR(ki,j);
-        pp /= (AS(i-1,i)*work[1][i]);
-        for (ki = i; ki < neq; ki++)
-          VECTOR(ki,j)+= pp * AS(i-1,ki);
+  if (neq > 2)
+    for (j = 0; j < neq; j++)
+      for (i = neq - 2; i > 0; i--)
+        if (!isZero(work[1][i]))
+        {
+          pp = 0.;
+          for (ki = i; ki < neq; ki++) pp += AS(i - 1, ki) * VECTOR(ki, j);
+          pp /= (AS(i - 1, i) * work[1][i]);
+          for (ki = i; ki < neq; ki++) VECTOR(ki, j) += pp * AS(i - 1, ki);
         }
 
-        /* Sort the eigen values and the corresponding vectors */
+  /* Sort the eigen values and the corresponding vectors */
 
-  ind = (int*) mem_alloc(sizeof(int) * neq, 1);
-  tmp = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-  for (i = 0; i < neq; i++)
-    ind[i] = i;
+  ind = (int*)mem_alloc(sizeof(int) * neq, 1);
+  tmp = (double*)mem_alloc(sizeof(double) * neq * neq, 1);
+  for (i = 0; i < neq; i++) ind[i] = i;
   ut_sort_double(0, neq, ind, value);
   for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-      tmp[i + neq * j] = VECTOR(i, ind[j]);
-  for (i = 0; i < neq * neq; i++)
-    vector[i] = tmp[i];
+    for (j = 0; j < neq; j++) tmp[i + neq * j] = VECTOR(i, ind[j]);
+  for (i = 0; i < neq * neq; i++) vector[i] = tmp[i];
 
   /* Sorting in decreasing order */
 
   for (i = 0; i < neq / 2; i++)
   {
-    k = neq - i - 1;
-    temp = value[i];
+    k        = neq - i - 1;
+    temp     = value[i];
     value[i] = value[k];
     value[k] = temp;
     for (j = 0; j < neq; j++)
     {
-      temp = VECTOR(j, i);
-      VECTOR(j,i)= VECTOR(j,k);
-      VECTOR(j,k)= temp;
+      temp         = VECTOR(j, i);
+      VECTOR(j, i) = VECTOR(j, k);
+      VECTOR(j, k) = temp;
     }
   }
 
@@ -354,15 +335,13 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
 
   error = 0;
 
-  label_end:
-  mem_free((char* ) a);
-  mem_free((char* ) ind);
-  mem_free((char* ) tmp);
-  for (i = 0; i < 4; i++)
-    mem_free((char* ) work[i]);
+label_end:
+  mem_free((char*)a);
+  mem_free((char*)ind);
+  mem_free((char*)tmp);
+  for (i = 0; i < 4; i++) mem_free((char*)work[i]);
 
-  if (error)
-    print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
+  if (error) print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
 
   return (error);
 }
@@ -382,26 +361,18 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
  ** \remark  The matrix v3[] may NOT coincide with one of the two initial ones
  **
  *****************************************************************************/
-void matrix_product_safe(int n1,
-                         int n2,
-                         int n3,
-                         const double *v1,
-                         const double *v2,
-                         double *v3)
+void matrix_product_safe(int n1, int n2, int n3, const double* v1, const double* v2, double* v3)
 {
   int i1, i2, i3, i4;
 
   if (v1 == v3 || v2 == v3)
     messageAbort("Violated protection in matrix_product_safe");
 
-  for (i4 = 0; i4 < n1 * n3; i4++)
-    v3[i4] = 0.;
+  for (i4 = 0; i4 < n1 * n3; i4++) v3[i4] = 0.;
 
   for (i3 = 0; i3 < n3; i3++)
     for (i1 = 0; i1 < n1; i1++)
-      for (i2 = 0; i2 < n2; i2++)
-        V3(i1,i3) += V1(i1,i2) * V2(i2,i3);
-  return;
+      for (i2 = 0; i2 < n2; i2++) V3(i1, i3) += V1(i1, i2) * V2(i2, i3);
 }
 
 /*****************************************************************************/
@@ -428,12 +399,7 @@ void matrix_product_safe(int n1,
  ** \remarks +1: the optional array A has dimension (n2,n2)
  **
  *****************************************************************************/
-int matrix_prod_norme(int transpose,
-                      int n1,
-                      int n2,
-                      const double *v1,
-                      const double *a,
-                      double *w)
+int matrix_prod_norme(int transpose, int n1, int n2, const double* v1, const double* a, double* w)
 {
   int i1, j1, i2, j2, ecr, neq;
   double value, vala, vi;
@@ -511,7 +477,6 @@ void matrix_transpose(int n1, int n2, VectorDouble& v1, VectorDouble& w1)
   for (int i1 = 0; i1 < n1; i1++)
     for (int i2 = 0; i2 < n2; i2++)
       w1[ecr++] = V1(i1, i2);
-  return;
 }
 
 /*****************************************************************************/
@@ -695,7 +660,7 @@ void matrix_cholesky_product(int mode,
 {
   int irhs, i, j, n1, n2;
   double val, *v2;
-  const double *v1;
+  const double* v1;
 
   if (mode == 0)
   {
@@ -703,79 +668,72 @@ void matrix_cholesky_product(int mode,
       for (i = 0; i < neq; i++)
       {
         val = 0.;
-        for (j = i; j < neq; j++)
-          val += TL(j,i) * AS(j,irhs);
-        XS(i,irhs)= val;
+        for (j = i; j < neq; j++) val += TL(j, i) * AS(j, irhs);
+        XS(i, irhs) = val;
       }
-    }
-    else if (mode == 1)
-    {
-      for (irhs=0; irhs<nrhs; irhs++)
-      for (i=0; i<neq; i++)
+  }
+  else if (mode == 1)
+  {
+    for (irhs = 0; irhs < nrhs; irhs++)
+      for (i = 0; i < neq; i++)
       {
         val = 0.;
-        for (j=0; j<=i; j++)
-        val += TL(i,j) * AS(j,irhs);
-        XS(i,irhs) = val;
+        for (j = 0; j <= i; j++) val += TL(i, j) * AS(j, irhs);
+        XS(i, irhs) = val;
       }
-    }
-    else if (mode == 2)
-    {
-      v2 = x;
-      n2 = nrhs;
-      for (irhs=0; irhs<nrhs; irhs++)
-      for (i=0; i<neq; i++)
+  }
+  else if (mode == 2)
+  {
+    v2 = x;
+    n2 = nrhs;
+    for (irhs = 0; irhs < nrhs; irhs++)
+      for (i = 0; i < neq; i++)
       {
         val = 0.;
-        for (j=0; j<=i; j++)
-        val += AS(irhs,j) * TL(i,j);
-        V2(irhs,i) = val;
+        for (j = 0; j <= i; j++) val += AS(irhs, j) * TL(i, j);
+        V2(irhs, i) = val;
       }
-    }
-    else if (mode == 3)
-    {
-      v2 = x;
-      n2 = nrhs;
-      for (irhs=0; irhs<nrhs; irhs++)
-      for (i=0; i<neq; i++)
+  }
+  else if (mode == 3)
+  {
+    v2 = x;
+    n2 = nrhs;
+    for (irhs = 0; irhs < nrhs; irhs++)
+      for (i = 0; i < neq; i++)
       {
         val = 0.;
-        for (j=i; j<neq; j++)
-        val += AS(irhs,j) * TL(j,i);
-        V2(irhs,i) = val;
+        for (j = i; j < neq; j++) val += AS(irhs, j) * TL(j, i);
+        V2(irhs, i) = val;
       }
-    }
-    else if (mode == 4)
-    {
-      v1 = a;
-      n1 = nrhs;
-      v2 = x;
-      n2 = nrhs;
-      for (irhs=0; irhs<nrhs; irhs++)
-      for (i=0; i<neq; i++)
+  }
+  else if (mode == 4)
+  {
+    v1 = a;
+    n1 = nrhs;
+    v2 = x;
+    n2 = nrhs;
+    for (irhs = 0; irhs < nrhs; irhs++)
+      for (i = 0; i < neq; i++)
       {
         val = 0.;
-        for (j=0; j<=i; j++)
-        val += V1(irhs,j) * TL(i,j);
-        V2(irhs,i) = val;
+        for (j = 0; j <= i; j++) val += V1(irhs, j) * TL(i, j);
+        V2(irhs, i) = val;
       }
-    }
-    else if (mode == 5)
-    {
-      v1 = a;
-      n1 = nrhs;
-      v2 = x;
-      n2 = nrhs;
-      for (irhs=0; irhs<nrhs; irhs++)
-      for (i=0; i<neq; i++)
+  }
+  else if (mode == 5)
+  {
+    v1 = a;
+    n1 = nrhs;
+    v2 = x;
+    n2 = nrhs;
+    for (irhs = 0; irhs < nrhs; irhs++)
+      for (i = 0; i < neq; i++)
       {
         val = 0.;
-        for (j=i; j<neq; j++)
-        val += V1(irhs,j) * TL(j,i);
-        V2(irhs,i) = val;
+        for (j = i; j < neq; j++) val += V1(irhs, j) * TL(j, i);
+        V2(irhs, i) = val;
       }
-    }
-  return;
+  }
 }
 
 /*****************************************************************************/
@@ -823,9 +781,9 @@ void matrix_cholesky_invert(int neq, const double *tl, double *xl)
  *****************************************************************************/
 void matrix_combine(int nval,
                     double coeffa,
-                    double *a,
+                    const double *a,
                     double coeffb,
-                    double *b,
+                    const double *b,
                     double *c)
 {
   int i;

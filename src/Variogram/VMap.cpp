@@ -479,8 +479,8 @@ int VMap::_grid_fft(DbGrid *dbgrid, const NamingConvention &namconv)
  ** \param[out] tabout  Array containing the resulting VMAP
  **
  *****************************************************************************/
-void VMap::_extract(int *nxmap,
-                    int *nxgrid,
+void VMap::_extract(const int *nxmap,
+                    const int *nxgrid,
                     int *dims,
                     VectorDouble& tabin,
                     VectorDouble& tabout)
@@ -591,8 +591,6 @@ void VMap::_extract(int *nxmap,
         jz = nzs2 - iz - 1;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(OPP(0,ix), OPP(1,iy),OPP(2,iz), dims)];
       }
-
-  return;
 }
 
 /****************************************************************************/
@@ -910,17 +908,17 @@ void VMap::_complexArrayAlloc(int size, VectorVectorDouble& tab)
  ** \remark The arrays are evaluated only if the input pointer is defined
  **
  *****************************************************************************/
-int VMap::_vmap_load_simple(DbGrid *dbgrid,
+int VMap::_vmap_load_simple(DbGrid* dbgrid,
                             int ndim,
                             int sizetot,
-                            int *dims,
-                            int *dinv,
+                            const int* dims,
+                            int* dinv,
                             int ivar,
                             int jvar,
-                            VectorVectorDouble &i1i2,
-                            VectorVectorDouble &z1i2,
-                            VectorVectorDouble &z2i1,
-                            VectorVectorDouble &z2z1)
+                            VectorVectorDouble& i1i2,
+                            VectorVectorDouble& z1i2,
+                            VectorVectorDouble& z2i1,
+                            VectorVectorDouble& z2z1)
 {
   DECLARE_UNUSED(sizetot);
   int ind1, ind2, indice[3];
@@ -992,7 +990,7 @@ int VMap::_vmap_load_simple(DbGrid *dbgrid,
 int VMap::_vmap_load_cross(DbGrid *dbgrid,
                            int ndim,
                            int sizetot,
-                           int *dims,
+                           const int *dims,
                            int *dinv,
                            int ivar,
                            int jvar,
@@ -1101,7 +1099,6 @@ void VMap::_vmap_rescale(double scale,
     double value = tab2[i];
     if (value > EPSILON8) tab1[i] /= (scale * value);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1156,8 +1153,6 @@ void VMap::_vmap_store(VectorDouble& tab, int iptr)
         int iech = db_index_grid_to_sample(_dbmap, indice);
         _dbmap->setArray(iech, iptr, tab[ecr]);
       }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1174,7 +1169,10 @@ void VMap::_vmap_store(VectorDouble& tab, int iptr)
  ** \param[out] indg1     Working array for grid indices
  **
  *****************************************************************************/
-int VMap::_findNeighCell(int *indg0, int *neigh, int rank, int *indg1)
+int VMap::_findNeighCell(const int* indg0,
+                         const int* neigh,
+                         int rank,
+                         int* indg1)
 {
   int ndim;
 

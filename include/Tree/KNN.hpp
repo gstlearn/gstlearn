@@ -21,8 +21,8 @@ class GSTLEARN_EXPORT KNN
 {
 public:
   KNN();
-  KNN(const KNN& p);
-  KNN & operator=(const KNN& p);
+  KNN(const KNN& m);
+  KNN & operator=(const KNN& m);
   virtual ~KNN();
 
   void setDistances(double **distances) { _distances = distances; }

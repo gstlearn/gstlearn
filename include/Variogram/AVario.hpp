@@ -28,7 +28,7 @@ public:
   AVario& operator=(const AVario& r);
   virtual ~AVario();
 
-  static const ECalcVario getCalculType(const String& calcul_name);
+  static ECalcVario getCalculType(const String& calcul_name);
 
   void evaluate(Db *db,
                 int nvar,

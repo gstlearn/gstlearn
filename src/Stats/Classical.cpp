@@ -342,7 +342,7 @@ VectorString statOptionToName(const std::vector<EStatOption>& opers)
   VectorString names;
   for (int i = 0; i < (int) opers.size(); i++)
   {
-    EStatOption oper = opers[i];
+    const EStatOption& oper = opers[i];
     names.push_back(oper.getKey());
   }
   return names;
@@ -448,12 +448,10 @@ void dbStatisticsVariables(Db *db,
           tab = maxi;
         else if (opers[i] == EStatOption::SUM)
           tab = sum;
-        else if (opers[i] == EStatOption::PROP)
-          tab = (double) nperc / (double) neff;
+        else if (opers[i] == EStatOption::PROP || opers[i] == EStatOption::T)
+          tab = (double)nperc / (double)neff;
         else if (opers[i] == EStatOption::QUANT)
           tab = _getQuantile(local, neff, proba);
-        else if (opers[i] == EStatOption::T)
-          tab = (double) nperc / (double) neff;
         else if (opers[i] == EStatOption::Q)
           tab = metal / (double) neff;
         else if (opers[i] == EStatOption::M)
@@ -574,24 +572,32 @@ Table dbStatisticsMono(Db *db,
     {
       if (neff > 0)
       {
-        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
-        else if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
-        else if (opers[i] == EStatOption::VAR)  tab.push_back(var);
-        else if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
-        else if (opers[i] == EStatOption::MINI) tab.push_back(mini);
-        else if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
-        else if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
-        else if (opers[i] == EStatOption::PROP)
-          tab.push_back((double) nperc / (double) neff);
+        if (opers[i] == EStatOption::NUM)
+          tab.push_back((double)neff);
+        else if (opers[i] == EStatOption::MEAN)
+          tab.push_back(mean);
+        else if (opers[i] == EStatOption::VAR)
+          tab.push_back(var);
+        else if (opers[i] == EStatOption::STDV)
+          tab.push_back(stdv);
+        else if (opers[i] == EStatOption::MINI)
+          tab.push_back(mini);
+        else if (opers[i] == EStatOption::MAXI)
+          tab.push_back(maxi);
+        else if (opers[i] == EStatOption::SUM)
+          tab.push_back(sum);
+        else if (opers[i] == EStatOption::PROP || opers[i] == EStatOption::T)
+            tab.push_back((double)nperc / (double)neff);
         else if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
-        else if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
-        else if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
+        else if (opers[i] == EStatOption::Q)
+          tab.push_back(metal / (double)neff);
         else if (opers[i] == EStatOption::M)
-          tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
+          tab.push_back((nperc > 0) ? metal / (double)nperc : TEST);
         else if (opers[i] == EStatOption::B)
-          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
-        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(median);
+          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double)neff : TEST);
+        else if (opers[i] == EStatOption::MEDIAN)
+          tab.push_back(median);
         else
         {
           messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
@@ -600,23 +606,26 @@ Table dbStatisticsMono(Db *db,
       }
       else
       {
-        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
-        else if (opers[i] == EStatOption::MEAN)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::VAR)    tab.push_back(TEST);
-        else if (opers[i] == EStatOption::STDV)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::MINI)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::MAXI)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::SUM)    tab.push_back(TEST);
-        else if (opers[i] == EStatOption::PROP)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::QUANT)  tab.push_back(TEST);
-        else if (opers[i] == EStatOption::T)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::Q)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::M)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::B)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(TEST);
+        if (opers[i] == EStatOption::NUM)
+          tab.push_back((double)neff);
+        else if (opers[i] == EStatOption::MEAN ||
+                 opers[i] == EStatOption::VAR ||
+                 opers[i] == EStatOption::STDV ||
+                 opers[i] == EStatOption::MINI ||
+                 opers[i] == EStatOption::MAXI ||
+                 opers[i] == EStatOption::SUM ||
+                 opers[i] == EStatOption::PROP ||
+                 opers[i] == EStatOption::QUANT ||
+                 opers[i] == EStatOption::T ||
+                 opers[i] == EStatOption::Q ||
+                 opers[i] == EStatOption::M ||
+                 opers[i] == EStatOption::B ||
+                 opers[i] == EStatOption::MEDIAN)
+          tab.push_back(TEST);
         else
         {
-          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          messerr("The operator %s is not calculated yet",
+                  opers[i].getKey().c_str());
           return table;
         }
       }
@@ -1238,7 +1247,6 @@ void dbStatisticsPrint(const Db *db,
     message("\n");
   }
 
-  return;
 }
 
 /**
@@ -1329,17 +1337,13 @@ VectorDouble dbStatisticsPerCell(Db *db,
     flag1 = flag_s1 = 1;
   else if (oper == EStatOption::SUM)
     flag1 = flag_s1 = flag_denorm = 1;
-  else if (oper == EStatOption::STDV)
-    flag1 = flag_s1 = flag_v1 = 1;
-  else if (oper == EStatOption::VAR)
+  else if (oper == EStatOption::STDV || oper == EStatOption::VAR)
     flag1 = flag_s1 = flag_v1 = 1;
   else if (oper == EStatOption::MEAN2)
     flag2 = flag_s2 = 1;
   else if (oper == EStatOption::SUM2)
     flag2 = flag_s2 = flag_denorm = 1;
-  else if (oper == EStatOption::STDV2)
-    flag2 = flag_s2 = flag_v2 = 1;
-  else if (oper == EStatOption::VAR2)
+  else if (oper == EStatOption::STDV2 || oper == EStatOption::VAR2)
     flag2 = flag_s2 = flag_v2 = 1;
   else if (oper == EStatOption::COV)
     flag2 = flag_s1 = flag_s2 = flag_v12 = 1;
@@ -1498,17 +1502,13 @@ VectorDouble dbStatisticsPerCell(Db *db,
   {
     if (oper == EStatOption::NUM)
       result[i] = nn[i];
-    else if (oper == EStatOption::MEAN)
-      result[i] = s1[i];
-    else if (oper == EStatOption::SUM)
+    else if (oper == EStatOption::MEAN || oper == EStatOption::SUM)
       result[i] = s1[i];
     else if (oper == EStatOption::STDV)
       result[i] = v1[i];
     else if (oper == EStatOption::VAR)
       result[i] = v1[i] * v1[i];
-    else if (oper == EStatOption::MEAN2)
-      result[i] = s2[i];
-    else if (oper == EStatOption::SUM2)
+    else if (oper == EStatOption::MEAN2 || oper == EStatOption::SUM2)
       result[i] = s2[i];
     else if (oper == EStatOption::STDV2)
       result[i] = v2[i];
@@ -1715,11 +1715,9 @@ Table dbStatisticsMulti(Db *db,
     _copyResults(nx, ny, num, result);
   else if (oper == EStatOption::MEAN)
     _copyResults(nx, ny, m1, result);
-  else if (oper == EStatOption::VAR)
-    _copyResults(nx, ny, v12, result);
-  else if (oper == EStatOption::CORR)
-    _copyResults(nx, ny, v12, result);
-  else if (oper == EStatOption::STDV)
+  else if (oper == EStatOption::VAR ||
+           oper == EStatOption::CORR ||
+           oper == EStatOption::STDV)
     _copyResults(nx, ny, v12, result);
   else if (oper == EStatOption::MINI)
     _copyResults(nx, ny, mini, result);
@@ -2029,13 +2027,10 @@ VectorVectorInt correlationPairs(Db *db1,
     messerr("No sample found where all variables are defined");
     return indices;
   }
-  else
+  if (verbose)
   {
-    if (verbose)
-    {
-      message("Total number of samples = %d\n", nech);
-      message("Number of samples defined = %d\n", (int) nb);
-    }
+    message("Total number of samples = %d\n", nech);
+    message("Number of samples defined = %d\n", (int)nb);
   }
   return indices;
 }

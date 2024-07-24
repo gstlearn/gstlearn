@@ -28,7 +28,7 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  const VectorDouble getDilate() const { return _dilate; }
+  VectorDouble getDilate() const { return _dilate; }
   void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
   double getIntensity() const { return _intensity; }
   void setIntensity(double intensity) { _intensity = intensity; }

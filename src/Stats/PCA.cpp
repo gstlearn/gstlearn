@@ -309,7 +309,7 @@ int PCA::dbF2Z(Db* db,
   return 0;
 }
 
-const VectorDouble PCA::getVarianceRatio() const
+VectorDouble PCA::getVarianceRatio() const
 {
   double total = VectorHelper::cumul(_eigval);
   VectorDouble eignorm = _eigval;
@@ -501,8 +501,8 @@ void PCA::_uncenter(VectorDouble& data,
  **
  *****************************************************************************/
 void PCA::_pcaZ2F(int iptr,
-                  Db *db,
-                  const VectorBool isoFlag,
+                  Db* db,
+                  const VectorBool& isoFlag,
                   const VectorDouble& mean,
                   const VectorDouble& sigma)
 {
@@ -763,7 +763,7 @@ void PCA::_variogramh(Db *db,
       {
         db->getSampleAsSTInPlace(iech, T1);
         db->getSampleAsSTInPlace(jech, T2);
-        DirParam dirparam = varioparam.getDirParam(idir0);
+        const DirParam& dirparam = varioparam.getDirParam(idir0);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! vario->keepPair(idir0, T1, T2, &dist)) continue;
@@ -806,7 +806,7 @@ void PCA::_variogramh(Db *db,
 
     if (idir0 >= 0)
     {
-      DirParam dirparam = varioparam.getDirParam(idir0);
+      const DirParam& dirparam = varioparam.getDirParam(idir0);
       dirparam.display();
       message("Reference Lag               = %d\n", ilag0);
     }
