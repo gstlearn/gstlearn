@@ -844,13 +844,38 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrix::_isVectorSizeConsistent(int nrows,
-                                      int ncols,
-                                      const VectorDouble &tab)
+bool AMatrix::_isVectorSizeConsistent(const VectorDouble &tab)
 {
+  int nrows = getNRows();
+  int ncols = getNCols();
   if ((int) tab.size() != nrows * ncols)
   {
-    messerr("The VectorDouble argument does not have correct dimension");
+    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
+            (int) tab.size(), nrows * ncols);
+    return false;
+  }
+  return true;
+}
+
+bool AMatrix::_isColumnSizeConsistent(const VectorDouble &tab)
+{
+  int nrows = getNRows();
+  if ((int) tab.size() != nrows)
+  {
+    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
+            (int) tab.size(), nrows);
+    return false;
+  }
+  return true;
+}
+
+bool AMatrix::_isRowSizeConsistent(const VectorDouble &tab)
+{
+  int ncols = getNCols();
+  if ((int) tab.size() != ncols)
+  {
+    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
+            (int) tab.size(), ncols);
     return false;
   }
   return true;
@@ -1029,21 +1054,25 @@ VectorDouble AMatrix::getDiagonal(int shift) const
  * Reset the contents of a matrix by setting all terms to 0 and
  * update diagonal terms from the input argument 'tab'
  * @param tab Input vector to be copied to the diagonal of the output matrix
+ * @param flagCheck When True, check the input arguments
  */
-void AMatrix::setDiagonal(const VectorDouble& tab)
+void AMatrix::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {
+  int nrows = getNRows();
   if (! isSquare())
   {
     messerr("This function is only valid for Square matrices. Nothing is done");
     return;
   }
-
-  fill(0.);
-  for (int irow = 0; irow < getNRows(); irow++)
+  if (flagCheck)
   {
-    int icol = irow;
-    if (icol < 0 || icol >= getNCols()) continue;
-    setValue(irow,icol,tab[irow]);
+    if (! _isRowSizeConsistent(tab)) return;
+  }
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    if (irow >= getNCols()) continue;
+    setValue(irow,irow,tab[irow]);
   }
 }
 
@@ -1055,7 +1084,6 @@ void AMatrix::setDiagonalToConstant(double value)
     return;
   }
 
-  fill(0.);
   for (int irow = 0; irow < getNRows(); irow++)
   {
     int icol = irow;
@@ -1080,7 +1108,7 @@ VectorDouble AMatrix::getRow(int irow) const
 }
 
 /*! Set the contents of a Row */
-void AMatrix::setRow(int irow, const VectorDouble& tab)
+void AMatrix::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
   if (irow < 0 || irow >= getNRows())
     my_throw("Incorrect argument 'irow'");
@@ -1088,7 +1116,7 @@ void AMatrix::setRow(int irow, const VectorDouble& tab)
     my_throw("Incorrect dimension of 'tab'");
 
   for (int icol = 0; icol < getNCols(); icol++)
-    setValue(irow,icol,tab[icol]);
+    setValue(irow,icol,tab[icol],flagCheck);
 }
 
 /*! Extract a Column */
@@ -1104,7 +1132,7 @@ VectorDouble AMatrix::getColumn(int icol) const
 }
 
 /*! Set the contents of a Column */
-void AMatrix::setColumn(int icol, const VectorDouble& tab)
+void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
   if (icol < 0 || icol >= getNCols())
     my_throw("Incorrect argument 'icol'");
@@ -1112,7 +1140,7 @@ void AMatrix::setColumn(int icol, const VectorDouble& tab)
     my_throw("Incorrect dimension of 'tab'");
 
   for (int irow = 0; irow < getNRows(); irow++)
-    setValue(irow,icol,tab[irow]);
+    setValue(irow,icol,tab[irow], flagCheck);
 }
 
 /*! Checks if a Column is valid (contains a non TEST value) */

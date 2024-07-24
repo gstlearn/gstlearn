@@ -68,11 +68,11 @@ public:
   virtual bool mustBeSymmetric() const { return false; }
 
   /*! Set the contents of a Column */
-  virtual void setColumn(int icol, const VectorDouble& tab);
+  virtual void setColumn(int icol, const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of a Row */
-  virtual void setRow(int irow, const VectorDouble& tab);
+  virtual void setRow(int irow, const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab);
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.);
   /*! Transpose the matrix in place*/
@@ -242,7 +242,9 @@ protected:
   bool _isIndexValid(int irow, int icol) const;
   bool _isRowVectorConsistent(const VectorDouble& tab);
   bool _isColVectorConsistent(const VectorDouble& tab);
-  bool _isVectorSizeConsistent(int nrows, int ncols, const VectorDouble& tab);
+  bool _isVectorSizeConsistent(const VectorDouble& tab);
+  bool _isColumnSizeConsistent(const VectorDouble &tab);
+  bool _isRowSizeConsistent(const VectorDouble &tab);
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 

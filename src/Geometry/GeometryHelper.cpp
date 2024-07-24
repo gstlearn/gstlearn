@@ -1596,3 +1596,30 @@ double GeometryHelper::getCosineAngularTolerance(double tolang)
   return (psval);
 }
 
+VectorVectorDouble GeometryHelper::getEllipse(const VectorDouble &center,
+                                              double rx,
+                                              double ry,
+                                              double theta,
+                                              int count)
+{
+  double angref = theta * GV_PI / 180.;
+  double cosp = cos(angref);
+  double sinp = sin(angref);
+
+  VectorVectorDouble coords(2);
+  coords[0].resize(count+1,0.);
+  coords[1].resize(count+1,0.);
+
+  for (int i = 0; i < count; i++)
+  {
+    double angle = 2. * i * GV_PI / count;
+    double cosa = cos(angle);
+    double sina = sin(angle);
+    coords[0][i] = center[0] + rx * cosa * cosp - ry * sina * sinp;
+    coords[1][i] = center[1] + rx * cosa * sinp + ry * sina * cosp;
+  }
+
+  coords[0][count] = coords[0][0];
+  coords[1][count] = coords[1][0];
+  return coords;
+}

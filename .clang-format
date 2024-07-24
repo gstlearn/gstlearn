@@ -15,7 +15,7 @@ AlwaysBreakTemplateDeclarations: 'Yes'
 #  AcrossEmptyLines: true
 #  AcrossComments: true
 #  AlignCaseColons: false
-BinPackArguments: false
+BinPackArguments: true
 BinPackParameters: false
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeComma

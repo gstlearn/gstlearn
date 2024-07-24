@@ -114,7 +114,6 @@ set(SRC
   Core/surface.cpp
   Core/math.cpp
   Core/stats.cpp
-  Core/spatial.cpp
   Core/io.cpp
   Core/db.cpp
   Core/variopgs.cpp
@@ -181,6 +180,8 @@ set(SRC
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
+  Spatial/Projection.cpp
+  Spatial/SpatialIndices.cpp
   Variogram/AVario.cpp
   Variogram/VMap.cpp
   Variogram/VCloud.cpp

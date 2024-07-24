@@ -941,6 +941,13 @@ void Db::setCoordinate(int iech, int idim, double value)
   _array[_getAddress(iech, icol)] = value;
 }
 
+void Db::setCoordinates(int idim, const VectorDouble& coor, bool useSel)
+{
+  int icol = getColIdxByLocator(ELoc::X, idim);
+  if (!isColIdxValid(icol)) return;
+  setColumnByColIdx(coor, icol, useSel);
+}
+
 void Db::setFromLocator(const ELoc& locatorType,
                         int iech,
                         int locatorIndex,
@@ -4180,7 +4187,11 @@ void Db::_defineDefaultNames(int shift, const VectorString& names)
   if (!names.empty())
   {
     if ((int) names.size() != ncol)
-      my_throw("Error in the dimension of 'names'");
+    {
+      messerr("Argument 'names'(%d) must match the variables in 'tab'(%d)",
+              (int) names.size(),ncol);
+      messerr("Variables are not renamed");
+    }
   }
 
   for (int icol = 0; icol < ncol; icol++)

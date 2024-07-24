@@ -257,7 +257,7 @@ bool CalcKriging::_run()
 {
   /* Setting options */
 
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
+   KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (ksys.setKrigOptCalcul(_calcul, _ndiscs, _flagPerCell)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;

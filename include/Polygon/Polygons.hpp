@@ -73,7 +73,7 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
-  bool inside(const VectorDouble& coor, bool flag_nested = false);
+  bool inside(const VectorDouble& coor, bool flag_nested = false) const;
 
   Polygons reduceComplexity(double distmin) const;
 
@@ -105,7 +105,7 @@ private:
 };
 
 GSTLEARN_EXPORT void db_polygon(Db *db,
-                                Polygons *polygon,
+                                const Polygons *polygon,
                                 bool flag_sel = false,
                                 bool flag_period = false,
                                 bool flag_nested = false,

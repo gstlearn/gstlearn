@@ -129,8 +129,7 @@ void MatrixSparse::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 
 void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
 {
-  if (_csMatrix != nullptr)
-    delete _csMatrix;
+  delete _csMatrix;
 
   if (isFlagEigen())
   {
@@ -150,25 +149,17 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);
 
-  if (isFlagEigen())
-  {
-    for (int k=0; k<_eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-        it.valueRef() = law_gaussian();
-  }
-  else
-  {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++)
-      {
-        if (!_isPhysicallyPresent(irow, icol)) continue;
-        if (law_uniform(0., 1.) < zeroPercent) continue;
-        cs_entry2(local, irow, icol, law_gaussian());
-      }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  NF_Triplet NF_T;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+    {
+      if (law_uniform(0., 1.) < zeroPercent) continue;
+      NF_T.add(irow, icol, law_gaussian());
+    }
+  NF_T.force(nrow,ncol);
+  resetFromTriplet(NF_T);
 }
 
 int MatrixSparse::computeCholesky()
@@ -265,18 +256,20 @@ MatrixSparse* MatrixSparse::transpose() const
  * The input 'tab' corresponds to the whole column contents
  * @param icol Column rank
  * @param tab  Vector containing the information (Dimension: nrows)
- *
- * @warning: This method only copies the values at the non-zero existing entries
+ * @param flagCheck When True, check the consistency of arguments
  */
-void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
+void MatrixSparse::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
+  int nrows = getNRows();
+  if (flagCheck)
+  {
+    if (! _isColumnValid(icol)) return;
+    if (! _isColumnSizeConsistent(tab)) return;
+  }
   if (isFlagEigen())
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,icol); it; ++it)
-    {
-      int irow = it.row();
-      it.valueRef() = tab[irow];
-    }
+    for (int irow = 0; irow < nrows; irow++)
+      _eigenMatrix.coeffRef(irow, icol) = tab[irow];
   }
   else
     AMatrix::setColumn(icol, tab);
@@ -287,20 +280,22 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
  * The input 'tab' corresponds to the whole row contents
  * @param irow Row rank
  * @param tab  Vector containing the information (Dimension: ncols)
+ * @param flagCheck True if the validity check must be performed
  *
  * @warning: This method only copies the values at the non-zero existing entries
  */
-void MatrixSparse::setRow(int irow, const VectorDouble& tab)
+void MatrixSparse::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
+  int ncols = getNCols();
+  if (flagCheck)
+  {
+    if (! _isRowValid(irow)) return;
+    if (! _isRowSizeConsistent(tab)) return;
+  }
   if (isFlagEigen())
   {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-      {
-        if (it.row() != irow) continue;
-        int icol = it.col();
-        it.valueRef() = tab[icol];
-      }
+    for (int icol = 0; icol < ncols; icol++)
+      _eigenMatrix.coeffRef(irow, icol) = tab[icol];
   }
   else
   {
@@ -308,10 +303,14 @@ void MatrixSparse::setRow(int irow, const VectorDouble& tab)
   }
 }
 
-void MatrixSparse::setDiagonal(const VectorDouble& tab)
+void MatrixSparse::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
+  if (flagCheck)
+  {
+    if (! _isRowSizeConsistent(tab)) return;
+  }
 
   if (isFlagEigen())
   {
@@ -320,14 +319,7 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
   }
   else
   {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
-    {
-      if (isZero(tab[icol])) continue;
-      (void) cs_entry2(local, icol, icol, tab[icol]);
-    }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
+    AMatrix::setDiagonal(tab, flagCheck);
   }
 }
 
@@ -344,13 +336,7 @@ void MatrixSparse::setDiagonalToConstant(double value)
   }
   else
   {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
-    {
-      (void) cs_entry2(local, icol, icol, value);
-    }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
+    AMatrix::setDiagonalToConstant(value);
   }
 }
 
@@ -386,7 +372,6 @@ void MatrixSparse::setValue(int irow, int icol, double value, bool flagCheck)
   }
   else
   {
-    if (! _isIndexValid(irow, icol)) return;
     cs_set_value(_csMatrix, irow, icol, value);
   }
 }
@@ -420,21 +405,18 @@ int MatrixSparse::_getMatrixPhysicalSize() const
 }
 
 /**
- * Change any nonzero term to 'value'
  * @param value Constant value used for filling 'this'
  */
 void MatrixSparse::fill(double value)
 {
-  if (isFlagEigen())
-  {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-        it.valueRef() = value;
-  }
-  else
-  {
-    cs_set_cste(_csMatrix, value);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  NF_Triplet NF_T;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      NF_T.add(irow, icol, value);
+
+  resetFromTriplet(NF_T);
 }
 
 /*! Multiply a Matrix row-wise */
