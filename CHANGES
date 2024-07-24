@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- New class SpatialIndices and corresponding methods CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).
 - Names of Variables used to compute the Variogram are stored in the Vario object
 - Empirical anamorphosis: plugging Normal score; parametrizing the dilution 
 
