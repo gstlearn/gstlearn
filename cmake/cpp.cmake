@@ -213,3 +213,6 @@ set_target_properties(shared PROPERTIES
 set_target_properties(static PROPERTIES
   COMPILE_FLAGS -D${PROJECT_NAME_UP}_STATIC_DEFINE
 )
+# we need a specific name for the static library otherwise Ninja on
+# Windows not happy...
+set_target_properties(static PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_static)
