@@ -11,7 +11,6 @@
 #include "Covariances/CovSpherical.hpp"
 
 #include "Simulation/TurningBandOperate.hpp"
-#include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 
 CovSpherical::CovSpherical(const CovContext& ctxt)
