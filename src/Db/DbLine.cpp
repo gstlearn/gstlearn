@@ -16,7 +16,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Stats/Classical.hpp"
 
@@ -59,6 +58,36 @@ String DbLine::toString(const AStringFormat* strfmt) const
   sstr << _toStringCommon(&dsf);
 
   return sstr.str();
+}
+
+DbLine* DbLine::createFromSamples(int nech,
+                                  const ELoadBy& order,
+                                  const VectorDouble& tab,
+                                  const VectorInt& lineCounts,
+                                  const VectorString& names,
+                                  const VectorString& locatorNames,
+                                  bool flagAddSampleRank)
+{
+  DbLine* dbline = new DbLine;
+  if (dbline->resetFromSamples(nech, order, tab, lineCounts, names, locatorNames,
+                               flagAddSampleRank))
+  {
+    messerr("Error when creating DbLine from Samples");
+    delete dbline;
+    return nullptr;
+  }
+  return dbline;
+}
+
+int DbLine::resetFromSamples(int nech,
+                             const ELoadBy& order,
+                             const VectorDouble& tab,
+                             const VectorInt& lineCounts,
+                             const VectorString& names,
+                             const VectorString& locatorNames,
+                             bool flagAddSampleRank)
+{
+  return 0;
 }
 
 bool DbLine::_deserialize(std::istream& is, bool verbose)

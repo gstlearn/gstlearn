@@ -48,6 +48,20 @@ public:
   inline bool isGrid() const override { return false; }
   bool mayChangeSampleNumber() const override { return false; }
 
+  int resetFromSamples(int nech,
+                       const ELoadBy& order,
+                       const VectorDouble& tab,
+                       const VectorInt& lineCounts,
+                       const VectorString& names = VectorString(),
+                       const VectorString& locatorNames = VectorString(),
+                       bool flagAddSampleRank           = true);
+  static DbLine* createFromSamples(int nech,
+                                   const ELoadBy& order,
+                                   const VectorDouble& tab,
+                                   const VectorInt& lineCounts,
+                                   const VectorString& names = VectorString(),
+                                   const VectorString& locatorNames = VectorString(),
+                                   bool flagAddSampleRank = true);
   static DbLine* createFromNF(const String& neutralFilename,
                               bool verbose = true);
 
@@ -56,4 +70,8 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "DbLine"; }
+
+private:
+  VectorInt _lineId;
+  VectorInt _refInLineId;
 };
