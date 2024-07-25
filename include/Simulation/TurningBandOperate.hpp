@@ -54,7 +54,7 @@ public:
   void setOffset(double offset) { _offset = offset; }
   void setScale(double scale) { _scale = scale; }
 
-  int getTsize() const { return _t.size(); }
+  int getTsize() const { return (int) _t.size(); }
   void pushT(double value);
   void pushV0(double value);
   void pushV1(double value);

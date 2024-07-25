@@ -441,10 +441,10 @@ int CalcSimuTurningBands::_initializeSeedBands()
 
             case ECov::E_SPHERICAL:
             case ECov::E_CUBIC:
-            case ECov::E_GAUSSIAN:
               (void)_dilutionInit(ibs, is, operTB);
               break;
 
+            case ECov::E_GAUSSIAN:
             case ECov::E_SINCARD:
             case ECov::E_BESSEL_J:
               (void)_spectralInit(ibs, is, operTB);
@@ -1294,12 +1294,13 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
 
             case ECov::E_SPHERICAL:
             case ECov::E_CUBIC:
-            case ECov::E_GAUSSIAN:
               correc = _dilutionInit(ibs, is, operTB);
               _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
+            case ECov::E_GAUSSIAN:
             case ECov::E_SINCARD:
+            case ECov::E_BESSEL_J:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
@@ -1311,11 +1312,6 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
 
             case ECov::E_SPLINE_GC:
               correc = _spline1DInit(ibs, 1, operTB);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
-            case ECov::E_BESSEL_J:
-              correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 

@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AException.hpp"
-#include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatFunctional.hpp"
 #include "Db/Db.hpp"

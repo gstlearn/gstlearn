@@ -253,7 +253,7 @@ static void st_relem_define(Relem *relem,
  *****************************************************************************/
 static void st_rule_print(int rank,
                           int nbyrule,
-                          int *rules,
+                          const int *rules,
                           int *fipos,
                           bool flag_rank,
                           int flag_similar,
@@ -828,7 +828,7 @@ static int st_vario_pgs_variable(int mode,
  ** PURPOSE: that can be used to create a Rule structure
  **
  *****************************************************************************/
-static Rule* st_rule_encode(int *string)
+static Rule* st_rule_encode(const int *string)
 {
   VectorInt n_type = VectorInt(NRULE);
   VectorInt n_facs = VectorInt(NRULE);
@@ -1078,7 +1078,7 @@ static void trace_define(Local_Pgs *local_pgs,
                          double value1,
                          int origin,
                          int number,
-                         double* values)
+                         const double* values)
 {
   Local_TracePgs* tracepgs = &local_pgs->tracepgs;
   if (!tracepgs->flag_trace) return;
@@ -1262,8 +1262,6 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
       }
     }
   }
-
-  return;
 }
 
 /****************************************************************************
@@ -1576,8 +1574,8 @@ static VectorDouble st_relem_evaluate(Relem *relem,
 static void st_rule_glue(Relem *relem,
                          int nrule1,
                          int nbyrule1,
-                         int *rules1,
-                         int *fipos1)
+                         const int *rules1,
+                         const int *fipos1)
 {
   int *rules, *fipos, nrule, ir, nnew;
 

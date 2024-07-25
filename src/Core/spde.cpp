@@ -3447,14 +3447,9 @@ static int st_build_Q(SPDE_Matelem &Matelem)
  *****************************************************************************/
 int spde_build_matrices(Model *model, int verbose)
 {
-  int error;
-  double *units;
+  int error = 1;
   VectorDouble tildec;
-
-  /* Initializations */
-
-  error = 1;
-  units = nullptr;
+  double* units = nullptr;
   VERBOSE = verbose;
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
   AMesh* amesh = Matelem.amesh;

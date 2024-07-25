@@ -55,7 +55,7 @@ public:
                                    bool flag_est = true,
                                    bool flag_std = true,
                                    double zmax = TEST,
-                                   bool flag_correct = false,
+                                   bool flag_tonnage_correct = false,
                                    double proba = TEST,
                                    bool verbose = false);
   static Selectivity* createInterpolation(const VectorDouble& zcuts,
@@ -68,11 +68,11 @@ public:
                          bool autoCuts = false);
   int calculateFromAnamorphosis(AAnam* anam);
 
-  const Table eval(const Db *db, bool autoCuts = false);
-  const Table evalFromArray(const VectorDouble &tab,
+  Table eval(const Db *db, bool autoCuts = false);
+  Table evalFromArray(const VectorDouble &tab,
                             const VectorDouble &weights = VectorDouble(),
                             bool autoCuts = false);
-  const Table evalFromAnamorphosis(AAnam *anam);
+  Table evalFromAnamorphosis(AAnam *anam);
 
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
@@ -82,25 +82,25 @@ public:
   String getVariableName(int rank0) const;
   VectorString getVariableNames() const;
 
-  void   setZcut(int icut, double zcut);
-  void   setBest(int icut, double best);
-  void   setMest(int icut, double mest);
-  void   setQest(int icut, double qest);
-  void   setQstd(int icut, double qstd);
-  void   setTest(int icut, double test);
-  void   setTstd(int icut, double tstd);
+  void   setZcut(int iclass, double zcut);
+  void   setBest(int iclass, double best);
+  void   setMest(int iclass, double mest);
+  void   setQest(int iclass, double qest);
+  void   setQstd(int iclass, double qstd);
+  void   setTest(int iclass, double test);
+  void   setTstd(int iclass, double tstd);
 
-  double getZcut(int icut) const;
-  double getBest(int icut) const;
-  double getMest(int icut) const;
-  double getQest(int icut) const;
-  double getQstd(int icut) const;
-  double getTest(int icut) const;
-  double getTstd(int icut) const;
+  double getZcut(int iclass) const;
+  double getBest(int iclass) const;
+  double getMest(int iclass) const;
+  double getQest(int iclass) const;
+  double getQstd(int iclass) const;
+  double getTest(int iclass) const;
+  double getTstd(int iclass) const;
   const VectorDouble& getZcut() const { return _Zcut; }
 
   void calculateBenefitAndGrade();
-  void dumpGini();
+  void dumpGini() const;
   void correctTonnageOrder();
   void defineRecoveries(const std::vector<ESelectivity>& codes,
                         bool flag_est,
@@ -117,9 +117,9 @@ public:
   int  getAddressQTStd(const ESelectivity& code, int iptr0, int rank=0) const;
   int  getNumberQTEst(const ESelectivity& code) const;
   int  getNumberQTStd(const ESelectivity& code) const;
-  const VectorInt getNumberQTEst() const;
-  const VectorInt getNumberQTStd() const;
-  void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev);
+  VectorInt getNumberQTEst() const;
+  VectorInt getNumberQTStd() const;
+  void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev) const;
   void interpolateSelectivity(const Selectivity* selecin);
 
   void setFlagTonnageCorrect(bool flagTonnageCorrect) { _flagTonnageCorrect = flagTonnageCorrect; }
@@ -128,32 +128,32 @@ public:
   double getZmax() const { return _zmax; }
   bool isOnlyZDefined() const { return _flagOnlyZDefined; }
 
-  const Table getStats() const;
+  Table getStats() const;
   Table getAllStats() const { return _stats; }
 
   const MatrixInt& getNumberQt() const { return _numberQT; }
   const MatrixInt& getRankQt() const { return _rankQT; }
 
 private:
-  VectorString _getAllNames() const;
-  void _printQTvars(const char *title, int type, int number) const;
+  static VectorString _getAllNames();
+  static void _printQTvars(const char *title, int type, int number);
   void _defineVariableRanks();
   bool _isRecoveryDefined() const;
-  bool _isValidCut(int icut) const;
-  void _interpolateInterval(double zval,
-                            double zi0,
-                            double zi1,
-                            double ti0,
-                            double ti1,
-                            double qi0,
-                            double qi1,
-                            double *tval,
-                            double *qval,
-                            double tol = EPSILON3);
+  bool _isValidCut(int iclass) const;
+  static void _interpolateInterval(double zval,
+                                   double zi0,
+                                   double zi1,
+                                   double ti0,
+                                   double ti1,
+                                   double qi0,
+                                   double qi1,
+                                   double* tval,
+                                   double* qval,
+                                   double tol = EPSILON3);
   void _concatenate(VectorString& names,
                     const ESelectivity& code,
                     int mode) const;
-  bool _isMultiplied(const ESelectivity& code) const;
+  static bool _isMultiplied(const ESelectivity& code);
   void _defineAutomaticCutoffs(const VectorDouble& tab, double eps = EPSILON3);
 
 private:

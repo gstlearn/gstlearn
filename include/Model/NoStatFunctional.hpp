@@ -12,10 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Model/ANoStat.hpp"
 

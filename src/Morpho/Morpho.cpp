@@ -1158,9 +1158,10 @@ Spill_Res spillPoint(DbGrid *dbgrid,
                      double hmax)
 {
   Spill_Res res;
-  double h, th;
+  double h;
   int ix0, iy0;
 
+  double th     = 0.;
   int ind_depth = dbgrid->getUID(name_depth);
   int ind_data = dbgrid->getUID(name_data);
   if (ind_depth < 0 || ind_data < 0)
