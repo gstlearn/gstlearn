@@ -14,9 +14,8 @@
 
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Grid.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 
@@ -80,7 +79,6 @@ static void _dimensionRecursion(int idim, bool verbose, DimLoop& dlp)
     dlp.indg[sdim] = (order < 0) ? nval - jy - 1 : jy;
     _dimensionRecursion(idim - 1, verbose, dlp);
   }
-  return;
 }
 
 Grid::Grid(int ndim,
@@ -222,7 +220,7 @@ void Grid::setRotationByVector(const VectorDouble& rotmat)
   _rotation.setMatrixDirectVec(rotmat);
 }
 
-void Grid::setRotationByAngles(const VectorDouble angles)
+void Grid::setRotationByAngles(const VectorDouble& angles)
 {
   if (angles.empty()) return;
   _rotation.resetFromSpaceDimension(_nDim);
@@ -343,13 +341,10 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
 
   if (flag_rotate)
   {
-    _rotation.rotateDirect(_work1,_work2);
+    _rotation.rotateDirect(_work1, _work2);
     return (_work2[idim0] + _x0[idim0]);
   }
-  else
-  {
-    return (_work1[idim0] + _x0[idim0]);
-  }
+  return (_work1[idim0] + _x0[idim0]);
 }
 
 /**
@@ -382,17 +377,12 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
 
   if (flag_rotate)
   {
-    _rotation.rotateDirect(_work1,_work2);
-    for (int idim = 0; idim < _nDim; idim++)
-      _work2[idim] += _x0[idim];
+    _rotation.rotateDirect(_work1, _work2);
+    for (int idim = 0; idim < _nDim; idim++) _work2[idim] += _x0[idim];
     return _work2;
   }
-  else
-  {
-    for (int idim = 0; idim < _nDim; idim++)
-      _work1[idim] += _x0[idim];
-    return _work1;
-  }
+  for (int idim = 0; idim < _nDim; idim++) _work1[idim] += _x0[idim];
+  return _work1;
 }
 
 /**
@@ -445,17 +435,12 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 
   if (flag_rotate)
   {
-    _rotation.rotateDirect(_work1,_work2);
-    for (int idim = 0; idim < _nDim; idim++)
-      _work2[idim] += _x0[idim];
+    _rotation.rotateDirect(_work1, _work2);
+    for (int idim = 0; idim < _nDim; idim++) _work2[idim] += _x0[idim];
     return _work2;
   }
-  else
-  {
-    for (int idim = 0; idim < _nDim; idim++)
-      _work1[idim] += _x0[idim];
-    return _work1;
-  }
+  for (int idim = 0; idim < _nDim; idim++) _work1[idim] += _x0[idim];
+  return _work1;
 }
 
 double Grid::indiceToCoordinate(int idim0,
@@ -474,13 +459,10 @@ double Grid::indiceToCoordinate(int idim0,
 
   if (flag_rotate)
   {
-    _rotation.rotateDirect(_work1,_work2);
+    _rotation.rotateDirect(_work1, _work2);
     return (_work2[idim0] + _x0[idim0]);
   }
-  else
-  {
-    return (_work1[idim0] + _x0[idim0]);
-  }
+  return (_work1[idim0] + _x0[idim0]);
 }
 
 VectorDouble Grid::indicesToCoordinate(const VectorInt& indice,
@@ -568,8 +550,8 @@ void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
 
-  const int* nxadd = &_nx[0]; // for optimization, use address rather than []
-  int* indadd = &indices[0];
+  const int* nxadd = _nx.data(); // for optimization, use address rather than []
+  int* indadd = indices.data();
   for (int idim=0; idim<_nDim; idim++)
     nval *= (*(nxadd + idim) - minus);
 
@@ -1135,7 +1117,7 @@ VectorInt Grid::gridIndices(const VectorInt &nx,
 VectorInt Grid::generateGridIndices(const String &string,
                                     bool startFromZero,
                                     bool invert,
-                                    bool verbose)
+                                    bool verbose) const
 {
   return gridIndices(getNXs(), string, startFromZero, invert, verbose);
 }
@@ -1154,7 +1136,7 @@ VectorInt Grid::generateGridIndices(const String &string,
 int Grid::generateMirrorIndex(int nx, int ix)
 {
   int nmax = nx - 1;
-  while (!(ix >= 0 && ix < nx))
+  while (ix < 0 || ix >= nx)
   {
     if (ix < 0)
     {

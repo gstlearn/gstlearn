@@ -387,7 +387,7 @@ void GibbsMMulti::_getWeights(int icol) const
   else
   {
     // Read from the external file
-    _weights = _hdf5.getDataDoublePartial(icol);
+    _weights = HDF5format::getDataDoublePartial(icol);
   }
 }
 

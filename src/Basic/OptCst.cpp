@@ -13,9 +13,7 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 
-#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <iomanip>

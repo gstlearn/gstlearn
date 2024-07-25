@@ -518,6 +518,7 @@ void CalcSimuTurningBands::_migrationInit(int ibs,
                                           TurningBandOperate &operTB,
                                           double eps)
 {
+  DECLARE_UNUSED(is);
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
 

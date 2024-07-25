@@ -506,7 +506,7 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
   /* Loop on the variables */
 
   int irow = 0;
-  for (int ivar = 0, nvar = (int) ivars.size(); ivar < nvar; ivar++)
+  for (int ivar = 0, nvars = (int) ivars.size(); ivar < nvars; ivar++)
   {
     int ivar1 = ivars[ivar];
 

@@ -17,10 +17,10 @@
 class GSTLEARN_EXPORT BImageStringFormat: public AStringFormat
 {
 public:
-  BImageStringFormat(char zero = '0',
-                     char one = '1',
-                     const VectorInt &indMin = VectorInt(),
-                     const VectorInt indMax = VectorInt());
+  BImageStringFormat(char zero               = '0',
+                     char one                = '1',
+                     const VectorInt& indMin = VectorInt(),
+                     const VectorInt& indMax = VectorInt());
   BImageStringFormat(const BImageStringFormat& r);
   BImageStringFormat& operator=(const BImageStringFormat& r);
   virtual ~BImageStringFormat();

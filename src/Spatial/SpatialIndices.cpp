@@ -545,7 +545,7 @@ double SpatialIndices::getMicroStructure(const String& name,
   double g0 = 0.;
   for (int i = 0; i < ndisc * ndisc; i++)
   {
-    double value = grid->getValue("VMAP.Migrate.Var", i);
+    value = grid->getValue("VMAP.Migrate.Var", i);
     g0 += value * value;
   }
   g0 *= maille;
@@ -719,10 +719,10 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
 
   // Loop on the samples
   SpacePoint current;
-  for (int iech = 0; iech < nech; iech++)
+  for (int jech = 0; jech < nech; jech++)
   {
-    current.setCoord(0, xxs[iech]);
-    current.setCoord(1, yys[iech]);
+    current.setCoord(0, xxs[jech]);
+    current.setCoord(1, yys[jech]);
 
     // Find which gravity center the current point aggregates to
     int found = -1;
@@ -739,13 +739,13 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
     if (dmin < Dmin)
     {
       // The current sample has been assigned to group 'found': update gravity center
-      ig[iech] = found; _updateGravityCenter(xxs, yys, zzs, wws, centers, pa, pb, ig, found);
+      ig[jech] = found; _updateGravityCenter(xxs, yys, zzs, wws, centers, pa, pb, ig, found);
     }
     else
     {
       // Create a new center of gravity
-      ig[iech] = (int)centers.size();
-      _createNewPatch(iech, xxs, yys, zzs, wws, centers, pa, pb);
+      ig[jech] = (int)centers.size();
+      _createNewPatch(jech, xxs, yys, zzs, wws, centers, pa, pb);
     }
   }
 

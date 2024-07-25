@@ -123,8 +123,7 @@ double Plane::getCoor(int idim) const
 {
   if (idim < (int) _coor.size())
     return _coor[idim];
-  else
-    return 0.;
+  return 0.;
 }
 
 void Plane::setCoor(int idim, double value)

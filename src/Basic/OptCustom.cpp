@@ -10,9 +10,7 @@
 /******************************************************************************/
 #include "Basic/OptCustom.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/String.hpp"
 
-#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -22,7 +20,7 @@ std::map<const String, double> OptCustom::_cst = std::map<const String, double>(
 
 double OptCustom::query(const String& name, double valdef)
 {
-  for (auto e: _cst)
+  for (const auto& e: _cst)
   {
     if (e.first == name) return e.second;
   }
@@ -63,7 +61,7 @@ void OptCustom::display(void)
 
   sstr << toTitle(1,"List of Custom Options");
 
-  for (auto e: _cst)
+  for (const auto& e: _cst)
   {
     sstr << std::setw(50) << e.first << " : " <<
         e.second << std::endl;

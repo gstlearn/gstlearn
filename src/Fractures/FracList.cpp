@@ -20,6 +20,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"

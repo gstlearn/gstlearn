@@ -15,12 +15,12 @@
 
 #include <string>
 
-NamingConvention::NamingConvention(String prefix,
+NamingConvention::NamingConvention(const String& prefix,
                                    bool flag_varname,
                                    bool flag_qualifier,
                                    bool flag_locator,
                                    const ELoc& locatorOutType,
-                                   String delim,
+                                   const String& delim,
                                    bool cleanSameLocator)
     : AStringable(),
       _prefix(prefix),
@@ -76,12 +76,12 @@ NamingConvention::~NamingConvention()
  * @param cleanSameLocator When TRUE and if 'flag_locator' is TRUE, all variables assigned to the same locator are cancelled beforehand
  * @return
  */
-NamingConvention* NamingConvention::create(String prefix,
+NamingConvention* NamingConvention::create(const String& prefix,
                                            bool flag_varname,
                                            bool flag_qualifier,
                                            bool flag_locator,
                                            const ELoc &locatorOutType,
-                                           String delim,
+                                           const String& delim,
                                            bool cleanSameLocator)
 {
   return new NamingConvention(prefix, flag_varname, flag_qualifier,
@@ -377,28 +377,19 @@ void NamingConvention::setLocators(Db *dbout,
  * @param nvar  Number of variables (may be 0)
  * @return A valid number of variables
  */
-int NamingConvention::_getNameCount(const VectorString& names, int nvar) const
+int NamingConvention::_getNameCount(const VectorString& names, int nvar)
 {
   if (nvar <= 0)
   {
     // Argument 'nvar' is not defined yet
-    if (names.empty())
-      return 1;
-    else
-      return (int) names.size();
+    if (names.empty()) return 1;
+    return (int)names.size();
   }
-  else
-  {
-    // Argument 'nvar' is provided: is it consistent with 'names'
-    if (names.empty())
-      return nvar;
-    else
-    {
-      // Both 'nvar' and 'names' are provided. For safety reasons,
-      // the number of variables is the minimum between the two
-      return MIN(nvar, (int) names.size());
-    }
-  }
+  // Argument 'nvar' is provided: is it consistent with 'names'
+  if (names.empty()) return nvar;
+  // Both 'nvar' and 'names' are provided. For safety reasons,
+  // the number of variables is the minimum between the two
+  return MIN(nvar, (int)names.size());
 }
 
 /**

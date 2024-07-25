@@ -14,14 +14,14 @@
 #include "Basic/AStringable.hpp"
 
 Projection::Projection(bool flag_mean, double xcenter, double ycenter)
-    : _flagMean(true),
+    : _flagMean(flag_mean),
       _xcenter(xcenter),
       _ycenter(ycenter)
 {
 }
 
 Projection::Projection(bool flag_mean, Db* db)
-: _flagMean(true),
+: _flagMean(flag_mean),
   _xcenter(TEST),
   _ycenter(TEST)
 {

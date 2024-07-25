@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/CalcSimuPostDemo.hpp"
+#include "Basic/VectorHelper.hpp"
 
 CalcSimuPostDemo::CalcSimuPostDemo()
     : CalcSimuPost()

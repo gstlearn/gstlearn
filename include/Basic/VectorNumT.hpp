@@ -55,7 +55,7 @@ public:
 // These functions are not available in target language
 // because numerical vectors are converted in target language vectors
 public:
-  inline bool isSame(const VectorNumT& v, double eps = 1.e-10) const;
+  inline bool isSame(const VectorNumT& other, double eps = 1.e-10) const;
 
   inline T sum() const;
   inline T minimum() const;

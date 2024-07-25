@@ -1124,7 +1124,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   // Loop on the first variable
   int irow = 0;
-  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int ivar = 0; ivar < nvar1; ivar++)
   {
     int ivar1 = ivars[ivar];
 
@@ -1137,7 +1137,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
       // Loop on the second variable
       int icol = 0;
-      for (int jvar = 0, nvar2 = (int) jvars.size(); jvar < nvar2; jvar++)
+      for (int jvar = 0; jvar < nvar2; jvar++)
       {
         int jvar2 = jvars[jvar];
 

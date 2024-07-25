@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Matrix/Table.hpp"
 #include "Calculators/CalcSimuPost.hpp"
+#include "Basic/VectorHelper.hpp"
 
 CalcSimuPost::CalcSimuPost()
     : ACalcDbToDb(),

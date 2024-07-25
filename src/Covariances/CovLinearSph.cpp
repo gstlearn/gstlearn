@@ -44,11 +44,14 @@ double CovLinearSph::_evaluateCovOnSphere(double alpha,
                                           double scale,
                                           int degree) const
 {
+  DECLARE_UNUSED(scale);
+  DECLARE_UNUSED(degree);
   return 1. - 2. * alpha / GV_PI;
 }
 
 VectorDouble CovLinearSph::_evaluateSpectrumOnSphere(int n, double scale) const
 {
+  DECLARE_UNUSED(scale);
   VectorDouble sp(n + 1, 0.);
 
   int k = 1;

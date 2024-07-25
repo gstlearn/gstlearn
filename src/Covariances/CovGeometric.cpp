@@ -42,6 +42,7 @@ double CovGeometric::_evaluateCovOnSphere(double alpha,
                                           double scale,
                                           int degree) const
 {
+  DECLARE_UNUSED(degree);
   double rho = scale;
   return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
 }

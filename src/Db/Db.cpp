@@ -4702,7 +4702,7 @@ int Db::resetReduce(const Db *dbin,
     {
       int ndim = dbin->getNDim();
       VectorVectorDouble coors = dbgrid->getAllCoordinates();
-      VectorString names = generateMultipleNames("Coor", ndim);
+      VectorString namloc = generateMultipleNames("Coor", ndim);
 
       // Save the coordinates in the output file (after possible sample selection)
       for (int idim = 0; idim < ndim; idim++)
@@ -4710,11 +4710,11 @@ int Db::resetReduce(const Db *dbin,
         if (flagMask)
         {
           VectorDouble coor = VH::compress(coors[idim], ranksel);
-          addColumns(coor, names[idim], ELoc::X, idim);
+          addColumns(coor, namloc[idim], ELoc::X, idim);
         }
         else
         {
-          addColumns(coors[idim], names[idim], ELoc::X, idim);
+          addColumns(coors[idim], namloc[idim], ELoc::X, idim);
         }
       }
     }

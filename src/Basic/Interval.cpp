@@ -167,7 +167,7 @@ void Interval::_modifyUnbounded(void)
   if (FFFF(_vmax)) _maxIncluded = false;
 }
 
-bool Interval::_isValidInterval(void)
+bool Interval::_isValidInterval(void) const
 {
   if (FFFF(_vmin) || FFFF(_vmax)) return true;
   if (_vmin < _vmax) return true;

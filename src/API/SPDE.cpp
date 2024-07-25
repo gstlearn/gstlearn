@@ -752,6 +752,7 @@ int krigingSPDE(Db *dbin,
                 bool showStats,
                 const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(flag_est);
   const ESPDECalcMode mode = (flag_std) ?
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
   SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,

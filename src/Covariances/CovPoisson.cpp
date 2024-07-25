@@ -44,6 +44,8 @@ double CovPoisson::_evaluateCovOnSphere(double alpha,
                                         double scale,
                                         int degree) const
 {
+  DECLARE_UNUSED(scale);
+  DECLARE_UNUSED(degree);
   double lambda = getParam();
   double valbes = bessel_j(lambda * sin(alpha), 0);
   return exp(lambda * (cos(alpha) - 1.)) * valbes;
@@ -51,6 +53,7 @@ double CovPoisson::_evaluateCovOnSphere(double alpha,
 
 VectorDouble CovPoisson::_evaluateSpectrumOnSphere(int n, double scale) const
 {
+  DECLARE_UNUSED(scale);
   double lambda = getParam();
   VectorInt x = VH::sequence(n+1);
   VectorDouble sp = law_df_poisson_vec(x, lambda);
