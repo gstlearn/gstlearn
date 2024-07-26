@@ -1,6 +1,8 @@
 # Default GNU installed directory names
 include(GNUInstallDirs)
 
+include(CMakePackageConfigHelpers)
+
 ####################################################
 ## INSTALLATION
 
@@ -61,8 +63,21 @@ install(
 # Export the shared library cmake configuration (See above for corelibs definition)
 install(
   EXPORT ${PROJECT_NAME}_corelibs
-  FILE ${PROJECT_NAME}Config.cmake
+  FILE ${PROJECT_NAME}Targets.cmake
   NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
+)
+
+# Create the Config.cmake file
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
+)
+
+# Install the Config.cmake file
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
 )
 
