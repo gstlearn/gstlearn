@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #pragma once
-
 #include "Basic/WarningMacro.hpp"
+#include "Basic/RepeatMacro.hpp"
 
 // WARNING: Make this include list as small as possible!
 #include <string>
