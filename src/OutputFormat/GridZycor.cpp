@@ -167,7 +167,7 @@ DbGrid*  GridZycor::readGridFromFile()
      return dbgrid;
    }
    if (_record_read(_file, "%s", string)) return dbgrid;
-   if (strcmp(string, "GRID"))
+   if (strcmp(string, "GRID") != 0)
    {
      messerr("Missing string (GRID). Instead: '%s'", string);
      return dbgrid;
@@ -189,7 +189,7 @@ DbGrid*  GridZycor::readGridFromFile()
    if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
 
    if (_record_read(_file, "%s", string)) return dbgrid;
-   if (strcmp(string, "@"))
+   if (strcmp(string, "@") != 0)
    {
      messerr("Missing string (@). Instead: %s", string);
      return dbgrid;

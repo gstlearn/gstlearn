@@ -82,6 +82,7 @@ double CovExponential::_evaluateCovOnSphere(double alpha,
                                             double scale,
                                             int degree) const
 {
+  DECLARE_UNUSED(degree);
   double nu = scale * getScadef();
   return exp(-nu * alpha);
 }

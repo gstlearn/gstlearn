@@ -11,10 +11,9 @@
 #include "geoslib_old_f.h"
 
 #include "Neigh/NeighCell.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Basic/OptDbg.hpp"
 
 NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpace *space)
     : ANeigh(space),

@@ -15,13 +15,9 @@
 #include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Faults/Faults.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/OptDbg.hpp"
 
 #include <math.h>
 #include <algorithm>
-#include <set>
 
 ANeigh::ANeigh(const ASpace* space)
     : ASpaceObject(space),
@@ -244,7 +240,6 @@ void ANeigh::_updateColCok(VectorInt &ranks, int iech_out)
 
   ranks.push_back(-1);
   _flagIsUnchanged = false;
-  return;
 }
 
 void ANeigh::_neighCompress(VectorInt& ranks)
@@ -316,7 +311,6 @@ void ANeigh::_display(const VectorInt& ranks)
     message("\n");
     nsel++;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -363,7 +357,7 @@ bool ANeigh::_discardUndefined(int iech)
 int ANeigh::_xvalid(int iech_in, int iech_out, double eps)
 {
   if (! getFlagXvalid()) return 0;
-  else if (! getFlagKFold())
+  if (! getFlagKFold())
   {
     if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
   }

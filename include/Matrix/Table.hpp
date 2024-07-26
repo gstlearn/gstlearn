@@ -15,7 +15,6 @@
 
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 
 /**
  * Stores an array of values as a Table, i.e. a MatrixRectangular

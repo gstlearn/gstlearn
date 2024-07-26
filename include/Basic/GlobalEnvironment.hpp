@@ -26,7 +26,7 @@ public:
   int  getDomainReference() const { return _domainReference; }
   void setDomainReference(int domainReference, bool verbose = false);
   void printDomainReference(void) const;
-  bool matchDomainReference(double value);
+  bool matchDomainReference(double value) const;
 
 private:
   int _domainReference;

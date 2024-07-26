@@ -12,7 +12,6 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 
-
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -207,9 +206,9 @@ void correctNewNameForDuplicates(VectorString &list, int rank)
  * @param caseSensitive Case Sensitive flag
  * @return The index of the matching item or -1
  */
-int getRankInList(const VectorString &list,
-                                  const String &match,
-                                  bool caseSensitive)
+int getRankInList(const VectorString& list,
+                  const String& match,
+                  bool caseSensitive)
 {
   for (int i = 0; i < (int) list.size(); i++)
   {
@@ -267,14 +266,12 @@ int decodeInString(const String &symbol,
  * @param caseSensitive
  * @return Error returned code
  */
-int decodeInList(const VectorString &symbols,
-                                 const String &node,
-                                 int *rank,
-                                 int *facies,
-                                 bool caseSensitive)
+int decodeInList(const VectorString& symbols,
+                 const String& node,
+                 int* rank,
+                 int* facies,
+                 bool caseSensitive)
 {
-  String local = node;
-
   for (int i = 0; i < (int) symbols.size(); i++)
   {
     if (decodeInString(symbols[i], node, facies, caseSensitive)) continue;
@@ -304,8 +301,7 @@ bool matchRegexp(const String &string1,
     toUpper(local2);
   }
   std::regex regexpr = _protectRegexp(local2);
-  if (std::regex_match(local1, regexpr)) return true;
-  return false;
+  return std::regex_match(local1, regexpr);
 }
 
 /**
@@ -349,7 +345,7 @@ VectorString expandList(const VectorString &list,
   VectorString sublist;
   for (int i = 0; i < (int) list.size(); i++)
   {
-    String toto = list[i];
+    const String& toto = list[i];
     if (std::regex_match(toto, regexpr)) sublist.push_back(toto);
   }
 
@@ -429,7 +425,7 @@ int getMaxStringSize(const VectorString &list)
 VectorString separateKeywords(const String &code)
 {
   VectorString result;
-  String oString = "";
+  String oString;
   charTypeT st = other;
   for (auto c : code)
   {
@@ -457,10 +453,8 @@ int toInteger(const String &v)
   std::istringstream iss(v);
   int number;
   iss >> number;
-  if (iss.fail())
-    return ITEST;
-  else
-    return number;
+  if (iss.fail()) return ITEST;
+  return number;
 }
 
 /**
@@ -492,10 +486,8 @@ double toDouble(const String &v, char dec)
   double number;
   iss.imbue(std::locale(iss.getloc(), new dec_separator<char>(dec)));
   iss >> number;
-  if (iss.fail())
-    return TEST;
-  else
-    return number;
+  if (iss.fail()) return TEST;
+  return number;
 }
 
 String toString(int value)
@@ -698,10 +690,8 @@ String trimRight(const String &s, const String &t)
 {
   String d(s);
   String::size_type i(d.find_last_not_of(t));
-  if (i == String::npos)
-    return "";
-  else
-    return d.erase(d.find_last_not_of(t) + 1);
+  if (i == String::npos) return "";
+  return d.erase(d.find_last_not_of(t) + 1);
 }
 
 String trimLeft(const String &s, const String &t)
@@ -712,7 +702,7 @@ String trimLeft(const String &s, const String &t)
 
 String trim(const String &s, const String &t)
 {
-  String d(s);
+  const String& d(s);
   return trimLeft(trimRight(d, t), t);
 }
 

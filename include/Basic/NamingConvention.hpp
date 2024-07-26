@@ -60,12 +60,12 @@ class Db;
 class GSTLEARN_EXPORT NamingConvention: public AStringable
 {
 public:
-  NamingConvention(String prefix = "",
+  NamingConvention(const String& prefix = "",
                    bool flag_varname = true,
                    bool flag_qualifier = true,
                    bool flag_locator = true,
                    const ELoc& locatorOutType = ELoc::fromKey("Z"),
-                   String delim = ".",
+                   const String& delim = ".",
                    bool cleanSameLocator = true);
   NamingConvention(const NamingConvention &m);
   NamingConvention& operator=(const NamingConvention &m);
@@ -74,12 +74,12 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NamingConvention* create(String prefix = "",
+  static NamingConvention* create(const String& prefix = "",
                                   bool flag_varname = true,
                                   bool flag_qualifier = true,
                                   bool flag_locator = true,
                                   const ELoc &locatorOutType = ELoc::fromKey("Z"),
-                                  String delim = ".",
+                                  const String& delim = ".",
                                   bool cleanSameLocator = true);
 
   void setNamesAndLocators(Db* dbout,
@@ -158,7 +158,7 @@ private:
                             int nvar,
                             const String &qualifier = "",
                             int nitems = 1) const;
-  int _getNameCount(const VectorString& names, int nvar) const;
+  static int _getNameCount(const VectorString& names, int nvar);
 
 private:
   String _prefix; //!< String used as 'prefix'

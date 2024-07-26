@@ -14,8 +14,6 @@
 #include "Enum/ERule.hpp"
 
 #include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
-#include "Basic/AException.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"

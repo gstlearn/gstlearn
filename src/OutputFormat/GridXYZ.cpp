@@ -12,10 +12,6 @@
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/String.hpp"
-
-#include <string.h>
 
 GridXYZ::GridXYZ(const char* filename, const Db* db)
   : AOF(filename, db)

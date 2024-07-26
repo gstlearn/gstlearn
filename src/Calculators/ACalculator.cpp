@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/ACalculator.hpp"
-#include "Db/Db.hpp"
-#include "Model/Model.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 

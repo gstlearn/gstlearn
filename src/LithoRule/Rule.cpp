@@ -9,11 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
@@ -80,18 +78,11 @@ double get_rule_extreme(int mode)
 {
   if (mode < 0)
   {
-    if (GAUSS_MODE)
-      return(THRESH_INF);
-    else
-      return(0);
+    if (GAUSS_MODE) return (THRESH_INF);
+    return (0);
   }
-  else
-  {
-    if (GAUSS_MODE)
-      return(THRESH_SUP);
-    else
-      return(1.);
-  }
+  if (GAUSS_MODE) return (THRESH_SUP);
+  return (1.);
 }
 
 Rule::Rule(double rho)
@@ -135,8 +126,7 @@ Rule::~Rule()
 
 void Rule::_clear()
 {
-  if (_mainNode != nullptr)
-    delete _mainNode;
+  delete _mainNode;
 }
 
 /**
@@ -380,8 +370,7 @@ bool Rule::isYUsed(int igrf) const
 {
   if (igrf == 0)
     return getY1Number() > 0;
-  else
-    return getY2Number() > 0;
+  return getY2Number() > 0;
 }
 
 VectorInt Rule::whichGRFUsed() const
@@ -555,8 +544,7 @@ double Rule::getProportion(int facies)
   double prop;
   if (_mainNode->getProportion(facies,&prop))
     return prop;
-  else
-    return TEST;
+  return TEST;
 }
 
 /**
@@ -938,7 +926,7 @@ int Rule::gaus2facResult(PropDef  *propdef,
 ** \param[in]  jech       Rank of the replicate
 **
 *****************************************************************************/
-int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
+int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech)
 {
   for (int iech=0; iech<jech; iech++)
   {

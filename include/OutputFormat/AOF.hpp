@@ -41,7 +41,7 @@ public:
   bool isValidForRotation() const;
 
   void setCols(const VectorInt& cols) { _cols = cols; }
-  void setCols(int ncol, int* icols);
+  void setCols(int ncol, const int* icols);
   void setCol(int icol);
 
   const String& getFilename() const { return _filename; }

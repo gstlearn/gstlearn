@@ -14,7 +14,6 @@
 #include "geoslib_define.h"
 #include "Geometry/Rotation.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class GridOld;
@@ -51,7 +50,7 @@ public:
   void    setNX(int idim,int    value);
   void    setRotationByMatrix(const MatrixSquareGeneral& rotmat);
   void    setRotationByVector(const VectorDouble& rotmat);
-  void    setRotationByAngles(VectorDouble angles);
+  void    setRotationByAngles(const VectorDouble& angles);
   void    setRotationByAngle(double angle);
 
   int     getNDim() const { return _nDim; }
@@ -97,7 +96,7 @@ public:
                                 VectorDouble& coor,
                                 const VectorDouble& percent = VectorDouble()) const;
   int     indiceToRank(const VectorInt& indice) const;
-  void    rankToIndice(int node,VectorInt& indices, bool minusOne = false) const;
+  void    rankToIndice(int rank,VectorInt& indices, bool minusOne = false) const;
   VectorInt coordinateToIndices(const VectorDouble &coor,
                                 bool centered = false,
                                 double eps = EPSILON6) const;
@@ -112,19 +111,19 @@ public:
   VectorInt generateGridIndices(const String &string,
                                 bool startFromZero = true,
                                 bool invert = true,
-                                bool verbose = false);
+                                bool verbose = false) const;
   bool sampleBelongsToCell(const VectorDouble& coor,
                            const VectorDouble& center,
                            const VectorDouble &dxsPerCell = VectorDouble()) const;
   bool sampleBelongsToCell(const VectorDouble& coor,
                            int rank,
                            const VectorDouble &dxsPerCell = VectorDouble()) const;
-  const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
-  const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
+  VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
+  VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
   double getRotAngle(int idim) const { return _rotation.getAngle(idim); }
-  const VectorInt       getNXs() const { return _nx; }
-  const VectorDouble    getX0s() const { return _x0; }
-  const VectorDouble    getDXs() const { return _dx; }
+  VectorInt       getNXs() const { return _nx; }
+  VectorDouble    getX0s() const { return _x0; }
+  VectorDouble    getDXs() const { return _dx; }
   const Rotation&       getRotation() const { return _rotation; }
   bool  isSame(const Grid& grid) const;
   bool  isSameMesh(const Grid& grid) const;

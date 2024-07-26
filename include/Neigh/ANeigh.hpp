@@ -85,7 +85,7 @@ public:
 
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
-  void _neighCompress(VectorInt& ranks);
+  static void _neighCompress(VectorInt& ranks);
   void _display(const VectorInt& ranks);
   bool _discardUndefined(int iech);
   int  _xvalid(int iech_in, int iech_out, double eps = EPSILON9);

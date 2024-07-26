@@ -14,14 +14,9 @@
 
 #include "Enum/ELoadBy.hpp"
 
-#include "Db/PtrGeos.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Grid.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/CSVformat.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 
 class Polygons;
@@ -373,7 +368,7 @@ private:
                     double top,
                     double bot,
                     const VectorDouble &vecin,
-                    VectorDouble &vecout);
+                    VectorDouble &vecout) const;
 
 private:
   Grid _grid;                //!< Grid characteristics

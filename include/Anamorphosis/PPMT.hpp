@@ -70,7 +70,7 @@ public:
           int niter = 100,
           bool verbose = false,
           const NamingConvention &namconv = NamingConvention("Y"));
-  int fitFromMatrix(AMatrix *X, int niter, bool verbose = false);
+  int fitFromMatrix(AMatrix *Y, int niter, bool verbose = false);
   int rawToGaussian(Db *db,
                     const VectorString &names,
                     int niter = 0,
@@ -88,11 +88,11 @@ private:
   void _iterationFit(AMatrix *Y, const VectorDouble &N0);
   void _iterationForward(AMatrix *Y, const VectorDouble &N0, int iter = 0);
   void _iterationBackward(AMatrix *Y, const VectorDouble &N0, int iter = 0);
-  double _gaussianizeForward(double Yi,
-                             int rank,
-                             const AnamHermite *anam,
-                             const VectorDouble &N0) const;
-  double _gaussianizeBackward(double Yi, const AnamHermite *anam) const;
+  static double _gaussianizeForward(double Yi,
+                                    int rank,
+                                    const AnamHermite* anam,
+                                    const VectorDouble& N0);
+  static double _gaussianizeBackward(double Yi, const AnamHermite *anam);
   void _projectOnDirection(const AMatrix *Y, int id, VectorDouble &Y0);
   double _getGaussianDistance(const VectorDouble &Yi,
                               const VectorInt &Ri,

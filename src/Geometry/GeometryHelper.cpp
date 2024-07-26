@@ -79,31 +79,27 @@ void GeometryHelper::rotationGetSinCos(double angle, double *cosa, double *sina)
     *sina = 0.;
     return;
   }
-  else if (angle == 90.)
+  if (angle == 90.)
   {
     *cosa = 0.;
     *sina = 1.;
     return;
   }
-  else if (angle == 180.)
+  if (angle == 180.)
   {
     *cosa = -1.;
     *sina = 0.;
     return;
   }
-  else if (angle == 270.)
+  if (angle == 270.)
   {
     *cosa = 0.;
     *sina = -1.;
     return;
   }
-  else
-  {
-    value = ut_deg2rad(angle);
-    *cosa = cos(value);
-    *sina = sin(value);
-  }
-  return;
+  value = ut_deg2rad(angle);
+  *cosa = cos(value);
+  *sina = sin(value);
 }
 
 /****************************************************************************/
@@ -145,8 +141,6 @@ void GeometryHelper::rotation2DMatrixInPlace(double angle, VectorDouble &rot)
   rot[1] =  sa;
   rot[2] = -sa;
   rot[3] =  ca;
-
-  return;
 }
 
 /*****************************************************************************/
@@ -184,8 +178,6 @@ void GeometryHelper::rotation3DMatrixInPlace(double alpha,
   rot[6] = sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
   rot[7] = -ca[0] * sa[2] + sa[0] * sa[1] * ca[2];
   rot[8] = ca[1] * ca[2];
-
-  return;
 }
 
 /*****************************************************************************/
@@ -364,7 +356,7 @@ void GeometryHelper::rotationGetAnglesFromCodirInPlace(const VectorDouble &codir
   {
     return;
   }
-  else if (ndim == 2)
+  if (ndim == 2)
   {
     angles[0] = atan2(codir[1], codir[0]);
     angles[1] = 0.;
@@ -441,7 +433,6 @@ void GeometryHelper::rotationGetDirection2D(const VectorDouble &angles,
     codir[idir * ndim + 0] = cos(angles[idir] * GV_PI / 180.);
     codir[idir * ndim + 1] = sin(angles[idir] * GV_PI / 180.);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -457,7 +448,6 @@ void GeometryHelper::rotationGetDirectionDefault(int ndim, VectorDouble &codir)
 {
   codir.resize(ndim, 0.);
   codir[0] = 1.;
-  return;
 }
 
 /****************************************************************************/
@@ -471,7 +461,7 @@ void GeometryHelper::rotationGetDirectionDefault(int ndim, VectorDouble &codir)
  ** \param[in]  eps      Tolerance
  **
  *****************************************************************************/
-bool GeometryHelper::rotationIsIdentity(int ndim, double *rot, double eps)
+bool GeometryHelper::rotationIsIdentity(int ndim, const double *rot, double eps)
 {
   for (int i = 0; i < ndim; i++)
     for (int j = 0; j < ndim; j++)
@@ -649,8 +639,6 @@ void GeometryHelper::geodeticAngles(double long1,
   *A = st_convert_geodetic_angle(sina, cosa, sinb, cosb, sinc, cosc);
   *B = st_convert_geodetic_angle(sinb, cosb, sinc, cosc, sina, cosa);
   *C = st_convert_geodetic_angle(sinc, cosc, sina, cosa, sinb, cosb);
-
-  return;
 }
 
 /****************************************************************************/
@@ -860,7 +848,7 @@ bool GeometryHelper::segmentIntersect(double xd1,
 
   /* Case of two horizontal segments */
 
-  else if (!b1_is_not_zero && !b2_is_not_zero)
+  if (!b1_is_not_zero && !b2_is_not_zero)
   {
     const double delta_y = ye1 - ye2;
     if (delta_y * delta_y > EPSILON20) return false;
@@ -876,7 +864,7 @@ bool GeometryHelper::segmentIntersect(double xd1,
 
   /* Case of the horizontal first segment */
 
-  else if (b2_is_not_zero)
+  if (b2_is_not_zero)
   {
     const double y = ye1;
     if ((y - yd2) * (y - ye2) > 0) return false;
@@ -890,17 +878,14 @@ bool GeometryHelper::segmentIntersect(double xd1,
 
   /* Case of horizontal second segment */
 
-  else  // if (b1_is_not_zero)
-  {
-    const double y = ye2;
-    if ((y - yd1) * (y - ye1) > 0) return false;
-    const double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
-    if ((x - xd1) * (x - xe1) > 0) return false;
-    if ((x - xd2) * (x - xe2) > 0) return false;
-    (*xint) = x;
-    (*yint) = y;
-    return true;
-  }
+  const double y = ye2;
+  if ((y - yd1) * (y - ye1) > 0) return false;
+  const double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
+  if ((x - xd1) * (x - xe1) > 0) return false;
+  if ((x - xd2) * (x - xe2) > 0) return false;
+  (*xint) = x;
+  (*yint) = y;
+  return true;
 }
 
 /****************************************************************************/
@@ -958,7 +943,7 @@ bool GeometryHelper::isInSphericalTriangle(double *coor,
  *****************************************************************************/
 void GeometryHelper::rotationGetRandomDirection(double ct,
                                                 double st,
-                                                double *a,
+                                                const double *a,
                                                 double *codir)
 {
   double b[3], c[3], p[3];
@@ -1583,17 +1568,10 @@ VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble &sphPts,
 double GeometryHelper::getCosineAngularTolerance(double tolang)
 
 {
-  double psval;
-
-  if (FFFF(tolang))
-    psval = 0.;
-  else if (tolang == 00.)
-    psval = 1.;
-  else if (tolang == 90.)
-    psval = 0.;
-  else
-    psval = ABS(cos(ut_deg2rad(tolang)));
-  return (psval);
+  if (FFFF(tolang)) return 0.;
+  if (tolang == 00.) return 1.;
+  if (tolang == 90.) return 0.;
+  return ABS(cos(ut_deg2rad(tolang)));
 }
 
 VectorVectorDouble GeometryHelper::getEllipse(const VectorDouble &center,

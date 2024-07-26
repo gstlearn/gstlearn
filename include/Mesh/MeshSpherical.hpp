@@ -74,7 +74,7 @@ private:
                    VectorDouble& weights,
                    bool flag_approx = true) const;
   int _recopy(const MeshSpherical &m);
-  double _closestValue(double ref, double coor, double period) const;
+  static double _closestValue(double ref, double coor, double period);
   void _checkConsistency() const;
 
 private:

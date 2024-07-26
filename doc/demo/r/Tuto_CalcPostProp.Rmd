@@ -5,6 +5,8 @@ date: '2023-07-24'
 output:
   html_document:
     df_print: paged
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Performs proportions by post-processing on several simulations performed on the nodes of a Grid  -->
@@ -124,16 +126,19 @@ nbsim = c(3, 4, 3)
 
 model = Model_createFromParam(ECov_GAUSSIAN(), range=0.5, sill=1.0)
 for (i in 1:N) {
-  err = simtub(dbin = NULL, dbout = surfaces, model = model, nbsimu = nbsim[i], namconv = NamingConvention(paste0("Y_", i)))
+  err = simtub(dbin = NULL, dbout = surfaces, model = model, nbsimu = nbsim[i], 
+               namconv = NamingConvention(paste0("Y_", i)))
 }
 
 # conversion into uniform thickness
 for (i in 1:N) {
-  val = matrix(surfaces$getColumns(names = paste0("Y_", i , ".", 1:nbsim[i]), useSel = FALSE),
+  val = matrix(surfaces$getColumns(names = paste0("Y_", i , ".", 1:nbsim[i]), 
+                                   useSel = FALSE),
                nrow = surfaces$getSampleNumber(useSel = FALSE), ncol = nbsim[i])
   val = h_mean[i] * pnorm(val)
   for (k in 1:nbsim[i]) {
-    err = surfaces$setColumn(tab = val[, k], name = paste0("Z_", i , ".", k), useSel = FALSE)
+    err = surfaces$setColumn(tab = val[, k], name = paste0("Z_", i , ".", k), 
+                             useSel = FALSE)
   }
 }
 
@@ -198,10 +203,12 @@ stopifnot(max(abs(ijk - rank2ijkVec(ijk2rankVec(ijk,nn),nn))) == 0)
 # test on a cell
 cell = c(3, 4, 5)
 rank = ijk2rankVec(ijk = cell, nn = grid$getNXs())
-stopifnot(rank == ijk2rankVec(ijk = rank2ijkVec(rank = rank, nn = grid$getNXs()), nn = grid$getNXs()))
+stopifnot(rank == ijk2rankVec(ijk = rank2ijkVec(rank = rank, nn = grid$getNXs()), 
+                              nn = grid$getNXs()))
 stopifnot(max(abs(cell - rank2ijkVec(rank = ijk2rankVec(ijk = cell, nn = grid$getNXs()), nn = grid$getNXs()))) == 0)
 
-# select the samples in dbin belonging to the grid cell and return the number of selected samples
+# select the samples in dbin belonging to the grid cell and 
+# return the number of selected samples
 # the selection works only with "not rotated" grid 
 select_samples <- function(dbin, rank, grid, nameSel = "inBlock") {
   stopifnot(max(abs(grid$getAngles())) == 0) # no rotation
@@ -225,7 +232,8 @@ print(paste0(">>> number of selected samples = ", select_samples(surfaces, rank 
 # plot of selected samples of the surface grid
 
 err = surfaces$clearSelection()
-err = surfaces$setLocator(name = "inBlock", locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
+err = surfaces$setLocator(name = "inBlock", locatorType = ELoc_SEL(), 
+                          cleanSameLocator = TRUE)
 var_nm = "Z_1.3"
 p = ggDefaultGeographic() + 
     plot.grid(surfaces, nameRaster = var_nm, useSel = TRUE, legendNameRaster = var_nm,
@@ -289,7 +297,8 @@ for (r in cell_selected) {
   # mono-variate simulations of the N variables for the selected samples
   H = list()
   for (n in 1:N) {
-    H[[1+length(H)]] <- matrix(surfaces$getColumns(names = paste0("Z_", n, ".*"), useSel = TRUE),
+    H[[1+length(H)]] <- matrix(surfaces$getColumns(names = paste0("Z_", n, ".*"),
+                                                   useSel = TRUE),
                nrow = surfaces$getSampleNumber(useSel = TRUE),
                ncol = nbsim[n]
               )
@@ -304,7 +313,7 @@ for (r in cell_selected) {
   # code = 3   H1 + H2 + H3 < z <= + Inf
   res = array(0.0, c(ns, K, P))
 
-    # bottom to top
+  # bottom to top
   for (i in 1:(P-1)) {
     for (j in 1:i) {res[,,i] = res[,,i] + H[[j]][,idx[,j]]}
     res[,,i] = pmin(pmax(res[,,i] - z_base,0), h_max)
@@ -323,7 +332,8 @@ for (r in cell_selected) {
   up_res = apply(X = res, MARGIN = c(2,3), FUN = mean)
   
   # -----------------------------------------------------------------
-  # statistics on the K simulation up-scaling (averaging the ns samples) to defined a P x K matrix
+  # statistics on the K simulation up-scaling (averaging the ns samples) 
+  # to define a P x K matrix
   # -----------------------------------------------------------------
   count <- function(u){length(u) - sum(is.na(u))}
   opers = c("count", "min", "max", "median", "mean", "sd")
@@ -334,7 +344,8 @@ for (r in cell_selected) {
   colnames(tab) <- opers
   rownames(tab) <- paste0("Code = ", 0:(P-1))
 
-  print(paste0("== Cell #", r, "/", grid$getSampleNumber(useSel=FALSE)," (regrouping ", ns, " samples)"))
+  print(paste0("== Cell #", r, "/", grid$getSampleNumber(useSel=FALSE),
+               " (regrouping ", ns, " samples)"))
   
   titre = paste0("Statistics on ", ns, " samples", 
                 " for cell ", cell[1], "/", cell[2], "/", cell[3], 

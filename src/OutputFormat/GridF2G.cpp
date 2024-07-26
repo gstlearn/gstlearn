@@ -15,7 +15,6 @@
 #include "OutputFormat/GridF2G.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 
 #include <string.h>
@@ -75,59 +74,59 @@ DbGrid* GridF2G::readGridFromFile()
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_DIM");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   if (_record_read(_file, "%d", &ndim)) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_VERSION");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   if (_record_read(_file, "%d", &version)) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_LOCATION");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   for (int idim = 0; idim < 3; idim++) // Always three parameters
     if (_record_read(_file, "%lf", &x0[idim])) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_ROTATION");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   if (_record_read(_file, "%lf", angles[0])) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_ORIGIN");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   for (int idim = 0; idim < ndim; idim++)
     if (_record_read(_file, "%lf", &dum)) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_NB_NODES");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   for (int idim = 0; idim < ndim; idim++)
     if (_record_read(_file, "%d", &nx[idim])) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_LAGS");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   for (int idim = 0; idim < ndim; idim++)
     if (_record_read(_file, "%lf", &dx[idim])) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_ORDER");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
 
   // We need to read the three next strings (orders)
   // Only the order +Y +X +Z is interfaced
   if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "+Y")) return dbgrid;
+  if (strcmp(string, "+Y") != 0) return dbgrid;
   if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "+X")) return dbgrid;
+  if (strcmp(string, "+X") != 0) return dbgrid;
   if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "+Z")) return dbgrid;
+  if (strcmp(string, "+Z") != 0) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_NB_VARIABLES");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
   if (_record_read(_file, "%d", &ncol)) return dbgrid;
 
   for (int i = 0; i < ncol; i++)
@@ -135,20 +134,20 @@ DbGrid* GridF2G::readGridFromFile()
     if (_record_read(_file, "%s", string)) return dbgrid;
     // Variable Name
     (void) gslSPrintf(refchar, "F2G_VARIABLE_%d", i + 1);
-    if (strcmp(string, refchar)) return dbgrid;
+    if (strcmp(string, refchar) != 0) return dbgrid;
     // We need to read the Name even if ignored
     if (_record_read(_file, "%s", string)) return dbgrid;
     names.push_back(string);
     if (_record_read(_file, "%s", string)) return dbgrid;
     // NA value
     (void) gslSPrintf(refchar, "F2G_UNDEFINED_%d", i + 1);
-    if (strcmp(string, refchar)) return dbgrid;
+    if (strcmp(string, refchar) != 0) return dbgrid;
     if (_record_read(_file, "%s", valtest)) return dbgrid;
   }
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy(refchar, "F2G_VALUES");
-  if (strcmp(string, refchar)) return dbgrid;
+  if (strcmp(string, refchar) != 0) return dbgrid;
 
   int size = nx[0] * nx[1] * nx[2];
   VectorDouble tab(size * ncol);

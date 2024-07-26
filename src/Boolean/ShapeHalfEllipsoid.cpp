@@ -76,7 +76,6 @@ bool ShapeHalfEllipsoid::belongObject(const VectorDouble& coor,
   double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;
   double dy = (ndim >= 2) ? coor[1] / (object->getExtension(1) / 2.) : 0.;
   double dz = (ndim >= 3) ? coor[2] / (object->getExtension(2))      : 0.;
-  if (dx * dx + dy * dy + dz * dz > 1) return false;
-  return true;
+  return (dx * dx + dy * dy + dz * dz <= 1);
 }
 

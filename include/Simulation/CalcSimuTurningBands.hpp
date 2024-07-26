@@ -130,13 +130,13 @@ private:
   int  _generateDirections(const Db* dbout);
   void _minmax(const Db *db);
   void _setDensity();
-  ECov _particularCase(const ECov &type, double param);
+  static ECov _particularCase(const ECov &type, double param);
   int  _initializeSeedBands();
   VectorDouble _createAIC();
   double _getAIC(const VectorDouble& aic, int icov, int ivar, int jvar);
 
-  double _computeScale(double alpha, double scale);
-  double _computeScaleKB(double param, double scale);
+  static double _computeScale(double alpha, double scale);
+  static double _computeScaleKB(double param, double scale);
 
   void _migrationInit(int ibs,
                       int is,
@@ -149,7 +149,7 @@ private:
   double _spline1DInit(int ibs, int k, TurningBandOperate &operTB);
   double _irfProcessInit(int ibs, int is, TurningBandOperate &operTB);
 
-  double _irfCorrec(const ECov &type, double theta1, double scale);
+  static double _irfCorrec(const ECov &type, double theta1, double scale);
   void _getOmegaPhi(int ibs,
                     TurningBandOperate& operTB,
                     double* cxp,

@@ -15,7 +15,6 @@
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Model/CovInternal.hpp"
 
 #include <math.h>
@@ -27,7 +26,7 @@ GibbsUPropMono::GibbsUPropMono()
 {
 }
 
-GibbsUPropMono::GibbsUPropMono(Db* db, std::vector<Model *> models, double rho)
+GibbsUPropMono::GibbsUPropMono(Db* db, const std::vector<Model *>& models, double rho)
   : GibbsMultiMono(db, models, rho)
   , _rval(0.5)
   , _eps(EPSILON3)

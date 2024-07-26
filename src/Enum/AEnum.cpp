@@ -11,9 +11,6 @@
 #include "Enum/AEnum.hpp"
 #include "Basic/AStringable.hpp"
 
-#include <iostream>
-#include <iomanip>
-
 void AEnum::printEnum() const {
   _printMsg("  %2d - %11s : %s\n", _value, _key.c_str(), _descr.c_str());
 }

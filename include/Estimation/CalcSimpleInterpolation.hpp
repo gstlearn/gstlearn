@@ -52,15 +52,15 @@ private:
   int _nearest(Db* dbin, Db* dbout, ANeigh* neigh);
   int _movave(Db* dbin, Db* dbout, ANeigh* neigh);
   int _movmed(Db* dbin, Db* dbout, ANeigh* neigh);
-  int _lstsqr(Db* dbin, Db* dbout, ANeigh* neigh);
+  int _lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const;
   int _invdist(Db *dbin, Db *dbout);
 
   void _pointInvdist(Db *dbin, Db *dbout);
   void _gridInvdist(DbGrid *dbin, Db *dbout);
 
-  double _estimCalc(const Db *dbin,
-                    const VectorInt &nbgh,
-                    const VectorDouble& weights) const;
+  static double _estimCalc(const Db* dbin,
+                           const VectorInt& nbgh,
+                           const VectorDouble& weights);
   double _stdevCalc(Db *dbin,
                     Db *dbout,
                     const VectorInt &nbgh,

@@ -12,8 +12,6 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
-#include "Enum/EJustify.hpp"
-#include "Enum/ECov.hpp"
 #include "Enum/EProcessOper.hpp"
 #include "Enum/ERule.hpp"
 
@@ -22,16 +20,11 @@
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsFactory.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Basic/MathFunc.hpp"
-#include "Basic/String.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
@@ -43,15 +36,12 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
-#include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
-#include "Space/SpaceRN.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -94,10 +84,8 @@ static void st_simulation_environment(void)
  *****************************************************************************/
 static int st_facies(PropDef *propdef, int ipgs, int ifac)
 {
-  if (ipgs <= 0)
-    return (ifac);
-  else
-    return (propdef->nfac[0] + ifac);
+  if (ipgs <= 0) return (ifac);
+  return (propdef->nfac[0] + ifac);
 }
 
 /****************************************************************************/
@@ -290,7 +278,6 @@ void check_mandatory_attribute(const char *method,
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
     messageAbort("%s : Attributes %d are mandatory",method,locatorType.getValue());
-  return;
 }
 
 /****************************************************************************/
@@ -492,10 +479,8 @@ static int st_check_simtub_environment(Db *dbin,
  *****************************************************************************/
 int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf)
 {
-  if (ipgs <= 0 || propdef == nullptr)
-    return (igrf);
-  else
-    return (propdef->ngrf[0] + igrf);
+  if (ipgs <= 0 || propdef == nullptr) return (igrf);
+  return (propdef->ngrf[0] + igrf);
 }
 
 /****************************************************************************/
@@ -513,7 +498,6 @@ static void st_suppress_added_samples(Db *db, int nech)
   if (nech <= 0) return;
   for (iech = db->getSampleNumber() - 1; iech >= nech; iech--)
     (void) db->deleteSample(iech);
-  return;
 }
 
 /****************************************************************************/
@@ -600,7 +584,6 @@ static void st_check_facies_data2grid(Db *dbin,
 
   label_end: if (flag_check && number <= 0) message("No problem found\n");
   db_sample_free(coor);
-  return;
 }
 
 /****************************************************************************/
@@ -651,12 +634,12 @@ static void st_init_gibbs_params(double rho)
  ** \remark  conditional simulations
  **
  *****************************************************************************/
-int simpgs(Db *dbin,
-           Db *dbout,
-           RuleProp *ruleprop,
-           Model *model1,
-           Model *model2,
-           ANeigh *neigh,
+int simpgs(Db* dbin,
+           Db* dbout,
+           RuleProp* ruleprop,
+           Model* model1,
+           Model* model2,
+           ANeigh* neigh,
            int nbsimu,
            int seed,
            int flag_gaus,
@@ -1713,25 +1696,25 @@ label_end:
  ** \endcode
  **
  *****************************************************************************/
-int simtub_constraints(Db *dbin,
-                       Db *dbout,
-                       Model *model,
-                       ANeigh *neigh,
+int simtub_constraints(Db* dbin,
+                       Db* dbout,
+                       Model* model,
+                       ANeigh* neigh,
                        int seed,
                        int nbtuba,
                        int nbsimu_min,
                        int nbsimu_quant,
                        int niter_max,
-                       VectorInt &cols,
+                       VectorInt& cols,
                        int (*func_valid)(int flag_grid,
                                          int nDim,
                                          int nech,
-                                         int *nx,
-                                         double *dx,
-                                         double *x0,
+                                         int* nx,
+                                         double* dx,
+                                         double* x0,
                                          double nonval,
                                          double percent,
-                                         VectorDouble &tab))
+                                         VectorDouble& tab))
 {
   int *nx, iatt, retval, nbtest;
   int error, nbsimu, nvalid, isimu, ndim, iter, nech, flag_grid, i;
@@ -1922,7 +1905,6 @@ static void st_maxstable_combine(Db *dbout,
       (*last) = iter0;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2277,13 +2259,13 @@ int simRI(Db *dbout,
  ** \remark  should correspond to the facies index (starting from 1)
  **
  *****************************************************************************/
-int simpgs_spde(Db *dbin,
-                Db *dbout,
-                RuleProp *ruleprop,
-                Model *model1,
-                Model *model2,
-                const String &triswitch,
-                const VectorDouble &gext,
+int simpgs_spde(Db* dbin,
+                Db* dbout,
+                RuleProp* ruleprop,
+                Model* model1,
+                Model* model2,
+                const String& triswitch,
+                const VectorDouble& gext,
                 int flag_gaus,
                 int flag_prop,
                 int flag_check,

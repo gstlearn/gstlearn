@@ -13,9 +13,7 @@
 #include "Gibbs/GibbsUMulti.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Morpho/Morpho.hpp"
 
 #include <math.h>
 

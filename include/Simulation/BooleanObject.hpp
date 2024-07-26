@@ -68,15 +68,15 @@ private:
                               const ModelBoolean* tokens,
                               const VectorDouble& coor,
                               double eps = EPSILON3);
-  bool _isPore(const Db* db, int iech);
-  bool _isGrain(const Db* db, int iech);
+  static bool _isPore(const Db* db, int iech);
+  static bool _isGrain(const Db* db, int iech);
   void _defineBoundingBox(double eps = EPSILON3);
   void _extensionLinkage();
   bool _isInObject(const VectorDouble& coor, int ndim);
 
   bool _isInBoundingBox(const VectorDouble& coor, int ndim);
-  int  _getCoverageAtSample(const Db* db, int iptr_cover, int iech);
-  void _updateCoverageAtSample(Db* db, int iptr_cover, int iech, int ival);
+  static int  _getCoverageAtSample(const Db* db, int iptr_cover, int iech);
+  static void _updateCoverageAtSample(Db* db, int iptr_cover, int iech, int ival);
   static void _drawCoordinate(const DbGrid *dbout,
                               const SimuBooleanParam& boolparam,
                               VectorDouble& coor);

@@ -46,8 +46,8 @@ License: BSD 3-clause
  **
  *****************************************************************************/
 static double st_distance(int nvar,
-                          double *data1,
-                          double *data2,
+                          const double *data1,
+                          const double *data2,
                           int index1,
                           int index2)
 {
@@ -135,7 +135,7 @@ static void st_printclusterlist(int nclusters, int nech, int *clusterid)
  ** \param[in]  clusterid Array of cluster number for each sample
  **
  *****************************************************************************/
-static void st_printclustercount(int nclusters, int nech, int *clusterid)
+static void st_printclustercount(int nclusters, int nech, const int *clusterid)
 {
   int j, count;
 
@@ -166,11 +166,11 @@ static void st_printclustercount(int nclusters, int nech, int *clusterid)
  ** \param[out] cmask     Array containing the number of sample per cluster
  **
  *****************************************************************************/
-static void st_getclustermeans(double *data,
+static void st_getclustermeans(const double *data,
                                int nvar,
                                int nech,
                                int nclusters,
-                               int *clusterid,
+                               const int *clusterid,
                                double *cdata,
                                int *cmask)
 {
@@ -210,11 +210,11 @@ static void st_getclustermeans(double *data,
  ** \param[out] cache     Array for storing data of a cluster
  **
  *****************************************************************************/
-static void st_getclustermedian(double *data,
+static void st_getclustermedian(const double *data,
                                 int nvar,
                                 int nech,
                                 int nclusters,
-                                int *clusterid,
+                                const int *clusterid,
                                 double *cdata,
                                 double *cache)
 {
@@ -287,8 +287,8 @@ static double* st_get_distmatrix(double *data, int nvar, int nech)
  *****************************************************************************/
 static void st_getclustermedoids(int nech,
                                  int nclusters,
-                                 double *distmatrix,
-                                 int *clusterid,
+                                 const double *distmatrix,
+                                 const int *clusterid,
                                  int *centroids,
                                  double *errors)
 {

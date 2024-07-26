@@ -27,15 +27,15 @@ class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
 {
 public:
   APolynomial();
-  APolynomial(VectorDouble coeffs);
-  APolynomial(const APolynomial& p);
+  APolynomial(const VectorDouble& coeffs);
+  APolynomial(const APolynomial& m);
   APolynomial & operator=(const APolynomial& p);
   virtual ~APolynomial();
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(VectorDouble coeffs);
+  void init(const VectorDouble& coeffs);
   virtual double eval(double x) const = 0;
 #ifndef SWIG
   virtual void evalOp(MatrixSparse* Op,
@@ -48,11 +48,11 @@ public:
   VectorDouble evalOp(MatrixSparse* Op, const VectorDouble& inv) const;
 #endif
   VectorDouble getCoeffs() const { return _coeffs; }
-  void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}
+  void setCoeffs(const VectorDouble& coeffs) {_coeffs = coeffs;}
 
   int getDegree() const { return static_cast<int>(_coeffs.size());}
   virtual void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const = 0;
-  virtual int fit(std::function<double(double)> f,
+  virtual int fit(const std::function<double(double)>& f,
                   double from = 0.,
                   double to = 1.,
                   double tol = EPSILON5)

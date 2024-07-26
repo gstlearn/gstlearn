@@ -66,7 +66,7 @@ protected:
                        bool flagSetLocator = true,
                        int locatorShift    = 0);
   void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
-  int  _expandInformation(int mode, const ELoc& locatorType);
+  int  _expandInformation(int mode, const ELoc& locatorType) const;
   void _cleanVariableDb(int status);
   Db*  _whichDb(int whichDb);
   String _identifyVariable(int iuid) const;

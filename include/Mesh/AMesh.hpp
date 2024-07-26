@@ -92,10 +92,10 @@ public:
 
   VectorVectorDouble getCoordinatesPerMesh(int imesh) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
-  void getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& coors) const;
+  void getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& vec) const;
   VectorVectorDouble getEmbeddedCoordinatesPerApex() const;
 
-  VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt());
+  VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt()) const;
 
   VectorVectorDouble getAllCoordinates() const;
   MatrixRectangular getAllApices() const;
@@ -106,11 +106,11 @@ public:
 
   VectorVectorInt getNeighborhoodPerMesh() const;
   VectorVectorInt getNeighborhoodPerApex() const;
-  void dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max = 1);
+  static void dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max = 1);
 
 protected:
   void _setNDim(int ndim) { _nDim = ndim; }
-  int  _setExtend(const VectorDouble extendmin, const VectorDouble extendmax);
+  int  _setExtend(const VectorDouble& extendmin, const VectorDouble& extendmax);
   bool _weightsInMesh(const VectorDouble& coor,
                       const VectorVectorDouble& corners,
                       double meshsize,

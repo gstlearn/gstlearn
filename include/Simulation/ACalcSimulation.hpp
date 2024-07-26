@@ -17,8 +17,8 @@
 class GSTLEARN_EXPORT ACalcSimulation: public ACalcInterpolator
 {
 public:
-  ACalcSimulation(int nbimu, int seed = 4324324);
-  ACalcSimulation(const ACalcSimulation& r) = delete;
+  ACalcSimulation(int nbsimu, int seed = 4324324);
+  ACalcSimulation(const ACalcSimulation& r)            = delete;
   ACalcSimulation& operator=(const ACalcSimulation& r) = delete;
   virtual ~ACalcSimulation();
 

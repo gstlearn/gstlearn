@@ -51,7 +51,7 @@ public:
                              int iact,
                              int iter) = 0;
   virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
-  virtual void cleanup() { return; }
+  virtual void cleanup() { }
 
   void init(int npgs,
             int nvar,
@@ -93,10 +93,10 @@ protected:
   bool _isConstraintTight(int icase, int iact, double* value) const;
   void _updateStats(const VectorVectorDouble &y,
                     int ipgs,
-                    int iter,
+                    int jter,
                     double amort = 0.9);
   void _getBoundsDecay(int iter, double *vmin, double *vmax) const;
-  int  _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax);
+  int  _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax) const;
   void _printInequalities(int iact,
                           int ivar,
                           double simval,

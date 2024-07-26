@@ -18,7 +18,6 @@
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Tree/Ball.hpp"
-#include "Tree/KNN.hpp"
 
 #include "geoslib_old_f.h"
 
@@ -563,12 +562,12 @@ static void st_expand(int flag_size,
  ** \param[out]  tab      Output array (Dimension: number of samples in db_point)
  **
  *****************************************************************************/
-int CalcMigrate::_migrateGridToPoint(DbGrid *db_grid,
-                                     Db *db_point,
+int CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
+                                     Db* db_point,
                                      int iatt,
                                      int distType,
-                                     const VectorDouble &dmax,
-                                     VectorDouble &tab)
+                                     const VectorDouble& dmax,
+                                     VectorDouble& tab)
 {
   if (!db_grid->hasLargerDimension(db_point)) return 1;
   int ndim_min = MIN(db_grid->getNDim(), db_point->getNDim());
@@ -913,7 +912,7 @@ int manageExternalInformation(int mode,
                               Db *dbout,
                               bool *flag_created)
 {
-//  VectorDouble tab;
+  //  VectorDouble tab;
 
   if (dbin == nullptr) return 0;
   int ninfo = get_LOCATOR_NITEM(dbout, locatorType);
@@ -921,7 +920,7 @@ int manageExternalInformation(int mode,
 
   /* Case when the Output Db is not a grid */
 
-  if (! dbout->isGrid())
+  if (!dbout->isGrid())
   {
     if (get_LOCATOR_NITEM(dbin, locatorType) == ninfo) return 0;
     messerr("The Output Db is not a Grid file");
@@ -941,38 +940,30 @@ int manageExternalInformation(int mode,
       *flag_created = false;
       return 0;
     }
-    else
+
+    /* Creating variables */
+
+    *flag_created = true;
+    for (int info = 0; info < ninfo; info++)
     {
-
-      /* Creating variables */
-
-      *flag_created = true;
-      for (int info = 0; info < ninfo; info++)
-      {
-        String name = dbgrid->getNameByLocator(locatorType, info);
-        if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false)) continue;
-      }
+      String name = dbgrid->getNameByLocator(locatorType, info);
+      if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false))
+        continue;
     }
     return 0;
   }
-  else
+  if (*flag_created)
   {
-    if (*flag_created)
-    {
-      // If no variable has been created (when 'mode' == 0), then do nothing
+    // If no variable has been created (when 'mode' == 0), then do nothing
 
-      return 0;
-    }
-    else
-    {
-      for (int info = 0; info < ninfo; info++)
-      {
-        int jatt = db_attribute_identify(dbin, locatorType, info);
-        dbin->deleteColumnByUID(jatt);
-      }
-      return 0;
-    }
+    return 0;
   }
+  for (int info = 0; info < ninfo; info++)
+  {
+    int jatt = db_attribute_identify(dbin, locatorType, info);
+    dbin->deleteColumnByUID(jatt);
+  }
+  return 0;
 }
 
 /*****************************************************************************/
@@ -998,9 +989,9 @@ int manageExternalInformation(int mode,
 int interpolateVariableToPoint(DbGrid *db_grid,
                                int iatt,
                                int np,
-                               double *xp,
-                               double *yp,
-                               double *zp,
+                               const double *xp,
+                               const double *yp,
+                               const double *zp,
                                double *tab)
 {
   int error, ndim;
@@ -1067,13 +1058,14 @@ int interpolateVariableToPoint(DbGrid *db_grid,
  ** \remarks the intersection are calculated.
  ** \remarks The program returns the list of all these intersection coordinates
  **
+ ** TODO FUTURE_REFACTOR
  *****************************************************************************/
 double* dbgridLineSampling(DbGrid *dbgrid,
-                           double *x1,
-                           double *x2,
+                           const double *x1,
+                           const double *x2,
                            int ndisc,
                            int ncut,
-                           double *cuts,
+                           const double *cuts,
                            int *nval_ret)
 {
   double *res, delta, vi1, vi2, cut, v1, v2;

@@ -79,14 +79,14 @@ protected:
   String _getNFName() const override { return "PolyLine2D"; }
 
 private:
-  void _shiftPoint(const VectorDouble &xy1,
-                   const VectorDouble &xy2,
-                   double ratio,
-                   VectorDouble &xy0) const;
+  static void _shiftPoint(const VectorDouble& xy1,
+                          const VectorDouble& xy2,
+                          double ratio,
+                          VectorDouble& xy0);
   void _getInterval(const PolyPoint2D &pldist,
                     int nb_neigh,
                     int *rfrom,
-                    int *rt0) const;
+                    int *rto) const;
 
 private:
   VectorDouble _x;

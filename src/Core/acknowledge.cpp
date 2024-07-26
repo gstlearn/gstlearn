@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "version.h"
 
@@ -66,6 +65,5 @@ void acknowledge_gstlearn(void)
   message("Helene BEUCHER   (helene.beucher@mines-paristech.fr)\n");
   message("Fabien ORS       (fabien.ors@mines-paristech.fr)\n");
   message("Xavier FREULON   (xavier.freulon@mines-paristech.fr)\n");
-  return;
 }
 

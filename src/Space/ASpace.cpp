@@ -99,7 +99,7 @@ void ASpace::addSpaceComponent(const ASpace* comp)
 
 unsigned int ASpace::getNComponents() const
 {
-  return _comps.size() + 1;
+  return (int)_comps.size() + 1;
 }
 
 String ASpace::toString(const AStringFormat* strfmt) const

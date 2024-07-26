@@ -12,13 +12,13 @@
 
 BImageStringFormat::BImageStringFormat(char zero,
                                        char one,
-                                       const VectorInt &indMin,
-                                       const VectorInt indMax)
-    : AStringFormat(1),
-      _indMin(indMin),
-      _indMax(indMax),
-      _charZero(zero),
-      _charOne(one)
+                                       const VectorInt& indMin,
+                                       const VectorInt& indMax)
+  : AStringFormat(1)
+  , _indMin(indMin)
+  , _indMax(indMax)
+  , _charZero(zero)
+  , _charOne(one)
 {
 }
 
@@ -50,16 +50,12 @@ BImageStringFormat::~BImageStringFormat()
 
 int BImageStringFormat::getIndMin(int idim) const
 {
-  if (idim < (int) _indMin.size())
-    return _indMin[idim];
-  else
-    return 0;
+  if (idim < (int)_indMin.size()) return _indMin[idim];
+  return 0;
 }
 
 int BImageStringFormat::getIndMax(int idim) const
 {
-  if (idim < (int) _indMax.size())
-    return _indMax[idim];
-  else
-    return ITEST;
+  if (idim < (int)_indMax.size()) return _indMax[idim];
+  return ITEST;
 }

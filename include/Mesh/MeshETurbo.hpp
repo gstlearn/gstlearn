@@ -42,7 +42,7 @@ public:
              bool flag_polarized = false,
              bool verbose = false,
              int mode = 1);
-  MeshETurbo(const MeshETurbo &m);
+  MeshETurbo(const MeshETurbo &r);
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
 

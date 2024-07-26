@@ -17,8 +17,8 @@
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Geometry/BiTargetCheckDistance.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Geometry/ABiTargetCheck.hpp"
 
 class Db;
 class Model;
@@ -266,7 +266,7 @@ public:
                    int nfacmax = -1);
   int computeGeometry(Db *db, Vario_Order *vorder, int *npair);
   int computeVarioVect(Db *db, int ncomp);
-  int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder);
+  int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder) const;
 
   int regularizeFromModel(const Model &model,
                           const VectorDouble &ext,
@@ -316,11 +316,11 @@ public:
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
-  VectorInt getGrincrs(int idir) { return getDirParam(idir).getGrincrs(); }
-  double getGrincr(int idir, int idim) { return getDirParam(idir).getGrincr(idim); }
+  VectorInt getGrincrs(int idir) const { return getDirParam(idir).getGrincrs(); }
+  double getGrincr(int idir, int idim) const { return getDirParam(idir).getGrincr(idim); }
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(int nvar) { _nVar = nvar; }
-  void setCalculName(const String calcul_name);
+  void setCalculName(const String& calcul_name);
   void setVariableNames(const VectorString &variableNames) { _variableNames = variableNames; }
   void setVariableName(int ivar, const String &variableName);
 
@@ -329,8 +329,8 @@ public:
   const VarioParam& getVarioParam() const { return _varioparam; }
   int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
-  bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist);
-  int getRankFromDirAndDate(int idir, int idate);
+  bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist) const;
+  int getRankFromDirAndDate(int idir, int idate) const;
   const VectorString& getVariableNames() const { return _variableNames; }
   String getVariableName(int ivar) const;
 
@@ -358,7 +358,7 @@ private:
   void _directionResize(int idir);
   void _setDPasFromGrid(bool flag_grid);
   void _setFlagAsym();
-  VectorDouble _varsFromProportions(VectorDouble props);
+  static VectorDouble _varsFromProportions(VectorDouble props);
   void _clearBiTargetCheck();
   void _addBiTargetCheck(ABiTargetCheck* abpc);
   void _setListBiTargetCheck();
@@ -378,14 +378,14 @@ private:
   int  _calculateGenOnGrid(DbGrid *db, int norder);
   int  _calculateOnGrid(DbGrid *db);
 
-  int  _getRelativeSampleRank(Db *db, int iech0);
+  static int  _getRelativeSampleRank(Db *db, int iech0);
   int  _updateUK(Db *db, Vario_Order *vorder);
   void _patchC00(Db *db, int idir);
   int  _get_generalized_variogram_order();
   void _getStatistics(Db *db);
   int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
-  double _s(Db *db, int iech, int jech);
-  double _g(Db *db, int iech, int jech);
+  static double _s(Db *db, int iech, int jech);
+  double _g(Db *db, int iech, int jech) const;
   void _calculateBiasLocal(Db *db,
                            int idir,
                            int ipas,
@@ -396,35 +396,35 @@ private:
   double _getBias(int iiech, int jjech);
 
   void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
-  int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);
-  int  _calculateGeneralSolution2(Db *db, int idir, int *rindex);
+  int  _calculateGeneralSolution1(Db *db, int idir, const int *rindex, Vario_Order *vorder);
+  int  _calculateGeneralSolution2(Db *db, int idir, const int *rindex);
   int  _calculateOnGridSolution(DbGrid *db, int idir);
   int  _calculateGenOnGridSolution(DbGrid *db, int idir, int norder);
-  int  _calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex);
+  int  _calculateVarioVectSolution(Db *db, int idir, int ncomp, const int *rindex);
   void _calculateOnLineSolution(Db *db, int idir, int norder);
 
   void _driftManage(Db *db);
   int  _driftEstimateCoefficients(Db *db);
 
-  void _printDebug(int iech1,
-                   int iech2,
-                   int ivar,
-                   int jvar,
-                   int ilag,
-                   double scale,
-                   double value);
+  static void _printDebug(int iech1,
+                          int iech2,
+                          int ivar,
+                          int jvar,
+                          int ilag,
+                          double scale,
+                          double value);
   void _centerCovariance(Db *db, int idir);
   void _getVarioVectStatistics(Db *db, int ncomp);
   void _rescale(int idir);
   bool _isCompatible(const Db *db) const;
-  double _linear_interpolate(int n,
-                             const VectorDouble &x,
-                             const VectorDouble &y,
-                             double x0);
+  static double _linear_interpolate(int n,
+                                    const VectorDouble& x,
+                                    const VectorDouble& y,
+                                    double x0);
   MatrixSquareGeneral _evalAverageDbIncr(Model *model,
                                          const Db &db,
                                          const VectorDouble &incr = VectorDouble(),
-                                         const CovCalcMode *mode = nullptr);
+                                         const CovCalcMode *mode = nullptr) const;
 
 private:
   int                _nVar;

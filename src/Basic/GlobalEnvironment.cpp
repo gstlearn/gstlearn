@@ -32,13 +32,12 @@ GlobalEnvironment* GlobalEnvironment::getEnv()
   return _env;
 }
 
-void GlobalEnvironment::setDomainReference(int value, bool verbose)
+void GlobalEnvironment::setDomainReference(int domainReference, bool verbose)
 {
-  if (value < 0) value = 0;
-  _domainReference = value;
+  if (domainReference < 0) domainReference = 0;
+  _domainReference = domainReference;
   if (_domainReference == 0) return;
   if (verbose) printDomainReference();
-  return;
 }
 
 void GlobalEnvironment::printDomainReference(void) const
@@ -58,7 +57,7 @@ void GlobalEnvironment::printDomainReference(void) const
  ** \param[in]  value    Reference Domain value
  **
  *****************************************************************************/
-bool GlobalEnvironment::matchDomainReference(double value)
+bool GlobalEnvironment::matchDomainReference(double value) const
 {
   if (FFFF(value)) return 0;
   if ((int) value == _domainReference) return true;

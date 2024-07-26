@@ -44,6 +44,9 @@
  *    - Enumerations (see AEnum) - TODO
  *    - `DECLARE_UNUSED` macro (need including geoslib_define.h)
  *    - ...to be expanded
+ * - When functions should not be used anymore by developpers, use
+ *   GSTLEARN_DEPRECATED in body of function definition (see Db::getActiveSampleNumber())
+ * - When functions are kept in order to be refactored later, put TODO FUTURE_REFACTOR as a comment
  * - Some coding constraints due to the [customized] SWIG for R version:
  *    - limit the use of function overriding
  *    - do not use namespace or static variables in default argument values

@@ -40,7 +40,8 @@ protected:
   bool _check() override;
 
   int _getTransfoNvar() const override;
-  void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const override;
+  void _transformFunction(const VectorDouble& Z_n_k_s,
+                          VectorDouble& Y_p_k_s) const override;
 
 private:
   const DbGrid* _dbgrid; //!< Pointer to 'dbout'. Not to be freed

@@ -208,7 +208,6 @@ static void lmlayers_print(LMlayers *lmlayers)
   message("Number of active samples (including collocated duplicates) = %d\n",
           lmlayers->nech);
   message("\n");
-  return;
 }
 
 /****************************************************************************/
@@ -515,7 +514,7 @@ static double st_cij(LMlayers *lmlayers,
                      const VectorDouble& prop1,
                      int jlayer,
                      const VectorDouble& prop2,
-                     double *dd,
+                     const double *dd,
                      MatrixSquareGeneral& covtab)
 {
   VectorDouble d1(2);
@@ -564,7 +563,7 @@ static double st_ci0(LMlayers *lmlayers,
                      int ilayer,
                      const VectorDouble& prop1,
                      int jlayer,
-                     double *dd,
+                     const double *dd,
                      MatrixSquareGeneral& covtab)
 {
   VectorDouble d1(2);
@@ -605,7 +604,7 @@ static double st_ci0(LMlayers *lmlayers,
  **
  *****************************************************************************/
 static int st_drift(LMlayers *lmlayers,
-                    double *coor,
+                    const double *coor,
                     double propval,
                     double drext,
                     int *ipos_loc,
@@ -1155,7 +1154,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 static int st_get_close_sample(LMlayers *lmlayers,
                                Db *dbin,
                                int iech0,
-                               double *coor)
+                               const double *coor)
 {
   int iech, ilayer;
   double dx, dy;
@@ -1329,7 +1328,7 @@ static void st_estimate_regular(LMlayers *lmlayers,
 static void st_estimate_bayes(LMlayers *lmlayers,
                               int flag_std,
                               double c00,
-                              double *acov,
+                              const double *acov,
                               VectorDouble& zval,
                               VectorDouble& b,
                               double *wgt,
@@ -1337,7 +1336,7 @@ static void st_estimate_bayes(LMlayers *lmlayers,
                               double *a0,
                               double *cc,
                               double *ss,
-                              double *gs,
+                              const double *gs,
                               double *estim,
                               double *stdev)
 {
@@ -1622,7 +1621,6 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
     continue;
 
     label_suppress: seltab[iech] = 0;
-    continue;
   }
 
   return (nechtot);
@@ -1807,7 +1805,7 @@ static int st_drift_data(LMlayers *lmlayers,
 static int st_drift_bayes(LMlayers *lmlayers,
                           int verbose,
                           double *prior_mean,
-                          double *prior_vars,
+                          const double *prior_vars,
                           double *acov,
                           VectorDouble& zval,
                           VectorDouble& fftab,
@@ -1977,10 +1975,10 @@ static int st_drift_bayes(LMlayers *lmlayers,
  ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
-int multilayers_kriging(Db *dbin,
-                        DbGrid *dbout,
-                        Model *model,
-                        ANeigh *neigh,
+int multilayers_kriging(Db* dbin,
+                        DbGrid* dbout,
+                        Model* model,
+                        ANeigh* neigh,
                         int flag_same,
                         int flag_z,
                         int flag_vel,
@@ -1991,8 +1989,8 @@ int multilayers_kriging(Db *dbin,
                         int irf_rank,
                         int match_time,
                         int dim_prior,
-                        double *prior_mean,
-                        double *prior_vars,
+                        double* prior_mean,
+                        double* prior_vars,
                         int colrefd,
                         int colreft,
                         int colrefb,
@@ -2720,9 +2718,9 @@ static int st_get_prior(int nech,
  ** \param[out] vars       Array of variances
  **
  *****************************************************************************/
-int multilayers_get_prior(Db *dbin,
-                          DbGrid *dbout,
-                          Model *model,
+int multilayers_get_prior(Db* dbin,
+                          DbGrid* dbout,
+                          Model* model,
                           int flag_same,
                           int flag_vel,
                           int flag_ext,
@@ -2732,9 +2730,9 @@ int multilayers_get_prior(Db *dbin,
                           int colreft,
                           int colrefb,
                           int verbose,
-                          int *npar_arg,
-                          double **mean,
-                          double **vars)
+                          int* npar_arg,
+                          double** mean,
+                          double** vars)
 {
   int nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
   bool flag_created;

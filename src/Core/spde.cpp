@@ -11,7 +11,6 @@
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
 #include "Enum/ELoadBy.hpp"
 
@@ -21,7 +20,6 @@
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ACovAnisoList.hpp"
@@ -30,7 +28,6 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
@@ -198,10 +195,8 @@ static SPDE_Calcul Calcul;
  *****************************************************************************/
 static int st_get_rank(int ivar, int jvar)
 {
-  if (jvar > ivar)
-    return (jvar * (jvar + 1) / 2 + ivar);
-  else
-    return (ivar * (ivar + 1) / 2 + jvar);
+  if (jvar > ivar) return (jvar * (jvar + 1) / 2 + ivar);
+  return (ivar * (ivar + 1) / 2 + jvar);
 }
 
 /****************************************************************************/
@@ -212,7 +207,6 @@ static int st_get_rank(int ivar, int jvar)
  **
  *****************************************************************************/
 static void st_matelem_print(int icov)
-
 {
   static const char *NOK[] = { "OFF", "ON" };
 
@@ -267,8 +261,7 @@ SPDE_Matelem& spde_get_current_matelem(int icov)
 {
   if (icov < 0)
     return (MATGRF(SPDE_CURRENT_IGRF)->Matelems[SPDE_CURRENT_ICOV]);
-  else
-    return (MATGRF(SPDE_CURRENT_IGRF)->Matelems[icov]);
+  return (MATGRF(SPDE_CURRENT_IGRF)->Matelems[icov]);
 }
 #endif
 /****************************************************************************/
@@ -871,10 +864,8 @@ QChol* qchol_manage(int mode, QChol *QC)
 static double st_get_nugget_sill(int ivar, int jvar)
 {
   CovAniso *cova = st_get_nugget();
-  if (cova == nullptr)
-    return (TEST);
-  else
-    return (cova->getSill(ivar, jvar));
+  if (cova == nullptr) return (TEST);
+  return (cova->getSill(ivar, jvar));
 }
 
 /****************************************************************************/
@@ -1321,7 +1312,6 @@ static void st_convert_exponential2bessel(CovAniso *cova)
     message("- Exponential: Range=%lf Scale=%lf\n", range_exp, scale_exp);
     message("- Bessel_K   : Range=%lf Scale=%lf\n", range_bes, scale_bes);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1364,12 +1354,12 @@ int spde_attach_model(Model *model)
     {
       continue;
     }
-    else if (cova->getType() == ECov::EXPONENTIAL)
+    if (cova->getType() == ECov::EXPONENTIAL)
     {
       st_convert_exponential2bessel(cova);
       continue;
     }
-    else if (cova->getType() == ECov::NUGGET)
+    if (cova->getType() == ECov::NUGGET)
     {
       if (model->getCova(icov)->getSill(0, 0) > 0)
         st_set_filnug(model->isCovaFiltered(icov));
@@ -1485,12 +1475,12 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     {
       continue;
     }
-    else if (cova->getType() == ECov::EXPONENTIAL)
+    if (cova->getType() == ECov::EXPONENTIAL)
     {
       st_convert_exponential2bessel(cova);
       continue;
     }
-    else if (cova->getType() == ECov::NUGGET)
+    if (cova->getType() == ECov::NUGGET)
     {
       flag_nugget = 1;
       if (model->getSill(icov, 0, 0) > 0)
@@ -1864,7 +1854,7 @@ static void st_copy(int ncur, double *z, double *zperm)
  **                         and the conditional simulation in output
  **
  *****************************************************************************/
-static void st_simu_add_vertices(int number, double *zsnc, double *zcur)
+static void st_simu_add_vertices(int number, const double *zsnc, double *zcur)
 {
   for (int i = 0; i < number; i++)
     zcur[i] += zsnc[i];
@@ -1885,7 +1875,7 @@ static void st_simu_add_vertices(int number, double *zsnc, double *zcur)
  ** \param[in,out] perm   : Input/Output array
  **
  *****************************************************************************/
-static void st_load_array(int number, double *aux, double *perm)
+static void st_load_array(int number, const double *aux, double *perm)
 {
   for (int i = 0; i < number; i++)
     perm[i] = aux[i];
@@ -1953,8 +1943,8 @@ static void st_init_array(int ncova,
  **
  *****************************************************************************/
 static int st_simu_subtract_data(int ncur,
-                                 double *zsnc,
-                                 double *data,
+                                 const double *zsnc,
+                                 const double *data,
                                  double *zerr)
 {
   int ecr;
@@ -2862,7 +2852,7 @@ static void st_project_plane(double center[3],
  **
  *****************************************************************************/
 static void st_tangent_calculate(double center[3],
-                                 double srot[2],
+                                 const double srot[2],
                                  double axes[2][3])
 {
   double sinphi, cosphi, sintet, costet, theta, phi, v[3], w[3];
@@ -2900,7 +2890,7 @@ static void st_tangent_calculate(double center[3],
  ** \param[in]  units     Array containing the mesh dimensions
  **
  *****************************************************************************/
-MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
+MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, const double *units)
 {
   double vald, mat[16], mat1[16];
   double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
@@ -3058,7 +3048,7 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
  ** \param[in]  units     Array containing the element units
  **
  *****************************************************************************/
-VectorDouble _spde_fill_TildeC(AMesh *amesh, double *units)
+VectorDouble _spde_fill_TildeC(AMesh *amesh, const double *units)
 {
   VectorDouble tildec, cumunit;
   int nvertex = amesh->getNApices();
@@ -3457,14 +3447,9 @@ static int st_build_Q(SPDE_Matelem &Matelem)
  *****************************************************************************/
 int spde_build_matrices(Model *model, int verbose)
 {
-  int error;
-  double *units;
+  int error = 1;
   VectorDouble tildec;
-
-  /* Initializations */
-
-  error = 1;
-  units = nullptr;
+  double* units = nullptr;
   VERBOSE = verbose;
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
   AMesh* amesh = Matelem.amesh;
@@ -3651,10 +3636,8 @@ static double st_chebychev_function(double x,
     value *= x;
     total += blin[i] * value;
   }
-  if (power == 0.)
-    return (log(total));
-  else
-    return (pow(total, power));
+  if (power == 0.) return (log(total));
+  return (pow(total, power));
 }
 
 /****************************************************************************/
@@ -4165,7 +4148,7 @@ static int st_kriging_several_loop(int flag_crit,
                                    double* rhscur,
                                    double *rhsloc,
                                    double *xcur,
-                                   double *rhs,
+                                   const double *rhs,
                                    double *crit)
 {
   MatrixSparse *tAicov, *Ajcov, *Bf, *B2, *B0, *Qicov;
@@ -4340,10 +4323,10 @@ static int st_kriging_several_loop(int flag_crit,
   error = 0;
 
   label_end:
-  if (tAicov != nullptr) delete tAicov;
-  if (B0 != nullptr) delete B0;
-  if (B2 != nullptr) delete B2;
-  if (Bf != nullptr) delete Bf;
+  delete tAicov;
+  delete B0;
+  delete B2;
+  delete Bf;
   return (error);
 }
 
@@ -4359,7 +4342,7 @@ static int st_kriging_several_loop(int flag_crit,
  ** \param[out] z           Output Array
  **
  *****************************************************************************/
-static int st_kriging_several_results(double *xcur, double *z)
+static int st_kriging_several_results(const double *xcur, double *z)
 {
   int *ranks, ncova, nvar, ncur, error, flag_data, ecr, lec;
   double valdat, valsum;
@@ -4845,12 +4828,11 @@ static void st_matelem_manage(int mode)
         Matelem.qsimu = st_qsimu_manage(-1, Matelem.qsimu);
         Matelem.mgs = st_mgs_manage(-1, Matelem.mgs);
         Matelem.s_cheb = spde_cheb_manage(-1, 0, 0, VectorDouble(), NULL, Matelem.s_cheb);
-        if (Matelem.amesh != nullptr) delete Matelem.amesh;
+        delete Matelem.amesh;
         Matelem.amesh = nullptr;
       }
       break;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -4924,13 +4906,13 @@ static int st_simulate(QChol *QC, double *zsnc)
  **
  ** \return  Error return code
  **
- ** \param[in]  dbin        Input Db grid structure (optional)
- ** \param[in]  dbout       Output Db grid structure
- ** \param[in]  s_option    SPDE_Option structure
- ** \param[in]  nbsimu      Number of simulations
- ** \param[in]  ngibbs_burn Number of iterations (Burning step)
- ** \param[in]  ngibbs_iter Number of iterations
- ** \param[in]  ngibbs_int  Number of iterations internal to Gibbs (SPDE)
+ ** \param[in]  dbin         Input Db grid structure (optional)
+ ** \param[in]  dbout        Output Db grid structure
+ ** \param[in]  s_option     SPDE_Option structure
+ ** \param[in]  nbsimu       Number of simulations
+ ** \param[in]  ngibbs_nburn Number of iterations (Burning step)
+ ** \param[in]  ngibbs_niter Number of iterations
+ ** \param[in]  ngibbs_int   Number of iterations internal to Gibbs (SPDE)
  **
  ** \remarks  If the number of simulations 'nbsimu' is set to 0,
  ** \remarks  the simulation algorithm is turned into a kriging one
@@ -4940,8 +4922,8 @@ int spde_process(Db *dbin,
                  Db *dbout,
                  SPDE_Option &s_option,
                  int nbsimu,
-                 int ngibbs_burn,
-                 int ngibbs_iter,
+                 int ngibbs_nburn,
+                 int ngibbs_niter,
                  int ngibbs_int)
 {
   int ncur, ndata, nbsimuw, isimuw, error, iatt_simu, ivar0;
@@ -5065,7 +5047,7 @@ int spde_process(Db *dbin,
         /***********************************************************/
 
         ngtime = 1;
-        ngibbs_total = ngibbs_burn + ngibbs_iter;
+        ngibbs_total = ngibbs_nburn + ngibbs_niter;
         if (S_DECIDE.flag_gibbs) ngtime = MAX(1, ngibbs_total);
 
         for (int igtime = 0; igtime < ngtime; igtime++)
@@ -5123,7 +5105,7 @@ int spde_process(Db *dbin,
 
           if (S_DECIDE.flag_gibbs)
           {
-            st_gibbs(igrf, ncur, ngibbs_int, igtime, ngibbs_burn,
+            st_gibbs(igrf, ncur, ngibbs_int, igtime, ngibbs_nburn,
                      dbin, dbout, zcur);
           }
         }
@@ -5214,44 +5196,38 @@ static AMesh* st_create_meshes(Db *dbin,
     messerr("Use MeshEStandardExt meshing technique instead");
     return nullptr;
   }
-  else
+
+  /* Standard case */
+
+  /* Check that a single file must be meshed and that it corresponds */
+  /* to a grid */
+
+  Db* dbloc = NULL;
+  if (!flag_force)
   {
-
-    /* Standard case */
-
-    /* Check that a single file must be meshed and that it corresponds */
-    /* to a grid */
-
-    Db* dbloc = NULL;
-    if (!flag_force)
-    {
-      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) &&
-          dbout != nullptr && dbout->isGrid()))
-        dbloc = dbout;
-      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) &&
-          dbin != nullptr && dbin->isGrid()))
-        dbloc = dbin;
-    }
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
-
-    if (dbloc != NULL)
-    {
-      if (VERBOSE) message("Using Turbo Meshing\n");
-
-      /* Regular meshing */
-
-      MeshETurbo* mesh = MeshETurbo::createFromGrid(dbgrid, false, VERBOSE);
-      mesh->setPolarized(false);
-      return mesh;
-    }
-    else
-    {
-
-      messerr("This type of Meshing is not available in Standard");
-      messerr("Use MeshEStandardExt meshing technique instead");
-      return nullptr;
-    }
+    if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) &&
+         dbout != nullptr && dbout->isGrid()))
+      dbloc = dbout;
+    if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) &&
+         dbin != nullptr && dbin->isGrid()))
+      dbloc = dbin;
   }
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
+
+  if (dbloc != NULL)
+  {
+    if (VERBOSE) message("Using Turbo Meshing\n");
+
+    /* Regular meshing */
+
+    MeshETurbo* mesh = MeshETurbo::createFromGrid(dbgrid, false, VERBOSE);
+    mesh->setPolarized(false);
+    return mesh;
+  }
+
+  messerr("This type of Meshing is not available in Standard");
+  messerr("Use MeshEStandardExt meshing technique instead");
+  return nullptr;
 }
 
 /****************************************************************************/
@@ -5403,7 +5379,7 @@ void spde_mesh_assign(AMesh *amesh,
 {
   static bool debug = false;
 
-  if (amesh != nullptr) delete amesh;
+  delete amesh;
 
   MatrixRectangular apices;
   apices.reset(nvertex,ndim);
@@ -5713,7 +5689,7 @@ static bool is_in_mesh_neigh(AMesh *amesh,
  ** \param[in]  zcur      Array of results
  **
  *****************************************************************************/
-static VectorDouble st_get_coords_3D(AMesh *amesh, double *zcur)
+static VectorDouble st_get_coords_3D(AMesh *amesh, const double *zcur)
 {
   int ndim = 3;
 
@@ -7659,7 +7635,7 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
   label_end:
   if (error)
   {
-    if (db != nullptr) delete db;
+    delete db;
     db = nullptr;
   }
   return (db);
@@ -8077,7 +8053,6 @@ static void st_convert_Z2Y(M2D_Environ *m2denv,
     }
     tab[ilayer] = Yval;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -8122,7 +8097,6 @@ static void st_convert_Y2Z(M2D_Environ *m2denv,
     }
     tab[ilayer] = Zcur;
   }
-  return;
 }
 
 /****************************************************************************/

@@ -12,14 +12,13 @@
 
 #include "gstlearn_export.hpp"
 #include "Arrays/AArray.hpp"
-#include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT Array : public AArray
 {
 public:
   Array(const VectorInt& ndims = VectorInt());
-  Array(const Array &m);
-  Array& operator=(const Array &m);
+  Array(const Array &r);
+  Array& operator=(const Array &r);
   virtual ~Array();
 
   void init(const VectorInt& ndims);

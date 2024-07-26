@@ -8,16 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
-
-#include "Enum/EJustify.hpp"
 
 #include "Morpho/Morpho.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
@@ -186,9 +182,9 @@ static int st_divide_by_2(int *nxyz, int orient)
  **
  *****************************************************************************/
 static void st_mean_arith(int idim,
-                          int *nxyz1,
-                          int *nxyz2,
-                          double *numtab1,
+                          const int *nxyz1,
+                          const int *nxyz2,
+                          const double *numtab1,
                           double *numtab2,
                           double *valtab1,
                           double *valtab2)
@@ -252,7 +248,6 @@ static void st_mean_arith(int idim,
                                      V2_TAB(ix,iy,iz) / N2_TAB(ix, iy, iz) :
                                      TEST;
       }
-  return;
 }
 
 /****************************************************************************/
@@ -270,9 +265,9 @@ static void st_mean_arith(int idim,
  **
  *****************************************************************************/
 static void st_mean_harmo(int idim,
-                          int *nxyz1,
-                          int *nxyz2,
-                          double *numtab1,
+                          const int *nxyz1,
+                          const int *nxyz2,
+                          const double *numtab1,
                           double *numtab2,
                           double *valtab1,
                           double *valtab2)
@@ -331,13 +326,10 @@ static void st_mean_harmo(int idim,
             }
             break;
         }
-        V2_TAB(ix,iy,iz) =
-            (ABS(V2_TAB(ix,iy,iz)) > 1.e-10) ?
-                                               N2_TAB(ix,iy,iz) / V2_TAB(ix, iy,
-                                                                         iz) :
-                                               TEST;
+        V2_TAB(ix, iy, iz) = (ABS(V2_TAB(ix, iy, iz)) > 1.e-10)
+                               ? N2_TAB(ix, iy, iz) / V2_TAB(ix, iy, iz)
+                               : TEST;
       }
-  return;
 }
 
 /****************************************************************************/
@@ -355,9 +347,9 @@ static void st_mean_harmo(int idim,
  ** \param[out] valtab2   Array containing the sample value
  **
  *****************************************************************************/
-static int st_recopy(int *nxyz1,
-                     double *numtab1,
-                     double *valtab1,
+static int st_recopy(const int *nxyz1,
+                     const double *numtab1,
+                     const double *valtab1,
                      int *nxyz2,
                      double *numtab2,
                      double *valtab2)
@@ -430,7 +422,7 @@ static void st_print_grid(const char *subtitle,
  ** \param[out] valtab    Array containing the sample value
  **
  *****************************************************************************/
-static void st_print_upscale(const char *title, int *nxyz, double *valtab)
+static void st_print_upscale(const char *title, int *nxyz, const double *valtab)
 {
   double mini, maxi, value;
   int lec, ndef;
@@ -573,10 +565,6 @@ static void st_upscale(int orient,
     }
   }
   *res2 = valtab1[0];
-
-  /* Final result obtained using geometric mean */
-
-  return;
 }
 
 /****************************************************************************/
@@ -793,8 +781,8 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
  *****************************************************************************/
 static double st_squared_distance(int orient,
                                   int ndim,
-                                  int *locini,
-                                  int *loccur)
+                                  const int *locini,
+                                  const int *loccur)
 {
   double delta, dist;
 
@@ -822,7 +810,7 @@ static double st_squared_distance(int orient,
  *****************************************************************************/
 static void st_sample_to_grid(int ndim,
                               int ntot,
-                              int *nxyz,
+                              const int *nxyz,
                               int iech,
                               int *indg)
 {
@@ -845,7 +833,7 @@ static void st_sample_to_grid(int ndim,
  ** \param[in]  indg  Grid indices
  **
  *****************************************************************************/
-static int st_grid_to_sample(int ndim, int *nxyz, int *indg)
+static int st_grid_to_sample(int ndim, const int *nxyz, const int *indg)
 {
   int idim, ival;
 
@@ -871,7 +859,7 @@ static int st_grid_to_sample(int ndim, int *nxyz, int *indg)
  ** \param[in]  cell  Cell location
  **
  *****************************************************************************/
-static int st_fixed_position(int ntot, double *tab, int cell)
+static int st_fixed_position(int ntot, const double *tab, int cell)
 {
   int j;
 
@@ -896,7 +884,7 @@ static int st_fixed_position(int ntot, double *tab, int cell)
  ** \param[in]  proba Local probability
  **
  *****************************************************************************/
-static int st_find_cell(int ntot, double *tab, double proba)
+static int st_find_cell(int ntot, const double *tab, double proba)
 {
   double sum1, sum2;
 
@@ -927,9 +915,9 @@ static int st_find_cell(int ntot, double *tab, double proba)
 static void st_migrate_seed(int ndim,
                             int n_nbgh,
                             int *nxyz,
-                            int *nbgh,
+                            const int *nbgh,
                             double *valwrk,
-                            double *valtab0,
+                            const double *valtab0,
                             int *locwrk,
                             int *loccur)
 {
@@ -1101,8 +1089,6 @@ static void st_updiff(int orient,
     }
     cvdist2[iter] = dmoy / (double) nseed;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1292,7 +1278,7 @@ int db_diffusion(DbGrid *dbgrid1,
     messerr("This function is limited to 2-D or 3-D input grids");
     goto label_end;
   }
-  if (!(orient == 0 || (orient >= 1 && orient <= ndim)))
+  if (orient != 0 && (orient < 1 || orient > ndim))
   {
     messerr("Argument 'orient' (%d) can be 0 or one of the space dimension",
             orient);
@@ -1437,7 +1423,7 @@ int db_diffusion(DbGrid *dbgrid1,
  *****************************************************************************/
 int stats_residuals(int verbose,
                     int nech,
-                    double *tab,
+                    const double *tab,
                     int ncut,
                     double *zcut,
                     int *nsorted,
