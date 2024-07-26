@@ -89,6 +89,7 @@ public:
 
   /// Interface for Db
   virtual bool isGrid() const { return false; }
+  virtual bool isLine() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   virtual double getUnit(int idim = 0) const;

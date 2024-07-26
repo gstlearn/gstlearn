@@ -15,7 +15,6 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
-#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>

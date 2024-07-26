@@ -1272,6 +1272,42 @@ def __ax_isoline(ax, dbgrid, name=None, useSel = True,
         
     return res
 
+def line(dbline, *args, **kwargs):
+    '''
+    Plotting a variable (referred by its name) informed in a DbLine
+
+    dbline: DbLine containing the variable to be plotted
+    name: Name of the variable to be represented
+    useSel : Boolean to indicate if the selection has to be considered
+    **kwargs : arguments passed to ...
+    '''
+    ax = __getNewAxes(None, 1)
+    return __ax_line(ax, dbline, *args, **kwargs)
+
+def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red', 
+              flagHeader=True, flagSample=False,
+              **kwargs):
+    if __isNotCorrect(object=dbline, types=["DbLine"]):
+        return None
+    if dbline.getNDim() != 2:
+        return None
+    
+    nbline = dbline.getLineNumber()
+    
+    for iline in range(nbline):
+        x = dbline.getCoordinates(iline, 0)
+        y = dbline.getCoordinates(iline, 1)
+        
+        ax.plot(x, y, color=color, **kwargs)
+
+        if flagHeader:
+            ax.plot(x[0], y[0], marker='D', color=colorHeader)
+
+        if flagSample:
+            ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
+        
+    return ax
+
 def grid(dbgrid, *args, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
@@ -2187,6 +2223,7 @@ import gstlearn.plot         as gp
 # Functions called using the generic *plot* function, based on the object recognition
 setattr(gl.Db,               "plot",             gp.point)
 setattr(gl.DbGrid,           "plot",             gp.grid)
+setattr(gl.DbLine,           "plot",             gp.line)
 setattr(gl.Polygons,         "plot",             gp.polygon)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Faults,           "plot",             gp.fault)
@@ -2206,12 +2243,13 @@ setattr(gl.Vario,            "varmod",           gp.varmod)
 setattr(plt.Axes, "decoration",    gp.decoration)
 setattr(plt.Axes, "geometry",      gp.geometry)
 
-# Functions considered as members f the Axis class
+# Functions considered as members of the Axis class
 # The name "grid" must not be used as confusing for matplotlib
 setattr(plt.Axes, "gstgrid",       gp.__ax_grid)
 setattr(plt.Axes, "gstpoint",      gp.__ax_point)
+setattr(plt.Axes, "gstline",       gp.__ax_line)
 
-# Functions considered as members f the Axis class
+# Functions considered as members of the Axis class
 setattr(plt.Axes, "polygon",       gp.__ax_polygon)
 setattr(plt.Axes, "rule",          gp.__ax_rule)
 setattr(plt.Axes, "fault",         gp.__ax_fault)

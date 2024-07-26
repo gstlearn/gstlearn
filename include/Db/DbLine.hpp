@@ -45,7 +45,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Db Interface
-  inline bool isGrid() const override { return false; }
+  bool isLine() const override { return true; }
   bool mayChangeSampleNumber() const override { return false; }
 
   int resetFromSamples(int nech,
@@ -62,16 +62,41 @@ public:
                                    const VectorString& names = VectorString(),
                                    const VectorString& locatorNames = VectorString(),
                                    bool flagAddSampleRank = true);
+
   static DbLine* createFromNF(const String& neutralFilename,
                               bool verbose = true);
+  static DbLine* createFillRandom(int ndim,
+                                  int nbline,
+                                  int nperline,
+                                  double deltaX             = 5.0,
+                                  const VectorDouble& delta = VectorDouble(),
+                                  double unifDelta          = 0.3,
+                                  int seed                  = 13422);
+
+  Db* createStatToHeader() const;
+
+  int getLineNumber() const;
+  int getLineSampleCount(int iline) const;
+  int getNTotal() const;
+  int getLineBySample(int iech) const;
+  VectorDouble _getHeaderCoordinate(int idim) const;
+  VectorDouble getCoordinates(int iline, int idim) const;
 
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
-  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  virtual bool _serialize(std::ostream& os,
+                          bool verbose = false) const override;
   String _getNFName() const override { return "DbLine"; }
 
 private:
-  VectorInt _lineId;
-  VectorInt _refInLineId;
+  int _lineLinkage(const VectorInt& lineCounts);
+  bool _isLineNumberValid(int iline) const;
+  bool _isConsistent() const;
+
+private:
+  // Information on addresses within the Db, per Line:
+  // - first dimension: Number of Lines
+  // - second dimension: Number of addresses (within Db) per Line
+  VectorVectorInt _lineAdds;
 };

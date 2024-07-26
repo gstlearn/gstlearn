@@ -574,24 +574,34 @@ Table dbStatisticsMono(Db *db,
     {
       if (neff > 0)
       {
-        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
-        else if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
-        else if (opers[i] == EStatOption::VAR)  tab.push_back(var);
-        else if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
-        else if (opers[i] == EStatOption::MINI) tab.push_back(mini);
-        else if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
-        else if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
+        if (opers[i] == EStatOption::NUM)
+          tab.push_back((double)neff);
+        else if (opers[i] == EStatOption::MEAN)
+          tab.push_back(mean);
+        else if (opers[i] == EStatOption::VAR)
+          tab.push_back(var);
+        else if (opers[i] == EStatOption::STDV)
+          tab.push_back(stdv);
+        else if (opers[i] == EStatOption::MINI)
+          tab.push_back(mini);
+        else if (opers[i] == EStatOption::MAXI)
+          tab.push_back(maxi);
+        else if (opers[i] == EStatOption::SUM)
+          tab.push_back(sum);
         else if (opers[i] == EStatOption::PROP)
-          tab.push_back((double) nperc / (double) neff);
+          tab.push_back((double)nperc / (double)neff);
         else if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
-        else if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
-        else if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
+        else if (opers[i] == EStatOption::T)
+          tab.push_back((double)nperc / (double)neff);
+        else if (opers[i] == EStatOption::Q)
+          tab.push_back(metal / (double)neff);
         else if (opers[i] == EStatOption::M)
-          tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
+          tab.push_back((nperc > 0) ? metal / (double)nperc : TEST);
         else if (opers[i] == EStatOption::B)
-          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
-        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(median);
+          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double)neff : TEST);
+        else if (opers[i] == EStatOption::MEDIAN)
+          tab.push_back(median);
         else
         {
           messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
