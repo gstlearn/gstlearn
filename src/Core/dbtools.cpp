@@ -12,18 +12,14 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
-#include "Enum/EJustify.hpp"
-
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/OptimCostColored.hpp"
 #include "Stats/Classical.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
@@ -32,17 +28,10 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/PolyLine2D.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
-#include "Skin/ISkinFunctions.hpp"
-#include "Skin/Skin.hpp"
-#include "Geometry/GeometryHelper.hpp"
 #include "Tree/Ball.hpp"
-#include "Tree/KNN.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -279,7 +268,6 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
       tab_printg(NULL, db->getArray(jech, jvar));
     message("\n");
   }
-  return;
 }
 
 /****************************************************************************/
@@ -304,13 +292,12 @@ static int st_edit_find(Db *db,
                         double vmax)
 {
   double value;
-  int i;
 
   /* Dispatch */
 
   if (orient > 0)
   {
-    for (i = iech + 1; i < db->getSampleNumber(); i++)
+    for (int i = iech + 1; i < db->getSampleNumber(); i++)
     {
       value = db->getArray(i, ivar);
       if (FFFF(value)) continue;
@@ -321,19 +308,16 @@ static int st_edit_find(Db *db,
     messerr("--> String not found before the end-of-file");
     return (iech);
   }
-  else
+  for (int i = iech - 1; i >= 0; i--)
   {
-    for (i = iech - 1; i >= 0; i--)
-    {
-      value = db->getArray(i, ivar);
-      if (FFFF(value)) continue;
-      if (!FFFF(vmin) && value < vmin) continue;
-      if (!FFFF(vmax) && value > vmax) continue;
-      return (i);
-    }
-    messerr("--> String not found before the top-of-file");
-    return (iech);
+    value = db->getArray(i, ivar);
+    if (FFFF(value)) continue;
+    if (!FFFF(vmin) && value < vmin) continue;
+    if (!FFFF(vmax) && value > vmax) continue;
+    return (i);
   }
+  messerr("--> String not found before the top-of-file");
+  return (iech);
 }
 
 /****************************************************************************/
@@ -514,7 +498,7 @@ int db_edit(Db *db, int *flag_valid)
       ok = 0;
       break;
     }
-    else if (flag_inter < 0)
+    if (flag_inter < 0)
     {
       *flag_valid = 0;
       ok = 0;
@@ -561,8 +545,6 @@ int db_edit(Db *db, int *flag_valid)
         break;
 
       case 9: /* Display the current selection */
-        break;
-
       default:
         break;
     }
@@ -588,7 +570,7 @@ int db_edit(Db *db, int *flag_valid)
  **
  *****************************************************************************/
 void ut_trace_discretize(int nseg,
-                         double *trace,
+                         const double *trace,
                          double disc,
                          int *np_arg,
                          double **xp_arg,
@@ -667,7 +649,6 @@ void ut_trace_discretize(int nseg,
   (*yp_arg) = yp;
   (*dd_arg) = dd;
   (*del_arg) = del;
-  return;
 }
 
 /*****************************************************************************/
@@ -696,9 +677,9 @@ void ut_trace_discretize(int nseg,
 void ut_trace_sample(Db *db,
                      const ELoc& ptype,
                      int np,
-                     double *xp,
-                     double *yp,
-                     double *dd,
+                     const double *xp,
+                     const double *yp,
+                     const double *dd,
                      double radius,
                      int *ns_arg,
                      double **xs_arg,
@@ -796,7 +777,6 @@ void ut_trace_sample(Db *db,
   *lys_arg = lys;
   *typ_arg = typ;
   *rks_arg = rks;
-  return;
 }
 
 /*****************************************************************************/
@@ -1903,7 +1883,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 int db_grid2point_sampling(DbGrid *dbgrid,
                            int nvar,
                            int *vars,
-                           int *npacks,
+                           const int *npacks,
                            int npcell,
                            int nmini,
                            int *nech_ret,

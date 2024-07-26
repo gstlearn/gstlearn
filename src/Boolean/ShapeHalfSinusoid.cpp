@@ -87,6 +87,5 @@ bool ShapeHalfSinusoid::belongObject(const VectorDouble& coor,
   double yloc = object->getValue(1) * cos(2. * GV_PI * dx) / 2.;
   double dy = (ndim >= 2) ? (coor[1] - yloc) / (object->getValue(2) / 2.) :  0.;
 
-  if (dx * dx + dy * dy + dz * dz > 1) return false;
-  return true;
+  return (dx * dx + dy * dy + dz * dz <= 1);
 }

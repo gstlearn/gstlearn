@@ -8,15 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamUser.hpp"
 #include "Variogram/Vario.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"

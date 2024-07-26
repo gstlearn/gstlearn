@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_define.h"
-#include "geoslib_enum.h"
 
 #include "Gibbs/GibbsMultiMono.hpp"
 #include "Gibbs/AGibbs.hpp"
@@ -30,7 +28,7 @@ GibbsMultiMono::GibbsMultiMono()
 {
 }
 
-GibbsMultiMono::GibbsMultiMono(Db* db, std::vector<Model *> models, double rho)
+GibbsMultiMono::GibbsMultiMono(Db* db, const std::vector<Model *>& models, double rho)
     : AGibbs(db),
       _models(models),
       _rho(rho)
@@ -169,8 +167,7 @@ double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
 
   if (FFFF(vmin) && FFFF(vmax))
     return (yk + sk * law_gaussian());
-  else
-    return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
+  return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
 }
 
 /****************************************************************************/

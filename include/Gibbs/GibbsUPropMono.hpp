@@ -28,7 +28,7 @@ class GSTLEARN_EXPORT GibbsUPropMono : public GibbsMultiMono
 {
 public:
   GibbsUPropMono();
-  GibbsUPropMono(Db* db, std::vector<Model *> models, double rho);
+  GibbsUPropMono(Db* db, const std::vector<Model *>& models, double rho);
   GibbsUPropMono(const GibbsUPropMono &r);
   GibbsUPropMono& operator=(const GibbsUPropMono &r);
   virtual ~GibbsUPropMono();

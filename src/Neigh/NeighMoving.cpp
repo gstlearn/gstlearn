@@ -8,19 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckCell.hpp>
-#include <Geometry/BiTargetCheckDistance.hpp>
-#include <Geometry/BiTargetCheckFaults.hpp>
+#include "Geometry/BiTargetCheckDistance.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "geoslib_old_f.h"
 
 #include "Neigh/NeighMoving.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Faults/Faults.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include <math.h>
 
 NeighMoving::NeighMoving(bool flag_xvalid,
@@ -29,8 +26,8 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nmini,
                          int nsect,
                          int nsmax,
-                         VectorDouble coeffs,
-                         VectorDouble angles,
+                         const VectorDouble& coeffs,
+                         const VectorDouble& angles,
                          const ASpace *space)
     : ANeigh(space),
       _nMini(nmini),
@@ -237,8 +234,8 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nmini,
                                  int nsect,
                                  int nsmax,
-                                 VectorDouble coeffs,
-                                 VectorDouble angles,
+                                 const VectorDouble& coeffs,
+                                 const VectorDouble& angles,
                                  const ASpace* space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
@@ -623,7 +620,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
  ** \param[in]  dy    increment along Y
  **
  *****************************************************************************/
-int NeighMoving::_movingSectorDefine(double dx, double dy)
+int NeighMoving::_movingSectorDefine(double dx, double dy) const
 {
   double angle;
 
@@ -681,7 +678,6 @@ void NeighMoving::_movingSectorNsmax(int nsel, VectorInt& ranks)
         ranks[j] = -1;
     }
   }
-  return;
 }
 
 /****************************************************************************/

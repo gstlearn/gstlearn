@@ -11,7 +11,6 @@
 #include "geoslib_enum.h"
 
 #include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
 #include "Basic/Law.hpp"
 #include "LithoRule/Node.hpp"
 #include "Basic/MathFunc.hpp"
@@ -123,7 +122,6 @@ Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_fac
       if (_r2 == nullptr) return;
       break;
   }
-  return;
 }
 
 Node::Node(bool /*flagShadow*/)
@@ -372,7 +370,6 @@ void Node::_getStatistics(int *node_tot,
       (*ny2_tot) += 1;
       break;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -426,7 +423,6 @@ void Node::scaleProp(double scale)
   if (_r2 != (Node *) NULL) _r2->scaleProp(scale);
 
   if (_orient == THRESH_IDLE) _prop /= scale;
-  return;
 }
 
 String Node::toString(const AStringFormat* /*strfmt*/) const
@@ -597,7 +593,6 @@ void Node::proportionToThresh(double rho,
     if (_r2 != (Node *) NULL)
       _r2->proportionToThresh(rho, t1min, t1max, _thresh, t2max);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -614,18 +609,11 @@ double Node::_transform(int mode, double value)
 {
   if (mode < 0)
   {
-    if (get_rule_mode())
-      return(law_cdf_gaussian(value));
-    else
-      return(value);
+    if (get_rule_mode()) return (law_cdf_gaussian(value));
+    return (value);
   }
-  else
-  {
-    if (get_rule_mode())
-      return(law_invcdf_gaussian(value));
-    else
-      return(value);
-  }
+  if (get_rule_mode()) return (law_invcdf_gaussian(value));
+  return (value);
 }
 
 /****************************************************************************/
@@ -671,17 +659,14 @@ double Node::_threshFromPropcum(double rho)
         gval = _cdf2min;
     }
 
-    if (gval <      eps_small) gval = 0.;
+    if (gval < eps_small) gval = 0.;
     if (gval > 1. - eps_small) gval = 1.;
-    return _transform(1,gval);
+    return _transform(1, gval);
   }
-  else
-  {
 
-    /* Case of two correlated GRFs */
+  /* Case of two correlated GRFs */
 
-    return _threshDichotomy(rho);
-  }
+  return _threshDichotomy(rho);
 }
 
 /****************************************************************************/
@@ -694,7 +679,7 @@ double Node::_threshFromPropcum(double rho)
 ** \param[in]  rho  Correlation between the two GRFs (in ]0,1[)
 **
 *****************************************************************************/
-double Node::_threshDichotomy(double rho)
+double Node::_threshDichotomy(double rho) const
 {
   double low[2],sup[2],mini[2],maxi[2],prop,error;
   int    i,infin[2],ier,ind;
@@ -827,7 +812,6 @@ void Node::_getInfo(int *nodes,
     (*rank)++;
     _r2->_getInfo(nodes,type,number,2,rank,n_fac,n_y1,n_y2);
   }
-  return;
 }
 
 void Node::getInfo(int *nodes) const

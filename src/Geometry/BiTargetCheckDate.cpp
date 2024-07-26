@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Geometry/BiTargetCheckDate.hpp"
 #include "Space/SpaceTarget.hpp"
+#include "Basic/Utilities.hpp"
 
 BiTargetCheckDate::BiTargetCheckDate(double deltamin, double deltamax)
     : ABiTargetCheck(),

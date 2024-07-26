@@ -11,10 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Neigh/NeighImage.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Db/Db.hpp"
 
 NeighImage::NeighImage(const VectorInt& radius, int skip, const ASpace* space)
@@ -133,8 +130,7 @@ int NeighImage::getMaxSampleNumber(const Db* /*db*/) const
 bool NeighImage::hasChanged(int iech_out) const
 {
   DECLARE_UNUSED(iech_out);
-  if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
-  return false;
+  return (_iechMemo < 0 || _isNbghMemoEmpty());
 }
 
 /**

@@ -739,8 +739,6 @@ void AnamDiscreteDD::_blockAnamorphosis(const VectorDouble& chi)
   /* Update mean and variance */
 
   calculateMeanAndVariance();
-
-  return;
 }
 
 /****************************************************************************/

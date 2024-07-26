@@ -13,13 +13,10 @@
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/HDF5format.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Db/Db.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
 
@@ -87,10 +84,8 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
 
 GibbsMMulti::~GibbsMMulti()
 {
-  if (_Cmat != nullptr)
-    delete _Cmat;
-  if (_matWgt != nullptr)
-    delete _matWgt;
+  delete _Cmat;
+  delete _matWgt;
 }
 
 void GibbsMMulti::_allocate()
@@ -168,14 +163,8 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
 double GibbsMMulti::_getVariance(int icol) const
 {
-  if (storeSparse)
-  {
-    return (1. / _matWgt->getValue(icol, icol));
-  }
-  else
-  {
-    return (1. / _weights[icol]);
-  }
+  if (storeSparse) return (1. / _matWgt->getValue(icol, icol));
+  return (1. / _weights[icol]);
 }
 
 /****************************************************************************/
@@ -398,7 +387,7 @@ void GibbsMMulti::_getWeights(int icol) const
   else
   {
     // Read from the external file
-    _weights = _hdf5.getDataDoublePartial(icol);
+    _weights = HDF5format::getDataDoublePartial(icol);
   }
 }
 

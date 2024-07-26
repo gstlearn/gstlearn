@@ -12,8 +12,6 @@
 
 #include "Neigh/NeighUnique.hpp"
 
-#include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 
@@ -107,9 +105,7 @@ int NeighUnique::getMaxSampleNumber(const Db* db) const
 bool NeighUnique::hasChanged(int iech_out) const
 {
   DECLARE_UNUSED(iech_out);
-  if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
-
-  return false;
+  return (_iechMemo < 0 || _isNbghMemoEmpty());
 }
 
 /**

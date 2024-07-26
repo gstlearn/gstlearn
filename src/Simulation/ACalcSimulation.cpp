@@ -12,9 +12,9 @@
 #include "Calculators/ACalcInterpolator.hpp"
 
 ACalcSimulation::ACalcSimulation(int nbsimu, int seed)
-    : ACalcInterpolator(),
-      _nbsimu(nbsimu),
-      _seed(seed)
+  : ACalcInterpolator()
+  , _nbsimu(nbsimu)
+  , _seed(seed)
 {
 }
 
@@ -36,7 +36,5 @@ bool ACalcSimulation::_check()
 
 bool ACalcSimulation::_preprocess()
 {
-  if (!ACalcInterpolator::_preprocess()) return false;
-
-  return true;
+  return ACalcInterpolator::_preprocess();
 }

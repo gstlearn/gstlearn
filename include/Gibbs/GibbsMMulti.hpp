@@ -15,8 +15,6 @@
 #include "Gibbs/GibbsMulti.hpp"
 #include "Basic/HDF5format.hpp"
 
-#include <vector>
-
 class MatrixSparse;
 class Db;
 class Model;

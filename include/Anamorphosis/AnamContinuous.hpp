@@ -12,12 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-
-#include "Enum/ELoc.hpp"
-
 #include "Anamorphosis/AAnam.hpp"
 #include "Basic/Interval.hpp"
-#include "Basic/NamingConvention.hpp"
 
 /**
  * Output structure

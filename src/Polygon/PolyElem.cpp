@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Polygon/PolyElem.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/PolyLine2D.hpp"
 
@@ -158,9 +157,8 @@ PolyElem* PolyElem::createFromNF(const String& neutralFilename, bool verbose)
 bool PolyElem::_isClosed() const
 {
   int nvert = getNPoints();
-  if (ABS(getX(0) - getX(nvert-1)) > EPSILON5 ||
-      ABS(getY(0) - getY(nvert-1)) > EPSILON5) return false;
-  return true;
+  return (ABS(getX(0) - getX(nvert - 1)) <= EPSILON5 &&
+          ABS(getY(0) - getY(nvert - 1)) <= EPSILON5);
 }
 
 /**
@@ -261,7 +259,7 @@ bool PolyElem::inside(const VectorDouble& coor)
  ** \param[in]  zz   array of point coordinates of the point along Z or TEST
  **
  *****************************************************************************/
-bool PolyElem::inside3D(double zz)
+bool PolyElem::inside3D(double zz) const
 {
   if (FFFF(zz)) return true;
   if (!FFFF(_zmin) && zz < _zmin) return false;

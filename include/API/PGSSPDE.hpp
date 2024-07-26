@@ -15,7 +15,6 @@
 #include "Basic/NamingConvention.hpp"
 
 #include "Enum/ESPDECalcMode.hpp"
-#include "Enum/ECalcMember.hpp"
 
 #include <vector>
 
@@ -28,7 +27,7 @@ class RuleProp;
 class GSTLEARN_EXPORT PGSSPDE
 {
 public:
-  PGSSPDE(std::vector<Model*> models,
+  PGSSPDE(const std::vector<Model*>& models,
           const Db* field,
           const RuleProp* ruleprop,
           const Db* data = nullptr);

@@ -176,7 +176,6 @@ static void st_grid_fill_neigh(int ipos,
 
   /* Returning arguments */
   *nech_loc = nech;
-  return;
 }
 
 /****************************************************************************/
@@ -200,7 +199,7 @@ static int st_grid_fill_calculate(int ipos,
                                   int mode,
                                   int nech,
                                   int *tabind,
-                                  double *tabval)
+                                  const double *tabval)
 {
   double dist, dist2, f[4], dmin;
   int indg[3];
@@ -382,7 +381,7 @@ static int st_read_active_sample(Db *db,
  ** \remarks Array X is assumed to be increasingly ordered
  **
  *****************************************************************************/
-static int st_find_interval(double x, int ndef, double *X)
+static int st_find_interval(double x, int ndef, const double *X)
 {
   if (ndef < 2) return -1;
   if (x < X[0] || x > X[ndef - 1]) return -1;
@@ -411,8 +410,8 @@ static int st_find_interval(double x, int ndef, double *X)
 static void st_grid1D_interpolate_linear(Db *dbgrid,
                                          int ivar,
                                          int ndef,
-                                         double *X,
-                                         double *Y)
+                                         const double *X,
+                                         const double *Y)
 {
   int nech = dbgrid->getSampleNumber();
 
@@ -446,8 +445,8 @@ static void st_grid1D_interpolate_linear(Db *dbgrid,
 static int st_grid1D_interpolate_spline(Db *dbgrid,
                                         int ivar,
                                         int ndef,
-                                        double *X,
-                                        double *Y)
+                                        const double *X,
+                                        const double *Y)
 {
   VectorDouble h, F, R, M, C, Cp;
   int nech = dbgrid->getSampleNumber();
@@ -802,7 +801,7 @@ int DbHelper::normalizeVariables(Db *db,
     }
   }
 
-  if (strcmp(oper, "prop"))
+  if (strcmp(oper, "prop") != 0)
   {
 
     /* Global Normation */

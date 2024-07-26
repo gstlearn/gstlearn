@@ -12,8 +12,6 @@
 #include "geoslib_enum.h"
 
 #include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "LithoRule/RuleShadow.hpp"
@@ -224,7 +222,6 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
       if (val3 > (*sh_down_max)) (*sh_down_max) = val3;
     }
   }
-  return;
 }
 
 /****************************************************************************/

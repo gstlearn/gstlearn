@@ -11,7 +11,6 @@
 #include "Tree/Ball.hpp"
 #include "Tree/ball_algorithm.h"
 #include "Db/Db.hpp"
-#include "Basic/AStringable.hpp"
 
 Ball::Ball(const double **data, int n_samples, int n_features, int leaf_size, int dist_type)
     : _tree(nullptr)

@@ -41,9 +41,9 @@ private:
 
   bool _simulate();
   void _calculValue(int ip, double factor, const VectorDouble& vector);
-  VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
-                            bool verbose = false,
-                            double eps = EPSILON5);
+  static VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
+                                   bool verbose = false,
+                                   double eps   = EPSILON5);
 
 private:
   bool _verbose;

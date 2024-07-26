@@ -41,15 +41,15 @@ public:
 private:
   virtual bool _run() override;
 
-  VectorDouble _spectrum_chentsov(const SimuSphericalParam& sphepar);
-  VectorDouble _spectrum_exponential(Model *model, const SimuSphericalParam& sphepar);
-  VectorDouble _spectrum_any(Model *model, const SimuSphericalParam& sphepar);
-  void _spectrum_normalize(int verbose, VectorDouble& freqs);
-  int _gdiscrete(VectorDouble& freqs);
-  int _check_degree_order(const VectorDouble& freqs,
-                          VectorInt& degree,
-                          VectorInt& order,
-                          int verbose);
+  static VectorDouble _spectrum_chentsov(const SimuSphericalParam& sphepar);
+  static VectorDouble _spectrum_exponential(Model *model, const SimuSphericalParam& sphepar);
+  static VectorDouble _spectrum_any(Model *model, const SimuSphericalParam& sphepar);
+  static void _spectrum_normalize(int verbose, VectorDouble& freqs);
+  static int _gdiscrete(VectorDouble& freqs);
+  static int _check_degree_order(const VectorDouble& freqs,
+                                 VectorInt& degree,
+                                 VectorInt& order,
+                                 int verbose);
 };
 
 GSTLEARN_EXPORT int simsph(DbGrid *db,

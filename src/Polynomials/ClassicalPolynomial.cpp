@@ -208,7 +208,7 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
                                            VectorDouble& temp1,
                                            VectorDouble& temp2,
                                            VectorDouble& outv,
-                                           const VectorVectorDouble workpoly,
+                                           const VectorVectorDouble& workpoly,
                                            int iapex,
                                            int igparam) const
 {

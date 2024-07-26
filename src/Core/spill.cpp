@@ -10,11 +10,9 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/String.hpp"
-#include "Basic/OptDbg.hpp"
 
 #include <string.h>
 
@@ -94,7 +92,7 @@ static double st_htop_evaluate()
 
  **
  *****************************************************************************/
-static void st_get_coordinates(double *pt_out,
+static void st_get_coordinates(const double *pt_out,
                                int *ix,
                                int *iy,
                                SPIMG* image = SPIMG_OUT,
@@ -216,8 +214,6 @@ static void st_dump(bool flagMain, const String& title, double *pt_out, SPIMG *i
   }
   message("Spill'#' Queue'?'(%d) Unknown' '(%d) Out'.'(%d) In'*'(%d) Below'-'(%d) Heap(%d)\n",
           numm1, nump0, nump1, nump2, numpb, Hsize);
-
-  return;
 }
 
 /*****************************************************************************/
@@ -599,17 +595,17 @@ static void st_final_stats(double hspill, int ix0, int iy0)
  ** \remark  must start with 1
  **
  *****************************************************************************/
-int spill_point(DbGrid *dbgrid,
+int spill_point(DbGrid* dbgrid,
                 int ind_depth,
                 int ind_data,
                 int option,
                 bool flag_up,
                 int verbose_step,
                 double hmax,
-                double *h,
-                double *th,
-                int *ix0,
-                int *iy0)
+                double* h,
+                const double* th,
+                int* ix0,
+                int* iy0)
 {
   DECLARE_UNUSED(th);
   double *pt_mark, *pt_out, hspill;

@@ -41,7 +41,7 @@ public:
              const VectorDouble& dates = VectorDouble(),
              const Faults* faults = nullptr);
   VarioParam(const VarioParam& VarioParam,
-             const VectorInt& rankdirs,
+             const VectorInt& dircols,
              const Faults* faults = nullptr);
   VarioParam(const VarioParam& r);
   VarioParam& operator=(const VarioParam& r);
@@ -118,7 +118,7 @@ public:
   bool isDateUsed(const Db *db1, const Db *db2 = nullptr) const;
 
   void setScale(double scale) { _scale = scale; }
-  void setDates(VectorDouble dates) { _dates = dates; }
+  void setDates(const VectorDouble& dates) { _dates = dates; }
   void setDPas(int idir,const DbGrid* db);
   void setGrincr(int idir, const VectorInt& grincr);
 

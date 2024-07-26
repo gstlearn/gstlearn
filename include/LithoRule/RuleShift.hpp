@@ -13,12 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
-#include "RuleStringFormat.hpp"
-
 #include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Basic/ICloneable.hpp"
 
 class DbGrid;
 
@@ -26,8 +21,8 @@ class GSTLEARN_EXPORT RuleShift: public Rule
 {
 public:
   RuleShift();
-  RuleShift(const RuleShift& r);
-  RuleShift& operator=(const RuleShift& r);
+  RuleShift(const RuleShift& m);
+  RuleShift& operator=(const RuleShift& m);
   virtual ~RuleShift();
 
   String displaySpecific() const override;

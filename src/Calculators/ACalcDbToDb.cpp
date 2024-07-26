@@ -381,7 +381,7 @@ DbGrid* ACalcDbToDb::getGridout() const
  ** \remark When called with mode=-1, the variables are deleted (by type)
  **
  *****************************************************************************/
-int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
+int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType) const
 {
   if (getDbin() == nullptr || getDbout() == nullptr) return 0;
 

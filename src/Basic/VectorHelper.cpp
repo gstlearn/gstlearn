@@ -8,23 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
-#include "Geometry/GeometryHelper.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/OptCustom.hpp"
 
 #include <string.h>
 #include <algorithm>
-#include <iomanip>
 #include <ctime>
 #include <cstdlib>
 #include <math.h>
-#include <random>
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {
@@ -345,9 +339,9 @@ double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs, const Vector
   }
   else
   {
-    const double *ptrv = &vec[0];
+    const double *ptrv = vec.data();
     double val_vec;
-    const double *ptra = &aux[0];
+    const double *ptra = aux.data();
     double val_aux;
 
     for (int i = 0; i < size; i++)
@@ -406,9 +400,9 @@ double VectorHelper::minimum(const VectorDouble &vec, bool flagAbs, const Vector
   }
   else
   {
-    const double *ptrv = &vec[0];
+    const double *ptrv = vec.data();
     double val_vec;
-    const double *ptra = &aux[0];
+    const double *ptra = aux.data();
     double val_aux;
 
     for (int i = 0; i < size; i++)
@@ -449,7 +443,7 @@ double VectorHelper::mean(const VectorDouble &vec)
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
   int number = 0;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     if (FFFF(v)) continue;
     mean += v;
@@ -457,14 +451,13 @@ double VectorHelper::mean(const VectorDouble &vec)
   }
   if (number > 0)
     return (mean / (double) number);
-  else
-    return TEST;
+  return TEST;
 }
 
 int VectorHelper::cumul(const VectorInt& vec)
 {
   int total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     total += v;
   }
@@ -474,7 +467,7 @@ int VectorHelper::cumul(const VectorInt& vec)
 int VectorHelper::cumul(const VectorVectorInt& vec)
 {
   int total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     total += cumul(v);
   }
@@ -484,9 +477,9 @@ int VectorHelper::cumul(const VectorVectorInt& vec)
 int VectorHelper::count(const VectorVectorInt& vec)
 {
   int total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
-    total += v.size();
+    total += (int) v.size();
   }
   return total;
 }
@@ -494,7 +487,7 @@ int VectorHelper::count(const VectorVectorInt& vec)
 double VectorHelper::cumul(const VectorDouble& vec)
 {
   double total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     if (FFFF(v)) continue;
     total += v;
@@ -508,7 +501,7 @@ double VectorHelper::variance(const VectorDouble &vec, bool scaleByN)
   double mean = 0.;
   double var = 0.;
   int number = 0;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     if (FFFF(v)) continue;
     var += v * v;
@@ -606,10 +599,8 @@ VectorDouble VectorHelper::quantiles(const VectorDouble &vec,
 double VectorHelper::stdv(const VectorDouble &vec, bool scaleByN)
 {
   double var = variance(vec, scaleByN);
-  if (!FFFF(var))
-    return (sqrt(var));
-  else
-    return TEST;
+  if (!FFFF(var)) return (sqrt(var));
+  return TEST;
 }
 
 double VectorHelper::norm(const VectorDouble &vec)
@@ -653,10 +644,8 @@ double VectorHelper::median(const VectorDouble &vec)
   // Return the median value
   int number = (int) med.size();
   if (number <= 0) return TEST;
-  if (isOdd(number))
-    return med[number / 2];
-  else
-    return (med[number / 2] + med[number / 2 - 1]) / 2.;
+  if (isOdd(number)) return med[number / 2];
+  return (med[number / 2] + med[number / 2 - 1]) / 2.;
 }
 
 double VectorHelper::normDistance(const VectorDouble &veca,
@@ -664,8 +653,8 @@ double VectorHelper::normDistance(const VectorDouble &veca,
 {
   double prod = 0.;
   double delta = 0.;
-  const double *ptra = &veca[0];
-  const double *ptrb = &vecb[0];
+  const double *ptra = veca.data();
+  const double *ptrb = vecb.data();
   for (int i = 0, n = (int) veca.size(); i < n; i++)
   {
     delta = (*ptra) - (*ptrb);
@@ -680,7 +669,7 @@ int VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;
   int nprod = 1;
-  const int* iptr = &vec[0];
+  const int* iptr = vec.data();
   for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
     nprod *= (*iptr);
@@ -693,7 +682,7 @@ double VectorHelper::product(const VectorDouble& vec)
 {
   if (vec.empty()) return 0;
   double nprod = 1.;
-  const double* iptr = &vec[0];
+  const double* iptr = vec.data();
   for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
     nprod *= (*iptr);
@@ -727,14 +716,13 @@ void VectorHelper::normalize(double *tab, int ntab)
   if (norme <= 0.) return;
   for (i = 0; i < ntab; i++)
     tab[i] /= norme;
-  return;
 }
 
 void VectorHelper::normalizeFromGaussianDistribution(VectorDouble &vec,
                                                      double mini,
                                                      double maxi)
 {
-  double* iptr = &vec[0];
+  double* iptr = vec.data();
   for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
     if (! FFFF(*iptr))
@@ -832,7 +820,7 @@ bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
 {
   if (vect.empty()) return false;
   if (FFFF(refval)) refval = vect[0];
-  const double* iptr = &vect[0];
+  const double* iptr = vect.data();
   for (int i = 0, n = (int) vect.size(); i < n; i++)
   {
     if ((*iptr) != refval) return false;
@@ -851,7 +839,7 @@ bool VectorHelper::isConstant(const VectorInt& vect, int refval)
 {
   if (vect.empty()) return false;
   if (IFFFF(refval)) refval = vect[0];
-  const int* iptr = &vect[0];
+  const int* iptr = vect.data();
   for (int i = 0, n = (int) vect.size(); i < n; i++)
   {
     if ((*iptr) != refval) return false;
@@ -1017,8 +1005,7 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
                                        const VectorDouble &vecb)
 {
   VectorDouble res = veca;
-  for (auto &e: vecb)
-    res.push_back(e);
+  for (const auto& e: vecb) res.push_back(e);
   return res;
 }
 
@@ -1242,9 +1229,9 @@ void VectorHelper::addInPlace(const VectorDouble &veca,
     my_throw("Wrong size");
   if ((int) res.size() != size) res.resize(size);
 
-  const double* iptra = &veca[0];
-  const double* iptrb = &vecb[0];
-  double* iptrv = &res[0];
+  const double* iptra = veca.data();
+  const double* iptrb = vecb.data();
+  double* iptrv = res.data();
   for (int i = 0; i < size; i++)
   {
     (*iptrv) = (*iptra) + (*iptrb);

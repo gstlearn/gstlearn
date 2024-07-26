@@ -9,13 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
-#include "Basic/AException.hpp"
 
 #include <string>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
-#include <iostream>
 #include <math.h>
 
 APolynomial::APolynomial()
@@ -23,7 +21,7 @@ APolynomial::APolynomial()
 {
 }
 
-APolynomial::APolynomial(VectorDouble coeffs)
+APolynomial::APolynomial(const VectorDouble& coeffs)
   : AStringable()
 {
   init(coeffs);
@@ -72,7 +70,7 @@ String APolynomial::toString(const AStringFormat* /*strfmt*/) const
   str +=oss.str() + "\n";
   return str;
 }
-void APolynomial::init(VectorDouble coeffs)
+void APolynomial::init(const VectorDouble& coeffs)
 {
   _coeffs = coeffs;
 }

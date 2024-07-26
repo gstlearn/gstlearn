@@ -12,11 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "Basic/AException.hpp"
 #include "Basic/VectorT.hpp"
 #include "Basic/VectorNumT.hpp"
-
-#include <memory>
 
 // TODO : add Namespace
 #define SPACES " \t\r\n"
@@ -36,7 +33,7 @@ GSTLEARN_EXPORT bool matchRegexp(const String &string1,
                                  const String &string2,
                                  bool caseSensitive = true);
 GSTLEARN_EXPORT int getRankInList(const VectorString &list,
-                                  const String &string,
+                                  const String &match,
                                   bool caseSensitive = true);
 GSTLEARN_EXPORT int decodeInString(const String &symbol,
                                    const String &node,
@@ -46,7 +43,7 @@ GSTLEARN_EXPORT int decodeInList(const VectorString &symbols,
                                  const String &node,
                                  int *rank,
                                  int *facies,
-                                 bool caseSenstive = true);
+                                 bool caseSensitive = true);
 GSTLEARN_EXPORT void correctNamesForDuplicates(VectorString &list);
 GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank);
 
@@ -91,7 +88,7 @@ GSTLEARN_EXPORT String trimLeft(const String &s, const String &t = SPACES);
 GSTLEARN_EXPORT String trim(const String &s, const String &t = SPACES);
 GSTLEARN_EXPORT String erase(const String &s, const String &t = SPACES);
 
-GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& name,
+GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& string,
                                             const VectorInt& nx,
                                             bool verbose = false);
 

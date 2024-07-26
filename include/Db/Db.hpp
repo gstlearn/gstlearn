@@ -232,7 +232,7 @@ public:
   VectorString getAllNames(bool excludeRankAndCoordinates = false, bool verbose = false) const;
 
   void setName(const String& old_name, const String& name);
-  void setName(const VectorString list, const String& name);
+  void setName(const VectorString& list, const String& name);
   void setNameByUID(int iuid, const String& name);
   void setNameByColIdx(int icol, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
@@ -245,7 +245,7 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
-  int getNEloc() const;
+  static int getNEloc();
   int getSampleNumber(bool useSel = false) const;
   int getNumberActiveAndDefined(int item) const;
   int getActiveSampleNumber() const;
@@ -284,7 +284,7 @@ public:
                            int locatorIndex = 0,
                            bool cleanSameLocator = false);
 
-  void addColumnsByVVD(const VectorVectorDouble tab,
+  void addColumnsByVVD(const VectorVectorDouble& tab,
                        const String &radix,
                        const ELoc& locatorType,
                        int locatorIndex = 0,
@@ -332,7 +332,7 @@ public:
   int addSamples(int nadd, double valinit = TEST);
   int deleteSample(int e_del);
   int deleteSamples(const VectorInt& e_dels);
-  void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
+  void switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out);
   int  getLastUID(int number = 0) const;
   String getLastName(int number = 0) const;
 
@@ -341,7 +341,7 @@ public:
   int getColIdxByLocator(const ELoc& locatorType, int locatorIndex=0) const;
   VectorInt getColIdxs(const String& name) const;
   VectorInt getColIdxs(const VectorString& names) const;
-  VectorInt getColIdxsByUID(const VectorInt iuids) const;
+  VectorInt getColIdxsByUID(const VectorInt& iuids) const;
   VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
 
   void setColumn(const VectorDouble &tab,
@@ -371,9 +371,9 @@ public:
                              bool useSel = false) const;
   VectorVectorDouble getItem(const ELoc& locatorType,
                              bool useSel = false) const;
-  VectorString getItemNames(const VectorString& colnames);
-  VectorString getItemNames(const String& colname);
-  VectorString getItemNames(const ELoc& locatorType);
+  VectorString getItemNames(const VectorString& colnames) const;
+  VectorString getItemNames(const String& colname) const;
+  VectorString getItemNames(const ELoc& locatorType) const;
 
   int setItem(const VectorInt& rows,
               const VectorString& colnames,
@@ -521,7 +521,7 @@ public:
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
   VectorDouble getGradient(int item, bool useSel = false) const;
   VectorDouble getTangent(int item, bool useSel = false) const;
-  VectorDouble getCodeList(void);
+  VectorDouble getCodeList(void) const;
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
@@ -708,7 +708,7 @@ public:
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenters(bool useSel = false) const;
-  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false);
+  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false) const;
   /**@}*/
 
   /** @addtogroup DB_5 Calculating basic Statistics
@@ -765,8 +765,8 @@ public:
 
   void generateRank(const String& radix = "rank");
 
-  VectorInt shrinkToValidRows(const VectorInt& rows);
-  VectorInt shrinkToValidCols(const VectorInt& cols);
+  VectorInt shrinkToValidRows(const VectorInt& rows) const;
+  VectorInt shrinkToValidCols(const VectorInt& cols) const;
 
   /** @addtogroup DB_7 Calculating several statistics in Db
    * \ingroup DB
@@ -788,13 +788,14 @@ public:
    *
    *  @{
    */
-  void statisticsBySample(const VectorString &names,
-                          const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
-                          bool flagIso = true,
-                          double vmin = TEST,
-                          double vmax = TEST,
-                          double proba = TEST,
-                          const NamingConvention &namconv = NamingConvention("Stats"));
+  void statisticsBySample(
+    const VectorString& names,
+    const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+    bool flagIso                          = true,
+    double proba                          = TEST,
+    double vmin                           = TEST,
+    double vmax                           = TEST,
+    const NamingConvention& namconv       = NamingConvention("Stats"));
   /**@}*/
 
   /** @addtogroup DB_8 Calculating correlations on variables of a Db
@@ -821,7 +822,7 @@ public:
                const String& name2,
                double eps = EPSILON3,
                bool useSel = true,
-               bool verbose = false);
+               bool verbose = false) const;
 
   VectorInt filter(const String& name,
                    const Interval& interval,
@@ -853,7 +854,7 @@ protected:
 
 private:
   const VectorInt& _getUIDcol() const { return _uidcol; }
-  const VectorString _getNames() const { return _colNames; }
+  VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, bool flagCst = true, double valinit = TEST);
@@ -892,7 +893,7 @@ private:
                             int expectedVarCount);
 
   // Higher level methods
-  bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
+  bool _isCountValid(const VectorInt& iuids, bool flagOne, bool verbose = true) const;
 
 protected:
   void _defineVariableAndLocators(const Db* dbin, const VectorString& names, int shift = 0);

@@ -50,7 +50,7 @@ public:
   void setNfacies(int nfacies) { _nfacies = nfacies; }
   int getNstates() const { return _nstates; }
   void setNstates(int nstates) { _nstates = nstates; }
-  const VectorDouble getTrans() const { return _trans; }
+  VectorDouble getTrans() const { return _trans; }
   void setTrans(const VectorDouble& trans) { _trans = trans; }
   const VectorDouble& getVector() const { return _vector; }
   void setVector(const VectorDouble& vector) { _vector = vector; }
@@ -58,7 +58,7 @@ public:
   double getVector(int idim) const { return _vector[idim]; }
 
   bool isValid(bool verbose = false);
-  void isValidOrientation(VectorDouble& vector, bool verbose = false) const;
+  void isValidOrientation(VectorDouble& vector, bool verbose = false);
   void isValidFactor(double* factor, bool verbose = false) const;
 
   bool isAngleLocal() const;

@@ -12,10 +12,8 @@
 #include "geoslib_old_f.h"
 
 #include "Enum/EAnam.hpp"
-#include "Enum/EJustify.hpp"
 
 #include "Basic/AException.hpp"
-#include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
@@ -243,7 +241,6 @@ static void st_parid_decode(int parid,
   divide = value / CONGRUENCY;
   *imod = value - divide * CONGRUENCY;
   *icons = EConsElem::fromValue(iic);
-  return;
 }
 
 /****************************************************************************/
@@ -677,7 +674,6 @@ static void st_mauto_rescale(int nvar,
   for (int ivar = 0; ivar < nvar; ivar++)
     total += VARCHOL(ivar,ivar) * VARCHOL(ivar,ivar);
   mauto.setTolred(mauto.getTolstop() * total / nvar);
-  return;
 }
 
 /****************************************************************************/
@@ -886,8 +882,6 @@ static void st_load_gg(const Vario *vario,
         }
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -946,8 +940,6 @@ static void st_prepar_goulard_vario(int imod)
         }
       }
     }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -1032,8 +1024,6 @@ static void st_load_ge(const Vario *vario,
         }
       }
     }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -1252,8 +1242,6 @@ static void st_load_wt(const Vario *vario,
           if (!FFFF(WT(ijvar0, ipadir))) WT(ijvar0,ipadir)/= ratio;
         }
       }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1698,8 +1686,6 @@ static void st_affect(int rank,
   {
     if (param[rank] > upper[rank]) param[rank] = upper[rank] - 1;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1781,8 +1767,6 @@ static void st_print(const char *name,
   /* Add the end_of_line */
 
   if (flag_end) message("\n");
-
-  return;
 }
 
 /****************************************************************************/
@@ -1901,7 +1885,6 @@ static void st_model_auto_strmod_print(int flag_title,
         break;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1977,7 +1960,6 @@ static void st_model_auto_scldef(StrMod *strmod,
         break;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2018,7 +2000,6 @@ static void st_model_auto_constraints_apply(StrMod *strmod,
                                 icons, ivar, jvar);
     st_affect(ipar, param_loc, lower_loc, upper_loc, param, lower, upper);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2112,7 +2093,6 @@ static void st_model_auto_pardef(StrMod *strmod,
         break;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2272,7 +2252,6 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2347,7 +2326,6 @@ static void st_evaluate_vario(int imod,
     VectorDouble d0 = strexps[i].dd;
     tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
   }
-  return;
 }
 
 /*****************************************************************************/
@@ -2392,7 +2370,6 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
         tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
       }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2502,9 +2479,9 @@ static int st_truncate_negative_eigen(int nvar,
 
   /* Check positiveness */
 
-  int flag_positive = 1;
+  int flag_positive                 = 1;
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (valpro[ivar]<= 0) flag_positive = 0;
+    if (valpro[ivar] <= 0) flag_positive = 0;
   if (!flag_positive)
   {
 
@@ -2515,16 +2492,17 @@ static int st_truncate_negative_eigen(int nvar,
       {
         double sum = 0.;
         for (int kvar = 0; kvar < nvar; kvar++)
-          sum += MAX(valpro[kvar],0.) * vecpro->getValue(ivar, kvar) * vecpro->getValue(jvar, kvar);
-        MATCORU(icov0,ivar,jvar)= sum;
+          sum += MAX(valpro[kvar], 0.) * vecpro->getValue(ivar, kvar) *
+                 vecpro->getValue(jvar, kvar);
+        MATCORU(icov0, ivar, jvar) = sum;
       }
-    }
-    else
-    {
-      for (int ivar=0; ivar<nvar; ivar++)
-        for (int jvar=0; jvar<nvar; jvar++)
-          MATCORU(icov0,ivar,jvar) = MATCOR(icov0,ivar,jvar);
-    }
+  }
+  else
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+        MATCORU(icov0, ivar, jvar) = MATCOR(icov0, ivar, jvar);
+  }
 
   return flag_positive;
 }
@@ -2603,10 +2581,8 @@ static double st_score(int nvar,
  *****************************************************************************/
 static int st_combineVariables(int ivar0, int jvar0)
 {
-  if (ivar0 > jvar0)
-    return (ivar0 + jvar0 * (jvar0 + 1) / 2);
-  else
-    return (jvar0 + ivar0 * (ivar0 + 1) / 2);
+  if (ivar0 > jvar0) return (ivar0 + jvar0 * (jvar0 + 1) / 2);
+  return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
 /****************************************************************************/
@@ -3596,7 +3572,7 @@ static int st_goulard_fitting(int flag_reset,
  **                      or not (0). This array is optional
  **
  *****************************************************************************/
-static int st_model_has_intrinsic(Model *model, int *filter)
+static int st_model_has_intrinsic(Model *model, const int *filter)
 {
   int flag_range, flag_param, flag_aniso, flag_rotation;
   int min_order, max_ndim, flag_int_1d, flag_int_2d;
@@ -4211,8 +4187,6 @@ static void st_strmod_vario_evaluate(int nbexp,
   /* Calculate the array of model values */
 
   st_evaluate_vario(0, nbexp, STREXPS, STRMOD, tabge);
-
-  return;
 }
 
 /****************************************************************************/
@@ -4265,7 +4239,6 @@ static void st_prepar_goulard_vmap(int imod)
           GE(icov,ijvar,ipadir) = tab.getValue(ivar, jvar);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -4304,8 +4277,6 @@ static void st_strmod_vmap_evaluate(int /*nbexp*/,
 
   for (int imod = 0; imod < STRMOD->nmodel; imod++)
     st_evaluate_vmap(imod, STRMOD, tabge);
-
-  return;
 }
 
 /****************************************************************************/
@@ -4397,7 +4368,6 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
   varchol.resize(size);
   if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))
     messageAbort("Error in the Cholesky decomposition of the variance matrix");
-  return;
 }
 
 /****************************************************************************/
@@ -4962,8 +4932,6 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
     }
     ipadir++;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -4980,12 +4948,12 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
  ** \param[in]  optvar_arg  Opt_Vario structure
  **
  *****************************************************************************/
-int vmap_auto_fit(const DbGrid *dbmap,
-                  Model *model,
+int vmap_auto_fit(const DbGrid* dbmap,
+                  Model* model,
                   bool verbose,
-                  const Option_AutoFit &mauto_arg,
-                  const Constraints &cons_arg,
-                  const Option_VarioFit &optvar_arg)
+                  const Option_AutoFit& mauto_arg,
+                  const Constraints& cons_arg,
+                  const Option_VarioFit& optvar_arg)
 {
   int npar0, npar, flag_reduce;
   VectorDouble varchol, scale, param, lower, upper;
@@ -5201,11 +5169,11 @@ int modify_constraints_on_sill(Constraints &constraints)
  ** \param[in]      iv2          Rank of the second variable
  **
  *****************************************************************************/
-double constraints_get(const Constraints &constraints,
-                       const EConsType &icase,
+double constraints_get(const Constraints& constraints,
+                       const EConsType& icase,
                        int igrf,
                        int icov,
-                       const EConsElem &icons,
+                       const EConsElem& icons,
                        int iv1,
                        int iv2)
 {

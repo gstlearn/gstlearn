@@ -15,7 +15,6 @@
 #include "Enum/EAnam.hpp"
 
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Basic/ASerializable.hpp"
 
 class Db;
 class Selectivity;
@@ -40,7 +39,7 @@ public:
   bool hasFactor() const override { return true; }
   int  getNFactor() const override { return getNbPoly(); }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
-  double computeVariance(double sval) const override;
+  double computeVariance(double chh) const override;
   int updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
@@ -112,11 +111,11 @@ private:
                      double azmin,
                      double aymax,
                      double azmax);
-  int _data_sort(int nech,
-                 const VectorDouble& z,
-                 const VectorDouble& wt,
-                 VectorDouble& zs,
-                 VectorDouble& ys);
+  static int _data_sort(int nech,
+                        const VectorDouble& z,
+                        const VectorDouble& wt,
+                        VectorDouble& zs,
+                        VectorDouble& ys);
   void _globalSelectivity(Selectivity* selectivity);
 
 private:

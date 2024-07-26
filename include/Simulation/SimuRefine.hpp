@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "geoslib_define.h"
-
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
@@ -47,7 +45,7 @@ private:
                int idx,
                int idy,
                int idz);
-  void _write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value);
+  static void _write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value);
   void _truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1);
   int _kriging_solve(int type,
                      int rank,

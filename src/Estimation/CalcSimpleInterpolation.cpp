@@ -496,7 +496,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
  ** \param[in]  neigh       ANeigh structure
  **
  *****************************************************************************/
-int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
+int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
 {
   int ndim = dbin->getNDim();
   VectorInt nbgh;
@@ -651,7 +651,6 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
     // Save the results
     _saveResults(dbin, dbout, nbgh, iech, weights);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -707,13 +706,12 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
     VectorDouble weights;
     for (int rank = 0; rank < maxneigh; rank++)
     {
-      for (int idim = 0; idim < ndim; idim++)
-        indg[idim] = indref[idim];
+      for (int idim = 0; idim < ndim; idim++) indg[idim] = indref[idim];
 
       /* Decompose the neighborhood rank */
 
       int idim = 0;
-      int ind = rank;
+      int ind  = rank;
       while (ind > 0)
       {
         if (ind % 2 == 1) indg[idim] += 1;
@@ -743,50 +741,43 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
         weights.clear();
         break;
       }
-      else
+
+      /* Check the value */
+
+      int iech_neigh   = dbin->indiceToRank(indg);
+      double val_neigh = dbin->getLocVariable(ELoc::Z, iech_neigh, 0);
+      if (FFFF(val_neigh))
       {
-
-        /* Check the value */
-
-        int iech_neigh = dbin->indiceToRank(indg);
-        double val_neigh = dbin->getLocVariable(ELoc::Z,iech_neigh, 0);
-        if (FFFF(val_neigh))
-        {
-          nbgh.clear();
-          weights.clear();
-          break;
-        }
-        else
-        {
-
-          /* Calculate the distance from neighborhood to target */
-
-          dbin->indicesToCoordinateInPlace(indg, coor, percent);
-          double dist = ut_distance(ndim, cooref.data(), coor.data());
-          if (dist < dmin)
-          {
-            nbgh.clear();
-            weights.clear();
-            nbgh.push_back(iech_neigh);
-            weights.push_back(1.);
-            break;
-          }
-          double wgt = 1. / pow(dist, _exponent);
-          nbgh.push_back(iech_neigh);
-          weights.push_back(wgt);
-        }
+        nbgh.clear();
+        weights.clear();
+        break;
       }
+
+      /* Calculate the distance from neighborhood to target */
+
+      dbin->indicesToCoordinateInPlace(indg, coor, percent);
+      double dist = ut_distance(ndim, cooref.data(), coor.data());
+      if (dist < dmin)
+      {
+        nbgh.clear();
+        weights.clear();
+        nbgh.push_back(iech_neigh);
+        weights.push_back(1.);
+        break;
+      }
+      double wgt = 1. / pow(dist, _exponent);
+      nbgh.push_back(iech_neigh);
+      weights.push_back(wgt);
     }
 
     // Save the results
     _saveResults(dbin, dbout, nbgh, iech, weights);
   }
-  return;
 }
 
 double CalcSimpleInterpolation::_estimCalc(const Db *dbin,
                                            const VectorInt &nbgh,
-                                           const VectorDouble &weights) const
+                                           const VectorDouble &weights)
 {
   double result = 0.;
   for (int i = 0, n = (int) nbgh.size(); i < n; i++)

@@ -10,11 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Basic/String.hpp"
-#include "Basic/AStringable.hpp"
-
-#include <typeinfo>
 
 #ifdef _USE_HDF5
 #include <H5Cpp.h>
@@ -49,12 +47,12 @@ public:
                    void *wdata);
 #endif
 
-  int deleteFile();
+  int deleteFile() const;
 
   void setFileName(const String& filename) { _filename = filename; }
   void setVarName(const String& varname) { _varname = varname; }
 
-  int displayNames() const;
+  static int displayNames();
 
   void openFile(const String& filename = "");
   void openNewFile(const String& filename);
@@ -86,69 +84,66 @@ public:
   template<typename T>
   void writeData(const VectorT<VectorNumT<T> >&);
 
-  int getDataInt() const;
-  float getDataFloat() const;
-  double getDataDouble() const;
-  VectorInt getDataVInt() const;
-  VectorFloat getDataVFloat() const;
-  VectorDouble getDataVDouble() const;
-  VectorVectorInt getDataVVInt() const;
-  VectorVectorFloat getDataVVFloat() const;
-  VectorVectorDouble getDataVVDouble() const;
+  static int getDataInt();
+  static float getDataFloat();
+  static double getDataDouble();
+  static VectorInt getDataVInt();
+  static VectorFloat getDataVFloat();
+  static VectorDouble getDataVDouble();
+  static VectorVectorInt getDataVVInt();
+  static VectorVectorFloat getDataVVFloat();
+  static VectorVectorDouble getDataVVDouble();
 
-  VectorDouble getDataDoublePartial(int myrank) const;
-  int writeDataDoublePartial(int myrank, const VectorDouble& data);
+  static VectorDouble getDataDoublePartial(int myrank);
+  static int writeDataDoublePartial(int myrank, const VectorDouble& data);
 
   // Return the size of the data
   // Note that for multi-dim arrays that it gets the total size and not the size of a single row.
-  int getSize() const;
+  static int getSize();
 
   // We now make a proxy class so that we can overload the return type and use a single
   // function to get data whether int or float or double.
   class Proxy
   {
-  private:
-    HDF5format const* myOwner;
   public:
     Proxy(const HDF5format* owner)
-        : myOwner(owner)
     {
     }
     operator int() const
     {
-      return myOwner->getDataInt();
+      return HDF5format::getDataInt();
     }
     operator float() const
     {
-      return myOwner->getDataFloat();
+      return HDF5format::getDataFloat();
     }
     operator double() const
     {
-      return myOwner->getDataDouble();
+      return HDF5format::getDataDouble();
     }
     operator VectorInt() const
     {
-      return myOwner->getDataVInt();
+      return HDF5format::getDataVInt();
     }
     operator VectorFloat() const
     {
-      return myOwner->getDataVFloat();
+      return HDF5format::getDataVFloat();
     }
     operator VectorDouble() const
     {
-      return myOwner->getDataVDouble();
+      return HDF5format::getDataVDouble();
     }
     operator VectorVectorInt() const
     {
-      return myOwner->getDataVVInt();
+      return HDF5format::getDataVVInt();
     }
     operator VectorVectorFloat() const
     {
-      return myOwner->getDataVVFloat();
+      return HDF5format::getDataVVFloat();
     }
     operator VectorVectorDouble() const
     {
-      return myOwner->getDataVVDouble();
+      return HDF5format::getDataVVDouble();
     }
   };
   // Here we use the Proxy class to have a single getData function
@@ -158,7 +153,7 @@ public:
   }
 
 private:
-  int _getNDim() const;
+  static int _getNDim();
 
 #ifdef _USE_HDF5
   hsize_t* _getDims() const;
@@ -178,8 +173,8 @@ private:
                     const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
 #endif
 
-  int _checkClass(int value) const;
-  void _writeAll(const char* myh5type, void* a);
+  static int _checkClass(int value);
+  static void _writeAll(const char* myh5type, void* a);
 
 public:
   String        _filename;

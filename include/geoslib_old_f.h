@@ -12,16 +12,11 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Enum/EAnam.hpp"
-#include "Enum/EJustify.hpp"
-#include "Enum/ECalcMember.hpp"
-#include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
 #include "Enum/EProcessOper.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Enum/EConsType.hpp"
-#include "Enum/ENeigh.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -29,7 +24,6 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
 class AAnam;
@@ -163,7 +157,7 @@ GSTLEARN_EXPORT void print_range(const char *title,
                                  const double *tab,
                                  const double *sel);
 GSTLEARN_EXPORT void ut_trace_discretize(int nseg,
-                                         double *trace,
+                                         const double *trace,
                                          double disc,
                                          int *np_arg,
                                          double **xp_arg,
@@ -174,9 +168,9 @@ GSTLEARN_EXPORT void ut_trace_discretize(int nseg,
 GSTLEARN_EXPORT void ut_trace_sample(Db *db,
                                      const ELoc& ptype,
                                      int np,
-                                     double *xp,
-                                     double *yp,
-                                     double *dd,
+                                     const double *xp,
+                                     const double *yp,
+                                     const double *dd,
                                      double radius,
                                      int *ns_arg,
                                      double **xs_arg,
@@ -277,12 +271,12 @@ GSTLEARN_EXPORT void matrix_product_safe(int n1,
                                          const double *v1,
                                          const double *v2,
                                          double *v3);
-GSTLEARN_EXPORT int matrix_prod_norme(int tranpose,
+GSTLEARN_EXPORT int matrix_prod_norme(int transpose,
                                       int n1,
                                       int n2,
                                       const double *v1,
                                       const double *a,
-                                      double *v2);
+                                      double *w);
 GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, VectorDouble& v1, VectorDouble& w1);
 GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
                                               double *tl,
@@ -296,9 +290,9 @@ GSTLEARN_EXPORT void matrix_cholesky_product(int mode,
 GSTLEARN_EXPORT void matrix_cholesky_invert(int neq, const double *tl, double *xl);
 GSTLEARN_EXPORT void matrix_combine(int nval,
                                     double coeffa,
-                                    double *a,
+                                    const double *a,
                                     double coeffb,
-                                    double *b,
+                                    const double *b,
                                     double *c);
 GSTLEARN_EXPORT void matrix_product_by_diag(int mode,
                                             int neq,
@@ -341,17 +335,17 @@ GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
 /* Prototyping the functions in morpho.c */
 /*****************************************/
 
-GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
-                                int ind_height,
+GSTLEARN_EXPORT int spill_point(DbGrid* dbgrid,
+                                int ind_depth,
                                 int ind_data,
                                 int option,
                                 bool flag_up,
-                                int verbose,
+                                int verbose_step,
                                 double hmax,
-                                double *h,
-                                double *th,
-                                int *ix0,
-                                int *iy0);
+                                double* h,
+                                const double* th,
+                                int* ix0,
+                                int* iy0);
 
 /****************************************/
 /* Prototyping the functions in model.c */
@@ -399,7 +393,7 @@ GSTLEARN_EXPORT Model* model_combine(const Model *model1,
 GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,
-                                       int istr,
+                                       int icov,
                                        const EConsElem &icons,
                                        int v1,
                                        int v2);
@@ -444,7 +438,7 @@ GSTLEARN_EXPORT int db_vector_put(Db *db,
                                   int locatorIndex,
                                   double *tab);
 GSTLEARN_EXPORT int db_vector_get_att_sel_compress(Db *db,
-                                                   int icol,
+                                                   int iatt,
                                                    int *number,
                                                    double *tab);
 GSTLEARN_EXPORT int db_vector_get_att(const Db *db, int iatt, double *tab);
@@ -517,7 +511,7 @@ GSTLEARN_EXPORT void db_extension_rotated(Db *db,
                                           VectorDouble& maxi,
                                           VectorDouble& delta);
 GSTLEARN_EXPORT int db_attribute_range(const Db *db,
-                                       int icol,
+                                       int iatt,
                                        double *mini,
                                        double *maxi,
                                        double *delta);
@@ -527,9 +521,9 @@ GSTLEARN_EXPORT int db_index_grid_to_sample(const DbGrid *db, const int *indg);
 GSTLEARN_EXPORT void db_index_sample_to_grid(const DbGrid *db, int iech, int *indg);
 GSTLEARN_EXPORT int db_index_sorted_in_grid(const DbGrid *db, int iech, int *indg);
 GSTLEARN_EXPORT int db_selref(int ndim,
-                              int *nx,
-                              int *ref,
-                              double *tabin,
+                              const int *nx,
+                              const int *ref,
+                              const double *tabin,
                               double *tabout);
 GSTLEARN_EXPORT Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center);
 GSTLEARN_EXPORT int compat_NDIM(Db *db1, Db *db2);
@@ -563,8 +557,8 @@ GSTLEARN_EXPORT int is_grid_multiple(DbGrid *db1, DbGrid *db2);
 GSTLEARN_EXPORT int db_grid_copy_params(DbGrid *dbin, int mode, DbGrid *dbout);
 GSTLEARN_EXPORT DbGrid* db_grid_reduce(DbGrid *db_grid,
                                        int iptr,
-                                       int *margin,
-                                       int *limmin,
+                                       const int *margin,
+                                       const int *limmin,
                                        int flag_sel,
                                        int flag_copy,
                                        int verbose,
@@ -601,22 +595,22 @@ GSTLEARN_EXPORT double cylinder_radius(const Db *db,
 GSTLEARN_EXPORT double db_grid_maille(Db *db);
 GSTLEARN_EXPORT int point_to_grid(const DbGrid *db,
                                   const double *coor,
-                                  int flag_expand,
+                                  int flag_outside,
                                   int *indg);
 GSTLEARN_EXPORT int point_to_bench(const DbGrid *db,
                                    double *coor,
                                    int flag_outside,
                                    int *indb);
 GSTLEARN_EXPORT void grid_to_point(const DbGrid *db,
-                                   int *indg,
-                                   double *percent,
+                                   const int *indg,
+                                   const double *percent,
                                    double *coor);
 GSTLEARN_EXPORT int index_point_to_grid(const Db *db,
                                         int iech,
-                                        int flag_expand,
+                                        int flag_outside,
                                         const DbGrid *dbout,
                                         double *coor);
-GSTLEARN_EXPORT int point_to_point(Db *db, double *coor);
+GSTLEARN_EXPORT int point_to_point(Db *db, const double *coor);
 GSTLEARN_EXPORT int point_inside_grid(Db *db, int iech, const DbGrid *dbgrid);
 GSTLEARN_EXPORT int db_gradient_components(DbGrid *dbgrid);
 GSTLEARN_EXPORT int db_streamline(DbGrid *dbgrid,
@@ -629,9 +623,9 @@ GSTLEARN_EXPORT int db_streamline(DbGrid *dbgrid,
                                   int *nbline_loc,
                                   int *npline_loc,
                                   double **line_loc);
-GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *dbgrid, double *coor);
+GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *db_grid, double *coor);
 GSTLEARN_EXPORT void db_monostat(Db *db,
-                                 int ivar,
+                                 int iatt,
                                  double *wtot,
                                  double *mean,
                                  double *var,
@@ -647,8 +641,8 @@ GSTLEARN_EXPORT int surface(Db *db_point,
 GSTLEARN_EXPORT int db_edit(Db *db, int *flag_valid);
 GSTLEARN_EXPORT int db_grid_copy(DbGrid *db1,
                                  DbGrid *db2,
-                                 int *ind1,
-                                 int *ind2,
+                                 const int *ind1,
+                                 const int *ind2,
                                  int ncol,
                                  int *cols);
 GSTLEARN_EXPORT int db_grid_copy_dilate(DbGrid *db1,
@@ -656,7 +650,7 @@ GSTLEARN_EXPORT int db_grid_copy_dilate(DbGrid *db1,
                                         DbGrid *db2,
                                         int iatt2,
                                         int mode,
-                                        int *nshift);
+                                        const int *nshift);
 GSTLEARN_EXPORT int db_proportion(Db *db,
                                   DbGrid *dbgrid,
                                   int nfac1max,
@@ -694,17 +688,10 @@ GSTLEARN_EXPORT Db* db_point_init(int nech,
                                   int seed = 43241,
                                   bool flagAddSampleRank = true);
 GSTLEARN_EXPORT int db_smooth_vpc(DbGrid *db, int width, double range);
-GSTLEARN_EXPORT double* dbgridLineSampling(DbGrid *dbgrid,
-                                         double *x1,
-                                         double *x2,
-                                         int ndisc,
-                                         int ncut,
-                                         double *cuts,
-                                         int *nval_ret);
 GSTLEARN_EXPORT int db_grid2point_sampling(DbGrid *dbgrid,
                                            int nvar,
                                            int *vars,
-                                           int *npacks,
+                                           const int *npacks,
                                            int npcell,
                                            int nmini,
                                            int *nech,
@@ -757,32 +744,32 @@ GSTLEARN_EXPORT int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol
 GSTLEARN_EXPORT int db_write_vtk(const char *filename,
                                  DbGrid *db,
                                  const VectorInt &cols);
-GSTLEARN_EXPORT int db_grid_write_bmp(const char *filename,
-                                      DbGrid *db,
+GSTLEARN_EXPORT int db_grid_write_bmp(const char* filename,
+                                      DbGrid* db,
                                       int icol,
-                                      int nsamplex = 1,
-                                      int nsampley = 1,
-                                      int nmult = 1,
-                                      int ncolors = 1,
-                                      int flag_low = 1,
-                                      int flag_high = 1,
-                                      double valmin = TEST,
-                                      double valmax = TEST,
-                                      int *red = nullptr,
-                                      int *green = nullptr,
-                                      int *blue = nullptr,
-                                      int mask_red = 0,
+                                      int nsamplex   = 1,
+                                      int nsampley   = 1,
+                                      int nmult      = 1,
+                                      int ncolor     = 1,
+                                      int flag_low   = 1,
+                                      int flag_high  = 1,
+                                      double valmin  = TEST,
+                                      double valmax  = TEST,
+                                      int* red       = nullptr,
+                                      int* green     = nullptr,
+                                      int* blue      = nullptr,
+                                      int mask_red   = 0,
                                       int mask_green = 0,
-                                      int mask_blue = 0,
-                                      int ffff_red = 232,
+                                      int mask_blue  = 0,
+                                      int ffff_red   = 232,
                                       int ffff_green = 232,
-                                      int ffff_blue = 0,
-                                      int low_red = 255,
-                                      int low_green = 255,
-                                      int low_blue = 255,
-                                      int high_red = 255,
+                                      int ffff_blue  = 0,
+                                      int low_red    = 255,
+                                      int low_green  = 255,
+                                      int low_blue   = 255,
+                                      int high_red   = 255,
                                       int high_green = 0,
-                                      int highblue = 0);
+                                      int high_blue  = 0);
 GSTLEARN_EXPORT DbGrid* db_grid_read_bmp(const char* filename, int verbose=0);
 GSTLEARN_EXPORT int db_grid_write_irap(const char *filename,
                                        DbGrid *db,
@@ -827,18 +814,18 @@ GSTLEARN_EXPORT int krige_koption_manage(int mode,
 GSTLEARN_EXPORT void krige_lhs_print(int nech,
                                      int neq,
                                      int nred,
-                                     int *flag,
+                                     const int *flag,
                                      const double *lhs);
 GSTLEARN_EXPORT void krige_rhs_print(int nvar,
                                      int nech,
                                      int neq,
                                      int nred,
-                                     int *flag,
+                                     const int *flag,
                                      double *rhs);
 GSTLEARN_EXPORT void krige_dual_print(int nech,
                                       int neq,
                                       int nred,
-                                      int *flag,
+                                      const int *flag,
                                       double *dual);
 GSTLEARN_EXPORT int bayes_simulate(Model *model,
                                    int nbsimu,
@@ -853,14 +840,14 @@ GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
                                    VectorInt& ranks2,
                                    bool flag_std,
                                    int verbose);
-GSTLEARN_EXPORT int global_transitive(DbGrid *dbgrid,
-                                      Model *model,
+GSTLEARN_EXPORT int global_transitive(DbGrid* dbgrid,
+                                      Model* model,
                                       int flag_verbose,
                                       int flag_regular,
                                       int ndisc,
-                                      double *zest,
-                                      double *cve,
-                                      double *cvtrans);
+                                      double* abundance,
+                                      double* sse,
+                                      double* cvtrans);
 GSTLEARN_EXPORT int anakexp_f(DbGrid *db,
                               double *covdd,
                               double *covd0,
@@ -871,8 +858,8 @@ GSTLEARN_EXPORT int anakexp_f(DbGrid *db,
                               int flag_sym,
                               int nfeq);
 GSTLEARN_EXPORT int anakexp_3D(DbGrid *db,
-                               double *ref_var,
-                               int ref_radius,
+                               double *cov_ref,
+                               int cov_radius,
                                int neigh_ver,
                                int neigh_hor,
                                int flag_sym,
@@ -881,14 +868,14 @@ GSTLEARN_EXPORT int anakexp_3D(DbGrid *db,
                                int nfeq,
                                int dbg_ix,
                                int dbg_iy);
-GSTLEARN_EXPORT int sampling_f(Db *db,
-                               Model *model,
+GSTLEARN_EXPORT int sampling_f(Db* db,
+                               Model* model,
                                double beta,
                                int method1,
-                               int nsz1_max,
+                               int nsize1_max,
                                VectorInt& ranks1,
                                int method2,
-                               int nsz2_max,
+                               int nsize2_max,
                                VectorInt& ranks2,
                                int verbose);
 GSTLEARN_EXPORT int inhomogeneous_kriging(Db *dbdat,
@@ -943,8 +930,8 @@ GSTLEARN_EXPORT int simcond(Db *dbin,
                             int seed,
                             int nbsimu,
                             int nbtuba,
-                            int nboot,
-                            int niter,
+                            int gibbs_nburn,
+                            int gibbs_niter,
                             int flag_check,
                             int flag_ce,
                             int flag_cstd,
@@ -965,25 +952,25 @@ GSTLEARN_EXPORT int simRI(Db *dbout,
                           int seed,
                           int nbtuba,
                           int verbose);
-GSTLEARN_EXPORT int simtub_constraints(Db *dbin,
-                                       Db *dbout,
-                                       Model *model,
-                                       ANeigh *neigh,
+GSTLEARN_EXPORT int simtub_constraints(Db* dbin,
+                                       Db* dbout,
+                                       Model* model,
+                                       ANeigh* neigh,
                                        int seed,
                                        int nbtuba,
-                                       int nbsimu,
-                                       int nbquant,
+                                       int nbsimu_min,
+                                       int nbsimu_quant,
                                        int niter_max,
-                                       VectorInt &cols,
+                                       VectorInt& cols,
                                        int (*func_valid)(int flag_grid,
-                                                         int ndim,
+                                                         int nDim,
                                                          int nech,
-                                                         int *nx,
-                                                         double *dx,
-                                                         double *x0,
+                                                         int* nx,
+                                                         double* dx,
+                                                         double* x0,
                                                          double nonval,
                                                          double percent,
-                                                         VectorDouble &tab));
+                                                         VectorDouble& tab));
 GSTLEARN_EXPORT int db_simulations_to_ce(Db *db,
                                          const ELoc& locatorType,
                                          int nbsimu,
@@ -1054,14 +1041,14 @@ GSTLEARN_EXPORT int db_rule_shadow(Db *db,
                                    Db *dbprop,
                                    RuleShadow *rule,
                                    Model *model1,
-                                   const VectorDouble &propcst,
+                                   const VectorDouble &props,
                                    int flag_stat,
                                    int nfacies);
 GSTLEARN_EXPORT int db_bounds_shadow(Db *db,
                                      Db *dbprop,
                                      RuleShadow *rule,
                                      Model *model,
-                                     const VectorDouble &propcst,
+                                     const VectorDouble &props,
                                      int flag_stat,
                                      int nfacies);
 GSTLEARN_EXPORT void proportion_rule_process(PropDef *propdef,
@@ -1169,7 +1156,7 @@ GSTLEARN_EXPORT int vario_order_add(Vario_Order *vorder,
 GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order *vorder, int *npair);
 GSTLEARN_EXPORT void vario_order_print(Vario_Order *vorder,
                                        int idir_target,
-                                       int ilag_target,
+                                       int ipas_target,
                                        int verbose);
 GSTLEARN_EXPORT void vario_order_get_bounds(Vario_Order *vorder,
                                             int idir,
@@ -1200,10 +1187,10 @@ GSTLEARN_EXPORT int multilayers_vario(Db *dbin,
                                       int colrefd,
                                       int colreft,
                                       int verbose);
-GSTLEARN_EXPORT int multilayers_kriging(Db *dbin,
-                                        DbGrid *dbout,
-                                        Model *model,
-                                        ANeigh *neigh,
+GSTLEARN_EXPORT int multilayers_kriging(Db* dbin,
+                                        DbGrid* dbout,
+                                        Model* model,
+                                        ANeigh* neigh,
                                         int flag_same,
                                         int flag_z,
                                         int flag_vel,
@@ -1214,27 +1201,27 @@ GSTLEARN_EXPORT int multilayers_kriging(Db *dbin,
                                         int irf_rank,
                                         int match_time,
                                         int dim_prior,
-                                        double *prior_mean,
-                                        double *prior_vars,
-                                        int irefd,
-                                        int ireft,
-                                        int irefb,
+                                        double* prior_mean,
+                                        double* prior_vars,
+                                        int colrefd,
+                                        int colreft,
+                                        int colrefb,
                                         int verbose);
-GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
-                                          DbGrid *dbout,
-                                          Model *model,
+GSTLEARN_EXPORT int multilayers_get_prior(Db* dbin,
+                                          DbGrid* dbout,
+                                          Model* model,
                                           int flag_same,
                                           int flag_vel,
                                           int flag_ext,
                                           int irf_rank,
                                           int match_time,
-                                          int irefd,
-                                          int ireft,
-                                          int irefb,
+                                          int colrefd,
+                                          int colreft,
+                                          int colrefb,
                                           int verbose,
-                                          int *npar,
-                                          double **mean,
-                                          double **vars);
+                                          int* npar_arg,
+                                          double** mean,
+                                          double** vars);
 
 /*******************************************/
 /* Prototyping the functions in delaunay.c */
@@ -1242,7 +1229,7 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
 GSTLEARN_EXPORT double* get_db_extension(Db *dbin, Db *dbout, int *nout);
 GSTLEARN_EXPORT double* extend_grid(DbGrid *db, const double *gext, int *nout);
 GSTLEARN_EXPORT double* extend_point(Db *db, const double *gext, int *nout);
-GSTLEARN_EXPORT int MSS(int idim, int ipol, int icas, int icorn, int icoor);
+GSTLEARN_EXPORT int MSS(int ndim, int ipol, int icas, int icorn, int idim);
 GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                     const char *obj_name,
                                     int verbose,
@@ -1260,8 +1247,8 @@ GSTLEARN_EXPORT AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid);
 GSTLEARN_EXPORT void mesh_stats(int ndim,
                                 int ncorner,
                                 int nmesh,
-                                int *meshes,
-                                double *points);
+                                const int *meshes,
+                                const double *points);
 
 /***************************************/
 /* Prototyping the functions in spde.c */
@@ -1290,7 +1277,7 @@ GSTLEARN_EXPORT int m2d_gibbs_spde(Db *dbin,
                                    int niter,
                                    int seed,
                                    int nbsimu,
-                                   int iptr_pinch,
+                                   int icol_pinch,
                                    int flag_drift,
                                    int flag_ce,
                                    int flag_cstd,
@@ -1307,8 +1294,8 @@ GSTLEARN_EXPORT int spde_process(Db *dbin,
                                  Db *dbout,
                                  SPDE_Option &s_option,
                                  int nbsimu,
-                                 int gibbs_nburn,
-                                 int gibbs_niter,
+                                 int ngibbs_nburn,
+                                 int ngibbs_niter,
                                  int ngibbs_int);
 #ifndef SWIG
 GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov);
@@ -1348,10 +1335,10 @@ GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    Model *model,
                                    SPDE_Option &s_option,
                                    int verbose,
-                                   int *nmeshes,
-                                   int *nvertex,
-                                   VectorInt& meshes,
-                                   VectorDouble& points);
+                                   int *nmesh_arg,
+                                   int *nvertex_arg,
+                                   VectorInt& meshes_arg,
+                                   VectorDouble& points_arg);
 #ifndef SWIG
 GSTLEARN_EXPORT MatrixSparse* db_mesh_neigh(const Db *db,
                                             AMesh *amesh,

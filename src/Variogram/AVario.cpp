@@ -215,7 +215,6 @@ void AVario::evaluate(Db *db,
       messageAbort("AVario::evaluate() ignores current calculation type");
       break;
   }
-  return;
 }
 
 String AVario::_elemString(const AStringFormat* strfmt) const
@@ -298,7 +297,7 @@ String AVario::_elemString(const AStringFormat* strfmt) const
  *
  * @return The corresponding ECalcVario enum
  */
-const ECalcVario AVario::getCalculType(const String& calcul_name)
+ECalcVario AVario::getCalculType(const String& calcul_name)
 {
   ECalcVario calcul_type;
 

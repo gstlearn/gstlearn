@@ -9,10 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <iostream>
-#include <vector>
-#include <string>
 #include <sstream>
-#include <iterator>
 
 #include "Drifts/DriftF.hpp"
 #include "Drifts/ADrift.hpp"

@@ -331,7 +331,6 @@ void CalcSimuTurningBands::_minmax(const Db *db)
   }
 
   _npointSimulated += db->getSampleNumber();
-  return;
 }
 
 /****************************************************************************/
@@ -433,7 +432,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
           {
             case ECov::E_NUGGET:
               // Next line is simply to let the random number cycle
-              (void) law_gaussian();
+              (void)law_gaussian();
               break;
 
             case ECov::E_EXPONENTIAL:
@@ -441,28 +440,19 @@ int CalcSimuTurningBands::_initializeSeedBands()
               break;
 
             case ECov::E_SPHERICAL:
-              (void) _dilutionInit(ibs, is, operTB);
-              break;
-
             case ECov::E_CUBIC:
-              (void) _dilutionInit(ibs, is, operTB);
+              (void)_dilutionInit(ibs, is, operTB);
               break;
 
             case ECov::E_GAUSSIAN:
-              (void) _spectralInit(ibs, is, operTB);
-              break;
-
             case ECov::E_SINCARD:
-              (void) _spectralInit(ibs, is, operTB);
-              break;
-
             case ECov::E_BESSEL_J:
-              (void) _spectralInit(ibs, is, operTB);
+              (void)_spectralInit(ibs, is, operTB);
               break;
 
             case ECov::E_BESSEL_K:
               if (param > 0.5)
-                (void) _spectralInit(ibs, is, operTB);
+                (void)_spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScaleKB(param, scale) * 2;
@@ -472,7 +462,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
 
             case ECov::E_STABLE:
               if (param > 1)
-                (void) _spectralInit(ibs, is, operTB);
+                (void)_spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScale(param, 2. * scale);
@@ -481,31 +471,19 @@ int CalcSimuTurningBands::_initializeSeedBands()
               break;
 
             case ECov::E_POWER:
-              (void) _power1DInit(ibs, is, operTB);
+              (void)_power1DInit(ibs, is, operTB);
               break;
 
             case ECov::E_SPLINE_GC:
-              (void) _spline1DInit(ibs, 1, operTB);
+              (void)_spline1DInit(ibs, 1, operTB);
               break;
 
             case ECov::E_LINEAR:
-              _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
-              break;
-
             case ECov::E_ORDER1_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
-              break;
-
             case ECov::E_ORDER3_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
-              break;
-
             case ECov::E_ORDER5_GC:
               _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
+              (void)_irfProcessInit(ibs, is, operTB);
               break;
 
             default:
@@ -540,6 +518,7 @@ void CalcSimuTurningBands::_migrationInit(int ibs,
                                           TurningBandOperate &operTB,
                                           double eps)
 {
+  DECLARE_UNUSED(is);
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
 
@@ -712,8 +691,7 @@ double CalcSimuTurningBands::_computeScale(double alpha, double scale)
 {
   if (alpha < 1)
     return scale / law_stable_standard_abgd(alpha);
-  else
-    return scale / sqrt(law_stable_standard_abgd(alpha / 2.));
+  return scale / sqrt(law_stable_standard_abgd(alpha / 2.));
 }
 
 /****************************************************************************/
@@ -1150,10 +1128,6 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               break;
 
             case ECov::E_SPHERICAL:
-              correc = _dilutionInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_CUBIC:
               correc = _dilutionInit(ibs, is, operTB);
               _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
@@ -1170,15 +1144,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               break;
 
             case ECov::E_GAUSSIAN:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_SINCARD:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_BESSEL_J:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
@@ -1198,24 +1164,9 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               }
               break;
 
-             case ECov::E_LINEAR:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
+            case ECov::E_LINEAR:
             case ECov::E_ORDER1_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER3_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER5_GC:
               _migrationInit(ibs, is, theta1, operTB);
               correc = _irfProcessInit(ibs, is, operTB);
@@ -1343,21 +1294,14 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               break;
 
             case ECov::E_SPHERICAL:
-              correc = _dilutionInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_CUBIC:
               correc = _dilutionInit(ibs, is, operTB);
               _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_GAUSSIAN:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_SINCARD:
+            case ECov::E_BESSEL_J:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
@@ -1372,29 +1316,9 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
-            case ECov::E_BESSEL_J:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_LINEAR:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER1_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER3_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER5_GC:
               _migrationInit(ibs, is, theta1, operTB);
               correc = _irfProcessInit(ibs, is, operTB);
@@ -1667,7 +1591,6 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
-  return;
 }
 
 double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
@@ -1769,7 +1692,6 @@ void CalcSimuTurningBands::_difference(Db *dbin,
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2234,7 +2156,6 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     }
   }
   if (number <= 0) message("No problem found\n");
-  return;
 }
 
 bool CalcSimuTurningBands::_check()

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "ACalcSimulation.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/VectorNumT.hpp"
 

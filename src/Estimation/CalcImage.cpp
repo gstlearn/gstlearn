@@ -12,7 +12,6 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/NamingConvention.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighImage.hpp"

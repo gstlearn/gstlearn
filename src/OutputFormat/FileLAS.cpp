@@ -13,11 +13,9 @@
 #include "OutputFormat/FileLAS.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 
 #include <string.h>
-#include <algorithm>
 
 #if defined(_WIN32) || defined(_WIN64)
 namespace
@@ -254,7 +252,7 @@ int FileLAS::_readNext(int s_length, int flag_up, int *numline, char *string)
   return (0);
 }
 
-void FileLAS::_stringToUppercase(char *string) const
+void FileLAS::_stringToUppercase(char *string)
 {
   int n = static_cast<int>(strlen(string));
   for (int i = 0; i < n; i++)

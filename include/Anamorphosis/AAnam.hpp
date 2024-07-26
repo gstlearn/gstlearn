@@ -37,7 +37,7 @@ public:
   virtual int          getNFactor() const { return 0; }
   virtual int          getNClass() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
-  virtual VectorDouble z2factor(double z, const VectorInt& ifqcs) const;
+  virtual VectorDouble z2factor(double z, const VectorInt& ifacs) const;
   virtual double       computeVariance(double sval) const;
   virtual int          updatePointToBlock(double r_coef);
   virtual bool         allowChangeSupport() const { return false; }
@@ -49,7 +49,7 @@ public:
 
   double invertVariance(double cvv) const;
   VectorDouble rawToTransformVec(const VectorDouble& z) const;
-  VectorDouble transformToRawVec(const VectorDouble& z) const;
+  VectorDouble transformToRawVec(const VectorDouble& y) const;
 
   int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::fromKey("Z"));
   int fit(Db *db, const String& name);
@@ -77,16 +77,16 @@ public:
                   const NamingConvention &namconv = NamingConvention("Factor"));
 
 protected:
-  bool _isSampleSkipped(Db *db,
-                        int iech,
-                        const VectorInt& cols_est,
-                        const VectorInt& cols_std);
+  static bool _isSampleSkipped(Db* db,
+                               int iech,
+                               const VectorInt& cols_est,
+                               const VectorInt& cols_std);
   bool _isFitted() const { return _flagFitted; }
 
 private:
-  bool _isNcutValid(int ncut) const;
-  bool _isProbaValid(double proba) const;
-  void _printQTvars(const char *title, int type, int number) const;
+  static bool _isNcutValid(int ncut);
+  static bool _isProbaValid(double proba);
+  static void _printQTvars(const char *title, int type, int number);
 
 private:
   bool _flagFitted;
