@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ILinearOpEigenCG.hpp"
+#include "LinearOp/ALinearOp.hpp"
 
 #ifndef SWIG
 #include <Eigen/Core>
@@ -43,17 +43,16 @@ struct Eigen::internal::generic_product_impl<TLinOP, Rhs, Eigen::SparseShape, Ei
   { \
     assert(alpha==Scalar(1) && "scaling is not implemented"); \
     EIGEN_ONLY_USED_FOR_DEBUG(alpha); \
-    lhs.evalDirectEigen(rhs, dst); \
+    lhs.evalDirect(rhs, dst); \
   } \
 };
 #endif
 
 template<typename TLinOP>
 class ALinearOpEigenCG : public Eigen::EigenBase<TLinOP>, // No Export because it's a template
-                         public ILinearOpEigenCG
+                         public ALinearOp
 {
 public:
-  ALinearOpEigenCG() {};
   virtual ~ALinearOpEigenCG() {};
 
 #ifndef SWIG

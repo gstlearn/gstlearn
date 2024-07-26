@@ -33,7 +33,6 @@ public:
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
-              const CGParam& params = CGParam(),
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -53,7 +52,6 @@ public:
   static PrecisionOp* create(const AMesh* mesh,
                              Model* model,
                              int icov = 0,
-                             const CGParam& params = CGParam(),
                              bool verbose = false);
 
   int reset(const ShiftOpCs *shiftop,
@@ -104,12 +102,6 @@ public:
   void setPolynomialFromPoly(APolynomial* polynomial);
   bool isCovaDefined() const { return _cova != nullptr; }
   VectorDouble getCoeffs();
-
-  void mustShowStats(bool status) const
-  {
-    _shiftOp->mustShowStats(status);
-  }
-  const LogStats& getLogStats() const { return getShiftOp()->getLogStats(); }
 
 protected:
   APolynomial*     getPoly(const EPowerPT& power);

@@ -12,14 +12,27 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/CGParam.hpp"
-#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 
-class GSTLEARN_EXPORT HessianOp : public ALinearOp {
+class PrecisionOp;
+
+#ifndef SWIG
+#  include "LinearOp/ALinearOpEigenCG.hpp"
+DECLARE_EIGEN_TRAITS(HessianOp)
+#else
+#  include "LinearOp/ALinearOp.hpp"
+#endif
+
+class GSTLEARN_EXPORT HessianOp:
+#ifndef SWIG
+  public ALinearOpEigenCG<HessianOp>
+#else
+  public ALinearOp
+#endif
+{
 
 public:
-	HessianOp(const CGParam params = CGParam());
+	HessianOp();
 	virtual ~HessianOp();
 
   int  init(PrecisionOp*  pmat,
@@ -30,17 +43,19 @@ public:
             const VectorDouble& varseis);
 
   /*!  Returns the dimension of the matrix */
-  int  getSize() const override { return _pMat->getSize(); }
+  int  getSize() const override;
   /*!  Set the initial vector */
   void setLambda(const VectorDouble& lambda) { _lambda = lambda; };
 
+#ifndef SWIG
 protected:
-  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
+  void _evalDirect(const Eigen::VectorXd& inv,
+                   Eigen::VectorXd& outv) const override;
 
 private:
   bool                 _isInitialized;
   bool                 _flagSeismic;
-  PrecisionOp*         _pMat; // External pointer
+  PrecisionOp*         _pMat;     // External pointer
   const ProjMatrix*    _projData; // External pointer
   const ProjMatrix*    _projSeis; // External pointer
   VectorDouble         _indic;
@@ -51,4 +66,9 @@ private:
   mutable VectorDouble _workx;
   mutable VectorDouble _workv;
   mutable VectorDouble _works;
+#endif
 };
+
+#ifndef SWIG
+DECLARE_EIGEN_PRODUCT(HessianOp)
+#endif

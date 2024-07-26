@@ -170,10 +170,9 @@
 %include LinearOp/CGParam.hpp
 %include LinearOp/LogStats.hpp
 %include LinearOp/ALinearOp.hpp
-%include LinearOp/ILinearOpEigenCG.hpp
+%include LinearOp/ALinearOp.hpp
 %include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
-%include LinearOp/Identity.hpp
 %include LinearOp/ScaleOp.hpp
 %include LinearOp/ShiftOpCs.hpp
 %include LinearOp/PrecisionOp.hpp

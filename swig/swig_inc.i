@@ -341,7 +341,7 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
-  #include "LinearOp/ILinearOpEigenCG.hpp"
+  #include "LinearOp/ALinearOp.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
@@ -349,7 +349,6 @@
   #include "LinearOp/PrecisionOpCs.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
   #include "LinearOp/IProjMatrix.hpp"
-  #include "LinearOp/Identity.hpp"
   #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
@@ -574,6 +573,7 @@
 %template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
 %template(VectorEPostStat)    std::vector< EPostStat >;
+%template(VectorSpacePoint)   std::vector< SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 
 ////////////////////////////////////////////////

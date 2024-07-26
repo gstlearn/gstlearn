@@ -12,7 +12,7 @@
 
 #include "Matrix/VectorEigen.hpp"
 
-#include "LinearOp/ILinearOpEigenCG.hpp"
+#include "LinearOp/ALinearOp.hpp"
 
 #ifndef SWIG
 #  include "LinearOp/ALinearOpEigenCG.hpp"
@@ -27,7 +27,7 @@ template<typename TLinOP>
 class LinearOpCGSolver
 {
 public:
-  LinearOpCGSolver(ILinearOpEigenCG* linop);
+  LinearOpCGSolver(ALinearOp* linop);
 
   void solve(const VectorDouble& rhs, VectorDouble& out);
   void solve(const VectorEigen& rhs, VectorEigen& out);
@@ -44,7 +44,7 @@ private:
 
 #ifndef SWIG
 template<typename TLinOP>
-LinearOpCGSolver<TLinOP>::LinearOpCGSolver(ILinearOpEigenCG* linop)
+LinearOpCGSolver<TLinOP>::LinearOpCGSolver(ALinearOp* linop)
 {
   ALinearOpEigenCG<TLinOP>* op = dynamic_cast<ALinearOpEigenCG<TLinOP>*>(linop);
   if (op == nullptr)

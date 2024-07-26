@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/IOptimCost.hpp"
-#include "LinearOp/CGParam.hpp"
 
 class PrecisionOp;
 class ProjMatrix;
@@ -23,7 +23,7 @@ class GSTLEARN_EXPORT OptimCostBinary: public IOptimCost
 {
 
 public:
-  OptimCostBinary(const CGParam params = CGParam());
+  OptimCostBinary();
   OptimCostBinary(const OptimCostBinary &m);
   OptimCostBinary& operator = (const OptimCostBinary &m);
   virtual ~OptimCostBinary();
@@ -41,15 +41,12 @@ public:
                          const VectorDouble& lambda,
                          double* out);
   int setMeanProportion(double meanprop);
-  void setParams(const CGParam &params) { _params = params; }
   /*!  Set the constant parameters for internal Pre-Conditioner */
   void setPreCondParams(int chebncmax = 10001, double chebtol = 5.e-3)
   {
-    _flagCgPreCond = true;
-    _chebNcmax = chebncmax;
-    _chebTol = chebtol;
+    DECLARE_UNUSED(chebncmax, chebtol);
   }
-  int isInitialized() { return _isInitialized; }
+  int isInitialized() const { return _isInitialized; }
   int getNPoint() const;
   int getNVertex() const;
   void toggleSeismic(bool status);
@@ -74,14 +71,6 @@ private:
   const ProjMatrix*  _projSeis;
   VectorDouble       _propSeis;
   VectorDouble       _varSeis;
-
-  // Parameters for Conjugate Gradient
-  CGParam _params;
-
-  // Parameters for Preconditionner (optional)
-  bool   _flagCgPreCond;
-  int    _chebNcmax;
-  double _chebTol;
 
   mutable VectorDouble _grad;
   mutable VectorDouble _workp;   /* Dimension: Npoint  */

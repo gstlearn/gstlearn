@@ -9,12 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ScaleOp.hpp"
-#include "LinearOp/ALinearOpEigenCG.hpp"
 
-ScaleOp::ScaleOp(int n, double scale)
-  : ALinearOpEigenCG<ScaleOp>()
-  , _n(n)
-  , _scale(scale)
+ScaleOp::ScaleOp(int n, double scale) :
+  _n(n), _scale(scale)
 {
 }
 
@@ -29,8 +26,8 @@ ScaleOp::~ScaleOp() {}
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ScaleOp::_evalDirectEigen(const Eigen::VectorXd& inv,
-                               Eigen::VectorXd& outv) const
+void ScaleOp::_evalDirect(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
     outv[i] = _scale*inv[i];

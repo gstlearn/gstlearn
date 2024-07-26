@@ -97,10 +97,10 @@ private:
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
   double _computeLogLike(int nbsimu = 1, int seed = 131323) const;
-  void _projecLocal(Db *dbout,
-                    const AMesh *meshing,
-                    VectorDouble &working,
-                    VectorDouble &result);
+  static void _projecLocal(Db *dbout,
+                           const AMesh *meshing,
+                           VectorDouble &working,
+                           VectorDouble &result);
 
 private:
   const Db*                    _data; // External Pointer

@@ -16,14 +16,14 @@
 #include "LinearOp/ALinearOpEigenCG.hpp"
 DECLARE_EIGEN_TRAITS(ScaleOp)
 #else
-#include "LinearOp/ILinearOpEigenCG.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #endif
 
 class GSTLEARN_EXPORT ScaleOp:
 #ifndef SWIG
   public ALinearOpEigenCG<ScaleOp>
 #else
-  public ILinearOpEigenCG
+  public ALinearOp
 #endif
 {
 
@@ -35,7 +35,7 @@ public:
 
 #ifndef SWIG
 protected:
-  void _evalDirectEigen(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  void _evalDirect(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
 #endif
 
 private:
@@ -45,10 +45,4 @@ private:
 
 #ifndef SWIG
 DECLARE_EIGEN_PRODUCT(ScaleOp)
-
-// Force instantiation for ALinearOpEigenCG (for Windows MSVC export)
-#  ifdef _MSC_VER
-GSTLEARN_TEMPLATE_EXPORT template class ALinearOpEigenCG<ScaleOp>;
-#  endif
-
 #endif

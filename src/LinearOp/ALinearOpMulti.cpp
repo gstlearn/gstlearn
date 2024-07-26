@@ -8,16 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/ALinearOpMulti.hpp"
-#include "LinearOp/Identity.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
-
-#include <iostream>
 
 ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
     : _nIterMax(nitermax),
@@ -112,7 +108,7 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble &inv,
 {
   try
   {
-    _evalDirect(inv,outv);
+    _evalDirect(inv, outv);
   }
   catch(const std::string& str)
   {

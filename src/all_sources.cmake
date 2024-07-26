@@ -164,9 +164,8 @@ set(SRC
   LinearOp/ProjMatrix.cpp
   LinearOp/PrecisionOpCs.cpp
   LinearOp/ALinearOpMulti.cpp
-  LinearOp/ILinearOpEigenCG.cpp
   LinearOp/ALinearOp.cpp
-  LinearOp/Identity.cpp
+  LinearOp/ALinearOp.cpp
   LinearOp/ScaleOp.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp

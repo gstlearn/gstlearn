@@ -243,10 +243,9 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingSimu.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, _params.getCGparams(), verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, _params.getCGparams(), verbose);
-        precision->mustShowStats(showStats);
+          precision = new PrecisionOp(mesh, _model, icov, verbose);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
@@ -268,10 +267,9 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, _params.getCGparams(), verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, _params.getCGparams(), verbose);
-        precision->mustShowStats(showStats);
+          precision = new PrecisionOp(mesh, _model, icov, verbose);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
@@ -754,8 +752,8 @@ int krigingSPDE(Db *dbin,
 {
   const ESPDECalcMode mode = (flag_std) ?
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
-  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
+  SPDE spde(model, dbout, dbin, mode, mesh,
+            useCholesky, params, verbose, showStats);
   return spde.compute(dbout, nbMC, seed, namconv);
 }
 

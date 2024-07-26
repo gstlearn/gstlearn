@@ -12,39 +12,29 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/CGParam.hpp"
-#include "LinearOp/LogStats.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/VectorEigen.hpp"
+
+#ifndef SWIG
+#  include <Eigen/Core>
+#  include <Eigen/Dense>
+#endif
 
 class GSTLEARN_EXPORT ALinearOp
 {
-
 public:
-  ALinearOp(const CGParam params = CGParam());
-  ALinearOp(const ALinearOp &m);
-  ALinearOp& operator=(const ALinearOp &m);
-  virtual ~ALinearOp();
-
-  virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
+  virtual ~ALinearOp() {}
   virtual int getSize() const = 0;
+  
+  virtual void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
+  virtual void evalDirect(const VectorEigen& inv, VectorEigen& outv) const;
 
-  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
-
-  void setX0(const VectorDouble& x0) { _params.setX0(x0); }
-  void mustShowStats(bool status) { _logStats.mustShowStats(status); }
-
-  const LogStats& getLogStats() const { return _logStats; }
-
-protected:
-  virtual void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const = 0;
-
-private:
-  double _prod(const VectorDouble& x, const VectorDouble& y) const;
-
-private:
-  CGParam _params;
+#ifndef SWIG
+  virtual void evalDirect(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const;
 
 protected:
-  LogStats _logStats;
+  virtual void _evalDirect(const Eigen::VectorXd& inv,
+                           Eigen::VectorXd& outv) const = 0;
+#endif
 };
-

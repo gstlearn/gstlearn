@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
   VectorDouble o(n);
   VectorEigen O(n);
 
+  VectorDouble c(n);
+  VectorEigen C(n);
+
   ScaleOp I(n, 2.0);
   LinearOpCGSolver<ScaleOp> s(&I);
 
@@ -44,4 +47,10 @@ int main(int argc, char *argv[])
 
   s.solve(B, O);
   std::cout << "O = " << O << std::endl;
+
+  I.evalDirect(o, c);
+  std::cout << "c = " << c.toString() << std::endl;
+
+  I.evalDirect(O, C);
+  std::cout << "C = " << C << std::endl;
 }

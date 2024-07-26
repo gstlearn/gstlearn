@@ -12,7 +12,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Timer.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
@@ -63,7 +62,6 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int icov,
-                         const CGParam& params,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(model->getCova(icov))
@@ -76,7 +74,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work2()
   , _work3()
 {
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,params,verbose);
+  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
 
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
@@ -152,10 +150,9 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
 PrecisionOp* PrecisionOp::create(const AMesh* mesh,
                                  Model* model,
                                  int icov,
-                                 const CGParam& params,
                                  bool verbose)
 {
-  return new PrecisionOp(mesh, model, icov, params, verbose);
+  return new PrecisionOp(mesh, model, icov, verbose);
 }
 
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
@@ -299,11 +296,7 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
  */
 void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
-  Timer time;
-
   evalPower(vecin, vecout, EPowerPT::ONE);
-
-  getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
 void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const EPowerPT& power)
@@ -371,13 +364,9 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 
 void PrecisionOp::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
 {
-  Timer time;
-
   _shiftOp->prodLambda(vecin,vecout,EPowerPT::MINUSONE);
   _evalPoly(EPowerPT::MINUSONE, vecout, vecin);
   _shiftOp->prodLambda(vecin, vecout, EPowerPT::MINUSONE);
-
-  getLogStats().incrementStatsInversePoly(time.getIntervalSeconds());
 }
 
 VectorDouble PrecisionOp::evalCov(int imesh)
@@ -397,13 +386,8 @@ VectorDouble PrecisionOp::evalCov(int imesh)
 
 void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
 {
-
-  Timer time;
-
   _evalPoly(EPowerPT::MINUSHALF, whitenoise, vecout);
   _shiftOp->prodLambda(vecout, vecout, EPowerPT::MINUSONE);
-
-  getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
 }
 
 VectorVectorDouble PrecisionOp::simulate(int nbsimu)

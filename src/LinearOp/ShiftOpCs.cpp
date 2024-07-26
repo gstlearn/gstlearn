@@ -15,36 +15,31 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
-#include "Mesh/MeshEStandard.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Timer.hpp"
-#include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
 
 #include <math.h>
 
-ShiftOpCs::ShiftOpCs(const CGParam params)
-    : ALinearOp(params),
-      _TildeC(),
-      _Lambda(),
-      _S(nullptr),
-      _nModelGradParam(0),
-      _SGrad(),
-      _TildeCGrad(),
-      _LambdaGrad(),
-      _flagNoStatByHH(false),
-      _model(nullptr),
-      _igrf(0),
-      _icov(0),
-      _ndim(0),
-      _napices(0)
+ShiftOpCs::ShiftOpCs()
+  : _TildeC()
+  , _Lambda()
+  , _S(nullptr)
+  , _nModelGradParam(0)
+  , _SGrad()
+  , _TildeCGrad()
+  , _LambdaGrad()
+  , _flagNoStatByHH(false)
+  , _model(nullptr)
+  , _igrf(0)
+  , _icov(0)
+  , _ndim(0)
+  , _napices(0)
 {
 }
 
@@ -53,75 +48,71 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
                      const Db* dbout,
                      int igrf,
                      int icov,
-                     const CGParam params,
                      bool verbose)
-    : ALinearOp(params),
-      _TildeC(),
-      _Lambda(),
-      _S(nullptr),
-      _nModelGradParam(0),
-      _SGrad(),
-      _TildeCGrad(),
-      _LambdaGrad(),
-      _flagNoStatByHH(false),
-      _model(model),
-      _igrf(0),
-      _icov(0),
-      _ndim(amesh->getEmbeddedNDim()),
-      _napices(amesh->getNApices())
+  : _TildeC()
+  , _Lambda()
+  , _S(nullptr)
+  , _nModelGradParam(0)
+  , _SGrad()
+  , _TildeCGrad()
+  , _LambdaGrad()
+  , _flagNoStatByHH(false)
+  , _model(model)
+  , _igrf(0)
+  , _icov(0)
+  , _ndim(amesh->getEmbeddedNDim())
+  , _napices(amesh->getNApices())
 {
-  (void) initFromMesh(amesh, model, dbout, igrf, icov, verbose);
+  (void)initFromMesh(amesh, model, dbout, igrf, icov, verbose);
 }
 
-#ifndef SWIG
 ShiftOpCs::ShiftOpCs(const MatrixSparse* S,
                      const VectorDouble& TildeC,
                      const VectorDouble& Lambda,
                      Model* model,
-                     const CGParam params,
                      bool verbose)
-    : ALinearOp(params),
-      _TildeC(),
-      _Lambda(),
-      _S(nullptr),
-      _nModelGradParam(0),
-      _SGrad(),
-      _TildeCGrad(),
-      _LambdaGrad(),
-      _flagNoStatByHH(false),
-      _model(model),
-      _igrf(0),
-      _icov(0),
-      _ndim(0),
-      _napices(S->getNCols())
+  : _TildeC()
+  , _Lambda()
+  , _S(nullptr)
+  , _nModelGradParam(0)
+  , _SGrad()
+  , _TildeCGrad()
+  , _LambdaGrad()
+  , _flagNoStatByHH(false)
+  , _model(model)
+  , _igrf(0)
+  , _icov(0)
+  , _ndim(0)
+  , _napices(S->getNCols())
 {
-  (void) initFromCS(S, TildeC, Lambda, model, verbose);
+  (void)initFromCS(S, TildeC, Lambda, model, verbose);
 }
-#endif
 
-ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
-    : ALinearOp(shift),
-      _TildeC(),
-      _Lambda(),
-      _S(nullptr),
-      _nModelGradParam(0),
-      _SGrad(),
-      _TildeCGrad(),
-      _LambdaGrad(),
-      _flagNoStatByHH(false),
-      _model(nullptr),
-      _igrf(0),
-      _icov(0),
-      _ndim(0),
-      _napices(0)
+ShiftOpCs::ShiftOpCs(const ShiftOpCs& shift)
+  : _TildeC()
+  , _Lambda()
+  , _S(nullptr)
+  , _nModelGradParam(0)
+  , _SGrad()
+  , _TildeCGrad()
+  , _LambdaGrad()
+  , _flagNoStatByHH(false)
+  , _model(nullptr)
+  , _igrf(0)
+  , _icov(0)
+  , _ndim(0)
+  , _napices(0)
 {
   _reallocate(shift);
 }
 
 ShiftOpCs& ShiftOpCs::operator=(const ShiftOpCs &shift)
 {
-  _reset();
-  _reallocate(shift);
+  if (this != &shift)
+  {
+    _reset();
+    _reallocate(shift);
+  }
   return *this;
 }
 
@@ -135,23 +126,19 @@ ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
                              const Db *dbout,
                              int igrf,
                              int icov,
-                             const CGParam params,
                              bool verbose)
 {
-  return new ShiftOpCs(amesh, model, dbout, igrf, icov, params, verbose);
+  return new ShiftOpCs(amesh, model, dbout, igrf, icov, verbose);
 }
 
-#ifndef SWIG
 ShiftOpCs* ShiftOpCs::createFromSparse(const MatrixSparse *S,
                                        const VectorDouble &TildeC,
                                        const VectorDouble &Lambda,
                                        Model *model,
-                                       const CGParam params,
                                        bool verbose)
 {
-  return new ShiftOpCs(S, TildeC, Lambda, model, params, verbose);
+  return new ShiftOpCs(S, TildeC, Lambda, model, verbose);
 }
-#endif
 
 /**
  *
@@ -431,17 +418,24 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
 /*!
  **  Perform the operation: y = S * x
  **
- ** \param[in] x       Input vector
- ** \param[in] y       Output vector
+ ** \param[in] inv     Input vector
+ ** \param[in] outv    Output vector
  **
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
+void ShiftOpCs::_evalDirect(const Eigen::VectorXd& inv,
+                            Eigen::VectorXd& outv) const
 {
-  Timer time;
-  _S->prodMatVecInPlace(x, y);
-  getLogStats().incrementStatsDirect(time.getIntervalSeconds());
+  // Map Eigen Vector to VectorDouble arguments
+  // TODO : VectorXd => VectorDouble = Memory copy !!
+  VectorDouble einv(inv.data(), inv.data() + inv.size());
+  VectorDouble eoutv(outv.size());
+
+  _S->prodMatVecInPlace(einv, eoutv);
+
+  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
+  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
 }
 
 void ShiftOpCs::_resetGrad()
@@ -830,7 +824,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh *amesh,
                                         MatrixRectangular& matM,
                                         MatrixSquareSymmetric &matMtM,
                                         AMatrix &matP,
-                                        double *deter)
+                                        double *deter) const
 {
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
@@ -869,7 +863,7 @@ int ShiftOpCs::_prepareMatricesSphere(const AMesh *amesh,
                                       int imesh,
                                       VectorVectorDouble &coords,
                                       AMatrixSquare &matMs,
-                                      double *deter)
+                                      double *deter) const
 {
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
@@ -1025,9 +1019,9 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
   return error;
 }
 
-MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
+MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh)
 {
-  MatrixSparse *Sret = nullptr;
+  MatrixSparse* Sret = nullptr;
   MatrixSparse* Sl = nullptr;
   int nmeshes = amesh->getNMeshes();
   int ncorner = amesh->getNApexPerMesh();
@@ -1056,8 +1050,7 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
 
 bool ShiftOpCs::_cond(int indref, int igparam, int ipref)
 {
-  if (ipref == indref && igparam == 0) return true;
-  return false;
+  return ipref == indref && igparam == 0;
 }
 
 /**
@@ -1228,7 +1221,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 void ShiftOpCs::_mapTildeCUpdate(std::map<int, double> &tab,
                                  int ip0,
                                  double value,
-                                 double tol) const
+                                 double tol)
 {
   std::pair<std::map<int,double>::iterator, bool> ret;
 
@@ -1502,12 +1495,9 @@ bool ShiftOpCs::_isGlobalHH(int igrf, int icov)
 {
   if (! _isNoStat())
     return true;
-  else
-  {
-    const ANoStat* nostat = _getModel()->getNoStat();
-    if (! nostat->isDefinedforAnisotropy(icov, igrf)) return true;
-  }
-  return false;
+  const ANoStat* nostat = _getModel()->getNoStat();
+
+  return !nostat->isDefinedforAnisotropy(icov, igrf);
 }
 
 int ShiftOpCs::getLambdaGradSize() const
@@ -1520,7 +1510,7 @@ const CovAniso* ShiftOpCs::_getCova()
   return _getModel()->getCova(_getIcov());
 }
 
-void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
+void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
                                int ip0,
                                int ip1,
                                double value,
@@ -1539,7 +1529,7 @@ void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
  * @param tab   Input Map
  * @return
  */
-MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab)
+MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab) const
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
