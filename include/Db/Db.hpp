@@ -96,6 +96,7 @@ public:
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
   virtual void resetDims(int ncol, int nech);
+  virtual bool isConsistent() const { return true; };
 
   /**
    * \defgroup DB Db: Numerical Data Base

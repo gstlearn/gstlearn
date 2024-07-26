@@ -82,6 +82,7 @@ public:
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
   void resetDims(int ncol, int nech) override;
+  bool isConsistent() const override;
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);

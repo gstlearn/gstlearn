@@ -740,6 +740,11 @@ void DbGrid::resetDims(int ncol, int /*nech*/)
   Db::resetDims(ncol, nech);
 }
 
+bool DbGrid::isConsistent() const
+{
+  return _grid.getNTotal() == getSampleNumber();
+}
+
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
 {
   int ndim = 0;

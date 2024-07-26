@@ -47,14 +47,24 @@ public:
   /// Db Interface
   bool isLine() const override { return true; }
   bool mayChangeSampleNumber() const override { return false; }
+  bool isConsistent() const override;
 
   int resetFromSamples(int nech,
                        const ELoadBy& order,
                        const VectorDouble& tab,
                        const VectorInt& lineCounts,
-                       const VectorString& names = VectorString(),
+                       const VectorString& names        = VectorString(),
                        const VectorString& locatorNames = VectorString(),
                        bool flagAddSampleRank           = true);
+  int resetFromSamplesById(int nech,
+                           const ELoadBy& order,
+                           const VectorDouble& tab,
+                           const VectorInt& lineIds,
+                           const VectorInt& ranksPerId,
+                           const VectorString& names        = VectorString(),
+                           const VectorString& locatorNames = VectorString(),
+                           bool flagAddSampleRank           = true);
+
   static DbLine* createFromSamples(int nech,
                                    const ELoadBy& order,
                                    const VectorDouble& tab,
@@ -62,7 +72,14 @@ public:
                                    const VectorString& names = VectorString(),
                                    const VectorString& locatorNames = VectorString(),
                                    bool flagAddSampleRank = true);
-
+  static DbLine* createFromSamplesById(int nech,
+                                       const ELoadBy& order,
+                                       const VectorDouble& tab,
+                                       const VectorInt& lineIds,
+                                       const VectorInt& ranksPerId,
+                                       const VectorString& names = VectorString(),
+                                       const VectorString& locatorNames = VectorString(),
+                                       bool flagAddSampleRank           = true);
   static DbLine* createFromNF(const String& neutralFilename,
                               bool verbose = true);
   static DbLine* createFillRandom(int ndim,
@@ -91,8 +108,8 @@ protected:
 
 private:
   int _lineLinkage(const VectorInt& lineCounts);
+  int _lineLinkageById(const VectorInt& linesId, const VectorInt& ranksPerId);
   bool _isLineNumberValid(int iline) const;
-  bool _isConsistent() const;
 
 private:
   // Information on addresses within the Db, per Line:

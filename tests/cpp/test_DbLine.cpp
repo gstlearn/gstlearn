@@ -50,19 +50,42 @@ int main(int argc, char *argv[])
                               {"x1", "x2", "z1", "z2"},
                               {"x1", "x2", "z1", "z2"});
   if (dbline == nullptr) return 1;
+  mestitle(1, "Reference DbLine File");
   dbline->display();
 
+  // Dump into a Neutral File
+  dbline->dumpToNF("Line.ascii");
+
+  // Read from the Neutral File and print contents again
+  DbLine* dbline2 = DbLine::createFromNF("Line.ascii");
+  mestitle(1, "DbLine after Serialization / Deserialization");
+  dbline2->display();
+    
+   // Checking the second way to initiate the DbLine (using lineIds)
+  VectorInt lineIds    = {2, 2, 2, 5, 5, 5, 5, 1, 1, 6, 6, 6};
+  VectorInt ranksPerId = {1, 2, 3, 10, 11, 12, 13, 1, 2, 1, 2, 3};
+  DbLine* dbline3      = DbLine::createFromSamplesById(
+         (int)x1.size(), ELoadBy::COLUMN, tab, lineIds, ranksPerId,
+         {"x1", "x2", "z1", "z2"}, {"x1", "x2", "z1", "z2"});
+  if (dbline3 == nullptr) return 1;
+  mestitle(1, "DbLine created using alternative solution");
+  dbline3->display();
+
   // Create the corresponding Header file
-  // This new file contains one variable which gives the number of samples per Line
+  // This new file contains one variable which gives the number of samples per
+  // Line
   Db* db = dbline->createStatToHeader();
 
-  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, true, false, false, true);
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(true, true, false, false, true);
   db->display(dbfmt);
 
   delete dbline;
+  delete dbline2;
+  delete dbline3;
   delete dbfmt;
   delete db;
-  
+
   return 0;
 }
 

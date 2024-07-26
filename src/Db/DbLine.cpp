@@ -137,6 +137,26 @@ DbLine* DbLine::createFromSamples(int nech,
   return dbline;
 }
 
+DbLine* DbLine::createFromSamplesById(int nech,
+                                      const ELoadBy& order,
+                                      const VectorDouble& tab,
+                                      const VectorInt& lineIds,
+                                      const VectorInt& ranksPerId,
+                                      const VectorString& names,
+                                      const VectorString& locatorNames,
+                                      bool flagAddSampleRank)
+{
+  DbLine* dbline = new DbLine;
+  if (dbline->resetFromSamplesById(nech, order, tab, lineIds, ranksPerId, names,
+                                   locatorNames, flagAddSampleRank))
+  {
+    messerr("Error when creating DbLine from Samples By Ids");
+    delete dbline;
+    return nullptr;
+  }
+  return dbline;
+}
+
 int DbLine::_lineLinkage(const VectorInt& lineCounts)
 {
   // Prelimnary check
@@ -165,6 +185,68 @@ int DbLine::_lineLinkage(const VectorInt& lineCounts)
   return 0;
 }
 
+int DbLine::_lineLinkageById(const VectorInt& linesId,
+                             const VectorInt& ranksPerId)
+{
+  int nech = getSampleNumber();
+
+  // Preliniary checks by dimensions
+  if ((int)linesId.size() != nech)
+  {
+    messerr("Dimension of 'linesId' (%d) should match Number of samples (%d)",
+            (int)linesId.size(), nech);
+    return 1;
+  }
+  if ((int)ranksPerId.size() != nech)
+  {
+    messerr("Dimension of 'ranksPerId' (%d) should match Number of samples (%d)",
+      (int)ranksPerId.size(), nech);
+    return 1;
+  }
+
+  // Find the number of lines
+  VectorInt allLines = VH::unique(linesId);
+  int nbline         = (int)allLines.size();
+
+  // Create the Linkage
+  _lineAdds.resize(nbline, 0);
+
+  for (int iline = 0; iline < nbline; iline++)
+  {
+    int refLineId = allLines[iline];
+
+    VectorInt ranks;
+    VectorInt iadds;
+    for (int iech = 0; iech < nech; iech++)
+    {
+      if (linesId[iech] != refLineId) continue;
+      ranks.push_back(ranksPerId[iech]);
+      iadds.push_back(iech);
+    }
+
+    VectorInt sortedRanks  = VH::orderRanks(ranks);
+    _lineAdds[iline]       = VH::reorder(iadds, sortedRanks);
+  }
+  return (int) !isConsistent();
+}
+
+/**
+ * @brief Reset the contents of a DbLine from arguments (previous contents is
+ * cleared beforehand). The line contents is provided in 'lineCounts'.
+ *
+ * @param nech Number of samples to be loaded
+ * @param order Ordering mode used for storing in 'tab' (by column or by sample)
+ * @param tab Vector containing the values to be imported
+ * @param lineCounts Vector giving the number of samples per Line (see details)
+ * @param names Names given to the output variables
+ * @param locatorNames Name of the locators given to the output variables
+ * @param flagAddSampleRank When TRUE, the 'rank' variable is added
+ * @return int Error returned code
+ *
+ * @details: Argument 'lineCounts' give the number of samples per Line.
+ * @details: This assumes that samples of per line are ordered sequentially
+ * @details and that samples of Line 'j' are followed by those of Line 'j+1'.
+ */
 int DbLine::resetFromSamples(int nech,
                              const ELoadBy& order,
                              const VectorDouble& tab,
@@ -184,9 +266,57 @@ int DbLine::resetFromSamples(int nech,
   return 0;
 }
 
+/**
+ * @brief Reset the contents of a DbLine from arguments (previous contents is
+ * cleared beforehand). The line contents is provided in 'lineIds' and
+'ranksPerId'
+ *
+ * @param nech Number of samples to be loaded
+ * @param order Ordering mode used for storing in 'tab' (by column or by sample)
+ * @param tab Vector containing the values to be imported
+ * @param lineIds Vector giving the LineId to which each sample belongs (see details)
+ * @param ranksPerId Vector giving the ordering of samples within Line (see details)
+ * @param names Names given to the output variables
+ * @param locatorNames Name of the locators given to the output variables
+ * @param flagAddSampleRank When TRUE, the 'rank' variable is added
+ * @return int Error returned code
+ *
+ * @details: Argument 'lineIds' is dimensioned to the total number of samples.
+ * @details: For each sample, it gives Id of Line to which the sample belongs.
+ * @details: LineId must be numeric: equzl for samples of the same line and
+ * @details: different for samples of different lines
+ *
+ * @details: Argument 'ranksPerId' is dimensionned to total number of samples.
+ * @details: Along the samples belonging to one line (sharing the same LineId)
+ * @details: it should provide the ordering of the samples.
+ * @details: For one line, the values of 'ranksPerId' must be numeric:
+ * @details: they do not need to be consecutive ... simply ordered.
+ */
+int DbLine::resetFromSamplesById(int nech,
+                                 const ELoadBy& order,
+                                 const VectorDouble& tab,
+                                 const VectorInt& lineIds,
+                                 const VectorInt& ranksPerId,
+                                 const VectorString& names,
+                                 const VectorString& locatorNames,
+                                 bool flagAddSampleRank)
+{
+  if (Db::resetFromSamples(nech, order, tab, names, locatorNames,
+                           flagAddSampleRank) != 0)
+    return 1;
+
+  // Create the Line Linkage
+
+  if (_lineLinkageById(lineIds, ranksPerId) != 0) return 1;
+
+  return 0;
+}
+
 bool DbLine::_deserialize(std::istream& is, bool verbose)
 {
   int ndim = 0;
+  int nbline = 0;
+  int number = 0;
   VectorString locators;
   VectorString names;
   VectorDouble values;
@@ -197,6 +327,15 @@ bool DbLine::_deserialize(std::istream& is, bool verbose)
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
 
+  // Writing the set of addresses for Line organization
+
+  ret      = ret && _recordRead<int>(is, "Number of Lines", nbline);
+  _lineAdds.resize(nbline);
+  for (int iline = 0; iline < nbline; iline++)
+  {
+    ret = ret && _recordRead<int>(is, "Number of Samples", number);
+    ret = ret && _recordReadVec<int>(is, "", _lineAdds[iline], number);
+  }
   ret = ret && Db::_deserialize(is, verbose);
 
   return ret;
@@ -209,6 +348,15 @@ bool DbLine::_serialize(std::ostream& os, bool verbose) const
   /* Writing the header */
 
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+
+  // Writing the set of addresses for Line organization
+
+  ret      = ret && _recordWrite<int>(os, "Number of Lines", getLineNumber());
+  for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
+  {
+    ret = ret && _recordWrite<int>(os, "Number of Samples", getLineSampleCount(iline));
+    ret = ret && _recordWriteVec<int>(os, "", _lineAdds[iline]);
+  }
 
   /* Writing the tail of the file */
 
@@ -314,9 +462,9 @@ DbLine* DbLine::createFillRandom(int ndim,
 /**
  * @brief Check if the contents of private member of this class is compatible
  * with the number of samples stored in the Db
- * @return true if there is consistency
+ * @return true if everything is OK; false if a problem occurs
  */
-bool DbLine::_isConsistent() const
+bool DbLine::isConsistent() const
 {
   // Check on the count of addresses
   int nech = getSampleNumber();
