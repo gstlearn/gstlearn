@@ -24,7 +24,6 @@ env:
   CMAKE_GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}\swig_420b
-  CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
 
@@ -46,12 +45,17 @@ jobs:
         install-pandoc: false
 
     - name: Install dependencies
+      shell: C:\msys64\usr\bin\bash.exe {0}
       run: |
-        echo '{
-          "dependencies": [ "boost-math", "eigen3" ],
-          "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
-        }' > vcpkg.json
-        vcpkg install
+        pacman -Sy
+        pacman -S --noconfirm mingw-w64-x86_64-boost mingw-w64-x86_64-eigen3 ccache
+
+    - uses: actions/cache@v4
+      with:
+        path: C:\Users\runneradmin\.cache\ccache
+        key: ccache-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: |
+          ccache-${{ runner.os }}
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-windows-action@v2
@@ -67,6 +71,9 @@ jobs:
           -DBUILD_R=ON `
           -DBUILD_PYTHON=OFF `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      env:
+        CMAKE_CC_COMPILER_LAUNCHER: ccache
+        CMAKE_CXX_COMPILER_LAUNCHER: ccache
 
     - name: Build the package
       run: |
