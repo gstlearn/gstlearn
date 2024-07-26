@@ -11,7 +11,6 @@
 #pragma once
 
 #include "Basic/WarningMacro.hpp"
-#include "Basic/RepeatMacro.hpp"
 
 // WARNING: Make this include list as small as possible!
 #include <string>
@@ -66,7 +65,8 @@ typedef unsigned char UChar;
 #define ABS(a)         (((a) <  0.) ? -(a) : (a))
 #define SIGN(s,a)      (((s) <  0.) ? -(a) : (a))
 #define M_R(tab,n,i,j) (tab[(n) * (i) + (j)])
-#define IS_GAUSS_DEF(x) (x > THRESH_INF && x < THRESH_SUP)
+#define IS_GAUSS_DEF(x)     (x > THRESH_INF  && x <  THRESH_SUP)
+#define ISNOT_GAUSS_DEF(x)  (x <= THRESH_INF || x >= THRESH_SUP)
 
 #define MAX_INT     1000000000
 #define MAX_PARAM   1000

@@ -88,7 +88,7 @@ typedef struct
 #define STAT_PROBA(i,j) (M_R(local_pgs->stat_proba,local_pgs->nfacies,i,j))
 #define STAT_THRESH(ifac,igrf,rank) (local_pgs->stat_thresh[2*(nfacies * (igrf) + (ifac))+(rank)])
 #define LAG_USED(idir,ipas) (vario->getSwByIndex(idir,vario->getLagNumber(idir) + ipas + 1) > 0 && \
-                         vario->getUtilizeByIndex(idir,vario->getLagNumber(idir) + ipas + 1))
+                             vario->getUtilizeByIndex(idir,vario->getLagNumber(idir) + ipas + 1))
 #define TABOUT(i,j)      tabout[(j)*neq+(i)]
 #define EIGVEC(i,j)      eigvec[(i)*neq+(j)]
 #define RULES(ir,i)     (rules[(ir)  * NRULE  + (i)])
@@ -2724,7 +2724,7 @@ static double st_d2_dkldij(VectorDouble& lower,
           for (int i = 0; i < 4 && flag_out == 0; i++)
           {
             u[i] = (grid[i]) ? upper[i] : lower[i];
-            flag_out = !IS_GAUSS_DEF(u[i]);
+            flag_out = ISNOT_GAUSS_DEF(u[i]);
           }
           if (!flag_out)
             S += pow(-1., i1 + i2 + i3 + i4) * law_df_quadgaussian(u, correl);
@@ -2788,7 +2788,7 @@ static double st_d2_dkldkj(int index1,
         for (int i = 0; i < 3 && ! flag_out; i++)
         {
           u[i] = (grid[i]) ? uppi[i] : lowi[i];
-          flag_out = !IS_GAUSS_DEF(u[i]);
+          flag_out = ISNOT_GAUSS_DEF(u[i]);
         }
         if (flag_out) continue;
         double mu = VH::innerProduct(temp, u);
