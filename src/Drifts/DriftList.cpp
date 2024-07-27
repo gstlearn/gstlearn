@@ -167,7 +167,7 @@ bool DriftList::isValid() const
     {
       const String str_jl = _drifts[jl]->getDriftName();
 
-      if (str_il.compare(str_jl) == 0)
+      if (str_il == str_jl)
       {
         messerr("Set of drift functions is invalid: %d and %d are similar",il+1,jl+1);
         return false;

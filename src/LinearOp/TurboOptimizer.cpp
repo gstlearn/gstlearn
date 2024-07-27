@@ -193,7 +193,7 @@ void TurboOptimizer::_fromMeshToIndex(int imesh, int *node, int *icas) const
   *node = _indiceToRank(indice);
 }
 
-int TurboOptimizer::_MSS(int icas, int icorn, int idim0) const
+int TurboOptimizer::_MSS(int icas, int icorn, int idim0)
 {
   static int S2D[2][3][2] = {{{0,0}, {1,0}, {0,1}}, {{0,1}, {1,0}, {1,1}}};
   return S2D[icas][icorn][idim0];
@@ -213,29 +213,20 @@ int TurboOptimizer::_indiceToRank(VectorInt& indice, bool flag_complete) const
 {
   if (flag_complete)
   {
-    if (indice[0] < 0 || indice[0] >= _nx)
-      my_throw("Error in indice[0]");
-    if (indice[1] < 0 || indice[1] >= _ny)
-      my_throw("Error in indice[1]");
+    if (indice[0] < 0 || indice[0] >= _nx) my_throw("Error in indice[0]");
+    if (indice[1] < 0 || indice[1] >= _ny) my_throw("Error in indice[1]");
     return _nx * indice[1] + indice[0];
   }
-  else
-  {
-    if (indice[0] < 0 || indice[0] >= _nxred)
-      indice[0] = _center;
-    if (indice[1] < 0 || indice[1] >= _nxred)
-      indice[1] = _center;
-    return _nxred * indice[1] + indice[0];
-  }
+  if (indice[0] < 0 || indice[0] >= _nxred) indice[0] = _center;
+  if (indice[1] < 0 || indice[1] >= _nxred) indice[1] = _center;
+  return _nxred * indice[1] + indice[0];
 }
 
 double TurboOptimizer::_indiceToCoordinate(int idim0,
-                                           const VectorInt indice) const
+                                           const VectorInt& indice) const
 {
-  if (idim0 == 0)
-    return (_x0 + indice[0] * _dx);
-  else
-    return (_y0 + indice[1] * _dy);
+  if (idim0 == 0) return (_x0 + indice[0] * _dx);
+  return (_y0 + indice[1] * _dy);
 }
 
 
@@ -256,7 +247,7 @@ double TurboOptimizer::_getCoorByMesh(int imesh, int rank, int idim0) const
 void TurboOptimizer::_printVector(const std::string& title,
                                   VectorDouble& uu,
                                   int width,
-                                  int ndec) const
+                                  int ndec)
 {
   int nval = static_cast<int> (uu.size());
   std::cout << title << std::endl;
@@ -277,7 +268,7 @@ void TurboOptimizer::_printMatrix(const std::string& title,
                                   int row_shift,
                                   int col_shift,
                                   int width,
-                                  int ndec) const
+                                  int ndec)
 {
   // Initializations
   int nbatch = 1 + (ncol-1) / nper_batch;
@@ -314,7 +305,7 @@ void TurboOptimizer::_printMatrix(const std::string& title,
 
 void TurboOptimizer::_invert_3x3(VectorDouble& uu,
                                  VectorDouble& vv,
-                                 double tol) const
+                                 double tol)
 {
   double det00 = U(1,1) * U(2,2) - U(2,1) * U(1,2);
   double det01 = U(1,0) * U(2,2) - U(2,0) * U(1,2);
@@ -345,7 +336,7 @@ void TurboOptimizer::_invert_3x3(VectorDouble& uu,
 void TurboOptimizer::_prodMatrix(int size,
                                  const VectorDouble& aa,
                                  const VectorDouble& bb,
-                                 VectorDouble& cc) const
+                                 VectorDouble& cc)
 {
   for (int i = 0; i < size; i++)
     for (int j = 0; j < size; j++)
@@ -360,7 +351,7 @@ void TurboOptimizer::_prodMatrix(int size,
 void TurboOptimizer::_prodMatrixVector(int size,
                                        const VectorDouble &aa,
                                        const VectorDouble &bb,
-                                       VectorDouble &cc) const
+                                       VectorDouble &cc)
 {
   for (int i = 0; i < size; i++)
   {
@@ -519,7 +510,7 @@ VectorDouble TurboOptimizer::_buildTildeC() const
   return TildeC;
 }
 
-VectorDouble TurboOptimizer::_buildLambda(const VectorDouble TildeC) const
+VectorDouble TurboOptimizer::_buildLambda(const VectorDouble& TildeC) const
 {
   int nvertex = _getNVertices();
   VectorDouble Lambda(nvertex,0);
@@ -662,9 +653,8 @@ void TurboOptimizer::printMeshes() const
 void TurboOptimizer::_updateMargin(int idim0, VectorInt& indice) const
 {
   int nmax = (idim0 == 0) ? _nx : _ny;
-  if (indice[idim0] < _half)
-    return;
-  else if ((nmax - 1) - indice[idim0] < _half)
+  if (indice[idim0] < _half) return;
+  if ((nmax - 1) - indice[idim0] < _half)
   {
     indice[idim0] = (_nxred - 1) - ((nmax - 1) - indice[idim0]);
   }

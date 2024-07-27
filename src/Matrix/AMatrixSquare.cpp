@@ -219,7 +219,6 @@ void AMatrixSquare::prodByDiagInPlace(int mode, const VectorDouble& c)
       else if (mode == 3) val = 1. / sqrt(val);
       setValue(i1, i2, getValue(i1, i2) * val);
     }
-  return;
 }
 
 bool AMatrixSquare::_isNumbersValid(int nrows, int ncols) const

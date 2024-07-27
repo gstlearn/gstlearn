@@ -23,7 +23,7 @@ class GSTLEARN_EXPORT OptimCostBinary: public IOptimCost
 {
 
 public:
-  OptimCostBinary(const CGParam params = CGParam());
+  OptimCostBinary(const CGParam& params = CGParam());
   OptimCostBinary(const OptimCostBinary &m);
   OptimCostBinary& operator = (const OptimCostBinary &m);
   virtual ~OptimCostBinary();
@@ -49,7 +49,7 @@ public:
     _chebNcmax = chebncmax;
     _chebTol = chebtol;
   }
-  int isInitialized() { return _isInitialized; }
+  int isInitialized() const { return _isInitialized; }
   int getNPoint() const;
   int getNVertex() const;
   void toggleSeismic(bool status);

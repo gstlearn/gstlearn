@@ -87,8 +87,12 @@ typedef struct
 #define MEMINT(ipair)   (local_pgs->memint[ipair])
 #define STAT_PROBA(i,j) (M_R(local_pgs->stat_proba,local_pgs->nfacies,i,j))
 #define STAT_THRESH(ifac,igrf,rank) (local_pgs->stat_thresh[2*(nfacies * (igrf) + (ifac))+(rank)])
-#define LAG_USED(idir,ipas) (vario->getSwByIndex(idir,vario->getLagNumber(idir) + ipas + 1) > 0 && \
-                             vario->getUtilizeByIndex(idir,vario->getLagNumber(idir) + ipas + 1))
+#define LAG_USED(idir, ipas)                                                   \
+  (vario->getSwByIndex(idir, vario->getLagNumber(idir) + ipas + 1) > 0 &&      \
+   vario->getUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas + 1) != 0)
+#define LAG_UNUSED(idir, ipas)                                                   \
+  (vario->getSwByIndex(idir, vario->getLagNumber(idir) + ipas + 1) <= 0 ||      \
+   vario->getUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas + 1) == 0)
 #define TABOUT(i,j)      tabout[(j)*neq+(i)]
 #define EIGVEC(i,j)      eigvec[(i)*neq+(j)]
 #define RULES(ir,i)     (rules[(ir)  * NRULE  + (i)])
@@ -1236,7 +1240,7 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
     mes_process("Inverting Variogram Lag", vario->getLagNumber(idir), ipas);
     local_pgs->ipascur = ipas;
     trace_add_row(local_pgs);
-    if (!LAG_USED(idir, ipas)) continue;
+    if (LAG_UNUSED(idir, ipas)) continue;
     vario_order_get_bounds(local_pgs->vorder, idir, ipas, &local_pgs->ifirst,
                            &local_pgs->ilast);
     if (local_pgs->ifirst >= local_pgs->ilast) continue;
@@ -1697,7 +1701,7 @@ static void st_split_collapse(Split *split, int verbose)
       {
         num[i] = 1;
         nby[i] = 1;
-        ptr[i] = &relem->facies[0];
+        ptr[i] = relem->facies.data();
       }
       else
       {
@@ -2961,8 +2965,8 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
     /* Get the bounds */
 
     (void) rule_thresh_define(local_pgs->propdef, local_pgs->db,
-                              local_pgs->rule, ifac1, i1, 0, 0, 1, &lower[0],
-                              &upper[0], &lower[2], &upper[2]);
+                              local_pgs->rule, ifac1, i1, 0, 0, 1, lower.data(),
+                              upper.data(), &lower[2], &upper[2]);
     (void) rule_thresh_define(local_pgs->propdef, local_pgs->db,
                               local_pgs->rule, ifac2, i2, 0, 0, 1, &lower[1],
                               &upper[1], &lower[3], &upper[3]);
@@ -3549,7 +3553,7 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
     mes_process("Inverting Variogram Lag", vario->getLagNumber(idir), ipas);
     local_pgs->ipascur = ipas;
     trace_add_row(local_pgs);
-    if (!LAG_USED(idir, ipas)) continue;
+    if (LAG_UNUSED(idir, ipas)) continue;
     vario_order_get_bounds(local_pgs->vorder, idir, ipas, &local_pgs->ifirst,
                            &local_pgs->ilast);
     if (local_pgs->ifirst >= local_pgs->ilast) continue;

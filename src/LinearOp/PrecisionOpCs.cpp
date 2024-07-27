@@ -17,7 +17,6 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/NF_Triplet.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
@@ -33,7 +32,7 @@ PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
                              Model *model,
                              int icov,
                              bool flagDecompose,
-                             const CGParam params,
+                             const CGParam& params,
                              bool verbose)
     : PrecisionOp(mesh, model, icov, params, verbose),
       _Q(nullptr)
@@ -208,7 +207,7 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 
 void PrecisionOpCs::_buildQ(bool flagDecompose)
 {
-  if (_Q != nullptr) delete _Q;
+  delete _Q;
   if (! isCovaDefined()) return;
 
   // Calculate the Vector of coefficients (blin)

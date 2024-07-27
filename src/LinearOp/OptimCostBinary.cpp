@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/HessianOp.hpp"
 #include "LinearOp/IOptimCost.hpp"
@@ -23,7 +21,7 @@
 
 #include <math.h>
 
-OptimCostBinary::OptimCostBinary(const CGParam params)
+OptimCostBinary::OptimCostBinary(const CGParam& params)
     : IOptimCost(),
       _isInitialized(false),
       _flagSeismic(false),
@@ -326,8 +324,8 @@ int OptimCostBinary::getNVertex() const
 void OptimCostBinary::toggleSeismic(bool status)
 {
   // When Seismic is not defined, this precedure is useless
-  if (! (_projSeis != (ProjMatrix *) NULL && 
-         _projSeis->getPointNumber() > 0)) return;
+  if (_projSeis == (ProjMatrix*)NULL || _projSeis->getPointNumber() <= 0)
+    return;
 
   _flagSeismic = status;
 }

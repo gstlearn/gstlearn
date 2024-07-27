@@ -123,20 +123,6 @@ GSTLEARN_EXPORT int     cs_lsolve_lowtri( const cs *L, const double *x, double *
 GSTLEARN_EXPORT int     cs_lsolve_uptri (const cs *L, const double *x, double *y);
 GSTLEARN_EXPORT cs     *cs_invert(const cs *A, int order, double epsilon = EPSILON6);
 
-// Multigrid operations
-GSTLEARN_EXPORT cs_MGS *cs_multigrid_manage(cs_MGS *mgs,int mode,
-                                            int nlevels, int path_type);
-GSTLEARN_EXPORT void    cs_multigrid_params(cs_MGS *mgs, int flag_cg,
-                                            int type_coarse, int ngc, int nmg, int ngs,
-                                            double tolgc, double tolnmg);
-GSTLEARN_EXPORT void    cs_multigrid_print(cs_MGS *mgs);
-GSTLEARN_EXPORT int     cs_multigrid_get_nlevels(cs_MGS *mgs);
-GSTLEARN_EXPORT int     cs_multigrid_setup(cs_MGS *mgs, QChol *Qctt,
-                                           int flag_sel, int verbose, double **sel);
-GSTLEARN_EXPORT int     cs_multigrid_process(cs_MGS *mgs, QChol *qctt, int verbose,
-                                             double *x, double *b, double *work);
-GSTLEARN_EXPORT void    cs_multigrid_coarse2fine(cs_MGS *mgs,double *z,double *work);
-
 // Qchol operations
 GSTLEARN_EXPORT int     qchol_cholesky(int verbose,QChol *QC);
 GSTLEARN_EXPORT void    cs_chol_invert(QChol *qctt,double *xcr,double *rhs, double *work);

@@ -33,7 +33,7 @@ public:
                 Model* model,
                 int icov = 0,
                 bool flagDecompose = false,
-                const CGParam params = CGParam(),
+                const CGParam& params = CGParam(),
                 bool verbose = false);
   virtual ~PrecisionOpCs();
 

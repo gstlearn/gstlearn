@@ -113,7 +113,8 @@ int ct_tableone_covrank(const CTables *ctables,
   nconf = ctables->nconf;
   ecart = (cova - ctables->cmin);
   dc = ctables->dc;
-  iconf = (int) (0.5 + ecart / dc);
+  auto placeholder = (0.5 + ecart / dc);
+  iconf            = (int)placeholder;
 
   if (iconf < 0) iconf = 0;
   if (iconf >= nconf) iconf = nconf - 1;

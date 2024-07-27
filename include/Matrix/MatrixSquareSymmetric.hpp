@@ -25,7 +25,7 @@ class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
   MatrixSquareSymmetric(int nrow = 0);
-  MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
+  MatrixSquareSymmetric(const MatrixSquareSymmetric &r);
   MatrixSquareSymmetric(const AMatrix &m);
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
 	virtual ~MatrixSquareSymmetric();
@@ -83,15 +83,13 @@ public:
   int solveCholesky(const VectorDouble& b, VectorDouble& x);
   VectorDouble getCholeskyTL() const;
   VectorDouble getCholeskyXL() const;
-  MatrixRectangular productCholeskyInPlace(int mode,
-                                           int neq,
-                                           int nrhs,
-                                           const VectorDouble &tl,
-                                           const MatrixRectangular &a);
-  MatrixSquareSymmetric normCholeskyInPlace(int mode,
-                                            int neq,
-                                            const VectorDouble &tl,
-                                            const MatrixSquareSymmetric &a);
+  static MatrixRectangular productCholeskyInPlace(int mode,
+                                                  int neq,
+                                                  int nrhs,
+                                                  const VectorDouble& tl,
+                                                  const MatrixRectangular& a);
+  static MatrixSquareSymmetric normCholeskyInPlace(
+    int mode, int neq, const VectorDouble& tl, const MatrixSquareSymmetric& a);
   double computeCholeskyLogDeterminant() const;
   
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
@@ -115,20 +113,20 @@ public:
                         const VectorDouble& xmat,
                         VectorDouble& vmat,
                         VectorInt& flag);
-  int _constraintsConcatenateMat(int nae,
-                                 int nai,
-                                 int neq,
-                                 const VectorInt &active,
-                                 const MatrixRectangular &tabemat,
-                                 const MatrixRectangular &tabimat,
-                                 MatrixRectangular &tabout);
-  int _constraintsConcatenateVD(int nae,
-                                int nai,
-                                const VectorInt &active,
-                                const VectorDouble &tabemat,
-                                const VectorDouble &tabimat,
-                                VectorDouble &tabout);
-  int _constraintsCount(int nai, VectorInt& active);
+  static int _constraintsConcatenateMat(int nae,
+                                        int nai,
+                                        int neq,
+                                        const VectorInt& active,
+                                        const MatrixRectangular& tabemat,
+                                        const MatrixRectangular& tabimat,
+                                        MatrixRectangular& tabout);
+  static int _constraintsConcatenateVD(int nae,
+                                       int nai,
+                                       const VectorInt& active,
+                                       const VectorDouble& tabemat,
+                                       const VectorDouble& tabimat,
+                                       VectorDouble& tabout);
+  static int _constraintsCount(int nai, VectorInt& active);
   bool _checkCholeskyAlreadyPerformed(int status) const;
   int _terminateEigen(const VectorDouble &eigenValues,
                       const VectorDouble &eigenVectors,

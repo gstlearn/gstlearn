@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 #include "Basic/WarningMacro.hpp"
+// Important remark: the following line MUST NOT BE REMOVED (even if not used directly here)
 #include "Basic/RepeatMacro.hpp"
 
 // WARNING: Make this include list as small as possible!

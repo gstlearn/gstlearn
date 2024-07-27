@@ -180,7 +180,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu, int seed) const
 double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu, int seed) const
 {
   double result = 0.;
-  for (auto &e : _multiPrecisionOp)
+  for (const auto &e : _multiPrecisionOp)
   {
     result += e->getLogDeterminant(nbsimu,seed);
   }
@@ -190,7 +190,7 @@ double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu, int seed) const
 double PrecisionOpMultiConditional::sumLogVar() const
 {
   double s = 0.;
-  for (auto &e : _varianceData)
+  for (const auto &e : _varianceData)
   {
     s += log(e);
   }

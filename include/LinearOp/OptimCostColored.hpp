@@ -12,12 +12,11 @@
 
 #include "gstlearn_export.hpp"
 #include "OptimCostBinary.hpp"
-#include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT OptimCostColored : public OptimCostBinary
 {
 public:
-  OptimCostColored(const CGParam params = CGParam());
+  OptimCostColored(const CGParam& params = CGParam());
   OptimCostColored(int nprop,
                    PrecisionOp* pmat,
                    const ProjMatrix* projdata,
