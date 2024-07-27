@@ -108,21 +108,25 @@ String getLocatorName(const ELoc& locatorType, int locatorIndex)
   if (locatorType == ELoc::UNKNOWN)
   {
     sstr << STRING_NA;
+    return sstr.str();
   }
-  else if (! isLocatorTypeValid(locatorType))
+  if (!isLocatorTypeValid(locatorType))
   {
-    sstr << STRING_NA;
+    return STRING_NA;
+    return sstr.str();
   }
-  else
+  int i = locatorType.getValue();
+  if (DEF_LOCATOR[i].IREF == 1)
   {
-    int i = locatorType.getValue();
-    if (DEF_LOCATOR[i].IREF == 1)
-      sstr << DEF_LOCATOR[i].SREF;
-    else if (locatorIndex < 0)
-      sstr << DEF_LOCATOR[i].SREF;
-    else
-      sstr << DEF_LOCATOR[i].SREF << locatorIndex+1;
+    sstr << DEF_LOCATOR[i].SREF;
+    return sstr.str();
   }
+  if (locatorIndex < 0)
+  {
+    sstr << DEF_LOCATOR[i].SREF;
+    return sstr.str();
+  }
+  sstr << DEF_LOCATOR[i].SREF << locatorIndex + 1;
   return sstr.str();
 }
 
@@ -163,19 +167,19 @@ int getLocatorTypeFromName(const String& name_type)
 /**
  * Given a locator string, extract its characteristics
  * @param string     Locator string
- * @param ret_locatorType Resulting Locator type
- * @param ret_item   Resulting Locator rank (starting from 0)
+ * @param ret_locatorType  Resulting Locator type
+ * @param ret_locatorIndex Resulting Locator rank (starting from 0)
  * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
  * @return Error code
  */
 int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex, int* ret_mult)
 {
-  *ret_locatorType = ELoc::UNKNOWN;
-  *ret_locatorIndex = -1;
-  *ret_mult = 1;
-  int inum = -1;
-  int found = -1;
-  bool mult = false;
+  *ret_locatorType   = ELoc::UNKNOWN;
+  *ret_locatorIndex  = -1;
+  *ret_mult     =  1;
+  int  inum  = -1;
+  int  found = -1;
+  bool mult  =  0;
 
   // Transform the input argument into lower case for comparison
   String string_loc = string;
@@ -195,7 +199,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex,
   if (found < 0)
   {
     // The locator has not been matched. It is returned as UNKNOWN
-    *ret_locatorType = ELoc::UNKNOWN;
+    *ret_locatorType  = ELoc::UNKNOWN;
     *ret_locatorIndex = 0;
     *ret_mult   = 0;
     return 0;
@@ -214,9 +218,9 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex,
 
   /* Returning arguments */
 
-  *ret_locatorType = ELoc::fromValue(found);
+  *ret_locatorType  = ELoc::fromValue(found);
   *ret_locatorIndex = MAX(inum-1, 0);
-  *ret_mult = (int)mult;
+  *ret_mult   = mult;
   return 0;
 }
 

@@ -1619,8 +1619,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
     nechtot += newval;
     continue;
 
-  label_suppress:
-    seltab[iech] = 0;
+    label_suppress: seltab[iech] = 0;
   }
 
   return (nechtot);
@@ -1975,10 +1974,10 @@ static int st_drift_bayes(LMlayers *lmlayers,
  ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
-int multilayers_kriging(Db *dbin,
-                        DbGrid *dbout,
-                        Model *model,
-                        ANeigh *neigh,
+int multilayers_kriging(Db* dbin,
+                        DbGrid* dbout,
+                        Model* model,
+                        ANeigh* neigh,
                         int flag_same,
                         int flag_z,
                         int flag_vel,
@@ -1989,8 +1988,8 @@ int multilayers_kriging(Db *dbin,
                         int irf_rank,
                         int match_time,
                         int dim_prior,
-                        double *prior_mean,
-                        double *prior_vars,
+                        double* prior_mean,
+                        double* prior_vars,
                         int colrefd,
                         int colreft,
                         int colrefb,
@@ -2717,9 +2716,9 @@ static int st_get_prior(int nech,
  ** \param[out] vars       Array of variances
  **
  *****************************************************************************/
-int multilayers_get_prior(Db *dbin,
-                          DbGrid *dbout,
-                          Model *model,
+int multilayers_get_prior(Db* dbin,
+                          DbGrid* dbout,
+                          Model* model,
                           int flag_same,
                           int flag_vel,
                           int flag_ext,
@@ -2729,9 +2728,9 @@ int multilayers_get_prior(Db *dbin,
                           int colreft,
                           int colrefb,
                           int verbose,
-                          int *npar_arg,
-                          double **mean,
-                          double **vars)
+                          int* npar_arg,
+                          double** mean,
+                          double** vars)
 {
   int nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
   bool flag_created;

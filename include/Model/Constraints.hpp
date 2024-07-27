@@ -60,6 +60,6 @@ public:
 
 private:
   double _constantSillValue;       /* Constant Sill as a constraint */
-  VectorDouble _constantSills;     /* Array of constant Sills (expanded to the variables) */
+  VectorDouble _constantSills;     /* Vector of constant Sills (expanded to the number of variables) */
   std::vector<ConsItem *> _consItems;
 };

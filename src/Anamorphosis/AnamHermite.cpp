@@ -16,10 +16,8 @@
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Stats/Selectivity.hpp"
 
 #include <math.h>
@@ -403,8 +401,7 @@ VectorDouble AnamHermite::getPsiHns() const
     }
     return psi;
   }
-  else
-    return _psiHn;
+  return _psiHn;
 }
 
 void AnamHermite::setPsiHn(int i, double psi_hn)
@@ -488,9 +485,9 @@ void AnamHermite::_defineBounds(double pymin,
       _ay.setVmin(rawToTransformValue(_az.getVmin()));
       break;
     }
-    else if (ind == 0)
+    if (ind == 0)
       break;
-    else if (FFFF(_pz.getVmin()) && zm[ind-1] > zm[ind])
+    if (FFFF(_pz.getVmin()) && zm[ind-1] > zm[ind])
     {
       _py.setVmin(ym[ind]);
       _pz.setVmin(zm[ind]);
@@ -504,9 +501,9 @@ void AnamHermite::_defineBounds(double pymin,
       _ay.setVmax(rawToTransformValue(_az.getVmax()));
       break;
     }
-    else if (ind == npas-1)
+    if (ind == npas-1)
       break;
-    else if (FFFF(_pz.getVmax()) && zm[ind] > zm[ind+1])
+    if (FFFF(_pz.getVmax()) && zm[ind] > zm[ind+1])
     {
       _py.setVmax(ym[ind]);
       _pz.setVmax(zm[ind]);
@@ -538,7 +535,6 @@ void AnamHermite::_defineBounds(double pymin,
 
   // Set the FlagBound to its original status
   setFlagBound(flagBoundMemo);
-  return;
 }
 
 int AnamHermite::_data_sort(int nech,

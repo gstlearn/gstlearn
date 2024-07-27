@@ -972,7 +972,7 @@ int Db::getFromLocatorNumber(const ELoc& locatorType) const
   return p.getLocatorNumber();
 }
 
-int Db::getNEloc() const
+int Db::getNEloc()
 {
   int number = 0;
   auto it = ELoc::getIterator();
@@ -1342,10 +1342,11 @@ void Db::addColumnsByVVD(const VectorVectorDouble& tab,
                          bool useSel)
 {
   VectorDouble tabv;
-  int nvar = (int)tab.size();
-  for (const auto& e: tab)
-    for (const auto& f: e) tabv.push_back(f);
-  addColumns(tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar);
+  int nvar = (int) tab.size();
+  for(const auto &e : tab)
+    for(const auto &f : e)
+      tabv.push_back(f);
+  addColumns(tabv,radix,locatorType,locatorIndex,useSel,TEST,nvar);
 }
 
 /**
@@ -2872,9 +2873,8 @@ int Db::getLastUID(int number) const
   for (int i = 0; i < (int) _uidcol.size(); i++)
     if (_uidcol[i] >= 0) ranks.push_back(i);
   int size = static_cast<int> (ranks.size());
-  if (number > size)
-    return -1;
-  return ranks[size - number - 1];
+  if (number > size) return -1;
+    return ranks[size - number - 1];
 }
 
 String Db::getLastName(int number) const
@@ -2961,7 +2961,7 @@ VectorString Db::getNames(const VectorString& names) const
 VectorString Db::getAllNames(bool excludeRankAndCoordinates, bool verbose) const
 {
   if (!excludeRankAndCoordinates) return _colNames;
-
+  
   // From the list of all variables, exclude the following variables:
   // - the one named 'rank' (if any)
   // - the coordinates (if any)
@@ -4701,7 +4701,7 @@ int Db::resetReduce(const Db *dbin,
     {
       int ndim = dbin->getNDim();
       VectorVectorDouble coors = dbgrid->getAllCoordinates();
-      VectorString names = generateMultipleNames("Coor", ndim);
+      VectorString namloc = generateMultipleNames("Coor", ndim);
 
       // Save the coordinates in the output file (after possible sample selection)
       for (int idim = 0; idim < ndim; idim++)
@@ -4709,11 +4709,11 @@ int Db::resetReduce(const Db *dbin,
         if (flagMask)
         {
           VectorDouble coor = VH::compress(coors[idim], ranksel);
-          addColumns(coor, names[idim], ELoc::X, idim);
+          addColumns(coor, namloc[idim], ELoc::X, idim);
         }
         else
         {
-          addColumns(coors[idim], names[idim], ELoc::X, idim);
+          addColumns(coors[idim], namloc[idim], ELoc::X, idim);
         }
       }
     }
@@ -4783,21 +4783,19 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
   if (combine == "or")
   {
     for (int iech = 0; iech < nech; iech++)
-      sel[iech] = (double) ((sel[iech] != 0) || (oldsel[iech] != 0));
+      sel[iech] = sel[iech] || oldsel[iech];
     return;
   }
-
   if (combine == "and")
   {
     for (int iech = 0; iech < nech; iech++)
-      sel[iech] = (double) ((sel[iech] != 0) && (oldsel[iech] != 0));
+      sel[iech] = sel[iech] && oldsel[iech];
     return;
   }
-
   if (combine == "xor")
   {
     for (int iech = 0; iech < nech; iech++)
-      sel[iech] = (double) !areEqual(sel[iech], oldsel[iech]);
+      sel[iech] = !areEqual(sel[iech], oldsel[iech]);
     return;
   }
 

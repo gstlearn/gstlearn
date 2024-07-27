@@ -18,8 +18,8 @@ class GSTLEARN_EXPORT BiTargetCheckDistance: public ABiTargetCheck
 {
 public:
   BiTargetCheckDistance(double radius = TEST,
-                       const VectorDouble coeffs = VectorDouble(),
-                       const VectorDouble angles = VectorDouble());
+                       const VectorDouble& coeffs = VectorDouble(),
+                       const VectorDouble& angles = VectorDouble());
   BiTargetCheckDistance(const BiTargetCheckDistance& r);
   BiTargetCheckDistance& operator=(const BiTargetCheckDistance& r);
   virtual ~BiTargetCheckDistance();
@@ -30,8 +30,8 @@ public:
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
   static BiTargetCheckDistance* create(double radius = TEST,
-                                      const VectorDouble coeffs = VectorDouble(),
-                                      const VectorDouble angles = VectorDouble());
+                                      const VectorDouble& coeffs = VectorDouble(),
+                                      const VectorDouble& angles = VectorDouble());
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

@@ -17,25 +17,17 @@
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/String.hpp"
-#include "Basic/CSVformat.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Space/SpaceTarget.hpp"
 
 #include <algorithm>
-#include <functional>
 #include <math.h>
 
 DbGrid::DbGrid()
@@ -1474,7 +1466,7 @@ void DbGrid::_interpolate(const DbGrid *grid3D,
                           double top,
                           double bot,
                           const VectorDouble &vecin,
-                          VectorDouble &vecout)
+                          VectorDouble &vecout) const
 {
   int    nzin  = grid3D->getNX(idim0);
   double z0out = getX0(idim0);
@@ -2113,7 +2105,6 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
     message("- Number of values blanked out = %d\n", nmodif3D);
     message("- Maximum Layer thickness      = %lf\n", thickA);
   }
-  return;
 }
 
 VectorInt DbGrid::locateDataInGrid(const Db *data,

@@ -8,17 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
-
-#include "Enum/EJustify.hpp"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
 
 #include <string.h>
 #include <stdarg.h>

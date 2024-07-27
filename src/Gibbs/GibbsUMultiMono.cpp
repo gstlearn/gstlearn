@@ -13,9 +13,7 @@
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Morpho/Morpho.hpp"
 
 #include <math.h>
 
@@ -27,7 +25,7 @@ GibbsUMultiMono::GibbsUMultiMono()
 {
 }
 
-GibbsUMultiMono::GibbsUMultiMono(Db* db, std::vector<Model *> models, double rho)
+GibbsUMultiMono::GibbsUMultiMono(Db* db, const std::vector<Model *>& models, double rho)
   : GibbsMultiMono(db, models, rho)
   , _covmat()
 {

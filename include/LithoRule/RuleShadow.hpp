@@ -13,11 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
-#include "RuleStringFormat.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Basic/ICloneable.hpp"
 
 class PropDef;
 class DbGrid;
@@ -30,8 +26,8 @@ public:
              double sh_dsup,
              double sh_down,
              const VectorDouble& shift);
-  RuleShadow(const RuleShadow& r);
-  RuleShadow& operator=(const RuleShadow& r);
+  RuleShadow(const RuleShadow& m);
+  RuleShadow& operator=(const RuleShadow& m);
   virtual ~RuleShadow();
 
   String displaySpecific() const override;

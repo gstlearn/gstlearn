@@ -11,7 +11,6 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
@@ -19,8 +18,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/Grid.hpp"
 #include "Geometry/Rotation.hpp"
 
@@ -103,14 +100,8 @@ MeshETurbo::~MeshETurbo()
  */
 int MeshETurbo::getNApices() const
 {
-  if (_gridIndirect.isDefined())
-  {
-    return _gridIndirect.getRelSize();
-  }
-  else
-  {
-    return _grid.getNTotal();
-  }
+  if (_gridIndirect.isDefined()) return _gridIndirect.getRelSize();
+  return _grid.getNTotal();
 }
 
 /**
@@ -133,14 +124,8 @@ int MeshETurbo::_nmeshInCompleteGrid() const
  */
 int MeshETurbo::getNMeshes() const
 {
-  if (_meshIndirect.isDefined())
-  {
-    return _meshIndirect.getRelSize();
-  }
-  else
-  {
-    return _nmeshInCompleteGrid();
-  }
+  if (_meshIndirect.isDefined()) return _meshIndirect.getRelSize();
+  return _nmeshInCompleteGrid();
 }
 
 double MeshETurbo::getMeshSize(int /*imesh*/) const
@@ -343,8 +328,6 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
   }
 
   _gridIndirect.buildFromSel(selbis);
-
-  return;
 }
 
 /**
@@ -755,8 +738,7 @@ int MeshETurbo::_getPolarized(VectorInt indg) const
   if (ndim != 2) return(0);
   if ((indg[0] + indg[1]) % 2 == 1)
     return(0);
-  else
-    return(1);
+  return(1);
 }
 
 /**

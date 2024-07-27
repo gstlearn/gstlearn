@@ -31,7 +31,8 @@ public:
 
 protected:
   int _getTransfoNvar() const override;
-  void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const override;
+  void _transformFunction(const VectorDouble& _Z_n_k_s,
+                          VectorDouble& Y_p_k_s) const override;
 };
 
 GSTLEARN_EXPORT int simuPostDemo(Db *dbin,

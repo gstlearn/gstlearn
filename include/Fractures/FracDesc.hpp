@@ -12,9 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Fractures/FracFamily.hpp"
-#include "Fractures/FracFault.hpp"
-
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT FracDesc: public AStringable
@@ -40,7 +37,7 @@ public:
   void setYYF(int i, double value) { _y[i] = value; }
 
   void addPoint(double x, double y);
-  double fractureExtension(double cote, double dcote);
+  double fractureExtension(double cote, double dcote) const;
 
 private:
   int _family;

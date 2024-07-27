@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamUser.hpp"
 
-#include "Basic/AException.hpp"
-
 AnamUser::AnamUser()
     : AnamContinuous(),
       _y2z_function(nullptr),

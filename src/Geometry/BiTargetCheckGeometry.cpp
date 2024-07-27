@@ -11,6 +11,8 @@
 #include "Geometry/BiTargetCheckGeometry.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/SpaceTarget.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/Utilities.hpp"
 
 BiTargetCheckGeometry::BiTargetCheckGeometry(int ndim,
                                              const VectorDouble &codir,

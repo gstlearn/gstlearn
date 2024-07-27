@@ -28,7 +28,7 @@ Constraints::Constraints(const Constraints &m)
       _constantSills(m._constantSills),
       _consItems()
 {
-  for (auto e: m._consItems)
+  for (const auto& e: m._consItems)
   {
     _consItems.push_back(e->clone());
   }
@@ -41,7 +41,7 @@ Constraints& Constraints::operator=(const Constraints &m)
     AStringable::operator=(m);
     _constantSillValue = m._constantSillValue;
     _constantSills = m._constantSills;
-    for (auto e: m._consItems)
+    for (const auto& e: m._consItems)
     {
       _consItems.push_back(e->clone());
     }

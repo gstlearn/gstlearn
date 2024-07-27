@@ -53,8 +53,8 @@ AMesh::~AMesh()
 
 }
 
-int AMesh::_setExtend(const VectorDouble extendmin,
-                      const VectorDouble extendmax)
+int AMesh::_setExtend(const VectorDouble& extendmin,
+                      const VectorDouble& extendmax)
 {
   _extendMin = extendmin;
   _extendMax = extendmax;
@@ -347,8 +347,6 @@ void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int icorner= 0; icorner < ncorner; icorner++)
       meshes.setValue(imesh, icorner, getApex(imesh, icorner));
-
-  return;
  }
 
 bool AMesh::_isSpaceDimensionValid(int idim) const
@@ -493,7 +491,7 @@ VectorDouble AMesh::getApexCoordinates(int iapex) const
   return vec;
 }
 
-VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices)
+VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices) const
 {
   VectorInt jlocal = japices;
   if (jlocal.empty()) jlocal = VH::sequence(getNApices());
@@ -670,8 +668,7 @@ bool AMesh::_weightsInMesh(const VectorDouble& coor,
     weights[icorn] = ratio;
     total += ratio;
   }
-  if (ABS(total - 1) > eps) return false;
-  return true;
+  return (ABS(total - 1) <= eps);
 }
 
 /****************************************************************************/

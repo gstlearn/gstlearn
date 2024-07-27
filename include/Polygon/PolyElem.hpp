@@ -14,7 +14,6 @@
 
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT PolyElem: public PolyLine2D
 {
@@ -50,7 +49,7 @@ public:
   double getSurface() const;
   void closePolyElem();
   bool inside(const VectorDouble& coor);
-  bool inside3D(double zz);
+  bool inside3D(double zz) const;
 
   PolyElem reduceComplexity(double distmin) const;
 

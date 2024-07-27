@@ -31,14 +31,11 @@ License: BSD 3-clause
 #include "Tree/KNN.hpp"
 #include "Basic/VectorNumT.hpp"
 
-# include <stdio.h>
 # include <stdlib.h>
-# include <string.h>
 # include <limits.h>
 # include <math.h>
 # include <float.h>
 # include <sys/stat.h>
-# include <time.h>
 
 # define TRUE 1
 # define FALSE 0

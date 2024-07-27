@@ -12,7 +12,7 @@
 #include "Boolean/ShapeParameter.hpp"
 #include "Basic/Law.hpp"
 
-ShapeParameter::ShapeParameter(ELaw law, double value)
+ShapeParameter::ShapeParameter(const ELaw& law, double value)
     : AStringable(),
       _law(law),
       _valarg()

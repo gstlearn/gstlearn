@@ -15,7 +15,6 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
-#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>
@@ -97,7 +96,7 @@ static VectorDouble _corputVector(int n, int b)
 **    Hart, J.F. et al, 'Computer Approximations', Wiley 1968
 **
 *****************************************************************************/
-static double st_mvnphi(double *z)
+static double st_mvnphi(const double *z)
 
 {
   /* System generated locals */
@@ -151,11 +150,7 @@ static double st_mvnphi(double *z)
 **  Multivariate Normal Probability (local function)
 **
 *****************************************************************************/
-static void st_mvnlms(double *a,
-                      double *b,
-                      int    *infin,
-                      double *lower,
-                      double *upper)
+static void st_mvnlms(double* a, double* b, const int* infin, double* lower, double* upper)
 {
   *lower = 0.;
   *upper = 1.;
@@ -189,12 +184,12 @@ static void st_dkswap(double *x,
 ** Swaps rows and columns P and Q in situ, with P <= Q
 **
 *****************************************************************************/
-static void st_rcswp(int *p,
-                     int *q,
+static void st_rcswp(const int *p,
+                     const int *q,
                      double *a,
                      double *b,
                      int *infin,
-                     int *n,
+                     const int *n,
                      double *c)
 {
   /* System generated locals */
@@ -484,7 +479,7 @@ static void st_covsrt(int *n,
 ** transcription.
 **
 *****************************************************************************/
-static double st_phinvs(double *p)
+static double st_phinvs(const double *p)
 
 {
   double ret_val, d__1, d__2;
@@ -570,9 +565,9 @@ static double st_phinvs(double *p)
 ** \param[in] r  REAL, correlation coefficient
 **
 *****************************************************************************/
-static double st_bvu(double *sh,
-                     double *sk,
-                     double *r)
+static double st_bvu(const double *sh,
+                     const double *sk,
+                     const double *r)
 {
   /* Initialized data */
 
@@ -875,16 +870,16 @@ static double st_mvndfn_0(int n__,
       if (di >= ei) {
         ret_val = 0.;
         return ret_val;
-      } else {
-        ret_val *= ei - di;
-        if (i <= *n) {
-          d__1 = di + w[ik] * (ei - di);
-          y[ik - 1] = st_phinvs(&d__1);
-        }
-        ++ik;
-        infa = 0;
-        infb = 0;
       }
+      ret_val *= ei - di;
+      if (i <= *n)
+      {
+        d__1      = di + w[ik] * (ei - di);
+        y[ik - 1] = st_phinvs(&d__1);
+      }
+      ++ik;
+      infa = 0;
+      infb = 0;
     }
   }
   return ret_val;
@@ -949,7 +944,7 @@ static double st_mvndnt(int *n,
 ** \param[out] quasi a new quasi-random S-vector
 **
 *****************************************************************************/
-static void st_dkrcht(int *s,
+static void st_dkrcht(const int *s,
                       double *quasi)
 {
   /* Initialized data */
@@ -1016,9 +1011,9 @@ L10:
 **
 *****************************************************************************/
 static void st_dksmrc(int *ndim,
-                      int *klim,
+                      const int *klim,
                       double *sumkro,
-                      int *prime,
+                      const int *prime,
                       double *vk,
                       double (*functn)(int*,double *),
                       double *x)
@@ -1129,10 +1124,10 @@ static void st_dksmrc(int *ndim,
 *****************************************************************************/
 static void st_dkbvrc(int *ndim,
                       int *minvls,
-                      int *maxvls,
+                      const int *maxvls,
                       double (*functn)(int*, double*),
-                      double *abseps,
-                      double *releps,
+                      const double *abseps,
+                      const double *releps,
                       double *abserr,
                       double *finest,
                       int *inform)
@@ -1383,7 +1378,7 @@ void mvndst(int n,
 *****************************************************************************/
 void mvndst4(double *lower,
              double *upper,
-             double *correl,
+             const double *correl,
              int maxpts,
              double abseps,
              double releps,
@@ -1406,8 +1401,6 @@ void mvndst4(double *lower,
 
   mvndst(4,lower,upper,infin,corloc,maxpts,abseps,releps,
          error,value,inform);
-
-  return;
 }
 
 /****************************************************************************/
@@ -1427,9 +1420,9 @@ void mvndst4(double *lower,
 ** \param[out]  inform      Returned code
 **
 *****************************************************************************/
-void mvndst2n(double *lower,
-              double *upper,
-              double *means,
+void mvndst2n(const double *lower,
+              const double *upper,
+              const double *means,
               double *correl,
               int maxpts,
               double abseps,
@@ -1455,7 +1448,6 @@ void mvndst2n(double *lower,
   covar = correl[1] / sqrt(M_R(correl,2,0,0) * M_R(correl,2,1,1));
 
   mvndst(2,low,upp,infin,&covar,maxpts,abseps,releps,error,value,inform);
-  return;
 }
 
 /****************************************************************************/
@@ -2310,11 +2302,8 @@ double loggamma(double parameter)
     for (k=0; k<m; k++) p *= (xe+k);
     return(dalgam+log(p));
   }
-  else
-  {
-    for (k=0; k<m; k++) dalgam += log(xe+k);
-    return(dalgam);
-  }
+  for (k = 0; k < m; k++) dalgam += log(xe + k);
+  return (dalgam);
 }
 
 /*****************************************************************************/
@@ -2339,31 +2328,28 @@ double ut_legendre(int n, double v, bool flagNorm)
   {
     return boost::math::legendre_p<double>(n, v);
   }
+  double P0, P1, Pn, value;
+
+  if (n == 0)
+    value = 1.;
+  else if (n == 1)
+    value = v * sqrt(2. * n + 1.);
   else
   {
-    double P0, P1, Pn, value;
-
-    if (n == 0)
-      value = 1.;
-    else if (n == 1)
-      value = v * sqrt(2.*n+1.);
-    else
+    P0 = 1.;
+    P1 = v * sqrt(2. * 1. + 1.);
+    for (int ii = 1; ii < n; ii++)
     {
-      P0 = 1.;
-      P1 = v * sqrt(2.*1.+1.);
-      for (int ii = 1; ii < n; ii++)
-      {
-        double i = (double) ii;
-        double a = sqrt((2.*i+1.) * (2.*i+3.)) / (i+1.);
-        double b = i / (i+1.) * sqrt((2.*i+3.) / (2.*i-1.));
-        Pn = a * v * P1 - b * P0;
-        P0 = P1;
-        P1 = Pn;
-      }
-      value = P1;
+      double i = (double)ii;
+      double a = sqrt((2. * i + 1.) * (2. * i + 3.)) / (i + 1.);
+      double b = i / (i + 1.) * sqrt((2. * i + 3.) / (2. * i - 1.));
+      Pn       = a * v * P1 - b * P0;
+      P0       = P1;
+      P1       = Pn;
     }
-    return value;
+    value = P1;
   }
+  return value;
 }
 
 VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm)
@@ -2780,7 +2766,7 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
   x1 = y1 = x2 = y2 = nullptr;
 
   minsubdiv = pow(2., 20.);
-  if (minsubdiv >= (ncmax + 1) / 2)
+  if (minsubdiv >= (ncmax + 1.) / 2.)
     n = static_cast<int>(minsubdiv);
   else
     n = static_cast<int>(ceil((double) (ncmax + 1) / 2));
@@ -2958,13 +2944,11 @@ void ut_vandercorput(int n,
 
   *ntri_arg = 2 * n;
   *coor_arg = coord;
-
-  return;
 }
 
-static void st_addTriangle(double v1[3],
-                           double v2[3],
-                           double v3[3],
+static void st_addTriangle(const double v1[3],
+                           const double v2[3],
+                           const double v3[3],
                            Reg_Coor *R_coor)
 {
   int n;
@@ -3027,7 +3011,11 @@ void st_subdivide(double v1[3],
   st_subdivide(v12, v23, v31, depth - 1, R_coor);
 }
 
-static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord, double eps = EPSILON3)
+static int st_already_present(Reg_Coor* R_coor,
+                              int i0,
+                              int ntri,
+                              const double* coord,
+                              double eps = EPSILON3)
 {
   if (ntri <= 0) return (0);
 

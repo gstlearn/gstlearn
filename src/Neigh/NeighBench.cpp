@@ -11,10 +11,10 @@
 #include "geoslib_old_f.h"
 
 #include "Neigh/NeighBench.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Basic/OptDbg.hpp"
 
 NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace *space)
     : ANeigh(space),

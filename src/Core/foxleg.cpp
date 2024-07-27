@@ -97,7 +97,6 @@ static void st_gradient(VectorDouble &param,
       Jr.setValue(idat,ipar, (bot != 0.) ? weight * top / bot : 0.);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -491,8 +490,6 @@ static void st_minimum(VectorInt& /*ind_util*/,
   for (int iparac = 0; iparac < NPARAC; iparac++)
     hgnadm[iparac] += alpha_inf * (hgnc[iparac] - hgnadm[iparac]);
   hgnadm[jparac] = bordval;
-
-  return;
 }
 
 /****************************************************************************/
@@ -770,7 +767,6 @@ static void st_check(VectorInt &ind_util,
       messageAbort(
           "The constraints are not fulfilled. This should never happen");
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1287,7 +1283,7 @@ int foxleg_f(int ndat,
 
   ITERATION = 0;
   bool flag_moved = true;
-  bool flag_cont = (mauto.getMaxiter() <= 0) ? false : true;
+  bool flag_cont = (mauto.getMaxiter() > 0);
   while (flag_cont)
   {
     ITERATION++;

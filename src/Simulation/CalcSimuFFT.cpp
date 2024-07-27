@@ -359,8 +359,6 @@ void CalcSimuFFT::_gridDilate()
     if (_getNDim() >= 2) message("- Number of Nodes along Y = %d\n", ndy);
     if (_getNDim() >= 3) message("- Number of Nodes along Z = %d\n", ndz);
   }
-
-  return;
 }
 /****************************************************************************/
 /*!
@@ -397,8 +395,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
   double hh = VH::norm(d);
   double value = model->evaluateOneIncr(hh);
 
-  if (value / refval > percent / 100) return false;
-  return true;
+  return (value / refval <= percent / 100);
 }
 
 /****************************************************************************/
@@ -580,8 +577,6 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
     }
     if (ABS(correc - 1.) < eps) break;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -665,7 +660,6 @@ void CalcSimuFFT::_defineSymmetry(void)
     default:
       break;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -686,8 +680,6 @@ void CalcSimuFFT::_defineSym1()
     int jx = _dims[0] - ix;
     _setConjugate(ix, 0, 0, jx, 0, 0);
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -739,8 +731,6 @@ void CalcSimuFFT::_defineSym2(int iz0)
       int jy = _dims[1] - iy;
       _setConjugate(ix, jy, iz0, jx, iy, iz0);
     }
-
-  return;
 }
 
 /****************************************************************************/
@@ -856,8 +846,6 @@ void CalcSimuFFT::_defineSym3()
         int jz = _dims[2] - iz;
         _setConjugate(jx, iy, iz, ix, jy, jz);
       }
-
-  return;
 }
 
 /****************************************************************************/
@@ -922,8 +910,6 @@ void CalcSimuFFT::_final(DbGrid *db, int iad)
         int jz = iz + _shift[2];
         db->updArray(ecr, iad, EOperator::DEFINE, U(jx, jy, jz));
       }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1089,8 +1075,7 @@ bool CalcSimuFFT::_check()
 bool CalcSimuFFT::_preprocess()
 {
     _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-    if (_iattOut < 0) return false;
-    return true;
+    return (_iattOut >= 0);
 }
 
 bool CalcSimuFFT::_run()

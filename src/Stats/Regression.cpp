@@ -395,7 +395,7 @@ int Regression::apply(Db *db1,
                       int mode,
                       bool flagCst,
                       Db *db2,
-                      const Model *model)
+                      const Model *model) const
 {
   if (db2 == nullptr) db2 = db1;
   int icol0 = db1->getUID(nameResp);

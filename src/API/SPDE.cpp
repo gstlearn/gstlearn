@@ -145,7 +145,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 {
   if (useCholesky == -1)
   {
-    _useCholesky = (_model->getDimensionNumber() == 2);
+    useCholesky = (_model->getDimensionNumber() == 2);
   }
   else if (useCholesky == 1)
     _useCholesky = true;
@@ -750,6 +750,7 @@ int krigingSPDE(Db *dbin,
                 bool showStats,
                 const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(flag_est);
   const ESPDECalcMode mode = (flag_std) ?
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
   SPDE spde(model, dbout, dbin, mode, mesh,

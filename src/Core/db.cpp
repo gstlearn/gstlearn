@@ -202,7 +202,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
 int db_vector_get(Db *db, const ELoc& locatorType, int locatorIndex, double *tab)
 {
   int iatt = db->getUIDByLocator(locatorType, locatorIndex);
-  if (st_vector_get_att(db, iatt, tab) != 0) return (1);
+  if (st_vector_get_att(db, iatt, tab)) return (1);
   return (0);
 }
 
@@ -1513,7 +1513,7 @@ int db_gradient_update(Db *db)
  ** \param[out] tabout Output array
  **
  *****************************************************************************/
-int db_selref(int ndim, const int *nx, const int *ref, const double *tabin, double *tabout)
+int db_selref(int ndim, const int* nx, const int* ref, const double* tabin, double* tabout)
 {
   int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, ival, error, neff_ndim;
 
@@ -1697,7 +1697,7 @@ int db_locator_attribute_add(Db *db,
 int db_grid_copy(DbGrid *db1,
                  DbGrid *db2,
                  const int *ind1,
-                 int *ind2,
+                 const int *ind2,
                  int ncol,
                  int *cols)
 {
@@ -1873,7 +1873,6 @@ void grid_to_point(const DbGrid *db, const int *indg, const double *percent, dou
 
   for (int idim = 0; idim < ndim; idim++)
     coor[idim] = work2[idim] + db->getX0(idim);
-
 }
 
 /*****************************************************************************/

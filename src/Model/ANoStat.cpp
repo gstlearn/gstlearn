@@ -10,10 +10,8 @@
 /******************************************************************************/
 #include "Model/ANoStat.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 
@@ -335,7 +333,7 @@ int ANoStat::_understandCode(const String& code,
                              int *icov,
                              EConsElem *type,
                              int *iv1,
-                             int *iv2) const
+                             int *iv2)
 {
   *igrf = *icov = *iv1 = *iv2 = 0;
   *type = EConsElem::UNKNOWN;
@@ -625,7 +623,7 @@ bool ANoStat::_isValid(int icas, int rank) const
  ** \param[in]  dbout       Descriptor of the output Db
  **
  *****************************************************************************/
-int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout)
+int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout) const
 {
 
   /* Dispatch */
@@ -661,7 +659,7 @@ int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout)
   return (0);
 }
 
-void ANoStat::checkCode(const String& code) const
+void ANoStat::checkCode(const String& code)
 {
   int igrf, icov, iv1, iv2;
   EConsElem type;

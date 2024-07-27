@@ -35,7 +35,6 @@
 #include <sstream>
 #include <string>
 #include <stdio.h>
-#include <algorithm>
 
 /*! \cond */
 
@@ -91,8 +90,8 @@ int db_grid_write_arcgis(const char *filename, DbGrid *db, int icol)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-int db_grid_write_bmp(const char *filename,
-                      DbGrid *db,
+int db_grid_write_bmp(const char* filename,
+                      DbGrid* db,
                       int icol,
                       int nsamplex,
                       int nsampley,
@@ -102,9 +101,9 @@ int db_grid_write_bmp(const char *filename,
                       int flag_high,
                       double valmin,
                       double valmax,
-                      int *red,
-                      int *green,
-                      int *blue,
+                      int* red,
+                      int* green,
+                      int* blue,
                       int mask_red,
                       int mask_green,
                       int mask_blue,

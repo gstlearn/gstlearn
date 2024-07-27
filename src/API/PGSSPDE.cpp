@@ -15,13 +15,11 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Drifts/ADrift.hpp"
-#include "Covariances/ACovAnisoList.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Basic/String.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "Basic/Law.hpp"
 
-PGSSPDE::PGSSPDE(std::vector<Model*> models,
+PGSSPDE::PGSSPDE(const std::vector<Model*>& models,
                  const Db* field,
                  const RuleProp* ruleprop,
                  const Db* data)
@@ -32,7 +30,7 @@ PGSSPDE::PGSSPDE(std::vector<Model*> models,
 {
   _calcul = (data == nullptr) ? ESPDECalcMode::SIMUNONCOND :
                                 ESPDECalcMode::SIMUCOND;
-  for (auto &e : models)
+  for (const auto &e : models)
   {
     _spdeTab.push_back(new SPDE(e, field, data, _calcul));
   }

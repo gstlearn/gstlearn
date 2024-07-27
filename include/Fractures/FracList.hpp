@@ -87,7 +87,7 @@ public:
   void addPoint(int i, double xx, double yy) { _descs[i].addPoint(xx,yy); }
 
 private:
-  int _getRank(int ifam, int shift) const { return (1 + ifam * NPART + shift); }
+  static int _getRank(int ifam, int shift) { return (1 + ifam * NPART + shift); }
   void _setMemLayer(int i, double value)             { _layinfo.setValue(i,0,value); }
   void _setMemTheta1(int i, int ifam, double value)  { _layinfo.setValue(i,_getRank(ifam,0),value); }
   void _setMemTheta2(int i, int ifam, double value)  { _layinfo.setValue(i,_getRank(ifam,1),value); }
@@ -96,8 +96,8 @@ private:
   void _setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,_getRank(ifam,4),value); }
   double _getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
 
-  VectorDouble _layersManage(const FracEnviron& envir, double *y0);
-  VectorDouble _layersRead(const VectorDouble& elevations, double *y0);
+  VectorDouble _layersManage(const FracEnviron& envir, double *y0) const;
+  VectorDouble _layersRead(const VectorDouble& elevations, double *y0) const;
   int _fracAdd(int ifrac,
                int ifam,
                double xx,
@@ -111,9 +111,9 @@ private:
                       double *xd,
                       double *yd,
                       double *xe,
-                      double *ye);
+                      double *ye) const;
   double _layerIntensity(const FracFamily& family,
-                         double thick);
+                         double thick) const;
   void _generateDensity(const FracEnviron& envir,
                         const FracFamily& family,
                         int ifam,
@@ -125,27 +125,23 @@ private:
                        VectorDouble& denstab);
   double _deriveIntensity(double theta1,
                           double thetap,
-                          double propsur);
+                          double propsur) const;
   double _extendFractures(const FracFamily& family,
                           int ifam,
                           double cote,
                           double thick,
                           VectorDouble& denstab);
-  bool _sameFaultSide(const FracEnviron& envir, int ifault0, double x0);
-  double _densityUpdate(const FracFault& fault,
-                        int side,
-                        int ifam,
-                        double cote,
-                        double xx);
-  double _densityCumulate(const VectorDouble& denstab);
+  static bool _sameFaultSide(const FracEnviron& envir, int ifault0, double x0);
+  static double _densityUpdate(const FracFault& fault, int side, int ifam, double cote, double xx);
+  double _densityCumulate(const VectorDouble& denstab) const;
   bool _noRoomForMoreFracture(const VectorDouble& denstab) const;
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
-  bool _fractureInterrupt(const FracFamily& family,
-                          const FracDesc& desc,
-                          double thick);
-  double _faultAbscissae(const FracFault& fault, double cote);
-  double _cubic(double h);
-  double _fractureExtension(const FracDesc& desc, double cote, double dcote);
+  static bool _fractureInterrupt(const FracFamily& family,
+                                 const FracDesc& desc,
+                                 double thick);
+  static double _faultAbscissae(const FracFault& fault, double cote);
+  static double _cubic(double h);
+  static double _fractureExtension(const FracDesc& desc, double cote, double dcote);
   int _simulateFractures(const FracEnviron& envir,
                          const FracFamily& family,
                          int ifam,
@@ -153,33 +149,33 @@ private:
                          double thick,
                          double theta,
                          VectorDouble& denstab);
-  int _getDiscretizedRank(double cumdens, const VectorDouble& denstab);
+  int _getDiscretizedRank(double cumdens, const VectorDouble& denstab) const;
   int _getEndPointCount() const;
-  bool _isValidDisc(int idisc);
+  bool _isValidDisc(int idisc) const;
 
-  void _plungeSegment(DbGrid *dbgrid,
-                      int iptr,
-                      double delta,
-                      double value,
-                      double x1,
-                      double y1,
-                      double x2,
-                      double y2);
-  void _welloutAdd(VectorDouble& wellout,
-                   double x,
-                   double y,
-                   int ifrac,
-                   int ip,
-                   int family,
-                   double perm);
-  void _trajAdd(VectorDouble& traj, double x, double y);
-  void _plungeSegmentGradual(DbGrid *dbgrid,
+  static void _plungeSegment(DbGrid* dbgrid,
                              int iptr,
                              double delta,
-                             VectorDouble& traj,
-                             double perm1,
-                             double perm2,
-                             double range);
+                             double value,
+                             double x1,
+                             double y1,
+                             double x2,
+                             double y2);
+  static void _welloutAdd(VectorDouble& wellout,
+                          double x,
+                          double y,
+                          int ifrac,
+                          int ip,
+                          int family,
+                          double perm);
+  static void _trajAdd(VectorDouble& traj, double x, double y);
+  static void _plungeSegmentGradual(DbGrid* dbgrid,
+                                    int iptr,
+                                    double delta,
+                                    VectorDouble& traj,
+                                    double perm1,
+                                    double perm2,
+                                    double range);
 
 private:
   // Array of fracture descriptions

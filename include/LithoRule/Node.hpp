@@ -30,8 +30,8 @@ public:
        int *n_y1,
        int *n_y2);
   Node(bool flagShadow = true);
-  Node(const Node& r);
-  Node& operator=(const Node& r);
+  Node(const Node& m);
+  Node& operator=(const Node& m);
   virtual ~Node();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -108,9 +108,9 @@ private:
                 int *n_fac,
                 int *n_y1,
                 int *n_y2) const;
-  double _transform(int mode, double value);
+  static double _transform(int mode, double value);
   double _threshFromPropcum(double rho);
-  double _threshDichotomy(double rho);
+  double _threshDichotomy(double rho) const;
 
 private:
   String _nodnam;  /* Name of the node */

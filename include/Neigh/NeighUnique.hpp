@@ -16,8 +16,6 @@
 #include "Enum/ENeigh.hpp"
 
 #include "Neigh/ANeigh.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 
 class Db;
 

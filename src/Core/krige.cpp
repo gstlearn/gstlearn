@@ -240,7 +240,6 @@ static void st_global_init(Db *dbin, Db *dbout)
   /* Change of support coefficient for DGM */
 
   COVINT = CovInternal();
-
 }
 
 /****************************************************************************/
@@ -1115,14 +1114,14 @@ int krige_koption_manage(int mode,
  ** \param[in]  nech    Number of active points (optional)
  ** \param[in]  neq     Number of equations
  ** \param[in]  nred    Reduced number of equations
- ** \param[in]  flagloc Flag array (optional)
+ ** \param[in]  flag    Flag array (optional)
  ** \param[in]  lhs     Kriging L.H.S
  **
  *****************************************************************************/
 void krige_lhs_print(int nech,
                      int neq,
                      int nred,
-                     const int *flagloc,
+                     const int *flag,
                      const double *lhs)
 {
   int *rel, i, j, ipass, npass, ideb, ifin;
@@ -1158,7 +1157,7 @@ void krige_lhs_print(int nech,
 
     /* Flag line */
 
-    if (flagloc != NULL)
+    if (flag != NULL)
     {
       tab_prints(NULL, "    ");
       tab_prints(NULL, "Flag");
@@ -1613,14 +1612,14 @@ int _krigsim(Db* dbin,
  ** \param[out]  cvtrans     CV transitive
  **
  *****************************************************************************/
-int global_transitive(DbGrid *dbgrid,
-                      Model *model,
+int global_transitive(DbGrid* dbgrid,
+                      Model* model,
                       int flag_verbose,
                       int flag_regular,
                       int ndisc,
-                      double *abundance,
-                      double *sse,
-                      double *cvtrans)
+                      double* abundance,
+                      double* sse,
+                      double* cvtrans)
 {
   int i, ix, iy, ix1, ix2, iy1, iy2, nx, ny, flag_value;
   double c00, cvv, dx, dy, dsum, gint, dsse, wtot, value;
@@ -2240,7 +2239,6 @@ static void st_calculate_covres(DbGrid *db,
         covtab = model->evaluateOneGeneric(nullptr, d1);
         COV_RES(ix,iy,iz) = covver * (covtab + covtot - c00) / covtot;
       }
-
 }
 
 /****************************************************************************/
@@ -2266,8 +2264,8 @@ static void st_calculate_covtot(DbGrid* db,
                                 int flag_sym,
                                 const int cov_ss[3],
                                 const int cov_nn[3],
-                                int* num_tot,
-                                double* cov_tot)
+                                int *num_tot,
+                                double *cov_tot)
 {
   int ix, iy, iz, ix1, iy1, iz1, jx1, jy1, jz1, jx2, jy2, jz2, indg[3];
   int idx, idy, idz, jdx, jdy, iad, jad;
@@ -2361,7 +2359,7 @@ static void st_calculate_covtot(DbGrid* db,
       {
         val1 = COV_TOT(ix, iy, iz);
         val2 = COV_TOT(-ix, iy, iz);
-        val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
+        val  = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
         COV_TOT(ix, iy, iz) = COV_TOT(-ix, iy, iz) = val;
       }
 
@@ -2371,7 +2369,7 @@ static void st_calculate_covtot(DbGrid* db,
       {
         val1 = COV_TOT(ix, -iy, iz);
         val2 = COV_TOT(ix, iy, iz);
-        val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
+        val  = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
         COV_TOT(ix, iy, iz) = COV_TOT(ix, -iy, iz) = val;
       }
 
@@ -2382,7 +2380,7 @@ static void st_calculate_covtot(DbGrid* db,
         {
           val1 = COV_TOT(ix, iy, -iz);
           val2 = COV_TOT(ix, iy, iz);
-          val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
+          val  = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
           COV_TOT(ix, iy, -iz) = COV_TOT(ix, iy, iz) = val;
         }
 }
@@ -2520,7 +2518,7 @@ static void st_lhs_exp_3D(int nech,
 
   /* Covariance part of the L.H.S. */
 
-  i = 0;
+  i   = 0;
   for (ix = -nei_nn[0]; ix <= nei_nn[0]; ix++)
     for (iy = -nei_nn[1]; iy <= nei_nn[1]; iy++)
       for (iz = -nei_nn[2]; iz <= nei_nn[2]; iz++)
@@ -2533,7 +2531,7 @@ static void st_lhs_exp_3D(int nech,
             for (jz = -nei_nn[2]; jz <= nei_nn[2]; jz++)
             {
               if (NEI_CUR(jx, jy, jz) < 0) continue;
-              value = COV_TOT(ix - jx, iy - jy, iz - jz);
+              value         = COV_TOT(ix - jx, iy - jy, iz - jz);
               LHS_EXP(i, j) = LHS_EXP(j, i) = value;
               if (i == j) LHS_EXP(i, j) += nugget;
               j++;
@@ -2572,8 +2570,8 @@ static void st_rhs_exp_3D(int nech,
                           const int nei_nn[3],
                           const int cov_ss[3],
                           const int cov_nn[3],
-                          const int *nei_cur,
-                          const double *cov_res)
+                          const int* nei_cur,
+                          const double* cov_res)
 {
   int ix, iy, iz, neq, i;
 
@@ -2700,13 +2698,13 @@ static void st_vario_dump(FILE *file,
  ** \remark  If dbg_ix < -1 || dbg_iy < -1, no variogram debug file is created
  **
  *****************************************************************************/
-int anakexp_3D(DbGrid *db,
-               double *cov_ref,
+int anakexp_3D(DbGrid* db,
+               double* cov_ref,
                int cov_radius,
                int neigh_ver,
                int neigh_hor,
                int flag_sym,
-               Model *model,
+               Model* model,
                double nugget,
                int nfeq,
                int dbg_ix,
@@ -3661,8 +3659,8 @@ int st_crit_global(Db *db,
  ** \param[in]  verbose    1 for a verbose output
  **
  *****************************************************************************/
-int sampling_f(Db *db,
-               Model *model,
+int sampling_f(Db* db,
+               Model* model,
                double beta,
                int method1,
                int nsize1_max,

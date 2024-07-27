@@ -95,7 +95,7 @@ PPMT& PPMT::operator=(const PPMT &m)
 
 PPMT::~PPMT()
 {
-  if (_dirmat != nullptr) delete _dirmat;
+  delete _dirmat;
   if (! _anams.empty())
   {
     for (int i = 0; i < (int) _anams.size(); i++)
@@ -106,8 +106,7 @@ PPMT::~PPMT()
     for (int i = 0; i < (int) _initAnams.size(); i++)
       delete _initAnams[i];
   }
-  if (_initSphering != nullptr)
-    delete _initSphering;
+  delete _initSphering;
 }
 
 /**
@@ -161,7 +160,7 @@ String PPMT::toString(const AStringFormat* strfmt) const
 double PPMT::_gaussianizeForward(double Yi,
                                  int rank,
                                  const AnamHermite *anam,
-                                 const VectorDouble &N0) const
+                                 const VectorDouble &N0)
 {
   double theo = 0.;
   if (anam != nullptr)
@@ -177,7 +176,7 @@ double PPMT::_gaussianizeForward(double Yi,
  * @param anam Anamorphosis
  * @return The back-anamorphosed value
  */
-double PPMT::_gaussianizeBackward(double Yi, const AnamHermite *anam) const
+double PPMT::_gaussianizeBackward(double Yi, const AnamHermite *anam)
 {
   double theo = anam->transformToRawValue(Yi);
   return (theo - Yi);

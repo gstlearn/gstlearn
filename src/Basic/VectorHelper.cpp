@@ -479,7 +479,7 @@ int VectorHelper::count(const VectorVectorInt& vec)
   int total = 0.;
   for (const auto &v : vec)
   {
-    total += v.size();
+    total += (int) v.size();
   }
   return total;
 }
@@ -598,8 +598,7 @@ VectorDouble VectorHelper::quantiles(const VectorDouble &vec,
 double VectorHelper::stdv(const VectorDouble &vec, bool scaleByN)
 {
   double var = variance(vec, scaleByN);
-  if (!FFFF(var))
-    return (sqrt(var));
+  if (!FFFF(var)) return (sqrt(var));
   return TEST;
 }
 
@@ -644,8 +643,7 @@ double VectorHelper::median(const VectorDouble &vec)
   // Return the median value
   int number = (int) med.size();
   if (number <= 0) return TEST;
-  if (isOdd(number))
-    return med[number / 2];
+  if (isOdd(number)) return med[number / 2];
   return (med[number / 2] + med[number / 2 - 1]) / 2.;
 }
 
@@ -1006,8 +1004,7 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
                                        const VectorDouble &vecb)
 {
   VectorDouble res = veca;
-  for (const auto &e: vecb)
-    res.push_back(e);
+  for (const auto& e: vecb) res.push_back(e);
   return res;
 }
 

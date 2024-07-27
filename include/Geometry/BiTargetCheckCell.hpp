@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Db/DbGrid.hpp"
 #include "Geometry/ABiTargetCheck.hpp"
-#include "Faults/Faults.hpp"
 
 class GSTLEARN_EXPORT BiTargetCheckCell: public ABiTargetCheck
 {

@@ -27,11 +27,11 @@ public:
   Projection& operator=(const Projection& r);
   virtual ~Projection();
 
-  void operateInPlace(VectorDouble& coor);
-  VectorDouble operateInvert(const VectorDouble& coor);
-  int operateVecInPlace(VectorDouble& x, VectorDouble& y);
-  int operateOnDb(Db *db);
-  int operateOnPolygons(Polygons* poly);
+  void operateInPlace(VectorDouble& coor) const;
+  VectorDouble operateInvert(const VectorDouble& coor) const;
+  int operateVecInPlace(VectorDouble& x, VectorDouble& y) const;
+  int operateOnDb(Db *db) const;
+  int operateOnPolygons(Polygons* poly) const;
 
   bool isFlagMean() const { return _flagMean; }
   double getXcenter() const { return _xcenter; }

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Space/SpaceTarget.hpp"
 

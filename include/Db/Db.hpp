@@ -245,7 +245,7 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
-  int getNEloc() const;
+  static int getNEloc();
   int getSampleNumber(bool useSel = false) const;
   int getNumberActiveAndDefined(int item) const;
   int getActiveSampleNumber() const;
@@ -788,13 +788,14 @@ public:
    *
    *  @{
    */
-  void statisticsBySample(const VectorString &names,
-                          const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
-                          bool flagIso = true,
-                          double vmin = TEST,
-                          double vmax = TEST,
-                          double proba = TEST,
-                          const NamingConvention &namconv = NamingConvention("Stats"));
+  void statisticsBySample(
+    const VectorString& names,
+    const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+    bool flagIso                          = true,
+    double proba                          = TEST,
+    double vmin                           = TEST,
+    double vmax                           = TEST,
+    const NamingConvention& namconv       = NamingConvention("Stats"));
   /**@}*/
 
   /** @addtogroup DB_8 Calculating correlations on variables of a Db
@@ -853,7 +854,7 @@ protected:
 
 private:
   const VectorInt& _getUIDcol() const { return _uidcol; }
-  const VectorString& _getNames() const { return _colNames; }
+  VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, bool flagCst = true, double valinit = TEST);

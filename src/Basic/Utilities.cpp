@@ -562,7 +562,7 @@ void ut_facies_statistics(int nech,
  **
  *****************************************************************************/
 void ut_classify(int nech,
-                 double *tab,
+                 const double *tab,
                  double *sel,
                  int nclass,
                  double start,
@@ -967,8 +967,7 @@ int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs)
   if (map.empty()) return iabs;
   if (map.find(iabs) == map.end())
     return -1;
-  else
-    return map.find(iabs)->second;
+  return map.find(iabs)->second;
 }
 
 int getRankMapRelativeToAbsolute(const std::map<int, int>& map, int irel)
@@ -1055,48 +1054,48 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
   {
     return (value);
   }
-  else if (oper == EOperator::ADD)
+  if (oper == EOperator::ADD)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (value + oldval);
   }
-  else if (oper == EOperator::PRODUCT)
+  if (oper == EOperator::PRODUCT)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (value * oldval);
   }
-  else if (oper == EOperator::SUBTRACT)
+  if (oper == EOperator::SUBTRACT)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (value - oldval);
   }
-  else if (oper == EOperator::SUBOPP)
+  if (oper == EOperator::SUBOPP)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (oldval - value);
   }
-  else if (oper == EOperator::DIVIDE)
+  if (oper == EOperator::DIVIDE)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return ((isZero(value)) ? TEST : oldval / value);
   }
-  else if (oper == EOperator::DIVOPP)
+  if (oper == EOperator::DIVOPP)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return ((isZero(oldval)) ? TEST : value / oldval);
   }
-  else if (oper == EOperator::DEFINE)
+  if (oper == EOperator::DEFINE)
   {
     if (FFFF(oldval)) return (TEST);
     return (value);
   }
-  else if (oper == EOperator::MIN)
+  if (oper == EOperator::MIN)
   {
     if (FFFF(value)) return (oldval);
     if (FFFF(oldval)) return (value);
     return MIN(oldval, value);
   }
-  else if (oper == EOperator::MAX)
+  if (oper == EOperator::MAX)
   {
     if (FFFF(value)) return (oldval);
     if (FFFF(oldval)) return (value);
@@ -1117,8 +1116,7 @@ double roundZero(double value, double eps)
 {
   if (ABS(value) > eps)
     return value;
-  else
-    return eps;
+  return eps;
 }
 
 /**

@@ -11,23 +11,15 @@
 #include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
-#include "LithoRule/Rule.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/PolyLine2D.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
 #include <string.h>
-#include <complex>
 #include <cmath>
-#include <regex>
 
 /*! \cond */
 #define TAB(ix,iy)   (tab[(ix) * ny + (iy)])
@@ -104,8 +96,6 @@ void projec_toggle(int mode)
   }
   else
     PROJEC.actif = projec_actif;
-
-  return;
 }
 
 /****************************************************************************/
@@ -119,8 +109,6 @@ void projec_query(int *actif)
 
 {
   *actif = PROJEC.actif;
-
-  return;
 }
 
 /****************************************************************************/
@@ -137,7 +125,6 @@ void projec_print(void)
   else
     message("Projection is switched OFF\n");
   message("Use 'projec.define' to modify previous values\n");
-  return;
 }
 
 /****************************************************************************/
@@ -210,8 +197,7 @@ static Keypair* st_get_keypair_address(const char *keyword)
   {
     found = KEYPAIR_NTAB;
     KEYPAIR_NTAB++;
-    KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
-                                      sizeof(Keypair) * KEYPAIR_NTAB);
+    KEYPAIR_TABS = (Keypair*)realloc((char*)KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
   }
 
   /* Store the attribute (compressing the name and suppressing blanks) */
@@ -406,8 +392,6 @@ void set_keypair(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 2, 0, (void*) values);
-
-  return;
 }
 
 /****************************************************************************/
@@ -460,7 +444,6 @@ void app_keypair(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 2, start, (void*) values);
-  return;
 }
 
 /****************************************************************************/
@@ -500,7 +483,6 @@ void set_keypair_int(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 1, 0, (void*) values);
-  return;
 }
 
 /****************************************************************************/
@@ -553,7 +535,6 @@ void app_keypair_int(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 1, start, (void*) values);
-  return;
 }
 
 /****************************************************************************/
@@ -588,8 +569,6 @@ static void del_keypone(int indice)
   KEYPAIR_NTAB--;
   KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
                                     sizeof(Keypair) * KEYPAIR_NTAB);
-
-  return;
 }
 
 /****************************************************************************/
@@ -650,7 +629,6 @@ void del_keypair(const char *keyword, int flag_exact)
       del_keypone(found);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -808,7 +786,6 @@ void print_keypair(int flag_short)
         print_matrix(keypair->keyword, 0, 0, keypair->ncol, keypair->nrow, NULL,
                      keypair->values);
     }
-  return;
 }
 
 
@@ -831,33 +808,23 @@ int solve_P2(double a, double b, double c, double *x)
 
   if (a == 0.)
   {
-    if (b == 0.)
-      return (0);
-    else
-    {
-      x[0] = -c / b;
-      return (1);
-    }
+    if (b == 0.) return (0);
+    x[0] = -c / b;
+    return (1);
   }
-  else
+
+  // Calculate the discriminant
+
+  delta = b * b - 4 * a * c;
+
+  if (delta == 0.)
   {
-
-    // Calculate the discriminant
-
-    delta = b * b - 4 * a * c;
-
-    if (delta == 0.)
-    {
-      x[0] = -b / (2. * a);
-      return (1);
-    }
-    else
-    {
-      x[0] = (-b + sqrt(delta)) / (2. * a);
-      x[0] = (-b - sqrt(delta)) / (2. * a);
-      return (2);
-    }
+    x[0] = -b / (2. * a);
+    return (1);
   }
+  x[0] = (-b + sqrt(delta)) / (2. * a);
+  x[0] = (-b - sqrt(delta)) / (2. * a);
+  return (2);
 }
 
 /****************************************************************************/
@@ -878,44 +845,37 @@ int solve_P3(double a, double b, double c, double d, double *x)
   double delta, p, q, ecart, u, v, s1;
   int k;
 
-  if (a == 0.)
-    return (solve_P2(b, c, d, x));
-  else
+  if (a == 0.) return (solve_P2(b, c, d, x));
+
+  // Transform into equation: x^3 + p*x + q = 0
+
+  ecart = -b / (3. * a);
+  p     = -b * b / (3. * a * a) + c / a;
+  q     = b / (27. * a) * (2. * b * b / (a * a) - 9. * c / a) + d / a;
+
+  // Cardan formula
+
+  delta = -(4. * p * p * p + 27. * q * q);
+  if (delta < 0)
   {
-
-    // Transform into equation: x^3 + p*x + q = 0
-
-    ecart = -b / (3. * a);
-    p = -b * b / (3. * a * a) + c / a;
-    q = b / (27. * a) * (2. * b * b / (a * a) - 9. * c / a) + d / a;
-
-    // Cardan formula
-
-    delta = -(4. * p * p * p + 27. * q * q);
-    if (delta < 0)
-    {
-      s1 = sqrt(-delta / 27.);
-      u = (-q + s1) / 2.;
-      u = (u > 0.) ? pow(u, 1. / 3.) : -pow(-u, 1. / 3.);
-      v = (-q - s1) / 2.;
-      v = (v > 0.) ? pow(v, 1. / 3.) : -pow(-v, 1. / 3.);
-      x[0] = ecart + u + v;
-      return (1);
-    }
-    else if (delta == 0.)
-    {
-      x[0] = ecart + 3. * q / p;
-      x[1] = ecart - 3. * q / (2. * p);
-      return (2);
-    }
-    else
-    {
-      s1 = -(q / 2.) * sqrt(27. / -(p * p * p));
-      for (k = 0; k < 3; k++)
-        x[k] = ecart + 2. * sqrt(-p / 3.) * cos((acos(s1) + 2. * k * GV_PI) / 3.);
-      return (3);
-    }
+    s1   = sqrt(-delta / 27.);
+    u    = (-q + s1) / 2.;
+    u    = (u > 0.) ? pow(u, 1. / 3.) : -pow(-u, 1. / 3.);
+    v    = (-q - s1) / 2.;
+    v    = (v > 0.) ? pow(v, 1. / 3.) : -pow(-v, 1. / 3.);
+    x[0] = ecart + u + v;
+    return (1);
   }
+  if (delta == 0.)
+  {
+    x[0] = ecart + 3. * q / p;
+    x[1] = ecart - 3. * q / (2. * p);
+    return (2);
+  }
+  s1 = -(q / 2.) * sqrt(27. / -(p * p * p));
+  for (k = 0; k < 3; k++)
+    x[k] = ecart + 2. * sqrt(-p / 3.) * cos((acos(s1) + 2. * k * GV_PI) / 3.);
+  return (3);
 }
 
 /****************************************************************************/
@@ -991,7 +951,6 @@ void ut_distance_allocated(int ndim, double **tab1, double **tab2)
   }
   *tab1 = DISTANCE_TAB1;
   *tab2 = DISTANCE_TAB2;
-  return;
 }
 
 

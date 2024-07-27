@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "Model/CovParamId.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
@@ -88,7 +87,7 @@ public:
   virtual int  attachToDb(Db* db, int icas, bool verbose = false) const;
   virtual void detachFromDb(Db* db, int icas) const;
 
-  int  manageInfo(int mode, Db *dbin, Db *dbout);
+  int  manageInfo(int mode, Db *dbin, Db *dbout) const;
 
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElemByItem(const CovParamId& item);
@@ -108,7 +107,7 @@ public:
   int getIV2 (int ipar) const { return _items[ipar].getIV2(); }
   int getNoStatElemNumber() const { return static_cast<int>(_items.size()); }
   const std::vector<CovParamId>& getNoStats() const { return _items; }
-  const CovParamId getNoStat(int ipar) const { return _items[ipar]; }
+  CovParamId getNoStat(int ipar) const { return _items[ipar]; }
 
   int attachModel(const Model* model);
 
@@ -119,7 +118,7 @@ public:
   bool matchIV2(int ipar, int iv20) const { return _items[ipar].matchIV2(iv20); }
 
   const std::vector<CovParamId>& getAllItems() const { return _items; }
-  const CovParamId getItems(int ipar) const { return _items[ipar]; }
+  CovParamId getItems(int ipar) const { return _items[ipar]; }
 
   bool getInfoFromDb(int ipar,
                      int icas1,
@@ -129,7 +128,7 @@ public:
                      double *val1,
                      double *val2) const;
 
-  void checkCode(const String& code) const;
+  static void checkCode(const String& code);
 
 protected:
   void _setAmesh(const AMesh* amesh) const { _amesh = amesh; }
@@ -138,12 +137,12 @@ protected:
   bool _isValid(int icas, int rank) const;
 
 private:
-  int _understandCode(const String& code,
-                      int *igrf,
-                      int *icov,
-                      EConsElem *type,
-                      int *iv1,
-                      int *iv2) const;
+  static int _understandCode(const String& code,
+                             int* igrf,
+                             int* icov,
+                             EConsElem* type,
+                             int* iv1,
+                             int* iv2);
   void _updateFromModel(const Model* model);
   bool _checkConsistency() const;
 

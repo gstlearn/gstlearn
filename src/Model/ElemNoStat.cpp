@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
-
 #include "Model/ElemNostat.hpp"
 #include "Basic/Utilities.hpp"
 

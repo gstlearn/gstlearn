@@ -28,7 +28,7 @@ class GSTLEARN_EXPORT GibbsUMultiMono : public GibbsMultiMono
 {
 public:
   GibbsUMultiMono();
-  GibbsUMultiMono(Db* db, std::vector<Model *> models, double rho);
+  GibbsUMultiMono(Db* db, const std::vector<Model *>& models, double rho);
   GibbsUMultiMono(const GibbsUMultiMono &r);
   GibbsUMultiMono& operator=(const GibbsUMultiMono &r);
   virtual ~GibbsUMultiMono();

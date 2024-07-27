@@ -15,7 +15,6 @@
 
 #include "Enum/EAnam.hpp"
 
-#include "Basic/ASerializable.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 
 /**
@@ -84,7 +83,7 @@ public:
   double  transformToRawValue(double yy) const override;
   bool    isChangeSupportDefined() const override { return false; }
 
-  AnamEmpirical* create(int ndisc = 100, double sigma2e = TEST);
+  static AnamEmpirical* create(int ndisc = 100, double sigma2e = TEST);
   int    getNDisc() const { return _nDisc; }
   double getSigma2e() const { return _sigma2e; }
   const  VectorDouble& getZDisc() const { return _ZDisc; }
@@ -105,13 +104,13 @@ protected:
   String _getNFName() const override { return "AnamEmpirical"; }
 
 private:
-  int _getStatistics(const VectorDouble &tab,
-                     int *count,
-                     double *mean,
-                     double *mean2,
-                     double *mini,
-                     double *maxi,
-                     double *var);
+  static int _getStatistics(const VectorDouble& tab,
+                            int* count,
+                            double* mean,
+                            double* mean2,
+                            double* mini,
+                            double* maxi,
+                            double* var);
   int _fitWithDilutionGaussian(const VectorDouble &tab);
   int _fitWithDilutionLognormal(const VectorDouble &tab);
   int _fitNormalScore(const VectorDouble &tab);

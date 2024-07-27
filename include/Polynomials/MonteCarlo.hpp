@@ -49,8 +49,8 @@ GSTLEARN_EXPORT double MCIndicatorElement(double yc,
                                           double krigstd,
                                           int nbsimu = NBSIMU_DEF);
 GSTLEARN_EXPORT VectorDouble MCIndicatorStd(double yc,
-                                            VectorDouble krigest,
-                                            VectorDouble krigstd,
+                                            const VectorDouble& krigest,
+                                            const VectorDouble& krigstd,
                                             int nbsimu = NBSIMU_DEF);
 GSTLEARN_EXPORT double MCIndicatorStdElement(double yc,
                                              double krigest,

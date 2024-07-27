@@ -13,8 +13,6 @@
 #include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
 
-#include "geoslib_define.h"
-
 class GSTLEARN_EXPORT RuleStringFormat: public AStringFormat
 {
 public:

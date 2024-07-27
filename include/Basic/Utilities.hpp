@@ -86,7 +86,7 @@ GSTLEARN_EXPORT void ut_facies_statistics(int nech,
                                           int *mini,
                                           int *maxi);
 GSTLEARN_EXPORT void ut_classify(int nech,
-                                 double *tab,
+                                 const double *tab,
                                  double *sel,
                                  int nclass,
                                  double start,

@@ -29,7 +29,7 @@ public:
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void setCoeffs(VectorDouble coeffs) { _coeffs = coeffs; }
+  void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
   void setCount(int count) { _count = count; }
   void setFlagCst(bool flagCst) { _flagCst = flagCst; }
   void setNvar(int nvar) { _nvar = nvar; }
@@ -50,7 +50,7 @@ public:
             int mode = 0,
             bool flagCst = false,
             Db *db2 = nullptr,
-            const Model *model = nullptr);
+            const Model *model = nullptr) const;
 
 private:
   int _count;

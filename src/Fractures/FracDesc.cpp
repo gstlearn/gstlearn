@@ -87,7 +87,7 @@ void FracDesc::addPoint(double x, double y)
  ** \param[in]  dcote        Tolerance on the layer elevation
  **
  *****************************************************************************/
-double FracDesc::fractureExtension(double cote, double dcote)
+double FracDesc::fractureExtension(double cote, double dcote) const
 {
   double dist = 0.;
   for (int i = 0; i < getNPoint() - 1; i++)

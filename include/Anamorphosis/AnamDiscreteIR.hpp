@@ -51,7 +51,7 @@ public:
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
 
-  AnamDiscreteIR* create(double rcoef = 0.);
+  static AnamDiscreteIR* create(double rcoef = 0.);
   void reset(int ncut,
              double r_coef,
              const VectorDouble &zcut,

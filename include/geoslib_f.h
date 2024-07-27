@@ -14,11 +14,6 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Enum/EKrigOpt.hpp"
-#include "Enum/ECalcVario.hpp"
-#include "Enum/ELoadBy.hpp"
-#include "Enum/EConsElem.hpp"
-
 #include "Basic/CSVformat.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/DbGrid.hpp"
@@ -106,12 +101,12 @@ GSTLEARN_EXPORT int model_auto_fit(Vario *vario,
                                    const Option_AutoFit &mauto_arg = Option_AutoFit(),
                                    const Constraints &cons_arg = Constraints(),
                                    const Option_VarioFit &optvar_arg = Option_VarioFit());
-GSTLEARN_EXPORT int vmap_auto_fit(const DbGrid *dbvmap,
-                                  Model *model,
-                                  bool verbose = false,
-                                  const Option_AutoFit &mauto_arg = Option_AutoFit(),
-                                  const Constraints &cons_arg = Constraints(),
-                                  const Option_VarioFit &optvar_arg = Option_VarioFit());
+GSTLEARN_EXPORT int vmap_auto_fit(const DbGrid* dbmap,
+                                  Model* model,
+                                  bool verbose                      = false,
+                                  const Option_AutoFit& mauto_arg   = Option_AutoFit(),
+                                  const Constraints& cons_arg       = Constraints(),
+                                  const Option_VarioFit& optvar_arg = Option_VarioFit());
 GSTLEARN_EXPORT int db_model_nostat(Db *db,
                                     Model *model,
                                     int icov = 0,
@@ -172,8 +167,8 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            int flag_check = false,
                            int flag_show = false,
                            int nbtuba = 100,
-                           int nboot = 10,
-                           int niter = 100,
+                           int gibbs_nburn = 10,
+                           int gibbs_niter = 100,
                            double percent = 5.,
                            const NamingConvention& namconv = NamingConvention("Facies", true, true, true,
                                                                               ELoc::fromKey("FACIES")));
@@ -192,8 +187,8 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              int flag_check = false,
                              int flag_show = false,
                              int nbtuba = 100,
-                             int nboot = 10,
-                             int niter = 100,
+                             int gibbs_nburn = 10,
+                             int gibbs_niter = 100,
                              double percent = 5.,
                              const NamingConvention& namconv = NamingConvention("Facies", true, true, true,
                                                                                 ELoc::fromKey("FACIES")));
@@ -219,15 +214,15 @@ GSTLEARN_EXPORT MatrixRectangular fluid_extract(DbGrid *dbgrid,
                                                 double time0,
                                                 double dtime,
                                                 bool verbose = false);
-GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
-                                Db *dbout,
-                                RuleProp *ruleprop,
-                                Model *model1,
-                                Model *model2,
-                                const String &triswitch,
-                                const VectorDouble &gext,
+GSTLEARN_EXPORT int simpgs_spde(Db* dbin,
+                                Db* dbout,
+                                RuleProp* ruleprop,
+                                Model* model1,
+                                Model* model2,
+                                const String& triswitch,
+                                const VectorDouble& gext,
                                 int flag_gaus,
-                                int flag_modif,
+                                int flag_prop,
                                 int flag_check,
                                 int flag_show,
                                 int nfacies,

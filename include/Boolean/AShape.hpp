@@ -57,7 +57,7 @@ public:
   void setParamName(int ipar, const String& name);
   void setParam(int ipar, int iarg, double value);
   void setParamDefault(int ipar, const String& name, double value);
-  void setLaw(int ipar, ELaw law);
+  void setLaw(int ipar, const ELaw& law);
 
   void initParams(int count);
 

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "Gibbs/AGibbs.hpp"
-#include "Basic/AStringable.hpp"
 
 class Db;
 class Model;
@@ -21,7 +20,7 @@ class GSTLEARN_EXPORT GibbsMultiMono : public AGibbs
 {
 public:
   GibbsMultiMono();
-  GibbsMultiMono(Db* db, std::vector<Model*> models, double rho);
+  GibbsMultiMono(Db* db, const std::vector<Model*>& models, double rho);
   GibbsMultiMono(const GibbsMultiMono &r);
   GibbsMultiMono& operator=(const GibbsMultiMono &r);
   virtual ~GibbsMultiMono();

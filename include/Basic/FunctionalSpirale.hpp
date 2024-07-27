@@ -31,7 +31,7 @@ public:
   VectorVectorDouble getFunctionVectors(const Db *db, const CovAniso* cova) const;
 
 private:
-  double _linearCombination(double x, double y, double a, double b) const;
+  static double _linearCombination(double x, double y, double a, double b);
 
 private:
   double _a;

@@ -8,14 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include "Basic/HDF5format.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <typeinfo>
 
 #define DEBUG 0
 
@@ -354,14 +352,14 @@ int HDF5format::writeRegular(hsize_t *start,
 }
 #endif
 
-int HDF5format::deleteFile()
+int HDF5format::deleteFile() const
 {
   if (_filename.empty()) return 0;
   if( remove(_filename.c_str() ) != 0 ) return 1;
   return 0;
 }
 
-int HDF5format::getSize() const
+int HDF5format::getSize()
 {
 #ifdef _USE_HDF5
   try
@@ -379,7 +377,7 @@ int HDF5format::getSize() const
   return 0;
 }
 
-int HDF5format::getDataInt() const
+int HDF5format::getDataInt()
 {
 #ifdef _USE_HDF5
   try
@@ -404,7 +402,7 @@ int HDF5format::getDataInt() const
   return -1;
 }
 
-float HDF5format::getDataFloat() const
+float HDF5format::getDataFloat()
 {
 #ifdef _USE_HDF5
   try
@@ -429,7 +427,7 @@ float HDF5format::getDataFloat() const
   return -1.;
 }
 
-double HDF5format::getDataDouble() const
+double HDF5format::getDataDouble()
 {
 #ifdef _USE_HDF5
   try
@@ -454,7 +452,7 @@ double HDF5format::getDataDouble() const
   return -1.;
 }
 
-VectorInt HDF5format::getDataVInt() const
+VectorInt HDF5format::getDataVInt()
 {
 #ifdef _USE_HDF5
   try
@@ -480,7 +478,7 @@ VectorInt HDF5format::getDataVInt() const
   return { 1, -1 };
 }
 
-VectorFloat HDF5format::getDataVFloat() const
+VectorFloat HDF5format::getDataVFloat()
 {
 #ifdef _USE_HDF5
   try
@@ -506,7 +504,7 @@ VectorFloat HDF5format::getDataVFloat() const
   return { 1., -1. };
 }
 
-VectorDouble HDF5format::getDataVDouble() const
+VectorDouble HDF5format::getDataVDouble()
 {
 #ifdef _USE_HDF5
   try
@@ -536,7 +534,7 @@ VectorDouble HDF5format::getDataVDouble() const
  * Reading VectorVectorInt
  * @return
  */
-VectorVectorInt HDF5format::getDataVVInt() const
+VectorVectorInt HDF5format::getDataVVInt()
 {
 #ifdef _USE_HDF5
   try
@@ -573,7 +571,7 @@ VectorVectorInt HDF5format::getDataVVInt() const
   return { 1, VectorInt(1, -1) };
 }
 
-VectorVectorFloat HDF5format::getDataVVFloat() const
+VectorVectorFloat HDF5format::getDataVVFloat()
 {
 #ifdef _USE_HDF5
   try
@@ -610,7 +608,7 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
   return { 1, VectorFloat(1, -1.) };
 }
 
-VectorVectorDouble HDF5format::getDataVVDouble() const
+VectorVectorDouble HDF5format::getDataVVDouble()
 {
 #ifdef _USE_HDF5
   try
@@ -653,7 +651,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
  * @param myrank Rank of the extracted VectorDouble
  * @return The extracted VectorDouble
  */
-VectorDouble HDF5format::getDataDoublePartial(int myrank) const
+VectorDouble HDF5format::getDataDoublePartial(int myrank)
 {
 #ifdef _USE_HDF5
   try
@@ -771,7 +769,7 @@ file_info(hid_t loc_id, const char *name, const H5L_info_t* /*linfo*/, void* /*o
     return 0;
 }
 #endif
-int HDF5format::displayNames() const
+int HDF5format::displayNames()
 {
 #ifdef _USE_HDF5
   try
@@ -792,7 +790,7 @@ int HDF5format::displayNames() const
   return 1;
 }
 
-int HDF5format::_getNDim() const
+int HDF5format::_getNDim()
 {
 #ifdef _USE_HDF5
   H5::DataSpace dataspace = _dataset.getSpace();
@@ -930,7 +928,7 @@ void HDF5format::_readDouble(double *data,
 }
 #endif
 
-int HDF5format::_checkClass(int value) const
+int HDF5format::_checkClass(int value)
 {
 #ifdef _USE_HDF5
   H5T_class_t classt = _datatype.getClass();

@@ -18,7 +18,6 @@
 #include "Db/Db.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Geometry/GeometryHelper.hpp"
 #include "Variogram/Vario.hpp"
 
 #include <math.h>
@@ -502,7 +501,7 @@ void PCA::_uncenter(VectorDouble& data,
  **
  *****************************************************************************/
 void PCA::_pcaZ2F(int iptr,
-                  Db *db,
+                  Db* db,
                   const VectorBool& isoFlag,
                   const VectorDouble& mean,
                   const VectorDouble& sigma)
