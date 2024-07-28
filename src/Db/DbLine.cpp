@@ -20,6 +20,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Stats/Classical.hpp"
+#include "Space/SpacePoint.hpp"
 #include "Enum/ELoc.hpp"
 
 #include <math.h>
@@ -92,6 +93,22 @@ int DbLine::getNTotal() const
   for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
     ntotal += getLineSampleCount(iline);
   return ntotal;
+}
+
+double DbLine::getLineLength(int iline) const
+{
+  if (!_isLineNumberValid(iline)) return TEST;
+  double total = 0.;
+  SpacePoint P1;
+  SpacePoint P2;
+  getSampleAsSPInPlace(_lineAdds[iline][0], P1);
+  for (int iech = 1, nech = getLineSampleCount(iline); iech < nech; iech++)
+  {
+    getSampleAsSPInPlace(_lineAdds[iline][iech], P2);
+    total += P2.getDistance(P1);
+    P1 = P2;
+  }
+  return total;
 }
 
 String DbLine::toString(const AStringFormat* strfmt) const

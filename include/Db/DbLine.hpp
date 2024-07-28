@@ -94,6 +94,7 @@ public:
 
   int getLineNumber() const;
   int getLineSampleCount(int iline) const;
+  double getLineLength(int iline) const;
   int getNTotal() const;
   int getLineBySample(int iech) const;
   VectorDouble _getHeaderCoordinate(int idim) const;
