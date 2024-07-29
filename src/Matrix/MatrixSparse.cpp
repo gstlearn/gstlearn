@@ -268,7 +268,7 @@ void MatrixSparse::_transposeInPlace()
   {
     Eigen::SparseMatrix<double> temp;
     temp = _eigenMatrix.transpose();
-    _eigenMatrix = temp;
+    _eigenMatrix.swap(temp);
   }
   else
   {
@@ -533,12 +533,12 @@ VectorDouble MatrixSparse::prodVecMat(const VectorDouble& x, bool transpose) con
   if (isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-    Eigen::VectorXd ym;
+    VectorDouble y(transpose ? getNRows() : getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
     if (transpose)
       ym = xm.transpose() * _eigenMatrix.transpose();
     else
       ym = xm.transpose() * _eigenMatrix;
-    VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
   }
   VectorDouble y;
@@ -563,12 +563,12 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
   if (isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-    Eigen::VectorXd ym;
+    VectorDouble y(transpose ? getNCols() : getNRows());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
     if (transpose)
       ym = _eigenMatrix.transpose() * xm;
     else
       ym = _eigenMatrix * xm;
-    VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
   }
   VectorDouble y;
@@ -813,8 +813,9 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
 {
   if (isFlagEigen())
   {
-    Eigen::VectorXd ym = _eigenMatrix.diagonal();
-    VectorDouble diag(ym.data(), ym.data() + ym.size());
+    VectorDouble diag(std::min(getNCols(), getNRows()));
+    Eigen::Map<Eigen::VectorXd> ym(diag.data(), diag.size());
+    ym = _eigenMatrix.diagonal();
     VH::transformVD(diag, oper_choice);
     return diag;
   }
