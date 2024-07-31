@@ -1001,7 +1001,7 @@ def __ax_point(ax, db,
                legendNameColor=None, legendNameSize=None, legendNameLabel=None,
                posX=0, posY=1, **kwargs):
 
-    if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO"]):
         return None
 
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
@@ -1285,7 +1285,7 @@ def line(dbline, *args, **kwargs):
     return __ax_line(ax, dbline, *args, **kwargs)
 
 def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red', 
-              flagHeader=True, flagSample=False,
+              flagHeader=True, flagSample=False, flagAnnotateHeader=False, offset=[-1.0,0.5],
               **kwargs):
     if __isNotCorrect(object=dbline, types=["DbLine"]):
         return None
@@ -1302,10 +1302,57 @@ def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
 
         if flagHeader:
             ax.plot(x[0], y[0], marker='D', color=colorHeader)
+            if flagAnnotateHeader:
+                ax.text(x[0]+offset[0], y[0]+offset[1], "L#"+str(iline+1))
 
         if flagSample:
             ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
         
+    return ax
+
+def graphO(dbgraphO, *args, **kwargs):
+    '''
+    Plotting a variable (referred by its name) informed in a DbGraphO
+
+    dbgraphO: DbGraphO containing the variable to be plotted
+    name: Name of the variable to be represented
+    useSel : Boolean to indicate if the selection has to be considered
+    **kwargs : arguments passed to ...
+    '''
+    ax = __getNewAxes(None, 1)
+    return __ax_graphO(ax, dbgraphO, *args, **kwargs)
+
+def __ax_graphO(ax, dbgraphO, name = None, color = 'blue', colorPoint='black', flagSample=False, flagAnnotate=False,
+                flagByRank=False, ndec=2, **kwargs):
+    if __isNotCorrect(object=dbgraphO, types=["DbGraphO"]):
+        return None
+    if dbgraphO.getNDim() != 2:
+        return None
+    
+    if flagSample:
+        x = dbgraphO.getCoordinates(0)
+        y = dbgraphO.getCoordinates(1)
+        ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
+    
+    narcs = dbgraphO.getArcNumber()
+    for iarc in range(narcs):
+        x = dbgraphO.getArc(iarc, 0)
+        y = dbgraphO.getArc(iarc, 1)
+        value = dbgraphO.getArcValue(iarc)
+        if value > 0:
+            xmid = (x[0]+x[1])/2.
+            ymid = (y[0]+y[1])/2.
+            rotation = np.arctan2(y[1]-y[0],x[1]-x[0])*180/np.pi
+        
+            ax.plot(x, y, color=color, **kwargs)
+
+            if flagAnnotate:
+                if flagByRank:
+                    ax.text(xmid, ymid, str(iarc+1), ha="center", va="bottom", rotation=rotation)
+                else:
+                    ax.text(xmid, ymid, str(round(value,ndec)), ha="center", va="bottom", 
+                            rotation=rotation)
+
     return ax
 
 def grid(dbgrid, *args, **kwargs):
@@ -2224,6 +2271,7 @@ import gstlearn.plot         as gp
 setattr(gl.Db,               "plot",             gp.point)
 setattr(gl.DbGrid,           "plot",             gp.grid)
 setattr(gl.DbLine,           "plot",             gp.line)
+setattr(gl.DbGraphO,         "plot",             gp.graphO)
 setattr(gl.Polygons,         "plot",             gp.polygon)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Faults,           "plot",             gp.fault)

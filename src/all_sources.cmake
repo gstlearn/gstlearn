@@ -154,6 +154,7 @@ set(SRC
   Db/Db.cpp
   Db/DbGrid.cpp
   Db/DbLine.cpp
+  Db/DbGraphO.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   Db/DbHelper.cpp

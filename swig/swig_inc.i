@@ -249,6 +249,7 @@
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
   #include "Db/DbLine.hpp"
+  #include "Db/DbGraphO.hpp"
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
   

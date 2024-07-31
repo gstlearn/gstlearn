@@ -21,6 +21,7 @@
  ** Main Program
  **
  ** This program is meant to check the manipulation of the Db
+ ** with a Line organization
  **
  *****************************************************************************/
 int main(int argc, char *argv[])
@@ -31,8 +32,8 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
 
-  // Creating the Lines (in a 1-D space)
-  defineDefaultSpace(ESpaceType::RN, 1);
+  // Creating the Lines (in a 2-D space)
+  defineDefaultSpace(ESpaceType::RN, 2);
 
   // tab contains the
   VectorInt lineCounts = { 3, 4, 2, 3};
