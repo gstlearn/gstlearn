@@ -75,7 +75,7 @@ String DbGraphO::toString(const AStringFormat* strfmt) const
 DbGraphO* DbGraphO::createFromSamples(int nech,
                                       const ELoadBy& order,
                                       const VectorDouble& tab,
-                                      const NF_Triplet& NF_arcs,
+                                      NF_Triplet& NF_arcs,
                                       const VectorString& names,
                                       const VectorString& locatorNames,
                                       bool flagAddSampleRank)
@@ -114,8 +114,9 @@ DbGraphO* DbGraphO::createFromMatrix(int nech,
   return nullptr;
 }
 
-int DbGraphO::_arcLinkage(const NF_Triplet& NF_arcs)
+int DbGraphO::_arcLinkage(NF_Triplet& NF_arcs, int nech)
 {
+  NF_arcs.force(nech, nech);
   _downArcs.resetFromTriplet(NF_arcs);
   return 0;
 }
@@ -145,7 +146,7 @@ void DbGraphO::_checkForceDimension(int nech)
 int DbGraphO::resetFromSamples(int nech,
                              const ELoadBy& order,
                              const VectorDouble& tab,
-                             const NF_Triplet& NF_arcs,
+                             NF_Triplet& NF_arcs,
                              const VectorString& names,
                              const VectorString& locatorNames,
                              bool flagAddSampleRank)
@@ -154,11 +155,9 @@ int DbGraphO::resetFromSamples(int nech,
                            flagAddSampleRank) != 0)
     return 1;
 
-  // Create the Arcs Linkage
+  // Create the Arcs Linkage (forcing the dimension if needed)
 
-  if (_arcLinkage(NF_arcs) != 0) return 1;
-
-  _checkForceDimension(nech);
+  if (_arcLinkage(NF_arcs, nech) != 0) return 1;
 
   return (!isConsistent());
 }

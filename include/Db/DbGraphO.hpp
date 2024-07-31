@@ -57,7 +57,7 @@ public:
   int resetFromSamples(int nech,
                        const ELoadBy& order,
                        const VectorDouble& tab,
-                       const NF_Triplet& NF_arcs,
+                       NF_Triplet& NF_arcs,
                        const VectorString& names        = VectorString(),
                        const VectorString& locatorNames = VectorString(),
                        bool flagAddSampleRank           = true);
@@ -71,7 +71,7 @@ public:
   static DbGraphO* createFromSamples(int nech,
                                      const ELoadBy& order,
                                      const VectorDouble& tab,
-                                     const NF_Triplet& NF_arcs,
+                                     NF_Triplet& NF_arcs,
                                      const VectorString& names = VectorString(),
                                      const VectorString& locatorNames = VectorString(),
                                      bool flagAddSampleRank           = true);
@@ -112,7 +112,7 @@ protected:
   String _getNFName() const override { return "DbGraphO"; }
 
 private:
-  int _arcLinkage(const NF_Triplet& NF_arcs);
+  int  _arcLinkage(NF_Triplet& NF_arcs, int nech);
   bool _isValidArcRank(int iarc) const;
   bool _isValidNode(int node) const;
   void _checkForceDimension(int nech);
