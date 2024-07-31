@@ -536,6 +536,14 @@ VectorInt DbGraphO::_getNoneZeroIndices(const VectorDouble& v)
   return vall;
 }
 
+/**
+ * @brief Local recursive function for finding cumul
+ * 
+ * @param inds  List of indices of nodes connceted downwards
+ * @param cumul Array contaiing the cumulative values per node
+ * @param v1    Working array  
+ * @param v2    Working array
+ */
 void DbGraphO::_iterateCumul(const VectorInt& inds,
                              VectorDouble& cumul,
                              VectorDouble& v1,
