@@ -106,4 +106,4 @@ jobs:
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v5
       with:
-        name: ubuntu-r-package-${{matrix.os}}-r-${{matrix.r_version}}
+        name: ubuntu-r-package-*
