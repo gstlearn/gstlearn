@@ -1594,7 +1594,7 @@ static double st_get_data_constraints(Db *db, int igrf, int iech)
  ** \param[in]  db               Db structure
  ** \param[in]  igrf             Rank of the GRF
  ** \param[in]  iech             Rank of the sample
- ** \param[in]  iter0            Gibbs iteration rank (starting from 0)
+ ** \param[in]  iter             Gibbs iteration rank (starting from 0)
  ** \param[in]  ngibbs_burn      Number of iterations (Burning step)
  ** \param[in]  yk               Kriged value
  ** \param[in]  sk               Standard deviation of the kriged error
@@ -1607,7 +1607,7 @@ static double st_get_data_constraints(Db *db, int igrf, int iech)
 static double st_simu_constraints(Db *db,
                                   int igrf,
                                   int iech,
-                                  int iter0,
+                                  int iter,
                                   int ngibbs_burn,
                                   double yk,
                                   double sk)
@@ -1618,10 +1618,8 @@ static double st_simu_constraints(Db *db,
 
   vmin = db->getLocVariable(ELoc::L,iech, igrf);
   vmax = db->getLocVariable(ELoc::U,iech, igrf);
-  ratio =
-      (iter0 < ngibbs_burn) ? (double) (ngibbs_burn - iter0 - 1) / (double) (iter0
-                                  + 1) :
-                              0.;
+  ratio = (iter < ngibbs_burn)
+            ? (double)(ngibbs_burn - iter - 1) / (double)(iter + 1) : 0.;
   if (FFFF(vmin))
     delta = ABS(vmax);
   else if (FFFF(vmax))
@@ -1683,48 +1681,20 @@ static void st_gibbs(int igrf,
                      Db *dbout,
                      double *zcur)
 {
-  int iech, jech, jg, p, niter, *Ap, *Ai;
-  double *Ax, coeff, yk, sk;
-  QChol *QC;
-  const cs *A;
-
-  /* Initializations */
-
-  QC = spde_get_current_matelem(-1).QC;
-  A = QC->Q->getCS();
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-  sk = yk = 0.;
-  iech = 0;
-  niter = MAX(1, ngibbs_int);
+  QChol* QC = spde_get_current_matelem(-1).QC;
+  double sk;
+  double yk = 0.;
+  int niter   = MAX(1, ngibbs_int);
+  MatrixSparse mat = MatrixSparse(QC->Q->getCS());
+  VectorDouble zcurVD = VH::initVDouble(zcur, nout);
 
   /* Loop on the Gibbs samples */
 
   for (int iter = 0; iter < niter; iter++)
-    for (int ig = 0; ig < nout; ig++)
+    for (int iech = 0; iech < nout; iech++)
     {
-      yk = 0.;
-      iech = ig;
-      for (p = Ap[iech]; p < Ap[iech + 1]; p++)
-      {
-        coeff = Ax[p];
-        if (ABS(coeff) <= 0.) continue;
-        jech = Ai[p];
-
-        if (iech == jech)
-          sk = coeff;
-        else
-          yk -= coeff * zcur[jech];
-      }
-      yk /= sk;
-      sk = sqrt(1. / sk);
-      jg = ig;
-
-      if (jg > 0)
-        zcur[iech] = st_simu_constraints(dbout, igrf, jg - 1, iter0, ngibbs_burn, yk, sk);
-      else
-        zcur[iech] = st_simu_constraints(dbin, igrf, -jg - 1, iter0, ngibbs_burn, yk, sk);
+      mat.gibbs(iech, zcurVD, &yk, &sk);
+      zcur[iech] = st_simu_constraints(dbout, igrf, iech - 1, iter0, ngibbs_burn, yk, sk);
     }
 }
 

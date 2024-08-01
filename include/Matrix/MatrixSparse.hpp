@@ -200,10 +200,15 @@ public:
                                         bool col_ok);
   VectorInt colorCoding();
   int getNonZeros() const { return _getMatrixPhysicalSize(); }
+  void gibbs(int iech, const VectorDouble& zcur, double* yk, double* sk);
 
 protected:
   /// Interface for AMatrix
-          bool    _isPhysicallyPresent(int irow, int icol) const override { DECLARE_UNUSED(irow, icol); return true; }
+  bool _isPhysicallyPresent(int irow, int icol) const override
+  {
+    DECLARE_UNUSED(irow, icol);
+    return true;
+  }
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
 
