@@ -12,7 +12,6 @@
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 
 #define SQ(i,j,neq)   ((j) * neq + (i))
 #define A(i,j)         a[SQ(i,j,neq)]

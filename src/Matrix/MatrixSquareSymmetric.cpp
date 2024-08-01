@@ -166,8 +166,7 @@ int MatrixSquareSymmetric::_invert()
 
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
-  if (icol >  irow) return false;
-  return true;
+  return (icol <= irow);
 }
 
 /**
@@ -272,7 +271,7 @@ int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
 
   _eigenValues = eigenValues;
 
-  if (_eigenVectors != nullptr) delete _eigenVectors;
+  delete _eigenVectors;
 
   if (changeOrder)
     std::reverse(_eigenValues.begin(), _eigenValues.end());
@@ -502,7 +501,7 @@ int MatrixSquareSymmetric::solveCholesky(const VectorDouble& b, VectorDouble& x)
   Eigen::VectorXd xm = _factor.solve(bm);
 
   x.resize(size);
-  Eigen::Map<Eigen::VectorXd>(&x[0], size) = xm;
+  Eigen::Map<Eigen::VectorXd>(x.data(), size) = xm;
 
   return 0;
 }
@@ -540,66 +539,60 @@ MatrixRectangular MatrixSquareSymmetric::productCholeskyInPlace(int mode,
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++)
-          val += TL(j,i) * a.getValue(j,irhs);
-        x.setValue(i,irhs,val);
+        for (int j = i; j < neq; j++) val += TL(j, i) * a.getValue(j, irhs);
+        x.setValue(i, irhs, val);
       }
-    }
-    else if (mode == 1)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=0; j<=i; j++)
-            val += TL(i,j) * a.getValue(j,irhs);
-          x.setValue(i,irhs,val);
-        }
-    }
-    else if (mode == 2)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=0; j<=i; j++)
-            val += a.getValue(irhs,j) * TL(i,j);
-          x.setValue(irhs,i,val);
-        }
-    }
-    else if (mode == 3)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=i; j<neq; j++)
-            val += a.getValue(irhs,j) * TL(j,i);
-          x.setValue(irhs,i,val);
-        }
-    }
-    else if (mode == 4)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=0; j<=i; j++)
-            val += a.getValue(irhs,j) * TL(i,j);
-          x.setValue(irhs,i,val);
-        }
-    }
-    else if (mode == 5)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=i; j<neq; j++)
-            val += a.getValue(irhs,j) * TL(j,i);
-          x.setValue(irhs,i,val);
-        }
-    }
+  }
+  else if (mode == 1)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = 0; j <= i; j++) val += TL(i, j) * a.getValue(j, irhs);
+        x.setValue(i, irhs, val);
+      }
+  }
+  else if (mode == 2)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * TL(i, j);
+        x.setValue(irhs, i, val);
+      }
+  }
+  else if (mode == 3)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * TL(j, i);
+        x.setValue(irhs, i, val);
+      }
+  }
+  else if (mode == 4)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * TL(i, j);
+        x.setValue(irhs, i, val);
+      }
+  }
+  else if (mode == 5)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * TL(j, i);
+        x.setValue(irhs, i, val);
+      }
+  }
   return x;
 }
 
@@ -631,26 +624,26 @@ MatrixSquareSymmetric MatrixSquareSymmetric::normCholeskyInPlace(int mode,
         for (int l = 0; l <= j; l++)
           for (int k = 0; k <= i; k++)
           {
-            if (! a.empty())
+            if (!a.empty())
               vala = a.getValue(k, l);
             else
               vala = (k == l);
-            val += TL(i,k) * vala * TL(j,l);
+            val += TL(i, k) * vala * TL(j, l);
           }
-        }
-        else
-        {
-          for (int l=j; l<neq; l++)
-            for (int k=i; k<neq; k++)
-            {
-              if (! a.empty())
-                vala = a.getValue(k,l);
-              else
-                vala = (k == l);
-              val += TL(k,i) * vala * TL(l,j);
-            }
-        }
-      b.setValue(i,j,val);
+      }
+      else
+      {
+        for (int l = j; l < neq; l++)
+          for (int k = i; k < neq; k++)
+          {
+            if (!a.empty())
+              vala = a.getValue(k, l);
+            else
+              vala = (k == l);
+            val += TL(k, i) * vala * TL(l, j);
+          }
+      }
+      b.setValue(i, j, val);
     }
   return b;
 }

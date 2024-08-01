@@ -1,0 +1,72 @@
+
+Reference DbLine File
+---------------------
+
+Data Base Line Characteristics
+==============================
+Number of Lines = 4
+Line length = 3 / 4 / 2 / 3
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = z1 - Locator = z1
+Column = 4 - Name = z2 - Locator = z2
+
+DbLine after Serialization / Deserialization
+--------------------------------------------
+
+Data Base Line Characteristics
+==============================
+Number of Lines = 4
+Line length = 3 / 4 / 2 / 3
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = z1 - Locator = z1
+Column = 4 - Name = z2 - Locator = z2
+
+DbLine created using alternative solution
+-----------------------------------------
+
+Data Base Line Characteristics
+==============================
+Number of Lines = 4
+Line length = 2 / 3 / 4 / 3
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = z1 - Locator = z1
+Column = 4 - Name = z2 - Locator = z2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 4
+
+Data Base Contents
+------------------
+                  x-1       x-2     Count
+     [  0,]     1.000     1.000     3.000
+     [  1,]     2.000     1.000     4.000
+     [  2,]     3.000     3.000     2.000
+     [  3,]     4.000     2.000     3.000
+
+Variables
+---------
+Column = 0 - Name = x-1 - Locator = x1
+Column = 1 - Name = x-2 - Locator = x2
+Column = 2 - Name = Count - Locator = NA

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
@@ -64,7 +63,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int icov,
-                         const CGParam params,
+                         const CGParam& params,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(model->getCova(icov))
@@ -84,7 +83,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   _work3.resize(_shiftOp->getSize());
 }
 
-PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
+PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
   : _shiftOp(pmat._shiftOp)
   , _cova(pmat._cova)
   , _polynomials(pmat._polynomials)
@@ -166,7 +165,7 @@ int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
   return 0;
 }
 
-VectorDouble PrecisionOp::getPolyCoeffs(EPowerPT power)
+VectorDouble PrecisionOp::getPolyCoeffs(const EPowerPT& power)
 {
   return _polynomials[power]->getCoeffs();
 }
@@ -243,7 +242,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu,int seed)
   val1 /= nbsimu;
 
   double val2 = 0.;
-  for (auto &e : _shiftOp->getLambdas())
+  for (const auto &e : _shiftOp->getLambdas())
   {
     val2 += log(e);
   }

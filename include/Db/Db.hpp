@@ -89,12 +89,14 @@ public:
 
   /// Interface for Db
   virtual bool isGrid() const { return false; }
+  virtual bool isLine() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
   virtual void resetDims(int ncol, int nech);
+  virtual bool isConsistent() const { return true; };
 
   /**
    * \defgroup DB Db: Numerical Data Base
@@ -553,7 +555,7 @@ public:
    * @param value Value to be assigned
    *  @{
    */
-  int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
+  static int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
   double getSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,

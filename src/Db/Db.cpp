@@ -4280,7 +4280,7 @@ VectorDouble Db::statisticsMulti(const VectorString &names,
  ** \param[in]  nvar      Number of variables
  **
  *****************************************************************************/
-int Db::getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
+int Db::getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar)
 {
   return (isimu + nbsimu * (ivar + nvar * icase));
 }

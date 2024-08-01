@@ -11,15 +11,10 @@
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 
-#include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Polynomials/Chebychev.hpp"
 #include "LinearOp/Cholesky.hpp"
-
-#include <functional>
 
 #include <math.h>
 
@@ -76,7 +71,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
     for (int is = 1; is < number; is++)
     {
       const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
-      if (Qmult != nullptr) delete Qmult;
+      delete Qmult;
       Qmult = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(Qref, pmataux->getQ(), true, true));
       Qref = Qmult;
     }
@@ -107,7 +102,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
     for (int is = 1; is < number; is++)
     {
       const MatrixSparse* msaux = dynamic_cast<const MatrixSparse*>(getProjMatrix(is));
-      if (mstemp != nullptr) delete mstemp;
+      delete mstemp;
       mstemp = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(msref, msaux, false, true));
       msref = mstemp;
     }

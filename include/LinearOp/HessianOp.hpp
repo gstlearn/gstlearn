@@ -19,7 +19,7 @@
 class GSTLEARN_EXPORT HessianOp : public ALinearOp {
 
 public:
-	HessianOp(const CGParam params = CGParam());
+	HessianOp(const CGParam& params = CGParam());
 	virtual ~HessianOp();
 
   int  init(PrecisionOp*  pmat,

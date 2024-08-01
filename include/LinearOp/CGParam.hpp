@@ -26,7 +26,7 @@ public:
 
   void setEps(double eps) { _eps = eps; }
   void setNIterMax(int nIterMax) { _nIterMax = nIterMax; }
-  void setX0(VectorDouble x0) { _x0 = x0; }
+  void setX0(const VectorDouble& x0) { _x0 = x0; }
   void setPrecond(const ALinearOp* precond, int status);
   void setPrecondStatus(int precondStatus) { _precondStatus = precondStatus; }
 

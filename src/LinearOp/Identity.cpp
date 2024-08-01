@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include <LinearOp/Identity.hpp>
-#include <iostream>
 
 Identity::Identity(int n) 
   : ALinearOp()

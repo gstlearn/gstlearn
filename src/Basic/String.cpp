@@ -168,7 +168,7 @@ void correctNamesForDuplicates(VectorString &list)
     int found = -1;
     for (int j = 0; j < i && found < 0; j++)
     {
-      if (list[i].compare(list[j]) == 0) found = j;
+      if (list[i] == list[j]) found = j;
     }
     if (found < 0) continue;
 
@@ -189,7 +189,7 @@ void correctNewNameForDuplicates(VectorString &list, int rank)
     for (int i = 0; i < number; i++)
     {
       if (i == rank) continue;
-      if (list[rank].compare(list[i]) == 0) found++;
+      if (list[rank] == list[i]) found++;
     }
     if (found <= 0) break;;
 
