@@ -24,6 +24,6 @@ GSTLEARN_EXPORT int FFTn(int ndim,
                          int iSign = 1,
                          double scaling = 1.);
 GSTLEARN_EXPORT Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
-                                          std::function<std::complex<double>(VectorDouble, double)> funcSpectrum);
+                                          const std::function<std::complex<double>(VectorDouble, double)>& funcSpectrum);
 GSTLEARN_EXPORT Array evalCovFFTSpatial(const VectorDouble& hmax, int N,
-                                        std::function<double(const VectorDouble&)> funcSpectrum);
+                                        const std::function<double(const VectorDouble&)>& funcSpectrum);

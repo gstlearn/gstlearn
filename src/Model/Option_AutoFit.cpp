@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Model/Option_AutoFit.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
 
 Option_AutoFit::Option_AutoFit()
     : AStringable(),

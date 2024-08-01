@@ -17,7 +17,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
@@ -148,7 +147,7 @@ static int st_velocity_minmax(int nech,
 static void st_yxtoxy(int nx,
                       double dx,
                       double x0,
-                      double *y,
+                      const double *y,
                       int ny,
                       double dy,
                       double y0,
@@ -242,7 +241,7 @@ static double dsinc(double x)
  ** \remark assumed symmetric.
  **
  *****************************************************************************/
-static void stoepd(int n, double *r, double *g, double *f, double *a)
+static void stoepd(int n, const double *r, const double *g, double *f, double *a)
 {
   int i, j;
   double v, e, c, w, bot;
@@ -370,11 +369,11 @@ static void st_intt8r(int ntable,
                       int nxin,
                       double dxin,
                       double fxin,
-                      double *yin,
+                      const double *yin,
                       double yinl,
                       double yinr,
                       int nxout,
-                      double *xout,
+                      const double *xout,
                       double *yout)
 {
   int ioutb, nxinm8, ixout, ixoutn, kyin, ktable, itable;
@@ -460,8 +459,6 @@ static void st_weights(double table[][LTABLE])
   }
   table[0][LTABLE / 2 - 1] = 1.0;
   table[NTABLE - 1][LTABLE / 2] = 1.0;
-
-  return;
 }
 
 /****************************************************************************/
@@ -719,7 +716,6 @@ static void st_copy(int mode, DbGrid *db, int iatt, int ival, double *tab)
         db->setArray(iatt + nby * i + ival, iatt, tab[i]);
       break;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -757,7 +753,8 @@ static int st_match(DbGrid *db_z, DbGrid *db_t)
 
   error = 0;
 
-  label_end: if (error)
+label_end:
+  if (error)
   {
     messerr("Error for one of the following reasons:");
     messerr("- Different space dimensions: Depth(%d) - Time(%d)",
@@ -867,8 +864,6 @@ static void st_seismic_z2t_convert(DbGrid *db_z,
       st_copy(1, db_t, iatt_t + iatt, itrace, at);
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -961,8 +956,6 @@ static void st_seismic_t2z_convert(DbGrid *db_t,
       st_copy(1, db_z, iatt_z + iatt, itrace, az);
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1513,10 +1506,10 @@ static double* st_seismic_wavelet(int verbose,
  *****************************************************************************/
 static void st_seismic_convolve(int nx,
                                 int ix0,
-                                double *x,
+                                const double *x,
                                 int ny,
                                 int iy0,
-                                double *y,
+                                const double *y,
                                 int nz,
                                 int iz0,
                                 double *z)
@@ -1542,7 +1535,6 @@ static void st_seismic_convolve(int nx,
       sum += x[j] * y[i - j];
     z[i] = sum;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1751,7 +1743,7 @@ static void st_seismic_affect(Db     * /*db*/,
                               double  val_before,
                               double  val_middle,
                               double  val_after,
-                              double *tab0,
+                              const double *tab0,
                               double *tab1)
 {
   int iz, flag_already;
@@ -1781,8 +1773,6 @@ static void st_seismic_affect(Db     * /*db*/,
     }
     tab1[iz + shift] = value;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1815,7 +1805,6 @@ static void st_seismic_contrast(int nz, double *tab)
     }
   }
   tab[0] = TEST;
-  return;
 }
 
 /****************************************************************************/
@@ -2012,7 +2001,6 @@ static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
     ecr++;
   }
   ngh->nactive = ecr;
-  return;
 }
 
 /****************************************************************************/
@@ -2072,8 +2060,6 @@ static void st_sample_add(DbGrid *db,
   if (!FFFF(v1)) ngh->n_v1++;
   if (!FFFF(v2)) ngh->n_v2++;
   ngh->nactive++;
-
-  return;
 }
 
 /****************************************************************************/
@@ -2110,8 +2096,6 @@ static void st_estimate_check_presence(DbGrid *db,
     }
     if (presence[ix] > 0) (*npres)++;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2267,7 +2251,6 @@ static void st_estimate_neigh_copy(ST_Seismic_Neigh *ngh_cur,
     ngh_old->v2_ngh[i] = ngh_cur->v2_ngh[i];
   }
   ngh_old->nactive = ngh_cur->nactive;
-  return;
 }
 
 /****************************************************************************/
@@ -2495,8 +2478,6 @@ static void st_estimate_flag(ST_Seismic_Neigh *ngh,
   *nred = 0;
   for (i = 0; i < neqmax; i++)
     (*nred) += flag[i];
-
-  return;
 }
 
 /****************************************************************************/
@@ -2516,8 +2497,6 @@ static void st_estimate_var0(Model *model, double *var0)
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     var0[ivar] = covtab.getValue(ivar, ivar);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2538,8 +2517,6 @@ static void st_estimate_c00(Model *model, double *c00)
   for (int ivar = 0; ivar < NVAR; ivar++)
     for (int jvar = 0; jvar < NVAR; jvar++)
       C00(ivar,jvar) = covtab.getValue(ivar, jvar);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2611,8 +2588,6 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
       if (flag[i] && flag[j]) lhs[ecr++] = lhs[lec];
 
   if (OptDbg::query(EDbg::KRIGING)) krige_lhs_print(nech, neqmax, nred, flag, lhs);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2682,8 +2657,6 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
 
   if (OptDbg::query(EDbg::KRIGING))
     krige_rhs_print(NVAR, nech, neqmax, nred, flag, rhs);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2702,8 +2675,8 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
                          int nvar,
                          int nech,
                          int nred,
-                         int *flag,
-                         double *wgt)
+                         const int *flag,
+                         const double *wgt)
 {
   double sum[2], value;
   int iwgt, ivar, jvar, iech, lec, cumflag;
@@ -2763,8 +2736,6 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
       tab_printg(NULL, sum[ivar]);
     message("\n");
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2828,10 +2799,10 @@ static void st_estimate_result(Db     *db,
                                int     flag_std,
                                int     /*nfeq*/,
                                int     nred,
-                               int    *flag,
-                               double *wgt,
-                               double *rhs,
-                               double *var0,
+                               const int    *flag,
+                               const double *wgt,
+                               const double *rhs,
+                               const double *var0,
                                int *iatt_est,
                                int *iatt_std)
 {
@@ -2883,7 +2854,6 @@ static void st_estimate_result(Db     *db,
       message("\n");
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2910,10 +2880,10 @@ static void st_simulate_result(DbGrid *db,
                                int     nbsimu,
                                int     /*nfeq*/,
                                int     nred,
-                               int    *flag,
-                               double *wgt,
-                               double *rhs,
-                               double *c00,
+                               const int    *flag,
+                               const double *wgt,
+                               const double *rhs,
+                               const double *c00,
                                int *iatt_sim)
 {
   int i, ivar, jvar, nech, lec, isimu, iech;
@@ -2992,8 +2962,6 @@ static void st_simulate_result(DbGrid *db,
       }
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -3007,7 +2975,7 @@ static void st_simulate_result(DbGrid *db,
  ** \param[out] rank     Array giving the order of the traces
  **
  *****************************************************************************/
-static int st_estimate_sort(int *presence, int *rank)
+static int st_estimate_sort(const int *presence, int *rank)
 {
   double *dist, distmin, distval;
   int ix, jx;
@@ -3109,7 +3077,7 @@ int seismic_estimate_XZ(DbGrid *db,
   iatt_z1 = db_attribute_identify(db, ELoc::Z, 0);
   iatt_z2 = db_attribute_identify(db, ELoc::Z, 1);
 
-  if (!(NX > 1 && NY == 1 && NZ > 1))
+  if (NX <= 1 || NY != 1 || NZ <= 1)
   {
     messerr("The Db grid is not XZ");
     goto label_end;
@@ -3301,7 +3269,6 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
         db->setArray(iech, iatt[ivar] + isimu, value);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -3370,7 +3337,7 @@ int seismic_simulate_XZ(DbGrid *db,
   DZ = db->getDX(2);
   NVAR = db->getLocNumber(ELoc::Z);
 
-  if (!(NX > 1 && NY == 1 && NZ > 1))
+  if (NX <= 1 || NY != 1 || NZ <= 1)
   {
     messerr("The Db grid is not XZ");
     goto label_end;

@@ -29,7 +29,7 @@ public:
   double rval;
   String sval;
 
-  argClass(int iival = -1, double rrval = -1.1, String ssval = STRING_NA)
+  argClass(int iival = -1, double rrval = -1.1, const String& ssval = STRING_NA)
       : ival(iival),
         rval(rrval),
         sval(ssval)
@@ -64,7 +64,7 @@ GSTLEARN_EXPORT void argumentTestDoubleOverload(const VectorDouble& values);
 GSTLEARN_EXPORT void argumentTestStringOverload(const String& value);
 GSTLEARN_EXPORT void argumentTestStringOverload(const VectorString& values);
 
-GSTLEARN_EXPORT void argumentTestEnum(ETests value);
+GSTLEARN_EXPORT void argumentTestEnum(const ETests& value);
 
 GSTLEARN_EXPORT int argumentReturnInt(int value);
 GSTLEARN_EXPORT double argumentReturnDouble(double value);
@@ -73,9 +73,9 @@ GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& valu
 
 GSTLEARN_EXPORT void argumentDefTestInt(int argInt = 2);
 GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl = 2.);
-GSTLEARN_EXPORT void argumentDefTestStr(String argstr = "Default String");
-GSTLEARN_EXPORT void argumentDefTestVInt(VectorInt argVInt = VectorInt());
-GSTLEARN_EXPORT void argumentDefTestVDbl(VectorDouble argdVDbl = VectorDouble());
-GSTLEARN_EXPORT void argumentDefTestVString(VectorString argVString = VectorString());
+GSTLEARN_EXPORT void argumentDefTestStr(const String& argstr = "Default String");
+GSTLEARN_EXPORT void argumentDefTestVInt(const VectorInt& argVInt = VectorInt());
+GSTLEARN_EXPORT void argumentDefTestVDbl(const VectorDouble& argdVDbl = VectorDouble());
+GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString = VectorString());
 GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVectorInt());
 GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());

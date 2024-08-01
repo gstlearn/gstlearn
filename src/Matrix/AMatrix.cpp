@@ -614,7 +614,7 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
   int n1 = (transpose) ? a.getNCols() : a.getNRows();
   int n2 = (transpose) ? a.getNRows() : a.getNCols();
 
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
+  if (!_checkLink(getNRows(), getNCols(), false, a.getNRows(), a.getNCols(), transpose,
                  (int) vec.size(), 1, false)) return;
 
   for (int i = 0; i < n1; i++)

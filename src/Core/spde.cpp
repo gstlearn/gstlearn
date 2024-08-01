@@ -41,8 +41,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "csparse_f.h"
-
 /* Global symbols for SPDE */
 
 #define NBLIN_TERMS 10
@@ -1694,8 +1692,9 @@ static void st_gibbs(int igrf,
     for (int iech = 0; iech < nout; iech++)
     {
       mat.gibbs(iech, zcurVD, &yk, &sk);
-      zcur[iech] = st_simu_constraints(dbout, igrf, iech - 1, iter0, ngibbs_burn, yk, sk);
+      zcurVD[iech] = st_simu_constraints(dbout, igrf, iech - 1, iter0, ngibbs_burn, yk, sk);
     }
+  zcur = zcurVD.data();
 }
 
 /****************************************************************************/
@@ -2045,93 +2044,6 @@ static int st_filter(double *work, double *y)
     print_range("- Result", ntarget, y, NULL);
   }
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the calculation of the Standard Deviation of Estimation Error
- **
- ** \return  Error return code
- **
- ** \param[out] vcur     Output array
- **
- *****************************************************************************/
-int spde_build_stdev(double *vcur)
-{
-  int *wZdiagp, *wLmunch, error, nzmax, ntarget;
-  double *d2, *wz, *diag, *z;
-  cs *Dinv, *LDinv, *TLDinv, *Pattern;
-  QChol *QCtt;
-
-  /* Initializations */
-
-  error = 1;
-  SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
-  QCtt = Matelem.qsimu->QCtt;
-  wZdiagp = wLmunch = nullptr;
-  d2 = wz = diag = z = nullptr;
-  Dinv = LDinv = TLDinv = Pattern = nullptr;
-  ntarget = QCtt->Q->getNCols();
-
-  // Perform the Cholesky (if not already done) */
-
-  if (qchol_cholesky(0, QCtt)) goto label_end;
-
-  /* Pre-processing */
-
-  d2 = csd_extract_diag(QCtt->N->L, 2);
-  if (d2 == nullptr) goto label_end;
-  Dinv = cs_extract_diag(QCtt->N->L, -1);
-  if (Dinv == nullptr) goto label_end;
-  LDinv = cs_multiply(QCtt->N->L, Dinv);
-  if (LDinv == nullptr) goto label_end;
-  TLDinv = cs_transpose(LDinv, 1);
-  if (TLDinv == nullptr) goto label_end;
-  Pattern = cs_add(LDinv, TLDinv, 1, 1);
-  if (Pattern == nullptr) goto label_end;
-  if (cs_sort_i(Pattern)) goto label_end;
-  if (cs_sort_i(LDinv)) goto label_end;
-
-  /* Core allocation */
-
-  nzmax = Pattern->nzmax;
-  z = (double*) mem_alloc(sizeof(double) * ntarget, 0);
-  if (z == nullptr) goto label_end;
-  wz = (double*) mem_alloc(sizeof(double) * nzmax, 0);
-  if (wz == nullptr) goto label_end;
-  wZdiagp = (int*) mem_alloc(sizeof(int) * nzmax, 0);
-  if (wZdiagp == nullptr) goto label_end;
-  wLmunch = (int*) mem_alloc(sizeof(int) * nzmax, 0);
-  if (wLmunch == nullptr) goto label_end;
-  for (int i = 0; i < nzmax; i++) wz[i] = 0.;
-
-  if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
-                LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
-                wLmunch) == -1) goto label_end;
-
-  /* Extracting the diagonal of wz */
-
-  diag = csd_extract_diag(Pattern, 1);
-  cs_pvec(ntarget, QCtt->S->Pinv, diag, z);
-  for (int iech = 0; iech < ntarget; iech++)
-    vcur[iech] = sqrt(z[iech]);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) wZdiagp);
-  mem_free((char* ) wLmunch);
-  mem_free((char* ) wz);
-  mem_free((char* ) d2);
-  mem_free((char* ) diag);
-  mem_free((char* ) z);
-  cs_spfree2(Dinv);
-  cs_spfree2(LDinv);
-  cs_spfree2(TLDinv);
-  cs_spfree2(Pattern);
-  return (error);
 }
 
 /****************************************************************************/
@@ -4961,7 +4873,11 @@ int spde_process(Db *dbin,
   if (S_DECIDE.flag_case == CASE_KRIGING)
   {
     // Calculation of the Kriging Variance (optional)
-    if (S_DECIDE.flag_std) spde_build_stdev(vcur);
+    if (S_DECIDE.flag_std)
+    {
+      messerr("Calculation of stdev has been disconnected within spde.cpp");
+      S_DECIDE.flag_std = false;
+    }
 
     // Saving operation
     nv_krige = 0;
