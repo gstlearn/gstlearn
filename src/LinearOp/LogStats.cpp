@@ -8,9 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/LogStats.hpp"
+#include "Basic/AStringable.hpp"
 
 LogStats::LogStats(bool mustPrint)
     : _mustPrint(mustPrint),

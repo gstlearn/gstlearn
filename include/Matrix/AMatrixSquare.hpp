@@ -20,7 +20,7 @@ class GSTLEARN_EXPORT AMatrixSquare : public MatrixRectangular {
 
 public:
   AMatrixSquare(int nrow = 0);
-  AMatrixSquare(const AMatrixSquare &m);
+  AMatrixSquare(const AMatrixSquare &r);
   AMatrixSquare(const AMatrix &m);
   AMatrixSquare& operator= (const AMatrixSquare &r);
 	virtual ~AMatrixSquare();

@@ -14,7 +14,6 @@
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
@@ -410,15 +409,15 @@ int AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
   int ncols = getNCols();
 
   _eigenValues = VectorDouble(nrows);
-  Eigen::Map<Eigen::VectorXd>(&_eigenValues[0], eigenValues.size()) = eigenValues;
+  Eigen::Map<Eigen::VectorXd>(_eigenValues.data(), eigenValues.size()) = eigenValues;
 
   if (changeOrder)
     std::reverse(_eigenValues.begin(), _eigenValues.end());
 
-  if (_eigenVectors != nullptr) delete _eigenVectors;
+  delete _eigenVectors;
 
   VectorDouble vec(nrows * ncols);
-  Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
+  Eigen::Map<Eigen::MatrixXd>(vec.data(), nrows, ncols) = eigenVectors;
 
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, changeOrder);
 

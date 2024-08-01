@@ -14,8 +14,7 @@
 //#include "geoslib_define.h"
 
 #include "Basic/WarningMacro.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
 DISABLE_WARNING_PUSH
@@ -39,8 +38,8 @@ class GSTLEARN_EXPORT NF_Triplet
 {
 public:
   NF_Triplet();
-  NF_Triplet(const NF_Triplet &m);
-  NF_Triplet& operator= (const NF_Triplet &m);
+  NF_Triplet(const NF_Triplet &r);
+  NF_Triplet& operator= (const NF_Triplet &);
   virtual ~NF_Triplet();
 
   /// Has a specific implementation in the Target language

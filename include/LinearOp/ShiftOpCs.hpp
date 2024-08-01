@@ -41,41 +41,41 @@ class GSTLEARN_EXPORT ShiftOpCs: public ALinearOp
 {
 
 public:
-  ShiftOpCs(const CGParam params = CGParam());
+  ShiftOpCs(const CGParam& params = CGParam());
   ShiftOpCs(const AMesh* amesh,
             Model* model,
             const Db* dbout = nullptr,
             int igrf = 0,
             int icov = 0,
-            const CGParam params = CGParam(),
+            const CGParam& params = CGParam(),
             bool verbose = false);
 #ifndef SWIG
   ShiftOpCs(const MatrixSparse* S,
             const VectorDouble& TildeC,
             const VectorDouble& Lambda,
             Model* model,
-            const CGParam params = CGParam(),
+            const CGParam& params = CGParam(),
             bool verbose = false);
 #endif
   ShiftOpCs(const ShiftOpCs &shift);
   ShiftOpCs& operator=(const ShiftOpCs &shift);
   virtual ~ShiftOpCs();
 
-  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
+  void _evalDirect(const VectorDouble& x, VectorDouble& y) const override;
 
   static ShiftOpCs* create(const AMesh *amesh,
                            Model *model,
                            const Db *dbout = nullptr,
                            int igrf = 0,
                            int icov = 0,
-                           const CGParam params = CGParam(),
+                           const CGParam& params = CGParam(),
                            bool verbose = false);
 #ifndef SWIG
   static ShiftOpCs* createFromSparse(const MatrixSparse *S,
                                      const VectorDouble &TildeC,
                                      const VectorDouble &Lambda,
                                      Model *model,
-                                     const CGParam params = CGParam(),
+                                     const CGParam& params = CGParam(),
                                      bool verbose = false);
 #endif
   int initFromMesh(const AMesh* amesh,
@@ -154,10 +154,10 @@ private:
   void _reset();
   void _resetGrad();
   void _reallocate(const ShiftOpCs& shift);
-  void _projectMesh(const AMesh *amesh,
-                    const VectorDouble& srot,
-                    int imesh,
-                    double coeff[3][2]);
+  static void _projectMesh(const AMesh* amesh,
+                           const VectorDouble& srot,
+                           int imesh,
+                           double coeff[3][2]);
   int _preparMatrices(const AMesh *amesh,
                       int imesh,
                       MatrixSquareGeneral& matu,
@@ -167,34 +167,34 @@ private:
                                VectorVectorDouble &coords,
                                MatrixRectangular& matM,
                                MatrixSquareSymmetric& matMtM,
-                               AMatrix &matres,
-                               double *deter);
+                               AMatrix &matP,
+                               double *deter) const;
   int _prepareMatricesSphere(const AMesh *amesh,
                              int imesh,
                              VectorVectorDouble &coords,
-                             AMatrixSquare &matres,
-                             double *deter);
+                             AMatrixSquare &matMs,
+                             double *deter) const;
   void _updateCova(CovAniso* cova, int imesh);
   VectorT<std::map<int, double>> _mapCreate() const;
   VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
   VectorT<std::map<int,double>> _mapTildeCCreate()const;
-  void _mapTildeCUpdate(std::map<int, double>& tab,
-                        int ip1,
-                        double value,
-                        double tol = EPSILON10) const;
+  static void _mapTildeCUpdate(std::map<int, double>& tab,
+                               int ip0,
+                               double value,
+                               double tol = EPSILON10);
 
-  void _mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
-                      int ip0,
-                      int ip1,
-                      double value,
-                      double tol = EPSILON10);
+  static void _mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
+                             int ip0,
+                             int ip1,
+                             double value,
+                             double tol = EPSILON10);
   MatrixSparse* _BuildTildeCGradfromMap(std::map< int, double> &tab) const;
-  MatrixSparse* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
+  MatrixSparse* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab) const;
 
-  bool _cond(int indref, int igparam, int ipref);
+  static bool _cond(int indref, int igparam, int ipref);
   void _determineFlagNoStatByHH();
   void _updateHH(MatrixSquareSymmetric& hh, int imesh);
-  MatrixSparse* _prepareSparse(const AMesh *amesh) const;
+  static MatrixSparse* _prepareSparse(const AMesh *amesh);
 
 private:
   VectorDouble            _TildeC;

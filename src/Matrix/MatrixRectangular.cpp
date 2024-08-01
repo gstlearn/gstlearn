@@ -8,13 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/Utilities.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols)
   : AMatrixDense(nrows, ncols)

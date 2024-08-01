@@ -1348,7 +1348,7 @@ static void st_estimate_bayes(LMlayers *lmlayers,
   *estim = *stdev = TEST;
   nech = lmlayers->nech;
   npar = lmlayers->npar;
-  rhs = &b[0];
+  rhs = b.data();
   ff0 = &b[nech];
 
   /* Core allocation */

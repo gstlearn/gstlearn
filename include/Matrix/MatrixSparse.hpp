@@ -168,7 +168,7 @@ public:
   void resetFromTriplet(const NF_Triplet& NF_T);
 
   /*! Dump a specific range of samples from the internal storage */
-  void dumpElements(const String& title, int ifrom, int ito) const;
+  static void dumpElements(const String& title, int ifrom, int ito);
 
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
@@ -193,7 +193,7 @@ public:
   void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }
 
   MatrixSparse* extractSubmatrixByRanks(const VectorInt &rank_rows,
-                                        const VectorInt &rank_cols);
+                                        const VectorInt &rank_cols) const;
   MatrixSparse* extractSubmatrixByColor(const VectorInt &colors,
                                         int ref_color,
                                         bool row_ok,
@@ -229,8 +229,8 @@ protected:
   bool _isElementPresent(int irow, int icol) const;
 
 private:
-  bool _defineFlagEigen(int opt_eigen) const;
-  void _forbiddenForSparse(const String& func) const;
+  static bool _defineFlagEigen(int opt_eigen);
+  static void _forbiddenForSparse(const String& func);
   int  _eigen_findColor(int imesh,
                         int ncolor,
                         VectorInt &colors,

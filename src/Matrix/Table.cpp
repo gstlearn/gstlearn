@@ -13,9 +13,7 @@
 #include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 
 Table::Table(int nrow, int ncol, bool skip_title, bool skip_description)
   : MatrixRectangular(nrow, ncol),

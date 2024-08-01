@@ -13,9 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/NF_Triplet.hpp"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
@@ -61,7 +59,7 @@ ProjConvolution::~ProjConvolution()
 {
   delete _gridSeis2D;
   delete _gridRes2D;
-  if (_AProjHoriz != nullptr) delete _AProjHoriz;
+  delete _AProjHoriz;
 }
 
 void ProjConvolution::_buildGridSeis2D()

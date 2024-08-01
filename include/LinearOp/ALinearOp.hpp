@@ -19,7 +19,7 @@
 class GSTLEARN_EXPORT ALinearOp {
 
 public:
-  ALinearOp(const CGParam params = CGParam());
+  ALinearOp(const CGParam& params = CGParam());
   ALinearOp(const ALinearOp &m);
   ALinearOp& operator=(const ALinearOp &m);
   virtual ~ALinearOp();

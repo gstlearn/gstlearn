@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "IProjMatrix.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
@@ -24,10 +23,13 @@ class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public MatrixSparse
 {
 public:
   ProjMatrix();
-  ProjMatrix(const Db* db, const AMesh *a_mesh, int rankZ = -1, bool verbose = false);
-  ProjMatrix(const ProjMatrix &m);
-  ProjMatrix(const MatrixSparse* aproj);
-  ProjMatrix& operator= (const ProjMatrix &m);
+  ProjMatrix(const Db* db,
+             const AMesh* a_mesh,
+             int rankZ    = -1,
+             bool verbose = false);
+  ProjMatrix(const ProjMatrix& m);
+  ProjMatrix(const MatrixSparse* m);
+  ProjMatrix& operator=(const ProjMatrix& m);
   virtual ~ProjMatrix();
 
   /// Has a specific implementation in the Target language
