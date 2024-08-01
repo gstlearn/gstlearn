@@ -189,4 +189,9 @@ GSTLEARN_EXPORT cs*     cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool s
 GSTLEARN_EXPORT void    cs_set_status_update_nonzero_value(int status = 2);
 GSTLEARN_EXPORT int     cs_get_status_update_nonzero_value();
 
+GSTLEARN_EXPORT void cs_gibbs(const cs* A,
+                              int iech,
+                              const VectorDouble& zcur,
+                              double* yk, double* sk);
+
 #endif // SWIG

@@ -3464,3 +3464,22 @@ cs* cs_glue(const cs* A1, const cs* A2, bool shiftRow, bool shiftCol)
   // Transform the output triplet into sparse matrix
   return NF_Tout.buildCsFromTriplet();
 }
+
+void cs_gibbs(const cs* A, int iech, const VectorDouble& zcur, double* yk, double* sk)
+{
+  int* Ap    = A->p;
+  int* Ai    = A->i;
+  double* Ax = A->x;
+  (*yk)      = 0.;
+  for (int p = Ap[iech]; p < Ap[iech + 1]; p++)
+  {
+    double coeff = Ax[p];
+    if (ABS(coeff) <= 0.) continue;
+    int jech = Ai[p];
+
+    if (iech == jech)
+      *sk = coeff;
+    else
+      *yk -= coeff * zcur[jech];
+  }
+}
