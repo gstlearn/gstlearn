@@ -53,7 +53,7 @@ ASpace::ASpace(const ASpace& r)
       _work1(r._globalNDim), // No need to copy the contents, just allocate
       _work2(r._globalNDim)
 {
-  for(auto c : r._comps)
+  for(auto* c : r._comps)
   {
     _comps.push_back(dynamic_cast<ASpace*>(c->clone()));
   }
@@ -71,7 +71,7 @@ ASpace& ASpace::operator=(const ASpace& r)
     _globalOrigin = r._globalOrigin;
     _work1 = r._work1;
     _work2 = r._work2;
-    for(auto c : r._comps)
+    for(auto* c : r._comps)
     {
       _comps.push_back(dynamic_cast<ASpace*>(c->clone()));
     }
@@ -81,7 +81,7 @@ ASpace& ASpace::operator=(const ASpace& r)
 
 ASpace::~ASpace()
 {
-  for(auto c : _comps)
+  for(auto* c : _comps)
   {
     delete c;
   }
@@ -107,7 +107,7 @@ String ASpace::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   int idx = getNComponents() > 1 ? 1 : -1;
   sstr << _toString(strfmt, idx);
-  for(auto c : _comps)
+  for(auto* c : _comps)
   {
     if (strfmt != nullptr && strfmt->getLevel() == 0)
       sstr << " + ";
@@ -131,7 +131,7 @@ void ASpace::setOrigin(const VectorDouble& origin)
   auto first = origin.cbegin();
   auto last = origin.cbegin() + _origin.size();
   _origin.assign(first, last);
-  for(auto c : _comps)
+  for(auto* c : _comps)
   {
     first = last;
     last = last + c->getNDim();
@@ -175,7 +175,7 @@ void ASpace::move(SpacePoint& p1, const VectorDouble& vec) const
     return;
   }
   _move(p1, vec);
-  for (auto sp : _comps)
+  for (auto* sp : _comps)
   {
     sp->_move(p1, vec);
   }
@@ -208,7 +208,7 @@ VectorDouble ASpace::getDistances(const SpacePoint &p1,
 {
   VectorDouble dis;
   dis.push_back(_getDistance(p1, p2));
-  for (auto sp : _comps)
+  for (auto* sp : _comps)
   {
     dis.push_back(sp->_getDistance(p1, p2));
   }
@@ -231,7 +231,7 @@ double ASpace::getDistance1D(const SpacePoint &p1,
     return _getDistance1D(p1.getCoord(idim), p2.getCoord(idim));
 
   unsigned int jdim = idim - _nDim;
-  for (auto sp : _comps)
+  for (auto* sp : _comps)
   {
     unsigned int ndim = sp->getNDim(0);
     if (jdim < ndim)

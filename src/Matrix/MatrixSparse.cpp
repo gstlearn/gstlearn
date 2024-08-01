@@ -1076,8 +1076,8 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
 
 void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
 {
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
-                 vec.size(), 1, false)) return;
+  if (!_checkLink(getNRows(), getNCols(), transpose, a.getNRows(), a.getNCols(),
+                  false, vec.size(), 1, false)) return;
 
   if (isFlagEigen() && a.isFlagEigen())
   {

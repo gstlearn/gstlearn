@@ -226,7 +226,7 @@ void argumentTestStringOverload(const VectorString& values)
   _endOfLine();
 }
 
-void argumentTestEnum(ETests value)
+void argumentTestEnum(const ETests& value)
 {
   message("Case : Value = %d - Descr = %s\n", value.getValue(),value.getDescr().c_str());
 }
@@ -277,26 +277,26 @@ GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl)
    _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentDefTestStr(String argstr)
+GSTLEARN_EXPORT void argumentDefTestStr(const String& argstr)
 {
   _introduction("String");
    _printString(argstr);
    _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVInt(VectorInt argVInt)
+GSTLEARN_EXPORT void argumentDefTestVInt(const VectorInt& argVInt)
 {
   _introduction("Vector Int");
   if (argVInt.empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVDbl(VectorDouble argVDbl)
+GSTLEARN_EXPORT void argumentDefTestVDbl(const VectorDouble& argVDbl)
 {
   _introduction("Vector Double");
   if (argVDbl.empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVString(VectorString argVString)
+GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString)
 {
   _introduction("Vector String");
   if (argVString.empty()) _printEmpty();

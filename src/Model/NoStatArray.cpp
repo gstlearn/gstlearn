@@ -14,10 +14,8 @@
 #include "Basic/AException.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/Tensor.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "Db/Db.hpp"
@@ -247,7 +245,7 @@ double NoStatArray::getValue(const EConsElem &type,
  */
 double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 {
-  if (! _isValid(icas, rank)) return TEST;
+  if (!_isValid(icas, rank)) return TEST;
   if (icas == 0)
   {
 
@@ -255,24 +253,21 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     return _tab(rank, ipar);
   }
-  else if (icas == 1)
+  if (icas == 1)
   {
 
     // From Dbin
 
     return _dbin->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
-  else if (icas == 2)
+  if (icas == 2)
   {
 
     // From Dbout
 
     return _dbout->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
-  else
-  {
-    my_throw("Invalid argument 'icas'");
-  }
+  my_throw("Invalid argument 'icas'");
   return 0.;
 }
 

@@ -13,8 +13,6 @@
 
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/File.hpp"
-#include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMGradient.hpp"
@@ -116,22 +114,19 @@ static int GRX(int i)
 {
   if (POTENV->ndim < 1)
     return -1;
-  else
-    return i;
+  return i;
 }
 static int GRY(int i)
 {
   if (POTENV->ndim < 2)
     return -1;
-  else
-    return i + POTENV->ngrd;
+  return i + POTENV->ngrd;
 }
 static int GRZ(int i)
 {
   if (POTENV->ndim < 3)
     return -1;
-  else
-    return i + 2 * POTENV->ngrd;
+  return i + 2 * POTENV->ngrd;
 }
 static int TGT(int i)
 {
@@ -203,7 +198,7 @@ static int st_model_invalid(Model *model)
 {
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
-    ECov type = model->getCovaType(icov);
+    const ECov& type = model->getCovaType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&
         type != ECov::SPLINE2_GC && type != ECov::NUGGET)
     {
@@ -256,8 +251,6 @@ static void st_cov(Model* model,
   if (ndim >= 3) vec[2] = dz;
 
   model->evalZAndGradients(vec, covar, covGp, covGG, nullptr, flag_grad);
-
-  return;
 }
 
 /****************************************************************************/
@@ -927,7 +920,7 @@ static double setMatUV(int ndim,
  **
  *****************************************************************************/
 static double setMatUAV(int ndim,
-                        double *a,
+                        const double *a,
                         double ux,
                         double uy,
                         double uz,
@@ -1666,7 +1659,6 @@ static void st_rhs_part(Pot_Env *pot_env, MatrixRectangular& rhs)
       for (int igrad = 1; igrad < 4; igrad++)
         setRhs(rhs, i, igrad, 0.);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1852,8 +1844,6 @@ static void st_build_rhs(Pot_Env *pot_env,
 
   if (OptDbg::query(EDbg::KRIGING))
     krige_rhs_print(nsol, 0, nequa, nequa, NULL, rhs.getValues().data());
-
-  return;
 }
 
 /****************************************************************************/
@@ -1926,8 +1916,6 @@ static void st_calc_point(Pot_Env *pot_env,
     print_matrix("Results", 0, 1, 1, nsol, NULL, result.data());
     message("\n");
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1948,7 +1936,7 @@ static void st_calc_point(Pot_Env *pot_env,
  *****************************************************************************/
 static void st_potential_to_layer(Pot_Env *pot_env,
                                   int isimu,
-                                  double *potval,
+                                  const double *potval,
                                   VectorDouble& result)
 {
   double minval = -1.e30;
@@ -2030,7 +2018,6 @@ static void st_estimate_result(Pot_Env *pot_env,
         dbout->setLocVariable(ELoc::G,iech, idim, result[idim + 1]);
   }
   OptDbg::setCurrentIndex(-1);
-  return;
 }
 
 static void st_estimate_data(Pot_Env *pot_env,
@@ -2078,7 +2065,6 @@ static void st_estimate_data(Pot_Env *pot_env,
       db_target->setLocatorsByUID(uid_grad, ELoc::G);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2230,8 +2216,6 @@ static void st_dist_convert(Pot_Env *pot_env,
   }
   (*dist_euc) = sqrt(*dist_euc);
   (*dist_geo) = sqrt(*dist_geo);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2381,7 +2365,6 @@ static void st_xvalid_potential(Pot_Env *pot_env,
     }
   }
   OptDbg::setCurrentIndex(-1);
-  return;
 }
 
 /****************************************************************************/
@@ -2544,7 +2527,6 @@ static void st_simcond(Pot_Env *pot_env,
     }
   }
   OptDbg::setCurrentIndex(-1);
-  return;
 }
 
 /****************************************************************************/
@@ -2724,8 +2706,6 @@ static void st_check_data(Pot_Env *pot_env,
     }
     OptDbg::setCurrentIndex(-1);
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2830,8 +2810,6 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   // Sort them by ascending order 
 
   ut_sort_double(0, pot_env->nlayers, NULL, potval);
-
-  return;
 }
 
 static void st_save_result_on_data(Pot_Env* pot_env,
