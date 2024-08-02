@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/RepeatMacro.hpp"
 #include "Basic/File.hpp"
 #include "Enum/AEnum.hpp"
 

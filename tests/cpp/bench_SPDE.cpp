@@ -16,7 +16,6 @@
 
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -191,8 +190,8 @@ int main(int argc, char *argv[])
   }
   (void) grid->dumpToNF("Grid.ascii");
 
-  if (dat       != nullptr) delete dat ;
-  if (grid      != nullptr) delete grid;
+  delete dat ;
+  delete grid;
 
   return (0);
 }

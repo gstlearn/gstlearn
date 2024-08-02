@@ -11,7 +11,6 @@
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -71,7 +70,6 @@ void law_set_random_seed(int seed)
     if (! Random_Old_Style)
       Random_gen.seed((unsigned) seed);
   }
-  return;
 }
 
 /*****************************************************************************/
@@ -202,9 +200,8 @@ double law_gamma(double alpha, double beta)
   if (Random_Old_Style)
   {
 
-    if (fabs((double) alpha - 1.) < 0.00001)
-      return (-log(law_uniform(0., 1.)));
-    else if (alpha > 1.)
+    if (fabs((double)alpha - 1.) < 0.00001) return (-log(law_uniform(0., 1.)));
+    if (alpha > 1.)
     {
       double c1 = alpha - 1.;
       double c2 = alpha + c1;
@@ -212,44 +209,35 @@ double law_gamma(double alpha, double beta)
       double t;
       do
       {
-        t = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
+        t     = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
         value = c1 + t;
-      }
-      while (value < 0
-          || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
+      } while (value < 0 || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
       return (value);
     }
-    else
+    double c1 = 1. + alpha / GV_EE;
+    double c2 = 1 / alpha;
+    double c3 = alpha - 1;
+    int test;
+    do
     {
-      double c1 = 1. + alpha / GV_EE;
-      double c2 = 1 / alpha;
-      double c3 = alpha - 1;
-      int test;
-      do
+      double v = law_uniform(0., 1.);
+      value    = c1 * law_uniform(0., 1.);
+      if (value <= 1)
       {
-        double v = law_uniform(0., 1.);
-        value = c1 * law_uniform(0., 1.);
-        if (value <= 1)
-        {
-          value = pow(value, c2);
-          test = (v >= exp(-value));
-        }
-        else
-        {
-          value = -log((c1 - value) * c2);
-          test = (log(v) > c3 * log(value));
-        }
+        value = pow(value, c2);
+        test  = (v >= exp(-value));
       }
-      while (test);
-      return (value);
-    }
+      else
+      {
+        value = -log((c1 - value) * c2);
+        test  = (log(v) > c3 * log(value));
+      }
+    } while (test);
+    return (value);
   }
-  else
-  {
-    std::gamma_distribution<double> d(alpha, beta);
-    value = d(Random_gen);
-    return value;
-  }
+  std::gamma_distribution<double> d(alpha, beta);
+  value = d(Random_gen);
+  return value;
 }
 
 /*****************************************************************************/
@@ -566,8 +554,7 @@ double law_invcdf_gaussian(double value)
 
   if (value < 0.5)
     return (-x);
-  else
-    return (x);
+  return (x);
 }
 
 /*****************************************************************************/
@@ -853,13 +840,13 @@ int law_poisson(double parameter)
 
     while (t >= 16)
     {
-      n = (int) floor(0.875 * t);
-      x = law_gamma((double) n, 1.);
+      n = (int)floor(0.875 * t);
+      x = law_gamma((double)n, 1.);
       if (FFFF(x)) return (ITEST);
 
       if (x > t)
       {
-        p = t / x;
+        p  = t / x;
         ok = 1;
         while (ok)
         {
@@ -868,11 +855,8 @@ int law_poisson(double parameter)
         }
         return (k);
       }
-      else
-      {
-        k += n;
-        t -= x;
-      }
+      k += n;
+      t -= x;
     }
 
     p = 1;
@@ -887,11 +871,8 @@ int law_poisson(double parameter)
     }
     return (k - 1);
   }
-  else
-  {
-    std::poisson_distribution<int> d(parameter);
-    return d(Random_gen);
-  }
+  std::poisson_distribution<int> d(parameter);
+  return d(Random_gen);
 }
 
 /****************************************************************************/
@@ -1007,49 +988,42 @@ int law_binomial(int n, double p)
             * ((k * (k / 3.0 + 0.625) + 0.1666666666666) / (n * p * q) + 0.5);
         double t = -k * k / (2 * n * p * q);
         double A = log(v);
-        if (A < t - rho)
-          return y;
-        else if (A > t + rho)
+        if (A < t - rho) return y;
+        if (A > t + rho) continue;
+        /* Step 5.3 */
+        double x1 = y + 1;
+        double f1 = m + 1;
+        double z  = n + 1 - m;
+        double w  = n - y + 1;
+        double x2 = x1 * x1;
+        double f2 = f1 * f1;
+        double z2 = z * z;
+        double w2 = w * w;
+        if (A >
+            xm * log(f1 / x1) + (n - m + 0.5) * log(z / w) +
+              (y - m) * log(w * p / (x1 * q)) +
+              (13860. - (462. - (132. - (99. - 140. / f2) / f2) / f2) / f2) /
+                f1 / 166320. +
+              (13860. - (462. - (132. - (99. - 140. / z2) / z2) / z2) / z2) /
+                z / 166320. +
+              (13860. - (462. - (132. - (99. - 140. / x2) / x2) / x2) / x2) /
+                x1 / 166320. +
+              (13860. - (462. - (132. - (99. - 140. / w2) / w2) / w2) / w2) /
+                w / 166320.)
           continue;
-        else
-        {
-          /* Step 5.3 */
-          double x1 = y + 1;
-          double f1 = m + 1;
-          double z = n + 1 - m;
-          double w = n - y + 1;
-          double x2 = x1 * x1;
-          double f2 = f1 * f1;
-          double z2 = z * z;
-          double w2 = w * w;
-          if (A > xm * log(f1 / x1)
-              + (n - m + 0.5) * log(z / w)
-              + (y - m) * log(w * p / (x1 * q))
-              + (13860. - (462. - (132. - (99. - 140. / f2) / f2) / f2) / f2) / f1
-                / 166320.
-              + (13860. - (462. - (132. - (99. - 140. / z2) / z2) / z2) / z2) / z
-                / 166320.
-              + (13860. - (462. - (132. - (99. - 140. / x2) / x2) / x2) / x2) / x1
-                / 166320.
-              + (13860. - (462. - (132. - (99. - 140. / w2) / w2) / w2) / w2) / w
-                / 166320.) continue;
-          return y;
-        }
-      }
-      else
-      {
-        /* Step 5.1 */
-        int i;
-        const double s = p / q;
-        const double aa = s * (n + 1);
-        double f = 1.0;
-        for (i = m; i < y; f *= (aa / (++i) - s))
-          ;
-        for (i = y; i < m; f /= (aa / (++i) - s))
-          ;
-        if (v > f) continue;
         return y;
       }
+      /* Step 5.1 */
+      int i;
+      const double s  = p / q;
+      const double aa = s * (n + 1);
+      double f        = 1.0;
+      for (i = m; i < y; f *= (aa / (++i) - s))
+        ;
+      for (i = y; i < m; f /= (aa / (++i) - s))
+        ;
+      if (v > f) continue;
+      return y;
     }
   }
   /* Never get here */
@@ -1089,7 +1063,7 @@ int law_binomial(int n, double p)
  ** \remarks  Sum_ivar1^{1:nvar1) consts[iconst,ivar1) * temp[ivar1] > 0
  **
  *****************************************************************************/
-double* law_exp_sample(double *tabin,
+double* law_exp_sample(const double *tabin,
                        int mode,
                        int nvar,
                        int nechin,
@@ -1176,7 +1150,8 @@ double* law_exp_sample(double *tabin,
       /* Get the closest experimental sample (the reference) */
 
       selec = (int) law_uniform(1., (double) nechin);
-      iechin = (int) (selec + 0.5);
+      auto placeholder = (selec + 0.5);
+      iechin           = (int)placeholder;
       if (iechin < 0) iechin = 0;
       if (iechin >= nechin) iechin = nechin - 1;
 

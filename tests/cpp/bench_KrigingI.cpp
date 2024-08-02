@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -62,9 +61,9 @@ int main(int argc, char *argv[])
   image->display(dbfmt);
   delete dbfmt;
 
-  if (neighI    != nullptr) delete neighI;
-  if (image     != nullptr) delete image;
-  if (model     != nullptr) delete model;
+  delete neighI;
+  delete image;
+  delete model;
 
   return (0);
 }

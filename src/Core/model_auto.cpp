@@ -8,8 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 
 #include "Enum/EAnam.hpp"
 

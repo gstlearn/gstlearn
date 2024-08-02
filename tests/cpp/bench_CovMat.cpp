@@ -10,11 +10,9 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -138,9 +136,9 @@ int main(int argc, char *argv[])
   }
 
   // Cleaning
-  if (dbin      != nullptr) delete dbin;
-  if (dbout     != nullptr) delete dbout;
-  if (model     != nullptr) delete model;
+  delete dbin;
+  delete dbout;
+  delete model;
 
   return (0);
 }

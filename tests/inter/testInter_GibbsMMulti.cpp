@@ -22,7 +22,6 @@
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
-#include "Gibbs/AGibbs.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsMulti.hpp"
 #include "Db/Db.hpp"

@@ -11,7 +11,6 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
-#include "geoslib_f.h"
 
 #include "Variogram/VCloud.hpp"
 #include "Variogram/Vario.hpp"

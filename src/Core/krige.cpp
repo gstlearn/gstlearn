@@ -3282,9 +3282,9 @@ static int st_sampling_krige_data(Db *db,
 
     MatrixRectangular mat_c = model->evalCovMatrix(db, db, -1, -1, ranks2, rother);
 
-    MatrixRectangular v = mat_s.productCholeskyInPlace(4, nsize2, nother, xl, mat_c);
+    MatrixRectangular v = MatrixSquareSymmetric::productCholeskyInPlace(4, nsize2, nother, xl, mat_c);
 
-    MatrixSquareSymmetric tn1 = mat_s.normCholeskyInPlace(1, nsize2, tl, MatrixSquareSymmetric());
+    MatrixSquareSymmetric tn1 = MatrixSquareSymmetric::normCholeskyInPlace(1, nsize2, tl, MatrixSquareSymmetric());
 
     MatrixSquareSymmetric* tn2 = dynamic_cast<MatrixSquareSymmetric*>
       (MatrixFactory::prodMatMat(&v, &v, true, false));

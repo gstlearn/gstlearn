@@ -15,7 +15,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
 #include "Model/ANoStat.hpp"
 class GSTLEARN_EXPORT NoStatArray : public ANoStat
 {
