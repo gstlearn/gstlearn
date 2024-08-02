@@ -41,8 +41,10 @@
 #define DEFINE_THIRD   (flag_param)
 #define DEFINE_RANGE   (flag_range > 0)
 #define DEFINE_ANICOEF (flag_range != 0 && optvar.getAuthAniso())
-#define DEFINE_ANIROT  (flag_range != 0 && optvar.getAuthAniso() &&  \
-                        optvar.getAuthRotation())
+#define DEFINE_ANIROT                                                          \
+  (flag_range != 0 && optvar.getAuthAniso() && optvar.getAuthRotation())
+#define UNDEFINE_ANIROT                                                          \
+  (flag_range == 0 || !optvar.getAuthAniso() || !optvar.getAuthRotation())
 #define DEFINE_T_RANGE (model->getCovMode() == EModelProperty::TAPE)
 #define FLAG_COMPRESS(imod,icov) (flag_compress[(imod) * ncova + (icov)])
 
@@ -71,9 +73,17 @@
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
 #define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
-#define CORRECT(idir,k)         (! isZero(vario->getHhByIndex(idir,k)) && ! FFFF(vario->getHhByIndex(idir,k)) && \
-                                 ! isZero(vario->getSwByIndex(idir,k)) && ! FFFF(vario->getSwByIndex(idir,k)) && \
-                                 ! FFFF(vario->getGgByIndex(idir,k)))
+#define CORRECT(idir, k)                                                       \
+  (!isZero(vario->getHhByIndex(idir, k)) &&                                    \
+   !FFFF(vario->getHhByIndex(idir, k)) &&                                      \
+   !isZero(vario->getSwByIndex(idir, k)) &&                                    \
+   !FFFF(vario->getSwByIndex(idir, k)) && !FFFF(vario->getGgByIndex(idir, k)))
+#define INCORRECT(idir, k)                                                     \
+  (isZero(vario->getHhByIndex(idir, k)) ||                                     \
+   FFFF(vario->getHhByIndex(idir, k)) ||                                       \
+   isZero(vario->getSwByIndex(idir, k)) ||                                     \
+   FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
+
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define AIRKV(ipadir,ivar)       Airk_v[(ipadir)*nvar + (ivar)]
@@ -363,15 +373,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
       /* Anisotropy angles */
       if (DEFINE_ANIROT)
       {
-        if (ndim == 2)
-        {
-          if (TAKE_ROT)
-          {
-            first_covrot = jcov;
-            strmod->parid[ntot++] = st_parid_encode(imod, jcov, EConsElem::ANGLE, 0, 0);
-          }
-        }
-        else if (ndim == 3 && optvar.getLockRot2d())
+        if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
         {
           if (TAKE_ROT)
           {
@@ -870,7 +872,7 @@ static void st_load_gg(const Vario *vario,
           if (! strexps.empty())
           {
             int i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-            if (! CORRECT(idir, i)) continue;
+            if (INCORRECT(idir, i)) continue;
 
             strexps[ecr].ivar = ivar;
             strexps[ecr].jvar = jvar;
@@ -1002,13 +1004,13 @@ static void st_load_ge(const Vario *vario,
             {
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
-              if (!CORRECT(idir, iad) || !CORRECT(idir, jad)) continue;
+              if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
               dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
             }
             else
             {
               int iad = shift + ipas;
-              if (!CORRECT(idir, iad)) continue;
+              if (INCORRECT(idir, iad)) continue;
               dist = ABS(vario->getHhByIndex(idir, iad));
             }
             for (int idim = 0; idim < ndim; idim++)
@@ -1123,7 +1125,7 @@ static void st_load_wt(const Vario *vario,
             {
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
-              if (! (CORRECT(idir,iad) && CORRECT(idir,jad))) continue;
+              if (INCORRECT(idir,iad) || INCORRECT(idir,jad)) continue;
               double n1 = vario->getSwByIndex(idir,iad);
               double n2 = vario->getSwByIndex(idir,jad);
               double d1 = ABS(vario->getHhByIndex(idir,iad));
@@ -1134,7 +1136,7 @@ static void st_load_wt(const Vario *vario,
             else
             {
               int iad = shift + ipas;
-              if (! CORRECT(idir,iad)) continue;
+              if (INCORRECT(idir,iad)) continue;
               double nn = vario->getSwByIndex(idir,iad);
               double dd = ABS(vario->getHhByIndex(idir,iad));
               if (dd > 0)
@@ -3752,7 +3754,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
                                    &max_ndim, &flag_int_1d, &flag_int_2d,
                                    &flag_aniso, &flag_rotation, &scalfac,
                                    &parmax);
-        if (! DEFINE_ANIROT) continue;
+        if (UNDEFINE_ANIROT) continue;
 
         /* This non-masked component can be assigned the lost rotation */
 
@@ -4107,15 +4109,7 @@ static int st_model_auto_count(const Vario *vario,
       /* Anisotropy angles */
       if (DEFINE_ANIROT)
       {
-        if (ndim == 2)
-        {
-          if (TAKE_ROT)
-          {
-            first_covrot = jcov;
-            ntot++;
-          }
-        }
-        else if (ndim == 3 && optvar.getLockRot2d())
+        if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
         {
           if (TAKE_ROT)
           {
@@ -4847,15 +4841,7 @@ static int st_vmap_auto_count(const Db *dbmap,
     /* Anisotropy angles */
     if (DEFINE_ANIROT)
     {
-      if (ndim == 2)
-      {
-        if (TAKE_ROT)
-        {
-          first_covrot = jcov;
-          ntot++;
-        }
-      }
-      else if (ndim == 3 && optvar.getLockRot2d())
+      if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
       {
         if (TAKE_ROT)
         {
