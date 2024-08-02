@@ -8,11 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Enum/ECov.hpp"
 
-#include "Basic/Utilities.hpp"
 #include "Model/Tapering.hpp"
 
 #include <math.h>

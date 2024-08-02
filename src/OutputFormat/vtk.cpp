@@ -730,8 +730,6 @@ static int num_points_for_cell(int celltype)
       npts = 3;
       break;
     case VISIT_QUAD:
-      npts = 4;
-      break;
     case VISIT_TETRA:
       npts = 4;
       break;

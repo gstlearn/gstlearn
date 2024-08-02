@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 
 typedef struct
@@ -44,7 +43,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getTapeNumber();
+  static int getTapeNumber();
 
   double getRange() const         { return _range; }
   int getType() const             { return _type; }

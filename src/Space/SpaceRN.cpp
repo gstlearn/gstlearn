@@ -79,16 +79,13 @@ double SpaceRN::_getDistance(const SpacePoint &p1,
 {
   _getIncrementInPlace(p1, p2, _work1);
 
-  if (! tensor.isFlagDefinedByInverse2())
+  if (!tensor.isFlagDefinedByInverse2())
   {
     tensor.applyInverseInPlace(_work1, _work2);
     return VH::norm(_work2);
   }
-  else
-  {
-    tensor.applyInverse2InPlace(_work1, _work2);
-    return sqrt(VH::innerProduct(_work1, _work2));
-  }
+  tensor.applyInverse2InPlace(_work1, _work2);
+  return sqrt(VH::innerProduct(_work1, _work2));
 }
 
 double SpaceRN::_getDistance1D(double c1, double c2) const

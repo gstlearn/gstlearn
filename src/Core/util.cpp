@@ -953,7 +953,6 @@ void ut_distance_allocated(int ndim, double **tab1, double **tab2)
   *tab2 = DISTANCE_TAB2;
 }
 
-
 /****************************************************************************/
 /*!
  ** Create a VectorDouble for storing an array of double

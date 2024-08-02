@@ -94,7 +94,7 @@ protected:
 };
 
 /// (Re)Defining the unique default global space
-GSTLEARN_EXPORT void defineDefaultSpace(ESpaceType type,
+GSTLEARN_EXPORT void defineDefaultSpace(const ESpaceType& type,
                                         unsigned int ndim = 2,
                                         double param = 0.,
                                         bool addtime = false);
