@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-
 #include "Enum/ECov.hpp"
 #include "Enum/ELoadBy.hpp"
 
@@ -22,7 +19,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/CovContext.hpp"
 
 #define VERBOSE 0
 

@@ -8,15 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * This test is meant to check the string manipulations
+ */
+
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 
-#include <iostream>
-
-/**
- * This test is meant to check the string manipulations
- */
 int main(int argc, char *argv[])
 {
   std::stringstream sfn;

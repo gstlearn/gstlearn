@@ -8,10 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 /****************************************************************************/
 /*!

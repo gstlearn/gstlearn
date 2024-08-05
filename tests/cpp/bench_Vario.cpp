@@ -11,8 +11,6 @@
 /* This file is meant to establish Bench Mark for Variogram calculations      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 

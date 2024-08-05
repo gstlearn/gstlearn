@@ -17,7 +17,6 @@
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"

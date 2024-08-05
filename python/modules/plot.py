@@ -1758,6 +1758,8 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
                      diagLine=False, diagColor="black", diagLineStyle='-',
                      bissLine=False, bissColor="red", bissLineStyle='-',
                      regrLine=False, regrColor="blue", regrLineStyle='-',
+                     horizLine=False, horizColor="blue", horizLineStyle='-', hValue=0.,
+                     vertLine=False, vertColor="blue", vertLineStyle='-', vValue=0.,
                      **kwargs):
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
@@ -1814,6 +1816,16 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
         u=[xmin, xmax]
         v=[a+b*xmin, a+b*xmax]
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
+
+    if horizLine:
+        u=[xmin, xmax]
+        v=[hValue, hValue]
+        ax.plot(u,v,color=horizColor,linestyle=horizLineStyle)
+        
+    if vertLine:
+        u=[vValue, vValue]
+        v=[ymin, ymax]
+        ax.plot(u,v,color=vertColor,linestyle=vertLineStyle)
         
     ax.decoration(xlabel = db.getName(namex)[0], ylabel = db.getName(namey)[0])
 

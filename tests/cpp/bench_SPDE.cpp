@@ -12,13 +12,12 @@
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
  */
-#include "geoslib_f.h"
-
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
@@ -147,7 +146,11 @@ int main(int argc, char *argv[])
       if (mode < 0 || mode == 1)
       {
         timer.reset();
-        String namconv = "Kriging" + option + sncov;
+        String namconv;
+        namconv.append("Kriging");
+        namconv.append(option);
+        namconv.append(sncov);
+
         (void) krigingSPDE(dat, grid, model, true, true, nullptr,
                            useCholesky, SPDEParam(), nbMC, 13243, verbose, showStats,
                            NamingConvention(namconv));
@@ -158,7 +161,10 @@ int main(int argc, char *argv[])
       if (mode < 0 || mode == 2)
       {
         timer.reset();
-        String namconv = "Simu.NC" + option + sncov;
+        String namconv;
+        namconv.append("Simu.NC");
+        namconv.append(option);
+        namconv.append(sncov);
         (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
                             SPDEParam(), seed, verbose, showStats,
                             NamingConvention(namconv));
@@ -169,7 +175,10 @@ int main(int argc, char *argv[])
       if (mode < 0 || mode == 3)
       {
         timer.reset();
-        String namconv = "Simu.CD" + option + sncov;
+        String namconv;
+        namconv.append("Simu.CD");
+        namconv.append(option);
+        namconv.append(sncov);
         (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
                             SPDEParam(), seed, verbose, showStats,
                             NamingConvention(namconv));
