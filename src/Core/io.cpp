@@ -33,7 +33,7 @@ static char DEL_BLK = ' ';
 
 // TODO : No more char* and printf ! Use std::string and iostream
 static void st_print(const char *string);
-static void st_read(const char*, char*);
+static void st_read(const char* prompt, char* buffer);
 static void st_exit(void);
 static void (*WRITE_FUNC)(const char*) = (void (*)(const char*)) st_print;
 static void (*WARN_FUNC)(const char*) = (void (*)(const char*)) st_print;
@@ -101,7 +101,6 @@ static void st_read(const char *prompt, char *buffer)
 void redefine_message(void (*write_func)(const char*))
 {
   if (write_func != NULL) WRITE_FUNC = write_func;
-  return;
 }
 
 /****************************************************************************/
@@ -114,7 +113,6 @@ void redefine_message(void (*write_func)(const char*))
 void redefine_error(void (*warn_func)(const char*))
 {
   if (warn_func != NULL) WARN_FUNC = warn_func;
-  return;
 }
 
 /****************************************************************************/
@@ -127,7 +125,6 @@ void redefine_error(void (*warn_func)(const char*))
 void redefine_read(void (*read_func)(const char*, char*))
 {
   if (read_func != NULL) READ_FUNC = read_func;
-  return;
 }
 
 /****************************************************************************/
@@ -140,7 +137,6 @@ void redefine_read(void (*read_func)(const char*, char*))
 void redefine_exit(void (*exit_func)(void))
 {
   if (exit_func != NULL) EXIT_FUNC = exit_func;
-  return;
 }
 
 /*****************************************************************************/
@@ -165,8 +161,6 @@ void string_strip_blanks(char *string, int flag_lead)
     if (flag_lead) flag_test = 1;
   }
   string[ecr] = '\0';
-
-  return;
 }
 
 /*****************************************************************************/
@@ -198,7 +192,6 @@ void string_strip_quotes(char *string)
     }
     string[ecr++] = string[i];
   }
-  return;
 }
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -273,7 +266,6 @@ void mem_error(int nbyte)
 {
   message("Error: Core allocation problem.\n");
   message("       Number of bytes to be allocated = %d\n", nbyte);
-  return;
 }
 
 /****************************************************************************/
@@ -760,7 +752,6 @@ void _file_write(FILE *file, const char *format, va_list ap)
     return;
   }
   if (!no_blank) fprintf(file, " ");
-  return;
 }
 
 /****************************************************************************/
@@ -846,7 +837,6 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
     return;
   }
   if (!no_blank) (void) gslStrcat(buffer, " ");
-  return;
 }
 
 
@@ -899,8 +889,6 @@ void _lire_string(const char *question,
   {
     (void) gslStrcpy(answer, BUFFER);
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1109,11 +1097,8 @@ int _lire_logical(const char *question, int flag_def, int valdef)
     {
       return (valdef);
     }
-    else
-    {
-      messerr("No default value provided");
-      goto loop;
-    }
+    messerr("No default value provided");
+    goto loop;
   }
   else
   {
@@ -1200,5 +1185,4 @@ void print_range(const char *title, int ntab, const double *tab, const double *s
   else
     message("%lf", stats.maxi);
   message(" (%d/%d)\n", stats.nvalid, ntab);
-  return;
 }
