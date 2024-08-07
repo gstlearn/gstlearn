@@ -25,7 +25,7 @@ class cs;
 /**
  * Meshing defined as a Turbo based on a Regular Grid
  * It actually avoids storing all the meshing information
- * and produces quicker methods
+ * and produces faster methods
  */
 class GSTLEARN_EXPORT MeshETurbo: public AMesh
 {
@@ -34,7 +34,7 @@ public:
   MeshETurbo(const VectorInt& nx,
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
-             const VectorDouble& rotmat = VectorDouble(),
+             const VectorDouble& angles = VectorDouble(),
              bool flag_polarized = false,
              bool verbose = false,
              int mode = 1);
@@ -61,10 +61,10 @@ public:
   void    resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   void   setPolarized(bool flag) { _isPolarized = flag; }
 
-  static MeshETurbo* create(const VectorInt &nx,
-                            const VectorDouble &dx = VectorDouble(),
-                            const VectorDouble &x0 = VectorDouble(),
-                            const VectorDouble &rotmat = VectorDouble(),
+  static MeshETurbo* create(const VectorInt& nx,
+                            const VectorDouble& dx = VectorDouble(),
+                            const VectorDouble& x0 = VectorDouble(),
+                            const VectorDouble& angles = VectorDouble(),
                             bool flag_polarized = false,
                             bool verbose = false);
   static MeshETurbo* createFromNF(const String &neutralFilename,
@@ -91,13 +91,20 @@ public:
                      const VectorDouble& rotmat = VectorDouble(),
                      bool flag_polarized = false,
                      bool verbose = false);
-  int initFromGrid(const VectorInt& nx,
-                   const VectorDouble& dx = VectorDouble(),
-                   const VectorDouble& x0 = VectorDouble(),
-                   const VectorDouble& rotmat = VectorDouble(),
-                   const VectorDouble& sel = VectorDouble(),
-                   bool flag_polarized = false,
-                   bool verbose = false);
+  int initFromGridByMatrix(const VectorInt& nx,
+                           const VectorDouble& dx     = VectorDouble(),
+                           const VectorDouble& x0     = VectorDouble(),
+                           const VectorDouble& rotmat = VectorDouble(),
+                           const VectorDouble& sel    = VectorDouble(),
+                           bool flag_polarized        = false,
+                           bool verbose               = false);
+  int initFromGridByAngles(const VectorInt& nx,
+                           const VectorDouble& dx     = VectorDouble(),
+                           const VectorDouble& x0     = VectorDouble(),
+                           const VectorDouble& angles = VectorDouble(),
+                           const VectorDouble& sel    = VectorDouble(),
+                           bool flag_polarized        = false,
+                           bool verbose               = false);
   int initFromCova(const CovAniso& cova,
                    const Db* field,
                    double ratio,
@@ -124,11 +131,14 @@ private:
   void _getGridFromMesh(int imesh, int *node, int *icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
-  bool _addElementToTriplet(NF_Triplet &NF_T,
+  bool _addElementToTriplet(NF_Triplet& NF_T,
                             int iech,
-                            const VectorDouble &coor,
-                            const VectorInt &indg0,
+                            const VectorDouble& coor,
+                            const VectorInt& indg0,
                             bool verbose) const;
+  int _initFromGridInternal(const VectorDouble& sel,
+                            bool flag_polarized,
+                            bool verbose);
 
 protected:
   /// Interface for ASerializable

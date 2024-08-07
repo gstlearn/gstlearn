@@ -1001,7 +1001,7 @@ def __ax_point(ax, db,
                legendNameColor=None, legendNameSize=None, legendNameLabel=None,
                posX=0, posY=1, **kwargs):
 
-    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO", "DbMeshTurbo"]):
         return None
 
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
@@ -1720,7 +1720,7 @@ def __ax_mesh(ax, meshobj,
               flagEdge=True, flagFace=False, flagApex=False, 
               facecolor="yellow", edgecolor="blue", linewidth=1,
               **kwargs):
-    if __isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
+    if __isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt","DbMeshTurbo"]):
         return None
     
     if flagFace:
@@ -2010,6 +2010,9 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     elif filetype == "DbGrid":
         grid(object, name1, **kwargs)
     
+    elif filetype == "DbMeshTurbo":
+        mesh(object, **kwargs)
+
     elif filetype == "Vario":
         variogram(object, **kwargs)
     
@@ -2284,6 +2287,7 @@ setattr(gl.Db,               "plot",             gp.point)
 setattr(gl.DbGrid,           "plot",             gp.grid)
 setattr(gl.DbLine,           "plot",             gp.line)
 setattr(gl.DbGraphO,         "plot",             gp.graphO)
+setattr(gl.DbMeshTurbo,      "plot",             gp.mesh)
 setattr(gl.Polygons,         "plot",             gp.polygon)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Faults,           "plot",             gp.fault)
@@ -2308,6 +2312,7 @@ setattr(plt.Axes, "geometry",      gp.geometry)
 setattr(plt.Axes, "gstgrid",       gp.__ax_grid)
 setattr(plt.Axes, "gstpoint",      gp.__ax_point)
 setattr(plt.Axes, "gstline",       gp.__ax_line)
+setattr(plt.Axes, "gstmesh",       gp.__ax_mesh)
 
 # Functions considered as members of the Axis class
 setattr(plt.Axes, "polygon",       gp.__ax_polygon)
