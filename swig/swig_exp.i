@@ -273,6 +273,7 @@
 %include Db/DbLine.hpp
 %include Db/DbGraphO.hpp
 %include Db/DbMeshTurbo.hpp
+%include Db/DbMeshStandard.hpp
 %include Db/DbStringFormat.hpp
 %include Db/DbHelper.hpp
 

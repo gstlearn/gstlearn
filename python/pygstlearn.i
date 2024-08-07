@@ -601,6 +601,9 @@ void exit_f(void)
 %extend DbMeshTurbo {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend DbMeshStandard {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend Vario {
   std::string __repr__() {  return $self->toString(); }
 }

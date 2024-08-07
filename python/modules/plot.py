@@ -1001,7 +1001,7 @@ def __ax_point(ax, db,
                legendNameColor=None, legendNameSize=None, legendNameLabel=None,
                posX=0, posY=1, **kwargs):
 
-    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO", "DbMeshTurbo"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO", "DbMeshTurbo", "DbMeshStandard"]):
         return None
 
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
@@ -1289,6 +1289,7 @@ def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
               **kwargs):
     if __isNotCorrect(object=dbline, types=["DbLine"]):
         return None
+    
     if dbline.getNDim() != 2:
         return None
     
@@ -1720,7 +1721,7 @@ def __ax_mesh(ax, meshobj,
               flagEdge=True, flagFace=False, flagApex=False, 
               facecolor="yellow", edgecolor="blue", linewidth=1,
               **kwargs):
-    if __isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt","DbMeshTurbo"]):
+    if __isNotCorrect(object=meshobj, types=["Mesh", "MeshETurbo", "MeshEStandardExt", "DbMeshTurbo", "DbMeshStandard"]):
         return None
     
     if flagFace:
@@ -2013,6 +2014,9 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     elif filetype == "DbMeshTurbo":
         mesh(object, **kwargs)
 
+    elif filetype == "DbMeshStandard":
+        mesh(object, **kwargs)
+
     elif filetype == "Vario":
         variogram(object, **kwargs)
     
@@ -2288,6 +2292,7 @@ setattr(gl.DbGrid,           "plot",             gp.grid)
 setattr(gl.DbLine,           "plot",             gp.line)
 setattr(gl.DbGraphO,         "plot",             gp.graphO)
 setattr(gl.DbMeshTurbo,      "plot",             gp.mesh)
+setattr(gl.DbMeshStandard,   "plot",             gp.mesh)
 setattr(gl.Polygons,         "plot",             gp.polygon)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Faults,           "plot",             gp.fault)
