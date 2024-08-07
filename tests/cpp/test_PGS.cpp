@@ -24,8 +24,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 
 /****************************************************************************/
 /*!

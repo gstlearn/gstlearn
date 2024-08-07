@@ -11,24 +11,17 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
 #include "Variogram/Vario.hpp"
 #include "Variogram/VMap.hpp"
 #include "Model/Model.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-
-#include <stdlib.h>
 
 /****************************************************************************/
 /*!

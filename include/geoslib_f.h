@@ -21,9 +21,6 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
-#include "Simulation/SimuBooleanParam.hpp"
-#include "Simulation/SimuPartitionParam.hpp"
-#include "Simulation/SimuFFTParam.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 

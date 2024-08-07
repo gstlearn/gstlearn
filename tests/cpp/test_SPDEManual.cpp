@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
@@ -21,17 +20,9 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-
-#include <math.h>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
 
 #define __USE_MATH_DEFINES
 #include <cmath>

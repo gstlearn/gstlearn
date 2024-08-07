@@ -114,12 +114,10 @@ public:
     DECLARE_UNUSED(iech1);
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
-    return;
   }
   virtual void updateCovByMesh(int imesh)
   {
     DECLARE_UNUSED(imesh);
-    return;
   }
   /////////////////////////////////////////////////////////////////////////////////
   ///

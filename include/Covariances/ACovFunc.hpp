@@ -15,7 +15,6 @@
 #include "Enum/ECov.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Matrix/MatrixRectangular.hpp"

@@ -9,12 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
-#include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"

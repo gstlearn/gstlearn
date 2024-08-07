@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ESpaceType.hpp"
 
@@ -23,7 +21,6 @@
 #include "Boolean/ShapeEllipsoid.hpp"
 #include "Boolean/ShapeParallelepiped.hpp"
 #include "Boolean/ModelBoolean.hpp"
-#include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuBoolean.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar,

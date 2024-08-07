@@ -1001,7 +1001,7 @@ def __ax_point(ax, db,
                legendNameColor=None, legendNameSize=None, legendNameLabel=None,
                posX=0, posY=1, **kwargs):
 
-    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO", "DbMeshTurbo", "DbMeshStandard"]):
         return None
 
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
@@ -1289,6 +1289,7 @@ def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
               **kwargs):
     if __isNotCorrect(object=dbline, types=["DbLine"]):
         return None
+    
     if dbline.getNDim() != 2:
         return None
     
@@ -1720,7 +1721,7 @@ def __ax_mesh(ax, meshobj,
               flagEdge=True, flagFace=False, flagApex=False, 
               facecolor="yellow", edgecolor="blue", linewidth=1,
               **kwargs):
-    if __isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
+    if __isNotCorrect(object=meshobj, types=["Mesh", "MeshETurbo", "MeshEStandardExt", "DbMeshTurbo", "DbMeshStandard"]):
         return None
     
     if flagFace:
@@ -1758,6 +1759,8 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
                      diagLine=False, diagColor="black", diagLineStyle='-',
                      bissLine=False, bissColor="red", bissLineStyle='-',
                      regrLine=False, regrColor="blue", regrLineStyle='-',
+                     horizLine=False, horizColor="blue", horizLineStyle='-', hValue=0.,
+                     vertLine=False, vertColor="blue", vertLineStyle='-', vValue=0.,
                      **kwargs):
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
@@ -1814,6 +1817,16 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
         u=[xmin, xmax]
         v=[a+b*xmin, a+b*xmax]
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
+
+    if horizLine:
+        u=[xmin, xmax]
+        v=[hValue, hValue]
+        ax.plot(u,v,color=horizColor,linestyle=horizLineStyle)
+        
+    if vertLine:
+        u=[vValue, vValue]
+        v=[ymin, ymax]
+        ax.plot(u,v,color=vertColor,linestyle=vertLineStyle)
         
     ax.decoration(xlabel = db.getName(namex)[0], ylabel = db.getName(namey)[0])
 
@@ -1998,6 +2011,12 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     elif filetype == "DbGrid":
         grid(object, name1, **kwargs)
     
+    elif filetype == "DbMeshTurbo":
+        mesh(object, **kwargs)
+
+    elif filetype == "DbMeshStandard":
+        mesh(object, **kwargs)
+
     elif filetype == "Vario":
         variogram(object, **kwargs)
     
@@ -2272,6 +2291,8 @@ setattr(gl.Db,               "plot",             gp.point)
 setattr(gl.DbGrid,           "plot",             gp.grid)
 setattr(gl.DbLine,           "plot",             gp.line)
 setattr(gl.DbGraphO,         "plot",             gp.graphO)
+setattr(gl.DbMeshTurbo,      "plot",             gp.mesh)
+setattr(gl.DbMeshStandard,   "plot",             gp.mesh)
 setattr(gl.Polygons,         "plot",             gp.polygon)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Faults,           "plot",             gp.fault)
@@ -2296,6 +2317,7 @@ setattr(plt.Axes, "geometry",      gp.geometry)
 setattr(plt.Axes, "gstgrid",       gp.__ax_grid)
 setattr(plt.Axes, "gstpoint",      gp.__ax_point)
 setattr(plt.Axes, "gstline",       gp.__ax_line)
+setattr(plt.Axes, "gstmesh",       gp.__ax_mesh)
 
 # Functions considered as members of the Axis class
 setattr(plt.Axes, "polygon",       gp.__ax_polygon)

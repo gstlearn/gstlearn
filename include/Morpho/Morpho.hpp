@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EMorpho.hpp"
-
 #include "geoslib_define.h"
 #include "Arrays/BImage.hpp"
 #include "Db/DbGrid.hpp"

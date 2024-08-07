@@ -8,14 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -52,7 +48,7 @@ int main(int argc, char *argv[])
   VectorDouble convolution(conv_dim);
   for (int i = 0; i < conv_dim; i++)
   {
-    double dist = (i - conv_dim / 2) / range;
+    double dist = (i - conv_dim / 2.) / range;
     convolution[i] = exp(- dist * dist);
     total += convolution[i];
   }

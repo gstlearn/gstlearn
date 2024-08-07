@@ -14,11 +14,11 @@
 #include "Enum/ELoc.hpp"
 
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Indirection.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/
 /*!
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   mesh.printMeshes(2);
 
   // Check back-and-forth between relative and absolute
-  Indirection indirect = mesh.getGridIndirect();
+  const Indirection& indirect = mesh.getGridIndirect();
   int igrid_rel = 3;
   message("Starting from the Relative grid node = %d\n",igrid_rel);
   int igrid_abs = indirect.getRToA(igrid_rel);

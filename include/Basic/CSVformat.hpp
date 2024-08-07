@@ -33,7 +33,7 @@ public:
   char  getCharDec()         const { return _charDec; }
   char  getCharSep()         const { return _charSep; }
   bool  getFlagHeader()      const { return _flagHeader; }
-  const String getNaString() const { return _naString; }
+  String getNaString() const { return _naString; }
   int   getNSkip()           const { return _nSkip; }
 
   void  setFlagHeader(bool flagHeader)      { _flagHeader = flagHeader; }

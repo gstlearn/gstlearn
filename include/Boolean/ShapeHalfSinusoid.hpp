@@ -15,7 +15,6 @@
 #include "Enum/EShape.hpp"
 
 #include "Boolean/AShape.hpp"
-#include "Boolean/ShapeParameter.hpp"
 
 class BooleanObject;
 

@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
@@ -23,6 +22,7 @@
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"

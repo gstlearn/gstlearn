@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/VarioParam.hpp"
@@ -21,8 +19,6 @@
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringFormat.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
 #include "LithoRule/Rule.hpp"
 

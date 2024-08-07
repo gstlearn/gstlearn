@@ -16,16 +16,11 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/Option_VarioFit.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
@@ -286,23 +281,23 @@ int main(int argc, char *argv[])
 
   // ====================== Free pointers ==================================
 
-  if (data       != nullptr) delete data;
-  if (grid       != nullptr) delete grid;
-  if (model_init != nullptr) delete model_init;
-  if (model      != nullptr) delete model;
-  if (model_b1_Y != nullptr) delete model_b1_Y;
-  if (model_b2_Y != nullptr) delete model_b2_Y;
-  if (panel      != nullptr) delete panel;
-  if (blocs      != nullptr) delete blocs;
-  if (anam       != nullptr) delete anam;
-  if (anam_b1    != nullptr) delete anam_b1;
-  if (anam_b2    != nullptr) delete anam_b2;
-  if (varioparam != nullptr) delete varioparam;
-  if (vario      != nullptr) delete vario;
-  if (vario_b1_Z != nullptr) delete vario_b1_Z;
-  if (vario_b1_Y != nullptr) delete vario_b1_Y;
-  if (vario_b2_Y != nullptr) delete vario_b2_Y;
-  if (neighM     != nullptr) delete neighM;
+  delete data;
+  delete grid;
+  delete model_init;
+  delete model;
+  delete model_b1_Y;
+  delete model_b2_Y;
+  delete panel;
+  delete blocs;
+  delete anam;
+  delete anam_b1;
+  delete anam_b2;
+  delete varioparam;
+  delete vario;
+  delete vario_b1_Z;
+  delete vario_b1_Y;
+  delete vario_b2_Y;
+  delete neighM;
 
   return (0);
 }
