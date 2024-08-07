@@ -11,10 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include <functional>
-
 #include "Model/Model.hpp"
-#include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
@@ -24,7 +21,7 @@ class Model;
 /**
  * Class to store objects for SPDE
  */
-class GSTLEARN_EXPORT PrecisionOpMulti : public ALinearOpMulti, public AStringable
+class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable
 {
 public:
   PrecisionOpMulti(Model* model = nullptr, 
@@ -37,11 +34,9 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ALinearOpMulti Interface
-  virtual int sizes() const override;
-  virtual int size(int imesh) const override;
-  virtual void _evalDirect(const VectorVectorDouble &inv,
-                           VectorVectorDouble &outv) const override { ; }
-
+  virtual int sizes() const;
+  virtual int size(int imesh) const;
+  
   int  setModel(Model* model);
   int  setMeshes(const std::vector<AMesh*>& meshes);
   void clearMeshes();
