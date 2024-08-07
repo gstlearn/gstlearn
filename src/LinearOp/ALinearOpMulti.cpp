@@ -146,6 +146,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   {
     evalDirect(vecout, _temp); //temp = Ax0 (x0 est stocké dans outv)
     VH::subtractInPlace(_temp, vecin, _r);    //r=b-Ax0
+    nb = VH::innerProduct(_r, _r);
   }
   else
   {

@@ -41,6 +41,8 @@ public:
 
   void prepare() const;
 
+  void setUserInitialValue(bool b) { _userInitialValue = b; }
+
 protected:
   virtual void _evalDirect(const VectorVectorDouble &inv,
                            VectorVectorDouble &outv) const = 0;
