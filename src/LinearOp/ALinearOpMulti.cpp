@@ -192,9 +192,9 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
     else
     {
       rsnew = VH::innerProduct(_r, _r);
-      crit = rsnew / nb;
       VH::linearCombinationVVDInPlace(1., _r, rsnew / rsold, _p, _p);    // p = r+beta p
     }
+    crit = rsnew / nb;
 
     if (OptDbg::query(EDbg::CONVERGE))
       message("%d iterations (max=%d)  crit %lg \n", niter, _nIterMax, crit);
