@@ -63,6 +63,7 @@ public:
   mutable VectorVectorDouble _temp;
   mutable VectorVectorDouble _p;
   mutable VectorVectorDouble _z;
+  mutable double _nb;
 
 protected:
   LogStats                   _logStats;

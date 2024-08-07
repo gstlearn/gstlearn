@@ -14,6 +14,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Utilities.hpp"
 
 ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
     : _nIterMax(nitermax),
@@ -26,6 +27,7 @@ ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
       _temp(),
       _p(),
       _z(),
+      _nb(getNA<double>()),
       _logStats()
 {
 }
@@ -41,6 +43,7 @@ ALinearOpMulti::ALinearOpMulti(const ALinearOpMulti &m)
       _temp(m._temp),
       _p(m._p),
       _z(m._z),
+      _nb(m._nb),
       _logStats(m._logStats)
 {
 }
@@ -59,6 +62,7 @@ ALinearOpMulti& ALinearOpMulti::operator=(const ALinearOpMulti &m)
     _temp = m._temp;
     _p = m._p;
     _z = m._z;
+    _nb = m._nb;
     _logStats = m ._logStats;
   }
   return *this;
@@ -135,9 +139,9 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
 
   double rsnew;
-  double rsold;
+  double rsold = 0.;
   double nb;
-  double crit, alpha;
+  double crit = 0., alpha;
 
   Timer time;
   nb = VH::innerProduct(vecin, vecin);
@@ -147,6 +151,15 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
     evalDirect(vecout, _temp); //temp = Ax0 (x0 est stocké dans outv)
     VH::subtractInPlace(_temp, vecin, _r);    //r=b-Ax0
     nb = VH::innerProduct(_r, _r);
+
+    // If _nb is not set, then initialize the internal state from scratch.
+    // If _nb is set, reuse the internal state of the solver (_p) to add
+    // iterations. _nb is only needed for crit i.e. the stopping criterion.
+    if (!isNA(_nb))
+    {
+      crit = rsold = nb;
+      nb           = _nb;
+    }
   }
   else
   {
@@ -165,7 +178,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
     rsold = VH::innerProduct(_r, _temp); //<r, z>
     crit = VH::innerProduct(_r, _r);  //<r,r>
   }
-  else
+  else if (!_userInitialValue || isNA(_nb)) // _p, rsold and crit are already set (see above)
   {
     VH::copy(_r, _p); //p=r (=z)
     crit = rsold = VH::innerProduct(_r, _r);
@@ -200,6 +213,9 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
       message("%d iterations (max=%d)  crit %lg \n", niter, _nIterMax, crit);
     rsold = rsnew;
   }
+
+  // Store _nb for further iterations (this also uses _p).
+  _nb = nb;
 
   if (OptDbg::query(EDbg::CONVERGE))
   {
