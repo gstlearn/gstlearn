@@ -34,6 +34,7 @@ public:
   virtual int size(int) const = 0;
 
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
+  void setNIterRestart(int niterrestart) { _nIterRestart = niterrestart; }
   void setEps(double eps) { _eps = eps; }
   void setPrecond(const ALinearOpMulti* precond, int status);
 
@@ -50,6 +51,7 @@ protected:
 
 private:
   int                       _nIterMax;
+  int                       _nIterRestart;
   double                    _eps;
   bool                      _precondStatus;
   bool                      _userInitialValue;

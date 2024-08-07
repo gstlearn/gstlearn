@@ -18,6 +18,7 @@
 
 ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
     : _nIterMax(nitermax),
+      _nIterRestart(0),
       _eps(eps),
       _precondStatus(false),
       _userInitialValue(false),
@@ -34,6 +35,7 @@ ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
 
 ALinearOpMulti::ALinearOpMulti(const ALinearOpMulti &m)
     : _nIterMax(m._nIterMax),
+      _nIterRestart(0),
       _eps(m._eps),
       _precondStatus(m._precondStatus),
       _userInitialValue(m._userInitialValue),
@@ -53,6 +55,7 @@ ALinearOpMulti& ALinearOpMulti::operator=(const ALinearOpMulti &m)
   if (this != &m)
   {
     _nIterMax = m._nIterMax;
+    _nIterRestart = m._nIterRestart;
     _eps = m._eps;
     _precondStatus = m._precondStatus;
     _userInitialValue = m._userInitialValue;
@@ -194,7 +197,16 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
     evalDirect(_p, _temp);                                // temp = Ap
     alpha = rsold / VH::innerProduct(_temp, _p);          // r'r/p'Ap
     VH::linearCombinationVVDInPlace(1., vecout, alpha, _p, vecout);     // x = x + alpha * p
-    VH::linearCombinationVVDInPlace(1., _r, -alpha, _temp, _r);         // r = r - alpha * Ap
+
+    if (_nIterRestart > 0 && (niter + 1) % _nIterRestart == 0)
+    {
+      evalDirect(vecout, _temp);               // temp = Ax
+      VH::subtractInPlace(_temp, vecin, _r);   // r = b - Ax
+      if (OptDbg::query(EDbg::CONVERGE))
+        message("Recomputing exact residuals after %d iterations (max=%d)\n", niter, _nIterMax);
+    }
+    else
+      VH::linearCombinationVVDInPlace(1., _r, -alpha, _temp, _r);         // r = r - alpha * Ap
 
     if (_precondStatus)
     {
