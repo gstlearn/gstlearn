@@ -752,5 +752,7 @@ private:
 private:
   ACov*          _cova;         /* Generic Covariance structure */
   DriftList*     _driftList;    /* Series of Drift functions */
-  CovContext     _ctxt;         /* Context */
+  CovContext _ctxt;             /* Context */
+
+  MatrixSquareSymmetric _dummy;
 };
