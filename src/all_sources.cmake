@@ -154,6 +154,10 @@ set(SRC
   Anamorphosis/PPMT.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
+  Db/DbLine.cpp
+  Db/DbGraphO.cpp
+  Db/DbMeshTurbo.cpp
+  Db/DbMeshStandard.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   Db/DbHelper.cpp

@@ -592,7 +592,16 @@ void exit_f(void)
 %extend DbGrid {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend DbGrid {
+%extend DbLine {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbGraphO {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbMeshTurbo {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbMeshStandard {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend Vario {

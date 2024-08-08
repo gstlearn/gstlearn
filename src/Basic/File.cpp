@@ -36,7 +36,6 @@ StdoutRedirect::StdoutRedirect(const String &file,
   _out()
 #endif
 {
-  DECLARE_UNUSED(argv);
   _flagActive = (argc <= number);
   if (!file.empty() && _flagActive)
     start(file);

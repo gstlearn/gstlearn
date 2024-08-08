@@ -614,7 +614,7 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
   int n1 = (transpose) ? a.getNCols() : a.getNRows();
   int n2 = (transpose) ? a.getNRows() : a.getNCols();
 
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
+  if (!_checkLink(getNRows(), getNCols(), false, a.getNRows(), a.getNCols(), transpose,
                  (int) vec.size(), 1, false)) return;
 
   for (int i = 0; i < n1; i++)
@@ -824,7 +824,7 @@ bool AMatrix::_isIndexValid(int irow, int icol) const
   return true;
 }
 
-bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
+bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab) const
 {
   if ((int) tab.size() != getNRows())
   {
@@ -834,7 +834,7 @@ bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
+bool AMatrix::_isColVectorConsistent(const VectorDouble& tab) const
 {
   if ((int) tab.size() != getNCols())
   {
@@ -844,7 +844,7 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrix::_isVectorSizeConsistent(const VectorDouble &tab)
+bool AMatrix::_isVectorSizeConsistent(const VectorDouble &tab) const
 {
   int nrows = getNRows();
   int ncols = getNCols();
@@ -857,7 +857,7 @@ bool AMatrix::_isVectorSizeConsistent(const VectorDouble &tab)
   return true;
 }
 
-bool AMatrix::_isColumnSizeConsistent(const VectorDouble &tab)
+bool AMatrix::_isColumnSizeConsistent(const VectorDouble &tab) const
 {
   int nrows = getNRows();
   if ((int) tab.size() != nrows)
@@ -869,7 +869,7 @@ bool AMatrix::_isColumnSizeConsistent(const VectorDouble &tab)
   return true;
 }
 
-bool AMatrix::_isRowSizeConsistent(const VectorDouble &tab)
+bool AMatrix::_isRowSizeConsistent(const VectorDouble &tab) const
 {
   int ncols = getNCols();
   if ((int) tab.size() != ncols)
@@ -1312,7 +1312,7 @@ void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
  ** \param[in]  verbose  True for the verbose option
  **
  *****************************************************************************/
-bool AMatrix::isNonNegative(bool verbose)
+bool AMatrix::isNonNegative(bool verbose) const
 {
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)

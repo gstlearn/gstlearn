@@ -20,7 +20,6 @@
 #include "Basic/WarningMacro.hpp"
 
 #include <iostream>
-#include <iomanip>
 
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
@@ -400,8 +399,7 @@ int MatrixSparse::_getMatrixPhysicalSize() const
 {
   if (isFlagEigen())
     return _eigenMatrix.nonZeros();
-  else
-    return cs_nnz(_csMatrix);
+  return cs_nnz(_csMatrix);
 }
 
 /**
@@ -501,23 +499,20 @@ VectorDouble MatrixSparse::prodVecMat(const VectorDouble& x, bool transpose) con
     VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
   }
+  VectorDouble y;
+  if (transpose)
+  {
+    int ncol = getNCols();
+    y.resize(ncol);
+    cs_vector_xtM(_csMatrix, ncol, x.data(), y.data());
+  }
   else
   {
-    VectorDouble y;
-    if (transpose)
-    {
-      int ncol = getNCols();
-      y.resize(ncol);
-      cs_vector_xtM(_csMatrix, ncol, x.data(), y.data());
-    }
-    else
-    {
-      int nrow = getNRows();
-      y.resize(nrow);
-      cs_vector_xM(_csMatrix, nrow, x.data(), y.data());
-    }
-    return y;
+    int nrow = getNRows();
+    y.resize(nrow);
+    cs_vector_xM(_csMatrix, nrow, x.data(), y.data());
   }
+  return y;
 }
 
 /*! Perform y = 'this' %*% x */
@@ -534,23 +529,20 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
     VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
   }
+  VectorDouble y;
+  if (transpose)
+  {
+    int ncol = getNCols();
+    y.resize(ncol);
+    cs_vector_tMx(_csMatrix, ncol, x.data(), y.data());
+  }
   else
   {
-    VectorDouble y;
-    if (transpose)
-    {
-      int ncol = getNCols();
-      y.resize(ncol);
-      cs_vector_tMx(_csMatrix, ncol, x.data(), y.data());
-    }
-    else
-    {
-      int nrow = getNRows();
-      y.resize(nrow);
-      cs_vector_Mx(_csMatrix, nrow, x.data(), y.data());
-    }
-    return y;
+    int nrow = getNRows();
+    y.resize(nrow);
+    cs_vector_Mx(_csMatrix, nrow, x.data(), y.data());
   }
+  return y;
 }
 
 /**
@@ -705,10 +697,7 @@ bool MatrixSparse::_isElementPresent(int irow, int icol) const
     }
     return false;
   }
-  else
-  {
-    return cs_exist(_csMatrix, irow, icol);
-  }
+  return cs_exist(_csMatrix, irow, icol);
 }
 
 void MatrixSparse::addValue(int row, int col, double value)
@@ -725,16 +714,14 @@ double MatrixSparse::getValue(int row, int col, bool flagCheck) const
   if (flagCheck && ! _isIndexValid(row, col)) return TEST;
   if (isFlagEigen())
     return _eigenMatrix.coeff(row, col);
-  else
-    return cs_get_value(_csMatrix, row, col);
+  return cs_get_value(_csMatrix, row, col);
 }
 
 double MatrixSparse::L1Norm() const
 {
   if (isFlagEigen())
     return (Eigen::RowVectorXd::Ones(_eigenMatrix.rows()) * _eigenMatrix.cwiseAbs()).maxCoeff();
-  else
-    return cs_norm(_csMatrix);
+  return cs_norm(_csMatrix);
 }
 
 void MatrixSparse::getStats(int *nrows, int *ncols, int *count, double *percent) const
@@ -764,12 +751,9 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
     VH::transformVD(diag, oper_choice);
     return diag;
   }
-  else
-  {
-    VectorDouble diag = csd_extract_diag_VD(_csMatrix, 1);
-    VH::transformVD(diag, oper_choice);
-    return diag;
-  }
+  VectorDouble diag = csd_extract_diag_VD(_csMatrix, 1);
+  VH::transformVD(diag, oper_choice);
+  return diag;
 }
 
 int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
@@ -781,10 +765,7 @@ int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
     ym = _eigenMatrix * xm + ym;
     return 0;
   }
-  else
-  {
-    return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
-  }
+  return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
 }
 
 void MatrixSparse::setConstant(double value)
@@ -810,10 +791,7 @@ int MatrixSparse::scaleByDiag()
     _eigenMatrix = ym.asDiagonal() * _eigenMatrix;
     return 0;
   }
-  else
-  {
-    return cs_scale(_csMatrix);
-  }
+  return cs_scale(_csMatrix);
 }
 
 /**
@@ -1098,8 +1076,8 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
 
 void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
 {
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
-                 vec.size(), 1, false)) return;
+  if (!_checkLink(getNRows(), getNCols(), transpose, a.getNRows(), a.getNCols(),
+                  false, vec.size(), 1, false)) return;
 
   if (isFlagEigen() && a.isFlagEigen())
   {
@@ -1316,14 +1294,13 @@ void MatrixSparse::_deallocate()
   }
 }
 
-void MatrixSparse::_forbiddenForSparse(const String& func) const
+void MatrixSparse::_forbiddenForSparse(const String& func)
 {
   messerr("Problem with Function: %s",func.c_str());
   messerr("This function is not available in Sparse Matrix");
-  return;
 }
 
-void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const
+void MatrixSparse::dumpElements(const String& title, int ifrom, int ito)
 {
   DECLARE_UNUSED(title);
   DECLARE_UNUSED(ifrom);
@@ -1342,10 +1319,7 @@ NF_Triplet MatrixSparse::getMatrixToTriplet(int shiftRow, int shiftCol) const
   {
     return NF_Triplet::createFromEigen(_eigenMatrix, shiftRow, shiftCol);
   }
-  else
-  {
-    return NF_Triplet::createFromCs(_csMatrix, shiftRow, shiftCol);
-  }
+  return NF_Triplet::createFromCs(_csMatrix, shiftRow, shiftCol);
 }
 
 void MatrixSparse::_clear()
@@ -1466,7 +1440,7 @@ MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
 /* The arrays 'rank_rows' and 'rank_cols' may be absent */
 /* Their value gives the rank of the saved element or -1 */
 MatrixSparse* MatrixSparse::extractSubmatrixByRanks(const VectorInt &rank_rows,
-                                                    const VectorInt &rank_cols)
+                                                    const VectorInt &rank_cols) const
 {
   int old_row, old_col, new_row, new_col;
 
@@ -1551,16 +1525,13 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
  * @param opt_eigen Choice: 0: Do not use Eigen library; 1; Use Eigen library; -1: use global environment
  * @return Option for using the Eigen library
  */
-bool MatrixSparse::_defineFlagEigen(int opt_eigen) const
+bool MatrixSparse::_defineFlagEigen(int opt_eigen)
 {
   // Dispatch
 
-  if (opt_eigen == 1)
-    return true;
-  else if (opt_eigen == 0)
-    return false;
-  else
-    return globalFlagEigen;
+  if (opt_eigen == 1) return true;
+  if (opt_eigen == 0) return false;
+  return globalFlagEigen;
 }
 
 /**
@@ -1576,4 +1547,35 @@ void setGlobalFlagEigen(bool flagEigen)
 bool isGlobalFlagEigen()
 {
   return globalFlagEigen;
+}
+
+void MatrixSparse::gibbs(int iech,
+                         const VectorDouble& zcur,
+                         double* yk,
+                         double* sk)
+{
+  if (isFlagEigen())
+  {
+    *yk = 0.;
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, iech); it;
+         ++it)
+    {
+      double coeff = it.valueRef();
+      if (ABS(coeff) <= 0.) continue;
+      int jech = it.row();
+
+      if (iech == jech)
+        *sk = coeff;
+      else
+        *yk -= coeff * zcur[jech];
+    }
+  }
+  else
+  {
+    cs_gibbs(_csMatrix, iech, zcur, yk, sk);
+  }
+
+  // Returned arguments
+  (*yk) /= (*sk);
+  (*sk) = sqrt(1. / (*sk));
 }

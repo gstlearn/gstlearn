@@ -15,7 +15,7 @@
 #include <iostream>
 
 /**
- * Demonstration of space composit features
+ * Demonstration of space composite features
  */
 int main(int argc, char *argv[])
 {
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, 2, 0., true); // 2D RN space with time
-  auto sp = getDefaultSpace();
+  const auto* sp = getDefaultSpace();
 
   sp->display();
   sp->display(0);

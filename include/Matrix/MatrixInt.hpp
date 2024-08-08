@@ -11,10 +11,8 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
-#include "Matrix/AMatrix.hpp"
 
 /**
  * Rectangular matrices are stored by columns
@@ -23,7 +21,7 @@ class GSTLEARN_EXPORT MatrixInt : public AStringable, public ICloneable {
 
 public:
   MatrixInt(int nrow = 0, int ncol = 0);
-  MatrixInt(const MatrixInt &m);
+  MatrixInt(const MatrixInt &r);
   MatrixInt& operator= (const MatrixInt &r);
 	virtual ~MatrixInt();
 
@@ -73,10 +71,10 @@ private:
   void   _deallocate();
   bool   _isIndexValid(int irow, int icol) const;
   bool   _isRankValid(int rank) const;
-  bool   _isNumbersValid(int nrows, int ncols) const;
+  static bool   _isNumbersValid(int nrows, int ncols);
   int    _getIndexToRank(int irow,int icol) const;
   int&   _getValueRef(int irow, int icol);
-  void   _transposeInPlace(int n1, int n2, int *v1, int *w1);
+  static void   _transposeInPlace(int n1, int n2, const int *v1, int *w1);
 
 private:
   int _nRows;

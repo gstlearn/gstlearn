@@ -15,6 +15,7 @@
 #include "Enum/ECov.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Anamorphosis/AnamHermite.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -789,7 +790,7 @@ void Model::setTapeRange(double range)
 
 int Model::unsetAnam()
 {
-  if (! hasAnam())
+  if (!hasAnam())
   {
     // ACovAnisoList does not have any Anam: do nothing
     return 0;
@@ -802,11 +803,11 @@ int Model::unsetAnam()
       return 1;
     }
 
-    // Initiate a new CovLMC class
-    CovLMC* newcov = new CovLMC(*cov);
+  // Initiate a new CovLMC class
+  CovLMC* newcov = new CovLMC(*cov);
 
-    // Delete the current ACovAnisoList structure
-    delete _cova;
+  // Delete the current ACovAnisoList structure
+  delete _cova;
 
     // Replace it by the newly create one (CovLMC)
     _cova = newcov;
@@ -1128,9 +1129,9 @@ int Model::fitFromCovIndices(Vario *vario,
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fit(Vario *vario,
-               const VectorECov &types,
-               const Constraints &constraints,
+int Model::fit(Vario* vario,
+               const VectorECov& types,
+               const Constraints& constraints,
                const Option_VarioFit& optvar,
                const Option_AutoFit& mauto,
                bool verbose)

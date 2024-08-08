@@ -16,7 +16,6 @@
 #include "IProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 /**

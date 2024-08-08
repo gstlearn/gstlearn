@@ -57,8 +57,7 @@ int main(int argc, char *argv[])
   data->display(dbfmt);
 
   delete dbfmt;
-
-  if (data != nullptr) delete data;
+  delete data;
 
   return (0);
 }

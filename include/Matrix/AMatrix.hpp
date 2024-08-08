@@ -166,7 +166,7 @@ public:
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
   /*! Check if the matrix does not contain any negative element */
-  bool isNonNegative(bool verbose = false);
+  bool isNonNegative(bool verbose = false) const;
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -192,8 +192,8 @@ public:
   double getMaximum() const;
   double getNormInf() const;
   void copyReduce(const AMatrix *x,
-                  const VectorInt &activeRows,
-                  const VectorInt &activeCols);
+                  const VectorInt &validRows,
+                  const VectorInt &validCols);
   void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
@@ -240,11 +240,11 @@ protected:
   bool _isColumnValid(int icol) const;
   bool _isRowValid(int irow) const;
   bool _isIndexValid(int irow, int icol) const;
-  bool _isRowVectorConsistent(const VectorDouble& tab);
-  bool _isColVectorConsistent(const VectorDouble& tab);
-  bool _isVectorSizeConsistent(const VectorDouble& tab);
-  bool _isColumnSizeConsistent(const VectorDouble &tab);
-  bool _isRowSizeConsistent(const VectorDouble &tab);
+  bool _isRowVectorConsistent(const VectorDouble& tab) const;
+  bool _isColVectorConsistent(const VectorDouble& tab) const;
+  bool _isVectorSizeConsistent(const VectorDouble& tab) const;
+  bool _isColumnSizeConsistent(const VectorDouble &tab) const;
+  bool _isRowSizeConsistent(const VectorDouble &tab) const;
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 

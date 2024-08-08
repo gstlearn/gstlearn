@@ -20,7 +20,6 @@
 
 #include <iostream>
 #include <stdarg.h>
-#include <stdio.h>
 #include <fstream>
 
 class GSTLEARN_EXPORT ASerializable
@@ -114,9 +113,9 @@ bool ASerializable::_recordWrite(std::ostream& os,
     if (isNA<T>(val))
     {
       if (title.empty())
-         os << STRING_NA << " ";
-       else
-         os << STRING_NA << " # " << title << std::endl;
+        os << STRING_NA << " ";
+      else
+        os << STRING_NA << " # " << title << std::endl;
     }
     else
     {
@@ -177,13 +176,10 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
       word = trim(word);
       if (!word.empty())
       {
-        if (word == STRING_NA)
-          break;   // We found NA
-        else if (word[0] != '#')
-          break; // We found something
-        else
-          //std::getline(is, word);    // We found comment, eat all the line
-          gslSafeGetline(is, word);    // We found comment, eat all the line
+        if (word == STRING_NA) break; // We found NA
+        if (word[0] != '#') break;    // We found something
+        // std::getline(is, word);    // We found comment, eat all the line
+        gslSafeGetline(is, word); // We found comment, eat all the line
       }
     }
 

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/CGParam.hpp"
 
 CGParam::CGParam(int nitermax, double eps)

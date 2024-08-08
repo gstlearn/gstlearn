@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/Utilities.hpp"
@@ -18,6 +16,8 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/GeometryHelper.hpp"
+
 #include <string.h>
 #include <cmath>
 
@@ -197,7 +197,8 @@ static Keypair* st_get_keypair_address(const char *keyword)
   {
     found = KEYPAIR_NTAB;
     KEYPAIR_NTAB++;
-    KEYPAIR_TABS = (Keypair*)realloc((char*)KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
+    auto* placeholder = realloc((char*)KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
+    KEYPAIR_TABS = (Keypair*)placeholder;
   }
 
   /* Store the attribute (compressing the name and suppressing blanks) */
@@ -312,8 +313,8 @@ static void st_keypair_allocate(Keypair *keypair, int nrow, int ncol)
 
     // The old_dimensions are non zero, reallocate the contents
 
-    keypair->values = (double*) realloc((char*) keypair->values,
-                                        sizeof(double) * new_size);
+    auto* placeholder = realloc((char*)keypair->values, sizeof(double) * new_size);
+    keypair->values = (double*)placeholder;
   }
 
   // Ultimate check that allocaiton has been performed correctly
@@ -567,8 +568,8 @@ static void del_keypone(int indice)
     KEYPAIR_TABS[i - 1] = KEYPAIR_TABS[i];
 
   KEYPAIR_NTAB--;
-  KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
-                                    sizeof(Keypair) * KEYPAIR_NTAB);
+  auto* placeholder = realloc((char*)KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
+  KEYPAIR_TABS = (Keypair*)placeholder;
 }
 
 /****************************************************************************/
@@ -943,16 +944,15 @@ void ut_distance_allocated(int ndim, double **tab1, double **tab2)
 {
   if (DISTANCE_NDIM < ndim)
   {
-    DISTANCE_TAB1 = (double*) realloc((char*) DISTANCE_TAB1,
-                                      sizeof(double) * ndim);
-    DISTANCE_TAB2 = (double*) realloc((char*) DISTANCE_TAB2,
-                                      sizeof(double) * ndim);
+    auto* dtab    = realloc((char*)DISTANCE_TAB1, sizeof(double) * ndim);
+    DISTANCE_TAB1 = (double*)dtab;
+    auto* dtab2   = realloc((char*)DISTANCE_TAB2, sizeof(double) * ndim);
+    DISTANCE_TAB2 = (double*)dtab2;
     DISTANCE_NDIM = ndim;
   }
   *tab1 = DISTANCE_TAB1;
   *tab2 = DISTANCE_TAB2;
 }
-
 
 /****************************************************************************/
 /*!
@@ -1056,11 +1056,13 @@ void set_last_message(int mode, const char *string)
       if (size <= 0) return;
 
       if (NB_LAST_MESSAGE <= 0)
-        LAST_MESSAGE = (char**) malloc(sizeof(char*) * 1);
+        LAST_MESSAGE = (char**)malloc(sizeof(char*) * 1);
       else
-        LAST_MESSAGE = (char**) realloc((char*) LAST_MESSAGE,
-                                        sizeof(char*) * (NB_LAST_MESSAGE + 1));
-      LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char*) malloc(size + 1);
+      {
+        auto* placeholder = realloc((char*)LAST_MESSAGE, sizeof(char*) * (NB_LAST_MESSAGE + 1));
+        LAST_MESSAGE = (char**)placeholder;
+      }
+      LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char*)malloc(size + 1);
       (void) gslStrcpy(address, string);
       address[size] = '\0';
       NB_LAST_MESSAGE++;

@@ -674,8 +674,8 @@ public:
                         const Option_VarioFit& optvar = Option_VarioFit(),
                         const Option_AutoFit& mauto = Option_AutoFit(),
                         bool verbose = false);
-  int fit(Vario *vario,
-          const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
+  int fit(Vario* vario,
+          const VectorECov& types        = ECov::fromKeys({"SPHERICAL"}),
           const Constraints& constraints = Constraints(),
           const Option_VarioFit& optvar = Option_VarioFit(),
           const Option_AutoFit& mauto = Option_AutoFit(),
@@ -692,9 +692,10 @@ public:
   int standardize(bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
-  void gofDisplay(double gof, bool byValue = true,
-                  const VectorDouble& thresholds = {2., 5., 10., 100});
-  VectorECov initCovList(const VectorInt & covranks);
+  static void gofDisplay(double gof,
+                         bool byValue                   = true,
+                         const VectorDouble& thresholds = {2., 5., 10., 100});
+  static VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
 

@@ -12,7 +12,6 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Geometry/GeometryHelper.hpp"
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius, bool addtime)
@@ -64,9 +63,8 @@ String SpaceSN::_toString(const AStringFormat* strfmt, int idx) const
 bool SpaceSN::_isEqual(const ASpace *space) const
 {
   if (!ASpace::_isEqual(space)) return false;
-  const SpaceSN *s = dynamic_cast<const SpaceSN*>(space);
-  if (s == nullptr || _radius != s->_radius) return false;
-  return true;
+  const SpaceSN* s = dynamic_cast<const SpaceSN*>(space);
+  return s != nullptr && _radius == s->_radius;
 }
 
 void SpaceSN::_move(SpacePoint &p1, const VectorDouble &vec) const

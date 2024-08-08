@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESPDECalcMode.hpp"
-
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
@@ -35,7 +33,7 @@ int main(int argc, char *argv[])
   VectorInt nx = {360, 180};
   VectorDouble dx(2);
   for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = nx[idim] / (nx[idim]-1) * GV_PI / 180.;
+    dx[idim] = (double) nx[idim] / (nx[idim]-1) * GV_PI / 180.;
   DbGrid* grd = DbGrid::create(nx,dx,{0,0});
   (void) grd->setName("x1", "phi");
   (void) grd->setName("x2", "theta");

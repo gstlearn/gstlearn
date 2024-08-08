@@ -8,11 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Model/ConsItem.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Model.hpp"

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Enum/ECst.hpp"
 
 #include "Geometry/GeometryHelper.hpp"

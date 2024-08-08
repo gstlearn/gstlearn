@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://gstlearn.org                                               */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
@@ -237,6 +237,11 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
 
   /* Core allocation */
 
+  nzmax = Pattern->nzmax;
+  z.resize(ntarget, 0);
+  wz.resize(nzmax, 0);
+  wZdiagp.resize(nzmax, 0);
+  wLmunch.resize(nzmax, 0);
   nzmax = Pattern->nzmax;
   z.resize(ntarget, 0);
   wz.resize(nzmax, 0);

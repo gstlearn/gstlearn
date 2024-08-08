@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/Tensor.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/ACovGradient.hpp"
 #include "Covariances/CovContext.hpp"

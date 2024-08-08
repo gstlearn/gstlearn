@@ -136,7 +136,7 @@ cs* cs_diag(VectorDouble diag, double tol)
 // mode=1: t(B) %*% diag %*% B (initial form)
 // mode=2: B %*% diag %*% t(B)
 //
-cs* cs_prod_norm_diagonal(int mode, const cs *B, VectorDouble diag)
+cs* cs_prod_norm_diagonal(int mode, const cs *B, const VectorDouble& diag)
 
 {
  cs* diagM = cs_diag(diag);
@@ -254,7 +254,7 @@ cs* cs_invert(const cs *A, int order, double epsilon)
  ** \remarks The array 'indCo' is relative to the input selection
  **
  *****************************************************************************/
-static void st_selection_update(int ncur, double *sel, int *indCo)
+static void st_selection_update(int ncur, double *sel, const int *indCo)
 {
   int ecr, nval;
 
@@ -655,8 +655,7 @@ int cs_multigrid_get_nlevels(cs_MGS *mgs)
 {
   if (mgs == nullptr)
     return (0);
-  else
-    return (mgs->nlevels);
+  return (mgs->nlevels);
 }
 
 /****************************************************************************/
@@ -770,7 +769,7 @@ void cs_multigrid_coarse2fine(cs_MGS *mgs, double *z, double *work)
 static void st_multigrid_descent(cs_MGS *mgs,
                                  int level,
                                  double *zin,
-                                 double *rhsin,
+                                 const double *rhsin,
                                  double *rhsout,
                                  double *work)
 {
@@ -991,7 +990,7 @@ static void st_relaxation(cs_MGS *mgs,
                           int level,
                           int mode,
                           double *xcr,
-                          double *rhs,
+                          const double *rhs,
                           double *work)
 {
   cs_MG *mg;
@@ -1743,7 +1742,6 @@ void cs_diag_suppress(cs *C)
       if (Ci[p] == j) Cx[p] = 0.;
     }
   }
-  return;
 }
 
 int cs_sort_i(cs *C)
@@ -1875,7 +1873,6 @@ void cs_print_nice(const char *title, const cs *A, int maxrow, int maxcol)
     }
     message("\n");
   }
-  return;
 }
 
 /* Print the only non-zero terms of a sparse matrix */
@@ -1912,7 +1909,6 @@ void cs_print_only(const char *title, const cs *A, int nlimit)
       if (nlimit > 0 && ecr > nlimit) return;
     }
   }
-  return;
 }
 
 void cs_print_short(const char *title, const cs *L, int nmax)
@@ -2269,12 +2265,12 @@ static void st_get_FiCo(cs *L,
                         int *indCo)
 {
   int n, nU, icol, newCo, *Ltp, *Lti, *LLp, *LLi, nFi, newFi;
-  double *Ltx;
+  double* Ltx;
 
-  std::map<int, std::set<int> > tab;
-  std::map<int, std::set<int> >::reverse_iterator rit;
-  std::map<int, std::set<int> >::iterator it;
-  std::set<int> *vec;
+  std::map<int, std::set<int>> tab;
+  std::map<int, std::set<int>>::reverse_iterator rit;
+  std::map<int, std::set<int>>::iterator it;
+  std::set<int>* vec;
 
   /* Initializations */
 
@@ -2284,10 +2280,9 @@ static void st_get_FiCo(cs *L,
   LLp = Lt->p;
   LLi = Lt->i;
 
-  n = cs_getncol(L);
-  nU = 0;
-  for (int i = 0; i < n; i++)
-    nU += indUd[i];
+  n   = cs_getncol(L);
+  nU  = 0;
+  for (int i = 0; i < n; i++) nU += indUd[i];
 
   for (int i = 0; i < n; i++)
   {
@@ -2302,8 +2297,8 @@ static void st_get_FiCo(cs *L,
   {
     // Find the sample mostly connected
 
-    rit = tab.rbegin();
-    newCo = *rit->second.begin();
+    rit          = tab.rbegin();
+    newCo        = *rit->second.begin();
     indCo[newCo] = 1;
     indUd[newCo] = 0;
     nU--;
@@ -2320,8 +2315,8 @@ static void st_get_FiCo(cs *L,
       if (Ltx[p] == 1 && indUd[icol] == 1)
       {
         indFi[nFi++] = icol;
-        indCo[icol] = 0;
-        indUd[icol] = 0;
+        indCo[icol]  = 0;
+        indUd[icol]  = 0;
         nU--;
         it = tab.find(lambda[icol]);
         if (it == tab.end())
@@ -2351,7 +2346,7 @@ static void st_get_FiCo(cs *L,
         lambda[LLi[p]]--;
         it = tab.find(lambda[LLi[p]]);
         if (it == tab.end()) // means lambda[LLi[p]] is not in tab as a key.
-        tab[lambda[LLi[p]]] = std::set<int>();
+          tab[lambda[LLi[p]]] = std::set<int>();
         tab[lambda[LLi[p]]].insert(LLi[p]);
       }
     }
@@ -2367,7 +2362,7 @@ static void st_get_FiCo(cs *L,
         {
           if (indUd[LLi[p]])
           {
-            it = tab.find(lambda[LLi[p]]);
+            it  = tab.find(lambda[LLi[p]]);
             vec = &it->second;
             vec->erase(LLi[p]);
             if (vec->empty()) tab.erase(lambda[LLi[p]]);
@@ -2665,7 +2660,7 @@ int cs_coarsening(const cs *Q, int type, int **indCo_ret, cs **L_ret)
   return (error);
 }
 
-cs* cs_interpolate(const cs *AA, const cs *Lt, int *Co)
+cs* cs_interpolate(const cs *AA, const cs *Lt, const int *Co)
 {
   cs *IH, *IHtriplet;
   double *u, *AAx, *Ltx, sunip, sunim, supim, supip, alpha, beta, fact, val;
@@ -3463,4 +3458,23 @@ cs* cs_glue(const cs* A1, const cs* A2, bool shiftRow, bool shiftCol)
 
   // Transform the output triplet into sparse matrix
   return NF_Tout.buildCsFromTriplet();
+}
+
+void cs_gibbs(const cs* A, int iech, const VectorDouble& zcur, double* yk, double* sk)
+{
+  int* Ap    = A->p;
+  int* Ai    = A->i;
+  double* Ax = A->x;
+  (*yk)      = 0.;
+  for (int p = Ap[iech]; p < Ap[iech + 1]; p++)
+  {
+    double coeff = Ax[p];
+    if (ABS(coeff) <= 0.) continue;
+    int jech = Ai[p];
+
+    if (iech == jech)
+      *sk = coeff;
+    else
+      *yk -= coeff * zcur[jech];
+  }
 }

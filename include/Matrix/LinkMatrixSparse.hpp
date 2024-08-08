@@ -107,7 +107,7 @@ GSTLEARN_EXPORT int     _cs_findColor(const cs *Q,
 GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(const cs *C, const VectorInt& colors,
                                                       int ref_color, int row_ok, int col_ok);
 GSTLEARN_EXPORT VectorDouble csd_extract_diag_VD(const cs *C, int oper_choice = 1);
-GSTLEARN_EXPORT cs     *cs_prod_norm_diagonal(int mode, const cs *B, VectorDouble diag);
+GSTLEARN_EXPORT cs     *cs_prod_norm_diagonal(int mode, const cs *B, const VectorDouble& diag);
 GSTLEARN_EXPORT MatrixSparse* cs_arrays_to_sparse(int n,
                                                   int nrow,
                                                   int ncol,
@@ -123,20 +123,6 @@ GSTLEARN_EXPORT int     cs_lsolve_lowtri( const cs *L, const double *x, double *
 GSTLEARN_EXPORT int     cs_lsolve_uptri (const cs *L, const double *x, double *y);
 GSTLEARN_EXPORT cs     *cs_invert(const cs *A, int order, double epsilon = EPSILON6);
 
-// Multigrid operations
-GSTLEARN_EXPORT cs_MGS *cs_multigrid_manage(cs_MGS *mgs,int mode,
-                                            int nlevels, int path_type);
-GSTLEARN_EXPORT void    cs_multigrid_params(cs_MGS *mgs, int flag_cg,
-                                            int type_coarse, int ngc, int nmg, int ngs,
-                                            double tolgc, double tolnmg);
-GSTLEARN_EXPORT void    cs_multigrid_print(cs_MGS *mgs);
-GSTLEARN_EXPORT int     cs_multigrid_get_nlevels(cs_MGS *mgs);
-GSTLEARN_EXPORT int     cs_multigrid_setup(cs_MGS *mgs, QChol *Qctt,
-                                           int flag_sel, int verbose, double **sel);
-GSTLEARN_EXPORT int     cs_multigrid_process(cs_MGS *mgs, QChol *qctt, int verbose,
-                                             double *x, double *b, double *work);
-GSTLEARN_EXPORT void    cs_multigrid_coarse2fine(cs_MGS *mgs,double *z,double *work);
-
 // Qchol operations
 GSTLEARN_EXPORT int     qchol_cholesky(int verbose,QChol *QC);
 GSTLEARN_EXPORT void    cs_chol_invert(QChol *qctt,double *xcr,double *rhs, double *work);
@@ -147,7 +133,7 @@ GSTLEARN_EXPORT cs_MGS *cs_multigrid_manage(cs_MGS *mgs,int mode,
                                             int nlevels, int path_type);
 GSTLEARN_EXPORT void    cs_multigrid_params(cs_MGS *mgs, int flag_cg,
                                             int type_coarse, int ngc, int nmg, int ngs,
-                                            double tolgc, double tolnmg);
+                                            double tolcg, double tolnmg);
 GSTLEARN_EXPORT void    cs_multigrid_print(cs_MGS *mgs);
 GSTLEARN_EXPORT int     cs_multigrid_get_nlevels(cs_MGS *mgs);
 GSTLEARN_EXPORT int     cs_multigrid_setup(cs_MGS *mgs, QChol *Qctt,
@@ -181,13 +167,13 @@ GSTLEARN_EXPORT cs     *cs_multiply_and_release(cs *b1, const cs *b2,int flag_re
 GSTLEARN_EXPORT cs     *cs_add_and_release(cs *b1, const cs *b2, double alpha, double beta,
                                            int flag_rel);
 GSTLEARN_EXPORT cs     *cs_normalize_by_diag_and_release(cs *Q, int flag_rel);
-GSTLEARN_EXPORT cs     *cs_prod_norm(int mode, const cs *A, const cs *IhH);
+GSTLEARN_EXPORT cs     *cs_prod_norm(int mode, const cs *A, const cs *B);
 GSTLEARN_EXPORT cs     *cs_prod_norm_single(int mode, const cs *B);
 GSTLEARN_EXPORT cs     *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_rel);
 GSTLEARN_EXPORT int     cs_coarsening(const cs *Q,int type,int **indCo,cs **L);
-GSTLEARN_EXPORT cs     *cs_interpolate(const cs *AA,const cs *LL,int *indCo);
+GSTLEARN_EXPORT cs     *cs_interpolate(const cs *AA,const cs *Lt,const int *Co);
 GSTLEARN_EXPORT cs     *cs_triangle(cs *A, int flag_upper, int flag_diag);
-GSTLEARN_EXPORT int     cs_scale(const cs *C);
+GSTLEARN_EXPORT int     cs_scale(const cs *A);
 GSTLEARN_EXPORT int     cs_get_nrow(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncol(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncell(const cs *A);
@@ -202,5 +188,10 @@ GSTLEARN_EXPORT cs*     cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool s
 
 GSTLEARN_EXPORT void    cs_set_status_update_nonzero_value(int status = 2);
 GSTLEARN_EXPORT int     cs_get_status_update_nonzero_value();
+
+GSTLEARN_EXPORT void cs_gibbs(const cs* A,
+                              int iech,
+                              const VectorDouble& zcur,
+                              double* yk, double* sk);
 
 #endif // SWIG

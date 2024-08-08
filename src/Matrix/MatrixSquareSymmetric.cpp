@@ -167,6 +167,7 @@ int MatrixSquareSymmetric::_invert()
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
   return (icol <= irow);
+  return (icol <= irow);
 }
 
 /**
@@ -443,7 +444,7 @@ double MatrixSquareSymmetric::getCholeskyTL(int i, int j) const
 {
   if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
   int neq = getNRows();
-  return (i > j) ? _TL(i,j) : 0.;
+  return (i >= j) ? _TL(i,j) : 0.;
 }
 
 VectorDouble MatrixSquareSymmetric::getCholeskyXL() const
@@ -456,7 +457,7 @@ double MatrixSquareSymmetric::getCholeskyXL(int i, int j) const
 {
   if (!_checkCholeskyAlreadyPerformed(2)) return TEST;
   int neq = getNRows();
-  return (i > j) ? _XL(i, j) : 0.;
+  return (i >= j) ? _XL(i, j) : 0.;
 }
 
 /*****************************************************************************/

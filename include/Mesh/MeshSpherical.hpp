@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"

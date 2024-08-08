@@ -514,7 +514,8 @@ DbGrid* DbGrid::createFromGridShrink(const DbGrid &gridIn,
     }
   }
   VectorInt ranks = deletedRanks;
-  (void) std::unique(ranks.begin(), ranks.end());
+  auto last = std::unique(ranks.begin(), ranks.end());
+  ranks.erase(last, ranks.end());
   std::sort(ranks.begin(), ranks.end());
   std::reverse(ranks.begin(), ranks.end());
 
@@ -730,6 +731,11 @@ void DbGrid::resetDims(int ncol, int /*nech*/)
 {
   int nech = _grid.getNTotal();
   Db::resetDims(ncol, nech);
+}
+
+bool DbGrid::isConsistent() const
+{
+  return _grid.getNTotal() == getSampleNumber();
 }
 
 bool DbGrid::_deserialize(std::istream& is, bool verbose)

@@ -8,16 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * This test is meant to check the generation of random values
+ */
+
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/MathFunc.hpp"
-
-/**
- * This test is meant to check the generation of random values
- */
 
 void st_do_it(bool style, int seed)
 {

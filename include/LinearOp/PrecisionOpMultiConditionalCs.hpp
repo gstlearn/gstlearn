@@ -14,8 +14,6 @@
 
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
-#include <vector>
-
 class PrecisionOp;
 class IProjMatrix;
 
