@@ -1691,15 +1691,7 @@ static void st_gibbs(int igrf,
     for (int iech = 0; iech < nout; iech++)
     {
       mat.gibbs(iech, zcurVD, &yk, &sk);
-<<<<<<< HEAD
-<<<<<<< HEAD
       zcurVD[iech] = st_simu_constraints(dbout, igrf, iech - 1, iter0, ngibbs_burn, yk, sk);
-=======
-      zcur[iech] = st_simu_constraints(dbout, igrf, iech - 1, iter0, ngibbs_burn, yk, sk);
->>>>>>> 9ba2589c (Suppressing ref to csparse)
-=======
-      zcurVD[iech] = st_simu_constraints(dbout, igrf, iech - 1, iter0, ngibbs_burn, yk, sk);
->>>>>>> ab774cda (Suppressing csparse)
     }
   zcur = zcurVD.data();
 }
