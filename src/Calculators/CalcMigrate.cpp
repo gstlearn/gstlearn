@@ -14,6 +14,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"

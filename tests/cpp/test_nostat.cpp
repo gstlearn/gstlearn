@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "API/SPDE.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -22,14 +21,8 @@
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
 
 #define __USE_MATH_DEFINES
 #include <cmath>

@@ -14,7 +14,6 @@
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Simulation/SimuSubstitutionParam.hpp"
 #include "Simulation/CalcSimuSubstitution.hpp"
 

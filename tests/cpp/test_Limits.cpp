@@ -8,22 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
-
-#include "Enum/ECst.hpp"
-
-#include "Basic/OptCst.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Stats/PCA.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/

@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Space/ASpaceObject.hpp"
@@ -16,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
 
@@ -3701,10 +3701,10 @@ int db_grid_patch(DbGrid *ss_grid,
  *****************************************************************************/
 int db_name_identify(Db *db, const String &string)
 {
-  for (int iatt = 0; iatt < db->getUIDMaxNumber(); iatt++)
+  for (int iatt = 0, natt = db->getUIDMaxNumber(); iatt < natt; iatt++)
   {
     int icol = db->getColIdxByUID(iatt);
-    if (!string.compare(db->getNameByColIdx(icol))) return (iatt);
+    if (string != db->getNameByColIdx(icol)) return iatt;
   }
   return (-1);
 }

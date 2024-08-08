@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
 #include "Neigh/NeighUnique.hpp"

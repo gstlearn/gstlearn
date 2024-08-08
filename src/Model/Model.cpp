@@ -15,18 +15,17 @@
 #include "Enum/ECov.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Anamorphosis/AnamHermite.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/CovInternal.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
@@ -262,7 +261,7 @@ void Model::delAllCovas()
 void Model::setCovList(const ACovAnisoList* covalist)
 {
   if (covalist == nullptr) return;
-  if (_cova != nullptr) delete _cova;
+  delete _cova;
   _cova = dynamic_cast<ACov*>(covalist->clone());
 }
 
@@ -359,7 +358,6 @@ void Model::addCovFromParam(const ECov& type,
   if (! angles.empty())
     cov.setAnisoAngles(angles);
   addCov(&cov);
-  return;
 }
 
 /**
@@ -371,7 +369,7 @@ void Model::addCovFromParam(const ECov& type,
 void Model::setDriftList(const DriftList* driftlist)
 {
   if (driftlist == nullptr) return;
-  if (_driftList != nullptr) delete _driftList;
+  delete _driftList;
   _driftList = driftlist->clone();
 
   // Check that the DriftList has the same type of CovContext as the Model
@@ -392,7 +390,7 @@ void Model::setDriftList(const DriftList* driftlist)
  */
 void Model::setDriftIRF(int order, int nfex)
 {
-  if (_driftList != nullptr) delete _driftList;
+  delete _driftList;
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
 }
 
@@ -467,7 +465,7 @@ const ECov& Model::getCovaType(int icov) const
   if (covalist == nullptr) return ECov::UNKNOWN;
   return covalist->getType(icov);
 }
-const MatrixSquareSymmetric Model::getSillValues(int icov) const
+MatrixSquareSymmetric Model::getSillValues(int icov) const
 {
   if (_cova == nullptr) return MatrixSquareSymmetric();
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
@@ -544,7 +542,7 @@ void Model::setRangeIsotropic(int icov, double range)
   if (covalist == nullptr) return;
   covalist->setRangeIsotropic(icov, range);
 }
-void Model::setMarkovCoeffs(int icov, VectorDouble coeffs)
+void Model::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 {
   if (_cova == nullptr) return;
   ACovAnisoList* covalist = _castInCovAnisoList(icov);
@@ -698,8 +696,7 @@ double Model::evalCov(const VectorDouble &incr,
 
   if (member != ECalcMember::LHS && isCovaFiltered(icov))
     return (0.);
-  else
-    return getCova(icov)->evalIvarIpas(1., incr);
+  return getCova(icov)->evalIvarIpas(1., incr);
 }
 
 /**
@@ -793,30 +790,27 @@ void Model::setTapeRange(double range)
 
 int Model::unsetAnam()
 {
-  if (! hasAnam())
+  if (!hasAnam())
   {
     // ACovAnisoList does not have any Anam: do nothing
     return 0;
   }
-  else
+  CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
+  if (cov == nullptr)
   {
-    CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
-    if (cov == nullptr)
-    {
-      messerr("Impossible to unset 'anam' from the covariance part of the Model");
-      messerr("The original covariance is probably not valid");
-      return 1;
-    }
-
-    // Initiate a new CovLMC class
-    CovLMC* newcov = new CovLMC(*cov);
-
-    // Delete the current ACovAnisoList structure
-    delete _cova;
-
-    // Replace it by the newly create one (CovLMC)
-    _cova = newcov;
+    messerr("Impossible to unset 'anam' from the covariance part of the Model");
+    messerr("The original covariance is probably not valid");
+    return 1;
   }
+
+  // Initiate a new CovLMC class
+  CovLMC* newcov = new CovLMC(*cov);
+
+  // Delete the current ACovAnisoList structure
+  delete _cova;
+
+  // Replace it by the newly create one (CovLMC)
+  _cova = newcov;
   return 0;
 }
 
@@ -899,12 +893,11 @@ CovParamId Model::getCovParamId(int ipar) const
  ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-bool Model::isNostatParamDefined(const EConsElem &type0)
+bool Model::isNostatParamDefined(const EConsElem &type0) const
 {
   if (! isNoStat()) return true;
   const ANoStat *nostat = getNoStat();
-  if (nostat->isDefinedByType(type0)) return true;
-  return false;
+  return (nostat->isDefinedByType(type0));
 }
 
 const DriftList* Model::getDriftList() const
@@ -1099,8 +1092,8 @@ VectorDouble Model::envelop(const VectorDouble &hh,
 int Model::fitFromCovIndices(Vario *vario,
                              const VectorECov &types,
                              const Constraints &constraints,
-                             Option_VarioFit optvar,
-                             Option_AutoFit mauto,
+                             const Option_VarioFit& optvar,
+                             const Option_AutoFit& mauto,
                              bool verbose)
 {
   if (vario == nullptr) return 1;
@@ -1136,11 +1129,11 @@ int Model::fitFromCovIndices(Vario *vario,
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fit(Vario *vario,
-               const VectorECov &types,
-               const Constraints &constraints,
-               Option_VarioFit optvar,
-               Option_AutoFit mauto,
+int Model::fit(Vario* vario,
+               const VectorECov& types,
+               const Constraints& constraints,
+               const Option_VarioFit& optvar,
+               const Option_AutoFit& mauto,
                bool verbose)
 {
   if (vario == nullptr) return 1;
@@ -1172,11 +1165,11 @@ int Model::fit(Vario *vario,
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fitFromVMap(DbGrid *dbmap,
-                       const VectorECov &types,
-                       const Constraints &constraints,
-                       Option_VarioFit optvar,
-                       Option_AutoFit mauto,
+int Model::fitFromVMap(DbGrid* dbmap,
+                       const VectorECov& types,
+                       const Constraints& constraints,
+                       const Option_VarioFit& optvar,
+                       const Option_AutoFit& mauto,
                        bool verbose)
 {
   if (dbmap == nullptr) return 1;
@@ -1596,16 +1589,13 @@ void Model::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
     message(" = %5.2lf\n", gof);
     return;
   }
-  else
+  int nclass = (int)thresholds.size();
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
-    int nclass = (int) thresholds.size();
-    for (int iclass = 0; iclass < nclass; iclass++)
+    if (gof < thresholds[iclass])
     {
-      if (gof < thresholds[iclass])
-      {
-        message(" corresponds to level #%d (1 for very good)\n", iclass+1);
-        return;
-      }
+      message(" corresponds to level #%d (1 for very good)\n", iclass + 1);
+      return;
     }
   }
 }
@@ -1650,8 +1640,7 @@ bool Model::isFlagGradientNumerical() const
   const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
   const CovGradientNumerical* cova = dynamic_cast<const CovGradientNumerical*>(covalist->getCova(0));
-  if (cova != nullptr) return true;
-  return false;
+  return (cova != nullptr);
 }
 
 bool Model::isFlagGradientFunctional() const
@@ -1662,8 +1651,7 @@ bool Model::isFlagGradientFunctional() const
   const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
   const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCova(0));
-  if (cova != nullptr) return true;
-  return false;
+  return (cova != nullptr);
 }
 
 /****************************************************************************/
@@ -1687,13 +1675,10 @@ double Model::evalDriftVarCoef(const Db *db,
     double mean = getMean(ivar);
     return mean;
   }
-  else
-  {
-    double drift = 0.;
-    for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
-      drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
-    return drift;
-  }
+  double drift = 0.;
+  for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
+    drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
+  return drift;
 }
 
 /**
@@ -1854,7 +1839,7 @@ CovAniso Model::extractCova(int icov) const
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv)
+int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) const
 {
   if (dbgrid == nullptr) return 1;
 
@@ -2147,7 +2132,6 @@ void Model::evaluateMatInPlace(const CovInternal *covint,
       else
         covtab.updValue(ivar,jvar, EOperator::ADD, value);
       }
-  return;
 }
 
 /*****************************************************************************/

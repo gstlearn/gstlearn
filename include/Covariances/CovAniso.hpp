@@ -23,8 +23,6 @@
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
 
-#include <vector>
-
 class Rotation;
 class MatrixSquareGeneral;
 class MatrixRectangular;
@@ -192,10 +190,10 @@ public:
   bool   getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
-  const VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
+  VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
   const MatrixSquareGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
   const MatrixSquareGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
-  const VectorDouble getAnisoCoeffs() const;
+  VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
@@ -228,9 +226,9 @@ public:
                                   int degree = 50,
                                   bool flagScaleDistance = false,
                                   const CovCalcMode* mode = nullptr) const;
-  Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
+  Array evalCovFFT(const VectorDouble& hmax, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
-  void setMarkovCoeffs(VectorDouble coeffs);
+  void setMarkovCoeffs(const VectorDouble& coeffs);
 
   void setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
   void computeMarkovCoeffs();

@@ -30,14 +30,14 @@ Column = 2 - Name = x-2 - Locator = x2----
 #NO_DIFF#XXX
 ----
 
+Turbo Meshing
+=============
+
 Grid characteristics:
 ---------------------
 Origin :      0.000     0.000
 Mesh   :      5.000     5.000
 Number :         31        21
- 
-Turbo Meshing
-=============
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -48,26 +48,26 @@ Bounding Box Extension
 ----------------------
 Dim #1 - Min:0 - Max:150
 Dim #2 - Min:0 - Max:100
- ----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+
+Turbo Meshing
+=============
 
 Grid characteristics:
 ---------------------
 Origin :      0.648     3.385
 Mesh   :      2.892     1.928
 Number :         50        50
- 
-Turbo Meshing
-=============
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -91,26 +91,26 @@ Grid Masking Indexing
 - Number of absolute positions = 2500
 - Number of active positions   = 1830
 
- ----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+
+Turbo Meshing
+=============
 
 Grid characteristics:
 ---------------------
 Origin :      0.648     3.385
 Mesh   :      2.892     1.928
 Number :         50        50
- 
-Turbo Meshing
-=============
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -134,20 +134,20 @@ Grid Masking Indexing
 - Number of absolute positions = 2500
 - Number of active positions   = 1830
 
- ----
+----
 
 
 #NO_DIFF#XXX
 ----
+
+Turbo Meshing
+=============
 
 Grid characteristics:
 ---------------------
 Origin :      0.648     3.385
 Mesh   :      2.892     1.928
 Number :         50        50
- 
-Turbo Meshing
-=============
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -171,7 +171,7 @@ Grid Masking Indexing
 - Number of absolute positions = 2500
 - Number of active positions   = 1830
 
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -207,7 +207,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -235,11 +235,15 @@ Cubic
      [  1,]     0.500     0.866
 Total Sill     =      1.000
 Known Mean(s)     0.000
- ----
+----
 
 
 #NO_DIFF#XXX
 ----
+
+Turbo Meshing
+=============
+Diamond construction is activated
 
 Grid characteristics:
 ---------------------
@@ -255,10 +259,6 @@ Inverse Rotation Matrix
                [,  0]    [,  1]
      [  0,]     0.866     0.500
      [  1,]    -0.500     0.866
- 
-Turbo Meshing
-=============
-Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -269,7 +269,7 @@ Bounding Box Extension
 ----------------------
 Dim #1 - Min:12.2013 - Max:32.2013
 Dim #2 - Min:8.76696 - Max:20.767
- ----
+----
 
 
 #NO_DIFF#XXX

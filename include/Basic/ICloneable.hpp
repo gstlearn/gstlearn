@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include <typeinfo>
 #include <assert.h>
 
 /**

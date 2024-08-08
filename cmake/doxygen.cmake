@@ -41,6 +41,8 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 #set(DOXYGEN_UML_LOOK YES)
 #set(DOXYGEN_TEMPLATE_RELATIONS YES)
 
+set(DOXYGEN_USE_MATHJAX YES)
+
 # https://stackoverflow.com/questions/25290453/how-do-i-add-a-footnote-in-doxygen
 set(DOXYGEN_ALIASES tooltip{1}=\"\\latexonly\\footnote\\{\\1\\}\\endlatexonly\\htmlonly<sup title=\'\\1\'>*</sup>\\endhtmlonly\")
 

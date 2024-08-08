@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ACovFunc.hpp"
 

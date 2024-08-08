@@ -104,6 +104,8 @@ public:
 
   const MatrixSparse& getMatArcs() const { return _downArcs; }
 
+  void setArcLine(const VectorInt& nodes, double value = 1.);
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

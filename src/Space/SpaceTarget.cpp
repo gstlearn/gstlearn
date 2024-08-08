@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Space/SpaceTarget.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 
@@ -69,7 +68,7 @@ void SpaceTarget::_initialize()
 {
   // Fill the extension with zeroes
   if (_extend.empty())
-    VH::fill(_extend, getNDim(), 0.);
+    VH::fill(_extend, 0., getNDim());
 }
 
 String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const

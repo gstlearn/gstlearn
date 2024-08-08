@@ -14,16 +14,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Basic/VectorT.hpp"
-#include "Basic/VectorNumT.hpp"
-#include "Basic/RepeatMacro.hpp"
+// Following includes should not be delete ... even if they seem unused directly
 #include "Basic/String.hpp"
-
 #include <iostream>
-#include <string>
-#include <iomanip>
 #include <map>
-#include <vector>
 
 class GSTLEARN_EXPORT AEnum
 {

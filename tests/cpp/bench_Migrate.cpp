@@ -10,11 +10,9 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -170,10 +168,10 @@ int main(int argc, char *argv[])
     grid->display();
   }
 
-  if (data     != nullptr) delete data;
-  if (grid     != nullptr) delete grid;
-  if (model    != nullptr) delete model;
-  if (neigh    != nullptr) delete neigh;
+  delete data;
+  delete grid;
+  delete model;
+  delete neigh;
 
   return (0);
 }

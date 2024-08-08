@@ -1076,8 +1076,8 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
 
 void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
 {
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
-                 vec.size(), 1, false)) return;
+  if (!_checkLink(getNRows(), getNCols(), transpose, a.getNRows(), a.getNCols(),
+                  false, vec.size(), 1, false)) return;
 
   if (isFlagEigen() && a.isFlagEigen())
   {
@@ -1547,4 +1547,35 @@ void setGlobalFlagEigen(bool flagEigen)
 bool isGlobalFlagEigen()
 {
   return globalFlagEigen;
+}
+
+void MatrixSparse::gibbs(int iech,
+                         const VectorDouble& zcur,
+                         double* yk,
+                         double* sk)
+{
+  if (isFlagEigen())
+  {
+    *yk = 0.;
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, iech); it;
+         ++it)
+    {
+      double coeff = it.valueRef();
+      if (ABS(coeff) <= 0.) continue;
+      int jech = it.row();
+
+      if (iech == jech)
+        *sk = coeff;
+      else
+        *yk -= coeff * zcur[jech];
+    }
+  }
+  else
+  {
+    cs_gibbs(_csMatrix, iech, zcur, yk, sk);
+  }
+
+  // Returned arguments
+  (*yk) /= (*sk);
+  (*sk) = sqrt(1. / (*sk));
 }

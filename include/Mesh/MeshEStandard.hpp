@@ -20,7 +20,7 @@
 class MeshETurbo;
 
 /**
- * Meshing defined in the Euclidean space
+ * Standard Meshing defined in the Euclidean space
  */
 class GSTLEARN_EXPORT MeshEStandard: public AMesh
 {

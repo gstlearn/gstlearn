@@ -27,8 +27,6 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Covariances/CovLMC.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"

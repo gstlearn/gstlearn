@@ -52,8 +52,7 @@ ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
   {
     AStringable::operator=(r);
     // Delete the previous space
-    if (nullptr != _space)
-      delete _space;
+    delete _space;
     // Clone the space of the object to be copied
     _space = dynamic_cast<const ASpace*>(r._space->clone());
   }
@@ -142,10 +141,9 @@ void ASpaceObject::setNDim(int ndim)
  * @param param Optional space parameter (ex: radius of the sphere)
  * @param addtime Optional add time dimension (composit space)
  */
-void defineDefaultSpace(ESpaceType type, unsigned int ndim, double param, bool addtime)
+void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param, bool addtime)
 {
-  if (nullptr != defaultSpace)
-    delete defaultSpace;
+  delete defaultSpace;
 
   switch (type.getValue())
   {

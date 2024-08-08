@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "geoslib_d.h"
 
 #include "Enum/ECalcVario.hpp"
 
