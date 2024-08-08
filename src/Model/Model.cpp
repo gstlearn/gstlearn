@@ -465,7 +465,7 @@ const ECov& Model::getCovaType(int icov) const
   if (covalist == nullptr) return ECov::UNKNOWN;
   return covalist->getType(icov);
 }
-MatrixSquareSymmetric Model::getSillValues(int icov) const
+const MatrixSquareSymmetric& Model::getSillValues(int icov) const
 {
   if (_cova == nullptr) return MatrixSquareSymmetric();
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);

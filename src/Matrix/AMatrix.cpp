@@ -1355,19 +1355,27 @@ void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
 }
 
 void AMatrix::linearCombination(double val1,
-                                const AMatrix *mat1,
+                                const AMatrix* mat1,
                                 double val2,
-                                const AMatrix *mat2)
+                                const AMatrix* mat2,
+                                double val3,
+                                const AMatrix* mat3)
 {
   // Check dimensions
   if (mat1 != nullptr && ! isSameSize(*mat1))
   {
-    messerr("Dimensions of 'in1' do not match dimensions of current matrix. Nothing is done");
+    messerr("Dimensions of 'mat1' do not match dimensions of current matrix. Nothing is done");
     return;
   }
   if (mat2 != nullptr && ! isSameSize(*mat2))
   {
-    messerr("Dimensions of 'in2' do not match dimensions of current matrix. Nothing is done");
+    messerr("Dimensions of 'mat2' do not match dimensions of current matrix. Nothing is done");
+    return;
+  }
+  if (mat3 != nullptr && !isSameSize(*mat3))
+  {
+    messerr("Dimensions of 'mat3' do not match dimensions of current matrix. "
+            "Nothing is done");
     return;
   }
 
@@ -1378,6 +1386,7 @@ void AMatrix::linearCombination(double val1,
       double value = 0;
       if (mat1 != nullptr) value += val1 * mat1->getValue(irow, icol);
       if (mat2 != nullptr) value += val2 * mat2->getValue(irow, icol);
+      if (mat3 != nullptr) value += val3 * mat3->getValue(irow, icol);
       setValue(irow, icol, value);
     }
 }
