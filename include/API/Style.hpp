@@ -66,13 +66,12 @@
  * - Aliases (typedef): idem
  * - Class' methods: lower camel case (ie: loadData, getArmonicMean, isEmpty)
  * - Class' attributes (variables): idem
- * - Anything which is *private* or *protected* in a class starts with
- *   underscore (ie: _myMember)
+ * - Anything which is 'private' or 'protected' in a class starts with underscore (ie: _myMember)
  * - Local variables: lower case separated by underscore (i.e.: temp_value,
  *   color_idx)
  * - Methods visibility;
  *     Method _func() is internal to the class (private or protected)
- *     Method func_() is not exported via SWIG (using #ifndef SWIG)
+ *     Method func_() is not exported via SWIG (using ifndef SWIG)
  * - Use of "InPlace" suffix:
  *     It is used in methods that modify either a member of this class or a
  *     returned argument. Important remark. The member or agument must have been

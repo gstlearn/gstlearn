@@ -11,7 +11,6 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
 #include "Variogram/Vario.hpp"
@@ -21,8 +20,6 @@
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/

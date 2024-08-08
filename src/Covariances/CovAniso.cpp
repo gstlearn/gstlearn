@@ -27,6 +27,7 @@
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 #include <math.h>
 #include <functional>
@@ -395,9 +396,7 @@ bool CovAniso::isConsistent(const ASpace* space) const
 
   // Check against the space dimension
   unsigned int maxndim = _cova->getMaxNDim();
-  if ((maxndim > 0 && (maxndim < space->getNDim()))) return false;
-
-  return true;
+  return maxndim <= 0 || (maxndim >= space->getNDim());
 }
 
 /**
@@ -550,7 +549,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
     int nech1s = (int) index1[rvar1].size();
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      if (! (flagSym && irow > icol))
+      if (!flagSym || irow <= icol)
       {
         int iech1 = index1[rvar1][rech1];
         hoptim = _p2A.getDistance(_p1As[iech1]);
@@ -644,7 +643,7 @@ VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
   return vec;
 }
 
-void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
+void CovAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 {
   _cova->setMarkovCoeffs(coeffs);
   _computeCorrec();
@@ -869,8 +868,7 @@ double CovAniso::getRange() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getRange(0);
-  else
-    return VH::maximum(getRanges());
+  return VH::maximum(getRanges());
 }
 
 double CovAniso::getScale() const
@@ -878,11 +876,10 @@ double CovAniso::getScale() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getScale(0);
-  else
-    return VH::maximum(getScales());
+  return VH::maximum(getScales());
 }
 
-const VectorDouble CovAniso::getAnisoCoeffs() const
+VectorDouble CovAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
   double max = VH::maximum(coef);
@@ -904,8 +901,7 @@ double CovAniso::getParam() const
 {
   if (!hasParam())
     return 0.;
-  else
-    return _cova->getParam();
+  return _cova->getParam();
 }
 
 void CovAniso::_initFromContext()
@@ -1220,8 +1216,7 @@ bool CovAniso::isOptimizationInitialized(const Db* db) const
   if (_p1As.empty()) return false;
   if (db == nullptr) return true;
   int n = (int) _p1As.size();
-  if (n != db->getSampleNumber()) return false;
-  return true;
+  return n == db->getSampleNumber();
 }
 
 double scale2range(const ECov &type, double scale, double param)

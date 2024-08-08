@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
-#include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 
 /* Be careful ! This is not a real covariance */

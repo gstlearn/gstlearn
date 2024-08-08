@@ -13,14 +13,11 @@
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/DbGrid.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
 
 /****************************************************************************/

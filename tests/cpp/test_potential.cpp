@@ -21,12 +21,10 @@
 #include "Space/SpaceRN.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 
 /****************************************************************************/
 /*!
@@ -95,10 +93,10 @@ int main(int argc, char *argv[])
   (void) grid->dumpToNF("Grid2D.ascii");
 
   // ====================== Free pointers ==================================
-  if (dbiso != nullptr) delete dbiso;
-  if (dbgrd != nullptr) delete dbgrd;
-  if (dbtgt != nullptr) delete dbtgt;
-  if (grid  != nullptr) delete grid;
+  delete dbiso;
+  delete dbgrd;
+  delete dbtgt;
+  delete grid;
 
   //============================================================//
   // Exemple in 1-D
@@ -152,9 +150,9 @@ int main(int argc, char *argv[])
   (void) potential_xvalid(dbiso, dbgrd, nullptr, model, neighU,
                           0., 0., true, true);
 
-  if (dbiso != nullptr) delete dbiso;
-  if (dbgrd != nullptr) delete dbgrd;
-  if (grid  != nullptr) delete grid;
+  delete dbiso;
+  delete dbgrd;
+  delete grid;
 
   return (0);
 }

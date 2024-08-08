@@ -22,18 +22,17 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/CalcGlobal.hpp"
+
 
 static Db* createLocalDb(int nech, int ndim, int nvar, int seed)
 {
@@ -352,18 +351,18 @@ int main(int argc, char *argv[])
   grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================
-  if (neighM    != nullptr) delete neighM;
-  if (neighU    != nullptr) delete neighU;
-  if (neighI    != nullptr) delete neighI;
-  if (data      != nullptr) delete data;
-  if (data_res  != nullptr) delete data_res;
-  if (grid      != nullptr) delete grid;
-  if (grid_res  != nullptr) delete grid_res;
-  if (image     != nullptr) delete image;
-  if (image_res != nullptr) delete image_res;
-  if (model     != nullptr) delete model;
-  if (model_res != nullptr) delete model_res;
-  if (anam      != nullptr) delete anam;
+  delete neighM;
+  delete neighU;
+  delete neighI;
+  delete data;
+  delete data_res;
+  delete grid;
+  delete grid_res;
+  delete image;
+  delete image_res;
+  delete model;
+  delete model_res;
+  delete anam;
 
   return (0);
 }

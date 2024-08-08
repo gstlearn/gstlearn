@@ -26,9 +26,6 @@
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 
-#include <iostream>
-#include <fstream>
-
 /*********************/
 /* Program principal */
 /*********************/

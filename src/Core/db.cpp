@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Space/ASpaceObject.hpp"
@@ -16,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
 

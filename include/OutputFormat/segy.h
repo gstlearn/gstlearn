@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Db/DbGrid.hpp"
 
-#include "geoslib_d.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

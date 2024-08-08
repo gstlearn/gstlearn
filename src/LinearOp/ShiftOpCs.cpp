@@ -20,6 +20,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Timer.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/Model.hpp"
 #include "Space/SpaceSN.hpp"

@@ -8,15 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/Cholesky.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Utilities.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
 /****************************************************************************/

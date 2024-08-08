@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Drifts/DriftFactory.hpp"
@@ -17,7 +15,6 @@
 #include "Drifts/ADrift.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
@@ -29,18 +26,12 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Model/CovInternal.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/NF_Triplet.hpp"
 
 #include <math.h>
 
@@ -189,7 +180,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
  **
  *****************************************************************************/
 void model_covupdt(Model *model,
-                   double *c0,
+                   const double *c0,
                    int flag_verbose,
                    int *flag_nugget,
                    double *nugget)
@@ -321,7 +312,6 @@ void model_covupdt(Model *model,
   {
     message("A Nugget Effect component is added so as to match the experimental variance\n");
   }
-  return;
 }
 
 /****************************************************************************/
@@ -373,7 +363,6 @@ void model_cova_characteristics(const ECov &type,
   *scale = cov->getScadef();
   *parmax = cov->getParMax();
   delete cov;
-  return;
 }
 
 /****************************************************************************/
@@ -518,8 +507,8 @@ int model_covmat_inchol(int verbose,
                         double eta,
                         int npivot_max,
                         int nsize1,
-                        int *ranks1,
-                        double *center,
+                        const int *ranks1,
+                        const double *center,
                         int flag_sort,
                         int *npivot_arg,
                         int **Pret,

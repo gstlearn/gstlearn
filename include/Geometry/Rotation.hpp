@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "GeometryHelper.hpp"
-
 #include "geoslib_define.h"
 #include "Basic/AStringable.hpp"
 
