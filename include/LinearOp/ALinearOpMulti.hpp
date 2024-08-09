@@ -34,12 +34,15 @@ public:
   virtual int size(int) const = 0;
 
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
+  void setNIterRestart(int niterrestart) { _nIterRestart = niterrestart; }
   void setEps(double eps) { _eps = eps; }
   void setPrecond(const ALinearOpMulti* precond, int status);
 
   const LogStats& getLogStats() const { return _logStats; }
 
   void prepare() const;
+
+  void setUserInitialValue(bool b) { _userInitialValue = b; }
 
 protected:
   virtual void _evalDirect(const VectorVectorDouble &inv,
@@ -48,6 +51,7 @@ protected:
 
 private:
   int                       _nIterMax;
+  int                       _nIterRestart;
   double                    _eps;
   bool                      _precondStatus;
   bool                      _userInitialValue;
@@ -61,6 +65,7 @@ public:
   mutable VectorVectorDouble _temp;
   mutable VectorVectorDouble _p;
   mutable VectorVectorDouble _z;
+  mutable double _nb;
 
 protected:
   LogStats                   _logStats;
