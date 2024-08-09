@@ -20,6 +20,7 @@ set(SRC
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
+  Matrix/VectorEigen.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -168,11 +169,12 @@ set(SRC
   LinearOp/PrecisionOpCs.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
-  LinearOp/Identity.cpp
-  LinearOp/ProdMatVect.cpp
+  LinearOp/ALinearOp.cpp
+  LinearOp/ScaleOp.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
+  LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp

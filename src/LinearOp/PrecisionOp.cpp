@@ -12,7 +12,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Timer.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
@@ -63,7 +62,6 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int icov,
-                         const CGParam& params,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(model->getCova(icov))
@@ -76,7 +74,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work2()
   , _work3()
 {
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,params,verbose);
+  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
 
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
@@ -84,7 +82,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
 }
 
 PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
-  : _shiftOp(pmat._shiftOp)
+  : _shiftOp(nullptr)
   , _cova(pmat._cova)
   , _polynomials(pmat._polynomials)
   , _verbose(pmat._verbose)
@@ -95,13 +93,16 @@ PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
   , _work2(pmat._work2)
   , _work3(pmat._work3)
 {
+  if (_destroyShiftOp)
+    _shiftOp = new ShiftOpCs(*pmat._shiftOp);
+  else
+    _shiftOp = pmat._shiftOp;
 }
 
 PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
 {
   if (this != &pmat)
   {
-    _shiftOp = pmat._shiftOp;
     _cova = pmat._cova;
     _polynomials = pmat._polynomials;
     _verbose = pmat._verbose;
@@ -111,6 +112,11 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
     _work = pmat._work;
     _work2 = pmat._work2;
     _work3 = pmat._work3;
+
+    if (_destroyShiftOp)
+      _shiftOp = new ShiftOpCs(*pmat._shiftOp);
+    else
+      _shiftOp = pmat._shiftOp;
   }
   return *this;
 }
@@ -141,10 +147,10 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
   return new PrecisionOp(shiftop, cova, verbose);
 }
 
-PrecisionOp* PrecisionOp::create(const AMesh *mesh,
-                           Model *model,
-                           int icov,
-                           bool verbose)
+PrecisionOp* PrecisionOp::create(const AMesh* mesh,
+                                 Model* model,
+                                 int icov,
+                                 bool verbose)
 {
   return new PrecisionOp(mesh, model, icov, verbose);
 }
@@ -152,15 +158,15 @@ PrecisionOp* PrecisionOp::create(const AMesh *mesh,
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
 {
   // Polynomial already exists. Nothing to be done
-  if (_polynomials.count(power) && !force) return 0;
+  if (_polynomials.count(power) > 0 && !force) return 0;
 
   // Prepare Polynomial for EPowerPT::ONE
-  if (_preparePrecisionPoly() && !force) return 1;
+  if (_preparePrecisionPoly() != 0 && !force) return 1;
 
   // Prepare polynomials for other powers than 1
   if (power != EPowerPT::ONE)
   {
-    if (_prepareChebychev(power)) return 1;
+    if (_prepareChebychev(power) != 0) return 1;
   }
   return 0;
 }
@@ -232,7 +238,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu,int seed)
     {
       e = law_gaussian();
     }
-    if (_evalPoly(EPowerPT::LOG, gauss, result)) return TEST;
+    if (_evalPoly(EPowerPT::LOG, gauss, result) != 0) return TEST;
 
     for (int i = 0; i < getSize(); i++)
     {
@@ -290,11 +296,7 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
  */
 void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
-  Timer time;
-
   evalPower(vecin, vecout, EPowerPT::ONE);
-
-  getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
 void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const EPowerPT& power)
@@ -312,7 +314,7 @@ void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const E
 
   // Polynomial evaluation
 
-  if (_evalPoly(power,*inPtr,outv))
+  if (_evalPoly(power,*inPtr,outv) != 0)
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing
@@ -331,7 +333,7 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
                            const VectorDouble& inv,
                            VectorDouble& outv)
 {
-  if (_preparePoly(power)) return 1;
+  if (_preparePoly(power) != 0) return 1;
   if(getTraining())
   {
     int degree = _polynomials[power]->getDegree();
@@ -362,13 +364,9 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 
 void PrecisionOp::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
 {
-  Timer time;
-
   _shiftOp->prodLambda(vecin,vecout,EPowerPT::MINUSONE);
   _evalPoly(EPowerPT::MINUSONE, vecout, vecin);
   _shiftOp->prodLambda(vecin, vecout, EPowerPT::MINUSONE);
-
-  getLogStats().incrementStatsInversePoly(time.getIntervalSeconds());
 }
 
 VectorDouble PrecisionOp::evalCov(int imesh)
@@ -388,13 +386,8 @@ VectorDouble PrecisionOp::evalCov(int imesh)
 
 void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
 {
-
-  Timer time;
-
   _evalPoly(EPowerPT::MINUSHALF, whitenoise, vecout);
   _shiftOp->prodLambda(vecout, vecout, EPowerPT::MINUSONE);
-
-  getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
 }
 
 VectorVectorDouble PrecisionOp::simulate(int nbsimu)
@@ -430,8 +423,6 @@ int PrecisionOp::_preparePrecisionPoly()
 
   _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(_cova->getMarkovCoeffs());
 
-  if (_polynomials.count(EPowerPT::ONE)) return 0;
-
   return 0;
 }
 
@@ -460,15 +451,15 @@ std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
     rangeVals.second = MAX(val,rangeVals.first);
   }
 
-  rangeVals.first  = rangeVals.first/sill;
-  rangeVals.second = rangeVals.second/sill;
+  rangeVals.first  = rangeVals.first  / sill;
+  rangeVals.second = rangeVals.second / sill;
 
   return rangeVals;
 }
 
 APolynomial* PrecisionOp::getPoly(const EPowerPT& power)
 {
-  if (_preparePoly(power))
+  if (_preparePoly(power) != 0)
     my_throw("Problem in function getPoly");
   return _polynomials[power];
 }

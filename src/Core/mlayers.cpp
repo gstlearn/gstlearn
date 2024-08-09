@@ -156,8 +156,7 @@ static LMlayers* lmlayers_alloc(int flag_same,
   lmlayers->colreft = colreft;
   lmlayers->colrefb = colrefb;
   lmlayers->match_time = match_time;
-  lmlayers->ptime = (match_time) ? ELoc::F :
-                                   ELoc::TIME;
+  lmlayers->ptime = (match_time) ? ELoc::F : ELoc::TIME;
   lmlayers->nlayers = nlayers;
   lmlayers->nbfl = st_get_number_drift(irf_rank, flag_ext);
   lmlayers->nech = 0;
@@ -2086,8 +2085,7 @@ int multilayers_kriging(Db* dbin,
     goto label_end;
   }
   if (prior_mean == nullptr || prior_vars == nullptr) flag_bayes = 0;
-  if (flag_bayes && dim_prior
-      != st_get_number_drift(irf_rank, flag_ext) * nlayers)
+  if (flag_bayes && dim_prior != st_get_number_drift(irf_rank, flag_ext) * nlayers)
   {
     messerr("The dimension of the Prior information (%d)", dim_prior);
     messerr("must be equal to %d (nlayers) x %d (nbfl)", nlayers,

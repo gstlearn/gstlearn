@@ -163,7 +163,7 @@ Model* Model::createFromParam(const ECov& type,
 Model* Model::createFromDb(const Db* db)
 {
   Model* model = new Model();
-  if (model->resetFromDb(db))
+  if (model->resetFromDb(db) != 0)
   {
     messerr("Problem when creating Model from Db");
     delete model;
@@ -465,11 +465,11 @@ const ECov& Model::getCovaType(int icov) const
   if (covalist == nullptr) return ECov::UNKNOWN;
   return covalist->getType(icov);
 }
-MatrixSquareSymmetric Model::getSillValues(int icov) const
+const MatrixSquareSymmetric& Model::getSillValues(int icov) const
 {
-  if (_cova == nullptr) return MatrixSquareSymmetric();
+  if (_cova == nullptr) return _dummy;
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return MatrixSquareSymmetric();
+  if (covalist == nullptr) return _dummy;
   return covalist->getSill(icov);
 }
 double Model::getSill(int icov, int ivar, int jvar) const
@@ -795,13 +795,13 @@ int Model::unsetAnam()
     // ACovAnisoList does not have any Anam: do nothing
     return 0;
   }
-  CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
-  if (cov == nullptr)
-  {
-    messerr("Impossible to unset 'anam' from the covariance part of the Model");
-    messerr("The original covariance is probably not valid");
-    return 1;
-  }
+    CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
+    if (cov == nullptr)
+    {
+      messerr("Impossible to unset 'anam' from the covariance part of the Model");
+      messerr("The original covariance is probably not valid");
+      return 1;
+    }
 
   // Initiate a new CovLMC class
   CovLMC* newcov = new CovLMC(*cov);
@@ -809,8 +809,8 @@ int Model::unsetAnam()
   // Delete the current ACovAnisoList structure
   delete _cova;
 
-  // Replace it by the newly create one (CovLMC)
-  _cova = newcov;
+    // Replace it by the newly create one (CovLMC)
+    _cova = newcov;
   return 0;
 }
 
@@ -1234,7 +1234,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordRead<double>(is, "Model third Parameter", param);
     ret = ret && _recordRead(is, "Flag for Anisotropy", flag_aniso);
     if (! ret) return ret;
-    if (flag_aniso)
+    if (flag_aniso != 0)
     {
       aniso_ranges.resize(ndim);
       // In fact, the file contains the anisotropy coefficients
@@ -1247,7 +1247,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
       ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
       if (! ret) return ret;
-      if (flag_rotation)
+      if (flag_rotation != 0)
       {
         // Warning: the storage in the File is performed by column
         // whereas the internal storage is by column (TODO : ???)
@@ -1262,10 +1262,10 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
     CovAniso cova(ECov::fromValue(type), _ctxt);
     cova.setParam(param);
-    if (flag_aniso)
+    if (flag_aniso != 0)
     {
       cova.setRanges(aniso_ranges);
-      if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
+      if (flag_rotation != 0) cova.setAnisoRotation(aniso_rotmat);
     }
     else
       cova.setRangeIsotropic(range);
@@ -1346,14 +1346,14 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
     // Writing the Anisotropy information
 
-    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", cova->getFlagAniso());
+    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", (int) cova->getFlagAniso());
 
     if (!cova->getFlagAniso()) continue;
 
     for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
       ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeffs(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
-    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", cova->getFlagRotation());
+    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int) cova->getFlagRotation());
 
     if (!cova->getFlagRotation()) continue;
 
@@ -2239,7 +2239,7 @@ double Model::calculateStdev(Db *db1,
 
   /* Covariance at increment */
 
-  if (db1->getDistanceVec(iech1, iech2, dd, db2)) return TEST;
+  if (db1->getDistanceVecInPlace(iech1, iech2, dd, db2) != 0) return TEST;
   double cov = evaluateOneGeneric(nullptr, dd, 1., mode);
   double stdev = factor * sqrt(c00 - cov);
 
@@ -2310,7 +2310,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
-  if (cov.computeCholesky())
+  if (cov.computeCholesky() != 0)
   {
     messerr("Cholesky decomposition of Covariance matrix failed");
     return TEST;
@@ -2321,7 +2321,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate Cm1X = Cm1 * X
   MatrixRectangular Cm1X;
-  if (cov.solveCholeskyMat(X, Cm1X))
+  if (cov.solveCholeskyMat(X, Cm1X) != 0)
   {
     messerr("Problem when solving a Linear System after Cholesky decomposition");
     return TEST;
@@ -2335,7 +2335,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
   VectorDouble ZCm1X = Cm1X.prodVecMat(Z);
-  if (XCm1X->computeCholesky())
+  if (XCm1X->computeCholesky() != 0)
   {
     messerr("Cholesky decomposition of XCm1X matrix failed");
     delete XCm1X;
@@ -2344,7 +2344,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate beta = (XCm1X)-1 * ZCm1X
   VectorDouble beta;
-  if (XCm1X->solveCholesky(ZCm1X, beta))
+  if (XCm1X->solveCholesky(ZCm1X, beta) != 0)
   {
     messerr("Error when calculating Maximum Likelihood criterion");
     delete XCm1X;
@@ -2363,7 +2363,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Calculate Cm1Zc = Cm1 * Z
   VectorDouble Cm1Zc;
-  if (cov.solveCholesky(Z, Cm1Zc))
+  if (cov.solveCholesky(Z, Cm1Zc) != 0)
   {
     messerr("Error when calculating Cm1Zc");
     return TEST;

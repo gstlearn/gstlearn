@@ -541,7 +541,7 @@ GSTLEARN_EXPORT void set_grid_value(DbGrid *dbgrid,
                                     int iz,
                                     double value);
 GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType);
-GSTLEARN_EXPORT int exist_LOCATOR(Db *db, const ELoc& locatorType);
+GSTLEARN_EXPORT bool exist_LOCATOR(Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT double get_LOCATOR_ITEM(Db *db,
                                         const ELoc& locatorType,
                                         int locatorIndex,

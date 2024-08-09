@@ -8,33 +8,27 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <LinearOp/ProdMatVect.hpp>
+#include "LinearOp/ScaleOp.hpp"
 
-ProdMatVect::ProdMatVect(int nx, int ny, double *A)
-    :
-    ALinearOp(),
-    _nx(nx),
-    _ny(ny),
-    _A(A)
+ScaleOp::ScaleOp(int n, double scale) :
+  _n(n), _scale(scale)
 {
 }
 
-ProdMatVect::~ProdMatVect()
+ScaleOp::~ScaleOp() {}
+
+/*****************************************************************************/
+/*!
+**  Evaluate the product (by the ScaleOp) : 'outv' = I * 'inv' = 'inv'
+**
+** \param[in]  inv     Array of input values
+**
+** \param[out] outv    Array of output values
+**
+*****************************************************************************/
+void ScaleOp::_evalDirect(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const
 {
+  for (int i = 0, n = _n; i < n; i++)
+    outv[i] = _scale*inv[i];
 }
-
-void ProdMatVect::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
-{
-  double s = 0;
-  for (int j = 0; j < _ny; j++)
-    outv[j] = 0;
-
-  for (int i = 0, nx = _nx; i < nx; i++)
-  {
-    s = 0;
-    for (int j = 0; j < _ny; j++)
-      s += _A[i + _ny * j] * inv[j];
-    outv[i] = s;
-  }
-}
-

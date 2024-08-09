@@ -33,7 +33,6 @@ public:
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
-              const CGParam& params = CGParam(),
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -50,8 +49,8 @@ public:
   static PrecisionOp* createFromShiftOp(ShiftOpCs *shiftop = nullptr,
                                         const CovAniso *cova = nullptr,
                                         bool verbose = false);
-  static PrecisionOp* create(const AMesh *mesh,
-                             Model *model,
+  static PrecisionOp* create(const AMesh* mesh,
+                             Model* model,
                              int icov = 0,
                              bool verbose = false);
 
@@ -104,12 +103,6 @@ public:
   bool isCovaDefined() const { return _cova != nullptr; }
   VectorDouble getCoeffs();
 
-  void mustShowStats(bool status) const
-  {
-    _shiftOp->mustShowStats(status);
-  }
-  const LogStats& getLogStats() const { return getShiftOp()->getLogStats(); }
-
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
@@ -123,7 +116,7 @@ private:
 
 private:
   mutable ShiftOpCs*               _shiftOp;
-  const CovAniso*                  _cova;
+  const CovAniso*                  _cova; // Not to be deleted
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
   bool                             _training;

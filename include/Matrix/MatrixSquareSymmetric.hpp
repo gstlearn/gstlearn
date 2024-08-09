@@ -27,7 +27,7 @@ public:
   MatrixSquareSymmetric(int nrow = 0);
   MatrixSquareSymmetric(const MatrixSquareSymmetric &r);
   MatrixSquareSymmetric(const AMatrix &m);
-  MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
+  MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &m);
 	virtual ~MatrixSquareSymmetric();
 
   /// Has a specific implementation in the Target language
@@ -82,14 +82,18 @@ public:
   int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
   int solveCholesky(const VectorDouble& b, VectorDouble& x);
   VectorDouble getCholeskyTL() const;
+  double getCholeskyTL(int i, int j) const;
   VectorDouble getCholeskyXL() const;
+  double getCholeskyXL(int i, int j) const;
   static MatrixRectangular productCholeskyInPlace(int mode,
                                                   int neq,
                                                   int nrhs,
-                                                  const VectorDouble& tl,
-                                                  const MatrixRectangular& a);
-  static MatrixSquareSymmetric normCholeskyInPlace(
-    int mode, int neq, const VectorDouble& tl, const MatrixSquareSymmetric& a);
+                                                  const VectorDouble &tl,
+                                                  const MatrixRectangular &a);
+  static MatrixSquareSymmetric normCholeskyInPlace(int mode,
+                                                   int neq,
+                                                   const VectorDouble &tl,
+                                                   const MatrixSquareSymmetric &a);
   double computeCholeskyLogDeterminant() const;
   
   virtual bool    _isPhysicallyPresent(int irow, int icol) const override;

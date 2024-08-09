@@ -13,11 +13,12 @@
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 
+#include "LinearOp/PrecisionOp.hpp"
+
 #include <math.h>
 
-HessianOp::HessianOp(const CGParam& params)
-  : ALinearOp(params)
-  , _isInitialized(false)
+HessianOp::HessianOp()
+  : _isInitialized(false)
   , _flagSeismic(false)
   , _pMat(nullptr)
   , _projData(nullptr)
@@ -35,6 +36,16 @@ HessianOp::HessianOp(const CGParam& params)
 
 HessianOp::~HessianOp() 
 {
+}
+
+/**
+ * @brief Return the size of the operator
+ * 
+ * @return int 
+ */
+int HessianOp::getSize() const
+{
+  return _pMat->getSize();
 }
 
 /*****************************************************************************/
@@ -107,20 +118,24 @@ int HessianOp::init(PrecisionOp*  pmat,
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void HessianOp::_evalDirect(const VectorDouble& inv,
-                            VectorDouble& outv) const
+void HessianOp::_evalDirect(const Eigen::VectorXd& inv,
+                            Eigen::VectorXd& outv) const
 {
-  if (! _isInitialized)
-    my_throw("'HessianOp' must be initialized beforehand");
+  if (!_isInitialized) my_throw("'HessianOp' must be initialized beforehand");
+  
+  // Map Eigen Vector to VectorDouble arguments
+  // TODO : VectorXd => VectorDouble = Memory copy !!
+  VectorDouble einv(inv.data(), inv.data() + inv.size());
+  VectorDouble eoutv(outv.size());
 
   // Contribution of the spatial structure
 
-  _pMat->evalDirect(inv,outv);
+  _pMat->evalDirect(einv,eoutv);
 
   // Contribution of the Data
 
   _projData->mesh2point(_lambda,_workp);
-  _projData->mesh2point(inv,_workx);
+  _projData->mesh2point(einv,_workx);
 
   double denom,dl;
   for (int i=0; i<_projData->getPointNumber(); i++)
@@ -135,7 +150,7 @@ void HessianOp::_evalDirect(const VectorDouble& inv,
     _workp[i] = (- _workp[i] * ratio + pow(ratio,2)) * _workx[i];
   }
   _projData->point2mesh(_workp, _workv);
-  for (int i=0; i<_projData->getApexNumber(); i++) outv[i] += _workv[i];
+  for (int i=0; i<_projData->getApexNumber(); i++) eoutv[i] += _workv[i];
 
   // Contribution of Seismic (optional)
 
@@ -152,10 +167,10 @@ void HessianOp::_evalDirect(const VectorDouble& inv,
     _projSeis->point2mesh(_works, _workv);
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      outv[i] -= _lambda[i] * law_df_gaussian(_lambda[i]) * _workv[i] * inv[i];
+      eoutv[i] -= _lambda[i] * law_df_gaussian(_lambda[i]) * _workv[i] * einv[i];
 
     for (int i=0; i<_projSeis->getApexNumber(); i++)
-      _workv[i] = inv[i] * law_df_gaussian(_lambda[i]);
+      _workv[i] = einv[i] * law_df_gaussian(_lambda[i]);
     _projSeis->mesh2point(_workv, _works);
     for (int i=0; i<_projSeis->getPointNumber(); i++)
       _works[i] *= _varSeis[i];
@@ -164,6 +179,9 @@ void HessianOp::_evalDirect(const VectorDouble& inv,
       _workv[i] *= law_df_gaussian(_lambda[i]); // d2u
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      outv[i] += _workv[i];
+      eoutv[i] += _workv[i];
   }
+
+  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
+  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
 }

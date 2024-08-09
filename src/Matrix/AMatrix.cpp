@@ -752,8 +752,9 @@ int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
   return _solve(b, x);
 }
 
-String AMatrix::toString(const AStringFormat* /* strfmt*/) const
+String AMatrix::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << "- Number of rows    = " <<  _nRows << std::endl;

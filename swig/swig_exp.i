@@ -150,6 +150,7 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include Matrix/VectorEigen.hpp
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
@@ -169,13 +170,17 @@
 %include LinearOp/CGParam.hpp
 %include LinearOp/LogStats.hpp
 %include LinearOp/ALinearOp.hpp
+%include LinearOp/ALinearOp.hpp
+%include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
+%include LinearOp/ScaleOp.hpp
 %include LinearOp/ShiftOpCs.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp
+%include LinearOp/PrecisionOpMulti.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
 %include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
@@ -364,3 +369,6 @@
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506
 #pragma SWIG nowarn=509
+
+
+%template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;

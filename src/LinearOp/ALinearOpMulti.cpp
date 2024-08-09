@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ALinearOpMulti.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
@@ -108,7 +109,7 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble &inv,
 {
   try
   {
-    _evalDirect(inv,outv);
+    _evalDirect(inv, outv);
   }
   catch(const std::string& str)
   {

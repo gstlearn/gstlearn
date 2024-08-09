@@ -246,13 +246,12 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
           precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
           precision = new PrecisionOp(mesh, _model, icov, verbose);
-        precision->mustShowStats(showStats);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        if (_precisionsSimu->push_back(precision, proj)) return 1;
+        if (_precisionsSimu->push_back(precision, proj) != 0) return 1;
         _precisionsSimu->setVarianceDataVector(varianceData);
         _workingSimu.push_back(VectorDouble(precision->getSize()));
       }
@@ -268,16 +267,15 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, _params.getCGparams(), verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, _params.getCGparams(), verbose);
-        precision->mustShowStats(showStats);
+          precision = new PrecisionOp(mesh, _model, icov, verbose);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        if (_precisionsKrig->push_back(precision, proj)) return 1;
+        if (_precisionsKrig->push_back(precision, proj) != 0) return 1;
         _workingKrig.push_back(VectorDouble(precision->getSize()));
       }
     }
@@ -755,8 +753,8 @@ int krigingSPDE(Db *dbin,
   DECLARE_UNUSED(flag_est);
   const ESPDECalcMode mode = (flag_std) ?
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
-  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
+  SPDE spde(model, dbout, dbin, mode, mesh,
+            useCholesky, params, verbose, showStats);
   return spde.compute(dbout, nbMC, seed, namconv);
 }
 
@@ -927,7 +925,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
   if (flag_nostat_sill)
   {
-    if (nostat->manageInfo(1, db, db)) return mat;
+    if (nostat->manageInfo(1, db, db) != 0) return mat;
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1003,7 +1001,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       if (sillsInv[rank].empty())
       {
         sillsInv[rank] = _buildSillPartialMatrix(sillsRef, nvar, ndef, identity);
-        if (sillsInv[rank].invert()) return mat;
+        if (sillsInv[rank].invert() != 0) return mat;
       }
       for (int idef = 0; idef < ndef; idef++)
         for (int jdef = 0; jdef < ndef; jdef++)
@@ -1040,7 +1038,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
           local.setValue(idef, jdef, value);
         }
-      if (local.invert()) return mat;
+      if (local.invert() != 0) return mat;
 
       for (int idef = 0; idef < ndef; idef++)
          for (int jdef = 0; jdef < ndef; jdef++)
