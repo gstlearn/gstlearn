@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 
+#include "Matrix/MatrixRectangular.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
@@ -65,7 +66,15 @@ int main(int argc, char *argv[])
 
   // ====================== Using Schur Class ==============================
   mestitle(1, "Using Schur class");
-  MatrixSquareSymmetric* S = model->evalCovMatrixSymmetric();
+  MatrixSquareSymmetric* S = model->evalCovMatrixSymmetric(data);
+  MatrixRectangular* X     = model->evalDriftMatrix(data);
+  MatrixRectangular* S0    = model->evalCovMatrix(data, target);
+  MatrixRectangular* X0    = model->evalDriftMatrix(target);
+
+  S->display();
+  X->display();
+  S0->display();
+  X0->display();
   
   // ====================== Free pointers ==================================
   delete neigh;
@@ -73,6 +82,9 @@ int main(int argc, char *argv[])
   delete target;
   delete model;
   delete S;
+  delete X;
+  delete S0;
+  delete X0;
 
   return (0);
 }
