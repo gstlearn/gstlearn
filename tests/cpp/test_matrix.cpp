@@ -26,10 +26,10 @@ void st_invgen()
   MatrixSquareSymmetric aaa(4);
   MatrixSquareSymmetric bbb(4);
 
-  aaa.setValue(0,0, 2.);
-  aaa.setValue(1,0, 1.);
-  aaa.setValue(0,1, 1.);
-  aaa.setValue(1,1, 4.);
+  aaa.setValue(0, 0, 2.);
+  aaa.setValue(1, 0, 1.);
+  aaa.setValue(0, 1, 1.);
+  aaa.setValue(1, 1, 4.);
   aaa.display();
 
   (void) aaa.computeGeneralizedInverse(bbb);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   MRt->display();
 //  AMatrix* M = prodMatMatInPlace(MRt, &MR);
   AMatrix* M = MatrixFactory::prodMatMat(MRt, &MR);
-  message("Matrix M (should be symmetric). Checking = %d\n", M->isSymmetric());
+  message("Matrix M (should be symmetric). Checking = %d\n", (int) M->isSymmetric());
   M->display();
 
   // Creating two vectors for future use
@@ -177,11 +177,11 @@ int main(int argc, char *argv[])
   MRR.display();
 
   MSG.addScalarDiag(addendum);
-  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",(int) MRR.isSame(MSG));
   MSS.addScalarDiag(addendum);
-  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",(int) MRR.isSame(MSS));
   MSP->addScalarDiag(addendum);
-  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+  message("Are results for MRR and MSP similar: %d\n",(int) MRR.isSame(*MSP));
 
   /**
    * Multiplying the matrix by a constant
@@ -197,11 +197,11 @@ int main(int argc, char *argv[])
   MRR.display();
 
   MSG.prodScalar(multiply);
-  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",(int) MRR.isSame(MSG));
   MSS.prodScalar(multiply);
-  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",(int) MRR.isSame(MSS));
   MSP->prodScalar(multiply);
-  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+  message("Are results for MRR and MSP similar: %d\n",(int) MRR.isSame(*MSP));
 
   /**
    * Adding a constant to a matrix
@@ -217,9 +217,9 @@ int main(int argc, char *argv[])
   MRR.display();
 
   MSG.addScalar(addendum);
-  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",(int) MRR.isSame(MSG));
   MSS.addScalar(addendum);
-  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",(int) MRR.isSame(MSS));
 
   /**
     * Linear combination
@@ -236,11 +236,11 @@ int main(int argc, char *argv[])
   MRR.display();
 
   MSG.addMatInPlace(MSG, cx, cy);
-  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",(int) MRR.isSame(MSG));
   MSS.addMatInPlace(MSS, cx, cy);
-  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",(int) MRR.isSame(MSS));
   MSP->addMatInPlace(*MSP, cx, cy);
-  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+  message("Are results for MRR and MSP similar: %d\n",(int) MRR.isSame(*MSP));
 
   /**
    * Extraction of a Vector
@@ -256,23 +256,23 @@ int main(int argc, char *argv[])
 
   V1 = MSP->getDiagonal();
   print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
   Vref = MRR.getDiagonal(1);
   V1 = MSP->getDiagonal(1);
   print_vector("Second Diagonal Below",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
   Vref = MRR.getDiagonal(-2);
   V1 = MSP->getDiagonal(-2);
   print_vector("Third Diagonal Above",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
   Vref = MRR.getRow(2);
   V1 = MSP->getRow(2);
   print_vector("Third Row",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
   Vref = MRR.getColumn(3);
   V1 = MSP->getColumn(3);
   print_vector("Fourth Column",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
 
   /**
    * Product of the matrix by a vector
@@ -288,11 +288,11 @@ int main(int argc, char *argv[])
   VH::display("Reference Output Vector",Vref);
 
   MSG.prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSG similar: %d\n",VH::isSame(Vref,V2));
+  message("Are results for MRR and MSG similar: %d\n",(int) VH::isSame(Vref,V2));
   MSS.prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSS similar: %d\n",VH::isSame(Vref,V2));
+  message("Are results for MRR and MSS similar: %d\n",(int) VH::isSame(Vref,V2));
   MSP->prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V2));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V2));
 
   /**
    * Linear solver
@@ -311,10 +311,10 @@ int main(int argc, char *argv[])
   VH::display("Reference Output Vector",V2);
 
   MSS.prodMatVecInPlace(V2, V3);
-  message("Are results correct for MSS: %d\n",VH::isSame(V1,V3));
+  message("Are results correct for MSS: %d\n",(int) VH::isSame(V1,V3));
   MSP->solve(V1, V2);
   MSP->prodMatVecInPlace(V2, V3);
-  message("Are results correct for MSP: %d\n",VH::isSame(V1,V3));
+  message("Are results correct for MSP: %d\n",(int) VH::isSame(V1,V3));
 
   /**
    * Inversion
@@ -333,17 +333,17 @@ int main(int argc, char *argv[])
   MSG.display();
 
   Res = MatrixFactory::prodMatMat(&MSG, &MSGref);
-  message("Are results correct for MSG: %d\n",Res->isIdentity());
+  message("Are results correct for MSG: %d\n",(int) Res->isIdentity());
   delete Res;
 
   MSS.invert();
   Res = MatrixFactory::prodMatMat(&MSS, &MSGref);
-  message("Are results correct for MSS: %d\n",Res->isIdentity());
+  message("Are results correct for MSS: %d\n",(int) Res->isIdentity());
   delete Res;
 
   MSP->invert();
   Res = MatrixFactory::prodMatMat(MSP, &MSGref);
-  message("Are results correct for MSP: %d\n",Res->isIdentity());
+  message("Are results correct for MSP: %d\n",(int) Res->isIdentity());
   delete Res;
 
   /*
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
   VH::display("Input Vector B =", B);
   (void) MEig->solveCholesky(B, XEig);
   VH::display("Result Vector X =", XEig);
-  message("Is M * X = B: %d\n",VH::isSame(B,MEig->prodMatVec(XEig)));
+  message("Is M * X = B: %d\n",(int) VH::isSame(B,MEig->prodMatVec(XEig)));
 
   // Solving a linear system after Cholesky decomposition (matrix RHS)
   mestitle(0,"Solving a Linear system after Cholesky decomposition (matrix RHS)");
@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
   Bres.display();
 
   MatrixRectangular* Bcheck = MatrixFactory::prodMatMat<MatrixRectangular>(MEig, &Bres);
-  message("Is M * X = B: %d\n", Bmat.isSame(*Bcheck));
+  message("Is M * X = B: %d\n", (int) Bmat.isSame(*Bcheck));
   delete Bcheck;
 
   // Product by Diagonal built from a vector

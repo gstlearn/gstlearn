@@ -106,39 +106,30 @@ int getITEST()
 /*!
  **  Checks if a double value is TEST
  **
- ** \return  1 if a TEST value is encountered; 0 otherwise
+ ** \return  true if a TEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int FFFF(double value)
+bool FFFF(double value)
 {
-  int rep;
-
-  rep = 0;
-  if (std::isnan(value)) rep = 1; // TODO : what about std::isinf ?
-  if (value > TEST_COMP) rep = 1;
-
-  return (rep);
+  if (std::isnan(value)) return true; // TODO : what about std::isinf ?
+  if (value > TEST_COMP) return true;
+  return false;
 }
 
 /****************************************************************************/
 /*!
  **  Checks if an integer value is TEST
  **
- ** \return  1 if a ITEST value is encountered; 0 otherwise
+ ** \return  true if a ITEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int IFFFF(int value)
+bool IFFFF(int value)
 {
-  int rep;
-
-  rep = 0;
-  if (value == ITEST) rep = 1;
-
-  return (rep);
+  return (value == ITEST);
 }
 
 #endif //SWIG

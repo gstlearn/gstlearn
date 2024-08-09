@@ -766,7 +766,7 @@ MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
       if (! db.isActive(jech)) continue;
 
       // Calculate the distance between the two samples
-      db.getDistanceVec(iech, jech, dd);
+      db.getDistanceVecInPlace(iech, jech, dd);
       if (! incr.empty()) VH::addInPlace(dd, incr);
 
       // Evaluate the covariance matrix between two samples

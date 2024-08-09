@@ -221,7 +221,7 @@ int db_vector_get(Db *db, const ELoc& locatorType, int locatorIndex, double *tab
 int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getUIDByLocator(ELoc::SEL, item);
-  if (st_vector_get_att(db, iatt, tab)) return (1);
+  if (st_vector_get_att(db, iatt, tab) != 0) return (1);
   return (0);
 }
 
@@ -242,7 +242,7 @@ int db_vector_put(Db *db,
 {
   int icol = db->getColIdxByLocator(locatorType, locatorIndex);
   if (!db->isColIdxValid(icol)) return (1);
-  if (st_vector_put_col(db, icol, tab)) return (1);
+  if (st_vector_put_col(db, icol, tab) != 0) return (1);
   return (0);
 }
 
@@ -274,9 +274,9 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-int exist_LOCATOR(Db *db, const ELoc& locatorType)
+bool exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
-  if (db == nullptr) return (0);
+  if (db == nullptr) return false;
   return (db->getFromLocatorNumber(locatorType) > 0);
 }
 
@@ -739,7 +739,7 @@ double distance_grid(DbGrid *db,
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
     int number = ABS(iwork1[idim] - iwork2[idim]);
-    if (flag_moins1 && number > 1) number--;
+    if (flag_moins1 != 0 && number > 1) number--;
     double delta = number * db->getDX(idim);
     if (dist_vect != nullptr) dist_vect[idim] = delta;
     dist += delta * delta;
@@ -897,7 +897,7 @@ void db_sample_print(Db *db,
                      int flag_nerr)
 {
   message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
-  if (flag_ndim)
+  if (flag_ndim != 0)
   {
     for (int idim = 0; idim < db->getNDim(); idim++)
     {
@@ -909,7 +909,7 @@ void db_sample_print(Db *db,
                 db->getCoordinate(iech, idim));
     }
   }
-  if (flag_nvar)
+  if (flag_nvar != 0)
   {
     for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
@@ -920,7 +920,7 @@ void db_sample_print(Db *db,
         message("Variable   #%d = %lf\n", ivar + 1, db->getLocVariable(ELoc::Z,iech, ivar));
     }
   }
-  if (flag_nerr)
+  if (flag_nerr != 0)
   {
     for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
     {
@@ -1125,7 +1125,7 @@ double db_epsilon_distance(Db *db)
   }
   else
   {
-    if (db_extension_diag(db, &diag))
+    if (db_extension_diag(db, &diag) != 0)
       diag = 1.e-6;
     else
       diag /= 100.;
@@ -1169,7 +1169,7 @@ int db_attribute_range(const Db *db,
 
   tab = db_vector_alloc(db);
   if (tab == nullptr) goto label_end;
-  if (db_vector_get_att(db, iatt, tab)) goto label_end;
+  if (db_vector_get_att(db, iatt, tab) != 0) goto label_end;
 
   if (db->hasLocVariable(ELoc::SEL))
   {
@@ -1289,7 +1289,7 @@ Db* db_create_from_target(const double *target, int ndim, bool flagAddSampleRank
 
   /* Create the locators */
 
-  db->setLocatorsByUID(ndim, flagAddSampleRank, ELoc::X);
+  db->setLocatorsByUID(ndim, (int) flagAddSampleRank, ELoc::X);
 
   /* Copy the target locations */
 
@@ -1396,10 +1396,7 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
         db->setArray(iech, icol, valinit);
     else
       for (iech = 0; iech < db->getSampleNumber(); iech++)
-        if (db->getLocVariable(ELoc::DATE,iech,0))
-          db->setArray(iech, icol, valinit);
-        else
-          db->setArray(iech, icol, TEST);
+        db->setArray(iech, icol, db->getLocVariable(ELoc::DATE, iech, 0));
   }
 }
 
@@ -1518,8 +1515,7 @@ int db_gradient_update(Db *db)
  *****************************************************************************/
 int db_selref(int ndim, const int* nx, const int* ref, const double* tabin, double* tabout)
 {
-  int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, skip, ival, error,
-      neff_ndim;
+  int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, ival, error, neff_ndim;
 
   /* Initializations */
 
@@ -1554,16 +1550,17 @@ int db_selref(int ndim, const int* nx, const int* ref, const double* tabin, doub
   for (idim = 0; idim < ndim; idim++)
     ntotal *= nx[idim];
 
+  bool skip;
   for (lec = ecr = 0; lec < ntotal; lec++)
   {
     nval = ntotal;
     iech = lec;
-    skip = 0;
-    for (idim = ndim - 1; idim >= 0 && skip == 0; idim--)
+    skip = false;
+    for (idim = ndim - 1; idim >= 0 && ! skip; idim--)
     {
       nval /= nx[idim];
       ival = iech / nval;
-      if (ref[idim] > 0 && ival != ref[idim] - 1) skip = 1;
+      if (ref[idim] > 0 && ival != ref[idim] - 1) skip = true;
       ind1[idim] = ival;
       iech -= ival * nval;
     }
@@ -2260,7 +2257,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
     {
       tab = db_vector_alloc(db);
       if (tab == nullptr) goto label_end;
-      if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
+      if (db_vector_get(db, ELoc::Z, ivar, tab) != 0) continue;
       if (db->hasLocVariable(ELoc::SEL))
       {
         sel = db_vector_alloc(db);

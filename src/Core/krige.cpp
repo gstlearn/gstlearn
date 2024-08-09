@@ -2258,7 +2258,7 @@ static void st_calculate_covres(DbGrid *db,
  **                           variable
  **
  *****************************************************************************/
-static void st_calculate_covtot(DbGrid *db,
+static void st_calculate_covtot(DbGrid* db,
                                 int ix0,
                                 int iy0,
                                 int flag_sym,
@@ -2277,11 +2277,11 @@ static void st_calculate_covtot(DbGrid *db,
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
       for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
       {
-        COV_TOT(ix,iy,iz)= 0.;
-        NUM_TOT(ix,iy,iz) = 0;
+        COV_TOT(ix, iy, iz) = 0.;
+        NUM_TOT(ix, iy, iz) = 0;
       }
 
-      /* Loop on the first point */
+  /* Loop on the first point */
 
   for (iz1 = 0; iz1 < db->getNX(2); iz1++)
     for (iy1 = -cov_nn[1]; iy1 <= cov_nn[1]; iy1++)
@@ -2298,7 +2298,7 @@ static void st_calculate_covtot(DbGrid *db,
         indg[2] = jz1;
         iad = db_index_grid_to_sample(db, indg);
         if (!db->isActive(iad)) continue;
-        val1 = db->getLocVariable(ELoc::Z,iad, 0);
+        val1 = db->getLocVariable(ELoc::Z, iad, 0);
         if (FFFF(val1)) continue;
 
         /* Loop on the second point within the covariance array */
@@ -2324,34 +2324,34 @@ static void st_calculate_covtot(DbGrid *db,
               indg[2] = jz2;
               jad = db_index_grid_to_sample(db, indg);
               if (!db->isActive(jad)) continue;
-              val2 = db->getLocVariable(ELoc::Z,jad, 0);
+              val2 = db->getLocVariable(ELoc::Z, jad, 0);
               if (FFFF(val2)) continue;
 
               /* Update the Covariance */
 
-              COV_TOT(idx,idy,idz)+= val1 * val2;
-              NUM_TOT(idx,idy,idz)+= 1;
+              COV_TOT(idx, idy, idz) += val1 * val2;
+              NUM_TOT(idx, idy, idz) += 1;
             }
-          }
+      }
 
-          /* Scaling */
+  /* Scaling */
 
   ratio = NUM_TOT(0, 0, 0);
   for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
       for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
       {
-        if (NUM_TOT(ix,iy,iz)<= 0.)
+        if (NUM_TOT(ix, iy, iz) <= 0.)
         {
-          COV_TOT(ix,iy,iz) = TEST;
+          COV_TOT(ix, iy, iz) = TEST;
         }
         else
         {
-          COV_TOT(ix,iy,iz) /= ratio;
+          COV_TOT(ix, iy, iz) /= ratio;
         }
       }
 
-      /* Symmetry */
+  /* Symmetry */
 
   for (ix = -cov_nn[0]; ix < 0; ix++)
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)

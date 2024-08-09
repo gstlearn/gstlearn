@@ -279,6 +279,7 @@ make check_r
 
 ### Important Notes
 
+* ggnewscale and ggplot2 packages must be installed/updated together! Otherwise, you could have troubles when using plotting feature.
 * Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs/swig4.2.0b` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
