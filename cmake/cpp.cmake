@@ -48,6 +48,12 @@ set(SOURCES)
 foreach(CPP ${SRC})
   set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/src/${CPP})
 endforeach(CPP ${SRC})
+# Same for headers. target_include_directories() below is enough to get the code
+# to compile but if they are not added to SOURCES then IDEs don't see them.
+include(include/all_includes.cmake)
+foreach(HPP ${INCS})
+  set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/include/${HPP})
+endforeach(HPP ${INCS})
 
 # Generation folder (into Release or Debug)
 if (NOT IS_MULTI_CONFIG)
