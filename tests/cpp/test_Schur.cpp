@@ -59,15 +59,20 @@ int main(int argc, char *argv[])
   // Define the verbose option
   OptDbg::setReference(1);
 
-  // ====================== Testing Neighborhood Storage ===========================
-  message("\n---> Using Standard Kriging procedure\n");
+  // ====================== Using Standard Kriging procedure ===============
+  mestitle(1,"Using Standard Kriging procedure");
   kriging(data, target, model, neigh);
 
+  // ====================== Using Schur Class ==============================
+  mestitle(1, "Using Schur class");
+  MatrixSquareSymmetric* S = model->evalCovMatrixSymmetric();
+  
   // ====================== Free pointers ==================================
   delete neigh;
   delete data;
   delete target;
   delete model;
+  delete S;
 
   return (0);
 }

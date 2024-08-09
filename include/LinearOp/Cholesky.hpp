@@ -29,6 +29,7 @@ class css; /// TODO : Dependency to csparse to be removed
 class csn;
 class MatrixSparse;
 
+/// TODO : Inherit from ALinearOpEigenCG and remove evalInverse ?
 class GSTLEARN_EXPORT Cholesky: public ALinearOp
 {
 public:
@@ -38,7 +39,7 @@ public:
   virtual ~Cholesky();
 
   int getSize() const override;
-  void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const override;
+  void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const;
 
   bool isValid() const { return _matCS != nullptr; }
 
@@ -47,18 +48,20 @@ public:
   int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
   double getLogDeterminant() const;
 
+#ifndef SWIG
 protected:
-  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
+  void _evalDirect(const Eigen::VectorXd& inv,
+                   Eigen::VectorXd& outv) const override;
 
 private:
   void _clean();
   void _compute();
 
 private:
-#ifndef SWIG
   css *_S; // Cholesky decomposition (for Old-style Csparse storage)
   csn *_N; // Cholesky decomposition (for Old-style Csparse storage)
   Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > _cholSolver; // (for Eigen library storage)
-#endif
+  
   const MatrixSparse* _matCS; // Stored by compliance with ALinearOp. Not to be deleted
+#endif
 };

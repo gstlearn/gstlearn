@@ -136,8 +136,10 @@ int Style::unusedArgument(int a)
  *
  *  \return The input argument incremented
  */
-int Style::_increment(int arg) const
+int Style::_increment(int arg, bool verbose) const
 {
+  if (verbose)
+    std::cout << "Coucou" << std::endl;
   arg++;
   return arg;
 }

@@ -176,7 +176,7 @@ public:
   {
     return _cova->eval0Mat(mode);
   }
-  int isNoStat() const
+  bool isNoStat() const
   {
     return _cova->isNoStat();
   }
@@ -677,17 +677,17 @@ public:
   int fit(Vario* vario,
           const VectorECov& types        = ECov::fromKeys({"SPHERICAL"}),
           const Constraints& constraints = Constraints(),
-          const Option_VarioFit& optvar  = Option_VarioFit(),
-          const Option_AutoFit& mauto    = Option_AutoFit(),
-          bool verbose                   = false);
-  int fitFromVMap(DbGrid* dbmap,
-                  const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
-                  const Constraints& constraints = Constraints(),
-                  const Option_VarioFit& optvar  = Option_VarioFit(),
-                  const Option_AutoFit& mauto    = Option_AutoFit(),
-                  bool verbose                   = false);
-  int buildVmapOnDbGrid(DbGrid* dbgrid,
-                        const NamingConvention& namconv = NamingConvention("VMAP")) const;
+          const Option_VarioFit& optvar = Option_VarioFit(),
+          const Option_AutoFit& mauto = Option_AutoFit(),
+          bool verbose = false);
+
+  int fitFromVMap(DbGrid *dbmap,
+                  const VectorECov &types = ECov::fromKeys({"SPHERICAL"}),
+                  const Constraints &constraints = Constraints(),
+                  const Option_VarioFit& optvar = Option_VarioFit(),
+                  const Option_AutoFit& mauto = Option_AutoFit(),
+                  bool verbose = false);
+  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP")) const;
   int stabilize(double percent, bool verbose = false);
   int standardize(bool verbose = false);
 
@@ -750,9 +750,9 @@ private:
   void _copyCovContext();
 
 private:
-  ACov*          _cova;         /* Generic Covariance structure */
-  DriftList*     _driftList;    /* Series of Drift functions */
-  CovContext _ctxt;             /* Context */
+  ACov*      _cova;         /* Generic Covariance structure */
+  DriftList* _driftList;    /* Series of Drift functions */
+  CovContext _ctxt;         /* Context */
 
   MatrixSquareSymmetric _dummy;
 };

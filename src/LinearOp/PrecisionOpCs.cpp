@@ -32,9 +32,8 @@ PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
                              Model *model,
                              int icov,
                              bool flagDecompose,
-                             const CGParam& params,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, params, verbose),
+    : PrecisionOp(mesh, model, icov, verbose),
       _Q(nullptr)
 {
   _buildQ(flagDecompose);

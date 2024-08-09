@@ -233,7 +233,7 @@ void printLocatorList()
     if (*it != ELoc::UNKNOWN)
     {
       int i = it.getValue();
-      if (DEF_LOCATOR[i].IREF)
+      if (DEF_LOCATOR[i].IREF == 1)
         message(" %10s %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
       else
         message(" %7s(*) %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);

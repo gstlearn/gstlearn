@@ -17,23 +17,23 @@ KrigingCalcul::KrigingCalcul(const MatrixSquareSymmetric* C00,
                              const MatrixSquareSymmetric* C,
                              const MatrixRectangular* X)
   : _C00(C00)
-  , _C(C)
+  , _S(C)
   , _X(X)
-  , _C0(nullptr)
+  , _S0(nullptr)
   , _X0(nullptr)
   , _Z()
   , _Xi()
   , _Beta()
   , _Zstar()
-  , _Cm1(nullptr)
   , _lambdaSK(nullptr)
   , _lambdaUK(nullptr)
+  , _var(nullptr)
+  , _varZ(nullptr)
   , _XtCm1(nullptr)
   , _LambdaSKtX(nullptr)
   , _X0mLambdaSKtX(nullptr)
-  , _var(nullptr)
-  , _varZ(nullptr)
-  , _varBeta(nullptr)
+  , _Sm1(nullptr)
+  , _Sc(nullptr)
   , _neq(0)
   , _nbfl(0)
   , _nrhs(0)
@@ -42,7 +42,7 @@ KrigingCalcul::KrigingCalcul(const MatrixSquareSymmetric* C00,
 
 KrigingCalcul::~KrigingCalcul()
 {
-  delete _Cm1;
+  delete _Sm1;
   delete _lambdaSK;
   delete _lambdaUK;
   delete _XtCm1;
@@ -50,18 +50,18 @@ KrigingCalcul::~KrigingCalcul()
   delete _X0mLambdaSKtX;
   delete _var;
   delete _varZ;
-  delete _varBeta;
+  delete _Sc;
 }
 
 int KrigingCalcul::setC(const MatrixSquareSymmetric* C)
 {
   if (C == nullptr)
   {
-    _C = nullptr;
+    _S = nullptr;
   }
   else
   {
-    _C   = C;
+    _S   = C;
     _neq = C->getNRows();
   }
   return 0;
@@ -105,12 +105,12 @@ int KrigingCalcul::setC0(const MatrixRectangular* C0)
 {
   if (C0 == nullptr)
   {
-    _C0 = nullptr;
+    _S0 = nullptr;
   }
   else
   {
     if (!_matchDimensions(C0, _neq, _nrhs)) return 1;
-    _C0   = C0;
+    _S0   = C0;
     _nrhs = C0->getNCols();
   }
   return 0;
@@ -173,16 +173,16 @@ int KrigingCalcul::setBayes(const VectorDouble& mBayes,
       return 1;
     }
   }
-  _mBayes = mBayes;
+  _Beta0 = mBayes;
   _SBayes = SBayes;
   return 0;
 }
 
 int KrigingCalcul::_computeCm1()
 {
-  if (_C == nullptr) return 1;
-  _Cm1 = _C->clone();
-  _Cm1->invert();
+  if (_S == nullptr) return 1;
+  _Sm1 = _S->clone();
+  _Sm1->invert();
   return 0;
 }
 
@@ -198,16 +198,16 @@ int KrigingCalcul::_computeXi()
 
 int KrigingCalcul::_needCm1()
 {
-  if (_Cm1 != nullptr) return 0;
+  if (_Sm1 != nullptr) return 0;
   return _computeCm1();
 }
 
 int KrigingCalcul::_computeLambdaSK()
 {
-  if (_C0 == nullptr) return 1;
+  if (_S0 == nullptr) return 1;
   if (_needCm1()) return 1;
   if (_lambdaSK == nullptr) _lambdaSK = new MatrixRectangular(_neq, _nrhs);
-  _lambdaSK->prodMatMatInPlace(_Cm1, _C0);
+  _lambdaSK->prodMatMatInPlace(_Sm1, _S0);
   return 0;
 }
 
@@ -247,17 +247,17 @@ int KrigingCalcul::_needLambdaSKtX()
 
 int KrigingCalcul::_needVarBeta()
 {
-  if (_varBeta != nullptr) return 0;
+  if (_Sc != nullptr) return 0;
   return _computeBeta();
 }
 
 int KrigingCalcul::_computeVarianceZ(bool flagSK)
 {
-  if (_C0 == nullptr) return 1;
+  if (_S0 == nullptr) return 1;
   if (_needLambdaSK()) return 1;
 
   if (_varZ == nullptr) _varZ = new MatrixSquareSymmetric(_nrhs);
-  _varZ->prodMatMatInPlace(_lambdaSK, _C0, true, false);
+  _varZ->prodMatMatInPlace(_lambdaSK, _S0, true, false);
 
   if (flagSK) return 0;
   if (_X0 == nullptr) return 0;
@@ -266,9 +266,9 @@ int KrigingCalcul::_computeVarianceZ(bool flagSK)
   if (_needVarBeta()) return 1;
 
   MatrixSquareSymmetric* p1 = new MatrixSquareSymmetric(_nrhs);
-  p1->prodNormMatMatInPlace(*_LambdaSKtX, *_varBeta);
+  p1->prodNormMatMatInPlace(*_LambdaSKtX, *_Sc);
   MatrixSquareSymmetric* p2 = new MatrixSquareSymmetric(_nrhs);
-  p2->prodNormMatMatInPlace(*_X0, *_varBeta);
+  p2->prodNormMatMatInPlace(*_X0, *_Sc);
 
   _varZ->linearCombination(1., _varZ, -1., p1, +1., p2);
 
@@ -303,7 +303,7 @@ int KrigingCalcul::_computeVariance(bool flagSK)
   if (_needVarBeta()) return 1;
 
   MatrixSquareSymmetric* p1 = new MatrixSquareSymmetric(_nrhs);
-  p1->prodNormMatMatInPlace(*_X0mLambdaSKtX, *_varBeta);
+  p1->prodNormMatMatInPlace(*_X0mLambdaSKtX, *_Sc);
 
   _var->linearCombination(1., _var, 1., p1);
 
@@ -317,7 +317,7 @@ int KrigingCalcul::_computeXtCm1()
   if (_needCm1()) return 1;
 
   if (_XtCm1 == nullptr) _XtCm1 = new MatrixRectangular(_nbfl, _neq);
-  _XtCm1->prodMatMatInPlace(_X, _Cm1, true, false);
+  _XtCm1->prodMatMatInPlace(_X, _Sm1, true, false);
   return 0;
 }
 
@@ -327,14 +327,14 @@ int KrigingCalcul::_needXtCm1()
   return _computeXtCm1();
 }
 
-int KrigingCalcul::_computeVarianceBeta()
+int KrigingCalcul::_computeSc()
 {
   if (_X == nullptr) return 1;
   if (_needXtCm1()) return 1;
 
-  if (_varBeta == nullptr) _varBeta = new MatrixSquareSymmetric(_nbfl);
-  _varBeta->prodMatMatInPlace(_XtCm1, _X);
-  if (_varBeta->invert()) return 1;
+  if (_Sc == nullptr) _Sc = new MatrixSquareSymmetric(_nbfl);
+  _Sc->prodMatMatInPlace(_XtCm1, _X);
+  if (_Sc->invert()) return 1;
   return 0;
 }
 
@@ -345,7 +345,7 @@ int KrigingCalcul::_computeBeta()
   if (_needXtCm1()) return 1;
 
   VectorDouble XtCm1Z = _XtCm1->prodMatVec(_Z);
-  _Beta               = _varBeta->prodMatVec(XtCm1Z);
+  _Beta               = _Sc->prodMatVec(XtCm1Z);
   return 0;
 }
 
@@ -377,7 +377,7 @@ int KrigingCalcul::_computeLambdaUK()
   if (_needX0mLambdaSKtX()) return 1;
 
   MatrixRectangular* p1 = new MatrixRectangular(_neq, _nbfl);
-  p1->prodMatMatInPlace(_XtCm1, _varBeta, true, false);
+  p1->prodMatMatInPlace(_XtCm1, _Sc, true, false);
   MatrixRectangular* p2 = new MatrixRectangular(_neq, _nbfl);
   p2->prodMatMatInPlace(p1, _X0mLambdaSKtX, false, true);
 

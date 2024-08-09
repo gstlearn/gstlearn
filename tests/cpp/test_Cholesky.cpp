@@ -96,7 +96,14 @@ int main(int argc, char *argv[])
   MatrixSquareSymmetric MP(M);
   (void) MP.invert();
   VectorDouble vecout1b = MP.getDiagonal();
-  Qchol.stdev(vecout2);
+
+  // We use a Tim Davis sparse matrix cs as long as Qchol
+  // stdev calculation is not available with eigen underlying matrix
+  MatrixSparse* M2 = MatrixSparse::createFromTriplet(M.getMatrixToTriplet(),
+                                                     M.getNRows(), M.getNCols(),
+                                                     0);
+  Cholesky Qchol2(M2);
+  Qchol2.stdev(vecout2);
   if (VH::isSame(vecout1b,  vecout2))
     message("Standard Deviation is validated\n");
   else

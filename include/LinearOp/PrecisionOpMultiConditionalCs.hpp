@@ -20,8 +20,8 @@ class IProjMatrix;
 /**
  * Class to store objects for SPDE
  */
-class GSTLEARN_EXPORT PrecisionOpMultiConditionalCs : public PrecisionOpMultiConditional {
-
+class GSTLEARN_EXPORT PrecisionOpMultiConditionalCs : public PrecisionOpMultiConditional 
+{
 public:
   PrecisionOpMultiConditionalCs();
   PrecisionOpMultiConditionalCs(const PrecisionOpMultiConditionalCs &m)= delete;
@@ -44,6 +44,5 @@ private:
   ProjMatrix*   _buildAmult() const;
   int _buildQpAtA();
 
-private:
   MatrixSparse* _Q;
 };

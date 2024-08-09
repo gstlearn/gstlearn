@@ -45,7 +45,7 @@ private:
   int _computeXtCm1();
   int _computeLambdaSKtX();
   int _computeX0mLambdaSKtX();
-  int _computeVarianceBeta();
+  int _computeSc();
   int _computeBeta();
   int _computeCm1();
 
@@ -60,25 +60,25 @@ private:
 
 private:
   const MatrixSquareSymmetric* _C00;    // Not to be deleted (Dim: _nrhs * _nrhs)
-  const MatrixSquareSymmetric* _C;      // Not to be deleted (Dim: _neq * _neq)
+  const MatrixSquareSymmetric* _S;      // Not to be deleted (Dim: _neq * _neq)
   const MatrixRectangular* _X;          // Not to be deleted (Dim: _neq * _nbfl)
-  const MatrixRectangular* _C0;         // Not to be deleted (Dim: _neq * _nrhs)
+  const MatrixRectangular* _S0;         // Not to be deleted (Dim: _neq * _nrhs)
   const MatrixRectangular* _X0;         // Not to be deleted (Dim: _nbfl * _nrhs)
   const MatrixSquareSymmetric* _SBayes; // Not to be deleted (Dim: _nbfl * _nbfl)
   VectorDouble _Z;                      // Vector of data (Dim: _neq)
-  VectorDouble _mBayes;                 // Vector of prior mean (Dim: _nbfl)
+  VectorDouble _Beta0;                  // Vector of prior mean (Dim: _nbfl)
   VectorDouble _Xi;                     // Vector of drift at data (Dim: _neq)
   VectorDouble _Beta;                   // Vector of drift coefficients (Dim: _nbfl)
   VectorDouble _Zstar;                  // Vector of estimated values (Dim: _nrhs)
-  MatrixSquareSymmetric* _Cm1;          // Inverse of Cov matrix (Dim: _neq * _neq)
   MatrixRectangular* _lambdaSK;         // Vector of Weights for SK (Dim: _neq * _nrhs)
   MatrixRectangular* _lambdaUK;         // Vector of Weights for UK (Dim: _neq * _nrhs)
-  MatrixRectangular* _XtCm1;            // Product: Xt * Cm1 (Dim: _nbfl * _neq);
-  MatrixRectangular* _LambdaSKtX;       // Product: Xt * LambdaSK (Dim: _nbfl * _nrhs)
-  MatrixRectangular* _X0mLambdaSKtX;    // X0 - LambdaSK * Xt (Dim: _nbfl * _nrhs)
   MatrixSquareSymmetric* _var;          // Matrix of estimation var. (Dim: _nrhs * _nrhs)
   MatrixSquareSymmetric* _varZ;         // Matrix of estimator var. (Dim: _nrhs * _nrhs)
-  MatrixSquareSymmetric* _varBeta;      // Variance of Beta (Dim: _nbfl * _nbfl)
+  MatrixRectangular* _XtCm1;            // Xt * Cm1 (Dim: _nbfl * _neq);
+  MatrixRectangular* _LambdaSKtX;       // Xt * LambdaSK (Dim: _nbfl * _nrhs)
+  MatrixRectangular* _X0mLambdaSKtX;    // X0 - LambdaSK * Xt (Dim: _nbfl * _nrhs)
+  MatrixSquareSymmetric* _Sm1;          // (_S)^{-1} (Dim: _neq * _neq)
+  MatrixSquareSymmetric* _Sc;           // (Xt * Cm1 * X)^{-1} (Dim: _nbfl * _nbfl)
   int _neq;
   int _nbfl;
   int _nrhs;

@@ -1,0 +1,150 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 1
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      2.000
+- Range        =      0.500
+Total Sill     =      2.000
+Known Mean(s)     0.000
+
+Unique Neighborhood
+===================
+
+---> Using Standard Kriging procedure
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.483448
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1      0.652      0.408
+          2          2      0.483      0.851
+          3          3      0.762      0.336
+          4          4      0.015      0.300
+          5          5      0.557      0.470
+          6          6      0.433      0.376
+          7          7      0.497      0.449
+          8          8      0.140      0.150
+          9          9      0.729      0.747
+         10         10      0.537      0.473
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 10
+Total number of equations   = 10
+Reduced number of equations = 10
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      2.000      0.008      1.230      0.000      1.327
+          2          2      0.008      2.000      0.000      0.000      0.140
+          3          3      1.230      0.000      2.000      0.000      0.646
+          4          4      0.000      0.000      0.000      2.000      0.000
+          5          5      1.327      0.140      0.646      0.000      2.000
+          6          6      0.759      0.006      0.304      0.064      1.098
+          7          7      1.068      0.108      0.461      0.000      1.621
+          8          8      0.000      0.000      0.000      0.888      0.000
+          9          9      0.250      0.553      0.086      0.000      0.320
+         10         10      1.225      0.156      0.566      0.000      1.883
+
+       Rank                     6          7          8          9         10
+                  Flag          6          7          8          9         10
+          1          1      0.759      1.068      0.000      0.250      1.225
+          2          2      0.006      0.108      0.000      0.553      0.156
+          3          3      0.304      0.461      0.000      0.086      0.566
+          4          4      0.064      0.000      0.888      0.000      0.000
+          5          5      1.098      1.621      0.000      0.320      1.883
+          6          6      2.000      1.426      0.186      0.007      1.168
+          7          7      1.426      2.000      0.014      0.164      1.717
+          8          8      0.186      0.014      2.000      0.000      0.000
+          9          9      0.007      0.164      0.000      2.000      0.293
+         10         10      1.168      1.717      0.000      0.293      2.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 10
+Total number of equations   = 10
+Reduced number of equations = 10
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank       Flag          1
+          1          1      1.551
+          2          2      0.103
+          3          3      0.947
+          4          4      0.000
+          5          5      1.427
+          6          6      0.652
+          7          7      1.076
+          8          8      0.000
+          9          9      0.517
+         10         10      1.320
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*
+          1      0.652      0.408      0.080      0.506
+          2      0.483      0.851      0.319     -0.015
+          3      0.762      0.336      0.922      0.043
+          4      0.015      0.300      1.102     -0.001
+          5      0.557      0.470     -0.061      0.380
+          6      0.433      0.376     -2.071     -0.078
+          7      0.497      0.449     -0.063     -0.041
+          8      0.140      0.150      1.559      0.008
+          9      0.729      0.747     -1.537      0.134
+         10      0.537      0.473      0.389      0.042
+Sum of weights                                    0.979
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       0.036
+ - Std. Dev. =       0.777
+ - Variance  =       0.603
+ - Cov(h=0)  =       2.000

@@ -116,6 +116,11 @@ public:
 
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
+  static void multiplyConstantSelfInPlace(VectorDouble &vec, double v);
+  static void addMultiplyConstantInPlace(double val1,
+                                         const VectorDouble &in1,
+                                         VectorDouble &outv,
+                                         int iad);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorVectorDouble &in1,
                                          VectorVectorDouble &outv);
