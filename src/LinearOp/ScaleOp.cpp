@@ -19,16 +19,16 @@ ScaleOp::~ScaleOp() {}
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product (by the ScaleOp) : 'outv' = I * 'inv' = 'inv'
+**  Evaluate the product (by the ScaleOp) : 'outv' += I * 'inv' = 'inv'
 **
 ** \param[in]  inv     Array of input values
 **
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ScaleOp::_evalDirect(const Eigen::VectorXd& inv,
+void ScaleOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
-    outv[i] = _scale*inv[i];
+    outv[i] += _scale*inv[i];
 }

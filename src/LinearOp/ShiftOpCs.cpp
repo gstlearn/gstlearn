@@ -25,7 +25,10 @@
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
+
+
 
 ShiftOpCs::ShiftOpCs()
   : _TildeC()
@@ -377,6 +380,97 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
   }
 }
 
+void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
+                           Eigen::VectorXd& y,
+                           const EPowerPT& power) const
+{
+  if (power == EPowerPT::ONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * _Lambda[i];
+  }
+  else if (power == EPowerPT::MINUSONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / _Lambda[i];
+  }
+  else if (power == EPowerPT::HALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * sqrt(_Lambda[i]);
+  }
+  else if (power == EPowerPT::MINUSHALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / sqrt(_Lambda[i]);
+  }
+  else
+  {
+    my_throw("Unexpected value for argument 'power'");
+  }
+}
+
+void ShiftOpCs::prodLambda(const VectorDouble& x,
+                           Eigen::VectorXd& y,
+                           const EPowerPT& power) const
+{
+  if (power == EPowerPT::ONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * _Lambda[i];
+  }
+  else if (power == EPowerPT::MINUSONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / _Lambda[i];
+  }
+  else if (power == EPowerPT::HALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * sqrt(_Lambda[i]);
+  }
+  else if (power == EPowerPT::MINUSHALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / sqrt(_Lambda[i]);
+  }
+  else
+  {
+    my_throw("Unexpected value for argument 'power'");
+  }
+}
+
+void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
+                           VectorDouble& y,
+                           const EPowerPT& power) const
+{
+  if (power == EPowerPT::ONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * _Lambda[i];
+  }
+  else if (power == EPowerPT::MINUSONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / _Lambda[i];
+  }
+  else if (power == EPowerPT::HALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * sqrt(_Lambda[i]);
+  }
+  else if (power == EPowerPT::MINUSHALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / sqrt(_Lambda[i]);
+  }
+  else
+  {
+    my_throw("Unexpected value for argument 'power'");
+  }
+}
+
+//TODO replace by a call to the VectorXD version above
 void ShiftOpCs::prodLambda(const VectorDouble& x,
                            VectorDouble& y,
                            const EPowerPT& power) const
@@ -425,18 +519,10 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-void ShiftOpCs::_evalDirect(const Eigen::VectorXd& inv,
+void ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
-  // Map Eigen Vector to VectorDouble arguments
-  // TODO : VectorXd => VectorDouble = Memory copy !!
-  VectorDouble einv(inv.data(), inv.data() + inv.size());
-  VectorDouble eoutv(outv.size());
-
-  _S->prodMatVecInPlace(einv, eoutv);
-
-  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
-  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
+  _S->addProdMatVecInPlaceToDest(inv, outv);
 }
 
 void ShiftOpCs::_resetGrad()

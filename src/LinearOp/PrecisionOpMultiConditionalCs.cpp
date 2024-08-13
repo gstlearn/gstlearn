@@ -15,7 +15,9 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/Cholesky.hpp"
+#include "Matrix/VectorEigen.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
@@ -134,13 +136,13 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   return 0;
 }
 
-void PrecisionOpMultiConditionalCs::evalInverse(const VectorVectorDouble &vecin,
-                                                VectorVectorDouble &vecout) const
+void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<Eigen::VectorXd> &vecin,
+                                                std::vector<Eigen::VectorXd> &vecout) const
 {
-  VectorDouble locVecin = VectorHelper::flatten(vecin);
-  VectorDouble locVecout(locVecin.size());
+  Eigen::VectorXd locVecin = VectorEigen::flatten(vecin);
+  Eigen::VectorXd locVecout(locVecin.size());
   _Q->solveCholesky(locVecin, locVecout);
-  VectorHelper::unflattenInPlace(locVecout, vecout);
+  VectorEigen::unflattenInPlace(locVecout, vecout);
 }
 
 void PrecisionOpMultiConditionalCs::makeReady()

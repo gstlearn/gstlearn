@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Matrix/VectorEigen.hpp"
 #include "geoslib_old_f.h"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
@@ -21,6 +22,8 @@
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
+#include <Eigen/src/Core/MatrixBase.h>
 #include <math.h>
 
 PrecisionOp::PrecisionOp()
@@ -155,7 +158,14 @@ PrecisionOp* PrecisionOp::create(const AMesh* mesh,
   return new PrecisionOp(mesh, model, icov, verbose);
 }
 
-int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
+void PrecisionOp::_addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const
+{
+    _addEvalPower(inv, outv, EPowerPT::ONE);
+
+}
+
+int PrecisionOp::_preparePoly(const EPowerPT& power,bool force) const
 {
   // Polynomial already exists. Nothing to be done
   if (_polynomials.count(power) > 0 && !force) return 0;
@@ -186,7 +196,7 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
     _preparePoly(EPowerPT::LOG,true);
   }
 
-int PrecisionOp::_prepareChebychev(const EPowerPT& power)
+int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 {
   if (_cova == nullptr && _polynomials.count(EPowerPT::ONE)==0) return 1;
   if (_shiftOp == nullptr) return 1;
@@ -226,17 +236,17 @@ double PrecisionOp::getLogDeterminant(int nbsimu,int seed)
 {
   law_set_random_seed(seed);
 
-  VectorDouble gauss;
-  VectorDouble result;
+  Eigen::VectorXd gauss;
+  Eigen::VectorXd result;
   gauss.resize(getSize());
   result.resize(getSize());
 
   double val1 = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    for (auto &e : gauss)
+    for (int i = 0; i < (int)gauss.size(); i++)
     {
-      e = law_gaussian();
+      gauss[i] = law_gaussian();
     }
     if (_evalPoly(EPowerPT::LOG, gauss, result) != 0) return TEST;
 
@@ -294,15 +304,23 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
  * @param vecin Input array
  * @param vecout Output array
  */
-void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
+/* void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
   evalPower(vecin, vecout, EPowerPT::ONE);
 }
-
-void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const EPowerPT& power)
+ */
+void PrecisionOp::evalPower(const Eigen::VectorXd& inm, Eigen::VectorXd& outm, const EPowerPT& power)
 {
-  const VectorDouble* inPtr = &inv;
-  if (_work.empty()) _work.resize(getSize());
+  VectorEigen::fill(outm);
+  for (int i = 0; i < (int)outm.size(); i++)
+  _addEvalPower(inm, outm, power);
+}
+
+
+void PrecisionOp::_addEvalPower(const Eigen::VectorXd& inv, Eigen::VectorXd& outv, const EPowerPT& power) const
+{
+  const Eigen::VectorXd* inPtr = &inv;
+  if (_work.size() == 0) _work.resize(getSize());
 
   // Pre-processing
 
@@ -330,8 +348,8 @@ void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const E
 }
 
 int PrecisionOp::_evalPoly(const EPowerPT& power,
-                           const VectorDouble& inv,
-                           VectorDouble& outv)
+                           const Eigen::VectorXd& inv,
+                           Eigen::VectorXd& outv) const 
 {
   if (_preparePoly(power) != 0) return 1;
   if(getTraining())
@@ -340,14 +358,14 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 
     if(_workPoly.empty())
     {
-      _workPoly = VectorVectorDouble(degree);
+      _workPoly = std::vector<Eigen::VectorXd>(degree);
       for(auto &e: _workPoly)
       {
-        e = VectorDouble(inv.size());
+        e = Eigen::VectorXd(inv.size());
       }
     }
 
-    if (_work5.empty()) _work5.resize(getSize());
+    if (_work5.size() == 0) _work5.resize(getSize());
     ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),inv,_workPoly,_work5);
 
     for(int i=0;i<(int)inv.size();i++)
@@ -362,20 +380,21 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
   return 0;
 }
 
-void PrecisionOp::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
+void PrecisionOp::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout)
 {
+  if (_work.size() != vecin.size()) _work.resize(vecin.size());
   _shiftOp->prodLambda(vecin,vecout,EPowerPT::MINUSONE);
-  _evalPoly(EPowerPT::MINUSONE, vecout, vecin);
-  _shiftOp->prodLambda(vecin, vecout, EPowerPT::MINUSONE);
+  _evalPoly(EPowerPT::MINUSONE, vecout, _work);
+  _shiftOp->prodLambda(_work, vecout, EPowerPT::MINUSONE);
 }
 
-VectorDouble PrecisionOp::evalCov(int imesh)
+Eigen::VectorXd PrecisionOp::evalCov(int imesh)
 {
 
   int n = getSize();
-  VectorDouble ei(n);
-  VectorDouble result(n);
-  VH::fill(ei,0.,n);
+  Eigen::VectorXd ei(n);
+  Eigen::VectorXd result(n);
+  VectorEigen::fill(ei,0.);
   ei[imesh] = 1.;
   _shiftOp->prodLambda(ei,result,EPowerPT::MINUSONE);
   _evalPoly(EPowerPT::MINUSONE,result,ei);
@@ -384,39 +403,49 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   return result;
 }
 
-void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
+void PrecisionOp::evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout)
 {
   _evalPoly(EPowerPT::MINUSHALF, whitenoise, vecout);
   _shiftOp->prodLambda(vecout, vecout, EPowerPT::MINUSONE);
 }
 
-VectorVectorDouble PrecisionOp::simulate(int nbsimu)
+
+
+std::vector<Eigen::VectorXd> PrecisionOp::simulate(int nbsimu)
 {
   int n = getSize();
-  VectorVectorDouble vect(nbsimu);
-  VectorDouble whitenoise(n);
+  std::vector<Eigen::VectorXd> vect(nbsimu);
+  Eigen::VectorXd whitenoise(n);
 
   for(auto &e : vect)
   {
     e.resize(n);
-    whitenoise = VH::simulateGaussian(n);
+    for (int i = 0; i < n; i++)
+    {
+      whitenoise[i] = law_gaussian();
+    }
+  
     _evalPoly(EPowerPT::MINUSHALF,whitenoise,e);
     _shiftOp->prodLambda(e, e, EPowerPT::MINUSONE);
   }
   return vect;
 }
 
-VectorDouble PrecisionOp::simulateOne()
+Eigen::VectorXd PrecisionOp::simulateOne()
 {
   int n = getSize();
-  VectorDouble vect(n);
-  VectorDouble whitenoise = VH::simulateGaussian(n);
+  Eigen::VectorXd vect(n);
+  Eigen::VectorXd whitenoise(n);
+  for (int i = 0; i<n; i++)
+  {
+    whitenoise[i] = law_gaussian();
+  }
   _evalPoly(EPowerPT::MINUSHALF,whitenoise,vect);
   _shiftOp->prodLambda(vect, vect, EPowerPT::MINUSONE);
   return vect;
 }
 
-int PrecisionOp::_preparePrecisionPoly()
+int PrecisionOp::_preparePrecisionPoly() const
 {
   if (_cova == nullptr) return 1;
   if (!_cova->hasMarkovCoeffs()) return 1;

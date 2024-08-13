@@ -118,24 +118,24 @@ int HessianOp::init(PrecisionOp*  pmat,
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void HessianOp::_evalDirect(const Eigen::VectorXd& inv,
+void HessianOp::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
   if (!_isInitialized) my_throw("'HessianOp' must be initialized beforehand");
   
   // Map Eigen Vector to VectorDouble arguments
   // TODO : VectorXd => VectorDouble = Memory copy !!
-  VectorDouble einv(inv.data(), inv.data() + inv.size());
-  VectorDouble eoutv(outv.size());
+ // VectorDouble einv(inv.data(), inv.data() + inv.size());
+ // VectorDouble eoutv(outv.size());
 
   // Contribution of the spatial structure
 
-  _pMat->evalDirect(einv,eoutv);
+  _pMat->evalDirect(inv,outv);
 
   // Contribution of the Data
 
   _projData->mesh2point(_lambda,_workp);
-  _projData->mesh2point(einv,_workx);
+  _projData->mesh2point(inv,_workx);
 
   double denom,dl;
   for (int i=0; i<_projData->getPointNumber(); i++)
@@ -143,45 +143,46 @@ void HessianOp::_evalDirect(const Eigen::VectorXd& inv,
     double ratio = 0.;
     if (! FFFF(_indic[i]))
     {
-      denom = _indic[i] - law_cdf_gaussian(_workp[i]);
-      dl    = law_df_gaussian(_workp[i]);
+      denom = _indic[i] - law_cdf_gaussian(_workp.getValue(i));
+      dl    = law_df_gaussian(_workp.getValue(i));
       ratio = dl / denom;
     }
-    _workp[i] = (- _workp[i] * ratio + pow(ratio,2)) * _workx[i];
+    _workp.setValue(i, (- _workp.getValue(i) * ratio + pow(ratio,2)) * _workx.getValue(i));
   }
   _projData->point2mesh(_workp, _workv);
-  for (int i=0; i<_projData->getApexNumber(); i++) eoutv[i] += _workv[i];
-
+  for (int i=0; i<_projData->getApexNumber(); i++) 
+  {
+    outv[i]+= _workv.getValue(i);
+  }
   // Contribution of Seismic (optional)
 
   if (_flagSeismic)
   {
     for (int i=0; i<_projSeis->getApexNumber(); i++) 
-      _workv[i] = law_cdf_gaussian(_lambda[i]);
+      _workv.setValue(i,law_cdf_gaussian(_lambda.getValue(i)));
     _projSeis->mesh2point(_workv, _works);
     for (int i=0; i<_projSeis->getPointNumber(); i++) 
     {
-      _works[i] -= _propSeis[i]; 
-      _works[i] *= _varSeis[i];
+      _works.setValue(i, _works.getValue(i)- _propSeis.getValue(i));
+      _works.setValue(i, _works.getValue(i) * _varSeis.getValue(i));
     }
     _projSeis->point2mesh(_works, _workv);
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      eoutv[i] -= _lambda[i] * law_df_gaussian(_lambda[i]) * _workv[i] * einv[i];
-
+    { 
+      double val = _lambda.getValue(i);
+      outv[i] -= val * law_df_gaussian(val) * _workv.getValue(i) * inv[i];
+    }
     for (int i=0; i<_projSeis->getApexNumber(); i++)
-      _workv[i] = einv[i] * law_df_gaussian(_lambda[i]);
+      _workv.setValue(i, inv[i] * law_df_gaussian(_lambda.getValue(i)));
     _projSeis->mesh2point(_workv, _works);
     for (int i=0; i<_projSeis->getPointNumber(); i++)
-      _works[i] *= _varSeis[i];
+      _works.setValue(i,_works.getValue(i) * _varSeis.getValue(i));
     _projSeis->point2mesh(_works, _workv);
     for (int i=0; i<_projSeis->getApexNumber(); i++)
-      _workv[i] *= law_df_gaussian(_lambda[i]); // d2u
+      _workv.setValue(i,_workv.getValue(i) *law_df_gaussian(_lambda.getValue(i)));
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      eoutv[i] += _workv[i];
+      outv[i] += _workv.getValue(i);
   }
-
-  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
-  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
 }

@@ -89,7 +89,7 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
 //  return 0;
 //}
 
-int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
+/* int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
 {
   if ((int) inv.size() != getPointNumber())
   {
@@ -107,8 +107,18 @@ int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
   prodMatVecInPlace(inv, outv, true);
   return 0;
 }
+ */
+int ProjMatrix::_mesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+{
+  return 0;
+}
 
-int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
+int ProjMatrix::_point2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+{
+  return 0;
+}
+
+/* int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
 {
   if ((int) inv.size() != getApexNumber())
   {
@@ -126,7 +136,7 @@ int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
   prodMatVecInPlace(inv, outv, false);
   return 0;
 }
-
+ */
 String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   return MatrixSparse::toString(strfmt);
