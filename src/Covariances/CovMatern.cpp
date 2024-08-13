@@ -8,21 +8,20 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
-#include "Covariances/CovBesselK.hpp"
+#include "Covariances/CovMatern.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/Utilities.hpp"
 
 #include "math.h"
 
 #define MAXTAB 100
 
-CovBesselK::CovBesselK(const CovContext& ctxt)
-: ACovFunc(ECov::BESSEL_K, ctxt)
+CovMatern::CovMatern(const CovContext& ctxt)
+: ACovFunc(ECov::MATERN, ctxt)
   ,_correc(1.)
   ,_markovCoeffs(VectorDouble())
 {
@@ -31,14 +30,14 @@ CovBesselK::CovBesselK(const CovContext& ctxt)
   //TODO compute blin (rapatrier de PrecisionOp.cpp
 }
 
-CovBesselK::CovBesselK(const CovBesselK &r)
+CovMatern::CovMatern(const CovMatern &r)
 : ACovFunc(r)
   ,_correc(r._correc)
   ,_markovCoeffs(r._markovCoeffs)
 {
 }
 
-CovBesselK& CovBesselK::operator=(const CovBesselK &r)
+CovMatern& CovMatern::operator=(const CovMatern &r)
 {
   if (this != &r)
   {
@@ -47,16 +46,16 @@ CovBesselK& CovBesselK::operator=(const CovBesselK &r)
   return *this;
 }
 
-CovBesselK::~CovBesselK()
+CovMatern::~CovMatern()
 {
 }
 
-double CovBesselK::getScadef() const
+double CovMatern::getScadef() const
 {
   return sqrt(12. * getParam());
 }
 
-double CovBesselK::_evaluateCov(double h) const
+double CovMatern::_evaluateCov(double h) const
 {
   static double TAB[MAXTAB];
 
@@ -69,25 +68,25 @@ double CovBesselK::_evaluateCov(double h) const
   cov = 1.;
   if (h > 0)
   {
-    if (bessel_k(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
+    if (matern(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
     cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
   }
   return (cov);
 }
 
-String CovBesselK::getFormula() const
+String CovMatern::getFormula() const
 {
   return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
 }
 
-double CovBesselK::evaluateSpectrum(double freq) const
+double CovMatern::evaluateSpectrum(double freq) const
 {
   int ndim = getContext().getNDim();
   double alpha = (double) ndim / 2. + getParam();
   return 1. /  pow(1. + freq, alpha);
 }
 
-void CovBesselK::computeMarkovCoeffs(int ndim)
+void CovMatern::computeMarkovCoeffs(int ndim)
 {
   double param = getParam();
   double ndims2 = ((double) ndim) / 2.;
@@ -102,7 +101,7 @@ void CovBesselK::computeMarkovCoeffs(int ndim)
   computeCorrec(ndim);
 }
 
-void CovBesselK::computeCorrec(int ndim)
+void CovMatern::computeCorrec(int ndim)
 {
   double g0, ndims2, gammap, gammaa;
   ndims2 = ((double) ndim) / 2.;
@@ -112,20 +111,19 @@ void CovBesselK::computeCorrec(int ndim)
   _correc = gammap / (g0 * gammaa);
 }
 
-VectorDouble CovBesselK::getMarkovCoeffs()const
+VectorDouble CovMatern::getMarkovCoeffs()const
 {
   return _markovCoeffs;
 }
 
-double CovBesselK::simulateTurningBand(double t0, TurningBandOperate &operTB) const
+double CovMatern::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
   if (getParam() > 0.5)
     return operTB.cosineOne(t0);
-  else
-    return operTB.spectralOne(t0);
+  return operTB.spectralOne(t0);
 }
 
-MatrixRectangular CovBesselK::simulateSpectralOmega(int nb) const
+MatrixRectangular CovMatern::simulateSpectralOmega(int nb) const
 {
   int ndim = getContext().getNDim();
   double param = getParam();
@@ -140,7 +138,7 @@ MatrixRectangular CovBesselK::simulateSpectralOmega(int nb) const
   return mat;
 }
 
-VectorDouble CovBesselK::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovMatern::_evaluateSpectrumOnSphere(int n, double scale) const
 {
   double kappa = 1. / scale;
   double mu = getParam();

@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   NoStatFunctional NoStat(&spirale);
   model->addNoStat(&NoStat);

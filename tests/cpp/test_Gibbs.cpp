@@ -287,14 +287,14 @@ int main(int argc, char *argv[])
   double range_spde =   30.;
   double param_spde =    1.;
   double sill_spde  =    1.;
-  Model* model1 = Model::createFromParam(ECov::BESSEL_K,range_spde,sill_spde,param_spde);
+  Model* model1 = Model::createFromParam(ECov::MATERN,range_spde,sill_spde,param_spde);
 
   // Model for constraints
 
   double range_cons =   50.;
   double param_cons =    2.;
   double sill_cons  =    1.;
-  Model* model2 = Model::createFromParam(ECov::BESSEL_K,range_cons,sill_cons,param_cons);
+  Model* model2 = Model::createFromParam(ECov::MATERN,range_cons,sill_cons,param_cons);
 
   // Creating the meshing for extracting Q
 

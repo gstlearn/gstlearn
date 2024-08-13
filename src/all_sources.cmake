@@ -68,7 +68,7 @@ set(SRC
   Covariances/CovWendland1.cpp
   Covariances/CovWendland2.cpp
   Covariances/CovGradientFunctional.cpp
-  Covariances/CovBesselK.cpp
+  Covariances/CovMatern.cpp
   Covariances/CovLMGradient.cpp
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp

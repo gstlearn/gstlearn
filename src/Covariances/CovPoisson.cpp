@@ -47,7 +47,7 @@ double CovPoisson::_evaluateCovOnSphere(double alpha,
   DECLARE_UNUSED(scale);
   DECLARE_UNUSED(degree);
   double lambda = getParam();
-  double valbes = bessel_j(lambda * sin(alpha), 0);
+  double valbes = besselj(lambda * sin(alpha), 0);
   return exp(lambda * (cos(alpha) - 1.)) * valbes;
 }
 

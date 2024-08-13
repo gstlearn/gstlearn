@@ -133,6 +133,7 @@ int Style::unusedArgument(int a)
  *  Example of a private method
  *
  *  \param[in] arg Input integer argument
+ *  \param[in] verbose Verbose flag
  *
  *  \return The input argument incremented
  */

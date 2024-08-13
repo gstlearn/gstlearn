@@ -1280,12 +1280,12 @@ static void st_calcul_update(void)
 
 /****************************************************************************/
 /*!
- **  Modify the Exponential into a Bessel_K
+ **  Modify the Exponential into a Matern
  **
  ** \param[in]  cova         Covariance sructure
  **
  *****************************************************************************/
-static void st_convert_exponential2bessel(CovAniso *cova)
+static void st_convert_exponential2matern(CovAniso *cova)
 {
   double scale_exp, range_exp, scale_bes, range_bes;
 
@@ -1295,9 +1295,9 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   scale_exp = range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
-  range_bes = scale2range(ECov::BESSEL_K, scale_bes, 0.5);
+  range_bes = scale2range(ECov::MATERN, scale_bes, 0.5);
 
-  cova->setType(ECov::BESSEL_K);
+  cova->setType(ECov::MATERN);
   cova->setParam(0.5);
   cova->setRangeIsotropic(range_bes);
 
@@ -1307,7 +1307,7 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   {
     message("Convert from Exponential to Bessel-K\n");
     message("- Exponential: Range=%lf Scale=%lf\n", range_exp, scale_exp);
-    message("- Bessel_K   : Range=%lf Scale=%lf\n", range_bes, scale_bes);
+    message("- Matern     : Range=%lf Scale=%lf\n", range_bes, scale_bes);
   }
 }
 
@@ -1347,13 +1347,13 @@ int spde_attach_model(Model *model)
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
     cova = model->getCova(icov);
-    if (cova->getType() == ECov::BESSEL_K)
+    if (cova->getType() == ECov::MATERN)
     {
       continue;
     }
     if (cova->getType() == ECov::EXPONENTIAL)
     {
-      st_convert_exponential2bessel(cova);
+      st_convert_exponential2matern(cova);
       continue;
     }
     if (cova->getType() == ECov::NUGGET)
@@ -1364,7 +1364,7 @@ int spde_attach_model(Model *model)
     else
     {
       messerr("SPDE Model can only support:");
-      messerr("- Bessel_K basic structures");
+      messerr("- Matern basic structures");
       messerr("- Exponential basic structures");
       messerr("- A complementary Neugget Effect");
       return (1);
@@ -1468,13 +1468,13 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   {
     cova = model->getCova(icov);
     silltot += cova->getSill(0, 0);
-    if (cova->getType() == ECov::BESSEL_K)
+    if (cova->getType() == ECov::MATERN)
     {
       continue;
     }
     if (cova->getType() == ECov::EXPONENTIAL)
     {
-      st_convert_exponential2bessel(cova);
+      st_convert_exponential2matern(cova);
       continue;
     }
     if (cova->getType() == ECov::NUGGET)
@@ -1486,7 +1486,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     else
     {
       messerr("SPDE Model can only support:");
-      messerr("- Bessel_K basic structures");
+      messerr("- Matern basic structures");
       messerr("- Exponential basic structures");
       messerr("- A complementary Nugget Effect");
       return (1);

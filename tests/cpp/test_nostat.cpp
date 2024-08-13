@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   CovAniso* cova = model->getCova(0);

@@ -382,7 +382,7 @@ ECov CalcSimuTurningBands::_particularCase(const ECov &type, double param)
       return (ECov::STABLE);
       break;
 
-    case ECov::E_BESSEL_K:
+    case ECov::E_MATERN:
       if (ABS(param - 0.5) < eps) return (ECov::EXPONENTIAL);
       break;
 
@@ -446,11 +446,11 @@ int CalcSimuTurningBands::_initializeSeedBands()
 
             case ECov::E_GAUSSIAN:
             case ECov::E_SINCARD:
-            case ECov::E_BESSEL_J:
+            case ECov::E_BESSELJ:
               (void)_spectralInit(ibs, is, operTB);
               break;
 
-            case ECov::E_BESSEL_K:
+            case ECov::E_MATERN:
               if (param > 0.5)
                 (void)_spectralInit(ibs, is, operTB);
               else
@@ -651,12 +651,12 @@ double CalcSimuTurningBands::_spectralInit(int ibs,
       period = val / scale;
       break;
 
-    case ECov::E_BESSEL_J:
+    case ECov::E_BESSELJ:
       val = law_beta1(1.5, param - 0.5);
       period = sqrt(val) / scale;
       break;
 
-    case ECov::E_BESSEL_K:
+    case ECov::E_MATERN:
       param = sqrt(2. * law_gamma(param));
       for (int i = 0; i < 3; i++)
       {
@@ -1145,12 +1145,12 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
 
             case ECov::E_GAUSSIAN:
             case ECov::E_SINCARD:
-            case ECov::E_BESSEL_J:
+            case ECov::E_BESSELJ:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
-            case ECov::E_BESSEL_K:
+            case ECov::E_MATERN:
               if (param > 0.5)
               {
                 correc = _spectralInit(ibs, is, operTB);
@@ -1274,7 +1274,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               }
               break;
 
-            case ECov::E_BESSEL_K:
+            case ECov::E_MATERN:
               if (param > 0.5)
               {
                 correc = _spectralInit(ibs, is, operTB);
@@ -1301,7 +1301,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
 
             case ECov::E_GAUSSIAN:
             case ECov::E_SINCARD:
-            case ECov::E_BESSEL_J:
+            case ECov::E_BESSELJ:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;

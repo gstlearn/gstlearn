@@ -21,8 +21,8 @@
                  GAUSSIAN,    3, "Gaussian",\
                  CUBIC,       4, "Cubic",\
                  SINCARD,     5, "Sine Cardinal",\
-                 BESSEL_J,    6, "Bessel J",\
-                 BESSEL_K,    7, "Bessel K",\
+                 BESSELJ,     6, "Bessel J",\
+                 MATERN,      7, "Matern",\
                  GAMMA,       8, "Gamma",\
                  CAUCHY,      9, "Cauchy",\
                  STABLE,     10, "Stable",\
