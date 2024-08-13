@@ -177,12 +177,14 @@
 %include LinearOp/ShiftOpCs.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp
+%include LinearOp/SPDEOp.hpp
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp
+%include LinearOp/ProjMatrixMulti.hpp
 %include LinearOp/PrecisionOpMulti.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
-%include LinearOp/ProjConvolution.hpp
+//%include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
@@ -372,3 +374,4 @@
 
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
+%template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;
