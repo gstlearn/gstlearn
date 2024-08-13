@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
   // Parameters
   bool debugPrint = false;
-  int mode = -1; // 0: Standard; 1: Schur; -1 Both
+  int mode = -1;  // 0: Standard; 1: Schur; -1 Both
 
   bool flagSK         = false;
   bool flagBayes      = true;
