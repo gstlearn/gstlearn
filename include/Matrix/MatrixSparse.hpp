@@ -15,6 +15,7 @@
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
 DISABLE_WARNING_PUSH
@@ -70,6 +71,10 @@ public:
                 const EOperator &oper,
                 double value,
                 bool flagCheck = true) override;
+int addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const;
+
+ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
+                                bool transpose = false) const;
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
@@ -176,6 +181,13 @@ public:
   // Cholesky functions
   int    computeCholesky();
   int    solveCholesky(const VectorDouble& b, VectorDouble& x);
+
+  #ifndef SWIG
+    int  solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x);
+    int  simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x);
+    int  addVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y);
+
+  #endif
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
   double computeCholeskyLogDeterminant();
 
@@ -222,6 +234,8 @@ protected:
 
   virtual void    _prodMatVecInPlacePtr(const double *x, double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x, double *y, bool transpose = false) const override;
+
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 

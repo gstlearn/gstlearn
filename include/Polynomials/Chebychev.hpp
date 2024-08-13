@@ -17,6 +17,11 @@
 
 #include <functional>
 
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
 class AFunction;
 class ALinearOpMulti;
 class cs; /// TODO : Dependency to csparse to be removed
@@ -32,11 +37,13 @@ public:
 
   /// Interface for Apolynomial
 #ifndef SWIG
-  void evalOp(MatrixSparse* S,const VectorDouble& x, VectorDouble& y) const override;
-#endif
-  void evalOp(const ALinearOpMulti *Op,
-              const VectorVectorDouble &inv,
-              VectorVectorDouble &outv) const override;
+  void evalOp(MatrixSparse* S,const Eigen::VectorXd& x, Eigen::VectorXd& y) const override;
+  void addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+
+  /* void evalOp(const ALinearOpMulti *Op,
+              const std::vector<Eigen::VectorXd> &inv,
+              std::vector<Eigen::VectorXd> &outv) const override; */
+ #endif
   double eval(double x) const override;
   int fit(const std::function<double(double)>& f,
           double a = 0.,

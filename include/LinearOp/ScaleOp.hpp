@@ -35,7 +35,7 @@ public:
 
 #ifndef SWIG
 protected:
-  void _evalDirect(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  void _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
 #endif
 
 private:

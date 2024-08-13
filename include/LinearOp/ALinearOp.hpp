@@ -26,15 +26,23 @@ public:
   virtual ~ALinearOp() {}
   virtual int getSize() const = 0;
   
-  virtual void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
-  virtual void evalDirect(const VectorEigen& inv, VectorEigen& outv) const;
-
+  //TODO : check unnecessary virtual when finished
+  virtual void evalDirect(const VectorDouble& inv, VectorDouble& outv) ;
+  virtual void evalDirect(const VectorEigen& inv, VectorEigen& outv) ;
+  virtual void addToDest(const VectorDouble& inv, VectorDouble& outv) const;
+  virtual void addToDest(const VectorEigen& inv, VectorEigen& outv) const;
 #ifndef SWIG
+
   virtual void evalDirect(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv);
+  virtual void addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const;
 
 protected:
-  virtual void _evalDirect(const Eigen::VectorXd& inv,
-                           Eigen::VectorXd& outv) const = 0;
+ 
+
+protected:
+  virtual void _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const = 0;
 #endif
 };

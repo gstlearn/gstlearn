@@ -17,6 +17,12 @@
 #include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+#include <Eigen/src/Core/Matrix.h>
+
+#ifndef SWIG
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
@@ -45,13 +51,17 @@ public:
 
   int  solve(const VectorDouble& b, VectorDouble& x) const;
   int  simulate(const VectorDouble& b, VectorDouble& x) const;
+  #ifndef SWIG
+    int solve(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+     int  simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+  #endif
   int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
   double getLogDeterminant() const;
 
 #ifndef SWIG
 protected:
-  void _evalDirect(const Eigen::VectorXd& inv,
-                   Eigen::VectorXd& outv) const override;
+  void _addToDest(const Eigen::VectorXd& inv,
+                        Eigen::VectorXd& outv) const override;
 
 private:
   void _clean();

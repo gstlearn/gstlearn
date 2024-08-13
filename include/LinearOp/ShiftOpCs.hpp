@@ -21,7 +21,13 @@
 
 #include "Matrix/MatrixSparse.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <map>
+
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
 
 class Model;
 class CovAniso;
@@ -61,7 +67,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
     ShiftOpCs& operator=(const ShiftOpCs& shift);
     virtual ~ShiftOpCs();
 
-    void _evalDirect(const Eigen::VectorXd& inv,
+    void _addToDest(const Eigen::VectorXd& inv,
                      Eigen::VectorXd& outv) const override;
 
     static ShiftOpCs* create(const AMesh* amesh, Model* model,
@@ -95,6 +101,14 @@ class GSTLEARN_EXPORT ShiftOpCs:
                     const EPowerPT& power) const;
     void prodLambda(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
+  #ifndef SWIG
+    void prodLambda(const Eigen::VectorXd& x, Eigen::VectorXd& y,
+                    const EPowerPT& power) const;
+    void prodLambda(const VectorDouble& x, Eigen::VectorXd& y,
+                    const EPowerPT& power) const;
+    void prodLambda(const Eigen::VectorXd& x, VectorDouble& y,
+                    const EPowerPT& power) const;
+  #endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
     double getMaxEigenValue() const;

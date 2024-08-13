@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 class PrecisionOp;
 class IProjMatrix;
@@ -34,8 +35,8 @@ public:
   double computeLogDetOp(int nbsimu = 1, int seed = 123) const override;
 
   /// Interface to ALinearOp
-  void evalInverse(const VectorVectorDouble &vecin,
-                   VectorVectorDouble &vecout) const override;
+  void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
+                   std::vector<Eigen::VectorXd> &vecout) const override;
 
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
 

@@ -16,6 +16,10 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+#endif
 class Model;
 
 /**
@@ -41,18 +45,22 @@ public:
   int  setMeshes(const std::vector<AMesh*>& meshes);
   void clearMeshes();
   void addMesh(AMesh* mesh);
+  #ifndef SWIG
 
-  int evalSimulateInPlace(const VectorDouble& vecin,
-                                VectorDouble& vecout);
+  int evalSimulateInPlace(const Eigen::VectorXd& vecin,
+                                Eigen::VectorXd& vecout);
   
-  int evalDirectInPlace(const VectorDouble& vecin,
-                              VectorDouble& vecout);
-  VectorDouble evalDirect(const VectorDouble& vecin);
-  VectorDouble evalSimulate(const VectorDouble& vecin);
+  int evalDirectInPlace(const Eigen::VectorXd& vecin,
+                              Eigen::VectorXd& vecout);
+  Eigen::VectorXd evalDirect(const Eigen::VectorXd& vecin);
+  Eigen::VectorXd evalSimulate(const Eigen::VectorXd& vecin);
 
-  private: 
-  int _prepareOperator(const VectorDouble& vecin,
-                              VectorDouble& vecout) const;
+  #endif
+  private:
+  #ifndef SWIG 
+  int _prepareOperator(const Eigen::VectorXd& vecin,
+                              Eigen::VectorXd& vecout) const;
+  #endif
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<AMesh*>& meshes);
   bool _matchModelAndMeshes();
