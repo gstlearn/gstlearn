@@ -129,12 +129,12 @@ public:
 
   // Example of a method with a standard documentation (do not use doxygen
   // here - all the documentation is in the body file!)
-  int documentedStandard(int myArg) const;
+  static int documentedStandard(int myArg);
   // Example of a method with a documentation having a Latex formula (do not use
   // doxygen here!)
-  int documentedWithFormula(int myArg) const;
+  static int documentedWithFormula(int myArg);
   // Example of a method where argument is not used (do not use doxygen here!)
-  int unusedArgument(int a);
+  static int unusedArgument(int a);
 
   // Special static function (global) with a default argument (do not use
   // doxygen here!)
@@ -189,7 +189,7 @@ public:
 
 private:
   // Example of a private method
-  int _increment(int arg, bool verbose = false) const;
+  static int _increment(int arg, bool verbose = false);
 
 private:
   // Use same line documentation for private members

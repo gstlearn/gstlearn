@@ -16,6 +16,7 @@
 #include "Enum/EStatOption.hpp"
 
 #include "Db/PtrGeos.hpp"
+#include "Matrix/Table.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
@@ -536,8 +537,12 @@ public:
                                          const VectorInt &nbgh = VectorInt(),
                                          bool useSel = true,
                                          bool useVerr = false) const;
-
-  double       getWeight(int iech) const;
+  VectorDouble getMultipleValuesActive(const VectorInt& ivars = VectorInt(),
+                                       const VectorInt& nbgh  = VectorInt(),
+                                       const VectorDouble& means = VectorDouble(),
+                                       bool useSel = true,
+                                       bool useVerr = false) const;
+  double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
   /** @addtogroup DB_1 Designating Variables (used for simulations in particular)
@@ -833,6 +838,9 @@ public:
                    int aboveRow = ITEST) const;
 
   VectorInt getSampleRanks() const;
+  Table printOneSample(int iech,
+                       const VectorString& names = VectorString(),
+                       bool excludeCoordinates   = true) const;
 
 protected:
   /// Interface for ASerializable

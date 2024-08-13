@@ -3290,6 +3290,48 @@ VectorDouble Db::getSelections(void) const
 }
 
 /**
+ * Returns a one_dimensional vector of values for valid samples for the set of
+ * variables 'ivars'
+ *
+ * @param ivars   Vector giving the indices of the variables of interest
+ * @param nbgh    Vector giving the ranks of the elligible samples (optional)
+ * @param means   Vector of Means per variable (optional)
+ * @param useSel  Discard the masked samples (if True)
+ * @param useVerr Discard the samples where Verr (if it exists) is not correctly
+ * defined
+ *
+ * @note: if the current 'db' has some Z-variable defined, only samples where
+ * @note a variable is defined is considered (search for heterotopy).
+ * @note: If argumennt 'Mean' is provided, the mean is subtracted from the output vector
+ */
+
+VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
+                                         const VectorInt& nbgh,
+                                         const VectorDouble& means,
+                                         bool useSel,
+                                         bool useVerr) const
+{
+  VectorInt jvars = ivars;
+  if (jvars.empty()) jvars = VH::sequence(getLocatorNumber(ELoc::Z));
+  VectorDouble vec;
+  const VectorVectorInt index = getMultipleRanksActive(jvars, nbgh, useSel, useVerr);
+    
+  int nvar = (int)jvars.size();
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    int jvar = jvars[ivar];
+    const VectorInt& local = index[ivar];
+    for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
+    {
+      double value = getLocVariable(ELoc::Z, iech, jvar);
+      if (! means.empty()) value -= means[jvar];
+      vec.push_back(value);
+    }
+  }
+  return vec;
+}
+
+/**
  * Returns the list of indices 'index' for valid samples for the set of variables 'ivars'
  * as well as the count of samples (per variable)
  *
@@ -3375,6 +3417,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
   }
   return ranks;
 }
+
 
 /**
  *  Returns the column referred by its rank (0-based)
@@ -5130,4 +5173,27 @@ Db* Db::createFillRandom(int ndat,
   }
 
   return db;
+}
+
+Table Db::printOneSample(int iech, const VectorString& names, bool excludeCoordinates) const
+{
+  Table table;
+  VectorString allNames = names;
+  if (allNames.empty()) allNames = getAllNames(excludeCoordinates);
+  VectorString localNames = expandNameList(allNames);
+
+  const int nvar = (int)localNames.size();
+  if (nvar <= 0) return table;
+  if (! isSampleIndexValid(iech)) return table;
+
+  table.reset(nvar, 1);
+  table.setSkipDescription(true);
+  table.setTitle("Sample " + std::to_string(iech+1));
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    table.setRowName(ivar, localNames[ivar]);
+    table.setValue(ivar, 0, getValue(localNames[ivar], iech));
+  }
+  return table;
 }

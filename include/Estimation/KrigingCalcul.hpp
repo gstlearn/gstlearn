@@ -16,70 +16,128 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 
+/**
+ * @brief Perform the Algebra for Kriging and CoKriging
+ *
+ * It requires the definition of:
+ * - the vector of Data values *Z* (possibly multivariate and heterotopic)
+ * - the Covariance matrix at data points *Sigma*
+ * - the Drift matrix at data points *X* (UK if defined, SK otherwise)
+ * - the Covariance matrix at target *C00* (only for calculating variance)
+ * - the Drift coefficients *Beta* (for SK)
+ *
+ * Note:
+ * When using SK:
+ * - the vector *Z* must be centered by the drift beforehand
+ * - the vector *beta* corresponds to the vector of Means.
+ */
 class GSTLEARN_EXPORT KrigingCalcul
 {
 public:
-  KrigingCalcul(const MatrixSquareSymmetric* C00 = nullptr,
-                const MatrixSquareSymmetric* C = nullptr,
-                const MatrixRectangular* X = nullptr);
+  KrigingCalcul(const VectorDouble& Z              = VectorDouble(),
+                const MatrixSquareSymmetric* Sigma = nullptr,
+                const MatrixRectangular* X         = nullptr,
+                const MatrixSquareSymmetric* C00   = nullptr,
+                const VectorDouble& Beta           = VectorDouble());
   KrigingCalcul(const KrigingCalcul &r) = delete;
   KrigingCalcul& operator=(const KrigingCalcul &r) = delete;
   virtual ~KrigingCalcul();
 
-  int setC(const MatrixSquareSymmetric* C);
+  int setC00(const MatrixSquareSymmetric* C00);
+  int setSigma(const MatrixSquareSymmetric* Sigma);
   int setX(const MatrixRectangular* X);
-  int setC0(const MatrixRectangular* C0);
+  int setSigma0(const MatrixRectangular* Sigma0);
   int setX0(const MatrixRectangular* X0);
   int setZ(const VectorDouble& Z);
   int setBeta(const VectorDouble& beta);
-  int setBayes(const VectorDouble& mBayes, const MatrixSquareSymmetric* SBayes);
+  int setBayes(const VectorDouble& PriorMean, const MatrixSquareSymmetric* PriorCov);
+
+  void printStatus() const;
+
+  VectorDouble getEstimation();
+  VectorDouble getStdv();
+  VectorDouble getVarianceZstar();
+  VectorDouble getPostMean();
+  const MatrixSquareSymmetric* getStdvMat();
+  const MatrixSquareSymmetric* getVarianceZstarMat();
+  const MatrixRectangular* getLambdaSK();
+  const MatrixRectangular* getLambdaUK();
+  const MatrixSquareSymmetric* getPostCov();
 
 private:
-  static bool _matchDimensions(const AMatrix* mat, int nrowsRef, int ncolsRef);
-  int _computeXi();
+  static bool _checkDimensionMatrix(const String& name,
+                                    const AMatrix* mat,
+                                    int* nrowsRef,
+                                    int* ncolsRef);
+  static bool _checkDimensionVector(const String& name,
+                                    const VectorDouble& vec,
+                                    int* sizeRef);
+
   int _computeLambdaSK();
   int _computeLambdaUK();
-  int _computeZstar(bool flagSK);
-  int _computeVarianceZ(bool flagSK);
-  int _computeVariance(bool flagSK);
-  int _computeXtCm1();
-  int _computeLambdaSKtX();
-  int _computeX0mLambdaSKtX();
-  int _computeSc();
-  int _computeBeta();
-  int _computeCm1();
+  int _computeZstar();
+  int _computeVarSK();
+  int _computeVarZUK();
+  int _computeVarZSK();
+  int _computeStdv();
 
-  int _needCm1();
+  int _computeXtInvSigma();
+  int _computeX0mLambdaSKtX();
+  int _computeSigmac();
+  int _computeBeta();
+  int _computeInvSigma();
+  int _computeInvPriorCov();
+
+  static bool _isPresentMatrix(const String& name, const AMatrix* mat);
+  static bool _isPresentVector(const String& name, const VectorDouble& vec);
+
+  int _needBeta();
+  int _needInvSigma();
   int _needLambdaSK();
   int _needLambdaUK();
-  int _needLambdaSKtX();
-  int _needVarBeta();
+  int _needSigmac();
+  int _needZstar();
+  int _needVarSK();
   int _needX0mLambdaSKtX();
-  int _needXtCm1();
-  int _needVarZ(bool flagSK);
+  int _needXtInvSigma();
+  int _needStdv();
+  int _needVarZSK();
+  int _needVarZUK();
+  int _needInvPriorCov();
+
+  static void _printMatrix(const String& name, const AMatrix* mat);
+  static void _printVector(const String& name, const VectorDouble& vec);
 
 private:
-  const MatrixSquareSymmetric* _C00;    // Not to be deleted (Dim: _nrhs * _nrhs)
-  const MatrixSquareSymmetric* _S;      // Not to be deleted (Dim: _neq * _neq)
-  const MatrixRectangular* _X;          // Not to be deleted (Dim: _neq * _nbfl)
-  const MatrixRectangular* _S0;         // Not to be deleted (Dim: _neq * _nrhs)
-  const MatrixRectangular* _X0;         // Not to be deleted (Dim: _nbfl * _nrhs)
-  const MatrixSquareSymmetric* _SBayes; // Not to be deleted (Dim: _nbfl * _nbfl)
-  VectorDouble _Z;                      // Vector of data (Dim: _neq)
-  VectorDouble _Beta0;                  // Vector of prior mean (Dim: _nbfl)
-  VectorDouble _Xi;                     // Vector of drift at data (Dim: _neq)
-  VectorDouble _Beta;                   // Vector of drift coefficients (Dim: _nbfl)
-  VectorDouble _Zstar;                  // Vector of estimated values (Dim: _nrhs)
-  MatrixRectangular* _lambdaSK;         // Vector of Weights for SK (Dim: _neq * _nrhs)
-  MatrixRectangular* _lambdaUK;         // Vector of Weights for UK (Dim: _neq * _nrhs)
-  MatrixSquareSymmetric* _var;          // Matrix of estimation var. (Dim: _nrhs * _nrhs)
-  MatrixSquareSymmetric* _varZ;         // Matrix of estimator var. (Dim: _nrhs * _nrhs)
-  MatrixRectangular* _XtCm1;            // Xt * Cm1 (Dim: _nbfl * _neq);
-  MatrixRectangular* _LambdaSKtX;       // Xt * LambdaSK (Dim: _nbfl * _nrhs)
+  // Following pointers should not be removed in destructor
+  const MatrixSquareSymmetric* _C00;      // Variance at Target (Dim: _nrhs * _nrhs)
+  const MatrixSquareSymmetric* _Sigma;    // Covariance Matrix (Dim: _neq * _neq)
+  const MatrixRectangular* _X;            // Drift at Data (Dim: _neq * _nbfl)
+  const MatrixRectangular* _Sigma0;       // Covariance at Target (Dim: _neq * _nrhs)
+  const MatrixRectangular* _X0;           // Drift at Target (Dim: _nbfl * _nrhs)
+  const MatrixSquareSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
+
+  // Following elements can be retrieved by Interface functions  
+  VectorDouble _Z;                      // Data [flattened] (Dim: _neq)
+  VectorDouble _PriorMean;              // Prior Bayesian Mean (Dim: _nbfl)
+  VectorDouble _Zstar;                  // Estimated values (Dim: _nrhs)
+  VectorDouble _Beta;                   // Drift coefficients (Dim: _nbfl)
+  MatrixRectangular* _LambdaSK;         // Weights for SK (Dim: _neq * _nrhs)
+  MatrixRectangular* _LambdaUK;         // Weights for UK (Dim: _neq * _nrhs)
+  MatrixSquareSymmetric* _Stdv;         // Estimation stdv. (Dim: _nrhs * _nrhs)
+  MatrixSquareSymmetric* _VarSK;        // Estimation variance in SK (Dim: _nrhs * _nrhs)
+  MatrixSquareSymmetric* _VarZSK;       // Estimator variance in SK (Dim: _nrhs * _nrhs)
+  MatrixSquareSymmetric* _VarZUK;       // Estimator variance in UK (Dim: _nrhs * _nrhs)
+
+  // Following elements are defined for internal storage only
+  MatrixRectangular* _XtInvSigma;       // Xt * InvSigma (Dim: _nbfl * _neq);
   MatrixRectangular* _X0mLambdaSKtX;    // X0 - LambdaSK * Xt (Dim: _nbfl * _nrhs)
-  MatrixSquareSymmetric* _Sm1;          // (_S)^{-1} (Dim: _neq * _neq)
-  MatrixSquareSymmetric* _Sc;           // (Xt * Cm1 * X)^{-1} (Dim: _nbfl * _nbfl)
+  MatrixSquareSymmetric* _InvSigma;     // (_Sigma)^{-1} (Dim: _neq * _neq)
+  MatrixSquareSymmetric* _Sigmac;       // (Xt * Cm1 * X)^{-1} (Dim: _nbfl * _nbfl)
+  MatrixSquareSymmetric* _InvPriorCov;  // (_PriorCov)^{-1} (Dim: _nbfl * _nbfl)
   int _neq;
   int _nbfl;
   int _nrhs;
+  bool _flagSK;
+  bool _flagBayes;
 };

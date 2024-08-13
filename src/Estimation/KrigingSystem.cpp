@@ -434,7 +434,7 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
  */
 double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 {
-  if (_nfeq > 0) return 0.;
+  if (_nfeq > 0 && ! _flagBayes) return 0.;
 
   if (_flagNoMatLC || flagLHS)
   {
@@ -456,7 +456,7 @@ double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 
 void KrigingSystem::_setFlag(int iech, int ivar, int value)
 {
-  _flag[iech + ivar * _nech]= value;
+  _flag[iech + ivar * _nech] = value;
 }
 
 int KrigingSystem::_getFlag(int iech, int ivar)
@@ -758,9 +758,9 @@ void KrigingSystem::_lhsIsoToHetero()
 
 VectorInt KrigingSystem::_getRelativePosition()
 {
-  VectorInt rel(_neq);
+  VectorInt rel(_nred);
   int j = 0;
-  for (int i = 0; i < _neq; i++)
+  for (int i = 0; i < _nred; i++)
   {
     if (!_flag.empty() && _flag[i])
       rel[j++] = i + 1;
@@ -1570,8 +1570,7 @@ void KrigingSystem::_estimateStdv(int status)
 {
   // Calculate the solution
 
-  if (status == 0)
-    _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
+  if (status == 0) _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
 
   // Loop for writing the estimation
 
@@ -1585,13 +1584,11 @@ void KrigingSystem::_estimateStdv(int status)
       if (_flagNoStat || _flagPerCell) _variance0();
 
       double var = _getVAR0(ivarCL, ivarCL);
-      if (_flagBayes) var += _varCorrec.getValue(ivarCL,ivarCL);
-
-      var -= _results.getValue(ivarCL,ivarCL,false);
+      if (_flagBayes) var += _varCorrec.getValue(ivarCL, ivarCL);
+      var -= _results.getValue(ivarCL, ivarCL, false);
 
       double stdv = 0.;
-      if (var > 0)
-        stdv = sqrt(var);
+      if (var > 0) stdv = sqrt(var);
 
       _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
     }
@@ -3079,7 +3076,8 @@ VectorDouble KrigingSystem::getZamC() const
 int KrigingSystem::_bayesPreCalculations()
 {
   if (_dbin == nullptr) return 1;
-  _iechOut = _dbin->getSampleNumber() / 2;
+  // _iechOut = _dbin->getSampleNumber() / 2;
+  _iechOut = 0;
 
   // Elaborate the (Unique) Neighborhood
   _neigh->select(_iechOut, _nbgh);
@@ -3099,9 +3097,9 @@ int KrigingSystem::_bayesPreCalculations()
   VectorDouble vars(shift);
   MatrixSquareSymmetric sigma(shift);
 
-  // Create the array of variables
+    // Create the array of variables
 
-  int ind = 0;
+    int ind = 0;
   for (int iech = 0; iech < _dbin->getSampleNumber(); iech++)
   {
     if (! _dbin->isActive(iech)) continue;
@@ -3128,7 +3126,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   if (_postCov.invert()) return 1;
 
-  /* Calculate: SMU = S-1 * MEAN */
+  /* Calculate: S-1 * MEAN */
 
   _postCov.prodMatVecInPlace(_priorMean, smu);
 
@@ -3154,7 +3152,7 @@ int KrigingSystem::_bayesPreCalculations()
       _postCov.setValue(il, jl, _postCov.getValue(il, jl) + value);
     }
 
-  /* Calculating: SMU = FFt * SIGMA-1 * Z + S-1 * MU */
+  /* Calculating: SMU = FFt * SIGMA-1 * Z + S-1 * MEAN */
 
   for (int il = 0; il < _nfeq; il++)
   {
@@ -3179,13 +3177,13 @@ int KrigingSystem::_bayesPreCalculations()
     print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
     print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
                  _postCov.getValues().data());
-    message("\n");
   }
 
   // Particular case of Simulation: Simulate several outcomes for posterior means
 
   if (_flagSimu) _bayesPreSimulate();
 
+  _neigh->reset();
   return 0;
 }
 
@@ -3200,15 +3198,30 @@ void KrigingSystem::_bayesCorrectVariance()
 
   if (_nbfl <= 0 || _nfeq <= 0) return;
 
-  VectorDouble ff0(_nvar * _nfeq);
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int ib = 0; ib < _nfeq; ib++)
+  /* Establish the drift array FF */
+
+  int shift = _nech;
+  VectorDouble ff(_nech * _nfeq);
+  for (int ib = 0; ib < shift; ib++)
+    for (int il = 0; il < _nfeq; il++)
     {
-      FF0(ib,ivar) = _model->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
+      FF(ib, il) =
+        _model->evalDriftValue(_dbin, _nbgh[ib], 0, il, ECalcMember::LHS);
     }
 
-  /* Correct the arrays */
+  // Establish the drift vector at target
+  VectorDouble ff0(_nvar * _nfeq);
+  for (int ivar = 0; ivar < _nvar; ivar++)
+    for (int il = 0; il < _nfeq; il++)
+    {
+      double X0 =
+        _model->evalDriftValue(_dbout, _iechOut, ivar, il, ECalcMember::RHS);
+      for (int ib = 0; ib < shift; ib++)
+        X0 -= FF(ib, il) * _wgt.getValue(ib, ivar, false);
+      FF0(il, ivar) = X0;
+    }
 
+  // Correct the variance 
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
     {

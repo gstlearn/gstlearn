@@ -1365,18 +1365,20 @@ void AMatrix::linearCombination(double val1,
   // Check dimensions
   if (mat1 != nullptr && ! isSameSize(*mat1))
   {
-    messerr("Dimensions of 'mat1' do not match dimensions of current matrix. Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat1' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
   if (mat2 != nullptr && ! isSameSize(*mat2))
   {
-    messerr("Dimensions of 'mat2' do not match dimensions of current matrix. Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat2' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
   if (mat3 != nullptr && !isSameSize(*mat3))
   {
-    messerr("Dimensions of 'mat3' do not match dimensions of current matrix. "
-            "Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat3' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
 

@@ -1,0 +1,4 @@
+#NO_DIFF#XXX
+----
+480 test(s) have been performed with 0 error(s)
+----

@@ -899,7 +899,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
 void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
                                          AMatrix *mat,
                                          const VectorInt &ivars,
-                                         const VectorVectorInt &index1) const
+                                         const VectorVectorInt &index1)
 {
   // Check if the correction can take place at all
   if (! db1->hasLocVariable(ELoc::V)) return;
