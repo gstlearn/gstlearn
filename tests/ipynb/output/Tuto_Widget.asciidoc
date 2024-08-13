@@ -9,8 +9,8 @@
  'GAUSSIAN',
  'CUBIC',
  'SINCARD',
- 'BESSEL_J',
- 'BESSEL_K',
+ 'BESSELJ',
+ 'MATERN',
  'STABLE')----
 
 

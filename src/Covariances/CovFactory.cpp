@@ -15,7 +15,7 @@
 #include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovBesselJ.hpp"
-#include "Covariances/CovBesselK.hpp"
+#include "Covariances/CovMatern.hpp"
 #include "Covariances/CovCauchy.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovCosExp.hpp"
@@ -67,8 +67,8 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_GAUSSIAN:    return new CovGaussian(ctxt);
     case ECov::E_CUBIC:       return new CovCubic(ctxt);
     case ECov::E_SINCARD:     return new CovSincard(ctxt);
-    case ECov::E_BESSEL_J:    return new CovBesselJ(ctxt);
-    case ECov::E_BESSEL_K:    return new CovBesselK(ctxt);
+    case ECov::E_BESSELJ:     return new CovBesselJ(ctxt);
+    case ECov::E_MATERN:      return new CovMatern(ctxt);
     case ECov::E_GAMMA:       return new CovGamma(ctxt);
     case ECov::E_CAUCHY:      return new CovCauchy(ctxt);
     case ECov::E_STABLE:      return new CovStable(ctxt);
@@ -108,8 +108,8 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     case ECov::E_GAUSSIAN:    return new CovGaussian(   dynamic_cast<const CovGaussian&>   (cov));
     case ECov::E_CUBIC:       return new CovCubic(      dynamic_cast<const CovCubic&>      (cov));
     case ECov::E_SINCARD:     return new CovSincard(    dynamic_cast<const CovSincard&>    (cov));
-    case ECov::E_BESSEL_J:    return new CovBesselJ(    dynamic_cast<const CovBesselJ&>    (cov));
-    case ECov::E_BESSEL_K:    return new CovBesselK(    dynamic_cast<const CovBesselK&>    (cov));
+    case ECov::E_BESSELJ:     return new CovBesselJ(    dynamic_cast<const CovBesselJ&>    (cov));
+    case ECov::E_MATERN:      return new CovMatern(     dynamic_cast<const CovMatern&>     (cov));
     case ECov::E_GAMMA:       return new CovGamma(      dynamic_cast<const CovGamma&>      (cov));
     case ECov::E_CAUCHY:      return new CovCauchy(     dynamic_cast<const CovCauchy&>     (cov));
     case ECov::E_STABLE:      return new CovStable(     dynamic_cast<const CovStable&>     (cov));

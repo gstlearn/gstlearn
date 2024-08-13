@@ -129,7 +129,7 @@ ggPrint(p)
 We define a Matern's stationary covariance function.
 
 ```{r model_definition, echo=TRUE, eval=TRUE}
-model = Model_createFromParam(ECov_BESSEL_K(), param=1,range=rangev,sill=sill)
+model = Model_createFromParam(ECov_MATERN(), param=1,range=rangev,sill=sill)
 ```
 
 This covariance function is converted into a SPDE model.

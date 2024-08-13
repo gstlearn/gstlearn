@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   DbGrid *grid = DbGrid::create(nx);
 
   // Creating the Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10.,30.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10.,30.});
 
   // Creating non-stationarity field (spiral) and attaching it to the Model
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
