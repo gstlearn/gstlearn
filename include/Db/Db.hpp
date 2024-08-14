@@ -513,8 +513,16 @@ public:
   void   updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value);
   /**@}*/
 
-  bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
-  bool   isIsotopic(int iech, int nvar_max = -1) const;
+  int    getZNumber() const;
+  bool   hasZVariable() const;
+  double getZVariable(int iech, int item) const;
+  void   setZVariable(int iech, int item, double value);
+  void   updZVariable(int iech, int item, const EOperator& oper, double value);
+
+  VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
+
+  bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
   bool   isAllIsotopic() const;

@@ -770,38 +770,6 @@ double bench_distance(const Db *db, int iech1, int iech2)
   return db->getDistance1D(iech1, iech2, idim0, true);
 }
 
-/****************************************************************************/
-/*!
- **  Calculate the cylinder radius along a calculation direction
- **
- ** \return  Cylinder radius (or TEST if a coordinate is unknown)
- **
- ** \param[in]  db           Db structure
- ** \param[in]  iech1        Rank of the first sample
- ** \param[in]  iech2        Rank of the second sample
- ** \param[in]  codir        Direction coefficient
- **
- *****************************************************************************/
-double cylinder_radius(const Db *db,
-                       int iech1,
-                       int iech2,
-                       const VectorDouble &codir)
-{
-  double delta, dproj, v, dn1, dn2;
-
-  dn1 = dn2 = v = dproj = 0.;
-  for (int idim = 0; idim < db->getNDim(); idim++)
-  {
-    delta = db->getDistance1D(iech1, iech2, idim);
-    if (FFFF(delta)) return (TEST);
-    dproj += delta * codir[idim];
-    dn1 += codir[idim] * codir[idim];
-    dn2 += delta * delta;
-  }
-  if (dn1 > 0.) v = sqrt(dn2 - dproj * dproj / dn1);
-  return (v);
-}
-
 /*****************************************************************************/
 /*!
  **  Converts from grid indices to the absolute address
@@ -913,11 +881,11 @@ void db_sample_print(Db *db,
   {
     for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
-      double value = db->getLocVariable(ELoc::Z,iech, ivar);
+      double value = db->getZVariable(iech, ivar);
       if (FFFF(value))
         message("Variable   #%d = NA\n", ivar + 1);
       else
-        message("Variable   #%d = %lf\n", ivar + 1, db->getLocVariable(ELoc::Z,iech, ivar));
+        message("Variable   #%d = %lf\n", ivar + 1, db->getZVariable(iech, ivar));
     }
   }
   if (flag_nerr != 0)
@@ -2293,7 +2261,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     for (ivar = invalid = 0; ivar < nvar && invalid == 0; ivar++)
     {
-      ifac[ivar] = (int) db->getLocVariable(ELoc::Z,iech, ivar);
+      ifac[ivar] = (int) db->getZVariable(iech, ivar);
       if (ifac[ivar] > nmax[ivar]) invalid = 1;
     }
     if (invalid) continue;
@@ -2829,7 +2797,7 @@ int db_is_isotropic(const Db *db, int iech, double *data)
   if (!db->isActive(iech)) return (0);
   for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
-    value = db->getLocVariable(ELoc::Z,iech, ivar);
+    value = db->getZVariable(iech, ivar);
     if (FFFF(value)) return (0);
     if (data != NULL) data[ivar] = value;
   }

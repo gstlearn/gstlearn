@@ -52,6 +52,6 @@ private:
 
 protected:
   VectorDouble _extend;
-  double       _code;
-  double       _date;
+  double _code;
+  double _date;
 };

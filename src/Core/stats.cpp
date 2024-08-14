@@ -120,7 +120,7 @@ static double st_extract_subgrid(int verbose,
         if (ndim >= 3) iwork2[2] = jz;
         ind = db_index_grid_to_sample(dbgrid, iwork2.data());
         numtab1[ecr] = 1.;
-        value = dbgrid->isActive(ind) ? dbgrid->getLocVariable(ELoc::Z,ind, 0) :
+        value = dbgrid->isActive(ind) ? dbgrid->getZVariable(ind, 0) :
                                         TEST;
         if (FFFF(value))
           valtab1[ecr] = (flag_ffff) ? 0 :

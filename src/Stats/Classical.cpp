@@ -128,7 +128,7 @@ void _updateProportions(DbGrid *dbin,
                         VectorDouble &prop)
 {
   int rank = dbin->getGrid().indiceToRank(indg);
-  int ifac = (int) dbin->getLocVariable(ELoc::Z,rank, 0);
+  int ifac = (int) dbin->getZVariable(rank, 0);
   if (ifac < 1 || ifac > nfacies) return;
   prop[ifac - 1] += 1.;
 }
@@ -155,9 +155,9 @@ void _updateTransition(DbGrid *dbin,
 {
   int jpos = indg[pos] + orient;
   if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
-  int ifac1 = (int) dbin->getLocVariable(ELoc::Z,dbin->getGrid().indiceToRank(indg), 0);
+  int ifac1 = (int) dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] += orient;
-  int ifac2 = (int) dbin->getLocVariable(ELoc::Z,dbin->getGrid().indiceToRank(indg), 0);
+  int ifac2 = (int) dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] -= orient;
 
   if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
@@ -678,7 +678,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
+    int ifac = (int) db->getZVariable(iech, 0);
     if (ifac <= 0) continue;
     props[ifac - 1] += 1.;
     neff++;
@@ -721,7 +721,7 @@ double dbStatisticsIndicator(Db *db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
+    int ifac = (int) db->getZVariable(iech, 0);
     if (ifac == 1) prop += 1.;
     neff++;
   }

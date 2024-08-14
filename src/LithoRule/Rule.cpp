@@ -983,7 +983,7 @@ int Rule::evaluateBounds(PropDef* propdef,
   for (iech = 0; iech < nech; iech++)
   {
     if (!dbin->isActive(iech)) continue;
-    facies = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
+    facies = (int) dbin->getZVariable(iech, 0);
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
     if (igrf == 0)

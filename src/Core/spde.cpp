@@ -2346,7 +2346,7 @@ static int st_fill_Bnugget(Db *dbin)
     nvr = 0;
     for (ivar = 0; ivar < nvar; ivar++)
     {
-      if (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) continue;
+      if (FFFF(dbin->getZVariable(iech, ivar))) continue;
       ind[nvr] = ivar;
       nvr++;
     }
@@ -2564,7 +2564,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       if (ranks[i] <= 0) continue; // Target or Steiner
       ndata1[ivar]++;
       iech = ranks[i] - 1;
-      value = (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) ? 0. : 1.;
+      value = (FFFF(dbin->getZVariable(iech, ivar))) ? 0. : 1.;
       Btriplet.add(iech, i, value);
     }
     // Add a fictitious sample (zero value) as a dimension constraint
@@ -2602,7 +2602,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
         iech = ranks[i] - 1;
 
         // Could the data be considered as a target (heterotopic case)
-        if (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar)))
+        if (FFFF(dbin->getZVariable(iech, ivar)))
         {
           // The sample is not defined for the current variable: it is a target
           flag_add = 1;
@@ -3459,12 +3459,12 @@ static void st_load_data(AMesh *amesh,
       for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
       {
         if (!dbin->isActive(iech)) continue;
-        if (S_DECIDE.flag_several) data[ecrd++] = dbin->getLocVariable(ELoc::Z,iech, ivar);
+        if (S_DECIDE.flag_several) data[ecrd++] = dbin->getZVariable(iech, ivar);
 
         if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
           zloc = st_get_data_constraints(dbin, igrf, iech);
         else
-          zloc = dbin->getLocVariable(ELoc::Z,iech, ivar);
+          zloc = dbin->getZVariable(iech, ivar);
 
         if (!S_DECIDE.flag_several) data[ecrd++] = zloc;
 
@@ -4268,7 +4268,7 @@ static int st_kriging_several_results(const double *xcur, double *z)
         }
         else
         {
-          valdat = MEM_DBIN->getLocVariable(ELoc::Z,ranks[icur] - 1, ivar);
+          valdat = MEM_DBIN->getZVariable(ranks[icur] - 1, ivar);
           flag_data = !FFFF(valdat);
         }
 
@@ -4308,7 +4308,7 @@ static int st_kriging_several_results(const double *xcur, double *z)
         }
         else
         {
-          valdat = MEM_DBIN->getLocVariable(ELoc::Z,ranks[icur] - 1, ivar);
+          valdat = MEM_DBIN->getZVariable(ranks[icur] - 1, ivar);
           flag_data = !FFFF(valdat);
         }
 
@@ -6678,7 +6678,7 @@ static void st_m2d_stats_updt(M2D_Environ *m2denv,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      zval = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+      zval = dbc->getZVariable(iech, ilayer);
 
       nb += 1.;
       mm += zval;
@@ -7017,7 +7017,7 @@ static void st_print_details(Db *dbc, int nech, int ilayer)
   nvar = nbdmin = nbdmax = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    value = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+    value = dbc->getZVariable(iech, ilayer);
     if (!FFFF(value)) nvar++;
     lower = dbc->getLocVariable(ELoc::L,iech, ilayer);
     upper = dbc->getLocVariable(ELoc::U,iech, ilayer);
@@ -7100,9 +7100,9 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
       /* Get the values at the data point */
 
-      epais = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+      epais = dbc->getZVariable(iech, ilayer);
       if (ilayer > 0)
-        epais -= dbc->getLocVariable(ELoc::Z,iech, ilayer - 1);
+        epais -= dbc->getZVariable(iech, ilayer - 1);
       else
         epais -= m2denv->zmini;
 
@@ -8314,7 +8314,7 @@ static void st_m2d_vector_extract(M2D_Environ *m2denv,
     /* Loop on the layers */
 
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
-      work[ilayer] = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+      work[ilayer] = dbc->getZVariable(iech, ilayer);
 
     /* Convert from the depth to thickness */
 
@@ -8371,7 +8371,7 @@ static void st_print_db_constraints(const char *title,
     {
       lower = db->getLocVariable(ELoc::L,iech, ilayer);
       upper = db->getLocVariable(ELoc::U,iech, ilayer);
-      value = db->getLocVariable(ELoc::Z,iech, ilayer);
+      value = db->getZVariable(iech, ilayer);
       drift = db->getLocVariable(ELoc::F,iech, ilayer);
       vgaus = (! ydat.empty()) ? YDAT(ilayer, iech) : TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower, upper);

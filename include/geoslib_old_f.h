@@ -588,10 +588,6 @@ GSTLEARN_EXPORT double* db_distances_general(Db *db1,
                                              double *dmin,
                                              double *dmax);
 GSTLEARN_EXPORT double bench_distance(const Db *db, int iech1, int iech2);
-GSTLEARN_EXPORT double cylinder_radius(const Db *db,
-                                       int iech1,
-                                       int iech2,
-                                       const VectorDouble &codir);
 GSTLEARN_EXPORT double db_grid_maille(Db *db);
 GSTLEARN_EXPORT int point_to_grid(const DbGrid *db,
                                   const double *coor,

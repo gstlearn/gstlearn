@@ -86,7 +86,7 @@ static int st_multilinear_evaluate(DbGrid *db_grid,
                                    int iatt,
                                    double *value)
 {
-  int jech = db_index_grid_to_sample(db_grid, indg.data());
+  int jech = db_grid->indiceToRank(indg);
   if (jech < 0) return (1);
   if (!db_grid->isActive(jech)) return (1);
   *value = db_grid->getArray(jech, iatt);
@@ -1406,7 +1406,7 @@ int pointToBlock(Db *dbpoint,
                  int iatt_scalev,
                  int iatt_scalew)
 {
-  int *indg, *indg0, iatt_edge, iatt_rank, iatt_surf, iatt_vol, iatt_code;
+  int iatt_edge, iatt_rank, iatt_surf, iatt_vol, iatt_code;
   int val_iech, val_jech, jech, ndim, nvois, lec, error, flag_index;
   VectorInt indret;
   VectorDouble tab1, tab2;
@@ -1414,18 +1414,15 @@ int pointToBlock(Db *dbpoint,
   /* Initializations */
 
   error = 1;
-  indg = indg0 = nullptr;
   iatt_rank = -1;
-  if (!dbgrid->hasSameDimension(dbpoint)) goto label_end;
+  if (!dbgrid->hasSameDimension(dbpoint)) return 1;
   ndim = dbgrid->getNDim();
   flag_index = (int) get_keypone("PTB_Flag_Index", 0.);
 
   /* Core allocation */
 
-  indg0 = db_indg_alloc(dbgrid);
-  if (indg0 == nullptr) goto label_end;
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
+  VectorInt indg0(ndim);
+  VectorInt indg(ndim);;
   tab1.resize(dbgrid->getSampleNumber());
   tab2.resize(dbgrid->getSampleNumber(), -1.);
 
@@ -1472,8 +1469,8 @@ int pointToBlock(Db *dbpoint,
 
     /* Identify the sample within the grid */
 
-    val_iech = (int) tab1[iech];
-    db_index_sample_to_grid(dbgrid, iech, indg0);
+    val_iech = (int)tab1[iech];
+    db_index_sample_to_grid(dbgrid, iech, indg0.data());
 
     /* Increment the volume by one */
 
@@ -1486,7 +1483,7 @@ int pointToBlock(Db *dbpoint,
     {
       for (int idim = 0; idim < ndim; idim++)
         indg[idim] = indg0[idim] + indret[lec++];
-      jech = db_index_grid_to_sample(dbgrid, indg);
+      jech = dbgrid->indiceToRank(indg);
       if (jech < 0)
       {
 
@@ -1517,7 +1514,7 @@ int pointToBlock(Db *dbpoint,
   {
     for (int i = 0; i < dbgrid->getSampleNumber(); i++)
       tab1[i] = tab2[i];
-    st_expand(flag_size, dbgrid, tab1, indg0, indg, tab2);
+    st_expand(flag_size, dbgrid, tab1, indg0.data(), indg.data(), tab2);
   }
 
   /* Transform values into 0 and 1 */
@@ -1540,9 +1537,8 @@ int pointToBlock(Db *dbpoint,
 
   /* Core deallocation */
 
-  label_end: if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
-  db_indg_free(indg);
-  db_indg_free(indg0);
+  label_end:
+    if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
   return (error);
 }
 

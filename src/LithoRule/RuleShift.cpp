@@ -363,7 +363,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
   {
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
-    facies = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
+    facies = (int) dbin->getZVariable(iech, 0);
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
     dbin->setLocVariable(ELoc::L,iech, get_rank_from_propdef(propdef, ipgs, igrf),

@@ -2390,7 +2390,7 @@ static void st_tempere(DbGrid *dbout,
   static int test = 0;
 
   double simerr = result[0] - reskrige;
-  double kdist = dbout->getLocVariable(ELoc::Z,iech, 0);
+  double kdist = dbout->getZVariable(iech, 0);
 
   switch (test)
   {
@@ -3034,7 +3034,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   // Highlight the isoline of interest
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    double value = dbout->getLocVariable(ELoc::Z,iech, 0);
+    double value = dbout->getZVariable(iech, 0);
     if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
   }
 

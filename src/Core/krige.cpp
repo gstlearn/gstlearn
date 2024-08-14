@@ -530,7 +530,7 @@ static double st_get_ivar(int rank, int ivar)
 
       // Particular case of simulations
 
-      value = DBIN->getLocVariable(ELoc::Z,rank, ivar);
+      value = DBIN->getZVariable(rank, ivar);
     else
 
       // Case of the traditional kriging based on Z-variables
@@ -1655,7 +1655,7 @@ int global_transitive(DbGrid* dbgrid,
   {
     for (i = 0; i < dbgrid->getSampleNumber(); i++)
     {
-      value = dbgrid->getLocVariable(ELoc::Z,i, 0);
+      value = dbgrid->getZVariable(i, 0);
       if (!FFFF(value)) dsum += value;
     }
     flag_value = 1;
@@ -2013,7 +2013,7 @@ static double st_estim_exp(Db *db, const double *wgt, int nbefore, int nafter)
 
   result = 0.;
   for (i = -nbefore; i <= nafter; i++)
-    result += wgt[i + nbefore] * db->getLocVariable(ELoc::Z,IECH_OUT + i, 0);
+    result += wgt[i + nbefore] * db->getZVariable(IECH_OUT + i, 0);
 
   return (result);
 }
@@ -2298,7 +2298,7 @@ static void st_calculate_covtot(DbGrid* db,
         indg[2] = jz1;
         iad = db_index_grid_to_sample(db, indg);
         if (!db->isActive(iad)) continue;
-        val1 = db->getLocVariable(ELoc::Z, iad, 0);
+        val1 = db->getZVariable( iad, 0);
         if (FFFF(val1)) continue;
 
         /* Loop on the second point within the covariance array */
@@ -2324,7 +2324,7 @@ static void st_calculate_covtot(DbGrid* db,
               indg[2] = jz2;
               jad = db_index_grid_to_sample(db, indg);
               if (!db->isActive(jad)) continue;
-              val2 = db->getLocVariable(ELoc::Z, jad, 0);
+              val2 = db->getZVariable( jad, 0);
               if (FFFF(val2)) continue;
 
               /* Update the Covariance */
@@ -2428,7 +2428,7 @@ static VectorInt st_neigh_find(DbGrid *db,
         indg[1] = jy;
         indg[2] = jz;
         locrank = db_index_grid_to_sample(db,indg);
-        if (FFFF(db->getLocVariable(ELoc::Z,locrank,0))) continue;
+        if (FFFF(db->getZVariable(locrank,0))) continue;
         NEI_CUR(ix,iy,iz) = locrank;
         nbgh_ranks.push_back(locrank);
         flag_global[number] = 1;
@@ -2628,7 +2628,7 @@ static double st_estim_exp_3D(Db *db,
       for (iz = -nei_nn[2]; iz <= nei_nn[2]; iz++)
       {
         if (NEI_CUR(ix,iy,iz)< 0) continue;
-        result += weight[i] * db->getLocVariable(ELoc::Z,NEI_CUR(ix,iy,iz),0);
+        result += weight[i] * db->getZVariable(NEI_CUR(ix,iy,iz),0);
         i++;
       }
 
@@ -2845,7 +2845,7 @@ int anakexp_3D(DbGrid* db,
 
         DBOUT->setArray(IECH_OUT, IPTR_EST, TEST);
 
-        if (FFFF(db->getLocVariable(ELoc::Z,IECH_OUT, 0)) || !db->isActive(IECH_OUT))
+        if (FFFF(db->getZVariable(IECH_OUT, 0)) || !db->isActive(IECH_OUT))
           continue;
         if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
             || OptDbg::query(EDbg::RESULTS))
@@ -3470,7 +3470,7 @@ int st_krige_data(Db *db,
 
     if (flag_abs)
     {
-      true_value = db->getLocVariable(ELoc::Z,iech, 0);
+      true_value = db->getZVariable(iech, 0);
       if (FFFF(true_value))
         data_est[iech] = TEST;
       else
@@ -3580,7 +3580,7 @@ int st_crit_global(Db *db,
 
     matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
     matrix_product_safe(1, nsize1, 1, datm, temp_loc, &estim);
-    olderr[ecr] = estim + model->getMean(0) - db->getLocVariable(ELoc::Z,iech, 0);
+    olderr[ecr] = estim + model->getMean(0) - db->getZVariable(iech, 0);
 
     matrix_product_safe(1, nsize1, 1, cs, temp_loc, &sigma);
     olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
@@ -3985,7 +3985,7 @@ static void st_declustering_stats(int mode, int method, Db *db, int iptr)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    zval = db->getLocVariable(ELoc::Z,iech, 0);
+    zval = db->getZVariable(iech, 0);
     if (FFFF(zval)) continue;
     coeff = (mode == 0) ? 1. : db->getArray(iech, iptr);
     coeff = ABS(coeff);
@@ -4042,7 +4042,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
+    if (FFFF(db->getZVariable(iech, 0))) continue;
     coeff = db->getArray(iech, iptr);
     if (coeff < 0)
       db->setArray(iech, iptr, 0.);
@@ -4055,7 +4055,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
+    if (FFFF(db->getZVariable(iech, 0))) continue;
     db->updArray(iech, iptr, EOperator::DIVIDE, total);
   }
 }
@@ -4087,14 +4087,14 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
+    if (FFFF(db->getZVariable(iech, 0))) continue;
 
     /* Loop on the second sample */
 
     for (int jech = 0; jech < db->getSampleNumber(); jech++)
     {
       if (!db->isActive(jech)) continue;
-      double value = db->getLocVariable(ELoc::Z,iech, 0);
+      double value = db->getZVariable(iech, 0);
       if (FFFF(value)) continue;
       (void) distance_intra(db, iech, jech, vect.data());
 
@@ -4117,13 +4117,13 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
+    if (FFFF(db->getZVariable(iech, 0))) continue;
     total += 1. / db->getArray(iech, iptr);
   }
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
+    if (FFFF(db->getZVariable(iech, 0))) continue;
     db->setArray(iech, iptr, 1. / db->getArray(iech, iptr) / total);
   }
   return 0;
@@ -4972,7 +4972,7 @@ int inhomogeneous_kriging(Db *dbdat,
   for (int iip = ip = 0; iip < dbdat->getSampleNumber(); iip++)
   {
     if (!dbdat->isActiveAndDefined(iip, 0)) continue;
-    data[ip] = dbdat->getLocVariable(ELoc::Z,iip, 0);
+    data[ip] = dbdat->getZVariable(iip, 0);
     ip++;
   }
 
@@ -5218,7 +5218,7 @@ void _image_smoother(DbGrid *dbgrid,
     double total = 0.;
     for (int iech=0; iech<nb_neigh; iech++)
     {
-      if (FFFF(dbaux->getLocVariable(ELoc::Z,iech, 0))) continue;
+      if (FFFF(dbaux->getZVariable(iech, 0))) continue;
       dbaux->rankToIndice(iech, indnl);
       double d2 = 0.;
       for (int i=0; i<ndim; i++)
@@ -5231,7 +5231,7 @@ void _image_smoother(DbGrid *dbgrid,
       }
 
       int jech = dbgrid->indiceToRank(indgl);
-      double data = dbgrid->getLocVariable(ELoc::Z,jech, 0);
+      double data = dbgrid->getZVariable(jech, 0);
       if (! FFFF(data))
       {
         double weight = (type == 1) ? 1. : exp(-d2 / r2);

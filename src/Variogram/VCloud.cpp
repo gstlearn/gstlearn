@@ -62,7 +62,7 @@ VCloud::~VCloud()
 
 double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
 {
-  return db->getLocVariable(ELoc::Z, iech, ivar);
+  return db->getZVariable( iech, ivar);
 }
 
 /****************************************************************************/

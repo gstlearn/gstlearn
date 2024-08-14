@@ -1746,11 +1746,14 @@ int Vario::getDirAddress(int idir,
   /* Get the position in the array */
 
   int iad = 0;
-  const DirParam dirparam = _varioparam.getDirParam(idir);
+  if (flagCheck)
+  {
+    const DirParam dirparam = _varioparam.getDirParam(idir);
+    if (!dirparam.isLagValid(ipas, getFlagAsym(), flagCheck)) return ITEST;
+  }
 
   if (! getFlagAsym())
   {
-    if (! dirparam.isLagValid(ipas, getFlagAsym(), flagCheck)) return ITEST;
     iad = ipas;
   }
   else
@@ -1761,7 +1764,6 @@ int Vario::getDirAddress(int idir,
     }
     else
     {
-      if (! dirparam.isLagValid(ipas, getFlagAsym()), flagCheck) return ITEST;
       int npas = getLagNumber(idir);
       switch (sens)
       {
@@ -4364,7 +4366,7 @@ void Vario::_rescale(int idir)
  *****************************************************************************/
 double Vario::_getIVAR(const Db *db, int iech, int ivar) const
 {
-  double zz = db->getLocVariable(ELoc::Z, iech, ivar);
+  double zz = db->getZVariable(iech, ivar);
   if (FFFF(zz)) return (TEST);
   if (_BETA.empty()) return (zz);
   if (ivar != 0) return (TEST);
@@ -4458,7 +4460,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
     VectorDouble drfloc = _model->evalDriftBySample(db, iech, ECalcMember::LHS);
-    double zval = db->getLocVariable(ELoc::Z, iech, 0);
+    double zval = db->getZVariable( iech, 0);
 
     for (int il = 0; il < nbfl; il++)
     {

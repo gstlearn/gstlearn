@@ -210,9 +210,9 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    mean = db->getLocVariable(ELoc::Z,iech, 0) / nbsimu;
+    mean = db->getZVariable(iech, 0) / nbsimu;
     db->setLocVariable(ELoc::Z,iech, 0, mean);
-    stdv = db->getLocVariable(ELoc::Z,iech, 1) / nbsimu - mean * mean;
+    stdv = db->getZVariable(iech, 1) / nbsimu - mean * mean;
     stdv = (stdv > 0) ? sqrt(stdv) :
                         0.;
     db->setLocVariable(ELoc::Z,iech, 1, stdv);
@@ -550,7 +550,7 @@ static void st_check_facies_data2grid(Db *dbin,
   for (iech = 0; iech < nechin; iech++)
   {
     if (!dbin->isActive(iech)) continue;
-    facdat = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
+    facdat = (int) dbin->getZVariable(iech, 0);
     if (facdat < 1 || facdat > nfacies) continue;
     jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor);
     if (jech < 0) continue;

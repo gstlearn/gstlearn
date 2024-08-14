@@ -946,7 +946,7 @@ static void st_data_vector(LMlayers *lmlayers,
 
         /* Depth of the actual sample */
 
-        value = dbin->getLocVariable(ELoc::Z,iech, 0);
+        value = dbin->getZVariable(iech, 0);
       }
       else
       {
@@ -1680,8 +1680,8 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
       /* Read the estimated value */
 
-      value = dbout->getLocVariable(ELoc::Z,iechout, ilayer);
-      if (flag_std) stdv = dbout->getLocVariable(ELoc::Z,iechout, nlayers + ilayer);
+      value = dbout->getZVariable(iechout, ilayer);
+      if (flag_std) stdv = dbout->getZVariable(iechout, nlayers + ilayer);
 
       if (lmlayers->flag_cumul)
       {

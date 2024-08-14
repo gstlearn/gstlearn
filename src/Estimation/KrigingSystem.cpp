@@ -395,7 +395,7 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
 
     if (!_flagSimu)
       // Case of the traditional kriging based on Z-variables
-      return _dbin->getLocVariable(ELoc::Z, rank, ivar);
+      return _dbin->getZVariable( rank, ivar);
 
     // Case of simulations
     return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, _nbsimu, _nvar);
@@ -1308,7 +1308,7 @@ void KrigingSystem::_estimateCalcul(int status)
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
-      double valdat = _dbin->getLocVariable(ELoc::Z,_iechOut, ivarCL);
+      double valdat = _dbin->getZVariable(_iechOut, ivarCL);
       double estim  = (_flagEst) ? _dbout->getArray(_iechOut, _iptrEst + ivarCL) : TEST;
       double stdv   = (_flagStd) ? _dbout->getArray(_iechOut, _iptrStd + ivarCL) : TEST;
 
@@ -1412,7 +1412,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           for (int idim = 0; idim < _ndim; idim++)
             indgl[idim] = dbgrid->getMirrorIndex(idim, indg0[idim] + indnl[idim]);
           int jech = dbgrid->indiceToRank(indgl);
-          double data = dbgrid->getLocVariable(ELoc::Z,jech, jvar);
+          double data = dbgrid->getZVariable(jech, jvar);
           if (FFFF(data) || FFFF(estim))
           {
             estim = TEST;
@@ -1443,7 +1443,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
   // Do not process as this sample is either masked or its variable is undefined
   if (iiech < 0) return;
 
-  double valdat = _dbin->getLocVariable(ELoc::Z,iech, 0);
+  double valdat = _dbin->getZVariable(iech, 0);
   if (! FFFF(valdat))
   {
     double variance = 1. / _getLHSINV(iiech, 0, iiech, 0);
@@ -1458,7 +1458,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
       if (jjech < 0) continue;
       if (iiech != jjech)
         valest -= _getLHSINV(iiech,0,jjech,0) * variance *
-          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0, true));
+          (_dbin->getZVariable( jech, 0) - _getMean(0, true));
       jjech++;
     }
 
@@ -1960,7 +1960,7 @@ void KrigingSystem::_krigingDump(int status)
 
       if (_iptrEst >= 0)
       {
-        double trueval = (status == 0) ? _dbin->getLocVariable(ELoc::Z,_iechOut, ivar) : TEST;
+        double trueval = (status == 0) ? _dbin->getZVariable(_iechOut, ivar) : TEST;
         double estim   = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
 
         if (status == 0)
@@ -3105,7 +3105,7 @@ int KrigingSystem::_bayesPreCalculations()
     if (! _dbin->isActive(iech)) continue;
     for (int ivar = 0; ivar < _nvar; ivar++)
     {
-      double value = _dbin->getLocVariable(ELoc::Z,_nbgh[iech], ivar);
+      double value = _dbin->getZVariable(_nbgh[iech], ivar);
       if (FFFF(value)) continue;
       vars[ind++] = value;
     }

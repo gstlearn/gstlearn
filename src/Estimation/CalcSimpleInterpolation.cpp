@@ -422,7 +422,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
     // Perform the estimation
     for (int i = 0; i < (int) nbgh.size(); i++)
     {
-      double value = dbin->getLocVariable(ELoc::Z, nbgh[i], 0);
+      double value = dbin->getZVariable( nbgh[i], 0);
       if (FFFF(value))
       {
         nbgh.clear();
@@ -535,7 +535,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
      for (int jech = 0; jech < nSize; jech++)
      {
        int jech1 = nbgh[jech];
-       double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
+       double zval = dbin->getZVariable(jech1, 0);
        if (FFFF(zval)) continue;
        VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
 
@@ -628,7 +628,7 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
     {
       if (!dbin->isActive(iech_in)) continue;
       dbin->getCoordinatesPerSampleInPlace(iech_in, coor);
-      double val_neigh = dbin->getLocVariable(ELoc::Z,iech_in, 0);
+      double val_neigh = dbin->getZVariable(iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
       /* Check that the data point is a valid neighbor */
@@ -745,7 +745,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
       /* Check the value */
 
       int iech_neigh   = dbin->indiceToRank(indg);
-      double val_neigh = dbin->getLocVariable(ELoc::Z, iech_neigh, 0);
+      double val_neigh = dbin->getZVariable( iech_neigh, 0);
       if (FFFF(val_neigh))
       {
         nbgh.clear();
@@ -783,7 +783,7 @@ double CalcSimpleInterpolation::_estimCalc(const Db *dbin,
   for (int i = 0, n = (int) nbgh.size(); i < n; i++)
   {
     int iech = nbgh[i];
-    double value = dbin->getLocVariable(ELoc::Z,iech, 0);
+    double value = dbin->getZVariable(iech, 0);
     if (FFFF(value)) return TEST;
     result += value * weights[i];
   }

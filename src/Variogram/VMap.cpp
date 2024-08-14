@@ -57,7 +57,7 @@ VMap::~VMap()
 
 double VMap::_getIVAR(const Db *db, int iech, int ivar) const
 {
-  return db->getLocVariable(ELoc::Z, iech, ivar);
+  return db->getZVariable( iech, ivar);
 }
 
 /****************************************************************************/
@@ -944,8 +944,8 @@ int VMap::_vmap_load_simple(DbGrid* dbgrid,
         indice[2] = iz;
         int iech = db_index_grid_to_sample(dbgrid, indice);
         if (!dbgrid->getSelection(iech)) continue;
-        double val1 = dbgrid->getLocVariable(ELoc::Z, iech, jvar);
-        double val2 = dbgrid->getLocVariable(ELoc::Z, iech, ivar);
+        double val1 = dbgrid->getZVariable( iech, jvar);
+        double val2 = dbgrid->getZVariable( iech, ivar);
         ind1 = (!FFFF(val1));
         ind2 = (!FFFF(val2));
 
@@ -1023,8 +1023,8 @@ int VMap::_vmap_load_cross(DbGrid *dbgrid,
         indice[2] = iz;
         int iech = db_index_grid_to_sample(dbgrid, indice);
         if (!dbgrid->getSelection(iech)) continue;
-        double val1 = dbgrid->getLocVariable(ELoc::Z, iech, jvar);
-        double val2 = dbgrid->getLocVariable(ELoc::Z, iech, ivar);
+        double val1 = dbgrid->getZVariable( iech, jvar);
+        double val2 = dbgrid->getZVariable( iech, ivar);
         ind1 = (!FFFF(val1));
         ind2 = (!FFFF(val2));
 

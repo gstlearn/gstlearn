@@ -914,7 +914,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     for (int jg = 0, ng = dbgrid->getActiveSampleNumber(); jg < ng; jg++)
     {
       if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
-      double densloc = dbgrid->getLocVariable(ELoc::Z,jg, 0);
+      double densloc = dbgrid->getZVariable(jg, 0);
       if (densloc >= 0) denstot += densloc;
       dens[ig++] = denstot;
     }
@@ -946,7 +946,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
       for (int ig = 0; ig < ngrid && indip < 0; ig++)
       {
         if (!dbgrid->isActive(ig)) continue;
-        double densloc = dbgrid->getLocVariable(ELoc::Z,ig, 0);
+        double densloc = dbgrid->getZVariable(ig, 0);
         if (FFFF(densloc) || densloc < 0) continue;
         denscum += densloc;
         if (denscum > proba) indip = ig;
@@ -1316,7 +1316,7 @@ static int st_get_next(DbGrid *dbgrid,
   knd_loc = dbgrid->coordinateToRank(coor);
   if (knd_loc < 0) return 1;
   if (!dbgrid->isActive(knd_loc)) return 1;
-  surf_loc = dbgrid->getLocVariable(ELoc::Z,knd_loc, 0);
+  surf_loc = dbgrid->getZVariable(knd_loc, 0);
   if (FFFF(surf_loc) || st_is_undefined(dbgrid, iptr_grad, knd_loc)) return (1);
   if (st_is_zero(dbgrid, iptr_grad, knd_loc)) return (1);
   *knd = knd_loc;
@@ -1795,7 +1795,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     int not_defined = 0;
     for (int ivar = 0; ivar < nvar && not_defined == 0; ivar++)
-      if (FFFF(db->getLocVariable(ELoc::Z,iech, ivar))) not_defined = 1;
+      if (FFFF(db->getZVariable(iech, ivar))) not_defined = 1;
     if (not_defined) continue;
 
     // Cumulate this sample
@@ -1804,7 +1804,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     for (int idim = 0; idim < ndim; idim++)
       WCOR(iz,icode,idim) += db->getCoordinate(iech, idim);
     for (int ivar = 0; ivar < nvar; ivar++)
-      WTAB(iz,icode,ivar) += db->getLocVariable(ELoc::Z,iech, ivar);
+      WTAB(iz,icode,ivar) += db->getZVariable(iech, ivar);
   }
 
   // Normalization

@@ -369,38 +369,38 @@ void AVario::setCalcul(const ECalcVario& calcul)
 
     case ECalcVario::E_MADOGRAM:
     {
-//      _evaluate = _evaluateMadogram;
+      _evaluate = &AVario::_evaluateMadogram;
       break;
     }
 
     case ECalcVario::E_RODOGRAM:
     {
- //     _evaluate = _evaluateRodogram;
+      _evaluate = &AVario::_evaluateRodogram;
       break;
     }
 
     case ECalcVario::E_POISSON:
     {
- //     _evaluate = _evaluatePoisson;
+      _evaluate = &AVario::_evaluatePoisson;
       break;
     }
 
     case ECalcVario::E_COVARIANCE:
     case ECalcVario::E_COVARIANCE_NC:
     {
- //     _evaluate = _evaluateCovariance;
+      _evaluate = &AVario::_evaluateCovariance;
       break;
     }
 
     case ECalcVario::E_COVARIOGRAM:
     {
- //     _evaluate = _evaluateCovariogram;
+      _evaluate = &AVario::_evaluateCovariogram;
       break;
     }
 
     case ECalcVario::E_ORDER4:
     {
-  //    _evaluate = _evaluateOrder4;
+      _evaluate = &AVario::_evaluateOrder4;
       break;
     }
 

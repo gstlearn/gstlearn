@@ -727,8 +727,7 @@ VectorDouble Db::getSampleCoordinates(int iech) const
 
 void Db::getSampleAsSPInPlace(int iech, SpacePoint& P) const
 {
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-    P.setCoord(idim, getCoordinate(iech, idim));
+  getCoordinatesPerSampleInPlace(iech, P.getCoordRef());
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -2354,6 +2353,10 @@ int Db::getLocNumber(const ELoc& loctype) const
   if (loctype == ELoc::UNKNOWN) return 0;
   return getFromLocatorNumber(loctype);
 }
+int Db::getZNumber() const
+{
+  return getFromLocatorNumber(ELoc::Z);
+}
 
 /**
  * Check if there is at least one field corresponding to the target locator
@@ -2364,6 +2367,10 @@ bool Db::hasLocVariable(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return false;
   return getFromLocatorNumber(loctype) > 0;
+}
+bool Db::hasZVariable() const
+{
+  return getFromLocatorNumber(ELoc::Z) > 0;
 }
 
 /**
@@ -2376,6 +2383,22 @@ double Db::getLocVariable(const ELoc& loctype, int iech, int item) const
   if (!hasLocVariable(loctype)) return (TEST);
   return getFromLocator(loctype, iech, item);
 }
+double Db::getZVariable(int iech, int item) const
+{
+  return getFromLocator(ELoc::Z, iech, item);
+}
+VectorDouble Db::getLocVariables(const ELoc& loctype, int iech, int nitemax) const
+{
+  VectorDouble vec;
+  int number = getFromLocatorNumber(loctype);
+  if (number <= 0) return vec;
+  int nitem = (nitemax > 0) ? MIN(nitemax, number) : number;
+
+  vec.resize(nitem, TEST);
+  for (int item = 0; item < nitem; item++)
+    vec[item] = getLocVariable(loctype, iech, item);
+  return vec;
+}
 
 /**
  *  Set the value of the field corresponding to the target locator (and its target item) at the target sample
@@ -2385,6 +2408,10 @@ void Db::setLocVariable(const ELoc& loctype, int iech, int item, double value)
 {
   if (loctype == ELoc::UNKNOWN) return;
   setFromLocator(loctype, iech, item, value);
+}
+void Db::setZVariable(int iech, int item, double value)
+{
+  setFromLocator(ELoc::Z, iech, item, value);
 }
 
 /**
@@ -2400,6 +2427,16 @@ void Db::updLocVariable(const ELoc& loctype, int iech, int item, const EOperator
 
   double oldval = _array[internalAddress];
   double newval = modifyOperator(oper, oldval, value);
+  _array[internalAddress] = newval;
+}
+void Db::updZVariable(int iech, int item, const EOperator& oper, double value)
+{
+  if (!isSampleIndexValid(iech)) return;
+  int icol            = getColIdxByLocator(ELoc::Z, item);
+  int internalAddress = _getAddress(iech, icol);
+
+  double oldval           = _array[internalAddress];
+  double newval           = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -2461,7 +2498,7 @@ bool Db::isIsotopic(int iech, int nvar_max) const
   if (!isSampleIndexValid(iech)) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (FFFF(getLocVariable(ELoc::Z,iech, ivar))) return false;
+    if (FFFF(getZVariable(iech, ivar))) return false;
   return true;
 }
 
@@ -2484,7 +2521,7 @@ bool Db::isAllUndefined(int iech) const
   if (nvar <= 0) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (! FFFF(getLocVariable(ELoc::Z,iech, ivar))) return true;
+    if (! FFFF(getZVariable(iech, ivar))) return true;
   return false;
 }
 
@@ -2821,7 +2858,7 @@ bool Db::isActive(int iech) const
 bool Db::isActiveAndDefined(int iech, int item) const
 {
   if (!isActive(iech)) return false;;
-  return (! FFFF(getLocVariable(ELoc::Z,iech, item)));
+  return (! FFFF(getZVariable(iech, item)));
 }
 
 /**
@@ -2836,7 +2873,7 @@ int Db::getActiveAndDefinedNumber(int item) const
   for (int iech = 0; iech < _nech; iech++)
   {
     if (!isActive(iech)) continue;
-    if (FFFF(getLocVariable(ELoc::Z,iech, item))) continue;
+    if (FFFF(getZVariable(iech, item))) continue;
     nech++;
   }
   return (nech);
@@ -3323,7 +3360,7 @@ VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
     const VectorInt& local = index[ivar];
     for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
     {
-      double value = getLocVariable(ELoc::Z, iech, jvar);
+      double value = getZVariable( iech, jvar);
       if (! means.empty()) value -= means[jvar];
       vec.push_back(value);
     }
@@ -3401,7 +3438,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
     // Check against the existence of a target variable
     if (item >= 0)
     {
-      value = getLocVariable(ELoc::Z, iech, item);
+      value = getZVariable( iech, item);
       if (FFFF(value)) continue;
     }
 
@@ -4505,7 +4542,7 @@ int Db::getFaciesNumber(void) const
   for (int iech=0; iech<nech; iech++)
   {
     if (! isActiveAndDefined(iech,0)) continue;
-    int ifac = (int) getLocVariable(ELoc::Z,iech,0);
+    int ifac = (int) getZVariable(iech,0);
     if (ifac <= 0) continue;
     if (ifac > nfac) nfac = ifac;
   }
@@ -5059,7 +5096,7 @@ VectorInt Db::getSampleRanks() const
     for (int iech = 0; iech < nech; iech++, lec++)
     {
       if (! isActive(iech)) continue;
-      if (FFFF(getLocVariable(ELoc::Z, iech, ivar))) continue;
+      if (FFFF(getZVariable( iech, ivar))) continue;
       vec.push_back(lec);
     }
   return vec;

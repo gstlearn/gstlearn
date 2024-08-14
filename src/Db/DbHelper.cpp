@@ -35,7 +35,7 @@ class LocalSkin: public ISkinFunctions
   int isAlreadyFilled(int ipos) const override
   {
     if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-    int value = FFFF(DB_GRID_FILL->getLocVariable(ELoc::Z,ipos, 0)) ? 0 : 1;
+    int value = FFFF(DB_GRID_FILL->getZVariable(ipos, 0)) ? 0 : 1;
     return (value);
   }
   /****************************************************************************/
@@ -51,7 +51,7 @@ class LocalSkin: public ISkinFunctions
 
   {
     if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-    int value = FFFF(DB_GRID_FILL->getLocVariable(ELoc::Z,ipos, 0)) ? 1 : 0;
+    int value = FFFF(DB_GRID_FILL->getZVariable(ipos, 0)) ? 1 : 0;
     return (value);
   }
 };
@@ -165,7 +165,7 @@ static void st_grid_fill_neigh(int ipos,
         iwork2[2] = iwork1[2] + iz;
         if (iwork2[2] < 0 || iwork2[2] >= nmz) continue;
         jpos = db_index_grid_to_sample(DB_GRID_FILL, iwork2);
-        value = DB_GRID_FILL->getLocVariable(ELoc::Z,jpos, 0);
+        value = DB_GRID_FILL->getZVariable(jpos, 0);
         if (FFFF(value)) continue;
         tabind[nech] = jpos;
         tabval[nech] = value;
@@ -1421,7 +1421,7 @@ int DbHelper::db_grid1D_fill(DbGrid *dbgrid,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
-      double value = dbgrid->getLocVariable(ELoc::Z,iech, ivar);
+      double value = dbgrid->getZVariable(iech, ivar);
       if (FFFF(value)) continue;
       X[ndef] = dbgrid->getCoordinate(iech, 0);
       Y[ndef] = value;
