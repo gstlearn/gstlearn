@@ -161,8 +161,7 @@ double CovContext::getCovar0(int ivar, int jvar) const
 
 void CovContext::setMean(const VectorDouble& mean)
 {
-  if (_mean.size() == mean.size())
-    _mean = mean;
+  if (_mean.size() == mean.size()) _mean = mean;
 }
 
 /**

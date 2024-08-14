@@ -25,7 +25,7 @@ class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
   MatrixSquareSymmetric(int nrow = 0);
-  MatrixSquareSymmetric(const MatrixSquareSymmetric &r);
+  MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
   MatrixSquareSymmetric(const AMatrix &m);
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &m);
 	virtual ~MatrixSquareSymmetric();

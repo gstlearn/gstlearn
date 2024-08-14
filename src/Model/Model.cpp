@@ -824,6 +824,7 @@ void Model::_copyCovContext()
 
 void Model::setMeans(const VectorDouble& mean)
 {
+  if (mean.empty()) return;
   _ctxt.setMean(mean);
   _copyCovContext();
 }

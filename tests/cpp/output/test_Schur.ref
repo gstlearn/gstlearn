@@ -1,0 +1,48 @@
+
+Using Standard Kriging procedure
+================================
+
+Bayesian Drift coefficients
+===========================
+Prior Mean      -0.445     -0.577
+Prior Variance-Covariance
+                  [,1]       [,2]
+       [1,]      0.274      0.000
+       [2,]      0.000      0.413
+Posterior Mean      -0.305     -0.417
+Posterior Variance-Covariance
+                  [,1]       [,2]
+       [1,]      0.128      0.000
+       [2,]      0.000      0.103
+
+Sample 1
+--------
+Bayes.z-1.estim     -0.231
+Bayes.z-2.estim     -0.573
+Bayes.z-1.stdev      1.137
+Bayes.z-2.stdev      0.913
+
+Using Schur class
+=================
+Prior Mean
+    -0.445    -0.577
+Prior Variance-Covariance Matrix
+- Number of rows    = 2
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.274     0.000
+     [  1,]     0.000     0.413
+Posterior Mean
+    -0.160    -0.531
+Posterior Variance-Covariance Matrix
+- Number of rows    = 2
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.128     0.000
+     [  1,]     0.000     0.103
+Kriging Value(s)
+    -0.165    -0.625
+Standard Deviation of Estimation Error
+     1.137     0.867
+Variance of Estimator
+     0.572     0.352

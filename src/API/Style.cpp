@@ -74,7 +74,7 @@ Style::~Style() {}
  *
  * \return Description of the returned value
  */
-int Style::documentedStandard(int myArg) const
+int Style::documentedStandard(int myArg)
 {
   std::cout << "Documented Function" << std::endl;
   message("Value of MyArg = %d\n", myArg);
@@ -95,7 +95,7 @@ int Style::documentedStandard(int myArg) const
  *
  * \return The value of the argument + 1
  */
-int Style::documentedWithFormula(int myArg) const
+int Style::documentedWithFormula(int myArg)
 {
   message("Input Argument = %d\n", myArg);
   return _increment(myArg);
@@ -130,14 +130,14 @@ int Style::unusedArgument(int a)
 }
 
 /**
- *  Example of a private method
+ * Example of a private method
  *
- *  \param[in] arg Input integer argument
- *  \param[in] verbose Verbose flag
+ * \param[in] arg Input integer argument
+ * \param[in] verbose Verbose flag
  *
- *  \return The input argument incremented
+ * \return The input argument incremented
  */
-int Style::_increment(int arg, bool verbose) const
+int Style::_increment(int arg, bool verbose)
 {
   if (verbose)
     std::cout << "Coucou" << std::endl;
