@@ -320,7 +320,7 @@ public:
   double getGrincr(int idir, int idim) const { return getDirParam(idir).getGrincr(idim); }
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(int nvar) { _nVar = nvar; }
-  void setCalculName(const String& calcul_name);
+  void setCalculByName(const String& calcul_name);
   void setVariableNames(const VectorString &variableNames) { _variableNames = variableNames; }
   void setVariableName(int ivar, const String &variableName);
 

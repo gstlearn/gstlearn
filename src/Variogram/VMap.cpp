@@ -701,7 +701,7 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
       {
         iech0 = _findNeighCell(indg0, neigh.data(), in, indg1);
         if (iech0 < 0) continue;
-        evaluate(db, nvar, iech1, iech2, iech0, TEST, 0);
+        (this->*_evaluate)(db, nvar, iech1, iech2, iech0, TEST, false);
       }
 
       // Avoid symmetry if point is compared to itself
@@ -715,7 +715,7 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
       {
         iech0 = _findNeighCell(indg0, neigh.data(), in, indg1);
         if (iech0 < 0) continue;
-        evaluate(db, nvar, iech1, iech2, iech0, TEST, 0);
+        (this->*_evaluate)(db, nvar, iech1, iech2, iech0, TEST, false);
       }
     }
   }
@@ -752,7 +752,7 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 {
   DECLARE_UNUSED(namconv);
   int error, nvar, nv2, idim, delta;
-  int *ind1, *ind2, *ind0, iech0, iech1, iech2, flag_out, ndim;
+  int *ind1, *ind2, *ind0, iech1, iech2, iech0, flag_out, ndim;
 
   /* Preliminary checks */
 
@@ -827,7 +827,7 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
       /* Evaluate the variogram map */
 
       iech0 = db_index_grid_to_sample(_dbmap, ind0);
-      evaluate(dbgrid, nvar, iech1, iech2, iech0, TEST, 0);
+      (this->*_evaluate)(dbgrid, nvar, iech1, iech2, iech0, TEST, false);
     }
   }
 

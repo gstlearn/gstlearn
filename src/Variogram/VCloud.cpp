@@ -232,7 +232,7 @@ void VCloud::_variogram_cloud(Db *db, int idir)
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! vario->keepPair(idir, T1, T2, &dist)) continue;
 
-      evaluate(db, nvar, iech, jech, 0, dist, 0);
+      (this->*_evaluate)(db, nvar, iech, jech, 0, dist, false);
     }
   }
 

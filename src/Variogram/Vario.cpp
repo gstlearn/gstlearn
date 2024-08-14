@@ -350,8 +350,14 @@ int Vario::compute(Db* db,
                    int niter_UK,
                    bool verbose)
 {
-  _db = db;
+  _db   = db;
   _nVar = _db->getLocNumber(ELoc::Z);
+  if (_nVar <= 0)
+  {
+    messerr(
+      "You need some Variable defined (Z locator) to calculate variogram");
+    return 1;
+  }
 
   if (prepare(calcul)) return 1;
 
@@ -492,7 +498,7 @@ void Vario::resetReduce(const VectorInt &varcols,
   if (asSymmetric)
   {
     if (vario_in.getFlagAsym()) flagMakeSym = true;
-    setCalculName("vg");
+    setCalculByName("vg");
   }
 
   // Reset Mean and variance arrays (only if variable number has been modified)
@@ -1859,7 +1865,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
   _nVar = nvar;
   internalDirectionResize(ndir,false);
   setVars(vars);
-  setCalculName("vg");
+  setCalculByName("vg");
   setScale(scale);
   int isDefinedForGrid = 0;
 
@@ -2156,9 +2162,9 @@ int Vario::getLagTotalNumber(int idir) const
   return ((_flagAsym) ? 2 * npas + 1 : npas);
 }
 
-void Vario::setCalculName(const String& calcul_name)
+void Vario::setCalculByName(const String& calcul_name)
 {
-  _calcul = AVario::getCalculType(calcul_name);
+  AVario::setCalculByName(calcul_name);
   _setFlagAsym();
 }
 
@@ -3245,6 +3251,7 @@ void Vario::_calculateFromGeometry(Db *db, int idir, Vario_Order *vorder)
   /* Initializations */
 
   int npas = getLagNumber(idir);
+  int nvar = getVariableNumber();
 
   /* Loop on the lags */
 
@@ -3263,7 +3270,7 @@ void Vario::_calculateFromGeometry(Db *db, int idir, Vario_Order *vorder)
       IDIRLOC = idir;
       IECH1 = iech;
       IECH2 = jech;
-      evaluate(db, getVariableNumber(), iech, jech, ipas, dist, 1);
+      (this->*_evaluate)(db, nvar, iech, jech, ipas, dist, true);
     }
   }
 
@@ -3302,7 +3309,8 @@ int Vario::_calculateGeneralSolution1(Db *db,
   SpaceTarget T2(getSpace());
 
   DirParam dirparam = getDirParam(idir);
-  int nech = db->getSampleNumber();
+  int nech          = db->getSampleNumber();
+  int nvar = getVariableNumber();
   double maxdist = getMaximumDistance(idir);
   const VarioParam& varioparam = getVarioParam();
 
@@ -3352,7 +3360,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
         IDIRLOC = idir;
         IECH1 = iech;
         IECH2 = jech;
-        evaluate(db, getVariableNumber(), iech, jech, ipas, dist, 1);
+        (this->* _evaluate)(db, nvar, iech, jech, ipas, dist, true);
       }
     }
   }
@@ -3400,11 +3408,12 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
 
   /* Initializations */
 
-  const VarioParam &varioparam = getVarioParam();
-  const DirParam &dirparam = getDirParam(idir);
-  int nech = db->getSampleNumber();
-  int size = getDirSize(idir);
-  double maxdist = getMaximumDistance(idir);
+  const VarioParam& varioparam = getVarioParam();
+  const DirParam& dirparam     = getDirParam(idir);
+  int nech                     = db->getSampleNumber();
+  int size                     = getDirSize(idir);
+  int nvar                     = getVariableNumber();
+  double maxdist               = getMaximumDistance(idir);
 
   /* Core allocation */
 
@@ -3455,7 +3464,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
 
       IECH1 = iech;
       IECH2 = jech;
-      evaluate(db, getVariableNumber(), iech, jech, ipas, dist, 1);
+      (this->*_evaluate)(db, nvar, iech, jech, ipas, dist, true);
     }
 
     /* Cumulate to the global variogram */
@@ -3505,29 +3514,26 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
  *****************************************************************************/
 int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 {
-  int *indg1, *indg2, jech;
   SpaceTarget T1(getSpace());
   SpaceTarget T2(getSpace());
 
   /* Initializations */
 
-  int error = 1;
   int nech = db->getSampleNumber();
   int npas = getLagNumber(idir);
   const DirParam &dirparam = getDirParam(idir);
-  indg1 = indg2 = nullptr;
 
   // Local variables to speed up calculations
-  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasSel    = db->hasLocVariable(ELoc::SEL);
   bool hasWeight = db->hasLocVariable(ELoc::W);
-  double dist = 0.;
+  double dist    = 0.;
+  int nvar       = getVariableNumber();
+  int ndim       = db->getNDim();
 
   /* Core allocation */
 
-  indg1 = db_indg_alloc(db);
-  if (indg1 == nullptr) goto label_end;
-  indg2 = db_indg_alloc(db);
-  if (indg2 == nullptr) goto label_end;
+  VectorInt indg1(ndim);
+  VectorInt indg2(ndim);
 
   /* Loop on the first point */
 
@@ -3536,13 +3542,13 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
     db->getSampleAsSTInPlace(iech, T1);
-    db_index_sample_to_grid(db, iech, indg1);
+    db_index_sample_to_grid(db, iech, indg1.data());
 
     for (int ipas = 1; ipas < npas; ipas++)
     {
       for (int idim = 0; idim < db->getNDim(); idim++)
         indg2[idim] = indg1[idim] + (int) (ipas * getGrincr(idir, idim));
-      jech = db_index_grid_to_sample(db, indg2);
+      int jech = db_index_grid_to_sample(db, indg2.data());
       if (jech < 0) continue;
 
       if (hasSel && !db->isActive(jech)) continue;
@@ -3558,7 +3564,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
       IDIRLOC = idir;
       IECH1 = iech;
       IECH2 = jech;
-      evaluate(db, getVariableNumber(), iech, jech, ipas, dist, 1);
+      (this->*_evaluate)(db, nvar, iech, jech, ipas, dist, true);
     }
   }
 
@@ -3574,17 +3580,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 
   _patchC00(db, idir);
 
-  /* Set the error return status */
-
-  error = 0;
-
-  label_end:
-
-  /* Core deallocation */
-
-  db_indg_free(indg1);
-  db_indg_free(indg2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3600,7 +3596,6 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
  *****************************************************************************/
 int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 {
-  int *indg1, *indg2;
   int  idim, keep, nvar;
   double zz, value;
   SpaceTarget T1(getSpace());
@@ -3608,10 +3603,9 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 
   /* Initializations */
 
-  int error = 1;
   int nech = db->getSampleNumber();
-  indg1 = indg2 = nullptr;
-  int npas = getLagNumber(idir);
+  int npas  = getLagNumber(idir);
+  int ndim = db->getNDim();
   const DirParam &dirparam = getDirParam(idir);
 
   // Local variables to speed up calculations
@@ -3621,10 +3615,8 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 
   /* Core allocation */
 
-  indg1 = db_indg_alloc(db);
-  if (indg1 == nullptr) goto label_end;
-  indg2 = db_indg_alloc(db);
-  if (indg2 == nullptr) goto label_end;
+  VectorInt indg1(ndim);
+  VectorInt indg2(ndim);
 
   /* Loop on the first point */
 
@@ -3632,7 +3624,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
   {
     if (hasSel && !db->isActive(iech)) continue;
     db->getSampleAsSTInPlace(iech, T1);
-    db_index_sample_to_grid(db, iech, indg1);
+    db_index_sample_to_grid(db, iech, indg1.data());
 
     for (int ipas = 1; ipas < npas; ipas++)
     {
@@ -3646,7 +3638,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
         for (idim = 0; idim < db->getNDim(); idim++)
           indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dirparam.getGrincr(idim));
 
-        int jech = db_index_grid_to_sample(db, indg2);
+        int jech = db_index_grid_to_sample(db, indg2.data());
         if (jech < 0) continue;
         if (hasSel && !db->isActive(jech)) continue;
         db->getSampleAsSTInPlace(jech, T2);
@@ -3682,17 +3674,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 
   _patchC00(db, idir);
 
-  /* Set the error return status */
-
-  error = 0;
-
-  label_end:
-
-  /* Core deallocation */
-
-  db_indg_free(indg1);
-  db_indg_free(indg2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -4570,9 +4552,6 @@ double Vario::_linear_interpolate(int n,
  *****************************************************************************/
 int Vario::transformCut(int nh, double ycut)
 {
-
-  // Preliminary check
-
   if (getVariableNumber() != 1)
   {
     messerr("The method 'transformCut' is available in the monovariate case only");
