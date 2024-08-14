@@ -188,8 +188,8 @@ Known Mean(s)     0.000----
    3 -    GAUSSIAN : Gaussian
    4 -       CUBIC : Cubic
    5 -     SINCARD : Sine Cardinal
-   6 -    BESSEL_J : Bessel J
-   7 -    BESSEL_K : Bessel K
+   6 -     BESSELJ : Bessel J
+   7 -      MATERN : Matern
    8 -       GAMMA : Gamma
    9 -      CAUCHY : Cauchy
   10 -      STABLE : Stable

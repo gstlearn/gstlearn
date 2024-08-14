@@ -74,7 +74,7 @@ PrecisionOpMulti::~PrecisionOpMulti()
 
 /*****************************************************************************/
 /*!
-** Check that 'model' is a valid one (composed of Bessel_K and Nugget Effect)
+** Check that 'model' is a valid one (composed of Matern and Nugget Effect)
 **
 ** \param[in]  model  Model structure
 **
@@ -89,7 +89,7 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
   for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
   {
     if (model->getCovaType(icov) == ECov::NUGGET) continue;
-    if (model->getCovaType(icov) == ECov::BESSEL_K)
+    if (model->getCovaType(icov) == ECov::MATERN)
       _covList.push_back(icov);
     else
     {

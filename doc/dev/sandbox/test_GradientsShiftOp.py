@@ -22,7 +22,7 @@ dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 
 # Create the model
 
-model = gl.Model.createFromParam(type = gl.ECov.BESSEL_K, ranges = [4., 45.])
+model = gl.Model.createFromParam(type = gl.ECov.MATERN, ranges = [4., 45.])
 spirale = gl.FunctionalSpirale(0., -1.4, 1., 1., 50., 50.);
 nostat = gl.NoStatFunctional(spirale)
 model.addNoStat(nostat)

@@ -207,7 +207,7 @@ for (idir in 1:ndir) {
                                      "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
 # a simple Matern's covariance model
   model = Model()
-  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 1, ranges = 1*c(0.1, 0.3), 
+  err = model$addCovFromParam(type = ECov_fromKey("MATERN"), sill = 1, ranges = 1*c(0.1, 0.3), 
                               angles = c(30, 0), param = 1.0)
 ```
 
@@ -316,9 +316,9 @@ neigh = NeighUnique()
                                      "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
 # a covariance model defined as a sum of two Matern's covariance functions and a nugget effect 
   model = Model()
-  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 0.4, ranges = 1*c(0.1, 0.3), 
+  err = model$addCovFromParam(type = ECov_fromKey("MATERN"), sill = 0.4, ranges = 1*c(0.1, 0.3), 
                               angles = c(30, 0), param = 1.0)
-  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 0.5, ranges = 2*c(0.1, 0.3), 
+  err = model$addCovFromParam(type = ECov_fromKey("MATERN"), sill = 0.5, ranges = 2*c(0.1, 0.3), 
                               angles = c(30, 0), param = 2.0)
   err = model$addCovFromParam(ECov_NUGGET(), sill=0.1)
 ```

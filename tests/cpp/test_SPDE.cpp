@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   double range    = 79.8;
   double sill     = 1.;
   double param    = 1.;
-  Model* model = Model::createFromParam(ECov::BESSEL_K,range,sill,param);
+  Model* model = Model::createFromParam(ECov::MATERN,range,sill,param);
 
   // Perform the non-conditional simulation
 
