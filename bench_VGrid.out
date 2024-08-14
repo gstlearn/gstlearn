@@ -21,7 +21,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Var - Locator = z1
-#NO_DIFF# Variogram on Regular Grid: 208178 ms. (Ref = 1500 ms.)
+#NO_DIFF# Variogram on Regular Grid: 239761 ms. (Ref = 1500 ms.)
 
 Variogram characteristics
 =========================
