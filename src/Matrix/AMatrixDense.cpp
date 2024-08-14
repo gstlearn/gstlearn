@@ -363,7 +363,7 @@ void AMatrixDense::divideColumn(const VectorDouble& vec)
 /*! Perform 'vec' * 'this' */
 VectorDouble AMatrixDense::prodVecMat(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
   Eigen::VectorXd ym;
   if (transpose)
     ym = xm.transpose() * _eigenMatrix.transpose();
@@ -376,7 +376,7 @@ VectorDouble AMatrixDense::prodVecMat(const VectorDouble& x, bool transpose) con
 /*! Perform 'this' * 'vec' */
 VectorDouble AMatrixDense::prodMatVec(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
   Eigen::VectorXd ym;
   if (transpose)
     ym = _eigenMatrix.transpose() * xm;

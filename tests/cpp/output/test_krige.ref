@@ -350,27 +350,27 @@ Data Base Statistics
 6 - Name SimBayes.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -17.548
- Maximum value       =     15.832
- Mean value          =      0.098
- Standard Deviation  =      4.620
- Variance            =     21.346
+ Minimum value       =    -16.853
+ Maximum value       =     16.463
+ Mean value          =      0.765
+ Standard Deviation  =      4.617
+ Variance            =     21.320
 7 - Name SimBayes.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -18.005
- Maximum value       =     12.095
- Mean value          =     -2.757
- Standard Deviation  =      4.912
- Variance            =     24.130
+ Minimum value       =    -17.192
+ Maximum value       =     12.987
+ Mean value          =     -1.824
+ Standard Deviation  =      4.908
+ Variance            =     24.092
 8 - Name SimBayes.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -15.102
- Maximum value       =     15.452
- Mean value          =      0.847
- Standard Deviation  =      4.692
- Variance            =     22.016
+ Minimum value       =    -16.161
+ Maximum value       =     14.476
+ Mean value          =     -0.274
+ Standard Deviation  =      4.699
+ Variance            =     22.076
 
 <----- Declustering in Unique Neighborhood ----->
 
@@ -558,7 +558,6 @@ Prior Variance-Covariance       1.000
 Posterior Mean       0.001
 Posterior Variance-Covariance       0.997
 
-
 Data Base Grid Characteristics
 ==============================
 
@@ -567,19 +566,19 @@ Data Base Statistics
 6 - Name Bayes.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -2.066
- Maximum value       =      0.653
- Mean value          =     -0.410
+ Minimum value       =     -1.745
+ Maximum value       =      0.975
+ Mean value          =     -0.088
  Standard Deviation  =      0.454
  Variance            =      0.206
 7 - Name Bayes.Var.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     18.821
- Maximum value       =     19.190
- Mean value          =     19.025
- Standard Deviation  =      0.071
- Variance            =      0.005
+ Minimum value       =      0.564
+ Maximum value       =      3.770
+ Mean value          =      2.772
+ Standard Deviation  =      0.522
+ Variance            =      0.272
 
 <----- Test Kriging Printout ----->
 

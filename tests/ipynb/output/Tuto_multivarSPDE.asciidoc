@@ -1,0 +1,39 @@
+#NO_DIFF#XXX
+----
+Number of Variables   = 2
+Number of Covariances = 2
+Number of Meshes      = 2
+Vector dimension      = 1000
+Indices of Matérn Covariance =          0         1
+Dimensions of the Meshes = 100 400 
+
+Class is Valid for operations!
+----
+
+
+#NO_DIFF#XXX
+----
+Error in the operator product = 0.0
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----0.0----
+
+
+#NO_DIFF#XXX
+----
+Error in the simulation operator = 0.0
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
