@@ -461,6 +461,7 @@ public:
 
   std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
 
+  bool   hasLocator(const ELoc& locatorType) const;
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(const ELoc& locatorType,

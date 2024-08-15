@@ -3533,8 +3533,8 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
  *****************************************************************************/
 int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 {
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
+  SpaceTarget T1(getSpace(), false);
+  SpaceTarget T2(getSpace(), false);
 
   /* Initializations */
 

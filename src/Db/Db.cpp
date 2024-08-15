@@ -772,12 +772,17 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   getSampleAsSPInPlace(iech, P);
 
   // Load the code (optional)
-  if (hasLocVariable(ELoc::C))
-    P.setCode(getLocVariable(ELoc::C, iech, 0));
+  if (P.checkCode())
+  {
+    if (hasLocVariable(ELoc::C)) P.setCode(getLocVariable(ELoc::C, iech, 0));
+  }
 
   // Load the Date (optional)
-  if (hasLocVariable(ELoc::DATE))
-    P.setCode(getLocVariable(ELoc::DATE, iech, 0));
+  if (P.checkDate())
+  {
+    if (hasLocVariable(ELoc::DATE))
+      P.setCode(getLocVariable(ELoc::DATE, iech, 0));
+  }
 }
 
 std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
@@ -963,6 +968,12 @@ double Db::getFromLocator(const ELoc& locatorType,
   int icol = getColIdxByLocator(locatorType, locatorIndex);
   if (!isColIdxValid(icol)) return (TEST);
   return (_array[_getAddress(iech, icol)]);
+}
+
+bool Db::hasLocator(const ELoc& locatorType) const
+{
+  const PtrGeos& p = _p[locatorType.getValue()];
+  return p.hasLocator();
 }
 
 int Db::getFromLocatorNumber(const ELoc& locatorType) const
@@ -2210,8 +2221,8 @@ void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
   {
     int icol = jcol + icol0;
 
-    if (! GlobalEnvironment::getEnv()->isDomainReference() ||
-        getFromLocatorNumber(ELoc::DOM) == 0)
+    if (!GlobalEnvironment::getEnv()->isDomainReference() ||
+        hasLocator(ELoc::DOM) == 0)
       for (int iech = 0; iech < _nech; iech++)
         _array[_getAddress(iech, icol)] = value;
     else
@@ -2351,11 +2362,11 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
 int Db::getLocNumber(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return 0;
-  return getFromLocatorNumber(loctype);
+  return (int) hasLocator(loctype);
 }
 int Db::getZNumber() const
 {
-  return getFromLocatorNumber(ELoc::Z);
+  return (int) hasLocator(ELoc::Z);
 }
 
 /**
@@ -2366,11 +2377,11 @@ int Db::getZNumber() const
 bool Db::hasLocVariable(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return false;
-  return getFromLocatorNumber(loctype) > 0;
+  return (int) hasLocator(loctype);
 }
 bool Db::hasZVariable() const
 {
-  return getFromLocatorNumber(ELoc::Z) > 0;
+  return (int) hasLocator(ELoc::Z);
 }
 
 /**
@@ -2952,6 +2963,7 @@ VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 {
   VectorString namelist;
   int count = getFromLocatorNumber(locatorType);
+  if (count <= 0) return namelist;
   for (int i = 0; i < count; i++)
   {
     int icol = getColIdxByLocator(locatorType, i);
@@ -3070,6 +3082,7 @@ void Db::setNameByLocator(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
   int count = getFromLocatorNumber(locatorType);
+  if (count <= 0) return;
   for (int i = 0; i < count; i++)
   {
     int icol = getColIdxByLocator(locatorType, i);

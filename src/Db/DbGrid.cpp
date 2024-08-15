@@ -2202,7 +2202,8 @@ void DbGrid::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   Db::getSampleAsSTInPlace(iech, P);
 
   // Load the extension
-  P.setExtend(getBlockExtensions(iech));
+  if (P.checkExtend())
+    P.setExtend(getBlockExtensions(iech));
 }
 
 /**
