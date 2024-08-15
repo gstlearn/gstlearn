@@ -250,12 +250,12 @@ double RuleShadow::_st_grid_eval(DbGrid *dbgrid,
   int ndim = dbgrid->getNDim();
 
   /* First point */
-  int iech = db_index_grid_to_sample(dbgrid, _ind2.data());
+  int iech = dbgrid->indiceToRank(_ind2);
   double z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
   if (!FFFF(z))
   {
     double d2 = 0.;
-    grid_to_point(dbgrid, _ind2.data(), NULL, xyz0.data());
+    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
     for (int idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
@@ -268,12 +268,12 @@ double RuleShadow::_st_grid_eval(DbGrid *dbgrid,
 
   /* Second point */
   _ind2[0] += 1;
-  iech = db_index_grid_to_sample(dbgrid, _ind2.data());
+  iech = dbgrid->indiceToRank(_ind2);
   z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
   if (!FFFF(z))
   {
     double d2 = 0.;
-    grid_to_point(dbgrid, _ind2.data(), NULL, xyz0.data());
+    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
     for (int idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
@@ -286,12 +286,12 @@ double RuleShadow::_st_grid_eval(DbGrid *dbgrid,
 
   /* Third point */
   _ind2[1] += 1;
-  iech = db_index_grid_to_sample(dbgrid, _ind2.data());
+  iech = dbgrid->indiceToRank(_ind2);
   z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
   if (!FFFF(z))
   {
     double d2 = 0.;
-    grid_to_point(dbgrid, _ind2.data(), NULL, xyz0.data());
+    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
     for (int idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
@@ -304,12 +304,12 @@ double RuleShadow::_st_grid_eval(DbGrid *dbgrid,
 
   /* Fourth point */
   _ind2[0] -= 1;
-  iech = db_index_grid_to_sample(dbgrid, _ind2.data());
+  iech = dbgrid->indiceToRank(_ind2);
   z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
   if (!FFFF(z))
   {
     double d2 = 0.;
-    grid_to_point(dbgrid, _ind2.data(), NULL, xyz0.data());
+    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
     for (int idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
@@ -462,16 +462,16 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
     if (rule_thresh_define_shadow(propdef, dbgrid, this, SHADOW_WATER, iech,
                                   isimu, nbsimu, &t1min, &t1max, &t2min, &t2max,
                                   &yc_dsup, &yc_down)) goto label_end;
-    db_index_sample_to_grid(dbgrid, iech, _ind2.data());
-    grid_to_point(dbgrid, _ind2.data(), NULL, _xyz.data());
+    dbgrid->rankToIndice(iech, _ind2);
+    dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
 
     if (y[0] >= t1max)
       facies = SHADOW_ISLAND;
     else
     {
       flag_shadow = 0;
-      db_index_sample_to_grid(dbgrid, iech, _ind2.data());
-      grid_to_point(dbgrid, _ind2.data(), NULL, _xyz.data());
+      dbgrid->rankToIndice(iech, _ind2);
+      dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
       for (istep = 1; istep <= nstep && flag_shadow == 0; istep++)
       {
         for (idim = 0; idim < ndim; idim++)
@@ -481,7 +481,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
         if (flag < 0) continue;
         ys = _st_grid_eval(dbgrid, isimu, icase, nbsimu, _xyz);
         if (FFFF(ys)) continue;
-        jech = db_index_grid_to_sample(dbgrid, _ind2.data());
+        jech = dbgrid->indiceToRank(_ind2);
         if (rule_thresh_define_shadow(propdef, dbgrid, this, SHADOW_WATER, jech,
                                       isimu, nbsimu, &s1min, &s1max, &s2min,
                                       &s2max, &sh_dsup, &sh_down)) return (1);

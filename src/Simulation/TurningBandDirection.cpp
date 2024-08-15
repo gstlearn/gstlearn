@@ -70,17 +70,18 @@ TurningBandDirection::~TurningBandDirection()
  **
  *****************************************************************************/
 double TurningBandDirection::projectGrid(const DbGrid* db,
-                                     int ix,
-                                     int iy,
-                                     int iz) const
+                                         int ix,
+                                         int iy,
+                                         int iz) const
 {
-  double xyz[3];
-  int indg[3];
+  int ndim = 3;
+  VectorInt indg(ndim, 0);
+  VectorDouble xyz(ndim, 0.);
 
   indg[0] = ix;
   indg[1] = iy;
   indg[2] = iz;
-  grid_to_point(db, indg, nullptr, xyz);
+  db->indicesToCoordinateInPlace(indg, xyz);
 
   double t = 0.;
   for (int idim = 0; idim < db->getNDim(); idim++)

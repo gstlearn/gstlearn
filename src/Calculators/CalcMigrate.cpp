@@ -124,7 +124,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
   /* Identify the closest grid node */
 
   if (point_to_grid(dbgrid, coor.data(), 0, indg.data()) != 0) return TEST;
-  grid_to_point(dbgrid, indg.data(), NULL, aux.data());
+  dbgrid->indicesToCoordinateInPlace(indg, aux);
 
   /* Calculate distance to lower corner as proportion of the grid mesh */
 
@@ -513,8 +513,8 @@ static int st_larger_than_dmax(int ndim,
 static void st_expand(int flag_size,
                       DbGrid *dbgrid,
                       VectorDouble &tab1,
-                      int *indg0,
-                      int *indg,
+                      VectorInt& indg0,
+                      VectorInt& indg,
                       VectorDouble &tab2)
 {
   int nech = dbgrid->getSampleNumber();
@@ -530,8 +530,8 @@ static void st_expand(int flag_size,
       tab2[iech] = 1.;
     else
     {
-      int radius = (int) tab1[iech];
-      db_index_sample_to_grid(dbgrid, iech, indg0);
+      int radius = (int)tab1[iech];
+      dbgrid->rankToIndice(iech, indg0);
 
       for (int idim = 0; idim < ndim; idim++)
         for (int ifois = -1; ifois <= 1; ifois += 2)
@@ -540,7 +540,7 @@ static void st_expand(int flag_size,
             for (int jdim = 0; jdim < ndim; jdim++)
               indg[jdim] = indg0[jdim];
             indg[idim] = indg0[idim] + irad * ifois;
-            int jech = db_index_grid_to_sample(dbgrid, indg);
+            int jech   = dbgrid->indiceToRank(indg);
             if (jech >= 0) tab2[jech] = (flag_size) ? radius : 1.;
           }
     }
@@ -1470,7 +1470,7 @@ int pointToBlock(Db *dbpoint,
     /* Identify the sample within the grid */
 
     val_iech = (int)tab1[iech];
-    db_index_sample_to_grid(dbgrid, iech, indg0.data());
+    dbgrid->rankToIndice(iech, indg0);
 
     /* Increment the volume by one */
 
@@ -1514,7 +1514,7 @@ int pointToBlock(Db *dbpoint,
   {
     for (int i = 0; i < dbgrid->getSampleNumber(); i++)
       tab1[i] = tab2[i];
-    st_expand(flag_size, dbgrid, tab1, indg0.data(), indg.data(), tab2);
+    st_expand(flag_size, dbgrid, tab1, indg0, indg, tab2);
   }
 
   /* Transform values into 0 and 1 */

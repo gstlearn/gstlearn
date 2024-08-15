@@ -138,7 +138,7 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    simval = get_LOCATOR_ITEM(db, ELoc::SIMU, iptr_simu, iech);
+    simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu);
     db->updLocVariable(ELoc::Z,iech, 0, EOperator::ADD, simval);
     db->updLocVariable(ELoc::Z,iech, 1, EOperator::ADD, simval * simval);
   }
@@ -176,7 +176,7 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    facies = (int) get_LOCATOR_ITEM(db, ELoc::FACIES, iptr_simu, iech) - 1;
+    facies = (int) db->getFromLocator(ELoc::FACIES, iech, iptr_simu) - 1;
     rank = st_facies(ModCat.propdef, ipgs, facies);
     prop = db->getLocVariable(ELoc::P,iech, rank) + 1.;
     db->setLocVariable(ELoc::P,iech, rank, prop);

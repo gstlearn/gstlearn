@@ -544,25 +544,21 @@ int seismic_z2t_grid(int verbose,
                      double *x0,
                      double *dx)
 {
-  double *vv, z0, t0, v0, v1, dz, dt, vmin, vmax;
-  int ndim, nech, nt, nz, error, i;
+  double z0, t0, v0, v1, dz, dt, vmin, vmax;
+  int ndim, nech, nt, nz, i;
 
   /* Initializations */
 
   if (! db_z->isGrid())
   {
     messerr("This procedure requires an input Grid Db");
-    return (1);
+    return 1;
   }
-  error = 1;
-  vv = nullptr;
   ndim = db_z->getNDim();
   nech = db_z->getSampleNumber();
 
   /* Core allocation */
 
-  vv = (double*) mem_alloc(nech * sizeof(double), 0);
-  if (vv == nullptr) goto label_end;
   for (i = 0; i < ndim; i++)
   {
     nx[i] = db_z->getNX(i);
@@ -572,8 +568,8 @@ int seismic_z2t_grid(int verbose,
 
   /* Read the velocity variable */
 
-  if (db_vector_get_att(db_z, iatt_v, vv)) goto label_end;
-  if (st_velocity_minmax(nech, vv, &v0, &v1, &vmin, &vmax)) goto label_end;
+  VectorDouble vv = db_z->getColumnByUID(iatt_v);
+  if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
 
   /* Update the vertical direction */
 
@@ -593,13 +589,7 @@ int seismic_z2t_grid(int verbose,
 
   if (verbose) st_seismic_debug(0, nz, z0, dz, 1, nt, t0, dt, vmin, vmax);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) vv);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -624,8 +614,8 @@ int seismic_t2z_grid(int verbose,
                      double *x0,
                      double *dx)
 {
-  double *vv, z0, t0, v0, v1, dz, dt, vmin, vmax;
-  int ndim, nech, nt, nz, error, i;
+  double z0, t0, v0, v1, dz, dt, vmin, vmax;
+  int ndim, nech, nt, nz, i;
 
   /* Initializations */
 
@@ -634,15 +624,11 @@ int seismic_t2z_grid(int verbose,
     messerr("This procedure requires an input Grid Db");
     return (1);
   }
-  error = 1;
-  vv = nullptr;
   ndim = db_t->getNDim();
   nech = db_t->getSampleNumber();
 
   /* Core allocation */
 
-  vv = (double*) mem_alloc(nech * sizeof(double), 0);
-  if (vv == nullptr) goto label_end;
   for (i = 0; i < ndim; i++)
   {
     nx[i] = db_t->getNX(i);
@@ -652,8 +638,8 @@ int seismic_t2z_grid(int verbose,
 
   /* Read the velocity variable */
 
-  if (db_vector_get_att(db_t, iatt_v, vv)) goto label_end;
-  if (st_velocity_minmax(nech, vv, &v0, &v1, &vmin, &vmax)) goto label_end;
+  VectorDouble vv = db_t->getColumnByUID(iatt_v);
+  if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
 
   /* Update the vertical direction */
 
@@ -673,13 +659,7 @@ int seismic_t2z_grid(int verbose,
 
   if (verbose) st_seismic_debug(1, nz, z0, dz, 0, nt, t0, dt, vmin, vmax);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) vv);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1967,12 +1947,13 @@ int seismic_convolve(DbGrid *db,
  *****************************************************************************/
 static int st_absolute_index(DbGrid *db, int ix, int iz)
 {
-  int indg[3];
+  int ndim = db->getNDim();
+  VectorInt indg(ndim,0);
 
   indg[0] = ix;
   indg[1] = 0;
   indg[2] = iz;
-  return (db_index_grid_to_sample(db, indg));
+  return db->indiceToRank(indg);
 }
 
 /****************************************************************************/

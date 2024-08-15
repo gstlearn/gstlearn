@@ -2267,12 +2267,14 @@ static void st_calculate_covtot(DbGrid* db,
                                 int *num_tot,
                                 double *cov_tot)
 {
-  int ix, iy, iz, ix1, iy1, iz1, jx1, jy1, jz1, jx2, jy2, jz2, indg[3];
+  int ix, iy, iz, ix1, iy1, iz1, jx1, jy1, jz1, jx2, jy2, jz2;
   int idx, idy, idz, jdx, jdy, iad, jad;
   double val1, val2, val, ratio;
 
   /* Initialization */
 
+  int ndim = db->getNDim();
+  VectorInt indg(ndim,0);
   for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
       for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
@@ -2296,7 +2298,7 @@ static void st_calculate_covtot(DbGrid* db,
         indg[0] = jx1;
         indg[1] = jy1;
         indg[2] = jz1;
-        iad = db_index_grid_to_sample(db, indg);
+        iad = db->indiceToRank(indg);
         if (!db->isActive(iad)) continue;
         val1 = db->getZVariable( iad, 0);
         if (FFFF(val1)) continue;
@@ -2322,7 +2324,7 @@ static void st_calculate_covtot(DbGrid* db,
               indg[0] = jx2;
               indg[1] = jy2;
               indg[2] = jz2;
-              jad = db_index_grid_to_sample(db, indg);
+              jad = db->indiceToRank(indg);
               if (!db->isActive(jad)) continue;
               val2 = db->getZVariable( jad, 0);
               if (FFFF(val2)) continue;
@@ -2407,8 +2409,10 @@ static VectorInt st_neigh_find(DbGrid *db,
                                const int nei_nn[3],
                                int *nei_cur)
 {
-  int ix, iy, iz, jx, jy, jz, indg[3], number, locrank;
+  int ix, iy, iz, jx, jy, jz, number, locrank;
   VectorInt nbgh_ranks;
+  int ndim = db->getNDim();
+  VectorInt indg(ndim,0);
 
   /* Loop on the pixels of the neighborhood */
 
@@ -2427,7 +2431,7 @@ static VectorInt st_neigh_find(DbGrid *db,
         indg[0] = jx;
         indg[1] = jy;
         indg[2] = jz;
-        locrank = db_index_grid_to_sample(db,indg);
+        locrank = db->indiceToRank(indg);
         if (FFFF(db->getZVariable(locrank,0))) continue;
         NEI_CUR(ix,iy,iz) = locrank;
         nbgh_ranks.push_back(locrank);
@@ -2712,7 +2716,7 @@ int anakexp_3D(DbGrid* db,
 {
   int i, ix, iy, iz, ndim, nvarin, nech, error, neq, status, ecr;
   int size_cov, size_nei, flag_new, flag_col;
-  int cov_ss[3], cov_nn[3], nei_ss[3], nei_nn[3], indg[3];
+  int cov_ss[3], cov_nn[3], nei_ss[3], nei_nn[3];
   int *num_tot, *nei_cur, *nei_ref;
   double *cov_tot, *cov_res, result;
   FILE *fildmp;
@@ -2723,13 +2727,14 @@ int anakexp_3D(DbGrid* db,
   error = 1;
   st_global_init(db, db);
   FLAG_EST = true;
-  fildmp = nullptr;
+  fildmp   = nullptr;
   cov_tot = cov_res = nullptr;
   num_tot = nei_cur = nei_ref = nullptr;
   lhs_global = rhs_global = wgt_global = nullptr;
-  ndim = db->getNDim();
-  nvarin = db->getLocNumber(ELoc::Z);
-  size_nei = 0;
+  ndim                                 = db->getNDim();
+  nvarin                               = db->getLocNumber(ELoc::Z);
+  size_nei                             = 0;
+  VectorInt indg(ndim, 0);
 
   /* Prepare the Koption structure */
 
@@ -2838,7 +2843,7 @@ int anakexp_3D(DbGrid* db,
         indg[0] = ix;
         indg[1] = iy;
         indg[2] = iz;
-        IECH_OUT = db_index_grid_to_sample(db, indg);
+        IECH_OUT = db->indiceToRank(indg);
         OptDbg::setCurrentIndex(IECH_OUT + 1);
 
         /* Initialize the result to TEST */

@@ -495,7 +495,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     return false;
   }
   if (st_model_invalid(model)) return false;
-  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
+  if (!dbiso->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     return false;
@@ -625,7 +625,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!dbiso->isActive(iech)) continue;
-    double value = get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
+    double value = dbiso->getFromLocator(ELoc::LAYER, iech);
     if (FFFF(value)) continue;
     int ival = (int) value;
 
@@ -688,7 +688,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbiso->isActive(iech)) continue;
-      double value = get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
+      double value = dbiso->getFromLocator(ELoc::LAYER, iech);
       if (FFFF(value)) continue;
       int ival = (int) value;
       if (ival != layval[i]) continue;
@@ -1021,7 +1021,7 @@ static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
         pot_ext->indg[2] = pot_ext->indg0[2] + iz - pot_ext->nring;
         if (pot_ext->indg[2] < 0 || pot_ext->indg[2] > dbgrid->getNX(2))
           return (1);
-        int iech = db_index_grid_to_sample(dbgrid, pot_ext->indg.data());
+        int iech = dbgrid->indiceToRank(pot_ext->indg);
 
         /* Check that the external drift value is defined */
 

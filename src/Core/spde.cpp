@@ -1725,7 +1725,7 @@ static void st_save_result(double *z,
       if (! dbout->isActive(i)) continue;
       while (!dbout->isActive(iech))
         iech++;
-      set_LOCATOR_ITEM(dbout, locatorType, iatt_simu + ivar, iech, z[lec]);
+      dbout->setFromLocator(locatorType, iech, iatt_simu + ivar, z[lec]);
       iech++;
       ecr++;
     }
@@ -6050,21 +6050,13 @@ int spde_eval(const VectorDouble& blin,
  *****************************************************************************/
 static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
 {
-  int nech, error;
-  double *tab;
-
-  // Preliminary checks
-
-  if (dbgrid == nullptr) return (0);
-  if (icol_pinch < 0) return (0);
+  if (dbgrid == nullptr) return 0;
+  if (icol_pinch < 0) return 0;
 
   // Initializations
 
-  error = 1;
-  nech = dbgrid->getSampleNumber();
-  tab = db_vector_alloc(dbgrid);
-  if (tab == nullptr) return (1);
-  if (db_vector_get_att(dbgrid, icol_pinch, tab)) goto label_end;
+  int nech = dbgrid->getSampleNumber();
+  VectorDouble tab = dbgrid->getColumnByUID(icol_pinch);
 
   // Check that values are within [0,1] interval
 
@@ -6077,16 +6069,10 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
       messerr("Pinchout variable should lie in [0,1]");
       messerr("At grid node %d/%d, the value is %lf", iech + 1, nech,
               tab[iech]);
-      goto label_end;
+      return 1;
     }
   }
-
-  // Set the error return code
-
-  error = 0;
-
-  label_end: tab = db_vector_free(tab);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

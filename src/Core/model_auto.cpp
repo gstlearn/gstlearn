@@ -139,8 +139,8 @@ static std::vector<StrExp> STREXPS;
 static StrMod *STRMOD = nullptr;
 static Option_AutoFit MAUTO;
 static Constraints CONSTRAINTS;
-static int *INDG1;
-static int *INDG2;
+static VectorInt INDG1;
+static VectorInt INDG2;
 static const DbGrid *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint RECINT;
@@ -2349,7 +2349,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
@@ -2360,7 +2360,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
 
@@ -4204,7 +4204,7 @@ static void st_prepar_goulard_vmap(int imod)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
   mode.setUnitary(true);
@@ -4220,7 +4220,7 @@ static void st_prepar_goulard_vmap(int imod)
 
     for (int ipadir = 0; ipadir < RECINT.npadir; ipadir++)
     {
-      db_index_sample_to_grid(DBMAP, ipadir, INDG2);
+      DBMAP->rankToIndice(ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
       model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &mode);
@@ -4887,14 +4887,14 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
   int nech = DBMAP->getSampleNumber();
   int nvar = DBMAP->getLocNumber(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   /* Load the Experimental conditions structure */
 
   int ipadir = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     double dist = distance_intra(DBMAP, nech / 2, iech, NULL);
     double wgt = (dist > 0) ? 1. / dist : 0.;
 
@@ -5002,10 +5002,8 @@ int vmap_auto_fit(const DbGrid* dbmap,
 
   hmax /= 2.;
   DBMAP = dbmap;
-  INDG1 = db_indg_alloc(dbmap);
-  if (INDG1 == nullptr) goto label_end;
-  INDG2 = db_indg_alloc(dbmap);
-  if (INDG2 == nullptr) goto label_end;
+  INDG1.resize(ndim, 0);
+  INDG2.resize(ndim);
 
   /* Core allocation */
 
@@ -5083,8 +5081,6 @@ int vmap_auto_fit(const DbGrid* dbmap,
   error = 0;
 
   label_end:
-  INDG1 = db_indg_free(INDG1);
-  INDG2 = db_indg_free(INDG2);
   st_model_auto_strmod_free(strmod);
   return (error);
 }

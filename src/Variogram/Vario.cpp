@@ -2924,7 +2924,7 @@ int Vario::_calculateOnGrid(DbGrid *db)
     iadd_new = db->addColumnsByConstant(1, 0.);
     if (iadd_new < 0) return 1;
     db->setLocatorByUID(iadd_new, ELoc::W);
-    maille = db_grid_maille(db);
+    maille = db->getCellSize();
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
       db->setLocVariable(ELoc::W, iech, 0, maille);
   }
@@ -3558,13 +3558,13 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
     if (hasSel && !db->isActive(iech)) continue;
     if (hasWeight && FFFF(db->getWeight(iech))) continue;
     db->getSampleAsSTInPlace(iech, T1);
-    db_index_sample_to_grid(db, iech, indg1.data());
+    db->rankToIndice(iech, indg1);
 
     for (int ipas = 1; ipas < npas; ipas++)
     {
       for (int idim = 0; idim < db->getNDim(); idim++)
         indg2[idim] = indg1[idim] + (int) (ipas * getGrincr(idir, idim));
-      int jech = db_index_grid_to_sample(db, indg2.data());
+      int jech = db->indiceToRank(indg2);
       if (jech < 0) continue;
 
       if (hasSel && !db->isActive(jech)) continue;
@@ -3641,7 +3641,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
  {
    if (hasSel && !db->isActive(iech)) continue;
    db->getSampleAsSTInPlace(iech, T1);
-   db_index_sample_to_grid(db, iech, indg1.data());
+   db->rankToIndice(iech, indg1);
 
    for (int ipas = 1; ipas < npas; ipas++)
    {
@@ -3655,7 +3655,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
        for (int idim = 0; idim < db->getNDim(); idim++)
          indg2[idim] = indg1[idim] + (int)(ipas * iwgt * dirparam.getGrincr(idim));
 
-       int jech = db_index_grid_to_sample(db, indg2.data());
+       int jech = db->indiceToRank(indg2);
        if (jech < 0) continue;
        if (hasSel && !db->isActive(jech)) continue;
        db->getSampleAsSTInPlace(jech, T2);
