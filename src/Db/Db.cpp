@@ -2221,20 +2221,23 @@ void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
   {
     int icol = jcol + icol0;
 
-    if (!GlobalEnvironment::getEnv()->isDomainReference() ||
-        hasLocator(ELoc::DOM) == 0)
+    if (!GlobalEnvironment::getEnv()->isDomainReference() || !hasLocator(ELoc::DOM))
+    {
       for (int iech = 0; iech < _nech; iech++)
         _array[_getAddress(iech, icol)] = value;
+    }
     else
+    {
       for (int iech = 0; iech < _nech; iech++)
       {
-        value = getFromLocator(ELoc::DOM, iech, 0);
+        value   = getFromLocator(ELoc::DOM, iech, 0);
         int iad = _getAddress(iech, icol);
         if (GlobalEnvironment::getEnv()->matchDomainReference(value))
           _array[iad] = value;
         else
           _array[iad] = TEST;
       }
+    }
   }
 }
 
@@ -2362,11 +2365,13 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
 int Db::getLocNumber(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return 0;
-  return (int) hasLocator(loctype);
+  const PtrGeos& p = _p[loctype.getValue()];
+  return p.getLocatorNumber();
 }
 int Db::getZNumber() const
 {
-  return (int) hasLocator(ELoc::Z);
+  const PtrGeos& p = _p[ELoc::Z.getValue()];
+  return p.getLocatorNumber();
 }
 
 /**

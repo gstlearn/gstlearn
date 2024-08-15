@@ -2730,19 +2730,17 @@ int Vario::_calculateGenOnLine(Db *db, int norder)
  *****************************************************************************/
 void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
 {
-  int jech, keep, nvar;
+  SpaceTarget T1(getSpace(),false);
+  SpaceTarget T2(getSpace(),false);
+  int jech, keep;
   double value, zz;
 
-  int nech = db->getSampleNumber();
-  int npas = getLagNumber(idir);
+  int nech     = db->getSampleNumber();
+  int npas     = getLagNumber(idir);
+  int nvar     = getVariableNumber();
   double dist0 = 0.;
-  double dist = 0.;
-
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
-
-  // Local variables to speed up calculations
-  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  double dist  = 0.;
+  bool hasSel  = db->hasLocVariable(ELoc::SEL);
 
   /* Loop on the first point */
 
@@ -2779,7 +2777,6 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
       if (keep)
       {
         value = value * value / NORWGT[norder];
-        nvar = getVariableNumber();
         _setResult(iech, iech, nvar, ipas, 0, 0, 0, 1., dist0, value);
       }
     }
@@ -3323,9 +3320,9 @@ int Vario::_calculateGeneralSolution1(Db *db,
                                       const int *rindex,
                                       Vario_Order *vorder)
 {
+  SpaceTarget T1(getSpace(),false);
+  SpaceTarget T2(getSpace(),false);
   int iech, jech, ipas, npair, ideb;
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
 
   DirParam dirparam = getDirParam(idir);
   int nech          = db->getSampleNumber();
@@ -3421,80 +3418,80 @@ int Vario::_calculateGeneralSolution1(Db *db,
  *****************************************************************************/
 int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
 {
-  int iech, jech, i, ipas, ideb;
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
+ SpaceTarget T1(getSpace(),false);
+ SpaceTarget T2(getSpace(),false);
+ int iech, jech, i, ipas, ideb;
 
-  /* Initializations */
+ /* Initializations */
 
-  const VarioParam& varioparam = getVarioParam();
-  const DirParam& dirparam     = getDirParam(idir);
-  int nech                     = db->getSampleNumber();
-  int size                     = getDirSize(idir);
-  int nvar                     = getVariableNumber();
-  double maxdist               = getMaximumDistance(idir);
+ const VarioParam& varioparam = getVarioParam();
+ const DirParam& dirparam     = getDirParam(idir);
+ int nech                     = db->getSampleNumber();
+ int size                     = getDirSize(idir);
+ int nvar                     = getVariableNumber();
+ double maxdist               = getMaximumDistance(idir);
 
-  /* Core allocation */
+ /* Core allocation */
 
-  VectorDouble gg_sum(size, 0);
-  VectorDouble hh_sum(size, 0);
-  VectorDouble sw_sum(size, 0);
+ VectorDouble gg_sum(size, 0);
+ VectorDouble hh_sum(size, 0);
+ VectorDouble sw_sum(size, 0);
 
-  // Local variables to speed up calculations
-  bool hasSel = db->hasLocVariable(ELoc::SEL);
-  bool hasWeight = db->hasLocVariable(ELoc::W);
-  bool hasDate = varioparam.isDateUsed(db);
-  double w1 = 1.;
-  double dist = 0.;
+ // Local variables to speed up calculations
+ bool hasSel    = db->hasLocVariable(ELoc::SEL);
+ bool hasWeight = db->hasLocVariable(ELoc::W);
+ bool hasDate   = varioparam.isDateUsed(db);
+ double w1      = 1.;
+ double dist    = 0.;
 
-  /* Loop on the first sample */
+ /* Loop on the first sample */
 
-  for (int iiech = 0; iiech < nech; iiech++)
-  {
-    iech = rindex[iiech];
-    if (hasSel && !db->isActive(iech)) continue;
-    if (hasWeight)
-    {
-      w1 = db->getWeight(iech);
-      if (FFFF(w1)) continue;
-    }
-    db->getSampleAsSTInPlace(iech, T1);
+ for (int iiech = 0; iiech < nech; iiech++)
+ {
+   iech = rindex[iiech];
+   if (hasSel && !db->isActive(iech)) continue;
+   if (hasWeight)
+   {
+     w1 = db->getWeight(iech);
+     if (FFFF(w1)) continue;
+   }
+   db->getSampleAsSTInPlace(iech, T1);
 
-    /* Looking for the second sample */
+   /* Looking for the second sample */
 
-    ideb = (hasDate) ? 0 : iiech + 1;
-    for (int jjech = ideb; jjech < nech; jjech++)
-    {
-      jech = rindex[jjech];
-      if (db->getDistance1D(iech, jech) > maxdist) break;
-      if (hasSel && !db->isActive(jech)) continue;
-      if (hasWeight && FFFF(db->getWeight(jech))) continue;
-      db->getSampleAsSTInPlace(jech, T2);
+   ideb = (hasDate) ? 0 : iiech + 1;
+   for (int jjech = ideb; jjech < nech; jjech++)
+   {
+     jech = rindex[jjech];
+     if (db->getDistance1D(iech, jech) > maxdist) break;
+     if (hasSel && !db->isActive(jech)) continue;
+     if (hasWeight && FFFF(db->getWeight(jech))) continue;
+     db->getSampleAsSTInPlace(jech, T2);
 
-      // Reject the point as soon as one BiTargetChecker is not correct
-      if (! keepPair(idir, T1, T2, &dist)) continue;
+     // Reject the point as soon as one BiTargetChecker is not correct
+     if (!keepPair(idir, T1, T2, &dist)) continue;
 
-      /* Get the rank of the lag */
+     /* Get the rank of the lag */
 
-      ipas = dirparam.getLagRank(dist);
-      if (IFFFF(ipas)) continue;
+     ipas = dirparam.getLagRank(dist);
+     if (IFFFF(ipas)) continue;
 
-      /* Evaluate the variogram */
+     /* Evaluate the variogram */
 
-      IECH1 = iech;
-      IECH2 = jech;
-      (this->*_evaluate)(db, nvar, iech, jech, ipas, dist, true);
-    }
+     IECH1 = iech;
+     IECH2 = jech;
+     (this->*_evaluate)(db, nvar, iech, jech, ipas, dist, true);
+   }
 
-    /* Cumulate to the global variogram */
+   /* Cumulate to the global variogram */
 
-    for (i = 0; i < size; i++)
-    {
-      if (getSwByIndex(idir, i) <= 0) continue;
-      sw_sum[i] += w1;
-      gg_sum[i] += w1 * getGgByIndex(idir, i) / getSwByIndex(idir, i);
-      hh_sum[i] += w1 * getHhByIndex(idir, i) / getSwByIndex(idir, i);
-    }
+   for (i = 0; i < size; i++)
+   {
+     if (getSwByIndex(idir, i) <= 0) continue;
+     sw_sum[i] += w1;
+     gg_sum[i] += w1 * getGgByIndex(idir, i) / getSwByIndex(idir, i);
+     hh_sum[i] += w1 * getHhByIndex(idir, i) / getSwByIndex(idir, i);
+   }
   }
 
   /* Copy the cumulated variogram into the Vario structure */
@@ -3615,70 +3612,71 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
  *****************************************************************************/
 int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 {
-  int  idim, keep, nvar;
-  double zz, value;
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
+ SpaceTarget T1(getSpace(),false);
+ SpaceTarget T2(getSpace(),false);
+ int keep;
+ double zz, value;
 
-  /* Initializations */
+ /* Initializations */
 
-  int nech = db->getSampleNumber();
-  int npas  = getLagNumber(idir);
-  int ndim = db->getNDim();
-  const DirParam &dirparam = getDirParam(idir);
+ int nech                 = db->getSampleNumber();
+ int npas                 = getLagNumber(idir);
+ int ndim                 = db->getNDim();
+ int nvar                 = getVariableNumber();
+ const DirParam& dirparam = getDirParam(idir);
 
-  // Local variables to speed up calculations
+ // Local variables to speed up calculations
 
-  bool hasSel = db->hasLocVariable(ELoc::SEL);
-  double dist = 0.;
+ bool hasSel = db->hasLocVariable(ELoc::SEL);
+ double dist = 0.;
 
-  /* Core allocation */
+ /* Core allocation */
 
-  VectorInt indg1(ndim);
-  VectorInt indg2(ndim);
+ VectorInt indg1(ndim);
+ VectorInt indg2(ndim);
 
-  /* Loop on the first point */
+ /* Loop on the first point */
 
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsSTInPlace(iech, T1);
-    db_index_sample_to_grid(db, iech, indg1.data());
+ for (int iech = 0; iech < nech; iech++)
+ {
+   if (hasSel && !db->isActive(iech)) continue;
+   db->getSampleAsSTInPlace(iech, T1);
+   db_index_sample_to_grid(db, iech, indg1.data());
 
-    for (int ipas = 1; ipas < npas; ipas++)
-    {
-      value = _getIVAR(db, iech, 0);
-      if (FFFF(value)) break;
-      dist = ipas * getDPas(idir);
+   for (int ipas = 1; ipas < npas; ipas++)
+   {
+     value = _getIVAR(db, iech, 0);
+     if (FFFF(value)) break;
+     dist = ipas * getDPas(idir);
 
-      for (int iwgt = keep = 1; iwgt < NWGT[norder] && keep; iwgt++)
-      {
-        keep = 0;
-        for (idim = 0; idim < db->getNDim(); idim++)
-          indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dirparam.getGrincr(idim));
+     for (int iwgt = keep = 1; iwgt < NWGT[norder] && keep; iwgt++)
+     {
+       keep = 0;
+       for (int idim = 0; idim < db->getNDim(); idim++)
+         indg2[idim] = indg1[idim] + (int)(ipas * iwgt * dirparam.getGrincr(idim));
 
-        int jech = db_index_grid_to_sample(db, indg2.data());
-        if (jech < 0) continue;
-        if (hasSel && !db->isActive(jech)) continue;
-        db->getSampleAsSTInPlace(jech, T2);
+       int jech = db_index_grid_to_sample(db, indg2.data());
+       if (jech < 0) continue;
+       if (hasSel && !db->isActive(jech)) continue;
+       db->getSampleAsSTInPlace(jech, T2);
 
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (! keepPair(idir, T1, T2, &dist)) continue;
+       // Reject the point as soon as one BiTargetChecker is not correct
+       if (!keepPair(idir, T1, T2, &dist)) continue;
 
-        /* Evaluate the variogram */
+       /* Evaluate the variogram */
 
-        zz = _getIVAR(db, jech, 0);
-        if (FFFF(zz)) break;
-        keep = 1;
-        value += zz * VARWGT[norder][iwgt];
-      }
-      if (keep)
-      {
-        value = value * value / NORWGT[norder];
-        nvar = getVariableNumber();
-        _setResult(iech, iech, nvar, ipas, 0, 0, 0, 1., dist, value);
-      }
-    }
+       zz = _getIVAR(db, jech, 0);
+       if (FFFF(zz)) break;
+       keep = 1;
+       value += zz * VARWGT[norder][iwgt];
+     }
+     if (keep)
+     {
+       value = value * value / NORWGT[norder];
+
+       _setResult(iech, iech, nvar, ipas, 0, 0, 0, 1., dist, value);
+     }
+   }
   }
 
   /* Scale the variogram calculations */
@@ -3841,46 +3839,45 @@ bool Vario::_isCompatible(const Db *db) const
  *****************************************************************************/
 int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
 {
-  double maxdist;
-  int iiech, iech, jjech, jech, nech, ipas, idir, ideb;
-  VectorInt rindex;
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
+   SpaceTarget T1(getSpace(),false);
+   SpaceTarget T2(getSpace(),false);
+   int iech, jech, ideb;
 
-  /* Initializations */
+   /* Initializations */
 
-  if (db == nullptr) return (1);
-  const VarioParam &varioparam = getVarioParam();
-  double dist = 0.;
+   if (db == nullptr) return 1;
+   const VarioParam& varioparam = getVarioParam();
 
-  /* Preliminary checks */
+   /* Preliminary checks */
 
-  if (! _isCompatible(db)) return 1;
-  if (_get_generalized_variogram_order() > 0)
-  {
-    messerr("This calculation does not allow generalized variogram definition");
-    return 1;
+   if (!_isCompatible(db)) return 1;
+   if (_get_generalized_variogram_order() > 0)
+   {
+     messerr("This calculation does not allow generalized variogram definition");
+     return 1;
   }
 
   /* Sort the data */
-  rindex = db->getSortArray();
+  VectorInt rindex = db->getSortArray();
 
   // Local variables to speed up calculations
-  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasSel    = db->hasLocVariable(ELoc::SEL);
   bool hasWeight = db->hasLocVariable(ELoc::W);
-  bool hasDate = varioparam.isDateUsed(db);
-  nech = db->getSampleNumber();
+  bool hasDate   = varioparam.isDateUsed(db);
+  int nech       = db->getSampleNumber();
+  int ndir       = getDirectionNumber();
+  double dist    = 0.;
 
   /* Loop on the directions */
 
-  for (idir = 0; idir < getDirectionNumber(); idir++)
+  for (int idir = 0; idir < ndir; idir++)
   {
     const DirParam &dirparam = getDirParam(idir);
-    maxdist = getMaximumDistance(idir);
+    double maxdist = getMaximumDistance(idir);
 
     /* Loop on the first point */
 
-    for (iiech = 0; iiech < nech - 1; iiech++)
+    for (int iiech = 0; iiech < nech - 1; iiech++)
     {
       iech = rindex[iiech];
       if (hasSel && !db->isActive(iech)) continue;
@@ -3888,7 +3885,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
       db->getSampleAsSTInPlace(iech, T1);
 
       ideb = (hasDate) ? 0 : iiech + 1;
-      for (jjech = ideb; jjech < nech; jjech++)
+      for (int jjech = ideb; jjech < nech; jjech++)
       {
         jech = rindex[jjech];
         if (db->getDistance1D(iech, jech) > maxdist) break;
@@ -3901,7 +3898,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
 
         /* Get the rank of the lag */
 
-        ipas = dirparam.getLagRank(dist);
+        int ipas = dirparam.getLagRank(dist);
         if (IFFFF(ipas)) continue;
 
         /* Case of internal storage */
@@ -4062,10 +4059,10 @@ void Vario::getExtension(int ivar,
  *****************************************************************************/
 int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, const int *rindex)
 {
+  SpaceTarget T1(getSpace(),false);
+  SpaceTarget T2(getSpace(),false);
   int iech, jech, ipas, i, icomp;
   double w1, w2, zi1, zi2, zj1, zj2, v12, v21, di1, di2, dj1, dj2;
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
 
   const DirParam &dirparam = getDirParam(idir);
   int nech = db->getSampleNumber();
@@ -4642,59 +4639,61 @@ int Vario::computeGeometryMLayers(Db *db,
                                   VectorInt &seltab,
                                   Vario_Order *vorder) const
 {
-  int iiech, iech, jjech, jech, ipas, npair;
-  SpaceTarget T1(getSpace());
-  SpaceTarget T2(getSpace());
+   SpaceTarget T1(getSpace(),false);
+   SpaceTarget T2(getSpace(),false);
+   int iiech, jjech, npair;
 
-  /* Initializations */
+   /* Initializations */
 
-  if (db == nullptr) return 1;
+   if (db == nullptr) return 1;
 
-  // Local variables to speed up calculations
-  bool hasSel = db->hasLocVariable(ELoc::SEL);
-  int nech = db->getSampleNumber();
-  double dist = 0.;
+   // Local variables to speed up calculations
+   bool hasSel = db->hasLocVariable(ELoc::SEL);
+   int nech    = db->getSampleNumber();
+   int ndir    = getDirectionNumber();
+   double dist = 0.;
 
-  /* Loop on the directions */
+   /* Loop on the directions */
 
-  for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
-  {
-    const DirParam &dirparam = getDirParam(idir);
+   for (int idir = 0; idir < ndir; idir++)
+   {
+     const DirParam& dirparam = getDirParam(idir);
 
-    /* Loop on the first point */
+     /* Loop on the first point */
 
-    for (iech = iiech = 0; iech < nech; iech++)
-    {
-      if (hasSel && !db->isActive(iech)) continue;
-      db->getSampleAsSTInPlace(iech, T1);
+     for (int iech = iiech = 0; iech < nech; iech++)
+     {
+       if (hasSel && !db->isActive(iech)) continue;
+       db->getSampleAsSTInPlace(iech, T1);
 
-      if (seltab[iech] == 0) continue;
-      for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
-      {
-        for (jech = jjech = 0; jech < nech; jech++)
-        {
-          if (hasSel && !db->isActive(jech)) continue;
-          if (seltab[jech] == 0) continue;
-          db->getSampleAsSTInPlace(jech, T2);
+       if (seltab[iech] == 0) continue;
+       for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
+       {
+         for (int jech = jjech = 0; jech < nech; jech++)
+         {
+           if (hasSel && !db->isActive(jech)) continue;
+           if (seltab[jech] == 0) continue;
+           db->getSampleAsSTInPlace(jech, T2);
 
-          for (int jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
-          {
+           for (int jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
+           {
 
-            // Reject the point as soon as one BiTargetChecker is not correct
-            if (! keepPair(idir, T1, T2, &dist)) continue;
+             // Reject the point as soon as one BiTargetChecker is not correct
+             if (!keepPair(idir, T1, T2, &dist)) continue;
 
-            /* Get the rank of the lag */
+             /* Get the rank of the lag */
 
-            ipas = dirparam.getLagRank(dist);
-            if (IFFFF(ipas)) continue;
+             int ipas = dirparam.getLagRank(dist);
+             if (IFFFF(ipas)) continue;
 
-            /* Internal storage */
+             /* Internal storage */
 
-            vario_order_add(vorder, iiech, jjech, &iech, &jech, ipas, idir, ABS(dist));
-          }
-        }
-      }
-    }
+             vario_order_add(vorder, iiech, jjech, &iech, &jech, ipas, idir,
+                             ABS(dist));
+           }
+         }
+       }
+     }
   }
   vario_order_final(vorder, &npair);
   return (0);
