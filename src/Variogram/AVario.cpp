@@ -47,18 +47,19 @@ void AVario::_evaluateVariogram(
   dist         = ABS(dist);
   double scale = w1 * w2;
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-      {
-        double value = (z12 - z11) * (z22 - z21) / 2.;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-      }
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = (z12 - z11) * (z22 - z21) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
     }
+  }
 }
 
 void AVario::_evaluateMadogram(
@@ -67,21 +68,22 @@ void AVario::_evaluateMadogram(
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  dist       = ABS(dist);
+  dist         = ABS(dist);
   double scale = w1 * w2;
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-      {
-        double value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-      }
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
     }
+  }
 }
 
 void AVario::_evaluateRodogram(
@@ -90,21 +92,22 @@ void AVario::_evaluateRodogram(
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  dist       = ABS(dist);
+  dist         = ABS(dist);
   double scale = w1 * w2;
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-      {
-        double value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-      }
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
     }
+  }
 }
 
 void AVario::_evaluatePoisson(
@@ -113,21 +116,22 @@ void AVario::_evaluatePoisson(
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  dist       = ABS(dist);
+  dist         = ABS(dist);
   double scale = (w1 * w2) / (w1 + w2);
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22) && (w1 > 0. && w2 > 0.))
-      {
-        double value = (z12 - z11) * (z22 - z21) / 2.;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-      }
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = (z12 - z11) * (z22 - z21) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
     }
+  }
 }
 
 void AVario::_evaluateCovariance(
@@ -140,23 +144,26 @@ void AVario::_evaluateCovariance(
   dist       = ABS(dist);
   double scale = w1 * w2;
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z22))
+      if (!FFFF(z22))
       {
         double value = z11 * z22;
         _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
       }
-      if (!FFFF(z12) && !FFFF(z21) && do_asym)
+      if (!FFFF(z21) && do_asym)
       {
         double value = z12 * z21;
         _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
       }
     }
+  }
 }
 
 void AVario::_evaluateCovariogram(
@@ -167,25 +174,28 @@ void AVario::_evaluateCovariogram(
   if (FFFF(w1) || FFFF(w2)) return;
   int orient = (dist > 0) ? 1 : -1;
   dist       = ABS(dist);
-  double scale      = w2;
+  double scale = w2;
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z22))
+      if (!FFFF(z22))
       {
         double value = z11 * z22;
         _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
       }
-      if (!FFFF(z12) && !FFFF(z21) && do_asym)
+      if (!FFFF(z21) && do_asym)
       {
         double value = z12 * z21;
         _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
       }
     }
+  }
 }
 
 void AVario::_evaluateOrder4(
@@ -194,22 +204,23 @@ void AVario::_evaluateOrder4(
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  dist       = ABS(dist);
+  dist         = ABS(dist);
   double scale = w1 * w2;
   for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      double z11 = _getIVAR(db, iech1, ivar);
-      double z12 = _getIVAR(db, iech2, ivar);
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
-      if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-      {
-        double value = (z12 - z11) * (z22 - z21);
-        value = value * value / 2.;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-      }
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = (z12 - z11) * (z22 - z21);
+      value        = value * value / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
     }
+  }
 }
 
 String AVario::_elemString(const AStringFormat* strfmt) const

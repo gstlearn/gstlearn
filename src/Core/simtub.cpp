@@ -433,13 +433,13 @@ static int st_check_simtub_environment(Db *dbin,
   /* Calculate the field extension */
   /*********************************/
 
-  VectorDouble db_mini(ndim);
-  VectorDouble db_maxi(ndim);
+  VectorDouble db_mini(ndim, TEST);
+  VectorDouble db_maxi(ndim, TEST);
 
-  db_extension(dbout, db_mini, db_maxi, false);
+  dbout->getExtensionInPlace(db_mini, db_maxi, true);
 
   if (flag_cond)
-    db_extension(dbin, db_mini, db_maxi, true);
+    dbin->getExtensionInPlace(db_mini, db_maxi, true);
 
   if (model != nullptr)
     model->setField(VH::extensionDiagonal(db_mini, db_maxi));
@@ -1053,8 +1053,8 @@ int simbipgs(Db *dbin,
   {
     nechin = dbin->getSampleNumber();
     if (!dbin->isVariableNumberComparedTo(2)) goto label_end;
-    iatt_z[0] = db_attribute_identify(dbin, ELoc::Z, 0);
-    iatt_z[1] = db_attribute_identify(dbin, ELoc::Z, 1);
+    iatt_z[0] = dbin->getUIDByLocator(ELoc::Z, 0);
+    iatt_z[1] = dbin->getUIDByLocator(ELoc::Z, 1);
   }
 
   /* Output Db */
@@ -1448,11 +1448,11 @@ int db_simulations_to_ce(Db *db,
   error = 0;
 
   label_end:
-  (void) db_attribute_del_mult(db, iptr_nb, nvar);
+  db->deleteColumnsByUIDRange(iptr_nb, nvar);
   if (error)
   {
-    (void) db_attribute_del_mult(db, iptr_ce, nvar);
-    (void) db_attribute_del_mult(db, iptr_cstd, nvar);
+    db->deleteColumnsByUIDRange(iptr_ce, nvar);
+    db->deleteColumnsByUIDRange(iptr_cstd, nvar);
     *iptr_ce_arg = -1;
     *iptr_cstd_arg = -1;
   }
@@ -1614,12 +1614,12 @@ int gibbs_sampler(Db *dbin,
 
     if (!flag_ce)
     {
-      (void) db_attribute_del_mult(dbin, iptr_ce, nvar);
+      dbin->deleteColumnsByUIDRange(iptr_ce, nvar);
       iptr_ce = -1;
     }
     if (!flag_cstd)
     {
-      (void) db_attribute_del_mult(dbin, iptr_cstd, nvar);
+      dbin->deleteColumnsByUIDRange(iptr_cstd, nvar);
       iptr_cstd = -1;
     }
     dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -2622,12 +2622,12 @@ int simcond(Db *dbin,
     dbout->deleteColumnsByLocator(ELoc::SIMU);
     if (!flag_ce)
     {
-      (void) db_attribute_del_mult(dbout, iptr_ce, nvar);
+      dbout->deleteColumnsByUIDRange(iptr_ce, nvar);
       iptr_ce = -1;
     }
     if (!flag_cstd)
     {
-      (void) db_attribute_del_mult(dbout, iptr_cstd, nvar);
+      dbout->deleteColumnsByUIDRange(iptr_cstd, nvar);
       iptr_cstd = -1;
     }
   }

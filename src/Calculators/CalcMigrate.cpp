@@ -961,7 +961,7 @@ int manageExternalInformation(int mode,
   }
   for (int info = 0; info < ninfo; info++)
   {
-    int jatt = db_attribute_identify(dbin, locatorType, info);
+    int jatt = dbin->getUIDByLocator(locatorType, info);
     dbin->deleteColumnByUID(jatt);
   }
   return 0;

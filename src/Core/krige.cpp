@@ -690,12 +690,12 @@ static int st_check_environment(int flag_in,
     /* Input Db structure */
 
     if (flag_in)
-      db_extension(DBIN, db_mini, db_maxi, true);
+      DBIN->getExtensionInPlace(db_mini, db_maxi, true);
 
     /* Output Db structure */
 
     if (flag_out)
-      db_extension(DBOUT, db_mini, db_maxi, true);
+      DBOUT->getExtensionInPlace(db_mini, db_maxi, true);
 
     model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }

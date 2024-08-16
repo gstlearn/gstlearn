@@ -1178,7 +1178,7 @@ void dbStatisticsPrint(const Db *db,
   int taille = 0;
   for (int icol = 0; icol < ncol; icol++)
   {
-    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iuids[icol]), string);
+    _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
     taille = MAX(taille, (int ) strlen(string));
   }
 
@@ -1203,7 +1203,7 @@ void dbStatisticsPrint(const Db *db,
 
   for (int icol = 0; icol < ncol; icol++)
   {
-    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iuids[icol]), string);
+    _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
     tab_print_rowname(string, taille);
 
     if (_operExists(opers, EStatOption::NUM))

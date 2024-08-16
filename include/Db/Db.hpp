@@ -705,19 +705,21 @@ public:
   void deleteColumnsByLocator(const ELoc& locatorType);
   void deleteColumnsByUID(const VectorInt& iuids);
   void deleteColumnsByColIdx(const VectorInt& icols);
-  /**@}*/
+  void deleteColumnsByUIDRange(int i_del, int n_del);
+    /**@}*/
 
-  /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
-   * \ingroup DB
-   *
-   * @param idim Rank of the target space dimension (0 based)
-   * @param useSel When TRUE, the characteristics are derived from the only active samples
-   * @param mini Vector of minimum values (modified by this function)
-   * @param maxi Vector of maximum values (modified by this function)
-   *
-   *  @{
-   */
-  VectorDouble getExtrema(int idim, bool useSel = false) const;
+    /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
+     * \ingroup DB
+     *
+     * @param idim Rank of the target space dimension (0 based)
+     * @param useSel When TRUE, the characteristics are derived from the only
+     * active samples
+     * @param mini Vector of minimum values (modified by this function)
+     * @param maxi Vector of maximum values (modified by this function)
+     *
+     *  @{
+     */
+    VectorDouble getExtrema(int idim, bool useSel = false) const;
   VectorVectorDouble getExtremas(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
   VectorDouble getCoorMaximum(bool useSel = false) const;
@@ -725,7 +727,10 @@ public:
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenters(bool useSel = false) const;
-  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false) const;
+  void getExtensionInPlace(VectorDouble& mini,
+                           VectorDouble& maxi,
+                           bool flagPreserve = false,
+                           bool useSel       = false) const;
   /**@}*/
 
   /** @addtogroup DB_5 Calculating basic Statistics

@@ -552,7 +552,7 @@ Db* db_read_csv(const char *file_name,
   for (int i = 0; i < ncol; i++)
   {
     int j = (flagAddSampleRank) ? i + 1 : i;
-    if (db_name_set(db, j, names[i])) messerr("Error in db_name_set");
+    db->setNameByUID(j, names[i]);
   }
 
   /* Core deallocation */

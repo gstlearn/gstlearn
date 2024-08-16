@@ -600,9 +600,7 @@ int CalcSimpleInterpolation::_invdist(Db *dbin, Db *dbout)
 void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 {
   int ndim = dbin->getNDim();
-  double dmin;
-  (void) db_extension_diag(dbout, &dmin);
-  dmin /= 1.e5;
+  double dmin = dbout->getExtensionDiagonal() / 1.e5;
   VectorDouble coor(ndim);
   VectorDouble cooref(ndim);
 
@@ -665,9 +663,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
 {
   int ndim = dbin->getNDim();
   int maxneigh = (int) pow(2., (double) ndim);
-  double dmin;
-  (void) db_extension_diag(dbout, &dmin);
-  dmin /= 1.e5;
+  double dmin = dbout->getExtensionDiagonal() / 1.e5;
 
   VectorDouble coor(ndim);
   VectorDouble cooref(ndim);

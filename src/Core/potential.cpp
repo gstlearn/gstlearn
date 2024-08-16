@@ -3115,8 +3115,7 @@ int potential_simulate(Db *dbiso,
   // Preliminary checks
 
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
-  if (db_extension_diag(dbiso, &delta)) goto label_end;
-  delta /= 1000.;
+  delta = dbiso->getExtensionDiagonal() / 1000;
 
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
                        neigh)) goto label_end;

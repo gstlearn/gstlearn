@@ -4355,7 +4355,7 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
   VectorDouble aux(nvar2,0.);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iloc = db_attribute_identify(dbmap, ELoc::Z, ivar);
+    int iloc = dbmap->getUIDByLocator(ELoc::Z, ivar);
     (void) db_attribute_range(dbmap, iloc, &mini, &maxi, &gmax);
     AUX(ivar,ivar)= gmax;
   }
@@ -4986,7 +4986,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
      constraints.expandConstantSill(nvar);
   }
   if (st_get_vmap_dimension(dbmap, nvar, &npadir, &nbexp)) goto label_end;
-  if (db_extension_diag(dbmap, &hmax)) goto label_end;
+  hmax = dbmap->getExtensionDiagonal();
   st_vmap_varchol_manage(dbmap, varchol);
 
   /* Scale the parameters in the Option_AutoFit structure */

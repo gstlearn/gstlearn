@@ -1233,7 +1233,7 @@ int db_gradient_components(DbGrid *dbgrid)
 
   label_end: if (error)
   {
-    (void) db_attribute_del_mult(dbgrid, iptr, ndim);
+    dbgrid->deleteColumnsByUIDRange(iptr, ndim);
     iptr = -1;
   }
   return (iptr);
@@ -1421,7 +1421,7 @@ int db_streamline(DbGrid *dbgrid,
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
-    db_sample_load(dbpoint, ELoc::X, iech, coor.data());
+    dbpoint->getCoordinatesPerSampleInPlace(iech, coor);
     if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
     /* Store the new point in the Streamline */
@@ -1498,7 +1498,7 @@ int db_streamline(DbGrid *dbgrid,
   label_end:
   db_sample_free(coor0);
   if (!use_grad && !save_grad && iptr_grad >= 0)
-    db_attribute_del_mult(dbgrid, iptr_grad, ndim);
+    dbgrid->deleteColumnsByUIDRange(iptr_grad, ndim);
   return (error);
 }
 

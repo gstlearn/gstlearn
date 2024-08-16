@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Space/ASpaceObject.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/GlobalEnvironment.hpp"
@@ -303,23 +302,6 @@ int db_coorvec_put(Db *db, int idim, double *tab)
 
 /****************************************************************************/
 /*!
- **  Returns the rank of the attribute in the array
- **
- ** \return  Rank of the attribute
- **
- ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer
- ** \param[in]  locatorIndex Rank of the attribute in the pointer
- **
- *****************************************************************************/
-int db_attribute_identify(const Db *db, const ELoc& locatorType, int locatorIndex)
-{
-  int iatt = db->getUIDByLocator(locatorType, locatorIndex);
-  return (iatt);
-}
-
-/****************************************************************************/
-/*!
  **  Frees the array for storing a sample
  **
  ** \return  A pointer to the array to be freed
@@ -361,87 +343,6 @@ double* db_sample_alloc(const Db *db, const ELoc& locatorType)
   if (locatorType == ELoc::X && db->isGrid()) size = db->getNDim();
   if (size > 0) tab = (double*) mem_alloc(sizeof(double) * size, 1);
   return (tab);
-}
-
-/****************************************************************************/
-/*! 
- **  Loads the sample from a Db structure
- **
- ** \return  Error return code
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  locatorType  vector type (ELoc)
- ** \param[in]  iech    number of the sample
- **
- ** \param[out] tab     array of values
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-int db_sample_load(Db *db, const ELoc& locatorType, int iech, double *tab)
-{
-  if (!isLocatorTypeValid(locatorType)) return (1);
-
-  for (int item = 0; item < get_LOCATOR_NITEM(db, locatorType); item++)
-  {
-    /* Particular case of the grid */
-
-    if (locatorType == ELoc::X && db->isGrid())
-      tab[item] = db->getCoordinate(iech, item);
-    else
-    {
-      int icol = db->getColIdxByLocator(locatorType, item);
-      if (!db->isColIdxValid(icol)) return (1);
-      tab[item] = db->getArray(iech, icol);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*! 
- **  Loads the contents of several (consecutive) attributes for a sample
- **
- ** \return  1 if the values contain at least one TEST value
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  number  Number of columns
- ** \param[in]  iatt    Rank of the starting attribute
- **
- ** \param[out] tab     Array of values
- **
- *****************************************************************************/
-int db_sample_get_att(Db *db, int iech, int number, int iatt, double *tab)
-{
-  int ivar, flag_ffff;
-
-  flag_ffff = 0;
-  for (ivar = 0; ivar < number; ivar++)
-  {
-    tab[ivar] = db->getArray(iech, iatt + ivar);
-    if (FFFF(tab[ivar])) flag_ffff = 1;
-  }
-  return (flag_ffff);
-}
-
-/****************************************************************************/
-/*! 
- **  Saves the contents of several (consecutive) attributes for a sample
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  number  Number of columns
- ** \param[in]  iatt    Rank of the starting attribute
- ** \param[in]  tab     array of values
- **
- *****************************************************************************/
-void db_sample_put_att(Db *db, int iech, int number, int iatt, double *tab)
-{
-  int ivar;
-
-  for (ivar = 0; ivar < number; ivar++)
-    db->setArray(iech, iatt + ivar, tab[ivar]);
 }
 
 /****************************************************************************/
@@ -577,28 +478,6 @@ double distance_grid(DbGrid *db,
 
 /****************************************************************************/
 /*!
- **  Calculate the bench separation for the current pair
- **
- ** \return  Bench separation;
- ** \return  0 if space dimension < 3 or TEST if a coordinate is underfined
- **
- ** \param[in]  db           Db structure
- ** \param[in]  iech1        Rank of the first sample
- ** \param[in]  iech2        Rank of the second sample
- **
- ** \remark  The bench criterion consists in comparing the difference of
- ** \remark  according to the 3rd coordinate with the bench width.
- **
- *****************************************************************************/
-double bench_distance(const Db *db, int iech1, int iech2)
-{
-  int idim0 = 2;
-  if (db->getNDim() <= idim0) return (0.);
-  return db->getDistance1D(iech1, iech2, idim0, true);
-}
-
-/****************************************************************************/
-/*!
  **  Print a sample
  **
  ** \param[in]  db        Db structure
@@ -662,51 +541,6 @@ void db_sample_print(Db *db,
 
 /****************************************************************************/
 /*!
- **  Returns the extension of the field along each axis
- **  This calculation takes contents of arguments at input into account
- **  if 'flag_preserve' is true
- **
- ** \param[in]  db    Db structure
- **
- ** \param[out]  mini   Array containing the minimum
- **                     (Dimension = ndim)
- ** \param[out]  maxi   Array containing the maximum
- **                     (Dimension =  ndim)
- ** \param[in]   flag_preserve False Contents of arguments at input is preserved
- **
- ** \remark If the contents of an item of the arguments is TEST, this value
- ** \remark is not used in the comparison
- **
- *****************************************************************************/
-void db_extension(const Db *db,
-                  VectorDouble& mini,
-                  VectorDouble& maxi,
-                  bool flag_preserve)
-{
-  int ndim = db->getNDim();
-  if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
-  if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
-  if (! flag_preserve)
-  {
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      mini[idim] = maxi[idim] = TEST;
-    }
-  }
-
-  /* Loop on the space dimension */
-
-  for (int idim = 0; idim < db->getNDim(); idim++)
-  {
-    VectorDouble coor = db->getCoordinates(idim, true);
-    StatResults stats = ut_statistics((int) coor.size(), coor.data());
-    if (FFFF(mini[idim]) || stats.mini < mini[idim]) mini[idim] = stats.mini;
-    if (FFFF(maxi[idim]) || stats.maxi > maxi[idim]) maxi[idim] = stats.maxi;
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Returns the center of a data set
  **
  ** \param[in]  db    Db structure
@@ -751,104 +585,6 @@ int db_center(Db *db, double *center)
   db_vector_free(wgt);
 
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the extension of the diagonal of the field
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- **
- ** \param[out]  diag Dimension of the field diagonal
- **
- ** \remarks  Different versions are provided for Euclidean and Spherical cases
- **
- *****************************************************************************/
-int db_extension_diag(const Db *db, double *diag)
-{
-  double *tab, *sel, coor[2][2];
-
-  /* Initializations */
-
-  (*diag) = 0.;
-  tab = sel = nullptr;
-  tab = db_vector_alloc(db);
-  if (tab == nullptr) return (1);
-  if (db->hasLocVariable(ELoc::SEL))
-  {
-    sel = db_vector_alloc(db);
-    if (sel == nullptr) return (1);
-    db_selection_get(db, 0, sel);
-  }
-  bool flag_sphere = getDefaultSpaceType() == ESpaceType::SN;
-
-  /* Calculate the field extension */
-
-  if (!flag_sphere)
-  {
-
-    /* Case of Euclidean distances */
-
-    for (int idim = 0; idim < db->getNDim(); idim++)
-    {
-      db_coorvec_get(db, idim, tab);
-      StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel);
-      (*diag) += stats.delta * stats.delta;
-    }
-    (*diag) = sqrt(*diag);
-  }
-  else
-  {
-
-    /* Case of spherical coordinates */
-
-    for (int idim = 0; idim < 2; idim++)
-    {
-      db_coorvec_get(db, idim, tab);
-      StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel);
-      coor[idim][0] = stats.mini;
-      coor[idim][1] = stats.maxi;
-    }
-    (*diag) = ut_distance(2, coor[0], coor[1]);
-  }
-
-  db_vector_free(tab);
-  db_vector_free(sel);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the epsilon value calculated from the extension of the field
- **
- ** \return  Epsilon value
- **
- ** \param[in]  db   Db structure
- **
- *****************************************************************************/
-double db_epsilon_distance(Db *db)
-
-{
-  double diag;
-  int idim;
-
-  if (db->isGrid())
-  {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
-    diag = 1.e30;
-    for (idim = 0; idim < dbgrid->getNDim(); idim++)
-      if (dbgrid->getDX(idim) < diag) diag = dbgrid->getDX(idim);
-  }
-  else
-  {
-    if (db_extension_diag(db, &diag) != 0)
-      diag = 1.e-6;
-    else
-      diag /= 100.;
-  }
-  return (diag);
 }
 
 /****************************************************************************/
@@ -995,59 +731,6 @@ Db* db_create_from_target(const double *target, int ndim, bool flagAddSampleRank
 
 /****************************************************************************/
 /*!
- **  Returns the name assigned to the given attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iatt   Rank of the attribute (starting at 0)
- **
- *****************************************************************************/
-String db_name_get_by_att(const Db *db, int iatt)
-{
-  static char na_string[3] = STRING_NA;
-  int icol = db->getColIdxByUID(iatt);
-  if (!db->isColIdxValid(icol)) return (na_string);
-  return (db->getNameByColIdx(icol));
-}
-
-/****************************************************************************/
-/*!
- **  Returns the name assigned to the given column
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db structure
- ** \param[in]  icol   Rank of the column (starting at 0)
- **
- *****************************************************************************/
-String db_name_get_by_col(Db *db, int icol)
-{
-  static char na_string[3] = STRING_NA;
-  if (!db->isColIdxValid(icol)) return (na_string);
-  return (db->getNameByColIdx(icol));
-}
-
-/****************************************************************************/
-/*!
- **  Define the name assigned to the given attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iatt   Rank of the attribute (starting at 0)
- ** \param[in]  name   Name assigned to the current attribute
- **
- *****************************************************************************/
-int db_name_set(Db *db, int iatt, const String &name)
-{
-  if (!db->isUIDValid(iatt)) return 1;
-  db->setNameByUID(iatt, name);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Copy an attribute into another one
  **
  ** \param[in]  db        Db structure
@@ -1089,22 +772,6 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
       for (iech = 0; iech < db->getSampleNumber(); iech++)
         db->setArray(iech, icol, db->getLocVariable(ELoc::DATE, iech, 0));
   }
-}
-
-/****************************************************************************/
-/*!
- **  Remove a set of "n_del" attributes starting from "i_del"
- **
- ** \param[in]  db    Db structure
- ** \param[in]  i_del Rank of the first attribute to be deleted
- ** \param[in]  n_del Number of attributes to be deleted
- **
- *****************************************************************************/
-void db_attribute_del_mult(Db *db, int i_del, int n_del)
-{
-  if (i_del <= 0) return;
-  for (int i = n_del - 1; i >= 0; i--)
-    db->deleteColumnByUID(i_del + i);
 }
 
 /****************************************************************************/
@@ -1296,7 +963,7 @@ int db_locator_attribute_add(Db *db,
   for (int i = 0; i < number; i++)
   {
     String string = getLocatorName(locatorType, r_tem + i);
-    db_name_set(db, (*iptr) + i, string);
+    db->setNameByUID((*iptr) + i, string);
   }
   return (0);
 }
@@ -3263,7 +2930,7 @@ void db_extension_rotated(Db *db,
   VectorDouble maxrot(ndim);
 
   // Calculate the extension (without rotation)
-  db_extension(db, mini, maxi, false);
+  db->getExtensionInPlace(mini, maxi);
 
   // Bypass the calculations
   if (rotmat == nullptr) return;

@@ -2920,7 +2920,7 @@ int Vario::_calculateOnGrid(DbGrid *db)
 
   if (getCalcul() == ECalcVario::COVARIOGRAM)
   {
-    iatt_old = db_attribute_identify(db, ELoc::W, 0);
+    iatt_old = db->getUIDByLocator(ELoc::W, 0);
     iadd_new = db->addColumnsByConstant(1, 0.);
     if (iadd_new < 0) return 1;
     db->setLocatorByUID(iadd_new, ELoc::W);

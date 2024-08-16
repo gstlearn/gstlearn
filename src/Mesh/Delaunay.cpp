@@ -199,7 +199,7 @@ double* extend_point(Db *db, const double *gext, int *nout)
 
   /* Calculate the extension of the domain */
 
-  db_extension(db, mini, maxi);
+  db->getExtensionInPlace(mini, maxi);
 
   /* Generate the corner points */
 
@@ -264,11 +264,11 @@ double* get_db_extension(Db *dbin, Db *dbout, int *nout)
 
   if (dbin != nullptr)
   {
-    db_extension(dbin, mini_abs, maxi_abs, true);
+    dbin->getExtensionInPlace(mini_abs, maxi_abs, true);
   }
   if (dbout != nullptr)
   {
-    db_extension(dbout, mini_abs, maxi_abs, true);
+    dbout->getExtensionInPlace(mini_abs, maxi_abs, true);
   }
 
   /* Generate the corner points */

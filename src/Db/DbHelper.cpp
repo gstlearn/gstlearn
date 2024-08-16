@@ -1332,7 +1332,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
   for (iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
-    db_sample_load(dbout, ELoc::X, iech, coor.data());
+    dbout->getCoordinatesPerSampleInPlace(iech, coor);
     iad = dbin->coordinateToRank(coor);
     if (iad < 0) continue;
 

@@ -6516,12 +6516,12 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
     /* Deleting the drift at the constraining samples */
 
     if (m2denv->iatt_fd >= 0)
-      (void) db_attribute_del_mult(dbc, m2denv->iatt_fd, nlayer);
+      dbc->deleteColumnsByUIDRange(m2denv->iatt_fd, nlayer);
 
     /* Deleting the drift at the target grid */
 
     if (m2denv->iatt_fg >= 0)
-      (void) db_attribute_del_mult(dbout, m2denv->iatt_fg, nlayer);
+      dbout->deleteColumnsByUIDRange(m2denv->iatt_fg, nlayer);
   }
   return (0);
 }
@@ -7475,27 +7475,27 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
   // Assigning names to the variables (not pointers yet)
 
   ecr = 0;
-  db_name_set(db, ecr++, "rank");
+  db->setNameByUID(ecr++, "rank");
   for (int idim = 0; idim < ndim; idim++)
   {
     (void) gslSPrintf(string_encode, "X%d", idim + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
   }
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
     (void) gslSPrintf(string_encode, "Lower%d", ilayer + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
     (void) gslSPrintf(string_encode, "Upper%d", ilayer + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
     (void) gslSPrintf(string_encode, "Value%d", ilayer + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
   }
   if (m2denv->flag_ed)
   {
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
       (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-      db_name_set(db, ecr++, string_encode);
+      db->setNameByUID(ecr++, string_encode);
     }
   }
 
@@ -8608,7 +8608,7 @@ int m2d_gibbs_spde(Db *dbin,
     {
       dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
       (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-      db_name_set(dbout, iatt_out + ilayer, string_encode);
+      dbout->setNameByUID(iatt_out + ilayer, string_encode);
     }
     error = 0;
     goto label_end;
@@ -8769,7 +8769,7 @@ int m2d_gibbs_spde(Db *dbin,
       {
         (void) gslSPrintf(string_encode, "Layer-%d_Simu-%d", ilayer + 1,
                           isimu + 1);
-        db_name_set(dbout, iatt_out + ecr, string_encode);
+        dbout->setNameByUID(iatt_out + ecr, string_encode);
         ecr++;
       }
     }
@@ -8789,12 +8789,12 @@ int m2d_gibbs_spde(Db *dbin,
 
       if (!flag_ce)
       {
-        (void) db_attribute_del_mult(dbout, iptr_ce, nlayer);
+        dbout->deleteColumnsByUIDRange(iptr_ce, nlayer);
         iptr_ce = -1;
       }
       if (!flag_cstd)
       {
-        (void) db_attribute_del_mult(dbout, iptr_cstd, nlayer);
+        dbout->deleteColumnsByUIDRange(iptr_cstd, nlayer);
         iptr_cstd = -1;
       }
       dbout->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -8804,12 +8804,12 @@ int m2d_gibbs_spde(Db *dbin,
       if (iptr_ce >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
         (void) gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
-        db_name_set(dbout, iptr_ce + ilayer, string_encode);
+        dbout->setNameByUID(iptr_ce + ilayer, string_encode);
       }
       if (iptr_cstd >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
         (void) gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
-        db_name_set(dbout, iptr_cstd + ilayer, string_encode);
+        dbout->setNameByUID(iptr_cstd + ilayer, string_encode);
       }
     }
   }
@@ -8824,8 +8824,8 @@ int m2d_gibbs_spde(Db *dbin,
   qchol_manage(-1, Qc);
   delete Bproj;
   mem_free((char* ) gwork);
-  if (iatt_f >= 0) (void) db_attribute_del_mult(dbin, iatt_f, nlayer);
+  if (iatt_f >= 0) dbin->deleteColumnsByUIDRange(iatt_f, nlayer);
   if (error && iatt_out >= 0)
-    (void) db_attribute_del_mult(dbout, iatt_out, nlayer);
+    dbout->deleteColumnsByUIDRange(iatt_out, nlayer);
   return (error);
 }

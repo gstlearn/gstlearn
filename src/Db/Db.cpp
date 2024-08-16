@@ -1588,6 +1588,13 @@ void Db::deleteColumnsByUID(const VectorInt& iuids)
     deleteColumnByUID(iuids[i]);
 }
 
+void Db::deleteColumnsByUIDRange(int i_del, int n_del)
+{
+  if (i_del <= 0) return;
+  for (int i = n_del - 1; i >= 0; i--)
+    deleteColumnByUID(i_del + i);
+}
+
 /**
  * Add the contents of the 'tab' as a Selection
  * @param tab Input array
@@ -2015,11 +2022,23 @@ double Db::getExtensionDiagonal(bool useSel) const
  * Returns the extensions (distance between minimum and maximum) for all space dimensions
  *
  */
-void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel) const
+void Db::getExtensionInPlace(VectorDouble& mini,
+                             VectorDouble& maxi,
+                             bool flagPreserve,
+                             bool useSel) const
 {
   int ndim = getNDim();
   if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
-  if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
+  if (ndim != (int)maxi.size()) maxi.resize(ndim, TEST);
+
+  // If flagPreserve is false, the output arguments are reset beforehand
+  if (!flagPreserve)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      mini[idim] = maxi[idim] = TEST;
+    }
+  }
 
   /* Loop on the space dimension */
 

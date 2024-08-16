@@ -2694,12 +2694,12 @@ bool KrigingSystem::_isCorrect()
     /* Input Db structure */
 
     if (_dbin != nullptr)
-      db_extension(_dbin, db_mini, db_maxi, true);
+      _dbin->getExtensionInPlace(db_mini, db_maxi, true);
 
     /* Output Db structure */
 
     if (_dbout != nullptr)
-      db_extension(_dbout, db_mini, db_maxi, true);
+      _dbout->getExtensionInPlace(db_mini, db_maxi, true);
 
     // Merge extensions
 
