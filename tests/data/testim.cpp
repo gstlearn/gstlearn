@@ -20,7 +20,6 @@
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -99,10 +98,6 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
-
-  /* Setup constants */
-
-  OptDbg::reset();
 
   /* Getting the Study name */
 
