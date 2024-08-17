@@ -75,6 +75,7 @@ static int st_record_read(const char *title, const char *format, ...)
 
   if (FILE_MEM != nullptr)
   {
+    message("on passe dans st_record_read avec file_read\n");
     error = _file_read(FILE_MEM, format, ap);
   }
   else
@@ -335,8 +336,6 @@ static FILE* st_file_open(const char *filename,
       FILE_MEM = NULL;
       return (NULL);
     }
-    message("idtype = %s\n", idtype);
-    message("filetype = %s\n", filetype);
     if (strcmp(idtype, filetype) != 0)
     {
       messerr("Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
@@ -390,7 +389,8 @@ void ascii_environ_read(char *file_name, int verbose)
       OptDbg::undefineByKey(s);
   }
 
-  label_end: st_file_close(file);
+label_end:
+  st_file_close(file);
 }
 
 /****************************************************************************/
