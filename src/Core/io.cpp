@@ -28,8 +28,8 @@
 
 static char BUFFER[STRING_LENGTH];
 static char DEL_COM = '#';
-static char DEL_SEP = ' ';
 static char DEL_BLK = ' ';
+const char* DEL_SEP = " ";
 
 // TODO : No more char* and printf ! Use std::string and iostream
 static void st_print(const char *string);
@@ -306,7 +306,7 @@ FILE* _file_open(const char *filename, int mode)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-void _file_delimitors(char del_com, char del_sep, char del_blk)
+void _file_delimitors(char del_com, const char* del_sep, char del_blk)
 {
   DEL_COM = del_com;
   DEL_SEP = del_sep;
@@ -414,9 +414,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
 
     /* Decode the line looking for the next token */
 
-    message("cur=%s<<<\n",cur);
-    LCUR = gslStrtok(cur, &DEL_SEP);
-    message("LCUR=%s<<<\n", LCUR);
+    LCUR = gslStrtok(cur, DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (OptDbg::query(EDbg::INTERFACE))
@@ -520,10 +518,10 @@ int _file_get_ncol(FILE *file)
 
   /* Get the number of tokens */
 
-  if (gslStrtok(LINE, &DEL_SEP) != NULL)
+  if (gslStrtok(LINE, DEL_SEP) != NULL)
   {
     ncol++;
-    while (gslStrtok(NULL, &DEL_SEP) != NULL)
+    while (gslStrtok(NULL, DEL_SEP) != NULL)
       ncol++;
   }
 
@@ -615,7 +613,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
 
     /* Decode the line looking for the next token */
 
-    LCUR = gslStrtok(cur, &DEL_SEP);
+    LCUR = gslStrtok(cur, DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (OptDbg::query(EDbg::INTERFACE))
