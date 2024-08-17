@@ -75,7 +75,6 @@ static int st_record_read(const char *title, const char *format, ...)
 
   if (FILE_MEM != nullptr)
   {
-    message("on passe dans st_record_read avec file_read\n");
     error = _file_read(FILE_MEM, format, ap);
   }
   else

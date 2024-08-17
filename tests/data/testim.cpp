@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
-  OptDbg::define(EDbg::INTERFACE);
+//  OptDbg::define(EDbg::INTERFACE);
 
   /* Getting the Study name */
 
