@@ -391,8 +391,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
       LINE[strlen(LINE) - 1] = '\0';
       (void) gslStrcpy(LINE_MEM, LINE);
-      if (OptDbg::query(EDbg::INTERFACE))
-        message("Lecture ASCII = %s\n", LINE);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
       /* Eliminate the comments */
 
@@ -417,8 +416,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
     LCUR = gslStrtok(cur, DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (OptDbg::query(EDbg::INTERFACE))
-      message("String to be decoded = '%s'\n", LCUR);
+    if (OptDbg::query(EDbg::INTERFACE)) message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
 
