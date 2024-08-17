@@ -310,7 +310,7 @@ static FILE* st_file_open(const char *filename,
                           int verbose)
 {
   FILE *file;
-  char idtype[ID_SIZE];
+  char idtype[LONG_SIZE];
 
   /* Open the file */
 
@@ -335,6 +335,8 @@ static FILE* st_file_open(const char *filename,
       FILE_MEM = NULL;
       return (NULL);
     }
+    message("idtype = %s\n", idtype);
+    message("filetype = %s\n", filetype);
     if (strcmp(idtype, filetype) != 0)
     {
       messerr("Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
