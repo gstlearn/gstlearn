@@ -1774,7 +1774,7 @@ int simtub_constraints(Db* dbin,
 
       /* Load the target simulation into the interface buffer */
 
-      if (db_vector_get_att_sel(dbout, iatt, tab.data())) goto label_end;
+      tab = dbout->getColumnByUID(iatt, true);
 
       /* Check if the simulation is valid */
 

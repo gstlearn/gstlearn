@@ -3413,50 +3413,41 @@ int st_krige_data(Db *db,
                   double *data_est,
                   double *data_var)
 {
-  int error, ntot, nutil, i, iech, nech;
-  double *data, *tutil, *invsig, *s, *datm, *aux1, *aux2, *aux3, *aux4, *c00;
+  int ntot, nutil, i, iech, nech;
+  double *tutil, *invsig, *s, *c00;
   double estim, variance, true_value;
   VectorInt rutil;
 
   /* Initializations */
 
-  error = 1;
-  tutil = invsig = data = datm = s = c00 = nullptr;
-  aux1 = aux2 = aux3 = aux4 = nullptr;
+  tutil = invsig = s = c00 = nullptr;
 
   /* Core allocation */
 
   nutil = ntot = 0;
   nech = db->getSampleNumber();
-  data = db_vector_alloc(db);
-  if (data == nullptr) goto label_end;
 
   /* Perform local sampling */
 
   if (st_sampling_krige_data(db, model, beta, ranks1, ranks2, rother,
                              &ntot, &nutil, rutil, &tutil, &invsig))
-    goto label_end;
+    return 1;
 
   /* Second core allocation */
 
-  datm = (double*) mem_alloc(sizeof(double) * nutil, 0);
-  if (datm == nullptr) goto label_end;
-  aux1 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux1 == nullptr) goto label_end;
-  aux2 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux2 == nullptr) goto label_end;
-  aux3 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux3 == nullptr) goto label_end;
-  aux4 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux4 == nullptr) goto label_end;
+  VectorDouble datm(nutil);
+  VectorDouble aux1(ntot);
+  VectorDouble aux2(ntot);
+  VectorDouble aux3(ntot);
+  VectorDouble aux4(ntot);
 
   /* Get the vector of active data and subtract the mean */
 
-  if (db_vector_get(db, ELoc::Z, 0, data)) goto label_end;
+  VectorDouble data = db->getColumnByLocator(ELoc::Z);
   for (i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  matrix_product_safe(1, nutil, ntot, datm, tutil, aux1);
-  matrix_product_safe(1, ntot, ntot, aux1, invsig, aux2);
+  matrix_product_safe(1, nutil, ntot, datm.data(), tutil, aux1.data());
+  matrix_product_safe(1, ntot, ntot, aux1.data(), invsig, aux2.data());
 
   /* Perform the estimation at all non pivot samples */
 
@@ -3469,8 +3460,8 @@ int st_krige_data(Db *db,
     c00 = model->evalCovMatrix(db, db, -1, -1, vech, vech).getValues().data();
     s   = model->evalCovMatrix(db, db, -1, -1, rutil, vech).getValues().data();
 
-    matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
-    matrix_product_safe(1, ntot, 1, aux2, aux3, &estim);
+    matrix_product_safe(1, nutil, ntot, s, tutil, aux3.data());
+    matrix_product_safe(1, ntot, 1, aux2.data(), aux3.data(), &estim);
     data_est[iech] = estim + model->getMean(0);
 
     if (flag_abs)
@@ -3482,30 +3473,19 @@ int st_krige_data(Db *db,
         data_est[iech] = ABS(data_est[iech] - true_value);
     }
 
-    matrix_product_safe(1, ntot, ntot, aux3, invsig, aux4);
-    matrix_product_safe(1, ntot, 1, aux3, aux4, &variance);
+    matrix_product_safe(1, ntot, ntot, aux3.data(), invsig, aux4.data());
+    matrix_product_safe(1, ntot, 1, aux3.data(), aux4.data(), &variance);
     data_var[iech] = c00[0] - variance;
 
     s = (double*) mem_free((char* ) s);
     c00 = (double*) mem_free((char* ) c00);
   }
 
-  /* Error return code */
-
-  error = 0;
-
-  label_end:
-  db_vector_free(data);
   mem_free((char* ) tutil);
   mem_free((char* ) invsig);
-  mem_free((char* ) datm);
   mem_free((char* ) s);
   mem_free((char* ) c00);
-  mem_free((char* ) aux1);
-  mem_free((char* ) aux2);
-  mem_free((char* ) aux3);
-  mem_free((char* ) aux4);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3528,49 +3508,41 @@ int st_crit_global(Db *db,
                    VectorInt& rother,
                    double *crit)
 {
-  int i, iech, ecr;
-  double *c00, *invc, *data, *datm, *cs, *temp, *olderr, *olddiv, *aux1, *cs1;
+  int ecr;
+  double *c00, *invc, *cs, *cs1;
   double *temp_loc, estim, sigma, value;
 
   /* Initializations */
 
-  int error  = 1;
   int nsize1 = (int) ranks1.size();
   int ndat   = db->getSampleNumber(true);
   int nutil  = ndat - nsize1;
-  c00 = invc = data = datm = cs = temp = olderr = olddiv = aux1 = cs1 = nullptr;
+  c00 = invc = cs = cs1 = nullptr;
   if (nsize1 <= 0) return 1;
 
   /* Core allocation */
 
-  data = db_vector_alloc(db);
-  if (data == nullptr) goto label_end;
-  datm = (double*) mem_alloc(sizeof(double) * ndat, 0);
-  if (datm == nullptr) goto label_end;
-  olderr = (double*) mem_alloc(sizeof(double) * nutil, 0);
-  if (olderr == nullptr) goto label_end;
-  olddiv = (double*) mem_alloc(sizeof(double) * nutil, 0);
-  if (olddiv == nullptr) goto label_end;
-  temp = (double*) mem_alloc(sizeof(double) * nsize1 * nutil, 0);
-  if (temp == nullptr) goto label_end;
-  aux1 = (double*) mem_alloc(sizeof(double) * nutil, 0);
-  if (aux1 == nullptr) goto label_end;
+  VectorDouble datm(ndat);
+  VectorDouble olderr(nutil);
+  VectorDouble olddiv(nutil);
+  VectorDouble temp(nsize1 * nutil, 0);
+  VectorDouble aux1(nutil);
 
   /* Establish the Kriging matrix on the pivot samples */
 
   invc = model->evalCovMatrix(db, db, -1, -1, ranks1, ranks1).getValues().data();
-  if (invc == nullptr) goto label_end;
-  if (matrix_invert(invc, nsize1, 0)) goto label_end;
+  if (invc == nullptr) return 1;
+  if (matrix_invert(invc, nsize1, 0)) return 1;
 
   /* Set the data vector (corrected by the mean */
 
-  if (db_vector_get(db, ELoc::Z, 0, data)) goto label_end;
-  for (i = 0; i < nsize1; i++)
+  VectorDouble data = db->getColumnByLocator(ELoc::Z);
+  for (int i = 0; i < nsize1; i++)
     datm[i] = data[ranks1[i]] - model->getMean(0);
 
   /* Loop on the non-pivots */
 
-  for (iech = ecr = 0; iech < ndat; iech++)
+  for (int iech = ecr = 0; iech < ndat; iech++)
   {
     temp_loc = &temp[ecr * nsize1];
     if (!db->isActive(iech)) continue;
@@ -3578,13 +3550,13 @@ int st_crit_global(Db *db,
 
     VectorInt vech = { iech };
     c00 = model->evalCovMatrix(db, db, -1, -1, vech, vech).getValues().data();
-    if (c00 == nullptr) goto label_end;
+    if (c00 == nullptr) return 1;
 
     cs = model->evalCovMatrix(db, db, -1, -1, ranks1, vech).getValues().data();
-    if (cs == nullptr) goto label_end;
+    if (cs == nullptr) return 1;
 
     matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
-    matrix_product_safe(1, nsize1, 1, datm, temp_loc, &estim);
+    matrix_product_safe(1, nsize1, 1, datm.data(), temp_loc, &estim);
     olderr[ecr] = estim + model->getMean(0) - db->getZVariable(iech, 0);
 
     matrix_product_safe(1, nsize1, 1, cs, temp_loc, &sigma);
@@ -3597,7 +3569,7 @@ int st_crit_global(Db *db,
 
   /* Loop on the candidates */
 
-  for (iech = ecr = 0; iech < ndat; iech++)
+  for (int iech = ecr = 0; iech < ndat; iech++)
   {
     crit[iech] = TEST;
     if (!db->isActive(iech)) continue;
@@ -3605,17 +3577,17 @@ int st_crit_global(Db *db,
 
     VectorInt vech = { iech };
     cs = model->evalCovMatrix(db, db, -1, -1, vech, ranks1).getValues().data();
-    if (cs == nullptr) goto label_end;
+    if (cs == nullptr) return 1;
 
     cs1 = model->evalCovMatrix(db, db, -1, -1, vech, rother).getValues().data();
-    if (cs1 == nullptr) goto label_end;
+    if (cs1 == nullptr) return 1;
 
-    matrix_product_safe(1, nsize1, nutil, cs, temp, aux1);
-    matrix_combine(nutil, 1, cs1, -1, aux1, cs1);
-    matrix_combine(nutil, 1, olderr, -olddiv[ecr], cs1, cs1);
+    matrix_product_safe(1, nsize1, nutil, cs, temp.data(), aux1.data());
+    matrix_combine(nutil, 1, cs1, -1, aux1.data(), cs1);
+    matrix_combine(nutil, 1, olderr.data(), -olddiv[ecr], cs1, cs1);
 
     value = 0.;
-    for (i = 0; i < nutil; i++)
+    for (int i = 0; i < nutil; i++)
       value += cs1[i] * cs1[i];
     crit[iech] = value / nutil;
 
@@ -3624,22 +3596,11 @@ int st_crit_global(Db *db,
     ecr++;
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  db_vector_free(data);
   mem_free((char* ) c00);
   mem_free((char* ) invc);
-  mem_free((char* ) datm);
   mem_free((char* ) cs);
   mem_free((char* ) cs1);
-  mem_free((char* ) temp);
-  mem_free((char* ) aux1);
-  mem_free((char* ) olderr);
-  mem_free((char* ) olddiv);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3675,17 +3636,14 @@ int sampling_f(Db* db,
                VectorInt& ranks2,
                int verbose)
 {
-  int best_rank, nech;
-  double *data_est, *data_var, best_ecart;
-  VectorInt rother;
+  int best_rank;
+  double best_ecart;
 
   /* Initializations */
 
-  int error = 1;
   int nsize1 = (int) ranks1.size();
   int nsize2 = (int) ranks2.size();
-  data_est = data_var = nullptr;
-  nech = db->getSampleNumber();
+  int nech = db->getSampleNumber();
 
   /* Preliminary checks */
 
@@ -3693,21 +3651,19 @@ int sampling_f(Db* db,
   {
     messerr("The Global Evaluation method for choosing ACP pivots");
     messerr("has not been programmed yet");
-    goto label_end;
+    return 1;
   }
   if (nsize1_max > 0 && nsize1 == 0)
   {
     messerr("The sampling requires a first sample to be defined 'ranks1'");
-    goto label_end;
+    return 1;
   }
 
   /* Core allocation */
 
-  data_est = db_vector_alloc(db);
-  if (data_est == nullptr) goto label_end;
-  data_var = db_vector_alloc(db);
-  if (data_var == nullptr) goto label_end;
-  rother = st_ranks_other(nech, ranks1, ranks2);
+  VectorDouble data_est(nech);
+  VectorDouble data_var(nech);
+  VectorInt rother = st_ranks_other(nech, ranks1, ranks2);
 
   /* Sample the exact pivots */
 
@@ -3716,15 +3672,14 @@ int sampling_f(Db* db,
     if (method1 == 1)
     {
       if (st_krige_data(db, model, beta, ranks1, ranks2, rother,
-                        1, data_est, data_var)) goto label_end;
-      best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
+                        1, data_est.data(), data_var.data())) return 1;
+      best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est.data(), nech));
       best_ecart = data_est[best_rank];
     }
     else
     {
-      if (st_crit_global(db, model, ranks1, rother, data_est))
-        goto label_end;
-      best_rank = VectorHelper::whereMinimum(VectorHelper::initVDouble(data_est, nech));
+      if (st_crit_global(db, model, ranks1, rother, data_est.data())) return 1;
+      best_rank = VectorHelper::whereMinimum(VectorHelper::initVDouble(data_est.data(), nech));
       best_ecart = data_est[best_rank];
     }
     if (verbose)
@@ -3740,8 +3695,8 @@ int sampling_f(Db* db,
   while (nsize2 < nsize2_max)
   {
     if (st_krige_data(db, model, beta, ranks1, ranks2, rother,
-                      1, data_est, data_var)) goto label_end;
-    best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est, nech));
+                      1, data_est.data(), data_var.data())) return 1;
+    best_rank = VectorHelper::whereMaximum(VectorHelper::initVDouble(data_est.data(), nech));
     best_ecart = data_est[best_rank];
     if (verbose)
       message("ACP   Pivots (%3d/%3d): Rank = %3d - value = %lf\n", nsize2 + 1,
@@ -3756,8 +3711,8 @@ int sampling_f(Db* db,
   if (verbose)
   {
     if (st_krige_data(db, model, beta, ranks1, ranks2, rother,
-                      1, data_est, data_var)) goto label_end;
-    StatResults stats = ut_statistics(nech, data_est);
+                      1, data_est.data(), data_var.data())) return 1;
+    StatResults stats = ut_statistics(nech, data_est.data());
     mestitle(1, "Statistics on estimation errors");
     message("Count   = %d \n", stats.nvalid);
     message("Minimum = %lf\n", stats.mini);
@@ -3766,14 +3721,7 @@ int sampling_f(Db* db,
     message("Maximum = %lf\n", stats.maxi);
   }
 
-  /* Error return code */
-
-  error = 0;
-
-  label_end:
-  db_vector_free(data_est);
-  db_vector_free(data_var);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3802,38 +3750,35 @@ int krigsampling_f(Db *dbin,
                    bool flag_std,
                    int verbose)
 {
-  int nvar, ntot, nutil, i, nech;
-  double *tutil, *data, *invsig, *datm, *aux1, *aux2, *aux3, *aux4, *s, *c00;
+  int ntot, nutil, i;
+  double *tutil, *invsig, *s, *c00;
   double estim;
   VectorInt rutil;
-  VectorInt rother;
 
   /* Preliminary checks */
 
-  int error = 1;
   int nsize1 = (int) ranks1.size();
   int nsize2 = (int) ranks2.size();
   double sigma = 0.;
-  tutil = invsig = data = datm = s = c00 = nullptr;
-  aux1 = aux2 = aux3 = aux4 = nullptr;
+  tutil = invsig = s = c00 = nullptr;
   st_global_init(dbin, dbout);
   FLAG_EST = true;
   FLAG_STD = flag_std;
-  if (st_check_environment(1, 1, model)) goto label_end;
-  nvar = model->getVariableNumber();
-  nech = dbin->getSampleNumber();
+  if (st_check_environment(1, 1, model)) return 1;
+  int nvar = model->getVariableNumber();
+  int nech = dbin->getSampleNumber();
 
   /* Preliminary checks */
 
   if (nvar != 1)
   {
     messerr("This method is only programmed for monovariate case");
-    goto label_end;
+    return 1;
   }
   if (nsize1 + nsize2 <= 0)
   {
     messerr("You must specify some pivots in 'ranks1' or 'ranks2'");
-    goto label_end;
+    return 1;
   }
 
   /* Add the attributes for storing the results */
@@ -3841,23 +3786,23 @@ int krigsampling_f(Db *dbin,
   if (FLAG_EST)
   {
     IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_EST < 0) goto label_end;
+    if (IPTR_EST < 0) return 1;
   }
   if (FLAG_STD)
   {
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_STD < 0) goto label_end;
+    if (IPTR_STD < 0) return 1;
   }
 
   /* Core allocation */
 
-  rother = st_ranks_other(nech, ranks1, ranks2);
+  VectorInt rother = st_ranks_other(nech, ranks1, ranks2);
 
   /* Perform local sampling */
 
   if (st_sampling_krige_data(dbin, model, beta, ranks1, ranks2,
                              rother, &ntot, &nutil, rutil, &tutil, &invsig))
-    goto label_end;
+    return 1;
 
   /* Optional printout */
 
@@ -3871,29 +3816,21 @@ int krigsampling_f(Db *dbin,
 
   /* Second core allocation */
 
-  data = db_vector_alloc(dbin);
-  if (data == nullptr) goto label_end;
-  datm = (double*) mem_alloc(sizeof(double) * nutil, 0);
-  if (datm == nullptr) goto label_end;
-  aux1 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux1 == nullptr) goto label_end;
-  aux2 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux2 == nullptr) goto label_end;
-  aux3 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-  if (aux3 == nullptr) goto label_end;
+  VectorDouble datm(nutil, 0);
+  VectorDouble aux1(ntot, 0);
+  VectorDouble aux2(ntot, 0);
+  VectorDouble aux3(ntot, 0);
+  VectorDouble aux4;
   if (FLAG_STD)
-  {
-    aux4 = (double*) mem_alloc(sizeof(double) * ntot, 0);
-    if (aux4 == nullptr) goto label_end;
-  }
+    aux4.resize(ntot, 0);
 
   /* Get the vector of active data and substract the mean */
 
-  if (db_vector_get(dbin, ELoc::Z, 0, data)) goto label_end;
+  VectorDouble data = dbin->getColumnByLocator(ELoc::Z);
   for (i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  matrix_product_safe(1, nutil, ntot, datm, tutil, aux1);
-  matrix_product_safe(1, ntot, ntot, aux1, invsig, aux2);
+  matrix_product_safe(1, nutil, ntot, datm.data(), tutil, aux1.data());
+  matrix_product_safe(1, ntot, ntot, aux1.data(), invsig, aux2.data());
 
   /* Loop on the target samples */
 
@@ -3910,25 +3847,24 @@ int krigsampling_f(Db *dbin,
 
     VectorInt vech = { IECH_OUT };
     s = model->evalCovMatrix(dbin, dbout, -1, -1, rutil, vech).getValues().data();
-    if (s == nullptr) goto label_end;
+    if (s == nullptr) return 1;
     if (FLAG_STD)
     {
       c00 = model->evalCovMatrix(dbout, dbout, -1, -1, vech, vech).getValues().data();
-      if (c00 == nullptr) goto label_end;
+      if (c00 == nullptr) return 1;
     }
 
-    matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
-    matrix_product_safe(1, ntot, 1, aux2, aux3, &estim);
+    matrix_product_safe(1, nutil, ntot, s, tutil, aux3.data());
+    matrix_product_safe(1, ntot, 1, aux2.data(), aux3.data(), &estim);
     estim += model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
     if (FLAG_STD)
     {
-      matrix_product_safe(1, ntot, ntot, aux3, invsig, aux4);
-      matrix_product_safe(1, ntot, 1, aux3, aux4, &sigma);
+      matrix_product_safe(1, ntot, ntot, aux3.data(), invsig, aux4.data());
+      matrix_product_safe(1, ntot, 1, aux3.data(), aux4.data(), &sigma);
       sigma = c00[0] - sigma;
-      sigma = (sigma > 0) ? sqrt(sigma) :
-                            0.;
+      sigma = (sigma > 0) ? sqrt(sigma) : 0.;
       DBOUT->setArray(IECH_OUT, IPTR_STD, sigma);
     }
 
@@ -3951,22 +3887,11 @@ int krigsampling_f(Db *dbin,
     c00 = (double*) mem_free((char* ) c00);
   }
 
-  /* Error return code */
-
-  error = 0;
-
-  label_end:
   mem_free((char* ) tutil);
   mem_free((char* ) invsig);
-  mem_free((char* ) data);
-  mem_free((char* ) datm);
   mem_free((char* ) s);
   mem_free((char* ) c00);
-  mem_free((char* ) aux1);
-  mem_free((char* ) aux2);
-  mem_free((char* ) aux3);
-  mem_free((char* ) aux4);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

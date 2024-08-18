@@ -420,23 +420,7 @@ GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid *grid);
 
 GSTLEARN_EXPORT double* db_sample_free(double *tab);
 GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc& locatorType);
-GSTLEARN_EXPORT double* db_vector_free(double *tab);
-GSTLEARN_EXPORT double* db_vector_alloc(const Db *db);
-GSTLEARN_EXPORT int db_selection_get(const Db *db, int item, double *tab);
-GSTLEARN_EXPORT int db_vector_get(Db *db,
-                                  const ELoc& locatorType,
-                                  int locatorIndex,
-                                  double *tab);
-GSTLEARN_EXPORT int db_vector_put(Db *db,
-                                  const ELoc& locatorType,
-                                  int locatorIndex,
-                                  double *tab);
-GSTLEARN_EXPORT int db_vector_get_att_sel(Db *db, int iatt, double *tab);
 GSTLEARN_EXPORT int db_name_identify(Db *db, const String &string);
-GSTLEARN_EXPORT void db_attribute_init(Db *db,
-                                       int ncol,
-                                       int iatt,
-                                       double valinit);
 GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out);
 GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
                                              const ELoc& locatorType,
@@ -447,8 +431,6 @@ GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
 GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
                                          const VectorInt &current,
                                          int flag_locnew);
-GSTLEARN_EXPORT int db_coorvec_put(Db *db, int idim, double *tab);
-GSTLEARN_EXPORT int db_coorvec_get(const Db *db, int idim, double *tab);
 GSTLEARN_EXPORT int db_is_isotropic(const Db *db, int iech, double *data);
 GSTLEARN_EXPORT void db_grid_print(Db *db);
 
@@ -463,9 +445,6 @@ GSTLEARN_EXPORT DbGrid* db_create_grid_dilate(DbGrid *dbin,
                                               const VectorInt &nshift,
                                               bool flagAddSampleRank);
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
-GSTLEARN_EXPORT Db* db_create_from_target(const double *target,
-                                          int ndim,
-                                          bool flagAddSampleRank);
 GSTLEARN_EXPORT void db_sample_print(Db *db,
                                      int iech,
                                      int flag_ndim,
@@ -506,7 +485,6 @@ GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT int db_get_rank_absolute_to_relative(Db *db, int iech0);
 GSTLEARN_EXPORT int db_get_rank_relative_to_absolute(Db *db, int iech0);
 GSTLEARN_EXPORT int is_grid_multiple(DbGrid *db1, DbGrid *db2);
-GSTLEARN_EXPORT int db_grid_copy_params(DbGrid *dbin, int mode, DbGrid *dbout);
 GSTLEARN_EXPORT DbGrid* db_grid_reduce(DbGrid *db_grid,
                                        int iptr,
                                        const int *margin,

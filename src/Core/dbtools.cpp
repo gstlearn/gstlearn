@@ -1359,16 +1359,17 @@ int db_streamline(DbGrid *dbgrid,
 {
   int error, npline, idim, ecr;
   int iptr_time, iptr_accu, iptr_grad, nbline, knd, nquant, nbyech, ndim;
-  double *coor0, *line, surf, date;
+  double *line, surf, date;
   static int quant = 1000;
   VectorDouble coor;
+  VectorDouble coor0;
 
   /* Initializations */
 
   error = 1;
   nbline = nquant = 0;
   iptr_grad = -1;
-  coor0 = line = nullptr;
+  line = nullptr;
   if (dbpoint == nullptr) dbpoint = dbgrid;
   nbyech = (int) get_keypone("Streamline_Skip", 1.);
 
@@ -1385,8 +1386,7 @@ int db_streamline(DbGrid *dbgrid,
   /* Core allocation on the Grid Db */
 
   coor.resize(ndim);
-  coor0 = db_sample_alloc(dbgrid, ELoc::X);
-  if (coor0 == nullptr) goto label_end;
+  coor0.resize(ndim);
   iptr_time = dbgrid->addColumnsByConstant(1, TEST);
   if (iptr_time < 0) goto label_end;
   iptr_accu = dbgrid->addColumnsByConstant(1, 0.);
@@ -1496,7 +1496,6 @@ int db_streamline(DbGrid *dbgrid,
   error = 0;
 
   label_end:
-  db_sample_free(coor0);
   if (!use_grad && !save_grad && iptr_grad >= 0)
     dbgrid->deleteColumnsByUIDRange(iptr_grad, ndim);
   return (error);

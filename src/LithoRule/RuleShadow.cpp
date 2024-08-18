@@ -415,8 +415,8 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
                                int isimu,
                                int nbsimu) const
 {
-  int ndim, iech, jech, error, idim, nstep, istep, flag, flag_shadow, igrf, icase;
-  double *del, y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
+  int ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow, igrf, icase;
+  double y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
   double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max, sh_dsup, sh_down, seuil;
 
   /* Initializations */
@@ -427,9 +427,9 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   if (dbgrid == nullptr) return 1;
 
   error = 1;
-  del = nullptr;
   nstep = 0;
-  ndim = dbgrid->getNDim();
+  ndim  = dbgrid->getNDim();
+  nech  = dbgrid->getSampleNumber();
   icase = get_rank_from_propdef(propdef, ipgs, 0);
   _xyz.resize(ndim);
   _ind1.resize(ndim);
@@ -437,8 +437,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
   /* Initializations */
 
-  del = db_vector_alloc(dbgrid);
-  if (del == nullptr) goto label_end;
+  VectorDouble del(nech);
   dinc = getIncr();
   nstep = (int) floor(getDMax() / dinc);
   dy = dinc * getTgte();
@@ -489,8 +488,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
         seuil = t1max - yc_down + dy * istep;
         flag_shadow = (MIN(ys,s1max + sh_dsup) > seuil);
       }
-      facies = (flag_shadow) ? SHADOW_SHADOW :
-                               SHADOW_WATER;
+      facies = (flag_shadow) ? SHADOW_SHADOW : SHADOW_WATER;
     }
 
     /* Combine the underlying GRFs to derive Facies */
@@ -503,7 +501,6 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   error = 0;
 
   label_end:
-  db_vector_free(del);
   return (error);
 }
 

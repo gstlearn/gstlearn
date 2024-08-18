@@ -6404,44 +6404,40 @@ static void st_m2d_set_M(M2D_Environ *m2denv,
  *****************************************************************************/
 static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 {
-  double *tab;
-  int iptr, error;
   VectorInt cols(1);
   cols[0] = icol_pinch;
 
   // Initializations
 
-  error = 1;
-  iptr = -1;
-  tab = nullptr;
-  if (dbout == nullptr) return (0);
-  if (icol_pinch < 0) return (0);
+  int error = 1;
+  int nech = dbc->getSampleNumber();
+  if (dbout == nullptr) return 0;
+  if (icol_pinch < 0) return 0;
 
   // Add an attribute
 
-  iptr = dbc->addColumnsByConstant(1, TEST);
-  if (iptr < 0) goto label_end;
+  int iptr = dbc->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return 1;
 
   // Core allocation
 
-  tab = db_vector_alloc(dbc);
-  if (tab == nullptr) goto label_end;
+  VectorDouble tab(nech);
 
   // Migrate information from grid to point
 
   if (migrateByAttribute(dbout, dbc, cols, 0, VectorDouble(), false, false))
-    goto label_end;
+    return 1;
 
   // Store the resulting array in the file
 
-  dbc->setColumnByUIDOldStyle(tab, iptr);
+  dbc->setColumnByUID(tab, iptr);
 
   // Set the error returned code
 
   error = 0;
 
-  label_end: if (error && iptr >= 0) dbc->deleteColumnByUID(iptr);
-  mem_free((char* ) tab);
+label_end:
+  if (error && iptr >= 0) dbc->deleteColumnByUID(iptr);
   return (iptr);
 }
 

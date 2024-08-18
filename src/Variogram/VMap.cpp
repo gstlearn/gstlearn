@@ -608,16 +608,17 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   DECLARE_UNUSED(namconv);
   int error, nvar, nv2, i, idim, flag_out, nbmax;
   int *ind1, iech0, iech1, iech2, jech1, jech2, nech, ndim;
-  double *delta, *mid, *coor, x0;
+  double *delta, *mid, x0;
   VectorInt neigh;
   VectorInt indg0;
   VectorInt indg1;
+  VectorDouble coor;
 
   /* Preliminary checks */
 
   error = 0;
   ind1 = nullptr;
-  delta = coor = mid = nullptr;
+  delta = mid = nullptr;
 
   if (db->getNDim() != 2 && db->getNDim() != 3)
   {
@@ -651,8 +652,6 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   if (delta == nullptr) goto label_end;
   mid = db_sample_alloc(db, ELoc::X);
   if (mid == nullptr) goto label_end;
-  coor = db_vector_alloc(db);
-  if (coor == nullptr) goto label_end;
 
   /* Calculate a neighborhood (if radius > 0) */
 
@@ -666,10 +665,10 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 
   /* Sorting the samples according to their first coordinate */
 
-  if (db_coorvec_get(db, 0, coor)) goto label_end;
+  coor = db->getCoordinates(0);
   for (i = 0; i < nech; i++)
     ind1[i] = i;
-  ut_sort_double(1, nech, ind1, coor);
+  ut_sort_double(1, nech, ind1, coor.data());
 
   /* Loop on the first data */
 
@@ -732,7 +731,6 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   mem_free((char* ) ind1);
   db_sample_free(delta);
   db_sample_free(mid);
-  db_vector_free(coor);
   return (error);
 }
 
