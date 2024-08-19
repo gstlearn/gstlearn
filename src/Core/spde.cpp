@@ -6409,7 +6409,6 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Initializations
 
-  int error = 1;
   int nech = dbc->getSampleNumber();
   if (dbout == nullptr) return 0;
   if (icol_pinch < 0) return 0;
@@ -6426,7 +6425,10 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
   // Migrate information from grid to point
 
   if (migrateByAttribute(dbout, dbc, cols, 0, VectorDouble(), false, false))
+  {
+    dbc->deleteColumnByUID(iptr);
     return 1;
+  }
 
   // Store the resulting array in the file
 
@@ -6434,10 +6436,6 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Set the error returned code
 
-  error = 0;
-
-label_end:
-  if (error && iptr >= 0) dbc->deleteColumnByUID(iptr);
   return (iptr);
 }
 
