@@ -1897,7 +1897,7 @@ int db_segy(const char *filesegy,
   DECLARE_UNUSED(nz_ss);
   double xtrace, ytrace, coor[3];
   int iline, xline, nbvalues, iatt;
-  int indg[3], rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;
+  int rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;
   RefPt refpt[3];
   RefStats refstats;
   VectorDouble values, cotes, writes;
@@ -1912,8 +1912,8 @@ int db_segy(const char *filesegy,
   double z0 = 0.;
   double czbot = 0.;
   double cztop = 0.;
-  for (int i = 0; i < 3; i++)
-    indg[i] = 0;
+  int ndim     = grid3D->getNDim();
+  VectorInt indg(ndim, 0);
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
   traceHead traceHead_ = st_traceHead_init();
 
@@ -1986,7 +1986,7 @@ int db_segy(const char *filesegy,
     coor[1] = ytrace;
     coor[2] = z0 + delta;
     if (option == 2) coor[2] = 0.;
-    if (point_to_grid(grid3D, coor, 0, indg) != 0) continue;
+    if (point_to_grid(grid3D, coor, 0, indg.data()) != 0) continue;
 
     // Locate the trace
     rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
@@ -2020,7 +2020,7 @@ int db_segy(const char *filesegy,
     {
       double dmean = st_get_average(nz, writes);
       indg[2] = 0;
-      rank = db_index_grid_to_sample(grid3D, indg);
+      rank = grid3D->indiceToRank(indg);
       if (rank >= 0) grid3D->setArray(rank, iatt, dmean);
     }
     else
@@ -2028,7 +2028,7 @@ int db_segy(const char *filesegy,
       for (int iz = 0; iz < nz; iz++)
       {
         indg[2] = iz;
-        rank = db_index_grid_to_sample(grid3D, indg);
+        rank = grid3D->indiceToRank(indg);
         if (rank < 0) continue;
         grid3D->setArray(rank, iatt, writes[iz]);
       }

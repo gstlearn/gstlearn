@@ -602,13 +602,13 @@ int _conditionalExpectation(Db *db,
   }
 
   if (! selectivity->isUsed(ESelectivity::T))
-    (void) db_attribute_del_mult(db,
-                                 selectivity->getAddressQTEst(ESelectivity::T, iptr0),
-                                 selectivity->getNumberQTEst(ESelectivity::T));
+    db->deleteColumnsByUIDRange(
+      selectivity->getAddressQTEst(ESelectivity::T, iptr0),
+      selectivity->getNumberQTEst(ESelectivity::T));
   if (! selectivity->isUsed(ESelectivity::Q))
-    (void) db_attribute_del_mult(db,
-                                 selectivity->getAddressQTEst(ESelectivity::Q, iptr0),
-                                 selectivity->getNumberQTEst(ESelectivity::Q));
+    db->deleteColumnsByUIDRange(
+      selectivity->getAddressQTEst(ESelectivity::Q, iptr0),
+      selectivity->getNumberQTEst(ESelectivity::Q));
   return 0;
 }
 

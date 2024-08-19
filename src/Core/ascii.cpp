@@ -337,8 +337,7 @@ static FILE* st_file_open(const char *filename,
     }
     if (strcmp(idtype, filetype) != 0)
     {
-      messerr(
-          "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
+      messerr("Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
           filename, idtype, filetype);
       FILE_MEM = NULL;
       return (NULL);
@@ -389,7 +388,8 @@ void ascii_environ_read(char *file_name, int verbose)
       OptDbg::undefineByKey(s);
   }
 
-  label_end: st_file_close(file);
+label_end:
+  st_file_close(file);
 }
 
 /****************************************************************************/
@@ -552,7 +552,7 @@ Db* db_read_csv(const char *file_name,
   for (int i = 0; i < ncol; i++)
   {
     int j = (flagAddSampleRank) ? i + 1 : i;
-    if (db_name_set(db, j, names[i])) messerr("Error in db_name_set");
+    db->setNameByUID(j, names[i]);
   }
 
   /* Core deallocation */

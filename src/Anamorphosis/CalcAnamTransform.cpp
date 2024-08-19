@@ -421,7 +421,7 @@ bool CalcAnamTransform::_ZToFactors()
   for (int iech = 0; iech < getDb()->getSampleNumber(); iech++)
   {
     if (! getDb()->isActive(iech)) continue;
-    double zval = getDb()->getLocVariable(ELoc::Z,iech, 0);
+    double zval = getDb()->getZVariable(iech, 0);
     if (FFFF(zval)) continue;
     VectorDouble factors = _anam->z2factor(zval, _ifacs);
     if (factors.empty()) continue;

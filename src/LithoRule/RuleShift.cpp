@@ -305,10 +305,10 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 
     if (rule_thresh_define(propdef, dbgrid, this, ITEST, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return 1;
-    db_index_sample_to_grid(dbgrid, iech, _ind2.data());
+    dbgrid->rankToIndice(iech, _ind2);
     for (idim = 0; idim < ndim; idim++)
       _ind2[idim] -= _ind1[idim];
-    jech = db_index_grid_to_sample(dbgrid, _ind2.data());
+    jech = dbgrid->indiceToRank(_ind2);
     if (jech >= 0)
       y[1] = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, icase, nbsimu, 1);
     else
@@ -363,7 +363,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
   {
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
-    facies = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
+    facies = (int) dbin->getZVariable(iech, 0);
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
     dbin->setLocVariable(ELoc::L,iech, get_rank_from_propdef(propdef, ipgs, igrf),

@@ -230,9 +230,6 @@ static int st_locate_sample_in_output(LMlayers *lmlayers,
                                       int iech,
                                       int *igrid)
 {
-  int idim, indg[2];
-  double coor[2];
-
   /* In the case the input and output files coincide, simply return 'iech' */
   if (lmlayers->flag_same)
   {
@@ -240,11 +237,15 @@ static int st_locate_sample_in_output(LMlayers *lmlayers,
     return (0);
   }
 
+  int ndim = dbout->getNDim();
+  VectorInt indg(ndim, 0);
+  VectorDouble coor(ndim);
+  
   /* The files are different */
-  for (idim = 0; idim < dbin->getNDim(); idim++)
+  for (int idim = 0; idim < dbin->getNDim(); idim++)
     coor[idim] = dbin->getCoordinate(iech, idim);
-  if (point_to_grid(dbout, coor, 0, indg) != 0) return (1);
-  *igrid = db_index_grid_to_sample(dbout, indg);
+  if (point_to_grid(dbout, coor.data(), 0, indg.data()) != 0) return (1);
+  *igrid = dbout->indiceToRank(indg);
   return (0);
 }
 
@@ -309,7 +310,7 @@ static int st_get_props_result(LMlayers *lmlayers,
     t0 = (lmlayers->colreft >= 0) ? dbout->getArray(iech, lmlayers->colreft) :
                                     0.;
     if (FFFF(t0)) return (1);
-    t1 = get_LOCATOR_ITEM(dbout, lmlayers->ptime, ilayer0 - 1, iech);
+    t1 = dbout->getFromLocator(lmlayers->ptime, iech, ilayer0 - 1);
     if (FFFF(t1)) return (1);
     tlast = t0;
 
@@ -317,7 +318,7 @@ static int st_get_props_result(LMlayers *lmlayers,
 
     for (ilayer = 0; ilayer < ilayer0; ilayer++)
     {
-      tt = get_LOCATOR_ITEM(dbout, lmlayers->ptime, ilayer, iech);
+      tt = dbout->getFromLocator(lmlayers->ptime, iech, ilayer);
       if (FFFF(tt)) return (1);
       pval = (tt - tlast) / (t1 - t0);
       if (pval < 0 || pval > 1) return (1);
@@ -694,7 +695,7 @@ static int st_lhs_one(LMlayers *lmlayers,
     coor2[1] = dbin->getCoordinate(jech, 1);
     for (jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
     {
-      jlayer = (jfois == 0) ? (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, jech) : nlayers;
+      jlayer = (jfois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER, jech) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -777,7 +778,7 @@ static int st_rhs(LMlayers *lmlayers,
     coor2[1] = dbin->getCoordinate(jech, 1);
     for (ifois = 0; ifois < seltab[jech]; ifois++, jjech++)
     {
-      jlayer = (ifois == 0) ? (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, jech) : nlayers;
+      jlayer = (ifois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER, jech) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -861,8 +862,7 @@ static int st_lhs(LMlayers *lmlayers,
     coor[1] = dbin->getCoordinate(iech,1);
     for (int ifois=0; ifois<seltab[iech]; ifois++, iiech++)
     {
-      int ilayer = (ifois == 0) ?
-        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : nlayers;
+      int ilayer = (ifois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER,iech) : nlayers;
       
       /* Evaluate the proportion vector */
 
@@ -939,14 +939,14 @@ static void st_data_vector(LMlayers *lmlayers,
 
     for (ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech) : nlayers;
+      ilayer = (ifois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
 
       if (ifois == 0)
       {
 
         /* Depth of the actual sample */
 
-        value = dbin->getLocVariable(ELoc::Z,iech, 0);
+        value = dbin->getZVariable(iech, 0);
       }
       else
       {
@@ -965,7 +965,7 @@ static void st_data_vector(LMlayers *lmlayers,
 
       if (lmlayers->flag_vel)
       {
-        dtime = get_LOCATOR_ITEM(dbout, lmlayers->ptime, ilayer - 1, igrid);
+        dtime = dbout->getFromLocator(lmlayers->ptime, igrid, ilayer - 1);
         if (lmlayers->colreft >= 0)
           dtime -= dbout->getArray(igrid, lmlayers->colreft);
         value /= dtime;
@@ -1039,7 +1039,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
     for (ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech) : nlayers;
+      ilayer = (ifois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -1089,7 +1089,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
     for (ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech) : nlayers;
+      ilayer = (ifois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -1179,7 +1179,7 @@ static int st_get_close_sample(LMlayers *lmlayers,
     if (ABS(dx) > EPS) continue;
     dy = dbin->getCoordinate(iech, 1) - coor[1];
     if (ABS(dy) > EPS) continue;
-    ilayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech);
+    ilayer = (int) dbin->getFromLocator(ELoc::LAYER, iech);
     if (ilayer == lmlayers->nlayers) return (0);
   }
   return (1);
@@ -1577,7 +1577,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
     coor[1] = dbin->getCoordinate(iech, 1);
-    ilayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech);
+    ilayer = (int) dbin->getFromLocator(ELoc::LAYER, iech);
     if (st_locate_sample_in_output(lmlayers, dbin, dbout, iech, &igrid))
       goto label_suppress;
 
@@ -1680,8 +1680,8 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
       /* Read the estimated value */
 
-      value = dbout->getLocVariable(ELoc::Z,iechout, ilayer);
-      if (flag_std) stdv = dbout->getLocVariable(ELoc::Z,iechout, nlayers + ilayer);
+      value = dbout->getZVariable(iechout, ilayer);
+      if (flag_std) stdv = dbout->getZVariable(iechout, nlayers + ilayer);
 
       if (lmlayers->flag_cumul)
       {
@@ -1690,7 +1690,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
         if (lmlayers->flag_vel)
         {
-          time = get_LOCATOR_ITEM(dbout, lmlayers->ptime, ilayer, iechout);
+          time = dbout->getFromLocator(lmlayers->ptime, iechout, ilayer);
           delta = time - time0;
           depth = depth0 + value * delta;
           if (flag_std) stdv *= delta;
@@ -1707,7 +1707,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
         if (lmlayers->flag_vel)
         {
-          time = get_LOCATOR_ITEM(dbout, lmlayers->ptime, ilayer, iechout);
+          time = dbout->getFromLocator(lmlayers->ptime, iechout, ilayer);
           delta = time - time_prev;
           depth = depth_prev + value * delta;
           if (flag_std) stdv *= delta;
@@ -1767,7 +1767,7 @@ static int st_drift_data(LMlayers *lmlayers,
     coor[1] = dbin->getCoordinate(iech, 1);
     for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech) : lmlayers->nlayers;
+      ilayer = (ifois == 0) ? (int) dbin->getFromLocator(ELoc::LAYER, iech) : lmlayers->nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -2040,7 +2040,7 @@ int multilayers_kriging(Db* dbin,
     messerr("If Input and Output are different, Output should be a Grid Db");
     goto label_end;
   }
-  if (!exist_LOCATOR(dbin, ELoc::LAYER))
+  if (!dbin->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -2116,7 +2116,7 @@ int multilayers_kriging(Db* dbin,
   for (iech = 0; iech < nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech);
+    ilayer = (int) dbin->getFromLocator(ELoc::LAYER, iech);
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, prop1)) continue;
     seltab[iech] = 1;
@@ -2289,11 +2289,11 @@ static int st_evaluate_lag(LMlayers *lmlayers,
     z2 = zval[jjech];
     (*distsum) += dist;
 
-    ilayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech);
+    ilayer = (int) dbin->getFromLocator(ELoc::LAYER, iech);
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, phia))
       return (1);
 
-    jlayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, jech);
+    jlayer = (int) dbin->getFromLocator(ELoc::LAYER, jech);
     if (st_get_props_data(lmlayers, dbin, dbout, jech, jlayer, phib))
       return (1);
 
@@ -2511,7 +2511,7 @@ int multilayers_vario(Db *dbin,
     goto label_end;
   }
   if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
-  if (!exist_LOCATOR(dbin, ELoc::LAYER))
+  if (!dbin->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -2551,7 +2551,7 @@ int multilayers_vario(Db *dbin,
   for (iech = 0; iech < nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech);
+    ilayer = (int) dbin->getFromLocator(ELoc::LAYER, iech);
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, prop1)) continue;
     seltab[iech] = 1;
@@ -2766,7 +2766,7 @@ int multilayers_get_prior(Db* dbin,
     messerr("If Input and Output are different, Output should be a Grid Db");
     goto label_end;
   }
-  if (!exist_LOCATOR(dbin, ELoc::LAYER))
+  if (!dbin->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -2804,7 +2804,7 @@ int multilayers_get_prior(Db* dbin,
   for (iech = 0; iech < nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer = (int) get_LOCATOR_ITEM(dbin, ELoc::LAYER, 0, iech);
+    ilayer = (int) dbin->getFromLocator(ELoc::LAYER, iech);
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, props)) continue;
     seltab[iech] = 1;

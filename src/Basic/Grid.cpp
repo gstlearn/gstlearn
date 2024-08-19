@@ -439,7 +439,11 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
     for (int idim = 0; idim < _nDim; idim++) _work2[idim] += _x0[idim];
     return _work2;
   }
-  for (int idim = 0; idim < _nDim; idim++) _work1[idim] += _x0[idim];
+
+  /* Shift for the origin */
+
+  for (int idim = 0; idim < _nDim; idim++)
+    _work1[idim] += _x0[idim];
   return _work1;
 }
 
@@ -548,18 +552,18 @@ int Grid::indiceToRank(const VectorInt& indice) const
 void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
   int minus = (minusOne) ? 1 : 0;
-  int nval = 1;
 
   const int* nxadd = _nx.data(); // for optimization, use address rather than []
-  int* indadd = indices.data();
-  for (int idim=0; idim<_nDim; idim++)
+  int* indadd      = indices.data();
+  int nval         = 1;
+  for (int idim = 0; idim < _nDim; idim++)
     nval *= (*(nxadd + idim) - minus);
 
   int newind;
-  for (int idim=_nDim-1; idim>=0; idim--)
+  for (int idim = _nDim - 1; idim >= 0; idim--)
   {
     nval /= (*(nxadd + idim) - minus);
-    newind = rank / nval;
+    newind           = rank / nval;
     *(indadd + idim) = newind;
     rank -= newind * nval;
   }

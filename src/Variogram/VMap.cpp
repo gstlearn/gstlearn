@@ -57,7 +57,7 @@ VMap::~VMap()
 
 double VMap::_getIVAR(const Db *db, int iech, int ivar) const
 {
-  return db->getLocVariable(ELoc::Z, iech, ivar);
+  return db->getZVariable( iech, ivar);
 }
 
 /****************************************************************************/
@@ -607,15 +607,18 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 {
   DECLARE_UNUSED(namconv);
   int error, nvar, nv2, i, idim, flag_out, nbmax;
-  int *indg0, *indg1, *ind1, iech0, iech1, iech2, jech1, jech2, nech, ndim;
-  double *delta, *mid, *coor, x0;
+  int *ind1, iech0, iech1, iech2, jech1, jech2, nech, ndim;
+  double *delta, *mid, x0;
   VectorInt neigh;
+  VectorInt indg0;
+  VectorInt indg1;
+  VectorDouble coor;
 
   /* Preliminary checks */
 
   error = 0;
-  indg0 = indg1 = ind1 = nullptr;
-  delta = coor = mid = nullptr;
+  ind1 = nullptr;
+  delta = mid = nullptr;
 
   if (db->getNDim() != 2 && db->getNDim() != 3)
   {
@@ -641,18 +644,14 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 
   /* Core allocation */
 
-  indg0 = db_indg_alloc(_dbmap);
-  if (indg0 == nullptr) goto label_end;
-  indg1 = db_indg_alloc(_dbmap);
-  if (indg1 == nullptr) goto label_end;
+  indg0.resize(ndim, 0);
+  indg1.resize(ndim, 0);
   ind1 = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (ind1 == nullptr) goto label_end;
   delta = db_sample_alloc(db, ELoc::X);
   if (delta == nullptr) goto label_end;
   mid = db_sample_alloc(db, ELoc::X);
   if (mid == nullptr) goto label_end;
-  coor = db_vector_alloc(db);
-  if (coor == nullptr) goto label_end;
 
   /* Calculate a neighborhood (if radius > 0) */
 
@@ -666,10 +665,10 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 
   /* Sorting the samples according to their first coordinate */
 
-  if (db_coorvec_get(db, 0, coor)) goto label_end;
+  coor = db->getCoordinates(0);
   for (i = 0; i < nech; i++)
     ind1[i] = i;
-  ut_sort_double(1, nech, ind1, coor);
+  ut_sort_double(1, nech, ind1, coor.data());
 
   /* Loop on the first data */
 
@@ -696,12 +695,12 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
       if (flag_out) continue;
 
       // Apply to the target cell
-      if (point_to_grid(_dbmap, delta, 0, indg0)) continue;
+      if (point_to_grid(_dbmap, delta, 0, indg0.data())) continue;
       for (int in = 0; in < nbmax; in++)
       {
-        iech0 = _findNeighCell(indg0, neigh.data(), in, indg1);
+        iech0 = _findNeighCell(indg0, neigh, in, indg1);
         if (iech0 < 0) continue;
-        evaluate(db, nvar, iech1, iech2, iech0, TEST, 0);
+        (this->*_evaluate)(db, nvar, iech1, iech2, iech0, TEST, false);
       }
 
       // Avoid symmetry if point is compared to itself
@@ -710,12 +709,12 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
       // Apply to the opposite target cell
       for (idim = 0; idim < ndim; idim++)
         delta[idim] = -delta[idim];
-      if (point_to_grid(_dbmap, delta, 0, indg0)) continue;
+      if (point_to_grid(_dbmap, delta, 0, indg0.data())) continue;
       for (int in = 0; in < nbmax; in++)
       {
-        iech0 = _findNeighCell(indg0, neigh.data(), in, indg1);
+        iech0 = _findNeighCell(indg0, neigh, in, indg1);
         if (iech0 < 0) continue;
-        evaluate(db, nvar, iech1, iech2, iech0, TEST, 0);
+        (this->*_evaluate)(db, nvar, iech1, iech2, iech0, TEST, false);
       }
     }
   }
@@ -729,12 +728,9 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   error = 0;
 
   label_end:
-  db_indg_free(indg0);
-  db_indg_free(indg1);
   mem_free((char* ) ind1);
   db_sample_free(delta);
   db_sample_free(mid);
-  db_vector_free(coor);
   return (error);
 }
 
@@ -751,13 +747,10 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 {
   DECLARE_UNUSED(namconv);
-  int error, nvar, nv2, idim, delta;
-  int *ind1, *ind2, *ind0, iech0, iech1, iech2, flag_out, ndim;
+  int nvar, nv2, delta, iech0, flag_out, ndim;
 
   /* Preliminary checks */
 
-  error = 0;
-  ind0 = ind1 = ind2 = nullptr;
   if (dbgrid == nullptr) return (1);
 
   if (dbgrid->getNDim() != 2 && dbgrid->getNDim() != 3)
@@ -774,7 +767,7 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
         dbgrid->getNDim());
     return (1);
   }
-  for (idim = 0; idim < _dbmap->getNDim(); idim++)
+  for (int idim = 0; idim < _dbmap->getNDim(); idim++)
   {
     if (ABS(_dbmap->getDX(idim) - dbgrid->getDX(idim)) > 1.e-03)
     {
@@ -794,28 +787,25 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 
   /* Core allocation */
 
-  ind0 = db_indg_alloc(_dbmap);
-  if (ind0 == nullptr) goto label_end;
-  ind1 = db_indg_alloc(dbgrid);
-  if (ind1 == nullptr) goto label_end;
-  ind2 = db_indg_alloc(dbgrid);
-  if (ind2 == nullptr) goto label_end;
+  VectorInt ind0(ndim, 0);
+  VectorInt ind1(ndim, 0);
+  VectorInt ind2(ndim, 0);
 
   /* Loop on the first data */
 
-  for (iech1 = 0; iech1 < dbgrid->getSampleNumber(); iech1++)
+  for (int iech1 = 0; iech1 < dbgrid->getSampleNumber(); iech1++)
   {
     if (!dbgrid->isActive(iech1)) continue;
-    db_index_sample_to_grid(dbgrid, iech1, ind1);
+    dbgrid->rankToIndice(iech1, ind1);
 
     /* Loop on the second data */
 
-    for (iech2 = 0; iech2 < dbgrid->getSampleNumber(); iech2++)
+    for (int iech2 = 0; iech2 < dbgrid->getSampleNumber(); iech2++)
     {
       if (!dbgrid->isActive(iech2)) continue;
-      db_index_sample_to_grid(dbgrid, iech2, ind2);
+      dbgrid->rankToIndice(iech2, ind2);
 
-      for (idim = flag_out = 0; idim < ndim && flag_out == 0; idim++)
+      for (int idim = flag_out = 0; idim < ndim && flag_out == 0; idim++)
       {
         delta = ind1[idim] - ind2[idim];
         int moitie = (_dbmap->getNX(idim) - 1) / 2;
@@ -826,24 +816,15 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 
       /* Evaluate the variogram map */
 
-      iech0 = db_index_grid_to_sample(_dbmap, ind0);
-      evaluate(dbgrid, nvar, iech1, iech2, iech0, TEST, 0);
+      iech0 = _dbmap->indiceToRank(ind0);
+      (this->*_evaluate)(dbgrid, nvar, iech1, iech2, iech0, TEST, false);
     }
   }
 
   /* Normalization */
 
   _vmap_normalize(nv2);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  db_indg_free(ind0);
-  db_indg_free(ind1);
-  db_indg_free(ind2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -920,7 +901,8 @@ int VMap::_vmap_load_simple(DbGrid* dbgrid,
                             VectorVectorDouble& z2z1)
 {
   DECLARE_UNUSED(sizetot);
-  int ind1, ind2, indice[3];
+  int ind1, ind2;
+  VectorInt indice(3,0);
 
   /* Initialize the complex array */
 
@@ -942,10 +924,10 @@ int VMap::_vmap_load_simple(DbGrid* dbgrid,
         indice[0] = ix;
         indice[1] = iy;
         indice[2] = iz;
-        int iech = db_index_grid_to_sample(dbgrid, indice);
+        int iech = dbgrid->indiceToRank(indice);
         if (!dbgrid->getSelection(iech)) continue;
-        double val1 = dbgrid->getLocVariable(ELoc::Z, iech, jvar);
-        double val2 = dbgrid->getLocVariable(ELoc::Z, iech, ivar);
+        double val1 = dbgrid->getZVariable( iech, jvar);
+        double val2 = dbgrid->getZVariable( iech, ivar);
         ind1 = (!FFFF(val1));
         ind2 = (!FFFF(val2));
 
@@ -999,7 +981,8 @@ int VMap::_vmap_load_cross(DbGrid *dbgrid,
                            VectorVectorDouble &z2i2)
 {
   DECLARE_UNUSED(sizetot);
-  int ind1, ind2, indice[3];
+  int ind1, ind2;
+  VectorInt indice(ndim, 0);
 
   /* Initialize the complex array */
 
@@ -1021,10 +1004,10 @@ int VMap::_vmap_load_cross(DbGrid *dbgrid,
         indice[0] = ix;
         indice[1] = iy;
         indice[2] = iz;
-        int iech = db_index_grid_to_sample(dbgrid, indice);
+        int iech = dbgrid->indiceToRank(indice);
         if (!dbgrid->getSelection(iech)) continue;
-        double val1 = dbgrid->getLocVariable(ELoc::Z, iech, jvar);
-        double val2 = dbgrid->getLocVariable(ELoc::Z, iech, ivar);
+        double val1 = dbgrid->getZVariable( iech, jvar);
+        double val2 = dbgrid->getZVariable( iech, ivar);
         ind1 = (!FFFF(val1));
         ind2 = (!FFFF(val2));
 
@@ -1127,9 +1110,9 @@ void VMap::_vmap_shift(VectorDouble &tab,
  *****************************************************************************/
 void VMap::_vmap_store(VectorDouble& tab, int iptr)
 {
-  int indice[3];
-  VectorDouble dims(3);
   int ndim = _dbmap->getNDim();
+  VectorInt indice(3, 0);
+  VectorDouble dims(3);
 
   for (int idim = 0; idim < 3; idim++)
   {
@@ -1149,7 +1132,7 @@ void VMap::_vmap_store(VectorDouble& tab, int iptr)
         indice[0] = ix;
         indice[1] = iy;
         indice[2] = iz;
-        int iech = db_index_grid_to_sample(_dbmap, indice);
+        int iech = _dbmap->indiceToRank(indice);
         _dbmap->setArray(iech, iptr, tab[ecr]);
       }
 }
@@ -1168,10 +1151,10 @@ void VMap::_vmap_store(VectorDouble& tab, int iptr)
  ** \param[out] indg1     Working array for grid indices
  **
  *****************************************************************************/
-int VMap::_findNeighCell(const int* indg0,
-                         const int* neigh,
+int VMap::_findNeighCell(const VectorInt& indg0,
+                         const VectorInt& neigh,
                          int rank,
-                         int* indg1)
+                         VectorInt& indg1)
 {
   int ndim;
 
@@ -1184,7 +1167,7 @@ int VMap::_findNeighCell(const int* indg0,
   for (int idim = 0; idim < ndim; idim++)
     indg1[idim] = indg0[idim] + neigh[rank * ndim + idim];
 
-  return (db_index_grid_to_sample(_dbmap, indg1));
+  return _dbmap->indiceToRank(indg1);
 }
 
 /****************************************************************************/

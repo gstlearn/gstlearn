@@ -118,9 +118,9 @@ static double st_extract_subgrid(int verbose,
         if (ndim >= 1) iwork2[0] = jx;
         if (ndim >= 2) iwork2[1] = jy;
         if (ndim >= 3) iwork2[2] = jz;
-        ind = db_index_grid_to_sample(dbgrid, iwork2.data());
+        ind = dbgrid->indiceToRank(iwork2);
         numtab1[ecr] = 1.;
-        value = dbgrid->isActive(ind) ? dbgrid->getLocVariable(ELoc::Z,ind, 0) :
+        value = dbgrid->isActive(ind) ? dbgrid->getZVariable(ind, 0) :
                                         TEST;
         if (FFFF(value))
           valtab1[ecr] = (flag_ffff) ? 0 :
@@ -661,14 +661,16 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 {
   double *valtab0, *valtab1, *valtab2, *numtab0, *numtab1, *numtab2;
   double result1, result2, result, probtot;
-  int error, ndim, ind0[3], nxyz[3], ixyz[3], iech, iptr, ntot, ncol;
+  int error, ndim, ind0[3], nxyz[3], iech, iptr, ntot, ncol;
   int flag_save, iech_save;
 
   /* Initializations */
 
   valtab0 = valtab1 = valtab2 = numtab0 = numtab1 = numtab2 = nullptr;
   error = 1;
-  iech_save = (int) get_keypone("Upscale.Converge.Block", 0);
+  iech_save = (int)get_keypone("Upscale.Converge.Block", 0);
+  int ndim2 = dbgrid2->getNDim();
+  VectorInt ixyz(ndim2);
 
   /* Preliminary checks */
 
@@ -723,12 +725,12 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
-      db_index_sample_to_grid(dbgrid2, iech, ixyz);
+      dbgrid2->rankToIndice(iech, ixyz);
 
       /* Load the subgrid to be upscaled */
 
       probtot = st_extract_subgrid(verbose, 0, iech, dbgrid2->getSampleNumber(),
-                                   ntot, dbgrid1, ind0, ixyz, nxyz, numtab0,
+                                   ntot, dbgrid1, ind0, ixyz.data(), nxyz, numtab0,
                                    valtab0);
 
       if (probtot > 0)
@@ -1251,7 +1253,7 @@ int db_diffusion(DbGrid *dbgrid1,
 {
   double *valtab0, *numtab0, *valwrk, *cvdist2, *cvsave, *trsave;
   double diff_coeff, pmid, probtot;
-  int error, ndim, ind0[3], nxyz[3], ixyz[3], iech, nech, iptr, opt_center;
+  int error, ndim, ind0[3], nxyz[3], iech, nech, iptr, opt_center;
   int ntot, iech_save, flag_save, opt_morpho, flag_traj;
   int *tabini, *tabcur, *tabwrk, *numrank, n_nbgh;
   char name[40];
@@ -1273,6 +1275,8 @@ int db_diffusion(DbGrid *dbgrid1,
 
   ndim = dbgrid1->getNDim();
   nech = dbgrid2->getSampleNumber();
+  int ndim2 = dbgrid2->getNDim();
+  VectorInt ixyz(ndim2,0);
   if (ndim < 1 || ndim > 3)
   {
     messerr("This function is limited to 2-D or 3-D input grids");
@@ -1341,12 +1345,12 @@ int db_diffusion(DbGrid *dbgrid1,
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
-      db_index_sample_to_grid(dbgrid2, iech, ixyz);
+      dbgrid2->rankToIndice(iech, ixyz);
 
       /* Load the subgrid to be upscaled */
 
       probtot = st_extract_subgrid(verbose, 1, iech, nech, ntot, dbgrid1, ind0,
-                                   ixyz, nxyz, numtab0, valtab0);
+                                   ixyz.data(), nxyz, numtab0, valtab0);
 
       if (probtot > 0)
       {

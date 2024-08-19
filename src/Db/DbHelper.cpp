@@ -35,7 +35,7 @@ class LocalSkin: public ISkinFunctions
   int isAlreadyFilled(int ipos) const override
   {
     if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-    int value = FFFF(DB_GRID_FILL->getLocVariable(ELoc::Z,ipos, 0)) ? 0 : 1;
+    int value = FFFF(DB_GRID_FILL->getZVariable(ipos, 0)) ? 0 : 1;
     return (value);
   }
   /****************************************************************************/
@@ -51,7 +51,7 @@ class LocalSkin: public ISkinFunctions
 
   {
     if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-    int value = FFFF(DB_GRID_FILL->getLocVariable(ELoc::Z,ipos, 0)) ? 1 : 0;
+    int value = FFFF(DB_GRID_FILL->getZVariable(ipos, 0)) ? 1 : 0;
     return (value);
   }
 };
@@ -128,27 +128,23 @@ static void st_grid_fill_neigh(int ipos,
                                double *tabval)
 {
   double value;
-  int i, ix, iy, iz, jpos, nech, iwork1[3], iwork2[3], nrx, nry, nrz, nmx, nmy,
-      nmz;
+  int ix, iy, iz, jpos, nech, nrx, nry, nrz, nmx, nmy, nmz;
 
   /* Initializations */
 
   nech = 0;
-  nrx = (ndim >= 1) ? radius :
-                      0;
-  nry = (ndim >= 2) ? radius :
-                      0;
-  nrz = (ndim >= 3) ? radius :
-                      0;
+  nrx = (ndim >= 1) ? radius : 0;
+  nry = (ndim >= 2) ? radius : 0;
+  nrz = (ndim >= 3) ? radius : 0;
   nmx = (ndim >= 1) ? DB_GRID_FILL->getNX(0) : 1;
   nmy = (ndim >= 2) ? DB_GRID_FILL->getNX(1) : 1;
   nmz = (ndim >= 3) ? DB_GRID_FILL->getNX(2) : 1;
 
-  /* Locate the central cell */
+  /* Locate the central cell (compulsorily performed in 3-D) */
 
-  for (i = 0; i < 3; i++)
-    iwork1[i] = iwork2[i] = 0;
-  db_index_sample_to_grid(DB_GRID_FILL, ipos, iwork1);
+  VectorInt iwork1(3, 0);
+  VectorInt iwork2(3, 0);
+  DB_GRID_FILL->rankToIndice(ipos, iwork1);
 
   /* Loop on the neighborhood cells */
 
@@ -164,8 +160,8 @@ static void st_grid_fill_neigh(int ipos,
       {
         iwork2[2] = iwork1[2] + iz;
         if (iwork2[2] < 0 || iwork2[2] >= nmz) continue;
-        jpos = db_index_grid_to_sample(DB_GRID_FILL, iwork2);
-        value = DB_GRID_FILL->getLocVariable(ELoc::Z,jpos, 0);
+        jpos = DB_GRID_FILL->indiceToRank(iwork2);
+        value = DB_GRID_FILL->getZVariable(jpos, 0);
         if (FFFF(value)) continue;
         tabind[nech] = jpos;
         tabval[nech] = value;
@@ -201,25 +197,23 @@ static int st_grid_fill_calculate(int ipos,
                                   int *tabind,
                                   const double *tabval)
 {
-  double dist, dist2, f[4], dmin;
-  int indg[3];
+  double dist, dist2, dmin;
 
   /* Initializations */
 
-  int neq = 3;
   double result = 0.;
-  double top = 0.;
-  double bot = 0.;
-
+  double top    = 0.;
+  double bot    = 0.;
+  int ndim      = DB_GRID_FILL->getNDim();
+ 
   /* Dispatch according to the extrapolation mode */
 
   switch (mode)
   {
     case 0:
     {
-      for (int iech = 0; iech < nech; iech++)
-        top += tabval[iech];
-      result = top / (double) nech;
+      for (int iech = 0; iech < nech; iech++) top += tabval[iech];
+      result = top / (double)nech;
       break;
     }
 
@@ -227,7 +221,7 @@ static int st_grid_fill_calculate(int ipos,
     {
       for (int iech = 0; iech < nech; iech++)
       {
-        dist = distance_intra(DB_GRID_FILL, ipos, tabind[iech], NULL);
+        dist  = distance_intra(DB_GRID_FILL, ipos, tabind[iech], NULL);
         dist2 = dist * dist;
         top += tabval[iech] / dist2;
         bot += 1. / dist2;
@@ -239,16 +233,20 @@ static int st_grid_fill_calculate(int ipos,
     case 2:
     {
       if (nech < 3) return (1);
-      f[0] = 1.;
+      int neq = ndim + 1;
+      VectorInt indg(ndim, 0);
+      VectorDouble coor(ndim, 0.);
       MatrixSquareSymmetric a(neq);
       VectorDouble b(neq);
       VectorDouble sol(neq);
+      VectorDouble f(neq, 0.);
       a.fill(0.);
       b.fill(0.);
       for (int iech = 0; iech < nech; iech++)
       {
-        db_index_sample_to_grid(DB_GRID_FILL, tabind[iech], indg);
-        grid_to_point(DB_GRID_FILL, indg, NULL, &f[1]);
+        DB_GRID_FILL->rankToIndice(tabind[iech], indg);
+        DB_GRID_FILL->indicesToCoordinateInPlace(indg, coor);
+        for (int idim = 0; idim < ndim; idim++) f[1+idim] = coor[idim];
         for (int j = 0; j < neq; j++)
         {
           b[j] += tabval[iech] * f[j];
@@ -257,8 +255,9 @@ static int st_grid_fill_calculate(int ipos,
         }
       }
       if (a.solve(b, sol)) return 1;
-      db_index_sample_to_grid(DB_GRID_FILL, ipos, indg);
-      grid_to_point(DB_GRID_FILL, indg, NULL, &f[1]);
+      DB_GRID_FILL->rankToIndice(ipos, indg);
+      DB_GRID_FILL->indicesToCoordinateInPlace(indg, coor);
+      for (int idim = 0; idim < ndim; idim++) f[1+idim] = coor[idim];
       for (int j = 0; j < neq; j++)
         result += sol[j] * f[j];
       break;
@@ -938,7 +937,6 @@ int DbHelper::dbgrid_filling(DbGrid *dbgrid,
   tabind = (int*) mem_alloc(sizeof(int) * count, 0);
   if (tabind == nullptr) goto label_end;
 
-
   skin = new Skin(&SKF, dbgrid);
 
   if (skin->init(verbose))
@@ -1334,7 +1332,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
   for (iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
-    db_sample_load(dbout, ELoc::X, iech, coor.data());
+    dbout->getCoordinatesPerSampleInPlace(iech, coor);
     iad = dbin->coordinateToRank(coor);
     if (iad < 0) continue;
 
@@ -1421,7 +1419,7 @@ int DbHelper::db_grid1D_fill(DbGrid *dbgrid,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
-      double value = dbgrid->getLocVariable(ELoc::Z,iech, ivar);
+      double value = dbgrid->getZVariable(iech, ivar);
       if (FFFF(value)) continue;
       X[ndef] = dbgrid->getCoordinate(iech, 0);
       Y[ndef] = value;

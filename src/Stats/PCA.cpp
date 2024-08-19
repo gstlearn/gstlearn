@@ -843,7 +843,7 @@ void PCA::_loadData(const Db* db, int iech, VectorDouble& data)
 {
   int nvar = (int) db->getLocNumber(ELoc::Z);
   for (int ivar = 0; ivar < nvar; ivar++)
-    data[ivar] = db->getLocVariable(ELoc::Z,iech, ivar);
+    data[ivar] = db->getZVariable(iech, ivar);
 }
 
 VectorDouble PCA::mafOfIndex() const

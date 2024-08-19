@@ -146,7 +146,7 @@ int CalcGlobal::_globalKriging()
   /* Average covariance over the territory */
 
   double cvv = model->evalAverageDbToDb(getDbout(), getDbout(), _ivar0, _ivar0,
-                                        db_epsilon_distance(getDbin()), 0);
+                                        getDbin()->getExtensionDiagonal() / 1.e3, 0);
 
   /* Load the scaled cumulated R.H.S. in the array rhs */
 
@@ -229,11 +229,11 @@ int CalcGlobal::_globalArithmetic()
   /* Average covariance over the territory */
 
   double cvv = model->evalAverageDbToDb(dbgrid, dbgrid, _ivar0, _ivar0,
-                                        db_epsilon_distance(dbgrid), 0);
+                                        dbgrid->getExtensionDiagonal() / 1.e3, 0);
 
   /* Calculating basic statistics */
 
-  int iatt = db_attribute_identify(getDbin(), ELoc::Z, _ivar0);
+  int iatt = getDbin()->getUIDByLocator(ELoc::Z, _ivar0);
   double wtot;
   double ave;
   double var;

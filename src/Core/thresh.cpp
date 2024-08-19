@@ -575,10 +575,10 @@ int db_rule_shadow(Db* db,
   for (igrf = 0; igrf < 2; igrf++)
   {
     if (!flag_used[igrf]) continue;
-    iptr = db_attribute_identify(db, ELoc::SIMU, igrf);
+    iptr = db->getUIDByLocator(ELoc::SIMU, igrf);
     if (iptr < 0)
     {
-      iptr = db_attribute_identify(db, ELoc::Z, igrf);
+      iptr = db->getUIDByLocator(ELoc::Z, igrf);
       if (iptr < 0)
       {
         messerr(
