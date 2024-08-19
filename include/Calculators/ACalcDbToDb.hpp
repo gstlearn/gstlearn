@@ -47,8 +47,11 @@ public:
 
 protected:
   virtual bool _check() override;
-  virtual int _getNDim() const;
-  virtual int _getNVar() const;
+  virtual bool _preprocess() override;
+  int _getNDim() const { return _ndim; }
+  int _getNVar() const { return _nvar; }
+  bool _setNdim(int ndim);
+  bool _setNvar(int nvar);
 
   int _addVariableDb(int whichDb,
                      int status,
@@ -84,4 +87,6 @@ private:
   VectorInt _listVariablePermDbOut;
   VectorInt _listVariableTempDbIn;
   VectorInt _listVariableTempDbOut;
+  int _ndim;
+  int _nvar;
 };

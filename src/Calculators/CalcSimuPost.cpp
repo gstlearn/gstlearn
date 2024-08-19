@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/ACalcDbToDb.hpp"
 #include "geoslib_define.h"
 
 #include "Enum/EPostUpscale.hpp"
@@ -129,6 +130,10 @@ bool CalcSimuPost::_mustBeChecked(int level) const
 
 bool CalcSimuPost::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
+  _setNvar((int)_names.size());
+  
   if (_flagUpscale)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
   else

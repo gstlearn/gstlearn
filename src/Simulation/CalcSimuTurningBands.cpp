@@ -1593,10 +1593,10 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
   law_set_random_seed(mem_seed);
 }
 
-double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
-                                 int icov,
-                                 int ivar,
-                                 int jvar)
+double CalcSimuTurningBands::_getAIC(const VectorDouble& aic,
+                                     int icov,
+                                     int ivar,
+                                     int jvar)
 {
   int nvar = _getNVar();
   return aic[jvar + nvar * (ivar + nvar * icov)];

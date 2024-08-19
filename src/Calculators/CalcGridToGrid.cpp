@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/ACalcDbToDb.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -29,13 +30,6 @@ CalcGridToGrid::CalcGridToGrid()
 
 CalcGridToGrid::~CalcGridToGrid()
 {
-}
-
-int CalcGridToGrid::_getNVar() const
-{
-  int nvar = 0;
-  if (getDbin() != nullptr) nvar = getDbin()->getLocNumber(ELoc::Z);
-  return nvar;
 }
 
 bool CalcGridToGrid::_check()
@@ -133,6 +127,9 @@ int CalcGridToGrid::_compareInMinusOut() const
 
 bool CalcGridToGrid::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
+  // Number of variable
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
   if (_iattOut < 0) return false;
 

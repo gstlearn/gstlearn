@@ -639,6 +639,12 @@ bool CalcMigrate::_check()
 
 bool CalcMigrate::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
+  // Number of variables
+
+  _setNvar((int)_iuids.size());
+
   int nvar = _getNVar();
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
   return (_iattOut >= 0);
@@ -662,11 +668,6 @@ bool CalcMigrate::_postprocess()
 void CalcMigrate::_rollback()
 {
   _cleanVariableDb(1);
-}
-
-int CalcMigrate::_getNVar() const
-{
-  return (int) _iuids.size();
 }
 
 /****************************************************************************/

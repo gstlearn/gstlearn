@@ -40,11 +40,6 @@ CalcSimpleInterpolation::~CalcSimpleInterpolation()
 {
 }
 
-int CalcSimpleInterpolation::_getNVar() const
-{
-  return getDbin()->getLocNumber(ELoc::Z);
-}
-
 bool CalcSimpleInterpolation::_check()
 {
   if (! ACalcInterpolator::_check()) return false;

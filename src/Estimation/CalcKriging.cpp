@@ -114,6 +114,8 @@ bool CalcKriging::_preprocess()
 {
   if (!ACalcInterpolator::_preprocess()) return false;
 
+  if (_matLC == nullptr) _setNvar(_matLC->getNRows());
+
   int status = 1;
   if (_iechSingleTarget >= 0) status = 2;
 
@@ -143,7 +145,7 @@ bool CalcKriging::_preprocess()
   if (_flagDGM)
   {
     // Centering (only if the output file is a Grid)
-    DbGrid *dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering
@@ -164,9 +166,11 @@ bool CalcKriging::_postprocess()
   if (_flagXvalid)
   {
     if (_flagXvalidStd > 0)
-      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stderr", 1, false);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stderr", 1,
+                      false);
     else if (_flagXvalidStd < 0)
-      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1, false);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1,
+                      false);
 
     if (_flagXvalidEst > 0)
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "esterr", 1);
@@ -178,16 +182,19 @@ bool CalcKriging::_postprocess()
   }
   else if (_flagNeighOnly)
   {
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh  , "Number", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+1, "MaxDist", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+2, "MinDist", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+3, "NbNESect", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+4, "NbCESect", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh, "Number", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 1, "MaxDist",
+                    1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 2, "MinDist",
+                    1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 3, "NbNESect",
+                    1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 4, "NbCESect",
+                    1);
   }
   else if (_flagDGM)
   {
-    if (!_nameCoord.empty())
-      getDbin()->setLocators(_nameCoord, ELoc::X);
+    if (!_nameCoord.empty()) getDbin()->setLocators(_nameCoord, ELoc::X);
 
     _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
     _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
@@ -215,12 +222,6 @@ bool CalcKriging::_postprocess()
 void CalcKriging::_rollback()
 {
   _cleanVariableDb(1);
-}
-
-int CalcKriging::_getNVar() const
-{
-  if (_matLC == nullptr) return getModel()->getVariableNumber();
-  return _matLC->getNRows();
 }
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
@@ -255,7 +256,7 @@ bool CalcKriging::_run()
 {
   /* Setting options */
 
-   KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
+  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (ksys.setKrigOptCalcul(_calcul, _ndiscs, _flagPerCell)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;
@@ -286,7 +287,7 @@ bool CalcKriging::_run()
   {
     if (ksys.updKrigOptNeighOnly(_iptrNeigh)) return false;
   }
-  if (! ksys.isReady()) return false;
+  if (!ksys.isReady()) return false;
 
   /***************************************/
   /* Loop on the targets to be processed */
@@ -315,8 +316,7 @@ bool CalcKriging::_run()
 
   // Store the results in an API structure (only if flagSingleTarget)
 
-  if (_iechSingleTarget >= 0)
-    _storeResultsForExport(ksys);
+  if (_iechSingleTarget >= 0) _storeResultsForExport(ksys);
 
   ksys.conclusion();
 
@@ -345,11 +345,11 @@ bool CalcKriging::_run()
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int kriging(Db *dbin,
-            Db *dbout,
-            Model *model,
-            ANeigh *neigh,
-            const EKrigOpt &calcul,
+int kriging(Db* dbin,
+            Db* dbout,
+            Model* model,
+            ANeigh* neigh,
+            const EKrigOpt& calcul,
             bool flag_est,
             bool flag_std,
             bool flag_varz,
@@ -392,10 +392,10 @@ int kriging(Db *dbin,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int krigcell(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeigh *neigh,
+int krigcell(Db* dbin,
+             Db* dbout,
+             Model* model,
+             ANeigh* neigh,
              bool flag_est,
              bool flag_std,
              const VectorInt& ndiscs,
@@ -437,10 +437,10 @@ int krigcell(Db *dbin,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int kribayes(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeigh *neigh,
+int kribayes(Db* dbin,
+             Db* dbout,
+             Model* model,
+             ANeigh* neigh,
              const VectorDouble& prior_mean,
              const MatrixSquareSymmetric& prior_cov,
              bool flag_est,
@@ -478,10 +478,10 @@ int kribayes(Db *dbin,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int krigprof(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeigh *neigh,
+int krigprof(Db* dbin,
+             Db* dbout,
+             Model* model,
+             ANeigh* neigh,
              bool flag_est,
              bool flag_std,
              const NamingConvention& namconv)
@@ -518,12 +518,12 @@ int krigprof(Db *dbin,
  **                         (the current status is reset after the run)
  **
  *****************************************************************************/
-Krigtest_Res krigtest(Db *dbin,
-                      Db *dbout,
-                      Model *model,
-                      ANeigh *neigh,
+Krigtest_Res krigtest(Db* dbin,
+                      Db* dbout,
+                      Model* model,
+                      ANeigh* neigh,
                       int iech0,
-                      const EKrigOpt &calcul,
+                      const EKrigOpt& calcul,
                       const VectorInt& ndiscs,
                       bool flagPerCell,
                       bool verbose)
@@ -540,7 +540,7 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setVerboseSingleTarget(verbose);
   krige.setFlagPerCell(flagPerCell);
 
-  (void) krige.run();
+  (void)krige.run();
 
   return krige.getKtest();
 }
@@ -559,11 +559,11 @@ Krigtest_Res krigtest(Db *dbin,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int kriggam(Db *dbin,
-            Db *dbout,
-            Model *model,
-            ANeigh *neigh,
-            AAnam *anam,
+int kriggam(Db* dbin,
+            Db* dbout,
+            Model* model,
+            ANeigh* neigh,
+            AAnam* anam,
             const NamingConvention& namconv)
 {
   CalcKriging krige(true, true, false);
@@ -588,16 +588,19 @@ int kriggam(Db *dbin,
  * @param model Model structure
  * @param neigh ANeigh structure
  * @param flag_kfold True if a code (K-FOLD) is used
- * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for Z*; 0 not stored
- * @param flag_xvalid_std Option for storing the standard deviation: 1:for (Z*-Z)/S; -1 for S; 0 not stored
- * @param flag_xvalid_varz Option for storing the variance of the estimator: 1 to store and 0 not stored
+ * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for
+ * Z*; 0 not stored
+ * @param flag_xvalid_std Option for storing the standard deviation: 1:for
+ * (Z*-Z)/S; -1 for S; 0 not stored
+ * @param flag_xvalid_varz Option for storing the variance of the estimator: 1
+ * to store and 0 not stored
  * @param rank_colcok Option for running Collocated Cokriging
  * @param namconv Naming Convention
  * @return Error return code
  */
-int xvalid(Db *db,
-           Model *model,
-           ANeigh *neigh,
+int xvalid(Db* db,
+           Model* model,
+           ANeigh* neigh,
            bool flag_kfold,
            int flag_xvalid_est,
            int flag_xvalid_std,
@@ -605,8 +608,7 @@ int xvalid(Db *db,
            const VectorInt& rank_colcok,
            const NamingConvention& namconv)
 {
-  CalcKriging krige(flag_xvalid_est != 0,
-                    flag_xvalid_std != 0,
+  CalcKriging krige(flag_xvalid_est != 0, flag_xvalid_std != 0,
                     flag_xvalid_varz != 0);
   krige.setDbin(db);
   krige.setDbout(db);
@@ -646,11 +648,11 @@ int xvalid(Db *db,
  ** \remark 5 - The number of consecutive empty sectors
  **
  *****************************************************************************/
-int test_neigh(Db *dbin,
-               Db *dbout,
-               Model *model,
-               ANeigh *neigh,
-               const NamingConvention &namconv)
+int test_neigh(Db* dbin,
+               Db* dbout,
+               Model* model,
+               ANeigh* neigh,
+               const NamingConvention& namconv)
 {
   CalcKriging krige(false, false, false);
   krige.setDbin(dbin);

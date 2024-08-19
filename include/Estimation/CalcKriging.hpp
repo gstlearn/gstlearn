@@ -84,7 +84,6 @@ private:
   virtual bool _run() override;
   virtual bool _postprocess() override;
   virtual void _rollback() override;
-  int _getNVar() const override;
 
   void _storeResultsForExport(const KrigingSystem& ksys);
 

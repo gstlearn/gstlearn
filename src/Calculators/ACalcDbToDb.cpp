@@ -15,51 +15,22 @@
 #include "Basic/VectorHelper.hpp"
 
 ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
-    : ACalculator(),
-      _mustShareSpaceDimension(mustShareSameSpaceDimension),
-      _dbin(nullptr),
-      _dbout(nullptr),
-      _namconv(),
-      _listVariablePermDbIn(),
-      _listVariablePermDbOut(),
-      _listVariableTempDbIn(),
-      _listVariableTempDbOut()
+  : ACalculator()
+  , _mustShareSpaceDimension(mustShareSameSpaceDimension)
+  , _dbin(nullptr)
+  , _dbout(nullptr)
+  , _namconv()
+  , _listVariablePermDbIn()
+  , _listVariablePermDbOut()
+  , _listVariableTempDbIn()
+  , _listVariableTempDbOut()
+  , _ndim(0)
+  , _nvar(0)
 {
 }
 
 ACalcDbToDb::~ACalcDbToDb()
 {
-}
-
-int ACalcDbToDb::_getNDim() const
-{
-  if (_dbin != nullptr)
-  {
-    return _dbin->getNDim();
-  }
-
-  if (_dbout != nullptr)
-  {
-    return _dbout->getNDim();
-  }
-  return -1;
-}
-
-int ACalcDbToDb::_getNVar() const
-{
-  int nvar = 0;
-  if (_dbin != nullptr)
-  {
-    if (nvar > 0)
-    {
-      if (nvar != _dbin->getLocNumber(ELoc::Z)) return -1;
-    }
-    else
-    {
-      nvar = _dbin->getLocNumber(ELoc::Z);
-    }
-  }
-  return nvar;
 }
 
 bool ACalcDbToDb::_checkSpaceDimension()
@@ -109,6 +80,42 @@ bool ACalcDbToDb::_checkSpaceDimension()
    return true;
 }
 
+bool ACalcDbToDb::_setNvar(int nvar)
+{
+  if (nvar <= 0) return true;
+  if (_nvar <= 0)
+    _nvar = nvar;
+  else
+  {
+    if (_nvar != nvar)
+    {
+      messerr("Inconsistent Variable Number:");
+      messerr("- Number already defined = %d", _nvar);
+      messerr("- Number of variables newly declared = %d", nvar);
+      return false;
+    }
+  }
+  return true;
+}
+
+bool ACalcDbToDb::_setNdim(int ndim)
+{
+  if (ndim <= 0) return true;
+  if (_ndim <= 0)
+    _ndim = ndim;
+  else
+  {
+    if (_ndim != ndim)
+    {
+      messerr("Inconsistent SSpace dimension:");
+      messerr("- Number already defined = %d", _ndim);
+      messerr("- Number of variables newly declared = %d", ndim);
+      return false;
+    }
+  }
+  return true;
+}
+
 bool ACalcDbToDb::_checkVariableNumber()
 {
   int nvar = 0;
@@ -147,6 +154,28 @@ bool ACalcDbToDb::_check()
 
   if (! _checkVariableNumber()) return false;
 
+  return true;
+}
+
+bool ACalcDbToDb::_preprocess()
+{
+  // Set the value of ndim
+
+  if (_dbin != nullptr)
+  {
+    if (! _setNdim(_dbin->getNDim())) return false;
+  }
+  if (_dbout != nullptr)
+  {
+    if (!_setNdim(_dbout->getNDim())) return false;
+  }
+
+  // Set the number of variables
+
+  if (_dbin != nullptr)
+  {
+    if (! _setNvar(_dbin->getLocNumber(ELoc::Z))) return false;
+  }
   return true;
 }
 

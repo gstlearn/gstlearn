@@ -1050,10 +1050,6 @@ double operate_InverseSqrt(double x)
  */
 double modifyOperator(const EOperator& oper, double oldval, double value)
 {
-  if (oper == EOperator::IDLE)
-  {
-    return (value);
-  }
   if (oper == EOperator::ADD)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
@@ -1101,7 +1097,7 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
     if (FFFF(oldval)) return (value);
     return MAX(oldval, value);
   }
-  return TEST;
+  return value;
 }
 
 /**

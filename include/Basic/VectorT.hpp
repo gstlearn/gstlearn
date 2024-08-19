@@ -198,17 +198,19 @@ T& VectorT<T>::at(size_type pos)
 template <typename T>
 const T& VectorT<T>::operator[](size_type pos) const
 {
-  if (pos >= size())
-    my_throw("VectorT<T>::operator[]: index out of range");
+  // Unprotect operator[] ... as in std::vector library
+  //  if (pos >= size())
+  //    my_throw("VectorT<T>::operator[]: index out of range");
   return _v->operator[](pos);
 }
 
-template <typename T>
+template<typename T>
 T& VectorT<T>::operator[](size_type pos)
 {
-  if (pos >= size())
-    my_throw("VectorT<T>::operator[]: index out of range");
-  _detach();
+  // Unprotect operator[] ... as in std::vector library
+  //  if (pos >= size())
+  //    my_throw("VectorT<T>::operator[]: index out of range");
+  // _detach(); // TOO. This is a tentative to evaluate gain in computing time
   return _v->operator[](pos);
 }
 #endif

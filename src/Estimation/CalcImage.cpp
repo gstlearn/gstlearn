@@ -40,11 +40,6 @@ CalcImage::~CalcImage()
 {
 }
 
-int CalcImage::_getNVar() const
-{
-  return getDbin()->getLocNumber(ELoc::Z);
-}
-
 bool CalcImage::_check()
 {
   if (! ACalcInterpolator::_check()) return false;

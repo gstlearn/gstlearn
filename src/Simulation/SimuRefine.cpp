@@ -547,10 +547,3 @@ bool SimuRefine::_run()
 {
   return true;
 }
-
-int SimuRefine::_getNDim() const
-{
-  if (_model != nullptr)
-    return _model->getDimensionNumber();
-  return 0;
-}

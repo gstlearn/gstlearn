@@ -78,6 +78,8 @@ bool CalcStatistics::_check()
 
 bool CalcStatistics::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+  
   if (_flagStats)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVar(), 0.);
 
