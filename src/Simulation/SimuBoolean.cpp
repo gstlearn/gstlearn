@@ -122,7 +122,7 @@ int SimuBoolean::_countConditioningPore(const Db* db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    double data = db->getLocVariable(ELoc::Z,iech, 0);
+    double data = db->getZVariable(iech, 0);
     if (FFFF(data)) continue;
     if (data) continue;
     nbpore++;
@@ -138,7 +138,7 @@ int SimuBoolean::_countConditioningGrain(const Db* db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    double data = db->getLocVariable(ELoc::Z,iech, 0);
+    double data = db->getZVariable(iech, 0);
     if (FFFF(data)) continue;
     if (! data) continue;
     nbgrain++;
@@ -152,7 +152,7 @@ int SimuBoolean::_getRankUncovered(const Db* db, int rank) const
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    int data = (int) db->getLocVariable(ELoc::Z,iech, 0);
+    int data = (int) db->getZVariable(iech, 0);
     if (data <= 0) continue;
     int cover = db->getArray(iech, _iptrCover);
     if (cover > 0) continue;

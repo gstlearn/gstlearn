@@ -495,7 +495,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     return false;
   }
   if (st_model_invalid(model)) return false;
-  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
+  if (!dbiso->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     return false;
@@ -625,7 +625,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!dbiso->isActive(iech)) continue;
-    double value = get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
+    double value = dbiso->getFromLocator(ELoc::LAYER, iech);
     if (FFFF(value)) continue;
     int ival = (int) value;
 
@@ -688,7 +688,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbiso->isActive(iech)) continue;
-      double value = get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
+      double value = dbiso->getFromLocator(ELoc::LAYER, iech);
       if (FFFF(value)) continue;
       int ival = (int) value;
       if (ival != layval[i]) continue;
@@ -1021,7 +1021,7 @@ static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
         pot_ext->indg[2] = pot_ext->indg0[2] + iz - pot_ext->nring;
         if (pot_ext->indg[2] < 0 || pot_ext->indg[2] > dbgrid->getNX(2))
           return (1);
-        int iech = db_index_grid_to_sample(dbgrid, pot_ext->indg.data());
+        int iech = dbgrid->indiceToRank(pot_ext->indg);
 
         /* Check that the external drift value is defined */
 
@@ -2390,7 +2390,7 @@ static void st_tempere(DbGrid *dbout,
   static int test = 0;
 
   double simerr = result[0] - reskrige;
-  double kdist = dbout->getLocVariable(ELoc::Z,iech, 0);
+  double kdist = dbout->getZVariable(iech, 0);
 
   switch (test)
   {
@@ -3034,7 +3034,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   // Highlight the isoline of interest
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    double value = dbout->getLocVariable(ELoc::Z,iech, 0);
+    double value = dbout->getZVariable(iech, 0);
     if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
   }
 
@@ -3115,8 +3115,7 @@ int potential_simulate(Db *dbiso,
   // Preliminary checks
 
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
-  if (db_extension_diag(dbiso, &delta)) goto label_end;
-  delta /= 1000.;
+  delta = dbiso->getExtensionDiagonal() / 1000;
 
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
                        neigh)) goto label_end;

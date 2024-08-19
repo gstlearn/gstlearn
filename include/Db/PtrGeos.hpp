@@ -30,6 +30,7 @@ public:
   int  getLocatorByIndex(int locatorIndex) const { return _r[locatorIndex]; }
   void setLocatorByIndex(int locatorIndex, int value) { _r[locatorIndex] = value; }
   int  getLocatorNumber() const { return static_cast<int>(_r.size()); }
+  bool hasLocator() const { return ! _r.empty(); }
   int  findUIDInLocator(int iuid) const;
   void erase(int locatorIndex);
   void clear();

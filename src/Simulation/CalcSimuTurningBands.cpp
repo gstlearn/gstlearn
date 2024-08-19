@@ -1647,7 +1647,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
         double zvar = TEST;
         if (!flag_gibbs)
         {
-          zvar = dbin->getLocVariable(ELoc::Z,iech, ivar);
+          zvar = dbin->getZVariable(iech, ivar);
         }
         for (int isimu = 0; isimu < nbsimu; isimu++)
         {
@@ -1805,7 +1805,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
         {
           double valdat;
           if (!flag_pgs)
-            valdat = dbin->getLocVariable(ELoc::Z,ip, ivar);
+            valdat = dbin->getZVariable(ip, ivar);
           else
             valdat = dbin->getSimvar(ELoc::GAUSFAC, ip, isimu, 0, icase, nbsimu,
                                      1);
@@ -1855,7 +1855,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
         {
           double valdat;
           if (!flag_pgs)
-            valdat = dbin->getLocVariable(ELoc::Z,ip_close, ivar);
+            valdat = dbin->getZVariable(ip_close, ivar);
           else
             valdat = dbin->getSimvar(ELoc::GAUSFAC, ip_close, isimu, 0, icase,
                                      nbsimu, 1);

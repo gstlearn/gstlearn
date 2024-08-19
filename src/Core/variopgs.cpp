@@ -555,7 +555,7 @@ static void st_set_rho(double rho, Local_Pgs *local_pgs)
     for (iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
+      ifac = (int) db->getZVariable(iech, 0);
       if (rule_thresh_define(propdef, db, rule, ifac, iech, 0, 0, 0, &t1min,
                              &t1max, &t2min, &t2max)) return;
       st_set_bounds(db, 1, ngrf, local_pgs->nfacies, ifac, iech, t1min, t1max,
@@ -785,7 +785,7 @@ static int st_vario_pgs_variable(int mode,
 
         for (int i = 0; i < nloop; i++)
         {
-          ifac = (flag_one) ? (int) db->getLocVariable(ELoc::Z,iech, 0) : i;
+          ifac = (flag_one) ? (int) db->getZVariable(iech, 0) : i;
           jfac = (flag_one) ? ifac : ifac + 1;
           if (rule_thresh_define(propdef, db, rule, jfac, iech, 0, 0, 0, &t1min,
                                  &t1max, &t2min, &t2max)) return (1);
@@ -1032,9 +1032,9 @@ static double st_func_search_nostat(double correl, void *user_data)
 
       /* In the stationary case, search in the lookup table first */
 
-      ifac1 = (int) local_pgs->db->getLocVariable(ELoc::Z,i1, 0) - 1;
+      ifac1 = (int) local_pgs->db->getZVariable(i1, 0) - 1;
       if (ifac1 < 0 || ifac1 >= local_pgs->nfacies) continue;
-      ifac2 = (int) local_pgs->db->getLocVariable(ELoc::Z,i2, 0) - 1;
+      ifac2 = (int) local_pgs->db->getZVariable(i2, 0) - 1;
       if (ifac2 < 0 || ifac2 >= local_pgs->nfacies) continue;
       proba = STAT_PROBA(ifac1, ifac2);
     }
@@ -2515,8 +2515,8 @@ static int st_get_count(Local_Pgs *local_pgs, int ifac1, int ifac2)
   for (int ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
   {
     vario_order_get_indices(local_pgs->vorder, ipair, &i1, &i2, &dist);
-    if (ifac1 != local_pgs->db->getLocVariable(ELoc::Z,i1, 0)) continue;
-    if (ifac2 != local_pgs->db->getLocVariable(ELoc::Z,i2, 0)) continue;
+    if (ifac1 != local_pgs->db->getZVariable(i1, 0)) continue;
+    if (ifac2 != local_pgs->db->getZVariable(i2, 0)) continue;
     double w1 = local_pgs->db->getWeight(i1);
     double w2 = local_pgs->db->getWeight(i2);
     number += (int) (w1 * w2);
@@ -2958,8 +2958,8 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
   for (int ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
   {
     vario_order_get_indices(local_pgs->vorder, ipair, &i1, &i2, &dist);
-    int ifac1 = (int) local_pgs->db->getLocVariable(ELoc::Z,i1, 0);
-    int ifac2 = (int) local_pgs->db->getLocVariable(ELoc::Z,i2, 0);
+    int ifac1 = (int) local_pgs->db->getZVariable(i1, 0);
+    int ifac2 = (int) local_pgs->db->getZVariable(i2, 0);
     double w1 = local_pgs->db->getWeight(i1);
     double w2 = local_pgs->db->getWeight(i2);
 
@@ -3315,7 +3315,7 @@ static int st_discard_point(Local_Pgs *local_pgs, int iech)
 
   /* Check on the facies */
 
-  int ifac = (int) local_pgs->db->getLocVariable(ELoc::Z,iech, 0);
+  int ifac = (int) local_pgs->db->getZVariable(iech, 0);
   if (ifac < 1 || ifac > local_pgs->nfacies) return (1);
 
   /* Check on the thresholds */

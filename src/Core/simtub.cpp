@@ -138,7 +138,7 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    simval = get_LOCATOR_ITEM(db, ELoc::SIMU, iptr_simu, iech);
+    simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu);
     db->updLocVariable(ELoc::Z,iech, 0, EOperator::ADD, simval);
     db->updLocVariable(ELoc::Z,iech, 1, EOperator::ADD, simval * simval);
   }
@@ -176,7 +176,7 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    facies = (int) get_LOCATOR_ITEM(db, ELoc::FACIES, iptr_simu, iech) - 1;
+    facies = (int) db->getFromLocator(ELoc::FACIES, iech, iptr_simu) - 1;
     rank = st_facies(ModCat.propdef, ipgs, facies);
     prop = db->getLocVariable(ELoc::P,iech, rank) + 1.;
     db->setLocVariable(ELoc::P,iech, rank, prop);
@@ -210,9 +210,9 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    mean = db->getLocVariable(ELoc::Z,iech, 0) / nbsimu;
+    mean = db->getZVariable(iech, 0) / nbsimu;
     db->setLocVariable(ELoc::Z,iech, 0, mean);
-    stdv = db->getLocVariable(ELoc::Z,iech, 1) / nbsimu - mean * mean;
+    stdv = db->getZVariable(iech, 1) / nbsimu - mean * mean;
     stdv = (stdv > 0) ? sqrt(stdv) :
                         0.;
     db->setLocVariable(ELoc::Z,iech, 1, stdv);
@@ -433,13 +433,13 @@ static int st_check_simtub_environment(Db *dbin,
   /* Calculate the field extension */
   /*********************************/
 
-  VectorDouble db_mini(ndim);
-  VectorDouble db_maxi(ndim);
+  VectorDouble db_mini(ndim, TEST);
+  VectorDouble db_maxi(ndim, TEST);
 
-  db_extension(dbout, db_mini, db_maxi, false);
+  dbout->getExtensionInPlace(db_mini, db_maxi, true);
 
   if (flag_cond)
-    db_extension(dbin, db_mini, db_maxi, true);
+    dbin->getExtensionInPlace(db_mini, db_maxi, true);
 
   if (model != nullptr)
     model->setField(VH::extensionDiagonal(db_mini, db_maxi));
@@ -550,7 +550,7 @@ static void st_check_facies_data2grid(Db *dbin,
   for (iech = 0; iech < nechin; iech++)
   {
     if (!dbin->isActive(iech)) continue;
-    facdat = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
+    facdat = (int) dbin->getZVariable(iech, 0);
     if (facdat < 1 || facdat > nfacies) continue;
     jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor);
     if (jech < 0) continue;
@@ -1053,8 +1053,8 @@ int simbipgs(Db *dbin,
   {
     nechin = dbin->getSampleNumber();
     if (!dbin->isVariableNumberComparedTo(2)) goto label_end;
-    iatt_z[0] = db_attribute_identify(dbin, ELoc::Z, 0);
-    iatt_z[1] = db_attribute_identify(dbin, ELoc::Z, 1);
+    iatt_z[0] = dbin->getUIDByLocator(ELoc::Z, 0);
+    iatt_z[1] = dbin->getUIDByLocator(ELoc::Z, 1);
   }
 
   /* Output Db */
@@ -1448,11 +1448,11 @@ int db_simulations_to_ce(Db *db,
   error = 0;
 
   label_end:
-  (void) db_attribute_del_mult(db, iptr_nb, nvar);
+  db->deleteColumnsByUIDRange(iptr_nb, nvar);
   if (error)
   {
-    (void) db_attribute_del_mult(db, iptr_ce, nvar);
-    (void) db_attribute_del_mult(db, iptr_cstd, nvar);
+    db->deleteColumnsByUIDRange(iptr_ce, nvar);
+    db->deleteColumnsByUIDRange(iptr_cstd, nvar);
     *iptr_ce_arg = -1;
     *iptr_cstd_arg = -1;
   }
@@ -1614,12 +1614,12 @@ int gibbs_sampler(Db *dbin,
 
     if (!flag_ce)
     {
-      (void) db_attribute_del_mult(dbin, iptr_ce, nvar);
+      dbin->deleteColumnsByUIDRange(iptr_ce, nvar);
       iptr_ce = -1;
     }
     if (!flag_cstd)
     {
-      (void) db_attribute_del_mult(dbin, iptr_cstd, nvar);
+      dbin->deleteColumnsByUIDRange(iptr_cstd, nvar);
       iptr_cstd = -1;
     }
     dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -1774,7 +1774,7 @@ int simtub_constraints(Db* dbin,
 
       /* Load the target simulation into the interface buffer */
 
-      if (db_vector_get_att_sel(dbout, iatt, tab.data())) goto label_end;
+      tab = dbout->getColumnByUID(iatt, true);
 
       /* Check if the simulation is valid */
 
@@ -2622,12 +2622,12 @@ int simcond(Db *dbin,
     dbout->deleteColumnsByLocator(ELoc::SIMU);
     if (!flag_ce)
     {
-      (void) db_attribute_del_mult(dbout, iptr_ce, nvar);
+      dbout->deleteColumnsByUIDRange(iptr_ce, nvar);
       iptr_ce = -1;
     }
     if (!flag_cstd)
     {
-      (void) db_attribute_del_mult(dbout, iptr_cstd, nvar);
+      dbout->deleteColumnsByUIDRange(iptr_cstd, nvar);
       iptr_cstd = -1;
     }
   }

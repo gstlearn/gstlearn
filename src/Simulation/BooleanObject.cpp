@@ -350,12 +350,12 @@ bool BooleanObject::_isInBoundingBox(const VectorDouble& coor, int ndim)
 
 bool BooleanObject::_isPore(const Db* db, int iech)
 {
-  return (db->getLocVariable(ELoc::Z,iech, 0) == 0);
+  return (db->getZVariable(iech, 0) == 0);
 }
 
 bool BooleanObject::_isGrain(const Db* db, int iech)
 {
-  return (db->getLocVariable(ELoc::Z,iech, 0) != 0);
+  return (db->getZVariable(iech, 0) != 0);
 }
 
 int BooleanObject::_getCoverageAtSample(const Db* db, int iptr_cover, int iech)

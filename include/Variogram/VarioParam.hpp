@@ -75,11 +75,13 @@ public:
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
                                     const ASpace* space = nullptr);
-  static VarioParam* createMultipleFromGrid(const DbGrid* dbgrid,
-                                            int npas,
-                                            double scale = 0.,
-                                            const VectorDouble& dates = VectorDouble(),
-                                            const ASpace* space = nullptr);
+  static VarioParam*
+  createMultipleFromGrid(const DbGrid* dbgrid,
+                         int npas,
+                         double scale              = 0.,
+                         const VectorDouble& dates = VectorDouble(),
+                         const ASpace* space       = nullptr,
+                         int ndimax = 0);
   static VarioParam* createFromSpaceDimension(int npas = 10,
                                               double dpas = 1.,
                                               double toldis = 0.5,

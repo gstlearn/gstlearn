@@ -338,7 +338,7 @@ int NoStatArray::_informField(int ipar,
 {
   // Identify the attribute in the Db
 
-  int iatt = db_attribute_identify(_dbnostat, ELoc::NOSTAT, ipar);
+  int iatt = _dbnostat->getUIDByLocator(ELoc::NOSTAT, ipar);
   if (iatt < 0)
   {
     messerr("The Non-stationary attribute (%d) is not defined in _dbnostat",

@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   ascii_filename("Data",0,0,filename);
   dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
-  iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
+  iatt_z = dbin->getUIDByLocator(ELoc::Z,0);
   dbfmt.setFlags(true, false, true, true, true);
   dbin->display(&dbfmt);
 
