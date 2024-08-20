@@ -114,7 +114,7 @@ bool CalcKriging::_preprocess()
 {
   if (!ACalcInterpolator::_preprocess()) return false;
 
-  if (_matLC == nullptr) _setNvar(_matLC->getNRows());
+  if (_matLC != nullptr) _setNvar(_matLC->getNRows(), true);
 
   int status = 1;
   if (_iechSingleTarget >= 0) status = 2;

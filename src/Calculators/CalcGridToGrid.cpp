@@ -34,6 +34,8 @@ CalcGridToGrid::~CalcGridToGrid()
 
 bool CalcGridToGrid::_check()
 {
+  if (!ACalcDbToDb::_check()) return false;
+  
   /*************************************/
   /* Both Files are compulsory as Grid */
   /*************************************/
@@ -196,7 +198,7 @@ int dbg2gExpand(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
-  calcul.setNamingConvention(namconv);
+  calcul.setMustShareSpaceDimension(false);
 
   calcul.setFlagExpand(true);
 
@@ -214,6 +216,7 @@ int dbg2gInterpolate(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setNamingConvention(namconv);
 
   calcul.setFlagInter(true);
@@ -232,6 +235,7 @@ int dbg2gShrink(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setNamingConvention(namconv);
 
   calcul.setFlagShrink(true);

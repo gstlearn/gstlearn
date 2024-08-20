@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Calculators/ACalculator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -35,12 +36,6 @@ ACalcDbToDb::~ACalcDbToDb()
 
 bool ACalcDbToDb::_checkSpaceDimension()
 {
-  if (! _mustShareSpaceDimension) return true;
-
-  /**************************************************/
-   /* Cross-checking the Space Dimension consistency */
-   /**************************************************/
-
    int ndim = 0;
    if (_dbin != nullptr)
    {
@@ -59,6 +54,9 @@ bool ACalcDbToDb::_checkSpaceDimension()
        ndim = _dbin->getNDim();
      }
    }
+   _setNdim(ndim);
+
+   if (!_mustShareSpaceDimension) return true;
 
    if (_dbout != nullptr)
    {
@@ -74,44 +72,46 @@ bool ACalcDbToDb::_checkSpaceDimension()
      }
      else
      {
-//       ndim = _dbout->getNDim(); // Never reached
+       ndim = _dbout->getNDim();
      }
    }
    return true;
 }
 
-bool ACalcDbToDb::_setNvar(int nvar)
+bool ACalcDbToDb::_setNvar(int nvar, bool flagForce)
 {
   if (nvar <= 0) return true;
-  if (_nvar <= 0)
+  if (_nvar <= 0 || flagForce)
     _nvar = nvar;
   else
   {
-    if (_nvar != nvar)
+    if (nvar < _nvar)
     {
       messerr("Inconsistent Variable Number:");
       messerr("- Number already defined = %d", _nvar);
       messerr("- Number of variables newly declared = %d", nvar);
       return false;
     }
+    _nvar = nvar;
   }
   return true;
 }
 
-bool ACalcDbToDb::_setNdim(int ndim)
+bool ACalcDbToDb::_setNdim(int ndim, bool flagForce)
 {
   if (ndim <= 0) return true;
-  if (_ndim <= 0)
+  if (_ndim <= 0 || flagForce)
     _ndim = ndim;
   else
   {
     if (_ndim != ndim)
     {
-      messerr("Inconsistent SSpace dimension:");
+      messerr("Inconsistent Space dimension:");
       messerr("- Number already defined = %d", _ndim);
       messerr("- Number of variables newly declared = %d", ndim);
       return false;
     }
+    _ndim = ndim;
   }
   return true;
 }
@@ -125,7 +125,7 @@ bool ACalcDbToDb::_checkVariableNumber()
     {
       if (nvar != _dbin->getLocNumber(ELoc::Z))
       {
-        messerr("Inconsistent the Variable Number:");
+        messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d", nvar);
         messerr("- Number of variables in 'dbin' = %d",
                 _dbin->getLocNumber(ELoc::Z));
@@ -134,14 +134,17 @@ bool ACalcDbToDb::_checkVariableNumber()
     }
     else
     {
-//      nvar = _dbin->getLocNumber(ELoc::Z); // Never reached
+      nvar = _dbin->getLocNumber(ELoc::Z);
     }
   }
+  _setNvar(nvar);
   return true;
 }
 
 bool ACalcDbToDb::_check()
 {
+  if (!ACalculator::_check()) return false;
+  
   /**************************************************/
   /* Cross-checking the Space Dimension consistency */
   /**************************************************/
@@ -159,24 +162,7 @@ bool ACalcDbToDb::_check()
 
 bool ACalcDbToDb::_preprocess()
 {
-  // Set the value of ndim
-
-  if (_dbin != nullptr)
-  {
-    if (! _setNdim(_dbin->getNDim())) return false;
-  }
-  if (_dbout != nullptr)
-  {
-    if (!_setNdim(_dbout->getNDim())) return false;
-  }
-
-  // Set the number of variables
-
-  if (_dbin != nullptr)
-  {
-    if (! _setNvar(_dbin->getLocNumber(ELoc::Z))) return false;
-  }
-  return true;
+  return ACalculator::_preprocess();
 }
 
 /**

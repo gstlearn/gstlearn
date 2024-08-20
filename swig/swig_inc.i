@@ -328,7 +328,7 @@
   #include "Simulation/SimuFFTParam.hpp"
   #include "Simulation/CalcSimuFFT.hpp"
   #include "Simulation/SimuRefineParam.hpp"
-  #include "Simulation/SimuRefine.hpp"
+  #include "Simulation/CalcSimuRefine.hpp"
   #include "Simulation/CalcSimuEden.hpp"
   
   #include "Fractures/FracEnviron.hpp"

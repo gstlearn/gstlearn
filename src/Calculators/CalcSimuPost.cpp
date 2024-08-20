@@ -44,6 +44,8 @@ CalcSimuPost::~CalcSimuPost()
 
 bool CalcSimuPost::_check()
 {
+  if (!ACalcDbToDb::_check()) return false;
+  
   /************************************************************/
   /* Both Files are compulsory: the output one must be a Grid */
   /************************************************************/
@@ -132,8 +134,6 @@ bool CalcSimuPost::_preprocess()
 {
   if (!ACalcDbToDb::_preprocess()) return false;
 
-  _setNvar((int)_names.size());
-  
   if (_flagUpscale)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
   else
@@ -424,17 +424,18 @@ void CalcSimuPost::_defineIterations()
 
 int CalcSimuPost::_defineNames()
 {
-  int nvar = _getNVar();
   if (getDbin() == nullptr)
   {
     messerr("The input Db must be defined beforehand");
     return 1;
   }
+  int nvar = (int)_names.size();
   if (nvar <= 0)
   {
     messerr("Some variables must be defined in the input Db");
     return 1;
   }
+  _setNvar(nvar, true);
 
   // For each name, find the multiplicity nvar for each variable in the input Db
 
@@ -678,6 +679,7 @@ int simuPost(Db *dbin,
     calcul.setDbout(dbout);
   }
   calcul.setNames(names);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setUpscale(upscale);
   calcul.setStats(stats);
   calcul.setFlagMatch(flag_match);

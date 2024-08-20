@@ -113,8 +113,9 @@ int getITEST()
  *****************************************************************************/
 bool FFFF(double value)
 {
-  if (std::isnan(value)) return true; // TODO : what about std::isinf ?
   if (value > TEST_COMP) return true;
+  if (std::isnan(value)) return true;
+  if (std::isinf(value)) return true;
   return false;
 }
 

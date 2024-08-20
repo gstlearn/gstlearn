@@ -14,7 +14,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Simulation/SimuRefine.hpp"
+#include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Law.hpp"
@@ -24,79 +24,64 @@
 #define LHS(i,j) (lhs[(i) * neq + (j)])
 #define RHS(i)   (rhs[(i)])
 
-SimuRefine::SimuRefine(int nbsimu, int seed)
-    : ACalcSimulation(nbsimu, seed),
-      _param(),
-      _model(nullptr),
-      _nx1(3),
-      _dx1(3),
-      _x01(3),
-      _nx2(3),
-      _dx2(3),
-      _x02(3)
+CalcSimuRefine::CalcSimuRefine(int nbsimu, int seed, bool verbose)
+  : ACalcSimulation(nbsimu, seed)
+  , _param()
+  , _verbose(verbose)
+  , _nx1(3)
+  , _dx1(3)
+  , _x01(3)
+  , _nx2(3)
+  , _dx2(3)
+  , _x02(3)
+  , _dbres(nullptr)
 {
 }
 
-SimuRefine::~SimuRefine()
+CalcSimuRefine::~CalcSimuRefine()
 {
+  delete _dbres;
 }
 
-/****************************************************************************/
-/*!
- **  Refine the simulation
- **
- ** \return  Refined Grid
- **
- ** \param[in]  dbin       Input grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  param      SimuRefineParam structure
- **
- *****************************************************************************/
-DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& param)
+int CalcSimuRefine::_simulate()
 {
   DbGrid *db1, *db2;
 
   /* Initializations */
 
+  DbGrid* dbin = getGridin();
   db1 = db2 = nullptr;
   db1 = dbin;
   law_set_random_seed(getSeed());
-  _param = param;
-  _model = model;
   int ndim = _getNDim();
 
   /* Store information from the input grid */
 
   int iatt1 = dbin->getUIDByLocator(ELoc::Z, 0);
-  if (iatt1 <= 0) return nullptr;
+  if (iatt1 <= 0) return 1;
 
   /* Loop on the refinement factors */
 
-  for (int imult = 0; imult < param.getNmult(); imult++)
+  for (int imult = 0; imult < _param.getNmult(); imult++)
   {
 
     /* Create the output grid */
 
     _dim_1_to_2(db1);
-    VectorInt nx2 = _nx2;
+    VectorInt nx2    = _nx2;
     VectorDouble x02 = _x02;
     VectorDouble dx2 = _dx2;
     nx2.resize(ndim);
     x02.resize(ndim);
     dx2.resize(ndim);
-    db2 = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
-                         ELoadBy::SAMPLE, VectorDouble(),
-                         VectorString(), VectorString(), 1);
+    db2       = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
+                               ELoadBy::SAMPLE, VectorDouble(), VectorString(),
+                               VectorString(), 1);
     int iatt2 = db2->addColumnsByConstant(1, TEST);
 
     /* Establish the Kriging system */
 
-    if (_kriging_define())
-    {
-      if (db1 != dbin) delete db1;
-      delete db2;
-      return nullptr;
-    }
+    if (_kriging_define()) return 1;
 
     /* Copy the initial data */
 
@@ -130,7 +115,9 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
     delete db2;
   }
 
-  return db1;
+  _dbres = db1;
+
+  return 0;
 }
 //
 /****************************************************************************/
@@ -140,7 +127,7 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
  ** \param[in]  db  Staring grid Db structure
  **
  *****************************************************************************/
-void SimuRefine::_dim_1_to_2(DbGrid *db)
+void CalcSimuRefine::_dim_1_to_2(DbGrid *db)
 
 {
   int ndim = _getNDim();
@@ -177,7 +164,7 @@ void SimuRefine::_dim_1_to_2(DbGrid *db)
  ** \param[in]  db  Starting grid Db structure
  **
  *****************************************************************************/
-void SimuRefine::_dim_2_to_1(DbGrid *db)
+void CalcSimuRefine::_dim_2_to_1(DbGrid *db)
 
 {
   int ndim = _getNDim();
@@ -214,9 +201,9 @@ void SimuRefine::_dim_2_to_1(DbGrid *db)
  ** \return  Error return code
  **
  *****************************************************************************/
-int SimuRefine::_kriging_define()
-
+int CalcSimuRefine::_kriging_define()
 {
+
   /* Define the kriging system for the cell centers */
 
   _neigh_simfine(0, 0, -1, -1,  0);
@@ -253,7 +240,7 @@ int SimuRefine::_kriging_define()
  ** \param[in]  idz    Shift along Z
  **
  *****************************************************************************/
-void SimuRefine::_neigh_simfine(int type, int rank, int idx, int idy, int idz)
+void CalcSimuRefine::_neigh_simfine(int type, int rank, int idx, int idy, int idz)
 {
   _IXYZ[0][type][rank] = idx;
   _IXYZ[1][type][rank] = idy;
@@ -273,7 +260,7 @@ void SimuRefine::_neigh_simfine(int type, int rank, int idx, int idy, int idz)
  ** \param[in]  iatt2   Rank of the attribute to be written into db2
  **
  *****************************************************************************/
-void SimuRefine::_merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2)
+void CalcSimuRefine::_merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2)
 {
   for (int ix1 = 0; ix1 < _nx1[0]; ix1++)
     for (int iy1 = 0; iy1 < _nx1[1]; iy1++)
@@ -303,14 +290,14 @@ void SimuRefine::_merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2)
  ** \param[in]  idz    Shift along Z
  **
  *****************************************************************************/
-double SimuRefine::_read(DbGrid *db,
-                         int iatt,
-                         int ix0,
-                         int iy0,
-                         int iz0,
-                         int idx,
-                         int idy,
-                         int idz)
+double CalcSimuRefine::_read(DbGrid* db,
+                             int iatt,
+                             int ix0,
+                             int iy0,
+                             int iz0,
+                             int idx,
+                             int idy,
+                             int idz)
 {
   int ndim = _getNDim();
   VectorInt ind(ndim,0);
@@ -348,7 +335,7 @@ double SimuRefine::_read(DbGrid *db,
  ** \param[in]  value  Value to be written
  **
  *****************************************************************************/
-void SimuRefine::_write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value)
+void CalcSimuRefine::_write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value)
 {
   VectorInt ind(3);
   ind[0] = ix0;
@@ -368,7 +355,7 @@ void SimuRefine::_write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double 
  ** \param[in]  iatt1   Rank of the attribute to be written into db1
  **
  *****************************************************************************/
-void SimuRefine::_truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1)
+void CalcSimuRefine::_truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1)
 {
   for (int ix = 0; ix < _nx1[0]; ix++)
     for (int iy = 0; iy < _nx1[1]; iy++)
@@ -391,10 +378,7 @@ void SimuRefine::_truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-int SimuRefine::_kriging_solve(int type,
-                               int rank,
-                               int nb,
-                               bool verbose)
+int CalcSimuRefine::_kriging_solve(int type, int rank, int nb, bool verbose)
 {
   int neq = (_param.isFlagSK()) ? nb : nb + 1;
   int ndim = _getNDim();
@@ -412,7 +396,7 @@ int SimuRefine::_kriging_solve(int type,
       if (ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
       if (ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
       if (ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
-      LHS(i,j) = _model->evaluateOneGeneric(nullptr, d1);
+      LHS(i,j) = getModel()->evaluateOneGeneric(nullptr, d1);
     }
 
   /* Establish the kriging R.H.S. */
@@ -422,7 +406,7 @@ int SimuRefine::_kriging_solve(int type,
     if (ndim >= 1) d1[0] = _XYZN[0][type][i];
     if (ndim >= 2) d1[1] = _XYZN[1][type][i];
     if (ndim >= 3) d1[2] = _XYZN[2][type][i];
-    RHS(i) = _model->evaluateOneGeneric(nullptr, d1);
+    RHS(i) = getModel()->evaluateOneGeneric(nullptr, d1);
   }
 
   /* Add the Universality condition (optional) */
@@ -452,7 +436,7 @@ int SimuRefine::_kriging_solve(int type,
 
   mode.setMember(ECalcMember::VAR);
   for (int i = 0; i < ndim; i++) d1[i] = 0.;
-  double var0 = _model->evaluateOneGeneric(nullptr, d1, 1., &mode);
+  double var0 = getModel()->evaluateOneGeneric(nullptr, d1, 1., &mode);
   double var1 = 0.;
   matrix_product_safe(1, neq, 1, rhs.data(),_WGT[type][rank], &var1);
   double variance = var0 - var1;
@@ -482,7 +466,7 @@ int SimuRefine::_kriging_solve(int type,
  ** \param[in]  iatt   Rank of the column
  **
  *****************************************************************************/
-void SimuRefine::_simulate_nodes(DbGrid *db, int iatt)
+void CalcSimuRefine::_simulate_nodes(DbGrid *db, int iatt)
 {
   for (int iz = 0; iz < _nx2[2]; iz++)
     for (int ix = 0; ix < _nx2[0]; ix++)
@@ -511,12 +495,7 @@ void SimuRefine::_simulate_nodes(DbGrid *db, int iatt)
  ** \param[in]  iz0    Index of the target along Z
  **
  *****************************************************************************/
-void SimuRefine::_simulate_target(DbGrid *db,
-                                  int type,
-                                  int iatt,
-                                  int ix0,
-                                  int iy0,
-                                  int iz0)
+void CalcSimuRefine::_simulate_target(DbGrid* db, int type, int iatt, int ix0, int iy0, int iz0)
 {
   double value = 0.;
   if (iz0 == 0)
@@ -543,7 +522,71 @@ void SimuRefine::_simulate_target(DbGrid *db,
   _write(db, iatt, ix0, iy0, iz0, value);
 }
 
-bool SimuRefine::_run()
+bool CalcSimuRefine::_check()
 {
+  if (!ACalcSimulation::_check()) return false;
+
+  if (!hasDbin()) return false;
+  if (!hasModel()) return false;
+
+  if (!getDbin()->isGrid())
+  {
+    messerr("Input Db must be a Grid");
+    return false;
+  }
+  if (getDbin()->getLocatorNumber(ELoc::Z) != 1)
+  {
+    messerr("This method can only be used with 1 variable");
+    return false;
+  }
+  
   return true;
+}
+
+bool CalcSimuRefine::_preprocess()
+{
+  return ACalcSimulation::_preprocess();
+
+  /* Patch the model with maximum dimension for OK */
+
+  getModel()->setField(getDbin()->getExtensionDiagonal());
+}
+
+bool CalcSimuRefine::_run()
+{
+  return (_simulate() == 0);
+}
+
+/****************************************************************************/
+/*!
+ **  Refine the simulation
+ **
+ ** \return  Newly refined Grid.
+ **
+ ** \param[in]  dbin       Input grid Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  param      SimuRefineParam structure
+ ** \param[in]  seed       Seed for the random number generator
+ ** \param[in]  verbose    Verbosity flag
+ ** \param[in]  namconv    Naming convention
+ **
+ ** \remark For each dimension of the space, if N stands for the number of
+ ** \remark nodes in the input grid, the number of nodes of the output grid
+ ** \remark will be (N-1) * 2^p + 1 where p is the param.getNmult()
+ **
+ *****************************************************************************/
+DbGrid* simulation_refine(DbGrid* dbin,
+                          Model* model,
+                          const SimuRefineParam& param,
+                          int seed,
+                          bool verbose,
+                          const NamingConvention& namconv)
+{
+  CalcSimuRefine simfine(1, seed, verbose);
+  simfine.setDbin(dbin);
+  simfine.setModel(model);
+  simfine.setNamingConvention(namconv);
+  simfine.setParam(param);
+
+  return (simfine.run()) ? simfine.getResultingGrid() : nullptr;
 }

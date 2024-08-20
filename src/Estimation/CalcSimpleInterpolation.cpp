@@ -73,6 +73,8 @@ bool CalcSimpleInterpolation::_check()
 
 bool CalcSimpleInterpolation::_preprocess()
 {
+  if (!ACalcInterpolator::_preprocess()) return false;
+  
   if (_flagEst)
   {
     _iattEst = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);

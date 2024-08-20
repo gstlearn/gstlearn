@@ -50,8 +50,8 @@ protected:
   virtual bool _preprocess() override;
   int _getNDim() const { return _ndim; }
   int _getNVar() const { return _nvar; }
-  bool _setNdim(int ndim);
-  bool _setNvar(int nvar);
+  bool _setNdim(int ndim, bool flagForce = false);
+  bool _setNvar(int nvar, bool flagForce = false);
 
   int _addVariableDb(int whichDb,
                      int status,

@@ -194,10 +194,6 @@ GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          const SimuSphericalParam& sphepar,
                                          int seed = 54523,
                                          int verbose = false);
-GSTLEARN_EXPORT DbGrid* simfine(DbGrid *dbin,
-                                Model *model,
-                                const SimuRefineParam& param,
-                                int seed);
 GSTLEARN_EXPORT MatrixRectangular fluid_extract(DbGrid *dbgrid,
                                                 const String& name_facies,
                                                 const String& name_fluid,

@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/ACalcDbVarCreator.hpp"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
@@ -146,7 +147,9 @@ bool CalcAnamTransform::_hasVariableNumber(bool equal1) const
 
 bool CalcAnamTransform::_check()
 {
-  if (!  hasDb()) return false;
+  if (!ACalcDbVarCreator::_check()) return false;
+
+  if (!hasDb()) return false;
   if (! _hasAnam()) return false;
   if (! _hasVariableNumber()) return false;
 
@@ -211,6 +214,8 @@ bool CalcAnamTransform::_check()
 
 bool CalcAnamTransform::_preprocess()
 {
+  if (!ACalcDbVarCreator::_preprocess()) return false;
+  
   if (_flagVars)
   {
     int nvar = _getNVar();

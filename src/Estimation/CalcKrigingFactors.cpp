@@ -84,6 +84,8 @@ bool CalcKrigingFactors::_hasChangeSupport() const
 
 bool CalcKrigingFactors::_preprocess()
 {
+  if (!ACalcInterpolator::_preprocess()) return false;
+  
   // Centering the information (only when a change of support is defined)
   if (_hasChangeSupport())
   {

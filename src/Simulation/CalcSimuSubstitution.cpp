@@ -354,7 +354,7 @@ bool CalcSimuSubstitution::_check()
 
 bool CalcSimuSubstitution::_preprocess()
 {
-  if (!ACalcSimulation::_check()) return false;
+  if (!ACalcSimulation::_preprocess()) return false;
 
   _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
   return (_iattOut >= 0);

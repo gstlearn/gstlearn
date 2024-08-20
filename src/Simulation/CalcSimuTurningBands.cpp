@@ -20,34 +20,37 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/AMatrix.hpp"
-#include "Basic/Law.hpp"
+
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
 #include <math.h>
 
-
-CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
-    : ACalcSimulation(nbsimu, seed),
-      _nbtuba(nbtuba),
-      _iattOut(-1),
-      _icase(0),
-      _flagCheck(flag_check),
-      _flagBayes(false),
-      _flagPGS(false),
-      _flagGibbs(false),
-      _flagDGM(false),
-      _nameCoord(),
-      _bayesMean(),
-      _bayesCov(),
-      _npointSimulated(0),
-      _field(0.),
-      _theta(0.),
-      _seedBands(),
-      _codirs()
+CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu,
+                                           int nbtuba,
+                                           bool flag_check,
+                                           int seed)
+  : ACalcSimulation(nbsimu, seed)
+  , _nbtuba(nbtuba)
+  , _iattOut(-1)
+  , _icase(0)
+  , _flagCheck(flag_check)
+  , _flagBayes(false)
+  , _flagPGS(false)
+  , _flagGibbs(false)
+  , _flagDGM(false)
+  , _flagAllocationAlreadyDone(false)
+  , _nameCoord()
+  , _bayesMean()
+  , _bayesCov()
+  , _npointSimulated(0)
+  , _field(0.)
+  , _theta(0.)
+  , _seedBands()
+  , _codirs()
 {
 }
 
@@ -1867,54 +1870,6 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
   }
 }
 
-/****************************************************************************/
-/*!
- **  Perform the Simulation Process using the Turning Bands Method
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure
- ** \param[in]  icase      Case for PGS or -1
- ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
- ** \param[in]  flag_pgs   1 if called from PGS
- ** \param[in]  flag_gibbs 1 if called from Gibbs
- ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
- **
- *****************************************************************************/
-int CalcSimuTurningBands::simulate(Db *dbin,
-                                   Db *dbout,
-                                   Model *model,
-                                   ANeigh *neigh,
-                                   int icase,
-                                   int flag_bayes,
-                                   const VectorDouble &dmean,
-                                   const MatrixSquareSymmetric &dcov,
-                                   bool flag_pgs,
-                                   bool flag_gibbs,
-                                   bool flag_dgm)
-{
-  setDbin(dbin);
-  setDbout(dbout);
-  setModel(model);
-  setNeigh(neigh);
-  setIcase(icase);
-  setFlagBayes(flag_bayes);
-  setBayesMean(dmean);
-  setBayesCov(dcov);
-  setFlagPgs(flag_pgs);
-  setFlagGibbs(flag_gibbs);
-  setFlagDgm(flag_dgm);
-
-  if (! _run()) return 1;
-  return 0;
-}
-
 bool CalcSimuTurningBands::_run()
 {
   law_set_random_seed(getSeed());
@@ -1984,6 +1939,54 @@ bool CalcSimuTurningBands::_run()
     _checkGaussianData2Grid(getDbin(), getDbout(), getModel());
 
   return true;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the Simulation Process using the Turning Bands Method
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  dbout      Output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neigh      ANeigh structure
+ ** \param[in]  icase      Case for PGS or -1
+ ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
+ ** \param[in]  dmean      Array giving the prior means for the drift terms
+ ** \param[in]  dcov       Array containing the prior covariance matrix
+ **                        for the drift terms
+ ** \param[in]  flag_pgs   1 if called from PGS
+ ** \param[in]  flag_gibbs 1 if called from Gibbs
+ ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
+ **
+ *****************************************************************************/
+int CalcSimuTurningBands::simulate(Db* dbin,
+                                   Db* dbout,
+                                   Model* model,
+                                   ANeigh* neigh,
+                                   int icase,
+                                   int flag_bayes,
+                                   const VectorDouble& dmean,
+                                   const MatrixSquareSymmetric& dcov,
+                                   bool flag_pgs,
+                                   bool flag_gibbs,
+                                   bool flag_dgm)
+{
+  setDbin(dbin);
+  setDbout(dbout);
+  setModel(model);
+  setNeigh(neigh);
+  setIcase(icase);
+  setFlagBayes(flag_bayes);
+  setBayesMean(dmean);
+  setBayesCov(dcov);
+  setFlagPgs(flag_pgs);
+  setFlagGibbs(flag_gibbs);
+  setFlagDgm(flag_dgm);
+
+  if (!run()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -2213,12 +2216,18 @@ bool CalcSimuTurningBands::_preprocess()
 
   if (getDbin() != nullptr)
   {
-    int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
-    if (iptr_in < 0) return false;
+    if (!_flagAllocationAlreadyDone)
+    {
+      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
+      if (iptr_in < 0) return false;
+    }
   }
 
-  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
-  if (_iattOut < 0) return false;
+  if (!_flagAllocationAlreadyDone)
+  {
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
+    if (_iattOut < 0) return false;
+  }
 
   // Centering the Data (for DGM)
 
@@ -2249,7 +2258,8 @@ bool CalcSimuTurningBands::_postprocess()
 
   /* Set the error return flag */
 
-  _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
+  if (! _flagAllocationAlreadyDone)
+    _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
 
   if (_flagDGM)
   {

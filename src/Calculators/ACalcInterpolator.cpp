@@ -183,7 +183,7 @@ bool ACalcInterpolator::_preprocess()
   }
   if (_neigh != nullptr)
   {
-    if (_setNdim((int)_neigh->getNDim())) return false;
+    if (!_setNdim((int)_neigh->getNDim())) return false;
   }
 
   // Number of variables
@@ -202,7 +202,7 @@ bool ACalcInterpolator::_preprocess()
 
   // Expand information amongst Db if necessary
 
-  if (_model->getExternalDriftNumber() > 0)
+  if (_model != nullptr && _model->getExternalDriftNumber() > 0)
   {
     if (_expandInformation(1, ELoc::F)) return false;
   }

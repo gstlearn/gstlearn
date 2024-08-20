@@ -989,6 +989,7 @@ bool CalcSimuEden::_check()
 
 bool CalcSimuEden::_preprocess()
 {
+  if (!ACalcSimulation::_preprocess()) return false;
 
   /* Add the attributes for storing the results */
 

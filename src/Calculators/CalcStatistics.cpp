@@ -49,7 +49,8 @@ bool CalcStatistics::_check()
   if (! hasDbin()) return false;
   if (! hasDbout()) return false;
 
-  if (_getNVar() <= 0)
+  int nvar = getDbin()->getLocatorNumber(ELoc::Z);
+  if (nvar <= 0)
   {
     messerr("These methods require some variable to be defined");
     return false;
