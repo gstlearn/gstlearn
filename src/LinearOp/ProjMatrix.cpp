@@ -110,11 +110,39 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
  */
 int ProjMatrix::_mesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
 {
+  if ((int) inv.size() != getApexNumber())
+  {
+    messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+            inv.size(),getApexNumber());
+    return 1;
+  }
+  if ((int) outv.size() != getPointNumber())
+  {
+    messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+            outv.size(),getPointNumber());
+    return 1;
+  }
+
+  prodMatVecInPlace(inv, outv, false);
   return 0;
 }
 
 int ProjMatrix::_point2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
 {
+  if ((int) inv.size() != getPointNumber())
+  {
+    messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+            inv.size(),getPointNumber());
+    return 1;
+  }
+  if ((int) outv.size() != getApexNumber())
+  {
+    messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+            outv.size(),getApexNumber());
+    return 1;
+  }
+
+  prodMatVecInPlace(inv, outv, true);
   return 0;
 }
 

@@ -11,7 +11,6 @@
 #include "Enum/ECov.hpp"
 
 #include "API/SPDE.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "Model/ANoStat.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -546,6 +545,7 @@ int SPDE::compute(Db *dbout,
 
   if (_calcul == ESPDECalcMode::SIMUCOND)
   {
+    _workingData = _workingDataInit;
     for(int isimu = 0; isimu < nbsimu; isimu++)
     {
       result.fill(0.);

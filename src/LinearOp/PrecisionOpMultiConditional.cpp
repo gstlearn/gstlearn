@@ -55,10 +55,11 @@ std::vector<Eigen::VectorXd> PrecisionOpMultiConditional::computeRhs(const Eigen
 
 void PrecisionOpMultiConditional::computeRhsInPlace(const Eigen::VectorXd& datVal, std::vector<Eigen::VectorXd>& rhs) const
 {
-  Eigen::VectorXd temp = datVal;
+  Eigen::VectorXd temp(datVal.size());
+  
   for(int i = 0; i < static_cast<int>(datVal.size()) ; i++)
   {
-    temp[i] /= getVarianceData(i);
+    temp[i] = datVal[i] / getVarianceData(i);
   }
 
   for(int i = 0; i < sizes(); i++)

@@ -96,7 +96,7 @@ int HessianOp::init(PrecisionOp*  pmat,
     _workp.resize(npoint);
     _workx.resize(npoint);
     _workv.resize(nvertex);
-    
+    _lambda.resize(nvertex);
     // Set the initialization flag
     _isInitialized = true;
   }
@@ -130,7 +130,7 @@ void HessianOp::_addToDest(const Eigen::VectorXd& inv,
 
   // Contribution of the spatial structure
 
-  _pMat->evalDirect(inv,outv);
+  _pMat->addToDest(inv,outv);
 
   // Contribution of the Data
 

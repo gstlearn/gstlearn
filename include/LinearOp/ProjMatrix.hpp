@@ -49,8 +49,7 @@ public:
     int _point2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
   #endif 
   public:
- /*  int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
-  int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override; */
+
   int getApexNumber() const override { return getNCols(); }
   int getPointNumber() const override { return getNRows(); }
 
