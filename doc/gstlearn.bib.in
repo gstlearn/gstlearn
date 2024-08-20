@@ -1,4 +1,4 @@
-@Misc{mines_paris_psl_2024_13343742,
+@Misc{mines_paris_psl_@gstlearn_YEAR@_13343742,
   title        = {{gstlearn: The Geostatistics and Machine Learning C++ Library, Python and R Packages}},
   author       = {{MINES Paris - PSL University}},
   organization = {{MINES Paris - PSL University}},
