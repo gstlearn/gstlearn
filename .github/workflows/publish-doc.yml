@@ -73,7 +73,7 @@ jobs:
     steps:
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -83,7 +83,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -93,7 +93,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -103,7 +103,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -113,7 +113,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
