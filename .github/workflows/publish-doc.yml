@@ -46,6 +46,13 @@ jobs:
         cmake -B${{env.BUILD_DIR}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_ENV"
+        echo "BIB_FILE=$(ls ${{env.BUILD_DIR}}/doc/*.bib)" >> "$GITHUB_ENV"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: bib-file-${{env.PROJECT_VERSION}}
+        path: ${{env.BIB_FILE}}
 
   call-data:
     uses: ./.github/workflows/publish_data.yml
@@ -121,3 +128,12 @@ jobs:
           dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
           name: references
 
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/files-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          pattern: "*.bib"

@@ -1,4 +1,6 @@
 ## Overview
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 The **gstlearn** Python package is a cross-platform Python package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
@@ -14,21 +16,11 @@ This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig)
 
 The *gstlearn* Python package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
-
 ## How to cite
 
-When using the *gstlearn* Python Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
+When using the *gstlearn* Python Package, please, use this to cite us in any publication or results for which **gstlearn** has been used: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
-```
---------------------------------------------------
-gstlearn
-Geostatistics and Machine Learning toolbox
-Copyright © MINES Paris - PSL University
-Free download from https://gstlearn.org
---------------------------------------------------
-```
-
-You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
 ## Installation
 

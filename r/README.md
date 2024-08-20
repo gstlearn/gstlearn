@@ -1,4 +1,6 @@
 ## Overview
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
@@ -16,16 +18,7 @@ The *gstlearn* R package is a derivative work based on the *swigex0* project: [h
 
 ## How to cite
 
-When using the *gstlearn* R Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
-
-```
---------------------------------------------------
-gstlearn
-Geostatistics and Machine Learning toolbox
-Copyright © MINES Paris - PSL University
-Free download from https://gstlearn.org
---------------------------------------------------
-```
+When using the *gstlearn* R Package, please, use this to cite us in any publication or results for which **gstlearn** has been used: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
