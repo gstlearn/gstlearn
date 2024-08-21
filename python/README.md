@@ -1,4 +1,4 @@
-## Overview
+## gstlearn: The Geostatistics &amp; Machine Learning Python Package
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
@@ -18,7 +18,9 @@ The *gstlearn* Python package is a derivative work based on the *swigex0* projec
 
 ## How to cite
 
-When using the *gstlearn* Python Package, please, use this to cite us in any publication or results for which **gstlearn** has been used: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
+When using the *gstlearn* Python Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
@@ -32,7 +34,8 @@ pip install gstlearn
 
 ## Usage
 
-We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn.</br>
+We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn package.
+
 Simply import the *gstlearn* Python package and its plot module, then enjoy:
 
 ```
@@ -54,7 +57,7 @@ ax.decoration(title="Gaussian random field")
 plt.show()
 ```
 
-Some tutorials (Jupyter Notebooks) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
+Some tutorials (Jupyter Notebooks) are provided in the *demo* directory [here](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) and their HTML rendering is provided [here](https://soft.mines-paristech.fr/gstlearn/demos-latest/python/).
 
 Some tests (Python scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/py) directory of the *gstlearn* github repository.
 

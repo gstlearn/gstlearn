@@ -39,7 +39,11 @@ jobs:
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev
-          
+
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install grip
+
     - name: Get project version
       id: main_step
       run: |
@@ -49,10 +53,20 @@ jobs:
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_ENV"
         echo "BIB_FILE=$(ls ${{env.BUILD_DIR}}/doc/*.bib)" >> "$GITHUB_ENV"
 
+    - name: Generate R Readme file using grip
+      run: |
+        python3 -m grip ${{env.BUILD_DIR}}/r/README.md --export ${{env.BUILD_DIR}}/r/R_README.html
+        echo "R_README_FILE=$(ls ${{env.BUILD_DIR}}/r/R_README.html)" >> "$GITHUB_ENV"
+
     - uses: actions/upload-artifact@v4
       with:
         name: bib-file-${{env.PROJECT_VERSION}}
         path: ${{env.BIB_FILE}}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: r-readme-${{env.PROJECT_VERSION}}
+        path: ${{env.R_README_FILE}}
 
   call-data:
     uses: ./.github/workflows/publish_data.yml
@@ -137,3 +151,13 @@ jobs:
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
           pattern: "*.bib"
+
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/files-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          pattern: "R_README.html"

@@ -1,4 +1,4 @@
-## Overview
+## gstlearn: The Geostatistics &amp; Machine Learning C++ Library
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
@@ -37,7 +37,9 @@ See [credits](#credits) below.
 
 ## How to cite
 
-When using the *gstlearn* C++ Library, please, use this to cite us in any publication or results for which **gstlearn** has been used: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
+When using the *gstlearn* C++ Library, please, use this to cite us in any publication or results for which **gstlearn** has been used:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 

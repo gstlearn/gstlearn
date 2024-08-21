@@ -1,4 +1,4 @@
-## Overview
+## gstlearn: The Geostatistics &amp; Machine Learning R Package
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
@@ -18,7 +18,9 @@ The *gstlearn* R package is a derivative work based on the *swigex0* project: [h
 
 ## How to cite
 
-When using the *gstlearn* R Package, please, use this to cite us in any publication or results for which **gstlearn** has been used: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
+When using the *gstlearn* R Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
@@ -38,7 +40,8 @@ options(timeout=1000)
 
 ## Usage
 
-We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html) for an introduction and important information about R gstlearn.</br>
+We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html) for an introduction and important information about R gstlearn package.
+
 Simply load the *gstlearn* and ggplot2 R package, then enjoy:
 
 ```
@@ -56,7 +59,7 @@ mygrid$addColumns(var, "var1", ELoc_Z())
 ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 ```
 
-Some tutorials (RMarkdown) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
+Some tutorials (R Markdown) are provided in the *demo* directory [here](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) and their HTML rendering is provided [here](https://soft.mines-paristech.fr/gstlearn/demos-latest/r/).
 
 Some tests (R Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/r) directory of the *gstlearn* github repository.
 
