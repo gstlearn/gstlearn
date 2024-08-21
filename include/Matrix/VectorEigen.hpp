@@ -61,7 +61,8 @@ public:
   static double innerProduct(const std::vector<Eigen::VectorXd> &in1,const std::vector<Eigen::VectorXd> &in2 );
   static void fill(std::vector<Eigen::VectorXd> &vect, double val = 0.);
   static void copy(const Eigen::VectorXd& in, Eigen::VectorXd& dest);
-  static void copy(const Eigen::VectorXd& in, Eigen::Map<Eigen::VectorXd>& dest);
+  static void copy(const Eigen::VectorXd& in, Eigen::Map<Eigen::VectorXd>& dest); //TODO this function shouldn't be used
+                                                                                  //use template to avoid it
 
   static void  linearCombinationVVDInPlace(double coeff1, const std::vector<Eigen::VectorXd> &in1,
                                            double coeff2, const std::vector<Eigen::VectorXd> &in2,

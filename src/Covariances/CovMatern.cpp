@@ -149,6 +149,6 @@ VectorDouble CovMatern::_evaluateSpectrumOnSphere(int n, double scale) const
   for (int k = 0; k <= n; k++)
     sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(1. + scale2 * k * (k + 1.), alpha);
 
-
+  VH::normalize(sp,1);
   return sp;
 }

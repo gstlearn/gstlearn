@@ -36,8 +36,8 @@ public:
                        Eigen::VectorXd& outv) const;             
   protected:
   virtual int _point2mesh(const Eigen::VectorXd& inv,
-                                Eigen::VectorXd& outv) const = 0;
+                                Eigen::VectorXd& outv) const { return 1;};
   virtual int _mesh2point(const Eigen::VectorXd& inv,
-                                Eigen::VectorXd& outv) const = 0;
+                                Eigen::VectorXd& outv) const { return 1;};
   #endif
 };

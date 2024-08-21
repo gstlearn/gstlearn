@@ -1,4 +1,4 @@
-//%feature(director) IProjMatrix;
+%feature(director) IProjMatrix;
 //%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
 
