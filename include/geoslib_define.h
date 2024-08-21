@@ -58,7 +58,7 @@ typedef unsigned char UChar;
 #define BUFFER_LENGTH 10000
 #define STRING_LENGTH   100
 #define LOCAL_SIZE       10
-#define LONG_SIZE     10000
+#define LONG_SIZE        10000
 #define GV_PI  3.14159265358979323846264338328
 #define GV_EE  2.732
 #define MIN(a,b)       (((a) < (b)) ?  (a) : (b))

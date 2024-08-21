@@ -115,8 +115,8 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
  *****************************************************************************/
 double* extend_grid(DbGrid *db, const double *gext, int *nout)
 {
-  int *indg, ndim, number, ndiv, ndiv0, rank, ival, error, delta;
-  double *coor, *ext;
+  int ndim, number, ndiv, ndiv0, rank, ival, error, delta;
+  double *ext;
 
   /* Initializations */
 
@@ -124,16 +124,13 @@ double* extend_grid(DbGrid *db, const double *gext, int *nout)
   ndim = db->getNDim();
   number = (int) pow(2., ndim);
   ndiv0 = (int) pow(2., ndim - 1);
-  indg = nullptr;
-  coor = ext = nullptr;
+  ext = nullptr;
   *nout = 0;
 
   /* Core allocation */
 
-  indg = db_indg_alloc(db);
-  if (indg == nullptr) goto label_end;
-  coor = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (coor == nullptr) goto label_end;
+  VectorInt indg(ndim, 0);
+  VectorDouble coor(ndim, 0.);
   ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
   if (ext == nullptr) goto label_end;
 
@@ -149,10 +146,9 @@ double* extend_grid(DbGrid *db, const double *gext, int *nout)
       ival = rank / ndiv;
       rank = rank - ndiv * ival;
       ndiv /= 2;
-      indg[idim] = (ival == 0) ? -delta :
-                                 db->getNX(idim) + delta;
+      indg[idim] = (ival == 0) ? -delta : db->getNX(idim) + delta;
     }
-    grid_to_point(db, indg, NULL, coor);
+    db->indicesToCoordinateInPlace(indg, coor);
 
     for (int idim = 0; idim < ndim; idim++)
       EXT(idim,corner) = coor[idim];
@@ -164,8 +160,6 @@ double* extend_grid(DbGrid *db, const double *gext, int *nout)
   *nout = number;
 
   label_end:
-  db_indg_free(indg);
-  mem_free((char* ) coor);
   if (error) ext = (double*) mem_free((char* ) ext);
   return (ext);
 }
@@ -205,7 +199,7 @@ double* extend_point(Db *db, const double *gext, int *nout)
 
   /* Calculate the extension of the domain */
 
-  db_extension(db, mini, maxi);
+  db->getExtensionInPlace(mini, maxi);
 
   /* Generate the corner points */
 
@@ -270,11 +264,11 @@ double* get_db_extension(Db *dbin, Db *dbout, int *nout)
 
   if (dbin != nullptr)
   {
-    db_extension(dbin, mini_abs, maxi_abs, true);
+    dbin->getExtensionInPlace(mini_abs, maxi_abs, true);
   }
   if (dbout != nullptr)
   {
-    db_extension(dbout, mini_abs, maxi_abs, true);
+    dbout->getExtensionInPlace(mini_abs, maxi_abs, true);
   }
 
   /* Generate the corner points */

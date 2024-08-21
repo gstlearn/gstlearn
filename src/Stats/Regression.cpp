@@ -157,7 +157,7 @@ bool _regressionLoad(Db *db1,
 
     case 1:
       nfex = db2->getLocNumber(ELoc::F);
-      *value = db1->getLocVariable(ELoc::Z,iech, 0);
+      *value = db1->getZVariable(iech, 0);
       if (flagCst) x[ecr++] = 1.;
       for (int i = 0; i < nfex; i++)
         x[ecr++] = db2->getLocVariable(ELoc::F,iech, i);
@@ -165,7 +165,7 @@ bool _regressionLoad(Db *db1,
 
     case 2:
       nbfl = model->getDriftNumber();
-      *value = db1->getLocVariable(ELoc::Z,iech, 0);
+      *value = db1->getZVariable(iech, 0);
       for (int i = 0; i < nbfl; i++)
          x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
       break;

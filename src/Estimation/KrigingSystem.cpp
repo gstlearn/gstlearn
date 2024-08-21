@@ -395,7 +395,7 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
 
     if (!_flagSimu)
       // Case of the traditional kriging based on Z-variables
-      return _dbin->getLocVariable(ELoc::Z, rank, ivar);
+      return _dbin->getZVariable( rank, ivar);
 
     // Case of simulations
     return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, _nbsimu, _nvar);
@@ -434,7 +434,7 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
  */
 double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 {
-  if (_nfeq > 0) return 0.;
+  if (_nfeq > 0 && ! _flagBayes) return 0.;
 
   if (_flagNoMatLC || flagLHS)
   {
@@ -456,7 +456,7 @@ double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 
 void KrigingSystem::_setFlag(int iech, int ivar, int value)
 {
-  _flag[iech + ivar * _nech]= value;
+  _flag[iech + ivar * _nech] = value;
 }
 
 int KrigingSystem::_getFlag(int iech, int ivar)
@@ -758,9 +758,9 @@ void KrigingSystem::_lhsIsoToHetero()
 
 VectorInt KrigingSystem::_getRelativePosition()
 {
-  VectorInt rel(_neq);
+  VectorInt rel(_nred);
   int j = 0;
-  for (int i = 0; i < _neq; i++)
+  for (int i = 0; i < _nred; i++)
   {
     if (!_flag.empty() && _flag[i])
       rel[j++] = i + 1;
@@ -1308,7 +1308,7 @@ void KrigingSystem::_estimateCalcul(int status)
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
-      double valdat = _dbin->getLocVariable(ELoc::Z,_iechOut, ivarCL);
+      double valdat = _dbin->getZVariable(_iechOut, ivarCL);
       double estim  = (_flagEst) ? _dbout->getArray(_iechOut, _iptrEst + ivarCL) : TEST;
       double stdv   = (_flagStd) ? _dbout->getArray(_iechOut, _iptrStd + ivarCL) : TEST;
 
@@ -1412,7 +1412,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           for (int idim = 0; idim < _ndim; idim++)
             indgl[idim] = dbgrid->getMirrorIndex(idim, indg0[idim] + indnl[idim]);
           int jech = dbgrid->indiceToRank(indgl);
-          double data = dbgrid->getLocVariable(ELoc::Z,jech, jvar);
+          double data = dbgrid->getZVariable(jech, jvar);
           if (FFFF(data) || FFFF(estim))
           {
             estim = TEST;
@@ -1443,7 +1443,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
   // Do not process as this sample is either masked or its variable is undefined
   if (iiech < 0) return;
 
-  double valdat = _dbin->getLocVariable(ELoc::Z,iech, 0);
+  double valdat = _dbin->getZVariable(iech, 0);
   if (! FFFF(valdat))
   {
     double variance = 1. / _getLHSINV(iiech, 0, iiech, 0);
@@ -1458,7 +1458,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
       if (jjech < 0) continue;
       if (iiech != jjech)
         valest -= _getLHSINV(iiech,0,jjech,0) * variance *
-          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0, true));
+          (_dbin->getZVariable( jech, 0) - _getMean(0, true));
       jjech++;
     }
 
@@ -1570,8 +1570,7 @@ void KrigingSystem::_estimateStdv(int status)
 {
   // Calculate the solution
 
-  if (status == 0)
-    _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
+  if (status == 0) _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
 
   // Loop for writing the estimation
 
@@ -1585,13 +1584,11 @@ void KrigingSystem::_estimateStdv(int status)
       if (_flagNoStat || _flagPerCell) _variance0();
 
       double var = _getVAR0(ivarCL, ivarCL);
-      if (_flagBayes) var += _varCorrec.getValue(ivarCL,ivarCL);
-
-      var -= _results.getValue(ivarCL,ivarCL,false);
+      if (_flagBayes) var += _varCorrec.getValue(ivarCL, ivarCL);
+      var -= _results.getValue(ivarCL, ivarCL, false);
 
       double stdv = 0.;
-      if (var > 0)
-        stdv = sqrt(var);
+      if (var > 0) stdv = sqrt(var);
 
       _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
     }
@@ -1963,7 +1960,7 @@ void KrigingSystem::_krigingDump(int status)
 
       if (_iptrEst >= 0)
       {
-        double trueval = (status == 0) ? _dbin->getLocVariable(ELoc::Z,_iechOut, ivar) : TEST;
+        double trueval = (status == 0) ? _dbin->getZVariable(_iechOut, ivar) : TEST;
         double estim   = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
 
         if (status == 0)
@@ -2697,12 +2694,12 @@ bool KrigingSystem::_isCorrect()
     /* Input Db structure */
 
     if (_dbin != nullptr)
-      db_extension(_dbin, db_mini, db_maxi, true);
+      _dbin->getExtensionInPlace(db_mini, db_maxi, true);
 
     /* Output Db structure */
 
     if (_dbout != nullptr)
-      db_extension(_dbout, db_mini, db_maxi, true);
+      _dbout->getExtensionInPlace(db_mini, db_maxi, true);
 
     // Merge extensions
 
@@ -3079,7 +3076,8 @@ VectorDouble KrigingSystem::getZamC() const
 int KrigingSystem::_bayesPreCalculations()
 {
   if (_dbin == nullptr) return 1;
-  _iechOut = _dbin->getSampleNumber() / 2;
+  // _iechOut = _dbin->getSampleNumber() / 2;
+  _iechOut = 0;
 
   // Elaborate the (Unique) Neighborhood
   _neigh->select(_iechOut, _nbgh);
@@ -3099,15 +3097,15 @@ int KrigingSystem::_bayesPreCalculations()
   VectorDouble vars(shift);
   MatrixSquareSymmetric sigma(shift);
 
-  // Create the array of variables
+    // Create the array of variables
 
-  int ind = 0;
+    int ind = 0;
   for (int iech = 0; iech < _dbin->getSampleNumber(); iech++)
   {
     if (! _dbin->isActive(iech)) continue;
     for (int ivar = 0; ivar < _nvar; ivar++)
     {
-      double value = _dbin->getLocVariable(ELoc::Z,_nbgh[iech], ivar);
+      double value = _dbin->getZVariable(_nbgh[iech], ivar);
       if (FFFF(value)) continue;
       vars[ind++] = value;
     }
@@ -3128,7 +3126,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   if (_postCov.invert()) return 1;
 
-  /* Calculate: SMU = S-1 * MEAN */
+  /* Calculate: S-1 * MEAN */
 
   _postCov.prodMatVecInPlace(_priorMean, smu);
 
@@ -3154,7 +3152,7 @@ int KrigingSystem::_bayesPreCalculations()
       _postCov.setValue(il, jl, _postCov.getValue(il, jl) + value);
     }
 
-  /* Calculating: SMU = FFt * SIGMA-1 * Z + S-1 * MU */
+  /* Calculating: SMU = FFt * SIGMA-1 * Z + S-1 * MEAN */
 
   for (int il = 0; il < _nfeq; il++)
   {
@@ -3179,13 +3177,13 @@ int KrigingSystem::_bayesPreCalculations()
     print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
     print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
                  _postCov.getValues().data());
-    message("\n");
   }
 
   // Particular case of Simulation: Simulate several outcomes for posterior means
 
   if (_flagSimu) _bayesPreSimulate();
 
+  _neigh->reset();
   return 0;
 }
 
@@ -3200,15 +3198,30 @@ void KrigingSystem::_bayesCorrectVariance()
 
   if (_nbfl <= 0 || _nfeq <= 0) return;
 
-  VectorDouble ff0(_nvar * _nfeq);
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int ib = 0; ib < _nfeq; ib++)
+  /* Establish the drift array FF */
+
+  int shift = _nech;
+  VectorDouble ff(_nech * _nfeq);
+  for (int ib = 0; ib < shift; ib++)
+    for (int il = 0; il < _nfeq; il++)
     {
-      FF0(ib,ivar) = _model->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
+      FF(ib, il) =
+        _model->evalDriftValue(_dbin, _nbgh[ib], 0, il, ECalcMember::LHS);
     }
 
-  /* Correct the arrays */
+  // Establish the drift vector at target
+  VectorDouble ff0(_nvar * _nfeq);
+  for (int ivar = 0; ivar < _nvar; ivar++)
+    for (int il = 0; il < _nfeq; il++)
+    {
+      double X0 =
+        _model->evalDriftValue(_dbout, _iechOut, ivar, il, ECalcMember::RHS);
+      for (int ib = 0; ib < shift; ib++)
+        X0 -= FF(ib, il) * _wgt.getValue(ib, ivar, false);
+      FF0(il, ivar) = X0;
+    }
 
+  // Correct the variance 
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
     {

@@ -20,8 +20,8 @@
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -99,10 +99,7 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
-
-  /* Setup constants */
-
-  OptDbg::reset();
+//  OptDbg::define(EDbg::INTERFACE);
 
   /* Getting the Study name */
 

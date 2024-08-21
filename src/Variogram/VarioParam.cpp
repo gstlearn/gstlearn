@@ -175,18 +175,24 @@ VarioParam* VarioParam::createMultiple(int ndir,
  * @param scale Scaling factor
  * @param dates Range of dates
  * @param space Pointer to the Space definition
- * @return
+ * @param ndimax Maximum dimension (see note)
+ * @return A pointer to the newly created VarioParam object
+ *
+ * @note This method creates as many calculation direction as space dimension
+ * @note However, this number can be truncated to 'ndimax' (when defined)
  */
 VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
                                                int npas,
                                                double scale,
-                                               const VectorDouble &dates,
-                                               const ASpace* space)
+                                               const VectorDouble& dates,
+                                               const ASpace* space,
+                                               int ndimax)
 {
   VarioParam* varioparam = new VarioParam(scale, dates);
-  int ndim = dbgrid->getNDim();
-  VectorInt grincr(ndim,0);
-  for (int idim = 0; idim < ndim; idim++)
+  int ndim               = dbgrid->getNDim();
+  int ncalc = (ndimax <= 0) ? ndim : ndimax;
+  VectorInt grincr(ndim, 0);
+  for (int idim = 0; idim < ncalc; idim++)
   {
     VH::fill(grincr,  0.);
     grincr[idim] = 1;

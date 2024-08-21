@@ -36,7 +36,7 @@ class MatrixSparse;
 /*************************************/
 int _file_read(FILE *file, const char *format, va_list ap);
 int _file_get_ncol(FILE *file);
-void _file_delimitors(char del_com, char del_sep, char del_blk);
+void _file_delimitors(char del_com, const char* del_sep, char del_blk);
 FILE* _file_open(const char *filename, int mode);
 int _record_read(FILE *file, const char *format, ...);
 int _buffer_read(char **buffer, const char *format, va_list ap);

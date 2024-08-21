@@ -230,7 +230,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     {
       _nugget = sill;
     }
-    else if (cova->getType() == ECov::BESSEL_K || cova->getType() == ECov::MARKOV)
+    else if (cova->getType() == ECov::MATERN || cova->getType() == ECov::MARKOV)
     {
       totalSill += sill;
 
@@ -283,7 +283,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     }
     else
     {
-      messerr("SPDE is only implemented for Matérn (BESSEL_K) and Markov (MARKOV) covariances");
+      messerr("SPDE is only implemented for Matérn (MATERN) and Markov (MARKOV) covariances");
       return 1;
     }
   }

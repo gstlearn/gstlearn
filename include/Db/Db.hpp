@@ -16,6 +16,7 @@
 #include "Enum/EStatOption.hpp"
 
 #include "Db/PtrGeos.hpp"
+#include "Matrix/Table.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
@@ -460,6 +461,7 @@ public:
 
   std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
 
+  bool   hasLocator(const ELoc& locatorType) const;
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(const ELoc& locatorType,
@@ -512,8 +514,16 @@ public:
   void   updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value);
   /**@}*/
 
-  bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
-  bool   isIsotopic(int iech, int nvar_max = -1) const;
+  int    getZNumber() const;
+  bool   hasZVariable() const;
+  double getZVariable(int iech, int item) const;
+  void   setZVariable(int iech, int item, double value);
+  void   updZVariable(int iech, int item, const EOperator& oper, double value);
+
+  VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
+
+  bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
   bool   isAllIsotopic() const;
@@ -536,8 +546,12 @@ public:
                                          const VectorInt &nbgh = VectorInt(),
                                          bool useSel = true,
                                          bool useVerr = false) const;
-
-  double       getWeight(int iech) const;
+  VectorDouble getMultipleValuesActive(const VectorInt& ivars = VectorInt(),
+                                       const VectorInt& nbgh  = VectorInt(),
+                                       const VectorDouble& means = VectorDouble(),
+                                       bool useSel = true,
+                                       bool useVerr = false) const;
+  double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
   /** @addtogroup DB_1 Designating Variables (used for simulations in particular)
@@ -691,13 +705,15 @@ public:
   void deleteColumnsByLocator(const ELoc& locatorType);
   void deleteColumnsByUID(const VectorInt& iuids);
   void deleteColumnsByColIdx(const VectorInt& icols);
+  void deleteColumnsByUIDRange(int i_del, int n_del);
   /**@}*/
 
   /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
    * \ingroup DB
    *
    * @param idim Rank of the target space dimension (0 based)
-   * @param useSel When TRUE, the characteristics are derived from the only active samples
+   * @param useSel When TRUE, the characteristics are derived from the only
+   * active samples
    * @param mini Vector of minimum values (modified by this function)
    * @param maxi Vector of maximum values (modified by this function)
    *
@@ -711,7 +727,10 @@ public:
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenters(bool useSel = false) const;
-  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false) const;
+  void getExtensionInPlace(VectorDouble& mini,
+                           VectorDouble& maxi,
+                           bool flagPreserve = false,
+                           bool useSel       = false) const;
   /**@}*/
 
   /** @addtogroup DB_5 Calculating basic Statistics
@@ -833,6 +852,9 @@ public:
                    int aboveRow = ITEST) const;
 
   VectorInt getSampleRanks() const;
+  Table printOneSample(int iech,
+                       const VectorString& names = VectorString(),
+                       bool excludeCoordinates   = true) const;
 
 protected:
   /// Interface for ASerializable

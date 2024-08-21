@@ -209,9 +209,11 @@ public:
 
   void makePositiveColumn();
   void linearCombination(double val1,
-                         const AMatrix *mat1,
-                         double val2 = 1.,
-                         const AMatrix *mat2 = nullptr);
+                         const AMatrix* mat1,
+                         double val2         = 1.,
+                         const AMatrix* mat2 = nullptr,
+                         double val3         = 1.,
+                         const AMatrix* mat3 = nullptr);
 
 #ifndef SWIG
   /*! Get value operator override */

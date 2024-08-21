@@ -92,7 +92,7 @@ Fit the variogram of residuals in a model having drifts. Some constraints have b
 
 ```{r Fitting_Model_residuals}
 model = md
-structs = ECov_fromKeys(c("NUGGET", "BESSEL_K"))
+structs = ECov_fromKeys(c("NUGGET", "MATERN"))
 
 const = Constraints()
 err = const$addItemFromParamId(EConsElem_SILL(),icov=0,type=EConsType_UPPER(),value=0.1)

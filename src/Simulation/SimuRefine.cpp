@@ -67,7 +67,7 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
 
   /* Store information from the input grid */
 
-  int iatt1 = db_attribute_identify(dbin, ELoc::Z, 0);
+  int iatt1 = dbin->getUIDByLocator(ELoc::Z, 0);
   if (iatt1 <= 0) return nullptr;
 
   /* Loop on the refinement factors */

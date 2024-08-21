@@ -19,7 +19,10 @@
 class GSTLEARN_EXPORT SpaceTarget : public SpacePoint
 {
 public:
-  SpaceTarget(const ASpace* space = nullptr);
+  SpaceTarget(const ASpace* space = nullptr,
+              bool checkExtend    = true,
+              bool checkCode      = true,
+              bool checkDate      = true);
   SpaceTarget(const SpaceTarget& r);
   SpaceTarget& operator=(const SpaceTarget& r);
   virtual ~SpaceTarget();
@@ -43,6 +46,9 @@ public:
   void setDate(double date) { _date = date; }
   double getCode() const { return _code; }
   double getDate() const { return _date; }
+  bool checkExtend() const { return _checkExtend; }
+  bool checkCode() const { return _checkCode; }
+  bool checkDate() const { return _checkDate; }
 
   /// Convert space point to string
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -51,7 +57,10 @@ private:
   void _initialize();
 
 protected:
+  bool _checkExtend;
+  bool _checkCode;
+  bool _checkDate;
   VectorDouble _extend;
-  double       _code;
-  double       _date;
+  double _code;
+  double _date;
 };

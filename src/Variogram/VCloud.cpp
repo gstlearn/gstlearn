@@ -62,7 +62,7 @@ VCloud::~VCloud()
 
 double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
 {
-  return db->getLocVariable(ELoc::Z, iech, ivar);
+  return db->getZVariable( iech, ivar);
 }
 
 /****************************************************************************/
@@ -111,8 +111,8 @@ void VCloud::_setResult(int iech1,
   {
     VectorInt indg(2);
     VectorDouble coor(2);
-    db_index_sample_to_grid(_dbcloud, igrid, indg.data());
-    grid_to_point(_dbcloud, indg.data(), NULL, coor.data());
+    _dbcloud->rankToIndice(igrid, indg);
+    _dbcloud->indicesToCoordinateInPlace(indg, coor);
     if (! POLYGON->inside(coor, false)) return;
     {
       IDS[iech1] += 1.;
@@ -232,7 +232,7 @@ void VCloud::_variogram_cloud(Db *db, int idir)
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! vario->keepPair(idir, T1, T2, &dist)) continue;
 
-      evaluate(db, nvar, iech, jech, 0, dist, 0);
+      (this->*_evaluate)(db, nvar, iech, jech, 0, dist, false);
     }
   }
 
@@ -251,7 +251,8 @@ void VCloud::_variogram_cloud(Db *db, int idir)
  *****************************************************************************/
 int VCloud::_update_discretization_grid(double x, double y)
 {
-  int indg[2];
+  int ndim = _dbcloud->getNDim();
+  VectorInt indg(ndim,0);
 
   int ix = (int) floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5);
   int iy = (int) floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5);
@@ -259,7 +260,7 @@ int VCloud::_update_discretization_grid(double x, double y)
   if (iy < 0 || iy >= _dbcloud->getNX(1)) return (-1);
   indg[0] = ix;
   indg[1] = iy;
-  return db_index_grid_to_sample(_dbcloud, indg);
+  return _dbcloud->indiceToRank(indg);
 }
 
 /****************************************************************************/

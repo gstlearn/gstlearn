@@ -45,7 +45,7 @@ dat["X"]= coords[:,0]
 dat["Y"]= coords[:,1]
 dat.setLocators(['X','Y'],gl.ELoc.X)
 
-model = gl.Model.createFromParam(gl.ECov.BESSEL_K, 1., 1., 1., [4.,45.])
+model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
 
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
 mesh = gl.MeshETurbo(workingDb)

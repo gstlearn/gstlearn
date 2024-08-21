@@ -139,8 +139,8 @@ static std::vector<StrExp> STREXPS;
 static StrMod *STRMOD = nullptr;
 static Option_AutoFit MAUTO;
 static Constraints CONSTRAINTS;
-static int *INDG1;
-static int *INDG2;
+static VectorInt INDG1;
+static VectorInt INDG2;
 static const DbGrid *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint RECINT;
@@ -639,7 +639,7 @@ static int st_get_vmap_dimension(const Db *dbmap,
   {
     int ndef = 0;
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(dbmap->getLocVariable(ELoc::Z,iech, ijvar))) ndef++;
+      if (!FFFF(dbmap->getZVariable(iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;
   }
@@ -2349,7 +2349,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
@@ -2360,7 +2360,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
 
@@ -2368,7 +2368,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
+        if (FFFF(DBMAP->getZVariable(iech, ijvar))) continue;
         tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
       }
   }
@@ -4204,7 +4204,7 @@ static void st_prepar_goulard_vmap(int imod)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
   mode.setUnitary(true);
@@ -4220,7 +4220,7 @@ static void st_prepar_goulard_vmap(int imod)
 
     for (int ipadir = 0; ipadir < RECINT.npadir; ipadir++)
     {
-      db_index_sample_to_grid(DBMAP, ipadir, INDG2);
+      DBMAP->rankToIndice(ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
       model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &mode);
@@ -4355,7 +4355,7 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
   VectorDouble aux(nvar2,0.);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iloc = db_attribute_identify(dbmap, ELoc::Z, ivar);
+    int iloc = dbmap->getUIDByLocator(ELoc::Z, ivar);
     (void) db_attribute_range(dbmap, iloc, &mini, &maxi, &gmax);
     AUX(ivar,ivar)= gmax;
   }
@@ -4887,14 +4887,14 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
   int nech = DBMAP->getSampleNumber();
   int nvar = DBMAP->getLocNumber(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   /* Load the Experimental conditions structure */
 
   int ipadir = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     double dist = distance_intra(DBMAP, nech / 2, iech, NULL);
     double wgt = (dist > 0) ? 1. / dist : 0.;
 
@@ -4902,7 +4902,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 
     int ntest = 0;
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) ntest++;
+      if (!FFFF(DBMAP->getZVariable(iech, ijvar))) ntest++;
     if (ntest <= 0) continue;
 
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
@@ -4910,7 +4910,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
       WT(ijvar,ipadir)= 0.;
       GG(ijvar,ipadir) = 0.;
 
-      double value = DBMAP->getLocVariable(ELoc::Z,iech,ijvar);
+      double value = DBMAP->getZVariable(iech,ijvar);
       if (FFFF(value)) continue;
 
       WT(ijvar,ipadir) = wgt;
@@ -4986,7 +4986,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
      constraints.expandConstantSill(nvar);
   }
   if (st_get_vmap_dimension(dbmap, nvar, &npadir, &nbexp)) goto label_end;
-  if (db_extension_diag(dbmap, &hmax)) goto label_end;
+  hmax = dbmap->getExtensionDiagonal();
   st_vmap_varchol_manage(dbmap, varchol);
 
   /* Scale the parameters in the Option_AutoFit structure */
@@ -5002,10 +5002,8 @@ int vmap_auto_fit(const DbGrid* dbmap,
 
   hmax /= 2.;
   DBMAP = dbmap;
-  INDG1 = db_indg_alloc(dbmap);
-  if (INDG1 == nullptr) goto label_end;
-  INDG2 = db_indg_alloc(dbmap);
-  if (INDG2 == nullptr) goto label_end;
+  INDG1.resize(ndim, 0);
+  INDG2.resize(ndim);
 
   /* Core allocation */
 
@@ -5083,8 +5081,6 @@ int vmap_auto_fit(const DbGrid* dbmap,
   error = 0;
 
   label_end:
-  INDG1 = db_indg_free(INDG1);
-  INDG2 = db_indg_free(INDG2);
   st_model_auto_strmod_free(strmod);
   return (error);
 }

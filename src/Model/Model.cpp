@@ -824,6 +824,7 @@ void Model::_copyCovContext()
 
 void Model::setMeans(const VectorDouble& mean)
 {
+  if (mean.empty()) return;
   _ctxt.setMean(mean);
   _copyCovContext();
 }
@@ -2201,7 +2202,7 @@ VectorDouble Model::evaluateFromDb(Db *db,
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    db_sample_load(db, ELoc::X, iech, d1.data());
+    db->getCoordinatesPerSampleInPlace(iech, d1);
     evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
     gg[iech] = covtab.getValue(ivar, jvar);
   }

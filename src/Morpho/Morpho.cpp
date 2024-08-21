@@ -790,13 +790,12 @@ VectorInt gridcell_neigh(int ndim,
                          bool flag_center,
                          bool verbose)
 {
-  int *indg0, *indg1, ecr, flag_count, nech;
+  int ecr, flag_count, nech;
   VectorInt indret;
 
   /* Initializations */
 
   int nvois = 0;
-  indg0 = indg1 = nullptr;
 
   /* Create the grid attributes */
 
@@ -818,18 +817,16 @@ VectorInt gridcell_neigh(int ndim,
 
   nech = grid->getSampleNumber();
   indret.resize(nech * ndim);
-  indg0 = db_indg_alloc(grid);
-  if (indg0 == nullptr) goto label_end;
-  indg1 = db_indg_alloc(grid);
-  if (indg1 == nullptr) goto label_end;
+  VectorInt indg0(ndim, 0);
+  VectorInt indg1(ndim, 0);
 
   /* Scan the grid nodes */
 
   ecr = 0;
-  db_index_sample_to_grid(grid, nech / 2, indg0);
+  grid->rankToIndice(nech / 2, indg0);
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(grid, iech, indg1);
+    grid->rankToIndice(iech, indg1);
     flag_count = 0;
     for (int idim = 0; idim < ndim; idim++)
     {
@@ -866,10 +863,7 @@ VectorInt gridcell_neigh(int ndim,
     }
   }
 
-  label_end:
   delete grid;
-  db_indg_free(indg0);
-  db_indg_free(indg1);
   return (indret);
 }
 

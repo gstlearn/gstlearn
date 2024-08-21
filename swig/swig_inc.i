@@ -193,7 +193,7 @@
   #include "Covariances/CovContext.hpp"
   #include "Covariances/CovCalcMode.hpp"
   #include "Covariances/CovBesselJ.hpp"
-  #include "Covariances/CovBesselK.hpp"
+  #include "Covariances/CovMatern.hpp"
   #include "Covariances/CovCauchy.hpp"
   #include "Covariances/CovCosExp.hpp"
   #include "Covariances/CovCosinus.hpp"
@@ -291,6 +291,7 @@
   #include "LithoRule/RuleProp.hpp"
   
   #include "Estimation/KrigingSystem.hpp"
+  #include "Estimation/KrigingCalcul.hpp"
   #include "Estimation/CalcKriging.hpp"
   #include "Estimation/CalcKrigingFactors.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
