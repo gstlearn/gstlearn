@@ -73,9 +73,9 @@ int main(int argc, char *argv[])
 
   /////////////////////////
   // Simulation (Chebyshev)
-  auto resultSimu = Qsimu.simulateOne();
+  VectorDouble resultSimu = Qsimu.simulateOne();
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
-
+  VectorEigen resultSimuV(resultSimu);
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   // Simulating Data points
   ProjMatrix B(dat, &mesh);
   Eigen::VectorXd datval(ndata);
-  B.mesh2point(resultSimu, datval);
+  B.mesh2point(resultSimuV.getVector(), datval);
   auto datvalVd = VectorEigen::copyIntoVD(datval);
   dat->addColumns(datvalVd, "Simu", ELoc::Z);
 
