@@ -56,7 +56,7 @@ std::vector<Eigen::VectorXd> PrecisionOpMultiConditional::computeRhs(const Eigen
 void PrecisionOpMultiConditional::computeRhsInPlace(const Eigen::VectorXd& datVal, std::vector<Eigen::VectorXd>& rhs) const
 {
   Eigen::VectorXd temp(datVal.size());
-  
+
   for(int i = 0; i < static_cast<int>(datVal.size()) ; i++)
   {
     temp[i] = datVal[i] / getVarianceData(i);
@@ -220,7 +220,7 @@ void PrecisionOpMultiConditional::_AtA(const std::vector<Eigen::VectorXd>& inv, 
   for (int imod = 0; imod < sizes(); imod++)
   {
     _multiProjData[imod]->mesh2point(inv[imod], _work1);
-    VectorEigen::addInPlace(_workdata, _work1);
+    VectorEigen::addInPlace(_work1, _workdata);
   }
 
   Eigen::Map<const Eigen::VectorXd> vm(_varianceData.data(), _varianceData.size());
@@ -277,7 +277,7 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const std::vec
   for(int icov = 0; icov <  sizes(); icov++)
   {
     _multiProjData[icov]->mesh2point(simus[icov],_work1);
-    VectorEigen::addInPlace(result,_work1);
+    VectorEigen::addInPlace(_work1,result);
   }
 
   for(int idat = 0; idat < _ndat; idat++)

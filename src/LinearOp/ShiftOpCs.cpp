@@ -1381,20 +1381,19 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   double sqdethh = 0.;
   double factor = 1.;
 
-  if (flagSphere)
+ if (flagSphere)
   {
     const ASpace *space = getDefaultSpace();
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();
-    correc = cova->evalCovOnSphere(0, 50, false) * pow(r, 2. * param) / sill;
+    correc =  cova->evalCovOnSphere(0, 50, true) * pow(r, -2.) / sill;
 
     if (_isGlobalHH(igrf, icov))
     {
       _loadHH(amesh, hh, 0);
-      sqdethh = sqrt(hh.determinant());
+      factor = sqrt(hh.determinant());
       // The next term compensate all what is needed to run on the Sphere
-        factor = pow(sqdethh, - (2. * param  - 1.)/3.);
     }
   }
 

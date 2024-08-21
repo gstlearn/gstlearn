@@ -244,10 +244,8 @@ double PrecisionOp::getLogDeterminant(int nbsimu,int seed)
   double val1 = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    for (int i = 0; i < (int)gauss.size(); i++)
-    {
-      gauss[i] = law_gaussian();
-    }
+    VectorEigen::simulateGaussianInPlace(gauss);
+  
     if (_evalPoly(EPowerPT::LOG, gauss, result) != 0) return TEST;
 
     for (int i = 0; i < getSize(); i++)
@@ -388,7 +386,7 @@ void PrecisionOp::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vec
   _shiftOp->prodLambda(_work, vecout, EPowerPT::MINUSONE);
 }
 
-Eigen::VectorXd PrecisionOp::evalCov(int imesh)
+VectorDouble PrecisionOp::evalCov(int imesh)
 {
 
   int n = getSize();
@@ -400,7 +398,7 @@ Eigen::VectorXd PrecisionOp::evalCov(int imesh)
   _evalPoly(EPowerPT::MINUSONE,result,ei);
   _shiftOp->prodLambda(ei, result, EPowerPT::MINUSONE);
 
-  return result;
+  return VectorEigen::copyIntoVD(result);
 }
 
 void PrecisionOp::evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout)
@@ -420,10 +418,7 @@ std::vector<Eigen::VectorXd> PrecisionOp::simulate(int nbsimu)
   for(auto &e : vect)
   {
     e.resize(n);
-    for (int i = 0; i < n; i++)
-    {
-      whitenoise[i] = law_gaussian();
-    }
+    VectorEigen::simulateGaussianInPlace(whitenoise);
   
     _evalPoly(EPowerPT::MINUSHALF,whitenoise,e);
     _shiftOp->prodLambda(e, e, EPowerPT::MINUSONE);
@@ -431,18 +426,16 @@ std::vector<Eigen::VectorXd> PrecisionOp::simulate(int nbsimu)
   return vect;
 }
 
-Eigen::VectorXd PrecisionOp::simulateOne()
+VectorDouble PrecisionOp::simulateOne()
 {
   int n = getSize();
   Eigen::VectorXd vect(n);
   Eigen::VectorXd whitenoise(n);
-  for (int i = 0; i<n; i++)
-  {
-    whitenoise[i] = law_gaussian();
-  }
+  VectorEigen::simulateGaussianInPlace(whitenoise);
   _evalPoly(EPowerPT::MINUSHALF,whitenoise,vect);
   _shiftOp->prodLambda(vect, vect, EPowerPT::MINUSONE);
-  return vect;
+  auto vectvd = VectorEigen::copyIntoVD(vect);
+  return vectvd;
 }
 
 int PrecisionOp::_preparePrecisionPoly() const

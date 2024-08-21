@@ -101,10 +101,11 @@ public:
 //                             int /*iapex*/,
 //                             int /*igparam*/){};
 
+  #ifndef SWIG
   void evalPower(const Eigen::VectorXd &inv, Eigen::VectorXd &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
-  
-  Eigen::VectorXd evalCov(int imesh);
-  Eigen::VectorXd simulateOne();
+  #endif
+  VectorDouble evalCov(int imesh);
+  VectorDouble simulateOne();
 
   int  getSize() const { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}

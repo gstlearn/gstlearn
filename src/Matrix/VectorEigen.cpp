@@ -11,6 +11,7 @@
 #include "Matrix/VectorEigen.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorNumT.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
 VectorEigen::VectorEigen(int size) : _eigenVector(size) {}
@@ -35,6 +36,16 @@ void VectorEigen::fill(Eigen::VectorXd &vect, double val)
       vect[i] = val;
     }
   }
+
+VectorDouble VectorEigen::copyIntoVD(const Eigen::VectorXd& in)
+{
+  VectorDouble res(in.size());
+  for (int i = 0; i < (int)in.size(); i++)
+  {
+    res[i] = in[i];
+  }
+  return res;
+}
 
 void VectorEigen::addMultiplyConstantInPlace(double val1,
                                               const Eigen::VectorXd &in,
@@ -125,6 +136,13 @@ void VectorEigen::copy(const Eigen::VectorXd& in, Eigen::VectorXd& dest)
   }
 }
 
+void VectorEigen::copy(const Eigen::VectorXd& in, Eigen::Map<Eigen::VectorXd>& dest)
+{
+  for (int i = 0; i < (int)in.size(); i++)
+  {
+    dest[i] = in[i];
+  }
+}
 void VectorEigen::copy(const std::vector<Eigen::VectorXd> &in,std::vector<Eigen::VectorXd>& dest)
 {
   for(int i = 0; i < (int)in.size(); i++)
@@ -181,7 +199,6 @@ std::vector<Eigen::VectorXd> VectorEigen::unflatten(const Eigen::VectorXd& vd, c
 {
   std::vector<Eigen::VectorXd> vvd;
 
-  int lec = 0;
   for (int i = 0, n = (int) sizes.size(); i < n; i++)
   {
     int lng = sizes[i];

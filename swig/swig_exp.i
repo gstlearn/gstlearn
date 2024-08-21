@@ -184,7 +184,7 @@
 %include LinearOp/ProjMatrixMulti.hpp
 %include LinearOp/PrecisionOpMulti.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
-//%include LinearOp/ProjConvolution.hpp
+%include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp

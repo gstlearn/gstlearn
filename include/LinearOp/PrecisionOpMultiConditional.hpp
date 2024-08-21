@@ -68,7 +68,7 @@ protected:
 #ifndef SWIG
   private:
     void _AtA(const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
-      void _evalDirect(const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const override;
+    void _evalDirect(const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const override;
 
   public:  
     std::vector<Eigen::VectorXd> computeRhs(const Eigen::VectorXd& datVal) const;

@@ -57,10 +57,11 @@ public:
   static void simulateGaussianInPlace(Eigen::VectorXd& vect, double mean = 0, double var = 1);
   static void fill(Eigen::VectorXd &vect, double val = 0.);
   static void addMultiplyConstantInPlace(double val ,const Eigen::VectorXd& in, Eigen::VectorXd& res, int iad);
-  
+  static VectorDouble copyIntoVD(const Eigen::VectorXd& in);
   static double innerProduct(const std::vector<Eigen::VectorXd> &in1,const std::vector<Eigen::VectorXd> &in2 );
   static void fill(std::vector<Eigen::VectorXd> &vect, double val = 0.);
   static void copy(const Eigen::VectorXd& in, Eigen::VectorXd& dest);
+  static void copy(const Eigen::VectorXd& in, Eigen::Map<Eigen::VectorXd>& dest);
 
   static void  linearCombinationVVDInPlace(double coeff1, const std::vector<Eigen::VectorXd> &in1,
                                            double coeff2, const std::vector<Eigen::VectorXd> &in2,

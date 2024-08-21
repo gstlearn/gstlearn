@@ -152,7 +152,7 @@
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
-  //#include "LinearOp/ProjConvolution.hpp"
+  #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
   #include "LinearOp/SPDEOp.hpp"
   #include "Neigh/ANeigh.hpp"
@@ -376,7 +376,7 @@
 %template(VectorSpacePoint)        std::vector< SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< ProjMatrix* >;
-
+%template(VectorVectorEigen)       std::vector< VectorEigen >;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 
