@@ -356,8 +356,8 @@ int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
   int number = p.getLocatorNumber();
-  if (number <= 0) return -1;
-  if (locatorIndex >= number) return -1;
+  if (number <= 0 || locatorIndex >= number)
+    return -1;
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
@@ -2878,6 +2878,7 @@ void Db::updSimvar(const ELoc& locatorType,
 
   // This direct addressing is meant to save time
   int icol = getColIdxByLocator(locatorType, item);
+  if (icol < 0) return;
   int internalAddress = _getAddress(iech, icol);
 
   double oldval = _array[internalAddress];

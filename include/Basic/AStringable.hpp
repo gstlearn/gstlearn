@@ -115,7 +115,7 @@ GSTLEARN_EXPORT void tab_print_rc(const char *title,
 GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille);
 GSTLEARN_EXPORT void print_matrix(const char *title,
                                   int flag_limit,
-                                  int byrow,
+                                  int bycol,
                                   int nx,
                                   int ny,
                                   const double *sel,

@@ -84,10 +84,9 @@ void TurningBandOperate::reset()
 double TurningBandOperate::shotNoiseAffineOne(double t0)
 {
   double scale = getScale();
-  double tdeb = getTdeb() / scale;
   if (! isFlagScaled()) t0 /= scale;
 
-  double dt = t0 - tdeb;
+  double dt = t0 - getTdeb() / scale;
   int nt0 = (int) (dt);
   double dt0 = dt - nt0;
   return _t[nt0] * (2. * dt0 - 1.);
@@ -96,10 +95,9 @@ double TurningBandOperate::shotNoiseAffineOne(double t0)
 double TurningBandOperate::shotNoiseCubicOne(double t0)
 {
   double scale = getScale();
-  double tdeb = getTdeb() / scale;
   if (! isFlagScaled()) t0 /= scale;
 
-  double dt = t0 - tdeb;
+  double dt = t0 - getTdeb() / scale;
   int nt0 = (int) (dt);
   double dt0 = dt - nt0;
   return _t[nt0] * dt0 * (dt0 - 0.5) * (dt0 - 1.);

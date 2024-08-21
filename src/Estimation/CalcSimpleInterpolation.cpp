@@ -40,11 +40,6 @@ CalcSimpleInterpolation::~CalcSimpleInterpolation()
 {
 }
 
-int CalcSimpleInterpolation::_getNVar() const
-{
-  return getDbin()->getLocNumber(ELoc::Z);
-}
-
 bool CalcSimpleInterpolation::_check()
 {
   if (! ACalcInterpolator::_check()) return false;
@@ -78,6 +73,8 @@ bool CalcSimpleInterpolation::_check()
 
 bool CalcSimpleInterpolation::_preprocess()
 {
+  if (!ACalcInterpolator::_preprocess()) return false;
+  
   if (_flagEst)
   {
     _iattEst = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);

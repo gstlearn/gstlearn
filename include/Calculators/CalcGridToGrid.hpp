@@ -39,8 +39,6 @@ protected:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  virtual int  _getNVar() const override;
-
 private:
   bool _g2gCopy();
   bool _g2gExpand();

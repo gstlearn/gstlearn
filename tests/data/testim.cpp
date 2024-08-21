@@ -21,7 +21,6 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -99,11 +98,10 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
-//  OptDbg::define(EDbg::INTERFACE);
 
   /* Getting the Study name */
 
-  if (argc != 2) messageAbort("Wrong number of arguments");
+  if (argc < 2) messageAbort("Wrong number of arguments");
   ascii_study_define(argv[1]);
 
   /* Define the environment */

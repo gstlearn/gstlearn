@@ -39,7 +39,7 @@
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
 #include "Simulation/SimuRefineParam.hpp"
-#include "Simulation/SimuRefine.hpp"
+#include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 
@@ -767,16 +767,19 @@ int simpgs(Db* dbin,
   {
     /* Gaussian transform of the facies input data */
     if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, ngrf * nbsimu, 0, 0.,
-                                 &iptr)) goto label_end;
+                                 &iptr))
+      goto label_end;
 
     /* Non-conditional simulations at data points */
     if (db_locator_attribute_add(dbin, ELoc::SIMU, ngrf * nbsimu, 0, 0.,
-                                 &iptr_DN)) goto label_end;
+                                 &iptr_DN))
+      goto label_end;
   }
 
   /* (Non-) Conditional simulations at target points */
   if (db_locator_attribute_add(dbout, ELoc::SIMU, ngrf * nbsimu, 0, 0.,
-                               &iptr_RN)) goto label_end;
+                               &iptr_RN))
+    goto label_end;
 
   if (flag_cond)
   {
@@ -846,6 +849,7 @@ int simpgs(Db* dbin,
     if (!flag_used[igrf]) continue;
     icase = get_rank_from_propdef(propdef, 0, igrf);
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
+    situba.setFlagAllocationAlreadyDone(true);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false,
                         VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
@@ -1271,6 +1275,7 @@ int simbipgs(Db *dbin,
       if (!flag_used[ipgs][igrf]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
       CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
+      situba.setFlagAllocationAlreadyDone(true);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[ipgs][igrf], neigh, icase, false,
                           VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
@@ -2738,43 +2743,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
   simu = simsphe.simulate_mesh(mesh, model, sphepar, verbose);
 
   return simu;
-}
-
-/****************************************************************************/
-/*!
- **  Refine the simulation
- **
- ** \return  Newly refined Grid.
- **
- ** \param[in]  dbin       Input grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  param      SimuRefineParam structure
- ** \param[in]  seed       Seed for the random number generator
- **
- ** \remark For each dimension of the space, if N stands for the number of
- ** \remark nodes in the input grid, the number of nodes of the output grid
- ** \remark will be (N-1) * 2^p + 1 where p is the param.getNmult()
- **
- *****************************************************************************/
-DbGrid* simfine(DbGrid *dbin,
-                Model *model,
-                const SimuRefineParam& param,
-                int seed)
-{
-  /* Preliminary check */
-
-  if (!dbin->isVariableNumberComparedTo(1)) return nullptr;
-
-  /* Patch the model with maximum dimension for OK */
-
-  model->setField(dbin->getExtensionDiagonal());
-
-  // Perform the simulation
-
-  SimuRefine simfine(1, seed);
-  DbGrid* dbout = simfine.simulate(dbin, model, param);
-
-  return dbout;
 }
 
 /****************************************************************************/

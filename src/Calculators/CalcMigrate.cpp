@@ -629,6 +629,8 @@ bool CalcMigrate::_check()
     messerr("At least one variable should be defined");
     return false;
   }
+
+  _setNvar((int)_iuids.size(), true);
   if (_distType != 1 && _distType != 2)
   {
     messerr("Argument 'dist_type'(%d)  should be 1 (for L1 distance) or 2 (for L2 distance",_distType);
@@ -639,6 +641,8 @@ bool CalcMigrate::_check()
 
 bool CalcMigrate::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
   int nvar = _getNVar();
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
   return (_iattOut >= 0);
@@ -662,11 +666,6 @@ bool CalcMigrate::_postprocess()
 void CalcMigrate::_rollback()
 {
   _cleanVariableDb(1);
-}
-
-int CalcMigrate::_getNVar() const
-{
-  return (int) _iuids.size();
 }
 
 /****************************************************************************/

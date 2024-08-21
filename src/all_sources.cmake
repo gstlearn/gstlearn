@@ -315,7 +315,7 @@ set(SRC
   Simulation/SimuFFTParam.cpp
   Simulation/CalcSimuFFT.cpp
   Simulation/SimuRefineParam.cpp
-  Simulation/SimuRefine.cpp
+  Simulation/CalcSimuRefine.cpp
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp

@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/ACalcInterpolator.hpp"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
@@ -40,16 +41,12 @@ CalcImage::~CalcImage()
 {
 }
 
-int CalcImage::_getNVar() const
-{
-  return getDbin()->getLocNumber(ELoc::Z);
-}
-
 bool CalcImage::_check()
 {
   if (! ACalcInterpolator::_check()) return false;
 
-  if (! hasDbin()) return false;
+  if (!hasDbin()) return false;
+  int nvar = getDbin()->getLocNumber(ELoc::Z);
   if (! getDbin()->isGrid())
   {
     messerr("This method requires the Db to be a Grid");
@@ -58,7 +55,7 @@ bool CalcImage::_check()
 
   if (_flagFilter)
   {
-    if (_getNVar() <= 0)
+    if (nvar <= 0)
     {
       messerr("This method requires some Variables to be defined in 'Db'");
       return false;
@@ -67,7 +64,7 @@ bool CalcImage::_check()
 
   if (_flagMorpho)
   {
-    if (_getNVar() != 1)
+    if (nvar != 1)
     {
       messerr("This method requires a single Variable to be defined in 'Db'");
       return false;
@@ -81,7 +78,7 @@ bool CalcImage::_check()
       messerr("Filtering 'type' should be 1 or 2");
       return false;
     }
-    if (_getNVar() != 1)
+    if (nvar != 1)
     {
       messerr("This method requires a single Variable to be defined in 'Db'");
       return false;
@@ -93,6 +90,8 @@ bool CalcImage::_check()
 
 bool CalcImage::_preprocess()
 {
+  if (!ACalcInterpolator::_preprocess()) return false;
+
   int nvar = _getNVar();
   if (_flagFilter)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);

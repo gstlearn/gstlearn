@@ -49,7 +49,8 @@ bool CalcStatistics::_check()
   if (! hasDbin()) return false;
   if (! hasDbout()) return false;
 
-  if (_getNVar() <= 0)
+  int nvar = getDbin()->getLocatorNumber(ELoc::Z);
+  if (nvar <= 0)
   {
     messerr("These methods require some variable to be defined");
     return false;
@@ -78,6 +79,8 @@ bool CalcStatistics::_check()
 
 bool CalcStatistics::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+  
   if (_flagStats)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVar(), 0.);
 

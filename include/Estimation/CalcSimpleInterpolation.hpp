@@ -47,7 +47,6 @@ private:
   virtual bool _run() override;
   virtual bool _postprocess() override;
   virtual void _rollback() override;
-  virtual int  _getNVar() const override;
 
   int _nearest(Db* dbin, Db* dbout, ANeigh* neigh);
   int _movave(Db* dbin, Db* dbout, ANeigh* neigh);

@@ -269,8 +269,10 @@ bool CalcSimuPartition::_check()
 
 bool CalcSimuPartition::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-    return (_iattOut >= 0);
+  if (!ACalcSimulation::_preprocess()) return false;
+
+  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
+  return (_iattOut >= 0);
 }
 
 bool CalcSimuPartition::_run()

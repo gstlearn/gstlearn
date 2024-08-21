@@ -19,17 +19,21 @@
 class Db;
 class DbGrid;
 
-class GSTLEARN_EXPORT SimuRefine: public ACalcSimulation
+class GSTLEARN_EXPORT CalcSimuRefine: public ACalcSimulation
 {
 public:
-  SimuRefine(int nbsimu = 0, int seed = 4324324);
-  SimuRefine(const SimuRefine &r) = delete;
-  SimuRefine& operator=(const SimuRefine &r) = delete;
-  virtual ~SimuRefine();
+  CalcSimuRefine(int nbsimu = 0, int seed = 4324324, bool verbose = false);
+  CalcSimuRefine(const CalcSimuRefine &r) = delete;
+  CalcSimuRefine& operator=(const CalcSimuRefine &r) = delete;
+  virtual ~CalcSimuRefine();
 
-  DbGrid* simulate(DbGrid *dbin, Model *model, const SimuRefineParam& param);
+  const SimuRefineParam& getParam() const { return _param; }
+  void setParam(const SimuRefineParam& param) { _param = param; }
+  DbGrid* getResultingGrid() const { return _dbres->clone(); }
 
 private:
+  virtual bool _check() override;
+  virtual bool _preprocess() override;
   virtual bool _run() override;
 
   void _dim_1_to_2(DbGrid *db);
@@ -37,40 +41,38 @@ private:
   int _kriging_define();
   void _neigh_simfine(int type, int rank, int idx, int idy, int idz);
   void _merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2);
-  double _read(DbGrid *db,
-               int iatt,
-               int ix0,
-               int iy0,
-               int iz0,
-               int idx,
-               int idy,
-               int idz);
-  static void _write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value);
+  double _read(DbGrid* db, int iatt, int ix0, int iy0, int iz0, int idx, int idy, int idz);
+  static void _write(DbGrid* db, int iatt, int ix0, int iy0, int iz0, double value);
   void _truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1);
   int _kriging_solve(int type,
                      int rank,
                      int nb,
                      bool verbose = false);
   void _simulate_nodes(DbGrid *db, int iatt);
-  void _simulate_target(DbGrid *db,
-                        int type,
-                        int iatt,
-                        int ix0,
-                        int iy0,
-                        int iz0);
-  int _getNDim() const override;
+  void _simulate_target(DbGrid* db, int type, int iatt, int ix0, int iy0, int iz0);
+  int _simulate();
 
 private:
   SimuRefineParam _param;
-  Model* _model;
+  bool _verbose;
   VectorInt _nx1;
   VectorDouble _dx1;
   VectorDouble _x01;
   VectorInt _nx2;
   VectorDouble _dx2;
   VectorDouble _x02;
+
+  DbGrid* _dbres; // Resulting Grid
   int _IXYZ[3][2][5];
   double _XYZN[3][2][5];
   double _WGT[2][2][5];
   double _STDV[2][2];
 };
+
+GSTLEARN_EXPORT DbGrid*
+simulation_refine(DbGrid* dbin,
+                  Model* model,
+                  const SimuRefineParam& param,
+                  int seed                        = 432432,
+                  bool verbose                    = false,
+                  const NamingConvention& namconv = NamingConvention("Refine"));

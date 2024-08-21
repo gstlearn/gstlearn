@@ -46,7 +46,7 @@ public:
   inline VectorT(const VectorT& other) = default;
 #ifndef SWIG
   inline VectorT(std::initializer_list<T> init)                       : _v(std::make_shared<Vector>(init)) { }
-  inline VectorT(VectorT&& other)                                     { _v.swap(other._v); }
+  inline VectorT(VectorT&& other)                                      noexcept { _v.swap(other._v); }
 #endif
   inline ~VectorT() = default;
 
@@ -60,7 +60,7 @@ public:
 #ifndef SWIG
   inline VectorT& operator=(const Vector& vec)                        { _detach(); *_v = vec; return (*this); }
   inline VectorT& operator=(const VectorT& other)                     { _detach(); _v = other._v; return (*this); }
-  inline VectorT& operator=(VectorT&& other)                          { _v.swap(other._v); return (*this); }
+  inline VectorT& operator=(VectorT&& other)                           noexcept { _v.swap(other._v); return (*this); }
   inline VectorT& operator=(std::initializer_list<T> init)            { _detach(); (*_v) = init; return (*this); }
 #endif
 
@@ -198,16 +198,18 @@ T& VectorT<T>::at(size_type pos)
 template <typename T>
 const T& VectorT<T>::operator[](size_type pos) const
 {
-  if (pos >= size())
-    my_throw("VectorT<T>::operator[]: index out of range");
+  // Unprotect operator[] ... as in std::vector library
+  //  if (pos >= size())
+  //    my_throw("VectorT<T>::operator[]: index out of range");
   return _v->operator[](pos);
 }
 
-template <typename T>
+template<typename T>
 T& VectorT<T>::operator[](size_type pos)
 {
-  if (pos >= size())
-    my_throw("VectorT<T>::operator[]: index out of range");
+  // Unprotect operator[] ... as in std::vector library
+  //  if (pos >= size())
+  //    my_throw("VectorT<T>::operator[]: index out of range");
   _detach();
   return _v->operator[](pos);
 }

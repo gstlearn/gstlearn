@@ -50,7 +50,6 @@ private:
   virtual bool _run() override;
   virtual bool _postprocess() override;
   virtual void _rollback() override;
-  virtual int  _getNVar() const override;
 
 private:
   int    _iattOut;

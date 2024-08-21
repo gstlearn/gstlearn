@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/ACalcDbToDb.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -31,15 +32,10 @@ CalcGridToGrid::~CalcGridToGrid()
 {
 }
 
-int CalcGridToGrid::_getNVar() const
-{
-  int nvar = 0;
-  if (getDbin() != nullptr) nvar = getDbin()->getLocNumber(ELoc::Z);
-  return nvar;
-}
-
 bool CalcGridToGrid::_check()
 {
+  if (!ACalcDbToDb::_check()) return false;
+  
   /*************************************/
   /* Both Files are compulsory as Grid */
   /*************************************/
@@ -133,6 +129,9 @@ int CalcGridToGrid::_compareInMinusOut() const
 
 bool CalcGridToGrid::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
+  // Number of variable
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
   if (_iattOut < 0) return false;
 
@@ -199,7 +198,7 @@ int dbg2gExpand(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
-  calcul.setNamingConvention(namconv);
+  calcul.setMustShareSpaceDimension(false);
 
   calcul.setFlagExpand(true);
 
@@ -217,6 +216,7 @@ int dbg2gInterpolate(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setNamingConvention(namconv);
 
   calcul.setFlagInter(true);
@@ -235,6 +235,7 @@ int dbg2gShrink(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setNamingConvention(namconv);
 
   calcul.setFlagShrink(true);
