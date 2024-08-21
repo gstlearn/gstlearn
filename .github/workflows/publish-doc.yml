@@ -55,7 +55,7 @@ jobs:
 
     - name: Generate R Readme file using grip
       run: |
-        python3 -m grip ${{env.BUILD_DIR}}/r/README.md --export ${{env.BUILD_DIR}}/r/R_README.html
+        python3 -m grip r/README.md --export ${{env.BUILD_DIR}}/r/R_README.html
         echo "R_README_FILE=$(ls ${{env.BUILD_DIR}}/r/R_README.html)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v4
