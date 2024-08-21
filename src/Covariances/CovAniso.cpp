@@ -713,6 +713,16 @@ double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) cons
   return  sill * val / getCorrec();
 }
 
+double CovAniso::normalizeOnSphere(int n) const
+{ 
+  const ASpace* space = getDefaultSpace();
+  const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  double scale = getScale();
+  double radius = spaceSn->getRadius();
+  scale = scale / radius;
+  return _cova->normalizeOnSphere(n,scale);
+}
+
 VectorDouble CovAniso::getMarkovCoeffs() const
 {
   if (!_cova->hasMarkovCoeffs()) return VectorDouble();
