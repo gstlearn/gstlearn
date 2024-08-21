@@ -1387,8 +1387,8 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();
-    correc =  cova->evalCovOnSphere(0, 50, true) * pow(r, -2.) / sill;
-
+    double normalizing = cova->normalizeOnSphere(50); //useful only for Markov
+    correc = pow(r, -2.) * normalizing;
     if (_isGlobalHH(igrf, icov))
     {
       _loadHH(amesh, hh, 0);
@@ -1409,7 +1409,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       {
         _loadHH(amesh, hh, imesh);
         sqdethh = sqrt(hh.determinant());
-        factor = pow(sqdethh, - (2. * param  - 1.)/3.);
+        factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
       }
  
       sill = nostat->getValue(EConsElem::SILL, 0, imesh, icov);
