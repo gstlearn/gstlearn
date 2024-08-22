@@ -4427,15 +4427,15 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
 {
   int ncol = getColumnNumber();
   VectorString locators = getLocators(true);
-  VectorString names = getName("*");
+  VectorString names    = getName("*");
+  
   bool ret = true;
-
   ret = ret && _recordWrite<int>(os, "Number of variables", ncol);
   ret = ret && _recordWrite<int>(os, "Number of samples", getSampleNumber());
   ret = ret && _recordWriteVec<String>(os, "Locators", locators);
   ret = ret && _recordWriteVec<String>(os, "Names", names);
   ret = ret && _commentWrite(os, "Array of values");
-  for (int iech = 0; ret && iech < getSampleNumber(); iech++)
+  for (int iech = 0, nech = getSampleNumber(); ret && iech < nech; iech++)
   {
     VectorDouble vals = getArrayBySample(iech);
     ret = ret && _recordWriteVec<double>(os, "", vals);
@@ -4445,7 +4445,9 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
 
 bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ncol = 0, nrow = 0, nech = 0;
+  int ncol = 0;
+  int nrow = 0;
+  int nech = 0;
   VectorString locators;
   VectorString names;
   VectorDouble values;
@@ -4474,9 +4476,9 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   }
   ret = (nech == nrow);
 
-  // Decode the locators
   if (ret)
   {
+    // Decode the locators
     std::vector<ELoc> tabloc;
     VectorInt tabnum;
     int  inum = 0, mult = 0;

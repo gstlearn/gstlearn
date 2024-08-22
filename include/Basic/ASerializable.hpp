@@ -210,14 +210,16 @@ bool ASerializable::_recordReadVec(std::istream& is,
                                    VectorT<T>& vec,
                                    int nvalues)
 {
-  vec.clear();
+  vec.resize(nvalues);
+  int ecr = 0;
   if (is.good())
   {
     String line;
+
     // Skip comment or empty lines
     while (is.good())
     {
-      //std::getline(is, line);
+      // std::getline(is, line);
       gslSafeGetline(is, line);
       if (!is.good() && !is.eof())
       {
@@ -225,9 +227,9 @@ bool ASerializable::_recordReadVec(std::istream& is,
         return false;
       }
       line = trim(line);
-      if (!line.empty() && line[0] != '#')
-        break; // We found something
+      if (!line.empty() && line[0] != '#') break; // We found something
     }
+
     // Decode the line
     std::stringstream sstr(line);
     while (sstr.good())
@@ -242,9 +244,7 @@ bool ASerializable::_recordReadVec(std::istream& is,
       }
       word = trim(word);
       if (word.empty()) continue;
-
-      if (word[0] == '#')
-        break; // We found a comment
+      if (word[0] == '#') break; // We found a comment
 
       T val;
       if (word == STRING_NA)
@@ -258,10 +258,17 @@ bool ASerializable::_recordReadVec(std::istream& is,
         std::stringstream sword(word);
         sword >> val;
       }
-      vec.push_back(val);
+      if (ecr > nvalues)
+      {
+        messerr("Too many values read");
+        vec.clear();
+        return false;
+      }
+      vec[ecr++] = val;
     }
   }
 
+  // Check the number of value actually read
   if (nvalues != (int) vec.size())
   {
     messerr("Reading (%s) was expecting %d terms. %d found",
