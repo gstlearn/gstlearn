@@ -409,7 +409,7 @@ When $\rho=0$, we say that the variables are uncorrelated. But they can still ha
 
 #NO_DIFF#XXX
 ----
-Correlation coefficient -0.8023409668442096
+Correlation coefficient -0.8023
 ----
 
 

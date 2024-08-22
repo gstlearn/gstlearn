@@ -10,6 +10,9 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "LinearOp/ALinearOp.hpp"
+#include "Matrix/VectorEigen.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 #define EVALOP(prepare,start,tab,getmat,op) \
   if(_prepareOperator(vecin,vecout))\
@@ -28,24 +31,22 @@
   for (int icov = 0; icov < ncov; icov++)\
   {\
     int napices = size(icov);\
-    VectorDouble x(napices);\
-    VectorDouble y(napices);\
+    Eigen::VectorXd y(napices);\
     for (int ivar = 0; ivar < nvar; ivar++)\
     {\
-      VH::extractInPlace(vecin, x, iad_x);\
+      Eigen::Map<const Eigen::VectorXd>x(vecin.data()+iad_x,napices);\
       _pops[icov]->op(x, y);\
       int iad_y = iad_struct + start * napices;\
       for (int jvar = start; jvar < nvar; jvar++)\
       {\
-        VH::addMultiplyConstantInPlace(tab[icov].getmat(jvar,ivar),y,vecout,iad_y);\
+        VectorEigen::addMultiplyConstantInPlace(tab[icov].getmat(jvar,ivar),y,vecout,iad_y);\
         iad_y += napices;\
       }   \
       iad_x+= napices;  \
     }\
     iad_struct = iad_x;\
   }\
-  return 0;\
-
+  return 0;
 
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
@@ -162,7 +163,7 @@ int PrecisionOpMulti::_getNMesh() const
   return (int) _meshes.size();
 }
 
-int PrecisionOpMulti::sizes() const
+int PrecisionOpMulti::getSize() const
 {
   int nvar = _getNVar();
   int ncov = _getNCov();
@@ -206,7 +207,7 @@ void PrecisionOpMulti::addMesh(AMesh* mesh)
   _isValid = _matchModelAndMeshes();
 }
 
-int PrecisionOpMulti::_buildInvSills()
+int PrecisionOpMulti::_buildInvSills() const
 {
   if (_model == nullptr) return 1;
 
@@ -224,7 +225,7 @@ int PrecisionOpMulti::_buildInvSills()
   return 0;
 }
 
-int PrecisionOpMulti::_buildCholSills()
+int PrecisionOpMulti::_buildCholSills() const
 {
   if (_model == nullptr) return 1;
 
@@ -258,7 +259,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   sstr << "Number of Variables   = " << _getNVar()  << std::endl;
   sstr << "Number of Covariances = " << _getNCov()  << std::endl;
   sstr << "Number of Meshes      = " << _getNMesh() << std::endl;
-  sstr << "Vector dimension      = " << sizes()     << std::endl;
+  sstr << "Vector dimension      = " <<  getSize()  << std::endl;
 
   sstr << "Indices of Matérn Covariance = " << VH::toStringAsVI(_covList);
 
@@ -272,31 +273,38 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
+                          Eigen::VectorXd& vecout) const
+{
+  EVALOP(_buildInvSills,0,_invSills,getValue,addToDest)
+}
+
 /**
  * Evaluate the product of this phantom matrix by the input vector
  * @param vecin  Input array
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::evalDirectInPlace(const VectorDouble& vecin,
-                                              VectorDouble& vecout)
+/* int PrecisionOpMulti::evalDirectInPlace(const Eigen::VectorXd& vecin,
+                                              Eigen::VectorXd& vecout)
 {
   EVALOP(_buildInvSills,0,_invSills,getValue,evalDirect)
 }
-
+ */
 /**
  * Evaluate the product of this phantom matrix by the input vector
  * @param vecin Input array
  */
-VectorDouble PrecisionOpMulti::evalDirect(const VectorDouble& vecin)
+Eigen::VectorXd PrecisionOpMulti::evalDirect(const Eigen::VectorXd& vecin)
 {
-  int totsize = sizes();
+  int totsize = getSize();
   
   // Blank out the output vector
-  VectorDouble vecout(totsize, 0.);
-  if (evalDirectInPlace(vecin,vecout))
+  Eigen::VectorXd vecout(totsize);
+  VectorEigen::fill(vecout,0.);
+  if (ALinearOp::evalDirect(vecin,vecout))
   {
-    return VectorDouble();
+    return Eigen::VectorXd();
   }
 
   return vecout;
@@ -309,33 +317,43 @@ VectorDouble PrecisionOpMulti::evalDirect(const VectorDouble& vecin)
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::evalSimulateInPlace(const VectorDouble& vecin,
-                                                VectorDouble& vecout)
+int PrecisionOpMulti::evalSimulateInPlace(const Eigen::VectorXd& vecin,
+                                                Eigen::VectorXd& vecout)
 {
   EVALOP(_buildCholSills,ivar,_cholSills,getCholeskyTL,evalSimulate)
 }
 
+VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(),vec.size());
+  Eigen::VectorXd out(vec.size());
+  evalSimulateInPlace(vecm,out);
+  return VectorEigen::copyIntoVD(out);
+}
+
+
 /**
  * Simulate based on an input random gaussian vector (Matrix free version)
  * @param vecin Input array
  */
-VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vecin)
+Eigen::VectorXd PrecisionOpMulti::evalSimulate(const Eigen::VectorXd& vecin)
 {
-  int totsize = sizes();
+  int totsize = getSize();
   
-  VectorDouble vecout(totsize, 0.);
+  Eigen::VectorXd vecout(totsize);
+  VectorEigen::fill(vecout,0.);
   if (evalSimulateInPlace(vecin,vecout))
   {
-    return VectorDouble();
+    return Eigen::VectorXd();
   }
 
   return vecout;
 }
 
-int PrecisionOpMulti::_prepareOperator(const VectorDouble& vecin,
-                                             VectorDouble& vecout) const
+int PrecisionOpMulti::_prepareOperator(const Eigen::VectorXd& vecin,
+                                             Eigen::VectorXd& vecout) const
 {
-   int totsize = sizes();
+   int totsize = getSize();
   if ((int)vecin.size() != totsize)
   {
     messerr("'vecin' (%d) should be of dimension (%d)", (int)vecin.size(), totsize);

@@ -8,28 +8,41 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/ScaleOp.hpp"
+#pragma once
 
-ScaleOp::ScaleOp(int n, double scale) :
-  _n(n), _scale(scale)
+#include "gstlearn_export.hpp"
+
+#ifndef SWIG
+#include "LinearOp/ALinearOpEigenCG.hpp"
+DECLARE_EIGEN_TRAITS(SPDEOp)
+#else
+#include "LinearOp/ALinearOp.hpp"
+#endif
+
+class GSTLEARN_EXPORT SPDEOp:
+#ifndef SWIG
+  public ALinearOpEigenCG<SPDEOp>
+#else
+  public ALinearOp
+#endif
 {
-}
 
-ScaleOp::~ScaleOp() {}
+public:
+  SPDEOp(int n, double scale = 1.);
+  virtual ~SPDEOp();
 
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the ScaleOp) : 'outv' += I * 'inv' = 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-int ScaleOp::_addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const
-{
-  for (int i = 0, n = _n; i < n; i++)
-    outv[i] = _scale*inv[i]; //TODO replace = by +=
-  return 0;
-}
+  int getSize() const override { return _n; }
+
+#ifndef SWIG
+protected:
+  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+#endif
+
+private:
+  int _n;
+  double _scale;
+};
+
+#ifndef SWIG
+DECLARE_EIGEN_PRODUCT(SPDEOp)
+#endif

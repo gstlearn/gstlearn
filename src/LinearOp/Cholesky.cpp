@@ -14,6 +14,7 @@
 #include "Matrix/LinkMatrixSparse.hpp"
 
 #include "csparse_f.h"
+#include <Eigen/src/Core/Matrix.h>
 
 Cholesky::Cholesky(const MatrixSparse* mat)
     : ALinearOp(),
@@ -78,19 +79,20 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void Cholesky::_evalDirect(const Eigen::VectorXd& inv,
+int  Cholesky::_addToDest(const Eigen::VectorXd& inv,
                            Eigen::VectorXd& outv) const
 {
-  if (!isValid()) return;
+  if (!isValid()) return 1;
 
   // Map Eigen Vector to VectorDouble arguments
   // TODO : VectorXd => VectorDouble = Memory copy !!
   VectorDouble einv(inv.data(), inv.data() + inv.size());
   VectorDouble eoutv(outv.size());
-
+  // TODO : add add to dest
   _matCS->prodMatVecInPlace(einv, eoutv);
   // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
   outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
+  return 0;
 }
 
 /****************************************************************************/
@@ -131,6 +133,26 @@ void Cholesky::_compute()
       return;
     }
   }
+}
+
+int Cholesky::solve(const Eigen::VectorXd& b, Eigen::VectorXd& x) const
+{
+  if (! isValid()) return 1;
+
+  if (_matCS->isFlagEigen())
+  {
+    x = _cholSolver.solve(b);
+  }
+  else
+  {
+    int size = _matCS->getNRows();
+    VectorDouble work(size, 0.);
+    cs_ipvec(size, _S->Pinv, b.data(), work.data());
+    cs_lsolve(_N->L, work.data());
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(size, _S->Pinv, work.data(), x.data());
+  }
+  return 0;
 }
 
 int Cholesky::solve(const VectorDouble& b, VectorDouble& x) const
@@ -188,6 +210,30 @@ int Cholesky::simulate(const VectorDouble& b, VectorDouble& x) const
   return 0;
 }
 
+int Cholesky::simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const
+{
+  if (! isValid()) return 1;
+  int size = _matCS->getNRows();
+
+  if (_matCS->isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> bm(b.data(), b.size());
+    Eigen::Map<Eigen::VectorXd> xm(x.data(), x.size());
+
+    Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();
+    Eigen::VectorXd DW = ((bm.array()) * Ddm).matrix();
+    Eigen::VectorXd Y = _cholSolver.matrixU().solve(DW);
+    xm = _cholSolver.permutationPinv() * Y;
+  }
+  else
+  {
+    Eigen::VectorXd work = b; // We must work on a copy of b in order to preserve constness
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(size, _S->Pinv, work.data(), x.data());
+  }
+
+  return 0;
+}
 /****************************************************************************/
 /*!
  **  Perform the calculation of the Standard Deviation of Estimation Error

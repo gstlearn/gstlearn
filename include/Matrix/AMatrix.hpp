@@ -16,6 +16,13 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
+#include <Eigen/src/Core/Matrix.h>
+
 /// TODO : Transform into template for storing something else than double
 
 class NF_Triplet;
@@ -170,6 +177,9 @@ public:
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  #ifndef SWIG
+    void prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose = false) const;
+  #endif
   void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -229,6 +239,9 @@ protected:
   virtual void    _prodMatVecInPlacePtr(const double *x,
                                         double *y,
                                         bool transpose = false) const = 0;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x,
+                                                 double *y,
+                                                 bool transpose = false) const = 0;                                      
   virtual void    _prodVecMatInPlacePtr(const double *x,
                                         double *y,
                                         bool transpose = false) const = 0;

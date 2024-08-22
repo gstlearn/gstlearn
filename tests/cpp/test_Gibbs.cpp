@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
     Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
 
   // Perform the Gibbs sampler
-  int niter = 10000;
+  int niter = 10;
   (void) st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
                   sigma, z, krig);
 

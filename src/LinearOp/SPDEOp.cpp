@@ -8,28 +8,28 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/ScaleOp.hpp"
+#include "LinearOp/SPDEOp.hpp"
 
-ScaleOp::ScaleOp(int n, double scale) :
+SPDEOp::SPDEOp(int n, double scale) :
   _n(n), _scale(scale)
 {
 }
 
-ScaleOp::~ScaleOp() {}
+SPDEOp::~SPDEOp() {}
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product (by the ScaleOp) : 'outv' += I * 'inv' = 'inv'
+**  Evaluate the product (by the SPDEOp) : 'outv' = I * 'inv' = 'inv'
 **
 ** \param[in]  inv     Array of input values
 **
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int ScaleOp::_addToDest(const Eigen::VectorXd& inv,
+int SPDEOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
-    outv[i] = _scale*inv[i]; //TODO replace = by +=
+    outv[i] += _scale*inv[i];
   return 0;
 }

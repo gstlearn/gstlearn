@@ -2093,25 +2093,16 @@ double* cs_col_sumrow(const cs *A, int *ncol, int *nrow)
 /* y = A %*% x */
 void cs_vector_Mx(const cs *A, int nout, const double *x, double *y)
 {
-  int *Ap, *Ai, n;
-  double *Ax;
-
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
 
   for (int j = 0; j < nout; j++)
     y[j] = 0.;
 
-  for (int j = 0; j < n; j++)
-    for (int p = Ap[j]; p < Ap[j + 1]; p++)
-      y[Ai[p]] += Ax[p] * x[j];
+  cs_vector_addToDest_Mx(A,nout,x,y);
 }
 
 /* Operate the product of a vector by a sparse matrix */
-/* y = t(A) %*% x */
-void cs_vector_tMx(const cs *A, int nout, const double *x, double *y)
+/* y += A %*% x */
+void cs_vector_addToDest_Mx(const cs *A, int nout, const double *x, double *y)
 {
   int *Ap, *Ai, n;
   double *Ax;
@@ -2121,8 +2112,31 @@ void cs_vector_tMx(const cs *A, int nout, const double *x, double *y)
   Ai = A->i;
   Ax = A->x;
 
+  for (int j = 0; j < n; j++)
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+      y[Ai[p]] += Ax[p] * x[j];
+}
+/* Operate the product of a vector by a sparse matrix */
+/* y = t(A) %*% x */
+void cs_vector_tMx(const cs *A, int nout, const double *x, double *y)
+{
+
   for (int j = 0; j < nout; j++)
     y[j] = 0.;
+  cs_vector_addToDest_tMx(A,nout,x,y);
+}
+
+/* Operate the product of a vector by a sparse matrix */
+/* y += t(A) %*% x */
+void cs_vector_addToDest_tMx(const cs *A, int nout, const double *x, double *y)
+{
+  int *Ap, *Ai, n;
+  double *Ax;
+
+  n = cs_getncol(A);
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
 
   for (int j = 0; j < n; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)

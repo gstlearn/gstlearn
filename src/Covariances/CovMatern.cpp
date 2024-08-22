@@ -140,16 +140,15 @@ MatrixRectangular CovMatern::simulateSpectralOmega(int nb) const
 
 VectorDouble CovMatern::_evaluateSpectrumOnSphere(int n, double scale) const
 {
-  double kappa = 1. / scale;
+  double scale2 = scale * scale;
   double mu = getParam();
-  double kappa2 = kappa * kappa;
+  double alpha = mu + 1.;
 
   VectorDouble sp(1+n, 0.);
 
   for (int k = 0; k <= n; k++)
-    sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(kappa2 + k * (k + 1.), 2. * mu);
+    sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(1. + scale2 * k * (k + 1.), alpha);
 
-  VH::normalize(sp, 1);
-
+  VH::normalize(sp,1);
   return sp;
 }

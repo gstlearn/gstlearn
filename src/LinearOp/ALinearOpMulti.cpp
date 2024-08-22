@@ -16,6 +16,8 @@
 #include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
+#include "Matrix/VectorEigen.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
     : _nIterMax(nitermax),
@@ -25,7 +27,7 @@ ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
       _userInitialValue(false),
       _precond(nullptr),
       _initialized(false),
-      _r(VectorVectorDouble()),
+      _r(std::vector<Eigen::VectorXd>()),
       _temp(),
       _p(),
       _z(),
@@ -111,8 +113,8 @@ void ALinearOpMulti::prepare() const
  ** \param[out] outv    Array of output values
  **
  *****************************************************************************/
-void ALinearOpMulti::evalDirect(const VectorVectorDouble &inv,
-                                VectorVectorDouble &outv) const
+void ALinearOpMulti::evalDirect(const std::vector<Eigen::VectorXd> &inv,
+                                std::vector<Eigen::VectorXd> &outv) const
 {
   try
   {
@@ -135,8 +137,8 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble &inv,
  **                    _userInitialValue is true.
  **
  *****************************************************************************/
-void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
-                                 VectorVectorDouble &vecout) const
+void ALinearOpMulti::evalInverse(const std::vector<Eigen::VectorXd> &vecin,
+                                 std::vector<Eigen::VectorXd> &vecout) const
 {
   prepare();
   int n = sizes();
@@ -148,13 +150,17 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   double crit = 0., alpha;
 
   Timer time;
-  nb = VH::innerProduct(vecin, vecin);
+  nb = 0.;
+  for (auto &e:vecin)
+  {
+    nb += e.norm();
+  }
 
   if (_userInitialValue)
   {
     evalDirect(vecout, _temp); //temp = Ax0 (x0 est stocké dans outv)
-    VH::subtractInPlace(_temp, vecin, _r);    //r=b-Ax0
-    nb = VH::innerProduct(_r, _r);
+    VectorEigen::substractInPlace(_temp, vecin, _r);    //r=b-Ax0
+    nb = VectorEigen::innerProduct(_r, _r);
 
     // If _nb is not set, then initialize the internal state from scratch.
     // If _nb is set, reuse the internal state of the solver (_p) to add
@@ -167,25 +173,25 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   }
   else
   {
-    VH::fill(vecout, 0.);
-    VH::fill(_temp, 0.); // temp = Ax0=0
-    VH::copy(vecin, _r);   // r = b
+    VectorEigen::fill(vecout, 0.);
+    VectorEigen::fill(_temp, 0.); // temp = Ax0=0
+    VectorEigen::copy(vecin, _r);   // r = b
   }
 
   if (OptDbg::query(EDbg::CONVERGE))
-    message("initial crit %lg \n", VH::innerProduct(_r, _r));
+    message("initial crit %lg \n", VectorEigen::innerProduct(_r, _r));
 
   if (_precondStatus)
   {
     _precond->evalDirect(_r, _temp); //z=Mr
-    VH::copy(_temp, _p); //p=z
-    rsold = VH::innerProduct(_r, _temp); //<r, z>
-    crit = VH::innerProduct(_r, _r);  //<r,r>
+    VectorEigen::copy(_temp, _p); //p=z
+    rsold = VectorEigen::innerProduct(_r, _temp); //<r, z>
+    crit = VectorEigen::innerProduct(_r, _r);  //<r,r>
   }
   else if (!_userInitialValue || isNA(_nb)) // _p, rsold and crit are already set (see above)
   {
-    VH::copy(_r, _p); //p=r (=z)
-    crit = rsold = VH::innerProduct(_r, _r);
+    VectorEigen::copy(_r, _p); //p=r (=z)
+    crit = rsold = VectorEigen::innerProduct(_r, _r);
   }
 
   crit /= nb;
@@ -196,29 +202,29 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   {
     niter++;
     evalDirect(_p, _temp);                                // temp = Ap
-    alpha = rsold / VH::innerProduct(_temp, _p);          // r'r/p'Ap
-    VH::linearCombinationVVDInPlace(1., vecout, alpha, _p, vecout);     // x = x + alpha * p
+    alpha = rsold / VectorEigen::innerProduct(_temp, _p);          // r'r/p'Ap
+    VectorEigen::linearCombinationVVDInPlace(1., vecout, alpha, _p, vecout);     // x = x + alpha * p
 
     if (_nIterRestart > 0 && (niter + 1) % _nIterRestart == 0)
     {
       evalDirect(vecout, _temp);               // temp = Ax
-      VH::subtractInPlace(_temp, vecin, _r);   // r = b - Ax
+      VectorEigen::substractInPlace(_temp, vecin, _r);   // r = b - Ax
       if (OptDbg::query(EDbg::CONVERGE))
         message("Recomputing exact residuals after %d iterations (max=%d)\n", niter, _nIterMax);
     }
     else
-      VH::linearCombinationVVDInPlace(1., _r, -alpha, _temp, _r);         // r = r - alpha * Ap
+      VectorEigen::linearCombinationVVDInPlace(1., _r, -alpha, _temp, _r);         // r = r - alpha * Ap
 
     if (_precondStatus)
     {
       _precond->evalDirect(_r, _temp);                     // z = Mr
-      rsnew = VH::innerProduct(_r, _temp);                 // r'z
-      VH::linearCombinationVVDInPlace(1., _temp, rsnew / rsold, _p, _p); // p = z+beta p
+      rsnew = VectorEigen::innerProduct(_r, _temp);                 // r'z
+      VectorEigen::linearCombinationVVDInPlace(1., _temp, rsnew / rsold, _p, _p); // p = z+beta p
     }
     else
     {
-      rsnew = VH::innerProduct(_r, _r);
-      VH::linearCombinationVVDInPlace(1., _r, rsnew / rsold, _p, _p);    // p = r+beta p
+      rsnew = VectorEigen::innerProduct(_r, _r);
+      VectorEigen::linearCombinationVVDInPlace(1., _r, rsnew / rsold, _p, _p);    // p = r+beta p
     }
     crit = rsnew / nb;
 
@@ -239,16 +245,16 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   getLogStats().incrementStatsInverseCG(niter, time.getIntervalSeconds());
 }
 
-void ALinearOpMulti::initLk(const VectorVectorDouble &inv,
-                            VectorVectorDouble &outv) const
+void ALinearOpMulti::initLk(const std::vector<Eigen::VectorXd> &inv,
+                            std::vector<Eigen::VectorXd> &outv) const
 {
   prepare();
   int n = sizes();
   if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
 
-  VH::fill(outv,0.);
-  VH::fill(_temp,0.);    // temp = Ax0=0
-  VH::copy(inv,_p);     // p = r (=z)
+  VectorEigen::fill(outv,0.);
+  VectorEigen::fill(_temp,0.);    // temp = Ax0=0
+  VectorEigen::copy(inv,_p);     // p = r (=z)
   evalDirect(_p,_temp); // temp = Ap
 }
 

@@ -19,6 +19,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <iostream>
 
 DISABLE_WARNING_PUSH
@@ -193,7 +194,47 @@ int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
   return _factor->solve(b, x);
 }
 
+int MatrixSparse::solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x)
+{
+  int ncols = getNCols();
+  if ((int) b.size() != ncols)
+  {
+    messerr("Dimension of input argument 'b' (%d) does not match",(int) b.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if ((int) x.size() != ncols)
+  {
+    messerr("Dimension of output argument 'x' (%d) does not match",(int) x.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if (_factor == nullptr)
+    _factor = new Cholesky(this);
+  return _factor->solve(b, x);
+}
+
+
 int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
+{
+  int ncols = getNCols();
+  if ((int) b.size() != ncols)
+  {
+    messerr("Dimension of input argument 'b' (%d) does not match", (int) b.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if ((int) x.size() != ncols)
+  {
+    messerr("Dimension of output argument 'x' (%d) does not match", (int) x.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if (_factor == nullptr)
+    _factor = new Cholesky(this);
+  return _factor->simulate(b, x);
+}
+int MatrixSparse::simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x)
 {
   int ncols = getNCols();
   if ((int) b.size() != ncols)
@@ -545,6 +586,30 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
   return y;
 }
 
+/*! Perform y += 'this' %*% x */
+void  MatrixSparse::addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
+                                                      bool transpose) const
+{
+  if (isFlagEigen())
+  {
+    if (transpose)
+      out += _eigenMatrix.transpose() * in;
+    else
+      out += _eigenMatrix * in;
+  }
+  VectorDouble y;
+  if (transpose)
+  {
+    int ncol = getNCols();
+    cs_vector_addToDest_tMx(_csMatrix, ncol, in.data(), out.data());
+  }
+  else
+  {
+    int nrow = getNRows();
+    cs_vector_addToDest_Mx(_csMatrix, nrow, in.data(), out.data());
+  }
+}
+
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -756,6 +821,16 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
   return diag;
 }
 
+int MatrixSparse::addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const
+{
+  if (isFlagEigen())
+  {
+    ym = _eigenMatrix * xm + ym;
+    return 0;
+  }
+  return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
+}
+
 int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
 {
   if (isFlagEigen())
@@ -768,6 +843,15 @@ int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
   return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
 }
 
+int MatrixSparse::addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym)
+{
+  if (isFlagEigen())
+  {
+    ym = _eigenMatrix * xm + ym;
+    return 0;
+  }
+  return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
+}
 void MatrixSparse::setConstant(double value)
 {
   if (isFlagEigen())
@@ -865,6 +949,33 @@ void MatrixSparse::prodScalar(double v)
     _csMatrix = res;
   }
 }
+
+void MatrixSparse::_addProdMatVecInPlaceToDestPtr(const double *x, double *y, bool transpose) const
+{
+ if (isFlagEigen())
+  {
+    if (transpose)
+    {
+      Eigen::Map<const Eigen::VectorXd> xm(x, getNRows());
+      Eigen::Map<Eigen::VectorXd> ym(y, getNCols());
+      ym += _eigenMatrix.transpose() * xm;
+    }
+    else
+    {
+      Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+      Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+      ym += _eigenMatrix * xm;
+    }
+  }
+  else
+  {
+    if (transpose)
+      cs_vector_addToDest_tMx(_csMatrix, getNCols(), x, y);
+    else
+      cs_vector_addToDest_Mx(_csMatrix, getNRows(), x, y);
+  }  
+}
+
 
 /**
  * Returns 'y' = 'this' %*% 'x'

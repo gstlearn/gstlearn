@@ -136,7 +136,6 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
-  #include "LinearOp/ALinearOp.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
@@ -146,6 +145,7 @@
   #include "LinearOp/IProjMatrix.hpp"
   #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
+  #include "LinearOp/ProjMatrixMulti.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
@@ -153,7 +153,7 @@
   #include "LinearOp/OptimCostColored.hpp"
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
-  
+  #include "LinearOp/SPDEOp.hpp"
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"
@@ -375,7 +375,8 @@
 %template(VectorEPostStat)         std::vector< EPostStat >;
 %template(VectorSpacePoint)        std::vector< SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
-
+%template(VectorProjMatrix)        std::vector< ProjMatrix* >;
+%template(VectorVectorEigen)       std::vector< VectorEigen >;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 
