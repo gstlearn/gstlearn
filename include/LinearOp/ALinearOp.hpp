@@ -27,16 +27,16 @@ public:
   virtual int getSize() const = 0;
   
   //TODO : check unnecessary virtual when finished
-  virtual int evalDirect(const VectorDouble& inv, VectorDouble& outv) ;
-  virtual VectorDouble evalDirect(const VectorDouble& in);
-  virtual int evalDirect(const VectorEigen& inv, VectorEigen& outv) ;
-  virtual int addToDest(const VectorDouble& inv, VectorDouble& outv) const;
-  virtual int addToDest(const VectorEigen& inv, VectorEigen& outv) const;
+  int evalDirect(const VectorDouble& inv, VectorDouble& outv) ;
+  VectorDouble evalDirect(const VectorDouble& in);
+  int evalDirect(const VectorEigen& inv, VectorEigen& outv) ;
+  int addToDest(const VectorDouble& inv, VectorDouble& outv) const;
+  int addToDest(const VectorEigen& inv, VectorEigen& outv) const;
 #ifndef SWIG
   public:
-  virtual int evalDirect(const Eigen::VectorXd& inv,
+  int evalDirect(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv);
-  virtual int addToDest(const Eigen::VectorXd& inv,
+  int addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const;
 
 

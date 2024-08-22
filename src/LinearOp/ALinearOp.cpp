@@ -12,6 +12,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/VectorEigen.hpp"
 
 VectorDouble  ALinearOp::evalDirect(const VectorDouble& in)
 {
@@ -31,7 +32,7 @@ int ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
     if(_addToDest(myInv, myOut))
       return 1;
     
-    Eigen::Map<Eigen::VectorXd>(outv.data(), outv.size()) = myOut;
+    VectorEigen::copy(myOut,outv);
   }
   catch (const std::string& str)
   {
