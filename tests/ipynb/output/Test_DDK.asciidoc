@@ -17,7 +17,7 @@ Bound( 1 ) : [ 0 ; 0.712209 [
 Bound( 2 ) : [ 0.712209 ; 0.920089 [
 Bound( 3 ) : [ 0.920089 ; 1.24076 [
 Bound( 4 ) : [ 1.24076 ; 1.77795 [
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -80,7 +80,7 @@ Exponential
 - Theo. Range  =      0.209
 Total Sill     =      0.359
 Known Mean(s)     0.000
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -110,7 +110,7 @@ Exponential
 - Theo. Range  =      0.214
 Total Sill     =      0.149
 Known Mean(s)     0.000
- 
+
 #NO_DIFF#XXX
 ----
 
@@ -158,7 +158,7 @@ Matrix MF2Z to back-transform Factors F into standardized Variables Z
      [  2,]    -0.254     0.294     0.150    -0.037
      [  3,]     0.381     0.038    -0.065    -0.168
 Z = m + Y * MF2Z
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -172,7 +172,7 @@ Z = m + Y * MF2Z
 #NO_DIFF#XXX
 ----
 Correlation between factors MAF
-[[ 1.          0.         -0.         -0.         -0.        ]
+[[ 1.         -0.         -0.         -0.         -0.        ]
  [-0.          6.27627515  0.04800852  0.18515279 -0.15941253]
  [-0.          0.04800852  6.30949487  0.33603074 -0.34771972]
  [-0.          0.18515279  0.33603074  6.5286751   0.47064898]

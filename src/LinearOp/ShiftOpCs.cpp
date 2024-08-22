@@ -519,20 +519,22 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-void ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
+int ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
   _S->addProdMatVecInPlaceToDest(inv, outv);
+  return 0;
 }
 
-void ShiftOpCs::_resetGrad()
+int ShiftOpCs::_resetGrad()
 {
-  if (_SGrad.empty()) return;
+  if (_SGrad.empty()) return 1;
   for (int i = 0; i < (int) _SGrad.size(); i++)
   {
      delete _SGrad[i];
      _SGrad[i] = nullptr;
   }
+  return 0;
 }
 
 void ShiftOpCs::_reset()

@@ -118,7 +118,7 @@ int HessianOp::init(PrecisionOp*  pmat,
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void HessianOp::_addToDest(const Eigen::VectorXd& inv,
+int HessianOp::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
   if (!_isInitialized) my_throw("'HessianOp' must be initialized beforehand");
@@ -185,4 +185,5 @@ void HessianOp::_addToDest(const Eigen::VectorXd& inv,
     for (int i=0; i<_projData->getApexNumber(); i++) 
       outv[i] += _workv.getValue(i);
   }
+  return 0;
 }

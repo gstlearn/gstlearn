@@ -106,6 +106,7 @@ public:
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
+  void evalSimulate(VectorDouble& in, VectorDouble& out);
 
   int  getSize() const { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}
@@ -126,7 +127,7 @@ public:
 void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
 
 protected:
-  virtual void _addToDest(const Eigen::VectorXd& inv,
+  virtual int  _addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const;
   void _addEvalPower(const Eigen::VectorXd& inv, Eigen::VectorXd& outv, const EPowerPT& power) const;
 

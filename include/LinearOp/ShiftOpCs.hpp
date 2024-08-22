@@ -67,8 +67,8 @@ class GSTLEARN_EXPORT ShiftOpCs:
     ShiftOpCs& operator=(const ShiftOpCs& shift);
     virtual ~ShiftOpCs();
 
-    void _addToDest(const Eigen::VectorXd& inv,
-                     Eigen::VectorXd& outv) const override;
+    int _addToDest(const Eigen::VectorXd& inv,
+                   Eigen::VectorXd& outv) const override;
 
     static ShiftOpCs* create(const AMesh* amesh, Model* model,
                              const Db* dbout = nullptr, int igrf = 0,
@@ -189,7 +189,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
                                 MatrixSquareSymmetric& work2);
 
     void _reset();
-    void _resetGrad();
+    int _resetGrad();
     void _reallocate(const ShiftOpCs& shift);
     static void _projectMesh(const AMesh* amesh,
                              const VectorDouble& srot,

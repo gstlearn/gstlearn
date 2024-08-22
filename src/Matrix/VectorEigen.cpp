@@ -40,10 +40,7 @@ void VectorEigen::fill(Eigen::VectorXd &vect, double val)
 VectorDouble VectorEigen::copyIntoVD(const Eigen::VectorXd& in)
 {
   VectorDouble res(in.size());
-  for (int i = 0; i < (int)in.size(); i++)
-  {
-    res[i] = in[i];
-  }
+  copy(in,res);
   return res;
 }
 
@@ -134,6 +131,14 @@ void VectorEigen::copy(const Eigen::VectorXd& in, Eigen::VectorXd& dest)
   {
     dest[i] = in[i];
   }
+}
+
+void VectorEigen::copy(const Eigen::VectorXd&in, VectorDouble& dest)
+{
+ for (int i = 0; i < (int)in.size(); i++)
+  {
+    dest[i] = in[i];
+  } 
 }
 
 void VectorEigen::copy(const Eigen::VectorXd& in, Eigen::Map<Eigen::VectorXd>& dest)

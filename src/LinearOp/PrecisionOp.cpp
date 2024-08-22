@@ -150,6 +150,15 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
   return new PrecisionOp(shiftop, cova, verbose);
 }
 
+void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& out)
+{
+  
+  Eigen::VectorXd vect(out.size());
+  Eigen::Map<const Eigen::VectorXd> whitenoisem(whitenoise.data(),whitenoise.size());
+  evalSimulate(whitenoisem,vect);
+  VectorEigen::copy(vect,out);
+}
+
 PrecisionOp* PrecisionOp::create(const AMesh* mesh,
                                  Model* model,
                                  int icov,
@@ -158,10 +167,11 @@ PrecisionOp* PrecisionOp::create(const AMesh* mesh,
   return new PrecisionOp(mesh, model, icov, verbose);
 }
 
-void PrecisionOp::_addToDest(const Eigen::VectorXd& inv,
+int PrecisionOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
     _addEvalPower(inv, outv, EPowerPT::ONE);
+    return 0;
 
 }
 

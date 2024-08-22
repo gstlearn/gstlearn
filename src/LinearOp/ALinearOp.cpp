@@ -11,8 +11,16 @@
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 
-void ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
+VectorDouble  ALinearOp::evalDirect(const VectorDouble& in)
+{
+  VectorDouble res(in.size());
+  evalDirect(in,res);
+  return res;
+}
+
+int ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
 {
    try
   {
@@ -20,7 +28,8 @@ void ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
     Eigen::VectorXd myOut(outv.size());
     
     // Assume outv has the good size
-    _addToDest(myInv, myOut);
+    if(_addToDest(myInv, myOut))
+      return 1;
     
     Eigen::Map<Eigen::VectorXd>(outv.data(), outv.size()) = myOut;
   }
@@ -29,29 +38,30 @@ void ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
     // TODO : Check if std::exception can be used
     messerr("%s", str.c_str());
   }
+  return 0;
 }
 
-void ALinearOp::addToDest(const VectorEigen& inv, VectorEigen& outv) const
+int ALinearOp::addToDest(const VectorEigen& inv, VectorEigen& outv) const
 {
-  _addToDest(inv.getVector(), outv.getVector());
+  return _addToDest(inv.getVector(), outv.getVector());
 }
 
-void ALinearOp::evalDirect(const Eigen::VectorXd& inv,
+int ALinearOp::evalDirect(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv)
 {
     for (int i=0;i<outv.size();i++)
     {
       outv[i] = 0.;
     }              
-    _addToDest(inv,outv);      
+    return _addToDest(inv,outv);      
 }
 
 
 
-void ALinearOp::addToDest(const Eigen::VectorXd& inv,
+int ALinearOp::addToDest(const Eigen::VectorXd& inv,
                         Eigen::VectorXd& outv) const
 {
-  _addToDest(inv,outv);
+  return _addToDest(inv,outv);
 }
 
 
@@ -65,11 +75,12 @@ void ALinearOp::addToDest(const Eigen::VectorXd& inv,
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ALinearOp::evalDirect(const VectorDouble& inv,
+int ALinearOp::evalDirect(const VectorDouble& inv,
                            VectorDouble& outv)
 {
   VectorHelper::fill(outv,0.,inv.size());
   addToDest(inv,outv);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -81,9 +92,10 @@ void ALinearOp::evalDirect(const VectorDouble& inv,
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ALinearOp::evalDirect(const VectorEigen& inv,
+int ALinearOp::evalDirect(const VectorEigen& inv,
                            VectorEigen& outv)
 {
   evalDirect(inv.getVector(), outv.getVector());
+  return 0;
 }
 

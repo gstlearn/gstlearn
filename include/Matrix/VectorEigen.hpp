@@ -63,7 +63,7 @@ public:
   static void copy(const Eigen::VectorXd& in, Eigen::VectorXd& dest);
   static void copy(const Eigen::VectorXd& in, Eigen::Map<Eigen::VectorXd>& dest); //TODO this function shouldn't be used
                                                                                   //use template to avoid it
-
+  static void copy(const Eigen::VectorXd&in, VectorDouble& dest);
   static void  linearCombinationVVDInPlace(double coeff1, const std::vector<Eigen::VectorXd> &in1,
                                            double coeff2, const std::vector<Eigen::VectorXd> &in2,
                                            std::vector<Eigen::VectorXd> &res);

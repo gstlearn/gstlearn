@@ -60,7 +60,7 @@ public:
 
 #ifndef SWIG
 protected:
-  void _addToDest(const Eigen::VectorXd& inv,
+  int  _addToDest(const Eigen::VectorXd& inv,
                         Eigen::VectorXd& outv) const override;
 
 private:

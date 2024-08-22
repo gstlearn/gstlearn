@@ -71,11 +71,12 @@ public:
                 const EOperator &oper,
                 double value,
                 bool flagCheck = true) override;
+
+#ifndef SWIG
 int addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const;
-
- void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
+void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
                                 bool transpose = false) const;
-
+#endif
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
                          const VectorDouble &tab,
@@ -201,9 +202,11 @@ int addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const;
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
 
+  #ifndef SWIG
   const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
   void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }
-
+  #endif
+  
   MatrixSparse* extractSubmatrixByRanks(const VectorInt &rank_rows,
                                         const VectorInt &rank_cols) const;
   MatrixSparse* extractSubmatrixByColor(const VectorInt &colors,

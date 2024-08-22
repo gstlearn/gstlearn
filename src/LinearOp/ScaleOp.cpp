@@ -26,9 +26,10 @@ ScaleOp::~ScaleOp() {}
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ScaleOp::_addToDest(const Eigen::VectorXd& inv,
+int ScaleOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
     outv[i] += _scale*inv[i];
+  return 0;
 }

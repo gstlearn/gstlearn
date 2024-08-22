@@ -79,10 +79,10 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void Cholesky::_addToDest(const Eigen::VectorXd& inv,
+int  Cholesky::_addToDest(const Eigen::VectorXd& inv,
                            Eigen::VectorXd& outv) const
 {
-  if (!isValid()) return;
+  if (!isValid()) return 1;
 
   // Map Eigen Vector to VectorDouble arguments
   // TODO : VectorXd => VectorDouble = Memory copy !!
@@ -92,6 +92,7 @@ void Cholesky::_addToDest(const Eigen::VectorXd& inv,
   _matCS->prodMatVecInPlace(einv, eoutv);
   // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
   outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
+  return 0;
 }
 
 /****************************************************************************/
