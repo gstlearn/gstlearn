@@ -50,7 +50,7 @@ int ALinearOp::addToDest(const VectorEigen& inv, VectorEigen& outv) const
 int ALinearOp::evalDirect(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv)
 {
-    for (int i=0;i<outv.size();i++)
+    for (int i=0;i<(int)outv.size();i++)
     {
       outv[i] = 0.;
     }              
@@ -80,8 +80,7 @@ int ALinearOp::evalDirect(const VectorDouble& inv,
                            VectorDouble& outv)
 {
   VectorHelper::fill(outv,0.,inv.size());
-  addToDest(inv,outv);
-  return 0;
+  return addToDest(inv,outv);
 }
 
 /*****************************************************************************/
@@ -96,7 +95,6 @@ int ALinearOp::evalDirect(const VectorDouble& inv,
 int ALinearOp::evalDirect(const VectorEigen& inv,
                            VectorEigen& outv)
 {
-  evalDirect(inv.getVector(), outv.getVector());
-  return 0;
+  return evalDirect(inv.getVector(), outv.getVector());
 }
 
