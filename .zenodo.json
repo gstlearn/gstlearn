@@ -1,0 +1,58 @@
+{
+  "description": "The Geostatistics &amp; Machine Learning C++ Library, Python and R Packages",
+  "creators": [
+    {
+      "name": "MINES Paris - PSL University"
+    }
+  ],
+  "license": "BSD-3",
+  "contributors": [
+    {
+      "name": "Renard, Didier",
+      "type": "Editor",
+      "affiliation": "MINES Paris - PSL University",
+      "orcid": "0000-0002-9402-0007"
+    },
+    {
+      "name": "Ors, Fabien",
+      "type": "Editor",
+      "affiliation": "MINES Paris - PSL University",
+      "orcid": "0000-0002-1616-8743"
+    },
+    {
+      "name": "Desassis, Nicolas",
+      "type": "Editor",
+      "affiliation": "MINES Paris - PSL University"
+    },
+    {
+      "name": "Guillou, Pierre",
+      "type": "Editor",
+      "affiliation": "MINES Paris - PSL University"
+    },
+    {
+      "name": "Freulon, Xavier",
+      "type": "Editor",
+      "affiliation": "MINES Paris - PSL University",
+      "orcid": "0000-0002-0135-0251"
+    },
+    {
+      "name": "Pereira, Mike",
+      "type": "Editor",
+      "affiliation": "MINES Paris - PSL University",
+      "orcid": "0000-0002-7899-2690"
+    },
+    {
+      "name": "Lopez, Simon",
+      "type": "Editor",
+      "affiliation": "BRGM",
+      "orcid": "0000-0001-7355-1012"
+    },
+    {
+      "name": "Moyen, Rémi",
+      "type": "Editor",
+      "affiliation": "Viridien"
+    }
+  ],
+  "language": "eng",
+  "keywords": ["C++ Library", "Python Package", "R Package", "Geostatistics", "Machine Learning"]
+}

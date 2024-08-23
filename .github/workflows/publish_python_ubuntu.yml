@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: fabien-ors/pypi-publish-action@v1
+    - uses: fabien-ors/pypi-publish-action@v2
       with:
         repo: pypi
         username: __token__
