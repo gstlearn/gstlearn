@@ -37,7 +37,8 @@ public:
                   int n_neigh);
   VectorInt getIndices(int rank = 0) const;
   int getIndex(int rank = 0, int ineigh = 0) const;
-  VectorDouble getDistance(int rank = 0) const;
+  VectorDouble getDistances(int rank = 0) const;
+  double getDistance(int rank = 0, int ineigh = 0) const;
 
 private:
   double** _distances;

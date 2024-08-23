@@ -4446,17 +4446,14 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
 bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ncol = 0;
-  int nrow = 0;
   int nech = 0;
   VectorString locators;
   VectorString names;
-  VectorDouble values;
-  VectorDouble allvalues;
 
   // Read the file
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of variables", ncol);
-  ret = ret && _recordRead<int>(is, "Number of samples", nrow);
+  ret = ret && _recordRead<int>(is, "Number of samples", nech);
   if (! ret) return ret;
   if (ncol > 0)
   {
@@ -4464,17 +4461,12 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
   }
 
-  for (int iech = 0; iech < nrow && ret; iech++)
+  VectorDouble allvalues(nech * ncol);
+  VectorDouble::iterator it(allvalues.begin());
+  for (int iech = 0; iech < nech && ret; iech++)
   {
-    ret = ret && _recordReadVec<double>(is, "Array of values", values, ncol);
-    if (ret)
-    {
-      // Concatenate values by samples
-      allvalues.insert(allvalues.end(), values.begin(), values.end());
-      nech++;
-    }
+    ret = ret && _recordReadVecInPlace<double>(is, "Array of values", it, ncol);
   }
-  ret = (nech == nrow);
 
   if (ret)
   {

@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_io.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 

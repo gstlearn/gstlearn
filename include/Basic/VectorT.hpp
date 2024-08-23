@@ -11,6 +11,7 @@
 #pragma once
 
 #include "geoslib_define.h"
+#include "geoslib_io.h"
 #include "Basic/AException.hpp"
 
 #include <vector>
@@ -18,6 +19,8 @@
 #include <memory>
 #include <algorithm>
 #include <cmath>
+
+class AStringFormat;
 
 /***************************************************************************
  **
@@ -146,7 +149,10 @@ public:
     _v->assign(first, last);
   }
 
-  inline String toString() const;
+  inline String toString(const AStringFormat* strfmt = nullptr) const;
+  // The next method is to mimic the feature of AStringable... knowing that this
+  // class cannot be invoked because of looping inclusion of headers
+  inline void display(const AStringFormat* strfmt = nullptr) const;
 
 protected:
   std::shared_ptr<Vector> _v;
@@ -235,9 +241,10 @@ void VectorT<T>::fill(const T& value, size_type size)
   std::fill(begin(), end(), value);
 }
 
-template <typename T>
-String VectorT<T>::toString() const
+template<typename T>
+String VectorT<T>::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
   sstr << "[";
   for (size_type i = 0, n = size(); i < n; i++)
@@ -246,11 +253,17 @@ String VectorT<T>::toString() const
     if (i != n-1)
       sstr << " ";
   }
-  sstr << "]";
+  sstr << "]" << std::endl;
   return sstr.str();
 }
 
-template <typename T>
+template<typename T>
+void VectorT<T>::display(const AStringFormat* strfmt) const
+{
+  message_extern(toString(strfmt).c_str());
+}
+
+template<typename T>
 void VectorT<T>::_detach()
 {
   if (_v.use_count() == 1)

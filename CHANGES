@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- A new bench_NF to help optimizing the read and write in Neutral Files
+- Adding method 'display' for any item of class VectorT
 - Covariance type are modified: BESSEL_K into MATERN and BESSEL_J into BESSELJ
 - The constructor of MeshETurbo() defines rotation using 'angles' rather than 'rotmat'
 - New class SpatialIndices and corresponding methods CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).

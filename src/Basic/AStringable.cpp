@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Enum/EJustify.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"
@@ -32,6 +30,8 @@
 #define CASE_INT    2
 #define CASE_COL    3
 #define CASE_ROW    4
+
+class EJustify;
 
 static char FORMAT[100];
 static char DECODE[100];

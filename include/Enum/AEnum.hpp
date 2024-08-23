@@ -12,9 +12,10 @@
 
 // WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 
 // Following includes should not be delete ... even if they seem unused directly
+// Correct as it is used in a MACRO only
+#include "Basic/VectorT.hpp"
 #include "Basic/String.hpp"
 #include <iostream>
 #include <map>
@@ -157,7 +158,6 @@ public:\
   EXPAND(ENUM_DECLS(NAME, __VA_ARGS__))\
 };\
 \
-
 
 // ######################
 //       ENUM DEFINE
