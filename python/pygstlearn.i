@@ -409,7 +409,7 @@
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple using standard std_vector
+    else // Convert to a tuple using standard std_vector (mandatory for string)
     {
       // Test NA values
       auto vec2 = vec.getVector();
@@ -1061,6 +1061,20 @@ def Db_fromPanda(pf):
 	return dat
 
 gl.Db.fromTL = staticmethod(Db_fromPanda)
+
+def Vector_toTL(self):
+  return np.array(self)
+
+setattr(gl.VectorDouble, "toTL", Vector_toTL)
+setattr(gl.VectorInt, "toTL", Vector_toTL)
+
+def VectorVector_toTL(self):
+  retvec = []
+  for vec in self:
+    retvec.append(np.array(vec))
+  return (retvec)
+
+setattr(gl.VectorVectorDouble, "toTL", VectorVector_toTL)
 
 def matrix_toTL(self):
   if self.isSparse():

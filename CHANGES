@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- A new bench_NF to help optimizing the read and write in Neutral Files
+- Adding method 'display' for any item of class VectorT
 - Add a DOI for gstlearn software published by Zenodo
 - "How to cite" section in READMEs updated
 - New BibTeX file format

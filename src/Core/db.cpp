@@ -12,7 +12,6 @@
 
 #include "Polygon/Polygons.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/GlobalEnvironment.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 

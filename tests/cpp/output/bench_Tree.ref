@@ -2,6 +2,6 @@
 Ball Tree Efficiency
 --------------------
 To get statistics on Ball Tree Efficiency, turn 'flag_stats' to TRUE
-- Building BallTree: P(p) where p = 10000 * k (in ms / k)
-- P2P: P(p1) where p1 = 10000 * k and P(p2=10000) (in ms / k)
-- P2P: P(p1=10000) and P(p2) where p2 = 10000 * k (in ms / k)
+- Building BallTree: Db(n = 10000 * k) (in ms per k)
+- Migrate P2P: from Db1(n = 10000 * k) to Db2(n = 10000) (in ms per k)
+- Migrate P2P: from Db1(n = 10000) to Db2(n = 10000 * k) (in ms per k)

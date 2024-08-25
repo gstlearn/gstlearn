@@ -1,0 +1,54 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 13
+Total number of samples      = 1000000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = z-3 - Locator = z3
+Column = 6 - Name = z-4 - Locator = z4
+Column = 7 - Name = z-5 - Locator = z5
+Column = 8 - Name = z-6 - Locator = z6
+Column = 9 - Name = z-7 - Locator = z7
+Column = 10 - Name = z-8 - Locator = z8
+Column = 11 - Name = z-9 - Locator = z9
+Column = 12 - Name = z-10 - Locator = z10
+#NO_DIFF# Dump into NF: 9519 ms.
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 13
+Total number of samples      = 1000000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = z-3 - Locator = z3
+Column = 6 - Name = z-4 - Locator = z4
+Column = 7 - Name = z-5 - Locator = z5
+Column = 8 - Name = z-6 - Locator = z6
+Column = 9 - Name = z-7 - Locator = z7
+Column = 10 - Name = z-8 - Locator = z8
+Column = 11 - Name = z-9 - Locator = z9
+Column = 12 - Name = z-10 - Locator = z10
+#NO_DIFF# Load from NF: 33012 ms.
