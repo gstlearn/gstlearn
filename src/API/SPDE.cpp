@@ -26,6 +26,8 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 
+#include <Eigen/src/Core/Map.h>
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 
 /**
@@ -253,7 +255,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
 
         if (_precisionsSimu->push_back(precision, proj) != 0) return 1;
         _precisionsSimu->setVarianceDataVector(varianceData);
-        _workingSimu.push_back(VectorDouble(precision->getSize()));
+        _workingSimu.push_back(Eigen::VectorXd(precision->getSize()));
       }
 
       if (_isKrigingRequested() || _requireCoeffs)
@@ -276,7 +278,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _pileProjMatrix.push_back(proj);
 
         if (_precisionsKrig->push_back(precision, proj) != 0) return 1;
-        _workingKrig.push_back(VectorDouble(precision->getSize()));
+        _workingKrig.push_back(Eigen::VectorXd(precision->getSize()));
       }
     }
     else
@@ -327,13 +329,16 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
 
 void SPDE::_computeLk() const
 {
-  VectorVectorDouble rhs = _precisionsKrig->computeRhs(_workingData);
+  Eigen::Map<const Eigen::VectorXd> wm(_workingData.data(),_workingData.size());
+  std::vector<Eigen::VectorXd> rhs = _precisionsKrig->computeRhs(wm);
+
   _precisionsKrig->initLk(rhs, _workingKrig); // Same as evalInverse but with just one iteration
 }
 
 void SPDE::_computeKriging() const
 {
-  VectorVectorDouble rhs = _precisionsKrig->computeRhs(_workingData);
+  Eigen::Map<const Eigen::VectorXd> wm(_workingData.data(),_workingData.size());
+  std::vector<Eigen::VectorXd> rhs = _precisionsKrig->computeRhs(wm);
   _precisionsKrig->evalInverse(rhs, _workingKrig);
 }
 
@@ -356,13 +361,14 @@ void SPDE::_computeSimuCond() const
   _computeSimuNonCond();
 
   // Perform the non conditional simulation on data
-  VectorDouble temp_dat(_data->getSampleNumber(true));
+  Eigen::VectorXd temp_dat(_data->getSampleNumber(true));
   _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu, temp_dat);
 
   // Calculate the simulation error
-  _workingData = _workingDataInit;
-  VH::multiplyConstant(temp_dat, -1.);
-  VH::addInPlace(_workingData, temp_dat);
+  for (int i = 0; i < (int)_workingData.size(); i++)
+  {
+    _workingData[i] = _workingDataInit[i] - temp_dat[i];
+  }
 
   // Conditional Kriging
   _computeKriging();
@@ -374,7 +380,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
 
   if (_driftCoeffs.empty())
   {
-    if (_workingDataInit.empty())
+    if (_workingDataInit.size() == 0)
     {
       _workingDataInit.resize(dataVect.size());
     }
@@ -539,6 +545,7 @@ int SPDE::compute(Db *dbout,
 
   if (_calcul == ESPDECalcMode::SIMUCOND)
   {
+    _workingData = _workingDataInit;
     for(int isimu = 0; isimu < nbsimu; isimu++)
     {
       result.fill(0.);
@@ -560,13 +567,16 @@ int SPDE::compute(Db *dbout,
 
 void SPDE::_projecLocal(Db* dbout,
                         const AMesh* meshing,
-                        VectorDouble& working,
+                        Eigen::VectorXd& working,
                         VectorDouble& result)
 {
-  VectorDouble temp_out(dbout->getSampleNumber(true));
+  Eigen::VectorXd temp_out(dbout->getSampleNumber(true));
   ProjMatrix proj(dbout,meshing);
   proj.mesh2point(working,temp_out);
-  VH::addInPlace(result,temp_out);
+  for (int i = 0; i < (int)result.size(); i++)
+  {
+    result[i]+= temp_out[i];
+  }
 }
 
 void SPDE::_addNuggetOnResult(VectorDouble &result) const
@@ -618,7 +628,8 @@ double SPDE::computeQuad() const
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
   _centerByDrift(dataVect,ivar,useSel);
-  return _precisionsKrig->computeQuadratic(_workingData);
+  Eigen::Map<const Eigen::VectorXd>wm(_workingData.data(),_workingData.size());
+  return _precisionsKrig->computeQuadratic(wm);
 }
 
 double SPDE::_computeLogLike(int nbsimu, int seed) const

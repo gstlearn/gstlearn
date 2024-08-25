@@ -136,6 +136,7 @@ protected:
   virtual void    _transposeInPlace() override;
   virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 

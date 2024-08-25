@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: fabien-ors/cran-publish-action@v3
+    - uses: fabien-ors/cran-publish-action@v4
       with:
         host: ${{secrets.CG_HOST}}
         username: ${{secrets.CG_USR}}

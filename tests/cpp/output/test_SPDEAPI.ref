@@ -110,7 +110,7 @@ Data Base Statistics
 9 - Name CDS-spirale.variable.2 - Locator z2
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -3.77
+ Minimum value       =      -3.76
  Maximum value       =       4.75
  Mean value          =       0.14
  Standard Deviation  =       1.11
@@ -118,8 +118,8 @@ Data Base Statistics
 10 - Name CDS-spirale.variable.3 - Locator z3
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -3.88
- Maximum value       =       4.38
+ Minimum value       =      -3.89
+ Maximum value       =       4.37
  Mean value          =       0.08
  Standard Deviation  =       1.21
  Variance            =       1.46

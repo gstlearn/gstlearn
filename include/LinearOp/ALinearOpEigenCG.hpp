@@ -43,7 +43,7 @@ struct Eigen::internal::generic_product_impl<TLinOP, Rhs, Eigen::SparseShape, Ei
   { \
     assert(alpha==Scalar(1) && "scaling is not implemented"); \
     EIGEN_ONLY_USED_FOR_DEBUG(alpha); \
-    lhs.evalDirect(rhs, dst); \
+    lhs.addToDest(rhs, dst); \
   } \
 };
 #endif

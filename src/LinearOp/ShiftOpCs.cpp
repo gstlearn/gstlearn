@@ -25,7 +25,10 @@
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
+
+
 
 ShiftOpCs::ShiftOpCs()
   : _TildeC()
@@ -377,6 +380,97 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
   }
 }
 
+void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
+                           Eigen::VectorXd& y,
+                           const EPowerPT& power) const
+{
+  if (power == EPowerPT::ONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * _Lambda[i];
+  }
+  else if (power == EPowerPT::MINUSONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / _Lambda[i];
+  }
+  else if (power == EPowerPT::HALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * sqrt(_Lambda[i]);
+  }
+  else if (power == EPowerPT::MINUSHALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / sqrt(_Lambda[i]);
+  }
+  else
+  {
+    my_throw("Unexpected value for argument 'power'");
+  }
+}
+
+void ShiftOpCs::prodLambda(const VectorDouble& x,
+                           Eigen::VectorXd& y,
+                           const EPowerPT& power) const
+{
+  if (power == EPowerPT::ONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * _Lambda[i];
+  }
+  else if (power == EPowerPT::MINUSONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / _Lambda[i];
+  }
+  else if (power == EPowerPT::HALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * sqrt(_Lambda[i]);
+  }
+  else if (power == EPowerPT::MINUSHALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / sqrt(_Lambda[i]);
+  }
+  else
+  {
+    my_throw("Unexpected value for argument 'power'");
+  }
+}
+
+void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
+                           VectorDouble& y,
+                           const EPowerPT& power) const
+{
+  if (power == EPowerPT::ONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * _Lambda[i];
+  }
+  else if (power == EPowerPT::MINUSONE)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / _Lambda[i];
+  }
+  else if (power == EPowerPT::HALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] * sqrt(_Lambda[i]);
+  }
+  else if (power == EPowerPT::MINUSHALF)
+  {
+    for (int i = 0, n = getSize(); i < n; i++)
+      y[i] = x[i] / sqrt(_Lambda[i]);
+  }
+  else
+  {
+    my_throw("Unexpected value for argument 'power'");
+  }
+}
+
+//TODO replace by a call to the VectorXD version above
 void ShiftOpCs::prodLambda(const VectorDouble& x,
                            VectorDouble& y,
                            const EPowerPT& power) const
@@ -425,28 +519,22 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-void ShiftOpCs::_evalDirect(const Eigen::VectorXd& inv,
+int ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
-  // Map Eigen Vector to VectorDouble arguments
-  // TODO : VectorXd => VectorDouble = Memory copy !!
-  VectorDouble einv(inv.data(), inv.data() + inv.size());
-  VectorDouble eoutv(outv.size());
-
-  _S->prodMatVecInPlace(einv, eoutv);
-
-  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
-  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
+  _S->addProdMatVecInPlaceToDest(inv, outv);
+  return 0;
 }
 
-void ShiftOpCs::_resetGrad()
+int ShiftOpCs::_resetGrad()
 {
-  if (_SGrad.empty()) return;
+  if (_SGrad.empty()) return 1;
   for (int i = 0; i < (int) _SGrad.size(); i++)
   {
      delete _SGrad[i];
      _SGrad[i] = nullptr;
   }
+  return 0;
 }
 
 void ShiftOpCs::_reset()
@@ -1295,20 +1383,19 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   double sqdethh = 0.;
   double factor = 1.;
 
-  if (flagSphere)
+ if (flagSphere)
   {
     const ASpace *space = getDefaultSpace();
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();
-    correc = cova->evalCovOnSphere(0, 50, false) * pow(r, 2. * param) / sill;
-
+    double normalizing = cova->normalizeOnSphere(50); //useful only for Markov
+    correc = pow(r, -2.) * normalizing;
     if (_isGlobalHH(igrf, icov))
     {
       _loadHH(amesh, hh, 0);
-      sqdethh = sqrt(hh.determinant());
+      factor = sqrt(hh.determinant());
       // The next term compensate all what is needed to run on the Sphere
-        factor = pow(sqdethh, - (2. * param  - 1.)/3.);
     }
   }
 
@@ -1324,7 +1411,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       {
         _loadHH(amesh, hh, imesh);
         sqdethh = sqrt(hh.determinant());
-        factor = pow(sqdethh, - (2. * param  - 1.)/3.);
+        factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
       }
  
       sill = nostat->getValue(EConsElem::SILL, 0, imesh, icov);

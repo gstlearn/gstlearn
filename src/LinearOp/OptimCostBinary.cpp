@@ -197,7 +197,6 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
     {
       iter++;
       _evaluateGrad(indic,propfac,&normgrad);
-
       if (OptDbg::query(EDbg::CONVERGE))
         message("Iteration #%d (max=%d) - Cost=%lf - NormGrad=%lf (eps=%lg)\n",
                 iter,maxiter,costv,normgrad,eps);
@@ -215,7 +214,6 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       {
         for (int i=0; i<nvertex; i++) lambdat[i] = propfac[i] - step[i];
         double costt = _evaluateCost(indic,lambdat);
-
         if (costt < costv * 1.000001)
         {
           costv = costt;

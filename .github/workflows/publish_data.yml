@@ -67,7 +67,7 @@ jobs:
     steps:
       - env:
           PROJECT_VERSION: ${{needs.build.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v2
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}

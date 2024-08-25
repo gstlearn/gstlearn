@@ -221,6 +221,7 @@ public:
   bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
+  double normalizeOnSphere(int n = 50) const;
 
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
                                   int degree = 50,

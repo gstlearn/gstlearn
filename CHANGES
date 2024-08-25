@@ -6,11 +6,14 @@ Release 1.4.0
 =============
 - A new bench_NF to help optimizing the read and write in Neutral Files
 - Adding method 'display' for any item of class VectorT
+- Add a DOI for gstlearn software published by Zenodo
+- "How to cite" section in READMEs updated
+- New BibTeX file format
 - Covariance type are modified: BESSEL_K into MATERN and BESSEL_J into BESSELJ
 - The constructor of MeshETurbo() defines rotation using 'angles' rather than 'rotmat'
-- New class SpatialIndices and corresponding methods CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).
-- Names of Variables used to compute the Variogram are stored in the Vario object
-- Empirical anamorphosis: plugging Normal score; parametrizing the dilution 
+- New class SpatialIndices and corresponding methods (CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).
+- Names of variables used to compute the Variogram are stored in the Vario object
+- Empirical anamorphosis: plugging Normal score; parameterizing the dilution 
 
 Release 1.3.2
 =============
