@@ -29,6 +29,14 @@
 /*!
  ** Main Program
  **
+ ** This test is composed of two parts:
+ ** 1) Comparing the results of traditional Kriging with the results
+ **    provided by the Algebraic calculations provided within 'KrigingCalcul'
+ ** 2) Comparing the results for Collocated CoKriging or KFold Cross-validation
+ **    in 'Unique' Neighborhood, whether they are programmed in the plain
+ **    manner, or if they benefit from the inversion of the permanent part
+**     of the Kriging System (performed a single time)
+ **
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
@@ -48,14 +56,13 @@ int main(int argc, char *argv[])
   bool debugPrint = false;
   int mode = -1;  // 0: Standard; 1: Schur; -1 Both
 
-  bool flagSK         = false;
-  bool flagBayes      = true;
+  int nech       = 10;
+  int nvar       = 1;
+  int nfex       = 0;
+  int nbfl       = (nfex + 1) * nvar;
+  bool flagSK    = false;
+  bool flagBayes = false;
   if (flagBayes) flagSK = false;
-
-  int nech    = 10;
-  int nvar    = 2;
-  int nfex    = 0;
-  int nbfl    = (nfex + 1) * nvar;
 
   VectorDouble means(nvar, 0.);
   if (flagSK) means = VH::simulateGaussian(nvar);
