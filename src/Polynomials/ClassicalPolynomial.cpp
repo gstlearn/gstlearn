@@ -187,7 +187,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   swap1 = &work;
   swap2 = &work2;
 
-  for(auto &e : outv)
+  for (auto& e: outv)
   {
     e = 0;
   }
