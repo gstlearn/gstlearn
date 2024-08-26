@@ -2292,7 +2292,7 @@ void CalcSimuTurningBands::_rollback()
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
  **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/
@@ -2343,7 +2343,7 @@ int simtub(Db *dbin,
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
  **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/
