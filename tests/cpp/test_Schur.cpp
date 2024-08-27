@@ -51,52 +51,45 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
+  OptDbg::define(EDbg::BAYES);
 
   // Parameters
   bool debugPrint = false;
-  int mode = -1;  // 0: Standard; 1: Schur; -1 Both
-
-  int nech       = 10;
-  int nvar       = 1;
-  int nfex       = 0;
-  int nbfl       = (nfex + 1) * nvar;
-  bool flagSK    = false;
-  bool flagBayes = false;
+  int nech        = 10;
+  int nvar        = 2;
+  int nfex        = 0;
+  int nbfl        = (nfex + 1) * nvar;
+  bool flagSK     = false;
+  bool flagBayes  = false;
   if (flagBayes) flagSK = false;
-
-  VectorDouble means(nvar, 0.);
-  if (flagSK) means = VH::simulateGaussian(nvar);
-  VectorDouble PriorMean = VH::simulateGaussian(nbfl);
-  MatrixSquareSymmetric PriorCov(nbfl);
-  PriorCov.setDiagonal(VH::simulateUniform(nbfl, 0.1, 0.5));
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, nfex);
-  DbStringFormat* dbfmt =
-    DbStringFormat::createFromFlags(true, true, false, false, true);
+  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, true, false, false, true);
   if (debugPrint) data->display(dbfmt);
 
   // Generate the target file
   Db* target = Db::createFillRandom(1, ndim, 0, nfex);
   if (debugPrint) target->display();
 
+  // Create the constant Mean vector
+  VectorDouble means(nvar, 0.);
+  if (flagSK) means = VH::simulateGaussian(nvar);
+
   // Create the Model
   Model* model;
   double range = 0.2;
-  if (nvar == 1)
-  {
-    double sill = 2.;
-    model = Model::createFromParam(ECov::SPHERICAL, range, sill);
-  }
-  else
-  {
-    MatrixSquareSymmetric sills(nvar);
-    sills.setDiagonal(VH::simulateUniform(nvar, 1., 2.));
-    model = Model::createFromParam(ECov::SPHERICAL, range, 0., 0., VectorDouble(), sills.getValues());
-  }
+  MatrixSquareSymmetric sills(nvar);
+  sills.setDiagonal(VH::simulateUniform(nvar, 1., 2.));
+  model = Model::createFromParam(ECov::SPHERICAL, range, 0., 0., VectorDouble(), sills.getValues());
   model->setMeans(means);
-  if (! flagSK) model->setDriftIRF(0, nfex);
+  if (!flagSK) model->setDriftIRF(0, nfex);
   if (debugPrint) model->display();
+
+  // Create the Bayesian Priors
+  VectorDouble PriorMean = VH::simulateGaussian(nbfl);
+  MatrixSquareSymmetric PriorCov(nbfl);
+  PriorCov.setDiagonal(VH::simulateUniform(nbfl, 0.1, 0.5));
 
   // Unique Neighborhood
   NeighUnique* neigh = NeighUnique::create();
@@ -106,67 +99,91 @@ int main(int argc, char *argv[])
   int iech0 = 0;
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
-  // ====================== Using Standard Kriging procedure ===============
-  if (mode < 0 || mode == 0)
+  // ==============================
+  // === First part of the test ===
+  // ==============================
+
+  // ---------------------- Using Standard Kriging procedure ---------------
+  mestitle(0, "Using Standard Kriging procedure");
+  Table table;
+  if (!flagBayes)
   {
-    mestitle(0, "Using Standard Kriging procedure");
-    Table table;
-    if (!flagBayes)
-    {
-      kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, true);
-      table = target->printOneSample(iech0, {"Kriging*"});
-    }
-    else
-    {
-      OptDbg::define(EDbg::BAYES);
-      kribayes(data, target, model, neigh, PriorMean, PriorCov, true, true);
-      table = target->printOneSample(iech0, {"Bayes*"});
-    }
-    table.display();
+    kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, true);
+    table = target->printOneSample(iech0, {"Kriging*"}, true, true);
+  }
+  else
+  {
+    kribayes(data, target, model, neigh, PriorMean, PriorCov, true, true);
+    table = target->printOneSample(iech0, {"Bayes*"}, true, true);
+  }
+  table.display();
+
+  // ---------------------- Using Schur Class ------------------------------
+  mestitle(0, "Using Schur class");
+  MatrixSquareSymmetric C00   = model->getSillValues(0);
+  MatrixSquareSymmetric Sigma = model->evalCovMatrixSymmetric(data);
+  MatrixRectangular X         = model->evalDriftMatrix(data);
+  MatrixRectangular Sigma0    = model->evalCovMatrix(data, target);
+  MatrixRectangular X0        = model->evalDriftMatrix(target);
+  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+
+  KrigingCalcul Kcalc(Z, &Sigma, &X, &C00, means);
+  Kcalc.setSigma0(&Sigma0);
+  Kcalc.setX0(&X0);
+  if (flagBayes) Kcalc.setBayes(PriorMean, &PriorCov);
+
+  if (flagBayes)
+  {
+    VH::display("Prior Mean", PriorMean);
+    message("Prior Variance-Covariance Matrix\n");
+    PriorCov.display();
+    VectorDouble beta = Kcalc.getPostMean();
+    if (!beta.empty()) VH::display("Posterior Mean", beta);
+    message("Posterior Variance-Covariance Matrix\n");
+    Kcalc.getPostCov()->display();
   }
 
-  // ====================== Using Schur Class ==============================
-  if (mode < 0 || mode == 1)
+  VH::display("Kriging Value(s)", Kcalc.getEstimation());
+  VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
+  VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+
+  // ===============================
+  // === Second part of the test ===
+  // ===============================
+
+  if (nvar > 1)
   {
-    mestitle(0, "Using Schur class");
-    MatrixSquareSymmetric C00   = model->getSillValues(0);
-    MatrixSquareSymmetric Sigma = model->evalCovMatrixSymmetric(data);
-    MatrixRectangular X         = model->evalDriftMatrix(data);
-    MatrixRectangular Sigma0    = model->evalCovMatrix(data, target);
-    MatrixRectangular X0        = model->evalDriftMatrix(target);
-    VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+    // Set of ranks of collocated variables
+    VectorInt varsCol = {0};
 
-    KrigingCalcul Kcalc(Z, &Sigma, &X, &C00, means);
-    Kcalc.setSigma0(&Sigma0);
-    Kcalc.setX0(&X0);
-    if (flagBayes) Kcalc.setBayes(PriorMean, &PriorCov);
+    // Create the secondary Data base with the Target sample added as Data
+    int iech = data->addSamples(1);
+    for (int idim = 0; idim < ndim; idim++)
+      data->setCoordinate(iech, idim, target->getCoordinate(0, idim));
 
-    if (flagBayes)
-    {
-      VH::display("Prior Mean", PriorMean);
-      message("Prior Variance-Covariance Matrix\n");
-      PriorCov.display();
-      VectorDouble beta = Kcalc.getPostMean();
-      if (!beta.empty()) VH::display("Posterior Mean", beta);
-      message("Posterior Variance-Covariance Matrix\n");
-      Kcalc.getPostCov()->display();
-    }
+    VectorDouble values = VH::simulateGaussian(nvar);
+    for (int ivar = 0; ivar < (int)varsCol.size(); ivar++)
+      values[varsCol[ivar]] = TEST;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      data->setLocVariable(ELoc::Z, iech, ivar, values[ivar]);
+    data->display(dbfmt);
 
-    VectorDouble Zstar = Kcalc.getEstimation();
-    if (!Zstar.empty())
-      VH::display("Kriging Value(s)", Zstar);
+    // ---------------------- With complemented Data Base ---------------------
+    mestitle(0, "With complemented input Data Base");
+    MatrixSquareSymmetric SigmaP = model->evalCovMatrixSymmetric(data);
+    MatrixRectangular XP         = model->evalDriftMatrix(data);
+    MatrixRectangular Sigma0P    = model->evalCovMatrix(data, target);
+    VectorDouble ZP = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
 
-    VectorDouble stdv = Kcalc.getStdv();
-    if (!stdv.empty())
-      VH::display("Standard Deviation of Estimation Error", stdv);
+    KrigingCalcul KcalcP(ZP, &SigmaP, &XP, &C00, means);
+    KcalcP.setSigma0(&Sigma0P);
+    KcalcP.setX0(&X0);
 
-    VectorDouble varianceZstar = Kcalc.getVarianceZstar();
-    if (!varianceZstar.empty())
-      VH::display("Variance of Estimator", varianceZstar);
-
-  //  if (debugPrint) Kcalc.printStatus();
+    VH::display("Kriging Value(s)", KcalcP.getEstimation());
+    VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
+    VH::display("Variance of Estimator", KcalcP.getVarianceZstar());
   }
-
+  
   // ====================== Free pointers ==================================
   delete neigh;
   delete data;

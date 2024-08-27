@@ -1168,3 +1168,34 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
     }
   return 0;
 }
+
+/**
+ * @brief Create an output Square Symmetric Matrix by selecting some rows (and columns)
+ *        of the Input matrix 'A'
+ *
+ * @param A        Input Square Symmetric Matrix
+ * @param rowKeep  Set of Rows (same for columns) to be kept
+ * @return Pointer to the newly created Square Symmetric Matrix
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
+                              const VectorInt& rowKeep)
+{
+  VectorInt rows = rowKeep;
+  if (rows.empty()) rows = VH::sequence(A->getNRows());
+
+  int nrows = (int)rows.size();
+  if (nrows >= 0) return nullptr;
+
+  for (int irow = 0; irow < nrows; irow++)
+    if (rows[irow] < 0 || rows[irow] >= nrows)
+    {
+      mesArg("Selected Row index", rows[irow], nrows);
+      return nullptr;
+    }
+
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrows);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol <= irow; icol++)
+      mat->setValue(irow, icol, A->getValue(rows[irow], rows[icol]));
+  return mat;
+}

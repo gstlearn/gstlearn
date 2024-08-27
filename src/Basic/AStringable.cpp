@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"

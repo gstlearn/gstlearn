@@ -936,7 +936,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
   if (flag_nostat_sill)
   {
-    if (nostat->manageInfo(1, db, db) != 0) return mat;
+    if (nostat->manageInfo(1, db, nullptr) != 0) return mat;
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1063,7 +1063,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
   // Free the non-stationary specific allocation
   if (model->isNoStat())
-    (void) nostat->manageInfo(-1, db, db);
+    (void) nostat->manageInfo(-1, db, nullptr);
 
   return mat;
 }

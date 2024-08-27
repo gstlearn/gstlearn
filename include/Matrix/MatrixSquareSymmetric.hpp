@@ -58,6 +58,9 @@ public:
                                                    int neq,
                                                    const VectorDouble &tl);
 
+  static MatrixSquareSymmetric* sample(const MatrixSquareSymmetric* A,
+                                       const VectorInt& rowKeep);
+
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
   int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,

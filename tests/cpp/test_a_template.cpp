@@ -8,10 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "API/SPDE.hpp"
 #include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbHelper.hpp"
+#include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
 
 /**
@@ -29,14 +32,13 @@ int main(int argc, char *argv[])
 
   defineDefaultSpace(ESpaceType::SN);
 
-  Db* db = Db::createFillRandom(120, 2, 1);
+  Db* db = Db::createFillRandom(2, 2, 1);
 
-  double mini;
-  double maxi;
-  double delta;
-  (void)db_attribute_range(db, 2, &mini, &maxi, &delta);
+  DbGrid* grid = DbGrid::create({2, 2});
 
-  message("mini=%lf maxi=%lf delta=%lf\n", mini, maxi, delta);
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1.);
+
+  message("value = %lf\n", logLikelihoodSPDE(db, grid, model));
 
   return(0);
 }

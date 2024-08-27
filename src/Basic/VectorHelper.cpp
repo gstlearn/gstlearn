@@ -89,6 +89,7 @@ void VectorHelper::dump(const String &title, const VectorDouble& vect)
 
 void VectorHelper::display(const String &title, const VectorDouble &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
@@ -99,6 +100,7 @@ void VectorHelper::display(const String &title, const VectorDouble &vect, bool s
 
 void VectorHelper::display(const String &title, const VectorString &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
@@ -109,6 +111,7 @@ void VectorHelper::display(const String &title, const VectorString &vect, bool s
 
 void VectorHelper::display(const String &title, const VectorVectorDouble &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
@@ -119,6 +122,7 @@ void VectorHelper::display(const String &title, const VectorVectorDouble &vect, 
 
 void VectorHelper::display(const String &title, const VectorInt &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());

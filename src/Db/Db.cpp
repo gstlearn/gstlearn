@@ -5244,7 +5244,10 @@ Db* Db::createFillRandom(int ndat,
   return db;
 }
 
-Table Db::printOneSample(int iech, const VectorString& names, bool excludeCoordinates) const
+Table Db::printOneSample(int iech,
+                         const VectorString& names,
+                         bool excludeCoordinates,
+                         bool skipTitle) const
 {
   Table table;
   VectorString allNames = names;
@@ -5257,7 +5260,8 @@ Table Db::printOneSample(int iech, const VectorString& names, bool excludeCoordi
 
   table.reset(nvar, 1);
   table.setSkipDescription(true);
-  table.setTitle("Sample " + std::to_string(iech+1));
+  if (! skipTitle)
+    table.setTitle("Sample " + std::to_string(iech+1) + " / " + std::to_string(getSampleNumber()));
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {

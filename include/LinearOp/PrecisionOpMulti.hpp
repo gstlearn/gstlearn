@@ -61,8 +61,8 @@ public:
   
   #ifndef SWIG 
   protected:
-  int    _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
+  int    _addToDest(const Eigen::VectorXd& vecin,
+                          Eigen::VectorXd& vecout) const override;
   private:
   int _prepareOperator(const Eigen::VectorXd& vecin,
                               Eigen::VectorXd& vecout) const;

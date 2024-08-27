@@ -854,7 +854,8 @@ public:
   VectorInt getSampleRanks() const;
   Table printOneSample(int iech,
                        const VectorString& names = VectorString(),
-                       bool excludeCoordinates   = true) const;
+                       bool excludeCoordinates   = true,
+                       bool skipTitle            = false) const;
 
 protected:
   /// Interface for ASerializable

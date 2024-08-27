@@ -973,7 +973,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   ANoStat *nostat = getNoStatModify();
   if (isNoStat())
   {
-    if (nostat->manageInfo(1, db1, db1)) return MatrixSquareSymmetric();
+    if (nostat->manageInfo(1, db1, nullptr)) return MatrixSquareSymmetric();
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1042,7 +1042,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
 
   if (isNoStat())
   {
-    if (nostat->manageInfo(-1, db1, db1)) return MatrixRectangular();
+    if (nostat->manageInfo(-1, db1, nullptr)) return MatrixRectangular();
   }
   return mat;
 }
