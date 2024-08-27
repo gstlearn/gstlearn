@@ -30,6 +30,6 @@ int ScaleOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
-    outv[i] = _scale*inv[i]; //TODO replace = by +=
+    outv[i] += _scale*inv[i];
   return 0;
 }
