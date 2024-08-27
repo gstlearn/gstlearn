@@ -1468,11 +1468,11 @@ int mvndst_infin(double low, double sup)
   return(2);
 }
 
-double bessel_j(double x, int n)
+double besselj(double x, int n)
 {
   VectorDouble tab(n+1);
   if (x <= 0.) return 1.;
-  if (bessel_j_table(x, 0., n+1, tab.data()) < 0) return TEST;
+  if (besselj_table(x, 0., n+1, tab.data()) < 0) return TEST;
   return tab[n];
 }
 
@@ -1510,7 +1510,7 @@ double bessel_j(double x, int n)
 ** \remark  J., NBS Jour. of Res. B. 77B, 1973, pp 125-132.
 **
 *****************************************************************************/
-int bessel_j_table(double x, double alpha, int nb, double *b)
+int besselj_table(double x, double alpha, int nb, double *b)
 {
   static double enten = 1e38;
   static double ensig = 1e17;
@@ -1912,7 +1912,7 @@ int bessel_j_table(double x, double alpha, int nb, double *b)
 ** \remark  Research Council, Canada.
 **
 *****************************************************************************/
-int bessel_k(double x, double alpha, int nb, double *bk)
+int matern(double x, double alpha, int nb, double *bk)
 {
   static double p[] = {
     .805629875690432845,20.4045500205365151,

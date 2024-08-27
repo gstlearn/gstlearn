@@ -17,6 +17,7 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
@@ -32,9 +33,8 @@ PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
                              Model *model,
                              int icov,
                              bool flagDecompose,
-                             const CGParam& params,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, params, verbose),
+    : PrecisionOp(mesh, model, icov, verbose),
       _Q(nullptr)
 {
   _buildQ(flagDecompose);
@@ -45,11 +45,14 @@ PrecisionOpCs::~PrecisionOpCs()
   delete _Q;
 }
 
-void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)
+void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X, 
+                            const Eigen::VectorXd &Y,
+                            Eigen::VectorXd& result,
+                            const EPowerPT& power)
 {
-  if (_work2.empty()) _work2.resize(getSize());
-  if (_work3.empty()) _work3.resize(getSize());
-  if (_work4.empty()) _work4.resize(getSize());
+  if (_work2.size() == 0) _work2.resize(getSize());
+  if (_work3.size() == 0) _work3.resize(getSize());
+  if (_work4.size() == 0) _work4.resize(getSize());
 
   evalPower(X,_work3, power);
   evalPower(Y,_work4, power);
@@ -82,11 +85,12 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, Vecto
 }
 
 
-void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power)
+void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,
+                                 Eigen::VectorXd& result, const EPowerPT& power)
 {
-  if (_work2.empty()) _work2.resize(getSize());
-  if (_work3.empty()) _work3.resize(getSize());
-  if (_work4.empty()) _work4.resize(getSize());
+  if (_work2.size() == 0) _work2.resize(getSize());
+  if (_work3.size() == 0) _work3.resize(getSize());
+  if (_work4.size() == 0) _work4.resize(getSize());
 
   setTraining(false);
   evalPower(Y,_work3, power);
@@ -118,17 +122,17 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
   }
 }
 
-void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
+/* void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
   _Q->prodMatVecInPlace(vecin, vecout);
-}
+} */
 
-void PrecisionOpCs::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
+void PrecisionOpCs::evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout)
 {
   _Q->simulateCholesky(whitenoise, vecout);
 }
 
-void PrecisionOpCs::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
+void PrecisionOpCs::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout)
 {
   _Q->solveCholesky(vecin, vecout);
 }
@@ -141,9 +145,9 @@ double PrecisionOpCs::getLogDeterminant(int nbsimu, int seed)
   return _Q->computeCholeskyLogDeterminant();
 }
 
-void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam, const EPowerPT& power)
+void PrecisionOpCs::evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,int iapex,int igparam, const EPowerPT& power)
 {
-  if (_work.empty()) _work.resize(getSize());
+  if (_work.size()==0) _work.resize(getSize());
 
   if (power == EPowerPT::MINUSONE)
   my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
@@ -166,13 +170,13 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int ia
   getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
-void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
+void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
                                    int iapex,
                                    int igparam,
                                    const EPowerPT& power)
 {
-  if (_work.empty()) _work3.resize(getSize());
-  if (_work5.empty()) _work4.resize(getSize());
+  if (_work.size()  == 0) _work3.resize(getSize());
+  if (_work5.size() == 0) _work4.resize(getSize());
 
   if (power == EPowerPT::MINUSONE)
   my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");

@@ -30,15 +30,15 @@ public:
   virtual ~CalcSimuPost();
 
 
-  void setNames(VectorString names)            { _names = names; }
-  void setNfact(VectorInt nfact)               { _nfact = nfact; }
-  void setUpscale(const EPostUpscale &upscale) { _upscale = upscale; }
-  void setVerbose(bool verbose)                { _verbose = verbose; }
-  void setFlagMatch(bool match)                { _flagMatch = match; }
-  void setFlagUpscale(bool flagUpscale)        { _flagUpscale = flagUpscale; }
-  void setStats(std::vector<EPostStat> stats)  { _stats = stats; }
-  void setCheckTargets(const VectorInt& ranks) { _checkTargets = ranks; }
-  void setCheckLevel(int level)                { _checkLevel = level; }
+  void setNames(const VectorString& names)           { _names = names; }
+  void setNfact(const VectorInt& nfact)              { _nfact = nfact; }
+  void setUpscale(const EPostUpscale &upscale)       { _upscale = upscale; }
+  void setVerbose(bool verbose)                      { _verbose = verbose; }
+  void setFlagMatch(bool match)                      { _flagMatch = match; }
+  void setFlagUpscale(bool flagUpscale)              { _flagUpscale = flagUpscale; }
+  void setStats(const std::vector<EPostStat>& stats) { _stats = stats; }
+  void setCheckTargets(const VectorInt& ranks)       { _checkTargets = ranks; }
+  void setCheckLevel(int level)                      { _checkLevel = level; }
 
 protected:
   /// Interface for ACalcDbToDb
@@ -50,9 +50,8 @@ protected:
 
 protected:
   virtual int _getTransfoNvar() const { return 0; }
-  virtual void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const { DECLARE_UNUSED(tabin, tabout); return; }
+  virtual void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const { DECLARE_UNUSED(tabin, tabout); }
 
-  int  _getNVar() const override { return (int) _names.size(); }
   int  _getIechout() const { return _iechout; }
   bool _getFlagUpscale() const { return _flagUpscale; }
 

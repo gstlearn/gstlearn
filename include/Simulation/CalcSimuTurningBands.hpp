@@ -75,6 +75,7 @@ public:
   void setIcase(int icase) { _icase = icase; }
   int getNbtuba() const { return _nbtuba; }
   void setNbtuba(int nbtuba) { _nbtuba = nbtuba; }
+  void setFlagAllocationAlreadyDone(int flag) { _flagAllocationAlreadyDone = flag; }
 
 private:
   virtual bool _check() override;
@@ -191,14 +192,15 @@ private:
                               VectorDouble &tab);
 
 private:
-  int  _nbtuba;
-  int  _iattOut;
-  int  _icase;
+  int _nbtuba;
+  int _iattOut;
+  int _icase;
   bool _flagCheck;
   bool _flagBayes;
   bool _flagPGS;
   bool _flagGibbs;
   bool _flagDGM;
+  bool _flagAllocationAlreadyDone;
   VectorString _nameCoord;
   VectorDouble _bayesMean;
   MatrixSquareSymmetric _bayesCov;

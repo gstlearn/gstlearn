@@ -74,7 +74,7 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
   return vec;
 }
 
-void VectorHelper::dump(const String &title, const VectorDouble& tab)
+void VectorHelper::dump(const String &title, const VectorDouble& vect)
 {
   std::stringstream sstr;
   if (!title.empty())
@@ -82,8 +82,8 @@ void VectorHelper::dump(const String &title, const VectorDouble& tab)
     sstr << title.c_str() << std::endl;
   }
   sstr.precision(20);
-  for (int i = 0, n = (int) tab.size(); i < n; i++)
-    sstr << std::fixed << tab[i] << std::endl;
+  for (int i = 0, n = (int) vect.size(); i < n; i++)
+    sstr << std::fixed << vect[i] << std::endl;
   messageFlush(sstr.str());
 }
 
@@ -489,8 +489,7 @@ double VectorHelper::cumul(const VectorDouble& vec)
   double total = 0.;
   for (const auto &v : vec)
   {
-    if (FFFF(v)) continue;
-    total += v;
+    if (!FFFF(v)) total += v;
   }
   return total;
 }
@@ -1415,6 +1414,29 @@ void VectorHelper::multiplyConstantInPlace(const VectorDouble &vecin, double v, 
   }
 }
 
+void VectorHelper::multiplyConstantSelfInPlace(VectorDouble &vec, double v)
+{
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = (*it) * v;
+    it++;
+  }
+}
+
+void VectorHelper::addMultiplyConstantInPlace(double val1,
+                                              const VectorDouble &in,
+                                              VectorDouble &out,
+                                              int iad)
+{
+    double * outp = out.data() + iad;
+    const double* inp = in.data();
+    for (int i = 0; i < (int)in.size();i++)
+    {
+      *(outp++) += val1 * *(inp++);
+    }
+}
+
 void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const VectorVectorDouble &in1,
                                               VectorVectorDouble &outv)
@@ -1512,7 +1534,7 @@ void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
 
   for (int i = 0; i < size; i++)
   {
-    if (FFFF(mean1[i] || FFFF(mean2[i])))
+    if (FFFF(mean1[i]) || FFFF(mean2[i]))
       std[i] = TEST;
     else
     {
@@ -1698,10 +1720,7 @@ bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
  * @param ascending True for ascending order; False for descending order
  * @return Output array (integers)
  */
-VectorInt VectorHelper::filter(const VectorInt &vecin,
-                               int vmin,
-                               int vmax,
-                               bool ascending)
+VectorInt VectorHelper::filter(const VectorInt& vecin, int vmin, int vmax, bool ascending)
 {
   VectorInt vecout = vecin;
 

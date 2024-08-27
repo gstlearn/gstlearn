@@ -13,11 +13,12 @@
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 
+#include "LinearOp/PrecisionOp.hpp"
+
 #include <math.h>
 
-HessianOp::HessianOp(const CGParam& params)
-  : ALinearOp(params)
-  , _isInitialized(false)
+HessianOp::HessianOp()
+  : _isInitialized(false)
   , _flagSeismic(false)
   , _pMat(nullptr)
   , _projData(nullptr)
@@ -35,6 +36,16 @@ HessianOp::HessianOp(const CGParam& params)
 
 HessianOp::~HessianOp() 
 {
+}
+
+/**
+ * @brief Return the size of the operator
+ * 
+ * @return int 
+ */
+int HessianOp::getSize() const
+{
+  return _pMat->getSize();
 }
 
 /*****************************************************************************/
@@ -85,7 +96,7 @@ int HessianOp::init(PrecisionOp*  pmat,
     _workp.resize(npoint);
     _workx.resize(npoint);
     _workv.resize(nvertex);
-    
+    _lambda.resize(nvertex);
     // Set the initialization flag
     _isInitialized = true;
   }
@@ -107,15 +118,19 @@ int HessianOp::init(PrecisionOp*  pmat,
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void HessianOp::_evalDirect(const VectorDouble& inv,
-                            VectorDouble& outv) const
+int HessianOp::_addToDest(const Eigen::VectorXd& inv,
+                            Eigen::VectorXd& outv) const
 {
-  if (! _isInitialized)
-    my_throw("'HessianOp' must be initialized beforehand");
+  if (!_isInitialized) my_throw("'HessianOp' must be initialized beforehand");
+  
+  // Map Eigen Vector to VectorDouble arguments
+  // TODO : VectorXd => VectorDouble = Memory copy !!
+ // VectorDouble einv(inv.data(), inv.data() + inv.size());
+ // VectorDouble eoutv(outv.size());
 
   // Contribution of the spatial structure
 
-  _pMat->evalDirect(inv,outv);
+  _pMat->addToDest(inv,outv);
 
   // Contribution of the Data
 
@@ -128,42 +143,47 @@ void HessianOp::_evalDirect(const VectorDouble& inv,
     double ratio = 0.;
     if (! FFFF(_indic[i]))
     {
-      denom = _indic[i] - law_cdf_gaussian(_workp[i]);
-      dl    = law_df_gaussian(_workp[i]);
+      denom = _indic[i] - law_cdf_gaussian(_workp.getValue(i));
+      dl    = law_df_gaussian(_workp.getValue(i));
       ratio = dl / denom;
     }
-    _workp[i] = (- _workp[i] * ratio + pow(ratio,2)) * _workx[i];
+    _workp.setValue(i, (- _workp.getValue(i) * ratio + pow(ratio,2)) * _workx.getValue(i));
   }
   _projData->point2mesh(_workp, _workv);
-  for (int i=0; i<_projData->getApexNumber(); i++) outv[i] += _workv[i];
-
+  for (int i=0; i<_projData->getApexNumber(); i++) 
+  {
+    outv[i]+= _workv.getValue(i);
+  }
   // Contribution of Seismic (optional)
 
   if (_flagSeismic)
   {
     for (int i=0; i<_projSeis->getApexNumber(); i++) 
-      _workv[i] = law_cdf_gaussian(_lambda[i]);
+      _workv.setValue(i,law_cdf_gaussian(_lambda.getValue(i)));
     _projSeis->mesh2point(_workv, _works);
     for (int i=0; i<_projSeis->getPointNumber(); i++) 
     {
-      _works[i] -= _propSeis[i]; 
-      _works[i] *= _varSeis[i];
+      _works.setValue(i, _works.getValue(i)- _propSeis.getValue(i));
+      _works.setValue(i, _works.getValue(i) * _varSeis.getValue(i));
     }
     _projSeis->point2mesh(_works, _workv);
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      outv[i] -= _lambda[i] * law_df_gaussian(_lambda[i]) * _workv[i] * inv[i];
-
+    { 
+      double val = _lambda.getValue(i);
+      outv[i] -= val * law_df_gaussian(val) * _workv.getValue(i) * inv[i];
+    }
     for (int i=0; i<_projSeis->getApexNumber(); i++)
-      _workv[i] = inv[i] * law_df_gaussian(_lambda[i]);
+      _workv.setValue(i, inv[i] * law_df_gaussian(_lambda.getValue(i)));
     _projSeis->mesh2point(_workv, _works);
     for (int i=0; i<_projSeis->getPointNumber(); i++)
-      _works[i] *= _varSeis[i];
+      _works.setValue(i,_works.getValue(i) * _varSeis.getValue(i));
     _projSeis->point2mesh(_works, _workv);
     for (int i=0; i<_projSeis->getApexNumber(); i++)
-      _workv[i] *= law_df_gaussian(_lambda[i]); // d2u
+      _workv.setValue(i,_workv.getValue(i) *law_df_gaussian(_lambda.getValue(i)));
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      outv[i] += _workv[i];
+      outv[i] += _workv.getValue(i);
   }
+  return 0;
 }

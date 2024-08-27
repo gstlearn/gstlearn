@@ -12,14 +12,36 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/CGParam.hpp"
-#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 
-class GSTLEARN_EXPORT HessianOp : public ALinearOp {
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
+#include <Eigen/src/Core/Matrix.h>
+
+#include "Matrix/VectorEigen.hpp"
+
+class PrecisionOp;
+
+#ifndef SWIG
+#  include "LinearOp/ALinearOpEigenCG.hpp"
+DECLARE_EIGEN_TRAITS(HessianOp)
+#else
+#  include "LinearOp/ALinearOp.hpp"
+#endif
+
+class GSTLEARN_EXPORT HessianOp:
+#ifndef SWIG
+  public ALinearOpEigenCG<HessianOp>
+#else
+  public ALinearOp
+#endif
+{
 
 public:
-	HessianOp(const CGParam& params = CGParam());
+	HessianOp();
 	virtual ~HessianOp();
 
   int  init(PrecisionOp*  pmat,
@@ -30,25 +52,45 @@ public:
             const VectorDouble& varseis);
 
   /*!  Returns the dimension of the matrix */
-  int  getSize() const override { return _pMat->getSize(); }
+  int  getSize() const override;
   /*!  Set the initial vector */
-  void setLambda(const VectorDouble& lambda) { _lambda = lambda; };
 
+
+  void setLambda(const Eigen::VectorXd& lambda) 
+  {
+    for (int i = 0; i < (int)_lambda.size(); i++) 
+      _lambda.getVector()[i] = lambda[i]; 
+  }
+
+ void setLambda(const VectorDouble& lambda) 
+  {
+    for (int i = 0; i < (int)_lambda.size(); i++) 
+      _lambda.getVector()[i] = lambda[i]; 
+  }
+
+#ifndef SWIG
 protected:
-  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
+  int _addToDest(const Eigen::VectorXd& inv,
+                 Eigen::VectorXd& outv) const override;
+
 
 private:
   bool                 _isInitialized;
   bool                 _flagSeismic;
-  PrecisionOp*         _pMat; // External pointer
+  PrecisionOp*         _pMat;     // External pointer
   const ProjMatrix*    _projData; // External pointer
   const ProjMatrix*    _projSeis; // External pointer
   VectorDouble         _indic;
-  VectorDouble         _propSeis;
-  VectorDouble         _varSeis;
-  VectorDouble         _lambda;
-  mutable VectorDouble _workp;
-  mutable VectorDouble _workx;
-  mutable VectorDouble _workv;
-  mutable VectorDouble _works;
+  VectorEigen          _propSeis;
+  VectorEigen          _varSeis;
+  VectorEigen          _lambda;
+  mutable VectorEigen  _workp;
+  mutable VectorEigen  _workx;
+  mutable VectorEigen  _workv;
+  mutable VectorEigen  _works;
+#endif
 };
+
+#ifndef SWIG
+DECLARE_EIGEN_PRODUCT(HessianOp)
+#endif

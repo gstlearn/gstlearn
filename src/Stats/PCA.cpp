@@ -151,7 +151,7 @@ int PCA::_calculateEigen(bool verbose, bool optionPositive)
 
   // Eigen decomposition
 
-  if (_c0.computeEigen(optionPositive)) return 1;
+  if (_c0.computeEigen(optionPositive) != 0) return 1;
   _eigval = _c0.getEigenValues();
   _eigvec = *_c0.getEigenVectors();
 
@@ -171,7 +171,7 @@ int PCA::_calculateGEigen(bool verbose)
 
   // Generalized Eigen decomposition
 
-  if (_gh.computeGeneralizedEigen(_c0)) return 1;
+  if (_gh.computeGeneralizedEigen(_c0) != 0) return 1;
   _eigval = _gh.getEigenValues();
   _eigvec = *_gh.getEigenVectors();
 
@@ -253,7 +253,7 @@ int PCA::dbZ2F(Db* db,
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
     VectorString names = db->getNamesByUID(cols);
-    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Factors","Factor");
+    dbStatisticsPrint(db, names, {}, true, true, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
@@ -300,7 +300,7 @@ int PCA::dbF2Z(Db* db,
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
     VectorString names = db->getNamesByUID(cols);
-    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Variables", "Variable");
+    dbStatisticsPrint(db, names, {}, true, true, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */
@@ -593,7 +593,7 @@ int PCA::pca_compute(const Db *db, bool verbose, bool optionPositive)
 
   // Establish the transfer functions
 
-  if (_calculateEigen(verbose, optionPositive)) return 1;
+  if (_calculateEigen(verbose, optionPositive) != 0) return 1;
 
   _pcaFunctions(verbose);
 
@@ -700,7 +700,7 @@ int PCA::_mafCompute(Db *db,
 
   // Derive the MAF decomposition
 
-  if (_calculateGEigen(verbose)) return 1;
+  if (_calculateGEigen(verbose) != 0) return 1;
 
   // Establish the transfer functions
 
@@ -740,7 +740,7 @@ void PCA::_variogramh(Db *db,
   {
     vario = Vario::create(varioparam);
     vario->setDb(db);
-    if (vario->prepare()) return;
+    if (vario->prepare() != 0) return;
   }
 
   /* Loop on samples */
@@ -843,7 +843,7 @@ void PCA::_loadData(const Db* db, int iech, VectorDouble& data)
 {
   int nvar = (int) db->getLocNumber(ELoc::Z);
   for (int ivar = 0; ivar < nvar; ivar++)
-    data[ivar] = db->getLocVariable(ELoc::Z,iech, ivar);
+    data[ivar] = db->getZVariable(iech, ivar);
 }
 
 VectorDouble PCA::mafOfIndex() const

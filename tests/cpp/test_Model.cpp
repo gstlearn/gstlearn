@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
-
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMCTapering.hpp"
@@ -21,10 +18,7 @@
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftM.hpp"
-#include "Drifts/DriftF.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
@@ -237,7 +231,7 @@ int main(int argc, char *argv[])
 //  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
 //                                           VectorDouble(), VectorDouble(), VectorDouble(),
 //                                           nullptr, true);
-  Model *modelSph = Model::createFromParam(ECov::BESSEL_K, 1./kappa, 1., mu,
+  Model *modelSph = Model::createFromParam(ECov::MATERN, 1./kappa, 1., mu,
                                            VectorDouble(), VectorDouble(),
                                            VectorDouble(), nullptr, false);
   VH::display("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));

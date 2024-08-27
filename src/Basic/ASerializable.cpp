@@ -10,20 +10,16 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <regex>
-#include <fstream>
 #ifdef __linux__ // Not operational under MacOS
 #include <wordexp.h>
 #endif

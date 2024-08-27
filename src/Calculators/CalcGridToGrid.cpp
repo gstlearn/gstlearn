@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/ACalcDbToDb.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -31,15 +32,10 @@ CalcGridToGrid::~CalcGridToGrid()
 {
 }
 
-int CalcGridToGrid::_getNVar() const
-{
-  int nvar = 0;
-  if (getDbin() != nullptr) nvar = getDbin()->getLocNumber(ELoc::Z);
-  return nvar;
-}
-
 bool CalcGridToGrid::_check()
 {
+  if (!ACalcDbToDb::_check()) return false;
+  
   /*************************************/
   /* Both Files are compulsory as Grid */
   /*************************************/
@@ -133,6 +129,9 @@ int CalcGridToGrid::_compareInMinusOut() const
 
 bool CalcGridToGrid::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
+  // Number of variable
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
   if (_iattOut < 0) return false;
 
@@ -199,7 +198,7 @@ int dbg2gExpand(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
-  calcul.setNamingConvention(namconv);
+  calcul.setMustShareSpaceDimension(false);
 
   calcul.setFlagExpand(true);
 
@@ -217,6 +216,7 @@ int dbg2gInterpolate(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setNamingConvention(namconv);
 
   calcul.setFlagInter(true);
@@ -235,6 +235,7 @@ int dbg2gShrink(DbGrid *dbin,
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);
+  calcul.setMustShareSpaceDimension(false);
   calcul.setNamingConvention(namconv);
 
   calcul.setFlagShrink(true);
@@ -266,7 +267,7 @@ bool CalcGridToGrid::_g2gCopy()
   for (int iech = 0; iech < nech; iech++)
   {
     if (! getDbin()->isActive(iech)) continue;
-    double value = getDbin()->getLocVariable(ELoc::Z,iech, 0);
+    double value = getDbin()->getZVariable(iech, 0);
     getDbout()->setArray(iech, _iattOut, value);
   }
   return true;
@@ -286,7 +287,7 @@ bool CalcGridToGrid::_g2gExpand()
     getGridout()->rankToIndice(iech_out, indgOut);
     _reduceIndices(indgOut, indgIn);
     int iech_in = getGridin()->indiceToRank(indgIn);
-    double value = getDbin()->getLocVariable(ELoc::Z,iech_in, 0);
+    double value = getDbin()->getZVariable(iech_in, 0);
     getDbout()->setArray(iech_out, _iattOut, value);
   }
   return true;
@@ -306,7 +307,7 @@ bool CalcGridToGrid::_g2gShrink()
     getGridin()->rankToIndice(iech_in, indgIn);
     _reduceIndices(indgIn, indgOut);
     int iech_out = getGridout()->indiceToRank(indgOut);
-    double value = getDbout()->getLocVariable(ELoc::Z,iech_out, 0);
+    double value = getDbout()->getZVariable(iech_out, 0);
     if (! FFFF(value))
     {
       value += getDbout()->getArray(iech_out, _iattOut);
@@ -362,8 +363,8 @@ bool CalcGridToGrid::_g2gInter()
     if (ret)
     {
       getGridout()->rankToCoordinatesInPlace(iech_out, coorOut);
-      double valTop = getDbin()->getLocVariable(ELoc::Z,iech_in, 0);
-      double valBot = getDbin()->getLocVariable(ELoc::Z,iech_in, 1);
+      double valTop = getDbin()->getZVariable(iech_in, 0);
+      double valBot = getDbin()->getZVariable(iech_in, 1);
       value = _interpolate(nvar, valTop, valBot, coorTop, coorBot, coorOut);
     }
     getDbout()->setArray(iech_out, _iattOut, value);

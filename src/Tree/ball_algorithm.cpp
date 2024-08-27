@@ -118,7 +118,7 @@ int init_node(t_btree *b, int i_node, int idx_start, int idx_end)
   return (0);
 }
 
-int find_node_split_dim(double **data, int *node_indices, int n_features, int n_points)
+int find_node_split_dim(double **data, const int *node_indices, int n_features, int n_points)
 {
 	double	min_val, max_val, val, spread;
 
@@ -168,7 +168,7 @@ int partition_node_indices(double **data, int *node_indices, int split_dim, int 
     swap(node_indices, midindex, right);
     if (midindex == split_index)
       break ;
-    else if (midindex < split_index)
+    if (midindex < split_index)
       left = midindex + 1;
     else
       right = midindex - 1;
@@ -279,44 +279,45 @@ double min_dist(t_btree *tree, int i_node, const double *pt)
 
 int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
 {
-	t_nodedata node_info = b->node_data[i_node];
-	double dist_pt, dist1, dist2;
-	int    i1, i2;
+  t_nodedata node_info = b->node_data[i_node];
+  double dist_pt, dist1, dist2;
+  int i1, i2;
 
-	//case 1: query point is outside node radius: trim it from the query
-	if (dist > nheap_largest(heap, i_pt))
-	{
-		;
-	}
-	//case 2: this is a leaf node. Update set of nearby points
-	else if (node_info.is_leaf)
-	{
-		for (int i = node_info.idx_start; i < node_info.idx_end; i++)
-		{
+  // case 1: query point is outside node radius: trim it from the query
+  if (dist > nheap_largest(heap, i_pt))
+  {
+    ;
+  }
+  // case 2: this is a leaf node. Update set of nearby points
+  else if (node_info.is_leaf)
+  {
+    for (int i = node_info.idx_start; i < node_info.idx_end; i++)
+    {
       dist_pt = st_dist_function(pt, b->data[b->idx_array[i]], b->n_features);
-			if (dist_pt < nheap_largest(heap, i_pt))
-				nheap_push(heap, i_pt, dist_pt, b->idx_array[i]);
-		}
-	}
-	//case 3: Node is not a leaf, Recursively query sub-nodes starting with the closest
-	else
-	{
-		i1 = 2 * i_node + 1;
-		i2 = i1 + 1;
-		dist1 = min_dist(b, i1, pt); //implement min_rdist
-		dist2 = min_dist(b, i2, pt);
-		if (dist1 <= dist2)
-		{
-			query_depth_first(b, i1, pt, i_pt, heap, dist1);
-			query_depth_first(b, i2, pt, i_pt, heap, dist2);
-		}
-		else
-		{
-			query_depth_first(b, i2, pt, i_pt, heap, dist2);
-			query_depth_first(b, i1, pt, i_pt, heap, dist1);
-		}
-	}
-	return (0);
+      if (dist_pt < nheap_largest(heap, i_pt))
+        nheap_push(heap, i_pt, dist_pt, b->idx_array[i]);
+    }
+  }
+  // case 3: Node is not a leaf, Recursively query sub-nodes starting with the
+  // closest
+  else
+  {
+    i1    = 2 * i_node + 1;
+    i2    = i1 + 1;
+    dist1 = min_dist(b, i1, pt); // implement min_rdist
+    dist2 = min_dist(b, i2, pt);
+    if (dist1 <= dist2)
+    {
+      query_depth_first(b, i1, pt, i_pt, heap, dist1);
+      query_depth_first(b, i2, pt, i_pt, heap, dist2);
+    }
+    else
+    {
+      query_depth_first(b, i2, pt, i_pt, heap, dist2);
+      query_depth_first(b, i1, pt, i_pt, heap, dist1);
+    }
+  }
+  return (0);
 }
 
 void free_2d_double(double **arr, int row)

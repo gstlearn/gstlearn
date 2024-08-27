@@ -19,7 +19,7 @@
 #define MAXTAB 100
 
 CovBesselJ::CovBesselJ(const CovContext& ctxt)
-: ACovFunc(ECov::BESSEL_J, ctxt)
+: ACovFunc(ECov::BESSELJ, ctxt)
 {
   setParam(1);
 }
@@ -56,7 +56,7 @@ double CovBesselJ::_evaluateCov(double h) const
   cov = 1.;
   if (h > 0)
   {
-    if (bessel_j_table(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
+    if (besselj_table(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
     cov = TAB[nb] * exp(loggamma(third + 1.)) / coeff;
   }
   return (cov);

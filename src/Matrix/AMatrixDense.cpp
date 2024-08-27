@@ -138,6 +138,18 @@ void AMatrixDense::_transposeInPlace()
   _eigenMatrix.transposeInPlace();
 }
 
+void AMatrixDense::_addProdMatVecInPlaceToDestPtr(const double *x,double *y, bool transpose) const
+{
+  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+  if (transpose)
+    ym.noalias() += _eigenMatrix.transpose() * xm;
+  else
+    ym.noalias() += _eigenMatrix * xm;
+
+}
+
+//TODO supress this method and implement it in the virtual class AMatrix
 void AMatrixDense::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
   Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
@@ -363,7 +375,7 @@ void AMatrixDense::divideColumn(const VectorDouble& vec)
 /*! Perform 'vec' * 'this' */
 VectorDouble AMatrixDense::prodVecMat(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
   Eigen::VectorXd ym;
   if (transpose)
     ym = xm.transpose() * _eigenMatrix.transpose();
@@ -376,7 +388,7 @@ VectorDouble AMatrixDense::prodVecMat(const VectorDouble& x, bool transpose) con
 /*! Perform 'this' * 'vec' */
 VectorDouble AMatrixDense::prodMatVec(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
   Eigen::VectorXd ym;
   if (transpose)
     ym = _eigenMatrix.transpose() * xm;

@@ -36,7 +36,7 @@ MeshETurbo::MeshETurbo(int mode)
 MeshETurbo::MeshETurbo(const VectorInt& nx,
                        const VectorDouble& dx,
                        const VectorDouble& x0,
-                       const VectorDouble& rotmat,
+                       const VectorDouble& angles,
                        bool flag_polarized,
                        bool verbose,
                        int mode)
@@ -47,7 +47,7 @@ MeshETurbo::MeshETurbo(const VectorInt& nx,
       _meshIndirect(mode),
       _gridIndirect(mode)
 {
-  (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), flag_polarized, verbose);
+  (void) initFromGridByAngles(nx, dx, x0, angles, VectorDouble(), flag_polarized, verbose);
 }
 
 MeshETurbo::MeshETurbo(const DbGrid *dbgrid,
@@ -63,8 +63,9 @@ MeshETurbo::MeshETurbo(const DbGrid *dbgrid,
 {
   if (!dbgrid->isGrid()) return;
   VectorDouble sel = dbgrid->getSelections();
-  (void) initFromGrid(dbgrid->getNXs(), dbgrid->getDXs(), dbgrid->getX0s(),
-                      dbgrid->getRotMat(), sel, flag_polarized, verbose);
+  (void)initFromGridByMatrix(dbgrid->getNXs(), dbgrid->getDXs(),
+                             dbgrid->getX0s(), dbgrid->getRotMat(), sel,
+                             flag_polarized, verbose);
 }
 
 MeshETurbo::MeshETurbo(const MeshETurbo &r)
@@ -214,21 +215,49 @@ void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
     coords[idim] = _grid.indiceToCoordinate(idim, indg, VectorDouble());
 }
 
-int MeshETurbo::initFromGrid(const VectorInt&    nx,
-                             const VectorDouble& dx,
-                             const VectorDouble& x0,
-                             const VectorDouble& rotmat,
-                             const VectorDouble& sel,
-                             bool  flag_polarized,
-                             bool  verbose)
+int MeshETurbo::initFromGridByAngles(const VectorInt& nx,
+                                     const VectorDouble& dx,
+                                     const VectorDouble& x0,
+                                     const VectorDouble& angles,
+                                     const VectorDouble& sel,
+                                     bool flag_polarized,
+                                     bool verbose)
+{
+  int ndim = static_cast<int>(nx.size());
+  _setNDim(ndim);
+
+  /* Create the internal (rotated) grid by Angles */
+
+  if (_grid.resetFromVector(nx, dx, x0)) return 1;
+  _grid.setRotationByAngles(angles);
+
+  return _initFromGridInternal(sel, flag_polarized, verbose);
+}
+
+int MeshETurbo::initFromGridByMatrix(const VectorInt& nx,
+                                     const VectorDouble& dx,
+                                     const VectorDouble& x0,
+                                     const VectorDouble& rotmat,
+                                     const VectorDouble& sel,
+                                     bool flag_polarized,
+                                     bool verbose)
 {
   int ndim = static_cast<int> (nx.size());
   _setNDim(ndim);
 
-  /* Create the internal (rotated) grid */
+  /* Create the internal (rotated) grid by Rotation Matrix */
 
   if (_grid.resetFromVector(nx, dx, x0)) return 1;
   _grid.setRotationByVector(rotmat);
+
+  return _initFromGridInternal(sel, flag_polarized, verbose);
+}
+
+int MeshETurbo::_initFromGridInternal(const VectorDouble& sel,
+                                      bool flag_polarized,
+                                      bool verbose)
+{
+  int ndim = getNDim();
 
   // Get grid extension
   // TODO: the grid extension should be calculated in Grid and take
@@ -238,9 +267,10 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
   for (int idim = 0; idim < ndim; idim++)
   {
     extendmin[idim] = _grid.getX0(idim);
-    extendmax[idim] = _grid.getX0(idim) + (_grid.getNX(idim) - 1) * _grid.getDX(idim);
+    extendmax[idim] =
+      _grid.getX0(idim) + (_grid.getNX(idim) - 1) * _grid.getDX(idim);
   }
-  if (_setExtend(extendmin,extendmax)) return(1);
+  if (_setExtend(extendmin, extendmax)) return (1);
 
   // Define the number of Elements per Cell
 
@@ -354,14 +384,14 @@ MeshETurbo* MeshETurbo::createFromNF(const String& neutralFilename, bool verbose
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::create(const VectorInt &nx,
-                               const VectorDouble &dx,
-                               const VectorDouble &x0,
-                               const VectorDouble &rotmat,
+MeshETurbo* MeshETurbo::create(const VectorInt& nx,
+                               const VectorDouble& dx,
+                               const VectorDouble& x0,
+                               const VectorDouble& angles,
                                bool flag_polarized,
                                bool verbose)
 {
-  MeshETurbo* mesh = new MeshETurbo(nx, dx, x0, rotmat, flag_polarized, verbose);
+  MeshETurbo* mesh = new MeshETurbo(nx, dx, x0, angles, flag_polarized, verbose);
   return mesh;
 }
 
@@ -380,7 +410,7 @@ MeshETurbo* MeshETurbo::createFromGridInfo(const Grid *grid,
                                            int mode)
 {
   MeshETurbo* mesh = new MeshETurbo(mode);
-  if (mesh->initFromGrid(grid->getNXs(), grid->getDXs(), grid->getX0s(),
+  if (mesh->initFromGridByMatrix(grid->getNXs(), grid->getDXs(), grid->getX0s(),
                          grid->getRotMat(), VectorDouble(), flag_polarized,
                          verbose))
     return nullptr;
@@ -585,7 +615,7 @@ String MeshETurbo::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << toTitle(0,"Turbo Meshing");
   if (_isPolarized) sstr << "Diamond construction is activated" << std::endl;
-  _grid.display();
+  sstr << _grid.toString(strfmt);
   sstr << AMesh::toString(strfmt);
 
   if (_meshIndirect.isDefined())
@@ -870,7 +900,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   rot.rotateDirect(extendMinRot, x0);
   VH::addInPlace(x0, cornerRef);
 
-  initFromGrid(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),true,verbose);
+  initFromGridByMatrix(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),true,verbose);
   return 0;
 }
 
@@ -905,7 +935,7 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
   }
 
   if (ret)
-    (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), (bool) flag_polarized, 0);
+    (void) initFromGridByMatrix(nx, dx, x0, rotmat, VectorDouble(), (bool) flag_polarized, 0);
 
   ret = ret && _recordRead<int>(is, "Mesh Active Count", nmesh_active);
   ret = ret && _recordRead<int>(is, "Mesh Masking Count", nmesh_mask);

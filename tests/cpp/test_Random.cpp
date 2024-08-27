@@ -8,16 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * This test is meant to check the generation of random values
+ */
+
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/MathFunc.hpp"
-
-/**
- * This test is meant to check the generation of random values
- */
 
 void st_do_it(bool style, int seed)
 {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
   // Testing miscellaneous functions
 
-  message("Bessel_J value = %lf\n", bessel_j(5.2, 0));
+  message("BesselJ value = %lf\n", besselj(5.2, 0));
 
   VectorInt ipois = VH::sequence(10);
   VH::display("Poisson intensity", law_df_poisson_vec(ipois, 5.2));

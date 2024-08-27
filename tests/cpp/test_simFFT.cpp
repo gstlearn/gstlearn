@@ -15,7 +15,6 @@
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
@@ -51,14 +50,12 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromParam(ECov::SPHERICAL, 10.);
   model->display();
 
-  // ====================== Create Parameter File ===================
   message("\n<----- Creating Parameter File ----->\n");
   bool flag_aliasing = true;
   double percent = 0.1;
   SimuFFTParam param(flag_aliasing, percent);
   param.display();
 
-  // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform FFT Simulation ----->\n");
   (void) simfft(grid, model, param, 1, seed, true);
 

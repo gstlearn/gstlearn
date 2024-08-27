@@ -8,34 +8,41 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <LinearOp/Identity.hpp>
+#pragma once
 
-Identity::Identity(int n) 
-  : ALinearOp()
-  , _n(n)
-{
-}
+#include "gstlearn_export.hpp"
 
-Identity::~Identity() 
-{
-}
+#ifndef SWIG
+#include "LinearOp/ALinearOpEigenCG.hpp"
+DECLARE_EIGEN_TRAITS(ScaleOp)
+#else
+#include "LinearOp/ALinearOp.hpp"
+#endif
 
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the Identity) : 'outv' = I * 'inv' = 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-void Identity::_evalDirect(const VectorDouble& inv, VectorDouble& outv) const
+class GSTLEARN_EXPORT ScaleOp:
+#ifndef SWIG
+  public ALinearOpEigenCG<ScaleOp>
+#else
+  public ALinearOp
+#endif
 {
-  for(int i=0, n=_n; i<n; i++)
-    outv[i] = inv[i];
-}
 
-void Identity::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
-{
-  evalDirect(inv,outv);
-}
+public:
+  ScaleOp(int n, double scale = 1.);
+  virtual ~ScaleOp();
+
+  int getSize() const override { return _n; }
+
+#ifndef SWIG
+protected:
+  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+#endif
+
+private:
+  int _n;
+  double _scale;
+};
+
+#ifndef SWIG
+DECLARE_EIGEN_PRODUCT(ScaleOp)
+#endif

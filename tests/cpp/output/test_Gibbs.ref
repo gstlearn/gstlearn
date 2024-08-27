@@ -1,16 +1,7 @@
 
-Entering in Gibbs algorithm with niter=10000 and ncolor=7
----------------------------------------------------------
+Entering in Gibbs algorithm with niter=10 and ncolor=7
+------------------------------------------------------
 Iteration 0
-Iteration 1000
-Iteration 2000
-Iteration 3000
-Iteration 4000
-Iteration 5000
-Iteration 6000
-Iteration 7000
-Iteration 8000
-Iteration 9000
 
 Data Base Grid Characteristics
 ==============================
@@ -84,8 +75,8 @@ Data Base Statistics
 9 - Name z1 - Locator z1
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -1.663177
- Maximum value       =   2.158353
- Mean value          =   0.092920
- Standard Deviation  =   0.445861
- Variance            =   0.198792
+ Minimum value       =  -1.441052
+ Maximum value       =   2.158351
+ Mean value          =   0.094083
+ Standard Deviation  =   0.443946
+ Variance            =   0.197088

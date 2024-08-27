@@ -156,7 +156,7 @@ DbGrid*  GridZycor::readGridFromFile()
 
    /* Define the delimitors */
 
-   _file_delimitors('!', ',', '_');
+   _file_delimitors('!', ",", '_');
 
    /* Read the lines */
 
@@ -202,7 +202,7 @@ DbGrid*  GridZycor::readGridFromFile()
 
    /* Reset the delimitors */
 
-   _file_delimitors('#', ' ', ' ');
+   _file_delimitors('#', " ", ' ');
 
    /* Core allocation */
 

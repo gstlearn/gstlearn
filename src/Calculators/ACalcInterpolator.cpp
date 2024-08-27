@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/ACalcInterpolator.hpp"
+#include "Calculators/ACalcDbToDb.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbHelper.hpp"
@@ -16,9 +17,10 @@
 #include "Neigh/ANeigh.hpp"
 
 ACalcInterpolator::ACalcInterpolator()
-    : ACalcDbToDb(),
-      _model(nullptr),
-      _neigh(nullptr)
+  : ACalcDbToDb()
+  , _model(nullptr)
+  , _neigh(nullptr)
+  , _ncova(0)
 {
 }
 
@@ -26,44 +28,22 @@ ACalcInterpolator::~ACalcInterpolator()
 {
 }
 
-int ACalcInterpolator::_getNDim() const
+bool ACalcInterpolator::_setNCova(int ncova)
 {
-  int ndim = ACalcDbToDb::_getNDim();
-  if (_model != nullptr)
+  if (ncova <= 0) return true;
+  if (_ncova <= 0)
+    _ncova = ncova;
+  else
   {
-    if (ndim > 0)
+    if (_ncova != ncova)
     {
-      if (ndim != _model->getDimensionNumber()) return -1;
-    }
-    else
-    {
-      ndim = _model->getDimensionNumber();
+      messerr("Inconsistent Covariance function Number:");
+      messerr("- Number already defined = %d", _ncova);
+      messerr("- Number of variables newly declared = %d", ncova);
+      return false;
     }
   }
-  return ndim;
-}
-
-int ACalcInterpolator::_getNVar() const
-{
-  int nvar = ACalcDbToDb::_getNVar();
-  if (_model != nullptr)
-  {
-    if (nvar > 0)
-    {
-      if (nvar != _model->getVariableNumber()) return -1;
-    }
-    else
-    {
-      nvar = _model->getVariableNumber();
-    }
-  }
-  return nvar;
-}
-
-int ACalcInterpolator::_getNCova() const
-{
-  if (_model == nullptr) return -1;
-  return _model->getCovaNumber();
+  return true;
 }
 
 bool ACalcInterpolator::_check()
@@ -74,7 +54,7 @@ bool ACalcInterpolator::_check()
   /* Cross-checking the Space Dimension consistency */
   /**************************************************/
 
-  int ndim = ACalcDbToDb::_getNDim();
+  int ndim = _getNDim();
   if (_model != nullptr)
   {
     if (ndim > 0)
@@ -117,7 +97,7 @@ bool ACalcInterpolator::_check()
   /* Cross-Checking the Variable Number consistency */
   /**************************************************/
 
-  int nvar = ACalcDbToDb::_getNVar();
+  int nvar = _getNVar();
   if (_model != nullptr)
   {
     if (nvar > 0)
@@ -184,8 +164,8 @@ bool ACalcInterpolator::_check()
   {
     VectorDouble db_mini(ndim, TEST);
     VectorDouble db_maxi(ndim, TEST);
-    if (hasDbin(false))  getDbin()->getExtensionInPlace(db_mini, db_maxi);
-    if (hasDbout(false)) getDbout()->getExtensionInPlace(db_mini, db_maxi);
+    if (hasDbin(false))  getDbin()->getExtensionInPlace(db_mini, db_maxi, true);
+    if (hasDbout(false)) getDbout()->getExtensionInPlace(db_mini, db_maxi, true);
     _model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
   return true;
@@ -193,9 +173,36 @@ bool ACalcInterpolator::_check()
 
 bool ACalcInterpolator::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
+  // Space dimension
+
+  if (_model != nullptr)
+  {
+    if (!_setNdim(_model->getDimensionNumber())) return false;
+  }
+  if (_neigh != nullptr)
+  {
+    if (!_setNdim((int)_neigh->getNDim())) return false;
+  }
+
+  // Number of variables
+
+  if (_model != nullptr)
+  {
+    if (!_setNvar(_model->getVariableNumber())) return false;
+  }
+
+  // Number of covariance functions
+
+  if (_model != nullptr)
+  {
+     if (!_setNCova(_model->getCovaNumber())) return false;
+  }
+
   // Expand information amongst Db if necessary
 
-  if (_model->getExternalDriftNumber() > 0)
+  if (_model != nullptr && _model->getExternalDriftNumber() > 0)
   {
     if (_expandInformation(1, ELoc::F)) return false;
   }
@@ -208,8 +215,7 @@ bool ACalcInterpolator::hasModel(bool verbose) const
 {
   if (_model == nullptr)
   {
-    if (verbose)
-      messerr("The argument 'model' must be defined");
+    if (verbose) messerr("The argument 'model' must be defined");
     return false;
   }
   return true;
@@ -218,8 +224,7 @@ bool ACalcInterpolator::hasNeigh(bool verbose) const
 {
   if (_neigh == nullptr)
   {
-    if (verbose)
-      messerr("The argument 'neigh' must be defined");
+    if (verbose) messerr("The argument 'neigh' must be defined");
     return false;
   }
   return true;

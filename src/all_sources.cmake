@@ -20,6 +20,7 @@ set(SRC
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
+  Matrix/VectorEigen.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -67,7 +68,7 @@ set(SRC
   Covariances/CovWendland1.cpp
   Covariances/CovWendland2.cpp
   Covariances/CovGradientFunctional.cpp
-  Covariances/CovBesselK.cpp
+  Covariances/CovMatern.cpp
   Covariances/CovLMGradient.cpp
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp
@@ -155,6 +156,8 @@ set(SRC
   Db/DbGrid.cpp
   Db/DbLine.cpp
   Db/DbGraphO.cpp
+  Db/DbMeshTurbo.cpp
+  Db/DbMeshStandard.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   Db/DbHelper.cpp
@@ -163,19 +166,23 @@ set(SRC
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
   LinearOp/ProjMatrix.cpp
+  LinearOp/ProjMatrixMulti.cpp
   LinearOp/PrecisionOpCs.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
-  LinearOp/Identity.cpp
-  LinearOp/ProdMatVect.cpp
+  LinearOp/ALinearOp.cpp
+  LinearOp/ScaleOp.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
+  LinearOp/IProjMatrix.cpp
+  LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/Cholesky.cpp
+  LinearOp/SPDEOp.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp
@@ -275,6 +282,7 @@ set(SRC
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
   Estimation/KrigingSystem.cpp
+  Estimation/KrigingCalcul.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp
@@ -310,7 +318,7 @@ set(SRC
   Simulation/SimuFFTParam.cpp
   Simulation/CalcSimuFFT.cpp
   Simulation/SimuRefineParam.cpp
-  Simulation/SimuRefine.cpp
+  Simulation/CalcSimuRefine.cpp
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp

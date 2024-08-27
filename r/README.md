@@ -1,4 +1,6 @@
-## Overview
+## gstlearn: The Geostatistics &amp; Machine Learning R Package
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
@@ -18,14 +20,7 @@ The *gstlearn* R package is a derivative work based on the *swigex0* project: [h
 
 When using the *gstlearn* R Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
 
-```
---------------------------------------------------
-gstlearn
-Geostatistics and Machine Learning toolbox
-Copyright © MINES Paris - PSL University
-Free download from https://gstlearn.org
---------------------------------------------------
-```
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
@@ -45,7 +40,8 @@ options(timeout=1000)
 
 ## Usage
 
-We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html) for an introduction and important information about R gstlearn.</br>
+We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html) for an introduction and important information about R gstlearn package.
+
 Simply load the *gstlearn* and ggplot2 R package, then enjoy:
 
 ```
@@ -63,7 +59,7 @@ mygrid$addColumns(var, "var1", ELoc_Z())
 ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 ```
 
-Some tutorials (RMarkdown) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
+Some tutorials (R Markdown) are provided in the *demo* directory [here](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) and their HTML rendering is provided [here](https://soft.mines-paristech.fr/gstlearn/demos-latest/r/).
 
 Some tests (R Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/r) directory of the *gstlearn* github repository.
 
@@ -279,6 +275,7 @@ make check_r
 
 ### Important Notes
 
+* ggnewscale and ggplot2 packages must be installed/updated together! Otherwise, you could have troubles when using plotting feature.
 * Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs/swig4.2.0b` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements

@@ -463,6 +463,31 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool tra
   _prodMatVecInPlacePtr(x.data(), y.data(), transpose);
 }
 
+void AMatrix::prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+{
+  if (_flagCheckAddress)
+  {
+    bool error = false;
+    if (!transpose)
+    {
+      error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
+    }
+    else
+    {
+      error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
+    }
+    if (error)
+    {
+      messerr("Inconsistency between:");
+      messerr("- the dimension of 'x' = %d", (int) x.size());
+      messerr("- the dimension of 'y' = %d", (int) y.size());
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
+      return;
+    }
+  }
+  _prodMatVecInPlacePtr(x.data(), y.data(), transpose);
+}
+
 void AMatrix::prodMatVecInPlacePtr(const double* x, double* y, bool transpose) const
 {
   _prodMatVecInPlacePtr(x, y, transpose);
@@ -752,8 +777,9 @@ int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
   return _solve(b, x);
 }
 
-String AMatrix::toString(const AStringFormat* /* strfmt*/) const
+String AMatrix::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
@@ -1355,19 +1381,29 @@ void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
 }
 
 void AMatrix::linearCombination(double val1,
-                                const AMatrix *mat1,
+                                const AMatrix* mat1,
                                 double val2,
-                                const AMatrix *mat2)
+                                const AMatrix* mat2,
+                                double val3,
+                                const AMatrix* mat3)
 {
   // Check dimensions
   if (mat1 != nullptr && ! isSameSize(*mat1))
   {
-    messerr("Dimensions of 'in1' do not match dimensions of current matrix. Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat1' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
   if (mat2 != nullptr && ! isSameSize(*mat2))
   {
-    messerr("Dimensions of 'in2' do not match dimensions of current matrix. Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat2' do not match "
+            "dimensions of current matrix. Nothing is done");
+    return;
+  }
+  if (mat3 != nullptr && !isSameSize(*mat3))
+  {
+    messerr("AMatrix::linearCombination: Dimensions of 'mat3' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
 
@@ -1378,6 +1414,7 @@ void AMatrix::linearCombination(double val1,
       double value = 0;
       if (mat1 != nullptr) value += val1 * mat1->getValue(irow, icol);
       if (mat2 != nullptr) value += val2 * mat2->getValue(irow, icol);
+      if (mat3 != nullptr) value += val3 * mat3->getValue(irow, icol);
       setValue(irow, icol, value);
     }
 }

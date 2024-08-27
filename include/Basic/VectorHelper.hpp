@@ -31,7 +31,7 @@ public:
   static void display(const String &title, const VectorVectorDouble &vect, bool skipLine = true);
   static void display(const String &title, const VectorString &vect, bool skipLine = true);
   static void display(const String &title, const VectorInt &vect, bool skipLine = true);
-  static void dump(const String &title, const VectorDouble& tab);
+  static void dump(const String &title, const VectorDouble& vect);
 
   static String toStringAsVD(const VectorDouble& vec); // TODO rename
   static String toStringAsVVD(const VectorVectorDouble& vec);
@@ -116,6 +116,11 @@ public:
 
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
+  static void multiplyConstantSelfInPlace(VectorDouble &vec, double v);
+  static void addMultiplyConstantInPlace(double val1,
+                                         const VectorDouble &in1,
+                                         VectorDouble &outv,
+                                         int iad);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorVectorDouble &in1,
                                          VectorVectorDouble &outv);

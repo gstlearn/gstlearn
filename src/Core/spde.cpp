@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
@@ -1281,12 +1280,12 @@ static void st_calcul_update(void)
 
 /****************************************************************************/
 /*!
- **  Modify the Exponential into a Bessel_K
+ **  Modify the Exponential into a Matern
  **
  ** \param[in]  cova         Covariance sructure
  **
  *****************************************************************************/
-static void st_convert_exponential2bessel(CovAniso *cova)
+static void st_convert_exponential2matern(CovAniso *cova)
 {
   double scale_exp, range_exp, scale_bes, range_bes;
 
@@ -1296,9 +1295,9 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   scale_exp = range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
-  range_bes = scale2range(ECov::BESSEL_K, scale_bes, 0.5);
+  range_bes = scale2range(ECov::MATERN, scale_bes, 0.5);
 
-  cova->setType(ECov::BESSEL_K);
+  cova->setType(ECov::MATERN);
   cova->setParam(0.5);
   cova->setRangeIsotropic(range_bes);
 
@@ -1308,7 +1307,7 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   {
     message("Convert from Exponential to Bessel-K\n");
     message("- Exponential: Range=%lf Scale=%lf\n", range_exp, scale_exp);
-    message("- Bessel_K   : Range=%lf Scale=%lf\n", range_bes, scale_bes);
+    message("- Matern     : Range=%lf Scale=%lf\n", range_bes, scale_bes);
   }
 }
 
@@ -1348,13 +1347,13 @@ int spde_attach_model(Model *model)
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
     cova = model->getCova(icov);
-    if (cova->getType() == ECov::BESSEL_K)
+    if (cova->getType() == ECov::MATERN)
     {
       continue;
     }
     if (cova->getType() == ECov::EXPONENTIAL)
     {
-      st_convert_exponential2bessel(cova);
+      st_convert_exponential2matern(cova);
       continue;
     }
     if (cova->getType() == ECov::NUGGET)
@@ -1365,7 +1364,7 @@ int spde_attach_model(Model *model)
     else
     {
       messerr("SPDE Model can only support:");
-      messerr("- Bessel_K basic structures");
+      messerr("- Matern basic structures");
       messerr("- Exponential basic structures");
       messerr("- A complementary Neugget Effect");
       return (1);
@@ -1469,13 +1468,13 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   {
     cova = model->getCova(icov);
     silltot += cova->getSill(0, 0);
-    if (cova->getType() == ECov::BESSEL_K)
+    if (cova->getType() == ECov::MATERN)
     {
       continue;
     }
     if (cova->getType() == ECov::EXPONENTIAL)
     {
-      st_convert_exponential2bessel(cova);
+      st_convert_exponential2matern(cova);
       continue;
     }
     if (cova->getType() == ECov::NUGGET)
@@ -1487,7 +1486,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     else
     {
       messerr("SPDE Model can only support:");
-      messerr("- Bessel_K basic structures");
+      messerr("- Matern basic structures");
       messerr("- Exponential basic structures");
       messerr("- A complementary Nugget Effect");
       return (1);
@@ -1726,7 +1725,7 @@ static void st_save_result(double *z,
       if (! dbout->isActive(i)) continue;
       while (!dbout->isActive(iech))
         iech++;
-      set_LOCATOR_ITEM(dbout, locatorType, iatt_simu + ivar, iech, z[lec]);
+      dbout->setFromLocator(locatorType, iech, iatt_simu + ivar, z[lec]);
       iech++;
       ecr++;
     }
@@ -2347,7 +2346,7 @@ static int st_fill_Bnugget(Db *dbin)
     nvr = 0;
     for (ivar = 0; ivar < nvar; ivar++)
     {
-      if (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) continue;
+      if (FFFF(dbin->getZVariable(iech, ivar))) continue;
       ind[nvr] = ivar;
       nvr++;
     }
@@ -2565,7 +2564,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       if (ranks[i] <= 0) continue; // Target or Steiner
       ndata1[ivar]++;
       iech = ranks[i] - 1;
-      value = (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) ? 0. : 1.;
+      value = (FFFF(dbin->getZVariable(iech, ivar))) ? 0. : 1.;
       Btriplet.add(iech, i, value);
     }
     // Add a fictitious sample (zero value) as a dimension constraint
@@ -2603,7 +2602,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
         iech = ranks[i] - 1;
 
         // Could the data be considered as a target (heterotopic case)
-        if (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar)))
+        if (FFFF(dbin->getZVariable(iech, ivar)))
         {
           // The sample is not defined for the current variable: it is a target
           flag_add = 1;
@@ -3460,12 +3459,12 @@ static void st_load_data(AMesh *amesh,
       for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
       {
         if (!dbin->isActive(iech)) continue;
-        if (S_DECIDE.flag_several) data[ecrd++] = dbin->getLocVariable(ELoc::Z,iech, ivar);
+        if (S_DECIDE.flag_several) data[ecrd++] = dbin->getZVariable(iech, ivar);
 
         if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
           zloc = st_get_data_constraints(dbin, igrf, iech);
         else
-          zloc = dbin->getLocVariable(ELoc::Z,iech, ivar);
+          zloc = dbin->getZVariable(iech, ivar);
 
         if (!S_DECIDE.flag_several) data[ecrd++] = zloc;
 
@@ -4269,7 +4268,7 @@ static int st_kriging_several_results(const double *xcur, double *z)
         }
         else
         {
-          valdat = MEM_DBIN->getLocVariable(ELoc::Z,ranks[icur] - 1, ivar);
+          valdat = MEM_DBIN->getZVariable(ranks[icur] - 1, ivar);
           flag_data = !FFFF(valdat);
         }
 
@@ -4309,7 +4308,7 @@ static int st_kriging_several_results(const double *xcur, double *z)
         }
         else
         {
-          valdat = MEM_DBIN->getLocVariable(ELoc::Z,ranks[icur] - 1, ivar);
+          valdat = MEM_DBIN->getZVariable(ranks[icur] - 1, ivar);
           flag_data = !FFFF(valdat);
         }
 
@@ -6051,21 +6050,13 @@ int spde_eval(const VectorDouble& blin,
  *****************************************************************************/
 static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
 {
-  int nech, error;
-  double *tab;
-
-  // Preliminary checks
-
-  if (dbgrid == nullptr) return (0);
-  if (icol_pinch < 0) return (0);
+  if (dbgrid == nullptr) return 0;
+  if (icol_pinch < 0) return 0;
 
   // Initializations
 
-  error = 1;
-  nech = dbgrid->getSampleNumber();
-  tab = db_vector_alloc(dbgrid);
-  if (tab == nullptr) return (1);
-  if (db_vector_get_att(dbgrid, icol_pinch, tab)) goto label_end;
+  int nech = dbgrid->getSampleNumber();
+  VectorDouble tab = dbgrid->getColumnByUID(icol_pinch);
 
   // Check that values are within [0,1] interval
 
@@ -6078,16 +6069,10 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
       messerr("Pinchout variable should lie in [0,1]");
       messerr("At grid node %d/%d, the value is %lf", iech + 1, nech,
               tab[iech]);
-      goto label_end;
+      return 1;
     }
   }
-
-  // Set the error return code
-
-  error = 0;
-
-  label_end: tab = db_vector_free(tab);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -6419,44 +6404,38 @@ static void st_m2d_set_M(M2D_Environ *m2denv,
  *****************************************************************************/
 static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 {
-  double *tab;
-  int iptr, error;
   VectorInt cols(1);
   cols[0] = icol_pinch;
 
   // Initializations
 
-  error = 1;
-  iptr = -1;
-  tab = nullptr;
-  if (dbout == nullptr) return (0);
-  if (icol_pinch < 0) return (0);
+  int nech = dbc->getSampleNumber();
+  if (dbout == nullptr) return 0;
+  if (icol_pinch < 0) return 0;
 
   // Add an attribute
 
-  iptr = dbc->addColumnsByConstant(1, TEST);
-  if (iptr < 0) goto label_end;
+  int iptr = dbc->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return 1;
 
   // Core allocation
 
-  tab = db_vector_alloc(dbc);
-  if (tab == nullptr) goto label_end;
+  VectorDouble tab(nech);
 
   // Migrate information from grid to point
 
   if (migrateByAttribute(dbout, dbc, cols, 0, VectorDouble(), false, false))
-    goto label_end;
+  {
+    dbc->deleteColumnByUID(iptr);
+    return 1;
+  }
 
   // Store the resulting array in the file
 
-  dbc->setColumnByUIDOldStyle(tab, iptr);
+  dbc->setColumnByUID(tab, iptr);
 
   // Set the error returned code
 
-  error = 0;
-
-  label_end: if (error && iptr >= 0) dbc->deleteColumnByUID(iptr);
-  mem_free((char* ) tab);
   return (iptr);
 }
 
@@ -6531,12 +6510,12 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
     /* Deleting the drift at the constraining samples */
 
     if (m2denv->iatt_fd >= 0)
-      (void) db_attribute_del_mult(dbc, m2denv->iatt_fd, nlayer);
+      dbc->deleteColumnsByUIDRange(m2denv->iatt_fd, nlayer);
 
     /* Deleting the drift at the target grid */
 
     if (m2denv->iatt_fg >= 0)
-      (void) db_attribute_del_mult(dbout, m2denv->iatt_fg, nlayer);
+      dbout->deleteColumnsByUIDRange(m2denv->iatt_fg, nlayer);
   }
   return (0);
 }
@@ -6679,7 +6658,7 @@ static void st_m2d_stats_updt(M2D_Environ *m2denv,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      zval = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+      zval = dbc->getZVariable(iech, ilayer);
 
       nb += 1.;
       mm += zval;
@@ -7018,7 +6997,7 @@ static void st_print_details(Db *dbc, int nech, int ilayer)
   nvar = nbdmin = nbdmax = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    value = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+    value = dbc->getZVariable(iech, ilayer);
     if (!FFFF(value)) nvar++;
     lower = dbc->getLocVariable(ELoc::L,iech, ilayer);
     upper = dbc->getLocVariable(ELoc::U,iech, ilayer);
@@ -7101,9 +7080,9 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
       /* Get the values at the data point */
 
-      epais = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+      epais = dbc->getZVariable(iech, ilayer);
       if (ilayer > 0)
-        epais -= dbc->getLocVariable(ELoc::Z,iech, ilayer - 1);
+        epais -= dbc->getZVariable(iech, ilayer - 1);
       else
         epais -= m2denv->zmini;
 
@@ -7490,27 +7469,27 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
   // Assigning names to the variables (not pointers yet)
 
   ecr = 0;
-  db_name_set(db, ecr++, "rank");
+  db->setNameByUID(ecr++, "rank");
   for (int idim = 0; idim < ndim; idim++)
   {
     (void) gslSPrintf(string_encode, "X%d", idim + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
   }
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
     (void) gslSPrintf(string_encode, "Lower%d", ilayer + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
     (void) gslSPrintf(string_encode, "Upper%d", ilayer + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
     (void) gslSPrintf(string_encode, "Value%d", ilayer + 1);
-    db_name_set(db, ecr++, string_encode);
+    db->setNameByUID(ecr++, string_encode);
   }
   if (m2denv->flag_ed)
   {
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
       (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-      db_name_set(db, ecr++, string_encode);
+      db->setNameByUID(ecr++, string_encode);
     }
   }
 
@@ -8315,7 +8294,7 @@ static void st_m2d_vector_extract(M2D_Environ *m2denv,
     /* Loop on the layers */
 
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
-      work[ilayer] = dbc->getLocVariable(ELoc::Z,iech, ilayer);
+      work[ilayer] = dbc->getZVariable(iech, ilayer);
 
     /* Convert from the depth to thickness */
 
@@ -8372,7 +8351,7 @@ static void st_print_db_constraints(const char *title,
     {
       lower = db->getLocVariable(ELoc::L,iech, ilayer);
       upper = db->getLocVariable(ELoc::U,iech, ilayer);
-      value = db->getLocVariable(ELoc::Z,iech, ilayer);
+      value = db->getZVariable(iech, ilayer);
       drift = db->getLocVariable(ELoc::F,iech, ilayer);
       vgaus = (! ydat.empty()) ? YDAT(ilayer, iech) : TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower, upper);
@@ -8623,7 +8602,7 @@ int m2d_gibbs_spde(Db *dbin,
     {
       dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
       (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-      db_name_set(dbout, iatt_out + ilayer, string_encode);
+      dbout->setNameByUID(iatt_out + ilayer, string_encode);
     }
     error = 0;
     goto label_end;
@@ -8784,7 +8763,7 @@ int m2d_gibbs_spde(Db *dbin,
       {
         (void) gslSPrintf(string_encode, "Layer-%d_Simu-%d", ilayer + 1,
                           isimu + 1);
-        db_name_set(dbout, iatt_out + ecr, string_encode);
+        dbout->setNameByUID(iatt_out + ecr, string_encode);
         ecr++;
       }
     }
@@ -8804,12 +8783,12 @@ int m2d_gibbs_spde(Db *dbin,
 
       if (!flag_ce)
       {
-        (void) db_attribute_del_mult(dbout, iptr_ce, nlayer);
+        dbout->deleteColumnsByUIDRange(iptr_ce, nlayer);
         iptr_ce = -1;
       }
       if (!flag_cstd)
       {
-        (void) db_attribute_del_mult(dbout, iptr_cstd, nlayer);
+        dbout->deleteColumnsByUIDRange(iptr_cstd, nlayer);
         iptr_cstd = -1;
       }
       dbout->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -8819,12 +8798,12 @@ int m2d_gibbs_spde(Db *dbin,
       if (iptr_ce >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
         (void) gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
-        db_name_set(dbout, iptr_ce + ilayer, string_encode);
+        dbout->setNameByUID(iptr_ce + ilayer, string_encode);
       }
       if (iptr_cstd >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
         (void) gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
-        db_name_set(dbout, iptr_cstd + ilayer, string_encode);
+        dbout->setNameByUID(iptr_cstd + ilayer, string_encode);
       }
     }
   }
@@ -8839,8 +8818,8 @@ int m2d_gibbs_spde(Db *dbin,
   qchol_manage(-1, Qc);
   delete Bproj;
   mem_free((char* ) gwork);
-  if (iatt_f >= 0) (void) db_attribute_del_mult(dbin, iatt_f, nlayer);
+  if (iatt_f >= 0) dbin->deleteColumnsByUIDRange(iatt_f, nlayer);
   if (error && iatt_out >= 0)
-    (void) db_attribute_del_mult(dbout, iatt_out, nlayer);
+    dbout->deleteColumnsByUIDRange(iatt_out, nlayer);
   return (error);
 }

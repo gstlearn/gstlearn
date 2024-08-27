@@ -8,19 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESpaceType.hpp"
-#include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
-
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/Law.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 /****************************************************************************/
 /*!
@@ -119,8 +111,8 @@ int main(int argc, char *argv[])
   timer.reset();
   for (int itime = 0; itime < ntimes; itime++)
   {
-    double* pta = &a[0];
-    double* ptb = &b[0];
+    double* pta = a.data();
+    double* ptb = b.data();
     result = 0.;
     for (int ielem = 0; ielem < nsize; ielem++)
     {
@@ -143,8 +135,8 @@ int main(int argc, char *argv[])
 
   message("- using VectorHelper (double)\n");
   timer.reset();
-  const double* ptra = &a[0];
-  const double* ptrb = &b[0];
+  const double* ptra = a.data();
+  const double* ptrb = b.data();
   for (int itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(ptra, ptrb, nsize);
   timer.displayIntervalMilliseconds("with VectorHelper (double)", 200);

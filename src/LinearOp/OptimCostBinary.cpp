@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "LinearOp/LinearOpCGSolver.hpp"
+
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/HessianOp.hpp"
 #include "LinearOp/IOptimCost.hpp"
@@ -21,7 +23,7 @@
 
 #include <math.h>
 
-OptimCostBinary::OptimCostBinary(const CGParam& params)
+OptimCostBinary::OptimCostBinary()
     : IOptimCost(),
       _isInitialized(false),
       _flagSeismic(false),
@@ -32,10 +34,6 @@ OptimCostBinary::OptimCostBinary(const CGParam& params)
       _projSeis(nullptr),
       _propSeis(),
       _varSeis(),
-      _params(params),
-      _flagCgPreCond(false),
-      _chebNcmax(10001),
-      _chebTol(5.e-3),
       _grad(),
       _workp(),
       _workx(),
@@ -56,10 +54,6 @@ OptimCostBinary::OptimCostBinary(const OptimCostBinary &m)
       _projSeis(m._projSeis),
       _propSeis(m._propSeis),
       _varSeis(m._varSeis),
-      _params(m._params),
-      _flagCgPreCond(m._flagCgPreCond),
-      _chebNcmax(m._chebNcmax),
-      _chebTol(m._chebTol),
       _grad(),
       _workp(),
       _workx(),
@@ -82,10 +76,6 @@ OptimCostBinary& OptimCostBinary::operator = (const OptimCostBinary &m)
     _projSeis = m._projSeis;
     _propSeis = m._propSeis;
     _varSeis = m._varSeis;
-    _params = m._params;
-    _flagCgPreCond = m._flagCgPreCond;
-    _chebNcmax = m._chebNcmax;
-    _chebTol = m._chebTol;
   }
   return *this;
 }
@@ -166,13 +156,8 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
   double normgrad, costv;
   bool flagContinue;
   int  iter;
-  HessianOp *hess;
-  VectorDouble lambdat, step;
-
-  // Initialization
-  hess = (HessianOp *) NULL;
+  HessianOp *hess = nullptr;
   VectorDouble propfac;
-
   // Statistics on the input data (only for verbose option)
 
   if (verbose)
@@ -186,21 +171,19 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
     if (! _isInitialized) 
       my_throw("'OptimCostBinary' must be initialized beforehand");
     int nvertex = _pMat->getSize();
-    propfac.resize(nvertex);
 
     // Instantiate the Hessian
 
-    if (_flagCgPreCond)
-      _params.setPrecond(_pMat->getShiftOp(),-1);
-    hess = new HessianOp(_params);
+    hess = new HessianOp();
     if (hess->init(_pMat, _projData, _projSeis, indic, _propSeis, _varSeis)) 
       my_throw("Problem in Hessian init() method");
 
     // Core allocation
 
-    lambdat.resize(nvertex);
-    step.resize(nvertex);
-    for (int i=0; i<nvertex; i++) propfac[i] = lambdat[i] = step[i] = 0.;
+    VectorDouble lambdat(nvertex, 0.);
+    VectorDouble step(nvertex, 0.);
+    propfac.resize(nvertex);
+    propfac.fill(0.);
   
     // Evaluate the reference cost value
 
@@ -214,7 +197,6 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
     {
       iter++;
       _evaluateGrad(indic,propfac,&normgrad);
-
       if (OptDbg::query(EDbg::CONVERGE))
         message("Iteration #%d (max=%d) - Cost=%lf - NormGrad=%lf (eps=%lg)\n",
                 iter,maxiter,costv,normgrad,eps);
@@ -223,16 +205,15 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
 
       // Perform the Conjugate Gradient on the Hessian
 
-      hess->setX0(step);
       hess->setLambda(propfac);
-      hess->evalInverse(_grad,step);
+      LinearOpCGSolver<HessianOp> solver(hess);
+      solver.solve(_grad,step);
       
       bool flagSortie = false;
       while (! flagSortie)
       {
         for (int i=0; i<nvertex; i++) lambdat[i] = propfac[i] - step[i];
         double costt = _evaluateCost(indic,lambdat);
-
         if (costt < costv * 1.000001)
         {
           costv = costt;

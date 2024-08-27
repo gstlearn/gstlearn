@@ -136,7 +136,7 @@ public:
   CovAniso* getCova(int icov);
   int getCovaNumber(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
-  const MatrixSquareSymmetric getSillValues(int icov) const;
+  const MatrixSquareSymmetric& getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
@@ -176,7 +176,7 @@ public:
   {
     return _cova->eval0Mat(mode);
   }
-  int isNoStat() const
+  bool isNoStat() const
   {
     return _cova->isNoStat();
   }
@@ -543,7 +543,7 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setRangeIsotropic(int icov, double range);
-  void setMarkovCoeffs(int icov, VectorDouble coeffs);
+  void setMarkovCoeffs(int icov, const VectorDouble& coeffs);
   void setCovaFiltered(int icov, bool filtered);
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2);
   void updateCovByMesh(int imesh);
@@ -634,7 +634,7 @@ public:
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);
   CovParamId getCovParamId(int ipar) const;
-  bool isNostatParamDefined(const EConsElem &type0);
+  bool isNostatParamDefined(const EConsElem &type0) const;
   ////////////////////////////////////////////////
 
   const EModelProperty& getCovMode() const;
@@ -671,30 +671,31 @@ public:
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),
-                        Option_VarioFit optvar = Option_VarioFit(),
-                        Option_AutoFit mauto = Option_AutoFit(),
+                        const Option_VarioFit& optvar = Option_VarioFit(),
+                        const Option_AutoFit& mauto = Option_AutoFit(),
                         bool verbose = false);
-  int fit(Vario *vario,
-          const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
+  int fit(Vario* vario,
+          const VectorECov& types        = ECov::fromKeys({"SPHERICAL"}),
           const Constraints& constraints = Constraints(),
-          Option_VarioFit optvar = Option_VarioFit(),
-          Option_AutoFit mauto = Option_AutoFit(),
+          const Option_VarioFit& optvar = Option_VarioFit(),
+          const Option_AutoFit& mauto = Option_AutoFit(),
           bool verbose = false);
 
   int fitFromVMap(DbGrid *dbmap,
                   const VectorECov &types = ECov::fromKeys({"SPHERICAL"}),
                   const Constraints &constraints = Constraints(),
-                  Option_VarioFit optvar = Option_VarioFit(),
-                  Option_AutoFit mauto = Option_AutoFit(),
+                  const Option_VarioFit& optvar = Option_VarioFit(),
+                  const Option_AutoFit& mauto = Option_AutoFit(),
                   bool verbose = false);
-  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP"));
+  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP")) const;
   int stabilize(double percent, bool verbose = false);
   int standardize(bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
-  void gofDisplay(double gof, bool byValue = true,
-                  const VectorDouble& thresholds = {2., 5., 10., 100});
-  VectorECov initCovList(const VectorInt & covranks);
+  static void gofDisplay(double gof,
+                         bool byValue                   = true,
+                         const VectorDouble& thresholds = {2., 5., 10., 100});
+  static VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
 
@@ -749,7 +750,9 @@ private:
   void _copyCovContext();
 
 private:
-  ACov*          _cova;         /* Generic Covariance structure */
-  DriftList*     _driftList;    /* Series of Drift functions */
-  CovContext     _ctxt;         /* Context */
+  ACov*      _cova;         /* Generic Covariance structure */
+  DriftList* _driftList;    /* Series of Drift functions */
+  CovContext _ctxt;         /* Context */
+
+  MatrixSquareSymmetric _dummy;
 };

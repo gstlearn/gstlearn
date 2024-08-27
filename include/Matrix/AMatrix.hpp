@@ -16,6 +16,13 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
+#include <Eigen/src/Core/Matrix.h>
+
 /// TODO : Transform into template for storing something else than double
 
 class NF_Triplet;
@@ -170,6 +177,9 @@ public:
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  #ifndef SWIG
+    void prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose = false) const;
+  #endif
   void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -199,9 +209,11 @@ public:
 
   void makePositiveColumn();
   void linearCombination(double val1,
-                         const AMatrix *mat1,
-                         double val2 = 1.,
-                         const AMatrix *mat2 = nullptr);
+                         const AMatrix* mat1,
+                         double val2         = 1.,
+                         const AMatrix* mat2 = nullptr,
+                         double val3         = 1.,
+                         const AMatrix* mat3 = nullptr);
 
 #ifndef SWIG
   /*! Get value operator override */
@@ -227,6 +239,9 @@ protected:
   virtual void    _prodMatVecInPlacePtr(const double *x,
                                         double *y,
                                         bool transpose = false) const = 0;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x,
+                                                 double *y,
+                                                 bool transpose = false) const = 0;                                      
   virtual void    _prodVecMatInPlacePtr(const double *x,
                                         double *y,
                                         bool transpose = false) const = 0;

@@ -45,8 +45,6 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  virtual int _getNVar() const override;
-
   static int _migrate(Db* db1,
                       Db* db2,
                       int iatt1,

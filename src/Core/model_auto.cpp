@@ -8,8 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 
 #include "Enum/EAnam.hpp"
 
@@ -41,8 +41,10 @@
 #define DEFINE_THIRD   (flag_param)
 #define DEFINE_RANGE   (flag_range > 0)
 #define DEFINE_ANICOEF (flag_range != 0 && optvar.getAuthAniso())
-#define DEFINE_ANIROT  (flag_range != 0 && optvar.getAuthAniso() &&  \
-                        optvar.getAuthRotation())
+#define DEFINE_ANIROT                                                          \
+  (flag_range != 0 && optvar.getAuthAniso() && optvar.getAuthRotation())
+#define UNDEFINE_ANIROT                                                          \
+  (flag_range == 0 || !optvar.getAuthAniso() || !optvar.getAuthRotation())
 #define DEFINE_T_RANGE (model->getCovMode() == EModelProperty::TAPE)
 #define FLAG_COMPRESS(imod,icov) (flag_compress[(imod) * ncova + (icov)])
 
@@ -71,9 +73,17 @@
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
 #define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
-#define CORRECT(idir,k)         (! isZero(vario->getHhByIndex(idir,k)) && ! FFFF(vario->getHhByIndex(idir,k)) && \
-                                 ! isZero(vario->getSwByIndex(idir,k)) && ! FFFF(vario->getSwByIndex(idir,k)) && \
-                                 ! FFFF(vario->getGgByIndex(idir,k)))
+#define CORRECT(idir, k)                                                       \
+  (!isZero(vario->getHhByIndex(idir, k)) &&                                    \
+   !FFFF(vario->getHhByIndex(idir, k)) &&                                      \
+   !isZero(vario->getSwByIndex(idir, k)) &&                                    \
+   !FFFF(vario->getSwByIndex(idir, k)) && !FFFF(vario->getGgByIndex(idir, k)))
+#define INCORRECT(idir, k)                                                     \
+  (isZero(vario->getHhByIndex(idir, k)) ||                                     \
+   FFFF(vario->getHhByIndex(idir, k)) ||                                       \
+   isZero(vario->getSwByIndex(idir, k)) ||                                     \
+   FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
+
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define AIRKV(ipadir,ivar)       Airk_v[(ipadir)*nvar + (ivar)]
@@ -129,8 +139,8 @@ static std::vector<StrExp> STREXPS;
 static StrMod *STRMOD = nullptr;
 static Option_AutoFit MAUTO;
 static Constraints CONSTRAINTS;
-static int *INDG1;
-static int *INDG2;
+static VectorInt INDG1;
+static VectorInt INDG2;
 static const DbGrid *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint RECINT;
@@ -363,15 +373,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
       /* Anisotropy angles */
       if (DEFINE_ANIROT)
       {
-        if (ndim == 2)
-        {
-          if (TAKE_ROT)
-          {
-            first_covrot = jcov;
-            strmod->parid[ntot++] = st_parid_encode(imod, jcov, EConsElem::ANGLE, 0, 0);
-          }
-        }
-        else if (ndim == 3 && optvar.getLockRot2d())
+        if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
         {
           if (TAKE_ROT)
           {
@@ -637,7 +639,7 @@ static int st_get_vmap_dimension(const Db *dbmap,
   {
     int ndef = 0;
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(dbmap->getLocVariable(ELoc::Z,iech, ijvar))) ndef++;
+      if (!FFFF(dbmap->getZVariable(iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;
   }
@@ -870,7 +872,7 @@ static void st_load_gg(const Vario *vario,
           if (! strexps.empty())
           {
             int i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-            if (! CORRECT(idir, i)) continue;
+            if (INCORRECT(idir, i)) continue;
 
             strexps[ecr].ivar = ivar;
             strexps[ecr].jvar = jvar;
@@ -1002,13 +1004,13 @@ static void st_load_ge(const Vario *vario,
             {
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
-              if (!CORRECT(idir, iad) || !CORRECT(idir, jad)) continue;
+              if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
               dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
             }
             else
             {
               int iad = shift + ipas;
-              if (!CORRECT(idir, iad)) continue;
+              if (INCORRECT(idir, iad)) continue;
               dist = ABS(vario->getHhByIndex(idir, iad));
             }
             for (int idim = 0; idim < ndim; idim++)
@@ -1123,7 +1125,7 @@ static void st_load_wt(const Vario *vario,
             {
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
-              if (! (CORRECT(idir,iad) && CORRECT(idir,jad))) continue;
+              if (INCORRECT(idir,iad) || INCORRECT(idir,jad)) continue;
               double n1 = vario->getSwByIndex(idir,iad);
               double n2 = vario->getSwByIndex(idir,jad);
               double d1 = ABS(vario->getHhByIndex(idir,iad));
@@ -1134,7 +1136,7 @@ static void st_load_wt(const Vario *vario,
             else
             {
               int iad = shift + ipas;
-              if (! CORRECT(idir,iad)) continue;
+              if (INCORRECT(idir,iad)) continue;
               double nn = vario->getSwByIndex(idir,iad);
               double dd = ABS(vario->getHhByIndex(idir,iad));
               if (dd > 0)
@@ -2347,7 +2349,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
@@ -2358,7 +2360,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
 
@@ -2366,7 +2368,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
+        if (FFFF(DBMAP->getZVariable(iech, ijvar))) continue;
         tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
       }
   }
@@ -3752,7 +3754,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
                                    &max_ndim, &flag_int_1d, &flag_int_2d,
                                    &flag_aniso, &flag_rotation, &scalfac,
                                    &parmax);
-        if (! DEFINE_ANIROT) continue;
+        if (UNDEFINE_ANIROT) continue;
 
         /* This non-masked component can be assigned the lost rotation */
 
@@ -4107,15 +4109,7 @@ static int st_model_auto_count(const Vario *vario,
       /* Anisotropy angles */
       if (DEFINE_ANIROT)
       {
-        if (ndim == 2)
-        {
-          if (TAKE_ROT)
-          {
-            first_covrot = jcov;
-            ntot++;
-          }
-        }
-        else if (ndim == 3 && optvar.getLockRot2d())
+        if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
         {
           if (TAKE_ROT)
           {
@@ -4210,7 +4204,7 @@ static void st_prepar_goulard_vmap(int imod)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
   mode.setUnitary(true);
@@ -4226,7 +4220,7 @@ static void st_prepar_goulard_vmap(int imod)
 
     for (int ipadir = 0; ipadir < RECINT.npadir; ipadir++)
     {
-      db_index_sample_to_grid(DBMAP, ipadir, INDG2);
+      DBMAP->rankToIndice(ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
       model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &mode);
@@ -4361,7 +4355,7 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
   VectorDouble aux(nvar2,0.);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iloc = db_attribute_identify(dbmap, ELoc::Z, ivar);
+    int iloc = dbmap->getUIDByLocator(ELoc::Z, ivar);
     (void) db_attribute_range(dbmap, iloc, &mini, &maxi, &gmax);
     AUX(ivar,ivar)= gmax;
   }
@@ -4847,15 +4841,7 @@ static int st_vmap_auto_count(const Db *dbmap,
     /* Anisotropy angles */
     if (DEFINE_ANIROT)
     {
-      if (ndim == 2)
-      {
-        if (TAKE_ROT)
-        {
-          first_covrot = jcov;
-          ntot++;
-        }
-      }
-      else if (ndim == 3 && optvar.getLockRot2d())
+      if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
       {
         if (TAKE_ROT)
         {
@@ -4901,14 +4887,14 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
   int nech = DBMAP->getSampleNumber();
   int nvar = DBMAP->getLocNumber(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   /* Load the Experimental conditions structure */
 
   int ipadir = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     double dist = distance_intra(DBMAP, nech / 2, iech, NULL);
     double wgt = (dist > 0) ? 1. / dist : 0.;
 
@@ -4916,7 +4902,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 
     int ntest = 0;
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) ntest++;
+      if (!FFFF(DBMAP->getZVariable(iech, ijvar))) ntest++;
     if (ntest <= 0) continue;
 
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
@@ -4924,7 +4910,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
       WT(ijvar,ipadir)= 0.;
       GG(ijvar,ipadir) = 0.;
 
-      double value = DBMAP->getLocVariable(ELoc::Z,iech,ijvar);
+      double value = DBMAP->getZVariable(iech,ijvar);
       if (FFFF(value)) continue;
 
       WT(ijvar,ipadir) = wgt;
@@ -5000,7 +4986,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
      constraints.expandConstantSill(nvar);
   }
   if (st_get_vmap_dimension(dbmap, nvar, &npadir, &nbexp)) goto label_end;
-  if (db_extension_diag(dbmap, &hmax)) goto label_end;
+  hmax = dbmap->getExtensionDiagonal();
   st_vmap_varchol_manage(dbmap, varchol);
 
   /* Scale the parameters in the Option_AutoFit structure */
@@ -5016,10 +5002,8 @@ int vmap_auto_fit(const DbGrid* dbmap,
 
   hmax /= 2.;
   DBMAP = dbmap;
-  INDG1 = db_indg_alloc(dbmap);
-  if (INDG1 == nullptr) goto label_end;
-  INDG2 = db_indg_alloc(dbmap);
-  if (INDG2 == nullptr) goto label_end;
+  INDG1.resize(ndim, 0);
+  INDG2.resize(ndim);
 
   /* Core allocation */
 
@@ -5097,8 +5081,6 @@ int vmap_auto_fit(const DbGrid* dbmap,
   error = 0;
 
   label_end:
-  INDG1 = db_indg_free(INDG1);
-  INDG2 = db_indg_free(INDG2);
   st_model_auto_strmod_free(strmod);
   return (error);
 }

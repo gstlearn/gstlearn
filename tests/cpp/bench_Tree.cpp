@@ -9,12 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
-#include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -24,6 +21,8 @@
 /****************************************************************************/
 /*!
  ** Main Program
+ ** This is meant to test the time improvement using BallTree search or not.
+ ** It is illustrated within the 'ligrate' algorithm.
  **
  *****************************************************************************/
 int main(int argc, char *argv[])
@@ -53,7 +52,7 @@ int main(int argc, char *argv[])
   if (! flag_stats)
     message("To get statistics on Ball Tree Efficiency, turn 'flag_stats' to TRUE\n");
 
-  message("- Building BallTree: P(p) where p = %d * k (in ms / k)\n", nech);
+  message("- Building BallTree: Db(n = %d * k) (in ms per k)\n", nech);
   for (int ifois = 0; ifois < nfois; ifois++)
   {
     int number = nech * (ifois + 1);
@@ -68,7 +67,7 @@ int main(int argc, char *argv[])
   }
   if (flag_stats) VH::display("", times);
 
-  message("- P2P: P(p1) where p1 = %d * k and P(p2=%d) (in ms / k)\n", nech, nech);
+  message("- Migrate P2P: from Db1(n = %d * k) to Db2(n = %d) (in ms per k)\n", nech, nech);
 
   for (int ifois = 0; ifois < nfois; ifois++)
   {
@@ -88,7 +87,7 @@ int main(int argc, char *argv[])
   }
   if (flag_stats) VH::display("", times);
 
-  message("- P2P: P(p1=%d) and P(p2) where p2 = %d * k (in ms / k)\n", nech, nech);
+  message("- Migrate P2P: from Db1(n = %d) to Db2(n = %d * k) (in ms per k)\n", nech, nech);
 
   for (int ifois = 0; ifois < nfois; ifois++)
   {

@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 class AMesh;
 class ShiftOpCs;
@@ -33,24 +34,27 @@ public:
                 Model* model,
                 int icov = 0,
                 bool flagDecompose = false,
-                const CGParam& params = CGParam(),
                 bool verbose = false);
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
-  void evalDirect(const VectorDouble &vecin, VectorDouble &vecout) override;
-  void evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout) override;
-  void evalInverse(VectorDouble& vecin, VectorDouble& vecout) override;
+  //void evalDirect(const VectorDouble &vecin, VectorDouble &vecout) override;
+  void evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout) override;
+  void evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout) override;
   void makeReady() override;
 
   double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
 
-  void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam,const EPowerPT& power) override;
-  void evalDerivOptim(VectorDouble& outv,int iapex,int igparam, const EPowerPT& power) override;
+  
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
-  void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
-  void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
-
+  #ifndef SWIG
+  void evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,int iapex,int igparam,const EPowerPT& power) override;
+  void evalDerivOptim(Eigen::VectorXd& outv,int iapex,int igparam, const EPowerPT& power) override;
+  void gradYQX(const Eigen::VectorXd & X, 
+               const Eigen::VectorXd &Y,
+               Eigen::VectorXd& result, const EPowerPT& power) override;
+  void gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,Eigen::VectorXd& result, const EPowerPT& power) override;
+  #endif
   MatrixSparse* getQ() const { return _Q; }
 
 private:

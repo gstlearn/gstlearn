@@ -514,7 +514,8 @@ DbGrid* DbGrid::createFromGridShrink(const DbGrid &gridIn,
     }
   }
   VectorInt ranks = deletedRanks;
-  (void) std::unique(ranks.begin(), ranks.end());
+  auto last = std::unique(ranks.begin(), ranks.end());
+  ranks.erase(last, ranks.end());
   std::sort(ranks.begin(), ranks.end());
   std::reverse(ranks.begin(), ranks.end());
 
@@ -1381,16 +1382,13 @@ VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
 
 VectorDouble DbGrid::getBlockExtensions(int node) const
 {
-  int ndim = getNDim();
-
-  VectorDouble dxsPerCell = getDXs();
-  if (hasLocVariable(ELoc::BLEX))
+  VectorDouble dxsPerCell;
+  if (!hasLocVariable(ELoc::BLEX))
+    dxsPerCell = getDXs();
+  else
   {
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      double value = getLocVariable(ELoc::BLEX,node, idim);
-      if (! FFFF(value)) dxsPerCell[idim] = value;
-    }
+    int ndim   = getNDim();
+    dxsPerCell = getLocVariables(ELoc::BLEX, node, ndim);
   }
   return dxsPerCell;
 }
@@ -2200,10 +2198,12 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
 
 void DbGrid::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
+  // Initiate the SpacePoint (performed in Db class)
   Db::getSampleAsSTInPlace(iech, P);
 
-  // Load the target extension
-  P.setExtend(getBlockExtensions(iech));
+  // Load the extension
+  if (P.checkExtend())
+    P.setExtend(getBlockExtensions(iech));
 }
 
 /**

@@ -8,14 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-#include "Space/ASpaceObject.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/GlobalEnvironment.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
 
@@ -58,196 +56,6 @@ void db_grid_print(Db *db)
 
 /****************************************************************************/
 /*!
- **  Read a vector from the Db structure into the array tab()
- **  The identification is done by Column
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- ** \param[in]  icol Rank of the Column
- **
- ** \param[out]  tab Array of values
- **
- *****************************************************************************/
-static int st_vector_get_col(Db *db, int icol, double *tab)
-{
-  if (!db->isColIdxValid(icol)) return (1);
-  VectorDouble local = db->getColumnByColIdx(icol);
-  for (int iech = 0; iech < (int) local.size(); iech++)
-    tab[iech] = local[iech];
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read a vector from the Db structure into the array tab()
- **  The identification is done by Attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iatt Rank of the Attribute
- **
- ** \param[out]  tab Array of values
- **
- *****************************************************************************/
-static int st_vector_get_att(const Db *db, int iatt, double *tab)
-{
-  if (!db->isUIDValid(iatt)) return (1);
-  VectorDouble local = db->getColumnByUID(iatt);
-  for (int iech = 0; iech < (int) local.size(); iech++)
-    tab[iech] = local[iech];
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read a vector from the Db structure into the array tab()
- **  If a selection is preset, the returned array is compressed
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iatt Rank of the attribute
- **
- ** \param[out]  tab    Array of returned values
- ** \param[out]  number Number of returned values
- **
- *****************************************************************************/
-int db_vector_get_att_sel_compress(Db *db, int iatt, int *number, double *tab)
-{
-  VectorDouble local = db->getColumnByUID(iatt, true);
-  for (int iech = 0; iech < (int) local.size(); iech++)
-    tab[iech] = local[iech];
-  *number = static_cast<int>(local.size());
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read a vector from the Db structure into the array tab()
- **  The identification is done by Attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iatt Rank of the Attribute
- **
- ** \param[out]  tab Array of values
- **
- *****************************************************************************/
-int db_vector_get_att(const Db *db, int iatt, double *tab)
-{
-  VectorDouble local = db->getColumnByUID(iatt, false);
-  for (int iech = 0; iech < (int) local.size(); iech++)
-    tab[iech] = local[iech];
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read a vector from the Db structure into the array tab() through selection
- **  The identification is done by Attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iatt Rank of the Attribute
- **
- ** \param[out]  tab Array of values
- **
- ** \remark If a selection is defined, the masked samples are set to TEST
- **
- *****************************************************************************/
-int db_vector_get_att_sel(Db *db, int iatt, double *tab)
-{
-  VectorDouble local = db->getColumnByUID(iatt, true);
-  for (int iech = 0; iech < (int) local.size(); iech++)
-    tab[iech] = local[iech];
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Write the content of the array tab into an attribute in the db
- **  The identification is done by Column
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- ** \param[in]  icol Rank of the Column
- ** \param[in]  tab  Array of values
- **
- *****************************************************************************/
-static int st_vector_put_col(Db *db, int icol, const double *tab)
-{
-  if (!db->isColIdxValid(icol)) return (1);
-  db->setColumnByColIdxOldStyle(tab, icol);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read a vector from the Db structure into the array tab()
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  locatorIndex Rank of the item in the pointer
- **
- ** \param[out]  tab   Array of values
- **
- *****************************************************************************/
-int db_vector_get(Db *db, const ELoc& locatorType, int locatorIndex, double *tab)
-{
-  int iatt = db->getUIDByLocator(locatorType, locatorIndex);
-  if (st_vector_get_att(db, iatt, tab)) return (1);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read a vector from the Db structure into the array tab() for selection
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db descriptor
- ** \param[in]  item   Rank of the item in the pointer
- **
- ** \param[out]  tab   Array of values
- **
- *****************************************************************************/
-int db_selection_get(const Db *db, int item, double *tab)
-{
-  int iatt = db->getUIDByLocator(ELoc::SEL, item);
-  if (st_vector_get_att(db, iatt, tab)) return (1);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Write the array tab() into a vector of the Db structure
- **
- ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  locatorIndex Rank of the item in the pointer (starting from 0)
- ** \param[in]  tab    Array of values
- **
- *****************************************************************************/
-int db_vector_put(Db *db,
-                  const ELoc& locatorType,
-                  int locatorIndex,
-                  double *tab)
-{
-  int icol = db->getColIdxByLocator(locatorType, locatorIndex);
-  if (!db->isColIdxValid(icol)) return (1);
-  if (st_vector_put_col(db, icol, tab)) return (1);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Returns the number of items for a given locator in the Db
  **
  ** \return  Number of items
@@ -262,233 +70,6 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
   if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
   return (db->getFromLocatorNumber(locatorType));
-}
-
-/****************************************************************************/
-/*!
- **  Checks the presence of at least one item for a given locator in the Db
- **
- ** \return  1 if at least one item has been found and 0 otherwise
- **
- ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (ELoc)
- **
- *****************************************************************************/
-int exist_LOCATOR(Db *db, const ELoc& locatorType)
-{
-  if (db == nullptr) return (0);
-  return (db->getFromLocatorNumber(locatorType) > 0);
-}
-
-/****************************************************************************/
-/*!
- **  Reads one item of a given locator from Db
- **
- ** \return  Returned value
- **
- ** \param[in]  db     Db structure
- ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  locatorIndex Rank of the item in the pointer
- ** \param[in]  iech   Rank of the sample
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int locatorIndex, int iech)
-{
-  return db->getFromLocator(locatorType, iech, locatorIndex);
-}
-
-/****************************************************************************/
-/*
- **  Writes one item of a given locator in Db
- **
- ** \param[in]  db     Db structure
- ** \param[in]  locatorType Rank of the pointer (ELoc)
- ** \param[in]  locatorIndex Rank of the item in the pointer
- ** \param[in]  iech   Rank of the sample
- ** \param[in]  value  Value of be written
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-void set_LOCATOR_ITEM(Db *db,
-                      const ELoc& locatorType,
-                      int locatorIndex,
-                      int iech,
-                      double value)
-{
-  db->setFromLocator(locatorType, iech, locatorIndex, value);
-}
-
-/****************************************************************************/
-/*!
- **  Frees an array for the storage of grid indices
- **
- ** \return  A pointer to the newly freed array
- **
- ** \param[in]  indice Array to be freed
- **
- *****************************************************************************/
-int* db_indg_free(int *indice)
-
-{
-  indice = (int*) mem_free((char* ) indice);
-  return (indice);
-}
-
-/****************************************************************************/
-/*!
- **  Allocates an array for the storage of grid indices
- **
- ** \return  A pointer to the allocated array
- **
- ** \param[in]  db  Db descriptor
- **
- ** \remark  The allocated array must be freed using db_indg_free
- ** \remark  A fatal error occurs if the core allocation fails.
- **
- *****************************************************************************/
-int* db_indg_alloc(const Db *db)
-
-{
-  int *indice, size;
-
-  /* Initializations */
-
-  indice = nullptr;
-  if (db == nullptr) return (indice);
-  // The strange following line has been suppressed by DR on 27/08/2020
-  // as there is no clear link between the status of the Db (grid or not)
-  // and the allocation of such a vector
-  //  if (! db->getGrid().flag_define) return(indice);
-
-  size = db->getNDim();
-  if (size <= 0) return (indice);
-
-  indice = (int*) mem_alloc(sizeof(int) * size, 1);
-
-  return (indice);
-}
-
-/****************************************************************************/
-/*!
- **  Frees the array for storing a vector
- **
- ** \return  A pointer to the array to be freed
- **
- ** \param[in]  tab Vector array to be freed
- **
- *****************************************************************************/
-double* db_vector_free(double *tab)
-
-{
-  tab = (double*) mem_free((char* ) tab);
-  return (tab);
-}
-
-/****************************************************************************/
-/*!
- **  Allocates the array for storing a column of the Db
- **
- ** \return  A pointer to the allocated array
- **
- ** \param[in]  db Db descriptor
- **
- ** \remark  The allocated array must be freed using db_vector_free()
- ** \remark  A fatal error occurs if the core allocation fails.
- **
- *****************************************************************************/
-double* db_vector_alloc(const Db *db)
-
-{
-  double *tab;
-
-  /* Initializations */
-
-  tab = nullptr;
-  if (db->getSampleNumber() <= 0) return (tab);
-  tab = (double*) mem_alloc(sizeof(double) * db->getSampleNumber(), 1);
-
-  return (tab);
-}
-
-/****************************************************************************/
-/*! 
- **  Read the vector of a given coordinate from the Db structure
- **  into the array tab()
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db descriptor
- ** \param[in]  idim Space dimension
- **
- ** \param[out]  tab Array of values
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-int db_coorvec_get(const Db *db, int idim, double *tab)
-{
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (db->isGrid())
-      tab[iech] = db->getCoordinate(iech, idim);
-    else
-    {
-      int icol = db->getColIdxByLocator(ELoc::X, idim);
-      if (!db->isColIdxValid(icol)) return (1);
-      tab[iech] = db->getArray(iech, icol);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*! 
- **  Write the array tab() into a vector of coordinates
- **  of the Db structure
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db descriptor
- ** \param[in]  idim Space dimension
- ** \param[in]  tab  Array of values
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-int db_coorvec_put(Db *db, int idim, double *tab)
-{
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (db->isGrid())
-    {
-      messerr("This operation is forbidden on a Grid Db");
-      return (1);
-    }
-    int icol = db->getColIdxByLocator(ELoc::X, idim);
-    if (!db->isColIdxValid(icol)) return (1);
-    db->setValueByColIdx(iech, icol, tab[iech]);
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the rank of the attribute in the array
- **
- ** \return  Rank of the attribute
- **
- ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer
- ** \param[in]  locatorIndex Rank of the attribute in the pointer
- **
- *****************************************************************************/
-int db_attribute_identify(const Db *db, const ELoc& locatorType, int locatorIndex)
-{
-  int iatt = db->getUIDByLocator(locatorType, locatorIndex);
-  return (iatt);
 }
 
 /****************************************************************************/
@@ -534,87 +115,6 @@ double* db_sample_alloc(const Db *db, const ELoc& locatorType)
   if (locatorType == ELoc::X && db->isGrid()) size = db->getNDim();
   if (size > 0) tab = (double*) mem_alloc(sizeof(double) * size, 1);
   return (tab);
-}
-
-/****************************************************************************/
-/*! 
- **  Loads the sample from a Db structure
- **
- ** \return  Error return code
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  locatorType  vector type (ELoc)
- ** \param[in]  iech    number of the sample
- **
- ** \param[out] tab     array of values
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-int db_sample_load(Db *db, const ELoc& locatorType, int iech, double *tab)
-{
-  if (!isLocatorTypeValid(locatorType)) return (1);
-
-  for (int item = 0; item < get_LOCATOR_NITEM(db, locatorType); item++)
-  {
-    /* Particular case of the grid */
-
-    if (locatorType == ELoc::X && db->isGrid())
-      tab[item] = db->getCoordinate(iech, item);
-    else
-    {
-      int icol = db->getColIdxByLocator(locatorType, item);
-      if (!db->isColIdxValid(icol)) return (1);
-      tab[item] = db->getArray(iech, icol);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*! 
- **  Loads the contents of several (consecutive) attributes for a sample
- **
- ** \return  1 if the values contain at least one TEST value
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  number  Number of columns
- ** \param[in]  iatt    Rank of the starting attribute
- **
- ** \param[out] tab     Array of values
- **
- *****************************************************************************/
-int db_sample_get_att(Db *db, int iech, int number, int iatt, double *tab)
-{
-  int ivar, flag_ffff;
-
-  flag_ffff = 0;
-  for (ivar = 0; ivar < number; ivar++)
-  {
-    tab[ivar] = db->getArray(iech, iatt + ivar);
-    if (FFFF(tab[ivar])) flag_ffff = 1;
-  }
-  return (flag_ffff);
-}
-
-/****************************************************************************/
-/*! 
- **  Saves the contents of several (consecutive) attributes for a sample
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  number  Number of columns
- ** \param[in]  iatt    Rank of the starting attribute
- ** \param[in]  tab     array of values
- **
- *****************************************************************************/
-void db_sample_put_att(Db *db, int iech, int number, int iatt, double *tab)
-{
-  int ivar;
-
-  for (ivar = 0; ivar < number; ivar++)
-    db->setArray(iech, iatt + ivar, tab[ivar]);
 }
 
 /****************************************************************************/
@@ -730,8 +230,8 @@ double distance_grid(DbGrid *db,
 
   /* Find the grid indices */
 
-  db_index_sample_to_grid(db, iech1, iwork1.data());
-  db_index_sample_to_grid(db, iech2, iwork2.data());
+  db->rankToIndice(iech1, iwork1);
+  db->rankToIndice(iech2, iwork2);
 
   /* Calculate the distance */
 
@@ -739,144 +239,13 @@ double distance_grid(DbGrid *db,
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
     int number = ABS(iwork1[idim] - iwork2[idim]);
-    if (flag_moins1 && number > 1) number--;
+    if (flag_moins1 != 0 && number > 1) number--;
     double delta = number * db->getDX(idim);
     if (dist_vect != nullptr) dist_vect[idim] = delta;
     dist += delta * delta;
   }
 
   return (sqrt(dist));
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the bench separation for the current pair
- **
- ** \return  Bench separation;
- ** \return  0 if space dimension < 3 or TEST if a coordinate is underfined
- **
- ** \param[in]  db           Db structure
- ** \param[in]  iech1        Rank of the first sample
- ** \param[in]  iech2        Rank of the second sample
- **
- ** \remark  The bench criterion consists in comparing the difference of
- ** \remark  according to the 3rd coordinate with the bench width.
- **
- *****************************************************************************/
-double bench_distance(const Db *db, int iech1, int iech2)
-{
-  int idim0 = 2;
-  if (db->getNDim() <= idim0) return (0.);
-  return db->getDistance1D(iech1, iech2, idim0, true);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the cylinder radius along a calculation direction
- **
- ** \return  Cylinder radius (or TEST if a coordinate is unknown)
- **
- ** \param[in]  db           Db structure
- ** \param[in]  iech1        Rank of the first sample
- ** \param[in]  iech2        Rank of the second sample
- ** \param[in]  codir        Direction coefficient
- **
- *****************************************************************************/
-double cylinder_radius(const Db *db,
-                       int iech1,
-                       int iech2,
-                       const VectorDouble &codir)
-{
-  double delta, dproj, v, dn1, dn2;
-
-  dn1 = dn2 = v = dproj = 0.;
-  for (int idim = 0; idim < db->getNDim(); idim++)
-  {
-    delta = db->getDistance1D(iech1, iech2, idim);
-    if (FFFF(delta)) return (TEST);
-    dproj += delta * codir[idim];
-    dn1 += codir[idim] * codir[idim];
-    dn2 += delta * delta;
-  }
-  if (dn1 > 0.) v = sqrt(dn2 - dproj * dproj / dn1);
-  return (v);
-}
-
-/*****************************************************************************/
-/*!
- **  Converts from grid indices to the absolute address
- **
- ** \return  Absolute address in the grid descriptor
- **
- ** \param[in]  db    descriptor of the grid parameters
- ** \param[in]  indg  array of grid indices
- **
- ** \remark  If one grid index does not lie within the grid, -1 is returned
- **
- *****************************************************************************/
-int db_index_grid_to_sample(const DbGrid *db, const int *indg)
-{
-  int ndim = db->getNDim();
-  VectorInt local(ndim);
-  for (int idim = 0; idim < ndim; idim++)
-    local[idim] = indg[idim];
-  return db->getGrid().indiceToRank(local);
-}
-
-/****************************************************************************/
-/*!
- **  Converts from sample index into grid indices
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iech Rank of the sample
- **
- ** \param[out]  indg Grid indices
- **
- *****************************************************************************/
-void db_index_sample_to_grid(const DbGrid *db, int iech, int *indg)
-{
-  int ndim = db->getNDim();
-  int nval = 1;
-  for (int idim = 0; idim < ndim; idim++)
-    nval *= db->getNX(idim);
-
-  for (int idim = ndim - 1; idim >= 0; idim--)
-  {
-    nval /= db->getNX(idim);
-    indg[idim] = iech / nval;
-    iech -= indg[idim] * nval;
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Return the index of the ordered grid sample (see remarks)
- **
- ** \return Rank of the ordered sample
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iech Rank of the sample
- **
- ** \param[out]  indg Array used for sorting grid indices
- **
- ** \remark The grid samples are ordered if they are reviewed in such an order
- ** \remark which minimizes the distance between any pair of successive indices
- **
- *****************************************************************************/
-int db_index_sorted_in_grid(const DbGrid *db, int iech, int *indg)
-{
-  int jech, idim, ndim, indref;
-
-  ndim = db->getNDim();
-  db_index_sample_to_grid(db, iech, indg);
-
-  for (idim = ndim - 1; idim >= 0; idim--)
-  {
-    indref = indg[idim + 1];
-    if (indref % 2 == 1) indg[idim] = db->getNX(idim) - indg[idim] - 1;
-  }
-  jech = db_index_grid_to_sample(db, indg);
-  return (jech);
 }
 
 /****************************************************************************/
@@ -897,7 +266,7 @@ void db_sample_print(Db *db,
                      int flag_nerr)
 {
   message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
-  if (flag_ndim)
+  if (flag_ndim != 0)
   {
     for (int idim = 0; idim < db->getNDim(); idim++)
     {
@@ -909,18 +278,18 @@ void db_sample_print(Db *db,
                 db->getCoordinate(iech, idim));
     }
   }
-  if (flag_nvar)
+  if (flag_nvar != 0)
   {
     for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
-      double value = db->getLocVariable(ELoc::Z,iech, ivar);
+      double value = db->getZVariable(iech, ivar);
       if (FFFF(value))
         message("Variable   #%d = NA\n", ivar + 1);
       else
-        message("Variable   #%d = %lf\n", ivar + 1, db->getLocVariable(ELoc::Z,iech, ivar));
+        message("Variable   #%d = %lf\n", ivar + 1, db->getZVariable(iech, ivar));
     }
   }
-  if (flag_nerr)
+  if (flag_nerr != 0)
   {
     for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
     {
@@ -944,51 +313,6 @@ void db_sample_print(Db *db,
 
 /****************************************************************************/
 /*!
- **  Returns the extension of the field along each axis
- **  This calculation takes contents of arguments at input into account
- **  if 'flag_preserve' is true
- **
- ** \param[in]  db    Db structure
- **
- ** \param[out]  mini   Array containing the minimum
- **                     (Dimension = ndim)
- ** \param[out]  maxi   Array containing the maximum
- **                     (Dimension =  ndim)
- ** \param[in]   flag_preserve False Contents of arguments at input is preserved
- **
- ** \remark If the contents of an item of the arguments is TEST, this value
- ** \remark is not used in the comparison
- **
- *****************************************************************************/
-void db_extension(const Db *db,
-                  VectorDouble& mini,
-                  VectorDouble& maxi,
-                  bool flag_preserve)
-{
-  int ndim = db->getNDim();
-  if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
-  if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
-  if (! flag_preserve)
-  {
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      mini[idim] = maxi[idim] = TEST;
-    }
-  }
-
-  /* Loop on the space dimension */
-
-  for (int idim = 0; idim < db->getNDim(); idim++)
-  {
-    VectorDouble coor = db->getCoordinates(idim, true);
-    StatResults stats = ut_statistics((int) coor.size(), coor.data());
-    if (FFFF(mini[idim]) || stats.mini < mini[idim]) mini[idim] = stats.mini;
-    if (FFFF(maxi[idim]) || stats.maxi > maxi[idim]) maxi[idim] = stats.maxi;
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Returns the center of a data set
  **
  ** \param[in]  db    Db structure
@@ -999,138 +323,26 @@ void db_extension(const Db *db,
  *****************************************************************************/
 int db_center(Db *db, double *center)
 {
-  double *tab, *sel, *wgt;
+  VectorDouble wgt;
+  VectorDouble sel;
 
   /* Initializations */
 
-  tab = sel = wgt = nullptr;
-  tab = db_vector_alloc(db);
-  if (tab == nullptr) return (1);
   if (db->hasLocVariable(ELoc::SEL))
-  {
-    sel = db_vector_alloc(db);
-    if (sel == nullptr) return (1);
-    db_selection_get(db, 0, sel);
-  }
+    sel = db->getColumnByLocator(ELoc::SEL);
   if (db->hasLocVariable(ELoc::W))
-  {
-    wgt = db_vector_alloc(db);
-    if (wgt == nullptr) return (1);
-    db_vector_get(db, ELoc::W, 0, wgt);
-  }
+    wgt = db->getColumnByLocator(ELoc::W);
 
   /* Loop on the space dimension */
 
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
-    db_coorvec_get(db, idim, tab);
-    StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel, wgt);
+    VectorDouble tab = db->getCoordinates(idim);
+    StatResults stats = ut_statistics(db->getSampleNumber(), tab.data(), sel.data(), wgt.data());
     center[idim] = stats.mean;
   }
 
-  db_vector_free(tab);
-  db_vector_free(sel);
-  db_vector_free(wgt);
-
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the extension of the diagonal of the field
- **
- ** \return  Error return code
- **
- ** \param[in]  db   Db structure
- **
- ** \param[out]  diag Dimension of the field diagonal
- **
- ** \remarks  Different versions are provided for Euclidean and Spherical cases
- **
- *****************************************************************************/
-int db_extension_diag(const Db *db, double *diag)
-{
-  double *tab, *sel, coor[2][2];
-
-  /* Initializations */
-
-  (*diag) = 0.;
-  tab = sel = nullptr;
-  tab = db_vector_alloc(db);
-  if (tab == nullptr) return (1);
-  if (db->hasLocVariable(ELoc::SEL))
-  {
-    sel = db_vector_alloc(db);
-    if (sel == nullptr) return (1);
-    db_selection_get(db, 0, sel);
-  }
-  bool flag_sphere = getDefaultSpaceType() == ESpaceType::SN;
-
-  /* Calculate the field extension */
-
-  if (!flag_sphere)
-  {
-
-    /* Case of Euclidean distances */
-
-    for (int idim = 0; idim < db->getNDim(); idim++)
-    {
-      db_coorvec_get(db, idim, tab);
-      StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel);
-      (*diag) += stats.delta * stats.delta;
-    }
-    (*diag) = sqrt(*diag);
-  }
-  else
-  {
-
-    /* Case of spherical coordinates */
-
-    for (int idim = 0; idim < 2; idim++)
-    {
-      db_coorvec_get(db, idim, tab);
-      StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel);
-      coor[idim][0] = stats.mini;
-      coor[idim][1] = stats.maxi;
-    }
-    (*diag) = ut_distance(2, coor[0], coor[1]);
-  }
-
-  db_vector_free(tab);
-  db_vector_free(sel);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the epsilon value calculated from the extension of the field
- **
- ** \return  Epsilon value
- **
- ** \param[in]  db   Db structure
- **
- *****************************************************************************/
-double db_epsilon_distance(Db *db)
-
-{
-  double diag;
-  int idim;
-
-  if (db->isGrid())
-  {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
-    diag = 1.e30;
-    for (idim = 0; idim < dbgrid->getNDim(); idim++)
-      if (dbgrid->getDX(idim) < diag) diag = dbgrid->getDX(idim);
-  }
-  else
-  {
-    if (db_extension_diag(db, &diag))
-      diag = 1.e-6;
-    else
-      diag /= 100.;
-  }
-  return (diag);
 }
 
 /****************************************************************************/
@@ -1153,46 +365,28 @@ int db_attribute_range(const Db *db,
                        double *maxi,
                        double *delta)
 {
-  double *tab, *sel;
-  int error;
   StatResults stats;
 
   /* Initializations */
 
-  error = 1;
   *mini = TEST;
   *maxi = TEST;
   *delta = TEST;
-  tab = sel = nullptr;
 
   /* Load the variable */
 
-  tab = db_vector_alloc(db);
-  if (tab == nullptr) goto label_end;
-  if (db_vector_get_att(db, iatt, tab)) goto label_end;
-
+  VectorDouble tab = db->getColumnByUID(iatt);
+  VectorDouble sel;
   if (db->hasLocVariable(ELoc::SEL))
-  {
-    sel = db_vector_alloc(db);
-    if (sel == nullptr) goto label_end;
-    db_selection_get(db, 0, sel);
-  }
+    sel = db->getColumnByLocator(ELoc::SEL);
 
   /* Calculate the statistics */
 
-  stats = ut_statistics(db->getSampleNumber(), tab, sel);
-  *mini = stats.mini;
-  *maxi = stats.maxi;
+  stats  = ut_statistics(db->getSampleNumber(), tab.data(), sel.data());
+  *mini  = stats.mini;
+  *maxi  = stats.maxi;
   *delta = stats.delta;
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  db_vector_free(tab);
-  db_vector_free(sel);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1261,102 +455,6 @@ int db_grid_define_coordinates(DbGrid *db)
 
 /****************************************************************************/
 /*!
- **  Create a Db containing a single target
- **
- ** \return  Pointer to the newly created Db point structure
- **
- ** \param[in]  target Array containing the target coordinates
- ** \param[in]  ndim   Space dimension
- ** \param[in]  flagAddSampleRank True to add the 'rank' as first column
- **
- *****************************************************************************/
-Db* db_create_from_target(const double *target, int ndim, bool flagAddSampleRank)
-{
-  Db *db;
-  int idim;
-
-  /* Initializations */
-
-  db = nullptr;
-
-  /* Create a Db with point organization */
-
-  db = Db::createFromOnePoint(VectorDouble(), flagAddSampleRank);
-
-  /* Add the coordinates */
-
-  (void) db->addColumnsByConstant(2, 0.);
-
-  /* Create the locators */
-
-  db->setLocatorsByUID(ndim, flagAddSampleRank, ELoc::X);
-
-  /* Copy the target locations */
-
-  for (idim = 0; idim < ndim; idim++)
-  {
-    int jdim = (flagAddSampleRank) ? idim + 1 : idim;
-    db->setArray(0, jdim, target[idim]);
-  }
-
-  return (db);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the name assigned to the given attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iatt   Rank of the attribute (starting at 0)
- **
- *****************************************************************************/
-String db_name_get_by_att(const Db *db, int iatt)
-{
-  static char na_string[3] = STRING_NA;
-  int icol = db->getColIdxByUID(iatt);
-  if (!db->isColIdxValid(icol)) return (na_string);
-  return (db->getNameByColIdx(icol));
-}
-
-/****************************************************************************/
-/*!
- **  Returns the name assigned to the given column
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db structure
- ** \param[in]  icol   Rank of the column (starting at 0)
- **
- *****************************************************************************/
-String db_name_get_by_col(Db *db, int icol)
-{
-  static char na_string[3] = STRING_NA;
-  if (!db->isColIdxValid(icol)) return (na_string);
-  return (db->getNameByColIdx(icol));
-}
-
-/****************************************************************************/
-/*!
- **  Define the name assigned to the given attribute
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iatt   Rank of the attribute (starting at 0)
- ** \param[in]  name   Name assigned to the current attribute
- **
- *****************************************************************************/
-int db_name_set(Db *db, int iatt, const String &name)
-{
-  if (!db->isUIDValid(iatt)) return 1;
-  db->setNameByUID(iatt, name);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Copy an attribute into another one
  **
  ** \param[in]  db        Db structure
@@ -1370,93 +468,6 @@ void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
     db->setArray(iech, iatt_out, db->getArray(iech, iatt_in));
-}
-
-/****************************************************************************/
-/*!
- **  Initialize a variable with the given argument (given by attribute)
- **
- ** \param[in]  db        Db structure
- ** \param[in]  ncol      Number of attributes to be initialized
- ** \param[in]  iatt      Rank of the first variable to be initialized
- ** \param[in]  valinit   Value set to the variable
- **
- *****************************************************************************/
-void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
-{
-  int iech, icol, jcol, jatt;
-
-  for (jcol = 0; jcol < ncol; jcol++)
-  {
-    jatt = iatt + jcol;
-    icol = db->getColIdxByUID(jatt);
-
-    if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasLocVariable(ELoc::DOM))
-      for (iech = 0; iech < db->getSampleNumber(); iech++)
-        db->setArray(iech, icol, valinit);
-    else
-      for (iech = 0; iech < db->getSampleNumber(); iech++)
-        if (db->getLocVariable(ELoc::DATE,iech,0))
-          db->setArray(iech, icol, valinit);
-        else
-          db->setArray(iech, icol, TEST);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Remove a set of "n_del" attributes starting from "i_del"
- **
- ** \param[in]  db    Db structure
- ** \param[in]  i_del Rank of the first attribute to be deleted
- ** \param[in]  n_del Number of attributes to be deleted
- **
- *****************************************************************************/
-void db_attribute_del_mult(Db *db, int i_del, int n_del)
-{
-  if (i_del <= 0) return;
-  for (int i = n_del - 1; i >= 0; i--)
-    db->deleteColumnByUID(i_del + i);
-}
-
-/****************************************************************************/
-/*!
- **  Copy Grid characteristics
- **
- ** \return  Error return code
- **
- ** \param[in]   dbin   Input Grid Db structure
- ** \param[in]   mode   Type of parameters that must be copied
- ** \li                 1 : Array of Grid Number of meshes
- ** \li                 2 : Array of Grid Origins
- ** \li                 3 : Array of Grid Meshes
- ** \li                 4 : Grid rotation
- **
- ** \param[out]  dbout  Output Grid Db structure
- **
- *****************************************************************************/
-int db_grid_copy_params(DbGrid *dbin, int mode, DbGrid *dbout)
-{
-  if (dbin->getNDim() != dbout->getNDim()) return (1);
-  dbout->gridCopyParams(mode, dbin->getGrid());
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the surface/volume mesh of the grid
- **
- ** \return  Mesh value
- **
- ** \param[in]  db Db structure
- **
- *****************************************************************************/
-double db_grid_maille(Db *db)
-
-{
-  if (!db->isGrid()) return (TEST);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
-  return (dbgrid->getCellSize());
 }
 
 /****************************************************************************/
@@ -1518,8 +529,7 @@ int db_gradient_update(Db *db)
  *****************************************************************************/
 int db_selref(int ndim, const int* nx, const int* ref, const double* tabin, double* tabout)
 {
-  int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, skip, ival, error,
-      neff_ndim;
+  int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, ival, error, neff_ndim;
 
   /* Initializations */
 
@@ -1554,16 +564,17 @@ int db_selref(int ndim, const int* nx, const int* ref, const double* tabin, doub
   for (idim = 0; idim < ndim; idim++)
     ntotal *= nx[idim];
 
+  bool skip;
   for (lec = ecr = 0; lec < ntotal; lec++)
   {
     nval = ntotal;
     iech = lec;
-    skip = 0;
-    for (idim = ndim - 1; idim >= 0 && skip == 0; idim--)
+    skip = false;
+    for (idim = ndim - 1; idim >= 0 && ! skip; idim--)
     {
       nval /= nx[idim];
       ival = iech / nval;
-      if (ref[idim] > 0 && ival != ref[idim] - 1) skip = 1;
+      if (ref[idim] > 0 && ival != ref[idim] - 1) skip = true;
       ind1[idim] = ival;
       iech -= ival * nval;
     }
@@ -1592,59 +603,6 @@ int db_selref(int ndim, const int* nx, const int* ref, const double* tabin, doub
   mem_free((char* ) rank);
   mem_free((char* ) ind1);
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Converts from coordinates sample index into grid and absolute indices
- **
- ** \return  Absolute grid index (starting from 0) or -1 if outside the grid
- **
- ** \param[in]  db_grid  Db grid structure
- ** \param[in]  coor     Array containing the coordinates of the sample
- **
- *****************************************************************************/
-int db_locate_in_grid(DbGrid *db_grid, double *coor)
-{
-  int *indg, indabs;
-
-  /* Initializations */
-
-  indabs = -1;
-  indg = nullptr;
-
-  /* Core allocation */
-
-  indg = db_indg_alloc(db_grid);
-  if (indg == nullptr) goto label_end;
-
-  if (point_to_grid(db_grid, coor, 0, indg) < 0) goto label_end;
-
-  indabs = db_index_grid_to_sample(db_grid, indg);
-
-  label_end:
-  db_indg_free(indg);
-  return (indabs);
-}
-
-/****************************************************************************/
-/*!
- **  Check if two grid match
- **
- ** \return  1 if the two grid match; 0 otherwise
- **
- ** \param[in]  db1   Db1 grid structure
- ** \param[in]  db2   Db1 grid structure
- **
- ** \remark  The grid must match up to their minimum space dimension
- ** \remark  The test is only performed on the geometry characteristics
- ** \remark  The test returns 0 if one of the two file is not a grid
- **
- *****************************************************************************/
-int db_grid_match(DbGrid *db1, DbGrid *db2)
-
-{
-  return ((int) db1->isSameGrid(db2->getGrid()));
 }
 
 /****************************************************************************/
@@ -1678,7 +636,7 @@ int db_locator_attribute_add(Db *db,
   for (int i = 0; i < number; i++)
   {
     String string = getLocatorName(locatorType, r_tem + i);
-    db_name_set(db, (*iptr) + i, string);
+    db->setNameByUID((*iptr) + i, string);
   }
   return (0);
 }
@@ -1737,7 +695,7 @@ int db_grid_copy(DbGrid *db1,
 
     /* Find the indices of the target grid node */
 
-    db_index_sample_to_grid(db2, iech, iwork1.data());
+    db2->rankToIndice(iech, iwork1);
     for (int idim = 0; idim < db2->getNDim(); idim++)
     {
       if (ind2[idim] > 0)
@@ -1759,7 +717,7 @@ int db_grid_copy(DbGrid *db1,
 
     /* Convert into absolute index */
 
-    int jech = db_index_grid_to_sample(db1, iwork1.data());
+    int jech = db1->indiceToRank(iwork1);
 
     /* Loop on the variables to be copied */
 
@@ -1792,37 +750,30 @@ int db_grid_copy_dilate(DbGrid *db1,
                         int mode,
                         const int *nshift)
 {
-  int *indg, iech1, iech2, idim, ndim, error;
   double value;
 
   /* Initializations */
 
-  error = 1;
-  ndim = db1->getNDim();
-  indg = nullptr;
+  int ndim  = db1->getNDim();
+  VectorInt indg(ndim);
 
   /* Check that the grids are compatible */
 
-  if (!db1->hasSameDimension(db2)) goto label_end;
+  if (!db1->hasSameDimension(db2)) return 1;
   if (! db1->isGrid() || ! db2->isGrid())
   {
     messerr("The function 'db_grid_copy_dilate' requires two grid Dbs");
-    goto label_end;
+    return 1;
   }
-
-  /* Core allocation */
-
-  indg = db_indg_alloc(db1);
-  if (indg == nullptr) goto label_end;
 
   /* Loop on the samples of the second Db */
 
-  for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
   {
-    db_index_sample_to_grid(db2, iech2, indg);
-    for (idim = 0; idim < ndim; idim++)
+    db2->rankToIndice(iech2, indg);
+    for (int idim = 0; idim < ndim; idim++)
       indg[idim] += mode * nshift[idim];
-    iech1 = db_index_grid_to_sample(db1, indg);
+    int iech1 = db1->indiceToRank(indg);
 
     if (iech1 < 0)
       value = TEST;
@@ -1831,51 +782,7 @@ int db_grid_copy_dilate(DbGrid *db1,
 
     db2->setArray(iech2, iatt2, value);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  db_indg_free(indg);
-  return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Converts from grid indices and percentages to the point absolute
- **  coordinates
- **
- ** \param[in]  db       descriptor of the grid parameters
- ** \param[in]  indg     array of indices of the grid
- ** \param[in]  percent  array of grid percentages (NULL if absent)
- **
- ** \param[out] coor     coordinates of the point
- **
- *****************************************************************************/
-void grid_to_point(const DbGrid *db, const int *indg, const double *percent, double *coor)
-{
-  int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
-  /* Calculate the coordinates in the grid system */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    work1[idim] = indg[idim];
-    if (percent != nullptr) work1[idim] += percent[idim];
-    work1[idim] *= db->getDX(idim);
-  }
-
-  /* Process the grid rotation (if any) */
-
-  db->getGrid().getRotation().rotateDirect(work1, work2);
-
-  /* Shift the origin */
-
-  for (int idim = 0; idim < ndim; idim++)
-    coor[idim] = work2[idim] + db->getX0(idim);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -2108,7 +1015,7 @@ int index_point_to_grid(const Db *dbin,
 
   /* Convert the indices into the absolute grid node */
 
-  int jech = db_index_grid_to_sample(dbout, iwork1.data());
+  int jech = dbout->indiceToRank(iwork1);
 
   return (jech);
 }
@@ -2228,86 +1135,74 @@ void db_monostat(Db *db,
  *****************************************************************************/
 int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclout)
 {
-  int error, iptr, ivar, nech, nval, mini, nvar, invalid, iclass, nclass;
-  int ifac[2], nmax[2], iech, jech;
-  double *tab, *sel, *coor, total;
+  int nval, mini, invalid;
 
   /* Initializations */
 
-  error = 1;
-  nvar = db->getLocNumber(ELoc::Z);
-  nech = db->getSampleNumber();
-  nclass = 0;
-  coor = tab = sel = nullptr;
+  int nvar = db->getLocNumber(ELoc::Z);
+  int nech = db->getSampleNumber();
   if (nvar <= 0 || nvar > 2)
   {
     messerr("This procedure is designed for 1 or 2 variables");
-    return (1);
+    return 1;
   }
   if (!dbgrid->isGrid())
   {
     messerr(" This procedure is designed for a Grid Output Db");
-    return (1);
+    return 1;
   }
+
+  VectorInt nmax(2);
   nmax[0] = nfac1max;
   nmax[1] = nfac2max;
 
   /* Count the number of facies */
 
-  for (ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
     if (nmax[ivar] <= 0)
     {
-      tab = db_vector_alloc(db);
-      if (tab == nullptr) goto label_end;
-      if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
+      VectorDouble tab = db->getColumnByLocator(ELoc::Z, ivar);
+      VectorDouble sel;
       if (db->hasLocVariable(ELoc::SEL))
-      {
-        sel = db_vector_alloc(db);
-        if (sel == nullptr) goto label_end;
-        db_selection_get(db, 0, sel);
-      }
-      ut_facies_statistics(nech, tab, sel, &nval, &mini, &nmax[ivar]);
-      tab = db_vector_free(tab);
-      sel = db_vector_free(sel);
+        sel = db->getColumnByLocator(ELoc::SEL);
+      ut_facies_statistics(nech, tab.data(), sel.data(), &nval, &mini, &nmax[ivar]);
     }
   }
+  int nclass = VH::product(nmax);
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db, ELoc::X);
-  if (coor == nullptr) goto label_end;
+  VectorDouble coor(db->getLocatorNumber(ELoc::X));
 
   /* Allocate the variables */
 
-  nclass = 1;
-  for (ivar = 0; ivar < nvar; ivar++)
-    nclass *= nmax[ivar];
-  iptr = dbgrid->addColumnsByConstant(nclass, 0.);
-  if (iptr < 0) goto label_end;
+  int iptr = dbgrid->addColumnsByConstant(nclass, 0.);
+  if (iptr < 0) return 1;
   dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P);
 
   /* Loop on the samples of the input data Db */
 
-  ifac[0] = ifac[1] = 0;
-  for (iech = 0; iech < nech; iech++)
+  VectorInt ifac(2, 0);
+  for (int iech = 0; iech < nech; iech++)
   {
     /* Load the facies information */
 
-    for (ivar = invalid = 0; ivar < nvar && invalid == 0; ivar++)
+    for (int ivar = invalid = 0; ivar < nvar && invalid == 0; ivar++)
     {
-      ifac[ivar] = (int) db->getLocVariable(ELoc::Z,iech, ivar);
+      ifac[ivar] = (int) db->getZVariable(iech, ivar);
       if (ifac[ivar] > nmax[ivar]) invalid = 1;
     }
     if (invalid) continue;
 
     /* Locate the data sample within the grid */
 
-    jech = index_point_to_grid(db, iech, -1, dbgrid, coor);
+    int jech = index_point_to_grid(db, iech, -1, dbgrid, coor.data());
     if (jech < 0) continue;
 
     /* Compute the class index */
 
+    int iclass;
     if (nvar == 1)
       iclass = ifac[0] - 1;
     else
@@ -2321,35 +1216,31 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
   /* Normalization phase */
 
-  for (jech = 0; jech < dbgrid->getSampleNumber(); jech++)
+  for (int jech = 0; jech < dbgrid->getSampleNumber(); jech++)
   {
     /* Cumulate the proportions */
 
-    total = 0.;
-    for (iclass = 0; iclass < nclass; iclass++)
+    double total = 0.;
+    for (int iclass = 0; iclass < nclass; iclass++)
       total += dbgrid->getLocVariable(ELoc::P,jech, iclass);
     if (total == 1.) continue;
     if (total <= 0.)
     {
       /* No sample in the current cell */
 
-      for (iclass = 0; iclass < nclass; iclass++)
+      for (int iclass = 0; iclass < nclass; iclass++)
         dbgrid->setLocVariable(ELoc::P,jech, iclass, TEST);
     }
     else
     {
-      for (iclass = 0; iclass < nclass; iclass++)
+      for (int iclass = 0; iclass < nclass; iclass++)
         dbgrid->setLocVariable(ELoc::P,jech, iclass,
                               dbgrid->getLocVariable(ELoc::P,jech, iclass) / total);
     }
   }
-  error = 0;
 
-  label_end: *nclout = nclass;
-  db_vector_free(tab);
-  db_vector_free(sel);
-  db_sample_free(coor);
-  return (error);
+  *nclout = nclass;
+  return 0;
 }
 
 /****************************************************************************/
@@ -2582,38 +1473,39 @@ void db_locators_correct(VectorString &strings,
  *****************************************************************************/
 int db_prop_read(DbGrid *db, int ix, int iy, double *props)
 {
-  int iz, nz, nprop, iprop, ecr, indices[3], i, iech, flag_no;
+  int ecr, flag_no;
   double value, total;
 
   /* Initializations */
 
-  nprop = db->getLocNumber(ELoc::P);
-  nz = db->getNX(2);
-  for (i = 0; i < nz * nprop; i++)
-    props[i] = 0.;
+  int nprop = db->getLocNumber(ELoc::P);
+  int ndim  = db->getNDim();
+  int nz    = db->getNX(2);
+  for (int i = 0; i < nz * nprop; i++) props[i] = 0.;
 
   /* Preliminary checks */
 
-  if (db->getNDim() != 3) return (1);
+  if (ndim != 3) return (1);
   if (ix < 0 || ix >= db->getNX(0)) return (1);
   if (iy < 0 || iy >= db->getNX(1)) return (1);
 
   /* Blank out the array */
 
+  VectorInt indices(ndim, 0);
   indices[0] = ix;
   indices[1] = iy;
 
   /* Load the proportions */
 
-  for (iz = ecr = 0; iz < nz; iz++)
+  for (int iz = ecr = 0; iz < nz; iz++)
   {
     indices[2] = iz;
-    iech = db_index_grid_to_sample(db, indices);
+    int iech = db->indiceToRank(indices);
 
     /* Check if the proportions are ALL defined */
 
     total = 0.;
-    for (iprop = flag_no = 0; iprop < nprop && flag_no == 0; iprop++)
+    for (int iprop = flag_no = 0; iprop < nprop && flag_no == 0; iprop++)
     {
       value = db->getLocVariable(ELoc::P,iech, iprop);
       if (FFFF(value))
@@ -2622,10 +1514,9 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
         total += value;
     }
 
-    for (iprop = 0; iprop < nprop; iprop++, ecr++)
-      props[ecr] =
-          (flag_no && total > 0) ? TEST : db->getLocVariable(ELoc::P,iech, iprop)
-              / total;
+    for (int iprop = 0; iprop < nprop; iprop++, ecr++)
+      props[ecr] = (flag_no && total > 0)
+                   ? TEST : db->getLocVariable(ELoc::P, iech, iprop) / total;
   }
   return (0);
 }
@@ -2646,31 +1537,30 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
  *****************************************************************************/
 int db_prop_write(DbGrid *db, int ix, int iy, double *props)
 {
-  int iz, nz, nprop, iprop, ecr, indices[3], iech;
-
-  /* Initializations */
-
-  nprop = db->getLocNumber(ELoc::P);
-  nz = db->getNX(2);
+  int nprop = db->getLocNumber(ELoc::P);
+  int nz    = db->getNX(2);
+  int ndim = db->getNDim();
 
   /* Preliminary checks */
 
-  if (db->getNDim() != 3) return (1);
+  if (ndim != 3) return (1);
   if (ix < 0 || ix >= db->getNX(0)) return (1);
   if (iy < 0 || iy >= db->getNX(1)) return (1);
 
   /* Blank out the array */
 
+  VectorInt indices(ndim,0);
   indices[0] = ix;
   indices[1] = iy;
 
   /* Load the proportions */
 
-  for (iz = ecr = 0; iz < nz; iz++)
+  int ecr;
+  for (int iz = ecr = 0; iz < nz; iz++)
   {
     indices[2] = iz;
-    iech = db_index_grid_to_sample(db, indices);
-    for (iprop = 0; iprop < nprop; iprop++, ecr++)
+    int iech = db->indiceToRank(indices);
+    for (int iprop = 0; iprop < nprop; iprop++, ecr++)
       db->setLocVariable(ELoc::P,iech, iprop, props[ecr]);
   }
   return (0);
@@ -2832,7 +1722,7 @@ int db_is_isotropic(const Db *db, int iech, double *data)
   if (!db->isActive(iech)) return (0);
   for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
-    value = db->getLocVariable(ELoc::Z,iech, ivar);
+    value = db->getZVariable(iech, ivar);
     if (FFFF(value)) return (0);
     if (data != NULL) data[ivar] = value;
   }
@@ -2851,26 +1741,24 @@ int db_is_isotropic(const Db *db, int iech, double *data)
  *****************************************************************************/
 int is_grid_multiple(DbGrid *db1, DbGrid *db2)
 {
-  int *indg, idim, ndim, error;
-  double *coor1, *coor2, *perc, ratio, delta;
+  int idim, ndim, error;
+  double ratio, delta;
 
   /* Initializations */
 
   error = 1;
-  indg = nullptr;
-  coor1 = coor2 = perc = nullptr;
 
   /* Preliminary checks */
 
-  if (!db1->hasSameDimension(db2)) goto label_end;
-  ndim = db1->getNDim();
+  if (!db1->hasSameDimension(db2)) return 1;
 
   /* Core allocation */
 
-  indg = (int*) mem_alloc(sizeof(int) * ndim, 1);
-  perc = (double*) mem_alloc(sizeof(double) * ndim, 1);
-  coor1 = (double*) mem_alloc(sizeof(double) * ndim, 1);
-  coor2 = (double*) mem_alloc(sizeof(double) * ndim, 1);
+  ndim = db1->getNDim();
+  VectorInt indg(ndim);
+  VectorDouble perc(ndim);
+  VectorDouble coor1(ndim);
+  VectorDouble coor2(ndim);
 
   /* Check that the grid meshes are multiple */
 
@@ -2887,8 +1775,8 @@ int is_grid_multiple(DbGrid *db1, DbGrid *db2)
     indg[idim] = 0;
     perc[idim] = -0.5;
   }
-  grid_to_point(db1, indg, perc, coor1);
-  grid_to_point(db2, indg, perc, coor2);
+  db1->indicesToCoordinateInPlace(indg, coor1, perc);
+  db2->indicesToCoordinateInPlace(indg, coor2, perc);
 
   /* Check that these corners are close enough */
 
@@ -2903,10 +1791,6 @@ int is_grid_multiple(DbGrid *db1, DbGrid *db2)
   error = 0;
 
   label_end:
-  mem_free((char* ) indg);
-  mem_free((char* ) perc);
-  mem_free((char* ) coor1);
-  mem_free((char* ) coor2);
   return (1 - error);
 }
 
@@ -3044,29 +1928,16 @@ int db_gradient_modang_to_component(Db *db,
                                     int iad_gx,
                                     int iad_gy)
 {
-  int error, iech;
-  double *v1, *v2, angdeg, angrad, modulus;
-
-  /* Initializations */
-
-  error = 1;
-  v1 = v2 = nullptr;
-
-  /* Core allocation */
-
-  v1 = db_vector_alloc(db);
-  if (v1 == nullptr) goto label_end;
-  v2 = db_vector_alloc(db);
-  if (v2 == nullptr) goto label_end;
+  double angdeg, angrad, modulus;
 
   /* Load the information */
 
-  if (st_vector_get_col(db, iad_mod, v1)) goto label_end;
-  if (st_vector_get_col(db, iad_ang, v2)) goto label_end;
+  VectorDouble v1 = db->getColumnByColIdx(iad_mod);
+  VectorDouble v2 = db->getColumnByColIdx(iad_ang);
 
   /* Gradient conversion */
 
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (FFFF(v1[iech]) || FFFF(v2[iech])) continue;
     modulus = v1[iech];
@@ -3079,17 +1950,10 @@ int db_gradient_modang_to_component(Db *db,
 
   /* Save the information */
 
-  if (st_vector_put_col(db, iad_gx, v1)) goto label_end;
-  if (st_vector_put_col(db, iad_gy, v2)) goto label_end;
+  db->setColumnByColIdx(v1, iad_gx);
+  db->setColumnByColIdx(v2, iad_gy);
 
-  /* Set the error returned code */
-
-  error = 0;
-
-  label_end:
-  db_vector_free(v1);
-  db_vector_free(v2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3121,30 +1985,17 @@ int db_gradient_component_to_modang(Db *db,
                                     double scale,
                                     double ve)
 {
-  double *v1, *v2, norme, angle, vmax, surr, alpha, mini, maxi;
-  int error, iech;
-
-  /* Initializations */
-
-  error = 1;
-  v1 = v2 = nullptr;
-
-  /* Core allocation */
-
-  v1 = db_vector_alloc(db);
-  if (v1 == nullptr) goto label_end;
-  v2 = db_vector_alloc(db);
-  if (v2 == nullptr) goto label_end;
+  double norme, angle, vmax, surr, alpha, mini, maxi;
 
   /* Load the information */
 
-  if (st_vector_get_col(db, iad_gx, v1)) goto label_end;
-  if (st_vector_get_col(db, iad_gy, v2)) goto label_end;
+  VectorDouble v1 = db->getColumnByColIdx(iad_gx);
+  VectorDouble v2 = db->getColumnByColIdx(iad_gy);
 
   /* Convert gradient components into modulus and azimuth */
 
   vmax = 0.;
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (FFFF(v1[iech]) || FFFF(v2[iech])) continue;
     norme = sqrt(v1[iech] * v1[iech] + v2[iech] * v2[iech]);
@@ -3158,7 +2009,7 @@ int db_gradient_component_to_modang(Db *db,
 
   mini = 1.e30;
   maxi = -1.e30;
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     alpha = 1. / (1. + ve);
@@ -3170,8 +2021,8 @@ int db_gradient_component_to_modang(Db *db,
 
   /* Save the information */
 
-  if (st_vector_put_col(db, iad_mod, v1)) goto label_end;
-  if (st_vector_put_col(db, iad_ang, v2)) goto label_end;
+  db->setColumnByColIdx(v1, iad_mod);
+  db->setColumnByColIdx(v2, iad_ang);
 
   /* Print statistics (optional) */
 
@@ -3182,14 +2033,7 @@ int db_gradient_component_to_modang(Db *db,
     message("Range correction varies between %lf and %lf\n", mini, maxi);
   }
 
-  /* Set the error returned code */
-
-  error = 0;
-
-  label_end:
-  db_vector_free(v1);
-  db_vector_free(v2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3260,7 +2104,7 @@ int db_get_rank_relative_to_absolute(Db *db, int iech0)
  ** \param[in]  iz       Rank of the node along third dimension
  **
  *****************************************************************************/
-double get_grid_value(DbGrid *dbgrid, int iptr, int *indg, int ix, int iy, int iz)
+double get_grid_value(DbGrid *dbgrid, int iptr, VectorInt& indg, int ix, int iy, int iz)
 {
   int ndim, iad;
   double value;
@@ -3270,7 +2114,7 @@ double get_grid_value(DbGrid *dbgrid, int iptr, int *indg, int ix, int iy, int i
   if (ndim >= 2) indg[1] = iy;
   if (ndim >= 3) indg[2] = iz;
 
-  iad = db_index_grid_to_sample(dbgrid, indg);
+  iad = dbgrid->indiceToRank(indg);
   value = dbgrid->getArray(iad, iptr);
   return (value);
 }
@@ -3290,7 +2134,7 @@ double get_grid_value(DbGrid *dbgrid, int iptr, int *indg, int ix, int iy, int i
  *****************************************************************************/
 void set_grid_value(DbGrid *dbgrid,
                     int iptr,
-                    int *indg,
+                    VectorInt& indg,
                     int ix,
                     int iy,
                     int iz,
@@ -3303,7 +2147,7 @@ void set_grid_value(DbGrid *dbgrid,
   if (ndim >= 2) indg[1] = iy;
   if (ndim >= 3) indg[2] = iz;
 
-  iad = db_index_grid_to_sample(dbgrid, indg);
+  iad = dbgrid->indiceToRank(indg);
   dbgrid->setArray(iad, iptr, value);
 }
 
@@ -3335,9 +2179,9 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
                        double vmax)
 {
   DbGrid *ss_grid;
-  int *indcur, *indmin, *indmax, error, ndim, nech, flag_refuse, isel, icopy, iech;
+  int error, ndim, nech, flag_refuse, isel, icopy, iech;
   int mini, maxi, ecart, size;
-  double *coor, value, retval;
+  double value, retval;
   VectorInt nx;
   VectorDouble x0;
 
@@ -3345,25 +2189,15 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
 
   error = 1;
   ss_grid = nullptr;
-  indcur = indmin = indmax = nullptr;
-  coor = nullptr;
 
   // Core allocation
 
   nech = db_grid->getSampleNumber();
   ndim = db_grid->getNDim();
-  indcur = db_indg_alloc(db_grid);
-  if (indcur == nullptr) goto label_end;
-  indmin = db_indg_alloc(db_grid);
-  if (indmin == nullptr) goto label_end;
-  for (int idim = 0; idim < ndim; idim++)
-    indmin[idim] = nech;
-  indmax = db_indg_alloc(db_grid);
-  if (indmax == nullptr) goto label_end;
-  for (int idim = 0; idim < ndim; idim++)
-    indmax[idim] = -1;
-  coor = db_sample_alloc(db_grid, ELoc::X);
-  if (coor == nullptr) goto label_end;
+  VectorInt indcur(ndim);
+  VectorInt indmin(ndim, nech);
+  VectorInt indmax(ndim, -1);
+  VectorDouble coor(ndim, 0.);
 
   // Loop on the input grid
 
@@ -3372,7 +2206,7 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
     if (!db_grid->isActive(i)) continue;
     value = db_grid->getArray(i, iptr);
     if (value < vmin || value >= vmax) continue;
-    db_index_sample_to_grid(db_grid, i, indcur);
+    db_grid->rankToIndice(i, indcur);
 
     for (int idim = 0; idim < ndim; idim++)
     {
@@ -3428,11 +2262,11 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
     message("\n");
   }
 
-  // Create the new sub-grid 
+  // Create the new sub-grid
 
-  grid_to_point(db_grid, indmin, NULL, coor);
-  nx.assign(indmax, indmax + ndim);
-  x0.assign(coor, coor + ndim);
+  db_grid->indicesToCoordinateInPlace(indmin, coor);
+  nx = indmax;
+  x0 = coor;
   ss_grid = DbGrid::create(nx, db_grid->getDXs(), x0, db_grid->getAngles(),
                            ELoadBy::COLUMN, VectorDouble(),
                            VectorString(), VectorString(), 0);
@@ -3444,10 +2278,9 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
     isel = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
-      db_index_sample_to_grid(ss_grid, i, indcur);
-      for (int idim = 0; idim < ndim; idim++)
-        indcur[idim] += indmin[idim];
-      iech = db_index_grid_to_sample(db_grid, indcur);
+      ss_grid->rankToIndice(i, indcur);
+      for (int idim = 0; idim < ndim; idim++) indcur[idim] += indmin[idim];
+      iech = db_grid->indiceToRank(indcur);
       value = db_grid->getArray(iech, iptr);
       retval = (value >= vmin && value < vmax);
       ss_grid->setArray(i, isel, retval);
@@ -3461,10 +2294,9 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
     icopy = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
-      db_index_sample_to_grid(ss_grid, i, indcur);
-      for (int idim = 0; idim < ndim; idim++)
-        indcur[idim] += indmin[idim];
-      iech = db_index_grid_to_sample(db_grid, indcur);
+      ss_grid->rankToIndice(i, indcur);
+      for (int idim = 0; idim < ndim; idim++) indcur[idim] += indmin[idim];
+      iech = db_grid->indiceToRank(indcur);
 
       retval = 1.;
       if (!db_grid->isActive(iech)) retval = 0.;
@@ -3487,10 +2319,6 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
     delete ss_grid;
     ss_grid = nullptr;
   }
-  db_indg_free(indcur);
-  db_indg_free(indmin);
-  db_indg_free(indmax);
-  db_sample_free(coor);
   return (ss_grid);
 }
 
@@ -3528,15 +2356,15 @@ int db_grid_patch(DbGrid *ss_grid,
                   int oper,
                   int verbose)
 {
-  int *indg, *indg0, flag_save;
-  int error, ndim, jech, nused, noused, nout, nundef, nmask, ndef, nbnomask;
+  int error, ndim, jech, nused, noused, nout, nundef, nmask, ndef, nbnomask, flag_save;
   double *coor1, *coor2, value, rank;
+  VectorInt indg;
+  VectorInt indg0;
 
   /* Initializations */
 
   error = 1;
   ndim = ss_grid->getNDim();
-  indg = indg0 = nullptr;
   coor1 = coor2 = nullptr;
 
   /* Check that the two grids are compatible */
@@ -3551,17 +2379,15 @@ int db_grid_patch(DbGrid *ss_grid,
   if (coor1 == nullptr) goto label_end;
   coor2 = (double*) mem_alloc(sizeof(double) * ndim, 0);
   if (coor2 == nullptr) goto label_end;
-  indg0 = db_indg_alloc(db_grid);
-  if (indg0 == nullptr) goto label_end;
-  indg = db_indg_alloc(db_grid);
-  if (indg == nullptr) goto label_end;
+  indg0.resize(ndim);
+  indg.resize(ndim);
 
   /* Find the coordinates of the origin of the sub-grid within the main grid */
 
   for (int idim = 0; idim < ndim; idim++)
     coor1[idim] = ss_grid->getX0(idim);
-  (void) point_to_grid(db_grid, coor1, -1, indg0);
-  if (point_to_grid(db_grid, coor1, -1, indg0) == -1)
+  (void) point_to_grid(db_grid, coor1, -1, indg0.data());
+  if (point_to_grid(db_grid, coor1, -1, indg0.data()) == -1)
   {
     messerr("Subgrid origin does not lie within the main grid");
     db_grid_print(db_grid);
@@ -3595,10 +2421,9 @@ int db_grid_patch(DbGrid *ss_grid,
     }
 
     // Find the location of corresponding pixel in the main grid
-    db_index_sample_to_grid(ss_grid, iech, indg);
-    for (int idim = 0; idim < ndim; idim++)
-      indg[idim] += indg0[idim];
-    jech = db_index_grid_to_sample(db_grid, indg);
+    ss_grid->rankToIndice(iech, indg);
+    for (int idim = 0; idim < ndim; idim++) indg[idim] += indg0[idim];
+    jech = db_grid->indiceToRank(indg);
 
     if (jech < 0)
     {
@@ -3682,8 +2507,6 @@ int db_grid_patch(DbGrid *ss_grid,
   error = 0;
 
   label_end:
-  db_indg_free(indg0);
-  db_indg_free(indg);
   mem_free((char* ) coor1);
   mem_free((char* ) coor2);
   return (error);
@@ -3764,7 +2587,7 @@ void db_extension_rotated(Db *db,
   VectorDouble maxrot(ndim);
 
   // Calculate the extension (without rotation)
-  db_extension(db, mini, maxi, false);
+  db->getExtensionInPlace(mini, maxi);
 
   // Bypass the calculations
   if (rotmat == nullptr) return;

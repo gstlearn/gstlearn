@@ -12,37 +12,36 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/CGParam.hpp"
-#include "LinearOp/LogStats.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/VectorEigen.hpp"
 
-class GSTLEARN_EXPORT ALinearOp {
+#ifndef SWIG
+#  include <Eigen/Core>
+#  include <Eigen/Dense>
+#endif
 
+class GSTLEARN_EXPORT ALinearOp
+{
 public:
-  ALinearOp(const CGParam& params = CGParam());
-  ALinearOp(const ALinearOp &m);
-  ALinearOp& operator=(const ALinearOp &m);
-  virtual ~ALinearOp();
-
-  virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
+  virtual ~ALinearOp() {}
   virtual int getSize() const = 0;
+  
+  //TODO : check unnecessary virtual when finished
+  int evalDirect(const VectorDouble& inv, VectorDouble& outv) ;
+  VectorDouble evalDirect(const VectorDouble& in);
+  int evalDirect(const VectorEigen& inv, VectorEigen& outv) ;
+  int addToDest(const VectorDouble& inv, VectorDouble& outv) const;
+  int addToDest(const VectorEigen& inv, VectorEigen& outv) const;
+#ifndef SWIG
+  public:
+  int evalDirect(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv);
+  int addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const;
 
-  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
-
-  void setX0(const VectorDouble& x0) { _params.setX0(x0); }
-  void mustShowStats(bool status) { _logStats.mustShowStats(status); }
-
-  const LogStats& getLogStats() const { return _logStats; }
-
-protected:
-  virtual void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const = 0;
-
-private:
-  double _prod(const VectorDouble& x, const VectorDouble& y) const;
-
-private:
-  CGParam _params;
 
 protected:
-  LogStats _logStats;
+  virtual int _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const = 0;
+#endif
 };

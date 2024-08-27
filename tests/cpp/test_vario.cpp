@@ -11,8 +11,6 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
@@ -26,8 +24,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-
-#include <stdlib.h>
 
 /****************************************************************************/
 /*!
@@ -60,7 +56,7 @@ int main(int argc, char *argv[])
   Model models(ctxt);
   CovLMC covs(ctxt.getSpace());
   double range1 = 0.2;
-  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs.addCov(&cova1);
   models.setCovList(&covs);
   models.display();
@@ -84,7 +80,7 @@ int main(int argc, char *argv[])
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
-  VectorECov covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
+  VectorECov covas {ECov::MATERN, ECov::EXPONENTIAL};
   model.fit(variop,covas,false);
   model.display();
 

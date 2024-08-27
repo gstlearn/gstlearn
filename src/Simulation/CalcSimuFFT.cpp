@@ -1050,9 +1050,10 @@ bool CalcSimuFFT::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout()) return false;
-  if (! hasModel()) return false;
-  int ndim = _getNDim();
+  if (!hasDbout()) return false;
+  if (!hasModel()) return false;
+  int ndim = getModel()->getDimensionNumber();
+  int nvar = getModel()->getVariableNumber();
   if (ndim < 1 || ndim > 3)
   {
     messerr("The FFT Method is not a relevant simulation model");
@@ -1064,7 +1065,7 @@ bool CalcSimuFFT::_check()
     messerr("The argument 'dbout' should be a grid");
     return false;
   }
-  if (_getNVar() != 1)
+  if (nvar != 1)
   {
     messerr(" The FFT method is limited to the Monovariate case");
     return false;
@@ -1074,8 +1075,10 @@ bool CalcSimuFFT::_check()
 
 bool CalcSimuFFT::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-    return (_iattOut >= 0);
+  if (!ACalcSimulation::_preprocess()) return false;
+
+  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
+  return (_iattOut >= 0);
 }
 
 bool CalcSimuFFT::_run()

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "geoslib_d.h"
 
 #include "Enum/ECalcVario.hpp"
 
@@ -111,7 +110,7 @@ private:
   static void _vmap_shift(VectorDouble& tab, VectorDouble& tabm1, VectorDouble& tabm2);
   void _vmap_store(VectorDouble& tab, int iptr);
   void _vmap_normalize(int nv2);
-  int _findNeighCell(const int* indg0, const int* neigh, int rank, int* indg1);
+  int _findNeighCell(const VectorInt& indg0, const VectorInt& neigh, int rank, VectorInt& indg1);
 
 private:
   DbGrid* _dbmap; // Pointer to the already existing output DbGrid (not to be deleted)

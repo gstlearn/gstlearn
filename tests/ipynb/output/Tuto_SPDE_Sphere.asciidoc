@@ -40,6 +40,14 @@ where $P$ is a polynom positive on $\mathbb{R}^+$</md-block>
 
 #NO_DIFF#XXX
 ----
+2.039324868515115
+----
+
+
+#NO_DIFF#XXX
+----
+Discretized variance 2.039324868515115
+
 #NO_DIFF#XXX
 ----
 
@@ -85,6 +93,14 @@ For more details on the covariances on sphere, see
 #NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+
+Theoretical variance 1.994317114145671
 ----
 
 

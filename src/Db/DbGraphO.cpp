@@ -572,3 +572,14 @@ VectorDouble DbGraphO::getCumulDown(int node) const
   _iterateCumul({node}, cumul, v1, v2);
   return cumul;
 }
+
+void DbGraphO::setArcLine(const VectorInt& nodes, double value)
+{
+  int number = (int)nodes.size();
+  for (int i = 1; i < number; i++)
+  {
+    int i1 = nodes[i - 1];
+    int i2 = nodes[i];
+    _downArcs.setValue(i1, i2, value);
+  }
+}

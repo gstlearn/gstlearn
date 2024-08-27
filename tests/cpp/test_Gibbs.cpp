@@ -27,8 +27,6 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Covariances/CovLMC.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
@@ -289,14 +287,14 @@ int main(int argc, char *argv[])
   double range_spde =   30.;
   double param_spde =    1.;
   double sill_spde  =    1.;
-  Model* model1 = Model::createFromParam(ECov::BESSEL_K,range_spde,sill_spde,param_spde);
+  Model* model1 = Model::createFromParam(ECov::MATERN,range_spde,sill_spde,param_spde);
 
   // Model for constraints
 
   double range_cons =   50.;
   double param_cons =    2.;
   double sill_cons  =    1.;
-  Model* model2 = Model::createFromParam(ECov::BESSEL_K,range_cons,sill_cons,param_cons);
+  Model* model2 = Model::createFromParam(ECov::MATERN,range_cons,sill_cons,param_cons);
 
   // Creating the meshing for extracting Q
 
@@ -357,7 +355,7 @@ int main(int argc, char *argv[])
     Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
 
   // Perform the Gibbs sampler
-  int niter = 10000;
+  int niter = 10;
   (void) st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
                   sigma, z, krig);
 

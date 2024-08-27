@@ -17,6 +17,7 @@
 #include "Enum/ECov.hpp"
 
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
   Model model1(ctxt);
   CovLMC covs1(ctxt.getSpace());
   double range1 = 0.2;
-  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs1.addCov(&cova1);
   model1.setCovList(&covs1);
   model1.display();
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
   Model model3(ctxt);
   CovLMC covs3(ctxt.getSpace());
   double range3 = 0.2;
-  CovAniso cova3(ECov::BESSEL_K,range3,1.,1.,ctxt);
+  CovAniso cova3(ECov::MATERN,range3,1.,1.,ctxt);
   covs3.addCov(&cova3);
   model3.setCovList(&covs3);
   model3.display();

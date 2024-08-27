@@ -14,13 +14,10 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -189,12 +186,12 @@ int main(int argc, char *argv[])
   timer.displayIntervalMilliseconds("Turning Band Simulations", 773);
 
   // ====================== Free pointers ==================================
-  if (neighM    != nullptr) delete neighM;
-  if (neighU    != nullptr) delete neighU;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
-  if (grid_res  != nullptr) delete grid_res;
-  if (model     != nullptr) delete model;
+  delete neighM;
+  delete neighU;
+  delete data;
+  delete grid;
+  delete grid_res;
+  delete model;
 
   return (0);
 }

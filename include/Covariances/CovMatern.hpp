@@ -17,13 +17,13 @@ class CovContext;
 class TurningBandOperate;
 class MatrixRectangular;
 
-class GSTLEARN_EXPORT CovBesselK : public ACovFunc
+class GSTLEARN_EXPORT CovMatern : public ACovFunc
 {
 public:
-  CovBesselK(const CovContext& ctx);
-  CovBesselK(const CovBesselK &r);
-  CovBesselK& operator= (const CovBesselK &r);
-  virtual ~CovBesselK();
+  CovMatern(const CovContext& ctx);
+  CovMatern(const CovMatern &r);
+  CovMatern& operator= (const CovMatern &r);
+  virtual ~CovMatern();
 
   virtual String getFormula() const override;
   String         getCovName() const override { return "K-Bessel"; }

@@ -26,16 +26,16 @@ opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
 Selection of the covariance model. It can only be:
 - GAUSSIAN
 - EXPONENTIAL
-- BESSEL_K
+- MATERN
 
 ```{r cov_type, echo = TRUE, eval = TRUE}
 # type_cov <- "GAUSSIAN"; nu = 10
 type_cov <- "EXPONENTIAL"; nu = 1/2
-# type_cov <- "BESSEL_K"; nu <- 1
+# type_cov <- "MATERN"; nu <- 1
 
 # Define the title (used for plots)
 title = paste0(type_cov, " model")
-if (type_cov == "BESSEL_K") {title = paste0(title, " (nu = ", nu, ")")}
+if (type_cov == "MATERN") {title = paste0(title, " (nu = ", nu, ")")}
 ```
 
 ## 1D simulation of a random function

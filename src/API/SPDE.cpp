@@ -26,6 +26,8 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 
+#include <Eigen/src/Core/Map.h>
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 
 /**
@@ -228,7 +230,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     {
       _nugget = sill;
     }
-    else if (cova->getType() == ECov::BESSEL_K || cova->getType() == ECov::MARKOV)
+    else if (cova->getType() == ECov::MATERN || cova->getType() == ECov::MARKOV)
     {
       totalSill += sill;
 
@@ -246,15 +248,14 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
           precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
           precision = new PrecisionOp(mesh, _model, icov, verbose);
-        precision->mustShowStats(showStats);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        if (_precisionsSimu->push_back(precision, proj)) return 1;
+        if (_precisionsSimu->push_back(precision, proj) != 0) return 1;
         _precisionsSimu->setVarianceDataVector(varianceData);
-        _workingSimu.push_back(VectorDouble(precision->getSize()));
+        _workingSimu.push_back(Eigen::VectorXd(precision->getSize()));
       }
 
       if (_isKrigingRequested() || _requireCoeffs)
@@ -268,22 +269,21 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, _params.getCGparams(), verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, _params.getCGparams(), verbose);
-        precision->mustShowStats(showStats);
+          precision = new PrecisionOp(mesh, _model, icov, verbose);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        if (_precisionsKrig->push_back(precision, proj)) return 1;
-        _workingKrig.push_back(VectorDouble(precision->getSize()));
+        if (_precisionsKrig->push_back(precision, proj) != 0) return 1;
+        _workingKrig.push_back(Eigen::VectorXd(precision->getSize()));
       }
     }
     else
     {
-      messerr("SPDE is only implemented for Matérn (BESSEL_K) and Markov (MARKOV) covariances");
+      messerr("SPDE is only implemented for Matérn (MATERN) and Markov (MARKOV) covariances");
       return 1;
     }
   }
@@ -329,13 +329,16 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
 
 void SPDE::_computeLk() const
 {
-  VectorVectorDouble rhs = _precisionsKrig->computeRhs(_workingData);
+  Eigen::Map<const Eigen::VectorXd> wm(_workingData.data(),_workingData.size());
+  std::vector<Eigen::VectorXd> rhs = _precisionsKrig->computeRhs(wm);
+
   _precisionsKrig->initLk(rhs, _workingKrig); // Same as evalInverse but with just one iteration
 }
 
 void SPDE::_computeKriging() const
 {
-  VectorVectorDouble rhs = _precisionsKrig->computeRhs(_workingData);
+  Eigen::Map<const Eigen::VectorXd> wm(_workingData.data(),_workingData.size());
+  std::vector<Eigen::VectorXd> rhs = _precisionsKrig->computeRhs(wm);
   _precisionsKrig->evalInverse(rhs, _workingKrig);
 }
 
@@ -358,13 +361,14 @@ void SPDE::_computeSimuCond() const
   _computeSimuNonCond();
 
   // Perform the non conditional simulation on data
-  VectorDouble temp_dat(_data->getSampleNumber(true));
+  Eigen::VectorXd temp_dat(_data->getSampleNumber(true));
   _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu, temp_dat);
 
   // Calculate the simulation error
-  _workingData = _workingDataInit;
-  VH::multiplyConstant(temp_dat, -1.);
-  VH::addInPlace(_workingData, temp_dat);
+  for (int i = 0; i < (int)_workingData.size(); i++)
+  {
+    _workingData[i] = _workingDataInit[i] - temp_dat[i];
+  }
 
   // Conditional Kriging
   _computeKriging();
@@ -376,7 +380,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
 
   if (_driftCoeffs.empty())
   {
-    if (_workingDataInit.empty())
+    if (_workingDataInit.size() == 0)
     {
       _workingDataInit.resize(dataVect.size());
     }
@@ -541,6 +545,7 @@ int SPDE::compute(Db *dbout,
 
   if (_calcul == ESPDECalcMode::SIMUCOND)
   {
+    _workingData = _workingDataInit;
     for(int isimu = 0; isimu < nbsimu; isimu++)
     {
       result.fill(0.);
@@ -562,13 +567,16 @@ int SPDE::compute(Db *dbout,
 
 void SPDE::_projecLocal(Db* dbout,
                         const AMesh* meshing,
-                        VectorDouble& working,
+                        Eigen::VectorXd& working,
                         VectorDouble& result)
 {
-  VectorDouble temp_out(dbout->getSampleNumber(true));
+  Eigen::VectorXd temp_out(dbout->getSampleNumber(true));
   ProjMatrix proj(dbout,meshing);
   proj.mesh2point(working,temp_out);
-  VH::addInPlace(result,temp_out);
+  for (int i = 0; i < (int)result.size(); i++)
+  {
+    result[i]+= temp_out[i];
+  }
 }
 
 void SPDE::_addNuggetOnResult(VectorDouble &result) const
@@ -620,7 +628,8 @@ double SPDE::computeQuad() const
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
   _centerByDrift(dataVect,ivar,useSel);
-  return _precisionsKrig->computeQuadratic(_workingData);
+  Eigen::Map<const Eigen::VectorXd>wm(_workingData.data(),_workingData.size());
+  return _precisionsKrig->computeQuadratic(wm);
 }
 
 double SPDE::_computeLogLike(int nbsimu, int seed) const
@@ -755,8 +764,8 @@ int krigingSPDE(Db *dbin,
   DECLARE_UNUSED(flag_est);
   const ESPDECalcMode mode = (flag_std) ?
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
-  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
+  SPDE spde(model, dbout, dbin, mode, mesh,
+            useCholesky, params, verbose, showStats);
   return spde.compute(dbout, nbMC, seed, namconv);
 }
 
@@ -927,7 +936,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
   if (flag_nostat_sill)
   {
-    if (nostat->manageInfo(1, db, db)) return mat;
+    if (nostat->manageInfo(1, db, db) != 0) return mat;
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1003,7 +1012,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       if (sillsInv[rank].empty())
       {
         sillsInv[rank] = _buildSillPartialMatrix(sillsRef, nvar, ndef, identity);
-        if (sillsInv[rank].invert()) return mat;
+        if (sillsInv[rank].invert() != 0) return mat;
       }
       for (int idef = 0; idef < ndef; idef++)
         for (int jdef = 0; jdef < ndef; jdef++)
@@ -1040,7 +1049,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
           local.setValue(idef, jdef, value);
         }
-      if (local.invert()) return mat;
+      if (local.invert() != 0) return mat;
 
       for (int idef = 0; idef < ndef; idef++)
          for (int jdef = 0; jdef < ndef; jdef++)

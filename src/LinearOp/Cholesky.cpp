@@ -14,6 +14,7 @@
 #include "Matrix/LinkMatrixSparse.hpp"
 
 #include "csparse_f.h"
+#include <Eigen/src/Core/Matrix.h>
 
 Cholesky::Cholesky(const MatrixSparse* mat)
     : ALinearOp(),
@@ -78,10 +79,20 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void Cholesky::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
+int  Cholesky::_addToDest(const Eigen::VectorXd& inv,
+                           Eigen::VectorXd& outv) const
 {
-  if (! isValid()) return;
-  _matCS->prodMatVecInPlace(inv, outv);
+  if (!isValid()) return 1;
+
+  // Map Eigen Vector to VectorDouble arguments
+  // TODO : VectorXd => VectorDouble = Memory copy !!
+  VectorDouble einv(inv.data(), inv.data() + inv.size());
+  VectorDouble eoutv(outv.size());
+  // TODO : add add to dest
+  _matCS->prodMatVecInPlace(einv, eoutv);
+  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
+  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
+  return 0;
 }
 
 /****************************************************************************/
@@ -122,6 +133,26 @@ void Cholesky::_compute()
       return;
     }
   }
+}
+
+int Cholesky::solve(const Eigen::VectorXd& b, Eigen::VectorXd& x) const
+{
+  if (! isValid()) return 1;
+
+  if (_matCS->isFlagEigen())
+  {
+    x = _cholSolver.solve(b);
+  }
+  else
+  {
+    int size = _matCS->getNRows();
+    VectorDouble work(size, 0.);
+    cs_ipvec(size, _S->Pinv, b.data(), work.data());
+    cs_lsolve(_N->L, work.data());
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(size, _S->Pinv, work.data(), x.data());
+  }
+  return 0;
 }
 
 int Cholesky::solve(const VectorDouble& b, VectorDouble& x) const
@@ -179,6 +210,30 @@ int Cholesky::simulate(const VectorDouble& b, VectorDouble& x) const
   return 0;
 }
 
+int Cholesky::simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const
+{
+  if (! isValid()) return 1;
+  int size = _matCS->getNRows();
+
+  if (_matCS->isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> bm(b.data(), b.size());
+    Eigen::Map<Eigen::VectorXd> xm(x.data(), x.size());
+
+    Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();
+    Eigen::VectorXd DW = ((bm.array()) * Ddm).matrix();
+    Eigen::VectorXd Y = _cholSolver.matrixU().solve(DW);
+    xm = _cholSolver.permutationPinv() * Y;
+  }
+  else
+  {
+    Eigen::VectorXd work = b; // We must work on a copy of b in order to preserve constness
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(size, _S->Pinv, work.data(), x.data());
+  }
+
+  return 0;
+}
 /****************************************************************************/
 /*!
  **  Perform the calculation of the Standard Deviation of Estimation Error
@@ -193,10 +248,10 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
 
   if (_matCS->isFlagEigen())
   {
+    /// TODO : calculate stdev when eigen
     messerr("The calculation of 'stdev' is not yet performed with Eigen Library");
     return 1;
   }
-
   VectorDouble z;
   VectorDouble wz;
   VectorInt wZdiagp;
@@ -204,18 +259,18 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
   VectorDouble d2;
   VectorDouble diag;
 
-  cs* Dinv    = nullptr;
-  cs* LDinv   = nullptr;
-  cs* TLDinv  = nullptr;
-  cs* Pattern = nullptr;
+  cs *Dinv = nullptr;
+  cs *LDinv = nullptr;
+  cs *TLDinv = nullptr;
+  cs *Pattern = nullptr;
 
   int ntarget = getSize();
-  int nzmax   = 0;
+  int nzmax = 0;
 
   /* Pre-processing */
 
-  d2          = csd_extract_diag_VD(_N->L, 2);
-  Dinv        = cs_extract_diag(_N->L, -1);
+  d2 = csd_extract_diag_VD(_N->L, 2);
+  Dinv = cs_extract_diag(_N->L, -1);
   if (Dinv == nullptr) goto label_end;
   LDinv = cs_multiply(_N->L, Dinv);
   if (LDinv == nullptr) goto label_end;
@@ -233,11 +288,16 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
   wz.resize(nzmax, 0);
   wZdiagp.resize(nzmax, 0);
   wLmunch.resize(nzmax, 0);
+  nzmax = Pattern->nzmax;
+  z.resize(ntarget, 0);
+  wz.resize(nzmax, 0);
+  wZdiagp.resize(nzmax, 0);
+  wLmunch.resize(nzmax, 0);
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2.data(), LDinv->p,
                 LDinv->i, LDinv->x, Pattern->p, Pattern->i, Pattern->x,
-                wz.data(), wZdiagp.data(), wLmunch.data()) == -1)
-    goto label_end;
+                wz.data(), wZdiagp.data(), wLmunch.data())
+      == -1) goto label_end;
 
   /* Extracting the diagonal of wz */
 
@@ -245,13 +305,15 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
   cs_pvec(ntarget, _S->Pinv, diag.data(), z.data());
 
   if (flagStDev)
-    for (int iech = 0; iech < ntarget; iech++) vcur[iech] = sqrt(z[iech]);
+    for (int iech = 0; iech < ntarget; iech++)
+      vcur[iech] = sqrt(z[iech]);
   else
-    for (int iech = 0; iech < ntarget; iech++) vcur[iech] = z[iech];
+    for (int iech = 0; iech < ntarget; iech++)
+      vcur[iech] = z[iech];
 
   /* Set the error return code */
 
-label_end:
+  label_end:
   cs_spfree2(Dinv);
   cs_spfree2(LDinv);
   cs_spfree2(TLDinv);
@@ -273,7 +335,8 @@ double Cholesky::getLogDeterminant() const
     return det;
   }
   VectorDouble diag = csd_extract_diag_VD(_N->L, 1);
-  double det        = 0.;
-  for (int i = 0; i < (int)diag.size(); i++) det += log(diag[i]);
+  double det = 0.;
+  for (int i = 0; i < (int) diag.size(); i++)
+    det += log(diag[i]);
   return 2. * det;
 }

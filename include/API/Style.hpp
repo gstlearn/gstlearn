@@ -66,13 +66,12 @@
  * - Aliases (typedef): idem
  * - Class' methods: lower camel case (ie: loadData, getArmonicMean, isEmpty)
  * - Class' attributes (variables): idem
- * - Anything which is *private* or *protected* in a class starts with
- *   underscore (ie: _myMember)
+ * - Anything which is 'private' or 'protected' in a class starts with underscore (ie: _myMember)
  * - Local variables: lower case separated by underscore (i.e.: temp_value,
  *   color_idx)
  * - Methods visibility;
  *     Method _func() is internal to the class (private or protected)
- *     Method func_() is not exported via SWIG (using #ifndef SWIG)
+ *     Method func_() is not exported via SWIG (using ifndef SWIG)
  * - Use of "InPlace" suffix:
  *     It is used in methods that modify either a member of this class or a
  *     returned argument. Important remark. The member or agument must have been
@@ -130,12 +129,12 @@ public:
 
   // Example of a method with a standard documentation (do not use doxygen
   // here - all the documentation is in the body file!)
-  int documentedStandard(int myArg) const;
+  static int documentedStandard(int myArg);
   // Example of a method with a documentation having a Latex formula (do not use
   // doxygen here!)
-  int documentedWithFormula(int myArg) const;
+  static int documentedWithFormula(int myArg);
   // Example of a method where argument is not used (do not use doxygen here!)
-  int unusedArgument(int a);
+  static int unusedArgument(int a);
 
   // Special static function (global) with a default argument (do not use
   // doxygen here!)
@@ -190,7 +189,7 @@ public:
 
 private:
   // Example of a private method
-  int _increment(int arg) const;
+  static int _increment(int arg, bool verbose = false);
 
 private:
   // Use same line documentation for private members

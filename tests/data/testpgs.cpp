@@ -13,7 +13,6 @@
 
 #include "Basic/Law.hpp"
 #include "Basic/Limits.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
@@ -25,9 +24,6 @@
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
-
-#include <iostream>
-#include <fstream>
 
 /*********************/
 /* Program principal */
@@ -71,15 +67,21 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  StdoutRedirect sr("Result.out");
+  StdoutRedirect sr("Result.out", argc, argv, 2);
 
-  /* Setup constants */
+  /* Create the output name (for storage of dump files) */
 
-  OptDbg::reset();
+  VectorString subparts = separateKeywords(argv[1]);
+  int nargs             = (int)subparts.size();
+  String outname =
+    concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName(outname);
+  setInternalDebug(true);
 
   /* Getting the Study name */
 
-  if (argc != 2) messageAbort("Wrong number of arguments");
+  if (argc < 2) messageAbort("Wrong number of arguments");
   ascii_study_define(argv[1]);
 
   /* Define the environment */
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
   ascii_filename("Data",0,0,filename);
   dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
-  iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
+  iatt_z = dbin->getUIDByLocator(ELoc::Z,0);
   dbfmt.setFlags(true, false, true, true, true);
   dbin->display(&dbfmt);
 
@@ -210,8 +212,6 @@ int main(int argc, char *argv[])
 
   /* Serialization of results (for visual check) */
 
-  ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("testPGS-");
   (void) dbout->dumpToNF("Result");
 
   /* Core deallocation */

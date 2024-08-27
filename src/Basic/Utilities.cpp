@@ -106,39 +106,31 @@ int getITEST()
 /*!
  **  Checks if a double value is TEST
  **
- ** \return  1 if a TEST value is encountered; 0 otherwise
+ ** \return  true if a TEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int FFFF(double value)
+bool FFFF(double value)
 {
-  int rep;
-
-  rep = 0;
-  if (std::isnan(value)) rep = 1; // TODO : what about std::isinf ?
-  if (value > TEST_COMP) rep = 1;
-
-  return (rep);
+  if (value > TEST_COMP) return true;
+  if (std::isnan(value)) return true;
+  if (std::isinf(value)) return true;
+  return false;
 }
 
 /****************************************************************************/
 /*!
  **  Checks if an integer value is TEST
  **
- ** \return  1 if a ITEST value is encountered; 0 otherwise
+ ** \return  true if a ITEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int IFFFF(int value)
+bool IFFFF(int value)
 {
-  int rep;
-
-  rep = 0;
-  if (value == ITEST) rep = 1;
-
-  return (rep);
+  return (value == ITEST);
 }
 
 #endif //SWIG
@@ -1059,10 +1051,6 @@ double operate_InverseSqrt(double x)
  */
 double modifyOperator(const EOperator& oper, double oldval, double value)
 {
-  if (oper == EOperator::IDLE)
-  {
-    return (value);
-  }
   if (oper == EOperator::ADD)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
@@ -1110,7 +1098,7 @@ double modifyOperator(const EOperator& oper, double oldval, double value)
     if (FFFF(oldval)) return (value);
     return MAX(oldval, value);
   }
-  return TEST;
+  return value;
 }
 
 /**

@@ -11,7 +11,6 @@
 #include "geoslib_define.h"
 #include "geoslib_f.h"
 
-#include "Basic/String.hpp"
 #include "Basic/File.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Db/Db.hpp"

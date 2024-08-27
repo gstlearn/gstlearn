@@ -114,12 +114,10 @@ public:
     DECLARE_UNUSED(iech1);
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
-    return;
   }
   virtual void updateCovByMesh(int imesh)
   {
     DECLARE_UNUSED(imesh);
-    return;
   }
   /////////////////////////////////////////////////////////////////////////////////
   ///
@@ -293,10 +291,10 @@ public:
 
 protected:
   VectorInt _getActiveVariables(int ivar0) const;
-  void _updateCovMatrixSymmetricVerr(const Db *db1,
-                                     AMatrix *mat,
-                                     const VectorInt &ivars,
-                                     const VectorVectorInt &index1) const;
+  static void _updateCovMatrixSymmetricVerr(const Db* db1,
+                                            AMatrix* mat,
+                                            const VectorInt& ivars,
+                                            const VectorVectorInt& index1);
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,

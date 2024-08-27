@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-
 #include "Enum/ECov.hpp"
 #include "Enum/ELoadBy.hpp"
 
@@ -22,7 +19,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/CovContext.hpp"
 
 #define VERBOSE 0
 
@@ -66,7 +62,7 @@ int main(int argc, char *argv[])
   double range    = 79.8;
   double sill     = 1.;
   double param    = 1.;
-  Model* model = Model::createFromParam(ECov::BESSEL_K,range,sill,param);
+  Model* model = Model::createFromParam(ECov::MATERN,range,sill,param);
 
   // Perform the non-conditional simulation
 

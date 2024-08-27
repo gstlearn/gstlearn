@@ -136,20 +136,24 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
+  #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
   #include "LinearOp/PrecisionOp.hpp"
   #include "LinearOp/PrecisionOpCs.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
   #include "LinearOp/IProjMatrix.hpp"
+  #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
+  #include "LinearOp/ProjMatrixMulti.hpp"
+  #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
-  
+  #include "LinearOp/SPDEOp.hpp"
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"
@@ -188,7 +192,7 @@
   #include "Covariances/CovContext.hpp"
   #include "Covariances/CovCalcMode.hpp"
   #include "Covariances/CovBesselJ.hpp"
-  #include "Covariances/CovBesselK.hpp"
+  #include "Covariances/CovMatern.hpp"
   #include "Covariances/CovCauchy.hpp"
   #include "Covariances/CovCosExp.hpp"
   #include "Covariances/CovCosinus.hpp"
@@ -239,6 +243,7 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
+  #include "Matrix/VectorEigen.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
@@ -250,6 +255,8 @@
   #include "Db/DbGrid.hpp"
   #include "Db/DbLine.hpp"
   #include "Db/DbGraphO.hpp"
+  #include "Db/DbMeshTurbo.hpp"
+  #include "Db/DbMeshStandard.hpp"
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
   
@@ -283,6 +290,7 @@
   #include "LithoRule/RuleProp.hpp"
   
   #include "Estimation/KrigingSystem.hpp"
+  #include "Estimation/KrigingCalcul.hpp"
   #include "Estimation/CalcKriging.hpp"
   #include "Estimation/CalcKrigingFactors.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
@@ -320,7 +328,7 @@
   #include "Simulation/SimuFFTParam.hpp"
   #include "Simulation/CalcSimuFFT.hpp"
   #include "Simulation/SimuRefineParam.hpp"
-  #include "Simulation/SimuRefine.hpp"
+  #include "Simulation/CalcSimuRefine.hpp"
   #include "Simulation/CalcSimuEden.hpp"
   
   #include "Fractures/FracEnviron.hpp"
@@ -356,18 +364,19 @@
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
-%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
+%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
 
-%template(VectorECov)               std::vector< ECov >;
-%template(VectorEStatOption)        std::vector< EStatOption >;
-%template(VectorESelectivity)       std::vector< ESelectivity >;
-%template(VectorDirParam)           std::vector< DirParam >;
-%template(VectorPolyElem)           std::vector< PolyElem >;
-%template(VectorInterval)           std::vector< Interval >; 
-%template(VectorEPostStat)          std::vector< EPostStat >;
-%template(VectorABiTargetCheck)     std::vector< ABiTargetCheck* >;
-%template(VectorSpacePoint)         std::vector< SpacePoint >;
-
+%template(VectorECov)              std::vector< ECov >;
+%template(VectorEStatOption)       std::vector< EStatOption >;
+%template(VectorESelectivity)      std::vector< ESelectivity >;
+%template(VectorDirParam)          std::vector< DirParam >;
+%template(VectorPolyElem)          std::vector< PolyElem >;
+%template(VectorInterval)          std::vector< Interval >; 
+%template(VectorEPostStat)         std::vector< EPostStat >;
+%template(VectorSpacePoint)        std::vector< SpacePoint >;
+%template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
+%template(VectorProjMatrix)        std::vector< ProjMatrix* >;
+%template(VectorVectorEigen)       std::vector< VectorEigen >;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 

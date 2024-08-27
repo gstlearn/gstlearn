@@ -73,9 +73,12 @@ GSTLEARN_EXPORT int     cs_print2(const cs *A, int brief);
 GSTLEARN_EXPORT void    cs_add_cste(cs *A, double value);
 GSTLEARN_EXPORT void    cs_set_cste(const cs *A, double value);
 
+GSTLEARN_EXPORT void    cs_vector_addToDest_tMx(const cs *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT void    cs_vector_tMx(const cs *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT void    cs_vector_xM(const cs *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT void    cs_vector_Mx(const cs *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void    cs_vector_addToDest_Mx(const cs *A, int nout, const double *x, double *y);
+
 GSTLEARN_EXPORT void    cs_vector_xtM(const cs *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT void    cs_mulvec_uptri(const cs *A, int nout,
                                         const double *x, double *y, int flag_diag);

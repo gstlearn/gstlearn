@@ -409,7 +409,7 @@
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple using standard std_vector
+    else // Convert to a tuple using standard std_vector (mandatory for string)
     {
       // Test NA values
       auto vec2 = vec.getVector();
@@ -592,7 +592,16 @@ void exit_f(void)
 %extend DbGrid {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend DbGrid {
+%extend DbLine {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbGraphO {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbMeshTurbo {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbMeshStandard {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend Vario {
@@ -737,6 +746,9 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend Grid {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend PrecisionOpMulti {
   std::string __repr__() {  return $self->toString(); }
 }
 
@@ -1031,9 +1043,6 @@ def Db_toTL(self, flagLocate=False):
   dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
     columns = self.getAllNames())
     
-#  dat = pd.DataFrame(self.getAllColumns().reshape(-1, self.getSampleNumber()), 
-#    columns = self.getAllNames())
-
   if flagLocate:
     for j,i in enumerate(self.getAllNames()):
       dat[i].locator = self.getLocators()[j] 
@@ -1052,6 +1061,20 @@ def Db_fromPanda(pf):
 	return dat
 
 gl.Db.fromTL = staticmethod(Db_fromPanda)
+
+def Vector_toTL(self):
+  return np.array(self)
+
+setattr(gl.VectorDouble, "toTL", Vector_toTL)
+setattr(gl.VectorInt, "toTL", Vector_toTL)
+
+def VectorVector_toTL(self):
+  retvec = []
+  for vec in self:
+    retvec.append(np.array(vec))
+  return (retvec)
+
+setattr(gl.VectorVectorDouble, "toTL", VectorVector_toTL)
 
 def matrix_toTL(self):
   if self.isSparse():

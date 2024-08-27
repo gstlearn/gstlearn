@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -20,9 +21,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-
-#include <iostream>
-#include <fstream>
 
 /*********************/
 /* Program principal */
@@ -146,7 +144,7 @@ int main(int argc, char *argv[])
   // Produce the Goodness-of-fit score
 
   gof = model->gofToVario(vario, false);
-  model->gofDisplay(gof, false);
+  Model::gofDisplay(gof, false);
 
 /* Core deallocation */
 

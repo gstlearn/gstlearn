@@ -8,11 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Model/ConsItem.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Model.hpp"
@@ -56,7 +53,7 @@ int main(int argc, char *argv[])
 
   vario->display();
 
-  auto structs = {ECov::NUGGET,ECov::BESSEL_K};
+  auto structs = {ECov::NUGGET,ECov::MATERN};
   ConsItem consNug = ConsItem::define(EConsElem::SILL,0,0,0, EConsType::UPPER,0.1);
   ConsItem consParam = ConsItem::define(EConsElem::PARAM,1, 0, 0, EConsType::EQUAL,1.);
   Constraints constraints;

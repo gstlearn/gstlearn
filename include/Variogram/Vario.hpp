@@ -201,19 +201,24 @@ public:
   const VectorDouble& getAllSw(int idir = 0) const;
   const VectorDouble& getAllUtilize(int idir = 0) const;
 
-  void setGgByIndex(int idir, int i, double gg);
-  void setHhByIndex(int idir, int i, double hh);
-  void setSwByIndex(int idir, int i, double sw);
-  void setUtilizeByIndex(int idir, int i, double utilize);
+  void setGgByIndex(int idir, int i, double gg, bool flagCheck = true);
+  void setHhByIndex(int idir, int i, double hh, bool flagCheck = true);
+  void setSwByIndex(int idir, int i, double sw, bool flagCheck = true);
+  void setUtilizeByIndex(int idir, int i, double utilize, bool flagCheck = true);
 
-  void setSw(int idir, int ivar, int jvar, int ipas, double sw);
-  void setHh(int idir, int ivar, int jvar, int ipas, double hh);
-  void setGg(int idir, int ivar, int jvar, int ipas, double gg);
-  void setUtilize(int idir, int ivar, int jvar, int ipas, double utilize);
+  void setSw(int idir, int ivar, int jvar, int ipas, double sw, bool flagCheck = true);
+  void setHh(int idir, int ivar, int jvar, int ipas, double hh, bool flagCheck = true);
+  void setGg(int idir, int ivar, int jvar, int ipas, double gg, bool flagCheck = true);
+  void setUtilize(int idir,
+                  int ivar,
+                  int jvar,
+                  int ipas,
+                  double utilize,
+                  bool flagCheck = true);
 
-  void updateSwByIndex(int idir, int i, double sw);
-  void updateHhByIndex(int idir, int i, double hh);
-  void updateGgByIndex(int idir, int i, double gg);
+  void updateSwByIndex(int idir, int i, double sw, bool flagCheck = true);
+  void updateHhByIndex(int idir, int i, double hh, bool flagCheck = true);
+  void updateGgByIndex(int idir, int i, double gg, bool flagCheck = true);
 
   int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
   int getNext(int ivar = 0, int jvar = 0, int idir = 0, int shift = 1) const;
@@ -245,7 +250,8 @@ public:
                     int jvar,
                     int ipas,
                     bool flag_abs = false,
-                    int sens = 0) const;
+                    int sens      = 0,
+                    bool flagCheck = true) const;
   int getVarAddress(int ivar, int jvar) const;
   int getLagTotalNumber(int idir) const;
 
@@ -320,7 +326,7 @@ public:
   double getGrincr(int idir, int idim) const { return getDirParam(idir).getGrincr(idim); }
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(int nvar) { _nVar = nvar; }
-  void setCalculName(const String& calcul_name);
+  void setCalculByName(const String& calcul_name);
   void setVariableNames(const VectorString &variableNames) { _variableNames = variableNames; }
   void setVariableName(int ivar, const String &variableName);
 
@@ -345,10 +351,10 @@ protected:
   String _getNFName() const override { return "Vario"; }
 
 private:
-  bool _isVariableValid(int ivar) const;
-  bool _isDirectionValid(int idir) const;
-  bool _isBivariableValid(int ijvar) const;
-  bool _isAddressValid(int i, int idir) const;
+  bool _isVariableValid(int ivar, bool flagCheck = true) const;
+  bool _isDirectionValid(int idir, bool flagCheck = true) const;
+  bool _isBivariableValid(int ijvar, bool flagCheck = true) const;
+  bool _isAddressValid(int i, int idir, bool flagCheck = true) const;
   void _initMeans();
   void _initVars();
   int  _getNVar(const Db* db);

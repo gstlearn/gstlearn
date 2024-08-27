@@ -8,13 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESPDECalcMode.hpp"
+#include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
-#include "Model/Model.hpp"
+#include "Db/DbHelper.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Simulation/SimuSpectral.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -31,27 +29,14 @@ int main(int argc, char *argv[])
 
   defineDefaultSpace(ESpaceType::SN);
 
-  int ndim = 2;
-  VectorInt nx = {360, 180};
-  VectorDouble dx(2);
-  for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = nx[idim] / (nx[idim]-1) * GV_PI / 180.;
-  DbGrid* grd = DbGrid::create(nx,dx,{0,0});
-  (void) grd->setName("x1", "phi");
-  (void) grd->setName("x2", "theta");
-  grd->display();
+  Db* db = Db::createFillRandom(120, 2, 1);
 
-  int nd = 100;
-  int ns = 100; // 10000;
-  int seed = 132674;
+  double mini;
+  double maxi;
+  double delta;
+  (void)db_attribute_range(db, 2, &mini, &maxi, &delta);
 
-  String model_type = "POISSON";
-  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
+  message("mini=%lf maxi=%lf delta=%lf\n", mini, maxi, delta);
 
-  SimuSpectral sim(modelSph);
-  sim.simulateOnSphere(ns, nd, seed, false);
-  sim.computeOnSphere(grd, false);
-
-  grd->display();
   return(0);
 }

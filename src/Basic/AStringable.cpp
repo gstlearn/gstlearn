@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Enum/EJustify.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"
@@ -32,6 +30,8 @@
 #define CASE_INT    2
 #define CASE_COL    3
 #define CASE_ROW    4
+
+class EJustify;
 
 static char FORMAT[100];
 static char DECODE[100];
@@ -291,8 +291,6 @@ void message(const char *format, ...)
   (void) vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
   message_extern(str);
-
-  return;
 }
 
 /**
@@ -311,8 +309,6 @@ void messageNoDiff(const char *format, ...)
   std::stringstream sstr;
   sstr << "#NO_DIFF# " << str;
   message_extern(sstr.str().c_str());
-
-  return;
 }
 
 /**
@@ -352,8 +348,6 @@ void messerr(const char *format, ...)
 
   message_extern(str);
   message_extern("\n");
-
-  return;
 }
 
 /**
@@ -420,7 +414,6 @@ void mestitle(int level, const char *format, ...)
   }
   (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
-  return;
 }
 
 /**
@@ -448,8 +441,6 @@ void mes_process(const char *string, int ntot, int iech)
 
   if (quant != quant_memo) message("%s - Rank : %d (Quantile : %d / %d)\n", string, iech, quant, nproc);
   quant_memo = quant;
-
-  return;
 }
 
 

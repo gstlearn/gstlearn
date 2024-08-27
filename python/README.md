@@ -1,4 +1,6 @@
-## Overview
+## gstlearn: The Geostatistics &amp; Machine Learning Python Package
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
 The **gstlearn** Python package is a cross-platform Python package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
@@ -14,21 +16,13 @@ This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig)
 
 The *gstlearn* Python package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
-
 ## How to cite
 
 When using the *gstlearn* Python Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
 
-```
---------------------------------------------------
-gstlearn
-Geostatistics and Machine Learning toolbox
-Copyright © MINES Paris - PSL University
-Free download from https://gstlearn.org
---------------------------------------------------
-```
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13343742.svg)](https://doi.org/10.5281/zenodo.13343742)
 
-You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
 ## Installation
 
@@ -40,7 +34,8 @@ pip install gstlearn
 
 ## Usage
 
-We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn.</br>
+We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn package.
+
 Simply import the *gstlearn* Python package and its plot module, then enjoy:
 
 ```
@@ -62,7 +57,7 @@ ax.decoration(title="Gaussian random field")
 plt.show()
 ```
 
-Some tutorials (Jupyter Notebooks) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
+Some tutorials (Jupyter Notebooks) are provided in the *demo* directory [here](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) and their HTML rendering is provided [here](https://soft.mines-paristech.fr/gstlearn/demos-latest/python/).
 
 Some tests (Python scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/py) directory of the *gstlearn* github repository.
 

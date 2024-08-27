@@ -59,20 +59,40 @@ String CovMarkov::getFormula() const
 
 VectorDouble CovMarkov::_evaluateSpectrumOnSphere(int n, double scale) const
 {
+  auto sp = _evaluateSpectrumOnSphereWithoutNormalization(n,scale);
+  VH::normalize(sp,1);
+  return sp;
+}
+
+VectorDouble CovMarkov::_evaluateSpectrumOnSphereWithoutNormalization(int n, double scale) const
+{
   VectorDouble sp(1+n, 0.);
 
-  double nnp1 = scale * scale * (double) n * ((double) n + 1.);
-  for (int j = 0; j <= n; j++)
+  for (int j = 0; j < (int)sp.size(); j++)
   {
+    double nnp1 = scale * scale * (double) j * ((double) j + 1.);
     double s = 0.;
-    for (int i = 0, degree = (int) _markovCoeffs.size(); i < degree; i++)
+    for (int i = 0; i < (int)_markovCoeffs.size(); i++)
     {
       s += _markovCoeffs[i] * pow(nnp1,i);
     }
-    sp[j] = scale * scale * (2. * n + 1.) / (4 * GV_PI * s);
+    sp[j] = (2. * j + 1.) / (4 * GV_PI * s);
   }
   return sp;
+
 }
+
+double CovMarkov::normalizeOnSphere(int n, double scale) const 
+{ 
+  auto sp = _evaluateSpectrumOnSphereWithoutNormalization(n,scale);
+  double s = 0.;
+  for (auto &e : sp)
+  {
+    s += e;
+  }
+  return s;
+}
+
 
 double CovMarkov::evaluateSpectrum(double freq) const
 {
