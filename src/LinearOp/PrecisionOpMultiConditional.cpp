@@ -10,12 +10,10 @@
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/VectorEigen.hpp"
 #include "Polynomials/Chebychev.hpp"
-
 #include <Eigen/src/Core/Map.h>
 #include <Eigen/src/Core/Matrix.h>
 #include <functional>

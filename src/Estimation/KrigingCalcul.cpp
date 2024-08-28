@@ -21,10 +21,11 @@ KrigingCalcul::KrigingCalcul(const VectorDouble& Z,
                              const VectorDouble& Beta)
   : _Sigma00(nullptr)
   , _Sigma(nullptr)
-  , _X(nullptr)
   , _Sigma0(nullptr)
+  , _X(nullptr)
   , _X0(nullptr)
   , _PriorCov()
+
   , _Z()
   , _PriorMean()
   , _Zstar()
@@ -37,11 +38,18 @@ KrigingCalcul::KrigingCalcul(const VectorDouble& Z,
   , _VarZSK(nullptr)
   , _VarZUK(nullptr)
   , _XtInvSigma(nullptr)
-  , _X0mLambdaSKtX(nullptr)
+  , _Y0(nullptr)
   , _InvSigma(nullptr)
   , _Sigmac(nullptr)
   , _InvPriorCov(nullptr)
+
+  , _Sigma0p(nullptr)
+  , _X0p(nullptr)
+  , _Y0p(nullptr)
   , _InvCCK(nullptr)
+  , _X0ptInvCCK(nullptr)
+  , _Sigma0pInvCCK(nullptr)
+
   , _neq(0)
   , _nbfl(0)
   , _nrhs(0)
@@ -67,11 +75,17 @@ KrigingCalcul::~KrigingCalcul()
   delete _VarZSK;
   delete _VarZUK;
   delete _XtInvSigma;
-  delete _X0mLambdaSKtX;
+  delete _Y0;
   delete _InvSigma;
   delete _Sigmac;
   delete _InvPriorCov;
+
+  delete _Sigma0p;
+  delete _X0p;
+  delete _Y0p;
   delete _InvCCK;
+  delete _X0ptInvCCK;
+  delete _Sigma0pInvCCK;
 }
 
 bool KrigingCalcul::_checkDimensionVector(const String& name,
@@ -168,7 +182,7 @@ int KrigingCalcul::setSigma0(const MatrixRectangular* Sigma0)
   else
   {
     if (!_checkDimensionMatrix("Sigma0", Sigma0, &_neq, &_nrhs)) return 1;
-    _Sigma0   = Sigma0;
+    _Sigma0 = Sigma0;
   }
   return 0;
 }
@@ -312,8 +326,19 @@ const MatrixSquareSymmetric* KrigingCalcul::getPostCov()
 int KrigingCalcul::_needInvSigma()
 {
   if (_InvSigma != nullptr) return 0;
-  if (!_isPresentMatrix("Sigma", _Sigma)) return 1;
+  if (_needSigma()) return 1;
   _InvSigma = _Sigma->clone();
+
+  // Collocated case
+  if (_ncck > 0)
+  {
+    if (_needSigma0p()) return 1;
+    if (_needSigma0pInvCCK()) return 1;
+    MatrixSquareSymmetric Sigma0pInvCCKSigma0pt(_neq);
+    Sigma0pInvCCKSigma0pt.prodMatMatInPlace(_Sigma0pInvCCK, _Sigma0p);
+    _InvSigma->linearCombination(1., _InvSigma, -1., &Sigma0pInvCCKSigma0pt);
+  }
+  
   if (_InvSigma->invert()) return 1;
   return 0;
 }
@@ -324,16 +349,6 @@ int KrigingCalcul::_needInvPriorCov()
   if (!_isPresentMatrix("PriorCov", _PriorCov)) return 1;
   _InvPriorCov = _PriorCov->clone();
   if (_InvPriorCov->invert()) return 1;
-  return 0;
-}
-
-int KrigingCalcul::_needLambdaSK()
-{
-  if (_LambdaSK != nullptr) return 0;
-  if (!_isPresentMatrix("Sigma0", _Sigma0)) return 1;
-  if (_needInvSigma()) return 1;
-  if (_LambdaSK == nullptr) _LambdaSK = new MatrixRectangular(_neq, _nrhs);
-  _LambdaSK->prodMatMatInPlace(_InvSigma, _Sigma0);
   return 0;
 }
 
@@ -355,8 +370,8 @@ int KrigingCalcul::_needZstar()
 
     if (_flagBayes)
     {
-      if (_needX0mLambdaSKtX()) return 1;
-      VectorDouble mean = _X0mLambdaSKtX->prodMatVec(_Beta);
+      if (_needY0()) return 1;
+      VectorDouble mean = _Y0->prodMatVec(_Beta);
       VH::linearCombinationInPlace(1., _Zstar, 1., mean, _Zstar);
     }
   }
@@ -371,8 +386,7 @@ int KrigingCalcul::_needZstar()
 int KrigingCalcul::_needVarZSK()
 {
   if (_VarZSK != nullptr) return 0;
-  if (!_isPresentMatrix("Sigma0", _Sigma0)) return 1;
-
+  if (_needSigma0()) return 1;
   if (_needLambdaSK()) return 1;
   if (_VarZSK == nullptr) _VarZSK = new MatrixSquareSymmetric(_nrhs);
   _VarZSK->prodMatMatInPlace(_LambdaSK, _Sigma0, true, false);
@@ -382,7 +396,7 @@ int KrigingCalcul::_needVarZSK()
 int KrigingCalcul::_needVarZUK()
 {
   if (_VarZUK != nullptr) return 0;
-  if (!_isPresentMatrix("Sigma0", _Sigma0)) return 1;
+  if (_needSigma0()) return 1;
   if (_needLambdaUK()) return 1;
   if (_VarZUK == nullptr) _VarZUK = new MatrixSquareSymmetric(_nrhs);
   _VarZUK->prodNormMatMatInPlace(*_LambdaUK, *_Sigma, true);
@@ -410,10 +424,10 @@ int KrigingCalcul::_needStdv()
 
   if (!_flagSK)
   {
-    if (_needX0mLambdaSKtX()) return 1;
+    if (_needY0()) return 1;
     if (_needSigmac()) return 1;
     MatrixSquareSymmetric p1(_nrhs);
-    p1.prodNormMatMatInPlace(*_X0mLambdaSKtX, *_Sigmac);
+    p1.prodNormMatMatInPlace(*_Y0, *_Sigmac);
     _Stdv->linearCombination(1., _Stdv, 1., &p1);
   }
 
@@ -430,10 +444,34 @@ int KrigingCalcul::_needStdv()
   return 0;
 }
 
+int KrigingCalcul::_needX()
+{
+  if (!_isPresentMatrix("X", _X)) return 1;
+  return 0;
+}
+
+int KrigingCalcul::_needX0()
+{
+  if (!_isPresentMatrix("X0", _X0)) return 1;
+  return 0;
+}
+
+int KrigingCalcul::_needSigma()
+{
+  if (!_isPresentMatrix("Sigma", _Sigma)) return 1;
+  return 0;
+}
+
+int KrigingCalcul::_needSigma0()
+{
+  if (!_isPresentMatrix("Sigma0", _Sigma0)) return 1;
+  return 0;
+}
+
 int KrigingCalcul::_needXtInvSigma()
 {
   if (_XtInvSigma != nullptr) return 0;
-  if (!_isPresentMatrix("X", _X)) return 1;
+  if (_needX()) return 1;
   if (_needInvSigma()) return 1;
 
   if (_XtInvSigma == nullptr) _XtInvSigma = new MatrixRectangular(_nbfl, _neq);
@@ -444,7 +482,7 @@ int KrigingCalcul::_needXtInvSigma()
 int KrigingCalcul::_needSigmac()
 {
   if (_Sigmac != nullptr) return 0;
-  if (!_isPresentMatrix("X", _X)) return 1;
+  if (_needX()) return 1;
   if (_needXtInvSigma()) return 1;
 
   if (_Sigmac == nullptr) _Sigmac = new MatrixSquareSymmetric(_nbfl);
@@ -465,12 +503,55 @@ int KrigingCalcul::_needSigmac()
 int KrigingCalcul::_needInvCCK()
 {
   if (_ncck <= 0) return 1;
-  if (_isPresentMatrix("Sigma00", _Sigma00)) return 1;
+  if (!_isPresentMatrix("Sigma00", _Sigma00)) return 1;
+  if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
   if (_InvCCK == nullptr)
   {
     _InvCCK = MatrixSquareSymmetric::sample(_Sigma00, _rankColCok);
     if (_InvCCK->invert()) return 1;
   }
+  return 0;
+}
+
+int KrigingCalcul::_needSigma0p()
+{
+  if (_ncck <= 0) return 1;
+  if (_needSigma0()) return 1;
+  if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
+
+  if (_Sigma0p == nullptr)
+    _Sigma0p = MatrixRectangular::sample(_Sigma0, VectorInt(), _rankColCok);
+  return 0;
+}
+
+int KrigingCalcul::_needSigma0pInvCCK()
+{
+  if (_needSigma0p()) return 1;
+  if (_needInvCCK()) return 1;
+
+  if (_Sigma0pInvCCK == nullptr) _Sigma0pInvCCK = new MatrixRectangular(_neq, _ncck);
+  _Sigma0pInvCCK->prodMatMatInPlace(_Sigma0p, _InvCCK);
+  return 0;
+}
+
+int KrigingCalcul::_needX0p()
+{
+  if (_ncck <= 0) return 1;
+  if (_needX0()) return 1;
+  if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
+
+  if (_X0p == nullptr)
+    _X0p = MatrixRectangular::sample(_X0, _rankColCok, VectorInt());
+  return 0;
+}
+
+int KrigingCalcul::_needX0ptInvCCK()
+{
+  if (_needX0p()) return 1;
+  if (_needInvCCK()) return 1;
+
+  if (_X0ptInvCCK == nullptr) _X0ptInvCCK = new MatrixRectangular(_nbfl, _ncck);
+  _X0ptInvCCK->prodNormMatMatInPlace(*_X0p, *_InvCCK, true);
   return 0;
 }
 
@@ -495,19 +576,37 @@ int KrigingCalcul::_needBeta()
   return 0;
 }
 
-int KrigingCalcul::_needX0mLambdaSKtX()
+int KrigingCalcul::_needY0()
 {
-  if (_X0mLambdaSKtX != nullptr) return 0;
-  if (!_isPresentMatrix("X", _X)) return 1;
-  if (!_isPresentMatrix("X0", _X0)) return 1;
+  if (_needX0()) return 1;
   if (_needLambdaSK()) return 1;
 
-  if (_X0mLambdaSKtX == nullptr)
-    _X0mLambdaSKtX = new MatrixRectangular(_nrhs, _nbfl);
+  if (_Y0 == nullptr)
+    _Y0 = new MatrixRectangular(_nrhs, _nbfl);
 
   MatrixRectangular LambdaSKtX(_nrhs, _nbfl);
   LambdaSKtX.prodMatMatInPlace(_LambdaSK, _X, true, false);
-  _X0mLambdaSKtX->linearCombination(1., _X0, -1., &LambdaSKtX);
+  _Y0->linearCombination(1., _X0, -1., &LambdaSKtX);
+  return 0;
+}
+
+int KrigingCalcul::_needMu()
+{
+  if (_flagSK) return 0;
+  if (_needSigmac()) return 1;
+  if (_needY0()) return 1;
+  if (_Mu == nullptr) _Mu = new MatrixRectangular(_nbfl, _nrhs);
+  _Mu->prodMatMatInPlace(_Sigmac, _Y0);
+  return 0;
+}
+
+int KrigingCalcul::_needLambdaSK()
+{
+  if (_LambdaSK != nullptr) return 0;
+  if (_needSigma0()) return 1;
+  if (_needInvSigma()) return 1;
+  if (_LambdaSK == nullptr) _LambdaSK = new MatrixRectangular(_neq, _nrhs);
+  _LambdaSK->prodMatMatInPlace(_InvSigma, _Sigma0);
   return 0;
 }
 
@@ -522,17 +621,6 @@ int KrigingCalcul::_needLambdaUK()
 
   if (_LambdaUK == nullptr) _LambdaUK = new MatrixRectangular(_neq, _nrhs);
   _LambdaUK->linearCombination(1., _LambdaSK, 1., &p1);
-
-  return 0;
-}
-
-int KrigingCalcul::_needMu()
-{
-  if (_flagSK) return 0;
-  if (_needSigmac()) return 1;
-  if (_needX0mLambdaSKtX()) return 1;
-  if (_Mu == nullptr) _Mu = new MatrixRectangular(_nbfl, _nrhs);
-  _Mu->prodMatMatInPlace(_Sigmac, _X0mLambdaSKtX);
 
   return 0;
 }
@@ -580,7 +668,7 @@ void KrigingCalcul::printStatus() const
   _printMatrix("VarZSK", _VarZSK);
   _printMatrix("VarZUK", _VarZUK);
   _printMatrix("XtInvSigma", _XtInvSigma);
-  _printMatrix("X0mLambdaSKtX", _X0mLambdaSKtX);
+  _printMatrix("_Y0", _Y0);
   _printMatrix("InvSigma", _InvSigma);
   _printMatrix("Sigmac", _Sigmac);
   _printMatrix("InvPriorCov", _InvPriorCov);
@@ -600,3 +688,43 @@ bool KrigingCalcul::_isPresentVector(const String& name,
   messerr(">>> Vector %s is missing (required)", name.c_str());
   return false;
 }
+
+bool KrigingCalcul::_isPresentIVector(const String& name,
+                                      const VectorInt& vec)
+{
+  if (!vec.empty()) return true;
+  messerr(">>> Vector %s is missing (required)", name.c_str());
+  return false;
+}
+
+int KrigingCalcul::_needY0p()
+{
+  if (_needX()) return 1;
+  if (_needX0()) return 1;
+  if (_needXtInvSigma()) return 1;
+
+  if (_Y0p == nullptr) _Y0p = new MatrixRectangular(_ncck, _nbfl);
+  _Y0p->prodMatMatInPlace(_Sigma0p, _XtInvSigma, true, true);
+  _Y0p->linearCombination(1., _X0p, -1., _Y0p);
+  return 0;
+}
+
+int KrigingCalcul::_needLambda0()
+{
+  if (_ncck <= 0) return 1;
+  if (!_isPresentMatrix("Sigma00", _Sigma00)) return 1;
+  if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
+  if (_needInvSigma()) return 1;
+  if (_needSigmac()) return 1;
+
+  MatrixSquareSymmetric* C22 = MatrixSquareSymmetric::sample(_Sigma00, _rankColCok);
+  MatrixRectangular* C12 = MatrixRectangular::sample(_Sigma00, _rankColCok, VectorInt());
+
+  MatrixRectangular Sigma0ptInvSigma(_ncck, _neq);
+  Sigma0ptInvSigma.prodMatMatInPlace(_Sigma0p, _InvSigma, true);
+
+  MatrixRectangular Y0pSigmac(_ncck, _nbfl);
+  Y0pSigmac.prodMatMatInPlace(_Y0p, _Sigmac);
+
+  return 0;
+  }

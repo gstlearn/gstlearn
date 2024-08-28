@@ -40,5 +40,9 @@ int main(int argc, char *argv[])
 
   message("value = %lf\n", logLikelihoodSPDE(db, grid, model));
 
+  delete db;
+  delete grid;
+  delete model;
+
   return(0);
 }

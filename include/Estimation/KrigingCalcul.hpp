@@ -45,8 +45,8 @@ public:
 
   int setSigma00(const MatrixSquareSymmetric* Sigma00);
   int setSigma(const MatrixSquareSymmetric* Sigma);
-  int setX(const MatrixRectangular* X);
   int setSigma0(const MatrixRectangular* Sigma0);
+  int setX(const MatrixRectangular* X);
   int setX0(const MatrixRectangular* X0);
   int setZ(const VectorDouble& Z);
   int setBeta(const VectorDouble& beta);
@@ -66,17 +66,23 @@ public:
   const MatrixRectangular*     getLambdaUK();
   const MatrixRectangular*     getMu();
 
-    private: static bool _checkDimensionMatrix(const String& name,
-                                               const AMatrix* mat,
-                                               int* nrowsRef,
-                                               int* ncolsRef);
+private:
+  static bool _checkDimensionMatrix(const String& name,
+                                    const AMatrix* mat,
+                                    int* nrowsRef,
+                                    int* ncolsRef);
   static bool _checkDimensionVector(const String& name,
                                     const VectorDouble& vec,
                                     int* sizeRef);
 
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
   static bool _isPresentVector(const String& name, const VectorDouble& vec);
+  static bool _isPresentIVector(const String& name, const VectorInt& vec);
 
+  int _needX();
+  int _needX0();
+  int _needSigma();
+  int _needSigma0();
   int _needBeta();
   int _needInvSigma();
   int _needLambdaSK();
@@ -85,13 +91,19 @@ public:
   int _needSigmac();
   int _needZstar();
   int _needVarSK();
-  int _needX0mLambdaSKtX();
+  int _needY0();
   int _needXtInvSigma();
   int _needStdv();
   int _needVarZSK();
   int _needVarZUK();
   int _needInvPriorCov();
   int _needInvCCK();
+  int _needSigma0p();
+  int _needSigma0pInvCCK();
+  int _needX0p();
+  int _needY0p();
+  int _needX0ptInvCCK();
+  int _needLambda0();
 
   static void _printMatrix(const String& name, const AMatrix* mat);
   static void _printVector(const String& name, const VectorDouble& vec);
@@ -100,10 +112,9 @@ private:
   // Following pointers should not be removed in destructor
   const MatrixSquareSymmetric* _Sigma00;  // Variance at Target (Dim: _nrhs * _nrhs)
   const MatrixSquareSymmetric* _Sigma;    // Covariance Matrix (Dim: _neq * _neq)
-  const MatrixRectangular* _X;            // Drift at Data (Dim: _neq * _nbfl)
   const MatrixRectangular* _Sigma0;       // Covariance at Target (Dim: _neq * _nrhs)
-  const MatrixRectangular* _X0;           // Drift at Target (Dim: _nbfl * _nrhs)
-
+  const MatrixRectangular* _X;            // Drift at Data (Dim: _neq * _nbfl)
+  const MatrixRectangular* _X0;           // Drift at Target (Dim: _nrhs * _nbfl)
   const MatrixSquareSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
 
   // Following elements can be retrieved by Interface functions  
@@ -119,13 +130,22 @@ private:
   MatrixSquareSymmetric* _VarZSK;       // Estimator variance in SK (Dim: _nrhs * _nrhs)
   MatrixSquareSymmetric* _VarZUK;       // Estimator variance in UK (Dim: _nrhs * _nrhs)
 
-  // Following elements are defined for internal storage only
-  MatrixRectangular* _XtInvSigma;       // Xt * InvSigma (Dim: _nbfl * _neq);
-  MatrixRectangular* _X0mLambdaSKtX;    // X0 - LambdaSK * Xt (Dim: _nbfl * _nrhs)
-  MatrixSquareSymmetric* _InvSigma;     // (_Sigma)^{-1} (Dim: _neq * _neq)
-  MatrixSquareSymmetric* _Sigmac;       // (Xt * _Sigma^{-1} * X)^{-1} (Dim: _nbfl * _nbfl)
-  MatrixSquareSymmetric* _InvPriorCov;  // (_PriorCov)^{-1} (Dim: _nbfl * _nbfl)
-  MatrixSquareSymmetric* _InvCCK;       // (C^00_kk)^{-1} (Dim: _ncck * _ncck)
+  // Following elements are defined for internal storage
+  MatrixRectangular* _XtInvSigma;       // X^t * InvSigma (Dim: _nbfl * _neq);
+  MatrixRectangular* _Y0;               // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
+  MatrixSquareSymmetric* _InvSigma;     // (Sigma)^{-1} (Dim: _neq * _neq)
+  MatrixSquareSymmetric* _Sigmac;       // (X^t * Sigma^{-1} * X)^{-1} (Dim: _nbfl * _nbfl)
+  MatrixSquareSymmetric* _InvPriorCov;  // (PriorCov)^{-1} (Dim: _nbfl * _nbfl)
+
+  // Following elements are defined for internal storage (collocated case)
+  MatrixRectangular* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
+  MatrixRectangular* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
+  MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * InvSigma * X (Dim: _ncck * _nbfl)
+  MatrixSquareSymmetric* _InvCCK;    // (C^00_kk)^{-1} (Dim: _ncck * _ncck)
+  MatrixRectangular* _X0ptInvCCK;    // X0p^t * InvCCK (Dim: _nbfl * _ncck)
+  MatrixRectangular* _Sigma0pInvCCK; // Sigmap0 * InvCCK (Dim: _neq * _ncck)
+
+  // Additional parameters
   int _neq;
   int _nbfl;
   int _nrhs;
