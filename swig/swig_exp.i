@@ -139,6 +139,8 @@
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
 
+%include LinearOp/ALinearOp.hpp
+
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
@@ -169,8 +171,6 @@
 
 %include LinearOp/CGParam.hpp
 %include LinearOp/LogStats.hpp
-%include LinearOp/ALinearOp.hpp
-%include LinearOp/ALinearOp.hpp
 %include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/ScaleOp.hpp
@@ -181,8 +181,10 @@
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp
-%include LinearOp/ProjMatrixMulti.hpp
+%include LinearOp/ProjMulti.hpp
+%include LinearOp/ProjMultiMatrix.hpp
 %include LinearOp/PrecisionOpMulti.hpp
+%include LinearOp/PrecisionOpMultiMatrix.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
 %include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp

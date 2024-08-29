@@ -8,37 +8,35 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/SPDEOp.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#pragma once
+
+#include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/ProjMulti.hpp"
-#include "LinearOp/PrecisionOpMulti.hpp"
 
-SPDEOp::SPDEOp(const PrecisionOpMulti* pop, const ProjMulti* A, const ALinearOp* invNoise)
-: _Q(pop)
-, _A(A)
-, _invNoise(invNoise)
+#include "gstlearn_export.hpp"
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+#endif
+
+#include <algorithm>
+class ProjMatrix;
+
+
+class GSTLEARN_EXPORT ProjMultiMatrix : public ProjMulti, public MatrixSparse
 {
-}
+public:
+  ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj);
+  static std::vector<std::vector<const ProjMatrix*>> create(std::vector<const ProjMatrix*> &vectproj, int nvariable);
+  virtual ~ProjMultiMatrix(){}
 
-SPDEOp::~SPDEOp() {}
+#ifndef SWIG           
+  protected:
+  virtual int _addPoint2mesh(const Eigen::VectorXd& inv,
+                        Eigen::VectorXd& outv) const override;
+  virtual int _addMesh2point(const Eigen::VectorXd& inv,
+                        Eigen::VectorXd& outv) const override;
+#endif
 
-int SPDEOp::getSize() const
-{ 
-  return _Q->getSize(); 
-}
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the SPDEOp) : 'outv' = I * 'inv' = 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-int SPDEOp::_addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const
-{
-  for (int i = 0, n = getSize(); i < n; i++)
-    outv[i] += inv[i];
-  return 0;
-}
+};

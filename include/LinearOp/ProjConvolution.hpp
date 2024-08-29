@@ -71,9 +71,9 @@ private:
   bool _isVecDimCorrect(const Eigen::VectorXd &valonseismic,
                         const Eigen::VectorXd &valonvertex) const;   
   protected:
-  int _point2mesh(const Eigen::VectorXd& valonseismic,
+  int _addPoint2mesh(const Eigen::VectorXd& valonseismic,
                         Eigen::VectorXd& valonvertex) const override;
-  int _mesh2point(const Eigen::VectorXd& valonvertex,
+  int _addMesh2point(const Eigen::VectorXd& valonvertex,
                         Eigen::VectorXd& valonseismic) const override;
   #endif
 

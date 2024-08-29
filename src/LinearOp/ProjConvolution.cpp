@@ -158,7 +158,7 @@ bool ProjConvolution::_isVecDimCorrect(const Eigen::VectorXd &valonseismic,
  * @param valonvertex  Output vector defined on the Coarse Grid
  * @return
  */
-int ProjConvolution::_point2mesh(const Eigen::VectorXd &valonseismic,
+int ProjConvolution::_addPoint2mesh(const Eigen::VectorXd &valonseismic,
                                 Eigen::VectorXd &valonvertex) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
@@ -193,7 +193,7 @@ int ProjConvolution::_point2mesh(const Eigen::VectorXd &valonseismic,
  * @param valonseismic  Output vector defined on the Seismic grid
  * @return
  */
-int ProjConvolution::_mesh2point(const Eigen::VectorXd &valonvertex,
+int ProjConvolution::_addMesh2point(const Eigen::VectorXd &valonvertex,
                                 Eigen::VectorXd &valonseismic) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
@@ -226,9 +226,6 @@ int ProjConvolution::_mesh2point(const Eigen::VectorXd &valonvertex,
 void ProjConvolution::_convolve(const Eigen::VectorXd &valonvertex,
                                 Eigen::VectorXd &valonseismic) const
 {
-
-  VectorEigen::fill(valonseismic,0.);
-
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valp  = 0.;

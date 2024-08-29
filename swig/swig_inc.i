@@ -145,8 +145,10 @@
   #include "LinearOp/IProjMatrix.hpp"
   #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
-  #include "LinearOp/ProjMatrixMulti.hpp"
+  #include "LinearOp/ProjMulti.hpp"
+  #include "LinearOp/ProjMultiMatrix.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
+  #include "LinearOp/PrecisionOpMultiMatrix.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
@@ -377,6 +379,10 @@
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< ProjMatrix* >;
 %template(VectorVectorEigen)       std::vector< VectorEigen >;
+%template(VectorConstProjMatrix)   std::vector< const ProjMatrix*>;
+%template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
+%template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
+%template(VVectorConstIProjMatrix) std::vector< std::vector< const IProjMatrix*> >;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 
