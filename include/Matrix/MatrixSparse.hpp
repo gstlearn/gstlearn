@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/WarningMacro.hpp"
@@ -37,7 +38,7 @@ class EOperator;
  * Storage relies either on Eigen3 Library (see opt_eigen flag) or cs code.
  * Default storage option can be set globally by using setGlobalFlagEigen
  */
-class GSTLEARN_EXPORT MatrixSparse : public AMatrix {
+class GSTLEARN_EXPORT MatrixSparse : public AMatrix, public ALinearOp {
 
 public:
   MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen = -1);
@@ -54,6 +55,8 @@ public:
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
 
+  int getSize() const override { return getNRows();} // It assumes that the matrix is symmetric. Maybe a class MatrixSparseSymmetric would be interesting
+                                                     // to inherit from ALinearOp
   bool isFlagEigen() const { return _flagEigen; }
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
@@ -142,7 +145,10 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
                             const MatrixSparse *A2,
                             bool flagShiftRow,
                             bool flagShiftCol);
-
+  static void  glueInPlace(MatrixSparse *A1,
+                           const MatrixSparse *A2,
+                           bool flagShiftRow,
+                           bool flagShiftCol);
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
   /// rather than manipulating AMatrix. They are no more generic of AMatrix
   /*! Add a matrix (multiplied by a constant) */
@@ -216,6 +222,12 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   VectorInt colorCoding();
   int getNonZeros() const { return _getMatrixPhysicalSize(); }
   void gibbs(int iech, const VectorDouble& zcur, double* yk, double* sk);
+
+#ifndef SWIG
+  protected:
+  virtual int _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const;
+#endif
 
 protected:
   /// Interface for AMatrix

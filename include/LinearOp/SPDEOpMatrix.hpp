@@ -10,46 +10,28 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/IProjMatrix.hpp"
-#include "LinearOp/ProjMulti.hpp"
+#include "LinearOp/SPDEOp.hpp"
 #include "gstlearn_export.hpp"
 
-#ifndef SWIG
-#include "LinearOp/ALinearOpEigenCG.hpp"
-DECLARE_EIGEN_TRAITS(SPDEOp)
-#else
-#include "LinearOp/ALinearOp.hpp"
-#endif
-
-class PrecisionOpMulti;
-class ProjMulti;
+class PrecisionOpMultiMatrix;
+class ProjMultiMatrix;
+class MatrixSparse;
 
 
-class GSTLEARN_EXPORT SPDEOp:
-#ifndef SWIG
-  public ALinearOpEigenCG<SPDEOp>
-#else
-  public ALinearOp
-#endif
+class GSTLEARN_EXPORT SPDEOpMatrix : public SPDEOp
 {
-
 public:
-  SPDEOp(const PrecisionOpMulti* pop = nullptr, const ProjMulti* A = nullptr, const ALinearOp* invNoise = nullptr);
-  virtual ~SPDEOp();
+  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr, const ProjMultiMatrix* A = nullptr, const MatrixSparse* invNoise = nullptr);
+  virtual ~SPDEOpMatrix();
 
   int getSize() const override;
 
 #ifndef SWIG
 protected:
-  virtual int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
 #endif
 
-protected:
-  const PrecisionOpMulti* _Q;
-  const ProjMulti*        _A;
-  const ALinearOp*        _invNoise;
+private:
+  MatrixSparse* _QpAinvNoiseAt;
 };
 
-#ifndef SWIG
-DECLARE_EIGEN_PRODUCT(SPDEOp)
-#endif

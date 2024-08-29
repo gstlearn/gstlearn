@@ -597,6 +597,7 @@ void  MatrixSparse::addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen:
     else
       out += _eigenMatrix * in;
   }
+  return;
   VectorDouble y;
   if (transpose)
   {
@@ -1523,6 +1524,27 @@ VectorInt MatrixSparse::colorCoding()
   }
   return colors;
 }
+void MatrixSparse::glueInPlace(MatrixSparse *A1,
+                        const MatrixSparse *A2,
+                        bool flagShiftRow,
+                        bool flagShiftCol)
+{
+  int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
+  int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
+  NF_Triplet T1 = A1->getMatrixToTriplet();
+  NF_Triplet T2 = A2->getMatrixToTriplet(shiftRow, shiftCol);
+
+  // Concatenate the two triplet lists
+  T1.appendInPlace(T2);
+
+  // Create the new matrix from the resulting triplet list
+  int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
+  int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
+
+  A1->_setNRows(nrow);
+  A1->_setNCols(ncol);
+  A1->resetFromTriplet(T1);
+}
 
 MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
                                  const MatrixSparse *A2,
@@ -1689,4 +1711,11 @@ void MatrixSparse::gibbs(int iech,
   // Returned arguments
   (*yk) /= (*sk);
   (*sk) = sqrt(1. / (*sk));
+}
+
+int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const
+{
+    outv += _eigenMatrix * outv;
+    return 0;
 }

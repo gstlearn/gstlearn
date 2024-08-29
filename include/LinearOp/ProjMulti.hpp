@@ -11,36 +11,51 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/src/Core/Matrix.h>
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+#endif
 #include "LinearOp/IProjMatrix.hpp"
-#include "Basic/VectorNumT.hpp"
 
-class ProjMatrix;
-
-class GSTLEARN_EXPORT ProjMatrixMulti : public IProjMatrix
+class GSTLEARN_EXPORT ProjMulti : public IProjMatrix
 {
 public:
-  ProjMatrixMulti(const std::vector<ProjMatrix*> &proj,
-                  int nvar = 1);
-  //int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
-  //int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
+  ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &proj);
   int getApexNumber() const override;
   int getPointNumber() const override;
-  virtual ~ProjMatrixMulti(){}
-private:
-  const std::vector<ProjMatrix*> _projs;
-  int _apicesNumber;
-  int _pointsNumber;
-  const int _nvar;
+  int getNVariable() const { return _nvariable; }
+  int getNLatent() const { return _nlatent; }
+  virtual ~ProjMulti(){}
 
 #ifndef SWIG           
   protected:
-  int _point2mesh(const Eigen::VectorXd& inv,
+  virtual int _addPoint2mesh(const Eigen::VectorXd& inv,
                         Eigen::VectorXd& outv) const override;
-  int _mesh2point(const Eigen::VectorXd& inv,
+  virtual int _addMesh2point(const Eigen::VectorXd& inv,
                         Eigen::VectorXd& outv) const override;
 #endif
+
+protected:
+int findFirstNoNullOnRow(int j) const;
+int findFirstNoNullOnCol(int j) const;
+const std::vector<int>& getPointNumbers() const {return _pointNumbers;}
+const std::vector<int>& getApexNumbers()  const {return _apexNumbers;}
+
+protected:
+std::vector<std::vector<const IProjMatrix*> >_projs;
+
+private: 
+  void _makeEmpty();
+private:
+int _pointNumber;
+int _apexNumber;
+int _nlatent;
+int _nvariable;
+std::vector<int> _pointNumbers;
+std::vector<int> _apexNumbers;
+mutable Eigen::VectorXd _work;
+mutable Eigen::VectorXd _workmesh;
+
 
 };

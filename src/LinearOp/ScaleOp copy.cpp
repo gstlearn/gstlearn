@@ -8,37 +8,28 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/SPDEOp.hpp"
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/ProjMulti.hpp"
-#include "LinearOp/PrecisionOpMulti.hpp"
+#include "LinearOp/ScaleOp.hpp"
 
-SPDEOp::SPDEOp(const PrecisionOpMulti* pop, const ProjMulti* A, const ALinearOp* invNoise)
-: _Q(pop)
-, _A(A)
-, _invNoise(invNoise)
+ScaleOp::ScaleOp(int n, double scale) :
+  _n(n), _scale(scale)
 {
 }
 
-SPDEOp::~SPDEOp() {}
+ScaleOp::~ScaleOp() {}
 
-int SPDEOp::getSize() const
-{ 
-  return _Q->getSize(); 
-}
 /*****************************************************************************/
 /*!
-**  Evaluate the product (by the SPDEOp) : 'outv' = I * 'inv' = 'inv'
+**  Evaluate the product (by the ScaleOp) : 'outv' += I * 'inv' = 'inv'
 **
 ** \param[in]  inv     Array of input values
 **
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOp::_addToDest(const Eigen::VectorXd& inv,
+int ScaleOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
-  for (int i = 0, n = getSize(); i < n; i++)
-    outv[i] += inv[i];
+  for (int i = 0, n = _n; i < n; i++)
+    outv[i] += _scale*inv[i];
   return 0;
 }

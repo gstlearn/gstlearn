@@ -8,37 +8,40 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/SPDEOp.hpp"
+#pragma once
+
 #include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/ProjMulti.hpp"
+#include "Matrix/MatrixSparse.hpp"
+#include "gstlearn_export.hpp"
+#include "Model/Model.hpp"
+#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "Basic/VectorNumT.hpp"
 
-SPDEOp::SPDEOp(const PrecisionOpMulti* pop, const ProjMulti* A, const ALinearOp* invNoise)
-: _Q(pop)
-, _A(A)
-, _invNoise(invNoise)
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+#endif
+class Model;
+
+/**
+ * Class to store objects for SPDE
+ */
+class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public PrecisionOpMulti, public MatrixSparse
 {
-}
+public:
+  PrecisionOpMultiMatrix(Model* model = nullptr, 
+                   const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
+  PrecisionOpMultiMatrix(const PrecisionOpMulti &m)= delete;
+  PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
+  virtual ~PrecisionOpMultiMatrix();
 
-SPDEOp::~SPDEOp() {}
+  #ifndef SWIG
+  
+  protected:
+    int    _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const override;
 
-int SPDEOp::getSize() const
-{ 
-  return _Q->getSize(); 
-}
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the SPDEOp) : 'outv' = I * 'inv' = 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-int SPDEOp::_addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const
-{
-  for (int i = 0, n = getSize(); i < n; i++)
-    outv[i] += inv[i];
-  return 0;
-}
+  #endif
+
+};
