@@ -1,0 +1,32 @@
+Tests message when arguments are inconsistent
+---------
+All the ProjMatrix should have the same number of Point.
+Element 1 has 3 Point instead of 2.
+---------
+Projmatrix shouldn't be nullptr.
+All the projectors of row 1 are nullptr
+-----------
+All the elements of proj have to share the same size.
+Line 1 has 3 elements instead of 2.
+-----------
+Inconsistency between the IProjMatrix Point Numbers.
+Element [1,1] should have Point Number = 3  instead of 2.
+-----------
+Inconsistency between the IProjMatrix Apex Numbers.
+Element [2,1] should have Apex Number = 16  instead of 9.
+-----------
+Test polymorphism
+-------------
+Test Dimensions
+0
+0
+------------
+Test mesh2Point
+0.0
+------------
+Test mesh2Point
+0.0
+------------
+Matricial Operators
+mesh2point from the matrix
+point2mesh from the matrix
