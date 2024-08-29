@@ -157,7 +157,7 @@ result = gl.VectorEigen(napex)
 aM.point2mesh(vect,result)
 res = np.array([result.getValue(i) for i in range(result.size())])
 print("point2mesh from the matrix computed in C++")
-print(np.sum(np.abs(res - resnumpyP2M)))
+print(np.round(np.sum(np.abs(res - resnumpyP2M)),15))
 
 
 # %%
