@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "LinearOp/IProjMatrix.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/ProjMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 static std::vector<std::vector<const IProjMatrix*>> castToBase(std::vector<std::vector<const ProjMatrix*>> vect)
@@ -72,6 +73,7 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
 ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj)
 : ProjMulti(castToBase(proj))
 {
+    if (ProjMulti::empty()) return;
     const VectorInt& pointNumbers = getPointNumbers();
     const VectorInt& apexNumbers  = getApexNumbers();
 

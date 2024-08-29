@@ -21,12 +21,13 @@
 class GSTLEARN_EXPORT ProjMulti : public IProjMatrix
 {
 public:
-  ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &proj);
+  ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs);
   int getApexNumber() const override;
   int getPointNumber() const override;
   int getNVariable() const { return _nvariable; }
   int getNLatent() const { return _nlatent; }
   virtual ~ProjMulti(){}
+  bool empty() const { return _projs.empty();}
 
 #ifndef SWIG           
   protected:
@@ -36,17 +37,20 @@ public:
                         Eigen::VectorXd& outv) const override;
 #endif
 
+private : 
+  bool _checkArg(const std::vector<std::vector<const IProjMatrix*>> &projs) const;
+  void _init();
 protected:
 int findFirstNoNullOnRow(int j) const;
 int findFirstNoNullOnCol(int j) const;
 const std::vector<int>& getPointNumbers() const {return _pointNumbers;}
 const std::vector<int>& getApexNumbers()  const {return _apexNumbers;}
 
-protected:
-std::vector<std::vector<const IProjMatrix*> >_projs;
 
-private: 
-  void _makeEmpty();
+
+protected:
+std::vector<std::vector<const IProjMatrix*> >_projs; // NOT TO BE DELETED
+
 private:
 int _pointNumber;
 int _apexNumber;

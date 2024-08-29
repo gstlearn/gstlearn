@@ -1,36 +1,93 @@
-Tests message when arguments are inconsistent
----------
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+A - Tests message when arguments are inconsistent:
+---------------------------------------------------------------------
+I. Creation of the vector<vector<Projmatrix*>> from a vector<ProjMatrix*>
+---------------------------------------------------------------------
+Test1: with a nullptr element:
+--------
+Projmatrix shouldn't be nullptr.
+---------------------
+Test2: with different Point Numbers:
+--------
 All the ProjMatrix should have the same number of Point.
 Element 1 has 3 Point instead of 2.
----------
-Projmatrix shouldn't be nullptr.
+---------------------------------------------------------------------
+II. Creation of ProjMulti
+---------------------------------------------------------------------
+Test3 : full line of nullptr:
+--------
 All the projectors of row 1 are nullptr
------------
+Problem in initialization of ProjMulti.
+---------------------
+Test4: Rows with different number of elements:
+--------
 All the elements of proj have to share the same size.
 Line 1 has 3 elements instead of 2.
------------
+Problem in initialization of ProjMulti.
+---------------------
+Test5: Point Numbers different on a row:
+--------
 Inconsistency between the IProjMatrix Point Numbers.
 Element [1,1] should have Point Number = 3  instead of 2.
------------
+Problem in initialization of ProjMulti.
+---------------------
+Test6: Apex Numbers different on a column:
+--------
 Inconsistency between the IProjMatrix Apex Numbers.
 Element [2,1] should have Apex Number = 16  instead of 9.
------------
-Test polymorphism
--------------
-Test Dimensions
-0
-0
-------------
-Test mesh2Point (matrix free)
-0.0
-------------
-Test point2mesh (matrix-free)
-0.0
-------------
-With sparse matrices
-mesh2point from the matrix in python (with toTL())
-point2mesh from the matrix in python (with toTL())
-mesh2point from the matrix computed in C++
-0.0
-point2mesh from the matrix computed in C++
-0.0
+Problem in initialization of ProjMulti.
+---------------------
+Test7: empty matrix:
+--------
+projs is empty.
+Problem in initialization of ProjMulti.
+---------------------------------------------------------------------
+End of inconsistency tests
+---------------------------------------------------------------------
+B - Various tests
+---------------------------------------------------------------------
+Test 8: polymorphism:
+---------------------
+Test case 1 passed
+Test case 2 passed
+---------------------
+Test 9: Dimensions
+---------------------
+Number of differences for nlatent 0
+Number of differences for nlatent 0
+3
+2
+Number of differences for apex number 0
+Number of differences for point number 0
+---------------------------------------------------------------------
+C - Test Operators
+---------------------------------------------------------------------
+---------------------
+Test 10: mesh2Point (matrix free):
+---------------------
+Difference with manual computation 0.0
+---------------------
+Test 11: point2mesh (matrix-free):
+---------------------
+Difference with manual computation 0.0
+---------------------
+With sparse matrices:
+---------------------
+Test 12: mesh2point from the matrix in python (with toTL()):
+---------------------
+Difference with manual computation 0.0
+---------------------
+Test 13: point2mesh from the matrix in python (with toTL()):
+---------------------
+Difference with manual computation 0.0
+---------------------
+Test 14: mesh2point from the matrix computed in C++:
+---------------------
+Difference with manual computation 0.0
+---------------------
+Test 15: point2mesh from the matrix computed in C++:
+---------------------
+Difference with manual computation 0.0
+---------------------
+End of tests
