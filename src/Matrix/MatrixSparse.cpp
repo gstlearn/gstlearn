@@ -597,20 +597,20 @@ void  MatrixSparse::addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen:
     else
       out += _eigenMatrix * in;
   }
-  return;
-  VectorDouble y;
-  if (transpose)
-  {
-    int ncol = getNCols();
-    cs_vector_addToDest_tMx(_csMatrix, ncol, in.data(), out.data());
-  }
   else
   {
-    int nrow = getNRows();
-    cs_vector_addToDest_Mx(_csMatrix, nrow, in.data(), out.data());
+    if (transpose)
+    {
+      int ncol = getNCols();
+      cs_vector_addToDest_tMx(_csMatrix, ncol, in.data(), out.data());
+    }
+    else
+    {
+      int nrow = getNRows();
+      cs_vector_addToDest_Mx(_csMatrix, nrow, in.data(), out.data());
+    }
   }
 }
-
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
