@@ -98,7 +98,7 @@ resnumpyM2P = np.concatenate(resnumpyM2P)
 
 # %%
 print("------------")
-print("Test mesh2Point")
+print("Test mesh2Point (matrix free)")
 print(np.sum(np.abs(resnumpyM2P-res)))
 
 # %%
@@ -125,20 +125,20 @@ resnumpyP2M = np.concatenate(resnumpyP2M)
 
 # %%
 print("------------")
-print("Test mesh2Point")
+print("Test point2mesh (matrix-free)")
 print(np.sum(np.abs(resnumpyP2M-res)))
 
 # %%
 print("------------")
-print("Matricial Operators")
+print("With sparse matrices")
 
 
 # %%
-print("mesh2point from the matrix")
+print("mesh2point from the matrix in python (with toTL())")
 np.round(np.sum(np.abs(aM.toTL() @ gaussA - resnumpyM2P)),15)
 
 # %%
-print("point2mesh from the matrix")
+print("point2mesh from the matrix in python (with toTL())")
 np.sum(np.abs(aM.toTL().T @ gaussP - resnumpyP2M))
 
 # %%
@@ -146,7 +146,8 @@ vect = gl.VectorEigen(gaussA)
 result = gl.VectorEigen(npoint)
 aM.mesh2point(vect,result)
 res = np.array([result.getValue(i) for i in range(result.size())])
-np.round(np.sum(np.abs(res - resnumpyM2P)),15)
+print("mesh2point from the matrix computed in C++")
+print(np.round(np.sum(np.abs(res - resnumpyM2P)),15))
 
 
 
@@ -155,7 +156,8 @@ vect = gl.VectorEigen(gaussP)
 result = gl.VectorEigen(napex)
 aM.point2mesh(vect,result)
 res = np.array([result.getValue(i) for i in range(result.size())])
-np.sum(np.abs(res - resnumpyP2M))
+print("point2mesh from the matrix computed in C++")
+print(np.sum(np.abs(res - resnumpyP2M)))
 
 
 # %%

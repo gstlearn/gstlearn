@@ -21,12 +21,16 @@ Test Dimensions
 0
 0
 ------------
-Test mesh2Point
+Test mesh2Point (matrix free)
 0.0
 ------------
-Test mesh2Point
+Test point2mesh (matrix-free)
 0.0
 ------------
-Matricial Operators
-mesh2point from the matrix
-point2mesh from the matrix
+With sparse matrices
+mesh2point from the matrix in python (with toTL())
+point2mesh from the matrix in python (with toTL())
+mesh2point from the matrix computed in C++
+0.0
+point2mesh from the matrix computed in C++
+0.0
