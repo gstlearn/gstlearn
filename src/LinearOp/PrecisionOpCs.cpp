@@ -22,25 +22,23 @@
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
-                             bool flagNormalized,
                              bool flagDecompose,
                              bool verbose)
     : PrecisionOp(shiftop, cova,verbose),
       _Q(nullptr)
 {
-  _buildQ(flagDecompose,flagNormalized);
+  _buildQ(flagDecompose);
 }
 
 PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
                              Model *model,
                              int icov,
-                             bool flagNormalized,
                              bool flagDecompose,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, flagNormalized, verbose),
+    : PrecisionOp(mesh, model, icov, verbose),
       _Q(nullptr)
 {
-  _buildQ(flagDecompose,flagNormalized);
+  _buildQ(flagDecompose);
 }
 
 PrecisionOpCs::~PrecisionOpCs()
@@ -212,7 +210,7 @@ void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
 //
 //}
 
-void PrecisionOpCs::_buildQ(bool flagDecompose, bool flagNormalized)
+void PrecisionOpCs::_buildQ(bool flagDecompose)
 {
   delete _Q;
   if (! isCovaDefined()) return;
@@ -225,13 +223,13 @@ void PrecisionOpCs::_buildQ(bool flagDecompose, bool flagNormalized)
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                        static_cast<int>(blin.size()), blin.data());
   
-  if (!flagNormalized)
+/*   if (!flagNormalized)
   { 
     //TODO : implement the nostat SILL case
     double sill = getCova()->getSill(0,0);
     VectorDouble vect(_Q->getNRows(),1. / sqrt(sill));
     _Q->prodNormDiagVecInPlace(vect);
-  }
+  } */
   // Prepare the Cholesky decomposition
   if (flagDecompose)
     _Q->computeCholesky();

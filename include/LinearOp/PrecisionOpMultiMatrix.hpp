@@ -31,7 +31,7 @@ class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public PrecisionOpMulti, public 
 {
 public:
   PrecisionOpMultiMatrix(Model* model = nullptr, 
-                   const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
+                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>());
   PrecisionOpMultiMatrix(const PrecisionOpMulti &m)= delete;
   PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMultiMatrix();

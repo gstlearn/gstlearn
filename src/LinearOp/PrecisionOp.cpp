@@ -65,7 +65,6 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int icov,
-                         bool flagNormalized,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(model->getCova(icov))
@@ -77,11 +76,12 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work()
   , _work2()
   , _work3()
-{
+{ 
+  
   _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
-  if (!flagNormalized)
+  if (_cova->getNVariables() == 1)
   {
-    _shiftOp->normalizeLambdaBySills(model);
+    _shiftOp->normalizeLambdaBySills(mesh);
   }
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
@@ -470,8 +470,7 @@ int PrecisionOp::_preparePrecisionPoly() const
 std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
 {
   std::pair<double,double> rangeVals;
-
-  double sill = _cova->getSill(0,0);
+  double sill = _cova->getSill(0,0); //TODO handle non constant sill
   double sMax = _shiftOp->getMaxEigenValue();
   double x = 0;
   double delta = sMax/(ndiscr-1);

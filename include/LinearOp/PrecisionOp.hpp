@@ -30,6 +30,11 @@ class APolynomial;
 class AMesh;
 class Model;
 
+// This class create a precision operator (matrix-free).
+// In general, it is built from a Model and a AMesh
+// Note that if the model is multivariate, the precision is built with a constant sill = 1.
+// Therefore it has to be used only through the PrecisionOpMulti class
+// which handles the sills matrix (possibly non stationary)
 class GSTLEARN_EXPORT PrecisionOp : public ALinearOp{
 
 public:
@@ -40,14 +45,13 @@ public:
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
-              bool flagNormalized = false,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
   virtual ~PrecisionOp();
 
   // Interface functions for using PrecisionOp
-  //virtual void evalDirect(const Eigen::VectorXd &vecin, Eigen::VectorXd &vecout);
+
   #ifndef SWIG
     virtual void evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout);
     virtual void evalInverse(const  Eigen::VectorXd& vecin, Eigen::VectorXd& vecout);

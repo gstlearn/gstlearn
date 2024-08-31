@@ -32,7 +32,7 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 {
   public:
   PrecisionOpMulti(Model* model = nullptr, 
-                   const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
+                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>());
   PrecisionOpMulti(const PrecisionOpMulti &m)= delete;
   PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMulti();
@@ -67,7 +67,7 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   #endif
   private:
   bool _isValidModel(Model* model);
-  bool _isValidMeshes(const std::vector<AMesh*>& meshes);
+  bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
   bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct];}
   bool _matchModelAndMeshes();
   int  _getNVar() const;
@@ -77,17 +77,22 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   int  _buildCholSills() const;
   void _popsClear();
 
-private:
-  bool _isValid;
-  VectorInt _covList;
-  VectorInt _nmeshList;
+protected:
+
   std::vector<PrecisionOp*> _pops;
   VectorBool _isNoStatForVariance;
   mutable std::vector<std::vector<Eigen::VectorXd>> _invSillsNoStat;
   mutable std::vector<std::vector<Eigen::VectorXd>> _cholSillsNoStat;
   mutable std::vector<MatrixSquareSymmetric> _invSills; // Inverse of the Sills
   mutable std::vector<MatrixSquareSymmetric> _cholSills; // Cholesky of the Sills
+  Model* _model; // Not to be deleted. TODO : make it const
+  std::vector<const AMesh*> _meshes; // Not to be deleted
 
-  Model* _model; // Not to be deleted
-  std::vector<AMesh*> _meshes; // Not to be deleted
+private:
+  bool _isValid;
+  VectorInt _covList;
+  VectorInt _nmeshList;
+
+private:
+  mutable std::vector<Eigen::VectorXd> _works;
 };

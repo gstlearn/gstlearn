@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/ShiftOpCs.hpp"
 
+#include "Enum/EConsElem.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -380,14 +381,38 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
   }
 }
 
-void ShiftOpCs::normalizeLambdaBySills(const Model* model,int icov)
+void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
 {
-  double sillsq = sqrt(model->getCova(icov)->getSill(0,0));
-  for (auto &e:_Lambda)
+  VectorDouble tab;
+  bool flagSill = false;
+  const ANoStat *nostat = _getModel()->getNoStat();  
+
+  if (_isNoStat())
   {
-    e /= sillsq;
+    if (nostat->isDefined(EConsElem::SILL, _getIcov())) flagSill = true;
   }
-  //TODO code non stationary normalization
+
+  if (flagSill)
+  {
+    nostat->attachToMesh(mesh,false);
+    int number = (int) _Lambda.size();
+                       
+    
+    for (int imesh = 0; imesh < number; imesh++)
+    {
+      double sill = nostat->getValue(EConsElem::SILL,0,imesh,_getIcov(),0,0,0);
+      double invsillsq = 1. / sqrt(sill);
+      _Lambda[imesh] *= invsillsq;
+    }
+  }
+  else 
+  {
+    double invsillsq = 1. / sqrt(_getModel()->getCova(0)->getSill(0,0));
+    for (auto &e:_Lambda)
+    {
+      e *= invsillsq;
+    }
+  }
 }
 
 void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,

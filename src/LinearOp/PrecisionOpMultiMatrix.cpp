@@ -17,7 +17,7 @@
 
 
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
-                                   const std::vector<AMesh*>& meshes)
+                                   const std::vector<const AMesh*>& meshes)
   : PrecisionOpMulti(model,meshes)
 {
  

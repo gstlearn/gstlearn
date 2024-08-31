@@ -16,58 +16,78 @@
 #include <Eigen/src/Core/Matrix.h>
 
 #define EVALOP(prepare,start,tab,getmat,op) \
-  if(_prepareOperator(vecin,vecout))\
-  {\
-    return 1;\
-  }; \
-  if (prepare() != 0)\
-  {\
-    messerr("Problem when preparing the matrix");\
-    return 1;\
-  }\
-  int nvar = _getNVar();\
-  int ncov = _getNCov();\
-  int iad_x = 0;\
-  int iad_struct = 0;\
-  for (int icov = 0; icov < ncov; icov++)\
-  {\
-    int napices = size(icov);\
-    Eigen::VectorXd y(napices);\
-    int s = 0;\
-    for (int jvar = 0; jvar < nvar; jvar++)\
+    int nvar = _getNVar();\
+    if (nvar > 1)\
     {\
-      Eigen::Map<const Eigen::VectorXd>x(vecin.data()+iad_x,napices);\
-      _pops[icov]->op(x, y);\
-      int iad_y = iad_struct + start * napices;\
-      for (int ivar = start; ivar < nvar; ivar++)\
+      if(_prepareOperator(vecin,vecout))\
       {\
-        if (_isNoStatForVariance[icov])\
-        {\
-          std::cout << "ivar=" << ivar  << " jvar=" << jvar << " value="<< tab##NoStat[icov][s][0]<<std::endl;\
-          VectorEigen::addMultiplyVectVectInPlace(tab##NoStat[icov][s++],y,vecout,iad_y);\
-        }\
-        else\
-        {\
-          VectorEigen::addMultiplyConstantInPlace(tab[icov].getmat(ivar,jvar),y,vecout,iad_y);\
-        }\
-        iad_y += napices;\
+        return 1;\
+      }; \
+      if (prepare() != 0)\
+      {\
+        messerr("Problem when preparing the matrix");\
+        return 1;\
       }\
-      iad_x+= napices;  \
     }\
-    iad_struct = iad_x;\
-  }\
-  return 0;
+    int ncov = _getNCov();\
+    int iad_x = 0;\
+    int iad_struct = 0;\
+    Eigen::VectorXd work;\
+    Eigen::VectorXd* y;\
+    for (int icov = 0; icov < ncov; icov++)\
+    {\
+      int napices = size(icov);\
+      if (nvar == 1 && ncov == 1)\
+      {\
+        y = &vecout;\
+      }\
+      else\
+      {\
+        y = &_works[icov];\
+        y->resize(napices);\
+      }\
+      int s = 0;\
+      for (int jvar = 0; jvar < nvar; jvar++)\
+      {\
+        Eigen::Map<const Eigen::VectorXd> x(vecin.data() + iad_x, napices);\
+        _pops[icov]->op(x, *y);\
+        if (nvar == 1 && ncov == 1) break;\
+        int iad_y = iad_struct + start * napices;\
+        if (nvar == 1)\
+        {\
+          Eigen::Map<Eigen::VectorXd> outmap(vecout.data() + iad_y, napices);\
+          VectorEigen::copy(*y, outmap);\
+          iad_x += napices;\
+          continue;\
+        }\
+        for (int ivar = start; ivar < nvar; ivar++)\
+        {\
+          if (_isNoStatForVariance[icov])\
+          {\
+            VectorEigen::addMultiplyVectVectInPlace(tab##NoStat[icov][s++],*y,vecout,iad_y);\
+          }\
+          else\
+          {\
+            VectorEigen::addMultiplyConstantInPlace(tab[icov].getmat(ivar,jvar),*y,vecout,iad_y);\
+          }\
+          iad_y += napices;\
+        }\
+        iad_x+= napices;  \
+      }\
+      iad_struct = iad_x;\
+    }\
+    return 0;
 
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
-                                   const std::vector<AMesh*>& meshes)
-  : _isValid(false)
-  , _covList()
-  , _pops()
+                                   const std::vector<const AMesh*>& meshes)
+  : _pops()
   , _invSills()
   , _cholSills()
   , _model(nullptr)
   , _meshes()
+  , _isValid(false)
+  , _covList()
 {
   if (! _isValidModel(model)) return;
 
@@ -80,21 +100,23 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   int ncov = (int)meshes.size(); 
   _isNoStatForVariance.resize(ncov,false);
   
+  _works.resize(ncov);
+
   bool isnostat = _model->isNoStat();
 
-  if (!isnostat) return;
-  const ANoStat* nostat =  _model->getNoStat();
-
-  for (int icov = 0; icov < ncov; icov++)
+  if (isnostat)
   {
-    if (nostat)
+    const ANoStat* nostat =  _model->getNoStat();
+
+    for (int icov = 0; icov < ncov; icov++)
     {
-     _isNoStatForVariance[icov] = nostat->isDefinedForVariance(icov);
+      if (nostat != nullptr)
+      {
+      _isNoStatForVariance[icov] = nostat->isDefinedForVariance(icov);
+      }
     }
   }
-  
 }
-
 PrecisionOpMulti::~PrecisionOpMulti()
 {
   _popsClear();
@@ -140,7 +162,7 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
 ** \param[in]  meshes  Vector of Meshes
 **
 *******************************************************************************/
-bool PrecisionOpMulti::_isValidMeshes(const std::vector<AMesh*>& meshes)
+bool PrecisionOpMulti::_isValidMeshes(const std::vector<const AMesh*>& meshes)
 {
   if (meshes.empty()) return false;
 
@@ -163,7 +185,7 @@ bool PrecisionOpMulti::_matchModelAndMeshes()
   _popsClear();
   for (int i = 0, number = _getNCov(); i < number; i++)
   {
-    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i],true));
+    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i]));
   }
   return true;
 }
@@ -213,6 +235,7 @@ int PrecisionOpMulti::_buildInvSills() const
 {
   if (_model == nullptr) return 1;
 
+  if (_getNVar() == 1) return 0;
   int ncov = _getNCov();
 
   // Do nothing if the array has already been calculated (correct dimension)
@@ -231,6 +254,7 @@ int PrecisionOpMulti::_buildInvSills() const
 
 int PrecisionOpMulti::_buildCholSills() const
 {
+  if (_getNVar() == 1) return 0;
   if (_model == nullptr) return 1;
 
   int ncov = _getNCov();
@@ -242,7 +266,7 @@ int PrecisionOpMulti::_buildCholSills() const
   _cholSillsNoStat.resize(ncov);
 
   MatrixSquareSymmetric chols;
-  int nvar = _model->getContext().getNVar();
+  int nvar = _getNVar();
 
   const ANoStat* nostat =  _model->getNoStat();
  
@@ -363,49 +387,71 @@ Eigen::VectorXd PrecisionOpMulti::evalDirect(const Eigen::VectorXd& vecin)
 int PrecisionOpMulti::evalSimulateInPlace(const Eigen::VectorXd& vecin,
                                                 Eigen::VectorXd& vecout)
 {
-  //EVALOP(_buildCholSills,jvar,_cholSills,getCholeskyTL,evalSimulate)
-if (_prepareOperator(vecin, vecout))
-{
-  return 1;
-};
-if (_buildCholSills() != 0)
-{
-  messerr("Problem when preparing the matrix");
-  return 1;
-}
-int nvar       = _getNVar();
-int ncov       = _getNCov();
-int iad_x      = 0;
-int iad_struct = 0;
-for (int icov = 0; icov < ncov; icov++)
-{
-  int napices = size(icov);
-  Eigen ::VectorXd y(napices);
-  int s = 0;
-  for (int jvar = 0; jvar < nvar; jvar++)
+  EVALOP(_buildCholSills,jvar,_cholSills,getCholeskyTL,evalSimulate)
+ /*  int nvar = _getNVar();
+  if (nvar > 1)
   {
-    Eigen::Map<const Eigen::VectorXd> x(vecin.data() + iad_x, napices);
-    _pops[icov]->evalSimulate(x, y);
-    int iad_y = iad_struct + jvar * napices;
-    for (int ivar = jvar; ivar < nvar; ivar++)
+    if (_prepareOperator(vecin, vecout))
     {
-      if (_isNoStatForVariance[icov])
-      {
-        VectorEigen ::addMultiplyVectVectInPlace(_cholSillsNoStat[icov][s++], y,
-                                                   vecout, iad_y);
-      }
-      else
-      {
-        VectorEigen::addMultiplyConstantInPlace(
-          _cholSills[icov].getCholeskyTL(ivar, jvar), y, vecout, iad_y);
-      }
-      iad_y += napices;
+      return 1;
+    };
+    if (_buildCholSills() != 0)
+    {
+      messerr("Problem when preparing the matrix");
+      return 1;
     }
-    iad_x += napices;
   }
-  iad_struct = iad_x;
-}
-return 0;
+  int ncov       = _getNCov();
+  int iad_x      = 0;
+  int iad_struct = 0;
+  Eigen ::VectorXd* y;
+  for (int icov = 0; icov < ncov; icov++)
+  {
+    int napices = size(icov);
+    if (nvar == 1 && ncov == 1)
+    {
+      y = &vecout;
+    }
+    else
+    {
+      y = &(_works[icov]);
+      y->resize(napices);
+    }
+    int s = 0;
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      Eigen ::Map<const Eigen ::VectorXd> x(vecin.data() + iad_x, napices);
+      _pops[icov]->evalSimulate(x, *y);
+      if (nvar == 1 && ncov == 1) break;
+      int iad_y = iad_struct + jvar * napices;
+      if (nvar == 1)
+      {
+        std ::cout << iad_x << " " << napices << std ::endl;
+        Eigen ::Map<Eigen ::VectorXd> outmap(vecout.data() + iad_x, napices);
+        iad_x += napices;
+        VectorEigen ::copy(*y, outmap);
+        continue;
+      }
+      std ::cout << "not here" << std ::endl;
+      for (int ivar = jvar; ivar < nvar; ivar++)
+      {
+        if (_isNoStatForVariance[icov])
+        {
+          VectorEigen ::addMultiplyVectVectInPlace(_cholSillsNoStat[icov][s++],
+                                                 *y, vecout, iad_y);
+        }
+        else
+        {
+          VectorEigen ::addMultiplyConstantInPlace(
+          _cholSills[icov].getCholeskyTL(ivar, jvar), *y, vecout, iad_y);
+        }
+        iad_y += napices;
+      }
+      iad_x += napices;
+    }
+    iad_struct = iad_x;
+  }
+  return 0; */
 }
 
 VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
