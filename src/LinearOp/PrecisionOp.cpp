@@ -65,6 +65,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int icov,
+                         bool flagNormalized,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(model->getCova(icov))
@@ -78,7 +79,10 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work3()
 {
   _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
-
+  if (!flagNormalized)
+  {
+    _shiftOp->normalizeLambdaBySills(model);
+  }
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
   _work3.resize(_shiftOp->getSize());
@@ -402,6 +406,7 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   int n = getSize();
   Eigen::VectorXd ei(n);
   Eigen::VectorXd result(n);
+
   VectorEigen::fill(ei,0.);
   ei[imesh] = 1.;
   _shiftOp->prodLambda(ei,result,EPowerPT::MINUSONE);

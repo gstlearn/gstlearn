@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorT.hpp"
 #include "LinearOp/ALinearOp.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "gstlearn_export.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -43,12 +45,8 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   virtual int size(int imesh) const;
   
   int  setModel(Model* model);
-  int  setMeshes(const std::vector<AMesh*>& meshes);
-  void clearMeshes();
-  void addMesh(AMesh* mesh);
   VectorDouble evalSimulate(const VectorDouble& vec);
   #ifndef SWIG
-
   int evalSimulateInPlace(const Eigen::VectorXd& vecin,
                                 Eigen::VectorXd& vecout);
   
@@ -70,6 +68,7 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   private:
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<AMesh*>& meshes);
+  bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct];}
   bool _matchModelAndMeshes();
   int  _getNVar() const;
   int  _getNCov() const;
@@ -83,7 +82,9 @@ private:
   VectorInt _covList;
   VectorInt _nmeshList;
   std::vector<PrecisionOp*> _pops;
-
+  VectorBool _isNoStatForVariance;
+  mutable std::vector<std::vector<Eigen::VectorXd>> _invSillsNoStat;
+  mutable std::vector<std::vector<Eigen::VectorXd>> _cholSillsNoStat;
   mutable std::vector<MatrixSquareSymmetric> _invSills; // Inverse of the Sills
   mutable std::vector<MatrixSquareSymmetric> _cholSills; // Cholesky of the Sills
 

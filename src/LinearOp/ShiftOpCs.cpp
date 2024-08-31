@@ -179,7 +179,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 
     if (model->isNoStat())
     {
-      if (model->getNoStat()->attachToMesh(amesh, verbose))
+      if (model->getNoStat()->attachToMesh(amesh, true, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -378,6 +378,16 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
   {
     my_throw("Unexpected value for argument 'power'");
   }
+}
+
+void ShiftOpCs::normalizeLambdaBySills(const Model* model,int icov)
+{
+  double sillsq = sqrt(model->getCova(icov)->getSill(0,0));
+  for (auto &e:_Lambda)
+  {
+    e /= sillsq;
+  }
+  //TODO code non stationary normalization
 }
 
 void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
@@ -1371,14 +1381,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   MatrixSquareSymmetric hh(ndim);
   double param = cova->getParam();
   bool flagSphere = (amesh->getVariety() == 1);
-  bool flagSill = false;
-  if (_isNoStat())
-  {
-    const ANoStat *nostat = _getModel()->getNoStat();
-    if (nostat->isDefined(EConsElem::SILL, icov)) flagSill = true;
-  }
 
-  double sill = cova->getSill(0, 0);
   double correc = cova->getCorrec();
   double sqdethh = 0.;
   double factor = 1.;
@@ -1395,13 +1398,12 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     {
       _loadHH(amesh, hh, 0);
       factor = sqrt(hh.determinant());
-      // The next term compensate all what is needed to run on the Sphere
     }
   }
 
   /* Fill the array */
 
-  if (_isNoStat() && flagSill)
+  if (_isNoStat())
   {
     VectorDouble cum(nvertex, 0.);
     const ANoStat *nostat = _getModel()->getNoStat();
@@ -1414,12 +1416,10 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
         factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
       }
  
-      sill = nostat->getValue(EConsElem::SILL, 0, imesh, icov);
-
       for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
       {
         int ip = amesh->getApex(imesh, ic);
-        _Lambda[ip] += sill / factor;
+        _Lambda[ip] += 1 / factor;
         cum[ip]++;
       }
     }
@@ -1434,7 +1434,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   {
     for (int ip = 0; ip < nvertex; ip++)
      {
-      _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor / sill);
+      _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
      }
   }
 }

@@ -52,14 +52,14 @@ NoStatFunctional::~NoStatFunctional()
 }
 
 
-int NoStatFunctional::attachToMesh(const AMesh* mesh, bool verbose) const
+int NoStatFunctional::attachToMesh(const AMesh* mesh, bool center,bool verbose) const
 {
   if (mesh->getNDim() != 2)
   {
     messerr("This function is only defined in 2-D space");
     return 1;
   }
-  return ANoStat::attachToMesh(mesh,verbose);
+  return ANoStat::attachToMesh(mesh,center,verbose);
 }
 
 int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const

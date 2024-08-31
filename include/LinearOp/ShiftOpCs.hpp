@@ -66,7 +66,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
     ShiftOpCs(const ShiftOpCs& shift);
     ShiftOpCs& operator=(const ShiftOpCs& shift);
     virtual ~ShiftOpCs();
-
+    void normalizeLambdaBySills(const Model* model,int icov = 0);
     int _addToDest(const Eigen::VectorXd& inv,
                    Eigen::VectorXd& outv) const override;
 

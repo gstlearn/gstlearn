@@ -28,11 +28,13 @@ class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
+                bool flagNormalized = false,
                 bool flagDecompose = false,
                 bool verbose = false);
   PrecisionOpCs(const AMesh* mesh,
                 Model* model,
                 int icov = 0,
+                bool flagNormalized=false,
                 bool flagDecompose = false,
                 bool verbose = false);
   virtual ~PrecisionOpCs();
@@ -58,7 +60,7 @@ public:
   MatrixSparse* getQ() const { return _Q; }
 
 private:
-  void _buildQ(bool flagDecompose = false);
+  void _buildQ(bool flagDecompose = false, bool flagNormalized = false);
 
 private:
   MatrixSparse* _Q;

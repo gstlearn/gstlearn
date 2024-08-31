@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EPowerPT.hpp"
@@ -39,6 +40,7 @@ public:
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
+              bool flagNormalized = false,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -120,6 +122,7 @@ public:
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
+  const CovAniso* getCova() const {return _cova;}
 
 #ifndef SWIG
 

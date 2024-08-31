@@ -49,7 +49,7 @@ GSTLEARN_EXPORT void mvndst4(double *lower,
                              int *inform);
 GSTLEARN_EXPORT int besselj_table(double x, double alpha, int nb, double *b);
 GSTLEARN_EXPORT double besselj(double x, int n);
-GSTLEARN_EXPORT int matern(double x, double alpha, int nb, double *bk);
+GSTLEARN_EXPORT int besselk(double x, double alpha, int nb, double *bk);
 GSTLEARN_EXPORT double loggamma(double parameter);
 
 GSTLEARN_EXPORT double ut_legendre(int n, double v, bool flagNorm = true);

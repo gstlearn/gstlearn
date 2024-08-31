@@ -70,6 +70,7 @@ public:
                  int iv1 = -1,
                  int iv2 = -1,
                  int igrf = -1) const;
+  bool isDefinedForVariance(int icov = -1, int igrf = -1) const;
   bool isDefinedforAnisotropy(int icov = -1, int igrf = -1) const;
   bool isDefinedforRotation(int icov = -1, int igrf = -1) const;
 
@@ -82,7 +83,7 @@ public:
                           int igrf = -1) const = 0;
   virtual double getValueByParam(int ipar, int icas, int rank) const = 0;
 
-  virtual int  attachToMesh(const AMesh* mesh, bool verbose = false) const;
+  virtual int  attachToMesh(const AMesh* mesh, bool center = true, bool verbose = false) const;
   virtual void detachFromMesh() const;
   virtual int  attachToDb(Db* db, int icas, bool verbose = false) const;
   virtual void detachFromDb(Db* db, int icas) const;

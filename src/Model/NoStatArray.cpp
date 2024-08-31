@@ -85,7 +85,7 @@ bool NoStatArray::_checkValid() const
   return true;
 }
 
-int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
+int NoStatArray::attachToMesh(const AMesh* mesh, bool center, bool verbose) const
 {
   if (_dbnostat == nullptr)
   {
@@ -95,15 +95,25 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
 
   // Create the array of coordinates
 
-  ANoStat::attachToMesh(mesh,verbose);
-  int nmeshes = mesh->getNMeshes();
-  VectorDouble loctab(nmeshes,0);
-  VectorVectorDouble coords = mesh->getAllCenterCoordinates();
+  ANoStat::attachToMesh(mesh,center,verbose);
+  VectorVectorDouble coords;
+  
+  if (center)
+  {
+    coords = mesh->getAllCenterCoordinates();
+  }
+  else 
+  {
+    coords = mesh->getAllCoordinates();
+  }
+
+  int npoint = coords[0].size();
+  VectorDouble loctab(npoint,0);
 
   // Create the internal array
 
   int npar = getNoStatElemNumber();
-  _tab.reset(nmeshes, npar);
+  _tab.reset(npoint, npar);
 
   /* Evaluate the non-stationary parameters */
 

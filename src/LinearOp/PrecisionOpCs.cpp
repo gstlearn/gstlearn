@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/VectorNumT.hpp"
 #include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
@@ -21,23 +22,25 @@
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
+                             bool flagNormalized,
                              bool flagDecompose,
                              bool verbose)
-    : PrecisionOp(shiftop, cova, verbose),
+    : PrecisionOp(shiftop, cova,verbose),
       _Q(nullptr)
 {
-  _buildQ(flagDecompose);
+  _buildQ(flagDecompose,flagNormalized);
 }
 
 PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
                              Model *model,
                              int icov,
+                             bool flagNormalized,
                              bool flagDecompose,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, verbose),
+    : PrecisionOp(mesh, model, icov, flagNormalized, verbose),
       _Q(nullptr)
 {
-  _buildQ(flagDecompose);
+  _buildQ(flagDecompose,flagNormalized);
 }
 
 PrecisionOpCs::~PrecisionOpCs()
@@ -209,7 +212,7 @@ void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
 //
 //}
 
-void PrecisionOpCs::_buildQ(bool flagDecompose)
+void PrecisionOpCs::_buildQ(bool flagDecompose, bool flagNormalized)
 {
   delete _Q;
   if (! isCovaDefined()) return;
@@ -218,9 +221,17 @@ void PrecisionOpCs::_buildQ(bool flagDecompose)
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
+  
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                        static_cast<int>(blin.size()), blin.data());
-
+  
+  if (!flagNormalized)
+  { 
+    //TODO : implement the nostat SILL case
+    double sill = getCova()->getSill(0,0);
+    VectorDouble vect(_Q->getNRows(),1. / sqrt(sill));
+    _Q->prodNormDiagVecInPlace(vect);
+  }
   // Prepare the Cholesky decomposition
   if (flagDecompose)
     _Q->computeCholesky();
