@@ -18,6 +18,7 @@
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
@@ -37,33 +38,22 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMulti();
 
+   int getSize() const override;
+
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ALinearOpMulti Interface
-  int getSize() const override;
-  virtual int size(int imesh) const;
+ 
+   int size(int imesh) const;
   
-  int  setModel(Model* model);
   VectorDouble evalSimulate(const VectorDouble& vec);
   #ifndef SWIG
-  int evalSimulateInPlace(const Eigen::VectorXd& vecin,
-                                Eigen::VectorXd& vecout);
-  
-/*   int evalDirectInPlace(const Eigen::VectorXd& vecin,
-                              Eigen::VectorXd& vecout); */
-  Eigen::VectorXd evalDirect(const Eigen::VectorXd& vecin);
-  Eigen::VectorXd evalSimulate(const Eigen::VectorXd& vecin);
 
-  #endif
-  
-  #ifndef SWIG 
   protected:
+  int _evalSimulateInPlace(const Eigen::VectorXd& vecin,
+                                Eigen::VectorXd& vecout);
   int    _addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const override;
-  private:
-  int _prepareOperator(const Eigen::VectorXd& vecin,
-                              Eigen::VectorXd& vecout) const;
   #endif
   private:
   bool _isValidModel(Model* model);
@@ -73,26 +63,32 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   int  _getNVar() const;
   int  _getNCov() const;
   int  _getNMesh() const;
-  int  _buildInvSills() const;
-  int  _buildCholSills() const;
+  int  _buildGlobalMatricesStationary(int icov);
+  int  _buildLocalMatricesNoStat(int icov);
+  int  _buildMatrices();
   void _popsClear();
+  void _computeSize();
 
 protected:
 
   std::vector<PrecisionOp*> _pops;
   VectorBool _isNoStatForVariance;
-  mutable std::vector<std::vector<Eigen::VectorXd>> _invSillsNoStat;
-  mutable std::vector<std::vector<Eigen::VectorXd>> _cholSillsNoStat;
-  mutable std::vector<MatrixSquareSymmetric> _invSills; // Inverse of the Sills
-  mutable std::vector<MatrixSquareSymmetric> _cholSills; // Cholesky of the Sills
+  std::vector<std::vector<Eigen::VectorXd>> _invCholSillsNoStat;
+  std::vector<std::vector<Eigen::VectorXd>> _cholSillsNoStat;
+  std::vector<MatrixSquareSymmetric> _invCholSills; // Inverse of Cholesky of the Sills
+  std::vector<MatrixSquareSymmetric> _cholSills; // Cholesky of the Sills
   Model* _model; // Not to be deleted. TODO : make it const
   std::vector<const AMesh*> _meshes; // Not to be deleted
+  int _size;
 
 private:
   bool _isValid;
   VectorInt _covList;
   VectorInt _nmeshList;
+  bool _allStat;
+
 
 private:
   mutable std::vector<Eigen::VectorXd> _works;
+  mutable Eigen::VectorXd _workTot;
 };
