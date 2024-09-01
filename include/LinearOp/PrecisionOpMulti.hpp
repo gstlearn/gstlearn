@@ -37,24 +37,25 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   PrecisionOpMulti(const PrecisionOpMulti &m)= delete;
   PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMulti();
-
+  MatrixSquareSymmetric getInvCholSill(int icov) const {return _invCholSills[icov];}
    int getSize() const override;
 
-  /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
- 
-   int size(int imesh) const;
-  
-  VectorDouble evalSimulate(const VectorDouble& vec);
   #ifndef SWIG
-
   protected:
-  int _evalSimulateInPlace(const Eigen::VectorXd& vecin,
-                                Eigen::VectorXd& vecout);
   int    _addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const override;
+  int _addSimulateInPlace(const Eigen::VectorXd& vecin,
+                                Eigen::VectorXd& vecout);
   #endif
+  /// AStringable Interface
+  public :
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  
+  VectorDouble evalSimulate(const VectorDouble& vec);
+
+  protected:  
+  int size(int imesh) const;
+
   private:
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
@@ -87,8 +88,8 @@ private:
   VectorInt _nmeshList;
   bool _allStat;
 
-
 private:
   mutable std::vector<Eigen::VectorXd> _works;
   mutable Eigen::VectorXd _workTot;
+
 };

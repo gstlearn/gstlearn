@@ -10,17 +10,16 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/VectorEigen.hpp"
 #include "Model/ANoStat.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
-#define EVALOP(IN,OUT,TAB,getmat,OP,IVAR,JVAR,IX,IY,COMPUTEOP,XORY) \
+#define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
   {\
     int nvar = _getNVar();\
     int ncov = _getNCov();\
-    int IX = 0;\
+    int iad_x = 0;\
     int iad_struct = 0;\
     Eigen::VectorXd* y;\
     for (int icov = 0; icov < ncov; icov++)\
@@ -41,9 +40,9 @@
         }\
       }\
       int s = 0;\
-      for (int JVAR = 0; JVAR < nvar; JVAR++)\
+      for (int jvar = 0; jvar < nvar; jvar++)\
       {\
-        int IY = iad_struct + JVAR * napices;\
+        int iad_y = IY;\
         Eigen::Map<const Eigen::VectorXd> x(IN.data() + iad_x, napices);\
         if (COMPUTEOP) \
           _pops[icov]->OP(x, *y);\
@@ -52,10 +51,10 @@
         {\
           Eigen::Map<Eigen::VectorXd> outmap(OUT.data() + iad_y, napices);\
           VectorEigen::copy(*y, outmap);\
-          IX += napices;\
+          iad_x += napices;\
           continue;\
         }\
-        for (int IVAR = JVAR; IVAR < nvar; IVAR++)\
+        for (int ivar = START; ivar < END; ivar++)\
         {\
           if (_isNoStatForVariance[icov])\
           {\
@@ -65,9 +64,9 @@
           {\
             VectorEigen::addMultiplyConstantInPlace(TAB[icov].getmat(IVAR,JVAR),XORY,OUT,iad_y);\
           }\
-          IY += napices;\
+          iad_y += napices;\
         }\
-        IX+= napices;  \
+        iad_x += napices;  \
       }\
       iad_struct += napices * nvar;\
     }\
@@ -328,16 +327,17 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
 int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
                           Eigen::VectorXd& vecout) const
 {
-  _workTot.resize(vecin.size());
-  VectorEigen::fill(_workTot,0.);
-/*   if (_allStat)
+  if (_getNVar() > 1)
   {
-    EVALOP(vecin,vecout,_invSills,getCholeskyXL,addToDest,ivar,jvar,iad_x,iad_y,true)
+    _workTot.resize(vecin.size());
+    VectorEigen::fill(_workTot,0.);
+  
+   EVALOP(vecin,_workTot ,_invCholSills,getCholeskyXL,addToDest,iad_struct + jvar * napices,false,x,jvar,nvar,ivar,jvar)
+   EVALOP(_workTot, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,(jvar+1),jvar,ivar)
   }
-  else  */
+  else 
   {
-   EVALOP(vecin,_workTot ,_invCholSills,getCholeskyXL,addToDest,ivar,jvar,iad_x,iad_y,false,x)
-   EVALOP(_workTot,vecout,_invCholSills,getCholeskyXL,addToDest,jvar,ivar,iad_y,iad_x,true,*y)
+    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,1,ivar,jvar)
   }
 }
 /**
@@ -346,19 +346,18 @@ int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::_evalSimulateInPlace(const Eigen::VectorXd& vecin,
+int PrecisionOpMulti::_addSimulateInPlace(const Eigen::VectorXd& vecin,
                                                 Eigen::VectorXd& vecout)
 {
-  
-  EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,ivar,jvar,iad_x,iad_y,true,*y)
-  
+  EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,*y,jvar,nvar,ivar,jvar)
 }
 
 VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(),vec.size());
   Eigen::VectorXd out(vec.size());
-  _evalSimulateInPlace(vecm,out);
+  VectorEigen::fill(out,0.);
+  _addSimulateInPlace(vecm,out);
   return VectorEigen::copyIntoVD(out);
 }
 
