@@ -167,7 +167,6 @@ int MatrixSquareSymmetric::_invert()
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
   return (icol <= irow);
-  return (icol <= irow);
 }
 
 /**
