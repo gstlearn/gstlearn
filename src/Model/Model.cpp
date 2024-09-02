@@ -2290,11 +2290,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     messerr("The 'db' should have at least one variable defined");
     return TEST;
   }
-  if (_driftList == nullptr)
-  {
-    messerr("This function only makes sense when Drift is defined");
-    return TEST;
-  }
+  int nDrift = getDriftEquationNumber();
   if (! db->isAllIsotopic())
   {
     messerr("This method is only available for isotopic data set");
@@ -2306,7 +2302,10 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     message("Likelihood calculation:\n");
     message("- Number of active samples   = %d\n", nech);
     message("- Number of variables        = %d\n", nvar);
-    message("- Number of drift conditions = %d\n", getDriftEquationNumber());
+    if (nDrift > 0)
+      message("- Number of drift conditions = %d\n", getDriftEquationNumber());
+    else
+      VH::display("Constant Mean(s)",getMeans());
   }
 
   // Calculate the covariance matrix C and perform its Cholesky decomposition
@@ -2317,50 +2316,62 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     return TEST;
   }
 
-  // Extract the matrix of drifts at samples X
-  MatrixRectangular X = evalDriftMatrix(db);
-
-  // Calculate Cm1X = Cm1 * X
-  MatrixRectangular Cm1X;
-  if (cov.solveCholeskyMat(X, Cm1X) != 0)
+  // If Drift functions are present, evaluate the optimal Drift coefficients first
+  if (nDrift > 0)
   {
-    messerr("Problem when solving a Linear System after Cholesky decomposition");
-    return TEST;
-  }
+    // Extract the matrix of drifts at samples X
+    MatrixRectangular X = evalDriftMatrix(db);
 
-  // Calculate XtCm1X = Xt * Cm1 * X
-  MatrixSquareSymmetric* XtCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
+    // Calculate Cm1X = Cm1 * X
+    MatrixRectangular Cm1X;
+    if (cov.solveCholeskyMat(X, Cm1X) != 0)
+    {
+      messerr(
+        "Problem when solving a Linear System after Cholesky decomposition");
+      return TEST;
+    }
+
+    // Calculate XtCm1X = Xt * Cm1 * X
+    MatrixSquareSymmetric* XtCm1X =
+      MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
+
+   
+    // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
+    VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
+    if (XtCm1X->computeCholesky() != 0)
+    {
+      messerr("Cholesky decomposition of XtCm1X matrix failed");
+      delete XtCm1X;
+      return TEST;
+    }
+
+    // Calculate beta = (XtCm1X)-1 * ZtCm1X
+    VectorDouble beta;
+    if (XtCm1X->solveCholesky(ZtCm1X, beta) != 0)
+    {
+      messerr("Error when calculating Maximum Likelihood criterion");
+      delete XtCm1X;
+      return TEST;
+    }
+    setBetaHat(beta);
+    delete XtCm1X;
+
+    if (verbose)
+    {
+      VH::display("Optimal Drift coefficients = ", beta);
+    }
+
+    // Center the data by the optimal drift: Z = Z - beta * X
+    VH::subtractInPlace(Z, X.prodMatVec(beta));
+  }
 
   // Establish the vector of multivariate data
-  VectorDouble Z = db->getColumnsByLocator(ELoc::Z, true, true);
-
-  // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
-  VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
-  if (XtCm1X->computeCholesky() != 0)
-  {
-    messerr("Cholesky decomposition of XtCm1X matrix failed");
-    delete XtCm1X;
-    return TEST;
-  }
-
-  // Calculate beta = (XtCm1X)-1 * ZtCm1X
-  VectorDouble beta;
-  if (XtCm1X->solveCholesky(ZtCm1X, beta) != 0)
-  {
-    messerr("Error when calculating Maximum Likelihood criterion");
-    delete XtCm1X;
-    return TEST;
-  }
-  setBetaHat(beta);
-  delete XtCm1X;
-
-  if (verbose)
-  {
-    VH::display("Optimal Drift coefficients = ", beta);
-  }
-
-  // Center the data by the optimal drift: Z = Z - beta * X
-  VH::subtractInPlace(Z, X.prodMatVec(beta));
+  VectorDouble Z;
+  if (nDrift > 0)
+    Z = db->getColumnsByLocator(ELoc::Z, true, true);
+  else
+    Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
+  VH::display("Z", Z);
 
   // Calculate Cm1Z = Cm1 * Z
   VectorDouble Cm1Z;

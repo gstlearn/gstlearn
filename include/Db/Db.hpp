@@ -655,32 +655,36 @@ public:
 
   VectorDouble getAllColumns(bool useSel = false,
                              bool flagCompress = true) const;
-  VectorDouble getColumns(const VectorString &names = VectorString(),
-                          bool useSel = false,
-                          bool flagCompress = true) const;
+  VectorDouble getColumns(const VectorString& names   = VectorString(),
+                          bool useSel                 = false,
+                          bool flagCompress           = true,
+                          const VectorDouble& origins = VectorDouble()) const;
   VectorVectorDouble getColumnsAsVVD(const VectorString &names = VectorString(),
                                      bool useSel = false,
                                      bool flagCompress = true) const;
   MatrixRectangular getColumnsAsMatrix(const VectorString &names,
                                        bool useSel = false,
                                        bool flagCompress = true) const;
-  VectorDouble getColumnsByColIdx(const VectorInt &icols = VectorInt(),
-                                  bool useSel = false,
-                                  bool flagCompress = true) const;
+  VectorDouble getColumnsByColIdx(const VectorInt& icols = VectorInt(),
+                                  bool useSel            = false,
+                                  bool flagCompress      = true,
+                                  const VectorDouble& origins = VectorDouble()) const;
   VectorDouble getColumnsByColIdxInterval(int icol_beg,
                                           int icol_end,
                                           bool useSel = false,
                                           bool flagCompress = true) const;
-  VectorDouble getColumnsByLocator(const ELoc &locatorType,
-                                   bool useSel = false,
-                                   bool flagCompress = true) const;
-  VectorDouble getColumnsByUID(const VectorInt &iuids,
-                               bool useSel = false,
-                               bool flagCompress = true) const;
-  VectorDouble getColumnsByUIDRange(int iuid_beg,
-                                    int iuid_end,
-                                    bool useSel = false,
-                                    bool flagCompress = true) const;
+  VectorDouble getColumnsByLocator(const ELoc& locatorType,
+                      bool useSel                 = false,
+                      bool flagCompress           = true,
+                      const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByUID(const VectorInt& iuids,
+                               bool useSel       = false,
+                               bool flagCompress = true,
+                               const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByUIDInterval(int iuid_beg,
+                                       int iuid_end,
+                                       bool useSel       = false,
+                                       bool flagCompress = true) const;
   /**@}*/
 
   void setAllColumns(const VectorVectorDouble& tabs);

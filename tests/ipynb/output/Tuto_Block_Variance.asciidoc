@@ -9,8 +9,9 @@
 # Covariance over block
 
 To compute
-latexmath:[\[\bar{C}(v,v)=\frac{1}{|v|^2}\int_v\int_v C(x,y)dxdy\]], you
-need to define latexmath:[$v$] and the model.
+latexmath:[\[\bar{C}(v,v)=\frac{1}{|v|^2}\int_v\int_v C(x,y)dxdy\]]
+
+you need to define latexmath:[$v$] and the model.
 
 The support latexmath:[$v$] must be defined by its extension spanned
 over the space dimension.
@@ -19,6 +20,7 @@ We also need to define the discretization latexmath:[$[N_1,N_2]$] since
 latexmath:[$\bar{C}(v,v)$] is approximated by
 
 latexmath:[\[\frac{1}{N_1}\frac{1}{N_2}\sum_{i=1}^{N_1}\sum_{j=1}^{N_2} C(x_i,x_j)\]]
+
 where latexmath:[$x_i$] and latexmath:[$x_j$] are some points inside the
 block latexmath:[$v$].
 ----

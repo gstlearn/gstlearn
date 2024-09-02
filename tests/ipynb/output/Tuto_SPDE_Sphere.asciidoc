@@ -49,13 +49,13 @@ latexmath:[$\mathbb{R}^+$]
 
 #NO_DIFF#XXX
 ----
-2.0393248685151155
+Discretized Covariance = 2.0393
 ----
 
 
 #NO_DIFF#XXX
 ----
-Discretized variance 2.0393248685151155
+Discretized variance = 2.0393
 
 #NO_DIFF#XXX
 ----
