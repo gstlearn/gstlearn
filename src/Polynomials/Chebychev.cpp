@@ -322,7 +322,7 @@ void Chebychev::evalOp(MatrixSparse* S,const Eigen::VectorXd& x,Eigen::VectorXd&
   delete T1;
 }
 
-void Chebychev::addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+void Chebychev::addEvalOp(ALinearOp* /*Op*/,const Eigen::VectorXd& /*inv*/, Eigen::VectorXd& /*outv*/) const
 {
   //TODO implement
 }

@@ -217,11 +217,11 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
    delete polycur;
 }
 
-void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
-                                      const VectorDouble& inv,
-                                      VectorDouble& outv,
-                                      int iapex,
-                                      int igparam)const
+void ClassicalPolynomial::evalDerivOp(ShiftOpCs* /*shiftOp*/,
+                                      const VectorDouble& /*inv*/,
+                                      VectorDouble& /*outv*/,
+                                      int /*iapex*/,
+                                      int /*igparam*/)const
 {
  //TODO Call the Eigen::VectorXd function
  messerr("evalDerivOp is not implemented for vectorsDouble");
@@ -258,13 +258,13 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 //    }
 //}
 
-void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
-                                           VectorDouble& temp1,
-                                           VectorDouble& temp2,
-                                           VectorDouble& outv,
-                                           const VectorVectorDouble& workpoly,
-                                           int iapex,
-                                           int igparam) const
+void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* /*shiftOp*/,
+                                           VectorDouble& /*temp1*/,
+                                           VectorDouble& /*temp2*/,
+                                           VectorDouble& /*outv*/,
+                                           const VectorVectorDouble& /*workpoly*/,
+                                           int /*iapex*/,
+                                           int /*igparam*/) const
 {
    //TODO Call the Eigen::VectorXd function (try to put it in the mother class Polynomial)
   messerr("evalDerivOpOptim is not implemented for vectorsDouble");

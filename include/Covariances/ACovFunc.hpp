@@ -54,7 +54,7 @@ public:
   virtual bool         hasSpectrumOnSphere() const { return false; }
   virtual bool         hasSpectrumOnRn()     const { return false; }
   virtual bool         hasMarkovCoeffs()     const { return false; }
-  virtual double       normalizeOnSphere(int n = 50, double scale = 1.) const { return 1.;}
+  virtual double       normalizeOnSphere(int /*n*/ = 50, double /*scale*/ = 1.) const { return 1.;}
   virtual bool         isConsistent() const;
   virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
   virtual int          getMinOrder()  const { return -1; } // Valid for FAST

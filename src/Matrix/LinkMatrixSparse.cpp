@@ -2102,7 +2102,7 @@ void cs_vector_Mx(const cs *A, int nout, const double *x, double *y)
 
 /* Operate the product of a vector by a sparse matrix */
 /* y += A %*% x */
-void cs_vector_addToDest_Mx(const cs *A, int nout, const double *x, double *y)
+void cs_vector_addToDest_Mx(const cs *A, int /*nout*/, const double *x, double *y)
 {
   int *Ap, *Ai, n;
   double *Ax;
@@ -2128,7 +2128,7 @@ void cs_vector_tMx(const cs *A, int nout, const double *x, double *y)
 
 /* Operate the product of a vector by a sparse matrix */
 /* y += t(A) %*% x */
-void cs_vector_addToDest_tMx(const cs *A, int nout, const double *x, double *y)
+void cs_vector_addToDest_tMx(const cs *A, int /*nout*/, const double *x, double *y)
 {
   int *Ap, *Ai, n;
   double *Ax;

@@ -1674,7 +1674,7 @@ static void st_gibbs(int igrf,
                      int ngibbs_int,
                      int iter0,
                      int ngibbs_burn,
-                     Db *dbin,
+                     Db * /*dbin*/,
                      Db *dbout,
                      double *zcur)
 {

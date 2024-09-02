@@ -193,7 +193,7 @@ int dbg2gCopy(DbGrid *dbin,
 
 int dbg2gExpand(DbGrid *dbin,
                 DbGrid *dbout,
-                const NamingConvention &namconv)
+                const NamingConvention &/*namconv*/)
 {
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
