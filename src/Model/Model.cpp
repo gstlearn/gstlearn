@@ -2316,6 +2316,14 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     return TEST;
   }
 
+  // Establish the vector of multivariate data
+  VectorDouble Z;
+  if (nDrift > 0)
+    Z = db->getColumnsByLocator(ELoc::Z, true, true);
+  else
+    Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
+  VH::display("Z", Z);
+
   // If Drift functions are present, evaluate the optimal Drift coefficients first
   if (nDrift > 0)
   {
@@ -2365,15 +2373,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     VH::subtractInPlace(Z, X.prodMatVec(beta));
   }
 
-  // Establish the vector of multivariate data
-  VectorDouble Z;
-  if (nDrift > 0)
-    Z = db->getColumnsByLocator(ELoc::Z, true, true);
-  else
-    Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
-  VH::display("Z", Z);
-
-  // Calculate Cm1Z = Cm1 * Z
+   // Calculate Cm1Z = Cm1 * Z
   VectorDouble Cm1Z;
   if (cov.solveCholesky(Z, Cm1Z) != 0)
   {
