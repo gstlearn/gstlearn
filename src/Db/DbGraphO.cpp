@@ -107,11 +107,9 @@ DbGraphO* DbGraphO::createFromMatrix(int nech,
     delete dbgraphO;
     return nullptr;
   }
-  return dbgraphO;
-
   message("arcs\n");
   message("nrows=%d ncols=%d\n", MatArcs.getNRows(), MatArcs.getNCols());
-  return nullptr;
+  return dbgraphO;
 }
 
 int DbGraphO::_arcLinkage(NF_Triplet& NF_arcs, int nech)
