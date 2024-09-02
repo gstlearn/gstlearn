@@ -2328,31 +2328,31 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     return TEST;
   }
 
-  // Calculate XCm1X = Xt * Cm1X
-  MatrixSquareSymmetric* XCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
+  // Calculate XtCm1X = Xt * Cm1 * X
+  MatrixSquareSymmetric* XtCm1X = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
 
   // Establish the vector of multivariate data
   VectorDouble Z = db->getColumnsByLocator(ELoc::Z, true, true);
 
-  // Construct ZCm1X = Zt * Cm1X and perform its Cholesky decomposition
-  VectorDouble ZCm1X = Cm1X.prodVecMat(Z);
-  if (XCm1X->computeCholesky() != 0)
+  // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
+  VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
+  if (XtCm1X->computeCholesky() != 0)
   {
-    messerr("Cholesky decomposition of XCm1X matrix failed");
-    delete XCm1X;
+    messerr("Cholesky decomposition of XtCm1X matrix failed");
+    delete XtCm1X;
     return TEST;
   }
 
-  // Calculate beta = (XCm1X)-1 * ZCm1X
+  // Calculate beta = (XtCm1X)-1 * ZtCm1X
   VectorDouble beta;
-  if (XCm1X->solveCholesky(ZCm1X, beta) != 0)
+  if (XtCm1X->solveCholesky(ZtCm1X, beta) != 0)
   {
     messerr("Error when calculating Maximum Likelihood criterion");
-    delete XCm1X;
+    delete XtCm1X;
     return TEST;
   }
   setBetaHat(beta);
-  delete XCm1X;
+  delete XtCm1X;
 
   if (verbose)
   {
@@ -2362,11 +2362,11 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   // Center the data by the optimal drift: Z = Z - beta * X
   VH::subtractInPlace(Z, X.prodMatVec(beta));
 
-  // Calculate Cm1Zc = Cm1 * Z
-  VectorDouble Cm1Zc;
-  if (cov.solveCholesky(Z, Cm1Zc) != 0)
+  // Calculate Cm1Z = Cm1 * Z
+  VectorDouble Cm1Z;
+  if (cov.solveCholesky(Z, Cm1Z) != 0)
   {
-    messerr("Error when calculating Cm1Zc");
+    messerr("Error when calculating Cm1Z");
     return TEST;
   }
 
@@ -2374,7 +2374,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   double logdet = cov.computeCholeskyLogDeterminant();
 
   // Calculate quad = Zt * Cm1Z
-  double quad = VH::innerProduct(Z, Cm1Zc);
+  double quad = VH::innerProduct(Z, Cm1Z);
 
   // Derive the log-likelihood
   double loglike = -0.5 * (logdet + quad + nvar * nech * log(GV_PI));

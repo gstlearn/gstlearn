@@ -1,4 +1,215 @@
 #NO_DIFF#XXX
 ----
+# Kriging
+
+Let suppose that
+
+latexmath:[$Z(s_i) = X_i\beta + Y(s_i)$]
+
+where latexmath:[$Y$] is a second order stationary random field with
+mean 0 and covariance function latexmath:[$C$].
+
+If latexmath:[$Z$] is a vector of observations, we denote
+latexmath:[$Z = X\beta + Y$] with latexmath:[$\Sigma$] the covariance of
+Y
+
+== Simple Kriging
+
+If latexmath:[$\beta$] is known, we can obtain the simple kriging
+
+latexmath:[$Z_0^{SK} = X_0\beta + \Sigma_0^t\Sigma^{-1}(Z-X\beta) = X_0\beta + \lambda_{SK}^t(Z-X\beta)$]
+
+with:
+
+* the simple kriging weights
+
+latexmath:[$\lambda_{SK}=\Sigma^{-1}\Sigma_0$]
+
+* the variance of the estimator
+
+latexmath:[$\textrm{Var}(Z_0^{SK})=\lambda_{SK}^t\Sigma\lambda_{SK}=\lambda_{SK}^t\Sigma_0$]
+
+* the estimation variance
+
+latexmath:[$\sigma_{SK}^2 = \textrm{Var}(Z_0-Z_0^{SK}) = \sigma_0^2-\Sigma_0^t\Sigma^{-1}\Sigma_0=\sigma_0^2-\lambda_{SK}^t\Sigma_0$]
+
+=== In matrix notation:
+
+Simple Kriging System
+
+$
+
+\begin\{bmatrix} _\{SK} \end\{bmatrix} = \begin\{bmatrix} _0
+\end\{bmatrix} $
+
+Estimation
+
+$ Z_0^\{SK} =
+
+^t \begin\{bmatrix} _\{SK} \end\{bmatrix} + m (\{ 1 - } ) $
+
+Variance of Estimation error
+
+$ _\{SK}^2 = __0^2 - \begin\{bmatrix} __\{SK} \end\{bmatrix}^t
+\begin\{bmatrix} _0 \end\{bmatrix} $
+
+Variance of Estimator
+
+$ (Z_0^\{SK}) = \begin\{bmatrix} _\{SK} \end\{bmatrix}^t
+
+\begin\{bmatrix} __\{SK} \end\{bmatrix} = \begin\{bmatrix} __\{SK}
+\end\{bmatrix}^t \begin\{bmatrix} _0 \end\{bmatrix} $
+
+== Universal kriging
+
+If latexmath:[$\beta$] is unknown, we can estimate it by
+
+latexmath:[$\hat\beta = \Sigma_c X^t\Sigma^{-1}Z$]
+
+Introducing the notation
+
+$_c = (X^t^\{-1}X)^\{-1} $
+
+then
+
+latexmath:[$\hat\beta = \Sigma_c X^t\Sigma^{-1}Z$]
+
+latexmath:[$\textrm{Var}(\hat\beta)=\Sigma_c$]
+
+The Universal kriging is obtained by first computing
+latexmath:[$\hat\beta$] and then pluging latexmath:[$\hat\beta$] in the
+simple kriging procedure.
+
+latexmath:[$Z^{UK}_0 = X_0\hat\beta + \Sigma_0^t\Sigma^{-1}(Z-X\hat\beta)= \Sigma_0^t\Sigma^{-1}Z + (X_0 - \Sigma_0^t\Sigma^{-1}X)\hat\beta$]
+
+We can rewrite everything with respect to latexmath:[$Z$]
+
+latexmath:[$Z^{UK}_0 = (\Sigma_0^t\Sigma^{-1} + (X_0 - \Sigma_0^t\Sigma^{-1}X)\Sigma_c X^t\Sigma^{-1})Z \\ =(\lambda_{SK}^t+(X_0-\lambda_{SK}^tX) \Sigma_c X^t\Sigma^{-1})Z\\ =\lambda_{UK}^tZ$]
+
+with
+
+* the Universal Kriging Weights
+
+latexmath:[$\lambda_{UK}=\lambda_{SK}+\Sigma^{-1}X \Sigma_c(X_0^t-X^t\lambda_{SK})$]
+
+* the variance of the estimator is
+
+latexmath:[$\textrm{Var}(Z^{UK}_0) = \lambda_{UK}^t\Sigma\lambda_{UK} \\ =\textrm{Var}(Z^{SK}_0) +2\lambda_{SK}^tX \Sigma_c \Sigma_c (X_0^t-X^t\lambda_{SK})+(X_0-\lambda_{SK}^tX)\Sigma_c X^t\Sigma^{-1}X\Sigma_c (X_0^t-X^t\lambda_{SK})\\ =\textrm{Var}(Z^{SK}_0) +2\lambda_{SK}^tX\Sigma_c (X_0^t-X^t\lambda_{SK})+(X_0-\lambda_{SK}^tX)\Sigma_c (X_0^t-X^t\lambda_{SK})\\ =\textrm{Var}(Z^{SK}_0)+(\lambda_{SK}^tX+X_0)\Sigma_c (X_0^t-X^t\lambda_{SK})\\ =\textrm{Var}(Z^{SK}_0)-\lambda_{SK}^tX\Sigma_c X^t\lambda_{SK}+X_0 \Sigma_c X_0^t$]
+
+* the estimation variance
+
+$_\{UK}^2 = _0^2 - 2(Z_0,Z^\{UK}_0)+ (Z^\{UK}_0)\ = _0^2
+-2_0^t_\{UK}+(Z^\{UK}_0)\ = _0^2 -2_0^t(_\{SK}+^\{-1}X
+__c(X_0^t-X^t__\{SK}))+(Z^\{SK}_0)-_\{SK}^tX __c X^t__\{SK}+X_0 _c
+X_0^t\ = _0^2 -__0^t__\{SK} -2_0^t^\{-1}X __c
+(X_0^t-X^t__\{SK})-_\{SK}^tX __c X^t__\{SK}+X_0 __c X_0^t\
+=__\{SK}^2-2_\{SK}^tX __c (X_0^t-X^t__\{SK})-_\{SK}^tX __c
+X^t__\{SK}+X_0 _c X_0^t\ =_\{SK}^2+(X_0-_\{SK}^tX) __c
+(X_0^t-X^t__\{SK}) $
+
+=== In matrix notation:
+
+Universal Kriging System
+
+$
+
+\begin\{bmatrix} _\{UK} \ - \end\{bmatrix} = \begin\{bmatrix} _0 \ X_0^t
+\end\{bmatrix} $
+
+Estimation
+
+$ Z_0^\{UK} =
+
+^t \begin\{bmatrix} _\{UK} \ - \end\{bmatrix} $
+
+Variance of estimation error
+
+$ _\{UK}^2 = __0^2 - \begin\{bmatrix} __\{UK} \ - \end\{bmatrix}^t
+\begin\{bmatrix} _0 \ X_0^t \end\{bmatrix} $
+
+Variance of estimator
+
+$ (Z^\{UK}_0) = \begin\{bmatrix} _\{UK} \end\{bmatrix}^t
+
+\begin\{bmatrix} _\{UK} \end\{bmatrix} $
+
+== Summary
+
+=== Simple Kriging
+
+* the estimator
+
+latexmath:[$Z_0^{SK} = X_0\beta + \lambda_{SK}^t(Z-X\beta) = \lambda_{SK}^tZ +(X_0 -\lambda_{SK}^tX)\beta$]
+
+where
+
+latexmath:[$\lambda_{SK}=\Sigma^{-1}\Sigma_0$]
+
+* the variance of the estimator
+
+latexmath:[$\textrm{Var}(Z_0^{SK})=\lambda_{SK}^t\Sigma\lambda_{SK}=\lambda_{SK}^t\Sigma_0$]
+
+* the variance of the estimation error
+
+latexmath:[$\sigma_{SK}^2 = \textrm{Var}(Z_0-Z_0^{SK}) = \sigma_0^2-\Sigma_0^t\Sigma^{-1}\Sigma_0=\sigma_0^2-\lambda_{SK}^t\Sigma_0$]
+
+=== Universal Kriging
+
+latexmath:[$\hat\beta = \Sigma_c X^t\Sigma^{-1}Z$]
+
+$()= _c $
+
+* the estimator
+
+latexmath:[$Z^{UK}_0 =\lambda^t_{SK}Z + (X_0 - \lambda_{SK}^tX)\hat\beta= \lambda^t_{UK}Z$]
+
+latexmath:[$\lambda_{UK}=\lambda_{SK}+\Sigma^{-1}X \Sigma_c (X_0^t-X^t\lambda_{SK})$]
+
+latexmath:[$\mu_{UK}=\Sigma_c (X_0 - \lambda_{SK}^tX)^t$]
+
+* the variance of the estimator
+
+latexmath:[$\textrm{Var}(Z^{UK}_0) = \textrm{Var}(Z^{SK}_0)-\lambda_{SK}^tX\Sigma_c X^t\lambda_{SK}+X_0\Sigma_c X_0^t$]
+
+* the variance of the estimation error
+
+$_\{UK}^2 =_\{SK}^2+(X_0-_\{SK}^tX) __c (X_0^t-X^t__\{SK}) $
+----
+
+
+#NO_DIFF#XXX
+----
+## Bayesian framework
+
+In the Bayesian framework, we assume that
+
+latexmath:[$\beta\sim\mathcal{N}(\beta_0,S)$]
+
+We obtain
+
+latexmath:[$\beta|Z\sim\mathcal{N}(\mu_c,\Sigma_c)$]
+
+latexmath:[$\Sigma_c = (X^t\Sigma^{-1}X+S^{-1})^{-1}$]
+
+and
+
+latexmath:[$\mu_c=\Sigma_c(S^{-1}\beta_0+X^t\Sigma^{-1}Z)$]
+
+We obtain the Bayesian quantities: - the estimator
+
+latexmath:[$Z^{Bayes}_0 =\lambda^t_{SK}Z + (X_0 - \lambda_{SK}^tX)\mu_c$]
+
+* the variance of the estimator
+
+latexmath:[$\textrm{Var}(Z^{Bayes}_0) = \textrm{Var}(Z^{SK}_0)-\lambda_{SK}^tX\Sigma_c X^t\lambda_{SK}+X_0\Sigma_c X_0^t$]
+
+* the variance of the estimation error
+
+$_\{Bayes}^2 =_\{SK}^2+(X_0-_\{SK}^tX)__c(X_0^t-X^t__\{SK}) $
+----
+
+
+#NO_DIFF#XXX
+----
 480 test(s) have been performed with 0 error(s)
 ----

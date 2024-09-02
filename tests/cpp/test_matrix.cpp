@@ -698,7 +698,7 @@ int main(int argc, char *argv[])
 
   // Product by Diagonal built from a vector
 
-  MatrixSparse* MSNDEig = prodNormDiagVec(*MSEig, B, 1);
+  MatrixSparse* MSNDEig = prodNormDiagVec(MSEig, B, 1);
   message("Product by Diagonal from Vector (Eigen)\n");
   MSNDEig->display();
   delete MSNDEig;
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
   MSEig->prodNormDiagVecInPlace(B, 2);
   MSEig->display();
 
-  MatrixSparse* MSNDNoEig = prodNormDiagVec(*MSNoEig, B, 1);
+  MatrixSparse* MSNDNoEig = prodNormDiagVec(MSNoEig, B, 1);
   message("Product by Diagonal from Vector (No Eigen)\n");
   MSNDNoEig->display();
   delete MSNDNoEig;

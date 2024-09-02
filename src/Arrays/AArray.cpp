@@ -128,11 +128,8 @@ bool AArray::_isValidIndice(const VectorInt& indice) const
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    if (indice[idim] < 0 || indice[idim] >= _ndims[idim])
-    {
-      mesArg("Element of 'indice'",indice[idim],_ndims[idim]);
+    if (!checkArg("Element of 'indice'", indice[idim], _ndims[idim]))
       return false;
-    }
   }
   return true;
 }

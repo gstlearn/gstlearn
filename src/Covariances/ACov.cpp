@@ -763,11 +763,7 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
   VectorInt ivars;
   if (ivar0 >= 0)
   {
-    if (ivar0 >= nvar)
-    {
-      mesArg("Argument 'ivar0'", ivar0, nvar);
-      return VectorInt();
-    }
+    if (!checkArg("Argument 'ivar0'", ivar0, nvar)) return VectorInt();
     ivars.push_back(ivar0);
   }
   else

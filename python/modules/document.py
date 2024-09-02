@@ -18,7 +18,7 @@ import os
 import re
 import base64
 import gstlearn as gl
-from IPython.display import display, Javascript
+from IPython.display import display, Javascript, Markdown
 
 # The various pieces of documentation are supposed to be located
 # at the following URL
@@ -164,7 +164,21 @@ def loadDoc(filename, verbose=False):
     
     result = ''.join(header) + '\n'.join(lines) + ''.join(trailer)
     return result
+
+def displayDoc(filename, verbose=False):
+    '''
+    This function displays the contents of a Markdown file from the 'references' directory named 'filename'
+    The result is decorated so as to appear as a NOTE in HTML files
     
+    Arguments
+    ---------
+    filename: Name of the Markdown file of interest
+    '''
+
+    result = loadDoc(filename, verbose)
+
+    return Markdown(result)
+
 def loadData(directory, filename, verbose=False):
     '''
     This function loads a file named 'filename' in the 'directory' (from the web site)

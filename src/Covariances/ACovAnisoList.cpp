@@ -629,12 +629,7 @@ MatrixSquareSymmetric ACovAnisoList::getTotalSill() const
 
 bool ACovAnisoList::_isCovarianceIndexValid(int icov) const
 {
-  if (icov >= (int) getCovaNumber())
-  {
-    mesArg("Covariance Index",icov,getCovaNumber());
-    return false;
-  }
-  return true;
+  return checkArg("Covariance Index", icov, getCovaNumber());
 }
 
 /**

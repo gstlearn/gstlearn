@@ -196,11 +196,12 @@ public:
   static VectorDouble reorder(const VectorDouble& vecin, const VectorInt& order, int size = -1);
   static VectorDouble revert(const VectorDouble& vecin);
   static VectorInt    revert(const VectorInt& vecin);
+  static VectorDouble sample(const VectorDouble& vecin, const VectorInt& indKeep);
   static void arrangeInPlace(int safe,
-                             VectorInt &ranks,
-                             VectorDouble &values,
+                             VectorInt& ranks,
+                             VectorDouble& values,
                              bool ascending = true,
-                             int size = -1);
+                             int size       = -1);
   static void arrangeInPlace(int safe,
                              VectorInt &ranks,
                              VectorInt &values,

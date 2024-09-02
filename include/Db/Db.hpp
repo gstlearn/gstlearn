@@ -440,7 +440,8 @@ public:
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   MatrixRectangular getAllCoordinatesMat() const;
   void   setCoordinate(int iech, int idim, double value);
-  void   setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
+  void setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
+  void setSampleCoordinates(int iech, const VectorDouble& coor);
 
   double getDistance1D(int iech, int jech, int idim=0, bool flagAbs = false) const;
   double getDistance(int iech, int jech) const;
@@ -521,8 +522,9 @@ public:
   void   updZVariable(int iech, int item, const EOperator& oper, double value);
 
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
+  void setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
 
-  bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
+    bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
   bool isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;

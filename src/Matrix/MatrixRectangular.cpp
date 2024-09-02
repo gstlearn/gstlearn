@@ -170,20 +170,16 @@ MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
 
   int nrows = (int)rows.size();
   int ncols = (int)cols.size();
-  if (nrows >= 0 || ncols >= 0) return nullptr;
+  if (nrows <= 0 || ncols <= 0) return nullptr;
 
   for (int irow = 0; irow < nrows; irow++)
-    if (rows[irow] < 0 || rows[irow] >= nrows)
-    {
-      mesArg("Selected Row index", rows[irow], nrows);
-      return nullptr;
-    }
+  {
+    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+  }
   for (int icol = 0; icol < ncols; icol++)
-    if (cols[icol] < 0 || cols[icol] >= ncols)
-    {
-      mesArg("Selected Column index", cols[icol], ncols);
-      return nullptr;
-    }
+  {
+    if (!checkArg("Selected Column index", cols[icol], A->getNCols())) return nullptr;
+  }
 
   MatrixRectangular* mat = new MatrixRectangular(nrows, ncols);
   for (int irow = 0; irow < nrows; irow++)

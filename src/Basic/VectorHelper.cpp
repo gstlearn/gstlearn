@@ -126,7 +126,10 @@ void VectorHelper::display(const String &title, const VectorInt &vect, bool skip
   if (!title.empty())
   {
     message("%s", title.c_str());
-    if (skipLine) message("\n");
+    if (skipLine)
+      message("\n");
+    else
+      message(":");
   }
   messageFlush(VH::toStringAsVI(vect));
 }
@@ -2441,4 +2444,34 @@ void VectorHelper::truncateDigitsInPlace(VectorDouble& vec, int ndec)
     if (FFFF(vec[i])) continue;
     vec[i] = truncateDigits(vec[i], ndec);
   }
+}
+
+/**
+ * @brief Create an output VectorDouble by selecting some indices
+ *        of the Input VectorDouble 'vecin'
+ *
+ * @param vecin    Input Rectangular Matrix
+ * @param indKeep  Set of Indices to be kept (all if not defined)
+ */
+VectorDouble VectorHelper::sample(const VectorDouble& vecin,
+                                  const VectorInt& indKeep)
+{
+  VectorDouble vecout;
+
+  VectorInt indices = indKeep;
+  if (indices.empty()) indices = VH::sequence((int) vecin.size());
+
+  int nindices = (int)indices.size();
+  if (nindices <= 0) return vecout;
+
+  for (int i = 0; i < nindices; i++)
+  {
+    if (!checkArg("Selected index", indices[i], (int) vecin.size()))
+      return vecout;
+  }
+
+  vecout.resize(nindices);
+  for (int i = 0; i < nindices; i++)
+      vecout[i] = vecin[indices[i]];
+  return vecout;
 }

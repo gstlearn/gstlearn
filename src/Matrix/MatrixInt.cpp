@@ -120,16 +120,8 @@ int MatrixInt::getMatrixSize() const
 
 bool MatrixInt::_isIndexValid(int irow, int icol) const
 {
-  if (irow < 0 || irow >= getNRows())
-  {
-    mesArg("Row index invalid",irow,getNRows());
-    return false;
-  }
-  if (icol < 0 || icol >= getNCols())
-  {
-    mesArg("Column index invalid",icol,getNCols());
-    return false;
-  }
+  if (!checkArg("Row index invalid", irow, getNRows())) return false;
+  if (!checkArg("Column index invalid", icol, getNCols())) return false;
   return true;
 }
 

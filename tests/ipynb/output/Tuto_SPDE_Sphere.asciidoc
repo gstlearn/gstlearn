@@ -4,29 +4,38 @@
 
 #NO_DIFF#XXX
 ----
-<style>md-block { color:gray; background-color:white; }</style><md-block>
-**SPDE on the Sphere**
+*SPDE on the Sphere*
 
-The aim of this tutorial is to show how to use gstlearn to simulate the solution of 
+The aim of this tutorial is to show how to use gstlearn to simulate the
+solution of
 
-$$(\kappa^2-\Delta_{\mathcal{S}_R})^{\alpha/2}Z = \sigma\mathcal{W}$$
+latexmath:[\[(\kappa^2-\Delta_{\mathcal{S}_R})^{\alpha/2}Z = \sigma\mathcal{W}\]]
 
-on the sphere $\mathcal{S}_R$ of radius $R$.
+on the sphere latexmath:[$\mathcal{S}_R$] of radius latexmath:[$R$].
 
-- $\Delta_{{\mathcal{S}_R}}$ is the Laplace-Beltrami operator, i.e, it acts on each point of the sphere as the usual Laplacian on the tangent plane at this point. 
+* latexmath:[$\Delta_{{\mathcal{S}_R}}$] is the Laplace-Beltrami
+operator, i.e, it acts on each point of the sphere as the usual
+Laplacian on the tangent plane at this point.
+* latexmath:[$\kappa$] is the inverse of the scale parameter
+* latexmath:[$\alpha \geq 2$] is an integer describing the smoothness of
+the solution.
+* latexmath:[$\mathcal{W}$] is a Gaussian white-noise suitably
+normalized such as latexmath:[$\sigma^2$] is the variance of the
+solution.
 
-- $\kappa$ is the inverse of the scale parameter
-
-- $\alpha \geq 2$ is an integer describing the smoothness of the solution.
-
-- $\mathcal{W}$ is a Gaussian white-noise suitably normalized such as $\sigma^2$ is the variance of the solution.
-
-In this notebook, we will define the covariance of Matérn on the sphere, as the covariance of the solution of this SPDE (other extensions of the Matérn function are possible). By analogy with the Euclidian case, its smoothness parameter will be defined by $\nu = \alpha -1$. To compute the covariance function with respect on the geodetic distance, one have to use a decomposition on the Legendre polynomial (see below).
+In this notebook, we will define the covariance of Matérn on the sphere,
+as the covariance of the solution of this SPDE (other extensions of the
+Matérn function are possible). By analogy with the Euclidian case, its
+smoothness parameter will be defined by latexmath:[$\nu = \alpha -1$].
+To compute the covariance function with respect on the geodetic
+distance, one have to use a decomposition on the Legendre polynomial
+(see below).
 
 We also treat the more general case
-$$P^{1/2}(-\Delta_{\mathcal{S}_R})Z = \sigma\mathcal{W}$$
+latexmath:[\[P^{1/2}(-\Delta_{\mathcal{S}_R})Z = \sigma\mathcal{W}\]]
 
-where $P$ is a polynom positive on $\mathbb{R}^+$</md-block>
+where latexmath:[$P$] is a polynom positive on
+latexmath:[$\mathbb{R}^+$]
 ----
 
 
@@ -40,47 +49,49 @@ where $P$ is a polynom positive on $\mathbb{R}^+$</md-block>
 
 #NO_DIFF#XXX
 ----
-2.039324868515115
+2.0393248685151155
 ----
 
 
 #NO_DIFF#XXX
 ----
-Discretized variance 2.039324868515115
+Discretized variance 2.0393248685151155
 
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
 #NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
-<style>md-block { color:gray; background-color:white; }</style><md-block>
-**Covariance on the Sphere**
+#NO_DIFF#XXX
+----
 
-The covariance between two points with great-circle distance $d$  on the sphere of radius $R$ is given by
-$$C(d) = \frac{\sigma^2}{\sum_{i=0}^\infty f(i)}\sum_{i=0}^\infty f(i) P_i\left(\cos \frac{d}{R}\right)$$
 
-where the $P_i$'s  are the Legendre polynomials computed with the following reccurence formula
+#NO_DIFF#XXX
+----
+*Covariance on the Sphere*
 
-$$P_0(x) = 1.$$
+The covariance between two points with great-circle distance
+latexmath:[$d$] on the sphere of radius latexmath:[$R$] is given by
+latexmath:[\[C(d) = \frac{\sigma^2}{\sum_{i=0}^\infty f(i)}\sum_{i=0}^\infty f(i) P_i\left(\cos \frac{d}{R}\right)\]]
 
-$$P_1(x) = x$$
+where the latexmath:[$P_i$]’s are the Legendre polynomials computed with
+the following reccurence formula
 
-$$P_{n+1}(x)=\frac{(2n+1)xP_n(x) - n P_{n-1}(x)}{n+1}$$
+latexmath:[\[P_0(x) = 1.\]]
 
-For $n\geq 0$, $$f(n) = \frac{2n+1}{ (R^2\kappa^2 + n ( n + 1))^\alpha}$$
+latexmath:[\[P_1(x) = x\]]
 
-For numerical computations, the sums are truncated at **N**.
+latexmath:[\[P_{n+1}(x)=\frac{(2n+1)xP_n(x) - n P_{n-1}(x)}{n+1}\]]
 
-For more details on the covariances on sphere, see 
-[Lantuejoul, Freulon and Renard (2019)](https://link.springer.com/content/pdf/10.1007/s11004-019-09799-4.pdf)
-</md-block>
+For latexmath:[$n\geq 0$],
+latexmath:[\[f(n) = \frac{2n+1}{ (R^2\kappa^2 + n ( n + 1))^\alpha}\]]
+
+For numerical computations, the sums are truncated at *N*.
+
+For more details on the covariances on sphere, see
+https://link.springer.com/content/pdf/10.1007/s11004-019-09799-4.pdf[Lantuejoul,
+Freulon and Renard (2019)]
 ----
 
 

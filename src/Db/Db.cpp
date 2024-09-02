@@ -244,12 +244,7 @@ int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
  */
 bool Db::isDimensionIndexValid(int idim) const
 {
-  if (idim < 0 || idim >= getNDim())
-  {
-    mesArg("Space Dimension", idim, getNDim());
-    return false;
-  }
-  return true;
+  return checkArg("Space Dimension", idim, getNDim());
 }
 
 /**
@@ -257,12 +252,7 @@ bool Db::isDimensionIndexValid(int idim) const
  */
 bool Db::isUIDValid(int iuid) const
 {
-  if (iuid < 0 || iuid >= getUIDMaxNumber())
-  {
-    mesArg("UID Index", iuid, getUIDMaxNumber());
-    return false;
-  }
-  return true;
+  return checkArg("UID Index", iuid, getUIDMaxNumber());
 }
 
 /**
@@ -270,12 +260,7 @@ bool Db::isUIDValid(int iuid) const
  */
 bool Db::isColIdxValid(int icol) const
 {
-  if (icol < 0 || icol >= _ncol)
-  {
-    mesArg("Column Index", icol, _ncol);
-    return false;
-  }
-  return true;
+  return checkArg("Column Index", icol, _ncol);
 }
 
 /**
@@ -283,12 +268,7 @@ bool Db::isColIdxValid(int icol) const
  */
 bool Db::isSampleIndexValid(int iech) const
 {
-  if (iech < 0 || iech >= _nech)
-  {
-    mesArg("Sample Index", iech, _nech);
-    return false;
-  }
-  return true;
+  return checkArg("Sample Index", iech, _nech);
 }
 
 /**
@@ -296,14 +276,10 @@ bool Db::isSampleIndexValid(int iech) const
  */
 bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
 {
-  for (int i = 0; i < (int) iechs.size(); i++)
+  for (int i = 0; i < (int)iechs.size(); i++)
   {
     int iech = iechs[i];
-    if (iech < 0 || iech >= getSampleNumber(useSel))
-    {
-      mesArg("Sample Index", iech, getSampleNumber(useSel));
-      return false;
-    }
+    if (!checkArg("Sample Index", iech, getSampleNumber(useSel))) return false;
   }
   return true;
 }
@@ -947,6 +923,20 @@ void Db::setCoordinates(int idim, const VectorDouble& coor, bool useSel)
   int icol = getColIdxByLocator(ELoc::X, idim);
   if (!isColIdxValid(icol)) return;
   setColumnByColIdx(coor, icol, useSel);
+}
+
+void Db::setSampleCoordinates(int iech, const VectorDouble& coor)
+{
+  int ndim = getNDim();
+  int size = (int)coor.size();
+  if (ndim != size)
+  {
+    messerr("Argument 'coor' (%d) should have dimension ndim (%d)", size, ndim);
+    messerr("Nothing is done");
+    return;
+  }
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+    setCoordinate(iech, idim, coor[idim]);
 }
 
 void Db::setFromLocator(const ELoc& locatorType,
@@ -2447,6 +2437,22 @@ void Db::setLocVariable(const ELoc& loctype, int iech, int item, double value)
 void Db::setZVariable(int iech, int item, double value)
 {
   setFromLocator(ELoc::Z, iech, item, value);
+}
+void Db::setLocVariables(const ELoc& loctype,
+                         int iech,
+                         const VectorDouble& values)
+{
+  int number = getFromLocatorNumber(loctype);
+  int size = (int) values.size();
+  if (number != size)
+  {
+    messerr("Dimension of 'values' (%d) does not match number of elements in "
+            "locator (%d)",
+            size, number);
+    messerr("Nothing is done");
+    return;
+  }
+  for (int i = 0; i < number; i++) setFromLocator(loctype, iech, i, values[i]);
 }
 
 /**

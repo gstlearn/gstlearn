@@ -128,7 +128,7 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
 
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
-  MatrixSparse* AtAsVar = prodNormMat(*Amult, invsigma, true);
+  MatrixSparse* AtAsVar = prodNormMat(Amult, invsigma, true);
   _Q = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
 
   // Free core allocated
