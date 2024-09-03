@@ -2322,7 +2322,6 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     Z = db->getColumnsByLocator(ELoc::Z, true, true);
   else
     Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
-  VH::display("Z", Z);
 
   // If Drift functions are present, evaluate the optimal Drift coefficients first
   if (nDrift > 0)

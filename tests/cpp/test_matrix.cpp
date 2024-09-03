@@ -664,7 +664,7 @@ int main(int argc, char *argv[])
   mestitle(0,"Cholesky Log Determinant");
   message("Log Determinant Sparse (No Eigen Library)   = %lf\n", MSNoEig->computeCholeskyLogDeterminant());
   message("Log Determinant Dense  (traditional method) = %lf\n", log(MEig->determinant()));
-  message("Log Determinant Dense  (Eigen Library)      = %lf\n",    2. * MEig->computeCholeskyLogDeterminant());
+  message("Log Determinant Dense  (Eigen Library)      = %lf\n", MEig->computeCholeskyLogDeterminant());
 
   // Compute Cholesky factorization (for dense matrix (Eigen library)
   mestitle(0,"Cholesky Decomposition for Dense matrices");

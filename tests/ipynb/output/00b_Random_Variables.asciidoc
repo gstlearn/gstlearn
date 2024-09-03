@@ -4,155 +4,132 @@
 
 #NO_DIFF#XXX
 ----
-# Random variables
+<style>md-block { color:gray; background-color:white; }</style><md-block>
+# Random variables 
 
-A *random variable* latexmath:[$Z$] is a function over a sample space
-latexmath:[$\Omega$] to the space of outputs latexmath:[$H$].
+A **random variable** $Z$ is a function over a sample space $\Omega$ to the space of outputs $H$.
 
-latexmath:[\[
+$$
 Z:\Omega\to H\\
 \hspace{1.3cm}\omega \mapsto Z(\omega)
-\]]
+$$
 
 The random variables are described using probabilities.
 
-== A. Discrete variables
+## A. Discrete variables 
 
-== A.1. Probability mass function
+## A.1. Probability mass function
 
 To introduce the probability mass function, we will give some examples
 
-=== A.1.1) Head or tail
+### A.1.1) Head or tail
 
 We launch a coin. The result (still unknown) will be equal to:
 
-latexmath:[\[Z(\omega) = \left\{\begin{array}{cc}0 &\textrm{ if head}\\
+$$Z(\omega) = \left\{\begin{array}{cc}0 &\textrm{ if head}\\
                                  1 &\textrm{ if tail}\\
-                                 \end{array}\right.\]]
+                                 \end{array}\right.$$
 
-Here latexmath:[$H=\{0,1\}$].
+Here $H=\{0,1\}$.
 
-Since we don’t know latexmath:[$\omega$], we describe latexmath:[$Z$]
-using probabilities.
+Since we don't know $\omega$, we describe $Z$ using probabilities.
 
-In case of binary variables, we just have to specify the probability
-that latexmath:[$Z=1$], which is denoted latexmath:[$P(Z=1)$].
+In case of binary variables, we just have to specify the probability that $Z=1$, which is denoted $P(Z=1)$.
 
-More formally, latexmath:[$P$] is a *measure* over latexmath:[$\Omega$],
-it measures the size of the set
-latexmath:[\[Z^{-1}(\{1\})=\{\omega\in\Omega,Z(\omega)=1\}.\]]
+More formally, $P$ is a **measure** over $\Omega$, it measures the size of the set $$Z^{-1}(\{1\})=\{\omega\in\Omega,Z(\omega)=1\}.$$
 
 By definition:
 
-latexmath:[\[P(Z=1) = P(Z^{-1}(\{1\})).\]]
+$$P(Z=1) = P(Z^{-1}(\{1\})).$$
 
-If latexmath:[$p=P(Z=1)$], then latexmath:[$P(Z=0) = 1-p$].
 
-When latexmath:[$H$] only contains 2 values (0 or 1), the variable is
-binary and its distribution is named Bernouilli with parameter
-latexmath:[$p=P(Z=1)$].
+If $p=P(Z=1)$, then $P(Z=0) = 1-p$.
 
-=== A.1.2) Outputs of a dice
+When $H$ only contains 2 values (0 or 1), the variable is binary and its distribution is named Bernouilli with parameter $p=P(Z=1)$.
 
-latexmath:[$H=\{1,2,3,4,5,6\}$]
+### A.1.2) Outputs of a dice
 
-The variable is characterized by the definition of
-latexmath:[$p_i=P(Z=i)$] for latexmath:[$i=1,\dots,6$].
+$H=\{1,2,3,4,5,6\}$
 
-We have latexmath:[$p_1+p_2+p_3+p_4+p_5+p_6=1$].
+The variable is characterized by the definition of $p_i=P(Z=i)$ for $i=1,\dots,6$.
 
-=== A.1.3) General case of discrete variable
+We have $p_1+p_2+p_3+p_4+p_5+p_6=1$.
 
-latexmath:[$Z$] is a random variable with values in a countable space
-latexmath:[$H$].
+### A.1.3) General case of discrete variable
 
-latexmath:[$Z$] is characterized by its probability mass function,
-latexmath:[$p(i)=p_i=P(Z=i)$] for all latexmath:[$i\in H$].
+$Z$ is a random variable with values in a countable space $H$. 
+
+$Z$ is characterized by its probability mass function, $p(i)=p_i=P(Z=i)$ for all $i\in H$.
 
 data:image/png;base64,XXX
 
-=== A.1.4) Uniform distribution over a finite output space latexmath:[$H = \{a_1,\dots,a_n\}$]
+### A.1.4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$
 
-For all latexmath:[$i=1,\dots,n$], latexmath:[\[p_i=\frac{1}{n}\]]
-
-data:image/png;base64,XXX
-
-=== A.1.5) Binomial distribution of parameters latexmath:[$(n,p)$]
-
-It models the sum of latexmath:[$n$] independent Bernouilli variables
-with parameters latexmath:[$p$].
-
-latexmath:[$H = \{0,1,\dots,n\}$]
-
-latexmath:[\[p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}\]]
+For all $i=1,\dots,n$, $$p_i=\frac{1}{n}$$
 
 data:image/png;base64,XXX
 
-== A.2. Cumulative distribution
+### A.1.5) Binomial distribution of parameters $(n,p)$
 
-Instead of working with the probability mass function, we can use the
-cumulative distribution function latexmath:[$F$] defined by
-latexmath:[\[F(i) = P(Z\leq i)\]]
+It models the sum of $n$ independent Bernouilli variables with parameters $p$.
 
-We can deduce latexmath:[$F$] from the probability mass function
-latexmath:[$p$]
-latexmath:[\[F(i) = \sum_{j=1}^i P(Z=j) = \sum_{j=1}^i p(j)\]]
+$H = \{0,1,\dots,n\}$
+
+$$p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}$$
 
 data:image/png;base64,XXX
 
-And we can also deduce latexmath:[$p$] from latexmath:[$F$]:
-latexmath:[\[p(i) = P(Z=i) = P(Z\leq i) - P(Z\leq i-1) = F(i)-F(i-1)\]]
+## A.2. Cumulative distribution 
 
-== A.3. Property:
+Instead of working with the probability mass function, we can use the cumulative distribution function $F$ defined by $$F(i) = P(Z\leq i)$$
 
-latexmath:[\[P(a<Z \leq b) = F(b)-F(a)\]]
+We can deduce $F$ from the probability mass function $p$  $$F(i) = \sum_{j=1}^i P(Z=j) = \sum_{j=1}^i p(j)$$
 
-== A.4. Expectation:
+data:image/png;base64,XXX
 
-The expectation of a random variable with probability mass function
-latexmath:[$p$] is given by
 
-latexmath:[\[E[Z]=\sum_{i\in H}i \times P(Z=i)=\sum_{i\in H}i \times p_i\]]
+And we can also deduce $p$ from $F$: $$p(i) = P(Z=i) = P(Z\leq i) - P(Z\leq i-1) = F(i)-F(i-1)$$
+
+## A.3. Property:
+
+$$P(a<Z \leq b) = F(b)-F(a)$$
+
+## A.4. Expectation:
+
+The expectation of a random variable with probability mass function $p$ is given by 
+
+$$E[Z]=\sum_{i\in H}i \times P(Z=i)=\sum_{i\in H}i \times p_i$$
 
 The expectation can be seen as the theoretical mean.
 
-*Example:*
+**Example:** 
 
-If latexmath:[$Z$] is a Bernouilli variable with parameter
-latexmath:[$p$], latexmath:[\[E[Z]= 0 \times (1-p) + 1 \times p = p\]]
+If $Z$ is a Bernouilli variable with parameter $p$, $$E[Z]= 0 \times (1-p) + 1 \times p = p$$
 
-*Expectation of a function*
-latexmath:[\[E(q(Z))=\sum_{i\in H} q(i) \times P(Z=i)\]]
+**Expectation of a function** $$E(q(Z))=\sum_{i\in H} q(i) \times P(Z=i)$$
 
-== A.5. Variance
+## A.5. Variance
 
-latexmath:[\[\textrm{Var(Z)} = E[(Z-E[Z])^2]\]]
+$$\textrm{Var(Z)} = E[(Z-E[Z])^2]$$
 
-== A.6. Random vectors
+## A.6. Random vectors
 
-If latexmath:[$Z_1$] is a random variable on a countable space
-latexmath:[$H_1$] and latexmath:[$Z_2$] is another random variable on a
-countable space latexmath:[$H_2$], if we want to fully describe the pair
-latexmath:[$(Z_1,Z_2)$], we must define the probabilities of all events
-latexmath:[$\{Z_1=i, Z_2=j\}$] for all latexmath:[$i\in H_1$] and all
-latexmath:[$j\in H_2$]. We will note
-latexmath:[\[p_{ij}=P(Z_1=i,Z_2=j).\]]
+If $Z_1$ is a random variable on a countable space $H_1$ and $Z_2$ is another random variable on a countable space $H_2$, if we want to fully describe the pair $(Z_1,Z_2)$, we must define the probabilities of all events $\{Z_1=i, Z_2=j\}$ for all $i\in H_1$ and all $j\in H_2$. We will note $$p_{ij}=P(Z_1=i,Z_2=j).$$
 
 Marginalisation
 
-latexmath:[\[p_{i.} = P(Z_1=i) = \sum_{j\in H_2} p_{ij}\]]
+$$p_{i.} = P(Z_1=i) = \sum_{j\in H_2} p_{ij}$$
 
-latexmath:[\[p_{.j}= P(Z_2=j) = \sum_{i\in H_1} p_{ij}\]]
+$$p_{.j}= P(Z_2=j) = \sum_{i\in H_1} p_{ij}$$
 
-*Example:*
 
-The probability latexmath:[$Z_1$] to be a rich man is a Bernouilli
-variable.
+**Example:**
 
-The probability latexmath:[$Z_2$] to be a Geostatistician is a
-Bernouilli variable.
+The probability $Z_1$ to be a rich man is a Bernouilli variable.
 
-latexmath:[\[\begin{array}{c|c|c||c} 
+The probability $Z_2$ to be a Geostatistician is a Bernouilli variable.
+
+$$\begin{array}{c|c|c||c} 
  & 0 & 1 \\
  \hline
  0 & p_{00} & p_{01} & p_{0.}\\
@@ -160,183 +137,154 @@ latexmath:[\[\begin{array}{c|c|c||c}
  1 & p_{10} & p_{11} & p_{1.}\\
  \hline
   & p_{.0} & p_{.1} & 1\\
-  \end{array}\]]
+  \end{array}$$
+  
+  Conditional distribution
 
-Conditional distribution
+$$P(Z_1=i|Z_2=j) = \frac{P(Z_1=i,Z_2=j)}{P(Z_2=j)} = \frac{p_{ij}}{\sum_{i\in H_1} p_{ij}}$$
 
-latexmath:[\[P(Z_1=i|Z_2=j) = \frac{P(Z_1=i,Z_2=j)}{P(Z_2=j)} = \frac{p_{ij}}{\sum_{i\in H_1} p_{ij}}\]]
 
-== B. Continuous random variable
+## B. Continuous random variable
 
-The output space latexmath:[$H$] is continuous e.g
-latexmath:[$\mathbb{R}$] or an interval latexmath:[$[a,b]$].
+The output space $H$ is continuous e.g  $\mathbb{R}$ or an interval $[a,b]$.
 
-To characterize the distribution, one can use the cumulative
-distribution function (c.d.f) defined as
-latexmath:[\[F(z)=P(Z\leq z).\]]
+To characterize the distribution, one can use the cumulative distribution function (c.d.f) defined as $$F(z)=P(Z\leq z).$$
 
 data:image/png;base64,XXX
 
-When latexmath:[$F$] is differentiable, latexmath:[$Z$] has a
-probability density function (p.d.f) latexmath:[$f$] defined as
-latexmath:[\[f(z)=F'(z).\]] where latexmath:[\[\int_H f(t)dt =1\]]
+When $F$ is differentiable, $Z$ has a probability density function (p.d.f) $f$ defined as $$f(z)=F'(z).$$ where $$\int_H f(t)dt =1$$
 
-Then, latexmath:[\[F(z) = \int_{-\infty}^z f(t)dt\]]
+
+Then, $$F(z) = \int_{-\infty}^z f(t)dt$$
 
 data:image/png;base64,XXX
 
 All the variables considered in this course will have a density.
 
-=== Examples
+### Examples
 
-[arabic]
-. Gaussian distribution:
+1) Gaussian distribution:
 
-The Gaussian distribution with mean latexmath:[$m$] and variance
-latexmath:[$\sigma^2$] has density
+The Gaussian distribution with mean $m$ and variance $\sigma^2$ has density 
 
-latexmath:[\[f(x)=\frac{1}{\sqrt{2\pi}\sigma}\displaystyle e^{-\frac{(x-m)^2}{2\sigma^2}}\]]
+$$f(x)=\frac{1}{\sqrt{2\pi}\sigma}\displaystyle e^{-\frac{(x-m)^2}{2\sigma^2}}$$
 
 (see curves above)
 
-[arabic, start=2]
-. Uniform variable over an interval latexmath:[$[a,b]$]
+2) Uniform variable over an interval $[a,b]$
 
-latexmath:[\[f(x) = \left\{\begin{array}{ccc}\frac{1}{b-a} & \textrm{ if } & a<x\leq b\\
-0 & \textrm{ otherwise} & \end{array}\right.\]]
+$$f(x) = \left\{\begin{array}{ccc}\frac{1}{b-a} & \textrm{ if } & a<x\leq b\\
+0 & \textrm{ otherwise} & \end{array}\right.$$
 
 data:image/png;base64,XXX
 
-latexmath:[\[F(x) = \left\{\begin{array}{ccc}0 & \textrm{ if } & x\geq a \\
+$$F(x) = \left\{\begin{array}{ccc}0 & \textrm{ if } & x\geq a \\
 \frac{x-a}{b-a} & \textrm{ if } & a<x\leq b\\
-1 & \textrm{ if } & x\geq b\end{array}\right.\]]
+1 & \textrm{ if } & x\geq b\end{array}\right.$$
 
 data:image/png;base64,XXX
 
-=== Expectation
+### Expectation 
 
 The expectation plays the role of the mean for the random variable.
 
 It is an average of the values weighted by the density:
 
-latexmath:[\[E[Z] = \int_H tf(t)dt\]]
+$$E[Z] = \int_H tf(t)dt$$
 
 Expectation of a function:
 
-latexmath:[\[E[q(Z)] = \int_H q(t)f(t)dt\]]
+$$E[q(Z)] = \int_H q(t)f(t)dt$$
 
-=== Variance
+### Variance 
 
-latexmath:[\[\textrm{Var}[Z] = E[(Z-E[Z])^2]\]]
+$$\textrm{Var}[Z] = E[(Z-E[Z])^2]$$
 
-Note that if a random variable latexmath:[$Z$] is positive
-(latexmath:[$P(Z\geq 0)=1$]), then latexmath:[\[E[Z]\geq 0\]]
+Note that if a random variable $Z$ is positive ($P(Z\geq 0)=1$), then $$E[Z]\geq 0$$
 
-So, the variance is always positive (as the expectation of a positive
-random variable).
+So, the variance is always positive (as the expectation of a positive random variable).
 
-More properties on expectation and variance can be found
-link:./covariance.ipynb[here].
+More properties on expectation and variance can be found [here](./covariance.ipynb).
 
-== Law of large numbers
+## Law of large numbers
 
-The expectation of a random variable can be seen as the empirical
-average over an infinite number of realizations of this variable as
-stated by the (strong) law of large numbers:
+The expectation of a random variable can be seen as the empirical average over an infinite number of realizations of this variable as stated by the (strong) law of large numbers:
 
-Let latexmath:[$Z$] a random variable over latexmath:[$H=\mathbb{R}$]
-with latexmath:[$E[Z]=m$]. If latexmath:[$Z_1,\dots,Z_n,\dots$] is an
-infinite sequence of independent copies of latexmath:[$Z$], then the
-sample average variables
-latexmath:[\[\bar{Z}_n = \frac{Z_1+\dots,Z_n}{n}\]] converges to
-latexmath:[$m$] when latexmath:[$n\to\infty$].
+Let $Z$ a random variable over $H=\mathbb{R}$ with $E[Z]=m$.
+If $Z_1,\dots,Z_n,\dots$ is an infinite sequence of independent copies of $Z$, then the sample average variables $$\bar{Z}_n = \frac{Z_1+\dots,Z_n}{n}$$ converges to $m$ when $n\to\infty$.
 
 data:image/png;base64,XXX
 
-Let’s consider the new (Bernouilli) variable
-latexmath:[\[1\!\!\!1_{a<Z \leq b}=\left\{\begin{array}{ccc}1 & \textrm{ if } & a<Z\leq b\\
-0 & \textrm{ otherwise} & \end{array}\right.\]]
+Let's consider the new (Bernouilli) variable $$1\!\!\!1_{a<Z \leq b}=\left\{\begin{array}{ccc}1 & \textrm{ if } & a<Z\leq b\\
+0 & \textrm{ otherwise} & \end{array}\right.$$
 
-latexmath:[\[E[1\!\!\!1_{a<Z\leq b}] = P(a<Z\leq b)=\int_a^b f(t)dt\]]
 
-So, if we subdivide latexmath:[$H$] into small intervals, we expect that
-the histogram of a large sample of (independent) realizations of
-latexmath:[$Z$] is close to its density latexmath:[$f$].
+$$E[1\!\!\!1_{a<Z\leq b}] = P(a<Z\leq b)=\int_a^b f(t)dt$$
+
+So, if we subdivide $H$ into small intervals, we expect that the histogram of a large sample of (independent) realizations of $Z$ is close to its density $f$.
 
 data:image/png;base64,XXX
 
-== Bivariate distribution
+## Bivariate distribution
 
-If we have two random variables latexmath:[$X$] and latexmath:[$Y$], we
-can describe them independently but we can also be interested by their
-link. We can do that by using a joint distribution. Here we will suppose
-that the random vector latexmath:[$(X,Y)$] has a density
-latexmath:[$f(x,y)$].
+If we have two random variables $X$ and $Y$, we can describe them independently but we can also be interested by their link. We can do that by using a joint distribution.
+Here we will suppose that the random vector $(X,Y)$ has a density $f(x,y)$.
 
 data:image/png;base64,XXX
 
-The density can be seen as the probability
+The density can be seen as the probability 
 
-latexmath:[\[P(x\leq X \leq x+dx \textrm{ and } y\leq Y\leq y+dy) =f(x,y)dxdy\]]
+$$P(x\leq X \leq x+dx \textrm{ and } y\leq Y\leq y+dy) =f(x,y)dxdy$$
 
-We have seen that the density of a single variable plays the role of the
-histogram computed over an infinite number of realizations.
+We have seen that the density of a single variable plays the role of the histogram computed over an infinite number of realizations.
 
-Let’s observe a large number of realizations from the previous bivariate
-distribution.
+Let's observe a large number of realizations from the previous bivariate distribution.
 
 data:image/png;base64,XXX
 
-Let’s compute the 2d histogram and compare with the theoretical
-distribution:
+Let's compute the 2d histogram and compare with the theoretical distribution:
 
 data:image/png;base64,XXX
 
-=== Marginalisation
+### Marginalisation
 
-We can retrieve the marginal distribution of each variable from the
-bivariate density:
+We can retrieve the marginal distribution of each variable from the bivariate density:
 
-latexmath:[\[f_X(x)=\int_{H_2}f(x,y)dy\]]
+$$f_X(x)=\int_{H_2}f(x,y)dy$$
 
-latexmath:[\[f_Y(y)=\int_{H_1}f(x,y)dx\]]
-
-data:image/png;base64,XXX
-
-=== Conditional distributions
-
-We have two variables latexmath:[$X$] and latexmath:[$Y$] with joint
-density latexmath:[$f(x,y)$]. Suppose we have observed latexmath:[$X=x$]
-and we would like to know the distribution of latexmath:[$Y$] knowing
-this information.
-
-It can be computed by
-
-latexmath:[\[f_{Y|X=x}(y)=\frac{f(x,y)}{f(x)}\]]
-
-It can be interpreted as
-
-latexmath:[\[P(y\leq Y\leq y+dy| x\leq X \leq x+dx) = f_{Y|X=x}(y)dy\]]
+$$f_Y(y)=\int_{H_1}f(x,y)dx$$
 
 data:image/png;base64,XXX
 
-The conditional expectation
-latexmath:[\[E[Y|X=x]=\int_{H_2}yf_{Y|X=x}(y)dy\]]
+###  Conditional distributions
 
-is the expectation of latexmath:[$Y$] with the conditional distribution.
+We have two variables $X$ and $Y$ with joint density $f(x,y)$. Suppose we have observed $X=x$ and we would like to know the distribution of $Y$ knowing this information.
 
-It is the best possible prediction of latexmath:[$Y$] knowing
-latexmath:[$X$], i.e, it is the function of latexmath:[$X$] which
-minimizes latexmath:[\[\textrm{Var}(Y-q(X))\]] amongst all the possible
-functions.
+It can be computed by 
 
-To summarize bivariate distributions, one can use the covariance. See
-link:./covariance.ipynb[here].
+$$f_{Y|X=x}(y)=\frac{f(x,y)}{f(x)}$$
 
-=== Multivariate distributions
+It can be interpreted as 
 
-We can generalize to a set latexmath:[$X_1,\dots,X_p$] of variables by
-using multivariate densities latexmath:[\[f(x_1,\dots,x_p)\]]
+$$P(y\leq Y\leq y+dy| x\leq X \leq x+dx) = f_{Y|X=x}(y)dy$$
+
+data:image/png;base64,XXX
+
+The conditional expectation $$E[Y|X=x]=\int_{H_2}yf_{Y|X=x}(y)dy$$
+
+is the expectation of $Y$ with the conditional distribution.
+
+It is the best possible prediction of $Y$ knowing $X$, i.e, it is the function of $X$ which minimizes $$\textrm{Var}(Y-q(X))$$ amongst all the possible functions.
+
+
+To summarize bivariate distributions, one can use the covariance.
+See [here](./covariance.ipynb).
+
+### Multivariate distributions
+
+We can generalize to a set $X_1,\dots,X_p$ of variables by using multivariate densities
+$$f(x_1,\dots,x_p)$$
 
 In geostatistics, we often use the multivariate gaussian distribution.
+</md-block>
 ----
