@@ -330,7 +330,7 @@ double Cholesky::getLogDeterminant() const
     const auto& diag = _cholSolver.vectorD();
     for (int i = 0; i < _matCS->getNRows(); ++i)
       det += log(diag[i]);
-    det *= 2;
+    //det *= 2;
     return det;
   }
   VectorDouble diag = csd_extract_diag_VD(_N->L, 1);

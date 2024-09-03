@@ -2388,7 +2388,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
   // Derive the log-likelihood
   int size = (int) Z.size();
-  double loglike = -0.5 * (logdet + quad + size * log(GV_PI));
+  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
 
   // Optional printout
   if (verbose)
