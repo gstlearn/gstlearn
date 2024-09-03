@@ -1,290 +1,214 @@
 # %%
 import gstlearn as gl
+db1 = gl.Db()
+db1["x1"] = [0.1, 0.2]
+db1["x2"] = [0.1, 0.2]
+db1.setLocators(["x*"],gl.ELoc.X)
+
+db2 = gl.Db()
+db2["x1"] = [0.1, 0.2,0.3]
+db2["x2"] = [0.1, 0.2,0.3]
+db2.setLocators(["x*"],gl.ELoc.X)
+
+mesh1 = gl.MeshETurbo([3,3],[1/2,1/2])
+mesh2 = gl.MeshETurbo([4,4],[1/3,1/3])
+a11 = gl.ProjMatrix(db1,mesh1)
+a12 = gl.ProjMatrix(db1,mesh2)
+
+a21 = gl.ProjMatrix(db2,mesh1)
+a22 = gl.ProjMatrix(db2,mesh2)
+
+# %%
+print("---------------------------------------------------------------------")
+print("---------------------------------------------------------------------")
+print("A - Tests message when arguments are inconsistent:")
+print("---------------------------------------------------------------------")
+print("I. Creation of the vector<vector<Projmatrix*>> from a vector<ProjMatrix*>")
+print("---------------------------------------------------------------------")
+print("Test1: with a nullptr element:")
+print("--------")
+u = gl.VectorConstProjMatrix([a11,None])
+a=gl.ProjMultiMatrix.create(u,2)
+print("---------------------")
+print("Test2: with different Point Numbers:")
+print("--------")
+u = gl.VectorConstProjMatrix([a11,a22])
+a=gl.ProjMultiMatrix.create(u,2)
+
+# %%
+print("---------------------------------------------------------------------")
+print("II. Creation of ProjMulti")
+print("---------------------------------------------------------------------")
+print("Test3 : full line of nullptr:")
+print("--------")
+u = gl.VVectorConstProjMatrix([[a11,a12],[None,None],[a11,a12]])
+a = gl.ProjMultiMatrix(u)
+# %%
+print("---------------------")
+print("Test4: Rows with different number of elements:")
+print("--------")
+u = gl.VVectorConstProjMatrix([[a11,a12],[None,None,a12],[a11,a12]])
+a = gl.ProjMultiMatrix(u)
+
+# %%
+print("---------------------")
+print("Test5: Point Numbers different on a row:")
+print("--------")
+u = gl.VVectorConstProjMatrix([[a11,a12],[a21,a12],[a11,a12]])
+a = gl.ProjMultiMatrix(u)
+# %%
+print("---------------------")
+print("Test6: Apex Numbers different on a column:")
+print("--------")
+u = gl.VVectorConstProjMatrix([[a11,a12],[a21,a22],[a11,a11]])
+a = gl.ProjMultiMatrix(u)
+# %%
+print("---------------------")
+print("Test7: empty matrix:")
+print("--------")
+u = gl.VVectorConstProjMatrix([])
+a = gl.ProjMultiMatrix(u)
+print("---------------------------------------------------------------------")
+# %%
+print("End of inconsistency tests")
+print("---------------------------------------------------------------------")
+
+# %%
+print("B - Various tests")
+print("---------------------------------------------------------------------")
+print("Test 8: polymorphism:")
+print("---------------------")
+u = gl.VVectorConstProjMatrix([[a11,a12],[a21,a22],[a21,None]])
+a = gl.ProjMultiMatrix(u)
+print("Test case 1 passed")
+u = gl.VVectorConstIProjMatrix([[a11,a12],[a21,a22],[a21,None]])
+a = gl.ProjMulti(u)
+print("Test case 2 passed")
+print("---------------------")# %%
+print("Test 9: Dimensions")
+print("---------------------")
+u = gl.VVectorConstIProjMatrix([[a11,a12],[a21,a22],[a21,None]])
+a = gl.ProjMulti(u)
+print("Number of differences for nlatent " + str(len(u[0])-a.getNLatent()))
+print("Number of differences for nlatent " + str(u.size()-a.getNVariable()))
+print(a.getNVariable())
+print(a.getNLatent())
+napex = a.getApexNumber()
+napexmanual = a11.getApexNumber()+a12.getApexNumber()
+print("Number of differences for apex number " + str(napex - napexmanual))
+npoint = a.getPointNumber()
+npointmanual = a11.getPointNumber()+2 * a21.getPointNumber()
+print("Number of differences for point number " + str(npoint - npointmanual))
+
+# %%
+print("---------------------------------------------------------------------")
+print("C - Test Operators")
+print("---------------------------------------------------------------------")
+
 import numpy as np
-import scipy.sparse.linalg
-def logit(x,a=1,b=0):
-    return 1/(1+np.exp(-a*x+b))
-
-
-# %%
-def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [4,4]):
-
-    if nostatType == "Fake":
-        nostat= True
-        p = 0
-    if nostatType == "Real":
-        nostat = True
-        p = 1
-    if nostatType == "Stat":
-        nostat = False
-
-    meshes = [gl.MeshETurbo(nx1)]
-    if multistruct:
-        meshes +=[gl.MeshETurbo(nx2)]
-    
-    eps =0.1
-
-    if nvar == 1:
-        sills1 = np.array(2.)
-        sills2 = np.array(5.)
-    if nvar == 2:
-        r1 = 0.
-        s11 = 2
-        s21 = 1
-        s121 = r1 * np.sqrt(s11*s21)
-        sills1 = np.array([s11,s121,s121,s21])
-      
-        r2 = 0.3
-        s12 = .01
-        s22 = .3
-        s122 = r2 * np.sqrt(s12*s22)
-        sills2 = np.array([s11,s121,s121,s21])
-        
-    if nvar == 3:
-        np.random.seed(14556)
-        sills1 = np.random.normal(size=[3,3])
-        sills1 = sills1@sills1.T
-
-        sills2 = np.random.normal(size=[3,3])
-        sills2 = sills2@sills2.T
-        
-    modelMulti = gl.Model.createFromParam(gl.ECov.MATERN,param=1,sills = sills1.reshape(-1),range = 20)
-
-    if multistruct:
-        modelMulti2 = gl.Model.createFromParam(gl.ECov.MATERN,param=2,sills = sills2.reshape(-1),range = 10)
-        modelMulti.addCov(modelMulti2.getCova(0))
-
-    if nostat:
-        grid  = gl.DbGrid.create(nx1)
-        
-        if nvar == 1:
-            rho1 = eps + (grid["x1"]-np.min(grid["x1"])+eps) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
-            rho2 = eps + (grid["x2"]-np.min(grid["x2"])+eps) / (eps + np.max(grid["x2"])-np.min(grid["x2"]))
-            grid["rho1"] = p * rho1 + (1-p) * sills1
-            grid["rho2"] = p * rho2 + (1-p) * sills2
-            if multistruct :
-                grid.setLocators(["rho1","rho2"],gl.ELoc.NOSTAT)
-                nostatA = gl.NoStatArray(["M1V1","M2V1"],grid)
-            else :
-                grid.setLocator("rho1",gl.ELoc.NOSTAT)
-                nostatA = gl.NoStatArray(["M1V1"],grid)
-        if nvar == 2:
-            rho = (eps + grid["x1"]-np.min(grid["x1"])) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
-            rho = logit(rho,20,10)
-            grid["rho"] = rho * np.sqrt(s11*s21) * p + s121 * (1-p)
-            grid.setLocator("rho",gl.ELoc.NOSTAT)
-            nostatA = gl.NoStatArray(["M1V1-2"],grid)
-            modelMulti.addNoStat(nostatA)
-        if nvar == 3:
-            grid["rho"] = sills1[0,1] * np.ones_like(grid["rank"])
-            grid.setLocator("rho",gl.ELoc.NOSTAT)
-            nostatA = gl.NoStatArray(["M1V1-2"],grid)
-            modelMulti.addNoStat(nostatA)
-       
-        modelMulti.addNoStat(nostatA)
-    return modelMulti,meshes
-
+aref = [[a11,a12],[a21,a22],[a21,None]]
+uI = gl.VVectorConstIProjMatrix(aref)
+uM = gl.VVectorConstProjMatrix(aref)
+aI = gl.ProjMulti(uI)
+aM = gl.ProjMultiMatrix(uM)
+np.random.seed(134)
+gaussA = np.random.normal(size = napex)
+vect = gl.VectorEigen(gaussA)
+result = gl.VectorEigen(npoint)
+aI.mesh2point(vect,result)
+res = np.array([result.getValue(i) for i in range(result.size())])
 
 # %%
-class PrecisionOpMulti:
-    def __init__(self,model,meshes,matrix = False):
-        modelC = model.clone()
-        if matrix :
-            createQ = gl.PrecisionOpCs
-        else:
-            createQ = gl.PrecisionOp
-        self.sills = []
-        self.invsill = []
-        self.cholsill = []
-        self.nvertex = []
-        self.SigmaMult = []
-        self.invSigmaMult = []
-        self.Qop = []
-        self.temp = []
-        self.ncovar = modelC.getCovaNumber()
-        
-        for i in range(self.ncovar):
-            cova = modelC.getCova(i)
- 
-            self.sills += [cova.getSill().toTL()]
-            self.invsill += [np.linalg.inv(self.sills[i])]
-            self.cholsill += [np.linalg.cholesky(self.sills[i])]
-            
-            self.nvertex += [meshes[i].getNApices()]
-            
-            modelMono = gl.Model.createFromParam(cova.getType(),
-                                                 param = cova.getParam(),
-                                                 range = cova.getRange(),
-                                                 sills = 1)
-            self.Qop += [createQ(meshes[i],modelMono)]
-            self.temp += [gl.VectorDouble(np.zeros(shape=self.nvertex[i]))]  
-        
-        self.nvar = self.invsill[0].shape[0]
-        self.nvertextot = np.sum(self.nvertex)
-        self.sizetot = self.nvertextot * self.nvar
-        
-    def evalDirect(self,inv):
-        outv = np.zeros_like(inv)
-        s=0
-        for ii in range(self.ncovar):
-            for i in range(self.nvar):
-                self.Qop[ii].evalDirect(inv[(s+self.nvertex[ii]*i):(s+self.nvertex[ii]*(i+1))],self.temp[ii])
-                for j in range(self.nvar):
-                    outv[(s+self.nvertex[ii]*j):(s+self.nvertex[ii]*(j+1))]+=self.invsill[ii][i,j] * \
-                        np.array(self.temp[ii].getVector())
-            s+= self.nvertex[ii] * self.nvar
-        return outv
-    
-    def evalSimulate(self,gauss):
-        outv = np.zeros_like(gauss)
-        s=0
-        iadx = 0
-        for ii in range(self.ncovar):
-            nv = self.nvertex[ii]
-            for i in range(self.nvar):
-                self.Qop[ii].evalSimulate(
-                    gl.VectorDouble(gauss[iadx:(iadx+nv)]),
-                    self.temp[ii])
-                iady = s
-                for j in range(0,self.nvar):
-                    outv[iady:(iady+nv)]+=self.cholsill[ii][j,i] *\
-                        np.array(self.temp[ii].getVector())
-                    iady+=nv
-                iadx += nv
-            s = iadx
+resnumpyM2P = []
+for i in range(len(u)):
+    temp = 0
+    ind = 0
+    for j in range(len(u[i])):
+        mat = uM[i][j]
+        if mat != None:
+            mat = mat.toTL()
+            temp += mat @ gaussA[ind:ind+mat.shape[1]]
+            ind+=mat.shape[1]
+    resnumpyM2P += [temp]
+resnumpyM2P = np.concatenate(resnumpyM2P)
 
-        return outv
-    
-def computeError(res,ref,ndig =11):
-    return round(np.max(np.abs(res-ref)),ndig)
+# %%
+print("---------------------")
+print("Test 10: mesh2Point (matrix free):")
+print("---------------------")
+print("Difference with manual computation " + str(np.sum(np.abs(resnumpyM2P-res))))
 
-def testCase(result,simulate = True, matrix = True,ndig = 11):
-    if simulate:
-        op = "simulation"
-    else:
-        op = "evalDirect"
-    if matrix:
-        case = "matrix"
-    else:
-        case = "matrix-free"
+# %%
+np.random.seed(134)
+gaussP = np.random.normal(size = npoint)
+vect = gl.VectorEigen(gaussP)
+result = gl.VectorEigen(napex)
+aI.point2mesh(vect,result)
+res = np.array([result.getValue(i) for i in range(result.size())])
 
-    
-    if simulate and matrix :
-        res = result["ressimumat"]
-        ref = result["refsimumat"]
-    if simulate and not matrix:
-        res = result["ressimu"]
-        ref = result["refsimu"]
-    if not simulate and matrix:
-        res = result["resevalmat"]
-        ref = result["refevalmat"]
-    if not simulate and not matrix:
-        res = result["reseval"]
-        ref = result["refeval"]
+# %%
+resnumpyP2M = []
+for i in range(len(u[0])):
+    temp = 0
+    ind = 0
+    for j in range(len(u)):
+        mat = uM[j][i]
+        if mat != None:
+            mat = mat.toTL()
+            temp += mat.T @ gaussP[ind:ind+mat.shape[0]]
+            ind+=mat.shape[0]
+    resnumpyP2M += [temp]
+resnumpyP2M = np.concatenate(resnumpyP2M)
 
-    vv = computeError(res,ref,ndig)
-    message = f" Compare " + op + " with ref in the " + case + " case. Error = " + str(vv)
-    print(message)
+# %%
+print("---------------------")
+print("Test 11: point2mesh (matrix-free):")
+print("---------------------")
+print("Difference with manual computation " + str(np.sum(np.abs(resnumpyP2M-res))))
 
+# %%
+print("---------------------")
+print("With sparse matrices:")
+print("---------------------")
 
-def computeAll(model,mesh,seed = 12344):
+# %%
+print("Test 12: mesh2point from the matrix in python (with toTL()):")
+print("---------------------")
+print("Difference with manual computation " + \
+      str(np.round(np.sum(np.abs(aM.toTL() @ gaussA - resnumpyM2P)),15)))
 
-    s = sizetot(model,mesh)
-    np.random.seed(seed)
-    u = np.random.normal(size=s )
-    
-    modelCrMatrix = model.clone()
-    modelCr       = model.clone()
-    modelCsMatrix = model.clone()
-    modelCs       = model.clone()
+# %%
+print("---------------------")
+print("Test 13: point2mesh from the matrix in python (with toTL()):")
+print("---------------------")
+print("Difference with manual computation " + \
+      str(np.round(np.sum(np.abs(aM.toTL().T @ gaussP - resnumpyP2M)),15)))
 
-    poprMatrix =          PrecisionOpMulti(modelCrMatrix,mesh,True)
-    popr       =          PrecisionOpMulti(modelCr      ,mesh,False)
-    popsMatrix = gl.PrecisionOpMultiMatrix(modelCsMatrix,mesh)
-    pops       =       gl.PrecisionOpMulti(modelCs      ,mesh)
-    result = dict()
-    result["ressimu"] = pops.evalSimulate(u)
-    result["refsimu"] = popr.evalSimulate(u)
-
-    result["reseval"] = pops.evalDirect(u)
-    result["refeval"] = popr.evalDirect(u)
-
-    result["ressimumat"] = popsMatrix.evalSimulate(u)
-    result["refsimumat"] = poprMatrix.evalSimulate(u)
-
-    result["resevalmat"] = popsMatrix.evalDirect(u)
-    result["refevalmat"] = poprMatrix.evalDirect(u)
-
-    return result
-
-def sizetot(model,mesh):
-    s = 0
-    for i in mesh:
-        s+=i.getNApices()
-    return s * model.getVariableNumber()
-
-def testAllSituations(model,mesh,verbose = True,ndig=11):
-    
-    result = computeAll(model,mesh)
-    if verbose:
-        for op in [False,True]:
-            for mat in [False,True]:
-                testCase(result,op,mat,ndig)
-
-    vv = computeError(result["resevalmat"],result["reseval"],ndig)
-    print(f" Compare evalDirect between the matrix case and the matrix-free case. Error = " +str(vv))
-    print(f"---------------------------")
-
-    return result
-
-
-def test(nvar = 1, multistruct = True,ndig = 10):
-  print(f"-----------------------------------------------")
-  print(f"|      Case: nvar = " + str(nvar) + " multistruct = " + str(multistruct) + "      |")
-  print(f"-----------------------------------------------")
-
-  resultAll = dict()
-  for i in ["Stat","Fake","Real"]:
-    if i == "Real" and nvar == 3:
-      continue
-    print(f"No stationarity case: " + i)
-    print(f"---------------------------")
-    modelMulti,meshes =create(nvar = nvar,
-                              multistruct = multistruct, 
-                              nostatType = i,
-                              nx1 = [4,4],
-                              nx2 = [4,4])
-    verbose = True
-    if i == "Real":
-      verbose = False
-    resultAll[i] = testAllSituations(modelMulti,meshes,verbose,ndig)
-  print(f"-------------------------------------------------------")
-  print(f"Comparisons between fake non stationary and Stationary:") 
-  print(f"-------------------------------------------------------")
-
-  vv = computeError(resultAll["Fake"]["reseval"],
-                    resultAll["Stat"]["reseval"],ndig)
-  print(f" evalDirect in the matrix-free case. Error = " +str(vv))
-  vv = computeError(resultAll["Fake"]["resevalmat"],
-                    resultAll["Stat"]["resevalmat"],ndig)
-  print(f" evalDirect in the matrix case. Error = " +str(vv))
-  vv = computeError(resultAll["Fake"]["ressimu"],
-                    resultAll["Stat"]["ressimu"],ndig)
-  print(f" Simulation in the matrix-free case. Error = " +str(vv))
-  vv = computeError(resultAll["Fake"]["ressimumat"],
-                    resultAll["Stat"]["ressimumat"],ndig)
-  print(f" Simulation in the matrix case. Error = " +str(vv))
-  return resultAll
-
+# %%
+vect = gl.VectorEigen(gaussA)
+result = gl.VectorEigen(npoint)
+aM.mesh2point(vect,result)
+res = np.array([result.getValue(i) for i in range(result.size())])
+print("---------------------")
+print("Test 14: mesh2point from the matrix computed in C++:")
+print("---------------------")
+print("Difference with manual computation " + \
+      str(np.round(np.sum(np.abs(res - resnumpyM2P)),15)))
 
 
 
 # %%
-ndig = 8
-for nvar in [1,2,3]:
-    for multistruct in [False,True]:
-        rr = test(nvar,multistruct,ndig)
-
+vect = gl.VectorEigen(gaussP)
+result = gl.VectorEigen(napex)
+aM.point2mesh(vect,result)
+res = np.array([result.getValue(i) for i in range(result.size())])
+print("---------------------")
+print("Test 15: point2mesh from the matrix computed in C++:")
+print("---------------------")
+print("Difference with manual computation " + \
+      str(np.round(np.sum(np.abs(res - resnumpyP2M)),15)))
+print("---------------------")
+print("End of tests")
 # %%
 
 
