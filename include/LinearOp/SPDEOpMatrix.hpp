@@ -8,28 +8,30 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/ScaleOp.hpp"
+#pragma once
 
-ScaleOp::ScaleOp(int n, double scale) :
-  _n(n), _scale(scale)
+#include "LinearOp/SPDEOp.hpp"
+#include "gstlearn_export.hpp"
+
+class PrecisionOpMultiMatrix;
+class ProjMultiMatrix;
+class MatrixSparse;
+
+
+class GSTLEARN_EXPORT SPDEOpMatrix : public SPDEOp
 {
-}
+public:
+  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr, const ProjMultiMatrix* A = nullptr, const MatrixSparse* invNoise = nullptr);
+  virtual ~SPDEOpMatrix();
 
-ScaleOp::~ScaleOp() {}
+  int getSize() const override;
 
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the ScaleOp) : 'outv' += I * 'inv' = 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-int ScaleOp::_addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const
-{
-  for (int i = 0, n = _n; i < n; i++)
-    outv[i] += _scale*inv[i];
-  return 0;
-}
+#ifndef SWIG
+protected:
+  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+#endif
+
+private:
+  MatrixSparse* _QpAinvNoiseAt;
+};
+

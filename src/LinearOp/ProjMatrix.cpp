@@ -108,7 +108,7 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
   return 0;
 }
  */
-int ProjMatrix::_mesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+int ProjMatrix::_addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
 {
   if ((int) inv.size() != getApexNumber())
   {
@@ -123,11 +123,11 @@ int ProjMatrix::_mesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) c
     return 1;
   }
 
-  prodMatVecInPlace(inv, outv, false);
+  addProdMatVecInPlaceToDest(inv, outv, false);
   return 0;
 }
 
-int ProjMatrix::_point2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+int ProjMatrix::_addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
 {
   if ((int) inv.size() != getPointNumber())
   {
@@ -142,7 +142,7 @@ int ProjMatrix::_point2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) c
     return 1;
   }
 
-  prodMatVecInPlace(inv, outv, true);
+  addProdMatVecInPlaceToDest(inv, outv, true);
   return 0;
 }
 

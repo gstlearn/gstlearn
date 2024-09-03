@@ -28,7 +28,7 @@ class Model;
  */
 class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 {
-public:
+  public:
   PrecisionOpMulti(Model* model = nullptr, 
                    const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
   PrecisionOpMulti(const PrecisionOpMulti &m)= delete;

@@ -45,8 +45,8 @@ public:
   
   #ifndef SWIG
   protected:
-    int _mesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
-    int _point2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+    int _addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+    int _addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
   #endif 
   public:
 

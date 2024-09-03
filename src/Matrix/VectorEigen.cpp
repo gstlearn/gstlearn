@@ -57,6 +57,18 @@ void VectorEigen::addMultiplyConstantInPlace(double val1,
     }
 }
 
+void VectorEigen::addInPlace(const Eigen::VectorXd &in,
+                             Eigen::VectorXd &out,
+                            int iad)
+{
+    double * outp = out.data() + iad;
+    const double* inp = in.data();
+    for (int i = 0; i < (int)in.size();i++)
+    {
+      *(outp++) +=  *(inp++);
+    }
+}
+
 double VectorEigen::maximum(const std::vector<Eigen::VectorXd>& vect)
 {
   double max = vect[0].maxCoeff();

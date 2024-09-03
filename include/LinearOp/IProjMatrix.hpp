@@ -33,11 +33,15 @@ public:
   int mesh2point(const Eigen::VectorXd& inv,
                        Eigen::VectorXd& outv) const;
   int point2mesh(const Eigen::VectorXd& inv,
+                       Eigen::VectorXd& outv) const;    
+  int addMesh2point(const Eigen::VectorXd& inv,
+                       Eigen::VectorXd& outv) const;
+  int addPoint2mesh(const Eigen::VectorXd& inv,
                        Eigen::VectorXd& outv) const;             
   protected:
-  virtual int _point2mesh(const Eigen::VectorXd& inv,
+  virtual int _addPoint2mesh(const Eigen::VectorXd& inv,
                                 Eigen::VectorXd& outv) const { return 1;};
-  virtual int _mesh2point(const Eigen::VectorXd& inv,
+  virtual int _addMesh2point(const Eigen::VectorXd& inv,
                                 Eigen::VectorXd& outv) const { return 1;};
   #endif
 };

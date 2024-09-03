@@ -27,7 +27,7 @@ int ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
   {
     Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
     Eigen::VectorXd myOut(outv.size());
-    
+    VectorEigen::fill(myOut, 0.);
     // Assume outv has the good size
     if(_addToDest(myInv, myOut))
       return 1;
@@ -79,7 +79,6 @@ int ALinearOp::addToDest(const Eigen::VectorXd& inv,
 int ALinearOp::evalDirect(const VectorDouble& inv,
                            VectorDouble& outv)
 {
-  VectorHelper::fill(outv,0.,inv.size());
   return addToDest(inv,outv);
 }
 

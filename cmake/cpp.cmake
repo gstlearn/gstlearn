@@ -49,6 +49,17 @@ foreach(CPP ${SRC})
   set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/src/${CPP})
 endforeach(CPP ${SRC})
 
+# target_include_directories() below is enough to get the code to compile but if
+# includes are not explicitly added to SOURCES then Visual Studio doesn't see them
+# as part of the project itself. They are GLOB'ed even though it's fragile for
+# simplicity (it's just to get the project tree right).
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+  file(GLOB_RECURSE INCS RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/*.hpp ${PROJECT_SOURCE_DIR}/include/*.h)
+  foreach(HPP ${INCS})
+    set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/include/${HPP})
+  endforeach(HPP ${INCS})
+endif()
+
 # Generation folder (into Release or Debug)
 if (NOT IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_RUNTIME_OUTPUT_DIRECTORY)

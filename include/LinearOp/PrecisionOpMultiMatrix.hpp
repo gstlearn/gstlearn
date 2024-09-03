@@ -10,37 +10,38 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "gstlearn_export.hpp"
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/src/Core/Matrix.h>
-#include "LinearOp/IProjMatrix.hpp"
+#include "Model/Model.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/PrecisionOpMulti.hpp"
 #include "Basic/VectorNumT.hpp"
 
-class ProjMatrix;
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+#endif
+class Model;
 
-class GSTLEARN_EXPORT ProjMatrixMulti : public IProjMatrix
+/**
+ * Class to store objects for SPDE
+ */
+class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public PrecisionOpMulti, public MatrixSparse
 {
 public:
-  ProjMatrixMulti(const std::vector<ProjMatrix*> &proj,
-                  int nvar = 1);
-  //int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
-  //int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
-  int getApexNumber() const override;
-  int getPointNumber() const override;
-  virtual ~ProjMatrixMulti(){}
-private:
-  const std::vector<ProjMatrix*> _projs;
-  int _apicesNumber;
-  int _pointsNumber;
-  const int _nvar;
+  PrecisionOpMultiMatrix(Model* model = nullptr, 
+                   const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
+  PrecisionOpMultiMatrix(const PrecisionOpMulti &m)= delete;
+  PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
+  virtual ~PrecisionOpMultiMatrix();
 
-#ifndef SWIG           
+  #ifndef SWIG
+  
   protected:
-  int _point2mesh(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const override;
-  int _mesh2point(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const override;
-#endif
+    int    _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const override;
+
+  #endif
 
 };

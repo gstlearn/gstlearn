@@ -166,7 +166,8 @@ set(SRC
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
   LinearOp/ProjMatrix.cpp
-  LinearOp/ProjMatrixMulti.cpp
+  LinearOp/ProjMulti.cpp
+  LinearOp/ProjMultiMatrix.cpp
   LinearOp/PrecisionOpCs.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
@@ -177,12 +178,14 @@ set(SRC
   LinearOp/OptimCostBinary.cpp
   LinearOp/IProjMatrix.cpp
   LinearOp/PrecisionOpMulti.cpp
+  LinearOp/PrecisionOpMultiMatrix.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/Cholesky.cpp
   LinearOp/SPDEOp.cpp
+  LinearOp/SPDEOpMatrix.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp
