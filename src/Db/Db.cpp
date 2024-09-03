@@ -5246,7 +5246,7 @@ Db* Db::createFillRandom(int ndat,
   {
     VectorDouble codes = VH::simulateUniform(ndat);
     for (int idat = 0; idat < ndat; idat++)
-      codes[idat] = floor(ncode * codes[idat]);
+     codes[idat] = floor(ncode * codes[idat]);
     db->addColumns(codes, "code", ELoc::C);
   }
 

@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- In Db::createFilLRandom, use of 'ncode' has been corrected
 - Method computeLogLike() is renamed in computeLogLikelihood()
 - Matrix methods named *Norm* use pointers to Matrix rather than references
 - New method to initialize AStringable(const String& title) which prints the title in display()
