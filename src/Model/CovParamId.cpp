@@ -94,39 +94,51 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
   switch (_elemType.toEnum())
   {
     case EConsElem::E_RANGE:
-      sstr << "Range      :" << "IdCov=" << _icov+1 << "IDir=" << _iv1+1;
+      sstr << "Range      :"
+           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
       break;
 
     case EConsElem::E_ANGLE:
-      sstr << "Angle      :" << "IdCov=" << _icov+1 << "IdAngle=" << _iv1;
+      sstr << "Angle      :"
+           << " IdCov=" << _icov + 1 << " IdAngle=" << _iv1 + 1;
       break;
 
     case EConsElem::E_PARAM:
-      sstr << "Param      :" << "IdCov" << _icov+1;
+      sstr << "Param      :"
+           << " IdCov" << _icov + 1;
       break;
 
     case EConsElem::E_SILL:
-      sstr << "Sill       :" << "IdCov=" << _icov+1 << "Ivar=" << _iv1 << "Jvar=" << _iv2;
+      sstr << "Sill       :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 << " Jvar=" << _iv2;
       break;
 
     case EConsElem::E_SCALE:
-      sstr << "Scale      :" << "IdCov=" << _icov + 1 << "IDir=" << _iv1 + 1;
+      sstr << "Scale      :"
+           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
       break;
 
     case EConsElem::E_T_RANGE:
-      sstr << "Tapering   :" << "IdCov=" << _icov + 1 << "IDir=" << _iv1 + 1;
+      sstr << "Tapering   :"
+           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
       break;
 
     case EConsElem::E_VELOCITY:
-      sstr << "Velocity   :" << "IdCov=" << _icov + 1 << "Ivar=" << _iv1 << "Jvar=" << _iv2;
+      sstr << "Velocity   :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
+           << " Jvar=" << _iv2 + 1;
       break;
 
     case EConsElem::E_SPHEROT:
-      sstr << "S-Rotation :" << "IdCov=" << _icov + 1 << "Ivar=" << _iv1 << "Jvar=" << _iv2;
+      sstr << "S-Rotation :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
+           << " Jvar=" << _iv2 + 1;
       break;
 
     case EConsElem::E_TENSOR:
-      sstr << "Anis-Matrix :" << "IdCov=" << _icov + 1 << "Ivar=" << _iv1 << "Jvar=" << _iv2;
+      sstr << "Anis-Matrix :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
+           << " Jvar=" << _iv2 + 1;
       break;
 
     default:
@@ -138,4 +150,3 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-

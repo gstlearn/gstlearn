@@ -23,10 +23,10 @@ Total Sill     =      1.000
 
 Non-Stationary Parameters
 -------------------------
-Angle      : GRF=1 Str=1 V#1=1
+1 - Angle      : IdCov=1 IdAngle=1
 Functional
 Known Mean(s)     0.000
- ----
+----
 
 
 #NO_DIFF#XXX
