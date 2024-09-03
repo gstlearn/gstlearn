@@ -1187,47 +1187,6 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
   }
 }
 
-/**
- * Perform: 'this' = diag('vec1') %*% 'A' %*% diag('vec2')
- * @param vec1  Input Vector
- * @param vec2  Input Vector
- * @param oper_choice Type of transformation
- */
-void MatrixSparse::prodInnerDiagVecInPlace(const VectorDouble &vec1,const VectorDouble &vec2, int oper_choice)
-{
-  if (! isSquare())
-  {
-    messerr("This method is limited to square matrices");
-    return;
-  }
-  if (getNRows() != (int) vec1.size() || getNRows() != (int) vec2.size())
-  {
-    messerr("Matrix dimension (%d) has to match vector dimensions (%d and %d)",
-            getNRows(), (int) vec1.size(), (int) vec2.size());
-    return;
-  }
-
-  if (isFlagEigen())
-  {
-    // Perform the transformation of the input vector
-    VectorDouble vecp1 = vec1;
-    VectorDouble vecp2 = vec2;
-    VH::transformVD(vecp1, oper_choice);
-    VH::transformVD(vecp2, oper_choice);
-
-    Eigen::Map<const Eigen::VectorXd> vecm1(vecp1.data(), vecp1.size());
-    Eigen::Map<const Eigen::VectorXd> vecm2(vecp2.data(), vecp2.size());
-
-    auto diag1 = vecm1.asDiagonal();
-    auto diag2 = vecm2.asDiagonal();
-
-    _eigenMatrix = diag1 * _eigenMatrix * diag2;
-  }
-  else
-  {
-    messerr("Not implemented");
-  }
-}
 void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
 {
   if (!_checkLink(getNRows(), getNCols(), transpose, a.getNRows(), a.getNCols(),

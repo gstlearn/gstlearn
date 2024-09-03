@@ -207,8 +207,6 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
-  void   prodInnerDiagVecInPlace(const VectorDouble &vec1,const VectorDouble &vec2, int oper_choice);
-
   #ifndef SWIG
   const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
   void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }

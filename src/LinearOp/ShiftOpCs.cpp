@@ -407,7 +407,7 @@ void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
   }
   else 
   {
-    double invsillsq = 1. / sqrt(_getModel()->getCova(0)->getSill(0,0));
+    double invsillsq = 1. / sqrt(_getModel()->getCova(_getIcov())->getSill(0,0));
     for (auto &e:_Lambda)
     {
       e *= invsillsq;
