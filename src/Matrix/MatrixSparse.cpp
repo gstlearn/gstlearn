@@ -598,20 +598,20 @@ void  MatrixSparse::addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen:
     else
       out += _eigenMatrix * in;
   }
-  return;
-  VectorDouble y;
-  if (transpose)
-  {
-    int ncol = getNCols();
-    cs_vector_addToDest_tMx(_csMatrix, ncol, in.data(), out.data());
-  }
   else
   {
-    int nrow = getNRows();
-    cs_vector_addToDest_Mx(_csMatrix, nrow, in.data(), out.data());
+    if (transpose)
+    {
+      int ncol = getNCols();
+      cs_vector_addToDest_tMx(_csMatrix, ncol, in.data(), out.data());
+    }
+    else
+    {
+      int nrow = getNRows();
+      cs_vector_addToDest_Mx(_csMatrix, nrow, in.data(), out.data());
+    }
   }
 }
-
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -954,7 +954,7 @@ void MatrixSparse::prodScalar(double v)
 
 void MatrixSparse::_addProdMatVecInPlaceToDestPtr(const double *x, double *y, bool transpose) const
 {
- if (isFlagEigen())
+  if (isFlagEigen())
   {
     if (transpose)
     {
@@ -975,9 +975,8 @@ void MatrixSparse::_addProdMatVecInPlaceToDestPtr(const double *x, double *y, bo
       cs_vector_addToDest_tMx(_csMatrix, getNCols(), x, y);
     else
       cs_vector_addToDest_Mx(_csMatrix, getNRows(), x, y);
-  }  
+  }
 }
-
 
 /**
  * Returns 'y' = 'this' %*% 'x'
@@ -1106,34 +1105,34 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix *x,
   }
 }
 
-MatrixSparse* prodNormMatMat(const MatrixSparse &a,
-                             const MatrixSparse &m,
+MatrixSparse* prodNormMatMat(const MatrixSparse* a,
+                             const MatrixSparse* m,
                              bool transpose)
 {
-  int nrow = (transpose) ? a.getNCols() : a.getNRows();
-  int ncol = (transpose) ? a.getNRows() : a.getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen() ? 1 : 0);
+  int nrow = (transpose) ? a->getNCols() : a->getNRows();
+  int ncol = (transpose) ? a->getNRows() : a->getNCols();
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a->isFlagEigen() ? 1 : 0);
   mat->prodNormMatMatInPlace(a, m, transpose);
   return mat;
 }
 
-MatrixSparse* prodNormMat(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
+MatrixSparse* prodNormMat(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
 {
-  int nsym = (transpose) ? a.getNCols() : a.getNRows();
-  MatrixSparse *mat = new MatrixSparse(nsym, nsym, a.isFlagEigen() ? 1 : 0);
+  int nsym = (transpose) ? a->getNCols() : a->getNRows();
+  MatrixSparse *mat = new MatrixSparse(nsym, nsym, a->isFlagEigen() ? 1 : 0);
   mat->prodNormMatInPlace(a, vec, transpose);
   return mat;
 }
 
-MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
+MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
                               const VectorDouble &vec,
                               int oper_choice)
 {
-  int nrow = a.getNRows();
-  int ncol = a.getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen() ? 1 : 0);
+  int nrow = a->getNRows();
+  int ncol = a->getNCols();
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a->isFlagEigen() ? 1 : 0);
 
-  if (a.isFlagEigen())
+  if (a->isFlagEigen())
   {
     // Perform the transformation of the input vector
     VectorDouble vecp = vec;
@@ -1141,11 +1140,11 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
 
     Eigen::Map<const Eigen::VectorXd> vecm(vecp.data(), vecp.size());
     auto diag = vecm.asDiagonal();
-    mat->setEigenMatrix(diag * a.getEigenMatrix() * diag);
+    mat->setEigenMatrix(diag * a->getEigenMatrix() * diag);
   }
   else
   {
-    cs* local = cs_matvecnorm(a.getCS(), vec.data(), oper_choice);
+    cs* local = cs_matvecnorm(a->getCS(), vec.data(), oper_choice);
     mat->setCS(local);
     cs_spfree2(local);
   }
@@ -1187,31 +1186,31 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
   }
 }
 
-void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
+void MatrixSparse::prodNormMatInPlace(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
 {
-  if (!_checkLink(getNRows(), getNCols(), transpose, a.getNRows(), a.getNCols(),
+  if (!_checkLink(getNRows(), getNCols(), transpose, a->getNRows(), a->getNCols(),
                   false, vec.size(), 1, false)) return;
 
-  if (isFlagEigen() && a.isFlagEigen())
+  if (isFlagEigen() && a->isFlagEigen())
   {
     if (transpose)
     {
       if (vec.empty())
-        _eigenMatrix = a._eigenMatrix.transpose() * a._eigenMatrix;
+        _eigenMatrix = a->_eigenMatrix.transpose() * a->_eigenMatrix;
       else
       {
         Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-        _eigenMatrix = a._eigenMatrix.transpose() * vecm.asDiagonal() * a._eigenMatrix;
+        _eigenMatrix = a->_eigenMatrix.transpose() * vecm.asDiagonal() * a->_eigenMatrix;
       }
     }
     else
     {
       if (vec.empty())
-        _eigenMatrix = a._eigenMatrix * a._eigenMatrix.transpose();
+        _eigenMatrix = a->_eigenMatrix * a->_eigenMatrix.transpose();
       else
       {
         Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-        _eigenMatrix = a._eigenMatrix * vecm.asDiagonal() * a._eigenMatrix.transpose();
+        _eigenMatrix = a->_eigenMatrix * vecm.asDiagonal() * a->_eigenMatrix.transpose();
       }
     }
   }
@@ -1219,9 +1218,9 @@ void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble&
   {
     cs* res = nullptr;
     if (vec.empty())
-      res = cs_prod_norm_single((transpose) ? 1 : 2, a._csMatrix);
+      res = cs_prod_norm_single((transpose) ? 1 : 2, a->_csMatrix);
     else
-      res = cs_prod_norm_diagonal((transpose) ? 1 : 2, a._csMatrix, vec);
+      res = cs_prod_norm_diagonal((transpose) ? 1 : 2, a->_csMatrix, vec);
     _csMatrix = cs_spfree2(_csMatrix);
     _csMatrix = res;
   }
@@ -1249,28 +1248,28 @@ cs* MatrixSparse::getCSUnprotected() const
 }
 #endif
 
-void MatrixSparse::prodNormMatMatInPlace(const MatrixSparse &a,
-                                         const MatrixSparse &m,
+void MatrixSparse::prodNormMatMatInPlace(const MatrixSparse* a,
+                                         const MatrixSparse* m,
                                          bool transpose)
 {
-  if (!_checkLink(a.getNRows(), a.getNCols(), transpose,
-                  m.getNRows(), m.getNCols(), false,
-                  a.getNRows(), a.getNCols(), !transpose)) return;
+  if (!_checkLink(a->getNRows(), a->getNCols(), transpose,
+                  m->getNRows(), m->getNCols(), false,
+                  a->getNRows(), a->getNCols(), !transpose)) return;
 
-  if (isFlagEigen() && a.isFlagEigen() && m.isFlagEigen())
+  if (isFlagEigen() && a->isFlagEigen() && m->isFlagEigen())
   {
     if (transpose)
     {
-      _eigenMatrix = a._eigenMatrix.transpose() * m._eigenMatrix * a._eigenMatrix;
+      _eigenMatrix = a->_eigenMatrix.transpose() * m->_eigenMatrix * a->_eigenMatrix;
     }
     else
     {
-      _eigenMatrix = a._eigenMatrix * m._eigenMatrix * a._eigenMatrix.transpose();
+      _eigenMatrix = a->_eigenMatrix * m->_eigenMatrix * a->_eigenMatrix.transpose();
     }
   }
   else
   {
-    cs* res = cs_prod_norm((transpose) ? 1 : 2, m._csMatrix, a._csMatrix);
+    cs* res = cs_prod_norm((transpose) ? 1 : 2, m->_csMatrix, a->_csMatrix);
     _csMatrix = cs_spfree2(_csMatrix);
     _csMatrix = res;
   }

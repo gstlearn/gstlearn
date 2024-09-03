@@ -1163,7 +1163,7 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh)
   Sl = MatrixSparse::createFromTriplet(NF_T);
 
   // Operate the product Sl * t(Sl) to get the final matrix Sret
-  Sret = prodNormMat(*Sl, VectorDouble(), false);
+  Sret = prodNormMat(Sl, VectorDouble(), false);
   delete Sl;
 
   // Blank out the contents of the sparse matrix
@@ -1580,16 +1580,8 @@ int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
 {
   int ngparam = _nModelGradParam;
   int napices = getSize();
-  if (iapex < 0 || iapex >= napices)
-  {
-    mesArg("Mesh Apex index", iapex, napices);
-    return -1;
-  }
-  if (igparam < 0 || igparam >= ngparam)
-  {
-    mesArg("Rank of the Model parameter", igparam, ngparam);
-    return -1;
-  }
+  if (!checkArg("Mesh Apex index", iapex, napices)) return -1;
+  if (!checkArg("Rank of the Model parameter", igparam, ngparam)) return -1;
   return napices * igparam + iapex;
 }
 

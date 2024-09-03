@@ -167,22 +167,12 @@ int Indirection::getRToA(int irel) const
 
 bool Indirection::_isValidAbs(int iabs) const
 {
-  if (iabs < 0 || iabs >= getAbsSize())
-  {
-    mesArg("Absolute Rank", iabs, getAbsSize());
-    return false;
-  }
-  return true;
+  return checkArg("Absolute Rank", iabs, getAbsSize());
 }
 
 bool Indirection::_isValidRel(int irel) const
 {
-  if (irel < 0 || irel >= getRelSize())
-  {
-    mesArg("Relative Rank", irel, getRelSize());
-    return false;
-  }
-  return true;
+  return checkArg("Relative Rank", irel, getRelSize());
 }
 
 int Indirection::_getArrayAToR(int iabs) const

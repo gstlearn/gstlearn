@@ -9,7 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixRectangular.hpp"
+#include "Basic/AStringable.hpp"
 #include "Matrix/AMatrix.hpp"
+#include "Basic/VectorHelper.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols)
   : AMatrixDense(nrows, ncols)
@@ -146,4 +148,42 @@ void MatrixRectangular::addColumn(int ncolumn_added)
     for (int icol=0; icol<ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
   delete statsSave;
+}
+
+/**
+ * @brief Create an output Rectangular Matrix by selecting some rows and columns
+ *        of the Input matrix 'A'
+ * 
+ * @param A        Input Rectangular Matrix
+ * @param rowKeep  Set of Rows to be kept (all if not defined)
+ * @param colKeep  Set of Columns to be kept (all if not defined)
+ * @return Pointer to the newly created Rectangular Matrix
+ */
+MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
+                                             const VectorInt& rowKeep,
+                                             const VectorInt& colKeep)
+{
+  VectorInt rows = rowKeep;
+  if (rows.empty()) rows = VH::sequence(A->getNRows());
+  VectorInt cols = colKeep;
+  if (cols.empty()) cols = VH::sequence(A->getNCols());
+
+  int nrows = (int)rows.size();
+  int ncols = (int)cols.size();
+  if (nrows <= 0 || ncols <= 0) return nullptr;
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+  }
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    if (!checkArg("Selected Column index", cols[icol], A->getNCols())) return nullptr;
+  }
+
+  MatrixRectangular* mat = new MatrixRectangular(nrows, ncols);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
+      mat->setValue(irow, icol, A->getValue(rows[irow], cols[icol]));
+  return mat;
 }

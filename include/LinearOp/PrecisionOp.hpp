@@ -108,7 +108,7 @@ public:
 //                             int /*igparam*/){};
 
   #ifndef SWIG
-  void evalPower(const Eigen::VectorXd &inv, Eigen::VectorXd &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
+  void evalPower(const Eigen::VectorXd &inm, Eigen::VectorXd &outm, const EPowerPT& power = EPowerPT::fromKey("ONE"));
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();

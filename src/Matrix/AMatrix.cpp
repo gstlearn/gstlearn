@@ -607,16 +607,16 @@ void AMatrix::prodMatMatInPlace(const AMatrix *x,
  * @param m Matrix M
  * @param transpose True for first implementation, False for the second
  */
-void AMatrix::prodNormMatMatInPlace(const AMatrix &a,
-                                    const AMatrix &m,
+void AMatrix::prodNormMatMatInPlace(const AMatrix* a,
+                                    const AMatrix* m,
                                     bool transpose)
 {
-  int n1 = (transpose) ? a.getNCols() : a.getNRows();
-  int n2 = (transpose) ? a.getNRows() : a.getNCols();
+  int n1 = (transpose) ? a->getNCols() : a->getNRows();
+  int n2 = (transpose) ? a->getNRows() : a->getNCols();
 
-  if (!_checkLink(a.getNRows(), a.getNCols(), transpose,
-                  m.getNRows(), m.getNCols(), false,
-                  a.getNRows(), a.getNCols(), !transpose)) return;
+  if (!_checkLink(a->getNRows(), a->getNCols(), transpose,
+                  m->getNRows(), m->getNCols(), false,
+                  a->getNRows(), a->getNCols(), !transpose)) return;
 
   for (int i = 0; i < n1; i++)
     for (int j = 0; j < n1; j++)
@@ -626,9 +626,9 @@ void AMatrix::prodNormMatMatInPlace(const AMatrix &a,
       for (int k = 0; k < n2; k++)
         for (int l = 0; l < n2; l++)
         {
-          double a_ik = (transpose) ? a.getValue(k,i) : a.getValue(i,k);
-          double a_lj = (transpose) ? a.getValue(l,j) : a.getValue(j,l);
-          value += a_ik * m.getValue(k,l) * a_lj;
+          double a_ik = (transpose) ? a->getValue(k,i) : a->getValue(i,k);
+          double a_lj = (transpose) ? a->getValue(l,j) : a->getValue(j,l);
+          value += a_ik * m->getValue(k,l) * a_lj;
         }
       setValue(i, j, value);
     }
@@ -821,24 +821,14 @@ bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 
 bool AMatrix::_isRowValid(int irow) const
 {
-  if (! _flagCheckAddress) return true;
-  if (irow < 0 || irow >= getNRows())
-  {
-    mesArg("Row index invalid",irow,getNRows());
-    return false;
-  }
-  return true;
+  if (!_flagCheckAddress) return true;
+  return checkArg("Row index invalid", irow, getNRows());
 }
 
 bool AMatrix::_isColumnValid(int icol) const
 {
-  if (! _flagCheckAddress) return true;
-  if (icol < 0 || icol >= getNCols())
-  {
-    mesArg("Column index invalid",icol,getNCols());
-    return false;
-  }
-  return true;
+  if (!_flagCheckAddress) return true;
+  return checkArg("Column index invalid", icol, getNCols());
 }
 
 bool AMatrix::_isIndexValid(int irow, int icol) const
@@ -1121,11 +1111,7 @@ void AMatrix::setDiagonalToConstant(double value)
 VectorDouble AMatrix::getRow(int irow) const
 {
   VectorDouble vect;
-  if (irow < 0 || irow >= getNRows())
-  {
-    mesArg("Incorrect argument 'irow'",irow,getNRows());
-    return vect;
-  }
+  if (!checkArg("Incorrect argument 'irow'", irow, getNRows())) return vect;
 
   for (int icol = 0; icol < getNCols(); icol++)
     vect.push_back(getValue(irow,icol));

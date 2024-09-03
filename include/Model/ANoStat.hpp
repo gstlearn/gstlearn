@@ -136,6 +136,9 @@ protected:
   void _setDbin(const Db* dbin) const { _dbin = dbin; }
   void _setDbout(const Db* dbout) const { _dbout = dbout; }
   bool _isValid(int icas, int rank) const;
+  const Db* _getDbin() const { return _dbin; }
+  const Db* _getDbout() const;
+  const AMesh* _getAMesh() const { return _amesh; }
 
 private:
   static int _understandCode(const String& code,
@@ -149,10 +152,6 @@ private:
 
 private:
   std::vector<CovParamId> _items;
-
-protected:
-  // The following arguments are stored as pointer to ease communication
-  // Their list is established as large as possible (even if all of them are not actually used)
   mutable const AMesh* _amesh;
   mutable const Db*    _dbin;
   mutable const Db*    _dbout;

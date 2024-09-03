@@ -979,12 +979,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
 
 bool CovAniso::_isVariableValid(int ivar) const
 {
-  if (ivar < 0 || ivar >= getNVariables())
-  {
-    mesArg("Rank of the Variable", 1, getNVariables());
-    return false;
-  }
-  return true;
+  return checkArg("Rank of the Variable", ivar, getNVariables());
 }
 
 int CovAniso::getGradParamNumber() const

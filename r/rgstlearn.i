@@ -373,6 +373,13 @@
                      VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
  %{    %}
 
+// This for automatically convert R string to NamingConvention
+%typemap(scoercein) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
+%{
+  if (typeof($input) == "character") $input = NamingConvention($input);
+  if (inherits($input, "ExternalReference")) $input = slot($input,"ref");
+%}
+
 //////////////////////////////////////////////////////////////
 //         C++ library SWIG includes and typemaps           //
 //////////////////////////////////////////////////////////////

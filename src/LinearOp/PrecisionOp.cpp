@@ -311,8 +311,9 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
 
 /**
  * Evaluate with power = ONE
- * @param vecin Input array
- * @param vecout Output array
+ * @param inm Input array
+ * @param outm Output array
+ * @param power Power of the operation
  */
 /* void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {

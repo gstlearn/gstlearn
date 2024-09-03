@@ -210,11 +210,11 @@ bool NoStatArray::isEmpty(int icas) const
   }
   if (icas == 1)
   {
-    if (_dbin == nullptr) return true;
+    if (_getDbin() == nullptr) return true;
   }
   if (icas == 2)
   {
-    if (_dbout == nullptr) return true;
+    if (_getDbout() == nullptr) return true;
   }
   return false;
 }
@@ -268,14 +268,14 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     // From Dbin
 
-    return _dbin->getFromLocator(ELoc::NOSTAT, rank, ipar);
+    return _getDbin()->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
   if (icas == 2)
   {
 
     // From Dbout
 
-    return _dbout->getFromLocator(ELoc::NOSTAT, rank, ipar);
+    return _getDbout()->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
   my_throw("Invalid argument 'icas'");
   return 0.;
@@ -294,13 +294,13 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   }
   else if (icas == 1)
   {
-    if (_dbin == nullptr) return sstr.str();
-    vec = _dbin->getColumnByLocator(ELoc::NOSTAT,ipar,true);
+    if (_getDbin() == nullptr) return sstr.str();
+    vec = _getDbin()->getColumnByLocator(ELoc::NOSTAT,ipar,true);
   }
   else
   {
-    if (_dbout == nullptr) return sstr.str();
-    vec = _dbout->getColumnByLocator(ELoc::NOSTAT,ipar,true);
+    if (_getDbout() == nullptr) return sstr.str();
+    vec = _getDbout()->getColumnByLocator(ELoc::NOSTAT,ipar,true);
   }
 
   // Produce the statistics

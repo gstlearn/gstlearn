@@ -114,29 +114,32 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
   VectorDouble vec;
   if (icas == 0)
   {
+    const AMesh* amesh = _getAMesh();
 
     // From Meshing
 
-    for (int idim = 0; idim < _amesh->getNDim(); idim++)
-      vec.push_back(_amesh->getCenterCoordinate(rank, idim));
+    for (int idim = 0, ndim = amesh->getNDim(); idim < ndim; idim++)
+      vec.push_back(amesh->getCenterCoordinate(rank, idim));
   }
   else if (icas == 1)
   {
 
     // From Dbin
 
-    int ndim = _dbin->getNDim();
+    const Db* dbin = _getDbin();
+    int ndim = dbin->getNDim();
     vec.resize(ndim);
-    _dbin->getCoordinatesPerSampleInPlace(rank, vec);
+    dbin->getCoordinatesPerSampleInPlace(rank, vec);
   }
   else if (icas == 2)
   {
 
     // From Dbout
 
-    int ndim = _dbout->getNDim();
+    const Db* dbout = _getDbout();
+    int ndim = dbout->getNDim();
     vec.resize(ndim);
-    _dbout->getCoordinatesPerSampleInPlace(rank, vec);
+    dbout->getCoordinatesPerSampleInPlace(rank, vec);
   }
   else
   {

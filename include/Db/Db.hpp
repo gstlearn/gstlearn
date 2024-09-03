@@ -440,7 +440,8 @@ public:
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   MatrixRectangular getAllCoordinatesMat() const;
   void   setCoordinate(int iech, int idim, double value);
-  void   setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
+  void setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
+  void setSampleCoordinates(int iech, const VectorDouble& coor);
 
   double getDistance1D(int iech, int jech, int idim=0, bool flagAbs = false) const;
   double getDistance(int iech, int jech) const;
@@ -521,8 +522,9 @@ public:
   void   updZVariable(int iech, int item, const EOperator& oper, double value);
 
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
+  void setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
 
-  bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
+    bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
   bool isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
@@ -653,32 +655,36 @@ public:
 
   VectorDouble getAllColumns(bool useSel = false,
                              bool flagCompress = true) const;
-  VectorDouble getColumns(const VectorString &names = VectorString(),
-                          bool useSel = false,
-                          bool flagCompress = true) const;
+  VectorDouble getColumns(const VectorString& names   = VectorString(),
+                          bool useSel                 = false,
+                          bool flagCompress           = true,
+                          const VectorDouble& origins = VectorDouble()) const;
   VectorVectorDouble getColumnsAsVVD(const VectorString &names = VectorString(),
                                      bool useSel = false,
                                      bool flagCompress = true) const;
   MatrixRectangular getColumnsAsMatrix(const VectorString &names,
                                        bool useSel = false,
                                        bool flagCompress = true) const;
-  VectorDouble getColumnsByColIdx(const VectorInt &icols = VectorInt(),
-                                  bool useSel = false,
-                                  bool flagCompress = true) const;
+  VectorDouble getColumnsByColIdx(const VectorInt& icols = VectorInt(),
+                                  bool useSel            = false,
+                                  bool flagCompress      = true,
+                                  const VectorDouble& origins = VectorDouble()) const;
   VectorDouble getColumnsByColIdxInterval(int icol_beg,
                                           int icol_end,
                                           bool useSel = false,
                                           bool flagCompress = true) const;
-  VectorDouble getColumnsByLocator(const ELoc &locatorType,
-                                   bool useSel = false,
-                                   bool flagCompress = true) const;
-  VectorDouble getColumnsByUID(const VectorInt &iuids,
-                               bool useSel = false,
-                               bool flagCompress = true) const;
-  VectorDouble getColumnsByUIDRange(int iuid_beg,
-                                    int iuid_end,
-                                    bool useSel = false,
-                                    bool flagCompress = true) const;
+  VectorDouble getColumnsByLocator(const ELoc& locatorType,
+                      bool useSel                 = false,
+                      bool flagCompress           = true,
+                      const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByUID(const VectorInt& iuids,
+                               bool useSel       = false,
+                               bool flagCompress = true,
+                               const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByUIDInterval(int iuid_beg,
+                                       int iuid_end,
+                                       bool useSel       = false,
+                                       bool flagCompress = true) const;
   /**@}*/
 
   void setAllColumns(const VectorVectorDouble& tabs);
@@ -854,7 +860,8 @@ public:
   VectorInt getSampleRanks() const;
   Table printOneSample(int iech,
                        const VectorString& names = VectorString(),
-                       bool excludeCoordinates   = true) const;
+                       bool excludeCoordinates   = true,
+                       bool skipTitle            = false) const;
 
 protected:
   /// Interface for ASerializable

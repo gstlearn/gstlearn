@@ -412,13 +412,7 @@ void AnamHermite::setPsiHn(int i, double psi_hn)
 
 bool AnamHermite::_isIndexValid(int i) const
 {
-  int nbpoly = getNbPoly();
-  if (i < 0 || i >= nbpoly)
-  {
-    mesArg("Hermite Polynomial Index",i,nbpoly);
-    return false;
-  }
-  return true;
+  return checkArg("Hermite Polynomial Index", i, getNbPoly());
 }
 
 void AnamHermite::_defineBounds(double pymin,

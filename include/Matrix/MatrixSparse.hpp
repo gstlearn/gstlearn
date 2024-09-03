@@ -114,7 +114,7 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   virtual VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const override;
   /*! Perform y = 'this' %*% x */
   virtual VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const override;
-  /*! Multiply a matrix by another and stored in 'this' */
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
                                  bool transposeX = false,
@@ -154,11 +154,11 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMatInPlace(const MatrixSparse& y, double cx = 1., double cy = 1.);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatMatInPlace(const MatrixSparse &a,
-                                     const MatrixSparse &m,
+  virtual void prodNormMatMatInPlace(const MatrixSparse* a,
+                                     const MatrixSparse* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const MatrixSparse &a,
+  virtual void prodNormMatInPlace(const MatrixSparse* a,
                                   const VectorDouble& vec = VectorDouble(),
                                   bool transpose = false);
 
@@ -183,7 +183,7 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   static void dumpElements(const String& title, int ifrom, int ito);
 
   /*! Set all the values of the Matrix with random values */
-  void fillRandom(int seed = 432432, double zeroPercent = 0.1);
+  void fillRandom(int seed = 432432, double zeroPercent = 0);
 
   // Cholesky functions
   int    computeCholesky();
@@ -283,15 +283,15 @@ GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
 
 /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSparse* prodNormMatMat(const MatrixSparse &a,
-                                             const MatrixSparse &m,
+GSTLEARN_EXPORT MatrixSparse* prodNormMatMat(const MatrixSparse* a,
+                                             const MatrixSparse* m,
                                              bool transpose = false);
 /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-GSTLEARN_EXPORT MatrixSparse* prodNormMat(const MatrixSparse& a,
+GSTLEARN_EXPORT MatrixSparse* prodNormMat(const MatrixSparse* a,
                                           const VectorDouble& vec = VectorDouble(),
                                           bool transpose = false);
 /*! Product 'Diag(vec)' %*% 'A' %*% 'Diag(vec)' */
-GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse& a,
+GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
                                               const VectorDouble& vec,
                                               int oper_choice = 1);
 

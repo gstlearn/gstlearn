@@ -490,6 +490,36 @@
   }
 }
 
+
+//////////////////////////////////////////////////////////////
+//                Specific additionnal typemaps             //
+//////////////////////////////////////////////////////////////
+
+// This for automatically converting R string to NamingConvention
+
+%typemap(in) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
+{
+  String value;
+  NamingConvention* localNC=nullptr;
+  int myres = SWIG_AsVal_std_string($input, &value);
+  if (SWIG_IsOK(myres))
+  {
+    // TODO: Memory leak
+    localNC = new NamingConvention(value);
+  }
+  else
+  {
+    myres = SWIG_ConvertPtr($input, (void **)(&localNC), SWIGTYPE_p_NamingConvention,  0  | 0);
+    if (!SWIG_IsOK(myres)) {
+      %argument_fail(myres, "$type", $symname, $argnum);
+    }
+    if (!localNC) {
+      SWIG_exception_fail(SWIG_ArgError(myres), "in method $symname, invalid null reference of type $type");
+    }
+  }
+  $1 = reinterpret_cast<NamingConvention *>(localNC);
+}
+
 //////////////////////////////////////////////////////////////
 //         C++ library SWIG includes and typemaps           //
 //////////////////////////////////////////////////////////////
