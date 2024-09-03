@@ -2377,7 +2377,8 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   double quad = VH::innerProduct(Z, Cm1Zc);
 
   // Derive the log-likelihood
-  double loglike = -0.5 * (logdet + quad + nvar * nech * log(GV_PI));
+  int size = (int) Z.size();
+  double loglike = -0.5 * (logdet + quad + size * log(GV_PI));
 
   // Optional printout
   if (verbose)
