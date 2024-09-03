@@ -112,7 +112,7 @@ public:
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
-  void evalSimulate(VectorDouble& in, VectorDouble& out);
+  void evalSimulate(const VectorDouble& in, VectorDouble& out);
 
   int  getSize() const { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}

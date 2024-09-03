@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "Basic/AStringable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/VectorEigen.hpp"
 #include "Model/ANoStat.hpp"
@@ -74,7 +75,8 @@
   }\
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
-                                   const std::vector<const AMesh*>& meshes)
+                                   const std::vector<const AMesh*>& meshes,
+                                   bool buildOp)
   : _pops()
   , _invCholSills()
   , _cholSills()
@@ -83,6 +85,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   , _isValid(false)
   , _covList() 
   , _allStat(true)
+  , _ready(false)
 {
   if (! _isValidModel(model)) return;
 
@@ -114,6 +117,36 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
     }
   }
   _buildMatrices();
+
+  if(buildOp)
+  {
+    buildQop();
+  }
+}
+
+void PrecisionOpMulti::buildQop()
+{
+  _buildQop();
+  _ready = true;
+}
+
+bool PrecisionOpMulti::_checkReady() const
+{
+  if (!_ready)
+  {
+    messerr("Operator has not been built. Computation has not been performed.");
+    messerr("Call the method buildQop to make the PrecisionOpMulti ready for use");
+  }
+  return _ready;
+}
+
+
+void PrecisionOpMulti::_buildQop()
+{
+  for (int i = 0, number = _getNCov(); i < number; i++)
+  {
+    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i]));
+  }
 }
 PrecisionOpMulti::~PrecisionOpMulti()
 {
@@ -175,16 +208,9 @@ void PrecisionOpMulti::_popsClear()
     delete _pops[i];
 }
 
-bool PrecisionOpMulti::_matchModelAndMeshes()
+bool PrecisionOpMulti::_matchModelAndMeshes() const 
 {
   if (_getNCov() != _getNMesh()) return false;
-
-  // Create the vector of PrecisionOp
-  _popsClear();
-  for (int i = 0, number = _getNCov(); i < number; i++)
-  {
-    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i]));
-  }
   return true;
 }
 
@@ -295,6 +321,17 @@ int PrecisionOpMulti::_buildMatrices()
   return 0;
 }
 
+void PrecisionOpMulti::makeReady()
+{
+  _makeReady();
+}
+
+void PrecisionOpMulti::_makeReady()
+{
+  for (auto &e : _pops)
+    e->makeReady();
+}
+
 int PrecisionOpMulti::size(int imesh) const 
 { 
   if (imesh < 0 || imesh >= _getNMesh()) return 0;
@@ -327,6 +364,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
 int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
                           Eigen::VectorXd& vecout) const
 {
+  if (!_checkReady()) return 1;
   if (_getNVar() > 1)
   {
     _workTot.resize(vecin.size());
@@ -337,7 +375,7 @@ int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
   }
   else 
   {
-    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,1,ivar,jvar)
+    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,1,0,0)
   }
 }
 /**
@@ -349,11 +387,13 @@ int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
 int PrecisionOpMulti::_addSimulateInPlace(const Eigen::VectorXd& vecin,
                                                 Eigen::VectorXd& vecout)
 {
+  if (!_checkReady()) return 1;
   EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,*y,jvar,nvar,ivar,jvar)
 }
 
 VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
 {
+  if (!_checkReady()) return VectorDouble(); 
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(),vec.size());
   Eigen::VectorXd out(vec.size());
   VectorEigen::fill(out,0.);

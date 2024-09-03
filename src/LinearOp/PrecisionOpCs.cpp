@@ -223,13 +223,6 @@ void PrecisionOpCs::_buildQ(bool flagDecompose)
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                        static_cast<int>(blin.size()), blin.data());
   
-/*   if (!flagNormalized)
-  { 
-    //TODO : implement the nostat SILL case
-    double sill = getCova()->getSill(0,0);
-    VectorDouble vect(_Q->getNRows(),1. / sqrt(sill));
-    _Q->prodNormDiagVecInPlace(vect);
-  } */
   // Prepare the Cholesky decomposition
   if (flagDecompose)
     _Q->computeCholesky();

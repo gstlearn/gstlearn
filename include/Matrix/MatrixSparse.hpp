@@ -207,6 +207,7 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
+  void   prodInnerDiagVecInPlace(const VectorDouble &vec1,const VectorDouble &vec2, int oper_choice);
 
   #ifndef SWIG
   const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
@@ -226,9 +227,13 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
 #ifndef SWIG
   protected:
   virtual int _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const;
+                          Eigen::VectorXd& outv) const override;
 #endif
 
+#ifndef SWIG
+  public : 
+  void setDiagonal(const Eigen::VectorXd& vec);
+#endif
 protected:
   /// Interface for AMatrix
   bool _isPhysicallyPresent(int irow, int icol) const override
@@ -296,3 +301,11 @@ GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse& a,
 /// Manage global flag for EIGEN
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
+
+
+// Not exported method
+
+#ifndef SWIG
+GSTLEARN_EXPORT Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
+                                                 const Eigen::SparseMatrix<double>& M);
+#endif

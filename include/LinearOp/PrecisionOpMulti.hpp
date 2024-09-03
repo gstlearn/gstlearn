@@ -33,15 +33,20 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 {
   public:
   PrecisionOpMulti(Model* model = nullptr, 
-                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>());
+                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>(),
+                   bool buildOp = true);
   PrecisionOpMulti(const PrecisionOpMulti &m)= delete;
   PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMulti();
   MatrixSquareSymmetric getInvCholSill(int icov) const {return _invCholSills[icov];}
-   int getSize() const override;
+  int getSize() const override;
+  void makeReady();
 
+  protected:
+  void buildQop();
   #ifndef SWIG
   protected:
+
   int    _addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const override;
   int _addSimulateInPlace(const Eigen::VectorXd& vecin,
@@ -55,15 +60,20 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 
   protected:  
   int size(int imesh) const;
+  int  _getNCov() const;
+  int _getCovInd(int i)const { return _covList[i];}
+  int  _getNVar() const;
+  int  _getNMesh() const;
 
   private:
+  bool _checkReady() const;
+  virtual void _buildQop();
+  virtual void _makeReady();
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
   bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct];}
-  bool _matchModelAndMeshes();
-  int  _getNVar() const;
-  int  _getNCov() const;
-  int  _getNMesh() const;
+  bool _matchModelAndMeshes() const;
+  
   int  _buildGlobalMatricesStationary(int icov);
   int  _buildLocalMatricesNoStat(int icov);
   int  _buildMatrices();
@@ -87,6 +97,8 @@ private:
   VectorInt _covList;
   VectorInt _nmeshList;
   bool _allStat;
+  bool _ready;
+
 
 private:
   mutable std::vector<Eigen::VectorXd> _works;

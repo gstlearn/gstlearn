@@ -10,24 +10,19 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "gstlearn_export.hpp"
-#include "Model/Model.hpp"
-#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
 #endif
-class Model;
 
+class Model;
 /**
- * Class to store objects for SPDE
+ * Class for the precision matrix of the latent field in SPDE (matricial form)
  */
-class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public PrecisionOpMulti, public MatrixSparse
+class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public MatrixSparse ,  public PrecisionOpMulti
 {
 public:
   PrecisionOpMultiMatrix(Model* model = nullptr, 
@@ -39,9 +34,15 @@ public:
   #ifndef SWIG
   
   protected:
-    int    _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
-
+  int    _addToDest(const Eigen::VectorXd& inv,
+                        Eigen::VectorXd& outv) const override;
   #endif
+
+  private:
+  MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q);
+  MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q);
+  void _prepareMatrix();
+  void _makeReady() override;
+  void _buildQop() override;
 
 };

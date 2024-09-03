@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Matrix/VectorEigen.hpp"
 #include "geoslib_old_f.h"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -24,7 +23,6 @@
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/MatrixBase.h>
-#include <math.h>
 
 PrecisionOp::PrecisionOp()
   : _shiftOp(nullptr)
@@ -154,7 +152,7 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
   return new PrecisionOp(shiftop, cova, verbose);
 }
 
-void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& out)
+void PrecisionOp::evalSimulate(const VectorDouble& whitenoise, VectorDouble& out)
 {
   
   Eigen::VectorXd vect(out.size());
