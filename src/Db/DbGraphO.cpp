@@ -107,8 +107,8 @@ DbGraphO* DbGraphO::createFromMatrix(int nech,
     delete dbgraphO;
     return nullptr;
   }
-  message("arcs\n");
-  message("nrows=%d ncols=%d\n", MatArcs.getNRows(), MatArcs.getNCols());
+  //message("arcs\n");
+  //message("nrows=%d ncols=%d\n", MatArcs.getNRows(), MatArcs.getNCols());
   return dbgraphO;
 }
 
