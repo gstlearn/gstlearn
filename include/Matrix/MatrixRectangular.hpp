@@ -43,10 +43,13 @@ public:
                                          int ncol,
                                          bool byCol = false,
                                          bool invertColumnOrder = false);
-  static MatrixRectangular* glue(const AMatrix *A1,
-                                 const AMatrix *A2,
+  static MatrixRectangular* glue(const AMatrix* A1,
+                                 const AMatrix* A2,
                                  bool flagShiftRow,
                                  bool flagShiftCol);
+  static MatrixRectangular* sample(const AMatrix* A,
+                                   const VectorInt& rowKeep = VectorInt(),
+                                   const VectorInt& colKeep = VectorInt());
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);

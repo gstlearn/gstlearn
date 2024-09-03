@@ -641,12 +641,7 @@ VectorInt Grid::getCenterIndices() const
 
 bool Grid::_isSpaceDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= _nDim)
-  {
-    mesArg("Argument 'idim' is invalid",idim,_nDim);
-    return false;
-  }
-  return true;
+  return checkArg("Argument 'idim' is invalid", idim, _nDim);
 }
 
 void Grid::_allocate(void)

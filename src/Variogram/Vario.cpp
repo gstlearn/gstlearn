@@ -1790,35 +1790,20 @@ int Vario::getDirAddress(int idir,
 
 bool Vario::_isVariableValid(int ivar, bool flagCheck) const
 {
-  if (! flagCheck) return true;
-  if (ivar < 0 || ivar >= _nVar)
-  {
-    mesArg("Variable Index",ivar,_nVar);
-    return false;
-  }
-  return true;
+  if (!flagCheck) return true;
+  return checkArg("Variable Index", ivar, _nVar);
 }
 
 bool Vario::_isBivariableValid(int ijvar, bool flagCheck) const
 {
-  if (! flagCheck) return true;
-  if (ijvar < 0 || ijvar >= _nVar * _nVar)
-  {
-    mesArg("Multivariate Index",ijvar,_nVar * _nVar);
-    return false;
-  }
-  return true;
+  if (!flagCheck) return true;
+  return checkArg("Multivariate Index", ijvar, _nVar * _nVar);
 }
 
 bool Vario::_isDirectionValid(int idir, bool flagCheck) const
 {
-  if (! flagCheck) return true;
-  if (idir < 0 || idir >= getDirectionNumber())
-  {
-    mesArg("Direction Index",idir,getDirectionNumber());
-    return false;
-  }
-  return true;
+  if (!flagCheck) return true;
+  return checkArg("Direction Index", idir, getDirectionNumber());
 }
 
 bool Vario::_isAddressValid(int idir, int i, bool flagCheck) const

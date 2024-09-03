@@ -28,6 +28,7 @@ PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
 
 PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
 {
+  delete _Q;
 }
 
 int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
@@ -127,8 +128,13 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
 
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
-  MatrixSparse* AtAsVar = prodNormMat(*Amult, invsigma, true);
+  MatrixSparse* AtAsVar = prodNormMat(Amult, invsigma, true);
   _Q = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
+
+  // Free core allocated
+  delete Amult;
+  delete Qmult;
+  delete AtAsVar;
 
   // Prepare the Cholesky decomposition
   _Q->computeCholesky();

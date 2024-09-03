@@ -351,12 +351,7 @@ void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
 
 bool AMesh::_isSpaceDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= _nDim)
-  {
-    mesArg("SPace Dimension Index",idim,_nDim);
-    return false;
-  }
-  return true;
+  return checkArg("SPace Dimension Index", idim, _nDim);
 }
 
 VectorDouble AMesh::getExtrema(int idim) const

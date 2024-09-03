@@ -360,14 +360,14 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTLTU(int neq,
  **
  ** \param[in]  mode   0: TL (upper); 1: TL (lower)
  ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Triangular matrix (lower part)
+ ** \param[in]  tl     Triangular matrix (any part)
  **
  *****************************************************************************/
 MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
                                                                  int neq,
                                                                  const VectorDouble &tl)
 {
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq);
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(neq);
 
   mat->fill(0.);
 
@@ -376,11 +376,11 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
     {
       if (mode == 0)
       {
-        if (j <= i) mat->setValue(i,j,TL(i,j));
+        if (j <= i) mat->setValue(i, j, TL(i, j));
       }
       else
       {
-        if (j >= i) mat->setValue(i,j,TL(j,i));
+        if (j >= i) mat->setValue(i, j, TL(j, i));
       }
     }
   return mat;
@@ -671,7 +671,7 @@ double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
   double det = 0.;
   for (int i = 0; i < _factor.rows(); i++)
     det += log(diag[i]);
-  return det;
+  return 2. * det;
 }
 
 /*****************************************************************************/
@@ -1167,4 +1167,42 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
       tabout.setValue(i, j, value);
     }
   return 0;
+}
+
+/**
+ * @brief Create an output Square Symmetric Matrix by selecting some rows (and columns)
+ *        of the Input matrix 'A'
+ *
+ * @param A        Input Square Symmetric Matrix
+ * @param rowKeep  Set of Rows (same for columns) to be kept
+ * @return Pointer to the newly created Square Symmetric Matrix
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
+                                                     const VectorInt& rowKeep)
+{
+  VectorInt rows = rowKeep;
+  if (rows.empty()) rows = VH::sequence(A->getNRows());
+
+  int nrows = (int)rows.size();
+  if (nrows <= 0) return nullptr;
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+  }
+
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrows);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol <= irow; icol++)
+      mat->setValue(irow, icol, A->getValue(rows[irow], rows[icol]));
+  return mat;
+}
+
+MatrixSquareSymmetric* MatrixSquareSymmetric::createRandomDefinitePositive(int neq, int seed)
+{
+  MatrixSquareSymmetric local(neq);
+  local.fillRandom(seed);
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(neq);
+  mat->prodMatMatInPlace(&local, &local, true);
+  return mat;
 }

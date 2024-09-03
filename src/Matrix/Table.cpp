@@ -192,9 +192,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Title
   if (!_skipTitle)
   {
-    if (_title.empty())
-      sstr << toTitle(1, "Table contents");
-    else
+    if (! _title.empty())
       sstr << toTitle(1, _title.c_str());
   }
 

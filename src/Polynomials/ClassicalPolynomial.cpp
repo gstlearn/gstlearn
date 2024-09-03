@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
@@ -187,7 +186,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   swap1 = &work;
   swap2 = &work2;
 
-  outv.fill(0);
+  VectorEigen::fill(outv, 0.);
 
   for(int i = 0 ; i< n; i++)
   {
@@ -218,7 +217,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       const VectorDouble& inv,
                                       VectorDouble& outv,
                                       int iapex,
-                                      int igparam)const
+                                      int igparam)
 {
  //TODO Call the Eigen::VectorXd function
  messerr("evalDerivOp is not implemented for vectorsDouble");
@@ -261,7 +260,7 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
                                            VectorDouble& outv,
                                            const VectorVectorDouble& workpoly,
                                            int iapex,
-                                           int igparam) const
+                                           int igparam)
 {
    //TODO Call the Eigen::VectorXd function (try to put it in the mother class Polynomial)
   messerr("evalDerivOpOptim is not implemented for vectorsDouble");

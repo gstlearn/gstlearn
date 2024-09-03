@@ -1,48 +1,170 @@
 
+First Test
+==========
+Compare:
+- Kriging with traditional code
+- Estimation performed with 'KrigingCalcul'
+- Option: Bayesian
+
 Using Standard Kriging procedure
-================================
-
-Bayesian Drift coefficients
-===========================
-Prior Mean      -0.445     -0.577
-Prior Variance-Covariance
-                  [,1]       [,2]
-       [1,]      0.274      0.000
-       [2,]      0.000      0.413
-Posterior Mean      -0.305     -0.417
-Posterior Variance-Covariance
-                  [,1]       [,2]
-       [1,]      0.128      0.000
-       [2,]      0.000      0.103
-
-Sample 1
---------
-Bayes.z-1.estim     -0.231
-Bayes.z-2.estim     -0.573
-Bayes.z-1.stdev      1.137
-Bayes.z-2.stdev      0.913
+--------------------------------
+Kriging.z-1.estim      0.357
+Kriging.z-2.estim     -0.009
+Kriging.z-1.stdev      2.341
+Kriging.z-2.stdev      1.895
+ Kriging.z-1.varz      1.695
+ Kriging.z-2.varz      1.110
 
 Using Schur class
-=================
-Prior Mean
-    -0.445    -0.577
-Prior Variance-Covariance Matrix
-- Number of rows    = 2
-- Number of columns = 2
-               [,  0]    [,  1]
-     [  0,]     0.274     0.000
-     [  1,]     0.000     0.413
-Posterior Mean
-    -0.160    -0.531
-Posterior Variance-Covariance Matrix
-- Number of rows    = 2
-- Number of columns = 2
-               [,  0]    [,  1]
-     [  0,]     0.128     0.000
-     [  1,]     0.000     0.103
+-----------------
 Kriging Value(s)
-    -0.165    -0.625
+     0.357    -0.009
 Standard Deviation of Estimation Error
-     1.137     0.867
+     2.341     1.895
 Variance of Estimator
-     0.572     0.352
+     1.695     1.110
+
+List of arrays used in 'KrigingCalcul'
+--------------------------------------
+
+General Parameters
+Number of Covariance Rows = 6
+Number of Drift equations = 2
+Number of Right_Hand sides = 2
+Working with Unknown Mean(s)
+
+External Pointers
+ - Sigma00 (2, 2)
+ - Sigma (6, 6)
+ - Sigma0 (6, 2)
+ - X (6, 2)
+ - X0 (2, 2)
+ - Z (6)
+ - BetaRef (2)
+
+Internal Memory (retrievable)
+ - Zstar (2)
+ - LambdaSK (6, 2)
+ - LambdaUK (6, 2)
+ - MuUK (2, 2)
+ - Stdv (2, 2)
+ - VarZUK (2, 2)
+
+Internal Memory (hidden)
+ - XtInvSigma (2, 6)
+ - Y0 (2, 2)
+ - InvSigmaSigma0 (6, 2)
+ - InvSigma (6, 6)
+ - Sigmac (2, 2)
+
+Second Test
+===========
+Compare the Collocated Option (in Unique Neighborhood):
+- using Standard Kriging on the Complemented Data Set
+- using 'KrigingCalcul' on the Complemented Data Set
+- using 'KrigingCalcul' on Standard Data Set adding Collocated Option
+
+Using Standard Kriging procedure
+--------------------------------
+Kriging.z-1.estim     -1.003
+Kriging.z-2.estim      1.161
+Kriging.z-1.stdev      0.792
+Kriging.z-2.stdev      0.000
+ Kriging.z-1.varz      4.363
+ Kriging.z-2.varz      3.084
+
+With complemented input Data Base
+---------------------------------
+Kriging Value(s)
+    -1.003     1.161
+Standard Deviation of Estimation Error
+     0.792     0.000
+Variance of Estimator
+     4.363     3.084
+
+List of arrays used in 'KrigingCalcul'
+--------------------------------------
+
+General Parameters
+Number of Covariance Rows = 7
+Number of Drift equations = 2
+Number of Right_Hand sides = 2
+Working with Unknown Mean(s)
+
+External Pointers
+ - Sigma00 (2, 2)
+ - Sigma (7, 7)
+ - Sigma0 (7, 2)
+ - X (7, 2)
+ - X0 (2, 2)
+ - Z (7)
+ - BetaRef (2)
+
+Internal Memory (retrievable)
+ - Zstar (2)
+ - LambdaSK (7, 2)
+ - LambdaUK (7, 2)
+ - MuUK (2, 2)
+ - Stdv (2, 2)
+ - VarZUK (2, 2)
+
+Internal Memory (hidden)
+ - XtInvSigma (2, 7)
+ - Y0 (2, 2)
+ - InvSigmaSigma0 (7, 2)
+ - InvSigma (7, 7)
+ - Sigmac (2, 2)
+
+With Collocated Option
+----------------------
+Kriging Value(s)
+    -1.003     1.161
+Standard Deviation of Estimation Error
+     0.792     0.000
+Variance of Estimator
+     4.363     3.084
+
+List of arrays used in 'KrigingCalcul'
+--------------------------------------
+
+General Parameters
+Number of Covariance Rows = 6
+Number of Drift equations = 2
+Number of Right_Hand sides = 2
+Number of Collocated Variables = 1
+Rank of Collocated Variables:         1
+Working with Unknown Mean(s)
+
+External Pointers
+ - Sigma00 (2, 2)
+ - Sigma (6, 6)
+ - Sigma0 (6, 2)
+ - X (6, 2)
+ - X0 (2, 2)
+ - Z (6)
+ - BetaRef (2)
+ - Zp (2)
+
+Internal Memory (retrievable)
+ - Zstar (2)
+ - LambdaSK (6, 2)
+ - LambdaUK (6, 2)
+ - MuUK (2, 2)
+ - Stdv (2, 2)
+ - VarZUK (2, 2)
+
+Internal Memory (hidden)
+ - XtInvSigma (2, 6)
+ - Y0 (2, 2)
+ - InvSigmaSigma0 (6, 2)
+ - InvSigma (6, 6)
+ - Sigmac (2, 2)
+
+Internal Memory (for Collocated Cokriging only)
+ - Sigma00pp (1, 1)
+ - Sigma00p (1, 2)
+ - Sigma0p (6, 1)
+ - X0p (1, 2)
+ - Y0p (1, 2)
+ - Z0p (1)
+ - Lambda0 (1, 2)

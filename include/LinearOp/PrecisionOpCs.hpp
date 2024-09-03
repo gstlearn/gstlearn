@@ -44,7 +44,6 @@ public:
   void makeReady() override;
 
   double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
-
   
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   #ifndef SWIG

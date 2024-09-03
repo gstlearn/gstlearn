@@ -122,8 +122,8 @@ public:
   /*! Multiply 'this' by matrix 'y' and store in 'this'*/
   void prodMatInPlace(const AMatrix* matY, bool transposeY = false);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
-  void prodNormMatMatInPlace(const AMatrix &a,
-                             const AMatrix &m,
+  void prodNormMatMatInPlace(const AMatrix* a,
+                             const AMatrix* m,
                              bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
   void prodNormMatInPlace(const AMatrix &a,
@@ -195,7 +195,7 @@ public:
   void dumpElements(const String& title, int ifrom, int ito) const;
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
-  void fillRandom(int seed = 432432, double zeroPercent = 0.1);
+  void fillRandom(int seed = 432432, double zeroPercent = 0);
   void setValues(const VectorDouble& values, bool byCol=true);
   double getMeanByColumn(int icol) const;
   double getMinimum() const;
