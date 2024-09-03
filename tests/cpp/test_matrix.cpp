@@ -664,7 +664,7 @@ int main(int argc, char *argv[])
   mestitle(0,"Cholesky Log Determinant");
   message("Log Determinant Sparse (No Eigen Library)   = %lf\n", MSNoEig->computeCholeskyLogDeterminant());
   message("Log Determinant Dense  (traditional method) = %lf\n", log(MEig->determinant()));
-  message("Log Determinant Dense  (Eigen Library)      = %lf\n",    2. * MEig->computeCholeskyLogDeterminant());
+  message("Log Determinant Dense  (Eigen Library)      = %lf\n", MEig->computeCholeskyLogDeterminant());
 
   // Compute Cholesky factorization (for dense matrix (Eigen library)
   mestitle(0,"Cholesky Decomposition for Dense matrices");
@@ -698,7 +698,7 @@ int main(int argc, char *argv[])
 
   // Product by Diagonal built from a vector
 
-  MatrixSparse* MSNDEig = prodNormDiagVec(*MSEig, B, 1);
+  MatrixSparse* MSNDEig = prodNormDiagVec(MSEig, B, 1);
   message("Product by Diagonal from Vector (Eigen)\n");
   MSNDEig->display();
   delete MSNDEig;
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
   MSEig->prodNormDiagVecInPlace(B, 2);
   MSEig->display();
 
-  MatrixSparse* MSNDNoEig = prodNormDiagVec(*MSNoEig, B, 1);
+  MatrixSparse* MSNDNoEig = prodNormDiagVec(MSNoEig, B, 1);
   message("Product by Diagonal from Vector (No Eigen)\n");
   MSNDNoEig->display();
   delete MSNDNoEig;

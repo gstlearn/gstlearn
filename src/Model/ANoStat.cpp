@@ -593,17 +593,18 @@ bool ANoStat::_isValid(int icas, int rank) const
       break;
 
     case 2:
-      if (_dbout == nullptr)
+      const Db* dbout = _getDbout();
+      if (dbout == nullptr)
       {
         messerr("Checking the validity of the argument");
         messerr("Dbout: This requires '_dbout' to be defined beforehand");
         return false;
       }
-      if (rank < 0 || rank >= _dbout->getSampleNumber(0))
+      if (rank < 0 || rank >= dbout->getSampleNumber(0))
       {
         messerr("Check the validity of the argument");
         messerr("Dbout: 'rank' (%d) should be smaller than number of samples (%d)",
-                rank, _dbout->getSampleNumber(0));
+                rank, dbout->getSampleNumber(0));
         return false;
       }
       break;
@@ -672,4 +673,10 @@ void ANoStat::checkCode(const String& code)
   message("ICOV = %d\n", icov+1);
   message("IV1  = %d\n", iv1+1);
   message("IV2  = %d\n", iv2+1);
+}
+
+const Db* ANoStat::_getDbout() const
+{
+  if (_dbout == nullptr && _dbin != nullptr) return _dbin;
+  return _dbout;
 }

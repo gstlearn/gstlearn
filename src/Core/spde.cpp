@@ -3152,7 +3152,7 @@ static int st_build_QCov(SPDE_Matelem &Matelem)
       // Sill(icov)_ii * Q(icov) + A^t(icov) * E_ii * A(icov)
       B0 = st_extract_Q1_nugget(ivar, ivar, &nrows, &ncols);
       if (B0 == nullptr) goto label_end;
-      Bi = prodNormMatMat(*B0, *(Matelem.Aproj), true);
+      Bi = prodNormMatMat(B0, Matelem.Aproj, true);
       if (Bi == nullptr) goto label_end;
       QCov[ivar]->Q = MatrixSparse::addMatMat(Matelem.QC->Q, Bi, st_get_isill(icov0, ivar, ivar));
       if (QCov[ivar]->Q == nullptr) goto label_end;
@@ -3183,7 +3183,7 @@ static int st_build_QCov(SPDE_Matelem &Matelem)
         // Sill(icov)_ii * Q(icov) + A^t(icov) * Q1_dd_ii * A(icov)
         B0 = st_extract_Q1_hetero(ivar, ivar, 1, 1, &nrows, &ncols);
         if (B0 == nullptr) goto label_end;
-        Bi = prodNormMatMat(*B0, *(Matelem.Aproj), true);
+        Bi = prodNormMatMat(B0, Matelem.Aproj, true);
         if (Bi == nullptr) goto label_end;
         QCov[ivar]->Q = MatrixSparse::addMatMat(Matelem.QC->Q, Bi, st_get_isill(icov0, ivar, ivar));
         if (QCov[ivar]->Q == nullptr) goto label_end;

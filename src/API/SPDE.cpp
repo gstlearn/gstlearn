@@ -632,7 +632,7 @@ double SPDE::computeQuad() const
   return _precisionsKrig->computeQuadratic(wm);
 }
 
-double SPDE::_computeLogLike(int nbsimu, int seed) const
+double SPDE::_computeLogLikelihood(int nbsimu, int seed) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -650,7 +650,7 @@ double SPDE::_computeLogLike(int nbsimu, int seed) const
 /**
  * Calculate the Log-Likelihood profiling the Drift parameters
  */
-double SPDE::computeLogLike(int nbsimu, int seed) const
+double SPDE::computeLogLikelihood(int nbsimu, int seed) const
 {
   VectorDouble dataVect;
   bool useSel = true;
@@ -692,7 +692,7 @@ double SPDE::computeLogLike(int nbsimu, int seed) const
   // so driftCoeffs have to be recomputed
   _isCoeffsComputed = false;
 
-  return _computeLogLike(nbsimu,seed);
+  return _computeLogLikelihood(nbsimu,seed);
 }
 
 void SPDE::_computeDriftCoeffs() const
@@ -822,7 +822,7 @@ double logLikelihoodSPDE(Db *dbin,
 {
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
             params, verbose, false);
-  return spde.computeLogLike(nbsimu, seed);
+  return spde.computeLogLikelihood(nbsimu, seed);
 }
 
 static int _loadPositions(int iech,
@@ -936,7 +936,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
   if (flag_nostat_sill)
   {
-    if (nostat->manageInfo(1, db, db) != 0) return mat;
+    if (nostat->manageInfo(1, db, nullptr) != 0) return mat;
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1063,7 +1063,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
   // Free the non-stationary specific allocation
   if (model->isNoStat())
-    (void) nostat->manageInfo(-1, db, db);
+    (void) nostat->manageInfo(-1, db, nullptr);
 
   return mat;
 }

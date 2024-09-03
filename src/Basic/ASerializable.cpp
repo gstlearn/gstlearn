@@ -267,7 +267,7 @@ String ASerializable::getHomeDirectory(const String& sub)
 
 String ASerializable::getWorkingDirectory()
 {
-  String path = "";
+  String path;
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[LONG_SIZE];
   if (GetModuleFileName(NULL, buffer, LONG_SIZE) != 0)

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Matrix/VectorEigen.hpp"
 #include "geoslib_old_f.h"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -309,8 +308,9 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
 
 /**
  * Evaluate with power = ONE
- * @param vecin Input array
- * @param vecout Output array
+ * @param inm Input array
+ * @param outm Output array
+ * @param power Power of the operation
  */
 /* void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {

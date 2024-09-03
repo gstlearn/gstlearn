@@ -93,7 +93,7 @@ int nheap_push(t_nheap* h, int row, double val, int i_val)
 
     if (ic1 >= size)
       break;
-    else if (ic2 >= size)
+    if (ic2 >= size)
     {
       if (dist_arr[ic1] > val)
         i_swap = ic1;

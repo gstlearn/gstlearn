@@ -861,7 +861,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
     else
     {
       mgold = mgs->mg[ilevel - 1];
-      mg->A->Q = prodNormMatMat(*mgold->A->Q, *mgold->IhH, false);
+      mg->A->Q = prodNormMatMat(mgold->A->Q, mgold->IhH, false);
       if (mg->A->Q == nullptr) goto label_end;
     }
     if (flag_print) cs_print_file("A", ilevel, mg->A->Q->getCS());

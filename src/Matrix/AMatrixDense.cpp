@@ -288,21 +288,21 @@ void AMatrixDense::prodMatMatInPlace(const AMatrix* x,
  *
  * @param a First input matrix
  * @param m Second input matrix
- * @param transpose True if 'm' should be transposed beforehand
+ * @param transpose True if 'a' should be transposed beforehand
  *
  * @note: 'a' and 'm' may NOT coincide with 'this'
  */
-void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense &a,
-                                         const AMatrixDense &m,
+void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense* a,
+                                         const AMatrixDense* m,
                                          bool transpose)
 {
   if (transpose)
   {
-    _eigenMatrix.noalias() = a._eigenMatrix.transpose() * m._eigenMatrix * a._eigenMatrix;
+    _eigenMatrix.noalias() = a->_eigenMatrix.transpose() * m->_eigenMatrix * a->_eigenMatrix;
   }
   else
   {
-    _eigenMatrix.noalias() = a._eigenMatrix * m._eigenMatrix * a._eigenMatrix.transpose();
+    _eigenMatrix.noalias() = a->_eigenMatrix * m->_eigenMatrix * a->_eigenMatrix.transpose();
   }
 }
 

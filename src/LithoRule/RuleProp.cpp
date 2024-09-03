@@ -238,13 +238,7 @@ bool RuleProp::_checkConsistency()
 
 bool RuleProp::_checkRuleRank(int rank) const
 {
-  int nrule = getRuleNumber();
-  if (rank < 0 || rank >= nrule)
-  {
-    mesArg("Rule Rank",rank,nrule);
-    return false;
-  }
-  return true;
+  return checkArg("Rule Rank", rank, getRuleNumber());
 }
 
 int RuleProp::_getNFacies()

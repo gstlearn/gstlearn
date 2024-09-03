@@ -3,7 +3,7 @@ Experimental variogram on Data Samples
 --------------------------------------
 - on a Db containing 2000 samples
 - for a variogram calculated in 4 directions with 20 lags
-#NO_DIFF# Variogram on Isolated Points: 3072 ms. (Ref = 2600 ms.)
+#NO_DIFF# Variogram on Isolated Points: 2778 ms. (Ref = 2600 ms.)
 
 Variogram characteristics
 =========================
@@ -11,6 +11,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 4
 Space dimension             = 2
 Variable(s)                 = [Simu]
+
 Variance-Covariance Matrix     0.840
 
 Direction #1
@@ -146,7 +147,7 @@ Experimental variogram on Data Samples (with attributes)
 - on a Db containing 2000 samples (with code attribute)
 - taking a Fault System into account
 - for a variogram calculated in 1 direction with 20 lags
-#NO_DIFF# Variogram on Isolated Points (with attributes): 1152 ms. (Ref = 1100 ms.)
+#NO_DIFF# Variogram on Isolated Points (with attributes): 1110 ms. (Ref = 1100 ms.)
 
 Variogram characteristics
 =========================
@@ -155,6 +156,7 @@ Number of direction(s)      = 1
 Space dimension             = 2
 Calculation takes Faults into account
 Variable(s)                 = [Simu]
+
 Variance-Covariance Matrix     0.840
 
 Direction #1
@@ -169,32 +171,32 @@ Selection if Codes are close enough (2)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0  1213.000     0.016     0.097
-         1  9418.000     0.054     0.420
-         2 17013.000     0.102     0.692
-         3 22577.000     0.151     0.807
-         4 26962.000     0.200     0.874
-         5 29740.000     0.250     0.877
-         6 30878.000     0.300     0.844
-         7 30335.000     0.350     0.857
-         8 29489.000     0.400     0.852
-         9 28317.000     0.450     0.802
-        10 26972.000     0.500     0.837
-        11 24895.000     0.549     0.864
-        12 21402.000     0.599     0.904
-        13 18430.000     0.649     0.872
-        14 15139.000     0.699     0.861
-        15 12272.000     0.749     0.876
-        16  9910.000     0.799     0.804
-        17  7512.000     0.849     0.720
-        18  5640.000     0.898     0.581
-        19  3630.000     0.948     0.543
+         0  1385.000     0.016     0.100
+         1 10824.000     0.054     0.422
+         2 19514.000     0.102     0.692
+         3 25921.000     0.151     0.810
+         4 30896.000     0.200     0.874
+         5 33995.000     0.250     0.888
+         6 35337.000     0.300     0.845
+         7 34756.000     0.350     0.860
+         8 33731.000     0.400     0.847
+         9 32430.000     0.450     0.799
+        10 30916.000     0.500     0.836
+        11 28328.000     0.549     0.862
+        12 24479.000     0.599     0.897
+        13 21038.000     0.649     0.872
+        14 17282.000     0.699     0.865
+        15 13990.000     0.749     0.878
+        16 11249.000     0.799     0.810
+        17  8469.000     0.849     0.720
+        18  6358.000     0.898     0.580
+        19  4091.000     0.948     0.540
 
 Experimental variogram on Grid
 ------------------------------
 - on a grid of 200 by 200 pixels
 - for a variogram calculated along main directions with 20 lags
-#NO_DIFF# Variogram on Regular Grid: 1866 ms. (Ref = 1500 ms.)
+#NO_DIFF# Variogram on Regular Grid: 735 ms. (Ref = 1500 ms.)
 
 Variogram characteristics
 =========================
@@ -202,6 +204,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [Simu]
+
 Variance-Covariance Matrix     0.874
 
 Direction #1
@@ -272,8 +275,8 @@ Variogram Map on Isolated Data
 ------------------------------
 - on a Db containing 2000 samples
 - for 50 by 50 cells (automatic dimensions)
-#NO_DIFF# Variogram Map on Isolated Points: 2029 ms. (Ref = 2400 ms.)
+#NO_DIFF# Variogram Map on Isolated Points: 2316 ms. (Ref = 2400 ms.)
 
 Variogram Map on Grid
 ---------------------
-#NO_DIFF# Variogram Map on Regular Grid: 148 ms. (Ref = 100 ms.)
+#NO_DIFF# Variogram Map on Regular Grid: 105 ms. (Ref = 100 ms.)

@@ -100,7 +100,7 @@ public:
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
-  /*! Multiply a matrix by another and stored in 'this' */
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
                                  bool transposeX = false,
@@ -113,8 +113,8 @@ public:
   /*! Add a matrix (multiplied by a constant) */
   void addMatInPlace(const AMatrixDense& y, double cx = 1., double cy = 1.);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatMatInPlace(const AMatrixDense &a,
-                                     const AMatrixDense &m,
+  virtual void prodNormMatMatInPlace(const AMatrixDense* a,
+                                     const AMatrixDense* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
   virtual void prodNormMatInPlace(const AMatrixDense &a,

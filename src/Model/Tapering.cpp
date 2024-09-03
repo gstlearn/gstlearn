@@ -51,11 +51,7 @@ int Tapering::init(int tape_type,double tape_range)
 
   /* Preliminary check */
 
-  if (tape_type < 1 || tape_type > getTapeNumber())
-  {
-    mesArg("Tapering Index",tape_type,getTapeNumber());
-    return 1;
-  }
+  if (!checkArg("Tapering Index", tape_type, getTapeNumber())) return 1;
   if (tape_range <= 0)
   {
     messerr("The argument 'tape_range' must be strictly positive");
