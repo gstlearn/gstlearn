@@ -68,7 +68,7 @@ String ANoStat::toString(const AStringFormat* strfmt) const
 
   sstr << toTitle(1, "Non-Stationary Parameters");
   for (int i = 0; i < (int) getNoStatElemNumber(); i++)
-    sstr << _items[i].toString(strfmt);
+    sstr << std::to_string(i+1) << " - " << _items[i].toString(strfmt);
   return sstr.str();
 }
 
