@@ -1109,11 +1109,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     messerr("This method is limited to 3-D Grid data base");
     return tab;
   }
-  if (pos < 0 || pos > 2)
-  {
-    mesArg("Argument 'pos'", pos, 3);
-    return tab;
-  }
+  if (!checkArg("Argument 'pos'", pos, 3)) return tab;
   int iuid = getUID(name);
   if (iuid < 0)
   {
@@ -1132,12 +1128,8 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     int n2 = getNX(2);
     int n3 = getNX(0);
     int nech = n1 * n2;
-    for (int i = 0; i < nvect; i++) tab[i].resize(nech,TEST);
-    if (indice < 0 || indice >= n3)
-    {
-      mesArg("Error in argument 'indice'",indice,n3);
-      return VectorVectorDouble();
-    }
+    for (int i = 0; i < nvect; i++) tab[i].resize(nech, TEST);
+    if (!checkArg("Error in argument 'indice'", indice, n3)) return VectorVectorDouble();
     indices[0] = indice;
 
     int ecr = 0;
@@ -1166,11 +1158,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     int nech = n1 * n2;
     for (int i = 0; i < nvect; i++)
       tab[i].resize(nech, TEST);
-    if (indice < 0 || indice >= n3)
-    {
-      mesArg("Error in argument 'indice'",indice,n3);
-      return VectorVectorDouble();
-    }
+    if (!checkArg("Error in argument 'indice'", indice, n3)) return VectorVectorDouble();
     indices[1] = indice;
 
     int ecr = 0;
@@ -1197,13 +1185,8 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     int n2 = getNX(1);
     int n3 = getNX(2);
     int nech = n1 * n2;
-    for (int i = 0; i < nvect; i++)
-      tab[i].resize(nech, TEST);
-    if (indice < 0 || indice >= n3)
-    {
-      mesArg("Error in argument 'indice'",indice,n3);
-      return VectorVectorDouble();
-    }
+    for (int i = 0; i < nvect; i++) tab[i].resize(nech, TEST);
+    if (!checkArg("Error in argument 'indice'", indice, n3)) return VectorVectorDouble();
     indices[2] = indice;
 
     int ecr = 0;

@@ -133,9 +133,6 @@ NULL
 [1] "Testing Table"
 NULL
 NULL
-
-Table contents
---------------
 - Number of Rows    = 2
 - Number of Columns = 3
 
@@ -186,6 +183,7 @@ Number of variable(s)       = 2
 Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [Simu1 Simu1.1]
+
 Variance-Covariance Matrix
                [,  0]    [,  1]
      [  0,]     0.085    -0.002

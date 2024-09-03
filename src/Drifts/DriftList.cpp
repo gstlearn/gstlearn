@@ -179,12 +179,7 @@ bool DriftList::isValid() const
 
 bool DriftList::_isDriftIndexValid(int i) const
 {
-  if (i < 0 || i >= getDriftNumber())
-  {
-    mesArg("Drift Rank",i,getDriftNumber());
-    return false;
-  }
-  return true;
+  return checkArg("Drift Rank", i, getDriftNumber());
 }
 
 /**
@@ -194,12 +189,7 @@ bool DriftList::_isDriftIndexValid(int i) const
  */
 bool DriftList::_isDriftEquationValid(int ib) const
 {
-  if (ib < 0 || ib >= getDriftEquationNumber())
-  {
-    mesArg("Drift Equation",ib,getDriftEquationNumber());
-    return false;
-  }
-  return true;
+  return checkArg("Drift Equation", ib, getDriftEquationNumber());
 }
 
 void DriftList::resetDriftList()
@@ -451,11 +441,7 @@ VectorInt DriftList::_getActiveVariables(int ivar0) const
   VectorInt ivars;
   if (ivar0 >= 0)
   {
-    if (ivar0 >= nvar)
-    {
-      mesArg("Argument 'ivar0'",ivar0,nvar);
-      return VectorInt();
-    }
+    if (!checkArg("Argument 'ivar0'", ivar0, nvar)) return VectorInt();
     ivars.push_back(ivar0);
   }
   else

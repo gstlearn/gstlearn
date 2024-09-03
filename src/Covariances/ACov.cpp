@@ -763,11 +763,7 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
   VectorInt ivars;
   if (ivar0 >= 0)
   {
-    if (ivar0 >= nvar)
-    {
-      mesArg("Argument 'ivar0'", ivar0, nvar);
-      return VectorInt();
-    }
+    if (!checkArg("Argument 'ivar0'", ivar0, nvar)) return VectorInt();
     ivars.push_back(ivar0);
   }
   else
@@ -973,7 +969,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   ANoStat *nostat = getNoStatModify();
   if (isNoStat())
   {
-    if (nostat->manageInfo(1, db1, db1)) return MatrixSquareSymmetric();
+    if (nostat->manageInfo(1, db1, nullptr)) return MatrixSquareSymmetric();
   }
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1042,7 +1038,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
 
   if (isNoStat())
   {
-    if (nostat->manageInfo(-1, db1, db1)) return MatrixRectangular();
+    if (nostat->manageInfo(-1, db1, nullptr)) return MatrixRectangular();
   }
   return mat;
 }

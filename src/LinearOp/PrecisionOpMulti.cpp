@@ -274,16 +274,8 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
 }
 
 int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
-                          Eigen::VectorXd& vecout) const
-{
-  EVALOP(_buildInvSills,0,_invSills,getValue,addToDest)
-}
-
-/**
- * Evaluate the product of this phantom matrix by the input vector
- * @param vecin  Input array
- * @param vecout Output array
- */
+                                 Eigen::VectorXd& vecout) const {
+  EVALOP(_buildInvSills, 0, _invSills, getValue, addToDest)}
 
 /* int PrecisionOpMulti::evalDirectInPlace(const Eigen::VectorXd& vecin,
                                               Eigen::VectorXd& vecout)

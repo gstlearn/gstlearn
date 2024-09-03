@@ -465,12 +465,7 @@ double Selectivity::getTstd(int iclass) const
 
 bool Selectivity::_isValidCut(int iclass) const
 {
-  if (iclass < 0 || iclass >= getNCuts())
-  {
-    mesArg("Selectivity Class", iclass, getNCuts());
-    return false;
-  }
-  return true;
+  return checkArg("Selectivity Class", iclass, getNCuts());
 }
 
 /*****************************************************************************/

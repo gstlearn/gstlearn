@@ -4,6 +4,11 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- In Db::createFilLRandom, use of 'ncode' has been corrected
+- Method computeLogLike() is renamed in computeLogLikelihood()
+- Matrix methods named *Norm* use pointers to Matrix rather than references
+- New method to initialize AStringable(const String& title) which prints the title in display()
+- Internal function mesArg() is abandoned in favor of checkArg()
 - A new bench_NF to help optimizing the read and write in Neutral Files
 - Adding method 'display' for any item of class VectorT
 - Add a DOI for gstlearn software published by Zenodo
@@ -14,6 +19,12 @@ Release 1.4.0
 - New class SpatialIndices and corresponding methods (CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).
 - Names of variables used to compute the Variogram are stored in the Vario object
 - Empirical anamorphosis: plugging Normal score; parameterizing the dilution 
+
+Module gstlearn.document
+========================
+- Method displayDoc() allow direct display of a MD file located in "references"
+  No need to use: from IPython.display import Markdown in individual files
+  This upgrade has been curently cancelled, due to inconsistency in the non-regression tests
 
 Release 1.3.2
 =============

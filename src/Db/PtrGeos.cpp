@@ -88,12 +88,7 @@ String PtrGeos::dumpLocator(int rank, const ELoc& locatorType) const
 
 bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
 {
-  if (locatorIndex < 0 || locatorIndex >= getLocatorNumber())
-  {
-    mesArg("Locator Index", locatorIndex, getLocatorNumber());
-    return false;
-  }
-  return true;
+  return checkArg("Locator Index", locatorIndex, getLocatorNumber());
 }
 
 /**

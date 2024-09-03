@@ -348,23 +348,13 @@ VectorDouble VarioParam::getCodirs(int idir) const
 
 bool VarioParam::_isDirectionValid(int idir) const
 {
-  if (idir < 0 || idir >= getDirectionNumber())
-  {
-    mesArg("Direction Index",idir,getDirectionNumber());
-    return false;
-  }
-  return true;
+  return checkArg("Direction Index", idir, getDirectionNumber());
 }
 
 bool VarioParam::_isDateValid(int idate) const
 {
-  if (! hasDate()) return false;
-  if (idate < 0 || idate >= getDateNumber())
-  {
-    mesArg("Date Index",idate,getDateNumber());
-    return false;
-  }
-  return true;
+  if (!hasDate()) return false;
+  return checkArg("Date Index", idate, getDateNumber());
 }
 
 VectorDouble VarioParam::_getDirectionInterval(int idir) const

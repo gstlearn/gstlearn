@@ -165,21 +165,13 @@ DirParam* DirParam::createFromGrid(const DbGrid* dbgrid,
 
 double DirParam::getBreak(int i) const
 {
-  if (i < 0 || i >= (int)_breaks.size())
-  {
-    mesArg("Break Index",i,(int) _breaks.size());
-    return TEST;
-  }
+  if (!checkArg("Break Index", i, (int)_breaks.size())) return TEST;
   return _breaks[i];
 }
 
 double DirParam::getCodir(int i) const
 {
-  if (i < 0 || i >= (int)_codir.size())
-  {
-    mesArg("Codir Index",i,(int) _codir.size());
-    return TEST;
-  }
+  if (!checkArg("Codir Index", i, (int)_codir.size())) return TEST;
   return _codir[i];
 }
 
@@ -217,25 +209,15 @@ void DirParam::setTolAngle(double tolang)
 
 bool DirParam::isDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= (int) getNDim())
-  {
-    mesArg("Space Dimension",idim,getNDim());
-    return false;
-  }
-  return true;
+  return checkArg("Space Dimension", idim, getNDim());
 }
 
 bool DirParam::isLagValid(int ilag, bool flagAsym, bool flagCheck) const
 {
-  if (! flagCheck) return true;
+  if (!flagCheck) return true;
   int nlag = getLagNumber();
   if (flagAsym) nlag = 2 * nlag + 1;
-  if (ilag < 0 || ilag >= nlag)
-  {
-    mesArg("Lag Index",ilag,nlag);
-    return false;
-  }
-  return true;
+  return checkArg("Lag Index", ilag, nlag);
 }
 
 /**
