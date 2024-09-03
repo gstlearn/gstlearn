@@ -39,8 +39,8 @@ public:
   #endif
 
   private:
-  MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q);
-  MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q);
+  const MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
+  const MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
   void _prepareMatrix();
   void _makeReady() override;
   void _buildQop() override;

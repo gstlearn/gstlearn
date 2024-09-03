@@ -26,7 +26,7 @@ PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
   _prepareMatrix();
 }
 
-MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q)
+const MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
 {
   MatrixSquareSymmetric sills = _cholSills[icov];
   sills.invert();
@@ -46,40 +46,39 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const Ma
   return current;
 }
 
-MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const MatrixSparse* Q)
+const MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const MatrixSparse* Q) const
 {
   int n = PrecisionOpMulti::size(icov);
-  MatrixSparse diag(n,n);
+  int nvar = _getNVar();
   const MatrixSparse empty(n,n);
+  MatrixSparse diag(n,n);
 
   MatrixSparse bigQ = MatrixSparse(0,0);
-  for (int jvar = 0; jvar < _getNVar(); jvar++)
+  for (int jvar = 0; jvar < nvar; jvar++)
   {
     MatrixSparse::glueInPlace(&bigQ, Q, 1, 1);
   }
-
   MatrixSparse bigLambda = MatrixSparse(0,0);
-  int s = 0;
-  for (int jvar = 0; jvar < _getNVar(); jvar++)
+  for (int jvar = 0; jvar < nvar; jvar++)
   {
     MatrixSparse currentCol(0,0);
-    for (int ivar = 0; ivar< _getNVar(); ivar++)
+    for (int ivar = 0; ivar < nvar; ivar++)
     {
-      if (ivar < jvar)
+      if (ivar <= jvar)
       {
-        MatrixSparse::glueInPlace(&currentCol,&empty ,1,0);
+        diag.setDiagonal(_invCholSillsNoStat[icov][IND(jvar,ivar,nvar)]);
+        MatrixSparse::glueInPlace(&currentCol,&diag ,1,0);
       }
       else 
       {
-        diag.setDiagonal(_invCholSillsNoStat[icov][s++]);
-        MatrixSparse::glueInPlace(&currentCol,&diag ,1,0);
+        MatrixSparse::glueInPlace(&currentCol,&empty ,1,0);
       }
     }
     MatrixSparse::glueInPlace(&bigLambda, &currentCol, 0, 1);
   }
 
   MatrixSparse result;
-  result.prodNormMatMatInPlace(bigLambda,bigQ,true);
+  result.prodNormMatMatInPlace(&bigLambda,&bigQ,false);
   return result;
 }
 

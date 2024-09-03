@@ -24,6 +24,9 @@
   #include <Eigen/Core>
   #include <Eigen/Dense>
 #endif
+
+#define IND(i,j,nvar) j * nvar + i - (j * (j + 1))/2
+
 class Model;
 
 /**

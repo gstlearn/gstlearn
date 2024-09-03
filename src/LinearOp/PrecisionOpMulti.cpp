@@ -40,7 +40,6 @@
           VectorEigen::fill(*y,0.);\
         }\
       }\
-      int s = 0;\
       for (int jvar = 0; jvar < nvar; jvar++)\
       {\
         int iad_y = IY;\
@@ -59,7 +58,7 @@
         {\
           if (_isNoStatForVariance[icov])\
           {\
-            VectorEigen::addMultiplyVectVectInPlace(TAB##NoStat[icov][s++],XORY,OUT,iad_y); \
+            VectorEigen::addMultiplyVectVectInPlace(TAB##NoStat[icov][IND(IVAR,JVAR,nvar)],XORY,OUT,iad_y); \
           }\
           else\
           {\
