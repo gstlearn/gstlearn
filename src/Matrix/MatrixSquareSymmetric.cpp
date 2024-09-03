@@ -671,7 +671,7 @@ double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
   double det = 0.;
   for (int i = 0; i < _factor.rows(); i++)
     det += log(diag[i]);
-  return det;
+  return 2. * det;
 }
 
 /*****************************************************************************/

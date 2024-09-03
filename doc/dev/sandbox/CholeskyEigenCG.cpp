@@ -281,8 +281,6 @@ double CholeskyEigenCG::getLogDeterminant() const
     auto& diag = _cholSolver.vectorD();
     for (int i = 0; i < _matCS->getNRows(); ++i)
       det += log(diag[i]);
-//    det *= 2;
-    return det;
   }
   else
   {
@@ -290,6 +288,6 @@ double CholeskyEigenCG::getLogDeterminant() const
     double det = 0.;
     for (int i = 0; i < (int) diag.size(); i++)
       det += log(diag[i]);
-    return 2. * det;
   }
+  return 2. * det;
 }
