@@ -56,7 +56,8 @@ set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
 
 # TODO: r_build should call first r_swig (to be created) followed by r_doc (and then r_install)
 add_custom_target(r_doc
-  COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing --no-save --no-restore ${CMAKE_CURRENT_SOURCE_DIR}/doc/create_doc.R
+  COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing --no-save --no-restore ${CMAKE_CURRENT_SOURCE_DIR}/doc/create_doc.R ${R_PACKAGE_ROOT_FOLDER}/create_doc.out
+  COMMAND ${CMAKE_COMMAND} -E cat ${R_PACKAGE_ROOT_FOLDER}/create_doc.out
   COMMENT "Generating documentation for R package"
   WORKING_DIRECTORY ${R_PACKAGE_DESTINATION_FOLDER}
   VERBATIM
