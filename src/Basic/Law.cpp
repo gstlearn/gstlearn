@@ -62,7 +62,6 @@ int law_get_random_seed(void)
  **
  *****************************************************************************/
 void law_set_random_seed(int seed)
-
 {
   if (seed > 0)
   {

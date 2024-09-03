@@ -115,6 +115,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [myvar1]
+
 Variance-Covariance Matrix     0.763
 
 Direction #1
@@ -143,6 +144,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [myvar1]
+
 Variance-Covariance Matrix     0.763
 
 Direction #1
@@ -198,9 +200,6 @@ Exponential
 - Theo. Range  =      0.100
 Total Sill     =      0.200
 Known Mean(s)     0.000
-
-Table contents
---------------
 - Number of Rows    = 10
 - Number of Columns = 3
 
@@ -214,9 +213,6 @@ Table contents
       0.723      0.900      0.482
       0.660      0.288      0.254
       0.693      0.753      0.088
-
-Table contents
---------------
 - Number of Rows    = 10
 - Number of Columns = 3
 

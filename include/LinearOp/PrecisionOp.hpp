@@ -102,11 +102,11 @@ public:
 //                             int /*igparam*/){};
 
   #ifndef SWIG
-  void evalPower(const Eigen::VectorXd &inv, Eigen::VectorXd &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
+  void evalPower(const Eigen::VectorXd &inm, Eigen::VectorXd &outm, const EPowerPT& power = EPowerPT::fromKey("ONE"));
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
-  void evalSimulate(VectorDouble& in, VectorDouble& out);
+  void evalSimulate(VectorDouble& whitenoise, VectorDouble& out);
 
   int  getSize() const { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}

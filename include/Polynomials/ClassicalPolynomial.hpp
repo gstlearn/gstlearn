@@ -36,10 +36,18 @@ public:
   IMPLEMENT_CLONING(ClassicalPolynomial)
 
   double eval(double x) const override;
-  void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& inv,
-                   VectorDouble& outv,int iapex,int igparam)const;
-   void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
-                       VectorDouble& outv,const VectorVectorDouble& workpoly,int iapex,int igparam)const;
+  static void evalDerivOp(ShiftOpCs* shiftOp,
+                          const VectorDouble& inv,
+                          VectorDouble& outv,
+                          int iapex,
+                          int igparam);
+  static void evalDerivOpOptim(ShiftOpCs* shiftOp,
+                               VectorDouble& temp1,
+                               VectorDouble& temp2,
+                               VectorDouble& outv,
+                               const VectorVectorDouble& workpoly,
+                               int iapex,
+                               int igparam);
 #ifndef SWIG
   void evalDerivOp(ShiftOpCs* shiftOp,const Eigen::VectorXd& inv,
                    Eigen::VectorXd& outv,int iapex,int igparam)const;
