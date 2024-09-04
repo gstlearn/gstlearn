@@ -28,7 +28,6 @@ else()
     -Wall
     -Wextra
     -Wno-deprecated-copy
-    -Wno-unused-parameter
     -Wtype-limits
     -Wnon-virtual-dtor
     -Wvla
