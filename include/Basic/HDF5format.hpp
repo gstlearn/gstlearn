@@ -106,8 +106,9 @@ public:
   class Proxy
   {
   public:
-    Proxy(const HDF5format* /*owner*/)
+    Proxy(const HDF5format* owner)
     {
+      DECLARE_UNUSED(owner);
     }
     operator int() const
     {

@@ -1712,9 +1712,10 @@ void MatrixSparse::gibbs(int iech,
   (*sk) = sqrt(1. / (*sk));
 }
 
-int MatrixSparse::_addToDest(const Eigen::VectorXd& /*inv*/,
+int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
-    outv += _eigenMatrix * outv;
-    return 0;
+  DECLARE_UNUSED(inv);
+  outv += _eigenMatrix * outv;
+  return 0;
 }

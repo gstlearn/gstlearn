@@ -1674,10 +1674,11 @@ static void st_gibbs(int igrf,
                      int ngibbs_int,
                      int iter0,
                      int ngibbs_burn,
-                     Db * /*dbin*/,
+                     Db *dbin,
                      Db *dbout,
                      double *zcur)
 {
+  DECLARE_UNUSED(dbin);
   QChol* QC = spde_get_current_matelem(-1).QC;
   double sk;
   double yk = 0.;

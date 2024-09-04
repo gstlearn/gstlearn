@@ -367,7 +367,7 @@ void GibbsMMulti::_storeWeights(int icol)
 #ifdef _USE_HDF5
     _hdf5.writeDataDoublePartial(icol, _weights);
 #else
-    (void)icol;
+    DECLARE_UNUSED(icol);
 #endif
   }
 }

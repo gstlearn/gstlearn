@@ -39,8 +39,9 @@ AVario& AVario::operator=(const AVario& r)
 AVario::~AVario() {}
 
 void AVario::_evaluateVariogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool /*do_asym*/)
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
+  DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
@@ -63,8 +64,9 @@ void AVario::_evaluateVariogram(
 }
 
 void AVario::_evaluateMadogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool /*do_asym*/)
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
+  DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
@@ -87,8 +89,9 @@ void AVario::_evaluateMadogram(
 }
 
 void AVario::_evaluateRodogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool /*do_asym*/)
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
+  DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
@@ -111,8 +114,9 @@ void AVario::_evaluateRodogram(
 }
 
 void AVario::_evaluatePoisson(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool /*do_asym*/)
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
+  DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
@@ -199,8 +203,9 @@ void AVario::_evaluateCovariogram(
 }
 
 void AVario::_evaluateOrder4(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool /*do_asym*/)
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
+  DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
