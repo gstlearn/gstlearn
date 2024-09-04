@@ -149,9 +149,9 @@ Variance = 1.1733
 
 #NO_DIFF#XXX
 ----
-logdet_chol = -220.1374
+logdet_chol = -1261.3613
 quad_chol = 1118.4871
-like_chol = -1368.1134
+like_chol = -847.5015
 ----
 
 
@@ -163,30 +163,29 @@ like_chol = -1368.1134
 
 #NO_DIFF#XXX
 ----
-log_det_op_chol = 24593.8778
-log_det_op_api = 24593.8778
+log_det_op_chol = 12296.9389
+log_det_op_api = 12296.9389
 -> Relative difference = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-log_det_Q_chol = 22511.4302
-log_det_Q_api = 22511.4302
+log_det_Q_chol = 11255.7151
+log_det_Q_api = 11255.7151
 -> Relative difference = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-likelihood api = -1368.1134
-likelihood_chol = -1368.1134
+likelihood api = -847.5015
+likelihood_chol = -847.5015
 -> Relative Difference = -0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-likelihood by API -1368.1134
-
+likelihood by API -847.5015
 ----

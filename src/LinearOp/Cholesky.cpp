@@ -327,7 +327,7 @@ double Cholesky::getLogDeterminant() const
   if (_matCS->isFlagEigen())
   {
     double det = 0.;
-    const auto& diag = _cholSolver.vectorD(); //Diagonal of the LDL^t decomposition
+    const auto& diag = _cholSolver.vectorD(); //Diagonal of the LDL^t decomposition (don't multiply by 2.!)
     for (int i = 0; i < _matCS->getNRows(); ++i)
       det += log(diag[i]);
     return det;
