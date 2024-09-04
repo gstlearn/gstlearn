@@ -22,7 +22,7 @@ class Model;
 /**
  * Class for the precision matrix of the latent field in SPDE (matricial form)
  */
-class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public MatrixSparse ,  public PrecisionOpMulti
+class GSTLEARN_EXPORT PrecisionOpMultiMatrix : public PrecisionOpMulti
 {
 public:
   PrecisionOpMultiMatrix(Model* model = nullptr, 
@@ -31,18 +31,15 @@ public:
   PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMultiMatrix();
 
-  #ifndef SWIG
-  
-  protected:
-  int    _addToDest(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const override;
-  #endif
-
+  const MatrixSparse* getQ() const;
   private:
-  const MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
-  const MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
+  MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
+  MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
   void _prepareMatrix();
   void _makeReady() override;
   void _buildQop() override;
+  bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}
 
+  private:
+  MatrixSparse _Q;
 };

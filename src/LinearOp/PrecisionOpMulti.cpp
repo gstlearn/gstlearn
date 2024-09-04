@@ -209,8 +209,7 @@ void PrecisionOpMulti::_popsClear()
 
 bool PrecisionOpMulti::_matchModelAndMeshes() const 
 {
-  if (_getNCov() != _getNMesh()) return false;
-  return true;
+  return _getNCov() == _getNMesh();
 }
 
 int PrecisionOpMulti::_getNVar() const

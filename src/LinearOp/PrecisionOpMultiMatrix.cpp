@@ -26,7 +26,7 @@ PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
   _prepareMatrix();
 }
 
-const MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
+MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
 {
   MatrixSquareSymmetric sills = _cholSills[icov];
   sills.invert();
@@ -46,7 +46,7 @@ const MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, co
   return current;
 }
 
-const MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const MatrixSparse* Q) const
+MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const MatrixSparse* Q) const
 {
   int n = PrecisionOpMulti::size(icov);
   int nvar = _getNVar();
@@ -82,16 +82,28 @@ const MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const 
   return result;
 }
 
+const MatrixSparse* PrecisionOpMultiMatrix::getQ() const
+{
+  if (_isSingle())
+  {
+    return  ((PrecisionOpCs*)_pops[0])->getQ();
+  }
+    return &_Q;
+  
+}
+
 void PrecisionOpMultiMatrix::_prepareMatrix()
 {
+  if (_isSingle()) return;
+
   MatrixSparse current;
   for (int istruct = 0; istruct < _getNCov(); istruct++)
   {   
-    const MatrixSparse* Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
+    const MatrixSparse *Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
 
     if (_model->getVariableNumber() == 1)
     {
-      MatrixSparse::glueInPlace(this,Q,1,1);
+      MatrixSparse::glueInPlace(&_Q,Q,1,1);
     }
     else 
     {
@@ -103,7 +115,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
       {
         current = _prepareMatrixStationary(istruct,Q);
       }
-      MatrixSparse::glueInPlace(this, &current,1,1);
+      MatrixSparse::glueInPlace(&_Q, &current,1,1);
     }
   }    
 }
@@ -127,12 +139,6 @@ void PrecisionOpMultiMatrix::_makeReady()
   {
     ((PrecisionOpCs*)e)->makeReady();
   }
-}
-
-int PrecisionOpMultiMatrix::_addToDest(const Eigen::VectorXd& inv,
-                                      Eigen::VectorXd& outv) const
-{
-  return MatrixSparse::_addToDest(inv,outv);
 }
 
                                         

@@ -61,7 +61,7 @@ public:
                Eigen::VectorXd& result, const EPowerPT& power) override;
   void gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,Eigen::VectorXd& result, const EPowerPT& power) override;
   #endif
-  MatrixSparse* getQ() const { return _Q; }
+  const MatrixSparse* getQ() const { return _Q; }
 
 private:
   void _buildQ(bool flagDecompose = false);
