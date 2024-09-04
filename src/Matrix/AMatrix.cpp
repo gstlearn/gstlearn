@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
