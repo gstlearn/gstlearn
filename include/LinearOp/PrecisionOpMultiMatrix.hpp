@@ -12,6 +12,7 @@
 
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
@@ -33,6 +34,9 @@ public:
 
   const MatrixSparse* getQ() const;
   private:
+  #ifndef SWIG
+  virtual int _addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const override;
+  #endif
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
   void _prepareMatrix();

@@ -359,7 +359,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
+int PrecisionOpMulti::_addToDestImpl(const Eigen::VectorXd& vecin,
                           Eigen::VectorXd& vecout) const
 {
   if (!_checkReady()) return 1;
@@ -375,6 +375,13 @@ int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
   {
     EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,1,0,0)
   }
+}
+
+int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
+                          Eigen::VectorXd& vecout) const
+{
+  return _addToDestImpl(vecin,vecout);
+  
 }
 /**
  * Simulate based on an input random gaussian vector (Matrix free version)

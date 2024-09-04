@@ -50,8 +50,8 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   #ifndef SWIG
   protected:
 
-  int    _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
+  int _addToDest(const Eigen::VectorXd& vecin,
+                 Eigen::VectorXd& vecout) const override;
   int _addSimulateInPlace(const Eigen::VectorXd& vecin,
                                 Eigen::VectorXd& vecout);
   #endif
@@ -69,6 +69,8 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   int  _getNMesh() const;
 
   private:
+  virtual int _addToDestImpl(const Eigen::VectorXd& vecin,
+                            Eigen::VectorXd& vecout) const;
   bool _checkReady() const;
   virtual void _buildQop();
   virtual void _makeReady();

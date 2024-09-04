@@ -1470,7 +1470,7 @@ int getUpdateNonZeroValue()
 int MatrixSparse::_eigen_findColor(int imesh,
                                    int ncolor,
                                    VectorInt &colors,
-                                   VectorInt &temp)
+                                   VectorInt &temp) const
 {
   temp.fill(0);
 
@@ -1492,7 +1492,7 @@ int MatrixSparse::_eigen_findColor(int imesh,
   return (-1);
 }
 
-VectorInt MatrixSparse::colorCoding()
+VectorInt MatrixSparse::colorCoding() const
 {
   int next_col = 0;
   int ncol = 0;

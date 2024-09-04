@@ -218,7 +218,7 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
                                         int ref_color,
                                         bool row_ok,
                                         bool col_ok);
-  VectorInt colorCoding();
+  VectorInt colorCoding() const;
   int getNonZeros() const { return _getMatrixPhysicalSize(); }
   void gibbs(int iech, const VectorDouble& zcur, double* yk, double* sk);
 
@@ -266,7 +266,7 @@ private:
   int  _eigen_findColor(int imesh,
                         int ncolor,
                         VectorInt &colors,
-                        VectorInt &temp);
+                        VectorInt &temp) const;
 
 private:
 #ifndef SWIG

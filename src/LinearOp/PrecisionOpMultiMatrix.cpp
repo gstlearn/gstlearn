@@ -141,4 +141,8 @@ void PrecisionOpMultiMatrix::_makeReady()
   }
 }
 
-                                        
+int PrecisionOpMultiMatrix::_addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const
+{
+  return getQ()->addToDest(vecin,vecout);
+}
+                                   
