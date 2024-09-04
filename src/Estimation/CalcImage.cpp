@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Calculators/ACalcInterpolator.hpp"
 #include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 
 #include "Basic/NamingConvention.hpp"
 #include "Estimation/CalcImage.hpp"

@@ -8,16 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/ALinearOpOld.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Timer.hpp"
 
-#include <iostream>
-
-ALinearOpOld::ALinearOpOld(const CGParam params)
+ALinearOpOld::ALinearOpOld(const CGParam& params)
     : _params(params),
       _logStats()
 {

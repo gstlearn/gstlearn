@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Neigh/NeighBench.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"

@@ -55,8 +55,6 @@ private:
                    double *x);
   int     _forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps = EPSILON20);
   int     _backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps = EPSILON20);
-  static int _matrix_invreal(VectorDouble& mat, int neq);
-  static int _matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b);
 };
 
 /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */

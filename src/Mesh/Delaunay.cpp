@@ -14,10 +14,11 @@
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
+#include "Mesh/Delaunay.hpp"
 
 #include <math.h>
-#include <string.h>
 #include <stdio.h>
 
 /*! \cond */

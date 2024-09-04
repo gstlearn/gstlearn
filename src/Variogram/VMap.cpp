@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
-#include "geoslib_f_private.h"
 
 #include "Variogram/VMap.hpp"
 #include "Db/Db.hpp"

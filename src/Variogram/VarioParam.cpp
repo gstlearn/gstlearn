@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"

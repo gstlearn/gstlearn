@@ -8,10 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
+#include "Enum/EStatOption.hpp"
 #include "Db/Db.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -2479,6 +2479,16 @@ void Db::updZVariable(int iech, int item, const EOperator& oper, double value)
   double oldval           = _array[internalAddress];
   double newval           = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
+}
+
+bool Db::isSampleIsotopic(int iech) const
+{
+  if (!isActive(iech)) return false;
+  for (int ivar = 0; ivar < getLocNumber(ELoc::Z); ivar++)
+  {
+    if (FFFF(getZVariable(iech, ivar)))  return false;
+  }
+  return true;
 }
 
 /**
@@ -5278,4 +5288,20 @@ Table Db::printOneSample(int iech,
     table.setValue(ivar, 0, getValue(localNames[ivar], iech));
   }
   return table;
+}
+
+void Db::copyByUID(int iuidIn, int iuidOut, bool useSel)
+{
+  int icolIn = getColIdxByUID(iuidIn);
+  int icolOut = getColIdxByUID(iuidOut);
+  copyByCol(icolIn, icolOut);
+}
+
+void Db::copyByCol(int icolIn, int icolOut, bool useSel)
+{
+  if (!isColIdxValid(icolIn)) return;
+  if (!isColIdxValid(icolOut)) return;
+
+  for (int iech = 0, nech = getSampleNumber(useSel); iech < nech; iech++)
+    _array[_getAddress(iech, icolOut)] = _array[_getAddress(iech, icolIn)];
 }

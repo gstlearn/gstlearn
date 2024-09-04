@@ -12,8 +12,6 @@
 #include "Db/Db.hpp"
 #include "Basic/Utilities.hpp"
 
-#include "geoslib_old_f.h"
-
 #include <math.h>
 
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
@@ -131,27 +129,26 @@ void AnamDiscreteIR::calculateMeanAndVariance()
 int AnamDiscreteIR::fitFromArray(const VectorDouble& tab,
                                  const VectorDouble& /*wt*/)
 {
-  double *residuals, *T, *Q, mean, dt, dq, tnext, qnext, tcur, tprev;
-  int error, nsorted;
+  double mean, dt, dq, tnext, qnext, tcur, tprev;
+  int nsorted;
 
   /* Initializations */
 
-  error = 1;
   int nech = static_cast<int> (tab.size());
   int nclass = getNClass();
   int ncut = getNCut();
-  residuals = T = Q = nullptr;
 
   /* Core allocation */
 
-  residuals = (double *) mem_alloc(sizeof(double) * nech * ncut, 1);
-  T = (double *) mem_alloc(sizeof(double) * ncut, 1);
-  Q = (double *) mem_alloc(sizeof(double) * ncut, 1);
+  VectorDouble residuals(nech * ncut);
+  VectorDouble T(ncut);
+  VectorDouble Q(ncut);
 
   /* Calculate the residuals */
 
-  if (_stats_residuals(false, nech, tab, &nsorted, &mean, residuals, T, Q))
-    goto label_end;
+  if (_stats_residuals(false, nech, tab, &nsorted, &mean,
+                       residuals.data(), T.data(), Q.data()))
+    return 1;
 
   /* Store the the statistics */
 
@@ -189,15 +186,7 @@ int AnamDiscreteIR::fitFromArray(const VectorDouble& tab,
 
   calculateMeanAndVariance();
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char * ) residuals);
-  mem_free((char * ) T);
-  mem_free((char * ) Q);
-  return (error);
+  return 0;
 }
 
 int AnamDiscreteIR::_stats_residuals(int verbose,

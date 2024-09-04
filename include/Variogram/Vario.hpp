@@ -12,13 +12,28 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "geoslib_d.h"
 
+#include "Db/DbGrid.hpp"
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Geometry/ABiTargetCheck.hpp"
+
+typedef struct
+{
+  int nalloc;
+  int npair;
+  int size_aux;
+  int flag_dist;
+  VectorInt tab_iech;
+  VectorInt tab_jech;
+  VectorInt tab_ipas;
+  VectorInt tab_sort;
+  char* tab_aux_iech;
+  char* tab_aux_jech;
+  VectorDouble tab_dist;
+} Vario_Order;
 
 class Db;
 class Model;

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/TurningBandDirection.hpp"
-#include "geoslib_old_f.h"
 #include "Db/DbGrid.hpp"
 
 TurningBandDirection::TurningBandDirection()

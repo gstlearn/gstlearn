@@ -424,6 +424,9 @@ public:
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
 
+  void copyByUID(int iuidIn, int iuidOut, bool useSel = false);
+  void copyByCol(int icolIn, int icolOut, bool useSel = false);
+
   int getFaciesNumber(void) const;
   bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
@@ -520,6 +523,7 @@ public:
   double getZVariable(int iech, int item) const;
   void   setZVariable(int iech, int item, double value);
   void   updZVariable(int iech, int item, const EOperator& oper, double value);
+  bool   isSampleIsotopic(int iech) const;
 
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
   void setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);

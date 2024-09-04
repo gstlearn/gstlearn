@@ -8,10 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Neigh/NeighUnique.hpp"
-
+#include "Mesh/AMesh.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 

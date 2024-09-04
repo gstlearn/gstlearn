@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Neigh/NeighCell.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

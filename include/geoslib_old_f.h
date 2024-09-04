@@ -11,7 +11,6 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
-#include "geoslib_io.h"
 
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
@@ -26,6 +25,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
 #include "Variogram/DirParam.hpp"
+#include "Variogram/Vario.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -398,7 +398,6 @@ GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid *grid);
 GSTLEARN_EXPORT double* db_sample_free(double *tab);
 GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT int db_name_identify(Db *db, const String &string);
-GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out);
 GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
                                              const ELoc& locatorType,
                                              int number,
@@ -408,19 +407,8 @@ GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
 GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
                                          const VectorInt &current,
                                          int flag_locnew);
-GSTLEARN_EXPORT int db_is_isotropic(const Db *db, int iech, double *data);
 GSTLEARN_EXPORT void db_grid_print(Db *db);
 
-GSTLEARN_EXPORT DbGrid* db_create_grid_multiple(DbGrid *dbin,
-                                                const VectorInt &nmult,
-                                                bool flagAddSampleRank);
-GSTLEARN_EXPORT DbGrid* db_create_grid_divider(DbGrid *dbin,
-                                               const VectorInt &nmult,
-                                               bool flagAddSampleRank);
-GSTLEARN_EXPORT DbGrid* db_create_grid_dilate(DbGrid *dbin,
-                                              int mode,
-                                              const VectorInt &nshift,
-                                              bool flagAddSampleRank);
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
 GSTLEARN_EXPORT void db_sample_print(Db *db,
                                      int iech,
@@ -1118,33 +1106,6 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db* dbin,
                                           int* npar_arg,
                                           double** mean,
                                           double** vars);
-
-/*******************************************/
-/* Prototyping the functions in delaunay.c */
-/*******************************************/
-GSTLEARN_EXPORT double* get_db_extension(Db *dbin, Db *dbout, int *nout);
-GSTLEARN_EXPORT double* extend_grid(DbGrid *db, const double *gext, int *nout);
-GSTLEARN_EXPORT double* extend_point(Db *db, const double *gext, int *nout);
-GSTLEARN_EXPORT int MSS(int ndim, int ipol, int icas, int icorn, int idim);
-GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
-                                    const char *obj_name,
-                                    int verbose,
-                                    int ndim,
-                                    int ncode,
-                                    int ntri,
-                                    int npoints,
-                                    const VectorInt& ntcode,
-                                    const VectorInt& triangles,
-                                    const VectorDouble& points);
-GSTLEARN_EXPORT AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid);
-
-GSTLEARN_EXPORT void mesh_stats(int ndim,
-                                int ncorner,
-                                int nmesh,
-                                const int *meshes,
-                                const double *points);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

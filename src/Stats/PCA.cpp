@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Basic/VectorHelper.hpp"
 #include "Stats/PCA.hpp"
@@ -824,9 +823,7 @@ void PCA::_variogramh(Db *db,
 
 VectorBool PCA::_getVectorIsotopic(const Db* db)
 {
-  int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
-  VectorDouble data(nvar);
   VectorBool isoFlag = VectorBool(nech);
 
   for (int iech = 0; iech < nech; iech++)
@@ -834,7 +831,7 @@ VectorBool PCA::_getVectorIsotopic(const Db* db)
     if (! db->isActive(iech))
       isoFlag[iech] = false;
     else
-      isoFlag[iech] = db_is_isotropic(db, iech, data.data());
+      isoFlag[iech] = db->isSampleIsotopic(iech);
   }
   return isoFlag;
 }

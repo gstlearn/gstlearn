@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/NF_Triplet.hpp"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"

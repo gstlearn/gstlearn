@@ -10,10 +10,10 @@
 /******************************************************************************/
 #include "Calculators/ACalcDbVarCreator.hpp"
 #include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamHermite.hpp"

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Geometry/GeometryHelper.hpp"
 #include "Fractures/FracList.hpp"
 #include "Fractures/FracDesc.hpp"
@@ -1573,12 +1571,12 @@ int FracList::fractureWellToBlock(DbGrid *dbgrid,
   /* Allocate the new variable */
 
   iptr_perm = dbgrid->addColumnsByConstant(1, 0);
-  if (!IFFFF(col_perm)) db_attribute_copy(dbgrid, col_perm, iptr_perm);
+  if (!IFFFF(col_perm)) dbgrid->copyByUID(col_perm, iptr_perm);
 
   if (flag_fluid)
   {
     iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
-    if (!IFFFF(col_fluid)) db_attribute_copy(dbgrid, col_fluid, iptr_fluid);
+    if (!IFFFF(col_fluid)) dbgrid->copyByUID(col_fluid, iptr_fluid);
   }
 
   /* Verbose option */

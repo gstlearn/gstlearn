@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorHelper.hpp"
 
@@ -290,104 +288,5 @@ int MatrixSquareGeneral::decomposeLU(MatrixSquareGeneral& tls,
     }
   }
   return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a square real full matrix
- **
- ** \return  Error return code
- **
- ** \param[in]  mat  input matrix, destroyed in computation and replaced by
- **                  resultant inverse
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- *****************************************************************************/
-int MatrixSquareGeneral::_matrix_invreal(VectorDouble& mat, int neq)
-{
-  /* Calculate the determinant */
-
-  double det = matrix_determinant(neq, mat);
-  if (isZero(det)) return 1;
-
-  if (neq > 1)
-  {
-
-    /* Core allocation */
-
-    VectorDouble cofac(neq * neq);
-
-    /* Calculate the cofactor */
-
-    if (_matrix_cofactor(neq, mat, cofac)) return 1;
-
-    /* Transpose the cofactor to obtain the adjoint matrix */
-
-    matrix_transpose(neq, neq, cofac, mat);
-  }
-
-  /* Final normation */
-
-  for (int i = 0; i < neq * neq; i++)
-    mat[i] /= det;
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the cofactor of the matrix
- **
- ** \return  Value of the determinant
- **
- ** \param[in]  neq    Size of the matrix
- ** \param[in]  a      Square matrix to be checked
- **
- ** \param[out] b      Square cofactor
- **
- *****************************************************************************/
-int MatrixSquareGeneral::_matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b)
-{
-  // Process the case when the matrix A is of dimension 1
-
-  int neqm1 = neq - 1;
-  if (neqm1 <= 0)
-  {
-    B(0,0)= 1.;
-    return 0;
-  }
-  VectorDouble c(neqm1 * neqm1);
-
-  /* Processing */
-
-  for (int j = 0; j < neq; j++)
-  {
-    for (int i = 0; i < neq; i++)
-    {
-
-      /* Form the adjoint a_ij */
-
-      int i1 = 0;
-      for (int ii = 0; ii < neq; ii++)
-      {
-        if (ii == i) continue;
-        int j1 = 0;
-        for (int jj = 0; jj < neq; jj++)
-        {
-          if (jj == j) continue;
-          C(i1,j1) = A(ii,jj);
-          j1++;
-        }
-        i1++;
-      }
-
-      /* Calculate the determinate */
-      double det = matrix_determinant(neqm1, c);
-
-      /* Fill in the elements of the cofactor */
-      B(i,j) = pow(-1.0, i+j+2.0) * det;
-    }
-  }
-  return (0);
 }
 

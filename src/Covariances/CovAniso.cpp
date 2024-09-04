@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Arrays/Array.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -28,6 +26,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 #include <math.h>
 #include <functional>

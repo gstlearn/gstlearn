@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 
 #include "Enum/ECov.hpp"
 #include "Enum/EModelProperty.hpp"

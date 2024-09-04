@@ -1317,7 +1317,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
 
   /* Create the subgrid */
 
-  dbout = db_create_grid_multiple(dbin, nmult, 1);
+  dbout = DbGrid::createMultiple(dbin, nmult, 1);
   if (dbout == nullptr) goto label_end;
   rank = dbout->addColumnsByConstant(ncol, TEST);
   if (rank < 0) goto label_end;

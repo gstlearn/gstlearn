@@ -17,6 +17,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "Model/Model.hpp"
 
 CalcSimpleInterpolation::CalcSimpleInterpolation()
     : ACalcInterpolator(),

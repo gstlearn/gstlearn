@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Geometry/BiTargetCheckDistance.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "geoslib_old_f.h"
 
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/OptDbg.hpp"

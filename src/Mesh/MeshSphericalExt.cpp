@@ -9,9 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "gmtsph.hpp"
+#include "Mesh/MeshSpherical.hpp"
 #include "Mesh/MeshSphericalExt.hpp"
 #include "Mesh/LinkSphTriangle.hpp"
-#include "geoslib_old_f.h"
+#include "Mesh/AMesh.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #include "Geometry/GeometryHelper.hpp"
 #include "Db/Db.hpp"

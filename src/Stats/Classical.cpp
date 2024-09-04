@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Stats/Classical.hpp"
@@ -24,6 +22,7 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Polygon/Polygons.hpp"
+#include "Enum/EStatOption.hpp"
 
 #include <math.h>
 #include <Matrix/Table.hpp>
