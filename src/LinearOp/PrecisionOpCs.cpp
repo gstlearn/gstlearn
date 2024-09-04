@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/VectorNumT.hpp"
 #include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
@@ -23,7 +24,7 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
                              bool flagDecompose,
                              bool verbose)
-    : PrecisionOp(shiftop, cova, verbose),
+    : PrecisionOp(shiftop, cova,verbose),
       _Q(nullptr)
 {
   _buildQ(flagDecompose);
@@ -218,9 +219,10 @@ void PrecisionOpCs::_buildQ(bool flagDecompose)
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
+  
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                        static_cast<int>(blin.size()), blin.data());
-
+  
   // Prepare the Cholesky decomposition
   if (flagDecompose)
     _Q->computeCholesky();

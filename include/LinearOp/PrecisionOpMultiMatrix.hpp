@@ -10,38 +10,40 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "gstlearn_export.hpp"
-#include "Model/Model.hpp"
-#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "Basic/VectorNumT.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
 #endif
-class Model;
 
+class Model;
 /**
- * Class to store objects for SPDE
+ * Class for the precision matrix of the latent field in SPDE (matricial form)
  */
-class GSTLEARN_EXPORT PrecisionOpMultiMatrix :  public PrecisionOpMulti, public MatrixSparse
+class GSTLEARN_EXPORT PrecisionOpMultiMatrix : public PrecisionOpMulti
 {
 public:
   PrecisionOpMultiMatrix(Model* model = nullptr, 
-                   const std::vector<AMesh*>& meshes = std::vector<AMesh*>());
+                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>());
   PrecisionOpMultiMatrix(const PrecisionOpMulti &m)= delete;
   PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMultiMatrix();
 
+  const MatrixSparse* getQ() const;
+  private:
   #ifndef SWIG
-  
-  protected:
-    int    _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
-
+  virtual int _addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const override;
   #endif
+  MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
+  MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
+  void _prepareMatrix();
+  void _makeReady() override;
+  void _buildQop() override;
+  bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}
 
+  private:
+  MatrixSparse _Q;
 };

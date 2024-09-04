@@ -38,9 +38,16 @@ public:
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
-  //void evalDirect(const VectorDouble &vecin, VectorDouble &vecout) override;
+  #ifndef SWIG
   void evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout) override;
   void evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout) override;
+  #endif
+
+  //TODO : required to call the method of the mother class from python?????
+  void evalSimulate(const VectorDouble& in, VectorDouble &out) 
+  {
+    PrecisionOp::evalSimulate(in,out);
+  }
   void makeReady() override;
 
   double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
@@ -54,7 +61,7 @@ public:
                Eigen::VectorXd& result, const EPowerPT& power) override;
   void gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,Eigen::VectorXd& result, const EPowerPT& power) override;
   #endif
-  MatrixSparse* getQ() const { return _Q; }
+  const MatrixSparse* getQ() const { return _Q; }
 
 private:
   void _buildQ(bool flagDecompose = false);

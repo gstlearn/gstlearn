@@ -86,6 +86,7 @@ public:
   int solveCholesky(const VectorDouble& b, VectorDouble& x);
   VectorDouble getCholeskyTL() const;
   double getCholeskyTL(int i, int j) const;
+  double getCholeskyTL(int iad) const;
   VectorDouble getCholeskyXL() const;
   double getCholeskyXL(int i, int j) const;
   static MatrixRectangular productCholeskyInPlace(int mode,

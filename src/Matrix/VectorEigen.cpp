@@ -48,7 +48,7 @@ void VectorEigen::addMultiplyConstantInPlace(double val1,
                                               const Eigen::VectorXd &in,
                                               Eigen::VectorXd &out,
                                               int iad)
-{
+{   //TODO check if one can use eigen operators
     double * outp = out.data() + iad;
     const double* inp = in.data();
     for (int i = 0; i < (int)in.size();i++)
@@ -56,6 +56,21 @@ void VectorEigen::addMultiplyConstantInPlace(double val1,
       *(outp++) += val1 * *(inp++);
     }
 }
+
+void VectorEigen::addMultiplyVectVectInPlace(const Eigen::VectorXd &in1,
+                                              const Eigen::VectorXd &in2,
+                                              Eigen::VectorXd &out,
+                                              int iad)
+{ //TODO check if one can use eigen operators
+    double * outp = out.data() + iad;
+    const double* inp1 = in1.data();
+    const double* inp2 = in2.data();
+    for (int i = 0; i < (int)in1.size(); i++)
+    {
+      *(outp++) += *(inp1++)* *(inp2++);
+    }
+}
+
 
 void VectorEigen::addInPlace(const Eigen::VectorXd &in,
                              Eigen::VectorXd &out,

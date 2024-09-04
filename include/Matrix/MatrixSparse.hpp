@@ -207,7 +207,6 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
-
   #ifndef SWIG
   const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
   void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }
@@ -219,16 +218,20 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
                                         int ref_color,
                                         bool row_ok,
                                         bool col_ok);
-  VectorInt colorCoding();
+  VectorInt colorCoding() const;
   int getNonZeros() const { return _getMatrixPhysicalSize(); }
   void gibbs(int iech, const VectorDouble& zcur, double* yk, double* sk);
 
 #ifndef SWIG
   protected:
   virtual int _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const;
+                          Eigen::VectorXd& outv) const override;
 #endif
 
+#ifndef SWIG
+  public : 
+  void setDiagonal(const Eigen::VectorXd& vec);
+#endif
 protected:
   /// Interface for AMatrix
   bool _isPhysicallyPresent(int irow, int icol) const override
@@ -263,7 +266,7 @@ private:
   int  _eigen_findColor(int imesh,
                         int ncolor,
                         VectorInt &colors,
-                        VectorInt &temp);
+                        VectorInt &temp) const;
 
 private:
 #ifndef SWIG
@@ -296,3 +299,11 @@ GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
 /// Manage global flag for EIGEN
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
+
+
+// Not exported method
+
+#ifndef SWIG
+GSTLEARN_EXPORT Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
+                                                 const Eigen::SparseMatrix<double>& M);
+#endif

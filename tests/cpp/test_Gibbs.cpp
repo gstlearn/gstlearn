@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Matrix/AMatrix.hpp"
 #include "geoslib_old_f.h"
 
 #include "Enum/ECst.hpp"
@@ -90,7 +91,7 @@ static void st_print_all(const VectorInt& colors,
                          const VectorDouble& consmin,
                          const VectorDouble& consmax,
                          const VectorDouble& sigma,
-                         MatrixSparse *Q)
+                         const MatrixSparse *Q)
 {
   if (! consmin.empty())
     print_matrix ("consmin",0,0,1,10,NULL,consmin.data());
@@ -300,7 +301,8 @@ int main(int argc, char *argv[])
 
   MeshETurbo mesh(dbgrid);
   auto P = PrecisionOpCs(&mesh, model1);
-  MatrixSparse* Q = P.getQ();
+  const MatrixSparse* Qref = P.getQ();
+  MatrixSparse* Q = new MatrixSparse(*Qref);
   int nvertex = mesh.getNApices();
 
   // Coding the various colors

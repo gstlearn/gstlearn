@@ -10,54 +10,81 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "Basic/AStringable.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/VectorEigen.hpp"
+#include "Model/ANoStat.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
-#define EVALOP(prepare,start,tab,getmat,op) \
-  if(_prepareOperator(vecin,vecout))\
+#define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
   {\
-    return 1;\
-  }; \
-  if (prepare() != 0)\
-  {\
-    messerr("Problem when preparing the matrix");\
-    return 1;\
-  }\
-  int nvar = _getNVar();\
-  int ncov = _getNCov();\
-  int iad_x = 0;\
-  int iad_struct = 0;\
-  for (int icov = 0; icov < ncov; icov++)\
-  {\
-    int napices = size(icov);\
-    Eigen::VectorXd y(napices);\
-    for (int ivar = 0; ivar < nvar; ivar++)\
+    int nvar = _getNVar();\
+    int ncov = _getNCov();\
+    int iad_x = 0;\
+    int iad_struct = 0;\
+    Eigen::VectorXd* y;\
+    for (int icov = 0; icov < ncov; icov++)\
     {\
-      Eigen::Map<const Eigen::VectorXd>x(vecin.data()+iad_x,napices);\
-      _pops[icov]->op(x, y);\
-      int iad_y = iad_struct + start * napices;\
-      for (int jvar = start; jvar < nvar; jvar++)\
+      int napices = size(icov);\
+      if ( (nvar == 1) && (ncov == 1) )\
       {\
-        VectorEigen::addMultiplyConstantInPlace(tab[icov].getmat(jvar,ivar),y,vecout,iad_y);\
-        iad_y += napices;\
-      }   \
-      iad_x+= napices;  \
+        y = &OUT;\
+      }\
+      else\
+      {\
+        y = nullptr;\
+        if (COMPUTEOP)\
+        {\
+          y = &_works[icov];\
+          y->resize(napices);\
+          VectorEigen::fill(*y,0.);\
+        }\
+      }\
+      for (int jvar = 0; jvar < nvar; jvar++)\
+      {\
+        int iad_y = IY;\
+        Eigen::Map<const Eigen::VectorXd> x(IN.data() + iad_x, napices);\
+        if (COMPUTEOP) \
+          _pops[icov]->OP(x, *y);\
+        if ( (nvar == 1) && (ncov == 1) ) break;\
+        if (nvar == 1)\
+        {\
+          Eigen::Map<Eigen::VectorXd> outmap(OUT.data() + iad_y, napices);\
+          VectorEigen::copy(*y, outmap);\
+          iad_x += napices;\
+          continue;\
+        }\
+        for (int ivar = START; ivar < END; ivar++)\
+        {\
+          if (_isNoStatForVariance[icov])\
+          {\
+            VectorEigen::addMultiplyVectVectInPlace(TAB##NoStat[icov][IND(IVAR,JVAR,nvar)],XORY,OUT,iad_y); \
+          }\
+          else\
+          {\
+            VectorEigen::addMultiplyConstantInPlace(TAB[icov].getmat(IVAR,JVAR),XORY,OUT,iad_y);\
+          }\
+          iad_y += napices;\
+        }\
+        iad_x += napices;  \
+      }\
+      iad_struct += napices * nvar;\
     }\
-    iad_struct = iad_x;\
+    if (COMPUTEOP) return 0;\
   }\
-  return 0;
-
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
-                                   const std::vector<AMesh*>& meshes)
-  : _isValid(false)
-  , _covList()
-  , _pops()
-  , _invSills()
+                                   const std::vector<const AMesh*>& meshes,
+                                   bool buildOp)
+  : _pops()
+  , _invCholSills()
   , _cholSills()
   , _model(nullptr)
   , _meshes()
+  , _isValid(false)
+  , _covList() 
+  , _allStat(true)
+  , _ready(false)
 {
   if (! _isValidModel(model)) return;
 
@@ -66,8 +93,60 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   if (! _matchModelAndMeshes()) return;
 
   _isValid = true;
+  _computeSize();
+  int ncov = (int)meshes.size(); 
+  _isNoStatForVariance.resize(ncov,false);
+  
+  _works.resize(ncov);
+
+  bool isnostat = _model->isNoStat();
+
+  if (isnostat)
+  {
+    const ANoStat* nostat =  _model->getNoStat();
+
+    for (int icov = 0; icov < ncov; icov++)
+    {
+      if (nostat != nullptr)
+      {
+      bool nostaticov = nostat->isDefinedForVariance(icov);
+      _isNoStatForVariance[icov] = nostaticov;
+      _allStat = _allStat && !nostaticov;
+      }
+    }
+  }
+  _buildMatrices();
+
+  if(buildOp)
+  {
+    buildQop();
+  }
 }
 
+void PrecisionOpMulti::buildQop()
+{
+  _buildQop();
+  _ready = true;
+}
+
+bool PrecisionOpMulti::_checkReady() const
+{
+  if (!_ready)
+  {
+    messerr("Operator has not been built. Computation has not been performed.");
+    messerr("Call the method buildQop to make the PrecisionOpMulti ready for use");
+  }
+  return _ready;
+}
+
+
+void PrecisionOpMulti::_buildQop()
+{
+  for (int i = 0, number = _getNCov(); i < number; i++)
+  {
+    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i]));
+  }
+}
 PrecisionOpMulti::~PrecisionOpMulti()
 {
   _popsClear();
@@ -113,7 +192,7 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
 ** \param[in]  meshes  Vector of Meshes
 **
 *******************************************************************************/
-bool PrecisionOpMulti::_isValidMeshes(const std::vector<AMesh*>& meshes)
+bool PrecisionOpMulti::_isValidMeshes(const std::vector<const AMesh*>& meshes)
 {
   if (meshes.empty()) return false;
 
@@ -128,21 +207,9 @@ void PrecisionOpMulti::_popsClear()
     delete _pops[i];
 }
 
-bool PrecisionOpMulti::_matchModelAndMeshes()
+bool PrecisionOpMulti::_matchModelAndMeshes() const 
 {
-  if (_getNCov() != _getNMesh()) return false;
-
-  // Create the vector of PrecisionOp
-  _popsClear();
-  for (int i = 0, number = _getNCov(); i < number; i++)
-  {
-    // Temporarily normalize the covariance (sill) before instantiating the PrecisionOp
-    double sill = _model->getSill(_covList[i], 0, 0);
-    _model->setSill(_covList[i],0,0,1.);
-    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i]));
-    _model->setSill(_covList[i], 0, 0, sill);
-  }
-  return true;
+  return _getNCov() == _getNMesh();
 }
 
 int PrecisionOpMulti::_getNVar() const
@@ -165,83 +232,102 @@ int PrecisionOpMulti::_getNMesh() const
 
 int PrecisionOpMulti::getSize() const
 {
+  return _size;
+}
+void PrecisionOpMulti::_computeSize()
+{
   int nvar = _getNVar();
   int ncov = _getNCov();
-  if (ncov != _getNMesh()) return 0;
-
-  int size = 0;
+  _size = 0;
   for (int i = 0; i < ncov; i++)
   {
-    size += nvar * _meshes[i]->getNApices();
+    _size += nvar * _meshes[i]->getNApices();
   }
-  return size;
 }
 
-int PrecisionOpMulti::setModel(Model* model)
+int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 {
-  if (! _isValidModel(model)) return 1;
-
-  _isValid = _matchModelAndMeshes();
-
+   MatrixSquareSymmetric sill = _model->getSillValues(icov);
+  if (sill.computeCholesky() != 0) return 1;
+  _cholSills[icov] = sill;
+   if (sill.invertCholesky() != 0) return 1;
+  _invCholSills[icov] = sill;
   return 0;
 }
 
-int PrecisionOpMulti::setMeshes(const std::vector<AMesh*>& meshes)
+int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
 {
-  if (! _isValidMeshes(meshes)) return 1;
+  const ANoStat* nostat =  _model->getNoStat();
+  int nvar = _getNVar();
+  nostat->attachToMesh(_meshes[icov],false,false);
+  int nvertex =  (int)_meshes[icov]->getNApices();
+  int nterms = nvar * (nvar + 1)/2;
+  _invCholSillsNoStat[icov].resize(nterms);
+  _cholSillsNoStat[icov].resize(nterms);
 
-  _isValid = _matchModelAndMeshes();
-  return 0;
-}
-
-void PrecisionOpMulti::clearMeshes()
-{
-  _meshes.clear();
-}
-  
-void PrecisionOpMulti::addMesh(AMesh* mesh)
-{
-  if (mesh == nullptr) return;
-  _meshes.push_back(mesh);
-
-  _isValid = _matchModelAndMeshes();
-}
-
-int PrecisionOpMulti::_buildInvSills() const
-{
-  if (_model == nullptr) return 1;
-
-  int ncov = _getNCov();
-
-  // Do nothing if the array has already been calculated (correct dimension)
-  if (ncov == (int) _invSills.size()) return 0;
-
-  for (int icov = 0; icov < ncov; icov++)
+  for (int i = 0; i < nterms; i++)
   {
-    MatrixSquareSymmetric invs = _model->getSillValues(icov);
-    if (invs.invert() != 0) return 1;
-    _invSills.push_back(invs);
+    _invCholSillsNoStat[icov][i].resize(nvertex);
+    _cholSillsNoStat[icov][i].resize(nvertex);
+  }
+  for (int imesh = 0; imesh < nvertex; imesh++)
+  {
+    _model->updateCovByMesh(imesh);
+    MatrixSquareSymmetric sills = _model->getSillValues(icov);
+    if (sills.computeCholesky() != 0) return 1;
+    if (sills.invertCholesky()  != 0) return 1;
+
+    int s = 0;
+    for (int icol = 0; icol < nvar; icol++)
+    {
+      for (int irow = icol; irow < nvar; irow++)
+      {
+        _cholSillsNoStat[icov][s][imesh] = sills.getCholeskyTL(irow,icol);
+        _invCholSillsNoStat[icov][s][imesh]  = sills.getCholeskyXL(irow,icol);
+         s++;
+      }
+    }
   }
   return 0;
 }
 
-int PrecisionOpMulti::_buildCholSills() const
+int PrecisionOpMulti::_buildMatrices()
 {
   if (_model == nullptr) return 1;
+  if (_getNVar() == 1) return 0;
 
   int ncov = _getNCov();
 
   // Do nothing if the array has already been calculated (correct dimension)
   if (ncov == (int)_cholSills.size()) return 0;
-
+  _cholSills.resize(ncov);
+  _invCholSills.resize(ncov);
+  _cholSillsNoStat.resize(ncov);
+  _invCholSillsNoStat.resize(ncov);
+ 
   for (int icov = 0; icov < ncov; icov++)
   {
-    MatrixSquareSymmetric chols = _model->getSillValues(icov);
-    if (chols.computeCholesky() != 0) return 1;
-    _cholSills.push_back(chols);
-
+   if (_isNoStatForVariance[icov])
+   {  
+    if (_buildLocalMatricesNoStat(icov)) return 1;
+   }
+   else
+   {
+    if (_buildGlobalMatricesStationary(icov)) return 1;
+   }
   }
   return 0;
+}
+
+void PrecisionOpMulti::makeReady()
+{
+  _makeReady();
+}
+
+void PrecisionOpMulti::_makeReady()
+{
+  for (auto &e : _pops)
+    e->makeReady();
 }
 
 int PrecisionOpMulti::size(int imesh) const 
@@ -273,90 +359,51 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
-                                 Eigen::VectorXd& vecout) const {
-  EVALOP(_buildInvSills, 0, _invSills, getValue, addToDest)}
-
-/* int PrecisionOpMulti::evalDirectInPlace(const Eigen::VectorXd& vecin,
-                                              Eigen::VectorXd& vecout)
+int PrecisionOpMulti::_addToDestImpl(const Eigen::VectorXd& vecin,
+                          Eigen::VectorXd& vecout) const
 {
-  EVALOP(_buildInvSills,0,_invSills,getValue,evalDirect)
-}
- */
-/**
- * Evaluate the product of this phantom matrix by the input vector
- * @param vecin Input array
- */
-Eigen::VectorXd PrecisionOpMulti::evalDirect(const Eigen::VectorXd& vecin)
-{
-  int totsize = getSize();
-  
-  // Blank out the output vector
-  Eigen::VectorXd vecout(totsize);
-  VectorEigen::fill(vecout,0.);
-  if (ALinearOp::evalDirect(vecin,vecout))
+  if (!_checkReady()) return 1;
+  if (_getNVar() > 1)
   {
-    return Eigen::VectorXd();
+    _workTot.resize(vecin.size());
+    VectorEigen::fill(_workTot,0.);
+  
+   EVALOP(vecin,_workTot ,_invCholSills,getCholeskyXL,addToDest,iad_struct + jvar * napices,false,x,jvar,nvar,ivar,jvar)
+   EVALOP(_workTot, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,(jvar+1),jvar,ivar)
   }
-
-  return vecout;
-
+  else 
+  {
+    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,1,0,0)
+  }
 }
 
+int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
+                          Eigen::VectorXd& vecout) const
+{
+  return _addToDestImpl(vecin,vecout);
+  
+}
 /**
  * Simulate based on an input random gaussian vector (Matrix free version)
  * @param vecin  Input array
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::evalSimulateInPlace(const Eigen::VectorXd& vecin,
+int PrecisionOpMulti::_addSimulateInPlace(const Eigen::VectorXd& vecin,
                                                 Eigen::VectorXd& vecout)
 {
-  EVALOP(_buildCholSills,ivar,_cholSills,getCholeskyTL,evalSimulate)
+  if (!_checkReady()) return 1;
+  EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,*y,jvar,nvar,ivar,jvar)
 }
 
 VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
 {
+  if (!_checkReady()) return VectorDouble(); 
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(),vec.size());
   Eigen::VectorXd out(vec.size());
-  evalSimulateInPlace(vecm,out);
+  VectorEigen::fill(out,0.);
+  _addSimulateInPlace(vecm,out);
   return VectorEigen::copyIntoVD(out);
 }
 
-
-/**
- * Simulate based on an input random gaussian vector (Matrix free version)
- * @param vecin Input array
- */
-Eigen::VectorXd PrecisionOpMulti::evalSimulate(const Eigen::VectorXd& vecin)
-{
-  int totsize = getSize();
-  
-  Eigen::VectorXd vecout(totsize);
-  VectorEigen::fill(vecout,0.);
-  if (evalSimulateInPlace(vecin,vecout))
-  {
-    return Eigen::VectorXd();
-  }
-
-  return vecout;
-}
-
-int PrecisionOpMulti::_prepareOperator(const Eigen::VectorXd& vecin,
-                                             Eigen::VectorXd& vecout) const
-{
-   int totsize = getSize();
-  if ((int)vecin.size() != totsize)
-  {
-    messerr("'vecin' (%d) should be of dimension (%d)", (int)vecin.size(), totsize);
-    return 1;
-  }
-  if ((int)vecout.size() != totsize)
-  {
-    vecout.resize(totsize);
-  }
-
-  vecout.fill(0.);
-  return 0;
-}
                                             
