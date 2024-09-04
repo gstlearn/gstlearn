@@ -2104,6 +2104,7 @@ void cs_vector_Mx(const cs *A, int nout, const double *x, double *y)
 /* y += A %*% x */
 void cs_vector_addToDest_Mx(const cs *A, int nout, const double *x, double *y)
 {
+  DECLARE_UNUSED(nout);
   int *Ap, *Ai, n;
   double *Ax;
 
@@ -2130,6 +2131,7 @@ void cs_vector_tMx(const cs *A, int nout, const double *x, double *y)
 /* y += t(A) %*% x */
 void cs_vector_addToDest_tMx(const cs *A, int nout, const double *x, double *y)
 {
+  DECLARE_UNUSED(nout);
   int *Ap, *Ai, n;
   double *Ax;
 

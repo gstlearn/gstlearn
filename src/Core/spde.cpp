@@ -1678,6 +1678,7 @@ static void st_gibbs(int igrf,
                      Db *dbout,
                      double *zcur)
 {
+  DECLARE_UNUSED(dbin);
   QChol* QC = spde_get_current_matelem(-1).QC;
   double sk;
   double yk = 0.;

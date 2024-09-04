@@ -324,6 +324,9 @@ void Chebychev::evalOp(MatrixSparse* S,const Eigen::VectorXd& x,Eigen::VectorXd&
 
 void Chebychev::addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
 {
+  DECLARE_UNUSED(Op);
+  DECLARE_UNUSED(inv);
+  DECLARE_UNUSED(outv);
   //TODO implement
 }
 
