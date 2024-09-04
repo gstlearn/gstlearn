@@ -128,7 +128,6 @@ set(SRC
   Core/potential.cpp
   Core/foxleg.cpp
   Core/util.cpp
-  Core/anam.cpp
   Core/ascii.cpp
   Core/pile.cpp
   Core/mlayers.cpp

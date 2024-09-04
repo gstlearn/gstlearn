@@ -377,16 +377,6 @@ GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
 GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
 GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
 
-/***************************************/
-/* Prototyping the functions in anam.c */
-/***************************************/
-
-GSTLEARN_EXPORT int anam_point_to_block(AAnam *anam,
-                                        int verbose,
-                                        double cvv,
-                                        double coeff,
-                                        double mu);
-
 /*************************************/
 /* Prototyping the functions in db.c */
 /*************************************/

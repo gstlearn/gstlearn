@@ -5128,9 +5128,9 @@ void _image_smoother(DbGrid *dbgrid,
   for (int iech = 0; iech < nech; iech++)
     tab[iech] = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
 
-  DbGrid* dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(),
-                          dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
-                          { ELoc::Z.getKey() }, 1);
+  DbGrid* dbaux =
+    DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles(),
+                   ELoadBy::COLUMN, tab, {"test"}, {ELoc::Z.getKey()}, 1);
 
   int nb_neigh = dbaux->getSampleNumber(true);
   dbaux->rankToIndice(nb_neigh/2, indn0);

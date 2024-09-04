@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Enum/EMorpho.hpp"
 
@@ -22,7 +21,6 @@
 
 static int RADIUS[3];
 static int LARGE = 9999999;
-
 
 /*! \cond */
 #define CROSS 0
@@ -869,7 +867,7 @@ VectorInt gridcell_neigh(int ndim,
 /**
  * Calculate the gradient orientations of a colored image
  */
-void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
+void db_morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 {
   int iad;
   double result;
@@ -940,7 +938,7 @@ void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 /**
  * Calculate the gradient components of a colord image
  */
-void _morpho_gradients(DbGrid *dbgrid, int iptr)
+void db_morpho_gradients(DbGrid *dbgrid, int iptr)
 {
   int j1, j2, number;
 
@@ -1020,7 +1018,7 @@ void _morpho_gradients(DbGrid *dbgrid, int iptr)
 /**
  * Perform a morphological operation with a DbGrid
  */
-int _db_morpho_calc(DbGrid *dbgrid,
+int db_morpho_calc(DbGrid *dbgrid,
                     int iptr0,
                     const EMorpho &oper,
                     double vmin,
@@ -1087,13 +1085,13 @@ int _db_morpho_calc(DbGrid *dbgrid,
   }
   else if (oper == EMorpho::ANGLE)
   {
-    _morpho_angle2D(dbgrid,radius,iptr0);
+    db_morpho_angle2D(dbgrid,radius,iptr0);
     alreadyLoaded = true;
     alreadySaved = true;
   }
   else if (oper == EMorpho::GRADIENT)
   {
-    _morpho_gradients(dbgrid, iptr0);
+    db_morpho_gradients(dbgrid, iptr0);
     alreadyLoaded = true;
     alreadySaved = true;
   }
