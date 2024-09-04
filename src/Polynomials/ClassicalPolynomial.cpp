@@ -217,7 +217,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       const VectorDouble& inv,
                                       VectorDouble& outv,
                                       int iapex,
-                                      int igparam)const
+                                      int igparam)
 {
   DECLARE_UNUSED(shiftOp);
   DECLARE_UNUSED(inv);
@@ -265,7 +265,7 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
                                            VectorDouble& outv,
                                            const VectorVectorDouble& workpoly,
                                            int iapex,
-                                           int igparam) const
+                                           int igparam)
 {
   DECLARE_UNUSED(shiftOp);
   DECLARE_UNUSED(temp1);
