@@ -37,7 +37,6 @@ Website: https://gstlearn.org
 #include <math.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <set>
 #include <iostream>
 #include "csparse_d.h"
 #include "csparse_f.h"

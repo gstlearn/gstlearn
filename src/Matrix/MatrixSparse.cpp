@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSparse.hpp"
+#include "Basic/AStringable.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -1164,7 +1165,7 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
   }
   if (getNRows() != (int) vec.size())
   {
-    messerr("Matrix dimension (%d) does not math vector dimension (%d)",
+    messerr("Matrix dimension (%d) does not match vector dimension (%d)",
             getNRows(), (int) vec.size());
     return;
   }
@@ -1469,7 +1470,7 @@ int getUpdateNonZeroValue()
 int MatrixSparse::_eigen_findColor(int imesh,
                                    int ncolor,
                                    VectorInt &colors,
-                                   VectorInt &temp)
+                                   VectorInt &temp) const
 {
   temp.fill(0);
 
@@ -1491,7 +1492,7 @@ int MatrixSparse::_eigen_findColor(int imesh,
   return (-1);
 }
 
-VectorInt MatrixSparse::colorCoding()
+VectorInt MatrixSparse::colorCoding() const
 {
   int next_col = 0;
   int ncol = 0;
@@ -1715,6 +1716,22 @@ void MatrixSparse::gibbs(int iech,
 int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
-    outv += _eigenMatrix * outv;
+    outv += _eigenMatrix * inv;
     return 0;
 }
+
+void MatrixSparse::setDiagonal(const Eigen::VectorXd& tab)
+{
+    Eigen::Map<const Eigen::VectorXd> vecm(tab.data(), tab.size());
+    _eigenMatrix = vecm.asDiagonal();
+}
+
+
+///////////////Not exported //////////
+
+Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
+                                 const Eigen::SparseMatrix<double>& M)
+{
+  return A.transpose() * M * A;
+}
+

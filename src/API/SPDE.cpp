@@ -25,6 +25,7 @@
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
+#include "geoslib_define.h"
 
 #include <Eigen/src/Core/Map.h>
 #include <Eigen/src/Core/Matrix.h>
@@ -644,7 +645,7 @@ double SPDE::_computeLogLikelihood(int nbsimu, int seed) const
   {
     _computeDriftCoeffs();
   }
-  return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad());
+  return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad() +_workingData.size() * log (2. * GV_PI));
 }
 
 /**

@@ -445,6 +445,13 @@ double MatrixSquareSymmetric::getCholeskyTL(int i, int j) const
   if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
   int neq = getNRows();
   return (i >= j) ? _TL(i,j) : 0.;
+
+}
+
+double MatrixSquareSymmetric::getCholeskyTL(int iad) const
+{
+  if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
+  return _tl[iad];
 }
 
 VectorDouble MatrixSquareSymmetric::getCholeskyXL() const

@@ -36,7 +36,7 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
+  int  attachToMesh(const AMesh* mesh, bool center = true, bool verbose = false) const override;
   int  attachToDb(Db* db, int icas, bool verbose = false) const override;
 
   double getValue(const EConsElem &type,

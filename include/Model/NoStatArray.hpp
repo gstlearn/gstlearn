@@ -40,7 +40,7 @@ public:
                   int igrf = -1) const override;
   double getValueByParam(int ipar, int icas, int rank) const override;
 
-  int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
+  int  attachToMesh(const AMesh* mesh, bool center = true, bool verbose = false) const override;
   void detachFromMesh() const override;
   int  attachToDb(Db* db, int icas, bool verbose = false) const override;
   void detachFromDb(Db* db, int icas) const override;

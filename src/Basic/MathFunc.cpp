@@ -1912,7 +1912,7 @@ int besselj_table(double x, double alpha, int nb, double *b)
 ** \remark  Research Council, Canada.
 **
 *****************************************************************************/
-int matern(double x, double alpha, int nb, double *bk)
+int besselk(double x, double alpha, int nb, double *bk)
 {
   static double p[] = {
     .805629875690432845,20.4045500205365151,

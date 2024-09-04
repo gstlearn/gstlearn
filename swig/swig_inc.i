@@ -383,6 +383,7 @@
 %template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
 %template(VVectorConstIProjMatrix) std::vector< std::vector< const IProjMatrix*> >;
+%template(VectorMeshes)            std::vector< const AMesh* >;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 
