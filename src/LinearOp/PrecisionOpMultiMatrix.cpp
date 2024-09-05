@@ -21,6 +21,7 @@
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
                                    const std::vector<const AMesh*>& meshes)
   : PrecisionOpMulti(model,meshes,false)
+  , _Q(MatrixSparse(0,0))
 {
   buildQop();
   _prepareMatrix();
@@ -39,9 +40,12 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const Ma
     {
       MatrixSparse copy = *Q;
       copy.prodScalar(sills.getValue(ivar,jvar));
-      MatrixSparse::glueInPlace(&currentCol,&copy ,1,0);
+      int shift = ( ivar > 0 ) ? 1 : 0;
+      MatrixSparse::glueInPlace(&currentCol,&copy ,shift,0);
     }
-    MatrixSparse::glueInPlace(&current, &currentCol, 0, 1);
+    int shift = ( jvar > 0 ) ? 1 : 0;
+
+    MatrixSparse::glueInPlace(&current, &currentCol, 0, shift);
   }
   return current;
 }
@@ -56,28 +60,31 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const Matrix
   MatrixSparse bigQ = MatrixSparse(0,0);
   for (int jvar = 0; jvar < nvar; jvar++)
   {
-    MatrixSparse::glueInPlace(&bigQ, Q, 1, 1);
+    int shift = ( jvar > 0 ) ? 1 : 0;
+    MatrixSparse::glueInPlace(&bigQ, Q, shift, shift);
   }
   MatrixSparse bigLambda = MatrixSparse(0,0);
-  for (int jvar = 0; jvar < nvar; jvar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    MatrixSparse currentCol(0,0);
-    for (int ivar = 0; ivar < nvar; ivar++)
+    MatrixSparse currentRow(0,0);
+    for (int jvar = 0; jvar < nvar; jvar++)
     {
-      if (ivar <= jvar)
+      int shift = ( jvar > 0 ) ? 1 : 0;
+      if (jvar <= ivar)
       {
-        diag.setDiagonal(_invCholSillsNoStat[icov][IND(jvar,ivar,nvar)]);
-        MatrixSparse::glueInPlace(&currentCol,&diag ,1,0);
+        diag.setDiagonal(_invCholSillsNoStat[icov][IND(ivar,jvar,nvar)]);
+        MatrixSparse::glueInPlace(&currentRow,&diag ,shift,0);
       }
       else 
       {
-        MatrixSparse::glueInPlace(&currentCol,&empty ,1,0);
+        MatrixSparse::glueInPlace(&currentRow,&empty ,shift,0);
       }
     }
-    MatrixSparse::glueInPlace(&bigLambda, &currentCol, 0, 1);
+    int shift = ( ivar > 0 ) ? 1 : 0;
+    MatrixSparse::glueInPlace(&bigLambda, &currentRow, 0, shift);
   }
 
-  MatrixSparse result;
+  MatrixSparse result(bigQ.getNRows(),bigQ.getNCols());
   result.prodNormMatMatInPlace(&bigLambda,&bigQ,false);
   return result;
 }
@@ -96,14 +103,15 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
 {
   if (_isSingle()) return;
 
-  MatrixSparse current;
+  MatrixSparse current(0,0);
   for (int istruct = 0; istruct < _getNCov(); istruct++)
   {   
     const MatrixSparse *Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
+    int shift = ( istruct > 0 ) ? 1 : 0;
 
     if (_model->getVariableNumber() == 1)
     {
-      MatrixSparse::glueInPlace(&_Q,Q,1,1);
+      MatrixSparse::glueInPlace(&_Q,Q,shift,shift);
     }
     else 
     {
@@ -115,7 +123,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
       {
         current = _prepareMatrixStationary(istruct,Q);
       }
-      MatrixSparse::glueInPlace(&_Q, &current,1,1);
+      MatrixSparse::glueInPlace(&_Q, &current,shift,shift);
     }
   }    
 }

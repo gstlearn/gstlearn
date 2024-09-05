@@ -10,8 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "gstlearn_export.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 class PrecisionOpMultiMatrix;
 class ProjMultiMatrix;
@@ -24,14 +26,15 @@ public:
   SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr, const ProjMultiMatrix* A = nullptr, const MatrixSparse* invNoise = nullptr);
   virtual ~SPDEOpMatrix();
 
-  int getSize() const override;
-
 #ifndef SWIG
-protected:
-  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+private:
+  int _addToDestImpl(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  int _solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
 #endif
 
 private:
-  MatrixSparse* _QpAinvNoiseAt;
+  mutable MatrixSparse _QpAinvNoiseAt; //mutable is required to perform the Cholesky decompositions
+                                       // when needed, e.g in a const method.
 };
+                               
 

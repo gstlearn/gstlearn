@@ -10,11 +10,10 @@
 /******************************************************************************/
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/VectorEigen.hpp"
 
-VectorDouble  ALinearOp::evalDirect(const VectorDouble& in)
+VectorDouble  ALinearOp::evalDirect(const VectorDouble& in) const
 {
   VectorDouble res(in.size());
   evalDirect(in,res);
@@ -48,9 +47,10 @@ int ALinearOp::addToDest(const VectorEigen& inv, VectorEigen& outv) const
 }
 
 int ALinearOp::evalDirect(const Eigen::VectorXd& inv,
-                            Eigen::VectorXd& outv)
+                                Eigen::VectorXd& outv) const
 {
-    for (int i=0;i<(int)outv.size();i++)
+    int n = (int)outv.size();
+    for (int i = 0; i < n; i++)
     {
       outv[i] = 0.;
     }              
@@ -77,7 +77,7 @@ int ALinearOp::addToDest(const Eigen::VectorXd& inv,
 **
 *****************************************************************************/
 int ALinearOp::evalDirect(const VectorDouble& inv,
-                           VectorDouble& outv)
+                           VectorDouble& outv) const
 {
   return addToDest(inv,outv);
 }
@@ -92,7 +92,7 @@ int ALinearOp::evalDirect(const VectorDouble& inv,
 **
 *****************************************************************************/
 int ALinearOp::evalDirect(const VectorEigen& inv,
-                           VectorEigen& outv)
+                           VectorEigen& outv) const
 {
   return evalDirect(inv.getVector(), outv.getVector());
 }

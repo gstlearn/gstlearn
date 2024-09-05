@@ -9,34 +9,43 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/SPDEOpMatrix.hpp"
+#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
-SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop, const ProjMultiMatrix* A, const MatrixSparse* invNoise)
+SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop, 
+                           const ProjMultiMatrix* A, 
+                           const MatrixSparse* invNoise)
 : SPDEOp(pop,A,invNoise)
+, _QpAinvNoiseAt(MatrixSparse(0,0))
 {
-  _QpAinvNoiseAt = invNoise->clone();
+  _QpAinvNoiseAt.resize(pop->getSize(), pop->getSize());
+  _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(),invNoise,true);
+  _QpAinvNoiseAt.addMatInPlace(*pop->getQ());
 }
 
-SPDEOpMatrix::~SPDEOpMatrix() {}
-
-int SPDEOpMatrix::getSize() const
+SPDEOpMatrix::~SPDEOpMatrix()
 { 
-  return _Q->getSize(); 
 }
+
+int SPDEOpMatrix::_solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+{
+  _QpAinvNoiseAt.computeCholesky();
+  return _QpAinvNoiseAt.solveCholesky(inv,outv);
+}
+
 /*****************************************************************************/
 /*!
-**  Evaluate the product (by the SPDEOpMatrix) : 'outv' = I * 'inv' = 'inv'
+**  Evaluate the product (by the SPDEOpMatrix)
 **
 ** \param[in]  inv     Array of input values
 **
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOpMatrix::_addToDest(const Eigen::VectorXd& inv,
+int SPDEOpMatrix::_addToDestImpl(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
-  for (int i = 0, n = getSize(); i < n; i++)
-    outv[i] += inv[i];
-  return 0;
+ return _QpAinvNoiseAt.addToDest(inv,outv);
 }

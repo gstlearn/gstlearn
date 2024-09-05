@@ -27,7 +27,7 @@ template<typename TLinOP>
 class LinearOpCGSolver
 {
 public:
-  LinearOpCGSolver(TLinOP* linop);
+  LinearOpCGSolver(const TLinOP* linop);
 
   void solve(const VectorDouble& rhs, VectorDouble& out);
   void solve(const VectorEigen& rhs, VectorEigen& out);
@@ -44,7 +44,7 @@ private:
 
 #ifndef SWIG
 template<typename TLinOP>
-LinearOpCGSolver<TLinOP>::LinearOpCGSolver(TLinOP* linop)
+LinearOpCGSolver<TLinOP>::LinearOpCGSolver(const TLinOP* linop)
 {
   if (linop == nullptr)
     throw("linop must be valid and inherit from ALinearOpEigenCG to use Eigen CG");

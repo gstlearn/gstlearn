@@ -230,7 +230,7 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
 
 #ifndef SWIG
   public : 
-  void setDiagonal(const Eigen::VectorXd& vec);
+  void setDiagonal(const Eigen::VectorXd& tab);
 #endif
 protected:
   /// Interface for AMatrix

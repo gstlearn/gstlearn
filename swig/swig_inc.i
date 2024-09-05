@@ -156,6 +156,7 @@
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
   #include "LinearOp/SPDEOp.hpp"
+  #include "LinearOp/SPDEOpMatrix.hpp"
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"

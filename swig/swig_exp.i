@@ -178,6 +178,7 @@
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp
 %include LinearOp/SPDEOp.hpp
+%include LinearOp/SPDEOpMatrix.hpp
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp

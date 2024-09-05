@@ -175,14 +175,14 @@ print("---------------------")
 print("Test 12: mesh2point from the matrix in python (with toTL()):")
 print("---------------------")
 print("Difference with manual computation " + \
-      str(np.round(np.sum(np.abs(aM.toTL() @ gaussA - resnumpyM2P)),15)))
+      str(np.round(np.sum(np.abs(aM.getProj().toTL() @ gaussA - resnumpyM2P)),15)))
 
 # %%
 print("---------------------")
 print("Test 13: point2mesh from the matrix in python (with toTL()):")
 print("---------------------")
 print("Difference with manual computation " + \
-      str(np.round(np.sum(np.abs(aM.toTL().T @ gaussP - resnumpyP2M)),15)))
+      str(np.round(np.sum(np.abs(aM.getProj().toTL().T @ gaussP - resnumpyP2M)),15)))
 
 # %%
 vect = gl.VectorEigen(gaussA)

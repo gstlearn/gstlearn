@@ -14,7 +14,6 @@
 #include "LinearOp/IProjMatrix.hpp"
 #include "Matrix/VectorEigen.hpp"
 #include <Eigen/src/Core/Matrix.h>
-#include <algorithm>
 
 int ProjMulti::findFirstNoNullOnRow(int j) const
 {
@@ -50,8 +49,9 @@ int ProjMulti::findFirstNoNullOnCol(int j) const
 bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &projs) const
 {
     if (projs.empty())
-    {
-        messerr("projs is empty.");
+    {   
+        if (!_silent)
+            messerr("projs is empty.");
         return true;
     }
 
@@ -143,17 +143,25 @@ void ProjMulti::_init()
 
 }
 
-ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs)
+ProjMulti::~ProjMulti()
+{
+     _clear();
+}
+
+ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs, bool silent)
 : _projs(projs)
 , _pointNumber(0)
 , _apexNumber(0)
 , _nlatent(0)
 , _nvariable(0)
+, _silent(silent)
 {   
 
     if (_checkArg(_projs))
-    {
-        messerr("Problem in initialization of ProjMulti.");
+    {   if (_projs.size()!=0)
+        {
+            messerr("Problem in initialization of ProjMulti.");
+        }
         _projs.resize(0);
         return;
     }
