@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Enum/ELoc.hpp"
 
 #include "Basic/NamingConvention.hpp"
@@ -19,8 +21,6 @@
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Tree/Ball.hpp"
-
-#include "geoslib_old_f.h"
 
 #include <math.h>
 

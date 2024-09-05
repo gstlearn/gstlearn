@@ -24,8 +24,7 @@
 ** \remarks The output arrays should be freed by the calling program
 **
 ****************************************************************************/
-void inquire_gstlearn(char **release,
-                                      char **date)
+void inquire_gstlearn(char **release, char **date)
 {
   char *buffer;
 

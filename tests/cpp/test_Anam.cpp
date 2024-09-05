@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AAnam.hpp"

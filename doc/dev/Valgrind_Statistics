@@ -1,0 +1,19 @@
+This file collects the statistics of the following command at different times
+Command:
+
+    valgrind --tool=callgrind Release/name_executable
+
+The following programs are tested (be sure to mention when the contents has changed)
+The unit is 1M instructions
+
+BS: bench_Simtub (Non-conditional Simulations using Turning Bands)
+BKU: bench_KrigingU (Kriging in Unique Neighborhood)
+BKM: bench_KrigingM (Kriging in Moving neighborhood)
+BKB: Bench_KrigingB (Kriging in Bench neighborhood)
+BKI: bench_KrigingI (Kriging in Image Neighborhood)
+BVG: bench_VGrid (Variogram calculated on Grid)
+BV: bench on Variogram calculation in various conditions
+
+Date      BS      BKU     BKM     BKB     BKI     BVG     BV
+03/09/24  014,779 005,920 016,496 002,700 119,872 007,598 
+05/09/24          005,920                 043,687         045,209

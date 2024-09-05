@@ -8,14 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Db/DbHelper.hpp"
 
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Skin/Skin.hpp"
 #include "Basic/Law.hpp"
-
-#include "geoslib_old_f.h"
 
 static DbGrid *DB_GRID_FILL;
 

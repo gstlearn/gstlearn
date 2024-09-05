@@ -2751,19 +2751,17 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
                         Cheb_Elem *cheb_elem,
                         const VectorDouble& blin)
 {
-  double *coeffs, *x1, *y1, *x2, *y2;
+  double *coeffs;
   double minsubdiv, theta, ct, val1, val2, coeff, power, a, b;
-  int n, ncmax, error;
+  int n, ncmax;
 
   /* Initializations */
 
-  error = 1;
   power = cheb_elem->power;
   ncmax = cheb_elem->ncmax;
   a = cheb_elem->a;
   b = cheb_elem->b;
   coeffs = cheb_elem->coeffs;
-  x1 = y1 = x2 = y2 = nullptr;
 
   minsubdiv = pow(2., 20.);
   if (minsubdiv >= (ncmax + 1.) / 2.)
@@ -2773,14 +2771,10 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
 
   /* Core allocation */
 
-  x1 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (x1 == nullptr) goto label_end;
-  y1 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (y1 == nullptr) goto label_end;
-  x2 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (x2 == nullptr) goto label_end;
-  y2 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (y2 == nullptr) goto label_end;
+  VectorDouble x1(n, 0);
+  VectorDouble y1(n, 0);
+  VectorDouble x2(n, 0);
+  VectorDouble y2(n, 0);
 
   /* Filling the arrays */
 
@@ -2798,8 +2792,8 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
 
   /* Perform the FFT transform */
 
-  if (fftn(1, &n, x1, y1, 1, 1.)) goto label_end;
-  if (fftn(1, &n, x2, y2, -1, 1.)) goto label_end;
+  if (fftn(1, &n, x1.data(), y1.data(), 1, 1.)) return 1;
+  if (fftn(1, &n, x2.data(), y2.data(), -1, 1.)) return 1;
 
   /* Store the coefficients */
 
@@ -2815,16 +2809,7 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
   }
   coeffs[0] /= 2.;
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) x1);
-  mem_free((char* ) y1);
-  mem_free((char* ) x2);
-  mem_free((char* ) y2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

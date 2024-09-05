@@ -29,6 +29,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Grid.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Tree/Ball.hpp"

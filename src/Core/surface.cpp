@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
 #include "Basic/Utilities.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"

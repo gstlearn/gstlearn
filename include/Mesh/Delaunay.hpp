@@ -16,9 +16,9 @@
 #include "Db/DbGrid.hpp"
 #include "Mesh/AMesh.hpp"
 
-GSTLEARN_EXPORT double* get_db_extension(Db* dbin, Db* dbout, int* nout);
-GSTLEARN_EXPORT double* extend_grid(DbGrid* db, const double* gext, int* nout);
-GSTLEARN_EXPORT double* extend_point(Db* db, const double* gext, int* nout);
+GSTLEARN_EXPORT VectorDouble get_db_extension(Db* dbin, Db* dbout, int* nout);
+GSTLEARN_EXPORT VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, int* nout);
+GSTLEARN_EXPORT VectorDouble extend_point(Db* db, const VectorDouble& gext, int* nout);
 GSTLEARN_EXPORT int MSS(int ndim, int ipol, int icas, int icorn, int idim);
 GSTLEARN_EXPORT int meshes_2D_write(const char* file_name,
                                     const char* obj_name,

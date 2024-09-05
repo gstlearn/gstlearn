@@ -180,7 +180,6 @@ static int factorize(int nPass, int *kt)
   return nFactor;
 }
 
-/*----------------------------------------------------------------------*/
 /*
  * singleton's mixed radix routine
  *

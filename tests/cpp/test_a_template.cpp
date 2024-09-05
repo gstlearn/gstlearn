@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "API/SPDE.hpp"
-#include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

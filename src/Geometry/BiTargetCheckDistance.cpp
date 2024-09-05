@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Geometry/BiTargetCheckDistance.hpp"
+
 #include "geoslib_old_f.h"
 
 #include "Basic/VectorHelper.hpp"
