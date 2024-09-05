@@ -176,7 +176,7 @@ int ProjConvolution::_addPoint2mesh(const Eigen::VectorXd &valonseismic,
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
    {
-     Eigen::Map<const Eigen::VectorXd> vec_S(valonseismic.data()+ iz * slice_S, valonseismic.size());
+     Eigen::Map<const Eigen::VectorXd> vec_S(valonseismic.data()+ iz * slice_S, slice_S);
      _AProjHoriz->prodMatVecInPlace(vec_S, vec_R, true);
      Eigen::Map<Eigen::VectorXd> temp(_work.data() + iz * slice_R, slice_R );
      VectorEigen::copy(vec_R,temp);
