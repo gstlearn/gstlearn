@@ -16,10 +16,12 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Tree/Ball.hpp"
 #include "geoslib_define.h"
 
 class Db;
 class DbGrid;
+class Ball;
 
 /**
  * \brief
@@ -112,7 +114,10 @@ protected:
   bool _flagXvalid;              /* True to suppress the target */
   bool _flagKFold;               /* True to perform a KFold Cross-validation */
 
+  bool _useBallSearch; /* If Neighborhood search favors Ball Tree algorithms */
+
 private:
   bool _flagIsUnchanged;
-  mutable VectorInt  _nbghMemo;
+  mutable VectorInt _nbghMemo;
+  mutable Ball _ball;
 };

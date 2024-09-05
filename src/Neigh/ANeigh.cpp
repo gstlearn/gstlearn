@@ -20,34 +20,37 @@
 #include <algorithm>
 
 ANeigh::ANeigh(const ASpace* space)
-    : ASpaceObject(space),
-      ASerializable(),
-      _dbin(nullptr),
-      _dbout(nullptr),
-      _dbgrid(nullptr),
-      _rankColCok(),
-      _iechMemo(-1),
-      _flagSimu(false),
-      _flagXvalid(false),
-      _flagKFold(false),
-      _flagIsUnchanged(false),
-      _nbghMemo()
+  : ASpaceObject(space)
+  , ASerializable()
+  , _dbin(nullptr)
+  , _dbout(nullptr)
+  , _dbgrid(nullptr)
+  , _rankColCok()
+  , _iechMemo(-1)
+  , _flagSimu(false)
+  , _flagXvalid(false)
+  , _flagKFold(false)
+  , _useBallSearch(false)
+  , _flagIsUnchanged(false)
+  , _nbghMemo()
+  , _ball()
 {
 }
 
-ANeigh::ANeigh(const ANeigh &r)
-    : ASpaceObject(r),
-      ASerializable(r),
-      _dbin(r._dbin),
-      _dbout(r._dbout),
-      _dbgrid(r._dbgrid),
-      _rankColCok(r._rankColCok),
-      _iechMemo(r._iechMemo),
-      _flagSimu(r._flagSimu),
-      _flagXvalid(r._flagXvalid),
-      _flagKFold(r._flagKFold),
-      _flagIsUnchanged(r._flagIsUnchanged),
-      _nbghMemo(r._nbghMemo)
+ANeigh::ANeigh(const ANeigh& r)
+  : ASpaceObject(r)
+  , ASerializable(r)
+  , _dbin(r._dbin)
+  , _dbout(r._dbout)
+  , _dbgrid(r._dbgrid)
+  , _rankColCok(r._rankColCok)
+  , _iechMemo(r._iechMemo)
+  , _flagSimu(r._flagSimu)
+  , _flagXvalid(r._flagXvalid)
+  , _flagKFold(r._flagKFold)
+  , _useBallSearch(r._useBallSearch)
+  , _flagIsUnchanged(r._flagIsUnchanged)
+  , _nbghMemo(r._nbghMemo)
 {
 }
 
@@ -64,7 +67,8 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _iechMemo = r._iechMemo;
     _flagSimu = r._flagSimu;
     _flagXvalid = r._flagXvalid;
-    _flagKFold = r._flagKFold;
+    _flagKFold  = r._flagKFold;
+    _useBallSearch = r._useBallSearch;
     _flagIsUnchanged = r._flagIsUnchanged;
     _nbghMemo = r._nbghMemo;
   }

@@ -2481,16 +2481,6 @@ void Db::updZVariable(int iech, int item, const EOperator& oper, double value)
   _array[internalAddress] = newval;
 }
 
-bool Db::isSampleIsotopic(int iech) const
-{
-  if (!isActive(iech)) return false;
-  for (int ivar = 0; ivar < getLocNumber(ELoc::Z); ivar++)
-  {
-    if (FFFF(getZVariable(iech, ivar)))  return false;
-  }
-  return true;
-}
-
 /**
  * Checks the number of variables in 'this' compared to the required 'nvar'
  * - compare=0: they should be equal
@@ -2538,7 +2528,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
  * @remark
  * The returned answer is false is there is no variable defined
  * or if the sample rank is not valid.
- * If 'nvar-max' is defined, the test is performed on the 'nvar_max'
+ * If 'nvar_max' is defined, the test is performed on the 'nvar_max'
  * first variables. Otherwise, it is performed on all ELOC.Z variables
  */
 bool Db::isIsotopic(int iech, int nvar_max) const
@@ -5290,18 +5280,18 @@ Table Db::printOneSample(int iech,
   return table;
 }
 
-void Db::copyByUID(int iuidIn, int iuidOut, bool useSel)
+void Db::copyByUID(int iuidIn, int iuidOut)
 {
   int icolIn = getColIdxByUID(iuidIn);
   int icolOut = getColIdxByUID(iuidOut);
   copyByCol(icolIn, icolOut);
 }
 
-void Db::copyByCol(int icolIn, int icolOut, bool useSel)
+void Db::copyByCol(int icolIn, int icolOut)
 {
   if (!isColIdxValid(icolIn)) return;
   if (!isColIdxValid(icolOut)) return;
 
-  for (int iech = 0, nech = getSampleNumber(useSel); iech < nech; iech++)
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
     _array[_getAddress(iech, icolOut)] = _array[_getAddress(iech, icolIn)];
 }

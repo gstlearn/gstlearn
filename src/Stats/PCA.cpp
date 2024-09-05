@@ -831,7 +831,7 @@ VectorBool PCA::_getVectorIsotopic(const Db* db)
     if (! db->isActive(iech))
       isoFlag[iech] = false;
     else
-      isoFlag[iech] = db->isSampleIsotopic(iech);
+      isoFlag[iech] = db->isIsotopic(iech);
   }
   return isoFlag;
 }
