@@ -88,7 +88,6 @@ void btree_zero(t_btree *b)
 
 	b->leaf_size = 40;
 	b->n_levels = 0;
-	b->dist_type = 0;
 	b->n_nodes = 0;
 }
 
@@ -110,7 +109,7 @@ int init_node(t_btree *b, int i_node, int idx_start, int idx_end)
 
   double radius = 0.0;
   for (int i = idx_start; i < idx_end; i++)
-    radius = fmax(radius, manhattan_dist(centroid, b->data[b->idx_array[i]], n_features));
+    radius = fmax(radius, st_dist_function(centroid, b->data[b->idx_array[i]], n_features));
 
   b->node_data[i_node].radius = radius;
   b->node_data[i_node].idx_start = idx_start;
@@ -208,36 +207,31 @@ void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 	}
 }
 
-bool define_dist_function(int dist_type)
+void define_dist_function(double (*dist_function)(const double* x1,
+                                                  const double* x2,
+                                                  int size))
 {
-  if (dist_type == 0)
-  {
-    st_dist_function = manhattan_dist;
-  }
-  else if (dist_type == 1)
+  if (dist_function == nullptr)
   {
     st_dist_function = euclidean_dist;
   }
   else
   {
-    messerr("This distance function (%d) code does not exist", dist_type);
-    return false;
+    st_dist_function = dist_function;
   }
-  return true;
 }
 
-t_btree* btree_init(const double **data,
-                    int n_samples,
-                    int n_features,
-                    int leaf_size,
-                    int dist_type)
+t_btree* btree_init(const double** data,
+           int n_samples,
+           int n_features,
+           int leaf_size,
+           double (*dist_function)(const double* x1, const double* x2, int size))
 {
 	t_btree* b = (t_btree*)malloc(sizeof(t_btree));
 	btree_zero(b);
 
 	b->data = copy_double_arr(data, n_samples, n_features);
 	b->leaf_size = leaf_size;
-	b->dist_type = dist_type;
 	
 	if (leaf_size < 1)
 	{
@@ -246,7 +240,7 @@ t_btree* btree_init(const double **data,
 	}
 
   // Define the relevant distance function
-  if (! define_dist_function(dist_type)) return nullptr;
+  define_dist_function(dist_function);
 
 	b->n_samples = n_samples;
 	b->n_features = n_features;
@@ -354,7 +348,6 @@ void btree_display(const t_btree *tree, int level)
   message("- Number of levels = %d\n", tree->n_levels);
   message("- Number of nodes = %d\n", tree->n_nodes);
   message("- Size of leaf = %d\n", tree->leaf_size);
-  message("- Distance type = %d\n", tree->dist_type);
   if (level < 0) return;
 
   // Loop on the nodes

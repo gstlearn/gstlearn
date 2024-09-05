@@ -83,7 +83,9 @@ public:
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setFlagKFold(bool flagKFold)   { _flagKFold = flagKFold; }
   void setFlagSimu(bool flagSimu)     { _flagSimu = flagSimu; }
-  void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
+  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
+
+  void attachBall(int leaf_size = 30);
 
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }

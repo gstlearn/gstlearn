@@ -3520,6 +3520,8 @@ VectorDouble Db::getColumnByColIdx(int icol,
     if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
     if (! defined)
     {
+      // The sample is masked off.
+      // If 'flagCompress' is ON, the sample is skipped
       if (flagCompress) continue;
       value = TEST;
     }
@@ -3596,22 +3598,15 @@ VectorDouble Db::getColumnsByUID(const VectorInt& iuids,
                                  const VectorDouble& origins) const
 {
   if (iuids.empty()) return VectorDouble();
-  int nech = getSampleNumber(useSel);
   int nvar = static_cast<int> (iuids.size());
-  VectorDouble retval(nvar * nech);
 
-  /* Loop on the variables to be retrieved */
-
-  int ecr = 0;
+  VectorInt icols(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble local = getColumnByUID(iuids[ivar], useSel, flagCompress);
-    if (local.empty()) continue;
-    double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
-    for (int iech = 0; iech < nech; iech++)
-      retval[ecr++] = local[iech] - origin;
+    icols[ivar] = getColIdxByUID(iuids[ivar]);
+    if (icols[ivar] < 0) return VectorDouble();
   }
-  return retval;
+  return getColumnsByColIdx(icols, useSel, flagCompress, origins);
 }
 
 /**

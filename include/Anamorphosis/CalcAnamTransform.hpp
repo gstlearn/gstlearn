@@ -45,7 +45,7 @@ public:
   void setFlagCondExp(bool flagCondExp) { _flagCondExp = flagCondExp; }
   void setFlagUniCond(bool flagUniCond) { _flagUniCond = flagUniCond; }
 
-  int anamPointToBlock(
+  static int anamPointToBlock(
     AAnam* anam, int verbose, double cvv, double coeff, double mu);
 
 private:
@@ -76,66 +76,66 @@ private:
                             bool flag_OK,
                             double* krigest,
                             double* krigstd);
-  void _getVectorsForCE(Db* db,
-                        int col_est,
-                        int col_std,
-                        bool flag_OK,
-                        VectorDouble& krigest,
-                        VectorDouble& krigstd);
-  int _conditionalExpectation(Db* db,
-                              AAnam* anam,
-                              const Selectivity* selectivity,
-                              int iptr0,
-                              int col_est,
-                              int col_std,
-                              bool flag_OK,
-                              double proba,
-                              int nbsimu);
-  int _uniformConditioning(Db* db,
-                           AnamHermite* anam,
-                           Selectivity* selectivity,
-                           int iptr0,
-                           int col_est,
-                           int col_var);
-  int _ceZ(Db* db,
-           const AnamHermite* anam,
-           const Selectivity* selectivity,
-           int iptr0,
-           int col_est,
-           int col_std,
-           int nbsimu,
-           bool flag_OK);
-  int _ceT(int mode,
-           Db* db,
-           const Selectivity* selectivity,
-           int iptr0,
-           int col_est,
-           int col_std,
-           const VectorDouble& ycuts,
-           int nbsimu,
-           bool flag_OK);
-  int _ceQ(Db* db,
-           const AnamHermite* anam,
-           const Selectivity* selectivity,
-           int iptr0,
-           int col_est,
-           int col_std,
-           const VectorDouble& ycuts,
-           int nbsimu,
-           bool flag_OK);
-  int _ceB(Db* db,
-           const Selectivity* selectivity,
-           int iptr0,
-           const VectorDouble& ycuts);
-  int _ceM(Db* db, const Selectivity* selectivity, int iptr0);
-  int _ceQuant(Db* db,
-               const AnamHermite* anam,
-               const Selectivity* selectivity,
-               int iptr0,
-               int col_est,
-               int col_std,
-               double proba,
-               bool flag_OK);
+  static void _getVectorsForCE(Db* db,
+                               int col_est,
+                               int col_std,
+                               bool flag_OK,
+                               VectorDouble& krigest,
+                               VectorDouble& krigstd);
+  static int _conditionalExpectation(Db* db,
+                                     AAnam* anam,
+                                     const Selectivity* selectivity,
+                                     int iptr0,
+                                     int col_est,
+                                     int col_std,
+                                     bool flag_OK,
+                                     double proba,
+                                     int nbsimu);
+  static int _uniformConditioning(Db* db,
+                                  AnamHermite* anam,
+                                  Selectivity* selectivity,
+                                  int iptr0,
+                                  int col_est,
+                                  int col_var);
+  static int _ceZ(Db* db,
+                  const AnamHermite* anam,
+                  const Selectivity* selectivity,
+                  int iptr0,
+                  int col_est,
+                  int col_std,
+                  int nbsimu,
+                  bool flag_OK);
+  static int _ceT(int mode,
+                  Db* db,
+                  const Selectivity* selectivity,
+                  int iptr0,
+                  int col_est,
+                  int col_std,
+                  const VectorDouble& ycuts,
+                  int nbsimu,
+                  bool flag_OK);
+  static int _ceQ(Db* db,
+                  const AnamHermite* anam,
+                  const Selectivity* selectivity,
+                  int iptr0,
+                  int col_est,
+                  int col_std,
+                  const VectorDouble& ycuts,
+                  int nbsimu,
+                  bool flag_OK);
+  static int _ceB(Db* db,
+                  const Selectivity* selectivity,
+                  int iptr0,
+                  const VectorDouble& ycuts);
+  static int _ceM(Db* db, const Selectivity* selectivity, int iptr0);
+  static int _ceQuant(Db* db,
+                      const AnamHermite* anam,
+                      const Selectivity* selectivity,
+                      int iptr0,
+                      int col_est,
+                      int col_std,
+                      double proba,
+                      bool flag_OK);
 
 private:
   int _iattVar;

@@ -12,32 +12,57 @@
 #include "Tree/ball_algorithm.h"
 #include "Db/Db.hpp"
 
-Ball::Ball(const double **data, int n_samples, int n_features, int leaf_size, int dist_type)
-    : _tree(nullptr)
+Ball::Ball(const double** data,
+           int n_samples,
+           int n_features,
+           int leaf_size,
+           double (*dist_function)(const double* x1, const double* x2, int size))
+  : _tree(nullptr)
 {
-  _tree = btree_init(data, n_samples, n_features, leaf_size, dist_type);
+  _tree = btree_init(data, n_samples, n_features, leaf_size, dist_function);
 }
 
-Ball::Ball(const VectorVectorDouble& data, int leaf_size, int dist_type)
-    : _tree(nullptr)
+Ball::Ball(const VectorVectorDouble& data,
+           int leaf_size,
+           double (*dist_function)(const double* x1, const double* x2, int size))
+  : _tree(nullptr)
 {
   int n_samples = (int) data[0].size();
   int n_features = (int) data.size();
   double** internal = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**) internal, n_samples, n_features,
-                     leaf_size, dist_type);
+  _tree = btree_init((const double**)internal, n_samples, n_features, leaf_size,
+                     dist_function);
   free_2d_double(internal, n_features);
 }
 
-Ball::Ball(const Db *db, int leaf_size, int dist_type, bool useSel)
-    : _tree(nullptr)
+Ball::Ball(const Db* db,
+           int leaf_size,
+           double (*dist_function)(const double* x1, const double* x2, int size),
+           bool useSel)
+  : _tree(nullptr)
 {
   VectorVectorDouble data = db->getAllCoordinates(useSel);
   int n_samples = (int) data[0].size();
   int n_features = (int) data.size();
   double** internal = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**) internal, n_samples,
-                     n_features, leaf_size, dist_type);
+  _tree = btree_init((const double**)internal, n_samples, n_features, leaf_size,
+                     dist_function);
+  free_2d_double(internal, n_features);
+}
+
+void Ball::init(const Db* db,
+                int leaf_size,
+                double (*dist_function)(const double* x1,
+                                    const double* x2,
+                                    int size),
+                bool useSel)
+{
+  VectorVectorDouble data = db->getAllCoordinates(useSel);
+  int n_samples           = (int)data[0].size();
+  int n_features          = (int)data.size();
+  double** internal       = copy_double_arrAsVVD(data);
+  _tree = btree_init((const double**)internal, n_samples, n_features, leaf_size,
+                     dist_function);
   free_2d_double(internal, n_features);
 }
 

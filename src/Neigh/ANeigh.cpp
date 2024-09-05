@@ -89,8 +89,23 @@ int ANeigh::attach(const Db *dbin, const Db *dbout)
   if (_dbout != nullptr)
     _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
+  // Attach the Ball Tree search (if relevant)
+
+  attachBall();
+
   setIsChanged();
   return 0;
+}
+
+void ANeigh::attachBall(int leaf_size)
+{
+  // Attach the Ball only if the option is switched ON
+  if (!_useBallSearch) return;
+
+  // Nothing can be done unless the Input Db is specifiied
+  if (_dbin == nullptr) return;
+
+  _ball.init(_dbin, leaf_size);
 }
 
 void ANeigh::setIsChanged(bool status)

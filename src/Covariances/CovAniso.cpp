@@ -706,7 +706,7 @@ double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) cons
 
   SpacePoint p1;
   SpacePoint p2;
-  p2.setCoord(freq);
+  p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
   double val = _cova->evaluateSpectrum(freqnorm * freqnorm);
   return  sill * val / getCorrec();

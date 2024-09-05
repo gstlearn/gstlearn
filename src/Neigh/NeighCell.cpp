@@ -17,7 +17,6 @@ NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpace *space)
     : ANeigh(space),
       _nMini(nmini),
       _biPtCell(),
-      _dbgrid(),
       _T1(space),
       _T2(space)
 {
@@ -30,7 +29,6 @@ NeighCell::NeighCell(const NeighCell& r)
     : ANeigh(r),
       _nMini(r._nMini),
       _biPtCell(r._biPtCell),
-      _dbgrid(r._dbgrid),
       _T1(r._T1),
       _T2(r._T2)
 {
@@ -43,7 +41,6 @@ NeighCell& NeighCell::operator=(const NeighCell& r)
     ANeigh::operator=(r);
     _nMini = r._nMini;
     _biPtCell = r._biPtCell;
-    _dbgrid = r._dbgrid;
     _T1 = r._T1;
     _T2 = r._T2;
    }

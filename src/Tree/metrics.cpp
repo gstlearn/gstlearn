@@ -58,10 +58,7 @@ double euclidean_dist(const double *x1, const double *x2, int size)
 {
   SpacePoint p1;
   SpacePoint p2;
-  for (int i = 0; i < size; i++)
-  {
-    p1.setCoord(i, x1[i]);
-    p2.setCoord(i, x2[i]);
-  }
+  p1.setCoords(x1, size);
+  p2.setCoords(x2, size);
   return p1.getDistance(p2);
 }

@@ -825,6 +825,7 @@ int CalcAnamTransform::_uniformConditioning(Db* db,
  ** \param[in]  iech         Rank of the sample
  ** \param[in]  col_est      Rank of the Kriging estimate
  ** \param[in]  col_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  flag_OK      true when used in Ordinary Kriging
  **
  ** \param[out] krigest      Kriging estimation
  ** \param[out] krigstd      Standard deviation of the estimation error
@@ -903,13 +904,13 @@ void CalcAnamTransform::_getVectorsForCE(Db* db,
  **
  *****************************************************************************/
 int CalcAnamTransform::_ceZ(Db* db,
-                                    const AnamHermite* anam,
-                                    const Selectivity* selectivity,
-                                    int iptr0,
-                                    int col_est,
-                                    int col_std,
-                                    int nbsimu,
-                                    bool flag_OK)
+                            const AnamHermite* anam,
+                            const Selectivity* selectivity,
+                            int iptr0,
+                            int col_est,
+                            int col_std,
+                            int nbsimu,
+                            bool flag_OK)
 {
   VectorDouble krigest, krigstd, valest, valstd;
 

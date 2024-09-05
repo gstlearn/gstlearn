@@ -68,7 +68,6 @@ struct t_btree
 
   int leaf_size;
   int n_levels;
-  int dist_type;
   int n_nodes;
 };
 
@@ -79,22 +78,22 @@ struct t_btree
 GSTLEARN_EXPORT double **copy_double_arrAsVVD(const VectorVectorDouble& arr);
 GSTLEARN_EXPORT double **copy_double_arr(const double **arr, int row, int col);
 GSTLEARN_EXPORT int **copy_int_arr(const int **arr, int row, int col);
-GSTLEARN_EXPORT t_btree* btree_init(const double **data,
-                                    int n_samples,
-                                    int n_features,
-                                    int leaf_size,
-                                    int dist_type);
-GSTLEARN_EXPORT void  free_2d_double(double **arr, int row);
-GSTLEARN_EXPORT void  free_2d_int(int **arr, int row);
-GSTLEARN_EXPORT void  free_tree(t_btree *tree);
-GSTLEARN_EXPORT void  finalize_tree(t_btree *tree); // to be suppressed when bug is corrected
-GSTLEARN_EXPORT void  btree_display(const t_btree *tree, int level=-1);
+GSTLEARN_EXPORT t_btree* btree_init(const double** data,
+           int n_samples,
+           int n_features,
+           int leaf_size,
+           double (*dist_function)(const double* x1, const double* x2, int size));
+GSTLEARN_EXPORT void free_2d_double(double **arr, int row);
+GSTLEARN_EXPORT void free_2d_int(int **arr, int row);
+GSTLEARN_EXPORT void free_tree(t_btree *tree);
+GSTLEARN_EXPORT void finalize_tree(t_btree *tree); // to be suppressed when bug is corrected
+GSTLEARN_EXPORT void btree_display(const t_btree* tree, int level = -1);
 
 /*
 ** metrics.c
 */
 
-double manhattan_dist(const double *x1, const double *x2, int size);
+double manhattan_dist(const double* x1, const double* x2, int size);
 double euclidean_dist(const double *x1, const double *x2, int size);
 
 /*

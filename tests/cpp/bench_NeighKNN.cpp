@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
       VH::display("", ranks);
     }
   }
-  timer.displayIntervalMilliseconds("Standard Neighborhood");
+  timer.displayIntervalMilliseconds("Standard Neighborhood", 19000);
 
   // Using KNN
   message("\nKNN Neighborhood search\n");
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
       VH::display("", indices);
     }
   }
-  timer.displayIntervalMilliseconds("KNN Neighborhood");
+  timer.displayIntervalMilliseconds("KNN Neighborhood", 900);
 
   delete neigh;
   delete data;

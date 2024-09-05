@@ -804,7 +804,7 @@ double CalcSimpleInterpolation::_stdevCalc(Db *dbin,
   SpacePoint pout;
 
   dbout->getCoordinatesPerSampleInPlace(iechout, coor);
-  pout.setCoord(coor);
+  pout.setCoords(coor);
 
   // Point Covariance at target
   double c00 = getModel()->eval(pout, pout);
