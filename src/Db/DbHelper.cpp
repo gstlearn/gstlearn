@@ -16,6 +16,8 @@
 #include "Db/DbGrid.hpp"
 #include "Skin/Skin.hpp"
 #include "Basic/Law.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 static DbGrid *DB_GRID_FILL;
 

@@ -135,10 +135,6 @@ bool NeighCell::hasChanged(int iech_out) const
  */
 void NeighCell::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
-  ranks.resize(nech);
-  ranks.fill(-1);
-
   // Select the neighborhood samples as the target sample has changed
   if (_cell(iech_out, ranks))
   {
@@ -167,6 +163,8 @@ void NeighCell::getNeigh(int iech_out, VectorInt& ranks)
 int NeighCell::_cell(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
+  ranks.resize(nech);
+  ranks.fill(-1);
 
   // Load the target sample as a Space Target
   _dbgrid->getSampleAsSTInPlace(iech_out, _T1);

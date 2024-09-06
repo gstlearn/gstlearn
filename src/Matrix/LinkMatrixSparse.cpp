@@ -17,6 +17,8 @@
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include "geoslib_old_f.h"
 

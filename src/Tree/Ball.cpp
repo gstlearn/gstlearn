@@ -11,6 +11,7 @@
 #include "Tree/Ball.hpp"
 #include "Tree/ball_algorithm.h"
 #include "Db/Db.hpp"
+#include "Space/SpacePoint.hpp"
 
 Ball::Ball(const double** data,
            int n_samples,
@@ -23,8 +24,10 @@ Ball::Ball(const double** data,
 }
 
 Ball::Ball(const VectorVectorDouble& data,
-           int leaf_size,
-           double (*dist_function)(const double* x1, const double* x2, int size))
+           double (*dist_function)(const double* x1,
+                                   const double* x2,
+                                   int size),
+           int leaf_size)
   : _tree(nullptr)
 {
   int n_samples = (int) data[0].size();
@@ -36,8 +39,10 @@ Ball::Ball(const VectorVectorDouble& data,
 }
 
 Ball::Ball(const Db* db,
+           double (*dist_function)(const double* x1,
+                                   const double* x2,
+                                   int size),
            int leaf_size,
-           double (*dist_function)(const double* x1, const double* x2, int size),
            bool useSel)
   : _tree(nullptr)
 {
@@ -51,10 +56,10 @@ Ball::Ball(const Db* db,
 }
 
 void Ball::init(const Db* db,
-                int leaf_size,
                 double (*dist_function)(const double* x1,
-                                    const double* x2,
-                                    int size),
+                                        const double* x2,
+                                        int size),
+                int leaf_size,
                 bool useSel)
 {
   VectorVectorDouble data = db->getAllCoordinates(useSel);
@@ -104,6 +109,22 @@ KNN Ball::queryOneAsVD(const VectorDouble& test, int n_neighbors)
   const double* internal = test.data();
   (void) knn.btree_query(_tree, (const double**) &internal, 1, n_features, n_neighbors);
   return knn;
+}
+
+KNN Ball::queryOneAsVD(const SpacePoint& Pt, int n_neighbors)
+{
+  KNN knn;
+  int n_features = Pt.getNDim();
+  const double* internal = Pt.getCoord().data();
+  (void)knn.btree_query(_tree, (const double**)&internal, 1, n_features,
+                        n_neighbors);
+  return knn;
+}
+
+VectorInt Ball::getIndices(const SpacePoint& Pt, int n_neighbors)
+{
+  KNN knn = queryOneAsVD(Pt, n_neighbors);
+  return knn.getIndices(0);
 }
 
 int Ball::queryClosest(const VectorDouble& test)

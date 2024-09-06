@@ -15,6 +15,7 @@
 #include "Basic/Grid.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Core/Memory.hpp"
 
 #include <math.h>
 

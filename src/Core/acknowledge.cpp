@@ -10,8 +10,9 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "Basic/String.hpp"
-#include "version.h"
+#include "Core/Memory.hpp"
 
+#include "version.h"
 #include <string.h>
 
 /****************************************************************************/

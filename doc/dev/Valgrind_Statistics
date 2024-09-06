@@ -17,3 +17,5 @@ BV: bench on Variogram calculation in various conditions
 Date      BS      BKU     BKM     BKB     BKI     BVG     BV
 03/09/24  014,779 005,920 016,496 002,700 119,872 007,598 
 05/09/24          005,920                 043,687         045,209
+                    ***    ***      ***  (new dimension + BallTree in MV)
+06/09/24          

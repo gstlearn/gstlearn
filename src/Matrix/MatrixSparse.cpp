@@ -1259,11 +1259,11 @@ void MatrixSparse::prodNormMatMatInPlace(const MatrixSparse* a,
   {
     if (transpose)
     {
-      _eigenMatrix = a->_eigenMatrix.transpose() * m->_eigenMatrix * a->_eigenMatrix;
+      _eigenMatrix = (a->_eigenMatrix.transpose() * m->_eigenMatrix) * a->_eigenMatrix;
     }
     else
     {
-      _eigenMatrix = a->_eigenMatrix * m->_eigenMatrix * a->_eigenMatrix.transpose();
+      _eigenMatrix = (a->_eigenMatrix * m->_eigenMatrix) * a->_eigenMatrix.transpose();
     }
   }
   else

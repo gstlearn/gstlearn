@@ -193,10 +193,6 @@ bool NeighBench::_isSameTargetBench(int iech_out) const
  */
 void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
-  ranks.resize(nech);
-  ranks.fill(-1);
-
   // Select the neighborhood samples as the target sample has changed
   _bench(iech_out, ranks);
 
@@ -220,6 +216,8 @@ void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
 void NeighBench::_bench(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
+  ranks.resize(nech);
+  ranks.fill(-1);
 
   // Load the target sample as a Space Target
   _dbout->getSampleAsSTInPlace(iech_out, _T1);

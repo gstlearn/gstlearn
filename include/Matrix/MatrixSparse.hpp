@@ -226,7 +226,7 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
 #ifndef SWIG
   protected:
   virtual int _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const;
+                          Eigen::VectorXd& outv) const override;
 #endif
 
 protected:

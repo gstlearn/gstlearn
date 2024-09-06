@@ -30,6 +30,8 @@
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/FileLAS.hpp"
 #include "OutputFormat/vtk.h"
+#include "Core/Memory.hpp"
+
 #include <string.h>
 #include <sstream>
 #include <string>

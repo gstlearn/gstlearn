@@ -33,6 +33,8 @@
 #include "Basic/PolyLine2D.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Tree/Ball.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 #include <string.h>

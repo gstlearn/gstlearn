@@ -31,6 +31,7 @@
 #include "Variogram/Vario.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 

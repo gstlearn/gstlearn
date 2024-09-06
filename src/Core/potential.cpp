@@ -24,6 +24,7 @@
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Core/Memory.hpp"
 
 #include <math.h>
 #include <string.h>

@@ -2289,23 +2289,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     return TEST;
   }
   int nDrift = getDriftEquationNumber();
-  if (! db->isAllIsotopic())
-  {
-    messerr("This method is only available for isotopic data set");
-    return TEST;
-  }
-  int nech = db->getSampleNumber(true);
-  if (verbose)
-  {
-    message("Likelihood calculation:\n");
-    message("- Number of active samples   = %d\n", nech);
-    message("- Number of variables        = %d\n", nvar);
-    if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", getDriftEquationNumber());
-    else
-      VH::display("Constant Mean(s)",getMeans());
-  }
-
+ 
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
   if (cov.computeCholesky() != 0)
@@ -2320,6 +2304,19 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     Z = db->getColumnsByLocator(ELoc::Z, true, true);
   else
     Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
+
+  int size = (int)Z.size();
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("- Number of active samples     = %d\n", db->getSampleNumber(true));
+    message("- Number of variables          = %d\n", nvar);
+    message("- Length of Information Vector = %d\n", size);
+    if (nDrift > 0)
+      message("- Number of drift conditions = %d\n", getDriftEquationNumber());
+    else
+      VH::display("Constant Mean(s)", getMeans());
+  }
 
   // If Drift functions are present, evaluate the optimal Drift coefficients first
   if (nDrift > 0)
@@ -2385,7 +2382,6 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   double quad = VH::innerProduct(Z, Cm1Z);
 
   // Derive the log-likelihood
-  int size = (int) Z.size();
   double loglike = -0.5 * (logdet + quad + size * log(GV_PI));
 
   // Optional printout

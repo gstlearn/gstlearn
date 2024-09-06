@@ -8,11 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Basic/VectorNumT.hpp"
 #include "Basic/FFT.hpp"
 #include "Arrays/Array.hpp"
+#include "Core/fftn.hpp"
 
 #include <math.h>
 

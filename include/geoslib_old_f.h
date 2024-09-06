@@ -74,16 +74,6 @@ GSTLEARN_EXPORT int pile_correct(int type, int rank, int mode);
 GSTLEARN_EXPORT char* pile_get(int type, int rank);
 GSTLEARN_EXPORT void piles_dump(void);
 
-/**************************************/
-/* Prototyping the functions in fft.c */
-/**************************************/
-
-GSTLEARN_EXPORT int fftn(int ndim,
-                         const int dims[],
-                         double Re[],
-                         double Im[],
-                         int iSign,
-                         double scaling);
 
 /***************************************/
 /* Prototyping the functions in math.c */
@@ -122,37 +112,6 @@ GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
 GSTLEARN_EXPORT void set_last_message(int mode, const char *string);
 GSTLEARN_EXPORT void print_last_message(void);
-GSTLEARN_EXPORT void set_keypair(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 const double *values);
-GSTLEARN_EXPORT void app_keypair(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 double *values);
-GSTLEARN_EXPORT void set_keypair_int(const char *keyword,
-                                     int origin,
-                                     int nrow,
-                                     int ncol,
-                                     int *values);
-GSTLEARN_EXPORT void app_keypair_int(const char *keyword,
-                                     int origin,
-                                     int nrow,
-                                     int ncol,
-                                     int *values);
-GSTLEARN_EXPORT double get_keypone(const char *keyword, double valdef);
-GSTLEARN_EXPORT int get_keypair(const char *keyword,
-                                int *nrow,
-                                int *ncol,
-                                double **values);
-GSTLEARN_EXPORT int get_keypair_int(const char *keyword,
-                                    int *nrow,
-                                    int *ncol,
-                                    int **values);
-GSTLEARN_EXPORT void del_keypair(const char *keyword, int flag_exact);
-GSTLEARN_EXPORT void print_keypair(int flag_short);
 GSTLEARN_EXPORT void print_range(const char *title,
                                  int ntab,
                                  const double *tab,
@@ -190,43 +149,6 @@ GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
 /* Prototyping the functions in memory.c */
 /*****************************************/
 
-/* Overwriting memory management functions */
-
-#define mem_free(tab)          mem_free_(__FILE__,__LINE__,tab)
-#define mem_alloc(a,b)         mem_alloc_(__FILE__,__LINE__,a,b)
-#define mem_calloc(a,b,c)      mem_calloc_(__FILE__,__LINE__,a,b,c)
-#define mem_realloc(tab,a,b)   mem_realloc_(__FILE__,__LINE__,tab,a,b)
-#define mem_copy(tab,a,b)      mem_copy_(__FILE__,__LINE__,tab,a,b)
-
-GSTLEARN_EXPORT void memory_leak_set(int flag);
-GSTLEARN_EXPORT void memory_leak_reset(void);
-GSTLEARN_EXPORT void memory_leak_report(void);
-GSTLEARN_EXPORT char* mem_alloc_(const char *call_file,
-                                 unsigned int call_line,
-                                 int size,
-                                 int flag_fatal);
-GSTLEARN_EXPORT char* mem_calloc_(const char *call_file,
-                                  unsigned int call_line,
-                                  int size_t,
-                                  int size,
-                                  int flag_fatal);
-GSTLEARN_EXPORT char* mem_realloc_(const char *call_file,
-                                   unsigned int call_line,
-                                   char *tab,
-                                   int size,
-                                   int flag_fatal);
-GSTLEARN_EXPORT char* mem_copy_(const char *call_file,
-                                unsigned int call_line,
-                                char *tabin,
-                                int size,
-                                int flag_fatal);
-GSTLEARN_EXPORT char* mem_free_(const char *call_file,
-                                unsigned int call_line,
-                                char *tab);
-GSTLEARN_EXPORT void mem_debug_set(int flag);
-GSTLEARN_EXPORT void memory_status(const char *title);
-GSTLEARN_EXPORT double** mem_tab_free(double **tab, int nvar);
-GSTLEARN_EXPORT double** mem_tab_alloc(int nvar, int size, int flag_fatal);
 GSTLEARN_EXPORT void time_start(void);
 GSTLEARN_EXPORT void time_reset(void);
 GSTLEARN_EXPORT void time_chunk_add(const char *call_name);

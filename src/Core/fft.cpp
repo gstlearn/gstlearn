@@ -52,7 +52,7 @@ Authors: gstlearn Team
 Website: https://gstlearn.org
 License: BSD 3-clause
 */
-#include "geoslib_old_f.h"
+#include "Core/fftn.hpp"
 #include "Basic/AStringable.hpp"
 
 #include <string.h>

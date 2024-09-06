@@ -31,6 +31,7 @@ ANeigh::ANeigh(const ASpace* space)
   , _flagXvalid(false)
   , _flagKFold(false)
   , _useBallSearch(false)
+  , _ballLeafSize(10)
   , _flagIsUnchanged(false)
   , _nbghMemo()
   , _ball()
@@ -49,6 +50,7 @@ ANeigh::ANeigh(const ANeigh& r)
   , _flagXvalid(r._flagXvalid)
   , _flagKFold(r._flagKFold)
   , _useBallSearch(r._useBallSearch)
+  , _ballLeafSize(r._ballLeafSize)
   , _flagIsUnchanged(r._flagIsUnchanged)
   , _nbghMemo(r._nbghMemo)
 {
@@ -69,6 +71,7 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _flagXvalid = r._flagXvalid;
     _flagKFold  = r._flagKFold;
     _useBallSearch = r._useBallSearch;
+    _ballLeafSize = r._ballLeafSize;
     _flagIsUnchanged = r._flagIsUnchanged;
     _nbghMemo = r._nbghMemo;
   }
@@ -97,7 +100,9 @@ int ANeigh::attach(const Db *dbin, const Db *dbout)
   return 0;
 }
 
-void ANeigh::attachBall(int leaf_size)
+void ANeigh::attachBall(double (*dist_function)(const double* x1,
+                                                const double* x2,
+                                                int size))
 {
   // Attach the Ball only if the option is switched ON
   if (!_useBallSearch) return;
@@ -105,7 +110,7 @@ void ANeigh::attachBall(int leaf_size)
   // Nothing can be done unless the Input Db is specifiied
   if (_dbin == nullptr) return;
 
-  _ball.init(_dbin, leaf_size);
+  _ball.init(_dbin, dist_function, _ballLeafSize);
 }
 
 void ANeigh::setIsChanged(bool status)
@@ -415,4 +420,10 @@ bool ANeigh::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
 
   return ret;
+}
+
+void ANeigh::setBallSearch(bool status, int leaf_size)
+{
+  _useBallSearch = status;
+  _ballLeafSize = leaf_size;
 }

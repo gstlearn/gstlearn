@@ -22,6 +22,8 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Core/fftn.hpp"
+#include "Core/Memory.hpp"
 
 static int IPTV, IPTW;
 

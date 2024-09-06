@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+#include "Core/Memory.hpp"
 
 static int DEBUG = 0;
 static int MAX_PILE = 10;

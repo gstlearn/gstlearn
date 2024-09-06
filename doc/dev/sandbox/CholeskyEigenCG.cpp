@@ -18,8 +18,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-#include <iostream>
-
 #include "csparse_f.h"
 
 CholeskyEigenCG::CholeskyEigenCG(const MatrixSparse* mat)

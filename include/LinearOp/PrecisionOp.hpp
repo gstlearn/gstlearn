@@ -108,7 +108,7 @@ public:
   VectorDouble simulateOne();
   void evalSimulate(VectorDouble& whitenoise, VectorDouble& out);
 
-  int  getSize() const { return _shiftOp->getSize(); }
+  int  getSize() const override { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
@@ -128,7 +128,7 @@ void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& powe
 
 protected:
   virtual int  _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const;
+                          Eigen::VectorXd& outv) const override;
   void _addEvalPower(const Eigen::VectorXd& inv, Eigen::VectorXd& outv, const EPowerPT& power) const;
 
 #endif
