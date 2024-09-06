@@ -12,6 +12,7 @@
 #include "Model/Model.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "geoslib_define.h"
 
 #include <math.h>
 
@@ -138,6 +139,25 @@ bool ANoStat::isDefined(const EConsElem& type,
         matchType(ipar,type) &&
         matchIV1 (ipar,iv1)  &&
         matchIV2 (ipar,iv2)) return true;
+  }
+  return false;
+}
+
+/**
+ * Look if a Non-stationary parameter for Variance is defined
+ * for any pairs of variables
+ * @param icov Rank of the Target Covariance (or -1 for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
+ * @return
+ */
+bool ANoStat::isDefinedForVariance(int icov, int igrf) const
+{
+  if (_items.empty()) return false;
+  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
+  {
+    if (! matchIGrf(ipar,igrf)) continue;
+    if (! matchICov(ipar,icov)) continue;
+    if (getType(ipar) == EConsElem::SILL) return true;
   }
   return false;
 }
@@ -487,8 +507,9 @@ bool ANoStat::getInfoFromDb(int ipar,
   return *val1 != *val2;
 }
 
-int ANoStat::attachToMesh(const AMesh* mesh, bool /*verbose*/) const
+int ANoStat::attachToMesh(const AMesh* mesh, bool center, bool /*verbose*/) const
 {
+  DECLARE_UNUSED_(center);
   _setAmesh(mesh);
   return 0;
 }

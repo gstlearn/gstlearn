@@ -350,7 +350,7 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
 /**
  * Storing the weights when processing the current sample
- * @param icol  Rank of the coumn of interest
+ * @param icol  Rank of the column of interest
  */
 void GibbsMMulti::_storeWeights(int icol)
 {
@@ -364,6 +364,8 @@ void GibbsMMulti::_storeWeights(int icol)
     // Store in hdf5 file
 #ifdef _USE_HDF5
     _hdf5.writeDataDoublePartial(icol, _weights);
+#else
+    DECLARE_UNUSED(icol);
 #endif
   }
 }

@@ -109,7 +109,8 @@ Optimal Drift coefficients =
      0.728
 Log-Determinant = -33.879144
 Quadratic term = 90.846364
-Log-likelihood = -85.720104
+Log-likelihood = -120.377463
+Compute manual loglikelihood = -120.377463
 ----
 
 
@@ -165,7 +166,7 @@ Optimal Drift coefficients =
      0.591     3.049     1.968    -2.140
 Log-Determinant = -676.517039
 Quadratic term = 484.076013
-Log-likelihood = -132.725464
+Log-likelihood = -271.354901
 ----
 
 
@@ -203,7 +204,7 @@ Optimal Drift coefficients =
      0.362     3.914
 Log-Determinant = -676.517039
 Quadratic term = 528.711994
-Log-likelihood = -155.043455
+Log-likelihood = -293.672891
 ----
 
 

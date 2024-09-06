@@ -98,3 +98,4 @@ else if ($ajout == "large") then
 else
 	diff -b $FILETMP $FILECMP $ajout
 endif
+

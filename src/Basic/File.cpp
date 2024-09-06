@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
+#include "geoslib_define.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -36,6 +37,7 @@ StdoutRedirect::StdoutRedirect(const String &file,
   _out()
 #endif
 {
+  DECLARE_UNUSED(argv);
   _flagActive = (argc <= number);
   if (!file.empty() && _flagActive)
     start(file);

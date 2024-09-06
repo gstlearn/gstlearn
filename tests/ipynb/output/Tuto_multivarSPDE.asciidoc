@@ -24,7 +24,9 @@ Error in the operator product = 0.0
 
 
 #NO_DIFF#XXX
-----0.0----
+----
+Error = 0.0
+----
 
 
 #NO_DIFF#XXX

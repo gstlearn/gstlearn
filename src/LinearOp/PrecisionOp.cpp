@@ -22,7 +22,6 @@
 
 #include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/MatrixBase.h>
-#include <math.h>
 
 PrecisionOp::PrecisionOp()
   : _shiftOp(nullptr)
@@ -74,9 +73,13 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work()
   , _work2()
   , _work3()
-{
+{ 
+  
   _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
-
+  if (_cova->getNVariables() == 1)
+  {
+    _shiftOp->normalizeLambdaBySills(mesh);
+  }
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
   _work3.resize(_shiftOp->getSize());
@@ -148,7 +151,7 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
   return new PrecisionOp(shiftop, cova, verbose);
 }
 
-void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& out)
+void PrecisionOp::evalSimulate(const VectorDouble& whitenoise, VectorDouble& out)
 {
   
   Eigen::VectorXd vect(out.size());
@@ -401,6 +404,7 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   int n = getSize();
   Eigen::VectorXd ei(n);
   Eigen::VectorXd result(n);
+
   VectorEigen::fill(ei,0.);
   ei[imesh] = 1.;
   _shiftOp->prodLambda(ei,result,EPowerPT::MINUSONE);
@@ -464,8 +468,7 @@ int PrecisionOp::_preparePrecisionPoly() const
 std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
 {
   std::pair<double,double> rangeVals;
-
-  double sill = _cova->getSill(0,0);
+  double sill = _cova->getSill(0,0); //TODO handle non constant sill
   double sMax = _shiftOp->getMaxEigenValue();
   double x = 0;
   double delta = sMax/(ndiscr-1);

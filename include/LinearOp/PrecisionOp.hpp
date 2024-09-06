@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EPowerPT.hpp"
@@ -29,6 +30,11 @@ class APolynomial;
 class AMesh;
 class Model;
 
+// This class create a precision operator (matrix-free).
+// In general, it is built from a Model and a AMesh
+// Note that if the model is multivariate, the precision is built with a constant sill = 1.
+// Therefore it has to be used only through the PrecisionOpMulti class
+// which handles the sills matrix (possibly non stationary)
 class GSTLEARN_EXPORT PrecisionOp : public ALinearOp{
 
 public:
@@ -45,7 +51,7 @@ public:
   virtual ~PrecisionOp();
 
   // Interface functions for using PrecisionOp
-  //virtual void evalDirect(const Eigen::VectorXd &vecin, Eigen::VectorXd &vecout);
+
   #ifndef SWIG
     virtual void evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout);
     virtual void evalInverse(const  Eigen::VectorXd& vecin, Eigen::VectorXd& vecout);
@@ -106,7 +112,7 @@ public:
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
-  void evalSimulate(VectorDouble& whitenoise, VectorDouble& out);
+  void evalSimulate(const VectorDouble& in, VectorDouble& out);
 
   int  getSize() const override { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}
@@ -120,6 +126,7 @@ public:
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
+  const CovAniso* getCova() const {return _cova;}
 
 #ifndef SWIG
 

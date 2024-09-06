@@ -4847,7 +4847,7 @@ int Db::resetReduce(const Db *dbin,
     {
       int ndim = dbin->getNDim();
       VectorVectorDouble coors = dbgrid->getAllCoordinates();
-      VectorString namloc = generateMultipleNames("Coor", ndim);
+      namloc = generateMultipleNames("Coor", ndim);
 
       // Save the coordinates in the output file (after possible sample selection)
       for (int idim = 0; idim < ndim; idim++)
