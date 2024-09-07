@@ -74,12 +74,22 @@ void SpacePoint::setCoord(double coord)
   VH::fill(_coord, coord, static_cast<int> (_coord.size()));
 }
 
-void SpacePoint::setCoord(const VectorDouble& coord)
+void SpacePoint::setCoords(const VectorDouble& coord)
 {
   if (getNDim() != coord.size())
     std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
   else
     _coord = coord;
+}
+
+void SpacePoint::setCoords(const double* coord, int size)
+{
+  if ((int) getNDim() != size)
+    std::cout << "Error: Wrong number of coordinates. Point not modified."
+              << std::endl;
+  else
+    for (int idim = 0; idim < size; idim++)
+     _coord[idim] = coord[idim];
 }
 
 bool SpacePoint::isConsistent(const ASpace* space) const

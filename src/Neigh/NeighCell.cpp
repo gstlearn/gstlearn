@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Neigh/NeighCell.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -19,7 +17,6 @@ NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpace *space)
     : ANeigh(space),
       _nMini(nmini),
       _biPtCell(),
-      _dbgrid(),
       _T1(space),
       _T2(space)
 {
@@ -32,7 +29,6 @@ NeighCell::NeighCell(const NeighCell& r)
     : ANeigh(r),
       _nMini(r._nMini),
       _biPtCell(r._biPtCell),
-      _dbgrid(r._dbgrid),
       _T1(r._T1),
       _T2(r._T2)
 {
@@ -45,7 +41,6 @@ NeighCell& NeighCell::operator=(const NeighCell& r)
     ANeigh::operator=(r);
     _nMini = r._nMini;
     _biPtCell = r._biPtCell;
-    _dbgrid = r._dbgrid;
     _T1 = r._T1;
     _T2 = r._T2;
    }
@@ -140,10 +135,6 @@ bool NeighCell::hasChanged(int iech_out) const
  */
 void NeighCell::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
-  ranks.resize(nech);
-  ranks.fill(-1);
-
   // Select the neighborhood samples as the target sample has changed
   if (_cell(iech_out, ranks))
   {
@@ -172,6 +163,8 @@ void NeighCell::getNeigh(int iech_out, VectorInt& ranks)
 int NeighCell::_cell(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
+  ranks.resize(nech);
+  ranks.fill(-1);
 
   // Load the target sample as a Space Target
   _dbgrid->getSampleAsSTInPlace(iech_out, _T1);

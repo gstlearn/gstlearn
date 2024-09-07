@@ -1036,7 +1036,6 @@ colnames(res) <- c("ME", "MAE", "RMSE", "MSE", "MASE", "RMSSE")
 rownames(res) <- c("SK", "DK", "CE")
 knitr::kable(res, digits=4,
              caption = "Scores of point estimators of Z using 500 data points")
-
 ```
 
 ### k-fold cross validation of the data set

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"

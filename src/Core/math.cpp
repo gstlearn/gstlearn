@@ -9,10 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-
+#include "Core/Memory.hpp"
 
 /*! \cond */
 #define INTRESX(ic,i)        (ctables->CT[ic]->res[(i)])

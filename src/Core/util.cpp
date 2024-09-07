@@ -17,6 +17,7 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Core/Memory.hpp"
 
 #include <string.h>
 #include <cmath>

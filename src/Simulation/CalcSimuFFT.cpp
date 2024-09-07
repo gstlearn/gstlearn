@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
@@ -18,6 +16,7 @@
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Core/fftn.hpp"
 
 #include <math.h>
 

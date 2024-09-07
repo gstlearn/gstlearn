@@ -8,13 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Enum/EDbg.hpp"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Core/Memory.hpp"
 
 #include <cmath>
 #include <map>

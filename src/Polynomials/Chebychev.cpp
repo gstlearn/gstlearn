@@ -12,9 +12,8 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Polynomials/Chebychev.hpp"
-#include "LinearOp/ALinearOpMulti.hpp"
+#include "Core/fftn.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <math.h>

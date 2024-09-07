@@ -8,11 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Neigh/NeighImage.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
+#include "Mesh/AMesh.hpp"
 
 NeighImage::NeighImage(const VectorInt& radius, int skip, const ASpace* space)
     : ANeigh(space),

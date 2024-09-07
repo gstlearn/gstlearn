@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Enum/ELoc.hpp"
 
 #include "Basic/NamingConvention.hpp"
@@ -19,8 +21,8 @@
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Tree/Ball.hpp"
-
-#include "geoslib_old_f.h"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 
@@ -1889,7 +1891,7 @@ int CalcMigrate::_expandPointToPointBall(Db *db1,
   // Establish the ball tree (on the grid)
 
   int leaf_size = 30;
-  Ball ball(db1, leaf_size, 1);
+  Ball ball(db1, nullptr, leaf_size);
 
   // Loop on the sample points
 

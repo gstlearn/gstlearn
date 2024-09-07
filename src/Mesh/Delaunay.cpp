@@ -8,16 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
+#include "Mesh/Delaunay.hpp"
 
 #include <math.h>
-#include <string.h>
 #include <stdio.h>
 
 /*! \cond */
@@ -113,26 +113,22 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-double* extend_grid(DbGrid *db, const double *gext, int *nout)
+VectorDouble extend_grid(DbGrid *db, const VectorDouble& gext, int *nout)
 {
-  int ndim, number, ndiv, ndiv0, rank, ival, error, delta;
-  double *ext;
+  int ndim, number, ndiv, ndiv0, rank, ival, delta;
 
   /* Initializations */
 
-  error = 1;
   ndim = db->getNDim();
   number = (int) pow(2., ndim);
   ndiv0 = (int) pow(2., ndim - 1);
-  ext = nullptr;
   *nout = 0;
 
   /* Core allocation */
 
   VectorInt indg(ndim, 0);
   VectorDouble coor(ndim, 0.);
-  ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
-  if (ext == nullptr) goto label_end;
+  VectorDouble ext(ndim * number);
 
   /* Generate the corner points */
 
@@ -154,14 +150,8 @@ double* extend_grid(DbGrid *db, const double *gext, int *nout)
       EXT(idim,corner) = coor[idim];
   }
 
-  // Set the error returned code
-
-  error = 0;
   *nout = number;
-
-  label_end:
-  if (error) ext = (double*) mem_free((char* ) ext);
-  return (ext);
+  return ext;
 }
 
 /****************************************************************************/
@@ -178,12 +168,8 @@ double* extend_grid(DbGrid *db, const double *gext, int *nout)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-double* extend_point(Db *db, const double *gext, int *nout)
+VectorDouble extend_point(Db *db, const VectorDouble& gext, int *nout)
 {
-  double *ext;
-
-  /* Initializations */
-
   int ndim = db->getNDim();
   int number = (int) pow(2., ndim);
   int ndiv0 = (int) pow(2., ndim - 1);
@@ -194,8 +180,7 @@ double* extend_point(Db *db, const double *gext, int *nout)
   VectorDouble coor(ndim);
   VectorDouble mini(ndim);
   VectorDouble maxi(ndim);
-  ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
-  if (ext == nullptr) return ext;
+  VectorDouble ext(ndim * number);
 
   /* Calculate the extension of the domain */
 
@@ -220,10 +205,8 @@ double* extend_point(Db *db, const double *gext, int *nout)
       EXT(idim,corner) = coor[idim];
   }
 
-  // Set the error returned code
-
   *nout = number;
-  return (ext);
+  return ext;
 }
 
 /*****************************************************************************/
@@ -241,7 +224,7 @@ double* extend_point(Db *db, const double *gext, int *nout)
  ** \remarks with its dimension: ndim * 2^ndim
  **
  *****************************************************************************/
-double* get_db_extension(Db *dbin, Db *dbout, int *nout)
+VectorDouble get_db_extension(Db *dbin, Db *dbout, int *nout)
 {
   int ndim = 0;
   if (dbin != nullptr) ndim = dbin->getNDim();
@@ -251,8 +234,7 @@ double* get_db_extension(Db *dbin, Db *dbout, int *nout)
 
   /* Core allocation */
 
-  double* ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
-  if (ext == nullptr) return ext;
+  VectorDouble ext(ndim * number);
 
   VectorDouble coor(ndim);
   VectorDouble mini_abs;
@@ -289,7 +271,7 @@ double* get_db_extension(Db *dbin, Db *dbout, int *nout)
   }
 
   *nout = number;
-  return (ext);
+  return ext;
 }
 
 /*****************************************************************************/

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include <Geometry/GeometryHelper.hpp>
-#include "geoslib_old_f.h"
 
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"

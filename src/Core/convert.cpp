@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 #include "geoslib_define.h"
 
 #include "Basic/AException.hpp"
@@ -31,6 +30,8 @@
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/FileLAS.hpp"
 #include "OutputFormat/vtk.h"
+#include "Core/Memory.hpp"
+
 #include <string.h>
 #include <sstream>
 #include <string>

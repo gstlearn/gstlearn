@@ -8,10 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
+#include "Enum/EStatOption.hpp"
 #include "Db/Db.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -2528,7 +2528,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
  * @remark
  * The returned answer is false is there is no variable defined
  * or if the sample rank is not valid.
- * If 'nvar-max' is defined, the test is performed on the 'nvar_max'
+ * If 'nvar_max' is defined, the test is performed on the 'nvar_max'
  * first variables. Otherwise, it is performed on all ELOC.Z variables
  */
 bool Db::isIsotopic(int iech, int nvar_max) const
@@ -2931,7 +2931,7 @@ int Db::getActiveAndDefinedNumber(const String& name) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return 0;
-  VectorDouble tab = getColumnByUID(iuids[0], false);
+  VectorDouble tab = getColumnByUID(iuids[0], true);
 
   int nech = 0;
   for (int iech = 0; iech < (int) tab.size(); iech++)
@@ -3520,6 +3520,8 @@ VectorDouble Db::getColumnByColIdx(int icol,
     if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
     if (! defined)
     {
+      // The sample is masked off.
+      // If 'flagCompress' is ON, the sample is skipped
       if (flagCompress) continue;
       value = TEST;
     }
@@ -3596,47 +3598,67 @@ VectorDouble Db::getColumnsByUID(const VectorInt& iuids,
                                  const VectorDouble& origins) const
 {
   if (iuids.empty()) return VectorDouble();
-  int nech = getSampleNumber(useSel);
   int nvar = static_cast<int> (iuids.size());
-  VectorDouble retval(nvar * nech);
 
-  /* Loop on the variables to be retrieved */
-
-  int ecr = 0;
+  VectorInt icols(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble local = getColumnByUID(iuids[ivar], useSel, flagCompress);
-    if (local.empty()) continue;
-    double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
-    for (int iech = 0; iech < nech; iech++)
-      retval[ecr++] = local[iech] - origin;
+    icols[ivar] = getColIdxByUID(iuids[ivar]);
+    if (icols[ivar] < 0) return VectorDouble();
   }
-  return retval;
+  return getColumnsByColIdx(icols, useSel, flagCompress, origins);
 }
 
 /**
  * Returns the contents of a set of Columns specified by their ranks (0 based)
- *
  */
 VectorDouble Db::getColumnsByColIdx(const VectorInt& icols,
                                     bool useSel,
                                     bool flagCompress,
                                     const VectorDouble& origins) const
 {
-  int nech = getSampleNumber();
   int nvar = static_cast<int> (icols.size());
-  VectorDouble retval(nvar * nech);
+  VectorDouble retval;
+
+  /* Loop on the variables to be retrieved */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    VectorDouble local = getColumnByColIdx(icols[ivar], useSel, flagCompress);
+    if (local.empty()) continue;
+    double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
+    for (int iech = 0, nech = (int) local.size(); iech < nech; iech++)
+      retval.push_back(local[iech] - origin);
+  }
+  return retval;
+}
+
+VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType, const VectorDouble& origins) const
+{
+  double value;
+  VectorString names = getNamesByLocator(locatorType);
+  int nvar = (int) names.size();
+
+  // Calculate the dimension of the output vector
+  int size = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    size += getActiveAndDefinedNumber(names[ivar]);
+
+  VectorDouble retval(size);
 
   /* Loop on the variables to be retrieved */
 
   int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble local = getColumnByColIdx(icols[ivar], useSel, flagCompress);
+    VectorDouble local = getColumn(names[ivar], true, true);
     if (local.empty()) continue;
     double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
-    for (int iech = 0; iech < nech; iech++)
-      retval[ecr++] = local[iech] - origin;
+    for (int iech = 0, nech = (int) local.size(); iech < nech; iech++)
+    {
+      value = local[iech];
+      if (!FFFF(value)) retval[ecr++] = local[iech] - origin;
+    }
   }
   return retval;
 }
@@ -4033,7 +4055,7 @@ VectorDouble Db::getColumns(const VectorString& names,
 {
   if (names.empty()) return VectorDouble();
   VectorInt iuids =  _ids(names, false);
-  return getColumnsByUID(iuids, useSel, flagCompress,origins);
+  return getColumnsByUID(iuids, useSel, flagCompress, origins);
 }
 
 /**
@@ -5278,4 +5300,20 @@ Table Db::printOneSample(int iech,
     table.setValue(ivar, 0, getValue(localNames[ivar], iech));
   }
   return table;
+}
+
+void Db::copyByUID(int iuidIn, int iuidOut)
+{
+  int icolIn = getColIdxByUID(iuidIn);
+  int icolOut = getColIdxByUID(iuidOut);
+  copyByCol(icolIn, icolOut);
+}
+
+void Db::copyByCol(int icolIn, int icolOut)
+{
+  if (!isColIdxValid(icolIn)) return;
+  if (!isColIdxValid(icolOut)) return;
+
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+    _array[_getAddress(iech, icolOut)] = _array[_getAddress(iech, icolIn)];
 }

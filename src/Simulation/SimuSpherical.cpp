@@ -19,6 +19,7 @@
 #include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 

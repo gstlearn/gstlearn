@@ -20,34 +20,39 @@
 #include <algorithm>
 
 ANeigh::ANeigh(const ASpace* space)
-    : ASpaceObject(space),
-      ASerializable(),
-      _dbin(nullptr),
-      _dbout(nullptr),
-      _dbgrid(nullptr),
-      _rankColCok(),
-      _iechMemo(-1),
-      _flagSimu(false),
-      _flagXvalid(false),
-      _flagKFold(false),
-      _flagIsUnchanged(false),
-      _nbghMemo()
+  : ASpaceObject(space)
+  , ASerializable()
+  , _dbin(nullptr)
+  , _dbout(nullptr)
+  , _dbgrid(nullptr)
+  , _rankColCok()
+  , _iechMemo(-1)
+  , _flagSimu(false)
+  , _flagXvalid(false)
+  , _flagKFold(false)
+  , _useBallSearch(false)
+  , _ballLeafSize(10)
+  , _flagIsUnchanged(false)
+  , _nbghMemo()
+  , _ball()
 {
 }
 
-ANeigh::ANeigh(const ANeigh &r)
-    : ASpaceObject(r),
-      ASerializable(r),
-      _dbin(r._dbin),
-      _dbout(r._dbout),
-      _dbgrid(r._dbgrid),
-      _rankColCok(r._rankColCok),
-      _iechMemo(r._iechMemo),
-      _flagSimu(r._flagSimu),
-      _flagXvalid(r._flagXvalid),
-      _flagKFold(r._flagKFold),
-      _flagIsUnchanged(r._flagIsUnchanged),
-      _nbghMemo(r._nbghMemo)
+ANeigh::ANeigh(const ANeigh& r)
+  : ASpaceObject(r)
+  , ASerializable(r)
+  , _dbin(r._dbin)
+  , _dbout(r._dbout)
+  , _dbgrid(r._dbgrid)
+  , _rankColCok(r._rankColCok)
+  , _iechMemo(r._iechMemo)
+  , _flagSimu(r._flagSimu)
+  , _flagXvalid(r._flagXvalid)
+  , _flagKFold(r._flagKFold)
+  , _useBallSearch(r._useBallSearch)
+  , _ballLeafSize(r._ballLeafSize)
+  , _flagIsUnchanged(r._flagIsUnchanged)
+  , _nbghMemo(r._nbghMemo)
 {
 }
 
@@ -64,7 +69,9 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _iechMemo = r._iechMemo;
     _flagSimu = r._flagSimu;
     _flagXvalid = r._flagXvalid;
-    _flagKFold = r._flagKFold;
+    _flagKFold  = r._flagKFold;
+    _useBallSearch = r._useBallSearch;
+    _ballLeafSize = r._ballLeafSize;
     _flagIsUnchanged = r._flagIsUnchanged;
     _nbghMemo = r._nbghMemo;
   }
@@ -85,8 +92,25 @@ int ANeigh::attach(const Db *dbin, const Db *dbout)
   if (_dbout != nullptr)
     _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
+  // Attach the Ball Tree search (if relevant)
+
+  attachBall();
+
   setIsChanged();
   return 0;
+}
+
+void ANeigh::attachBall(double (*dist_function)(const double* x1,
+                                                const double* x2,
+                                                int size))
+{
+  // Attach the Ball only if the option is switched ON
+  if (!_useBallSearch) return;
+
+  // Nothing can be done unless the Input Db is specifiied
+  if (_dbin == nullptr) return;
+
+  _ball.init(_dbin, dist_function, _ballLeafSize);
 }
 
 void ANeigh::setIsChanged(bool status)
@@ -396,4 +420,10 @@ bool ANeigh::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
 
   return ret;
+}
+
+void ANeigh::setBallSearch(bool status, int leaf_size)
+{
+  _useBallSearch = status;
+  _ballLeafSize = leaf_size;
 }

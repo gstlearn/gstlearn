@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Geometry/BiTargetCheckDistance.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "geoslib_old_f.h"
 
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/OptDbg.hpp"
@@ -481,10 +480,6 @@ bool NeighMoving::hasChanged(int iech_out) const
  */
 void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
-  ranks.resize(nech);
-  ranks.fill(-1);
-
   // Select the neighborhood samples as the target sample has changed
   if (_moving(iech_out, ranks))
   {
@@ -517,6 +512,8 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 {
   int nech = _dbin->getSampleNumber();
+  ranks.resize(nech);
+  ranks.fill(-1);
   int isect = 0;
   if (nech < getNMini()) return 1;
 
@@ -531,12 +528,26 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   else
     _dbout->getSampleAsSTInPlace(iech_out, _T1);
 
-  for (int iech = 0; iech < nech; iech++)
+  // Select the elligible points when using Ball Tree serach
+  VectorInt elligibles;
+  if (_useBallSearch)
   {
+    elligibles = getBall().getIndices(_T1, _nMaxi);
+    nech       = (int)elligibles.size();
+  }
 
-    /* Discard the masked input sample */
-
-    if (! _dbin->isActive(iech)) continue;
+  for (int jech = 0; jech < nech; jech++)
+  {
+    int iech;
+    if (_useBallSearch)
+    {
+      iech = elligibles[jech];
+    }
+    else
+    {
+      iech = jech;
+      if (!_dbin->isActive(iech)) continue;
+    }
 
     /* Discard samples where all variables are undefined */
 
@@ -555,16 +566,17 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     // (other than the one based on distance which must come last)
 
     bool reject = false;
-    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && ! reject; ipt++)
+    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && !reject; ipt++)
     {
-      if (! _bipts[ipt]->isOK(_T1, _T2)) reject = true;
+      if (!_bipts[ipt]->isOK(_T1, _T2)) reject = true;
     }
     if (reject) continue;
 
     // Calculate the distance between data and target
-    // The rejection with respect to maximum distance is bypassed if '_forceWithinCell'
+    // The rejection with respect to maximum distance is bypassed if
+    // '_forceWithinCell'
 
-    if (! _biPtDist->isOK(_T1, _T2)) continue;
+    if (!_biPtDist->isOK(_T1, _T2)) continue;
     double dist = _biPtDist->getDistance();
     if (dist > distmax) distmax = dist;
 
@@ -573,14 +585,14 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     if (getFlagSector())
     {
       VectorDouble incr = _biPtDist->getIncr();
-      isect = _movingSectorDefine(incr[0], incr[1]);
+      isect             = _movingSectorDefine(incr[0], incr[1]);
     }
 
     /* The sample may be selected */
 
     _movingInd[nsel] = iech;
     _movingDst[nsel] = dist;
-    ranks[iech] = isect;
+    ranks[iech]      = isect;
     nsel++;
   }
   if (nsel < getNMini()) return 1;
@@ -603,7 +615,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     if (nsel < getNMini()) return 1;
   }
 
-    /* Select the first data samples (skipped if forcing all samples in block) */
+  /* Select the first data samples (skipped if forcing all samples in block) */
 
   _movingSelect(nsel, ranks);
 
@@ -648,7 +660,7 @@ int NeighMoving::_movingSectorDefine(double dx, double dy) const
       else
         angle = GV_PI + atan(dy / dx);
     }
-    isect = (int) (getNSect() * angle / (2. * GV_PI));
+    isect = (int)(getNSect() * angle / (2. * GV_PI));
   }
   return (isect);
 }
@@ -705,7 +717,7 @@ void NeighMoving::_movingSelect(int nsel, VectorInt& ranks)
   number = 0;
   for (int i = 0; i < nsel; i++)
   {
-    int j = _movingInd[i];
+    int j     = _movingInd[i];
     int isect = ranks[j];
     if (isect < 0) continue;
     _movingNsect[isect]++;
@@ -735,7 +747,7 @@ void NeighMoving::_movingSelect(int nsel, VectorInt& ranks)
     number = 0;
     for (int i = 0; i < nsel; i++)
     {
-      int j = _movingInd[i];
+      int j     = _movingInd[i];
       int jsect = ranks[j];
       if (jsect < 0) continue;
       if (isect != jsect) continue;
@@ -744,4 +756,3 @@ void NeighMoving::_movingSelect(int nsel, VectorInt& ranks)
     }
   }
 }
-

@@ -8,14 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Db/DbHelper.hpp"
 
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Skin/Skin.hpp"
 #include "Basic/Law.hpp"
-
-#include "geoslib_old_f.h"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 static DbGrid *DB_GRID_FILL;
 
@@ -1317,7 +1319,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
 
   /* Create the subgrid */
 
-  dbout = db_create_grid_multiple(dbin, nmult, 1);
+  dbout = DbGrid::createMultiple(dbin, nmult, 1);
   if (dbout == nullptr) goto label_end;
   rank = dbout->addColumnsByConstant(ncol, TEST);
   if (rank < 0) goto label_end;

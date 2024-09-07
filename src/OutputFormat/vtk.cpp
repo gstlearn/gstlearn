@@ -56,11 +56,13 @@ License: BSD 3-clause
 //                             visit_writer.c                                //
 // ************************************************************************* */
 #include "OutputFormat/vtk.h"
-#include "geoslib_old_f.h"
+
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
+#include "Core/Memory.hpp"
 
 #include <string.h>
-#include "Basic/File.hpp"
 
 /*
  * Globals.

@@ -20,7 +20,7 @@ class GSTLEARN_EXPORT ALinearOpOld
 {
 
 public:
-  ALinearOpOld(const CGParam params = CGParam());
+  ALinearOpOld(const CGParam& params = CGParam());
   ALinearOpOld(const ALinearOpOld &m);
   ALinearOpOld& operator=(const ALinearOpOld &m);
   virtual ~ALinearOpOld();

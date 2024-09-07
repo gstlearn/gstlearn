@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
-#include "geoslib_f_private.h"
 
 #include "Variogram/VMap.hpp"
 #include "Db/Db.hpp"
@@ -23,6 +22,8 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Core/fftn.hpp"
+#include "Core/Memory.hpp"
 
 static int IPTV, IPTW;
 

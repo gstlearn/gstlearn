@@ -10,8 +10,9 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "Basic/String.hpp"
-#include "version.h"
+#include "Core/Memory.hpp"
 
+#include "version.h"
 #include <string.h>
 
 /****************************************************************************/
@@ -24,8 +25,7 @@
 ** \remarks The output arrays should be freed by the calling program
 **
 ****************************************************************************/
-void inquire_gstlearn(char **release,
-                                      char **date)
+void inquire_gstlearn(char **release, char **date)
 {
   char *buffer;
 

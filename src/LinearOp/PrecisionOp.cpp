@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/VectorEigen.hpp"
-#include "geoslib_old_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "LinearOp/PrecisionOp.hpp"

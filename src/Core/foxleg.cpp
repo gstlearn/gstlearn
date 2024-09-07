@@ -15,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 

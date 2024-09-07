@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
@@ -737,20 +735,19 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
 
   /* Initializations */
 
-  int error = 1;
   int neq = getNRows();
 
   /* Core allocation */
 
-  double* ha   = (double*) mem_alloc(sizeof(double) * neq * na, 1);
-  double* evec = (double*) mem_alloc(sizeof(double) * na, 1);
+  VectorDouble ha(neq * na);
+  VectorDouble evec(na);
   MatrixSquareSymmetric temp(na);
 
   /* Preliminary solution of the linear system with no constraint */
 
   if (!flag_invert)
   {
-    if (_matrix_qo(gmat, xmat) != 0) goto label_end;
+    if (_matrix_qo(gmat, xmat) != 0) return 1;
   }
 
   /* Product HA = H %*% A */
@@ -777,7 +774,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
 
     /* Generalized inverse of temp */
 
-  if (temp.computeGeneralizedInverse(temp) != 0) goto label_end;
+  if (temp.computeGeneralizedInverse(temp) != 0) return 1;
 
   /* Evaluate evec = t(A) %*% x - b */
 
@@ -809,14 +806,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
     xmat[i] -= value;
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) ha);
-  mem_free((char* ) evec);
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/

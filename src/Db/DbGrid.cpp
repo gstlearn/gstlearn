@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -2240,3 +2238,76 @@ VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt &ndiscs,
   return discs;
 }
 
+/****************************************************************************/
+/*!
+ **  Create a Grid Db as a multiple of another Grid Db
+ **
+ ** \return  Pointer to the newly created Db grid structure
+ **
+ ** \param[in]  dbin      Initial Db Grid
+ ** \param[in]  nmult     Array of multiplicity coefficients
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
+ **  **
+ *****************************************************************************/
+DbGrid* DbGrid::createMultiple(DbGrid* dbin,
+                               const VectorInt& nmult,
+                               bool flagAddSampleRank)
+{
+  DbGrid* dbout = nullptr;
+  if (dbin == nullptr) return (dbin);
+  int ndim = dbin->getNDim();
+
+  /* Core allocation */
+
+  VectorInt nx(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+
+  /* Get the new grid characteristics */
+
+  dbin->getGrid().multiple(nmult, 1, nx, dx, x0);
+
+  /* Create the new grid */
+
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(),
+                         flagAddSampleRank);
+
+  return dbout;
+}
+
+/****************************************************************************/
+/*!
+ **  Create a Grid Db as a divider of another Grid Db
+ **
+ ** \return  Pointer to the newly created Db grid structure
+ **
+ ** \param[in]  dbin      Initial Db Grid
+ ** \param[in]  nmult     Array of subdivision coefficients
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
+ **
+ *****************************************************************************/
+DbGrid* DbGrid::createDivider(DbGrid* dbin,
+                              const VectorInt& nmult,
+                              bool flagAddSampleRank)
+{
+  DbGrid* dbout = nullptr;
+  if (dbin == nullptr) return dbin;
+
+  int ndim = dbin->getNDim();
+  VectorInt nx(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+
+  /* Get the new grid characteristics */
+
+  dbin->getGrid().divider(nmult, 1, nx, dx, x0);
+
+  /* Create the new grid */
+
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(),
+                         flagAddSampleRank);
+
+  return dbout;
+}

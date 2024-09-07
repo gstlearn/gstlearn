@@ -8,13 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 
 #include <math.h>

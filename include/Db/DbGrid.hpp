@@ -141,20 +141,22 @@ public:
                                                  int nzout,
                                                  double z0out,
                                                  double dzout);
-  static DbGrid* createSubGrid(const DbGrid *gridin,
+  static DbGrid* createSubGrid(const DbGrid* gridin,
                                VectorVectorInt limits,
                                bool flagAddCoordinates = false);
+  static DbGrid* createMultiple(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
+  static DbGrid* createDivider(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
 
   int reset(const VectorInt& nx,
-            const VectorDouble& dx = VectorDouble(),
-            const VectorDouble& x0 = VectorDouble(),
-            const VectorDouble& angles = VectorDouble(),
-            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
-            const VectorDouble& tab = VectorDouble(),
-            const VectorString& names = VectorString(),
+            const VectorDouble& dx           = VectorDouble(),
+            const VectorDouble& x0           = VectorDouble(),
+            const VectorDouble& angles       = VectorDouble(),
+            const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
+            const VectorDouble& tab          = VectorDouble(),
+            const VectorString& names        = VectorString(),
             const VectorString& locatorNames = VectorString(),
-            bool flagAddSampleRank = true,
-            bool flagAddCoordinates = true);
+            bool flagAddSampleRank           = true,
+            bool flagAddCoordinates          = true);
   int resetCoveringDb(const Db* db,
                       const VectorInt& nx = VectorInt(),
                       const VectorDouble& dx = VectorDouble(),

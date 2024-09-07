@@ -36,6 +36,8 @@
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 #include <string.h>

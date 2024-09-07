@@ -78,17 +78,6 @@ void _image_smoother(DbGrid *dbgrid,
                      int type,
                      double range,
                      int iptr0);
-int _db_morpho_calc(DbGrid *dbgrid,
-                    int iptr0,
-                    const EMorpho &oper,
-                    double vmin = 0.,
-                    double vmax = 1.5,
-                    int option = 0,
-                    const VectorInt &radius = VectorInt(),
-                    bool flagDistErode = false,
-                    bool verbose = false);
-void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0);
-void _morpho_gradients(DbGrid *dbgrid, int iptr0);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

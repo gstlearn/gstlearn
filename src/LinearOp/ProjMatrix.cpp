@@ -12,7 +12,6 @@
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
-#include "geoslib_old_f.h"
 
 ProjMatrix::ProjMatrix() 
     : MatrixSparse()

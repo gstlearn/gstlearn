@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/KrigingSystem.hpp"
@@ -106,7 +104,7 @@ bool CalcKrigingFactors::_preprocess()
     if (! _ndiscs.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
-      DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndiscs, 1);
+      DbGrid* dbsmu = DbGrid::createDivider(dbgrid, _ndiscs, 1);
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
       int error = _centerDataToGrid(dbsmu);
       delete dbsmu;

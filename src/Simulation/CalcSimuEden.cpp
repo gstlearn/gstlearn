@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Skin/Skin.hpp"
