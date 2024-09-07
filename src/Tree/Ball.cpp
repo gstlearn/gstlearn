@@ -16,25 +16,30 @@
 Ball::Ball(const double** data,
            int n_samples,
            int n_features,
+           double (*dist_function)(const double* x1,
+                                   const double* x2,
+                                   int size),
            int leaf_size,
-           double (*dist_function)(const double* x1, const double* x2, int size))
+           int default_distance_function)
   : _tree(nullptr)
 {
-  _tree = btree_init(data, n_samples, n_features, leaf_size, dist_function);
+  _tree = btree_init(data, n_samples, n_features, dist_function, leaf_size,
+                     default_distance_function);
 }
 
 Ball::Ball(const VectorVectorDouble& data,
            double (*dist_function)(const double* x1,
                                    const double* x2,
                                    int size),
-           int leaf_size)
+           int leaf_size,
+           int default_distance_function)
   : _tree(nullptr)
 {
   int n_samples = (int) data[0].size();
   int n_features = (int) data.size();
   double** internal = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features, leaf_size,
-                     dist_function);
+  _tree = btree_init((const double**)internal, n_samples, n_features,
+                     dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_features);
 }
 
@@ -43,6 +48,7 @@ Ball::Ball(const Db* db,
                                    const double* x2,
                                    int size),
            int leaf_size,
+           int default_distance_function,
            bool useSel)
   : _tree(nullptr)
 {
@@ -50,8 +56,8 @@ Ball::Ball(const Db* db,
   int n_samples = (int) data[0].size();
   int n_features = (int) data.size();
   double** internal = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features, leaf_size,
-                     dist_function);
+  _tree = btree_init((const double**)internal, n_samples, n_features,
+                     dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_features);
 }
 
@@ -60,14 +66,15 @@ void Ball::init(const Db* db,
                                         const double* x2,
                                         int size),
                 int leaf_size,
+                int default_distance_function,
                 bool useSel)
 {
   VectorVectorDouble data = db->getAllCoordinates(useSel);
   int n_samples           = (int)data[0].size();
   int n_features          = (int)data.size();
   double** internal       = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features, leaf_size,
-                     dist_function);
+  _tree = btree_init((const double**)internal, n_samples, n_features,
+                     dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_features);
 }
 
@@ -111,7 +118,7 @@ KNN Ball::queryOneAsVD(const VectorDouble& test, int n_neighbors)
   return knn;
 }
 
-KNN Ball::queryOneAsVD(const SpacePoint& Pt, int n_neighbors)
+KNN Ball::queryOneAsVDFromSP(const SpacePoint& Pt, int n_neighbors)
 {
   KNN knn;
   int n_features = Pt.getNDim();
@@ -123,7 +130,7 @@ KNN Ball::queryOneAsVD(const SpacePoint& Pt, int n_neighbors)
 
 VectorInt Ball::getIndices(const SpacePoint& Pt, int n_neighbors)
 {
-  KNN knn = queryOneAsVD(Pt, n_neighbors);
+  KNN knn = queryOneAsVDFromSP(Pt, n_neighbors);
   return knn.getIndices(0);
 }
 

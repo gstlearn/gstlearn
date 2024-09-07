@@ -42,12 +42,12 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the data base
-  int nech = 300;
+  int nech = 1000;
   int nvar = 1;
   Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
-  int ncell       = 200;
+  int ncell       = 100;
   VectorInt nx    = {ncell, ncell};
   VectorDouble dx = {1. / ncell, 1. / ncell};
   DbGrid* grid    = DbGrid::create(nx, dx);

@@ -327,6 +327,5 @@ set(SRC
   Tree/Ball.cpp
   Tree/KNN.cpp
   Tree/ball_algorithm.cpp
-  Tree/metrics.cpp
   Tree/neighbors_heap.cpp
 )

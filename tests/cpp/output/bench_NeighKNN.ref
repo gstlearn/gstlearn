@@ -1,12 +1,17 @@
 
 Neighborhood search
 -------------------
+Comparing Moving Neighborhood searches
+- with Standard search
+- with BallTree search
+General characteristics
 - Number of data = 100000
 - Number of targets = 1000
 - Number of neighboring samples = 20
+Computing time includes Data to Target distance evaluation for comparison
 
 Standard Neighborhood search
-#NO_DIFF# Standard Neighborhood: 25771 ms.
+#NO_DIFF# Standard Neighborhood: 18644 ms. (Ref = 19000 ms.)
 
-KNN Neighborhood search
-#NO_DIFF# KNN Neighborhood: 556 ms.
+Neighborhood search with Ball-Tree option
+#NO_DIFF# Neigh. with Ball option: 374 ms. (Ref = 400 ms.)

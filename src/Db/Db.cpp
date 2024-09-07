@@ -3611,27 +3611,24 @@ VectorDouble Db::getColumnsByUID(const VectorInt& iuids,
 
 /**
  * Returns the contents of a set of Columns specified by their ranks (0 based)
- *
  */
 VectorDouble Db::getColumnsByColIdx(const VectorInt& icols,
                                     bool useSel,
                                     bool flagCompress,
                                     const VectorDouble& origins) const
 {
-  int nech = getSampleNumber();
   int nvar = static_cast<int> (icols.size());
-  VectorDouble retval(nvar * nech);
+  VectorDouble retval;
 
   /* Loop on the variables to be retrieved */
 
-  int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble local = getColumnByColIdx(icols[ivar], useSel, flagCompress);
     if (local.empty()) continue;
     double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
-    for (int iech = 0; iech < nech; iech++)
-      retval[ecr++] = local[iech] - origin;
+    for (int iech = 0, nech = (int) local.size(); iech < nech; iech++)
+      retval.push_back(local[iech] - origin);
   }
   return retval;
 }
@@ -4058,7 +4055,7 @@ VectorDouble Db::getColumns(const VectorString& names,
 {
   if (names.empty()) return VectorDouble();
   VectorInt iuids =  _ids(names, false);
-  return getColumnsByUID(iuids, useSel, flagCompress,origins);
+  return getColumnsByUID(iuids, useSel, flagCompress, origins);
 }
 
 /**
