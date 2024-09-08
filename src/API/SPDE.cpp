@@ -1108,6 +1108,8 @@ VectorDouble krigingSPDENew(Db *dbin,
                    bool verbose,
                    const NamingConvention &namconv)
 {
+ DECLARE_UNUSED(verbose);
+ DECLARE_UNUSED(namconv);
  if (dbin == nullptr) return 1;
  if (dbout == nullptr) return 1;
  auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
