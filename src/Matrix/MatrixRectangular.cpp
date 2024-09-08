@@ -12,6 +12,7 @@
 #include "Basic/AStringable.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/AStringable.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols)
   : AMatrixDense(nrows, ncols)

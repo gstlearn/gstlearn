@@ -40,6 +40,19 @@ PrecisionOpMultiConditional::~PrecisionOpMultiConditional()
 {
 }
 
+VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal) const
+{
+  Eigen::Map<const Eigen::VectorXd> datvalm(datVal.data(),datVal.size());
+  auto res = computeRhs(datvalm);
+  VectorVectorDouble result;
+  for (int i = 0; i < (int)res.size(); i++)
+  {
+    auto v = VectorEigen::copyIntoVD(res[i]);
+    result.push_back(v);
+  }
+  return result;
+}
+
 std::vector<Eigen::VectorXd> PrecisionOpMultiConditional::computeRhs(const Eigen::VectorXd& datVal) const
 {
   std::vector<Eigen::VectorXd>rhs(sizes());

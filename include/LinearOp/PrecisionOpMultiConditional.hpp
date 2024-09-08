@@ -80,6 +80,9 @@ protected:
     double computeQuadratic(const Eigen::VectorXd& x) const;
 
 #endif
+public : 
+  VectorVectorDouble computeRhs(const VectorDouble &datVal) const;
+
 private:
   mutable std::vector<PrecisionOp*>    _multiPrecisionOp; // Pointers are simply stored; do not delete
   std::vector<IProjMatrix*>            _multiProjData; // Pointers are simply stored; do not delete

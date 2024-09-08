@@ -136,6 +136,8 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
+  #include "LinearOp/ASimulable.hpp"
+  #include "LinearOp/ISimulable.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
@@ -157,6 +159,8 @@
   #include "LinearOp/Cholesky.hpp"
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
+  #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"

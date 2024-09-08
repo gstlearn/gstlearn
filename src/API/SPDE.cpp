@@ -8,9 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/VectorNumT.hpp"
 #include "Enum/ECov.hpp"
 
 #include "API/SPDE.hpp"
+#include "LinearOp/ASimulable.hpp"
+#include "LinearOp/MatrixSquareSymmetricSim.hpp"
+#include "LinearOp/PrecisionOpMulti.hpp"
+#include "LinearOp/SPDEOp.hpp"
+#include "LinearOp/SPDEOpMatrix.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Model/ANoStat.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -24,6 +31,8 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/ProjMultiMatrix.hpp"
+#include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_define.h"
 
@@ -263,8 +272,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
       {
         if (meshUser == nullptr)
         {
-          mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineK(),
-                                            _params.getBorder(), useSel, flagNoStatRot, verbose);
+         
+         
           _deleteMesh = true;
         }
         _meshingKrig.push_back(mesh);
@@ -1067,4 +1076,62 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
     (void) nostat->manageInfo(-1, db, nullptr);
 
   return mat;
+}
+
+
+/**
+ * Perform the estimation by KRIGING under the SPDE framework
+ *
+ * @param dbin Input Db (must contain the variable to be estimated)
+ * @param dbout Output Db where the estimation must be performed
+ * @param model Model definition
+ * @param modelNugget Nugget part of the model (don't use it in model)
+ * @param mesh Mesh description (optional)
+ * @param useCholesky Define the choice regarding Cholesky
+ * @param verbose Verbose flag
+ * @param namconv Naming convention
+ * @return Error return code
+ *
+ * @remarks You can provide an already existing mesh. Otherwise an optimal mesh will be created
+ * @remarks internally: one per structure constituting the Model for Kriging.
+ * @remarks Each mesh is created using the Turbo Meshing facility... based on an internal grid.
+ * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
+ * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
+ *
+ */
+VectorDouble krigingSPDENew(Db *dbin,
+                   Db *dbout,
+                   Model *model,
+                   Model *modelNugget,
+                   const std::vector<const AMesh *> &mesh,
+                   int useCholesky,
+                   bool verbose,
+                   const NamingConvention &namconv)
+{
+ if (dbin == nullptr) return 1;
+ if (dbout == nullptr) return 1;
+ auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
+ auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,mesh);
+ auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,mesh);
+ auto *invnoise = buildInvNugget(dbin,modelNugget);
+ VectorDouble result;
+ if (useCholesky)
+ {
+  PrecisionOpMultiMatrix Qop(model,mesh);
+  SPDEOpMatrix spdeop(&Qop,&AM,invnoise);
+  auto resultmesh = spdeop.kriging(Z);
+  Aout.mesh2point(resultmesh,result);
+ }
+ else 
+ {
+  PrecisionOpMulti Qop(model,mesh);
+  MatrixSquareSymmetricSim invnoisep(invnoise);
+  SPDEOp spdeop(&Qop,&AM,&invnoisep);
+  spdeop.setMaxIterations(1000);
+  spdeop.setTolerance(1e-5);
+  auto resultmesh = spdeop.kriging(Z);
+  Aout.mesh2point(resultmesh,result);
+ }
+ delete invnoise;
+ return result;
 }

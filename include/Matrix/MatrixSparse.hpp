@@ -193,8 +193,8 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
     int  solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x);
     int  simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x);
     int  addVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y);
-
   #endif
+  
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
   double computeCholeskyLogDeterminant();
 

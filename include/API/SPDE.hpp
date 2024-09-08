@@ -167,3 +167,12 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
                                          const SPDEParam& params = SPDEParam(),
                                          bool verbose = false);
 GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam& params = SPDEParam());
+
+GSTLEARN_EXPORT VectorDouble krigingSPDENew(Db *dbin,
+                                   Db *dbout,
+                                   Model *model,
+                                   Model *modelNugget,
+                                   const std::vector<const AMesh*> &mesh = std::vector<const AMesh*>(),
+                                   int useCholesky = -1,
+                                   bool verbose = false,
+                                   const NamingConvention &namconv = NamingConvention("KrigingSPDE"));

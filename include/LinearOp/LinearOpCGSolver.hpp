@@ -31,10 +31,13 @@ public:
 
   void solve(const VectorDouble& rhs, VectorDouble& out);
   void solve(const VectorEigen& rhs, VectorEigen& out);
-
+  void setMaxIterations(int n) {cg.setMaxIterations(n);}
+  void setTolerance(double tol) {cg.setTolerance(tol);}
+  int  getIterations() const { return cg.iterations();}
+  double getError() const { return  cg.error();}
 #ifndef SWIG
   void solve(const Eigen::VectorXd& rhs, Eigen::VectorXd& out);
-
+  void solveWithGuess(const Eigen::VectorXd& rhs,const Eigen::VectorXd& guess, Eigen::VectorXd& out);
 private:
   Eigen::ConjugateGradient<TLinOP,
                            Eigen::Lower | Eigen::Upper,
@@ -74,5 +77,14 @@ void LinearOpCGSolver<TLinOP>::solve(const Eigen::VectorXd& rhs,
 {
   out = cg.solve(rhs);
 }
+
+template<typename TLinOP>
+void LinearOpCGSolver<TLinOP>::solveWithGuess(const Eigen::VectorXd& rhs,
+                                              const Eigen::VectorXd& guess,
+                                              Eigen::VectorXd& out)
+{
+  out = cg.solveWithGuess(rhs,guess);
+}
+
 
 #endif

@@ -140,7 +140,8 @@
 %include Space/SpaceShape.hpp
 
 %include LinearOp/ALinearOp.hpp
-
+%include LinearOp/ASimulable.hpp
+%include LinearOp/ISimulable.hpp
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
@@ -192,7 +193,7 @@
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/Cholesky.hpp
-
+%include LinearOp/MatrixSquareSymmetricSim.hpp
 %include Model/ANoStat.hpp
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp

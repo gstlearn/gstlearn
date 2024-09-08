@@ -84,6 +84,7 @@ public:
   int invertCholesky();
   int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
   int solveCholesky(const VectorDouble& b, VectorDouble& x);
+  
   VectorDouble getCholeskyTL() const;
   double getCholeskyTL(int i, int j) const;
   double getCholeskyTL(int iad) const;
@@ -141,13 +142,10 @@ public:
                       bool optionPositive = true,
                       bool changeOrder = false);
 
-
-
 private:
   bool _flagCholeskyDecompose;
   bool _flagCholeskyInverse;
   VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
   VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
-
   Eigen::LLT<Eigen::MatrixXd> _factor; // Cholesky decomposition (Eigen format)
 };

@@ -53,7 +53,8 @@ public:
   int  simulate(const VectorDouble& b, VectorDouble& x) const;
   #ifndef SWIG
     int solve(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
-     int  simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+    int  simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+    int  addSimulateToDest(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
   #endif
   int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
   double getLogDeterminant() const;

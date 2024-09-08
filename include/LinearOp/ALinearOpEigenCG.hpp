@@ -70,7 +70,7 @@ public:
   
   Eigen::Index rows() const { return getSize(); }
   Eigen::Index cols() const { return getSize(); }
- 
+
   template<typename Rhs>
   Eigen::Product<TLinOP,Rhs,Eigen::AliasFreeProduct> operator*(const Eigen::MatrixBase<Rhs>& x) const {
     return Eigen::Product<TLinOP,Rhs,Eigen::AliasFreeProduct>(*(dynamic_cast<const TLinOP*>(this)), x.derived());

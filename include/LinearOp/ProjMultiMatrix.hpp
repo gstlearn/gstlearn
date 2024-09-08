@@ -30,7 +30,7 @@ public:
   ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj,bool toClean = false,bool silent = false);
   virtual ~ProjMultiMatrix();
   static std::vector<std::vector<const ProjMatrix*>> create(std::vector<const ProjMatrix*> &vectproj, int nvariable);
-  static ProjMultiMatrix createFromDbAndMeshes(const Db* db,std::vector<const AMesh*> &meshes,bool verbose = false);
+  static ProjMultiMatrix createFromDbAndMeshes(const Db* db,const std::vector<const AMesh*> &meshes,bool verbose = false);
 
   const MatrixSparse* getProj() const { return &_Proj;} 
 #ifndef SWIG           

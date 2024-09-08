@@ -150,6 +150,13 @@ private:
                        bool optionPositive = true,
                        bool changeOrder = false);
 
+#ifndef SWIG
+  public:
+  const Eigen::MatrixXd* getTab() const
+  {
+    return &_eigenMatrix;
+  }
+#endif
 protected:
   bool _flagEigenDecompose;
   VectorDouble         _eigenValues;  // Used only when ! flag_eigen()

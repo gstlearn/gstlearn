@@ -32,7 +32,7 @@ static std::vector<std::vector<const IProjMatrix*>> castToBase(std::vector<std::
     return casted;
 }
 
-ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,std::vector<const AMesh*> &meshes,bool verbose)
+ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,const std::vector<const AMesh*> &meshes,bool verbose)
 {
     std::vector<std::vector<const ProjMatrix*>> stockerempty(0);
     
@@ -68,17 +68,18 @@ ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,std::vector<
     }
     std::vector<std::vector<const ProjMatrix*>> stocker;
 
+    int nmesh = (int)meshes.size();
     for (int ivar = 0; ivar < nvar; ivar++)
     {   
         stocker.push_back(std::vector<const ProjMatrix*>());
-        for (int imesh = 0; imesh < nvar; imesh++)
-        {   
-            int indmesh = (nmeshes == 1) ?  0 : ivar;
-            if (imesh != ivar)
-                 stocker[ivar].push_back(nullptr);
-            else
-                stocker[ivar].push_back(new ProjMatrix(db,meshes[indmesh],ivar,verbose));
-        }
+        for (int imesh = 0; imesh < nmesh; imesh++)
+            for (int jvar = 0; jvar < nvar; jvar ++)
+            {   
+                if (ivar != jvar)
+                    stocker[ivar].push_back(nullptr);
+                else
+                    stocker[ivar].push_back(new ProjMatrix(db,meshes[imesh],jvar,verbose));
+            }
     }
     return ProjMultiMatrix(stocker,true);
 }
@@ -156,20 +157,18 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
         currentrow = MatrixSparse(0,0);
         for (int j = 0; j < getNLatent(); j++)
         {
-            int shift = ( j > 0 ) ? 1 : 0;
             if (_projs[i][j] != nullptr)
             {
-                MatrixSparse::glueInPlace(&currentrow,((MatrixSparse*)proj[i][j]),0,shift);
+                MatrixSparse::glueInPlace(&currentrow,((MatrixSparse*)proj[i][j]),0,1);
             }
             else 
             {
                 auto tempMat = MatrixSparse(pointNumbers[i],apexNumbers[j]);
-                MatrixSparse::glueInPlace(&currentrow,&tempMat,0,shift);
+                MatrixSparse::glueInPlace(&currentrow,&tempMat,0,1);
             }
          
         }
-        int shift = ( i > 0 ) ? 1 : 0;
-        MatrixSparse::glueInPlace(&_Proj,&currentrow,shift,0);
+        MatrixSparse::glueInPlace(&_Proj,&currentrow,1,0);
     }   
 }
 

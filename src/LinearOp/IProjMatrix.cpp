@@ -20,6 +20,7 @@ int IProjMatrix::mesh2point(const VectorDouble& inv,
                            VectorDouble& outv) const
 {
     Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
+    outv.resize(getPointNumber());
     Eigen::VectorXd myOut(outv.size());
     
     // Assume outv has the good size
@@ -32,6 +33,7 @@ int IProjMatrix::mesh2point(const VectorDouble& inv,
 int IProjMatrix::point2mesh(const VectorDouble& inv,
                            VectorDouble& outv) const
 {
+    outv.resize(getApexNumber());
     Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
     Eigen::VectorXd myOut(outv.size());
     

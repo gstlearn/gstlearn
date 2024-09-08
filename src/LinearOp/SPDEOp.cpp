@@ -10,22 +10,27 @@
 /******************************************************************************/
 #include "LinearOp/SPDEOp.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/LinearOpCGSolver.hpp"
+#include "LinearOp/ISimulable.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include <Eigen/src/Core/Matrix.h>
 #include "Matrix/VectorEigen.hpp"
 
-SPDEOp::SPDEOp(const PrecisionOpMulti* const pop, const ProjMulti* const proj, const ALinearOp* const invNoise)
+SPDEOp::SPDEOp(const PrecisionOpMulti* const pop, const ProjMulti* const proj, const ISimulable* const invNoise,bool todelete)
 : _Q(pop)
 , _Proj(proj)
 , _invNoise(invNoise)
+, _noiseToDelete(todelete)
+, _solver(this)
 {
   _prepare(true,true);
 }
 
-SPDEOp::~SPDEOp() {}
+SPDEOp::~SPDEOp() 
+{ 
+  if (_noiseToDelete)
+    delete _invNoise;
+}
 
 int SPDEOp::getSize() const
 { 
@@ -46,16 +51,29 @@ int SPDEOp::_addToDest(const Eigen::VectorXd& inv,
   return _addToDestImpl(inv,outv);
 }
 
-VectorDouble SPDEOp::simulateCond(const VectorDouble& dat) const
+int SPDEOp::_addSimulateToDest(const Eigen::VectorXd& whitenoise,
+                             Eigen::VectorXd& outv) const
 {
-  return VectorDouble();
+  return 1;
 }
+
 
 VectorDouble SPDEOp::kriging(const VectorDouble& dat) const
 {
   Eigen::Map<const Eigen::VectorXd> datm(dat.data(),dat.size());
   Eigen::VectorXd outv(_Q->getSize());
   int err = kriging(datm,outv);
+  if(err) return VectorDouble();
+  return VectorEigen::copyIntoVD(outv); 
+}
+
+VectorDouble SPDEOp::krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const
+{
+  Eigen::Map<const Eigen::VectorXd> datm(dat.data(),dat.size());
+  Eigen::Map<const Eigen::VectorXd> guessm(guess.data(),guess.size());
+
+  Eigen::VectorXd outv(_Q->getSize());
+  int err = krigingWithGuess(datm,guessm,outv);
   if(err) return VectorDouble();
   return VectorEigen::copyIntoVD(outv); 
 }
@@ -68,10 +86,24 @@ int SPDEOp::kriging(const Eigen::VectorXd& inv,
  return _solve(_rhs,out);
 }
 
+int SPDEOp::krigingWithGuess(const Eigen::VectorXd& inv,
+                             const Eigen::VectorXd& guess,
+                              Eigen::VectorXd& out) const
+{
+ out.resize(_Q->getSize());
+ _buildRhs(inv);
+ return _solveWithGuess(_rhs,guess,out);
+}
+
 int SPDEOp::_solve(const Eigen::VectorXd& in,Eigen::VectorXd& out) const
 {
-  LinearOpCGSolver<SPDEOp> solver(this);
-  solver.solve(in,out);
+  _solver.solve(in,out);
+  return 0;
+}
+
+int SPDEOp::_solveWithGuess(const Eigen::VectorXd& in,const Eigen::VectorXd &guess,Eigen::VectorXd& out) const
+{
+  _solver.solveWithGuess(in,guess,out);
   return 0;
 }
 

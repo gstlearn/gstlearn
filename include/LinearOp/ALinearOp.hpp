@@ -26,7 +26,6 @@ public:
   virtual ~ALinearOp() {}
   virtual int getSize() const = 0;
   
-  //TODO : check unnecessary virtual when finished
   int evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
   VectorDouble evalDirect(const VectorDouble& in) const;
   int evalDirect(const VectorEigen& inv, VectorEigen& outv) const;

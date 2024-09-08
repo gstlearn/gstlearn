@@ -50,10 +50,8 @@ int ALinearOp::evalDirect(const Eigen::VectorXd& inv,
                                 Eigen::VectorXd& outv) const
 {
     int n = (int)outv.size();
-    for (int i = 0; i < n; i++)
-    {
-      outv[i] = 0.;
-    }              
+    outv.resize(n);
+    VectorEigen::fill(outv,0.);
     return _addToDest(inv,outv);      
 }
 

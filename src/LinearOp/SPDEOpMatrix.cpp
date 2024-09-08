@@ -12,12 +12,13 @@
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
+#include "LinearOp/MatrixSquareSymmetricSim.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop, 
                            const ProjMultiMatrix* A, 
                            const MatrixSparse* invNoise)
-: SPDEOp(pop,A,invNoise)
+: SPDEOp(pop,A,new MatrixSquareSymmetricSim(invNoise),1)
 , _QpAinvNoiseAt(MatrixSparse(0,0))
 {
   _QpAinvNoiseAt.resize(pop->getSize(), pop->getSize());
