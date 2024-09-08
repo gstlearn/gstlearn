@@ -15,6 +15,7 @@
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include <Eigen/src/Core/Matrix.h>
 #include "Matrix/VectorEigen.hpp"
+#include "geoslib_define.h"
 
 SPDEOp::SPDEOp(const PrecisionOpMulti* const pop, const ProjMulti* const proj, const ISimulable* const invNoise,bool todelete)
 : _Q(pop)
@@ -54,6 +55,8 @@ int SPDEOp::_addToDest(const Eigen::VectorXd& inv,
 int SPDEOp::_addSimulateToDest(const Eigen::VectorXd& whitenoise,
                              Eigen::VectorXd& outv) const
 {
+  DECLARE_UNUSED(whitenoise);
+  DECLARE_UNUSED(outv);
   return 1;
 }
 
