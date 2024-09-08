@@ -19,6 +19,7 @@
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Model/Model.hpp"
+#include "Core/Memory.hpp"
 
 /*! \cond */
 #define OLD 0

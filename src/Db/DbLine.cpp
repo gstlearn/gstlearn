@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"

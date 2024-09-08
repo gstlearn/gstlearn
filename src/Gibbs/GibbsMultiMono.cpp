@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Gibbs/GibbsMultiMono.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"

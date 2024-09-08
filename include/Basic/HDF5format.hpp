@@ -108,6 +108,7 @@ public:
   public:
     Proxy(const HDF5format* owner)
     {
+      DECLARE_UNUSED(owner);
     }
     operator int() const
     {

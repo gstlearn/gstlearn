@@ -9,10 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/String.hpp"
+#include "Core/Memory.hpp"
 
 #include <string.h>
 

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Db/Db.hpp"

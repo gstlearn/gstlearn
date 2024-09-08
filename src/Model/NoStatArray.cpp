@@ -21,9 +21,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "geoslib_old_f.h"
-
-#include <math.h>
+#include "Mesh/AMesh.hpp"
 
 NoStatArray::NoStatArray()
 : ANoStat(),

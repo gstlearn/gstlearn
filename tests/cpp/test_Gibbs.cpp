@@ -31,6 +31,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
+#include "Core/Memory.hpp"
 
 /*****************************************************************************/
 /*!

@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 
 #include "Basic/Utilities.hpp"
@@ -1053,50 +1052,40 @@ int law_binomial(int n, double p)
  **
  ** \remarks The input array must be isotopic (otherwise, an error is issued)
  **
- ** \remarks The resulting array if dimensionned to nvar * nechout
- ** \remarks The created (and returned) array must be freed by the calling
- ** \remarks function
+ ** \remarks The resulting VectorDouble if dimensionned to nvar * nechout
  **
  ** \remarks Consider nvar1 = nvar + 1
  ** \remarks Sample temp[1:nvar1] is authorized for Constraint 'iconst' if:
  ** \remarks  Sum_ivar1^{1:nvar1) consts[iconst,ivar1) * temp[ivar1] > 0
  **
  *****************************************************************************/
-double* law_exp_sample(const double *tabin,
-                       int mode,
-                       int nvar,
-                       int nechin,
-                       int nechout,
-                       int niter,
-                       int nconst,
-                       double *consts,
-                       int seed,
-                       double percent)
+VectorDouble law_exp_sample(const double* tabin,
+                            int mode,
+                            int nvar,
+                            int nechin,
+                            int nechout,
+                            int niter,
+                            int nconst,
+                            double* consts,
+                            int seed,
+                            double percent)
 {
-  double *tabout, *mean, *stdv, *mini, *maxi, *temp, value, rab, total;
-  int error, iechin, selec, nvarin, nvarout, nvar1, flag_cont, flag_ok;
+  double value, rab, total;
+  int iechin, selec, nvarin, nvarout, nvar1, flag_cont, flag_ok;
 
   /* Initializations */
 
-  error = 1;
-  tabout = mean = stdv = temp = mini = maxi = nullptr;
   law_set_random_seed(seed);
   nvarin = nvarout = nvar;
   nvar1 = nvar + 1;
 
   /* Internal core allocation */
 
-  temp = (double*) mem_alloc(sizeof(double) * nvar1, 1);
-  mean = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  stdv = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  mini = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  maxi = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  for (int ivar = 0; ivar < nvarin; ivar++)
-  {
-    mean[ivar] = stdv[ivar] = 0.;
-    mini[ivar] = +1.e30;
-    maxi[ivar] = -1.e30;
-  }
+  VectorDouble temp(nvar1, 0.);
+  VectorDouble mean(nvarin, 0.);
+  VectorDouble stdv(nvarin, 0.);
+  VectorDouble mini(nvarin, 1.e30);
+  VectorDouble maxi(nvarin, -1.e30);
 
   /* Count the number of active isotopic samples */
 
@@ -1110,7 +1099,7 @@ double* law_exp_sample(const double *tabin,
       {
         messerr("The sample %d of the Training Data Base", iechin + 1);
         messerr("is not isotopic. This is an error");
-        goto label_end;
+        return VectorDouble();
       }
       if (value < mini[ivar]) mini[ivar] = value;
       if (value > maxi[ivar]) maxi[ivar] = value;
@@ -1125,15 +1114,13 @@ double* law_exp_sample(const double *tabin,
   {
     mean[ivar] /= (double) nechin;
     stdv[ivar] = stdv[ivar] / (double) nechin - mean[ivar] * mean[ivar];
-    stdv[ivar] = (stdv[ivar] > 0) ? sqrt(stdv[ivar]) :
-                                    0.;
+    stdv[ivar] = (stdv[ivar] > 0) ? sqrt(stdv[ivar]) : 0.;
     stdv[ivar] *= percent / 100.;
   }
 
   /* Core allocation */
 
-  tabout = (double*) mem_alloc(sizeof(double) * nechout * nvarout, 0);
-  if (tabout == nullptr) goto label_end;
+  VectorDouble tabout(nechout * nvarout);
 
   /* Generate the samples */
 
@@ -1206,23 +1193,10 @@ double* law_exp_sample(const double *tabin,
                 mini[ivar], maxi[ivar], mean[ivar], stdv[ivar]);
       }
       print_matrix("Constraints", 0, 0, nvar1, nconst, NULL, consts);
-      goto label_end;
+      return VectorDouble();
     }
   }
-
-  /* Return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) temp);
-  mem_free((char* ) mean);
-  mem_free((char* ) stdv);
-  mem_free((char* ) mini);
-  mem_free((char* ) maxi);
-  if (error) tabout = (double*) mem_free((char* ) tabout);
-
-  return (tabout);
+  return tabout;
 }
 
 /**

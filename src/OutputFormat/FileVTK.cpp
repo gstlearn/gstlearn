@@ -9,13 +9,13 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "OutputFormat/vtk.h"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Core/Memory.hpp"
 
 FileVTK::FileVTK(const char* filename, const Db* db)
   : AOF(filename, db)

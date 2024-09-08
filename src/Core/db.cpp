@@ -12,8 +12,10 @@
 
 #include "Polygon/Polygons.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Grid.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Core/Memory.hpp"
 
 #include <math.h>
 
@@ -451,23 +453,6 @@ int db_grid_define_coordinates(DbGrid *db)
     }
   }
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Copy an attribute into another one
- **
- ** \param[in]  db        Db structure
- ** \param[in]  iatt_in   Input attribute
- ** \param[in]  iatt_out  Output attribute
- **
- ** \remark The output attribute must already be allocated
- **
- *****************************************************************************/
-void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
-{
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-    db->setArray(iech, iatt_out, db->getArray(iech, iatt_in));
 }
 
 /****************************************************************************/
@@ -1701,36 +1686,6 @@ double* db_distances_general(Db *db1,
 
 /****************************************************************************/
 /*!
- **  Check if a sample corresponding to a given rank is isotropic or not
- **
- ** \return  1 if all variables are defined (isotropic) or 0 otherwise
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  iech    Rank of the target sample
- **
- ** \param[out] data    If the output vector is provided.
- **                     Returns the data value at target sample as a vector
- **
- ** \remark  If the sample is masked off, the function returns 0
- **
- *****************************************************************************/
-int db_is_isotropic(const Db *db, int iech, double *data)
-{
-  int ivar;
-  double value;
-
-  if (!db->isActive(iech)) return (0);
-  for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
-  {
-    value = db->getZVariable(iech, ivar);
-    if (FFFF(value)) return (0);
-    if (data != NULL) data[ivar] = value;
-  }
-  return (1);
-}
-
-/****************************************************************************/
-/*!
  **  Check if a grid is a multiple of the other grid
  **
  ** \return  1 if the two grid are multiple; 0 otherwise
@@ -1792,114 +1747,6 @@ int is_grid_multiple(DbGrid *db1, DbGrid *db2)
 
   label_end:
   return (1 - error);
-}
-
-/****************************************************************************/
-/*!
- **  Create a Grid Db as a multiple of another Grid Db
- **
- ** \return  Pointer to the newly created Db grid structure
- **
- ** \param[in]  dbin      Initial Db Grid
- ** \param[in]  nmult     Array of multiplicity coefficients
- ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
- **  **
- *****************************************************************************/
-DbGrid* db_create_grid_multiple(DbGrid *dbin,
-                                const VectorInt &nmult,
-                                bool flagAddSampleRank)
-{
-  DbGrid *dbout = nullptr;
-  if (dbin == nullptr) return (dbin);
-  int ndim = dbin->getNDim();
-
-  /* Core allocation */
-
-  VectorInt nx(ndim);
-  VectorDouble dx(ndim);
-  VectorDouble x0(ndim);
-
-  /* Get the new grid characteristics */
-
-  dbin->getGrid().multiple(nmult, 1, nx, dx, x0);
-
-  /* Create the new grid */
-
-  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
-
-  return dbout;
-}
-
-/****************************************************************************/
-/*!
- **  Create a Grid Db as a divider of another Grid Db
- **
- ** \return  Pointer to the newly created Db grid structure
- **
- ** \param[in]  dbin      Initial Db Grid
- ** \param[in]  nmult     Array of subdivision coefficients
- ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
- **
- *****************************************************************************/
-DbGrid* db_create_grid_divider(DbGrid *dbin,
-                               const VectorInt &nmult,
-                               bool flagAddSampleRank)
-{
-  DbGrid *dbout = nullptr;
-  if (dbin == nullptr) return dbin;
-
-  int ndim = dbin->getNDim();
-  VectorInt nx(ndim);
-  VectorDouble dx(ndim);
-  VectorDouble x0(ndim);
-
-  /* Get the new grid characteristics */
-
-  dbin->getGrid().divider(nmult, 1, nx, dx, x0);
-
-  /* Create the new grid */
-
-  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
-
-  return dbout;
-}
-
-/****************************************************************************/
-/*!
- **  Create a Grid Db extended (or compressed) from another Grid Db
- **
- ** \return  Pointer to the newly created Db grid structure
- **
- ** \param[in]  dbin      Initial Db Grid
- ** \param[in]  mode      1 for extending; -1 for compressing
- ** \param[in]  nshift    Array of shifts
- ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
- **
- *****************************************************************************/
-DbGrid* db_create_grid_dilate(DbGrid *dbin,
-                              int mode,
-                              const VectorInt &nshift,
-                              bool flagAddSampleRank)
-{
-  DbGrid *dbout = nullptr;
-  if (dbin == nullptr) return dbin;
-
-  /* Get the new grid characteristics */
-
-  int ndim = dbin->getNDim();
-  VectorInt nx(ndim);
-  VectorDouble dx(ndim);
-  VectorDouble x0(ndim);
-  dbin->getGrid().dilate(mode, nshift, nx, dx, x0);
-
-  /* Create the new grid */
-
-  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
-
-  return (dbout);
 }
 
 /****************************************************************************/

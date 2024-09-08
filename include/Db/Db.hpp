@@ -424,6 +424,9 @@ public:
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
 
+  void copyByUID(int iuidIn, int iuidOut);
+  void copyByCol(int icolIn, int icolOut);
+
   int getFaciesNumber(void) const;
   bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
@@ -522,10 +525,10 @@ public:
   void   updZVariable(int iech, int item, const EOperator& oper, double value);
 
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
-  void setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
+  void   setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
 
-    bool isVariableNumberComparedTo(int nvar, int compare = 0) const;
-  bool isIsotopic(int iech, int nvar_max = -1) const;
+  bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
   bool   isAllIsotopic() const;
@@ -687,6 +690,8 @@ public:
                                        int iuid_end,
                                        bool useSel       = false,
                                        bool flagCompress = true) const;
+  VectorDouble getColumnsActiveAndDefined(const ELoc& locatorType,
+                                          const VectorDouble& origins = VectorDouble()) const;
   /**@}*/
 
   void setAllColumns(const VectorVectorDouble& tabs);

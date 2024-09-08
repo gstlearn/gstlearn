@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Enum/EProcessOper.hpp"
 #include "Enum/ERule.hpp"
@@ -38,10 +37,11 @@
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 #include <string.h>

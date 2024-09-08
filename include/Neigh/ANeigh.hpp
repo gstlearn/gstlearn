@@ -16,10 +16,12 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Tree/Ball.hpp"
 #include "geoslib_define.h"
 
 class Db;
 class DbGrid;
+class Ball;
 
 /**
  * \brief
@@ -81,7 +83,12 @@ public:
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setFlagKFold(bool flagKFold)   { _flagKFold = flagKFold; }
   void setFlagSimu(bool flagSimu)     { _flagSimu = flagSimu; }
-  void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
+  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
+
+  void setBallSearch(bool status, int leaf_size = 10);
+  void attachBall(double (*dist_function)(const double* x1,
+                                          const double* x2,
+                                          int size) = nullptr);
 
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
@@ -90,6 +97,7 @@ protected:
   bool _discardUndefined(int iech);
   int  _xvalid(int iech_in, int iech_out, double eps = EPSILON9);
   bool _isDimensionValid(int idim) const;
+  Ball& getBall() { return _ball; }
 
   // Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -109,10 +117,13 @@ protected:
   VectorInt _rankColCok;
   int  _iechMemo;
   bool _flagSimu;
-  bool _flagXvalid;              /* True to suppress the target */
-  bool _flagKFold;               /* True to perform a KFold Cross-validation */
+  bool _flagXvalid;    /* True to suppress the target */
+  bool _flagKFold;     /* True to perform a KFold Cross-validation */
+  bool _useBallSearch; /* If Neighborhood search favors Ball Tree algorithms */
+  int  _ballLeafSize;  /* Dimension of ultimate Leaf for Ball-Tree algorithm */
 
 private:
   bool _flagIsUnchanged;
-  mutable VectorInt  _nbghMemo;
+  mutable VectorInt _nbghMemo;
+  mutable Ball _ball;
 };

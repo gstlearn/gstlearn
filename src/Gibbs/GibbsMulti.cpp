@@ -16,7 +16,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include <math.h>

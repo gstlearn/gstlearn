@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixRectangular.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/NF_Triplet.hpp"

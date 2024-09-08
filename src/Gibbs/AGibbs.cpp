@@ -16,7 +16,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include <math.h>

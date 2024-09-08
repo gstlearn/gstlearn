@@ -11,7 +11,6 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
-#include "geoslib_io.h"
 
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
@@ -26,6 +25,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/ANoStat.hpp"
 #include "Variogram/DirParam.hpp"
+#include "Variogram/Vario.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -74,16 +74,6 @@ GSTLEARN_EXPORT int pile_correct(int type, int rank, int mode);
 GSTLEARN_EXPORT char* pile_get(int type, int rank);
 GSTLEARN_EXPORT void piles_dump(void);
 
-/**************************************/
-/* Prototyping the functions in fft.c */
-/**************************************/
-
-GSTLEARN_EXPORT int fftn(int ndim,
-                         const int dims[],
-                         double Re[],
-                         double Im[],
-                         int iSign,
-                         double scaling);
 
 /***************************************/
 /* Prototyping the functions in math.c */
@@ -122,37 +112,6 @@ GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
 GSTLEARN_EXPORT void set_last_message(int mode, const char *string);
 GSTLEARN_EXPORT void print_last_message(void);
-GSTLEARN_EXPORT void set_keypair(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 const double *values);
-GSTLEARN_EXPORT void app_keypair(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 double *values);
-GSTLEARN_EXPORT void set_keypair_int(const char *keyword,
-                                     int origin,
-                                     int nrow,
-                                     int ncol,
-                                     int *values);
-GSTLEARN_EXPORT void app_keypair_int(const char *keyword,
-                                     int origin,
-                                     int nrow,
-                                     int ncol,
-                                     int *values);
-GSTLEARN_EXPORT double get_keypone(const char *keyword, double valdef);
-GSTLEARN_EXPORT int get_keypair(const char *keyword,
-                                int *nrow,
-                                int *ncol,
-                                double **values);
-GSTLEARN_EXPORT int get_keypair_int(const char *keyword,
-                                    int *nrow,
-                                    int *ncol,
-                                    int **values);
-GSTLEARN_EXPORT void del_keypair(const char *keyword, int flag_exact);
-GSTLEARN_EXPORT void print_keypair(int flag_short);
 GSTLEARN_EXPORT void print_range(const char *title,
                                  int ntab,
                                  const double *tab,
@@ -190,43 +149,6 @@ GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
 /* Prototyping the functions in memory.c */
 /*****************************************/
 
-/* Overwriting memory management functions */
-
-#define mem_free(tab)          mem_free_(__FILE__,__LINE__,tab)
-#define mem_alloc(a,b)         mem_alloc_(__FILE__,__LINE__,a,b)
-#define mem_calloc(a,b,c)      mem_calloc_(__FILE__,__LINE__,a,b,c)
-#define mem_realloc(tab,a,b)   mem_realloc_(__FILE__,__LINE__,tab,a,b)
-#define mem_copy(tab,a,b)      mem_copy_(__FILE__,__LINE__,tab,a,b)
-
-GSTLEARN_EXPORT void memory_leak_set(int flag);
-GSTLEARN_EXPORT void memory_leak_reset(void);
-GSTLEARN_EXPORT void memory_leak_report(void);
-GSTLEARN_EXPORT char* mem_alloc_(const char *call_file,
-                                 unsigned int call_line,
-                                 int size,
-                                 int flag_fatal);
-GSTLEARN_EXPORT char* mem_calloc_(const char *call_file,
-                                  unsigned int call_line,
-                                  int size_t,
-                                  int size,
-                                  int flag_fatal);
-GSTLEARN_EXPORT char* mem_realloc_(const char *call_file,
-                                   unsigned int call_line,
-                                   char *tab,
-                                   int size,
-                                   int flag_fatal);
-GSTLEARN_EXPORT char* mem_copy_(const char *call_file,
-                                unsigned int call_line,
-                                char *tabin,
-                                int size,
-                                int flag_fatal);
-GSTLEARN_EXPORT char* mem_free_(const char *call_file,
-                                unsigned int call_line,
-                                char *tab);
-GSTLEARN_EXPORT void mem_debug_set(int flag);
-GSTLEARN_EXPORT void memory_status(const char *title);
-GSTLEARN_EXPORT double** mem_tab_free(double **tab, int nvar);
-GSTLEARN_EXPORT double** mem_tab_alloc(int nvar, int size, int flag_fatal);
 GSTLEARN_EXPORT void time_start(void);
 GSTLEARN_EXPORT void time_reset(void);
 GSTLEARN_EXPORT void time_chunk_add(const char *call_name);
@@ -377,16 +299,6 @@ GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
 GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
 GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
 
-/***************************************/
-/* Prototyping the functions in anam.c */
-/***************************************/
-
-GSTLEARN_EXPORT int anam_point_to_block(AAnam *anam,
-                                        int verbose,
-                                        double cvv,
-                                        double coeff,
-                                        double mu);
-
 /*************************************/
 /* Prototyping the functions in db.c */
 /*************************************/
@@ -398,7 +310,6 @@ GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid *grid);
 GSTLEARN_EXPORT double* db_sample_free(double *tab);
 GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT int db_name_identify(Db *db, const String &string);
-GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out);
 GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
                                              const ELoc& locatorType,
                                              int number,
@@ -408,19 +319,8 @@ GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
 GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
                                          const VectorInt &current,
                                          int flag_locnew);
-GSTLEARN_EXPORT int db_is_isotropic(const Db *db, int iech, double *data);
 GSTLEARN_EXPORT void db_grid_print(Db *db);
 
-GSTLEARN_EXPORT DbGrid* db_create_grid_multiple(DbGrid *dbin,
-                                                const VectorInt &nmult,
-                                                bool flagAddSampleRank);
-GSTLEARN_EXPORT DbGrid* db_create_grid_divider(DbGrid *dbin,
-                                               const VectorInt &nmult,
-                                               bool flagAddSampleRank);
-GSTLEARN_EXPORT DbGrid* db_create_grid_dilate(DbGrid *dbin,
-                                              int mode,
-                                              const VectorInt &nshift,
-                                              bool flagAddSampleRank);
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
 GSTLEARN_EXPORT void db_sample_print(Db *db,
                                      int iech,
@@ -1118,33 +1018,6 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db* dbin,
                                           int* npar_arg,
                                           double** mean,
                                           double** vars);
-
-/*******************************************/
-/* Prototyping the functions in delaunay.c */
-/*******************************************/
-GSTLEARN_EXPORT double* get_db_extension(Db *dbin, Db *dbout, int *nout);
-GSTLEARN_EXPORT double* extend_grid(DbGrid *db, const double *gext, int *nout);
-GSTLEARN_EXPORT double* extend_point(Db *db, const double *gext, int *nout);
-GSTLEARN_EXPORT int MSS(int ndim, int ipol, int icas, int icorn, int idim);
-GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
-                                    const char *obj_name,
-                                    int verbose,
-                                    int ndim,
-                                    int ncode,
-                                    int ntri,
-                                    int npoints,
-                                    const VectorInt& ntcode,
-                                    const VectorInt& triangles,
-                                    const VectorDouble& points);
-GSTLEARN_EXPORT AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid);
-
-GSTLEARN_EXPORT void mesh_stats(int ndim,
-                                int ncorner,
-                                int nmesh,
-                                const int *meshes,
-                                const double *points);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

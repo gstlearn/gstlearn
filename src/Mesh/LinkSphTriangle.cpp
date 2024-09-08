@@ -17,6 +17,8 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/LinkSphTriangle.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 

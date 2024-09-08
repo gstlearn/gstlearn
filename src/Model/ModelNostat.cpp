@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Model/ModelNostat.hpp"
 #include "Model/ElemNostat.hpp"
 #include "Basic/Utilities.hpp"

@@ -102,8 +102,9 @@ Universality_Condition----
 #NO_DIFF#XXX
 ----
 Likelihood calculation:
-- Number of active samples   = 100
-- Number of variables        = 1
+- Number of active samples     = 100
+- Number of variables          = 1
+- Length of Information Vector = 100
 - Number of drift conditions = 1
 Optimal Drift coefficients = 
      0.728
@@ -159,8 +160,9 @@ No Constraint =  [ 0.59138302  3.04949823  1.96840598 -2.14045187]
 #NO_DIFF#XXX
 ----
 Likelihood calculation:
-- Number of active samples   = 200
-- Number of variables        = 2
+- Number of active samples     = 200
+- Number of variables          = 2
+- Length of Information Vector = 400
 - Number of drift conditions = 4
 Optimal Drift coefficients = 
      0.591     3.049     1.968    -2.140
@@ -197,8 +199,9 @@ a0=b0 and a1=b1 [0.3618792  3.91448991 0.3618792  3.91448991]
 #NO_DIFF#XXX
 ----
 Likelihood calculation:
-- Number of active samples   = 200
-- Number of variables        = 2
+- Number of active samples     = 200
+- Number of variables          = 2
+- Length of Information Vector = 400
 - Number of drift conditions = 2
 Optimal Drift coefficients = 
      0.362     3.914

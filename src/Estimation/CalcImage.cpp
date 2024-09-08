@@ -10,13 +10,13 @@
 /******************************************************************************/
 #include "Calculators/ACalcInterpolator.hpp"
 #include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 
 #include "Basic/NamingConvention.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Db/DbGrid.hpp"
+#include "Morpho/Morpho.hpp"
 
 CalcImage::CalcImage()
     : ACalcInterpolator(),
@@ -158,7 +158,7 @@ bool CalcImage::_run()
 
   if (_flagMorpho)
   {
-    if (_db_morpho_calc(dbgrid, _iattOut, _oper, _vmin, _vmax, _option, _radius,
+    if (db_morpho_calc(dbgrid, _iattOut, _oper, _vmin, _vmax, _option, _radius,
                        _distErode, _verbose)) return false;
   }
 

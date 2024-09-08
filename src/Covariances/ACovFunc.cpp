@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Covariances/ACovFunc.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"

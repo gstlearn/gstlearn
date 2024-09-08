@@ -8,12 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Covariances/ACovGradient.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/VectorNumT.hpp"
-#include "Drifts/ADrift.hpp"
 
 #include <math.h>
 

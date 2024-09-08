@@ -14,11 +14,11 @@
 
 #include "geoslib_define.h"
 
-#include "Model/Model.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
 
 class Db;
 class DbGrid;
+class Model;
 
 class GSTLEARN_EXPORT CalcSimpleInterpolation: public ACalcInterpolator
 {

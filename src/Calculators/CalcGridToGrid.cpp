@@ -195,6 +195,7 @@ int dbg2gExpand(DbGrid *dbin,
                 DbGrid *dbout,
                 const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(namconv);
   CalcGridToGrid calcul;
   calcul.setDbin(dbin);
   calcul.setDbout(dbout);

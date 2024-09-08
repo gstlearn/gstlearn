@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
 #include "OutputFormat/AOF.hpp"

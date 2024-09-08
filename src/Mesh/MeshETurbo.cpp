@@ -8,13 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
+#include "Mesh/Delaunay.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

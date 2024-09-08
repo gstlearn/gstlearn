@@ -8,8 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"

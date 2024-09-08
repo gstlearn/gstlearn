@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "OutputFormat/GridBmp.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"

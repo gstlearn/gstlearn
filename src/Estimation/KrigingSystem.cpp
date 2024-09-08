@@ -36,6 +36,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 

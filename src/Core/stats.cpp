@@ -19,6 +19,8 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Stats/Classical.hpp"
+#include "Core/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 #include <string.h>

@@ -21,6 +21,59 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"
 
+void st_test(Db* grid, Model* model, int nech, int leaf_size, bool verbose)
+{
+  // Generate the data base
+
+  int ndim = 2;
+  int nvar = 1;
+  Db* data = Db::createFillRandom(nech, ndim, nvar);
+
+  // Moving Neighborhood
+  int nmaxi     = 20;
+  int nmini     = 2;
+  int nsect     = 8;
+  int nsmax     = 3;
+  double radius = 1.;
+
+  NeighMoving* neighM =
+    NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
+  if (leaf_size > 0) neighM->setBallSearch(true, leaf_size);
+
+  if (verbose)
+  {
+    // Print the test environment
+    message("This test is mean to test Kriging using Moving Neighborhood\n");
+    message("- the Data Set contains %d samples\n",
+            data->getSampleNumber(true));
+    message("- the Output Grid contains %d nodes\n",
+            grid->getSampleNumber(true));
+    message("- the Moving Neighborhood is required:\n");
+    message("  . Radius dimension = %lf\n", radius);
+    message("  . Maximum number of neighbors = %d\n", nmaxi);
+    message("  . Minimum number of neighbors = %d\n", nmini);
+    message("  . Number of angular sectors   = %d\n", nsect);
+    message("  . Maxmimum number of neighbors per sector = %d\n", nsmax);
+    if (leaf_size > 0)
+      message("  . Leaf Size for Ball Tree algorithm = %d\n", leaf_size);
+  }
+
+  Timer timer;
+  kriging(data, grid, model, neighM, EKrigOpt::POINT, true, false);
+
+  if (verbose)
+    timer.displayIntervalMilliseconds("Kriging in Moving Neighborhood", 1500);
+  else
+  {
+    double msec = timer.getIntervalMilliseconds(true);
+    message("Nsample = %7d - Leaf = %3d - Time = %10d ms\n", nech, leaf_size,
+            (int) msec);
+  }
+
+  delete neighM;
+  delete data;
+}
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -28,8 +81,8 @@
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
-  bool verbose = false;
   bool graphic = true;
+  bool onlyOne = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -39,61 +92,53 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("BenchKrigingM-");
 
   // Global parameters
-  defineDefaultSpace(ESpaceType::RN, 2);
-
-  // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
-  if (verbose) data->display();
+  int ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the output grid
-  bool flagSmall = false;
-  VectorInt nx;
-  if (flagSmall)
-    nx = {50,60};
-  else
-    nx = {360,240};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
-  if (graphic) (void) data->dumpToNF("Data.ascii");
+  int ncell       = 100;
+  VectorInt nx    = {ncell, ncell};
+  VectorDouble dx = {1. / ncell, 1. / ncell};
+  DbGrid* grid    = DbGrid::create(nx, dx);
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
-  if (verbose) model->display();
+  double range = 1. / 5.;
+  double sill  = 2.;
+  Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
-  // Moving Neighborhood
-  int nmaxi = 20;
-  int nmini = 2;
-  int nsect = 8;
-  int nsmax = 3;
-  double radius = 50000;
+  if (onlyOne)
+  {
+    int nech      = 1000;
+    int leaf_size = 30;
+    st_test(grid, model, nech, leaf_size, true);
 
-  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
-  if (verbose) neighM->display();
+    // Produce some stats for comparison
+    DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
+    grid->display(dbfmt);
+    delete dbfmt;
+    if (graphic) (void)grid->dumpToNF("Grid.ascii");
+  }
+  else
+  {
+    message("This test is mean to test Kriging Efficiency using Moving "
+            "Neighborhood\n");
+    message("- the Output Grid contains %d nodes\n",
+            grid->getSampleNumber(true));
+    message("- Various number of samples in the Data Set\n");
+    message("- Various dimensions of Leaf sizes (for Ball Tree search)\n");
+    message("  (0: no Ball Tree search)\n");
 
-  Timer timer;
-  kriging(data, grid, model, neighM, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Moving Neighborhood", 1500);
+    VectorInt nechs = {300, 1000, 10000, 100000};
+    VectorInt leafs = {0, 10, 20, 30, 50, 100, 200};
 
-  // Produce some stats for comparison
-  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
-  grid->display(dbfmt);
-  delete dbfmt;
+    for (int iech = 0; iech < (int)nechs.size(); iech++)
+    {
+      for (int ileaf = 0; ileaf < (int)leafs.size(); ileaf++)
+        st_test(grid, model, nechs[iech], leafs[ileaf], false);
+      message("\n");
+    }
+  }
 
-  if (graphic)
-    (void) grid->dumpToNF("Grid.ascii");
-
-  delete neighM;
-  delete data;
   delete grid;
   delete model;
 

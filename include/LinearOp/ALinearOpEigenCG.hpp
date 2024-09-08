@@ -18,6 +18,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <Eigen/src/Core/Matrix.h>
 #include <unsupported/Eigen/IterativeSolvers>
+#include <cassert>
 
 
 #define DECLARE_EIGEN_TRAITS(TLinOP) \
