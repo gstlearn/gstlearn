@@ -77,6 +77,7 @@ int ALinearOp::addToDest(const Eigen::VectorXd& inv,
 int ALinearOp::evalDirect(const VectorDouble& inv,
                            VectorDouble& outv) const
 {
+  outv.fill(0.,outv.size());
   return addToDest(inv,outv);
 }
 
