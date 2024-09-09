@@ -8,8 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
+#include "Basic/AStringable.hpp"
+#include "Core/Piles.hpp"
 
 static int DEBUG = 0;
 static int MAX_PILE = 10;

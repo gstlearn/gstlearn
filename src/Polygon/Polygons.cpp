@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Core/CSV.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"

@@ -45,8 +45,6 @@ public:
   void setFlagCondExp(bool flagCondExp) { _flagCondExp = flagCondExp; }
   void setFlagUniCond(bool flagUniCond) { _flagUniCond = flagUniCond; }
 
-  static int anamPointToBlock(
-    AAnam* anam, int verbose, double cvv, double coeff, double mu);
 
 private:
   virtual bool _check() override;
@@ -137,6 +135,7 @@ private:
                       double proba,
                       bool flag_OK);
 
+  
 private:
   int _iattVar;
   int _iattFac;
@@ -183,3 +182,9 @@ GSTLEARN_EXPORT int UniformConditioning(Db *db,
                                         const String &name_varz,
                                         const NamingConvention &namconv = NamingConvention(
                                             "UC"));
+
+GSTLEARN_EXPORT int anamPointToBlock(AAnam* anam,
+                                     int verbose,
+                                     double cvv,
+                                     double coeff,
+                                     double mu);

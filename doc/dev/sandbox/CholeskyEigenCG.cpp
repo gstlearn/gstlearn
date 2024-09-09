@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Core/SparseInv.hpp"
 #include "LinearOp/CholeskyEigenCG.hpp"
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"

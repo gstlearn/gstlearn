@@ -33,6 +33,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
+#include "Core/CSV.hpp"
 
 #include <math.h>
 #include <stdio.h>
@@ -3404,7 +3405,7 @@ VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
     double meanlocal = (! means.empty()) ? means[jvar] : 0.;
     const VectorInt& local = index[ivar];
     for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
-      vec.push_back(getZVariable( iech, jvar) - meanlocal);
+      vec.push_back(getZVariable(local[iech], jvar) - meanlocal);
   }
   return vec;
 }

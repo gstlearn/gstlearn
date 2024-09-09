@@ -12,6 +12,7 @@
 
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Core/SparseInv.hpp"
 
 #include "csparse_f.h"
 #include <Eigen/src/Core/Matrix.h>

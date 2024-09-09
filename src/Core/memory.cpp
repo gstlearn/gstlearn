@@ -12,7 +12,7 @@
 
 #include "Basic/String.hpp"
 #include "Basic/Timer.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 
 #include <string.h>

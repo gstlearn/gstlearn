@@ -35,7 +35,7 @@
 #include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>

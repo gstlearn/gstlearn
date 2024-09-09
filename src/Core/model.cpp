@@ -32,7 +32,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <math.h>
 

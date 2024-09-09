@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Enum/ELoadBy.hpp"
 
 #include "OutputFormat/GridZycor.hpp"
@@ -18,6 +16,7 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Core/io.hpp"
 
 #include <string.h>
 #include <stdio.h>
