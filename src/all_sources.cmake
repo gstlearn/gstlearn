@@ -170,7 +170,6 @@ set(SRC
   LinearOp/PrecisionOpCs.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
-  LinearOp/ALinearOp.cpp
   LinearOp/ScaleOp.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
@@ -185,6 +184,8 @@ set(SRC
   LinearOp/Cholesky.cpp
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
+  LinearOp/ASimulable.cpp
+  LinearOp/MatrixSquareSymmetricSim.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp

@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Matrix/VectorEigen.hpp"
 #include "geoslib_old_f.h"
 
 #include "LinearOp/Cholesky.hpp"
@@ -83,16 +84,20 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 int  Cholesky::_addToDest(const Eigen::VectorXd& inv,
                            Eigen::VectorXd& outv) const
 {
+
   if (!isValid()) return 1;
 
-  // Map Eigen Vector to VectorDouble arguments
-  // TODO : VectorXd => VectorDouble = Memory copy !!
-  VectorDouble einv(inv.data(), inv.data() + inv.size());
-  VectorDouble eoutv(outv.size());
-  // TODO : add add to dest
-  _matCS->prodMatVecInPlace(einv, eoutv);
-  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
-  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
+  if (_matCS->isFlagEigen())
+  {
+    Eigen::VectorXd  temp(inv.size());
+    VectorEigen::fill(temp,0.);
+    Eigen::ArrayXd Ddm = _cholSolver.vectorD().array().sqrt();
+    Eigen::VectorXd DW = inv.array() * Ddm;
+    Eigen::VectorXd Y = _cholSolver.matrixL() * DW;
+    temp = _cholSolver.permutationPinv() * Y;
+    outv += temp;
+    return 0;
+  }
   return 0;
 }
 
@@ -206,6 +211,31 @@ int Cholesky::simulate(const VectorDouble& b, VectorDouble& x) const
     VectorDouble work = b; // We must work on a copy of b in order to preserve constness
     cs_ltsolve(_N->L, work.data());
     cs_pvec(size, _S->Pinv, work.data(), x.data());
+  }
+
+  return 0;
+}
+
+int Cholesky::addSimulateToDest(const Eigen::VectorXd& b, Eigen::VectorXd& x) const
+{
+  if (! isValid()) return 1;
+  int size = _matCS->getNRows();
+
+  if (_matCS->isFlagEigen())
+  {
+    Eigen::VectorXd  temp(x.size());
+    VectorEigen::fill(temp,0.);
+    Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();
+    Eigen::VectorXd DW = ((b.array()) * Ddm).matrix();
+    Eigen::VectorXd Y = _cholSolver.matrixU().solve(DW);
+    temp = _cholSolver.permutationPinv() * Y;
+    x += temp;
+  }
+  else
+  {
+    Eigen::VectorXd work = b; // We must work on a copy of b in order to preserve constness
+    cs_ltsolve(_N->L, work.data());
+    add_cs_pvec(size, _S->Pinv, work.data(), x.data());
   }
 
   return 0;

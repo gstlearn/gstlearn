@@ -71,7 +71,9 @@ int main(int argc, char *argv[])
   // Checking Product
   M.prodMatVecInPlace(vecin, vecout1);
   Qchol.evalDirect(vecin, vecout2);
-  if (VH::isSame(vecout1,  vecout2))
+  // I suppressed this test. I need evalDirect for Cholesky to perform the product by L.
+  // Using Cholesky to make the product by the original matrix is useless.
+/*   if (VH::isSame(vecout1,  vecout2)) 
   {
     message("Product Mat * V is validated\n");
   }
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
   {
     VH::display("Product Mat * V (by Matrix)", vecout1);
     VH::display("Product Mat * V (by Cholesky)", vecout2);
-  }
+  } */
 
   // Checking Inverse
   (void) M.solve(vecin, vecout1);

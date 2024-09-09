@@ -12,10 +12,7 @@
 
 #include "Matrix/VectorEigen.hpp"
 
-#include "LinearOp/ALinearOp.hpp"
-
 #ifndef SWIG
-#  include "LinearOp/ALinearOpEigenCG.hpp"
 #  include <Eigen/Core>
 #  include <Eigen/Dense>
 #  include <Eigen/IterativeLinearSolvers>
@@ -27,14 +24,17 @@ template<typename TLinOP>
 class LinearOpCGSolver
 {
 public:
-  LinearOpCGSolver(TLinOP* linop);
+  LinearOpCGSolver(const TLinOP* linop);
 
   void solve(const VectorDouble& rhs, VectorDouble& out);
   void solve(const VectorEigen& rhs, VectorEigen& out);
-
+  void setMaxIterations(int n) {cg.setMaxIterations(n);}
+  void setTolerance(double tol) {cg.setTolerance(tol);}
+  int  getIterations() const { return cg.iterations();}
+  double getError() const { return  cg.error();}
 #ifndef SWIG
   void solve(const Eigen::VectorXd& rhs, Eigen::VectorXd& out);
-
+  void solveWithGuess(const Eigen::VectorXd& rhs,const Eigen::VectorXd& guess, Eigen::VectorXd& out);
 private:
   Eigen::ConjugateGradient<TLinOP,
                            Eigen::Lower | Eigen::Upper,
@@ -44,7 +44,7 @@ private:
 
 #ifndef SWIG
 template<typename TLinOP>
-LinearOpCGSolver<TLinOP>::LinearOpCGSolver(TLinOP* linop)
+LinearOpCGSolver<TLinOP>::LinearOpCGSolver(const TLinOP* linop)
 {
   if (linop == nullptr)
     throw("linop must be valid and inherit from ALinearOpEigenCG to use Eigen CG");
@@ -74,5 +74,14 @@ void LinearOpCGSolver<TLinOP>::solve(const Eigen::VectorXd& rhs,
 {
   out = cg.solve(rhs);
 }
+
+template<typename TLinOP>
+void LinearOpCGSolver<TLinOP>::solveWithGuess(const Eigen::VectorXd& rhs,
+                                              const Eigen::VectorXd& guess,
+                                              Eigen::VectorXd& out)
+{
+  out = cg.solveWithGuess(rhs,guess);
+}
+
 
 #endif

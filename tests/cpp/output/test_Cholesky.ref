@@ -1,5 +1,4 @@
 Matrix used to demonstrate Cholesky Algebra
-Product Mat * V is validated
 Product Mat^{-1} * V is validated
 Standard Deviation is validated
 Log(Det) is validated

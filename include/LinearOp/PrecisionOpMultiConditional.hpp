@@ -16,9 +16,11 @@
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-
-#include <Eigen/src/Core/Matrix.h>
 #include <vector>
+
+#ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
+#endif
 
 class Chebychev;
 /**
@@ -80,6 +82,9 @@ protected:
     double computeQuadratic(const Eigen::VectorXd& x) const;
 
 #endif
+public : 
+  VectorVectorDouble computeRhs(const VectorDouble &datVal) const;
+
 private:
   mutable std::vector<PrecisionOp*>    _multiPrecisionOp; // Pointers are simply stored; do not delete
   std::vector<IProjMatrix*>            _multiProjData; // Pointers are simply stored; do not delete

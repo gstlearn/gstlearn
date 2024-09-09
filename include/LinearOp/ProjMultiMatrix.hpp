@@ -20,17 +20,19 @@
   #include <Eigen/src/Core/Matrix.h>
 #endif
 
-#include <algorithm>
 class ProjMatrix;
+class AMesh;
+class Db;
 
-
-class GSTLEARN_EXPORT ProjMultiMatrix : public ProjMulti, public MatrixSparse
+class GSTLEARN_EXPORT ProjMultiMatrix : public ProjMulti
 {
 public:
-  ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj);
+  ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj,bool toClean = false,bool silent = false);
+  virtual ~ProjMultiMatrix();
   static std::vector<std::vector<const ProjMatrix*>> create(std::vector<const ProjMatrix*> &vectproj, int nvariable);
-  virtual ~ProjMultiMatrix(){}
+  static ProjMultiMatrix createFromDbAndMeshes(const Db* db,const std::vector<const AMesh*> &meshes,bool verbose = false);
 
+  const MatrixSparse* getProj() const { return &_Proj;} 
 #ifndef SWIG           
   protected:
   virtual int _addPoint2mesh(const Eigen::VectorXd& inv,
@@ -38,5 +40,10 @@ public:
   virtual int _addMesh2point(const Eigen::VectorXd& inv,
                         Eigen::VectorXd& outv) const override;
 #endif
+private:
+  MatrixSparse  _Proj;
+  void _clear() override;
+private:
+  bool _toClean;
 
 };

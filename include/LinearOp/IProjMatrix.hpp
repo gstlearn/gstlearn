@@ -11,10 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/src/Core/Matrix.h>
-#include <Basic/VectorNumT.hpp>
+
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+  #include <Basic/VectorNumT.hpp>
+#endif
 
 class VectorEigen;
 class GSTLEARN_EXPORT IProjMatrix

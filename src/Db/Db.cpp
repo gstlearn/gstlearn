@@ -3497,7 +3497,36 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh, int item, bool useSel, bool 
   return ranks;
 }
 
+VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType, 
+                                            const VectorDouble& origins) const
+{
+  double value;
+  VectorString names = getNamesByLocator(locatorType);
+  int nvar = (int) names.size();
 
+  // Calculate the dimension of the output vector
+  int size = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    size += getActiveAndDefinedNumber(names[ivar]);
+
+  VectorDouble retval(size);
+
+  /* Loop on the variables to be retrieved */
+
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    VectorDouble local = getColumn(names[ivar], true, true);
+    if (local.empty()) continue;
+    double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
+    for (int iech = 0, nech = (int) local.size(); iech < nech; iech++)
+    {
+      value = local[iech];
+      if (!FFFF(value)) retval[ecr++] = local[iech] - origin;
+    }
+  }
+  return retval;
+}
 /**
  *  Returns the column referred by its rank (0-based)
  *
@@ -3630,36 +3659,6 @@ VectorDouble Db::getColumnsByColIdx(const VectorInt& icols,
     double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
     for (int iech = 0, nech = (int) local.size(); iech < nech; iech++)
       retval.push_back(local[iech] - origin);
-  }
-  return retval;
-}
-
-VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType, const VectorDouble& origins) const
-{
-  double value;
-  VectorString names = getNamesByLocator(locatorType);
-  int nvar = (int) names.size();
-
-  // Calculate the dimension of the output vector
-  int size = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    size += getActiveAndDefinedNumber(names[ivar]);
-
-  VectorDouble retval(size);
-
-  /* Loop on the variables to be retrieved */
-
-  int ecr = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    VectorDouble local = getColumn(names[ivar], true, true);
-    if (local.empty()) continue;
-    double origin = (ivar < (int)origins.size()) ? origins[ivar] : 0.;
-    for (int iech = 0, nech = (int) local.size(); iech < nech; iech++)
-    {
-      value = local[iech];
-      if (!FFFF(value)) retval[ecr++] = local[iech] - origin;
-    }
   }
   return retval;
 }

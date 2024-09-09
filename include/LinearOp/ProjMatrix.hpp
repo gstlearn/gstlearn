@@ -11,9 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
-#include "IProjMatrix.hpp"
-#include "Basic/VectorNumT.hpp"
+#include "LinearOp/IProjMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 class AMesh;

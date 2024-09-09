@@ -136,3 +136,5 @@ private:
   VectorDouble _extendMin;
   VectorDouble _extendMax;
 };
+
+typedef std::vector<const AMesh*> VectorMeshes;

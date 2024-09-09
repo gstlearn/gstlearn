@@ -676,6 +676,8 @@ public:
                                           int icol_end,
                                           bool useSel = false,
                                           bool flagCompress = true) const;
+  VectorDouble getColumnsActiveAndDefined(const ELoc& locatorType,
+                                          const VectorDouble& origins = VectorDouble()) const;
   VectorDouble getColumnsByLocator(const ELoc& locatorType,
                       bool useSel                 = false,
                       bool flagCompress           = true,
@@ -688,8 +690,6 @@ public:
                                        int iuid_end,
                                        bool useSel       = false,
                                        bool flagCompress = true) const;
-  VectorDouble getColumnsActiveAndDefined(const ELoc& locatorType,
-                                          const VectorDouble& origins = VectorDouble()) const;
   /**@}*/
 
   void setAllColumns(const VectorVectorDouble& tabs);

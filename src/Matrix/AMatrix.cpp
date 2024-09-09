@@ -440,30 +440,11 @@ void AMatrix::prodScalar(double v)
  */
 void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
 {
-  if (_flagCheckAddress)
-  {
-    bool error = false;
-    if (!transpose)
-    {
-      error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
-    }
-    else
-    {
-      error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
-    }
-    if (error)
-    {
-      messerr("Inconsistency between:");
-      messerr("- the dimension of 'x' = %d", (int) x.size());
-      messerr("- the dimension of 'y' = %d", (int) y.size());
-      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
-      return;
-    }
-  }
-  _prodMatVecInPlacePtr(x.data(), y.data(), transpose);
+  y.fill(0.,y.size());
+  _addProdMatVecInPlaceToDestPtr(x.data(),y.data(),transpose);
 }
 
-void AMatrix::prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+int AMatrix::addProdMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
 {
   if (_flagCheckAddress)
   {
@@ -482,10 +463,37 @@ void AMatrix::prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bo
       messerr("- the dimension of 'x' = %d", (int) x.size());
       messerr("- the dimension of 'y' = %d", (int) y.size());
       messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
-      return;
+      return 1;
+    }
+  }
+  _addProdMatVecInPlaceToDestPtr(x.data(), y.data(), transpose);
+  return 0;
+}
+
+int AMatrix::prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+{
+  if (_flagCheckAddress)
+  {
+    bool error = false;
+    if (!transpose)
+    {
+      error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
+    }
+    else
+    {
+      error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
+    }
+    if (error)
+    {
+      messerr("Inconsistency between:");
+      messerr("- the dimension of 'x' = %d", (int) x.size());
+      messerr("- the dimension of 'y' = %d", (int) y.size());
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
+      return 1;
     }
   }
   _prodMatVecInPlacePtr(x.data(), y.data(), transpose);
+  return 0;
 }
 
 void AMatrix::prodMatVecInPlacePtr(const double* x, double* y, bool transpose) const

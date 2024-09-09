@@ -1541,9 +1541,9 @@ void MatrixSparse::glueInPlace(MatrixSparse *A1,
   int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
   int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
 
+  A1->resetFromTriplet(T1);
   A1->_setNRows(nrow);
   A1->_setNCols(ncol);
-  A1->resetFromTriplet(T1);
 }
 
 MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,

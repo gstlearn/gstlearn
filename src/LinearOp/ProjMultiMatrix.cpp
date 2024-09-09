@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 
+#include "Db/Db.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "Basic/AStringable.hpp"
 #include "LinearOp/IProjMatrix.hpp"
@@ -29,6 +30,77 @@ static std::vector<std::vector<const IProjMatrix*>> castToBase(std::vector<std::
         casted.push_back(temp);
     } 
     return casted;
+}
+
+ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,const std::vector<const AMesh*> &meshes,bool verbose)
+{
+    std::vector<std::vector<const ProjMatrix*>> stockerempty(0);
+    
+    ProjMultiMatrix empty(stockerempty,false,true);
+
+     if (db==nullptr)
+     {
+        messerr("db is null");
+        return empty;
+     }
+    
+    int nvar = db->getLocatorNumber(ELoc::Z);
+
+    int nmeshes = (int)meshes.size();
+    if (nmeshes == 0)
+    {
+        messerr("You have to provide at least one mesh");
+        return empty;
+    }
+    if (nmeshes != 1 && nmeshes!= nvar)
+    {
+        messerr("Inconsistent number of meshes and variables");
+        return empty;
+    }
+
+    for (const auto &e : meshes)
+    {
+        if (e == nullptr)
+        {
+            messerr("All the meshes have to be defined");
+            return empty;
+        }
+    }
+    std::vector<std::vector<const ProjMatrix*>> stocker;
+
+    int nmesh = (int)meshes.size();
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {   
+        stocker.push_back(std::vector<const ProjMatrix*>());
+        for (int imesh = 0; imesh < nmesh; imesh++)
+            for (int jvar = 0; jvar < nvar; jvar ++)
+            {   
+                if (ivar != jvar)
+                    stocker[ivar].push_back(nullptr);
+                else
+                    stocker[ivar].push_back(new ProjMatrix(db,meshes[imesh],jvar,verbose));
+            }
+    }
+    return ProjMultiMatrix(stocker,true);
+}
+
+void ProjMultiMatrix::_clear()
+{
+    if (!_toClean || _projs.empty()) return;
+
+    for (auto &e: _projs)
+    {
+        for (auto &f : e)
+        {
+            delete const_cast<IProjMatrix*>(f);
+            f = nullptr;
+        }
+        e.clear();
+    }
+    _projs.clear();
+}
+ProjMultiMatrix::~ProjMultiMatrix()
+{
 }
 
 std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<const ProjMatrix*> &vectproj, int nvariable)
@@ -70,8 +142,10 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
     return result;
 }
 
-ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj)
-: ProjMulti(castToBase(proj))
+ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj, bool toClean, bool silent)
+: ProjMulti(castToBase(proj),silent)
+, _Proj(MatrixSparse(0,0))
+, _toClean(toClean)
 {
     if (ProjMulti::empty()) return;
     const VectorInt& pointNumbers = getPointNumbers();
@@ -85,7 +159,7 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
         {
             if (_projs[i][j] != nullptr)
             {
-                MatrixSparse::glueInPlace(&currentrow,(MatrixSparse*)proj[i][j],0,1);
+                MatrixSparse::glueInPlace(&currentrow,((MatrixSparse*)proj[i][j]),0,1);
             }
             else 
             {
@@ -94,20 +168,19 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
             }
          
         }
-        
-        MatrixSparse::glueInPlace((MatrixSparse*)this,&currentrow,1,0);
+        MatrixSparse::glueInPlace(&_Proj,&currentrow,1,0);
     }   
 }
 
 int  ProjMultiMatrix::_addPoint2mesh(const Eigen::VectorXd& inv,
                                         Eigen::VectorXd& outv) const
 {
-    addProdMatVecInPlaceToDest(inv, outv,true);
+    _Proj.addProdMatVecInPlaceToDest(inv, outv,true);
     return 0;
 }
 int  ProjMultiMatrix::_addMesh2point(const Eigen::VectorXd& inv,
                                         Eigen::VectorXd& outv) const
 {
-    addProdMatVecInPlaceToDest(inv, outv,false);
+    _Proj.addProdMatVecInPlaceToDest(inv, outv,false);
     return 0;
 }

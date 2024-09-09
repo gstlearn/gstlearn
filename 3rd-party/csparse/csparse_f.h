@@ -77,6 +77,7 @@ int     cs_ltsolve (const cs *L, double *x) ;
 csn    *cs_lu (const cs *A, const css *S, double tol) ;
 cs     *cs_permute (const cs *A, const int *P, const int *Q, int values) ;
 int    *cs_pinv (const int *P, int n) ;
+int     add_cs_pvec(int n, const int *P, const double *b, double *x);
 int     cs_pvec (int n, const int *P, const double *b, double *x) ;
 csn    *cs_qr (const cs *A, const css *S) ;
 css    *cs_schol (const cs *A, int order) ;

@@ -11,22 +11,23 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "LinearOp/IProjMatrix.hpp"
+
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
   #include <Eigen/src/Core/Matrix.h>
 #endif
-#include "LinearOp/IProjMatrix.hpp"
 
 class GSTLEARN_EXPORT ProjMulti : public IProjMatrix
 {
 public:
-  ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs);
+  ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs,bool silent = false);
   int getApexNumber() const override;
   int getPointNumber() const override;
   int getNVariable() const { return _nvariable; }
   int getNLatent() const { return _nlatent; }
-  virtual ~ProjMulti(){}
+  virtual ~ProjMulti();
   bool empty() const { return _projs.empty();}
 
 #ifndef SWIG           
@@ -40,6 +41,7 @@ public:
 private : 
   bool _checkArg(const std::vector<std::vector<const IProjMatrix*>> &projs) const;
   void _init();
+  virtual void _clear(){};
 protected:
 int findFirstNoNullOnRow(int j) const;
 int findFirstNoNullOnCol(int j) const;
@@ -58,6 +60,7 @@ int _nlatent;
 int _nvariable;
 std::vector<int> _pointNumbers;
 std::vector<int> _apexNumbers;
+bool _silent;
 mutable Eigen::VectorXd _work;
 mutable Eigen::VectorXd _workmesh;
 

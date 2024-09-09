@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
+#include "LinearOp/ASimulable.hpp"
 
 #ifndef SWIG
 #include <Eigen/Core>
@@ -19,7 +19,6 @@
 #include <Eigen/src/Core/Matrix.h>
 #include <unsupported/Eigen/IterativeSolvers>
 #include <cassert>
-
 
 #define DECLARE_EIGEN_TRAITS(TLinOP) \
 class TLinOP; \
@@ -49,12 +48,20 @@ struct Eigen::internal::generic_product_impl<TLinOP, Rhs, Eigen::SparseShape, Ei
 };
 #endif
 
+/**
+ * @brief This class extends ASimulable to make it working with
+ *        Eigen conjugate gradient algorithm
+ *
+ *        This class is similar to ALinearOpEigenCG.
+ * 
+ * @tparam TLinOP Concrete class that inherits from ASimulableEigenCG
+ */
 template<typename TLinOP>
-class ALinearOpEigenCG : public Eigen::EigenBase<TLinOP>, // No Export because it's a template
-                         public ALinearOp
+class ASimulableEigenCG : public Eigen::EigenBase<TLinOP>, // No Export because it's a template
+                          public ASimulable
 {
 public:
-  virtual ~ALinearOpEigenCG() {};
+  virtual ~ASimulableEigenCG() {};
 
 #ifndef SWIG
 public:

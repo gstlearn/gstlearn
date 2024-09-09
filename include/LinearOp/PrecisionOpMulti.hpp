@@ -10,38 +10,42 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/VectorT.hpp"
-#include "LinearOp/ALinearOp.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "LinearOp/ASimulable.hpp"
 #include "gstlearn_export.hpp"
+
+#include "Basic/VectorT.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
 #endif
 
 #define IND(i,j,nvar) j * nvar + i - (j * (j + 1))/2
 
 class Model;
+class ASimulable;
 
 /**
  * Class to store objects for SPDE
  */
-class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
+class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ASimulable
 {
   public:
-  PrecisionOpMulti(Model* model = nullptr, 
-                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>(),
-                   bool buildOp = true);
-  PrecisionOpMulti(const PrecisionOpMulti &m)= delete;
-  PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
-  virtual ~PrecisionOpMulti();
-  MatrixSquareSymmetric getInvCholSill(int icov) const {return _invCholSills[icov];}
+    PrecisionOpMulti(Model* model               = nullptr,
+                     const VectorMeshes& meshes = VectorMeshes(),
+                     bool buildOp               = true);
+    PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
+    PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
+    virtual ~PrecisionOpMulti();
+    MatrixSquareSymmetric getInvCholSill(int icov) const
+    {
+      return _invCholSills[icov];}
   int getSize() const override;
   void makeReady();
 
@@ -52,8 +56,8 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 
   int _addToDest(const Eigen::VectorXd& vecin,
                  Eigen::VectorXd& vecout) const override;
-  int _addSimulateInPlace(const Eigen::VectorXd& vecin,
-                                Eigen::VectorXd& vecout);
+  int _addSimulateToDest(const Eigen::VectorXd& vecin,
+                                Eigen::VectorXd& vecout) const override;
   #endif
   /// AStringable Interface
   public :

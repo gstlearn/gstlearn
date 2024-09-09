@@ -18,12 +18,12 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/ALinearOp.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include <map>
 
 #ifndef SWIG
-#  include <Eigen/Core>
-#  include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
 #endif
 
 class APolynomial;
@@ -35,7 +35,7 @@ class Model;
 // Note that if the model is multivariate, the precision is built with a constant sill = 1.
 // Therefore it has to be used only through the PrecisionOpMulti class
 // which handles the sills matrix (possibly non stationary)
-class GSTLEARN_EXPORT PrecisionOp : public ALinearOp{
+class GSTLEARN_EXPORT PrecisionOp : public ALinearOp {
 
 public:
   PrecisionOp();
