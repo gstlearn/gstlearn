@@ -62,6 +62,10 @@ set(SRC
   Calculators/CalcSimuPost.cpp
   Calculators/CalcSimuPostDemo.cpp
   Calculators/CalcSimuPostPropByLayer.cpp
+  Covariances/ParamId.cpp
+  Covariances/ANoStatCov.cpp
+  Covariances/NoStatArrayCov.cpp
+  Covariances/NoStatFunctionalCov.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp

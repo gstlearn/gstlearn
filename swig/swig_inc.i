@@ -185,7 +185,11 @@
   #include "Model/CovParamId.hpp"
   #include "Model/CovParamId.hpp"
   
+  #include "Covariances/ParamId.hpp"
   #include "Covariances/ACov.hpp"
+  #include "Covariances/ANoStatCov.hpp"
+  #include "Covariances/NoStatArrayCov.hpp"
+  #include "Covariances/NoStatFunctionalCov.hpp"
   #include "Covariances/ACovFunc.hpp"
   #include "Covariances/ACovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"

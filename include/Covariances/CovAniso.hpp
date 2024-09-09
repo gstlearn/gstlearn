@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/ANoStatCov.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ECov.hpp"
@@ -26,7 +27,7 @@
 class Rotation;
 class MatrixSquareGeneral;
 class MatrixRectangular;
-
+class ANoStatCov;
 /**
  * \brief
  * This class describes an **elementary covariance**.
@@ -222,6 +223,8 @@ public:
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
+  void   delNoStat();
+  int    addNoStat(const ANoStatCov *anostat);
 
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
                                   int degree = 50,
@@ -256,6 +259,7 @@ private:
   ACovFunc *_cova;             /// Covariance basic function
   MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
   Tensor _aniso;               /// Anisotropy parameters
+  ANoStatCov* _noStat;         /// Description of Non-stationary Model
   double _noStatFactor;        /// Correcting factor for non-stationarity
 };
 

@@ -775,7 +775,7 @@ int ACovAnisoList::addNoStat(const ANoStat *anostat)
     }
   }
 
-  if (_noStat != nullptr) delete _noStat;
+   delete _noStat;
   _noStat = dynamic_cast<ANoStat*>(anostat->clone());
   return 0;
 }

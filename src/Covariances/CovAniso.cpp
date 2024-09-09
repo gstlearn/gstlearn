@@ -44,6 +44,7 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _noStat(nullptr),
       _noStatFactor(1.)
 {
   _initFromContext();
@@ -55,6 +56,7 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _cova(),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _noStat(nullptr),
       _noStatFactor(1.)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -73,6 +75,7 @@ CovAniso::CovAniso(const ECov &type,
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _noStat(nullptr),
       _noStatFactor(1.)
 {
   _initFromContext();
@@ -104,6 +107,7 @@ CovAniso::CovAniso(const CovAniso &r)
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
       _aniso(r._aniso),
+      _noStat(nullptr),
       _noStatFactor(r._noStatFactor)
 {
 }
@@ -117,6 +121,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
     _aniso = r._aniso;
+    _noStat = r._noStat;
     _noStatFactor = r._noStatFactor;
   }
   return *this;
@@ -125,6 +130,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
 CovAniso::~CovAniso()
 {
   delete _cova;
+  delete _noStat;
 }
 
 void CovAniso::_computeCorrec()
@@ -830,7 +836,11 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
   }
-
+  // Non-stationary parameters
+  if (_noStat != nullptr)
+  {
+    sstr << _noStat->toString();
+  }
   return sstr.str();
 }
 
@@ -1239,4 +1249,45 @@ double range2scale(const ECov &type, double range, double param)
   cova->setParam(param);
   double scadef = cova->getScadef();
   return range / scadef;
+}
+
+
+
+void CovAniso::delNoStat()
+{
+  delete _noStat;
+  _noStat = nullptr;
+}
+
+/**
+ * Define Non-stationary parameters
+ * @param anostat ANoStatCov pointer will be duplicated
+ * @return Error return code
+ */
+int CovAniso::addNoStat(const ANoStatCov *anostat)
+{
+  if (anostat == nullptr) return 0;
+  if (getNDim() > 3)
+  {
+    messerr("Non stationary model is restricted to Space Dimension <= 3");
+    return 1;
+  }
+
+  for (int ipar = 0; ipar < (int) anostat->getNoStatElemNumber(); ipar++)
+  {
+    const EConsElem &type = anostat->getType(ipar);
+
+    // Check that the Non-stationary parameter is valid with respect
+    // to the Model definition
+
+    if (type == EConsElem::PARAM)
+    {
+      messerr("The current methodology does not handle constraint on third parameter");
+      return 1;
+    }
+  }
+
+   delete _noStat;
+  _noStat = dynamic_cast<ANoStatCov*>(anostat->clone());
+  return 0;
 }
