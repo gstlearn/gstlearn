@@ -21,7 +21,7 @@ krigingref = grid.getColumnsByLocator(gl.ELoc.Z)
 nx1 = [140,140]
 mesh1 = gl.MeshETurbo(nx1,[1.,1.],[-20,-20])
 meshes = gl.VectorMeshes([mesh1,mesh1])
-resultMat = gl.krigingSPDENew(dat,grid,modelMatern,modelNugg,meshes)
+resultMat = gl.krigingSPDENew(dat,grid,modelMatern,modelNugg,meshes,1)
 
 
 # %%
@@ -42,7 +42,6 @@ plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
 #plt.show()
 print("Difference with classical kriging (matrix free version) = " + str (np.round(np.max(np.abs(ref-resultFree))/totalSill,5)))
 
+
+
 # %%
-
-
-

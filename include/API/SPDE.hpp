@@ -172,7 +172,7 @@ GSTLEARN_EXPORT VectorDouble krigingSPDENew(Db *dbin,
                                    Db *dbout,
                                    Model *model,
                                    Model *modelNugget,
-                                   const std::vector<const AMesh*> &mesh,// = std::vector<const AMesh*>(),
+                                   const std::vector<const AMesh*> &meshes,// = std::vector<const AMesh*>(),
                                    int useCholesky = -1,
                                    bool verbose = false,
                                    const NamingConvention &namconv = NamingConvention("KrigingSPDE"));

@@ -44,7 +44,7 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
   MatrixSquareSymmetric getInvCholSill(int icov) const {return _invCholSills[icov];}
   int getSize() const override;
   void makeReady();
-
+  
   protected:
   void buildQop();
   #ifndef SWIG

@@ -12,7 +12,6 @@
 #include "Enum/ECov.hpp"
 
 #include "API/SPDE.hpp"
-#include "LinearOp/ASimulable.hpp"
 #include "LinearOp/MatrixSquareSymmetricSim.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "LinearOp/SPDEOp.hpp"
@@ -1104,7 +1103,7 @@ VectorDouble krigingSPDENew(Db *dbin,
                    Db *dbout,
                    Model *model,
                    Model *modelNugget,
-                   const std::vector<const AMesh *> &mesh,
+                   const std::vector<const AMesh *> &meshes,
                    int useCholesky,
                    bool verbose,
                    const NamingConvention &namconv)
@@ -1114,20 +1113,20 @@ VectorDouble krigingSPDENew(Db *dbin,
  if (dbin == nullptr) return 1;
  if (dbout == nullptr) return 1;
  auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
- auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,mesh);
- auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,mesh);
+ auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,meshes);
+ auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,meshes);
  auto *invnoise = buildInvNugget(dbin,modelNugget);
  VectorDouble result;
  if (useCholesky)
  {
-  PrecisionOpMultiMatrix Qop(model,mesh);
+  PrecisionOpMultiMatrix Qop(model,meshes);
   SPDEOpMatrix spdeop(&Qop,&AM,invnoise);
   auto resultmesh = spdeop.kriging(Z);
   Aout.mesh2point(resultmesh,result);
  }
  else 
  {
-  PrecisionOpMulti Qop(model,mesh);
+  PrecisionOpMulti Qop(model,meshes);
   MatrixSquareSymmetricSim invnoisep(invnoise);
   SPDEOp spdeop(&Qop,&AM,&invnoisep);
   spdeop.setMaxIterations(1000);
