@@ -97,14 +97,6 @@ int  Cholesky::_addToDest(const Eigen::VectorXd& inv,
     outv += temp;
     return 0;
   }
-  // Map Eigen Vector to VectorDouble arguments
-  // TODO : VectorXd => VectorDouble = Memory copy !!
-  VectorDouble einv(inv.data(), inv.data() + inv.size());
-  VectorDouble eoutv(outv.size());
-  // TODO : add add to dest
-  _matCS->prodMatVecInPlace(einv, eoutv);
-  // TODO : VectorDouble => Existing preallocated VectorXd = Memory copy !!
-  outv = Eigen::Map<Eigen::VectorXd>(eoutv.data(), eoutv.size());
   return 0;
 }
 
