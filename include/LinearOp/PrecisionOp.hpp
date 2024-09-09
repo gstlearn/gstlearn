@@ -18,12 +18,12 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/ALinearOp.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include <map>
 
 #ifndef SWIG
-#  include <Eigen/Core>
-#  include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
 #endif
 
 class APolynomial;

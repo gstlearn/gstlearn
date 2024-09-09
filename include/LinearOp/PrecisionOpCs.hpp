@@ -12,7 +12,10 @@
 
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
-#include <Eigen/src/Core/Matrix.h>
+
+#ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
+#endif
 
 class AMesh;
 class ShiftOpCs;

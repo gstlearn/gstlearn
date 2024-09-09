@@ -10,11 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
   #include <Eigen/Core>
   #include <Eigen/Dense>
 #endif

@@ -10,10 +10,16 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
-#include <Eigen/Sparse>
+
+#ifndef SWIG
+  #include <Eigen/Sparse>
+#endif
+
 class AMatrix;
 class Cholesky;
 

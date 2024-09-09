@@ -16,8 +16,8 @@
 #include "LinearOp/ALinearOp.hpp"
 
 #ifndef SWIG
-#  include <Eigen/Core>
-#  include <Eigen/Dense>
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
 #endif
 
 class GSTLEARN_EXPORT ASimulable : public ALinearOp

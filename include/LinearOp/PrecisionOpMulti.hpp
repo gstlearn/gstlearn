@@ -10,19 +10,20 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorT.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "gstlearn_export.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
 #endif
 
 #define IND(i,j,nvar) j * nvar + i - (j * (j + 1))/2
