@@ -81,21 +81,21 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 **
 *****************************************************************************/
 int  Cholesky::_addToDest(const Eigen::VectorXd& inv,
-                           Eigen::VectorXd& outv) const // I don't understand the role of this method.
+                           Eigen::VectorXd& outv) const
 {
 
   if (!isValid()) return 1;
 
   if (_matCS->isFlagEigen())
   {
-/*     Eigen::VectorXd  temp(inv.size());
+    Eigen::VectorXd  temp(inv.size());
     VectorEigen::fill(temp,0.);
     Eigen::ArrayXd Ddm = _cholSolver.vectorD().array().sqrt();
     Eigen::VectorXd DW = inv.array() * Ddm;
     Eigen::VectorXd Y = _cholSolver.matrixL() * DW;
     temp = _cholSolver.permutationPinv() * Y;
     outv += temp;
-    return 0; */
+    return 0;
   }
   // Map Eigen Vector to VectorDouble arguments
   // TODO : VectorXd => VectorDouble = Memory copy !!
