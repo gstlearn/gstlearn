@@ -10,12 +10,12 @@
 /******************************************************************************/
 #include "geoslib_io.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Core/io.hpp"
 
 #include <string.h>
 #include <stdarg.h>

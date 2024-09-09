@@ -12,12 +12,14 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
+#include "Core/CSV.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Memory.hpp"
 #include "Db/Db.hpp"
 #include "OutputFormat/GridEclipse.hpp"
 #include "OutputFormat/GridIfpEn.hpp"
@@ -30,7 +32,6 @@
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/FileLAS.hpp"
 #include "OutputFormat/vtk.h"
-#include "Core/Memory.hpp"
 
 #include <string.h>
 #include <sstream>

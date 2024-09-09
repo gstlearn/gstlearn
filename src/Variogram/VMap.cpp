@@ -23,7 +23,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Core/fftn.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 static int IPTV, IPTW;
 

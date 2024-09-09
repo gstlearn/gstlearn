@@ -15,7 +15,7 @@
 #include "OutputFormat/vtk.h"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 FileVTK::FileVTK(const char* filename, const Db* db)
   : AOF(filename, db)
@@ -182,21 +182,24 @@ int FileVTK::writeInFile()
   }
 
   VectorString names = _db->getNamesByColIdx(_cols);
-  std::vector<char*> vc = util_vs_to_vs(names);
+  std::vector<const char*> vc(names.size(), nullptr);
+  for (int i = 0; i < (int)names.size(); i++)
+  {
+    vc[i] = names[i].c_str();
+  }
 
-  /* Write the file */
+    /* Write the file */
 
   if (flag_grid)
-    write_rectilinear_mesh(getFilename().c_str(), _flagBinary,
-                           dims, xcoor.data(), ycoor.data(), zcoor.data(), ncol,
+    write_rectilinear_mesh(getFilename().c_str(), _flagBinary, dims,
+                           xcoor.data(), ycoor.data(), zcoor.data(), ncol,
                            vardim.data(), center.data(), vc.data(), tab);
   else
-    write_point_mesh(getFilename().c_str(), _flagBinary,
-                     nactive, points.data(), ncol, vardim.data(), vc.data(), tab);
+    write_point_mesh(getFilename().c_str(), _flagBinary, nactive, points.data(),
+                     ncol, vardim.data(), vc.data(), tab);
 
-  for (int icol = 0; icol < ncol; icol++)
-    mem_free((char* ) tab[icol]);
-  mem_free((char* ) tab);
+  for (int icol = 0; icol < ncol; icol++) mem_free((char*)tab[icol]);
+  mem_free((char*)tab);
 
   _fileClose();
   return 0;

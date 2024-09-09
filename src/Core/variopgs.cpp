@@ -29,7 +29,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Enum/EOperator.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>

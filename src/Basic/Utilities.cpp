@@ -13,7 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <cmath>
 #include <map>

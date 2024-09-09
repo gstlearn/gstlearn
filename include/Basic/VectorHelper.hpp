@@ -27,7 +27,11 @@ public:
   static VectorDouble       initVDouble(const double* values, int number);
   static VectorVectorDouble initVVDouble(const double* value, int n1, int n2);
 
-  static void display(const String &title, const VectorDouble &vect, bool skipLine = true); // TODO rename
+  static VectorString       initVString(int ntab, char** names);
+
+  static void display(const String& title,
+                      const VectorDouble& vect,
+                      bool skipLine = true); // TODO rename
   static void display(const String &title, const VectorVectorDouble &vect, bool skipLine = true);
   static void display(const String &title, const VectorString &vect, bool skipLine = true);
   static void display(const String &title, const VectorInt &vect, bool skipLine = true);

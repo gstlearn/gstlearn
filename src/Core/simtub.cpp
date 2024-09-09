@@ -40,7 +40,7 @@
 #include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>

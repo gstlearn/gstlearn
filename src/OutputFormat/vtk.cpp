@@ -60,7 +60,7 @@ License: BSD 3-clause
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <string.h>
 

@@ -58,23 +58,6 @@ class SpaceTarget;
 class cs;
 class QChol;
 
-/**********************************************/
-/* Prototyping the functions in acknowledge.c */
-/**********************************************/
-GSTLEARN_EXPORT void inquire_gstlearn(char **release, char **date);
-
-/***************************************/
-/* Prototyping the functions in pile.c */
-/***************************************/
-GSTLEARN_EXPORT void pile_reset(int type);
-GSTLEARN_EXPORT void piles_reset(void);
-GSTLEARN_EXPORT int pile_next(int type);
-GSTLEARN_EXPORT void pile_manage(int type, int rank, int mode, char *ptr);
-GSTLEARN_EXPORT int pile_correct(int type, int rank, int mode);
-GSTLEARN_EXPORT char* pile_get(int type, int rank);
-GSTLEARN_EXPORT void piles_dump(void);
-
-
 /***************************************/
 /* Prototyping the functions in math.c */
 /***************************************/
@@ -146,15 +129,6 @@ GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab2);
 
 /*****************************************/
-/* Prototyping the functions in memory.c */
-/*****************************************/
-
-GSTLEARN_EXPORT void time_start(void);
-GSTLEARN_EXPORT void time_reset(void);
-GSTLEARN_EXPORT void time_chunk_add(const char *call_name);
-GSTLEARN_EXPORT void time_report(void);
-
-/*****************************************/
 /* Prototyping the functions in matrix.c */
 /*****************************************/
 
@@ -208,27 +182,6 @@ GSTLEARN_EXPORT int matrix_eigen_tridiagonal(const double *vecdiag,
                                              int neq,
                                              double *eigvec,
                                              double *eigval);
-
-/****************************************/
-/* Prototyping the functions in ascii.c */
-/****************************************/
-
-GSTLEARN_EXPORT void ascii_study_define(const char *study);
-GSTLEARN_EXPORT void ascii_environ_read(char *file_name, int verbose);
-GSTLEARN_EXPORT void ascii_filename(const char *type,
-                                    int rank,
-                                    int mode,
-                                    char *filename);
-GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
-                                     int verbose,
-                                     int *nbsimu,
-                                     int *nbtuba,
-                                     int *seed);
-GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
-                                         int verbose,
-                                         const char *option_name,
-                                         int type,
-                                         void *answer);
 
 /*****************************************/
 /* Prototyping the functions in morpho.c */
@@ -585,15 +538,7 @@ GSTLEARN_EXPORT Db* db_well_read_las(const char *filename,
                                      double ywell,
                                      double cwell,
                                      int verbose = 0);
-GSTLEARN_EXPORT int csv_table_read(const String &filename,
-                                   const CSVformat& csvfmt,
-                                   int verbose,
-                                   int ncol_max,
-                                   int nrow_max,
-                                   int *ncol_arg,
-                                   int *nrow_arg,
-                                   VectorString &names,
-                                   VectorDouble &tab);
+
 
 /****************************************/
 /* Prototyping the functions in krige.c */
@@ -1184,10 +1129,3 @@ GSTLEARN_EXPORT int* kmedoids(double *data,
                               int npass,
                               int verbose);
 
-
-/***************************/
-/* Sparse matrix inversion */
-/***************************/
-GSTLEARN_EXPORT int sparseinv(int n, int *Lp, int *Li, double *Lx, double *d, int *Up,
-                              int *Uj, double *Ux, int *Zp, int *Zi, double *Zx, double *z,
-                              int *Zdiagp, int *Lmunch);

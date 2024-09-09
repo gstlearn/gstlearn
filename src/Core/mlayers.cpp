@@ -18,7 +18,7 @@
 #include "Neigh/ANeigh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>

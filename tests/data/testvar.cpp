@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Core/Ascii.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Basic/Law.hpp"

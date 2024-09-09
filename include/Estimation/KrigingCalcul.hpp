@@ -50,11 +50,11 @@ public:
                const VectorDouble* BetaRef          = nullptr);
   int setTarget(const MatrixRectangular* Sigma0 = nullptr,
                 const MatrixRectangular* X0 = nullptr);
-
-  int setColCok(const VectorDouble* Zp      = nullptr,
-                const VectorInt* rankColCok = nullptr);
+  int setColCokUnique(const VectorDouble* Zp      = nullptr,
+                      const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
                const MatrixSquareSymmetric* PriorCov = nullptr);
+  int setXvalidUnique(int iechXvalid = 0, const VectorInt* rankXvalid = nullptr);
 
   void printStatus() const;
 
@@ -136,6 +136,8 @@ private:
   const VectorDouble* _BetaRef;           // Fixed drift coefficients
   const VectorDouble* _Zp;                // Vector of values for collocation
   const VectorInt* _rankColCok;           // Ranks of collocated variables
+  int _iechXvalid;                        // Rank of the sample to be cross-validated 
+  const VectorInt* _rankXvalid;           // Ranks of the cross-validated variables
 
   // Following elements can be retrieved by Interface functions  
   VectorDouble _Zstar;                  // Estimated values (Dim: _nrhs)
@@ -155,7 +157,7 @@ private:
   MatrixSquareSymmetric* _Sigmac;       // (X^t * Sigma^{-1} * X)^{-1} (Dim: _nbfl * _nbfl)
   MatrixSquareSymmetric* _InvPriorCov;  // (PriorCov)^{-1} (Dim: _nbfl * _nbfl)
 
-  // Following elements are defined for internal storage (collocated case)
+  // Following elements are defined for internal storage (collocated case in UN)
   MatrixSquareSymmetric* _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
   MatrixRectangular* _Sigma00p;      // ColCok Variance D-T (Dim: _ncck * _nrhs)
   MatrixRectangular* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
@@ -164,11 +166,16 @@ private:
   VectorDouble _Z0p;                 // Vector of (active) collocated values
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 
+  // Following elements are defined for internal storage (cross-validation in UN)
+  MatrixSquareSymmetric* _Sigma00vv; // Xvalid matrix (Dim: _nxvl * _nvxl)
+  MatrixRectangular* _InvXvtInvSXv;  // (Xvt * S00v^{-1} * Xv)^{-1} (Dim: )
+   
   // Additional parameters
   int _neq;
   int _nbfl;
   int _nrhs;
   int _ncck;
+  int _nxvl; 
   bool _flagSK;
   bool _flagBayes;
 };

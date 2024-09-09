@@ -1206,8 +1206,7 @@ int CalcAnamTransform::_ceM(Db* db, const Selectivity* selectivity, int iptr0)
  ** \remark Otherwise, it is derived from 'cvv'
  **
  *****************************************************************************/
-int CalcAnamTransform::anamPointToBlock(
-  AAnam* anam, int verbose, double cvv, double coeff, double mu)
+int anamPointToBlock(AAnam* anam, int verbose, double cvv, double coeff, double mu)
 {
   if (anam == nullptr) return (1);
   double r_coef                    = 0.;

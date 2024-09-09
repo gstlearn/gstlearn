@@ -17,7 +17,7 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <string.h>
 #include <cmath>
@@ -957,69 +957,6 @@ void ut_distance_allocated(int ndim, double **tab1, double **tab2)
 
 /****************************************************************************/
 /*!
- ** Create a VectorDouble for storing an array of double
- **
- ** \return The VectorDouble
- **
- ** \param[in]  ntab      Number of samples
- ** \param[in]  rtab      Array of double values to be loaded
- **
- *****************************************************************************/
-VectorDouble util_set_array_double(int ntab, const double *rtab)
-{
-  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_double\n");
-  if (ntab <= 0 || rtab == nullptr) return VectorDouble();
-  VectorDouble rettab(ntab);
-  if (rettab.empty()) return rettab;
-
-  for (int i = 0; i < ntab; i++)
-    rettab[i] = rtab[i];
-
-  return rettab;
-}
-
-/****************************************************************************/
-/*!
- ** Create a VectorInt for storing an array of integer
- **
- ** \return  The VectorInt
- **
- ** \param[in]  ntab      Number of samples
- ** \param[in]  itab      Array of integer values to be loaded
- **
- *****************************************************************************/
-VectorInt util_set_array_integer(int ntab, const int *itab)
-{
-  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_integer\n");
-  VectorInt rettab(ntab);
-  if (ntab <= 0 || itab == nullptr) return rettab;
-  for (int i = 0; i < ntab; i++)
-    rettab[i] = itab[i];
-  return rettab;
-}
-
-/****************************************************************************/
-/*!
- ** Create a VectorString for storing an array of chars
- **
- ** \return  The VectorString
- **
- ** \param[in]  ntab      Number of samples
- ** \param[in]  names     Array of character values to be loaded
- **
- *****************************************************************************/
-VectorString util_set_array_char(int ntab, char **names)
-{
-  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_char\n");
-  VectorString rettab(ntab);
-  if (names == nullptr) return rettab;
-  for (int i = 0; i < ntab; i++)
-    rettab[i] = names[i];
-  return rettab;
-}
-
-/****************************************************************************/
-/*!
  **  Deposit a last message
  **
  ** \param[in]  mode           Type of operation
@@ -1192,18 +1129,3 @@ char* convert(const std::string &s)
   return pc;
 }
 
-/****************************************************************************/
-/*!
- **   Convert VectorString into a std::vector<char *> structure
- **
- ** \return  Pointer to the returned array of characters
- **
- ** \param[in]  vs        Input VectorString
- **
- *****************************************************************************/
-std::vector<char*> util_vs_to_vs(VectorString vs)
-{
-  std::vector<char*> vc;
-  std::transform(vs.begin(), vs.end(), std::back_inserter(vc), convert);
-  return vc;
-}

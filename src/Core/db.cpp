@@ -15,7 +15,7 @@
 #include "Basic/Grid.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <math.h>
 
@@ -2506,75 +2506,6 @@ void db_extension_rotated(Db *db,
     mini[idim] = minrot[idim];
     maxi[idim] = maxrot[idim];
   }
-}
-
-/****************************************************************************/
-/*!
- **  Returns a vector containing the coordinates of a Grid
- **  along one space dimension
- **
- ** \param[in]   dbgrid    Db structure
- ** \param[in]   idim      Rank of the space dimension
- **
- ****************************************************************************/
-VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim)
-{
-  VectorDouble vect;
-
-  if (dbgrid == nullptr) return (vect);
-  if (! dbgrid->isGrid()) return (vect);
-  if (idim < 0 || idim >= dbgrid->getNDim()) return (vect);
-
-  int nvect = dbgrid->getNX(idim);
-  double origin = dbgrid->getX0(idim);
-  double pas = dbgrid->getDX(idim);
-  vect.resize(nvect);
-
-  for (int i = 0; i < nvect; i++)
-    vect[i] = origin + i * pas;
-  return vect;
-}
-
-/****************************************************************************/
-/*!
- **  Returns a vector containing an attribute from the Db
- **
- ** \param[in]   db        Db structure
- ** \param[in]   iatt      Attribute rank
- ** \param[in]   verbose   Verbose flag
- **
- ****************************************************************************/
-VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
-{
-  VectorDouble vect;
-
-  if (db == nullptr)
-  {
-    if (verbose) messerr("Function 'db_get_attribute' requires a valid 'Db'");
-    return (vect);
-  }
-  int nvect = db->getSampleNumber();
-  vect.resize(nvect);
-
-  for (int i = 0; i < nvect; i++)
-    vect[i] = db->getArray(i, iatt);
-
-  return vect;
-}
-
-/****************************************************************************/
-/*!
- **  Identify the variables of a Db where names match a criterion
- **
- ** \param[in]   db       Db structure
- ** \param[in]   pattern  Matching pattern
- **
- ****************************************************************************/
-VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
-{
-  VectorString names = db->getName(pattern);
-  VectorInt ranks = db->getUIDs(names);
-  return ranks;
 }
 
 /****************************************************************************/

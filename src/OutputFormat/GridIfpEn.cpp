@@ -15,6 +15,7 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Core/io.hpp"
 
 #include <string.h>
 #include "OutputFormat/GridIfpEn.hpp"

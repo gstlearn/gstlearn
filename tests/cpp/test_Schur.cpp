@@ -38,9 +38,29 @@ static Db* _dataComplement(Db* data, Db* target, const VectorDouble& valuesTarge
   return datap;
 }
 
+static Db* _dataTargetDeplement(Db* data, Db* target, const VectorInt& varXvalid, int iech0)
+{
+  Db* datap = data->clone();
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(false, true, false, false, true);
+
+  // Delete the cross-validation information
+  for (int i = 0, nval = (int) varXvalid.size(); i < nval; i++)
+    datap->setLocVariable(ELoc::Z, iech0, i, TEST);
+  datap->display(dbfmt);
+
+  // Mask all irrelevant samples
+  VectorDouble seltab(target->getSampleNumber(), 0);
+  seltab[iech0] = 1;
+  target->addSelection(seltab, "Selection");
+  target->display(dbfmt);
+
+  return datap;
+}
+
 /****************************************************************************/
 /*!
- ** First test to check Bayes option
+ ** Testing Bayes option
  **
  *****************************************************************************/
 static void _firstTest(Db* data,
@@ -53,13 +73,13 @@ static void _firstTest(Db* data,
 {
   // Local parameters
   bool debugPrint = false;
-  bool debugSchur = true;
+  bool debugSchur = false;
   bool flagBayes    = false;
   int iech0 = 0;
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
   // Title
-  mestitle(0, "First Test");
+  mestitle(0, "Checking Bayes option");
   message("Compare:\n");
   message("- Kriging with traditional code\n");
   message("- Estimation performed with 'KrigingCalcul'\n");
@@ -114,7 +134,7 @@ static void _firstTest(Db* data,
 
 /****************************************************************************/
 /*!
- ** First test to check Collocated option
+ ** Testing Collocated option
  **
  *****************************************************************************/
 static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const VectorDouble& means)
@@ -126,11 +146,10 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
   VectorInt varColCok = {1};
   int iech0           = 0;
   AStringFormat format;
-  bool debugSchur = true;
+  bool debugSchur = false;
 
   // Title
-  mestitle(0, "Second Test");
-  message("Compare the Collocated Option (in Unique Neighborhood):\n");
+  mestitle(0,"Compare the Collocated Option (in Unique Neighborhood):");
   message("- using Standard Kriging on the Complemented Data Set\n");
   message("- using 'KrigingCalcul' on the Complemented Data Set\n");
   message("- using 'KrigingCalcul' on Standard Data Set adding Collocated Option\n");
@@ -180,12 +199,76 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
     data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
   KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
   Kcalc.setTarget(&Sigma0, &X0);
-  Kcalc.setColCok(&valuesTarget, &varColCok);
+  Kcalc.setColCokUnique(&valuesTarget, &varColCok);
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
   VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
   if (debugSchur) Kcalc.printStatus();
+
+  delete dataP;
+}
+
+/****************************************************************************/
+/*!
+ ** Testing Collocated option
+ **
+ *****************************************************************************/
+static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
+{
+  // Set of ranks of cross-validated information
+  VectorInt varXvalid = {1};
+  int iech0           = 0;
+  AStringFormat format;
+  bool debugSchur = false;
+
+  // Title
+  mestitle(0, "Cross-Validation in Unique Neighborhood");
+  message("Compare the Cross-validation Option (in Unique Neighborhood):\n");
+  message("- using Standard Kriging on the Deplemented Data Set\n");
+  message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
+
+  // Creating the Complemented Data Set
+  Db* targetP = data->clone();
+  Db* dataP = _dataTargetDeplement(data, targetP, varXvalid, iech0);
+
+  // ---------------------- With deplemented Data Base ---------------------
+  mestitle(1, "With deplemented input Data Base");
+
+  MatrixSquareSymmetric Sigma00P = model->getSillValues(0);
+  MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
+  MatrixRectangular XP           = model->evalDriftMatrix(dataP);
+  MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, targetP);
+  MatrixRectangular X0P          = model->evalDriftMatrix(targetP);
+  VectorDouble ZP =
+    dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+
+  KrigingCalcul KcalcP(&ZP, &SigmaP, &XP, &Sigma00P, &means);
+  KcalcP.setTarget(&Sigma0P, &X0P);
+
+  VH::display("Kriging Value(s)", KcalcP.getEstimation());
+  VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
+  VH::display("Variance of Estimator", KcalcP.getVarianceZstar());
+  if (debugSchur) KcalcP.printStatus();
+
+  // ---------------------- With Cross-validation Option -------------------------
+  mestitle(1, "With Cross-Validation Option");
+
+  MatrixSquareSymmetric Sigma00 = model->getSillValues(0);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
+  MatrixRectangular X           = model->evalDriftMatrix(data);
+  MatrixRectangular Sigma0      = model->evalCovMatrix(data, targetP);
+  MatrixRectangular X0          = model->evalDriftMatrix(targetP);
+  KrigingCalcul Kcalc(nullptr, &Sigma, &X, &Sigma00, &means);
+  Kcalc.setXvalidUnique(iech0, &varXvalid);
+
+  VH::display("Kriging Value(s)", Kcalc.getEstimation());
+  VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
+  VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+  if (debugSchur) Kcalc.printStatus();
+
+  delete dataP;
+  delete targetP;
 }
 
 /****************************************************************************/
@@ -262,7 +345,6 @@ int main(int argc, char* argv[])
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
   // First Test
-
   if (mode == 0 || mode == 1)
   {
     Db* dataLocal = data->clone();
@@ -271,11 +353,18 @@ int main(int argc, char* argv[])
   }
 
   // Second Test
-
   if (mode == 0 || mode == 2)
   {
     Db* dataLocal = data->clone();
     _secondTest(dataLocal, target, model, neigh, means);
+    delete dataLocal;
+  }
+
+  // Third Test
+  if (mode == 0 || mode == 3)
+  {
+    Db* dataLocal = data->clone();
+    _thirdTest(dataLocal, model, means);
     delete dataLocal;
   }
 

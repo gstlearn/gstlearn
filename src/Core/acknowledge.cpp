@@ -8,9 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "Basic/String.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
+#include "Basic/AStringable.hpp"
+#include "Core/Acknowledge.hpp"
 
 #include "version.h"
 #include <string.h>
