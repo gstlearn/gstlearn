@@ -389,8 +389,8 @@ int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::_addSimulateInPlace(const Eigen::VectorXd& vecin,
-                                                Eigen::VectorXd& vecout)
+int PrecisionOpMulti::_addSimulateToDest(const Eigen::VectorXd& vecin,
+                                                Eigen::VectorXd& vecout) const
 {
   if (!_checkReady()) return 1;
   EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,*y,jvar,nvar,ivar,jvar)
@@ -402,7 +402,7 @@ VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(),vec.size());
   Eigen::VectorXd out(vec.size());
   VectorEigen::fill(out,0.);
-  _addSimulateInPlace(vecm,out);
+  _addSimulateToDest(vecm,out);
   return VectorEigen::copyIntoVD(out);
 }
 

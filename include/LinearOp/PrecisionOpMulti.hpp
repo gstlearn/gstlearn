@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ASimulable.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorT.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -29,11 +29,12 @@
 #define IND(i,j,nvar) j * nvar + i - (j * (j + 1))/2
 
 class Model;
+class ASimulable;
 
 /**
  * Class to store objects for SPDE
  */
-class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
+class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ASimulable
 {
   public:
     PrecisionOpMulti(Model* model               = nullptr,
@@ -47,7 +48,7 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
       return _invCholSills[icov];}
   int getSize() const override;
   void makeReady();
-  
+
   protected:
   void buildQop();
   #ifndef SWIG
@@ -55,8 +56,8 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 
   int _addToDest(const Eigen::VectorXd& vecin,
                  Eigen::VectorXd& vecout) const override;
-  int _addSimulateInPlace(const Eigen::VectorXd& vecin,
-                                Eigen::VectorXd& vecout);
+  int _addSimulateToDest(const Eigen::VectorXd& vecin,
+                                Eigen::VectorXd& vecout) const override;
   #endif
   /// AStringable Interface
   public :
