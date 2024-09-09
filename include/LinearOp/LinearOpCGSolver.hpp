@@ -12,10 +12,7 @@
 
 #include "Matrix/VectorEigen.hpp"
 
-#include "LinearOp/ALinearOp.hpp"
-
 #ifndef SWIG
-#  include "LinearOp/ALinearOpEigenCG.hpp"
 #  include <Eigen/Core>
 #  include <Eigen/Dense>
 #  include <Eigen/IterativeLinearSolvers>

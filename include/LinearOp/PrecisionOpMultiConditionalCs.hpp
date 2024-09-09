@@ -13,7 +13,10 @@
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
-#include <Eigen/src/Core/Matrix.h>
+
+#ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
+#endif
 
 class PrecisionOp;
 class IProjMatrix;

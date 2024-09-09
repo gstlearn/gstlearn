@@ -11,25 +11,26 @@
 #include "LinearOp/ASimulable.hpp"
 #include "Basic/AStringable.hpp"
 
-VectorDouble  ASimulable::evalSimulate(const VectorDouble& whitenoise) const
+VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
 {
   VectorDouble res(whitenoise.size());
-  evalSimulate(whitenoise,res);
+  evalSimulate(whitenoise, res);
   return res;
 }
 
-int ASimulable::addSimulateToDest(const VectorDouble& whitenoise, VectorDouble& outv) const
+int ASimulable::addSimulateToDest(const VectorDouble& whitenoise,
+                                  VectorDouble& outv) const
 {
-   try
+  try
   {
-    Eigen::Map<const Eigen::VectorXd> myInv(whitenoise.data(), whitenoise.size());
+    Eigen::Map<const Eigen::VectorXd> myInv(whitenoise.data(),
+                                            whitenoise.size());
     Eigen::VectorXd myOut(outv.size());
     VectorEigen::fill(myOut, 0.);
     // Assume outv has the good size
-    if(_addSimulateToDest(myInv, myOut))
-      return 1;
-    
-    VectorEigen::copy(myOut,outv);
+    if (_addSimulateToDest(myInv, myOut)) return 1;
+
+    VectorEigen::copy(myOut, outv);
   }
   catch (const std::string& str)
   {
@@ -39,31 +40,28 @@ int ASimulable::addSimulateToDest(const VectorDouble& whitenoise, VectorDouble& 
   return 0;
 }
 
-int ASimulable::addSimulateToDest(const VectorEigen& whitenoise, VectorEigen& outv) const
+int ASimulable::addSimulateToDest(const VectorEigen& whitenoise,
+                                  VectorEigen& outv) const
 {
   return _addSimulateToDest(whitenoise.getVector(), outv.getVector());
 }
 
 int ASimulable::evalSimulate(const Eigen::VectorXd& whitenoise,
-                                Eigen::VectorXd& outv) const
+                             Eigen::VectorXd& outv) const
 {
-    int n = (int)outv.size();
-    for (int i = 0; i < n; i++)
-    {
-      outv[i] = 0.;
-    }              
-    return _addSimulateToDest(whitenoise,outv);      
+  int n = (int)outv.size();
+  for (int i = 0; i < n; i++)
+  {
+    outv[i] = 0.;
+  }
+  return _addSimulateToDest(whitenoise, outv);
 }
-
-
 
 int ASimulable::addSimulateToDest(const Eigen::VectorXd& whitenoise,
-                        Eigen::VectorXd& outv) const
+                                  Eigen::VectorXd& outv) const
 {
-  return _addSimulateToDest(whitenoise,outv);
+  return _addSimulateToDest(whitenoise, outv);
 }
-
-
 
 /*****************************************************************************/
 /*!
@@ -75,9 +73,9 @@ int ASimulable::addSimulateToDest(const Eigen::VectorXd& whitenoise,
 **
 *****************************************************************************/
 int ASimulable::evalSimulate(const VectorDouble& whitenoise,
-                                   VectorDouble& outv) const
+                             VectorDouble& outv) const
 {
-  return addSimulateToDest(whitenoise,outv);
+  return addSimulateToDest(whitenoise, outv);
 }
 
 /*****************************************************************************/
@@ -90,8 +88,7 @@ int ASimulable::evalSimulate(const VectorDouble& whitenoise,
 **
 *****************************************************************************/
 int ASimulable::evalSimulate(const VectorEigen& whitenoise,
-                           VectorEigen& outv) const
+                             VectorEigen& outv) const
 {
   return evalSimulate(whitenoise.getVector(), outv.getVector());
 }
-

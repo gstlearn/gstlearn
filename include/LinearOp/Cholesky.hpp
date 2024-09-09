@@ -17,10 +17,10 @@
 #include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
-#include <Eigen/Core>
-#include <Eigen/Dense>
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
 #endif
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
 DISABLE_WARNING_PUSH

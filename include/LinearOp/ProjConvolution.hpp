@@ -17,11 +17,11 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
 #endif
 /**
  * Projection matrix for vertical convolution

@@ -10,11 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
   #include <Eigen/Core>
   #include <Eigen/Dense>
 #endif
@@ -26,8 +28,8 @@ class Model;
 class GSTLEARN_EXPORT PrecisionOpMultiMatrix : public PrecisionOpMulti
 {
 public:
-  PrecisionOpMultiMatrix(Model* model = nullptr, 
-                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>());
+  PrecisionOpMultiMatrix(Model* model               = nullptr,
+                         const VectorMeshes& meshes = VectorMeshes());
   PrecisionOpMultiMatrix(const PrecisionOpMulti &m)= delete;
   PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
   virtual ~PrecisionOpMultiMatrix();
@@ -44,6 +46,6 @@ public:
   void _buildQop() override;
   bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}
 
-  private:
+private:
   MatrixSparse _Q;
 };

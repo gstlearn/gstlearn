@@ -11,12 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "LinearOp/IProjMatrix.hpp"
+
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
   #include <Eigen/src/Core/Matrix.h>
 #endif
-#include "LinearOp/IProjMatrix.hpp"
 
 class GSTLEARN_EXPORT ProjMulti : public IProjMatrix
 {

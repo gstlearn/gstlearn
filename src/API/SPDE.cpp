@@ -1086,7 +1086,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
  * @param dbout Output Db where the estimation must be performed
  * @param model Model definition
  * @param modelNugget Nugget part of the model (don't use it in model)
- * @param mesh Mesh description (optional)
+ * @param meshes Meshes description (optional)
  * @param useCholesky Define the choice regarding Cholesky
  * @param verbose Verbose flag
  * @param namconv Naming convention
@@ -1099,14 +1099,14 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
  * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
  *
  */
-VectorDouble krigingSPDENew(Db *dbin,
-                   Db *dbout,
-                   Model *model,
-                   Model *modelNugget,
-                   const std::vector<const AMesh *> &meshes,
-                   int useCholesky,
-                   bool verbose,
-                   const NamingConvention &namconv)
+VectorDouble krigingSPDENew(Db* dbin,
+                            Db* dbout,
+                            Model* model,
+                            Model* modelNugget,
+                            const VectorMeshes& meshes,
+                            int useCholesky,
+                            bool verbose,
+                            const NamingConvention& namconv)
 {
  DECLARE_UNUSED(verbose);
  DECLARE_UNUSED(namconv);

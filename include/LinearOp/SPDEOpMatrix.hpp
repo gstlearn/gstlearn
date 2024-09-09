@@ -10,9 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/SPDEOp.hpp"
 #include "gstlearn_export.hpp"
+#include "LinearOp/SPDEOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 class PrecisionOpMultiMatrix;

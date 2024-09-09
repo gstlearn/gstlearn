@@ -10,15 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
-#include "LinearOp/ISimulable.hpp"
 
 #ifndef SWIG
-#include "LinearOp/ALinearOpEigenCG.hpp"
+#include "LinearOp/ASimulableEigenCG.hpp"
 DECLARE_EIGEN_TRAITS(SPDEOp)
-#else
-#include "LinearOp/ALinearOp.hpp"
 #endif
 
 #include "LinearOp/LinearOpCGSolver.hpp"
@@ -30,16 +29,16 @@ class ProjMulti;
 
 class GSTLEARN_EXPORT SPDEOp:
 #ifndef SWIG
-  public ALinearOpEigenCG<SPDEOp>, ASimulable
+  public ASimulableEigenCG<SPDEOp>
 #else
-  public ISimulable
+  public ASimulable
 #endif
 {
 
 public:
   SPDEOp(const PrecisionOpMulti* const pop      = nullptr, 
          const ProjMulti*        const proj     = nullptr,
-         const ISimulable*       const invNoise = nullptr,
+         const ASimulable*       const invNoise = nullptr,
          bool  noiseToDelete                    = false);
   virtual ~SPDEOp();
 
@@ -70,7 +69,6 @@ private:
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
-  void _fake() const override{};
 #ifndef SWIG
 private:
   virtual int _addToDestImpl(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
@@ -79,7 +77,7 @@ private:
 protected:
   const PrecisionOpMulti* const _Q;
   const ProjMulti*        const _Proj;
-  const ISimulable*       const _invNoise;
+  const ASimulable*       const _invNoise;
 
 private:
   bool    _noiseToDelete;

@@ -15,11 +15,11 @@
 #include "LinearOp/ProjMatrix.hpp"
 
 #ifndef SWIG
-#include <Eigen/Core>
-#include <Eigen/Dense>
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
 #endif
 
-#include <Eigen/src/Core/Matrix.h>
 
 #include "Matrix/VectorEigen.hpp"
 

@@ -34,13 +34,12 @@ public:
 #ifndef SWIG
   public:
   int evalDirect(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const;
+                 Eigen::VectorXd& outv) const;
   int addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const;
-
+                Eigen::VectorXd& outv) const;
 
 protected:
   virtual int _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const = 0;
+                         Eigen::VectorXd& outv) const = 0;
 #endif
 };

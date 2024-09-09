@@ -10,19 +10,20 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorT.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "gstlearn_export.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
   #include <Eigen/Core>
   #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
 #endif
 
 #define IND(i,j,nvar) j * nvar + i - (j * (j + 1))/2
@@ -35,13 +36,15 @@ class Model;
 class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 {
   public:
-  PrecisionOpMulti(Model* model = nullptr, 
-                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>(),
-                   bool buildOp = true);
-  PrecisionOpMulti(const PrecisionOpMulti &m)= delete;
-  PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
-  virtual ~PrecisionOpMulti();
-  MatrixSquareSymmetric getInvCholSill(int icov) const {return _invCholSills[icov];}
+    PrecisionOpMulti(Model* model               = nullptr,
+                     const VectorMeshes& meshes = VectorMeshes(),
+                     bool buildOp               = true);
+    PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
+    PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
+    virtual ~PrecisionOpMulti();
+    MatrixSquareSymmetric getInvCholSill(int icov) const
+    {
+      return _invCholSills[icov];}
   int getSize() const override;
   void makeReady();
   

@@ -10,16 +10,23 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ISimulable.hpp"
+#include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
-#include <Eigen/Sparse>
+
+#ifndef SWIG
+  #include <Eigen/Sparse>
+#endif
+
 class AMatrix;
 class Cholesky;
+
 /**
  * Square Symmetric matrices
  */
-class GSTLEARN_EXPORT MatrixSquareSymmetricSim : public ISimulable
+class GSTLEARN_EXPORT MatrixSquareSymmetricSim : public ASimulable
 {
 public:
   MatrixSquareSymmetricSim();
@@ -46,7 +53,6 @@ protected:
 
 
 private:
-  void _fake() const override{}; // just for swig export
   void _prepare() const; // modify only mutable objects and can be called from const method
   void _clear();
   

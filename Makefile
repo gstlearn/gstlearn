@@ -126,7 +126,7 @@ ifdef N_PROC
 else
   N_PROC_OPT = -j1 | tee /dev/null
 endif
-# Add  "| tee /dev/null" because Ninja prints output in a signe line :
+# Add  "| tee /dev/null" because Ninja prints output in a single line :
 # https://stackoverflow.com/questions/46970462/how-to-enable-multiline-logs-instead-of-single-line-progress-logs
 
 CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
