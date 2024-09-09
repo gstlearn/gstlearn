@@ -74,6 +74,14 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
   return vec;
 }
 
+VectorString VectorHelper::initVString(int ntab, char** names)
+{
+  VectorString rettab(ntab);
+  if (names == nullptr) return rettab;
+  for (int i = 0; i < ntab; i++) rettab[i] = names[i];
+  return rettab;
+}
+
 void VectorHelper::dump(const String &title, const VectorDouble& vect)
 {
   std::stringstream sstr;

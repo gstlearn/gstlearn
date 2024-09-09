@@ -20,7 +20,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <math.h>
 

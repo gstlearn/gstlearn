@@ -30,7 +30,8 @@ KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
   , _BetaRef(nullptr)
   , _Zp(nullptr)
   , _rankColCok(nullptr)
-
+  , _iechXvalid(-1)
+  , _rankXvalid(nullptr)
   , _Zstar()
   , _Beta()
   , _LambdaSK(nullptr)
@@ -58,6 +59,7 @@ KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
   , _nbfl(0)
   , _nrhs(0)
   , _ncck(0)
+  , _nxvl(0)
   , _flagSK(true)
   , _flagBayes(false)
 {
@@ -245,8 +247,8 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
   return true;
 }
 
-int KrigingCalcul::setColCok(const VectorDouble* Zp,
-                             const VectorInt* rankColCok)
+int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
+                                   const VectorInt* rankColCok)
 {
   _resetMemory();
 
@@ -271,6 +273,28 @@ int KrigingCalcul::setColCok(const VectorDouble* Zp,
   _Zp         = Zp;
   _ncck       = ncck;
 
+  return 0;
+}
+
+/**
+ * @brief Define the elements of the input Db to be cross-validated
+ *
+ * @param iechXvalid Rank of the sample to be cross-validated
+ * @param rankXvalid Vector of variable ranks to be cross-validated (all if not defined)
+ * @return int Error return code
+ */
+int KrigingCalcul::setXvalidUnique(int iechXvalid, const VectorInt* rankXvalid)
+{
+  if (iechXvalid < 0 || iechXvalid >= _neq)
+  {
+    messerr("The rank of the Sample to be cross-validated should be non zero");
+    messerr("and smaller the Kriging System dimension %d\n", _neq);
+    return 1;
+  }
+
+  _nxvl = _nrhs - (int) rankXvalid->size();
+  _iechXvalid = iechXvalid;
+  _rankXvalid = rankXvalid;
   return 0;
 }
 

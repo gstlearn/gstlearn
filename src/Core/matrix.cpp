@@ -11,7 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/Utilities.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <math.h>
 #include <cmath>

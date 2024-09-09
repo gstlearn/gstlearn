@@ -8,13 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "OutputFormat/AOF.hpp"
 #include "OutputFormat/GridF2G.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/String.hpp"
+#include "Core/io.hpp"
 
 #include <string.h>
 

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -33,8 +32,9 @@
 #include "Basic/PolyLine2D.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Tree/Ball.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
+#include "Core/io.hpp"
 
 #include <math.h>
 #include <string.h>

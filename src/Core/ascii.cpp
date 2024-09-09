@@ -9,8 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
+#include "Core/Ascii.hpp"
+#include "Core/io.hpp"
+#include "Core/CSV.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -19,7 +21,7 @@
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Model/Model.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 /*! \cond */
 #define OLD 0

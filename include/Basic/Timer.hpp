@@ -47,3 +47,8 @@ public:
 private:
   hrc::time_point _refTime;
 };
+
+GSTLEARN_EXPORT void time_start(void);
+GSTLEARN_EXPORT void time_reset(void);
+GSTLEARN_EXPORT void time_chunk_add(const char* call_name);
+GSTLEARN_EXPORT void time_report(void);

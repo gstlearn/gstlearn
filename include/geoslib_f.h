@@ -10,11 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-// WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Basic/CSVformat.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/DbGrid.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -39,44 +37,6 @@ class SimuSphericalParam;
 class MeshSpherical;
 class SimuSubstitutionParam;
 class SimuRefineParam;
-
-/**********************************************/
-/* Prototyping the functions in acknowledge.c */
-/**********************************************/
-
-GSTLEARN_EXPORT void acknowledge_gstlearn(void);
-
-/***********************/
-/* Functions for Basic */
-/***********************/
-
-GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab, const double *rtab);
-GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
-GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
-GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
-
-/*********************/
-/* Functions for CSV */
-/*********************/
-
-GSTLEARN_EXPORT int csv_manage(const char *filename,
-                               const CSVformat& csv,
-                               int mode,
-                               int nitem,
-                               bool flagInteger = false,
-                               bool verbose = false);
-GSTLEARN_EXPORT void csv_print_double(double value);
-
-/***************************/
-/* Functions for Data Base */
-/***************************/
-
-GSTLEARN_EXPORT VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim);
-GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db,
-                                              int iatt,
-                                              bool verbose = false);
-GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
-                                                        const String &pattern);
 
 /***************************/
 /* Functions for Variogram */
@@ -226,18 +186,6 @@ GSTLEARN_EXPORT int simpgs_spde(Db* dbin,
                                 int ngibbs_int,
                                 int verbose,
                                 double percent);
-GSTLEARN_EXPORT Db* db_read_csv(const char *filename,
-                                const CSVformat& csvfmt,
-                                int verbose = 0,
-                                int ncol_max = -1,
-                                int nrow_max = -1,
-                                bool flagAddSampleRank = false);
-GSTLEARN_EXPORT int db_write_csv(Db *db,
-                                 const char *filename,
-                                 const CSVformat& csv,
-                                 int flag_allcol = 1,
-                                 int flag_coor = 1,
-                                 bool flagInteger = false);
 GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            DbGrid *dbout,
                                            Model *model,

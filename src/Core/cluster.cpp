@@ -24,7 +24,7 @@ License: BSD 3-clause
 
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 
 #include <limits.h>
 

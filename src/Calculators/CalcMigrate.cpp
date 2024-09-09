@@ -21,7 +21,7 @@
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Tree/Ball.hpp"
-#include "Core/Memory.hpp"
+#include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>

@@ -1,6 +1,6 @@
 
-First Test
-==========
+Checking Bayes option
+=====================
 Compare:
 - Kriging with traditional code
 - Estimation performed with 'KrigingCalcul'
@@ -24,42 +24,8 @@ Standard Deviation of Estimation Error
 Variance of Estimator
      1.695     1.110
 
-List of arrays used in 'KrigingCalcul'
---------------------------------------
-
-General Parameters
-Number of Covariance Rows = 6
-Number of Drift equations = 2
-Number of Right_Hand sides = 2
-Working with Unknown Mean(s)
-
-External Pointers
- - Sigma00 (2, 2)
- - Sigma (6, 6)
- - Sigma0 (6, 2)
- - X (6, 2)
- - X0 (2, 2)
- - Z (6)
- - BetaRef (2)
-
-Internal Memory (retrievable)
- - Zstar (2)
- - LambdaSK (6, 2)
- - LambdaUK (6, 2)
- - MuUK (2, 2)
- - Stdv (2, 2)
- - VarZUK (2, 2)
-
-Internal Memory (hidden)
- - XtInvSigma (2, 6)
- - Y0 (2, 2)
- - InvSigmaSigma0 (6, 2)
- - InvSigma (6, 6)
- - Sigmac (2, 2)
-
-Second Test
-===========
 Compare the Collocated Option (in Unique Neighborhood):
+=======================================================
 - using Standard Kriging on the Complemented Data Set
 - using 'KrigingCalcul' on the Complemented Data Set
 - using 'KrigingCalcul' on Standard Data Set adding Collocated Option
@@ -82,39 +48,6 @@ Standard Deviation of Estimation Error
 Variance of Estimator
      4.363     3.084
 
-List of arrays used in 'KrigingCalcul'
---------------------------------------
-
-General Parameters
-Number of Covariance Rows = 7
-Number of Drift equations = 2
-Number of Right_Hand sides = 2
-Working with Unknown Mean(s)
-
-External Pointers
- - Sigma00 (2, 2)
- - Sigma (7, 7)
- - Sigma0 (7, 2)
- - X (7, 2)
- - X0 (2, 2)
- - Z (7)
- - BetaRef (2)
-
-Internal Memory (retrievable)
- - Zstar (2)
- - LambdaSK (7, 2)
- - LambdaUK (7, 2)
- - MuUK (2, 2)
- - Stdv (2, 2)
- - VarZUK (2, 2)
-
-Internal Memory (hidden)
- - XtInvSigma (2, 7)
- - Y0 (2, 2)
- - InvSigmaSigma0 (7, 2)
- - InvSigma (7, 7)
- - Sigmac (2, 2)
-
 With Collocated Option
 ----------------------
 Kriging Value(s)
@@ -124,47 +57,57 @@ Standard Deviation of Estimation Error
 Variance of Estimator
      4.363     3.084
 
-List of arrays used in 'KrigingCalcul'
---------------------------------------
+Cross-Validation in Unique Neighborhood
+=======================================
+Compare the Cross-validation Option (in Unique Neighborhood):
+- using Standard Kriging on the Deplemented Data Set
+- using 'KrigingCalcul' on Initial Set with Cross-validation option
 
-General Parameters
-Number of Covariance Rows = 6
-Number of Drift equations = 2
-Number of Right_Hand sides = 2
-Number of Collocated Variables = 1
-Rank of Collocated Variables:         1
-Working with Unknown Mean(s)
+Data Base Characteristics
+=========================
 
-External Pointers
- - Sigma00 (2, 2)
- - Sigma (6, 6)
- - Sigma0 (6, 2)
- - X (6, 2)
- - X0 (2, 2)
- - Z (6)
- - BetaRef (2)
- - Zp (2)
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2
+     [  0,]     1.000     0.652     0.015       N/A    -0.454
+     [  1,]     2.000     0.483     0.557    -0.774    -0.872
+     [  2,]     3.000     0.762     0.433     0.793     0.744
 
-Internal Memory (retrievable)
- - Zstar (2)
- - LambdaSK (6, 2)
- - LambdaUK (6, 2)
- - MuUK (2, 2)
- - Stdv (2, 2)
- - VarZUK (2, 2)
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
 
-Internal Memory (hidden)
- - XtInvSigma (2, 6)
- - Y0 (2, 2)
- - InvSigmaSigma0 (6, 2)
- - InvSigma (6, 6)
- - Sigmac (2, 2)
+Data Base Characteristics
+=========================
 
-Internal Memory (for Collocated Cokriging only)
- - Sigma00pp (1, 1)
- - Sigma00p (1, 2)
- - Sigma0p (6, 1)
- - X0p (1, 2)
- - Y0p (1, 2)
- - Z0p (1)
- - Lambda0 (1, 2)
+Data Base Contents
+------------------
+     1.000     0.652     0.015     0.753    -0.454     1.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = Selection - Locator = sel
+
+With deplemented input Data Base
+--------------------------------
+Kriging Value(s)
+     0.462    -0.454
+Standard Deviation of Estimation Error
+     0.899     0.000
+Variance of Estimator
+     4.439     3.084
+
+With Cross-Validation Option
+----------------------------
+>>> Vector Z is missing (required)
+>>> Matrix Sigma0 is missing (required)
+>>> Matrix Sigma0 is missing (required)
