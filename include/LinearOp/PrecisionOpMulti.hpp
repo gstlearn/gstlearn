@@ -35,13 +35,15 @@ class Model;
 class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ALinearOp
 {
   public:
-  PrecisionOpMulti(Model* model = nullptr, 
-                   const std::vector<const AMesh*>& meshes = std::vector<const AMesh*>(),
-                   bool buildOp = true);
-  PrecisionOpMulti(const PrecisionOpMulti &m)= delete;
-  PrecisionOpMulti& operator= (const PrecisionOpMulti &m)= delete;
-  virtual ~PrecisionOpMulti();
-  MatrixSquareSymmetric getInvCholSill(int icov) const {return _invCholSills[icov];}
+    PrecisionOpMulti(Model* model               = nullptr,
+                     const VectorMeshes& meshes = VectorMeshes(),
+                     bool buildOp               = true);
+    PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
+    PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
+    virtual ~PrecisionOpMulti();
+    MatrixSquareSymmetric getInvCholSill(int icov) const
+    {
+      return _invCholSills[icov];}
   int getSize() const override;
   void makeReady();
 

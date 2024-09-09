@@ -9,38 +9,39 @@
 /*                                                                            */
 /******************************************************************************/
 #pragma once
+#include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/VectorEigen.hpp"
+#include "LinearOp/ALinearOp.hpp"
 
 #ifndef SWIG
 #  include <Eigen/Core>
 #  include <Eigen/Dense>
 #endif
 
-class GSTLEARN_EXPORT ASimulable
+class GSTLEARN_EXPORT ASimulable : public ALinearOp
 {
 public:
-  ASimulable(){}
+  ASimulable() { }
   virtual ~ASimulable() {}
+  
   int evalSimulate(const VectorDouble& whitenoise, VectorDouble& outv) const;
   VectorDouble evalSimulate(const VectorDouble& whitenoise) const;
   int evalSimulate(const VectorEigen& whitenoise, VectorEigen& outv) const;
-  int addSimulateToDest(const VectorDouble& whitenoise, VectorDouble& outv) const;
+  int addSimulateToDest(const VectorDouble& whitenoise,
+                              VectorDouble& outv) const;
   int addSimulateToDest(const VectorEigen& whitenoise, VectorEigen& outv) const;
 #ifndef SWIG
-  public:
+
+public:
   int evalSimulate(const Eigen::VectorXd& whitenoise,
                          Eigen::VectorXd& outv) const;
   int addSimulateToDest(const Eigen::VectorXd& whitenoise,
                               Eigen::VectorXd& outv) const;
 
-
 protected:
   virtual int _addSimulateToDest(const Eigen::VectorXd& whitenoise,
                                        Eigen::VectorXd& outv) const = 0;
 #endif
-private :
-  virtual void _fake() const = 0; // just for swig export (otherwise the class is not virtual pure)
-
 };

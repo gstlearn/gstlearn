@@ -10,11 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/IProjMatrix.hpp"
 #include "gstlearn_export.hpp"
+#include "LinearOp/IProjMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-class IProjMatrix;
 class AMesh;
 class Db;
 

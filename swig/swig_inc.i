@@ -137,7 +137,6 @@
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
   #include "LinearOp/ASimulable.hpp"
-  #include "LinearOp/ISimulable.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"

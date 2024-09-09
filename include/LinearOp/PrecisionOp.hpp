@@ -35,7 +35,7 @@ class Model;
 // Note that if the model is multivariate, the precision is built with a constant sill = 1.
 // Therefore it has to be used only through the PrecisionOpMulti class
 // which handles the sills matrix (possibly non stationary)
-class GSTLEARN_EXPORT PrecisionOp : public ALinearOp{
+class GSTLEARN_EXPORT PrecisionOp : public ALinearOp {
 
 public:
   PrecisionOp();
