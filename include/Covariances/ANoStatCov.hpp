@@ -89,7 +89,8 @@ public:
   int  addNoStatElems(const VectorString& codes);
   void deleteNoStatElem(int ipar);
   void deleteAllNoStatElem();
-
+  bool isDefinedByCovType(const EConsElem& type) const;
+  void _updateFromCova(const ACov* cova);
   int getRank(const EConsElem &type,
               int iv1 = -1,
               int iv2 = -1) const;
@@ -100,7 +101,7 @@ public:
   const std::vector<ParamId>& getNoStats() const { return _items; }
   ParamId getNoStat(int ipar) const { return _items[ipar]; }
 
-  int attachCova(const ACov* cova);
+  int attachCov(const ACov* cova);
 
   bool matchType(int ipar, const EConsElem& type0) const { return _items[ipar].matchType(type0); }
   bool matchIV1(int ipar, int iv10) const { return _items[ipar].matchIV1(iv10); }

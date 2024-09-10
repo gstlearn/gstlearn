@@ -17,6 +17,7 @@
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/ParamId.hpp"
 #include "Space/SpacePoint.hpp"
 
 #include <vector>
@@ -25,6 +26,7 @@ class Db;
 class DbGrid;
 class MatrixRectangular;
 class MatrixSparse;
+class ANoStatCov;
 class ANoStat;
 
 /**
@@ -49,8 +51,12 @@ public:
   virtual int getNVariables() const = 0;
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
-  virtual const ANoStat* getNoStat() const { return nullptr; }
-  virtual ANoStat* getNoStatModify() const { return nullptr; }
+  int getNoStatElemNumber() const;
+  virtual const ANoStatCov* getNoStat() const { return nullptr; }
+  virtual ANoStatCov* getNoStatModify()  { return nullptr; }
+  virtual const ANoStat* getNoStatGlobal() const { return nullptr; }
+  virtual ANoStat*  getNoStatModifyGlobal()  { return nullptr; }
+  ParamId getCovParamId(int ipar) const;
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,

@@ -230,7 +230,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   // Loop on the basic structures
   for (int icov = 0, ncov = _model->getCovaNumber(); icov < ncov; icov++)
   {
-    const CovAniso* cova = _model->getCova(icov);
+    CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
     bool flagNoStatRot = false;
     if (nostat != nullptr) flagNoStatRot = nostat->isDefinedforAnisotropy(icov);
@@ -254,9 +254,9 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingSimu.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
+          precision = new PrecisionOpCs(mesh, cova, false, verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, verbose);
+          precision = new PrecisionOp(mesh, cova, verbose);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
@@ -279,9 +279,9 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
+          precision = new PrecisionOpCs(mesh, cova, false, verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, verbose);
+          precision = new PrecisionOp(mesh, cova, verbose);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);

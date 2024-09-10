@@ -17,21 +17,21 @@
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
-#include "Model/ANoStat.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <map>
+#include <memory>
 
 #ifndef SWIG
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #endif
 
-class Model;
 class CovAniso;
-class NoStatArray;
+class NoStatArrayCov;
 class EConsElem;
 class AMatrix;
 class AMatrixSquare;
@@ -59,10 +59,9 @@ class GSTLEARN_EXPORT ShiftOpCs:
 {
   public:
     ShiftOpCs();
-    ShiftOpCs(const AMesh* amesh, Model* model, const Db* dbout = nullptr,
-              int igrf = 0, int icov = 0, bool verbose = false);
+    ShiftOpCs(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool verbose = false);
     ShiftOpCs(const MatrixSparse* S, const VectorDouble& TildeC,
-              const VectorDouble& Lambda, Model* model, bool verbose = false);
+              const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
     ShiftOpCs(const ShiftOpCs& shift);
     ShiftOpCs& operator=(const ShiftOpCs& shift);
     virtual ~ShiftOpCs();
@@ -70,20 +69,20 @@ class GSTLEARN_EXPORT ShiftOpCs:
     int _addToDest(const Eigen::VectorXd& inv,
                    Eigen::VectorXd& outv) const override;
 
-    static ShiftOpCs* create(const AMesh* amesh, Model* model,
-                             const Db* dbout = nullptr, int igrf = 0,
-                             int icov = 0, bool verbose = false);
+    static ShiftOpCs* create(const AMesh* amesh, const CovAniso* cova,
+                             const Db* dbout = nullptr, 
+                             bool verbose = false);
     static ShiftOpCs* createFromSparse(
       const MatrixSparse* S, const VectorDouble& TildeC,
-      const VectorDouble& Lambda, Model* model, bool verbose = false);
-    int initFromMesh(const AMesh* amesh, Model* model,
-                     const Db* dbout = nullptr, int igrf = 0, int icov = 0,
+      const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
+    int initFromMesh(const AMesh* amesh, const CovAniso* cova,
+                     const Db* dbout = nullptr, 
                      bool flagAdvection = false, bool verbose = false);
-    int initGradFromMesh(const AMesh* amesh, Model* model, int igrf = 0,
-                         int icov = 0, bool verbose = false,
+    int initGradFromMesh(const AMesh* amesh, const CovAniso* cova,
+                         bool verbose = false,
                          double tol = EPSILON10);
     int initFromCS(const MatrixSparse* S, const VectorDouble& TildeC,
-                   const VectorDouble& Lambda, Model* model,
+                   const VectorDouble& Lambda, const CovAniso* cova,
                    bool verbose = false);
     int getSize() const override
     {
@@ -144,33 +143,14 @@ class GSTLEARN_EXPORT ShiftOpCs:
     int getLambdaGradSize() const;
 
   private:
-    int _getIcov() const
+    std::shared_ptr<CovAniso> _getCova()
     {
-      return _icov;
+      return _cova;
     }
-    void _setIcov(int icov)
-    {
-      _icov = icov;
-    }
-    int _getIgrf() const
-    {
-      return _igrf;
-    }
-    void _setIgrf(int igrf)
-    {
-      _igrf = igrf;
-    }
-    const Model* _getModel() const
-    {
-      return _model;
-    }
-    void _setModel(const Model* model)
-    {
-      _model = model;
-    }
+    void _setCova(const CovAniso* cova);
     bool _isNoStat();
-    bool _isGlobalHH(int igrf, int icov);
-    const CovAniso* _getCova();
+    bool _isGlobalHH();
+  
 
     int _buildS(const AMesh* amesh, double tol = EPSILON10);
     int _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
@@ -210,7 +190,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
                                VectorVectorDouble& coords,
                                AMatrixSquare& matMs,
                                double* deter) const;
-    void _updateCova(CovAniso * cova, int imesh);
+    void _updateCova(std::shared_ptr<CovAniso> cova, int imesh);
     VectorT<std::map<int, double>> _mapCreate() const;
     VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
     VectorT<std::map<int, double>> _mapTildeCCreate() const;
@@ -246,9 +226,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
 
     // Following list of members are there to ease the manipulation and reduce
     // argument list
-    const Model* _model;
-    int _igrf;
-    int _icov;
+    std::shared_ptr<CovAniso> _cova;
     int _ndim;
     int _napices;
   };

@@ -182,11 +182,11 @@ public:
   }
   const ANoStat* getNoStat() const
   {
-    return _cova->getNoStat();
+    return _cova->getNoStatGlobal();
   }
-  ANoStat* getNoStatModify() const
+  ANoStat* getNoStatModify() 
   {
-    return _cova->getNoStatModify();
+    return _cova->getNoStatModifyGlobal();
   }
   /**
    * Calculate the Matrix of covariance for zero distance

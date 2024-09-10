@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
@@ -16,7 +17,6 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
-#include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
@@ -31,11 +31,10 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
 }
 
 PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
-                             Model *model,
-                             int icov,
+                             CovAniso *cova,
                              bool flagDecompose,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, verbose),
+    : PrecisionOp(mesh, cova, verbose),
       _Q(nullptr)
 {
   _buildQ(flagDecompose);

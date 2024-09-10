@@ -60,8 +60,8 @@ public:
   virtual int    getNVariables() const override;
   virtual bool   isIndexable() const override { return true; }
   virtual bool   isNoStat() const override { return _noStat != nullptr; }
-  virtual const ANoStat* getNoStat() const override { return _noStat; }
-  virtual ANoStat* getNoStatModify() const override { return _noStat; } // TODO: to be suppressed
+  virtual const ANoStat* getNoStatGlobal() const override { return _noStat; }
+  virtual ANoStat* getNoStatModifyGlobal()  override { return _noStat; } // TODO: to be suppressed
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;

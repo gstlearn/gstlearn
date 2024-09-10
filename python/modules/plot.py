@@ -1076,6 +1076,34 @@ def __ax_modelOnGrid(ax, model, db, useSel=True, icov=0, color='black', flagOrth
     ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
             
     return ax
+
+def covaOnGrid(cova, db, *args, **kwargs):
+    ax = __getNewAxes(None, 1)
+    return __ax_covaOnGrid(ax, cova, db=db, *args, **kwargs)
+    
+def __ax_covaOnGrid(ax, cova, db, useSel=True, color='black', flagOrtho=True, **kwargs):
+    '''
+    Display the Model characteristics on a Grid
+    This makes sense when the model contains some non-stationarity
+    '''
+    # Extracting coordinates
+    tabx = db.getCoordinates(0,useSel)
+    taby = db.getCoordinates(1,useSel)
+    if len(tabx) <= 0 or len(taby) <= 0:
+        return None
+    
+    gl.db_cova_nostat(db, cova)
+    tabR1 = db.getColumn("Nostat.Range-1", useSel)
+    tabR2 = db.getColumn("Nostat.Range-2", useSel)
+    tabA  = db.getColumn("Nostat.Angle-1", useSel)
+    if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
+        return None
+    
+    if flagOrtho:
+        tabA = 90 + tabA
+    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
+            
+    return ax
     
 def polygon(poly, *args, **kwargs):
     '''

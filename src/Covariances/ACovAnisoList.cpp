@@ -48,7 +48,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
   if (this != &r)
   {
     ACov::operator=(r);
-    for (auto e: r._covs)
+    for (auto *e: r._covs)
       _covs.push_back(e->clone());
     _filtered = r._filtered;
     if (r._noStat != nullptr)

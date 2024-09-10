@@ -9,10 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/ANoStatCov.hpp"
-#include "Model/Model.hpp"
-#include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "geoslib_define.h"
+#include "Covariances/ACov.hpp"
 
 #include <math.h>
 
@@ -78,6 +76,7 @@ String ANoStatCov::toString(const AStringFormat* strfmt) const
  */
 bool ANoStatCov::isDefinedByCov() const
 {
+  if (_items.empty()) return false;
   return !_items.empty();
 }
 
@@ -87,6 +86,21 @@ bool ANoStatCov::isDefinedByCov() const
  * @return
  */
 bool ANoStatCov::isDefinedByType(const EConsElem& type) const
+{
+  if (_items.empty()) return false;
+  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
+  {
+      if (matchType(ipar,type)) return true;
+  }
+  return false;
+}
+
+/**
+ * Look if a Non-stationary parameter is defined
+ * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
+ * @return
+ */
+bool ANoStatCov::isDefinedByCovType(const EConsElem& type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -200,7 +214,7 @@ int ANoStatCov::addNoStatElem(const EConsElem& type, int iv1, int iv2)
 
 int ANoStatCov::addNoStatElemByItem(const ParamId& item)
 {
-  return addNoStatElem(item.getType(),
+  return addNoStatElem( item.getType(),
                        item.getIV1(), item.getIV2());
 }
 
@@ -213,7 +227,7 @@ int ANoStatCov::addNoStatElems(const VectorString &codes)
   for (int i = 0; i < (int) codes.size(); i++)
   {
     if (_understandCode(codes[i],&type, &iv1, &iv2)) continue;
-    nerr += addNoStatElem(type, iv1, iv2);
+    nerr += addNoStatElem( type, iv1, iv2);
   }
   return (nerr > 0);
 }
@@ -230,30 +244,35 @@ void ANoStatCov::deleteAllNoStatElem()
 
 /**
  * This function tries to attach the current Non-Stationary environment
- * to the model, checking that references to Covariance ranks are valid
- * @param ACov
+ * to the cova, checking that references to Covariance ranks are valid
+ * @param cova ACov structure
  * @return Error return code
  */
-int ANoStatCov::attachCova(const ACov* cova)
+int ANoStatCov::attachCov(const ACov* cova)
 {
   if (cova == nullptr)
   {
-    messerr("Model must be defined beforehand");
+    messerr("CovAniso must be defined beforehand");
     return 1;
   }
-  if (cova->getNDim()  > 3)
+  if (cova->getNDim() > 3)
   {
-    messerr("Non stationary model is restricted to Space Dimension <= 3");
+    messerr("Non stationary cova is restricted to Space Dimension <= 3");
     return 1;
   }
+
+  // Patch. It may happen that the CovAniso already contains the parameters of the ANostat
+  // which are better defined than in the Current ANostat structure
+  // In this case copy the ANostat parameters from CovAniso to Current
+  // TODO: Remove this part of code
+  _updateFromCova(cova);
 
   for (int ipar=0; ipar<(int) getNoStatElemNumber(); ipar++)
   {
     EConsElem type = getType(ipar);
 
     // Check that the Non-stationary parameter is valid with respect
-    // to the Model definition
-
+    // to the CovAniso definition
 
     if (type == EConsElem::PARAM)
     {
@@ -284,9 +303,9 @@ int ANoStatCov::attachCova(const ACov* cova)
  * @return 0 if a valid constraint has been defined; 1 otherwise
  */
 int ANoStatCov::_understandCode(const String& code,
-                             EConsElem *type,
-                             int *iv1,
-                             int *iv2)
+                                EConsElem *type,
+                                int *iv1,
+                                int *iv2)
 {
   *iv1 = *iv2 = 0;
   *type = EConsElem::UNKNOWN;
@@ -347,6 +366,27 @@ int ANoStatCov::_understandCode(const String& code,
   return 0;
 }
 
+/**
+ * The CovAniso may contain some non-stationary parameters already initialized
+ * that the current structure is not aware of. They are simply duplicated here
+ * This temporary patch is applied in the following conditions:
+ * 1) the number of stationary elements in current structure is 0
+ * 2) the number of stationary elements in CovAniso is positive
+ * @param cova Input ACov
+ */
+void ANoStatCov::_updateFromCova(const ACov* cova)
+{
+  int nelemFromCovAniso = cova->getNoStatElemNumber();
+  int nelem = getNoStatElemNumber();
+  if (nelem > 0) return;
+  if (nelemFromCovAniso <= 0) return;
+
+  for (int ipar = 0; ipar < nelemFromCovAniso; ipar++)
+  {
+    ParamId item = cova->getCovParamId(ipar);
+    (void) addNoStatElemByItem(item);
+  }
+}
 
 /**
  * Get the information from the storage in Dbin and/or Dbout
@@ -431,7 +471,7 @@ bool ANoStatCov::_checkConsistency() const
   }
   if (flagHH && flagRot)
   {
-    messerr("Error in the definition of Model Non-stationarity");
+    messerr("Error in the definition of CovAniso Non-stationarity");
     messerr("You cannot mix the following two parameterizations:");
     messerr("- in Tensor using HH");
     messerr("- in rotation matrix using Angle / [Scale | Range]");

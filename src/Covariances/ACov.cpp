@@ -15,6 +15,7 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Covariances/ANoStatCov.hpp"
 #include "Model/ANoStat.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
@@ -819,7 +820,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
 
   // Play the non-stationarity (if needed)
 
-  ANoStat *nostat = getNoStatModify();
+  ANoStat *nostat = getNoStatModifyGlobal();
   bool flag_isNoStat = isNoStat();
   if (flag_isNoStat)
   {
@@ -966,7 +967,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
 
   // Play the non-stationarity (if needed)
 
-  ANoStat *nostat = getNoStatModify();
+  ANoStat *nostat = getNoStatModifyGlobal();
   if (isNoStat())
   {
     if (nostat->manageInfo(1, db1, nullptr)) return MatrixSquareSymmetric();
@@ -1086,7 +1087,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   // Play the non-stationarity (if needed)
 
-  ANoStat *nostat = getNoStatModify();
+  ANoStat *nostat = getNoStatModifyGlobal();
   if (isNoStat())
   {
     if (nostat->manageInfo(1, db1, db2)) return mat;
@@ -1168,6 +1169,19 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
     _updateCovMatrixSymmetricVerr(db1, mat, ivars, index1);
 
   return mat;
+}
+
+ParamId ACov::getCovParamId(int ipar) const
+{
+  if (!isNoStat()) return ParamId();
+  return getNoStat()->getItems(ipar);
+}
+
+
+int ACov::getNoStatElemNumber() const
+{
+  if (!isNoStat()) return 0;
+  return getNoStat()->getNoStatElemNumber();
 }
 
 /**

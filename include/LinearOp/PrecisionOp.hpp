@@ -28,7 +28,6 @@
 
 class APolynomial;
 class AMesh;
-class Model;
 
 // This class create a precision operator (matrix-free).
 // In general, it is built from a Model and a AMesh
@@ -43,8 +42,7 @@ public:
               const CovAniso* cova,
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
-              Model* model,
-              int icov = 0,
+              CovAniso* cova,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -64,8 +62,7 @@ public:
                                         const CovAniso *cova = nullptr,
                                         bool verbose = false);
   static PrecisionOp* create(const AMesh* mesh,
-                             Model* model,
-                             int icov = 0,
+                             CovAniso* cova,
                              bool verbose = false);
 
   int reset(const ShiftOpCs *shiftop,
@@ -112,7 +109,7 @@ public:
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
-  void evalSimulate(const VectorDouble& in, VectorDouble& out);
+  void evalSimulate(const VectorDouble& whitenoise, VectorDouble& out);
 
   int  getSize() const override { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}

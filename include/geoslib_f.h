@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
@@ -22,6 +23,7 @@
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 
+class CovAniso;
 class Db;
 class Vario;
 class VarioParam;
@@ -68,6 +70,8 @@ GSTLEARN_EXPORT int db_model_nostat(Db *db,
                                     Model *model,
                                     int icov = 0,
                                     const NamingConvention& namconv = NamingConvention("Nostat"));
+GSTLEARN_EXPORT int db_cova_nostat(Db *db, ACov *cova,
+                                   const NamingConvention& namconv = NamingConvention("Nostat"));
 GSTLEARN_EXPORT void set_test_discrete(bool flag_discret);
 GSTLEARN_EXPORT Vario* model_pgs(Db *db,
                                  const VarioParam *varioparam,

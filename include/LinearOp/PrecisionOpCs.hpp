@@ -34,8 +34,7 @@ public:
                 bool flagDecompose = false,
                 bool verbose = false);
   PrecisionOpCs(const AMesh* mesh,
-                Model* model,
-                int icov = 0,
+                CovAniso* cova,
                 bool flagDecompose = false,
                 bool verbose = false);
   virtual ~PrecisionOpCs();

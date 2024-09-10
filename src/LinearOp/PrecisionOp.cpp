@@ -17,7 +17,6 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
@@ -60,11 +59,10 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 }
 
 PrecisionOp::PrecisionOp(const AMesh* mesh,
-                         Model* model,
-                         int icov,
+                         CovAniso* cova,
                          bool verbose)
   : _shiftOp(nullptr)
-  , _cova(model->getCova(icov))
+  , _cova(cova)
   , _polynomials()
   , _verbose(verbose)
   , _training(false)
@@ -75,7 +73,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work3()
 { 
   
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
+  _shiftOp = new ShiftOpCs(mesh,cova,nullptr,verbose);
   if (_cova->getNVariables() == 1)
   {
     _shiftOp->normalizeLambdaBySills(mesh);
@@ -161,11 +159,10 @@ void PrecisionOp::evalSimulate(const VectorDouble& whitenoise, VectorDouble& out
 }
 
 PrecisionOp* PrecisionOp::create(const AMesh* mesh,
-                                 Model* model,
-                                 int icov,
+                                 CovAniso* cova,
                                  bool verbose)
 {
-  return new PrecisionOp(mesh, model, icov, verbose);
+  return new PrecisionOp(mesh, cova, verbose);
 }
 
 int PrecisionOp::_addToDest(const Eigen::VectorXd& inv,
