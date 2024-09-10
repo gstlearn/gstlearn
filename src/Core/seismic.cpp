@@ -21,6 +21,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Memory.hpp"
+#include "Core/Seismic.hpp"
 
 #include <math.h>
 

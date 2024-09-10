@@ -8,9 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorNumT.hpp"
 #include "geoslib_f_private.h"
-#include "Basic/AException.hpp"
+
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -18,6 +17,9 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/AException.hpp"
+
 #include <Eigen/src/Core/Matrix.h>
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,

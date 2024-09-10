@@ -12,7 +12,6 @@
 
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"

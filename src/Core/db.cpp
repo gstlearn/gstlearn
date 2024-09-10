@@ -1279,31 +1279,6 @@ int db_merge(Db *db, int ncol, int *cols)
 
 /****************************************************************************/
 /*!
- **  Count the number of defined values for a Column
- **
- ** \return  Number of defined values
- **
- ** \param[in]  db      Db structure
- ** \param[in]  icol    Rank of the Column
- **
- *****************************************************************************/
-int db_count_defined(Db *db, int icol)
-{
-  int iech, number;
-  double value;
-
-  number = 0;
-  if (db == nullptr) return (number);
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    value = db->getArray(iech, icol);
-    if (!FFFF(value)) number++;
-  }
-  return (number);
-}
-
-/****************************************************************************/
-/*!
  **  Define the array of locators
  **
  ** \param[in]  strings     Array of locators

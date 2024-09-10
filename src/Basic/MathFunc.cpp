@@ -8,8 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
+#include "geoslib_d.h"
 
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/MathFunc.hpp"
@@ -425,8 +425,11 @@ static void st_covsrt(int *n,
         /* If the covariance matrix diagonal entry is zero, */
         /* permute limits and/or rows, if necessary. */
 
-        for (j = i - 1; j >= 1; --j) {
-          if ((d__1 = cov[ii + j], ABS(d__1)) > 1e-10) {
+        for (j = i - 1; j >= 1; --j)
+        {
+          d__1 = cov[ii + j];
+          if (ABS(d__1) > 1e-10)
+          {
             a[i] /= cov[ii + j];
             b[i] /= cov[ii + j];
             if (cov[ii + j] < 0.) {

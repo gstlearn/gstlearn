@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "gmtsph.hpp"
-#include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"

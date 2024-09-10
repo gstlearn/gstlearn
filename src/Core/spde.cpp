@@ -1307,7 +1307,7 @@ static void st_convert_exponential2matern(CovAniso *cova)
 
   if (VERBOSE)
   {
-    message("Convert from Exponential to Bessel-K\n");
+    message("Convert from Exponential to Matern\n");
     message("- Exponential: Range=%lf Scale=%lf\n", range_exp, scale_exp);
     message("- Matern     : Range=%lf Scale=%lf\n", range_bes, scale_bes);
   }

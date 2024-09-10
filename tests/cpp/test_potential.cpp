@@ -12,8 +12,6 @@
 // This test is meant to demonstrate the Potential Model
 // through estimation, cross-validation and simulations
 
-#include "geoslib_f.h"
-
 #include "Enum/ECov.hpp"
 #include "Enum/ESpaceType.hpp"
 
@@ -25,6 +23,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Core/Potential.hpp"
 
 /****************************************************************************/
 /*!
