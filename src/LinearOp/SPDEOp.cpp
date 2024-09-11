@@ -97,7 +97,8 @@ int SPDEOp::krigingWithGuess(const Eigen::VectorXd& inv,
 
 int SPDEOp::_solve(const Eigen::VectorXd& in, Eigen::VectorXd& out) const
 {
-  _solver.solve({in.data(), in.size()}, out);
+  Eigen::Map<Eigen::VectorXd> outmap {out.data(), out.size()};
+  _solver.solve({in.data(), in.size()}, outmap);
   return 0;
 }
 

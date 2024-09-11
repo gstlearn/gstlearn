@@ -33,7 +33,8 @@ public:
   int  getIterations() const { return cg.iterations();}
   double getError() const { return  cg.error();}
 #ifndef SWIG
-  void solve(const Eigen::Map<const Eigen::VectorXd>& rhs, Eigen::VectorXd& out);
+  void solve(const Eigen::Map<const Eigen::VectorXd>& rhs,
+             Eigen::Map<Eigen::VectorXd>& out);
   void solveWithGuess(const Eigen::VectorXd& rhs,const Eigen::VectorXd& guess, Eigen::VectorXd& out);
 private:
   Eigen::ConjugateGradient<TLinOP,
@@ -56,21 +57,22 @@ template<typename TLinOP>
 void LinearOpCGSolver<TLinOP>::solve(const VectorDouble& rhs, VectorDouble& out)
 {
   Eigen::Map<const Eigen::VectorXd> myRhs(rhs.data(), rhs.size());
-  Eigen::VectorXd myOut;
+  Eigen::Map<Eigen::VectorXd> myOut(out.data(), out.size());
   // Assume outv has the good size
   solve(myRhs, myOut);
-  Eigen::Map<Eigen::VectorXd>(out.data(), out.size()) = myOut;
 }
 
 template<typename TLinOP>
 void LinearOpCGSolver<TLinOP>::solve(const VectorEigen& rhs, VectorEigen& out)
 {
-  solve(rhs.getMap(), out.getVector());
+  auto outmap = out.getMap();
+  solve(rhs.getMap(), outmap);
 }
 
 template<typename TLinOP>
-void LinearOpCGSolver<TLinOP>::solve(const Eigen::Map<const Eigen::VectorXd>& rhs,
-                                     Eigen::VectorXd& out)
+void LinearOpCGSolver<TLinOP>::solve(
+  const Eigen::Map<const Eigen::VectorXd>& rhs,
+  Eigen::Map<Eigen::VectorXd>& out)
 {
   out = cg.solve(rhs);
 }
