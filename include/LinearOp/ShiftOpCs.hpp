@@ -88,13 +88,14 @@ class GSTLEARN_EXPORT ShiftOpCs:
     {
       return _napices;
     }
+
     int getNDim() const
     {
       return _ndim;
     }
-    int getNModelGradParam() const
+    int getNCovAnisoGradParam() const
     {
-      return _nModelGradParam;
+      return _nCovAnisoGradParam;
     }
     void prodTildeC(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
@@ -143,15 +144,11 @@ class GSTLEARN_EXPORT ShiftOpCs:
     int getLambdaGradSize() const;
 
   private:
-    std::shared_ptr<CovAniso> _getCova()
-    {
-      return _cova;
-    }
-    void _setCova(const CovAniso* cova);
+    void _setCovAniso(const CovAniso* cova);
     bool _isNoStat();
     bool _isGlobalHH();
   
-
+    std::shared_ptr<CovAniso>& _getCovAniso();
     int _buildS(const AMesh* amesh, double tol = EPSILON10);
     int _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
     void _buildLambda(const AMesh* amesh);
@@ -190,7 +187,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
                                VectorVectorDouble& coords,
                                AMatrixSquare& matMs,
                                double* deter) const;
-    void _updateCova(std::shared_ptr<CovAniso> cova, int imesh);
+    void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
     VectorT<std::map<int, double>> _mapCreate() const;
     VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
     VectorT<std::map<int, double>> _mapTildeCCreate() const;
@@ -212,13 +209,15 @@ class GSTLEARN_EXPORT ShiftOpCs:
     void _determineFlagNoStatByHH();
     void _updateHH(MatrixSquareSymmetric & hh, int imesh);
     static MatrixSparse* _prepareSparse(const AMesh* amesh);
+    static std::shared_ptr<CovAniso> cloneAndCast(const CovAniso* cova);
+    static std::shared_ptr<CovAniso> cloneAndCast(const std::shared_ptr<CovAniso> &cova);
 
   private:
     VectorDouble _TildeC;
     VectorDouble _Lambda;
     MatrixSparse* _S;
 
-    int _nModelGradParam;
+    int _nCovAnisoGradParam;
     VectorT<MatrixSparse*> _SGrad;
     VectorT<MatrixSparse*> _TildeCGrad;
     VectorVectorDouble _LambdaGrad;
@@ -227,6 +226,8 @@ class GSTLEARN_EXPORT ShiftOpCs:
     // Following list of members are there to ease the manipulation and reduce
     // argument list
     std::shared_ptr<CovAniso> _cova;
+    const CovAniso* _covaini;
+
     int _ndim;
     int _napices;
   };

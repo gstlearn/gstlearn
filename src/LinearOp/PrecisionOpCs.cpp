@@ -59,7 +59,7 @@ void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X,
   double temp,val;
   int iadress;
 
-  for(int igparam = 0;igparam<getShiftOp()->getNModelGradParam();igparam++)
+  for(int igparam = 0;igparam<getShiftOp()->getNCovAnisoGradParam();igparam++)
   {
     for(int iapex=0;iapex<getSize();iapex++)
     {
@@ -100,7 +100,7 @@ void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorX
   double temp,val;
   int iadress;
 
-  for (int igparam = 0; igparam < getShiftOp()->getNModelGradParam(); igparam++)
+  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam(); igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
