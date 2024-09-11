@@ -588,8 +588,10 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
 }
 
 /*! Perform y += 'this' %*% x */
-void  MatrixSparse::addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
-                                                      bool transpose) const
+void MatrixSparse::addProdMatVecInPlaceToDest(
+  const Eigen::Map<const Eigen::VectorXd>& in,
+  Eigen::Map<Eigen::VectorXd>& out,
+  bool transpose) const
 {
   if (isFlagEigen())
   {
@@ -824,7 +826,8 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
   return diag;
 }
 
-int MatrixSparse::addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const
+int MatrixSparse::addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
+                                Eigen::Map<Eigen::VectorXd>& ym) const
 {
   if (isFlagEigen())
   {
@@ -1721,10 +1724,9 @@ int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
     return 0;
 }
 
-void MatrixSparse::setDiagonal(const Eigen::VectorXd& tab)
+void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)
 {
-    Eigen::Map<const Eigen::VectorXd> vecm(tab.data(), tab.size());
-    _eigenMatrix = vecm.asDiagonal();
+  _eigenMatrix = tab.asDiagonal();
 }
 
 
