@@ -31,8 +31,8 @@ A Spiral function is defined and attached to the Model: this is a manner to upda
 
 ```{r Spiral}
 spirale = FunctionalSpirale(0., -1.4, 1., 1., 50., 50.)
-nostat = NoStatFunctional(spirale)
-err = model$addNoStat(nostat)
+nostat = NoStatFunctionalCov(spirale)
+err = model$getCova(0)$addNoStat(nostat)
 model$display()
 ```
 
