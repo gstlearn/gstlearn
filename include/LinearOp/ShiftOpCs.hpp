@@ -226,7 +226,6 @@ class GSTLEARN_EXPORT ShiftOpCs:
     // Following list of members are there to ease the manipulation and reduce
     // argument list
     std::shared_ptr<CovAniso> _cova;
-    const CovAniso* _covaini;
 
     int _ndim;
     int _napices;

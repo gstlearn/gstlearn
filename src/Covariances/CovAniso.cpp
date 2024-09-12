@@ -109,9 +109,11 @@ CovAniso::CovAniso(const CovAniso &r)
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
       _aniso(r._aniso),
-      _noStat(r._noStat),
+      _noStat(nullptr),
       _noStatFactor(r._noStatFactor)
 {
+  if (r._noStat != nullptr)
+    _noStat = std::shared_ptr<ANoStatCov>(dynamic_cast<ANoStatCov*>(r._noStat->clone()));
 }
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
@@ -123,9 +125,9 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
     _aniso = r._aniso;
-    _noStat = r._noStat;
     _noStatFactor = r._noStatFactor;
-  }
+    if (r._noStat != nullptr)
+      _noStat = std::shared_ptr<ANoStatCov>(dynamic_cast<ANoStatCov*>(r._noStat->clone()));  }
   return *this;
 }
 
@@ -840,7 +842,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
   // Non-stationary parameters
   if (_noStat != nullptr)
   {
-    sstr << _noStat->toString();
+    sstr << _noStat->toString() << std::endl;
   }
   return sstr.str();
 }
@@ -1302,7 +1304,7 @@ int CovAniso::addNoStat(ANoStatCov *anostat)
       return 1;
     }
   }
-  _noStat = std::shared_ptr<ANoStatCov>(anostat);
+  _noStat = std::shared_ptr<ANoStatCov>((ANoStatCov*)anostat->clone());
   return 0;
 }
 

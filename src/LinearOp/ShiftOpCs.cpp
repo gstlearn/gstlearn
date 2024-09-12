@@ -41,7 +41,6 @@ ShiftOpCs::ShiftOpCs()
   , _LambdaGrad()
   , _flagNoStatByHH(false)
   , _cova(nullptr)
-  , _covaini(nullptr)
   , _ndim(0)
   , _napices(0)
 {
@@ -60,7 +59,6 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
   , _LambdaGrad()
   , _flagNoStatByHH(false)
   , _cova(nullptr)
-  , _covaini(cova)
   , _ndim(amesh->getEmbeddedNDim())
   , _napices(amesh->getNApices())
 {
@@ -81,7 +79,6 @@ ShiftOpCs::ShiftOpCs(const MatrixSparse* S,
   , _LambdaGrad()
   , _flagNoStatByHH(false)
   , _cova(nullptr)
-  , _covaini(cova)
   , _ndim(0)
   , _napices(S->getNCols())
 {
@@ -98,7 +95,6 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs& shift)
   , _LambdaGrad()
   , _flagNoStatByHH(false)
   , _cova(nullptr)
-  , _covaini(nullptr)
   , _ndim(0)
   , _napices(0)
 {
@@ -164,9 +160,9 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
-    if (_covaini->isNoStat())
+    if (_cova->isNoStat())
     {
-      if (_covaini->getNoStat()->attachToMesh(amesh, true, verbose))
+      if (_cova->getNoStat()->attachToMesh(amesh, true, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -362,7 +358,6 @@ void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
 {
   VectorDouble tab;
   bool flagSill = false;
-  _cova = cloneAndCast(_covaini);
 
   const ANoStatCov *nostat = _getCovAniso()->getNoStat();  
 
@@ -571,7 +566,6 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
   _flagNoStatByHH = shift._flagNoStatByHH;
 
   _cova = shift._cova;
-  _covaini = shift._covaini;
   _ndim = shift._ndim;
   _napices = shift._napices;
 }
@@ -612,7 +606,6 @@ void ShiftOpCs::_updateCova(std::shared_ptr<CovAniso> &cova, int imesh)
 {
   if (! _isNoStat()) return;
   int ndim = getNDim();
-  cova = cloneAndCast(_covaini);
   const ANoStatCov* nostat = _getCovAniso()->getNoStat();
 
   // Third parameter
@@ -675,7 +668,6 @@ void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int imesh)
 void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
 {
   int ndim = getNDim();
-  _cova = cloneAndCast(_covaini);
   // Locally update the covariance for non-stationarity (if necessary)
   _updateCova(_getCovAniso(), imesh);
 
@@ -1428,8 +1420,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
 bool ShiftOpCs::_buildLambdaGrad(const AMesh *amesh)
 {
   int nvertex = amesh->getNApices();
-  auto covini = _getCovAniso();
-  auto cova = cloneAndCast(covini);
+  auto cova = cloneAndCast(_cova);
 
   /* Core allocation */
 

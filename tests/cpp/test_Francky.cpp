@@ -14,6 +14,7 @@
 #include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/NoStatFunctionalCov.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -66,10 +67,16 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
 
   // Creating the Non-stationary Model
+  Model* modelF = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
+
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   NoStatFunctional NoStat(&spirale);
-  model->addNoStat(&NoStat);
+  NoStatFunctionalCov NoStatCov(&spirale);
+
+  modelF->addNoStat(&NoStat);
+  model->getCova(0)->addNoStat(&NoStatCov);
+
 
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;
@@ -78,10 +85,11 @@ int main(int argc, char *argv[])
   (void) dat->dumpToNF("Data.ascii");
 
   // Testing Kriging (with SPDE)
+
   (void) krigingSPDE(dat, grid, model, true, false, nullptr, useCholesky, SPDEParam());
 
   // Testing Kriging (traditional method)
-  (void) kriging(dat, grid, model, neighU);
+  (void) kriging(dat, grid, modelF, neighU);
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");

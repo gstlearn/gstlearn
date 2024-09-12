@@ -137,13 +137,6 @@ void PrecisionOpMultiMatrix::_buildQop()
   }
 }
 
-void PrecisionOpMultiMatrix::_makeReady()
-{
-  for (auto &e : _pops)
-  {
-    ((PrecisionOpCs*)e)->makeReady();
-  }
-}
 
 int PrecisionOpMultiMatrix::_addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const
 {

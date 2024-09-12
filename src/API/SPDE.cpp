@@ -194,8 +194,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 
 int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool showStats)
 {
-  const ANoStat* nostat = nullptr;
-  if (_model->isNoStat()) nostat = _model->getNoStat();
+  const ANoStatCov* nostat = nullptr;
 
   if (_isKrigingRequested() && _data == nullptr)
   {
@@ -233,7 +232,11 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
     bool flagNoStatRot = false;
-    if (nostat != nullptr) flagNoStatRot = nostat->isDefinedforAnisotropy(icov);
+    if (cova->isNoStat())
+    {
+      nostat = cova->getNoStat();
+      flagNoStatRot = nostat->isDefinedforAnisotropy();
+    }
 
     if (cova->getType() == ECov::NUGGET)
     {
@@ -254,7 +257,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingSimu.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, cova, false, verbose);
+          precision = new PrecisionOpCs(mesh, cova, verbose);
         else
           precision = new PrecisionOp(mesh, cova, verbose);
         _pilePrecisions.push_back(precision);
@@ -279,7 +282,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, cova, false, verbose);
+          precision = new PrecisionOpCs(mesh, cova, verbose);
         else
           precision = new PrecisionOp(mesh, cova, verbose);
         _pilePrecisions.push_back(precision);

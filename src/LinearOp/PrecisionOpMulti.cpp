@@ -100,20 +100,14 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   
   _works.resize(ncov);
 
-  bool isnostat = _model->isNoStat();
-
-  if (isnostat)
-  {
-    const ANoStat* nostat =  _model->getNoStat();
-
-    for (int icov = 0; icov < ncov; icov++)
+  for (int icov = 0; icov < ncov; icov++)
+  {    
+    const ANoStatCov* nostat =  _model->getCova(icov)->getNoStat();
+    if (nostat != nullptr)
     {
-      if (nostat != nullptr)
-      {
-      bool nostaticov = nostat->isDefinedForVariance(icov);
+      bool nostaticov = nostat->isDefinedForVariance();
       _isNoStatForVariance[icov] = nostaticov;
       _allStat = _allStat && !nostaticov;
-      }
     }
   }
   _buildMatrices();
@@ -325,12 +319,6 @@ int PrecisionOpMulti::_buildMatrices()
 void PrecisionOpMulti::makeReady()
 {
   _makeReady();
-}
-
-void PrecisionOpMulti::_makeReady()
-{
-  for (auto &e : _pops)
-    e->makeReady();
 }
 
 int PrecisionOpMulti::size(int imesh) const 

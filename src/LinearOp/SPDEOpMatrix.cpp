@@ -20,6 +20,7 @@ SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
                            const MatrixSparse* invNoise)
 : SPDEOp(pop,A,new MatrixSquareSymmetricSim(invNoise),1)
 , _QpAinvNoiseAt(MatrixSparse(0,0))
+, _chol(nullptr)
 {
   _QpAinvNoiseAt.resize(pop->getSize(), pop->getSize());
   _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(),invNoise,true);
@@ -27,13 +28,17 @@ SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
 }
 
 SPDEOpMatrix::~SPDEOpMatrix()
-{ 
+{
+  delete _chol; 
 }
 
 int SPDEOpMatrix::_solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
 {
-  _QpAinvNoiseAt.computeCholesky();
-  return _QpAinvNoiseAt.solveCholesky(inv,outv);
+  if (_chol == nullptr)
+  {
+    _chol = new Cholesky(&_QpAinvNoiseAt);
+  }
+  return _chol->solve(inv,outv);
 }
 
 /*****************************************************************************/

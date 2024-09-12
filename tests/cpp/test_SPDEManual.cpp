@@ -11,9 +11,9 @@
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
-#include "Basic/VectorT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -62,13 +62,14 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctional NoStat(&spirale);
-  model->addNoStat(&NoStat);
+  NoStatFunctionalCov NoStat(&spirale);
+  model->getCova(0)->addNoStat(&NoStat);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
-  ShiftOpCs S(&mesh, model, workingDbc);
+  
   CovAniso* cova = model->getCova(0);
+  ShiftOpCs S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 
   /////////////////////////

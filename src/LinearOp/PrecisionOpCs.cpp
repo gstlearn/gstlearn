@@ -22,27 +22,28 @@
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
-                             bool flagDecompose,
                              bool verbose)
     : PrecisionOp(shiftop, cova,verbose),
-      _Q(nullptr)
+      _Q(nullptr),
+      _chol(nullptr)
 {
-  _buildQ(flagDecompose);
+  _buildQ();
 }
 
 PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
                              CovAniso *cova,
-                             bool flagDecompose,
                              bool verbose)
     : PrecisionOp(mesh, cova, verbose),
-      _Q(nullptr)
+      _Q(nullptr),
+      _chol(nullptr)
 {
-  _buildQ(flagDecompose);
+  _buildQ();
 }
 
 PrecisionOpCs::~PrecisionOpCs()
 {
   delete _Q;
+  delete _chol;
 }
 
 void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X, 
@@ -122,14 +123,17 @@ void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorX
   }
 }
 
-/* void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
+int PrecisionOpCs::_addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd &outv) const
 {
-  _Q->prodMatVecInPlace(vecin, vecout);
-} */
+  return _Q->addToDest(inv, outv);
+} 
 
-void PrecisionOpCs::evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout)
+int PrecisionOpCs::_addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const
 {
-  _Q->simulateCholesky(whitenoise, vecout);
+  if (_chol == nullptr)
+    _chol = new Cholesky(_Q);
+  _chol->addSimulateToDest(whitenoise,outv);
+  return 0;
 }
 
 void PrecisionOpCs::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout)
@@ -209,7 +213,7 @@ void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
 //
 //}
 
-void PrecisionOpCs::_buildQ(bool flagDecompose)
+void PrecisionOpCs::_buildQ()
 {
   delete _Q;
   if (! isCovaDefined()) return;
@@ -222,14 +226,5 @@ void PrecisionOpCs::_buildQ(bool flagDecompose)
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                        static_cast<int>(blin.size()), blin.data());
   
-  // Prepare the Cholesky decomposition
-  if (flagDecompose)
-    _Q->computeCholesky();
-}
 
-void PrecisionOpCs::makeReady()
-{
-  // Perform the Cholesky decomposition (if defined but not already performed)
-  if (_Q != nullptr)
-    _Q->computeCholesky();
 }

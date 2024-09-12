@@ -44,4 +44,3 @@ print("Difference with classical kriging (matrix free version) = " + str (np.rou
 
 
 
-# %%
