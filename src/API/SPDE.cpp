@@ -17,7 +17,6 @@
 #include "LinearOp/SPDEOp.hpp"
 #include "LinearOp/SPDEOpMatrix.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Model/ANoStat.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -926,6 +925,7 @@ static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric
  */
 MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 {
+  CovAniso* cova = model->getCova(0); // TODO check if it is nugget
   MatrixSparse* mat = nullptr;
   if (db == nullptr) return mat;
   int nech = db->getSampleNumber();
@@ -945,7 +945,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
     minNug[ivar] = eps * model->getTotalSill(ivar, ivar);
 
   // Play the non-stationarity (if needed)
-  ANoStat *nostat = model->getNoStatModify();
+  ANoStatCov *nostat = cova->getNoStatModify(); 
   bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
   if (flag_nostat_sill)
   {
@@ -1037,7 +1037,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       // Update due to non-stationarity (optional)
       if (flag_nostat_sill)
       {
-        model->updateCovByPoints(1, iech, 1, iech);
+        cova->updateCovByPoints(1, iech, 1, iech);
         sillsRef = _getSillGlobalMatrix(model, icovNug);
       }
 
@@ -1075,8 +1075,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   mat = MatrixSparse::createFromTriplet(NF_T);
 
   // Free the non-stationary specific allocation
-  if (model->isNoStat())
-    (void) nostat->manageInfo(-1, db, nullptr);
+  cova->manage(db,nullptr,-1);
 
   return mat;
 }

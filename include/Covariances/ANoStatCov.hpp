@@ -90,7 +90,6 @@ public:
   void deleteNoStatElem(int ipar);
   void deleteAllNoStatElem();
   bool isDefinedByCovType(const EConsElem& type) const;
-  void _updateFromCova(const ACov* cova);
   int getRank(const EConsElem &type,
               int iv1 = -1,
               int iv2 = -1) const;

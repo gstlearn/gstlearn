@@ -261,11 +261,6 @@ int ANoStatCov::attachCov(const ACov* cova)
     return 1;
   }
 
-  // Patch. It may happen that the CovAniso already contains the parameters of the ANostat
-  // which are better defined than in the Current ANostat structure
-  // In this case copy the ANostat parameters from CovAniso to Current
-  // TODO: Remove this part of code
-  _updateFromCova(cova);
 
   for (int ipar=0; ipar<(int) getNoStatElemNumber(); ipar++)
   {
@@ -364,28 +359,6 @@ int ANoStatCov::_understandCode(const String& code,
     }
   }
   return 0;
-}
-
-/**
- * The CovAniso may contain some non-stationary parameters already initialized
- * that the current structure is not aware of. They are simply duplicated here
- * This temporary patch is applied in the following conditions:
- * 1) the number of stationary elements in current structure is 0
- * 2) the number of stationary elements in CovAniso is positive
- * @param cova Input ACov
- */
-void ANoStatCov::_updateFromCova(const ACov* cova)
-{
-  int nelemFromCovAniso = cova->getNoStatElemNumber();
-  int nelem = getNoStatElemNumber();
-  if (nelem > 0) return;
-  if (nelemFromCovAniso <= 0) return;
-
-  for (int ipar = 0; ipar < nelemFromCovAniso; ipar++)
-  {
-    ParamId item = cova->getCovParamId(ipar);
-    (void) addNoStatElemByItem(item);
-  }
 }
 
 /**

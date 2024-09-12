@@ -193,9 +193,6 @@
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/Cholesky.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
-%include Model/ANoStat.hpp
-%include Model/NoStatArray.hpp
-%include Model/NoStatFunctional.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp

@@ -204,8 +204,8 @@ public:
   const CovContext& getContext() const { return _ctxt; }
   const ECov& getType() const { return _cova->getType(); }
   double getParam() const;
-  const ANoStatCov* getNoStat() const override {return _noStat.get();}
-  ANoStatCov* getNoStatModify() override {return _noStat.get();}
+  const ANoStatCov* getNoStat() const  {return _noStat.get();}
+  ANoStatCov* getNoStatModify()  {return _noStat.get();}
   double getScadef() const { return _cova->getScadef(); }
   double getParMax() const { return _cova->getParMax(); }
   int    getMaxNDim() const { return _cova->getMaxNDim(); }
@@ -249,8 +249,9 @@ public:
   CovAniso* createReduce(const VectorInt &validVars) const;
   bool isNoStat() const override { return _noStat != nullptr; }
 
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  virtual void updateCovByMesh(int imesh) override;
+  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
+  void updateCovByMesh(int imesh) ;
+  
 
 protected:
   /// Update internal parameters consistency with the context
@@ -258,6 +259,7 @@ protected:
   virtual void _initFromContext();
 
 private:
+  void _manage(Db* db1,Db* db2,int mode) const override;
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
@@ -267,10 +269,10 @@ private:
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc *_cova;                     /// Covariance basic function
-  MatrixSquareSymmetric _sill;         /// Sill matrix (nvar x nvar)
-  Tensor _aniso;                       /// Anisotropy parameters
-  std::shared_ptr<ANoStatCov> _noStat; /// Description of Non-stationary Model
-  double _noStatFactor;                /// Correcting factor for non-stationarity
+  mutable MatrixSquareSymmetric _sill;         /// Sill matrix (nvar x nvar)
+  mutable Tensor _aniso;                       /// Anisotropy parameters
+  mutable std::shared_ptr<ANoStatCov> _noStat; /// Description of Non-stationary Model
+  mutable double _noStatFactor;                /// Correcting factor for non-stationarity
 };
 
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);

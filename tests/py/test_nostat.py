@@ -12,8 +12,8 @@ db.setLocators(["scales*","angles"],gl.ELoc.NOSTAT)
 
 # Creating the non-stationary Model
 m = gl.Model.createFromParam(gl.ECov.EXPONENTIAL)
-nostat = gl.NoStatArray(["S1","S2","A1"],db)
-m.addNoStat(nostat)
+nostat = gl.NoStatArrayCov(["S1","S2","A1"],db)
+m.getCova(0).addNoStat(nostat)
 
 # Calculating the data covariance matrix (using gstlearn)
 covmat_gstlearn = m.evalCovMatrix(db).toTL()

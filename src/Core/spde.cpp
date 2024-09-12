@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_define.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
@@ -1381,12 +1382,12 @@ int spde_attach_model(Model *model)
 
   if (S_ENV.nvar > 1)
   {
-    const ANoStat *nostat = st_get_model()->getNoStat();
+   /*  const ANoStat *nostat = st_get_model()->getNoStat();
     if (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
-    }
+    } */
   }
   return (0);
 }
@@ -1517,12 +1518,12 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 
   if (S_ENV.nvar > 1)
   {
-    const ANoStat *nostat = model->getNoStat();
+   /*  const ANoStat *nostat = model->getNoStat();
     if (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
-    }
+    } */
   }
 
   if (st_get_ncova() > 1 || S_ENV.nvar > 1 || st_is_model_nugget())
@@ -1551,12 +1552,14 @@ static int st_identify_nostat_param(const EConsElem &type0,
                                     int ivar0 = -1,
                                     int jvar0 = -1)
 {
-  const ANoStat *nostat = st_get_model()->getNoStat();
+  DECLARE_UNUSED(type0);
+  return icov0+ivar0+jvar0;
+  /* const ANoStat *nostat = st_get_model()->getNoStat();
   if (nostat == nullptr) return -1;
   int igrf0 = SPDE_CURRENT_IGRF;
   int ipar = nostat->getRank(type0, icov0, ivar0, jvar0, igrf0);
-  return ipar;
-}
+  return ipar; */
+  }
 
 /****************************************************************************/
 /*!
@@ -2118,27 +2121,28 @@ double* _spde_get_mesh_dimension(AMesh* amesh)
 static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
 {
   DECLARE_UNUSED(amesh);
-  Model *model = st_get_model();
-  const ANoStat *nostat = model->getNoStat();
+  DECLARE_UNUSED(imesh0);
+ // Model *model = st_get_model();
+ // const ANoStat *nostat = model->getNoStat();
 
   /* Initializations */
 
-  int ndim = S_ENV.ndim;
-  int igrf0 = SPDE_CURRENT_IGRF;
-  int icov0 = SPDE_CURRENT_ICOV;
+  //int ndim = S_ENV.ndim;
+  //int igrf0 = SPDE_CURRENT_IGRF;
+  //int icov0 = SPDE_CURRENT_ICOV;
 
   /* Update the Tensor 'hh' */
 
-  if (nostat->isDefinedforAnisotropy(icov0, igrf0))
+ /*  if (nostat->isDefinedforAnisotropy(icov0, igrf0))
   {
     model->updateCovByMesh(imesh0);
     st_compute_hh();
     Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
   }
-
+ */
   /* Update the Spherical Rotation array */
 
-  if (nostat->isDefined(EConsElem::SPHEROT, icov0, -1, -1, igrf0))
+ /*  if (nostat->isDefined(EConsElem::SPHEROT, icov0, -1, -1, igrf0))
   {
     VectorDouble srot(2, 0.);
     for (int i = 0; i < 2; i++)
@@ -2148,10 +2152,10 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
       Calcul.srot[i] = nostat->getValueByParam(ipar, 0, imesh0);
     }
   }
-
+ */
   /* Update the Velocity array */
 
-  if (nostat->isDefined(EConsElem::VELOCITY, icov0, -1, -1, igrf0))
+/*   if (nostat->isDefined(EConsElem::VELOCITY, icov0, -1, -1, igrf0))
   {
     VectorDouble vv(ndim, 0.);
     for (int idim = 0; idim < ndim; idim++)
@@ -2160,7 +2164,7 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
       if (ipar < 0) continue;
       Calcul.vv[idim] = nostat->getValueByParam(ipar, 0, imesh0);
     }
-  }
+  } */
 }
 
 /****************************************************************************/
@@ -2279,11 +2283,11 @@ static int st_fill_Csill(void)
  **
  *****************************************************************************/
 static int st_fill_Bnugget(Db *dbin)
-
 {
   double *mat, *local, *local0;
   int *ind, error, ndata, nvar, nvs2, nvar2, size, ecr, nvr, ivar, jvar, iad;
   int flag_nostat_sillnug;
+  DECLARE_UNUSED(nvr,iad,flag_nostat_sillnug)
   Model *model;
   MatrixSparse **Bnugget;
 
@@ -2303,11 +2307,11 @@ static int st_fill_Bnugget(Db *dbin)
   /* which corresponds to the sill of the nugget effect */
 
   flag_nostat_sillnug = st_identify_nostat_param(EConsElem::SILL) >= 0;
-  if (flag_nostat_sillnug)
+/*  if (flag_nostat_sillnug)
   {
     messerr("Non-stationarity on nugget sill values not programmed yet");
     goto label_end;
-  }
+  } */
 
   /* Core allocation */
 
@@ -2325,7 +2329,7 @@ static int st_fill_Bnugget(Db *dbin)
 
   /* Establish the nugget sill matrix for isotopic case (only in stationary) */
 
-  if (!flag_nostat_sillnug)
+  /* if (!flag_nostat_sillnug)
   {
     for (ivar = 0; ivar < nvar; ivar++)
       for (jvar = 0; jvar < nvar; jvar++)
@@ -2335,18 +2339,18 @@ static int st_fill_Bnugget(Db *dbin)
       messerr("Problem when inverting the Global Nugget matrix of sill");
       goto label_end;
     }
-  }
+  } */
 
   /* Loop on the active samples */
 
   ecr = 0;
-  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  /* for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
-
+ */
     /* Check the heterotopy for the nugget effect */
 
-    nvr = 0;
+  /*   nvr = 0;
     for (ivar = 0; ivar < nvar; ivar++)
     {
       if (FFFF(dbin->getZVariable(iech, ivar))) continue;
@@ -2357,16 +2361,16 @@ static int st_fill_Bnugget(Db *dbin)
     {
       messerr("For sample %#d, no variable is defined", iech + 1);
       goto label_end;
-    }
+    } */
 
     /* Dispatch */
 
-    if (nvr == nvar && !flag_nostat_sillnug)
-    {
+  /*   if (nvr == nvar && !flag_nostat_sillnug)
+    { */
 
       /* Isotopic case: Store the sill partial matrix */
 
-      for (ivar = 0; ivar < nvar; ivar++)
+   /*    for (ivar = 0; ivar < nvar; ivar++)
         for (jvar = 0; jvar <= ivar; jvar++)
         {
           iad = st_get_rank(ivar, jvar);
@@ -2374,26 +2378,26 @@ static int st_fill_Bnugget(Db *dbin)
         }
     }
     else
-    {
+    { */
 
       /* Constitute the sill matrix for the nugget effect */
 
-      for (int ivr = 0; ivr < nvr; ivr++)
+   /*    for (int ivr = 0; ivr < nvr; ivr++)
         for (int jvr = 0; jvr < nvr; jvr++)
           LOCAL(ivr,jvr) = st_get_nugget_sill(ind[ivr], ind[jvr]);
-
+ */
       /* Invert the sill partial matrix */
 
-      if (matrix_invert(local, nvr, -1))
+   /*    if (matrix_invert(local, nvr, -1))
       {
         messerr("Problem when inverting Nugget matrix of sill at sample #%d",
                 iech + 1);
         goto label_end;
-      }
+      } */
 
       /* Store the sill partial matrix */
 
-      for (int ivr = 0; ivr < nvr; ivr++)
+    /*   for (int ivr = 0; ivr < nvr; ivr++)
         for (int jvr = 0; jvr <= ivr; jvr++)
         {
           ivar = ind[ivr];
@@ -2404,7 +2408,7 @@ static int st_fill_Bnugget(Db *dbin)
     }
     ecr++;
   }
-
+ */
   /* Define the sparse matrices */
 
   Bnugget = (MatrixSparse**) mem_alloc(sizeof(MatrixSparse*) * nvs2, 0);
@@ -2776,6 +2780,7 @@ static void st_tangent_calculate(double center[3],
  *****************************************************************************/
 MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, const double *units)
 {
+  DECLARE_UNUSED(model)
   double vald, mat[16], mat1[16];
   double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
   int ecr, errcod, error, ndim, ncorner, flag_nostat;
@@ -2794,7 +2799,8 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, const double *units)
   NF_Triplet Gtriplet;
   model = st_get_model();
   flag_sphere = isDefaultSpaceSphere();
-  flag_nostat = model->isNoStat();
+  flag_nostat=false;
+  //flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
   MatrixSquareGeneral matu(4);
   VectorDouble matw(16);
@@ -5356,11 +5362,11 @@ int spde_prepar(Db *dbin,
 
       /* Preparation in non-stationary case */
 
-      if (st_get_model()->isNoStat() && !flag_AQ_defined)
+     /*  if (st_get_model()->isNoStat() && !flag_AQ_defined)
       {
         const ANoStat *nostat = st_get_model()->getNoStat();
         nostat->attachToMesh(Matelem.amesh);
-      }
+      } */
 
       /* Prepare the projection matrix */
 
@@ -5438,11 +5444,11 @@ int spde_prepar(Db *dbin,
  *****************************************************************************/
 int spde_posterior()
 {
-  if (st_get_model()->isNoStat())
+ /*  if (st_get_model()->isNoStat())
   {
     const ANoStat *nostat = st_get_model()->getNoStat();
     nostat->detachFromMesh();
-  }
+  } */
   return 0;
 }
 

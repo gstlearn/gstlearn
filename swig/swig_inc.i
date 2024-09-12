@@ -175,9 +175,6 @@
   #include "Variogram/VCloud.hpp"
   
   #include "Model/Model.hpp"
-  #include "Model/ANoStat.hpp"
-  #include "Model/NoStatArray.hpp"
-  #include "Model/NoStatFunctional.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
   #include "Model/Constraints.hpp"

@@ -8,19 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Model/NoStatFunctional.hpp"
+#include "Covariances/NoStatArrayCov.hpp"
+#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -67,14 +65,11 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
 
   // Creating the Non-stationary Model
-  Model* modelF = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctional NoStat(&spirale);
   NoStatFunctionalCov NoStatCov(&spirale);
 
-  modelF->addNoStat(&NoStat);
   model->getCova(0)->addNoStat(&NoStatCov);
 
 
@@ -89,7 +84,7 @@ int main(int argc, char *argv[])
   (void) krigingSPDE(dat, grid, model, true, false, nullptr, useCholesky, SPDEParam());
 
   // Testing Kriging (traditional method)
-  (void) kriging(dat, grid, modelF, neighU);
+  (void) kriging(dat, grid, model, neighU);
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");

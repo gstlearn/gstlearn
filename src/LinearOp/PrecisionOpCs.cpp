@@ -223,8 +223,62 @@ void PrecisionOpCs::_buildQ()
 
   // Calculate the Precision matrix Q
   
-  _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
-                       static_cast<int>(blin.size()), blin.data());
+  _Q = _build_Q();
   
 
+}
+
+/****************************************************************************/
+/*!
+ **  Construct the final sparse matrix Q from the Model
+ **
+ ** \return Error return code
+ **
+ ** \param[in] S        Shift operator
+ ** \param[in] Lambda   Lambda vector
+ ** \param[in] nblin    Number of blin coeffbuicients
+ ** \param[in] blin     Array of coefficients for Linear combinaison
+ **
+ *****************************************************************************/
+MatrixSparse* PrecisionOpCs::_build_Q()
+{
+  // Preliminary checks
+  auto *S = getShiftOpCs()->getS();
+  auto Lambda = getShiftOp()->getLambdas();
+  VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
+  int nblin = static_cast<int>(blin.size());
+  int nvertex = S->getNCols();
+  if (nvertex <= 0)
+  {
+    messerr("You must define a valid Meshing beforehand");
+    return nullptr;
+  }
+  if (nblin <= 0)
+  {
+    messerr("You must have a set of already available 'blin' coefficients");
+    messerr("These coefficients come from the decomposition in series for Q");
+    messerr("This decomposition is available only if 'alpha' is an integer");
+    messerr("where: alpha = param + ndim/2");
+    return nullptr;
+  }
+
+  /* First step */
+
+  MatrixSparse* Q = MatrixSparse::diagConstant(nvertex,  blin[0]);
+  MatrixSparse* Bi = S->clone();
+
+  /* Loop on the different terms */
+
+  for (int iterm = 1; iterm < nblin; iterm++)
+  {
+    Q->addMatInPlace(*Bi, 1., blin[iterm]);
+    if (iterm < nblin - 1)
+      Bi->prodMatInPlace(S);
+  }
+  delete Bi;
+
+  /* Final scaling */
+
+  Q->prodNormDiagVecInPlace(Lambda, 1);
+  return Q;
 }

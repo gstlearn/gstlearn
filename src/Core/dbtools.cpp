@@ -17,7 +17,6 @@
 #include "LinearOp/OptimCostColored.hpp"
 #include "Stats/Classical.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Model/ANoStat.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
@@ -1502,90 +1501,6 @@ int db_streamline(DbGrid *dbgrid,
   if (!use_grad && !save_grad && iptr_grad >= 0)
     dbgrid->deleteColumnsByUIDRange(iptr_grad, ndim);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate and store new variables in the Db which contain
- **  the non-stationary Model component
- **
- ** \return  Distance value
- **
- ** \param[in]  db          Db structure
- ** \param[in]  model       Model structure
- ** \param[in]  icov        Rank of the Basic structure
- ** \param[in]  namconv     Naming convention
- **
- ** \remarks This procedure automatically creates several fields:
- ** \remarks ndim fields for storing the ranges
- ** \remarks ndim fields for storing the angles
- ** \remarks 1 field for storing the sill
- **
- *****************************************************************************/
-int db_model_nostat(Db *db,
-                    Model *model,
-                    int icov,
-                    const NamingConvention &namconv)
-{
-  if (icov < 0 || icov >= model->getCovaNumber()) return 1;
-  if (!model->isNoStat()) return 0;
-  ANoStat *nostat = model->getNoStatModify();
-
-  // The Non-stationary must be defined in the tabulated way
-  if (nostat->manageInfo(1, db, nullptr)) return 1;
-
-  /* Create the new variables */
-
-  int ndim = model->getDimensionNumber();
-  CovInternal covint(1, -1, 1, -1, ndim, db, db);
-  int iptr = db->addColumnsByConstant(2 * ndim + 1, 0.);
-  if (iptr < 0) return 1;
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    /* Load the non_stationary parameters */
-
-    covint.setIech1(iech);
-    covint.setIech2(iech);
-    model->nostatUpdate(&covint);
-    CovAniso *cova = model->getCova(icov);
-
-    /* Store the variables */
-
-    int jptr = iptr;
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      db->setArray(iech, jptr, cova->getRange(idim));
-      jptr++;
-    }
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      db->setArray(iech, jptr, cova->getAnisoAngles(idim));
-      jptr++;
-    }
-    db->setArray(iech, jptr++, cova->getSill(0, 0));
-  }
-
-  // Naming convention
-
-  int jptr = iptr;
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
-        concatenateStrings("-", "Range", toString(idim + 1)));
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
-        concatenateStrings("-", "Angle", toString(idim + 1)));
-  namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
-  namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
-
-  (void) nostat->manageInfo(-1, db, nullptr);
-  return 0;
 }
 
 /*****************************************************************************/

@@ -66,10 +66,6 @@ GSTLEARN_EXPORT int vmap_auto_fit(const DbGrid* dbmap,
                                   const Option_AutoFit& mauto_arg   = Option_AutoFit(),
                                   const Constraints& cons_arg       = Constraints(),
                                   const Option_VarioFit& optvar_arg = Option_VarioFit());
-GSTLEARN_EXPORT int db_model_nostat(Db *db,
-                                    Model *model,
-                                    int icov = 0,
-                                    const NamingConvention& namconv = NamingConvention("Nostat"));
 GSTLEARN_EXPORT int db_cova_nostat(Db *db, ACov *cova,
                                    const NamingConvention& namconv = NamingConvention("Nostat"));
 GSTLEARN_EXPORT void set_test_discrete(bool flag_discret);

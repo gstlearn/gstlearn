@@ -22,7 +22,6 @@
 #include "API/SPDE.hpp"
 #include "Matrix/VectorEigen.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatFunctional.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 

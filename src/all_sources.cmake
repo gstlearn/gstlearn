@@ -42,8 +42,6 @@ set(SRC
   LithoRule/Node.cpp
   Model/ConsItem.cpp
   Model/CovParamId.cpp
-  Model/NoStatArray.cpp
-  Model/ANoStat.cpp
   Model/Constraints.cpp
   Model/ElemNoStat.cpp
   Model/CovInternal.cpp
@@ -51,7 +49,6 @@ set(SRC
   Model/ModelNostat.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
-  Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp
   Calculators/CalcMigrate.cpp

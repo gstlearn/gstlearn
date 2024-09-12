@@ -24,7 +24,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
-#include "Model/ANoStat.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Variogram/Vario.hpp"
 

@@ -1308,7 +1308,13 @@ int CovAniso::addNoStat(ANoStatCov *anostat)
   return 0;
 }
 
-
+void CovAniso::_manage(Db* db1,Db* db2,int mode) const
+{
+  if (isNoStat())
+  {
+    getNoStat()->manageInfo(mode, db1, db2);
+  }
+}
 
 /**
  * Update the Model according to the Non-stationary parameters
@@ -1317,12 +1323,13 @@ int CovAniso::addNoStat(ANoStatCov *anostat)
  * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void CovAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+void CovAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
 {
+  if (! isNoStat()) return;
   double val1, val2;
 
   // If no non-stationary parameter is defined, simply skip
-  if (! isNoStat()) return;
+  
   int ndim = getNDim();
 
   // Loop on the elements that can be updated one-by-one

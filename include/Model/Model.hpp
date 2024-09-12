@@ -16,7 +16,6 @@
 
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EConsElem.hpp"
 #include "Enum/EModelProperty.hpp"
 
 #include "Covariances/ACov.hpp"
@@ -47,7 +46,6 @@ class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
-class ANoStat;
 class ADrift;
 class AnamContinuous;
 class AnamHermite;
@@ -132,6 +130,8 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
   const ACovAnisoList* getCovAnisoList() const;
+  ACovAnisoList* getCovAnisoListModify();
+
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
   int getCovaNumber(bool skipNugget = false) const;
@@ -176,18 +176,7 @@ public:
   {
     return _cova->eval0Mat(mode);
   }
-  bool isNoStat() const
-  {
-    return _cova->isNoStat();
-  }
-  const ANoStat* getNoStat() const
-  {
-    return _cova->getNoStatGlobal();
-  }
-  ANoStat* getNoStatModify() 
-  {
-    return _cova->getNoStatModifyGlobal();
-  }
+
   /**
    * Calculate the Matrix of covariance for zero distance
    * @param mat   Covariance matrix (Dimension: nvar * nvar)
@@ -545,8 +534,6 @@ public:
   void setRangeIsotropic(int icov, double range);
   void setMarkovCoeffs(int icov, const VectorDouble& coeffs);
   void setCovaFiltered(int icov, bool filtered);
-  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2);
-  void updateCovByMesh(int imesh);
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
   int  getAnamNClass() const;
@@ -626,16 +613,6 @@ public:
   void setCovar0(int ivar, int jvar, double covar0);
   void setField(double field);
   /////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////
-  /// Shortcut for Non-stationary
-  int  addNoStat(const ANoStat* anostat);
-  int  getNoStatElemNumber() const;
-  int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
-  int  addNoStatElems(const VectorString& codes);
-  CovParamId getCovParamId(int ipar) const;
-  bool isNostatParamDefined(const EConsElem &type0) const;
-  ////////////////////////////////////////////////
 
   const EModelProperty& getCovMode() const;
   Model* duplicate() const;
@@ -731,7 +708,6 @@ public:
                         bool verbose = false,
                         double factor = 1.,
                         const CovCalcMode *mode = nullptr);
-  void nostatUpdate(CovInternal *covint);
 
   double computeLogLikelihood(Db* db, bool verbose = false);
 

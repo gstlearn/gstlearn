@@ -61,6 +61,7 @@ public:
 
 private:
   void _buildQ();
+  MatrixSparse* _build_Q();
 
 private:
   MatrixSparse* _Q;

@@ -26,8 +26,6 @@ class Db;
 class DbGrid;
 class MatrixRectangular;
 class MatrixSparse;
-class ANoStatCov;
-class ANoStat;
 
 /**
  * \brief
@@ -51,12 +49,8 @@ public:
   virtual int getNVariables() const = 0;
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
-  int getNoStatElemNumber() const;
-  virtual const ANoStatCov* getNoStat() const { return nullptr; }
-  virtual ANoStatCov* getNoStatModify()  { return nullptr; }
-  virtual const ANoStat* getNoStatGlobal() const { return nullptr; }
-  virtual ANoStat*  getNoStatModifyGlobal()  { return nullptr; }
-  ParamId getCovParamId(int ipar) const;
+
+ 
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -121,10 +115,7 @@ public:
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
   }
-  virtual void updateCovByMesh(int imesh)
-  {
-    DECLARE_UNUSED(imesh);
-  }
+
   /////////////////////////////////////////////////////////////////////////////////
   ///
   void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
@@ -295,7 +286,13 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
+
+  void manage(Db* db1,Db* db2, int mode = 1) const
+  {
+      _manage(db1, db2, mode);
+  }
 protected:
+
   VectorInt _getActiveVariables(int ivar0) const;
   static void _updateCovMatrixSymmetricVerr(const Db* db1,
                                             AMatrix* mat,
@@ -303,6 +300,13 @@ protected:
                                             const VectorVectorInt& index1);
 
 private:
+  virtual void _manage(Db* db1,Db* db2, int mode) const 
+  {
+    DECLARE_UNUSED(db1)
+    DECLARE_UNUSED(db2)
+    DECLARE_UNUSED(mode)
+  }
+
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
                            const VectorDouble& angles = VectorDouble(),
