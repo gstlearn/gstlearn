@@ -884,16 +884,6 @@ static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& mi
     sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
 }
 
-static MatrixSquareSymmetric _getSillGlobalMatrix(Model *model, int icovNug)
-{
-  int nvar = model->getVariableNumber();
-
-  // Elaborate the matrix of sills for the Nugget Effect component
-   MatrixSquareSymmetric sills(nvar);
-   if (icovNug >= 0) sills = model->getSillValues(icovNug);
-   return sills;
-}
-
 static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric &sillsRef,
                                                      int nvar,
                                                      int ndef,
@@ -925,7 +915,7 @@ static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric
  */
 MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 {
-  CovAniso* cova = model->getCova(0); // TODO check if it is nugget
+
   MatrixSparse* mat = nullptr;
   if (db == nullptr) return mat;
   int nech = db->getSampleNumber();
@@ -936,6 +926,23 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
     messerr("'db' and 'model' should have the same number of variables");
     return mat;
   }
+  bool hasnugget = false;
+  CovAniso* cova =nullptr;
+
+  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  {
+    if (model->getCova(icov)->getType() == ECov::NUGGET)
+    {
+      cova = model->getCova(icov);
+      hasnugget = true;
+      break;
+    }
+  }
+  if (!hasnugget)
+  {
+    MatrixSquareSymmetric sills(model->getVariableNumber());
+    cova = CovAniso::createIsotropicMulti(model->getContext(), ECov::NUGGET, 0, sills);
+  }
   VectorInt ivars = VH::sequence(nvar);
 
   // Get the minimum value for diagonal terms
@@ -945,7 +952,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
     minNug[ivar] = eps * model->getTotalSill(ivar, ivar);
 
   // Play the non-stationarity (if needed)
-  ANoStatCov *nostat = cova->getNoStatModify(); 
+  const ANoStatCov *nostat = cova->getNoStat(); 
   bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
   if (flag_nostat_sill)
   {
@@ -987,8 +994,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_constant = (! flag_nostat_sill && (! flag_verr || flag_uniqueVerr));
 
   // Elaborate the Sill matrix for the Nugget Effect component
-  int icovNug = model->getRankNugget();
-  MatrixSquareSymmetric sillsRef = _getSillGlobalMatrix(model, icovNug);
+  MatrixSquareSymmetric sillsRef = cova->getSill();
   int count = (int) pow(2, nvar);
   std::vector<MatrixSquareSymmetric> sillsInv(count);
 
@@ -1038,7 +1044,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       if (flag_nostat_sill)
       {
         cova->updateCovByPoints(1, iech, 1, iech);
-        sillsRef = _getSillGlobalMatrix(model, icovNug);
+        sillsRef = cova->getSill();
       }
 
       // Establish a local matrix
@@ -1076,7 +1082,8 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
   // Free the non-stationary specific allocation
   cova->manage(db,nullptr,-1);
-
+  if (!hasnugget)
+    delete cova;
   return mat;
 }
 
@@ -1087,7 +1094,6 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
  * @param dbin Input Db (must contain the variable to be estimated)
  * @param dbout Output Db where the estimation must be performed
  * @param model Model definition
- * @param modelNugget Nugget part of the model (don't use it in model)
  * @param meshes Meshes description (optional)
  * @param useCholesky Define the choice regarding Cholesky
  * @param verbose Verbose flag
@@ -1104,7 +1110,6 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 VectorDouble krigingSPDENew(Db* dbin,
                             Db* dbout,
                             Model* model,
-                            Model* modelNugget,
                             const VectorMeshes& meshes,
                             int useCholesky,
                             bool verbose,
@@ -1117,7 +1122,7 @@ VectorDouble krigingSPDENew(Db* dbin,
  auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
  auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,meshes);
  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,meshes);
- auto *invnoise = buildInvNugget(dbin,modelNugget);
+ MatrixSparse *invnoise = buildInvNugget(dbin,model);
  VectorDouble result;
  if (useCholesky)
  {

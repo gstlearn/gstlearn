@@ -172,7 +172,6 @@ GSTLEARN_EXPORT VectorDouble krigingSPDENew(
   Db* dbin,
   Db* dbout,
   Model* model,
-  Model* modelNugget,
   const VectorMeshes& meshes      = VectorMeshes(),
   int useCholesky                 = -1,
   bool verbose                    = false,
