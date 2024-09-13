@@ -1,0 +1,124 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Ranges       =      4.000    45.000
+- Theo. Ranges =      1.155    12.990
+Total Sill     =      1.000
+
+Non-Stationary Parameters
+-------------------------
+1 - Angle      : IdCov=1 IdAngle=1
+Functional
+Known Mean(s)     0.000
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 10201
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        101       101
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = SimuSPDE.1 - Locator = z1
+Column = 4 - Name = SimuSPDE.2 - Locator = z2
+Column = 5 - Name = SimuSPDE.3 - Locator = z3
+Column = 6 - Name = SimuSPDE.4 - Locator = z4
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = data - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 10201
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        101       101
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = SimuSPDE.1 - Locator = NA
+Column = 4 - Name = SimuSPDE.2 - Locator = NA
+Column = 5 - Name = SimuSPDE.3 - Locator = NA
+Column = 6 - Name = SimuSPDE.4 - Locator = NA
+Column = 7 - Name = KrigingSPDE.data.estim - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 12
+Total number of samples      = 10201
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        101       101
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = SimuSPDE.1 - Locator = NA
+Column = 4 - Name = SimuSPDE.2 - Locator = NA
+Column = 5 - Name = SimuSPDE.3 - Locator = NA
+Column = 6 - Name = SimuSPDE.4 - Locator = NA
+Column = 7 - Name = KrigingSPDE.data.estim - Locator = NA
+Column = 8 - Name = SimuSPDE.data.1 - Locator = z1
+Column = 9 - Name = SimuSPDE.data.2 - Locator = z2
+Column = 10 - Name = SimuSPDE.data.3 - Locator = z3
+Column = 11 - Name = SimuSPDE.data.4 - Locator = z4
