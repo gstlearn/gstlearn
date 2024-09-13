@@ -129,7 +129,7 @@ void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool by
  */
 void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 {
-  if (byCol)
+  if (!byCol)
   {
     int nrows = (int) tab.size();
     int ncols = (int) tab[0].size();

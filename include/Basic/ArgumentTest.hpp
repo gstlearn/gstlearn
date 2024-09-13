@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Enum/AEnum.hpp"
 #include "Basic/Utilities.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 #define ENUM_TESTS ETests, CASE0,\
                    CASE0 , 0, "Enum test case 0",\
@@ -55,7 +56,6 @@ GSTLEARN_EXPORT void argumentTestVectorVectorInt(const VectorVectorInt& values);
 GSTLEARN_EXPORT void argumentTestVectorVectorDouble(const VectorVectorDouble& values);
 GSTLEARN_EXPORT void argumentTestString(const String& value);
 GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values);
-GSTLEARN_EXPORT void argumentTestMatrix(const AMatrix& mat);
 
 GSTLEARN_EXPORT void argumentTestIntOverload(int value);
 GSTLEARN_EXPORT void argumentTestIntOverload(const VectorInt& values);
@@ -79,3 +79,6 @@ GSTLEARN_EXPORT void argumentDefTestVDbl(const VectorDouble& argdVDbl = VectorDo
 GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString = VectorString());
 GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVectorInt());
 GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());
+
+GSTLEARN_EXPORT void
+argumentTestMatrixRectangular(const MatrixRectangular& mat = MatrixRectangular());

@@ -576,6 +576,39 @@
   }
 }
 
+%typemap(in, fragment="ToCpp") const MatrixRectangular&  (void *argp, MatrixRectangular mat),
+                               const MatrixRectangular*  (void *argp, MatrixRectangular mat)
+{
+  // Try to convert from any target language vector
+  int errcode = matrixToCpp($input, mat);
+  if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of MatrixRectangular by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = &mat;
+  }
+}
+
 ////////////////////////////////////////////////
 // Conversion C++ => Target language
 

@@ -264,6 +264,47 @@
     // else size is zero (empty vector)
     return myres;
   }
+
+  int matrixToCpp(PyObject* obj, MatrixRectangular& mat)
+  {
+    // Type definitions
+    VectorVectorDouble vvec;
+    mat.resize(0, 0);
+
+    // Test argument
+    if (obj == NULL) return SWIG_TypeError;
+
+    // Conversion
+    int myres = SWIG_OK;
+    int size = (int)PySequence_Length(obj);
+    if (size < 0)
+    {
+      // Not a sequence
+      VectorDouble vec;
+      // Clear Python error indicator
+      PyErr_Restore(NULL, NULL, NULL);
+      // Try to convert
+      myres = vectorToCpp(obj, vec);
+      if (SWIG_IsOK(myres))
+        vvec.push_back(vec);
+    }
+    else if (size > 0)
+    {
+      for (int i = 0; i < size && SWIG_IsOK(myres); i++)
+      {
+        PyObject* item = PySequence_GetItem(obj, i);
+        VectorDouble vec;
+        myres = vectorToCpp(item, vec);
+        if (SWIG_IsOK(myres))
+          vvec.push_back(vec);
+      }
+    }
+    // Convert VVD to Matrix
+    mat.resetFromVVD(vvec);
+    
+    // else size is zero (empty vector)
+    return myres;
+  }
 }
 
 %typecheck(SWIG_TYPECHECK_UINT8) UChar {}

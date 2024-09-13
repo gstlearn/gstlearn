@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- Fix a bug in AMatrix::resetFromVVD (byCol logic was inverted)
 - law_exp_sample() now returns a VectorDouble (instead of double *)
 - In Db::createFilLRandom, use of 'ncode' has been corrected
 - Method computeLogLike() is renamed in computeLogLikelihood()

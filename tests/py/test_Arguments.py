@@ -9,6 +9,10 @@ import numpy as np
 import os
 import sys
 
+# Testing Matrix typemaps
+mat = np.array([[1,2,3],[4,5,6]])
+gl.argumentTestMatrixRectangular(mat)
+
 # Testing main argument types
 
 gl.argumentTestInt(12)
@@ -20,8 +24,6 @@ gl.argumentTestVectorString("my_String")  # The String is decomposed (cannot be 
 gl.argumentTestVectorString(["my_String1","my_String2","my_String3"])
 gl.argumentTestVectorVectorInt([ [2,3],[1, 5 ] ])
 gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])
-mat = gl.MatrixRectangular.createFromVD([1., 2., 3., 4., 5., 6.],2,3)
-gl.argumentTestMatrix(mat)
 
 # Testing missing arguments
 
