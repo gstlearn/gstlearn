@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/ACovAnisoList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Space/SpaceRN.hpp"
@@ -330,5 +331,5 @@ private:
   mutable bool _flagNoMatLC;
   mutable bool _flagVerr;
   mutable bool _flagNoStat;
-  mutable ACov* _cova;
+  mutable ACovAnisoList* _cova;
 };

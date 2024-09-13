@@ -145,7 +145,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
     _modelInit = model->clone();
 
   if (model->getCovaNumber()>0)
-    _cova = model->getCovAnisoList()->clone();
+    _cova = _modelInit->getCovAnisoListModify();
   
   if (model != nullptr)
     _flagNoStat = _cova->isNoStat();
@@ -215,7 +215,6 @@ KrigingSystem::~KrigingSystem()
     delete _modelInit;
     _modelInit = nullptr;
   }
-  delete _cova;
 
 }
 

@@ -80,11 +80,12 @@ int main(int argc, char *argv[])
   (void) dat->dumpToNF("Data.ascii");
 
   // Testing Kriging (with SPDE)
-
   (void) krigingSPDE(dat, grid, model, true, false, nullptr, useCholesky, SPDEParam());
 
   // Testing Kriging (traditional method)
   (void) kriging(dat, grid, model, neighU);
+
+  
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");
