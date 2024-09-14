@@ -15,18 +15,18 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Model/ANoStat.hpp"
-class GSTLEARN_EXPORT NoStatArray : public ANoStat
+#include "Covariances/ANoStatCov.hpp"
+class GSTLEARN_EXPORT NoStatArrayCov : public ANoStatCov
 {
 public:
-  NoStatArray();
-  NoStatArray(const VectorString& codes, const Db* dbnostat);
-  NoStatArray(const NoStatArray &m);
-  NoStatArray& operator=(const NoStatArray &m);
-  virtual ~NoStatArray();
+  NoStatArrayCov();
+  NoStatArrayCov(const VectorString& codes, const Db* dbnostat);
+  NoStatArrayCov(const NoStatArrayCov &m);
+  NoStatArrayCov& operator=(const NoStatArrayCov &m);
+  virtual ~NoStatArrayCov();
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(NoStatArray)
+  IMPLEMENT_CLONING(NoStatArrayCov)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -34,10 +34,8 @@ public:
   double getValue(const EConsElem &type,
                   int icas,
                   int rank,
-                  int icov = 0,
                   int iv1 = -1,
-                  int iv2 = -1,
-                  int igrf = -1) const override;
+                  int iv2 = -1) const override;
   double getValueByParam(int ipar, int icas, int rank) const override;
 
   int  attachToMesh(const AMesh* mesh, bool center = true, bool verbose = false) const override;

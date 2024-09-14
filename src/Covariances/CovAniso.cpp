@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Arrays/Array.hpp"
+#include "Covariances/ANoStatCov.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -30,6 +31,7 @@
 
 #include <math.h>
 #include <functional>
+#include <memory>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
@@ -44,6 +46,7 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _noStat(nullptr),
       _noStatFactor(1.)
 {
   _initFromContext();
@@ -55,6 +58,7 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _cova(),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _noStat(nullptr),
       _noStatFactor(1.)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -73,6 +77,7 @@ CovAniso::CovAniso(const ECov &type,
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _noStat(nullptr),
       _noStatFactor(1.)
 {
   _initFromContext();
@@ -104,8 +109,11 @@ CovAniso::CovAniso(const CovAniso &r)
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
       _aniso(r._aniso),
+      _noStat(nullptr),
       _noStatFactor(r._noStatFactor)
 {
+  if (r._noStat != nullptr)
+    _noStat = std::shared_ptr<ANoStatCov>(dynamic_cast<ANoStatCov*>(r._noStat->clone()));
 }
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
@@ -118,7 +126,8 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _sill = r._sill;
     _aniso = r._aniso;
     _noStatFactor = r._noStatFactor;
-  }
+    if (r._noStat != nullptr)
+      _noStat = std::shared_ptr<ANoStatCov>(dynamic_cast<ANoStatCov*>(r._noStat->clone()));  }
   return *this;
 }
 
@@ -830,13 +839,33 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
   }
-
+  // Non-stationary parameters
+  if (_noStat != nullptr)
+  {
+    sstr << _noStat->toString() << std::endl;
+  }
   return sstr.str();
 }
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
   return _sill.getValue(ivar, jvar) * _noStatFactor;
+}
+
+/*****************************************************************************/
+/*!
+ **  Update the Model in the case of Non-stationary parameters
+ **  This requires the knowledge of the two end-points
+ **
+ ** \param[in]  covint       Internal structure for non-stationarity
+ **                          or NULL (for stationary case)
+ **
+ *****************************************************************************/
+void CovAniso::nostatUpdate(CovInternal *covint)
+{
+  if (covint == NULL) return;
+  updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                    covint->getIcas2(), covint->getIech2());
 }
 
 /**
@@ -1239,4 +1268,277 @@ double range2scale(const ECov &type, double range, double param)
   cova->setParam(param);
   double scadef = cova->getScadef();
   return range / scadef;
+}
+
+
+
+void CovAniso::delNoStat()
+{
+  _noStat = nullptr;
+}
+
+/**
+ * Define Non-stationary parameters
+ * @param anostat ANoStatCov pointer will be duplicated
+ * @return Error return code
+ */
+int CovAniso::addNoStat(ANoStatCov *anostat)
+{
+  if (anostat == nullptr) return 0;
+  if (getNDim() > 3)
+  {
+    messerr("Non stationary model is restricted to Space Dimension <= 3");
+    return 1;
+  }
+
+  for (int ipar = 0; ipar < (int) anostat->getNoStatElemNumber(); ipar++)
+  {
+    const EConsElem &type = anostat->getType(ipar);
+
+    // Check that the Non-stationary parameter is valid with respect
+    // to the Model definition
+
+    if (type == EConsElem::PARAM)
+    {
+      messerr("The current methodology does not handle constraint on third parameter");
+      return 1;
+    }
+  }
+  _noStat = std::shared_ptr<ANoStatCov>((ANoStatCov*)anostat->clone());
+  return 0;
+}
+
+void CovAniso::_manage(Db* db1,Db* db2,int mode) const
+{
+  if (isNoStat())
+  {
+    getNoStat()->manageInfo(mode, db1, db2);
+  }
+}
+
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
+ * @param iech1 Rank of the target within Db1 (or -1)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
+ * @param iech2 Rank of the target within Dbout (or -2)
+ */
+void CovAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
+{
+  if (! isNoStat()) return;
+  double val1, val2;
+
+  // If no non-stationary parameter is defined, simply skip
+  
+  int ndim = getNDim();
+
+  // Loop on the elements that can be updated one-by-one
+
+  for (int ipar = 0, npar = _noStat->getNoStatElemNumber(); ipar < npar; ipar++)
+  {
+    EConsElem type = _noStat->getType(ipar);
+
+    if (type == EConsElem::SILL)
+    {
+      (void) _noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      int iv1  = _noStat->getIV1(ipar);
+      int iv2  = _noStat->getIV2(ipar);
+      setSill(iv1, iv2, sqrt(val1 * val2));
+    }
+    else if (type == EConsElem::PARAM)
+
+    {
+      (void) _noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      setParam(0.5 * (val1 + val2));
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+
+  if (! _noStat->isDefinedforAnisotropy()) return;
+  
+
+  VectorDouble angle1;
+  VectorDouble angle2;
+
+  VectorDouble scale1;
+  VectorDouble scale2;
+
+  VectorDouble range1;
+  VectorDouble range2;
+
+  // Define the angles (for all space dimensions)
+  bool flagRotTwo = false;
+  bool flagRotOne = false;
+  if (_noStat->isDefined(EConsElem::ANGLE))
+  {
+    angle1 = getAnisoAngles();
+    angle2 = angle1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_noStat->isDefined(EConsElem::ANGLE, idim, 0))
+      {
+        int ipar = _noStat->getRank(EConsElem::ANGLE, idim);
+        if (ipar < 0) continue;
+        flagRotOne = true;
+        if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &angle1[idim], &angle2[idim]))
+          flagRotTwo = true;
+      }
+    }
+  }
+
+    // Define the Theoretical ranges (for all space dimensions)
+
+  bool flagScaleTwo = false;
+  bool flagScaleOne = false;
+  if (_noStat->isDefined(EConsElem::SCALE))
+  {
+    scale1 = getScales();
+    scale2 = scale1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_noStat->isDefined(EConsElem::SCALE, idim, 0))
+      {
+        int ipar = _noStat->getRank(EConsElem::SCALE, idim);
+        if (ipar < 0) continue;
+        flagScaleOne = true;
+        if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &scale1[idim], &scale2[idim]))
+          flagScaleTwo = true;
+      }
+    }
+  }
+
+    // Define the Practical ranges (for all space dimensions)
+
+  bool flagRangeTwo = false;
+  bool flagRangeOne = false;
+  if (_noStat->isDefined(EConsElem::RANGE))
+  {
+    range1 = getRanges();
+    range2 = range1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_noStat->isDefined(EConsElem::RANGE, idim))
+      {
+        int ipar = _noStat->getRank(EConsElem::RANGE, idim);
+        if (ipar < 0) continue;
+        flagRangeOne = true;
+        if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &range1[idim], &range2[idim]))
+          flagRangeTwo = true;
+      }
+    }
+  }
+
+    // Update the Model
+  double ratio = 1.;
+  if (flagRotTwo || flagRangeTwo || flagScaleTwo)
+  {
+  // Extract the direct tensor at first point and square it
+    setRotationAnglesAndRadius(angle1, range1, scale1);
+    MatrixSquareSymmetric direct1 = getAniso().getTensorDirect2();
+    double det1 = pow(direct1.determinant(), 0.25);
+
+  // Extract the direct tensor at second point and square it
+    setRotationAnglesAndRadius(angle2, range2, scale2);
+    MatrixSquareSymmetric direct2 = getAniso().getTensorDirect2();
+    double det2 = pow(direct2.determinant(), 0.25);
+
+      // Calculate average squared tensor
+    direct2.addMatInPlace(direct1, 0.5, 0.5);
+    double detM = sqrt(direct2.determinant());
+
+      // Update the tensor (squared version)
+    Tensor tensor = getAniso();
+    tensor.setTensorDirect2(direct2);
+    setAniso(tensor);
+    ratio = det1 * det2 / detM;
+  }
+  else if (flagRotOne || flagRangeOne || flagScaleOne)
+  {
+    // Simply update the model with one set of parameters
+    setRotationAnglesAndRadius(angle1, range1, scale1);
+  }
+  setNoStatFactor(ratio);
+}
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param imesh Rank of the target mesh
+ */
+
+void CovAniso::updateCovByMesh(int imesh)
+{
+  // If no non-stationary parameter is defined, simply skip
+  if (! isNoStat()) return;
+  int ndim = getNDim();
+
+  // Loop on the elements that can be updated one-by-one
+
+  for (int ipar = 0; ipar < _noStat->getNoStatElemNumber(); ipar++)
+  {
+    EConsElem type = _noStat->getType(ipar);
+
+    if (type == EConsElem::SILL)
+    {
+      double sill = _noStat->getValueByParam(ipar, 0, imesh);
+      int iv1  = _noStat->getIV1(ipar);
+      int iv2  = _noStat->getIV2(ipar);
+      setSill(iv1, iv2, sill);
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+  {
+    if (! _noStat->isDefinedforAnisotropy()) return;
+
+    VectorDouble angles(getAnisoAngles());
+    VectorDouble scales(getScales());
+    VectorDouble ranges(getRanges());
+
+    // Define the angles (for all space dimensions)
+    if (_noStat->isDefined(EConsElem::ANGLE))
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::ANGLE, idim))
+        {
+          int ipar = _noStat->getRank(EConsElem::ANGLE, idim);
+          if (ipar < 0) continue;
+          angles[idim] = _noStat->getValueByParam(ipar, 0, imesh);
+        }
+      }
+    }
+
+    // Define the Theoretical ranges (for all space dimensions)
+    if (_noStat->isDefined(EConsElem::SCALE))
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::SCALE, idim))
+        {
+          int ipar = _noStat->getRank(EConsElem::SCALE, idim);
+          if (ipar < 0) continue;
+          scales[idim] = _noStat->getValueByParam(ipar, 0, imesh);
+        }
+      }
+    }
+
+    // Define the Practical ranges (for all space dimensions)
+    if (_noStat->isDefined(EConsElem::RANGE))
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::RANGE, idim))
+        {
+          int ipar = _noStat->getRank(EConsElem::RANGE, idim);
+          if (ipar < 0) continue;
+          ranges[idim] = _noStat->getValueByParam(ipar, 0, imesh);
+        }
+      }
+    }
+
+    // Exploit the Anisotropy
+    setRotationAnglesAndRadius(angles, ranges, scales);
+  }
 }

@@ -193,9 +193,6 @@
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/Cholesky.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
-%include Model/ANoStat.hpp
-%include Model/NoStatArray.hpp
-%include Model/NoStatFunctional.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp
@@ -220,9 +217,13 @@
 %include Model/CovParamId.hpp
 %include Model/CovParamId.hpp
 
+%include Covariances/ParamId.hpp
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
+%include Covariances/ANoStatCov.hpp
+%include Covariances/NoStatArrayCov.hpp
+%include Covariances/NoStatFunctionalCov.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
 %include Covariances/CovLMC.hpp

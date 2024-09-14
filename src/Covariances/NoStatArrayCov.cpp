@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/NoStatArray.hpp"
+#include "Covariances/NoStatArrayCov.hpp"
 
 #include "Calculators/CalcMigrate.hpp"
 #include "Basic/AException.hpp"
@@ -17,21 +17,21 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Model/ANoStat.hpp"
+#include "Covariances/ANoStatCov.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/AMesh.hpp"
 
-NoStatArray::NoStatArray()
-: ANoStat(),
+NoStatArrayCov::NoStatArrayCov()
+: ANoStatCov(),
   _dbnostat(nullptr),
   _tab()
 {
 }
 
-NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
-: ANoStat(codes),
+NoStatArrayCov::NoStatArrayCov(const VectorString& codes, const Db* dbnostat)
+: ANoStatCov(codes),
   _dbnostat(dbnostat),
   _tab()
 {
@@ -42,30 +42,30 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
   }
 }
 
-NoStatArray::NoStatArray(const NoStatArray &m)
-: ANoStat(m),
+NoStatArrayCov::NoStatArrayCov(const NoStatArrayCov &m)
+: ANoStatCov(m),
   _dbnostat(m._dbnostat),
   _tab(m._tab)
 {
 
 }
 
-NoStatArray& NoStatArray::operator= (const NoStatArray &m)
+NoStatArrayCov& NoStatArrayCov::operator= (const NoStatArrayCov &m)
 {
   if (this != &m)
   {
-    ANoStat::operator=(m);
+    ANoStatCov::operator=(m);
     _dbnostat = m._dbnostat;
     _tab = m._tab;
   }
   return *this;
 }
 
-NoStatArray::~NoStatArray()
+NoStatArrayCov::~NoStatArrayCov()
 {
 }
 
-bool NoStatArray::_checkValid() const
+bool NoStatArrayCov::_checkValid() const
 {
   // Get the number of non-stationary parameters from codes
   int nparcd = getNoStatElemNumber();
@@ -83,7 +83,7 @@ bool NoStatArray::_checkValid() const
   return true;
 }
 
-int NoStatArray::attachToMesh(const AMesh* mesh, bool center, bool verbose) const
+int NoStatArrayCov::attachToMesh(const AMesh* mesh, bool center, bool verbose) const
 {
   if (_dbnostat == nullptr)
   {
@@ -93,7 +93,7 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool center, bool verbose) cons
 
   // Create the array of coordinates
 
-  ANoStat::attachToMesh(mesh,center,verbose);
+  ANoStatCov::attachToMesh(mesh,center,verbose);
   VectorVectorDouble coords;
   
   if (center)
@@ -127,9 +127,9 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool center, bool verbose) cons
   return 0;
 }
 
-void NoStatArray::detachFromMesh() const
+void NoStatArrayCov::detachFromMesh() const
 {
-  ANoStat::detachFromMesh();
+  ANoStatCov::detachFromMesh();
   _tab.reset(0,0);
 }
 
@@ -142,7 +142,7 @@ void NoStatArray::detachFromMesh() const
  * @param verbose Verbose flag
  * @return
  */
-int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
+int NoStatArrayCov::attachToDb(Db* db, int icas, bool verbose) const
 {
   if (db == nullptr) return 0;
 
@@ -154,7 +154,7 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
   }
 
   // Store the reference to the Db
-  ANoStat::attachToDb(db,icas,verbose);
+  ANoStatCov::attachToDb(db,icas,verbose);
 
   // If the Db to be attached coincides with _dbnostat, do nothing
   if (db == _dbnostat) return 0;
@@ -184,11 +184,11 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
   return 0;
 }
 
-void NoStatArray::detachFromDb(Db* db, int icas) const
+void NoStatArrayCov::detachFromDb(Db* db, int icas) const
 {
   if (db == nullptr) return;
   if (db == _dbnostat) return;
-  ANoStat::detachFromDb(db,icas);
+  ANoStatCov::detachFromDb(db,icas);
   db->deleteColumnsByLocator(ELoc::NOSTAT);
 }
 
@@ -197,7 +197,7 @@ void NoStatArray::detachFromDb(Db* db, int icas) const
  * @param icas Type of information (0: meshing; 1: Dbin; 2: Dbout)
  * @return
  */
-bool NoStatArray::isEmpty(int icas) const
+bool NoStatArrayCov::isEmpty(int icas) const
 {
 
   // Dispatch
@@ -222,22 +222,18 @@ bool NoStatArray::isEmpty(int icas) const
  * @param type  Type of non-stationary element (EConsElem)
  * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
  * @param rank  Rank of the target (in Meshing (0); in Dbin (1) or in Dbout (2)
- * @param icov  Rank of the Covariance
  * @param iv1   Rank of the first variable (optional)
  * @param iv2   Rank of the second variable (optional)
- * @param igrf  Rank of the GRF
  * @return
  */
-double NoStatArray::getValue(const EConsElem &type,
+double NoStatArrayCov::getValue(const EConsElem &type,
                              int icas,
                              int rank,
-                             int icov,
                              int iv1,
-                             int iv2,
-                             int igrf) const
+                             int iv2) const
 {
   if (! _isValid(icas, rank)) return TEST;
-  int ipar = getRank(type, icov, iv1, iv2, igrf);
+  int ipar = getRank(type, iv1, iv2);
   return getValueByParam(ipar, icas, rank);
 }
 
@@ -251,7 +247,7 @@ double NoStatArray::getValue(const EConsElem &type,
  * @param rank  Rank of the target
  * @return
  */
-double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
+double NoStatArrayCov::getValueByParam(int ipar, int icas, int rank) const
 {
   if (!_isValid(icas, rank)) return TEST;
   if (icas == 0)
@@ -279,7 +275,7 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
   return 0.;
 }
 
-String NoStatArray::_displayStats(int ipar, int icas) const
+String NoStatArrayCov::_displayStats(int ipar, int icas) const
 {
   std::stringstream sstr;
 
@@ -308,7 +304,7 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   return sstr.str();
 }
 
-String NoStatArray::_displayStats(int icas) const
+String NoStatArrayCov::_displayStats(int icas) const
 {
   std::stringstream sstr;
 
@@ -318,10 +314,10 @@ String NoStatArray::_displayStats(int icas) const
   return sstr.str();
 }
 
-String NoStatArray::toString(const AStringFormat* strfmt) const
+String NoStatArrayCov::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << ANoStat::toString(strfmt);
+  sstr << ANoStatCov::toString(strfmt);
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
@@ -339,7 +335,7 @@ String NoStatArray::toString(const AStringFormat* strfmt) const
  * @param verbose Verbose flag
  * @return
  */
-int NoStatArray::_informField(int ipar,
+int NoStatArrayCov::_informField(int ipar,
                               const VectorVectorDouble& coords,
                               VectorDouble& tab,
                               bool verbose) const

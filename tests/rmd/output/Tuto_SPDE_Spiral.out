@@ -13,12 +13,13 @@ K-Bessel (Third Parameter = 1)
 - Sill         =      1.000
 - Ranges       =      4.000    45.000
 - Theo. Ranges =      1.155    12.990
-Total Sill     =      1.000
 
 Non-Stationary Parameters
 -------------------------
-1 - Angle      : IdCov=1 IdAngle=1
+1 - Angle      : IdAngle=1
 Functional
+
+Total Sill     =      1.000
 Known Mean(s)     0.000
 NULL
 

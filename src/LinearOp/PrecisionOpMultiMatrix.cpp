@@ -11,6 +11,7 @@
 
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include <Eigen/src/Core/Matrix.h>
+#include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -129,19 +130,13 @@ PrecisionOpMultiMatrix::~PrecisionOpMultiMatrix()
 
 void PrecisionOpMultiMatrix::_buildQop()
 {
-  for (int i = 0, number = _getNCov(); i < number; i++)
+  for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
-    _pops.push_back(new PrecisionOpCs(_meshes[i], _model, _getCovInd(i)));
+    CovAniso* cova = _model->getCova(_getCovInd(icov));
+    _pops.push_back(new PrecisionOpCs(_meshes[icov],cova));
   }
 }
 
-void PrecisionOpMultiMatrix::_makeReady()
-{
-  for (auto &e : _pops)
-  {
-    ((PrecisionOpCs*)e)->makeReady();
-  }
-}
 
 int PrecisionOpMultiMatrix::_addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const
 {

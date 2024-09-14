@@ -1687,7 +1687,7 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 #' @param scale Size given to the arraws
 #' @param ... Arguments passed to geom_segment()
 #' @return The ggplot object to geom_segment()
-plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black', 
+plot.covaOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black', 
     flagOrtho=TRUE, scale=40, ...)
 {
   if (!require(ggplot2, quietly=TRUE))
@@ -1697,7 +1697,7 @@ plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black',
   taby = dbgrid$getCoordinates(1,useSel)
   
   # Process the non-stationarity
-  db_model_nostat(dbgrid, model, icov)
+  db_cova_nostat(dbgrid, model$getCova(icov))
   tabR1 = dbgrid$getColumn("Nostat.Range-1", useSel)
   tabR2 = dbgrid$getColumn("Nostat.Range-2", useSel)
   tabA  = dbgrid$getColumn("Nostat.Angle-1", useSel)

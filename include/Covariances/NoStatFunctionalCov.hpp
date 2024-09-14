@@ -14,24 +14,24 @@
 
 #include "Mesh/AMesh.hpp"
 #include "Basic/AFunctional.hpp"
-#include "Model/ANoStat.hpp"
+#include "Covariances/ANoStatCov.hpp"
 
 /**
  * This class concerns the non-stationarity defined as a function (hence its name).
  * It can be considered as an example of a 2-D implementation of a spiral with
  * a single non-stationary parameter (Example: the angle)
  */
-class GSTLEARN_EXPORT NoStatFunctional : public ANoStat
+class GSTLEARN_EXPORT NoStatFunctionalCov : public ANoStatCov
 {
 public:
-	NoStatFunctional(const VectorString& code = {"A"});
-	NoStatFunctional(const AFunctional* func, const VectorString& code = {"A"});
-  NoStatFunctional(const NoStatFunctional &m);
-  NoStatFunctional& operator=(const NoStatFunctional &m);
-  virtual ~NoStatFunctional();
+	NoStatFunctionalCov(const VectorString& code = {"A"});
+	NoStatFunctionalCov(const AFunctional* func, const VectorString& code = {"A"});
+  NoStatFunctionalCov(const NoStatFunctionalCov &m);
+  NoStatFunctionalCov& operator=(const NoStatFunctionalCov &m);
+  virtual ~NoStatFunctionalCov();
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(NoStatFunctional)
+  IMPLEMENT_CLONING(NoStatFunctionalCov)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -42,10 +42,8 @@ public:
   double getValue(const EConsElem &type,
                   int icas,
                   int rank,
-                  int icov = 0,
                   int iv1 = -1,
-                  int iv2 = -1,
-                  int igrf = -1) const override;
+                  int iv2 = -1) const override;
   double getValueByParam(int ipar, int icas, int rank) const override;
 
 private:

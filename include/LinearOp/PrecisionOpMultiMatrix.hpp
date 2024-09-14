@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
@@ -42,7 +43,6 @@ public:
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
   void _prepareMatrix();
-  void _makeReady() override;
   void _buildQop() override;
   bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}
 

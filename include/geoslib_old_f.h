@@ -9,6 +9,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
@@ -23,7 +24,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
-#include "Model/ANoStat.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Variogram/Vario.hpp"
 
@@ -407,7 +407,6 @@ GSTLEARN_EXPORT int db_proportion(Db *db,
                                   int *nclout);
 GSTLEARN_EXPORT int db_merge(Db *db, int ncol, int *cols);
 GSTLEARN_EXPORT int db_count_defined(Db *db, int icol);
-
 GSTLEARN_EXPORT int db_prop_read(DbGrid *db, int ix, int iy, double *props);
 GSTLEARN_EXPORT int db_prop_write(DbGrid *db, int ix, int iy, double *props);
 GSTLEARN_EXPORT int db_resind(Db *db, int ivar, const VectorDouble& zcut);

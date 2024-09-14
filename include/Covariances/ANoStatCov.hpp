@@ -11,14 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Model/CovParamId.hpp"
+#include "Covariances/ParamId.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include <vector>
 
-class Model;
 class ACov;
 
 /**
@@ -50,37 +49,32 @@ class ACov;
  * - In the Multivariate case, use "V1-2" for the sill of the cross-variogram between variables 1 and 2
  *   Pay attention: "V1" is equivalent to "V1-1" and "V2" is equivalent to "V2-1" (not to "V2-2").
  */
-class GSTLEARN_EXPORT ANoStat : public AStringable, public ICloneable
+class GSTLEARN_EXPORT ANoStatCov : public AStringable, public ICloneable
 {
 public:
-  ANoStat();
-  ANoStat(const VectorString& codes);
-  ANoStat(const ANoStat &m);
-  ANoStat& operator= (const ANoStat &m);
-  virtual ~ANoStat();
+  ANoStatCov();
+  ANoStatCov(const VectorString& codes);
+  ANoStatCov(const ANoStatCov &m);
+  ANoStatCov& operator= (const ANoStatCov &m);
+  virtual ~ANoStatCov();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   bool isNotEmpty() const { return !_items.empty(); }
-  bool isDefinedByCov(int icov = -1, int igrf = -1) const;
-  bool isDefinedByType(const EConsElem& type, int igrf = -1) const;
-  bool isDefinedByCovType(const EConsElem& type, int icov = -1, int igrf = -1) const;
+  bool isDefinedByCov() const;
+  bool isDefinedByType(const EConsElem& type) const;
   bool isDefined(const EConsElem &type,
-                 int icov = 0,
                  int iv1 = -1,
-                 int iv2 = -1,
-                 int igrf = -1) const;
-  bool isDefinedForVariance(int icov = -1, int igrf = -1) const;
-  bool isDefinedforAnisotropy(int icov = -1, int igrf = -1) const;
-  bool isDefinedforRotation(int icov = -1, int igrf = -1) const;
+                 int iv2 = -1) const;
+  bool isDefinedForVariance() const;
+  bool isDefinedforAnisotropy() const;
+  bool isDefinedforRotation() const;
 
   virtual double getValue(const EConsElem &type,
                           int icas,
                           int rank,
-                          int icov = 0,
                           int iv1 = -1,
-                          int iv2 = -1,
-                          int igrf = -1) const = 0;
+                          int iv2 = -1) const = 0;
   virtual double getValueByParam(int ipar, int icas, int rank) const = 0;
 
   virtual int  attachToMesh(const AMesh* mesh, bool center = true, bool verbose = false) const;
@@ -90,36 +84,30 @@ public:
 
   int  manageInfo(int mode, Db *dbin, Db *dbout) const;
 
-  int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
-  int  addNoStatElemByItem(const CovParamId& item);
+  int  addNoStatElem(const EConsElem& type, int iv1, int iv2);
+  int  addNoStatElemByItem(const ParamId& item);
   int  addNoStatElems(const VectorString& codes);
   void deleteNoStatElem(int ipar);
   void deleteAllNoStatElem();
-
+  bool isDefinedByCovType(const EConsElem& type) const;
   int getRank(const EConsElem &type,
-              int icov,
               int iv1 = -1,
-              int iv2 = -1,
-              int igrf = -1) const;
-  int getIGrf(int ipar) const { return _items[ipar].getIGrf(); }
-  int getICov(int ipar) const { return _items[ipar].getICov(); }
+              int iv2 = -1) const;
   const EConsElem& getType(int ipar) const { return _items[ipar].getType(); }
   int getIV1 (int ipar) const { return _items[ipar].getIV1(); }
   int getIV2 (int ipar) const { return _items[ipar].getIV2(); }
   int getNoStatElemNumber() const { return static_cast<int>(_items.size()); }
-  const std::vector<CovParamId>& getNoStats() const { return _items; }
-  CovParamId getNoStat(int ipar) const { return _items[ipar]; }
+  const std::vector<ParamId>& getNoStats() const { return _items; }
+  ParamId getNoStat(int ipar) const { return _items[ipar]; }
 
-  int attachModel(const Model* model);
+  int attachCov(const ACov* cova);
 
-  bool matchIGrf(int ipar, int igrf0) const { return _items[ipar].matchIGrf(igrf0); }
-  bool matchICov(int ipar, int icov0) const { return _items[ipar].matchICov(icov0); }
   bool matchType(int ipar, const EConsElem& type0) const { return _items[ipar].matchType(type0); }
   bool matchIV1(int ipar, int iv10) const { return _items[ipar].matchIV1(iv10); }
   bool matchIV2(int ipar, int iv20) const { return _items[ipar].matchIV2(iv20); }
 
-  const std::vector<CovParamId>& getAllItems() const { return _items; }
-  CovParamId getItems(int ipar) const { return _items[ipar]; }
+  const std::vector<ParamId>& getAllItems() const { return _items; }
+  ParamId getItems(int ipar) const { return _items[ipar]; }
 
   bool getInfoFromDb(int ipar,
                      int icas1,
@@ -142,16 +130,13 @@ protected:
 
 private:
   static int _understandCode(const String& code,
-                             int* igrf,
-                             int* icov,
                              EConsElem* type,
                              int* iv1,
                              int* iv2);
-  void _updateFromModel(const Model* model);
   bool _checkConsistency() const;
 
 private:
-  std::vector<CovParamId> _items;
+  std::vector<ParamId> _items;
   mutable const AMesh* _amesh;
   mutable const Db*    _dbin;
   mutable const Db*    _dbout;
