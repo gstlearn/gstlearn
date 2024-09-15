@@ -62,31 +62,38 @@ double ANoStat::getValueOnMeshByApex(int iapex) const
     return  _tabvertices[iapex];
 }
 
-void ANoStat::informMeshByMesh(const AMesh* amesh)
+void ANoStat::informField(const VectorVectorDouble & coords, VectorDouble& tab, bool verbose)
+{
+    tab.resize(coords[0].size());
+    _informField(coords, tab, verbose);
+}
+
+
+void ANoStat::informMeshByMesh(const AMesh* amesh,bool verbose) 
 {
     VectorVectorDouble coords = amesh->getAllCenterCoordinates();
-    _informField(coords,_tabmesh);
+    informField(coords,_tabmesh, verbose);
 }
 
-void ANoStat::informMeshByApex(const AMesh* amesh)
+void ANoStat::informMeshByApex(const AMesh* amesh, bool verbose)
 {
     VectorVectorDouble coords = amesh->getAllCoordinates();
-    _informField(coords,_tabvertices);
+    informField(coords,_tabvertices, verbose);
 }
   
-void ANoStat::informDbIn(const Db* dbin)
+void ANoStat::informDbIn(const Db* dbin, bool verbose)
 {
-    _informDb(dbin,_tabdbin);
+    _informDb(dbin,_tabdbin, verbose);
 }
 
-void ANoStat::informDbOout(const Db* dbout)
+void ANoStat::informDbOout(const Db* dbout, bool verbose)
 {
-    _informDb(dbout,_tabdbout);
+    _informDb(dbout,_tabdbout, verbose);
 }
 
-void ANoStat::_informDb(const Db* db, VectorDouble &res)
+void ANoStat::_informDb(const Db* db, VectorDouble &res, bool verbose)
 {
     VectorVectorDouble coords = db->getAllCoordinates(false);
-    _informField(coords, res);
+    informField(coords, res, verbose);
 }
 

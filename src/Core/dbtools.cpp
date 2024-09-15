@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
 #include "Mesh/MeshETurbo.hpp"
@@ -1524,65 +1525,67 @@ int db_cova_nostat(Db *db,
                    ACov *cova,
                    const NamingConvention &namconv)
 {
-  auto* covac = dynamic_cast<CovAniso*>(cova);
-  if (covac == nullptr) return 1;
+  // This function is never used
+  DECLARE_UNUSED(db,cova,namconv)
+  // auto* covac = dynamic_cast<CovAniso*>(cova);
+  // if (covac == nullptr) return 1;
 
-  if (!covac->isNoStat()) return 0;
-  ANoStatCov *nostat = covac->getNoStatModify();
+  // if (!covac->isNoStat()) return 0;
+  // ANoStatCov *nostat = covac->getNoStatModify();
 
-  // The Non-stationary must be defined in the tabulated way
-  if (nostat->manageInfo(1, db, nullptr)) return 1;
+  // // The Non-stationary must be defined in the tabulated way
+  // if (nostat->manageInfo(1, db, nullptr)) return 1;
 
-  /* Create the new variables */
+  // /* Create the new variables */
 
-  int ndim = covac->getNDim();
-  CovInternal covint(1, -1, 1, -1, ndim, db, db);
-  int iptr = db->addColumnsByConstant(2 * ndim + 1, 0.);
-  if (iptr < 0) return 1;
+  // int ndim = covac->getNDim();
+  // CovInternal covint(1, -1, 1, -1, ndim, db, db);
+  // int iptr = db->addColumnsByConstant(2 * ndim + 1, 0.);
+  // if (iptr < 0) return 1;
 
-  /* Loop on the samples */
+  // /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
+  // for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  // {
+  //   if (!db->isActive(iech)) continue;
 
-    /* Load the non_stationary parameters */
+  //   /* Load the non_stationary parameters */
 
-    covint.setIech1(iech);
-    covint.setIech2(iech);
-    covac->nostatUpdate(&covint);
+  //   covint.setIech1(iech);
+  //   covint.setIech2(iech);
+  //   covac->nostatUpdate(&covint);
 
-    /* Store the variables */
+  //   /* Store the variables */
 
-    int jptr = iptr;
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      db->setArray(iech, jptr, covac->getRange(idim));
-      jptr++;
-    }
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      db->setArray(iech, jptr, covac->getAnisoAngles(idim));
-      jptr++;
-    }
-    db->setArray(iech, jptr++, covac->getSill(0, 0));
-  }
+  //   int jptr = iptr;
+  //   for (int idim = 0; idim < ndim; idim++)
+  //   {
+  //     db->setArray(iech, jptr, covac->getRange(idim));
+  //     jptr++;
+  //   }
+  //   for (int idim = 0; idim < ndim; idim++)
+  //   {
+  //     db->setArray(iech, jptr, covac->getAnisoAngles(idim));
+  //     jptr++;
+  //   }
+  //   db->setArray(iech, jptr++, covac->getSill(0, 0));
+  // }
 
-  // Naming convention
+  // // Naming convention
 
-  int jptr = iptr;
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
-        concatenateStrings("-", "Range", toString(idim + 1)));
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
-        concatenateStrings("-", "Angle", toString(idim + 1)));
-  namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
-  namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
+  // int jptr = iptr;
+  // for (int idim = 0; idim < ndim; idim++)
+  //   namconv.setNamesAndLocators(
+  //       nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
+  //       concatenateStrings("-", "Range", toString(idim + 1)));
+  // for (int idim = 0; idim < ndim; idim++)
+  //   namconv.setNamesAndLocators(
+  //       nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
+  //       concatenateStrings("-", "Angle", toString(idim + 1)));
+  // namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
+  // namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
 
-  (void) nostat->manageInfo(-1, db, nullptr);
+  // (void) nostat->manageInfo(-1, db, nullptr);
   return 0;
 }
 /*****************************************************************************/

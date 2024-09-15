@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/ANoStat.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Db/DbGrid.hpp"
@@ -44,7 +45,12 @@ class GSTLEARN_EXPORT TabNoStat
   virtual ~TabNoStat();
   void setDbNoStatRef(const DbGrid* dbref){ _dbNoStatRef = dbref;}
   const DbGrid* getDbNoStatRef() const {return _dbNoStatRef;}
-  
+  void informCoords(const VectorVectorDouble &coords,
+                    const EConsElem &econs,
+                    int iv1, 
+                    int iv2, 
+                    VectorDouble& result) const;
+
   bool isElemDefined(const EConsElem &econs, int iv1 = 0, int iv2 = 0) const;
   std::shared_ptr<ANoStat> getElem(const EConsElem &econs, int iv1 = 0, int iv2 =0);
 protected:

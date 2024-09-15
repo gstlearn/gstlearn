@@ -11,9 +11,11 @@
 #pragma once
 
 #include "Basic/AFunctional.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/ANoStatCov.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/DbGrid.hpp"
+#include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -289,6 +291,9 @@ public:
   bool isNoStatNew() const  { return _tabNoStat.isNoStat(); }
   void informMeshByMesh(const AMesh* amesh);
   void informMeshByApex(const AMesh* amesh);
+  VectorDouble informCoords(const VectorVectorDouble& coords, 
+                            const EConsElem& econs,
+                            int iv1 = 0, int iv2 = 0) const;
   void informDbIn(const Db* dbin);
   void informDbOut(const Db* dbout);
   void informMeshByMeshForAnisoTropy(const AMesh* amesh);
@@ -305,6 +310,7 @@ public:
   void updateCovByMesh(int imesh);
   void updateCovByPointsNew(int icas1, int iech1, int icas2, int iech2) override;
   void updateCovByMeshNew(int imesh,bool aniso = true);
+  double getValue(const EConsElem &econs,int iv1,int iv2) const;
 
 protected:
   /// Update internal parameters consistency with the context

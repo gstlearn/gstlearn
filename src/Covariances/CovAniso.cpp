@@ -1829,6 +1829,31 @@ void CovAniso::informDbOut(const Db* dbout)
   _tabNoStat.informDbOut(dbout);
 }
 
+double CovAniso::getValue(const EConsElem &econs,int iv1,int iv2) const
+{
+  if (econs == EConsElem::RANGE)
+    return getRange(iv1);
+  if (econs == EConsElem::SCALE)
+    return getScale(iv1);
+  if (econs == EConsElem::ANGLE)
+    return getAnisoAngles()[iv1];
+  if (econs == EConsElem::PARAM)
+    return getParam();
+  if (econs == EConsElem::SILL)
+    return getSill(iv1,iv2);
+  return TEST;
+}
+
+VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords, 
+                                    const EConsElem& econs,
+                                    int iv1,
+                                    int iv2) const
+{
+  VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
+  _tabNoStat.informCoords(coords,econs,iv1,iv2,result);
+  return result;
+}
+
 static const auto listaniso = {EConsElem::RANGE,
                                EConsElem::SCALE,
                                EConsElem::TENSOR,
@@ -2027,14 +2052,10 @@ void CovAniso::updateCovByPointsNew(int icas1, int iech1, int icas2, int iech2)
 void CovAniso::updateCovByMeshNew(int imesh,bool aniso)
 {
   // If no non-stationary parameter is defined, simply skip
-  if (! isNoStat()) return;
+  if (! isNoStatNew()) return;
   int ndim = getNDim();
 
   // Loop on the elements that can be updated one-by-one
-
-   
-  // Loop on the elements that can be updated one-by-one
-
   if (!aniso)
   {
     const auto paramsnostat = _tabNoStat.getTable();
@@ -2055,13 +2076,15 @@ void CovAniso::updateCovByMeshNew(int imesh,bool aniso)
 
   if (!isNoStatForAnisotropy()) return;
 
-  VectorDouble angles(getAnisoAngles());
-  VectorDouble scales(getScales());
-  VectorDouble ranges(getRanges());
+  VectorDouble angles;
+  VectorDouble scales;
+  VectorDouble ranges;
 
     // Define the angles (for all space dimensions)
   if (getNAngles() > 0)
   {
+    angles = getAnisoAngles();
+
     for (int idim = 0; idim < ndim; idim++)
     {
       if (_tabNoStat.isElemDefined(EConsElem::ANGLE, idim))
@@ -2075,6 +2098,7 @@ void CovAniso::updateCovByMeshNew(int imesh,bool aniso)
     // Define the Theoretical ranges (for all space dimensions)
   if (getNScales() > 0)
   {
+    scales = getScales();
     for (int idim = 0; idim < ndim; idim++)
     {
       if (_tabNoStat.isElemDefined(EConsElem::SCALE, idim))
@@ -2087,6 +2111,8 @@ void CovAniso::updateCovByMeshNew(int imesh,bool aniso)
   
   if (getNRanges() > 0)
   {
+    ranges = getRanges();
+
     for (int idim = 0; idim < ndim; idim++)
     {
       if (_tabNoStat.isElemDefined(EConsElem::RANGE, idim))

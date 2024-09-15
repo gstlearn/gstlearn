@@ -32,16 +32,17 @@ public:
   double getValueOnMeshByMesh(int imesh) const;
   double getValueOnMeshByApex(int iapex) const;
   double getValueOnMesh(int iapex,bool center = false) const;
-  void informMeshByMesh(const AMesh* amesh);
-  void informMeshByApex(const AMesh* amesh);
-  void informDbIn(const Db* dbin);
-  void informDbOout(const Db* dbout);
+  void informField(const VectorVectorDouble & coords, VectorDouble& tab, bool verbose = false);
+  void informMeshByMesh(const AMesh* amesh, bool verbose = false);
+  void informMeshByApex(const AMesh* amesh, bool verbose = false);
+  void informDbIn(const Db* dbin, bool verbose = false);
+  void informDbOout(const Db* dbout, bool verbose = false);
 
   ANoStat& operator= (const ANoStat &m) = delete;
   virtual ~ANoStat();
 
 private:
-  void _informDb(const Db* db, VectorDouble &res);
+  void _informDb(const Db* db, VectorDouble &res, bool verbose = false);
   virtual void _informField(const VectorVectorDouble &coords,
                             VectorDouble& res,
                             bool verbose = false) = 0;

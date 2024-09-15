@@ -187,7 +187,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
                                VectorVectorDouble& coords,
                                AMatrixSquare& matMs,
                                double* deter) const;
-    void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
+    static void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
     VectorT<std::map<int, double>> _mapCreate() const;
     VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
     VectorT<std::map<int, double>> _mapTildeCCreate() const;

@@ -18,8 +18,8 @@ void NoStatFunctional::_informField(const VectorVectorDouble& coords,
                                     bool verbose) 
 {
     DECLARE_UNUSED(verbose)
-    int size = (int)coords.size();
-    int ndim = (int)coords[0].size();
+    int size = (int)coords[0].size();
+    int ndim = (int)coords.size();
     VectorDouble vec(ndim);
     for (int icoords = 0; icoords < size; icoords++)
     {

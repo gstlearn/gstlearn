@@ -1687,26 +1687,23 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 #' @param scale Size given to the arraws
 #' @param ... Arguments passed to geom_segment()
 #' @return The ggplot object to geom_segment()
-plot.covaOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black', 
+plot.covaOnGrid <- function(cova, dbgrid, useSel=TRUE color='black', 
     flagOrtho=TRUE, scale=40, ...)
 {
   if (!require(ggplot2, quietly=TRUE))
     stop("Package ggplot2 is mandatory to use this function!")
   # Extracting coordinates
-  tabx = dbgrid$getCoordinates(0,useSel)
-  taby = dbgrid$getCoordinates(1,useSel)
-  
+  tab = dbgrid$getAllCoordinates(useSel)
   # Process the non-stationarity
-  db_cova_nostat(dbgrid, model$getCova(icov))
-  tabR1 = dbgrid$getColumn("Nostat.Range-1", useSel)
-  tabR2 = dbgrid$getColumn("Nostat.Range-2", useSel)
-  tabA  = dbgrid$getColumn("Nostat.Angle-1", useSel)
+  tabR1 = cova$informCoords(tab,EConsItem_RANGE(),0)
+  tabR2 = cova$informCoords(tab,EConsItem_RANGE(),1)
+  tabA  = cova$informCoords(tab,EConsItem_ANGLE())
   if (flagOrtho) tabA = 90 + tabA
   tabA = tabA * pi / 180.
   
   tabdx = (tabR1 * cos(tabA) - tabR2 * sin(tabA)) * scale
   tabdy = (tabR1 * sin(tabA) + tabR2 * cos(tabA)) * scale
-  data = data.frame(x = tabx, y = taby, dx=tabdx, dy=tabdy)
+  data = data.frame(x = tab[1,], y = tab[2,], dx=tabdx, dy=tabdy)
   #ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
   
   p = ggplot(data = data, aes(x = x, y = y)) + 

@@ -1,5 +1,6 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
@@ -75,6 +76,17 @@ std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem &econs, int iv1, int
 {
     ParamId conselem(econs,iv1,iv2);
     return _items[conselem];
+}
+
+void TabNoStat::informCoords(const VectorVectorDouble &coords,
+                             const EConsElem &econs,
+                             int iv1, 
+                             int iv2, 
+                             VectorDouble& result) const
+{
+    ParamId conselem(econs,iv1,iv2);
+    if (isElemDefined(econs, iv1,iv2))
+        _items.at(conselem)->informField(coords,result);
 }
 
 int TabNoStat::addElem(std::shared_ptr<ANoStat> &nostat, const EConsElem &econs, int iv1, int iv2)
