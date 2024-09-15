@@ -168,6 +168,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
         return 1;
       }
     }
+    _cova->informMeshByMeshForAnisoTropy(amesh);
 
     // Calculating and storing the mesh sizes
     VectorDouble units = amesh->getMeshSizes();
@@ -226,13 +227,14 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
 
     if (cova->isNoStat())
     {
-      if (cova->getNoStat()->attachToMesh(amesh, verbose))
+      if (cova->getNoStat()->attachToMesh(amesh, true,verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
       }
     }
 
+    _cova->informMeshByMesh(amesh);
 
     // Construct S sparse Matrix
     if (_buildSGrad(amesh, tol))
@@ -1008,8 +1010,14 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
     _loadHH(amesh, hh, 0);
     dethh = 1. / hh.determinant();
   }
-  if (! _isNoStat())
-    _loadAux(srot, EConsElem::SPHEROT, 0);
+  if (!_cova->isNoStatForAnisotropy())
+  {
+    _loadHH(amesh, hh, 0);
+    dethh = 1. / hh.determinant();
+  }
+  //TODO : repare shpere
+  /* if (! _isNoStat())
+    _loadAux(srot, EConsElem::SPHEROT, 0); */
 
   _S = _prepareSparse(amesh);
   if (_S == nullptr) goto label_end;

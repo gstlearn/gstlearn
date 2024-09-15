@@ -17,7 +17,6 @@
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Covariances/ParamId.hpp"
 #include "Space/SpacePoint.hpp"
 
 #include <vector>
@@ -108,6 +107,15 @@ public:
     DECLARE_UNUSED(jvar);
     return TEST;
   }
+
+  virtual void updateCovByPointsNew(int icas1, int iech1, int icas2, int iech2)
+  {
+    DECLARE_UNUSED(icas1);
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(icas2);
+    DECLARE_UNUSED(iech2);
+  }
+
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
   {
     DECLARE_UNUSED(icas1);
