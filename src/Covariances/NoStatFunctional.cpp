@@ -30,3 +30,16 @@ void NoStatFunctional::_informField(const VectorVectorDouble& coords,
         tab[icoords] =  _func->getFunctionValue(vec);
     }
 }
+
+String NoStatFunctional::toString(const AStringFormat* strfmt) const
+{
+    DECLARE_UNUSED(strfmt)
+    std::stringstream sstr;
+    if (_func == nullptr) return sstr.str();
+    sstr << ANoStat::toString(strfmt);
+    AStringFormat sf;
+    if (strfmt != nullptr) sf = *strfmt;
+    if (sf.getLevel() > 0)
+        sstr << "Functional" << std::endl;
+    return sstr.str();
+}

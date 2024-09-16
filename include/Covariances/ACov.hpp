@@ -108,14 +108,6 @@ public:
     return TEST;
   }
 
-  virtual void updateCovByPointsNew(int icas1, int iech1, int icas2, int iech2)
-  {
-    DECLARE_UNUSED(icas1);
-    DECLARE_UNUSED(iech1);
-    DECLARE_UNUSED(icas2);
-    DECLARE_UNUSED(iech2);
-  }
-
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
   {
     DECLARE_UNUSED(icas1);
@@ -295,9 +287,9 @@ public:
                                int jvar = 0) const;
 
 
-  void manage(Db* db1,Db* db2, int mode = 1) const
+  void manage(Db* db1,Db* db2) const
   {
-      _manage(db1, db2, mode);
+      _manage(db1, db2);
   }
 protected:
 
@@ -308,11 +300,10 @@ protected:
                                             const VectorVectorInt& index1);
 
 private:
-  virtual void _manage(Db* db1,Db* db2, int mode) const 
+  virtual void _manage(Db* db1,Db* db2) const 
   {
     DECLARE_UNUSED(db1)
     DECLARE_UNUSED(db2)
-    DECLARE_UNUSED(mode)
   }
 
   DbGrid* _discretizeBlock(const VectorDouble& ext,

@@ -13,7 +13,6 @@
 #include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -61,8 +60,7 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctionalCov NoStat(&spirale);
-  model->getCova(0)->addNoStat(&NoStat);
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation

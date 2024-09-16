@@ -162,7 +162,7 @@ protected:
   bool   _isCovarianceIndexValid(int icov) const;
 
 private:
-  void _manage(Db* db1,Db* db2, int mode) const override;
+  void _manage(Db* db1,Db* db2) const override;
   
   bool _considerAllCovariances(const CovCalcMode* mode) const;
 

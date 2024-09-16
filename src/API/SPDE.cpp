@@ -1035,7 +1035,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       // Update due to non-stationarity (optional)
       if (flag_nostat_sill)
       {
-        cova->updateCovByPointsNew(1, iech, 1, iech);
+        cova->updateCovByPoints(1, iech, 1, iech);
         sillsRef = cova->getSill();
       }
 
@@ -1073,7 +1073,6 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   mat = MatrixSparse::createFromTriplet(NF_T);
 
   // Free the non-stationary specific allocation
-  cova->manage(db,nullptr,-1);
   if (!hasnugget)
     delete cova;
   return mat;

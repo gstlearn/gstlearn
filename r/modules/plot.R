@@ -1687,7 +1687,7 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 #' @param scale Size given to the arraws
 #' @param ... Arguments passed to geom_segment()
 #' @return The ggplot object to geom_segment()
-plot.covaOnGrid <- function(cova, dbgrid, useSel=TRUE color='black', 
+plot.covaOnGrid <- function(cova, dbgrid, useSel=TRUE,color='black', 
     flagOrtho=TRUE, scale=40, ...)
 {
   if (!require(ggplot2, quietly=TRUE))

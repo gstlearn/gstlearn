@@ -731,11 +731,11 @@ const ACovAnisoList* ACovAnisoList::createReduce(const VectorInt &validVars) con
   return newcovlist;
 }
 
-void ACovAnisoList::_manage(Db* db1,Db* db2,int mode)  const
+void ACovAnisoList::_manage(Db* db1,Db* db2)  const
 {
   for (const auto &e : _covs)
   {
-    e->manage(db1,db2,mode);
+    e->manage(db1,db2);
   }
 }
 

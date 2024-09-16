@@ -226,9 +226,6 @@
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
-%include Covariances/ANoStatCov.hpp
-%include Covariances/NoStatArrayCov.hpp
-%include Covariances/NoStatFunctionalCov.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
 %include Covariances/CovLMC.hpp

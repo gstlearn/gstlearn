@@ -47,6 +47,7 @@ TabNoStatCovAniso& TabNoStatCovAniso::operator= (const TabNoStatCovAniso &m)
     }
     return *this;
 }
+
 /**
  * Look if a Non-stationary parameter for Anisotropy is defined
  * either by Tensor or by (angle/range/scale)
@@ -112,7 +113,7 @@ int TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat> &nostat,const EConsElem 
     if (econs == EConsElem::RANGE) 
         _nRanges += res;
     if (econs == EConsElem::SCALE) 
-        _nRanges += res;
+        _nScales += res;
     if (econs == EConsElem::ANGLE)
         _nAngles += res;
     updateDescription();

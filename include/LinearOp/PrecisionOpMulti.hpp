@@ -47,7 +47,6 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ASimulable
     {
       return _invCholSills[icov];}
   int getSize() const override;
-  void makeReady();
 
   protected:
   void buildQop();
@@ -77,7 +76,6 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ASimulable
                             Eigen::VectorXd& vecout) const;
   bool _checkReady() const;
   virtual void _buildQop();
-  virtual void _makeReady(){};
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
   bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct];}

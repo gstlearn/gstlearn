@@ -2,6 +2,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Db/Db.hpp"
+#include "geoslib_define.h"
 
 ANoStat::ANoStat()
 {
@@ -17,7 +18,9 @@ double ANoStat::getValueOnDb(int iech,int icas) const
 {
     if (icas == 1)
       return getValueOnDbIn(iech);
-    return getValueOnDbOut(iech);
+    if (icas == 2)
+      return getValueOnDbOut(iech);
+    return TEST;
 }
 
 double ANoStat::getValueOnMesh(int iapex,bool center) const
@@ -55,6 +58,13 @@ double ANoStat::getValueOnMeshByMesh(int imesh) const
 {
     return _tabmesh[imesh];
 
+}
+
+String ANoStat::toString(const AStringFormat* strfmt) const
+{
+    DECLARE_UNUSED(strfmt)
+    std::stringstream sstr;
+    return sstr.str();
 }
 
 double ANoStat::getValueOnMeshByApex(int iapex) const

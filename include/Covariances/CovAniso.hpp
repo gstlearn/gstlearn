@@ -12,7 +12,6 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/ANoStatCov.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/EConsElem.hpp"
@@ -35,7 +34,6 @@
 class Rotation;
 class MatrixSquareGeneral;
 class MatrixRectangular;
-class ANoStatCov;
 class CovInternal;
 /**
  * \brief
@@ -210,8 +208,6 @@ public:
   const CovContext& getContext() const { return _ctxt; }
   const ECov& getType() const { return _cova->getType(); }
   double getParam() const;
-  const ANoStatCov* getNoStat() const  {return _noStat.get();}
-  ANoStatCov* getNoStatModify()  {return _noStat.get();}
   double getScadef() const { return _cova->getScadef(); }
   double getParMax() const { return _cova->getParMax(); }
   int    getMaxNDim() const { return _cova->getMaxNDim(); }
@@ -234,32 +230,33 @@ public:
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
-  void   delNoStat();
-  int    addNoStat(ANoStatCov *anostat);
   //////////////////////// New NoStat methods //////////////////////////
-  void   addNoStatDb(const DbGrid* grid);
+  void   attachNoStatDb(const Db* db);
  
-  void   makeRangeNoStatDb(const String &namecol, int idim = 0, const DbGrid* grid = nullptr);
-  void   makeScaleNoStatDb(const String &namecol, int idim = 0, const DbGrid* grid = nullptr);
-  void   makeAngleNoStatDb(const String &namecol, int idim = 0,const DbGrid* grid = nullptr);
-  void   makeSillNoStatDb(const String &namecol, int ivar = 0, int jvar = 0,const DbGrid* grid = nullptr);
-  void   makeParamNoStatDb(const String &namecol,const DbGrid* grid = nullptr);
-  void   makeTensorNoStatDb(const String &namecol, int idim = 0, int jdim = 0,const DbGrid* grid = nullptr);
+  void   makeRangeNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
+  void   makeScaleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
+  void   makeAngleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
+  void   makeSillNoStatDb(  const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
+  void   makeTensorNoStatDb(const String &namecol, int idim = 0, int jdim = 0,const Db* db = nullptr);
+  void   makeParamNoStatDb( const String &namecol,                            const Db* db = nullptr);
+  
+  void   makeRangeNoStatFunctional( const AFunctional *func, int idim = 0);
+  void   makeScaleNoStatFunctional( const AFunctional *func, int idim = 0);
+  void   makeAngleNoStatFunctional( const AFunctional *func, int idim = 0);
+  void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
+  void   makeTensorNoStatFunctional(const AFunctional *func, int idim = 0, int jdim = 0);
+  void   makeParamNoStatFunctional( const AFunctional *func);
+  
 
   void   makeRangeStationary(int idim = 0);
   void   makeScaleStationary(int idim = 0);
   void   makeAngleStationary(int idim = 0);
-  void   makeSillStationary(int ivar = 0, int jvar = 0);
-  void   makeParamStationary();
+  void   makeSillStationary( int ivar = 0, int jvar = 0);
   void   makeTensorStationary(int idim, int jdim);
+  void   makeParamStationary();
 
-  void   makeRangeNoStatFunctional(const AFunctional *func, int idim = 0);
-  void   makeScaleNoStatFunctional(const AFunctional *func, int idim = 0);
-  void   makeAngleNoStatFunctional(const AFunctional *func, int idim = 0);
-  void   makeSillNoStatFunctional(const AFunctional  *func, int ivar = 0, int jvar = 0);
-  void   makeParamNoStatFunctional(const AFunctional *func);
-  void   makeTensorNoStatFunctional(const AFunctional  *func, int idim = 0, int jdim = 0);
 
+  void   makeStationary();
   int getNAngles() const {return _tabNoStat.getNAngles();}
   int getNRanges() const {return _tabNoStat.getNRanges();}
   int getNScales() const {return _tabNoStat.getNScales();}
@@ -287,29 +284,26 @@ public:
   void nostatUpdate(CovInternal *covint);
 
   CovAniso* createReduce(const VectorInt &validVars) const;
-  bool isNoStat() const override { return _noStat != nullptr; }
-  bool isNoStatNew() const  { return _tabNoStat.isNoStat(); }
-  void informMeshByMesh(const AMesh* amesh);
-  void informMeshByApex(const AMesh* amesh);
+  bool isNoStat() const  override{ return _tabNoStat.isNoStat(); };
+  void informMeshByMesh(const AMesh* amesh) const;
+  void informMeshByApex(const AMesh* amesh) const;
   VectorDouble informCoords(const VectorVectorDouble& coords, 
                             const EConsElem& econs,
                             int iv1 = 0, int iv2 = 0) const;
-  void informDbIn(const Db* dbin);
-  void informDbOut(const Db* dbout);
-  void informMeshByMeshForAnisoTropy(const AMesh* amesh);
-  void informMeshByApexForAnisoTropy(const AMesh* amesh);
-  void informDbInForAnisotropy(const Db* dbin);
-  void informDbOutForAnisotropy(const Db* dbout);
-  void informMeshByMeshForSills(const AMesh* amesh);
-  void informMeshByApexForSills(const AMesh* amesh);
-  void informDbInForSills(const Db* dbin);
-  void informDbOutForSills(const Db* dbout);
+  void informDbIn(const Db* dbin) const;
+  void informDbOut(const Db* dbout) const;
+  void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
+  void informMeshByApexForAnisotropy(const AMesh* amesh) const;
+  void informDbInForAnisotropy(const Db* dbin) const;
+  void informDbOutForAnisotropy(const Db* dbout) const;
+  void informMeshByMeshForSills(const AMesh* amesh) const;
+  void informMeshByApexForSills(const AMesh* amesh) const;
+  void informDbInForSills(const Db* dbin) const;
+  void informDbOutForSills(const Db* dbout) const;
 
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh);
-  void updateCovByPointsNew(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMeshNew(int imesh,bool aniso = true);
+  void updateCovByMesh(int imesh,bool aniso = true);
   double getValue(const EConsElem &econs,int iv1,int iv2) const;
 
 protected:
@@ -318,15 +312,20 @@ protected:
   virtual void _initFromContext();
 
 private:
+ void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
+                      const AFunctional* func = nullptr, 
+                      const Db* db = nullptr,const String& namecol = "");
+
+  void _manage(Db* db1,Db* db2) const override;
+
   bool _checkSill(int ivar = 0, int jvar = 0) const;
   bool _checkDims(int idim, int jdim) const;
   bool _checkTensor() const;
   bool _checkRotation() const;
   bool _checkParam() const;
 
-  void _setNoStatGridIfNecessary(const DbGrid*& grid);
-  bool _checkAndManageNoStatGrid(const DbGrid* grid, const String& namecol);
-  void _manage(Db* db1,Db* db2,int mode) const override;
+  void _setNoStatDbIfNecessary(const Db*& db);
+  bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
@@ -338,7 +337,6 @@ private:
   ACovFunc *_cova;                     /// Covariance basic function
   mutable MatrixSquareSymmetric _sill;                                /// Sill matrix (nvar x nvar)
   mutable Tensor _aniso;                       /// Anisotropy parameters
-  mutable std::shared_ptr<ANoStatCov> _noStat; /// Description of Non-stationary Model
   TabNoStatCovAniso _tabNoStat;
   mutable double _noStatFactor;                /// Correcting factor for non-stationarity
 };

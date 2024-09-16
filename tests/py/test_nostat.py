@@ -8,15 +8,15 @@ db["scales1"] = np.arange(1,5)
 db["scales2"] = 2*np.arange(1,5)
 db["angles"]  = (20+10*np.arange(1,5))*1
 
-db.setLocators(["scales*","angles"],gl.ELoc.NOSTAT)
-
 # Creating the non-stationary Model
 m = gl.Model.createFromParam(gl.ECov.EXPONENTIAL)
-nostat = gl.NoStatArrayCov(["S1","S2","A1"],db)
-m.getCova(0).addNoStat(nostat)
+m.getCova(0).attachNoStatDb(db)
+m.getCova(0).makeScaleNoStatDb("scales1",0)
+m.getCova(0).makeScaleNoStatDb("scales2",1)
+m.getCova(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
-covmat_gstlearn = m.evalCovMatrix(db).toTL()
+covmat_gstlearn = m.evalCovMatrixSymmetric(db).toTL()
 
 # Calculating the data covariance matrix (by hand)
 x = db["x1"]

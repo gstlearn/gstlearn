@@ -65,9 +65,6 @@ set(SRC
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp
-  Covariances/ANoStatCov.cpp
-  Covariances/NoStatArrayCov.cpp
-  Covariances/NoStatFunctionalCov.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp

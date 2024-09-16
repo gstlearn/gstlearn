@@ -817,7 +817,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   if (jvars.empty()) return mat;
 
   // Play the non-stationarity (if needed)
-  manage(db1,db2,1);
+  manage(db1,db2);
   
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
@@ -875,10 +875,6 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
       irow++;
     }
   }
-
-  // Free the non-stationary specific allocation
-
-  manage(db1,db2,-1);
 
   return mat;
 }
@@ -956,7 +952,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   if (ivars.empty()) return mat;
 
   // Play the non-stationarity (if needed)
-  manage(db1,nullptr,1);
+  manage(db1,nullptr);
   
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1005,7 +1001,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
             db1->getSampleAsSPInPlace(iech2, p2);
 
             // Modify the covariance (if non stationary)
-            updateCovByPoints(1, iech1, 2, iech2);
+            updateCovByPoints(1, iech1, 1, iech2);
 
             /* Loop on the dimension of the space */
             double value = eval(p1, p2, ivar1, ivar2, mode);
@@ -1021,9 +1017,6 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   // Update the matrix due to presence of Variance of Measurement Error
   _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
 
-  // Free the non-stationary specific allocation
-
-  manage(db1,nullptr,-1);
   return mat;
 }
 
@@ -1070,7 +1063,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   // Play the non-stationarity (if needed)
 
-  manage(db1, db2,1);
+  manage(db1, db2);
   
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
@@ -1147,7 +1140,6 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
   // Update the matrix due to presence of Variance of Measurement Error
   if (flagSameDb)
     _updateCovMatrixSymmetricVerr(db1, mat, ivars, index1);
-   manage(db1, db2,-1);
   return mat;
 }
 

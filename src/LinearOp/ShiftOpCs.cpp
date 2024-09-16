@@ -23,6 +23,7 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "geoslib_define.h"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <math.h>
@@ -159,7 +160,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
-    _cova->informMeshByMeshForAnisoTropy(amesh);
+    _cova->informMeshByMeshForAnisotropy(amesh);
 
     // Calculating and storing the mesh sizes
     VectorDouble units = amesh->getMeshSizes();
@@ -208,23 +209,11 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
                                 double tol)
 {
   // Initializations
-
+  DECLARE_UNUSED(verbose)
   _setCovAniso(cova);
 
   try
   {
-
-    // Attach the Non-stationary to Mesh and Db (optional)
-
-    if (cova->isNoStat())
-    {
-      if (cova->getNoStat()->attachToMesh(amesh, true,verbose))
-      {
-        messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
-        return 1;
-      }
-    }
-
     _cova->informMeshByMesh(amesh);
 
     // Construct S sparse Matrix
@@ -359,7 +348,7 @@ void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
     
     for (int imesh = 0; imesh < number; imesh++)
     {
-      _cova->updateCovByMeshNew(imesh,false);
+      _cova->updateCovByMesh(imesh,false);
       double sill = _cova->getSill(0,0);
       double invsillsq = 1. / sqrt(sill);
       _Lambda[imesh] *= invsillsq;
@@ -590,20 +579,21 @@ MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
  */
 void ShiftOpCs::_updateCova(std::shared_ptr<CovAniso> &cova, int imesh)
 {
-  cova->updateCovByMeshNew(imesh,true);
+  cova->updateCovByMesh(imesh,true);
 
 }
 
 void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int imesh)
 {
+  DECLARE_UNUSED(imesh)
   if (! _isNoStat()) return;
   int ndim = getNDim();
-  const ANoStatCov* nostat = _getCovAniso()->getNoStat();
 
   for (int idim = 0; idim < ndim; idim++)
     for (int jdim = idim; jdim < ndim; jdim++)
     {
-      double value = nostat->getValue(EConsElem::TENSOR, 0, imesh, idim, jdim);
+      double value = 0.; //TODO repare
+    //  double value = nostat->getValue(EConsElem::TENSOR, 0, imesh, idim, jdim);
       hh.setValue(idim, jdim, value);
     }
 }
@@ -778,17 +768,19 @@ void ShiftOpCs::_loadHH(const AMesh *amesh,
 
 void ShiftOpCs::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh)
 {
-  if (! _isNoStat()) return;
-  if (tab.empty()) return;
-  int size = static_cast<int> (tab.size());
+  DECLARE_UNUSED(tab,type,imesh)
+  // TODO Repare
+  // if (! _isNoStat()) return;
+  // if (tab.empty()) return;
+  // int size = static_cast<int> (tab.size());
 
-  VectorDouble tabloc(size, 0.);
-  for (int i = 0; i < size; i++) tab[i] = 0;
+  // VectorDouble tabloc(size, 0.);
+  // for (int i = 0; i < size; i++) tab[i] = 0;
 
-  const ANoStatCov* nostat = _getCovAniso()->getNoStat();
-  for (int i = 0; i < (int) tab.size(); i++)
-    if (nostat->isDefined(type, i, -1))
-      tab[i] = nostat->getValue(type, 0, imesh, i, -1);
+  // const ANoStatCov* nostat = _getCovAniso()->getNoStat();
+  // for (int i = 0; i < (int) tab.size(); i++)
+  //   if (nostat->isDefined(type, i, -1))
+  //     tab[i] = nostat->getValue(type, 0, imesh, i, -1);
 }
 
 int ShiftOpCs::_preparMatrices(const AMesh *amesh,
@@ -1327,10 +1319,9 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   if (_isNoStat())
   {
     VectorDouble cum(nvertex, 0.);
-    const ANoStatCov *nostat = _getCovAniso()->getNoStat();
     for (int imesh = 0; imesh < nmeshes; imesh++)
     {
-      if (flagSphere && nostat->isDefinedforAnisotropy())
+      if (flagSphere && cova->isNoStatForAnisotropy())
       {
         _loadHH(amesh, hh, imesh);
         sqdethh = sqrt(hh.determinant());
@@ -1485,7 +1476,7 @@ double ShiftOpCs::getMaxEigenValue() const
 
 bool ShiftOpCs::_isNoStat()
 {
-  return _getCovAniso()->isNoStatNew();
+  return _getCovAniso()->isNoStat();
 }
 
 bool ShiftOpCs::_isGlobalHH()

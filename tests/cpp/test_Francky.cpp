@@ -17,8 +17,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/NoStatArrayCov.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -68,9 +66,8 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctionalCov NoStatCov(&spirale);
 
-  model->getCova(0)->addNoStat(&NoStatCov);
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
 
 
   // Simulating variable at data location (using SPDE)

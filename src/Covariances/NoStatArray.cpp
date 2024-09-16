@@ -11,6 +11,17 @@ NoStatArray::NoStatArray(const Db *dbref,const String& colname)
 ,_colName(colname)
 {}
 
+
+String NoStatArray::toString(const AStringFormat* strfmt) const
+{
+  std::stringstream sstr;
+  sstr << ANoStat::toString(strfmt);
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  return sstr.str();
+}
+
+
 void NoStatArray::_informField(const VectorVectorDouble& coords,
                               VectorDouble& tab, bool verbose)
 {

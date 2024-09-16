@@ -5,7 +5,7 @@
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include <memory>
-
+#include "Db/Db.hpp"
 
 TabNoStat::TabNoStat()
 :_items()
@@ -14,6 +14,7 @@ TabNoStat::TabNoStat()
 {}
 
 TabNoStat::TabNoStat(const TabNoStat &m)
+:AStringable(m)
 {
     this->_nSills = m._nSills;
     this->_dbNoStatRef = m._dbNoStatRef;
@@ -78,6 +79,22 @@ std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem &econs, int iv1, int
     return _items[conselem];
 }
 
+String TabNoStat::toString(const AStringFormat* strfmt) const
+{
+    std::stringstream sstr;
+    if (_items.empty()) return sstr.str();
+    sstr << toTitle(1, "Non-Stationary Parameters");
+    int i = 0;
+    for (const auto &e: getTable())
+    {
+        sstr << std::to_string(i+1) << " - ";
+        sstr << e.first.toString(strfmt);
+        sstr << e.second->toString(strfmt);
+        i++;
+    }
+    return sstr.str();
+}
+
 void TabNoStat::informCoords(const VectorVectorDouble &coords,
                              const EConsElem &econs,
                              int iv1, 
@@ -108,64 +125,64 @@ int TabNoStat::addElem(std::shared_ptr<ANoStat> &nostat, const EConsElem &econs,
     return res;
 }
 
-void TabNoStat::informMeshByMesh(const AMesh* amesh)
+void TabNoStat::informMeshByMesh(const AMesh* amesh) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         e.second->informMeshByMesh(amesh);
     }
 }
-void TabNoStat::informMeshByApex(const AMesh* amesh)
+void TabNoStat::informMeshByApex(const AMesh* amesh) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         e.second->informMeshByApex(amesh);
     }
 
 }
-void TabNoStat::informDbIn(const Db* dbin)
+void TabNoStat::informDbIn(const Db* dbin) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         e.second->informDbIn(dbin);
     }
 }
-void TabNoStat::informDbOut(const Db* dbout)
+void TabNoStat::informDbOut(const Db* dbout) const 
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         e.second->informDbOout(dbout);
     }
 }
 
-void TabNoStat::informMeshByMesh(const AMesh* amesh, const EConsElem & econs)
+void TabNoStat::informMeshByMesh(const AMesh* amesh, const EConsElem & econs) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         if (e.first.getType() == econs)
             e.second->informMeshByMesh(amesh);
     }
 }
-void TabNoStat::informMeshByApex(const AMesh* amesh, const EConsElem & econs)
+void TabNoStat::informMeshByApex(const AMesh* amesh, const EConsElem & econs) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         if (e.first.getType() == econs)
             e.second->informMeshByApex(amesh);
     }
 
 }
-void TabNoStat::informDbIn(const Db* dbin, const EConsElem & econs)
+void TabNoStat::informDbIn(const Db* dbin, const EConsElem & econs) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         if (e.first.getType() == econs)
             e.second->informDbIn(dbin);
     }
 }
-void TabNoStat::informDbOut(const Db* dbout, const EConsElem & econs)
+void TabNoStat::informDbOut(const Db* dbout, const EConsElem & econs) const
 {
-    for (auto &e : _items)
+    for (const auto &e : _items)
     {
         if (e.first.getType() == econs)
             e.second->informDbOout(dbout);

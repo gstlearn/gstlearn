@@ -38,6 +38,8 @@ public:
   void informDbIn(const Db* dbin, bool verbose = false);
   void informDbOout(const Db* dbout, bool verbose = false);
 
+  String toString(const AStringFormat* strfmt) const;
+
   ANoStat& operator= (const ANoStat &m) = delete;
   virtual ~ANoStat();
 

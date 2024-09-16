@@ -23,11 +23,13 @@ public:
   NoStatArray(const NoStatArray &m) = delete;
   NoStatArray& operator=(const NoStatArray &m) = delete;
   virtual ~NoStatArray(){};
+  String toString(const AStringFormat* strfmt) const override;
 
 private :
   void _informField(const VectorVectorDouble& coords,
                     VectorDouble& tab,
                     bool verbose = false) override;
+
 private:
   const Db* _dbNoStat;
   const String _colName;
