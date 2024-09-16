@@ -374,6 +374,8 @@
 %include Spatial/Projection.hpp
 %include Spatial/SpatialIndices.hpp
 
+%include Core/Potential.hpp
+
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506

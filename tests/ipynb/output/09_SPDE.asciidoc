@@ -165,7 +165,7 @@ Covariance Part
 ---------------
 Nugget Effect
 - Sill         =      0.100
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      0.420
 - Range        =    282.574
 - Theo. Range  =     81.572

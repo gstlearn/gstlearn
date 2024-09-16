@@ -124,3 +124,5 @@ GSTLEARN_EXPORT double truncateDigits(double value, int ndigits);
 
 GSTLEARN_EXPORT void setInternalDebug(bool status);
 GSTLEARN_EXPORT bool isInternalDebug();
+
+GSTLEARN_EXPORT void print_range(const char* title, int ntab, const double* tab, const double* sel);

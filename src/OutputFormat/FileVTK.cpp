@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "OutputFormat/vtk.h"

@@ -1548,7 +1548,8 @@ SegYArg segy_array(const char *filesegy,
 
   // Open Input SEGY file
 
-  if ((file = gslFopen(filesegy, "rb")) == NULL)
+  file = gslFopen(filesegy, "rb");
+  if (file == NULL)
   {
     messerr("ERROR: Cannot find input file %s", filesegy);
     return segyarg;
@@ -1746,7 +1747,8 @@ Grid segy_summary(const char *filesegy,
 
   // Open Input SEGY file
 
-  if ((file = gslFopen(filesegy, "rb")) == NULL)
+  file = gslFopen(filesegy, "rb");
+  if (file == NULL)
   {
     messerr("ERROR:  cannot find input file %s", filesegy);
     return def_grid;

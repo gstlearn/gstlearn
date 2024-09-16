@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "OutputFormat/AOF.hpp"
+#include "Db/Db.hpp"
 
 class Db;
 

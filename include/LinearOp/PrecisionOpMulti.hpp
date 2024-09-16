@@ -36,54 +36,56 @@ class ASimulable;
  */
 class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ASimulable
 {
-  public:
-    PrecisionOpMulti(Model* model               = nullptr,
-                     const VectorMeshes& meshes = VectorMeshes(),
-                     bool buildOp               = true);
-    PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
-    PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
-    virtual ~PrecisionOpMulti();
-    MatrixSquareSymmetric getInvCholSill(int icov) const
-    {
-      return _invCholSills[icov];}
+public:
+  PrecisionOpMulti(Model* model               = nullptr,
+                   const VectorMeshes& meshes = VectorMeshes(),
+                   bool buildOp               = true);
+  PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
+  PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
+  virtual ~PrecisionOpMulti();
+  MatrixSquareSymmetric getInvCholSill(int icov) const
+  {
+    return _invCholSills[icov];
+  }
   int getSize() const override;
 
-  protected:
+protected:
   void buildQop();
-  #ifndef SWIG
-  protected:
+#ifndef SWIG
 
+protected:
   int _addToDest(const Eigen::VectorXd& vecin,
                  Eigen::VectorXd& vecout) const override;
   int _addSimulateToDest(const Eigen::VectorXd& vecin,
-                                Eigen::VectorXd& vecout) const override;
-  #endif
+                         Eigen::VectorXd& vecout) const override;
+#endif
+
+public:
   /// AStringable Interface
-  public :
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  
+
   VectorDouble evalSimulate(const VectorDouble& vec);
 
-  protected:  
+protected:
   int size(int imesh) const;
-  int  _getNCov() const;
-  int _getCovInd(int i)const { return _covList[i];}
-  int  _getNVar() const;
-  int  _getNMesh() const;
+  int _getNCov() const;
+  int _getCovInd(int i) const { return _covList[i]; }
+  int _getNVar() const;
+  int _getNMesh() const;
 
-  private:
+private:
   virtual int _addToDestImpl(const Eigen::VectorXd& vecin,
-                            Eigen::VectorXd& vecout) const;
+                             Eigen::VectorXd& vecout) const;
   bool _checkReady() const;
   virtual void _buildQop();
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
-  bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct];}
+  bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct]; }
   bool _matchModelAndMeshes() const;
-  
-  int  _buildGlobalMatricesStationary(int icov);
-  int  _buildLocalMatricesNoStat(int icov);
-  int  _buildMatrices();
+
+  int _buildGlobalMatricesStationary(int icov);
+  int _buildLocalMatricesNoStat(int icov);
+  int _buildMatrices();
   void _popsClear();
   void _computeSize();
 
@@ -106,9 +108,7 @@ private:
   bool _allStat;
   bool _ready;
 
-
 private:
   mutable std::vector<Eigen::VectorXd> _works;
   mutable Eigen::VectorXd _workTot;
-
 };

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_define.h"
-#include "geoslib_f.h"
 
 #include "Basic/File.hpp"
 #include "Basic/CSVformat.hpp"

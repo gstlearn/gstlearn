@@ -8,8 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Timer.hpp"
 
@@ -125,8 +124,9 @@ void time_chunk_add(const char *call_name)
 
     // Glue the new Time Chunk to the Global array
 
-    TimeStat = (TimeChunk**) realloc((char*) TimeStat,
-                                     (NB_TIME_CHUNK + 1) * sizeof(TimeChunk*));
+    auto* placeholder =
+      realloc((char*)TimeStat, (NB_TIME_CHUNK + 1) * sizeof(TimeChunk*));
+    TimeStat = (TimeChunk**)placeholder;
     if (TimeStat == NULL)
     {
       messerr("Memory problem: Timer procedure is interrupted");

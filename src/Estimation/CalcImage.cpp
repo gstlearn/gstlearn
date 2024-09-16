@@ -8,9 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Calculators/ACalcInterpolator.hpp"
 #include "geoslib_f_private.h"
 
+#include "Calculators/ACalcInterpolator.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/KrigingSystem.hpp"

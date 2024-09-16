@@ -8,12 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "geoslib_f_private.h"
 
 RuleProp::RuleProp()
     : AStringable(),
