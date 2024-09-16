@@ -74,7 +74,7 @@
   }\
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
-                                   const std::vector<const AMesh*>& meshes,
+                                   const VectorMeshes& meshes,
                                    bool buildOp)
   : _pops()
   , _invCholSills()

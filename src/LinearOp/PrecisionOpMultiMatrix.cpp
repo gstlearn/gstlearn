@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include <Eigen/src/Core/Matrix.h>
 #include "LinearOp/PrecisionOpCs.hpp"
@@ -16,10 +15,8 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
-
-
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
-                                   const std::vector<const AMesh*>& meshes)
+                                   const VectorMeshes& meshes)
   : PrecisionOpMulti(model,meshes,false)
   , _Q(MatrixSparse(0,0))
 {
