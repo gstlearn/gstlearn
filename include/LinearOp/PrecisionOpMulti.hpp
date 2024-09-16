@@ -92,7 +92,6 @@ private:
   void _computeSize();
 
 protected:
-
   std::vector<PrecisionOp*> _pops;
   VectorBool _isNoStatForVariance;
   std::vector<std::vector<Eigen::VectorXd>> _invCholSillsNoStat;
