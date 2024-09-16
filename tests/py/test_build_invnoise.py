@@ -275,7 +275,7 @@ def testInvNoise(dat,model, debug=False):
     
     if error < 1e-13:
         print(f"Error = ",1e-13)
-    else:
+    else: 
         print(error)
 
 # %%
