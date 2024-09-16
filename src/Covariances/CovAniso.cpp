@@ -1299,7 +1299,7 @@ bool CovAniso::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
 
  if (db->getUID(namecol)< 0)
  {
-    messerr("You have to specified a name which is in the DbGrid");
+    messerr("You have to specified a name of a column of the reference Db");
     return false;
  }
  return true;
@@ -1345,13 +1345,12 @@ void CovAniso::makeRangeNoStatFunctional(const AFunctional *func, int idim)
 
 void CovAniso::makeRangeStationary(int idim)
 {
-  if(_tabNoStat.removeElem(EConsElem::RANGE, idim) == 0)
+  if(_tabNoStat.removeElem(EConsElem::RANGE, idim) == 0 && 
+     _tabNoStat.removeElem(EConsElem::SCALE, idim) == 0)
   {
     messerr("This parameter was already stationary!");
   }
-  _tabNoStat.removeElem(EConsElem::SCALE, idim);
 }
-  
 
 ///////////////////// Scale ////////////////////////
 
@@ -1370,12 +1369,7 @@ void CovAniso::makeScaleNoStatFunctional(const AFunctional *func, int idim)
 
 void CovAniso::makeScaleStationary(int idim)
 {
-  if(_tabNoStat.removeElem(EConsElem::SCALE, idim) == 0)
-  {
-    messerr("This parameter was already stationary!");
-  }
-  _tabNoStat.removeElem(EConsElem::RANGE, idim);
-
+  makeRangeStationary(idim);
 }
 
 ///////////////////// Angle ////////////////////////
@@ -1872,7 +1866,7 @@ void CovAniso::makeStationary()
   _tabNoStat = TabNoStatCovAniso();
 }
 
-void CovAniso::_manage(Db* db1,Db* db2) const
+void CovAniso::_manage(const Db* db1,const Db* db2) const
 {
   if (db1!=nullptr)
     informDbIn(db1);

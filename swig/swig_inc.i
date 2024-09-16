@@ -1,4 +1,6 @@
 %feature(director) IProjMatrix;
+%feature(director) AFunctional;
+
 //%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
 
@@ -46,6 +48,7 @@
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
   #include "Basic/VectorHelper.hpp"
+  #include "Basic/AFunctional.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"

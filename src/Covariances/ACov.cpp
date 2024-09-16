@@ -798,8 +798,8 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrix(Db* db1,
-                                      Db* db2,
+MatrixRectangular ACov::evalCovMatrix(const Db* db1,
+                                      const Db* db2,
                                       int ivar0,
                                       int jvar0,
                                       const VectorInt& nbgh1,
@@ -935,11 +935,8 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
  ** \remarks each term is the product of the number of active samples
  ** \remarks by the number of samples where the variable is defined
  **
- ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
- ** \note due to the presence of 'nostat'
- **
  *****************************************************************************/
-MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
+MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
                                                    int ivar0,
                                                    const VectorInt &nbgh1,
                                                    const CovCalcMode *mode)
@@ -1043,8 +1040,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
-                                        Db *db2,
+MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
+                                        const Db *db2,
                                         int ivar0,
                                         int jvar0,
                                         const VectorInt &nbgh1,

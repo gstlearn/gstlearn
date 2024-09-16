@@ -28,7 +28,6 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/CovParamId.hpp"
 #include "Covariances/CovAniso.hpp"
 
 #include "Anamorphosis/AAnam.hpp"

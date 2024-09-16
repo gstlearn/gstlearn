@@ -74,11 +74,6 @@ void TabNoStatCovAniso::_updateDescription()
   _definedForRotation = (_nAngles > 0) || (_nRanges > 0) || (_nScales > 0);
   _definedForTensor   = _nTensor > 0;
   _definedForAnisotropy = _definedForRotation || _definedForTensor;
-  if (_nScales > 0 && _nRanges > 0)
-  {
-    messerr("You have specified non stationarities for scale and range");
-    messerr("It is invalid");
-  }
 }
 
 
@@ -86,23 +81,37 @@ int TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat> &nostat,const EConsElem 
 {
     if (econs == EConsElem::RANGE)
     {
-        if (isElemDefined(EConsElem::SCALE, iv1, iv2))
+        if (isElemDefined(EConsElem::SCALE, iv1, iv2) && _nScales == 1)
         {
             removeElem(EConsElem::SCALE,iv1,iv2);
             messerr("Warning, you gave a non-stationary specification for the range");
             messerr("but it was already given for the scale.");
             messerr("The new specification has replaced the previous one.");
-        }       
+        }
+        else if(_nScales > 0)
+        {
+            messerr("You try to specify non stationarities for range whereas");
+            messerr("you had already specified one for the scale in another dimension.");
+            messerr("It is invalid");
+            return 0;
+        }          
     }
     if (econs == EConsElem::SCALE)
     {
-        if (isElemDefined(EConsElem::RANGE, iv1, iv2))
+        if (isElemDefined(EConsElem::RANGE, iv1, iv2) && _nRanges == 1)
         {
             removeElem(EConsElem::RANGE,iv1,iv2);
             messerr("Warning, you gave a non-stationary specification for the scale");
             messerr("but it was already given for the range.");
             messerr("The new specification has replaced the previous one.");
-         }
+        }
+        else if (_nRanges > 0) 
+        {
+            messerr("You try to specify non stationarities for scale whereas");
+            messerr("you had already specified one for the range in another dimension.");
+            messerr("It is invalid");
+            return 0;
+        }
     }
     int res = TabNoStat::addElem(nostat, econs, iv1,iv2);
     if (res == 0) return res;

@@ -226,19 +226,19 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  MatrixRectangular evalCovMatrix(Db* db1_arg,
-                                  Db* db2_arg = nullptr,
+  MatrixRectangular evalCovMatrix(const Db* db1_arg,
+                                  const Db* db2_arg = nullptr,
                                   int ivar0 = -1,
                                   int jvar0 = -1,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr);
-  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
+  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
                                                int ivar0,
                                                const VectorInt &nbgh1,
                                                const CovCalcMode *mode);
-  MatrixSparse* evalCovMatrixSparse(Db *db1_arg,
-                                    Db *db2_arg = nullptr,
+  MatrixSparse* evalCovMatrixSparse(const Db *db1_arg,
+                                    const Db *db2_arg = nullptr,
                                     int ivar0 = -1,
                                     int jvar0 = -1,
                                     const VectorInt &nbgh1 = VectorInt(),
@@ -287,7 +287,7 @@ public:
                                int jvar = 0) const;
 
 
-  void manage(Db* db1,Db* db2) const
+  void manage(const Db* db1,const Db* db2) const
   {
       _manage(db1, db2);
   }
@@ -300,7 +300,7 @@ protected:
                                             const VectorVectorInt& index1);
 
 private:
-  virtual void _manage(Db* db1,Db* db2) const 
+  virtual void _manage(const Db* db1,const Db* db2) const 
   {
     DECLARE_UNUSED(db1)
     DECLARE_UNUSED(db2)

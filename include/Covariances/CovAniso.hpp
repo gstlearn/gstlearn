@@ -316,7 +316,7 @@ private:
                       const AFunctional* func = nullptr, 
                       const Db* db = nullptr,const String& namecol = "");
 
-  void _manage(Db* db1,Db* db2) const override;
+  void _manage(const Db* db1,const Db* db2) const override;
 
   bool _checkSill(int ivar = 0, int jvar = 0) const;
   bool _checkDims(int idim, int jdim) const;
