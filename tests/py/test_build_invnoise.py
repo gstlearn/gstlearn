@@ -2,12 +2,6 @@
 import gstlearn as gl
 import numpy as np
 
-gl.OptCst.define(gl.ECst.NTCOL, -1)
-gl.OptCst.define(gl.ECst.NTROW, -1)
-gl.OptCst.define(gl.ECst.NTBATCH, 15)
-gl.OptCst.define(gl.ECst.NTCAR,  5)
-gl.OptCst.define(gl.ECst.NTDEC,  1)
-
 np.random.seed(1312)
 
 # %%
@@ -238,7 +232,7 @@ def createDb(ndat,hetero,measurement_error,measurement_error_all_equal,nostat=Fa
         dat["v11"] =  np.abs(np.random.normal(size=ndat)) 
         dat["v22"] =  np.abs(np.random.normal(size=ndat)) 
         dat["v12"] =  np.abs(np.random.uniform(size=ndat))*np.sqrt(dat["v11"]*dat["v22"])
-        model.getCova(0).makeSillNoStatDb("v11",0,1,dat)
+        model.getCova(0).makeSillNoStatDb("v11",0,0,dat)
         model.getCova(0).makeSillNoStatDb("v12",0,1,dat)
         model.getCova(0).makeSillNoStatDb("v22",1,1,dat)
 

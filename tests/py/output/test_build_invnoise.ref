@@ -1,4 +1,3 @@
-<IPython.core.display.Javascript object>
 
 Hetero et pas d'erreur de mesure
 ================================
@@ -32,7 +31,5 @@ Error =  1e-13
 
 Iso, erreur de mesure, la même pour tous les échantillons, nostat
 ===================================================================
-Warning, this non stationarity was already specified. It has been replaced
-with the new specifications.
 General Case
 Error =  1e-13
