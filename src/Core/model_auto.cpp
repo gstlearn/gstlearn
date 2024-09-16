@@ -18,6 +18,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/MathFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -25,7 +26,6 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Model.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/ConsItem.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
@@ -2621,7 +2621,7 @@ static double st_minimize_P4(int icov0,
                              VectorDouble &ge,
                              const VectorDouble &consSill)
 {
-  double retval, a, c, d, s, x[3];
+  double retval, a, c, d, s;
 
   /* Core allocation */
 
@@ -2633,6 +2633,7 @@ static double st_minimize_P4(int icov0,
   VectorDouble xx(2);
   VectorDouble xt(2);
   VectorDouble xest(2);
+  VectorDouble x(3);
 
   int irr = st_combineVariables(ivar0, ivar0);
   int nvs2 = nvar * (nvar + 1) / 2;
@@ -4343,10 +4344,6 @@ static void st_vario_varchol_manage(const Vario *vario,
  *****************************************************************************/
 static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 {
-  double mini, maxi, gmax;
-
-  /* Initializations */
-
   int nvar = dbmap->getLocNumber(ELoc::Z);
   int size = nvar * (nvar + 1) / 2;
   int nvar2 = nvar * nvar;
@@ -4356,9 +4353,9 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
   VectorDouble aux(nvar2,0.);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iloc = dbmap->getUIDByLocator(ELoc::Z, ivar);
-    (void) db_attribute_range(dbmap, iloc, &mini, &maxi, &gmax);
-    AUX(ivar,ivar)= gmax;
+    String name = dbmap->getNameByLocator(ELoc::Z, ivar);
+    VectorDouble ranges = dbmap->getRange(name);
+    AUX(ivar,ivar)= ranges[1] - ranges[0];
   }
   varchol.resize(size);
   if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))
@@ -5084,100 +5081,4 @@ int vmap_auto_fit(const DbGrid* dbmap,
   label_end:
   st_model_auto_strmod_free(strmod);
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Print the Auto Fitting Constraints Structure
- **
- ** \param[in]  constraints  Constraints structure
- **
- *****************************************************************************/
-void constraints_print(const Constraints &constraints)
-{
-  constraints.display();
-}
-
-/****************************************************************************/
-/*!
- **  If a constraint concerns a sill, take its square root
- **  as it corresponds to a constraints on AIC (not on a sill directly)
- **  due to the fact that it will be processed in FOXLEG (not in GOULARD)
- **  This transform only makes sense for MONOVARIATE case (the test should
- **  have been performed beforehand)
- **
- ** \return Error code (if the sill constraint is negative)
- **
- ** \param[in]  constraints  Constraints structure
- **
- *****************************************************************************/
-int modify_constraints_on_sill(Constraints &constraints)
-
-{
-  int ncons = (int) constraints.getConsItemNumber();
-  for (int i = 0; i < ncons; i++)
-  {
-    const ConsItem *consitem = constraints.getConsItems(i);
-    if (consitem->getType() != EConsElem::SILL) continue;
-    if (consitem->getValue() < 0) return (1);
-    constraints.setValue(i, sqrt(consitem->getValue()));
-
-    // For constraints on the Sill in monovariate case,
-    // Add a constraints on AIC for lower bound
-    if (consitem->getIV1() == 0 &&
-        consitem->getIV2() == 0 &&
-        consitem->getIcase() == EConsType::UPPER)
-    {
-      ConsItem* consjtem = new ConsItem(*consitem);
-      consjtem->setValue(-consjtem->getValue());
-      consjtem->setIcase(EConsType::LOWER);
-      constraints.addItem(consjtem);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Return the constraint value (if defined) or TEST
- **
- ** \return Returned value or TEST
- **
- ** \param[in,out]  constraints  Constraints structure
- ** \param[in]      icase        Parameter type (EConsType)
- ** \param[in]      igrf         Rank of the Gaussian Random Function
- ** \param[in]      icov         Rank of the structure (starting from 0)
- ** \param[in]      icons        Type of the constraint (EConsElem)
- ** \param[in]      iv1          Rank of the first variable
- ** \param[in]      iv2          Rank of the second variable
- **
- *****************************************************************************/
-double constraints_get(const Constraints& constraints,
-                       const EConsType& icase,
-                       int igrf,
-                       int icov,
-                       const EConsElem& icons,
-                       int iv1,
-                       int iv2)
-{
-  if (!constraints.isDefined()) return (TEST);
-
-  for (int i = 0; i < (int) constraints.getConsItemNumber(); i++)
-  {
-    const ConsItem *item = constraints.getConsItems(i);
-    if (item->getIGrf() != igrf || item->getICov() != icov
-        || item->getType() != icons || item->getIV1() != iv1) continue;
-    if (icons == EConsElem::SILL && item->getIV2() != iv2) continue;
-
-    if (item->getIcase() == EConsType::EQUAL)
-    {
-      if (icase == EConsType::LOWER || icase == EConsType::UPPER)
-        return (item->getValue());
-    }
-    else
-    {
-      if (icase == item->getIcase()) return (item->getValue());
-    }
-  }
-  return (TEST);
 }

@@ -367,7 +367,7 @@ void CalcSimuTurningBands::_setDensity()
  **  - Exponential : when param is too close to 1
  **  - Gaussian    : when param is too close to 2
  **
- **  Particular case of the K-Bessel model. It must be turned into:
+ **  Particular case of the Matern model. It must be turned into:
  **  - Exponential : when param is too close to 0.5
  **
  ** \return  The modified type
@@ -699,11 +699,11 @@ double CalcSimuTurningBands::_computeScale(double alpha, double scale)
 
 /****************************************************************************/
 /*!
- **  Calculate the scale for 1D process for the K-Bessel model (param<0.5)
+ **  Calculate the scale for 1D process for the Matern model (param<0.5)
  **
  ** \return  Scale parameter of the 1D process to simulate (param<0.5)
  **
- ** \param[in]  param       Third parameter of the K-Bessel covariance model
+ ** \param[in]  param       Third parameter of the Matern covariance model
  ** \param[in]  scale       Scale parameter of the model
  **
  *****************************************************************************/

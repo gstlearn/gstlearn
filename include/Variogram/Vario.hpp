@@ -476,3 +476,28 @@ private:
   mutable MatrixRectangular   _DRFTAB;
   mutable MatrixSquareGeneral _DRFXGX;
 };
+
+GSTLEARN_EXPORT Vario_Order*
+vario_order_manage(int mode, int flag_dist, int size_aux, Vario_Order* vorder);
+
+GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order* vorder, int* npair);
+GSTLEARN_EXPORT void vario_order_print(Vario_Order* vorder,
+                                       int idir_target,
+                                       int ipas_target,
+                                       int verbose);
+GSTLEARN_EXPORT void vario_order_get_bounds(
+  Vario_Order* vorder, int idir, int ipas, int* ifirst, int* ilast);
+GSTLEARN_EXPORT void vario_order_get_indices(
+  Vario_Order* vorder, int ipair, int* iech, int* jech, double* dist);
+GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order* vorder,
+                                               int ipair,
+                                               char* aux_iech,
+                                               char* aux_jech);
+GSTLEARN_EXPORT int vario_order_add(Vario_Order* vorder,
+                                    int iech,
+                                    int jech,
+                                    void* aux_iech,
+                                    void* aux_jech,
+                                    int ipas,
+                                    int idir,
+                                    double dist);

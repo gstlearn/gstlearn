@@ -15,6 +15,7 @@
 #include "Enum/ERule.hpp"
 
 #include "LithoRule/Node.hpp"
+#include "LithoRule/PropDef.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -144,3 +145,12 @@ private:
 GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);
 GSTLEARN_EXPORT int    get_rule_mode(void);
 GSTLEARN_EXPORT double get_rule_extreme(int mode);
+GSTLEARN_EXPORT Rule* rule_free(const Rule* rule);
+GSTLEARN_EXPORT Model* model_rule_combine(const Model* model1, const Model* model2, const Rule* rule);
+GSTLEARN_EXPORT int db_rule_shadow(Db* db,
+                                   Db* dbprop,
+                                   RuleShadow* rule,
+                                   Model* model1,
+                                   const VectorDouble& props,
+                                   int flag_stat,
+                                   int nfacies);

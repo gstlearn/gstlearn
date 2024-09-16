@@ -63,3 +63,14 @@ private:
   VectorDouble _constantSills;     /* Vector of constant Sills (expanded to the number of variables) */
   std::vector<ConsItem *> _consItems;
 };
+
+GSTLEARN_EXPORT double constraints_get(const Constraints& constraints,
+                                       const EConsType& icase,
+                                       int igrf,
+                                       int icov,
+                                       const EConsElem& icons,
+                                       int v1,
+                                       int v2);
+GSTLEARN_EXPORT void constraints_print(const Constraints& constraints);
+GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints& constraints);
+GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);

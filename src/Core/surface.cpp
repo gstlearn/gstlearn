@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
+#include "Model/Model.hpp"
 
 #include <math.h>
 

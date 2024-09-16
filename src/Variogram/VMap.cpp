@@ -23,7 +23,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Core/fftn.hpp"
-#include "Basic/Memory.hpp"
 
 static int IPTV, IPTW;
 
@@ -607,73 +606,59 @@ void VMap::_extract(const int *nxmap,
 int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 {
   DECLARE_UNUSED(namconv);
-  int error, nvar, nv2, i, idim, flag_out, nbmax;
-  int *ind1, iech0, iech1, iech2, jech1, jech2, nech, ndim;
-  double *delta, *mid, x0;
-  VectorInt neigh;
-  VectorInt indg0;
-  VectorInt indg1;
-  VectorDouble coor;
+  int flag_out, iech0, iech1, iech2;
+  double x0;
 
   /* Preliminary checks */
-
-  error = 0;
-  ind1 = nullptr;
-  delta = mid = nullptr;
 
   if (db->getNDim() != 2 && db->getNDim() != 3)
   {
     messerr("The Variogram Map can only be calculated on a grid data set");
     messerr("with dimension equal to 2 or 3");
-    return (1);
+    return 1;
   }
   if (_dbmap->getNDim() > db->getNDim())
   {
     messerr("The space dimension of the VMAP (%d)", _dbmap->getNDim());
-    messerr(
-        "must not be larger than the space dimension of the input Grid (%d)",
-        db->getNDim());
-    return (1);
+    messerr("must not be larger than the space dimension of the input Grid (%d)",
+            db->getNDim());
+    return 1;
   }
 
   /* Initializations */
 
-  ndim = _dbmap->getNDim();
-  nvar = db->getLocNumber(ELoc::Z);
-  nech = db->getSampleNumber();
-  nv2 = nvar * (nvar + 1) / 2;
+  int ndim = _dbmap->getNDim();
+  int nvar = db->getLocNumber(ELoc::Z);
+  int nech = db->getSampleNumber();
+  int nv2 = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
 
-  indg0.resize(ndim, 0);
-  indg1.resize(ndim, 0);
-  ind1 = (int*) mem_alloc(sizeof(int) * nech, 0);
-  if (ind1 == nullptr) goto label_end;
-  delta = db_sample_alloc(db, ELoc::X);
-  if (delta == nullptr) goto label_end;
-  mid = db_sample_alloc(db, ELoc::X);
-  if (mid == nullptr) goto label_end;
+  VectorInt indg0(ndim, 0);
+  VectorInt indg1(ndim, 0);
+  VectorInt ind1(nech);
+  VectorDouble delta(ndim);
+  VectorDouble mid(ndim);
 
   /* Calculate a neighborhood (if radius > 0) */
 
-  neigh = gridcell_neigh(ndim, 1, radius, false, false);
-  nbmax = (int) neigh.size() / ndim;
+  VectorInt neigh = gridcell_neigh(ndim, 1, radius, false, false);
+  int nbmax = (int) neigh.size() / ndim;
 
   /* Calculate the VMAP half-extension */
 
-  for (idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     mid[idim] = _dbmap->getNX(idim) * _dbmap->getDX(idim) / 2;
 
   /* Sorting the samples according to their first coordinate */
 
-  coor = db->getCoordinates(0);
-  for (i = 0; i < nech; i++)
-    ind1[i] = i;
-  ut_sort_double(1, nech, ind1, coor.data());
+  VectorDouble coor = db->getCoordinates(0);
+  for (int i = 0; i < nech; i++) ind1[i] = i;
+  ut_sort_double(1, nech, ind1.data(), coor.data());
 
   /* Loop on the first data */
 
-  for (jech1 = 0; jech1 < nech; jech1++)
+  for (int jech1 = 0; jech1 < nech; jech1++)
   {
     iech1 = ind1[jech1];
     if (!db->isActive(iech1)) continue;
@@ -681,14 +666,15 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 
     /* Loop on the second data */
 
-    for (jech2 = jech1; jech2 < nech; jech2++)
+    for (int jech2 = jech1; jech2 < nech; jech2++)
     {
       iech2 = ind1[jech2];
       if (!db->isActive(iech2)) continue;
       delta[0] = db->getCoordinate(iech2, 0) - x0;
       if (delta[0] > mid[0]) break;
 
-      for (idim = 1, flag_out = 0; idim < ndim && flag_out == 0; idim++)
+      flag_out = 0;
+      for (int idim = 1; idim < ndim && flag_out == 0; idim++)
       {
         delta[idim] = db->getDistance1D(iech2, iech1, idim);
         if (delta[idim] > mid[idim]) flag_out = 1;
@@ -696,7 +682,7 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
       if (flag_out) continue;
 
       // Apply to the target cell
-      if (point_to_grid(_dbmap, delta, 0, indg0.data())) continue;
+      if (point_to_grid(_dbmap, delta.data(), 0, indg0.data())) continue;
       for (int in = 0; in < nbmax; in++)
       {
         iech0 = _findNeighCell(indg0, neigh, in, indg1);
@@ -708,9 +694,9 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
       if (iech1 == iech2) continue;
 
       // Apply to the opposite target cell
-      for (idim = 0; idim < ndim; idim++)
+      for (int idim = 0; idim < ndim; idim++)
         delta[idim] = -delta[idim];
-      if (point_to_grid(_dbmap, delta, 0, indg0.data())) continue;
+      if (point_to_grid(_dbmap, delta.data(), 0, indg0.data())) continue;
       for (int in = 0; in < nbmax; in++)
       {
         iech0 = _findNeighCell(indg0, neigh, in, indg1);
@@ -723,16 +709,7 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   /* Normalization */
 
   _vmap_normalize(nv2);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) ind1);
-  db_sample_free(delta);
-  db_sample_free(mid);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

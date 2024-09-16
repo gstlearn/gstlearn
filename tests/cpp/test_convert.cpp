@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -17,6 +15,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "OutputFormat/AOF.hpp"
 
 /**
  * This file is meant to test the External Format Read /Write operations

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include "Core/CSV.hpp"
@@ -21,6 +19,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Memory.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "OutputFormat/AOF.hpp"
 #include "OutputFormat/GridEclipse.hpp"
 #include "OutputFormat/GridIfpEn.hpp"
 #include "OutputFormat/GridXYZ.hpp"

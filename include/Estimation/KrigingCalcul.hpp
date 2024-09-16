@@ -38,23 +38,24 @@ public:
                 const MatrixSquareSymmetric* Sigma   = nullptr,
                 const MatrixRectangular* X           = nullptr,
                 const MatrixSquareSymmetric* Sigma00 = nullptr,
-                const VectorDouble* BetaRef          = nullptr);
+                const VectorDouble* Means            = nullptr);
   KrigingCalcul(const KrigingCalcul& r)            = delete;
   KrigingCalcul& operator=(const KrigingCalcul& r) = delete;
   virtual ~KrigingCalcul();
 
   int setData(const VectorDouble* Z                = nullptr,
-               const MatrixSquareSymmetric* Sigma   = nullptr,
-               const MatrixRectangular* X           = nullptr,
-               const MatrixSquareSymmetric* Sigma00 = nullptr,
-               const VectorDouble* BetaRef          = nullptr);
+              const MatrixSquareSymmetric* Sigma   = nullptr,
+              const MatrixRectangular* X           = nullptr,
+              const MatrixSquareSymmetric* Sigma00 = nullptr,
+              const VectorDouble* Means            = nullptr);
+  int setVariance00(const MatrixSquareSymmetric* Sigma00 = nullptr);
   int setTarget(const MatrixRectangular* Sigma0 = nullptr,
-                const MatrixRectangular* X0 = nullptr);
+                             const MatrixRectangular* X0     = nullptr);
   int setColCokUnique(const VectorDouble* Zp      = nullptr,
                       const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
                const MatrixSquareSymmetric* PriorCov = nullptr);
-  int setXvalidUnique(int iechXvalid = 0, const VectorInt* rankXvalid = nullptr);
+  int setXvalidUnique(const VectorInt* rankXvalid = nullptr);
 
   void printStatus() const;
 
@@ -78,11 +79,19 @@ public:
   const MatrixRectangular* getSigma0();
   const MatrixRectangular* getSigma0p();
 
+  void resetLinkedToZ();
+  void resetLinkedToLHS();
+  void resetLinkedToRHS();
+  void resetLinkedtoVar0();
+  void resetLinkedToBayes();
+  void resetLinkedToColCok();
+  void resetLinkedToXvalid();
+
 private:
   static bool _checkDimensionMatrix(const String& name,
-                                    const AMatrix* mat,
-                                    int* nrowsRef,
-                                    int* ncolsRef);
+                                               const AMatrix* mat,
+                                               int* nrowsRef,
+                                               int* ncolsRef);
   static bool _checkDimensionVector(const String& name,
                                     const VectorDouble* vec,
                                     int* sizeRef);
@@ -117,11 +126,52 @@ private:
   int _needZ0p();
   int _needLambda0();
   int _needInvSigmaSigma0();
+  int _patchSigma0ForXvalidUnique();
+  int _needPriorCov();
+  int _needPriorMean();
+  int _needZ();
+  int _needZp();
+  int _needRankColCok();
+  int _needRankXvalid();
+
+  void _deleteX();
+  void _deleteX0();
+  void _deleteSigma();
+  void _deleteSigma0();
+  void _deleteSigma00();
+  void _deleteBeta();
+  void _deleteInvSigma();
+  void _deleteLambdaSK();
+  void _deleteLambdaUK();
+  void _deleteMuUK();
+  void _deleteSigmac();
+  void _deleteZstar();
+  void _deleteY0();
+  void _deleteXtInvSigma();
+  void _deleteStdv();
+  void _deleteVarZSK();
+  void _deleteVarZUK();
+  void _deleteInvPriorCov();
+  void _deleteSigma0p();
+  void _deleteSigma00p();
+  void _deleteSigma00pp();
+  void _deleteX0p();
+  void _deleteY0p();
+  void _deleteZ0p();
+  void _deleteLambda0();
+  void _deleteInvSigmaSigma0();
+  void _deleteInvSigma00vv();
+  void _deletePriorCov();
+  void _deletePriorMean();
+  void _deleteZ();
+  void _deleteZp();
+  void _deleteRankColCok();
+  void _deleteRankXvalid();
 
   static void _printMatrix(const String& name, const AMatrix* mat);
   static void _printVector(const String& name, const VectorDouble* vec);
 
-  void _resetMemory();
+  void _resetAll();
 
 private:
   // Following information should not be removed in destructor
@@ -133,11 +183,10 @@ private:
   const MatrixSquareSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
   const VectorDouble* _Z;                 // Data [flattened] (Dim: _neq)
   const VectorDouble* _PriorMean;         // Prior Bayesian Mean (Dim: _nbfl)
-  const VectorDouble* _BetaRef;           // Fixed drift coefficients
+  const VectorDouble* _Means;             // Fixed drift coefficients
   const VectorDouble* _Zp;                // Vector of values for collocation
   const VectorInt* _rankColCok;           // Ranks of collocated variables
-  int _iechXvalid;                        // Rank of the sample to be cross-validated 
-  const VectorInt* _rankXvalid;           // Ranks of the cross-validated variables
+  const VectorInt* _rankXvalid;           // Ranks of the cross-validated Samples/Variables
 
   // Following elements can be retrieved by Interface functions  
   VectorDouble _Zstar;                  // Estimated values (Dim: _nrhs)
@@ -165,17 +214,13 @@ private:
   MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * InvSigma * X (Dim: _ncck *_nbfl)
   VectorDouble _Z0p;                 // Vector of (active) collocated values
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
-
-  // Following elements are defined for internal storage (cross-validation in UN)
-  MatrixSquareSymmetric* _Sigma00vv; // Xvalid matrix (Dim: _nxvl * _nvxl)
-  MatrixRectangular* _InvXvtInvSXv;  // (Xvt * S00v^{-1} * Xv)^{-1} (Dim: )
    
   // Additional parameters
   int _neq;
   int _nbfl;
   int _nrhs;
   int _ncck;
-  int _nxvl; 
+  int _nxvalid;
   bool _flagSK;
   bool _flagBayes;
 };

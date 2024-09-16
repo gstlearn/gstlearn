@@ -547,15 +547,19 @@ public:
                            int item = -1,
                            bool useSel = true,
                            bool useVerr = false) const;
-  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
+  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars = VectorInt(),
                                          const VectorInt &nbgh = VectorInt(),
                                          bool useSel = true,
                                          bool useVerr = false) const;
-  VectorDouble getMultipleValuesActive(const VectorInt& ivars = VectorInt(),
-                                       const VectorInt& nbgh  = VectorInt(),
-                                       const VectorDouble& means = VectorDouble(),
-                                       bool useSel = true,
-                                       bool useVerr = false) const;
+  VectorDouble
+  getMultipleValuesActive(const VectorInt& ivars    = VectorInt(),
+                          const VectorInt& nbgh     = VectorInt(),
+                          const VectorDouble& means = VectorDouble(),
+                          bool useSel               = true,
+                          bool useVerr              = false) const;
+  static VectorInt getMultipleRanks(const VectorVectorInt& index,
+                                    const VectorInt& ivars = VectorInt(),
+                                    const VectorInt& nbgh  = VectorInt());
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
@@ -679,9 +683,9 @@ public:
   VectorDouble getColumnsActiveAndDefined(const ELoc& locatorType,
                                           const VectorDouble& origins = VectorDouble()) const;
   VectorDouble getColumnsByLocator(const ELoc& locatorType,
-                      bool useSel                 = false,
-                      bool flagCompress           = true,
-                      const VectorDouble& origins = VectorDouble()) const;
+                                   bool useSel                 = false,
+                                   bool flagCompress           = true,
+                                   const VectorDouble& origins = VectorDouble()) const;
   VectorDouble getColumnsByUID(const VectorInt& iuids,
                                bool useSel       = false,
                                bool flagCompress = true,

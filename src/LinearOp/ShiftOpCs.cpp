@@ -29,8 +29,6 @@
 #include <math.h>
 #include <memory>
 
-
-
 ShiftOpCs::ShiftOpCs()
   : _TildeC()
   , _Lambda()

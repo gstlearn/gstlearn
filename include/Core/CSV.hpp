@@ -10,6 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorT.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 class CSVformat;
@@ -23,7 +26,7 @@ GSTLEARN_EXPORT int csv_manage(const char* filename,
                                bool verbose     = false);
 GSTLEARN_EXPORT void csv_print_double(double value);
 
-GSTLEARN_EXPORT Db* db_read_csv(const char* filename,
+GSTLEARN_EXPORT Db* db_read_csv(const char* file_name,
                                 const CSVformat& csvfmt,
                                 int verbose            = 0,
                                 int ncol_max           = -1,

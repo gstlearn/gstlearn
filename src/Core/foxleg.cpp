@@ -1392,34 +1392,3 @@ int foxleg_f(int ndat,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **  Add constraints to the Option_AutoFit structure
- **
- ** \return Error return code
- **
- ** \param[in]  constraints  Constraints structure
- ** \param[in]  constantSill Constant value for the Sill as a constraint
- **
- *****************************************************************************/
-int add_sill_constraints(Constraints& constraints, double constantSill)
-{
-  constraints.setConstantSillValue(constantSill);
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Add constraints (all equal to 1) to the Option_AutoFit structure
- **
- ** \return Error return code
- **
- ** \param[in]  constraints   Constraints structure
- **
- *****************************************************************************/
-int add_unit_sill_constraints(Constraints& constraints)
-{
-  constraints.setConstantSillValue(1.);
-  return (0);
-}

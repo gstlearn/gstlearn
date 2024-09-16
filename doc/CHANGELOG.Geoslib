@@ -611,7 +611,7 @@ Bug Fixes :
 - Xvalidation in presence of masked samples or test values
 - in Turning Bands simulation, the angles of the bands are different from one
   simulation to another one.
-- in Turning Bands simulation, the K-Bessel model is simulated  correctly.
+- in Turning Bands simulation, the Matern model is simulated  correctly.
 - in the Regression function, the correlation coefficient has the good sign.
 	
 Release 9.5.3
