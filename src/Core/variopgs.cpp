@@ -31,6 +31,7 @@
 #include "Enum/EOperator.hpp"
 #include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
+#include "Core/CTables.hpp"
 
 #include <math.h>
 #include <string.h>

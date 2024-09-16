@@ -729,16 +729,15 @@ int db_bounds_shadow(Db* db,
                      int flag_stat,
                      int nfacies)
 {
-  int flag_used[2], ngrf, error, iptr, igrf;
-  double *coor;
-  PropDef *propdef;
+  int flag_used[2], iptr, igrf;
+  VectorDouble coor;
 
   /* Initializations */
 
-  error = 1;
-  ngrf = 0;
-  coor = nullptr;
-  propdef = nullptr;
+  int error = 1;
+  int ngrf  = 0;
+  int ndim = 0;
+  PropDef* propdef = nullptr;
 
   /**********************/
   /* Preliminary checks */
@@ -768,8 +767,8 @@ int db_bounds_shadow(Db* db,
   /* Core allocation */
   /*******************/
 
-  coor = db_sample_alloc(db, ELoc::X);
-  if (coor == nullptr) goto label_end;
+  ndim = db->getNDim();
+  coor.resize(ndim);
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               props, propdef);
@@ -805,7 +804,6 @@ int db_bounds_shadow(Db* db,
   label_end:
   proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
                     db, dbprop, props, propdef);
-  db_sample_free(coor);
   return (error);
 }
 

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
@@ -18,6 +19,7 @@
 #endif
 
 class AMesh;
+class Cholesky;
 class ShiftOpCs;
 class CovAniso;
 class Model;
@@ -31,27 +33,18 @@ class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
-                bool flagDecompose = false,
                 bool verbose = false);
   PrecisionOpCs(const AMesh* mesh,
-                Model* model,
-                int icov = 0,
-                bool flagDecompose = false,
+                CovAniso* cova,
                 bool verbose = false);
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
   #ifndef SWIG
-  void evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout) override;
   void evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout) override;
+  int _addSimulateToDest(const Eigen::VectorXd &whitenoise, Eigen::VectorXd& outv) const override;
+  int _addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd& outv) const override;
   #endif
-
-  //TODO : required to call the method of the mother class from python?????
-  void evalSimulate(const VectorDouble& in, VectorDouble &out) 
-  {
-    PrecisionOp::evalSimulate(in,out);
-  }
-  void makeReady() override;
 
   double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
   
@@ -67,8 +60,10 @@ public:
   const MatrixSparse* getQ() const { return _Q; }
 
 private:
-  void _buildQ(bool flagDecompose = false);
+  void _buildQ();
+  MatrixSparse* _build_Q();
 
 private:
   MatrixSparse* _Q;
+  mutable Cholesky* _chol;
 };

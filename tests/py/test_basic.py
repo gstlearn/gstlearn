@@ -4,7 +4,8 @@
 
 import gstlearn as gl
 import gstlearn.plot as gp
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pltpython
+
 
 # We create a grid of 150 by 100 square cells of 1m edge.
 

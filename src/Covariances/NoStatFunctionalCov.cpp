@@ -9,60 +9,60 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AException.hpp"
-#include "Model/ANoStat.hpp"
-#include "Model/NoStatFunctional.hpp"
+#include "Covariances/ANoStatCov.hpp"
+#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include <math.h>
 
-NoStatFunctional::NoStatFunctional(const VectorString& code)
-    : ANoStat(),
+NoStatFunctionalCov::NoStatFunctionalCov(const VectorString& code)
+    : ANoStatCov(),
       _func(nullptr)
 {
   (void) addNoStatElems(code);
 }
 
-NoStatFunctional::NoStatFunctional(const AFunctional* func, const VectorString& code)
-    : ANoStat(),
+NoStatFunctionalCov::NoStatFunctionalCov(const AFunctional* func, const VectorString& code)
+    : ANoStatCov(),
       _func(nullptr)
 {
   (void) addNoStatElems(code);
   _func = func;
 }
 
-NoStatFunctional::NoStatFunctional(const NoStatFunctional &m)
-    : ANoStat(m),
+NoStatFunctionalCov::NoStatFunctionalCov(const NoStatFunctionalCov &m)
+    : ANoStatCov(m),
       _func(m._func)
 {
 }
 
-NoStatFunctional& NoStatFunctional::operator= (const NoStatFunctional &m)
+NoStatFunctionalCov& NoStatFunctionalCov::operator= (const NoStatFunctionalCov &m)
 {
   if (this != &m)
   {
-    ANoStat::operator=(m);
+    ANoStatCov::operator=(m);
     _func = m._func;
   }
   return *this;
 }
 
-NoStatFunctional::~NoStatFunctional()
+NoStatFunctionalCov::~NoStatFunctionalCov()
 {
 }
 
 
-int NoStatFunctional::attachToMesh(const AMesh* mesh, bool center,bool verbose) const
+int NoStatFunctionalCov::attachToMesh(const AMesh* mesh, bool center,bool verbose) const
 {
   if (mesh->getNDim() != 2)
   {
     messerr("This function is only defined in 2-D space");
     return 1;
   }
-  return ANoStat::attachToMesh(mesh,center,verbose);
+  return ANoStatCov::attachToMesh(mesh,center,verbose);
 }
 
-int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const
+int NoStatFunctionalCov::attachToDb(Db* db, int icas, bool verbose) const
 {
   if (db == nullptr) return 0;
   if (db->getNDim() != 2)
@@ -70,7 +70,7 @@ int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const
     messerr("This function is only defined in 2-D space");
     return 1;
   }
-  return ANoStat::attachToDb(db,icas,verbose);
+  return ANoStatCov::attachToDb(db,icas,verbose);
 }
 
 /**
@@ -84,16 +84,14 @@ int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const
  * @param igrf  Rank of the GRF
  * @return
  */
-double NoStatFunctional::getValue(const EConsElem &type,
+double NoStatFunctionalCov::getValue(const EConsElem &type,
                                   int icas,
                                   int rank,
-                                  int icov,
                                   int iv1,
-                                  int iv2,
-                                  int igrf) const
+                                  int iv2) const
 {
   if (! _isValid(icas, rank)) return TEST;
-  int ipar = getRank(type, icov, iv1, iv2, igrf);
+  int ipar = getRank(type, iv1, iv2);
   return getValueByParam(ipar, icas, rank);
 }
 
@@ -104,7 +102,7 @@ double NoStatFunctional::getValue(const EConsElem &type,
  * @param rank  Rank of the target
  * @return
  */
-double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
+double NoStatFunctionalCov::getValueByParam(int ipar, int icas, int rank) const
 {
   DECLARE_UNUSED(ipar);
   if (! _isValid(icas, rank)) return TEST;
@@ -148,12 +146,12 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
   return _func->getFunctionValue(vec);
 }
 
-String NoStatFunctional::toString(const AStringFormat* strfmt) const
+String NoStatFunctionalCov::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (_func == nullptr) return sstr.str();
 
-  sstr << ANoStat::toString(strfmt);
+  sstr << ANoStatCov::toString(strfmt);
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;

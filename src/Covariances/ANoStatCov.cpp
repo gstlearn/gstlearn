@@ -8,15 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ANoStat.hpp"
-#include "Model/Model.hpp"
-#include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
+#include "Covariances/ANoStatCov.hpp"
 #include "geoslib_define.h"
+#include "Covariances/ACov.hpp"
 
 #include <math.h>
 
-ANoStat::ANoStat()
+ANoStatCov::ANoStatCov()
     : AStringable(),
       _items(),
       _amesh(nullptr),
@@ -25,7 +23,7 @@ ANoStat::ANoStat()
 {
 }
 
-ANoStat::ANoStat(const VectorString& codes)
+ANoStatCov::ANoStatCov(const VectorString& codes)
   : AStringable(),
     _items(),
     _amesh(nullptr),
@@ -35,7 +33,7 @@ ANoStat::ANoStat(const VectorString& codes)
   (void) addNoStatElems(codes);
 }
 
-ANoStat::ANoStat(const ANoStat &m)
+ANoStatCov::ANoStatCov(const ANoStatCov &m)
   : AStringable(m),
     _items(m._items),
     _amesh(m._amesh),
@@ -44,7 +42,7 @@ ANoStat::ANoStat(const ANoStat &m)
 {
 }
 
-ANoStat& ANoStat::operator= (const ANoStat &m)
+ANoStatCov& ANoStatCov::operator= (const ANoStatCov &m)
 {
   if (this != &m)
   {
@@ -57,11 +55,11 @@ ANoStat& ANoStat::operator= (const ANoStat &m)
   return *this;
 }
 
-ANoStat::~ANoStat()
+ANoStatCov::~ANoStatCov()
 {
 }
 
-String ANoStat::toString(const AStringFormat* strfmt) const
+String ANoStatCov::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (getNoStatElemNumber() <= 0) return sstr.str();
@@ -74,17 +72,25 @@ String ANoStat::toString(const AStringFormat* strfmt) const
 
 /**
  * Look if a Non-stationary parameter is defined
- * @param icov Rank of Target Covariance (or -1 for any)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedByCov(int icov, int igrf) const
+bool ANoStatCov::isDefinedByCov() const
+{
+  if (_items.empty()) return false;
+  return !_items.empty();
+}
+
+/**
+ * Look if a Non-stationary parameter is defined
+ * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
+ * @return
+ */
+bool ANoStatCov::isDefinedByType(const EConsElem& type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (matchIGrf(ipar,igrf) &&
-        matchICov(ipar,icov)) return true;
+      if (matchType(ipar,type)) return true;
   }
   return false;
 }
@@ -92,51 +98,26 @@ bool ANoStat::isDefinedByCov(int icov, int igrf) const
 /**
  * Look if a Non-stationary parameter is defined
  * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedByType(const EConsElem& type, int igrf) const
+bool ANoStatCov::isDefinedByCovType(const EConsElem& type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (matchIGrf(ipar,igrf) &&
-        matchType(ipar,type)) return true;
+    if (matchType(ipar,type)) return true;
   }
   return false;
 }
 
-/**
- * Look if a Non-stationary parameter is defined
- * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
- * @param icov Rank of the Target Covariance (or -1 for any)
- * @param igrf Rank of Target GRF (or -1 for any)
- * @return
- */
-bool ANoStat::isDefinedByCovType(const EConsElem& type, int icov, int igrf) const
+bool ANoStatCov::isDefined(const EConsElem& type,
+                           int iv1,
+                           int iv2) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (matchIGrf(ipar,igrf)  &&
-        matchICov(ipar,icov)  &&
-        matchType(ipar,type)) return true;
-  }
-  return false;
-}
-
-bool ANoStat::isDefined(const EConsElem& type,
-                        int icov,
-                        int iv1,
-                        int iv2,
-                        int igrf) const
-{
-  if (_items.empty()) return false;
-  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
-  {
-    if (matchIGrf(ipar,igrf) &&
-        matchICov(ipar,icov) &&
-        matchType(ipar,type) &&
+    if (matchType(ipar,type) &&
         matchIV1 (ipar,iv1)  &&
         matchIV2 (ipar,iv2)) return true;
   }
@@ -146,17 +127,13 @@ bool ANoStat::isDefined(const EConsElem& type,
 /**
  * Look if a Non-stationary parameter for Variance is defined
  * for any pairs of variables
- * @param icov Rank of the Target Covariance (or -1 for any)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedForVariance(int icov, int igrf) const
+bool ANoStatCov::isDefinedForVariance() const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (! matchIGrf(ipar,igrf)) continue;
-    if (! matchICov(ipar,icov)) continue;
     if (getType(ipar) == EConsElem::SILL) return true;
   }
   return false;
@@ -165,17 +142,13 @@ bool ANoStat::isDefinedForVariance(int icov, int igrf) const
 /**
  * Look if a Non-stationary parameter for Anisotropy is defined
  * either by Tensor or by (angle/range/scale)
- * @param icov Rank of the Target Covariance (or -1 for any)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedforAnisotropy(int icov, int igrf) const
+bool ANoStatCov::isDefinedforAnisotropy() const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (! matchIGrf(ipar,igrf)) continue;
-    if (! matchICov(ipar,icov)) continue;
     if (getType(ipar) == EConsElem::ANGLE ||
         getType(ipar) == EConsElem::RANGE ||
         getType(ipar) == EConsElem::SCALE ||
@@ -187,17 +160,13 @@ bool ANoStat::isDefinedforAnisotropy(int icov, int igrf) const
 /**
  * Look if a Non-stationary parameter for Anisotropy is defined
  * only by angle / range / scale
- * @param icov Rank of the Target Covariance (or -1 for any)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedforRotation(int icov, int igrf) const
+bool ANoStatCov::isDefinedforRotation() const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (! matchIGrf(ipar,igrf)) continue;
-    if (! matchICov(ipar,icov)) continue;
     if (getType(ipar) == EConsElem::ANGLE ||
         getType(ipar) == EConsElem::RANGE ||
         getType(ipar) == EConsElem::SCALE) return true;
@@ -208,20 +177,16 @@ bool ANoStat::isDefinedforRotation(int icov, int igrf) const
 /**
  * Return the rank for a Non-stationary parameter
  * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
- * @param icov Rank of the Target Covariance (or -1 for any)
  * @param iv1  Rank of the first additional element designation (or -1 for any)
  * @param iv2  Rank of the second additional element designation (or -1 for any)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @return -1 if no match is found
  */
-int ANoStat::getRank(const EConsElem& type, int icov, int iv1, int iv2, int igrf) const
+int ANoStatCov::getRank(const EConsElem& type, int iv1, int iv2) const
 {
   if (_items.empty()) return -1;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
-    if (matchIGrf(ipar,igrf) &&
-        matchICov(ipar,icov) &&
-        matchType(ipar,type) &&
+    if (matchType(ipar,type) &&
         matchIV1 (ipar,iv1)  &&
         matchIV2 (ipar,iv2)) return ipar;
   }
@@ -230,17 +195,15 @@ int ANoStat::getRank(const EConsElem& type, int icov, int iv1, int iv2, int igrf
 
 /**
  * Add an element to the pile of Non-stationary parameters
- * @param igrf Rank of the Target GRF
- * @param icov Rank of the target covariance
  * @param type Type of the non-stationary parameter
  * @param iv1  Rank of the first designation
  * @param iv2  Rank of the second designation
  */
-int ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
+int ANoStatCov::addNoStatElem(const EConsElem& type, int iv1, int iv2)
 {
   int nelem = static_cast<int> (_items.size());
   _items.resize(nelem+1);
-  _items[nelem].init(igrf, icov, type, iv1, iv2);
+  _items[nelem].init(type, iv1, iv2);
   if (! _checkConsistency())
   {
     deleteNoStatElem(nelem);
@@ -249,75 +212,63 @@ int ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, i
   return 0;
 }
 
-int ANoStat::addNoStatElemByItem(const CovParamId& item)
+int ANoStatCov::addNoStatElemByItem(const ParamId& item)
 {
-  return addNoStatElem(item.getIGrf(), item.getICov(), item.getType(),
+  return addNoStatElem( item.getType(),
                        item.getIV1(), item.getIV2());
 }
 
-int ANoStat::addNoStatElems(const VectorString &codes)
+int ANoStatCov::addNoStatElems(const VectorString &codes)
 {
-  int igrf, icov, iv1, iv2;
+  int iv1, iv2;
   EConsElem type;
 
   int nerr = 0;
   for (int i = 0; i < (int) codes.size(); i++)
   {
-    if (_understandCode(codes[i], &igrf, &icov, &type, &iv1, &iv2)) continue;
-    nerr += addNoStatElem(igrf, icov, type, iv1, iv2);
+    if (_understandCode(codes[i],&type, &iv1, &iv2)) continue;
+    nerr += addNoStatElem( type, iv1, iv2);
   }
   return (nerr > 0);
 }
 
-void ANoStat::deleteNoStatElem(int ipar)
+void ANoStatCov::deleteNoStatElem(int ipar)
 {
   _items.erase(_items.begin() + ipar);
 }
 
-void ANoStat::deleteAllNoStatElem()
+void ANoStatCov::deleteAllNoStatElem()
 {
   _items.clear();
 }
 
 /**
  * This function tries to attach the current Non-Stationary environment
- * to the model, checking that references to Covariance ranks are valid
- * @param model Model structure
+ * to the cova, checking that references to Covariance ranks are valid
+ * @param cova ACov structure
  * @return Error return code
  */
-int ANoStat::attachModel(const Model* model)
+int ANoStatCov::attachCov(const ACov* cova)
 {
-  if (model == nullptr)
+  if (cova == nullptr)
   {
-    messerr("Model must be defined beforehand");
+    messerr("CovAniso must be defined beforehand");
     return 1;
   }
-  if (model->getDimensionNumber() > 3)
+  if (cova->getNDim() > 3)
   {
-    messerr("Non stationary model is restricted to Space Dimension <= 3");
+    messerr("Non stationary cova is restricted to Space Dimension <= 3");
     return 1;
   }
 
-  // Patch. It may happen that the Model already contains the parameters of the ANostat
-  // which are better defined than in the Current ANostat structure
-  // In this case copy the ANostat parameters from Model to Current
-  // TODO: Remove this part of code
-  _updateFromModel(model);
 
   for (int ipar=0; ipar<(int) getNoStatElemNumber(); ipar++)
   {
-    int icov = getICov(ipar);
     EConsElem type = getType(ipar);
 
     // Check that the Non-stationary parameter is valid with respect
-    // to the Model definition
+    // to the CovAniso definition
 
-    if (icov < 0 || icov >= model->getCovaNumber())
-    {
-      messerr("Invalid Covariance rank (%d) for the Non-Stationary Parameter (%d)",
-              icov,ipar);
-      return 1;
-    }
     if (type == EConsElem::PARAM)
     {
       messerr("The current methodology does not handle constraint on third parameter");
@@ -330,8 +281,6 @@ int ANoStat::attachModel(const Model* model)
 /** Decoding a NoStat Element code which should follow the following syntax
  *
  * @param code Input code
- * @param igrf Rank of the GRF
- * @param icov Rank of the Covariance
  * @param type Type of parameter ("R","A","P","V","S","T","C","I","H")
  *             G : Rank of the GRF
  *             M : Rank of the Structure
@@ -348,61 +297,19 @@ int ANoStat::attachModel(const Model* model)
  * @param iv2  Rank of the second variable
  * @return 0 if a valid constraint has been defined; 1 otherwise
  */
-int ANoStat::_understandCode(const String& code,
-                             int *igrf,
-                             int *icov,
-                             EConsElem *type,
-                             int *iv1,
-                             int *iv2)
+int ANoStatCov::_understandCode(const String& code,
+                                EConsElem *type,
+                                int *iv1,
+                                int *iv2)
 {
-  *igrf = *icov = *iv1 = *iv2 = 0;
+  *iv1 = *iv2 = 0;
   *type = EConsElem::UNKNOWN;
   VectorString keywords = separateKeywords(code);
 
-  bool flagGRF = false;
-  bool flagSTR = false;
   bool flagV1  = false;
   bool flagV2  = false;
   int size = static_cast<int> (keywords.size());
   int lec = 0;
-
-  // Decoding the GRF keyword (keyword "G")
-  if (lec < size)
-  {
-    if (matchKeyword(keywords[lec],"G",false))
-    {
-      flagGRF = true;
-      lec++;
-    }
-  }
-
-  // Decoding the rank of the GRF (conditional)
-  if (lec < size && flagGRF)
-  {
-    *igrf = toInteger(keywords[lec]);
-    if (IFFFF(*igrf)) return 1;
-    (*igrf)--;
-    lec++;
-  }
-
-  // Decoding the structure keyword (keyword "M")
-  if (lec < size)
-  {
-    if (matchKeyword(keywords[lec],"M",false))
-    {
-      flagSTR = true;
-      lec++;
-    }
-  }
-
-  // Decoding the rank of the Structure (conditional)
-  if (lec < size && flagSTR)
-  {
-    *icov = toInteger(keywords[lec]);
-    if (IFFFF(*icov)) return 1;
-    (*icov)--;
-    lec++;
-  }
 
   // Decoding the operator keyword ("R","A","P","V","S","T","C","I","H")
   if (lec < size)
@@ -455,28 +362,6 @@ int ANoStat::_understandCode(const String& code,
 }
 
 /**
- * The Model may contain some non-stationary parameters already initialized
- * that the current structure is not aware of. They are simply duplicated here
- * This temporary patch is applied in the following conditions:
- * 1) the number of stationary elements in current structure is 0
- * 2) the number of stationary elements in Model is positive
- * @param model Input Model
- */
-void ANoStat::_updateFromModel(const Model* model)
-{
-  int nelemFromModel = model->getNoStatElemNumber();
-  int nelem = getNoStatElemNumber();
-  if (nelem > 0) return;
-  if (nelemFromModel <= 0) return;
-
-  for (int ipar = 0; ipar < nelemFromModel; ipar++)
-  {
-    CovParamId item = model->getCovParamId(ipar);
-    (void) addNoStatElemByItem(item);
-  }
-}
-
-/**
  * Get the information from the storage in Dbin and/or Dbout
  * @param ipar  Rank of the non-stationary parameter
  * @param icas1 Type of first Db: 1 for Input; 2 for Output
@@ -488,7 +373,7 @@ void ANoStat::_updateFromModel(const Model* model)
  *
  * @return true if the two values are different
  */
-bool ANoStat::getInfoFromDb(int ipar,
+bool ANoStatCov::getInfoFromDb(int ipar,
                             int icas1,
                             int iech1,
                             int icas2,
@@ -507,14 +392,14 @@ bool ANoStat::getInfoFromDb(int ipar,
   return *val1 != *val2;
 }
 
-int ANoStat::attachToMesh(const AMesh* mesh, bool center, bool /*verbose*/) const
+int ANoStatCov::attachToMesh(const AMesh* mesh, bool center, bool /*verbose*/) const
 {
   DECLARE_UNUSED_(center);
   _setAmesh(mesh);
   return 0;
 }
 
-int ANoStat::attachToDb(Db* db, int icas, bool /*verbose*/) const
+int ANoStatCov::attachToDb(Db* db, int icas, bool /*verbose*/) const
 {
   if (icas == 1)
     _setDbin(db);
@@ -523,12 +408,12 @@ int ANoStat::attachToDb(Db* db, int icas, bool /*verbose*/) const
   return 0;
 }
 
-void ANoStat::detachFromMesh() const
+void ANoStatCov::detachFromMesh() const
 {
   _setAmesh(nullptr);
 }
 
-void ANoStat::detachFromDb(Db* /*db*/, int icas) const
+void ANoStatCov::detachFromDb(Db* /*db*/, int icas) const
 {
   if (icas == 1)
     _setDbin(nullptr);
@@ -542,7 +427,7 @@ void ANoStat::detachFromDb(Db* /*db*/, int icas) const
  * - HH is incompatible with (angle / range/ scale)
  * @return
  */
-bool ANoStat::_checkConsistency() const
+bool ANoStatCov::_checkConsistency() const
 {
   bool flagHH  = false;
   bool flagRot = false;
@@ -559,7 +444,7 @@ bool ANoStat::_checkConsistency() const
   }
   if (flagHH && flagRot)
   {
-    messerr("Error in the definition of Model Non-stationarity");
+    messerr("Error in the definition of CovAniso Non-stationarity");
     messerr("You cannot mix the following two parameterizations:");
     messerr("- in Tensor using HH");
     messerr("- in rotation matrix using Angle / [Scale | Range]");
@@ -577,7 +462,7 @@ bool ANoStat::_checkConsistency() const
  * @param rank  Rank of the target
  * @return
  */
-bool ANoStat::_isValid(int icas, int rank) const
+bool ANoStatCov::_isValid(int icas, int rank) const
 {
   switch (icas)
   {
@@ -645,7 +530,7 @@ bool ANoStat::_isValid(int icas, int rank) const
  ** \param[in]  dbout       Descriptor of the output Db
  **
  *****************************************************************************/
-int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout) const
+int ANoStatCov::manageInfo(int mode, Db *dbin, Db *dbout) const
 {
 
   /* Dispatch */
@@ -681,22 +566,20 @@ int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout) const
   return (0);
 }
 
-void ANoStat::checkCode(const String& code)
+void ANoStatCov::checkCode(const String& code)
 {
-  int igrf, icov, iv1, iv2;
+  int iv1, iv2;
   EConsElem type;
 
-  if (ANoStat::_understandCode(code, &igrf, &icov, &type, &iv1, &iv2)) return;
+  if (ANoStatCov::_understandCode(code, &type, &iv1, &iv2)) return;
 
   message("Code '%s' decodes as follows (1-based)\n", code.c_str());
   message("TYPE = %s\n", type.getDescr().c_str());
-  message("IGRF = %d\n", igrf+1);
-  message("ICOV = %d\n", icov+1);
   message("IV1  = %d\n", iv1+1);
   message("IV2  = %d\n", iv2+1);
 }
 
-const Db* ANoStat::_getDbout() const
+const Db* ANoStatCov::_getDbout() const
 {
   if (_dbout == nullptr && _dbin != nullptr) return _dbin;
   return _dbout;

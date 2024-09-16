@@ -8,8 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/Memory.hpp"
@@ -142,8 +141,9 @@ void time_chunk_add(const char *call_name)
 
     // Glue the new Time Chunk to the Global array
 
-    TimeStat = (TimeChunk**) realloc((char*) TimeStat,
-                                     (NB_TIME_CHUNK + 1) * sizeof(TimeChunk*));
+    auto* placeholder =
+      realloc((char*)TimeStat, (NB_TIME_CHUNK + 1) * sizeof(TimeChunk*));
+    TimeStat = (TimeChunk**)placeholder;
     if (TimeStat == NULL)
     {
       messerr("Memory problem: Timer procedure is interrupted");
@@ -244,8 +244,9 @@ static void st_memory_leak_add(const char *call_file,
 
   // Glue the new chunk to the Global array
 
-  MemLeak = (MemChunk**) realloc((char*) MemLeak,
-                                 (NB_MEM_CHUNK + 1) * sizeof(MemChunk*));
+  auto* placeholder =
+    realloc((char*)MemLeak, (NB_MEM_CHUNK + 1) * sizeof(MemChunk*));
+  MemLeak = (MemChunk**)placeholder;
   if (MemLeak == NULL)
   {
     messerr("Memory problem: Memory Leak procedure is interrupted");
@@ -299,8 +300,9 @@ static void st_memory_leak_delete(const char *call_file,
   // Compress the array of Memory chunks
 
   MemLeak[found] = MemLeak[NB_MEM_CHUNK - 1];
-  MemLeak = (MemChunk**) realloc((char*) MemLeak,
-                                 (NB_MEM_CHUNK - 1) * sizeof(MemChunk*));
+  auto* placeholder =
+    realloc((char*)MemLeak, (NB_MEM_CHUNK - 1) * sizeof(MemChunk*));
+  MemLeak = (MemChunk**)placeholder;
   NB_MEM_CHUNK--;
 }
 
@@ -667,7 +669,8 @@ char* mem_realloc_(const char *call_file,
       {
         st_memory_leak_delete(call_file, call_line, tab_aux);
       }
-      tab_aux = (char*) realloc(tab_aux, size);
+      auto* placeholder = realloc(tab_aux, size);
+      tab_aux          = (char*)placeholder;
       if (MEMORY_DEBUG)
       {
         (void) memcpy((char*) tab_aux, (char*) &size_eff, sizeof(int));

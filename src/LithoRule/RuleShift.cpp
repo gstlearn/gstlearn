@@ -17,6 +17,7 @@
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
+#include "LithoRule/PropDef.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

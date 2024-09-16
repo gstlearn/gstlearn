@@ -1157,3 +1157,41 @@ bool isInternalDebug()
 {
   return _internalDebug;
 }
+
+/****************************************************************************/
+/*!
+ **  Print the range of values in an array
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ntab     number of values
+ ** \param[in]  tab      array of values
+ ** \param[in]  sel      (optional) selection
+ **
+ *****************************************************************************/
+void print_range(const char* title,
+                 int ntab,
+                 const double* tab,
+                 const double* sel)
+{
+  if (tab == nullptr || ntab <= 0) return;
+  StatResults stats = ut_statistics(ntab, tab, sel);
+
+  /* Encode the title (if defined) */
+
+  if (title != NULL)
+    message("%s : ", title);
+  else
+    message("Range : ");
+  message("  ");
+
+  if (FFFF(stats.mini))
+    message(STRING_NA);
+  else
+    message("%lf", stats.mini);
+  message(" ; ");
+  if (FFFF(stats.maxi))
+    message(STRING_NA);
+  else
+    message("%lf", stats.maxi);
+  message(" (%d/%d)\n", stats.nvalid, ntab);
+}

@@ -10,18 +10,21 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
 #include "Basic/NamingConvention.hpp"
 #include "Db/DbGrid.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Model/Model.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 
+class CovAniso;
 class Db;
 class Vario;
 class VarioParam;
@@ -64,10 +67,8 @@ GSTLEARN_EXPORT int vmap_auto_fit(const DbGrid* dbmap,
                                   const Option_AutoFit& mauto_arg   = Option_AutoFit(),
                                   const Constraints& cons_arg       = Constraints(),
                                   const Option_VarioFit& optvar_arg = Option_VarioFit());
-GSTLEARN_EXPORT int db_model_nostat(Db *db,
-                                    Model *model,
-                                    int icov = 0,
-                                    const NamingConvention& namconv = NamingConvention("Nostat"));
+GSTLEARN_EXPORT int db_cova_nostat(Db *db, ACov *cova,
+                                   const NamingConvention& namconv = NamingConvention("Nostat"));
 GSTLEARN_EXPORT void set_test_discrete(bool flag_discret);
 GSTLEARN_EXPORT Vario* model_pgs(Db *db,
                                  const VarioParam *varioparam,
@@ -210,57 +211,4 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   bool flag_cstd,
                                   bool verbose = false,
                                   const NamingConvention& namconv = NamingConvention("Gibbs"));
-
-/********************************************/
-/* Prototyping the functions in potential.c */
-/********************************************/
-
-GSTLEARN_EXPORT int potential_kriging(Db *db,
-                                      Db *dbgrd,
-                                      Db *dbtgt,
-                                      DbGrid *dbout,
-                                      Model *model,
-                                      ANeigh *neigh,
-                                      double nugget_grd = 0.,
-                                      double nugget_tgt = 0.,
-                                      bool flag_pot = true,
-                                      bool flag_grad = false,
-                                      bool flag_trans = false,
-                                      bool flag_save_data = false,
-                                      int opt_part = 0,
-                                      bool verbose = false);
-GSTLEARN_EXPORT int potential_cov(Model *model,
-                                  bool verbose,
-                                  int type1,
-                                  const VectorDouble &x10,
-                                  const VectorDouble &x1p,
-                                  const VectorDouble &tx1,
-                                  int type2,
-                                  const VectorDouble &x20,
-                                  const VectorDouble &x2p,
-                                  const VectorDouble &tx2,
-                                  VectorDouble &covtab);
-GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
-                                       Db *dbgrd,
-                                       Db *dbtgt,
-                                       DbGrid *dbout,
-                                       Model *model,
-                                       ANeigh *neigh,
-                                       double nugget_grd = 0.,
-                                       double nugget_tgt = 0.,
-                                       double dist_tempere = TEST,
-                                       bool flag_trans = false,
-                                       int seed = 135674,
-                                       int nbsimu = 1,
-                                       int nbtuba = 100,
-                                       bool verbose = false);
-GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
-                                     Db *dbgrd,
-                                     Db *dbtgt,
-                                     Model *model,
-                                     ANeigh *neigh,
-                                     double nugget_grd = 0.,
-                                     double nugget_tgt = 0.,
-                                     bool flag_dist_conv = false,
-                                     bool verbose = false);
 

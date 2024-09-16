@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/ANoStatCov.hpp"
+#include "Model/CovInternal.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ECov.hpp"
@@ -22,11 +24,13 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
+#include <memory>
 
 class Rotation;
 class MatrixSquareGeneral;
 class MatrixRectangular;
-
+class ANoStatCov;
+class CovInternal;
 /**
  * \brief
  * This class describes an **elementary covariance**.
@@ -200,6 +204,8 @@ public:
   const CovContext& getContext() const { return _ctxt; }
   const ECov& getType() const { return _cova->getType(); }
   double getParam() const;
+  const ANoStatCov* getNoStat() const  {return _noStat.get();}
+  ANoStatCov* getNoStatModify()  {return _noStat.get();}
   double getScadef() const { return _cova->getScadef(); }
   double getParMax() const { return _cova->getParMax(); }
   int    getMaxNDim() const { return _cova->getMaxNDim(); }
@@ -222,6 +228,8 @@ public:
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
+  void   delNoStat();
+  int    addNoStat(ANoStatCov *anostat);
 
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
                                   int degree = 50,
@@ -236,8 +244,14 @@ public:
   double getCorrec() const;
   double getFullCorrec() const;
   int getDimensionNumber() const { return _ctxt.getNDim(); }
+  void nostatUpdate(CovInternal *covint);
 
   CovAniso* createReduce(const VectorInt &validVars) const;
+  bool isNoStat() const override { return _noStat != nullptr; }
+
+  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
+  void updateCovByMesh(int imesh) ;
+  
 
 protected:
   /// Update internal parameters consistency with the context
@@ -245,6 +259,7 @@ protected:
   virtual void _initFromContext();
 
 private:
+  void _manage(Db* db1,Db* db2,int mode) const override;
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
@@ -252,11 +267,12 @@ private:
   double _evalCovFromH(double h, const CovCalcMode *mode) const;
 
 private:
-  CovContext _ctxt;            /// Context (space, number of variables, ...) // TODO : Really store a copy ?
-  ACovFunc *_cova;             /// Covariance basic function
-  MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
-  Tensor _aniso;               /// Anisotropy parameters
-  double _noStatFactor;        /// Correcting factor for non-stationarity
+  CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
+  ACovFunc *_cova;                     /// Covariance basic function
+  mutable MatrixSquareSymmetric _sill;         /// Sill matrix (nvar x nvar)
+  mutable Tensor _aniso;                       /// Anisotropy parameters
+  mutable std::shared_ptr<ANoStatCov> _noStat; /// Description of Non-stationary Model
+  mutable double _noStatFactor;                /// Correcting factor for non-stationarity
 };
 
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);

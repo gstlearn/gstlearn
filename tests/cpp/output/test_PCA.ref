@@ -9,7 +9,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      1.000
 - Range        =      0.200
 - Theo. Range  =      0.058

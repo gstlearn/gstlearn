@@ -26,7 +26,6 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/KrigingCalcul.hpp"
 
-
 static Db* _dataComplement(Db* data, Db* target, const VectorDouble& valuesTarget)
 {
   // Complement the Data Set
@@ -38,7 +37,7 @@ static Db* _dataComplement(Db* data, Db* target, const VectorDouble& valuesTarge
   return datap;
 }
 
-static Db* _dataTargetDeplement(Db* data, Db* target, const VectorInt& varXvalid, int iech0)
+static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, int iech0)
 {
   Db* datap = data->clone();
   DbStringFormat* dbfmt =
@@ -46,14 +45,8 @@ static Db* _dataTargetDeplement(Db* data, Db* target, const VectorInt& varXvalid
 
   // Delete the cross-validation information
   for (int i = 0, nval = (int) varXvalid.size(); i < nval; i++)
-    datap->setLocVariable(ELoc::Z, iech0, i, TEST);
+    datap->setLocVariable(ELoc::Z, iech0, varXvalid[i], TEST);
   datap->display(dbfmt);
-
-  // Mask all irrelevant samples
-  VectorDouble seltab(target->getSampleNumber(), 0);
-  seltab[iech0] = 1;
-  target->addSelection(seltab, "Selection");
-  target->display(dbfmt);
 
   return datap;
 }
@@ -217,7 +210,7 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
 static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
 {
   // Set of ranks of cross-validated information
-  VectorInt varXvalid = {1};
+  VectorInt varXvalid = {0};
   int iech0           = 0;
   AStringFormat format;
   bool debugSchur = false;
@@ -228,9 +221,12 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   message("- using Standard Kriging on the Deplemented Data Set\n");
   message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
 
+  const VectorVectorInt index = data->getMultipleRanksActive();
+  VectorInt rankXvalid = Db::getMultipleRanks(index, varXvalid, {iech0});
+
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
-  Db* dataP = _dataTargetDeplement(data, targetP, varXvalid, iech0);
+  Db* dataP = _dataTargetDeplement(data, varXvalid, iech0);
 
   // ---------------------- With deplemented Data Base ---------------------
   mestitle(1, "With deplemented input Data Base");
@@ -238,17 +234,34 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   MatrixSquareSymmetric Sigma00P = model->getSillValues(0);
   MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
   MatrixRectangular XP           = model->evalDriftMatrix(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, targetP);
-  MatrixRectangular X0P          = model->evalDriftMatrix(targetP);
+  MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, targetP, -1, -1, VectorInt(), {iech0});
+  MatrixRectangular X0P          = model->evalDriftMatrix(targetP, -1, {iech0});
   VectorDouble ZP =
     dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  message("LHS Xvalid\n");
+  SigmaP.display();
+  message("X XValid\n");
+  XP.display();
+  message("RHS Xvalid\n");
+  Sigma0P.display();
+  message("X0 XValid\n");
+  X0P.display();
+  message("Variance xvalid\n");
+  Sigma00P.display();
 
   KrigingCalcul KcalcP(&ZP, &SigmaP, &XP, &Sigma00P, &means);
   KcalcP.setTarget(&Sigma0P, &X0P);
 
+  KcalcP.getLambdaSK()->display();
+  const auto* el1 = KcalcP.getLambdaUK();
+  if (el1 != nullptr) el1->display();
+  const auto* em1 = KcalcP.getMuUK();
+  if (em1 != nullptr) em1->display();
+
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
   VH::display("Variance of Estimator", KcalcP.getVarianceZstar());
+
   if (debugSchur) KcalcP.printStatus();
 
   // ---------------------- With Cross-validation Option -------------------------
@@ -259,12 +272,23 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrix(data, targetP);
   MatrixRectangular X0          = model->evalDriftMatrix(targetP);
-  KrigingCalcul Kcalc(nullptr, &Sigma, &X, &Sigma00, &means);
-  Kcalc.setXvalidUnique(iech0, &varXvalid);
+  VectorDouble Z =
+    data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  
+  KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
+  Kcalc.setXvalidUnique(&rankXvalid);
+
+  const auto* es2 = Kcalc.getLambdaSK();
+  if (es2 != nullptr) es2->display();
+  const auto* el2 = Kcalc.getLambdaUK();
+  if (el2 != nullptr) el2->display();
+  const auto* em2 = KcalcP.getMuUK();
+  if (em2 != nullptr) em2->display();
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
   VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+
   if (debugSchur) Kcalc.printStatus();
 
   delete dataP;
@@ -304,13 +328,13 @@ int main(int argc, char* argv[])
   // Parameters
   bool debugPrint   = false;
   int nech          = 3; // 10
-  int nvar          = 2;
+  int nvar          = 1;
   int nfex          = 0;
   int nbfl          = (nfex + 1) * nvar;
   bool flagSK       = false;
   bool flagBayes    = false;
   if (flagBayes) flagSK = false;
-  int mode = 0;
+  int mode = 3;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, nfex);
@@ -324,7 +348,7 @@ int main(int argc, char* argv[])
 
   // Create the Model
   Model* model;
-  double range = 0.2;
+  double range = 0.7;
   MatrixSquareSymmetric* sills =
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
   model = Model::createFromParam(ECov::SPHERICAL, range, 0., 0., VectorDouble(),

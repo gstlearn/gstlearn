@@ -21,7 +21,6 @@
 #include "Db/DbGrid.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Model/Model.hpp"
-#include "Model/ANoStat.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
@@ -136,13 +135,20 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _p1(),
       _p2(),
       _p0_memo(),
-      _flagNoStat(true),
       _flagNoMatLC(true),
-      _flagVerr(false)
+      _flagVerr(false),
+      _flagNoStat(false),
+      _cova(nullptr)
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
   if (model != nullptr)
     _modelInit = model->clone();
+
+  if (model->getCovaNumber()>0)
+    _cova = _modelInit->getCovAnisoListModify();
+  
+  if (model != nullptr)
+    _flagNoStat = _cova->isNoStat();
 
   // Set the current Model to _modelInit
   _model = _modelInit;
@@ -154,7 +160,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   }
 
   // Define local constants
-  _flagNoStat  = _model->isNoStat();
   _flagNoMatLC = _matLC == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
@@ -164,7 +169,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
 KrigingSystem::~KrigingSystem()
 {
   // Turn OFF this option for future task
-
   OptDbg::setCurrentIndex(-1);
 
   // Clean elements from _dbin
@@ -207,20 +211,11 @@ KrigingSystem::~KrigingSystem()
 
   if (_modelInit != nullptr)
   {
-    if (_modelInit->isNoStat())
-    {
-      const ANoStat *nostat = _modelInit->getNoStat();
-
-      // Detach the Input Db
-      if (_dbin != nullptr) nostat->detachFromDb(_dbin, 1);
-
-      // Detach the output Db
-      if (_dbout != nullptr) nostat->detachFromDb(_dbout, 2);
-    }
-
+    _cova->manage(_dbin, _dbout,-1);
     delete _modelInit;
     _modelInit = nullptr;
   }
+
 }
 
 int KrigingSystem::_getNVar() const
@@ -674,7 +669,7 @@ void KrigingSystem::_lhsCalcul()
   {
     for (int jech = 0; jech <= iech; jech++)
     {
-      if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
+      _cova->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
       if (iech == jech && _model->isStationary())
         _covtab0Calcul(1, _nbgh[iech], &_calcModeLHS);
       else
@@ -875,7 +870,7 @@ void KrigingSystem::_rhsCalculPoint()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
+    _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -897,7 +892,7 @@ void KrigingSystem::_rhsCalculBlock()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     if (_flagPerCell) _blockDiscretize(1);
     covcum.fill(0.);
 
@@ -950,7 +945,7 @@ void KrigingSystem::_rhsCalculDGM()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -1492,7 +1487,7 @@ void KrigingSystem::_variance0()
   if (_optimEnabled)
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
-  if (_flagNoStat) _model->updateCovByPoints(2, _iechOut, 2, _iechOut);
+  if (_flagNoStat) _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);
 
   switch (_calcul.toEnum())
   {
@@ -1582,7 +1577,7 @@ void KrigingSystem::_estimateStdv(int status)
       // The Variance at origin must be updated
       // - in Non-stationary case
       // - for Block Estimation, when the block size if defined per cell
-      if (_flagNoStat || _flagPerCell) _variance0();
+      if ( _flagNoStat || _flagPerCell) _variance0();
 
       double var = _getVAR0(ivarCL, ivarCL);
       if (_flagBayes) var += _varCorrec.getValue(ivarCL, ivarCL);
@@ -2758,19 +2753,8 @@ bool KrigingSystem::_isCorrect()
 
 bool KrigingSystem::_preparNoStat()
 {
-  const ANoStat *nostat = _model->getNoStat();
-
-  if (_dbin != nullptr)
-  {
-    // Attach the Input Db
-    if (nostat->attachToDb(_dbin, 1)) return false;
-  }
-
-  if (_dbout != nullptr)
-  {
-    // Attach the Output Db
-    if (nostat->attachToDb(_dbout, 2)) return false;
-  }
+  const auto* const cova = _model->getCovAnisoList();
+  cova->manage(_dbin, _dbout,1);
 
   // Discard optimization in the non-stationary case
   _model->setOptimEnabled(false);

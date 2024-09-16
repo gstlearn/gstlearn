@@ -22,17 +22,27 @@
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
     : _Q(nullptr)
+    , _chol(nullptr)
 {
 
 }
 
 PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
 {
+  _clear();
+}
+
+void PrecisionOpMultiConditionalCs::_clear()
+{
+  delete _chol;
   delete _Q;
+  _chol = nullptr;
+  _Q = nullptr;
 }
 
 int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
 {
+  _clear();
   PrecisionOpCs* pmatElemCs = dynamic_cast<PrecisionOpCs*>(pmatElem);
   if (pmatElemCs == nullptr)
   {
@@ -47,7 +57,9 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) cons
   DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
-  return _Q->computeCholeskyLogDeterminant();
+  if (_chol == nullptr)
+    _chol = new Cholesky(_Q);
+  return _chol->getLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
@@ -136,8 +148,6 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   delete Qmult;
   delete AtAsVar;
 
-  // Prepare the Cholesky decomposition
-  _Q->computeCholesky();
 
   return 0;
 }
@@ -145,9 +155,11 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
 void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<Eigen::VectorXd> &vecin,
                                                 std::vector<Eigen::VectorXd> &vecout) const
 {
+  if (_chol == nullptr)
+    _chol = new Cholesky(_Q);
   Eigen::VectorXd locVecin = VectorEigen::flatten(vecin);
   Eigen::VectorXd locVecout(locVecin.size());
-  _Q->solveCholesky(locVecin, locVecout);
+  _chol->solve(locVecin, locVecout);
   VectorEigen::unflattenInPlace(locVecout, vecout);
 }
 

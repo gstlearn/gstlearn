@@ -58,30 +58,33 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
         grid  = gl.DbGrid.create(nx1)
         
         if nvar == 1:
+            if multistruct :
+                grid2 = grid.clone()
             rho1 = eps + (grid["x1"]-np.min(grid["x1"])+eps) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho2 = eps + (grid["x2"]-np.min(grid["x2"])+eps) / (eps + np.max(grid["x2"])-np.min(grid["x2"]))
             grid["rho1"] = p * rho1 + (1-p) * sills1
-            grid["rho2"] = p * rho2 + (1-p) * sills2
+            grid.setLocator("rho1",gl.ELoc.NOSTAT)
+            nostatA1 = gl.NoStatArrayCov(["V1"],grid)
+            modelMulti.getCova(0).addNoStat(nostatA1)
             if multistruct :
-                grid.setLocators(["rho1","rho2"],gl.ELoc.NOSTAT)
-                nostatA = gl.NoStatArray(["M1V1","M2V1"],grid)
-            else :
-                grid.setLocator("rho1",gl.ELoc.NOSTAT)
-                nostatA = gl.NoStatArray(["M1V1"],grid)
+                grid2["rho2"] = p * rho2 + (1-p) * sills2
+                grid2.setLocator("rho2",gl.ELoc.NOSTAT)
+                nostatA2 = gl.NoStatArrayCov(["V1"],grid2)
+                modelMulti.getCova(1).addNoStat(nostatA2)
+
         if nvar == 2:
             rho = (eps + grid["x1"]-np.min(grid["x1"])) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho = logit(rho,20,10)
             grid["rho"] = rho * np.sqrt(s11*s21) * p + s121 * (1-p)
             grid.setLocator("rho",gl.ELoc.NOSTAT)
-            nostatA = gl.NoStatArray(["M1V1-2"],grid)
-            modelMulti.addNoStat(nostatA)
+            nostatA = gl.NoStatArrayCov(["V1-2"],grid)
+            modelMulti.getCova(0).addNoStat(nostatA)
         if nvar == 3:
             grid["rho"] = sills1[0,1] * np.ones_like(grid["rank"])
             grid.setLocator("rho",gl.ELoc.NOSTAT)
-            nostatA = gl.NoStatArray(["M1V1-2"],grid)
-            modelMulti.addNoStat(nostatA)
+            nostatA = gl.NoStatArrayCov(["V1-2"],grid)
+            modelMulti.getCova(0).addNoStat(nostatA)
        
-        modelMulti.addNoStat(nostatA)
     return modelMulti,meshes
 
 
@@ -111,15 +114,17 @@ class PrecisionOpMulti:
             self.cholsill += [np.linalg.cholesky(self.sills[i])]
             
             self.nvertex += [meshes[i].getNApices()]
-            
+            self.nvar = self.invsill[0].shape[0]
+ 
             modelMono = gl.Model.createFromParam(cova.getType(),
                                                  param = cova.getParam(),
                                                  range = cova.getRange(),
                                                  sills = 1)
-            self.Qop += [createQ(meshes[i],modelMono)]
+            covatemp = modelMono.getCova(0)
+            self.Qop += [createQ(meshes[i],covatemp)]
             self.temp += [gl.VectorDouble(np.zeros(shape=self.nvertex[i]))]  
         
-        self.nvar = self.invsill[0].shape[0]
+        
         self.nvertextot = np.sum(self.nvertex)
         self.sizetot = self.nvertextot * self.nvar
         
@@ -286,6 +291,3 @@ for nvar in [1,2,3]:
         rr = test(nvar,multistruct,ndig)
 
 # %%
-
-
-

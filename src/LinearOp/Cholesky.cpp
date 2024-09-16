@@ -9,10 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/VectorEigen.hpp"
-#include "geoslib_old_f.h"
 
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Core/SparseInv.hpp"
 
 #include "csparse_f.h"

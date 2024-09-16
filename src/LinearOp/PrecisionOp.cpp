@@ -17,7 +17,6 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
@@ -60,11 +59,10 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 }
 
 PrecisionOp::PrecisionOp(const AMesh* mesh,
-                         Model* model,
-                         int icov,
+                         CovAniso* cova,
                          bool verbose)
   : _shiftOp(nullptr)
-  , _cova(model->getCova(icov))
+  , _cova(cova)
   , _polynomials()
   , _verbose(verbose)
   , _training(false)
@@ -75,7 +73,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work3()
 { 
   
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
+  _shiftOp = new ShiftOpCs(mesh,cova,nullptr,verbose);
   if (_cova->getNVariables() == 1)
   {
     _shiftOp->normalizeLambdaBySills(mesh);
@@ -151,27 +149,25 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
   return new PrecisionOp(shiftop, cova, verbose);
 }
 
-void PrecisionOp::evalSimulate(const VectorDouble& whitenoise, VectorDouble& out)
-{
-  
-  Eigen::VectorXd vect(out.size());
-  Eigen::Map<const Eigen::VectorXd> whitenoisem(whitenoise.data(),whitenoise.size());
-  evalSimulate(whitenoisem,vect);
-  VectorEigen::copy(vect,out);
-}
-
 PrecisionOp* PrecisionOp::create(const AMesh* mesh,
-                                 Model* model,
-                                 int icov,
+                                 CovAniso* cova,
                                  bool verbose)
 {
-  return new PrecisionOp(mesh, model, icov, verbose);
+  return new PrecisionOp(mesh, cova, verbose);
 }
 
 int PrecisionOp::_addToDest(const Eigen::VectorXd& inv,
                           Eigen::VectorXd& outv) const
 {
     _addEvalPower(inv, outv, EPowerPT::ONE);
+    return 0;
+
+}
+
+int PrecisionOp::_addSimulateToDest(const Eigen::VectorXd& whitenoise,
+                          Eigen::VectorXd& outv) const
+{
+    _addEvalPower(whitenoise, outv, EPowerPT::MINUSHALF);
     return 0;
 
 }
@@ -412,12 +408,6 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   _shiftOp->prodLambda(ei, result, EPowerPT::MINUSONE);
 
   return VectorEigen::copyIntoVD(result);
-}
-
-void PrecisionOp::evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout)
-{
-  _evalPoly(EPowerPT::MINUSHALF, whitenoise, vecout);
-  _shiftOp->prodLambda(vecout, vecout, EPowerPT::MINUSONE);
 }
 
 

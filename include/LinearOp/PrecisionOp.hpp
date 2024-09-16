@@ -11,13 +11,13 @@
 #pragma once
 
 #include "Covariances/CovAniso.hpp"
+#include "LinearOp/ASimulable.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EPowerPT.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include <map>
 
 #ifndef SWIG
@@ -28,14 +28,13 @@
 
 class APolynomial;
 class AMesh;
-class Model;
 
 // This class create a precision operator (matrix-free).
 // In general, it is built from a Model and a AMesh
 // Note that if the model is multivariate, the precision is built with a constant sill = 1.
 // Therefore it has to be used only through the PrecisionOpMulti class
 // which handles the sills matrix (possibly non stationary)
-class GSTLEARN_EXPORT PrecisionOp : public ALinearOp {
+class GSTLEARN_EXPORT PrecisionOp : public ASimulable {
 
 public:
   PrecisionOp();
@@ -43,8 +42,7 @@ public:
               const CovAniso* cova,
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
-              Model* model,
-              int icov = 0,
+              CovAniso* cova,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -53,10 +51,8 @@ public:
   // Interface functions for using PrecisionOp
 
   #ifndef SWIG
-    virtual void evalSimulate(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& vecout);
     virtual void evalInverse(const  Eigen::VectorXd& vecin, Eigen::VectorXd& vecout);
   #endif
-  virtual void makeReady() {};
 
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
 
@@ -64,8 +60,7 @@ public:
                                         const CovAniso *cova = nullptr,
                                         bool verbose = false);
   static PrecisionOp* create(const AMesh* mesh,
-                             Model* model,
-                             int icov = 0,
+                             CovAniso* cova,
                              bool verbose = false);
 
   int reset(const ShiftOpCs *shiftop,
@@ -112,7 +107,6 @@ public:
   #endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
-  void evalSimulate(const VectorDouble& in, VectorDouble& out);
 
   int  getSize() const override { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}
@@ -135,6 +129,8 @@ void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& powe
 
 protected:
   virtual int  _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const override;
+  virtual int  _addSimulateToDest(const Eigen::VectorXd& whitenoise,
                           Eigen::VectorXd& outv) const override;
   void _addEvalPower(const Eigen::VectorXd& inv, Eigen::VectorXd& outv, const EPowerPT& power) const;
 
