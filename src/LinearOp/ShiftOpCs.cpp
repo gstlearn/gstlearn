@@ -29,8 +29,6 @@
 #include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 
-
-
 ShiftOpCs::ShiftOpCs()
   : _TildeC()
   , _Lambda()

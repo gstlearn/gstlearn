@@ -79,7 +79,9 @@
 /*! \endcond */
 
 // TODO : remove all these static stuffs !
-static double *covaux_global, *d1_1_global, *d1_2_global, *var0_global;
+static VectorDouble d1_1_global;
+static VectorDouble d1_2_global;
+static double *covaux_global, *var0_global;
 static VectorDouble d1_global, d1_t_global;
 static double *lhs_global, *rhs_global, *wgt_global, *zam1_global;
 static int *flag_global;
@@ -739,12 +741,11 @@ static int st_model_manage(int mode, Model *model)
     /* Allocation */
 
     if (MODEL_INIT) return (1);
-    d1_global.resize(DBIN->getNDim());
-    d1_1_global = db_sample_alloc(DBIN, ELoc::X);
-    if (d1_1_global == nullptr) return (1);
-    d1_2_global = db_sample_alloc(DBIN, ELoc::X);
-    if (d1_2_global == nullptr) return (1);
-    d1_t_global.resize(DBIN->getNDim());
+    int ndim = DBIN->getNDim();
+    d1_global.resize(ndim);
+    d1_1_global.resize(ndim);
+    d1_2_global.resize(ndim);
+    d1_t_global.resize(ndim);
     covaux_global = st_core(nvar, nvar);
     if (covaux_global == nullptr) return (1);
     MODEL_INIT = 1;
@@ -752,8 +753,6 @@ static int st_model_manage(int mode, Model *model)
   else
   {
     if (!MODEL_INIT) return (1);
-    d1_1_global = db_sample_free(d1_1_global);
-    d1_2_global = db_sample_free(d1_2_global);
     covaux_global = (double*) mem_free((char* ) covaux_global);
     MODEL_INIT = 0;
   }

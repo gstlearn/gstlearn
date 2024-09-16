@@ -20,6 +20,7 @@
 #include "Db/DbGrid.hpp"
 #include "Stats/Classical.hpp"
 #include "Basic/Memory.hpp"
+#include "Basic/Grid.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>

@@ -14,9 +14,6 @@
 
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
-#include "Enum/EProcessOper.hpp"
-#include "Enum/EConsElem.hpp"
-#include "Enum/EConsType.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -60,9 +57,6 @@ class QChol;
 /* Prototyping the functions in math.c */
 /***************************************/
 
-GSTLEARN_EXPORT int add_sill_constraints(Constraints& constraints,
-                                              double constantSill);
-GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);
 GSTLEARN_EXPORT int foxleg_f(int ndat,
                              int npar,
                              int ncont,
@@ -93,10 +87,7 @@ GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
 GSTLEARN_EXPORT void set_last_message(int mode, const char *string);
 GSTLEARN_EXPORT void print_last_message(void);
-GSTLEARN_EXPORT void print_range(const char *title,
-                                 int ntab,
-                                 const double *tab,
-                                 const double *sel);
+
 GSTLEARN_EXPORT void ut_trace_discretize(int nseg,
                                          const double *trace,
                                          double disc,
@@ -119,8 +110,6 @@ GSTLEARN_EXPORT void ut_trace_sample(Db *db,
                                      int **rks_arg,
                                      int **lys_arg,
                                      int **typ_arg);
-GSTLEARN_EXPORT int solve_P2(double a, double b, double c, double *x);
-GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, double *x);
 GSTLEARN_EXPORT double ut_distance(int ndim, const double *tab1, const double *tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab1,
@@ -240,15 +229,6 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r);
-GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
-                                       const EConsType &icase,
-                                       int igrf,
-                                       int icov,
-                                       const EConsElem &icons,
-                                       int v1,
-                                       int v2);
-GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
-GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
 
 /*************************************/
 /* Prototyping the functions in db.c */
@@ -258,8 +238,6 @@ GSTLEARN_EXPORT void grid_iterator_init(Grid *grid,
                                         const VectorInt &order = VectorInt());
 GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid *grid);
 
-GSTLEARN_EXPORT double* db_sample_free(double *tab);
-GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT int db_name_identify(Db *db, const String &string);
 GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
                                              const ELoc& locatorType,
@@ -284,11 +262,6 @@ GSTLEARN_EXPORT void db_extension_rotated(Db *db,
                                           VectorDouble& mini,
                                           VectorDouble& maxi,
                                           VectorDouble& delta);
-GSTLEARN_EXPORT int db_attribute_range(const Db *db,
-                                       int iatt,
-                                       double *mini,
-                                       double *maxi,
-                                       double *delta);
 GSTLEARN_EXPORT int db_selref(int ndim,
                               const int *nx,
                               const int *ref,
@@ -310,8 +283,6 @@ GSTLEARN_EXPORT void set_grid_value(DbGrid *dbgrid,
                                     int iz,
                                     double value);
 GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType);
-GSTLEARN_EXPORT int db_get_rank_absolute_to_relative(Db *db, int iech0);
-GSTLEARN_EXPORT int db_get_rank_relative_to_absolute(Db *db, int iech0);
 GSTLEARN_EXPORT int is_grid_multiple(DbGrid *db1, DbGrid *db2);
 GSTLEARN_EXPORT DbGrid* db_grid_reduce(DbGrid *db_grid,
                                        int iptr,
@@ -704,41 +675,6 @@ GSTLEARN_EXPORT int time_3db(double *HS,
                              double HS_EPS_INIT,
                              int MSG);
 
-/*******************************************/
-/* Prototyping the functions in variopgs.c */
-/*******************************************/
-
-GSTLEARN_EXPORT Vario_Order* vario_order_manage(int mode,
-                                                int flag_dist,
-                                                int size_aux,
-                                                Vario_Order *vorder);
-GSTLEARN_EXPORT int vario_order_add(Vario_Order *vorder,
-                                    int iech,
-                                    int jech,
-                                    void *aux_iech,
-                                    void *aux_jech,
-                                    int ipas,
-                                    int idir,
-                                    double dist);
-GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order *vorder, int *npair);
-GSTLEARN_EXPORT void vario_order_print(Vario_Order *vorder,
-                                       int idir_target,
-                                       int ipas_target,
-                                       int verbose);
-GSTLEARN_EXPORT void vario_order_get_bounds(Vario_Order *vorder,
-                                            int idir,
-                                            int ipas,
-                                            int *ifirst,
-                                            int *ilast);
-GSTLEARN_EXPORT void vario_order_get_indices(Vario_Order *vorder,
-                                             int ipair,
-                                             int *iech,
-                                             int *jech,
-                                             double *dist);
-GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order *vorder,
-                                               int ipair,
-                                               char *aux_iech,
-                                               char *aux_jech);
 
 /******************************************/
 /* Prototyping the functions in mlayers.c */

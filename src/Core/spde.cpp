@@ -7606,11 +7606,11 @@ MatrixSparse* db_mesh_neigh(const Db *db,
   int error, ncorner, ip, ndimd, ndimv, ndim, jech, jech_max, ip_max, nech, nactive;
   MatrixSparse *A = nullptr;
   VectorDouble caux;
+  VectorDouble coor;
 
   /* Initializations */
 
   error = 1;
-  double* coor = nullptr;
   int* pts = nullptr;
   int* ranks = nullptr;
   ncorner = amesh->getNApexPerMesh();
@@ -7634,9 +7634,8 @@ MatrixSparse* db_mesh_neigh(const Db *db,
 
   ndimd = db->getNDim();
   ndimv = amesh->getNDim();
-  ndim = MIN(ndimd, ndimv);
-  coor = db_sample_alloc(db, ELoc::X);
-  if (coor == nullptr) goto label_end;
+  ndim  = MIN(ndimd, ndimv);
+  coor.resize(ndim);
   caux.resize(ndimd);
   pts = (int*) mem_alloc(sizeof(int) * amesh->getNApices(), 0);
   if (pts == nullptr) goto label_end;
@@ -7668,7 +7667,7 @@ MatrixSparse* db_mesh_neigh(const Db *db,
         {
           ip = amesh->getApex(imesh, icorn);
           amesh->getApexCoordinatesInPlace(ip, caux);
-          if (ut_distance(ndim, coor, caux.data()) <= radius)
+          if (ut_distance(ndim, coor.data(), caux.data()) <= radius)
           {
             pts[ip] = 1;
             break;
@@ -7677,7 +7676,7 @@ MatrixSparse* db_mesh_neigh(const Db *db,
       }
       else
       {
-        if (!is_in_mesh_neigh(amesh, coor, caux.data(), ndim, imesh, radius))
+        if (!is_in_mesh_neigh(amesh, coor.data(), caux.data(), ndim, imesh, radius))
           continue;
 
         /* The meshing element is in the neighborhood of the sample */
@@ -7734,7 +7733,6 @@ MatrixSparse* db_mesh_neigh(const Db *db,
 
   label_end:
   mem_free((char* ) pts);
-  db_sample_free(coor);
   if (error)
   {
     delete A;

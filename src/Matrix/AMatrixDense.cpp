@@ -135,7 +135,11 @@ int AMatrixDense::_getIndexToRank(int irow, int icol) const
 
 void AMatrixDense::_transposeInPlace()
 {
+  int nrows = getNRows();
+  int ncols = getNCols();
   _eigenMatrix.transposeInPlace();
+  _setNCols(nrows);
+  _setNRows(ncols);
 }
 
 void AMatrixDense::_addProdMatVecInPlaceToDestPtr(const double *x,double *y, bool transpose) const

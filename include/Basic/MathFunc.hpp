@@ -95,3 +95,5 @@ GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
 GSTLEARN_EXPORT MatrixRectangular* vanDerCorput(int n, int nd);
 GSTLEARN_EXPORT MatrixRectangular fillLegendreMatrix(const VectorDouble &r,
                                                      int legendreOrder);
+GSTLEARN_EXPORT int solve_P2(double a, double b, double c, VectorDouble& x);
+GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, VectorDouble& x);

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Core/Ascii.hpp"
 #include "Core/io.hpp"
 #include "Core/CSV.hpp"

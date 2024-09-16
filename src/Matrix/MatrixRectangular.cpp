@@ -12,7 +12,6 @@
 #include "Basic/AStringable.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AStringable.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols)
   : AMatrixDense(nrows, ncols)
@@ -187,4 +186,40 @@ MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
     for (int icol = 0; icol < ncols; icol++)
       mat->setValue(irow, icol, A->getValue(rows[irow], cols[icol]));
   return mat;
+}
+
+/**
+ * @brief Set the values contained in 'A' into the current matrix
+ * 
+ * @param A Input Matrix
+ * @param rowFetch Set of row indices of 'this' where values of 'A' should be stored
+ * @param colFetch Set of column indices of'this' where values of 'A' should be stored
+ */
+void MatrixRectangular::unsample(const AMatrix* A,
+                                 const VectorInt& rowFetch,
+                                 const VectorInt& colFetch)
+{
+  VectorInt rows = rowFetch;
+  if (rows.empty()) rows = VH::sequence(A->getNRows());
+  VectorInt cols = colFetch;
+  if (cols.empty()) cols = VH::sequence(A->getNCols());
+
+  int nrows = (int)rows.size();
+  int ncols = (int)cols.size();
+  if (nrows <= 0 || ncols <= 0) return;
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    if (!checkArg("Selected Row index", rows[irow], getNRows()))
+      return;
+  }
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    if (!checkArg("Selected Column index", cols[icol], getNCols()))
+      return;
+  }
+
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
+      setValue(rows[irow], cols[icol], A->getValue(irow, icol));
 }

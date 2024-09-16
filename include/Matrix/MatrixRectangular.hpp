@@ -50,8 +50,12 @@ public:
   static MatrixRectangular* sample(const AMatrix* A,
                                    const VectorInt& rowKeep = VectorInt(),
                                    const VectorInt& colKeep = VectorInt());
+  void unsample(const AMatrix* A,
+                const VectorInt& rowFetch,
+                const VectorInt& colFetch);
 
-  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
-  void addRow(int nrow_added=1);
+  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
+   */
+  void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
 };

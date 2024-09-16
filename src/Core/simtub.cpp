@@ -527,7 +527,6 @@ static void st_check_facies_data2grid(Db *dbin,
                                       int nbsimu)
 {
   int iech, jech, isimu, facdat, facres, number;
-  double *coor;
 
   /* Initializations */
 
@@ -535,15 +534,13 @@ static void st_check_facies_data2grid(Db *dbin,
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   check_mandatory_attribute("st_check_facies_data2grid", dbgrid, ELoc::FACIES);
   number = 0;
-  coor = nullptr;
   if (flag_check)
-    mestitle(1, "Checking facies of data against closest grid node (PGS=%d)",
-             ipgs + 1);
+    mestitle(1, "Checking facies of data against closest grid node (PGS=%d)",ipgs + 1);
 
   /* Core allocation */
 
-  coor = db_sample_alloc(dbin, ELoc::X);
-  if (coor == nullptr) goto label_end;
+  int ndim = dbin->getNDim();
+  VectorDouble coor(ndim);
 
   /* Loop on the data */
 
@@ -552,7 +549,7 @@ static void st_check_facies_data2grid(Db *dbin,
     if (!dbin->isActive(iech)) continue;
     facdat = (int) dbin->getZVariable(iech, 0);
     if (facdat < 1 || facdat > nfacies) continue;
-    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor);
+    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
 
     for (isimu = 0; isimu < nbsimu; isimu++)
@@ -582,8 +579,7 @@ static void st_check_facies_data2grid(Db *dbin,
     }
   }
 
-  label_end: if (flag_check && number <= 0) message("No problem found\n");
-  db_sample_free(coor);
+  if (flag_check && number <= 0) message("No problem found\n");
 }
 
 /****************************************************************************/

@@ -37,7 +37,11 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
                                    bool transposeX,
                                    bool transposeY)
 {
-  if (x->getNCols() != y->getNRows())
+  int nrow1 = (transposeX) ? x->getNCols() : x->getNRows();
+  int ncol1 = (transposeX) ? x->getNRows() : x->getNCols();
+  int ncol2 = (transposeY) ? y->getNRows() : y->getNCols();
+  int nrow2 = (transposeY) ? y->getNCols() : y->getNRows();
+  if (ncol1 != nrow2)
   {
     my_throw("Incompatible dimensions when making product of two matrices");
   }
@@ -60,7 +64,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
     const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
     const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
-    if (x->getNRows() == y->getNCols())
+    if (nrow1 == ncol2)
     {
 
       // Case of a resulting Square matrix
@@ -89,7 +93,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
     }
   }
 
-  res->reset(x->getNRows(), y->getNCols());
+  res->reset(nrow1, ncol2);
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

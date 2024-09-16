@@ -76,51 +76,6 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
 
 /****************************************************************************/
 /*!
- **  Frees the array for storing a sample
- **
- ** \return  A pointer to the array to be freed
- **
- ** \param[in]  tab  Sample array to be freed
- **
- *****************************************************************************/
-double* db_sample_free(double *tab)
-
-{
-  tab = (double*) mem_free((char* ) tab);
-  return (tab);
-}
-
-/****************************************************************************/
-/*!
- **  Allocates the array for storing a sample
- **
- ** \return  A pointer to the allocated array
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  locatorType  vector type (ELoc)
- **
- ** \remark  The allocated array must be freed using db_sample_free()
- ** \remark  A fatal error occurs if the core allocation fails.
- **
- *****************************************************************************/
-double* db_sample_alloc(const Db *db, const ELoc& locatorType)
-{
-  double *tab;
-  int size;
-
-  /* Initializations */
-
-  tab = nullptr;
-  size = get_LOCATOR_NITEM(db, locatorType);
-
-  /* In the case of a grid, there may be no actual data vector */
-  if (locatorType == ELoc::X && db->isGrid()) size = db->getNDim();
-  if (size > 0) tab = (double*) mem_alloc(sizeof(double) * size, 1);
-  return (tab);
-}
-
-/****************************************************************************/
-/*!
  **  Calculates the distance between two points
  **
  ** \return  The calculated distance or TEST if one coordinate not defined
@@ -345,50 +300,6 @@ int db_center(Db *db, double *center)
   }
 
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the range for a variable
- **
- ** \return  Error return code
- **
- ** \param[in]  db    Db structure
- ** \param[in]  iatt  Rank of the target attribute
- **
- ** \param[out]  mini   Minimum
- ** \param[out]  maxi   Maximum
- ** \param[out]  delta  Extension
- **
- *****************************************************************************/
-int db_attribute_range(const Db *db,
-                       int iatt,
-                       double *mini,
-                       double *maxi,
-                       double *delta)
-{
-  StatResults stats;
-
-  /* Initializations */
-
-  *mini = TEST;
-  *maxi = TEST;
-  *delta = TEST;
-
-  /* Load the variable */
-
-  VectorDouble tab = db->getColumnByUID(iatt);
-  VectorDouble sel;
-  if (db->hasLocVariable(ELoc::SEL))
-    sel = db->getColumnByLocator(ELoc::SEL);
-
-  /* Calculate the statistics */
-
-  stats  = ut_statistics(db->getSampleNumber(), tab.data(), sel.data());
-  *mini  = stats.mini;
-  *maxi  = stats.maxi;
-  *delta = stats.delta;
-  return 0;
 }
 
 /****************************************************************************/
@@ -1856,60 +1767,6 @@ int db_gradient_component_to_modang(Db *db,
   }
 
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the relative rank of a sample from its absolute rank
- **  These are different due to the presence of a selection
- **  Returns -1 if not found
- **
- ** \return  Relative rank of a sample
- **
- ** \param[in]  db    Db structure
- ** \param[in]  iech0 Absolute sample rank
- **
- *****************************************************************************/
-int db_get_rank_absolute_to_relative(Db *db, int iech0)
-{
-  int iech, jech;
-
-  if (!db->hasLocVariable(ELoc::SEL)) return (iech0);
-
-  for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (iech == iech0) return (jech);
-    jech++;
-  }
-  return (-1);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the absolute rank of a sample from its relative rank
- **  These are different due to the presence of a selection
- **  Returns -1 if not found
- **
- ** \return  Relative rank of a sample
- **
- ** \param[in]  db    Db structure
- ** \param[in]  iech0 Relative sample rank
- **
- *****************************************************************************/
-int db_get_rank_relative_to_absolute(Db *db, int iech0)
-{
-  int iech, jech;
-
-  if (!db->hasLocVariable(ELoc::SEL)) return (iech0);
-
-  for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (jech == iech0) return (iech);
-    jech++;
-  }
-  return (-1);
 }
 
 /****************************************************************************/
