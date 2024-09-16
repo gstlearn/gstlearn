@@ -77,9 +77,6 @@ int main(int argc, char *argv[])
     else
     {
       VectorVectorDouble hh = spirale.getFunctionVectors(workingDbc, cova);
-      workingDbc->addColumns(hh[0], "H1-1", ELoc::NOSTAT, 0);
-      workingDbc->addColumns(hh[1], "H1-2", ELoc::NOSTAT, 1);
-      workingDbc->addColumns(hh[2], "H2-2", ELoc::NOSTAT, 2);
       cova->makeTensorNoStatDb("H1-1",0,0,workingDbc);
       cova->makeTensorNoStatDb("H1-2",0,1,workingDbc);
       cova->makeTensorNoStatDb("H2-2",1,1,workingDbc);

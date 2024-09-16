@@ -3,7 +3,6 @@ import gstlearn as gl
 import gstlearn.document as gdoc
 import numpy as np
 
-gdoc.setNoScroll()
 gl.OptCst.define(gl.ECst.NTCOL, -1)
 gl.OptCst.define(gl.ECst.NTROW, -1)
 gl.OptCst.define(gl.ECst.NTBATCH, 15)
