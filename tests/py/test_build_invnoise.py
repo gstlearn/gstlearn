@@ -195,12 +195,14 @@ def computeInvNoise(dat,model,verbose=True, debug=False):
     #Si le modèle est stationnaire et qu'il n'y a pas d'hétérotopie
     if not model.getCova(0).isNoStat() and dat.isAllIsotopic() and measurementErrorAllEquals(dat):
         if verbose:
-            print("Isotopic and Stationary and Measurement error identical:")
+            print("---------------------------------------------------------")
+            print(f"Isotopic and Stationary and Measurement error identical:")
+            print("---------------------------------------------------------")            
         result = IsoStat(dat,model)
         
     else:
         if verbose:
-            print("General Case")
+            print(f"General Case")
         result = GeneralCase(dat,model)
     
     if debug:
@@ -212,7 +214,7 @@ def computeInvNoise(dat,model,verbose=True, debug=False):
 def createDb(ndat,hetero,measurement_error,measurement_error_all_equal,nostat=False):
     
     if ndat < 10:
-        gl.messerr("Data File must contain at least 10 samples")
+        gl.messerr(f"Data File must contain at least 10 samples")
         return None
     
     dat = gl.Db.create()
@@ -267,12 +269,12 @@ def testInvNoise(dat,model, debug=False):
     #Pour la comparaison, je remets le résultat en dense
     err1 = np.sum(np.abs(ref - refnew))
     if err1 > 1e-13:
-        print("Pb entre ref et new")
+        print(f"Pb entre ref et new")
         
     error = np.sum(np.abs(refnew.toarray()-ref))
     
     if error < 1e-13:
-        print("Error = ",1e-13)
+        print(f"Error = ",1e-13)
     else:
         print(error)
 
@@ -286,38 +288,52 @@ debug = False
 
 
 # %%
-gl.mestitle(0, "Hetero et pas d'erreur de mesure")
+print("---------------------------------")
+print(f"Hetero et pas d'erreur de mesure")
+print("---------------------------------")
 dat = createDb(ndat,True,False,False)
 testInvNoise(dat,model,debug)
 
 # %%
-gl.mestitle(0, "Hetero et erreur de mesure (toutes différentes)")
+print("------------------------------------------------")
+print(f"Hetero et erreur de mesure (toutes différentes)")
+print("------------------------------------------------")
 dat = createDb(ndat,True,True,False)
 testInvNoise(dat,model,debug)
 
 # %%
-gl.mestitle(0, "Hetero et erreur de mesure (la même pour tous les échantillons)")
+print("----------------------------------------------------------------")
+print(f"Hetero et erreur de mesure (la même pour tous les échantillons)")
+print("----------------------------------------------------------------")
 dat = createDb(ndat,True,True,True)
 testInvNoise(dat,model,debug)
 
 # %%
-gl.mestitle(0, "Iso pas d'erreur de mesure")
+print("---------------------------")
+print(f"Iso pas d'erreur de mesure")
+print("---------------------------")
 dat = createDb(ndat,False,False,False)
 testInvNoise(dat,model,debug)
 
 
 # %%
-gl.mestitle(0, "Iso, erreur de mesure, toutes différentes")
+print("------------------------------------------")
+print(f"Iso, erreur de mesure, toutes différentes")
+print("------------------------------------------")
 dat = createDb(ndat,False,True,False)
 testInvNoise(dat,model,debug)
 
 # %%
-gl.mestitle(0, "Iso, erreur de mesure, la même pour tous les échantillons")
+print("----------------------------------------------------------")
+print(f"Iso, erreur de mesure, la même pour tous les échantillons")
+print("----------------------------------------------------------")
 dat = createDb(ndat,False,True,True)
 testInvNoise(dat,model,debug)
 
 # %%
-gl.mestitle(0, "Iso, erreur de mesure, la même pour tous les échantillons, nostat")
+print("------------------------------------------------------------------")
+print(f"Iso, erreur de mesure, la même pour tous les échantillons, nostat")
+print("------------------------------------------------------------------")
 dat = createDb(ndat,False,True,True,True)
 testInvNoise(dat,model,debug)
 
