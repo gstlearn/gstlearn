@@ -124,7 +124,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
     double sigval;
     for (int idim = 0; idim < ndim; idim++)
       d1[idim] = 0.;
-    if (model->isNoStat())
+    if (model->getCovAnisoList()->isNoStat())
     {
       CovInternal covint(1, iech, 1, iech, ndim, db, db);
       sigval = model->evaluateOneGeneric(&covint, d1);
@@ -147,7 +147,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
       double sigloc;
       for (int idim = 0; idim < ndim; idim++)
         d1[idim] = db->getCoordinate(iech, idim) - db->getCoordinate(jech, idim);
-      if (model->isNoStat())
+      if (model->getCovAnisoList()->isNoStat())
       {
         CovInternal covint(1, iech, 1, jech, ndim, db, db);
         sigloc = model->evaluateOneGeneric(&covint, d1);

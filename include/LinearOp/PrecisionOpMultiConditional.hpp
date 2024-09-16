@@ -35,7 +35,7 @@ public:
   virtual ~PrecisionOpMultiConditional();
 
   /// Interface for PrecisionOpMultiConditional
-  virtual void makeReady();
+  virtual void makeReady(){};
   virtual int push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
   virtual double computeLogDetOp(int nbsimu = 1, int seed = 123) const;
 

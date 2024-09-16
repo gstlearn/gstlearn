@@ -79,13 +79,6 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const Eigen::VectorXd& datVa
   }
 }
 
-void PrecisionOpMultiConditional::makeReady()
-{
-  for (int i = 0, n = sizes(); i < n; i++)
-  {
-    _multiPrecisionOp[i]->makeReady();
-  }
-}
 
 int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
                                            IProjMatrix *projDataElem)

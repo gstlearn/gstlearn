@@ -19,7 +19,6 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Model/ANoStat.hpp"
 
 #include <vector>
 
@@ -59,9 +58,6 @@ public:
   /// Interface for ACov
   virtual int    getNVariables() const override;
   virtual bool   isIndexable() const override { return true; }
-  virtual bool   isNoStat() const override { return _noStat != nullptr; }
-  virtual const ANoStat* getNoStat() const override { return _noStat; }
-  virtual ANoStat* getNoStatModify() const override { return _noStat; } // TODO: to be suppressed
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
@@ -82,8 +78,7 @@ public:
                                    int iech2,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode = nullptr) const override;
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  virtual void updateCovByMesh(int imesh) override;
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)  override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -115,7 +110,7 @@ public:
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;
   bool            isAllActiveCovList() const;
-
+  bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovAniso*    getCova(int icov) const;
@@ -162,29 +157,18 @@ public:
 
   const ACovAnisoList* createReduce(const VectorInt &validVars) const;
 
-  int addNoStat(const ANoStat *anostat);
-  void delNoStat();
-  int getNoStatElemNumber() const;
-  const EConsElem& getNoStatElemType(int ipar) const;
-  int addNoStatElem(int igrf,
-                    int icov,
-                    const EConsElem &type,
-                    int iv1,
-                    int iv2);
-  int addNoStatElems(const VectorString &codes);
-  CovParamId getCovParamId(int ipar) const;
-  int getNoStatElemIcov(int ipar) const;
 
 protected:
   bool   _isCovarianceIndexValid(int icov) const;
 
 private:
+  void _manage(Db* db1,Db* db2, int mode) const override;
+  
   bool _considerAllCovariances(const CovCalcMode* mode) const;
 
 #ifndef SWIG
 protected:
   std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
   VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
-  ANoStat*               _noStat;   /// Description of Non-stationary Model
 #endif
 };

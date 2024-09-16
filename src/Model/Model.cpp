@@ -17,7 +17,6 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
-#include "Model/ANoStat.hpp"
 #include "Model/CovInternal.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
@@ -547,16 +546,7 @@ void Model::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
   if (covalist == nullptr) return;
   covalist->setMarkovCoeffs(icov, coeffs);
 }
-void Model::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
-{
-  if (_cova == nullptr) return;
-  _cova->updateCovByPoints(icas1, iech1, icas2, iech2);
-}
-void Model::updateCovByMesh(int imesh)
-{
-  if (_cova == nullptr) return;
-  _cova->updateCovByMesh(imesh);
-}
+
 void Model::setCovaFiltered(int icov, bool filtered)
 {
   if (_cova == nullptr) return;
@@ -697,19 +687,6 @@ double Model::evalCov(const VectorDouble &incr,
   return getCova(icov)->evalIvarIpas(1., incr);
 }
 
-/**
- * Define Non-stationary parameters
- * @param anostat ANoStat pointer will be duplicated
- * @return Error return code
- */
-int Model::addNoStat(const ANoStat *anostat)
-{
-  if (anostat == nullptr) return 0;
-  if (_cova == nullptr) return 1;
-  ACovAnisoList* covalist = _castInCovAnisoList();
-  if (covalist == nullptr) return 1;
-  return covalist->addNoStat(anostat);
-}
 
 /**
  * Switch to a Model dedicated to Gradients
@@ -845,58 +822,6 @@ void Model::setField(double field)
 {
   _ctxt.setField(field);
   _copyCovContext();
-}
-
-int Model::getNoStatElemNumber() const
-{
-  if (!isNoStat()) return 0;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return 0;
-  return covalist->getNoStatElemNumber();
-}
-
-int Model::addNoStatElem(int igrf,
-                         int icov,
-                         const EConsElem &type,
-                         int iv1,
-                         int iv2)
-{
-  if (!isNoStat()) return 0;
-  ACovAnisoList* covalist = _castInCovAnisoList();
-  if (covalist == nullptr) return 0;
-  return covalist->addNoStatElem(igrf, icov, type, iv1, iv2);
-}
-
-int Model::addNoStatElems(const VectorString &codes)
-{
-  if (!isNoStat()) return 0;
-  ACovAnisoList* covalist = _castInCovAnisoList();
-  if (covalist == nullptr) return 0;
-  return covalist->addNoStatElems(codes);
-}
-
-CovParamId Model::getCovParamId(int ipar) const
-{
-  if (!isNoStat()) return CovParamId();
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return CovParamId();
-  return covalist->getCovParamId(ipar);
-}
-
-/****************************************************************************/
-/*!
- **  Check if the non-stationary Model has a given non-stationary parameter
- **
- ** \return  1 if the given non-stationary parameter is defined; 0 otherwise
- **
- ** \param[in]   type0    Requested type (EConsElem)
- **
- *****************************************************************************/
-bool Model::isNostatParamDefined(const EConsElem &type0) const
-{
-  if (! isNoStat()) return true;
-  const ANoStat *nostat = getNoStat();
-  return (nostat->isDefinedByType(type0));
 }
 
 const DriftList* Model::getDriftList() const
@@ -1465,10 +1390,6 @@ Model* Model::duplicate() const
 
   model->setDriftList(getDriftList());
 
-  /* Add non-stationarity information */
-
-  model->addNoStat(getNoStat());
-
   return model;
 }
 
@@ -1491,10 +1412,6 @@ Model* Model::createReduce(const VectorInt& validVars) const
   /* Add the list of Drifts */
 
   model->setDriftList(getDriftList());
-
-  /* Add non-stationarity information */
-
-  model->addNoStat(getNoStat());
 
   return model;
 }
@@ -1770,6 +1687,11 @@ bool Model::isValid() const
 const ACovAnisoList* Model::getCovAnisoList() const
 {
   return _castInCovAnisoListConst();
+}
+
+ACovAnisoList* Model::getCovAnisoListModify()
+{
+  return _castInCovAnisoList();
 }
 
 /**
@@ -2111,9 +2033,9 @@ void Model::evaluateMatInPlace(const CovInternal *covint,
 {
   // Load the non-stationary parameters if needed
 
-  if (isNoStat() && covint != nullptr)
+  if (getCovAnisoList()->isNoStat() && covint != nullptr)
   {
-    updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+    getCovAnisoListModify()->updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                       covint->getIcas2(), covint->getIech2());
   }
 
@@ -2153,9 +2075,9 @@ double Model::evaluateOneGeneric(const CovInternal *covint,
 {
   // Load the non-stationary parameters if needed
 
-  if (isNoStat() && covint != nullptr)
+  if (covint != nullptr)
   {
-    updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+    _cova->updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                       covint->getIcas2(), covint->getIech2());
   }
 
@@ -2253,24 +2175,8 @@ double Model::calculateStdev(Db *db1,
   return stdev;
 }
 
-/*****************************************************************************/
-/*!
- **  Update the Model in the case of Non-stationary parameters
- **  This requires the knowledge of the two end-points
- **
- ** \param[in]  covint       Internal structure for non-stationarity
- **                          or NULL (for stationary case)
- **
- *****************************************************************************/
-void Model::nostatUpdate(CovInternal *covint)
-{
-  if (covint == NULL) return;
-  updateCovByPoints(covint->getIcas1(), covint->getIech1(),
-                    covint->getIcas2(), covint->getIech2());
-}
-
 /**
- * Compute the log-likelihood (traditional method)
+ * Compute the log-likelihood (based on covariance)
  *
  * @param db  Db structure where variable are loaded from
  * @param verbose Verbose flag

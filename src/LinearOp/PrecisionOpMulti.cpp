@@ -11,9 +11,10 @@
 
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/VectorEigen.hpp"
-#include "Model/ANoStat.hpp"
+#include "Covariances/ANoStatCov.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -99,20 +100,14 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   
   _works.resize(ncov);
 
-  bool isnostat = _model->isNoStat();
-
-  if (isnostat)
-  {
-    const ANoStat* nostat =  _model->getNoStat();
-
-    for (int icov = 0; icov < ncov; icov++)
+  for (int icov = 0; icov < ncov; icov++)
+  {    
+    const ANoStatCov* nostat =  _model->getCova(icov)->getNoStat();
+    if (nostat != nullptr)
     {
-      if (nostat != nullptr)
-      {
-      bool nostaticov = nostat->isDefinedForVariance(icov);
+      bool nostaticov = nostat->isDefinedForVariance();
       _isNoStatForVariance[icov] = nostaticov;
       _allStat = _allStat && !nostaticov;
-      }
     }
   }
   _buildMatrices();
@@ -144,7 +139,8 @@ void PrecisionOpMulti::_buildQop()
 {
   for (int i = 0, number = _getNCov(); i < number; i++)
   {
-    _pops.push_back(PrecisionOp::create(_meshes[i], _model, _covList[i]));
+     CovAniso* cova = _model->getCova(_covList[i]);
+    _pops.push_back(PrecisionOp::create(_meshes[i], cova));
   }
 }
 PrecisionOpMulti::~PrecisionOpMulti()
@@ -257,7 +253,8 @@ int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 
 int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
 {
-  const ANoStat* nostat =  _model->getNoStat();
+  CovAniso* cova = _model->getCova(icov);
+  const ANoStatCov* nostat =  cova->getNoStat();
   int nvar = _getNVar();
   nostat->attachToMesh(_meshes[icov],false,false);
   int nvertex =  (int)_meshes[icov]->getNApices();
@@ -272,8 +269,8 @@ int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
   }
   for (int imesh = 0; imesh < nvertex; imesh++)
   {
-    _model->updateCovByMesh(imesh);
-    MatrixSquareSymmetric sills = _model->getSillValues(icov);
+    cova->updateCovByMesh(imesh);
+    MatrixSquareSymmetric sills = cova->getSill();
     if (sills.computeCholesky() != 0) return 1;
     if (sills.invertCholesky()  != 0) return 1;
 
@@ -322,12 +319,6 @@ int PrecisionOpMulti::_buildMatrices()
 void PrecisionOpMulti::makeReady()
 {
   _makeReady();
-}
-
-void PrecisionOpMulti::_makeReady()
-{
-  for (auto &e : _pops)
-    e->makeReady();
 }
 
 int PrecisionOpMulti::size(int imesh) const 

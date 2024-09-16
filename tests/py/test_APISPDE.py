@@ -50,12 +50,12 @@ model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
 mesh = gl.MeshETurbo(workingDb)
 
-NoStat = gl.NoStatArray(["A"], resultDb)
-err = model.addNoStat(NoStat)
-
-S = gl.ShiftOpCs(mesh, model, resultDb)
-
+NoStat = gl.NoStatArrayCov(["A"], resultDb)
 cova = model.getCova(0)
+cova.addNoStat(NoStat)
+S = gl.ShiftOpCs(mesh, cova, resultDb)
+
+
 Qsimu = gl.PrecisionOp(S, cova, False)
 result = Qsimu.simulateOne()
 workingDb.addColumns(result,"Simu",gl.ELoc.X)

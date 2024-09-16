@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
@@ -42,11 +43,13 @@ public:
                    std::vector<Eigen::VectorXd> &vecout) const override;
 
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
-
+private :
+  void _clear();
 private:
   MatrixSparse* _buildQmult() const;
   ProjMatrix*   _buildAmult() const;
   int _buildQpAtA();
 
   MatrixSparse* _Q;
+  mutable Cholesky* _chol;
 };
