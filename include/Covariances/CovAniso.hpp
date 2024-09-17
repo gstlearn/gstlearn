@@ -13,7 +13,6 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
-#include "Db/DbGrid.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
@@ -29,7 +28,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
-#include <memory>
 
 class Rotation;
 class MatrixSquareGeneral;

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/AStringable.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Enum/EConsElem.hpp"
 

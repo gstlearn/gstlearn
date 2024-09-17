@@ -15,6 +15,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Db/Db.hpp"
 
 #include <math.h>
 

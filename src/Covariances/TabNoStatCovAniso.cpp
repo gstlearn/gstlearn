@@ -13,7 +13,7 @@ TabNoStatCovAniso::TabNoStatCovAniso()
 , _definedByAnglesAndScales(false)
 , _definedForRotation(false)
 , _definedForTensor(false)
-{}
+{}   
 
 TabNoStatCovAniso::TabNoStatCovAniso(const TabNoStatCovAniso &m):
     TabNoStat(m)

@@ -269,7 +269,7 @@ def testInvNoise(dat,model, debug=False):
     #Pour la comparaison, je remets le résultat en dense
     err1 = np.sum(np.abs(ref - refnew))
     if err1 > 1e-13:
-        print(f"Pb entre ref et new")
+        print(f"Pb between ref and new")
         
     error = np.sum(np.abs(refnew.toarray()-ref))
     
@@ -289,37 +289,37 @@ debug = False
 
 # %%
 print("---------------------------------")
-print(f"Hetero et pas d'erreur de mesure")
+print(f"Hetero without measurement error")
 print("---------------------------------")
 dat = createDb(ndat,True,False,False)
 testInvNoise(dat,model,debug)
 
 # %%
-print("------------------------------------------------")
-print(f"Hetero et erreur de mesure (toutes différentes)")
-print("------------------------------------------------")
+print("-----------------------------------------------------------------------")
+print(f"Hetero with measurement errors (not the same for all the observations)")
+print("-----------------------------------------------------------------------")
 dat = createDb(ndat,True,True,False)
 testInvNoise(dat,model,debug)
 
 # %%
 print("----------------------------------------------------------------")
-print(f"Hetero et erreur de mesure (la même pour tous les échantillons)")
+print(f"Hetero with the same measurement error for all the observations")
 print("----------------------------------------------------------------")
 dat = createDb(ndat,True,True,True)
 testInvNoise(dat,model,debug)
 
 # %%
-print("---------------------------")
-print(f"Iso pas d'erreur de mesure")
-print("---------------------------")
+print("------------------------------")
+print(f"Iso without measurement error")
+print("------------------------------")
 dat = createDb(ndat,False,False,False)
 testInvNoise(dat,model,debug)
 
 
 # %%
-print("------------------------------------------")
-print(f"Iso, erreur de mesure, toutes différentes")
-print("------------------------------------------")
+print("----------------------------------------------------------------------")
+print(f"Iso,  with measurement errors (not the same for all the observations)")
+print("----------------------------------------------------------------------")
 dat = createDb(ndat,False,True,False)
 testInvNoise(dat,model,debug)
 
@@ -331,9 +331,9 @@ dat = createDb(ndat,False,True,True)
 testInvNoise(dat,model,debug)
 
 # %%
-print("------------------------------------------------------------------")
-print(f"Iso, erreur de mesure, la même pour tous les échantillons, nostat")
-print("------------------------------------------------------------------")
+print("---------------------------------------------------------------------")
+print(f"Iso,with the same measurement error for all the observations, nostat")
+print("---------------------------------------------------------------------")
 dat = createDb(ndat,False,True,True,True)
 testInvNoise(dat,model,debug)
 

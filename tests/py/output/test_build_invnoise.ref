@@ -1,28 +1,28 @@
 ---------------------------------
-Hetero et pas d'erreur de mesure
+Hetero without measurement error
 ---------------------------------
 General Case
 Error =  1e-13
-------------------------------------------------
-Hetero et erreur de mesure (toutes différentes)
-------------------------------------------------
+-----------------------------------------------------------------------
+Hetero with measurement errors (not the same for all the observations)
+-----------------------------------------------------------------------
 General Case
 Error =  1e-13
 ----------------------------------------------------------------
-Hetero et erreur de mesure (la même pour tous les échantillons)
+Hetero with the same measurement error for all the observations
 ----------------------------------------------------------------
 General Case
 Error =  1e-13
----------------------------
-Iso pas d'erreur de mesure
----------------------------
+------------------------------
+Iso without measurement error
+------------------------------
 ---------------------------------------------------------
 Isotopic and Stationary and Measurement error identical:
 ---------------------------------------------------------
 Error =  1e-13
-------------------------------------------
-Iso, erreur de mesure, toutes différentes
-------------------------------------------
+----------------------------------------------------------------------
+Iso,  with measurement errors (not the same for all the observations)
+----------------------------------------------------------------------
 General Case
 Error =  1e-13
 ----------------------------------------------------------
@@ -32,8 +32,8 @@ Iso, erreur de mesure, la même pour tous les échantillons
 Isotopic and Stationary and Measurement error identical:
 ---------------------------------------------------------
 Error =  1e-13
-------------------------------------------------------------------
-Iso, erreur de mesure, la même pour tous les échantillons, nostat
-------------------------------------------------------------------
+---------------------------------------------------------------------
+Iso,with the same measurement error for all the observations, nostat
+---------------------------------------------------------------------
 General Case
 Error =  1e-13

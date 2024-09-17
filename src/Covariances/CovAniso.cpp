@@ -18,7 +18,6 @@
 #include "Covariances/NoStatFunctional.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Db/DbGrid.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixFactory.hpp"
