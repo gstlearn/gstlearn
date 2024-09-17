@@ -106,5 +106,6 @@ int main(int argc, char *argv[])
   message("Test performed successfully\n");
 
   delete workingDbc;
+  delete model;
   return 0;
 }

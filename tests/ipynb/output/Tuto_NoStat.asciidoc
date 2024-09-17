@@ -137,13 +137,6 @@ Non-Stationary Parameters
 ----Matern (Third Parameter = 1)
 - Sill         =      2.000
 - Range        =     10.000
-- Theo. Range  =      2.887----
-
-
-#NO_DIFF#XXX
-----Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
 - Theo. Range  =      2.887
 
 Non-Stationary Parameters
