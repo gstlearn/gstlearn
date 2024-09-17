@@ -25,9 +25,9 @@ Iso,  with measurement errors (not the same for all the observations)
 ----------------------------------------------------------------------
 General Case
 Error =  1e-13
-----------------------------------------------------------
-Iso, erreur de mesure, la même pour tous les échantillons
-----------------------------------------------------------
+-------------------------------------------------------------
+Iso,with the same measurement error for all the observations
+-------------------------------------------------------------
 ---------------------------------------------------------
 Isotopic and Stationary and Measurement error identical:
 ---------------------------------------------------------

@@ -324,9 +324,9 @@ dat = createDb(ndat,False,True,False)
 testInvNoise(dat,model,debug)
 
 # %%
-print("----------------------------------------------------------")
-print(f"Iso, erreur de mesure, la même pour tous les échantillons")
-print("----------------------------------------------------------")
+print("-------------------------------------------------------------")
+print(f"Iso,with the same measurement error for all the observations")
+print("-------------------------------------------------------------")
 dat = createDb(ndat,False,True,True)
 testInvNoise(dat,model,debug)
 
