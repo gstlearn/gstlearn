@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/AMatrix.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -296,8 +295,24 @@ GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt)
 
 GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat)
 {
-  if (mat.empty())
-    _printEmpty();
-  else
+  if (!mat.empty())
     mat.display();
+}
+GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
+{
+  if (!mat.empty())
+    mat.display();
+}
+GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
+{
+  if (!mat.empty())
+    mat.display();
+}
+GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows,
+                                                       int ncols,
+                                                       int seed)
+{
+  MatrixRectangular mat(nrows, ncols);
+  mat.fillRandom(seed);
+  return mat;
 }

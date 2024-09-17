@@ -166,6 +166,21 @@ bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
   return (icol <= irow);
 }
+void MatrixSquareSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
+{
+  if (tab.empty()) return;
+  // First load into a temporary rectangular matrix,
+  // in order to check if it is square and symmetric
+  MatrixRectangular local;
+  local.resetFromVVD(tab, byCol);
+  if (!local.isSquare() || !local.isSymmetric())
+  {
+    messerr("The Matrix should be square and symmetric");
+    messerr("Loading is not performed");
+    return;
+  }
+  AMatrixSquare::resetFromVVD(tab, byCol);
+}
 
 /**
  * Perform the product: this = t(Y) %*% X %*% Y (T=false) or Y % X %*% t(Y) (T=true)

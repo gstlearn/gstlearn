@@ -9,10 +9,6 @@ import numpy as np
 import os
 import sys
 
-# Testing Matrix typemaps
-mat = np.array([[1,2,3],[4,5,6]])
-gl.argumentTestMatrixRectangular(mat)
-
 # Testing main argument types
 
 gl.argumentTestInt(12)
@@ -74,5 +70,21 @@ gl.argumentDefTestVDbl([])
 gl.argumentDefTestVString([])
 gl.argumentDefTestVVInt([])
 gl.argumentDefTestVVDbl([])
+
+# Testing Matrix typemaps
+
+mat = np.array([[1,2,3],[4,5,6]])
+gl.argumentTestMatrixRectangular(mat) # Should be correct
+gl.argumentTestMatrixSquareGeneral(mat) # Should provoke an error
+gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
+
+mat = np.array([[1,2,3],[4,5,6],[7,8,9]])
+gl.argumentTestMatrixSquareGeneral(mat) # Should provoke an error
+gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
+
+mat = np.array([[1,2,3],[2,1,2],[3,2,1]])
+gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
+
+print(gl.argumentReturnMatrix(3,4))
 
 print("Test successfully performed")

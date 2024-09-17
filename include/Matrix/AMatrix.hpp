@@ -70,7 +70,8 @@ public:
   /*! Check if the matrix is square and Identity */
   virtual bool isIdentity(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
-  virtual bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const;
+  virtual bool
+  isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const;
   /*! Say if the matrix must be symmetric */
   virtual bool mustBeSymmetric() const { return false; }
 

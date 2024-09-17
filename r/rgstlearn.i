@@ -219,6 +219,39 @@
     // else length = 0, empty vector
     return myres;
   }
+
+  int matrixToCpp(SEXP obj, MatrixRectangular& mat)
+  {
+    // Type definitions
+    VectorVectorDouble vvec;
+    mat.resize(0,0);
+    
+    // Test argument
+    if (obj == NULL) return SWIG_TypeError;
+    if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
+
+    // Conversion
+    int myres = SWIG_OK;
+    int size = (int)Rf_length(obj);
+    if (size > 0)
+    {
+      for (int i = 0; i < size && SWIG_IsOK(myres); i++)
+      {
+        SEXP item = getElem(obj,i);
+        VectorDouble vec;
+        myres = vectorToCpp(item, vec);
+        if (SWIG_IsOK(myres))
+          vvec.push_back(vec);
+      }
+    }
+
+    // Convert VVD to Matrix
+    mat.resetFromVVD(vvec);
+
+    // else length = 0, empty vector
+    return myres;
+  }
+
 }
 
 // Add typecheck typemaps for dispatching functions
@@ -355,6 +388,15 @@
       }
     }
     UNPROTECT(1);
+    return myres;
+  }
+
+  template <typename MatrixTemp>
+  int matrixFromCpp(SEXP* obj, const MatrixTemp& mat)
+  {
+    // Type definitions
+    int myres = SWIG_TypeError;
+
     return myres;
   }
 }

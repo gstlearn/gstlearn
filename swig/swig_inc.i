@@ -395,7 +395,7 @@
 // Conversion Target language => C++
 
 // Note : Before including this file :
-//        - vectorToCpp, vectorVectorToCpp and convertToCpp 
+//        - vectorToCpp, vectorVectorToCpp, matrixToCpp and convertToCpp 
 //          functions must be defined in ToCpp fragment
 
 // Convert scalar arguments by value
@@ -579,8 +579,12 @@
   }
 }
 
-%typemap(in, fragment="ToCpp") const MatrixRectangular&  (void *argp, MatrixRectangular mat),
-                               const MatrixRectangular*  (void *argp, MatrixRectangular mat)
+%typemap(in, fragment="ToCpp") const MatrixRectangular&     (void *argp, MatrixRectangular mat),
+                               const MatrixRectangular*     (void *argp, MatrixRectangular mat),
+                               const MatrixSquareGeneral&   (void *argp, MatrixSquareGeneral mat),
+                               const MatrixSquareGeneral*   (void *argp, MatrixSquareGeneral mat),
+                               const MatrixSquareSymmetric& (void *argp, MatrixSquareSymmetric mat),
+                               const MatrixSquareSymmetric* (void *argp, MatrixSquareSymmetric mat)
 {
   // Try to convert from any target language vector
   int errcode = matrixToCpp($input, mat);
@@ -588,7 +592,7 @@
   {
     try
     {
-      // Try direct conversion of MatrixRectangular by reference/pointer (see swigtypes.swg)
+      // Try direct conversion of Matrices by reference/pointer (see swigtypes.swg)
       errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
       if (SWIG_IsOK(errcode))
       {
@@ -616,7 +620,7 @@
 // Conversion C++ => Target language
 
 // Note : Before including this file :
-//        - vectorFromCpp, vectorVectorFromCpp and objectFromCpp 
+//        - vectorFromCpp, vectorVectorFromCpp, matrixFromCpp, objectFromCpp 
 //          functions must be defined in FromCpp fragment
 
 %typemap(out, fragment="FromCpp") int,
@@ -674,10 +678,27 @@
 
 %typemap(out, fragment="FromCpp") VectorVectorInt*,    VectorVectorInt&,
                                   VectorVectorDouble*, VectorVectorDouble&,
-                                  VectorVectorFloat*, VectorVectorFloat&
+                                  VectorVectorFloat*,  VectorVectorFloat&
 {
   int errcode = vectorVectorFromCpp(&($result), *$1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
 
+%typemap(out, fragment="FromCpp") MatrixRectangular, 
+                                  MatrixSquareGeneral, 
+                                  MatrixSquareSymmetric
+{
+  int errcode = matrixFromCpp(&($result), $1);
+  if (!SWIG_IsOK(errcode))
+    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+}
+
+%typemap(out, fragment="FromCpp") MatrixRectangular*,     MatrixRectangular&,
+                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
+                                  MatrixSquareSymmetric*, MatrixSquareSymmetric&
+{
+  int errcode = matrixFromCpp(&($result), *$1);
+  if (!SWIG_IsOK(errcode))
+    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+}

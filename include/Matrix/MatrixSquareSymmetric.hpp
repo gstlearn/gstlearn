@@ -37,15 +37,14 @@ public:
   IMPLEMENT_CLONING(MatrixSquareSymmetric)
 
   /// Interface to AMatrix
-  /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const final { return true; }
-  /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false, double eps = EPSILON10) const final
+  bool isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const final
   {
     DECLARE_UNUSED(printWhyNot);
     DECLARE_UNUSED(eps);
     return true;
   }
+  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 

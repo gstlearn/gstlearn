@@ -14,6 +14,8 @@
 #include "Enum/AEnum.hpp"
 #include "Basic/Utilities.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 #define ENUM_TESTS ETests, CASE0,\
                    CASE0 , 0, "Enum test case 0",\
@@ -80,5 +82,8 @@ GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString = Vec
 GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVectorInt());
 GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());
 
-GSTLEARN_EXPORT void
-argumentTestMatrixRectangular(const MatrixRectangular& mat = MatrixRectangular());
+GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat = MatrixRectangular());
+GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat = MatrixSquareGeneral());
+GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat = MatrixSquareSymmetric());
+
+GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows=2, int ncols=3, int seed=1312);

@@ -529,8 +529,34 @@
     
     return myres;
   }
-}
 
+  template <typename MatrixTemp>
+  int matrixFromCpp(PyObject** obj, const MatrixTemp& mat)
+  {
+    // Type definitions
+    int myres = SWIG_TypeError;
+
+    if (!mat.empty())
+    {
+      // Conversion to a 2D numpy array
+      npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
+      *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
+      if (*obj != NULL)
+      {
+       double* array_ptr = (double*) PyArray_DATA((PyArrayObject*)(*obj));
+       for (auto v : mat.getValues(false))
+       {
+         *array_ptr = convertFromCpp(v);
+         array_ptr += 1;
+       }
+       myres = SWIG_OK;
+      }
+    }
+    
+    return myres;
+  }
+
+}
 
 //////////////////////////////////////////////////////////////
 //                Specific additionnal typemaps             //

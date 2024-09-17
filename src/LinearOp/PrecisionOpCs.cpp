@@ -8,10 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorNumT.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "geoslib_f_private.h"
-
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -20,6 +16,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
+#include "Covariances/CovAniso.hpp"
 
 #include <Eigen/src/Core/Matrix.h>
 
