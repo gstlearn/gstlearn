@@ -76,9 +76,11 @@ public:
                 bool flagCheck = true) override;
 
 #ifndef SWIG
-int addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const;
-void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
-                                bool transpose = false) const;
+  int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
+                    Eigen::Map<Eigen::VectorXd>& ym) const;
+  void addProdMatVecInPlaceToDest(const Eigen::Map<const Eigen::VectorXd>& in,
+                                  Eigen::Map<Eigen::VectorXd>& out,
+                                  bool transpose = false) const;
 #endif
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
@@ -229,8 +231,8 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
 #endif
 
 #ifndef SWIG
-  public : 
-  void setDiagonal(const Eigen::VectorXd& tab);
+  public :
+  void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
 #endif
 protected:
   /// Interface for AMatrix

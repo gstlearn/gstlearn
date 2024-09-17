@@ -268,7 +268,7 @@ void MatrixSparse::_transposeInPlace()
   {
     Eigen::SparseMatrix<double> temp;
     temp = _eigenMatrix.transpose();
-    _eigenMatrix = temp;
+    _eigenMatrix.swap(temp);
   }
   else
   {
@@ -533,12 +533,12 @@ VectorDouble MatrixSparse::prodVecMat(const VectorDouble& x, bool transpose) con
   if (isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-    Eigen::VectorXd ym;
+    VectorDouble y(transpose ? getNRows() : getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
     if (transpose)
       ym = xm.transpose() * _eigenMatrix.transpose();
     else
       ym = xm.transpose() * _eigenMatrix;
-    VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
   }
   VectorDouble y;
@@ -563,12 +563,12 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
   if (isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-    Eigen::VectorXd ym;
+    VectorDouble y(transpose ? getNCols() : getNRows());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
     if (transpose)
       ym = _eigenMatrix.transpose() * xm;
     else
       ym = _eigenMatrix * xm;
-    VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
   }
   VectorDouble y;
@@ -588,8 +588,10 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
 }
 
 /*! Perform y += 'this' %*% x */
-void  MatrixSparse::addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
-                                                      bool transpose) const
+void MatrixSparse::addProdMatVecInPlaceToDest(
+  const Eigen::Map<const Eigen::VectorXd>& in,
+  Eigen::Map<Eigen::VectorXd>& out,
+  bool transpose) const
 {
   if (isFlagEigen())
   {
@@ -813,8 +815,9 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
 {
   if (isFlagEigen())
   {
-    Eigen::VectorXd ym = _eigenMatrix.diagonal();
-    VectorDouble diag(ym.data(), ym.data() + ym.size());
+    VectorDouble diag(std::min(getNCols(), getNRows()));
+    Eigen::Map<Eigen::VectorXd> ym(diag.data(), diag.size());
+    ym = _eigenMatrix.diagonal();
     VH::transformVD(diag, oper_choice);
     return diag;
   }
@@ -823,7 +826,8 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
   return diag;
 }
 
-int MatrixSparse::addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const
+int MatrixSparse::addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
+                                Eigen::Map<Eigen::VectorXd>& ym) const
 {
   if (isFlagEigen())
   {
@@ -1720,10 +1724,9 @@ int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
     return 0;
 }
 
-void MatrixSparse::setDiagonal(const Eigen::VectorXd& tab)
+void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)
 {
-    Eigen::Map<const Eigen::VectorXd> vecm(tab.data(), tab.size());
-    _eigenMatrix = vecm.asDiagonal();
+  _eigenMatrix = tab.asDiagonal();
 }
 
 

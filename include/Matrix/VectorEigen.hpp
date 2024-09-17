@@ -92,6 +92,16 @@ public:
   const Eigen::VectorXd& getVector() const { return _eigenVector; }
   /*! Get underlying Eigen vector */
   Eigen::VectorXd& getVector() { return _eigenVector; }
+  /*! Get map to underlying Eigen vector */
+  Eigen::Map<const Eigen::VectorXd> getMap() const
+  {
+    return {_eigenVector.data(), _eigenVector.size()};
+  }
+  /*! Get map to underlying Eigen vector */
+  Eigen::Map<Eigen::VectorXd> getMap()
+  {
+    return {_eigenVector.data(), _eigenVector.size()};
+  }
 
 private:
   Eigen::VectorXd _eigenVector; /// Eigen storage for vector in Eigen Library

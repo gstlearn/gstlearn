@@ -175,12 +175,16 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
 int  ProjMultiMatrix::_addPoint2mesh(const Eigen::VectorXd& inv,
                                         Eigen::VectorXd& outv) const
 {
-    _Proj.addProdMatVecInPlaceToDest(inv, outv,true);
-    return 0;
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  _Proj.addProdMatVecInPlaceToDest(invmap, outvmap, true);
+  return 0;
 }
 int  ProjMultiMatrix::_addMesh2point(const Eigen::VectorXd& inv,
                                         Eigen::VectorXd& outv) const
 {
-    _Proj.addProdMatVecInPlaceToDest(inv, outv,false);
-    return 0;
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  _Proj.addProdMatVecInPlaceToDest(invmap, outvmap, false);
+  return 0;
 }

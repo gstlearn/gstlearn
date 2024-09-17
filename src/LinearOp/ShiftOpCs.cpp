@@ -504,7 +504,9 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
 int ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
-  _S->addProdMatVecInPlaceToDest(inv, outv);
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  _S->addProdMatVecInPlaceToDest(invmap, outvmap);
   return 0;
 }
 

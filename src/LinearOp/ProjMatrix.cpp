@@ -122,7 +122,9 @@ int ProjMatrix::_addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv
     return 1;
   }
 
-  addProdMatVecInPlaceToDest(inv, outv, false);
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  addProdMatVecInPlaceToDest(invmap, outvmap, false);
   return 0;
 }
 
@@ -141,7 +143,9 @@ int ProjMatrix::_addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv
     return 1;
   }
 
-  addProdMatVecInPlaceToDest(inv, outv, true);
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  addProdMatVecInPlaceToDest(invmap, outvmap, true);
   return 0;
 }
 
