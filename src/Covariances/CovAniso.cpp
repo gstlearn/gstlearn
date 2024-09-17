@@ -37,6 +37,7 @@
 #include <math.h>
 #include <functional>
 #include <memory>
+#include <array>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
@@ -1574,18 +1575,16 @@ VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords,
   return result;
 }
 
-static const auto listaniso = {EConsElem::RANGE,
-                               EConsElem::SCALE,
-                               EConsElem::TENSOR,
-                               EConsElem::ANGLE};
+
+static const std::array<EConsElem, 4> listaniso = {EConsElem::RANGE,
+                                                   EConsElem::SCALE,
+                                                   EConsElem::TENSOR,
+                                                   EConsElem::ANGLE};
 
 void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
-      _tabNoStat.informMeshByMesh(amesh,EConsElem::RANGE);
-      _tabNoStat.informMeshByMesh(amesh,EConsElem::SCALE);
-      _tabNoStat.informMeshByMesh(amesh,EConsElem::ANGLE);
-      _tabNoStat.informMeshByMesh(amesh,EConsElem::TENSOR);
-
+  for (const auto &e : listaniso)
+      _tabNoStat.informMeshByMesh(amesh,e);
 }
 
 void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const

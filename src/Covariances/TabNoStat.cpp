@@ -163,6 +163,7 @@ void TabNoStat::informMeshByMesh(const AMesh* amesh, const EConsElem & econs) co
             e.second->informMeshByMesh(amesh);
     }
 }
+
 void TabNoStat::informMeshByApex(const AMesh* amesh, const EConsElem & econs) const
 {
     for (const auto &e : _items)
