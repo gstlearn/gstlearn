@@ -94,16 +94,16 @@ int main(int argc, char *argv[])
     VH::display("Non-stationary parameters at sample", vect);
   }
 
-  //int useCholesky = 0;
-  // (void) simulateSPDE(nullptr, workingDbc, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
-  //                     NamingConvention("Simu", true, false));
+  int useCholesky = 0;
+  (void) simulateSPDE(nullptr, workingDbc, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
+                      NamingConvention("Simu", true, false));
 
-  // DbStringFormat dbfmt(FLAG_STATS,{"Simu"});
-  // workingDbc->display(&dbfmt);
+  DbStringFormat dbfmt(FLAG_STATS,{"Simu"});
+  workingDbc->display(&dbfmt);
 
-  // (void) workingDbc->dumpToNF("spirale.ascii");
+  (void) workingDbc->dumpToNF("spirale.ascii");
 
-  // message("Test performed successfully\n");
+  message("Test performed successfully\n");
 
   delete workingDbc;
   return 0;

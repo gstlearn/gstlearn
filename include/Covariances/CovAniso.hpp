@@ -312,7 +312,7 @@ protected:
 private:
  void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                       const AFunctional* func = nullptr, 
-                      const Db* db = nullptr,const String& namecol = "");
+                      const Db* db = nullptr,const String& namecol = String());
 
   void _manage(const Db* db1,const Db* db2) const override;
 
