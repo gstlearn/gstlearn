@@ -17,8 +17,6 @@
 
 /**
  * This class concerns the non-stationarity defined as a function (hence its name).
- * It can be considered as an example of a 2-D implementation of a spiral with
- * a single non-stationary parameter (Example: the angle)
  */
 class GSTLEARN_EXPORT NoStatFunctional : public ANoStat
 {

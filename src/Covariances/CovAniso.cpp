@@ -1581,8 +1581,11 @@ static const auto listaniso = {EConsElem::RANGE,
 
 void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
-  for (const auto &e : listaniso)
-      _tabNoStat.informMeshByMesh(amesh,e);
+      _tabNoStat.informMeshByMesh(amesh,EConsElem::RANGE);
+      _tabNoStat.informMeshByMesh(amesh,EConsElem::SCALE);
+      _tabNoStat.informMeshByMesh(amesh,EConsElem::ANGLE);
+      _tabNoStat.informMeshByMesh(amesh,EConsElem::TENSOR);
+
 }
 
 void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
