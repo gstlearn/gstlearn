@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   CovAniso* cova = model->getCova(0);
 
-  bool flagDirect  = false;
-  bool flagByAngle = true;
+  bool flagDirect  = true;
+  bool flagByAngle = false;
   bool flagInquiry = false;
 
   if (flagDirect)
