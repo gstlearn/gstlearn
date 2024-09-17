@@ -10,7 +10,6 @@
 TabNoStat::TabNoStat()
 :_items()
 ,_dbNoStatRef(nullptr)
-,_definedForVariance(false)
 ,_nSills(0)
 {}
 
@@ -34,6 +33,7 @@ TabNoStat& TabNoStat::operator= (const TabNoStat &m)
     }
     return *this;
 }
+
 
 int TabNoStat::removeElem(const EConsElem &econs, int iv1, int iv2)
 {

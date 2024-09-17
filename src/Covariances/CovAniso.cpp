@@ -1322,7 +1322,7 @@ void CovAniso::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AF
   }
   else 
   {
-    ns = std::shared_ptr<ANoStat>(new NoStatFunctional(func));
+    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
   }
    _tabNoStat.addElem(ns, econs,iv1,iv2);
   
