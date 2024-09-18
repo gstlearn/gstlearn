@@ -338,7 +338,10 @@ private:
   mutable Tensor _aniso;                       /// Anisotropy parameters
   TabNoStatCovAniso _tabNoStat;
   mutable double _noStatFactor;                /// Correcting factor for non-stationarity
-  static std::array<EConsElem,4> _listaniso;
+  const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
+                                              EConsElem::SCALE,
+                                              EConsElem::TENSOR,
+                                              EConsElem::ANGLE};
 };
 
 

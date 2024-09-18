@@ -948,8 +948,6 @@ double CovAniso::getParam() const
 
 void CovAniso::_initFromContext()
 {
-  _listaniso= {EConsElem::RANGE,EConsElem::SCALE,
-               EConsElem::TENSOR,EConsElem::ANGLE};
   int ndim = getNDim();
   int nvar = getNVariables();
   _sill.resetFromValue(nvar, nvar, 1.);
