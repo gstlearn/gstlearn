@@ -305,6 +305,64 @@
     // else size is zero (empty vector)
     return myres;
   }
+
+  int matrixSparseToCpp(PyObject* obj, MatrixSparse& mat)
+  {
+    // Test argument
+    if (obj == NULL) return SWIG_TypeError;
+  
+    // Check that the object is a sparse matrix from scipy.sparse (type CSR or CSC)
+    if (!PyObject_HasAttrString(obj, "tocsc") || !PyObject_HasAttrString(obj, "tocsr")) {
+      messerr("The input Argument is not a CSR or CSC matrix from scipy.sparse Library");
+      return SWIG_TypeError;
+    }
+
+    // Conversion
+    int myres = SWIG_OK;
+    // Recover the information
+    PyObject* data_obj = PyObject_GetAttrString(obj, "data");
+    PyObject* indices_obj = PyObject_GetAttrString(obj, "indices");
+    PyObject* indptr_obj = PyObject_GetAttrString(obj, "indptr");
+    if (!data_obj || !indices_obj || !indptr_obj) {
+      messerr("Could not extract information from sparse matrix");
+      return SWIG_TypeError;
+    }
+
+    // Extract dimension of matrices
+    PyObject *shape = PyObject_GetAttrString(obj, "shape");
+    if (!shape || !PyTuple_Check(shape) || PyTuple_Size(shape) != 2) {
+      messerr("Could not extract shape from sparse matrix");
+      return SWIG_TypeError;
+    }
+
+    // Convertir les tableaux numpy en vecteurs C++
+    PyArrayObject* data_array = (PyArrayObject *) PyArray_FROM_OTF(data_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyArrayObject* indices_array = (PyArrayObject *) PyArray_FROM_OTF(indices_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
+    PyArrayObject* indptr_array = (PyArrayObject *) PyArray_FROM_OTF(indptr_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
+    
+    if (!data_array || !indices_array || !indptr_array) {
+      messerr("Failed to convert sparse matrix arrays");
+      return SWIG_TypeError;
+    }
+
+    int nnz = PyArray_DIM(data_array, 0);
+
+     // Type definitions
+    NF_Triplet NFT;
+    int* irows = (int*) PyArray_DATA(indices_array);
+    int* icols = (int*) PyArray_DATA(indptr_array);
+    double* values = (double*) PyArray_DATA(data_array);
+
+    for (int i = 0; i < nnz; i++)
+      NFT.add(irows[i], icols[i], values[i]);
+
+    Py_XDECREF(data_array);
+    Py_XDECREF(indices_array);
+    Py_XDECREF(indptr_array);
+
+    mat.resetFromTriplet(NFT);
+    return myres;
+  }
 }
 
 %typecheck(SWIG_TYPECHECK_UINT8) UChar {}
@@ -533,27 +591,115 @@
   template <typename MatrixTemp>
   int matrixFromCpp(PyObject** obj, const MatrixTemp& mat)
   {
-    // Type definitions
-    int myres = SWIG_TypeError;
-
-    if (!mat.empty())
+    if (mat.empty())
+      return SWIG_TypeError;
+     
+    // Conversion to a 2D numpy array
+    npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
+    *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
+    if (*obj == NULL) return SWIG_TypeError;
+       
+    double* array_ptr = (double*) PyArray_DATA((PyArrayObject*)(*obj));
+    for (auto v : mat.getValues(false))
     {
-      // Conversion to a 2D numpy array
-      npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
-      *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
-      if (*obj != NULL)
-      {
-       double* array_ptr = (double*) PyArray_DATA((PyArrayObject*)(*obj));
-       for (auto v : mat.getValues(false))
-       {
-         *array_ptr = convertFromCpp(v);
-         array_ptr += 1;
-       }
-       myres = SWIG_OK;
-      }
+      *array_ptr = convertFromCpp(v);
+      array_ptr += 1;
     }
+    return SWIG_OK;
+  }
+
+  int matrixSparseFromCpp(PyObject** obj, const MatrixSparse& mat)
+  {
+    if (mat.empty()) return SWIG_TypeError;
     
-    return myres;
+    // Conversion to a 2D numpy array
+    int nrows = mat.getNRows();
+    int ncols = mat.getNCols();
+
+    // Create the sparse matrix in scipy.sparse
+    PyObject *shape_tuple = PyTuple_Pack(2, PyLong_FromLong(nrows), PyLong_FromLong(ncols));
+    if (!shape_tuple) {
+      PyErr_Print();
+      messerr("Failed to create shape tuple");
+      return SWIG_TypeError;
+    }
+    if (!PyTuple_Check(shape_tuple) || PyTuple_Size(shape_tuple) != 2) 
+    {
+      messerr("Shape tuple is not valid.");
+      return SWIG_TypeError;
+    }
+    PyObject *first_value = PyTuple_GetItem(shape_tuple, 0);
+    PyObject *second_value = PyTuple_GetItem(shape_tuple, 1);
+    printf("Shape tuple values: (%ld, %ld)\n",
+       PyLong_AsLong(first_value), PyLong_AsLong(second_value));
+
+    printf("Shape tuple\n");
+    PyObject_Print(shape_tuple, stdout, 0);
+    printf("\n");  // To flush the output
+
+    NF_Triplet NFT = mat.getMatrixToTriplet();
+    const npy_intp nnz = NFT.getNumber();
+    if (nnz <= 0) {
+      return SWIG_TypeError;
+    }
+    printf("nnz: %d\n", (int) nnz);
+
+    npy_intp data_dim[1] = {nnz};
+    PyObject *data_array = PyArray_SimpleNewFromData(1, data_dim, NPY_DOUBLE, 
+          (void *) NFT.getValues().data());
+    npy_intp rows_dim[1] = {nnz};
+    PyObject *rows_array = PyArray_SimpleNewFromData(1, rows_dim, NPY_INT, 
+          (void *) NFT.getRows().data());
+    npy_intp cols_dim[1] = {nnz};
+    PyObject *cols_array = PyArray_SimpleNewFromData(1, cols_dim, NPY_INT, 
+          (void *) NFT.getCols().data());
+
+    // Check for NULL
+    if (!data_array || !rows_array || !cols_array) {
+      PyErr_Print();
+      messerr("Failed to create numpy arrays.");
+      return SWIG_TypeError;
+    }
+
+    printf("Data array contents: ");
+    for (int i = 0; i < nnz; ++i) {
+      printf("%f ", *(double *)(NFT.getValues().data() + i));
+    }
+    printf("\n");
+
+    printf("Rows array contents: ");
+    for (int i = 0; i < nnz; ++i) {
+      printf("%d ", *(int *)(NFT.getRows().data() + i));
+    }
+    printf("\n");
+
+    printf("Cols array contents: ");
+    for (int i = 0; i < nnz; ++i) {
+      printf("%d ", *(int *)(NFT.getCols().data() + i));
+    }
+    printf("\n");
+
+    // Import scipy.sparse
+    PyObject *scipy_sparse = PyImport_ImportModule("scipy.sparse");
+    PyObject *coo_matrix = PyObject_GetAttrString(scipy_sparse, "coo_matrix");
+
+    PyObject* args = Py_BuildValue("((O, (O, O)), (i, i))", data_array, rows_array, cols_array, nrows, ncols);
+    PyObject* result = PyObject_CallObject(coo_matrix, args);
+    if (!result) 
+    {
+      PyErr_Print();
+      messerr("Failed to create coo_matrix from data");
+      return SWIG_TypeError;
+    } 
+    message("Step 3\n");
+    
+    Py_XDECREF(data_array);
+    Py_XDECREF(rows_array);
+    Py_XDECREF(cols_array);
+    message("Step 4\n");
+    
+    *obj = result;
+    return SWIG_OK;
   }
 
 }
@@ -1190,8 +1336,8 @@ setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)
 setattr(gl.ProjMultiMatrix, "toTL", matrix_toTL)
 def Triplet_toTL(self):
   return sc.csc_matrix((np.array(self.getValues()), 
-                      (np.array(self.getRows()), np.array(self.getCols()))),
-                         shape=(self.getNRows()+1, self.getNCols()+1))
+                       (np.array(self.getRows()), np.array(self.getCols()))),
+                                 shape=(self.getNRows()+1, self.getNCols()+1))
 
 setattr(gl.NF_Triplet, "toTL", Triplet_toTL)
 

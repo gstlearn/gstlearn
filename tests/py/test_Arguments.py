@@ -5,6 +5,7 @@
 # Loading the packages
 
 import gstlearn as gl
+import scipy.sparse as sc
 import numpy as np
 import os
 import sys
@@ -71,7 +72,7 @@ gl.argumentDefTestVString([])
 gl.argumentDefTestVVInt([])
 gl.argumentDefTestVVDbl([])
 
-# Testing Matrix typemaps
+# Testing Dense Matrix typemaps
 
 mat = np.array([[1,2,3],[4,5,6]])
 gl.argumentTestMatrixRectangular(mat) # Should be correct
@@ -85,6 +86,20 @@ gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 mat = np.array([[1,2,3],[2,1,2],[3,2,1]])
 gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 
-print(gl.argumentReturnMatrix(3,4))
+mat = gl.argumentReturnMatrix(3,4)
+print("\nMatrix produced by FromCpp:\n", mat)
+
+# Testing Sparse matrix typemaps
+
+rows = np.array([0,3,1,0])
+cols = np.array([0,3,1,2])
+data = np.array([4,5,7,9])
+A = sc.csc_array((data,(rows,cols)),shape=(4,4))
+print("\nCreating a Sparse Matrix using Scipy.sparse:\n",A)
+
+mat = gl.argumentTestMatrixSparse(A)
+
+mat = gl.argumentReturnMatrixSparse(3,4)
+print("\nSparse Matrix produced by FromCpp:\n", mat)
 
 print("Test successfully performed")

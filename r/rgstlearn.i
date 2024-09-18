@@ -222,33 +222,29 @@
 
   int matrixToCpp(SEXP obj, MatrixRectangular& mat)
   {
-    // Type definitions
-    VectorVectorDouble vvec;
-    mat.resize(0,0);
-    
-    // Test argument
     if (obj == NULL) return SWIG_TypeError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
+    if (!Rf_isMatrix(obj)) return SWIG_TypeError;
 
     // Conversion
     int myres = SWIG_OK;
     int size = (int)Rf_length(obj);
-    if (size > 0)
+    int nrows = Rf_nrows(obj);
+    int ncols = Rf_ncols(obj);
+    mat.resize(nrows, ncols);
+    if (!mat.empty() && size > 0)
     {
-      for (int i = 0; i < size && SWIG_IsOK(myres); i++)
-      {
-        SEXP item = getElem(obj,i);
-        VectorDouble vec;
-        myres = vectorToCpp(item, vec);
-        if (SWIG_IsOK(myres))
-          vvec.push_back(vec);
-      }
+      int lec = 0;
+      for (int icol = 0; icol < ncols; icol++)
+        for (int irow = 0; irow < nrows; irow++, lec++)
+        {
+          SEXP item = getElem(obj,lec);
+          if (TYPEOF(item) == NILSXP) continue; // If NIL, no error
+          double value;
+          myres = convertToCpp(item, value);
+          mat.setValue(irow, icol, value);
+        }
     }
-
-    // Convert VVD to Matrix
-    mat.resetFromVVD(vvec);
-
-    // else length = 0, empty vector
     return myres;
   }
 
@@ -396,9 +392,22 @@
   {
     // Type definitions
     int myres = SWIG_TypeError;
+    int nrows = mat.getNRows();
+    int ncols = mat.getNCols();
 
     return myres;
   }
+
+  int matrixSparseFromCpp(SEXP* obj, const MatrixSparse& mat)
+  {
+    // Type definitions
+    int myres = SWIG_TypeError;
+    int nrows = mat.getNRows();
+    int ncols = mat.getNCols();
+
+    return myres;
+  }
+
 }
 
 // This for automatically convert R lists to externalptr

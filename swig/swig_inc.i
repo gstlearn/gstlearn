@@ -616,11 +616,44 @@
   }
 }
 
+%typemap(in, fragment="ToCpp") const MatrixSparse&     (void *argp, MatrixSparse mat),
+                               const MatrixSparse*     (void *argp, MatrixSparse mat)
+{
+  // Try to convert from any target language vector
+  int errcode = matrixSparseToCpp($input, mat);
+  if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of Matrices by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = &mat;
+  }
+}
+
 ////////////////////////////////////////////////
 // Conversion C++ => Target language
 
 // Note : Before including this file :
-//        - vectorFromCpp, vectorVectorFromCpp, matrixFromCpp, objectFromCpp 
+//        - vectorFromCpp, vectorVectorFromCpp, matrixFromCpp, matrixSparseFromCpp, objectFromCpp 
 //          functions must be defined in FromCpp fragment
 
 %typemap(out, fragment="FromCpp") int,
@@ -699,6 +732,20 @@
                                   MatrixSquareSymmetric*, MatrixSquareSymmetric&
 {
   int errcode = matrixFromCpp(&($result), *$1);
+  if (!SWIG_IsOK(errcode))
+    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+}
+
+%typemap(out, fragment="FromCpp") MatrixSparse 
+{
+  int errcode = matrixSparseFromCpp(&($result), $1);
+  if (!SWIG_IsOK(errcode))
+    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+}
+
+%typemap(out, fragment="FromCpp") MatrixSparse*,     MatrixSparse&
+{
+  int errcode = matrixSparseFromCpp(&($result), *$1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }

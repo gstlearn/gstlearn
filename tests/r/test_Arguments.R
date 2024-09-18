@@ -94,7 +94,7 @@ mat = matrix(c(1,2,3,4,5,6,7,8,9), nrow=3, ncol=3)
 argumentTestMatrixSquareGeneral(mat) # Should provoke an error
 argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 
-mat = matrix(c(1,2,3,2,1,2,3,2,1), nrow=3, ncol=3
+mat = matrix(c(1,2,3,2,1,2,3,2,1), nrow=3, ncol=3)
 argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 
 print(argumentReturnMatrix(3,4))

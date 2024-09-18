@@ -295,18 +295,15 @@ GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt)
 
 GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat)
 {
-  if (!mat.empty())
-    mat.display();
+  if (!mat.empty()) mat.display();
 }
 GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
 {
-  if (!mat.empty())
-    mat.display();
+  if (!mat.empty()) mat.display();
 }
 GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
 {
-  if (!mat.empty())
-    mat.display();
+  if (!mat.empty()) mat.display();
 }
 GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows,
                                                        int ncols,
@@ -314,5 +311,21 @@ GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows,
 {
   MatrixRectangular mat(nrows, ncols);
   mat.fillRandom(seed);
+  return mat;
+}
+
+GSTLEARN_EXPORT void argumentTestMatrixSparse(const MatrixSparse& mat)
+{
+  if (!mat.empty()) mat.display();
+}
+
+GSTLEARN_EXPORT MatrixSparse argumentReturnMatrixSparse(int nrows,
+                                                        int ncols,
+                                                        double zeroPercent,
+                                                        int seed)
+{
+  MatrixSparse mat(nrows, ncols);
+  mat.fillRandom(seed, zeroPercent);
+  mat.display();
   return mat;
 }
