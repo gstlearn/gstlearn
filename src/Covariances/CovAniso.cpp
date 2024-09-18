@@ -334,7 +334,7 @@ void CovAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
 {
   if (!hasRange()) return;
 
-  VectorDouble scales_local = scales;
+  VectorDouble scales_local;
 
   if (! scales.empty())
   {
@@ -1853,7 +1853,6 @@ void CovAniso::updateCovByMesh(int imesh,bool aniso)
         {
           auto noStat = _tabNoStat.getElem(EConsElem::TENSOR, idim, jdim);
           
-          //noStat->getValueOnMeshByMesh(imesh);
       }
     }
   }
