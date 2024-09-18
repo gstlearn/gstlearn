@@ -758,7 +758,7 @@ int MeshETurbo::_addWeights(int icas,
   return 0;
 }
 
-int MeshETurbo::_getPolarized(VectorInt indg) const
+int MeshETurbo::_getPolarized(const VectorInt &indg) const
 {
   int ndim = getNDim();
   if (! _isPolarized) return(0);
