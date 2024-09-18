@@ -31,7 +31,6 @@
 #endif
 
 class CovAniso;
-class NoStatArrayCov;
 class EConsElem;
 class AMatrix;
 class AMatrixSquare;
