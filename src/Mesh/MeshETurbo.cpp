@@ -137,6 +137,8 @@ double MeshETurbo::getMeshSize(int /*imesh*/) const
   return size;
 }
 
+static VectorInt indg;
+
 /****************************************************************************/
 /*!
 ** Returns the Apex 'rank' of the Mesh 'imesh'
@@ -151,7 +153,7 @@ int MeshETurbo::getApex(int imesh, int rank) const
 {
   int node,icas;
   int ndim = getNDim();
-  VectorInt indg(ndim);
+  indg.resize(ndim);
 
   int jmesh = _meshIndirect.getRToA(imesh);
   _getGridFromMesh(jmesh,&node,&icas);
@@ -174,7 +176,7 @@ int MeshETurbo::getApex(int imesh, int rank) const
 
 double MeshETurbo::getCoor(int imesh, int rank, int idim) const
 {
-  VectorInt indg(getNDim());
+  indg.resize(getNDim());
 
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
@@ -184,7 +186,7 @@ double MeshETurbo::getCoor(int imesh, int rank, int idim) const
 
 void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
 {
-  VectorInt indg(getNDim());
+  indg.resize(getNDim());
 
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
@@ -196,7 +198,7 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
 
 double MeshETurbo::getApexCoor(int i, int idim) const
 { _meshIndirect.getRelSize();
-  VectorInt indg(getNDim());
+  indg.resize(getNDim());
 
   int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
@@ -205,7 +207,7 @@ double MeshETurbo::getApexCoor(int i, int idim) const
 
 void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
 {
-  VectorInt indg(getNDim());
+  indg.resize(getNDim());
 
   int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
@@ -305,7 +307,7 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
   int nmesh = _nmeshInCompleteGrid();
   int ncorner = getNApexPerMesh();
   VectorInt indg0(ndim);
-  VectorInt indg(ndim);
+  indg.resize(ndim);
 
   // Loop on all possible meshes
   int meshNactive = 0;
@@ -778,7 +780,7 @@ int MeshETurbo::_getPolarized(const VectorInt &indg) const
  */
 void MeshETurbo::_getGridFromMesh(int imesh, int *node, int *icas) const
 {
-  VectorInt indg(getNDim());
+  indg.resize(getNDim());
   int ncas = _nPerCell;
   int rank = imesh / ncas;
   *icas    = imesh - rank * ncas;
