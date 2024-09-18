@@ -1575,12 +1575,6 @@ VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords,
   return result;
 }
 
-
-static const std::array<EConsElem, 4> listaniso = {EConsElem::RANGE,
-                                                   EConsElem::SCALE,
-                                                   EConsElem::TENSOR,
-                                                   EConsElem::ANGLE};
-
 void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
   for (const auto &e : listaniso)

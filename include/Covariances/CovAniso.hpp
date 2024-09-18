@@ -339,6 +339,11 @@ private:
   mutable double _noStatFactor;                /// Correcting factor for non-stationarity
 };
 
+static  std::vector<EConsElem> listaniso = {EConsElem::RANGE,
+                                            EConsElem::SCALE,
+                                            EConsElem::TENSOR,
+                                            EConsElem::ANGLE};
+
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);
 GSTLEARN_EXPORT double range2scale(const ECov& type, double range, double param = 1.);
 
