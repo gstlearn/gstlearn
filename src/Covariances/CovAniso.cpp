@@ -46,6 +46,12 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
                             { 20, -30, 12, -2, 0 },
                             { 70, -112, 56, -16, 2 } };
 
+static std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
+                                             EConsElem::SCALE,
+                                             EConsElem::TENSOR,
+                                             EConsElem::ANGLE};
+
+
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
     : ACov(ctxt.getSpace()), /// TODO : shared pointer
       _ctxt(ctxt),
@@ -1575,10 +1581,16 @@ VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords,
   return result;
 }
 
+
 void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
+  std::cout << "I inform mesh by mesh "<<std::endl;
+  std::cout << _listaniso.size() <<std::endl;
   for (const auto &e : _listaniso)
+  {
+      std::cout << e.getKey() << std::endl;
       _tabNoStat.informMeshByMesh(amesh,e);
+  }
 }
 
 void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
