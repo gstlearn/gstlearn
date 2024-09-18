@@ -34,10 +34,10 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "geoslib_define.h"
 
+#include <array>
 #include <math.h>
 #include <functional>
 #include <memory>
-#include <array>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
@@ -1577,25 +1577,25 @@ VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords,
 
 void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
-  for (const auto &e : listaniso)
+  for (const auto &e : _listaniso)
       _tabNoStat.informMeshByMesh(amesh,e);
 }
 
 void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
 {
-   for (const auto &e : listaniso)
+   for (const auto &e : _listaniso)
       _tabNoStat.informMeshByMesh(amesh,e);
 }
 
 void CovAniso::informDbInForAnisotropy(const Db* dbin) const
 {
-   for (const auto &e :listaniso)
+   for (const auto &e :_listaniso)
       _tabNoStat.informDbIn(dbin,e);
 
 }
 void CovAniso::informDbOutForAnisotropy(const Db* dbout) const
 {
-   for (const auto &e: listaniso)
+   for (const auto &e: _listaniso)
       _tabNoStat.informDbOut(dbout,e);
 }
 
