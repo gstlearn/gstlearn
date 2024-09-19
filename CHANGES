@@ -4,6 +4,10 @@ This file contains the logs between consecutive releases
 
 Release 1.4.0
 =============
+- The interfaces to deal with non stationarity of covariances parameters (angles, ranges, sills, ...) have been totally changed. See Tuto_NoStat.ipynb for a full description.
+- SPDE now available in multivariate context (see Tuto_multivarSPDE.ipynb)
+- Improve R package stability
+- Reduce drastically moving neighborhood computation time
 - law_exp_sample() now returns a VectorDouble (instead of double *)
 - In Db::createFilLRandom, use of 'ncode' has been corrected
 - Method computeLogLike() is renamed in computeLogLikelihood()
@@ -20,15 +24,6 @@ Release 1.4.0
 - New class SpatialIndices and corresponding methods (CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).
 - Names of variables used to compute the Variogram are stored in the Vario object
 - Empirical anamorphosis: plugging Normal score; parameterizing the dilution 
-
-Module gstlearn.document
-========================
-- Method displayDoc() allow direct display of a MD file located in "references"
-  No need to use: from IPython.display import Markdown in individual files
-  This upgrade has been curently cancelled, due to inconsistency in the non-regression tests
-
-General
-=======
 - Adding the file dev/Valgrind_Statistics for a follow up of software performances.
 
 Release 1.3.2
