@@ -211,7 +211,6 @@ KrigingSystem::~KrigingSystem()
 
   if (_modelInit != nullptr)
   {
-    _cova->manage(_dbin, _dbout,-1);
     delete _modelInit;
     _modelInit = nullptr;
   }
@@ -2754,10 +2753,10 @@ bool KrigingSystem::_isCorrect()
 bool KrigingSystem::_preparNoStat()
 {
   const auto* const cova = _model->getCovAnisoList();
-  cova->manage(_dbin, _dbout,1);
+  cova->manage(_dbin, _dbout);
 
   // Discard optimization in the non-stationary case
-  _model->setOptimEnabled(false);
+  _model->setOptimEnabled(false); //TODO it has to be decided by Cova now
 
   return true;
 }

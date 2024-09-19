@@ -38,6 +38,9 @@ else()
   endif()
 endif()
 
+#add_compile_options(-fsanitize=address -O0 -ggdb)
+#add_link_options(-fsanitize=address)
+
 # C++ header location (keep the trailing '/')
 set(INCLUDES 
     ${PROJECT_SOURCE_DIR}/include/)

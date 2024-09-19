@@ -1059,21 +1059,21 @@ def __ax_covaOnGrid(ax, cova, db, useSel=True, color='black', flagOrtho=True, **
     This makes sense when the model contains some non-stationarity
     '''
     # Extracting coordinates
-    tabx = db.getCoordinates(0,useSel)
-    taby = db.getCoordinates(1,useSel)
-    if len(tabx) <= 0 or len(taby) <= 0:
+
+    tab = db.getAllCoordinates(useSel)
+    if len(tab) <= 0 :
         return None
     
-    gl.db_cova_nostat(db, cova)
-    tabR1 = db.getColumn("Nostat.Range-1", useSel)
-    tabR2 = db.getColumn("Nostat.Range-2", useSel)
-    tabA  = db.getColumn("Nostat.Angle-1", useSel)
+    tabR1 = cova.informCoords(tab,gl.EConsElem.RANGE,0)
+    tabR2 = cova.informCoords(tab,gl.EConsElem.RANGE,1)
+    tabA  = cova.informCoords(tab,gl.EConsElem.ANGLE,0)
+
     if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
         return None
     
     if flagOrtho:
         tabA = 90 + tabA
-    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
+    ax.quiver(tab[0,:], tab[1,:], tabR2, tabR2, angles=tabA, color=color, **kwargs)
             
     return ax
     

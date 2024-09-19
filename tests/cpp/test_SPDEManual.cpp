@@ -13,7 +13,6 @@
 #include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -61,8 +60,7 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctionalCov NoStat(&spirale);
-  model->getCova(0)->addNoStat(&NoStat);
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
@@ -71,29 +69,30 @@ int main(int argc, char *argv[])
   ShiftOpCs S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 
-  /////////////////////////
-  // Simulation (Chebyshev)
+  // /////////////////////////
+  // // Simulation (Chebyshev)
   VectorDouble resultSimu = Qsimu.simulateOne();
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
   VectorEigen resultSimuV(resultSimu);
-  ///////////////////////////
-  // Creating Data
+  // ///////////////////////////
+  // // Creating Data
   auto ndata = 1000;
   Db* dat = Db::createFromBox(ndata, workingDbc->getCoorMinimum(), workingDbc->getCoorMaximum(), 432432);
 
-  /////////////////////////
-  // Simulating Data points
+  // /////////////////////////
+  // // Simulating Data points
   ProjMatrix B(dat, &mesh);
   Eigen::VectorXd datval(ndata);
   B.mesh2point(resultSimuV.getVector(), datval);
   auto datvalVd = VectorEigen::copyIntoVD(datval);
   dat->addColumns(datvalVd, "Simu", ELoc::Z);
 
-  //////////
-  // Kriging
+  // //////////
+  // // Kriging
   double nug = 0.1;
   Eigen::VectorXd rhs(S.getSize());
-  Eigen::Map<const Eigen::VectorXd> datm(dat->getColumn("Simu").data(),dat->getColumn("Simu").size());
+  auto temp = dat->getColumn("Simu");
+  Eigen::Map<const Eigen::VectorXd> datm(temp.data(),temp.size());
   B.point2mesh(datm, rhs);
   
   for (int i = 0; i < (int)rhs.size(); i++)

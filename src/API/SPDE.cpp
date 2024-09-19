@@ -193,8 +193,6 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 
 int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool showStats)
 {
-  const ANoStatCov* nostat = nullptr;
-
   if (_isKrigingRequested() && _data == nullptr)
   {
     messerr("You must define 'data' when performing Kriging or Conditional Simulations");
@@ -231,11 +229,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
     bool flagNoStatRot = false;
-    if (cova->isNoStat())
-    {
-      nostat = cova->getNoStat();
-      flagNoStatRot = nostat->isDefinedforAnisotropy();
-    }
+    
+    flagNoStatRot = cova->isNoStatForAnisotropy();
 
     if (cova->getType() == ECov::NUGGET)
     {
@@ -952,12 +947,9 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
     minNug[ivar] = eps * model->getTotalSill(ivar, ivar);
 
   // Play the non-stationarity (if needed)
-  const ANoStatCov *nostat = cova->getNoStat(); 
-  bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
+  bool flag_nostat_sill = cova->isNoStatForVariance();
   if (flag_nostat_sill)
-  {
-    if (nostat->manageInfo(1, db, nullptr) != 0) return mat;
-  }
+    cova->informDbInForSills(db);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
@@ -1081,7 +1073,6 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   mat = MatrixSparse::createFromTriplet(NF_T);
 
   // Free the non-stationary specific allocation
-  cova->manage(db,nullptr,-1);
   if (!hasnugget)
     delete cova;
   return mat;

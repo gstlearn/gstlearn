@@ -14,7 +14,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/VectorEigen.hpp"
-#include "Covariances/ANoStatCov.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -102,13 +101,9 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   for (int icov = 0; icov < ncov; icov++)
   {    
-    const ANoStatCov* nostat =  _model->getCova(icov)->getNoStat();
-    if (nostat != nullptr)
-    {
-      bool nostaticov = nostat->isDefinedForVariance();
-      _isNoStatForVariance[icov] = nostaticov;
-      _allStat = _allStat && !nostaticov;
-    }
+    bool nostaticov =  _model->getCova(icov)->isNoStatForVariance();
+    _isNoStatForVariance[icov] = nostaticov;
+    _allStat = _allStat && !nostaticov;
   }
   _buildMatrices();
 
@@ -254,9 +249,8 @@ int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
 {
   CovAniso* cova = _model->getCova(icov);
-  const ANoStatCov* nostat =  cova->getNoStat();
   int nvar = _getNVar();
-  nostat->attachToMesh(_meshes[icov],false,false);
+  cova->informMeshByApexForSills(_meshes[icov]);
   int nvertex =  (int)_meshes[icov]->getNApices();
   int nterms = nvar * (nvar + 1)/2;
   _invCholSillsNoStat[icov].resize(nterms);
@@ -269,7 +263,7 @@ int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
   }
   for (int imesh = 0; imesh < nvertex; imesh++)
   {
-    cova->updateCovByMesh(imesh);
+    cova->updateCovByMesh(imesh,false);
     MatrixSquareSymmetric sills = cova->getSill();
     if (sills.computeCholesky() != 0) return 1;
     if (sills.invertCholesky()  != 0) return 1;
@@ -316,10 +310,6 @@ int PrecisionOpMulti::_buildMatrices()
   return 0;
 }
 
-void PrecisionOpMulti::makeReady()
-{
-  _makeReady();
-}
 
 int PrecisionOpMulti::size(int imesh) const 
 { 
