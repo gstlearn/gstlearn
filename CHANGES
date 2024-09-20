@@ -8,6 +8,7 @@ Release 1.4.0
 - SPDE now available in multivariate context (see Tuto_multivarSPDE.ipynb)
 - Improve R package stability
 - Reduce drastically moving neighborhood computation time
+- Correcting severe bug in quick interpolators (movingAverage, inverseDistance, ...)
 - law_exp_sample() now returns a VectorDouble (instead of double *)
 - In Db::createFilLRandom, use of 'ncode' has been corrected
 - Method computeLogLike() is renamed in computeLogLikelihood()
