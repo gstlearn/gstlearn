@@ -248,6 +248,56 @@
     return myres;
   }
 
+  int matrixSparseToCpp(SEXP obj, MatrixSparse& mat)
+  {
+    if (obj == NULL) return SWIG_TypeError;
+    if (TYPEOF(obj) == REALSXP) return SWIG_TypeError;
+
+    // Extract the dimensions of the Matrix
+    SEXP R_dims = Rf_getAttrib(obj, Rf_install("Dim"));
+    int* dims = INTEGER(R_dims);
+    int nrows = dims[0];
+    int ncols = dims[1];
+
+    // Assuming 'obj' is of class "CsparseMatrix" in R, extract non-zero elements
+    SEXP R_i = Rf_getAttrib(obj, Rf_install("i"));
+    SEXP R_j = Rf_getAttrib(obj, Rf_install("j"));
+    SEXP R_p = Rf_getAttrib(obj, Rf_install("p"));
+    SEXP R_x = Rf_getAttrib(obj, Rf_install("x"));
+
+    int nnz = Rf_length(R_x);
+    double* data = REAL(R_x);
+
+    VectorInt Vrows(nnz);
+    int* rows = nullptr;
+    if (R_i != R_NilValue)
+      rows = INTEGER(R_i);
+    else
+    {
+      rows = Vrows.data();
+      convertIndptrToIndices(nrows, INTEGER(R_p), rows);
+    }
+
+    VectorInt Vcols(nnz);
+    int* cols = nullptr;
+    if (R_j != R_NilValue)
+      cols = INTEGER(R_j);
+    else
+    {
+      cols = Vcols.data();
+      convertIndptrToIndices(ncols, INTEGER(R_p), cols);
+    }
+
+    NF_Triplet NFT;
+    for (int i = 0; i < nnz; i++) 
+      NFT.add(rows[i], cols[i], data[i]);
+    NFT.force(nrows, ncols);
+
+    mat.resetFromTriplet(NFT);
+
+    return SWIG_OK;
+  }
+
 }
 
 // Add typecheck typemaps for dispatching functions
@@ -387,25 +437,71 @@
     return myres;
   }
 
-  template <typename MatrixTemp>
-  int matrixFromCpp(SEXP* obj, const MatrixTemp& mat)
+  int matrixFromCpp(SEXP* obj, const MatrixRectangular& mat)
   {
-    // Type definitions
-    int myres = SWIG_TypeError;
+    // Local definitions
     int nrows = mat.getNRows();
     int ncols = mat.getNCols();
 
-    return myres;
+    // Create a Matrix
+    PROTECT(*obj = Rf_allocMatrix(REALSXP, nrows, ncols));
+    if (*obj != NULL)
+    {
+      double* r_data = REAL(*obj);
+      VectorDouble values = mat.getValues();
+      std::copy(values.begin(), values.end(), r_data);
+    }
+    UNPROTECT(1);
+    return SWIG_OK;
   }
 
   int matrixSparseFromCpp(SEXP* obj, const MatrixSparse& mat)
   {
+    printf("On passe dans matrixsparse from Cpp\n");
+
     // Type definitions
-    int myres = SWIG_TypeError;
     int nrows = mat.getNRows();
     int ncols = mat.getNCols();
+    int nnz   = mat.getNonZeros();
 
-    return myres;
+    // Transform the input Matrix into a Triplet
+    NF_Triplet NFT = mat.getMatrixToTriplet();
+
+    // Create numpy arrays for indices, indptr, and data
+    SEXP R_i   = PROTECT(Rf_allocVector(INTSXP, nnz));      // row indices
+    SEXP R_j   = PROTECT(Rf_allocVector(INTSXP, nnz));      // column indices
+    SEXP R_x   = PROTECT(Rf_allocVector(REALSXP, nnz));     // non-zero values
+    SEXP R_dim = PROTECT(Rf_allocVector(INTSXP, 2));        // dimensions
+    
+    int* dims = INTEGER(R_dim);    // Pointer to 'R_dim'
+    int* rows = INTEGER(R_i);      // Pointer to 'R_i'
+    int* cols = INTEGER(R_j);      // Pointer to 'R_j'
+    double* data = REAL(R_x);      // Pointer to 'R_x'
+
+    dims[0] = nrows;
+    dims[1] = ncols;
+    for (int i = 0; i < nnz; ++i) 
+    {
+      rows[i] = NFT.getRow(i);
+      cols[i] = NFT.getCol(i);
+      data[i] = NFT.getValue(i);
+    }
+
+    // Create a dgTMatrix object in R
+    SEXP classDef = PROTECT(R_getClassDef("dgTMatrix"));
+    if (classDef == R_NilValue) {
+        UNPROTECT(5);
+        Rf_error("Could not find class definition for 'dgTMatrix'. Make sure the 'Matrix' package is loaded.");
+    }
+
+    PROTECT(*obj = NEW_OBJECT(classDef));
+    SET_SLOT(*obj, Rf_install("i"), R_i);
+    SET_SLOT(*obj, Rf_install("j"), R_j);
+    SET_SLOT(*obj, Rf_install("x"), R_x);
+    SET_SLOT(*obj, Rf_install("Dim"), R_dim);
+
+    UNPROTECT(6); // Unprotect R objects (R_i, R_j, R_x, R_dim, and classDef)
+    return SWIG_OK;
   }
 
 }
@@ -422,6 +518,12 @@
 %typemap(scoerceout) VectorVectorInt,    VectorVectorInt*,    VectorVectorInt&,
                      VectorVectorDouble, VectorVectorDouble*, VectorVectorDouble&,
                      VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
+ %{    %}
+
+%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
+                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
+                     MatrixSquareSymmetric, MatrixSquareSymmetric*, MatrixSquareSymmetric&,
+                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
  %{    %}
 
 // This for automatically convert R string to NamingConvention
@@ -453,6 +555,8 @@
   
   #include <R_ext/Print.h>
   #include <R_ext/Error.h>
+  #include <R.h>
+  #include <Rinternals.h>     
   
   // https://stackoverflow.com/a/70586898
   void replace_all(std::string& s,

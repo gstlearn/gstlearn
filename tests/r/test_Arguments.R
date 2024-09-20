@@ -5,6 +5,7 @@
 # Loading the package
 
 suppressWarnings(suppressMessages(library(gstlearn)))
+suppressWarnings(suppressMessages(library(Matrix)))
 
 # Testing direct argument of main type
 
@@ -57,6 +58,10 @@ print(argumentReturnInt(12))
 print(argumentReturnInt(NA))
 print(argumentReturnDouble(21.4))
 print(argumentReturnDouble(NA))
+print(argumentReturnVectorDouble(c(1., 2., 3.)))
+print(argumentReturnVectorInt(c(3,2,8)))
+print(argumentReturnVectorVectorInt(list(c(1,2),c(3,4))))
+print(argumentReturnVectorVectorDouble(list(c(1,2),c(3,4))))
 
 # Testing assessors (instead of relevant functions) to access the elements of a class
 
@@ -98,5 +103,15 @@ mat = matrix(c(1,2,3,2,1,2,3,2,1), nrow=3, ncol=3)
 argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 
 print(argumentReturnMatrix(3,4))
+
+# Testing Sparse matrix typemaps
+
+rows = c(1,4,2,1)
+cols = c(1,4,2,3)
+data = c(4,5,7,9)
+A = sparseMatrix(i = rows, j = cols, x = data, dims = c(4, 4))
+mat = argumentTestMatrixSparse(A)
+
+print(argumentReturnMatrixSparse(3,4))
 
 cat("Test successfully performed\n")

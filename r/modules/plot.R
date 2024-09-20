@@ -1464,9 +1464,9 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
 #' @param db A data base from gstlearn library
 #' @param namex Name of the variable (within 'db1') which will be displayed along the horizontal axis
 #' @param namey Name of the variable (within 'db2') which will be displayed along the vertical axis
-#' @varioparam A VarioParam structure describing the calculation criteria
-#' @ipas Rank of the lag to be used for calculations
-#' @idir Rank of the direction to be used for calculations
+#' @param varioparam A VarioParam structure describing the calculation criteria
+#' @param ipas Rank of the lag to be used for calculations
+#' @param idir Rank of the direction to be used for calculations
 #' @param asPoint Represent samples pointwise if TRUE, otherwise as a grid painted with occurrences
 #' @param flagDiag Represent the diagonal of the plot
 #' @param diagColor Color of the diagonal

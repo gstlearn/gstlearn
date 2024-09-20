@@ -73,6 +73,8 @@ GSTLEARN_EXPORT int argumentReturnInt(int value);
 GSTLEARN_EXPORT double argumentReturnDouble(double value);
 GSTLEARN_EXPORT VectorInt argumentReturnVectorInt(const VectorInt& values);
 GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& values);
+GSTLEARN_EXPORT VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values);
+GSTLEARN_EXPORT VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values);
 
 GSTLEARN_EXPORT void argumentDefTestInt(int argInt = 2);
 GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl = 2.);

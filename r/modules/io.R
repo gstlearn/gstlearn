@@ -25,7 +25,7 @@
 #' @param x a sf object to be converted
 #' @param quiet a Boolean to control messages
 #'
-#' @value returns the gstlearn object (Polygons or Db)
+#' @return returns the gstlearn object (Polygons or Db)
 sf_to_gstlearn <- function(x, quiet = TRUE)
 {
   if (!require(sf, quietly=TRUE))
@@ -79,9 +79,9 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
 #' @param crs a string storing the reference to the coordinates system
 #' (e.g. "EPSG:4326" for long/lat in WGS84)
 #'
-#' @value returns the sf object
+#' @return returns the sf object
 #' 
-#' @remarks
+#' @note
 #' The argument 'crs' defines the type of coordinates ("coordinate Reference System") 
 #' using the format "AUTORITY:code".
 #' For example:
@@ -124,7 +124,7 @@ gstlearn_to_sf <- function(x, crs = NA)
 #'
 #' @param x a terra raster to be converted
 #'
-#' @value returns the DbGrid object
+#' @return returns the DbGrid object
 terra_to_gstlearn <- function(x)
 {
   if (!require(terra, quietly=TRUE))
@@ -155,7 +155,7 @@ terra_to_gstlearn <- function(x)
 #' @param crs a string storing the reference to the coordinates system
 #' (e.g. "EPSG:4326" for long/lat in WGS84)
 #'
-#' @value returns the sf object
+#' @return returns the sf object
 gstlearn_to_terra <- function(x, crs = NA)
 {
   if (!require(terra, quietly=TRUE))

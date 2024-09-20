@@ -1195,3 +1195,13 @@ void print_range(const char* title,
     message("%lf", stats.maxi);
   message(" (%d/%d)\n", stats.nvalid, ntab);
 }
+
+void convertIndptrToIndices(int ncumul, const int* cumul, int* tab)
+{
+  for (int i = 0; i < ncumul; i++)
+  {
+    int start = cumul[i];
+    int end   = cumul[i + 1];
+    for (int j = start; j < end; j++) tab[j] = i;
+  }
+}

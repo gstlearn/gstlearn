@@ -158,7 +158,7 @@ void argumentTestVectorVectorDouble(const VectorVectorDouble& values)
 
 void argumentTestVectorString(const VectorString& values)
 {
-  _introduction("VectorString");
+  _introduction("VectorString", true);
   _printVectorString(values);
   _endOfLine();
 }
@@ -238,6 +238,22 @@ GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& valu
 {
   _introduction("VectorDouble");
   _printVectorDouble(values);
+  _endOfLine();
+  return values;
+}
+
+GSTLEARN_EXPORT VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values)
+{
+  _introduction("VectorVectorInt", true);
+  _printVectorVectorInt(values);
+  _endOfLine();
+  return values;
+}
+
+GSTLEARN_EXPORT VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values)
+{
+  _introduction("VectorVectorDouble", true);
+  _printVectorVectorDouble(values);
   _endOfLine();
   return values;
 }
