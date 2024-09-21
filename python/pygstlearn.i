@@ -310,58 +310,94 @@
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    PyArrayObject* data_array = nullptr;
+    PyArrayObject* rows_array = nullptr;
+    PyArrayObject* cols_array = nullptr;
+    PyArrayObject* indices_array = nullptr;
+    PyArrayObject* indptr_array = nullptr;
   
-    // Check that the object is a sparse matrix from scipy.sparse (type CSR or CSC)
-    if (!PyObject_HasAttrString(obj, "tocsc") || !PyObject_HasAttrString(obj, "tocsr")) {
-      messerr("The input Argument is not a CSR or CSC matrix from scipy.sparse Library");
-      return SWIG_TypeError;
-    }
-
-    // Conversion
-    int myres = SWIG_OK;
-    // Recover the information
-    PyObject* data_obj    = PyObject_GetAttrString(obj, "data");
-    PyObject* indices_obj = PyObject_GetAttrString(obj, "indices");
-    PyObject* indptr_obj  = PyObject_GetAttrString(obj, "indptr");
-    if (!data_obj || !indices_obj || !indptr_obj) {
-      messerr("Could not extract information from sparse matrix");
-      return SWIG_TypeError;
-    }
-
     // Extract dimension of matrices
     PyObject *shape = PyObject_GetAttrString(obj, "shape");
     if (!shape || !PyTuple_Check(shape) || PyTuple_Size(shape) != 2) {
       messerr("Could not extract shape from sparse matrix");
       return SWIG_TypeError;
     }
+    int nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
+    int ncols = PyLong_AsLong(PyTuple_GetItem(shape, 1));
 
-    // Convertir les tableaux numpy en vecteurs C++
-    PyArrayObject* data_array    = (PyArrayObject *) PyArray_FROM_OTF(data_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
-    PyArrayObject* indices_array = (PyArrayObject *) PyArray_FROM_OTF(indices_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
-    PyArrayObject* indptr_array  = (PyArrayObject *) PyArray_FROM_OTF(indptr_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
-    
-    if (!data_array || !indices_array || !indptr_array) {
-      messerr("Failed to convert sparse matrix arrays");
+    // Reading the storage format
+    PyObject* format_obj = PyObject_GetAttrString(obj, "format");
+    if (!format_obj) return SWIG_TypeError; 
+    const char* format_str = PyUnicode_AsUTF8(format_obj);
+    if (!format_str) return SWIG_TypeError;
+
+    // Recover 'data' information
+    PyObject* data_obj = PyObject_GetAttrString(obj, "data");
+    if (!data_obj) {
+      messerr("Could not extract information from sparse matrix");
       return SWIG_TypeError;
     }
-
+    data_array = (PyArrayObject *) PyArray_FROM_OTF(data_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    double* values = (double*) PyArray_DATA(data_array);
     int nnz = PyArray_DIM(data_array, 0);
 
-    // Type definitions
-    NF_Triplet NFT;
-    int* irows = (int*) PyArray_DATA(indices_array);
-    int* icols = (int*) PyArray_DATA(indptr_array);
-    double* values = (double*) PyArray_DATA(data_array);
+    // Reading 'row' and 'col' or 'indices' and 'indptr' information
 
+    
+    VectorInt Vrows(nnz);
+    VectorInt Vcols(nnz);
+    int* rows = nullptr;
+    int* cols = nullptr;
+    if (strcmp(format_str, "coo") != 0) 
+    {
+
+      // The format is CSC or CSR
+
+      PyObject* indices_obj = PyObject_GetAttrString(obj, "indices");
+      PyObject* indptr_obj  = PyObject_GetAttrString(obj, "indptr");
+      indices_array = (PyArrayObject *) PyArray_FROM_OTF(indices_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
+      indptr_array  = (PyArrayObject *) PyArray_FROM_OTF(indptr_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
+      int* indices = (int*) PyArray_DATA(indices_array);
+      int* indptr  = (int*) PyArray_DATA(indptr_array);
+
+      if (strcmp(format_str, "csc") == 0)
+      {
+        // The format is CSC
+        rows = indices;
+        cols = Vcols.data();
+        convertIndptrToIndices(ncols, indptr, cols);
+      }
+      else
+      {
+        // The format is CSR
+        cols = indices;
+        rows = Vrows.data();
+        convertIndptrToIndices(nrows, indptr, rows);
+      }
+    }
+    else
+    {
+      // The format is COO
+      PyObject* rows_obj = PyObject_GetAttrString(obj, "row");
+      PyObject* cols_obj = PyObject_GetAttrString(obj, "col");
+      rows_array = (PyArrayObject *) PyArray_FROM_OTF(rows_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
+      cols_array = (PyArrayObject *) PyArray_FROM_OTF(cols_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
+      rows = (int*) PyArray_DATA(rows_array);
+      cols = (int*) PyArray_DATA(cols_array);
+    }
+
+    NF_Triplet NFT;
     for (int i = 0; i < nnz; i++)
-      NFT.add(irows[i], icols[i], values[i]);
+      NFT.add(rows[i], cols[i], values[i]);
+    mat.resetFromTriplet(NFT);
 
     Py_XDECREF(data_array);
     Py_XDECREF(indices_array);
     Py_XDECREF(indptr_array);
+    Py_XDECREF(rows_array);
+    Py_XDECREF(cols_array);
 
-    mat.resetFromTriplet(NFT);
-    return myres;
+    return SWIG_OK;
   }
 }
 
@@ -636,7 +672,6 @@
     }
 
     // Create 1D NumPy arrays for row indices, column indices, and values
-    printf("Creating py objects\n");
     npy_intp dim[1] = {nnz};
     PyObject *py_data_array = PyArray_SimpleNew(1, dim, NPY_DOUBLE);
     PyObject *py_rows_array = PyArray_SimpleNew(1, dim, NPY_INT);
@@ -644,7 +679,6 @@
     if (!py_data_array || !py_rows_array || !py_cols_array) return SWIG_TypeError;
 
     // Copy data from C++ vectors to NumPy arrays
-    printf("Copying indices and values\n");
     double* data_ptr = (double *) PyArray_DATA((PyArrayObject*)py_data_array);
     int*    rows_ptr = (int    *) PyArray_DATA((PyArrayObject*)py_rows_array);
     int*    cols_ptr = (int    *) PyArray_DATA((PyArrayObject*)py_cols_array);
@@ -657,13 +691,11 @@
     }
 
     // Import scipy.sparse and call coo_matrix
-    printf("retreiving coo_matrix\n");
     PyObject *scipy_sparse = PyImport_ImportModule("scipy.sparse");
     PyObject *coo_matrix = PyObject_GetAttrString(scipy_sparse, "coo_matrix");
     PyObject* args = Py_BuildValue("((O, (O, O)), (i, i))", py_data_array, py_rows_array, py_cols_array, nrows, ncols);
 
     // Create the Sparse matrix
-    printf("creating sparse\n");
     PyObject* result = PyObject_CallObject(coo_matrix, args);
     if (!result) 
     {
@@ -671,13 +703,11 @@
       messerr("Failed to create coo_matrix from data");
       return SWIG_TypeError;
     } 
-    printf("sparse matrix created. Return it\n");
     
     Py_DECREF(py_data_array);
     Py_DECREF(py_rows_array);
     Py_DECREF(py_cols_array);
     
-    printf("returning matrix\n");
     *obj = result;
     return SWIG_OK;
   }

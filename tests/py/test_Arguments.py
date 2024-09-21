@@ -48,6 +48,10 @@ print(gl.argumentReturnInt(12))
 print("nan") if (gl.isNaN(gl.argumentReturnInt(np.nan))) else print("oups") # No NaN value for integers so use isNaN
 print(gl.argumentReturnDouble(21.4))
 print(gl.argumentReturnDouble(np.nan))
+print(gl.argumentReturnVectorDouble([1., 2., 3.]))
+print(gl.argumentReturnVectorInt([3,2,8]))
+print(gl.argumentReturnVectorVectorInt([[1,2],[3,4]]))
+print(gl.argumentReturnVectorVectorDouble([[1,2],[3,4]]))
 
 # Testing assessors to the elements of a class
 
@@ -86,20 +90,16 @@ gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 mat = np.array([[1,2,3],[2,1,2],[3,2,1]])
 gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 
-mat = gl.argumentReturnMatrix(3,4)
-print("\nMatrix produced by FromCpp:\n", mat)
+print(gl.argumentReturnMatrix(3,4))
 
 # Testing Sparse matrix typemaps
 
-rows = np.array([0,3,1,0])
-cols = np.array([0,3,1,2])
-data = np.array([4,5,7,9])
-A = sc.csc_array((data,(rows,cols)),shape=(4,4))
-print("\nCreating a Sparse Matrix using Scipy.sparse:\n",A)
-
+rows = np.array([0,3,1,0,1])
+cols = np.array([0,3,1,2,0])
+data = np.array([4,5,7,9,2])
+A = sc.csr_array((data,(rows,cols)),shape=(4,5))
 mat = gl.argumentTestMatrixSparse(A)
 
-mat = gl.argumentReturnMatrixSparse(3,4)
-print("\nSparse Matrix produced by FromCpp:\n", mat)
+print(gl.argumentReturnMatrixSparse(3,4))
 
 print("Test successfully performed")

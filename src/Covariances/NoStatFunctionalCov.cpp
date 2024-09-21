@@ -78,17 +78,11 @@ int NoStatFunctionalCov::attachToDb(Db* db, int icas, bool verbose) const
  * @param type  Type of non-stationary element (EConsElem)
  * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
  * @param rank  Rank of the target (in Meshing (0); in Dbin (1) or in Dbout (2)
- * @param icov  Rank of the Covariance
  * @param iv1   Rank of the first variable (optional)
  * @param iv2   Rank of the second variable (optional)
- * @param igrf  Rank of the GRF
  * @return
  */
-double NoStatFunctionalCov::getValue(const EConsElem &type,
-                                  int icas,
-                                  int rank,
-                                  int iv1,
-                                  int iv2) const
+double NoStatFunctionalCov::getValue(const EConsElem& type, int icas, int rank, int iv1, int iv2) const
 {
   if (! _isValid(icas, rank)) return TEST;
   int ipar = getRank(type, iv1, iv2);
