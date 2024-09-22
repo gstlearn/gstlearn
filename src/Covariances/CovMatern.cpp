@@ -20,7 +20,7 @@
 
 #define MAXTAB 100
 
-#ifndef MACOS
+#if defined(__APPLE__)
 static bool bessel_Old_Style = true;
 #else
 static bool bessel_Old_Style = false;
