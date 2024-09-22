@@ -101,7 +101,7 @@ public:
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
-  const std::span<const double> getColumnPtr(int icol) const;
+  std::span<const double> getColumnPtr(int icol) const;
   /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,

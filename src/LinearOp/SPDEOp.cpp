@@ -144,7 +144,7 @@ int SPDEOp::_addToDestImpl(const Eigen::VectorXd& inv,
   return _Q->addToDest(inv, outv);
 }
 
-void SPDEOp::evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const
+void SPDEOp::evalInvCov(const std::span<const double> &inv, std::span<double> &result) const
 {
   // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
   
@@ -172,7 +172,7 @@ VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   _workdat1.resize(_getNDat());
   for(int i = 0; i< xsize; i++)
   {
-    Eigen::Map<const Eigen::VectorXd> xm(drifts[i].data(),drifts[i].size());
+    auto xm = drifts.getColumnPtr(i);
     evalInvCov(xm,_workdat1);
 
     Eigen::Map<const Eigen::VectorXd> ym(Z.data(),Z.size());

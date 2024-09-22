@@ -59,7 +59,7 @@ public:
   int krigingWithGuess(const Eigen::VectorXd& inv,
                        const Eigen::VectorXd& guess,
                              Eigen::VectorXd& out) const;
-  void evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const;
+  void evalInvCov(const std::span<const double> &inv, std::span<double>& result) const;
  
 protected:
   int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;

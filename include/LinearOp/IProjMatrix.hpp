@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include <span>
 
 #ifndef SWIG
   #include <Eigen/Core>
@@ -29,6 +30,9 @@ public:
   virtual int mesh2point(const VectorDouble& inv, VectorDouble& outv) const; // when job is finished
   int point2mesh(const VectorEigen& inv, VectorEigen  & outv) const;
   int mesh2point(const VectorEigen& inv, VectorEigen   & outv)const; 
+  int point2mesh(const std::span<const double>& inv,std::span<double>& out) const;
+  int mesh2point(const std::span<const double>& inv,std::span<double>& out) const;
+
   virtual int getApexNumber() const = 0;
   virtual int getPointNumber() const = 0;
 

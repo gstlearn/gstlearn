@@ -46,6 +46,13 @@ int ALinearOp::addToDest(const VectorEigen& inv, VectorEigen& outv) const
   return _addToDest(inv.getVector(), outv.getVector());
 }
 
+int ALinearOp::evalDirect(constvect& inv, vect& outv) const
+{
+  std::fill(outv.begin(),outv.end(),0.);
+  _addToDest(inv, outv);
+}
+
+
 int ALinearOp::evalDirect(const Eigen::VectorXd& inv,
                                 Eigen::VectorXd& outv) const
 {
