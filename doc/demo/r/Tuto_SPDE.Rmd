@@ -421,6 +421,7 @@ ggPrint(p)
 ```{r nc_simu_fn, echo=TRUE, eval=TRUE}
 err = grid$deleteColumns(names = "spde.fn.simu.*")
 # non conditional simulations
+law_set_random_seed(121423)
 err  = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, 
                     namconv = NamingConvention("spde.fn"))
 
@@ -438,6 +439,7 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 err = grid$deleteColumns(names = "spde.fn.Z.condSimu.*")
 
 # conditional simulations
+law_set_random_seed(121423)
 err  = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu = nsim, 
                     namconv = NamingConvention("spde.fn"))
 

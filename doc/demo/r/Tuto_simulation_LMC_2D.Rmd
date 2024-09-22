@@ -218,7 +218,7 @@ for (idir in 1:ndir) {
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
   law_set_random_seed(seed)
-  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, 
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
   list_key   = c("TB", "SPDE")
@@ -331,7 +331,7 @@ neigh = NeighUnique()
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
   law_set_random_seed(seed)
-  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, 
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
   list_key   = c("TB", "SPDE")
