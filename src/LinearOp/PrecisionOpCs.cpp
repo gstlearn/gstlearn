@@ -144,10 +144,9 @@ void PrecisionOpCs::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& v
   _Q->solveCholesky(vecin, vecout);
 }
 
-double PrecisionOpCs::getLogDeterminant(int nbsimu, int seed)
+double PrecisionOpCs::getLogDeterminant(int nbsimu)
 {
   DECLARE_UNUSED(nbsimu);
-  DECLARE_UNUSED(seed);
 
   return _Q->computeCholeskyLogDeterminant();
 }

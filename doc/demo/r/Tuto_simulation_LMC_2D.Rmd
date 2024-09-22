@@ -217,7 +217,8 @@ for (idir in 1:ndir) {
   # non conditional simulations
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
-  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+  law_set_random_seed(seed)
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, 
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
   list_key   = c("TB", "SPDE")
@@ -245,9 +246,9 @@ neigh = NeighUnique()
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
-
+  law_set_random_seed(seed)
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
-                     nbsimu = nsim, seed = seed, namconv = NamingConvention("SPDE"))
+                     nbsimu = nsim, namconv = NamingConvention("SPDE"))
 
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
@@ -329,7 +330,8 @@ neigh = NeighUnique()
   # non conditional simulations
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
-  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+  law_set_random_seed(seed)
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, 
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
   list_key   = c("TB", "SPDE")
@@ -356,9 +358,9 @@ neigh = NeighUnique()
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
-
+  law_set_random_seed(seed)
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
-                     nbsimu = nsim, seed = seed, namconv = NamingConvention("SPDE"))
+                     nbsimu = nsim, namconv = NamingConvention("SPDE"))
 
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
