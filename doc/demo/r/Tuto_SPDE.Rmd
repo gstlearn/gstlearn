@@ -458,7 +458,7 @@ err = grid$deleteColumns(names = c("spde.fn.Z.kriging", "spde.fn.Z.stdev", "spde
 
 # kriging value
 err = krigingSPDE(dbin = dat, dbout = grid, model = model, 
-                  flag_est = TRUE, flag_std = TRUE, nbMC=0, seed=0,
+                  flag_est = TRUE, flag_std = TRUE, nbMC=0,
                   namconv = NamingConvention("spde.fn"))
 
 # cross plot for kriging values
