@@ -176,3 +176,8 @@ VectorDouble CovMatern::_evaluateSpectrumOnSphere(int n, double scale) const
   VH::normalize(sp,1);
   return sp;
 }
+
+void bessel_set_old_style(bool style)
+{
+  bessel_Old_Style = style;
+}

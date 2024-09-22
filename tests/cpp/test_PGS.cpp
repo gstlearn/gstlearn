@@ -24,6 +24,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
+#include "Covariances/CovMatern.hpp"
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
@@ -31,6 +32,7 @@
 *****************************************************************************/
 int main(int argc, char *argv[])
 {
+  bessel_set_old_style(true);
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);

@@ -62,3 +62,5 @@ private:
   double _correc;
   VectorDouble _markovCoeffs;
 };
+
+GSTLEARN_EXPORT void bessel_set_old_style(bool style);
