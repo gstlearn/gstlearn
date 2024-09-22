@@ -217,7 +217,7 @@ for (idir in 1:ndir) {
   # non conditional simulations
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
-  law_set_random_seed(seed)
+  lsr = law_set_random_seed(seed)
   err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
@@ -246,7 +246,7 @@ neigh = NeighUnique()
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
-  law_set_random_seed(seed)
+  lsr = law_set_random_seed(seed)
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
                      nbsimu = nsim, namconv = NamingConvention("SPDE"))
 
@@ -330,7 +330,7 @@ neigh = NeighUnique()
   # non conditional simulations
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
-  law_set_random_seed(seed)
+  lsr = law_set_random_seed(seed)
   err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
@@ -358,7 +358,7 @@ neigh = NeighUnique()
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
-  law_set_random_seed(seed)
+  lsr = law_set_random_seed(seed)
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
                      nbsimu = nsim, namconv = NamingConvention("SPDE"))
 
