@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
   int ndat  = 50;
   int nxref = 101;
   double matern_param = 1.0;
-
-  law_set_random_seed(seed);
   setGlobalFlagEigen(true);
   message("Use of Eigen Library = %d\n",isGlobalFlagEigen());
 
@@ -167,6 +165,7 @@ int main(int argc, char *argv[])
         namconv.append("Simu.NC");
         namconv.append(option);
         namconv.append(sncov);
+        law_set_random_seed(seed);
         (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
                             SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
@@ -181,6 +180,7 @@ int main(int argc, char *argv[])
         namconv.append("Simu.CD");
         namconv.append(option);
         namconv.append(sncov);
+        law_set_random_seed(seed);
         (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
                             SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
