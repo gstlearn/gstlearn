@@ -56,11 +56,15 @@ public:
   int krigingWithGuess(const Eigen::VectorXd& inv,
                        const Eigen::VectorXd& guess,
                              Eigen::VectorXd& out) const;
+  void evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const;
+  VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
+                                  const VectorVectorDouble& drifts) const;
 protected:
   int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
   int _addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const override;
 
 private: 
+  int _getNDat() const {return _ndat;}
   virtual int _solve(const Eigen::VectorXd& in,Eigen::VectorXd& out) const;
   int _solveWithGuess(const Eigen::VectorXd& in,const Eigen::VectorXd &guess,Eigen::VectorXd& out) const;
 
@@ -81,9 +85,11 @@ protected:
 
 private:
   bool    _noiseToDelete;
+  int     _ndat;
   mutable Eigen::VectorXd _workdat1; 
   mutable Eigen::VectorXd _workdat2;
   mutable Eigen::VectorXd _rhs;
+  mutable Eigen::VectorXd _workmesh;
   mutable LinearOpCGSolver<SPDEOp> _solver;
 
 };

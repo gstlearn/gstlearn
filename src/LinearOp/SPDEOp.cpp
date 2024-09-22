@@ -24,8 +24,13 @@ SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
   , _Proj(proj)
   , _invNoise(invNoise)
   , _noiseToDelete(todelete)
+  , _ndat(0)
   , _solver(this)
 {
+   if (_Proj == nullptr) return;
+   if (_invNoise == nullptr) return;
+   if (_Q == nullptr) return;
+   _ndat = _Proj->getPointNumber();
   _prepare(true, true);
 }
 
@@ -41,8 +46,8 @@ int SPDEOp::getSize() const
 
 void SPDEOp::_prepare(bool w1, bool w2) const
 {
-  if (w1) _workdat1.resize(_Proj->getPointNumber());
-  if (w2) _workdat2.resize(_Proj->getPointNumber());
+  if (w1) _workdat1.resize(_getNDat());
+  if (w2) _workdat2.resize(_getNDat());
 }
 
 int SPDEOp::_addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
@@ -136,4 +141,50 @@ int SPDEOp::_addToDestImpl(const Eigen::VectorXd& inv,
   _invNoise->evalDirect(_workdat1, _workdat2);
   _Proj->addPoint2mesh(_workdat2, outv);
   return _Q->addToDest(inv, outv);
+}
+
+void SPDEOp::evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const
+{
+  // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
+  
+  _rhs.resize(getSize());
+  _workmesh.resize(getSize());
+  _workdat2.resize(_getNDat());
+  _invNoise->evalDirect(inv,result);
+  _Proj->point2mesh(result,_rhs);
+  _solve(_rhs,_workmesh);
+  _Proj->mesh2point(_workmesh,_workdat2);
+  VectorEigen::multiplyConstant(_workdat2,-1);
+  _invNoise->addToDest(_workdat2,result);
+
+  
+}
+
+
+VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
+                                        const VectorVectorDouble& drifts) const
+{
+  int xsize = (int)(drifts.size());
+  VectorDouble XtInvSigmaZ(xsize);
+  MatrixSquareSymmetric XtInvSigmaX(xsize);
+  VectorDouble result(xsize);
+  _workdat1.resize(_getNDat());
+  for(int i = 0; i< xsize; i++)
+  {
+    Eigen::Map<const Eigen::VectorXd> xm(drifts[i].data(),drifts[i].size());
+    evalInvCov(xm,_workdat1);
+
+    Eigen::Map<const Eigen::VectorXd> ym(Z.data(),Z.size());
+    XtInvSigmaZ[i] = ym.adjoint() * _workdat1;
+
+    for(int j = i; j < xsize;j++)
+    {
+      Eigen::Map<const Eigen::VectorXd> xmj(drifts[j].data(),drifts[j].size());
+      XtInvSigmaX.setValue(i,j,  xmj.adjoint() * _workdat1);
+    }
+  }
+
+  XtInvSigmaX.solve(XtInvSigmaZ,result);
+
+  return result;
 }

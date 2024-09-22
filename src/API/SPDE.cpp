@@ -1101,6 +1101,7 @@ VectorDouble krigingSPDENew(Db* dbin,
  DECLARE_UNUSED(namconv);
  if (dbin == nullptr) return 1;
  if (dbout == nullptr) return 1;
+ if (model == nullptr) return 1;
  auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
  auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,meshes);
  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,meshes);
