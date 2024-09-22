@@ -19,13 +19,7 @@
 #include "math.h"
 
 #define MAXTAB 100
-
-#if defined(__APPLE__)
-static bool bessel_Old_Style = true;
-#else
 static bool bessel_Old_Style = false;
-#endif
-
 
 CovMatern::CovMatern(const CovContext& ctxt)
 : ACovFunc(ECov::MATERN, ctxt)
@@ -66,27 +60,42 @@ double CovMatern::_evaluateCov(double h) const
 {
   if (bessel_Old_Style)
   {
-    static double TAB[MAXTAB];
-    double cov = 0.;
-    double third = getParam();
-    int nb = (int) floor(third);
-    double alpha = third - nb;
-    if (third <= 0 || nb >= MAXTAB) return (0.);
-    double coeff = (h > 0) ? pow(h / 2., third) : 1.;
-    cov = 1.;
-    if (h > 500)
-      return 0.;
-    if (h > 0)
-    {
-      if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
-      cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
-    }
-    return (cov);
+    return _oldMatern(h);
   }
+  return _newMatern(h);
+ 
+}
 
+#if defined(__APPLE__)
+double CovMatern::_newMatern(double h) const
+{
+  return _oldMatern(h);
+}
+#else
+double CovMatern::_newMatern(double h) const
+{
   if (h == 0) return 1;
   double third = getParam();
   return 2. * pow(h / 2., third) * std::cyl_bessel_k(getParam(),h) / exp(loggamma(third));
+}
+#endif
+
+double CovMatern::_oldMatern(double h) const
+{ 
+  static double TAB[MAXTAB];
+  double cov = 0.;
+  double third = getParam();
+  int nb = (int) floor(third);
+  double alpha = third - nb;
+  if (third <= 0 || nb >= MAXTAB) return (0.);
+  double coeff = (h > 0) ? pow(h / 2., third) : 1.;
+  cov = 1.;
+  if (h > 0)
+  {
+    if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
+      cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
+  }
+  return (cov);
 }
 
 String CovMatern::getFormula() const

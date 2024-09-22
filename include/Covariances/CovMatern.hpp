@@ -56,6 +56,9 @@ protected:
   VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const override;
 
 private:
+  double _newMatern(double h) const;
+  double _oldMatern(double h) const;
+private:
   double _correc;
   VectorDouble _markovCoeffs;
 };
