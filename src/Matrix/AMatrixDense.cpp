@@ -92,6 +92,10 @@ double AMatrixDense::_getValueByRank(int irank) const
   return *(_eigenMatrix.data() + irank);
 }
 
+const std::span<const double> AMatrixDense::getColumnPtr(int icol) const
+{
+  return std::span<double,getNRows()>(_eigenMatrix)
+}
 void AMatrixDense::_setValueByRank(int irank, double value)
 {
   *(_eigenMatrix.data() + irank) = value;

@@ -13,6 +13,7 @@
 #include "LinearOp/ProjMulti.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include <Eigen/src/Core/Matrix.h>
+#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/VectorEigen.hpp"
 #include "geoslib_define.h"
 
@@ -162,7 +163,7 @@ void SPDEOp::evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) con
 
 
 VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
-                                        const VectorVectorDouble& drifts) const
+                                        const MatrixRectangular& drifts) const
 {
   int xsize = (int)(drifts.size());
   VectorDouble XtInvSigmaZ(xsize);

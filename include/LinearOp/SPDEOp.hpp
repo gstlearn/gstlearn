@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Matrix/MatrixRectangular.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -49,6 +50,8 @@ public:
   void setTolerance(double tol) {_solver.setTolerance(tol);}
   int  getIterations() const { return _solver.getIterations();}
   double getError() const { return  _solver.getError();}
+  VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
+                                  const MatrixRectangular& drifts) const;
 #ifndef SWIG
 public:
   int kriging(const Eigen::VectorXd& inv,
@@ -57,8 +60,7 @@ public:
                        const Eigen::VectorXd& guess,
                              Eigen::VectorXd& out) const;
   void evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const;
-  VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
-                                  const VectorVectorDouble& drifts) const;
+ 
 protected:
   int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
   int _addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const override;
