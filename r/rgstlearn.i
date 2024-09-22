@@ -220,7 +220,7 @@
     return myres;
   }
 
-  int matrixToCpp(SEXP obj, MatrixRectangular& mat)
+  int matrixDenseToCpp(SEXP obj, MatrixRectangular& mat)
   {
     if (obj == NULL) return SWIG_TypeError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
@@ -437,7 +437,7 @@
     return myres;
   }
 
-  int matrixFromCpp(SEXP* obj, const MatrixRectangular& mat)
+  int matrixDenseFromCpp(SEXP* obj, const MatrixRectangular& mat)
   {
     // Local definitions
     int nrows = mat.getNRows();

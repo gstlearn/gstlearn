@@ -395,7 +395,7 @@
 // Conversion Target language => C++
 
 // Note : Before including this file :
-//        - vectorToCpp, vectorVectorToCpp, matrixToCpp and convertToCpp 
+//        - vectorToCpp, vectorVectorToCpp, matrixDenseToCpp, matrixSparseToCpp and convertToCpp 
 //          functions must be defined in ToCpp fragment
 
 // Convert scalar arguments by value
@@ -587,7 +587,7 @@
                                const MatrixSquareSymmetric* (void *argp, MatrixSquareSymmetric mat)
 {
   // Try to convert from any target language vector
-  int errcode = matrixToCpp($input, mat);
+  int errcode = matrixDenseToCpp($input, mat);
   if (!SWIG_IsOK(errcode))
   {
     try
@@ -653,7 +653,7 @@
 // Conversion C++ => Target language
 
 // Note : Before including this file :
-//        - vectorFromCpp, vectorVectorFromCpp, matrixFromCpp, matrixSparseFromCpp, objectFromCpp 
+//        - vectorFromCpp, vectorVectorFromCpp, matrixDenseFromCpp, matrixSparseFromCpp, objectFromCpp 
 //          functions must be defined in FromCpp fragment
 
 %typemap(out, fragment="FromCpp") int,
@@ -722,7 +722,7 @@
                                   MatrixSquareGeneral, 
                                   MatrixSquareSymmetric
 {
-  int errcode = matrixFromCpp(&($result), $1);
+  int errcode = matrixDenseFromCpp(&($result), $1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
@@ -731,7 +731,7 @@
                                   MatrixSquareGeneral*,   MatrixSquareGeneral&,
                                   MatrixSquareSymmetric*, MatrixSquareSymmetric&
 {
-  int errcode = matrixFromCpp(&($result), *$1);
+  int errcode = matrixDenseFromCpp(&($result), *$1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }

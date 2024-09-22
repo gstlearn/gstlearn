@@ -222,7 +222,6 @@
           vec.push_back(value);
       }
     }
-    // else size is zero (empty vector)
     return myres;
   }
 
@@ -265,7 +264,7 @@
     return myres;
   }
 
-  int matrixToCpp(PyObject* obj, MatrixRectangular& mat)
+  int matrixDenseToCpp(PyObject* obj, MatrixRectangular& mat)
   {
     // Type definitions
     VectorVectorDouble vvec;
@@ -389,6 +388,7 @@
     NF_Triplet NFT;
     for (int i = 0; i < nnz; i++)
       NFT.add(rows[i], cols[i], values[i]);
+    NFT.force(nrows, ncols);
     mat.resetFromTriplet(NFT);
 
     Py_XDECREF(data_array);
@@ -625,51 +625,36 @@
   }
 
   template <typename MatrixTemp>
-  int matrixFromCpp(PyObject** obj, const MatrixTemp& mat)
+  int matrixDenseFromCpp(PyObject** obj, const MatrixTemp& mat)
   {
-    if (mat.empty())
-      return SWIG_TypeError;
-     
     // Conversion to a 2D numpy array
     npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
     *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
     if (*obj == NULL) return SWIG_TypeError;
-       
-    double* array_ptr = (double*) PyArray_DATA((PyArrayObject*)(*obj));
-    for (auto v : mat.getValues(false))
+
+    if (!mat.empty())
     {
-      *array_ptr = convertFromCpp(v);
-      array_ptr += 1;
+      double* array_ptr = (double*) PyArray_DATA((PyArrayObject*)(*obj));
+      for (auto v : mat.getValues(false))
+      {
+        *array_ptr = convertFromCpp(v);
+        array_ptr += 1;
+      }
     }
     return SWIG_OK;
   }
 
   int matrixSparseFromCpp(PyObject** obj, const MatrixSparse& mat)
   {
-    if (mat.empty()) return SWIG_TypeError;
+    if (mat.empty()) 
+      return SWIG_OK;
     
     // Conversion to a 2D numpy array
     int nrows = mat.getNRows();
     int ncols = mat.getNCols();
 
-    // Create the sparse matrix in scipy.sparse
-    PyObject *shape_tuple = PyTuple_Pack(2, PyLong_FromLong(nrows), PyLong_FromLong(ncols));
-    if (!shape_tuple) {
-      PyErr_Print();
-      messerr("Failed to create shape tuple");
-      return SWIG_TypeError;
-    }
-    if (!PyTuple_Check(shape_tuple) || PyTuple_Size(shape_tuple) != 2) 
-    {
-      messerr("Shape tuple is not valid.");
-      return SWIG_TypeError;
-    }
-
     NF_Triplet NFT = mat.getMatrixToTriplet();
-    const npy_intp nnz = NFT.getNumber();
-    if (nnz <= 0) {
-      return SWIG_TypeError;
-    }
+    const npy_intp nnz = NFT.getNumber();;
 
     // Create 1D NumPy arrays for row indices, column indices, and values
     npy_intp dim[1] = {nnz};
