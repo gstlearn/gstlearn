@@ -24,7 +24,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
