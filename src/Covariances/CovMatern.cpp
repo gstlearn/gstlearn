@@ -19,7 +19,13 @@
 #include "math.h"
 
 #define MAXTAB 100
+
+#ifndef MACOS
+static bool bessel_Old_Style = true;
+#else
 static bool bessel_Old_Style = false;
+#endif
+
 
 CovMatern::CovMatern(const CovContext& ctxt)
 : ACovFunc(ECov::MATERN, ctxt)
@@ -68,6 +74,8 @@ double CovMatern::_evaluateCov(double h) const
     if (third <= 0 || nb >= MAXTAB) return (0.);
     double coeff = (h > 0) ? pow(h / 2., third) : 1.;
     cov = 1.;
+    if (h > 500)
+      return 0.;
     if (h > 0)
     {
       if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
