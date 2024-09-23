@@ -8,7 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
+#include "Basic/Memory.hpp"
+#include "Basic/AStringable.hpp"
+#include "Core/Piles.hpp"
 
 static int DEBUG = 0;
 static int MAX_PILE = 10;
@@ -63,8 +65,6 @@ void pile_reset(int type)
 
   for (i = 0; i < MAX_COUNT[type]; i++)
     piles[type][i] = NULL;
-
-  return;
 }
 
 /****************************************************************************/
@@ -93,8 +93,6 @@ void piles_reset(void)
     piles[type] = (char**) mem_alloc(sizeof(char*) * MAX_COUNT[type], 1);
     pile_reset(type);
   }
-
-  return;
 }
 
 /****************************************************************************/

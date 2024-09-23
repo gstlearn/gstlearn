@@ -54,7 +54,7 @@ public:
 
 private:
   void _modifyUnbounded();
-  bool _isValidInterval(void);
+  bool _isValidInterval(void) const;
 
 private:
   double _vmin;

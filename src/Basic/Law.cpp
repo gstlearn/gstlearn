@@ -8,10 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -63,7 +61,6 @@ int law_get_random_seed(void)
  **
  *****************************************************************************/
 void law_set_random_seed(int seed)
-
 {
   if (seed > 0)
   {
@@ -71,7 +68,6 @@ void law_set_random_seed(int seed)
     if (! Random_Old_Style)
       Random_gen.seed((unsigned) seed);
   }
-  return;
 }
 
 /*****************************************************************************/
@@ -202,9 +198,8 @@ double law_gamma(double alpha, double beta)
   if (Random_Old_Style)
   {
 
-    if (fabs((double) alpha - 1.) < 0.00001)
-      return (-log(law_uniform(0., 1.)));
-    else if (alpha > 1.)
+    if (fabs((double)alpha - 1.) < 0.00001) return (-log(law_uniform(0., 1.)));
+    if (alpha > 1.)
     {
       double c1 = alpha - 1.;
       double c2 = alpha + c1;
@@ -212,44 +207,35 @@ double law_gamma(double alpha, double beta)
       double t;
       do
       {
-        t = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
+        t     = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
         value = c1 + t;
-      }
-      while (value < 0
-          || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
+      } while (value < 0 || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
       return (value);
     }
-    else
+    double c1 = 1. + alpha / GV_EE;
+    double c2 = 1 / alpha;
+    double c3 = alpha - 1;
+    int test;
+    do
     {
-      double c1 = 1. + alpha / GV_EE;
-      double c2 = 1 / alpha;
-      double c3 = alpha - 1;
-      int test;
-      do
+      double v = law_uniform(0., 1.);
+      value    = c1 * law_uniform(0., 1.);
+      if (value <= 1)
       {
-        double v = law_uniform(0., 1.);
-        value = c1 * law_uniform(0., 1.);
-        if (value <= 1)
-        {
-          value = pow(value, c2);
-          test = (v >= exp(-value));
-        }
-        else
-        {
-          value = -log((c1 - value) * c2);
-          test = (log(v) > c3 * log(value));
-        }
+        value = pow(value, c2);
+        test  = (v >= exp(-value));
       }
-      while (test);
-      return (value);
-    }
+      else
+      {
+        value = -log((c1 - value) * c2);
+        test  = (log(v) > c3 * log(value));
+      }
+    } while (test);
+    return (value);
   }
-  else
-  {
-    std::gamma_distribution<double> d(alpha, beta);
-    value = d(Random_gen);
-    return value;
-  }
+  std::gamma_distribution<double> d(alpha, beta);
+  value = d(Random_gen);
+  return value;
 }
 
 /*****************************************************************************/
@@ -491,7 +477,6 @@ double law_dnorm(double value, double mean, double std)
  **
  *****************************************************************************/
 double law_cdf_gaussian(double value)
-
 {
   static double b[] = { 0.319381530,
                         -0.356563782,
@@ -567,8 +552,7 @@ double law_invcdf_gaussian(double value)
 
   if (value < 0.5)
     return (-x);
-  else
-    return (x);
+  return (x);
 }
 
 /*****************************************************************************/
@@ -854,13 +838,13 @@ int law_poisson(double parameter)
 
     while (t >= 16)
     {
-      n = (int) floor(0.875 * t);
-      x = law_gamma((double) n, 1.);
+      n = (int)floor(0.875 * t);
+      x = law_gamma((double)n, 1.);
       if (FFFF(x)) return (ITEST);
 
       if (x > t)
       {
-        p = t / x;
+        p  = t / x;
         ok = 1;
         while (ok)
         {
@@ -869,11 +853,8 @@ int law_poisson(double parameter)
         }
         return (k);
       }
-      else
-      {
-        k += n;
-        t -= x;
-      }
+      k += n;
+      t -= x;
     }
 
     p = 1;
@@ -888,11 +869,8 @@ int law_poisson(double parameter)
     }
     return (k - 1);
   }
-  else
-  {
-    std::poisson_distribution<int> d(parameter);
-    return d(Random_gen);
-  }
+  std::poisson_distribution<int> d(parameter);
+  return d(Random_gen);
 }
 
 /****************************************************************************/
@@ -1008,49 +986,42 @@ int law_binomial(int n, double p)
             * ((k * (k / 3.0 + 0.625) + 0.1666666666666) / (n * p * q) + 0.5);
         double t = -k * k / (2 * n * p * q);
         double A = log(v);
-        if (A < t - rho)
-          return y;
-        else if (A > t + rho)
+        if (A < t - rho) return y;
+        if (A > t + rho) continue;
+        /* Step 5.3 */
+        double x1 = y + 1;
+        double f1 = m + 1;
+        double z  = n + 1 - m;
+        double w  = n - y + 1;
+        double x2 = x1 * x1;
+        double f2 = f1 * f1;
+        double z2 = z * z;
+        double w2 = w * w;
+        if (A >
+            xm * log(f1 / x1) + (n - m + 0.5) * log(z / w) +
+              (y - m) * log(w * p / (x1 * q)) +
+              (13860. - (462. - (132. - (99. - 140. / f2) / f2) / f2) / f2) /
+                f1 / 166320. +
+              (13860. - (462. - (132. - (99. - 140. / z2) / z2) / z2) / z2) /
+                z / 166320. +
+              (13860. - (462. - (132. - (99. - 140. / x2) / x2) / x2) / x2) /
+                x1 / 166320. +
+              (13860. - (462. - (132. - (99. - 140. / w2) / w2) / w2) / w2) /
+                w / 166320.)
           continue;
-        else
-        {
-          /* Step 5.3 */
-          double x1 = y + 1;
-          double f1 = m + 1;
-          double z = n + 1 - m;
-          double w = n - y + 1;
-          double x2 = x1 * x1;
-          double f2 = f1 * f1;
-          double z2 = z * z;
-          double w2 = w * w;
-          if (A > xm * log(f1 / x1)
-              + (n - m + 0.5) * log(z / w)
-              + (y - m) * log(w * p / (x1 * q))
-              + (13860. - (462. - (132. - (99. - 140. / f2) / f2) / f2) / f2) / f1
-                / 166320.
-              + (13860. - (462. - (132. - (99. - 140. / z2) / z2) / z2) / z2) / z
-                / 166320.
-              + (13860. - (462. - (132. - (99. - 140. / x2) / x2) / x2) / x2) / x1
-                / 166320.
-              + (13860. - (462. - (132. - (99. - 140. / w2) / w2) / w2) / w2) / w
-                / 166320.) continue;
-          return y;
-        }
-      }
-      else
-      {
-        /* Step 5.1 */
-        int i;
-        const double s = p / q;
-        const double aa = s * (n + 1);
-        double f = 1.0;
-        for (i = m; i < y; f *= (aa / (++i) - s))
-          ;
-        for (i = y; i < m; f /= (aa / (++i) - s))
-          ;
-        if (v > f) continue;
         return y;
       }
+      /* Step 5.1 */
+      int i;
+      const double s  = p / q;
+      const double aa = s * (n + 1);
+      double f        = 1.0;
+      for (i = m; i < y; f *= (aa / (++i) - s))
+        ;
+      for (i = y; i < m; f /= (aa / (++i) - s))
+        ;
+      if (v > f) continue;
+      return y;
     }
   }
   /* Never get here */
@@ -1081,50 +1052,40 @@ int law_binomial(int n, double p)
  **
  ** \remarks The input array must be isotopic (otherwise, an error is issued)
  **
- ** \remarks The resulting array if dimensionned to nvar * nechout
- ** \remarks The created (and returned) array must be freed by the calling
- ** \remarks function
+ ** \remarks The resulting VectorDouble if dimensionned to nvar * nechout
  **
  ** \remarks Consider nvar1 = nvar + 1
  ** \remarks Sample temp[1:nvar1] is authorized for Constraint 'iconst' if:
  ** \remarks  Sum_ivar1^{1:nvar1) consts[iconst,ivar1) * temp[ivar1] > 0
  **
  *****************************************************************************/
-double* law_exp_sample(double *tabin,
-                       int mode,
-                       int nvar,
-                       int nechin,
-                       int nechout,
-                       int niter,
-                       int nconst,
-                       double *consts,
-                       int seed,
-                       double percent)
+VectorDouble law_exp_sample(const double* tabin,
+                            int mode,
+                            int nvar,
+                            int nechin,
+                            int nechout,
+                            int niter,
+                            int nconst,
+                            double* consts,
+                            int seed,
+                            double percent)
 {
-  double *tabout, *mean, *stdv, *mini, *maxi, *temp, value, rab, total;
-  int error, iechin, selec, nvarin, nvarout, nvar1, flag_cont, flag_ok;
+  double value, rab, total;
+  int iechin, selec, nvarin, nvarout, nvar1, flag_cont, flag_ok;
 
   /* Initializations */
 
-  error = 1;
-  tabout = mean = stdv = temp = mini = maxi = nullptr;
   law_set_random_seed(seed);
   nvarin = nvarout = nvar;
   nvar1 = nvar + 1;
 
   /* Internal core allocation */
 
-  temp = (double*) mem_alloc(sizeof(double) * nvar1, 1);
-  mean = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  stdv = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  mini = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  maxi = (double*) mem_alloc(sizeof(double) * nvarin, 1);
-  for (int ivar = 0; ivar < nvarin; ivar++)
-  {
-    mean[ivar] = stdv[ivar] = 0.;
-    mini[ivar] = +1.e30;
-    maxi[ivar] = -1.e30;
-  }
+  VectorDouble temp(nvar1, 0.);
+  VectorDouble mean(nvarin, 0.);
+  VectorDouble stdv(nvarin, 0.);
+  VectorDouble mini(nvarin, 1.e30);
+  VectorDouble maxi(nvarin, -1.e30);
 
   /* Count the number of active isotopic samples */
 
@@ -1138,7 +1099,7 @@ double* law_exp_sample(double *tabin,
       {
         messerr("The sample %d of the Training Data Base", iechin + 1);
         messerr("is not isotopic. This is an error");
-        goto label_end;
+        return VectorDouble();
       }
       if (value < mini[ivar]) mini[ivar] = value;
       if (value > maxi[ivar]) maxi[ivar] = value;
@@ -1153,15 +1114,13 @@ double* law_exp_sample(double *tabin,
   {
     mean[ivar] /= (double) nechin;
     stdv[ivar] = stdv[ivar] / (double) nechin - mean[ivar] * mean[ivar];
-    stdv[ivar] = (stdv[ivar] > 0) ? sqrt(stdv[ivar]) :
-                                    0.;
+    stdv[ivar] = (stdv[ivar] > 0) ? sqrt(stdv[ivar]) : 0.;
     stdv[ivar] *= percent / 100.;
   }
 
   /* Core allocation */
 
-  tabout = (double*) mem_alloc(sizeof(double) * nechout * nvarout, 0);
-  if (tabout == nullptr) goto label_end;
+  VectorDouble tabout(nechout * nvarout);
 
   /* Generate the samples */
 
@@ -1177,7 +1136,8 @@ double* law_exp_sample(double *tabin,
       /* Get the closest experimental sample (the reference) */
 
       selec = (int) law_uniform(1., (double) nechin);
-      iechin = (int) (selec + 0.5);
+      auto placeholder = (selec + 0.5);
+      iechin           = (int)placeholder;
       if (iechin < 0) iechin = 0;
       if (iechin >= nechin) iechin = nechin - 1;
 
@@ -1233,23 +1193,10 @@ double* law_exp_sample(double *tabin,
                 mini[ivar], maxi[ivar], mean[ivar], stdv[ivar]);
       }
       print_matrix("Constraints", 0, 0, nvar1, nconst, NULL, consts);
-      goto label_end;
+      return VectorDouble();
     }
   }
-
-  /* Return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) temp);
-  mem_free((char* ) mean);
-  mem_free((char* ) stdv);
-  mem_free((char* ) mini);
-  mem_free((char* ) maxi);
-  if (error) tabout = (double*) mem_free((char* ) tabout);
-
-  return (tabout);
+  return tabout;
 }
 
 /**

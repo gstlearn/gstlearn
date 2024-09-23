@@ -38,14 +38,13 @@ public:
   static void rotationGetAnglesInPlace(const VectorDouble &rot,
                                        VectorDouble &angles);
   static void rotationCopy(int ndim, const double *rotin, double *rotout);
-  static bool rotationIsIdentity(int ndim, double *rot, double eps = EPSILON10);
-
+  static bool rotationIsIdentity(int ndim, const double *rot, double eps = EPSILON10);
   static MatrixSquareGeneral EulerToRotation(const VectorDouble &angles,
                                              const ERotation &convrot = ERotation::fromKey("SXYZ"));
 
   static void rotationGetRandomDirection(double ct,
                                          double st,
-                                         double *a,
+                                         const double *a,
                                          double *codir);
   static void rotationGetDirection2D(const VectorDouble &angles,
                                      VectorDouble &codir);
@@ -154,6 +153,12 @@ public:
                                         const MatrixInt &meshes);
 
   static double getCosineAngularTolerance(double tolang);
+
+  static VectorVectorDouble getEllipse(const VectorDouble &center,
+                                       double rx,
+                                       double ry,
+                                       double theta,
+                                       int count = 360);
 
 private:
   static void _decodeConvRot(const ERotation &convrot,

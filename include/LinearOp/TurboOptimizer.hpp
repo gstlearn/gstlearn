@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 #include "Basic/VectorNumT.hpp"
 
 #include <string>
@@ -185,43 +184,41 @@ private:
   double _getCoorByMesh(int imesh, int rank, int idim0) const;
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
   void _rankToIndice(int rank, VectorInt& indice, bool minusOne) const;
-  int _MSS(int icas, int icorn, int idim0) const;
+  static int _MSS(int icas, int icorn, int idim0);
   int _indiceToRank(VectorInt& indice, bool flag_complete = true) const;
   void _loadHH(VectorDouble& hh) const;
   double _rangeToScale(double range) const;
   int _coordinateToIndice(double x, double y, VectorInt& indice) const;
-  double _indiceToCoordinate(int idim0, const VectorInt indice) const;
-  void _printVector(const std::string& title,
-                    VectorDouble& uu,
-                    int width = 10,
-                    int ndec = 3) const;
-  void _printMatrix(const std::string& title,
-                    int nrow,
-                    int ncol,
-                    VectorDouble& uu,
-                    int nper_batch,
-                    int row_shift = 0,
-                    int col_shift = 0,
-                    int width = 10,
-                    int ndec = 6) const;
-  void _invert_3x3(VectorDouble& uu,
-                   VectorDouble& vv,
-                   double tol = 1.e-6) const;
-  void _prodMatrix(int size,
-                   const VectorDouble& aa,
-                   const VectorDouble& bb,
-                   VectorDouble & cc) const;
-  void _prodMatrixVector(int size,
-                         const VectorDouble &aa,
-                         const VectorDouble &bb,
-                         VectorDouble &cc) const;
+  double _indiceToCoordinate(int idim0, const VectorInt& indice) const;
+  static void _printVector(const std::string& title,
+                           VectorDouble& uu,
+                           int width = 10,
+                           int ndec  = 3);
+  static void _printMatrix(const std::string& title,
+                           int nrow,
+                           int ncol,
+                           VectorDouble& uu,
+                           int nper_batch,
+                           int row_shift = 0,
+                           int col_shift = 0,
+                           int width     = 10,
+                           int ndec      = 6);
+  static void _invert_3x3(VectorDouble& uu, VectorDouble& vv, double tol = 1.e-6);
+  static void _prodMatrix(int size,
+                          const VectorDouble& aa,
+                          const VectorDouble& bb,
+                          VectorDouble& cc);
+  static void _prodMatrixVector(int size,
+                                const VectorDouble& aa,
+                                const VectorDouble& bb,
+                                VectorDouble& cc);
 
   void _updateMargin(int idim0, VectorInt& indice) const;
   void _getRankInTemplate(VectorInt& indice1,
                           VectorInt& indice2) const;
   int _determineInternalGrid(bool verbose);
   VectorDouble _buildTildeC() const;
-  VectorDouble _buildLambda(const VectorDouble TildeC) const;
+  VectorDouble _buildLambda(const VectorDouble& TildeC) const;
   VectorDouble _buildS(const VectorDouble& TildeC) const;
   VectorDouble _buildBlin() const;
   VectorDouble _buildQ(const VectorDouble& ss,

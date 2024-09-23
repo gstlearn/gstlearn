@@ -31,14 +31,11 @@ License: BSD 3-clause
 #include "Tree/KNN.hpp"
 #include "Basic/VectorNumT.hpp"
 
-# include <stdio.h>
 # include <stdlib.h>
-# include <string.h>
 # include <limits.h>
 # include <math.h>
 # include <float.h>
 # include <sys/stat.h>
-# include <time.h>
 
 # define TRUE 1
 # define FALSE 0
@@ -71,7 +68,6 @@ struct t_btree
 
   int leaf_size;
   int n_levels;
-  int dist_type;
   int n_nodes;
 };
 
@@ -81,34 +77,36 @@ struct t_btree
 
 GSTLEARN_EXPORT double **copy_double_arrAsVVD(const VectorVectorDouble& arr);
 GSTLEARN_EXPORT double **copy_double_arr(const double **arr, int row, int col);
-GSTLEARN_EXPORT int **copy_int_arr(const int **arr, int row, int col);
-GSTLEARN_EXPORT t_btree* btree_init(const double **data,
+GSTLEARN_EXPORT int    **copy_int_arr(const int **arr, int row, int col);
+GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     int n_samples,
                                     int n_features,
+                                    double (*dist_function)(const double* x1,
+                                                            const double* x2,
+                                                            int size),
                                     int leaf_size,
-                                    int dist_type);
-GSTLEARN_EXPORT void  free_2d_double(double **arr, int row);
-GSTLEARN_EXPORT void  free_2d_int(int **arr, int row);
-GSTLEARN_EXPORT void  free_tree(t_btree *tree);
-GSTLEARN_EXPORT void  finalize_tree(t_btree *tree); // to be suppressed when bug is corrected
-GSTLEARN_EXPORT void  btree_display(const t_btree *tree, int level=-1);
+                                    int default_distance_function);
+GSTLEARN_EXPORT void free_2d_double(double **arr, int row);
+GSTLEARN_EXPORT void free_2d_int(int **arr, int row);
+GSTLEARN_EXPORT void free_tree(t_btree *tree);
+GSTLEARN_EXPORT void finalize_tree(t_btree *tree); // to be suppressed when bug is corrected
+GSTLEARN_EXPORT void btree_display(const t_btree* tree, int level = -1);
 
 /*
 ** metrics.c
 */
 
-double manhattan_dist(const double *x1, const double *x2, int size);
-double euclidean_dist(const double *x1, const double *x2, int size);
+double manhattan_distance(const double* x1, const double* x2, int size);
+double euclidean_distance(const double* x1, const double* x2, int size);
 
 /*
 ** neighbors_heap.c
 */
 
 t_nheap	*nheap_init(int n_pts, int n_nbrs);
-double	nheap_largest(t_nheap *h, int row);
-int		nheap_push(t_nheap *h, int row, double val, int i_val);
-void nheap_sort(t_nheap *h);
-void nheap_load(t_nheap *heap, t_btree *b, const double **x);
-double min_dist(t_btree *tree, int i_node, const double *pt);
-int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist);
-
+double	 nheap_largest(t_nheap *h, int row);
+int		   nheap_push(t_nheap *h, int row, double val, int i_val);
+void     nheap_sort(t_nheap *h);
+void     nheap_load(t_nheap *heap, t_btree *b, const double **x);
+double   min_dist(t_btree *tree, int i_node, const double *pt);
+int      query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist);

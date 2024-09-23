@@ -52,13 +52,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [Pb]
 Variance-Covariance Matrix     2.881
 
 Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -84,13 +85,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 4
 Space dimension             = 2
+Variable(s)                 = [Pb]
 Variance-Covariance Matrix     2.881
 
 Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -112,7 +114,7 @@ Direction #2
 ------------
 Number of lags              = 10
 Direction coefficients      =      0.707     0.707
-Direction angles (degrees)  =     45.000     0.000
+Direction angles (degrees)  =     45.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -134,7 +136,7 @@ Direction #3
 ------------
 Number of lags              = 10
 Direction coefficients      =      0.000     1.000
-Direction angles (degrees)  =     90.000     0.000
+Direction angles (degrees)  =     90.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -155,7 +157,7 @@ Direction #4
 ------------
 Number of lags              = 10
 Direction coefficients      =     -0.707     0.707
-Direction angles (degrees)  =    135.000     0.000
+Direction angles (degrees)  =    135.000
 Tolerance on direction      =     22.500 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -708,6 +710,7 @@ Variogram characteristics
 Number of variable(s)       = 3
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [Indicator.Pb.Class.1 Indicator.Pb.Class.2 Indicator.Pb.Class.3]
 Variance-Covariance Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.107    -0.062    -0.044
@@ -718,7 +721,7 @@ Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      1.000
 Tolerance on distance       =     50.000 (Percent of the lag value)

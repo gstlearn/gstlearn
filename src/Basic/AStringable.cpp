@@ -8,19 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-#include "Matrix/LinkMatrixSparse.hpp"
-
-#include "Enum/EJustify.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 
-#include <string>
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
@@ -35,6 +28,8 @@
 #define CASE_INT    2
 #define CASE_COL    3
 #define CASE_ROW    4
+
+class EJustify;
 
 static char FORMAT[100];
 static char DECODE[100];
@@ -294,8 +289,6 @@ void message(const char *format, ...)
   (void) vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
   message_extern(str);
-
-  return;
 }
 
 /**
@@ -314,8 +307,6 @@ void messageNoDiff(const char *format, ...)
   std::stringstream sstr;
   sstr << "#NO_DIFF# " << str;
   message_extern(sstr.str().c_str());
-
-  return;
 }
 
 /**
@@ -355,8 +346,6 @@ void messerr(const char *format, ...)
 
   message_extern(str);
   message_extern("\n");
-
-  return;
 }
 
 /**
@@ -364,21 +353,25 @@ void messerr(const char *format, ...)
  * @param title   Title to be printed
  * @param current Current value of the argument
  * @param nmax    Maximum (inclusive) possible value
- * @param flagStartOne True if the count starts at 1 (instead of 0)
  */
-void mesArg(const char *title, int current, int nmax, bool flagStartOne)
+void mesArg(const char* title, int current, int nmax)
 {
   if (nmax <= 0)
-    messerr("Error in %s (%d). No element of this type is recorded yet",title,current);
+    messerr("Error in %s (%d). No element of this type is recorded yet", title,
+            current);
   else
+    messerr("Error in %s (%d). Argument should lie within [0,%d[", title,
+            current, nmax);
+}
+
+bool checkArg(const char* title, int current, int nmax)
+{
+  if (current < 0 || current >= nmax)
   {
-    if (flagStartOne)
-      messerr("Error in %s (%d). Argument should lie within [1,%d]", title, current,
-              nmax);
-    else
-      messerr("Error in %s (%d). Argument should lie within [0,%d[", title, current,
-              nmax);
+    mesArg(title, current, nmax);
+    return false;
   }
+  return true;
 }
 
 /**
@@ -423,7 +416,6 @@ void mestitle(int level, const char *format, ...)
   }
   (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
-  return;
 }
 
 /**
@@ -451,8 +443,6 @@ void mes_process(const char *string, int ntot, int iech)
 
   if (quant != quant_memo) message("%s - Rank : %d (Quantile : %d / %d)\n", string, iech, quant, nproc);
   quant_memo = quant;
-
-  return;
 }
 
 
@@ -524,6 +514,14 @@ void messageAbort(const char *format, ...)
  */
 void AStringable::display(const AStringFormat* strfmt) const
 {
+  if (strfmt != nullptr)
+  {
+    if (strfmt->hasTitle())
+    {
+      message_extern(strfmt->getTitle().c_str());
+      message_extern("\n");
+    }
+  }
   message_extern(toString(strfmt).c_str());
 }
 

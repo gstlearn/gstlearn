@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EMorpho.hpp"
-
 #include "geoslib_define.h"
 #include "Arrays/BImage.hpp"
 #include "Db/DbGrid.hpp"
@@ -214,3 +212,15 @@ GSTLEARN_EXPORT Spill_Res spillPoint(DbGrid *dbgrid,
                                      bool flag_up = true,
                                      int verbose_step = 0,
                                      double hmax = TEST);
+
+GSTLEARN_EXPORT int db_morpho_calc(DbGrid* dbgrid,
+                                   int iptr0,
+                                   const EMorpho& oper,
+                                   double vmin,
+                                   double vmax,
+                                   int option,
+                                   const VectorInt& radius,
+                                   bool flagDistErode,
+                                   bool verbose);
+GSTLEARN_EXPORT void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, int iptr0);
+GSTLEARN_EXPORT void db_morpho_gradients(DbGrid* dbgrid, int iptr0);

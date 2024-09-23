@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/PolyLine2D.hpp"
@@ -248,7 +247,7 @@ PolyPoint2D PolyLine2D::getPLIndex(const VectorDouble &xy0) const
 void PolyLine2D::_shiftPoint(const VectorDouble& xy1,
                              const VectorDouble& xy2,
                              double ratio,
-                             VectorDouble& xy0) const
+                             VectorDouble& xy0)
 {
   if (ratio <= 0.)
   {

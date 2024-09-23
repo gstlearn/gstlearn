@@ -112,7 +112,6 @@ void SimuBoolean::_projectToGrid(DbGrid* dbout,
     _objlist[iobj]->projectToGrid(dbout, iptr_simu, iptr_rank,
                                   (int) boolparam.getFacies(), iobj + 1);
   }
-  return;
 }
 
 int SimuBoolean::_countConditioningPore(const Db* db)
@@ -123,7 +122,7 @@ int SimuBoolean::_countConditioningPore(const Db* db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    double data = db->getLocVariable(ELoc::Z,iech, 0);
+    double data = db->getZVariable(iech, 0);
     if (FFFF(data)) continue;
     if (data) continue;
     nbpore++;
@@ -139,7 +138,7 @@ int SimuBoolean::_countConditioningGrain(const Db* db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    double data = db->getLocVariable(ELoc::Z,iech, 0);
+    double data = db->getZVariable(iech, 0);
     if (FFFF(data)) continue;
     if (! data) continue;
     nbgrain++;
@@ -147,13 +146,13 @@ int SimuBoolean::_countConditioningGrain(const Db* db)
   return nbgrain;
 }
 
-int SimuBoolean::_getRankUncovered(const Db* db, int rank)
+int SimuBoolean::_getRankUncovered(const Db* db, int rank) const
 {
   int number = 0;
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    int data = (int) db->getLocVariable(ELoc::Z,iech, 0);
+    int data = (int) db->getZVariable(iech, 0);
     if (data <= 0) continue;
     int cover = db->getArray(iech, _iptrCover);
     if (cover > 0) continue;
@@ -166,17 +165,13 @@ int SimuBoolean::_getRankUncovered(const Db* db, int rank)
 
 int SimuBoolean::_getNObjects(int mode) const
 {
-  if (mode == 0)
-    return (int) _objlist.size();
-  else
+  if (mode == 0) return (int)_objlist.size();
+  int number = 0;
+  for (int iobj = 0; iobj < (int)_objlist.size(); iobj++)
   {
-    int number = 0;
-    for (int iobj = 0; iobj < (int) _objlist.size(); iobj++)
-    {
-      if (_objlist[iobj]->getMode() == mode) number++;
-    }
-    return number;
+    if (_objlist[iobj]->getMode() == mode) number++;
   }
+  return number;
 }
 
 int SimuBoolean::_generatePrimary(Db* dbin,
@@ -391,7 +386,7 @@ int SimuBoolean::_deleteObject(int mode, Db* dbin)
 
 int SimuBoolean::_getAverageCount(const DbGrid* dbout,
                                  const ModelBoolean* tokens,
-                                 const SimuBooleanParam& boolparam) const
+                                 const SimuBooleanParam& boolparam)
  {
    double theta;
    if (tokens->isFlagStat())

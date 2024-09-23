@@ -105,12 +105,12 @@ def printDefault():
         
 def getColorMap(n, cmap=None):
     '''
-    Returns a function that maps each index in 0, 1, ..., n-1 to a distinct RGB color
+    Returns a resampled Matplotlib colormap for a given number of colors
     
     n: requested number of different colors
-    cmap: name of a standard matplotlib colormap, or an instance of ListedColormap or None.
+    cmap: name of a listed matplotlib colormap, or an instance of Colormap or None.
     '''
-    if isinstance(cmap, matplotlib.colors.ListedColormap):
+    if isinstance(cmap, matplotlib.colors.Colormap):
         return cmap.resampled(n)
     name = cmap
     if name is None:
@@ -1001,7 +1001,7 @@ def __ax_point(ax, db,
                legendNameColor=None, legendNameSize=None, legendNameLabel=None,
                posX=0, posY=1, **kwargs):
 
-    if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid", "DbLine", "DbGraphO", "DbMeshTurbo", "DbMeshStandard"]):
         return None
 
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
@@ -1049,31 +1049,31 @@ def __ax_point(ax, db,
     
     return ax
 
-def modelOnGrid(model, db, *args, **kwargs):
+def covaOnGrid(cova, db, *args, **kwargs):
     ax = __getNewAxes(None, 1)
-    return __ax_modelOnGrid(ax, model, db=db, *args, **kwargs)
+    return __ax_covaOnGrid(ax, cova, db=db, *args, **kwargs)
     
-def __ax_modelOnGrid(ax, model, db, useSel=True, icov=0, color='black', flagOrtho=True, **kwargs):
+def __ax_covaOnGrid(ax, cova, db, useSel=True, color='black', flagOrtho=True, **kwargs):
     '''
     Display the Model characteristics on a Grid
     This makes sense when the model contains some non-stationarity
     '''
     # Extracting coordinates
-    tabx = db.getCoordinates(0,useSel)
-    taby = db.getCoordinates(1,useSel)
-    if len(tabx) <= 0 or len(taby) <= 0:
+
+    tab = db.getAllCoordinates(useSel)
+    if len(tab) <= 0 :
         return None
     
-    gl.db_model_nostat(db, model, icov)
-    tabR1 = db.getColumn("Nostat.Range-1", useSel)
-    tabR2 = db.getColumn("Nostat.Range-2", useSel)
-    tabA  = db.getColumn("Nostat.Angle-1", useSel)
+    tabR1 = cova.informCoords(tab,gl.EConsElem.RANGE,0)
+    tabR2 = cova.informCoords(tab,gl.EConsElem.RANGE,1)
+    tabA  = cova.informCoords(tab,gl.EConsElem.ANGLE,0)
+
     if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
         return None
     
     if flagOrtho:
         tabA = 90 + tabA
-    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
+    ax.quiver(tab[0,:], tab[1,:], tabR2, tabR2, angles=tabA, color=color, **kwargs)
             
     return ax
     
@@ -1271,6 +1271,90 @@ def __ax_isoline(ax, dbgrid, name=None, useSel = True,
         ax.legend([h1[0]], [legendName])
         
     return res
+
+def line(dbline, *args, **kwargs):
+    '''
+    Plotting a variable (referred by its name) informed in a DbLine
+
+    dbline: DbLine containing the variable to be plotted
+    name: Name of the variable to be represented
+    useSel : Boolean to indicate if the selection has to be considered
+    **kwargs : arguments passed to ...
+    '''
+    ax = __getNewAxes(None, 1)
+    return __ax_line(ax, dbline, *args, **kwargs)
+
+def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red', 
+              flagHeader=True, flagSample=False, flagAnnotateHeader=False, offset=[-1.0,0.5],
+              **kwargs):
+    if __isNotCorrect(object=dbline, types=["DbLine"]):
+        return None
+    
+    if dbline.getNDim() != 2:
+        return None
+    
+    nbline = dbline.getLineNumber()
+    
+    for iline in range(nbline):
+        x = dbline.getCoordinates(iline, 0)
+        y = dbline.getCoordinates(iline, 1)
+        
+        ax.plot(x, y, color=color, **kwargs)
+
+        if flagHeader:
+            ax.plot(x[0], y[0], marker='D', color=colorHeader)
+            if flagAnnotateHeader:
+                ax.text(x[0]+offset[0], y[0]+offset[1], "L#"+str(iline+1))
+
+        if flagSample:
+            ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
+        
+    return ax
+
+def graphO(dbgraphO, *args, **kwargs):
+    '''
+    Plotting a variable (referred by its name) informed in a DbGraphO
+
+    dbgraphO: DbGraphO containing the variable to be plotted
+    name: Name of the variable to be represented
+    useSel : Boolean to indicate if the selection has to be considered
+    **kwargs : arguments passed to ...
+    '''
+    ax = __getNewAxes(None, 1)
+    return __ax_graphO(ax, dbgraphO, *args, **kwargs)
+
+def __ax_graphO(ax, dbgraphO, name = None, color = 'blue', colorPoint='black', flagSample=False, flagAnnotate=False,
+                flagByRank=False, ndec=2, **kwargs):
+    if __isNotCorrect(object=dbgraphO, types=["DbGraphO"]):
+        return None
+    if dbgraphO.getNDim() != 2:
+        return None
+    
+    if flagSample:
+        x = dbgraphO.getCoordinates(0)
+        y = dbgraphO.getCoordinates(1)
+        ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
+    
+    narcs = dbgraphO.getArcNumber()
+    for iarc in range(narcs):
+        x = dbgraphO.getArc(iarc, 0)
+        y = dbgraphO.getArc(iarc, 1)
+        value = dbgraphO.getArcValue(iarc)
+        if value > 0:
+            xmid = (x[0]+x[1])/2.
+            ymid = (y[0]+y[1])/2.
+            rotation = np.arctan2(y[1]-y[0],x[1]-x[0])*180/np.pi
+        
+            ax.plot(x, y, color=color, **kwargs)
+
+            if flagAnnotate:
+                if flagByRank:
+                    ax.text(xmid, ymid, str(iarc+1), ha="center", va="bottom", rotation=rotation)
+                else:
+                    ax.text(xmid, ymid, str(round(value,ndec)), ha="center", va="bottom", 
+                            rotation=rotation)
+
+    return ax
 
 def grid(dbgrid, *args, **kwargs):
     '''
@@ -1637,7 +1721,7 @@ def __ax_mesh(ax, meshobj,
               flagEdge=True, flagFace=False, flagApex=False, 
               facecolor="yellow", edgecolor="blue", linewidth=1,
               **kwargs):
-    if __isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
+    if __isNotCorrect(object=meshobj, types=["Mesh", "MeshETurbo", "MeshEStandardExt", "DbMeshTurbo", "DbMeshStandard"]):
         return None
     
     if flagFace:
@@ -1675,6 +1759,8 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
                      diagLine=False, diagColor="black", diagLineStyle='-',
                      bissLine=False, bissColor="red", bissLineStyle='-',
                      regrLine=False, regrColor="blue", regrLineStyle='-',
+                     horizLine=False, horizColor="blue", horizLineStyle='-', hValue=0.,
+                     vertLine=False, vertColor="blue", vertLineStyle='-', vValue=0.,
                      **kwargs):
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
@@ -1731,6 +1817,16 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
         u=[xmin, xmax]
         v=[a+b*xmin, a+b*xmax]
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
+
+    if horizLine:
+        u=[xmin, xmax]
+        v=[hValue, hValue]
+        ax.plot(u,v,color=horizColor,linestyle=horizLineStyle)
+        
+    if vertLine:
+        u=[vValue, vValue]
+        v=[ymin, ymax]
+        ax.plot(u,v,color=vertColor,linestyle=vertLineStyle)
         
     ax.decoration(xlabel = db.getName(namex)[0], ylabel = db.getName(namey)[0])
 
@@ -1915,6 +2011,12 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     elif filetype == "DbGrid":
         grid(object, name1, **kwargs)
     
+    elif filetype == "DbMeshTurbo":
+        mesh(object, **kwargs)
+
+    elif filetype == "DbMeshStandard":
+        mesh(object, **kwargs)
+
     elif filetype == "Vario":
         variogram(object, **kwargs)
     
@@ -2187,6 +2289,10 @@ import gstlearn.plot         as gp
 # Functions called using the generic *plot* function, based on the object recognition
 setattr(gl.Db,               "plot",             gp.point)
 setattr(gl.DbGrid,           "plot",             gp.grid)
+setattr(gl.DbLine,           "plot",             gp.line)
+setattr(gl.DbGraphO,         "plot",             gp.graphO)
+setattr(gl.DbMeshTurbo,      "plot",             gp.mesh)
+setattr(gl.DbMeshStandard,   "plot",             gp.mesh)
 setattr(gl.Polygons,         "plot",             gp.polygon)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Faults,           "plot",             gp.fault)
@@ -2206,12 +2312,14 @@ setattr(gl.Vario,            "varmod",           gp.varmod)
 setattr(plt.Axes, "decoration",    gp.decoration)
 setattr(plt.Axes, "geometry",      gp.geometry)
 
-# Functions considered as members f the Axis class
+# Functions considered as members of the Axis class
 # The name "grid" must not be used as confusing for matplotlib
 setattr(plt.Axes, "gstgrid",       gp.__ax_grid)
 setattr(plt.Axes, "gstpoint",      gp.__ax_point)
+setattr(plt.Axes, "gstline",       gp.__ax_line)
+setattr(plt.Axes, "gstmesh",       gp.__ax_mesh)
 
-# Functions considered as members f the Axis class
+# Functions considered as members of the Axis class
 setattr(plt.Axes, "polygon",       gp.__ax_polygon)
 setattr(plt.Axes, "rule",          gp.__ax_rule)
 setattr(plt.Axes, "fault",         gp.__ax_fault)

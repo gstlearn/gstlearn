@@ -13,6 +13,12 @@
 #include "gstlearn_export.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/LogStats.hpp"
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+#endif
+
+#include <Eigen/src/Core/Matrix.h>
 
 class ALinearOpMulti;
 
@@ -24,16 +30,12 @@ public:
   ALinearOpMulti& operator=(const ALinearOpMulti &m);
   virtual ~ALinearOpMulti();
 
-  virtual void evalInverse(const VectorVectorDouble &vecin,
-                           VectorVectorDouble &vecout) const;
-
-  void evalDirect(const VectorVectorDouble &inv,
-                  VectorVectorDouble &outv) const;
-  void initLk(const VectorVectorDouble &inv, VectorVectorDouble &outv) const;
+  void initLk(const std::vector<Eigen::VectorXd> &inv, std::vector<Eigen::VectorXd> &outv) const;
   virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
+  void setNIterRestart(int niterrestart) { _nIterRestart = niterrestart; }
   void setEps(double eps) { _eps = eps; }
   void setPrecond(const ALinearOpMulti* precond, int status);
 
@@ -41,26 +43,40 @@ public:
 
   void prepare() const;
 
-protected:
-  virtual void _evalDirect(const VectorVectorDouble &inv,
-                           VectorVectorDouble &outv) const = 0;
+  void setUserInitialValue(bool b) { _userInitialValue = b; }
+
+  #ifndef SWIG
+  protected:
+
+    virtual void _evalDirect(const std::vector<Eigen::VectorXd> &inv,
+                             std::vector<Eigen::VectorXd> &outv) const = 0;
+  public: 
+  void evalDirect(const std::vector<Eigen::VectorXd> &inv,
+                  std::vector<Eigen::VectorXd> &outv) const;
+  virtual void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
+                           std::vector<Eigen::VectorXd> &vecout) const;
+  #endif
+
+  protected:
   void _updated() const;
 
 private:
   int                       _nIterMax;
+  int                       _nIterRestart;
   double                    _eps;
   bool                      _precondStatus;
   bool                      _userInitialValue;
   const ALinearOpMulti*     _precond;
 
   // Work arrays
-  mutable bool               _initialized;
-  mutable VectorVectorDouble _r;
+  mutable bool                         _initialized;
+  mutable std::vector<Eigen::VectorXd> _r;
 
 public:
-  mutable VectorVectorDouble _temp;
-  mutable VectorVectorDouble _p;
-  mutable VectorVectorDouble _z;
+  mutable std::vector<Eigen::VectorXd> _temp;
+  mutable std::vector<Eigen::VectorXd> _p;
+  mutable std::vector<Eigen::VectorXd> _z;
+  mutable double _nb;
 
 protected:
   LogStats                   _logStats;

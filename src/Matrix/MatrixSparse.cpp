@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSparse.hpp"
+#include "Basic/AStringable.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -19,8 +20,8 @@
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <iostream>
-#include <iomanip>
 
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
@@ -129,8 +130,7 @@ void MatrixSparse::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 
 void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
 {
-  if (_csMatrix != nullptr)
-    delete _csMatrix;
+  delete _csMatrix;
 
   if (isFlagEigen())
   {
@@ -150,25 +150,17 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);
 
-  if (isFlagEigen())
-  {
-    for (int k=0; k<_eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-        it.valueRef() = law_gaussian();
-  }
-  else
-  {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++)
-      {
-        if (!_isPhysicallyPresent(irow, icol)) continue;
-        if (law_uniform(0., 1.) < zeroPercent) continue;
-        cs_entry2(local, irow, icol, law_gaussian());
-      }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  NF_Triplet NF_T;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+    {
+      if (law_uniform(0., 1.) < zeroPercent) continue;
+      NF_T.add(irow, icol, law_gaussian());
+    }
+  NF_T.force(nrow,ncol);
+  resetFromTriplet(NF_T);
 }
 
 int MatrixSparse::computeCholesky()
@@ -203,7 +195,47 @@ int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
   return _factor->solve(b, x);
 }
 
+int MatrixSparse::solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x)
+{
+  int ncols = getNCols();
+  if ((int) b.size() != ncols)
+  {
+    messerr("Dimension of input argument 'b' (%d) does not match",(int) b.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if ((int) x.size() != ncols)
+  {
+    messerr("Dimension of output argument 'x' (%d) does not match",(int) x.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if (_factor == nullptr)
+    _factor = new Cholesky(this);
+  return _factor->solve(b, x);
+}
+
+
 int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
+{
+  int ncols = getNCols();
+  if ((int) b.size() != ncols)
+  {
+    messerr("Dimension of input argument 'b' (%d) does not match", (int) b.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if ((int) x.size() != ncols)
+  {
+    messerr("Dimension of output argument 'x' (%d) does not match", (int) x.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if (_factor == nullptr)
+    _factor = new Cholesky(this);
+  return _factor->simulate(b, x);
+}
+int MatrixSparse::simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x)
 {
   int ncols = getNCols();
   if ((int) b.size() != ncols)
@@ -236,7 +268,7 @@ void MatrixSparse::_transposeInPlace()
   {
     Eigen::SparseMatrix<double> temp;
     temp = _eigenMatrix.transpose();
-    _eigenMatrix = temp;
+    _eigenMatrix.swap(temp);
   }
   else
   {
@@ -265,18 +297,20 @@ MatrixSparse* MatrixSparse::transpose() const
  * The input 'tab' corresponds to the whole column contents
  * @param icol Column rank
  * @param tab  Vector containing the information (Dimension: nrows)
- *
- * @warning: This method only copies the values at the non-zero existing entries
+ * @param flagCheck When True, check the consistency of arguments
  */
-void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
+void MatrixSparse::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
+  int nrows = getNRows();
+  if (flagCheck)
+  {
+    if (! _isColumnValid(icol)) return;
+    if (! _isColumnSizeConsistent(tab)) return;
+  }
   if (isFlagEigen())
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,icol); it; ++it)
-    {
-      int irow = it.row();
-      it.valueRef() = tab[irow];
-    }
+    for (int irow = 0; irow < nrows; irow++)
+      _eigenMatrix.coeffRef(irow, icol) = tab[irow];
   }
   else
     AMatrix::setColumn(icol, tab);
@@ -287,20 +321,22 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
  * The input 'tab' corresponds to the whole row contents
  * @param irow Row rank
  * @param tab  Vector containing the information (Dimension: ncols)
+ * @param flagCheck True if the validity check must be performed
  *
  * @warning: This method only copies the values at the non-zero existing entries
  */
-void MatrixSparse::setRow(int irow, const VectorDouble& tab)
+void MatrixSparse::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
+  int ncols = getNCols();
+  if (flagCheck)
+  {
+    if (! _isRowValid(irow)) return;
+    if (! _isRowSizeConsistent(tab)) return;
+  }
   if (isFlagEigen())
   {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-      {
-        if (it.row() != irow) continue;
-        int icol = it.col();
-        it.valueRef() = tab[icol];
-      }
+    for (int icol = 0; icol < ncols; icol++)
+      _eigenMatrix.coeffRef(irow, icol) = tab[icol];
   }
   else
   {
@@ -308,10 +344,14 @@ void MatrixSparse::setRow(int irow, const VectorDouble& tab)
   }
 }
 
-void MatrixSparse::setDiagonal(const VectorDouble& tab)
+void MatrixSparse::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
+  if (flagCheck)
+  {
+    if (! _isRowSizeConsistent(tab)) return;
+  }
 
   if (isFlagEigen())
   {
@@ -320,14 +360,7 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
   }
   else
   {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
-    {
-      if (isZero(tab[icol])) continue;
-      (void) cs_entry2(local, icol, icol, tab[icol]);
-    }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
+    AMatrix::setDiagonal(tab, flagCheck);
   }
 }
 
@@ -344,13 +377,7 @@ void MatrixSparse::setDiagonalToConstant(double value)
   }
   else
   {
-    cs *local = cs_spalloc2(0, 0, 1, 1, 1);
-    for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
-    {
-      (void) cs_entry2(local, icol, icol, value);
-    }
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
+    AMatrix::setDiagonalToConstant(value);
   }
 }
 
@@ -386,7 +413,6 @@ void MatrixSparse::setValue(int irow, int icol, double value, bool flagCheck)
   }
   else
   {
-    if (! _isIndexValid(irow, icol)) return;
     cs_set_value(_csMatrix, irow, icol, value);
   }
 }
@@ -415,26 +441,22 @@ int MatrixSparse::_getMatrixPhysicalSize() const
 {
   if (isFlagEigen())
     return _eigenMatrix.nonZeros();
-  else
-    return cs_nnz(_csMatrix);
+  return cs_nnz(_csMatrix);
 }
 
 /**
- * Change any nonzero term to 'value'
  * @param value Constant value used for filling 'this'
  */
 void MatrixSparse::fill(double value)
 {
-  if (isFlagEigen())
-  {
-    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
-        it.valueRef() = value;
-  }
-  else
-  {
-    cs_set_cste(_csMatrix, value);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  NF_Triplet NF_T;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      NF_T.add(irow, icol, value);
+
+  resetFromTriplet(NF_T);
 }
 
 /*! Multiply a Matrix row-wise */
@@ -511,31 +533,28 @@ VectorDouble MatrixSparse::prodVecMat(const VectorDouble& x, bool transpose) con
   if (isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-    Eigen::VectorXd ym;
+    VectorDouble y(transpose ? getNRows() : getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
     if (transpose)
       ym = xm.transpose() * _eigenMatrix.transpose();
     else
       ym = xm.transpose() * _eigenMatrix;
-    VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
+  }
+  VectorDouble y;
+  if (transpose)
+  {
+    int ncol = getNCols();
+    y.resize(ncol);
+    cs_vector_xtM(_csMatrix, ncol, x.data(), y.data());
   }
   else
   {
-    VectorDouble y;
-    if (transpose)
-    {
-      int ncol = getNCols();
-      y.resize(ncol);
-      cs_vector_xtM(_csMatrix, ncol, x.data(), y.data());
-    }
-    else
-    {
-      int nrow = getNRows();
-      y.resize(nrow);
-      cs_vector_xM(_csMatrix, nrow, x.data(), y.data());
-    }
-    return y;
+    int nrow = getNRows();
+    y.resize(nrow);
+    cs_vector_xM(_csMatrix, nrow, x.data(), y.data());
   }
+  return y;
 }
 
 /*! Perform y = 'this' %*% x */
@@ -544,33 +563,57 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
   if (isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-    Eigen::VectorXd ym;
+    VectorDouble y(transpose ? getNCols() : getNRows());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
     if (transpose)
       ym = _eigenMatrix.transpose() * xm;
     else
       ym = _eigenMatrix * xm;
-    VectorDouble y(ym.data(), ym.data() + ym.size());
     return y;
+  }
+  VectorDouble y;
+  if (transpose)
+  {
+    int ncol = getNCols();
+    y.resize(ncol);
+    cs_vector_tMx(_csMatrix, ncol, x.data(), y.data());
   }
   else
   {
-    VectorDouble y;
+    int nrow = getNRows();
+    y.resize(nrow);
+    cs_vector_Mx(_csMatrix, nrow, x.data(), y.data());
+  }
+  return y;
+}
+
+/*! Perform y += 'this' %*% x */
+void MatrixSparse::addProdMatVecInPlaceToDest(
+  const Eigen::Map<const Eigen::VectorXd>& in,
+  Eigen::Map<Eigen::VectorXd>& out,
+  bool transpose) const
+{
+  if (isFlagEigen())
+  {
+    if (transpose)
+      out += _eigenMatrix.transpose() * in;
+    else
+      out += _eigenMatrix * in;
+  }
+  else
+  {
     if (transpose)
     {
       int ncol = getNCols();
-      y.resize(ncol);
-      cs_vector_tMx(_csMatrix, ncol, x.data(), y.data());
+      cs_vector_addToDest_tMx(_csMatrix, ncol, in.data(), out.data());
     }
     else
     {
       int nrow = getNRows();
-      y.resize(nrow);
-      cs_vector_Mx(_csMatrix, nrow, x.data(), y.data());
+      cs_vector_addToDest_Mx(_csMatrix, nrow, in.data(), out.data());
     }
-    return y;
   }
 }
-
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -723,10 +766,7 @@ bool MatrixSparse::_isElementPresent(int irow, int icol) const
     }
     return false;
   }
-  else
-  {
-    return cs_exist(_csMatrix, irow, icol);
-  }
+  return cs_exist(_csMatrix, irow, icol);
 }
 
 void MatrixSparse::addValue(int row, int col, double value)
@@ -743,16 +783,14 @@ double MatrixSparse::getValue(int row, int col, bool flagCheck) const
   if (flagCheck && ! _isIndexValid(row, col)) return TEST;
   if (isFlagEigen())
     return _eigenMatrix.coeff(row, col);
-  else
-    return cs_get_value(_csMatrix, row, col);
+  return cs_get_value(_csMatrix, row, col);
 }
 
 double MatrixSparse::L1Norm() const
 {
   if (isFlagEigen())
     return (Eigen::RowVectorXd::Ones(_eigenMatrix.rows()) * _eigenMatrix.cwiseAbs()).maxCoeff();
-  else
-    return cs_norm(_csMatrix);
+  return cs_norm(_csMatrix);
 }
 
 void MatrixSparse::getStats(int *nrows, int *ncols, int *count, double *percent) const
@@ -777,17 +815,26 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
 {
   if (isFlagEigen())
   {
-    Eigen::VectorXd ym = _eigenMatrix.diagonal();
-    VectorDouble diag(ym.data(), ym.data() + ym.size());
+    VectorDouble diag(std::min(getNCols(), getNRows()));
+    Eigen::Map<Eigen::VectorXd> ym(diag.data(), diag.size());
+    ym = _eigenMatrix.diagonal();
     VH::transformVD(diag, oper_choice);
     return diag;
   }
-  else
+  VectorDouble diag = csd_extract_diag_VD(_csMatrix, 1);
+  VH::transformVD(diag, oper_choice);
+  return diag;
+}
+
+int MatrixSparse::addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
+                                Eigen::Map<Eigen::VectorXd>& ym) const
+{
+  if (isFlagEigen())
   {
-    VectorDouble diag = csd_extract_diag_VD(_csMatrix, 1);
-    VH::transformVD(diag, oper_choice);
-    return diag;
+    ym = _eigenMatrix * xm + ym;
+    return 0;
   }
+  return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
 }
 
 int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
@@ -799,12 +846,18 @@ int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
     ym = _eigenMatrix * xm + ym;
     return 0;
   }
-  else
-  {
-    return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
-  }
+  return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
 }
 
+int MatrixSparse::addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym)
+{
+  if (isFlagEigen())
+  {
+    ym = _eigenMatrix * xm + ym;
+    return 0;
+  }
+  return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
+}
 void MatrixSparse::setConstant(double value)
 {
   if (isFlagEigen())
@@ -828,10 +881,7 @@ int MatrixSparse::scaleByDiag()
     _eigenMatrix = ym.asDiagonal() * _eigenMatrix;
     return 0;
   }
-  else
-  {
-    return cs_scale(_csMatrix);
-  }
+  return cs_scale(_csMatrix);
 }
 
 /**
@@ -903,6 +953,32 @@ void MatrixSparse::prodScalar(double v)
     cs *res = cs_add(_csMatrix, _csMatrix, v, 0.);
     cs_spfree2(_csMatrix);
     _csMatrix = res;
+  }
+}
+
+void MatrixSparse::_addProdMatVecInPlaceToDestPtr(const double *x, double *y, bool transpose) const
+{
+  if (isFlagEigen())
+  {
+    if (transpose)
+    {
+      Eigen::Map<const Eigen::VectorXd> xm(x, getNRows());
+      Eigen::Map<Eigen::VectorXd> ym(y, getNCols());
+      ym += _eigenMatrix.transpose() * xm;
+    }
+    else
+    {
+      Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+      Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+      ym += _eigenMatrix * xm;
+    }
+  }
+  else
+  {
+    if (transpose)
+      cs_vector_addToDest_tMx(_csMatrix, getNCols(), x, y);
+    else
+      cs_vector_addToDest_Mx(_csMatrix, getNRows(), x, y);
   }
 }
 
@@ -1033,34 +1109,34 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix *x,
   }
 }
 
-MatrixSparse* prodNormMatMat(const MatrixSparse &a,
-                             const MatrixSparse &m,
+MatrixSparse* prodNormMatMat(const MatrixSparse* a,
+                             const MatrixSparse* m,
                              bool transpose)
 {
-  int nrow = (transpose) ? a.getNCols() : a.getNRows();
-  int ncol = (transpose) ? a.getNRows() : a.getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen() ? 1 : 0);
+  int nrow = (transpose) ? a->getNCols() : a->getNRows();
+  int ncol = (transpose) ? a->getNRows() : a->getNCols();
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a->isFlagEigen() ? 1 : 0);
   mat->prodNormMatMatInPlace(a, m, transpose);
   return mat;
 }
 
-MatrixSparse* prodNormMat(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
+MatrixSparse* prodNormMat(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
 {
-  int nsym = (transpose) ? a.getNCols() : a.getNRows();
-  MatrixSparse *mat = new MatrixSparse(nsym, nsym, a.isFlagEigen() ? 1 : 0);
+  int nsym = (transpose) ? a->getNCols() : a->getNRows();
+  MatrixSparse *mat = new MatrixSparse(nsym, nsym, a->isFlagEigen() ? 1 : 0);
   mat->prodNormMatInPlace(a, vec, transpose);
   return mat;
 }
 
-MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
+MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
                               const VectorDouble &vec,
                               int oper_choice)
 {
-  int nrow = a.getNRows();
-  int ncol = a.getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a.isFlagEigen() ? 1 : 0);
+  int nrow = a->getNRows();
+  int ncol = a->getNCols();
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a->isFlagEigen() ? 1 : 0);
 
-  if (a.isFlagEigen())
+  if (a->isFlagEigen())
   {
     // Perform the transformation of the input vector
     VectorDouble vecp = vec;
@@ -1068,11 +1144,11 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse &a,
 
     Eigen::Map<const Eigen::VectorXd> vecm(vecp.data(), vecp.size());
     auto diag = vecm.asDiagonal();
-    mat->setEigenMatrix(diag * a.getEigenMatrix() * diag);
+    mat->setEigenMatrix(diag * a->getEigenMatrix() * diag);
   }
   else
   {
-    cs* local = cs_matvecnorm(a.getCS(), vec.data(), oper_choice);
+    cs* local = cs_matvecnorm(a->getCS(), vec.data(), oper_choice);
     mat->setCS(local);
     cs_spfree2(local);
   }
@@ -1093,7 +1169,7 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
   }
   if (getNRows() != (int) vec.size())
   {
-    messerr("Matrix dimension (%d) does not math vector dimension (%d)",
+    messerr("Matrix dimension (%d) does not match vector dimension (%d)",
             getNRows(), (int) vec.size());
     return;
   }
@@ -1114,31 +1190,31 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
   }
 }
 
-void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble& vec, bool transpose)
+void MatrixSparse::prodNormMatInPlace(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
 {
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
-                 vec.size(), 1, false)) return;
+  if (!_checkLink(getNRows(), getNCols(), transpose, a->getNRows(), a->getNCols(),
+                  false, vec.size(), 1, false)) return;
 
-  if (isFlagEigen() && a.isFlagEigen())
+  if (isFlagEigen() && a->isFlagEigen())
   {
     if (transpose)
     {
       if (vec.empty())
-        _eigenMatrix = a._eigenMatrix.transpose() * a._eigenMatrix;
+        _eigenMatrix = a->_eigenMatrix.transpose() * a->_eigenMatrix;
       else
       {
         Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-        _eigenMatrix = a._eigenMatrix.transpose() * vecm.asDiagonal() * a._eigenMatrix;
+        _eigenMatrix = a->_eigenMatrix.transpose() * vecm.asDiagonal() * a->_eigenMatrix;
       }
     }
     else
     {
       if (vec.empty())
-        _eigenMatrix = a._eigenMatrix * a._eigenMatrix.transpose();
+        _eigenMatrix = a->_eigenMatrix * a->_eigenMatrix.transpose();
       else
       {
         Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-        _eigenMatrix = a._eigenMatrix * vecm.asDiagonal() * a._eigenMatrix.transpose();
+        _eigenMatrix = a->_eigenMatrix * vecm.asDiagonal() * a->_eigenMatrix.transpose();
       }
     }
   }
@@ -1146,9 +1222,9 @@ void MatrixSparse::prodNormMatInPlace(const MatrixSparse &a, const VectorDouble&
   {
     cs* res = nullptr;
     if (vec.empty())
-      res = cs_prod_norm_single((transpose) ? 1 : 2, a._csMatrix);
+      res = cs_prod_norm_single((transpose) ? 1 : 2, a->_csMatrix);
     else
-      res = cs_prod_norm_diagonal((transpose) ? 1 : 2, a._csMatrix, vec);
+      res = cs_prod_norm_diagonal((transpose) ? 1 : 2, a->_csMatrix, vec);
     _csMatrix = cs_spfree2(_csMatrix);
     _csMatrix = res;
   }
@@ -1176,28 +1252,28 @@ cs* MatrixSparse::getCSUnprotected() const
 }
 #endif
 
-void MatrixSparse::prodNormMatMatInPlace(const MatrixSparse &a,
-                                         const MatrixSparse &m,
+void MatrixSparse::prodNormMatMatInPlace(const MatrixSparse* a,
+                                         const MatrixSparse* m,
                                          bool transpose)
 {
-  if (!_checkLink(a.getNRows(), a.getNCols(), transpose,
-                  m.getNRows(), m.getNCols(), false,
-                  a.getNRows(), a.getNCols(), !transpose)) return;
+  if (!_checkLink(a->getNRows(), a->getNCols(), transpose,
+                  m->getNRows(), m->getNCols(), false,
+                  a->getNRows(), a->getNCols(), !transpose)) return;
 
-  if (isFlagEigen() && a.isFlagEigen() && m.isFlagEigen())
+  if (isFlagEigen() && a->isFlagEigen() && m->isFlagEigen())
   {
     if (transpose)
     {
-      _eigenMatrix = a._eigenMatrix.transpose() * m._eigenMatrix * a._eigenMatrix;
+      _eigenMatrix = (a->_eigenMatrix.transpose() * m->_eigenMatrix) * a->_eigenMatrix;
     }
     else
     {
-      _eigenMatrix = a._eigenMatrix * m._eigenMatrix * a._eigenMatrix.transpose();
+      _eigenMatrix = (a->_eigenMatrix * m->_eigenMatrix) * a->_eigenMatrix.transpose();
     }
   }
   else
   {
-    cs* res = cs_prod_norm((transpose) ? 1 : 2, m._csMatrix, a._csMatrix);
+    cs* res = cs_prod_norm((transpose) ? 1 : 2, m->_csMatrix, a->_csMatrix);
     _csMatrix = cs_spfree2(_csMatrix);
     _csMatrix = res;
   }
@@ -1334,14 +1410,13 @@ void MatrixSparse::_deallocate()
   }
 }
 
-void MatrixSparse::_forbiddenForSparse(const String& func) const
+void MatrixSparse::_forbiddenForSparse(const String& func)
 {
   messerr("Problem with Function: %s",func.c_str());
   messerr("This function is not available in Sparse Matrix");
-  return;
 }
 
-void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const
+void MatrixSparse::dumpElements(const String& title, int ifrom, int ito)
 {
   DECLARE_UNUSED(title);
   DECLARE_UNUSED(ifrom);
@@ -1360,10 +1435,7 @@ NF_Triplet MatrixSparse::getMatrixToTriplet(int shiftRow, int shiftCol) const
   {
     return NF_Triplet::createFromEigen(_eigenMatrix, shiftRow, shiftCol);
   }
-  else
-  {
-    return NF_Triplet::createFromCs(_csMatrix, shiftRow, shiftCol);
-  }
+  return NF_Triplet::createFromCs(_csMatrix, shiftRow, shiftCol);
 }
 
 void MatrixSparse::_clear()
@@ -1402,7 +1474,7 @@ int getUpdateNonZeroValue()
 int MatrixSparse::_eigen_findColor(int imesh,
                                    int ncolor,
                                    VectorInt &colors,
-                                   VectorInt &temp)
+                                   VectorInt &temp) const
 {
   temp.fill(0);
 
@@ -1424,7 +1496,7 @@ int MatrixSparse::_eigen_findColor(int imesh,
   return (-1);
 }
 
-VectorInt MatrixSparse::colorCoding()
+VectorInt MatrixSparse::colorCoding() const
 {
   int next_col = 0;
   int ncol = 0;
@@ -1456,6 +1528,27 @@ VectorInt MatrixSparse::colorCoding()
   }
   return colors;
 }
+void MatrixSparse::glueInPlace(MatrixSparse *A1,
+                        const MatrixSparse *A2,
+                        bool flagShiftRow,
+                        bool flagShiftCol)
+{
+  int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
+  int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
+  NF_Triplet T1 = A1->getMatrixToTriplet();
+  NF_Triplet T2 = A2->getMatrixToTriplet(shiftRow, shiftCol);
+
+  // Concatenate the two triplet lists
+  T1.appendInPlace(T2);
+
+  // Create the new matrix from the resulting triplet list
+  int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
+  int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
+
+  A1->resetFromTriplet(T1);
+  A1->_setNRows(nrow);
+  A1->_setNCols(ncol);
+}
 
 MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
                                  const MatrixSparse *A2,
@@ -1484,7 +1577,7 @@ MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
 /* The arrays 'rank_rows' and 'rank_cols' may be absent */
 /* Their value gives the rank of the saved element or -1 */
 MatrixSparse* MatrixSparse::extractSubmatrixByRanks(const VectorInt &rank_rows,
-                                                    const VectorInt &rank_cols)
+                                                    const VectorInt &rank_cols) const
 {
   int old_row, old_col, new_row, new_col;
 
@@ -1569,16 +1662,13 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
  * @param opt_eigen Choice: 0: Do not use Eigen library; 1; Use Eigen library; -1: use global environment
  * @return Option for using the Eigen library
  */
-bool MatrixSparse::_defineFlagEigen(int opt_eigen) const
+bool MatrixSparse::_defineFlagEigen(int opt_eigen)
 {
   // Dispatch
 
-  if (opt_eigen == 1)
-    return true;
-  else if (opt_eigen == 0)
-    return false;
-  else
-    return globalFlagEigen;
+  if (opt_eigen == 1) return true;
+  if (opt_eigen == 0) return false;
+  return globalFlagEigen;
 }
 
 /**
@@ -1595,3 +1685,56 @@ bool isGlobalFlagEigen()
 {
   return globalFlagEigen;
 }
+
+void MatrixSparse::gibbs(int iech,
+                         const VectorDouble& zcur,
+                         double* yk,
+                         double* sk)
+{
+  if (isFlagEigen())
+  {
+    *yk = 0.;
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, iech); it;
+         ++it)
+    {
+      double coeff = it.valueRef();
+      if (ABS(coeff) <= 0.) continue;
+      int jech = it.row();
+
+      if (iech == jech)
+        *sk = coeff;
+      else
+        *yk -= coeff * zcur[jech];
+    }
+  }
+  else
+  {
+    cs_gibbs(_csMatrix, iech, zcur, yk, sk);
+  }
+
+  // Returned arguments
+  (*yk) /= (*sk);
+  (*sk) = sqrt(1. / (*sk));
+}
+
+int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const
+{
+    outv += _eigenMatrix * inv;
+    return 0;
+}
+
+void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)
+{
+  _eigenMatrix = tab.asDiagonal();
+}
+
+
+///////////////Not exported //////////
+
+Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
+                                 const Eigen::SparseMatrix<double>& M)
+{
+  return A.transpose() * M * A;
+}
+

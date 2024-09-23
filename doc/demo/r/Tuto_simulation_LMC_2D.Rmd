@@ -207,7 +207,7 @@ for (idir in 1:ndir) {
                                      "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
 # a simple Matern's covariance model
   model = Model()
-  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 1, ranges = 1*c(0.1, 0.3), 
+  err = model$addCovFromParam(type = ECov_fromKey("MATERN"), sill = 1, ranges = 1*c(0.1, 0.3), 
                               angles = c(30, 0), param = 1.0)
 ```
 
@@ -217,7 +217,8 @@ for (idir in 1:ndir) {
   # non conditional simulations
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
-  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+  lsr = law_set_random_seed(seed)
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
   list_key   = c("TB", "SPDE")
@@ -245,9 +246,9 @@ neigh = NeighUnique()
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
-
+  lsr = law_set_random_seed(seed)
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
-                     nbsimu = nsim, seed = seed, namconv = NamingConvention("SPDE"))
+                     nbsimu = nsim, namconv = NamingConvention("SPDE"))
 
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
@@ -316,9 +317,9 @@ neigh = NeighUnique()
                                      "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
 # a covariance model defined as a sum of two Matern's covariance functions and a nugget effect 
   model = Model()
-  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 0.4, ranges = 1*c(0.1, 0.3), 
+  err = model$addCovFromParam(type = ECov_fromKey("MATERN"), sill = 0.4, ranges = 1*c(0.1, 0.3), 
                               angles = c(30, 0), param = 1.0)
-  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 0.5, ranges = 2*c(0.1, 0.3), 
+  err = model$addCovFromParam(type = ECov_fromKey("MATERN"), sill = 0.5, ranges = 2*c(0.1, 0.3), 
                               angles = c(30, 0), param = 2.0)
   err = model$addCovFromParam(ECov_NUGGET(), sill=0.1)
 ```
@@ -329,7 +330,8 @@ neigh = NeighUnique()
   # non conditional simulations
   err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
                neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
-  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+  lsr = law_set_random_seed(seed)
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
                namconv = NamingConvention("SPDE.nc.simu"))
   list_title = c("Using Turning Bands", "Using SPDE approach")
   list_key   = c("TB", "SPDE")
@@ -356,9 +358,9 @@ neigh = NeighUnique()
   err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                flag_est = TRUE, flag_std = FALSE, nbMC = 0,
                namconv = NamingConvention("SPDE"))
-
+  lsr = law_set_random_seed(seed)
   err = simulateSPDE(dbin = dat, dbout = grid, model = model,
-                     nbsimu = nsim, seed = seed, namconv = NamingConvention("SPDE"))
+                     nbsimu = nsim, namconv = NamingConvention("SPDE"))
 
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 

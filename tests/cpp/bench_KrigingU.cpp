@@ -28,10 +28,6 @@
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
-  bool verbose  = false;
-  bool graphic  = false;
-  bool flag_std = false;
-
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
@@ -40,43 +36,36 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("BenchKrigingU-");
 
   // Global parameters
-  defineDefaultSpace(ESpaceType::RN, 2);
+  int ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
-  if (graphic)
-    (void) data->dumpToNF("Data.ascii");
+  int nech = 100;
+  int nvar = 1;
+  Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
-  bool flagSmall = false;
-  VectorInt nx;
-  if (flagSmall)
-    nx = {50,60};
-  else
-    nx = {360,240};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
+  int ncell = 100;
+  VectorInt nx = {ncell, ncell};
+  VectorDouble dx = {1. / ncell, 1. / ncell};
+  DbGrid* grid = DbGrid::create(nx, dx);
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
-  if (verbose) model->display();
+  double range = 1. / 5.;
+  double sill = 2.;
+  Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   // Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
-  if (verbose) neighU->display();
+
+  // Print the test environment
+  message("This test is mean to test Kriging using Unique Neighborhood\n");
+  message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
+  message("- the output Grid contains %d nodes\n", grid->getSampleNumber(true));
+  message("- the Unique Neighborhood is required\n");
 
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, flag_std, false);
+  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false, false);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 700);
 
   // Produce some statistics for comparison
@@ -84,13 +73,10 @@ int main(int argc, char *argv[])
   grid->display(gridfmt);
   delete gridfmt;
 
-  if (graphic)
-    (void) grid->dumpToNF("Grid.ascii");
-
-  if (neighU    != nullptr) delete neighU;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
-  if (model     != nullptr) delete model;
+  delete neighU;
+  delete data;
+  delete grid;
+  delete model;
 
   return (0);
 }

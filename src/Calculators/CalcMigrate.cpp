@@ -8,19 +8,21 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Enum/ELoc.hpp"
 
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Tree/Ball.hpp"
-#include "Tree/KNN.hpp"
-
-#include "geoslib_old_f.h"
+#include "Basic/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 
@@ -86,7 +88,7 @@ static int st_multilinear_evaluate(DbGrid *db_grid,
                                    int iatt,
                                    double *value)
 {
-  int jech = db_index_grid_to_sample(db_grid, indg.data());
+  int jech = db_grid->indiceToRank(indg);
   if (jech < 0) return (1);
   if (!db_grid->isActive(jech)) return (1);
   *value = db_grid->getArray(jech, iatt);
@@ -124,7 +126,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
   /* Identify the closest grid node */
 
   if (point_to_grid(dbgrid, coor.data(), 0, indg.data()) != 0) return TEST;
-  grid_to_point(dbgrid, indg.data(), NULL, aux.data());
+  dbgrid->indicesToCoordinateInPlace(indg, aux);
 
   /* Calculate distance to lower corner as proportion of the grid mesh */
 
@@ -513,8 +515,8 @@ static int st_larger_than_dmax(int ndim,
 static void st_expand(int flag_size,
                       DbGrid *dbgrid,
                       VectorDouble &tab1,
-                      int *indg0,
-                      int *indg,
+                      VectorInt& indg0,
+                      VectorInt& indg,
                       VectorDouble &tab2)
 {
   int nech = dbgrid->getSampleNumber();
@@ -530,8 +532,8 @@ static void st_expand(int flag_size,
       tab2[iech] = 1.;
     else
     {
-      int radius = (int) tab1[iech];
-      db_index_sample_to_grid(dbgrid, iech, indg0);
+      int radius = (int)tab1[iech];
+      dbgrid->rankToIndice(iech, indg0);
 
       for (int idim = 0; idim < ndim; idim++)
         for (int ifois = -1; ifois <= 1; ifois += 2)
@@ -540,7 +542,7 @@ static void st_expand(int flag_size,
             for (int jdim = 0; jdim < ndim; jdim++)
               indg[jdim] = indg0[jdim];
             indg[idim] = indg0[idim] + irad * ifois;
-            int jech = db_index_grid_to_sample(dbgrid, indg);
+            int jech   = dbgrid->indiceToRank(indg);
             if (jech >= 0) tab2[jech] = (flag_size) ? radius : 1.;
           }
     }
@@ -563,12 +565,12 @@ static void st_expand(int flag_size,
  ** \param[out]  tab      Output array (Dimension: number of samples in db_point)
  **
  *****************************************************************************/
-int CalcMigrate::_migrateGridToPoint(DbGrid *db_grid,
-                                     Db *db_point,
+int CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
+                                     Db* db_point,
                                      int iatt,
                                      int distType,
-                                     const VectorDouble &dmax,
-                                     VectorDouble &tab)
+                                     const VectorDouble& dmax,
+                                     VectorDouble& tab)
 {
   if (!db_grid->hasLargerDimension(db_point)) return 1;
   int ndim_min = MIN(db_grid->getNDim(), db_point->getNDim());
@@ -629,6 +631,8 @@ bool CalcMigrate::_check()
     messerr("At least one variable should be defined");
     return false;
   }
+
+  _setNvar((int)_iuids.size(), true);
   if (_distType != 1 && _distType != 2)
   {
     messerr("Argument 'dist_type'(%d)  should be 1 (for L1 distance) or 2 (for L2 distance",_distType);
@@ -639,10 +643,11 @@ bool CalcMigrate::_check()
 
 bool CalcMigrate::_preprocess()
 {
+  if (!ACalcDbToDb::_preprocess()) return false;
+
   int nvar = _getNVar();
   _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
-  if (_iattOut < 0) return false;
-  return true;
+  return (_iattOut >= 0);
 }
 
 bool CalcMigrate::_postprocess()
@@ -663,11 +668,6 @@ bool CalcMigrate::_postprocess()
 void CalcMigrate::_rollback()
 {
   _cleanVariableDb(1);
-}
-
-int CalcMigrate::_getNVar() const
-{
-  return (int) _iuids.size();
 }
 
 /****************************************************************************/
@@ -914,7 +914,7 @@ int manageExternalInformation(int mode,
                               Db *dbout,
                               bool *flag_created)
 {
-//  VectorDouble tab;
+  //  VectorDouble tab;
 
   if (dbin == nullptr) return 0;
   int ninfo = get_LOCATOR_NITEM(dbout, locatorType);
@@ -922,7 +922,7 @@ int manageExternalInformation(int mode,
 
   /* Case when the Output Db is not a grid */
 
-  if (! dbout->isGrid())
+  if (!dbout->isGrid())
   {
     if (get_LOCATOR_NITEM(dbin, locatorType) == ninfo) return 0;
     messerr("The Output Db is not a Grid file");
@@ -942,38 +942,30 @@ int manageExternalInformation(int mode,
       *flag_created = false;
       return 0;
     }
-    else
+
+    /* Creating variables */
+
+    *flag_created = true;
+    for (int info = 0; info < ninfo; info++)
     {
-
-      /* Creating variables */
-
-      *flag_created = true;
-      for (int info = 0; info < ninfo; info++)
-      {
-        String name = dbgrid->getNameByLocator(locatorType, info);
-        if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false)) continue;
-      }
+      String name = dbgrid->getNameByLocator(locatorType, info);
+      if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false))
+        continue;
     }
     return 0;
   }
-  else
+  if (*flag_created)
   {
-    if (*flag_created)
-    {
-      // If no variable has been created (when 'mode' == 0), then do nothing
+    // If no variable has been created (when 'mode' == 0), then do nothing
 
-      return 0;
-    }
-    else
-    {
-      for (int info = 0; info < ninfo; info++)
-      {
-        int jatt = db_attribute_identify(dbin, locatorType, info);
-        dbin->deleteColumnByUID(jatt);
-      }
-      return 0;
-    }
+    return 0;
   }
+  for (int info = 0; info < ninfo; info++)
+  {
+    int jatt = dbin->getUIDByLocator(locatorType, info);
+    dbin->deleteColumnByUID(jatt);
+  }
+  return 0;
 }
 
 /*****************************************************************************/
@@ -999,9 +991,9 @@ int manageExternalInformation(int mode,
 int interpolateVariableToPoint(DbGrid *db_grid,
                                int iatt,
                                int np,
-                               double *xp,
-                               double *yp,
-                               double *zp,
+                               const double *xp,
+                               const double *yp,
+                               const double *zp,
                                double *tab)
 {
   int error, ndim;
@@ -1068,13 +1060,14 @@ int interpolateVariableToPoint(DbGrid *db_grid,
  ** \remarks the intersection are calculated.
  ** \remarks The program returns the list of all these intersection coordinates
  **
+ ** TODO FUTURE_REFACTOR
  *****************************************************************************/
 double* dbgridLineSampling(DbGrid *dbgrid,
-                           double *x1,
-                           double *x2,
+                           const double *x1,
+                           const double *x2,
                            int ndisc,
                            int ncut,
-                           double *cuts,
+                           const double *cuts,
                            int *nval_ret)
 {
   double *res, delta, vi1, vi2, cut, v1, v2;
@@ -1414,7 +1407,7 @@ int pointToBlock(Db *dbpoint,
                  int iatt_scalev,
                  int iatt_scalew)
 {
-  int *indg, *indg0, iatt_edge, iatt_rank, iatt_surf, iatt_vol, iatt_code;
+  int iatt_edge, iatt_rank, iatt_surf, iatt_vol, iatt_code;
   int val_iech, val_jech, jech, ndim, nvois, lec, error, flag_index;
   VectorInt indret;
   VectorDouble tab1, tab2;
@@ -1422,18 +1415,15 @@ int pointToBlock(Db *dbpoint,
   /* Initializations */
 
   error = 1;
-  indg = indg0 = nullptr;
   iatt_rank = -1;
-  if (!dbgrid->hasSameDimension(dbpoint)) goto label_end;
+  if (!dbgrid->hasSameDimension(dbpoint)) return 1;
   ndim = dbgrid->getNDim();
   flag_index = (int) get_keypone("PTB_Flag_Index", 0.);
 
   /* Core allocation */
 
-  indg0 = db_indg_alloc(dbgrid);
-  if (indg0 == nullptr) goto label_end;
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
+  VectorInt indg0(ndim);
+  VectorInt indg(ndim);;
   tab1.resize(dbgrid->getSampleNumber());
   tab2.resize(dbgrid->getSampleNumber(), -1.);
 
@@ -1480,8 +1470,8 @@ int pointToBlock(Db *dbpoint,
 
     /* Identify the sample within the grid */
 
-    val_iech = (int) tab1[iech];
-    db_index_sample_to_grid(dbgrid, iech, indg0);
+    val_iech = (int)tab1[iech];
+    dbgrid->rankToIndice(iech, indg0);
 
     /* Increment the volume by one */
 
@@ -1494,7 +1484,7 @@ int pointToBlock(Db *dbpoint,
     {
       for (int idim = 0; idim < ndim; idim++)
         indg[idim] = indg0[idim] + indret[lec++];
-      jech = db_index_grid_to_sample(dbgrid, indg);
+      jech = dbgrid->indiceToRank(indg);
       if (jech < 0)
       {
 
@@ -1548,9 +1538,8 @@ int pointToBlock(Db *dbpoint,
 
   /* Core deallocation */
 
-  label_end: if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
-  db_indg_free(indg);
-  db_indg_free(indg0);
+  label_end:
+    if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
   return (error);
 }
 
@@ -1902,7 +1891,7 @@ int CalcMigrate::_expandPointToPointBall(Db *db1,
   // Establish the ball tree (on the grid)
 
   int leaf_size = 30;
-  Ball ball(db1, leaf_size, 1);
+  Ball ball(db1, nullptr, leaf_size);
 
   // Loop on the sample points
 

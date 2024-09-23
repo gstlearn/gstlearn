@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
+#include "Core/Ascii.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Basic/Law.hpp"
@@ -20,9 +20,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-
-#include <iostream>
-#include <fstream>
 
 /*********************/
 /* Program principal */
@@ -146,7 +143,7 @@ int main(int argc, char *argv[])
   // Produce the Goodness-of-fit score
 
   gof = model->gofToVario(vario, false);
-  model->gofDisplay(gof, false);
+  Model::gofDisplay(gof, false);
 
 /* Core deallocation */
 

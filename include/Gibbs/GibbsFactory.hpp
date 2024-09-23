@@ -27,7 +27,7 @@ public:
                              Model* model,
                              bool flagMoving);
   static AGibbs *createGibbs(Db* db,
-                             std::vector<Model *> models,
+                             const std::vector<Model *>& models,
                              double rho,
                              bool flag_propagation);
 };

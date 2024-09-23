@@ -1,0 +1,155 @@
+
+Cross-Validation in Unique Neighborhood
+=======================================
+Compare the Cross-validation Option (in Unique Neighborhood):
+- using Standard Kriging on the Deplemented Data Set
+- using 'KrigingCalcul' on Initial Set with Cross-validation option
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2         z
+     [  0,]     1.000     0.652     0.015       N/A
+     [  1,]     2.000     0.483     0.557    -0.774
+     [  2,]     3.000     0.762     0.433     0.793
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+
+With deplemented input Data Base
+--------------------------------
+LHS Xvalid
+- Number of rows    = 2
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     2.242     0.871
+     [  1,]     0.871     2.242
+X XValid
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     1.000
+     [  1,]     1.000
+RHS Xvalid
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.113
+     [  1,]     0.428
+X0 XValid
+- Number of rows    = 1
+- Number of columns = 1
+     1.000
+Variance xvalid
+- Number of rows    = 1
+- Number of columns = 1
+     2.242
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]    -0.028
+     [  1,]     0.202
+Sigmac
+- Number of rows    = 1
+- Number of columns = 1
+     0.642
+InvSigma
+- Number of rows    = 2
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.525    -0.204
+     [  1,]    -0.204     0.525
+XtInvSigma
+- Number of rows    = 1
+- Number of columns = 2
+     0.321     0.321
+- Number of rows    = 2
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.385
+     [  1,]     0.615
+- Number of rows    = 1
+- Number of columns = 1
+     1.286
+Kriging Value(s)
+     0.189
+Standard Deviation of Estimation Error
+     1.795
+Variance of Estimator
+     1.593
+
+With Cross-Validation Option
+----------------------------
+Rank of the xvalidated information
+         0
+rankxvalid
+         0
+Sigma
+- Number of rows    = 3
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     2.242     0.113     0.428
+     [  1,]     0.113     2.242     0.871
+     [  2,]     0.428     0.871     2.242
+Sigma_00
+- Number of rows    = 1
+- Number of columns = 1
+     2.242
+W
+- Number of rows    = 1
+- Number of columns = 1
+     0.463
+Patch for S0
+- Number of rows    = 1
+- Number of columns = 1
+     0.083
+Vector S0
+- Number of rows    = 3
+- Number of columns = 1
+               [,  0]
+     [  0,]     2.242
+     [  1,]     0.113
+     [  2,]     0.428
+S0 apres patch
+- Number of rows    = 3
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.083
+     [  1,]     0.113
+     [  2,]     0.428
+X avant
+- Number of rows    = 3
+- Number of columns = 1
+               [,  0]
+     [  0,]     1.000
+     [  1,]     1.000
+     [  2,]     1.000
+X0 apres
+- Number of rows    = 1
+- Number of columns = 1
+     1.000
+Sigmac
+- Number of rows    = 1
+- Number of columns = 1
+     0.959
+- Number of rows    = 3
+- Number of columns = 1
+               [,  0]
+     [  0,]     0.330
+     [  1,]     0.258
+     [  2,]     0.412
+- Number of rows    = 1
+- Number of columns = 1
+     1.286
+Kriging Value(s)
+     0.375
+Standard Deviation of Estimation Error
+     1.694
+Variance of Estimator
+     1.095

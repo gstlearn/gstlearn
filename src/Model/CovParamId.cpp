@@ -8,11 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Space/ASpaceObject.hpp"
 #include "Model/CovParamId.hpp"
-#include "Basic/Utilities.hpp"
 
 CovParamId::CovParamId(int igrf,
                        int icov,
@@ -93,65 +90,63 @@ int CovParamId::init(int igrf,
 String CovParamId::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  bool flag_V2 = true;
 
   switch (_elemType.toEnum())
   {
     case EConsElem::E_RANGE:
-      flag_V2 = false;
-      sstr << "Range     ";
+      sstr << "Range      :"
+           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
       break;
 
     case EConsElem::E_ANGLE:
-      flag_V2 = false;
-      sstr << "Angle     ";
+      sstr << "Angle      :"
+           << " IdCov=" << _icov + 1 << " IdAngle=" << _iv1 + 1;
       break;
 
     case EConsElem::E_PARAM:
-      flag_V2 = false;
-      sstr << "Param     ";
+      sstr << "Param      :"
+           << " IdCov" << _icov + 1;
       break;
 
     case EConsElem::E_SILL:
-      flag_V2 = true;
-      sstr << "Sill      ";
+      sstr << "Sill       :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 << " Jvar=" << _iv2;
       break;
 
     case EConsElem::E_SCALE:
-      flag_V2 = false;
-      sstr << "Scale     ";
+      sstr << "Scale      :"
+           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
       break;
 
     case EConsElem::E_T_RANGE:
-      flag_V2 = false;
-      sstr << "Tapering  ";
+      sstr << "Tapering   :"
+           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
       break;
 
     case EConsElem::E_VELOCITY:
-      flag_V2 = true;  // TODO: to be validated
-      sstr << "Velocity  ";
+      sstr << "Velocity   :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
+           << " Jvar=" << _iv2 + 1;
       break;
 
     case EConsElem::E_SPHEROT:
-      flag_V2 = true;  // TODO: to be validated
-      sstr << "S-Rotation";
+      sstr << "S-Rotation :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
+           << " Jvar=" << _iv2 + 1;
       break;
 
     case EConsElem::E_TENSOR:
-      flag_V2 = true;
-      sstr << "Anis-Matrix";
+      sstr << "Anis-Matrix :"
+           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
+           << " Jvar=" << _iv2 + 1;
       break;
 
     default:
       return sstr.str();
   }
-  sstr << " :";
-  sstr << " GRF=" << _igrf + 1;
-  sstr << " Str=" << _icov + 1;
-  sstr << " V#1=" << _iv1  + 1;
-  if (flag_V2) sstr << " V#2=" << _iv2  + 1;
+  if (_igrf > 0)
+    sstr << " (GRF=" << _igrf + 1 << ")";
   sstr << std::endl;
 
   return sstr.str();
 }
-

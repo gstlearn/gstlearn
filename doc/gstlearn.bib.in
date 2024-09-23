@@ -1,13 +1,15 @@
-@Misc{gstlearn_software,
-  title = {{gstlearn: Geostatistics and Machine Learning toolbox}},
-  author = {{MINES Paris - PSL University}},
-  collaborator = {Geostatistics Group - Geosciences Center},
-  organization = {{MINES Paris - PSL University}},
-  address = {Fontainebleau, France},
-  version = {@PROJECT_VERSION@},
-  year = {@gstlearn_YEAR@},
-  mon = {@gstlearn_MONTH@},
+@Misc{mines_paris_psl_@gstlearn_YEAR@_13343742,
+  title        = {gstlearn: The Geostatistics and Machine Learning C++ Library, Python and R Packages},
+  author       = {MINES Paris - PSL University},
+  organization = {MINES Paris - PSL University},
+  address      = {Fontainebleau, France},
+  publisher    = {Zenodo},
+  version      = {@PROJECT_VERSION@},
+  year         = {@gstlearn_YEAR@},
+  mon          = {@gstlearn_MONTH@},
+  doi          = {10.5281/zenodo.13343742},
   howpublished = {Free download from: \url{https://gstlearn.org}},
+  url          = {https://doi.org/10.5281/zenodo.13343742}
 }
 
 

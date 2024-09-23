@@ -49,14 +49,14 @@ jobs:
           ]
         arch: [
             {pl: win_amd64, ar: x64, of: x64},
-            {pl: win32,     ar: x86, of: Win32} # TODO : Win32 to be removed ?
+            {pl: win32,     ar: x86, of: Win32} # TODO : Win32 to be removed ?
           ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Python Version
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: ${{matrix.python.py}}
         architecture: ${{matrix.arch.ar}}
@@ -98,11 +98,12 @@ jobs:
     - name : Configure build directory
       run : |
         cmake `
-          -B${{env.BUILD_DIR}} `
+          -B${{ env.BUILD_DIR }} `
           -A ${{matrix.arch.of}} `
-          -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
           -DBUILD_PYTHON=ON `
-          -DBUILD_DOXYGEN=ON `
+          -DBUILD_R=OFF `
+          -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
+          -DBUILD_DOXYGEN=ON
 
     - name : Build the package
       run : |
@@ -117,7 +118,7 @@ jobs:
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
         name: windows-python-package-${{matrix.arch.ar}}-${{matrix.python.py}}
@@ -131,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: fabien-ors/pypi-publish-action@v1
+    - uses: fabien-ors/pypi-publish-action@v2
       with:
         repo: pypi
         username: __token__
@@ -139,6 +140,6 @@ jobs:
         pattern: windows-python-package-*
 
     # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v2
+    - uses: geekyeggo/delete-artifact@v5
       with:
         name: windows-python-package-*

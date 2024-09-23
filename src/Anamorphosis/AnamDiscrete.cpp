@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscrete.hpp"
+#include "Basic/AStringable.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/AMatrix.hpp"
 #include <Stats/Selectivity.hpp>
 
 #include <math.h>
@@ -223,12 +223,7 @@ void AnamDiscrete::setIRStatRV(int iclass, double value)
 
 bool AnamDiscrete::_isClassValid(int iclass) const
 {
-  if (iclass < 0 || iclass >= getNClass())
-  {
-    mesArg("Class Index",iclass,getNClass());
-    return false;
-  }
-  return true;
+  return checkArg("Class Index", iclass, getNClass());
 }
 
 bool AnamDiscrete::_serialize(std::ostream& os, bool /*verbose*/) const

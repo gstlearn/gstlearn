@@ -1,6 +1,10 @@
 name: publish
 
 on:
+  # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron: '30 23 */15 * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -36,32 +40,32 @@ jobs:
 
   call-python-publish:
     needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
-    if: ${{inputs.dry_publish == false}}
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
 
     runs-on: ubuntu-latest
     
     steps:
-      - uses: fabien-ors/pypi-publish-action@v1
+      - uses: fabien-ors/pypi-publish-action@v2
         with:
           repo: pypi
           username: __token__
           password: ${{secrets.TWINE_PYPI_PWD}}
           pattern: "*python-package-*"
   
-      # Delete the artifacts (for freeing storage space under github)
-      - uses: geekyeggo/delete-artifact@v2
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v5
         with:
           name: "*python-package*"
 
   call-r-publish:
     needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
-    if: ${{inputs.dry_publish == false}}
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
     
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
     
     steps:
-      - uses: fabien-ors/cran-publish-action@v3
+      - uses: fabien-ors/cran-publish-action@v4
         with:
           host: ${{secrets.CG_HOST}}
           username: ${{secrets.CG_USR}}
@@ -69,7 +73,7 @@ jobs:
           repo-path: "/var/www/html/cran"
           pattern: "*r-package*"
   
-      # Delete the artifacts (for freeing storage space under github)
-      - uses: geekyeggo/delete-artifact@v2
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v5
         with:
           name: "*r-package*"

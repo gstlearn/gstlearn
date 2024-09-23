@@ -45,22 +45,22 @@ jobs:
         os: [ubuntu-20.04]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
         sudo rm /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
         sudo apt-get install -yq \
+          swig \
+          doxygen \
           libhdf5-dev \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev \
-          swig \
-          doxygen
+          libeigen3-dev
 
     - name: Setup Python Version
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{matrix.python.py}}
 
@@ -90,7 +90,7 @@ jobs:
         cd ../../..
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
         name: ubuntu-python-package-${{matrix.os}}-${{matrix.python.py}}
@@ -104,15 +104,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: fabien-ors/pypi-publish-action@v1
+    - uses: fabien-ors/pypi-publish-action@v2
       with:
         repo: pypi
         username: __token__
         password: ${{secrets.TWINE_PYPI_PWD}}
         pattern: ubuntu-python-package-*
 
-    # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v2
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v5
       with:
         name: ubuntu-python-package-*
 

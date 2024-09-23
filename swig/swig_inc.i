@@ -1,206 +1,8 @@
 %feature(director) IProjMatrix;
+%feature(director) AFunctional;
+
 //%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
-
-%include <std_shared_ptr.i>
-
-%shared_ptr(AAnam)
-%shared_ptr(AArray)
-%shared_ptr(ABiTargetCheck)
-%shared_ptr(ACalcDbToDb)
-%shared_ptr(ACalcDbVarCreator)
-%shared_ptr(ACalcInterpolator)
-%shared_ptr(ACalcSimulation)
-%shared_ptr(ACalculator)
-%shared_ptr(ACov)
-%shared_ptr(ACovAnisoList)
-%shared_ptr(ACovFunc)
-%shared_ptr(ACovGradient)
-%shared_ptr(ADrift)
-%shared_ptr(AGibbs)
-%shared_ptr(AMatrix)
-%shared_ptr(AMatrixDense)
-%shared_ptr(AMesh)
-%shared_ptr(AnamContinuous)
-%shared_ptr(AnamDiscrete)
-%shared_ptr(AnamDiscreteDD)
-%shared_ptr(AnamDiscreteIR)
-%shared_ptr(AnamEmpirical)
-%shared_ptr(AnamHermite)
-%shared_ptr(AnamUser)
-%shared_ptr(ANeigh)
-%shared_ptr(ANoStat)
-%shared_ptr(APolynomial)
-%shared_ptr(Array)
-%shared_ptr(ASerializable)
-%shared_ptr(AShape)
-%shared_ptr(ASpace)
-%shared_ptr(ASpaceObject)
-%shared_ptr(AStringable)
-%shared_ptr(AStringFormat)
-%shared_ptr(BImage)
-%shared_ptr(BImageStringFormat)
-%shared_ptr(BiTargetCheckBench)
-%shared_ptr(BiTargetCheckCell)
-%shared_ptr(BiTargetCheckDistance)
-%shared_ptr(BiTargetCheckFaults)
-%shared_ptr(BiTargetCheckCode)
-%shared_ptr(BiTargetCheckDate)
-%shared_ptr(BiTargetCheckGeometry)
-%shared_ptr(BooleanObject)
-%shared_ptr(CalcAnamTransform)
-%shared_ptr(CalcGridToGrid)
-%shared_ptr(CalcSimuPost)
-%shared_ptr(CalcSimuPostDemo)
-%shared_ptr(CalcSimuPostPropByLayer)
-%shared_ptr(CalcImage)
-%shared_ptr(CalcGlobal)
-%shared_ptr(CalcKriging)
-%shared_ptr(CalcKrigingFactors)
-%shared_ptr(CalcMigrate)
-%shared_ptr(CalcSimpleInterpolation)
-%shared_ptr(CalcSimuEden)
-%shared_ptr(CalcSimuFFT)
-%shared_ptr(CalcSimuPartition)
-%shared_ptr(CalcSimuSubstitution)
-%shared_ptr(CalcSimuTurningBands)
-%shared_ptr(CalcStatistics)
-%shared_ptr(Chebychev)
-%shared_ptr(ClassicalPolynomial)
-%shared_ptr(ConsItem)
-%shared_ptr(Constraints)
-%shared_ptr(CovAniso)
-%shared_ptr(CovBesselJ)
-%shared_ptr(CovBesselK)
-%shared_ptr(CovCalcMode)
-%shared_ptr(CovCauchy)
-%shared_ptr(CovContext)
-%shared_ptr(CovCosExp)
-%shared_ptr(CovCosinus)
-%shared_ptr(CovCubic)
-%shared_ptr(CovExponential)
-%shared_ptr(CovGamma)
-%shared_ptr(CovGaussian)
-%shared_ptr(CovGC1)
-%shared_ptr(CovGC3)
-%shared_ptr(CovGC5)
-%shared_ptr(CovGCspline)
-%shared_ptr(CovGCspline2)
-%shared_ptr(CovLinear)
-%shared_ptr(CovLMC)
-%shared_ptr(CovLMCAnamorphosis)
-%shared_ptr(CovLMCConvolution)
-%shared_ptr(CovLMCTapering)
-%shared_ptr(CovLMGradient)
-%shared_ptr(CovMarkov)
-%shared_ptr(CovNugget)
-%shared_ptr(CovParamId)
-%shared_ptr(CovPenta)
-%shared_ptr(CovPower)
-%shared_ptr(CovReg1D)
-%shared_ptr(CovSincard)
-%shared_ptr(CovSpherical)
-%shared_ptr(CovStable)
-%shared_ptr(CovStorkey)
-%shared_ptr(CovTriangle)
-%shared_ptr(CovWendland0)
-%shared_ptr(CovWendland1)
-%shared_ptr(CovWendland2)
-%shared_ptr(CovGeometric)
-%shared_ptr(CovPoisson)
-%shared_ptr(CovLinearSph)
-%shared_ptr(CSVformat)
-%shared_ptr(Db)
-%shared_ptr(DbGrid)
-%shared_ptr(DbStringFormat)
-%shared_ptr(DirParam)
-%shared_ptr(DriftM)
-%shared_ptr(DriftF)
-%shared_ptr(DriftList)
-%shared_ptr(Faults)
-%shared_ptr(FracDesc)
-%shared_ptr(FracEnviron)
-%shared_ptr(FracFamily)
-%shared_ptr(FracFault)
-%shared_ptr(FracList)
-%shared_ptr(GibbsMMulti)
-%shared_ptr(GibbsMulti)
-%shared_ptr(GibbsUMulti)
-%shared_ptr(Grid)
-%shared_ptr(ICloneable)
-%shared_ptr(Indirection)
-%shared_ptr(Interval)
-%shared_ptr(IProjMatrix)
-%shared_ptr(ISkinFunctions)
-%shared_ptr(Limits)
-%shared_ptr(MatrixInt)
-%shared_ptr(MatrixRectangular)
-%shared_ptr(AMatrixSquare)
-%shared_ptr(MatrixSparse)
-%shared_ptr(MatrixSquareGeneral)
-%shared_ptr(MatrixSquareSymmetric)
-%shared_ptr(NF_Triplet)
-%shared_ptr(MeshEStandard)
-%shared_ptr(MeshETurbo)
-%shared_ptr(MeshSpherical)
-%shared_ptr(MeshSphericalExt)
-%shared_ptr(Model)
-%shared_ptr(ModelBoolean)
-%shared_ptr(NamingConvention)
-%shared_ptr(NeighBench)
-%shared_ptr(NeighImage)
-%shared_ptr(NeighMoving)
-%shared_ptr(NeighUnique)
-%shared_ptr(NeighCell)
-%shared_ptr(NoStatArray)
-%shared_ptr(NoStatFunctional)
-%shared_ptr(Option_AutoFit)
-%shared_ptr(Option_VarioFit)
-%shared_ptr(PCA)
-%shared_ptr(PCAStringFormat)
-%shared_ptr(Plane)
-%shared_ptr(Polygons)
-%shared_ptr(PolyLine2D)
-%shared_ptr(PolyElem)
-%shared_ptr(PPMT)
-%shared_ptr(ProjConvolution)
-%shared_ptr(ProjMatrix)
-%shared_ptr(Regression)
-%shared_ptr(Rotation)
-%shared_ptr(Rule)
-%shared_ptr(RuleProp)
-%shared_ptr(RuleStringFormat)
-%shared_ptr(Selectivity)
-%shared_ptr(ShapeEllipsoid)
-%shared_ptr(ShapeHalfEllipsoid)
-%shared_ptr(ShapeHalfParaboloid)
-%shared_ptr(ShapeHalfSinusoid)
-%shared_ptr(ShapeParaboloid)
-%shared_ptr(ShapeParallelepiped)
-%shared_ptr(ShapeParameter)
-%shared_ptr(SimuBoolean)
-%shared_ptr(SimuBooleanParam)
-%shared_ptr(SimuFFTParam)
-%shared_ptr(SimuPartitionParam)
-%shared_ptr(SimuRefine)
-%shared_ptr(SimuRefineParam)
-%shared_ptr(SimuSpherical)
-%shared_ptr(SimuSphericalParam)
-%shared_ptr(SimuSubstitutionParam)
-%shared_ptr(SimuSpectral)
-%shared_ptr(SpacePoint)
-%shared_ptr(SpaceTarget)
-%shared_ptr(SpaceRN)
-%shared_ptr(Table)
-%shared_ptr(Tensor)
-%shared_ptr(TestInheritance)
-%shared_ptr(AVario)
-%shared_ptr(Vario)
-%shared_ptr(VarioParam)
-%shared_ptr(VMap)
-%shared_ptr(VCloud)
-%shared_ptr(Ball)
-%shared_ptr(KNN)
 
 %{
   #include "gstlearn_export.hpp"
@@ -246,6 +48,7 @@
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
   #include "Basic/VectorHelper.hpp"
+  #include "Basic/AFunctional.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"
@@ -336,20 +139,30 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
+  #include "LinearOp/ASimulable.hpp"
+  #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
   #include "LinearOp/PrecisionOp.hpp"
   #include "LinearOp/PrecisionOpCs.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
   #include "LinearOp/IProjMatrix.hpp"
+  #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
+  #include "LinearOp/ProjMulti.hpp"
+  #include "LinearOp/ProjMultiMatrix.hpp"
+  #include "LinearOp/PrecisionOpMulti.hpp"
+  #include "LinearOp/PrecisionOpMultiMatrix.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
-  
+  #include "LinearOp/SPDEOp.hpp"
+  #include "LinearOp/SPDEOpMatrix.hpp"
+  #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"
@@ -365,9 +178,6 @@
   #include "Variogram/VCloud.hpp"
   
   #include "Model/Model.hpp"
-  #include "Model/ANoStat.hpp"
-  #include "Model/NoStatArray.hpp"
-  #include "Model/NoStatFunctional.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
   #include "Model/Constraints.hpp"
@@ -375,6 +185,12 @@
   #include "Model/CovParamId.hpp"
   #include "Model/CovParamId.hpp"
   
+  #include "Covariances/ParamId.hpp"
+  #include "Covariances/TabNoStat.hpp"
+  #include "Covariances/TabNoStatCovAniso.hpp"
+  #include "Covariances/ANoStat.hpp"
+  #include "Covariances/NoStatArray.hpp"
+  #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
   #include "Covariances/ACovFunc.hpp"
   #include "Covariances/ACovAnisoList.hpp"
@@ -388,7 +204,7 @@
   #include "Covariances/CovContext.hpp"
   #include "Covariances/CovCalcMode.hpp"
   #include "Covariances/CovBesselJ.hpp"
-  #include "Covariances/CovBesselK.hpp"
+  #include "Covariances/CovMatern.hpp"
   #include "Covariances/CovCauchy.hpp"
   #include "Covariances/CovCosExp.hpp"
   #include "Covariances/CovCosinus.hpp"
@@ -439,6 +255,7 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
+  #include "Matrix/VectorEigen.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
@@ -448,6 +265,10 @@
   
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
+  #include "Db/DbLine.hpp"
+  #include "Db/DbGraphO.hpp"
+  #include "Db/DbMeshTurbo.hpp"
+  #include "Db/DbMeshStandard.hpp"
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
   
@@ -481,6 +302,7 @@
   #include "LithoRule/RuleProp.hpp"
   
   #include "Estimation/KrigingSystem.hpp"
+  #include "Estimation/KrigingCalcul.hpp"
   #include "Estimation/CalcKriging.hpp"
   #include "Estimation/CalcKrigingFactors.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
@@ -518,7 +340,7 @@
   #include "Simulation/SimuFFTParam.hpp"
   #include "Simulation/CalcSimuFFT.hpp"
   #include "Simulation/SimuRefineParam.hpp"
-  #include "Simulation/SimuRefine.hpp"
+  #include "Simulation/CalcSimuRefine.hpp"
   #include "Simulation/CalcSimuEden.hpp"
   
   #include "Fractures/FracEnviron.hpp"
@@ -530,6 +352,11 @@
   #include "Tree/Ball.hpp"
   #include "Tree/KNN.hpp"
     
+  #include "Spatial/Projection.hpp"
+  #include "Spatial/SpatialIndices.hpp"
+
+  #include "Core/Potential.hpp"
+      
   // Mask some warning generated by SWIG:
   //DISABLE_WARNING_DECLARATION_MASKED
   //DISABLE_WARNING_EXPR_COND_ASSIGNMENT
@@ -551,17 +378,24 @@
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
-%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
+%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
 
-%template(VectorECov)         std::vector< ECov >;
-%template(VectorEStatOption)  std::vector< EStatOption >;
-%template(VectorESelectivity) std::vector< ESelectivity >;
-%template(VectorDirParam)     std::vector< DirParam >;
-%template(VectorPolyElem)     std::vector< PolyElem >;
-%template(VectorInterval)     std::vector< Interval >; 
-%template(VectorEPostStat)    std::vector< EPostStat >;
+%template(VectorECov)              std::vector< ECov >;
+%template(VectorEStatOption)       std::vector< EStatOption >;
+%template(VectorESelectivity)      std::vector< ESelectivity >;
+%template(VectorDirParam)          std::vector< DirParam >;
+%template(VectorPolyElem)          std::vector< PolyElem >;
+%template(VectorInterval)          std::vector< Interval >; 
+%template(VectorEPostStat)         std::vector< EPostStat >;
+%template(VectorSpacePoint)        std::vector< SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
-
+%template(VectorProjMatrix)        std::vector< ProjMatrix* >;
+%template(VectorVectorEigen)       std::vector< VectorEigen >;
+%template(VectorConstProjMatrix)   std::vector< const ProjMatrix*>;
+%template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
+%template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
+%template(VVectorConstIProjMatrix) std::vector< std::vector< const IProjMatrix*> >;
+%template(VectorMeshes)            std::vector< const AMesh*>;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 

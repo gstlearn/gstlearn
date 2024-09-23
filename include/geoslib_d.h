@@ -74,22 +74,6 @@ typedef struct
   PropDef *propdef;
 } Modif_Categorical;
 
-class DbGrid;
-typedef struct
-{
-  int nalloc;
-  int npair;
-  int size_aux;
-  int flag_dist;
-  VectorInt tab_iech;
-  VectorInt tab_jech;
-  VectorInt tab_ipas;
-  VectorInt tab_sort;
-  char *tab_aux_iech;
-  char *tab_aux_jech;
-  VectorDouble tab_dist;
-} Vario_Order;
-
 typedef struct
 {
   double coor[3];

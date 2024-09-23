@@ -14,14 +14,9 @@
 
 #include "Enum/ELoadBy.hpp"
 
-#include "Db/PtrGeos.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Grid.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/CSVformat.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 
 class Polygons;
@@ -76,12 +71,13 @@ public:
 
   /// Db Interface
   inline bool isGrid() const override { return true; }
-  double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
+  double getCoordinate(int iech, int idim, bool flag_rotate = true) const override;
   void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const override;
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
   void resetDims(int ncol, int nech) override;
+  bool isConsistent() const override;
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);
@@ -145,20 +141,22 @@ public:
                                                  int nzout,
                                                  double z0out,
                                                  double dzout);
-  static DbGrid* createSubGrid(const DbGrid *gridin,
+  static DbGrid* createSubGrid(const DbGrid* gridin,
                                VectorVectorInt limits,
                                bool flagAddCoordinates = false);
+  static DbGrid* createMultiple(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
+  static DbGrid* createDivider(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
 
   int reset(const VectorInt& nx,
-            const VectorDouble& dx = VectorDouble(),
-            const VectorDouble& x0 = VectorDouble(),
-            const VectorDouble& angles = VectorDouble(),
-            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
-            const VectorDouble& tab = VectorDouble(),
-            const VectorString& names = VectorString(),
+            const VectorDouble& dx           = VectorDouble(),
+            const VectorDouble& x0           = VectorDouble(),
+            const VectorDouble& angles       = VectorDouble(),
+            const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
+            const VectorDouble& tab          = VectorDouble(),
+            const VectorString& names        = VectorString(),
             const VectorString& locatorNames = VectorString(),
-            bool flagAddSampleRank = true,
-            bool flagAddCoordinates = true);
+            bool flagAddSampleRank           = true,
+            bool flagAddCoordinates          = true);
   int resetCoveringDb(const Db* db,
                       const VectorInt& nx = VectorInt(),
                       const VectorDouble& dx = VectorDouble(),
@@ -171,8 +169,9 @@ public:
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
-  static bool migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank = true);
-
+  bool migrateAllVariables(Db *dbin, bool flag_fill = true,
+                           bool flag_inter = true, bool flag_ball = false,
+                           bool flagAddSampleRank = true);
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");
 
@@ -222,6 +221,10 @@ public:
                                       const VectorDouble& dxsPerCell = VectorDouble()) const
   {
     return _grid.getCoordinatesByIndice(indice, flag_rotate, shift, dxsPerCell);
+  }
+  VectorDouble getCoordinatesPerSample(int iech, bool flag_rotate = true) const
+  {
+    return _grid.getCoordinatesByRank(iech, flag_rotate);
   }
   int coordinateToRank(const VectorDouble &coor,
                        bool centered = false,
@@ -341,7 +344,7 @@ public:
                                  const NamingConvention &namconv = NamingConvention("Morpho", false, false, true,
                                      ELoc::fromKey("SEL")));
 
-  void getSampleAsST(int iech, SpaceTarget& P) const;
+  void getSampleAsSTInPlace(int iech, SpaceTarget& P) const override;
 
   VectorVectorDouble getDiscretizedBlock(const VectorInt &ndiscs,
                                          int iech = 0,
@@ -371,7 +374,7 @@ private:
                     double top,
                     double bot,
                     const VectorDouble &vecin,
-                    VectorDouble &vecout);
+                    VectorDouble &vecout) const;
 
 private:
   Grid _grid;                //!< Grid characteristics

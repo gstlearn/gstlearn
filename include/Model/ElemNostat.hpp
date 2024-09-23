@@ -14,7 +14,6 @@
 
 #include "Enum/EConsElem.hpp"
 
-#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT ElemNostat: public AStringable

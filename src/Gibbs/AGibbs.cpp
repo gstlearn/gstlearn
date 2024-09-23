@@ -16,9 +16,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
-#include "geoslib_enum.h"
 
 #include <math.h>
 
@@ -150,7 +148,7 @@ int AGibbs::_boundsCheck(int ipgs,
                          int ivar,
                          int iact,
                          double *vmin_arg,
-                         double *vmax_arg)
+                         double *vmax_arg) const
 {
   const Db* db = getDb();
   int icase = getRank(ipgs, ivar);
@@ -336,7 +334,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
   // In case of Statistics, process this information
   if (_optionStats == 0)
     return;
-  else if (_optionStats == 1)
+  if (_optionStats == 1)
     _stats.display();
   else if (_optionStats == 2)
     _stats.plot(isimu);
@@ -360,30 +358,27 @@ int AGibbs::_getSampleRankNumber() const
 {
   if (_ranks.empty())
     return _db->getSampleNumber();
-  else
-    return static_cast<int>(_ranks.size());
+  return static_cast<int>(_ranks.size());
 }
 
 int AGibbs::getSampleRank(int i) const
 {
   if (_ranks.empty())
     return i;
-  else
-    return _ranks[i];
+  return _ranks[i];
 }
 
 int AGibbs::getSampleNumber() const
 {
   if (_db == nullptr)
     return 0;
-  else
-    return _db->getSampleNumber();
+  return _db->getSampleNumber();
 }
 
 void AGibbs::_updateStats(const VectorVectorDouble& y,
-                         int ipgs,
-                         int jter,
-                         double amort)
+                          int ipgs,
+                          int jter,
+                          double amort)
 {
   if (_optionStats == 0) return;
   if (jter < _nburn) return;
@@ -456,8 +451,7 @@ int AGibbs::_getColRankStats(int ipgs, int ivar, int mode) const
   int rank = getRank(ipgs, ivar);
   if (mode == 0)
     return (2 * rank);
-  else
-    return (2 * rank + 1);
+  return (2 * rank + 1);
 }
 
 /**

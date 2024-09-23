@@ -17,9 +17,6 @@
 #include "Enum/ENeigh.hpp"
 
 #include "Neigh/ANeigh.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Space/SpaceTarget.hpp"
 
 class Db;

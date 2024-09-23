@@ -8,25 +8,18 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
-#include "geoslib_enum.h"
-
+#include "Core/Ascii.hpp"
+#include "Core/io.hpp"
+#include "Core/CSV.hpp"
 #include "Anamorphosis/AAnam.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Model/Model.hpp"
-
-#include <algorithm>
+#include "Basic/Memory.hpp"
 
 /*! \cond */
 #define OLD 0
@@ -231,7 +224,6 @@ static void st_filename_patch(const char *ref_name,
 //    }
 //  }
 //
-  return;
 }
 
 /****************************************************************************/
@@ -286,7 +278,6 @@ void ascii_study_define(const char *study)
 
 {
   (void) gslStrcpy(STUDY, study);
-  return;
 }
 
 /****************************************************************************/
@@ -345,10 +336,9 @@ static FILE* st_file_open(const char *filename,
       FILE_MEM = NULL;
       return (NULL);
     }
-    if (strcmp(idtype, filetype))
+    if (strcmp(idtype, filetype) != 0)
     {
-      messerr(
-          "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
+      messerr("Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
           filename, idtype, filetype);
       FILE_MEM = NULL;
       return (NULL);
@@ -399,8 +389,8 @@ void ascii_environ_read(char *file_name, int verbose)
       OptDbg::undefineByKey(s);
   }
 
-  label_end: st_file_close(file);
-  return;
+label_end:
+  st_file_close(file);
 }
 
 /****************************************************************************/
@@ -441,7 +431,6 @@ void ascii_simu_read(char *file_name,
   if (st_record_read("Random Seed", "%d", seed)) return;
 
   st_file_close(file);
-  return;
 }
 
 /****************************************************************************/
@@ -487,7 +476,7 @@ int ascii_option_defined(const char *file_name,
   {
     if (st_record_read("Option Keyword", "%s", keyword)) goto label_end;
     if (st_record_read("Option Key-value", "%s", keyval)) goto label_end;
-    if (strcmp(keyword, option_name)) continue;
+    if (strcmp(keyword, option_name) != 0) continue;
 
     /* The keyword matches the option name */
     switch (type)
@@ -564,7 +553,7 @@ Db* db_read_csv(const char *file_name,
   for (int i = 0; i < ncol; i++)
   {
     int j = (flagAddSampleRank) ? i + 1 : i;
-    if (db_name_set(db, j, names[i])) messerr("Error in db_name_set");
+    db->setNameByUID(j, names[i]);
   }
 
   /* Core deallocation */

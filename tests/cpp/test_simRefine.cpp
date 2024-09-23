@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ECov.hpp"
 #include "Enum/ESpaceType.hpp"
 
@@ -17,9 +15,9 @@
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/SimuRefineParam.hpp"
+#include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/
@@ -66,7 +64,7 @@ int main(int argc, char *argv[])
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Refinement Simulation ----->\n");
-  DbGrid* grid2 = simfine(grid, model, param, seed);
+  DbGrid* grid2 = simulation_refine(grid, model, param, seed);
   (void) grid2->dumpToNF("grid_large.ascii");
 
   delete grid;

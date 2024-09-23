@@ -11,6 +11,7 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Law.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ECov.hpp"
@@ -19,9 +20,8 @@
 #include "API/SPDE.hpp"
 #include "API/PGSSPDE.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 20;
-  Model* model1 = Model::createFromParam(ECov::BESSEL_K, range1, 1., 1.);
+  Model* model1 = Model::createFromParam(ECov::MATERN, range1, 1., 1.);
   model1->display();
 
   double range2 = 40;
-  Model* model2 = Model::createFromParam(ECov::BESSEL_K, range2, 1., 2.);
+  Model* model2 = Model::createFromParam(ECov::MATERN, range2, 1., 2.);
   model2->display();
 
   std::vector<Model*> models;
@@ -88,10 +88,12 @@ int main(int argc, char *argv[])
   dat->addColumns(z,"variable",ELoc::Z);
 
   PGSSPDE sNonCond(models,grid,ruleprop);
-  sNonCond.compute(grid, 133672, 0, NamingConvention("Facies-NC"));
+  law_set_random_seed(133672);
+  sNonCond.compute(grid, 0, NamingConvention("Facies-NC"));
 
   PGSSPDE sCond(models,grid,ruleprop,dat);
-  sCond.compute(grid, 133272, 0, NamingConvention("Facies-CD"));
+  law_set_random_seed(133272);
+  sCond.compute(grid, 0, NamingConvention("Facies-CD"));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Facies"});
   grid->display(&dbfmt);

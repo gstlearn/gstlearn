@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Geometry/BiTargetCheckDistance.hpp"
+
 #include "geoslib_old_f.h"
 
 #include "Basic/VectorHelper.hpp"
@@ -16,8 +17,8 @@
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckDistance::BiTargetCheckDistance(double radius,
-                                             const VectorDouble coeffs,
-                                             const VectorDouble angles)
+                                             const VectorDouble& coeffs,
+                                             const VectorDouble& angles)
   : ABiTargetCheck(),
     _ndim(2),
     _flagAniso(false),
@@ -42,7 +43,7 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
 
     if (! angles.empty())
     {
-      _flagRotation = (VH::isConstant(angles, 0.)) ? false : true;
+      _flagRotation = (! VH::isConstant(angles, 0.));
       GH::rotationMatrixInPlace(_ndim, angles, _anisoRotMat);
     }
     else
@@ -97,8 +98,8 @@ BiTargetCheckDistance::~BiTargetCheckDistance()
 }
 
 BiTargetCheckDistance* BiTargetCheckDistance::create(double radius,
-                                                   const VectorDouble coeffs,
-                                                   const VectorDouble angles)
+                                                     const VectorDouble& coeffs,
+                                                     const VectorDouble& angles)
 {
   return new BiTargetCheckDistance(radius, coeffs, angles);
 }

@@ -8,14 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Skin/Skin.hpp"
-#include "Skin/ISkinFunctions.hpp"
 #include "Basic/Law.hpp"
-#include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 
 #define DIR_UP         4
@@ -319,7 +315,6 @@ void CalcSimuEden::_printParams(bool verbose)
                 _getWT(ifacies + 1, ifluid + 1, 1, idir));
       message("\n");
     }
-  return;
 }
 
 /*****************************************************************************/
@@ -590,7 +585,6 @@ void CalcSimuEden::_checkInconsistency(bool verbose)
   if (n_shale_fluid > 0)
     message("Number of cells with inconsistent facies and fluid = %d\n",
             n_shale_fluid);
-  return;
 }
 
 /****************************************************************************/
@@ -633,7 +627,6 @@ void CalcSimuEden::_setFACIES_CORK(int iech)
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   int ifacies = (int) dbgrid->getArray(iech, _indFacies);
   dbgrid->setArray(iech, _indFacies, -ifacies);
-  return;
 }
 
 /****************************************************************************/
@@ -649,7 +642,6 @@ void CalcSimuEden::_setDATE(int iech, int idate)
   double value = (IFFFF(idate)) ? TEST : idate;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   dbgrid->setArray(iech, _iptrDate, value);
-  return;
 }
 
 /*****************************************************************************/
@@ -805,8 +797,6 @@ void CalcSimuEden::_statsPrint(const char *title)
   }
 
   if (_ncork > 0) message("  . Cork                = %d\n", _ncork);
-
-  return;
 }
 
 /****************************************************************************/
@@ -841,8 +831,6 @@ void CalcSimuEden::_statsEmpty(const char *title)
       message("  . Facies %d not filled = %d\n", ifacies + 1, number);
   }
   if (total > 0) message("                  Total = %d\n", total);
-
-  return;
 }
 
 /****************************************************************************/
@@ -870,7 +858,6 @@ void CalcSimuEden::_calculateCumul(void)
     int ifacies = (int) dbgrid->getArray(iech, _indFacies);
     if (ifacies < 0) dbgrid->updArray(iech, _iptrStatCork, EOperator::ADD, 1);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -920,7 +907,6 @@ void CalcSimuEden::_updateResults(int reset_facies, int show_fluid)
       if (ifluid == CORK_FLUID) _setFLUID(iech, UNDEF_FLUID);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -949,8 +935,6 @@ void CalcSimuEden::_normalizeCumul(int niter)
 
     dbgrid->updArray(iech, _iptrStatCork, EOperator::DIVIDE, (double) niter);
   }
-
-  return;
 }
 
 int CalcSimuEden::_countAlreadyFilled() const
@@ -1003,6 +987,7 @@ bool CalcSimuEden::_check()
 
 bool CalcSimuEden::_preprocess()
 {
+  if (!ACalcSimulation::_preprocess()) return false;
 
   /* Add the attributes for storing the results */
 
@@ -1019,9 +1004,7 @@ bool CalcSimuEden::_preprocess()
   _iptrFluid = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
   if (_iptrFluid < 0) return false;
   _iptrDate = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, TEST);
-  if (_iptrDate < 0) return false;
-
-  return true;
+  return (_iptrDate >= 0);
 }
 
 bool CalcSimuEden::_run()

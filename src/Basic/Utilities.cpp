@@ -8,13 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Enum/EDbg.hpp"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Memory.hpp"
 
 #include <cmath>
 #include <map>
@@ -28,8 +27,7 @@ static bool _internalDebug = false;
 bool isInteger(double value, double eps)
 {
   int iclose = getClosestInteger(value);
-  if (ABS((double) iclose - value) > eps) return false;
-  return true;
+  return (ABS((double) iclose - value) <= eps);
 }
 
 int getClosestInteger(double value)
@@ -51,10 +49,7 @@ bool isOdd(int number)
   int middle;
 
   middle = number / 2;
-  if (number != 2 * middle)
-    return true;
-  else
-    return false;
+  return (number != 2 * middle);
 }
 
 bool isEven(int number)
@@ -62,10 +57,7 @@ bool isEven(int number)
   int middle;
 
   middle = number / 2;
-  if (number != 2 * middle)
-    return false;
-  else
-    return true;
+  return (number == 2 * middle);
 }
 
 bool isZero(double value, double eps)
@@ -113,39 +105,31 @@ int getITEST()
 /*!
  **  Checks if a double value is TEST
  **
- ** \return  1 if a TEST value is encountered; 0 otherwise
+ ** \return  true if a TEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int FFFF(double value)
+bool FFFF(double value)
 {
-  int rep;
-
-  rep = 0;
-  if (std::isnan(value)) rep = 1; // TODO : what about std::isinf ?
-  if (value > TEST_COMP) rep = 1;
-
-  return (rep);
+  if (value > TEST_COMP) return true;
+  if (std::isnan(value)) return true;
+  if (std::isinf(value)) return true;
+  return false;
 }
 
 /****************************************************************************/
 /*!
  **  Checks if an integer value is TEST
  **
- ** \return  1 if a ITEST value is encountered; 0 otherwise
+ ** \return  true if a ITEST value is encountered; 0 otherwise
  **
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int IFFFF(int value)
+bool IFFFF(int value)
 {
-  int rep;
-
-  rep = 0;
-  if (value == ITEST) rep = 1;
-
-  return (rep);
+  return (value == ITEST);
 }
 
 #endif //SWIG
@@ -419,7 +403,6 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
   }
 
   if (safe) mem_free((char* ) tab);
-  return;
 }
 
 /****************************************************************************/
@@ -559,7 +542,6 @@ void ut_facies_statistics(int nech,
     *maxi = facmax;
     *nval = number;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -580,7 +562,7 @@ void ut_facies_statistics(int nech,
  **
  *****************************************************************************/
 void ut_classify(int nech,
-                 double *tab,
+                 const double *tab,
                  double *sel,
                  int nclass,
                  double start,
@@ -623,7 +605,6 @@ void ut_classify(int nech,
     }
     classe[rank]++;
   }
-  return;
 }
 
 /*****************************************************************************/
@@ -986,8 +967,7 @@ int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs)
   if (map.empty()) return iabs;
   if (map.find(iabs) == map.end())
     return -1;
-  else
-    return map.find(iabs)->second;
+  return map.find(iabs)->second;
 }
 
 int getRankMapRelativeToAbsolute(const std::map<int, int>& map, int irel)
@@ -1070,58 +1050,54 @@ double operate_InverseSqrt(double x)
  */
 double modifyOperator(const EOperator& oper, double oldval, double value)
 {
-  if (oper == EOperator::IDLE)
-  {
-    return (value);
-  }
-  else if (oper == EOperator::ADD)
+  if (oper == EOperator::ADD)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (value + oldval);
   }
-  else if (oper == EOperator::PRODUCT)
+  if (oper == EOperator::PRODUCT)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (value * oldval);
   }
-  else if (oper == EOperator::SUBTRACT)
+  if (oper == EOperator::SUBTRACT)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (value - oldval);
   }
-  else if (oper == EOperator::SUBOPP)
+  if (oper == EOperator::SUBOPP)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return (oldval - value);
   }
-  else if (oper == EOperator::DIVIDE)
+  if (oper == EOperator::DIVIDE)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return ((isZero(value)) ? TEST : oldval / value);
   }
-  else if (oper == EOperator::DIVOPP)
+  if (oper == EOperator::DIVOPP)
   {
     if (FFFF(value) || FFFF(oldval)) return (TEST);
     return ((isZero(oldval)) ? TEST : value / oldval);
   }
-  else if (oper == EOperator::DEFINE)
+  if (oper == EOperator::DEFINE)
   {
     if (FFFF(oldval)) return (TEST);
     return (value);
   }
-  else if (oper == EOperator::MIN)
+  if (oper == EOperator::MIN)
   {
     if (FFFF(value)) return (oldval);
     if (FFFF(oldval)) return (value);
     return MIN(oldval, value);
   }
-  else if (oper == EOperator::MAX)
+  if (oper == EOperator::MAX)
   {
     if (FFFF(value)) return (oldval);
     if (FFFF(oldval)) return (value);
     return MAX(oldval, value);
   }
-  return TEST;
+  return value;
 }
 
 /**
@@ -1136,8 +1112,7 @@ double roundZero(double value, double eps)
 {
   if (ABS(value) > eps)
     return value;
-  else
-    return eps;
+  return eps;
 }
 
 /**
@@ -1181,4 +1156,42 @@ void setInternalDebug(bool status)
 bool isInternalDebug()
 {
   return _internalDebug;
+}
+
+/****************************************************************************/
+/*!
+ **  Print the range of values in an array
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ntab     number of values
+ ** \param[in]  tab      array of values
+ ** \param[in]  sel      (optional) selection
+ **
+ *****************************************************************************/
+void print_range(const char* title,
+                 int ntab,
+                 const double* tab,
+                 const double* sel)
+{
+  if (tab == nullptr || ntab <= 0) return;
+  StatResults stats = ut_statistics(ntab, tab, sel);
+
+  /* Encode the title (if defined) */
+
+  if (title != NULL)
+    message("%s : ", title);
+  else
+    message("Range : ");
+  message("  ");
+
+  if (FFFF(stats.mini))
+    message(STRING_NA);
+  else
+    message("%lf", stats.mini);
+  message(" ; ");
+  if (FFFF(stats.maxi))
+    message(STRING_NA);
+  else
+    message("%lf", stats.maxi);
+  message(" (%d/%d)\n", stats.nvalid, ntab);
 }

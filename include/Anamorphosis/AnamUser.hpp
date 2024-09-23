@@ -14,7 +14,6 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Basic/ASerializable.hpp"
 
 class GSTLEARN_EXPORT AnamUser: public AnamContinuous
 {

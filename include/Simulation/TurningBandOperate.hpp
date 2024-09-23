@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "ACalcSimulation.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class Db;
@@ -55,7 +54,7 @@ public:
   void setOffset(double offset) { _offset = offset; }
   void setScale(double scale) { _scale = scale; }
 
-  int getTsize() const { return _t.size(); }
+  int getTsize() const { return (int) _t.size(); }
   void pushT(double value);
   void pushV0(double value);
   void pushV1(double value);
@@ -66,11 +65,11 @@ public:
   double shotNoiseCubicOne(double t0);
   double spectralOne(double t0);
   double IRFProcessOne(double t0);
-  double cosineOne(double t0);
+  double cosineOne(double t0) const;
 
 private:
   double _irfProcessSample(int nt0, double t0);
-  int _rankInPoisson(int def_rank, double t0, const VectorDouble &t);
+  static int _rankInPoisson(int def_rank, double t0, const VectorDouble &t);
 
 private:
   int _nt0;

@@ -305,8 +305,11 @@ int Limits::toIndicatorByAttribute(Db *db,
  * @param flagAbove  When TRUE, add a class for samples above highest bound
  * @return
  */
-VectorDouble Limits::statistics(Db* db, const String& name,
-                                int optionStat, bool flagBelow, bool flagAbove)
+VectorDouble Limits::statistics(Db* db,
+                                const String& name,
+                                int optionStat,
+                                bool flagBelow,
+                                bool flagAbove) const
 {
   int iatt = db->getUID(name);
   if (iatt < 0) return 1;
@@ -341,7 +344,7 @@ int Limits::_computeCategory(Db *db,
                              const VectorDouble &maxi,
                              const VectorBool &incmini,
                              const VectorBool &incmaxi,
-                             const NamingConvention &namconv) const
+                             const NamingConvention &namconv)
 {
   // Determination of the number of classes
 
@@ -427,7 +430,7 @@ int Limits::_computeIndicator(Db *db,
                               const VectorBool &incmaxi,
                               bool flagBelow,
                               bool flagAbove,
-                              const NamingConvention &namconv) const
+                              const NamingConvention &namconv)
 {
   // Determination of the number of classes
 
@@ -794,7 +797,7 @@ int Limits::_check_bound_consistency(const VectorDouble &mini,
                                      const VectorDouble &maxi,
                                      const VectorBool &incmini,
                                      const VectorBool &incmaxi,
-                                     int *nclass_arg) const
+                                     int *nclass_arg)
 {
   int nclass = 0;
   if (!mini.empty())

@@ -1,13 +1,4 @@
 Matrix used to demonstrate Cholesky Algebra
-Product Mat * V is validated
 Product Mat^{-1} * V is validated
-The calculation of 'stdev' is not yet performed with Eigen Library
-Standard Deviation (by Matrix)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]   354.210     0.296     2.143     0.168     0.756     1.261   410.072
-     [  7,]     1.146     0.658  2785.184
-Standard Deviation (by Cholesky)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]  -124.017     0.104     0.581     0.144     0.806     0.278    -9.080
-     [  7,]    -1.185     0.493  4639.449
+Standard Deviation is validated
 Log(Det) is validated

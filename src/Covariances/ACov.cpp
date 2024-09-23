@@ -15,8 +15,6 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/ANoStat.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -31,7 +29,7 @@ ACov::ACov(const ASpace *space)
     : ASpaceObject(space),
       _isOptimEnabled(true),
       _p1As(),
-      _p2A()
+      _p2A(space)
 {
 }
 
@@ -764,11 +762,7 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
   VectorInt ivars;
   if (ivar0 >= 0)
   {
-    if (ivar0 >= nvar)
-    {
-      mesArg("Argument 'ivar0'", ivar0, nvar);
-      return VectorInt();
-    }
+    if (!checkArg("Argument 'ivar0'", ivar0, nvar)) return VectorInt();
     ivars.push_back(ivar0);
   }
   else
@@ -804,8 +798,8 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrix(Db* db1,
-                                      Db* db2,
+MatrixRectangular ACov::evalCovMatrix(const Db* db1,
+                                      const Db* db2,
                                       int ivar0,
                                       int jvar0,
                                       const VectorInt& nbgh1,
@@ -823,13 +817,8 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
   if (jvars.empty()) return mat;
 
   // Play the non-stationarity (if needed)
-
-  ANoStat *nostat = getNoStatModify();
-  if (isNoStat())
-  {
-    if (nostat->manageInfo(1, db1, db2)) return MatrixRectangular();
-  }
-
+  manage(db1,db2);
+  
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
   VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
@@ -859,7 +848,7 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      db1->getSampleAsSPInPlace(iech1, p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -872,10 +861,10 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
+          db2->getSampleAsSPInPlace(iech2, p2);
 
           // Modify the covariance (if non stationary)
-          if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+          updateCovByPoints(1, iech1, 2, iech2);
 
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, jvar2, mode);
@@ -887,19 +876,13 @@ MatrixRectangular ACov::evalCovMatrix(Db* db1,
     }
   }
 
-  // Free the non-stationary specific allocation
-
-  if (isNoStat())
-  {
-    if (nostat->manageInfo(-1, db1, db2)) return MatrixRectangular();
-  }
   return mat;
 }
 
 void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
                                          AMatrix *mat,
                                          const VectorInt &ivars,
-                                         const VectorVectorInt &index1) const
+                                         const VectorVectorInt &index1)
 {
   // Check if the correction can take place at all
   if (! db1->hasLocVariable(ELoc::V)) return;
@@ -952,11 +935,8 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
  ** \remarks each term is the product of the number of active samples
  ** \remarks by the number of samples where the variable is defined
  **
- ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
- ** \note due to the presence of 'nostat'
- **
  *****************************************************************************/
-MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
+MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
                                                    int ivar0,
                                                    const VectorInt &nbgh1,
                                                    const CovCalcMode *mode)
@@ -969,12 +949,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   if (ivars.empty()) return mat;
 
   // Play the non-stationarity (if needed)
-
-  ANoStat *nostat = getNoStatModify();
-  if (isNoStat())
-  {
-    if (nostat->manageInfo(1, db1, db1)) return MatrixSquareSymmetric();
-  }
+  manage(db1,nullptr);
+  
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true);
@@ -1003,7 +979,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
       int iech1 = index1[rvar1][rech1];
-      db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      db1->getSampleAsSPInPlace(iech1, p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -1019,10 +995,10 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
           if (icol >= irow)
           {
             int iech2 = index1[rvar2][rech2];
-            db1->getSampleCoordinatesAsSPInPlace(iech2, p2);
+            db1->getSampleAsSPInPlace(iech2, p2);
 
             // Modify the covariance (if non stationary)
-            if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+            updateCovByPoints(1, iech1, 1, iech2);
 
             /* Loop on the dimension of the space */
             double value = eval(p1, p2, ivar1, ivar2, mode);
@@ -1038,12 +1014,6 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
   // Update the matrix due to presence of Variance of Measurement Error
   _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
 
-  // Free the non-stationary specific allocation
-
-  if (isNoStat())
-  {
-    if (nostat->manageInfo(-1, db1, db1)) return MatrixRectangular();
-  }
   return mat;
 }
 
@@ -1070,8 +1040,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(Db *db1,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
-                                        Db *db2,
+MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
+                                        const Db *db2,
                                         int ivar0,
                                         int jvar0,
                                         const VectorInt &nbgh1,
@@ -1090,11 +1060,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   // Play the non-stationarity (if needed)
 
-  ANoStat *nostat = getNoStatModify();
-  if (isNoStat())
-  {
-    if (nostat->manageInfo(1, db1, db2)) return mat;
-  }
+  manage(db1, db2);
+  
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, flagSameDb);
@@ -1124,7 +1091,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
 
   // Loop on the first variable
   int irow = 0;
-  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int ivar = 0; ivar < nvar1; ivar++)
   {
     int ivar1 = ivars[ivar];
 
@@ -1133,11 +1100,11 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      db1->getSampleCoordinatesAsSPInPlace(iech1, p1);
+      db1->getSampleAsSPInPlace(iech1, p1);
 
       // Loop on the second variable
       int icol = 0;
-      for (int jvar = 0, nvar2 = (int) jvars.size(); jvar < nvar2; jvar++)
+      for (int jvar = 0; jvar < nvar2; jvar++)
       {
         int jvar2 = jvars[jvar];
 
@@ -1146,10 +1113,10 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
+          db2->getSampleAsSPInPlace(iech2, p2);
 
           // Modify the covariance (if non stationary)
-          if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+          updateCovByPoints(1, iech1, 2, iech2);
 
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, jvar2, mode);
@@ -1170,9 +1137,9 @@ MatrixSparse* ACov::evalCovMatrixSparse(Db *db1,
   // Update the matrix due to presence of Variance of Measurement Error
   if (flagSameDb)
     _updateCovMatrixSymmetricVerr(db1, mat, ivars, index1);
-
   return mat;
 }
+
 
 /**
  * Variance of Extension of a set of points and the block

@@ -20,6 +20,7 @@ set(SRC
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
+  Matrix/VectorEigen.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -41,8 +42,6 @@ set(SRC
   LithoRule/Node.cpp
   Model/ConsItem.cpp
   Model/CovParamId.cpp
-  Model/NoStatArray.cpp
-  Model/ANoStat.cpp
   Model/Constraints.cpp
   Model/ElemNoStat.cpp
   Model/CovInternal.cpp
@@ -50,7 +49,6 @@ set(SRC
   Model/ModelNostat.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
-  Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp
   Calculators/CalcMigrate.cpp
@@ -61,13 +59,19 @@ set(SRC
   Calculators/CalcSimuPost.cpp
   Calculators/CalcSimuPostDemo.cpp
   Calculators/CalcSimuPostPropByLayer.cpp
+  Covariances/TabNoStatCovAniso.cpp
+  Covariances/TabNoStat.cpp
+  Covariances/ParamId.cpp
+  Covariances/ANoStat.cpp
+  Covariances/NoStatArray.cpp
+  Covariances/NoStatFunctional.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
   Covariances/CovWendland1.cpp
   Covariances/CovWendland2.cpp
   Covariances/CovGradientFunctional.cpp
-  Covariances/CovBesselK.cpp
+  Covariances/CovMatern.cpp
   Covariances/CovLMGradient.cpp
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp
@@ -114,7 +118,6 @@ set(SRC
   Core/surface.cpp
   Core/math.cpp
   Core/stats.cpp
-  Core/spatial.cpp
   Core/io.cpp
   Core/db.cpp
   Core/variopgs.cpp
@@ -128,7 +131,6 @@ set(SRC
   Core/potential.cpp
   Core/foxleg.cpp
   Core/util.cpp
-  Core/anam.cpp
   Core/ascii.cpp
   Core/pile.cpp
   Core/mlayers.cpp
@@ -154,6 +156,10 @@ set(SRC
   Anamorphosis/PPMT.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
+  Db/DbLine.cpp
+  Db/DbGraphO.cpp
+  Db/DbMeshTurbo.cpp
+  Db/DbMeshStandard.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   Db/DbHelper.cpp
@@ -162,25 +168,35 @@ set(SRC
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
   LinearOp/ProjMatrix.cpp
+  LinearOp/ProjMulti.cpp
+  LinearOp/ProjMultiMatrix.cpp
   LinearOp/PrecisionOpCs.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
-  LinearOp/Identity.cpp
-  LinearOp/ProdMatVect.cpp
+  LinearOp/ScaleOp.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
+  LinearOp/IProjMatrix.cpp
+  LinearOp/PrecisionOpMulti.cpp
+  LinearOp/PrecisionOpMultiMatrix.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/Cholesky.cpp
+  LinearOp/SPDEOp.cpp
+  LinearOp/SPDEOpMatrix.cpp
+  LinearOp/ASimulable.cpp
+  LinearOp/MatrixSquareSymmetricSim.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
+  Spatial/Projection.cpp
+  Spatial/SpatialIndices.cpp
   Variogram/AVario.cpp
   Variogram/VMap.cpp
   Variogram/VCloud.cpp
@@ -219,8 +235,6 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/PolyLine2D.cpp
-  Basic/VectorNumT.cpp
-  Basic/VectorT.cpp
   Geometry/GeometryHelper.cpp
   Geometry/ABiTargetCheck.cpp
   Geometry/BiTargetCheckDistance.cpp
@@ -274,6 +288,7 @@ set(SRC
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
   Estimation/KrigingSystem.cpp
+  Estimation/KrigingCalcul.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp
@@ -309,13 +324,12 @@ set(SRC
   Simulation/SimuFFTParam.cpp
   Simulation/CalcSimuFFT.cpp
   Simulation/SimuRefineParam.cpp
-  Simulation/SimuRefine.cpp
+  Simulation/CalcSimuRefine.cpp
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
   Tree/Ball.cpp
   Tree/KNN.cpp
   Tree/ball_algorithm.cpp
-  Tree/metrics.cpp
   Tree/neighbors_heap.cpp
 )

@@ -17,8 +17,6 @@
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/Selectivity.hpp"
 
@@ -59,7 +57,7 @@ public:
   VectorDouble factors_mod();
   MatrixSquareGeneral chi2I(const VectorDouble& chi, int mode);
 
-  AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
+  static AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
   void reset(int ncut,
              double scoef,
              double mu,
@@ -77,8 +75,8 @@ public:
 
   void setMu(double mu) { _mu = mu; }
   void setRCoef(double rcoef) { _sCoef = rcoef; }
-  void setPcaZ2F(MatrixSquareGeneral pcaz2f) { _maf.setZ2Fs(pcaz2f); }
-  void setPcaF2Z(MatrixSquareGeneral pcaf2z) { _maf.setF2Zs(pcaf2z); }
+  void setPcaZ2F(const MatrixSquareGeneral& pcaz2f) { _maf.setZ2Fs(pcaz2f); }
+  void setPcaF2Z(const MatrixSquareGeneral& pcaf2z) { _maf.setF2Zs(pcaf2z); }
   void setI2Chi(const MatrixSquareGeneral& i2Chi) { _i2Chi = i2Chi; }
 
   int factor2Selectivity(Db *db,

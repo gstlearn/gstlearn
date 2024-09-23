@@ -21,11 +21,11 @@ KNN::KNN()
 {
 }
 
-KNN::KNN(const KNN &m)
-  : _distances(nullptr),
-    _indices(nullptr),
-    _n_samples(m._n_samples),
-    _n_neighbors(m._n_neighbors)
+KNN::KNN(const KNN& m)
+  : _distances(nullptr)
+  , _indices(nullptr)
+  , _n_samples(m._n_samples)
+  , _n_neighbors(m._n_neighbors)
 {
   _distances = copy_double_arr((const double**) m._distances, m._n_samples, m._n_neighbors);
   _indices = copy_int_arr((const int**) m._indices, m._n_samples, m._n_neighbors);
@@ -94,8 +94,15 @@ int KNN::getIndex(int rank, int ineigh) const
   return _indices[rank][ineigh];
 }
 
-VectorDouble KNN::getDistance(int rank) const
+VectorDouble KNN::getDistances(int rank) const
 {
   if (rank < 0 || rank >= _n_samples) return VectorDouble();
   return VectorHelper::initVDouble(_distances[rank], _n_neighbors);
+}
+
+double KNN::getDistance(int rank, int ineigh) const
+{
+  if (rank < 0 || rank >= _n_samples) return ITEST;
+  if (ineigh < 0 || ineigh >= _n_neighbors) return ITEST;
+  return _distances[rank][ineigh];
 }

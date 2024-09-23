@@ -1,0 +1,172 @@
+-----------------------------------------------
+|      Case: nvar = 1 multistruct = False      |
+-----------------------------------------------
+No stationarity case: Stat
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Fake
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Real
+---------------------------
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+-------------------------------------------------------
+Comparisons between fake non stationary and Stationary:
+-------------------------------------------------------
+ evalDirect in the matrix-free case. Error = 0.0
+ evalDirect in the matrix case. Error = 0.0
+ Simulation in the matrix-free case. Error = 0.0
+ Simulation in the matrix case. Error = 0.0
+-----------------------------------------------
+|      Case: nvar = 1 multistruct = True      |
+-----------------------------------------------
+No stationarity case: Stat
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Fake
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Real
+---------------------------
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+-------------------------------------------------------
+Comparisons between fake non stationary and Stationary:
+-------------------------------------------------------
+ evalDirect in the matrix-free case. Error = 0.0
+ evalDirect in the matrix case. Error = 0.0
+ Simulation in the matrix-free case. Error = 0.0
+ Simulation in the matrix case. Error = 0.0
+-----------------------------------------------
+|      Case: nvar = 2 multistruct = False      |
+-----------------------------------------------
+No stationarity case: Stat
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Fake
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Real
+---------------------------
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+-------------------------------------------------------
+Comparisons between fake non stationary and Stationary:
+-------------------------------------------------------
+ evalDirect in the matrix-free case. Error = 0.0
+ evalDirect in the matrix case. Error = 0.0
+ Simulation in the matrix-free case. Error = 0.0
+ Simulation in the matrix case. Error = 0.0
+-----------------------------------------------
+|      Case: nvar = 2 multistruct = True      |
+-----------------------------------------------
+No stationarity case: Stat
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Fake
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Real
+---------------------------
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+-------------------------------------------------------
+Comparisons between fake non stationary and Stationary:
+-------------------------------------------------------
+ evalDirect in the matrix-free case. Error = 0.0
+ evalDirect in the matrix case. Error = 0.0
+ Simulation in the matrix-free case. Error = 0.0
+ Simulation in the matrix case. Error = 0.0
+-----------------------------------------------
+|      Case: nvar = 3 multistruct = False      |
+-----------------------------------------------
+No stationarity case: Stat
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Fake
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+-------------------------------------------------------
+Comparisons between fake non stationary and Stationary:
+-------------------------------------------------------
+ evalDirect in the matrix-free case. Error = 0.0
+ evalDirect in the matrix case. Error = 0.0
+ Simulation in the matrix-free case. Error = 0.0
+ Simulation in the matrix case. Error = 0.0
+-----------------------------------------------
+|      Case: nvar = 3 multistruct = True      |
+-----------------------------------------------
+No stationarity case: Stat
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+No stationarity case: Fake
+---------------------------
+ Compare evalDirect with ref in the matrix-free case. Error = 0.0
+ Compare evalDirect with ref in the matrix case. Error = 0.0
+ Compare simulation with ref in the matrix-free case. Error = 0.0
+ Compare simulation with ref in the matrix case. Error = 0.0
+ Compare evalDirect between the matrix case and the matrix-free case. Error = 0.0
+---------------------------
+-------------------------------------------------------
+Comparisons between fake non stationary and Stationary:
+-------------------------------------------------------
+ evalDirect in the matrix-free case. Error = 0.0
+ evalDirect in the matrix case. Error = 0.0
+ Simulation in the matrix-free case. Error = 0.0
+ Simulation in the matrix case. Error = 0.0

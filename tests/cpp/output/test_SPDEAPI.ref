@@ -9,16 +9,17 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      1.000
 - Ranges       =     10.000    30.000
 - Theo. Ranges =      2.887     8.660
-Total Sill     =      1.000
 
 Non-Stationary Parameters
 -------------------------
-Angle      : GRF=1 Str=1 V#1=1
+1 - Angle      : IdAngle=1
 Functional
+
+Total Sill     =      1.000
 Known Mean(s)     0.000
 
 Data Base Characteristics
@@ -110,7 +111,7 @@ Data Base Statistics
 9 - Name CDS-spirale.variable.2 - Locator z2
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -3.77
+ Minimum value       =      -3.76
  Maximum value       =       4.75
  Mean value          =       0.14
  Standard Deviation  =       1.11
@@ -118,8 +119,8 @@ Data Base Statistics
 10 - Name CDS-spirale.variable.3 - Locator z3
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -3.88
- Maximum value       =       4.38
+ Minimum value       =      -3.89
+ Maximum value       =       4.37
  Mean value          =       0.08
  Standard Deviation  =       1.21
  Variance            =       1.46

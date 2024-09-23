@@ -17,9 +17,6 @@
 #include "Enum/ENeigh.hpp"
 
 #include "Neigh/ANeigh.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Space/SpaceTarget.hpp"
 
 class Db;
@@ -78,7 +75,6 @@ private:
   int _nMini;
   BiTargetCheckCell* _biPtCell;
 
-  mutable const DbGrid* _dbgrid;
   mutable SpaceTarget _T1;
   mutable SpaceTarget _T2;
 };

@@ -18,14 +18,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Stats/PCA.hpp"
-#include "Stats/PCAStringFormat.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-
-#include <stdlib.h>
 
 /****************************************************************************/
 /*!
@@ -54,7 +48,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 0.2;
-  Model* models = Model::createFromParam(ECov::BESSEL_K, range1, 1., 1.);
+  Model* models = Model::createFromParam(ECov::MATERN, range1, 1., 1.);
   models->display();
 
   // Perform a non-conditional simulation on the Db and on the Grid

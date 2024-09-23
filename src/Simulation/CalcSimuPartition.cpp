@@ -8,10 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Calculators/CalcMigrate.hpp"
-#include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Simulation/ACalcSimulation.hpp"
@@ -270,9 +267,10 @@ bool CalcSimuPartition::_check()
 
 bool CalcSimuPartition::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-    if (_iattOut < 0) return false;
-    return true;
+  if (!ACalcSimulation::_preprocess()) return false;
+
+  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
+  return (_iattOut >= 0);
 }
 
 bool CalcSimuPartition::_run()
@@ -283,8 +281,7 @@ bool CalcSimuPartition::_run()
 
   if (_mode == 1)
     return (_voronoi());
-  else
-    return (_poisson());
+  return (_poisson());
 }
 
 bool CalcSimuPartition::_postprocess()

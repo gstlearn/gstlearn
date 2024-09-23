@@ -28,20 +28,13 @@ public:
   AVario& operator=(const AVario& r);
   virtual ~AVario();
 
-  static const ECalcVario getCalculType(const String& calcul_name);
-
-  void evaluate(Db *db,
-                int nvar,
-                int iech1,
-                int iech2,
-                int ipas,
-                double dist,
-                int do_asym = 0);
+  static ECalcVario getCalculType(const String& calcul_name);
   const ECalcVario& getCalcul() const { return _calcul; }
-  void setCalcul(const ECalcVario &calcul) { _calcul = calcul; }
+  void setCalcul(const ECalcVario& calcul);
+  void setCalculByName(const String& calcul_name);
 
 protected:
-  virtual double _getIVAR(const Db *db, int iech, int ivar) const = 0;
+  virtual double _getIVAR(const Db* db, int iech, int ivar) const = 0;
   virtual void _setResult(int iech1,
                           int iech2,
                           int nvar,
@@ -55,6 +48,64 @@ protected:
 
   String _elemString(const AStringFormat* strfmt) const;
 
-protected:
+  void _evaluateVariogram(Db* db,
+                          int nvar,
+                          int iech1,
+                          int iech2,
+                          int ipas,
+                          double dist,
+                          bool do_asym);
+  void _evaluateMadogram(Db* db,
+                         int nvar,
+                         int iech1,
+                         int iech2,
+                         int ipas,
+                         double dist,
+                         bool do_asym);
+  void _evaluateRodogram(Db* db,
+                         int nvar,
+                         int iech1,
+                         int iech2,
+                         int ipas,
+                         double dist,
+                         bool do_asym);
+  void _evaluatePoisson(Db* db,
+                        int nvar,
+                        int iech1,
+                        int iech2,
+                        int ipas,
+                        double dist,
+                        bool do_asym);
+  void _evaluateCovariance(Db* db,
+                           int nvar,
+                           int iech1,
+                           int iech2,
+                           int ipas,
+                           double dist,
+                           bool do_asym);
+  void _evaluateCovariogram(Db* db,
+                            int nvar,
+                            int iech1,
+                            int iech2,
+                            int ipas,
+                            double dist,
+                            bool do_asym);
+  void _evaluateOrder4(Db* db,
+                       int nvar,
+                       int iech1,
+                       int iech2,
+                       int ipas,
+                       double dist,
+                       bool do_asym);
+
+  void (AVario::*_evaluate)(Db* db,
+                    int nvar,
+                    int iech1,
+                    int iech2,
+                    int ipas,
+                    double dist,
+                    bool do_asym);
+
+private:
   ECalcVario _calcul;
 };

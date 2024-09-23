@@ -8,14 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
+#include "geoslib_d.h"
 
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Core/fftn.hpp"
+#include "Basic/Memory.hpp"
 
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>
@@ -97,7 +98,7 @@ static VectorDouble _corputVector(int n, int b)
 **    Hart, J.F. et al, 'Computer Approximations', Wiley 1968
 **
 *****************************************************************************/
-static double st_mvnphi(double *z)
+static double st_mvnphi(const double *z)
 
 {
   /* System generated locals */
@@ -151,11 +152,7 @@ static double st_mvnphi(double *z)
 **  Multivariate Normal Probability (local function)
 **
 *****************************************************************************/
-static void st_mvnlms(double *a,
-                      double *b,
-                      int    *infin,
-                      double *lower,
-                      double *upper)
+static void st_mvnlms(double* a, double* b, const int* infin, double* lower, double* upper)
 {
   *lower = 0.;
   *upper = 1.;
@@ -189,12 +186,12 @@ static void st_dkswap(double *x,
 ** Swaps rows and columns P and Q in situ, with P <= Q
 **
 *****************************************************************************/
-static void st_rcswp(int *p,
-                     int *q,
+static void st_rcswp(const int *p,
+                     const int *q,
                      double *a,
                      double *b,
                      int *infin,
-                     int *n,
+                     const int *n,
                      double *c)
 {
   /* System generated locals */
@@ -428,8 +425,11 @@ static void st_covsrt(int *n,
         /* If the covariance matrix diagonal entry is zero, */
         /* permute limits and/or rows, if necessary. */
 
-        for (j = i - 1; j >= 1; --j) {
-          if ((d__1 = cov[ii + j], ABS(d__1)) > 1e-10) {
+        for (j = i - 1; j >= 1; --j)
+        {
+          d__1 = cov[ii + j];
+          if (ABS(d__1) > 1e-10)
+          {
             a[i] /= cov[ii + j];
             b[i] /= cov[ii + j];
             if (cov[ii + j] < 0.) {
@@ -484,7 +484,7 @@ static void st_covsrt(int *n,
 ** transcription.
 **
 *****************************************************************************/
-static double st_phinvs(double *p)
+static double st_phinvs(const double *p)
 
 {
   double ret_val, d__1, d__2;
@@ -570,9 +570,9 @@ static double st_phinvs(double *p)
 ** \param[in] r  REAL, correlation coefficient
 **
 *****************************************************************************/
-static double st_bvu(double *sh,
-                     double *sk,
-                     double *r)
+static double st_bvu(const double *sh,
+                     const double *sk,
+                     const double *r)
 {
   /* Initialized data */
 
@@ -875,16 +875,16 @@ static double st_mvndfn_0(int n__,
       if (di >= ei) {
         ret_val = 0.;
         return ret_val;
-      } else {
-        ret_val *= ei - di;
-        if (i <= *n) {
-          d__1 = di + w[ik] * (ei - di);
-          y[ik - 1] = st_phinvs(&d__1);
-        }
-        ++ik;
-        infa = 0;
-        infb = 0;
       }
+      ret_val *= ei - di;
+      if (i <= *n)
+      {
+        d__1      = di + w[ik] * (ei - di);
+        y[ik - 1] = st_phinvs(&d__1);
+      }
+      ++ik;
+      infa = 0;
+      infb = 0;
     }
   }
   return ret_val;
@@ -949,7 +949,7 @@ static double st_mvndnt(int *n,
 ** \param[out] quasi a new quasi-random S-vector
 **
 *****************************************************************************/
-static void st_dkrcht(int *s,
+static void st_dkrcht(const int *s,
                       double *quasi)
 {
   /* Initialized data */
@@ -1016,9 +1016,9 @@ L10:
 **
 *****************************************************************************/
 static void st_dksmrc(int *ndim,
-                      int *klim,
+                      const int *klim,
                       double *sumkro,
-                      int *prime,
+                      const int *prime,
                       double *vk,
                       double (*functn)(int*,double *),
                       double *x)
@@ -1129,10 +1129,10 @@ static void st_dksmrc(int *ndim,
 *****************************************************************************/
 static void st_dkbvrc(int *ndim,
                       int *minvls,
-                      int *maxvls,
+                      const int *maxvls,
                       double (*functn)(int*, double*),
-                      double *abseps,
-                      double *releps,
+                      const double *abseps,
+                      const double *releps,
                       double *abserr,
                       double *finest,
                       int *inform)
@@ -1383,7 +1383,7 @@ void mvndst(int n,
 *****************************************************************************/
 void mvndst4(double *lower,
              double *upper,
-             double *correl,
+             const double *correl,
              int maxpts,
              double abseps,
              double releps,
@@ -1406,8 +1406,6 @@ void mvndst4(double *lower,
 
   mvndst(4,lower,upper,infin,corloc,maxpts,abseps,releps,
          error,value,inform);
-
-  return;
 }
 
 /****************************************************************************/
@@ -1427,9 +1425,9 @@ void mvndst4(double *lower,
 ** \param[out]  inform      Returned code
 **
 *****************************************************************************/
-void mvndst2n(double *lower,
-              double *upper,
-              double *means,
+void mvndst2n(const double *lower,
+              const double *upper,
+              const double *means,
               double *correl,
               int maxpts,
               double abseps,
@@ -1455,7 +1453,6 @@ void mvndst2n(double *lower,
   covar = correl[1] / sqrt(M_R(correl,2,0,0) * M_R(correl,2,1,1));
 
   mvndst(2,low,upp,infin,&covar,maxpts,abseps,releps,error,value,inform);
-  return;
 }
 
 /****************************************************************************/
@@ -1476,11 +1473,11 @@ int mvndst_infin(double low, double sup)
   return(2);
 }
 
-double bessel_j(double x, int n)
+double besselj(double x, int n)
 {
   VectorDouble tab(n+1);
   if (x <= 0.) return 1.;
-  if (bessel_j_table(x, 0., n+1, tab.data()) < 0) return TEST;
+  if (besselj_table(x, 0., n+1, tab.data()) < 0) return TEST;
   return tab[n];
 }
 
@@ -1518,7 +1515,7 @@ double bessel_j(double x, int n)
 ** \remark  J., NBS Jour. of Res. B. 77B, 1973, pp 125-132.
 **
 *****************************************************************************/
-int bessel_j_table(double x, double alpha, int nb, double *b)
+int besselj_table(double x, double alpha, int nb, double *b)
 {
   static double enten = 1e38;
   static double ensig = 1e17;
@@ -1920,7 +1917,7 @@ int bessel_j_table(double x, double alpha, int nb, double *b)
 ** \remark  Research Council, Canada.
 **
 *****************************************************************************/
-int bessel_k(double x, double alpha, int nb, double *bk)
+int besselk(double x, double alpha, int nb, double *bk)
 {
   static double p[] = {
     .805629875690432845,20.4045500205365151,
@@ -2310,11 +2307,8 @@ double loggamma(double parameter)
     for (k=0; k<m; k++) p *= (xe+k);
     return(dalgam+log(p));
   }
-  else
-  {
-    for (k=0; k<m; k++) dalgam += log(xe+k);
-    return(dalgam);
-  }
+  for (k = 0; k < m; k++) dalgam += log(xe + k);
+  return (dalgam);
 }
 
 /*****************************************************************************/
@@ -2339,31 +2333,28 @@ double ut_legendre(int n, double v, bool flagNorm)
   {
     return boost::math::legendre_p<double>(n, v);
   }
+  double P0, P1, Pn, value;
+
+  if (n == 0)
+    value = 1.;
+  else if (n == 1)
+    value = v * sqrt(2. * n + 1.);
   else
   {
-    double P0, P1, Pn, value;
-
-    if (n == 0)
-      value = 1.;
-    else if (n == 1)
-      value = v * sqrt(2.*n+1.);
-    else
+    P0 = 1.;
+    P1 = v * sqrt(2. * 1. + 1.);
+    for (int ii = 1; ii < n; ii++)
     {
-      P0 = 1.;
-      P1 = v * sqrt(2.*1.+1.);
-      for (int ii = 1; ii < n; ii++)
-      {
-        double i = (double) ii;
-        double a = sqrt((2.*i+1.) * (2.*i+3.)) / (i+1.);
-        double b = i / (i+1.) * sqrt((2.*i+3.) / (2.*i-1.));
-        Pn = a * v * P1 - b * P0;
-        P0 = P1;
-        P1 = Pn;
-      }
-      value = P1;
+      double i = (double)ii;
+      double a = sqrt((2. * i + 1.) * (2. * i + 3.)) / (i + 1.);
+      double b = i / (i + 1.) * sqrt((2. * i + 3.) / (2. * i - 1.));
+      Pn       = a * v * P1 - b * P0;
+      P0       = P1;
+      P1       = Pn;
     }
-    return value;
+    value = P1;
   }
+  return value;
 }
 
 VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm)
@@ -2765,36 +2756,30 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
                         Cheb_Elem *cheb_elem,
                         const VectorDouble& blin)
 {
-  double *coeffs, *x1, *y1, *x2, *y2;
+  double *coeffs;
   double minsubdiv, theta, ct, val1, val2, coeff, power, a, b;
-  int n, ncmax, error;
+  int n, ncmax;
 
   /* Initializations */
 
-  error = 1;
   power = cheb_elem->power;
   ncmax = cheb_elem->ncmax;
   a = cheb_elem->a;
   b = cheb_elem->b;
   coeffs = cheb_elem->coeffs;
-  x1 = y1 = x2 = y2 = nullptr;
 
   minsubdiv = pow(2., 20.);
-  if (minsubdiv >= (ncmax + 1) / 2)
+  if (minsubdiv >= (ncmax + 1.) / 2.)
     n = static_cast<int>(minsubdiv);
   else
     n = static_cast<int>(ceil((double) (ncmax + 1) / 2));
 
   /* Core allocation */
 
-  x1 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (x1 == nullptr) goto label_end;
-  y1 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (y1 == nullptr) goto label_end;
-  x2 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (x2 == nullptr) goto label_end;
-  y2 = (double*) mem_alloc(sizeof(double) * n, 0);
-  if (y2 == nullptr) goto label_end;
+  VectorDouble x1(n, 0);
+  VectorDouble y1(n, 0);
+  VectorDouble x2(n, 0);
+  VectorDouble y2(n, 0);
 
   /* Filling the arrays */
 
@@ -2812,8 +2797,8 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
 
   /* Perform the FFT transform */
 
-  if (fftn(1, &n, x1, y1, 1, 1.)) goto label_end;
-  if (fftn(1, &n, x2, y2, -1, 1.)) goto label_end;
+  if (fftn(1, &n, x1.data(), y1.data(), 1, 1.)) return 1;
+  if (fftn(1, &n, x2.data(), y2.data(), -1, 1.)) return 1;
 
   /* Store the coefficients */
 
@@ -2829,16 +2814,7 @@ int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
   }
   coeffs[0] /= 2.;
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) x1);
-  mem_free((char* ) y1);
-  mem_free((char* ) x2);
-  mem_free((char* ) y2);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -2958,13 +2934,11 @@ void ut_vandercorput(int n,
 
   *ntri_arg = 2 * n;
   *coor_arg = coord;
-
-  return;
 }
 
-static void st_addTriangle(double v1[3],
-                           double v2[3],
-                           double v3[3],
+static void st_addTriangle(const double v1[3],
+                           const double v2[3],
+                           const double v3[3],
                            Reg_Coor *R_coor)
 {
   int n;
@@ -3027,7 +3001,11 @@ void st_subdivide(double v1[3],
   st_subdivide(v12, v23, v31, depth - 1, R_coor);
 }
 
-static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord, double eps = EPSILON3)
+static int st_already_present(Reg_Coor* R_coor,
+                              int i0,
+                              int ntri,
+                              const double* coord,
+                              double eps = EPSILON3)
 {
   if (ntri <= 0) return (0);
 
@@ -3239,4 +3217,93 @@ MatrixRectangular fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
                   ((2*j+1) * r[i] * lp.getValue(i,j) - (j) * lp.getValue(i,j-1))/(j+1));
     }
   return lp;
+}
+
+/****************************************************************************/
+/*!
+ **  Find the roots of a polynomial of order 2: ax^2 + bx + c = 0
+ **
+ ** \return Number of real solutions
+ **
+ ** \param[in]  a,b,c     Coefficients of the polynomial
+ **
+ ** \param[out] x         Array of real solutions (Dimension: 2)
+ **
+ ** \remarks When the solution is double, the returned number os 1.
+ **
+ *****************************************************************************/
+int solve_P2(double a, double b, double c, VectorDouble& x)
+{
+  double delta;
+
+  if (a == 0.)
+  {
+    if (b == 0.) return (0);
+    x[0] = -c / b;
+    return (1);
+  }
+
+  // Calculate the discriminant
+
+  delta = b * b - 4 * a * c;
+
+  if (delta == 0.)
+  {
+    x[0] = -b / (2. * a);
+    return (1);
+  }
+  x[0] = (-b + sqrt(delta)) / (2. * a);
+  x[0] = (-b - sqrt(delta)) / (2. * a);
+  return (2);
+}
+
+/****************************************************************************/
+/*!
+ **  Find the roots of a polynomial of order 3: a*x^3 + b*x^2 + c*x + d = 0
+ **
+ ** \return Number of real solutions
+ **
+ ** \param[in]  a,b,c,d   Coefficients of the polynomial
+ **
+ ** \param[out] x         Array of real solutions (Dimension: 3)
+ **
+ ** \remarks When the solution is double, the returned number os 1.
+ **
+ *****************************************************************************/
+int solve_P3(double a, double b, double c, double d, VectorDouble& x)
+{
+  double delta, p, q, ecart, u, v, s1;
+  int k;
+
+  if (a == 0.) return (solve_P2(b, c, d, x));
+
+  // Transform into equation: x^3 + p*x + q = 0
+
+  ecart = -b / (3. * a);
+  p     = -b * b / (3. * a * a) + c / a;
+  q     = b / (27. * a) * (2. * b * b / (a * a) - 9. * c / a) + d / a;
+
+  // Cardan formula
+
+  delta = -(4. * p * p * p + 27. * q * q);
+  if (delta < 0)
+  {
+    s1   = sqrt(-delta / 27.);
+    u    = (-q + s1) / 2.;
+    u    = (u > 0.) ? pow(u, 1. / 3.) : -pow(-u, 1. / 3.);
+    v    = (-q - s1) / 2.;
+    v    = (v > 0.) ? pow(v, 1. / 3.) : -pow(-v, 1. / 3.);
+    x[0] = ecart + u + v;
+    return (1);
+  }
+  if (delta == 0.)
+  {
+    x[0] = ecart + 3. * q / p;
+    x[1] = ecart - 3. * q / (2. * p);
+    return (2);
+  }
+  s1 = -(q / 2.) * sqrt(27. / -(p * p * p));
+  for (k = 0; k < 3; k++)
+    x[k] = ecart + 2. * sqrt(-p / 3.) * cos((acos(s1) + 2. * k * GV_PI) / 3.);
+  return (3);
 }

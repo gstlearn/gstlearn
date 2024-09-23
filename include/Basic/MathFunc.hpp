@@ -28,9 +28,9 @@ GSTLEARN_EXPORT void mvndst(int n,
                             double *error,
                             double *value,
                             int *inform);
-GSTLEARN_EXPORT void mvndst2n(double *lower,
-                              double *upper,
-                              double *means,
+GSTLEARN_EXPORT void mvndst2n(const double *lower,
+                              const double *upper,
+                              const double *means,
                               double *correl,
                               int maxpts,
                               double abseps,
@@ -40,16 +40,16 @@ GSTLEARN_EXPORT void mvndst2n(double *lower,
                               int *inform);
 GSTLEARN_EXPORT void mvndst4(double *lower,
                              double *upper,
-                             double *correl,
+                             const double *correl,
                              int maxpts,
                              double abseps,
                              double releps,
                              double *error,
                              double *value,
                              int *inform);
-GSTLEARN_EXPORT int bessel_j_table(double x, double alpha, int nb, double *b);
-GSTLEARN_EXPORT double bessel_j(double x, int n);
-GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk);
+GSTLEARN_EXPORT int besselj_table(double x, double alpha, int nb, double *b);
+GSTLEARN_EXPORT double besselj(double x, int n);
+GSTLEARN_EXPORT int besselk(double x, double alpha, int nb, double *bk);
 GSTLEARN_EXPORT double loggamma(double parameter);
 
 GSTLEARN_EXPORT double ut_legendre(int n, double v, bool flagNorm = true);
@@ -95,3 +95,5 @@ GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
 GSTLEARN_EXPORT MatrixRectangular* vanDerCorput(int n, int nd);
 GSTLEARN_EXPORT MatrixRectangular fillLegendreMatrix(const VectorDouble &r,
                                                      int legendreOrder);
+GSTLEARN_EXPORT int solve_P2(double a, double b, double c, VectorDouble& x);
+GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, VectorDouble& x);

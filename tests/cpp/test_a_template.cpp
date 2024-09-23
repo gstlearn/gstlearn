@@ -8,13 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESPDECalcMode.hpp"
+#include "API/SPDE.hpp"
 
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbHelper.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Simulation/SimuSpectral.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -31,27 +31,17 @@ int main(int argc, char *argv[])
 
   defineDefaultSpace(ESpaceType::SN);
 
-  int ndim = 2;
-  VectorInt nx = {360, 180};
-  VectorDouble dx(2);
-  for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = nx[idim] / (nx[idim]-1) * GV_PI / 180.;
-  DbGrid* grd = DbGrid::create(nx,dx,{0,0});
-  (void) grd->setName("x1", "phi");
-  (void) grd->setName("x2", "theta");
-  grd->display();
+  Db* db = Db::createFillRandom(2, 2, 1);
 
-  int nd = 100;
-  int ns = 100; // 10000;
-  int seed = 132674;
+  DbGrid* grid = DbGrid::create({2, 2});
 
-  String model_type = "POISSON";
-  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1.);
 
-  SimuSpectral sim(modelSph);
-  sim.simulateOnSphere(ns, nd, seed, false);
-  sim.computeOnSphere(grd, false);
+  message("value = %lf\n", logLikelihoodSPDE(db, grid, model));
 
-  grd->display();
+  delete db;
+  delete grid;
+  delete model;
+
   return(0);
 }

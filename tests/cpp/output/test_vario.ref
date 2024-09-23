@@ -47,7 +47,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      1.000
 - Range        =      0.200
 - Theo. Range  =      0.058
@@ -102,13 +102,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
+Variable(s)                 = [Simu]
 Variance-Covariance Matrix     0.859
 
 Direction #1
 ------------
 Number of lags              = 20
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     45.000 (degrees)
 Calculation lag             =      0.025
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -140,7 +141,7 @@ Direction #2
 ------------
 Number of lags              = 20
 Direction coefficients      =      0.000     1.000
-Direction angles (degrees)  =     90.000     0.000
+Direction angles (degrees)  =     90.000
 Tolerance on direction      =     45.000 (degrees)
 Calculation lag             =      0.025
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -181,7 +182,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      0.000
 - Range        =      0.119
 - Theo. Range  =      0.034
@@ -200,13 +201,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
+Variable(s)                 = [Simu]
 Variance-Covariance Matrix     0.874
 
 Direction #1
 ------------
 Number of lags              = 20
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -238,7 +240,7 @@ Direction #2
 ------------
 Number of lags              = 20
 Direction coefficients      =      0.000     1.000
-Direction angles (degrees)  =     90.000     0.000
+Direction angles (degrees)  =     90.000
 Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =     50.000 (Percent of the lag value)

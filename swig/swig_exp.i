@@ -139,6 +139,8 @@
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
 
+%include LinearOp/ALinearOp.hpp
+%include LinearOp/ASimulable.hpp
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
@@ -150,6 +152,7 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include Matrix/VectorEigen.hpp
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
@@ -168,24 +171,28 @@
 
 %include LinearOp/CGParam.hpp
 %include LinearOp/LogStats.hpp
-%include LinearOp/ALinearOp.hpp
+%include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
+%include LinearOp/ScaleOp.hpp
 %include LinearOp/ShiftOpCs.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp
+%include LinearOp/SPDEOp.hpp
+%include LinearOp/SPDEOpMatrix.hpp
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp
+%include LinearOp/ProjMulti.hpp
+%include LinearOp/ProjMultiMatrix.hpp
+%include LinearOp/PrecisionOpMulti.hpp
+%include LinearOp/PrecisionOpMultiMatrix.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
 %include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/Cholesky.hpp
-
-%include Model/ANoStat.hpp
-%include Model/NoStatArray.hpp
-%include Model/NoStatFunctional.hpp
+%include LinearOp/MatrixSquareSymmetricSim.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp
@@ -210,6 +217,12 @@
 %include Model/CovParamId.hpp
 %include Model/CovParamId.hpp
 
+%include Covariances/ParamId.hpp
+%include Covariances/TabNoStat.hpp
+%include Covariances/TabNoStatCovAniso.hpp
+%include Covariances/ANoStat.hpp
+%include Covariances/NoStatArray.hpp
+%include Covariances/NoStatFunctional.hpp
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
@@ -223,7 +236,7 @@
 %include Covariances/CovContext.hpp
 %include Covariances/CovCalcMode.hpp
 %include Covariances/CovBesselJ.hpp
-%include Covariances/CovBesselK.hpp
+%include Covariances/CovMatern.hpp
 %include Covariances/CovCauchy.hpp
 %include Covariances/CovCosExp.hpp
 %include Covariances/CovCosinus.hpp
@@ -270,6 +283,10 @@
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
+%include Db/DbLine.hpp
+%include Db/DbGraphO.hpp
+%include Db/DbMeshTurbo.hpp
+%include Db/DbMeshStandard.hpp
 %include Db/DbStringFormat.hpp
 %include Db/DbHelper.hpp
 
@@ -305,6 +322,7 @@
 %include LithoRule/RuleProp.hpp
 
 %include Estimation/KrigingSystem.hpp
+%include Estimation/KrigingCalcul.hpp
 %include Estimation/CalcKriging.hpp
 %include Estimation/CalcKrigingFactors.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
@@ -341,7 +359,7 @@
 %include Simulation/SimuFFTParam.hpp
 %include Simulation/CalcSimuFFT.hpp
 %include Simulation/SimuRefineParam.hpp
-%include Simulation/SimuRefine.hpp
+%include Simulation/CalcSimuRefine.hpp
 %include Simulation/CalcSimuEden.hpp
 
 %include Fractures/FracEnviron.hpp
@@ -353,7 +371,16 @@
 %include Tree/Ball.hpp
 %include Tree/KNN.hpp
 
+%include Spatial/Projection.hpp
+%include Spatial/SpatialIndices.hpp
+
+%include Core/Potential.hpp
+
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506
 #pragma SWIG nowarn=509
+
+
+%template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
+%template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;

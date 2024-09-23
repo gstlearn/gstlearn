@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -53,8 +52,8 @@ AMesh::~AMesh()
 
 }
 
-int AMesh::_setExtend(const VectorDouble extendmin,
-                      const VectorDouble extendmax)
+int AMesh::_setExtend(const VectorDouble& extendmin,
+                      const VectorDouble& extendmax)
 {
   _extendMin = extendmin;
   _extendMax = extendmax;
@@ -347,18 +346,11 @@ void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int icorner= 0; icorner < ncorner; icorner++)
       meshes.setValue(imesh, icorner, getApex(imesh, icorner));
-
-  return;
  }
 
 bool AMesh::_isSpaceDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= _nDim)
-  {
-    mesArg("SPace Dimension Index",idim,_nDim);
-    return false;
-  }
-  return true;
+  return checkArg("SPace Dimension Index", idim, _nDim);
 }
 
 VectorDouble AMesh::getExtrema(int idim) const
@@ -493,7 +485,7 @@ VectorDouble AMesh::getApexCoordinates(int iapex) const
   return vec;
 }
 
-VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices)
+VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices) const
 {
   VectorInt jlocal = japices;
   if (jlocal.empty()) jlocal = VH::sequence(getNApices());
@@ -670,8 +662,7 @@ bool AMesh::_weightsInMesh(const VectorDouble& coor,
     weights[icorn] = ratio;
     total += ratio;
   }
-  if (ABS(total - 1) > eps) return false;
-  return true;
+  return (ABS(total - 1) <= eps);
 }
 
 /****************************************************************************/

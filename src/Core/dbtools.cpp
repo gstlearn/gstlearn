@@ -8,11 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
+#include "geoslib_define.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
-
-#include "Enum/EJustify.hpp"
 
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -20,29 +17,24 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/OptimCostColored.hpp"
 #include "Stats/Classical.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Grid.hpp"
 #include "Basic/PolyLine2D.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
-#include "Skin/ISkinFunctions.hpp"
-#include "Skin/Skin.hpp"
-#include "Geometry/GeometryHelper.hpp"
 #include "Tree/Ball.hpp"
-#include "Tree/KNN.hpp"
+#include "Basic/Memory.hpp"
+#include "Core/Keypair.hpp"
+#include "Core/io.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -279,7 +271,6 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
       tab_printg(NULL, db->getArray(jech, jvar));
     message("\n");
   }
-  return;
 }
 
 /****************************************************************************/
@@ -304,13 +295,12 @@ static int st_edit_find(Db *db,
                         double vmax)
 {
   double value;
-  int i;
 
   /* Dispatch */
 
   if (orient > 0)
   {
-    for (i = iech + 1; i < db->getSampleNumber(); i++)
+    for (int i = iech + 1; i < db->getSampleNumber(); i++)
     {
       value = db->getArray(i, ivar);
       if (FFFF(value)) continue;
@@ -321,19 +311,16 @@ static int st_edit_find(Db *db,
     messerr("--> String not found before the end-of-file");
     return (iech);
   }
-  else
+  for (int i = iech - 1; i >= 0; i--)
   {
-    for (i = iech - 1; i >= 0; i--)
-    {
-      value = db->getArray(i, ivar);
-      if (FFFF(value)) continue;
-      if (!FFFF(vmin) && value < vmin) continue;
-      if (!FFFF(vmax) && value > vmax) continue;
-      return (i);
-    }
-    messerr("--> String not found before the top-of-file");
-    return (iech);
+    value = db->getArray(i, ivar);
+    if (FFFF(value)) continue;
+    if (!FFFF(vmin) && value < vmin) continue;
+    if (!FFFF(vmax) && value > vmax) continue;
+    return (i);
   }
+  messerr("--> String not found before the top-of-file");
+  return (iech);
 }
 
 /****************************************************************************/
@@ -514,7 +501,7 @@ int db_edit(Db *db, int *flag_valid)
       ok = 0;
       break;
     }
-    else if (flag_inter < 0)
+    if (flag_inter < 0)
     {
       *flag_valid = 0;
       ok = 0;
@@ -561,8 +548,6 @@ int db_edit(Db *db, int *flag_valid)
         break;
 
       case 9: /* Display the current selection */
-        break;
-
       default:
         break;
     }
@@ -588,7 +573,7 @@ int db_edit(Db *db, int *flag_valid)
  **
  *****************************************************************************/
 void ut_trace_discretize(int nseg,
-                         double *trace,
+                         const double *trace,
                          double disc,
                          int *np_arg,
                          double **xp_arg,
@@ -667,7 +652,6 @@ void ut_trace_discretize(int nseg,
   (*yp_arg) = yp;
   (*dd_arg) = dd;
   (*del_arg) = del;
-  return;
 }
 
 /*****************************************************************************/
@@ -696,9 +680,9 @@ void ut_trace_discretize(int nseg,
 void ut_trace_sample(Db *db,
                      const ELoc& ptype,
                      int np,
-                     double *xp,
-                     double *yp,
-                     double *dd,
+                     const double *xp,
+                     const double *yp,
+                     const double *dd,
                      double radius,
                      int *ns_arg,
                      double **xs_arg,
@@ -747,10 +731,10 @@ void ut_trace_sample(Db *db,
 
     /* Keep sample defined by locator */
 
-    cote = get_LOCATOR_ITEM(db, ptype, 0, iech);
+    cote = db->getFromLocator(ptype, iech);
     if (!FFFF(cote))
     {
-      layer = get_LOCATOR_ITEM(db, ELoc::LAYER, 0, iech);
+      layer = db->getFromLocator(ELoc::LAYER, iech);
       xs = (double*) mem_realloc((char* ) xs, sizeof(double) * (ns + 1), 1);
       ys = (double*) mem_realloc((char* ) ys, sizeof(double) * (ns + 1), 1);
       lys = (int*) mem_realloc((char* ) lys, sizeof(int) * (ns + 1), 1);
@@ -796,7 +780,6 @@ void ut_trace_sample(Db *db,
   *lys_arg = lys;
   *typ_arg = typ;
   *rks_arg = rks;
-  return;
 }
 
 /*****************************************************************************/
@@ -934,7 +917,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     for (int jg = 0, ng = dbgrid->getActiveSampleNumber(); jg < ng; jg++)
     {
       if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
-      double densloc = dbgrid->getLocVariable(ELoc::Z,jg, 0);
+      double densloc = dbgrid->getZVariable(jg, 0);
       if (densloc >= 0) denstot += densloc;
       dens[ig++] = denstot;
     }
@@ -966,7 +949,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
       for (int ig = 0; ig < ngrid && indip < 0; ig++)
       {
         if (!dbgrid->isActive(ig)) continue;
-        double densloc = dbgrid->getLocVariable(ELoc::Z,ig, 0);
+        double densloc = dbgrid->getZVariable(ig, 0);
         if (FFFF(densloc) || densloc < 0) continue;
         denscum += densloc;
         if (denscum > proba) indip = ig;
@@ -1163,14 +1146,14 @@ static void st_gradient_normalize(Db *dbgrid)
 int db_gradient_components(DbGrid *dbgrid)
 
 {
-  int *indg, iptrz, iptr, nx, ny, nz, nmax, error, ndim, j1, j2, number;
+  int iptrz, iptr, nx, ny, nz, nmax, error, ndim, j1, j2, number;
   double dinc, v1, v2, delta;
+  VectorInt indg;
 
   /* Preliminary check */
 
   error = number = 1;
   iptr = -1;
-  indg = nullptr;
   ndim = dbgrid->getNDim();
   if (! dbgrid->isGrid())
   {
@@ -1189,8 +1172,7 @@ int db_gradient_components(DbGrid *dbgrid)
   nx = dbgrid->getNX(0);
   ny = dbgrid->getNX(1);
   nz = dbgrid->getNX(2);
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
+  indg.resize(ndim, 0);
 
   /* Create the new variable */
 
@@ -1254,10 +1236,9 @@ int db_gradient_components(DbGrid *dbgrid)
 
   label_end: if (error)
   {
-    (void) db_attribute_del_mult(dbgrid, iptr, ndim);
+    dbgrid->deleteColumnsByUIDRange(iptr, ndim);
     iptr = -1;
   }
-  db_indg_free(indg);
   return (iptr);
 }
 
@@ -1336,7 +1317,7 @@ static int st_get_next(DbGrid *dbgrid,
   knd_loc = dbgrid->coordinateToRank(coor);
   if (knd_loc < 0) return 1;
   if (!dbgrid->isActive(knd_loc)) return 1;
-  surf_loc = dbgrid->getLocVariable(ELoc::Z,knd_loc, 0);
+  surf_loc = dbgrid->getZVariable(knd_loc, 0);
   if (FFFF(surf_loc) || st_is_undefined(dbgrid, iptr_grad, knd_loc)) return (1);
   if (st_is_zero(dbgrid, iptr_grad, knd_loc)) return (1);
   *knd = knd_loc;
@@ -1379,19 +1360,19 @@ int db_streamline(DbGrid *dbgrid,
                   int *npline_loc,
                   double **line_loc)
 {
-  int *indg, error, npline, idim, ecr;
+  int error, npline, idim, ecr;
   int iptr_time, iptr_accu, iptr_grad, nbline, knd, nquant, nbyech, ndim;
-  double *coor0, *line, surf, date;
+  double *line, surf, date;
   static int quant = 1000;
   VectorDouble coor;
+  VectorDouble coor0;
 
   /* Initializations */
 
   error = 1;
   nbline = nquant = 0;
   iptr_grad = -1;
-  indg = nullptr;
-  coor0 = line = nullptr;
+  line = nullptr;
   if (dbpoint == nullptr) dbpoint = dbgrid;
   nbyech = (int) get_keypone("Streamline_Skip", 1.);
 
@@ -1407,11 +1388,8 @@ int db_streamline(DbGrid *dbgrid,
 
   /* Core allocation on the Grid Db */
 
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
   coor.resize(ndim);
-  coor0 = db_sample_alloc(dbgrid, ELoc::X);
-  if (coor0 == nullptr) goto label_end;
+  coor0.resize(ndim);
   iptr_time = dbgrid->addColumnsByConstant(1, TEST);
   if (iptr_time < 0) goto label_end;
   iptr_accu = dbgrid->addColumnsByConstant(1, 0.);
@@ -1446,7 +1424,7 @@ int db_streamline(DbGrid *dbgrid,
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
-    db_sample_load(dbpoint, ELoc::X, iech, coor.data());
+    dbpoint->getCoordinatesPerSampleInPlace(iech, coor);
     if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
     /* Store the new point in the Streamline */
@@ -1521,95 +1499,9 @@ int db_streamline(DbGrid *dbgrid,
   error = 0;
 
   label_end:
-  db_indg_free(indg);
-  db_sample_free(coor0);
   if (!use_grad && !save_grad && iptr_grad >= 0)
-    db_attribute_del_mult(dbgrid, iptr_grad, ndim);
+    dbgrid->deleteColumnsByUIDRange(iptr_grad, ndim);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate and store new variables in the Db which contain
- **  the non-stationary Model component
- **
- ** \return  Distance value
- **
- ** \param[in]  db          Db structure
- ** \param[in]  model       Model structure
- ** \param[in]  icov        Rank of the Basic structure
- ** \param[in]  namconv     Naming convention
- **
- ** \remarks This procedure automatically creates several fields:
- ** \remarks ndim fields for storing the ranges
- ** \remarks ndim fields for storing the angles
- ** \remarks 1 field for storing the sill
- **
- *****************************************************************************/
-int db_model_nostat(Db *db,
-                    Model *model,
-                    int icov,
-                    const NamingConvention &namconv)
-{
-  if (icov < 0 || icov >= model->getCovaNumber()) return 1;
-  if (!model->isNoStat()) return 0;
-  ANoStat *nostat = model->getNoStatModify();
-
-  // The Non-stationary must be defined in the tabulated way
-  if (nostat->manageInfo(1, db, nullptr)) return 1;
-
-  /* Create the new variables */
-
-  int ndim = model->getDimensionNumber();
-  CovInternal covint(1, -1, 1, -1, ndim, db, db);
-  int iptr = db->addColumnsByConstant(2 * ndim + 1, 0.);
-  if (iptr < 0) return 1;
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    /* Load the non_stationary parameters */
-
-    covint.setIech1(iech);
-    covint.setIech2(iech);
-    model->nostatUpdate(&covint);
-    CovAniso *cova = model->getCova(icov);
-
-    /* Store the variables */
-
-    int jptr = iptr;
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      db->setArray(iech, jptr, cova->getRange(idim));
-      jptr++;
-    }
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      db->setArray(iech, jptr, cova->getAnisoAngles(idim));
-      jptr++;
-    }
-    db->setArray(iech, jptr++, cova->getSill(0, 0));
-  }
-
-  // Naming convention
-
-  int jptr = iptr;
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
-        concatenateStrings("-", "Range", toString(idim + 1)));
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
-        concatenateStrings("-", "Angle", toString(idim + 1)));
-  namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
-  namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
-
-  (void) nostat->manageInfo(-1, db, nullptr);
-  return 0;
 }
 
 /*****************************************************************************/
@@ -1815,7 +1707,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     int not_defined = 0;
     for (int ivar = 0; ivar < nvar && not_defined == 0; ivar++)
-      if (FFFF(db->getLocVariable(ELoc::Z,iech, ivar))) not_defined = 1;
+      if (FFFF(db->getZVariable(iech, ivar))) not_defined = 1;
     if (not_defined) continue;
 
     // Cumulate this sample
@@ -1824,7 +1716,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     for (int idim = 0; idim < ndim; idim++)
       WCOR(iz,icode,idim) += db->getCoordinate(iech, idim);
     for (int ivar = 0; ivar < nvar; ivar++)
-      WTAB(iz,icode,ivar) += db->getLocVariable(ELoc::Z,iech, ivar);
+      WTAB(iz,icode,ivar) += db->getZVariable(iech, ivar);
   }
 
   // Normalization
@@ -1903,14 +1795,14 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 int db_grid2point_sampling(DbGrid *dbgrid,
                            int nvar,
                            int *vars,
-                           int *npacks,
+                           const int *npacks,
                            int npcell,
                            int nmini,
                            int *nech_ret,
                            double **coor_ret,
                            double **data_ret)
 {
-  int ndim, ntotal, nech, indg[3], nret, nfine, iech, ecrc, ecrd, error;
+  int ndim, ntotal, nech, nret, nfine, iech, ecrc, ecrd, error;
   int *retain;
   double *coor, *data;
   VectorInt ranks;
@@ -1925,7 +1817,8 @@ int db_grid2point_sampling(DbGrid *dbgrid,
   retain = nullptr;
   ndim = dbgrid->getNDim();
   nfine = dbgrid->getSampleNumber();
-  nmini = MAX(nmini, npcell);
+  nmini       = MAX(nmini, npcell);
+  VectorInt indg(ndim,0);
   if (ndim > 3)
   {
     messerr("This function is limited to 3D or less");
@@ -1957,7 +1850,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
       {
         indg[0] = ixcell + ix;
         if (indg[0] >= dbgrid->getNX(0)) break;
-        iech = db_index_grid_to_sample(dbgrid, indg);
+        iech = dbgrid->indiceToRank(indg);
         if (dbgrid->isActive(iech)) ranks[nech++] = iech;
       }
       if (nech < nmini) continue;
@@ -1987,7 +1880,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
             if (indg[0] >= dbgrid->getNX(0)) break;
             indg[1] = iycell + iy;
             if (indg[1] >= dbgrid->getNX(1)) break;
-            iech = db_index_grid_to_sample(dbgrid, indg);
+            iech = dbgrid->indiceToRank(indg);
             if (dbgrid->isActive(iech)) ranks[nech++] = iech;
           }
         if (nech < nmini) continue;
@@ -2021,7 +1914,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
                 if (indg[1] >= dbgrid->getNX(1)) break;
                 indg[2] = izcell + iz;
                 if (indg[2] >= dbgrid->getNX(2)) break;
-                iech = db_index_grid_to_sample(dbgrid, indg);
+                iech = dbgrid->indiceToRank(indg);
                 if (dbgrid->isActive(iech)) ranks[nech++] = iech;
               }
           if (nech < nmini) continue;
@@ -2219,8 +2112,7 @@ int db_proportion_estimate(Db *dbin,
   // Define the environment
 
   MeshETurbo mesh = MeshETurbo(dbout);
-  CGParam params = CGParam(200, 1.e-10);
-  ShiftOpCs S = ShiftOpCs(&mesh, model, dbout, 0, 0, params);
+  ShiftOpCs S = ShiftOpCs(&mesh, model->getCova(0), dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0));
   ProjMatrix AprojDat = ProjMatrix(dbin, &mesh);
   ProjMatrix AprojOut = ProjMatrix(dbout, &mesh);

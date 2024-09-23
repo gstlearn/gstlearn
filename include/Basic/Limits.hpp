@@ -63,7 +63,7 @@ public:
                           const String &name,
                           int optionStat = 1,
                           bool flagBelow = false,
-                          bool flagAbove = false);
+                          bool flagAbove = false) const;
   int toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv) const;
   int toIndicatorByAttribute(Db* db,
                              int iatt,
@@ -72,37 +72,37 @@ public:
                              bool flagAbove = false,
                              const NamingConvention& namconv = NamingConvention("Indicator")) const;
 private:
-  int _computeCategory(Db *db,
-                       int iatt,
-                       const VectorDouble &mini,
-                       const VectorDouble &maxi,
-                       const VectorBool &incmini,
-                       const VectorBool &incmaxi,
-                       const NamingConvention &namconv) const;
-  int _computeIndicator(Db *db,
-                        int iatt,
-                        int flag_indic,
-                        const VectorDouble &mini,
-                        const VectorDouble &maxi,
-                        const VectorBool &incmini,
-                        const VectorBool &incmaxi,
-                        bool flagBelow,
-                        bool flagAbove,
-                        const NamingConvention &namconv) const;
-  VectorDouble _computeLimitStatistics(Db *db,
-                                       int iatt,
-                                       const VectorDouble &mini,
-                                       const VectorDouble &maxi,
-                                       const VectorBool &incmini,
-                                       const VectorBool &incmaxi,
-                                       int optionStat,
-                                       bool flagBelow,
-                                       bool flagAbove);
-  int _check_bound_consistency(const VectorDouble &mini,
-                               const VectorDouble &maxi,
-                               const VectorBool &incmini,
-                               const VectorBool &incmaxi,
-                               int *nclass_arg) const;
+  static int _computeCategory(Db* db,
+                              int iatt,
+                              const VectorDouble& mini,
+                              const VectorDouble& maxi,
+                              const VectorBool& incmini,
+                              const VectorBool& incmaxi,
+                              const NamingConvention& namconv);
+  static int _computeIndicator(Db* db,
+                               int iatt,
+                               int flag_indic,
+                               const VectorDouble& mini,
+                               const VectorDouble& maxi,
+                               const VectorBool& incmini,
+                               const VectorBool& incmaxi,
+                               bool flagBelow,
+                               bool flagAbove,
+                               const NamingConvention& namconv);
+  static VectorDouble _computeLimitStatistics(Db* db,
+                                              int iatt,
+                                              const VectorDouble& mini,
+                                              const VectorDouble& maxi,
+                                              const VectorBool& incmini,
+                                              const VectorBool& incmaxi,
+                                              int optionStat,
+                                              bool flagBelow,
+                                              bool flagAbove);
+  static int _check_bound_consistency(const VectorDouble& mini,
+                                      const VectorDouble& maxi,
+                                      const VectorBool& incmini,
+                                      const VectorBool& incmaxi,
+                                      int* nclass_arg);
 
 private:
   std::vector<Interval> _bounds;

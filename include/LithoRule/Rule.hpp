@@ -15,11 +15,10 @@
 #include "Enum/ERule.hpp"
 
 #include "LithoRule/Node.hpp"
-#include "RuleStringFormat.hpp"
+#include "LithoRule/PropDef.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/ICloneable.hpp"
 
 class Db;
 class Model;
@@ -29,8 +28,8 @@ class GSTLEARN_EXPORT Rule: public AStringable, public ASerializable
 {
 public:
   Rule(double rho = 0.);
-  Rule(const Rule& r);
-  Rule& operator=(const Rule& r);
+  Rule(const Rule& m);
+  Rule& operator=(const Rule& m);
   virtual ~Rule();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -121,8 +120,8 @@ protected:
                                const VectorInt& n_facs);
   void setMainNodeFromNodNames(const VectorString& nodnames);
   int  setMainNodeFromNodNames(const VectorInt& nodes);
-  int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
-  VectorString buildNodNames(int nfacies);
+  static int replicateInvalid(Db *dbin, Db *dbout, int jech);
+  static VectorString buildNodNames(int nfacies);
 
 private:
   void _ruleDefine(std::ostream& os,
@@ -131,9 +130,9 @@ private:
                    int from_rank,
                    int from_vers,
                    int *rank) const;
-  void _nodNamesToIds(const VectorString& nodes,
-                      VectorInt &n_type,
-                      VectorInt& n_facs);
+  static void _nodNamesToIds(const VectorString& nodes,
+                             VectorInt& n_type,
+                             VectorInt& n_facs);
   void _clear();
 
 private:
@@ -146,3 +145,12 @@ private:
 GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);
 GSTLEARN_EXPORT int    get_rule_mode(void);
 GSTLEARN_EXPORT double get_rule_extreme(int mode);
+GSTLEARN_EXPORT Rule* rule_free(const Rule* rule);
+GSTLEARN_EXPORT Model* model_rule_combine(const Model* model1, const Model* model2, const Rule* rule);
+GSTLEARN_EXPORT int db_rule_shadow(Db* db,
+                                   Db* dbprop,
+                                   RuleShadow* rule,
+                                   Model* model1,
+                                   const VectorDouble& props,
+                                   int flag_stat,
+                                   int nfacies);

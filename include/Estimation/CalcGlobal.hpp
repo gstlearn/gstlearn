@@ -49,7 +49,7 @@ public:
   void setFlagArithmetic(bool flagArithmetic) { _flagArithmetic = flagArithmetic; }
   void setFlagKriging(bool flagKriging) { _flagKriging = flagKriging; }
 
-  const Global_Result getGRes() const { return _gRes; }
+  Global_Result getGRes() const { return _gRes; }
 
 private:
   virtual bool _check() override;

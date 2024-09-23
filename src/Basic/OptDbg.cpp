@@ -42,7 +42,7 @@ bool OptDbg::query(const EDbg& option, bool discardForce)
   DECLARE_UNUSED(discardForce);
 
   if (force()) return true;
-  for (auto e: _dbg)
+  for (const auto& e: _dbg)
   {
     if (e == option) return true;
   }

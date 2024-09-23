@@ -18,9 +18,6 @@
 #include "Geometry/ABiTargetCheck.hpp"
 #include "Geometry/BiTargetCheckDistance.hpp"
 #include "Neigh/ANeigh.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Basic/ICloneable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Space/SpaceTarget.hpp"
 
@@ -53,8 +50,8 @@ public:
               int nmini = 1,
               int nsect = 1,
               int nsmax = ITEST,
-              VectorDouble coeffs = VectorDouble(),
-              VectorDouble angles = VectorDouble(),
+              const VectorDouble& coeffs = VectorDouble(),
+              const VectorDouble& angles = VectorDouble(),
               const ASpace* space = nullptr);
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
@@ -78,8 +75,8 @@ public:
                              int nmini = 1,
                              int nsect = 1,
                              int nsmax = ITEST,
-                             VectorDouble coeffs = VectorDouble(),
-                             VectorDouble angles = VectorDouble(),
+                             const VectorDouble& coeffs = VectorDouble(),
+                             const VectorDouble& angles = VectorDouble(),
                              const ASpace* space = nullptr);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
@@ -120,11 +117,15 @@ protected:
 private:
   int  _getBiPtsNumber() const { return (int) _bipts.size(); }
   int  _moving(int iech_out, VectorInt& ranks, double eps = EPSILON9);
-  int  _movingSectorDefine(double dx, double dy);
+  int  _movingSectorDefine(double dx, double dy) const;
   void _movingSectorNsmax(int nsel, VectorInt& ranks);
   void _movingSelect(int nsel, VectorInt& ranks);
   double _getRadius() const { return _biPtDist->getRadius(); }
-  bool  _getAnisotropyElements(double *rx, double *ry, double *cosp, double *sinp) const;
+  bool _getAnisotropyElements(double *rx,
+                              double *ry,
+                              double *theta,
+                              double *cosp,
+                              double *sinp) const;
 
 private:
   int _nMini;                    /* Minimum number of points in neigh. */

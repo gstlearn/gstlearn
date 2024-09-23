@@ -18,7 +18,6 @@
 #include "Basic/Law.hpp"
 
 #include <iostream>
-#include <iomanip>
 
 static int  globalMultiThread = 0;
 
@@ -441,6 +440,12 @@ void AMatrix::prodScalar(double v)
  */
 void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
 {
+  y.fill(0.,y.size());
+  _addProdMatVecInPlaceToDestPtr(x.data(),y.data(),transpose);
+}
+
+int AMatrix::addProdMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+{
   if (_flagCheckAddress)
   {
     bool error = false;
@@ -458,10 +463,37 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool tra
       messerr("- the dimension of 'x' = %d", (int) x.size());
       messerr("- the dimension of 'y' = %d", (int) y.size());
       messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
-      return;
+      return 1;
+    }
+  }
+  _addProdMatVecInPlaceToDestPtr(x.data(), y.data(), transpose);
+  return 0;
+}
+
+int AMatrix::prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+{
+  if (_flagCheckAddress)
+  {
+    bool error = false;
+    if (!transpose)
+    {
+      error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
+    }
+    else
+    {
+      error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
+    }
+    if (error)
+    {
+      messerr("Inconsistency between:");
+      messerr("- the dimension of 'x' = %d", (int) x.size());
+      messerr("- the dimension of 'y' = %d", (int) y.size());
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
+      return 1;
     }
   }
   _prodMatVecInPlacePtr(x.data(), y.data(), transpose);
+  return 0;
 }
 
 void AMatrix::prodMatVecInPlacePtr(const double* x, double* y, bool transpose) const
@@ -583,16 +615,16 @@ void AMatrix::prodMatMatInPlace(const AMatrix *x,
  * @param m Matrix M
  * @param transpose True for first implementation, False for the second
  */
-void AMatrix::prodNormMatMatInPlace(const AMatrix &a,
-                                    const AMatrix &m,
+void AMatrix::prodNormMatMatInPlace(const AMatrix* a,
+                                    const AMatrix* m,
                                     bool transpose)
 {
-  int n1 = (transpose) ? a.getNCols() : a.getNRows();
-  int n2 = (transpose) ? a.getNRows() : a.getNCols();
+  int n1 = (transpose) ? a->getNCols() : a->getNRows();
+  int n2 = (transpose) ? a->getNRows() : a->getNCols();
 
-  if (!_checkLink(a.getNRows(), a.getNCols(), transpose,
-                  m.getNRows(), m.getNCols(), false,
-                  a.getNRows(), a.getNCols(), !transpose)) return;
+  if (!_checkLink(a->getNRows(), a->getNCols(), transpose,
+                  m->getNRows(), m->getNCols(), false,
+                  a->getNRows(), a->getNCols(), !transpose)) return;
 
   for (int i = 0; i < n1; i++)
     for (int j = 0; j < n1; j++)
@@ -602,9 +634,9 @@ void AMatrix::prodNormMatMatInPlace(const AMatrix &a,
       for (int k = 0; k < n2; k++)
         for (int l = 0; l < n2; l++)
         {
-          double a_ik = (transpose) ? a.getValue(k,i) : a.getValue(i,k);
-          double a_lj = (transpose) ? a.getValue(l,j) : a.getValue(j,l);
-          value += a_ik * m.getValue(k,l) * a_lj;
+          double a_ik = (transpose) ? a->getValue(k,i) : a->getValue(i,k);
+          double a_lj = (transpose) ? a->getValue(l,j) : a->getValue(j,l);
+          value += a_ik * m->getValue(k,l) * a_lj;
         }
       setValue(i, j, value);
     }
@@ -615,7 +647,7 @@ void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool
   int n1 = (transpose) ? a.getNCols() : a.getNRows();
   int n2 = (transpose) ? a.getNRows() : a.getNCols();
 
-  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
+  if (!_checkLink(getNRows(), getNCols(), false, a.getNRows(), a.getNCols(), transpose,
                  (int) vec.size(), 1, false)) return;
 
   for (int i = 0; i < n1; i++)
@@ -753,8 +785,9 @@ int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
   return _solve(b, x);
 }
 
-String AMatrix::toString(const AStringFormat* /* strfmt*/) const
+String AMatrix::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
@@ -796,24 +829,14 @@ bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 
 bool AMatrix::_isRowValid(int irow) const
 {
-  if (! _flagCheckAddress) return true;
-  if (irow < 0 || irow >= getNRows())
-  {
-    mesArg("Row index invalid",irow,getNRows());
-    return false;
-  }
-  return true;
+  if (!_flagCheckAddress) return true;
+  return checkArg("Row index invalid", irow, getNRows());
 }
 
 bool AMatrix::_isColumnValid(int icol) const
 {
-  if (! _flagCheckAddress) return true;
-  if (icol < 0 || icol >= getNCols())
-  {
-    mesArg("Column index invalid",icol,getNCols());
-    return false;
-  }
-  return true;
+  if (!_flagCheckAddress) return true;
+  return checkArg("Column index invalid", icol, getNCols());
 }
 
 bool AMatrix::_isIndexValid(int irow, int icol) const
@@ -824,7 +847,7 @@ bool AMatrix::_isIndexValid(int irow, int icol) const
   return true;
 }
 
-bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
+bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab) const
 {
   if ((int) tab.size() != getNRows())
   {
@@ -834,7 +857,7 @@ bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
+bool AMatrix::_isColVectorConsistent(const VectorDouble& tab) const
 {
   if ((int) tab.size() != getNCols())
   {
@@ -844,13 +867,38 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrix::_isVectorSizeConsistent(int nrows,
-                                      int ncols,
-                                      const VectorDouble &tab)
+bool AMatrix::_isVectorSizeConsistent(const VectorDouble &tab) const
 {
+  int nrows = getNRows();
+  int ncols = getNCols();
   if ((int) tab.size() != nrows * ncols)
   {
-    messerr("The VectorDouble argument does not have correct dimension");
+    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
+            (int) tab.size(), nrows * ncols);
+    return false;
+  }
+  return true;
+}
+
+bool AMatrix::_isColumnSizeConsistent(const VectorDouble &tab) const
+{
+  int nrows = getNRows();
+  if ((int) tab.size() != nrows)
+  {
+    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
+            (int) tab.size(), nrows);
+    return false;
+  }
+  return true;
+}
+
+bool AMatrix::_isRowSizeConsistent(const VectorDouble &tab) const
+{
+  int ncols = getNCols();
+  if ((int) tab.size() != ncols)
+  {
+    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
+            (int) tab.size(), ncols);
     return false;
   }
   return true;
@@ -1029,21 +1077,25 @@ VectorDouble AMatrix::getDiagonal(int shift) const
  * Reset the contents of a matrix by setting all terms to 0 and
  * update diagonal terms from the input argument 'tab'
  * @param tab Input vector to be copied to the diagonal of the output matrix
+ * @param flagCheck When True, check the input arguments
  */
-void AMatrix::setDiagonal(const VectorDouble& tab)
+void AMatrix::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {
+  int nrows = getNRows();
   if (! isSquare())
   {
     messerr("This function is only valid for Square matrices. Nothing is done");
     return;
   }
-
-  fill(0.);
-  for (int irow = 0; irow < getNRows(); irow++)
+  if (flagCheck)
   {
-    int icol = irow;
-    if (icol < 0 || icol >= getNCols()) continue;
-    setValue(irow,icol,tab[irow]);
+    if (! _isRowSizeConsistent(tab)) return;
+  }
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    if (irow >= getNCols()) continue;
+    setValue(irow,irow,tab[irow]);
   }
 }
 
@@ -1055,7 +1107,6 @@ void AMatrix::setDiagonalToConstant(double value)
     return;
   }
 
-  fill(0.);
   for (int irow = 0; irow < getNRows(); irow++)
   {
     int icol = irow;
@@ -1068,11 +1119,7 @@ void AMatrix::setDiagonalToConstant(double value)
 VectorDouble AMatrix::getRow(int irow) const
 {
   VectorDouble vect;
-  if (irow < 0 || irow >= getNRows())
-  {
-    mesArg("Incorrect argument 'irow'",irow,getNRows());
-    return vect;
-  }
+  if (!checkArg("Incorrect argument 'irow'", irow, getNRows())) return vect;
 
   for (int icol = 0; icol < getNCols(); icol++)
     vect.push_back(getValue(irow,icol));
@@ -1080,7 +1127,7 @@ VectorDouble AMatrix::getRow(int irow) const
 }
 
 /*! Set the contents of a Row */
-void AMatrix::setRow(int irow, const VectorDouble& tab)
+void AMatrix::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
   if (irow < 0 || irow >= getNRows())
     my_throw("Incorrect argument 'irow'");
@@ -1088,7 +1135,7 @@ void AMatrix::setRow(int irow, const VectorDouble& tab)
     my_throw("Incorrect dimension of 'tab'");
 
   for (int icol = 0; icol < getNCols(); icol++)
-    setValue(irow,icol,tab[icol]);
+    setValue(irow,icol,tab[icol],flagCheck);
 }
 
 /*! Extract a Column */
@@ -1104,7 +1151,7 @@ VectorDouble AMatrix::getColumn(int icol) const
 }
 
 /*! Set the contents of a Column */
-void AMatrix::setColumn(int icol, const VectorDouble& tab)
+void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
   if (icol < 0 || icol >= getNCols())
     my_throw("Incorrect argument 'icol'");
@@ -1112,7 +1159,7 @@ void AMatrix::setColumn(int icol, const VectorDouble& tab)
     my_throw("Incorrect dimension of 'tab'");
 
   for (int irow = 0; irow < getNRows(); irow++)
-    setValue(irow,icol,tab[irow]);
+    setValue(irow,icol,tab[irow], flagCheck);
 }
 
 /*! Checks if a Column is valid (contains a non TEST value) */
@@ -1284,7 +1331,7 @@ void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
  ** \param[in]  verbose  True for the verbose option
  **
  *****************************************************************************/
-bool AMatrix::isNonNegative(bool verbose)
+bool AMatrix::isNonNegative(bool verbose) const
 {
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
@@ -1328,19 +1375,29 @@ void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
 }
 
 void AMatrix::linearCombination(double val1,
-                                const AMatrix *mat1,
+                                const AMatrix* mat1,
                                 double val2,
-                                const AMatrix *mat2)
+                                const AMatrix* mat2,
+                                double val3,
+                                const AMatrix* mat3)
 {
   // Check dimensions
   if (mat1 != nullptr && ! isSameSize(*mat1))
   {
-    messerr("Dimensions of 'in1' do not match dimensions of current matrix. Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat1' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
   if (mat2 != nullptr && ! isSameSize(*mat2))
   {
-    messerr("Dimensions of 'in2' do not match dimensions of current matrix. Nothing is done");
+    messerr("AMatrix::linearCombination: Dimensions of 'mat2' do not match "
+            "dimensions of current matrix. Nothing is done");
+    return;
+  }
+  if (mat3 != nullptr && !isSameSize(*mat3))
+  {
+    messerr("AMatrix::linearCombination: Dimensions of 'mat3' do not match "
+            "dimensions of current matrix. Nothing is done");
     return;
   }
 
@@ -1351,6 +1408,7 @@ void AMatrix::linearCombination(double val1,
       double value = 0;
       if (mat1 != nullptr) value += val1 * mat1->getValue(irow, icol);
       if (mat2 != nullptr) value += val2 * mat2->getValue(irow, icol);
+      if (mat3 != nullptr) value += val3 * mat3->getValue(irow, icol);
       setValue(irow, icol, value);
     }
 }

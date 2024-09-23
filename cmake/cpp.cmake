@@ -11,8 +11,8 @@ if(NOT IS_MULTI_CONFIG)
   message(STATUS "BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
 endif()
 
-# Add c++11 support whatever the compiler
-set(CMAKE_CXX_STANDARD 11)
+# Add c++20 support whatever the compiler
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Warning fiesta!
@@ -24,11 +24,22 @@ if (MSVC)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
-  add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wundef)
+  add_compile_options(
+    -Wall
+    -Wextra
+    -Wno-deprecated-copy
+    -Wtype-limits
+    -Wnon-virtual-dtor
+    -Wvla
+    -Wundef
+  )
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
   endif()
 endif()
+
+#add_compile_options(-fsanitize=address -O0 -ggdb)
+#add_link_options(-fsanitize=address)
 
 # C++ header location (keep the trailing '/')
 set(INCLUDES 
@@ -40,16 +51,22 @@ foreach(CPP ${SRC})
   set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/src/${CPP})
 endforeach(CPP ${SRC})
 
+# target_include_directories() below is enough to get the code to compile but if
+# includes are not explicitly added to SOURCES then Visual Studio doesn't see them
+# as part of the project itself. They are GLOB'ed even though it's fragile for
+# simplicity (it's just to get the project tree right).
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+  file(GLOB_RECURSE INCS RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/*.hpp ${PROJECT_SOURCE_DIR}/include/*.h)
+  foreach(HPP ${INCS})
+    set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/include/${HPP})
+  endforeach(HPP ${INCS})
+endif()
+
 # Generation folder (into Release or Debug)
-if (NOT IS_MULTI_CONFIG)
+if (NOT IS_MULTI_CONFIG AND NOT WIN32)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE} OUTPUT_VARIABLE CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-endif()
-
-# Change the name of the output file (to distinguish lib files under Windows)
-if (WIN32)
-  set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 endif()
 
 # Debug find package instruction
@@ -68,8 +85,8 @@ endif()
 
 # Look for Eigen
 find_package(Eigen3 REQUIRED) 
-if(EIGEN3_FOUND)
-  message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR} (found version ${Eigen3_VERSION})")
+if(Eigen3_FOUND) 
+    message(STATUS "Found Eigen3 version ${Eigen3_VERSION} in ${Eigen3_DIR}")
 endif()
 
 # Look for HDF5
@@ -209,3 +226,9 @@ set_target_properties(shared PROPERTIES
 set_target_properties(static PROPERTIES
   COMPILE_FLAGS -D${PROJECT_NAME_UP}_STATIC_DEFINE
 )
+
+# we need a specific name for the static library otherwise Ninja on
+# Windows not happy...
+if (WIN32 AND CMAKE_GENERATOR MATCHES "Ninja")
+  set_target_properties(static PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_static)
+endif()

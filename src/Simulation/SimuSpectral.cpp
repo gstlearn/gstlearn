@@ -15,6 +15,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Db/Db.hpp"
 
 #include <math.h>
 
@@ -306,9 +307,9 @@ int SimuSpectral::_getKey1Maximum(const spSim& spsim) const
 int SimuSpectral::_getSumValue(const spSim& spsim) const
 {
   double sum = 0;
-  for (const auto e1: spsim._tab)
+  for (const auto &e1: spsim._tab)
   {
-    for (const auto e2: e1.second)
+    for (const auto &e2: e1.second)
       sum += e2.second;
   }
   return sum;
@@ -317,7 +318,7 @@ int SimuSpectral::_getSumValue(const spSim& spsim) const
 VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1) const
 {
   VectorInt keys;
-  for (auto e1: spsim._tab)
+  for (const auto &e1: spsim._tab)
   {
     if (e1.first != key1) continue;
 
@@ -332,7 +333,7 @@ VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1) const
 VectorInt SimuSpectral::_getValues2(const spSim& spsim, int key1) const
 {
   VectorInt keys;
-  for (auto e1: spsim._tab)
+  for (const auto &e1: spsim._tab)
   {
     if (e1.first != key1) continue;
 

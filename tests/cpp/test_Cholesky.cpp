@@ -8,15 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "LinearOp/Cholesky.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Utilities.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
 /****************************************************************************/
@@ -71,7 +71,9 @@ int main(int argc, char *argv[])
   // Checking Product
   M.prodMatVecInPlace(vecin, vecout1);
   Qchol.evalDirect(vecin, vecout2);
-  if (VH::isSame(vecout1,  vecout2))
+  // I suppressed this test. I need evalDirect for Cholesky to perform the product by L.
+  // Using Cholesky to make the product by the original matrix is useless.
+/*   if (VH::isSame(vecout1,  vecout2)) 
   {
     message("Product Mat * V is validated\n");
   }
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
   {
     VH::display("Product Mat * V (by Matrix)", vecout1);
     VH::display("Product Mat * V (by Cholesky)", vecout2);
-  }
+  } */
 
   // Checking Inverse
   (void) M.solve(vecin, vecout1);
@@ -96,7 +98,14 @@ int main(int argc, char *argv[])
   MatrixSquareSymmetric MP(M);
   (void) MP.invert();
   VectorDouble vecout1b = MP.getDiagonal();
-  Qchol.stdev(vecout2);
+
+  // We use a Tim Davis sparse matrix cs as long as Qchol
+  // stdev calculation is not available with eigen underlying matrix
+  MatrixSparse* M2 = MatrixSparse::createFromTriplet(M.getMatrixToTriplet(),
+                                                     M.getNRows(), M.getNCols(),
+                                                     0);
+  Cholesky Qchol2(M2);
+  Qchol2.stdev(vecout2);
   if (VH::isSame(vecout1b,  vecout2))
     message("Standard Deviation is validated\n");
   else

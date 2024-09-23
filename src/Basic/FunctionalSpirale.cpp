@@ -75,7 +75,7 @@ FunctionalSpirale::~FunctionalSpirale()
 {
 }
 
-double FunctionalSpirale::_linearCombination(double x, double y, double a, double b) const
+double FunctionalSpirale::_linearCombination(double x, double y, double a, double b)
 {
     return a*x + b*y;
 }
@@ -87,20 +87,17 @@ double FunctionalSpirale::_linearCombination(double x, double y, double a, doubl
  */
 double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
 {
-  double x = coor[0] - _xcenter;
-  double y = coor[1] - _ycenter;
-  double u1 = _linearCombination(x, y, _a, _b);
-  double u2 = _linearCombination(x, y, _c, _d);
+  double x    = coor[0] - _xcenter;
+  double y    = coor[1] - _ycenter;
+  double u1   = _linearCombination(x, y, _a, _b);
+  double u2   = _linearCombination(x, y, _c, _d);
   double norm = sqrt(u1 * u1 + u2 * u2);
   if (norm > 0)
   {
     double a2ndeg = acos(u2 / norm) * 180. / GV_PI;
     return (u1 >= 0) ? -a2ndeg : a2ndeg;
   }
-  else
-  {
-    return 0.;
-  }
+  return 0.;
 }
 
 /**

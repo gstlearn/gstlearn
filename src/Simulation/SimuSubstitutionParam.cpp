@@ -220,7 +220,7 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
  **
  *****************************************************************************/
 void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
-                                               bool verbose) const
+                                               bool verbose)
 {
   int ndim = (int) vector.size();
   double total = 0.;
@@ -268,7 +268,6 @@ void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose) const
     }
     *factor = 1.;
   }
-  return;
 }
 
 bool SimuSubstitutionParam::isAngleLocal() const
@@ -310,6 +309,5 @@ int SimuSubstitutionParam::getColang(int idim) const
 {
   if (idim < (int) _colang.size())
     return _colang[idim];
-  else
-    return 0.;
+  return 0.;
 }

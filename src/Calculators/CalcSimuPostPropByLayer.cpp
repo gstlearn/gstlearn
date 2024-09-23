@@ -22,8 +22,6 @@ CalcSimuPostPropByLayer::~CalcSimuPostPropByLayer()
 
 bool CalcSimuPostPropByLayer::_check()
 {
-  // Be compliant with the general constraints of SimuPost
-
   if (! CalcSimuPost::_check()) return false;
 
   // The upscaling is compulsory here
@@ -219,6 +217,7 @@ int simuPostPropByLayer(Db *dbin,
   calcul.setCheckTargets(check_targets);
   calcul.setCheckLevel(check_level);
   calcul.setNamingConvention(namconv);
+  calcul.setMustShareSpaceDimension(false);
 
   int error = (calcul.run()) ? 0 : 1;
   return error;

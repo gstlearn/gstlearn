@@ -16,7 +16,6 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class Db;
@@ -38,7 +37,7 @@ public:
   double getEigVal(int ivar) const { return _eigval[ivar]; }
   const MatrixRectangular& getEigVecs() const { return _eigvec; }
   double getEigVec(int ivar, int jvar) const { return _eigvec.getValue(ivar,jvar); }
-  const VectorDouble getVarianceRatio() const;
+  VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
   const MatrixSquareSymmetric& getC0() const { return _c0; }
@@ -51,7 +50,7 @@ public:
   void setMeans(const VectorDouble &mean) { _mean = mean; }
   void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
   void setZ2Fs(const MatrixSquareGeneral& z2f) { _Z2F = z2f; }
-  void setF2Zs(MatrixSquareGeneral& f2z) { _F2Z = f2z; }
+  void setF2Zs(const MatrixSquareGeneral& f2z) { _F2Z = f2z; }
 
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
   void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }
@@ -79,8 +78,8 @@ private:
   double _getZ2F(int ifac, int ivar) const { return _Z2F.getValue(ifac, ivar); }
   void   _setZ2F(int ifac, int ivar, double z2f) {  _Z2F.setValue(ifac, ivar, z2f); }
 
-  VectorBool _getVectorIsotopic(const Db* db);
-  void _loadData(const Db* db, int iech, VectorDouble& data);
+  static VectorBool _getVectorIsotopic(const Db* db);
+  static void _loadData(const Db* db, int iech, VectorDouble& data);
   int  _calculateEigen(bool verbose = false, bool optionPositive = true);
   int  _calculateGEigen(bool verbose);
   void _calculateNormalization(const Db *db,
@@ -99,21 +98,21 @@ private:
                    double hmax,
                    const VectorBool &isoFlag,
                    bool verbose);
-  void _center(VectorDouble& data,
-               const VectorDouble &mean,
-               const VectorDouble &sigma,
-               bool flag_center = true,
-               bool flag_scale = false);
-  void _uncenter(VectorDouble& data,
-                 const VectorDouble &mean,
-                 const VectorDouble &sigma,
-                 bool flag_center = true,
-                 bool flag_scale = false);
+  static void _center(VectorDouble& data,
+                      const VectorDouble& mean,
+                      const VectorDouble& sigma,
+                      bool flag_center = true,
+                      bool flag_scale  = false);
+  static void _uncenter(VectorDouble& data,
+                        const VectorDouble& mean,
+                        const VectorDouble& sigma,
+                        bool flag_center = true,
+                        bool flag_scale  = false);
   void _pcaZ2F(int iptr,
-               Db *db,
-               const VectorBool isoFlag,
-               const VectorDouble &mean,
-               const VectorDouble &sigma);
+               Db* db,
+               const VectorBool& isoFlag,
+               const VectorDouble& mean,
+               const VectorDouble& sigma);
   void _pcaF2Z(int iptr,
                Db *db,
                const VectorBool &isoFlag,

@@ -8,12 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
-#include "geoslib_f_private.h"
-#include "geoslib_f.h"
-
-#include "Enum/EAnam.hpp"
 
 #include "Variogram/VCloud.hpp"
 #include "Variogram/Vario.hpp"
@@ -21,22 +16,12 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Stats/Classical.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Space/SpacePoint.hpp"
-#include "Space/SpaceRN.hpp"
-#include "Geometry/BiTargetCheckCode.hpp"
-#include "Geometry/BiTargetCheckDate.hpp"
-#include "Geometry/BiTargetCheckFaults.hpp"
-#include "Geometry/BiTargetCheckGeometry.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Polygon/Polygons.hpp"
 
 static int IPTR;
@@ -75,7 +60,7 @@ VCloud::~VCloud()
 
 double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
 {
-  return db->getLocVariable(ELoc::Z, iech, ivar);
+  return db->getZVariable( iech, ivar);
 }
 
 /****************************************************************************/
@@ -124,8 +109,8 @@ void VCloud::_setResult(int iech1,
   {
     VectorInt indg(2);
     VectorDouble coor(2);
-    db_index_sample_to_grid(_dbcloud, igrid, indg.data());
-    grid_to_point(_dbcloud, indg.data(), NULL, coor.data());
+    _dbcloud->rankToIndice(igrid, indg);
+    _dbcloud->indicesToCoordinateInPlace(indg, coor);
     if (! POLYGON->inside(coor, false)) return;
     {
       IDS[iech1] += 1.;
@@ -137,6 +122,7 @@ void VCloud::_setResult(int iech1,
 /****************************************************************************/
 /*!
  **  Evaluate the experimental variogram cloud on irregular data
+ **  This method creates one variable per direction of 'dirparam'
  **
  ** \return  Error return code
  **
@@ -233,23 +219,22 @@ void VCloud::_variogram_cloud(Db *db, int idir)
   for (int iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     int ideb = (_varioparam->isDateUsed(db)) ? 0 : iech + 1;
     for (int jech = ideb; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (! vario->keepPair(idir, T1, T2, &dist)) continue;
 
-      evaluate(db, nvar, iech, jech, 0, dist, 0);
+      (this->*_evaluate)(db, nvar, iech, jech, 0, dist, false);
     }
   }
 
   delete vario;
-  return;
 }
 
 /****************************************************************************/
@@ -264,7 +249,8 @@ void VCloud::_variogram_cloud(Db *db, int idir)
  *****************************************************************************/
 int VCloud::_update_discretization_grid(double x, double y)
 {
-  int indg[2];
+  int ndim = _dbcloud->getNDim();
+  VectorInt indg(ndim,0);
 
   int ix = (int) floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5);
   int iy = (int) floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5);
@@ -272,7 +258,7 @@ int VCloud::_update_discretization_grid(double x, double y)
   if (iy < 0 || iy >= _dbcloud->getNX(1)) return (-1);
   indg[0] = ix;
   indg[1] = iy;
-  return db_index_grid_to_sample(_dbcloud, indg);
+  return _dbcloud->indiceToRank(indg);
 }
 
 /****************************************************************************/
@@ -289,6 +275,8 @@ int VCloud::_update_discretization_grid(double x, double y)
  ** \param[in]  varnb        Number of discretization steps along variance axis
  ** \param[in]  namconv      Naming convention
  **
+ ** \remarks If 'lagmax' is not provided, it is set to the diagonal of the
+ ** area covered by the active samples within 'db'.
  ** \remarks If 'varmax' is not defined, it is set to 3 times the experimental
  ** variance of the first variable (Z_locator)
  **

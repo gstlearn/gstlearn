@@ -47,8 +47,11 @@ public:
 
 protected:
   virtual bool _check() override;
-  virtual int _getNDim() const;
-  virtual int _getNVar() const;
+  virtual bool _preprocess() override;
+  int _getNDim() const { return _ndim; }
+  int _getNVar() const { return _nvar; }
+  bool _setNdim(int ndim, bool flagForce = false);
+  bool _setNvar(int nvar, bool flagForce = false);
 
   int _addVariableDb(int whichDb,
                      int status,
@@ -57,16 +60,16 @@ protected:
                      int number = 1,
                      double valinit = 0.);
   void _renameVariable(int whichDb,
-                       const VectorString &names,
-                       const ELoc &locatorType,
+                       const VectorString& names,
+                       const ELoc& locatorType,
                        int nvar,
                        int iptr,
-                       const String &name,
+                       const String& qualifier,
                        int count,
                        bool flagSetLocator = true,
-                       int shift = 0);
+                       int locatorShift    = 0);
   void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
-  int  _expandInformation(int mode, const ELoc& locatorType);
+  int  _expandInformation(int mode, const ELoc& locatorType) const;
   void _cleanVariableDb(int status);
   Db*  _whichDb(int whichDb);
   String _identifyVariable(int iuid) const;
@@ -84,4 +87,6 @@ private:
   VectorInt _listVariablePermDbOut;
   VectorInt _listVariableTempDbIn;
   VectorInt _listVariableTempDbOut;
+  int _ndim;
+  int _nvar;
 };

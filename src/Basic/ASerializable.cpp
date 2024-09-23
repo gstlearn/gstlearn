@@ -10,20 +10,16 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <regex>
-#include <fstream>
 #ifdef __linux__ // Not operational under MacOS
 #include <wordexp.h>
 #endif
@@ -271,7 +267,7 @@ String ASerializable::getHomeDirectory(const String& sub)
 
 String ASerializable::getWorkingDirectory()
 {
-  String path = "";
+  String path;
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[LONG_SIZE];
   if (GetModuleFileName(NULL, buffer, LONG_SIZE) != 0)

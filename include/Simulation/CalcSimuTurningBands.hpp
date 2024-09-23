@@ -75,6 +75,7 @@ public:
   void setIcase(int icase) { _icase = icase; }
   int getNbtuba() const { return _nbtuba; }
   void setNbtuba(int nbtuba) { _nbtuba = nbtuba; }
+  void setFlagAllocationAlreadyDone(int flag) { _flagAllocationAlreadyDone = flag; }
 
 private:
   virtual bool _check() override;
@@ -130,13 +131,13 @@ private:
   int  _generateDirections(const Db* dbout);
   void _minmax(const Db *db);
   void _setDensity();
-  ECov _particularCase(const ECov &type, double param);
+  static ECov _particularCase(const ECov &type, double param);
   int  _initializeSeedBands();
   VectorDouble _createAIC();
   double _getAIC(const VectorDouble& aic, int icov, int ivar, int jvar);
 
-  double _computeScale(double alpha, double scale);
-  double _computeScaleKB(double param, double scale);
+  static double _computeScale(double alpha, double scale);
+  static double _computeScaleKB(double param, double scale);
 
   void _migrationInit(int ibs,
                       int is,
@@ -149,7 +150,7 @@ private:
   double _spline1DInit(int ibs, int k, TurningBandOperate &operTB);
   double _irfProcessInit(int ibs, int is, TurningBandOperate &operTB);
 
-  double _irfCorrec(const ECov &type, double theta1, double scale);
+  static double _irfCorrec(const ECov &type, double theta1, double scale);
   void _getOmegaPhi(int ibs,
                     TurningBandOperate& operTB,
                     double* cxp,
@@ -191,14 +192,15 @@ private:
                               VectorDouble &tab);
 
 private:
-  int  _nbtuba;
-  int  _iattOut;
-  int  _icase;
+  int _nbtuba;
+  int _iattOut;
+  int _icase;
   bool _flagCheck;
   bool _flagBayes;
   bool _flagPGS;
   bool _flagGibbs;
   bool _flagDGM;
+  bool _flagAllocationAlreadyDone;
   VectorString _nameCoord;
   VectorDouble _bayesMean;
   MatrixSquareSymmetric _bayesCov;

@@ -242,10 +242,10 @@ int Skin::init(bool verbose)
     return 1;
   }
   VectorInt indg(ndim);
-  int nb_mask = 0;
+  int nb_mask  = 0;
   int nb_count = 0;
-  int nb_done = 0;
-  int total = _nxyz;
+  int nb_done  = 0;
+  int total    = _nxyz;
 
   // Loop on all the cells
 
@@ -259,7 +259,7 @@ int Skin::init(bool verbose)
       nb_done++;
       continue;
     }
-    else if (! _skf->isToBeFilled(lec))
+    if (!_skf->isToBeFilled(lec))
     {
 
       /* The cell does not belong to the cell: it is masked off */
@@ -267,28 +267,25 @@ int Skin::init(bool verbose)
       nb_mask++;
       continue;
     }
-    else
+
+    /* The cell is eligible */
+
+    nb_count++;
+    int local = 0;
+    _dbgrid->rankToIndice(lec, indg);
+    for (int dir = 0; dir < ndir[ndim]; dir++)
     {
-
-      /* The cell is eligible */
-
-      nb_count++;
-      int local = 0;
-      _dbgrid->rankToIndice(lec, indg);
-      for (int dir = 0; dir < ndir[ndim]; dir++)
+      int ecr = _gridShift(indg, dir);
+      if (IFFFF(ecr)) continue;
+      if (!_skf->isAlreadyFilled(ecr)) continue;
+      local += (int)_skf->getWeight(ecr, invdir[dir]);
+    }
+    if (local > 0.)
+    {
+      if (_cellAdd(lec, local))
       {
-        int ecr = _gridShift(indg, dir);
-        if (IFFFF(ecr)) continue;
-        if (! _skf->isAlreadyFilled(ecr)) continue;
-        local += (int) _skf->getWeight(ecr, invdir[dir]);
-      }
-      if (local > 0.)
-      {
-        if (_cellAdd(lec, local))
-        {
-          messerr("Core allocation problem in Skin algorithm");
-          return (1);
-        }
+        messerr("Core allocation problem in Skin algorithm");
+        return (1);
       }
     }
   }
@@ -418,19 +415,17 @@ int Skin::unstack(int rank0, int ipos0)
  **  Print the computing information concerning the skin algorithm
  **
  *****************************************************************************/
-void Skin::skinPrint()
+void Skin::skinPrint() const
 {
   mestitle(1, "Skin algorithm: Final status");
   message("- Number of iterations          = %d\n", _date);
   message("- Maximum skin length           = %d\n", _nvalMax);
   message("- Maximum energy                = %lf\n", _totalMax);
-  return;
 }
 
 int Skin::_getNDim() const
 {
   if (_dbgrid != nullptr)
     return _dbgrid->getNDim();
-  else
-    return 0;
+  return 0;
 }

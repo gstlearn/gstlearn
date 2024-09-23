@@ -10,13 +10,13 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Core/CSV.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/CSVformat.hpp"
-#include "Basic/AException.hpp"
 #include "Polygon/Polygons.hpp"
 
 Polygons::Polygons()
@@ -662,7 +662,7 @@ int dbPolygonDistance(Db *db,
  ** \remarks belongs to one PolyElem
  **
  *****************************************************************************/
-bool Polygons::inside(const VectorDouble& coor, bool flag_nested)
+bool Polygons::inside(const VectorDouble& coor, bool flag_nested) const
 {
   bool flag3d = (int) coor.size() > 2;
   if (flag_nested)
@@ -705,7 +705,7 @@ bool Polygons::inside(const VectorDouble& coor, bool flag_nested)
  **
  *****************************************************************************/
 VectorInt Polygons::_getHullIndices(const VectorDouble &x,
-                                    const VectorDouble &y) const
+                                    const VectorDouble &y)
 {
   int number = (int) x.size();
   VectorInt index(number + 1);
@@ -772,7 +772,7 @@ VectorInt Polygons::_getHullIndices(const VectorDouble &x,
 
 void Polygons::_polygonHullPrint(const VectorInt &index,
                                  const VectorDouble &x,
-                                 const VectorDouble &y) const
+                                 const VectorDouble &y)
 {
   mestitle(1,"Polygon Hull");
   message("Ranks (1-based) and coordinates of the Active Samples included in the Convex Hull\n");
@@ -929,7 +929,7 @@ Polygons Polygons::reduceComplexity(double distmin) const
  **
  *****************************************************************************/
 void db_polygon(Db *db,
-                Polygons *polygon,
+                const Polygons *polygon,
                 bool flag_sel,
                 bool flag_period,
                 bool flag_nested,
@@ -946,7 +946,7 @@ void db_polygon(Db *db,
   {
     mes_process("Checking if sample belongs to a polygon",db->getSampleNumber(),iech);
     int selval = 0;
-    if (!(flag_sel && !db->isActive(iech)))
+    if (! flag_sel || db->isActive(iech))
     {
       db->getCoordinatesPerSampleInPlace(iech, coor);
       selval = polygon->inside(coor, flag_nested);
@@ -965,8 +965,6 @@ void db_polygon(Db *db,
 
   // Setting the output variable
   namconv.setNamesAndLocators(db, iatt);
-
-  return;
 }
 
 /*****************************************************************************/

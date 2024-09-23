@@ -9,21 +9,24 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Calculators/ACalculator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/VectorHelper.hpp"
 
 ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
-    : ACalculator(),
-      _mustShareSpaceDimension(mustShareSameSpaceDimension),
-      _dbin(nullptr),
-      _dbout(nullptr),
-      _namconv(),
-      _listVariablePermDbIn(),
-      _listVariablePermDbOut(),
-      _listVariableTempDbIn(),
-      _listVariableTempDbOut()
+  : ACalculator()
+  , _mustShareSpaceDimension(mustShareSameSpaceDimension)
+  , _dbin(nullptr)
+  , _dbout(nullptr)
+  , _namconv()
+  , _listVariablePermDbIn()
+  , _listVariablePermDbOut()
+  , _listVariableTempDbIn()
+  , _listVariableTempDbOut()
+  , _ndim(0)
+  , _nvar(0)
 {
 }
 
@@ -31,45 +34,8 @@ ACalcDbToDb::~ACalcDbToDb()
 {
 }
 
-int ACalcDbToDb::_getNDim() const
-{
-  if (_dbin != nullptr)
-  {
-    return _dbin->getNDim();
-  }
-
-  if (_dbout != nullptr)
-  {
-    return _dbout->getNDim();
-  }
-  return -1;
-}
-
-int ACalcDbToDb::_getNVar() const
-{
-  int nvar = 0;
-  if (_dbin != nullptr)
-  {
-    if (nvar > 0)
-    {
-      if (nvar != _dbin->getLocNumber(ELoc::Z)) return -1;
-    }
-    else
-    {
-      nvar = _dbin->getLocNumber(ELoc::Z);
-    }
-  }
-  return nvar;
-}
-
 bool ACalcDbToDb::_checkSpaceDimension()
 {
-  if (! _mustShareSpaceDimension) return true;
-
-  /**************************************************/
-   /* Cross-checking the Space Dimension consistency */
-   /**************************************************/
-
    int ndim = 0;
    if (_dbin != nullptr)
    {
@@ -88,6 +54,9 @@ bool ACalcDbToDb::_checkSpaceDimension()
        ndim = _dbin->getNDim();
      }
    }
+   _setNdim(ndim);
+
+   if (!_mustShareSpaceDimension) return true;
 
    if (_dbout != nullptr)
    {
@@ -103,10 +72,48 @@ bool ACalcDbToDb::_checkSpaceDimension()
      }
      else
      {
-//       ndim = _dbout->getNDim(); // Never reached
+       ndim = _dbout->getNDim();
      }
    }
    return true;
+}
+
+bool ACalcDbToDb::_setNvar(int nvar, bool flagForce)
+{
+  if (nvar <= 0) return true;
+  if (_nvar <= 0 || flagForce)
+    _nvar = nvar;
+  else
+  {
+    if (nvar < _nvar)
+    {
+      messerr("Inconsistent Variable Number:");
+      messerr("- Number already defined = %d", _nvar);
+      messerr("- Number of variables newly declared = %d", nvar);
+      return false;
+    }
+    _nvar = nvar;
+  }
+  return true;
+}
+
+bool ACalcDbToDb::_setNdim(int ndim, bool flagForce)
+{
+  if (ndim <= 0) return true;
+  if (_ndim <= 0 || flagForce)
+    _ndim = ndim;
+  else
+  {
+    if (_ndim != ndim)
+    {
+      messerr("Inconsistent Space dimension:");
+      messerr("- Number already defined = %d", _ndim);
+      messerr("- Number of variables newly declared = %d", ndim);
+      return false;
+    }
+    _ndim = ndim;
+  }
+  return true;
 }
 
 bool ACalcDbToDb::_checkVariableNumber()
@@ -118,7 +125,7 @@ bool ACalcDbToDb::_checkVariableNumber()
     {
       if (nvar != _dbin->getLocNumber(ELoc::Z))
       {
-        messerr("Inconsistent the Variable Number:");
+        messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d", nvar);
         messerr("- Number of variables in 'dbin' = %d",
                 _dbin->getLocNumber(ELoc::Z));
@@ -127,14 +134,17 @@ bool ACalcDbToDb::_checkVariableNumber()
     }
     else
     {
-//      nvar = _dbin->getLocNumber(ELoc::Z); // Never reached
+      nvar = _dbin->getLocNumber(ELoc::Z);
     }
   }
+  _setNvar(nvar);
   return true;
 }
 
 bool ACalcDbToDb::_check()
 {
+  if (!ACalculator::_check()) return false;
+  
   /**************************************************/
   /* Cross-checking the Space Dimension consistency */
   /**************************************************/
@@ -148,6 +158,11 @@ bool ACalcDbToDb::_check()
   if (! _checkVariableNumber()) return false;
 
   return true;
+}
+
+bool ACalcDbToDb::_preprocess()
+{
+  return ACalculator::_preprocess();
 }
 
 /**
@@ -248,7 +263,7 @@ void ACalcDbToDb::_renameVariable(int whichDb,
                                   const ELoc& locatorType,
                                   int nvar,
                                   int iptr,
-                                  const String &qualifier,
+                                  const String& qualifier,
                                   int count,
                                   bool flagSetLocator,
                                   int locatorShift)
@@ -381,7 +396,7 @@ DbGrid* ACalcDbToDb::getGridout() const
  ** \remark When called with mode=-1, the variables are deleted (by type)
  **
  *****************************************************************************/
-int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
+int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType) const
 {
   if (getDbin() == nullptr || getDbout() == nullptr) return 0;
 
@@ -413,7 +428,14 @@ int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
 
   if (mode > 0)
   {
-    if (migrateByLocator(dbgrid, getDbin(), locatorType)) return 1;
+    // Here, the naming Convention is modified in order to anticipate the
+    // locator of the newly created variables
+    NamingConvention* namconv = NamingConvention::create("Migrate");
+    namconv->setLocatorOutType(locatorType);
+    int error = migrateByLocator(dbgrid, getDbin(), locatorType, 1,
+                                 VectorDouble(), false, false, false, *namconv);
+    delete namconv;
+    if (error != 0) return 1;
   }
   else
   {

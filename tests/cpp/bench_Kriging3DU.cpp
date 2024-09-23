@@ -74,10 +74,10 @@ int main(int argc, char *argv[])
   if (graphic)
     (void) grid->dumpToNF("Grid.ascii");
 
-  if (neighU    != nullptr) delete neighU;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
-  if (model     != nullptr) delete model;
+  delete neighU;
+  delete data;
+  delete grid;
+  delete model;
 
   return (0);
 }

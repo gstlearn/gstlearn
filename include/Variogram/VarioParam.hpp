@@ -17,7 +17,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 
 class Db;
 class Model;
@@ -42,7 +41,7 @@ public:
              const VectorDouble& dates = VectorDouble(),
              const Faults* faults = nullptr);
   VarioParam(const VarioParam& VarioParam,
-             const VectorInt& rankdirs,
+             const VectorInt& dircols,
              const Faults* faults = nullptr);
   VarioParam(const VarioParam& r);
   VarioParam& operator=(const VarioParam& r);
@@ -76,11 +75,13 @@ public:
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
                                     const ASpace* space = nullptr);
-  static VarioParam* createMultipleFromGrid(const DbGrid* dbgrid,
-                                            int npas,
-                                            double scale = 0.,
-                                            const VectorDouble& dates = VectorDouble(),
-                                            const ASpace* space = nullptr);
+  static VarioParam*
+  createMultipleFromGrid(const DbGrid* dbgrid,
+                         int npas,
+                         double scale              = 0.,
+                         const VectorDouble& dates = VectorDouble(),
+                         const ASpace* space       = nullptr,
+                         int ndimax = 0);
   static VarioParam* createFromSpaceDimension(int npas = 10,
                                               double dpas = 1.,
                                               double toldis = 0.5,
@@ -119,7 +120,7 @@ public:
   bool isDateUsed(const Db *db1, const Db *db2 = nullptr) const;
 
   void setScale(double scale) { _scale = scale; }
-  void setDates(VectorDouble dates) { _dates = dates; }
+  void setDates(const VectorDouble& dates) { _dates = dates; }
   void setDPas(int idir,const DbGrid* db);
   void setGrincr(int idir, const VectorInt& grincr);
 

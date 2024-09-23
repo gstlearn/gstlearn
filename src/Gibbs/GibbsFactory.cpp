@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ENeigh.hpp"
-
 #include "Gibbs/GibbsFactory.hpp"
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Gibbs/GibbsUMulti.hpp"
@@ -62,7 +60,7 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
  * @return
  */
 AGibbs* GibbsFactory::createGibbs(Db* db,
-                                  std::vector<Model *> models,
+                                  const std::vector<Model *>& models,
                                   double rho,
                                   bool flag_propagation)
 {
@@ -87,25 +85,20 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
       GibbsUPropMono* gibbs = new GibbsUPropMono(db, models, 1.);
       return (static_cast<AGibbs *>(gibbs));
     }
-    else
-    {
 
       // Standard case
 
       GibbsUMultiMono* gibbs = new GibbsUMultiMono(db, models, rho);
       return (static_cast<AGibbs *>(gibbs));
-    }
   }
-  else
+
+  if (flag_propagation)
   {
-
-    if (flag_propagation)
-    {
-      messerr("The option 'flag_propagation' is not compatible with 'multivariate'");
-      return nullptr;
-    }
-
-    GibbsUMultiMono* gibbs = new GibbsUMultiMono(db, models, rho);
-    return (static_cast<AGibbs *>(gibbs));
+    messerr(
+      "The option 'flag_propagation' is not compatible with 'multivariate'");
+    return nullptr;
   }
+
+  GibbsUMultiMono* gibbs = new GibbsUMultiMono(db, models, rho);
+  return (static_cast<AGibbs*>(gibbs));
 }

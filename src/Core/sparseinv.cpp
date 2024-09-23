@@ -36,7 +36,7 @@ Website: https://gstlearn.org
 License: BSD 3-clause
 */
 
-#include "geoslib_old_f.h"
+#include "Core/SparseInv.hpp"
 
 int sparseinv /* returns -1 on error, or flop count if OK */
 (

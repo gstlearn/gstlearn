@@ -80,15 +80,20 @@ ifeq ($(OS),Windows_NT)
   # Assume MinGW (via RTools) => so MSYS Makefiles
   GENERATOR = -G"MSYS Makefiles"
 else
-  # Standard GNU UNIX Makefiles otherwise
-  GENERATOR = -G"Unix Makefiles"
+  ifeq (, $(shell which ninja))
+    # Standard GNU UNIX Makefiles otherwise
+    GENERATOR = -G "Unix Makefiles"
+  else
+    # Standard GNU UNIX Makefiles otherwise
+    GENERATOR = -G "Ninja"
+  endif
   # Set OS also for Linux or Darwin
   OS := $(shell uname -s)
 endif
 
 ifeq ($(OS),Darwin)
   ifndef LLVM_ROOT
-  	LLVM_ROOT = /opt/homebrew
+	LVM_ROOT = /opt/homebrew
   endif
   # Particular clang compiler for supporting OpenMP
   CC_CXX = CC=$(LLVM_ROOT)/opt/llvm/bin/clang CXX=$(LLVM_ROOT)/opt/llvm/bin/clang++
@@ -114,13 +119,15 @@ endif
 ifdef N_PROC
   ifeq ($(OS),Windows_NT)
     # Otherwise, tons of undefined references when compiling (don't know why)
-    N_PROC_OPT = -j1
+    N_PROC_OPT = -j1 | tee /dev/null
   else
-    N_PROC_OPT = -j$(N_PROC)
+    N_PROC_OPT = -j$(N_PROC) | tee /dev/null
   endif
 else
-  N_PROC_OPT = -j1
+  N_PROC_OPT = -j1 | tee /dev/null
 endif
+# Add  "| tee /dev/null" because Ninja prints output in a single line :
+# https://stackoverflow.com/questions/46970462/how-to-enable-multiline-logs-instead-of-single-line-progress-logs
 
 CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
 ifdef SWIG_EXEC
@@ -138,16 +145,16 @@ endif
 all: shared install
 
 cmake:
-	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES)
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_TESTING=ON
 
 cmake-python:
-	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_TESTING=ON -DBUILD_PYTHON=ON
 
 cmake-r:
-	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_TESTING=ON -DBUILD_R=ON
 
 cmake-python-r:
-	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_R=ON
+	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_TESTING=ON -DBUILD_PYTHON=ON -DBUILD_R=ON
 
 cmake-doxygen:
 	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOXYGEN=ON
@@ -159,74 +166,74 @@ cmake-r-doxygen:
 	@$(CC_CXX) cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON -DBUILD_DOXYGEN=ON
 
 print_version: cmake
-	@cmake --build $(BUILD_DIR) --target print_version -- --no-print-directory
+	@cmake --build $(BUILD_DIR) --target print_version --
 
 static: cmake
-	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target static -- $(N_PROC_OPT)
 
 shared: cmake
-	@cmake --build $(BUILD_DIR) --target shared -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target shared -- $(N_PROC_OPT)
 
 build_tests: cmake
-	@cmake --build $(BUILD_DIR) --target build_tests -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target build_tests -- $(N_PROC_OPT)
 
 doxygen: cmake-doxygen
-	@cmake --build $(BUILD_DIR) --target doxygen -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target doxygen -- $(N_PROC_OPT)
 
 install: cmake
-	@cmake --build $(BUILD_DIR) --target install -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target install -- $(N_PROC_OPT)
 
 uninstall: 
-	@cmake --build $(BUILD_DIR) --target uninstall -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target uninstall -- $(N_PROC_OPT)
 
 
 
 .PHONY: python_doc python_build python_install
 
 python_doc: cmake-python-doxygen
-	@cmake --build $(BUILD_DIR) --target python_doc -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target python_doc -- $(N_PROC_OPT)
 
 python_build: cmake-python
-	@cmake --build $(BUILD_DIR) --target python_build -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target python_build -- $(N_PROC_OPT)
 
 python_install: cmake-python
-	@cmake --build $(BUILD_DIR) --target python_install -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target python_install -- $(N_PROC_OPT)
 
 
 .PHONY: r_doc r_build r_install
 
 r_doc: cmake-r #cmake-r-doxygen
-	@cmake --build $(BUILD_DIR) --target r_doc -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target r_doc -- $(N_PROC_OPT)
 
 r_build: cmake-r #cmake-r-doxygen
-	@cmake --build $(BUILD_DIR) --target r_build -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target r_build -- $(N_PROC_OPT)
 
 r_install: cmake-r #cmake-r-doxygen
-	@cmake --build $(BUILD_DIR) --target r_install -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target r_install -- $(N_PROC_OPT)
 
 
 .PHONY: check_data check_cpp check_py check_r check check_ipynb check_rmd check_test_cpp check_test_py check_test_r build_demos build_courses
 
 check_data: cmake
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_data -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_data -- $(N_PROC_OPT)
 
 check_cpp: cmake
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_cpp -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_cpp -- $(N_PROC_OPT)
 
 check_py: cmake-python
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_py -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_py -- $(N_PROC_OPT)
 
 check_r: cmake-r #cmake-r-doxygen
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_r -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_r -- $(N_PROC_OPT)
 
 check: cmake-python-r
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check -- $(N_PROC_OPT)
 
 check_ipynb: cmake-python
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_ipynb -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_ipynb -- $(N_PROC_OPT)
 
 check_rmd: cmake-r #cmake-r-doxygen
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- $(N_PROC_OPT)
 
 check_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
@@ -241,10 +248,10 @@ dump_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy
 
 build_demos: cmake-python-r
-	@cmake --build $(BUILD_DIR) --target build_demos -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target build_demos -- $(N_PROC_OPT)
 
 build_courses: cmake-python-r
-	@cmake --build $(BUILD_DIR) --target build_courses -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target build_courses -- $(N_PROC_OPT)
 
 .PHONY: scan_build clang_tidy clang_check
 
@@ -263,7 +270,7 @@ clang_check: clean_all
 .PHONY: clean clean_all
 
 clean: 
-	@cmake --build $(BUILD_DIR) --target clean -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target clean -- $(N_PROC_OPT)
 
 clean_all:
 	@rm -rf $(BUILD_DIR)

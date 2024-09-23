@@ -409,7 +409,7 @@
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple using standard std_vector
+    else // Convert to a tuple using standard std_vector (mandatory for string)
     {
       // Test NA values
       auto vec2 = vec.getVector();
@@ -488,6 +488,36 @@
     
     return myres;
   }
+}
+
+
+//////////////////////////////////////////////////////////////
+//                Specific additionnal typemaps             //
+//////////////////////////////////////////////////////////////
+
+// This for automatically converting R string to NamingConvention
+
+%typemap(in) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
+{
+  String value;
+  NamingConvention* localNC=nullptr;
+  int myres = SWIG_AsVal_std_string($input, &value);
+  if (SWIG_IsOK(myres))
+  {
+    // TODO: Memory leak
+    localNC = new NamingConvention(value);
+  }
+  else
+  {
+    myres = SWIG_ConvertPtr($input, (void **)(&localNC), SWIGTYPE_p_NamingConvention,  0  | 0);
+    if (!SWIG_IsOK(myres)) {
+      %argument_fail(myres, "$type", $symname, $argnum);
+    }
+    if (!localNC) {
+      SWIG_exception_fail(SWIG_ArgError(myres), "in method $symname, invalid null reference of type $type");
+    }
+  }
+  $1 = reinterpret_cast<NamingConvention *>(localNC);
 }
 
 //////////////////////////////////////////////////////////////
@@ -592,7 +622,16 @@ void exit_f(void)
 %extend DbGrid {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend DbGrid {
+%extend DbLine {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbGraphO {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbMeshTurbo {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend DbMeshStandard {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend Vario {
@@ -734,6 +773,12 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend ABiTargetCheck {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend Grid {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend PrecisionOpMulti {
   std::string __repr__() {  return $self->toString(); }
 }
 
@@ -1028,9 +1073,6 @@ def Db_toTL(self, flagLocate=False):
   dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
     columns = self.getAllNames())
     
-#  dat = pd.DataFrame(self.getAllColumns().reshape(-1, self.getSampleNumber()), 
-#    columns = self.getAllNames())
-
   if flagLocate:
     for j,i in enumerate(self.getAllNames()):
       dat[i].locator = self.getLocators()[j] 
@@ -1050,6 +1092,20 @@ def Db_fromPanda(pf):
 
 gl.Db.fromTL = staticmethod(Db_fromPanda)
 
+def Vector_toTL(self):
+  return np.array(self)
+
+setattr(gl.VectorDouble, "toTL", Vector_toTL)
+setattr(gl.VectorInt, "toTL", Vector_toTL)
+
+def VectorVector_toTL(self):
+  retvec = []
+  for vec in self:
+    retvec.append(np.array(vec))
+  return (retvec)
+
+setattr(gl.VectorVectorDouble, "toTL", VectorVector_toTL)
+
 def matrix_toTL(self):
   if self.isSparse():
   	NF_T = self.getMatrixToTriplet()
@@ -1063,7 +1119,8 @@ setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 setattr(gl.ProjMatrix, "toTL", matrix_toTL)
-
+setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)
+setattr(gl.ProjMultiMatrix, "toTL", matrix_toTL)
 def Triplet_toTL(self):
   return sc.csc_matrix((np.array(self.getValues()), 
                       (np.array(self.getRows()), np.array(self.getCols()))),

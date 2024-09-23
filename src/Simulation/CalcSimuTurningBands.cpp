@@ -20,34 +20,37 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/AMatrix.hpp"
-#include "Basic/Law.hpp"
+
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
 #include <math.h>
 
-
-CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
-    : ACalcSimulation(nbsimu, seed),
-      _nbtuba(nbtuba),
-      _iattOut(-1),
-      _icase(0),
-      _flagCheck(flag_check),
-      _flagBayes(false),
-      _flagPGS(false),
-      _flagGibbs(false),
-      _flagDGM(false),
-      _nameCoord(),
-      _bayesMean(),
-      _bayesCov(),
-      _npointSimulated(0),
-      _field(0.),
-      _theta(0.),
-      _seedBands(),
-      _codirs()
+CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu,
+                                           int nbtuba,
+                                           bool flag_check,
+                                           int seed)
+  : ACalcSimulation(nbsimu, seed)
+  , _nbtuba(nbtuba)
+  , _iattOut(-1)
+  , _icase(0)
+  , _flagCheck(flag_check)
+  , _flagBayes(false)
+  , _flagPGS(false)
+  , _flagGibbs(false)
+  , _flagDGM(false)
+  , _flagAllocationAlreadyDone(false)
+  , _nameCoord()
+  , _bayesMean()
+  , _bayesCov()
+  , _npointSimulated(0)
+  , _field(0.)
+  , _theta(0.)
+  , _seedBands()
+  , _codirs()
 {
 }
 
@@ -331,7 +334,6 @@ void CalcSimuTurningBands::_minmax(const Db *db)
   }
 
   _npointSimulated += db->getSampleNumber();
-  return;
 }
 
 /****************************************************************************/
@@ -365,7 +367,7 @@ void CalcSimuTurningBands::_setDensity()
  **  - Exponential : when param is too close to 1
  **  - Gaussian    : when param is too close to 2
  **
- **  Particular case of the K-Bessel model. It must be turned into:
+ **  Particular case of the Matern model. It must be turned into:
  **  - Exponential : when param is too close to 0.5
  **
  ** \return  The modified type
@@ -383,7 +385,7 @@ ECov CalcSimuTurningBands::_particularCase(const ECov &type, double param)
       return (ECov::STABLE);
       break;
 
-    case ECov::E_BESSEL_K:
+    case ECov::E_MATERN:
       if (ABS(param - 0.5) < eps) return (ECov::EXPONENTIAL);
       break;
 
@@ -433,7 +435,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
           {
             case ECov::E_NUGGET:
               // Next line is simply to let the random number cycle
-              (void) law_gaussian();
+              (void)law_gaussian();
               break;
 
             case ECov::E_EXPONENTIAL:
@@ -441,28 +443,19 @@ int CalcSimuTurningBands::_initializeSeedBands()
               break;
 
             case ECov::E_SPHERICAL:
-              (void) _dilutionInit(ibs, is, operTB);
-              break;
-
             case ECov::E_CUBIC:
-              (void) _dilutionInit(ibs, is, operTB);
+              (void)_dilutionInit(ibs, is, operTB);
               break;
 
             case ECov::E_GAUSSIAN:
-              (void) _spectralInit(ibs, is, operTB);
-              break;
-
             case ECov::E_SINCARD:
-              (void) _spectralInit(ibs, is, operTB);
+            case ECov::E_BESSELJ:
+              (void)_spectralInit(ibs, is, operTB);
               break;
 
-            case ECov::E_BESSEL_J:
-              (void) _spectralInit(ibs, is, operTB);
-              break;
-
-            case ECov::E_BESSEL_K:
+            case ECov::E_MATERN:
               if (param > 0.5)
-                (void) _spectralInit(ibs, is, operTB);
+                (void)_spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScaleKB(param, scale) * 2;
@@ -472,7 +465,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
 
             case ECov::E_STABLE:
               if (param > 1)
-                (void) _spectralInit(ibs, is, operTB);
+                (void)_spectralInit(ibs, is, operTB);
               else
               {
                 scale = _computeScale(param, 2. * scale);
@@ -481,31 +474,19 @@ int CalcSimuTurningBands::_initializeSeedBands()
               break;
 
             case ECov::E_POWER:
-              (void) _power1DInit(ibs, is, operTB);
+              (void)_power1DInit(ibs, is, operTB);
               break;
 
             case ECov::E_SPLINE_GC:
-              (void) _spline1DInit(ibs, 1, operTB);
+              (void)_spline1DInit(ibs, 1, operTB);
               break;
 
             case ECov::E_LINEAR:
-              _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
-              break;
-
             case ECov::E_ORDER1_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
-              break;
-
             case ECov::E_ORDER3_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
-              break;
-
             case ECov::E_ORDER5_GC:
               _migrationInit(ibs, is, theta1, operTB);
-              (void) _irfProcessInit(ibs, is, operTB);
+              (void)_irfProcessInit(ibs, is, operTB);
               break;
 
             default:
@@ -540,6 +521,7 @@ void CalcSimuTurningBands::_migrationInit(int ibs,
                                           TurningBandOperate &operTB,
                                           double eps)
 {
+  DECLARE_UNUSED(is);
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
 
@@ -672,12 +654,12 @@ double CalcSimuTurningBands::_spectralInit(int ibs,
       period = val / scale;
       break;
 
-    case ECov::E_BESSEL_J:
+    case ECov::E_BESSELJ:
       val = law_beta1(1.5, param - 0.5);
       period = sqrt(val) / scale;
       break;
 
-    case ECov::E_BESSEL_K:
+    case ECov::E_MATERN:
       param = sqrt(2. * law_gamma(param));
       for (int i = 0; i < 3; i++)
       {
@@ -712,17 +694,16 @@ double CalcSimuTurningBands::_computeScale(double alpha, double scale)
 {
   if (alpha < 1)
     return scale / law_stable_standard_abgd(alpha);
-  else
-    return scale / sqrt(law_stable_standard_abgd(alpha / 2.));
+  return scale / sqrt(law_stable_standard_abgd(alpha / 2.));
 }
 
 /****************************************************************************/
 /*!
- **  Calculate the scale for 1D process for the K-Bessel model (param<0.5)
+ **  Calculate the scale for 1D process for the Matern model (param<0.5)
  **
  ** \return  Scale parameter of the 1D process to simulate (param<0.5)
  **
- ** \param[in]  param       Third parameter of the K-Bessel covariance model
+ ** \param[in]  param       Third parameter of the Matern covariance model
  ** \param[in]  scale       Scale parameter of the model
  **
  *****************************************************************************/
@@ -1150,10 +1131,6 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               break;
 
             case ECov::E_SPHERICAL:
-              correc = _dilutionInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_CUBIC:
               correc = _dilutionInit(ibs, is, operTB);
               _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
@@ -1170,21 +1147,13 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               break;
 
             case ECov::E_GAUSSIAN:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_SINCARD:
+            case ECov::E_BESSELJ:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
               break;
 
-            case ECov::E_BESSEL_J:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
-            case ECov::E_BESSEL_K:
+            case ECov::E_MATERN:
               if (param > 0.5)
               {
                 correc = _spectralInit(ibs, is, operTB);
@@ -1198,24 +1167,9 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               }
               break;
 
-             case ECov::E_LINEAR:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
+            case ECov::E_LINEAR:
             case ECov::E_ORDER1_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER3_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER5_GC:
               _migrationInit(ibs, is, theta1, operTB);
               correc = _irfProcessInit(ibs, is, operTB);
@@ -1323,7 +1277,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               }
               break;
 
-            case ECov::E_BESSEL_K:
+            case ECov::E_MATERN:
               if (param > 0.5)
               {
                 correc = _spectralInit(ibs, is, operTB);
@@ -1343,21 +1297,14 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               break;
 
             case ECov::E_SPHERICAL:
-              correc = _dilutionInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_CUBIC:
               correc = _dilutionInit(ibs, is, operTB);
               _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
             case ECov::E_GAUSSIAN:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_SINCARD:
+            case ECov::E_BESSELJ:
               correc = _spectralInit(ibs, is, operTB);
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
@@ -1372,29 +1319,9 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
               _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
               break;
 
-            case ECov::E_BESSEL_J:
-              correc = _spectralInit(ibs, is, operTB);
-              _spreadSpectralOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_LINEAR:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER1_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER3_GC:
-              _migrationInit(ibs, is, theta1, operTB);
-              correc = _irfProcessInit(ibs, is, operTB);
-              _spreadRegularOnGrid(nx, ny, nz, ibs, is, operTB, activeArray, tab);
-              break;
-
             case ECov::E_ORDER5_GC:
               _migrationInit(ibs, is, theta1, operTB);
               correc = _irfProcessInit(ibs, is, operTB);
@@ -1667,13 +1594,12 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
-  return;
 }
 
-double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
-                                 int icov,
-                                 int ivar,
-                                 int jvar)
+double CalcSimuTurningBands::_getAIC(const VectorDouble& aic,
+                                     int icov,
+                                     int ivar,
+                                     int jvar)
 {
   int nvar = _getNVar();
   return aic[jvar + nvar * (ivar + nvar * icov)];
@@ -1724,7 +1650,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
         double zvar = TEST;
         if (!flag_gibbs)
         {
-          zvar = dbin->getLocVariable(ELoc::Z,iech, ivar);
+          zvar = dbin->getZVariable(iech, ivar);
         }
         for (int isimu = 0; isimu < nbsimu; isimu++)
         {
@@ -1769,7 +1695,6 @@ void CalcSimuTurningBands::_difference(Db *dbin,
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1883,7 +1808,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
         {
           double valdat;
           if (!flag_pgs)
-            valdat = dbin->getLocVariable(ELoc::Z,ip, ivar);
+            valdat = dbin->getZVariable(ip, ivar);
           else
             valdat = dbin->getSimvar(ELoc::GAUSFAC, ip, isimu, 0, icase, nbsimu,
                                      1);
@@ -1933,7 +1858,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
         {
           double valdat;
           if (!flag_pgs)
-            valdat = dbin->getLocVariable(ELoc::Z,ip_close, ivar);
+            valdat = dbin->getZVariable(ip_close, ivar);
           else
             valdat = dbin->getSimvar(ELoc::GAUSFAC, ip_close, isimu, 0, icase,
                                      nbsimu, 1);
@@ -1943,54 +1868,6 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
         }
     }
   }
-}
-
-/****************************************************************************/
-/*!
- **  Perform the Simulation Process using the Turning Bands Method
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure
- ** \param[in]  icase      Case for PGS or -1
- ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
- ** \param[in]  flag_pgs   1 if called from PGS
- ** \param[in]  flag_gibbs 1 if called from Gibbs
- ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
- **
- *****************************************************************************/
-int CalcSimuTurningBands::simulate(Db *dbin,
-                                   Db *dbout,
-                                   Model *model,
-                                   ANeigh *neigh,
-                                   int icase,
-                                   int flag_bayes,
-                                   const VectorDouble &dmean,
-                                   const MatrixSquareSymmetric &dcov,
-                                   bool flag_pgs,
-                                   bool flag_gibbs,
-                                   bool flag_dgm)
-{
-  setDbin(dbin);
-  setDbout(dbout);
-  setModel(model);
-  setNeigh(neigh);
-  setIcase(icase);
-  setFlagBayes(flag_bayes);
-  setBayesMean(dmean);
-  setBayesCov(dcov);
-  setFlagPgs(flag_pgs);
-  setFlagGibbs(flag_gibbs);
-  setFlagDgm(flag_dgm);
-
-  if (! _run()) return 1;
-  return 0;
 }
 
 bool CalcSimuTurningBands::_run()
@@ -2062,6 +1939,54 @@ bool CalcSimuTurningBands::_run()
     _checkGaussianData2Grid(getDbin(), getDbout(), getModel());
 
   return true;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the Simulation Process using the Turning Bands Method
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  dbout      Output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neigh      ANeigh structure
+ ** \param[in]  icase      Case for PGS or -1
+ ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
+ ** \param[in]  dmean      Array giving the prior means for the drift terms
+ ** \param[in]  dcov       Array containing the prior covariance matrix
+ **                        for the drift terms
+ ** \param[in]  flag_pgs   1 if called from PGS
+ ** \param[in]  flag_gibbs 1 if called from Gibbs
+ ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
+ **
+ *****************************************************************************/
+int CalcSimuTurningBands::simulate(Db* dbin,
+                                   Db* dbout,
+                                   Model* model,
+                                   ANeigh* neigh,
+                                   int icase,
+                                   int flag_bayes,
+                                   const VectorDouble& dmean,
+                                   const MatrixSquareSymmetric& dcov,
+                                   bool flag_pgs,
+                                   bool flag_gibbs,
+                                   bool flag_dgm)
+{
+  setDbin(dbin);
+  setDbout(dbout);
+  setModel(model);
+  setNeigh(neigh);
+  setIcase(icase);
+  setFlagBayes(flag_bayes);
+  setBayesMean(dmean);
+  setBayesCov(dcov);
+  setFlagPgs(flag_pgs);
+  setFlagGibbs(flag_gibbs);
+  setFlagDgm(flag_dgm);
+
+  if (!run()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -2234,7 +2159,6 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     }
   }
   if (number <= 0) message("No problem found\n");
-  return;
 }
 
 bool CalcSimuTurningBands::_check()
@@ -2292,12 +2216,18 @@ bool CalcSimuTurningBands::_preprocess()
 
   if (getDbin() != nullptr)
   {
-    int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
-    if (iptr_in < 0) return false;
+    if (!_flagAllocationAlreadyDone)
+    {
+      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
+      if (iptr_in < 0) return false;
+    }
   }
 
-  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
-  if (_iattOut < 0) return false;
+  if (!_flagAllocationAlreadyDone)
+  {
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
+    if (_iattOut < 0) return false;
+  }
 
   // Centering the Data (for DGM)
 
@@ -2328,7 +2258,8 @@ bool CalcSimuTurningBands::_postprocess()
 
   /* Set the error return flag */
 
-  _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
+  if (! _flagAllocationAlreadyDone)
+    _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
 
   if (_flagDGM)
   {
@@ -2361,7 +2292,7 @@ void CalcSimuTurningBands::_rollback()
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
  **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/
@@ -2412,7 +2343,7 @@ int simtub(Db *dbin,
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
  **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/

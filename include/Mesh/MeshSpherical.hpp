@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
@@ -74,7 +75,7 @@ private:
                    VectorDouble& weights,
                    bool flag_approx = true) const;
   int _recopy(const MeshSpherical &m);
-  double _closestValue(double ref, double coor, double period) const;
+  static double _closestValue(double ref, double coor, double period);
   void _checkConsistency() const;
 
 private:

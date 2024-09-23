@@ -11,10 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
-#include "IProjMatrix.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/VectorNumT.hpp"
+#include "LinearOp/IProjMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 class AMesh;
@@ -24,10 +21,13 @@ class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public MatrixSparse
 {
 public:
   ProjMatrix();
-  ProjMatrix(const Db* db, const AMesh *a_mesh, int rankZ = -1, bool verbose = false);
-  ProjMatrix(const ProjMatrix &m);
-  ProjMatrix(const MatrixSparse* aproj);
-  ProjMatrix& operator= (const ProjMatrix &m);
+  ProjMatrix(const Db* db,
+             const AMesh* a_mesh,
+             int rankZ    = -1,
+             bool verbose = false);
+  ProjMatrix(const ProjMatrix& m);
+  ProjMatrix(const MatrixSparse* m);
+  ProjMatrix& operator=(const ProjMatrix& m);
   virtual ~ProjMatrix();
 
   /// Has a specific implementation in the Target language
@@ -40,8 +40,14 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for IProjMatrix
-  int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
-  int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
+  
+  #ifndef SWIG
+  protected:
+    int _addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+    int _addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  #endif 
+  public:
+
   int getApexNumber() const override { return getNCols(); }
   int getPointNumber() const override { return getNRows(); }
 

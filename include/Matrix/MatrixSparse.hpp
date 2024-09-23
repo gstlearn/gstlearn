@@ -10,11 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 #ifndef SWIG
 DISABLE_WARNING_PUSH
@@ -36,7 +38,7 @@ class EOperator;
  * Storage relies either on Eigen3 Library (see opt_eigen flag) or cs code.
  * Default storage option can be set globally by using setGlobalFlagEigen
  */
-class GSTLEARN_EXPORT MatrixSparse : public AMatrix {
+class GSTLEARN_EXPORT MatrixSparse : public AMatrix, public ALinearOp {
 
 public:
   MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen = -1);
@@ -53,12 +55,14 @@ public:
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
 
+  int getSize() const override { return getNRows();} // It assumes that the matrix is symmetric. Maybe a class MatrixSparseSymmetric would be interesting
+                                                     // to inherit from ALinearOp
   bool isFlagEigen() const { return _flagEigen; }
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-   bool isDense() const override { return false; }
+  bool isDense() const override { return false; }
 
   /*! Set the value for a matrix cell */
   void setValue(int irow, int icol, double value, bool flagCheck=true) override;
@@ -71,12 +75,23 @@ public:
                 double value,
                 bool flagCheck = true) override;
 
+#ifndef SWIG
+  int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
+                    Eigen::Map<Eigen::VectorXd>& ym) const;
+  void addProdMatVecInPlaceToDest(const Eigen::Map<const Eigen::VectorXd>& in,
+                                  Eigen::Map<Eigen::VectorXd>& out,
+                                  bool transpose = false) const;
+#endif
   /*! Set the contents of a Column */
-  virtual void setColumn(int icol, const VectorDouble& tab) override;
+  virtual void setColumn(int icol,
+                         const VectorDouble &tab,
+                         bool flagCheck = true) override;
   /*! Set the contents of a Row */
-  virtual void setRow(int irow, const VectorDouble& tab) override;
+  virtual void setRow(int irow,
+                      const VectorDouble& tab,
+                      bool flagCheck=true) override;
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab) override;
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) override;
   /*! Transpose the matrix and return it as a copy*/
@@ -101,7 +116,7 @@ public:
   virtual VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const override;
   /*! Perform y = 'this' %*% x */
   virtual VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const override;
-  /*! Multiply a matrix by another and stored in 'this' */
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
                                  bool transposeX = false,
@@ -132,17 +147,20 @@ public:
                             const MatrixSparse *A2,
                             bool flagShiftRow,
                             bool flagShiftCol);
-
+  static void  glueInPlace(MatrixSparse *A1,
+                           const MatrixSparse *A2,
+                           bool flagShiftRow,
+                           bool flagShiftCol);
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
   /// rather than manipulating AMatrix. They are no more generic of AMatrix
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMatInPlace(const MatrixSparse& y, double cx = 1., double cy = 1.);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatMatInPlace(const MatrixSparse &a,
-                                     const MatrixSparse &m,
+  virtual void prodNormMatMatInPlace(const MatrixSparse* a,
+                                     const MatrixSparse* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const MatrixSparse &a,
+  virtual void prodNormMatInPlace(const MatrixSparse* a,
                                   const VectorDouble& vec = VectorDouble(),
                                   bool transpose = false);
 
@@ -164,14 +182,21 @@ public:
   void resetFromTriplet(const NF_Triplet& NF_T);
 
   /*! Dump a specific range of samples from the internal storage */
-  void dumpElements(const String& title, int ifrom, int ito) const;
+  static void dumpElements(const String& title, int ifrom, int ito);
 
   /*! Set all the values of the Matrix with random values */
-  void fillRandom(int seed = 432432, double zeroPercent = 0.1);
+  void fillRandom(int seed = 432432, double zeroPercent = 0);
 
   // Cholesky functions
   int    computeCholesky();
   int    solveCholesky(const VectorDouble& b, VectorDouble& x);
+
+  #ifndef SWIG
+    int  solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x);
+    int  simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x);
+    int  addVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y);
+  #endif
+  
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
   double computeCholeskyLogDeterminant();
 
@@ -184,22 +209,38 @@ public:
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
-
+  #ifndef SWIG
   const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
   void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }
-
+  #endif
+  
   MatrixSparse* extractSubmatrixByRanks(const VectorInt &rank_rows,
-                                        const VectorInt &rank_cols);
+                                        const VectorInt &rank_cols) const;
   MatrixSparse* extractSubmatrixByColor(const VectorInt &colors,
                                         int ref_color,
                                         bool row_ok,
                                         bool col_ok);
-  VectorInt colorCoding();
+  VectorInt colorCoding() const;
   int getNonZeros() const { return _getMatrixPhysicalSize(); }
+  void gibbs(int iech, const VectorDouble& zcur, double* yk, double* sk);
 
+#ifndef SWIG
+  protected:
+  virtual int _addToDest(const Eigen::VectorXd& inv,
+                          Eigen::VectorXd& outv) const override;
+#endif
+
+#ifndef SWIG
+  public :
+  void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
+#endif
 protected:
   /// Interface for AMatrix
-          bool    _isPhysicallyPresent(int irow, int icol) const override { DECLARE_UNUSED(irow, icol); return true; }
+  bool _isPhysicallyPresent(int irow, int icol) const override
+  {
+    DECLARE_UNUSED(irow, icol);
+    return true;
+  }
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
 
@@ -213,6 +254,8 @@ protected:
 
   virtual void    _prodMatVecInPlacePtr(const double *x, double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x, double *y, bool transpose = false) const override;
+
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -220,12 +263,12 @@ protected:
   bool _isElementPresent(int irow, int icol) const;
 
 private:
-  bool _defineFlagEigen(int opt_eigen) const;
-  void _forbiddenForSparse(const String& func) const;
-  int _eigen_findColor(int imesh,
-                       int ncolor,
-                       VectorInt &colors,
-                       VectorInt &temp);
+  static bool _defineFlagEigen(int opt_eigen);
+  static void _forbiddenForSparse(const String& func);
+  int  _eigen_findColor(int imesh,
+                        int ncolor,
+                        VectorInt &colors,
+                        VectorInt &temp) const;
 
 private:
 #ifndef SWIG
@@ -242,15 +285,15 @@ GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
 
 /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSparse* prodNormMatMat(const MatrixSparse &a,
-                                             const MatrixSparse &m,
+GSTLEARN_EXPORT MatrixSparse* prodNormMatMat(const MatrixSparse* a,
+                                             const MatrixSparse* m,
                                              bool transpose = false);
 /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-GSTLEARN_EXPORT MatrixSparse* prodNormMat(const MatrixSparse& a,
+GSTLEARN_EXPORT MatrixSparse* prodNormMat(const MatrixSparse* a,
                                           const VectorDouble& vec = VectorDouble(),
                                           bool transpose = false);
 /*! Product 'Diag(vec)' %*% 'A' %*% 'Diag(vec)' */
-GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse& a,
+GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
                                               const VectorDouble& vec,
                                               int oper_choice = 1);
 
@@ -258,3 +301,11 @@ GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse& a,
 /// Manage global flag for EIGEN
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
+
+
+// Not exported method
+
+#ifndef SWIG
+GSTLEARN_EXPORT Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
+                                                 const Eigen::SparseMatrix<double>& M);
+#endif

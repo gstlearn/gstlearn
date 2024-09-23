@@ -37,7 +37,6 @@ Website: https://gstlearn.org
 #include <math.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <set>
 #include <iostream>
 #include "csparse_d.h"
 #include "csparse_f.h"
@@ -1801,6 +1800,16 @@ int cs_pvec(int n, const int *P, const double *b, double *x)
   if (!x || !b) return (0); /* check inputs */
   for (k = 0; k < n; k++)
     x[k] = b[P ? P[k] : k];
+  return (1);
+}
+
+/* x = b(P), for dense vectors x and b; P=NULL denotes identity */
+int add_cs_pvec(int n, const int *P, const double *b, double *x)
+{
+  int k;
+  if (!x || !b) return (0); /* check inputs */
+  for (k = 0; k < n; k++)
+    x[k] += b[P ? P[k] : k];
   return (1);
 }
 

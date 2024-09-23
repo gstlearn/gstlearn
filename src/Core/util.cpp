@@ -8,26 +8,18 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
-#include "LithoRule/Rule.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/PolyLine2D.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/GeometryHelper.hpp"
+#include "Basic/Memory.hpp"
+
 #include <string.h>
-#include <complex>
 #include <cmath>
-#include <regex>
 
 /*! \cond */
 #define TAB(ix,iy)   (tab[(ix) * ny + (iy)])
@@ -104,8 +96,6 @@ void projec_toggle(int mode)
   }
   else
     PROJEC.actif = projec_actif;
-
-  return;
 }
 
 /****************************************************************************/
@@ -119,8 +109,6 @@ void projec_query(int *actif)
 
 {
   *actif = PROJEC.actif;
-
-  return;
 }
 
 /****************************************************************************/
@@ -137,7 +125,6 @@ void projec_print(void)
   else
     message("Projection is switched OFF\n");
   message("Use 'projec.define' to modify previous values\n");
-  return;
 }
 
 /****************************************************************************/
@@ -210,8 +197,8 @@ static Keypair* st_get_keypair_address(const char *keyword)
   {
     found = KEYPAIR_NTAB;
     KEYPAIR_NTAB++;
-    KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
-                                      sizeof(Keypair) * KEYPAIR_NTAB);
+    auto* placeholder = realloc((char*)KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
+    KEYPAIR_TABS = (Keypair*)placeholder;
   }
 
   /* Store the attribute (compressing the name and suppressing blanks) */
@@ -326,8 +313,8 @@ static void st_keypair_allocate(Keypair *keypair, int nrow, int ncol)
 
     // The old_dimensions are non zero, reallocate the contents
 
-    keypair->values = (double*) realloc((char*) keypair->values,
-                                        sizeof(double) * new_size);
+    auto* placeholder = realloc((char*)keypair->values, sizeof(double) * new_size);
+    keypair->values = (double*)placeholder;
   }
 
   // Ultimate check that allocaiton has been performed correctly
@@ -406,8 +393,6 @@ void set_keypair(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 2, 0, (void*) values);
-
-  return;
 }
 
 /****************************************************************************/
@@ -460,7 +445,6 @@ void app_keypair(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 2, start, (void*) values);
-  return;
 }
 
 /****************************************************************************/
@@ -500,7 +484,6 @@ void set_keypair_int(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 1, 0, (void*) values);
-  return;
 }
 
 /****************************************************************************/
@@ -553,7 +536,6 @@ void app_keypair_int(const char *keyword,
   /* Copy the values */
 
   st_keypair_copy(keypair, 1, start, (void*) values);
-  return;
 }
 
 /****************************************************************************/
@@ -586,10 +568,8 @@ static void del_keypone(int indice)
     KEYPAIR_TABS[i - 1] = KEYPAIR_TABS[i];
 
   KEYPAIR_NTAB--;
-  KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
-                                    sizeof(Keypair) * KEYPAIR_NTAB);
-
-  return;
+  auto* placeholder = realloc((char*)KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
+  KEYPAIR_TABS = (Keypair*)placeholder;
 }
 
 /****************************************************************************/
@@ -650,7 +630,6 @@ void del_keypair(const char *keyword, int flag_exact)
       del_keypone(found);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -808,115 +787,8 @@ void print_keypair(int flag_short)
         print_matrix(keypair->keyword, 0, 0, keypair->ncol, keypair->nrow, NULL,
                      keypair->values);
     }
-  return;
 }
 
-
-/****************************************************************************/
-/*!
- **  Find the roots of a polynomial of order 2: ax^2 + bx + c = 0
- **
- ** \return Number of real solutions
- **
- ** \param[in]  a,b,c     Coefficients of the polynomial
- **
- ** \param[out] x         Array of real solutions (Dimension: 2)
- **
- ** \remarks When the solution is double, the returned number os 1.
- **
- *****************************************************************************/
-int solve_P2(double a, double b, double c, double *x)
-{
-  double delta;
-
-  if (a == 0.)
-  {
-    if (b == 0.)
-      return (0);
-    else
-    {
-      x[0] = -c / b;
-      return (1);
-    }
-  }
-  else
-  {
-
-    // Calculate the discriminant
-
-    delta = b * b - 4 * a * c;
-
-    if (delta == 0.)
-    {
-      x[0] = -b / (2. * a);
-      return (1);
-    }
-    else
-    {
-      x[0] = (-b + sqrt(delta)) / (2. * a);
-      x[0] = (-b - sqrt(delta)) / (2. * a);
-      return (2);
-    }
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Find the roots of a polynomial of order 3: a*x^3 + b*x^2 + c*x + d = 0
- **
- ** \return Number of real solutions
- **
- ** \param[in]  a,b,c,d   Coefficients of the polynomial
- **
- ** \param[out] x         Array of real solutions (Dimension: 3)
- **
- ** \remarks When the solution is double, the returned number os 1.
- **
- *****************************************************************************/
-int solve_P3(double a, double b, double c, double d, double *x)
-{
-  double delta, p, q, ecart, u, v, s1;
-  int k;
-
-  if (a == 0.)
-    return (solve_P2(b, c, d, x));
-  else
-  {
-
-    // Transform into equation: x^3 + p*x + q = 0
-
-    ecart = -b / (3. * a);
-    p = -b * b / (3. * a * a) + c / a;
-    q = b / (27. * a) * (2. * b * b / (a * a) - 9. * c / a) + d / a;
-
-    // Cardan formula
-
-    delta = -(4. * p * p * p + 27. * q * q);
-    if (delta < 0)
-    {
-      s1 = sqrt(-delta / 27.);
-      u = (-q + s1) / 2.;
-      u = (u > 0.) ? pow(u, 1. / 3.) : -pow(-u, 1. / 3.);
-      v = (-q - s1) / 2.;
-      v = (v > 0.) ? pow(v, 1. / 3.) : -pow(-v, 1. / 3.);
-      x[0] = ecart + u + v;
-      return (1);
-    }
-    else if (delta == 0.)
-    {
-      x[0] = ecart + 3. * q / p;
-      x[1] = ecart - 3. * q / (2. * p);
-      return (2);
-    }
-    else
-    {
-      s1 = -(q / 2.) * sqrt(27. / -(p * p * p));
-      for (k = 0; k < 3; k++)
-        x[k] = ecart + 2. * sqrt(-p / 3.) * cos((acos(s1) + 2. * k * GV_PI) / 3.);
-      return (3);
-    }
-  }
-}
 
 /****************************************************************************/
 /*!
@@ -983,79 +855,14 @@ void ut_distance_allocated(int ndim, double **tab1, double **tab2)
 {
   if (DISTANCE_NDIM < ndim)
   {
-    DISTANCE_TAB1 = (double*) realloc((char*) DISTANCE_TAB1,
-                                      sizeof(double) * ndim);
-    DISTANCE_TAB2 = (double*) realloc((char*) DISTANCE_TAB2,
-                                      sizeof(double) * ndim);
+    auto* dtab    = realloc((char*)DISTANCE_TAB1, sizeof(double) * ndim);
+    DISTANCE_TAB1 = (double*)dtab;
+    auto* dtab2   = realloc((char*)DISTANCE_TAB2, sizeof(double) * ndim);
+    DISTANCE_TAB2 = (double*)dtab2;
     DISTANCE_NDIM = ndim;
   }
   *tab1 = DISTANCE_TAB1;
   *tab2 = DISTANCE_TAB2;
-  return;
-}
-
-
-/****************************************************************************/
-/*!
- ** Create a VectorDouble for storing an array of double
- **
- ** \return The VectorDouble
- **
- ** \param[in]  ntab      Number of samples
- ** \param[in]  rtab      Array of double values to be loaded
- **
- *****************************************************************************/
-VectorDouble util_set_array_double(int ntab, const double *rtab)
-{
-  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_double\n");
-  if (ntab <= 0 || rtab == nullptr) return VectorDouble();
-  VectorDouble rettab(ntab);
-  if (rettab.empty()) return rettab;
-
-  for (int i = 0; i < ntab; i++)
-    rettab[i] = rtab[i];
-
-  return rettab;
-}
-
-/****************************************************************************/
-/*!
- ** Create a VectorInt for storing an array of integer
- **
- ** \return  The VectorInt
- **
- ** \param[in]  ntab      Number of samples
- ** \param[in]  itab      Array of integer values to be loaded
- **
- *****************************************************************************/
-VectorInt util_set_array_integer(int ntab, const int *itab)
-{
-  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_integer\n");
-  VectorInt rettab(ntab);
-  if (ntab <= 0 || itab == nullptr) return rettab;
-  for (int i = 0; i < ntab; i++)
-    rettab[i] = itab[i];
-  return rettab;
-}
-
-/****************************************************************************/
-/*!
- ** Create a VectorString for storing an array of chars
- **
- ** \return  The VectorString
- **
- ** \param[in]  ntab      Number of samples
- ** \param[in]  names     Array of character values to be loaded
- **
- *****************************************************************************/
-VectorString util_set_array_char(int ntab, char **names)
-{
-  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_char\n");
-  VectorString rettab(ntab);
-  if (names == nullptr) return rettab;
-  for (int i = 0; i < ntab; i++)
-    rettab[i] = names[i];
-  return rettab;
 }
 
 /****************************************************************************/
@@ -1097,11 +904,13 @@ void set_last_message(int mode, const char *string)
       if (size <= 0) return;
 
       if (NB_LAST_MESSAGE <= 0)
-        LAST_MESSAGE = (char**) malloc(sizeof(char*) * 1);
+        LAST_MESSAGE = (char**)malloc(sizeof(char*) * 1);
       else
-        LAST_MESSAGE = (char**) realloc((char*) LAST_MESSAGE,
-                                        sizeof(char*) * (NB_LAST_MESSAGE + 1));
-      LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char*) malloc(size + 1);
+      {
+        auto* placeholder = realloc((char*)LAST_MESSAGE, sizeof(char*) * (NB_LAST_MESSAGE + 1));
+        LAST_MESSAGE = (char**)placeholder;
+      }
+      LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char*)malloc(size + 1);
       (void) gslStrcpy(address, string);
       address[size] = '\0';
       NB_LAST_MESSAGE++;
@@ -1230,18 +1039,3 @@ char* convert(const std::string &s)
   return pc;
 }
 
-/****************************************************************************/
-/*!
- **   Convert VectorString into a std::vector<char *> structure
- **
- ** \return  Pointer to the returned array of characters
- **
- ** \param[in]  vs        Input VectorString
- **
- *****************************************************************************/
-std::vector<char*> util_vs_to_vs(VectorString vs)
-{
-  std::vector<char*> vc;
-  std::transform(vs.begin(), vs.end(), std::back_inserter(vc), convert);
-  return vc;
-}

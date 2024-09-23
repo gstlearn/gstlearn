@@ -8,17 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Stats/Classical.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
@@ -35,15 +31,15 @@ VarioParam::VarioParam(double scale,
 {
 }
 
-VarioParam::VarioParam(const VarioParam &VarioParam,
-                       const VectorInt &dircols,
-                       const Faults *faults)
-    : AStringable(),
-      ICloneable(),
-      _scale(),
-      _dates(),
-      _dirparams(),
-      _faults(faults)
+VarioParam::VarioParam(const VarioParam& VarioParam,
+                       const VectorInt& dircols,
+                       const Faults* faults)
+  : AStringable()
+  , ICloneable()
+  , _scale()
+  , _dates()
+  , _dirparams()
+  , _faults(faults)
 {
     _scale = VarioParam.getScale();
     _dates = VarioParam.getDates();
@@ -177,18 +173,24 @@ VarioParam* VarioParam::createMultiple(int ndir,
  * @param scale Scaling factor
  * @param dates Range of dates
  * @param space Pointer to the Space definition
- * @return
+ * @param ndimax Maximum dimension (see note)
+ * @return A pointer to the newly created VarioParam object
+ *
+ * @note This method creates as many calculation direction as space dimension
+ * @note However, this number can be truncated to 'ndimax' (when defined)
  */
 VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
                                                int npas,
                                                double scale,
-                                               const VectorDouble &dates,
-                                               const ASpace* space)
+                                               const VectorDouble& dates,
+                                               const ASpace* space,
+                                               int ndimax)
 {
   VarioParam* varioparam = new VarioParam(scale, dates);
-  int ndim = dbgrid->getNDim();
-  VectorInt grincr(ndim,0);
-  for (int idim = 0; idim < ndim; idim++)
+  int ndim               = dbgrid->getNDim();
+  int ncalc = (ndimax <= 0) ? ndim : ndimax;
+  VectorInt grincr(ndim, 0);
+  for (int idim = 0; idim < ncalc; idim++)
   {
     VH::fill(grincr,  0.);
     grincr[idim] = 1;
@@ -344,23 +346,13 @@ VectorDouble VarioParam::getCodirs(int idir) const
 
 bool VarioParam::_isDirectionValid(int idir) const
 {
-  if (idir < 0 || idir >= getDirectionNumber())
-  {
-    mesArg("Direction Index",idir,getDirectionNumber());
-    return false;
-  }
-  return true;
+  return checkArg("Direction Index", idir, getDirectionNumber());
 }
 
 bool VarioParam::_isDateValid(int idate) const
 {
-  if (! hasDate()) return false;
-  if (idate < 0 || idate >= getDateNumber())
-  {
-    mesArg("Date Index",idate,getDateNumber());
-    return false;
-  }
-  return true;
+  if (!hasDate()) return false;
+  return checkArg("Date Index", idate, getDateNumber());
 }
 
 VectorDouble VarioParam::_getDirectionInterval(int idir) const
@@ -477,7 +469,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
 
   for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
   {
-    DirParam dirparam = varioparam.getDirParam(idir);
+    const DirParam& dirparam = varioparam.getDirParam(idir);
     int nech = db->getSampleNumber();
     double maxdist = dirparam.getMaximumDistance();
 
@@ -488,7 +480,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
       int iech = rindex[iiech];
       if (hasSel && !db->isActive(iech)) continue;
       if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsST(iech, T1);
+      db->getSampleAsSTInPlace(iech, T1);
 
       int ideb = (hasDate) ? 0 : iiech + 1;
       for (int jjech = ideb; jjech < nech; jjech++)
@@ -497,7 +489,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
         if (db->getDistance1D(iech, jech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsST(jech, T2);
+        db->getSampleAsSTInPlace(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
         if (! vario.keepPair(idir, T1, T2, &dist)) continue;

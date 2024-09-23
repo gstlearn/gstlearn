@@ -13,9 +13,7 @@
 #include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 
 Table::Table(int nrow, int ncol, bool skip_title, bool skip_description)
   : MatrixRectangular(nrow, ncol),
@@ -194,9 +192,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Title
   if (!_skipTitle)
   {
-    if (_title.empty())
-      sstr << toTitle(1, "Table contents");
-    else
+    if (! _title.empty())
       sstr << toTitle(1, _title.c_str());
   }
 

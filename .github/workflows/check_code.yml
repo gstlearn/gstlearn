@@ -28,7 +28,7 @@ jobs:
   check-formatting:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install latest clang-format
       run: |
@@ -75,7 +75,7 @@ jobs:
         opt: [Debug, Release]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Ubuntu dependencies
       run: |
@@ -95,6 +95,7 @@ jobs:
         cd build
         cmake \
           -DCMAKE_BUILD_TYPE=${{ matrix.opt }} \
+          -DBUILD_TESTING=ON \
           -D${{ matrix.hdf5 }} \
           $GITHUB_WORKSPACE
 
@@ -119,7 +120,7 @@ jobs:
           - {tidy: false, sa: false, dox: true}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Ubuntu dependencies
       run: |
@@ -141,6 +142,7 @@ jobs:
         cd build
         cmake \
           -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_TESTING=ON \
           -DBUILD_DOXYGEN=ON \
           $GITHUB_WORKSPACE
 

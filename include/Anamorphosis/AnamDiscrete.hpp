@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-
 #include "Anamorphosis/AAnam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 

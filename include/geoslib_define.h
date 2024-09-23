@@ -9,8 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #pragma once
-
 #include "Basic/WarningMacro.hpp"
+// Important remark: the following line MUST NOT BE REMOVED (even if not used
+// directly here) used as a MACRO
 #include "Basic/RepeatMacro.hpp"
 
 // WARNING: Make this include list as small as possible!
@@ -58,7 +59,7 @@ typedef unsigned char UChar;
 #define BUFFER_LENGTH 10000
 #define STRING_LENGTH   100
 #define LOCAL_SIZE       10
-#define LONG_SIZE     10000
+#define LONG_SIZE        10000
 #define GV_PI  3.14159265358979323846264338328
 #define GV_EE  2.732
 #define MIN(a,b)       (((a) < (b)) ?  (a) : (b))
@@ -66,7 +67,8 @@ typedef unsigned char UChar;
 #define ABS(a)         (((a) <  0.) ? -(a) : (a))
 #define SIGN(s,a)      (((s) <  0.) ? -(a) : (a))
 #define M_R(tab,n,i,j) (tab[(n) * (i) + (j)])
-#define IS_GAUSS_DEF(x) (x > THRESH_INF && x < THRESH_SUP)
+#define IS_GAUSS_DEF(x)     (x > THRESH_INF  && x <  THRESH_SUP)
+#define ISNOT_GAUSS_DEF(x)  (x <= THRESH_INF || x >= THRESH_SUP)
 
 #define MAX_INT     1000000000
 #define MAX_PARAM   1000

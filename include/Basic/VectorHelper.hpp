@@ -27,7 +27,11 @@ public:
   static VectorDouble       initVDouble(const double* values, int number);
   static VectorVectorDouble initVVDouble(const double* value, int n1, int n2);
 
-  static void display(const String &title, const VectorDouble &vect, bool skipLine = true); // TODO rename
+  static VectorString       initVString(int ntab, char** names);
+
+  static void display(const String& title,
+                      const VectorDouble& vect,
+                      bool skipLine = true); // TODO rename
   static void display(const String &title, const VectorVectorDouble &vect, bool skipLine = true);
   static void display(const String &title, const VectorString &vect, bool skipLine = true);
   static void display(const String &title, const VectorInt &vect, bool skipLine = true);
@@ -49,7 +53,7 @@ public:
   static double minimum(const VectorDouble &vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), int mode=0);
   static double maximum(const VectorVectorDouble &vec, bool flagAbs = false);
   static double minimum(const VectorVectorDouble &vec, bool flagAbs = false);
-  static int product(const VectorInt& nx);
+  static int product(const VectorInt& vec);
   static double product(const VectorDouble& vec);
   static int countUndefined(const VectorDouble& vec);
   static int countDefined(const VectorDouble& vec);
@@ -116,6 +120,11 @@ public:
 
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
+  static void multiplyConstantSelfInPlace(VectorDouble &vec, double v);
+  static void addMultiplyConstantInPlace(double val1,
+                                         const VectorDouble &in1,
+                                         VectorDouble &outv,
+                                         int iad);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorVectorDouble &in1,
                                          VectorVectorDouble &outv);
@@ -151,7 +160,8 @@ public:
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
 
-  static void cumulateInPlace(VectorDouble& vec);
+  static VectorDouble cumsum(const VectorDouble &vecin, bool flagAddZero, bool revert=false);
+  static void cumulateInPlace(VectorDouble &vec);
   static void cumulate(VectorDouble &veca, const VectorDouble &vecb, double coeff = 1., double addval = 0.);
   static void getMostSignificant(const VectorDouble& vec, double tol = EPSILON6, int nmax = -1);
 
@@ -188,11 +198,14 @@ public:
   static VectorInt    sortRanks(const VectorDouble& vecin, bool ascending = true, int size = -1);
   static VectorInt    reorder(const VectorInt& vecin, const VectorInt& order, int size = -1);
   static VectorDouble reorder(const VectorDouble& vecin, const VectorInt& order, int size = -1);
+  static VectorDouble revert(const VectorDouble& vecin);
+  static VectorInt    revert(const VectorInt& vecin);
+  static VectorDouble sample(const VectorDouble& vecin, const VectorInt& indKeep);
   static void arrangeInPlace(int safe,
-                             VectorInt &ranks,
-                             VectorDouble &values,
+                             VectorInt& ranks,
+                             VectorDouble& values,
                              bool ascending = true,
-                             int size = -1);
+                             int size       = -1);
   static void arrangeInPlace(int safe,
                              VectorInt &ranks,
                              VectorInt &values,

@@ -14,10 +14,7 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
-#include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
-
-#include <iostream>
 
 /// Unique default global space
 static ASpace* defaultSpace = nullptr;
@@ -55,8 +52,7 @@ ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
   {
     AStringable::operator=(r);
     // Delete the previous space
-    if (nullptr != _space)
-      delete _space;
+    delete _space;
     // Clone the space of the object to be copied
     _space = dynamic_cast<const ASpace*>(r._space->clone());
   }
@@ -84,29 +80,41 @@ VectorDouble ASpaceObject::getUnitaryVector() const
   return uni;
 }
 
-unsigned int ASpaceObject::getNDim() const
+unsigned int ASpaceObject::getNDim(int ispace) const
 {
-  return (_space->getNDim());
+  return (_space->getNDim(ispace));
 }
 
-const VectorDouble& ASpaceObject::getOrigin() const
+const VectorDouble& ASpaceObject::getOrigin(int ispace) const
 {
-  return (_space->getOrigin());
+  return (_space->getOrigin(ispace));
 }
 
-double ASpaceObject::getDistance(const SpacePoint& p1, const SpacePoint& p2) const
+double ASpaceObject::getDistance(const SpacePoint& p1,
+                                 const SpacePoint& p2,
+                                 int ispace) const
 {
-  return (_space->getDistance(p1, p2));
+  return (_space->getDistance(p1, p2, ispace));
 }
 
-double ASpaceObject::getDistance1D(const SpacePoint& p1, const SpacePoint& p2, int idim) const
+VectorDouble ASpaceObject::getDistances(const SpacePoint& p1,
+                                        const SpacePoint& p2) const
+{
+  return (_space->getDistances(p1, p2));
+}
+
+double ASpaceObject::getDistance1D(const SpacePoint& p1,
+                                   const SpacePoint& p2,
+                                   int idim) const
 {
   return (_space->getDistance1D(p1, p2, idim));
 }
 
-VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& p2) const
+VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1,
+                                        const SpacePoint& p2,
+                                        int ispace) const
 {
-  return (_space->getIncrement(p1, p2));
+  return (_space->getIncrement(p1, p2, ispace));
 }
 
 /**
@@ -129,13 +137,13 @@ void ASpaceObject::setNDim(int ndim)
  * (optional parameter can be used for sphere radius for example)
  *
  * @param type Space type (RN, SN, ...)
- * @param ndim Number of dimension
- * @param param Optional space parameter
+ * @param ndim Number of dimensions
+ * @param param Optional space parameter (ex: radius of the sphere)
+ * @param addtime Optional add time dimension (composit space)
  */
-void defineDefaultSpace(ESpaceType type, unsigned int ndim, double param)
+void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param, bool addtime)
 {
-  if (nullptr != defaultSpace)
-    delete defaultSpace;
+  delete defaultSpace;
 
   switch (type.getValue())
   {
@@ -143,12 +151,12 @@ void defineDefaultSpace(ESpaceType type, unsigned int ndim, double param)
     {
       ndim = 2;
       if (param <= 0.) param = EARTH_RADIUS;
-      defaultSpace = new SpaceSN(ndim, param);
+      defaultSpace = new SpaceSN(ndim, param, addtime);
       break;
     }
     case ESpaceType::E_RN:
     {
-      defaultSpace = new SpaceRN(ndim);
+      defaultSpace = new SpaceRN(ndim, addtime);
       break;
     }
     default:

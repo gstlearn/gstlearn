@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -48,7 +48,7 @@ jobs:
           libeigen3-dev
 
     - name: Setup Python Version
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{env.PYTHON_VERSION}}
 
@@ -87,7 +87,7 @@ jobs:
             'geigen', 
             'callr'),
             repos='https://cloud.r-project.org/')"
-            
+
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
@@ -100,16 +100,24 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name: Configure CMake
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.5
+
+    - name: Configure build directory
       run: |
         cmake \
-          -B ${{ env.BUILD_DIR }} \
+          -B${{ env.BUILD_DIR }} \
+          -DBUILD_TESTING=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        CMAKE_CC_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
     - name: Build the package
-      run : |
+      run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Execute Python demos and courses
@@ -129,7 +137,7 @@ jobs:
 
     - name: Publish output logs as artefact
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: demos-courses-logs
         path: ${{env.BUILD_DIR}}/tests/demos-courses-logs.tar.gz

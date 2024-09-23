@@ -62,7 +62,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Add to executable targets list
     list(APPEND TARGETS_EXE ${TEST_NAME})
     # Define sources list for the target executable
-    add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${TEST_SOURCE_FILE})
+    add_executable(${TEST_NAME} ${TEST_SOURCE_FILE})
     # Link each test to shared library
     target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
     # Trigger the prepare target each time a test is compiled

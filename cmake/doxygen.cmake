@@ -11,6 +11,7 @@ set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox | <a href=ht
 set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/doc/logos/gstlearn_logo_blue_th.png)
 set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
 set(DOXYGEN_EXTRACT_ALL YES)
+set(DOXYGEN_EXTRACT_STATIC YES)
 set(DOXYGEN_WARN_NO_PARAMDOC YES)
 set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
 set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
@@ -39,6 +40,8 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 #set(DOXYGEN_HIDE_UNDOC_RELATIONS NO)
 #set(DOXYGEN_UML_LOOK YES)
 #set(DOXYGEN_TEMPLATE_RELATIONS YES)
+
+set(DOXYGEN_USE_MATHJAX YES)
 
 # https://stackoverflow.com/questions/25290453/how-do-i-add-a-footnote-in-doxygen
 set(DOXYGEN_ALIASES tooltip{1}=\"\\latexonly\\footnote\\{\\1\\}\\endlatexonly\\htmlonly<sup title=\'\\1\'>*</sup>\\endhtmlonly\")

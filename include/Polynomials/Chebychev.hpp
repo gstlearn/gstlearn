@@ -17,6 +17,11 @@
 
 #include <functional>
 
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
 class AFunction;
 class ALinearOpMulti;
 class cs; /// TODO : Dependency to csparse to be removed
@@ -32,19 +37,21 @@ public:
 
   /// Interface for Apolynomial
 #ifndef SWIG
-  void evalOp(MatrixSparse* Op,const VectorDouble& inv, VectorDouble& outv) const override;
-#endif
-  void evalOp(const ALinearOpMulti *Op,
-              const VectorVectorDouble &inv,
-              VectorVectorDouble &outv) const override;
+  void evalOp(MatrixSparse* S,const Eigen::VectorXd& x, Eigen::VectorXd& y) const override;
+  void addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+
+  /* void evalOp(const ALinearOpMulti *Op,
+              const std::vector<Eigen::VectorXd> &inv,
+              std::vector<Eigen::VectorXd> &outv) const override; */
+ #endif
   double eval(double x) const override;
-  int fit(std::function<double(double)> f,
+  int fit(const std::function<double(double)>& f,
           double a = 0.,
           double b = 1.,
           double tol = EPSILON5) override;
 
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
-  static Chebychev* createFromCoeffs(const VectorDouble coeffs);
+  static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
   void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}
   int getNcMax() const {return _ncMax;}
   int getNDisc() const {return _nDisc;}
@@ -61,8 +68,8 @@ public:
 
 private:
   bool _isReady() const { return !_coeffs.empty(); }
-  void _fillCoeffs(std::function<double(double)>, double a, double b);
-  int _countCoeffs(std::function<double(double)> f,
+  void _fillCoeffs(const std::function<double(double)>& f, double a, double b);
+  int _countCoeffs(const std::function<double(double)>& f,
                    double x,
                    double a,
                    double b,

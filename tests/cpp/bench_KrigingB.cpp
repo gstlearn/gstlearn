@@ -28,7 +28,6 @@
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
-  bool verbose = false;
   bool graphic = false;
 
   std::stringstream sfn;
@@ -39,40 +38,35 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("BenchKrigingB-");
 
   // Global parameters
-  defineDefaultSpace(ESpaceType::RN, 2);
+  int ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
+
   // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
-  if (verbose) data->display();
-  if (graphic)
-    (void) data->dumpToNF("Data.ascii");
+  int nech = 1000;
+  int nvar = 1;
+  Db* data = Db::createFillRandom(nech, ndim, nvar);
+
   // Generate the output grid
-  bool flagSmall = false;
-  VectorInt nx;
-  if (flagSmall)
-    nx = {50,60};
-  else
-    nx = {360,240};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
+  int ncell       = 100;
+  VectorInt nx    = {ncell, ncell};
+  VectorDouble dx = {1. / ncell, 1. / ncell};
+  DbGrid* grid    = DbGrid::create(nx, dx);
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
-  if (verbose) model->display();
+  double range = 1. / 5.;
+  double sill  = 2.;
+  Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   // Bench Neighborhood
-  double width = 100000.;
+  double width = 0.5;
   NeighBench* neighB = NeighBench::create(false, width);
-  if (verbose) neighB->display();
+
+  // Print the test environment
+  message("This test is mean to test Kriging using Moving Neighborhood\n");
+  message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
+  message("- the Output Grid contains %d nodes\n", grid->getSampleNumber(true));
+  message("- the Bench Neighborhood is required:\n");
+  message("  . Bench width = %lf\n", width);
 
   Timer timer;
   kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
@@ -84,10 +78,10 @@ int main(int argc, char *argv[])
 
   if (graphic)
     (void) grid->dumpToNF("Grid.ascii");
-  if (neighB    != nullptr) delete neighB;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
-  if (model     != nullptr) delete model;
+  delete neighB;
+  delete data;
+  delete grid;
+  delete model;
 
   return (0);
 }

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Indirection.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 
 Indirection::Indirection(int mode)
@@ -155,14 +154,8 @@ void Indirection::buildFromRankRInA(const VectorInt& rels, int nabs)
 
 int Indirection::getAToR(int iabs) const
 {
-  if (_mode == 0)
-  {
-    return _getArrayAToR(iabs);
-  }
-  else
-  {
-    return _getMapAToR(iabs);
-  }
+  if (_mode == 0) return _getArrayAToR(iabs);
+  return _getMapAToR(iabs);
 }
 
 int Indirection::getRToA(int irel) const
@@ -174,22 +167,12 @@ int Indirection::getRToA(int irel) const
 
 bool Indirection::_isValidAbs(int iabs) const
 {
-  if (iabs < 0 || iabs >= getAbsSize())
-  {
-    mesArg("Absolute Rank", iabs, getAbsSize());
-    return false;
-  }
-  return true;
+  return checkArg("Absolute Rank", iabs, getAbsSize());
 }
 
 bool Indirection::_isValidRel(int irel) const
 {
-  if (irel < 0 || irel >= getRelSize())
-  {
-    mesArg("Relative Rank", irel, getRelSize());
-    return false;
-  }
-  return true;
+  return checkArg("Relative Rank", irel, getRelSize());
 }
 
 int Indirection::_getArrayAToR(int iabs) const
@@ -207,11 +190,7 @@ int Indirection::_getArrayAToR(int iabs) const
 int Indirection::_getMapAToR(int iabs) const
 {
   if (_mapAToR.empty()) return iabs;
-  if (_mapAToR.find(iabs) == _mapAToR.end())
-    return -1;
-  else
-  {
-    int irel = _mapAToR.find(iabs)->second;
-    return irel;
-  }
+  if (_mapAToR.find(iabs) == _mapAToR.end()) return -1;
+  int irel = _mapAToR.find(iabs)->second;
+  return irel;
 }

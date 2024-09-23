@@ -8,19 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckCell.hpp>
-#include <Geometry/BiTargetCheckDistance.hpp>
-#include <Geometry/BiTargetCheckFaults.hpp>
-#include "geoslib_old_f.h"
+#include "Geometry/BiTargetCheckDistance.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 #include "Neigh/NeighMoving.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Faults/Faults.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include <math.h>
 
 NeighMoving::NeighMoving(bool flag_xvalid,
@@ -29,8 +25,8 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nmini,
                          int nsect,
                          int nsmax,
-                         VectorDouble coeffs,
-                         VectorDouble angles,
+                         const VectorDouble& coeffs,
+                         const VectorDouble& angles,
                          const ASpace *space)
     : ANeigh(space),
       _nMini(nmini),
@@ -237,8 +233,8 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nmini,
                                  int nsect,
                                  int nsmax,
-                                 VectorDouble coeffs,
-                                 VectorDouble angles,
+                                 const VectorDouble& coeffs,
+                                 const VectorDouble& angles,
                                  const ASpace* space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
@@ -290,7 +286,7 @@ bool NeighMoving::getFlagSector() const
   return (getNDim() > 1 && _nSect > 1);
 }
 
-bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, double *sinp) const
+bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *theta, double *cosp, double *sinp) const
 {
   double radius = _getRadius();
   if (FFFF(radius)) return false;
@@ -301,7 +297,8 @@ bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, d
   *ry = radius * anisoRatio[1];
   VectorDouble angrot(ndim);
   GH::rotationGetAnglesInPlace(getAnisoRotMats(), angrot);
-  double angref = angrot[0] * 2. * GV_PI / 360.;
+  double angref = angrot[0] * GV_PI / 180.;
+  *theta = angrot[0];
   *cosp = cos(angref);
   *sinp = sin(angref);
   return true;
@@ -309,31 +306,16 @@ bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, d
 
 VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int count) const
 {
-  double rx, ry, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &cosp, &sinp)) return VectorVectorDouble();
+  double rx, ry, theta, cosp, sinp;
+  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
-  VectorVectorDouble coords(2);
-  coords[0].resize(count+1,0.);
-  coords[1].resize(count+1,0.);
-
-  for (int i = 0; i < count; i++)
-  {
-    double angle = 2. * i * GV_PI / count;
-    double cosa = cos(angle);
-    double sina = sin(angle);
-    coords[0][i] = target[0] + rx * cosa * cosp - ry * sina * sinp;
-    coords[1][i] = target[1] + rx * cosa * sinp + ry * sina * cosp;
-  }
-
-  coords[0][count] = coords[0][0];
-  coords[1][count] = coords[1][0];
-  return coords;
+  return GH::getEllipse(target, theta, rx, ry, count);
 }
 
 VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const
 {
-  double rx, ry, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &cosp, &sinp)) return VectorVectorDouble();
+  double rx, ry, theta, cosp, sinp;
+  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
   double radius = MAX(rx, ry);
 
   VectorVectorDouble coords(2);
@@ -354,8 +336,8 @@ VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double
  */
 VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
 {
-  double rx, ry, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &cosp, &sinp)) return VectorVectorDouble();
+  double rx, ry, theta, cosp, sinp;
+  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
   VectorVectorDouble coords(2);
   coords[0].resize(_nSect,0.);
@@ -498,10 +480,6 @@ bool NeighMoving::hasChanged(int iech_out) const
  */
 void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
-  ranks.resize(nech);
-  ranks.fill(-1);
-
   // Select the neighborhood samples as the target sample has changed
   if (_moving(iech_out, ranks))
   {
@@ -534,6 +512,8 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 {
   int nech = _dbin->getSampleNumber();
+  ranks.resize(nech);
+  ranks.fill(-1);
   int isect = 0;
   if (nech < getNMini()) return 1;
 
@@ -544,16 +524,30 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
   // Load the target sample as a Space Point
   if (_dbgrid != nullptr)
-    _dbgrid->getSampleAsST(iech_out, _T1);
+    _dbgrid->getSampleAsSTInPlace(iech_out, _T1);
   else
-    _dbout->getSampleAsST(iech_out, _T1);
+    _dbout->getSampleAsSTInPlace(iech_out, _T1);
 
-  for (int iech = 0; iech < nech; iech++)
+  // Select the elligible points when using Ball Tree serach
+  VectorInt elligibles;
+  if (_useBallSearch)
   {
+    elligibles = getBall().getIndices(_T1, _nMaxi);
+    nech       = (int)elligibles.size();
+  }
 
-    /* Discard the masked input sample */
-
-    if (! _dbin->isActive(iech)) continue;
+  for (int jech = 0; jech < nech; jech++)
+  {
+    int iech;
+    if (_useBallSearch)
+    {
+      iech = elligibles[jech];
+    }
+    else
+    {
+      iech = jech;
+      if (!_dbin->isActive(iech)) continue;
+    }
 
     /* Discard samples where all variables are undefined */
 
@@ -566,22 +560,23 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(iech, iech_out)) continue;
     }
 
-    _dbin->getSampleAsST(iech, _T2);
+    _dbin->getSampleAsSTInPlace(iech, _T2);
 
     // Reject the point due to BiTargetChecker
     // (other than the one based on distance which must come last)
 
     bool reject = false;
-    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && ! reject; ipt++)
+    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && !reject; ipt++)
     {
-      if (! _bipts[ipt]->isOK(_T1, _T2)) reject = true;
+      if (!_bipts[ipt]->isOK(_T1, _T2)) reject = true;
     }
     if (reject) continue;
 
     // Calculate the distance between data and target
-    // The rejection with respect to maximum distance is bypassed if '_forceWithinCell'
+    // The rejection with respect to maximum distance is bypassed if
+    // '_forceWithinCell'
 
-    if (! _biPtDist->isOK(_T1, _T2)) continue;
+    if (!_biPtDist->isOK(_T1, _T2)) continue;
     double dist = _biPtDist->getDistance();
     if (dist > distmax) distmax = dist;
 
@@ -590,14 +585,14 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     if (getFlagSector())
     {
       VectorDouble incr = _biPtDist->getIncr();
-      isect = _movingSectorDefine(incr[0], incr[1]);
+      isect             = _movingSectorDefine(incr[0], incr[1]);
     }
 
     /* The sample may be selected */
 
     _movingInd[nsel] = iech;
     _movingDst[nsel] = dist;
-    ranks[iech] = isect;
+    ranks[iech]      = isect;
     nsel++;
   }
   if (nsel < getNMini()) return 1;
@@ -620,7 +615,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     if (nsel < getNMini()) return 1;
   }
 
-    /* Select the first data samples (skipped if forcing all samples in block) */
+  /* Select the first data samples (skipped if forcing all samples in block) */
 
   _movingSelect(nsel, ranks);
 
@@ -637,7 +632,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
  ** \param[in]  dy    increment along Y
  **
  *****************************************************************************/
-int NeighMoving::_movingSectorDefine(double dx, double dy)
+int NeighMoving::_movingSectorDefine(double dx, double dy) const
 {
   double angle;
 
@@ -665,7 +660,7 @@ int NeighMoving::_movingSectorDefine(double dx, double dy)
       else
         angle = GV_PI + atan(dy / dx);
     }
-    isect = (int) (getNSect() * angle / (2. * GV_PI));
+    isect = (int)(getNSect() * angle / (2. * GV_PI));
   }
   return (isect);
 }
@@ -695,7 +690,6 @@ void NeighMoving::_movingSectorNsmax(int nsel, VectorInt& ranks)
         ranks[j] = -1;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -723,7 +717,7 @@ void NeighMoving::_movingSelect(int nsel, VectorInt& ranks)
   number = 0;
   for (int i = 0; i < nsel; i++)
   {
-    int j = _movingInd[i];
+    int j     = _movingInd[i];
     int isect = ranks[j];
     if (isect < 0) continue;
     _movingNsect[isect]++;
@@ -753,7 +747,7 @@ void NeighMoving::_movingSelect(int nsel, VectorInt& ranks)
     number = 0;
     for (int i = 0; i < nsel; i++)
     {
-      int j = _movingInd[i];
+      int j     = _movingInd[i];
       int jsect = ranks[j];
       if (jsect < 0) continue;
       if (isect != jsect) continue;
@@ -762,4 +756,3 @@ void NeighMoving::_movingSelect(int nsel, VectorInt& ranks)
     }
   }
 }
-

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Enum/ELoadBy.hpp"
 
 #include "OutputFormat/GridZycor.hpp"
@@ -18,6 +16,7 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Core/io.hpp"
 
 #include <string.h>
 #include <stdio.h>
@@ -156,7 +155,7 @@ DbGrid*  GridZycor::readGridFromFile()
 
    /* Define the delimitors */
 
-   _file_delimitors('!', ',', '_');
+   _file_delimitors('!', ",", '_');
 
    /* Read the lines */
 
@@ -167,7 +166,7 @@ DbGrid*  GridZycor::readGridFromFile()
      return dbgrid;
    }
    if (_record_read(_file, "%s", string)) return dbgrid;
-   if (strcmp(string, "GRID"))
+   if (strcmp(string, "GRID") != 0)
    {
      messerr("Missing string (GRID). Instead: '%s'", string);
      return dbgrid;
@@ -189,7 +188,7 @@ DbGrid*  GridZycor::readGridFromFile()
    if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
 
    if (_record_read(_file, "%s", string)) return dbgrid;
-   if (strcmp(string, "@"))
+   if (strcmp(string, "@") != 0)
    {
      messerr("Missing string (@). Instead: %s", string);
      return dbgrid;
@@ -202,7 +201,7 @@ DbGrid*  GridZycor::readGridFromFile()
 
    /* Reset the delimitors */
 
-   _file_delimitors('#', ' ', ' ');
+   _file_delimitors('#', " ", ' ');
 
    /* Core allocation */
 

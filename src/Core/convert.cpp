@@ -8,18 +8,19 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 #include "geoslib_define.h"
 
+#include "Core/CSV.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Memory.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "OutputFormat/AOF.hpp"
 #include "OutputFormat/GridEclipse.hpp"
 #include "OutputFormat/GridIfpEn.hpp"
 #include "OutputFormat/GridXYZ.hpp"
@@ -31,11 +32,11 @@
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/FileLAS.hpp"
 #include "OutputFormat/vtk.h"
+
 #include <string.h>
 #include <sstream>
 #include <string>
 #include <stdio.h>
-#include <algorithm>
 
 /*! \cond */
 
@@ -91,8 +92,8 @@ int db_grid_write_arcgis(const char *filename, DbGrid *db, int icol)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-int db_grid_write_bmp(const char *filename,
-                      DbGrid *db,
+int db_grid_write_bmp(const char* filename,
+                      DbGrid* db,
                       int icol,
                       int nsamplex,
                       int nsampley,
@@ -102,9 +103,9 @@ int db_grid_write_bmp(const char *filename,
                       int flag_high,
                       double valmin,
                       double valmax,
-                      int *red,
-                      int *green,
-                      int *blue,
+                      int* red,
+                      int* green,
+                      int* blue,
                       int mask_red,
                       int mask_green,
                       int mask_blue,
@@ -443,20 +444,20 @@ int db_write_csv(Db *db,
     {
       for (int rank = 0; rank < ncol; rank++)
       {
-        st_csv_print_string(db_name_get_by_att(db, rank).c_str());
+          st_csv_print_string(db->getNameByUID(rank).c_str());
       }
     }
     else
     {
       if (flag_coor) for (int idim = 0; idim < ndim; idim++)
       {
-        int iatt = db_attribute_identify(db, ELoc::X, idim);
-        st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
+        int iatt = db->getUIDByLocator(ELoc::X, idim);
+        st_csv_print_string(db->getNameByUID(iatt).c_str());
       }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
-        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
-        st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
+        int iatt = db->getUIDByLocator(ELoc::Z, ivar);
+        st_csv_print_string(db->getNameByUID(iatt).c_str());
       }
     }
   }
@@ -476,13 +477,13 @@ int db_write_csv(Db *db,
     {
       if (flag_coor) for (int idim = 0; idim < ndim; idim++)
       {
-        int iatt = db_attribute_identify(db, ELoc::X, idim);
+        int iatt = db->getUIDByLocator(ELoc::X, idim);
         csv_print_double(db->getCoordinate(iech, iatt));
       }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
-        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
-        csv_print_double(db->getLocVariable(ELoc::Z,iech, iatt));
+        int iatt = db->getUIDByLocator(ELoc::Z, ivar);
+        csv_print_double(db->getZVariable(iech, iatt));
       }
     }
   }

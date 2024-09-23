@@ -12,10 +12,10 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Polynomials/Chebychev.hpp"
-#include "LinearOp/ALinearOpMulti.hpp"
+#include "Core/fftn.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 #include <functional>
 
@@ -35,7 +35,7 @@ Chebychev::~Chebychev()
   // TODO Auto-generated destructor stub
 }
 
-Chebychev* Chebychev::createFromCoeffs(const VectorDouble coeffs)
+Chebychev* Chebychev::createFromCoeffs(const VectorDouble& coeffs)
 {
   Chebychev* cheb = new Chebychev();
   cheb->setCoeffs(coeffs);
@@ -61,7 +61,7 @@ int Chebychev::fit2(AFunction* f,
 
 }
 
-int Chebychev::fit(std::function<double(double)> f, double a, double b, double tol)
+int Chebychev::fit(const std::function<double(double)>& f, double a, double b, double tol)
 {
 
   _coeffs.resize(_ncMax,0.);
@@ -128,7 +128,7 @@ double Chebychev::eval(double x) const
 }
 
 
-int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,double b,double tol)const
+int Chebychev::_countCoeffs(const std::function<double(double)>& f,double x,double a,double b,double tol)const
 {
   double y, y0, y_2, xc, Tx, Tm1, Tm2;
 
@@ -160,7 +160,7 @@ int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,do
   return (_ncMax);
 }
 
-void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
+void Chebychev::_fillCoeffs(const std::function<double(double)>& f,double a, double b)
 {
   VectorDouble coeffs, x1, y1, x2, y2;
   int n;
@@ -168,7 +168,7 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
   /* Initializations */
 
   double minsubdiv = pow(2., 20.);
-  if (minsubdiv >= (_ncMax + 1) / 2)
+  if (minsubdiv >= (_ncMax + 1.) / 2.)
     n = static_cast<int> (minsubdiv);
   else
     n = static_cast<int> (ceil((double) (_ncMax + 1) / 2));
@@ -215,29 +215,29 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
 }
 
 
-void Chebychev::evalOp(const ALinearOpMulti *Op,
-                       const VectorVectorDouble &inv,
-                       VectorVectorDouble &outv) const
+/* void Chebychev::evalOp(const ALinearOpMulti *Op,
+                       const std::vector<Eigen::VectorXd> &inv,
+                       std::vector<Eigen::VectorXd> &outv) const
 {
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
 
   // Initialization
   Op->prepare();
-  VectorVectorDouble *tm2 = &Op->_z;
-  VectorVectorDouble *tm1 = &Op->_temp;
-  VectorVectorDouble *t0  = &Op->_p;
-  VectorVectorDouble *swap;
+  std::vector<Eigen::VectorXd> *tm2 = &Op->_z;
+  std::vector<Eigen::VectorXd> *tm1 = &Op->_temp;
+  std::vector<Eigen::VectorXd> *t0  = &Op->_p;
+  std::vector<Eigen::VectorXd> *swap;
 
   VH::copy(inv, *tm2);
   // tm1 = v1 Op tm2 + v2 tm2
   Op->evalDirect(*tm2, *tm1);
   VH::linearCombinationVVDInPlace(v1, *tm1, v2, *tm2, *tm1);
   VH::linearCombinationVVDInPlace(_coeffs[0], *tm2, _coeffs[1], *tm1, outv);
-
+ */
   /* Loop on the Chebychev polynomials */
   // Op *= 2
-  v1 *= 2.;
+  /* v1 *= 2.;
   v2 *= 2.;
 
   for (int ib = 2; ib < (int) _coeffs.size(); ib++)
@@ -258,12 +258,12 @@ void Chebychev::evalOp(const ALinearOpMulti *Op,
     tm1 = t0;
     t0 = swap;
   }
-}
+} */
 
 #ifndef SWIG
-void Chebychev::evalOp(MatrixSparse* S,const VectorDouble& x,VectorDouble& y) const
+void Chebychev::evalOp(MatrixSparse* S,const Eigen::VectorXd& x,Eigen::VectorXd& y) const
 {
-  VectorDouble tm1, tm2, px, tx;
+  Eigen::VectorXd tm1, tm2, px, tx;
   int nvertex;
   MatrixSparse *T1;
 
@@ -320,4 +320,13 @@ void Chebychev::evalOp(MatrixSparse* S,const VectorDouble& x,VectorDouble& y) co
 
   delete T1;
 }
+
+void Chebychev::addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+{
+  DECLARE_UNUSED(Op);
+  DECLARE_UNUSED(inv);
+  DECLARE_UNUSED(outv);
+  //TODO implement
+}
+
 #endif

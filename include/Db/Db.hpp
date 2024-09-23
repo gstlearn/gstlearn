@@ -16,6 +16,7 @@
 #include "Enum/EStatOption.hpp"
 
 #include "Db/PtrGeos.hpp"
+#include "Matrix/Table.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
@@ -89,12 +90,15 @@ public:
 
   /// Interface for Db
   virtual bool isGrid() const { return false; }
+  virtual bool isLine() const { return false; }
+  virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
   virtual void resetDims(int ncol, int nech);
+  virtual bool isConsistent() const { return true; };
 
   /**
    * \defgroup DB Db: Numerical Data Base
@@ -232,7 +236,7 @@ public:
   VectorString getAllNames(bool excludeRankAndCoordinates = false, bool verbose = false) const;
 
   void setName(const String& old_name, const String& name);
-  void setName(const VectorString list, const String& name);
+  void setName(const VectorString& list, const String& name);
   void setNameByUID(int iuid, const String& name);
   void setNameByColIdx(int icol, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
@@ -245,7 +249,7 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
-  int getNEloc() const;
+  static int getNEloc();
   int getSampleNumber(bool useSel = false) const;
   int getNumberActiveAndDefined(int item) const;
   int getActiveSampleNumber() const;
@@ -284,7 +288,7 @@ public:
                            int locatorIndex = 0,
                            bool cleanSameLocator = false);
 
-  void addColumnsByVVD(const VectorVectorDouble tab,
+  void addColumnsByVVD(const VectorVectorDouble& tab,
                        const String &radix,
                        const ELoc& locatorType,
                        int locatorIndex = 0,
@@ -332,7 +336,7 @@ public:
   int addSamples(int nadd, double valinit = TEST);
   int deleteSample(int e_del);
   int deleteSamples(const VectorInt& e_dels);
-  void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
+  void switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out);
   int  getLastUID(int number = 0) const;
   String getLastName(int number = 0) const;
 
@@ -341,7 +345,7 @@ public:
   int getColIdxByLocator(const ELoc& locatorType, int locatorIndex=0) const;
   VectorInt getColIdxs(const String& name) const;
   VectorInt getColIdxs(const VectorString& names) const;
-  VectorInt getColIdxsByUID(const VectorInt iuids) const;
+  VectorInt getColIdxsByUID(const VectorInt& iuids) const;
   VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
 
   void setColumn(const VectorDouble &tab,
@@ -371,9 +375,9 @@ public:
                              bool useSel = false) const;
   VectorVectorDouble getItem(const ELoc& locatorType,
                              bool useSel = false) const;
-  VectorString getItemNames(const VectorString& colnames);
-  VectorString getItemNames(const String& colname);
-  VectorString getItemNames(const ELoc& locatorType);
+  VectorString getItemNames(const VectorString& colnames) const;
+  VectorString getItemNames(const String& colname) const;
+  VectorString getItemNames(const ELoc& locatorType) const;
 
   int setItem(const VectorInt& rows,
               const VectorString& colnames,
@@ -420,14 +424,17 @@ public:
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
 
+  void copyByUID(int iuidIn, int iuidOut);
+  void copyByCol(int icolIn, int icolOut);
+
   int getFaciesNumber(void) const;
   bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-  void getSampleCoordinatesAsSPInPlace(int iech, SpacePoint& P) const;
-  void getSampleAsST(int iech, SpaceTarget& P) const;
+          void getSampleAsSPInPlace(int iech, SpacePoint& P) const;
+  virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
   void getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
@@ -436,10 +443,12 @@ public:
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   MatrixRectangular getAllCoordinatesMat() const;
   void   setCoordinate(int iech, int idim, double value);
+  void setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
+  void setSampleCoordinates(int iech, const VectorDouble& coor);
 
   double getDistance1D(int iech, int jech, int idim=0, bool flagAbs = false) const;
   double getDistance(int iech, int jech) const;
-  int    getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2 = nullptr) const;
+  int    getDistanceVecInPlace(int iech, int jech, VectorDouble& dd, const Db* db2 = nullptr) const;
 
   double getValue(const String& name, int iech) const;
   void   setValue(const String& name, int iech, double value);
@@ -456,6 +465,7 @@ public:
 
   std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
 
+  bool   hasLocator(const ELoc& locatorType) const;
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(const ELoc& locatorType,
@@ -508,6 +518,15 @@ public:
   void   updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value);
   /**@}*/
 
+  int    getZNumber() const;
+  bool   hasZVariable() const;
+  double getZVariable(int iech, int item) const;
+  void   setZVariable(int iech, int item, double value);
+  void   updZVariable(int iech, int item, const EOperator& oper, double value);
+
+  VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
+  void   setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
+
   bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
@@ -520,7 +539,7 @@ public:
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
   VectorDouble getGradient(int item, bool useSel = false) const;
   VectorDouble getTangent(int item, bool useSel = false) const;
-  VectorDouble getCodeList(void);
+  VectorDouble getCodeList(void) const;
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
@@ -528,12 +547,20 @@ public:
                            int item = -1,
                            bool useSel = true,
                            bool useVerr = false) const;
-  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars,
-                                         const VectorInt &nbgh,
+  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars = VectorInt(),
+                                         const VectorInt &nbgh = VectorInt(),
                                          bool useSel = true,
                                          bool useVerr = false) const;
-
-  double       getWeight(int iech) const;
+  VectorDouble
+  getMultipleValuesActive(const VectorInt& ivars    = VectorInt(),
+                          const VectorInt& nbgh     = VectorInt(),
+                          const VectorDouble& means = VectorDouble(),
+                          bool useSel               = true,
+                          bool useVerr              = false) const;
+  static VectorInt getMultipleRanks(const VectorVectorInt& index,
+                                    const VectorInt& ivars = VectorInt(),
+                                    const VectorInt& nbgh  = VectorInt());
+  double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
   /** @addtogroup DB_1 Designating Variables (used for simulations in particular)
@@ -552,7 +579,7 @@ public:
    * @param value Value to be assigned
    *  @{
    */
-  int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
+  static int getSimRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
   double getSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
@@ -635,32 +662,38 @@ public:
 
   VectorDouble getAllColumns(bool useSel = false,
                              bool flagCompress = true) const;
-  VectorDouble getColumns(const VectorString &names = VectorString(),
-                          bool useSel = false,
-                          bool flagCompress = true) const;
+  VectorDouble getColumns(const VectorString& names   = VectorString(),
+                          bool useSel                 = false,
+                          bool flagCompress           = true,
+                          const VectorDouble& origins = VectorDouble()) const;
   VectorVectorDouble getColumnsAsVVD(const VectorString &names = VectorString(),
                                      bool useSel = false,
                                      bool flagCompress = true) const;
   MatrixRectangular getColumnsAsMatrix(const VectorString &names,
                                        bool useSel = false,
                                        bool flagCompress = true) const;
-  VectorDouble getColumnsByColIdx(const VectorInt &icols = VectorInt(),
-                                  bool useSel = false,
-                                  bool flagCompress = true) const;
+  VectorDouble getColumnsByColIdx(const VectorInt& icols = VectorInt(),
+                                  bool useSel            = false,
+                                  bool flagCompress      = true,
+                                  const VectorDouble& origins = VectorDouble()) const;
   VectorDouble getColumnsByColIdxInterval(int icol_beg,
                                           int icol_end,
                                           bool useSel = false,
                                           bool flagCompress = true) const;
-  VectorDouble getColumnsByLocator(const ELoc &locatorType,
-                                   bool useSel = false,
-                                   bool flagCompress = true) const;
-  VectorDouble getColumnsByUID(const VectorInt &iuids,
-                               bool useSel = false,
-                               bool flagCompress = true) const;
-  VectorDouble getColumnsByUIDRange(int iuid_beg,
-                                    int iuid_end,
-                                    bool useSel = false,
-                                    bool flagCompress = true) const;
+  VectorDouble getColumnsActiveAndDefined(const ELoc& locatorType,
+                                          const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByLocator(const ELoc& locatorType,
+                                   bool useSel                 = false,
+                                   bool flagCompress           = true,
+                                   const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByUID(const VectorInt& iuids,
+                               bool useSel       = false,
+                               bool flagCompress = true,
+                               const VectorDouble& origins = VectorDouble()) const;
+  VectorDouble getColumnsByUIDInterval(int iuid_beg,
+                                       int iuid_end,
+                                       bool useSel       = false,
+                                       bool flagCompress = true) const;
   /**@}*/
 
   void setAllColumns(const VectorVectorDouble& tabs);
@@ -687,13 +720,15 @@ public:
   void deleteColumnsByLocator(const ELoc& locatorType);
   void deleteColumnsByUID(const VectorInt& iuids);
   void deleteColumnsByColIdx(const VectorInt& icols);
+  void deleteColumnsByUIDRange(int i_del, int n_del);
   /**@}*/
 
   /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
    * \ingroup DB
    *
    * @param idim Rank of the target space dimension (0 based)
-   * @param useSel When TRUE, the characteristics are derived from the only active samples
+   * @param useSel When TRUE, the characteristics are derived from the only
+   * active samples
    * @param mini Vector of minimum values (modified by this function)
    * @param maxi Vector of maximum values (modified by this function)
    *
@@ -707,7 +742,10 @@ public:
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenters(bool useSel = false) const;
-  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false);
+  void getExtensionInPlace(VectorDouble& mini,
+                           VectorDouble& maxi,
+                           bool flagPreserve = false,
+                           bool useSel       = false) const;
   /**@}*/
 
   /** @addtogroup DB_5 Calculating basic Statistics
@@ -764,8 +802,8 @@ public:
 
   void generateRank(const String& radix = "rank");
 
-  VectorInt shrinkToValidRows(const VectorInt& rows);
-  VectorInt shrinkToValidCols(const VectorInt& cols);
+  VectorInt shrinkToValidRows(const VectorInt& rows) const;
+  VectorInt shrinkToValidCols(const VectorInt& cols) const;
 
   /** @addtogroup DB_7 Calculating several statistics in Db
    * \ingroup DB
@@ -787,13 +825,14 @@ public:
    *
    *  @{
    */
-  void statisticsBySample(const VectorString &names,
-                          const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
-                          bool flagIso = true,
-                          double vmin = TEST,
-                          double vmax = TEST,
-                          double proba = TEST,
-                          const NamingConvention &namconv = NamingConvention("Stats"));
+  void statisticsBySample(
+    const VectorString& names,
+    const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+    bool flagIso                          = true,
+    double proba                          = TEST,
+    double vmin                           = TEST,
+    double vmax                           = TEST,
+    const NamingConvention& namconv       = NamingConvention("Stats"));
   /**@}*/
 
   /** @addtogroup DB_8 Calculating correlations on variables of a Db
@@ -820,7 +859,7 @@ public:
                const String& name2,
                double eps = EPSILON3,
                bool useSel = true,
-               bool verbose = false);
+               bool verbose = false) const;
 
   VectorInt filter(const String& name,
                    const Interval& interval,
@@ -828,6 +867,10 @@ public:
                    int aboveRow = ITEST) const;
 
   VectorInt getSampleRanks() const;
+  Table printOneSample(int iech,
+                       const VectorString& names = VectorString(),
+                       bool excludeCoordinates   = true,
+                       bool skipTitle            = false) const;
 
 protected:
   /// Interface for ASerializable
@@ -852,7 +895,7 @@ protected:
 
 private:
   const VectorInt& _getUIDcol() const { return _uidcol; }
-  const VectorString _getNames() const { return _colNames; }
+  VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, bool flagCst = true, double valinit = TEST);
@@ -891,7 +934,7 @@ private:
                             int expectedVarCount);
 
   // Higher level methods
-  bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
+  bool _isCountValid(const VectorInt& iuids, bool flagOne, bool verbose = true) const;
 
 protected:
   void _defineVariableAndLocators(const Db* dbin, const VectorString& names, int shift = 0);

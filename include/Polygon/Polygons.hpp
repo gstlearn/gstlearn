@@ -73,7 +73,7 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
-  bool inside(const VectorDouble& coor, bool flag_nested = false);
+  bool inside(const VectorDouble& coor, bool flag_nested = false) const;
 
   Polygons reduceComplexity(double distmin) const;
 
@@ -84,18 +84,15 @@ protected:
   String _getNFName() const override { return "Polygon"; }
 
 private:
-  PolyElem _extractFromTab(int ideb,
-                          int ifin,
-                          int ncol,
-                          const VectorDouble &tab);
-  PolyElem _extractFromWKT(const CSVformat& csv, String& polye);
+  static PolyElem _extractFromTab(int ideb, int ifin, int ncol, const VectorDouble& tab);
+  static PolyElem _extractFromWKT(const CSVformat& csv, String& polye);
   bool _isValidPolyElemIndex(int ipol) const;
-  VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y) const;
-  void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);
+  static VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y);
+  static void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);
   int  _buildHull(const Db *db, double dilate, bool verbose);
-  void _polygonHullPrint(const VectorInt &index,
-                         const VectorDouble &x,
-                         const VectorDouble &y) const;
+  static void _polygonHullPrint(const VectorInt& index,
+                                const VectorDouble& x,
+                                const VectorDouble& y);
 
 private:
   std::vector<PolyElem> _polyelems;
@@ -105,7 +102,7 @@ private:
 };
 
 GSTLEARN_EXPORT void db_polygon(Db *db,
-                                Polygons *polygon,
+                                const Polygons *polygon,
                                 bool flag_sel = false,
                                 bool flag_period = false,
                                 bool flag_nested = false,

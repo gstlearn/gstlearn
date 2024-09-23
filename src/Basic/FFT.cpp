@@ -8,12 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
-#include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/FFT.hpp"
 #include "Arrays/Array.hpp"
+#include "Core/fftn.hpp"
 
 #include <math.h>
 
@@ -44,8 +42,10 @@ int FFTn(int ndim,
  * @param funcSpectrum External adequate spectrum evaluation function
  * @return Array of spatio-temporal covariance
  */
-Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
-                          std::function<std::complex<double>(VectorDouble, double)> funcSpectrum)
+Array evalCovFFTTimeSlice(const VectorDouble& hmax,
+                          double time,
+                          int N,
+                          const std::function<std::complex<double>(VectorDouble, double)>& funcSpectrum)
 {
   int ndim = (int) hmax.size();
   VectorInt nxs(ndim);
@@ -103,7 +103,7 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
 
 Array evalCovFFTSpatial(const VectorDouble &hmax,
                         int N,
-                        std::function<double(const VectorDouble&)> funcSpectrum)
+                        const std::function<double(const VectorDouble&)>& funcSpectrum)
 {
   int ndim = (int) hmax.size();
   VectorInt nxs(ndim);

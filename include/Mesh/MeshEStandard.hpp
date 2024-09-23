@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
@@ -21,7 +20,7 @@
 class MeshETurbo;
 
 /**
- * Meshing defined in the Euclidean space
+ * Standard Meshing defined in the Euclidean space
  */
 class GSTLEARN_EXPORT MeshEStandard: public AMesh
 {

@@ -10,11 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
-#include <vector>
+#ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
+#endif
 
 class PrecisionOp;
 class IProjMatrix;
@@ -22,8 +25,8 @@ class IProjMatrix;
 /**
  * Class to store objects for SPDE
  */
-class GSTLEARN_EXPORT PrecisionOpMultiConditionalCs : public PrecisionOpMultiConditional {
-
+class GSTLEARN_EXPORT PrecisionOpMultiConditionalCs : public PrecisionOpMultiConditional 
+{
 public:
   PrecisionOpMultiConditionalCs();
   PrecisionOpMultiConditionalCs(const PrecisionOpMultiConditionalCs &m)= delete;
@@ -33,19 +36,20 @@ public:
   /// Interface to PrecisionOpMultiConditional
   void makeReady() override;
   int push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
-  double computeLogDetOp(int nbsimu = 1, int seed = 123) const override;
+  double computeLogDetOp(int nbsimu = 1) const override;
 
   /// Interface to ALinearOp
-  void evalInverse(const VectorVectorDouble &vecin,
-                   VectorVectorDouble &vecout) const override;
+  void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
+                   std::vector<Eigen::VectorXd> &vecout) const override;
 
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
-
+private :
+  void _clear();
 private:
   MatrixSparse* _buildQmult() const;
   ProjMatrix*   _buildAmult() const;
   int _buildQpAtA();
 
-private:
   MatrixSparse* _Q;
+  mutable Cholesky* _chol;
 };

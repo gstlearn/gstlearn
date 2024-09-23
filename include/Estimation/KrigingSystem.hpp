@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/ACovAnisoList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Space/SpaceRN.hpp"
@@ -29,6 +30,7 @@ class CovCalcMode;
 class ECalcMember;
 class NeighImage;
 class AAnam;
+class ACov;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -171,10 +173,7 @@ private:
   bool _isCorrect();
   bool _preparNoStat();
 
-  void   _checkAddress(const String& title,
-                       const String& theme,
-                       int ival,
-                       int nval) const;
+  static void _checkAddress(const String& title, const String& theme, int ival, int nval);
   bool   _prepareForImage(const NeighImage* neighI);
   bool   _prepareForImageKriging(Db* dbaux, const NeighImage* neighI);
   int    _bayesPreCalculations();
@@ -329,7 +328,8 @@ private:
   mutable SpacePoint _p0_memo;
 
   /// Some local flags defined in order to speed up the process
-  mutable bool _flagNoStat;
   mutable bool _flagNoMatLC;
   mutable bool _flagVerr;
+  mutable bool _flagNoStat;
+  mutable ACovAnisoList* _cova;
 };

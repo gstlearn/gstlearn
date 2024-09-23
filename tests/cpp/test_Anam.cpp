@@ -8,20 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
-
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Drifts/DriftFactory.hpp"
 #include "Basic/File.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/Law.hpp"
 

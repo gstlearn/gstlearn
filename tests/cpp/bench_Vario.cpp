@@ -11,8 +11,6 @@
 /* This file is meant to establish Bench Mark for Variogram calculations      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
@@ -58,7 +56,7 @@ int main(int argc, char *argv[])
   DbGrid* grid = DbGrid::create(nx, dx);
 
   // Creating a Model(s) for simulating a variable
-  Model* model = Model::createFromParam(ECov::BESSEL_K,0.2);
+  Model* model = Model::createFromParam(ECov::MATERN,0.2);
 
   // Perform a non-conditional simulation on the Db and on the Grid
   (void) simtub(nullptr,db,model);

@@ -9,13 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
-#include "Basic/AException.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <string>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
-#include <iostream>
 #include <math.h>
 
 APolynomial::APolynomial()
@@ -23,7 +22,7 @@ APolynomial::APolynomial()
 {
 }
 
-APolynomial::APolynomial(VectorDouble coeffs)
+APolynomial::APolynomial(const VectorDouble& coeffs)
   : AStringable()
 {
   init(coeffs);
@@ -50,12 +49,13 @@ APolynomial & APolynomial::operator=(const APolynomial& p)
   return *this;
 }
 #ifndef SWIG
-VectorDouble APolynomial::evalOp(MatrixSparse* Op, const VectorDouble& in) const
+Eigen::VectorXd APolynomial::evalOp(MatrixSparse* Op, const Eigen::VectorXd& in) const
 {
-  VectorDouble result(in.size());
+  Eigen::VectorXd result(in.size());
   evalOp(Op,in,result);
   return result;
 }
+
 #endif
 String APolynomial::toString(const AStringFormat* /*strfmt*/) const
 {
@@ -72,7 +72,7 @@ String APolynomial::toString(const AStringFormat* /*strfmt*/) const
   str +=oss.str() + "\n";
   return str;
 }
-void APolynomial::init(VectorDouble coeffs)
+void APolynomial::init(const VectorDouble& coeffs)
 {
   _coeffs = coeffs;
 }

@@ -45,59 +45,57 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  virtual int _getNVar() const override;
-
-  int _migrate(Db *db1,
-               Db *db2,
-               int iatt1,
-               int iatt2,
-               int distType,
-               const VectorDouble &dmax,
-               bool flag_fill,
-               bool flag_inter,
-               bool flag_ball);
-  int _migratePointToGrid(Db *db_point,
-                             DbGrid *db_grid,
-                             int iatt,
-                             int distType,
-                             const VectorDouble &dmax,
-                             VectorDouble &tab);
-  int _expandPointToPointBall(Db *db1,
-                                  Db *db2,
-                                  int iatt,
-                                  int distType,
-                                  const VectorDouble &dmax,
-                                  VectorDouble &tab);
-  int _migrateGridToGrid(DbGrid *db_gridin,
-                            DbGrid *db_gridout,
-                            int iatt,
-                            int distType,
-                            const VectorDouble &dmax,
-                            VectorDouble &tab);
-  int _expandPointToPoint(Db *db1,
-                             Db *db2,
-                             int iatt,
-                             int distType,
-                             const VectorDouble &dmax,
-                             VectorDouble &tab);
-  int _expandGridToGrid(DbGrid *db_gridin,
-                           DbGrid *db_gridout,
-                           int iatt,
-                           int distType,
-                           const VectorDouble &dmax,
-                           VectorDouble &tab);
-  int _interpolateGridToPoint(DbGrid *db_grid,
-                                 Db *db_point,
+  static int _migrate(Db* db1,
+                      Db* db2,
+                      int iatt1,
+                      int iatt2,
+                      int distType,
+                      const VectorDouble& dmax,
+                      bool flag_fill,
+                      bool flag_inter,
+                      bool flag_ball);
+  static int _migratePointToGrid(Db* db_point,
+                                 DbGrid* db_grid,
                                  int iatt,
                                  int distType,
-                                 const VectorDouble &dmax,
-                                 VectorDouble &tab);
-  int _migrateGridToPoint(DbGrid *db_grid,
-                          Db *db_point,
-                          int iatt,
-                          int distType,
-                          const VectorDouble &dmax,
-                          VectorDouble &tab);
+                                 const VectorDouble& dmax,
+                                 VectorDouble& tab);
+  static int _expandPointToPointBall(Db* db1,
+                                     Db* db2,
+                                     int iatt,
+                                     int distType,
+                                     const VectorDouble& dmax,
+                                     VectorDouble& tab);
+  static int _migrateGridToGrid(DbGrid* db_gridin,
+                                DbGrid* db_gridout,
+                                int iatt,
+                                int distType,
+                                const VectorDouble& dmax,
+                                VectorDouble& tab);
+  static int _expandPointToPoint(Db* db1,
+                                 Db* db2,
+                                 int iatt,
+                                 int distType,
+                                 const VectorDouble& dmax,
+                                 VectorDouble& tab);
+  static int _expandGridToGrid(DbGrid* db_gridin,
+                               DbGrid* db_gridout,
+                               int iatt,
+                               int distType,
+                               const VectorDouble& dmax,
+                               VectorDouble& tab);
+  static int _interpolateGridToPoint(DbGrid* db_grid,
+                                     Db* db_point,
+                                     int iatt,
+                                     int distType,
+                                     const VectorDouble& dmax,
+                                     VectorDouble& tab);
+  static int _migrateGridToPoint(DbGrid* db_grid,
+                                 Db* db_point,
+                                 int iatt,
+                                 int distType,
+                                 const VectorDouble& dmax,
+                                 VectorDouble& tab);
 
 private:
   int    _iattOut;
@@ -159,16 +157,16 @@ GSTLEARN_EXPORT int manageExternalInformation(int mode,
 GSTLEARN_EXPORT int interpolateVariableToPoint(DbGrid *db_grid,
                                                int iatt,
                                                int np,
-                                               double *xp,
-                                               double *yp,
-                                               double *zp,
+                                               const double *xp,
+                                               const double *yp,
+                                               const double *zp,
                                                double *tab);
 GSTLEARN_EXPORT double* dbgridLineSampling(DbGrid *dbgrid,
-                                       double *x1,
-                                       double *x2,
+                                       const double *x1,
+                                       const double *x2,
                                        int ndisc,
                                        int ncut,
-                                       double *cuts,
+                                       const double *cuts,
                                        int *nval_ret);
 GSTLEARN_EXPORT int expandPointToGrid(Db *db_point,
                                       DbGrid *db_grid,

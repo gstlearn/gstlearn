@@ -12,14 +12,13 @@
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
  */
-#include "geoslib_f.h"
-
+#include "Basic/Law.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
@@ -55,7 +54,6 @@ int main(int argc, char *argv[])
   int ndat  = 50;
   int nxref = 101;
   double matern_param = 1.0;
-
   setGlobalFlagEigen(true);
   message("Use of Eigen Library = %d\n",isGlobalFlagEigen());
 
@@ -112,10 +110,10 @@ int main(int argc, char *argv[])
 
     // Generate the Model
     Model *model;
-    model = Model::createFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
+    model = Model::createFromParam(ECov::MATERN, TEST, 1, matern_param,
                                    { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
     if (ncov >= 1)
-      model->addCovFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
+      model->addCovFromParam(ECov::MATERN, TEST, 1, matern_param,
                              { 0.3, 0.2 }, VectorDouble(), { -10., 0.});
     String sncov = (ncov == 0) ? "1" : "2";
 
@@ -130,7 +128,7 @@ int main(int argc, char *argv[])
       for (int icov = 0; icov <= ncov; icov++)
       {
         timer.reset();
-        ShiftOpCs shiftop(&mesh, model, nullptr, 0, icov);
+        ShiftOpCs shiftop(&mesh, model->getCova(icov), nullptr);
         timer.displayIntervalMilliseconds("Establishing S", 150);
       }
     }
@@ -148,9 +146,13 @@ int main(int argc, char *argv[])
       if (mode < 0 || mode == 1)
       {
         timer.reset();
-        String namconv = "Kriging" + option + sncov;
+        String namconv;
+        namconv.append("Kriging");
+        namconv.append(option);
+        namconv.append(sncov);
+        law_set_random_seed(13243);
         (void) krigingSPDE(dat, grid, model, true, true, nullptr,
-                           useCholesky, SPDEParam(), nbMC, 13243, verbose, showStats,
+                           useCholesky, SPDEParam(), nbMC, verbose, showStats,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }
@@ -159,9 +161,13 @@ int main(int argc, char *argv[])
       if (mode < 0 || mode == 2)
       {
         timer.reset();
-        String namconv = "Simu.NC" + option + sncov;
+        String namconv;
+        namconv.append("Simu.NC");
+        namconv.append(option);
+        namconv.append(sncov);
+        law_set_random_seed(seed);
         (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
-                            SPDEParam(), seed, verbose, showStats,
+                            SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
@@ -170,9 +176,13 @@ int main(int argc, char *argv[])
       if (mode < 0 || mode == 3)
       {
         timer.reset();
-        String namconv = "Simu.CD" + option + sncov;
+        String namconv;
+        namconv.append("Simu.CD");
+        namconv.append(option);
+        namconv.append(sncov);
+        law_set_random_seed(seed);
         (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
-                            SPDEParam(), seed, verbose, showStats,
+                            SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }
@@ -191,8 +201,8 @@ int main(int argc, char *argv[])
   }
   (void) grid->dumpToNF("Grid.ascii");
 
-  if (dat       != nullptr) delete dat ;
-  if (grid      != nullptr) delete grid;
+  delete dat ;
+  delete grid;
 
   return (0);
 }

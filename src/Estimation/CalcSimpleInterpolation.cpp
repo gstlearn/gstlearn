@@ -17,6 +17,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "Model/Model.hpp"
 
 CalcSimpleInterpolation::CalcSimpleInterpolation()
     : ACalcInterpolator(),
@@ -38,11 +39,6 @@ CalcSimpleInterpolation::CalcSimpleInterpolation()
 
 CalcSimpleInterpolation::~CalcSimpleInterpolation()
 {
-}
-
-int CalcSimpleInterpolation::_getNVar() const
-{
-  return getDbin()->getLocNumber(ELoc::Z);
 }
 
 bool CalcSimpleInterpolation::_check()
@@ -78,6 +74,8 @@ bool CalcSimpleInterpolation::_check()
 
 bool CalcSimpleInterpolation::_preprocess()
 {
+  if (!ACalcInterpolator::_preprocess()) return false;
+  
   if (_flagEst)
   {
     _iattEst = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
@@ -360,8 +358,7 @@ int CalcSimpleInterpolation::_nearest(Db *dbin,
 
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    mes_process("Estimation by Nearest Neighbor", dbout->getSampleNumber(),
-                iech);
+    mes_process("Estimation by Nearest Neighbor", dbout->getSampleNumber(), iech);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
         || OptDbg::query(EDbg::RESULTS))
@@ -408,6 +405,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
   {
     mes_process("Estimation by Moving Average", dbout->getSampleNumber(), iech);
     if (!dbout->isActive(iech)) continue;
+    OptDbg::setCurrentIndex(iech + 1);
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
         || OptDbg::query(EDbg::RESULTS))
     {
@@ -422,7 +420,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
     // Perform the estimation
     for (int i = 0; i < (int) nbgh.size(); i++)
     {
-      double value = dbin->getLocVariable(ELoc::Z, nbgh[i], 0);
+      double value = dbin->getZVariable( nbgh[i], 0);
       if (FFFF(value))
       {
         nbgh.clear();
@@ -457,9 +455,9 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
 
    for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
    {
-     mes_process("Estimation by Moving Median", dbout->getSampleNumber(),
-                 iech);
+     mes_process("Estimation by Moving Median", dbout->getSampleNumber(), iech);
      if (!dbout->isActive(iech)) continue;
+     OptDbg::setCurrentIndex(iech + 1);
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
      {
        mestitle(1, "Target location");
@@ -496,7 +494,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
  ** \param[in]  neigh       ANeigh structure
  **
  *****************************************************************************/
-int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
+int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
 {
   int ndim = dbin->getNDim();
   VectorInt nbgh;
@@ -511,8 +509,8 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
 
    for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
    {
-     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
-                 iech);
+     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+     OptDbg::setCurrentIndex(iech + 1);
      if (!dbout->isActive(iech)) continue;
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
      {
@@ -535,7 +533,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
      for (int jech = 0; jech < nSize; jech++)
      {
        int jech1 = nbgh[jech];
-       double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
+       double zval = dbin->getZVariable(jech1, 0);
        if (FFFF(zval)) continue;
        VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
 
@@ -600,9 +598,7 @@ int CalcSimpleInterpolation::_invdist(Db *dbin, Db *dbout)
 void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 {
   int ndim = dbin->getNDim();
-  double dmin;
-  (void) db_extension_diag(dbout, &dmin);
-  dmin /= 1.e5;
+  double dmin = dbout->getExtensionDiagonal() / 1.e5;
   VectorDouble coor(ndim);
   VectorDouble cooref(ndim);
 
@@ -610,8 +606,8 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
-                iech);
+    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+    OptDbg::setCurrentIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
@@ -628,7 +624,7 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
     {
       if (!dbin->isActive(iech_in)) continue;
       dbin->getCoordinatesPerSampleInPlace(iech_in, coor);
-      double val_neigh = dbin->getLocVariable(ELoc::Z,iech_in, 0);
+      double val_neigh = dbin->getZVariable(iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
       /* Check that the data point is a valid neighbor */
@@ -651,7 +647,6 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
     // Save the results
     _saveResults(dbin, dbout, nbgh, iech, weights);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -666,9 +661,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
 {
   int ndim = dbin->getNDim();
   int maxneigh = (int) pow(2., (double) ndim);
-  double dmin;
-  (void) db_extension_diag(dbout, &dmin);
-  dmin /= 1.e5;
+  double dmin = dbout->getExtensionDiagonal() / 1.e5;
 
   VectorDouble coor(ndim);
   VectorDouble cooref(ndim);
@@ -680,8 +673,8 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
 
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
-                iech);
+    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+    OptDbg::setCurrentIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
@@ -707,13 +700,12 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
     VectorDouble weights;
     for (int rank = 0; rank < maxneigh; rank++)
     {
-      for (int idim = 0; idim < ndim; idim++)
-        indg[idim] = indref[idim];
+      for (int idim = 0; idim < ndim; idim++) indg[idim] = indref[idim];
 
       /* Decompose the neighborhood rank */
 
       int idim = 0;
-      int ind = rank;
+      int ind  = rank;
       while (ind > 0)
       {
         if (ind % 2 == 1) indg[idim] += 1;
@@ -743,59 +735,57 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
         weights.clear();
         break;
       }
-      else
+
+      /* Check the value */
+
+      int iech_neigh   = dbin->indiceToRank(indg);
+      double val_neigh = dbin->getZVariable( iech_neigh, 0);
+      if (FFFF(val_neigh))
       {
-
-        /* Check the value */
-
-        int iech_neigh = dbin->indiceToRank(indg);
-        double val_neigh = dbin->getLocVariable(ELoc::Z,iech_neigh, 0);
-        if (FFFF(val_neigh))
-        {
-          nbgh.clear();
-          weights.clear();
-          break;
-        }
-        else
-        {
-
-          /* Calculate the distance from neighborhood to target */
-
-          dbin->indicesToCoordinateInPlace(indg, coor, percent);
-          double dist = ut_distance(ndim, cooref.data(), coor.data());
-          if (dist < dmin)
-          {
-            nbgh.clear();
-            weights.clear();
-            nbgh.push_back(iech_neigh);
-            weights.push_back(1.);
-            break;
-          }
-          double wgt = 1. / pow(dist, _exponent);
-          nbgh.push_back(iech_neigh);
-          weights.push_back(wgt);
-        }
+        nbgh.clear();
+        weights.clear();
+        break;
       }
+
+      /* Calculate the distance from neighborhood to target */
+
+      dbin->indicesToCoordinateInPlace(indg, coor, percent);
+      double dist = ut_distance(ndim, cooref.data(), coor.data());
+      if (dist < dmin)
+      {
+        nbgh.clear();
+        weights.clear();
+        nbgh.push_back(iech_neigh);
+        weights.push_back(1.);
+        break;
+      }
+      double wgt = 1. / pow(dist, _exponent);
+      nbgh.push_back(iech_neigh);
+      weights.push_back(wgt);
     }
 
     // Save the results
     _saveResults(dbin, dbout, nbgh, iech, weights);
   }
-  return;
 }
 
 double CalcSimpleInterpolation::_estimCalc(const Db *dbin,
                                            const VectorInt &nbgh,
-                                           const VectorDouble &weights) const
+                                           const VectorDouble &weights)
 {
+
   double result = 0.;
-  for (int i = 0, n = (int) nbgh.size(); i < n; i++)
+  for (int i = 0, n = (int)nbgh.size(); i < n; i++)
   {
-    int iech = nbgh[i];
-    double value = dbin->getLocVariable(ELoc::Z,iech, 0);
+    int iech     = nbgh[i];
+    double value = dbin->getZVariable(iech, 0);
     if (FFFF(value)) return TEST;
     result += value * weights[i];
+
+    if (OptDbg::query(EDbg::RESULTS))
+      message("Data Value = %f - Weight = %lf\n", value, weights[i]);
   }
+  if (OptDbg::query(EDbg::RESULTS)) message("Estimate = %f\n", result);
   return result;
 }
 
@@ -808,9 +798,9 @@ double CalcSimpleInterpolation::_estimCalc(const Db *dbin,
  * @param weights Vector of weights (same dimension as 'nbgh')
  * @return
  */
-double CalcSimpleInterpolation::_stdevCalc(Db *dbin,
-                                           Db *dbout,
-                                           const VectorInt &nbgh,
+double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
+                                           Db* dbout,
+                                           const VectorInt& nbgh,
                                            int iechout,
                                            const VectorDouble& weights) const
 {
@@ -819,20 +809,24 @@ double CalcSimpleInterpolation::_stdevCalc(Db *dbin,
   SpacePoint pout;
 
   dbout->getCoordinatesPerSampleInPlace(iechout, coor);
-  pout.setCoord(coor);
+  pout.setCoords(coor);
 
   // Point Covariance at target
   double c00 = getModel()->eval(pout, pout);
 
   // Vector of Covariances between Data and Target
   VectorDouble M0x = getModel()->evalPointToDb(pout, dbin, 0, 0, true, nbgh);
-  double c0x = VH::innerProduct(M0x, weights);
+  double c0x       = VH::innerProduct(M0x, weights);
 
   // Covariance between Data and Data
-  MatrixRectangular Mxx = getModel()->evalCovMatrix(dbin, dbin, 0, 0, nbgh, nbgh);
+  MatrixRectangular Mxx =
+    getModel()->evalCovMatrix(dbin, dbin, 0, 0, nbgh, nbgh);
   double cxx = Mxx.quadraticMatrix(weights, weights);
 
-  return sqrt(c00 - 2. * c0x + cxx);
+  double result = sqrt(c00 - 2. * c0x + cxx);
+  if (OptDbg::query(EDbg::RESULTS)) message("St Dev = %f\n", result);
+
+  return result;
 }
 
 void CalcSimpleInterpolation::_saveResults(Db* dbin,
@@ -845,7 +839,7 @@ void CalcSimpleInterpolation::_saveResults(Db* dbin,
   double stdev = TEST;
   if (nbgh.size() > 0)
   {
-    VH::normalize(weights);
+    VH::normalize(weights, 1);
     if (_flagEst) result = _estimCalc(dbin, nbgh, weights);
     if (_flagStd) stdev = _stdevCalc(dbin, dbout, nbgh, iech, weights);
   }

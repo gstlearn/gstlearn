@@ -16,6 +16,13 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 
+#ifndef SWIG
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
+#include <Eigen/src/Core/Matrix.h>
+
 /// TODO : Transform into template for storing something else than double
 
 class NF_Triplet;
@@ -68,11 +75,11 @@ public:
   virtual bool mustBeSymmetric() const { return false; }
 
   /*! Set the contents of a Column */
-  virtual void setColumn(int icol, const VectorDouble& tab);
+  virtual void setColumn(int icol, const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of a Row */
-  virtual void setRow(int irow, const VectorDouble& tab);
+  virtual void setRow(int irow, const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab);
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.);
   /*! Transpose the matrix in place*/
@@ -115,8 +122,8 @@ public:
   /*! Multiply 'this' by matrix 'y' and store in 'this'*/
   void prodMatInPlace(const AMatrix* matY, bool transposeY = false);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
-  void prodNormMatMatInPlace(const AMatrix &a,
-                             const AMatrix &m,
+  void prodNormMatMatInPlace(const AMatrix* a,
+                             const AMatrix* m,
                              bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
   void prodNormMatInPlace(const AMatrix &a,
@@ -166,10 +173,13 @@ public:
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
   /*! Check if the matrix does not contain any negative element */
-  bool isNonNegative(bool verbose = false);
+  bool isNonNegative(bool verbose = false) const;
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  #ifndef SWIG
+    int prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose = false) const;
+  #endif
   void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -185,25 +195,30 @@ public:
   void dumpElements(const String& title, int ifrom, int ito) const;
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
-  void fillRandom(int seed = 432432, double zeroPercent = 0.1);
+  void fillRandom(int seed = 432432, double zeroPercent = 0);
   void setValues(const VectorDouble& values, bool byCol=true);
   double getMeanByColumn(int icol) const;
   double getMinimum() const;
   double getMaximum() const;
   double getNormInf() const;
   void copyReduce(const AMatrix *x,
-                  const VectorInt &activeRows,
-                  const VectorInt &activeCols);
+                  const VectorInt &validRows,
+                  const VectorInt &validCols);
   void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   void makePositiveColumn();
   void linearCombination(double val1,
-                         const AMatrix *mat1,
-                         double val2 = 1.,
-                         const AMatrix *mat2 = nullptr);
+                         const AMatrix* mat1,
+                         double val2         = 1.,
+                         const AMatrix* mat2 = nullptr,
+                         double val3         = 1.,
+                         const AMatrix* mat3 = nullptr);
+                      
 
 #ifndef SWIG
+  virtual int addProdMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose= false) const;
+
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }
   /*! Set value operator override */
@@ -227,6 +242,9 @@ protected:
   virtual void    _prodMatVecInPlacePtr(const double *x,
                                         double *y,
                                         bool transpose = false) const = 0;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x,
+                                                 double *y,
+                                                 bool transpose = false) const = 0;                                      
   virtual void    _prodVecMatInPlacePtr(const double *x,
                                         double *y,
                                         bool transpose = false) const = 0;
@@ -240,9 +258,11 @@ protected:
   bool _isColumnValid(int icol) const;
   bool _isRowValid(int irow) const;
   bool _isIndexValid(int irow, int icol) const;
-  bool _isRowVectorConsistent(const VectorDouble& tab);
-  bool _isColVectorConsistent(const VectorDouble& tab);
-  bool _isVectorSizeConsistent(int nrows, int ncols, const VectorDouble& tab);
+  bool _isRowVectorConsistent(const VectorDouble& tab) const;
+  bool _isColVectorConsistent(const VectorDouble& tab) const;
+  bool _isVectorSizeConsistent(const VectorDouble& tab) const;
+  bool _isColumnSizeConsistent(const VectorDouble &tab) const;
+  bool _isRowSizeConsistent(const VectorDouble &tab) const;
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 

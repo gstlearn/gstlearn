@@ -15,7 +15,6 @@
 #include "Db/Db.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Model/Model.hpp"
 
@@ -63,9 +62,7 @@ bool CalcGlobal::_check()
 
 bool CalcGlobal::_preprocess()
 {
-  if (!ACalcInterpolator::_preprocess()) return false;
-
-  return true;
+  return ACalcInterpolator::_preprocess();
 }
 
 bool CalcGlobal::_postprocess()
@@ -149,7 +146,7 @@ int CalcGlobal::_globalKriging()
   /* Average covariance over the territory */
 
   double cvv = model->evalAverageDbToDb(getDbout(), getDbout(), _ivar0, _ivar0,
-                                        0, db_epsilon_distance(getDbin()));
+                                        getDbin()->getExtensionDiagonal() / 1.e3, 0);
 
   /* Load the scaled cumulated R.H.S. in the array rhs */
 
@@ -221,23 +218,22 @@ int CalcGlobal::_globalArithmetic()
 
   /* Average covariance over the data */
 
-  double cxx = model->evalAverageDbToDb(getDbin(), getDbin(),
-                                        _ivar0, _ivar0, 0, 0.);
+  double cxx =
+    model->evalAverageDbToDb(getDbin(), getDbin(), _ivar0, _ivar0, 0., 0);
 
   /* Average covariance between the data and the territory */
 
-  double cxv = model->evalAverageDbToDb(getDbin(), dbgrid,
-                                        _ivar0, _ivar0, 0, 0.);
+  double cxv =
+    model->evalAverageDbToDb(getDbin(), dbgrid, _ivar0, _ivar0, 0., 0);
 
   /* Average covariance over the territory */
 
-  double cvv = model->evalAverageDbToDb(dbgrid, dbgrid,
-                                        _ivar0, _ivar0, 0,
-                                        db_epsilon_distance(dbgrid));
+  double cvv = model->evalAverageDbToDb(dbgrid, dbgrid, _ivar0, _ivar0,
+                                        dbgrid->getExtensionDiagonal() / 1.e3, 0);
 
   /* Calculating basic statistics */
 
-  int iatt = db_attribute_identify(getDbin(), ELoc::Z, _ivar0);
+  int iatt = getDbin()->getUIDByLocator(ELoc::Z, _ivar0);
   double wtot;
   double ave;
   double var;

@@ -1,6 +1,10 @@
 name: publish-doc
 
 on:
+  # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron: '30 23 */15 * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -15,7 +19,6 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
   BUILD_DIR : build
   
 jobs:
@@ -26,7 +29,7 @@ jobs:
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -36,13 +39,34 @@ jobs:
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev
-          
+
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install grip
+
     - name: Get project version
       id: main_step
       run: |
         cmake -B${{env.BUILD_DIR}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
+        echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_ENV"
+        echo "BIB_FILE=$(ls ${{env.BUILD_DIR}}/doc/*.bib)" >> "$GITHUB_ENV"
+
+    - name: Generate R Readme file using grip
+      run: |
+        python3 -m grip r/README.md --export r/R_README.html
+        echo "R_README_FILE=$(ls r/R_README.html)" >> "$GITHUB_ENV"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: bib-file-${{env.PROJECT_VERSION}}
+        path: ${{env.BIB_FILE}}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: r-readme-${{env.PROJECT_VERSION}}
+        path: ${{env.R_README_FILE}}
 
   call-data:
     uses: ./.github/workflows/publish_data.yml
@@ -62,7 +86,7 @@ jobs:
 
   call-publish:
     needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
-    if: ${{inputs.dry_publish == false}}
+    if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
     
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
@@ -70,7 +94,7 @@ jobs:
     steps:
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -80,7 +104,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -90,7 +114,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -100,7 +124,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -110,7 +134,7 @@ jobs:
 
       - env:
           PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v3
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
@@ -118,3 +142,22 @@ jobs:
           dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
           name: references
 
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/files-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          pattern: "*.bib"
+
+      - env:
+          PROJECT_VERSION: ${{needs.get-version.outputs.project_version}}
+        uses: fabien-ors/files-publish-action@v3
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{env.PROJECT_VERSION}}"
+          pattern: "R_README.html"

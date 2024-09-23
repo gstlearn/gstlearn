@@ -8,14 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
-
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 
 #include <math.h>
 
@@ -182,7 +178,7 @@ bool AAnam::_isSampleSkipped(Db *db,
   return false;
 }
 
-bool AAnam::_isNcutValid(int ncut) const
+bool AAnam::_isNcutValid(int ncut)
 {
   if (ncut <= 0)
   {
@@ -192,7 +188,7 @@ bool AAnam::_isNcutValid(int ncut) const
   return true;
 }
 
-bool AAnam::_isProbaValid(double proba) const
+bool AAnam::_isProbaValid(double proba)
 {
   if (FFFF(proba))
   {
@@ -216,7 +212,7 @@ bool AAnam::_isProbaValid(double proba) const
  ** \param[in]  number       Number of cutoffs
  **
  *****************************************************************************/
-void AAnam::_printQTvars(const char *title, int type, int number) const
+void AAnam::_printQTvars(const char *title, int type, int number)
 {
   message("- %s", title);
   if (type == 1)

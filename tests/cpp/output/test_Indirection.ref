@@ -23,14 +23,14 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = sel - Locator = sel
 
+Turbo Meshing
+=============
+
 Grid characteristics:
 ---------------------
 Origin :     10.000    20.000
 Mesh   :      1.000     2.000
 Number :          5         4
-
-Turbo Meshing
-=============
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -87,14 +87,14 @@ Starting from the Relative grid node = 3
 Corresponding absolute grid node = 9
 Ending Relative grid node = 3
 
+Turbo Meshing
+=============
+
 Grid characteristics:
 ---------------------
 Origin :     10.000    20.000
 Mesh   :      1.000     2.000
 Number :          5         4
-
-Turbo Meshing
-=============
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3

@@ -25,7 +25,6 @@ class Db;
 class DbGrid;
 class MatrixRectangular;
 class MatrixSparse;
-class ANoStat;
 
 /**
  * \brief
@@ -49,8 +48,8 @@ public:
   virtual int getNVariables() const = 0;
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
-  virtual const ANoStat* getNoStat() const { return nullptr; }
-  virtual ANoStat* getNoStatModify() const { return nullptr; }
+
+ 
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -108,19 +107,15 @@ public:
     DECLARE_UNUSED(jvar);
     return TEST;
   }
+
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
   {
     DECLARE_UNUSED(icas1);
     DECLARE_UNUSED(iech1);
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
-    return;
   }
-  virtual void updateCovByMesh(int imesh)
-  {
-    DECLARE_UNUSED(imesh);
-    return;
-  }
+
   /////////////////////////////////////////////////////////////////////////////////
   ///
   void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
@@ -231,19 +226,19 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  MatrixRectangular evalCovMatrix(Db* db1_arg,
-                                  Db* db2_arg = nullptr,
+  MatrixRectangular evalCovMatrix(const Db* db1_arg,
+                                  const Db* db2_arg = nullptr,
                                   int ivar0 = -1,
                                   int jvar0 = -1,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr);
-  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
+  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
                                                int ivar0,
                                                const VectorInt &nbgh1,
                                                const CovCalcMode *mode);
-  MatrixSparse* evalCovMatrixSparse(Db *db1_arg,
-                                    Db *db2_arg = nullptr,
+  MatrixSparse* evalCovMatrixSparse(const Db *db1_arg,
+                                    const Db *db2_arg = nullptr,
                                     int ivar0 = -1,
                                     int jvar0 = -1,
                                     const VectorInt &nbgh1 = VectorInt(),
@@ -291,14 +286,26 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
+
+  void manage(const Db* db1,const Db* db2) const
+  {
+      _manage(db1, db2);
+  }
 protected:
+
   VectorInt _getActiveVariables(int ivar0) const;
-  void _updateCovMatrixSymmetricVerr(const Db *db1,
-                                     AMatrix *mat,
-                                     const VectorInt &ivars,
-                                     const VectorVectorInt &index1) const;
+  static void _updateCovMatrixSymmetricVerr(const Db* db1,
+                                            AMatrix* mat,
+                                            const VectorInt& ivars,
+                                            const VectorVectorInt& index1);
 
 private:
+  virtual void _manage(const Db* db1,const Db* db2) const 
+  {
+    DECLARE_UNUSED(db1)
+    DECLARE_UNUSED(db2)
+  }
+
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
                            const VectorDouble& angles = VectorDouble(),

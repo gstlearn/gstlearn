@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/TurningBandOperate.hpp"
-#include "Basic/Law.hpp"
 
  TurningBandOperate:: TurningBandOperate()
     : _nt0(0),
@@ -85,10 +84,9 @@ void TurningBandOperate::reset()
 double TurningBandOperate::shotNoiseAffineOne(double t0)
 {
   double scale = getScale();
-  double tdeb = getTdeb() / scale;
   if (! isFlagScaled()) t0 /= scale;
 
-  double dt = t0 - tdeb;
+  double dt = t0 - getTdeb() / scale;
   int nt0 = (int) (dt);
   double dt0 = dt - nt0;
   return _t[nt0] * (2. * dt0 - 1.);
@@ -97,10 +95,9 @@ double TurningBandOperate::shotNoiseAffineOne(double t0)
 double TurningBandOperate::shotNoiseCubicOne(double t0)
 {
   double scale = getScale();
-  double tdeb = getTdeb() / scale;
   if (! isFlagScaled()) t0 /= scale;
 
-  double dt = t0 - tdeb;
+  double dt = t0 - getTdeb() / scale;
   int nt0 = (int) (dt);
   double dt0 = dt - nt0;
   return _t[nt0] * dt0 * (dt0 - 0.5) * (dt0 - 1.);
@@ -123,19 +120,13 @@ double TurningBandOperate::IRFProcessOne(double t0)
   return _irfProcessSample(nt0, t0);
 }
 
-double TurningBandOperate::cosineOne(double t0)
+double TurningBandOperate::cosineOne(double t0) const
 {
   double offset = getOffset();
-  if (isFlagScaled())
-  {
-    return t0 - offset;
-  }
-  else
-  {
-    double omega = getOmega();
-    double phi   = getPhi();
-    return cos(omega * t0 + phi) - offset;
-  }
+  if (isFlagScaled()) return t0 - offset;
+  double omega = getOmega();
+  double phi   = getPhi();
+  return cos(omega * t0 + phi) - offset;
 }
 
 /*****************************************************************************/
@@ -192,9 +183,9 @@ int TurningBandOperate::_rankInPoisson(int def_rank,
   int nt = (int) t.size();
   if (t0 >= t[def_rank] && t0 < t[def_rank + 1])
     return (def_rank);
-  else if (def_rank < (nt - 2) && t0 >= t[def_rank + 1] && t0 < t[def_rank + 2])
+  if (def_rank < (nt - 2) && t0 >= t[def_rank + 1] && t0 < t[def_rank + 2])
     return (def_rank + 1);
-  else if (def_rank > 0 && t0 >= t[def_rank - 1] && t0 < t[def_rank])
+  if (def_rank > 0 && t0 >= t[def_rank - 1] && t0 < t[def_rank])
     return (def_rank - 1);
 
   /* The default value is not good ==> dichotomy */

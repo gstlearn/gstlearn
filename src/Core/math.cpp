@@ -9,10 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-
+#include "Basic/Memory.hpp"
 
 /*! \cond */
 #define INTRESX(ic,i)        (ctables->CT[ic]->res[(i)])
@@ -87,7 +88,6 @@ static void st_tableone_manage(CTables *ctables,
       return;
     }
   }
-  return;
 }
 
 /****************************************************************************
@@ -114,7 +114,8 @@ int ct_tableone_covrank(const CTables *ctables,
   nconf = ctables->nconf;
   ecart = (cova - ctables->cmin);
   dc = ctables->dc;
-  iconf = (int) (0.5 + ecart / dc);
+  auto placeholder = (0.5 + ecart / dc);
+  iconf            = (int)placeholder;
 
   if (iconf < 0) iconf = 0;
   if (iconf >= nconf) iconf = nconf - 1;
@@ -367,7 +368,6 @@ void ct_tables_print(CTables *ctables, int flag_print)
     }
     message("\n");
   }
-  return;
 }
 
 /****************************************************************************
@@ -532,8 +532,6 @@ static void st_tableone_getrank(const CTables *ctables,
     }
     if (*indmax < 0) *indmax = nelem;
   }
-
-  return;
 }
 
 /****************************************************************************

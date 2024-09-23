@@ -20,7 +20,6 @@
 
 #include <iostream>
 #include <stdarg.h>
-#include <stdio.h>
 #include <fstream>
 
 class GSTLEARN_EXPORT ASerializable
@@ -88,6 +87,11 @@ protected:
                              VectorT<T>& vec,
                              int nvalues);
 
+  template<typename T>
+  static bool _recordReadVecInPlace(std::istream& is,
+                             const String& title,
+                             VectorDouble::iterator& it,
+                             int nvalues);
   static bool _onlyBlanks(char *string);
 
   static bool _tableRead(std::istream &is,
@@ -114,9 +118,9 @@ bool ASerializable::_recordWrite(std::ostream& os,
     if (isNA<T>(val))
     {
       if (title.empty())
-         os << STRING_NA << " ";
-       else
-         os << STRING_NA << " # " << title << std::endl;
+        os << STRING_NA << " ";
+      else
+        os << STRING_NA << " # " << title << std::endl;
     }
     else
     {
@@ -177,13 +181,10 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
       word = trim(word);
       if (!word.empty())
       {
-        if (word == STRING_NA)
-          break;   // We found NA
-        else if (word[0] != '#')
-          break; // We found something
-        else
-          //std::getline(is, word);    // We found comment, eat all the line
-          gslSafeGetline(is, word);    // We found comment, eat all the line
+        if (word == STRING_NA) break; // We found NA
+        if (word[0] != '#') break;    // We found something
+        // std::getline(is, word);    // We found comment, eat all the line
+        gslSafeGetline(is, word); // We found comment, eat all the line
       }
     }
 
@@ -214,14 +215,16 @@ bool ASerializable::_recordReadVec(std::istream& is,
                                    VectorT<T>& vec,
                                    int nvalues)
 {
-  vec.clear();
+  vec.resize(nvalues);
+  int ecr = 0;
   if (is.good())
   {
     String line;
+
     // Skip comment or empty lines
     while (is.good())
     {
-      //std::getline(is, line);
+      // std::getline(is, line);
       gslSafeGetline(is, line);
       if (!is.good() && !is.eof())
       {
@@ -229,9 +232,9 @@ bool ASerializable::_recordReadVec(std::istream& is,
         return false;
       }
       line = trim(line);
-      if (!line.empty() && line[0] != '#')
-        break; // We found something
+      if (!line.empty() && line[0] != '#') break; // We found something
     }
+
     // Decode the line
     std::stringstream sstr(line);
     while (sstr.good())
@@ -246,9 +249,7 @@ bool ASerializable::_recordReadVec(std::istream& is,
       }
       word = trim(word);
       if (word.empty()) continue;
-
-      if (word[0] == '#')
-        break; // We found a comment
+      if (word[0] == '#') break; // We found a comment
 
       T val;
       if (word == STRING_NA)
@@ -262,15 +263,95 @@ bool ASerializable::_recordReadVec(std::istream& is,
         std::stringstream sword(word);
         sword >> val;
       }
-      vec.push_back(val);
+      if (ecr > nvalues)
+      {
+        messerr("Too many values read");
+        vec.clear();
+        return false;
+      }
+      vec[ecr++] = val;
     }
   }
 
-  if (nvalues != (int) vec.size())
+  // Check the number of value actually read
+  if (nvalues != ecr)
   {
-    messerr("Reading (%s) was expecting %d terms. %d found",
-            title.c_str(), nvalues,(int) vec.size());
+    messerr("Reading (%s) was expecting %d terms. %d found", title.c_str(),
+            nvalues, ecr);
     vec.clear();
+    return false;
+  }
+  return true;
+}
+
+template<typename T>
+bool ASerializable::_recordReadVecInPlace(std::istream& is,
+                                          const String& title,
+                                          VectorDouble::iterator& it,
+                                          int nvalues)
+{
+  int ecr = 0;
+  if (is.good())
+  {
+    String line;
+
+    // Skip comment or empty lines
+    while (is.good())
+    {
+      // std::getline(is, line);
+      gslSafeGetline(is, line);
+      if (!is.good() && !is.eof())
+      {
+        messerr("Error while reading %s", title.c_str());
+        return false;
+      }
+      line = trim(line);
+      if (!line.empty() && line[0] != '#') break; // We found something
+    }
+
+    // Decode the line
+    std::stringstream sstr(line);
+    while (sstr.good())
+    {
+      String word;
+      sstr >> word;
+      if (!sstr.good() && !sstr.eof())
+      {
+        messerr("Error while reading %s", title.c_str());
+        return false;
+      }
+      word = trim(word);
+      if (word.empty()) continue;
+      if (word[0] == '#') break; // We found a comment
+
+      T val;
+      if (word == STRING_NA)
+      {
+        // Get NA value
+        val = getNA<T>();
+      }
+      else
+      {
+        // Decode the value
+        std::stringstream sword(word);
+        sword >> val;
+      }
+      if (ecr > nvalues)
+      {
+        messerr("Too many values read");
+        return false;
+      }
+      *it = val;
+      ecr++;
+      it++;
+    }
+  }
+
+  // Check the number of value actually read
+  if (nvalues != ecr)
+  {
+    messerr("Reading (%s) was expecting %d terms. %d found", title.c_str(),
+            nvalues, ecr);
     return false;
   }
   return true;

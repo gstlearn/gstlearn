@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Core/Ascii.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -20,7 +21,6 @@
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -100,13 +100,9 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
 
-  /* Setup constants */
-
-  OptDbg::reset();
-
   /* Getting the Study name */
 
-  if (argc != 2) messageAbort("Wrong number of arguments");
+  if (argc < 2) messageAbort("Wrong number of arguments");
   ascii_study_define(argv[1]);
 
   /* Define the environment */

@@ -11,11 +11,11 @@
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Matrix/VectorEigen.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/NF_Triplet.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
@@ -61,7 +61,7 @@ ProjConvolution::~ProjConvolution()
 {
   delete _gridSeis2D;
   delete _gridRes2D;
-  if (_AProjHoriz != nullptr) delete _AProjHoriz;
+  delete _AProjHoriz;
 }
 
 void ProjConvolution::_buildGridSeis2D()
@@ -128,8 +128,8 @@ void ProjConvolution::_buildShiftVector()
   }
 }
 
-bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
-                                       const VectorDouble &valonvertex) const
+bool ProjConvolution::_isVecDimCorrect(const Eigen::VectorXd &valonseismic,
+                                       const Eigen::VectorXd &valonvertex) const
 {
   if ((int) valonvertex.size() != getApexNumber())
   {
@@ -143,7 +143,7 @@ bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
             (int) valonseismic.size(), getPointNumber());
     return false;
   }
-  if (_shiftVector.empty())
+  if (_shiftVector.size() == 0)
   {
     messerr("The ProjConvolution object has not been built correctly");
     return false;
@@ -158,8 +158,8 @@ bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
  * @param valonvertex  Output vector defined on the Coarse Grid
  * @return
  */
-int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
-                                VectorDouble &valonvertex) const
+int ProjConvolution::_addPoint2mesh(const Eigen::VectorXd &valonseismic,
+                                Eigen::VectorXd &valonvertex) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
@@ -167,18 +167,19 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
 
    // Get the characteristics of the R-R grid
    int slice_R = _gridRes2D->getSampleNumber();
-   VectorDouble vec_R(slice_R);
 
    // Get the characteristics of the S-S grid
    int slice_S = _gridSeis2D->getSampleNumber();
-   VectorDouble vec_S(slice_S);
+
+   Eigen::VectorXd vec_R(slice_R);
 
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
    {
-     VH::extractInPlace(valonseismic, vec_S, iz * slice_S);
+     Eigen::Map<const Eigen::VectorXd> vec_S(valonseismic.data()+ iz * slice_S, slice_S);
      _AProjHoriz->prodMatVecInPlace(vec_S, vec_R, true);
-     VH::mergeInPlace(vec_R, _work, iz * slice_R);
+     Eigen::Map<Eigen::VectorXd> temp(_work.data() + iz * slice_R, slice_R );
+     VectorEigen::copy(vec_R,temp);
    }
 
    _convolveT(_work,valonvertex);
@@ -192,8 +193,8 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
  * @param valonseismic  Output vector defined on the Seismic grid
  * @return
  */
-int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
-                                VectorDouble &valonseismic) const
+int ProjConvolution::_addMesh2point(const Eigen::VectorXd &valonvertex,
+                                Eigen::VectorXd &valonseismic) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
@@ -201,11 +202,10 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 
   // Get the characteristics of the R-R grid
   int slice_R = _gridRes2D->getSampleNumber();
-  VectorDouble vec_R(slice_R);
 
   // Get the characteristics of the R-S grid
   int slice_S = _gridSeis2D->getSampleNumber();
-  VectorDouble vec_S(slice_S);
+  Eigen::VectorXd vec_S(slice_S);
 
   // Convolution
   _convolve(valonvertex, _work);
@@ -213,21 +213,19 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   // Mesh barycenter on 'ndim-1' slices
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    VH::extractInPlace(_work, vec_R, iz * slice_R);
+    Eigen::Map<const Eigen::VectorXd> vec_R(_work.data()+ iz * slice_R, slice_R);
     _AProjHoriz->prodMatVecInPlace(vec_R, vec_S, false);
-    VH::mergeInPlace(vec_S, valonseismic, iz * slice_S);
+
+    Eigen::Map<Eigen::VectorXd> temp(valonseismic.data() + iz * slice_S, slice_S);
+    VectorEigen::copy(vec_S,temp);
   }
 
   return 0;
 }
 
-void ProjConvolution::_convolve(const VectorDouble &valonvertex,
-                                VectorDouble &valonseismic) const
+void ProjConvolution::_convolve(const Eigen::VectorXd &valonvertex,
+                                Eigen::VectorXd &valonseismic) const
 {
-
-  for (auto &e : valonseismic)
-     e = 0.;
-
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valp  = 0.;
@@ -251,12 +249,10 @@ void ProjConvolution::_convolve(const VectorDouble &valonvertex,
   }
 }
 
-void ProjConvolution::_convolveT(const VectorDouble &valonseismic,
-                                 VectorDouble &valonvertex) const
+void ProjConvolution::_convolveT(const Eigen::VectorXd &valonseismic,
+                                 Eigen::VectorXd &valonvertex) const
 {
-  for (auto &e : valonvertex)
-     e = 0.;
-
+  VectorEigen::fill(valonvertex, 0.);
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valm = 0.;

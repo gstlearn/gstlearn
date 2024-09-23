@@ -47,8 +47,8 @@ GSTLEARN_EXPORT double ut_rad2deg(double angle);
 // No need this stuff through SWIG (because we use target language NAs)
 #ifndef SWIG
 
-GSTLEARN_EXPORT int    FFFF(double value); // TODO isNA<double>
-GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int>
+GSTLEARN_EXPORT bool   FFFF(double value); // TODO isNA<double>
+GSTLEARN_EXPORT bool   IFFFF(int value);   // TODO isNA<int>
 GSTLEARN_EXPORT double getTEST();  // TODO getNA<double>
 GSTLEARN_EXPORT int    getITEST(); // TODO getNA<int>
 
@@ -86,7 +86,7 @@ GSTLEARN_EXPORT void ut_facies_statistics(int nech,
                                           int *mini,
                                           int *maxi);
 GSTLEARN_EXPORT void ut_classify(int nech,
-                                 double *tab,
+                                 const double *tab,
                                  double *sel,
                                  int nclass,
                                  double start,
@@ -124,3 +124,5 @@ GSTLEARN_EXPORT double truncateDigits(double value, int ndigits);
 
 GSTLEARN_EXPORT void setInternalDebug(bool status);
 GSTLEARN_EXPORT bool isInternalDebug();
+
+GSTLEARN_EXPORT void print_range(const char* title, int ntab, const double* tab, const double* sel);

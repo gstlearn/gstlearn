@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
@@ -41,15 +39,15 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
 {
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
-  : AMatrixSquare(r),
-   _flagCholeskyDecompose(r._flagCholeskyDecompose),
-   _flagCholeskyInverse(r._flagCholeskyInverse),
+MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &m) 
+  : AMatrixSquare(m),
+   _flagCholeskyDecompose(m._flagCholeskyDecompose),
+   _flagCholeskyInverse(m._flagCholeskyInverse),
    _tl(),
    _xl(),
    _factor()
 {
-  _recopy(r);
+  _recopy(m);
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
@@ -70,12 +68,12 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
 }
 
 
-MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)
+MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &m)
 {
-  if (this != &r)
+  if (this != &m)
   {
-    AMatrixSquare::operator=(r);
-    _recopy(r);
+    AMatrixSquare::operator=(m);
+    _recopy(m);
   }
   return *this;
 }
@@ -166,8 +164,7 @@ int MatrixSquareSymmetric::_invert()
 
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
-  if (icol >  irow) return false;
-  return true;
+  return (icol <= irow);
 }
 
 /**
@@ -272,7 +269,7 @@ int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
 
   _eigenValues = eigenValues;
 
-  if (_eigenVectors != nullptr) delete _eigenVectors;
+  delete _eigenVectors;
 
   if (changeOrder)
     std::reverse(_eigenValues.begin(), _eigenValues.end());
@@ -307,7 +304,7 @@ bool MatrixSquareSymmetric::isDefinitePositive()
 {
   /* Calculate the eigen values and vectors */
 
-  if (computeEigen()) messageAbort("matrix_eigen");
+  if (computeEigen() != 0) messageAbort("matrix_eigen");
 
   // Get the Eigen values
 
@@ -360,14 +357,14 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTLTU(int neq,
  **
  ** \param[in]  mode   0: TL (upper); 1: TL (lower)
  ** \param[in]  neq    number of equations in the system
- ** \param[in]  tl     Triangular matrix (lower part)
+ ** \param[in]  tl     Triangular matrix (any part)
  **
  *****************************************************************************/
 MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
                                                                  int neq,
                                                                  const VectorDouble &tl)
 {
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq);
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(neq);
 
   mat->fill(0.);
 
@@ -376,11 +373,11 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
     {
       if (mode == 0)
       {
-        if (j <= i) mat->setValue(i,j,TL(i,j));
+        if (j <= i) mat->setValue(i, j, TL(i, j));
       }
       else
       {
-        if (j >= i) mat->setValue(i,j,TL(j,i));
+        if (j >= i) mat->setValue(i, j, TL(j, i));
       }
     }
   return mat;
@@ -440,10 +437,31 @@ VectorDouble MatrixSquareSymmetric::getCholeskyTL() const
   return _tl;
 }
 
+double MatrixSquareSymmetric::getCholeskyTL(int i, int j) const
+{
+  if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
+  int neq = getNRows();
+  return (i >= j) ? _TL(i,j) : 0.;
+
+}
+
+double MatrixSquareSymmetric::getCholeskyTL(int iad) const
+{
+  if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
+  return _tl[iad];
+}
+
 VectorDouble MatrixSquareSymmetric::getCholeskyXL() const
 {
   if (! _checkCholeskyAlreadyPerformed(2)) return VectorDouble();
   return _xl;
+}
+
+double MatrixSquareSymmetric::getCholeskyXL(int i, int j) const
+{
+  if (!_checkCholeskyAlreadyPerformed(2)) return TEST;
+  int neq = getNRows();
+  return (i >= j) ? _XL(i, j) : 0.;
 }
 
 /*****************************************************************************/
@@ -502,7 +520,7 @@ int MatrixSquareSymmetric::solveCholesky(const VectorDouble& b, VectorDouble& x)
   Eigen::VectorXd xm = _factor.solve(bm);
 
   x.resize(size);
-  Eigen::Map<Eigen::VectorXd>(&x[0], size) = xm;
+  Eigen::Map<Eigen::VectorXd>(x.data(), size) = xm;
 
   return 0;
 }
@@ -540,66 +558,60 @@ MatrixRectangular MatrixSquareSymmetric::productCholeskyInPlace(int mode,
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++)
-          val += TL(j,i) * a.getValue(j,irhs);
-        x.setValue(i,irhs,val);
+        for (int j = i; j < neq; j++) val += TL(j, i) * a.getValue(j, irhs);
+        x.setValue(i, irhs, val);
       }
-    }
-    else if (mode == 1)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=0; j<=i; j++)
-            val += TL(i,j) * a.getValue(j,irhs);
-          x.setValue(i,irhs,val);
-        }
-    }
-    else if (mode == 2)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=0; j<=i; j++)
-            val += a.getValue(irhs,j) * TL(i,j);
-          x.setValue(irhs,i,val);
-        }
-    }
-    else if (mode == 3)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=i; j<neq; j++)
-            val += a.getValue(irhs,j) * TL(j,i);
-          x.setValue(irhs,i,val);
-        }
-    }
-    else if (mode == 4)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=0; j<=i; j++)
-            val += a.getValue(irhs,j) * TL(i,j);
-          x.setValue(irhs,i,val);
-        }
-    }
-    else if (mode == 5)
-    {
-      for (int irhs=0; irhs<nrhs; irhs++)
-        for (int i=0; i<neq; i++)
-        {
-          val = 0.;
-          for (int j=i; j<neq; j++)
-            val += a.getValue(irhs,j) * TL(j,i);
-          x.setValue(irhs,i,val);
-        }
-    }
+  }
+  else if (mode == 1)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = 0; j <= i; j++) val += TL(i, j) * a.getValue(j, irhs);
+        x.setValue(i, irhs, val);
+      }
+  }
+  else if (mode == 2)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * TL(i, j);
+        x.setValue(irhs, i, val);
+      }
+  }
+  else if (mode == 3)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * TL(j, i);
+        x.setValue(irhs, i, val);
+      }
+  }
+  else if (mode == 4)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * TL(i, j);
+        x.setValue(irhs, i, val);
+      }
+  }
+  else if (mode == 5)
+  {
+    for (int irhs = 0; irhs < nrhs; irhs++)
+      for (int i = 0; i < neq; i++)
+      {
+        val = 0.;
+        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * TL(j, i);
+        x.setValue(irhs, i, val);
+      }
+  }
   return x;
 }
 
@@ -631,26 +643,26 @@ MatrixSquareSymmetric MatrixSquareSymmetric::normCholeskyInPlace(int mode,
         for (int l = 0; l <= j; l++)
           for (int k = 0; k <= i; k++)
           {
-            if (! a.empty())
+            if (!a.empty())
               vala = a.getValue(k, l);
             else
-              vala = (k == l);
-            val += TL(i,k) * vala * TL(j,l);
+              vala = (double)(k == l);
+            val += TL(i, k) * vala * TL(j, l);
           }
-        }
-        else
-        {
-          for (int l=j; l<neq; l++)
-            for (int k=i; k<neq; k++)
-            {
-              if (! a.empty())
-                vala = a.getValue(k,l);
-              else
-                vala = (k == l);
-              val += TL(k,i) * vala * TL(l,j);
-            }
-        }
-      b.setValue(i,j,val);
+      }
+      else
+      {
+        for (int l = j; l < neq; l++)
+          for (int k = i; k < neq; k++)
+          {
+            if (!a.empty())
+              vala = a.getValue(k, l);
+            else
+              vala = (double)(k == l);
+            val += TL(k, i) * vala * TL(l, j);
+          }
+      }
+      b.setValue(i, j, val);
     }
   return b;
 }
@@ -663,7 +675,7 @@ double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
   double det = 0.;
   for (int i = 0; i < _factor.rows(); i++)
     det += log(diag[i]);
-  return det;
+  return 2. * det;
 }
 
 /*****************************************************************************/
@@ -681,7 +693,7 @@ double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
  *****************************************************************************/
 int MatrixSquareSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
 {
-  if (computeGeneralizedInverse(*this)) return 1;
+  if (computeGeneralizedInverse(*this) != 0) return 1;
   prodMatVecInPlace(gmat, xmat);
   return 0;
 }
@@ -723,20 +735,19 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
 
   /* Initializations */
 
-  int error = 1;
   int neq = getNRows();
 
   /* Core allocation */
 
-  double* ha   = (double*) mem_alloc(sizeof(double) * neq * na, 1);
-  double* evec = (double*) mem_alloc(sizeof(double) * na, 1);
+  VectorDouble ha(neq * na);
+  VectorDouble evec(na);
   MatrixSquareSymmetric temp(na);
 
   /* Preliminary solution of the linear system with no constraint */
 
   if (!flag_invert)
   {
-    if (_matrix_qo(gmat, xmat)) goto label_end;
+    if (_matrix_qo(gmat, xmat) != 0) return 1;
   }
 
   /* Product HA = H %*% A */
@@ -763,7 +774,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
 
     /* Generalized inverse of temp */
 
-  if (temp.computeGeneralizedInverse(temp)) goto label_end;
+  if (temp.computeGeneralizedInverse(temp) != 0) return 1;
 
   /* Evaluate evec = t(A) %*% x - b */
 
@@ -795,14 +806,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
     xmat[i] -= value;
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) ha);
-  mem_free((char* ) evec);
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -861,7 +865,7 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
 
   /* We first perform the optimization with equality constraints only */
 
-  if (_matrix_qoc(false, gmat, nae, aemat, bemat, xcand, lambda)) return 1;
+  if (_matrix_qoc(false, gmat, nae, aemat, bemat, xcand, lambda) != 0) return 1;
   if (nai <= 0)
   {
     for (int i = 0; i < neq; i++)
@@ -888,7 +892,7 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
 
     ncur = _constraintsConcatenateMat(nae, nai, neq, active, aemat, aimat, aeimat);
     ncur = _constraintsConcatenateVD(nae, nai, active, bemat, bimat, beimat);
-    if (_matrix_qoc(true, gmat, ncur, aeimat, beimat, xcand, lambda)) return 1;
+    if (_matrix_qoc(true, gmat, ncur, aeimat, beimat, xcand, lambda) != 0) return 1;
 
     if (_constraintsError(active, aimat, bimat, xcand, vmat, emptyInt) == 0)
     {
@@ -902,8 +906,8 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
       for (int i = 0; i < nai; i++)
       {
         if (active[i] == 0) continue;
-        active[i] = lambda[lec] >= 0;
-        if (active[i]) first = i;
+        active[i] = (int) (lambda[lec] >= 0);
+        if (active[i] != 0) first = i;
         lec++;
       }
 
@@ -928,7 +932,7 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
       omin = 1.e30;
       for (int i = 0; i < nai; i++)
       {
-        if (active[i]) continue;
+        if (active[i] != 0) continue;
         value = 0.;
         for (int j = 0; j < neq; j++)
           value += aimat.getValue(j,i)* (xcand[j] - xmat[j]);
@@ -976,7 +980,7 @@ int MatrixSquareSymmetric::_constraintsError(const VectorInt& active,
   int ecr = 0;
   for (int i = 0; i < nai; i++)
   {
-    if (! active.empty() && active[i]) continue;
+    if (! active.empty() && active[i] != 0) continue;
 
     /* Calculate: T(a) %*% x */
 
@@ -992,7 +996,7 @@ int MatrixSquareSymmetric::_constraintsError(const VectorInt& active,
 
     if (! vmat.empty()) vmat[ecr] = ecart;
     bool flag_active = (ecart < -eps);
-    if (! flag.empty()) flag[ecr] = flag_active;
+    if (! flag.empty()) flag[ecr] = (int) flag_active;
     if (flag_active) number++;
     ecr++;
   }
@@ -1105,7 +1109,7 @@ int MatrixSquareSymmetric::_constraintsCount(int nai, VectorInt& active)
 {
   int number = 0;
   for (int i = 0; i < nai; i++)
-    if (active[i]) number++;
+    if (active[i] != 0) number++;
   return (number);
 }
 
@@ -1134,7 +1138,7 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
   }
 
   // Calculate the Eigen vectors
-  if (computeEigen()) return 1;
+  if (computeEigen() != 0) return 1;
   VectorDouble eigval = getEigenValues();
   const MatrixSquareGeneral *eigvec = getEigenVectors();
 
@@ -1159,4 +1163,42 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
       tabout.setValue(i, j, value);
     }
   return 0;
+}
+
+/**
+ * @brief Create an output Square Symmetric Matrix by selecting some rows (and columns)
+ *        of the Input matrix 'A'
+ *
+ * @param A        Input Square Symmetric Matrix
+ * @param rowKeep  Set of Rows (same for columns) to be kept
+ * @return Pointer to the newly created Square Symmetric Matrix
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
+                                                     const VectorInt& rowKeep)
+{
+  VectorInt rows = rowKeep;
+  if (rows.empty()) rows = VH::sequence(A->getNRows());
+
+  int nrows = (int)rows.size();
+  if (nrows <= 0) return nullptr;
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+  }
+
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrows);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol <= irow; icol++)
+      mat->setValue(irow, icol, A->getValue(rows[irow], rows[icol]));
+  return mat;
+}
+
+MatrixSquareSymmetric* MatrixSquareSymmetric::createRandomDefinitePositive(int neq, int seed)
+{
+  MatrixSquareSymmetric local(neq);
+  local.fillRandom(seed);
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(neq);
+  mat->prodMatMatInPlace(&local, &local, true);
+  return mat;
 }

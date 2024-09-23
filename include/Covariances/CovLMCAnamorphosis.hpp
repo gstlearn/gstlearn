@@ -13,15 +13,8 @@
 #include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
-#include "Enum/EConvDir.hpp"
-#include "Enum/EConvType.hpp"
-
 #include "Covariances/CovLMC.hpp"
 #include "Anamorphosis/AAnam.hpp"
-#include "Anamorphosis/AnamContinuous.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Anamorphosis/AnamDiscreteIR.hpp"
 
 class ASpace;
 class SpacePoint;

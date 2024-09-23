@@ -11,9 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
 class AMatrix;

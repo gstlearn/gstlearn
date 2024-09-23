@@ -4,33 +4,6 @@
 
 #NO_DIFF#XXX
 ----
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-K-Bessel (Third Parameter = 1)
-- Sill         =      1.000
-- Ranges       =      4.000    45.000
-- Theo. Ranges =      1.155    12.990
-Total Sill     =      1.000
-
-Non-Stationary Parameters
--------------------------
-Angle      : GRF=1 Str=1 V#1=1
-Functional
-Known Mean(s)     0.000
- ----
-
-
-#NO_DIFF#XXX
-----
 #NO_DIFF#XXX
 ----
 
@@ -170,3 +143,29 @@ Column = 11 - Name = CondSimu.data.4 - Locator = z4----
 ----
 #NO_DIFF#XXX
 ----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      1.000
+- Ranges       =      4.000    45.000
+- Theo. Ranges =      1.155    12.990
+
+Non-Stationary Parameters
+-------------------------
+1 - Angle      : IdAngle=1
+Functional
+
+Total Sill     =      1.000
+Known Mean(s)     0.000----

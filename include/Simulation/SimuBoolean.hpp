@@ -51,14 +51,14 @@ private:
 
   void _clearAllObjects();
   int _getNObjects(int mode = 0) const;
-  int _getRankUncovered(const Db* db, int rank);
+  int _getRankUncovered(const Db* db, int rank) const;
   int _getObjectRank(int mode, int rank);
   int _deleteObject(int mode, Db* dbin);
-  int _getAverageCount(const DbGrid* dbout,
-                       const ModelBoolean* tokens,
-                       const SimuBooleanParam& boolparam) const;
-  int _countConditioningPore(const Db* db);
-  int _countConditioningGrain(const Db* db);
+  static int _getAverageCount(const DbGrid* dbout,
+                              const ModelBoolean* tokens,
+                              const SimuBooleanParam& boolparam);
+  static int _countConditioningPore(const Db* db);
+  static int _countConditioningGrain(const Db* db);
   int _generatePrimary(Db* dbin,
                        DbGrid* dbout,
                        const ModelBoolean* tokens,

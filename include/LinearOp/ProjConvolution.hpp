@@ -16,9 +16,13 @@
 #include "IProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
+#ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+#endif
 /**
  * Projection matrix for vertical convolution
  */
@@ -33,9 +37,6 @@ public:
   ProjConvolution(const ProjConvolution &m)= delete;
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution();
-
-  int point2mesh(const VectorDouble& valonseismic, VectorDouble& valonvertex) const override;
-  int mesh2point(const VectorDouble& valonvertex, VectorDouble& valonseismic) const override;
 
   int getApexNumber() const override;
   int getPointNumber() const override;
@@ -58,23 +59,33 @@ private:
   int  _getNDim() const { return _gridSeismic->getNDim(); }
   Grid _getGridCharacteristicsRR(bool delLastDim = false) const;
   Grid _getGridCharacteristicsRS() const;
-  bool _isVecDimCorrect(const VectorDouble &valonseismic,
-                        const VectorDouble &valonvertex) const;
 
-  void _convolve(const VectorDouble &valonvertex,
-                 VectorDouble &valonseismic) const;
-  void _convolveT(const VectorDouble &valonseismic,
-                   VectorDouble &valonvertex) const;
+  
+
+  #ifndef SWIG        
+  private:
+  void _convolve(const Eigen::VectorXd &valonvertex,
+                 Eigen::VectorXd &valonseismic) const;
+  void _convolveT(const Eigen::VectorXd &valonseismic,
+                   Eigen::VectorXd &valonvertex) const;
+  bool _isVecDimCorrect(const Eigen::VectorXd &valonseismic,
+                        const Eigen::VectorXd &valonvertex) const;   
+  protected:
+  int _addPoint2mesh(const Eigen::VectorXd& valonseismic,
+                        Eigen::VectorXd& valonvertex) const override;
+  int _addMesh2point(const Eigen::VectorXd& valonvertex,
+                        Eigen::VectorXd& valonseismic) const override;
+  #endif
 
 private:
-  VectorDouble         _convolution;
-  const DbGrid*        _gridSeismic;
-  VectorInt            _nodeRes2D;
-  VectorDouble         _gext;
-  VectorInt            _shiftVector;
-  DbGrid*              _gridSeis2D;
-  DbGrid*              _gridRes2D;
-  MatrixSparse*        _AProjHoriz;
-  mutable VectorDouble _work;
+  VectorDouble            _convolution;
+  const DbGrid*           _gridSeismic;
+  VectorInt               _nodeRes2D;
+  VectorDouble            _gext;
+  VectorInt               _shiftVector;
+  DbGrid*                 _gridSeis2D;
+  DbGrid*                 _gridRes2D;
+  MatrixSparse*           _AProjHoriz;
+  mutable Eigen::VectorXd _work;
 };
 

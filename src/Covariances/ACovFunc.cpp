@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Covariances/ACovFunc.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
@@ -189,10 +187,9 @@ VectorDouble ACovFunc::getMarkovCoeffs() const
   return VectorDouble();
 }
 
-double ACovFunc::evaluateSpectrum(double freq, int ndim) const
+double ACovFunc::evaluateSpectrum(double freq) const
 {
   DECLARE_UNUSED(freq);
-  DECLARE_UNUSED(ndim);
   if (! hasSpectrumOnRn())
   {
       messerr("This covariance does not allow spectrum calculations");
@@ -286,7 +283,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
       double temp = a[idim] * ((double) indices[idim] / (N - 1) - 0.5);
       s += temp * temp;
     }
-    Re[iad] = prod * evaluateSpectrum(s,ndim);
+    Re[iad] = prod * evaluateSpectrum(s);
     array.setValue(indices,Re[iad]);
   }
 

@@ -8,14 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Model/CovInternal.hpp"
 
 #include <math.h>
@@ -27,7 +24,7 @@ GibbsUPropMono::GibbsUPropMono()
 {
 }
 
-GibbsUPropMono::GibbsUPropMono(Db* db, std::vector<Model *> models, double rho)
+GibbsUPropMono::GibbsUPropMono(Db* db, const std::vector<Model *>& models, double rho)
   : GibbsMultiMono(db, models, rho)
   , _rval(0.5)
   , _eps(EPSILON3)
@@ -127,7 +124,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
     double sigval;
     for (int idim = 0; idim < ndim; idim++)
       d1[idim] = 0.;
-    if (model->isNoStat())
+    if (model->getCovAnisoList()->isNoStat())
     {
       CovInternal covint(1, iech, 1, iech, ndim, db, db);
       sigval = model->evaluateOneGeneric(&covint, d1);
@@ -150,7 +147,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
       double sigloc;
       for (int idim = 0; idim < ndim; idim++)
         d1[idim] = db->getCoordinate(iech, idim) - db->getCoordinate(jech, idim);
-      if (model->isNoStat())
+      if (model->getCovAnisoList()->isNoStat())
       {
         CovInternal covint(1, iech, 1, jech, ndim, db, db);
         sigloc = model->evaluateOneGeneric(&covint, d1);

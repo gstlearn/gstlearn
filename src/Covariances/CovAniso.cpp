@@ -8,14 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "Arrays/Array.hpp"
+#include "Basic/AFunctional.hpp"
+#include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
+#include "Covariances/NoStatArray.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/NoStatFunctional.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Enum/EConsElem.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Basic/AStringable.hpp"
@@ -27,9 +30,14 @@
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "geoslib_define.h"
 
+#include <array>
 #include <math.h>
 #include <functional>
+#include <memory>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
@@ -44,6 +52,7 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _tabNoStat(),
       _noStatFactor(1.)
 {
   _initFromContext();
@@ -55,6 +64,7 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _cova(),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _tabNoStat(),
       _noStatFactor(1.)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -73,6 +83,7 @@ CovAniso::CovAniso(const ECov &type,
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
+      _tabNoStat(),
       _noStatFactor(1.)
 {
   _initFromContext();
@@ -104,6 +115,7 @@ CovAniso::CovAniso(const CovAniso &r)
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
       _aniso(r._aniso),
+      _tabNoStat(r._tabNoStat),
       _noStatFactor(r._noStatFactor)
 {
 }
@@ -117,6 +129,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
     _aniso = r._aniso;
+    _tabNoStat = r._tabNoStat;
     _noStatFactor = r._noStatFactor;
   }
   return *this;
@@ -321,7 +334,7 @@ void CovAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
 {
   if (!hasRange()) return;
 
-  VectorDouble scales_local = scales;
+  VectorDouble scales_local;
 
   if (! scales.empty())
   {
@@ -395,9 +408,7 @@ bool CovAniso::isConsistent(const ASpace* space) const
 
   // Check against the space dimension
   unsigned int maxndim = _cova->getMaxNDim();
-  if ((maxndim > 0 && (maxndim < space->getNDim()))) return false;
-
-  return true;
+  return maxndim <= 0 || (maxndim >= space->getNDim());
 }
 
 /**
@@ -550,7 +561,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
     int nech1s = (int) index1[rvar1].size();
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      if (! (flagSym && irow > icol))
+      if (!flagSym || irow <= icol)
       {
         int iech1 = index1[rvar1][rech1];
         hoptim = _p2A.getDistance(_p1As[iech1]);
@@ -644,7 +655,7 @@ VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
   return vec;
 }
 
-void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
+void CovAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 {
   _cova->setMarkovCoeffs(coeffs);
   _computeCorrec();
@@ -708,10 +719,20 @@ double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) cons
 
   SpacePoint p1;
   SpacePoint p2;
-  p2.setCoord(freq);
+  p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
-  double val = _cova->evaluateSpectrum(freqnorm * freqnorm, getNDim());
+  double val = _cova->evaluateSpectrum(freqnorm * freqnorm);
   return  sill * val / getCorrec();
+}
+
+double CovAniso::normalizeOnSphere(int n) const
+{ 
+  const ASpace* space = getDefaultSpace();
+  const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  double scale = getScale();
+  double radius = spaceSn->getRadius();
+  scale = scale / radius;
+  return _cova->normalizeOnSphere(n,scale);
 }
 
 VectorDouble CovAniso::getMarkovCoeffs() const
@@ -822,13 +843,33 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
   }
-
+  // Non-stationary parameters
+  if (isNoStat())
+  {
+    sstr << _tabNoStat.toString() << std::endl;
+  }
   return sstr.str();
 }
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
   return _sill.getValue(ivar, jvar) * _noStatFactor;
+}
+
+/*****************************************************************************/
+/*!
+ **  Update the Model in the case of Non-stationary parameters
+ **  This requires the knowledge of the two end-points
+ **
+ ** \param[in]  covint       Internal structure for non-stationarity
+ **                          or NULL (for stationary case)
+ **
+ *****************************************************************************/
+void CovAniso::nostatUpdate(CovInternal *covint)
+{
+  if (covint == NULL) return;
+  updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                    covint->getIcas2(), covint->getIech2());
 }
 
 /**
@@ -869,8 +910,7 @@ double CovAniso::getRange() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getRange(0);
-  else
-    return VH::maximum(getRanges());
+  return VH::maximum(getRanges());
 }
 
 double CovAniso::getScale() const
@@ -878,11 +918,10 @@ double CovAniso::getScale() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getScale(0);
-  else
-    return VH::maximum(getScales());
+  return VH::maximum(getScales());
 }
 
-const VectorDouble CovAniso::getAnisoCoeffs() const
+VectorDouble CovAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
   double max = VH::maximum(coef);
@@ -904,8 +943,7 @@ double CovAniso::getParam() const
 {
   if (!hasParam())
     return 0.;
-  else
-    return _cova->getParam();
+  return _cova->getParam();
 }
 
 void CovAniso::_initFromContext()
@@ -973,12 +1011,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
 
 bool CovAniso::_isVariableValid(int ivar) const
 {
-  if (ivar < 0 || ivar >= getNVariables())
-  {
-    mesArg("Rank of the Variable", 1, getNVariables());
-    return false;
-  }
-  return true;
+  return checkArg("Rank of the Variable", ivar, getNVariables());
 }
 
 int CovAniso::getGradParamNumber() const
@@ -1220,8 +1253,7 @@ bool CovAniso::isOptimizationInitialized(const Db* db) const
   if (_p1As.empty()) return false;
   if (db == nullptr) return true;
   int n = (int) _p1As.size();
-  if (n != db->getSampleNumber()) return false;
-  return true;
+  return n == db->getSampleNumber();
 }
 
 double scale2range(const ECov &type, double scale, double param)
@@ -1240,4 +1272,601 @@ double range2scale(const ECov &type, double range, double param)
   cova->setParam(param);
   double scadef = cova->getScadef();
   return range / scadef;
+}
+
+  
+// Set of functions to make parameters no stationary (or to make them back stationary).
+// There is to types of non stationarities : NoStatDb in which the parameters are read in a
+// DbGrid or NoStatFunctional for which you have to provide a function of the coordinates.
+// Each parameter can have its own type of No stationarity and its own DbGrid in case
+// of NoStatDb. 
+// For specifying the NoStat DbGrid, you can first attach it by using attachNoStatDb.
+// If not, you have to specify the DbGrid when you make the first parameter non stationary.
+
+void CovAniso::attachNoStatDb(const Db* db)
+{
+  _tabNoStat.setDbNoStatRef(db);
+}
+
+bool CovAniso::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
+{
+ if (_tabNoStat.getDbNoStatRef() == nullptr && db == nullptr)
+ {
+  messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");  
+  return false;
+ }
+  _setNoStatDbIfNecessary(db);
+
+ if (db->getUID(namecol)< 0)
+ {
+    messerr("You have to specified a name of a column of the reference Db");
+    return false;
+ }
+ return true;
+}
+
+void CovAniso::_setNoStatDbIfNecessary(const Db*& db)
+{
+  if (_tabNoStat.getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+  if (db == nullptr)
+    db = _tabNoStat.getDbNoStatRef();
+}
+
+void CovAniso::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+{
+  std::shared_ptr<ANoStat> ns;
+  if (func == nullptr)
+  {
+    if(!_checkAndManageNoStatDb(db,namecol)) return;
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
+  }
+  else 
+  {
+    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
+  }
+   _tabNoStat.addElem(ns, econs,iv1,iv2);
+  
+}
+///////////////////// Range ////////////////////////
+void CovAniso::makeRangeNoStatDb(const String &namecol, int idim, const Db* db)
+{   
+  if(!_checkTensor()) return;
+  _makeElemNoStat(EConsElem::RANGE, idim, 0,nullptr,db, namecol);
+ 
+}
+
+void CovAniso::makeRangeNoStatFunctional(const AFunctional *func, int idim)
+{
+  if(!_checkTensor()) return;
+  _makeElemNoStat(EConsElem::RANGE, idim, 0,func);
+}
+
+
+void CovAniso::makeRangeStationary(int idim)
+{
+  if(_tabNoStat.removeElem(EConsElem::RANGE, idim) == 0 && 
+     _tabNoStat.removeElem(EConsElem::SCALE, idim) == 0)
+  {
+    messerr("This parameter was already stationary!");
+  }
+}
+
+///////////////////// Scale ////////////////////////
+
+void CovAniso::makeScaleNoStatDb(const String &namecol, int idim, const Db* db)
+{   
+  if(!_checkTensor()) return;
+  _makeElemNoStat(EConsElem::SCALE, idim, 0,nullptr,db, namecol);
+}
+
+
+void CovAniso::makeScaleNoStatFunctional(const AFunctional *func, int idim)
+{
+  if(!_checkTensor()) return;
+  _makeElemNoStat(EConsElem::SCALE, idim, 0,func);
+}
+
+void CovAniso::makeScaleStationary(int idim)
+{
+  makeRangeStationary(idim);
+}
+
+///////////////////// Angle ////////////////////////
+
+
+void CovAniso::makeAngleNoStatDb(const String &namecol, int idim, const Db* db)
+{
+  if(!_checkTensor()) return;
+  _makeElemNoStat(EConsElem::ANGLE, idim, 0,nullptr,db, namecol);
+
+}
+
+void CovAniso::makeAngleNoStatFunctional(const AFunctional *func, int idim)
+{
+  if(!_checkTensor()) return;
+  _makeElemNoStat(EConsElem::ANGLE, idim, 0,func);
+
+}
+
+void CovAniso::makeAngleStationary(int idim)
+{
+  if(_tabNoStat.removeElem(EConsElem::ANGLE, idim) == 0)
+  {
+    messerr("This parameter was already stationary!");
+  }
+}
+///////////////////// Tensor ////////////////////////
+
+
+void CovAniso::makeTensorNoStatDb(const String &namecol, int idim, int jdim,const Db* db)
+{
+  if(!_checkRotation()) return;
+  if (!_checkDims(idim,jdim)) return;
+  _makeElemNoStat(EConsElem::TENSOR, idim, jdim,nullptr,db, namecol);
+
+}
+
+void CovAniso::makeTensorNoStatFunctional(const AFunctional  *func, int idim, int jdim)
+{
+    if(!_checkRotation()) return;
+    if (!_checkDims(idim,jdim)) return;
+     _makeElemNoStat(EConsElem::TENSOR, idim, jdim,func);
+
+}
+
+void CovAniso::makeTensorStationary(int idim, int jdim)
+{
+  if (!_checkDims(idim,jdim)) return;
+  if(_tabNoStat.removeElem(EConsElem::TENSOR, idim,jdim) == 0)
+  {
+    messerr("This parameter was already stationary!");
+  }
+}
+///////////////////// Sill ////////////////////////
+
+void CovAniso::makeSillNoStatDb(const String &namecol, int ivar, int jvar,const Db* db)
+{
+  if (!_checkSill(ivar,jvar)) return;
+  _makeElemNoStat(EConsElem::SILL, ivar, jvar,nullptr,db, namecol);
+
+}
+
+void CovAniso::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int jvar)
+{
+  if (!_checkSill(ivar,jvar)) return;
+  _makeElemNoStat(EConsElem::SILL, ivar, jvar,func);
+
+}
+  
+void CovAniso::makeSillStationary(int ivar, int jvar)
+{
+  if (!_checkSill(ivar,jvar)) return;
+  if(_tabNoStat.removeElem(EConsElem::SILL, ivar,jvar) == 0)
+  {
+    messerr("This parameter was already stationary!");
+  }
+}
+
+///////////////////// Param ////////////////////////
+
+void CovAniso::makeParamNoStatDb(const String &namecol, const Db* db)
+{
+  if(!_checkParam()) return;
+   _makeElemNoStat(EConsElem::PARAM, 0, 0,nullptr,db, namecol);
+
+}
+
+void CovAniso::makeParamNoStatFunctional(const AFunctional *func)
+{
+  if(!_checkParam()) return;
+  _makeElemNoStat(EConsElem::PARAM, 0, 0,func);
+
+}
+
+void CovAniso::makeParamStationary()
+{
+  if(!_checkParam()) return;
+  if(_tabNoStat.removeElem(EConsElem::PARAM) == 0)
+  {
+    messerr("This parameter was already stationary!");
+  }
+}
+
+/////////////////////////// Check functions ////////////////////:
+
+bool CovAniso::_checkTensor() const
+{
+  if (isNoStatForTensor())
+  {
+    messerr("You have already defined non stationarity by using Tensor specifications");
+    messerr("Use makeTensorStationary before specifying other non stationary parameters");
+    messerr("for anisotropy.");
+    return false;
+  }
+  return true;
+}
+
+bool CovAniso::_checkRotation() const
+{
+  if (isNoStatForRotation())
+  {
+    messerr("You have already defined non stationarity by using rotation");
+    messerr("specifications (range, scale or angle).");
+    messerr("Make these parameters stationary (e.g by makeRangeStationary) before specifying");
+    messerr("non stationary tensors");
+    return false;
+  }
+  return true;
+}
+
+bool CovAniso::_checkSill(int ivar, int jvar) const
+{
+  int nvar = getNVariables();
+  if ((ivar > nvar) || (jvar > nvar))
+  {
+    messerr("Your model has only %d variables.",nvar);
+    return false;
+  }
+  return true;
+}
+
+bool CovAniso::_checkDims(int idim, int jdim) const
+{
+  int ndim = getNDim();
+  if ((idim > ndim) || (jdim > ndim))
+  {
+    messerr("Your model is only in dimension %d.",ndim);
+    return false;
+  }
+  return true;
+}
+
+bool CovAniso::_checkParam() const
+{
+  if (getType()!= ECov::MATERN)
+  {
+    messerr("This covariance function has no parameters of this type");
+    return false;
+  }
+  return true;
+}
+
+/////////////  Functions to attach no stat information on various supports ////////
+void CovAniso::informMeshByMesh(const AMesh* amesh) const
+{
+  _tabNoStat.informMeshByMesh(amesh);
+}
+void CovAniso::informMeshByApex(const AMesh* amesh) const
+{
+  _tabNoStat.informMeshByMesh(amesh);
+}
+void CovAniso::informDbIn(const Db* dbin) const
+{
+  _tabNoStat.informDbIn(dbin);
+}
+void CovAniso::informDbOut(const Db* dbout) const
+{
+  _tabNoStat.informDbOut(dbout);
+}
+
+double CovAniso::getValue(const EConsElem &econs,int iv1,int iv2) const
+{
+  if (econs == EConsElem::RANGE)
+    return getRange(iv1);
+  if (econs == EConsElem::SCALE)
+    return getScale(iv1);
+  if (econs == EConsElem::ANGLE)
+    return getAnisoAngles()[iv1];
+  if (econs == EConsElem::PARAM)
+    return getParam();
+  if (econs == EConsElem::SILL)
+    return getSill(iv1,iv2);
+  return TEST;
+}
+
+VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords, 
+                                    const EConsElem& econs,
+                                    int iv1,
+                                    int iv2) const
+{
+  VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
+  _tabNoStat.informCoords(coords,econs,iv1,iv2,result);
+  return result;
+}
+
+
+void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
+{
+  for (const auto &e : _listaniso)
+  {
+    _tabNoStat.informMeshByMesh(amesh,e);
+  }
+}
+
+void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
+{
+   for (const auto &e : _listaniso)
+      _tabNoStat.informMeshByMesh(amesh,e);
+}
+
+void CovAniso::informDbInForAnisotropy(const Db* dbin) const
+{
+   for (const auto &e :_listaniso)
+      _tabNoStat.informDbIn(dbin,e);
+
+}
+void CovAniso::informDbOutForAnisotropy(const Db* dbout) const
+{
+   for (const auto &e: _listaniso)
+      _tabNoStat.informDbOut(dbout,e);
+}
+
+void CovAniso::informMeshByMeshForSills(const AMesh* amesh) const
+{
+   _tabNoStat.informMeshByMesh(amesh,EConsElem::SILL);
+}
+
+void CovAniso::informMeshByApexForSills(const AMesh* amesh) const
+{
+   _tabNoStat.informMeshByApex(amesh,EConsElem::SILL);
+}
+
+void CovAniso::informDbInForSills(const Db* dbin) const
+{
+   _tabNoStat.informDbIn(dbin,EConsElem::SILL);
+}
+
+void CovAniso::informDbOutForSills(const Db* dbout) const
+{
+  _tabNoStat.informDbOut(dbout,EConsElem::SILL);
+}
+
+
+
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
+ * @param iech1 Rank of the target within Db1 (or -1)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
+ * @param iech2 Rank of the target within Dbout (or -2)
+ */
+void CovAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
+{
+  // If no non-stationary parameter is defined, simply skip
+  if (! isNoStat()) return;
+  double val1, val2;
+
+  
+  int ndim = getNDim();
+
+  const auto paramsnostat = _tabNoStat.getTable();
+  // Loop on the elements that can be updated one-by-one
+
+  for (const auto &e : paramsnostat)
+  {
+    EConsElem type = e.first.getType();
+    e.second->getValuesOnDb( icas1, iech1, &val1, icas2, iech2, &val2);
+
+    if (type == EConsElem::SILL)
+    {
+      int iv1 = e.first.getIV1();
+      int iv2 = e.first.getIV2();
+      setSill(iv1, iv2, sqrt(val1 * val2));
+    }
+    else if (type == EConsElem::PARAM)
+    {
+      setParam(0.5 * (val1 + val2));
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+
+  if (!isNoStatForAnisotropy()) return;
+  
+  VectorDouble angle1;
+  VectorDouble angle2;
+
+  VectorDouble scale1;
+  VectorDouble scale2;
+
+  VectorDouble range1;
+  VectorDouble range2;
+
+  // Define the angles (for all space dimensions)
+  bool flagRotTwo = false;
+  bool flagRotOne = false;
+
+
+  if (getNAngles() > 0)
+  {
+    angle1 = getAnisoAngles();
+    angle2 = angle1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_tabNoStat.isElemDefined(EConsElem::ANGLE, idim))
+      {
+        auto noStat = _tabNoStat.getElem(EConsElem::ANGLE, idim);
+        flagRotOne = true;                       
+        if (noStat->getValuesOnDb(icas1, iech1,&angle1[idim], icas2, iech2,&angle2[idim]))
+          flagRotTwo = true;
+      }
+    }
+  }
+
+    // Define the Theoretical ranges (for all space dimensions)
+
+  bool flagScaleTwo = false;
+  bool flagScaleOne = false;
+  if (getNScales() > 0)
+  {
+    scale1 = getScales();
+    scale2 = scale1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_tabNoStat.isElemDefined(EConsElem::SCALE, idim))
+      {
+        auto noStat = _tabNoStat.getElem(EConsElem::SCALE, idim);
+        flagScaleOne = true;
+        if (noStat->getValuesOnDb( icas1, iech1, &scale1[idim], icas2, iech2, &scale2[idim]))
+          flagScaleTwo = true;
+      }
+    }
+  }
+
+    // Define the Practical ranges (for all space dimensions)
+
+  bool flagRangeTwo = false;
+  bool flagRangeOne = false;
+  if (getNRanges() > 0)
+  {
+    range1 = getRanges();
+    range2 = range1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_tabNoStat.isElemDefined(EConsElem::RANGE, idim))
+      {
+        auto noStat = _tabNoStat.getElem(EConsElem::RANGE, idim);
+        flagRangeOne = true;
+        if (noStat->getValuesOnDb(icas1, iech1,&range1[idim], icas2, iech2,  &range2[idim]))
+          flagRangeTwo = true;
+      }
+    }
+  }
+
+    // Update the Model
+  double ratio = 1.;
+  if (flagRotTwo || flagRangeTwo || flagScaleTwo)
+  {
+  // Extract the direct tensor at first point and square it
+    setRotationAnglesAndRadius(angle1, range1, scale1);
+    MatrixSquareSymmetric direct1 = getAniso().getTensorDirect2();
+    double det1 = pow(direct1.determinant(), 0.25);
+
+  // Extract the direct tensor at second point and square it
+    setRotationAnglesAndRadius(angle2, range2, scale2);
+    MatrixSquareSymmetric direct2 = getAniso().getTensorDirect2();
+    double det2 = pow(direct2.determinant(), 0.25);
+
+      // Calculate average squared tensor
+    direct2.addMatInPlace(direct1, 0.5, 0.5);
+    double detM = sqrt(direct2.determinant());
+
+      // Update the tensor (squared version)
+    Tensor tensor = getAniso();
+    tensor.setTensorDirect2(direct2);
+    setAniso(tensor);
+    ratio = det1 * det2 / detM;
+  }
+  else if (flagRotOne || flagRangeOne || flagScaleOne)
+  {
+    // Simply update the model with one set of parameters
+    setRotationAnglesAndRadius(angle1, range1, scale1);
+  }
+  setNoStatFactor(ratio);
+}
+
+
+void CovAniso::updateCovByMesh(int imesh,bool aniso)
+{
+  // If no non-stationary parameter is defined, simply skip
+  if (! isNoStat()) return;
+  int ndim = getNDim();
+
+  // Loop on the elements that can be updated one-by-one
+  if (!aniso)
+  {
+    const auto paramsnostat = _tabNoStat.getTable();
+    for (const auto &e : paramsnostat)
+    {
+      EConsElem type = e.first.getType();
+      if (type == EConsElem::SILL)
+      {
+        double sill = e.second->getValueOnMeshByApex(imesh);
+        int iv1 = e.first.getIV1();
+        int iv2 = e.first.getIV2();
+        setSill(iv1, iv2, sill);
+      }
+    }
+    return;
+  }
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+  if (!isNoStatForAnisotropy()) return;
+
+  VectorDouble angles;
+  VectorDouble scales;
+  VectorDouble ranges;
+
+    // Define the angles (for all space dimensions)
+  if (getNAngles() > 0)
+  {
+    angles = getAnisoAngles();
+
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_tabNoStat.isElemDefined(EConsElem::ANGLE, idim))
+      {
+        auto noStat = _tabNoStat.getElem(EConsElem::ANGLE, idim);
+        angles[idim] = noStat->getValueOnMeshByMesh(imesh);
+      }
+    }
+  }
+
+    // Define the Theoretical ranges (for all space dimensions)
+  if (getNScales() > 0)
+  {
+    scales = getScales();
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_tabNoStat.isElemDefined(EConsElem::SCALE, idim))
+      {
+        auto noStat = _tabNoStat.getElem(EConsElem::SCALE, idim);
+        scales[idim] = noStat->getValueOnMeshByMesh(imesh);
+      }
+    }
+  }
+  
+  if (getNRanges() > 0)
+  {
+    ranges = getRanges();
+
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_tabNoStat.isElemDefined(EConsElem::RANGE, idim))
+      {
+        auto noStat = _tabNoStat.getElem(EConsElem::RANGE, idim);
+        ranges[idim] = noStat->getValueOnMeshByMesh(imesh);
+      }
+    }
+  }
+  
+  setRotationAnglesAndRadius(angles, ranges, scales);
+  // TODO : This part is not finished
+  if (isNoStatForTensor())
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      for (int jdim = 0; jdim < ndim; jdim++)
+        if (_tabNoStat.isElemDefined(EConsElem::TENSOR, idim,jdim))
+        {
+          auto noStat = _tabNoStat.getElem(EConsElem::TENSOR, idim, jdim);
+          
+      }
+    }
+  }
+}
+
+void CovAniso::makeStationary()
+{
+  _tabNoStat = TabNoStatCovAniso();
+}
+
+void CovAniso::_manage(const Db* db1,const Db* db2) const
+{
+  if (db1!=nullptr)
+    informDbIn(db1);
+  if (db2!=nullptr)
+    informDbOut(db2);
 }

@@ -8,14 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/File.hpp"
-#include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Core/Potential.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/DriftList.hpp"
@@ -26,6 +24,7 @@
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Basic/Memory.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -116,22 +115,19 @@ static int GRX(int i)
 {
   if (POTENV->ndim < 1)
     return -1;
-  else
-    return i;
+  return i;
 }
 static int GRY(int i)
 {
   if (POTENV->ndim < 2)
     return -1;
-  else
-    return i + POTENV->ngrd;
+  return i + POTENV->ngrd;
 }
 static int GRZ(int i)
 {
   if (POTENV->ndim < 3)
     return -1;
-  else
-    return i + 2 * POTENV->ngrd;
+  return i + 2 * POTENV->ngrd;
 }
 static int TGT(int i)
 {
@@ -203,7 +199,7 @@ static int st_model_invalid(Model *model)
 {
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
-    ECov type = model->getCovaType(icov);
+    const ECov& type = model->getCovaType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&
         type != ECov::SPLINE2_GC && type != ECov::NUGGET)
     {
@@ -256,8 +252,6 @@ static void st_cov(Model* model,
   if (ndim >= 3) vec[2] = dz;
 
   model->evalZAndGradients(vec, covar, covGp, covGG, nullptr, flag_grad);
-
-  return;
 }
 
 /****************************************************************************/
@@ -502,7 +496,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     return false;
   }
   if (st_model_invalid(model)) return false;
-  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
+  if (!dbiso->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     return false;
@@ -632,7 +626,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!dbiso->isActive(iech)) continue;
-    double value = get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
+    double value = dbiso->getFromLocator(ELoc::LAYER, iech);
     if (FFFF(value)) continue;
     int ival = (int) value;
 
@@ -695,7 +689,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbiso->isActive(iech)) continue;
-      double value = get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
+      double value = dbiso->getFromLocator(ELoc::LAYER, iech);
       if (FFFF(value)) continue;
       int ival = (int) value;
       if (ival != layval[i]) continue;
@@ -927,7 +921,7 @@ static double setMatUV(int ndim,
  **
  *****************************************************************************/
 static double setMatUAV(int ndim,
-                        double *a,
+                        const double *a,
                         double ux,
                         double uy,
                         double uz,
@@ -1028,7 +1022,7 @@ static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
         pot_ext->indg[2] = pot_ext->indg0[2] + iz - pot_ext->nring;
         if (pot_ext->indg[2] < 0 || pot_ext->indg[2] > dbgrid->getNX(2))
           return (1);
-        int iech = db_index_grid_to_sample(dbgrid, pot_ext->indg.data());
+        int iech = dbgrid->indiceToRank(pot_ext->indg);
 
         /* Check that the external drift value is defined */
 
@@ -1666,7 +1660,6 @@ static void st_rhs_part(Pot_Env *pot_env, MatrixRectangular& rhs)
       for (int igrad = 1; igrad < 4; igrad++)
         setRhs(rhs, i, igrad, 0.);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1852,8 +1845,6 @@ static void st_build_rhs(Pot_Env *pot_env,
 
   if (OptDbg::query(EDbg::KRIGING))
     krige_rhs_print(nsol, 0, nequa, nequa, NULL, rhs.getValues().data());
-
-  return;
 }
 
 /****************************************************************************/
@@ -1926,8 +1917,6 @@ static void st_calc_point(Pot_Env *pot_env,
     print_matrix("Results", 0, 1, 1, nsol, NULL, result.data());
     message("\n");
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1948,7 +1937,7 @@ static void st_calc_point(Pot_Env *pot_env,
  *****************************************************************************/
 static void st_potential_to_layer(Pot_Env *pot_env,
                                   int isimu,
-                                  double *potval,
+                                  const double *potval,
                                   VectorDouble& result)
 {
   double minval = -1.e30;
@@ -2030,7 +2019,6 @@ static void st_estimate_result(Pot_Env *pot_env,
         dbout->setLocVariable(ELoc::G,iech, idim, result[idim + 1]);
   }
   OptDbg::setCurrentIndex(-1);
-  return;
 }
 
 static void st_estimate_data(Pot_Env *pot_env,
@@ -2078,7 +2066,6 @@ static void st_estimate_data(Pot_Env *pot_env,
       db_target->setLocatorsByUID(uid_grad, ELoc::G);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2230,8 +2217,6 @@ static void st_dist_convert(Pot_Env *pot_env,
   }
   (*dist_euc) = sqrt(*dist_euc);
   (*dist_geo) = sqrt(*dist_geo);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2381,7 +2366,6 @@ static void st_xvalid_potential(Pot_Env *pot_env,
     }
   }
   OptDbg::setCurrentIndex(-1);
-  return;
 }
 
 /****************************************************************************/
@@ -2407,7 +2391,7 @@ static void st_tempere(DbGrid *dbout,
   static int test = 0;
 
   double simerr = result[0] - reskrige;
-  double kdist = dbout->getLocVariable(ELoc::Z,iech, 0);
+  double kdist = dbout->getZVariable(iech, 0);
 
   switch (test)
   {
@@ -2544,7 +2528,6 @@ static void st_simcond(Pot_Env *pot_env,
     }
   }
   OptDbg::setCurrentIndex(-1);
-  return;
 }
 
 /****************************************************************************/
@@ -2724,8 +2707,6 @@ static void st_check_data(Pot_Env *pot_env,
     }
     OptDbg::setCurrentIndex(-1);
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2830,8 +2811,6 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   // Sort them by ascending order 
 
   ut_sort_double(0, pot_env->nlayers, NULL, potval);
-
-  return;
 }
 
 static void st_save_result_on_data(Pot_Env* pot_env,
@@ -3056,7 +3035,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   // Highlight the isoline of interest
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    double value = dbout->getLocVariable(ELoc::Z,iech, 0);
+    double value = dbout->getZVariable(iech, 0);
     if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
   }
 
@@ -3137,8 +3116,7 @@ int potential_simulate(Db *dbiso,
   // Preliminary checks
 
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
-  if (db_extension_diag(dbiso, &delta)) goto label_end;
-  delta /= 1000.;
+  delta = dbiso->getExtensionDiagonal() / 1000;
 
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
                        neigh)) goto label_end;

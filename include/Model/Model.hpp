@@ -16,7 +16,6 @@
 
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EConsElem.hpp"
 #include "Enum/EModelProperty.hpp"
 
 #include "Covariances/ACov.hpp"
@@ -29,7 +28,6 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/CovParamId.hpp"
 #include "Covariances/CovAniso.hpp"
 
 #include "Anamorphosis/AAnam.hpp"
@@ -47,7 +45,6 @@ class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
-class ANoStat;
 class ADrift;
 class AnamContinuous;
 class AnamHermite;
@@ -132,11 +129,13 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
   const ACovAnisoList* getCovAnisoList() const;
+  ACovAnisoList* getCovAnisoListModify();
+
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
   int getCovaNumber(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
-  const MatrixSquareSymmetric getSillValues(int icov) const;
+  const MatrixSquareSymmetric& getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
@@ -146,7 +145,7 @@ public:
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar=0, int jvar=0) const;
-  MatrixSquareGeneral getTotalSills() const;
+  MatrixSquareSymmetric getTotalSills() const;
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
 
@@ -157,6 +156,7 @@ public:
   bool isChangeSupportDefined() const;
   void normalize(double sill);
   bool hasNugget() const;
+  int  getRankNugget() const;
   VectorInt getActiveCovList() const;
   VectorInt getAllActiveCovList() const;
   bool isAllActiveCovList() const;
@@ -175,18 +175,7 @@ public:
   {
     return _cova->eval0Mat(mode);
   }
-  int isNoStat() const
-  {
-    return _cova->isNoStat();
-  }
-  const ANoStat* getNoStat() const
-  {
-    return _cova->getNoStat();
-  }
-  ANoStat* getNoStatModify() const
-  {
-    return _cova->getNoStatModify();
-  }
+
   /**
    * Calculate the Matrix of covariance for zero distance
    * @param mat   Covariance matrix (Dimension: nvar * nvar)
@@ -542,10 +531,8 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setRangeIsotropic(int icov, double range);
-  void setMarkovCoeffs(int icov, VectorDouble coeffs);
+  void setMarkovCoeffs(int icov, const VectorDouble& coeffs);
   void setCovaFiltered(int icov, bool filtered);
-  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2);
-  void updateCovByMesh(int imesh);
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
   int  getAnamNClass() const;
@@ -626,16 +613,6 @@ public:
   void setField(double field);
   /////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////
-  /// Shortcut for Non-stationary
-  int  addNoStat(const ANoStat* anostat);
-  int  getNoStatElemNumber() const;
-  int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
-  int  addNoStatElems(const VectorString& codes);
-  CovParamId getCovParamId(int ipar) const;
-  bool isNostatParamDefined(const EConsElem &type0);
-  ////////////////////////////////////////////////
-
   const EModelProperty& getCovMode() const;
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;
@@ -670,30 +647,31 @@ public:
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),
-                        Option_VarioFit optvar = Option_VarioFit(),
-                        Option_AutoFit mauto = Option_AutoFit(),
+                        const Option_VarioFit& optvar = Option_VarioFit(),
+                        const Option_AutoFit& mauto = Option_AutoFit(),
                         bool verbose = false);
-  int fit(Vario *vario,
-          const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
+  int fit(Vario* vario,
+          const VectorECov& types        = ECov::fromKeys({"SPHERICAL"}),
           const Constraints& constraints = Constraints(),
-          Option_VarioFit optvar = Option_VarioFit(),
-          Option_AutoFit mauto = Option_AutoFit(),
+          const Option_VarioFit& optvar = Option_VarioFit(),
+          const Option_AutoFit& mauto = Option_AutoFit(),
           bool verbose = false);
 
   int fitFromVMap(DbGrid *dbmap,
                   const VectorECov &types = ECov::fromKeys({"SPHERICAL"}),
                   const Constraints &constraints = Constraints(),
-                  Option_VarioFit optvar = Option_VarioFit(),
-                  Option_AutoFit mauto = Option_AutoFit(),
+                  const Option_VarioFit& optvar = Option_VarioFit(),
+                  const Option_AutoFit& mauto = Option_AutoFit(),
                   bool verbose = false);
-  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP"));
+  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP")) const;
   int stabilize(double percent, bool verbose = false);
   int standardize(bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
-  void gofDisplay(double gof, bool byValue = true,
-                  const VectorDouble& thresholds = {2., 5., 10., 100});
-  VectorECov initCovList(const VectorInt & covranks);
+  static void gofDisplay(double gof,
+                         bool byValue                   = true,
+                         const VectorDouble& thresholds = {2., 5., 10., 100});
+  static VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
 
@@ -729,7 +707,6 @@ public:
                         bool verbose = false,
                         double factor = 1.,
                         const CovCalcMode *mode = nullptr);
-  void nostatUpdate(CovInternal *covint);
 
   double computeLogLikelihood(Db* db, bool verbose = false);
 
@@ -748,7 +725,9 @@ private:
   void _copyCovContext();
 
 private:
-  ACov*          _cova;         /* Generic Covariance structure */
-  DriftList*     _driftList;    /* Series of Drift functions */
-  CovContext     _ctxt;         /* Context */
+  ACov*      _cova;         /* Generic Covariance structure */
+  DriftList* _driftList;    /* Series of Drift functions */
+  CovContext _ctxt;         /* Context */
+
+  MatrixSquareSymmetric _dummy;
 };

@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
-
 #include "Enum/ECst.hpp"
 
 #include "Basic/VectorHelper.hpp"
@@ -24,7 +21,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
 #include "Mesh/MeshETurbo.hpp"
 
 /****************************************************************************/

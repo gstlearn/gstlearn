@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
@@ -20,18 +19,14 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
+#include "Matrix/VectorEigen.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Model/NoStatFunctional.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Matrix/MatrixRectangular.hpp"
 
-#include <math.h>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/src/Core/Matrix.h>
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -63,55 +58,61 @@ int main(int argc, char *argv[])
 
   ///////////////////////
   // Creating the Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctional NoStat(&spirale);
-  model->addNoStat(&NoStat);
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
-  ShiftOpCs S(&mesh, model, workingDbc);
+  
   CovAniso* cova = model->getCova(0);
+  ShiftOpCs S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 
-  /////////////////////////
-  // Simulation (Chebyshev)
+  // /////////////////////////
+  // // Simulation (Chebyshev)
   VectorDouble resultSimu = Qsimu.simulateOne();
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
-
-  ///////////////////////////
-  // Creating Data
+  VectorEigen resultSimuV(resultSimu);
+  // ///////////////////////////
+  // // Creating Data
   auto ndata = 1000;
   Db* dat = Db::createFromBox(ndata, workingDbc->getCoorMinimum(), workingDbc->getCoorMaximum(), 432432);
 
-  /////////////////////////
-  // Simulating Data points
+  // /////////////////////////
+  // // Simulating Data points
   ProjMatrix B(dat, &mesh);
-  VectorDouble datval(ndata);
-  B.mesh2point(resultSimu, datval);
-  dat->addColumns(datval, "Simu", ELoc::Z);
+  Eigen::VectorXd datval(ndata);
+  B.mesh2point(resultSimuV.getVector(), datval);
+  auto datvalVd = VectorEigen::copyIntoVD(datval);
+  dat->addColumns(datvalVd, "Simu", ELoc::Z);
 
-  //////////
-  // Kriging
+  // //////////
+  // // Kriging
   double nug = 0.1;
-  VectorDouble rhs(S.getSize());
-  B.point2mesh(dat->getColumn("Simu"), rhs);
-  for (auto &e : rhs)
-    e /= nug;
+  Eigen::VectorXd rhs(S.getSize());
+  auto temp = dat->getColumn("Simu");
+  Eigen::Map<const Eigen::VectorXd> datm(temp.data(),temp.size());
+  B.point2mesh(datm, rhs);
+  
+  for (int i = 0; i < (int)rhs.size(); i++)
+    rhs[i] /= nug;
 
   PrecisionOp Qkriging(&S, cova);
   PrecisionOpMultiConditional A;
   A.push_back(&Qkriging, &B);
   A.setVarianceData(0.01);
 
-  VectorVectorDouble Rhs, resultvc;
-  VectorDouble vc(S.getSize());
+  std::vector<Eigen::VectorXd> Rhs, resultvc;
+  Eigen::VectorXd vc(S.getSize());
 
   resultvc.push_back(vc);
-  Rhs.push_back(VectorDouble(rhs));
+  Rhs.push_back(Eigen::VectorXd(rhs));
 
   A.evalInverse(Rhs, resultvc);
-  workingDbc->addColumns(resultvc[0], "Kriging");
+  auto resultfinal = VectorEigen::copyIntoVD(resultvc[0]);
+ 
+  workingDbc->addColumns(resultfinal, "Kriging");
 
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
   workingDbc->display(&dsf);

@@ -13,13 +13,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Polynomials/Hermite.hpp"
 #include "Stats/Selectivity.hpp"
 
 #include <math.h>
@@ -290,25 +288,25 @@ int Selectivity::calculateFromAnamorphosis(AAnam* anam)
   return 1;
 }
 
-const Table Selectivity::eval(const Db *db, bool autoCuts)
+Table Selectivity::eval(const Db *db, bool autoCuts)
 {
   (void) calculateFromDb(db, autoCuts);
   return getStats();
 }
-const Table Selectivity::evalFromArray(const VectorDouble &tab,
+Table Selectivity::evalFromArray(const VectorDouble &tab,
                                        const VectorDouble &weights,
                                        bool autoCuts)
 {
   (void) calculateFromArray(tab, weights, autoCuts);
   return getStats();
 }
-const Table Selectivity::evalFromAnamorphosis(AAnam *anam)
+Table Selectivity::evalFromAnamorphosis(AAnam *anam)
 {
   (void) calculateFromAnamorphosis(anam);
   return getStats();
 }
 
-const Table Selectivity::getStats() const
+Table Selectivity::getStats() const
 {
   VectorString names = _getAllNames();
   int nrow = _stats.getNRows();
@@ -375,7 +373,7 @@ Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
       double ti1 = (iclass + 1 > nclass - 1) ? 0. : selecin.getTest(iclass + 1);
       double qi0 = selecin.getQest(iclass);
       double qi1 = selecin.getQest(iclass + 1);
-      selectivity->_interpolateInterval(zval, zi0, zi1, ti0, ti1, qi0, qi1, &tval, &qval);
+      Selectivity::_interpolateInterval(zval, zi0, zi1, ti0, ti1, qi0, qi1, &tval, &qval);
       selectivity->setTest(icut, tval);
       selectivity->setQest(icut, qval);
     }
@@ -467,12 +465,7 @@ double Selectivity::getTstd(int iclass) const
 
 bool Selectivity::_isValidCut(int iclass) const
 {
-  if (iclass < 0 || iclass >= getNCuts())
-  {
-    mesArg("Selectivity Class", iclass, getNCuts());
-    return false;
-  }
-  return true;
+  return checkArg("Selectivity Class", iclass, getNCuts());
 }
 
 /*****************************************************************************/
@@ -630,15 +623,10 @@ void Selectivity::_defineVariableRanks()
   }
 }
 
-bool Selectivity::_isMultiplied(const ESelectivity& code) const
+bool Selectivity::_isMultiplied(const ESelectivity& code)
 {
-  if (code == ESelectivity::UNKNOWN ||
-      code == ESelectivity::Z       ||
-      code == ESelectivity::PROP    ||
-      code == ESelectivity::QUANT)
-    return false;
-  else
-    return true;
+  return (code != ESelectivity::UNKNOWN && code != ESelectivity::Z &&
+          code != ESelectivity::PROP && code != ESelectivity::QUANT);
 }
 
 VectorString Selectivity::getVariableNames() const
@@ -773,7 +761,7 @@ String Selectivity::getVariableName(int rank0) const
  ** \param[in]  number       Number of cutoffs
  **
  *****************************************************************************/
-void Selectivity::_printQTvars(const char *title, int type, int number) const
+void Selectivity::_printQTvars(const char *title, int type, int number)
 {
   message("- %s", title);
   if (type == 1)
@@ -820,16 +808,14 @@ bool Selectivity::isUsedEst(const ESelectivity& code) const
   if (code == ESelectivity::UNKNOWN) return false;
   if (! _isRecoveryDefined()) return false;
   int key = code.getValue();
-  if (_numberQT.getValue(key, 0) > 0) return true;
-  return false;
+  return (_numberQT.getValue(key, 0) > 0);
 }
 
 bool Selectivity::isUsedStD(const ESelectivity& code) const
 {
   if (code == ESelectivity::UNKNOWN) return false;
   int key = code.getValue();
-  if (_numberQT.getValue(key, 1) > 0) return true;
-  return false;
+  return (_numberQT.getValue(key, 1) > 0);
 }
 
 bool Selectivity::isNeededT() const
@@ -893,7 +879,7 @@ void Selectivity::calculateBenefitAndGrade()
  **  Calculate and print the Gini index
  **
  *****************************************************************************/
-void Selectivity::dumpGini()
+void Selectivity::dumpGini() const
 {
   int nclass = getNCuts();
 
@@ -1006,7 +992,7 @@ void Selectivity::storeInDb(Db *db,
                             int iech0,
                             int iptr,
                             double zestim,
-                            double zstdev)
+                            double zstdev) const
 {
   int ncut = getNCuts();
 
@@ -1118,10 +1104,9 @@ void Selectivity::interpolateSelectivity(const Selectivity* selecin)
     setTest(icut, tval);
     setQest(icut, qval);
   }
-  return;
 }
 
-VectorString Selectivity::_getAllNames() const
+VectorString Selectivity::_getAllNames()
 {
   VectorString names;
   names.push_back("Z-Cut");
@@ -1154,12 +1139,12 @@ int Selectivity::getNumberQTStd(const ESelectivity& code) const
   return _numberQT.getValue(code.getValue(), 1);
 }
 
-const VectorInt Selectivity::getNumberQTEst() const
+VectorInt Selectivity::getNumberQTEst() const
 {
   return _numberQT.getValuesPerColumn(0);
 }
 
-const VectorInt Selectivity::getNumberQTStd() const
+VectorInt Selectivity::getNumberQTStd() const
 {
   return _numberQT.getValuesPerColumn(1);
 }

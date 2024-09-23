@@ -8,21 +8,20 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
-
-#include "Enum/EJustify.hpp"
 
 #include "Morpho/Morpho.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Stats/Classical.hpp"
+#include "Basic/Memory.hpp"
+#include "Basic/Grid.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -122,9 +121,9 @@ static double st_extract_subgrid(int verbose,
         if (ndim >= 1) iwork2[0] = jx;
         if (ndim >= 2) iwork2[1] = jy;
         if (ndim >= 3) iwork2[2] = jz;
-        ind = db_index_grid_to_sample(dbgrid, iwork2.data());
+        ind = dbgrid->indiceToRank(iwork2);
         numtab1[ecr] = 1.;
-        value = dbgrid->isActive(ind) ? dbgrid->getLocVariable(ELoc::Z,ind, 0) :
+        value = dbgrid->isActive(ind) ? dbgrid->getZVariable(ind, 0) :
                                         TEST;
         if (FFFF(value))
           valtab1[ecr] = (flag_ffff) ? 0 :
@@ -186,9 +185,9 @@ static int st_divide_by_2(int *nxyz, int orient)
  **
  *****************************************************************************/
 static void st_mean_arith(int idim,
-                          int *nxyz1,
-                          int *nxyz2,
-                          double *numtab1,
+                          const int *nxyz1,
+                          const int *nxyz2,
+                          const double *numtab1,
                           double *numtab2,
                           double *valtab1,
                           double *valtab2)
@@ -252,7 +251,6 @@ static void st_mean_arith(int idim,
                                      V2_TAB(ix,iy,iz) / N2_TAB(ix, iy, iz) :
                                      TEST;
       }
-  return;
 }
 
 /****************************************************************************/
@@ -270,9 +268,9 @@ static void st_mean_arith(int idim,
  **
  *****************************************************************************/
 static void st_mean_harmo(int idim,
-                          int *nxyz1,
-                          int *nxyz2,
-                          double *numtab1,
+                          const int *nxyz1,
+                          const int *nxyz2,
+                          const double *numtab1,
                           double *numtab2,
                           double *valtab1,
                           double *valtab2)
@@ -331,13 +329,10 @@ static void st_mean_harmo(int idim,
             }
             break;
         }
-        V2_TAB(ix,iy,iz) =
-            (ABS(V2_TAB(ix,iy,iz)) > 1.e-10) ?
-                                               N2_TAB(ix,iy,iz) / V2_TAB(ix, iy,
-                                                                         iz) :
-                                               TEST;
+        V2_TAB(ix, iy, iz) = (ABS(V2_TAB(ix, iy, iz)) > 1.e-10)
+                               ? N2_TAB(ix, iy, iz) / V2_TAB(ix, iy, iz)
+                               : TEST;
       }
-  return;
 }
 
 /****************************************************************************/
@@ -355,9 +350,9 @@ static void st_mean_harmo(int idim,
  ** \param[out] valtab2   Array containing the sample value
  **
  *****************************************************************************/
-static int st_recopy(int *nxyz1,
-                     double *numtab1,
-                     double *valtab1,
+static int st_recopy(const int *nxyz1,
+                     const double *numtab1,
+                     const double *valtab1,
                      int *nxyz2,
                      double *numtab2,
                      double *valtab2)
@@ -430,7 +425,7 @@ static void st_print_grid(const char *subtitle,
  ** \param[out] valtab    Array containing the sample value
  **
  *****************************************************************************/
-static void st_print_upscale(const char *title, int *nxyz, double *valtab)
+static void st_print_upscale(const char *title, int *nxyz, const double *valtab)
 {
   double mini, maxi, value;
   int lec, ndef;
@@ -573,10 +568,6 @@ static void st_upscale(int orient,
     }
   }
   *res2 = valtab1[0];
-
-  /* Final result obtained using geometric mean */
-
-  return;
 }
 
 /****************************************************************************/
@@ -673,14 +664,16 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 {
   double *valtab0, *valtab1, *valtab2, *numtab0, *numtab1, *numtab2;
   double result1, result2, result, probtot;
-  int error, ndim, ind0[3], nxyz[3], ixyz[3], iech, iptr, ntot, ncol;
+  int error, ndim, ind0[3], nxyz[3], iech, iptr, ntot, ncol;
   int flag_save, iech_save;
 
   /* Initializations */
 
   valtab0 = valtab1 = valtab2 = numtab0 = numtab1 = numtab2 = nullptr;
   error = 1;
-  iech_save = (int) get_keypone("Upscale.Converge.Block", 0);
+  iech_save = (int)get_keypone("Upscale.Converge.Block", 0);
+  int ndim2 = dbgrid2->getNDim();
+  VectorInt ixyz(ndim2);
 
   /* Preliminary checks */
 
@@ -735,12 +728,12 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
-      db_index_sample_to_grid(dbgrid2, iech, ixyz);
+      dbgrid2->rankToIndice(iech, ixyz);
 
       /* Load the subgrid to be upscaled */
 
       probtot = st_extract_subgrid(verbose, 0, iech, dbgrid2->getSampleNumber(),
-                                   ntot, dbgrid1, ind0, ixyz, nxyz, numtab0,
+                                   ntot, dbgrid1, ind0, ixyz.data(), nxyz, numtab0,
                                    valtab0);
 
       if (probtot > 0)
@@ -793,8 +786,8 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
  *****************************************************************************/
 static double st_squared_distance(int orient,
                                   int ndim,
-                                  int *locini,
-                                  int *loccur)
+                                  const int *locini,
+                                  const int *loccur)
 {
   double delta, dist;
 
@@ -822,7 +815,7 @@ static double st_squared_distance(int orient,
  *****************************************************************************/
 static void st_sample_to_grid(int ndim,
                               int ntot,
-                              int *nxyz,
+                              const int *nxyz,
                               int iech,
                               int *indg)
 {
@@ -845,7 +838,7 @@ static void st_sample_to_grid(int ndim,
  ** \param[in]  indg  Grid indices
  **
  *****************************************************************************/
-static int st_grid_to_sample(int ndim, int *nxyz, int *indg)
+static int st_grid_to_sample(int ndim, const int *nxyz, const int *indg)
 {
   int idim, ival;
 
@@ -871,7 +864,7 @@ static int st_grid_to_sample(int ndim, int *nxyz, int *indg)
  ** \param[in]  cell  Cell location
  **
  *****************************************************************************/
-static int st_fixed_position(int ntot, double *tab, int cell)
+static int st_fixed_position(int ntot, const double *tab, int cell)
 {
   int j;
 
@@ -896,7 +889,7 @@ static int st_fixed_position(int ntot, double *tab, int cell)
  ** \param[in]  proba Local probability
  **
  *****************************************************************************/
-static int st_find_cell(int ntot, double *tab, double proba)
+static int st_find_cell(int ntot, const double *tab, double proba)
 {
   double sum1, sum2;
 
@@ -927,9 +920,9 @@ static int st_find_cell(int ntot, double *tab, double proba)
 static void st_migrate_seed(int ndim,
                             int n_nbgh,
                             int *nxyz,
-                            int *nbgh,
+                            const int *nbgh,
                             double *valwrk,
-                            double *valtab0,
+                            const double *valtab0,
                             int *locwrk,
                             int *loccur)
 {
@@ -1101,8 +1094,6 @@ static void st_updiff(int orient,
     }
     cvdist2[iter] = dmoy / (double) nseed;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1265,7 +1256,7 @@ int db_diffusion(DbGrid *dbgrid1,
 {
   double *valtab0, *numtab0, *valwrk, *cvdist2, *cvsave, *trsave;
   double diff_coeff, pmid, probtot;
-  int error, ndim, ind0[3], nxyz[3], ixyz[3], iech, nech, iptr, opt_center;
+  int error, ndim, ind0[3], nxyz[3], iech, nech, iptr, opt_center;
   int ntot, iech_save, flag_save, opt_morpho, flag_traj;
   int *tabini, *tabcur, *tabwrk, *numrank, n_nbgh;
   char name[40];
@@ -1287,12 +1278,14 @@ int db_diffusion(DbGrid *dbgrid1,
 
   ndim = dbgrid1->getNDim();
   nech = dbgrid2->getSampleNumber();
+  int ndim2 = dbgrid2->getNDim();
+  VectorInt ixyz(ndim2,0);
   if (ndim < 1 || ndim > 3)
   {
     messerr("This function is limited to 2-D or 3-D input grids");
     goto label_end;
   }
-  if (!(orient == 0 || (orient >= 1 && orient <= ndim)))
+  if (orient != 0 && (orient < 1 || orient > ndim))
   {
     messerr("Argument 'orient' (%d) can be 0 or one of the space dimension",
             orient);
@@ -1355,12 +1348,12 @@ int db_diffusion(DbGrid *dbgrid1,
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
-      db_index_sample_to_grid(dbgrid2, iech, ixyz);
+      dbgrid2->rankToIndice(iech, ixyz);
 
       /* Load the subgrid to be upscaled */
 
       probtot = st_extract_subgrid(verbose, 1, iech, nech, ntot, dbgrid1, ind0,
-                                   ixyz, nxyz, numtab0, valtab0);
+                                   ixyz.data(), nxyz, numtab0, valtab0);
 
       if (probtot > 0)
       {
@@ -1437,7 +1430,7 @@ int db_diffusion(DbGrid *dbgrid1,
  *****************************************************************************/
 int stats_residuals(int verbose,
                     int nech,
-                    double *tab,
+                    const double *tab,
                     int ncut,
                     double *zcut,
                     int *nsorted,

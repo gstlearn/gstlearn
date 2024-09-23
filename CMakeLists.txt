@@ -32,6 +32,19 @@ execute_process(
   OUTPUT_VARIABLE ${PROJECT_NAME}_COMMIT
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+# For bib file generation
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} show -s --format=%cd --date=format:%Y
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE ${PROJECT_NAME}_YEAR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} show -s --format=%cd --date=format:%B
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT_VARIABLE ${PROJECT_NAME}_MONTH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 # Convert project name to uppercase
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
@@ -50,6 +63,7 @@ get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 # Options
 option(BUILD_PYTHON  "Build Python package"        OFF)
 option(BUILD_R       "Build R package"             OFF)
+option(BUILD_TESTING "Build tests"                 OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 if (MINGW)
   set(BUILD_PYTHON OFF)
@@ -67,6 +81,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
+message(STATUS "BUILD_TESTING=" ${BUILD_TESTING})
 message(STATUS "BUILD_DOXYGEN=" ${BUILD_DOXYGEN})
 message(STATUS "USE_HDF5="      ${USE_HDF5})
 
@@ -107,10 +122,12 @@ endif()
 ## TESTING
 
 # Add non-regression test target
-include(CTest)
-enable_testing()
+if(BUILD_TESTING)
+  include(CTest)
+  enable_testing()
 
-add_subdirectory(tests)
+  add_subdirectory(tests)
+endif()
 
 ####################################################
 ## DEMONSTRATION SCRIPTS

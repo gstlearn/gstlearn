@@ -23,7 +23,6 @@ on:
         default: false
 
 env:
-  BUILD_TYPE: Release
   BUILD_DIR : build
 
 jobs:
@@ -34,7 +33,7 @@ jobs:
       project_version: ${{ steps.main_step.outputs.PROJECT_VERSION }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -52,9 +51,9 @@ jobs:
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
-        # This will become the folder name in the server
+        # This will become the folder name in the server
         name: data
         path: doc/data
 
@@ -68,14 +67,14 @@ jobs:
     steps:
       - env:
           PROJECT_VERSION: ${{needs.build.outputs.project_version}}
-        uses: fabien-ors/folder-publish-action@v2
+        uses: fabien-ors/folder-publish-action@v4
         with:
           host: ${{ secrets.CG_HOST }}
           username: ${{ secrets.CG_USR }}
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_VERSION }}"
   
-      # Delete the artifacts (for freeing storage space under github)
-      - uses: geekyeggo/delete-artifact@v2
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v5
         with:
           name: data

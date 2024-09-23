@@ -9,9 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "gmtsph.hpp"
+#include "Mesh/MeshSpherical.hpp"
 #include "Mesh/MeshSphericalExt.hpp"
 #include "Mesh/LinkSphTriangle.hpp"
-#include "geoslib_old_f.h"
+#include "Mesh/AMesh.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #include "Geometry/GeometryHelper.hpp"
 #include "Db/Db.hpp"
@@ -83,7 +85,7 @@ int MeshSphericalExt::resetFromDb(Db *dbin,
 
   /* Add auxiliary random points */
 
-  if (meshes_2D_sph_from_auxiliary(triswitch.c_str(),&in)) return 1;
+  if (meshes_2D_sph_from_auxiliary(triswitch,&in)) return 1;
 
   /* Perform the triangulation */
 
@@ -171,18 +173,15 @@ AMesh* MeshSphericalExt::spde_mesh_load(Db *dbin,
 
   // Processing
 
-  if (verbose)  message("Generating the meshes\n");
+  if (verbose) message("Generating the meshes\n");
 
   if (flag_sphere)
   {
     if (verbose) message("Using Regular Meshing on Sphere\n");
     return _load2DSph(verbose, dbin, dbout, triswitch);
   }
-  else
-  {
-    messerr("This method cannot be used for non Spherical Meshing");
-    return nullptr;
-  }
+  messerr("This method cannot be used for non Spherical Meshing");
+  return nullptr;
 }
 
 /****************************************************************************/

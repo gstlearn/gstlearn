@@ -19,8 +19,8 @@ class GSTLEARN_EXPORT AArray : public AStringable
 {
 public:
   AArray(const VectorInt& ndims = VectorInt());
-  AArray(const AArray &m);
-  AArray& operator=(const AArray &m);
+  AArray(const AArray &r);
+  AArray& operator=(const AArray &r);
   virtual ~AArray();
 
   /// Interface for AStringable

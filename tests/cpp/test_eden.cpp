@@ -21,8 +21,6 @@
 #include "Model/Model.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 
@@ -86,9 +84,8 @@ int main(int argc, char *argv[])
   grid->display(&dbfmt);
   (void) grid->dumpToNF("Grid.ascii");
 
-  // ====================== Free pointers ==================================
-  if (grid != nullptr) delete grid;
-  if (model != nullptr) delete model;
+  delete grid;
+  delete model;
 
   return (0);
 }

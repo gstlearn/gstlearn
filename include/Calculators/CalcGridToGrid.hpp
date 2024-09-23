@@ -29,8 +29,8 @@ public:
   void setFlagExpand(bool flagExpand) { _flagExpand = flagExpand; }
   void setFlagShrink(bool flagShrink) { _flagShrink = flagShrink; }
   void setFlagInter(bool flagInter)   { _flagInter = flagInter;   }
-  void setNameBots(const VectorString name_bots) { _nameBots = name_bots; }
-  void setNameTops(const VectorString name_tops) { _nameTops = name_tops; }
+  void setNameBots(const VectorString& name_bots) { _nameBots = name_bots; }
+  void setNameTops(const VectorString& name_tops) { _nameTops = name_tops; }
 
 protected:
   virtual bool _check() override;
@@ -39,15 +39,13 @@ protected:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  virtual int  _getNVar() const override;
-
 private:
   bool _g2gCopy();
   bool _g2gExpand();
   bool _g2gShrink();
   bool _g2gInter();
   int _compareInMinusOut() const;
-  void _reduceIndices(const VectorInt& indgIn, VectorInt& indgOut);
+  static void _reduceIndices(const VectorInt& indgIn, VectorInt& indgOut);
   bool _loadExtrema(int nvar, int iech, const VectorInt& iuids, VectorDouble& coor);
   double _interpolate(int nvar,
                       double valTop,

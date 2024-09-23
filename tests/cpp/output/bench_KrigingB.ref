@@ -1,15 +1,20 @@
-#NO_DIFF# Kriging in Bench Neighborhood: 392 ms. (Ref = 1800 ms.)
+This test is mean to test Kriging using Moving Neighborhood
+- the Data Set contains 1000 samples
+- the Output Grid contains 10000 nodes
+- the Bench Neighborhood is required:
+  . Bench width = 0.500000
+#NO_DIFF# Kriging in Bench Neighborhood: 758 ms. (Ref = 1800 ms.)
 
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-4 - Name Kriging.rainfall.estim - Locator z1
- Nb of data          =      86400
- Nb of active values =      86400
- Minimum value       =    -56.329
- Maximum value       =    448.253
- Mean value          =     54.176
- Standard Deviation  =     85.510
- Variance            =   7311.938
+4 - Name Kriging.z.estim - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -2.201
+ Maximum value       =      2.604
+ Mean value          =      0.011
+ Standard Deviation  =      0.486
+ Variance            =      0.237

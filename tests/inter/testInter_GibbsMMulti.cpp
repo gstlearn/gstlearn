@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
@@ -22,7 +21,6 @@
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
-#include "Gibbs/AGibbs.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsMulti.hpp"
 #include "Db/Db.hpp"
@@ -98,7 +96,7 @@ int main()
   CovLMC covs(ctxt.getSpace());
   CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);
-  cova.setSill({sill});
+  cova.setSill(sill);
   covs.addCov(&cova);
   model.setCovList(&covs);
   model.display();

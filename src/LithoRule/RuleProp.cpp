@@ -8,13 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Db/Db.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "geoslib_f_private.h"
 
 RuleProp::RuleProp()
     : AStringable(),
@@ -239,13 +239,7 @@ bool RuleProp::_checkConsistency()
 
 bool RuleProp::_checkRuleRank(int rank) const
 {
-  int nrule = getRuleNumber();
-  if (rank < 0 || rank >= nrule)
-  {
-    mesArg("Rule Rank",rank,nrule);
-    return false;
-  }
-  return true;
+  return checkArg("Rule Rank", rank, getRuleNumber());
 }
 
 int RuleProp::_getNFacies()

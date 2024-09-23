@@ -14,7 +14,6 @@
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
@@ -136,9 +135,25 @@ int AMatrixDense::_getIndexToRank(int irow, int icol) const
 
 void AMatrixDense::_transposeInPlace()
 {
+  int nrows = getNRows();
+  int ncols = getNCols();
   _eigenMatrix.transposeInPlace();
+  _setNCols(nrows);
+  _setNRows(ncols);
 }
 
+void AMatrixDense::_addProdMatVecInPlaceToDestPtr(const double *x,double *y, bool transpose) const
+{
+  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+  if (transpose)
+    ym.noalias() += _eigenMatrix.transpose() * xm;
+  else
+    ym.noalias() += _eigenMatrix * xm;
+
+}
+
+//TODO supress this method and implement it in the virtual class AMatrix
 void AMatrixDense::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
   Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
@@ -175,20 +190,34 @@ int AMatrixDense::_solve(const VectorDouble &b, VectorDouble &x) const
   return 0;
 }
 
-void AMatrixDense::setColumn(int icol, const VectorDouble& tab)
+void AMatrixDense::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
+  if (flagCheck)
+  {
+    if (! _isColumnValid(icol)) return;
+    if (! _isColumnSizeConsistent(tab)) return;
+  }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
   _eigenMatrix.col(icol) = tabm;
 }
 
-void AMatrixDense::setRow(int irow, const VectorDouble& tab)
+void AMatrixDense::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
+  if (flagCheck)
+  {
+    if (! _isRowValid(irow)) return;
+    if (! _isRowSizeConsistent(tab)) return;
+  }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
   _eigenMatrix.row(irow) = tabm;
 }
 
-void AMatrixDense::setDiagonal(const VectorDouble& tab)
+void AMatrixDense::setDiagonal(const VectorDouble& tab, bool flagCheck)
 {
+  if (flagCheck)
+  {
+    if (! _isRowSizeConsistent(tab)) return;
+  }
   _eigenMatrix.setZero();
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
   _eigenMatrix.diagonal() = tabm;
@@ -263,21 +292,21 @@ void AMatrixDense::prodMatMatInPlace(const AMatrix* x,
  *
  * @param a First input matrix
  * @param m Second input matrix
- * @param transpose True if 'm' should be transposed beforehand
+ * @param transpose True if 'a' should be transposed beforehand
  *
  * @note: 'a' and 'm' may NOT coincide with 'this'
  */
-void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense &a,
-                                         const AMatrixDense &m,
+void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense* a,
+                                         const AMatrixDense* m,
                                          bool transpose)
 {
   if (transpose)
   {
-    _eigenMatrix.noalias() = a._eigenMatrix.transpose() * m._eigenMatrix * a._eigenMatrix;
+    _eigenMatrix.noalias() = a->_eigenMatrix.transpose() * m->_eigenMatrix * a->_eigenMatrix;
   }
   else
   {
-    _eigenMatrix.noalias() = a._eigenMatrix * m._eigenMatrix * a._eigenMatrix.transpose();
+    _eigenMatrix.noalias() = a->_eigenMatrix * m->_eigenMatrix * a->_eigenMatrix.transpose();
   }
 }
 
@@ -350,41 +379,49 @@ void AMatrixDense::divideColumn(const VectorDouble& vec)
 /*! Perform 'vec' * 'this' */
 VectorDouble AMatrixDense::prodVecMat(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
-  Eigen::VectorXd ym;
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
+  VectorDouble y(transpose ? getNRows() : getNCols());
+  Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
   if (transpose)
     ym = xm.transpose() * _eigenMatrix.transpose();
   else
     ym = xm.transpose() * _eigenMatrix;
-  VectorDouble y(ym.data(), ym.data() + ym.size());
   return y;
 }
 
 /*! Perform 'this' * 'vec' */
 VectorDouble AMatrixDense::prodMatVec(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
-  Eigen::VectorXd ym;
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
+  VectorDouble y(transpose ? getNCols() : getNRows());
+  Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
   if (transpose)
     ym = _eigenMatrix.transpose() * xm;
   else
     ym = _eigenMatrix * xm;
-  VectorDouble y(ym.data(), ym.data() + ym.size());
   return y;
 }
 
 /*! Extract a Row */
 VectorDouble AMatrixDense::getRow(int irow) const
 {
-  Eigen::VectorXd resm = _eigenMatrix.row(irow);
-  return VectorDouble(resm.data(), resm.data() + resm.size());
+  VectorDouble res(getNCols());
+  for (size_t i = 0; i < res.size(); ++i)
+  {
+    res[i] = _eigenMatrix.row(irow)[i];
+  }
+  return res;
 }
 
 /*! Extract a Column */
 VectorDouble AMatrixDense::getColumn(int icol) const
 {
-  Eigen::VectorXd resm = _eigenMatrix.col(icol);
-  return VectorDouble(resm.data(), resm.data() + resm.size());
+  VectorDouble res(getNRows());
+  for (size_t i = 0; i < res.size(); ++i)
+  {
+    res[i] = _eigenMatrix.col(icol)[i];
+  }
+  return res;
 }
 
 int AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
@@ -396,15 +433,15 @@ int AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
   int ncols = getNCols();
 
   _eigenValues = VectorDouble(nrows);
-  Eigen::Map<Eigen::VectorXd>(&_eigenValues[0], eigenValues.size()) = eigenValues;
+  Eigen::Map<Eigen::VectorXd>(_eigenValues.data(), eigenValues.size()) = eigenValues;
 
   if (changeOrder)
     std::reverse(_eigenValues.begin(), _eigenValues.end());
 
-  if (_eigenVectors != nullptr) delete _eigenVectors;
+  delete _eigenVectors;
 
   VectorDouble vec(nrows * ncols);
-  Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
+  Eigen::Map<Eigen::MatrixXd>(vec.data(), nrows, ncols) = eigenVectors;
 
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, changeOrder);
 

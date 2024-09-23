@@ -73,17 +73,18 @@ cs* NF_Triplet::buildCsFromTriplet() const
   return Q;
 }
 
+NF_Triplet NF_Triplet::createFromCs(const cs* mat, int shiftRow, int shiftCol)
+{
+  return csToTriplet(mat, shiftRow, shiftCol);
+}
+#endif
+
 Eigen::SparseMatrix<double> NF_Triplet::buildEigenFromTriplet() const
 {
   Eigen::SparseMatrix<double> mat(_nrowmax+1, _ncolmax+1);
   mat.setFromTriplets(_eigenT.begin(), _eigenT.end());
 //  mat.prune(EPSILON10);
   return mat;
-}
-
-NF_Triplet NF_Triplet::createFromCs(const cs* mat, int shiftRow, int shiftCol)
-{
-  return csToTriplet(mat, shiftRow, shiftCol);
 }
 
 NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, int shiftRow, int shiftCol)
@@ -106,7 +107,6 @@ NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, i
   NF_T._eigenT = v;
   return NF_T;
 }
-#endif
 
 int NF_Triplet::getRow(int i) const
 {

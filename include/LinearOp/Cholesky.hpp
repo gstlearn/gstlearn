@@ -17,6 +17,12 @@
 #include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
+  #include <Eigen/Core>
+  #include <Eigen/Dense>
+  #include <Eigen/src/Core/Matrix.h>
+#endif
+
+#ifndef SWIG
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
@@ -29,6 +35,7 @@ class css; /// TODO : Dependency to csparse to be removed
 class csn;
 class MatrixSparse;
 
+/// TODO : Inherit from ALinearOpEigenCG and remove evalInverse ?
 class GSTLEARN_EXPORT Cholesky: public ALinearOp
 {
 public:
@@ -38,27 +45,34 @@ public:
   virtual ~Cholesky();
 
   int getSize() const override;
-  void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const override;
+  void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const;
 
   bool isValid() const { return _matCS != nullptr; }
 
   int  solve(const VectorDouble& b, VectorDouble& x) const;
   int  simulate(const VectorDouble& b, VectorDouble& x) const;
+  #ifndef SWIG
+    int solve(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+    int  simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+    int  addSimulateToDest(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+  #endif
   int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
   double getLogDeterminant() const;
 
+#ifndef SWIG
 protected:
-  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
+  int  _addToDest(const Eigen::VectorXd& inv,
+                        Eigen::VectorXd& outv) const override;
 
 private:
   void _clean();
   void _compute();
 
 private:
-#ifndef SWIG
   css *_S; // Cholesky decomposition (for Old-style Csparse storage)
   csn *_N; // Cholesky decomposition (for Old-style Csparse storage)
   Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > _cholSolver; // (for Eigen library storage)
-#endif
+  
   const MatrixSparse* _matCS; // Stored by compliance with ALinearOp. Not to be deleted
+#endif
 };

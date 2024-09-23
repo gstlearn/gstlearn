@@ -75,7 +75,6 @@ void ModelBoolean::normalizeProportions()
     for (int itok = 0; itok < nb_tokens; itok++)
       _shapes[itok]->setProportion( _shapes[itok]->getProportion() / total);
   }
-  return;
 }
 
 BooleanObject* ModelBoolean::generateObject(int ndim) const
@@ -111,13 +110,13 @@ String ModelBoolean::toString(const AStringFormat* strfmt) const
 
   sstr << toTitle(0, "Object Model");
   if (_flagStat)
-     sstr << "- Poisson Intensity = "<< _thetaCst << std::endl;
-   else
-     sstr << "- Variable Poisson Intensity" << std::endl;
+    sstr << "- Poisson Intensity = " << _thetaCst << std::endl;
+  else
+    sstr << "- Variable Poisson Intensity" << std::endl;
 
   for (int itok = 0; itok < getNbTokens(); itok++)
   {
-    sstr << toTitle(1, "Token %d", itok+1);
+    sstr << toTitle(1, "Token %d", itok + 1);
     sstr << _shapes[itok]->toString(strfmt);
   }
   return sstr.str();

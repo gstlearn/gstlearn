@@ -10,14 +10,16 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
 #include "Enum/ESPDECalcMode.hpp"
-
+#include "Basic/NamingConvention.hpp"
 #include "API/SPDEParam.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 class ShiftOpCs;
 class Db;
@@ -43,7 +45,7 @@ public:
        const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
        const AMesh* mesh = nullptr,
        int useCholesky = -1,
-       SPDEParam params = SPDEParam(),
+       const SPDEParam& params = SPDEParam(),
        bool verbose = false,
        bool showStats = false);
   SPDE(const SPDE& r) = delete;
@@ -56,21 +58,20 @@ public:
                       const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
                       const AMesh* mesh = nullptr,
                       int useCholesky = -1,
-                      SPDEParam params = SPDEParam(),
+                      const SPDEParam& params = SPDEParam(),
                       bool verbose = false,
                       bool showStats = false);
 
   int compute(Db *dbout,
               int nbsimu = 1,
-              int seed = 131351,
               const NamingConvention &namconv = NamingConvention("spde"));
 
-  double computeLogDet(int nbsimu = 1,int seed = 1234) const;
+  double computeLogDet(int nbsimu = 1) const;
   double computeQuad() const;
-  double computeLogLike(int nbsimu = 1, int seed = 131323) const;
+  double computeLogLikelihood(int nbsimu = 1) const;
   VectorDouble getCoeffs();
 
-  void setDriftCoeffs(VectorDouble coeffs);
+  void setDriftCoeffs(const VectorDouble& coeffs);
 
   const PrecisionOpCs* getPrecisionOpCs(int i = 0) const  { return (PrecisionOpCs*) _pilePrecisions[i];}
   const ProjMatrix* getProjMatrix(int i = 0) const  { return _pileProjMatrix[i];}
@@ -93,14 +94,16 @@ private:
   void _computeKriging() const;
   void _computeSimuNonCond() const;
   void _computeSimuCond() const;
-  void _addNuggetOnResult(VectorDouble &result);
+  void _addNuggetOnResult(VectorDouble &result) const;
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
-  double _computeLogLike(int nbsimu = 1, int seed = 131323) const;
-  void _projecLocal(Db *dbout,
-                    const AMesh *meshing,
-                    VectorDouble &working,
-                    VectorDouble &result);
+  double _computeLogLikelihood(int nbsimu = 1) const;
+  #ifndef SWIG
+    static void _projecLocal(Db* dbout,
+                             const AMesh* meshing,
+                             Eigen::VectorXd& working,
+                             VectorDouble& result);
+  #endif
 
 private:
   const Db*                    _data; // External Pointer
@@ -113,10 +116,10 @@ private:
   std::vector<const AMesh*>    _meshingKrig;    // Dimension: number of valid covariances
   mutable VectorDouble         _driftCoeffs;
   Model*                       _model; // External pointer
-  mutable VectorVectorDouble   _workingKrig;     // Number of Mesh apices * Number of valid covariances
-  mutable VectorVectorDouble   _workingSimu;     // Number of Mesh apices * Number of valid covariances
-  mutable VectorDouble         _workingData;     // Number of valid data
-  mutable VectorDouble         _workingDataInit; // Number of valid data
+  mutable std::vector<Eigen::VectorXd>   _workingKrig;     // Number of Mesh apices * Number of valid covariances
+  mutable std::vector<Eigen::VectorXd>   _workingSimu;     // Number of Mesh apices * Number of valid covariances
+  mutable VectorDouble                   _workingData;     // Number of valid data
+  mutable VectorDouble                   _workingDataInit; // Number of valid data
   std::vector<ProjMatrix*>     _projOnDbOut;
   VectorInt                    _adressesICov;
   double _nugget;
@@ -136,9 +139,8 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 bool flag_std = false,
                                 const AMesh* mesh = nullptr,
                                 int useCholesky = -1,
-                                SPDEParam params = SPDEParam(),
+                                const SPDEParam& params = SPDEParam(),
                                 int nbMC = 10,
-                                int seed = 42331,
                                 bool verbose = false,
                                 bool showStats = false,
                                 const NamingConvention &namconv = NamingConvention("KrigingSPDE"));
@@ -148,8 +150,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  int nbsimu = 1,
                                  const AMesh *mesh = nullptr,
                                  int useCholesky = -1,
-                                 SPDEParam params = SPDEParam(),
-                                 int seed = 121423,
+                                 const SPDEParam& params = SPDEParam(),
                                  bool verbose = false,
                                  bool showStats = false,
                                  const NamingConvention &namconv = NamingConvention("SimuSPDE"));
@@ -159,6 +160,15 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
                                          const AMesh *mesh = nullptr,
                                          int useCholesky = -1,
                                          int nbsimu = 1,
-                                         int seed = 131323,
-                                         SPDEParam params = SPDEParam(),
+                                         const SPDEParam& params = SPDEParam(),
                                          bool verbose = false);
+GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam& params = SPDEParam());
+
+GSTLEARN_EXPORT VectorDouble krigingSPDENew(
+  Db* dbin,
+  Db* dbout,
+  Model* model,
+  const VectorMeshes& meshes      = VectorMeshes(),
+  int useCholesky                 = -1,
+  bool verbose                    = false,
+  const NamingConvention& namconv = NamingConvention("KrigingSPDE"));

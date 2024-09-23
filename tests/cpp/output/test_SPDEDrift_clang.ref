@@ -54,7 +54,7 @@ Covariance Part
 ---------------
 Nugget Effect
 - Sill         =      0.100
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      0.420
 - Range        =    282.574
 - Theo. Range  =     81.572
@@ -70,13 +70,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [Unknown]
 Variance-Covariance Matrix     0.363
 
 Direction #1
 ------------
 Number of lags              = 18
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =     25.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -114,7 +115,7 @@ Covariance Part
 ---------------
 Nugget Effect
 - Sill         =      0.100
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      0.420
 - Range        =    282.574
 - Theo. Range  =     81.572

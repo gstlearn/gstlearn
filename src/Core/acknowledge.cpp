@@ -8,11 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "version.h"
+#include "Basic/Memory.hpp"
+#include "Basic/AStringable.hpp"
+#include "Core/Acknowledge.hpp"
 
+#include "version.h"
 #include <string.h>
 
 /****************************************************************************/
@@ -25,8 +26,7 @@
 ** \remarks The output arrays should be freed by the calling program
 **
 ****************************************************************************/
-void inquire_gstlearn(char **release,
-                                      char **date)
+void inquire_gstlearn(char **release, char **date)
 {
   char *buffer;
 
@@ -60,12 +60,11 @@ void acknowledge_gstlearn(void)
 
   message("\n");
   message("Authors:\n");
-  message("Didier RENARD    (didier.renard@mines-paristech.fr)\n");
-  message("Nicolas BEZ      (nicolas.bez@ird.fr)\n");
-  message("Nicolas DESASSIS (nicolas.desassis@mines-paristech.fr)\n");
-  message("Helene BEUCHER   (helene.beucher@mines-paristech.fr)\n");
-  message("Fabien ORS       (fabien.ors@mines-paristech.fr)\n");
-  message("Xavier FREULON   (xavier.freulon@mines-paristech.fr)\n");
-  return;
+  message("Didier RENARD    (didier.renard@minesparis.psl.eu)\n");
+  message("Fabien ORS       (fabien.ors@minesparis.psl.eu)\n");
+  message("Nicolas DESASSIS (nicolas.desassis@minesparis.psl.eu)\n");
+  message("Pierre GUILLOU   (pierre.guillou@minesparis.psl.eu)\n");
+  message("Xavier FREULON   (xavier.freulon@minesparis.psl.eu)\n");
+  message("Mike PEREIRA     (mike.pereira@minesparis.psl.eu)\n");
 }
 

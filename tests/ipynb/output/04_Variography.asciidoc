@@ -85,13 +85,14 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [January_temp]
 Variance-Covariance Matrix     1.020
 
 Direction #1
 ------------
 Number of lags              = 40
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =     10.000
 Tolerance on distance       =     10.000 (Percent of the lag value)
@@ -187,8 +188,8 @@ Known Mean(s)     0.000----
    3 -    GAUSSIAN : Gaussian
    4 -       CUBIC : Cubic
    5 -     SINCARD : Sine Cardinal
-   6 -    BESSEL_J : Bessel J
-   7 -    BESSEL_K : Bessel K
+   6 -     BESSELJ : Bessel J
+   7 -      MATERN : Matern
    8 -       GAMMA : Gamma
    9 -      CAUCHY : Cauchy
   10 -      STABLE : Stable

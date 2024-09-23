@@ -10,22 +10,23 @@
 /******************************************************************************/
 #include "Variogram/AVario.hpp"
 
-#include "Db/Db.hpp"
 #include "Enum/ECalcVario.hpp"
+#include "Db/Db.hpp"
+#include "Basic/Utilities.hpp"
 
 AVario::AVario()
-    : AStringable(),
-      _calcul(ECalcVario::UNDEFINED)
+  : AStringable()
+  , _calcul(ECalcVario::UNDEFINED)
 {
 }
 
-AVario::AVario(const AVario &r)
-    : AStringable(r),
-      _calcul(r._calcul)
+AVario::AVario(const AVario& r)
+  : AStringable(r)
+  , _calcul(r._calcul)
 {
 }
 
-AVario& AVario::operator=(const AVario &r)
+AVario& AVario::operator=(const AVario& r)
 {
   if (this != &r)
   {
@@ -35,187 +36,196 @@ AVario& AVario::operator=(const AVario &r)
   return *this;
 }
 
-AVario::~AVario()
+AVario::~AVario() {}
+
+void AVario::_evaluateVariogram(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
+  DECLARE_UNUSED(do_asym);
+  double w1 = db->getWeight(iech1);
+  double w2 = db->getWeight(iech2);
+  if (FFFF(w1) || FFFF(w2)) return;
+  dist         = ABS(dist);
+  double scale = w1 * w2;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = (z12 - z11) * (z22 - z21) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+    }
+  }
 }
 
-/****************************************************************************/
-/*!
- **  Update the variogram values
- **
- ** \param[in]  db             Db descriptor
- ** \param[in]  nvar           Number of variables
- ** \param[in]  iech1          Rank of the first sample
- ** \param[in]  iech2          Rank of the second sample
- ** \param[in]  ipas           Rank of the lag
- ** \param[in]  dist           Distance value
- ** \param[in]  do_asym        When FALSE, do not perform the symmetry
- **
- ** \remarks: The argument 'do_asym' allows performing the double assignment
- ** \remarks: for the asymmetric functions (such as covariance)
- ** \remarks: This is due to the fact that the double is called entirely
- ** \remarks: in the calling function
- **
- *****************************************************************************/
-void AVario::evaluate(Db *db,
-                      int nvar,
-                      int iech1,
-                      int iech2,
-                      int ipas,
-                      double dist,
-                      int do_asym)
+void AVario::_evaluateMadogram(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
 {
-  double z11, z12, z21, z22, scale, value;
+  DECLARE_UNUSED(do_asym);
+  double w1 = db->getWeight(iech1);
+  double w2 = db->getWeight(iech2);
+  if (FFFF(w1) || FFFF(w2)) return;
+  dist         = ABS(dist);
+  double scale = w1 * w2;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+    }
+  }
+}
 
+void AVario::_evaluateRodogram(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+{
+  DECLARE_UNUSED(do_asym);
+  double w1 = db->getWeight(iech1);
+  double w2 = db->getWeight(iech2);
+  if (FFFF(w1) || FFFF(w2)) return;
+  dist         = ABS(dist);
+  double scale = w1 * w2;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+    }
+  }
+}
+
+void AVario::_evaluatePoisson(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+{
+  DECLARE_UNUSED(do_asym);
+  double w1 = db->getWeight(iech1);
+  double w2 = db->getWeight(iech2);
+  if (FFFF(w1) || FFFF(w2)) return;
+  dist         = ABS(dist);
+  double scale = (w1 * w2) / (w1 + w2);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = (z12 - z11) * (z22 - z21) / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+    }
+  }
+}
+
+void AVario::_evaluateCovariance(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+{
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
   int orient = (dist > 0) ? 1 : -1;
-  dist = ABS(dist);
-
-  switch (_calcul.toEnum())
+  dist       = ABS(dist);
+  double scale = w1 * w2;
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    case ECalcVario::E_VARIOGRAM:
-    case ECalcVario::E_TRANS1:
-    case ECalcVario::E_TRANS2:
-    case ECalcVario::E_BINORMAL:
-      scale = w1 * w2;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-          {
-            value = (z12 - z11) * (z22 - z21) / 2.;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-          }
-        }
-      break;
-
-    case ECalcVario::E_MADOGRAM:
-      scale = w1 * w2;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-          {
-            value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-          }
-        }
-      break;
-
-    case ECalcVario::E_RODOGRAM:
-      scale = w1 * w2;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          ;
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-          {
-            value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-          }
-        }
-      break;
-
-    case ECalcVario::E_POISSON:
-      scale = (w1 * w2) / (w1 + w2);
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22)
-              && (w1 > 0. && w2 > 0.))
-          {
-            value = (z12 - z11) * (z22 - z21) / 2.;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-          }
-        }
-      break;
-
-    case ECalcVario::E_COVARIANCE:
-    case ECalcVario::E_COVARIANCE_NC:
-      scale = w1 * w2;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z22))
-          {
-            value = z11 * z22;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
-          }
-          if (!FFFF(z12) && !FFFF(z21) && do_asym)
-          {
-            value = z12 * z21;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
-          }
-        }
-      break;
-
-    case ECalcVario::E_COVARIOGRAM:
-      scale = w2;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z22))
-          {
-            value = z11 * z22;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
-          }
-          if (!FFFF(z12) && !FFFF(z21) && do_asym)
-          {
-            value = z12 * z21;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
-          }
-        }
-      break;
-
-    case ECalcVario::E_ORDER4:
-      scale = w1 * w2;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
-        {
-          z11 = _getIVAR(db, iech1, ivar);
-          z12 = _getIVAR(db, iech2, ivar);
-          z21 = _getIVAR(db, iech1, jvar);
-          z22 = _getIVAR(db, iech2, jvar);
-          if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
-          {
-            value = (z12 - z11) * (z22 - z21);
-            value = value * value / 2.;
-            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
-          }
-        }
-      break;
-
-    default:
-      messageAbort("AVario::evaluate() ignores current calculation type");
-      break;
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (!FFFF(z22))
+      {
+        double value = z11 * z22;
+        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
+      }
+      if (!FFFF(z21) && do_asym)
+      {
+        double value = z12 * z21;
+        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
+      }
+    }
   }
-  return;
+}
+
+void AVario::_evaluateCovariogram(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+{
+  double w1 = db->getWeight(iech1);
+  double w2 = db->getWeight(iech2);
+  if (FFFF(w1) || FFFF(w2)) return;
+  int orient = (dist > 0) ? 1 : -1;
+  dist       = ABS(dist);
+  double scale = w2;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (!FFFF(z22))
+      {
+        double value = z11 * z22;
+        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
+      }
+      if (!FFFF(z21) && do_asym)
+      {
+        double value = z12 * z21;
+        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
+      }
+    }
+  }
+}
+
+void AVario::_evaluateOrder4(
+  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+{
+  DECLARE_UNUSED(do_asym);
+  double w1 = db->getWeight(iech1);
+  double w2 = db->getWeight(iech2);
+  if (FFFF(w1) || FFFF(w2)) return;
+  dist         = ABS(dist);
+  double scale = w1 * w2;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double z11 = _getIVAR(db, iech1, ivar);
+    double z12 = _getIVAR(db, iech2, ivar);
+    if (FFFF(z11) || FFFF(z12)) continue;
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double z21 = _getIVAR(db, iech1, jvar);
+      double z22 = _getIVAR(db, iech2, jvar);
+      if (FFFF(z21) || FFFF(z22)) continue;
+      double value = (z12 - z11) * (z22 - z21);
+      value        = value * value / 2.;
+      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+    }
+  }
 }
 
 String AVario::_elemString(const AStringFormat* strfmt) const
@@ -227,68 +237,63 @@ String AVario::_elemString(const AStringFormat* strfmt) const
 
   switch (getCalcul().toEnum())
   {
-    case ECalcVario::E_UNDEFINED:
-      sstr << toTitle(0,"Undefined");
-      break;
+    case ECalcVario::E_UNDEFINED: sstr << toTitle(0, "Undefined"); break;
 
     case ECalcVario::E_VARIOGRAM:
-      sstr << toTitle(0,"Variogram characteristics");
+      sstr << toTitle(0, "Variogram characteristics");
       break;
 
     case ECalcVario::E_MADOGRAM:
-      sstr << toTitle(0,"Madogram characteristics");
+      sstr << toTitle(0, "Madogram characteristics");
       break;
 
     case ECalcVario::E_RODOGRAM:
-      sstr << toTitle(0,"Rodogram characteristics");
+      sstr << toTitle(0, "Rodogram characteristics");
       break;
 
     case ECalcVario::E_POISSON:
-      sstr << toTitle(0,"Poisson variogram characteristics");
+      sstr << toTitle(0, "Poisson variogram characteristics");
       break;
 
     case ECalcVario::E_COVARIANCE:
-      sstr << toTitle(0,"Covariance characteristics");
+      sstr << toTitle(0, "Covariance characteristics");
       break;
 
     case ECalcVario::E_COVARIANCE_NC:
-      sstr << toTitle(0,"Non-centered Covariance characteristics");
+      sstr << toTitle(0, "Non-centered Covariance characteristics");
       break;
 
     case ECalcVario::E_COVARIOGRAM:
-      sstr << toTitle(0,"Transitive Covariogram characteristics");
+      sstr << toTitle(0, "Transitive Covariogram characteristics");
       break;
 
     case ECalcVario::E_GENERAL1:
-      sstr << toTitle(0,"Generalized Variogram of order 1 characteristics");
+      sstr << toTitle(0, "Generalized Variogram of order 1 characteristics");
       break;
 
     case ECalcVario::E_GENERAL2:
-      sstr << toTitle(0,"Generalized Variogram of order 2 characteristics");
+      sstr << toTitle(0, "Generalized Variogram of order 2 characteristics");
       break;
 
     case ECalcVario::E_GENERAL3:
-      sstr << toTitle(0,"Generalized Variogram of order 3 characteristics");
+      sstr << toTitle(0, "Generalized Variogram of order 3 characteristics");
       break;
 
-    case ECalcVario::E_ORDER4:
-      sstr << toTitle(0,"Order-4 Variogram");
-      break;
+    case ECalcVario::E_ORDER4: sstr << toTitle(0, "Order-4 Variogram"); break;
 
     case ECalcVario::E_TRANS1:
-      sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/G1");
+      sstr << toTitle(0, "Cross-to_simple Variogram ratio G12/G1");
       break;
 
     case ECalcVario::E_TRANS2:
-      sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/G2");
+      sstr << toTitle(0, "Cross-to_simple Variogram ratio G12/G2");
       break;
 
     case ECalcVario::E_BINORMAL:
-      sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
+      sstr << toTitle(0, "Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
       break;
 
-    default:
-      break;
+    default: break;
   }
   return sstr.str();
 }
@@ -298,7 +303,7 @@ String AVario::_elemString(const AStringFormat* strfmt) const
  *
  * @return The corresponding ECalcVario enum
  */
-const ECalcVario AVario::getCalculType(const String& calcul_name)
+ECalcVario AVario::getCalculType(const String& calcul_name)
 {
   ECalcVario calcul_type;
 
@@ -312,25 +317,25 @@ const ECalcVario AVario::getCalculType(const String& calcul_name)
     calcul_type = ECalcVario::COVARIANCE_NC;
   else if (calcul_name == "covg")
     calcul_type = ECalcVario::COVARIOGRAM;
-  else if (calcul_name =="mado")
+  else if (calcul_name == "mado")
     calcul_type = ECalcVario::MADOGRAM;
-  else if (calcul_name =="rodo")
+  else if (calcul_name == "rodo")
     calcul_type = ECalcVario::RODOGRAM;
-  else if (calcul_name =="poisson")
+  else if (calcul_name == "poisson")
     calcul_type = ECalcVario::POISSON;
-  else if (calcul_name =="general1")
+  else if (calcul_name == "general1")
     calcul_type = ECalcVario::GENERAL1;
-  else if (calcul_name =="general2")
+  else if (calcul_name == "general2")
     calcul_type = ECalcVario::GENERAL2;
-  else if (calcul_name =="general3")
+  else if (calcul_name == "general3")
     calcul_type = ECalcVario::GENERAL3;
-  else if (calcul_name =="order4")
+  else if (calcul_name == "order4")
     calcul_type = ECalcVario::ORDER4;
-  else if (calcul_name =="trans1")
+  else if (calcul_name == "trans1")
     calcul_type = ECalcVario::TRANS1;
-  else if (calcul_name =="trans2")
+  else if (calcul_name == "trans2")
     calcul_type = ECalcVario::TRANS2;
-  else if (calcul_name =="binormal")
+  else if (calcul_name == "binormal")
     calcul_type = ECalcVario::BINORMAL;
   else
   {
@@ -354,5 +359,72 @@ const ECalcVario AVario::getCalculType(const String& calcul_name)
     calcul_type = ECalcVario::UNDEFINED;
   }
   return calcul_type;
+}
+
+void AVario::setCalculByName(const String& calcul_name)
+{
+  const ECalcVario& calcul = getCalculType(calcul_name);
+  setCalcul(calcul);
+}
+
+void AVario::setCalcul(const ECalcVario& calcul)
+{
+  _calcul = calcul;
+
+  // Define the internal evaluation function
+  switch (_calcul.toEnum())
+  {
+    case ECalcVario::E_VARIOGRAM:
+    case ECalcVario::E_TRANS1:
+    case ECalcVario::E_TRANS2:
+    case ECalcVario::E_BINORMAL:
+    {
+      _evaluate = &AVario::_evaluateVariogram;
+      break;
+    }
+
+    case ECalcVario::E_MADOGRAM:
+    {
+      _evaluate = &AVario::_evaluateMadogram;
+      break;
+    }
+
+    case ECalcVario::E_RODOGRAM:
+    {
+      _evaluate = &AVario::_evaluateRodogram;
+      break;
+    }
+
+    case ECalcVario::E_POISSON:
+    {
+      _evaluate = &AVario::_evaluatePoisson;
+      break;
+    }
+
+    case ECalcVario::E_COVARIANCE:
+    case ECalcVario::E_COVARIANCE_NC:
+    {
+      _evaluate = &AVario::_evaluateCovariance;
+      break;
+    }
+
+    case ECalcVario::E_COVARIOGRAM:
+    {
+      _evaluate = &AVario::_evaluateCovariogram;
+      break;
+    }
+
+    case ECalcVario::E_ORDER4:
+    {
+      _evaluate = &AVario::_evaluateOrder4;
+      break;
+    }
+
+    default:
+    {
+      messageAbort("AVario::evaluate() ignores current calculation type");
+      break;
+    }
+  }
 }
 

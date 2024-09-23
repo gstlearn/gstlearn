@@ -16,43 +16,53 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
-
+#ifndef SWIG
+#  include <Eigen/Core>
+#  include <Eigen/Dense>
+#endif
+#include <Eigen/src/Core/Matrix.h>
 #include <functional>
 
 class MatrixSparse;
-class ALinearOpMulti;
+class ALinearOp;
+//class ALinearOpMulti;
 class cs;
 
 class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
 {
 public:
   APolynomial();
-  APolynomial(VectorDouble coeffs);
-  APolynomial(const APolynomial& p);
+  APolynomial(const VectorDouble& coeffs);
+  APolynomial(const APolynomial& m);
   APolynomial & operator=(const APolynomial& p);
   virtual ~APolynomial();
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(VectorDouble coeffs);
+  void init(const VectorDouble& coeffs);
   virtual double eval(double x) const = 0;
 #ifndef SWIG
   virtual void evalOp(MatrixSparse* Op,
                       const VectorDouble& inv,
-                      VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv); };
+                      VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv);} //TODO write it by calling Eigen version;
+  virtual void evalOp(MatrixSparse* Op, const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const = 0;
+
   virtual void evalOpTraining(MatrixSparse* Op,
-                      const VectorDouble& inv,
-                      VectorVectorDouble& outv,
-                      VectorDouble& work) const { DECLARE_UNUSED(Op,inv,outv,work); };
-  VectorDouble evalOp(MatrixSparse* Op, const VectorDouble& inv) const;
+                      const Eigen::VectorXd& inv,
+                      std::vector<Eigen::VectorXd>& outv,
+                      Eigen::VectorXd& work) const { DECLARE_UNUSED(Op,inv,outv,work); };
+  Eigen::VectorXd evalOp(MatrixSparse* Op, const Eigen::VectorXd& inv) const;
+  
+  //virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
+
+  virtual void addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const = 0;
 #endif
   VectorDouble getCoeffs() const { return _coeffs; }
-  void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}
+  void setCoeffs(const VectorDouble& coeffs) {_coeffs = coeffs;}
 
   int getDegree() const { return static_cast<int>(_coeffs.size());}
-  virtual void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const = 0;
-  virtual int fit(std::function<double(double)> f,
+  virtual int fit(const std::function<double(double)>& f,
                   double from = 0.,
                   double to = 1.,
                   double tol = EPSILON5)

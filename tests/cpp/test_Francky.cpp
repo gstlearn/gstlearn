@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
@@ -18,8 +17,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Model/NoStatFunctional.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -66,14 +63,17 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
+
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctional NoStat(&spirale);
-  model->addNoStat(&NoStat);
+
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
+
 
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;
-  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
+  law_set_random_seed(13256);
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), false, false,
                       NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 
@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
 
   // Testing Kriging (traditional method)
   (void) kriging(dat, grid, model, neighU);
+
+  
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");

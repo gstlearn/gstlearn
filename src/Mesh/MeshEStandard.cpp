@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixRectangular.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -17,7 +15,6 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
 
 MeshEStandard::MeshEStandard()
   : AMesh()

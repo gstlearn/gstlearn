@@ -42,7 +42,7 @@ class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
 public:
   AMatrixDense(int nrow = 0, int ncol = 0);
-  AMatrixDense(const AMatrixDense &m);
+  AMatrixDense(const AMatrixDense &r);
   AMatrixDense(const AMatrix &m);
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
@@ -65,11 +65,15 @@ public:
                 bool flagCheck = false) override;
 
   /*! Set the contents of a Column */
-  virtual void setColumn(int icol, const VectorDouble& tab) override;
+  virtual void setColumn(int icol,
+                         const VectorDouble &tab,
+                         bool flagCheck = true) override;
   /*! Set the contents of a Row */
-  virtual void setRow(int irow, const VectorDouble& tab) override;
+  virtual void setRow(int irow,
+                      const VectorDouble &tab,
+                      bool flagCheck = true) override;
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab) override;
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) override;
   /*! Add a value to each matrix component */
@@ -96,7 +100,7 @@ public:
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
-  /*! Multiply a matrix by another and stored in 'this' */
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
                                  bool transposeX = false,
@@ -109,8 +113,8 @@ public:
   /*! Add a matrix (multiplied by a constant) */
   void addMatInPlace(const AMatrixDense& y, double cx = 1., double cy = 1.);
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatMatInPlace(const AMatrixDense &a,
-                                     const AMatrixDense &m,
+  virtual void prodNormMatMatInPlace(const AMatrixDense* a,
+                                     const AMatrixDense* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
   virtual void prodNormMatInPlace(const AMatrixDense &a,
@@ -132,6 +136,7 @@ protected:
   virtual void    _transposeInPlace() override;
   virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _addProdMatVecInPlaceToDestPtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -145,6 +150,13 @@ private:
                        bool optionPositive = true,
                        bool changeOrder = false);
 
+#ifndef SWIG
+  public:
+  const Eigen::MatrixXd* getTab() const
+  {
+    return &_eigenMatrix;
+  }
+#endif
 protected:
   bool _flagEigenDecompose;
   VectorDouble         _eigenValues;  // Used only when ! flag_eigen()

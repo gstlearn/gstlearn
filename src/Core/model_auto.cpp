@@ -8,18 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 
 #include "Enum/EAnam.hpp"
-#include "Enum/EJustify.hpp"
 
 #include "Basic/AException.hpp"
-#include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/MathFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -27,12 +26,12 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Model.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/ConsItem.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 
@@ -43,8 +42,10 @@
 #define DEFINE_THIRD   (flag_param)
 #define DEFINE_RANGE   (flag_range > 0)
 #define DEFINE_ANICOEF (flag_range != 0 && optvar.getAuthAniso())
-#define DEFINE_ANIROT  (flag_range != 0 && optvar.getAuthAniso() &&  \
-                        optvar.getAuthRotation())
+#define DEFINE_ANIROT                                                          \
+  (flag_range != 0 && optvar.getAuthAniso() && optvar.getAuthRotation())
+#define UNDEFINE_ANIROT                                                          \
+  (flag_range == 0 || !optvar.getAuthAniso() || !optvar.getAuthRotation())
 #define DEFINE_T_RANGE (model->getCovMode() == EModelProperty::TAPE)
 #define FLAG_COMPRESS(imod,icov) (flag_compress[(imod) * ncova + (icov)])
 
@@ -73,9 +74,17 @@
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
 #define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
-#define CORRECT(idir,k)         (! isZero(vario->getHhByIndex(idir,k)) && ! FFFF(vario->getHhByIndex(idir,k)) && \
-                                 ! isZero(vario->getSwByIndex(idir,k)) && ! FFFF(vario->getSwByIndex(idir,k)) && \
-                                 ! FFFF(vario->getGgByIndex(idir,k)))
+#define CORRECT(idir, k)                                                       \
+  (!isZero(vario->getHhByIndex(idir, k)) &&                                    \
+   !FFFF(vario->getHhByIndex(idir, k)) &&                                      \
+   !isZero(vario->getSwByIndex(idir, k)) &&                                    \
+   !FFFF(vario->getSwByIndex(idir, k)) && !FFFF(vario->getGgByIndex(idir, k)))
+#define INCORRECT(idir, k)                                                     \
+  (isZero(vario->getHhByIndex(idir, k)) ||                                     \
+   FFFF(vario->getHhByIndex(idir, k)) ||                                       \
+   isZero(vario->getSwByIndex(idir, k)) ||                                     \
+   FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
+
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define AIRKV(ipadir,ivar)       Airk_v[(ipadir)*nvar + (ivar)]
@@ -131,8 +140,8 @@ static std::vector<StrExp> STREXPS;
 static StrMod *STRMOD = nullptr;
 static Option_AutoFit MAUTO;
 static Constraints CONSTRAINTS;
-static int *INDG1;
-static int *INDG2;
+static VectorInt INDG1;
+static VectorInt INDG2;
 static const DbGrid *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint RECINT;
@@ -243,7 +252,6 @@ static void st_parid_decode(int parid,
   divide = value / CONGRUENCY;
   *imod = value - divide * CONGRUENCY;
   *icons = EConsElem::fromValue(iic);
-  return;
 }
 
 /****************************************************************************/
@@ -366,15 +374,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
       /* Anisotropy angles */
       if (DEFINE_ANIROT)
       {
-        if (ndim == 2)
-        {
-          if (TAKE_ROT)
-          {
-            first_covrot = jcov;
-            strmod->parid[ntot++] = st_parid_encode(imod, jcov, EConsElem::ANGLE, 0, 0);
-          }
-        }
-        else if (ndim == 3 && optvar.getLockRot2d())
+        if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
         {
           if (TAKE_ROT)
           {
@@ -640,7 +640,7 @@ static int st_get_vmap_dimension(const Db *dbmap,
   {
     int ndef = 0;
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(dbmap->getLocVariable(ELoc::Z,iech, ijvar))) ndef++;
+      if (!FFFF(dbmap->getZVariable(iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;
   }
@@ -677,7 +677,6 @@ static void st_mauto_rescale(int nvar,
   for (int ivar = 0; ivar < nvar; ivar++)
     total += VARCHOL(ivar,ivar) * VARCHOL(ivar,ivar);
   mauto.setTolred(mauto.getTolstop() * total / nvar);
-  return;
 }
 
 /****************************************************************************/
@@ -874,7 +873,7 @@ static void st_load_gg(const Vario *vario,
           if (! strexps.empty())
           {
             int i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-            if (! CORRECT(idir, i)) continue;
+            if (INCORRECT(idir, i)) continue;
 
             strexps[ecr].ivar = ivar;
             strexps[ecr].jvar = jvar;
@@ -886,8 +885,6 @@ static void st_load_gg(const Vario *vario,
         }
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -946,8 +943,6 @@ static void st_prepar_goulard_vario(int imod)
         }
       }
     }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -1010,13 +1005,13 @@ static void st_load_ge(const Vario *vario,
             {
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
-              if (!CORRECT(idir, iad) || !CORRECT(idir, jad)) continue;
+              if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
               dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
             }
             else
             {
               int iad = shift + ipas;
-              if (!CORRECT(idir, iad)) continue;
+              if (INCORRECT(idir, iad)) continue;
               dist = ABS(vario->getHhByIndex(idir, iad));
             }
             for (int idim = 0; idim < ndim; idim++)
@@ -1032,8 +1027,6 @@ static void st_load_ge(const Vario *vario,
         }
       }
     }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -1133,7 +1126,7 @@ static void st_load_wt(const Vario *vario,
             {
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
-              if (! (CORRECT(idir,iad) && CORRECT(idir,jad))) continue;
+              if (INCORRECT(idir,iad) || INCORRECT(idir,jad)) continue;
               double n1 = vario->getSwByIndex(idir,iad);
               double n2 = vario->getSwByIndex(idir,jad);
               double d1 = ABS(vario->getHhByIndex(idir,iad));
@@ -1144,7 +1137,7 @@ static void st_load_wt(const Vario *vario,
             else
             {
               int iad = shift + ipas;
-              if (! CORRECT(idir,iad)) continue;
+              if (INCORRECT(idir,iad)) continue;
               double nn = vario->getSwByIndex(idir,iad);
               double dd = ABS(vario->getHhByIndex(idir,iad));
               if (dd > 0)
@@ -1252,8 +1245,6 @@ static void st_load_wt(const Vario *vario,
           if (!FFFF(WT(ijvar0, ipadir))) WT(ijvar0,ipadir)/= ratio;
         }
       }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1698,8 +1689,6 @@ static void st_affect(int rank,
   {
     if (param[rank] > upper[rank]) param[rank] = upper[rank] - 1;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1781,8 +1770,6 @@ static void st_print(const char *name,
   /* Add the end_of_line */
 
   if (flag_end) message("\n");
-
-  return;
 }
 
 /****************************************************************************/
@@ -1901,7 +1888,6 @@ static void st_model_auto_strmod_print(int flag_title,
         break;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1977,7 +1963,6 @@ static void st_model_auto_scldef(StrMod *strmod,
         break;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2018,7 +2003,6 @@ static void st_model_auto_constraints_apply(StrMod *strmod,
                                 icons, ivar, jvar);
     st_affect(ipar, param_loc, lower_loc, upper_loc, param, lower, upper);
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2112,7 +2096,6 @@ static void st_model_auto_pardef(StrMod *strmod,
         break;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2272,7 +2255,6 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       }
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2347,7 +2329,6 @@ static void st_evaluate_vario(int imod,
     VectorDouble d0 = strexps[i].dd;
     tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
   }
-  return;
 }
 
 /*****************************************************************************/
@@ -2369,7 +2350,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
@@ -2380,7 +2361,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
 
@@ -2388,11 +2369,10 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
+        if (FFFF(DBMAP->getZVariable(iech, ijvar))) continue;
         tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
       }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2502,9 +2482,9 @@ static int st_truncate_negative_eigen(int nvar,
 
   /* Check positiveness */
 
-  int flag_positive = 1;
+  int flag_positive                 = 1;
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (valpro[ivar]<= 0) flag_positive = 0;
+    if (valpro[ivar] <= 0) flag_positive = 0;
   if (!flag_positive)
   {
 
@@ -2515,16 +2495,17 @@ static int st_truncate_negative_eigen(int nvar,
       {
         double sum = 0.;
         for (int kvar = 0; kvar < nvar; kvar++)
-          sum += MAX(valpro[kvar],0.) * vecpro->getValue(ivar, kvar) * vecpro->getValue(jvar, kvar);
-        MATCORU(icov0,ivar,jvar)= sum;
+          sum += MAX(valpro[kvar], 0.) * vecpro->getValue(ivar, kvar) *
+                 vecpro->getValue(jvar, kvar);
+        MATCORU(icov0, ivar, jvar) = sum;
       }
-    }
-    else
-    {
-      for (int ivar=0; ivar<nvar; ivar++)
-        for (int jvar=0; jvar<nvar; jvar++)
-          MATCORU(icov0,ivar,jvar) = MATCOR(icov0,ivar,jvar);
-    }
+  }
+  else
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+        MATCORU(icov0, ivar, jvar) = MATCOR(icov0, ivar, jvar);
+  }
 
   return flag_positive;
 }
@@ -2603,10 +2584,8 @@ static double st_score(int nvar,
  *****************************************************************************/
 static int st_combineVariables(int ivar0, int jvar0)
 {
-  if (ivar0 > jvar0)
-    return (ivar0 + jvar0 * (jvar0 + 1) / 2);
-  else
-    return (jvar0 + ivar0 * (ivar0 + 1) / 2);
+  if (ivar0 > jvar0) return (ivar0 + jvar0 * (jvar0 + 1) / 2);
+  return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
 /****************************************************************************/
@@ -2642,7 +2621,7 @@ static double st_minimize_P4(int icov0,
                              VectorDouble &ge,
                              const VectorDouble &consSill)
 {
-  double retval, a, c, d, s, x[3];
+  double retval, a, c, d, s;
 
   /* Core allocation */
 
@@ -2654,6 +2633,7 @@ static double st_minimize_P4(int icov0,
   VectorDouble xx(2);
   VectorDouble xt(2);
   VectorDouble xest(2);
+  VectorDouble x(3);
 
   int irr = st_combineVariables(ivar0, ivar0);
   int nvs2 = nvar * (nvar + 1) / 2;
@@ -3596,7 +3576,7 @@ static int st_goulard_fitting(int flag_reset,
  **                      or not (0). This array is optional
  **
  *****************************************************************************/
-static int st_model_has_intrinsic(Model *model, int *filter)
+static int st_model_has_intrinsic(Model *model, const int *filter)
 {
   int flag_range, flag_param, flag_aniso, flag_rotation;
   int min_order, max_ndim, flag_int_1d, flag_int_2d;
@@ -3776,7 +3756,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
                                    &max_ndim, &flag_int_1d, &flag_int_2d,
                                    &flag_aniso, &flag_rotation, &scalfac,
                                    &parmax);
-        if (! DEFINE_ANIROT) continue;
+        if (UNDEFINE_ANIROT) continue;
 
         /* This non-masked component can be assigned the lost rotation */
 
@@ -4131,15 +4111,7 @@ static int st_model_auto_count(const Vario *vario,
       /* Anisotropy angles */
       if (DEFINE_ANIROT)
       {
-        if (ndim == 2)
-        {
-          if (TAKE_ROT)
-          {
-            first_covrot = jcov;
-            ntot++;
-          }
-        }
-        else if (ndim == 3 && optvar.getLockRot2d())
+        if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
         {
           if (TAKE_ROT)
           {
@@ -4211,8 +4183,6 @@ static void st_strmod_vario_evaluate(int nbexp,
   /* Calculate the array of model values */
 
   st_evaluate_vario(0, nbexp, STREXPS, STRMOD, tabge);
-
-  return;
 }
 
 /****************************************************************************/
@@ -4236,7 +4206,7 @@ static void st_prepar_goulard_vmap(int imod)
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
   mode.setUnitary(true);
@@ -4252,7 +4222,7 @@ static void st_prepar_goulard_vmap(int imod)
 
     for (int ipadir = 0; ipadir < RECINT.npadir; ipadir++)
     {
-      db_index_sample_to_grid(DBMAP, ipadir, INDG2);
+      DBMAP->rankToIndice(ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
       model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &mode);
@@ -4265,7 +4235,6 @@ static void st_prepar_goulard_vmap(int imod)
           GE(icov,ijvar,ipadir) = tab.getValue(ivar, jvar);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -4304,8 +4273,6 @@ static void st_strmod_vmap_evaluate(int /*nbexp*/,
 
   for (int imod = 0; imod < STRMOD->nmodel; imod++)
     st_evaluate_vmap(imod, STRMOD, tabge);
-
-  return;
 }
 
 /****************************************************************************/
@@ -4377,10 +4344,6 @@ static void st_vario_varchol_manage(const Vario *vario,
  *****************************************************************************/
 static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 {
-  double mini, maxi, gmax;
-
-  /* Initializations */
-
   int nvar = dbmap->getLocNumber(ELoc::Z);
   int size = nvar * (nvar + 1) / 2;
   int nvar2 = nvar * nvar;
@@ -4390,14 +4353,13 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
   VectorDouble aux(nvar2,0.);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iloc = db_attribute_identify(dbmap, ELoc::Z, ivar);
-    (void) db_attribute_range(dbmap, iloc, &mini, &maxi, &gmax);
-    AUX(ivar,ivar)= gmax;
+    String name = dbmap->getNameByLocator(ELoc::Z, ivar);
+    VectorDouble ranges = dbmap->getRange(name);
+    AUX(ivar,ivar)= ranges[1] - ranges[0];
   }
   varchol.resize(size);
   if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))
     messageAbort("Error in the Cholesky decomposition of the variance matrix");
-  return;
 }
 
 /****************************************************************************/
@@ -4877,15 +4839,7 @@ static int st_vmap_auto_count(const Db *dbmap,
     /* Anisotropy angles */
     if (DEFINE_ANIROT)
     {
-      if (ndim == 2)
-      {
-        if (TAKE_ROT)
-        {
-          first_covrot = jcov;
-          ntot++;
-        }
-      }
-      else if (ndim == 3 && optvar.getLockRot2d())
+      if ((ndim == 2) || (ndim == 3 && optvar.getLockRot2d()))
       {
         if (TAKE_ROT)
         {
@@ -4931,14 +4885,14 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
   int nech = DBMAP->getSampleNumber();
   int nvar = DBMAP->getLocNumber(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
-  db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
+  DBMAP->rankToIndice(nech / 2, INDG1);
 
   /* Load the Experimental conditions structure */
 
   int ipadir = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(DBMAP, iech, INDG2);
+    DBMAP->rankToIndice(iech, INDG2);
     double dist = distance_intra(DBMAP, nech / 2, iech, NULL);
     double wgt = (dist > 0) ? 1. / dist : 0.;
 
@@ -4946,7 +4900,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 
     int ntest = 0;
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) ntest++;
+      if (!FFFF(DBMAP->getZVariable(iech, ijvar))) ntest++;
     if (ntest <= 0) continue;
 
     for (int ijvar = 0; ijvar < nvs2; ijvar++)
@@ -4954,7 +4908,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
       WT(ijvar,ipadir)= 0.;
       GG(ijvar,ipadir) = 0.;
 
-      double value = DBMAP->getLocVariable(ELoc::Z,iech,ijvar);
+      double value = DBMAP->getZVariable(iech,ijvar);
       if (FFFF(value)) continue;
 
       WT(ijvar,ipadir) = wgt;
@@ -4962,8 +4916,6 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
     }
     ipadir++;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -4980,12 +4932,12 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
  ** \param[in]  optvar_arg  Opt_Vario structure
  **
  *****************************************************************************/
-int vmap_auto_fit(const DbGrid *dbmap,
-                  Model *model,
+int vmap_auto_fit(const DbGrid* dbmap,
+                  Model* model,
                   bool verbose,
-                  const Option_AutoFit &mauto_arg,
-                  const Constraints &cons_arg,
-                  const Option_VarioFit &optvar_arg)
+                  const Option_AutoFit& mauto_arg,
+                  const Constraints& cons_arg,
+                  const Option_VarioFit& optvar_arg)
 {
   int npar0, npar, flag_reduce;
   VectorDouble varchol, scale, param, lower, upper;
@@ -5032,7 +4984,7 @@ int vmap_auto_fit(const DbGrid *dbmap,
      constraints.expandConstantSill(nvar);
   }
   if (st_get_vmap_dimension(dbmap, nvar, &npadir, &nbexp)) goto label_end;
-  if (db_extension_diag(dbmap, &hmax)) goto label_end;
+  hmax = dbmap->getExtensionDiagonal();
   st_vmap_varchol_manage(dbmap, varchol);
 
   /* Scale the parameters in the Option_AutoFit structure */
@@ -5048,10 +5000,8 @@ int vmap_auto_fit(const DbGrid *dbmap,
 
   hmax /= 2.;
   DBMAP = dbmap;
-  INDG1 = db_indg_alloc(dbmap);
-  if (INDG1 == nullptr) goto label_end;
-  INDG2 = db_indg_alloc(dbmap);
-  if (INDG2 == nullptr) goto label_end;
+  INDG1.resize(ndim, 0);
+  INDG2.resize(ndim);
 
   /* Core allocation */
 
@@ -5129,104 +5079,6 @@ int vmap_auto_fit(const DbGrid *dbmap,
   error = 0;
 
   label_end:
-  INDG1 = db_indg_free(INDG1);
-  INDG2 = db_indg_free(INDG2);
   st_model_auto_strmod_free(strmod);
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Print the Auto Fitting Constraints Structure
- **
- ** \param[in]  constraints  Constraints structure
- **
- *****************************************************************************/
-void constraints_print(const Constraints &constraints)
-{
-  constraints.display();
-}
-
-/****************************************************************************/
-/*!
- **  If a constraint concerns a sill, take its square root
- **  as it corresponds to a constraints on AIC (not on a sill directly)
- **  due to the fact that it will be processed in FOXLEG (not in GOULARD)
- **  This transform only makes sense for MONOVARIATE case (the test should
- **  have been performed beforehand)
- **
- ** \return Error code (if the sill constraint is negative)
- **
- ** \param[in]  constraints  Constraints structure
- **
- *****************************************************************************/
-int modify_constraints_on_sill(Constraints &constraints)
-
-{
-  int ncons = (int) constraints.getConsItemNumber();
-  for (int i = 0; i < ncons; i++)
-  {
-    const ConsItem *consitem = constraints.getConsItems(i);
-    if (consitem->getType() != EConsElem::SILL) continue;
-    if (consitem->getValue() < 0) return (1);
-    constraints.setValue(i, sqrt(consitem->getValue()));
-
-    // For constraints on the Sill in monovariate case,
-    // Add a constraints on AIC for lower bound
-    if (consitem->getIV1() == 0 &&
-        consitem->getIV2() == 0 &&
-        consitem->getIcase() == EConsType::UPPER)
-    {
-      ConsItem* consjtem = new ConsItem(*consitem);
-      consjtem->setValue(-consjtem->getValue());
-      consjtem->setIcase(EConsType::LOWER);
-      constraints.addItem(consjtem);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Return the constraint value (if defined) or TEST
- **
- ** \return Returned value or TEST
- **
- ** \param[in,out]  constraints  Constraints structure
- ** \param[in]      icase        Parameter type (EConsType)
- ** \param[in]      igrf         Rank of the Gaussian Random Function
- ** \param[in]      icov         Rank of the structure (starting from 0)
- ** \param[in]      icons        Type of the constraint (EConsElem)
- ** \param[in]      iv1          Rank of the first variable
- ** \param[in]      iv2          Rank of the second variable
- **
- *****************************************************************************/
-double constraints_get(const Constraints &constraints,
-                       const EConsType &icase,
-                       int igrf,
-                       int icov,
-                       const EConsElem &icons,
-                       int iv1,
-                       int iv2)
-{
-  if (!constraints.isDefined()) return (TEST);
-
-  for (int i = 0; i < (int) constraints.getConsItemNumber(); i++)
-  {
-    const ConsItem *item = constraints.getConsItems(i);
-    if (item->getIGrf() != igrf || item->getICov() != icov
-        || item->getType() != icons || item->getIV1() != iv1) continue;
-    if (icons == EConsElem::SILL && item->getIV2() != iv2) continue;
-
-    if (item->getIcase() == EConsType::EQUAL)
-    {
-      if (icase == EConsType::LOWER || icase == EConsType::UPPER)
-        return (item->getValue());
-    }
-    else
-    {
-      if (icase == item->getIcase()) return (item->getValue());
-    }
-  }
-  return (TEST);
 }

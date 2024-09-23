@@ -56,12 +56,13 @@ License: BSD 3-clause
 //                             visit_writer.c                                //
 // ************************************************************************* */
 #include "OutputFormat/vtk.h"
-#include "geoslib_old_f.h"
+
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Memory.hpp"
 
 #include <string.h>
-#include "Basic/File.hpp"
-#include "geoslib_old_f.h"
 
 /*
  * Globals.
@@ -338,10 +339,13 @@ static void write_header(void)
  *  Creation:   September 3, 2004
  *
  * ************************************************************************* */
- 
-void write_variables(int nvars, int *vardim, int *centering,
-                     const char * const * varname, float **vars,
-                     int npts, int ncells)
+void write_variables(int nvars,
+                     const int* vardim,
+                     const int* centering,
+                     const char* const* varname,
+                     float** vars,
+                     int npts,
+                     int ncells)
 {
   char str[1024];
   int i, j, first_scalar, first_vector;
@@ -648,10 +652,14 @@ void write_variables(int nvars, int *vardim, int *centering,
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
- 
-void write_point_mesh(const char *filename, int ub, int npts, float *pts,
-                      int nvars, int *vardim, const char * const *varnames,
-                      float **vars)
+void write_point_mesh(const char* filename,
+                      int ub,
+                      int npts,
+                      float* pts,
+                      int nvars,
+                      int* vardim,
+                      const char* const* varnames,
+                      float** vars)
 {
   int   i;
   char  str[128];
@@ -724,8 +732,6 @@ static int num_points_for_cell(int celltype)
       npts = 3;
       break;
     case VISIT_QUAD:
-      npts = 4;
-      break;
     case VISIT_TETRA:
       npts = 4;
       break;
@@ -776,10 +782,18 @@ static int num_points_for_cell(int celltype)
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
-void write_unstructured_mesh(const char *filename, int ub, int npts,
-                             float *pts, int ncells, int *celltypes, int *conn,
-                             int nvars, int *vardim, int *centering,
-                             const char * const *varnames, float **vars)
+void write_unstructured_mesh(const char* filename,
+                             int ub,
+                             int npts,
+                             float* pts,
+                             int ncells,
+                             int* celltypes,
+                             int* conn,
+                             int nvars,
+                             int* vardim,
+                             int* centering,
+                             const char* const* varnames,
+                             float** vars)
 {
   int   i, j;
   char  str[128];
@@ -867,10 +881,17 @@ void write_unstructured_mesh(const char *filename, int ub, int npts,
 //    Fix problem with 2D structured meshes and assessing cell count.
 //
 // ***************************************************************************/
-void write_rectilinear_mesh(const char *filename, int ub, int *dims,
-                            float *x, float *y, float *z,
-                            int nvars, int *vardim, int *centering,
-                            const char * const *varnames, float **vars)
+void write_rectilinear_mesh(const char* filename,
+                            int ub,
+                            int* dims,
+                            float* x,
+                            float* y,
+                            float* z,
+                            int nvars,
+                            int* vardim,
+                            int* centering,
+                            const char* const* varnames,
+                            float** vars)
 {
   int   i;
   char  str[128];
@@ -940,9 +961,14 @@ void write_rectilinear_mesh(const char *filename, int ub, int *dims,
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
-void write_regular_mesh(const char *filename, int ub, int *dims,
-                        int nvars, int *vardim, int *centering,
-                        const char * const *varnames, float **vars)
+void write_regular_mesh(const char* filename,
+                        int ub,
+                        int* dims,
+                        int nvars,
+                        int* vardim,
+                        int* centering,
+                        const char* const* varnames,
+                        float** vars)
 {
   int  i;
  
@@ -1003,9 +1029,15 @@ void write_regular_mesh(const char *filename, int ub, int *dims,
 //    Fix problem with 2D structured meshes and assessing cell count.
 //
 // ***************************************************************************/
-void write_curvilinear_mesh(const char *filename, int ub, int *dims,float *pts,
-                            int nvars, int *vardim, int *centering,
-                            const char * const *varnames, float **vars)
+void write_curvilinear_mesh(const char* filename,
+                            int ub,
+                            int* dims,
+                            float* pts,
+                            int nvars,
+                            int* vardim,
+                            int* centering,
+                            const char* const* varnames,
+                            float** vars)
 {
   int   i;
   char  str[128];

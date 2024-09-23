@@ -131,7 +131,7 @@ Column = 4 - Name = Prop.2 - Locator = p2
 Column = 5 - Name = Prop.3 - Locator = p3
 Column = 6 - Name = Prop.4 - Locator = p4
 Column = 7 - Name = Prop.5 - Locator = p5
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -174,7 +174,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =   1000.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -220,7 +220,7 @@ For variable 1
         17  8885.000-16006.927    -0.017
         18  9506.000-17006.901    -0.017
         19  9732.000-17998.608     0.017
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -237,7 +237,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =   1000.000
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -263,7 +263,7 @@ For variable 1
         16  8885.000 16006.927     1.017
         17  9506.000 17006.901     1.017
         18  9732.000 17998.608     0.983
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -279,13 +279,13 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 0.791416)
+Matern (Third Parameter = 0.791416)
 - Sill         =      1.000
 - Range        =   1815.867
 - Theo. Range  =    589.238
 Total Sill     =      1.000
 Known Mean(s)     0.000
- ----
+----
 
 
 #NO_DIFF#XXX

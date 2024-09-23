@@ -11,11 +11,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Matrix/NF_Triplet.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
-#include "Basic/AException.hpp"
-#include "geoslib_old_f.h"
 
 ProjMatrix::ProjMatrix() 
     : MatrixSparse()
@@ -92,7 +88,7 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
 //  return 0;
 //}
 
-int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
+/* int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
 {
   if ((int) inv.size() != getPointNumber())
   {
@@ -110,8 +106,50 @@ int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
   prodMatVecInPlace(inv, outv, true);
   return 0;
 }
+ */
+int ProjMatrix::_addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+{
+  if ((int) inv.size() != getApexNumber())
+  {
+    messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+            inv.size(),getApexNumber());
+    return 1;
+  }
+  if ((int) outv.size() != getPointNumber())
+  {
+    messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+            outv.size(),getPointNumber());
+    return 1;
+  }
 
-int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  addProdMatVecInPlaceToDest(invmap, outvmap, false);
+  return 0;
+}
+
+int ProjMatrix::_addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+{
+  if ((int) inv.size() != getPointNumber())
+  {
+    messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+            inv.size(),getPointNumber());
+    return 1;
+  }
+  if ((int) outv.size() != getApexNumber())
+  {
+    messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+            outv.size(),getApexNumber());
+    return 1;
+  }
+
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  addProdMatVecInPlaceToDest(invmap, outvmap, true);
+  return 0;
+}
+
+/* int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
 {
   if ((int) inv.size() != getApexNumber())
   {
@@ -129,7 +167,7 @@ int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
   prodMatVecInPlace(inv, outv, false);
   return 0;
 }
-
+ */
 String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   return MatrixSparse::toString(strfmt);

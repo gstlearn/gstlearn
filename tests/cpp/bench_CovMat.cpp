@@ -10,11 +10,9 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -81,7 +79,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleCoordinatesAsSPInPlace(i, p2);
+      dbout->getSampleAsSPInPlace(i, p2);
       VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -105,7 +103,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleCoordinatesAsSPInPlace(i, p2);
+      dbout->getSampleAsSPInPlace(i, p2);
       VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }
@@ -138,9 +136,9 @@ int main(int argc, char *argv[])
   }
 
   // Cleaning
-  if (dbin      != nullptr) delete dbin;
-  if (dbout     != nullptr) delete dbout;
-  if (model     != nullptr) delete model;
+  delete dbin;
+  delete dbout;
+  delete model;
 
   return (0);
 }

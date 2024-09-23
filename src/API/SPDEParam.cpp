@@ -8,15 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "API/SPDEParam.hpp"
 
 SPDEParam::SPDEParam(int refineK,
                      int refineS,
                      int border,
                      double epsNugget,
-                     const CGParam cgparams)
+                     const CGParam& cgparams)
     : _refineK(refineK),
       _refineS(refineS),
       _border(border),

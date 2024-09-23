@@ -24,15 +24,14 @@ library(ggnewscale)
 Defining the Model as a single Bessel structure. This function is defined as anisotropic: we clearly specify the extension of the ranges in the two main directions. The angle does not have to be defined here: it will be overwritten later as the non-stationary parameter. Note that it is essential to define the short range of the anisotropy ellipsoid first (for the definition of angle as defined in the Spiral function used as a function)... otherwise future results will represent the shape otabined as the orthogonal of the spiral.
 
 ```{r Model}
-model = Model_createFromParam(ECov_BESSEL_K(), 1., 1., 1., c(4.,45.))
+model = Model_createFromParam(ECov_MATERN(), 1., 1., 1., c(4.,45.))
 ```
 
 A Spiral function is defined and attached to the Model: this is a manner to update the Model by transforming the anisotropy angle as the unique non-stationary parameter.
 
 ```{r Spiral}
 spirale = FunctionalSpirale(0., -1.4, 1., 1., 50., 50.)
-nostat = NoStatFunctional(spirale)
-err = model$addNoStat(nostat)
+err = model$getCova(0)$makeAngleNoStatFunctional(spirale)
 model$display()
 ```
 

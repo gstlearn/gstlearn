@@ -11,9 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Enum/ECov.hpp"
 
 GSTLEARN_EXPORT void law_set_old_style(bool style);
 GSTLEARN_EXPORT int law_get_random_seed(void);
@@ -54,14 +54,14 @@ GSTLEARN_EXPORT double law_df_quadgaussian(VectorDouble &vect,
 GSTLEARN_EXPORT double law_df_multigaussian(VectorDouble &vect,
                                             MatrixSquareSymmetric& correl);
 GSTLEARN_EXPORT VectorInt law_random_path(int nech);
-GSTLEARN_EXPORT double* law_exp_sample(double *tabin,
-                                       int mode,
-                                       int nvar,
-                                       int nechin,
-                                       int nechout,
-                                       int niter,
-                                       int nconst,
-                                       double *consts,
-                                       int seed,
-                                       double percent);
+GSTLEARN_EXPORT VectorDouble law_exp_sample(const double* tabin,
+                                            int mode,
+                                            int nvar,
+                                            int nechin,
+                                            int nechout,
+                                            int niter,
+                                            int nconst,
+                                            double* consts,
+                                            int seed,
+                                            double percent);
 GSTLEARN_EXPORT int sampleInteger(int minit, int maxi);

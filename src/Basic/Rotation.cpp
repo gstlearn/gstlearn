@@ -8,15 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Geometry/Rotation.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
 
 Rotation::Rotation(unsigned int ndim)
   : AStringable(),
@@ -179,10 +176,7 @@ void Rotation::_inverseToDirect()
 
 void Rotation::_checkRotForIdentity()
 {
-  if (_rotMat.isIdentity())
-    _flagRot = false;
-  else
-    _flagRot = true;
+  _flagRot = (! _rotMat.isIdentity());
 }
 
 bool Rotation::isSame(const Rotation& rot) const

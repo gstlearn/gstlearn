@@ -8,56 +8,62 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/VectorNumT.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "geoslib_f_private.h"
-#include "Basic/AException.hpp"
+
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
-#include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/NF_Triplet.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/AException.hpp"
+
+#include <Eigen/src/Core/Matrix.h>
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
-                             bool flagDecompose,
                              bool verbose)
-    : PrecisionOp(shiftop, cova, verbose),
-      _Q(nullptr)
+    : PrecisionOp(shiftop, cova,verbose),
+      _Q(nullptr),
+      _chol(nullptr)
 {
-  _buildQ(flagDecompose);
+  _buildQ();
 }
 
 PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
-                             Model *model,
-                             int icov,
-                             bool flagDecompose,
-                             const CGParam params,
+                             CovAniso *cova,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, params, verbose),
-      _Q(nullptr)
+    : PrecisionOp(mesh, cova, verbose),
+      _Q(nullptr),
+      _chol(nullptr)
 {
-  _buildQ(flagDecompose);
+  _buildQ();
 }
 
 PrecisionOpCs::~PrecisionOpCs()
 {
   delete _Q;
+  delete _chol;
 }
 
-void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)
+void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X, 
+                            const Eigen::VectorXd &Y,
+                            Eigen::VectorXd& result,
+                            const EPowerPT& power)
 {
-  if (_work2.empty()) _work2.resize(getSize());
-  if (_work3.empty()) _work3.resize(getSize());
-  if (_work4.empty()) _work4.resize(getSize());
+  if (_work2.size() == 0) _work2.resize(getSize());
+  if (_work3.size() == 0) _work3.resize(getSize());
+  if (_work4.size() == 0) _work4.resize(getSize());
 
   evalPower(X,_work3, power);
   evalPower(Y,_work4, power);
   double temp,val;
   int iadress;
 
-  for(int igparam = 0;igparam<getShiftOp()->getNModelGradParam();igparam++)
+  for(int igparam = 0;igparam<getShiftOp()->getNCovAnisoGradParam();igparam++)
   {
     for(int iapex=0;iapex<getSize();iapex++)
     {
@@ -83,11 +89,12 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, Vecto
 }
 
 
-void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power)
+void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,
+                                 Eigen::VectorXd& result, const EPowerPT& power)
 {
-  if (_work2.empty()) _work2.resize(getSize());
-  if (_work3.empty()) _work3.resize(getSize());
-  if (_work4.empty()) _work4.resize(getSize());
+  if (_work2.size() == 0) _work2.resize(getSize());
+  if (_work3.size() == 0) _work3.resize(getSize());
+  if (_work4.size() == 0) _work4.resize(getSize());
 
   setTraining(false);
   evalPower(Y,_work3, power);
@@ -97,7 +104,7 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
   double temp,val;
   int iadress;
 
-  for (int igparam = 0; igparam < getShiftOp()->getNModelGradParam(); igparam++)
+  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam(); igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
@@ -119,32 +126,34 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
   }
 }
 
-void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
+int PrecisionOpCs::_addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd &outv) const
 {
-  _Q->prodMatVecInPlace(vecin, vecout);
+  return _Q->addToDest(inv, outv);
+} 
+
+int PrecisionOpCs::_addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const
+{
+  if (_chol == nullptr)
+    _chol = new Cholesky(_Q);
+  _chol->addSimulateToDest(whitenoise,outv);
+  return 0;
 }
 
-void PrecisionOpCs::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
-{
-  _Q->simulateCholesky(whitenoise, vecout);
-}
-
-void PrecisionOpCs::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
+void PrecisionOpCs::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout)
 {
   _Q->solveCholesky(vecin, vecout);
 }
 
-double PrecisionOpCs::getLogDeterminant(int nbsimu, int seed)
+double PrecisionOpCs::getLogDeterminant(int nbsimu)
 {
   DECLARE_UNUSED(nbsimu);
-  DECLARE_UNUSED(seed);
 
   return _Q->computeCholeskyLogDeterminant();
 }
 
-void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam, const EPowerPT& power)
+void PrecisionOpCs::evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,int iapex,int igparam, const EPowerPT& power)
 {
-  if (_work.empty()) _work.resize(getSize());
+  if (_work.size()==0) _work.resize(getSize());
 
   if (power == EPowerPT::MINUSONE)
   my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
@@ -167,13 +176,13 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int ia
   getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
-void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
+void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
                                    int iapex,
                                    int igparam,
                                    const EPowerPT& power)
 {
-  if (_work.empty()) _work3.resize(getSize());
-  if (_work5.empty()) _work4.resize(getSize());
+  if (_work.size()  == 0) _work3.resize(getSize());
+  if (_work5.size() == 0) _work4.resize(getSize());
 
   if (power == EPowerPT::MINUSONE)
   my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
@@ -206,26 +215,72 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 //
 //}
 
-void PrecisionOpCs::_buildQ(bool flagDecompose)
+void PrecisionOpCs::_buildQ()
 {
-  if (_Q != nullptr) delete _Q;
+  delete _Q;
   if (! isCovaDefined()) return;
 
   // Calculate the Vector of coefficients (blin)
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
-  _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
-                       static_cast<int>(blin.size()), blin.data());
+  
+  _Q = _build_Q();
+  
 
-  // Prepare the Cholesky decomposition
-  if (flagDecompose)
-    _Q->computeCholesky();
 }
 
-void PrecisionOpCs::makeReady()
+/****************************************************************************/
+/*!
+ **  Construct the final sparse matrix Q from the Model
+ **
+ ** \return Error return code
+ **
+ ** \param[in] S        Shift operator
+ ** \param[in] Lambda   Lambda vector
+ ** \param[in] nblin    Number of blin coeffbuicients
+ ** \param[in] blin     Array of coefficients for Linear combinaison
+ **
+ *****************************************************************************/
+MatrixSparse* PrecisionOpCs::_build_Q()
 {
-  // Perform the Cholesky decomposition (if defined but not already performed)
-  if (_Q != nullptr)
-    _Q->computeCholesky();
+  // Preliminary checks
+  auto *S = getShiftOpCs()->getS();
+  auto Lambda = getShiftOp()->getLambdas();
+  VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
+  int nblin = static_cast<int>(blin.size());
+  int nvertex = S->getNCols();
+  if (nvertex <= 0)
+  {
+    messerr("You must define a valid Meshing beforehand");
+    return nullptr;
+  }
+  if (nblin <= 0)
+  {
+    messerr("You must have a set of already available 'blin' coefficients");
+    messerr("These coefficients come from the decomposition in series for Q");
+    messerr("This decomposition is available only if 'alpha' is an integer");
+    messerr("where: alpha = param + ndim/2");
+    return nullptr;
+  }
+
+  /* First step */
+
+  MatrixSparse* Q = MatrixSparse::diagConstant(nvertex,  blin[0]);
+  MatrixSparse* Bi = S->clone();
+
+  /* Loop on the different terms */
+
+  for (int iterm = 1; iterm < nblin; iterm++)
+  {
+    Q->addMatInPlace(*Bi, 1., blin[iterm]);
+    if (iterm < nblin - 1)
+      Bi->prodMatInPlace(S);
+  }
+  delete Bi;
+
+  /* Final scaling */
+
+  Q->prodNormDiagVecInPlace(Lambda, 1);
+  return Q;
 }

@@ -10,14 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
 #include "VectorT.hpp"
 
 #include <vector>
-#include <sstream>
-#include <memory>
 #include <limits>
 #include <algorithm>
 #include <cmath>
@@ -30,7 +27,7 @@
  **
  ***************************************************************************/
 template <typename T>
-class GSTLEARN_EXPORT VectorNumT : public VectorT<T>
+class VectorNumT : public VectorT<T>
 {
 public:
   typedef VectorT<T> Parent;
@@ -54,11 +51,8 @@ public:
 #endif
   inline ~VectorNumT() = default;
 
-// Only for C++ users
-// These functions are not available in target language
-// because numerical vectors are converted in target language vectors
 public:
-  inline bool isSame(const VectorNumT& v, double eps = 1.e-10) const;
+  inline bool isSame(const VectorNumT& other, double eps = 1.e-10) const;
 
   inline T sum() const;
   inline T minimum() const;
@@ -219,18 +213,20 @@ const VectorNumT<T>& VectorNumT<T>::divide(const T& v)
   return *this;
 }
 
-// Force instantiation for VectorNumT (for Windows MSVC export)
-#ifdef _MSC_VER
-  // Do not export VectorNumXXX to SWIG (no more instantiation needed)
-  #ifndef SWIG
-    GSTLEARN_TEMPLATE_EXPORT template class VectorNumT<int>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorNumT<double>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorNumT<float>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorNumT<UChar>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<VectorNumT<int> >;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<VectorNumT<double> >;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<VectorNumT<float> >;
-  #endif
+#ifndef SWIG
+template <typename T>
+std::ostream& operator<<(std::ostream& os,
+                         const VectorT<VectorNumT<T>>& vec)
+{
+  os << "[";
+  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  {
+    os << vec.at(i).toString();
+    if (i != n - 1) os << " ";
+  }
+  os << "]";
+  return os;
+}
 #endif
 
 typedef VectorNumT<int>       VectorInt;

@@ -18,7 +18,6 @@ class ANeigh;
 class AMesh;
 class MeshEStandard;
 class RuleProp;
-class cs;
 class Cheb_Elem;
 class Rule;
 class VarioParam;
@@ -30,34 +29,6 @@ class NeighImage;
 class EMorpho;
 class MatrixSquareSymmetric;
 class MatrixSparse;
-
-/*************************************/
-/* Prototyping the functions in io.c */
-/*************************************/
-int _file_read(FILE *file, const char *format, va_list ap);
-int _file_get_ncol(FILE *file);
-void _file_delimitors(char del_com, char del_sep, char del_blk);
-FILE* _file_open(const char *filename, int mode);
-int _record_read(FILE *file, const char *format, ...);
-int _buffer_read(char **buffer, const char *format, va_list ap);
-void _file_write(FILE *file, const char *format, va_list ap);
-void _buffer_write(char *buffer, const char *format, va_list ap);
-void _lire_string(const char *question,
-                  int flag_def,
-                  const char *valdef,
-                  char *answer);
-int _lire_int(const char *question,
-              int flag_def,
-              int valdef,
-              int valmin,
-              int valmax);
-double _lire_double(const char *question,
-                    int flag_def,
-                    double valdef,
-                    double valmin,
-                    double valmax);
-int _lire_logical(const char *question, int flag_def, int valdef);
-void _erase_current_string(void);
 
 /****************************************/
 /* Prototyping the functions in krige.c */
@@ -78,25 +49,14 @@ void _image_smoother(DbGrid *dbgrid,
                      int type,
                      double range,
                      int iptr0);
-int _db_morpho_calc(DbGrid *dbgrid,
-                    int iptr0,
-                    const EMorpho &oper,
-                    double vmin = 0.,
-                    double vmax = 1.5,
-                    int option = 0,
-                    const VectorInt &radius = VectorInt(),
-                    bool flagDistErode = false,
-                    bool verbose = false);
-void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0);
-void _morpho_gradients(DbGrid *dbgrid, int iptr0);
 
 /***************************************/
 /* Prototyping the functions in spde.c */
 /***************************************/
 
 double* _spde_get_mesh_dimension(AMesh *amesh);
-MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units);
-VectorDouble _spde_fill_TildeC(AMesh* amesh, double* units);
+MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, const double *units);
+VectorDouble _spde_fill_TildeC(AMesh* amesh, const double* units);
 VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
                                const VectorDouble &TildeC);
@@ -134,36 +94,3 @@ int _db_threshold(Db *db,
                   Model *model = nullptr,
                   const NamingConvention& namconv = NamingConvention("Thresh"));
 
-/******************************************/
-/* Prototyping the functions in dbtools.c */
-/******************************************/
-
-int _migrate(Db *db1,
-             Db *db2,
-             int iatt1,
-             int iatt2,
-             int ldmax,
-             const VectorDouble& dmax,
-             bool flag_fill,
-             bool flag_inter,
-             bool flag_ball = false);
-
-/***************************************/
-/* Prototyping the functions in anam.c */
-/***************************************/
-
-int _conditionalExpectation(Db *db,
-                            AAnam *anam,
-                            const Selectivity *selectivity,
-                            int iptr0,
-                            int col_est,
-                            int col_std,
-                            bool flag_OK,
-                            double proba,
-                            int nbsimu);
-int _uniformConditioning(Db *db,
-                         AnamHermite *anam,
-                         Selectivity *selectivity,
-                         int iptr0,
-                         int col_est,
-                         int col_var);

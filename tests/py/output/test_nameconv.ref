@@ -1,0 +1,30 @@
+Bound( 1 ) : [ -0.5 ; 0.5 [
+Bound( 2 ) : [ 0.5 ; 1.5 [
+Bound( 3 ) : [ 1.5 ; 2.5 [
+Bound( 4 ) : [ 2.5 ; 3.5 [
+Bound( 5 ) : [ 3.5 ; 4.5 [
+Bound( 6 ) : [ 4.5 ; 5.5 [
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 11
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = NA
+Column = 4 - Name = code - Locator = code
+Column = 5 - Name = MyVar.code.Class.1 - Locator = z1
+Column = 6 - Name = MyVar.code.Class.2 - Locator = z2
+Column = 7 - Name = MyVar.code.Class.3 - Locator = z3
+Column = 8 - Name = MyVar.code.Class.4 - Locator = z4
+Column = 9 - Name = MyVar.code.Class.5 - Locator = z5
+Column = 10 - Name = MyVar.code.Class.6 - Locator = z6

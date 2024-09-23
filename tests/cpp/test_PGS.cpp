@@ -24,9 +24,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
-
+#include "Covariances/CovMatern.hpp"
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
@@ -34,6 +32,7 @@
 *****************************************************************************/
 int main(int argc, char *argv[])
 {
+  bessel_set_old_style(true);
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
@@ -68,7 +67,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 0.2;
-  Model* model1 = Model::createFromParam(ECov::BESSEL_K,range1,1.,1.);
+  Model* model1 = Model::createFromParam(ECov::MATERN,range1,1.,1.);
   model1->display();
   (void) model1->dumpToNF("truemodel1.ascii");
 
@@ -124,7 +123,7 @@ int main(int argc, char *argv[])
   Constraints constraints = Constraints();
   constraints.setConstantSillValue(1.);
 
-  VectorECov covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
+  VectorECov covs {ECov::MATERN, ECov::EXPONENTIAL};
   modelPGS1.fit(&vario1,covs,constraints);
   modelPGS1.display();
 

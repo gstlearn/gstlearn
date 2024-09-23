@@ -22,7 +22,7 @@ class GSTLEARN_EXPORT MatrixRectangular : public AMatrixDense {
 
 public:
   MatrixRectangular(int nrow = 0, int ncol = 0);
-  MatrixRectangular(const MatrixRectangular &m);
+  MatrixRectangular(const MatrixRectangular &r);
   MatrixRectangular(const AMatrix &m);
   MatrixRectangular& operator= (const MatrixRectangular &r);
 	virtual ~MatrixRectangular();
@@ -43,12 +43,19 @@ public:
                                          int ncol,
                                          bool byCol = false,
                                          bool invertColumnOrder = false);
-  static MatrixRectangular* glue(const AMatrix *A1,
-                                 const AMatrix *A2,
+  static MatrixRectangular* glue(const AMatrix* A1,
+                                 const AMatrix* A2,
                                  bool flagShiftRow,
                                  bool flagShiftCol);
+  static MatrixRectangular* sample(const AMatrix* A,
+                                   const VectorInt& rowKeep = VectorInt(),
+                                   const VectorInt& colKeep = VectorInt());
+  void unsample(const AMatrix* A,
+                const VectorInt& rowFetch,
+                const VectorInt& colFetch);
 
-  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
-  void addRow(int nrow_added=1);
+  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
+   */
+  void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
 };

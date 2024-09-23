@@ -9,15 +9,15 @@
 /*                                                                            */
 /******************************************************************************/
 #include "gmtsph.hpp"
-#include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Mesh/MeshSpherical.hpp"
 #include "Mesh/LinkSphTriangle.hpp"
+#include "Basic/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 

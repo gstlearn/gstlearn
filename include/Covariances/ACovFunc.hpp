@@ -15,7 +15,6 @@
 #include "Enum/ECov.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -55,7 +54,12 @@ public:
   virtual bool         hasSpectrumOnSphere() const { return false; }
   virtual bool         hasSpectrumOnRn()     const { return false; }
   virtual bool         hasMarkovCoeffs()     const { return false; }
-
+  virtual double normalizeOnSphere(int n = 50, double scale = 1.) const
+  {
+    DECLARE_UNUSED(n);
+    DECLARE_UNUSED(scale);
+    return 1.;
+  }
   virtual bool         isConsistent() const;
   virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
   virtual int          getMinOrder()  const { return -1; } // Valid for FAST
@@ -96,7 +100,7 @@ public:
   double               getParam()   const { return _param; }
 
   void    copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
-  virtual double evaluateSpectrum(double freq, int ndim) const;
+  virtual double evaluateSpectrum(double freq) const;
   virtual VectorDouble getMarkovCoeffs() const;
   virtual void setMarkovCoeffs(VectorDouble coeffs);
   virtual double getCorrec() const {return 1.;}

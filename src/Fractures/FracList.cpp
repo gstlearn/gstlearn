@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Geometry/GeometryHelper.hpp"
 #include "Fractures/FracList.hpp"
 #include "Fractures/FracDesc.hpp"
@@ -20,6 +18,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
@@ -263,8 +262,7 @@ int FracList::simulate(const FracEnviron& envir,
  ** \remarks The origin is calculated so that a layer edge is located at 0.
  **
  *****************************************************************************/
-VectorDouble FracList::_layersManage(const FracEnviron& envir,
-                                     double *y0)
+VectorDouble FracList::_layersManage(const FracEnviron& envir, double* y0) const
 {
   VectorDouble thicks;
   double thick_min = envir.getMean() / 10.;
@@ -326,7 +324,7 @@ VectorDouble FracList::_layersManage(const FracEnviron& envir,
  ** \param[out] y0           Ordinate of the origin
  **
  *****************************************************************************/
-VectorDouble FracList::_layersRead(const VectorDouble& elevations, double *y0)
+VectorDouble FracList::_layersRead(const VectorDouble& elevations, double *y0) const
 {
   VectorDouble thicks;
 
@@ -473,7 +471,7 @@ bool FracList::_belongToLayer(const FracDesc& desc,
                               double *xd,
                               double *yd,
                               double *xe,
-                              double *ye)
+                              double *ye) const
 {
   for (int i = 0; i < desc.getNPoint() - 1; i++)
   {
@@ -497,7 +495,7 @@ bool FracList::_belongToLayer(const FracDesc& desc,
  ** \param[in]  thick        Layer thickness
  **
  *****************************************************************************/
-double FracList::_layerIntensity(const FracFamily& family, double thick)
+double FracList::_layerIntensity(const FracFamily& family, double thick) const
 {
   double theta1 = family.getTheta0() / pow(thick, family.getAlpha());
 
@@ -566,8 +564,6 @@ void FracList::_generateDensity(const FracEnviron& envir,
   if (_verbose)
     message("- Cumulated Distribution: Main Fault = %lf\n",
             _densityCumulate(denstab));
-
-  return;
 }
 
 /****************************************************************************/
@@ -622,7 +618,7 @@ void FracList::_correctDensity(const FracFamily& family,
  *****************************************************************************/
 double FracList::_deriveIntensity(double theta1,
                                   double thetap,
-                                  double propsur)
+                                  double propsur) const
 {
   double theta2 = theta1;
 
@@ -772,7 +768,7 @@ double FracList::_densityUpdate(const FracFault& fault,
  ** \param[in]  denstab      Discretized density array
  **
  *****************************************************************************/
-double FracList::_densityCumulate(const VectorDouble& denstab)
+double FracList::_densityCumulate(const VectorDouble& denstab) const
 {
   double total = 0.;
   for (int idisc = 0; idisc < _ndisc; idisc++)
@@ -1024,7 +1020,7 @@ int FracList::_simulateFractures(const FracEnviron& envir,
  ** \param[in]  denstab      Discretized density array
  **
  *****************************************************************************/
-int FracList::_getDiscretizedRank(double cumdens, const VectorDouble& denstab)
+int FracList::_getDiscretizedRank(double cumdens, const VectorDouble& denstab) const
 {
   double local = 0.;
   for (int idisc = 0; idisc < _ndisc; idisc++)
@@ -1073,10 +1069,9 @@ int FracList::_getEndPointCount() const
   return (number);
 }
 
-bool FracList::_isValidDisc(int idisc)
+bool FracList::_isValidDisc(int idisc) const
 {
-  if ((idisc) >= 0 && (idisc) < _ndisc) return true;
-  return false;
+  return ((idisc) >= 0 && (idisc) < _ndisc);
 }
 
 /****************************************************************************/
@@ -1576,12 +1571,12 @@ int FracList::fractureWellToBlock(DbGrid *dbgrid,
   /* Allocate the new variable */
 
   iptr_perm = dbgrid->addColumnsByConstant(1, 0);
-  if (!IFFFF(col_perm)) db_attribute_copy(dbgrid, col_perm, iptr_perm);
+  if (!IFFFF(col_perm)) dbgrid->copyByUID(col_perm, iptr_perm);
 
   if (flag_fluid)
   {
     iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
-    if (!IFFFF(col_fluid)) db_attribute_copy(dbgrid, col_fluid, iptr_fluid);
+    if (!IFFFF(col_fluid)) dbgrid->copyByUID(col_fluid, iptr_fluid);
   }
 
   /* Verbose option */

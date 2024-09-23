@@ -36,7 +36,7 @@ public:
 private:
   int _readFind(int s_length, const char *target, int *numline, char *string);
   int _readNext(int s_length, int flag_up, int *numline, char *string);
-  void _stringToUppercase(char *string) const;
+  static void _stringToUppercase(char *string);
 
 private:
   double _xwell;

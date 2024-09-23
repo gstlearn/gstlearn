@@ -10,10 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
-#include "Enum/EJustify.hpp"
-#include "Enum/ECov.hpp"
 #include "Enum/EProcessOper.hpp"
 #include "Enum/ERule.hpp"
 
@@ -22,16 +19,11 @@
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsFactory.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Basic/MathFunc.hpp"
-#include "Basic/String.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
@@ -43,15 +35,13 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
-#include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Simulation/SimuFFTParam.hpp"
-#include "Simulation/SimuRefineParam.hpp"
-#include "Simulation/SimuRefine.hpp"
+#include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
-#include "Space/SpaceRN.hpp"
+#include "Basic/Memory.hpp"
+#include "Core/Keypair.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -94,10 +84,8 @@ static void st_simulation_environment(void)
  *****************************************************************************/
 static int st_facies(PropDef *propdef, int ipgs, int ifac)
 {
-  if (ipgs <= 0)
-    return (ifac);
-  else
-    return (propdef->nfac[0] + ifac);
+  if (ipgs <= 0) return (ifac);
+  return (propdef->nfac[0] + ifac);
 }
 
 /****************************************************************************/
@@ -143,14 +131,14 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
 
   check_mandatory_attribute("simu_func_continuous_update", db, ELoc::SIMU);
   check_mandatory_attribute("simu_func_continuous_update", db, ELoc::Z);
-  iptr_simu = db->getSimRank(isimu, 0, 0, nbsimu, 1);
+  iptr_simu = Db::getSimRank(isimu, 0, 0, nbsimu, 1);
 
   /* Loop on the grid cells */
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    simval = get_LOCATOR_ITEM(db, ELoc::SIMU, iptr_simu, iech);
+    simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu);
     db->updLocVariable(ELoc::Z,iech, 0, EOperator::ADD, simval);
     db->updLocVariable(ELoc::Z,iech, 1, EOperator::ADD, simval * simval);
   }
@@ -181,14 +169,14 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
   ipgs = ModCat.ipgs;
   check_mandatory_attribute("simu_func_categorical_update", db, ELoc::FACIES);
   check_mandatory_attribute("simu_func_categorical_update", db, ELoc::P);
-  iptr_simu = db->getSimRank(isimu, 0, ipgs, nbsimu, 1);
+  iptr_simu = Db::getSimRank(isimu, 0, ipgs, nbsimu, 1);
 
   /* Loop on the grid cells */
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    facies = (int) get_LOCATOR_ITEM(db, ELoc::FACIES, iptr_simu, iech) - 1;
+    facies = (int) db->getFromLocator(ELoc::FACIES, iech, iptr_simu) - 1;
     rank = st_facies(ModCat.propdef, ipgs, facies);
     prop = db->getLocVariable(ELoc::P,iech, rank) + 1.;
     db->setLocVariable(ELoc::P,iech, rank, prop);
@@ -222,9 +210,9 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    mean = db->getLocVariable(ELoc::Z,iech, 0) / nbsimu;
+    mean = db->getZVariable(iech, 0) / nbsimu;
     db->setLocVariable(ELoc::Z,iech, 0, mean);
-    stdv = db->getLocVariable(ELoc::Z,iech, 1) / nbsimu - mean * mean;
+    stdv = db->getZVariable(iech, 1) / nbsimu - mean * mean;
     stdv = (stdv > 0) ? sqrt(stdv) :
                         0.;
     db->setLocVariable(ELoc::Z,iech, 1, stdv);
@@ -290,7 +278,6 @@ void check_mandatory_attribute(const char *method,
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
     messageAbort("%s : Attributes %d are mandatory",method,locatorType.getValue());
-  return;
 }
 
 /****************************************************************************/
@@ -446,13 +433,13 @@ static int st_check_simtub_environment(Db *dbin,
   /* Calculate the field extension */
   /*********************************/
 
-  VectorDouble db_mini(ndim);
-  VectorDouble db_maxi(ndim);
+  VectorDouble db_mini(ndim, TEST);
+  VectorDouble db_maxi(ndim, TEST);
 
-  db_extension(dbout, db_mini, db_maxi, false);
+  dbout->getExtensionInPlace(db_mini, db_maxi, true);
 
   if (flag_cond)
-    db_extension(dbin, db_mini, db_maxi, true);
+    dbin->getExtensionInPlace(db_mini, db_maxi, true);
 
   if (model != nullptr)
     model->setField(VH::extensionDiagonal(db_mini, db_maxi));
@@ -492,10 +479,8 @@ static int st_check_simtub_environment(Db *dbin,
  *****************************************************************************/
 int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf)
 {
-  if (ipgs <= 0 || propdef == nullptr)
-    return (igrf);
-  else
-    return (propdef->ngrf[0] + igrf);
+  if (ipgs <= 0 || propdef == nullptr) return (igrf);
+  return (propdef->ngrf[0] + igrf);
 }
 
 /****************************************************************************/
@@ -513,7 +498,6 @@ static void st_suppress_added_samples(Db *db, int nech)
   if (nech <= 0) return;
   for (iech = db->getSampleNumber() - 1; iech >= nech; iech--)
     (void) db->deleteSample(iech);
-  return;
 }
 
 /****************************************************************************/
@@ -543,7 +527,6 @@ static void st_check_facies_data2grid(Db *dbin,
                                       int nbsimu)
 {
   int iech, jech, isimu, facdat, facres, number;
-  double *coor;
 
   /* Initializations */
 
@@ -551,24 +534,22 @@ static void st_check_facies_data2grid(Db *dbin,
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   check_mandatory_attribute("st_check_facies_data2grid", dbgrid, ELoc::FACIES);
   number = 0;
-  coor = nullptr;
   if (flag_check)
-    mestitle(1, "Checking facies of data against closest grid node (PGS=%d)",
-             ipgs + 1);
+    mestitle(1, "Checking facies of data against closest grid node (PGS=%d)",ipgs + 1);
 
   /* Core allocation */
 
-  coor = db_sample_alloc(dbin, ELoc::X);
-  if (coor == nullptr) goto label_end;
+  int ndim = dbin->getNDim();
+  VectorDouble coor(ndim);
 
   /* Loop on the data */
 
   for (iech = 0; iech < nechin; iech++)
   {
     if (!dbin->isActive(iech)) continue;
-    facdat = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
+    facdat = (int) dbin->getZVariable(iech, 0);
     if (facdat < 1 || facdat > nfacies) continue;
-    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor);
+    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
 
     for (isimu = 0; isimu < nbsimu; isimu++)
@@ -598,9 +579,7 @@ static void st_check_facies_data2grid(Db *dbin,
     }
   }
 
-  label_end: if (flag_check && number <= 0) message("No problem found\n");
-  db_sample_free(coor);
-  return;
+  if (flag_check && number <= 0) message("No problem found\n");
 }
 
 /****************************************************************************/
@@ -651,12 +630,12 @@ static void st_init_gibbs_params(double rho)
  ** \remark  conditional simulations
  **
  *****************************************************************************/
-int simpgs(Db *dbin,
-           Db *dbout,
-           RuleProp *ruleprop,
-           Model *model1,
-           Model *model2,
-           ANeigh *neigh,
+int simpgs(Db* dbin,
+           Db* dbout,
+           RuleProp* ruleprop,
+           Model* model1,
+           Model* model2,
+           ANeigh* neigh,
            int nbsimu,
            int seed,
            int flag_gaus,
@@ -784,16 +763,19 @@ int simpgs(Db *dbin,
   {
     /* Gaussian transform of the facies input data */
     if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, ngrf * nbsimu, 0, 0.,
-                                 &iptr)) goto label_end;
+                                 &iptr))
+      goto label_end;
 
     /* Non-conditional simulations at data points */
     if (db_locator_attribute_add(dbin, ELoc::SIMU, ngrf * nbsimu, 0, 0.,
-                                 &iptr_DN)) goto label_end;
+                                 &iptr_DN))
+      goto label_end;
   }
 
   /* (Non-) Conditional simulations at target points */
   if (db_locator_attribute_add(dbout, ELoc::SIMU, ngrf * nbsimu, 0, 0.,
-                               &iptr_RN)) goto label_end;
+                               &iptr_RN))
+    goto label_end;
 
   if (flag_cond)
   {
@@ -863,6 +845,7 @@ int simpgs(Db *dbin,
     if (!flag_used[igrf]) continue;
     icase = get_rank_from_propdef(propdef, 0, igrf);
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
+    situba.setFlagAllocationAlreadyDone(true);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false,
                         VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
@@ -1070,8 +1053,8 @@ int simbipgs(Db *dbin,
   {
     nechin = dbin->getSampleNumber();
     if (!dbin->isVariableNumberComparedTo(2)) goto label_end;
-    iatt_z[0] = db_attribute_identify(dbin, ELoc::Z, 0);
-    iatt_z[1] = db_attribute_identify(dbin, ELoc::Z, 1);
+    iatt_z[0] = dbin->getUIDByLocator(ELoc::Z, 0);
+    iatt_z[1] = dbin->getUIDByLocator(ELoc::Z, 1);
   }
 
   /* Output Db */
@@ -1288,6 +1271,7 @@ int simbipgs(Db *dbin,
       if (!flag_used[ipgs][igrf]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
       CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
+      situba.setFlagAllocationAlreadyDone(true);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[ipgs][igrf], neigh, icase, false,
                           VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
@@ -1465,11 +1449,11 @@ int db_simulations_to_ce(Db *db,
   error = 0;
 
   label_end:
-  (void) db_attribute_del_mult(db, iptr_nb, nvar);
+  db->deleteColumnsByUIDRange(iptr_nb, nvar);
   if (error)
   {
-    (void) db_attribute_del_mult(db, iptr_ce, nvar);
-    (void) db_attribute_del_mult(db, iptr_cstd, nvar);
+    db->deleteColumnsByUIDRange(iptr_ce, nvar);
+    db->deleteColumnsByUIDRange(iptr_cstd, nvar);
     *iptr_ce_arg = -1;
     *iptr_cstd_arg = -1;
   }
@@ -1631,12 +1615,12 @@ int gibbs_sampler(Db *dbin,
 
     if (!flag_ce)
     {
-      (void) db_attribute_del_mult(dbin, iptr_ce, nvar);
+      dbin->deleteColumnsByUIDRange(iptr_ce, nvar);
       iptr_ce = -1;
     }
     if (!flag_cstd)
     {
-      (void) db_attribute_del_mult(dbin, iptr_cstd, nvar);
+      dbin->deleteColumnsByUIDRange(iptr_cstd, nvar);
       iptr_cstd = -1;
     }
     dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -1713,25 +1697,25 @@ label_end:
  ** \endcode
  **
  *****************************************************************************/
-int simtub_constraints(Db *dbin,
-                       Db *dbout,
-                       Model *model,
-                       ANeigh *neigh,
+int simtub_constraints(Db* dbin,
+                       Db* dbout,
+                       Model* model,
+                       ANeigh* neigh,
                        int seed,
                        int nbtuba,
                        int nbsimu_min,
                        int nbsimu_quant,
                        int niter_max,
-                       VectorInt &cols,
+                       VectorInt& cols,
                        int (*func_valid)(int flag_grid,
                                          int nDim,
                                          int nech,
-                                         int *nx,
-                                         double *dx,
-                                         double *x0,
+                                         int* nx,
+                                         double* dx,
+                                         double* x0,
                                          double nonval,
                                          double percent,
-                                         VectorDouble &tab))
+                                         VectorDouble& tab))
 {
   int *nx, iatt, retval, nbtest;
   int error, nbsimu, nvalid, isimu, ndim, iter, nech, flag_grid, i;
@@ -1791,7 +1775,7 @@ int simtub_constraints(Db *dbin,
 
       /* Load the target simulation into the interface buffer */
 
-      if (db_vector_get_att_sel(dbout, iatt, tab.data())) goto label_end;
+      tab = dbout->getColumnByUID(iatt, true);
 
       /* Check if the simulation is valid */
 
@@ -1922,7 +1906,6 @@ static void st_maxstable_combine(Db *dbout,
       (*last) = iter0;
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2277,13 +2260,13 @@ int simRI(Db *dbout,
  ** \remark  should correspond to the facies index (starting from 1)
  **
  *****************************************************************************/
-int simpgs_spde(Db *dbin,
-                Db *dbout,
-                RuleProp *ruleprop,
-                Model *model1,
-                Model *model2,
-                const String &triswitch,
-                const VectorDouble &gext,
+int simpgs_spde(Db* dbin,
+                Db* dbout,
+                RuleProp* ruleprop,
+                Model* model1,
+                Model* model2,
+                const String& triswitch,
+                const VectorDouble& gext,
                 int flag_gaus,
                 int flag_prop,
                 int flag_check,
@@ -2640,12 +2623,12 @@ int simcond(Db *dbin,
     dbout->deleteColumnsByLocator(ELoc::SIMU);
     if (!flag_ce)
     {
-      (void) db_attribute_del_mult(dbout, iptr_ce, nvar);
+      dbout->deleteColumnsByUIDRange(iptr_ce, nvar);
       iptr_ce = -1;
     }
     if (!flag_cstd)
     {
-      (void) db_attribute_del_mult(dbout, iptr_cstd, nvar);
+      dbout->deleteColumnsByUIDRange(iptr_cstd, nvar);
       iptr_cstd = -1;
     }
   }
@@ -2756,43 +2739,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
   simu = simsphe.simulate_mesh(mesh, model, sphepar, verbose);
 
   return simu;
-}
-
-/****************************************************************************/
-/*!
- **  Refine the simulation
- **
- ** \return  Newly refined Grid.
- **
- ** \param[in]  dbin       Input grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  param      SimuRefineParam structure
- ** \param[in]  seed       Seed for the random number generator
- **
- ** \remark For each dimension of the space, if N stands for the number of
- ** \remark nodes in the input grid, the number of nodes of the output grid
- ** \remark will be (N-1) * 2^p + 1 where p is the param.getNmult()
- **
- *****************************************************************************/
-DbGrid* simfine(DbGrid *dbin,
-                Model *model,
-                const SimuRefineParam& param,
-                int seed)
-{
-  /* Preliminary check */
-
-  if (!dbin->isVariableNumberComparedTo(1)) return nullptr;
-
-  /* Patch the model with maximum dimension for OK */
-
-  model->setField(dbin->getExtensionDiagonal());
-
-  // Perform the simulation
-
-  SimuRefine simfine(1, seed);
-  DbGrid* dbout = simfine.simulate(dbin, model, param);
-
-  return dbout;
 }
 
 /****************************************************************************/

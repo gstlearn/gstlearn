@@ -8,13 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Neigh/NeighBench.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Basic/OptDbg.hpp"
 
 NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace *space)
     : ANeigh(space),
@@ -195,10 +193,6 @@ bool NeighBench::_isSameTargetBench(int iech_out) const
  */
 void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
-  ranks.resize(nech);
-  ranks.fill(-1);
-
   // Select the neighborhood samples as the target sample has changed
   _bench(iech_out, ranks);
 
@@ -222,9 +216,11 @@ void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
 void NeighBench::_bench(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
+  ranks.resize(nech);
+  ranks.fill(-1);
 
   // Load the target sample as a Space Target
-  _dbout->getSampleAsST(iech_out, _T1);
+  _dbout->getSampleAsSTInPlace(iech_out, _T1);
 
   /* Loop on samples */
 
@@ -245,7 +241,7 @@ void NeighBench::_bench(int iech_out, VectorInt& ranks)
       if (_xvalid(iech, iech_out)) continue;
     }
 
-    _dbin->getSampleAsST(iech, _T2);
+    _dbin->getSampleAsSTInPlace(iech, _T2);
 
     /* Discard sample located outside the bench */
 

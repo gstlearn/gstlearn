@@ -74,12 +74,22 @@ void SpacePoint::setCoord(double coord)
   VH::fill(_coord, coord, static_cast<int> (_coord.size()));
 }
 
-void SpacePoint::setCoord(const VectorDouble& coord)
+void SpacePoint::setCoords(const VectorDouble& coord)
 {
   if (getNDim() != coord.size())
     std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
   else
     _coord = coord;
+}
+
+void SpacePoint::setCoords(const double* coord, int size)
+{
+  if ((int) getNDim() != size)
+    std::cout << "Error: Wrong number of coordinates. Point not modified."
+              << std::endl;
+  else
+    for (int idim = 0; idim < size; idim++)
+     _coord[idim] = coord[idim];
 }
 
 bool SpacePoint::isConsistent(const ASpace* space) const
@@ -92,9 +102,14 @@ void SpacePoint::move(const VectorDouble& vec)
   getSpace()->move(*this, vec);
 }
 
-double SpacePoint::getDistance(const SpacePoint& pt) const
+double SpacePoint::getDistance(const SpacePoint& pt, int ispace) const
 {
-  return ASpaceObject::getDistance(*this, pt);
+  return ASpaceObject::getDistance(*this, pt, ispace);
+}
+
+VectorDouble SpacePoint::getDistances(const SpacePoint& pt) const
+{
+  return ASpaceObject::getDistances(*this, pt);
 }
 
 double SpacePoint::getDistance1D(const SpacePoint &pt, int idim) const
@@ -102,9 +117,9 @@ double SpacePoint::getDistance1D(const SpacePoint &pt, int idim) const
   return ASpaceObject::getDistance1D(*this, pt, idim);
 }
 
-VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
+VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
 {
-  return ASpaceObject::getIncrement(*this, pt);
+  return ASpaceObject::getIncrement(*this, pt, ispace);
 }
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const

@@ -11,30 +11,38 @@
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 
-#include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Polynomials/Chebychev.hpp"
 #include "LinearOp/Cholesky.hpp"
+#include "Matrix/VectorEigen.hpp"
 
-#include <functional>
-
+#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
     : _Q(nullptr)
+    , _chol(nullptr)
 {
 
 }
 
 PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
 {
+  _clear();
+}
+
+void PrecisionOpMultiConditionalCs::_clear()
+{
+  delete _chol;
+  delete _Q;
+  _chol = nullptr;
+  _Q = nullptr;
 }
 
 int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
 {
+  _clear();
   PrecisionOpCs* pmatElemCs = dynamic_cast<PrecisionOpCs*>(pmatElem);
   if (pmatElemCs == nullptr)
   {
@@ -44,12 +52,13 @@ int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix*
   return PrecisionOpMultiConditional::push_back(pmatElem, projDataElem);
 }
 
-double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) const
+double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu) const
 {
   DECLARE_UNUSED(nbsimu);
-  DECLARE_UNUSED(seed);
 
-  return _Q->computeCholeskyLogDeterminant();
+  if (_chol == nullptr)
+    _chol = new Cholesky(_Q);
+  return _chol->getLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
@@ -76,7 +85,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
     for (int is = 1; is < number; is++)
     {
       const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
-      if (Qmult != nullptr) delete Qmult;
+      delete Qmult;
       Qmult = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(Qref, pmataux->getQ(), true, true));
       Qref = Qmult;
     }
@@ -107,7 +116,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
     for (int is = 1; is < number; is++)
     {
       const MatrixSparse* msaux = dynamic_cast<const MatrixSparse*>(getProjMatrix(is));
-      if (mstemp != nullptr) delete mstemp;
+      delete mstemp;
       mstemp = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(msref, msaux, false, true));
       msref = mstemp;
     }
@@ -130,22 +139,27 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
 
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
-  MatrixSparse* AtAsVar = prodNormMat(*Amult, invsigma, true);
+  MatrixSparse* AtAsVar = prodNormMat(Amult, invsigma, true);
   _Q = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
 
-  // Prepare the Cholesky decomposition
-  _Q->computeCholesky();
+  // Free core allocated
+  delete Amult;
+  delete Qmult;
+  delete AtAsVar;
+
 
   return 0;
 }
 
-void PrecisionOpMultiConditionalCs::evalInverse(const VectorVectorDouble &vecin,
-                                                VectorVectorDouble &vecout) const
+void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<Eigen::VectorXd> &vecin,
+                                                std::vector<Eigen::VectorXd> &vecout) const
 {
-  VectorDouble locVecin = VectorHelper::flatten(vecin);
-  VectorDouble locVecout(locVecin.size());
-  _Q->solveCholesky(locVecin, locVecout);
-  VectorHelper::unflattenInPlace(locVecout, vecout);
+  if (_chol == nullptr)
+    _chol = new Cholesky(_Q);
+  Eigen::VectorXd locVecin = VectorEigen::flatten(vecin);
+  Eigen::VectorXd locVecout(locVecin.size());
+  _chol->solve(locVecin, locVecout);
+  VectorEigen::unflattenInPlace(locVecout, vecout);
 }
 
 void PrecisionOpMultiConditionalCs::makeReady()

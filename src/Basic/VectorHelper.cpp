@@ -8,23 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
-#include "Geometry/GeometryHelper.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/OptCustom.hpp"
 
 #include <string.h>
 #include <algorithm>
-#include <iomanip>
 #include <ctime>
 #include <cstdlib>
 #include <math.h>
-#include <random>
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {
@@ -80,7 +74,15 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
   return vec;
 }
 
-void VectorHelper::dump(const String &title, const VectorDouble& tab)
+VectorString VectorHelper::initVString(int ntab, char** names)
+{
+  VectorString rettab(ntab);
+  if (names == nullptr) return rettab;
+  for (int i = 0; i < ntab; i++) rettab[i] = names[i];
+  return rettab;
+}
+
+void VectorHelper::dump(const String &title, const VectorDouble& vect)
 {
   std::stringstream sstr;
   if (!title.empty())
@@ -88,13 +90,14 @@ void VectorHelper::dump(const String &title, const VectorDouble& tab)
     sstr << title.c_str() << std::endl;
   }
   sstr.precision(20);
-  for (int i = 0, n = (int) tab.size(); i < n; i++)
-    sstr << std::fixed << tab[i] << std::endl;
+  for (int i = 0, n = (int) vect.size(); i < n; i++)
+    sstr << std::fixed << vect[i] << std::endl;
   messageFlush(sstr.str());
 }
 
 void VectorHelper::display(const String &title, const VectorDouble &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
@@ -105,6 +108,7 @@ void VectorHelper::display(const String &title, const VectorDouble &vect, bool s
 
 void VectorHelper::display(const String &title, const VectorString &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
@@ -115,6 +119,7 @@ void VectorHelper::display(const String &title, const VectorString &vect, bool s
 
 void VectorHelper::display(const String &title, const VectorVectorDouble &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
@@ -125,10 +130,14 @@ void VectorHelper::display(const String &title, const VectorVectorDouble &vect, 
 
 void VectorHelper::display(const String &title, const VectorInt &vect, bool skipLine)
 {
+  if (vect.empty()) return;
   if (!title.empty())
   {
     message("%s", title.c_str());
-    if (skipLine) message("\n");
+    if (skipLine)
+      message("\n");
+    else
+      message(":");
   }
   messageFlush(VH::toStringAsVI(vect));
 }
@@ -345,9 +354,9 @@ double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs, const Vector
   }
   else
   {
-    const double *ptrv = &vec[0];
+    const double *ptrv = vec.data();
     double val_vec;
-    const double *ptra = &aux[0];
+    const double *ptra = aux.data();
     double val_aux;
 
     for (int i = 0; i < size; i++)
@@ -406,9 +415,9 @@ double VectorHelper::minimum(const VectorDouble &vec, bool flagAbs, const Vector
   }
   else
   {
-    const double *ptrv = &vec[0];
+    const double *ptrv = vec.data();
     double val_vec;
-    const double *ptra = &aux[0];
+    const double *ptra = aux.data();
     double val_aux;
 
     for (int i = 0; i < size; i++)
@@ -449,7 +458,7 @@ double VectorHelper::mean(const VectorDouble &vec)
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
   int number = 0;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     if (FFFF(v)) continue;
     mean += v;
@@ -457,14 +466,13 @@ double VectorHelper::mean(const VectorDouble &vec)
   }
   if (number > 0)
     return (mean / (double) number);
-  else
-    return TEST;
+  return TEST;
 }
 
 int VectorHelper::cumul(const VectorInt& vec)
 {
   int total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     total += v;
   }
@@ -474,7 +482,7 @@ int VectorHelper::cumul(const VectorInt& vec)
 int VectorHelper::cumul(const VectorVectorInt& vec)
 {
   int total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     total += cumul(v);
   }
@@ -484,9 +492,9 @@ int VectorHelper::cumul(const VectorVectorInt& vec)
 int VectorHelper::count(const VectorVectorInt& vec)
 {
   int total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
-    total += v.size();
+    total += (int) v.size();
   }
   return total;
 }
@@ -494,10 +502,9 @@ int VectorHelper::count(const VectorVectorInt& vec)
 double VectorHelper::cumul(const VectorDouble& vec)
 {
   double total = 0.;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
-    if (FFFF(v)) continue;
-    total += v;
+    if (!FFFF(v)) total += v;
   }
   return total;
 }
@@ -508,7 +515,7 @@ double VectorHelper::variance(const VectorDouble &vec, bool scaleByN)
   double mean = 0.;
   double var = 0.;
   int number = 0;
-  for (auto &v : vec)
+  for (const auto &v : vec)
   {
     if (FFFF(v)) continue;
     var += v * v;
@@ -606,10 +613,8 @@ VectorDouble VectorHelper::quantiles(const VectorDouble &vec,
 double VectorHelper::stdv(const VectorDouble &vec, bool scaleByN)
 {
   double var = variance(vec, scaleByN);
-  if (!FFFF(var))
-    return (sqrt(var));
-  else
-    return TEST;
+  if (!FFFF(var)) return (sqrt(var));
+  return TEST;
 }
 
 double VectorHelper::norm(const VectorDouble &vec)
@@ -653,10 +658,8 @@ double VectorHelper::median(const VectorDouble &vec)
   // Return the median value
   int number = (int) med.size();
   if (number <= 0) return TEST;
-  if (isOdd(number))
-    return med[number / 2];
-  else
-    return (med[number / 2] + med[number / 2 - 1]) / 2.;
+  if (isOdd(number)) return med[number / 2];
+  return (med[number / 2] + med[number / 2 - 1]) / 2.;
 }
 
 double VectorHelper::normDistance(const VectorDouble &veca,
@@ -664,8 +667,8 @@ double VectorHelper::normDistance(const VectorDouble &veca,
 {
   double prod = 0.;
   double delta = 0.;
-  const double *ptra = &veca[0];
-  const double *ptrb = &vecb[0];
+  const double *ptra = veca.data();
+  const double *ptrb = vecb.data();
   for (int i = 0, n = (int) veca.size(); i < n; i++)
   {
     delta = (*ptra) - (*ptrb);
@@ -680,7 +683,7 @@ int VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;
   int nprod = 1;
-  const int* iptr = &vec[0];
+  const int* iptr = vec.data();
   for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
     nprod *= (*iptr);
@@ -693,7 +696,7 @@ double VectorHelper::product(const VectorDouble& vec)
 {
   if (vec.empty()) return 0;
   double nprod = 1.;
-  const double* iptr = &vec[0];
+  const double* iptr = vec.data();
   for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
     nprod *= (*iptr);
@@ -727,14 +730,13 @@ void VectorHelper::normalize(double *tab, int ntab)
   if (norme <= 0.) return;
   for (i = 0; i < ntab; i++)
     tab[i] /= norme;
-  return;
 }
 
 void VectorHelper::normalizeFromGaussianDistribution(VectorDouble &vec,
                                                      double mini,
                                                      double maxi)
 {
-  double* iptr = &vec[0];
+  double* iptr = vec.data();
   for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
     if (! FFFF(*iptr))
@@ -832,7 +834,7 @@ bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
 {
   if (vect.empty()) return false;
   if (FFFF(refval)) refval = vect[0];
-  const double* iptr = &vect[0];
+  const double* iptr = vect.data();
   for (int i = 0, n = (int) vect.size(); i < n; i++)
   {
     if ((*iptr) != refval) return false;
@@ -851,7 +853,7 @@ bool VectorHelper::isConstant(const VectorInt& vect, int refval)
 {
   if (vect.empty()) return false;
   if (IFFFF(refval)) refval = vect[0];
-  const int* iptr = &vect[0];
+  const int* iptr = vect.data();
   for (int i = 0, n = (int) vect.size(); i < n; i++)
   {
     if ((*iptr) != refval) return false;
@@ -1017,8 +1019,7 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
                                        const VectorDouble &vecb)
 {
   VectorDouble res = veca;
-  for (auto &e: vecb)
-    res.push_back(e);
+  for (const auto& e: vecb) res.push_back(e);
   return res;
 }
 
@@ -1032,6 +1033,29 @@ void VectorHelper::cumulateInPlace(VectorDouble& vec)
     old = *it;
     it++;
   }
+}
+
+VectorDouble VectorHelper::cumsum(const VectorDouble &vecin, bool flagAddZero, bool revert)
+{
+  VectorDouble vecout;
+  if (flagAddZero)
+    vecout.push_back(0.);
+
+  double total = 0.;
+  for (int i = 0, n = (int)vecin.size(); i < n; i++)
+  {
+    total += vecin[i];
+    vecout.push_back(total);
+  }
+
+  if (revert)
+  {
+    int size = (int) vecout.size();
+    double lastval = vecout[size - 1];
+    for (int i = 0; i < size; i++)
+      vecout[i] = lastval - vecout[i];
+  }
+  return vecout;
 }
 
 void VectorHelper::cumulate(VectorDouble &veca,
@@ -1219,9 +1243,9 @@ void VectorHelper::addInPlace(const VectorDouble &veca,
     my_throw("Wrong size");
   if ((int) res.size() != size) res.resize(size);
 
-  const double* iptra = &veca[0];
-  const double* iptrb = &vecb[0];
-  double* iptrv = &res[0];
+  const double* iptra = veca.data();
+  const double* iptrb = vecb.data();
+  double* iptrv = res.data();
   for (int i = 0; i < size; i++)
   {
     (*iptrv) = (*iptra) + (*iptrb);
@@ -1405,6 +1429,29 @@ void VectorHelper::multiplyConstantInPlace(const VectorDouble &vecin, double v, 
   }
 }
 
+void VectorHelper::multiplyConstantSelfInPlace(VectorDouble &vec, double v)
+{
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = (*it) * v;
+    it++;
+  }
+}
+
+void VectorHelper::addMultiplyConstantInPlace(double val1,
+                                              const VectorDouble &in,
+                                              VectorDouble &out,
+                                              int iad)
+{
+    double * outp = out.data() + iad;
+    const double* inp = in.data();
+    for (int i = 0; i < (int)in.size();i++)
+    {
+      *(outp++) += val1 * *(inp++);
+    }
+}
+
 void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const VectorVectorDouble &in1,
                                               VectorVectorDouble &outv)
@@ -1502,7 +1549,7 @@ void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
 
   for (int i = 0; i < size; i++)
   {
-    if (FFFF(mean1[i] || FFFF(mean2[i])))
+    if (FFFF(mean1[i]) || FFFF(mean2[i]))
       std[i] = TEST;
     else
     {
@@ -1688,10 +1735,7 @@ bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
  * @param ascending True for ascending order; False for descending order
  * @return Output array (integers)
  */
-VectorInt VectorHelper::filter(const VectorInt &vecin,
-                               int vmin,
-                               int vmax,
-                               bool ascending)
+VectorInt VectorHelper::filter(const VectorInt& vecin, int vmin, int vmax, bool ascending)
 {
   VectorInt vecout = vecin;
 
@@ -1862,6 +1906,22 @@ VectorDouble VectorHelper::reorder(const VectorDouble& vecin, const VectorInt& o
   VectorDouble vecout(size);
   for (int i = 0; i< size; i++)
     vecout[i] = vecin[order[i]];
+  return vecout;
+}
+
+VectorDouble VectorHelper::revert(const VectorDouble &vecin) {
+  int nech = (int)vecin.size();
+  VectorDouble vecout(nech);
+  for (int iech = 0; iech < nech; iech++)
+    vecout[nech - 1 -iech] = vecin[iech];
+  return vecout;
+}
+
+VectorInt VectorHelper::revert(const VectorInt &vecin) {
+  int nech = (int)vecin.size();
+  VectorInt vecout(nech);
+  for (int iech = 0; iech < nech; iech++)
+    vecout[nech - 1 - iech] = vecin[iech];
   return vecout;
 }
 
@@ -2392,4 +2452,34 @@ void VectorHelper::truncateDigitsInPlace(VectorDouble& vec, int ndec)
     if (FFFF(vec[i])) continue;
     vec[i] = truncateDigits(vec[i], ndec);
   }
+}
+
+/**
+ * @brief Create an output VectorDouble by selecting some indices
+ *        of the Input VectorDouble 'vecin'
+ *
+ * @param vecin    Input Rectangular Matrix
+ * @param indKeep  Set of Indices to be kept (all if not defined)
+ */
+VectorDouble VectorHelper::sample(const VectorDouble& vecin,
+                                  const VectorInt& indKeep)
+{
+  VectorDouble vecout;
+
+  VectorInt indices = indKeep;
+  if (indices.empty()) indices = VH::sequence((int) vecin.size());
+
+  int nindices = (int)indices.size();
+  if (nindices <= 0) return vecout;
+
+  for (int i = 0; i < nindices; i++)
+  {
+    if (!checkArg("Selected index", indices[i], (int) vecin.size()))
+      return vecout;
+  }
+
+  vecout.resize(nindices);
+  for (int i = 0; i < nindices; i++)
+      vecout[i] = vecin[indices[i]];
+  return vecout;
 }

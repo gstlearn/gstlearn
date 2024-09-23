@@ -8,16 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Core/io.hpp"
+#include "OutputFormat/GridIfpEn.hpp"
 
 #include <string.h>
-#include "OutputFormat/GridIfpEn.hpp"
 
 GridIfpEn::GridIfpEn(const char* filename, const Db* db)
   : AOF(filename, db)
@@ -184,27 +183,27 @@ DbGrid* GridIfpEn::readGridFromFile()
 
   /* Read the header */
 
-  if (_readLine( 0, "##########################", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "FILE_DESCRIPTION         #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "APPLICATION              #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "SURVEY_NAME              #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "MATRIX_NAME              #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "METHOD                   #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 2, "FLOAT_NULL_VALUE         #", &dumint, &test))      return dbgrid;
-  if (_readLine( 0, "ROW_COLUMN_ORIENTATION   #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "REPRESENTATION_CODE      #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "##########################", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 2, "ANGLE                    #", &dumint, &angles[0])) return dbgrid;
-  if (_readLine( 1, "ROW_COUNT                #", &nx[1], &dumrel))     return dbgrid;
-  if (_readLine( 1, "COLUMN_COUNT             #", &nx[0], &dumrel))     return dbgrid;
-  if (_readLine( 2, "ROW_DISTANCE             #", &dumint, &dx[1]))     return dbgrid;
-  if (_readLine( 2, "COLUMN_DISTANCE          #", &dumint, &dx[0]))     return dbgrid;
-  if (_readLine( 1, "LAYER_COUNT              #", &nx[2], &dumrel))     return dbgrid;
-  if (_readLine( 2, "X_ORIGIN                 #", &dumint, &x0[0]))     return dbgrid;
-  if (_readLine( 2, "Y_ORIGIN                 #", &dumint, &x0[1]))     return dbgrid;
-  if (_readLine( 1, "FACIES_COUNT             #", &ncol, &dumrel))      return dbgrid;
-  if (_readLine( 0, "DATA_PROP                #", &dumint, &dumrel))    return dbgrid;
-  if (_readLine( 0, "##########################", &dumint, &dumrel))    return dbgrid;
+  if (_readLine( 0, "##########################", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "FILE_DESCRIPTION         #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "APPLICATION              #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "SURVEY_NAME              #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "MATRIX_NAME              #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "METHOD                   #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 2, "FLOAT_NULL_VALUE         #", &dumint, &test))          return dbgrid;
+  if (_readLine( 0, "ROW_COLUMN_ORIENTATION   #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "REPRESENTATION_CODE      #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "##########################", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 2, "ANGLE                    #", &dumint, angles.data()))  return dbgrid;
+  if (_readLine( 1, "ROW_COUNT                #", &nx[1], &dumrel))         return dbgrid;
+  if (_readLine( 1, "COLUMN_COUNT             #", nx.data(), &dumrel))      return dbgrid;
+  if (_readLine( 2, "ROW_DISTANCE             #", &dumint, &dx[1]))         return dbgrid;
+  if (_readLine( 2, "COLUMN_DISTANCE          #", &dumint, dx.data()))      return dbgrid;
+  if (_readLine( 1, "LAYER_COUNT              #", &nx[2], &dumrel))         return dbgrid;
+  if (_readLine( 2, "X_ORIGIN                 #", &dumint, x0.data()))      return dbgrid;
+  if (_readLine( 2, "Y_ORIGIN                 #", &dumint, &x0[1]))         return dbgrid;
+  if (_readLine( 1, "FACIES_COUNT             #", &ncol, &dumrel))          return dbgrid;
+  if (_readLine( 0, "DATA_PROP                #", &dumint, &dumrel))        return dbgrid;
+  if (_readLine( 0, "##########################", &dumint, &dumrel))        return dbgrid;
 
   /* Read the array of real values */
 

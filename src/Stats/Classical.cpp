@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Stats/Classical.hpp"
@@ -24,6 +22,7 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Polygon/Polygons.hpp"
+#include "Enum/EStatOption.hpp"
 
 #include <math.h>
 #include <Matrix/Table.hpp>
@@ -128,7 +127,7 @@ void _updateProportions(DbGrid *dbin,
                         VectorDouble &prop)
 {
   int rank = dbin->getGrid().indiceToRank(indg);
-  int ifac = (int) dbin->getLocVariable(ELoc::Z,rank, 0);
+  int ifac = (int) dbin->getZVariable(rank, 0);
   if (ifac < 1 || ifac > nfacies) return;
   prop[ifac - 1] += 1.;
 }
@@ -155,9 +154,9 @@ void _updateTransition(DbGrid *dbin,
 {
   int jpos = indg[pos] + orient;
   if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
-  int ifac1 = (int) dbin->getLocVariable(ELoc::Z,dbin->getGrid().indiceToRank(indg), 0);
+  int ifac1 = (int) dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] += orient;
-  int ifac2 = (int) dbin->getLocVariable(ELoc::Z,dbin->getGrid().indiceToRank(indg), 0);
+  int ifac2 = (int) dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] -= orient;
 
   if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
@@ -342,7 +341,7 @@ VectorString statOptionToName(const std::vector<EStatOption>& opers)
   VectorString names;
   for (int i = 0; i < (int) opers.size(); i++)
   {
-    EStatOption oper = opers[i];
+    const EStatOption& oper = opers[i];
     names.push_back(oper.getKey());
   }
   return names;
@@ -448,12 +447,10 @@ void dbStatisticsVariables(Db *db,
           tab = maxi;
         else if (opers[i] == EStatOption::SUM)
           tab = sum;
-        else if (opers[i] == EStatOption::PROP)
-          tab = (double) nperc / (double) neff;
+        else if (opers[i] == EStatOption::PROP || opers[i] == EStatOption::T)
+          tab = (double)nperc / (double)neff;
         else if (opers[i] == EStatOption::QUANT)
           tab = _getQuantile(local, neff, proba);
-        else if (opers[i] == EStatOption::T)
-          tab = (double) nperc / (double) neff;
         else if (opers[i] == EStatOption::Q)
           tab = metal / (double) neff;
         else if (opers[i] == EStatOption::M)
@@ -574,24 +571,32 @@ Table dbStatisticsMono(Db *db,
     {
       if (neff > 0)
       {
-        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
-        else if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
-        else if (opers[i] == EStatOption::VAR)  tab.push_back(var);
-        else if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
-        else if (opers[i] == EStatOption::MINI) tab.push_back(mini);
-        else if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
-        else if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
-        else if (opers[i] == EStatOption::PROP)
-          tab.push_back((double) nperc / (double) neff);
+        if (opers[i] == EStatOption::NUM)
+          tab.push_back((double)neff);
+        else if (opers[i] == EStatOption::MEAN)
+          tab.push_back(mean);
+        else if (opers[i] == EStatOption::VAR)
+          tab.push_back(var);
+        else if (opers[i] == EStatOption::STDV)
+          tab.push_back(stdv);
+        else if (opers[i] == EStatOption::MINI)
+          tab.push_back(mini);
+        else if (opers[i] == EStatOption::MAXI)
+          tab.push_back(maxi);
+        else if (opers[i] == EStatOption::SUM)
+          tab.push_back(sum);
+        else if (opers[i] == EStatOption::PROP || opers[i] == EStatOption::T)
+            tab.push_back((double)nperc / (double)neff);
         else if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
-        else if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
-        else if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
+        else if (opers[i] == EStatOption::Q)
+          tab.push_back(metal / (double)neff);
         else if (opers[i] == EStatOption::M)
-          tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
+          tab.push_back((nperc > 0) ? metal / (double)nperc : TEST);
         else if (opers[i] == EStatOption::B)
-          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
-        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(median);
+          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double)neff : TEST);
+        else if (opers[i] == EStatOption::MEDIAN)
+          tab.push_back(median);
         else
         {
           messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
@@ -600,23 +605,26 @@ Table dbStatisticsMono(Db *db,
       }
       else
       {
-        if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
-        else if (opers[i] == EStatOption::MEAN)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::VAR)    tab.push_back(TEST);
-        else if (opers[i] == EStatOption::STDV)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::MINI)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::MAXI)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::SUM)    tab.push_back(TEST);
-        else if (opers[i] == EStatOption::PROP)   tab.push_back(TEST);
-        else if (opers[i] == EStatOption::QUANT)  tab.push_back(TEST);
-        else if (opers[i] == EStatOption::T)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::Q)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::M)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::B)      tab.push_back(TEST);
-        else if (opers[i] == EStatOption::MEDIAN) tab.push_back(TEST);
+        if (opers[i] == EStatOption::NUM)
+          tab.push_back((double)neff);
+        else if (opers[i] == EStatOption::MEAN ||
+                 opers[i] == EStatOption::VAR ||
+                 opers[i] == EStatOption::STDV ||
+                 opers[i] == EStatOption::MINI ||
+                 opers[i] == EStatOption::MAXI ||
+                 opers[i] == EStatOption::SUM ||
+                 opers[i] == EStatOption::PROP ||
+                 opers[i] == EStatOption::QUANT ||
+                 opers[i] == EStatOption::T ||
+                 opers[i] == EStatOption::Q ||
+                 opers[i] == EStatOption::M ||
+                 opers[i] == EStatOption::B ||
+                 opers[i] == EStatOption::MEDIAN)
+          tab.push_back(TEST);
         else
         {
-          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          messerr("The operator %s is not calculated yet",
+                  opers[i].getKey().c_str());
           return table;
         }
       }
@@ -669,7 +677,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
+    int ifac = (int) db->getZVariable(iech, 0);
     if (ifac <= 0) continue;
     props[ifac - 1] += 1.;
     neff++;
@@ -712,7 +720,7 @@ double dbStatisticsIndicator(Db *db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
+    int ifac = (int) db->getZVariable(iech, 0);
     if (ifac == 1) prop += 1.;
     neff++;
   }
@@ -1169,7 +1177,7 @@ void dbStatisticsPrint(const Db *db,
   int taille = 0;
   for (int icol = 0; icol < ncol; icol++)
   {
-    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iuids[icol]), string);
+    _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
     taille = MAX(taille, (int ) strlen(string));
   }
 
@@ -1194,7 +1202,7 @@ void dbStatisticsPrint(const Db *db,
 
   for (int icol = 0; icol < ncol; icol++)
   {
-    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iuids[icol]), string);
+    _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
     tab_print_rowname(string, taille);
 
     if (_operExists(opers, EStatOption::NUM))
@@ -1238,7 +1246,6 @@ void dbStatisticsPrint(const Db *db,
     message("\n");
   }
 
-  return;
 }
 
 /**
@@ -1329,17 +1336,13 @@ VectorDouble dbStatisticsPerCell(Db *db,
     flag1 = flag_s1 = 1;
   else if (oper == EStatOption::SUM)
     flag1 = flag_s1 = flag_denorm = 1;
-  else if (oper == EStatOption::STDV)
-    flag1 = flag_s1 = flag_v1 = 1;
-  else if (oper == EStatOption::VAR)
+  else if (oper == EStatOption::STDV || oper == EStatOption::VAR)
     flag1 = flag_s1 = flag_v1 = 1;
   else if (oper == EStatOption::MEAN2)
     flag2 = flag_s2 = 1;
   else if (oper == EStatOption::SUM2)
     flag2 = flag_s2 = flag_denorm = 1;
-  else if (oper == EStatOption::STDV2)
-    flag2 = flag_s2 = flag_v2 = 1;
-  else if (oper == EStatOption::VAR2)
+  else if (oper == EStatOption::STDV2 || oper == EStatOption::VAR2)
     flag2 = flag_s2 = flag_v2 = 1;
   else if (oper == EStatOption::COV)
     flag2 = flag_s1 = flag_s2 = flag_v12 = 1;
@@ -1498,17 +1501,13 @@ VectorDouble dbStatisticsPerCell(Db *db,
   {
     if (oper == EStatOption::NUM)
       result[i] = nn[i];
-    else if (oper == EStatOption::MEAN)
-      result[i] = s1[i];
-    else if (oper == EStatOption::SUM)
+    else if (oper == EStatOption::MEAN || oper == EStatOption::SUM)
       result[i] = s1[i];
     else if (oper == EStatOption::STDV)
       result[i] = v1[i];
     else if (oper == EStatOption::VAR)
       result[i] = v1[i] * v1[i];
-    else if (oper == EStatOption::MEAN2)
-      result[i] = s2[i];
-    else if (oper == EStatOption::SUM2)
+    else if (oper == EStatOption::MEAN2 || oper == EStatOption::SUM2)
       result[i] = s2[i];
     else if (oper == EStatOption::STDV2)
       result[i] = v2[i];
@@ -1715,11 +1714,9 @@ Table dbStatisticsMulti(Db *db,
     _copyResults(nx, ny, num, result);
   else if (oper == EStatOption::MEAN)
     _copyResults(nx, ny, m1, result);
-  else if (oper == EStatOption::VAR)
-    _copyResults(nx, ny, v12, result);
-  else if (oper == EStatOption::CORR)
-    _copyResults(nx, ny, v12, result);
-  else if (oper == EStatOption::STDV)
+  else if (oper == EStatOption::VAR ||
+           oper == EStatOption::CORR ||
+           oper == EStatOption::STDV)
     _copyResults(nx, ny, v12, result);
   else if (oper == EStatOption::MINI)
     _copyResults(nx, ny, mini, result);
@@ -2029,13 +2026,10 @@ VectorVectorInt correlationPairs(Db *db1,
     messerr("No sample found where all variables are defined");
     return indices;
   }
-  else
+  if (verbose)
   {
-    if (verbose)
-    {
-      message("Total number of samples = %d\n", nech);
-      message("Number of samples defined = %d\n", (int) nb);
-    }
+    message("Total number of samples = %d\n", nech);
+    message("Number of samples defined = %d\n", (int)nb);
   }
   return indices;
 }
@@ -2103,14 +2097,14 @@ VectorVectorInt hscatterPairs(Db *db,
     if (hasSel && !db->isActive(iech)) continue;
     double val1 = db->getValue(name1, iech);
     if (FFFF(val1)) continue;
-    db->getSampleAsST(iech, T1);
+    db->getSampleAsSTInPlace(iech, T1);
 
     for (int jech = iech + 1; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
       double val2 = db->getValue(name2, jech);
       if (FFFF(val2)) continue;
-      db->getSampleAsST(jech, T2);
+      db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (!vario->keepPair(0, T1, T2, &dist)) continue;

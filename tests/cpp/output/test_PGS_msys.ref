@@ -64,7 +64,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 1)
+Matern (Third Parameter = 1)
 - Sill         =      1.000
 - Range        =      0.200
 - Theo. Range  =      0.058
@@ -154,7 +154,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -296,7 +296,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -334,7 +334,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -371,7 +371,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.7799)
+Matern (Third Parameter = 99.7799)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -388,7 +388,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.1952)
+Matern (Third Parameter = 99.1952)
 - Sill         =      0.588
 - Range        =      0.188
 - Theo. Range  =      0.005
@@ -440,7 +440,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.7799)
+Matern (Third Parameter = 99.7799)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -457,7 +457,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.7799)
+Matern (Third Parameter = 99.7799)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -479,7 +479,7 @@ Direction #1
 ------------
 Number of lags              = 19
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -626,7 +626,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 99.7799)
+Matern (Third Parameter = 99.7799)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004

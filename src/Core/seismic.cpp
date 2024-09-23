@@ -17,10 +17,11 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Memory.hpp"
+#include "Core/Seismic.hpp"
 
 #include <math.h>
 
@@ -148,7 +149,7 @@ static int st_velocity_minmax(int nech,
 static void st_yxtoxy(int nx,
                       double dx,
                       double x0,
-                      double *y,
+                      const double *y,
                       int ny,
                       double dy,
                       double y0,
@@ -242,7 +243,7 @@ static double dsinc(double x)
  ** \remark assumed symmetric.
  **
  *****************************************************************************/
-static void stoepd(int n, double *r, double *g, double *f, double *a)
+static void stoepd(int n, const double *r, const double *g, double *f, double *a)
 {
   int i, j;
   double v, e, c, w, bot;
@@ -313,12 +314,11 @@ static void st_mksinc(double d, int lsinc, double *sinc)
 
   /* compute auto-correlation and cross-correlation arrays */
   fmax = 0.066 + 0.265 * log((double) lsinc);
-  fmax = (fmax < 1.0) ? fmax :
-                        1.0;
+  fmax = (fmax < 1.0) ? fmax : 1.0;
   for (j = 0; j < lsinc; j++)
   {
     a[j] = dsinc(fmax * j);
-    c[j] = dsinc(fmax * (lsinc / 2 - j - 1 + d));
+    c[j] = dsinc(fmax * (lsinc / 2. - j - 1. + d));
   }
 
   /* solve symmetric Toeplitz system for the sinc approximation */
@@ -370,11 +370,11 @@ static void st_intt8r(int ntable,
                       int nxin,
                       double dxin,
                       double fxin,
-                      double *yin,
+                      const double *yin,
                       double yinl,
                       double yinr,
                       int nxout,
-                      double *xout,
+                      const double *xout,
                       double *yout)
 {
   int ioutb, nxinm8, ixout, ixoutn, kyin, ktable, itable;
@@ -460,8 +460,6 @@ static void st_weights(double table[][LTABLE])
   }
   table[0][LTABLE / 2 - 1] = 1.0;
   table[NTABLE - 1][LTABLE / 2] = 1.0;
-
-  return;
 }
 
 /****************************************************************************/
@@ -547,25 +545,21 @@ int seismic_z2t_grid(int verbose,
                      double *x0,
                      double *dx)
 {
-  double *vv, z0, t0, v0, v1, dz, dt, vmin, vmax;
-  int ndim, nech, nt, nz, error, i;
+  double z0, t0, v0, v1, dz, dt, vmin, vmax;
+  int ndim, nech, nt, nz, i;
 
   /* Initializations */
 
   if (! db_z->isGrid())
   {
     messerr("This procedure requires an input Grid Db");
-    return (1);
+    return 1;
   }
-  error = 1;
-  vv = nullptr;
   ndim = db_z->getNDim();
   nech = db_z->getSampleNumber();
 
   /* Core allocation */
 
-  vv = (double*) mem_alloc(nech * sizeof(double), 0);
-  if (vv == nullptr) goto label_end;
   for (i = 0; i < ndim; i++)
   {
     nx[i] = db_z->getNX(i);
@@ -575,8 +569,8 @@ int seismic_z2t_grid(int verbose,
 
   /* Read the velocity variable */
 
-  if (db_vector_get_att(db_z, iatt_v, vv)) goto label_end;
-  if (st_velocity_minmax(nech, vv, &v0, &v1, &vmin, &vmax)) goto label_end;
+  VectorDouble vv = db_z->getColumnByUID(iatt_v);
+  if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
 
   /* Update the vertical direction */
 
@@ -596,13 +590,7 @@ int seismic_z2t_grid(int verbose,
 
   if (verbose) st_seismic_debug(0, nz, z0, dz, 1, nt, t0, dt, vmin, vmax);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) vv);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -627,8 +615,8 @@ int seismic_t2z_grid(int verbose,
                      double *x0,
                      double *dx)
 {
-  double *vv, z0, t0, v0, v1, dz, dt, vmin, vmax;
-  int ndim, nech, nt, nz, error, i;
+  double z0, t0, v0, v1, dz, dt, vmin, vmax;
+  int ndim, nech, nt, nz, i;
 
   /* Initializations */
 
@@ -637,15 +625,11 @@ int seismic_t2z_grid(int verbose,
     messerr("This procedure requires an input Grid Db");
     return (1);
   }
-  error = 1;
-  vv = nullptr;
   ndim = db_t->getNDim();
   nech = db_t->getSampleNumber();
 
   /* Core allocation */
 
-  vv = (double*) mem_alloc(nech * sizeof(double), 0);
-  if (vv == nullptr) goto label_end;
   for (i = 0; i < ndim; i++)
   {
     nx[i] = db_t->getNX(i);
@@ -655,8 +639,8 @@ int seismic_t2z_grid(int verbose,
 
   /* Read the velocity variable */
 
-  if (db_vector_get_att(db_t, iatt_v, vv)) goto label_end;
-  if (st_velocity_minmax(nech, vv, &v0, &v1, &vmin, &vmax)) goto label_end;
+  VectorDouble vv = db_t->getColumnByUID(iatt_v);
+  if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
 
   /* Update the vertical direction */
 
@@ -676,13 +660,7 @@ int seismic_t2z_grid(int verbose,
 
   if (verbose) st_seismic_debug(1, nz, z0, dz, 0, nt, t0, dt, vmin, vmax);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  mem_free((char* ) vv);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -719,7 +697,6 @@ static void st_copy(int mode, DbGrid *db, int iatt, int ival, double *tab)
         db->setArray(iatt + nby * i + ival, iatt, tab[i]);
       break;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -757,7 +734,8 @@ static int st_match(DbGrid *db_z, DbGrid *db_t)
 
   error = 0;
 
-  label_end: if (error)
+label_end:
+  if (error)
   {
     messerr("Error for one of the following reasons:");
     messerr("- Different space dimensions: Depth(%d) - Time(%d)",
@@ -867,8 +845,6 @@ static void st_seismic_z2t_convert(DbGrid *db_z,
       st_copy(1, db_t, iatt_t + iatt, itrace, at);
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -961,8 +937,6 @@ static void st_seismic_t2z_convert(DbGrid *db_t,
       st_copy(1, db_z, iatt_z + iatt, itrace, az);
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1049,8 +1023,7 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x)) ? TEST :
-                               ABS(TR_IN(db, iatt_in, iatt, itrace, it)));
+                   (FFFF(x)) ? TEST : ABS(TR_IN(db, iatt_in, iatt, itrace, it)));
           }
         break;
 
@@ -1060,8 +1033,7 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   FFFF(x) ? TEST :
-                             SIGN(x, sqrt(ABS(x))));
+                   FFFF(x) ? TEST : SIGN(x, sqrt(ABS(x))));
           }
         break;
 
@@ -1070,8 +1042,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               x * x);
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : x * x);
           }
         break;
 
@@ -1080,8 +1051,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               SIGN(x, x * x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : SIGN(x, x * x));
           }
         break;
 
@@ -1090,8 +1060,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               SIGN(x, 1));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : SIGN(x, 1));
           }
         break;
 
@@ -1100,8 +1069,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               exp(x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : exp(x));
           }
         break;
 
@@ -1111,8 +1079,7 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || ABS(x) <= 0) ? TEST :
-                                              SIGN(x, log(ABS(x))));
+                   (FFFF(x) || ABS(x) <= 0) ? TEST : SIGN(x, log(ABS(x))));
           }
         break;
 
@@ -1122,8 +1089,7 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || ABS(x) <= 0) ? TEST :
-                                              SIGN(x, log10(ABS(x))));
+                   (FFFF(x) || ABS(x) <= 0) ? TEST : SIGN(x, log10(ABS(x))));
           }
         break;
 
@@ -1132,8 +1098,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               cos(x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : cos(x));
           }
         break;
 
@@ -1149,8 +1114,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               tan(x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : tan(x));
           }
         break;
 
@@ -1159,8 +1123,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               cosh(x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : cosh(x));
           }
         break;
 
@@ -1169,8 +1132,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               sinh(x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : sinh(x));
           }
         break;
 
@@ -1179,8 +1141,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               tanh(x));
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : tanh(x));
           }
         break;
 
@@ -1196,8 +1157,7 @@ static int st_seismic_operate(Db *db,
           if (max != 0.0) for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               x / max);
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : x / max);
           }
         }
         break;
@@ -1208,8 +1168,7 @@ static int st_seismic_operate(Db *db,
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(TEST) || ABS(x) <= 0) ? TEST :
-                                                 20.0 * SIGN(x, log10(ABS(x))));
+                   (FFFF(TEST) || ABS(x) <= 0) ? TEST : 20.0 * SIGN(x, log10(ABS(x))));
           }
         break;
 
@@ -1218,8 +1177,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST :
-                                                               -x);
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : -x);
           }
         break;
 
@@ -1228,8 +1186,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x) || x <= 0) ? TEST :
-                                                                         x);
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x) || x <= 0) ? TEST : x);
           }
         break;
 
@@ -1238,8 +1195,7 @@ static int st_seismic_operate(Db *db,
           for (it = 0; it < nt; it++)
           {
             x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x) || x >= 0) ? TEST :
-                                                                         x);
+            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x) || x >= 0) ? TEST : x);
           }
         break;
 
@@ -1254,8 +1210,7 @@ static int st_seismic_operate(Db *db,
             x = TR_IN(db, iatt_in, iatt, itrace, it);
             y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || FFFF(y)) ? TEST :
-                                          (x + y) * (2. * dt));
+                   (FFFF(x) || FFFF(y)) ? TEST : (x + y) * (2. * dt));
           }
         }
         break;
@@ -1270,33 +1225,28 @@ static int st_seismic_operate(Db *db,
             x = TR_IN(db, iatt_in, iatt, itrace, it + 1);
             y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
             TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || FFFF(y)) ? TEST :
-                                          (x - y) / (2. * dt));
+                   (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
           }
 
           /* simple difference for tr.data[0] */
           x = TR_IN(db, iatt_in, iatt, itrace, 1);
           y = TR_IN(db, iatt_in, iatt, itrace, 0);
           TR_OUT(db, iatt_out, iatt, itrace, 0,
-                 (FFFF(x) || FFFF(y)) ? TEST :
-                                        (x - y) / dt);
+                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / dt);
           x = TR_IN(db, iatt_in, iatt, itrace, nt - 1);
           y = TR_IN(db, iatt_in, iatt, itrace, nt - 2);
           TR_OUT(db, iatt_out, iatt, itrace, nt - 1,
-                 (FFFF(x) || FFFF(y)) ? TEST :
-                                        (x - y) / dt);
+                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / dt);
 
           /* centered difference for tr.data[1] */
           x = TR_IN(db, iatt_in, iatt, itrace, 2);
           y = TR_IN(db, iatt_in, iatt, itrace, 0);
           TR_OUT(db, iatt_out, iatt, itrace, 1,
-                 (FFFF(x) || FFFF(y)) ? TEST :
-                                        (x - y) / (2. * dt));
+                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
           x = TR_IN(db, iatt_in, iatt, itrace, nt - 1);
           y = TR_IN(db, iatt_in, iatt, itrace, nt - 3);
           TR_OUT(db, iatt_out, iatt, itrace, nt - 2,
-                 (FFFF(x) || FFFF(y)) ? TEST :
-                                        (x - y) / (2. * dt));
+                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
         }
         break;
 
@@ -1313,8 +1263,7 @@ static int st_seismic_operate(Db *db,
             {
               denom = (x + y);
               TR_OUT(db, iatt_out, iatt, itrace, it,
-                     (denom == 0.) ? TEST :
-                                     (x - y) / denom);
+                     (denom == 0.) ? TEST : (x - y) / denom);
             }
           }
           TR_OUT(db, iatt_out, iatt, itrace, 0, TEST);
@@ -1513,10 +1462,10 @@ static double* st_seismic_wavelet(int verbose,
  *****************************************************************************/
 static void st_seismic_convolve(int nx,
                                 int ix0,
-                                double *x,
+                                const double *x,
                                 int ny,
                                 int iy0,
-                                double *y,
+                                const double *y,
                                 int nz,
                                 int iz0,
                                 double *z)
@@ -1542,7 +1491,6 @@ static void st_seismic_convolve(int nx,
       sum += x[j] * y[i - j];
     z[i] = sum;
   }
-  return;
 }
 
 /****************************************************************************/
@@ -1587,7 +1535,7 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
 
   iatt_t = db_t->addColumnsByConstant(natt, 0.);
   if (iatt_t < 0) goto label_end;
-  iatt_z = db_attribute_identify(db_z, ELoc::Z, 0);
+  iatt_z = db_z->getUIDByLocator(ELoc::Z, 0);
 
   /* Core allocation */
 
@@ -1659,7 +1607,7 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
 
   iatt_z = db_z->addColumnsByConstant(natt, 0.);
   if (iatt_z < 0) goto label_end;
-  iatt_t = db_attribute_identify(db_t, ELoc::Z, 0);
+  iatt_t = db_t->getUIDByLocator(ELoc::Z, 0);
 
   /* Core allocation */
 
@@ -1717,7 +1665,7 @@ int seismic_operate(DbGrid *db, int oper)
 
   /* Create the output variables */
 
-  iatt_in = db_attribute_identify(db, ELoc::Z, 0);
+  iatt_in = db->getUIDByLocator(ELoc::Z, 0);
   if (iatt_in < 0) return (1);
   iatt_out = db->addColumnsByConstant(natt, 0.);
   if (iatt_out < 0) return (1);
@@ -1751,7 +1699,7 @@ static void st_seismic_affect(Db     * /*db*/,
                               double  val_before,
                               double  val_middle,
                               double  val_after,
-                              double *tab0,
+                              const double *tab0,
                               double *tab1)
 {
   int iz, flag_already;
@@ -1781,8 +1729,6 @@ static void st_seismic_affect(Db     * /*db*/,
     }
     tab1[iz + shift] = value;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -1815,7 +1761,6 @@ static void st_seismic_contrast(int nz, double *tab)
     }
   }
   tab[0] = TEST;
-  return;
 }
 
 /****************************************************************************/
@@ -1890,7 +1835,7 @@ int seismic_convolve(DbGrid *db,
   /* Create the output variables */
 
   error = 1;
-  iatt_in = db_attribute_identify(db, ELoc::Z, 0);
+  iatt_in = db->getUIDByLocator(ELoc::Z, 0);
   if (iatt_in < 0) return (1);
   iatt_out = db->addColumnsByConstant(natt, 0.);
   if (iatt_out < 0) return (1);
@@ -1978,12 +1923,13 @@ int seismic_convolve(DbGrid *db,
  *****************************************************************************/
 static int st_absolute_index(DbGrid *db, int ix, int iz)
 {
-  int indg[3];
+  int ndim = db->getNDim();
+  VectorInt indg(ndim,0);
 
   indg[0] = ix;
   indg[1] = 0;
   indg[2] = iz;
-  return (db_index_grid_to_sample(db, indg));
+  return db->indiceToRank(indg);
 }
 
 /****************************************************************************/
@@ -2012,7 +1958,6 @@ static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
     ecr++;
   }
   ngh->nactive = ecr;
-  return;
 }
 
 /****************************************************************************/
@@ -2072,8 +2017,6 @@ static void st_sample_add(DbGrid *db,
   if (!FFFF(v1)) ngh->n_v1++;
   if (!FFFF(v2)) ngh->n_v2++;
   ngh->nactive++;
-
-  return;
 }
 
 /****************************************************************************/
@@ -2106,12 +2049,10 @@ static void st_estimate_check_presence(DbGrid *db,
     for (iz = 0; iz < NZ; iz++)
     {
       iech = st_absolute_index(db, ix, iz);
-      if (!FFFF(db->getLocVariable(ELoc::Z,iech, ivar))) presence[ix]++;
+      if (!FFFF(db->getZVariable(iech, ivar))) presence[ix]++;
     }
     if (presence[ix] > 0) (*npres)++;
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2267,7 +2208,6 @@ static void st_estimate_neigh_copy(ST_Seismic_Neigh *ngh_cur,
     ngh_old->v2_ngh[i] = ngh_cur->v2_ngh[i];
   }
   ngh_old->nactive = ngh_cur->nactive;
-  return;
 }
 
 /****************************************************************************/
@@ -2495,8 +2435,6 @@ static void st_estimate_flag(ST_Seismic_Neigh *ngh,
   *nred = 0;
   for (i = 0; i < neqmax; i++)
     (*nred) += flag[i];
-
-  return;
 }
 
 /****************************************************************************/
@@ -2516,8 +2454,6 @@ static void st_estimate_var0(Model *model, double *var0)
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     var0[ivar] = covtab.getValue(ivar, ivar);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2538,8 +2474,6 @@ static void st_estimate_c00(Model *model, double *c00)
   for (int ivar = 0; ivar < NVAR; ivar++)
     for (int jvar = 0; jvar < NVAR; jvar++)
       C00(ivar,jvar) = covtab.getValue(ivar, jvar);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2611,8 +2545,6 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
       if (flag[i] && flag[j]) lhs[ecr++] = lhs[lec];
 
   if (OptDbg::query(EDbg::KRIGING)) krige_lhs_print(nech, neqmax, nred, flag, lhs);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2682,8 +2614,6 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
 
   if (OptDbg::query(EDbg::KRIGING))
     krige_rhs_print(NVAR, nech, neqmax, nred, flag, rhs);
-
-  return;
 }
 
 /****************************************************************************/
@@ -2702,8 +2632,8 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
                          int nvar,
                          int nech,
                          int nred,
-                         int *flag,
-                         double *wgt)
+                         const int *flag,
+                         const double *wgt)
 {
   double sum[2], value;
   int iwgt, ivar, jvar, iech, lec, cumflag;
@@ -2763,8 +2693,6 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
       tab_printg(NULL, sum[ivar]);
     message("\n");
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2828,10 +2756,10 @@ static void st_estimate_result(Db     *db,
                                int     flag_std,
                                int     /*nfeq*/,
                                int     nred,
-                               int    *flag,
-                               double *wgt,
-                               double *rhs,
-                               double *var0,
+                               const int    *flag,
+                               const double *wgt,
+                               const double *rhs,
+                               const double *var0,
                                int *iatt_est,
                                int *iatt_std)
 {
@@ -2883,7 +2811,6 @@ static void st_estimate_result(Db     *db,
       message("\n");
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -2910,10 +2837,10 @@ static void st_simulate_result(DbGrid *db,
                                int     nbsimu,
                                int     /*nfeq*/,
                                int     nred,
-                               int    *flag,
-                               double *wgt,
-                               double *rhs,
-                               double *c00,
+                               const int    *flag,
+                               const double *wgt,
+                               const double *rhs,
+                               const double *c00,
                                int *iatt_sim)
 {
   int i, ivar, jvar, nech, lec, isimu, iech;
@@ -2992,8 +2919,6 @@ static void st_simulate_result(DbGrid *db,
       }
     }
   }
-
-  return;
 }
 
 /****************************************************************************/
@@ -3007,7 +2932,7 @@ static void st_simulate_result(DbGrid *db,
  ** \param[out] rank     Array giving the order of the traces
  **
  *****************************************************************************/
-static int st_estimate_sort(int *presence, int *rank)
+static int st_estimate_sort(const int *presence, int *rank)
 {
   double *dist, distmin, distval;
   int ix, jx;
@@ -3106,10 +3031,10 @@ int seismic_estimate_XZ(DbGrid *db,
   DX = db->getDX(0);
   DZ = db->getDX(2);
   NVAR = db->getLocNumber(ELoc::Z);
-  iatt_z1 = db_attribute_identify(db, ELoc::Z, 0);
-  iatt_z2 = db_attribute_identify(db, ELoc::Z, 1);
+  iatt_z1 = db->getUIDByLocator(ELoc::Z, 0);
+  iatt_z2 = db->getUIDByLocator(ELoc::Z, 1);
 
-  if (!(NX > 1 && NY == 1 && NZ > 1))
+  if (NX <= 1 || NY != 1 || NZ <= 1)
   {
     messerr("The Db grid is not XZ");
     goto label_end;
@@ -3293,7 +3218,7 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
 
     for (iech = 0; iech < nech; iech++)
     {
-      value = db->getLocVariable(ELoc::Z,iech, ivar);
+      value = db->getZVariable(iech, ivar);
 
       /* Loop on the simulations */
 
@@ -3301,7 +3226,6 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
         db->setArray(iech, iatt[ivar] + isimu, value);
     }
   }
-  return;
 }
 
 /****************************************************************************/
@@ -3370,7 +3294,7 @@ int seismic_simulate_XZ(DbGrid *db,
   DZ = db->getDX(2);
   NVAR = db->getLocNumber(ELoc::Z);
 
-  if (!(NX > 1 && NY == 1 && NZ > 1))
+  if (NX <= 1 || NY != 1 || NZ <= 1)
   {
     messerr("The Db grid is not XZ");
     goto label_end;

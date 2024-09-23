@@ -39,18 +39,18 @@ jobs:
         os: [ubuntu-20.04]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
         sudo rm /etc/apt/sources.list.d/microsoft-prod.list
         sudo apt-get update
         sudo apt-get install -yq \
+          doxygen \
           libhdf5-dev \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev \
-          doxygen
+          libeigen3-dev
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
@@ -69,10 +69,10 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
-    - name : Configure CMake
+    - name : Configure build directory
       run : |
         cmake \
-          -B${{env.BUILD_DIR}} \
+          -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=ON \
           -DBUILD_DOXYGEN=ON \
@@ -83,7 +83,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ubuntu-r-package-${{matrix.os}}-r-${{matrix.r_version}}
         path: ${{env.MY_PKG}}
@@ -96,14 +96,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: fabien-ors/cran-publish-action@v3
+    - uses: fabien-ors/cran-publish-action@v4
       with:
         host: ${{secrets.CG_HOST}}
         username: ${{secrets.CG_USR}}
         password: ${{secrets.CG_PWD}}
         repo-path: "/var/www/html/cran"
 
-    # Delete the artifacts (for freeing storage space under github)
-    - uses: geekyeggo/delete-artifact@v2
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v5
       with:
         name: ubuntu-r-package-${{matrix.os}}-r-${{matrix.r_version}}

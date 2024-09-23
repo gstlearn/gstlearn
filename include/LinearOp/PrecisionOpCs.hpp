@@ -10,10 +10,16 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
+#ifndef SWIG
+  #include <Eigen/src/Core/Matrix.h>
+#endif
+
 class AMesh;
+class Cholesky;
 class ShiftOpCs;
 class CovAniso;
 class Model;
@@ -27,35 +33,37 @@ class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
-                bool flagDecompose = false,
                 bool verbose = false);
   PrecisionOpCs(const AMesh* mesh,
-                Model* model,
-                int icov = 0,
-                bool flagDecompose = false,
-                const CGParam params = CGParam(),
+                CovAniso* cova,
                 bool verbose = false);
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
-  void evalDirect(const VectorDouble &vecin, VectorDouble &vecout) override;
-  void evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout) override;
-  void evalInverse(VectorDouble& vecin, VectorDouble& vecout) override;
-  void makeReady() override;
+  #ifndef SWIG
+  void evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout) override;
+  int _addSimulateToDest(const Eigen::VectorXd &whitenoise, Eigen::VectorXd& outv) const override;
+  int _addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd& outv) const override;
+  #endif
 
-  double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
-
-  void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam,const EPowerPT& power) override;
-  void evalDerivOptim(VectorDouble& outv,int iapex,int igparam, const EPowerPT& power) override;
+  double getLogDeterminant(int nbsimu = 1) override;
+  
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
-  void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
-  void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
-
-  MatrixSparse* getQ() const { return _Q; }
+  #ifndef SWIG
+  void evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,int iapex,int igparam,const EPowerPT& power) override;
+  void evalDerivOptim(Eigen::VectorXd& outv,int iapex,int igparam, const EPowerPT& power) override;
+  void gradYQX(const Eigen::VectorXd & X, 
+               const Eigen::VectorXd &Y,
+               Eigen::VectorXd& result, const EPowerPT& power) override;
+  void gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,Eigen::VectorXd& result, const EPowerPT& power) override;
+  #endif
+  const MatrixSparse* getQ() const { return _Q; }
 
 private:
-  void _buildQ(bool flagDecompose = false);
+  void _buildQ();
+  MatrixSparse* _build_Q();
 
 private:
   MatrixSparse* _Q;
+  mutable Cholesky* _chol;
 };

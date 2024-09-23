@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "API/SPDE.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -16,20 +15,12 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -62,7 +53,7 @@ int main(int argc, char *argv[])
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   CovAniso* cova = model->getCova(0);
@@ -73,17 +64,15 @@ int main(int argc, char *argv[])
 
   if (flagDirect)
   {
-    NoStatFunctional noStatFunc(&spirale);
-    model->addNoStat(&noStatFunc);
+    cova->makeAngleNoStatFunctional(&spirale);
   }
   else
   {
-    NoStatArray noStatArray;
     if (flagByAngle)
     {
       VectorDouble angle = spirale.getFunctionValues(workingDbc);
-      workingDbc->addColumns(angle, "Angle", ELoc::NOSTAT, 0);
-      noStatArray = NoStatArray( { "A" }, workingDbc);
+      workingDbc->addColumns(angle, "Angle");
+      cova->makeAngleNoStatDb("Angle",0,workingDbc);
     }
     else
     {
@@ -91,9 +80,10 @@ int main(int argc, char *argv[])
       workingDbc->addColumns(hh[0], "H1-1", ELoc::NOSTAT, 0);
       workingDbc->addColumns(hh[1], "H1-2", ELoc::NOSTAT, 1);
       workingDbc->addColumns(hh[2], "H2-2", ELoc::NOSTAT, 2);
-      noStatArray = NoStatArray( { "H1-1", "H1-2", "H2-2" }, workingDbc);
+      cova->makeTensorNoStatDb("H1-1",0,0,workingDbc);
+      cova->makeTensorNoStatDb("H1-2",0,1,workingDbc);
+      cova->makeTensorNoStatDb("H2-2",1,1,workingDbc);
     }
-    model->addNoStat(&noStatArray);
   }
 
   // Inquiry the value of the Non-stationary parameters at a given sample
@@ -105,7 +95,8 @@ int main(int argc, char *argv[])
   }
 
   int useCholesky = 0;
-  (void) simulateSPDE(nullptr, workingDbc, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
+  law_set_random_seed(13256);
+  (void) simulateSPDE(nullptr, workingDbc, model, 1, nullptr, useCholesky, SPDEParam(),  false, false,
                       NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Simu"});
@@ -116,5 +107,6 @@ int main(int argc, char *argv[])
   message("Test performed successfully\n");
 
   delete workingDbc;
+  delete model;
   return 0;
 }

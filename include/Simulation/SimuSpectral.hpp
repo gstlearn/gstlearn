@@ -12,11 +12,10 @@
 
 #include "gstlearn_export.hpp"
 
-#include "ACalcSimulation.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
-class MatrixRectangular;
 
 typedef struct
 {
@@ -29,6 +28,9 @@ typedef struct
 /**
  * Class for operating the Spectral simulations
  */
+
+class Model;
+
 class GSTLEARN_EXPORT SimuSpectral
 {
 public:

@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
-#include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -44,8 +42,14 @@ int main(int argc, char *argv[])
 
   Timer timer;
   VectorDouble dist(nsample);
+  SpacePoint p0;
+  SpacePoint p;
+  data->getSampleAsSPInPlace(0, p0);
   for (int i = 0; i < nsample; i++)
-    dist[i] = data->getDistance(i, 0);
+  {
+    data->getSampleAsSPInPlace(i, p);
+    dist[i] = p0.getDistance(p);
+  }
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 310);
 
   // Produce some statistics for comparison
@@ -53,8 +57,7 @@ int main(int argc, char *argv[])
   data->display(dbfmt);
 
   delete dbfmt;
-
-  if (data != nullptr) delete data;
+  delete data;
 
   return (0);
 }

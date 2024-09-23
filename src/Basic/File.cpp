@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "Basic/AStringable.hpp"
+#include "geoslib_define.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>

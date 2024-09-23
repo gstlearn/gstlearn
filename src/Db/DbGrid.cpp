@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -17,25 +15,17 @@
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/String.hpp"
-#include "Basic/CSVformat.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
-#include "Morpho/Morpho.hpp"
 #include "Space/SpaceTarget.hpp"
 
 #include <algorithm>
-#include <functional>
 #include <math.h>
 
 DbGrid::DbGrid()
@@ -100,8 +90,8 @@ String DbGrid::toString(const AStringFormat* strfmt) const
  *                      The dimension of this array cannot exceed the space dimension.
  * @param order         Flag for values order in 'tab' (defined ELoadBy.hpp)
  * @param tab           Variable values array (size = nvar * nsamples)
- * @param names         Variable names (size = nvar)
- * @param locatorNames  Locators for each variable (size = nvar)
+ * @param names         Names of the Variables of 'tab' (size = nvar)
+ * @param locatorNames  Locators for each variable of array 'tab' (size = nvar)
  * @param flagAddSampleRank If true, add an automatic rank variable
  * @param flagAddCoordinates If TRUE, add the grid coordinates
  */
@@ -382,7 +372,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                   VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank' and coordinates
-  (void) migrateAllVariables(dbin, dbgrid, flagAddSampleRank);
+  (void) dbgrid->migrateAllVariables(dbin, true, true, false, flagAddSampleRank);
 
   return dbgrid;
 }
@@ -522,7 +512,8 @@ DbGrid* DbGrid::createFromGridShrink(const DbGrid &gridIn,
     }
   }
   VectorInt ranks = deletedRanks;
-  (void) std::unique(ranks.begin(), ranks.end());
+  auto last = std::unique(ranks.begin(), ranks.end());
+  ranks.erase(last, ranks.end());
   std::sort(ranks.begin(), ranks.end());
   std::reverse(ranks.begin(), ranks.end());
 
@@ -578,20 +569,23 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
                   VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank'  and coordinates
-  (void) migrateAllVariables(dbin, dbgrid, flagAddSampleRank);
+  (void) dbgrid->migrateAllVariables(dbin, true, true, false, flagAddSampleRank);
 
   return dbgrid;
 }
 
 /**
- * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'dbout' (grid)
+ * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'this'
+(grid)
  * @param dbin  Input Db
- * @param dbout Output db
  * @param flagAddSampleRank true if the rank of the samples must be aaded
+ * @param flag_fill  Filling option
+ * @param flag_inter Interpolation
+ * @param flag_ball  Use BallTree sorting algorithm when available
  * @return
  */
-bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank)
-{
+bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
+                                 bool flag_ball, bool flagAddSampleRank) {
   ELoc locatorType;
   int  locatorIndex;
 
@@ -615,17 +609,18 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, bool flagAddSampleRank)
   if (ncol <= 0) return true;
 
   // Migrate the variables
-  int icolOut = dbout->getColumnNumber();
-  if (migrateByAttribute(dbin, dbout, icols, 2, VectorDouble(), true, true, false,
-                         NamingConvention(String()))) return false;
+  int icolOut = getColumnNumber();
+  if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
+                         flag_inter, flag_ball, NamingConvention(String())))
+    return false;
 
   // Duplicate the locators
   for (int icol = 0; icol < ncol; icol++)
   {
     if (dbin->getLocatorByColIdx(icols[icol], &locatorType, &locatorIndex))
-      dbout->setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
+      setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
     else
-      dbout->setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
+      setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
   }
   return true;
 }
@@ -734,6 +729,11 @@ void DbGrid::resetDims(int ncol, int /*nech*/)
 {
   int nech = _grid.getNTotal();
   Db::resetDims(ncol, nech);
+}
+
+bool DbGrid::isConsistent() const
+{
+  return _grid.getNTotal() == getSampleNumber();
 }
 
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
@@ -1107,11 +1107,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     messerr("This method is limited to 3-D Grid data base");
     return tab;
   }
-  if (pos < 0 || pos > 2)
-  {
-    mesArg("Argument 'pos'", pos, 3);
-    return tab;
-  }
+  if (!checkArg("Argument 'pos'", pos, 3)) return tab;
   int iuid = getUID(name);
   if (iuid < 0)
   {
@@ -1130,12 +1126,8 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     int n2 = getNX(2);
     int n3 = getNX(0);
     int nech = n1 * n2;
-    for (int i = 0; i < nvect; i++) tab[i].resize(nech,TEST);
-    if (indice < 0 || indice >= n3)
-    {
-      mesArg("Error in argument 'indice'",indice,n3);
-      return VectorVectorDouble();
-    }
+    for (int i = 0; i < nvect; i++) tab[i].resize(nech, TEST);
+    if (!checkArg("Error in argument 'indice'", indice, n3)) return VectorVectorDouble();
     indices[0] = indice;
 
     int ecr = 0;
@@ -1164,11 +1156,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     int nech = n1 * n2;
     for (int i = 0; i < nvect; i++)
       tab[i].resize(nech, TEST);
-    if (indice < 0 || indice >= n3)
-    {
-      mesArg("Error in argument 'indice'",indice,n3);
-      return VectorVectorDouble();
-    }
+    if (!checkArg("Error in argument 'indice'", indice, n3)) return VectorVectorDouble();
     indices[1] = indice;
 
     int ecr = 0;
@@ -1195,13 +1183,8 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
     int n2 = getNX(1);
     int n3 = getNX(2);
     int nech = n1 * n2;
-    for (int i = 0; i < nvect; i++)
-      tab[i].resize(nech, TEST);
-    if (indice < 0 || indice >= n3)
-    {
-      mesArg("Error in argument 'indice'",indice,n3);
-      return VectorVectorDouble();
-    }
+    for (int i = 0; i < nvect; i++) tab[i].resize(nech, TEST);
+    if (!checkArg("Error in argument 'indice'", indice, n3)) return VectorVectorDouble();
     indices[2] = indice;
 
     int ecr = 0;
@@ -1380,16 +1363,13 @@ VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
 
 VectorDouble DbGrid::getBlockExtensions(int node) const
 {
-  int ndim = getNDim();
-
-  VectorDouble dxsPerCell = getDXs();
-  if (hasLocVariable(ELoc::BLEX))
+  VectorDouble dxsPerCell;
+  if (!hasLocVariable(ELoc::BLEX))
+    dxsPerCell = getDXs();
+  else
   {
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      double value = getLocVariable(ELoc::BLEX,node, idim);
-      if (! FFFF(value)) dxsPerCell[idim] = value;
-    }
+    int ndim   = getNDim();
+    dxsPerCell = getLocVariables(ELoc::BLEX, node, ndim);
   }
   return dxsPerCell;
 }
@@ -1470,7 +1450,7 @@ void DbGrid::_interpolate(const DbGrid *grid3D,
                           double top,
                           double bot,
                           const VectorDouble &vecin,
-                          VectorDouble &vecout)
+                          VectorDouble &vecout) const
 {
   int    nzin  = grid3D->getNX(idim0);
   double z0out = getX0(idim0);
@@ -2109,7 +2089,6 @@ void DbGrid::clean3DFromSurfaces(const VectorString& names,
     message("- Number of values blanked out = %d\n", nmodif3D);
     message("- Maximum Layer thickness      = %lf\n", thickA);
   }
-  return;
 }
 
 VectorInt DbGrid::locateDataInGrid(const Db *data,
@@ -2198,12 +2177,14 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
   return err;
 }
 
-void DbGrid::getSampleAsST(int iech, SpaceTarget& P) const
+void DbGrid::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
-  Db::getSampleAsST(iech, P);
+  // Initiate the SpacePoint (performed in Db class)
+  Db::getSampleAsSTInPlace(iech, P);
 
-  // Load the target extension
-  P.setExtend(getBlockExtensions(iech));
+  // Load the extension
+  if (P.checkExtend())
+    P.setExtend(getBlockExtensions(iech));
 }
 
 /**
@@ -2257,3 +2238,76 @@ VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt &ndiscs,
   return discs;
 }
 
+/****************************************************************************/
+/*!
+ **  Create a Grid Db as a multiple of another Grid Db
+ **
+ ** \return  Pointer to the newly created Db grid structure
+ **
+ ** \param[in]  dbin      Initial Db Grid
+ ** \param[in]  nmult     Array of multiplicity coefficients
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
+ **  **
+ *****************************************************************************/
+DbGrid* DbGrid::createMultiple(DbGrid* dbin,
+                               const VectorInt& nmult,
+                               bool flagAddSampleRank)
+{
+  DbGrid* dbout = nullptr;
+  if (dbin == nullptr) return (dbin);
+  int ndim = dbin->getNDim();
+
+  /* Core allocation */
+
+  VectorInt nx(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+
+  /* Get the new grid characteristics */
+
+  dbin->getGrid().multiple(nmult, 1, nx, dx, x0);
+
+  /* Create the new grid */
+
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(),
+                         flagAddSampleRank);
+
+  return dbout;
+}
+
+/****************************************************************************/
+/*!
+ **  Create a Grid Db as a divider of another Grid Db
+ **
+ ** \return  Pointer to the newly created Db grid structure
+ **
+ ** \param[in]  dbin      Initial Db Grid
+ ** \param[in]  nmult     Array of subdivision coefficients
+ ** \param[in]  flagAddSampleRank true to add the 'rank' as first column
+ **
+ *****************************************************************************/
+DbGrid* DbGrid::createDivider(DbGrid* dbin,
+                              const VectorInt& nmult,
+                              bool flagAddSampleRank)
+{
+  DbGrid* dbout = nullptr;
+  if (dbin == nullptr) return dbin;
+
+  int ndim = dbin->getNDim();
+  VectorInt nx(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+
+  /* Get the new grid characteristics */
+
+  dbin->getGrid().divider(nmult, 1, nx, dx, x0);
+
+  /* Create the new grid */
+
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(),
+                         flagAddSampleRank);
+
+  return dbout;
+}

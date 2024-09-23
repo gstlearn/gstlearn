@@ -16,7 +16,6 @@
 #include "Enum/EJustify.hpp"
 #include "Basic/AStringFormat.hpp"
 
-#include <sstream>
 class AMatrix;
 
 class GSTLEARN_EXPORT AStringable
@@ -41,8 +40,9 @@ GSTLEARN_EXPORT void   messerrFlush(const String& string);
 GSTLEARN_EXPORT void   messerr(const char *format,...);
 GSTLEARN_EXPORT void   message(const char *format,...);
 GSTLEARN_EXPORT void   messageNoDiff(const char *format,...);
-GSTLEARN_EXPORT void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
-GSTLEARN_EXPORT void   messageAbort(const char *format,...);
+GSTLEARN_EXPORT void   mesArg(const char* title, int current, int nmax);
+GSTLEARN_EXPORT bool   checkArg(const char* title, int current, int nmax);
+GSTLEARN_EXPORT void   messageAbort(const char* format, ...);
 GSTLEARN_EXPORT void   mestitle(int level,const char *format,...);
 GSTLEARN_EXPORT void   mes_process(const char *string, int ntot, int iech);
 GSTLEARN_EXPORT String toTitle(int level, const char* format, ...);
@@ -116,7 +116,7 @@ GSTLEARN_EXPORT void tab_print_rc(const char *title,
 GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille);
 GSTLEARN_EXPORT void print_matrix(const char *title,
                                   int flag_limit,
-                                  int byrow,
+                                  int bycol,
                                   int nx,
                                   int ny,
                                   const double *sel,

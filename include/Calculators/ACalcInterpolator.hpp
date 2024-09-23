@@ -39,13 +39,13 @@ public:
 protected:
   virtual bool _check() override;
   virtual bool _preprocess() override;
-  virtual int  _getNDim() const override;
-  virtual int  _getNVar() const override;
-  virtual int  _getNCova() const;
+  int _getNCova() const { return _ncova; }
+  bool _setNCova(int ncova);
 
   int _centerDataToGrid(DbGrid* dbgrid);
 
 private:
-  Model* _model;
+  Model*  _model;
   ANeigh* _neigh;
+  int _ncova;
 };

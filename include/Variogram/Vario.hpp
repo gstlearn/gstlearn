@@ -12,13 +12,28 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "geoslib_d.h"
 
+#include "Db/DbGrid.hpp"
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Geometry/BiTargetCheckDistance.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Geometry/ABiTargetCheck.hpp"
+
+typedef struct
+{
+  int nalloc;
+  int npair;
+  int size_aux;
+  int flag_dist;
+  VectorInt tab_iech;
+  VectorInt tab_jech;
+  VectorInt tab_ipas;
+  VectorInt tab_sort;
+  char* tab_aux_iech;
+  char* tab_aux_jech;
+  VectorDouble tab_dist;
+} Vario_Order;
 
 class Db;
 class Model;
@@ -201,19 +216,24 @@ public:
   const VectorDouble& getAllSw(int idir = 0) const;
   const VectorDouble& getAllUtilize(int idir = 0) const;
 
-  void setGgByIndex(int idir, int i, double gg);
-  void setHhByIndex(int idir, int i, double hh);
-  void setSwByIndex(int idir, int i, double sw);
-  void setUtilizeByIndex(int idir, int i, double utilize);
+  void setGgByIndex(int idir, int i, double gg, bool flagCheck = true);
+  void setHhByIndex(int idir, int i, double hh, bool flagCheck = true);
+  void setSwByIndex(int idir, int i, double sw, bool flagCheck = true);
+  void setUtilizeByIndex(int idir, int i, double utilize, bool flagCheck = true);
 
-  void setSw(int idir, int ivar, int jvar, int ipas, double sw);
-  void setHh(int idir, int ivar, int jvar, int ipas, double hh);
-  void setGg(int idir, int ivar, int jvar, int ipas, double gg);
-  void setUtilize(int idir, int ivar, int jvar, int ipas, double utilize);
+  void setSw(int idir, int ivar, int jvar, int ipas, double sw, bool flagCheck = true);
+  void setHh(int idir, int ivar, int jvar, int ipas, double hh, bool flagCheck = true);
+  void setGg(int idir, int ivar, int jvar, int ipas, double gg, bool flagCheck = true);
+  void setUtilize(int idir,
+                  int ivar,
+                  int jvar,
+                  int ipas,
+                  double utilize,
+                  bool flagCheck = true);
 
-  void updateSwByIndex(int idir, int i, double sw);
-  void updateHhByIndex(int idir, int i, double hh);
-  void updateGgByIndex(int idir, int i, double gg);
+  void updateSwByIndex(int idir, int i, double sw, bool flagCheck = true);
+  void updateHhByIndex(int idir, int i, double hh, bool flagCheck = true);
+  void updateGgByIndex(int idir, int i, double gg, bool flagCheck = true);
 
   int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
   int getNext(int ivar = 0, int jvar = 0, int idir = 0, int shift = 1) const;
@@ -245,7 +265,8 @@ public:
                     int jvar,
                     int ipas,
                     bool flag_abs = false,
-                    int sens = 0) const;
+                    int sens      = 0,
+                    bool flagCheck = true) const;
   int getVarAddress(int ivar, int jvar) const;
   int getLagTotalNumber(int idir) const;
 
@@ -266,7 +287,7 @@ public:
                    int nfacmax = -1);
   int computeGeometry(Db *db, Vario_Order *vorder, int *npair);
   int computeVarioVect(Db *db, int ncomp);
-  int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder);
+  int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder) const;
 
   int regularizeFromModel(const Model &model,
                           const VectorDouble &ext,
@@ -316,19 +337,23 @@ public:
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
-  VectorInt getGrincrs(int idir) { return getDirParam(idir).getGrincrs(); }
-  double getGrincr(int idir, int idim) { return getDirParam(idir).getGrincr(idim); }
+  VectorInt getGrincrs(int idir) const { return getDirParam(idir).getGrincrs(); }
+  double getGrincr(int idir, int idim) const { return getDirParam(idir).getGrincr(idim); }
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(int nvar) { _nVar = nvar; }
-  void setCalculName(const String calcul_name);
+  void setCalculByName(const String& calcul_name);
+  void setVariableNames(const VectorString &variableNames) { _variableNames = variableNames; }
+  void setVariableName(int ivar, const String &variableName);
 
   int  prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), bool defineList = true);
 
   const VarioParam& getVarioParam() const { return _varioparam; }
   int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
-  bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist);
-  int getRankFromDirAndDate(int idir, int idate);
+  bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist) const;
+  int getRankFromDirAndDate(int idir, int idate) const;
+  const VectorString& getVariableNames() const { return _variableNames; }
+  String getVariableName(int ivar) const;
 
   int transformCut(int nh, double ycut);
   int transformZToY(const AAnam *anam);
@@ -341,10 +366,10 @@ protected:
   String _getNFName() const override { return "Vario"; }
 
 private:
-  bool _isVariableValid(int ivar) const;
-  bool _isDirectionValid(int idir) const;
-  bool _isBivariableValid(int ijvar) const;
-  bool _isAddressValid(int i, int idir) const;
+  bool _isVariableValid(int ivar, bool flagCheck = true) const;
+  bool _isDirectionValid(int idir, bool flagCheck = true) const;
+  bool _isBivariableValid(int ijvar, bool flagCheck = true) const;
+  bool _isAddressValid(int i, int idir, bool flagCheck = true) const;
   void _initMeans();
   void _initVars();
   int  _getNVar(const Db* db);
@@ -354,7 +379,7 @@ private:
   void _directionResize(int idir);
   void _setDPasFromGrid(bool flag_grid);
   void _setFlagAsym();
-  VectorDouble _varsFromProportions(VectorDouble props);
+  static VectorDouble _varsFromProportions(VectorDouble props);
   void _clearBiTargetCheck();
   void _addBiTargetCheck(ABiTargetCheck* abpc);
   void _setListBiTargetCheck();
@@ -374,14 +399,14 @@ private:
   int  _calculateGenOnGrid(DbGrid *db, int norder);
   int  _calculateOnGrid(DbGrid *db);
 
-  int  _getRelativeSampleRank(Db *db, int iech0);
+  static int  _getRelativeSampleRank(Db *db, int iech0);
   int  _updateUK(Db *db, Vario_Order *vorder);
   void _patchC00(Db *db, int idir);
   int  _get_generalized_variogram_order();
   void _getStatistics(Db *db);
   int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
-  double _s(Db *db, int iech, int jech);
-  double _g(Db *db, int iech, int jech);
+  static double _s(Db *db, int iech, int jech);
+  double _g(Db *db, int iech, int jech) const;
   void _calculateBiasLocal(Db *db,
                            int idir,
                            int ipas,
@@ -392,35 +417,35 @@ private:
   double _getBias(int iiech, int jjech);
 
   void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
-  int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);
-  int  _calculateGeneralSolution2(Db *db, int idir, int *rindex);
+  int  _calculateGeneralSolution1(Db *db, int idir, const int *rindex, Vario_Order *vorder);
+  int  _calculateGeneralSolution2(Db *db, int idir, const int *rindex);
   int  _calculateOnGridSolution(DbGrid *db, int idir);
   int  _calculateGenOnGridSolution(DbGrid *db, int idir, int norder);
-  int  _calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex);
+  int  _calculateVarioVectSolution(Db *db, int idir, int ncomp, const int *rindex);
   void _calculateOnLineSolution(Db *db, int idir, int norder);
 
   void _driftManage(Db *db);
   int  _driftEstimateCoefficients(Db *db);
 
-  void _printDebug(int iech1,
-                   int iech2,
-                   int ivar,
-                   int jvar,
-                   int ilag,
-                   double scale,
-                   double value);
+  static void _printDebug(int iech1,
+                          int iech2,
+                          int ivar,
+                          int jvar,
+                          int ilag,
+                          double scale,
+                          double value);
   void _centerCovariance(Db *db, int idir);
   void _getVarioVectStatistics(Db *db, int ncomp);
   void _rescale(int idir);
   bool _isCompatible(const Db *db) const;
-  double _linear_interpolate(int n,
-                             const VectorDouble &x,
-                             const VectorDouble &y,
-                             double x0);
+  static double _linear_interpolate(int n,
+                                    const VectorDouble& x,
+                                    const VectorDouble& y,
+                                    double x0);
   MatrixSquareGeneral _evalAverageDbIncr(Model *model,
                                          const Db &db,
                                          const VectorDouble &incr = VectorDouble(),
-                                         const CovCalcMode *mode = nullptr);
+                                         const CovCalcMode *mode = nullptr) const;
 
 private:
   int                _nVar;
@@ -441,6 +466,8 @@ private:
   bool _verbose;
   bool _flag_UK;
   int  _niter_UK;
+
+  VectorString                _variableNames;
   mutable Model*              _model;  // Model pointer (not to be deleted) for drift removal
   mutable VectorDouble        _BETA;
   mutable VectorDouble        _DRFDIAG;
@@ -449,3 +476,28 @@ private:
   mutable MatrixRectangular   _DRFTAB;
   mutable MatrixSquareGeneral _DRFXGX;
 };
+
+GSTLEARN_EXPORT Vario_Order*
+vario_order_manage(int mode, int flag_dist, int size_aux, Vario_Order* vorder);
+
+GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order* vorder, int* npair);
+GSTLEARN_EXPORT void vario_order_print(Vario_Order* vorder,
+                                       int idir_target,
+                                       int ipas_target,
+                                       int verbose);
+GSTLEARN_EXPORT void vario_order_get_bounds(
+  Vario_Order* vorder, int idir, int ipas, int* ifirst, int* ilast);
+GSTLEARN_EXPORT void vario_order_get_indices(
+  Vario_Order* vorder, int ipair, int* iech, int* jech, double* dist);
+GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order* vorder,
+                                               int ipair,
+                                               char* aux_iech,
+                                               char* aux_jech);
+GSTLEARN_EXPORT int vario_order_add(Vario_Order* vorder,
+                                    int iech,
+                                    int jech,
+                                    void* aux_iech,
+                                    void* aux_jech,
+                                    int ipas,
+                                    int idir,
+                                    double dist);

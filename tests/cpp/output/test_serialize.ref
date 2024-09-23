@@ -114,13 +114,15 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [myvar1]
+
 Variance-Covariance Matrix     0.763
 
 Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.020
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -141,13 +143,15 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
+Variable(s)                 = [myvar1]
+
 Variance-Covariance Matrix     0.763
 
 Direction #1
 ------------
 Number of lags              = 10
 Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
+Direction angles (degrees)  =      0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.020
 Tolerance on distance       =     50.000 (Percent of the lag value)
@@ -196,9 +200,6 @@ Exponential
 - Theo. Range  =      0.100
 Total Sill     =      0.200
 Known Mean(s)     0.000
-
-Table contents
---------------
 - Number of Rows    = 10
 - Number of Columns = 3
 
@@ -212,9 +213,6 @@ Table contents
       0.723      0.900      0.482
       0.660      0.288      0.254
       0.693      0.753      0.088
-
-Table contents
---------------
 - Number of Rows    = 10
 - Number of Columns = 3
 

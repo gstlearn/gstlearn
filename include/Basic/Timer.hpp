@@ -36,18 +36,19 @@ public:
                               int expected_time = -1,
                               bool flag_reset = true);
   double getIntervalSeconds(bool flag_reset = true);
-  void displaySeconds(const String& title,
-                      double sec,
-                      int expected_time = -1);
+  static void displaySeconds(const String& title, double sec, int expected_time = -1);
 
   void displayIntervalMilliseconds(const String& title = "",
                                    int expected_time = -1,
                                    bool flag_reset = true);
   double getIntervalMilliseconds(bool flag_reset = true);
-  void displayMilliseconds(const String& title,
-                           double msec,
-                           int expected_time = -1);
+  static void displayMilliseconds(const String& title, double msec, int expected_time = -1);
 
 private:
   hrc::time_point _refTime;
 };
+
+GSTLEARN_EXPORT void time_start(void);
+GSTLEARN_EXPORT void time_reset(void);
+GSTLEARN_EXPORT void time_chunk_add(const char* call_name);
+GSTLEARN_EXPORT void time_report(void);

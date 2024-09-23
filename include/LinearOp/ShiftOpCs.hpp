@@ -14,19 +14,23 @@
 
 #include "Enum/EPowerPT.hpp"
 
-#include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
-#include "Model/ANoStat.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <map>
+#include <memory>
 
-class Model;
+#ifndef SWIG
+
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
 class CovAniso;
-class NoStatArray;
 class EConsElem;
 class AMatrix;
 class AMatrixSquare;
@@ -37,180 +41,195 @@ class MatrixSquareSymmetric;
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE
  */
-class GSTLEARN_EXPORT ShiftOpCs: public ALinearOp
+
+#ifndef SWIG
+#  include "LinearOp/ALinearOpEigenCG.hpp"
+DECLARE_EIGEN_TRAITS(ShiftOpCs)
+#else
+#  include "LinearOp/ALinearOp.hpp"
+#endif
+
+class GSTLEARN_EXPORT ShiftOpCs:
+#ifndef SWIG
+  public ALinearOpEigenCG<ShiftOpCs>
+#else
+  public ALinearOp
+#endif
 {
+  public:
+    ShiftOpCs();
+    ShiftOpCs(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool verbose = false);
+    ShiftOpCs(const MatrixSparse* S, const VectorDouble& TildeC,
+              const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
+    ShiftOpCs(const ShiftOpCs& shift);
+    ShiftOpCs& operator=(const ShiftOpCs& shift);
+    virtual ~ShiftOpCs();
+    void normalizeLambdaBySills(const AMesh*);
+    int _addToDest(const Eigen::VectorXd& inv,
+                   Eigen::VectorXd& outv) const override;
 
-public:
-  ShiftOpCs(const CGParam params = CGParam());
-  ShiftOpCs(const AMesh* amesh,
-            Model* model,
-            const Db* dbout = nullptr,
-            int igrf = 0,
-            int icov = 0,
-            const CGParam params = CGParam(),
-            bool verbose = false);
-#ifndef SWIG
-  ShiftOpCs(const MatrixSparse* S,
-            const VectorDouble& TildeC,
-            const VectorDouble& Lambda,
-            Model* model,
-            const CGParam params = CGParam(),
-            bool verbose = false);
-#endif
-  ShiftOpCs(const ShiftOpCs &shift);
-  ShiftOpCs& operator=(const ShiftOpCs &shift);
-  virtual ~ShiftOpCs();
-
-  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
-
-  static ShiftOpCs* create(const AMesh *amesh,
-                           Model *model,
-                           const Db *dbout = nullptr,
-                           int igrf = 0,
-                           int icov = 0,
-                           const CGParam params = CGParam(),
-                           bool verbose = false);
-#ifndef SWIG
-  static ShiftOpCs* createFromSparse(const MatrixSparse *S,
-                                     const VectorDouble &TildeC,
-                                     const VectorDouble &Lambda,
-                                     Model *model,
-                                     const CGParam params = CGParam(),
-                                     bool verbose = false);
-#endif
-  int initFromMesh(const AMesh* amesh,
-                   Model* model,
-                   const Db* dbout = nullptr,
-                   int igrf = 0,
-                   int icov = 0,
-                   bool flagAdvection = false,
+    static ShiftOpCs* create(const AMesh* amesh, const CovAniso* cova,
+                             const Db* dbout = nullptr, 
+                             bool verbose = false);
+    static ShiftOpCs* createFromSparse(
+      const MatrixSparse* S, const VectorDouble& TildeC,
+      const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
+    int initFromMesh(const AMesh* amesh, const CovAniso* cova,
+                     const Db* dbout = nullptr, 
+                     bool flagAdvection = false, bool verbose = false);
+    int initGradFromMesh(const AMesh* amesh, const CovAniso* cova,
+                         bool verbose = false,
+                         double tol = EPSILON10);
+    int initFromCS(const MatrixSparse* S, const VectorDouble& TildeC,
+                   const VectorDouble& Lambda, const CovAniso* cova,
                    bool verbose = false);
-  int initGradFromMesh(const AMesh* amesh,
-                       Model* model,
-                       int igrf = 0,
-                       int icov = 0,
-                       bool verbose = false,
-                       double tol = EPSILON10);
-  int initFromCS(const MatrixSparse* S,
-                 const VectorDouble& TildeC,
-                 const VectorDouble& Lambda,
-                 Model* model,
-                 bool verbose = false);
-  int getSize() const override { return _napices; }
-  int getNDim() const { return _ndim; }
-  int getNModelGradParam() const { return _nModelGradParam; }
-  void prodTildeC(const VectorDouble& x,
-                  VectorDouble& y,
-                  const EPowerPT& power) const;
-  void prodLambda(const VectorDouble& x,
-                  VectorDouble& y,
-                  const EPowerPT& power) const;
-  void prodLambdaOnSqrtTildeC(const VectorDouble& inv,
-                              VectorDouble& outv,
-                              double puis = 2) const;
-  double getMaxEigenValue() const;
-  MatrixSparse* getS() const { return _S; }
-  MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
-  MatrixSparse* getSGrad(int iapex, int igparam) const;
+    int getSize() const override
+    {
+      return _napices;
+    }
 
-  const VectorDouble& getTildeC() const { return _TildeC; }
-  const VectorDouble& getLambdas() const { return _Lambda; }
-  double getLambda(int iapex) const { return _Lambda[iapex]; }
-  const VectorDouble& getLambdaGrads(int idim) const { return _LambdaGrad[idim]; }
-  double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
-  int getSGradAddress(int iapex, int igparam) const;
+    int getNDim() const
+    {
+      return _ndim;
+    }
+    int getNCovAnisoGradParam() const
+    {
+      return _nCovAnisoGradParam;
+    }
+    void prodTildeC(const VectorDouble& x, VectorDouble& y,
+                    const EPowerPT& power) const;
+    void prodLambda(const VectorDouble& x, VectorDouble& y,
+                    const EPowerPT& power) const;
+  #ifndef SWIG
+    void prodLambda(const Eigen::VectorXd& x, Eigen::VectorXd& y,
+                    const EPowerPT& power) const;
+    void prodLambda(const VectorDouble& x, Eigen::VectorXd& y,
+                    const EPowerPT& power) const;
+    void prodLambda(const Eigen::VectorXd& x, VectorDouble& y,
+                    const EPowerPT& power) const;
+  #endif
+    void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
+                                double puis = 2) const;
+    double getMaxEigenValue() const;
+    MatrixSparse* getS() const
+    {
+      return _S;
+    }
+    MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
+    MatrixSparse* getSGrad(int iapex, int igparam) const;
 
-  int  getLambdaGradSize() const;
+    const VectorDouble& getTildeC() const
+    {
+      return _TildeC;
+    }
+    const VectorDouble& getLambdas() const
+    {
+      return _Lambda;
+    }
+    double getLambda(int iapex) const
+    {
+      return _Lambda[iapex];
+    }
+    const VectorDouble& getLambdaGrads(int idim) const
+    {
+      return _LambdaGrad[idim];
+    }
+    double getLambdaGrad(int idim, int iapex) const
+    {
+      return _LambdaGrad[idim][iapex];
+    }
+    int getSGradAddress(int iapex, int igparam) const;
 
-private:
-  int  _getIcov() const { return _icov; }
-  void _setIcov(int icov) { _icov = icov; }
-  int  _getIgrf() const { return _igrf; }
-  void _setIgrf(int igrf) { _igrf = igrf; }
-  const Model* _getModel() const { return _model; }
-  void _setModel(const Model* model) { _model = model; }
-  bool _isNoStat();
-  bool _isGlobalHH(int igrf, int icov);
-  const CovAniso* _getCova();
+    int getLambdaGradSize() const;
 
-  int  _buildS(const AMesh *amesh, double tol = EPSILON10);
-  int  _buildSGrad(const AMesh *amesh, double tol = EPSILON10);
-  void _buildLambda(const AMesh *amesh);
-  bool _buildLambdaGrad(const AMesh *amesh);
+  private:
+    void _setCovAniso(const CovAniso* cova);
+    bool _isNoStat();
+    bool _isGlobalHH();
+  
+    std::shared_ptr<CovAniso>& _getCovAniso();
+    int _buildS(const AMesh* amesh, double tol = EPSILON10);
+    int _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
+    void _buildLambda(const AMesh* amesh);
+    bool _buildLambdaGrad(const AMesh* amesh);
 
-  void _loadAux(VectorDouble &tab, const EConsElem &type, int imesh = 0);
-  void _loadHH(const AMesh *amesh, MatrixSquareSymmetric &hh, int imesh = 0);
-  void _loadHHRegular(MatrixSquareSymmetric &hh, int imesh);
-  void _loadHHVariety(MatrixSquareSymmetric& hh, int imesh);
-  void _loadHHGrad(const AMesh *amesh,
-                   MatrixSquareSymmetric &hh,
-                   int igparam,
-                   int ipref);
-  double _computeGradLogDetHH(const AMesh* amesh, int igparam,int ipref,
-                              const MatrixSquareSymmetric& HH,
-                              MatrixSquareSymmetric& work,
-                              MatrixSquareSymmetric& work2);
+    void _loadAux(VectorDouble & tab, const EConsElem& type, int imesh = 0);
+    void _loadHH(const AMesh* amesh, MatrixSquareSymmetric& hh, int imesh = 0);
+    void _loadHHRegular(MatrixSquareSymmetric & hh, int imesh);
+    void _loadHHVariety(MatrixSquareSymmetric & hh, int imesh);
+    void _loadHHGrad(const AMesh* amesh, MatrixSquareSymmetric& hh, int igparam,
+                     int ipref);
+    double _computeGradLogDetHH(const AMesh* amesh, int igparam, int ipref,
+                                const MatrixSquareSymmetric& HH,
+                                MatrixSquareSymmetric& work,
+                                MatrixSquareSymmetric& work2);
 
-  void _reset();
-  void _resetGrad();
-  void _reallocate(const ShiftOpCs& shift);
-  void _projectMesh(const AMesh *amesh,
-                    const VectorDouble& srot,
-                    int imesh,
-                    double coeff[3][2]);
-  int _preparMatrices(const AMesh *amesh,
-                      int imesh,
-                      MatrixSquareGeneral& matu,
-                      MatrixRectangular& matw) const;
-  int _prepareMatricesSVariety(const AMesh *amesh,
-                               int imesh,
-                               VectorVectorDouble &coords,
-                               MatrixRectangular& matM,
-                               MatrixSquareSymmetric& matMtM,
-                               AMatrix &matres,
-                               double *deter);
-  int _prepareMatricesSphere(const AMesh *amesh,
+    void _reset();
+    int _resetGrad();
+    void _reallocate(const ShiftOpCs& shift);
+    static void _projectMesh(const AMesh* amesh,
+                             const VectorDouble& srot,
                              int imesh,
-                             VectorVectorDouble &coords,
-                             AMatrixSquare &matres,
-                             double *deter);
-  void _updateCova(CovAniso* cova, int imesh);
-  VectorT<std::map<int, double>> _mapCreate() const;
-  VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
-  VectorT<std::map<int,double>> _mapTildeCCreate()const;
-  void _mapTildeCUpdate(std::map<int, double>& tab,
-                        int ip1,
-                        double value,
-                        double tol = EPSILON10) const;
+                             double coeff[3][2]);
+    int _preparMatrices(const AMesh* amesh, int imesh,
+                        MatrixSquareGeneral& matu, MatrixRectangular& matw)
+      const;
+    int _prepareMatricesSVariety(const AMesh* amesh,
+                                 int imesh,
+                                 VectorVectorDouble& coords,
+                                 MatrixRectangular& matM,
+                                 MatrixSquareSymmetric& matMtM,
+                                 AMatrix& matP,
+                                 double* deter) const;
+    int _prepareMatricesSphere(const AMesh* amesh,
+                               int imesh,
+                               VectorVectorDouble& coords,
+                               AMatrixSquare& matMs,
+                               double* deter) const;
+    static void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
+    VectorT<std::map<int, double>> _mapCreate() const;
+    VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
+    VectorT<std::map<int, double>> _mapTildeCCreate() const;
+    static void _mapTildeCUpdate(std::map<int, double>& tab,
+                                 int ip0,
+                                 double value,
+                                 double tol = EPSILON10);
 
-  void _mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
-                      int ip0,
-                      int ip1,
-                      double value,
-                      double tol = EPSILON10);
-  MatrixSparse* _BuildTildeCGradfromMap(std::map< int, double> &tab) const;
-  MatrixSparse* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
+    static void _mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
+                               int ip0,
+                               int ip1,
+                               double value,
+                               double tol = EPSILON10);
+    MatrixSparse* _BuildTildeCGradfromMap(std::map<int, double> & tab) const;
+    MatrixSparse* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &
+                                     tab) const;
 
-  bool _cond(int indref, int igparam, int ipref);
-  void _determineFlagNoStatByHH();
-  void _updateHH(MatrixSquareSymmetric& hh, int imesh);
-  MatrixSparse* _prepareSparse(const AMesh *amesh) const;
+    static bool _cond(int indref, int igparam, int ipref);
+    void _determineFlagNoStatByHH();
+    void _updateHH(MatrixSquareSymmetric & hh, int imesh);
+    static MatrixSparse* _prepareSparse(const AMesh* amesh);
+    static std::shared_ptr<CovAniso> cloneAndCast(const CovAniso* cova);
+    static std::shared_ptr<CovAniso> cloneAndCast(const std::shared_ptr<CovAniso> &cova);
 
-private:
-  VectorDouble            _TildeC;
-  VectorDouble            _Lambda;
-  MatrixSparse*           _S;
+  private:
+    VectorDouble _TildeC;
+    VectorDouble _Lambda;
+    MatrixSparse* _S;
 
-  int                     _nModelGradParam;
-  VectorT<MatrixSparse *> _SGrad;
-  VectorT<MatrixSparse *> _TildeCGrad;
-  VectorVectorDouble      _LambdaGrad;
-  bool                    _flagNoStatByHH;
+    int _nCovAnisoGradParam;
+    VectorT<MatrixSparse*> _SGrad;
+    VectorT<MatrixSparse*> _TildeCGrad;
+    VectorVectorDouble _LambdaGrad;
+    bool _flagNoStatByHH;
 
-  // Following list of members are there to ease the manipulation and reduce argument list
-  const Model* _model;
-  int _igrf;
-  int _icov;
-  int _ndim;
-  int _napices;
-};
+    // Following list of members are there to ease the manipulation and reduce
+    // argument list
+    std::shared_ptr<CovAniso> _cova;
+
+    int _ndim;
+    int _napices;
+  };
+
+#ifndef SWIG
+  DECLARE_EIGEN_PRODUCT(ShiftOpCs)
+#endif

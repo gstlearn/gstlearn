@@ -8,11 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Matrix/MatrixInt.hpp"
-#include "Matrix/AMatrix.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 
 MatrixInt::MatrixInt(int nrows, int ncols)
@@ -124,16 +120,8 @@ int MatrixInt::getMatrixSize() const
 
 bool MatrixInt::_isIndexValid(int irow, int icol) const
 {
-  if (irow < 0 || irow >= getNRows())
-  {
-    mesArg("Row index invalid",irow,getNRows());
-    return false;
-  }
-  if (icol < 0 || icol >= getNCols())
-  {
-    mesArg("Column index invalid",icol,getNCols());
-    return false;
-  }
+  if (!checkArg("Row index invalid", irow, getNRows())) return false;
+  if (!checkArg("Column index invalid", icol, getNCols())) return false;
   return true;
 }
 
@@ -272,7 +260,7 @@ void MatrixInt::resetFromArray(int nrows, int ncols, const int* tab, bool byCol)
   }
 }
 
-bool MatrixInt::_isNumbersValid(int nrows, int ncols) const
+bool MatrixInt::_isNumbersValid(int nrows, int ncols)
 {
   if (nrows < 0)
   {
@@ -365,7 +353,7 @@ MatrixInt* MatrixInt::createFromVI(const VectorInt &X,
  ** \remark  The matrix w1[] may NOT coincide with v1[]
  **
  *****************************************************************************/
-void MatrixInt::_transposeInPlace(int n1, int n2, int *v1, int *w1)
+void MatrixInt::_transposeInPlace(int n1, int n2, const int *v1, int *w1)
 {
 #define SQ(i,j,neq)   ((j) * neq + (i))
 #define V1(i,j)        v1[SQ(i,j,n1)]
@@ -373,7 +361,5 @@ void MatrixInt::_transposeInPlace(int n1, int n2, int *v1, int *w1)
   for (int i1 = 0; i1 < n1; i1++)
     for (int i2 = 0; i2 < n2; i2++)
       w1[ecr++] = V1(i1, i2);
-
-  return;
 }
 

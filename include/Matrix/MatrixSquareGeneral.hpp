@@ -22,7 +22,7 @@ class GSTLEARN_EXPORT MatrixSquareGeneral : public AMatrixSquare {
 
 public:
   MatrixSquareGeneral(int nrow = 0);
-  MatrixSquareGeneral(const MatrixSquareGeneral &m);
+  MatrixSquareGeneral(const MatrixSquareGeneral &r);
   MatrixSquareGeneral(const AMatrix &m);
   MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);
 	virtual ~MatrixSquareGeneral();
@@ -55,13 +55,11 @@ private:
                    double *x);
   int     _forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps = EPSILON20);
   int     _backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps = EPSILON20);
-  int     _matrix_invreal(VectorDouble& mat, int neq);
-  int     _matrix_cofactor(int neq, VectorDouble& a, VectorDouble& b);
 };
 
 /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMatMat(const AMatrixDense &a,
-                                                    const AMatrixDense &m,
+GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMatMat(const AMatrixDense* a,
+                                                    const AMatrixDense* m,
                                                     bool transpose = false);
 /*! Product 't(A)' %*% 'A' or 'A' %*% 't(A)' */
 GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMat(const AMatrixDense &a,

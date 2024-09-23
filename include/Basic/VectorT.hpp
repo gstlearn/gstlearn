@@ -10,16 +10,17 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "geoslib_io.h"
 #include "Basic/AException.hpp"
 
 #include <vector>
 #include <sstream>
 #include <memory>
-#include <limits>
 #include <algorithm>
 #include <cmath>
+
+class AStringFormat;
 
 /***************************************************************************
  **
@@ -28,7 +29,7 @@
  **
  ***************************************************************************/
 template <typename T>
-class GSTLEARN_EXPORT VectorT
+class VectorT
 {
 public:
   typedef std::vector<T> Vector;
@@ -48,7 +49,7 @@ public:
   inline VectorT(const VectorT& other) = default;
 #ifndef SWIG
   inline VectorT(std::initializer_list<T> init)                       : _v(std::make_shared<Vector>(init)) { }
-  inline VectorT(VectorT&& other)                                     { _v.swap(other._v); }
+  inline VectorT(VectorT&& other)                                      noexcept { _v.swap(other._v); }
 #endif
   inline ~VectorT() = default;
 
@@ -62,7 +63,7 @@ public:
 #ifndef SWIG
   inline VectorT& operator=(const Vector& vec)                        { _detach(); *_v = vec; return (*this); }
   inline VectorT& operator=(const VectorT& other)                     { _detach(); _v = other._v; return (*this); }
-  inline VectorT& operator=(VectorT&& other)                          { _v.swap(other._v); return (*this); }
+  inline VectorT& operator=(VectorT&& other)                           noexcept { _v.swap(other._v); return (*this); }
   inline VectorT& operator=(std::initializer_list<T> init)            { _detach(); (*_v) = init; return (*this); }
 #endif
 
@@ -148,7 +149,10 @@ public:
     _v->assign(first, last);
   }
 
-  inline String toString() const;
+  inline String toString(const AStringFormat* strfmt = nullptr) const;
+  // The next method is to mimic the feature of AStringable... knowing that this
+  // class cannot be invoked because of looping inclusion of headers
+  inline void display(const AStringFormat* strfmt = nullptr) const;
 
 protected:
   std::shared_ptr<Vector> _v;
@@ -200,16 +204,18 @@ T& VectorT<T>::at(size_type pos)
 template <typename T>
 const T& VectorT<T>::operator[](size_type pos) const
 {
-  if (pos >= size())
-    my_throw("VectorT<T>::operator[]: index out of range");
+  // Unprotect operator[] ... as in std::vector library
+  //  if (pos >= size())
+  //    my_throw("VectorT<T>::operator[]: index out of range");
   return _v->operator[](pos);
 }
 
-template <typename T>
+template<typename T>
 T& VectorT<T>::operator[](size_type pos)
 {
-  if (pos >= size())
-    my_throw("VectorT<T>::operator[]: index out of range");
+  // Unprotect operator[] ... as in std::vector library
+  //  if (pos >= size())
+  //    my_throw("VectorT<T>::operator[]: index out of range");
   _detach();
   return _v->operator[](pos);
 }
@@ -235,9 +241,10 @@ void VectorT<T>::fill(const T& value, size_type size)
   std::fill(begin(), end(), value);
 }
 
-template <typename T>
-String VectorT<T>::toString() const
+template<typename T>
+String VectorT<T>::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
   sstr << "[";
   for (size_type i = 0, n = size(); i < n; i++)
@@ -246,11 +253,17 @@ String VectorT<T>::toString() const
     if (i != n-1)
       sstr << " ";
   }
-  sstr << "]";
+  sstr << "]" << std::endl;
   return sstr.str();
 }
 
-template <typename T>
+template<typename T>
+void VectorT<T>::display(const AStringFormat* strfmt) const
+{
+  message_extern(toString(strfmt).c_str());
+}
+
+template<typename T>
 void VectorT<T>::_detach()
 {
   if (_v.use_count() == 1)
@@ -276,27 +289,17 @@ VectorT<T>& VectorT<T>::operator<<(const VectorT<T>& v)
                 { push_back(value); });
   return (*this);
 }
-#endif
 
-
-// Force instantiation for VectorT (for Windows MSVC export)
-#ifdef _MSC_VER
-  // Do not export VectorXXX to SWIG (no more instantiation needed)
-  #ifndef SWIG
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<int>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<double>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<String>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<float>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<UChar>;
-//    GSTLEARN_TEMPLATE_EXPORT template class VectorT<bool>;
-  #endif
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const VectorT<T>& vec)
+{
+  os << vec.toString();
+  return os;
+}
 #endif
 
 //typedef VectorT<bool> VectorBool; TODO : Build a real VectorBool
 // https://stackoverflow.com/a/61158013/3952924
 typedef VectorT<UChar>  VectorBool; // Use UChar because std::vector of bool has a specific implementation
 typedef VectorT<String> VectorString;
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const VectorT<T>& vec);
 

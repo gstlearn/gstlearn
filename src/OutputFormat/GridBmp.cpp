@@ -8,16 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "OutputFormat/GridBmp.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/String.hpp"
 
-#include <string.h>
 #include <stdio.h>
 
 #define BF_TYPE 0x4D42             /* "MB" */
@@ -330,8 +326,7 @@ int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
   {
     if (_flag_low)
       return COLOR_LOWER;
-    else
-      return (ival);
+    return (ival);
   }
 
   /* Value larger than vmax */
@@ -339,8 +334,7 @@ int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
   {
     if (_flag_high)
       return COLOR_UPPER;
-    else
-      return (ncolor - 1);
+    return (ncolor - 1);
   }
 
   /* Return the rank of the color */
@@ -613,7 +607,5 @@ void GridBmp::_rgb2num(int red,
   if (value < 0.) value = 0.;
   if (value > 255.) value = 255.;
   *c = (unsigned char) value;
-
-  return;
 }
 

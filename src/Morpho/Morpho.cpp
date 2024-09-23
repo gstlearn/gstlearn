@@ -9,10 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Enum/EMorpho.hpp"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
@@ -21,7 +21,6 @@
 
 static int RADIUS[3];
 static int LARGE = 9999999;
-
 
 /*! \cond */
 #define CROSS 0
@@ -102,7 +101,6 @@ void _st_morpho_label_order(VectorDouble &compnum,
     if (found < 0) messageAbort("st_morpho_label_order");
     compnum[i] = nbcomp - found;
   }
-  return;
 }
 
 /**
@@ -419,8 +417,6 @@ void morpho_erosion(int option,
   }
 
   if (verbose) message("Erosion: %d -> %d\n", nbin, morpho_count(imagout));
-
-  return;
 }
 
 /**
@@ -515,8 +511,6 @@ void morpho_dilation(int option,
   }
 
   if (verbose) message("Dilation: %d -> %d\n", nbin, morpho_count(imagout));
-
-  return;
 }
 
 /**
@@ -542,8 +536,6 @@ void morpho_intersection(const BImage& image1,
   if (verbose)
     message("Intersection : %d and %d -> %d\n", nbin1, nbin2,
             morpho_count(imagout));
-
-  return;
 }
 
 /**
@@ -569,8 +561,6 @@ void morpho_union(const BImage& image1,
   if (verbose)
     message("Union: %d and %d -> %d\n", nbin1, nbin2,
             morpho_count(imagout));
-
-  return;
 }
 
 /**
@@ -588,8 +578,6 @@ void morpho_negation(const BImage& imagin,
     imagout.setValue(i, ~imagin.getValue(i));
 
   if (verbose) message("Negation: %d -> %d\n", nbin, morpho_count(imagout));
-
-  return;
 }
 
 /**
@@ -619,8 +607,6 @@ void morpho_opening(int option,
   morpho_erosion(option, radius, imagin, imagtmp, verbose);
 
   morpho_dilation(option, radius, imagtmp, imagout, verbose);
-
-  return;
 }
 
 /**
@@ -637,8 +623,6 @@ void morpho_closing(int option,
   morpho_dilation(option, radius, imagin, imagtmp, verbose);
 
   morpho_erosion(option, radius, imagtmp, imagout, verbose);
-
-  return;
 }
 
 /**
@@ -680,8 +664,6 @@ void morpho_double2imageInPlace(const VectorInt &nx,
 
   if (verbose)
     message("Translation: %d  / %d\n", morpho_count(imagout), imagout.getNPixels());
-
-  return;
 }
 
 /**
@@ -733,7 +715,6 @@ void morpho_image2double(const BImage& imagin,
             break;
         }
       }
-  return;
 }
 
 /**
@@ -794,8 +775,6 @@ void morpho_distance(int option,
 
   for (int i = 0; i < nxyz; i++)
     dist[i] = ABS(dist[i]);
-
-  return;
 }
 
 /**
@@ -808,13 +787,12 @@ VectorInt gridcell_neigh(int ndim,
                          bool flag_center,
                          bool verbose)
 {
-  int *indg0, *indg1, ecr, flag_count, nech;
+  int ecr, flag_count, nech;
   VectorInt indret;
 
   /* Initializations */
 
   int nvois = 0;
-  indg0 = indg1 = nullptr;
 
   /* Create the grid attributes */
 
@@ -836,18 +814,16 @@ VectorInt gridcell_neigh(int ndim,
 
   nech = grid->getSampleNumber();
   indret.resize(nech * ndim);
-  indg0 = db_indg_alloc(grid);
-  if (indg0 == nullptr) goto label_end;
-  indg1 = db_indg_alloc(grid);
-  if (indg1 == nullptr) goto label_end;
+  VectorInt indg0(ndim, 0);
+  VectorInt indg1(ndim, 0);
 
   /* Scan the grid nodes */
 
   ecr = 0;
-  db_index_sample_to_grid(grid, nech / 2, indg0);
+  grid->rankToIndice(nech / 2, indg0);
   for (int iech = 0; iech < nech; iech++)
   {
-    db_index_sample_to_grid(grid, iech, indg1);
+    grid->rankToIndice(iech, indg1);
     flag_count = 0;
     for (int idim = 0; idim < ndim; idim++)
     {
@@ -884,17 +860,14 @@ VectorInt gridcell_neigh(int ndim,
     }
   }
 
-  label_end:
-  if (grid != nullptr) delete grid;
-  db_indg_free(indg0);
-  db_indg_free(indg1);
+  delete grid;
   return (indret);
 }
 
 /**
  * Calculate the gradient orientations of a colored image
  */
-void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
+void db_morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 {
   int iad;
   double result;
@@ -960,13 +933,12 @@ void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
       if (ndim >= 3) indg[2] = iiz;
       dbgrid->setArray(dbgrid->indiceToRank(indg), iptr0, result);
     }
-  return;
 }
 
 /**
  * Calculate the gradient components of a colord image
  */
-void _morpho_gradients(DbGrid *dbgrid, int iptr)
+void db_morpho_gradients(DbGrid *dbgrid, int iptr)
 {
   int j1, j2, number;
 
@@ -1046,7 +1018,7 @@ void _morpho_gradients(DbGrid *dbgrid, int iptr)
 /**
  * Perform a morphological operation with a DbGrid
  */
-int _db_morpho_calc(DbGrid *dbgrid,
+int db_morpho_calc(DbGrid *dbgrid,
                     int iptr0,
                     const EMorpho &oper,
                     double vmin,
@@ -1113,13 +1085,13 @@ int _db_morpho_calc(DbGrid *dbgrid,
   }
   else if (oper == EMorpho::ANGLE)
   {
-    _morpho_angle2D(dbgrid,radius,iptr0);
+    db_morpho_angle2D(dbgrid,radius,iptr0);
     alreadyLoaded = true;
     alreadySaved = true;
   }
   else if (oper == EMorpho::GRADIENT)
   {
-    _morpho_gradients(dbgrid, iptr0);
+    db_morpho_gradients(dbgrid, iptr0);
     alreadyLoaded = true;
     alreadySaved = true;
   }
@@ -1178,9 +1150,10 @@ Spill_Res spillPoint(DbGrid *dbgrid,
                      double hmax)
 {
   Spill_Res res;
-  double h, th;
+  double h;
   int ix0, iy0;
 
+  double th     = 0.;
   int ind_depth = dbgrid->getUID(name_depth);
   int ind_data = dbgrid->getUID(name_data);
   if (ind_depth < 0 || ind_data < 0)
@@ -1193,7 +1166,7 @@ Spill_Res spillPoint(DbGrid *dbgrid,
   int error = spill_point(dbgrid, ind_depth, ind_data, option, flag_up,
                           verbose_step, hmax, &h, &th, &ix0, &iy0);
 
-  res.success = (error) ? false : true;
+  res.success = (error == 0);
   res.h = h;
   res.th = th;
   res.ix0 = ix0;

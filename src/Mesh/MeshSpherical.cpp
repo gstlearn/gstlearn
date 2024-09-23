@@ -8,10 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
 #include "Mesh/MeshSpherical.hpp"
-#include "Mesh/MeshEStandard.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
@@ -428,32 +425,26 @@ bool MeshSpherical::_coorInMesh(const VectorDouble& coor,
 {
   VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
 
-  if (! flag_approx)
+  if (!flag_approx)
   {
-    return (GH::isInSphericalTriangleOptimized(coor.data(), corners[0].data(),
-                                               corners[1].data(),
-                                               corners[2].data(),
-                                               weights.data()));
+    return (GH::isInSphericalTriangleOptimized(
+      coor.data(), corners[0].data(), corners[1].data(), corners[2].data(),
+      weights.data()));
   }
-  else
-  {
 
-    // Round the angles with respect to the target coordinates
+  // Round the angles with respect to the target coordinates
 
-    for (int i = 0; i < 3; i++)
-      corners[i][0] = _closestValue(coor[0], corners[i][0], 360.);
-    return _weightsInMesh(coor, corners, meshsize, weights);
-  }
+  for (int i = 0; i < 3; i++)
+    corners[i][0] = _closestValue(coor[0], corners[i][0], 360.);
+  return _weightsInMesh(coor, corners, meshsize, weights);
 }
 
-double MeshSpherical::_closestValue(double ref, double coor, double period) const
+double MeshSpherical::_closestValue(double ref, double coor, double period)
 {
   double dref = ABS(coor - ref);
-  double d1 = ABS(coor - period - ref);
-  if (d1 < dref)
-    return coor - period;
-  else
-    return coor;
+  double d1   = ABS(coor - period - ref);
+  if (d1 < dref) return coor - period;
+  return coor;
 }
 
 int MeshSpherical::_recopy(const MeshSpherical &m)
