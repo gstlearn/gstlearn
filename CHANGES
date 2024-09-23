@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.5.0
+=============
+
+
 Release 1.4.0
 =============
 - Seed has been removed for arguments in all SPDE functions. Use law_set_random_seed before a call instead).
