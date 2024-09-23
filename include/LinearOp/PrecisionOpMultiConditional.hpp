@@ -37,7 +37,7 @@ public:
   /// Interface for PrecisionOpMultiConditional
   virtual void makeReady(){};
   virtual int push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
-  virtual double computeLogDetOp(int nbsimu = 1, int seed = 123) const;
+  virtual double computeLogDetOp(int nbsimu = 1) const;
 
   /// Interface for ALinearOpMulti
   int  sizes() const override { return static_cast<int> (_multiPrecisionOp.size()); }
@@ -53,8 +53,8 @@ public:
   double getMaxEigenValProj() const;
   double sumLogVar() const;
 
-  double computeLogDetQ(int nbsimu = 1, int seed = 123) const;
-  double computeTotalLogDet(int nbsimu = 1, int seed = 123) const;
+  double computeLogDetQ(int nbsimu = 1) const;
+  double computeTotalLogDet(int nbsimu = 1) const;
   void preparePoly(Chebychev& logPoly) const;
   
   const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*) _multiProjData[i];}

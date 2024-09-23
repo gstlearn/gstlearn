@@ -36,7 +36,7 @@ public:
   /// Interface to PrecisionOpMultiConditional
   void makeReady() override;
   int push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
-  double computeLogDetOp(int nbsimu = 1, int seed = 123) const override;
+  double computeLogDetOp(int nbsimu = 1) const override;
 
   /// Interface to ALinearOp
   void evalInverse(const std::vector<Eigen::VectorXd> &vecin,

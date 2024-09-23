@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;
-  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
+  law_set_random_seed(13256);
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), false, false,
                       NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 

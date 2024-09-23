@@ -236,13 +236,10 @@ int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 /**
  * Compute the Logarithm of the Determinant
  * @param nbsimu Number of simulations
- * @param seed   Seed for random number generation
  * @return The computed value or TEST if problem
  */
-double PrecisionOp::getLogDeterminant(int nbsimu,int seed)
+double PrecisionOp::getLogDeterminant(int nbsimu)
 {
-  law_set_random_seed(seed);
-
   Eigen::VectorXd gauss;
   Eigen::VectorXd result;
   gauss.resize(getSize());

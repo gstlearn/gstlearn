@@ -417,7 +417,6 @@ void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
 
 int SPDE::compute(Db *dbout,
                   int nbsimu,
-                  int seed,
                   const NamingConvention &namconv)
 {
   VectorDouble dataVect;
@@ -446,9 +445,6 @@ int SPDE::compute(Db *dbout,
       return 1;
     }
   }
-
-  if (_isSimulationRequested())
-    law_set_random_seed(seed);
 
   if (_isKrigingRequested())
     _precisionsKrig->makeReady();
@@ -607,7 +603,7 @@ bool SPDE::_isKrigingRequested() const
       || _calcul == ESPDECalcMode::KRIGVAR;
 }
 
-double SPDE::computeLogDet(int nbsimu,int seed) const
+double SPDE::computeLogDet(int nbsimu) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -615,7 +611,7 @@ double SPDE::computeLogDet(int nbsimu,int seed) const
     return TEST;
   }
 
-  return _precisionsKrig->computeTotalLogDet(nbsimu,seed);
+  return _precisionsKrig->computeTotalLogDet(nbsimu);
 }
 
 double SPDE::computeQuad() const
@@ -639,7 +635,7 @@ double SPDE::computeQuad() const
   return _precisionsKrig->computeQuadratic(wm);
 }
 
-double SPDE::_computeLogLikelihood(int nbsimu, int seed) const
+double SPDE::_computeLogLikelihood(int nbsimu) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -651,13 +647,13 @@ double SPDE::_computeLogLikelihood(int nbsimu, int seed) const
   {
     _computeDriftCoeffs();
   }
-  return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad() +_workingData.size() * log (2. * GV_PI));
+  return - 0.5 * (computeLogDet(nbsimu) + computeQuad() +_workingData.size() * log (2. * GV_PI));
 }
 
 /**
  * Calculate the Log-Likelihood profiling the Drift parameters
  */
-double SPDE::computeLogLikelihood(int nbsimu, int seed) const
+double SPDE::computeLogLikelihood(int nbsimu) const
 {
   VectorDouble dataVect;
   bool useSel = true;
@@ -699,7 +695,7 @@ double SPDE::computeLogLikelihood(int nbsimu, int seed) const
   // so driftCoeffs have to be recomputed
   _isCoeffsComputed = false;
 
-  return _computeLogLikelihood(nbsimu,seed);
+  return _computeLogLikelihood(nbsimu);
 }
 
 void SPDE::_computeDriftCoeffs() const
@@ -740,7 +736,6 @@ VectorDouble SPDE::getCoeffs()
  * @param useCholesky Define the choice regarding Cholesky
  * @param params Set of parameters
  * @param nbMC Number of Monte-Carlo simulations used for variance calculation
- * @param seed Seed used for the Random Number generator
  * @param verbose Verbose flag
  * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
@@ -763,7 +758,6 @@ int krigingSPDE(Db *dbin,
                 int useCholesky,
                 const SPDEParam& params,
                 int nbMC,
-                int seed,
                 bool verbose,
                 bool showStats,
                 const NamingConvention &namconv)
@@ -773,7 +767,7 @@ int krigingSPDE(Db *dbin,
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
   SPDE spde(model, dbout, dbin, mode, mesh,
             useCholesky, params, verbose, showStats);
-  return spde.compute(dbout, nbMC, seed, namconv);
+  return spde.compute(dbout, nbMC, namconv);
 }
 
 /**
@@ -786,7 +780,6 @@ int krigingSPDE(Db *dbin,
  * @param mesh Mesh description (optional)
  * @param useCholesky Define the choice regarding Cholesky
  * @param params Set of parametes
- * @param seed Seed used for the Random Number generator
  * @param verbose Verbose flag
  * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
@@ -805,7 +798,6 @@ int simulateSPDE(Db *dbin,
                  const AMesh *mesh,
                  int useCholesky,
                  const SPDEParam& params,
-                 int seed,
                  bool verbose,
                  bool showStats,
                  const NamingConvention &namconv)
@@ -814,7 +806,7 @@ int simulateSPDE(Db *dbin,
       ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
             showStats);
-  return spde.compute(dbout, nbsimu, seed, namconv);
+  return spde.compute(dbout, nbsimu, namconv);
 }
 
 double logLikelihoodSPDE(Db *dbin,
@@ -823,13 +815,12 @@ double logLikelihoodSPDE(Db *dbin,
                          const AMesh *mesh,
                          int useCholesky,
                          int nbsimu,
-                         int seed,
                          const SPDEParam& params,
                          bool verbose)
 {
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
             params, verbose, false);
-  return spde.computeLogLikelihood(nbsimu, seed);
+  return spde.computeLogLikelihood(nbsimu);
 }
 
 static int _loadPositions(int iech,
