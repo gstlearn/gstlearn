@@ -50,6 +50,7 @@ public:
   static MatrixRectangular* sample(const AMatrix* A,
                                    const VectorInt& rowKeep = VectorInt(),
                                    const VectorInt& colKeep = VectorInt());
+  static MatrixRectangular* matrixTest(const MatrixRectangular* mytest = nullptr);
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
                 const VectorInt& colFetch);

@@ -586,6 +586,7 @@
                                const MatrixSquareSymmetric& (void *argp, MatrixSquareSymmetric mat),
                                const MatrixSquareSymmetric* (void *argp, MatrixSquareSymmetric mat)
 {
+  message(">>> To Cpp pointeur ou reference\n");
   // Try to convert from any target language vector
   int errcode = matrixDenseToCpp($input, mat);
   if (!SWIG_IsOK(errcode))
@@ -683,6 +684,7 @@
                                   VectorUChar,
                                   VectorBool
 {
+  message(">>> From Cpp objet\n");
   int errcode = vectorFromCpp(&($result), $1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
@@ -695,6 +697,7 @@
                                   VectorUChar*,  VectorUChar&,
                                   VectorBool*,   VectorBool&
 {
+  message(">>> From Cpp objet pointeur ou reference\n");
   int errcode = vectorFromCpp(&($result), *$1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
@@ -722,6 +725,7 @@
                                   MatrixSquareGeneral, 
                                   MatrixSquareSymmetric
 {
+  message(">>> From Cpp objet\n");
   int errcode = matrixDenseFromCpp(&($result), $1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
@@ -731,6 +735,7 @@
                                   MatrixSquareGeneral*,   MatrixSquareGeneral&,
                                   MatrixSquareSymmetric*, MatrixSquareSymmetric&
 {
+  message(">>> From Cpp objet pointeur ou reference\n");
   int errcode = matrixDenseFromCpp(&($result), *$1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");

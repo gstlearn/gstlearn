@@ -223,3 +223,16 @@ void MatrixRectangular::unsample(const AMatrix* A,
     for (int icol = 0; icol < ncols; icol++)
       setValue(rows[irow], cols[icol], A->getValue(irow, icol));
 }
+
+MatrixRectangular*
+MatrixRectangular::matrixTest(const MatrixRectangular* mytest)
+{
+  message("Dans matrixTest function\n");
+  if (mytest == nullptr)
+  {
+    message("argument vide. On retourne vide");
+    return nullptr;
+  }
+  MatrixRectangular* matrixNew = mytest->clone();
+  return matrixNew;
+}
