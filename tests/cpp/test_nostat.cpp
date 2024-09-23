@@ -15,8 +15,6 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/NoStatArrayCov.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
@@ -66,17 +64,15 @@ int main(int argc, char *argv[])
 
   if (flagDirect)
   {
-    NoStatFunctionalCov noStatFunc(&spirale);
-    cova->addNoStat(&noStatFunc);
+    cova->makeAngleNoStatFunctional(&spirale);
   }
   else
   {
-    NoStatArrayCov noStatArray;
     if (flagByAngle)
     {
       VectorDouble angle = spirale.getFunctionValues(workingDbc);
-      workingDbc->addColumns(angle, "Angle", ELoc::NOSTAT, 0);
-      noStatArray = NoStatArrayCov( { "A" }, workingDbc);
+      workingDbc->addColumns(angle, "Angle");
+      cova->makeAngleNoStatDb("Angle",0,workingDbc);
     }
     else
     {
@@ -84,9 +80,10 @@ int main(int argc, char *argv[])
       workingDbc->addColumns(hh[0], "H1-1", ELoc::NOSTAT, 0);
       workingDbc->addColumns(hh[1], "H1-2", ELoc::NOSTAT, 1);
       workingDbc->addColumns(hh[2], "H2-2", ELoc::NOSTAT, 2);
-      noStatArray = NoStatArrayCov( { "H1-1", "H1-2", "H2-2" }, workingDbc);
+      cova->makeTensorNoStatDb("H1-1",0,0,workingDbc);
+      cova->makeTensorNoStatDb("H1-2",0,1,workingDbc);
+      cova->makeTensorNoStatDb("H2-2",1,1,workingDbc);
     }
-    cova->addNoStat(&noStatArray);
   }
 
   // Inquiry the value of the Non-stationary parameters at a given sample
@@ -109,5 +106,6 @@ int main(int argc, char *argv[])
   message("Test performed successfully\n");
 
   delete workingDbc;
+  delete model;
   return 0;
 }

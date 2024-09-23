@@ -120,7 +120,7 @@ public:
 private:
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
-  int  _getPolarized(VectorInt indg) const;
+  int  _getPolarized(const VectorInt &indg) const;
   int  _addWeights(int icas,
                    const VectorInt &indg0,
                    const VectorDouble &coor,

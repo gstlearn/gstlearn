@@ -21,9 +21,9 @@
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Covariances/ANoStatCov.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "geoslib_define.h"
 
 #include <Eigen/src/Core/Matrix.h>
 #include <math.h>
@@ -146,7 +146,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
                             bool flagAdvection,
                             bool verbose)
 {
-  DECLARE_UNUSED(flagAdvection);
+  DECLARE_UNUSED(flagAdvection,verbose);
 
   // Initializations
 
@@ -158,14 +158,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
-    if (_cova->isNoStat())
-    {
-      if (_cova->getNoStat()->attachToMesh(amesh, true, verbose))
-      {
-        messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
-        return 1;
-      }
-    }
+    _cova->informMeshByMeshForAnisotropy(amesh);
 
     // Calculating and storing the mesh sizes
     VectorDouble units = amesh->getMeshSizes();
@@ -214,23 +207,12 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
                                 double tol)
 {
   // Initializations
-
+  DECLARE_UNUSED(verbose)
   _setCovAniso(cova);
 
   try
   {
-
-    // Attach the Non-stationary to Mesh and Db (optional)
-
-    if (cova->isNoStat())
-    {
-      if (cova->getNoStat()->attachToMesh(amesh, verbose))
-      {
-        messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
-        return 1;
-      }
-    }
-
+    _cova->informMeshByMesh(amesh);
 
     // Construct S sparse Matrix
     if (_buildSGrad(amesh, tol))
@@ -355,24 +337,17 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
 void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
 {
   VectorDouble tab;
-  bool flagSill = false;
 
-  const ANoStatCov *nostat = _getCovAniso()->getNoStat();  
-
-  if (_isNoStat())
+  if (_cova->isNoStatForVariance())
   {
-    if (nostat->isDefined(EConsElem::SILL)) flagSill = true;
-  }
-
-  if (flagSill)
-  {
-    nostat->attachToMesh(mesh,false);
+    _cova->informMeshByApexForSills(mesh);
     int number = (int) _Lambda.size();
                        
     
     for (int imesh = 0; imesh < number; imesh++)
     {
-      double sill = nostat->getValue(EConsElem::SILL,0,imesh,0,0);
+      _cova->updateCovByMesh(imesh,false);
+      double sill = _cova->getSill(0,0);
       double invsillsq = 1. / sqrt(sill);
       _Lambda[imesh] *= invsillsq;
     }
@@ -529,7 +504,9 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
 int ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
                             Eigen::VectorXd& outv) const
 {
-  _S->addProdMatVecInPlaceToDest(inv, outv);
+  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
+  _S->addProdMatVecInPlaceToDest(invmap, outvmap);
   return 0;
 }
 
@@ -602,56 +579,21 @@ MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
  */
 void ShiftOpCs::_updateCova(std::shared_ptr<CovAniso> &cova, int imesh)
 {
-  if (! _isNoStat()) return;
-  int ndim = getNDim();
-  const ANoStatCov* nostat = _getCovAniso()->getNoStat();
+  cova->updateCovByMesh(imesh,true);
 
-  // Third parameter
-  if (nostat->isDefined(EConsElem::PARAM,-1, -1))
-  {
-    double param = nostat->getValue(EConsElem::PARAM, 0, imesh, -1, -1);
-    cova->setParam(param);
-  }
-
-  // Anisotropy coefficients
-  if (nostat->isDefinedforRotation())
-  {
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      if (nostat->isDefined(EConsElem::RANGE, idim, -1))
-      {
-        double range = nostat->getValue(EConsElem::RANGE, 0, imesh, idim, -1);
-        cova->setRange(idim, range);
-      }
-      if (nostat->isDefined(EConsElem::SCALE, idim, -1))
-      {
-        double scale = nostat->getValue(EConsElem::SCALE, 0, imesh,  idim, -1);
-        cova->setScale(idim, scale);
-      }
-    }
-
-    // Anisotropy Rotation
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      if (nostat->isDefined(EConsElem::ANGLE, idim, -1))
-      {
-        double anisoAngle = nostat->getValue(EConsElem::ANGLE, 0, imesh, idim, -1);
-        cova->setAnisoAngle(idim, anisoAngle);
-      }
-    }
-  }
 }
 
 void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int imesh)
 {
+  DECLARE_UNUSED(imesh)
   if (! _isNoStat()) return;
   int ndim = getNDim();
-  const ANoStatCov* nostat = _getCovAniso()->getNoStat();
 
   for (int idim = 0; idim < ndim; idim++)
     for (int jdim = idim; jdim < ndim; jdim++)
     {
-      double value = nostat->getValue(EConsElem::TENSOR, 0, imesh, idim, jdim);
+      double value = 0.; //TODO repare
+    //  double value = nostat->getValue(EConsElem::TENSOR, 0, imesh, idim, jdim);
       hh.setValue(idim, jdim, value);
     }
 }
@@ -826,17 +768,19 @@ void ShiftOpCs::_loadHH(const AMesh *amesh,
 
 void ShiftOpCs::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh)
 {
-  if (! _isNoStat()) return;
-  if (tab.empty()) return;
-  int size = static_cast<int> (tab.size());
+  DECLARE_UNUSED(tab,type,imesh)
+  // TODO Repare
+  // if (! _isNoStat()) return;
+  // if (tab.empty()) return;
+  // int size = static_cast<int> (tab.size());
 
-  VectorDouble tabloc(size, 0.);
-  for (int i = 0; i < size; i++) tab[i] = 0;
+  // VectorDouble tabloc(size, 0.);
+  // for (int i = 0; i < size; i++) tab[i] = 0;
 
-  const ANoStatCov* nostat = _getCovAniso()->getNoStat();
-  for (int i = 0; i < (int) tab.size(); i++)
-    if (nostat->isDefined(type, i, -1))
-      tab[i] = nostat->getValue(type, 0, imesh, i, -1);
+  // const ANoStatCov* nostat = _getCovAniso()->getNoStat();
+  // for (int i = 0; i < (int) tab.size(); i++)
+  //   if (nostat->isDefined(type, i, -1))
+  //     tab[i] = nostat->getValue(type, 0, imesh, i, -1);
 }
 
 int ShiftOpCs::_preparMatrices(const AMesh *amesh,
@@ -1006,8 +950,10 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
     _loadHH(amesh, hh, 0);
     dethh = 1. / hh.determinant();
   }
-  if (! _isNoStat())
-    _loadAux(srot, EConsElem::SPHEROT, 0);
+  
+  //TODO : repare shpere
+  /* if (! _isNoStat())
+    _loadAux(srot, EConsElem::SPHEROT, 0); */
 
   _S = _prepareSparse(amesh);
   if (_S == nullptr) goto label_end;
@@ -1020,17 +966,13 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
 
     // Non stationary case
 
-    if (_isNoStat())
+    if (_cova->isNoStatForAnisotropy())
     {
-      const ANoStatCov* nostat = _getCovAniso()->getNoStat();
-      if (nostat->isDefinedforAnisotropy())
-      {
         _loadHH(amesh, hh, imesh);
         dethh = 1. / hh.determinant();
-      }
-      if (nostat->isDefined(EConsElem::SPHEROT, -1, -1))
-        _loadAux(srot, EConsElem::SPHEROT, imesh);
     }
+     // if (nostat->isDefined(EConsElem::SPHEROT, -1, -1))
+     //   _loadAux(srot, EConsElem::SPHEROT, imesh);
 
     // Prepare M matrix
 
@@ -1377,10 +1319,9 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   if (_isNoStat())
   {
     VectorDouble cum(nvertex, 0.);
-    const ANoStatCov *nostat = _getCovAniso()->getNoStat();
     for (int imesh = 0; imesh < nmeshes; imesh++)
     {
-      if (flagSphere && nostat->isDefinedforAnisotropy())
+      if (flagSphere && cova->isNoStatForAnisotropy())
       {
         _loadHH(amesh, hh, imesh);
         sqdethh = sqrt(hh.determinant());
@@ -1540,11 +1481,7 @@ bool ShiftOpCs::_isNoStat()
 
 bool ShiftOpCs::_isGlobalHH()
 {
-  if (! _isNoStat())
-    return true;
-  const ANoStatCov* nostat = _getCovAniso()->getNoStat();
-
-  return !nostat->isDefinedforAnisotropy();
+  return !_cova->isNoStatForAnisotropy();
 }
 
 int ShiftOpCs::getLambdaGradSize() const
@@ -1624,5 +1561,5 @@ void ShiftOpCs::_determineFlagNoStatByHH()
 {
   _flagNoStatByHH = false;
   if (! _isNoStat()) return;
-  _flagNoStatByHH = _getCovAniso()->getNoStat()->isDefinedByType(EConsElem::TENSOR);
+  _flagNoStatByHH = _cova->isNoStatForTensor();
 }

@@ -1,4 +1,6 @@
 %feature(director) IProjMatrix;
+%feature(director) AFunctional;
+
 //%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
 
@@ -46,6 +48,7 @@
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
   #include "Basic/VectorHelper.hpp"
+  #include "Basic/AFunctional.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"
@@ -183,10 +186,12 @@
   #include "Model/CovParamId.hpp"
   
   #include "Covariances/ParamId.hpp"
+  #include "Covariances/TabNoStat.hpp"
+  #include "Covariances/TabNoStatCovAniso.hpp"
+  #include "Covariances/ANoStat.hpp"
+  #include "Covariances/NoStatArray.hpp"
+  #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
-  #include "Covariances/ANoStatCov.hpp"
-  #include "Covariances/NoStatArrayCov.hpp"
-  #include "Covariances/NoStatFunctionalCov.hpp"
   #include "Covariances/ACovFunc.hpp"
   #include "Covariances/ACovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"

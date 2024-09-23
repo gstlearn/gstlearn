@@ -69,7 +69,9 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const Matrix
     {
       if (jvar <= ivar)
       {
-        diag.setDiagonal(_invCholSillsNoStat[icov][IND(ivar,jvar,nvar)]);
+        const auto& vec {_invCholSillsNoStat[icov][IND(ivar, jvar, nvar)]};
+        Eigen::Map<const Eigen::VectorXd> inv(vec.data(), vec.size());
+        diag.setDiagonal(inv);
         MatrixSparse::glueInPlace(&currentRow,&diag ,1,0);
       }
       else 
@@ -142,4 +144,3 @@ int PrecisionOpMultiMatrix::_addToDestImpl(const Eigen::VectorXd &vecin,Eigen::V
 {
   return getQ()->addToDest(vecin,vecout);
 }
-                                   

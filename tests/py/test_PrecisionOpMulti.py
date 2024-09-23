@@ -63,27 +63,21 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
             rho1 = eps + (grid["x1"]-np.min(grid["x1"])+eps) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho2 = eps + (grid["x2"]-np.min(grid["x2"])+eps) / (eps + np.max(grid["x2"])-np.min(grid["x2"]))
             grid["rho1"] = p * rho1 + (1-p) * sills1
-            grid.setLocator("rho1",gl.ELoc.NOSTAT)
-            nostatA1 = gl.NoStatArrayCov(["V1"],grid)
-            modelMulti.getCova(0).addNoStat(nostatA1)
+            modelMulti.getCova(0).attachNoStatDb(grid)
+            modelMulti.getCova(0).makeSillNoStatDb("rho1")
             if multistruct :
                 grid2["rho2"] = p * rho2 + (1-p) * sills2
-                grid2.setLocator("rho2",gl.ELoc.NOSTAT)
-                nostatA2 = gl.NoStatArrayCov(["V1"],grid2)
-                modelMulti.getCova(1).addNoStat(nostatA2)
+                modelMulti.getCova(1).attachNoStatDb(grid2)
+                modelMulti.getCova(1).makeSillNoStatDb("rho2")
 
         if nvar == 2:
             rho = (eps + grid["x1"]-np.min(grid["x1"])) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho = logit(rho,20,10)
             grid["rho"] = rho * np.sqrt(s11*s21) * p + s121 * (1-p)
-            grid.setLocator("rho",gl.ELoc.NOSTAT)
-            nostatA = gl.NoStatArrayCov(["V1-2"],grid)
-            modelMulti.getCova(0).addNoStat(nostatA)
+            modelMulti.getCova(0).makeSillNoStatDb("rho",0,1,grid)
         if nvar == 3:
             grid["rho"] = sills1[0,1] * np.ones_like(grid["rank"])
-            grid.setLocator("rho",gl.ELoc.NOSTAT)
-            nostatA = gl.NoStatArrayCov(["V1-2"],grid)
-            modelMulti.getCova(0).addNoStat(nostatA)
+            modelMulti.getCova(0).makeSillNoStatDb("rho",0,1,grid)
        
     return modelMulti,meshes
 
@@ -281,13 +275,11 @@ def test(nvar = 1, multistruct = True,ndig = 10):
   print(f" Simulation in the matrix case. Error = " +str(vv))
   return resultAll
 
-
-
+nvar = 1
+multistruct =False
 
 # %%
 ndig = 8
 for nvar in [1,2,3]:
     for multistruct in [False,True]:
         rr = test(nvar,multistruct,ndig)
-
-# %%

@@ -1,4 +1,0 @@
-This test is mean to test Kriging using Unique Neighborhood
-- the Data Set contains 300 samples
-- the output Grid contains 40000 nodes
-- the Unique Neighborhood is required

@@ -13,7 +13,6 @@
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/DbGrid.hpp"
@@ -46,8 +45,7 @@ int main(int argc, char *argv[])
 
   // Creating non-stationarity field (spiral) and attaching it to the Model
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctionalCov NoStat(&spirale);
-  model->getCova(0)->addNoStat(&NoStat);
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
   model->display();
 
   // Creating Data
