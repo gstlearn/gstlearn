@@ -160,13 +160,10 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   logPoly.fit(f,a,b,2*EPSILON4/(a+b));
 }
 
-double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu, int seed) const
+double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
 {
   Chebychev logPoly;
-  preparePoly(logPoly);
-
-  law_set_random_seed(seed);
-  
+  preparePoly(logPoly);  
   double val = 0.;
   for (int i = 0; i < nbsimu; i++)
   {
@@ -181,12 +178,12 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu, int seed) const
   return val / nbsimu;
 }
 
-double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu, int seed) const
+double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu) const
 {
   double result = 0.;
   for (const auto &e : _multiPrecisionOp)
   {
-    result += e->getLogDeterminant(nbsimu,seed);
+    result += e->getLogDeterminant(nbsimu);
   }
   return result;
 }
@@ -203,10 +200,10 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 // We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
 
-double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu , int seed ) const
+double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu ) const
 {
-  double a1 = computeLogDetOp(nbsimu,seed);
-  double a2 = computeLogDetQ(nbsimu,seed);
+  double a1 = computeLogDetOp(nbsimu);
+  double a2 = computeLogDetQ(nbsimu);
   double a3 = sumLogVar();
   return a1 - a2 + a3;
 }

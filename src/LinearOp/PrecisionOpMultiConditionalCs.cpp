@@ -52,10 +52,9 @@ int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix*
   return PrecisionOpMultiConditional::push_back(pmatElem, projDataElem);
 }
 
-double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) const
+double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu) const
 {
   DECLARE_UNUSED(nbsimu);
-  DECLARE_UNUSED(seed);
 
   if (_chol == nullptr)
     _chol = new Cholesky(_Q);

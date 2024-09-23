@@ -67,7 +67,7 @@ public:
             const CovAniso *cova = nullptr,
             bool verbose = false);
 
-  virtual double getLogDeterminant(int nbsimu = 1, int seed = 0);
+  virtual double getLogDeterminant(int nbsimu = 1);
   #ifndef SWIG
     virtual void gradYQX(const Eigen::VectorXd& /*X*/,
                          const Eigen::VectorXd& /*Y*/,

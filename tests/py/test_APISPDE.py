@@ -55,6 +55,7 @@ S = gl.ShiftOpCs(mesh, cova, resultDb)
 
 
 Qsimu = gl.PrecisionOp(S, cova, False)
+
 result = Qsimu.simulateOne()
 workingDb.addColumns(result,"Simu",gl.ELoc.X)
 
@@ -68,6 +69,7 @@ data.setLocator('z',gl.ELoc.Z)
 data
 
 spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND,None,0)
+gl.law_set_random_seed(131351)
 spde.compute(workingDb)
 
 dbfmt = gl.DbStringFormat()
