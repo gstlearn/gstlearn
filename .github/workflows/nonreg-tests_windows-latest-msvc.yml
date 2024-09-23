@@ -23,6 +23,7 @@ env:
   BUILD_DIR : build
   CMAKE_GENERATOR : Ninja
   PYTHON_VERSION : "3.11"
+  NUMPY_VERSION : "1.23.5"
   #HDF5_ROOT : hdf5 #do not use "." in the name
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
@@ -43,7 +44,7 @@ jobs:
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
         python -m pip install pandas scipy mlxtend
 
     - name: Setup Conda
