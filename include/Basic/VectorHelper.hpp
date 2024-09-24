@@ -94,11 +94,12 @@ public:
   static void fill(VectorInt& vec, int v, int size = 0);
   static void fill(VectorVectorDouble &vec, double value);
   static void fillUndef(VectorDouble& vec, double repl);
+  
+  #ifndef SWIG
   static void addMultiplyConstantInPlace(double val1,
                                   const constvect &in,
                                   vect &out,
                                   int iad);
-  #ifndef SWIG
   static void addMultiplyVectVectInPlace(const constvect &in1,
                                          const constvect &in2,
                                          vect &out,
