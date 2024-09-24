@@ -20,9 +20,6 @@
   #include <Eigen/src/Core/Matrix.h>
 #endif
 
-
-#include "Matrix/VectorEigen.hpp"
-
 class PrecisionOp;
 
 #ifndef SWIG
@@ -59,19 +56,19 @@ public:
   void setLambda(const Eigen::VectorXd& lambda) 
   {
     for (int i = 0; i < (int)_lambda.size(); i++) 
-      _lambda.getVector()[i] = lambda[i]; 
+      _lambda[i] = lambda[i]; 
   }
 
  void setLambda(const VectorDouble& lambda) 
   {
     for (int i = 0; i < (int)_lambda.size(); i++) 
-      _lambda.getVector()[i] = lambda[i]; 
+      _lambda[i] = lambda[i]; 
   }
 
 #ifndef SWIG
 protected:
-  int _addToDest(const Eigen::VectorXd& inv,
-                 Eigen::VectorXd& outv) const override;
+  int _addToDest(const constvect& inv,
+                 vect& outv) const override;
 
 
 private:
@@ -80,14 +77,14 @@ private:
   PrecisionOp*         _pMat;     // External pointer
   const ProjMatrix*    _projData; // External pointer
   const ProjMatrix*    _projSeis; // External pointer
-  VectorDouble         _indic;
-  VectorEigen          _propSeis;
-  VectorEigen          _varSeis;
-  VectorEigen          _lambda;
-  mutable VectorEigen  _workp;
-  mutable VectorEigen  _workx;
-  mutable VectorEigen  _workv;
-  mutable VectorEigen  _works;
+  std::vector<double>         _indic;
+  std::vector<double>          _propSeis;
+  std::vector<double>          _varSeis;
+  std::vector<double>          _lambda;
+  mutable std::vector<double>  _workp;
+  mutable std::vector<double>  _workx;
+  mutable std::vector<double>  _workv;
+  mutable std::vector<double>  _works;
 #endif
 };
 

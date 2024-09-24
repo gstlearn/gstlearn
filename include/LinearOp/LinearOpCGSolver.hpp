@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Matrix/VectorEigen.hpp"
+#include <Eigen/src/Core/Map.h>
 
 #ifndef SWIG
 #  include <Eigen/Core>
@@ -35,7 +36,9 @@ public:
 #ifndef SWIG
   void solve(const Eigen::Map<const Eigen::VectorXd>& rhs,
              Eigen::Map<Eigen::VectorXd>& out);
-  void solveWithGuess(const Eigen::VectorXd& rhs,const Eigen::VectorXd& guess, Eigen::VectorXd& out);
+  void solveWithGuess(const Eigen::Map<const Eigen::VectorXd>& rhs,
+                      const Eigen::Map<const Eigen::VectorXd>& guess,
+                      Eigen::Map<Eigen::VectorXd>& out);
 private:
   Eigen::ConjugateGradient<TLinOP,
                            Eigen::Lower | Eigen::Upper,
@@ -78,9 +81,9 @@ void LinearOpCGSolver<TLinOP>::solve(
 }
 
 template<typename TLinOP>
-void LinearOpCGSolver<TLinOP>::solveWithGuess(const Eigen::VectorXd& rhs,
-                                              const Eigen::VectorXd& guess,
-                                              Eigen::VectorXd& out)
+void LinearOpCGSolver<TLinOP>::solveWithGuess(const Eigen::Map<const Eigen::VectorXd>& rhs,
+                                              const Eigen::Map<const Eigen::VectorXd>& guess,
+                                              Eigen::Map<Eigen::VectorXd>& out)
 {
   out = cg.solveWithGuess(rhs,guess);
 }

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -46,18 +47,18 @@ public:
 
 
 protected:
-  virtual int _addSimulateToDest(const Eigen::VectorXd& whitenoise,
-                                       Eigen::VectorXd& outv) const override;
-  virtual int _addToDest(const Eigen::VectorXd& inv,
-                               Eigen::VectorXd& outv) const override;
+  virtual int _addSimulateToDest(const constvect& whitenoise,
+                                       vect& outv) const override;
+  virtual int _addToDest(const constvect& inv,
+                               vect& outv) const override;
 
 
 private:
   void _prepare() const; // modify only mutable objects and can be called from const method
   void _clear();
   
-  int  _simulateSparse(const Eigen::VectorXd& whitenoise,
-                             Eigen::VectorXd& outv) const;
+  int  _simulateSparse(const constvect& whitenoise,
+                             vect& outv) const;
 private:
   const   AMatrix* _mat;
   bool             _inverse;

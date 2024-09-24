@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/SPDEOp.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include <Eigen/src/Core/Matrix.h>
@@ -51,13 +52,13 @@ void SPDEOp::_prepare(bool w1, bool w2) const
   if (w2) _workdat2.resize(_getNDat());
 }
 
-int SPDEOp::_addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+int SPDEOp::_addToDest(const constvect& inv, vect& outv) const
 {
   return _addToDestImpl(inv, outv);
 }
 
-int SPDEOp::_addSimulateToDest(const Eigen::VectorXd& whitenoise,
-                               Eigen::VectorXd& outv) const
+int SPDEOp::_addSimulateToDest(const constvect& whitenoise,
+                               vect& outv) const
 {
   DECLARE_UNUSED(whitenoise);
   DECLARE_UNUSED(outv);
@@ -66,60 +67,64 @@ int SPDEOp::_addSimulateToDest(const Eigen::VectorXd& whitenoise,
 
 VectorDouble SPDEOp::kriging(const VectorDouble& dat) const
 {
-  Eigen::Map<const Eigen::VectorXd> datm(dat.data(), dat.size());
-  Eigen::VectorXd outv(_Q->getSize());
-  int err = kriging(datm, outv);
+  constvect datm(dat.data(), dat.size());
+  VectorDouble outv(_Q->getSize());
+  vect outvs(outv);
+  int err = kriging(datm, outvs);
   if (err) return VectorDouble();
-  return VectorEigen::copyIntoVD(outv);
+  return outv;
 }
 
 VectorDouble SPDEOp::krigingWithGuess(const VectorDouble& dat,
                                       const VectorDouble& guess) const
 {
-  Eigen::Map<const Eigen::VectorXd> datm(dat.data(), dat.size());
-  Eigen::Map<const Eigen::VectorXd> guessm(guess.data(), guess.size());
+  constvect datm(dat.data(), dat.size());
+  constvect guessm(guess.data(), guess.size());
 
-  Eigen::VectorXd outv(_Q->getSize());
-  int err = krigingWithGuess(datm, guessm, outv);
+  VectorDouble outv(_Q->getSize());
+  vect outvs(outv);
+  int err = krigingWithGuess(datm, guessm, outvs);
   if (err) return VectorDouble();
-  return VectorEigen::copyIntoVD(outv);
+  return outv;
 }
 
-int SPDEOp::kriging(const Eigen::VectorXd& inv, Eigen::VectorXd& out) const
+int SPDEOp::kriging(const constvect& inv, vect& out) const
 {
-  out.resize(_Q->getSize());
   _buildRhs(inv);
   return _solve(_rhs, out);
 }
 
-int SPDEOp::krigingWithGuess(const Eigen::VectorXd& inv,
-                             const Eigen::VectorXd& guess,
-                             Eigen::VectorXd& out) const
+int SPDEOp::krigingWithGuess(const constvect& inv,
+                             const constvect& guess,
+                             vect& out) const
 {
-  out.resize(_Q->getSize());
   _buildRhs(inv);
   return _solveWithGuess(_rhs, guess, out);
 }
 
-int SPDEOp::_solve(const Eigen::VectorXd& in, Eigen::VectorXd& out) const
+int SPDEOp::_solve(const constvect& in, vect& out) const
 {
-  Eigen::Map<Eigen::VectorXd> outmap {out.data(), out.size()};
-  _solver.solve({in.data(), in.size()}, outmap);
+
+  Eigen::Map<Eigen::VectorXd> outmap {out.data(), static_cast<int>(out.size())};
+  _solver.solve({in.data(), static_cast<int>(in.size())}, outmap);
   return 0;
 }
 
-int SPDEOp::_solveWithGuess(const Eigen::VectorXd& in,
-                            const Eigen::VectorXd& guess,
-                            Eigen::VectorXd& out) const
+int SPDEOp::_solveWithGuess(const constvect& in,
+                            const constvect& guess,
+                            vect& out) const
 {
-  _solver.solveWithGuess(in, guess, out);
+  Eigen::Map<Eigen::VectorXd> outmap {out.data(), static_cast<int>(out.size())};
+  _solver.solveWithGuess({in.data(), static_cast<int>(in.size())},
+                         {guess.data(),static_cast<int>(guess.size())}, outmap);
   return 0;
 }
 
-int SPDEOp::_buildRhs(const Eigen::VectorXd& inv) const
+int SPDEOp::_buildRhs(const constvect& inv) const
 {
   _rhs.resize(_Q->getSize());
-  _invNoise->evalDirect(inv, _workdat1);
+  vect w1(_workdat1);
+  _invNoise->evalDirect(inv, w1);
   _Proj->point2mesh(_workdat1, _rhs);
   return 0;
 }
@@ -134,29 +139,35 @@ int SPDEOp::_buildRhs(const Eigen::VectorXd& inv) const
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOp::_addToDestImpl(const Eigen::VectorXd& inv,
-                           Eigen::VectorXd& outv) const
+int SPDEOp::_addToDestImpl(const constvect& inv,
+                           vect& outv) const
 {
   _prepare();
-  _Proj->mesh2point(inv, _workdat1);
-  _invNoise->evalDirect(_workdat1, _workdat2);
-  _Proj->addPoint2mesh(_workdat2, outv);
+  vect w1s(_workdat1);
+  vect w2s(_workdat2);
+  _Proj->mesh2point(inv, w1s);
+  _invNoise->evalDirect(w1s, w2s);
+  _Proj->addPoint2mesh(w2s, outv);
   return _Q->addToDest(inv, outv);
 }
 
-void SPDEOp::evalInvCov(const std::span<const double> &inv, std::span<double> &result) const
+void SPDEOp::evalInvCov(const constvect &inv, vect &result) const
 {
   // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
   
   _rhs.resize(getSize());
   _workmesh.resize(getSize());
   _workdat2.resize(_getNDat());
+  vect rhss(_rhs);
+  vect wms(_workmesh);
+  vect w2s(_workdat2);
+
   _invNoise->evalDirect(inv,result);
-  _Proj->point2mesh(result,_rhs);
-  _solve(_rhs,_workmesh);
-  _Proj->mesh2point(_workmesh,_workdat2);
-  VectorEigen::multiplyConstant(_workdat2,-1);
-  _invNoise->addToDest(_workdat2,result);
+  _Proj->point2mesh(result,rhss);
+  _solve(rhss,wms);
+  _Proj->mesh2point(wms,w2s);
+  //VectorEigen::multiplyConstant(w2s,-1);
+  _invNoise->addToDest(w2s,result);
 
   
 }
@@ -170,18 +181,20 @@ VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   MatrixSquareSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
   _workdat1.resize(_getNDat());
+  vect w1s(_workdat1);
   for(int i = 0; i< xsize; i++)
   {
     auto xm = drifts.getColumnPtr(i);
-    evalInvCov(xm,_workdat1);
+    evalInvCov(xm,w1s);
 
     Eigen::Map<const Eigen::VectorXd> ym(Z.data(),Z.size());
-    XtInvSigmaZ[i] = ym.adjoint() * _workdat1;
+    Eigen::Map<const Eigen::VectorXd> wd1(_workdat1.data(),_workdat1.size());
+    XtInvSigmaZ[i] = ym.adjoint() * wd1;
 
     for(int j = i; j < xsize;j++)
     {
-      Eigen::Map<const Eigen::VectorXd> xmj(drifts[j].data(),drifts[j].size());
-      XtInvSigmaX.setValue(i,j,  xmj.adjoint() * _workdat1);
+      // Eigen::Map<const Eigen::VectorXd> xmj(drifts[j].data(),drifts[j].size());
+      // XtInvSigmaX.setValue(i,j,  xmj.adjoint() * wd1);
     }
   }
 

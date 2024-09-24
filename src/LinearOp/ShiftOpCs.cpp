@@ -362,8 +362,8 @@ void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
   }
 }
 
-void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
-                           Eigen::VectorXd& y,
+void ShiftOpCs::prodLambda(const constvect& x,
+                           vect& y,
                            const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
@@ -393,7 +393,7 @@ void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
 }
 
 void ShiftOpCs::prodLambda(const VectorDouble& x,
-                           Eigen::VectorXd& y,
+                           vect& y,
                            const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
@@ -422,7 +422,7 @@ void ShiftOpCs::prodLambda(const VectorDouble& x,
   }
 }
 
-void ShiftOpCs::prodLambda(const Eigen::VectorXd& x,
+void ShiftOpCs::prodLambda(const constvect& x,
                            VectorDouble& y,
                            const EPowerPT& power) const
 {
@@ -501,12 +501,10 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-int ShiftOpCs::_addToDest(const Eigen::VectorXd& inv,
-                            Eigen::VectorXd& outv) const
+int ShiftOpCs::_addToDest(const constvect& inv,
+                          vect& outv) const
 {
-  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
-  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
-  _S->addProdMatVecInPlaceToDest(invmap, outvmap);
+  _S->addProdMatVecInPlaceToDest(inv, outv);
   return 0;
 }
 

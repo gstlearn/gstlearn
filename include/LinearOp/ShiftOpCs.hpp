@@ -65,8 +65,8 @@ class GSTLEARN_EXPORT ShiftOpCs:
     ShiftOpCs& operator=(const ShiftOpCs& shift);
     virtual ~ShiftOpCs();
     void normalizeLambdaBySills(const AMesh*);
-    int _addToDest(const Eigen::VectorXd& inv,
-                   Eigen::VectorXd& outv) const override;
+    int _addToDest(const constvect& inv,
+                   vect& outv) const override;
 
     static ShiftOpCs* create(const AMesh* amesh, const CovAniso* cova,
                              const Db* dbout = nullptr, 
@@ -101,11 +101,11 @@ class GSTLEARN_EXPORT ShiftOpCs:
     void prodLambda(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
   #ifndef SWIG
-    void prodLambda(const Eigen::VectorXd& x, Eigen::VectorXd& y,
+    void prodLambda(const constvect& x, vect& y,
                     const EPowerPT& power) const;
-    void prodLambda(const VectorDouble& x, Eigen::VectorXd& y,
+    void prodLambda(const VectorDouble& x, vect& y,
                     const EPowerPT& power) const;
-    void prodLambda(const Eigen::VectorXd& x, VectorDouble& y,
+    void prodLambda(const constvect& x, VectorDouble& y,
                     const EPowerPT& power) const;
   #endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,

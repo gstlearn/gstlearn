@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-
 #include "Basic/VectorNumT.hpp"
+#include <vector>
 
 class GSTLEARN_EXPORT VectorHelper
 {
@@ -52,6 +52,8 @@ public:
   static double maximum(const VectorDouble &vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), int mode=0);
   static double minimum(const VectorDouble &vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), int mode=0);
   static double maximum(const VectorVectorDouble &vec, bool flagAbs = false);
+  static double maximum(const std::vector<std::vector<double>> &vec, bool flagAbs = false);
+
   static double minimum(const VectorVectorDouble &vec, bool flagAbs = false);
   static int product(const VectorInt& vec);
   static double product(const VectorDouble& vec);
@@ -92,9 +94,23 @@ public:
   static void fill(VectorInt& vec, int v, int size = 0);
   static void fill(VectorVectorDouble &vec, double value);
   static void fillUndef(VectorDouble& vec, double repl);
-
+  static void addMultiplyConstantInPlace(double val1,
+                                  const constvect &in,
+                                  vect &out,
+                                  int iad);
+  #ifndef SWIG
+  static void addMultiplyVectVectInPlace(const constvect &in1,
+                                         const constvect &in2,
+                                         vect &out,
+                                         int iad);
+  static void addInPlace(const std::vector<std::vector<double>> &in1,
+                              const std::vector<std::vector<double>> &in2,
+                              std::vector<std::vector<double>> &outv);
+  #endif
   static VectorDouble add(const VectorDouble &veca, const VectorDouble &vecb);
   static void addInPlace(VectorDouble &dest, const VectorDouble &src);
+  static void addInPlace(std::vector<double>& dest, const std::vector<double> &src);
+
   static void addInPlace(const VectorDouble &veca,
                          const VectorDouble &vecb,
                          VectorDouble &res,
@@ -132,6 +148,8 @@ public:
   static void copy(const VectorDouble& vecin, VectorDouble& vecout, int size = -1);
   static void copy(const VectorInt &vecin, VectorInt &vecout, int size = -1);
   static void copy(const VectorVectorDouble &inv, VectorVectorDouble &outv);
+  static void copy(const std::vector<std::vector<double>> &inv, std::vector<std::vector<double>> &outv);
+
   static void addConstant(VectorDouble& vec, double v);
   static void addConstant(VectorInt& vec, int v);
   static void mean1AndMean2ToStdev(const VectorDouble &mean1,
@@ -156,6 +174,8 @@ public:
   static double innerProduct(const double* veca, const double* vecb, int size);
   static double innerProduct(const VectorVectorDouble &x,
                              const VectorVectorDouble &y);
+  static double innerProduct(const std::vector<double> &veca, const std::vector<double> &vecb, int size = -1);
+  static void divideInPlace(std::vector<double> &vec, const std::vector<double> &v);
 
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
@@ -218,11 +238,13 @@ public:
   static VectorInt complement(const VectorInt& vec, const VectorInt& sel);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
-
+  static void unflattenInPlace(const std::vector<double>& vd, std::vector<std::vector<double>>& vvd);
+  static void flattenInPlace(const std::vector<std::vector<double>>& vvd, std::vector<double>& vd);
   static VectorDouble flatten(const VectorVectorDouble& vvd);
   static VectorVectorDouble unflatten(const VectorDouble& vd, const VectorInt& sizes);
+  static std::vector<double> flatten(const std::vector<std::vector<double>>& vvd);
+  static std::vector<std::vector<double>> unflatten(const std::vector<double>& vd, const VectorInt& sizes);
   static void flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd);
-  static void unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd);
   static void linearCombinationInPlace(double val1,
                                        const VectorDouble &vd1,
                                        double val2,
@@ -233,6 +255,13 @@ public:
                                           double val2,
                                           const VectorVectorDouble &vvd2,
                                           VectorVectorDouble &outv);
+  static double innerProduct(const std::vector<std::vector<double>> &x,
+                             const std::vector<std::vector<double>> &y);
+  static void linearCombinationVVDInPlace(double val1,
+                                          const std::vector<std::vector<double>> &vvd1,
+                                          double val2,
+                                          const std::vector<std::vector<double>> &vvd2,
+                                          std::vector<std::vector<double>> &outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
   static void extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
@@ -256,12 +285,19 @@ public:
   static int whereMinimum(const VectorDouble& tab);
   static int whereMaximum(const VectorDouble& tab);
   static int whereElement(const VectorInt& tab, int target);
+  static double norm(const std::vector<double> &vec);
+
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
   static VectorDouble compress(const VectorDouble &vecin, const VectorInt& vindex);
-
+  static void  substractInPlace(const std::vector<std::vector<double>> &in1,
+                                   const std::vector<std::vector<double>> &in2,
+                                   std::vector<std::vector<double>> &outv);
   static void truncateDecimalsInPlace(VectorDouble& vec, int ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, int ndec);
+  static void simulateGaussianInPlace(std::vector<double> &vec,
+                                           double mean = 0.,
+                                           double sigma = 1.);
 };
 
 //typedef VectorHelper VH;

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 #include <span>
 
@@ -30,8 +31,8 @@ public:
   virtual int mesh2point(const VectorDouble& inv, VectorDouble& outv) const; // when job is finished
   int point2mesh(const VectorEigen& inv, VectorEigen  & outv) const;
   int mesh2point(const VectorEigen& inv, VectorEigen   & outv)const; 
-  int point2mesh(const std::span<const double>& inv,std::span<double>& out) const;
-  int mesh2point(const std::span<const double>& inv,std::span<double>& out) const;
+  int point2mesh(const constvect& inv,vect& out) const;
+  int mesh2point(const constvect& inv,vect& out) const;
 
   virtual int getApexNumber() const = 0;
   virtual int getPointNumber() const = 0;
@@ -41,20 +42,21 @@ public:
                        Eigen::VectorXd& outv) const;
   int point2mesh(const Eigen::VectorXd& inv,
                        Eigen::VectorXd& outv) const;    
-  int addMesh2point(const Eigen::VectorXd& inv,
-                       Eigen::VectorXd& outv) const;
-  int addPoint2mesh(const Eigen::VectorXd& inv,
-                       Eigen::VectorXd& outv) const;             
+  int addMesh2point(const constvect& inv,
+                    vect& outv) const;
+  int addPoint2mesh(const constvect& inv,
+                    vect& outv) const;       
+ 
   protected:
-  virtual int _addPoint2mesh(const Eigen::VectorXd& inv,
-                               Eigen::VectorXd& outv) const
+  virtual int _addPoint2mesh(const constvect& inv,
+                             vect& outv) const
   {
     DECLARE_UNUSED(inv);
     DECLARE_UNUSED(outv);
     return 1;
   }
-  virtual int _addMesh2point(const Eigen::VectorXd& inv,
-                                Eigen::VectorXd& outv) const
+  virtual int _addMesh2point(const constvect& inv,
+                             vect& outv) const
   {
     DECLARE_UNUSED(inv);
     DECLARE_UNUSED(outv);

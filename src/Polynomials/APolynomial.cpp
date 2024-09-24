@@ -9,8 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "LinearOp/ALinearOp.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
+#include "Matrix/MatrixSparse.hpp"
 #include <string>
 #include <algorithm>
 #include <sstream>
@@ -49,10 +51,11 @@ APolynomial & APolynomial::operator=(const APolynomial& p)
   return *this;
 }
 #ifndef SWIG
-Eigen::VectorXd APolynomial::evalOp(MatrixSparse* Op, const Eigen::VectorXd& in) const
+VectorDouble APolynomial::evalOp(MatrixSparse* Op, const constvect& in) const
 {
-  Eigen::VectorXd result(in.size());
-  evalOp(Op,in,result);
+  VectorDouble result(in.size());
+  vect results(result);
+  evalOp(Op,in,results);
   return result;
 }
 

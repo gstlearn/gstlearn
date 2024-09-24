@@ -12,6 +12,7 @@
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include <Eigen/src/Core/Matrix.h>
 #include "Covariances/CovAniso.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -69,8 +70,8 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const Matrix
     {
       if (jvar <= ivar)
       {
-        const auto& vec {_invCholSillsNoStat[icov][IND(ivar, jvar, nvar)]};
-        Eigen::Map<const Eigen::VectorXd> inv(vec.data(), vec.size());
+        const auto& vec = &_invCholSillsNoStat[icov][IND(ivar, jvar, nvar)];
+        Eigen::Map<const Eigen::VectorXd> inv(vec->data(), n);
         diag.setDiagonal(inv);
         MatrixSparse::glueInPlace(&currentRow,&diag ,1,0);
       }
@@ -140,7 +141,7 @@ void PrecisionOpMultiMatrix::_buildQop()
 }
 
 
-int PrecisionOpMultiMatrix::_addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const
+int PrecisionOpMultiMatrix::_addToDestImpl(const constvect &vecin, vect &vecout) const
 {
   return getQ()->addToDest(vecin,vecout);
 }

@@ -10,8 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/IProjMatrix.hpp"
+#include <vector>
 
 #ifndef SWIG
   #include <Eigen/Core>
@@ -32,10 +34,10 @@ public:
 
 #ifndef SWIG           
   protected:
-  virtual int _addPoint2mesh(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const override;
-  virtual int _addMesh2point(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const override;
+  virtual int _addPoint2mesh(const constvect& inv,
+                                   vect& outv) const override;
+  virtual int _addMesh2point(const constvect& inv,
+                                   vect& outv) const override;
 #endif
 
 private : 
@@ -61,8 +63,8 @@ int _nvariable;
 std::vector<int> _pointNumbers;
 std::vector<int> _apexNumbers;
 bool _silent;
-mutable Eigen::VectorXd _work;
-mutable Eigen::VectorXd _workmesh;
+mutable std::vector<double> _work;
+mutable std::vector<double> _workmesh;
 
 
 };

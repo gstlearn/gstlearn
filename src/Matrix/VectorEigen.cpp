@@ -12,9 +12,10 @@
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
-VectorEigen::VectorEigen(int size) : _eigenVector(size) {}
+VectorEigen::VectorEigen(int size) : _eigenVector(size) {_eigenVector.resize(size);}
 
 VectorEigen::VectorEigen(const VectorEigen &v) : _eigenVector(v._eigenVector) {}
 
@@ -74,7 +75,7 @@ void VectorEigen::addMultiplyVectVectInPlace(const Eigen::VectorXd &in1,
 
 void VectorEigen::addInPlace(const Eigen::VectorXd &in,
                              Eigen::VectorXd &out,
-                            int iad)
+                             int iad)
 {
     double * outp = out.data() + iad;
     const double* inp = in.data();
@@ -82,6 +83,16 @@ void VectorEigen::addInPlace(const Eigen::VectorXd &in,
     {
       *(outp++) +=  *(inp++);
     }
+}
+
+void VectorEigen::addInPlace(constvect& in,vect& dest)
+{
+  const double* inp = in.data();
+  double * outp = dest.data();
+  for (int i = 0; i < (int)in.size();i++)
+  {
+      *(outp++) +=  *(inp++);
+  }
 }
 
 double VectorEigen::maximum(const std::vector<Eigen::VectorXd>& vect)

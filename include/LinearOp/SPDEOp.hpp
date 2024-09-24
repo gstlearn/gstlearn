@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "gstlearn_export.hpp"
 
@@ -54,30 +55,30 @@ public:
                                   const MatrixRectangular& drifts) const;
 #ifndef SWIG
 public:
-  int kriging(const Eigen::VectorXd& inv,
-                    Eigen::VectorXd& out) const;
-  int krigingWithGuess(const Eigen::VectorXd& inv,
-                       const Eigen::VectorXd& guess,
-                             Eigen::VectorXd& out) const;
-  void evalInvCov(const std::span<const double> &inv, std::span<double>& result) const;
+  int kriging(const constvect& inv,
+                    vect& out) const;
+  int krigingWithGuess(const constvect& inv,
+                       const constvect& guess,
+                             vect& out) const;
+  void evalInvCov(const constvect &inv, vect& result) const;
  
 protected:
-  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
-  int _addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const override;
+  int _addToDest(const constvect& inv, vect& outv) const override;
+  int _addSimulateToDest(const constvect& whitenoise, vect& outv) const override;
 
 private: 
   int _getNDat() const {return _ndat;}
-  virtual int _solve(const Eigen::VectorXd& in,Eigen::VectorXd& out) const;
-  int _solveWithGuess(const Eigen::VectorXd& in,const Eigen::VectorXd &guess,Eigen::VectorXd& out) const;
+  virtual int _solve(const constvect& in,vect& out) const;
+  int _solveWithGuess(const constvect& in,const constvect &guess,vect& out) const;
 
-  int _buildRhs(const Eigen::VectorXd& inv) const;
+  int _buildRhs(const constvect& inv) const;
 #endif
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
 #ifndef SWIG
 private:
-  virtual int _addToDestImpl(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
+  virtual int _addToDestImpl(const constvect& inv, vect& outv) const;
 #endif
 
 protected:
@@ -88,10 +89,10 @@ protected:
 private:
   bool    _noiseToDelete;
   int     _ndat;
-  mutable Eigen::VectorXd _workdat1; 
-  mutable Eigen::VectorXd _workdat2;
-  mutable Eigen::VectorXd _rhs;
-  mutable Eigen::VectorXd _workmesh;
+  mutable VectorDouble _workdat1; 
+  mutable VectorDouble _workdat2;
+  mutable VectorDouble _rhs;
+  mutable VectorDouble _workmesh;
   mutable LinearOpCGSolver<SPDEOp> _solver;
 
 };

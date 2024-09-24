@@ -19,6 +19,7 @@
 
 #include <Eigen/src/Core/Matrix.h>
 #include <math.h>
+#include <vector>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
     : _Q(nullptr)
@@ -151,15 +152,15 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   return 0;
 }
 
-void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<Eigen::VectorXd> &vecin,
-                                                std::vector<Eigen::VectorXd> &vecout) const
+void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<std::vector<double>> &vecin,
+                                                std::vector<std::vector<double>> &vecout) const
 {
   if (_chol == nullptr)
     _chol = new Cholesky(_Q);
-  Eigen::VectorXd locVecin = VectorEigen::flatten(vecin);
-  Eigen::VectorXd locVecout(locVecin.size());
+  std::vector<double> locVecin = VH::flatten(vecin);
+  std::vector<double> locVecout(locVecin.size());
   _chol->solve(locVecin, locVecout);
-  VectorEigen::unflattenInPlace(locVecout, vecout);
+  VH::unflattenInPlace(locVecout, vecout);
 }
 
 void PrecisionOpMultiConditionalCs::makeReady()

@@ -10,8 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include <vector>
 #include "gstlearn_export.hpp"
-
+#include "geoslib_define.h"
 #include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
@@ -21,8 +22,6 @@
 #endif
 
 #include <iostream>
-
-
 
 /**
  * Eigen vector wrapper class
@@ -58,7 +57,7 @@ public:
   static void fill(Eigen::VectorXd &vect, double val = 0.);
   static void addMultiplyConstantInPlace(double val ,const Eigen::VectorXd& in, Eigen::VectorXd& res, int iad);
   static void addMultiplyVectVectInPlace(const Eigen::VectorXd&in1 ,const Eigen::VectorXd& in2, Eigen::VectorXd& res, int iad);
-  static void addInPlace(const Eigen::VectorXd& in, Eigen::VectorXd& res, int iad);
+  static void addInPlace(const Eigen::VectorXd& in, Eigen::VectorXd& out, int iad);
   static VectorDouble copyIntoVD(const Eigen::VectorXd& in);
   static double innerProduct(const std::vector<Eigen::VectorXd> &in1,const std::vector<Eigen::VectorXd> &in2 );
   static void fill(std::vector<Eigen::VectorXd> &vect, double val = 0.);
@@ -77,7 +76,8 @@ public:
 
   static void addInPlace(const Eigen::VectorXd& in, Eigen::VectorXd& out);
   static void divideInPlace(const Eigen::VectorXd& in, Eigen::VectorXd& out);
-
+  /* Function for std::span<double>*/
+  static void addInPlace(constvect& in,vect& dest);
   /*! Get underlying Eigen vector */
   static void addInPlace(const Eigen::VectorXd& t1, const Eigen::VectorXd& t2,Eigen::VectorXd& res);
   static void addInPlace(const std::vector<Eigen::VectorXd>& t1, 
@@ -102,7 +102,7 @@ public:
   {
     return {_eigenVector.data(), _eigenVector.size()};
   }
-
+  
 private:
   Eigen::VectorXd _eigenVector; /// Eigen storage for vector in Eigen Library
 #endif

@@ -9,68 +9,37 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ALinearOp.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/VectorEigen.hpp"
+
+
 
 VectorDouble  ALinearOp::evalDirect(const VectorDouble& in) const
 {
-  VectorDouble res(in.size());
+  VectorDouble res;
   evalDirect(in,res);
   return res;
 }
 
-int ALinearOp::addToDest(const VectorDouble& inv, VectorDouble& outv) const
+
+int ALinearOp::addToDest(const Eigen::VectorXd& inv,
+                Eigen::VectorXd& outv) const
 {
-   try
-  {
-    Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
-    Eigen::VectorXd myOut(outv.size());
-    VectorEigen::fill(myOut, 0.);
-    // Assume outv has the good size
-    if(_addToDest(myInv, myOut))
-      return 1;
-    
-    VectorEigen::copy(myOut,outv);
-  }
-  catch (const std::string& str)
-  {
-    // TODO : Check if std::exception can be used
-    messerr("%s", str.c_str());
-  }
-  return 0;
+  constvect ins(inv.data(),inv.size());
+  vect outs(outv.data(),outv.size());
+  return addToDest(ins,outs);
+
 }
 
-int ALinearOp::addToDest(const VectorEigen& inv, VectorEigen& outv) const
+int ALinearOp::addToDest(const constvect& inv, vect& outv) const
 {
-  return _addToDest(inv.getVector(), outv.getVector());
+  return _addToDest(inv,outv);
 }
 
 int ALinearOp::evalDirect(constvect& inv, vect& outv) const
 {
   std::fill(outv.begin(),outv.end(),0.);
-  _addToDest(inv, outv);
+  return addToDest(inv, outv);
 }
-
-
-int ALinearOp::evalDirect(const Eigen::VectorXd& inv,
-                                Eigen::VectorXd& outv) const
-{
-    int n = (int)outv.size();
-    outv.resize(n);
-    VectorEigen::fill(outv,0.);
-    return _addToDest(inv,outv);      
-}
-
-
-
-int ALinearOp::addToDest(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const
-{
-  return _addToDest(inv,outv);
-}
-
-
 
 /*****************************************************************************/
 /*!
@@ -83,23 +52,11 @@ int ALinearOp::addToDest(const Eigen::VectorXd& inv,
 *****************************************************************************/
 int ALinearOp::evalDirect(const VectorDouble& inv,
                            VectorDouble& outv) const
-{
-  outv.fill(0.,outv.size());
-  return addToDest(inv,outv);
+{ 
+  outv.resize(inv.size());
+  constvect in(inv);
+  vect out(outv);
+  return evalDirect(in,out);
 }
 
-/*****************************************************************************/
-/*!
-**  Evaluate the product: 'outv' = Q * 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-int ALinearOp::evalDirect(const VectorEigen& inv,
-                           VectorEigen& outv) const
-{
-  return evalDirect(inv.getVector(), outv.getVector());
-}
 

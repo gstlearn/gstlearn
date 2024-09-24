@@ -19,15 +19,17 @@
 
 static std::vector<std::vector<const IProjMatrix*>> castToBase(std::vector<std::vector<const ProjMatrix*>> vect)
 {
-    std::vector<std::vector<const IProjMatrix*>> casted;
+    std::vector<std::vector<const IProjMatrix*>> casted(vect.size());
+    int iv = 0;
     for (auto &e : vect)
     {
-        std::vector<const IProjMatrix*> temp;
+        std::vector<const IProjMatrix*> temp(e.size());
+        int ie = 0;
         for (auto &f: e)
         {
-            temp.push_back(static_cast<const IProjMatrix*>(f));
+            temp[ie++] = static_cast<const IProjMatrix*>(f);
         }
-        casted.push_back(temp);
+        casted[iv++] = temp;
     } 
     return casted;
 }
@@ -172,19 +174,15 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
     }   
 }
 
-int  ProjMultiMatrix::_addPoint2mesh(const Eigen::VectorXd& inv,
-                                        Eigen::VectorXd& outv) const
+int  ProjMultiMatrix::_addPoint2mesh(const constvect& inv,
+                                     vect& outv) const
 {
-  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
-  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
-  _Proj.addProdMatVecInPlaceToDest(invmap, outvmap, true);
+  _Proj.addProdMatVecInPlaceToDest(inv, outv, true);
   return 0;
 }
-int  ProjMultiMatrix::_addMesh2point(const Eigen::VectorXd& inv,
-                                        Eigen::VectorXd& outv) const
+int  ProjMultiMatrix::_addMesh2point(const constvect& inv,
+                                     vect& outv) const
 {
-  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
-  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
-  _Proj.addProdMatVecInPlaceToDest(invmap, outvmap, false);
+  _Proj.addProdMatVecInPlaceToDest(inv, outv, false);
   return 0;
 }

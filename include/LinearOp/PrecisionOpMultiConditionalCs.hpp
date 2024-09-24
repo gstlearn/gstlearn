@@ -14,6 +14,7 @@
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include <vector>
 
 #ifndef SWIG
   #include <Eigen/src/Core/Matrix.h>
@@ -39,8 +40,8 @@ public:
   double computeLogDetOp(int nbsimu = 1) const override;
 
   /// Interface to ALinearOp
-  void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
-                   std::vector<Eigen::VectorXd> &vecout) const override;
+  void evalInverse(const std::vector<std::vector<double>> &vecin,
+                   std::vector<std::vector<double>> &vecout) const override;
 
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
 private :

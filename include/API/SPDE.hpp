@@ -20,6 +20,7 @@
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include <Eigen/src/Core/Matrix.h>
+#include <vector>
 
 class ShiftOpCs;
 class Db;
@@ -101,7 +102,7 @@ private:
   #ifndef SWIG
     static void _projecLocal(Db* dbout,
                              const AMesh* meshing,
-                             Eigen::VectorXd& working,
+                             std::vector<double>& working,
                              VectorDouble& result);
   #endif
 
@@ -116,10 +117,10 @@ private:
   std::vector<const AMesh*>    _meshingKrig;    // Dimension: number of valid covariances
   mutable VectorDouble         _driftCoeffs;
   Model*                       _model; // External pointer
-  mutable std::vector<Eigen::VectorXd>   _workingKrig;     // Number of Mesh apices * Number of valid covariances
-  mutable std::vector<Eigen::VectorXd>   _workingSimu;     // Number of Mesh apices * Number of valid covariances
-  mutable VectorDouble                   _workingData;     // Number of valid data
-  mutable VectorDouble                   _workingDataInit; // Number of valid data
+  mutable std::vector<std::vector<double>>   _workingKrig;     // Number of Mesh apices * Number of valid covariances
+  mutable std::vector<std::vector<double>>   _workingSimu;     // Number of Mesh apices * Number of valid covariances
+  mutable std::vector<double>                _workingData;     // Number of valid data
+  mutable std::vector<double>                _workingDataInit; // Number of valid data
   std::vector<ProjMatrix*>     _projOnDbOut;
   VectorInt                    _adressesICov;
   double _nugget;

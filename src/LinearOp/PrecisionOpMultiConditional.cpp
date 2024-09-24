@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -19,6 +20,8 @@
 #include <functional>
 
 #include <math.h>
+#include <vector>
+#include <algorithm>
 
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   :_multiPrecisionOp(std::vector<PrecisionOp*>())
@@ -26,12 +29,12 @@ PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   ,_varianceData()
   ,_ndat(0)
   ,_ncova(0)
-  ,_work1(Eigen::VectorXd())
-  ,_work1bis(Eigen::VectorXd())
-  ,_work1ter(Eigen::VectorXd())
-  ,_workdata(Eigen::VectorXd())
-  ,_work2(std::vector<Eigen::VectorXd>())
-  ,_work3(std::vector<Eigen::VectorXd>())
+  ,_work1()
+  ,_work1bis()
+  ,_work1ter()
+  ,_workdata()
+  ,_work2()
+  ,_work3()
 {
 
 }
@@ -40,22 +43,10 @@ PrecisionOpMultiConditional::~PrecisionOpMultiConditional()
 {
 }
 
-VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal) const
-{
-  Eigen::Map<const Eigen::VectorXd> datvalm(datVal.data(),datVal.size());
-  auto res = computeRhs(datvalm);
-  VectorVectorDouble result;
-  for (int i = 0; i < (int)res.size(); i++)
-  {
-    auto v = VectorEigen::copyIntoVD(res[i]);
-    result.push_back(v);
-  }
-  return result;
-}
 
-std::vector<Eigen::VectorXd> PrecisionOpMultiConditional::computeRhs(const Eigen::VectorXd& datVal) const
+std::vector<std::vector<double>> PrecisionOpMultiConditional::computeRhs(const std::vector<double>& datVal) const
 {
-  std::vector<Eigen::VectorXd>rhs(sizes());
+  std::vector<std::vector<double>>rhs(sizes());
   for(int i = 0, n = sizes(); i < n; i++)
   {
     rhs[i].resize(size(i));
@@ -64,9 +55,9 @@ std::vector<Eigen::VectorXd> PrecisionOpMultiConditional::computeRhs(const Eigen
   return rhs;
 }
 
-void PrecisionOpMultiConditional::computeRhsInPlace(const Eigen::VectorXd& datVal, std::vector<Eigen::VectorXd>& rhs) const
+void PrecisionOpMultiConditional::computeRhsInPlace(const std::vector<double>& datVal, std::vector<std::vector<double>>& rhs) const
 {
-  Eigen::VectorXd temp(datVal.size());
+  std::vector<double> temp(datVal.size());
 
   for(int i = 0; i < static_cast<int>(datVal.size()) ; i++)
   {
@@ -75,7 +66,9 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const Eigen::VectorXd& datVa
 
   for(int i = 0; i < sizes(); i++)
   {
-    _multiProjData[i]->point2mesh(temp, rhs[i]);
+    constvect tempm(temp);
+    vect rhsm(rhs[i]);
+    _multiProjData[i]->point2mesh(tempm, rhsm);
   }
 }
 
@@ -104,7 +97,7 @@ int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
     }
   }
   _multiPrecisionOp.push_back(pmatElem);
-  _work2.push_back(Eigen::VectorXd(pmatElem->getSize()));
+  _work2.push_back(std::vector<double>(pmatElem->getSize()));
   _multiProjData.push_back(projDataElem);
   _updated();
   _ncova++;
@@ -133,10 +126,10 @@ double PrecisionOpMultiConditional::getMaxEigenValProj() const
   _allocate(3);
   for (auto &e: _work3)
   {
-    VectorEigen::fill(e, 1.);
+    std::fill(e.begin(),e.end(), 1.);
   }
   _AtA(_work3,_work2);
-  return VectorEigen::maximum(_work2);
+  return VectorHelper::maximum(_work2);
 }
 
 std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() const
@@ -169,10 +162,14 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
   {
     for (int j = 0; j < _ncova; j++)
     { 
-      VectorEigen::simulateGaussianInPlace(_work1);
-      VectorEigen::fill(_work1bis,0.);
-      logPoly.addEvalOp(_multiPrecisionOp[j], _work1, _work1bis);
-      val += _work1.adjoint() * _work1bis;
+      VH::simulateGaussianInPlace(_work1);
+      std::fill(_work1bis.begin(),_work1bis.end(),0.);
+      vect w1s(_work1);
+      vect w1bis(_work1bis);
+      logPoly.addEvalOp(_multiPrecisionOp[j], w1s, w1bis);
+      Eigen::Map<Eigen::VectorXd> w1v(_work1.data(),_work1.size());
+      Eigen::Map<Eigen::VectorXd> w1bisv(_work1bis.data(),_work1bis.size());
+      val += w1v.adjoint() * w1bisv;
     }
   }
   return val / nbsimu;
@@ -208,28 +205,34 @@ double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu ) const
   return a1 - a2 + a3;
 }
 
-double PrecisionOpMultiConditional::computeQuadratic(const Eigen::VectorXd& x) const
+double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const
 {
   evalInvCov(x,_work1ter);
-  return x.adjoint() *_work1ter;
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(),x.size());
+
+  Eigen::Map<const Eigen::VectorXd> wm(_work1ter.data(),_work1ter.size());
+  return xm.adjoint() * wm;
 }
 
-void PrecisionOpMultiConditional::_AtA(const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const
+void PrecisionOpMultiConditional::_AtA(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const
 {
-  VectorEigen::fill(_workdata,0.);
+  std::fill(_workdata.begin(),_workdata.end(),0.);
 
   for (int imod = 0; imod < sizes(); imod++)
   {
-    _multiProjData[imod]->mesh2point(inv[imod], _work1);
-    VectorEigen::addInPlace(_work1, _workdata);
+    constvect invs(inv[imod]);
+    vect w1s(_work1);
+    _multiProjData[imod]->mesh2point(invs, w1s);
+    VH::addInPlace(_workdata,_work1);
   }
 
-  Eigen::Map<const Eigen::VectorXd> vm(_varianceData.data(), _varianceData.size());
-  VectorEigen::divideInPlace(vm,_workdata);
+  VH::divideInPlace(_workdata,_varianceData);
 
   for (int imod = 0; imod < sizes(); imod++)
   {
-    _multiProjData[imod]->point2mesh(_workdata, outv[imod]);
+    constvect wds(_workdata);
+    vect outs(outv[imod]);
+    _multiProjData[imod]->point2mesh(wds, outs);
   }
 }
 
@@ -245,40 +248,49 @@ void PrecisionOpMultiConditional::_AtA(const std::vector<Eigen::VectorXd>& inv, 
 ** \param[out] outv    Array of output values
 **
 *******************************************************************************/
-void PrecisionOpMultiConditional::_evalDirect(const std::vector<Eigen::VectorXd>& inv,
-                                              std::vector<Eigen::VectorXd>& outv) const
+void PrecisionOpMultiConditional::_evalDirect(const std::vector<std::vector<double>>& inv,
+                                              std::vector<std::vector<double>>& outv) const
 {
   prepare();
   _AtA(inv,_work2);
   for (int imod = 0; imod < sizes(); imod++)
-    _multiPrecisionOp[imod]->evalDirect(inv[imod], outv[imod]);
-  VectorEigen::addInPlace(_work2, outv, outv);
+  {
+    constvect invm(inv[imod]);
+    vect outm(outv[imod]);
+    _multiPrecisionOp[imod]->evalDirect(invm, outm);
+  }
+  VH::addInPlace(_work2, outv, outv);
 }
 
-void PrecisionOpMultiConditional::simulateOnMeshings(std::vector<Eigen::VectorXd> &result) const
+void PrecisionOpMultiConditional::simulateOnMeshings(std::vector<std::vector<double>> &result) const
 {
   for (int icov = 0, ncov = (int) _multiPrecisionOp.size(); icov < ncov; icov++)
     simulateOnMeshing(result[icov], icov);
 }
 
-void PrecisionOpMultiConditional::simulateOnMeshing(Eigen::VectorXd &result,
+void PrecisionOpMultiConditional::simulateOnMeshing(std::vector<double> &result,
                                                     int icov) const
 {
-  Eigen::VectorXd gauss(_multiPrecisionOp[icov]->getSize());
-  VectorEigen::simulateGaussianInPlace(gauss);
-  _multiPrecisionOp[icov]->evalSimulate(gauss, result);
+  VectorDouble gauss(_multiPrecisionOp[icov]->getSize());
+  VH::simulateGaussianInPlace(gauss);
+  constvect gaussm(gauss);
+  vect resultm(result);
+
+  _multiPrecisionOp[icov]->evalSimulate(gaussm, resultm);
 }
 
-void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const std::vector<Eigen::VectorXd> &simus,
-                                                                  Eigen::VectorXd& result) const
+void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const std::vector<std::vector<double>> &simus,
+                                                                  std::vector<double>& result) const
 {
   result.resize(_ndat);
-  VectorEigen::fill(result,0.);
+  std::fill(result.begin(),result.end(),0.);
 
   for(int icov = 0; icov <  sizes(); icov++)
   {
-    _multiProjData[icov]->mesh2point(simus[icov],_work1);
-    VectorEigen::addInPlace(_work1,result);
+    constvect simuss(simus[icov]);
+    vect w1s(_work1);
+    _multiProjData[icov]->mesh2point(simuss,w1s);
+    VH::addInPlace(_work1,result);
   }
 
   for(int idat = 0; idat < _ndat; idat++)
@@ -333,7 +345,7 @@ void PrecisionOpMultiConditional::_allocate(int i) const
   }
 }
 
-void PrecisionOpMultiConditional::evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const
+void PrecisionOpMultiConditional::evalInvCov(const constvect& inv, std::vector<double>& result) const
 {
   _allocate(0);
   _allocate(1);
@@ -348,14 +360,17 @@ void PrecisionOpMultiConditional::evalInvCov(const Eigen::VectorXd& inv, Eigen::
 
   for(int icov = 0; icov < sizes(); icov++)
   {
-    _multiProjData[icov]->point2mesh(result,_work2[icov]);
+    constvect results(result);
+    vect w2s(_work2[icov]);
+    _multiProjData[icov]->point2mesh(results,w2s);
   }
-
   evalInverse(_work2,_work3);
 
   for(int icov = 0; icov < sizes(); icov ++)
   {
-     _multiProjData[icov]->mesh2point(_work3[icov],_work1bis);
+     constvect w3s(_work3[icov]);
+     vect w1bis(_work1bis);
+     _multiProjData[icov]->mesh2point(w3s,w1bis);
 
      for(int idat = 0; idat < _ndat; idat++)
      {
@@ -374,16 +389,17 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
 
   for(int i = 0; i< xsize; i++)
   {
-    Eigen::Map<const Eigen::VectorXd> xm(X[i].data(),X[i].size());
+    constvect xm(X[i].data(),X[i].size());
     evalInvCov(xm,_work1ter);
 
     Eigen::Map<const Eigen::VectorXd> ym(Y.data(),Y.size());
-    XtInvSigmaZ[i] = ym.adjoint() * _work1ter;
+    Eigen::Map<const Eigen::VectorXd> w1m(_work1ter.data(),_work1ter.size());
+    XtInvSigmaZ[i] = ym.adjoint() * w1m;
 
     for(int j = i; j < xsize;j++)
     {
       Eigen::Map<const Eigen::VectorXd> xmj(X[j].data(),X[j].size());
-      XtInvSigmaX.setValue(i,j,  xmj.adjoint() * _work1ter);
+      XtInvSigmaX.setValue(i,j,  xmj.adjoint() * w1m);
     }
   }
 

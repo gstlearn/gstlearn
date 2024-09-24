@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -444,7 +445,7 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool tra
   _addProdMatVecInPlaceToDestPtr(x.data(),y.data(),transpose);
 }
 
-int AMatrix::addProdMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+int AMatrix::addProdMatVecInPlace(const constvect& x, vect& y, bool transpose) const
 {
   if (_flagCheckAddress)
   {
@@ -470,7 +471,7 @@ int AMatrix::addProdMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, 
   return 0;
 }
 
-int AMatrix::prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose) const
+int AMatrix::prodMatVecInPlace(const constvect& x, vect& y, bool transpose) const
 {
   if (_flagCheckAddress)
   {

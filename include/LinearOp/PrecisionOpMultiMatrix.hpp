@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 
@@ -38,7 +39,7 @@ public:
   const MatrixSparse* getQ() const;
   private:
   #ifndef SWIG
-  virtual int _addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const override;
+  virtual int _addToDestImpl(const constvect &vecin, vect &vecout) const override;
   #endif
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
