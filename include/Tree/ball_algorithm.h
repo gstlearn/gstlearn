@@ -40,13 +40,13 @@ License: BSD 3-clause
 # define TRUE 1
 # define FALSE 0
 
-typedef struct
+struct t_nheap
 {
   double **distances;
   int **indices;
   int n_pts;
   int n_nbrs;
-} t_nheap;
+};
 
 typedef struct
 {
@@ -76,8 +76,14 @@ struct t_btree
 */
 
 GSTLEARN_EXPORT double **copy_double_arrAsVVD(const VectorVectorDouble& arr);
-GSTLEARN_EXPORT double **copy_double_arr(const double **arr, int row, int col);
-GSTLEARN_EXPORT int    **copy_int_arr(const int **arr, int row, int col);
+GSTLEARN_EXPORT double** copy_double_arr(const double** arr, int row, int col);
+GSTLEARN_EXPORT VectorVectorDouble copy_double_toVVD(const double** arr,
+                                                     int row,
+                                                     int col);
+GSTLEARN_EXPORT VectorVectorInt copy_int_toVVI(const int** arr,
+                                               int row,
+                                               int col);
+GSTLEARN_EXPORT int** copy_int_arr(const int** arr, int row, int col);
 GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     int n_samples,
                                     int n_features,
