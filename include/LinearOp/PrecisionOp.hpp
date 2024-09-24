@@ -12,7 +12,6 @@
 
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ASimulable.hpp"
-#include "gstlearn_export.hpp"
 
 #include "Enum/EPowerPT.hpp"
 

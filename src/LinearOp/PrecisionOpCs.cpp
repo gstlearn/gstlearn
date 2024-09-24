@@ -11,7 +11,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "geoslib_define.h"
-#include "geoslib_f_private.h"
 
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/Cholesky.hpp"

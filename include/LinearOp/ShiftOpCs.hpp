@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Enum/EPowerPT.hpp"
 
 #include "Mesh/AMesh.hpp"
@@ -20,7 +18,6 @@
 
 #include "Matrix/MatrixSparse.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 #include <map>
 #include <memory>
 
