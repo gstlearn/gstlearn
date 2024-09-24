@@ -10,18 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
 
 class Model;
 /**

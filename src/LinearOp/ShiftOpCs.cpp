@@ -25,7 +25,6 @@
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
 
-#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 #include <memory>
 

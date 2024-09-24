@@ -13,13 +13,6 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/ProjMulti.hpp"
 
-#include "gstlearn_export.hpp"
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-  #include <Eigen/src/Core/Matrix.h>
-#endif
-
 class ProjMatrix;
 class AMesh;
 class Db;

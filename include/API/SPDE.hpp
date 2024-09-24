@@ -11,7 +11,6 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
 #include "Enum/ESPDECalcMode.hpp"
@@ -19,7 +18,6 @@
 #include "API/SPDEParam.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include <vector>
 
 class ShiftOpCs;

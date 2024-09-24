@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "LinearOp/ProjMatrix.hpp"
 
 #ifndef SWIG
@@ -51,8 +49,6 @@ public:
   /*!  Returns the dimension of the matrix */
   int  getSize() const override;
   /*!  Set the initial vector */
-
-
 
  void setLambda(const VectorDouble& lambda) 
   {

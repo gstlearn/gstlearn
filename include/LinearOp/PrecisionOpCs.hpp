@@ -10,14 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class AMesh;
 class Cholesky;

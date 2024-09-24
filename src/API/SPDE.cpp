@@ -34,8 +34,6 @@
 #include "Db/Db.hpp"
 #include "geoslib_define.h"
 
-#include <Eigen/src/Core/Map.h>
-#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 #include <vector>
 

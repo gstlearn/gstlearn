@@ -11,18 +11,12 @@
 #pragma once
 
 #include "LinearOp/ALinearOp.hpp"
-#include "gstlearn_export.hpp"
 
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include <Eigen/src/Core/Matrix.h>
-#include <vector>
 
-#ifndef SWIG
-#  include <Eigen/Core>
-#  include <Eigen/Dense>
-#endif
+#include <vector>
 
 class ShiftOpCs;
 class ALinearOp;

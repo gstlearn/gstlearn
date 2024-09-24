@@ -9,12 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polynomials/ClassicalPolynomial.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "geoslib_define.h"
-#include <Eigen/src/Core/Matrix.h>
 
 ClassicalPolynomial::ClassicalPolynomial()
 {

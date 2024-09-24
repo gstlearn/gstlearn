@@ -10,9 +10,7 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"

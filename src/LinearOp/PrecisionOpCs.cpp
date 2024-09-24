@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
 
@@ -22,7 +21,6 @@
 #include "Mesh/AMesh.hpp"
 #include "Basic/AException.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
