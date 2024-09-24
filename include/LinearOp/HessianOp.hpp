@@ -53,11 +53,6 @@ public:
   /*!  Set the initial vector */
 
 
-  void setLambda(const Eigen::VectorXd& lambda) 
-  {
-    for (int i = 0; i < (int)_lambda.size(); i++) 
-      _lambda[i] = lambda[i]; 
-  }
 
  void setLambda(const VectorDouble& lambda) 
   {

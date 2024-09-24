@@ -11,7 +11,6 @@
 #pragma once
 
 #include "geoslib_define.h"
-#include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/IOptimCost.hpp"
@@ -42,7 +41,7 @@ public:
                          double* out);
   int setMeanProportion(double meanprop);
   /*!  Set the constant parameters for internal Pre-Conditioner */
-  void setPreCondParams(int chebncmax = 10001, double chebtol = 5.e-3)
+  static void setPreCondParams(int chebncmax = 10001, double chebtol = 5.e-3)
   {
     DECLARE_UNUSED(chebncmax, chebtol);
   }

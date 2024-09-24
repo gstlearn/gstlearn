@@ -10,16 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/IProjMatrix.hpp"
 #include <vector>
-
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class GSTLEARN_EXPORT ProjMulti : public IProjMatrix
 {

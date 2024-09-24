@@ -15,8 +15,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/VectorEigen.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include <vector>
 
 ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)

@@ -11,10 +11,8 @@
 
 #include "LinearOp/ProjMulti.hpp"
 #include "Basic/AStringable.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LinearOp/IProjMatrix.hpp"
-#include "Matrix/VectorEigen.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 int ProjMulti::findFirstNoNullOnRow(int j) const
 {
@@ -192,7 +190,7 @@ int  ProjMulti::_addPoint2mesh(const constvect& inv, vect& outv) const
         }
 
         vect outs(outv.data()+iadvar,_workmesh.size()); 
-        VectorEigen::addInPlace(wms,outs);
+        VectorHelper::addInPlace(wms,outs);
         iadvar += _apexNumbers[i];
     }
     return 0;
@@ -219,7 +217,7 @@ int  ProjMulti::_addMesh2point(const constvect& inv,
             iad += _apexNumbers[j];
         }
         vect outs(outv.data()+iadvar,_work.size()); 
-        VectorEigen::addInPlace(ws,outs);
+        VectorHelper::addInPlace(ws,outs);
         iadvar += _pointNumbers[i];
     }
     return 0;

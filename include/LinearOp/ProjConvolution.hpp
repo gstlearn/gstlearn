@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Db/DbGrid.hpp"
@@ -19,11 +18,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 /**
  * Projection matrix for vertical convolution
  */

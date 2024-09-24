@@ -11,7 +11,6 @@
 #pragma once
 
 #include "LinearOp/ALinearOp.hpp"
-#include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"

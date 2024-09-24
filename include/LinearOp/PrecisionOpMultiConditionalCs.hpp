@@ -11,14 +11,9 @@
 #pragma once
 
 #include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
-
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include <vector>
 
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class PrecisionOp;
 class IProjMatrix;

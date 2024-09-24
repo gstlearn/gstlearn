@@ -113,10 +113,10 @@ aI = gl.ProjMulti(uI)
 aM = gl.ProjMultiMatrix(uM)
 np.random.seed(134)
 gaussA = np.random.normal(size = napex)
-vect = gl.VectorEigen(gaussA)
-result = gl.VectorEigen(npoint)
+vect = gl.VectorDouble(gaussA)
+result = gl.VectorDouble(npoint)
 aI.mesh2point(vect,result)
-res = np.array([result.getValue(i) for i in range(result.size())])
+res = np.array([result[i] for i in range(result.size())])
 
 # %%
 resnumpyM2P = []
@@ -141,10 +141,10 @@ print("Difference with manual computation " + str(np.sum(np.abs(resnumpyM2P-res)
 # %%
 np.random.seed(134)
 gaussP = np.random.normal(size = npoint)
-vect = gl.VectorEigen(gaussP)
-result = gl.VectorEigen(napex)
+vect = gl.VectorDouble(gaussP)
+result = gl.VectorDouble(napex)
 aI.point2mesh(vect,result)
-res = np.array([result.getValue(i) for i in range(result.size())])
+res = np.array([result[i] for i in range(result.size())])
 
 # %%
 resnumpyP2M = []
@@ -185,10 +185,10 @@ print("Difference with manual computation " + \
       str(np.round(np.sum(np.abs(aM.getProj().toTL().T @ gaussP - resnumpyP2M)),15)))
 
 # %%
-vect = gl.VectorEigen(gaussA)
-result = gl.VectorEigen(npoint)
+vect = gl.VectorDouble(gaussA)
+result = gl.VectorDouble(npoint)
 aM.mesh2point(vect,result)
-res = np.array([result.getValue(i) for i in range(result.size())])
+res = np.array([result[i] for i in range(result.size())])
 print("---------------------")
 print("Test 14: mesh2point from the matrix computed in C++:")
 print("---------------------")
@@ -198,10 +198,10 @@ print("Difference with manual computation " + \
 
 
 # %%
-vect = gl.VectorEigen(gaussP)
-result = gl.VectorEigen(napex)
+vect = gl.VectorDouble(gaussP)
+result = gl.VectorDouble(napex)
 aM.point2mesh(vect,result)
-res = np.array([result.getValue(i) for i in range(result.size())])
+res = np.array([result[i] for i in range(result.size())])
 print("---------------------")
 print("Test 15: point2mesh from the matrix computed in C++:")
 print("---------------------")

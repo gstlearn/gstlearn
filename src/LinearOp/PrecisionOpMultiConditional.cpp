@@ -9,14 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "Polynomials/Chebychev.hpp"
-#include <Eigen/src/Core/Map.h>
-#include <Eigen/src/Core/Matrix.h>
+#include "geoslib_define.h"
 #include <functional>
 
 #include <math.h>
@@ -167,9 +164,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
       vect w1s(_work1);
       vect w1bis(_work1bis);
       logPoly.addEvalOp(_multiPrecisionOp[j], w1s, w1bis);
-      Eigen::Map<Eigen::VectorXd> w1v(_work1.data(),_work1.size());
-      Eigen::Map<Eigen::VectorXd> w1bisv(_work1bis.data(),_work1bis.size());
-      val += w1v.adjoint() * w1bisv;
+      val += VH::innerProduct(_work1bis,_work1);
     }
   }
   return val / nbsimu;
@@ -208,10 +203,7 @@ double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu ) const
 double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const
 {
   evalInvCov(x,_work1ter);
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(),x.size());
-
-  Eigen::Map<const Eigen::VectorXd> wm(_work1ter.data(),_work1ter.size());
-  return xm.adjoint() * wm;
+  return VH::innerProduct(_work1ter,x);
 }
 
 void PrecisionOpMultiConditional::_AtA(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const
@@ -392,14 +384,15 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
     constvect xm(X[i].data(),X[i].size());
     evalInvCov(xm,_work1ter);
 
-    Eigen::Map<const Eigen::VectorXd> ym(Y.data(),Y.size());
-    Eigen::Map<const Eigen::VectorXd> w1m(_work1ter.data(),_work1ter.size());
-    XtInvSigmaZ[i] = ym.adjoint() * w1m;
+    constvect Ys(Y);
+    constvect w1i(_work1ter);
+    XtInvSigmaZ[i] = VH::innerProduct(Ys,w1i);
 
     for(int j = i; j < xsize;j++)
     {
-      Eigen::Map<const Eigen::VectorXd> xmj(X[j].data(),X[j].size());
-      XtInvSigmaX.setValue(i,j,  xmj.adjoint() * w1m);
+      constvect xmj(X[j].data(),X[j].size());
+      double prod = VH::innerProduct(xmj,w1i);
+      XtInvSigmaX.setValue(i,j,prod);
     }
   }
 

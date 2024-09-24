@@ -15,9 +15,7 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/Cholesky.hpp"
-#include "Matrix/VectorEigen.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
 #include <vector>
 

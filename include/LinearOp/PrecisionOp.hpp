@@ -11,7 +11,6 @@
 #pragma once
 
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ASimulable.hpp"
 #include "gstlearn_export.hpp"
 
@@ -20,12 +19,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include <map>
-
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
 
 class APolynomial;
 class AMesh;

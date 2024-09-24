@@ -10,17 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include <vector>
 
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class Chebychev;
 /**

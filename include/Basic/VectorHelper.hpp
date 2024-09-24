@@ -100,6 +100,8 @@ public:
                                   const constvect &in,
                                   vect &out,
                                   int iad);
+  static double innerProduct(const constvect &veca, const constvect &vecb);
+
   static void addMultiplyVectVectInPlace(const constvect &in1,
                                          const constvect &in2,
                                          vect &out,
@@ -107,6 +109,8 @@ public:
   static void addInPlace(const std::vector<std::vector<double>> &in1,
                               const std::vector<std::vector<double>> &in2,
                               std::vector<std::vector<double>> &outv);
+  static void addInPlace(constvect& in,vect& dest);
+                            
   #endif
   static VectorDouble add(const VectorDouble &veca, const VectorDouble &vecb);
   static void addInPlace(VectorDouble &dest, const VectorDouble &src);

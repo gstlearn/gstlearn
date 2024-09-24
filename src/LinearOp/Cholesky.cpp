@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/VectorEigen.hpp"
 
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
@@ -93,7 +92,7 @@ int  Cholesky::_addToDest(const constvect& inv,
     Eigen::Map<const Eigen::VectorXd> invm(inv.data(),inv.size());
     Eigen::Map<Eigen::VectorXd> outvm(outv.data(),outv.size());
     Eigen::VectorXd  temp(invm.size());
-    VectorEigen::fill(temp,0.);
+    std::fill(temp.begin(),temp.end(),0.);
     Eigen::ArrayXd Ddm = _cholSolver.vectorD().array().sqrt();
     Eigen::VectorXd DW = invm.array() * Ddm;
     Eigen::VectorXd Y = _cholSolver.matrixL() * DW;
@@ -251,7 +250,7 @@ int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
   if (_matCS->isFlagEigen())
   {
     Eigen::VectorXd  temp(x.size());
-    VectorEigen::fill(temp,0.);
+    std::fill(temp.begin(),temp.end(),0.);
     Eigen::Map<const Eigen::VectorXd> bm(b.data(),b.size());
     Eigen::Map<Eigen::VectorXd> xm(x.data(),x.size());
     Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();

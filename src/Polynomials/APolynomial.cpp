@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ALinearOp.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
 #include <string>

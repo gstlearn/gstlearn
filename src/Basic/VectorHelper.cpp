@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_define.h"
 
 #include <string.h>
 #include <algorithm>
@@ -1238,6 +1239,15 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
   }
 }
 
+void VectorHelper::addInPlace(constvect& in,vect& dest)
+{
+  const double* inp = in.data();
+  double * outp = dest.data();
+  for (int i = 0; i < (int)in.size();i++)
+  {
+      *(outp++) +=  *(inp++);
+  }
+}
 void VectorHelper::addInPlace(std::vector<double>& dest, const std::vector<double> &src)
 {
    if (dest.size() != src.size())
@@ -2138,6 +2148,12 @@ double VectorHelper::innerProduct(const std::vector<double> &veca, const std::ve
 
   return innerProduct(veca.data(), vecb.data(), size);  
 }
+
+double VectorHelper::innerProduct(const constvect &veca, const constvect &vecb)
+{
+    return innerProduct(veca.data(), vecb.data(), veca.size());
+}
+
 double VectorHelper::innerProduct(const VectorDouble &veca,
                                   const VectorDouble &vecb,
                                   int size)

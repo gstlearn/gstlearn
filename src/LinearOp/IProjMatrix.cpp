@@ -11,11 +11,7 @@
 
 #include "LinearOp/IProjMatrix.hpp"
 
-#include "Matrix/VectorEigen.hpp"
 #include "geoslib_define.h"
-
-#include <Eigen/Core>
-#include <Eigen/Dense>
 
 int IProjMatrix::mesh2point(const VectorDouble& inv,
                                   VectorDouble& outv) const
@@ -33,35 +29,6 @@ int IProjMatrix::point2mesh(const VectorDouble& inv,
   constvect myInv(inv.data(), inv.size());
   vect myOut(outv);
   return point2mesh(myInv, myOut); 
-}
-
-int IProjMatrix::mesh2point(const VectorEigen& inv, VectorEigen& outv) const
-{
-  return mesh2point(inv.getVector(), outv.getVector());
-}
-
-int IProjMatrix::point2mesh(const VectorEigen& inv, VectorEigen& outv) const
-{
-  return point2mesh(inv.getVector(), outv.getVector());
-}
-
-int IProjMatrix::point2mesh(const Eigen::VectorXd& inv,
-                                  Eigen::VectorXd& outv) const
-{
-  outv.resize(getApexNumber());
-  constvect invs(inv.data(),inv.size());
-  vect outs(outv.data(),outv.size());
-  return point2mesh(invs,outs);
-
-}
-
-int IProjMatrix::mesh2point(const Eigen::VectorXd& inv,
-                                  Eigen::VectorXd& outv) const
-{
-  outv.resize(getPointNumber());
-  constvect invs(inv.data(),inv.size());
-  vect outvs(outv.data(),outv.size());
-  return mesh2point(invs,outvs);
 }
 
 int IProjMatrix::addMesh2point(const constvect& inv,

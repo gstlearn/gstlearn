@@ -1730,6 +1730,12 @@ int MatrixSparse::_addToDest(const constvect& inv,
     return 0;
 }
 
+void MatrixSparse::setDiagonal(const constvect& tab)
+{
+  Eigen::Map<const Eigen::VectorXd> tabm(tab.data(),tab.size());
+  setDiagonal(tabm);
+}
+
 void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)
 {
   _eigenMatrix = tab.asDiagonal();

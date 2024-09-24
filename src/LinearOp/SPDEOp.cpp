@@ -10,12 +10,9 @@
 /******************************************************************************/
 #include "LinearOp/SPDEOp.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "geoslib_define.h"
 
 SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
@@ -104,9 +101,7 @@ int SPDEOp::krigingWithGuess(const constvect& inv,
 
 int SPDEOp::_solve(const constvect& in, vect& out) const
 {
-
-  Eigen::Map<Eigen::VectorXd> outmap {out.data(), static_cast<int>(out.size())};
-  _solver.solve({in.data(), static_cast<int>(in.size())}, outmap);
+  _solver.solve(in, out);
   return 0;
 }
 
@@ -114,9 +109,7 @@ int SPDEOp::_solveWithGuess(const constvect& in,
                             const constvect& guess,
                             vect& out) const
 {
-  Eigen::Map<Eigen::VectorXd> outmap {out.data(), static_cast<int>(out.size())};
-  _solver.solveWithGuess({in.data(), static_cast<int>(in.size())},
-                         {guess.data(),static_cast<int>(guess.size())}, outmap);
+  _solver.solveWithGuess(in, guess, out);
   return 0;
 }
 
@@ -166,7 +159,7 @@ void SPDEOp::evalInvCov(const constvect &inv, vect &result) const
   _Proj->point2mesh(result,rhss);
   _solve(rhss,wms);
   _Proj->mesh2point(wms,w2s);
-  //VectorEigen::multiplyConstant(w2s,-1);
+  //VectorHelper::multiplyConstant(w2s,-1);
   _invNoise->addToDest(w2s,result);
 
   
@@ -187,9 +180,9 @@ VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
     auto xm = drifts.getColumnPtr(i);
     evalInvCov(xm,w1s);
 
-    Eigen::Map<const Eigen::VectorXd> ym(Z.data(),Z.size());
-    Eigen::Map<const Eigen::VectorXd> wd1(_workdat1.data(),_workdat1.size());
-    XtInvSigmaZ[i] = ym.adjoint() * wd1;
+    constvect ym(Z.data(),Z.size());
+    constvect wd1(_workdat1.data(),_workdat1.size());
+    XtInvSigmaZ[i] = VH::innerProduct(ym,wd1);
 
     for(int j = i; j < xsize;j++)
     {

@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ALinearOp.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -19,9 +17,6 @@
 #include "Polynomials/Chebychev.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/AMesh.hpp"
-
-#include <Eigen/src/Core/Matrix.h>
-#include <Eigen/src/Core/MatrixBase.h>
 #include <algorithm>
 
 PrecisionOp::PrecisionOp()

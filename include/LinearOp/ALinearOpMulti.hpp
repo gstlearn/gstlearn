@@ -10,15 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "LinearOp/LogStats.hpp"
 #include <vector>
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
 #include "geoslib_define.h"
-#include <Eigen/src/Core/Matrix.h>
 
 class ALinearOpMulti;
 

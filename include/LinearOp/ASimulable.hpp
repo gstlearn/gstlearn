@@ -12,13 +12,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "LinearOp/ALinearOp.hpp"
-
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
 
 class GSTLEARN_EXPORT ASimulable : public ALinearOp
 {

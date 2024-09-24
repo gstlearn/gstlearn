@@ -11,10 +11,8 @@
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include <vector>
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,

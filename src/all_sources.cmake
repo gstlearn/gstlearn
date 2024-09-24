@@ -20,7 +20,6 @@ set(SRC
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
-  Matrix/VectorEigen.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -46,7 +45,6 @@ set(SRC
   Model/ElemNoStat.cpp
   Model/CovInternal.cpp
   Model/Option_AutoFit.cpp
-  Model/ModelNostat.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Calculators/ACalculator.cpp

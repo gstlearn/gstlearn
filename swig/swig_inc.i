@@ -255,7 +255,6 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
-  #include "Matrix/VectorEigen.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
@@ -390,7 +389,6 @@
 %template(VectorSpacePoint)        std::vector< SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< ProjMatrix* >;
-%template(VectorVectorEigen)       std::vector< VectorEigen >;
 %template(VectorConstProjMatrix)   std::vector< const ProjMatrix*>;
 %template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;

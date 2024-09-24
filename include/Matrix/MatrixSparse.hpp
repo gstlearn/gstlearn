@@ -233,6 +233,7 @@ public:
 #ifndef SWIG
   public :
   void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
+  void setDiagonal(const constvect& tab);
 #endif
 protected:
   /// Interface for AMatrix
