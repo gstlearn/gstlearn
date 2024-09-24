@@ -150,7 +150,7 @@ int HessianOp::_addToDest(const constvect& inv,
       dl    = law_df_gaussian(_workp[i]);
       ratio = dl / denom;
     }
-    _workp[i] = - _workp[i] * ratio + pow(ratio,2) * _workx[i];
+    _workp[i] = _workx[i] * (- _workp[i] * ratio + pow(ratio,2) ) ;
   }
   vect wvs(_workv);
   _projData->point2mesh(wps, wvs);

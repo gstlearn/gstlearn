@@ -290,7 +290,7 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const std::vec
     constvect simuss(simus[icov]);
     vect w1s(_work1);
     _multiProjData[icov]->mesh2point(simuss,w1s);
-    VH::addInPlace(_work1,result);
+    VH::addInPlace(result,_work1);
   }
 
   for(int idat = 0; idat < _ndat; idat++)
