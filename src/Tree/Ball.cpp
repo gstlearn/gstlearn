@@ -143,6 +143,20 @@ int Ball::queryClosest(const VectorDouble& test)
   return knn.getIndex(0, 0);
 }
 
+int Ball::queryOneInPlace(const VectorDouble& test,
+                          int n_neighbors,
+                          VectorInt& indices,
+                          VectorDouble& distances,
+                          int rank)
+{
+  KNN knn;
+  int n_features         = (int)test.size();
+  const double* internal = test.data();
+  return knn.btree_query_inPlace(_tree, (const double**)&internal, 1,
+                                 n_features, n_neighbors, rank, indices,
+                                 distances);
+}
+
 void Ball::display(int level) const
 {
   btree_display(_tree, level);
