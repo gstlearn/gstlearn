@@ -7,6 +7,8 @@ output:
     toc: true
   pdf_document:
     toc: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Perform estimation of a target variable using Kriging: various options (simple and ordinary). Cross-validation.  -->
@@ -85,6 +87,10 @@ ggplot() + plot.varmod(vario2dir, fitmod)
 ```
 
 ### Simple kriging prediction
+
+```{r, echo=FALSE, results='asis'}
+cat(loadDoc("Kriging_Simple.md"), sep="\n")
+```
 
 To perform simple kriging, we use the function called `kriging`. 
 We specify:
@@ -184,6 +190,10 @@ ggPrint(p)
 ---
 
 ### Ordinary kriging
+
+```{r, echo=FALSE, results='asis'}
+#cat(loadDoc("Kriging_Ordinary.md"), sep="\n")
+```
 
 In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift()` method. 
 

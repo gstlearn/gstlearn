@@ -68,7 +68,7 @@ $
 
 Universal Kriging System
 
-$
+$$
       \begin{bmatrix}
 	\Sigma & X \\
          X^t   & 0
@@ -83,11 +83,12 @@ $
         \Sigma_0 \\
 	X_0^t
       \end{bmatrix}
-$
+$$
 
 Estimation
 
-$    Z_0^{UK} =
+$$
+    Z_0^{UK} =
      \begin{bmatrix}
 	Z \\
 	0
@@ -97,11 +98,11 @@ $    Z_0^{UK} =
 	\lambda_{UK} \\
 	-\mu
      \end{bmatrix}
-$
+$$
 
 Variance of estimation error
 
-$
+$$
    \sigma_{UK}^2 = \sigma_0^2 -
    \begin{bmatrix}
      \lambda_{UK} \\
@@ -112,11 +113,11 @@ $
      \Sigma_0 \\
      X_0^t
    \end{bmatrix}
-$
+$$
 
 Variance of estimator
 
-$
+$$
    \textrm{Var}(Z^{UK}_0) =
      \begin{bmatrix}
      \lambda_{UK}
@@ -129,4 +130,4 @@ $
    \begin{bmatrix}
      \lambda_{UK}
    \end{bmatrix}
-$
+$$

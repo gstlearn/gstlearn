@@ -32,7 +32,7 @@ $\sigma_{SK}^2 = \textrm{Var}(Z_0-Z_0^{SK}) = \sigma_0^2-\Sigma_0^t\Sigma^{-1}\S
 
 Simple Kriging System
 
-$
+$$
       \begin{bmatrix}
 	\Sigma
       \end{bmatrix}
@@ -44,24 +44,25 @@ $
       \begin{bmatrix}
         \Sigma_0
       \end{bmatrix}
-$
+$$
 
 Estimation
 
-$    Z_0^{SK} =
+$$  
+  Z_0^{SK} =
      \begin{bmatrix}
-	Z
+	    Z
      \end{bmatrix}^t
      \times
      \begin{bmatrix}
 	\lambda_{SK}
      \end{bmatrix}
      + m ({ 1 - \sum{\lambda_{SK}}} )
-$
+$$
 
 Variance of Estimation error
 
-$
+$$
    \sigma_{SK}^2 = \sigma_0^2 -
    \begin{bmatrix}
      \lambda_{SK}
@@ -70,11 +71,11 @@ $
    \begin{bmatrix}
      \Sigma_0
    \end{bmatrix}
-$
+$$
 
 Variance of Estimator
 
-$
+$$
    \textrm{Var}(Z_0^{SK}) =
    \begin{bmatrix}
      \lambda_{SK}
@@ -94,4 +95,4 @@ $
    \begin{bmatrix}
      \Sigma_0
    \end{bmatrix}
-$
+$$
