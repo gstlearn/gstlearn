@@ -71,10 +71,10 @@
       iad_struct += napices * nvar;\
     }\
     if (COMPUTEOP) return 0;\
-  }\
+  }
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
-                                   const std::vector<const AMesh*>& meshes,
+                                   const VectorMeshes& meshes,
                                    bool buildOp)
   : _pops()
   , _invCholSills()
@@ -82,7 +82,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   , _model(nullptr)
   , _meshes()
   , _isValid(false)
-  , _covList() 
+  , _covList()
   , _allStat(true)
   , _ready(false)
 {
