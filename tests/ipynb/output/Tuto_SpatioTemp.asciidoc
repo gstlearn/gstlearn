@@ -89,6 +89,4 @@ XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC 
 
 
 #NO_DIFF#XXX
-----
-357.4611315408981
-----
+----357.4611315408981----
