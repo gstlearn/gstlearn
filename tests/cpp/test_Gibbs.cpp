@@ -322,10 +322,11 @@ int main(int argc, char *argv[])
 
   bool verbose = false;
   int seed = 31415;
+  law_set_random_seed(seed);
   int nsimu = 2;
   int useCholesky = 1;
   (void) simulateSPDE(NULL, dbgrid, model2, nsimu, NULL, useCholesky,
-                      SPDEParam(), seed, verbose);
+                      SPDEParam(),  verbose);
 
   int rank = dbgrid->getColumnNumber();
   for (int i=0; i<nvertex; i++)

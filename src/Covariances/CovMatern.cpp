@@ -19,6 +19,7 @@
 #include "math.h"
 
 #define MAXTAB 100
+static bool bessel_Old_Style = false;
 
 CovMatern::CovMatern(const CovContext& ctxt)
 : ACovFunc(ECov::MATERN, ctxt)
@@ -57,8 +58,31 @@ double CovMatern::getScadef() const
 
 double CovMatern::_evaluateCov(double h) const
 {
-  static double TAB[MAXTAB];
+  if (bessel_Old_Style)
+  {
+    return _oldMatern(h);
+  }
+  return _newMatern(h);
+ 
+}
 
+#if defined(__APPLE__)
+double CovMatern::_newMatern(double h) const
+{
+  return _oldMatern(h);
+}
+#else
+double CovMatern::_newMatern(double h) const
+{
+  if (h == 0) return 1;
+  double third = getParam();
+  return 2. * pow(h / 2., third) * std::cyl_bessel_k(getParam(),h) / exp(loggamma(third));
+}
+#endif
+
+double CovMatern::_oldMatern(double h) const
+{ 
+  static double TAB[MAXTAB];
   double cov = 0.;
   double third = getParam();
   int nb = (int) floor(third);
@@ -69,14 +93,14 @@ double CovMatern::_evaluateCov(double h) const
   if (h > 0)
   {
     if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
-    cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
+      cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
   }
   return (cov);
 }
 
 String CovMatern::getFormula() const
 {
-  return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
+  return "C(h)=\\frac{2^{1-\\nu}}{\\Gamma(\\nu)} h^\\nu K_{\\nu}( h )";
 }
 
 double CovMatern::evaluateSpectrum(double freq) const
@@ -151,4 +175,9 @@ VectorDouble CovMatern::_evaluateSpectrumOnSphere(int n, double scale) const
 
   VH::normalize(sp,1);
   return sp;
+}
+
+void bessel_set_old_style(bool style)
+{
+  bessel_Old_Style = style;
 }

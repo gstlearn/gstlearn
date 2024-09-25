@@ -46,7 +46,7 @@ public:
   int _addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd& outv) const override;
   #endif
 
-  double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
+  double getLogDeterminant(int nbsimu = 1) override;
   
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   #ifndef SWIG

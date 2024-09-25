@@ -60,6 +60,17 @@ double **copy_double_arr(const double **arr, int row, int col)
 	return (copy);
 }
 
+VectorVectorDouble copy_double_toVVD(const double** arr, int row, int col)
+{
+  VectorVectorDouble copy(row);
+  for (int i = 0; i < row; i++)
+  {
+    copy[i].resize(col);
+    for (int j = 0; j < col; j++) copy[i][j] = arr[i][j];
+  }
+  return (copy);
+}
+
 int **copy_int_arr(const int **arr, int row, int col)
 {
   int** copy = (int**)malloc(sizeof(int*) * row);
@@ -68,6 +79,17 @@ int **copy_int_arr(const int **arr, int row, int col)
     copy[i] = (int*)malloc(sizeof(int) * col);
     for (int j = 0; j < col; j++)
       copy[i][j] = arr[i][j];
+  }
+  return (copy);
+}
+
+VectorVectorInt copy_int_toVVI(const int** arr, int row, int col)
+{
+  VectorVectorInt copy(row);
+  for (int i = 0; i < row; i++)
+  {
+    copy[i].resize(col);
+    for (int j = 0; j < col; j++) copy[i][j] = arr[i][j];
   }
   return (copy);
 }

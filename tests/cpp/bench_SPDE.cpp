@@ -12,6 +12,7 @@
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
  */
+#include "Basic/Law.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
 
@@ -53,7 +54,6 @@ int main(int argc, char *argv[])
   int ndat  = 50;
   int nxref = 101;
   double matern_param = 1.0;
-
   setGlobalFlagEigen(true);
   message("Use of Eigen Library = %d\n",isGlobalFlagEigen());
 
@@ -150,9 +150,9 @@ int main(int argc, char *argv[])
         namconv.append("Kriging");
         namconv.append(option);
         namconv.append(sncov);
-
+        law_set_random_seed(13243);
         (void) krigingSPDE(dat, grid, model, true, true, nullptr,
-                           useCholesky, SPDEParam(), nbMC, 13243, verbose, showStats,
+                           useCholesky, SPDEParam(), nbMC, verbose, showStats,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }
@@ -165,8 +165,9 @@ int main(int argc, char *argv[])
         namconv.append("Simu.NC");
         namconv.append(option);
         namconv.append(sncov);
+        law_set_random_seed(seed);
         (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
-                            SPDEParam(), seed, verbose, showStats,
+                            SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
@@ -179,8 +180,9 @@ int main(int argc, char *argv[])
         namconv.append("Simu.CD");
         namconv.append(option);
         namconv.append(sncov);
+        law_set_random_seed(seed);
         (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
-                            SPDEParam(), seed, verbose, showStats,
+                            SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }
