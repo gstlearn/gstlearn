@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Matrix/MatrixSparse.hpp"
 #include "Basic/AStringable.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -20,6 +21,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
 
+#include <Eigen/src/Core/Map.h>
 #include <Eigen/src/Core/Matrix.h>
 #include <iostream>
 
@@ -195,7 +197,7 @@ int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
   return _factor->solve(b, x);
 }
 
-int MatrixSparse::solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x)
+int MatrixSparse::solveCholesky(const constvect& b, std::vector<double>& x)
 {
   int ncols = getNCols();
   if ((int) b.size() != ncols)
@@ -235,7 +237,7 @@ int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
     _factor = new Cholesky(this);
   return _factor->simulate(b, x);
 }
-int MatrixSparse::simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x)
+int MatrixSparse::simulateCholesky(const constvect &b, vect &x)
 {
   int ncols = getNCols();
   if ((int) b.size() != ncols)
@@ -588,17 +590,18 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
 }
 
 /*! Perform y += 'this' %*% x */
-void MatrixSparse::addProdMatVecInPlaceToDest(
-  const Eigen::Map<const Eigen::VectorXd>& in,
-  Eigen::Map<Eigen::VectorXd>& out,
-  bool transpose) const
+void MatrixSparse::addProdMatVecInPlaceToDest(const constvect& in,
+                                              vect& out,
+                                              bool transpose) const
 {
+  Eigen::Map<const Eigen::VectorXd> inm(in.data(),in.size());
+  Eigen::Map<Eigen::VectorXd>       outm(out.data(),out.size());
   if (isFlagEigen())
   {
     if (transpose)
-      out += _eigenMatrix.transpose() * in;
+      outm += _eigenMatrix.transpose() * inm;
     else
-      out += _eigenMatrix * in;
+      outm += _eigenMatrix * inm;
   }
   else
   {
@@ -849,11 +852,13 @@ int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
   return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
 }
 
-int MatrixSparse::addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym)
+int MatrixSparse::addVecInPlace(const constvect& xm, vect& ym)
 {
   if (isFlagEigen())
   {
-    ym = _eigenMatrix * xm + ym;
+    Eigen::Map<const Eigen::VectorXd> xmm(xm.data(),xm.size());
+    Eigen::Map<Eigen::VectorXd> ymm(ym.data(),ym.size());
+    ymm = _eigenMatrix * xmm + ymm;
     return 0;
   }
   return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
@@ -1717,11 +1722,18 @@ void MatrixSparse::gibbs(int iech,
   (*sk) = sqrt(1. / (*sk));
 }
 
-int MatrixSparse::_addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const
-{
-    outv += _eigenMatrix * inv;
+int MatrixSparse::_addToDest(const constvect& inv,
+                          vect& outv) const
+{   Eigen::Map<const Eigen::VectorXd> inm(inv.data(),inv.size());
+    Eigen::Map<Eigen::VectorXd> outm(outv.data(),outv.size());
+    outm += _eigenMatrix * inm;
     return 0;
+}
+
+void MatrixSparse::setDiagonal(const constvect& tab)
+{
+  Eigen::Map<const Eigen::VectorXd> tabm(tab.data(),tab.size());
+  setDiagonal(tabm);
 }
 
 void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)

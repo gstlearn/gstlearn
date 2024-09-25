@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/SPDEOp.hpp"
@@ -28,8 +29,8 @@ public:
 
 #ifndef SWIG
 private:
-  int _addToDestImpl(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
-  int _solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  int _addToDestImpl(const constvect& inv, vect& outv) const override;
+  int _solve(const constvect& inv, vect& outv) const override;
 #endif
 
 private:

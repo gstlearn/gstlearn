@@ -11,9 +11,8 @@
 
 #include "LinearOp/ProjMulti.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LinearOp/IProjMatrix.hpp"
-#include "Matrix/VectorEigen.hpp"
-#include <Eigen/src/Core/Matrix.h>
 
 int ProjMulti::findFirstNoNullOnRow(int j) const
 {
@@ -169,50 +168,56 @@ ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs, 
     _init();
 }
 
-int  ProjMulti::_addPoint2mesh(const Eigen::VectorXd& inv,
-                                        Eigen::VectorXd& outv) const
-{
+int  ProjMulti::_addPoint2mesh(const constvect& inv, vect& outv) const
+{   
+    vect wms;
     int iadvar = 0;
     for (int i = 0; i < _nlatent; i++)
     {   
         int iad = 0;
         int nvertex = _apexNumbers[i];
         _workmesh.resize(nvertex);
-        VectorEigen::fill(_workmesh,0.);
+        std::fill(_workmesh.begin(),_workmesh.end(),0.);
         for(int j = 0; j < _nvariable; j++)
         {
             if (_projs[j][i] != nullptr)
             {
-                Eigen::Map<const Eigen::VectorXd> view(inv.data()+iad,_pointNumbers[j]);
-                _projs[j][i]->addPoint2mesh(view,_workmesh);
+                 constvect view(inv.data()+iad,_pointNumbers[j]);
+                 wms = vect(_workmesh);
+                _projs[j][i]->addPoint2mesh(view,wms);
             }
             iad += _pointNumbers[j];
         }
-        VectorEigen::addInPlace(_workmesh,outv,iadvar);
+
+        vect outs(outv.data()+iadvar,_workmesh.size()); 
+        VectorHelper::addInPlace(wms,outs);
         iadvar += _apexNumbers[i];
     }
     return 0;
 }
-int  ProjMulti::_addMesh2point(const Eigen::VectorXd& inv,
-                                     Eigen::VectorXd& outv) const
+int  ProjMulti::_addMesh2point(const constvect& inv,
+                                     vect& outv) const
 {
+    vect ws;
     int iadvar = 0;
     for (int i = 0; i < _nvariable; i++)
     {   
         int iad = 0;
         int npoint = _pointNumbers[i];
         _work.resize(npoint);
-        VectorEigen::fill(_work,0.);
+        std::fill(_work.begin(),_work.end(),0.);
         for(int j = 0; j < _nlatent; j++)
         {
             if (_projs[i][j] != nullptr)
             {
-                Eigen::Map<const Eigen::VectorXd> view(inv.data()+iad,_apexNumbers[j]);
-                _projs[i][j]->addMesh2point(view,_work);
+                constvect view(inv.data()+iad,_apexNumbers[j]);
+                ws = vect(_work);
+                _projs[i][j]->addMesh2point(view,ws);
             }
             iad += _apexNumbers[j];
         }
-        VectorEigen::addInPlace(_work,outv,iadvar);
+        vect outs(outv.data()+iadvar,_work.size()); 
+        VectorHelper::addInPlace(ws,outs);
         iadvar += _pointNumbers[i];
     }
     return 0;

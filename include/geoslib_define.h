@@ -16,6 +16,7 @@
 
 // WARNING: Make this include list as small as possible!
 #include <string>
+#include <span>
 typedef std::string String;
 typedef unsigned char UChar;
 
@@ -84,5 +85,9 @@ typedef unsigned char UChar;
 #ifndef SWIG
 DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
 DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
+
+typedef const std::span<const double> constvect;
+typedef std::span<double> vect ;
+
 #endif
 

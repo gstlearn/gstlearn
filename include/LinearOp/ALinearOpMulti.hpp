@@ -10,15 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "LinearOp/LogStats.hpp"
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
-
-#include <Eigen/src/Core/Matrix.h>
+#include <vector>
+#include "geoslib_define.h"
 
 class ALinearOpMulti;
 
@@ -30,7 +24,7 @@ public:
   ALinearOpMulti& operator=(const ALinearOpMulti &m);
   virtual ~ALinearOpMulti();
 
-  void initLk(const std::vector<Eigen::VectorXd> &inv, std::vector<Eigen::VectorXd> &outv) const;
+  void initLk(const std::vector<std::vector<double>> &inv, std::vector<std::vector<double>> &outv) const;
   virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
@@ -48,13 +42,13 @@ public:
   #ifndef SWIG
   protected:
 
-    virtual void _evalDirect(const std::vector<Eigen::VectorXd> &inv,
-                             std::vector<Eigen::VectorXd> &outv) const = 0;
+    virtual void _evalDirect(const std::vector<std::vector<double>> &inv,
+                             std::vector<std::vector<double>> &outv) const = 0;
   public: 
-  void evalDirect(const std::vector<Eigen::VectorXd> &inv,
-                  std::vector<Eigen::VectorXd> &outv) const;
-  virtual void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
-                           std::vector<Eigen::VectorXd> &vecout) const;
+  void evalDirect(const std::vector<std::vector<double>> &inv,
+                  std::vector<std::vector<double>> &outv) const;
+  virtual void evalInverse(const std::vector<std::vector<double>> &vecin,
+                           std::vector<std::vector<double>> &vecout) const;
   #endif
 
   protected:
@@ -70,12 +64,12 @@ private:
 
   // Work arrays
   mutable bool                         _initialized;
-  mutable std::vector<Eigen::VectorXd> _r;
+  mutable std::vector<std::vector<double>> _r;
 
 public:
-  mutable std::vector<Eigen::VectorXd> _temp;
-  mutable std::vector<Eigen::VectorXd> _p;
-  mutable std::vector<Eigen::VectorXd> _z;
+  mutable std::vector<std::vector<double>> _temp;
+  mutable std::vector<std::vector<double>> _p;
+  mutable std::vector<std::vector<double>> _z;
   mutable double _nb;
 
 protected:

@@ -11,6 +11,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -19,14 +20,12 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/src/Core/Matrix.h>
+#include <vector>
+
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
   // // Simulation (Chebyshev)
   VectorDouble resultSimu = Qsimu.simulateOne();
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
-  VectorEigen resultSimuV(resultSimu);
+
   // ///////////////////////////
   // // Creating Data
   auto ndata = 1000;
@@ -82,18 +81,16 @@ int main(int argc, char *argv[])
   // /////////////////////////
   // // Simulating Data points
   ProjMatrix B(dat, &mesh);
-  Eigen::VectorXd datval(ndata);
-  B.mesh2point(resultSimuV.getVector(), datval);
-  auto datvalVd = VectorEigen::copyIntoVD(datval);
-  dat->addColumns(datvalVd, "Simu", ELoc::Z);
+  VectorDouble datval(ndata);
+  B.mesh2point(resultSimu, datval);
+  dat->addColumns(datval, "Simu", ELoc::Z);
 
   // //////////
   // // Kriging
   double nug = 0.1;
-  Eigen::VectorXd rhs(S.getSize());
-  auto temp = dat->getColumn("Simu");
-  Eigen::Map<const Eigen::VectorXd> datm(temp.data(),temp.size());
-  B.point2mesh(datm, rhs);
+  VectorDouble rhs(S.getSize());
+  auto datv = dat->getColumn("Simu");
+  B.point2mesh(datv, rhs);
   
   for (int i = 0; i < (int)rhs.size(); i++)
     rhs[i] /= nug;
@@ -103,16 +100,15 @@ int main(int argc, char *argv[])
   A.push_back(&Qkriging, &B);
   A.setVarianceData(0.01);
 
-  std::vector<Eigen::VectorXd> Rhs, resultvc;
-  Eigen::VectorXd vc(S.getSize());
+  std::vector<std::vector<double>> Rhs, resultvc;
+  VectorDouble vc(S.getSize());
 
   resultvc.push_back(vc);
-  Rhs.push_back(Eigen::VectorXd(rhs));
+  Rhs.push_back(rhs);
 
   A.evalInverse(Rhs, resultvc);
-  auto resultfinal = VectorEigen::copyIntoVD(resultvc[0]);
  
-  workingDbc->addColumns(resultfinal, "Kriging");
+  workingDbc->addColumns(resultvc[0], "Kriging");
 
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
   workingDbc->display(&dsf);

@@ -52,17 +52,18 @@ public:
   int  solve(const VectorDouble& b, VectorDouble& x) const;
   int  simulate(const VectorDouble& b, VectorDouble& x) const;
   #ifndef SWIG
-    int solve(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
-    int  simulate(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
-    int  addSimulateToDest(const Eigen::VectorXd& b, Eigen::VectorXd& x) const;
+    int solve(const constvect& b, std::vector<double>& x) const;
+    int solve(const constvect& b, vect& x) const;
+    int  simulate(const constvect& b, vect& x) const;
+    int  addSimulateToDest(const constvect& b, vect& x) const;
   #endif
   int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
   double getLogDeterminant() const;
 
 #ifndef SWIG
 protected:
-  int  _addToDest(const Eigen::VectorXd& inv,
-                        Eigen::VectorXd& outv) const override;
+  int  _addToDest(const constvect& inv,
+                        vect& outv) const override;
 
 private:
   void _clean();
