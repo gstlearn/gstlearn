@@ -126,13 +126,13 @@ private:
   int _needZ0p();
   int _needLambda0();
   int _needInvSigmaSigma0();
-  int _patchSigma0ForXvalidUnique();
   int _needPriorCov();
   int _needPriorMean();
   int _needZ();
   int _needZp();
   int _needRankColCok();
   int _needRankXvalid();
+  int _patchRHSForXvalidUnique();
 
   void _deleteX();
   void _deleteX0();

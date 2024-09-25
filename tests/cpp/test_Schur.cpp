@@ -204,14 +204,14 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
 
 /****************************************************************************/
 /*!
- ** Testing Collocated option
+ ** Testing Cross-validation option
  **
  *****************************************************************************/
 static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
 {
   // Set of ranks of cross-validated information
-  VectorInt varXvalid = {0};
-  int iech0           = 0;
+  VectorInt varXvalid = {0,1};
+  int iech0           = 1;
   AStringFormat format;
   bool debugSchur = false;
 
@@ -222,7 +222,7 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
 
   const VectorVectorInt index = data->getMultipleRanksActive();
-  VectorInt rankXvalid = Db::getMultipleRanks(index, varXvalid, {iech0});
+  VectorInt rankXvalid        = Db::getMultipleRanks(index, varXvalid, {iech0});
 
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
@@ -238,25 +238,9 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   MatrixRectangular X0P          = model->evalDriftMatrix(targetP, -1, {iech0});
   VectorDouble ZP =
     dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
-  message("LHS Xvalid\n");
-  SigmaP.display();
-  message("X XValid\n");
-  XP.display();
-  message("RHS Xvalid\n");
-  Sigma0P.display();
-  message("X0 XValid\n");
-  X0P.display();
-  message("Variance xvalid\n");
-  Sigma00P.display();
 
   KrigingCalcul KcalcP(&ZP, &SigmaP, &XP, &Sigma00P, &means);
   KcalcP.setTarget(&Sigma0P, &X0P);
-
-  KcalcP.getLambdaSK()->display();
-  const auto* el1 = KcalcP.getLambdaUK();
-  if (el1 != nullptr) el1->display();
-  const auto* em1 = KcalcP.getMuUK();
-  if (em1 != nullptr) em1->display();
 
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
@@ -278,13 +262,6 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
   Kcalc.setXvalidUnique(&rankXvalid);
 
-  const auto* es2 = Kcalc.getLambdaSK();
-  if (es2 != nullptr) es2->display();
-  const auto* el2 = Kcalc.getLambdaUK();
-  if (el2 != nullptr) el2->display();
-  const auto* em2 = KcalcP.getMuUK();
-  if (em2 != nullptr) em2->display();
-
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
   VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
@@ -302,8 +279,7 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
  ** This test is composed of two parts:
  ** 1) Comparing the results of traditional Kriging with the results
  **    provided by the Algebraic calculations provided within 'KrigingCalcul'
- ** 2) Comparing the results for Collocated CoKriging or KFold
- *Cross-validation
+ ** 2) Comparing the results for Collocated CoKriging or KFold Cross-validation
  **    in 'Unique' Neighborhood, whether they are programmed in the plain
  **    manner, or if they benefit from the inversion of the permanent part
  **     of the Kriging System (performed a single time)
@@ -327,8 +303,8 @@ int main(int argc, char* argv[])
 
   // Parameters
   bool debugPrint   = false;
-  int nech          = 3; // 10
-  int nvar          = 1;
+  int nech          = 3;
+  int nvar          = 3;
   int nfex          = 0;
   int nbfl          = (nfex + 1) * nvar;
   bool flagSK       = false;

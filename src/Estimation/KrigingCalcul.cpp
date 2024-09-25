@@ -540,8 +540,7 @@ int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalid)
   _nrhs = 0;
   _rankXvalid = rankXvalid;
   _nxvalid    = (int)rankXvalid->size();
-  VH::display("Rank of the xvalidated information", *rankXvalid);
-  return _patchSigma0ForXvalidUnique();
+  return _patchRHSForXvalidUnique();
 }
 
 int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
@@ -887,9 +886,6 @@ int KrigingCalcul::_needSigmac()
   _Sigmac = new MatrixSquareSymmetric(_nbfl);
   _Sigmac->prodMatMatInPlace(_XtInvSigma, _X);
 
-  message("Sigmac\n");
-  _Sigmac->display();
-
   // Bayesian case
   if (_flagBayes)
   {
@@ -1028,7 +1024,7 @@ int KrigingCalcul::_needInvSigmaSigma0()
   return 0;
 }
 
-int KrigingCalcul::_patchSigma0ForXvalidUnique()
+int KrigingCalcul::_patchRHSForXvalidUnique()
 {
   resetLinkedToRHS();
   resetLinkedtoVar0();
@@ -1038,44 +1034,92 @@ int KrigingCalcul::_patchSigma0ForXvalidUnique()
   if (_needSigma00()) return 1;
   if (_needRankXvalid()) return 1;
 
-  VH::display("rankxvalid", *_rankXvalid);
-  message("Sigma\n");
-  _Sigma->display();
+  // Extract S00
   MatrixSquareSymmetric* S00 =
     MatrixSquareSymmetric::sample(_Sigma, *_rankXvalid);
-  message("Sigma_00\n");
-  S00->display();
-  MatrixSquareSymmetric* w =
+
+  // Extract alpha and invert it
+  MatrixSquareSymmetric* alpha =
     MatrixSquareSymmetric::sample(_InvSigma, *_rankXvalid);
-  message("W\n");
-  w->display();
-  w->invert();
-  w->linearCombination(1., S00, -1., w);
-  message("Patch for S0\n");
-  w->display();
+  MatrixSquareSymmetric* InvAlpha = alpha->clone();
+  InvAlpha->invert();
 
-  MatrixRectangular* S0 =
-    MatrixRectangular::sample(_Sigma, VectorInt(), *_rankXvalid);
-  message("Vector S0\n");
-  S0->display();
-  S0->unsample(w, *_rankXvalid, VectorInt());
-  message("S0 apres patch\n");
-  S0->display();
-  delete w;
+  // Calculate a1 term
+  MatrixSquareSymmetric* a1 = S00->clone();
+  a1->linearCombination(1., a1, -1., InvAlpha);
 
-  MatrixRectangular* X0 = nullptr;
   if (_nbfl > 0)
   {
-    message("X avant\n");
-    _X->display();
-    X0 = MatrixRectangular::sample(_X, *_rankXvalid, VectorInt());
-    message("X0 apres\n");
-    X0->display();
-    setTarget(S0->clone(), X0->clone());
+    // Extract beta
+    MatrixRectangular* beta =
+      MatrixRectangular::sample(_InvSigma, *_rankXvalid, *_rankXvalid, false, true);
+
+    // Extract X0
+    MatrixRectangular* X0 =
+      MatrixRectangular::sample(_X, *_rankXvalid, VectorInt());
+
+    // Extract X
+    MatrixRectangular* X =
+      MatrixRectangular::sample(_X, *_rankXvalid, VectorInt(), true);
+
+    // Compute epsilon (up to its sign)
+    AMatrix* p1                = MatrixFactory::prodMatMat(InvAlpha, beta);
+    MatrixRectangular* epsilon = new MatrixRectangular(_nxvalid, _nbfl);
+    epsilon->prodMatMatInPlace(p1, X);
+    
+    // Compute a3 (transpose)
+    MatrixRectangular* a3 = X0->clone();
+    a3->linearCombination(1., a3, 1., epsilon);
+
+    // Extracting delta
+    MatrixSquareSymmetric* delta =
+      MatrixSquareSymmetric::sample(_InvSigma, *_rankXvalid, true);
+    MatrixSquareSymmetric* p2 = new MatrixSquareSymmetric(_nbfl);
+    p2->prodNormMatMatInPlace(X, delta, true);
+    MatrixSquareSymmetric* p3 = new MatrixSquareSymmetric(_nbfl);
+    p3->prodNormMatMatInPlace(epsilon, alpha, true);
+    delete delta;
+    delete epsilon;
+
+    // Compute a2
+    MatrixSquareSymmetric* a2 = p2->clone();
+    a2->linearCombination(1., p2, -1., p3);
+    a2->invert();
+    delete p2;
+    delete p3;
+
+    // Compute omega
+    MatrixSquareSymmetric* omega = a1->clone();
+    MatrixSquareSymmetric* p4    = new MatrixSquareSymmetric(_nxvalid);
+    p4->prodNormMatMatInPlace(a3, a2);
+    omega->linearCombination(1., omega, -1., p4);
+    message("omega\n");
+    omega->display();
+    delete p4;
+    delete a1;
+    delete a2;
+    delete a3;
+
+    // Patch the Right-hand side vector
+    MatrixRectangular* C_RHS = MatrixRectangular::sample(
+      _Sigma, VectorInt(), *_rankXvalid, false, false);
+    C_RHS->unsample(omega, *_rankXvalid, VectorInt());
+
+    MatrixRectangular* X_RHS =
+      MatrixRectangular::sample(_X, *_rankXvalid, VectorInt());
+
+    message("New RHS Covariance\n");
+    C_RHS->display();
+    message("New RHS Drift part\n");
+    X_RHS->display();
+
+    setTarget(C_RHS->clone(), X_RHS->clone());
+    delete X;
+    delete X0;
   }
   else
   {
-    setTarget(S0->clone());
+    setTarget(a1->clone());
   }
 
   setVariance00(S00->clone());
@@ -1174,10 +1218,6 @@ int KrigingCalcul::_needLambdaUK()
 
     MatrixRectangular* p1 = new MatrixRectangular(_neq, _nrhs);
     p1->prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
-    message("InvSigma\n");
-    _InvSigma->display();
-    message("XtInvSigma\n");
-    _XtInvSigma->display();
 
     _LambdaUK = new MatrixRectangular(_neq, _nrhs);
     _LambdaUK->linearCombination(1., _LambdaSK, 1., p1);
