@@ -53,30 +53,31 @@ public:
                                   const MatrixRectangular& drifts) const;
 #ifndef SWIG
 public:
-  int kriging(const constvect& inv,
-                    vect& out) const;
-  int krigingWithGuess(const constvect& inv,
-                       const constvect& guess,
-                             vect& out) const;
-  void evalInvCov(const constvect &inv, vect& result) const;
- 
+  int kriging(const constvect inv, vect out) const;
+  int krigingWithGuess(const constvect inv,
+                       const constvect guess,
+                       vect out) const;
+  void evalInvCov(const constvect inv, vect result) const;
+
 protected:
-  int _addToDest(const constvect& inv, vect& outv) const override;
-  int _addSimulateToDest(const constvect& whitenoise, vect& outv) const override;
+  int _addToDest(const constvect inv, vect outv) const override;
+  int _addSimulateToDest(const constvect whitenoise, vect outv) const override;
 
 private: 
   int _getNDat() const {return _ndat;}
-  virtual int _solve(const constvect& in,vect& out) const;
-  int _solveWithGuess(const constvect& in,const constvect &guess,vect& out) const;
+  virtual int _solve(const constvect in, vect out) const;
+  int _solveWithGuess(const constvect in,
+                      const constvect guess,
+                      vect out) const;
 
-  int _buildRhs(const constvect& inv) const;
+  int _buildRhs(const constvect inv) const;
 #endif
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
 #ifndef SWIG
 private:
-  virtual int _addToDestImpl(const constvect& inv, vect& outv) const;
+  virtual int _addToDestImpl(const constvect inv, vect outv) const;
 #endif
 
 protected:

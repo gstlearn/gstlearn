@@ -47,9 +47,9 @@ PrecisionOpCs::~PrecisionOpCs()
   delete _chol;
 }
 
-void PrecisionOpCs::gradYQX(const constvect & X, 
-                            const constvect &Y,
-                            vect& result,
+void PrecisionOpCs::gradYQX(const constvect X,
+                            const constvect Y,
+                            vect result,
                             const EPowerPT& power)
 {
   if (_work2.size() == 0) _work2.resize(getSize());
@@ -89,9 +89,10 @@ void PrecisionOpCs::gradYQX(const constvect & X,
   }
 }
 
-
-void PrecisionOpCs::gradYQXOptim(const constvect & X, const constvect &Y,
-                                 vect& result, const EPowerPT& power)
+void PrecisionOpCs::gradYQXOptim(const constvect X,
+                                 const constvect Y,
+                                 vect result,
+                                 const EPowerPT& power)
 {
   if (_work2.size() == 0) _work2.resize(getSize());
   if (_work3.size() == 0) _work3.resize(getSize());
@@ -130,12 +131,13 @@ void PrecisionOpCs::gradYQXOptim(const constvect & X, const constvect &Y,
   }
 }
 
-int PrecisionOpCs::_addToDest(const constvect &inv, vect &outv) const
+int PrecisionOpCs::_addToDest(const constvect inv, vect outv) const
 {
   return _Q->addToDest(inv, outv);
-} 
+}
 
-int PrecisionOpCs::_addSimulateToDest(const constvect& whitenoise, vect& outv) const
+int PrecisionOpCs::_addSimulateToDest(const constvect whitenoise,
+                                      vect outv) const
 {
   if (_chol == nullptr)
     _chol = new Cholesky(_Q);
@@ -143,7 +145,8 @@ int PrecisionOpCs::_addSimulateToDest(const constvect& whitenoise, vect& outv) c
   return 0;
 }
 
-void PrecisionOpCs::evalInverse(const constvect& vecin, std::vector<double>& vecout)
+void PrecisionOpCs::evalInverse(const constvect vecin,
+                                std::vector<double>& vecout)
 {
   _Q->solveCholesky(vecin, vecout);
 }
@@ -155,7 +158,8 @@ double PrecisionOpCs::getLogDeterminant(int nbsimu)
   return _Q->computeCholeskyLogDeterminant();
 }
 
-void PrecisionOpCs::evalDeriv(const constvect& inv, vect& outv,int iapex,int igparam, const EPowerPT& power)
+void PrecisionOpCs::evalDeriv(
+  const constvect inv, vect outv, int iapex, int igparam, const EPowerPT& power)
 {
   DECLARE_UNUSED(iapex,igparam)
   if (_work.size()==0) _work.resize(getSize());
@@ -181,7 +185,7 @@ void PrecisionOpCs::evalDeriv(const constvect& inv, vect& outv,int iapex,int igp
   getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
-void PrecisionOpCs::evalDerivOptim(vect& outv,
+void PrecisionOpCs::evalDerivOptim(vect outv,
                                    int iapex,
                                    int igparam,
                                    const EPowerPT& power)

@@ -27,10 +27,10 @@ public:
 #ifndef SWIG
 
 public:
-  int evalSimulate(const constvect& whitenoise, vect &result) const;
+  int evalSimulate(const constvect whitenoise, vect result) const;
 
 protected:
-  virtual int _addSimulateToDest(const constvect& whitenoise,
-                                       vect& outv) const = 0;
+  virtual int _addSimulateToDest(const constvect whitenoise,
+                                 vect outv) const = 0;
 #endif
 };

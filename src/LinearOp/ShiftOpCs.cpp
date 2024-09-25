@@ -361,8 +361,8 @@ void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
   }
 }
 
-void ShiftOpCs::prodLambda(const constvect& x,
-                           vect& y,
+void ShiftOpCs::prodLambda(const constvect x,
+                           vect y,
                            const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
@@ -392,7 +392,7 @@ void ShiftOpCs::prodLambda(const constvect& x,
 }
 
 void ShiftOpCs::prodLambda(const VectorDouble& x,
-                           vect& y,
+                           vect y,
                            const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
@@ -421,7 +421,7 @@ void ShiftOpCs::prodLambda(const VectorDouble& x,
   }
 }
 
-void ShiftOpCs::prodLambda(const constvect& x,
+void ShiftOpCs::prodLambda(const constvect x,
                            VectorDouble& y,
                            const EPowerPT& power) const
 {
@@ -500,8 +500,7 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-int ShiftOpCs::_addToDest(const constvect& inv,
-                          vect& outv) const
+int ShiftOpCs::_addToDest(const constvect inv, vect outv) const
 {
   _S->addProdMatVecInPlaceToDest(inv, outv);
   return 0;

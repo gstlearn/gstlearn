@@ -41,12 +41,12 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for IProjMatrix
-  
-  #ifndef SWIG
+
+#ifndef SWIG
   protected:
-    int _addMesh2point(const constvect& inv, vect& outv) const override;
-    int _addPoint2mesh(const constvect& inv, vect& outv) const override;
-  #endif 
+    int _addMesh2point(const constvect inv, vect outv) const override;
+    int _addPoint2mesh(const constvect inv, vect outv) const override;
+#endif
   public:
 
   int getApexNumber() const override { return getNCols(); }

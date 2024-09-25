@@ -28,15 +28,12 @@ public:
   const MatrixSparse* getProj() const { return &_Proj;} 
 #ifndef SWIG           
   protected:
-  virtual int _addPoint2mesh(const constvect& inv,
-                             vect& outv) const override;
-  virtual int _addMesh2point(const constvect& inv,
-                             vect& outv) const override;
+    virtual int _addPoint2mesh(const constvect inv, vect outv) const override;
+    virtual int _addMesh2point(const constvect inv, vect outv) const override;
 #endif
 private:
   MatrixSparse  _Proj;
   void _clear() override;
 private:
   bool _toClean;
-
 };

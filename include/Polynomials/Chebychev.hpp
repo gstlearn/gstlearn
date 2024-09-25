@@ -33,8 +33,8 @@ public:
 
   /// Interface for Apolynomial
 #ifndef SWIG
-  void evalOp(MatrixSparse* S,const constvect& x, vect& y) const override;
-  void addEvalOp(ALinearOp* Op,const constvect& inv, vect& outv) const override;
+  void evalOp(MatrixSparse* S, const constvect x, vect y) const override;
+  void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
 
   /* void evalOp(const ALinearOpMulti *Op,
               const std::vector<Eigen::VectorXd> &inv,

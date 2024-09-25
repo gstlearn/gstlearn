@@ -119,8 +119,7 @@ int HessianOp::init(PrecisionOp*  pmat,
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-int HessianOp::_addToDest(const constvect& inv,
-                          vect& outv) const
+int HessianOp::_addToDest(const constvect inv, vect outv) const
 {
   if (!_isInitialized) my_throw("'HessianOp' must be initialized beforehand");
   

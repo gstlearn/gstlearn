@@ -174,14 +174,12 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
     }   
 }
 
-int  ProjMultiMatrix::_addPoint2mesh(const constvect& inv,
-                                     vect& outv) const
+int ProjMultiMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 {
   _Proj.addProdMatVecInPlaceToDest(inv, outv, true);
   return 0;
 }
-int  ProjMultiMatrix::_addMesh2point(const constvect& inv,
-                                     vect& outv) const
+int ProjMultiMatrix::_addMesh2point(const constvect inv, vect outv) const
 {
   _Proj.addProdMatVecInPlaceToDest(inv, outv, false);
   return 0;

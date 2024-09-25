@@ -30,13 +30,11 @@ public:
 
 #ifndef SWIG
   public:
-  int evalDirect(constvect& inv, vect& outv) const;
-  int addToDest(const constvect& inv, vect& outv) const;
-  int addToDest(const Eigen::VectorXd& inv,
-                Eigen::VectorXd& outv) const;
+    int evalDirect(constvect inv, vect outv) const;
+    int addToDest(const constvect inv, vect outv) const;
+    int addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
 
-protected:
-  virtual int _addToDest(constvect& inv,
-                         vect& outv) const = 0;
+  protected:
+    virtual int _addToDest(constvect inv, vect outv) const = 0;
 #endif
 };

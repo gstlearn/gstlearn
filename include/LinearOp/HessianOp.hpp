@@ -58,9 +58,7 @@ public:
 
 #ifndef SWIG
 protected:
-  int _addToDest(const constvect& inv,
-                 vect& outv) const override;
-
+  int _addToDest(const constvect inv, vect outv) const override;
 
 private:
   bool                 _isInitialized;

@@ -81,8 +81,7 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-int  Cholesky::_addToDest(const constvect& inv,
-                          vect& outv) const
+int Cholesky::_addToDest(const constvect inv, vect outv) const
 {
   if (!isValid()) return 1;
 
@@ -142,7 +141,7 @@ void Cholesky::_compute()
   }
 }
 
-int Cholesky::solve(const constvect& b, std::vector<double>& x) const
+int Cholesky::solve(const constvect b, std::vector<double>& x) const
 {
   if (! isValid()) return 1;
 
@@ -164,7 +163,7 @@ int Cholesky::solve(const constvect& b, std::vector<double>& x) const
   return 0;
 }
 
-int Cholesky::solve(const constvect& b, vect& x) const
+int Cholesky::solve(const constvect b, vect x) const
 {
   if (! isValid()) return 1;
 
@@ -241,7 +240,7 @@ int Cholesky::simulate(const VectorDouble& b, VectorDouble& x) const
   return 0;
 }
 
-int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
+int Cholesky::addSimulateToDest(const constvect b, vect x) const
 {
   if (! isValid()) return 1;
   int size = _matCS->getNRows();
@@ -269,7 +268,7 @@ int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
   return 0;
 }
 
-int Cholesky::simulate(const constvect& b, vect& x) const
+int Cholesky::simulate(const constvect b, vect x) const
 {
   if (! isValid()) return 1;
   int size = _matCS->getNRows();

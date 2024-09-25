@@ -63,8 +63,7 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim()
   _sparse = dynamic_cast<MatrixSparse*>(this) != nullptr;
 }
 
-int MatrixSquareSymmetricSim::_addToDest(const constvect& inv,
-                                               vect& outv) const
+int MatrixSquareSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {  
   if (_inverse)
   {
@@ -74,8 +73,8 @@ int MatrixSquareSymmetricSim::_addToDest(const constvect& inv,
   messerr("MatrixSquareSymmetricSim::_addToDest not implemented for inverse = false.");
   return 1;
 }
-int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect& whitenoise,
-                                                       vect& outv) const
+int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect whitenoise,
+                                                 vect outv) const
 {  
 
 

@@ -37,7 +37,7 @@ int ASimulable::evalSimulate(const VectorDouble& whitenoise,
   return evalSimulate(ws, outs);
 }
 
-int ASimulable::evalSimulate(const constvect& whitenoise, vect &result) const
+int ASimulable::evalSimulate(const constvect whitenoise, vect result) const
 {
   std::fill(result.begin(),result.end(),0.);
   return _addSimulateToDest(whitenoise, result);
