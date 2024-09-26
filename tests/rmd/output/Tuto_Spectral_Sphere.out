@@ -1,7 +1,8 @@
 NULL
+NULL
 
 
-Table: Statistics for simulation of K-Bessel model on S2
+Table: Statistics for simulation of Matern model on S2
 
 |     | Number|   Minimum|  Maximum|     Mean| St. Dev.|
 |:----|------:|---------:|--------:|--------:|--------:|
