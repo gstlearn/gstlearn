@@ -11,6 +11,10 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+
+// iostream is included here as it is used in Eigen function (std::cerr)
+#include <iostream>
+
 #ifndef SWIG
 #  include <Eigen/Core>
 #  include <Eigen/Dense>
