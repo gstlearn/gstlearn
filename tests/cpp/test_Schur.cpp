@@ -55,6 +55,16 @@ static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, int iech0)
   return datap;
 }
 
+static Db* _dataAsIs(Db* data)
+{
+  Db* datap = data->clone();
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(false, false, false, false, true);
+  datap->display(dbfmt);
+
+  return datap;
+}
+
 /****************************************************************************/
 /*!
  ** Testing Bayes option
@@ -87,10 +97,13 @@ static void _firstTest(Db* data,
   message("- Estimation performed with 'KrigingCalcul'\n");
   message("Option: Bayesian\n");
 
+  // Creating the data file
+  Db* dataP = _dataAsIs(data);
+   
   // ---------------------- Using Standard Kriging procedure ---------------
   mestitle(1, "Using Standard Kriging procedure");
   Table table;
-  kribayes(data, target, model, neigh, PriorMean, PriorCov, true, true);
+  kribayes(dataP, target, model, neigh, PriorMean, PriorCov, true, true);
   table = target->printOneSample(iech0, {"Bayes*"}, true, true);
   target->deleteColumn("Bayes*");
   table.display();
@@ -321,11 +334,11 @@ int main(int argc, char* argv[])
 
   // Create the Model
   Model* model;
-  double range = 0.7;
+  double scale = 0.7;
   MatrixSquareSymmetric* sills =
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-  model = Model::createFromParam(ECov::SPHERICAL, range, 0., 0., VectorDouble(),
-                                 sills->getValues());
+  model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
+                                 sills->getValues(), VectorDouble(), nullptr, false);
   model->setMeans(means);
   if (!flagSK) model->setDriftIRF(0, nfex);
 

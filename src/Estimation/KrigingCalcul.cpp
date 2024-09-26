@@ -656,6 +656,7 @@ const MatrixRectangular* KrigingCalcul::getMu()
 
 const MatrixSquareSymmetric* KrigingCalcul::getPostCov()
 {
+  // At this stage, the posterior covariance is contained in '_Sigmac'
   if (_needSigmac()) return nullptr;
   return _Sigmac;
 }

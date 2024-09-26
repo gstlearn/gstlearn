@@ -4,7 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.5.0
 =============
-
+- Found error in kribayes multivariate: it will not be fixed until pluging the new KrigingCalcul
+which will solve all these problems.
 
 Release 1.4.0
 =============
