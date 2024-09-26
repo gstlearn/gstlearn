@@ -45,16 +45,16 @@ std::regex _protectRegexp(const String &match)
   return regexpr;
 }
 
-String toUpper(const String &string)
+String toUpper(const std::string_view string)
 {
-  String str = string;
+  String str{string};
   toUpper(str);
   return (str);
 }
 
-String toLower(const String &string)
+String toLower(const std::string_view string)
 {
-  String str = string;
+  String str{string};
   toLower(str);
   return (str);
 }
