@@ -289,8 +289,8 @@ void AMatrixDense::prodMatMatInPlace(const AMatrix* x,
 
 /**
  * Product of matrices, stored in 'this'
- * - transpose = False: t('a') * 'm' * 'a'
- * - transpose = True:  'a' * 'm' * t('a')
+ * - transpose = true: t('a') * 'm' * 'a'
+ * - transpose = false:  'a' * 'm' * t('a')
  *
  * @param a First input matrix
  * @param m Second input matrix

@@ -67,10 +67,9 @@ public:
   const MatrixSquareSymmetric* getStdvMat();
   const MatrixSquareSymmetric* getVarianceZstarMat();
   const MatrixSquareSymmetric* getPostCov();
-  const MatrixRectangular* getLambdaSK();
-  const MatrixRectangular* getLambdaUK();
+  const MatrixRectangular* getLambda();
   const MatrixRectangular* getLambda0();
-  const MatrixRectangular* getMuUK();
+  const MatrixRectangular* getMu();
 
   // Some debugging functions. Should be deleted later
   const MatrixRectangular* getX0();
@@ -134,6 +133,7 @@ private:
   int _needColCok();
   int _needXvalid();
   int _patchRHSForXvalidUnique();
+  int _patchColCokVarianceZstar(MatrixSquareSymmetric* varZK);
 
   void _deleteX();
   void _deleteX0();
