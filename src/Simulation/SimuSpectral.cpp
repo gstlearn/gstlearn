@@ -15,14 +15,11 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
-#include "Db/Db.hpp"
 
 #include <math.h>
 
   SimuSpectral::  SimuSpectral(const Model* model)
     : _ndim(0),
-      _nb(0),
-      _nd(0),
       _ns(0),
       _isPrepared(false),
       _phi(),
@@ -35,8 +32,6 @@
 
   SimuSpectral::  SimuSpectral(const   SimuSpectral &r)
     : _ndim(r._ndim),
-      _nb(r._nb),
-      _nd(r._nd),
       _ns(r._ns),
       _isPrepared(r._isPrepared),
       _phi(r._phi),
@@ -52,8 +47,6 @@
   if (this != &r)
   {
     _ndim = r._ndim;
-    _nb = r._nb;
-    _nd = r._nd;
     _ns = r._ns;
     _isPrepared = r._isPrepared;
     _phi = r._phi;
@@ -69,38 +62,16 @@ SimuSpectral::~SimuSpectral()
 {
 }
 
-int SimuSpectral::simulate(int nb, int seed)
-{
-  if (_model == nullptr)
-  {
-    messerr("A Model should be attached beforehand");
-    return 1;
-  }
-  if (! isValidForSpectral(_model)) return 1;
-  if (nb <= 0)
-  {
-    messerr("The number of spectral components should be positive");
-    return 1;
-  }
-
-  _ndim = _model->getDimensionNumber();
-  _nb = nb;
-
-  law_set_random_seed(seed);
-
-  _phi = VectorDouble(_nb);
-  for (int ib = 0; ib < _nb; ib++)
-    _phi[ib] = 2. * GV_PI * law_uniform();
-  _gamma = VectorDouble(_nb);
-  for (int ib = 0; ib < _nb; ib++)
-    _gamma[ib] = sqrt(-log(law_uniform()));
-  _omega = _model->getCova(0)->simulateSpectralOmega(_nb);
-
-  _isPrepared = true;
-  return 0;
-}
-
-int SimuSpectral::simulateOnSphere(int ns, int nd, int seed, bool verbose)
+/**
+ * Perpare the simulation context
+ * (This method works for Rn and Sphere)
+ *
+ * @param ns Number of components
+ * @param seed Seed for random number generation 5à: avoid setting the seed)
+ * @param verbose Verbose flag
+ * @param nd Number of discretization of the spectrum
+ */
+int SimuSpectral::simulate(int ns, int seed, bool verbose, int nd)
 {
   if (_model == nullptr)
   {
@@ -115,42 +86,57 @@ int SimuSpectral::simulateOnSphere(int ns, int nd, int seed, bool verbose)
   }
   if (nd <= 0)
   {
-    messerr("The number of degrees considered in the spectrum should be positive");
+    messerr("The number of degrees considered in the spectrum should be positive (Sphere only)");
     return 1;
   }
 
   _ndim = _model->getDimensionNumber();
   _ns = ns;
-  _nd = nd;
 
-  law_set_random_seed(seed);
+  // Cleaning any previously allocated memory
+  _phi.clear();
+  _gamma.clear();
+  _omega.reset(0,0);
+  _spSims.clear();
+
+  if (seed > 0) law_set_random_seed(seed);
 
   _phi = VectorDouble(_ns);
+  double pi2 = 2. * GV_PI;
   for (int is = 0; is < _ns; is++)
-    _phi[is] = 2. * GV_PI * law_uniform();
+    _phi[is] = pi2 * law_uniform();
 
-  _simulateOnSphere(verbose);
+  if (getDefaultSpaceType() == ESpaceType::RN)
+    _simulateOnRn();
+  else
+    _simulateOnSphere(nd, verbose);
 
   _isPrepared = true;
   return 0;
 }
 
+void SimuSpectral::_simulateOnRn()
+{
+  _gamma = VectorDouble(_ns);
+  for (int ib = 0; ib < _ns; ib++)
+    _gamma[ib] = sqrt(-log(law_uniform()));
+  _omega = _model->getCova(0)->simulateSpectralOmega(_ns);
+}
+
 /**
  * Simulation of the spectral components (N,K) from spectrum values
  *
+ * @param nd Number of discretization steps for Spectrum calculation
  * @param verbose Verbose flag
- *
- * @return It returns the list with two vectors of length _nb
- * @return N contains the simulated degrees, K contains the simulated order -N <= K <= N)
  */
-void SimuSpectral::_simulateOnSphere(bool verbose)
+void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
 {
   // Simulation of the spectrum
   VectorDouble U = VH::simulateUniform(_ns);
   VH::sortInPlace(U);
   double maxU = VH::maximum(U);
 
-  VectorDouble spectrum = _model->getCova(0)->evalSpectrumOnSphere(_nd);
+  VectorDouble spectrum = _model->getCova(0)->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
   int n = 0;
@@ -215,15 +201,61 @@ void SimuSpectral::_simulateOnSphere(bool verbose)
   if (verbose) _printSpSims(1);
 }
 
+void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
+{
+  int nech = dbout->getSampleNumber(true);
+
+  // Preparation
+  MatrixSquareGeneral tensor = _model->getCova(0)->getAniso().getTensorInverse();
+  double scale = sqrt(2. / _ns);
+  AMatrix *res = MatrixFactory::prodMatMat(&_omega, &tensor);
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Spectral Simulation on a set of Isolated Points\n");
+    message("- Number of samples = %d\n", nech);
+    message("- Space dimension   = %d\n", _ndim);
+    message("- Number of spectral components = %d\n", _ns);
+  }
+
+  // Loop on the active samples
+  VectorInt ranks = dbout->getRanksActive();
+  VectorDouble coor(_ndim);
+  for (int jech = 0; jech < nech; jech++)
+  {
+    int iech = ranks[jech];
+    dbout->getSampleCoordinatesInPlace(iech, coor);
+    VectorDouble u = res->prodMatVec(coor);
+
+    double value = 0.;
+    for (int ib = 0; ib < _ns; ib++)
+      value += _gamma[ib] * cos(u[ib] + _phi[ib]);
+    value *= scale;
+
+    dbout->setArray(iech, iuid, value);
+  }
+
+  // Delete temporary matrix
+  delete res;
+}
+
+/**
+ * Compute the simulation on Dbout using Spectral Method
+ *
+ * @param dbout Db containing the results
+ * @param iuid  Address for storage (or 0 if the variable must be created locally)
+ * @param verbose Verbose flag
+ * @param namconv Naming convention (only used when 'iuid' == 0)
+ */
 int SimuSpectral::compute(Db *dbout,
-                          const VectorDouble &xref,
+                          int iuid,
                           bool verbose,
                           const NamingConvention &namconv)
 {
   int nech = dbout->getSampleNumber(true);
   int ndim = dbout->getNDim();
-
-  // Preliminary checks
+  bool flagNewVariable = (iuid <= 0);
 
   if (ndim != _ndim)
   {
@@ -242,49 +274,20 @@ int SimuSpectral::compute(Db *dbout,
     return 1;
   }
 
-  // Preparation
-  bool flagCenter = ((int) xref.size() == ndim);
-  MatrixSquareGeneral tensor = _model->getCova(0)->getAniso().getTensorInverse();
-  double scale = sqrt(2. / _nb);
-  AMatrix* res = MatrixFactory::prodMatMat(&_omega, &tensor);
-
   // Create the variable
-
-  int iuid = dbout->addColumnsByConstant(1, 0., String(), ELoc::Z);
-  if (iuid < 0) return 1;
-
-  // Optional printout
-  if (verbose)
+  if (flagNewVariable)
   {
-    message("Spectral Simulation on a set of Isolated Points\n");
-    message("- Number of samples = %d\n", nech);
-    message("- Space dimension   = %d\n", ndim);
-    message("- Number of spectral components = %d\n", _nb);
+    iuid = dbout->addColumnsByConstant(1, 0., String(), ELoc::Z);
+    if (iuid < 0) return 1;
   }
 
-  // Loop on the active samples
-  VectorInt ranks = dbout->getRanksActive();
-  VectorDouble coor(ndim);
-  for (int jech = 0; jech < nech; jech++)
-  {
-    int iech = ranks[jech];
-    dbout->getSampleCoordinatesInPlace(iech, coor);
-    if (flagCenter) VH::subtractInPlace(coor, xref);
-    VectorDouble u = res->prodMatVec(coor);
-
-    double value = 0.;
-    for (int ib = 0; ib < _nb; ib++)
-      value += _gamma[ib] * cos(u[ib] + _phi[ib]);
-    value *= scale;
-
-    dbout->setArray(iech, iuid, value);
-  }
-
-  // Delete temporary matrix
-  delete res;
+  if (getDefaultSpaceType() == ESpaceType::RN)
+    _computeOnRn(dbout, iuid, verbose);
+  else
+    _computeOnSphere(dbout, iuid, verbose);
 
   // Modify the name of the output
-  namconv.setNamesAndLocators(dbout, iuid);
+  if (flagNewVariable) namconv.setNamesAndLocators(dbout, iuid);
   return 0;
 }
 
@@ -307,9 +310,9 @@ int SimuSpectral::_getKey1Maximum(const spSim& spsim) const
 int SimuSpectral::_getSumValue(const spSim& spsim) const
 {
   double sum = 0;
-  for (const auto &e1: spsim._tab)
+  for (const auto& e1: spsim._tab)
   {
-    for (const auto &e2: e1.second)
+    for (const auto& e2: e1.second)
       sum += e2.second;
   }
   return sum;
@@ -318,7 +321,7 @@ int SimuSpectral::_getSumValue(const spSim& spsim) const
 VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1) const
 {
   VectorInt keys;
-  for (const auto &e1: spsim._tab)
+  for (auto e1: spsim._tab)
   {
     if (e1.first != key1) continue;
 
@@ -333,7 +336,7 @@ VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1) const
 VectorInt SimuSpectral::_getValues2(const spSim& spsim, int key1) const
 {
   VectorInt keys;
-  for (const auto &e1: spsim._tab)
+  for (auto e1: spsim._tab)
   {
     if (e1.first != key1) continue;
 
@@ -385,36 +388,9 @@ void SimuSpectral::_printSpSims(int status)
   message("- Number of components (-) = %d\n", totalM);
 }
 
-int SimuSpectral::computeOnSphere(Db *dbout,
-                                  bool verbose,
-                                  const NamingConvention &namconv)
+void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 {
   int np   = dbout->getSampleNumber(true);
-  int ndim = dbout->getNDim();
-
-  // Preliminary checks
-
-  if (ndim != _ndim)
-  {
-    messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-            ndim, _ndim);
-    return 1;
-  }
-  if (np <= 0)
-  {
-    messerr("'dbout' must have a positive number of active samples");
-    return 1;
-  }
-  if (! _isPrepared)
-  {
-    messerr("You should run 'simulate' beforehand");
-    return 1;
-  }
-
-  // Create the variable
-
-  int iuid = dbout->addColumnsByConstant(1, 0., String(), ELoc::Z);
-  if (iuid < 0) return 1;
 
   int nb = 0;
   int N_max = -9999;
@@ -431,7 +407,7 @@ int SimuSpectral::computeOnSphere(Db *dbout,
   // Optional printout
   if (verbose)
   {
-    mestitle(1,">>> simulation on Sphere");
+    mestitle(1, ">>> simulation on Sphere");
     message(">>> point number    : %d\n", np);
     message(">>> component number: %d\n", nb);
     message(">>> Maximum order   : %d\n", K_max);
@@ -439,10 +415,9 @@ int SimuSpectral::computeOnSphere(Db *dbout,
   }
 
   // Simulation
-
-  VectorDouble phi   = dbout->getCoordinates(0);
+  VectorDouble phi = dbout->getCoordinates(0);
   VectorDouble theta = dbout->getCoordinates(1);
-  VectorDouble sim(np,0.);
+  VectorDouble sim(np, 0.);
   VectorDouble x(np);
   VectorDouble w(np);
   for (int i = 0; i < np; i++)
@@ -465,22 +440,22 @@ int SimuSpectral::computeOnSphere(Db *dbout,
   {
     // From m-1 to m
     if (m == 0)
-      Pmm.fill(0);
+      Pmm.fill(1.);
     else
     {
-      double scale = sqrt((2.*m+1.)/(2.*m));
+      double scale = sqrt((2. * m + 1.) / (2. * m));
       for (int ip = 0; ip < np; ip++)
         Pmm[ip] = -scale * w[ip] * Pmm[ip];
     }
 
     if (VH::whereElement(K_list, m) >= 0)
     {
-      const spSim& spsimK = _spSims[K_idx++];
+      const spSim &spsimK = _spSims[K_idx++];
       VectorInt N_list = _getKeys1(spsimK);
 
       if (verbose)
-        message(">>> Simulating order K = %d: component number = %d\n",
-                m, _getSumValue(spsimK));
+        message(">>> Simulating order K = %d: component number = %d\n", m,
+                _getSumValue(spsimK));
 
       // From n-1 to n
       int NK_max = VH::maximum(N_list);
@@ -494,8 +469,9 @@ int SimuSpectral::computeOnSphere(Db *dbout,
         }
         else
         {
-          double a = sqrt((2.*n+1.)*(2.*n-1.)/(n-m)/(n+m));
-          double b = sqrt((2.*n+1.)/(2.*n-3.)*(n-1.-m)/(n-m)*(n-1.+m)/(n+m));
+          double a = sqrt((2. * n + 1.) * (2. * n - 1.) / (n - m) / (n + m));
+          double b = sqrt((2. * n + 1.) / (2. * n - 3.) * (n - 1. - m) / (n - m) * (n - 1. + m)
+              / (n + m));
           for (int ip = 0; ip < np; ip++)
             Plm[ip] = a * x[ip] * P1[ip] - b * P2[ip];
           P2 = P1;
@@ -512,8 +488,8 @@ int SimuSpectral::computeOnSphere(Db *dbout,
           {
             int sumComp = VH::cumul(nbrComp);
             cumComp += sumComp;
-            message("K = %d and N = %d : %d / %d  jk = %d\n",
-                    m, n, sumComp, cumComp, jk);
+            message("K = %d and N = %d : %d / %d  jk = %d\n", m, n, sumComp,
+                    cumComp, jk);
           }
 
           for (int ii = 0, ncomp = (int) valComp.size(); ii < ncomp; ii++)
@@ -525,7 +501,6 @@ int SimuSpectral::computeOnSphere(Db *dbout,
 
               for (int ns = 0; ns < nbrComp[ii]; ns++)
               {
-
                 for (int ip = 0; ip < np; ip++)
                   val[ip] += fac * Plm[ip] * cos(s * m * phi[ip] + _phi[jk]);
                 jk++;
@@ -537,12 +512,11 @@ int SimuSpectral::computeOnSphere(Db *dbout,
     }
   }
 
+  // Normalize
+  VH::multiplyConstant(val, sqrt(2. / nb));
+
   // Save the resulting array
   dbout->setColumnByUID(val, iuid);
-
-  // Modify the name of the output
-  namconv.setNamesAndLocators(dbout, iuid);
-  return 0;
 }
 
 /****************************************************************************/
@@ -554,7 +528,7 @@ int SimuSpectral::computeOnSphere(Db *dbout,
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-bool SimuSpectral::isValidForSpectral(const Model* model)
+bool SimuSpectral::isValidForSpectral(const Model* model) const
 {
   ESpaceType type = getDefaultSpaceType();
   if (model->getCovaNumber() != 1)
@@ -567,12 +541,12 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
 
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
-    if (! model->getCova(is)->isValidForSpectral())
+    const CovAniso* cova = model->getCova(is);
+    if (! cova->isValidForSpectral())
     {
-      messerr("The current structure is not valid for Spectral Simulation");
+      messerr("The current structure is not valid for Spectral Simulation on Rn");
       return false;
     }
-    // Check that the model is valid for the current space type
   }
   return true;
 }
@@ -632,7 +606,7 @@ int simuSpectral(Db *dbin,
   // Loop on the simulations
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    if (simsph.simulate(ns, nd)) return 1;
+    if (simsph.simulate(ns, 0, verbose, nd)) return 1;
     if (simsph.compute(dbout, iuid + isimu, verbose)) return 1;
   }
 

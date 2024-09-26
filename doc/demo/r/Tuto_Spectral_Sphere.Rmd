@@ -130,6 +130,7 @@ rm(list = ls())
 ### Initialisation of the sphere
 
 ```{r create_S2, echo=TRUE, eval = TRUE}
+defineDefaultSpace(ESpaceType_SN(),param=6371)
 nx = c(360, 180)
 dx = nx/(nx-1)*pi/180
 x0 = c(0,0)
@@ -182,7 +183,7 @@ alpha   = seq(from = 0, to = pi, length.out = 100)
 
 mode = CovCalcMode()
 mode$setAsVario(TRUE)
-covvec = cova$evalCovOnSphereVec(alpha,40, FALSE, mode=mode)
+covvec = cova$evalCovOnSphereVec(alpha,50, FALSE, mode=mode)
 ggplot() + 
   plot.XY(alpha, covvec) +
   plot.decoration(title=paste0(covname, " model on S2"),
