@@ -576,3 +576,68 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
   }
   return true;
 }
+
+/**
+ * Perform a series of simulations (on Rn or on the Spehere) using Spectral Method
+ *
+ * @param dbin Input Db where the conditioning data are read
+ * @param dbout Output Db where the results are stored
+ * @param model Model (should only contain covariances that can cope with spectral method)
+ * @param ns Number of spectral components
+ * @param nbsimu Number of simulations processed simultaneously
+ * @param seed Seed used for the Random number generator
+ * @param verbose Verbose flag
+ * @param nd Number of discretization steps (used for the Spectrum on Sphere)
+ * @param namconv Naming Convention
+ *
+ * @note The conditional version is not yet available
+ */
+int simuSpectral(Db *dbin,
+                 Db *dbout,
+                 Model *model,
+                 int nbsimu,
+                 int seed,
+                 int ns,
+                 int nd,
+                 bool verbose,
+                 const NamingConvention &namconv)
+{
+  if (dbin != nullptr)
+  {
+    messerr("The current version does not allow Conditional Simulations");
+    return 1;
+  }
+  if (nbsimu <= 0)
+  {
+    messerr("You must provide a positive number of simulations");
+    return 1;
+  }
+  if (dbout->getNDim() != model->getDimensionNumber())
+  {
+    messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
+            dbout->getNDim(), model->getDimensionNumber());
+    return 1;
+  }
+
+  // Instantiate the SimuSpectral class
+  SimuSpectral simsph = SimuSpectral(model);
+
+  // Set the seed for Random number generator (for all simulations)
+  law_set_random_seed(seed);
+
+  // Creating the output variables
+  int iuid = dbout->addColumnsByConstant(nbsimu, 0., String(), ELoc::Z);
+  if (iuid < 0) return 1;
+
+  // Loop on the simulations
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+  {
+    if (simsph.simulate(ns, nd)) return 1;
+    if (simsph.compute(dbout, iuid + isimu, verbose)) return 1;
+  }
+
+  // Modify the name of the output
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, 1, dbout, iuid, "", nbsimu);
+
+  return 0;
+}

@@ -76,3 +76,14 @@ private:
 
   const Model* _model; // Storing the pointer (not to be deleted)
 };
+
+
+GSTLEARN_EXPORT int simuSpectral(Db *dbin = nullptr,
+                                 Db *dbout = nullptr,
+                                 Model *model = nullptr,
+                                 int nbsimu = 1,
+                                 int seed = 43431,
+                                 int ns = 100,
+                                 int nd = 100,
+                                 bool verbose = false,
+                                 const NamingConvention &namconv = NamingConvention("Simu"));
