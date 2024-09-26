@@ -55,7 +55,8 @@ public:
                       const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
                const MatrixSquareSymmetric* PriorCov = nullptr);
-  int setXvalidUnique(const VectorInt* rankXvalid = nullptr);
+  int setXvalidUnique(const VectorInt* rankXvalidEqs  = nullptr,
+                      const VectorInt* rankXvalidVars = nullptr);
 
   void printStatus() const;
 
@@ -130,8 +131,8 @@ private:
   int _needPriorMean();
   int _needZ();
   int _needZp();
-  int _needRankColCok();
-  int _needRankXvalid();
+  int _needColCok();
+  int _needXvalid();
   int _patchRHSForXvalidUnique();
 
   void _deleteX();
@@ -165,8 +166,8 @@ private:
   void _deletePriorMean();
   void _deleteZ();
   void _deleteZp();
-  void _deleteRankColCok();
-  void _deleteRankXvalid();
+  void _deleteColCok();
+  void _deleteXvalid();
 
   static void _printMatrix(const String& name, const AMatrix* mat);
   static void _printVector(const String& name, const VectorDouble* vec);
@@ -186,7 +187,8 @@ private:
   const VectorDouble* _Means;             // Fixed drift coefficients
   const VectorDouble* _Zp;                // Vector of values for collocation
   const VectorInt* _rankColCok;           // Ranks of collocated variables
-  const VectorInt* _rankXvalid;           // Ranks of the cross-validated Samples/Variables
+  const VectorInt* _rankXvalidEqs;        // Ranks of the cross-validated Equations
+  const VectorInt* _rankXvalidVars;       // Ranks of the cross-validated Variables
 
   // Following elements can be retrieved by Interface functions  
   VectorDouble _Zstar;                  // Estimated values (Dim: _nrhs)
@@ -214,7 +216,11 @@ private:
   MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * InvSigma * X (Dim: _ncck *_nbfl)
   VectorDouble _Z0p;                 // Vector of (active) collocated values
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
-   
+
+  // Following elements are defined for internal storage (Cross-validation in UN)
+  MatrixRectangular* _C_RHS;         // Fictitious Right-hand side (covariance part)
+  MatrixRectangular* _X_RHS;         // Fictitious Right-hand side (drift part)
+  
   // Additional parameters
   int _neq;
   int _nbfl;

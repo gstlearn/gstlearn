@@ -1542,6 +1542,12 @@ bool Model::isFlagLinked() const
   return _driftList->isFlagLinked();
 }
 
+bool Model::hasDrift() const
+{
+  if (_driftList == nullptr) return false;
+  return _driftList->hasDrift();
+}
+
 bool Model::isFlagGradient() const
 {
   if (_cova == nullptr) return false;

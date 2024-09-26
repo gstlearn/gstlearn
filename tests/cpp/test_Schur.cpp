@@ -210,19 +210,22 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
 static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
 {
   // Set of ranks of cross-validated information
-  VectorInt varXvalid = {0,1};
+  VectorInt varXvalid = {1,2};
   int iech0           = 1;
   AStringFormat format;
   bool debugSchur = false;
+
+  const VectorVectorInt index = data->getMultipleRanksActive();
+  VectorInt rankXvalidEqs = Db::getMultipleSelectedIndices(index, varXvalid, {iech0});
+  VectorInt rankXvalidVars = Db::getMultipleSelectedVariables(index, varXvalid, {iech0});
 
   // Title
   mestitle(0, "Cross-Validation in Unique Neighborhood");
   message("Compare the Cross-validation Option (in Unique Neighborhood):\n");
   message("- using Standard Kriging on the Deplemented Data Set\n");
   message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
-
-  const VectorVectorInt index = data->getMultipleRanksActive();
-  VectorInt rankXvalid        = Db::getMultipleRanks(index, varXvalid, {iech0});
+  VH::display("- Cross-validated equation ranks", rankXvalidEqs, false);
+  VH::display("- Cross-validated variable ranks", rankXvalidVars, false);
 
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
@@ -260,7 +263,7 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
     data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
   
   KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
-  Kcalc.setXvalidUnique(&rankXvalid);
+  Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
@@ -307,7 +310,7 @@ int main(int argc, char* argv[])
   int nvar          = 3;
   int nfex          = 0;
   int nbfl          = (nfex + 1) * nvar;
-  bool flagSK       = false;
+  bool flagSK       = true;
   bool flagBayes    = false;
   if (flagBayes) flagSK = false;
   int mode = 3;

@@ -201,6 +201,7 @@ public:
   static VectorDouble revert(const VectorDouble& vecin);
   static VectorInt    revert(const VectorInt& vecin);
   static VectorDouble sample(const VectorDouble& vecin, const VectorInt& indKeep);
+  
   static void arrangeInPlace(int safe,
                              VectorInt& ranks,
                              VectorDouble& values,

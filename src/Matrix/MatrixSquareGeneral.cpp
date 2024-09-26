@@ -122,7 +122,7 @@ MatrixSquareGeneral* prodNormMat(const AMatrixDense &a, const VectorDouble& vec,
 {
   int nsym = (transpose) ? a.getNCols() : a.getNRows();
   MatrixSquareGeneral *mat = new MatrixSquareGeneral(nsym);
-  mat->prodNormMatInPlace(a, vec, transpose);
+  mat->prodNormMatVecInPlace(a, vec, transpose);
   return mat;
 }
 

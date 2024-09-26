@@ -160,9 +160,9 @@ public:
                                      const MatrixSparse* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const MatrixSparse* a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const MatrixSparse* a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
