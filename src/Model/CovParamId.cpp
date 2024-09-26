@@ -8,8 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Space/ASpaceObject.hpp"
 #include "Model/CovParamId.hpp"
+
+#include "Space/ASpaceObject.hpp"
 
 CovParamId::CovParamId(int igrf,
                        int icov,

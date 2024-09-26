@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
@@ -107,7 +108,7 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
   return 0;
 }
  */
-int ProjMatrix::_addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+int ProjMatrix::_addMesh2point(const constvect& inv, vect& outv) const
 {
   if ((int) inv.size() != getApexNumber())
   {
@@ -122,13 +123,11 @@ int ProjMatrix::_addMesh2point(const Eigen::VectorXd& inv, Eigen::VectorXd& outv
     return 1;
   }
 
-  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
-  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
-  addProdMatVecInPlaceToDest(invmap, outvmap, false);
+  addProdMatVecInPlaceToDest(inv, outv, false);
   return 0;
 }
 
-int ProjMatrix::_addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+int ProjMatrix::_addPoint2mesh(const constvect& inv, vect& outv) const
 {
   if ((int) inv.size() != getPointNumber())
   {
@@ -143,9 +142,7 @@ int ProjMatrix::_addPoint2mesh(const Eigen::VectorXd& inv, Eigen::VectorXd& outv
     return 1;
   }
 
-  Eigen::Map<const Eigen::VectorXd> invmap(inv.data(), inv.size());
-  Eigen::Map<Eigen::VectorXd> outvmap(outv.data(), outv.size());
-  addProdMatVecInPlaceToDest(invmap, outvmap, true);
+  addProdMatVecInPlaceToDest(inv, outv, true);
   return 0;
 }
 

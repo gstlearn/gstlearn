@@ -11,10 +11,11 @@
 
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/VectorEigen.hpp"
-#include <Eigen/src/Core/Matrix.h>
+#include <vector>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
   {\
@@ -22,35 +23,35 @@
     int ncov = _getNCov();\
     int iad_x = 0;\
     int iad_struct = 0;\
-    Eigen::VectorXd* y;\
+    vect y;\
     for (int icov = 0; icov < ncov; icov++)\
     {\
       int napices = size(icov);\
       if ( (nvar == 1) && (ncov == 1) )\
       {\
-        y = &OUT;\
+        y = vect(OUT);\
       }\
       else\
       {\
-        y = nullptr;\
+        y = vect();\
         if (COMPUTEOP)\
         {\
-          y = &_works[icov];\
-          y->resize(napices);\
-          VectorEigen::fill(*y,0.);\
+          _works[icov].resize(napices);\
+          y = vect(_works[icov]);\
+          std::fill(y.begin(),y.end(),0.);\
         }\
       }\
       for (int jvar = 0; jvar < nvar; jvar++)\
       {\
         int iad_y = IY;\
-        Eigen::Map<const Eigen::VectorXd> x(IN.data() + iad_x, napices);\
+        constvect x(IN.data() + iad_x, napices);\
+        if (nvar == 1)\
+          y = vect(OUT.data() + iad_y, napices);\
         if (COMPUTEOP) \
-          _pops[icov]->OP(x, *y);\
+          _pops[icov]->OP(x, y);\
         if ( (nvar == 1) && (ncov == 1) ) break;\
         if (nvar == 1)\
         {\
-          Eigen::Map<Eigen::VectorXd> outmap(OUT.data() + iad_y, napices);\
-          VectorEigen::copy(*y, outmap);\
           iad_x += napices;\
           continue;\
         }\
@@ -58,11 +59,16 @@
         {\
           if (_isNoStatForVariance[icov])\
           {\
-            VectorEigen::addMultiplyVectVectInPlace(TAB##NoStat[icov][IND(IVAR,JVAR,nvar)],XORY,OUT,iad_y); \
+            constvect i1(TAB##NoStat[icov][IND(IVAR,JVAR,nvar)]);\
+            constvect i2(XORY);\
+            vect i3(OUT);\
+            VectorHelper::addMultiplyVectVectInPlace(i1,i2,i3,iad_y); \
           }\
           else\
           {\
-            VectorEigen::addMultiplyConstantInPlace(TAB[icov].getmat(IVAR,JVAR),XORY,OUT,iad_y);\
+            constvect i1(XORY);\
+            vect i2(OUT);\
+            VectorHelper::addMultiplyConstantInPlace(TAB[icov].getmat(IVAR,JVAR),i1,i2,iad_y);\
           }\
           iad_y += napices;\
         }\
@@ -340,26 +346,26 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PrecisionOpMulti::_addToDestImpl(const Eigen::VectorXd& vecin,
-                          Eigen::VectorXd& vecout) const
+int PrecisionOpMulti::_addToDestImpl(const constvect& vecin,
+                                     vect& vecout) const
 {
   if (!_checkReady()) return 1;
   if (_getNVar() > 1)
   {
     _workTot.resize(vecin.size());
-    VectorEigen::fill(_workTot,0.);
+    std::fill(_workTot.begin(),_workTot.end(),0.);
   
    EVALOP(vecin,_workTot ,_invCholSills,getCholeskyXL,addToDest,iad_struct + jvar * napices,false,x,jvar,nvar,ivar,jvar)
-   EVALOP(_workTot, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,(jvar+1),jvar,ivar)
+   EVALOP(_workTot, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,y,0,(jvar+1),jvar,ivar)
   }
   else 
   {
-    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,*y,0,1,0,0)
+    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,y,0,1,0,0)
   }
 }
 
-int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
-                          Eigen::VectorXd& vecout) const
+int PrecisionOpMulti::_addToDest(const constvect& vecin,
+                                 vect& vecout) const
 {
   return _addToDestImpl(vecin,vecout);
   
@@ -370,21 +376,22 @@ int PrecisionOpMulti::_addToDest(const Eigen::VectorXd& vecin,
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::_addSimulateToDest(const Eigen::VectorXd& vecin,
-                                                Eigen::VectorXd& vecout) const
+int PrecisionOpMulti::_addSimulateToDest(const constvect& vecin,
+                                               vect& vecout) const
 {
   if (!_checkReady()) return 1;
-  EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,*y,jvar,nvar,ivar,jvar)
+  EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,y,jvar,nvar,ivar,jvar)
 }
 
 VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
 {
   if (!_checkReady()) return VectorDouble(); 
-  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(),vec.size());
-  Eigen::VectorXd out(vec.size());
-  VectorEigen::fill(out,0.);
-  _addSimulateToDest(vecm,out);
-  return VectorEigen::copyIntoVD(out);
+  constvect vecm(vec.data(),vec.size());
+  std::vector<double> out(vec.size());
+  std::fill(out.begin(),out.end(),0.);
+  vect outs(out);
+  _addSimulateToDest(vecm,outs);
+  return out;
 }
 
                                             

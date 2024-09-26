@@ -9,9 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polynomials/ClassicalPolynomial.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-#include <Eigen/src/Core/Matrix.h>
+#include "geoslib_define.h"
 
 ClassicalPolynomial::ClassicalPolynomial()
 {
@@ -43,15 +44,17 @@ double ClassicalPolynomial::eval(double x) const
 // Horner scheme starting from the lowest degree
 // (since it adds the result to the input vector, the classical scheme can t be used)
 #ifndef SWIG
-void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const constvect& inv, vect& outv) const
 {
   int n = static_cast<int> (inv.size());
-  Eigen::VectorXd work(n);
-  Eigen::VectorXd work2(n);
-  Eigen::VectorXd *swap1,*swap2,*swap3;
+  VectorDouble work(n);
+  VectorDouble work2(n);
+  vect *swap1,*swap2,*swap3;
 
-  swap1 = &work;
-  swap2 = &work2;
+  vect ws(work);
+  vect w2s(work2);
+  swap1 = &ws;
+  swap2 = &w2s;
 
   for (int i = 0; i<n ; i++)
   {
@@ -77,41 +80,41 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const Eigen::VectorXd& i
   }
 }
 
-void ClassicalPolynomial::addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+void ClassicalPolynomial::addEvalOp(ALinearOp* Op,const constvect& inv, vect& outv) const
 {
   int n = static_cast<int> (inv.size());
 
-  Eigen::VectorXd *swap1,*swap2,*swap3;
+  vect swap1,swap2,swap3;
 
-  if (_work.size()!= n)
+  if ((int)_work.size()!= n)
   {
     _work.resize(n);
   }
-  if (_work2.size()!= n)
+  if ((int)_work2.size()!= n)
   {
     _work2.resize(n);
   }
 
-  swap1 = &_work;
-  swap2 = &_work2;
+  swap1 = vect(_work);
+  swap2 = vect(_work2);
 
   for (int i = 0; i<n ; i++)
   {
     outv[i] += _coeffs[0] * inv[i];
   }
 
-  Op->evalDirect(inv, *swap1);
+  Op->evalDirect(inv, swap1);
 
   for (int j = 1; j < (int) _coeffs.size(); j++)
   {
     for (int i = 0; i < n; i++)
     {
-      outv[i] += _coeffs[j] * (*swap1)[i];
+      outv[i] += _coeffs[j] * (swap1)[i];
     }
 
     if (j < (int) _coeffs.size() - 1)
     {
-      Op->evalDirect(*swap1, *swap2);
+      Op->evalDirect(swap1, swap2);
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -121,18 +124,18 @@ void ClassicalPolynomial::addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Ei
 
 // Classical Hörner scheme starting from the highest degree
 void ClassicalPolynomial::evalOp(MatrixSparse* Op,
-                                 const Eigen::VectorXd& inv,
-                                 Eigen::VectorXd& outv) const
+                                 const constvect& inv,
+                                 vect & outv) const
 {
   int n = static_cast<int>(inv.size());
-  Eigen::VectorXd work(n);
-
+  std::vector<double> work(n);
+  vect ws(work);
   for (int i = 0; i < n; i++)
     outv[i] = _coeffs.back() * inv[i];
 
   for (int j = static_cast<int>(_coeffs.size()) - 2; j >= 0; j--)
   {
-    Op->prodMatVecInPlace(outv, work);
+    Op->prodMatVecInPlace(outv, ws);
     for (int i = 0; i < n; i++)
     {
       outv[i] = _coeffs[j] * inv[i] + work[i];
@@ -142,9 +145,9 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
 
 // Classical Hörner scheme starting from the highest degree
 void ClassicalPolynomial::evalOpTraining(MatrixSparse *Op,
-                                         const Eigen::VectorXd &inv,
-                                         std::vector<Eigen::VectorXd> &store,
-                                         Eigen::VectorXd &work) const
+                                         const constvect &inv,
+                                         std::vector<std::vector<double>> &store,
+                                         std::vector<double> &work) const
 {
   int n = static_cast<int>(inv.size());
 
@@ -160,7 +163,9 @@ void ClassicalPolynomial::evalOpTraining(MatrixSparse *Op,
 
   for (int j = (int) _coeffs.size() - 2; j >= 0; j--)
   {
-    Op->prodMatVecInPlace(store[j + 1], work);
+    constvect stores(store[j+1]);
+    vect ws(work);
+    Op->prodMatVecInPlace(stores, ws);
     for (int i = 0; i < n; i++)
     {
       store[j][i] = _coeffs[j] * inv[i] + work[i];
@@ -168,65 +173,67 @@ void ClassicalPolynomial::evalOpTraining(MatrixSparse *Op,
   }
 }
 #endif
-void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
-                                      const Eigen::VectorXd& inv,
-                                      Eigen::VectorXd& outv,
-                                      int iapex,
-                                      int igparam)const
-{
-  int n = static_cast<int> (inv.size());
-  int degree = static_cast<int> (getCoeffs().size());
-  ClassicalPolynomial* polycur = this->clone();
-  Eigen::VectorXd work(n);
-  Eigen::VectorXd work2(n);
-  Eigen::VectorXd *swap1,*swap2,*swap3;
-  MatrixSparse* Op = shiftOp->getS();
-  MatrixSparse* derivOp = shiftOp->getSGrad(iapex,igparam);
+// void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
+//                                       const constvect& inv,
+//                                       vect& outv,
+//                                       int iapex,
+//                                       int igparam)const
+// {
+//   int n = static_cast<int> (inv.size());
+//   int degree = static_cast<int> (getCoeffs().size());
+//   ClassicalPolynomial* polycur = this->clone();
+//   VectorDouble work(n);
+//   VectorDouble work2(n);
+//   vect ws(work);
+//   vect w2s(work2);
+//   vect *swap1,*swap2,*swap3;
+//   MatrixSparse* Op = shiftOp->getS();
+//   MatrixSparse* derivOp = shiftOp->getSGrad(iapex,igparam);
 
-  swap1 = &work;
-  swap2 = &work2;
+//   swap1 = &ws;
+//   swap2 = &w2s;
 
-  VectorEigen::fill(outv, 0.);
+//   std::fill(outv.begin(),outv.end(),0.);
 
-  for(int i = 0 ; i< n; i++)
-  {
-    work[i] = inv[i];
-  }
+//   for(int i = 0 ; i< n; i++)
+//   {
+//     work[i] = inv[i];
+//   }
 
-  auto coeffsCur = polycur->getCoeffs();
+//   auto coeffsCur = polycur->getCoeffs();
 
-  for(int i = 0; i < degree - 1 ;i++)
-  {
-    derivOp->prodMatVecInPlace(*swap1,*swap2);
-    coeffsCur.erase(coeffsCur.begin());
-    polycur->init(coeffsCur);
-    polycur->evalOpCumul(Op,*swap2,outv);
+//   for(int i = 0; i < degree - 1 ;i++)
+//   {
+//     derivOp->prodMatVecInPlace(*swap1,*swap2);
+//     coeffsCur.erase(coeffsCur.begin());
+//     polycur->init(coeffsCur);
+//     polycur->evalOpCumul(Op,*swap2,outv);
 
-    if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration
-    {
-      Op->prodMatVecInPlace(*swap1,*swap2);
-      swap3 = swap1;
-      swap1 = swap2;
-      swap2 = swap3;
-    }
-   }
-   delete polycur;
-}
+//     if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration
+//     {
+//       Op->prodMatVecInPlace(*swap1,*swap2);
+//       swap3 = swap1;
+//       swap1 = swap2;
+//       swap2 = swap3;
+//     }
+//    }
+//    delete polycur;
+// }
 
-void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
-                                      const VectorDouble& inv,
-                                      VectorDouble& outv,
-                                      int iapex,
-                                      int igparam)
-{
-  DECLARE_UNUSED(shiftOp);
-  DECLARE_UNUSED(inv);
-  DECLARE_UNUSED(outv);
-  DECLARE_UNUSED(iapex);
-  DECLARE_UNUSED(igparam);
- //TODO Call the Eigen::VectorXd function
- messerr("evalDerivOp is not implemented for vectorsDouble");
-}
+// void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
+//                                       const VectorDouble& inv,
+//                                       VectorDouble& outv,
+//                                       int iapex,
+//                                       int igparam)
+// {
+//   DECLARE_UNUSED(shiftOp);
+//   DECLARE_UNUSED(inv);
+//   DECLARE_UNUSED(outv);
+//   DECLARE_UNUSED(iapex);
+//   DECLARE_UNUSED(igparam);
+//  //TODO Call the Eigen::VectorXd function
+//  messerr("evalDerivOp is not implemented for vectorsDouble");
+// }
 
 //void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
 //                                           const Eigen::VectorXd& in1,
@@ -259,45 +266,46 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 //    }
 //}
 
-void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
-                                           VectorDouble& temp1,
-                                           VectorDouble& temp2,
-                                           VectorDouble& outv,
-                                           const VectorVectorDouble& workpoly,
-                                           int iapex,
-                                           int igparam)
-{
-  DECLARE_UNUSED(shiftOp);
-  DECLARE_UNUSED(temp1);
-  DECLARE_UNUSED(temp2);
-  DECLARE_UNUSED(outv);
-  DECLARE_UNUSED(workpoly);
-  DECLARE_UNUSED(iapex);
-  DECLARE_UNUSED(igparam);
-   //TODO Call the Eigen::VectorXd function (try to put it in the mother class Polynomial)
-   messerr("evalDerivOpOptim is not implemented for vectorsDouble");
-}
+// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+//                                            VectorDouble& temp1,
+//                                            VectorDouble& temp2,
+//                                            VectorDouble& outv,
+//                                            const VectorVectorDouble& workpoly,
+//                                            int iapex,
+//                                            int igparam)
+// {
+//   DECLARE_UNUSED(shiftOp);
+//   DECLARE_UNUSED(temp1);
+//   DECLARE_UNUSED(temp2);
+//   DECLARE_UNUSED(outv);
+//   DECLARE_UNUSED(workpoly);
+//   DECLARE_UNUSED(iapex);
+//   DECLARE_UNUSED(igparam);
+//    //TODO Call the Eigen::VectorXd function (try to put it in the mother class Polynomial)
+//    messerr("evalDerivOpOptim is not implemented for vectorsDouble");
+// }
 
 
-void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
-                                           Eigen::VectorXd& temp1,
-                                           Eigen::VectorXd& temp2,
-                                           Eigen::VectorXd& outv,
-                                           const std::vector<Eigen::VectorXd>& workpoly,
-                                           int iapex,
-                                           int igparam) const
-{
-  int degree = (int) _coeffs.size();
+// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+//                                            vect& temp1,
+//                                            vect& temp2,
+//                                            vect& outv,
+//                                            const VectorVectorDouble& workpoly,
+//                                            int iapex,
+//                                            int igparam) 
+// {
+//   DECLARE_UNUSED(shiftOp,temp1,temp2,outv,workpoly,iapex,igparam)
+//   // int degree = (int) _coeffs.size();
 
-  MatrixSparse* S = shiftOp->getS();
-  MatrixSparse* gradS = shiftOp->getSGrad(iapex,igparam);
+//   // MatrixSparse* S = shiftOp->getS();
+//   // MatrixSparse* gradS = shiftOp->getSGrad(iapex,igparam);
 
-  shiftOp->getSGrad(iapex, igparam)->prodMatVecInPlace(workpoly[degree - 1], outv);
+//   // shiftOp->getSGrad(iapex, igparam)->prodMatVecInPlace(workpoly[degree - 1], outv);
 
-  for (int i = degree - 3; i >= 0; i--)
-  {
-    S->prodMatVecInPlace(outv, temp1);
-    gradS->prodMatVecInPlace(workpoly[i + 1], temp2);
-    VectorEigen::addInPlace(temp1, temp2, outv);
-  }
-}
+//   // for (int i = degree - 3; i >= 0; i--)
+//   // {
+//   //   S->prodMatVecInPlace(outv, temp1);
+//   //   gradS->prodMatVecInPlace(workpoly[i + 1], temp2);
+//   //   VectorEigen::addInPlace(temp1, temp2, outv);
+//   //}
+// }

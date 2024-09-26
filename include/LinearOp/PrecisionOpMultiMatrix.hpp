@@ -11,16 +11,9 @@
 #pragma once
 
 #include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
 
 class Model;
 /**
@@ -38,7 +31,7 @@ public:
   const MatrixSparse* getQ() const;
   private:
   #ifndef SWIG
-  virtual int _addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const override;
+  virtual int _addToDestImpl(const constvect &vecin, vect &vecout) const override;
   #endif
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;

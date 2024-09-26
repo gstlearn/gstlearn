@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Basic/VectorNumT.hpp"
 #include "Basic/Indirection.hpp"
 #include "Basic/Grid.hpp"

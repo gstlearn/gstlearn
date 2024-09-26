@@ -11,12 +11,8 @@
 #include "Basic/File.hpp"
 #include "LinearOp/ScaleOp.hpp"
 #include "LinearOp/LinearOpCGSolver.hpp"
-#include "Matrix/VectorEigen.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
 
@@ -29,28 +25,19 @@ int main(int argc, char *argv[])
   int n = 5;
 
   VectorDouble b({2, 4, 6, 8, 10});
-  VectorEigen B(b);
 
   VectorDouble o(n);
-  VectorEigen O(n);
 
   VectorDouble c(n);
-  VectorEigen C(n);
 
   ScaleOp I(n, 2.0);
   LinearOpCGSolver<ScaleOp> s(&I);
 
-  std::cout << "b = " << b.toString() << std::endl;
-
+  std::cout << "b = " << b.toString();
   s.solve(b, o);
-  std::cout << "o = " << o.toString() << std::endl;
-
-  s.solve(B, O);
-  std::cout << "O = " << O << std::endl;
+  std::cout << "o = " << o.toString();
 
   I.evalDirect(o, c);
-  std::cout << "c = " << c.toString() << std::endl;
+  std::cout << "c = " << c.toString();
 
-  I.evalDirect(O, C);
-  std::cout << "C = " << C << std::endl;
 }
