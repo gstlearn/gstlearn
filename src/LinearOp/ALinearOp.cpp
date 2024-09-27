@@ -30,12 +30,12 @@ int ALinearOp::addToDest(const Eigen::VectorXd& inv,
 
 }
 
-int ALinearOp::addToDest(const constvect& inv, vect& outv) const
+int ALinearOp::addToDest(const constvect inv, vect outv) const
 {
   return _addToDest(inv,outv);
 }
 
-int ALinearOp::evalDirect(constvect& inv, vect& outv) const
+int ALinearOp::evalDirect(constvect inv, vect outv) const
 {
   std::fill(outv.begin(),outv.end(),0.);
   return addToDest(inv, outv);

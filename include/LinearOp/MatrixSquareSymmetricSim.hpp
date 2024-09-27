@@ -47,18 +47,16 @@ public:
 
 
 protected:
-  virtual int _addSimulateToDest(const constvect& whitenoise,
-                                       vect& outv) const override;
-  virtual int _addToDest(const constvect& inv,
-                               vect& outv) const override;
-
+  virtual int _addSimulateToDest(const constvect whitenoise,
+                                 vect outv) const override;
+  virtual int _addToDest(const constvect inv, vect outv) const override;
 
 private:
   void _prepare() const; // modify only mutable objects and can be called from const method
   void _clear();
-  
-  int  _simulateSparse(const constvect& whitenoise,
-                             vect& outv) const;
+
+  int _simulateSparse(const constvect whitenoise, vect outv) const;
+
 private:
   const   AMatrix* _mat;
   bool             _inverse;
@@ -73,5 +71,4 @@ private:
   mutable VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
   ////////////////////////////////////////////////////////////////////////////
   mutable Cholesky* _factorSparse; // Cholesky decomposition
-  
 };

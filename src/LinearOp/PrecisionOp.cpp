@@ -153,16 +153,14 @@ PrecisionOp* PrecisionOp::create(const AMesh* mesh,
   return new PrecisionOp(mesh, cova, verbose);
 }
 
-int PrecisionOp::_addToDest(const constvect& inv,
-                          vect& outv) const
+int PrecisionOp::_addToDest(const constvect inv, vect outv) const
 {
     _addEvalPower(inv, outv, EPowerPT::ONE);
     return 0;
 
 }
 
-int PrecisionOp::_addSimulateToDest(const constvect& whitenoise,
-                          vect& outv) const
+int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 {
     _addEvalPower(whitenoise, outv, EPowerPT::MINUSHALF);
     return 0;
@@ -309,15 +307,18 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
   evalPower(vecin, vecout, EPowerPT::ONE);
 }
  */
-void PrecisionOp::evalPower(const constvect& inm, vect& outm, const EPowerPT& power)
+void PrecisionOp::evalPower(const constvect inm,
+                            vect outm,
+                            const EPowerPT& power)
 {
   std::fill(outm.begin(),outm.end(),0.);
   for (int i = 0; i < (int)outm.size(); i++)
   _addEvalPower(inm, outm, power);
 }
 
-
-void PrecisionOp::_addEvalPower(const constvect& inv, vect& outv, const EPowerPT& power) const
+void PrecisionOp::_addEvalPower(const constvect inv,
+                                vect outv,
+                                const EPowerPT& power) const
 {
   const constvect* inPtr = &inv;
   if (_work.size() == 0) _work.resize(getSize());
@@ -348,8 +349,8 @@ void PrecisionOp::_addEvalPower(const constvect& inv, vect& outv, const EPowerPT
 }
 
 int PrecisionOp::_evalPoly(const EPowerPT& power,
-                           const constvect& inv,
-                           vect& outv) const 
+                           const constvect inv,
+                           vect outv) const
 {
   constvect invs(inv);
   if (_preparePoly(power) != 0) return 1;
@@ -385,7 +386,8 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
   return 0;
 }
 
-void PrecisionOp::evalInverse(const constvect& vecin, std::vector<double>& vecout)
+void PrecisionOp::evalInverse(const constvect vecin,
+                              std::vector<double>& vecout)
 {
   if (_work.size() != vecin.size()) _work.resize(vecin.size());
   vect vecouts(vecout);

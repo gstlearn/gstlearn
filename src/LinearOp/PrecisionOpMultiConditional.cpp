@@ -337,7 +337,8 @@ void PrecisionOpMultiConditional::_allocate(int i) const
   }
 }
 
-void PrecisionOpMultiConditional::evalInvCov(const constvect& inv, std::vector<double>& result) const
+void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
+                                             std::vector<double>& result) const
 {
   _allocate(0);
   _allocate(1);

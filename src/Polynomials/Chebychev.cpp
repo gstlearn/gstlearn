@@ -261,7 +261,7 @@ void Chebychev::_fillCoeffs(const std::function<double(double)>& f,double a, dou
 } */
 
 #ifndef SWIG
-void Chebychev::evalOp(MatrixSparse* S,const constvect& x,vect& y) const
+void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 {
   VectorDouble tm1, tm2, px, tx;
   int nvertex;
@@ -323,7 +323,7 @@ void Chebychev::evalOp(MatrixSparse* S,const constvect& x,vect& y) const
   delete T1;
 }
 
-void Chebychev::addEvalOp(ALinearOp* Op,const constvect& inv, vect& outv) const
+void Chebychev::addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
 {
   DECLARE_UNUSED(Op);
   DECLARE_UNUSED(inv);

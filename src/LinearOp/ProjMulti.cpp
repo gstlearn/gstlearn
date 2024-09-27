@@ -168,7 +168,7 @@ ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs, 
     _init();
 }
 
-int  ProjMulti::_addPoint2mesh(const constvect& inv, vect& outv) const
+int ProjMulti::_addPoint2mesh(const constvect inv, vect outv) const
 {   
     vect wms;
     int iadvar = 0;
@@ -195,8 +195,7 @@ int  ProjMulti::_addPoint2mesh(const constvect& inv, vect& outv) const
     }
     return 0;
 }
-int  ProjMulti::_addMesh2point(const constvect& inv,
-                                     vect& outv) const
+int ProjMulti::_addMesh2point(const constvect inv, vect outv) const
 {
     vect ws;
     int iadvar = 0;

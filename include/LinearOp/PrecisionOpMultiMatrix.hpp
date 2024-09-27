@@ -31,8 +31,9 @@ public:
   const MatrixSparse* getQ() const;
   private:
   #ifndef SWIG
-  virtual int _addToDestImpl(const constvect &vecin, vect &vecout) const override;
-  #endif
+    virtual int _addToDestImpl(const constvect vecin,
+                               vect vecout) const override;
+#endif
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
   void _prepareMatrix();

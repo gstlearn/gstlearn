@@ -197,7 +197,7 @@ int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
   return _factor->solve(b, x);
 }
 
-int MatrixSparse::solveCholesky(const constvect& b, std::vector<double>& x)
+int MatrixSparse::solveCholesky(const constvect b, std::vector<double>& x)
 {
   int ncols = getNCols();
   if ((int) b.size() != ncols)
@@ -237,7 +237,7 @@ int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
     _factor = new Cholesky(this);
   return _factor->simulate(b, x);
 }
-int MatrixSparse::simulateCholesky(const constvect &b, vect &x)
+int MatrixSparse::simulateCholesky(const constvect b, vect x)
 {
   int ncols = getNCols();
   if ((int) b.size() != ncols)
@@ -590,8 +590,8 @@ VectorDouble MatrixSparse::prodMatVec(const VectorDouble& x, bool transpose) con
 }
 
 /*! Perform y += 'this' %*% x */
-void MatrixSparse::addProdMatVecInPlaceToDest(const constvect& in,
-                                              vect& out,
+void MatrixSparse::addProdMatVecInPlaceToDest(const constvect in,
+                                              vect out,
                                               bool transpose) const
 {
   Eigen::Map<const Eigen::VectorXd> inm(in.data(),in.size());
@@ -852,7 +852,7 @@ int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
   return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
 }
 
-int MatrixSparse::addVecInPlace(const constvect& xm, vect& ym)
+int MatrixSparse::addVecInPlace(const constvect xm, vect ym)
 {
   if (isFlagEigen())
   {
@@ -1722,15 +1722,14 @@ void MatrixSparse::gibbs(int iech,
   (*sk) = sqrt(1. / (*sk));
 }
 
-int MatrixSparse::_addToDest(const constvect& inv,
-                          vect& outv) const
+int MatrixSparse::_addToDest(const constvect inv, vect outv) const
 {   Eigen::Map<const Eigen::VectorXd> inm(inv.data(),inv.size());
     Eigen::Map<Eigen::VectorXd> outm(outv.data(),outv.size());
     outm += _eigenMatrix * inm;
     return 0;
 }
 
-void MatrixSparse::setDiagonal(const constvect& tab)
+void MatrixSparse::setDiagonal(const constvect tab)
 {
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(),tab.size());
   setDiagonal(tabm);

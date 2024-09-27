@@ -27,8 +27,7 @@ ScaleOp::~ScaleOp() {}
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int ScaleOp::_addToDest(const constvect& inv,
-                        vect& outv) const
+int ScaleOp::_addToDest(const constvect inv, vect outv) const
 {
   for (int i = 0, n = _n; i < n; i++)
     outv[i] += _scale * inv[i];

@@ -445,7 +445,9 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool tra
   _addProdMatVecInPlaceToDestPtr(x.data(),y.data(),transpose);
 }
 
-int AMatrix::addProdMatVecInPlace(const constvect& x, vect& y, bool transpose) const
+int AMatrix::addProdMatVecInPlace(const constvect x,
+                                  vect y,
+                                  bool transpose) const
 {
   if (_flagCheckAddress)
   {
@@ -471,7 +473,7 @@ int AMatrix::addProdMatVecInPlace(const constvect& x, vect& y, bool transpose) c
   return 0;
 }
 
-int AMatrix::prodMatVecInPlace(const constvect& x, vect& y, bool transpose) const
+int AMatrix::prodMatVecInPlace(const constvect x, vect y, bool transpose) const
 {
   if (_flagCheckAddress)
   {

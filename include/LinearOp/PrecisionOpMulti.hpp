@@ -51,10 +51,8 @@ protected:
 #ifndef SWIG
 
 protected:
-  int _addToDest(const constvect& vecin,
-                 vect& vecout) const override;
-  int _addSimulateToDest(const constvect& vecin,
-                         vect& vecout) const override;
+  int _addToDest(const constvect vecin, vect vecout) const override;
+  int _addSimulateToDest(const constvect vecin, vect vecout) const override;
 #endif
 
 public:
@@ -71,8 +69,7 @@ protected:
   int _getNMesh() const;
 
 private:
-  virtual int _addToDestImpl(const constvect& vecin,
-                             vect& vecout) const;
+  virtual int _addToDestImpl(const constvect vecin, vect vecout) const;
   bool _checkReady() const;
   virtual void _buildQop();
   bool _isValidModel(Model* model);

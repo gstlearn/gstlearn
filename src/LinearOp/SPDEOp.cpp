@@ -49,13 +49,12 @@ void SPDEOp::_prepare(bool w1, bool w2) const
   if (w2) _workdat2.resize(_getNDat());
 }
 
-int SPDEOp::_addToDest(const constvect& inv, vect& outv) const
+int SPDEOp::_addToDest(const constvect inv, vect outv) const
 {
   return _addToDestImpl(inv, outv);
 }
 
-int SPDEOp::_addSimulateToDest(const constvect& whitenoise,
-                               vect& outv) const
+int SPDEOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 {
   DECLARE_UNUSED(whitenoise);
   DECLARE_UNUSED(outv);
@@ -85,35 +84,35 @@ VectorDouble SPDEOp::krigingWithGuess(const VectorDouble& dat,
   return outv;
 }
 
-int SPDEOp::kriging(const constvect& inv, vect& out) const
+int SPDEOp::kriging(const constvect inv, vect out) const
 {
   _buildRhs(inv);
   return _solve(_rhs, out);
 }
 
-int SPDEOp::krigingWithGuess(const constvect& inv,
-                             const constvect& guess,
-                             vect& out) const
+int SPDEOp::krigingWithGuess(const constvect inv,
+                             const constvect guess,
+                             vect out) const
 {
   _buildRhs(inv);
   return _solveWithGuess(_rhs, guess, out);
 }
 
-int SPDEOp::_solve(const constvect& in, vect& out) const
+int SPDEOp::_solve(const constvect in, vect out) const
 {
   _solver.solve(in, out);
   return 0;
 }
 
-int SPDEOp::_solveWithGuess(const constvect& in,
-                            const constvect& guess,
-                            vect& out) const
+int SPDEOp::_solveWithGuess(const constvect in,
+                            const constvect guess,
+                            vect out) const
 {
   _solver.solveWithGuess(in, guess, out);
   return 0;
 }
 
-int SPDEOp::_buildRhs(const constvect& inv) const
+int SPDEOp::_buildRhs(const constvect inv) const
 {
   _rhs.resize(_Q->getSize());
   vect w1(_workdat1);
@@ -132,8 +131,7 @@ int SPDEOp::_buildRhs(const constvect& inv) const
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOp::_addToDestImpl(const constvect& inv,
-                           vect& outv) const
+int SPDEOp::_addToDestImpl(const constvect inv, vect outv) const
 {
   _prepare();
   vect w1s(_workdat1);
@@ -144,7 +142,7 @@ int SPDEOp::_addToDestImpl(const constvect& inv,
   return _Q->addToDest(inv, outv);
 }
 
-void SPDEOp::evalInvCov(const constvect &inv, vect &result) const
+void SPDEOp::evalInvCov(const constvect inv, vect result) const
 {
   // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
   

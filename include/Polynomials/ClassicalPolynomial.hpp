@@ -52,18 +52,15 @@ public:
   //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,int iapex,int igparam)const;
   // void evalOp(const ALinearOpMulti* /*Op*/,
   //            const std::vector<Eigen::VectorXd>& /*inv*/,
-  //           std::vector<Eigen::VectorXd>& /*outv*/) const override { } 
-              
+  //           std::vector<Eigen::VectorXd>& /*outv*/) const override { }
 
-  void evalOpTraining(MatrixSparse *Op,
-                      const constvect &inv,
-                      std::vector<std::vector<double>> &store,
-                      std::vector<double> &work) const override;
-  void evalOpCumul(MatrixSparse *Op,
-                   const constvect &inv,
-                   vect &outv) const;
-  void evalOp(MatrixSparse* Op, const constvect& inv, vect& outv) const override;
-  void addEvalOp(ALinearOp* Op, const constvect& inv, vect& outv) const override;
+  void evalOpTraining(MatrixSparse* Op,
+                      const constvect inv,
+                      std::vector<std::vector<double>>& store,
+                      std::vector<double>& work) const override;
+  void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
+  void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
+  void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
 #endif
   
 #ifndef SWIG

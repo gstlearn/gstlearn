@@ -174,8 +174,10 @@ public:
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
   #ifndef SWIG
-    int prodMatVecInPlace(const constvect& x, vect& y, bool transpose = false) const;
-  #endif
+  int prodMatVecInPlace(const constvect x,
+                        vect y,
+                        bool transpose = false) const;
+#endif
   void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
@@ -213,7 +215,8 @@ public:
                       
 
 #ifndef SWIG
-  virtual int addProdMatVecInPlace(const constvect& x, vect& y, bool transpose= false) const;
+  virtual int
+  addProdMatVecInPlace(const constvect x, vect y, bool transpose = false) const;
 
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }
