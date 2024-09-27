@@ -124,7 +124,8 @@ public:
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
   CovAniso extractCova(int icov) const;
-  void   switchToGradient();
+  void switchToGradient();
+  bool   hasDrift() const;
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)

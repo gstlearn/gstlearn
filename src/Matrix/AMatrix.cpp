@@ -583,7 +583,7 @@ void AMatrix::prodMatMatInPlace(const AMatrix *x,
   int ni2 = (transposeY) ? y->getNRows() : y->getNCols();
   int nm2 = (transposeY) ? y->getNCols() : y->getNRows();
 
-  if (nm1 != nm2)
+  if (nm1 != ni2)
   {
     messerr("Matrices 'x' and 'y' should have matching dimensions");
     return;
@@ -594,7 +594,7 @@ void AMatrix::prodMatMatInPlace(const AMatrix *x,
 
   for (int irow = 0; irow < ni1; irow++)
   {
-    for (int icol = 0; icol < ni2; icol++)
+    for (int icol = 0; icol < nm2; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
 
@@ -643,7 +643,7 @@ void AMatrix::prodNormMatMatInPlace(const AMatrix* a,
     }
 }
 
-void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool transpose)
+void AMatrix::prodNormMatVecInPlace(const AMatrix &a, const VectorDouble& vec, bool transpose)
 {
   int n1 = (transpose) ? a.getNCols() : a.getNRows();
   int n2 = (transpose) ? a.getNRows() : a.getNCols();
@@ -1375,6 +1375,17 @@ void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
   prodMatMatInPlace(this, matY, false, transposeY);
 }
 
+/**
+ * @brief Perfom the algebraic equation
+ * this = val1 * mat1 + val2 * mat2 + val3 * mat3
+ *
+ * @param val1 Coefficient of first matrx
+ * @param mat1 First matrix (optional)
+ * @param val2 Coefficient of second matrix
+ * @param mat2 Second matrix (optional)
+ * @param val3 Coefficient of third matrix
+ * @param mat3 Third matrix (optional)
+ */
 void AMatrix::linearCombination(double val1,
                                 const AMatrix* mat1,
                                 double val2,
@@ -1406,6 +1417,7 @@ void AMatrix::linearCombination(double val1,
   for (int irow = 0; irow < getNRows(); irow++)
     for (int icol = 0; icol < getNCols(); icol++)
     {
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       double value = 0;
       if (mat1 != nullptr) value += val1 * mat1->getValue(irow, icol);
       if (mat2 != nullptr) value += val2 * mat2->getValue(irow, icol);

@@ -294,7 +294,9 @@ void AMatrixDense::prodMatMatInPlace(const AMatrix* x,
 }
 
 /**
- * Product of matrices: 'a' * 'm' (possibly transposed) stored in 'this'
+ * Product of matrices, stored in 'this'
+ * - transpose = true: t('a') * 'm' * 'a'
+ * - transpose = false:  'a' * 'm' * t('a')
  *
  * @param a First input matrix
  * @param m Second input matrix
@@ -323,7 +325,7 @@ void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense* a,
  * @param vec Input vector
  * @param transpose When True, the input Matrix is transposed
  */
-void AMatrixDense::prodNormMatInPlace(const AMatrixDense &a, const VectorDouble& vec, bool transpose)
+void AMatrixDense::prodNormMatVecInPlace(const AMatrixDense &a, const VectorDouble& vec, bool transpose)
 {
   if (transpose)
   {

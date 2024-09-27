@@ -119,9 +119,9 @@ public:
                                      const AMatrixDense* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const AMatrixDense &a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const AMatrixDense& a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
   VectorDouble               getEigenValues()  const { return _eigenValues; }
   const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }

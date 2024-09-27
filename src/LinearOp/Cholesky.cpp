@@ -84,15 +84,14 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 int  Cholesky::_addToDest(const constvect& inv,
                           vect& outv) const
 {
-
   if (!isValid()) return 1;
 
   if (_matCS->isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> invm(inv.data(),inv.size());
     Eigen::Map<Eigen::VectorXd> outvm(outv.data(),outv.size());
-    Eigen::VectorXd  temp(invm.size());
-    std::fill(temp.begin(),temp.end(),0.);
+    Eigen::VectorXd temp(invm.size());
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
     Eigen::ArrayXd Ddm = _cholSolver.vectorD().array().sqrt();
     Eigen::VectorXd DW = invm.array() * Ddm;
     Eigen::VectorXd Y = _cholSolver.matrixL() * DW;
@@ -250,7 +249,7 @@ int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
   if (_matCS->isFlagEigen())
   {
     Eigen::VectorXd  temp(x.size());
-    std::fill(temp.begin(),temp.end(),0.);
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
     Eigen::Map<const Eigen::VectorXd> bm(b.data(),b.size());
     Eigen::Map<Eigen::VectorXd> xm(x.data(),x.size());
     Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();

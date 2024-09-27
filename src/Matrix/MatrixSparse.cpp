@@ -1129,7 +1129,7 @@ MatrixSparse* prodNormMat(const MatrixSparse* a, const VectorDouble& vec, bool t
 {
   int nsym = (transpose) ? a->getNCols() : a->getNRows();
   MatrixSparse *mat = new MatrixSparse(nsym, nsym, a->isFlagEigen() ? 1 : 0);
-  mat->prodNormMatInPlace(a, vec, transpose);
+  mat->prodNormMatVecInPlace(a, vec, transpose);
   return mat;
 }
 
@@ -1195,7 +1195,7 @@ void MatrixSparse::prodNormDiagVecInPlace(const VectorDouble &vec, int oper_choi
   }
 }
 
-void MatrixSparse::prodNormMatInPlace(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
+void MatrixSparse::prodNormMatVecInPlace(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
 {
   if (!_checkLink(getNRows(), getNCols(), transpose, a->getNRows(), a->getNCols(),
                   false, vec.size(), 1, false)) return;

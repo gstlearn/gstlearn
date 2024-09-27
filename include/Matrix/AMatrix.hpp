@@ -122,9 +122,9 @@ public:
                              const AMatrix* m,
                              bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  void prodNormMatInPlace(const AMatrix &a,
-                          const VectorDouble &vec = VectorDouble(),
-                          bool transpose = false);
+  void prodNormMatVecInPlace(const AMatrix& a,
+                             const VectorDouble& vec = VectorDouble(),
+                             bool transpose          = false);
 
   /*! Modify the dimension of the matrix (if needed) */
   void resize(int nrows, int ncols);
