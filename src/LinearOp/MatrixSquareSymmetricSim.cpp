@@ -11,10 +11,12 @@
 
 #include "LinearOp/MatrixSquareSymmetricSim.hpp"
 #include "Basic/AStringable.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/AMatrixDense.hpp"
+#include <Eigen/src/Core/Matrix.h>
 
 MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,bool inverse)
 : _mat(m)
@@ -61,8 +63,8 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim()
   _sparse = dynamic_cast<MatrixSparse*>(this) != nullptr;
 }
 
-int MatrixSquareSymmetricSim::_addToDest(const Eigen::VectorXd& inv,
-                                               Eigen::VectorXd& outv) const
+int MatrixSquareSymmetricSim::_addToDest(const constvect& inv,
+                                               vect& outv) const
 {  
   if (_inverse)
   {
@@ -72,8 +74,8 @@ int MatrixSquareSymmetricSim::_addToDest(const Eigen::VectorXd& inv,
   messerr("MatrixSquareSymmetricSim::_addToDest not implemented for inverse = false.");
   return 1;
 }
-int MatrixSquareSymmetricSim::_addSimulateToDest(const Eigen::VectorXd& whitenoise,
-                                                       Eigen::VectorXd& outv) const
+int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect& whitenoise,
+                                                       vect& outv) const
 {  
 
 
@@ -87,13 +89,15 @@ int MatrixSquareSymmetricSim::_addSimulateToDest(const Eigen::VectorXd& whitenoi
   
   if (!isSparse())
   {
+    Eigen::Map<const Eigen::VectorXd> whitem(whitenoise.data(),whitenoise.size());
+    Eigen::Map<Eigen::VectorXd> outvm(outv.data(),outv.size());
     if (isInverse())
     {
-      outv.noalias() += _factorDense->matrixL().transpose().solve(whitenoise);
+      outvm.noalias() += _factorDense->matrixL().transpose().solve(whitem);
       return 0;
     }
     
-    outv.noalias() += _factorDense->matrixL() * whitenoise;
+    outvm.noalias() += _factorDense->matrixL() * whitem;
     return 0;
   }
   return 0;

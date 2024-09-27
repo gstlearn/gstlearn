@@ -59,7 +59,8 @@ public:
                                                    const VectorDouble &tl);
   static MatrixSquareSymmetric* createRandomDefinitePositive(int neq, int seed = 13242);
   static MatrixSquareSymmetric* sample(const MatrixSquareSymmetric* A,
-                                       const VectorInt& rowKeep);
+                                       const VectorInt& rowKeep,
+                                       bool flagInvert = false);
 
   int computeEigen(bool optionPositive = true);
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);

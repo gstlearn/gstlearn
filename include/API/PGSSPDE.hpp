@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 
 #include "Basic/NamingConvention.hpp"
 

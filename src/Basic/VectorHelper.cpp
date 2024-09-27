@@ -13,12 +13,14 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_define.h"
 
 #include <string.h>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
 #include <math.h>
+#include <vector>
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {
@@ -300,6 +302,15 @@ int VectorHelper::maximum(const VectorInt &vec, bool flagAbs)
     if (v > max) max = v;
   }
   return (max);
+}
+
+double VectorHelper::maximum(const std::vector<std::vector<double>> &vec, bool flagAbs)
+{
+  double val = VH::maximum(vec[0]);
+  for (int i = 1, n = (int) vec.size(); i < n; i++)
+    val = MAX(val,  VH::maximum(vec[i], flagAbs));
+  return val;
+
 }
 
 double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
@@ -618,6 +629,12 @@ double VectorHelper::stdv(const VectorDouble &vec, bool scaleByN)
 }
 
 double VectorHelper::norm(const VectorDouble &vec)
+{
+  double ip = innerProduct(vec, vec);
+  return sqrt(ip);
+}
+
+double VectorHelper::norm(const std::vector<double> &vec)
 {
   double ip = innerProduct(vec, vec);
   return sqrt(ip);
@@ -1015,6 +1032,18 @@ void VectorHelper::simulateGaussianInPlace(VectorDouble &vec,
   }
 }
 
+void VectorHelper::simulateGaussianInPlace(std::vector<double> &vec,
+                                           double mean,
+                                           double sigma)
+{
+  std::vector<double>::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it= mean + sigma * law_gaussian();
+    it++;
+  }
+}
+
 VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
                                        const VectorDouble &vecb)
 {
@@ -1210,6 +1239,34 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
   }
 }
 
+void VectorHelper::addInPlace(constvect& in,vect& dest)
+{
+  const double* inp = in.data();
+  double * outp = dest.data();
+  for (int i = 0; i < (int)in.size();i++)
+  {
+      *(outp++) +=  *(inp++);
+  }
+}
+void VectorHelper::addInPlace(std::vector<double>& dest, const std::vector<double> &src)
+{
+   if (dest.size() != src.size())
+  {
+    messerr("Arguments 'dest' and 'src' should have the same dimension. Nothing is done");
+    return;
+  }
+
+  VectorDouble::iterator itd(dest.begin());
+  VectorDouble::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd += *its;
+    itd++;
+    its++;
+  } 
+}
+
+
 /**
  * Performs: veca += vecb**2
  * @param dest Input/Output vector
@@ -1277,6 +1334,18 @@ void VectorHelper::addInPlace(const VectorVectorDouble &in1,
   }
 }
 
+void VectorHelper::addInPlace(const std::vector<std::vector<double>> &in1,
+                              const std::vector<std::vector<double>> &in2,
+                              std::vector<std::vector<double>> &outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    {
+      outv[is][i] = in2[is][i] + in1[is][i];
+    }
+  }
+}
 /**
  * Return a vector containing vecb - veca
  * @param veca Input Vector
@@ -1379,6 +1448,18 @@ void VectorHelper::subtractInPlace(const VectorVectorDouble &in1,
   }
 }
 
+void VectorHelper::substractInPlace(const std::vector<std::vector<double>> &in1,
+                                   const std::vector<std::vector<double>> &in2,
+                                   std::vector<std::vector<double>> &outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    {
+      outv[is][i] = in2[is][i] - in1[is][i];
+    }
+  }
+}
 
 void VectorHelper::multiplyInPlace(VectorDouble &vec, const VectorDouble &v)
 {
@@ -1411,6 +1492,21 @@ void VectorHelper::divideInPlace(VectorDouble &vec, const VectorDouble &v)
   }
 }
 
+void VectorHelper::divideInPlace(std::vector<double> &vec, const std::vector<double> &v)
+{
+  if (vec.size() != v.size())
+    my_throw("Arguments 'vec' and 'v' should have same dimension");
+
+  VectorDouble::iterator it(vec.begin());
+  VectorDouble::const_iterator itv(v.begin());
+  while (it < vec.end())
+  {
+    if (ABS(*itv) >= EPSILON20)
+      *it /= (*itv);
+    it++;
+    itv++;
+  }
+}
 void VectorHelper::multiplyConstant(VectorDouble &vec, double v)
 {
   std::for_each(vec.begin(), vec.end(), [v](double &d)
@@ -1451,7 +1547,32 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
       *(outp++) += val1 * *(inp++);
     }
 }
+void VectorHelper::addMultiplyVectVectInPlace(const constvect &in1,
+                                              const constvect &in2,
+                                              vect &out,
+                                              int iad)
+{ //TODO check if one can use eigen operators
+    double * outp = out.data() + iad;
+    const double* inp1 = in1.data();
+    const double* inp2 = in2.data();
+    for (int i = 0; i < (int)in1.size(); i++)
+    {
+      *(outp++) += *(inp1++)* *(inp2++);
+    }
+}
 
+void VectorHelper::addMultiplyConstantInPlace(double val1,
+                                              const constvect &in,
+                                              vect &out,
+                                              int iad)
+{
+    double * outp = out.data() + iad;
+    const double* inp = in.data();
+    for (int i = 0; i < (int)in.size();i++)
+    {
+      *(outp++) += val1 * *(inp++);
+    }
+}
 void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const VectorVectorDouble &in1,
                                               VectorVectorDouble &outv)
@@ -1504,7 +1625,16 @@ void VectorHelper::copy(const VectorInt &vecin, VectorInt &vecout, int size)
     itout++;
   }
 }
-
+void VectorHelper::copy(const std::vector<std::vector<double>> &inv, std::vector<std::vector<double>> &outv)
+{
+  for (int is = 0, ns = (int) inv.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) inv[is].size(); i < n; i++)
+    {
+      outv[is][i] = inv[is][i];
+    }
+  }
+}
 void VectorHelper::copy(const VectorVectorDouble &inv, VectorVectorDouble &outv)
 {
   for (int is = 0, ns = (int) inv.size(); is < ns; is++)
@@ -2010,6 +2140,20 @@ std::pair<double,double> VectorHelper::rangeVals(const VectorDouble& vec)
   return res;
 }
 
+double VectorHelper::innerProduct(const std::vector<double> &veca, const std::vector<double> &vecb, int size)
+{
+  if (size < 0) size = (int) veca.size();
+  if (size > (int) veca.size() || size > (int) vecb.size())
+    my_throw("Incompatible sizes");
+
+  return innerProduct(veca.data(), vecb.data(), size);  
+}
+
+double VectorHelper::innerProduct(const constvect &veca, const constvect &vecb)
+{
+    return innerProduct(veca.data(), vecb.data(), veca.size());
+}
+
 double VectorHelper::innerProduct(const VectorDouble &veca,
                                   const VectorDouble &vecb,
                                   int size)
@@ -2037,6 +2181,14 @@ double VectorHelper::innerProduct(const double* veca,
   return prod;
 }
 
+double VectorHelper::innerProduct(const std::vector<std::vector<double>> &x,
+                                  const std::vector<std::vector<double>> &y)
+{
+  double s = 0.;
+  for (int i = 0, n = (int) x.size(); i < n; i++)
+    s += VH::innerProduct(x[i], y[i]);
+  return s;
+}
 double VectorHelper::innerProduct(const VectorVectorDouble &x,
                                   const VectorVectorDouble &y)
 {
@@ -2109,7 +2261,15 @@ VectorVectorDouble VectorHelper::unflatten(const VectorDouble& vd, const VectorI
   return vvd;
 }
 
-void VectorHelper::unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd)
+void VectorHelper::flattenInPlace(const std::vector<std::vector<double>>& vvd, std::vector<double>& vd)
+{
+  int ecr = 0;
+  for (int i = 0; i < (int) vvd.size(); i++)
+    for (int j = 0; j < (int) vvd[i].size(); j++)
+      vd[ecr++] = (vvd[i][j]);
+}
+
+void VectorHelper::unflattenInPlace(const std::vector<double>& vd, std::vector<std::vector<double>>& vvd)
 {
   int lec = 0;
   for (int i = 0, n = (int) vvd.size(); i < n; i++)
@@ -2117,6 +2277,34 @@ void VectorHelper::unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& 
       vvd[i][j] = vd[lec++];
 }
 
+std::vector<double> VectorHelper::flatten(const std::vector<std::vector<double>>& vvd)
+{
+  std::vector<double> vd;
+
+  for (int i = 0; i < (int) vvd.size(); i++)
+    for (int j = 0; j < (int) vvd[i].size(); j++)
+      vd.push_back(vvd[i][j]);
+
+  return vd;
+
+}
+
+std::vector<std::vector<double>> VectorHelper::unflatten(const std::vector<double>& vd, const VectorInt& sizes)
+{
+ std::vector<std::vector<double>> vvd;
+
+  int lec = 0;
+  for (int i = 0, n = (int) sizes.size(); i < n; i++)
+  {
+    int lng = sizes[i];
+    VectorDouble local(lng);
+    for (int j = 0; j < lng; j++)
+      local[j] = vd[lec++];
+    vvd.push_back(local);
+  }
+  return vvd;
+
+}
 VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
 {
   VectorDouble vecout;
@@ -2142,7 +2330,26 @@ void VectorHelper::linearCombinationInPlace(double val1,
     outv[i] = value;
   }
 }
+void VectorHelper::linearCombinationVVDInPlace(double val1,
+                                          const std::vector<std::vector<double>> &vvd1,
+                                          double val2,
+                                          const std::vector<std::vector<double>> &vvd2,
+                                          std::vector<std::vector<double>> &outv)
+{
+if (vvd1.empty() || vvd2.empty()) return;
 
+  for (int is = 0, ns = (int) vvd1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) vvd1[is].size(); i < n; i++)
+    {
+      double value = 0.;
+      if (val1 != 0. && ! vvd1.empty()) value += val1 * vvd1[is][i];
+      if (val2 != 0. && ! vvd2.empty()) value += val2 * vvd2[is][i];
+      outv[is][i] = value;
+    }
+  }
+
+}
 void VectorHelper::linearCombinationVVDInPlace(double val1,
                                                const VectorVectorDouble &vvd1,
                                                double val2,

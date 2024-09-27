@@ -557,9 +557,15 @@ public:
                           const VectorDouble& means = VectorDouble(),
                           bool useSel               = true,
                           bool useVerr              = false) const;
-  static VectorInt getMultipleRanks(const VectorVectorInt& index,
-                                    const VectorInt& ivars = VectorInt(),
-                                    const VectorInt& nbgh  = VectorInt());
+  static VectorInt
+  getMultipleSelectedIndices(const VectorVectorInt& index,
+                             const VectorInt& ivars = VectorInt(),
+                             const VectorInt& nbgh  = VectorInt());
+  static VectorInt
+  getMultipleSelectedVariables(const VectorVectorInt& index,
+                               const VectorInt& ivars = VectorInt(),
+                               const VectorInt& nbgh  = VectorInt());
+
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 

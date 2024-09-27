@@ -49,10 +49,14 @@ public:
                                  bool flagShiftCol);
   static MatrixRectangular* sample(const AMatrix* A,
                                    const VectorInt& rowKeep = VectorInt(),
-                                   const VectorInt& colKeep = VectorInt());
+                                   const VectorInt& colKeep = VectorInt(),
+                                   bool flagInvertRow       = false,
+                                   bool flagInvertCol       = false);
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
-                const VectorInt& colFetch);
+                const VectorInt& colFetch,
+                bool flagInvertRow = false,
+                bool flagInvertCol = false);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
    */

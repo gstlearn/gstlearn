@@ -10,17 +10,14 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
-#include <Eigen/src/Core/Matrix.h>
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
-
-
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
-                                   const std::vector<const AMesh*>& meshes)
+                                   const VectorMeshes& meshes)
   : PrecisionOpMulti(model,meshes,false)
   , _Q(MatrixSparse(0,0))
 {
@@ -69,9 +66,9 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const Matrix
     {
       if (jvar <= ivar)
       {
-        const auto& vec {_invCholSillsNoStat[icov][IND(ivar, jvar, nvar)]};
-        Eigen::Map<const Eigen::VectorXd> inv(vec.data(), vec.size());
-        diag.setDiagonal(inv);
+        const auto& vec = &_invCholSillsNoStat[icov][IND(ivar, jvar, nvar)];
+        constvect vecs(vec->data(),vec->size());
+        diag.setDiagonal(vecs);
         MatrixSparse::glueInPlace(&currentRow,&diag ,1,0);
       }
       else 
@@ -91,38 +88,37 @@ const MatrixSparse* PrecisionOpMultiMatrix::getQ() const
 {
   if (_isSingle())
   {
-    return  ((PrecisionOpCs*)_pops[0])->getQ();
+    return ((PrecisionOpCs*)_pops[0])->getQ();
   }
-    return &_Q;
-  
+  return &_Q;
 }
 
 void PrecisionOpMultiMatrix::_prepareMatrix()
 {
   if (_isSingle()) return;
 
-  MatrixSparse current(0,0);
+  MatrixSparse current(0, 0);
   for (int istruct = 0; istruct < _getNCov(); istruct++)
-  {   
-    const MatrixSparse *Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
+  {
+    const MatrixSparse* Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
 
     if (_model->getVariableNumber() == 1)
     {
-      MatrixSparse::glueInPlace(&_Q,Q,1,1);
+      MatrixSparse::glueInPlace(&_Q, Q, 1, 1);
     }
-    else 
+    else
     {
       if (_isNoStatForVariance[istruct])
       {
-        current = _prepareMatrixNoStat(istruct,Q);
+        current = _prepareMatrixNoStat(istruct, Q);
       }
-      else 
+      else
       {
-        current = _prepareMatrixStationary(istruct,Q);
+        current = _prepareMatrixStationary(istruct, Q);
       }
-      MatrixSparse::glueInPlace(&_Q, &current,1,1);
+      MatrixSparse::glueInPlace(&_Q, &current, 1, 1);
     }
-  }    
+  }
 }
 
 PrecisionOpMultiMatrix::~PrecisionOpMultiMatrix()
@@ -135,12 +131,11 @@ void PrecisionOpMultiMatrix::_buildQop()
   for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
     CovAniso* cova = _model->getCova(_getCovInd(icov));
-    _pops.push_back(new PrecisionOpCs(_meshes[icov],cova));
+    _pops.push_back(new PrecisionOpCs(_meshes[icov], cova));
   }
 }
 
-
-int PrecisionOpMultiMatrix::_addToDestImpl(const Eigen::VectorXd &vecin,Eigen::VectorXd &vecout) const
+int PrecisionOpMultiMatrix::_addToDestImpl(const constvect &vecin, vect &vecout) const
 {
-  return getQ()->addToDest(vecin,vecout);
+  return getQ()->addToDest(vecin, vecout);
 }

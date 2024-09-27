@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Enum/EConsElem.hpp"
 
 #include "Basic/AStringable.hpp"

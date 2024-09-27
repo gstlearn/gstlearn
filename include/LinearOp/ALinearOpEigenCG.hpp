@@ -13,6 +13,8 @@
 #include "LinearOp/ALinearOp.hpp"
 
 #ifndef SWIG
+// iostream is included here as it is used in Eigen function (std::cerr)
+#include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>

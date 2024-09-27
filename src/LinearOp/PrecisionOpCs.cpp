@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "geoslib_f_private.h"
+#include "geoslib_define.h"
 
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/Cholesky.hpp"
@@ -18,10 +18,8 @@
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
@@ -49,17 +47,20 @@ PrecisionOpCs::~PrecisionOpCs()
   delete _chol;
 }
 
-void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X, 
-                            const Eigen::VectorXd &Y,
-                            Eigen::VectorXd& result,
+void PrecisionOpCs::gradYQX(const constvect & X, 
+                            const constvect &Y,
+                            vect& result,
                             const EPowerPT& power)
 {
   if (_work2.size() == 0) _work2.resize(getSize());
   if (_work3.size() == 0) _work3.resize(getSize());
   if (_work4.size() == 0) _work4.resize(getSize());
 
-  evalPower(X,_work3, power);
-  evalPower(Y,_work4, power);
+  vect w2s(_work2);
+  vect w3s(_work3);
+  vect w4s(_work4);
+  evalPower(X,w3s, power);
+  evalPower(Y,w4s, power);
   double temp,val;
   int iadress;
 
@@ -79,7 +80,7 @@ void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X,
       {
         result[iadress] = 0.;
       }
-      evalDeriv(X,_work2,iapex,igparam, power);
+      evalDeriv(X,w2s,iapex,igparam, power);
       for(int i = 0;i<getSize();i++)
       {
         result[iadress] += _work2[i]*Y[i];
@@ -89,17 +90,20 @@ void PrecisionOpCs::gradYQX(const Eigen::VectorXd & X,
 }
 
 
-void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,
-                                 Eigen::VectorXd& result, const EPowerPT& power)
+void PrecisionOpCs::gradYQXOptim(const constvect & X, const constvect &Y,
+                                 vect& result, const EPowerPT& power)
 {
   if (_work2.size() == 0) _work2.resize(getSize());
   if (_work3.size() == 0) _work3.resize(getSize());
   if (_work4.size() == 0) _work4.resize(getSize());
 
+  vect w2s(_work2);
+  vect w3s(_work3);
+  vect w4s(_work4);
   setTraining(false);
-  evalPower(Y,_work3, power);
+  evalPower(Y,w3s, power);
   setTraining(true);
-  evalPower(X,_work4, power);
+  evalPower(X,w4s, power);
 
   double temp,val;
   int iadress;
@@ -117,7 +121,7 @@ void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorX
         result[iadress] = (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
       }
 
-      evalDerivOptim(_work2, iapex, igparam, power);
+      evalDerivOptim(w2s, iapex, igparam, power);
       for (int i = 0; i < getSize(); i++)
       {
         result[iadress] += _work2[i] * Y[i];
@@ -126,12 +130,12 @@ void PrecisionOpCs::gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorX
   }
 }
 
-int PrecisionOpCs::_addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd &outv) const
+int PrecisionOpCs::_addToDest(const constvect &inv, vect &outv) const
 {
   return _Q->addToDest(inv, outv);
 } 
 
-int PrecisionOpCs::_addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const
+int PrecisionOpCs::_addSimulateToDest(const constvect& whitenoise, vect& outv) const
 {
   if (_chol == nullptr)
     _chol = new Cholesky(_Q);
@@ -139,7 +143,7 @@ int PrecisionOpCs::_addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::
   return 0;
 }
 
-void PrecisionOpCs::evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout)
+void PrecisionOpCs::evalInverse(const constvect& vecin, std::vector<double>& vecout)
 {
   _Q->solveCholesky(vecin, vecout);
 }
@@ -151,8 +155,9 @@ double PrecisionOpCs::getLogDeterminant(int nbsimu)
   return _Q->computeCholeskyLogDeterminant();
 }
 
-void PrecisionOpCs::evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,int iapex,int igparam, const EPowerPT& power)
+void PrecisionOpCs::evalDeriv(const constvect& inv, vect& outv,int iapex,int igparam, const EPowerPT& power)
 {
+  DECLARE_UNUSED(iapex,igparam)
   if (_work.size()==0) _work.resize(getSize());
 
   if (power == EPowerPT::MINUSONE)
@@ -163,27 +168,30 @@ void PrecisionOpCs::evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,
   my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::LOG'");
 
   // Pre-processing
-
-  getShiftOp()->prodLambda(inv, _work, EPowerPT::ONE);
+  vect ws(_work);
+  getShiftOp()->prodLambda(inv, ws, EPowerPT::ONE);
 
   // Polynomial evaluation
 
-  ((ClassicalPolynomial*) getPoly(power))->evalDerivOp(getShiftOp(), _work,
-                                                       outv, iapex, igparam);
+  // ((ClassicalPolynomial*) getPoly(power))->evalDerivOp(getShiftOp(), ws,
+  //                                                      outv, iapex, igparam);
 
   // Post-processing
 
   getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
-void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
+void PrecisionOpCs::evalDerivOptim(vect& outv,
                                    int iapex,
                                    int igparam,
                                    const EPowerPT& power)
 {
+  DECLARE_UNUSED(iapex,igparam)
   if (_work.size()  == 0) _work3.resize(getSize());
-  if (_work5.size() == 0) _work4.resize(getSize());
+  if (_work5.size() == 0) _work5.resize(getSize());
 
+  vect ws(_work);
+  vect w5s(_work5);
   if (power == EPowerPT::MINUSONE)
   my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
   if (power == EPowerPT::MINUSHALF)
@@ -191,10 +199,10 @@ void PrecisionOpCs::evalDerivOptim(Eigen::VectorXd& outv,
   if (power == EPowerPT::LOG)
   my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
 
-  ((ClassicalPolynomial*) getPoly(power))->evalDerivOpOptim(getShiftOp(), _work,
-                                                            _work5, outv,
-                                                            _workPoly, iapex,
-                                                            igparam);
+  // ((ClassicalPolynomial*) getPoly(power))->evalDerivOpOptim(getShiftOp(), ws,
+  //                                                           w5s, outv,
+  //                                                           _workPoly, iapex,
+  //                                                           igparam);
 
   // Post-processing
   getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);

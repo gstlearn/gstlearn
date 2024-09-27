@@ -10,16 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-
-#ifndef SWIG
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#endif
 
 #include <Eigen/src/Core/Matrix.h>
 
@@ -126,9 +122,9 @@ public:
                              const AMatrix* m,
                              bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  void prodNormMatInPlace(const AMatrix &a,
-                          const VectorDouble &vec = VectorDouble(),
-                          bool transpose = false);
+  void prodNormMatVecInPlace(const AMatrix& a,
+                             const VectorDouble& vec = VectorDouble(),
+                             bool transpose          = false);
 
   /*! Modify the dimension of the matrix (if needed) */
   void resize(int nrows, int ncols);
@@ -178,7 +174,7 @@ public:
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
   #ifndef SWIG
-    int prodMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose = false) const;
+    int prodMatVecInPlace(const constvect& x, vect& y, bool transpose = false) const;
   #endif
   void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */
@@ -217,7 +213,7 @@ public:
                       
 
 #ifndef SWIG
-  virtual int addProdMatVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y, bool transpose= false) const;
+  virtual int addProdMatVecInPlace(const constvect& x, vect& y, bool transpose= false) const;
 
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }

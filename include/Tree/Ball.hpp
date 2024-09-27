@@ -63,6 +63,11 @@ public:
   KNN queryOneAsVDFromSP(const SpacePoint& Pt, int n_neighbors = 1);
   VectorInt getIndices(const SpacePoint& Pt, int n_neighbors = 1);
   int queryClosest(const VectorDouble& test);
+  int queryOneInPlace(const VectorDouble& test,
+                      int n_neighbors,
+                      VectorInt& indices,
+                      VectorDouble& distances,
+                      int rank = 0);
   void display(int level = -1) const;
 
 protected:

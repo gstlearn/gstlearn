@@ -14,6 +14,7 @@
 
 #include "Matrix/AMatrix.hpp"
 #include "Basic/WarningMacro.hpp"
+#include <span>
 
 #ifndef SWIG
 DISABLE_WARNING_PUSH
@@ -100,6 +101,7 @@ public:
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
+  std::span<const double> getColumnPtr(int icol) const;
   /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
@@ -117,9 +119,9 @@ public:
                                      const AMatrixDense* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const AMatrixDense &a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const AMatrixDense& a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
   VectorDouble               getEigenValues()  const { return _eigenValues; }
   const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }

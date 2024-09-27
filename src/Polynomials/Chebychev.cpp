@@ -8,14 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
 #include "Polynomials/Chebychev.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Core/fftn.hpp"
-
-#include <Eigen/src/Core/Matrix.h>
+#include "LinearOp/ALinearOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include <math.h>
 #include <functional>
 
@@ -261,9 +261,9 @@ void Chebychev::_fillCoeffs(const std::function<double(double)>& f,double a, dou
 } */
 
 #ifndef SWIG
-void Chebychev::evalOp(MatrixSparse* S,const Eigen::VectorXd& x,Eigen::VectorXd& y) const
+void Chebychev::evalOp(MatrixSparse* S,const constvect& x,vect& y) const
 {
-  Eigen::VectorXd tm1, tm2, px, tx;
+  VectorDouble tm1, tm2, px, tx;
   int nvertex;
   MatrixSparse *T1;
 
@@ -292,7 +292,9 @@ void Chebychev::evalOp(MatrixSparse* S,const Eigen::VectorXd& x,Eigen::VectorXd&
     tm1[i] = 0.;
     y[i]   = x[i];
   }
-  if (T1->addVecInPlace(y, tm1)) my_throw("Problem in addVecInPlace");
+  constvect ys(y);
+  vect tm1s(tm1);
+  if (T1->addVecInPlace(ys, tm1s)) my_throw("Problem in addVecInPlace");
   for (int i=0; i<nvertex; i++)
   {
     px[i]  = _coeffs[0] * y[i] + _coeffs[1] * tm1[i];
@@ -321,7 +323,7 @@ void Chebychev::evalOp(MatrixSparse* S,const Eigen::VectorXd& x,Eigen::VectorXd&
   delete T1;
 }
 
-void Chebychev::addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+void Chebychev::addEvalOp(ALinearOp* Op,const constvect& inv, vect& outv) const
 {
   DECLARE_UNUSED(Op);
   DECLARE_UNUSED(inv);

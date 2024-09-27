@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ASimulable.hpp"
 #include "gstlearn_export.hpp"
 
@@ -19,12 +20,8 @@
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
+#include <vector>
 
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 #define IND(i,j,nvar) j * nvar + i - (j * (j + 1))/2
 
@@ -54,10 +51,10 @@ protected:
 #ifndef SWIG
 
 protected:
-  int _addToDest(const Eigen::VectorXd& vecin,
-                 Eigen::VectorXd& vecout) const override;
-  int _addSimulateToDest(const Eigen::VectorXd& vecin,
-                         Eigen::VectorXd& vecout) const override;
+  int _addToDest(const constvect& vecin,
+                 vect& vecout) const override;
+  int _addSimulateToDest(const constvect& vecin,
+                         vect& vecout) const override;
 #endif
 
 public:
@@ -74,8 +71,8 @@ protected:
   int _getNMesh() const;
 
 private:
-  virtual int _addToDestImpl(const Eigen::VectorXd& vecin,
-                             Eigen::VectorXd& vecout) const;
+  virtual int _addToDestImpl(const constvect& vecin,
+                             vect& vecout) const;
   bool _checkReady() const;
   virtual void _buildQop();
   bool _isValidModel(Model* model);
@@ -90,11 +87,10 @@ private:
   void _computeSize();
 
 protected:
-
   std::vector<PrecisionOp*> _pops;
   VectorBool _isNoStatForVariance;
-  std::vector<std::vector<Eigen::VectorXd>> _invCholSillsNoStat;
-  std::vector<std::vector<Eigen::VectorXd>> _cholSillsNoStat;
+  std::vector<VectorVectorDouble> _invCholSillsNoStat;
+  std::vector<VectorVectorDouble> _cholSillsNoStat;
   std::vector<MatrixSquareSymmetric> _invCholSills; // Inverse of Cholesky of the Sills
   std::vector<MatrixSquareSymmetric> _cholSills; // Cholesky of the Sills
   Model* _model; // Not to be deleted. TODO : make it const
@@ -109,6 +105,6 @@ private:
   bool _ready;
 
 private:
-  mutable std::vector<Eigen::VectorXd> _works;
-  mutable Eigen::VectorXd _workTot;
+  mutable VectorVectorDouble _works;
+  mutable VectorDouble _workTot;
 };
