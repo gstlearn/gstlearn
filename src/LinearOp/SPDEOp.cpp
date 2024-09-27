@@ -14,6 +14,7 @@
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "geoslib_define.h"
+#include <vector>
 
 SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
                const ProjMulti* const proj,
@@ -183,11 +184,11 @@ VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
     constvect ym(Z.data(),Z.size());
     constvect wd1(_workdat1.data(),_workdat1.size());
     XtInvSigmaZ[i] = VH::innerProduct(ym,wd1);
-
     for(int j = i; j < xsize;j++)
     {
-      // Eigen::Map<const Eigen::VectorXd> xmj(drifts[j].data(),drifts[j].size());
-      // XtInvSigmaX.setValue(i,j,  xmj.adjoint() * wd1);
+      constvect xmj = drifts.getViewOnColumn(j);
+      double prod = VH::innerProduct(xmj,w1s);
+      XtInvSigmaX.setValue(i,j,prod);
     }
   }
 

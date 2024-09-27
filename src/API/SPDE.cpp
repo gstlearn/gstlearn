@@ -1091,6 +1091,8 @@ VectorDouble krigingSPDENew(Db* dbin,
                             Model* model,
                             const VectorMeshes& meshes,
                             int useCholesky,
+                            const SPDEParam& params,
+                            int nbMC = 10,
                             bool verbose,
                             const NamingConvention& namconv)
 {
