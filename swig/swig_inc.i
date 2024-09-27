@@ -673,3 +673,21 @@
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
 
+%extend Grid {
+  double indiceToCoordinate(int idim0, const VectorInt& indice,
+                            const VectorDouble& percent = {},
+                            bool flag_rotate            = true) const
+  {
+    return $self->indiceToCoordinate(idim0, indice.getVector(), percent.getVector(), flag_rotate);
+  }
+
+  int indiceToRank(const VectorInt &indice) const
+  {
+    return $self->indiceToRank(indice.getVector());
+  }
+
+  void rankToIndice(int rank, VectorInt &indices, bool minusOne = false) const
+  {
+    return $self->rankToIndice(rank, indices.getVector(), minusOne);
+  }
+};
