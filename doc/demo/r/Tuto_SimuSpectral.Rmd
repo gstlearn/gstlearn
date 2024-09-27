@@ -1,8 +1,9 @@
 ---
 title: "Spectral simulation of random functions"
 author: "gstlearn Core Team"
-date: '2024-02-13'
+date: "2024-02-13"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 editor_options:
@@ -59,12 +60,7 @@ nb <- 1000 # number of spectral components
 ns <- 10   # number of simulations
 seed <- 13112 # Seed for the first simulation
 
-sims = SimuSpectral(mod)
-for (n in 1:ns) {
-  sims$simulate(nb = nb, seed = seed)
-  sims$compute(grid, namconv = NamingConvention(paste("S", n, sep = "."))) 
-  seed = 0 # The seed for the next simulations is not given anymore
-}
+err = simuSpectral(NULL, grid, mod, ns, nb, seed=seed , namconv = NamingConvention("S"))
 ```
 
 
@@ -119,14 +115,11 @@ mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
 grid1 = DbGrid_create(nx = c(256, 256))
 grid2 = DbGrid_create(nx = c(100, 100), x0 = c(200, 200), dx = c(1,1))
 
-# Initialization of the simulator
-seed <- 3132
-sims = SimuSpectral(mod)
-sims$simulate(nb = nb, seed = seed)
-
 # computing the simulation on two intersecting grids
-err = sims$compute(db = grid1, namconv = NamingConvention("S1"))
-err = sims$compute(db = grid2, namconv = NamingConvention("S1"))
+seed <- 3132
+err = simuSpectral(NULL, grid1, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
+err = simuSpectral(NULL, grid2, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
+
 
 p = ggDefaultGeographic() +
   plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
@@ -154,8 +147,10 @@ db["grid1.S1"] <- grid1$getColumn(name = "S1", useSel = TRUE)
 err = db$setLocators(c("x1", "x2"), ELoc_X(), cleanSameLocator = TRUE)
 err = grid1$clearSelection()
 
+
 # computing the simulation on scattered points
-err = sims$compute(db = db, namconv = NamingConvention("S1"))
+err = simuSpectral(NULL, db, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
+
 
 p1 = ggDefaultGeographic() +
   plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
@@ -215,12 +210,10 @@ dx <- c(1., 1., 1.)
 x0 <- c(10, 1000, 2)
 grid = DbGrid_create(nx = nx, x0 = x0, dx = dx)
 
-# Initialization of the simulator
-sims = SimuSpectral(mod)
-sims$simulate(nb = nb, seed = seed)
-
 # computing the simulation on the grid
-err = sims$compute(dbout = grid, namconv = NamingConvention("S1"))
+
+err = simuSpectral(NULL, grid, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
+
 ```
 
 ```{r 3d_controls, echo = TRUE, eval = TRUE}

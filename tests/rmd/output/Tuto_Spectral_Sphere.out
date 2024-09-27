@@ -1,0 +1,10 @@
+NULL
+NULL
+
+
+Table: Statistics for simulation of Matern model on S2
+
+|     | Number|   Minimum|  Maximum|     Mean| St. Dev.|
+|:----|------:|---------:|--------:|--------:|--------:|
+|Simu |  64800| -1.718601| 3.114409| 0.478934|  0.80359|
+NULL
