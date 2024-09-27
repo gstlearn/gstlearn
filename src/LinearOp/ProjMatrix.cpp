@@ -108,7 +108,7 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
   return 0;
 }
  */
-int ProjMatrix::_addMesh2point(const constvect& inv, vect& outv) const
+int ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
 {
   if ((int) inv.size() != getApexNumber())
   {
@@ -127,7 +127,7 @@ int ProjMatrix::_addMesh2point(const constvect& inv, vect& outv) const
   return 0;
 }
 
-int ProjMatrix::_addPoint2mesh(const constvect& inv, vect& outv) const
+int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 {
   if ((int) inv.size() != getPointNumber())
   {

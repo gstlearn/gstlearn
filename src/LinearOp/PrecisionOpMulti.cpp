@@ -77,10 +77,10 @@
       iad_struct += napices * nvar;\
     }\
     if (COMPUTEOP) return 0;\
-  }\
+  }
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
-                                   const std::vector<const AMesh*>& meshes,
+                                   const VectorMeshes& meshes,
                                    bool buildOp)
   : _pops()
   , _invCholSills()
@@ -88,7 +88,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   , _model(nullptr)
   , _meshes()
   , _isValid(false)
-  , _covList() 
+  , _covList()
   , _allStat(true)
   , _ready(false)
 {
@@ -346,8 +346,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PrecisionOpMulti::_addToDestImpl(const constvect& vecin,
-                                     vect& vecout) const
+int PrecisionOpMulti::_addToDestImpl(const constvect vecin, vect vecout) const
 {
   if (!_checkReady()) return 1;
   if (_getNVar() > 1)
@@ -364,8 +363,7 @@ int PrecisionOpMulti::_addToDestImpl(const constvect& vecin,
   }
 }
 
-int PrecisionOpMulti::_addToDest(const constvect& vecin,
-                                 vect& vecout) const
+int PrecisionOpMulti::_addToDest(const constvect vecin, vect vecout) const
 {
   return _addToDestImpl(vecin,vecout);
   
@@ -376,8 +374,8 @@ int PrecisionOpMulti::_addToDest(const constvect& vecin,
  * @param vecout Output array
  */
 
-int PrecisionOpMulti::_addSimulateToDest(const constvect& vecin,
-                                               vect& vecout) const
+int PrecisionOpMulti::_addSimulateToDest(const constvect vecin,
+                                         vect vecout) const
 {
   if (!_checkReady()) return 1;
   EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,y,jvar,nvar,ivar,jvar)

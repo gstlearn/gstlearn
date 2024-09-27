@@ -44,7 +44,9 @@ double ClassicalPolynomial::eval(double x) const
 // Horner scheme starting from the lowest degree
 // (since it adds the result to the input vector, the classical scheme can t be used)
 #ifndef SWIG
-void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const constvect& inv, vect& outv) const
+void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op,
+                                      const constvect inv,
+                                      vect outv) const
 {
   int n = static_cast<int> (inv.size());
   VectorDouble work(n);
@@ -80,7 +82,9 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const constvect& inv, ve
   }
 }
 
-void ClassicalPolynomial::addEvalOp(ALinearOp* Op,const constvect& inv, vect& outv) const
+void ClassicalPolynomial::addEvalOp(ALinearOp* Op,
+                                    const constvect inv,
+                                    vect outv) const
 {
   int n = static_cast<int> (inv.size());
 
@@ -124,8 +128,8 @@ void ClassicalPolynomial::addEvalOp(ALinearOp* Op,const constvect& inv, vect& ou
 
 // Classical Hörner scheme starting from the highest degree
 void ClassicalPolynomial::evalOp(MatrixSparse* Op,
-                                 const constvect& inv,
-                                 vect & outv) const
+                                 const constvect inv,
+                                 vect outv) const
 {
   int n = static_cast<int>(inv.size());
   std::vector<double> work(n);
@@ -144,10 +148,11 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
 }
 
 // Classical Hörner scheme starting from the highest degree
-void ClassicalPolynomial::evalOpTraining(MatrixSparse *Op,
-                                         const constvect &inv,
-                                         std::vector<std::vector<double>> &store,
-                                         std::vector<double> &work) const
+void ClassicalPolynomial::evalOpTraining(
+  MatrixSparse* Op,
+  const constvect inv,
+  std::vector<std::vector<double>>& store,
+  std::vector<double>& work) const
 {
   int n = static_cast<int>(inv.size());
 

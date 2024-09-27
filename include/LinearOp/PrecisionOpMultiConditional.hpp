@@ -73,7 +73,7 @@ protected:
     void simulateOnMeshings(std::vector<std::vector<double>> &result) const;
     void simulateOnMeshing(std::vector<double>& result,int icov = 0) const;
     void simulateOnDataPointFromMeshings(const std::vector<std::vector<double>>& simus,std::vector<double>& result) const;
-    void evalInvCov(const constvect& inv, std::vector<double>& result) const;
+    void evalInvCov(const constvect inv, std::vector<double>& result) const;
     double computeQuadratic(const std::vector<double>& x) const;
 
 #endif

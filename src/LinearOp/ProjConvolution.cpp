@@ -126,8 +126,8 @@ void ProjConvolution::_buildShiftVector()
   }
 }
 
-bool ProjConvolution::_isVecDimCorrect(const constvect &valonseismic,
-                                       const constvect &valonvertex) const
+bool ProjConvolution::_isVecDimCorrect(const constvect valonseismic,
+                                       const constvect valonvertex) const
 {
   if ((int) valonvertex.size() != getApexNumber())
   {
@@ -156,8 +156,8 @@ bool ProjConvolution::_isVecDimCorrect(const constvect &valonseismic,
  * @param valonvertex  Output vector defined on the Coarse Grid
  * @return
  */
-int ProjConvolution::_addPoint2mesh(const constvect &valonseismic,
-                                    vect &valonvertex) const
+int ProjConvolution::_addPoint2mesh(const constvect valonseismic,
+                                    vect valonvertex) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
@@ -187,8 +187,8 @@ int ProjConvolution::_addPoint2mesh(const constvect &valonseismic,
  * @param valonseismic  Output vector defined on the Seismic grid
  * @return
  */
-int ProjConvolution::_addMesh2point(const constvect &valonvertex,
-                                    vect &valonseismic) const
+int ProjConvolution::_addMesh2point(const constvect valonvertex,
+                                    vect valonseismic) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
@@ -215,8 +215,8 @@ int ProjConvolution::_addMesh2point(const constvect &valonvertex,
   return 0;
 }
 
-void ProjConvolution::_convolve(const constvect &valonvertex,
-                                vect &valonseismic) const
+void ProjConvolution::_convolve(const constvect valonvertex,
+                                vect valonseismic) const
 {
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
@@ -241,8 +241,8 @@ void ProjConvolution::_convolve(const constvect &valonvertex,
   }
 }
 
-void ProjConvolution::_convolveT(const constvect &valonseismic,
-                                 vect &valonvertex) const
+void ProjConvolution::_convolveT(const constvect valonseismic,
+                                 vect valonvertex) const
 {
   std::fill(valonvertex.begin(),valonvertex.end(), 0.);
   int count = (int) valonseismic.size();

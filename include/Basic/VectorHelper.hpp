@@ -97,21 +97,21 @@ public:
   
   #ifndef SWIG
   static void addMultiplyConstantInPlace(double val1,
-                                  const constvect &in,
-                                  vect &out,
-                                  int iad);
-  static double innerProduct(const constvect &veca, const constvect &vecb);
+                                         const constvect in,
+                                         vect out,
+                                         int iad);
+  static double innerProduct(const constvect veca, const constvect vecb);
 
-  static void addMultiplyVectVectInPlace(const constvect &in1,
-                                         const constvect &in2,
-                                         vect &out,
+  static void addMultiplyVectVectInPlace(const constvect in1,
+                                         const constvect in2,
+                                         vect out,
                                          int iad);
   static void addInPlace(const std::vector<std::vector<double>> &in1,
                               const std::vector<std::vector<double>> &in2,
                               std::vector<std::vector<double>> &outv);
-  static void addInPlace(constvect& in,vect& dest);
-                            
-  #endif
+  static void addInPlace(constvect in, vect dest);
+
+#endif
   static VectorDouble add(const VectorDouble &veca, const VectorDouble &vecb);
   static void addInPlace(VectorDouble &dest, const VectorDouble &src);
   static void addInPlace(std::vector<double>& dest, const std::vector<double> &src);
@@ -226,6 +226,7 @@ public:
   static VectorDouble revert(const VectorDouble& vecin);
   static VectorInt    revert(const VectorInt& vecin);
   static VectorDouble sample(const VectorDouble& vecin, const VectorInt& indKeep);
+  
   static void arrangeInPlace(int safe,
                              VectorInt& ranks,
                              VectorDouble& values,

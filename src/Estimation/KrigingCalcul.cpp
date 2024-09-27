@@ -31,7 +31,8 @@ KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
   , _Means(nullptr)
   , _Zp(nullptr)
   , _rankColCok(nullptr)
-  , _rankXvalid(nullptr)
+  , _rankXvalidEqs(nullptr)
+  , _rankXvalidVars(nullptr)
   , _Zstar()
   , _Beta()
   , _LambdaSK(nullptr)
@@ -54,6 +55,8 @@ KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
   , _Y0p(nullptr)
   , _Z0p()
   , _Lambda0(nullptr)
+  , _C_RHS(nullptr)
+  , _X_RHS(nullptr)
 
   , _neq(0)
   , _nbfl(0)
@@ -108,11 +111,11 @@ void KrigingCalcul::resetLinkedToBayes()
 void KrigingCalcul::resetLinkedToColCok()
 {
   _deleteZp();
-  _deleteRankColCok();
+  _deleteColCok();
 }
 void KrigingCalcul::resetLinkedToXvalid()
 {
-  _deleteRankXvalid();
+  _deleteXvalid();
 }
 
 void KrigingCalcul::_deleteX()
@@ -335,7 +338,7 @@ void KrigingCalcul::_deleteZp()
   _deleteZ0p();
   // Cannot delete _Zp due to constness
 }
-void KrigingCalcul::_deleteRankColCok()
+void KrigingCalcul::_deleteColCok()
 {
   _deleteX0p();
   _deleteZ0p();
@@ -344,10 +347,14 @@ void KrigingCalcul::_deleteRankColCok()
   _deleteSigma00pp();
   // Cannot delete _rankColCok due to constness
 }
-void KrigingCalcul::_deleteRankXvalid()
+void KrigingCalcul::_deleteXvalid()
 {
   _nxvalid = 0;
-  // Cannot delete _rankXvalid due to constness
+  // Cannot delete _rankXvalidEqs or _rankXvalidVars due to constness
+  delete _C_RHS;
+  _C_RHS = nullptr;
+  delete _X_RHS;
+  _X_RHS = nullptr;
 }
 
 /**
@@ -497,6 +504,16 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
   return true;
 }
 
+/**
+ * @brief Define the inforlation for Collocated Option
+ *
+ * @param Zp Vector of the Collocated variables (see note)
+ * @param rankColCok Vector of ranks of Collocated variables
+ * @return int Error return code
+ *
+ * @note The argument 'Zp' must be corrected by the mean of the variables
+ * for the use of Collocated Option in Simple Kriging
+ */
 int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
                                    const VectorInt* rankColCok)
 {
@@ -515,7 +532,7 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
   int ncck = (int) rankColCok->size();
   if (ncck >= _nrhs)
   {
-    messerr("All variables may be collocated");
+    messerr("All variables may not be collocated");
     return 1;
   }
 
@@ -529,19 +546,23 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
 /**
  * @brief Define the elements of the input Db to be cross-validated
  *
- * @param rankXvalid Vector of variable ranks to be cross-validated
+ * @param rankXvalidEqs Vector of equation ranks to be cross-validated
+ * @param rankXvalidVars Vector of variable ranks to be cross-validated
  * @return int Error return code
+ *
+ * @remarks The argument 'rankXvalidVars' only serves in assigning the
+ * mean of the correct cross-validated variable (SK only). It is optional in OK
  */
-int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalid)
+int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs, const VectorInt* rankXvalidVars)
 {
-  if (rankXvalid == nullptr) return 1;
-  if (rankXvalid->size() <= 0) return 1;
+  if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
+  if (rankXvalidEqs->size() <= 0 || rankXvalidVars->size() <= 0) return 1;
   resetLinkedToXvalid();
-  _nrhs = 0;
-  _rankXvalid = rankXvalid;
-  _nxvalid    = (int)rankXvalid->size();
-  VH::display("Rank of the xvalidated information", *rankXvalid);
-  return _patchSigma0ForXvalidUnique();
+  _nrhs           = 0;
+  _rankXvalidEqs  = rankXvalidEqs;
+  _rankXvalidVars = rankXvalidVars;
+  _nxvalid        = (int)rankXvalidEqs->size();
+  return _patchRHSForXvalidUnique();
 }
 
 int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
@@ -610,15 +631,13 @@ const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
   return _VarZUK;
 }
 
-const MatrixRectangular* KrigingCalcul::getLambdaSK()
+const MatrixRectangular* KrigingCalcul::getLambda()
 {
-  if (_needLambdaSK()) return nullptr;
-  return _LambdaSK;
-}
-
-const MatrixRectangular* KrigingCalcul::getLambdaUK()
-{
-  if (_nbfl <= 0) return nullptr;
+  if (_flagSK)
+  {
+    if (_needLambdaSK()) return nullptr;
+    return _LambdaSK;
+  }
   if (_needLambdaUK()) return nullptr;
   return _LambdaUK;
 }
@@ -629,7 +648,7 @@ const MatrixRectangular* KrigingCalcul::getLambda0()
   return _Lambda0;
 }
 
-const MatrixRectangular* KrigingCalcul::getMuUK()
+const MatrixRectangular* KrigingCalcul::getMu()
 {
   if (_needMuUK()) return nullptr;
   return _MuUK;
@@ -637,6 +656,7 @@ const MatrixRectangular* KrigingCalcul::getMuUK()
 
 const MatrixSquareSymmetric* KrigingCalcul::getPostCov()
 {
+  // At this stage, the posterior covariance is contained in '_Sigmac'
   if (_needSigmac()) return nullptr;
   return _Sigmac;
 }
@@ -708,7 +728,9 @@ int KrigingCalcul::_needZstar()
     // Adding Mean per Variable
     if (_flagSK)
     {
-      VH::linearCombinationInPlace(1., _Zstar, 1., *_Means, _Zstar);
+      VectorDouble localMeans = *_Means;
+      if (_nxvalid > 0) localMeans = VH::sample(*_Means, *_rankXvalidVars);
+      VH::linearCombinationInPlace(1., _Zstar, 1., localMeans, _Zstar);
     }
 
     if (_flagBayes)
@@ -735,6 +757,37 @@ int KrigingCalcul::_needZstar()
   return 0;
 }
 
+int KrigingCalcul::_patchColCokVarianceZstar(MatrixSquareSymmetric *varZK)
+{
+  if (_needLambda0()) return 1;
+  if (_needSigma0p()) return 1;
+  if (_needSigma00pp()) return 1;
+  MatrixSquareSymmetric* L0tCL0 = new MatrixSquareSymmetric(_nrhs);
+  L0tCL0->prodNormMatMatInPlace(_Lambda0, _Sigma00pp, true);
+
+  MatrixRectangular* p2 = new MatrixRectangular(_nrhs, _ncck);
+  p2->prodMatMatInPlace(_Lambda0, _Sigma0p, true, true);
+  MatrixSquareSymmetric* L0tCLK = new MatrixSquareSymmetric(_nrhs);
+
+  if (_flagSK)
+  {
+    if (_needLambdaSK()) return 1;
+    L0tCLK->prodMatMatInPlace(p2, _LambdaSK);
+  }
+  else
+  {
+    if (_needLambdaUK()) return 1;
+    L0tCLK->prodMatMatInPlace(p2, _LambdaUK);
+  }
+  delete p2;
+
+  varZK->linearCombination(1., varZK, 2., L0tCLK, 1., L0tCL0);
+  delete L0tCL0;
+  delete L0tCLK;
+
+  return 0;
+}
+
 int KrigingCalcul::_needVarZSK()
 {
   if (_VarZSK != nullptr) return 0;
@@ -742,6 +795,11 @@ int KrigingCalcul::_needVarZSK()
   if (_needLambdaSK()) return 1;
   _VarZSK = new MatrixSquareSymmetric(_nrhs);
   _VarZSK->prodMatMatInPlace(_LambdaSK, _Sigma0, true, false);
+
+  if (_ncck > 0)
+  {
+    if (_patchColCokVarianceZstar(_VarZSK)) return 1;
+  }
   return 0;
 }
 
@@ -755,24 +813,7 @@ int KrigingCalcul::_needVarZUK()
 
   if (_ncck > 0)
   {
-    if (_needLambda0()) return 1;
-    if (_needSigma0p()) return 1;
-    if (_needSigma00pp()) return 1;
-    MatrixRectangular* p1 = new MatrixRectangular(_nrhs, _ncck);
-    p1->prodMatMatInPlace(_Lambda0, _Sigma00pp, true);
-    MatrixSquareSymmetric* LCLt = new MatrixSquareSymmetric(_nrhs);
-    LCLt->prodMatMatInPlace(p1, _Lambda0);
-    delete p1;
-
-    MatrixRectangular* p2 = new MatrixRectangular(_nrhs, _ncck);
-    p2->prodMatMatInPlace(_Lambda0, _Sigma0p, true, true);
-    MatrixSquareSymmetric* LC0tLUK = new MatrixSquareSymmetric(_nrhs);
-    LC0tLUK->prodMatMatInPlace(p2, _LambdaUK);
-    delete p2;
-
-    _VarZUK->linearCombination(1., _VarZUK, 2., LC0tLUK, 1., LCLt);
-    delete LCLt;
-    delete LC0tLUK;
+    if (_patchColCokVarianceZstar(_VarZUK)) return 1;
   }
   return 0;
 }
@@ -794,7 +835,7 @@ int KrigingCalcul::_needStdv()
     if (_needLambdaUK()) return 1;
     if (_needSigma0()) return 1;
     if (_needMuUK()) return 1;
-    _Stdv = _Sigma00->clone();
+    _Stdv                 = _Sigma00->clone();
     MatrixRectangular* p1 = new MatrixRectangular(_nrhs, _nrhs);
     p1->prodMatMatInPlace(_LambdaUK, _Sigma0, true);
     MatrixRectangular* p2 = new MatrixRectangular(_nrhs, _nrhs);
@@ -802,17 +843,17 @@ int KrigingCalcul::_needStdv()
     _Stdv->linearCombination(1, _Stdv, -1., p1, +1., p2);
     delete p1;
     delete p2;
+
+    if (_ncck > 0)
+    {
+      if (_needSigma00p()) return 1;
+      MatrixSquareSymmetric* p1 = new MatrixSquareSymmetric(_nrhs);
+      p1->prodMatMatInPlace(_Sigma00p, _Lambda0, true);
+      _Stdv->linearCombination(1., _Stdv, -1., p1);
+      delete p1;
+    }
   }
 
-  if (_ncck > 0)
-  {
-    if (_needSigma00p()) return 1;
-    MatrixSquareSymmetric* p1 = new MatrixSquareSymmetric(_nrhs);
-    p1->prodMatMatInPlace(_Sigma00p, _Lambda0, true);
-    _Stdv->linearCombination(1., _Stdv, -1., p1);
-    delete p1;
-  }
-  
   // Transform variance into standard deviation
 
   for (int irow = 0; irow < _nrhs; irow++)
@@ -860,7 +901,7 @@ int KrigingCalcul::_needZ0p()
 {
   if (! _Z0p.empty()) return 0;
   if (_needZp()) return 1;
-  if (_needRankColCok()) return 1;
+  if (_needColCok()) return 1;
 
   // Sample the active values for collocated information
   _Z0p = VH::sample(*_Zp, *_rankColCok);
@@ -887,9 +928,6 @@ int KrigingCalcul::_needSigmac()
   _Sigmac = new MatrixSquareSymmetric(_nbfl);
   _Sigmac->prodMatMatInPlace(_XtInvSigma, _X);
 
-  message("Sigmac\n");
-  _Sigmac->display();
-
   // Bayesian case
   if (_flagBayes)
   {
@@ -906,16 +944,16 @@ int KrigingCalcul::_needSigma00p()
 {
   if (_Sigma00p != nullptr) return 0;
   if (_needSigma00()) return 1;
-  if (_needRankColCok()) return 1;
+  if (_needColCok()) return 1;
   _Sigma00p = MatrixRectangular::sample(_Sigma00, *_rankColCok, VectorInt());
   return 0;
 }
 
 int KrigingCalcul::_needSigma00pp()
 {
-  if (_Sigma00 != nullptr) return 0;
+  if (_Sigma00pp != nullptr) return 0;
   if (_needSigma00()) return 1;
-  if (_needRankColCok()) return 1;
+  if (_needColCok()) return 1;
   _Sigma00pp = MatrixSquareSymmetric::sample(_Sigma00, *_rankColCok);
   return 0;
 }
@@ -924,7 +962,7 @@ int KrigingCalcul::_needSigma0p()
 {
   if (_Sigma0p != nullptr) return 0;
   if (_needSigma0()) return 1;
-  if (_needRankColCok()) return 1;
+  if (_needColCok()) return 1;
 
   _Sigma0p = MatrixRectangular::sample(_Sigma0, VectorInt(), *_rankColCok);
   return 0;
@@ -934,7 +972,7 @@ int KrigingCalcul::_needX0p()
 {
   if (_X0p != nullptr) return 0;
   if (_needX0()) return 1;
-  if (_needRankColCok()) return 1;
+  if (_needColCok()) return 1;
 
   _X0p = MatrixRectangular::sample(_X0, *_rankColCok, VectorInt());
   return 0;
@@ -1028,7 +1066,7 @@ int KrigingCalcul::_needInvSigmaSigma0()
   return 0;
 }
 
-int KrigingCalcul::_patchSigma0ForXvalidUnique()
+int KrigingCalcul::_patchRHSForXvalidUnique()
 {
   resetLinkedToRHS();
   resetLinkedtoVar0();
@@ -1036,49 +1074,84 @@ int KrigingCalcul::_patchSigma0ForXvalidUnique()
   if (_needInvSigma()) return 1;
   if (_needSigma()) return 1;
   if (_needSigma00()) return 1;
-  if (_needRankXvalid()) return 1;
+  if (_needXvalid()) return 1;
 
-  VH::display("rankxvalid", *_rankXvalid);
-  message("Sigma\n");
-  _Sigma->display();
+  // Extract S00
   MatrixSquareSymmetric* S00 =
-    MatrixSquareSymmetric::sample(_Sigma, *_rankXvalid);
-  message("Sigma_00\n");
-  S00->display();
-  MatrixSquareSymmetric* w =
-    MatrixSquareSymmetric::sample(_InvSigma, *_rankXvalid);
-  message("W\n");
-  w->display();
-  w->invert();
-  w->linearCombination(1., S00, -1., w);
-  message("Patch for S0\n");
-  w->display();
+    MatrixSquareSymmetric::sample(_Sigma, *_rankXvalidEqs);
 
-  MatrixRectangular* S0 =
-    MatrixRectangular::sample(_Sigma, VectorInt(), *_rankXvalid);
-  message("Vector S0\n");
-  S0->display();
-  S0->unsample(w, *_rankXvalid, VectorInt());
-  message("S0 apres patch\n");
-  S0->display();
-  delete w;
+  // Extract alpha and invert it
+  MatrixSquareSymmetric* alpha =
+    MatrixSquareSymmetric::sample(_InvSigma, *_rankXvalidEqs);
+  MatrixSquareSymmetric* InvAlpha = alpha->clone();
+  InvAlpha->invert();
 
-  MatrixRectangular* X0 = nullptr;
+  // Calculate a1 term
+  MatrixSquareSymmetric* omega = new MatrixSquareSymmetric(_nxvalid);
+  omega->linearCombination(1., S00, -1., InvAlpha);
+
   if (_nbfl > 0)
   {
-    message("X avant\n");
-    _X->display();
-    X0 = MatrixRectangular::sample(_X, *_rankXvalid, VectorInt());
-    message("X0 apres\n");
-    X0->display();
-    setTarget(S0->clone(), X0->clone());
-  }
-  else
-  {
-    setTarget(S0->clone());
+    // Extract beta
+    MatrixRectangular* beta = MatrixRectangular::sample(
+      _InvSigma, *_rankXvalidEqs, *_rankXvalidEqs, false, true);
+
+    // Extracting delta
+    MatrixSquareSymmetric* delta =
+      MatrixSquareSymmetric::sample(_InvSigma, *_rankXvalidEqs, true);
+
+    // Extract Drift matrix at target point
+    MatrixRectangular* X0 =
+      MatrixRectangular::sample(_X, *_rankXvalidEqs, VectorInt());
+
+    // Extract Drift matrix at data point
+    MatrixRectangular* X =
+      MatrixRectangular::sample(_X, *_rankXvalidEqs, VectorInt(), true);
+
+    // Compute epsilon (up to its sign); inv(alpha) * beta
+    AMatrix* p1                = MatrixFactory::prodMatMat(InvAlpha, beta);
+    MatrixRectangular* epsilon = new MatrixRectangular(_nxvalid, _nbfl);
+    epsilon->prodMatMatInPlace(p1, X);
+    delete p1;
+    
+    // Compute a3 (transpose)
+    MatrixRectangular* a3 = new MatrixRectangular(_nxvalid, _nbfl);
+    a3->linearCombination(1., X0, 1., epsilon);
+    delete X0;
+
+    // Compute a2 (inverted)
+    MatrixSquareSymmetric* a2 = new MatrixSquareSymmetric(_nbfl);
+    a2->prodNormMatMatInPlace(X, delta, true);
+    MatrixSquareSymmetric* p3 = new MatrixSquareSymmetric(_nbfl);
+    p3->prodNormMatMatInPlace(epsilon, alpha, true);
+    a2->linearCombination(1., a2, -1., p3);
+    a2->invert();
+    delete delta;
+    delete epsilon;
+    delete p3;
+    delete X;
+
+    // Compute omega
+    MatrixSquareSymmetric* p4    = new MatrixSquareSymmetric(_nxvalid);
+    p4->prodNormMatMatInPlace(a3, a2);
+    omega->linearCombination(1., omega, -1., p4);
+    delete p4;
+    delete a2;
+    delete a3;
+
+    // Patch the Right-hand side vector (Drift part)
+    _X_RHS = MatrixRectangular::sample(_X, *_rankXvalidEqs, VectorInt());
   }
 
+  // Patch the Right-hand side vector (Covariance part)
+  _C_RHS = MatrixRectangular::sample(_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
+  _C_RHS->unsample(omega, *_rankXvalidEqs, VectorInt());
+
+  setTarget(_C_RHS, _X_RHS);
+
   setVariance00(S00->clone());
+  delete alpha;
+  delete omega;
 
   return 0;
 }
@@ -1101,15 +1174,15 @@ int KrigingCalcul::_needZp()
   return 0;
 }
 
-int KrigingCalcul::_needRankColCok()
+int KrigingCalcul::_needColCok()
 {
   if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needRankXvalid()
+int KrigingCalcul::_needXvalid()
 {
-  if (!_isPresentIVector("rankXvalid", _rankXvalid)) return 1;
+  if (!_isPresentIVector("rankXvalidEqs", _rankXvalidEqs)) return 1;
   return 0;
 }
 
@@ -1122,8 +1195,7 @@ int KrigingCalcul::_needPriorMean()
 int KrigingCalcul::_needLambdaSK()
 {
   if (_LambdaSK != nullptr) return 0;
-  // Delete in the case of Xvalidation when drift is present
-  if (_rankXvalid != nullptr && _nbfl > 0) return 1;
+  // In the case of Xvalidation when drift is present, cannot return the vector of SK weights
 
   if (_ncck > 0)
   {
@@ -1149,40 +1221,17 @@ int KrigingCalcul::_needLambdaSK()
 int KrigingCalcul::_needLambdaUK()
 {
   if (_LambdaUK != nullptr) return 0;
-  if (_rankXvalid != nullptr)
-  {
-    // SK weights are not reacheable here
-    if (_nbfl <= 0) return 1;
-    if (_needInvSigmaSigma0()) return 1;
-    _LambdaUK = _InvSigmaSigma0->clone();
+  _LambdaUK = new MatrixRectangular(_neq, _nrhs);
 
-    if (_needSigmac()) return 1;
-    if (_needXtInvSigma()) return 1;
+  if (_needXtInvSigma()) return 1;
+  if (_needLambdaSK()) return 1;
+  if (_needMuUK()) return 1;
 
-    AMatrix* p1 = MatrixFactory::prodMatMat(_Sigma0, _XtInvSigma, true, true);
-    p1->linearCombination(1., _X0, -1., p1);
-    AMatrix* p2 = MatrixFactory::prodMatMat(_XtInvSigma, _Sigmac, true);
-    AMatrix* p3 = MatrixFactory::prodMatMat(p2, p1, false, true);
+  MatrixRectangular* p1 = new MatrixRectangular(_neq, _nrhs);
+  p1->prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
+  _LambdaUK->linearCombination(1., _LambdaSK, 1., p1);
+  delete p1;
 
-    _LambdaUK->linearCombination(1., _LambdaUK, 1., p3);
-  }
-  else
-  {
-    if (_needXtInvSigma()) return 1;
-    if (_needLambdaSK()) return 1;
-    if (_needMuUK()) return 1;
-
-    MatrixRectangular* p1 = new MatrixRectangular(_neq, _nrhs);
-    p1->prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
-    message("InvSigma\n");
-    _InvSigma->display();
-    message("XtInvSigma\n");
-    _XtInvSigma->display();
-
-    _LambdaUK = new MatrixRectangular(_neq, _nrhs);
-    _LambdaUK->linearCombination(1., _LambdaSK, 1., p1);
-    delete p1;
-  }
   return 0;
 }
 
@@ -1263,6 +1312,7 @@ bool KrigingCalcul::_isPresentMatrix(const String& name, const AMatrix* mat)
 {
   if (mat != nullptr) return true;
   messerr(">>> Matrix %s is missing (required)", name.c_str());
+  messerr("    (generated in KrigingCalcul::_isPresentMatrix)");
   return false;
 }
 
@@ -1271,6 +1321,7 @@ bool KrigingCalcul::_isPresentVector(const String& name,
 {
   if (vec != nullptr) return true;
   messerr(">>> Vector %s is missing (required)", name.c_str());
+  messerr("    (generated in KrigingCalcul::_isPresentVector)");
   return false;
 }
 
@@ -1279,6 +1330,7 @@ bool KrigingCalcul::_isPresentIVector(const String& name,
 {
   if (vec != nullptr) return true;
   messerr(">>> Vector %s is missing (required)", name.c_str());
+  messerr("    (generated in KrigingCalcul::_isIPresentVector)");
   return false;
 }
 
@@ -1288,26 +1340,39 @@ int KrigingCalcul::_needLambda0()
 
   if (_ncck <= 0) return 1;
   if (_needSigma00()) return 1;
-  if (_needInvSigma()) return 1;
-  if (_needSigma00p()) return 1;
   if (_needSigma0p()) return 1;
-  if (_needSigmac()) return 1;
-  if (_needY0p()) return 1;
-  if (_needY0()) return 1;
+  if (_needSigma00p()) return 1;
   if (_needSigma00pp()) return 1;
+  if (_needInvSigma()) return 1;
+  if (_nbfl > 0)
+  {
+    if (_needSigmac()) return 1;
+    if (_needY0p()) return 1;
+    if (_needY0()) return 1;
+  }
 
   MatrixRectangular* Sigma0ptInvSigma = new MatrixRectangular(_ncck, _neq);
   Sigma0ptInvSigma->prodMatMatInPlace(_Sigma0p, _InvSigma, true);
 
-  MatrixRectangular* Y0pSigmac = new MatrixRectangular(_ncck, _nbfl);
-  Y0pSigmac->prodMatMatInPlace(_Y0p, _Sigmac);
-
+  // Determine the Bottom part of the ratio
+  MatrixSquareSymmetric* bot = _Sigma00pp->clone();
+  
   MatrixSquareSymmetric* bot1 = new MatrixSquareSymmetric(_ncck);
   bot1->prodMatMatInPlace(Sigma0ptInvSigma, _Sigma0p);
-  MatrixSquareSymmetric* bot2 = new MatrixSquareSymmetric(_ncck);
-  bot2->prodMatMatInPlace(Y0pSigmac, _Y0p, false, true);
-  MatrixSquareSymmetric* bot = new MatrixSquareSymmetric(_ncck);
-  bot = _Sigma00pp->clone();
+
+  MatrixRectangular* Y0pSigmac = nullptr;
+  if (_nbfl > 0)
+  {
+    Y0pSigmac = new MatrixRectangular(_ncck, _nbfl);
+    Y0pSigmac->prodMatMatInPlace(_Y0p, _Sigmac);
+  }
+  
+  MatrixSquareSymmetric* bot2 = nullptr;
+  if (_nbfl > 0)
+  {
+    bot2 = new MatrixSquareSymmetric(_ncck);
+    bot2->prodMatMatInPlace(Y0pSigmac, _Y0p, false, true);
+  }
   bot->linearCombination(1., bot, -1., bot1, +1., bot2);
   delete bot1;
   delete bot2;
@@ -1316,15 +1381,21 @@ int KrigingCalcul::_needLambda0()
   {
     delete bot;
     delete Sigma0ptInvSigma;
-    delete Y0pSigmac;
     return 1;
   }
 
+  // Determine the Top part of the ratio
+  MatrixRectangular* top = _Sigma00p->clone();
+  
   MatrixRectangular* top1 = new MatrixRectangular(_ncck, _nrhs);
   top1->prodMatMatInPlace(Sigma0ptInvSigma, _Sigma0);
-  MatrixRectangular* top2 = new MatrixRectangular(_ncck, _nrhs);
-  top2->prodMatMatInPlace(Y0pSigmac, _Y0, false, true);
-  MatrixRectangular* top = _Sigma00p->clone();
+
+  MatrixRectangular* top2 = nullptr;
+  if (_nbfl > 0)
+  {
+    top2 = new MatrixRectangular(_ncck, _nrhs);
+    top2->prodMatMatInPlace(Y0pSigmac, _Y0, false, true);
+  }
   top->linearCombination(1., top, -1., top1, +1., top2);
   delete top1;
   delete top2;
@@ -1338,4 +1409,4 @@ int KrigingCalcul::_needLambda0()
   delete Y0pSigmac;
 
   return 0;
-}
+  }

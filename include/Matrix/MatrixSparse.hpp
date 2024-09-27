@@ -12,7 +12,6 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixSparse.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -78,8 +77,8 @@ public:
 #ifndef SWIG
   int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
                     Eigen::Map<Eigen::VectorXd>& ym) const;
-  void addProdMatVecInPlaceToDest(const constvect& in,
-                                  vect& out,
+  void addProdMatVecInPlaceToDest(const constvect in,
+                                  vect out,
                                   bool transpose = false) const;
 #endif
   /*! Set the contents of a Column */
@@ -160,9 +159,9 @@ public:
                                      const MatrixSparse* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const MatrixSparse* a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const MatrixSparse* a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
@@ -192,10 +191,10 @@ public:
   int    solveCholesky(const VectorDouble& b, VectorDouble& x);
 
   #ifndef SWIG
-    int  solveCholesky(const constvect& b, std::vector<double>& x);
-    int  simulateCholesky(const constvect &b, vect &x);
-    int  addVecInPlace(const constvect& x, vect& y);
-  #endif
+  int solveCholesky(const constvect b, std::vector<double>& x);
+  int simulateCholesky(const constvect b, vect x);
+  int addVecInPlace(const constvect x, vect y);
+#endif
   
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
   double computeCholeskyLogDeterminant();
@@ -226,14 +225,13 @@ public:
 
 #ifndef SWIG
   protected:
-  virtual int _addToDest(const constvect& inv,
-                          vect& outv) const override;
+    virtual int _addToDest(const constvect inv, vect outv) const override;
 #endif
 
 #ifndef SWIG
   public :
   void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
-  void setDiagonal(const constvect& tab);
+  void setDiagonal(const constvect tab);
 #endif
 protected:
   /// Interface for AMatrix

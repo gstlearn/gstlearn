@@ -81,18 +81,16 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-int  Cholesky::_addToDest(const constvect& inv,
-                          vect& outv) const
+int Cholesky::_addToDest(const constvect inv, vect outv) const
 {
-
   if (!isValid()) return 1;
 
   if (_matCS->isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> invm(inv.data(),inv.size());
     Eigen::Map<Eigen::VectorXd> outvm(outv.data(),outv.size());
-    Eigen::VectorXd  temp(invm.size());
-    std::fill(temp.begin(),temp.end(),0.);
+    Eigen::VectorXd temp(invm.size());
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
     Eigen::ArrayXd Ddm = _cholSolver.vectorD().array().sqrt();
     Eigen::VectorXd DW = invm.array() * Ddm;
     Eigen::VectorXd Y = _cholSolver.matrixL() * DW;
@@ -143,7 +141,7 @@ void Cholesky::_compute()
   }
 }
 
-int Cholesky::solve(const constvect& b, std::vector<double>& x) const
+int Cholesky::solve(const constvect b, std::vector<double>& x) const
 {
   if (! isValid()) return 1;
 
@@ -165,7 +163,7 @@ int Cholesky::solve(const constvect& b, std::vector<double>& x) const
   return 0;
 }
 
-int Cholesky::solve(const constvect& b, vect& x) const
+int Cholesky::solve(const constvect b, vect x) const
 {
   if (! isValid()) return 1;
 
@@ -242,7 +240,7 @@ int Cholesky::simulate(const VectorDouble& b, VectorDouble& x) const
   return 0;
 }
 
-int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
+int Cholesky::addSimulateToDest(const constvect b, vect x) const
 {
   if (! isValid()) return 1;
   int size = _matCS->getNRows();
@@ -250,7 +248,7 @@ int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
   if (_matCS->isFlagEigen())
   {
     Eigen::VectorXd  temp(x.size());
-    std::fill(temp.begin(),temp.end(),0.);
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
     Eigen::Map<const Eigen::VectorXd> bm(b.data(),b.size());
     Eigen::Map<Eigen::VectorXd> xm(x.data(),x.size());
     Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();
@@ -270,7 +268,7 @@ int Cholesky::addSimulateToDest(const constvect& b, vect& x) const
   return 0;
 }
 
-int Cholesky::simulate(const constvect& b, vect& x) const
+int Cholesky::simulate(const constvect b, vect x) const
 {
   if (! isValid()) return 1;
   int size = _matCS->getNRows();

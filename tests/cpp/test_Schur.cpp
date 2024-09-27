@@ -31,9 +31,13 @@ static Db* _dataComplement(Db* data, Db* target, const VectorDouble& valuesTarge
   // Complement the Data Set
 
   Db* datap = data->clone();
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(false, false, false, false, true);
+  
   int iech = datap->addSamples(1);
   datap->setSampleCoordinates(iech, target->getSampleCoordinates(0));
   datap->setLocVariables(ELoc::Z, iech, valuesTarget);
+  datap->display(dbfmt);
   return datap;
 }
 
@@ -41,11 +45,21 @@ static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, int iech0)
 {
   Db* datap = data->clone();
   DbStringFormat* dbfmt =
-    DbStringFormat::createFromFlags(false, true, false, false, true);
+    DbStringFormat::createFromFlags(false, false, false, false, true);
 
   // Delete the cross-validation information
   for (int i = 0, nval = (int) varXvalid.size(); i < nval; i++)
     datap->setLocVariable(ELoc::Z, iech0, varXvalid[i], TEST);
+  datap->display(dbfmt);
+
+  return datap;
+}
+
+static Db* _dataAsIs(Db* data)
+{
+  Db* datap = data->clone();
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(false, false, false, false, true);
   datap->display(dbfmt);
 
   return datap;
@@ -64,10 +78,15 @@ static void _firstTest(Db* data,
                        const VectorDouble& PriorMean,
                        MatrixSquareSymmetric& PriorCov)
 {
+  if (!model->hasDrift())
+  {
+    messerr("The 'Model' must have drift defined to check 'Bayesian' option");
+    return;
+  }
+  
   // Local parameters
   bool debugPrint = false;
   bool debugSchur = false;
-  bool flagBayes    = false;
   int iech0 = 0;
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
@@ -76,23 +95,17 @@ static void _firstTest(Db* data,
   message("Compare:\n");
   message("- Kriging with traditional code\n");
   message("- Estimation performed with 'KrigingCalcul'\n");
-  message("- Option: Bayesian\n");
+  message("Option: Bayesian\n");
 
+  // Creating the data file
+  Db* dataP = _dataAsIs(data);
+   
   // ---------------------- Using Standard Kriging procedure ---------------
   mestitle(1, "Using Standard Kriging procedure");
   Table table;
-  if (!flagBayes)
-  {
-    kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, true);
-    table = target->printOneSample(iech0, {"Kriging*"}, true, true);
-    target->deleteColumn("Kriging*");
-  }
-  else
-  {
-    kribayes(data, target, model, neigh, PriorMean, PriorCov, true, true);
-    table = target->printOneSample(iech0, {"Bayes*"}, true, true);
-    target->deleteColumn("Bayes*");
-  }
+  kribayes(dataP, target, model, neigh, PriorMean, PriorCov, true, true);
+  table = target->printOneSample(iech0, {"Bayes*"}, true, true);
+  target->deleteColumn("Bayes*");
   table.display();
 
   // ---------------------- Using Schur Class ------------------------------
@@ -106,18 +119,15 @@ static void _firstTest(Db* data,
   VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
   KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
   Kcalc.setTarget(&Sigma0, &X0);
-  if (flagBayes) Kcalc.setBayes(&PriorMean, &PriorCov);
+  Kcalc.setBayes(&PriorMean, &PriorCov);
 
-  if (flagBayes)
-  {
-    VH::display("Prior Mean", PriorMean);
-    message("Prior Variance-Covariance Matrix\n");
-    PriorCov.display();
-    VectorDouble beta = Kcalc.getPostMean();
-    if (!beta.empty()) VH::display("Posterior Mean", beta);
-    message("Posterior Variance-Covariance Matrix\n");
-    Kcalc.getPostCov()->display();
-  }
+  VH::display("Prior Mean", PriorMean);
+  message("Prior Variance-Covariance Matrix\n");
+  PriorCov.display();
+  VectorDouble beta = Kcalc.getPostMean();
+  if (!beta.empty()) VH::display("Posterior Mean", beta);
+  message("Posterior Variance-Covariance Matrix\n");
+  Kcalc.getPostCov()->display();
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
@@ -130,22 +140,26 @@ static void _firstTest(Db* data,
  ** Testing Collocated option
  **
  *****************************************************************************/
-static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const VectorDouble& means)
+static void _secondTest(Db* data, Db* target, Model* model, const VectorDouble& means)
 {
   // Local parameters
   int nvar = model->getVariableNumber();
-  if (nvar <= 1) return;
+  if (nvar <= 1)
+  {
+    messerr("The collocated Test only makes sense for more than 1 variable");
+    return;
+  }
   // Set of ranks of collocated variables
-  VectorInt varColCok = {1};
-  int iech0           = 0;
+  VectorInt varColCok = {0,2};
   AStringFormat format;
   bool debugSchur = false;
 
   // Title
   mestitle(0,"Compare the Collocated Option (in Unique Neighborhood):");
-  message("- using Standard Kriging on the Complemented Data Set\n");
   message("- using 'KrigingCalcul' on the Complemented Data Set\n");
-  message("- using 'KrigingCalcul' on Standard Data Set adding Collocated Option\n");
+  message(
+    "- using 'KrigingCalcul' on Standard Data Set adding Collocated Option\n");
+  VH::display("- Collocated Variable ranks", varColCok, false);
 
   // Creating the Complemented Data Set
   VectorDouble valuesTarget(nvar, TEST);
@@ -153,17 +167,8 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
     valuesTarget[varColCok[ivar]] = law_gaussian();
   Db* dataP = _dataComplement(data, target, valuesTarget);
 
-  // ---------------------- Using Standard Kriging procedure ---------------
-  mestitle(1, "Using Standard Kriging procedure");
-
-  Table table;
-  kriging(dataP, target, model, neigh, EKrigOpt::POINT, true, true, true);
-  table = target->printOneSample(iech0, {"Kriging*"}, true, true);
-  table.display();
-  target->deleteColumn("Kriging*");
-
   // ---------------------- With complemented Data Base ---------------------
-  mestitle(1, "With complemented input Data Base");
+  mestitle(1, "With Complemented input Data Base");
 
   MatrixSquareSymmetric Sigma00P = model->getSillValues(0);
   MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
@@ -178,6 +183,7 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
   VH::display("Variance of Estimator", KcalcP.getVarianceZstar());
+
   if (debugSchur) KcalcP.printStatus();
 
   // ---------------------- With Collocated Option -------------------------
@@ -188,15 +194,18 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z =
-    data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  
   KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
   Kcalc.setTarget(&Sigma0, &X0);
+  // Subtract the mean (non zero for SK only) from the Collocated values
+  VH::subtractInPlace(valuesTarget, means);
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
   VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+
   if (debugSchur) Kcalc.printStatus();
 
   delete dataP;
@@ -204,25 +213,28 @@ static void _secondTest(Db* data, Db* target, Model* model, ANeigh* neigh, const
 
 /****************************************************************************/
 /*!
- ** Testing Collocated option
+ ** Testing Cross-validation option
  **
  *****************************************************************************/
 static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
 {
   // Set of ranks of cross-validated information
-  VectorInt varXvalid = {0};
-  int iech0           = 0;
+  VectorInt varXvalid = {1,2};
+  int iech0           = 1;
   AStringFormat format;
   bool debugSchur = false;
+
+  const VectorVectorInt index = data->getMultipleRanksActive();
+  VectorInt rankXvalidEqs = Db::getMultipleSelectedIndices(index, varXvalid, {iech0});
+  VectorInt rankXvalidVars = Db::getMultipleSelectedVariables(index, varXvalid, {iech0});
 
   // Title
   mestitle(0, "Cross-Validation in Unique Neighborhood");
   message("Compare the Cross-validation Option (in Unique Neighborhood):\n");
   message("- using Standard Kriging on the Deplemented Data Set\n");
   message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
-
-  const VectorVectorInt index = data->getMultipleRanksActive();
-  VectorInt rankXvalid = Db::getMultipleRanks(index, varXvalid, {iech0});
+  VH::display("- Cross-validated equation ranks", rankXvalidEqs, false);
+  VH::display("- Cross-validated variable ranks", rankXvalidVars, false);
 
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
@@ -238,25 +250,9 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   MatrixRectangular X0P          = model->evalDriftMatrix(targetP, -1, {iech0});
   VectorDouble ZP =
     dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
-  message("LHS Xvalid\n");
-  SigmaP.display();
-  message("X XValid\n");
-  XP.display();
-  message("RHS Xvalid\n");
-  Sigma0P.display();
-  message("X0 XValid\n");
-  X0P.display();
-  message("Variance xvalid\n");
-  Sigma00P.display();
 
   KrigingCalcul KcalcP(&ZP, &SigmaP, &XP, &Sigma00P, &means);
   KcalcP.setTarget(&Sigma0P, &X0P);
-
-  KcalcP.getLambdaSK()->display();
-  const auto* el1 = KcalcP.getLambdaUK();
-  if (el1 != nullptr) el1->display();
-  const auto* em1 = KcalcP.getMuUK();
-  if (em1 != nullptr) em1->display();
 
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
@@ -276,14 +272,7 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
     data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
   
   KrigingCalcul Kcalc(&Z, &Sigma, &X, &Sigma00, &means);
-  Kcalc.setXvalidUnique(&rankXvalid);
-
-  const auto* es2 = Kcalc.getLambdaSK();
-  if (es2 != nullptr) es2->display();
-  const auto* el2 = Kcalc.getLambdaUK();
-  if (el2 != nullptr) el2->display();
-  const auto* em2 = KcalcP.getMuUK();
-  if (em2 != nullptr) em2->display();
+  Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
@@ -302,8 +291,7 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
  ** This test is composed of two parts:
  ** 1) Comparing the results of traditional Kriging with the results
  **    provided by the Algebraic calculations provided within 'KrigingCalcul'
- ** 2) Comparing the results for Collocated CoKriging or KFold
- *Cross-validation
+ ** 2) Comparing the results for Collocated CoKriging or KFold Cross-validation
  **    in 'Unique' Neighborhood, whether they are programmed in the plain
  **    manner, or if they benefit from the inversion of the permanent part
  **     of the Kriging System (performed a single time)
@@ -327,14 +315,12 @@ int main(int argc, char* argv[])
 
   // Parameters
   bool debugPrint   = false;
-  int nech          = 3; // 10
-  int nvar          = 1;
+  int nech          = 3;
+  int nvar          = 2;
   int nfex          = 0;
   int nbfl          = (nfex + 1) * nvar;
   bool flagSK       = false;
-  bool flagBayes    = false;
-  if (flagBayes) flagSK = false;
-  int mode = 3;
+  int mode = 1;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, nfex);
@@ -348,11 +334,11 @@ int main(int argc, char* argv[])
 
   // Create the Model
   Model* model;
-  double range = 0.7;
+  double scale = 0.7;
   MatrixSquareSymmetric* sills =
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-  model = Model::createFromParam(ECov::SPHERICAL, range, 0., 0., VectorDouble(),
-                                 sills->getValues());
+  model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
+                                 sills->getValues(), VectorDouble(), nullptr, false);
   model->setMeans(means);
   if (!flagSK) model->setDriftIRF(0, nfex);
 
@@ -368,7 +354,7 @@ int main(int argc, char* argv[])
   int iech0 = 0;
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
-  // First Test
+  // Test on Bayesian
   if (mode == 0 || mode == 1)
   {
     Db* dataLocal = data->clone();
@@ -376,15 +362,15 @@ int main(int argc, char* argv[])
     delete dataLocal;
   }
 
-  // Second Test
+  // Test on Collocated CoKriging in Unique Neighborhood
   if (mode == 0 || mode == 2)
   {
     Db* dataLocal = data->clone();
-    _secondTest(dataLocal, target, model, neigh, means);
+    _secondTest(dataLocal, target, model, means);
     delete dataLocal;
   }
 
-  // Third Test
+  // Test on Cross-Validation in Unique Neighborhood
   if (mode == 0 || mode == 3)
   {
     Db* dataLocal = data->clone();

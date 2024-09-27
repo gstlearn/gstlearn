@@ -57,20 +57,19 @@ private:
 
   
 
-  #ifndef SWIG        
+#ifndef SWIG
   private:
-  void _convolve(const constvect &valonvertex,
-                 vect &valonseismic) const;
-  void _convolveT(const constvect &valonseismic,
-                  vect &valonvertex) const;
-  bool _isVecDimCorrect(const constvect &valonseismic,
-                        const constvect &valonvertex) const;   
+    void _convolve(const constvect valonvertex, vect valonseismic) const;
+    void _convolveT(const constvect valonseismic, vect valonvertex) const;
+    bool _isVecDimCorrect(const constvect valonseismic,
+                          const constvect valonvertex) const;
+
   protected:
-  int _addPoint2mesh(const constvect& valonseismic,
-                     vect& valonvertex) const override;
-  int _addMesh2point(const constvect& valonvertex,
-                     vect& valonseismic) const override;
-  #endif
+    int _addPoint2mesh(const constvect valonseismic,
+                       vect valonvertex) const override;
+    int _addMesh2point(const constvect valonvertex,
+                       vect valonseismic) const override;
+#endif
 
 private:
   VectorDouble                _convolution;

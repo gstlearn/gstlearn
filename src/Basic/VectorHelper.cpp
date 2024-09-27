@@ -1239,7 +1239,7 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
   }
 }
 
-void VectorHelper::addInPlace(constvect& in,vect& dest)
+void VectorHelper::addInPlace(constvect in, vect dest)
 {
   const double* inp = in.data();
   double * outp = dest.data();
@@ -1547,9 +1547,9 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
       *(outp++) += val1 * *(inp++);
     }
 }
-void VectorHelper::addMultiplyVectVectInPlace(const constvect &in1,
-                                              const constvect &in2,
-                                              vect &out,
+void VectorHelper::addMultiplyVectVectInPlace(const constvect in1,
+                                              const constvect in2,
+                                              vect out,
                                               int iad)
 { //TODO check if one can use eigen operators
     double * outp = out.data() + iad;
@@ -1562,8 +1562,8 @@ void VectorHelper::addMultiplyVectVectInPlace(const constvect &in1,
 }
 
 void VectorHelper::addMultiplyConstantInPlace(double val1,
-                                              const constvect &in,
-                                              vect &out,
+                                              const constvect in,
+                                              vect out,
                                               int iad)
 {
     double * outp = out.data() + iad;
@@ -2149,7 +2149,7 @@ double VectorHelper::innerProduct(const std::vector<double> &veca, const std::ve
   return innerProduct(veca.data(), vecb.data(), size);  
 }
 
-double VectorHelper::innerProduct(const constvect &veca, const constvect &vecb)
+double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
 {
     return innerProduct(veca.data(), vecb.data(), veca.size());
 }

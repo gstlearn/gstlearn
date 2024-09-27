@@ -27,10 +27,8 @@ public:
 
 #ifndef SWIG           
   protected:
-  virtual int _addPoint2mesh(const constvect& inv,
-                                   vect& outv) const override;
-  virtual int _addMesh2point(const constvect& inv,
-                                   vect& outv) const override;
+    virtual int _addPoint2mesh(const constvect inv, vect outv) const override;
+    virtual int _addMesh2point(const constvect inv, vect outv) const override;
 #endif
 
 private : 
@@ -58,6 +56,4 @@ std::vector<int> _apexNumbers;
 bool _silent;
 mutable std::vector<double> _work;
 mutable std::vector<double> _workmesh;
-
-
 };

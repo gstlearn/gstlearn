@@ -7,6 +7,8 @@ output:
     toc: true
   pdf_document:
     toc: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Calculate variograms on one or several variables of a Db, for any space dimension. Fit a Model (automatic procedure)  -->

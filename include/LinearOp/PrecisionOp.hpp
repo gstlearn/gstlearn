@@ -44,8 +44,8 @@ public:
   // Interface functions for using PrecisionOp
 
   #ifndef SWIG
-    virtual void evalInverse(const  constvect& vecin, std::vector<double>& vecout);
-  #endif
+  virtual void evalInverse(const constvect vecin, std::vector<double>& vecout);
+#endif
 
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
 
@@ -62,30 +62,23 @@ public:
 
   virtual double getLogDeterminant(int nbsimu = 1);
   #ifndef SWIG
-    virtual void gradYQX(const constvect& /*X*/,
-                         const constvect& /*Y*/,
-                         vect& /*result*/,
-                         const EPowerPT& /*power*/)
-    {};
-    virtual void gradYQXOptim(const constvect& /*X*/,
-                              const constvect& /*Y*/,
-                              vect& /*result*/,
-                              const EPowerPT& /*power*/)
-    {
-    };
-  virtual void evalDeriv(const constvect& /*inv*/,
-                         vect& /*outv*/,
+  virtual void gradYQX(const constvect /*X*/,
+                       const constvect /*Y*/,
+                       vect /*result*/,
+                       const EPowerPT& /*power*/) {};
+  virtual void gradYQXOptim(const constvect /*X*/,
+                            const constvect /*Y*/,
+                            vect /*result*/,
+                            const EPowerPT& /*power*/) {};
+  virtual void evalDeriv(const constvect /*inv*/,
+                         vect /*outv*/,
                          int /*iapex*/,
                          int /*igparam*/,
-                         const EPowerPT& /*power*/)
-  {
-  };
-  virtual void evalDerivOptim(vect& /*outv*/,
+                         const EPowerPT& /*power*/) {};
+  virtual void evalDerivOptim(vect /*outv*/,
                               int /*iapex*/,
                               int /*igparam*/,
-                              const EPowerPT& /*power*/)
-  {
-  };
+                              const EPowerPT& /*power*/) {};
   VectorVectorDouble simulate(int nbsimu = 1);
 
   #endif
@@ -96,8 +89,10 @@ public:
 //                             int /*igparam*/){};
 
   #ifndef SWIG
-  void evalPower(const constvect &inm, vect &outm, const EPowerPT& power = EPowerPT::fromKey("ONE"));
-  #endif
+  void evalPower(const constvect inm,
+                 vect outm,
+                 const EPowerPT& power = EPowerPT::fromKey("ONE"));
+#endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
 
@@ -121,11 +116,11 @@ public:
 void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
 
 protected:
-  virtual int  _addToDest(const constvect& inv,
-                          vect& outv) const override;
-  virtual int  _addSimulateToDest(const constvect& whitenoise,
-                          vect& outv) const override;
-  void _addEvalPower(const constvect& inv, vect& outv, const EPowerPT& power) const;
+  virtual int _addToDest(const constvect inv, vect outv) const override;
+  virtual int _addSimulateToDest(const constvect whitenoise,
+                                 vect outv) const override;
+  void
+  _addEvalPower(const constvect inv, vect outv, const EPowerPT& power) const;
 
 #endif
 
@@ -134,7 +129,7 @@ private:
   int  _prepareChebychev(const EPowerPT& power) const;
   int  _preparePrecisionPoly() const;
 #ifndef SWIG
-  int  _evalPoly(const EPowerPT& power,const constvect& inv, vect& outv) const;
+  int _evalPoly(const EPowerPT& power, const constvect inv, vect outv) const;
 #endif
   void _purge();
 

@@ -37,21 +37,32 @@ public:
 
   // Interface for PrecisionOp class
   #ifndef SWIG
-  void evalInverse(const constvect& vecin, std::vector<double>& vecout) override;
-  int _addSimulateToDest(const constvect &whitenoise, vect& outv) const override;
-  int _addToDest(const constvect &inv, vect& outv) const override;
+  void evalInverse(const constvect vecin, std::vector<double>& vecout) override;
+  int _addSimulateToDest(const constvect whitenoise, vect outv) const override;
+  int _addToDest(const constvect inv, vect outv) const override;
   #endif
 
   double getLogDeterminant(int nbsimu = 1) override;
   
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   #ifndef SWIG
-  void evalDeriv(const constvect& inv, vect& outv,int iapex,int igparam,const EPowerPT& power) override;
-  void evalDerivOptim(vect& outv,int iapex,int igparam, const EPowerPT& power) override;
-  void gradYQX(const constvect & X, 
-               const constvect &Y,
-               vect& result, const EPowerPT& power) override;
-  void gradYQXOptim(const constvect & X, const constvect &Y,vect& result, const EPowerPT& power) override;
+  void evalDeriv(const constvect inv,
+                 vect outv,
+                 int iapex,
+                 int igparam,
+                 const EPowerPT& power) override;
+  void evalDerivOptim(vect outv,
+                      int iapex,
+                      int igparam,
+                      const EPowerPT& power) override;
+  void gradYQX(const constvect X,
+               const constvect Y,
+               vect result,
+               const EPowerPT& power) override;
+  void gradYQXOptim(const constvect X,
+                    const constvect Y,
+                    vect result,
+                    const EPowerPT& power) override;
   #endif
   const MatrixSparse* getQ() const { return _Q; }
 

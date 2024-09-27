@@ -3411,9 +3411,19 @@ VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
   return vec;
 }
 
-VectorInt Db::getMultipleRanks(const VectorVectorInt& index,
-                               const VectorInt& ivars,
-                               const VectorInt& nbgh)
+/**
+ * @brief Return the vector of the ranks within 'index' of data beloging:
+ * - to the variable indices 'ivars' (default: all samples)
+ * - to the sample indices 'nbgh' (default: all samples)
+ * 
+ * @param index Input data information ranks
+ * @param ivars Vector of selection variables
+ * @param nbgh  Vector of selection samples
+ * @return VectorInt 
+ */
+VectorInt Db::getMultipleSelectedIndices(const VectorVectorInt& index,
+                                         const VectorInt& ivars,
+                                         const VectorInt& nbgh)
 {
   VectorInt vec;
 
@@ -3435,13 +3445,36 @@ VectorInt Db::getMultipleRanks(const VectorVectorInt& index,
   return vec;
 }
 
+VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
+                                           const VectorInt& ivars,
+                                           const VectorInt& nbgh)
+{
+  VectorInt vec;
+
+  int nvar        = (int)index.size();
+  VectorInt jvars = ivars;
+  if (jvars.empty()) jvars = VH::sequence(nvar);
+
+  int lec = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    const VectorInt& local = index[ivar];
+    for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
+    {
+      if (VH::isInList(jvars, ivar) && VH::isInList(nbgh, iech))
+        vec.push_back(ivar);
+      lec++;
+    }
+  }
+  return vec;
+}
+
 /**
  * Returns the list of indices 'index' for valid samples for the set of
  * variables 'ivars' as well as the count of samples (per variable)
  *
  * @param ivars   Vector giving the indices of the variables of interest
- * @param nbgh    Vector giving the ranks of the elligible samples
- * (optional)
+ * @param nbgh    Vector giving the ranks of the elligible samples (optional)
  * @param useSel  Discard the masked samples (if True)
  * @param useVerr Discard the samples where Verr (if it exists) is not
  * correctly defined
