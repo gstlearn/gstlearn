@@ -18,7 +18,6 @@ VectorDouble  ALinearOp::evalDirect(const VectorDouble& in) const
   return res;
 }
 
-
 int ALinearOp::addToDest(const Eigen::VectorXd& inv,
                 Eigen::VectorXd& outv) const
 {
