@@ -383,7 +383,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
   return mat;
 }
 
-int MatrixSquareSymmetric::getTriangleSize() const
+int MatrixSquareSymmetric::_getTriangleSize() const
 {
   int neq = getNRows();
   int size = neq * (neq + 1) / 2;
@@ -406,7 +406,7 @@ int MatrixSquareSymmetric::computeCholesky()
   _factor = _eigenMatrix.llt();
   int neq = getNRows();
 
-  _tl.resize(getTriangleSize());
+  _tl.resize(_getTriangleSize());
   Eigen::MatrixXd mymat = _factor.matrixL();
   for (int ip = 0; ip < neq; ip++)
     for (int jp = 0; jp <= ip; jp++)
@@ -474,7 +474,7 @@ int MatrixSquareSymmetric::invertCholesky()
   if (! _checkCholeskyAlreadyPerformed(1)) return 1;
 
   int neq = getNRows();
-  _xl.resize(getTriangleSize());
+  _xl.resize(_getTriangleSize());
   _flagCholeskyInverse = false;
 
   for (int i = 0; i < neq; i++)

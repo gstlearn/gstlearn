@@ -80,7 +80,6 @@ public:
   // triangular storage.
   // This is temporarily ensured as a VectorDouble handelde within this class. It should probably
   // become a sperate class in the future.
-  int getTriangleSize() const;
   int computeCholesky();
   int invertCholesky();
   int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
@@ -102,9 +101,9 @@ public:
                                                    const MatrixSquareSymmetric &a);
   double computeCholeskyLogDeterminant() const;
   
-  virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
-  virtual void    _setValues(const double* values, bool byCol = true) override;
-  virtual int     _invert() override;
+  virtual bool _isPhysicallyPresent(int irow, int icol) const override;
+  virtual void _setValues(const double* values, bool byCol = true) override;
+  virtual int  _invert() override;
 
   void    _recopy(const MatrixSquareSymmetric& r);
 
@@ -142,6 +141,9 @@ public:
                       const VectorDouble &eigenVectors,
                       bool optionPositive = true,
                       bool changeOrder = false);
+
+private:
+  int _getTriangleSize() const;
 
 private:
   bool _flagCholeskyDecompose;
