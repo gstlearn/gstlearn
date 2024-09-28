@@ -139,7 +139,7 @@ int Grid::resetFromVector(const VectorInt& nx,
   {
     if (nx[idim] < 0)
     {
-      messerr("The number of grid mesh (%d) is direction (%d) may not be negative",
+      messerr("The number of grid mesh (%d) in direction (%d) may not be negative",
               nx[idim],idim+1);
       return 1;
     }
