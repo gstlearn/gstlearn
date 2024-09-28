@@ -11,8 +11,6 @@
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
 
-
-
 VectorDouble  ALinearOp::evalDirect(const VectorDouble& in) const
 {
   VectorDouble res;
