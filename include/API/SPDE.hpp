@@ -167,7 +167,13 @@ GSTLEARN_EXPORT VectorDouble krigingSPDENew(
   Db* dbin,
   Db* dbout,
   Model* model,
+  bool flag_est = true,
+  bool flag_std = false,
   const VectorMeshes& meshes      = VectorMeshes(),
   int useCholesky                 = -1,
+  const SPDEParam& params = SPDEParam(),
+  int nbMC = 10,
   bool verbose                    = false,
   const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
+
+                             

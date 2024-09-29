@@ -20,7 +20,7 @@ krigingref = grid.getColumnsByLocator(gl.ELoc.Z)
 nx1 = [140,140]
 mesh1 = gl.MeshETurbo(nx1,[1.,1.],[-20,-20])
 meshes = gl.VectorMeshes([mesh1,mesh1])
-resultMat = gl.krigingSPDENew(dat,grid,model,meshes,1)
+resultMat = gl.krigingSPDENew(dat,grid,model,meshes = meshes,useCholesky = 1)
 
 
 # %%

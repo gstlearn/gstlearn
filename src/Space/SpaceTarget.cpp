@@ -87,7 +87,7 @@ String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Center    = " << VH::toStringAsVD(getCoord());
+  sstr << "- Center    = " << VH::toStringAsSpan(getCoords());
   if (_checkExtend)
   {
     if (!_extend.empty())

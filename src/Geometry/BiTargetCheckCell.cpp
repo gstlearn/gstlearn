@@ -56,7 +56,7 @@ bool BiTargetCheckCell::isOK(const SpaceTarget &T1,
                              const SpaceTarget &T2) const
 {
   // Check if the sample belongs to the cell
-  bool valOK = _dbgrid->getGrid().sampleBelongsToCell(T2.getCoord(), T1.getCoord(), T1.getExtend());
+  bool valOK = _dbgrid->getGrid().sampleBelongsToCell(T2.getCoords(), T1.getCoords(), T1.getExtend());
   return valOK;
 }
 

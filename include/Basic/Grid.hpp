@@ -112,6 +112,9 @@ public:
                                 bool startFromZero = true,
                                 bool invert = true,
                                 bool verbose = false) const;
+  bool sampleBelongsToCell(constvect coor,
+                           constvect center,
+                           const VectorDouble& dxsPerCell) const;
   bool sampleBelongsToCell(const VectorDouble& coor,
                            const VectorDouble& center,
                            const VectorDouble &dxsPerCell = VectorDouble()) const;

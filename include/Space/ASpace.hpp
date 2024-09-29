@@ -92,6 +92,9 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = 0) const;
+  int getStart(int ispace) const{ return _dimStart[ispace]; }
+
+  const ASpace* getComponent(int i) const { return _comps[i]; }
 
 protected:
 
@@ -132,7 +135,6 @@ protected:
   virtual void _getIncrementInPlace(const SpacePoint &p1, 
                                     const SpacePoint &p2,
                                     VectorDouble &ptemp) const = 0;
-
 protected:
   /// Number of space dimensions (not taking into account composits)
   unsigned int _nDim;
@@ -140,7 +142,7 @@ protected:
   VectorDouble _origin;
   /// Dimension offset index (for space composit)
   unsigned int _iDimOffset;
-
+  std::vector<int> _dimStart;
   /// Space composits list
   std::vector<ASpace *> _comps;
   /// Numnber of space dimensions  (taking into account composits)

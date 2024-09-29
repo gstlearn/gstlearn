@@ -21,6 +21,7 @@ ASpace::ASpace(unsigned int ndim, bool addTime)
       _nDim(ndim),
       _origin(VectorDouble(ndim, 0.)),
       _iDimOffset(0),
+      _dimStart(),
       _comps(),
       _globalNDim(ndim),
       _globalOrigin(VectorDouble(ndim, 0.)),
@@ -32,12 +33,15 @@ ASpace::ASpace(unsigned int ndim, bool addTime)
     _nDim = 2;
   }
 
+  _dimStart.push_back(0);
+
   if(addTime)
   {
     // Time dimension is Euclidean
     // neglecting Eistein's relativity theory :-)
     SpaceRN* ts = new SpaceRN(1);
     addSpaceComponent(ts); // ts is cloned, so delete it
+    _dimStart.push_back(2);
     delete ts;
   }
 }
@@ -47,6 +51,7 @@ ASpace::ASpace(const ASpace& r)
       _nDim(r._nDim),
       _origin(r._origin),
       _iDimOffset(r._iDimOffset),
+      _dimStart(r._dimStart),
       _comps(),
       _globalNDim(r._globalNDim),
       _globalOrigin(r._globalOrigin),
@@ -67,6 +72,7 @@ ASpace& ASpace::operator=(const ASpace& r)
     _nDim = r._nDim;
     _origin = r._origin;
     _iDimOffset = r._iDimOffset;
+    _dimStart = r._dimStart;
     _globalNDim = r._globalNDim;
     _globalOrigin = r._globalOrigin;
     _work1 = r._work1;
@@ -91,6 +97,7 @@ void ASpace::addSpaceComponent(const ASpace* comp)
 {
   ASpace* sp = dynamic_cast<ASpace*>(comp->clone());
   sp->_setDimOffset(_globalNDim);
+  _dimStart.push_back(_globalNDim);
   _comps.push_back(sp);
   _globalNDim += sp->getNDim(0);
   const VectorDouble& o = sp->getOrigin(0);

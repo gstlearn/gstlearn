@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -29,7 +30,7 @@ public:
 
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
-  const VectorDouble& getCoord() const { return _coord; }
+  constvect getCoords(int ispace = 0) const;
   VectorDouble& getCoordRef() { return _coord; }
   double getCoord(int idim) const { return _coord[idim]; }
 

@@ -14,6 +14,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "geoslib_define.h"
 
 #include <math.h>
 
@@ -1156,8 +1157,8 @@ int Grid::generateMirrorIndex(int nx, int ix)
  *
  * @remark Samples located exactly on the edge are considered as INSIDE
  */
-bool Grid::sampleBelongsToCell(const VectorDouble& coor,
-                               const VectorDouble& center,
+bool Grid::sampleBelongsToCell(constvect coor,
+                               constvect center,
                                const VectorDouble& dxsPerCell) const
 {
   if (_rotation.isRotated())
@@ -1192,6 +1193,13 @@ bool Grid::sampleBelongsToCell(const VectorDouble& coor,
     }
   }
   return true;
+}
+
+bool Grid::sampleBelongsToCell(const VectorDouble& coor,
+                               const VectorDouble& center,
+                               const VectorDouble& dxsPerCell) const
+{
+ return sampleBelongsToCell(constvect(coor),constvect(center),dxsPerCell);
 }
 
 /**

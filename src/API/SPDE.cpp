@@ -1089,15 +1089,21 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 VectorDouble krigingSPDENew(Db* dbin,
                             Db* dbout,
                             Model* model,
+                            bool flag_est,
+                            bool flag_std,
                             const VectorMeshes& meshes,
                             int useCholesky,
                             const SPDEParam& params,
-                            int nbMC = 10,
+                            int nbMC,
                             bool verbose,
                             const NamingConvention& namconv)
 {
  DECLARE_UNUSED(verbose);
  DECLARE_UNUSED(namconv);
+ DECLARE_UNUSED(nbMC)
+ DECLARE_UNUSED(params)
+ DECLARE_UNUSED(flag_est,flag_std)
+
  if (dbin == nullptr) return 1;
  if (dbout == nullptr) return 1;
  if (model == nullptr) return 1;
