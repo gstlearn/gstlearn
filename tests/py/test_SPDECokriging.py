@@ -24,7 +24,7 @@ resultMat = gl.krigingSPDENew(dat,grid,model,meshes = meshes,useCholesky = 1)
 
 
 # %%
-resultFree = gl.krigingSPDENew(dat,grid,model,meshes,0)
+resultFree = gl.krigingSPDENew(dat,grid,model,meshes = meshes,useCholesky = 0)
 
 # %%
 import matplotlib.pyplot as plt

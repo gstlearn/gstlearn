@@ -21,6 +21,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Space/ASpace.hpp"
+#include "Space/SpacePoint.hpp"
 
 #include <vector>
 #include <math.h>
@@ -96,6 +97,13 @@ VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
   return vec;
 }
 
+double ACov::eval0(int ivar,
+                   int jvar,
+                   const CovCalcMode* mode) const
+{
+  SpacePoint p1 = getSpace()->getOrigin();
+  return eval(p1,p1,ivar,jvar,mode); // pure virtual method
+}
 MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   const CovCalcMode* mode) const

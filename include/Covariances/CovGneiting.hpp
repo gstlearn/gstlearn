@@ -49,11 +49,7 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
-    virtual double eval0(int ivar = 0,
-                         int jvar = 0,
-                         const CovCalcMode* mode = nullptr) const override;
-    virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
-                                 const CovCalcMode *mode = nullptr) const override; 
+
     virtual int getNVariables() const override { return 1; }
     
 private:

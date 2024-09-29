@@ -32,11 +32,9 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 {
 }
 
-constvect SpacePoint::getCoords(int ispace) const
+constvect SpacePoint::getCoords() const
 {  
-  int start = _space->getStart(ispace);
-  const auto* space = getSpace()->getComponent(ispace);
-  return constvect(_coord.data()+start, space->getNDim());
+  return constvect(_coord.data(), getNDim());
 }
 
 SpacePoint::SpacePoint(const VectorDouble& coord,

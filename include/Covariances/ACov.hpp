@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AStringable.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -53,7 +54,7 @@ public:
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode* mode = nullptr) const = 0;
+                       const CovCalcMode* mode = nullptr) const;
   /// Calculate the matrix of covariances for 0-distance (stationary case)
   virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode = nullptr) const;
@@ -74,7 +75,16 @@ public:
                                    int icas2,
                                    int iech2,
                                    MatrixSquareGeneral &mat,
-                                   const CovCalcMode *mode = nullptr) const = 0;
+                                   const CovCalcMode *mode = nullptr) const 
+  {
+    DECLARE_UNUSED(icas1);
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(icas2);
+    DECLARE_UNUSED(iech2);
+    DECLARE_UNUSED(mat);
+    DECLARE_UNUSED(mode); 
+    messerr("evalMatOptimInPlace not implemented");
+  };
   /// Tell if the use of Optimization is enabled or not
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
