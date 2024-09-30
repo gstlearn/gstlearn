@@ -31,9 +31,8 @@ public:
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   constvect getCoords() const;
-  VectorDouble& getCoordRef() { return _coord; }
-  double getCoord(int idim) const { return _coord[idim]; }
-
+  vect getCoordRef() { return vect(_coord,getNDim()); }
+  double getCoord(int idim) const; 
   void setCoord(double coord);
   void setCoord(int i, double val) { _coord[i] = val; }
   void setCoords(const VectorDouble& coord);
@@ -71,5 +70,6 @@ public:
 
 protected:
   /// Points coordinates (whatever the space context)
-  VectorDouble _coord;
+  double* _coord;
+  bool _deleteCoord;
 };

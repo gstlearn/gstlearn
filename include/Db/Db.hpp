@@ -94,6 +94,8 @@ public:
   virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
+  virtual void getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate = true) const;
+
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }

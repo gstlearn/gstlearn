@@ -820,6 +820,11 @@ void Db::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_
     coor[idim] = getCoordinate(iech, idim, flag_rotate);
 }
 
+void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) const
+{
+  for (int idim = 0; idim < getNDim(); idim++)
+    coor[idim] = getCoordinate(iech, idim, flag_rotate);
+}
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 {
   double v1 = getCoordinate(iech, idim);

@@ -21,10 +21,10 @@ ASpace::ASpace(unsigned int ndim, bool addTime)
       _nDim(ndim),
       _origin(VectorDouble(ndim, 0.)),
       _iDimOffset(0),
-      _dimStart(),
       _comps(),
       _globalNDim(ndim),
       _globalOrigin(VectorDouble(ndim, 0.)),
+      _spaceRankView(0),
       _work1(ndim),
       _work2(ndim)
 {
@@ -33,15 +33,12 @@ ASpace::ASpace(unsigned int ndim, bool addTime)
     _nDim = 2;
   }
 
-  _dimStart.push_back(0);
-
   if(addTime)
   {
     // Time dimension is Euclidean
     // neglecting Eistein's relativity theory :-)
     SpaceRN* ts = new SpaceRN(1);
     addSpaceComponent(ts); // ts is cloned, so delete it
-    _dimStart.push_back(2);
     delete ts;
   }
 }
@@ -51,10 +48,10 @@ ASpace::ASpace(const ASpace& r)
       _nDim(r._nDim),
       _origin(r._origin),
       _iDimOffset(r._iDimOffset),
-      _dimStart(r._dimStart),
       _comps(),
       _globalNDim(r._globalNDim),
       _globalOrigin(r._globalOrigin),
+      _spaceRankView(r._spaceRankView),
       _work1(r._globalNDim), // No need to copy the contents, just allocate
       _work2(r._globalNDim)
 {
@@ -72,9 +69,9 @@ ASpace& ASpace::operator=(const ASpace& r)
     _nDim = r._nDim;
     _origin = r._origin;
     _iDimOffset = r._iDimOffset;
-    _dimStart = r._dimStart;
     _globalNDim = r._globalNDim;
     _globalOrigin = r._globalOrigin;
+    _spaceRankView = r._spaceRankView;
     _work1 = r._work1;
     _work2 = r._work2;
     for(auto* c : r._comps)
@@ -92,12 +89,22 @@ ASpace::~ASpace()
     delete c;
   }
 }
+int ASpace::getCurrentOffset() const
+{
+  int rankView = getSpaceRankView();
+  return  getOffset(rankView);
+}
+  
 
+unsigned int ASpace::getCurrentNDim() const
+{
+  int rankView = getSpaceRankView();
+  return  getNDim(rankView);
+}
 void ASpace::addSpaceComponent(const ASpace* comp)
 {
   ASpace* sp = dynamic_cast<ASpace*>(comp->clone());
   sp->_setDimOffset(_globalNDim);
-  _dimStart.push_back(_globalNDim);
   _comps.push_back(sp);
   _globalNDim += sp->getNDim(0);
   const VectorDouble& o = sp->getOrigin(0);
@@ -153,6 +160,15 @@ unsigned int ASpace::getNDim(int ispace) const
   if (ispace == 0)
     return _nDim;
   return _comps[ispace - 1]->getNDim(0);
+}
+
+unsigned int ASpace::getOffset(int ispace) const
+{
+  if (ispace < 0 || ispace >= (int)getNComponents())
+    return 0;
+  if (ispace == 0)
+    return _iDimOffset;
+  return _comps[ispace - 1]->getOffset(0);
 }
 
 const VectorDouble& ASpace::getOrigin(int ispace) const

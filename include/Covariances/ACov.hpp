@@ -69,6 +69,24 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const;
+  virtual void evalCovLHS(MatrixSquareGeneral &mat,
+                          int iech1, int iech2, const Db* db = nullptr, 
+                          const CovCalcMode *mode = nullptr) const
+  {
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(iech2);
+    DECLARE_UNUSED(db);
+    DECLARE_UNUSED(mode);
+  }
+    virtual void evalCovRHS(MatrixSquareGeneral &mat,
+                            int iech1, int iech2, const SpacePoint& pout,  
+                            const CovCalcMode *mode = nullptr) const
+  {
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(iech2);
+    DECLARE_UNUSED(pout);
+    DECLARE_UNUSED(mode);
+  }
   /// Calculate the matrix of covariances between two points given by indices (optim)
   virtual void evalMatOptimInPlace(int icas1,
                                    int iech1,

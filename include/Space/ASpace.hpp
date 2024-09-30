@@ -49,12 +49,14 @@ public:
 
   /// Get the number of dimensions (if ispace is negative, return the global number of )
   unsigned int getNDim(int ispace = -1) const;
+  unsigned int getOffset(int ispace = -1) const;
 
   /// Return the space origin coordinates
   const VectorDouble& getOrigin(int ispace = -1) const;
 
   /// Return the dimension offset index
   unsigned int getDimOffset() const { return _iDimOffset; }
+  unsigned int getCurrentNDim() const;
 
   /// Return true if the given space is equal to me (same dimension and space definition)
   bool isEqual(const ASpace* space) const;
@@ -92,10 +94,11 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = 0) const;
-  int getStart(int ispace) const{ return _dimStart[ispace]; }
+  const ASpace* getComponent(int i) const { return _comps[i];}
 
-  const ASpace* getComponent(int i) const { return _comps[i]; }
-
+  int getSpaceRankView() const { return _spaceRankView; }  
+  void setSpaceRankView(int spaceRankView)  { _spaceRankView = spaceRankView; }
+  int getCurrentOffset() const ;
 protected:
 
   /// Internal usage only
@@ -135,6 +138,7 @@ protected:
   virtual void _getIncrementInPlace(const SpacePoint &p1, 
                                     const SpacePoint &p2,
                                     VectorDouble &ptemp) const = 0;
+  
 protected:
   /// Number of space dimensions (not taking into account composits)
   unsigned int _nDim;
@@ -142,14 +146,14 @@ protected:
   VectorDouble _origin;
   /// Dimension offset index (for space composit)
   unsigned int _iDimOffset;
-  std::vector<int> _dimStart;
+
   /// Space composits list
   std::vector<ASpace *> _comps;
   /// Numnber of space dimensions  (taking into account composits)
   unsigned int _globalNDim;
   /// Coordinates of the global origin (taking into account composits)
   VectorDouble _globalOrigin;
-
+  int _spaceRankView; // Idée de Didier
   // The next vectors are specified as working members in order to avoid too many allocations
   mutable VectorDouble _work1;
   mutable VectorDouble _work2;

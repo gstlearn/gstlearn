@@ -60,7 +60,6 @@ public:
 
   /// Return the number of dimension of the current space context
   unsigned int getNDim(int ispace = -1) const;
-
   /// Return the current space context origin coordinates
   const VectorDouble& getOrigin(int ispace = -1) const;
 
