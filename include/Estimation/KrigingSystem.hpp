@@ -132,11 +132,9 @@ private:
   void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
   void _covtab0Calcul(int icas, int iech, const CovCalcMode *mode);
-  void _covtabCalcul(int icas1,
-                     int iech1,
-                     int icas2,
-                     int iech2,
-                     const CovCalcMode* mode);
+  // void _covtabCalcul(int iech1,
+  //                    int iech2,
+  //                    const CovCalcMode* mode);
   void _covCvvCalcul(const CovCalcMode* mode);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
@@ -303,7 +301,7 @@ private:
   /// Working arrays
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable MatrixSquareGeneral    _covtab;
+  mutable MatrixSquareSymmetric  _covtab;
   mutable VectorDouble           _drftab;
   mutable MatrixSquareSymmetric  _lhsf;
   mutable MatrixSquareSymmetric  _lhsc;

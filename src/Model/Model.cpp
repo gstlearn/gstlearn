@@ -26,7 +26,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
@@ -690,7 +690,7 @@ double Model::evalCov(const VectorDouble &incr,
 
 /**
  * Switch to a Model dedicated to Gradients
- * (transforms it from CovLMC to CovLMGradient)
+ * (transforms it from ACovAnisoList to CovLMGradient)
  */
 void Model::switchToGradient()
 {
@@ -712,7 +712,7 @@ void Model::switchToGradient()
 
 /**
  * Defining an Anamorphosis information for the Model
- * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
+ * (in fact, this is added to ACovAnisoList part and transforms it from ACovAnisoList to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
  * @param strcnt Array of covariance description used for IR case
  * @return
@@ -737,11 +737,11 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   }
   else
   {
-    CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
+    ACovAnisoList* cov = dynamic_cast<ACovAnisoList*>(_cova);
     if (cov == nullptr)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
-      messerr("The original covariance is probably not a 'CovLMC'");
+      messerr("The original covariance is probably not a 'ACovAnisoList'");
       return 1;
     }
 
@@ -770,7 +770,7 @@ int Model::unsetAnam()
     // ACovAnisoList does not have any Anam: do nothing
     return 0;
   }
-    CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
+    ACovAnisoList* cov = dynamic_cast<ACovAnisoList*>(_cova);
     if (cov == nullptr)
     {
       messerr("Impossible to unset 'anam' from the covariance part of the Model");
@@ -778,13 +778,13 @@ int Model::unsetAnam()
       return 1;
     }
 
-  // Initiate a new CovLMC class
-  CovLMC* newcov = new CovLMC(*cov);
+  // Initiate a new ACovAnisoList class
+  ACovAnisoList* newcov = new ACovAnisoList(*cov);
 
   // Delete the current ACovAnisoList structure
   delete _cova;
 
-    // Replace it by the newly create one (CovLMC)
+    // Replace it by the newly create one (ACovAnisoList)
     _cova = newcov;
   return 0;
 }
@@ -1146,9 +1146,9 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   _clear();
   _create();
 
-  /* Reading the covariance part and store it into a CovLMC */
+  /* Reading the covariance part and store it into a ACovAnisoList */
 
-  CovLMC covs(_ctxt.getSpace());
+  ACovAnisoList covs(_ctxt.getSpace());
   for (int icova = 0; ret && icova < ncova; icova++)
   {
     flag_aniso = flag_rotation = 0;
@@ -1337,7 +1337,7 @@ void Model::_create()
   // TODO: The next two lines are there in order to allow direct call to
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
-  _cova = new CovLMC(_ctxt.getSpace());
+  _cova = new ACovAnisoList(_ctxt.getSpace());
   _driftList = new DriftList(_ctxt);
 }
 

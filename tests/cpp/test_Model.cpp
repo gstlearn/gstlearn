@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Db/Db.hpp"
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model modellmc = Model(ctxt);
   // Build the List of Covariances
-  CovLMC covlmc = CovLMC(ctxt.getSpace());
+  ACovAnisoList covlmc = ACovAnisoList(ctxt.getSpace());
   // Build the Elementary Covariances
   CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
   cov1.setRanges({1.2,2.1});

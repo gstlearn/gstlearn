@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/ACov.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Enum/EAnam.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/EConvDir.hpp"
@@ -17,7 +19,6 @@
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -32,7 +33,7 @@
 CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
                                        const VectorInt& strcnt,
                                        const ASpace* space)
-    : CovLMC(space),
+    : ACovAnisoList(space),
       _activeFactor(0),
       _anamStrCount(),
       _anam(anam)
@@ -40,10 +41,10 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
   init(strcnt);
 }
 
-CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMC& lmc,
+CovLMCAnamorphosis::CovLMCAnamorphosis(const ACovAnisoList& lmc,
                                        const AAnam* anam,
                                        const VectorInt& strcnt)
-    : CovLMC(lmc),
+    : ACovAnisoList(lmc),
       _activeFactor(0),
       _anamStrCount(),
       _anam(anam)
@@ -52,7 +53,7 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMC& lmc,
 }
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis &r)
-    : CovLMC(r),
+    : ACovAnisoList(r),
       _activeFactor(r._activeFactor),
       _anamStrCount(r._anamStrCount),
       _anam(r._anam)
@@ -63,7 +64,7 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
 {
   if (this != &r)
   {
-    CovLMC::operator=(r);
+    ACovAnisoList::operator=(r);
     _activeFactor = r._activeFactor;
     _anamStrCount = r._anamStrCount;
     _anam = r._anam;
@@ -71,38 +72,25 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   return *this;
 }
 
+void CovLMCAnamorphosis::evalCovLHS(MatrixSquareSymmetric &mat,
+                                    SpacePoint &pwork1,
+                                    SpacePoint &pwork2,
+                                    int iech1, int iech2, const Db* db, 
+                                    const CovCalcMode *mode) const
+{
+  evalCovLHS(mat, pwork1, pwork2, iech1, iech2, db, mode);
+}
+
+void CovLMCAnamorphosis::evalCovRHS(MatrixSquareSymmetric &mat,
+                  SpacePoint &pwork1,
+                  int iech1, const Db* db,  SpacePoint& pout,  
+                  const CovCalcMode *mode) const
+{
+  ACov::evalCovRHS(mat, pwork1, iech1, db, pout, mode);
+}
+
 CovLMCAnamorphosis::~CovLMCAnamorphosis()
 {
-}
-/**
- * Calculate the Matrix of covariance for zero distance
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMCAnamorphosis::eval0MatInPlace(MatrixSquareGeneral &mat,
-                                         const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::eval0MatInPlace(mat, mode);
-}
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMCAnamorphosis::evalMatInPlace(const SpacePoint &p1,
-                                        const SpacePoint &p2,
-                                        MatrixSquareGeneral &mat,
-                                        const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::evalMatInPlace(p1, p2, mat, mode);
 }
 
 int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
@@ -251,7 +239,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
 
   double rho = 1.;
   if (getDistance(p1, p2) > 0.)
-    rho = CovLMC::eval(p1, p2, ivar, jvar, &modeloc);
+    rho = ACovAnisoList::eval(p1, p2, ivar, jvar, &modeloc);
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
@@ -319,7 +307,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
         cov = rhon;
         break;
     }
-    if (mode->getAsVario() == true) cov = 1. - cov;
+    if (mode->getAsVario()) cov = 1. - cov;
   }
 
   return cov;
@@ -340,7 +328,7 @@ double CovLMCAnamorphosis::_evalHermite0(int ivar,
   {
     // For the Gaussian variable
 
-    cov = CovLMC::eval0(ivar, jvar, mode);
+    cov = ACovAnisoList::eval0(ivar, jvar, mode);
   }
   else if (iclass == -1)
   {
@@ -392,8 +380,8 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
   double gamma = 0.;
   if (getDistance(p1, p2) > 0.)
   {
-    gamma = CovLMC::eval(p1, p1, ivar, jvar, mode) -
-            CovLMC::eval(p1, p2, ivar, jvar, mode);
+    gamma = ACovAnisoList::eval(p1, p1, ivar, jvar, mode) -
+            ACovAnisoList::eval(p1, p2, ivar, jvar, mode);
   }
 
   if (iclass == 0)
@@ -546,7 +534,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
       double bi = anamIR->getIRStatB(jclass);
       cov1 = cov2;
       _transformCovCalcModeIR(&modeloc, iclass);
-      cov2 = pow(1. + CovLMC::eval(p1, p2, ivar, jvar, &modeloc) * anamIR->getIRStatR(jclass),r);
+      cov2 = pow(1. + ACovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) * anamIR->getIRStatR(jclass),r);
       cov += bi * bi * (cov2 - cov1);
     }
     return cov;
@@ -557,10 +545,10 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
     // Structure for the factor 'iclass´
 
     _transformCovCalcModeIR(&modeloc, iclass - 1);
-    double cov1 = pow(1. + CovLMC::eval(p1, p2, ivar, jvar, &modeloc) *
+    double cov1 = pow(1. + ACovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
                       anamIR->getIRStatR(iclass - 1), r);
     _transformCovCalcModeIR(&modeloc, iclass);
-    double cov2 = pow(1. + CovLMC::eval(p1, p2, ivar, jvar, &modeloc) *
+    double cov2 = pow(1. + ACovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
                       anamIR->getIRStatR(iclass), r);
     return (cov2 - cov1);
   }
@@ -634,6 +622,6 @@ void CovLMCAnamorphosis::addCov(const CovAniso* cov)
     messerr("Operation bypassed");
     return;
   }
-  CovLMC::addCov(cov);
+  ACovAnisoList::addCov(cov);
 }
 

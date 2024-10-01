@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/ACovAnisoList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
 class ASpace;
@@ -21,13 +21,13 @@ class SpacePoint;
 class CovAniso;
 class Model;
 
-class GSTLEARN_EXPORT CovLMCAnamorphosis : public CovLMC
+class GSTLEARN_EXPORT CovLMCAnamorphosis : public ACovAnisoList
 {
 public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
                      const ASpace* space = nullptr);
-  CovLMCAnamorphosis(const CovLMC& lmc,
+  CovLMCAnamorphosis(const ACovAnisoList& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);
@@ -49,15 +49,16 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
-                              const CovCalcMode *mode = nullptr) const override;
-  /// Tell if the use of Optimization is enabled or not
-  virtual bool isOptimEnabled() const override { return false; }
 
+  void evalCovLHS(MatrixSquareSymmetric &mat,
+                  SpacePoint &pwork1,
+                  SpacePoint &pwork2,
+                  int iech1, int iech2, const Db* db = nullptr, 
+                  const CovCalcMode *mode = nullptr) const override;
+  void evalCovRHS(MatrixSquareSymmetric &mat,
+                  SpacePoint &pwork1,
+                  int iech1, const Db* db,  SpacePoint& pout,  
+                  const CovCalcMode *mode = nullptr) const override;
   /// Interface for ACovAnisoList
   ///
   void addCov(const CovAniso* cov) override;

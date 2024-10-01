@@ -82,11 +82,11 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+  virtual void eval0MatInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const override;
   virtual void evalMatInPlace(const SpacePoint &p1,
                               const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
+                              MatrixSquareSymmetric &mat,
                               const CovCalcMode *mode = nullptr) const override;
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
@@ -116,11 +116,20 @@ public:
                         int icol = 0,
                         const CovCalcMode *mode = nullptr,
                         bool flagSym = false) const;
+  virtual void evalCovLHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          SpacePoint &pwork2,
+                          int iech1, int iech2, const Db* db = nullptr, 
+                          const CovCalcMode *mode = nullptr) const override;
+  virtual void evalCovRHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          int iech1, const Db* db,  SpacePoint& pout,  
+                          const CovCalcMode *mode = nullptr) const override;
   void evalMatOptimInPlace(int icas1,
                            int iech1,
                            int icas2,
                            int iech2,
-                           MatrixSquareGeneral &mat,
+                           MatrixSquareSymmetric &mat,
                            const CovCalcMode *mode = nullptr) const override;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
@@ -300,17 +309,25 @@ public:
   void informDbInForSills(const Db* dbin) const;
   void informDbOutForSills(const Db* dbout) const;
 
+  /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
   void updateCovByMesh(int imesh,bool aniso = true);
   double getValue(const EConsElem &econs,int iv1,int iv2) const;
-
+  void setOptimEnabled(bool flag) { _optimEnabled = flag; }
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
   virtual void _initFromContext();
 
 private:
+bool _isOptimEnabled() const 
+{ 
+  return _optimEnabled && !isNoStatForAnisotropy(); 
+}
+void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
+                 MatrixSquareSymmetric &mat,
+                 const CovCalcMode *mode) const;
  void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                       const AFunctional* func = nullptr, 
                       const Db* db = nullptr,const String& namecol = String());
@@ -342,6 +359,13 @@ private:
                                               EConsElem::SCALE,
                                               EConsElem::TENSOR,
                                               EConsElem::ANGLE};
+  private:
+  bool _optimEnabled;
+
+  // These temporary information is used to speed up processing (optimization functions)
+  // They are in a protected section as they may be modified by class hierarchy
+  mutable std::vector<SpacePoint> _p1As;
+  mutable SpacePoint _p2A;
 };
 
 

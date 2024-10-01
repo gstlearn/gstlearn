@@ -26,7 +26,7 @@ CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
                                      double conv_range,
                                      int conv_ndisc,
                                      const ASpace* space)
-    : CovLMC(space),
+    : ACovAnisoList(space),
       _convType(conv_type),
       _convDir(conv_dir),
       _convDiscNumber(conv_ndisc),
@@ -39,7 +39,7 @@ CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
 }
 
 CovLMCConvolution::CovLMCConvolution(const CovLMCConvolution &r)
-    : CovLMC(r),
+    : ACovAnisoList(r),
       _convType(r._convType),
       _convDir(r._convDir),
       _convDiscNumber(r._convDiscNumber),
@@ -54,7 +54,7 @@ CovLMCConvolution& CovLMCConvolution::operator=(const CovLMCConvolution &r)
 {
   if (this != &r)
   {
-    CovLMC::operator=(r);
+    ACovAnisoList::operator=(r);
     _convType = r._convType;
     _convDir = r._convDir;
     _convDiscNumber = r._convDiscNumber;
@@ -70,36 +70,6 @@ CovLMCConvolution& CovLMCConvolution::operator=(const CovLMCConvolution &r)
 
 CovLMCConvolution::~CovLMCConvolution()
 {
-}
-/**
- * Calculate the Matrix of covariance for zero distance
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMCConvolution::eval0MatInPlace(MatrixSquareGeneral &mat,
-                                        const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::eval0MatInPlace(mat, mode);
-}
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMCConvolution::evalMatInPlace(const SpacePoint &p1,
-                                       const SpacePoint &p2,
-                                       MatrixSquareGeneral &mat,
-                                       const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::evalMatInPlace(p1, p2, mat, mode);
 }
 
 int CovLMCConvolution::init(const EConvType& conv_type,
@@ -289,7 +259,7 @@ double CovLMCConvolution::eval0(int ivar,
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
-      cov0 += CovLMC::eval(p11, p22, ivar, jvar, mode) * w1 * w2;
+      cov0 += ACovAnisoList::eval(p11, p22, ivar, jvar, mode) * w1 * w2;
     }
   }
   return cov0;
@@ -329,9 +299,9 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
       p22.move(_convIncr.getColumn(i2));
       double covloc = 0.;
       if (mode == nullptr)
-        covloc = CovLMC::eval(p11, p22, ivar, jvar);
+        covloc = ACovAnisoList::eval(p11, p22, ivar, jvar);
       else
-        covloc = CovLMC::eval(p11, p22, ivar, jvar, &modeloc);
+        covloc = ACovAnisoList::eval(p11, p22, ivar, jvar, &modeloc);
       cov += covloc * w1 * w2;
     }
   }
@@ -351,10 +321,10 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
         p22.move(_convIncr.getColumn(i2));
         double covloc = 0.;
         if (mode == nullptr)
-          covloc = CovLMC::eval(p11, p22, ivar, jvar);
+          covloc = ACovAnisoList::eval(p11, p22, ivar, jvar);
         else
         {
-          covloc = CovLMC::eval(p11, p22, ivar, jvar, &modeloc);
+          covloc = ACovAnisoList::eval(p11, p22, ivar, jvar, &modeloc);
         }
         cov0 += covloc * w1 * w2;
       }

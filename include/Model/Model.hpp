@@ -163,9 +163,6 @@ public:
   bool isAllActiveCovList() const;
   void setTapeRange(double range);
 
-  void setOptimEnabled(bool flagOptim) { _cova->setOptimEnabled(flagOptim); }
-  bool isOptimEnabled() const { return _cova->isOptimEnabled(); }
-
   double eval0(int ivar = 0,
                int jvar = 0,
                const CovCalcMode* mode = nullptr) const
@@ -184,7 +181,7 @@ public:
    *
    * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
    */
-  void eval0MatInPlace(MatrixSquareGeneral &mat,
+  void eval0MatInPlace(MatrixSquareSymmetric &mat,
                        const CovCalcMode *mode = nullptr) const
   {
     _cova->eval0MatInPlace(mat, mode);
@@ -221,7 +218,7 @@ public:
    */
   void evalMatInPlace(const SpacePoint &p1,
                       const SpacePoint &p2,
-                      MatrixSquareGeneral &mat,
+                      MatrixSquareSymmetric &mat,
                       const CovCalcMode* mode = nullptr) const
   {
     _cova->evalMatInPlace(p1, p2, mat, mode);
@@ -451,7 +448,7 @@ public:
                            int iech1,
                            int icas2,
                            int iech2,
-                           MatrixSquareGeneral &mat,
+                           MatrixSquareSymmetric &mat,
                            const CovCalcMode *mode = nullptr) const
   {
     _cova->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);

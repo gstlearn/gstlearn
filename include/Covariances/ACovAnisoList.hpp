@@ -66,17 +66,17 @@ public:
                        int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+  virtual void eval0MatInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const override;
   virtual void evalMatInPlace(const SpacePoint &p1,
                               const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
+                              MatrixSquareSymmetric &mat,
                               const CovCalcMode *mode = nullptr) const override;
   virtual void evalMatOptimInPlace(int icas1,
                                    int iech1,
                                    int icas2,
                                    int iech2,
-                                   MatrixSquareGeneral &mat,
+                                   MatrixSquareSymmetric &mat,
                                    const CovCalcMode *mode = nullptr) const override;
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)  override;
 
@@ -149,6 +149,17 @@ public:
                                                     int ivar0 = -1,
                                                     const VectorInt &nbgh1 = VectorInt(),
                                                     const CovCalcMode *mode = nullptr) const;
+   
+
+  void evalCovLHS(MatrixSquareSymmetric &mat,
+                  SpacePoint &pwork1,
+                  SpacePoint &pwork2,
+                  int iech1, int iech2, const Db* db = nullptr, 
+                  const CovCalcMode *mode = nullptr) const override;
+  void evalCovRHS(MatrixSquareSymmetric &mat,
+                  SpacePoint &pwork1,
+                  int iech1, const Db* db,  SpacePoint& pout,  
+                  const CovCalcMode *mode = nullptr) const override;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

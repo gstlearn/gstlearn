@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACovAnisoList.hpp"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -19,6 +20,7 @@
 #include "Covariances/CovLMGradient.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Db/Db.hpp"
+#include "Space/SpacePoint.hpp"
 
 #include <math.h>
 #include <vector>
@@ -158,7 +160,7 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
+void ACovAnisoList::eval0MatInPlace(MatrixSquareSymmetric &mat,
                                     const CovCalcMode *mode) const
 {
   if (_considerAllCovariances(mode))
@@ -198,7 +200,6 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
 {
   MatrixRectangular mat;
   SpacePoint p2;
-
   if (db2 == nullptr) db2 = db1;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
@@ -265,7 +266,8 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
 
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
-
+  for (auto *e : _covs)
+    e->setOptimEnabled(true);
   // Prepare the Optimization for covariance calculation
   optimizationPreProcess(db1);
 
@@ -326,7 +328,7 @@ void ACovAnisoList::evalMatOptimInPlace(int icas1,
                                         int iech1,
                                         int icas2,
                                         int iech2,
-                                        MatrixSquareGeneral &mat,
+                                        MatrixSquareSymmetric &mat,
                                         const CovCalcMode *mode) const
 {
   if (_considerAllCovariances(mode))
@@ -377,7 +379,7 @@ double ACovAnisoList::eval(const SpacePoint& p1,
  */
 void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
                                    const SpacePoint &p2,
-                                   MatrixSquareGeneral &mat,
+                                   MatrixSquareSymmetric &mat,
                                    const CovCalcMode *mode) const
 {
   if (_considerAllCovariances(mode))
@@ -686,6 +688,31 @@ int ACovAnisoList::getRankNugget() const
     if (getType(is) == ECov::NUGGET) return is;
   }
   return -1;
+}
+
+void ACovAnisoList::evalCovLHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          SpacePoint &pwork2,
+                          int iech1, int iech2, const Db* db, 
+                          const CovCalcMode *mode) const
+{
+  for (const auto &e : _covs)
+  {
+    e->evalCovLHS(mat, pwork1, pwork2, iech1, iech2, db, mode);
+  }
+
+}
+
+void ACovAnisoList::evalCovRHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          int iech1, const Db* db,  SpacePoint& pout,  
+                          const CovCalcMode *mode) const
+{
+  for (const auto &e : _covs)
+  {
+    e->evalCovRHS(mat, pwork1, iech1, db, pout, mode);
+  }
+  
 }
 
 bool ACovAnisoList::isOptimizationInitialized(const Db* db) const

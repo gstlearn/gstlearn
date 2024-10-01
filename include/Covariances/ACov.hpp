@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -56,7 +57,7 @@ public:
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const;
   /// Calculate the matrix of covariances for 0-distance (stationary case)
-  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+  virtual void eval0MatInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const;
   /// Calculate the covariance between two variables and two points (general case)
   virtual double eval(const SpacePoint& p1,
@@ -67,32 +68,29 @@ public:
   /// Calculate the matrix of covariances between two points (general case)
   virtual void evalMatInPlace(const SpacePoint &p1,
                               const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
+                              MatrixSquareSymmetric &mat,
                               const CovCalcMode *mode = nullptr) const;
-  virtual void evalCovLHS(MatrixSquareGeneral &mat,
+  virtual void evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                               SpacePoint& pwork1, int iech1,
+                               SpacePoint& pwork2, int iech2,
+                               const CovCalcMode *mode) const;
+
+  virtual void evalCovLHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          SpacePoint &pwork2,
                           int iech1, int iech2, const Db* db = nullptr, 
-                          const CovCalcMode *mode = nullptr) const
-  {
-    DECLARE_UNUSED(iech1);
-    DECLARE_UNUSED(iech2);
-    DECLARE_UNUSED(db);
-    DECLARE_UNUSED(mode);
-  }
-    virtual void evalCovRHS(MatrixSquareGeneral &mat,
-                            int iech1, int iech2, const SpacePoint& pout,  
-                            const CovCalcMode *mode = nullptr) const
-  {
-    DECLARE_UNUSED(iech1);
-    DECLARE_UNUSED(iech2);
-    DECLARE_UNUSED(pout);
-    DECLARE_UNUSED(mode);
-  }
+                          const CovCalcMode *mode = nullptr) const;
+  virtual void evalCovRHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          int iech1, const Db* db, SpacePoint& pout,  
+                          const CovCalcMode *mode = nullptr) const;
+
   /// Calculate the matrix of covariances between two points given by indices (optim)
   virtual void evalMatOptimInPlace(int icas1,
                                    int iech1,
                                    int icas2,
                                    int iech2,
-                                   MatrixSquareGeneral &mat,
+                                   MatrixSquareSymmetric &mat,
                                    const CovCalcMode *mode = nullptr) const 
   {
     DECLARE_UNUSED(icas1);
@@ -103,8 +101,6 @@ public:
     DECLARE_UNUSED(mode); 
     messerr("evalMatOptimInPlace not implemented");
   };
-  /// Tell if the use of Optimization is enabled or not
-  virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
@@ -146,7 +142,6 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////////
   ///
-  void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
@@ -341,11 +336,4 @@ private:
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
 
-protected:
-  bool _isOptimEnabled;
-
-  // These temporary information is used to speed up processing (optimization functions)
-  // They are in a protected section as they may be modified by class hierarchy
-  mutable std::vector<SpacePoint> _p1As;
-  mutable SpacePoint _p2A;
 };

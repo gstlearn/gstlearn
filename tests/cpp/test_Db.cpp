@@ -15,7 +15,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromDb(grid);
   model->display();
   CovContext ctxt = model->getContext();
-  CovLMC covs(ctxt.getSpace());
+  ACovAnisoList covs(ctxt.getSpace());
   CovAniso cova = CovAniso(ECov::CUBIC,ctxt);
   cova.setRanges({10,45});
   cova.setAnisoAngles({30.,0.});

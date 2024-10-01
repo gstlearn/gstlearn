@@ -81,7 +81,6 @@ set(SRC
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
   Covariances/CovSincard.cpp
-  Covariances/CovLMC.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp

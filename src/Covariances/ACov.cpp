@@ -12,6 +12,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -22,23 +23,18 @@
 #include "Basic/Law.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
+#include "geoslib_define.h"
 
 #include <vector>
 #include <math.h>
 
 ACov::ACov(const ASpace *space)
-    : ASpaceObject(space),
-      _isOptimEnabled(true),
-      _p1As(),
-      _p2A(space)
+    : ASpaceObject(space)
 {
 }
 
 ACov::ACov(const ACov &r)
-    : ASpaceObject(r),
-      _isOptimEnabled(r._isOptimEnabled),
-      _p1As(r._p1As),
-      _p2A(r._p2A)
+    : ASpaceObject(r)
 {
 }
 
@@ -47,9 +43,6 @@ ACov& ACov::operator=(const ACov &r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
-    _isOptimEnabled = r._isOptimEnabled;
-    _p1As = r._p1As;
-    _p2A = r._p2A;
   }
   return *this;
 }
@@ -74,7 +67,7 @@ MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::eval0MatInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
+void ACov::eval0MatInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
 
@@ -126,7 +119,7 @@ MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
  */
 void ACov::evalMatInPlace(const SpacePoint &p1,
                           const SpacePoint &p2,
-                          MatrixSquareGeneral &mat,
+                          MatrixSquareSymmetric &mat,
                           const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
@@ -921,6 +914,39 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
       irow++;
     }
   }
+}
+
+void ACov::evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                        SpacePoint& pwork1, int iech1,
+                        SpacePoint& pwork2, int iech2,
+                        const CovCalcMode *mode) const
+{
+  DECLARE_UNUSED(iech1,iech2)
+  for (int ivar = 0, nvar = getNVariables(); ivar < nvar; ivar++)
+    for (int jvar = ivar; jvar < nvar; jvar++)
+      mat.addValue(ivar, jvar, eval(pwork1,pwork2,ivar,jvar,mode)); 
+}
+
+void ACov::evalCovLHS(MatrixSquareSymmetric &mat,
+                      SpacePoint &pwork1,
+                      SpacePoint &pwork2,
+                      int iech1, int iech2, const Db* db, 
+                      const CovCalcMode *mode) const
+{
+    db->getSampleAsSPInPlace(iech1, pwork1);
+    db->getSampleAsSPInPlace(iech2, pwork2);
+    evalCovMatBiPointInPlace(mat, pwork1, iech1, pwork2, iech2, mode);
+}
+
+void ACov::evalCovRHS(MatrixSquareSymmetric &mat,
+                      SpacePoint &pwork1,
+                      int iech1, 
+                      const Db* db,
+                      SpacePoint& pout,  
+                      const CovCalcMode *mode) const
+{
+  db->getSampleAsSPInPlace(iech1, pwork1);
+  evalCovMatBiPointInPlace(mat, pwork1, iech1, pout, -1, mode);
 }
 
 /****************************************************************************/
