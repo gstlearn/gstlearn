@@ -47,11 +47,8 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,bool inverse
           messerr("instead of MatrixSquare or MatrixDense.");
     }
   }
-
   _empty = false;
-
 }
-
 
 MatrixSquareSymmetricSim::MatrixSquareSymmetricSim()
 : _mat(nullptr) 
@@ -75,17 +72,14 @@ int MatrixSquareSymmetricSim::_addToDest(const constvect inv, vect outv) const
 }
 int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect whitenoise,
                                                  vect outv) const
-{  
-
-
+{
   _prepare();
   if (isSparse())
   {
-    if (isInverse())
-         return _factorSparse->addSimulateToDest(whitenoise,outv);
-    return _factorSparse->addToDest(whitenoise,outv);
+    if (isInverse()) return _factorSparse->addSimulateToDest(whitenoise, outv);
+    return _factorSparse->addToDest(whitenoise, outv);
   }
-  
+
   if (!isSparse())
   {
     Eigen::Map<const Eigen::VectorXd> whitem(whitenoise.data(),whitenoise.size());
@@ -102,7 +96,6 @@ int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect whitenoise,
   return 0;
 
 }
-
 
 MatrixSquareSymmetricSim::~MatrixSquareSymmetricSim()
 {

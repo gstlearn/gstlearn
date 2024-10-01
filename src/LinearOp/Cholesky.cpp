@@ -308,9 +308,12 @@ int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
   if (_matCS->isFlagEigen())
   {
     /// TODO : calculate stdev when eigen
-    messerr("The calculation of 'stdev' is not yet performed with Eigen Library");
+    messerr(
+      "The calculation of 'stdev' is not yet performed with Eigen Library");
+    vcur.fill(TEST);
     return 1;
   }
+  
   VectorDouble z;
   VectorDouble wz;
   VectorInt wZdiagp;

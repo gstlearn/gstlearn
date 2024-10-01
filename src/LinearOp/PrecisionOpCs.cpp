@@ -139,9 +139,8 @@ int PrecisionOpCs::_addToDest(const constvect inv, vect outv) const
 int PrecisionOpCs::_addSimulateToDest(const constvect whitenoise,
                                       vect outv) const
 {
-  if (_chol == nullptr)
-    _chol = new Cholesky(_Q);
-  _chol->addSimulateToDest(whitenoise,outv);
+  if (_chol == nullptr) _chol = new Cholesky(_Q);
+  _chol->addSimulateToDest(whitenoise, outv);
   return 0;
 }
 

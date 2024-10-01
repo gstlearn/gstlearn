@@ -8,28 +8,28 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/ASimulable.hpp"
-#include "geoslib_define.h"
+#include "LinearOp/ACholesky.hpp"
 
-VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
+ACholesky::ACholesky(const AMatrix* mat, bool inverse)
+  : _mat(mat)
+  , _inverse(inverse)
+  , _size(0)
 {
-  VectorDouble res;
-  evalSimulate(whitenoise, res);
-  return res;
+  _size = mat->getNRows();
 }
 
-int ASimulable::evalSimulate(const VectorDouble& whitenoise,
-                             VectorDouble& outv) const
+int ACholesky::_addToDest(const constvect vecin, vect vecout) const
 {
-  outv.resize(whitenoise.size());
-  constvect ws(whitenoise);
-  vect outs(outv);
-  return evalSimulate(ws, outs);
+  return _addLX(vecin, vecout);
 }
 
-int ASimulable::evalSimulate(const constvect whitenoise, vect result) const
+int ACholesky::_addSimulateToDest(const constvect whitenoise, vect vecout) const
 {
-  std::fill(result.begin(),result.end(),0.);
-  return _addSimulateToDest(whitenoise, result);
+  if (_inverse) return _addInvLtX(whitenoise, vecout);
+  return _addLX(whitenoise, vecout);
 }
 
+int ACholesky::solve(const constvect vecin, vect vecout) const
+{
+  return _addSolveX(vecin, vecout);
+}

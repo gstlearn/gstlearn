@@ -192,28 +192,43 @@ def readAllTraceHeaders(f):
     
     return x, y
 
-def checkCompatible(fileSEGYs):
+def checkCompatible(fileSEGYs, verbose=False):
     nfileSEGY = len(fileSEGYs)
     if nfileSEGY <= 1:
         return True
     
+    # Optional printout
+    if verbose:
+        print("Printout of the", nfileSEGY, "SEGY files")
+        for iseg in range(0,nfileSEGY):
+            print("SEG File #", iseg+1)
+            fi = open(fileSEGYs[iseg])
+            _, _, _, _, _, _, _, _, _, _, _ =  getGridCharacteristics(fi, verbose=True)
+  
     # Getting the file characteristics of the first file (used as reference)
-    
     f0 = open(fileSEGYs[0])
     x0r, y0r, z0r, dxr, dyr, dzr, nxr, nyr, nzr, thetar, thetaDr = getGridCharacteristics(f0)
-    
+
+    # Compare with the other SEGY files
     for iseg in range(1,nfileSEGY):
         fi = open(fileSEGYs[iseg])
         x0, y0, z0, dx, dy, dz, nx, ny, nz, theta, thetaD = getGridCharacteristics(fi)
         
         if x0 != x0r or y0 != y0r or z0 != z0r or dx != dxr or dy != dyr or dz != dzr or nx != nxr or ny != nyr or nz != nzr or thetaD != thetaDr:
-            print("SEGY File #", iseg+1, " ...")
+            print("\nWarning: SEGY File #", iseg+1, " ...")
             _, _, _, _, _, _, _, _, _, _, _ = getGridCharacteristics(fi, verbose= True)
-            print("... is not compatible with SEGY File # 1")
-            _, _, _, _, _, _, _, _, _, _, _ = getGridCharacteristics(f0, verbose= True)           
+            print("... is not 'strictly' compatible with SEGY File # 1.")
+            _, _, _, _, _, _, _, _, _, _, _ = getGridCharacteristics(f0, verbose= True) 
+
+            if nx == nxr and ny == nyr and nz == nzr:
+                print("However, the count of grid nodes being similar, the difference is considered as minor.")
+                print("The SEGYS are considered as compatible: the information of SEGY#1 is used")
+                return True
+                  
             return False
     
     return True
+
 
 def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = None, 
                  verbose=False):

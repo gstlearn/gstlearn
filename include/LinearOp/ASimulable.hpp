@@ -10,20 +10,18 @@
 /******************************************************************************/
 #pragma once
 #include "gstlearn_export.hpp"
-
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ALinearOp.hpp"
 
 class GSTLEARN_EXPORT ASimulable : public ALinearOp
 {
 public:
-  ASimulable() { }
+  ASimulable() {}
   virtual ~ASimulable() {}
-  
+
   int evalSimulate(const VectorDouble& whitenoise, VectorDouble& outv) const;
   VectorDouble evalSimulate(const VectorDouble& whitenoise) const;
-  
-  
+
 #ifndef SWIG
 
 public:
