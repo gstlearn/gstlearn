@@ -53,6 +53,7 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _tabNoStat(),
       _noStatFactor(1.),
       _optimEnabled(true),
+      _isOptimPreProcessed(false),
       _p1As(),
       _p2A(ctxt.getSpace())
 {
@@ -68,6 +69,7 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _tabNoStat(),
       _noStatFactor(1.),
       _optimEnabled(true),
+      _isOptimPreProcessed(false),
       _p1As(),
       _p2A(ctxt.getSpace())
 {
@@ -90,6 +92,7 @@ CovAniso::CovAniso(const ECov &type,
       _tabNoStat(),
       _noStatFactor(1.),
       _optimEnabled(true),
+      _isOptimPreProcessed(false),
       _p1As(),
       _p2A(ctxt.getSpace())
 {
@@ -125,6 +128,7 @@ CovAniso::CovAniso(const CovAniso &r)
       _tabNoStat(r._tabNoStat),
       _noStatFactor(r._noStatFactor),
       _optimEnabled(r._optimEnabled),
+      _isOptimPreProcessed(r._isOptimPreProcessed),
       _p1As(r._p1As),
       _p2A(r._p2A)
 {
@@ -142,6 +146,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _tabNoStat = r._tabNoStat;
     _noStatFactor = r._noStatFactor;
     _optimEnabled = r._optimEnabled;
+    _isOptimPreProcessed = r._isOptimPreProcessed;
     _p1As = r._p1As;
     _p2A = r._p2A;
   }
@@ -481,9 +486,25 @@ double CovAniso::eval(const SpacePoint &p1,
                       int jvar,
                       const CovCalcMode* mode) const
 {
-  double h = getSpace()->getDistance(p1, p2, _aniso);
-  double cov = _evalCovFromH(h, mode);
+  double h;
+  if (!_isOptimPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
+  {
+    h = getSpace()->getDistance(p1, p2, _aniso);
+  }
+  else
+  {
+    SpacePoint* p1A;
+    SpacePoint* p2A;
+    if (p1.isTarget())  p1A = &_p2A;
+    else  p1A = &_p1As[p1.getIech()];
+    
+    if (p2.isTarget())  p2A = &_p2A;
+    else  p2A = &_p1As[p2.getIech()];
 
+    h = p2A->getDistance(*p1A);
+    
+  }
+  double cov = _evalCovFromH(h, mode);
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
   return (cov);
@@ -649,29 +670,6 @@ void CovAniso::evalCovRHS(MatrixSquareSymmetric &mat,
   }
 }
 
-void CovAniso::evalMatOptimInPlace(int icas1,
-                                   int iech1,
-                                   int icas2,
-                                   int iech2,
-                                   MatrixSquareSymmetric &mat,
-                                   const CovCalcMode *mode) const
-{
-  SpacePoint* p1A = (icas1 == 1) ? &_p1As[iech1] : &_p2A;
-  SpacePoint* p2A = (icas2 == 1) ? &_p1As[iech2] : &_p2A;
-
-  // Calculate covariance between two points
-  double hoptim = p2A->getDistance(*p1A);
-  double cov = _evalCovFromH(hoptim, mode);
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
-  else
-  {
-    MatrixSquareSymmetric identity = _sill;
-    identity.setIdentity();
-    mat.addMatInPlace(identity, 1., cov);
-  }
-}
 
 double CovAniso::evalCovOnSphere(double alpha,
                                  int degree,
@@ -1252,8 +1250,8 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
 void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
 {
   if (_isOptimEnabled())
-  {
-     _optimizationTransformSP(pt, _p2A);
+  {  
+    _optimizationTransformSP(pt, _p2A);
   }
 }
 
@@ -1267,6 +1265,7 @@ void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
 void CovAniso::optimizationSetTarget(int iech) const
 {
   _p2A = _p1As[iech];
+  _p2A.setTarget(true);
 }
 
 /**
@@ -1305,12 +1304,14 @@ void CovAniso::optimizationPreProcess(const Db* db) const
 		  _p1As[i].setFFFF();
 	}
   _p2A = SpacePoint(_space);
+  _isOptimPreProcessed = true;
 }
 
 void CovAniso::optimizationPostProcess() const
 {
   if (! isOptimizationInitialized()) return;
 	_p1As.clear();
+  _isOptimPreProcessed = false;
 }
 
 /**

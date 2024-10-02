@@ -313,41 +313,6 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
   return mat;
 }
 
-
-/**
- * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
- * @param icas1 Origin of the Db containing the first point
- * @param iech1 Rank of the first point
- * @param icas2 Origin of the Db containing the second point
- * @param iech2 Rank of the second point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void ACovAnisoList::evalMatOptimInPlace(int icas1,
-                                        int iech1,
-                                        int icas2,
-                                        int iech2,
-                                        MatrixSquareSymmetric &mat,
-                                        const CovCalcMode *mode) const
-{
-  if (_considerAllCovariances(mode))
-  {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
-    {
-      _covs[i]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
-    }
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      _covs[mode->getActiveCovList(i)]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
-    }
-  }
-}
-
 double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
                            int ivar,

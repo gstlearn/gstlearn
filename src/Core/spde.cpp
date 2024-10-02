@@ -1362,7 +1362,7 @@ int spde_attach_model(Model *model)
     if (cova->getType() == ECov::NUGGET)
     {
       if (model->getCova(icov)->getSill(0, 0) > 0)
-        st_set_filnug(model->isCovaFiltered(icov));
+        st_set_filnug(model->getCovAnisoList()->isFiltered(icov));
     }
     else
     {
@@ -1484,7 +1484,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     {
       flag_nugget = 1;
       if (model->getSill(icov, 0, 0) > 0)
-        st_set_filnug(model->isCovaFiltered(icov));
+        st_set_filnug(model->getCovAnisoList()->isFiltered(icov));
     }
     else
     {

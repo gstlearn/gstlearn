@@ -85,23 +85,6 @@ public:
                           const Db* db, SpacePoint& pout,  
                           const CovCalcMode *mode = nullptr) const;
 
-  /// Calculate the matrix of covariances between two points given by indices (optim)
-  virtual void evalMatOptimInPlace(int icas1,
-                                   int iech1,
-                                   int icas2,
-                                   int iech2,
-                                   MatrixSquareSymmetric &mat,
-                                   const CovCalcMode *mode = nullptr) const 
-  {
-    DECLARE_UNUSED(icas1);
-    DECLARE_UNUSED(iech1);
-    DECLARE_UNUSED(icas2);
-    DECLARE_UNUSED(iech2);
-    DECLARE_UNUSED(mat);
-    DECLARE_UNUSED(mode); 
-    messerr("evalMatOptimInPlace not implemented");
-  };
-
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
                                  bool flagScaleDistance = false,

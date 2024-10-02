@@ -141,8 +141,6 @@ public:
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
   double getParam(int icov) const;
-  bool isCovaFiltered(int icov) const;
-  bool isStationary() const;
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar=0, int jvar=0) const;
@@ -421,6 +419,7 @@ public:
     if (covalist == nullptr) return MatrixRectangular();
     return covalist->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
   }
+
   MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
                                                     int ivar0 = -1,
                                                     const VectorInt &nbgh1 = VectorInt(),
@@ -430,30 +429,7 @@ public:
     if (covalist == nullptr) return MatrixRectangular();
     return covalist->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode);
   }
-
-  /**@}*/
-
-  /**
-   * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
-   * @param icas1 Origin of the Db containing the first point
-   * @param iech1 Rank of the first point
-   * @param icas2 Origin of the Db containing the second point
-   * @param iech2 Rank of the second point
-   * @param mat   Covariance matrix (Dimension: nvar * nvar)
-   * @param mode  Calculation Options
-   *
-   * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
-   */
-  void evalMatOptimInPlace(int icas1,
-                           int iech1,
-                           int icas2,
-                           int iech2,
-                           MatrixSquareSymmetric &mat,
-                           const CovCalcMode *mode = nullptr) const
-  {
-    _cova->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
-  }
-
+  
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,

@@ -25,7 +25,8 @@ SpacePoint::SpacePoint(const ASpace* space)
 : ASpaceObject(space),
   _coord(new double[getNDim()]),
   _deleteCoord(true),
-  _iech(-1)
+  _iech(-1),
+  _target(false)
 {
   // Initialize the point to the space origin
   // TODO : Not true whatever the space
@@ -38,11 +39,11 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 ,_coord(new double[getNDim()])
 ,_deleteCoord(true)
 ,_iech(-1)
+,_target(r._target)
 {
   for (int i = 0; i < (int) getNDim(); i++)
     _coord[i] = r._coord[i];
 }
-
 
 double SpacePoint::getCoord(int idim) const
 {
@@ -59,13 +60,15 @@ SpacePoint::SpacePoint(vect coord, const ASpace* space,int iech)
 {
   _coord = coord.data();
   _iech = iech;
+  _target = false;
 }
 SpacePoint::SpacePoint(const VectorDouble& coord,int iech,
                        const ASpace* space)
 : ASpaceObject(space),
   _coord(new double[getNDim()]),
   _deleteCoord(true),
-  _iech(iech)
+  _iech(iech),
+  _target(false)
 {
   if (coord.size() == 0 || coord.size() != getNDim())
   {
@@ -86,6 +89,8 @@ SpacePoint::SpacePoint(const VectorDouble& coord,int iech,
 SpacePoint& SpacePoint::operator=(const SpacePoint& r)
 {
   _coord = new double[getNDim()];
+  _iech = r._iech;
+  _target = r._target;
   _deleteCoord = true;
   if (this != &r)
   {
@@ -123,12 +128,12 @@ SpacePoint SpacePoint::projection(int ispace) const
 {
   if (ispace < 0)
     return *this;
-  else
-  {
-    int ndim = getNDim(ispace);
-    SpacePoint p(vect(_coord,_coord+ndim),getSpace()->getComponent(ispace),_iech);
-    return p;
-  }
+
+  int ndim = getNDim(ispace);
+  SpacePoint p(vect(_coord,_coord+ndim),getSpace()->getComponent(ispace),_iech);
+  p.setIech(_iech);
+  p.setTarget(_target);
+  return p;
 }
 void SpacePoint::setCoords(const double* coord, int size)
 {

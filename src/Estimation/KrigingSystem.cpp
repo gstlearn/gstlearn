@@ -567,28 +567,6 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
   _model->eval0MatInPlace(_covtab, mode);
 }
 
-/**
- * Module for calculating the covariance internally
- * It is called for LHS (iech1>=0 && iech2>=0), RHS (iech1>=0 && iech2=-1) and VAR (iech1=-1 && iech2=-1)
- * @param icas1     Origin of the first sample: 1 for dbin and 2 for dbout
- * @param iech1     Rank of the first sample
- * @param icas2     Origin of the second sample: 1 for dbin and 2 for dbout
- * @param iech2     Rank of the second sample
- * @param mode      CovCalcMode structure
- */
-// void KrigingSystem::_covtabCalcul(int iech1,
-//                                   int iech2,
-//                                   const CovCalcMode* mode)
-// {
-//   _covtab.fill(0.);
-//   _cova->evalCovLHS(_covtab, _p1, _p2, iech1, iech2,_dbin,mode);
-// /*   if (_optimEnabled)
-//   {
-//     _model->evalMatOptimInPlace(icas1, iech1, icas2, iech2, _covtab, mode);
-//   } */
-  
-
-// }
 
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
 {
@@ -600,7 +578,7 @@ void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
   _covtab.fill(0);
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
-      _covtab(ivar,jvar) += _model->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
+      _covtab(ivar,jvar) += _cova->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
 }
 
 /****************************************************************************/
@@ -658,12 +636,13 @@ void KrigingSystem::_lhsCalcul()
     for (int jech = 0; jech <= iech; jech++)
     {
       _cova->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
-      if (iech == jech && _model->isStationary())
+      if (iech == jech && _cova->isStationary())
         _covtab0Calcul(1, _nbgh[iech], &_calcModeLHS);
       else
       {
         _covtab.fill(0.);
         _p2.setIech(_nbgh[jech]);
+        _p2.setTarget(false);
         _cova->evalCovLHS(_covtab, _p1, _p2,_dbin,&_calcModeLHS);
       }
       for (int ivar = 0; ivar < _nvar; ivar++)
@@ -856,6 +835,7 @@ void KrigingSystem::_rhsStore(int iech)
  *****************************************************************************/
 void KrigingSystem::_rhsCalculPoint()
 {
+  _p0.setTarget(true);
   _cova->optimizationSetTarget(_p0);
 
   for (int iech = 0; iech < _nech; iech++)
@@ -879,6 +859,7 @@ void KrigingSystem::_rhsCalculBlock()
   // - to memorize the location of the target (center) before its randomization
   // - define a new matrix to cumulate '_covtab'  calculations
   _p0_memo = _p0;
+  _p0_memo.setTarget(true);
   MatrixSquareGeneral covcum(_covtab);
   int ndisc = _getNDisc();
 
@@ -919,7 +900,7 @@ void KrigingSystem::_rhsCalculBlock()
 void KrigingSystem::_rhsCalculDrift()
 {
   _cova->optimizationSetTarget(_p0);
-
+  _p0.setTarget(true);
   _covtab.fill(0.);
   for (int iech = 0; iech < _nech; iech++)
     _rhsStore(iech);
@@ -933,7 +914,7 @@ void KrigingSystem::_rhsCalculDrift()
 void KrigingSystem::_rhsCalculDGM()
 {
   _cova->optimizationSetTarget(_p0);
-
+  _p0.setTarget(true);
   for (int iech = 0; iech < _nech; iech++)
   {
     if (_flagNoStat) _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
@@ -956,6 +937,7 @@ void KrigingSystem::_rhsCalculDGM()
 int KrigingSystem::_rhsCalcul()
 {
   _p0.setIech(_iechOut);
+  _p0.setTarget(true);
   _dbout->getSampleAsSPInPlace(_p0);
 
   /* Establish the covariance part */
@@ -1478,6 +1460,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 void KrigingSystem::_variance0()
 {
   _p0.setIech(_iechOut);
+  _p0.setTarget(true);
   _dbout->getSampleAsSPInPlace(_p0);
   _cova->optimizationSetTarget(_p0);
 

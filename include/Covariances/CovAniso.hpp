@@ -125,12 +125,7 @@ public:
                           SpacePoint &pwork1,
                           const Db* db,  SpacePoint& pout,  
                           const CovCalcMode *mode = nullptr) const override;
-  void evalMatOptimInPlace(int icas1,
-                           int iech1,
-                           int icas2,
-                           int iech2,
-                           MatrixSquareSymmetric &mat,
-                           const CovCalcMode *mode = nullptr) const override;
+
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;
@@ -361,6 +356,7 @@ private:
                                               EConsElem::ANGLE};
   private:
   bool _optimEnabled;
+  mutable bool _isOptimPreProcessed;
 
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy

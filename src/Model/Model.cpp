@@ -497,20 +497,7 @@ double Model::getParam(int icov) const
   if (covalist == nullptr) return TEST;
   return covalist->getParam(icov);
 }
-bool Model::isCovaFiltered(int icov) const
-{
-  if (_cova == nullptr) return false;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return false;
-  return covalist->isFiltered(icov);
-}
-bool Model::isStationary() const
-{
-  if (_cova == nullptr) return false;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return false;
-  return covalist->isStationary();
-}
+
 String Model::getCovName(int icov) const
 {
   if (_cova == nullptr) return String();
@@ -682,7 +669,7 @@ double Model::evalCov(const VectorDouble &incr,
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
 
-  if (member != ECalcMember::LHS && isCovaFiltered(icov))
+  if (member != ECalcMember::LHS && covalist->isFiltered(icov))
     return (0.);
   return getCova(icov)->evalIvarIpas(1., incr);
 }

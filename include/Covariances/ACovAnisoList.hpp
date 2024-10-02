@@ -72,12 +72,7 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareSymmetric &mat,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatOptimInPlace(int icas1,
-                                   int iech1,
-                                   int icas2,
-                                   int iech2,
-                                   MatrixSquareSymmetric &mat,
-                                   const CovCalcMode *mode = nullptr) const override;
+  
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)  override;
 
   /// Interface for AStringable Interface

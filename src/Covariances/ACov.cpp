@@ -172,8 +172,8 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(VectorDouble(),-1,getSpace());
-  SpacePoint p2(VectorDouble(),-1,getSpace());
+  SpacePoint p1(VectorDouble(_space->getNDim()),-1,_space);
+  SpacePoint p2(VectorDouble(_space->getNDim()),-1,_space);
   p2.move(dincr);
   return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
@@ -372,13 +372,13 @@ double ACov::evalAverageIncrToIncr(const VectorVectorDouble &d1,
   double total = 0.;
   for (int iech1 = 0; iech1 < nech1; iech1++)
   {
-    SpacePoint p1(d1[iech1],iech1,getSpace());
+    SpacePoint p1(d1[iech1],-1,getSpace());
 
     /* Loop on the second sample */
 
     for (int iech2 = 0; iech2 < nech2; iech2++)
     {
-      SpacePoint p2(d2[iech2],iech2,getSpace());
+      SpacePoint p2(d2[iech2],-1,getSpace());
       total += eval(p1, p2, ivar, jvar, mode);
     }
   }
