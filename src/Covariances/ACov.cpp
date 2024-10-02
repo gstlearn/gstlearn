@@ -94,7 +94,7 @@ double ACov::eval0(int ivar,
                    int jvar,
                    const CovCalcMode* mode) const
 {
-  SpacePoint p1 = getSpace()->getOrigin();
+  SpacePoint p1(getSpace()->getOrigin(),-1);
   return eval(p1,p1,ivar,jvar,mode); // pure virtual method
 }
 MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
@@ -172,8 +172,8 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(VectorDouble(),getSpace());
-  SpacePoint p2(VectorDouble(),getSpace());
+  SpacePoint p1(VectorDouble(),-1,getSpace());
+  SpacePoint p2(VectorDouble(),-1,getSpace());
   p2.move(dincr);
   return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
@@ -325,7 +325,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
     if (!db1->isActive(iech1)) continue;
     double w1 = db1->getWeight(iech1);
     if (isZero(w1)) continue;
-    SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
+    SpacePoint p1(db1->getSampleCoordinates(iech1),iech1,getSpace());
 
     /* Loop on the second sample */
 
@@ -340,7 +340,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
         for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
           coord2[idim] += eps * law_uniform(-0.5,  0.5);
       }
-      SpacePoint p2(coord2,getSpace());
+      SpacePoint p2(coord2,iech2,getSpace());
 
       /* Loop on the dimension of the space */
 
@@ -372,13 +372,13 @@ double ACov::evalAverageIncrToIncr(const VectorVectorDouble &d1,
   double total = 0.;
   for (int iech1 = 0; iech1 < nech1; iech1++)
   {
-    SpacePoint p1(d1[iech1],getSpace());
+    SpacePoint p1(d1[iech1],iech1,getSpace());
 
     /* Loop on the second sample */
 
     for (int iech2 = 0; iech2 < nech2; iech2++)
     {
-      SpacePoint p2(d2[iech2],getSpace());
+      SpacePoint p2(d2[iech2],iech2,getSpace());
       total += eval(p1, p2, ivar, jvar, mode);
     }
   }
@@ -417,7 +417,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
     if (isZero(w2)) continue;
-    SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
+    SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
 
     /* Loop on the dimension of the space */
 
@@ -443,7 +443,10 @@ VectorDouble ACov::evalPointToDbAsSP(const std::vector<SpacePoint> &p1s,
   /* Loop on the second sample */
 
   for (int iech1 = 0; iech1 < nech1; iech1++)
+  {
+    p1s[iech1].setIech(iech1);
     values[iech1] = eval(p1s[iech1], p2, ivar, jvar, mode);
+  }
   return values;
 }
 
@@ -482,14 +485,14 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
     int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
     if (! nbgh2.empty())
     {
-      SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
+      SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
       values.push_back(eval(p1, p2, ivar, jvar, mode));
     }
     else
     {
       if (db2->isActive(iech2))
       {
-        SpacePoint p2(db2->getSampleCoordinates(iech2), getSpace());
+        SpacePoint p2(db2->getSampleCoordinates(iech2),iech2, getSpace());
         values.push_back(eval(p1, p2, ivar, jvar, mode));
       }
       else
@@ -849,7 +852,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      db1->getSampleAsSPInPlace(iech1, p1);
+      p1.setIech(iech1);
+      db1->getSampleAsSPInPlace(p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -862,7 +866,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          db2->getSampleAsSPInPlace(iech2, p2);
+          p2.setIech(iech2);
+          db2->getSampleAsSPInPlace(p2);
 
           // Modify the covariance (if non stationary)
           updateCovByPoints(1, iech1, 2, iech2);
@@ -917,11 +922,10 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
 }
 
 void ACov::evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
-                        SpacePoint& pwork1, int iech1,
-                        SpacePoint& pwork2, int iech2,
+                        SpacePoint& pwork1, 
+                        SpacePoint& pwork2, 
                         const CovCalcMode *mode) const
 {
-  DECLARE_UNUSED(iech1,iech2)
   for (int ivar = 0, nvar = getNVariables(); ivar < nvar; ivar++)
     for (int jvar = ivar; jvar < nvar; jvar++)
       mat.addValue(ivar, jvar, eval(pwork1,pwork2,ivar,jvar,mode)); 
@@ -930,23 +934,22 @@ void ACov::evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
 void ACov::evalCovLHS(MatrixSquareSymmetric &mat,
                       SpacePoint &pwork1,
                       SpacePoint &pwork2,
-                      int iech1, int iech2, const Db* db, 
+                      const Db* db, 
                       const CovCalcMode *mode) const
 {
-    db->getSampleAsSPInPlace(iech1, pwork1);
-    db->getSampleAsSPInPlace(iech2, pwork2);
-    evalCovMatBiPointInPlace(mat, pwork1, iech1, pwork2, iech2, mode);
+    db->getSampleAsSPInPlace(pwork1);
+    db->getSampleAsSPInPlace(pwork2);
+    evalCovMatBiPointInPlace(mat, pwork1, pwork2,mode);
 }
 
 void ACov::evalCovRHS(MatrixSquareSymmetric &mat,
                       SpacePoint &pwork1,
-                      int iech1, 
                       const Db* db,
                       SpacePoint& pout,  
                       const CovCalcMode *mode) const
 {
-  db->getSampleAsSPInPlace(iech1, pwork1);
-  evalCovMatBiPointInPlace(mat, pwork1, iech1, pout, -1, mode);
+  db->getSampleAsSPInPlace(pwork1);
+  evalCovMatBiPointInPlace(mat, pwork1, pout, mode);
 }
 
 /****************************************************************************/
@@ -1013,7 +1016,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
       int iech1 = index1[rvar1][rech1];
-      db1->getSampleAsSPInPlace(iech1, p1);
+      p1.setIech(iech1);
+      db1->getSampleAsSPInPlace(p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -1029,7 +1033,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
           if (icol >= irow)
           {
             int iech2 = index1[rvar2][rech2];
-            db1->getSampleAsSPInPlace(iech2, p2);
+            p2.setIech(iech2);
+            db1->getSampleAsSPInPlace(p2);
 
             // Modify the covariance (if non stationary)
             updateCovByPoints(1, iech1, 1, iech2);
@@ -1134,7 +1139,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      db1->getSampleAsSPInPlace(iech1, p1);
+      p1.setIech(iech1);
+      db1->getSampleAsSPInPlace(p1);
 
       // Loop on the second variable
       int icol = 0;
@@ -1147,7 +1153,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          db2->getSampleAsSPInPlace(iech2, p2);
+          p2.setIech(iech2);
+          db2->getSampleAsSPInPlace(p2);
 
           // Modify the covariance (if non stationary)
           updateCovByPoints(1, iech1, 2, iech2);

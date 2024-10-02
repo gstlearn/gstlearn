@@ -71,18 +71,18 @@ public:
                               MatrixSquareSymmetric &mat,
                               const CovCalcMode *mode = nullptr) const;
   virtual void evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
-                               SpacePoint& pwork1, int iech1,
-                               SpacePoint& pwork2, int iech2,
+                               SpacePoint& pwork1, 
+                               SpacePoint& pwork2,
                                const CovCalcMode *mode) const;
 
   virtual void evalCovLHS(MatrixSquareSymmetric &mat,
                           SpacePoint &pwork1,
                           SpacePoint &pwork2,
-                          int iech1, int iech2, const Db* db = nullptr, 
+                          const Db* db = nullptr, 
                           const CovCalcMode *mode = nullptr) const;
   virtual void evalCovRHS(MatrixSquareSymmetric &mat,
                           SpacePoint &pwork1,
-                          int iech1, const Db* db, SpacePoint& pout,  
+                          const Db* db, SpacePoint& pout,  
                           const CovCalcMode *mode = nullptr) const;
 
   /// Calculate the matrix of covariances between two points given by indices (optim)

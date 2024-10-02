@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
 
 #include "Covariances/CovGneiting.hpp"
 #include "Covariances/ACov.hpp"
@@ -21,7 +20,8 @@ CovGneiting::CovGneiting()
 
 }
 
-CovGneiting::CovGneiting(const CovGneiting& r)
+CovGneiting::CovGneiting(const CovGneiting& r):
+ACov(r)
 {
 
 }
@@ -36,19 +36,6 @@ CovGneiting& CovGneiting::operator=(const CovGneiting &r)
   return *this;
 }
 
-double CovGneiting::eval0(int ivar,
-                          int jvar,
-                          const CovCalcMode* mode) const
-{
-    DECLARE_UNUSED(ivar,jvar,mode)
-    return 1.;
-}
-
-void CovGneiting::eval0MatInPlace(MatrixSquareGeneral &mat,
-                                 const CovCalcMode *mode) const 
-{
-    DECLARE_UNUSED(mat,mode)
-}
 
 CovGneiting::~CovGneiting()
 {
@@ -58,13 +45,16 @@ CovGneiting::~CovGneiting()
 
 double CovGneiting::eval(const SpacePoint& p1,
                     const SpacePoint& p2,
-                    int ivar = 0,
-                    int jvar = 0,
-                    const CovCalcMode* mode = nullptr) const
+                    int ivar,
+                    int jvar,
+                    const CovCalcMode* mode) const
 {
-    constvect p1;
-    constvect p2;
-    p1 = constvect(p1.getCoords(0));
-    p2 = constvect(p2.getCoords(0));
-    _covS->eval(p1, const SpacePoint &p2)
+
+  auto p1_0 = p1.projection(0);
+  auto p2_0 = p2.projection(0);
+  auto p1_1 = p1.projection(1);
+  auto p2_1 = p2.projection(1);
+  return _covS->eval(p1_0, p2_0, ivar, jvar, mode) * 
+         _covTemp->eval(p1_1, p2_1, ivar, jvar, mode);
+
 }

@@ -154,11 +154,11 @@ public:
   void evalCovLHS(MatrixSquareSymmetric &mat,
                   SpacePoint &pwork1,
                   SpacePoint &pwork2,
-                  int iech1, int iech2, const Db* db = nullptr, 
+                  const Db* db = nullptr, 
                   const CovCalcMode *mode = nullptr) const override;
   void evalCovRHS(MatrixSquareSymmetric &mat,
                   SpacePoint &pwork1,
-                  int iech1, const Db* db,  SpacePoint& pout,  
+                  const Db* db,  SpacePoint& pout,  
                   const CovCalcMode *mode = nullptr) const override;
   ////////////////////////////////////////////////
 

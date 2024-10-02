@@ -14,10 +14,9 @@
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-
+#include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
-#include "gstlearn_export.hpp"
 
 
 class ACov;
@@ -33,15 +32,20 @@ class ACov;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovGneiting: public ACov//, public ICloneable
+class GSTLEARN_EXPORT CovGneiting: public ACov, public ICloneable//, public ICloneable
 {
 public:
   CovGneiting();  
   CovGneiting(const CovGneiting& r);
   CovGneiting& operator=(const CovGneiting& r);
   virtual ~CovGneiting();
+  IMPLEMENT_CLONING(CovGneiting)
 
-
+  bool isConsistent(const ASpace* space) const override 
+  {
+    DECLARE_UNUSED(space)
+    return true; 
+  }
   /// ACov Interface
  
   virtual double eval(const SpacePoint& p1,

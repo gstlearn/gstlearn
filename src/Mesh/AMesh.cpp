@@ -492,11 +492,11 @@ VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices) const
   int number = (int) jlocal.size();
   VectorDouble vec(number,0.);
 
-  SpacePoint P1(getApexCoordinates(iapex0));
+  SpacePoint P1(getApexCoordinates(iapex0),-1);
 
   for (int iapex = 0; iapex < number; iapex++)
   {
-    SpacePoint P2(getApexCoordinates(jlocal[iapex]));
+    SpacePoint P2(getApexCoordinates(jlocal[iapex]),-1);
     vec[iapex] = P1.getDistance(P2);
   }
   return vec;

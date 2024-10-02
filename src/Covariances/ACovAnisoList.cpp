@@ -234,7 +234,8 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
     for (int rech2 = 0; rech2 < nech2s; rech2++)
     {
       int iech2 = index2[rvar2][rech2];
-      db2->getSampleAsSPInPlace(iech2, p2);
+      p2.setIech(iech2);
+      db2->getSampleAsSPInPlace(p2);
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
@@ -693,24 +694,24 @@ int ACovAnisoList::getRankNugget() const
 void ACovAnisoList::evalCovLHS(MatrixSquareSymmetric &mat,
                           SpacePoint &pwork1,
                           SpacePoint &pwork2,
-                          int iech1, int iech2, const Db* db, 
+                          const Db* db, 
                           const CovCalcMode *mode) const
 {
   for (const auto &e : _covs)
   {
-    e->evalCovLHS(mat, pwork1, pwork2, iech1, iech2, db, mode);
+    e->evalCovLHS(mat, pwork1, pwork2, db, mode);
   }
 
 }
 
 void ACovAnisoList::evalCovRHS(MatrixSquareSymmetric &mat,
                           SpacePoint &pwork1,
-                          int iech1, const Db* db,  SpacePoint& pout,  
+                          const Db* db,  SpacePoint& pout,  
                           const CovCalcMode *mode) const
 {
   for (const auto &e : _covs)
   {
-    e->evalCovRHS(mat, pwork1, iech1, db, pout, mode);
+    e->evalCovRHS(mat, pwork1, db, pout, mode);
   }
   
 }

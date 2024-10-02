@@ -196,6 +196,7 @@
   #include "Covariances/ACovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
+  #include "Covariances/CovGneiting.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"

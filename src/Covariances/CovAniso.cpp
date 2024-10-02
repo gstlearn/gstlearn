@@ -602,15 +602,15 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
 void CovAniso::evalCovLHS(MatrixSquareSymmetric &mat,
                           SpacePoint &pwork1,
                           SpacePoint &pwork2,
-                          int iech1, int iech2, const Db* db, 
+                          const Db* db, 
                           const CovCalcMode *mode) const
 {
   if (!_isOptimEnabled())
-    ACov::evalCovLHS(mat, pwork1, pwork2, iech1, iech2, db, mode);
+    ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
   else
   {
-    SpacePoint* p1A = &_p1As[iech1]; 
-    SpacePoint* p2A = &_p1As[iech2];
+    SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
+    SpacePoint* p2A = &_p1As[pwork2.getIech()];
     _evalOptim(p1A,p2A,mat,mode);
   // Calculate covariance between two points
   }
@@ -636,14 +636,14 @@ void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
 
 void CovAniso::evalCovRHS(MatrixSquareSymmetric &mat,
                           SpacePoint &pwork1,
-                          int iech1, const Db* db, SpacePoint& pout,  
+                          const Db* db, SpacePoint& pout,  
                           const CovCalcMode *mode) const
 {
   if (!_isOptimEnabled())
-    ACov::evalCovRHS(mat, pwork1, iech1, db, pout, mode);
+    ACov::evalCovRHS(mat, pwork1, db, pout, mode);
   else
   {
-    SpacePoint* p1A = &_p1As[iech1]; 
+    SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
     SpacePoint* p2A = &_p2A;
     _evalOptim(p1A,p2A,mat,mode);
   }
@@ -1033,7 +1033,7 @@ void CovAniso::_updateFromContext()
 double CovAniso::getIntegralRange(int ndisc, double hmax) const
 {
   int ndim = getNDim();
-  VectorDouble dd(ndim);
+  SpacePoint dd(VectorDouble(ndim),-1);
   double delta = hmax / ndisc;
   double total = 0.;
   switch (ndim)
@@ -1041,7 +1041,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
     case 1:
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
       {
-        dd[0] = delta * j1;
+        dd.setCoord(0, delta * j1);
         total += delta * eval(dd, SpacePoint());
       }
       break;
@@ -1050,8 +1050,8 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
         for (int j2 = -ndisc; j2 <= ndisc; j2++)
         {
-          dd[0] = delta * j1;
-          dd[1] = delta * j2;
+          dd.setCoord(0 , delta * j1);
+          dd.setCoord(1, delta * j2);
           total += delta * delta * eval(dd, SpacePoint());
         }
       break;
@@ -1061,9 +1061,9 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
         for (int j2 = -ndisc; j2 <= ndisc; j2++)
           for (int j3 = -ndisc; j3 <= ndisc; j3++)
           {
-            dd[0] = delta * j1;
-            dd[1] = delta * j2;
-            dd[2] = delta * j3;
+            dd.setCoord(0, delta * j1);
+            dd.setCoord(1, delta * j2);
+            dd.setCoord(2, delta * j3);
             total += delta * delta * delta * eval(dd, SpacePoint());
           }
       break;
@@ -1252,7 +1252,9 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
 void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
 {
   if (_isOptimEnabled())
-    _optimizationTransformSP(pt, _p2A);
+  {
+     _optimizationTransformSP(pt, _p2A);
+  }
 }
 
 /**
@@ -1289,7 +1291,9 @@ void CovAniso::optimizationPreProcess(const Db* db) const
 {
   if (!_isOptimEnabled()) return;
   if (isOptimizationInitialized(db)) return;
-  const std::vector<SpacePoint>& p1s = db->getSamplesAsSP();
+  std::vector<SpacePoint> p1s;
+
+  db->getSamplesAsSP(p1s,_space);
   int n = (int) p1s.size();
 	_p1As.resize(n);
 	for(int i = 0; i < n ; i++)

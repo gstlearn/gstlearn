@@ -653,7 +653,8 @@ void KrigingSystem::_lhsCalcul()
   /* Establish the covariance part */
 
   for (int iech = 0; iech < _nech; iech++)
-  {
+  { 
+    _p1.setIech(_nbgh[iech]);
     for (int jech = 0; jech <= iech; jech++)
     {
       _cova->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
@@ -662,7 +663,8 @@ void KrigingSystem::_lhsCalcul()
       else
       {
         _covtab.fill(0.);
-        _cova->evalCovLHS(_covtab, _p1, _p2, _nbgh[iech], _nbgh[jech],_dbin,&_calcModeLHS);
+        _p2.setIech(_nbgh[jech]);
+        _cova->evalCovLHS(_covtab, _p1, _p2,_dbin,&_calcModeLHS);
       }
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -860,7 +862,8 @@ void KrigingSystem::_rhsCalculPoint()
   {
     _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtab.fill(0.);
-    _cova->evalCovRHS(_covtab, _p1, _nbgh[iech], _dbin, _p0, &_calcModeRHS);
+    _p1.setIech(_nbgh[iech]);
+    _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -892,7 +895,8 @@ void KrigingSystem::_rhsCalculBlock()
       _p0.move(_getDISC1Vec(i));
       _cova->optimizationSetTarget(_p0);
       _covtab.fill(0.);
-      _cova->evalCovRHS(_covtab, _p1, _nbgh[iech], _dbin, _p0, &_calcModeRHS);
+      _p1.setIech(_nbgh[iech]);
+      _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'
       covcum.addMatInPlace(_covtab);
@@ -934,7 +938,8 @@ void KrigingSystem::_rhsCalculDGM()
   {
     if (_flagNoStat) _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtab.fill(0.);
-    _cova->evalCovRHS(_covtab, _p1, _nbgh[iech], _dbin, _p0, &_calcModeRHS);
+    _p1.setIech(_nbgh[iech]);
+    _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -950,7 +955,8 @@ void KrigingSystem::_rhsCalculDGM()
  *****************************************************************************/
 int KrigingSystem::_rhsCalcul()
 {
-  _dbout->getSampleAsSPInPlace(_iechOut, _p0);
+  _p0.setIech(_iechOut);
+  _dbout->getSampleAsSPInPlace(_p0);
 
   /* Establish the covariance part */
 
@@ -1471,7 +1477,8 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  _dbout->getSampleAsSPInPlace(_iechOut, _p0);
+  _p0.setIech(_iechOut);
+  _dbout->getSampleAsSPInPlace(_p0);
   _cova->optimizationSetTarget(_p0);
 
   if (_flagNoStat) _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);

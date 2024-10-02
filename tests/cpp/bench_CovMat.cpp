@@ -64,8 +64,9 @@ int main(int argc, char *argv[])
 
   // Preparing a vector of SpacePoints for the active samples in 'data'
   // for this usage, the list of SP can be reduced to the active samples only
-  std::vector<SpacePoint> p1s = dbin->getSamplesAsSP(true);
-  SpacePoint p2;
+  std::vector<SpacePoint> p1s;
+  dbin->getSamplesAsSP(p1s,model->getASpace(),true);
+  SpacePoint p2(model->getASpace());
   VectorDouble cumul(ndat, 0.);
   Timer timer;
 
@@ -79,7 +80,8 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleAsSPInPlace(i, p2);
+      p2.setIech(i);
+      dbout->getSampleAsSPInPlace(p2);
       VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -103,7 +105,8 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleAsSPInPlace(i, p2);
+      p2.setIech(i);
+      dbout->getSampleAsSPInPlace(p2);
       VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }

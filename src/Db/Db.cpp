@@ -702,17 +702,17 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
-void Db::getSampleAsSPInPlace(int iech, SpacePoint& P) const
+void Db::getSampleAsSPInPlace(SpacePoint& P) const
 {
-  getCoordinatesPerSampleInPlace(iech, P.getCoordRef());
+  getCoordinatesPerSampleInPlace(P.getIech(),P.getCoordRef());
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
 {
   VectorVectorDouble tab;
   int ndim = getNDim();
-  SpacePoint P1(ndim);
-  SpacePoint P2(ndim);
+  SpacePoint P1(ndim,-1);
+  SpacePoint P2(ndim,-1);
 
   int number = (int) iechs.size();
   if ((int) jechs.size() != number)
@@ -728,8 +728,10 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    getSampleAsSPInPlace(iechs[ip], P1);
-    getSampleAsSPInPlace(jechs[ip], P2);
+    P1.setIech(iechs[ip]);
+    P2.setIech(jechs[ip]);
+    getSampleAsSPInPlace(P1);
+    getSampleAsSPInPlace(P2);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -746,7 +748,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  getSampleAsSPInPlace(iech, P);
+  P.setIech(iech);
+  getSampleAsSPInPlace(P);
 
   // Load the code (optional)
   if (P.checkCode())
@@ -762,26 +765,29 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
 {
-  std::vector<SpacePoint> pvec;
+  pvec.resize(getSampleNumber(useSel));
+  for (auto &e : pvec)
+    e = SpacePoint(space);
+  
   VectorDouble coord(getNDim());
-  SpacePoint p;
+  int iechcur = 0;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
+    
     if (isActive(iech))
     {
-      getSampleAsSPInPlace(iech, p);
-      pvec.push_back(p);
+      pvec[iechcur].setIech(iech);
+      getSampleAsSPInPlace(pvec[iechcur++]);
     }
     else
     {
       if (useSel) continue;
-      p.setFFFF();
-      pvec.push_back(p);
+      pvec[iechcur].setFFFF();
+      pvec[iechcur++].setIech(iech);
     }
   }
-  return pvec;
 }
 
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const

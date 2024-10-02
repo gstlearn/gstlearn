@@ -14,6 +14,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
 
 #include <cmath>
@@ -23,7 +24,8 @@
 SpacePoint::SpacePoint(const ASpace* space)
 : ASpaceObject(space),
   _coord(new double[getNDim()]),
-  _deleteCoord(true)
+  _deleteCoord(true),
+  _iech(-1)
 {
   // Initialize the point to the space origin
   // TODO : Not true whatever the space
@@ -35,6 +37,7 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 : ASpaceObject(r)
 ,_coord(new double[getNDim()])
 ,_deleteCoord(true)
+,_iech(-1)
 {
   for (int i = 0; i < (int) getNDim(); i++)
     _coord[i] = r._coord[i];
@@ -43,22 +46,26 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 
 double SpacePoint::getCoord(int idim) const
 {
-  int offset = getSpace()->getCurrentOffset();
-  return _coord[idim + offset];
+  return _coord[idim];
 }
 
 constvect SpacePoint::getCoords() const
 {
-  int offset = getSpace()->getCurrentOffset();
-  int ndim = getSpace()->getCurrentNDim();
-  return constvect(_coord+ offset, ndim);
+  return constvect(_coord, getNDim());
 }
 
-SpacePoint::SpacePoint(const VectorDouble& coord,
+SpacePoint::SpacePoint(vect coord, const ASpace* space,int iech)
+: ASpaceObject(space)
+{
+  _coord = coord.data();
+  _iech = iech;
+}
+SpacePoint::SpacePoint(const VectorDouble& coord,int iech,
                        const ASpace* space)
 : ASpaceObject(space),
   _coord(new double[getNDim()]),
-  _deleteCoord(true)
+  _deleteCoord(true),
+  _iech(iech)
 {
   if (coord.size() == 0 || coord.size() != getNDim())
   {
@@ -97,34 +104,41 @@ SpacePoint::~SpacePoint()
 
 void SpacePoint::setCoord(double coord)
 {
-  int offset = getSpace()->getCurrentOffset();
-  int ndim = getSpace()->getCurrentNDim();
-  std::fill(_coord+offset,_coord+ ndim,coord);
+  std::fill(_coord,_coord + getNDim(),coord);
 }
 
 void SpacePoint::setCoords(const VectorDouble& coord)
 {
-  int offset = getSpace()->getCurrentOffset();
-  int ndim = getSpace()->getCurrentNDim();
-  if (ndim != (int)coord.size())
+
+  if ((int)getNDim() != (int)coord.size())
     std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
   else
   {
-    for (int idim = 0; idim < ndim; idim++)
-      _coord[idim+offset] = coord[idim];
+    for (int idim = 0; idim < (int)getNDim(); idim++)
+      _coord[idim] = coord[idim];
   }
 }
 
+SpacePoint SpacePoint::projection(int ispace) const
+{
+  if (ispace < 0)
+    return *this;
+  else
+  {
+    int ndim = getNDim(ispace);
+    SpacePoint p(vect(_coord,_coord+ndim),getSpace()->getComponent(ispace),_iech);
+    return p;
+  }
+}
 void SpacePoint::setCoords(const double* coord, int size)
 {
-  int offset = getSpace()->getCurrentOffset();
-  int ndim = getSpace()->getCurrentNDim();
-  if (ndim != size)
+ 
+  if ((int)getNDim() != size)
     std::cout << "Error: Wrong number of coordinates. Point not modified."
               << std::endl;
   else
     for (int idim = 0; idim < size; idim++)
-     _coord[idim+offset] = coord[idim];
+     _coord[idim] = coord[idim];
 }
 
 bool SpacePoint::isConsistent(const ASpace* space) const
@@ -161,11 +175,7 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  int ndim = getSpace()->getCurrentNDim();
-  int offset = getSpace()->getCurrentOffset();
-  if (getSpace()->getNComponents() > 1)
-    message("Rank of the current space %d\n", getSpace()->getSpaceRankView());
-  return VH::toStringAsSpan(constvect(_coord + offset,ndim));
+  return VH::toStringAsSpan(constvect(_coord,getNDim()));
 }
 
 void SpacePoint::setFFFF()
@@ -176,7 +186,7 @@ void SpacePoint::setFFFF()
 bool SpacePoint::isFFFF() const
 {
 
-  for (int idim = 0, ndim = getNDim(0); idim < ndim; idim++)
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     if (! FFFF(_coord[idim])) return false;
   return true;
 }
@@ -184,13 +194,11 @@ bool SpacePoint::isFFFF() const
 double SpacePoint::getCosineToDirection(const SpacePoint &T2,
                                         const VectorDouble &codir) const
 {
-  int viewRank = getSpace()->getSpaceRankView();
-  int ndim = getSpace()->getCurrentNDim();
   double cosdir = 0.;
   double dn1 = 0.;
   double dn2 = 0.;
-  VectorDouble delta = getIncrement(T2,viewRank);
-  for (int idim = 0; idim < ndim; idim++)
+  VectorDouble delta = getIncrement(T2);
+  for (int idim = 0; idim < (int)getNDim(); idim++)
   {
     cosdir += delta[idim] * codir[idim];
     dn1 += delta[idim] * delta[idim];
@@ -204,14 +212,12 @@ double SpacePoint::getCosineToDirection(const SpacePoint &T2,
 double SpacePoint::getOrthogonalDistance(const SpacePoint &P2,
                                          const VectorDouble &codir) const
 {
-  int viewRank = getSpace()->getSpaceRankView();
-  int ndim = getSpace()->getCurrentNDim();
   double dn1 = 0.;
   double dn2 = 0.;
   double v = 0.;
   double dproj = 0.;
-  VectorDouble delta = getIncrement(P2,viewRank);
-  for (int idim = 0; idim < ndim; idim++)
+  VectorDouble delta = getIncrement(P2);
+  for (int idim = 0; idim < (int)getNDim(); idim++)
   {
     dproj += delta[idim] * codir[idim];
     dn1 += codir[idim] * codir[idim];
@@ -230,20 +236,18 @@ double SpacePoint::getOrthogonalDistance(const SpacePoint &P2,
 #include <iostream>
 void SpacePoint::setCoordFromAngle(const VectorDouble& angles)
 {
-  int offset = getSpace()->getCurrentOffset();
-  int ndim = getSpace()->getCurrentNDim();
-  if (ndim == 1 || angles.size() == 0)
+  if (getNDim() == 1 || angles.size() == 0)
   {
     my_throw("Inconsistent angles vector");
   }
-  else if (ndim == 2)
+  else if (getNDim() == 2)
   {
     if (angles.size() > 1)
     {
       std::cout << "Warning: Extra angle values ignored" << std::endl;
     }
-    _coord[offset] = cos( GV_PI * angles[0] / 180);
-    _coord[offset + 1] = sin( GV_PI * angles[0] / 180);
+    _coord[0] = cos( GV_PI * angles[0] / 180);
+    _coord[1] = sin( GV_PI * angles[0] / 180);
   }
   else
   {

@@ -8,8 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "API/SPDE.hpp"
-
+#include "Covariances/CovGneiting.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbHelper.hpp"
@@ -29,19 +28,14 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AAA_");
 
-  defineDefaultSpace(ESpaceType::SN);
+  defineDefaultSpace(ESpaceType::RN,2,0,true);
 
-  Db* db = Db::createFillRandom(2, 2, 1);
+  Db* db = Db::createFillRandom(2, 3);
 
   DbGrid* grid = DbGrid::create({2, 2});
 
-  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1.);
-
-  message("value = %lf\n", logLikelihoodSPDE(db, grid, model));
-
-  delete db;
-  delete grid;
-  delete model;
+  CovGneiting cov;
+  
 
   return(0);
 }

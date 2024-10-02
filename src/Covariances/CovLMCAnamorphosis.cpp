@@ -75,18 +75,18 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
 void CovLMCAnamorphosis::evalCovLHS(MatrixSquareSymmetric &mat,
                                     SpacePoint &pwork1,
                                     SpacePoint &pwork2,
-                                    int iech1, int iech2, const Db* db, 
+                                    const Db* db, 
                                     const CovCalcMode *mode) const
 {
-  evalCovLHS(mat, pwork1, pwork2, iech1, iech2, db, mode);
+  ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
 }
 
 void CovLMCAnamorphosis::evalCovRHS(MatrixSquareSymmetric &mat,
                   SpacePoint &pwork1,
-                  int iech1, const Db* db,  SpacePoint& pout,  
+                  const Db* db,  SpacePoint& pout,  
                   const CovCalcMode *mode) const
 {
-  ACov::evalCovRHS(mat, pwork1, iech1, db, pout, mode);
+  ACov::evalCovRHS(mat, pwork1, db, pout, mode);
 }
 
 CovLMCAnamorphosis::~CovLMCAnamorphosis()

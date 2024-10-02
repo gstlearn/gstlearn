@@ -23,10 +23,15 @@ class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 public:
   SpacePoint(const ASpace* space = nullptr);
   SpacePoint(const SpacePoint& r);
-  SpacePoint(const VectorDouble& coord,
+  SpacePoint(const VectorDouble& coord,int iech,
              const ASpace* space = nullptr);
+  private:
+  SpacePoint(vect coord, const ASpace* space, int iech);
+  public:
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
+
+  SpacePoint projection(int ispace = -1) const;
 
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
@@ -37,7 +42,8 @@ public:
   void setCoord(int i, double val) { _coord[i] = val; }
   void setCoords(const VectorDouble& coord);
   void setCoords(const double* coord, int size);
-
+  void setIech(int iech) const { _iech = iech; }
+  int getIech() const { return _iech; }
   /// Return true if the point is consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
 
@@ -72,4 +78,5 @@ protected:
   /// Points coordinates (whatever the space context)
   double* _coord;
   bool _deleteCoord;
+  mutable int _iech;
 };

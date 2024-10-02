@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
   sp->display();
   sp->display(0);
 
-  SpacePoint pt1({4.5, 6.5, 10});
-  SpacePoint pt2({3.0, 2.5, 15});
+  SpacePoint pt1({4.5, 6.5, 10},-1);
+  SpacePoint pt2({3.0, 2.5, 15},-1);
 
   std::cout << "Global dimension: " << pt1.getNDim() << std::endl;
   std::cout << "Dimension space #0: " << pt1.getNDim(0) << std::endl;
