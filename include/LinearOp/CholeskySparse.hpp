@@ -38,21 +38,23 @@ class MatrixSparse;
 class GSTLEARN_EXPORT CholeskySparse: public ACholesky
 {
 public:
-  CholeskySparse(const MatrixSparse* mat, bool inverse = true);
+  CholeskySparse(const MatrixSparse* mat);
   CholeskySparse(const CholeskySparse& m)            = delete;
   CholeskySparse& operator=(const CholeskySparse& m) = delete;
   virtual ~CholeskySparse();
 
   int stdev(VectorDouble& vcur, bool flagStDev = false) const;
-  
+
   double computeLogDeterminant() const override;
+  int addSolveX(const constvect vecin, vect vecout) const override;
+  int addInvLtX(const constvect vecin, vect vecout) const override;
+  int addLtX(const constvect vecin, vect vecout) const override;
+  int addLX(const constvect vecin, vect vecout) const override;
+  int addInvLX(const constvect vecin, vect vecout) const override;
 
 private:
   void _clean();
   void _prepare() const;
-  int _addSolveX(const constvect b, vect x) const override;
-  int _addInvLtX(const constvect b, vect x) const override;
-  int _addLX(const constvect inv, vect outv) const override;
 
 private:
   bool _flagEigen;

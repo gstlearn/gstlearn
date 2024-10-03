@@ -27,7 +27,7 @@ class MatrixRectangular;
 class GSTLEARN_EXPORT CholeskyDense: public ACholesky
 {
 public:
-  CholeskyDense(const MatrixSquareSymmetric* mat, bool inverse = true);
+  CholeskyDense(const MatrixSquareSymmetric* mat);
   CholeskyDense(const CholeskyDense &m) = delete;
   CholeskyDense& operator=(const CholeskyDense &m) = delete;
   virtual ~CholeskyDense();
@@ -39,6 +39,12 @@ public:
   double getCholeskyTL(int iad) const;
   VectorDouble getCholeskyXL() const;
   double getCholeskyXL(int i, int j) const;
+
+  int addSolveX(const constvect vecin, vect vecout) const override;
+  int addInvLtX(const constvect vecin, vect vecout) const override;
+  int addLtX(const constvect vecin, vect vecout) const override;
+  int addLX(const constvect vecin, vect vecout) const override;
+  int addInvLX(const constvect vecin, vect vecout) const override;
 
   MatrixRectangular productCholeskyInPlace(int mode,
                                            int neq,
@@ -55,12 +61,8 @@ private:
   void _computeTL() const;
   void _computeXL() const;
 
-  int _addSolveX(const constvect vecin, vect vecout) const override;
-  int _addInvLtX(const constvect vecin, vect vecout) const override;
-  int _addLX(const constvect vecin, vect vecout) const override;
-
 private:
-  mutable VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
-  mutable VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
+  mutable VectorDouble _tl; // Lower triangular matrix
+  mutable VectorDouble _xl; // Lower triangular matrix
   mutable Eigen::LLT<Eigen::MatrixXd>* _factor; // Cholesky decomposition (Eigen format)
 };

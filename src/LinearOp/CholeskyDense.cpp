@@ -17,8 +17,8 @@
 #define _TL(i, j) _tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 #define _XL(i, j) _xl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 
-CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat, bool inverse)
-  : ACholesky(mat, inverse)
+CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
+  : ACholesky(mat)
   , _tl()
   , _xl()
   , _factor(nullptr)
@@ -37,26 +37,39 @@ void CholeskyDense::_clear()
   _factor = nullptr;
 }
 
-int CholeskyDense::_addInvLtX(const constvect vecin, vect vecout) const
+int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
 {
-  Eigen::Map<const Eigen::VectorXd> whitem(vecin.data(),
-                                           vecin.size());
-  Eigen::Map<Eigen::VectorXd> outvm(vecout.data(), vecout.size());
-  outvm.noalias() += _factor->matrixL().transpose().solve(whitem);
+  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
+  Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+  mvecout.noalias() += _factor->matrixL().transpose().solve(mvecin);
+  return 0;             
+}
+
+int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
+{
+  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
+  Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+  mvecout.noalias() += _factor->matrixL().transpose() * mvecin;
   return 0;
 }
 
-int CholeskyDense::_addLX(const constvect vecin, vect vecout) const
+int CholeskyDense::addLX(const constvect vecin, vect vecout) const
 {
-  Eigen::Map<const Eigen::VectorXd> whitem(vecin.data(),
-                                           vecin.size());
-  Eigen::Map<Eigen::VectorXd> outvm(vecout.data(), vecout.size());
-
-  outvm.noalias() += _factor->matrixL() * whitem;
+  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
+  Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+  mvecout.noalias() += _factor->matrixL() * mvecin;
   return 0;
 }
 
-int CholeskyDense::_addSolveX(const constvect vecin, vect vecout) const
+int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
+{
+  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
+  Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+  mvecout.noalias() += _factor->matrixL().solve(mvecin);
+  return 0;
+}
+
+int CholeskyDense::addSolveX(const constvect vecin, vect vecout) const
 {
   int size = (int)vecin.size();
   Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), size);

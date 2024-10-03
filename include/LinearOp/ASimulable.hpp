@@ -26,6 +26,7 @@ public:
 
 public:
   int evalSimulate(const constvect whitenoise, vect result) const;
+  int addSimulateToDest(const constvect whitenoise, vect outv) const;
 
 protected:
   virtual int _addSimulateToDest(const constvect whitenoise,

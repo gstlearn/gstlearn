@@ -33,3 +33,7 @@ int ASimulable::evalSimulate(const constvect whitenoise, vect result) const
   return _addSimulateToDest(whitenoise, result);
 }
 
+int ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
+{
+  return _addSimulateToDest(whitenoise, outv);
+}

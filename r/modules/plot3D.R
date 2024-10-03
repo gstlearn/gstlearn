@@ -18,7 +18,7 @@
 #' x1 -> longitude in radiants (0 <= x1 <= 2*pi)
 #' x2 -> colatitude in radiants(0 <= x1 <= pi)
 #' @param val vector of values to be displayed
-#' @value return a list with the function display
+#' @return return a list with the function display
 IniView_S2_in_3D <- function(grd) {
   stopifnot(grd$isGrid())
   stopifnot(grd$getNDim() == 2)
@@ -46,7 +46,7 @@ IniView_S2_in_3D <- function(grd) {
 #' @param mesh rgl on which the variable val is displayed
 #' @param ncol number of colors used to display the variable
 #' @param palette a string defining the palette
-#' @value None but  the function rglwidget() should called outside
+#' @return None but  the function rglwidget() should called outside
 #' The number of values in val should be equal to the number of apices of mesh
 display_on_S2 <- function(val, mesh, ncol = 50, palette = "heat") {
   stopifnot(class(mesh)[1] == "mesh3d")

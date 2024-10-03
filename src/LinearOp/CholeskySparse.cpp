@@ -17,8 +17,8 @@
 #include <Eigen/src/Core/Matrix.h>
 #include <vector>
 
-CholeskySparse::CholeskySparse(const MatrixSparse* mat, bool inverse)
-  : ACholesky(mat, inverse)
+CholeskySparse::CholeskySparse(const MatrixSparse* mat)
+  : ACholesky(mat)
   , _flagEigen(false)
   , _S(nullptr)
   , _N(nullptr)
@@ -49,25 +49,6 @@ void CholeskySparse::_clean()
     _N = cs_nfree2(_N);
     _N = nullptr;
   }
-}
-
-int CholeskySparse::_addSolveX(const constvect b, vect x) const
-{
-  if (_flagEigen)
-  { 
-    Eigen::Map<const Eigen::VectorXd> bm(b.data(),b.size());
-    Eigen::Map<Eigen::VectorXd> outm(x.data(),x.size());
-    outm += _factor->solve(bm);
-  }
-  else
-  {
-    VectorDouble work(_size, 0.);
-    cs_ipvec(_size, _S->Pinv, b.data(), work.data());
-    cs_lsolve(_N->L, work.data());
-    cs_ltsolve(_N->L, work.data());
-    add_cs_pvec(_size, _S->Pinv, work.data(), x.data());
-  }
-  return 0;
 }
 
 /****************************************************************************/
@@ -201,47 +182,112 @@ void CholeskySparse::_prepare() const
   }
 }
 
-int CholeskySparse::_addInvLtX(const constvect b, vect x) const
+int CholeskySparse::addSolveX(const constvect vecin, vect vecout) const
 {
   if (_flagEigen)
   {
-    Eigen::VectorXd temp(x.size());
-    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
-    Eigen::Map<const Eigen::VectorXd> bm(b.data(), b.size());
-    Eigen::Map<Eigen::VectorXd> xm(x.data(), x.size());
-
-    Eigen::ArrayXd Ddm = 1.0 / _factor->vectorD().array().sqrt();
-    Eigen::VectorXd DW = ((bm.array()) * Ddm).matrix();
-    Eigen::VectorXd Y  = _factor->matrixU().solve(DW);
-    temp               = _factor->permutationPinv() * Y;
-    xm += temp;
+    Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), vecin.size());
+    Eigen::Map<Eigen::VectorXd> outm(vecout.data(), vecout.size());
+    outm += _factor->solve(bm);
   }
   else
   {
-    std::vector<double> work(b.size());
-    work.assign(
-      b.begin(),
-      b.end()); // We must work on a copy of b in order to preserve constness
+    VectorDouble work(_size, 0.);
+    cs_ipvec(_size, _S->Pinv, vecin.data(), work.data());
+    cs_lsolve(_N->L, work.data());
     cs_ltsolve(_N->L, work.data());
-    add_cs_pvec(_size, _S->Pinv, work.data(), x.data());
+    add_cs_pvec(_size, _S->Pinv, work.data(), vecout.data());
   }
   return 0;
 }
 
-int CholeskySparse::_addLX(const constvect inv, vect outv) const
+int CholeskySparse::addInvLtX(const constvect vecin, vect vecout) const
 {
   if (_flagEigen)
   {
-    Eigen::Map<const Eigen::VectorXd> invm(inv.data(), inv.size());
-    Eigen::Map<Eigen::VectorXd> outvm(outv.data(), outv.size());
-    Eigen::VectorXd temp(invm.size());
+    Eigen::VectorXd temp(vecout.size());
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
+    Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
+    Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+
+    Eigen::ArrayXd Ddm = 1.0 / _factor->vectorD().array().sqrt();
+    Eigen::VectorXd DW = ((mvecin.array()) * Ddm).matrix();
+    Eigen::VectorXd Y  = _factor->matrixU().solve(DW);
+    temp               = _factor->permutationPinv() * Y;
+    mvecout += temp;
+  }
+  else
+  {
+    std::vector<double> work(vecin.size());
+    work.assign(
+      vecin.begin(),
+      vecin.end()); // We must work on a copy of b in order to preserve constness
+    cs_ltsolve(_N->L, work.data());
+    add_cs_pvec(_size, _S->Pinv, work.data(), vecout.data());
+  }
+  return 0;
+}
+
+int CholeskySparse::addLtX(const constvect vecin, vect vecout) const
+{
+  if (_flagEigen)
+  {
+    Eigen::VectorXd temp(vecout.size());
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
+    Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
+    Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+
+    temp = _factor->permutationP() * mvecin;
+    Eigen::VectorXd Y  = _factor->matrixU() * temp;
+    Eigen::ArrayXd Ddm = _factor->vectorD().array().sqrt();
+    Eigen::VectorXd DW = Y.array() * Ddm;
+
+    mvecout += DW;
+  }
+  else
+  {
+    messerr("This option has not been programmed yet");
+  }
+  return 0;
+}
+
+int CholeskySparse::addLX(const constvect vecin, vect vecout) const
+{
+  if (_flagEigen)
+  {
+    Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
+    Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+    Eigen::VectorXd temp(mvecin.size());
     std::fill(temp.data(), temp.data() + temp.size(), 0.0);
 
     Eigen::ArrayXd Ddm = _factor->vectorD().array().sqrt();
-    Eigen::VectorXd DW = invm.array() * Ddm;
+    Eigen::VectorXd DW = mvecin.array() * Ddm;
     Eigen::VectorXd Y  = _factor->matrixL() * DW;
     temp               = _factor->permutationPinv() * Y;
-    outvm += temp;
+    mvecout += temp;
+  }
+  else
+  {
+    messerr("This option has not been programmed yet");
+  }
+  return 0;
+}
+
+int CholeskySparse::addInvLX(const constvect vecin, vect vecout) const
+{
+  if (_flagEigen)
+  {
+    Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
+    Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
+    Eigen::VectorXd temp(mvecin.size());
+    std::fill(temp.data(), temp.data() + temp.size(), 0.0);
+
+    temp = _factor->permutationP() * mvecin;
+    Eigen::VectorXd Y = _factor->matrixL().solve(temp);
+    Eigen::ArrayXd Ddm = 1.0 / _factor->vectorD().array().sqrt();
+    Eigen::VectorXd DW = ((Y.array()) * Ddm).matrix();
+
+    mvecout += DW;
   }
   else
   {

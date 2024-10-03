@@ -80,52 +80,55 @@ int main(int argc, char *argv[])
   VectorDouble vecout1(size);
   VectorDouble vecout2(size);
   VectorDouble vecout(size);
+  VectorDouble vecref(size);
 
   // Creating the Cholesky objects
-  CholeskySparse cholSparse(Q, false);
-  CholeskyDense cholDense(M, false);
+  CholeskySparse cholSparse(Q);
+  CholeskyDense cholDense(M);
   Cholesky Qchol(Q);
 
-  // Checking Inverse
-  (void)M->solve(vecin, vecout);
-  VH::display("Product Mat^{-1} * V (by Matrix)", vecout);
-  Qchol.evalInverse(vecin, vecout);
-  VH::display("Product Mat^{-1} * V (by Cholesky)", vecout);
+  // Checking method 'solve'
+  (void)M->solve(vecin, vecref);
 
-  vecout1.fill(0.);
   cholSparse.solve(vecin, vecout1);
-  VH::display("Product Mat^{-1} * V (by CholeskySparse)", vecout1);
-  vecout2.fill(0.);
   cholDense.solve(vecin, vecout2);
-  VH::display("Product Mat^{-1} * V (by CholeskyDense)", vecout2);
-  if (VH::isSame(vecout1, vecout2))
+  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecref, vecout1))
     message(">>> Function 'solve' is validated\n");
   else
+  {
+    VH::display("Solve (by Matrix)", vecref);
+    VH::display("Solve (by CholeskySparse)", vecout1);
+    VH::display("Solve (by CholeskyDense)", vecout2);
     message(">>> Function 'solve' is INVALID =======================\n");
+  }
 
-  // Checking addToDest
-  vecout1.fill(0.);
-  cholSparse.addToDest(vecin, vecout1);
-  VH::display("Function 'addToDest' (by CholeskySparse)", vecout1);
-  vecout2.fill(0.);
-  cholDense.addToDest(vecin, vecout2);
-  VH::display("Function 'addToDest' (by CholeskyDense)", vecout2);
-  if (VH::isSame(vecout1, vecout2))
-    message(">>> Function 'addToDest' is validated\n");
-  else
-    message(">>> Function 'addToDest' is INVALID ========================\n");
+  // Checking method 'LX' followed by 'InvLX'
+  VH::display("Initial vector", vecin);
 
-  // Checking evalSimulate
-  vecout1.fill(0.);
-  cholSparse.evalSimulate(vecin, vecout1);
-  VH::display("Function 'evalSimulate' (by CholeskySparse)", vecout1);
-  vecout2.fill(0.);
-  cholDense.evalSimulate(vecin, vecout2);
-  VH::display("Function 'evalSimulate' (by CholeskyDense)", vecout2);
+  cholSparse.LX(vecin, vecout);
+  cholSparse.InvLX(vecout, vecout1);
+  VH::display("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
+  cholDense.LX(vecin, vecout);
+  cholDense.InvLX(vecout, vecout2);
+  VH::display("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
   if (VH::isSame(vecout1, vecout2))
-    message(">>> Function 'evalSimulate' is validated\n");
+    message(">>> Function 'InvLX(LX)' is validated\n");
   else
-    message(">>> Function 'evalSimulate' is INVALID ========================\n");
+    message(">>> Function 'InvLX(LX)' is INVALID ========================\n");
+
+  // Checking method 'InvLtX' followed by 'LtX'
+  VH::display("Initial vector", vecin);
+
+  cholSparse.InvLtX(vecin, vecout);
+  cholSparse.LtX(vecout, vecout1);
+  VH::display("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
+  cholDense.InvLtX(vecin, vecout);
+  cholDense.LtX(vecout, vecout2);
+  VH::display("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
+  if (VH::isSame(vecout1, vecout2))
+    message(">>> Function 'LtX(InvLtX)' is validated\n");
+  else
+    message(">>> Function 'LtX(InvLtX)' is INVALID ========================\n");
 
   // Checking the Stdev vector
   MatrixSquareSymmetric MP(*M);

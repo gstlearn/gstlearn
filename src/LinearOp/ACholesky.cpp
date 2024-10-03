@@ -10,9 +10,8 @@
 /******************************************************************************/
 #include "LinearOp/ACholesky.hpp"
 
-ACholesky::ACholesky(const AMatrix* mat, bool inverse)
+ACholesky::ACholesky(const AMatrix* mat)
   : _mat(mat)
-  , _inverse(inverse)
   , _size(0)
 {
   _size = mat->getNRows();
@@ -20,16 +19,40 @@ ACholesky::ACholesky(const AMatrix* mat, bool inverse)
 
 int ACholesky::_addToDest(const constvect vecin, vect vecout) const
 {
-  return _addLX(vecin, vecout);
+  return addLX(vecin, vecout);
 }
 
 int ACholesky::_addSimulateToDest(const constvect whitenoise, vect vecout) const
 {
-  if (_inverse) return _addInvLtX(whitenoise, vecout);
-  return _addLX(whitenoise, vecout);
+  return addInvLtX(whitenoise, vecout);
 }
 
 int ACholesky::solve(const constvect vecin, vect vecout) const
 {
-  return _addSolveX(vecin, vecout);
+  std::fill(vecout.begin(), vecout.end(), 0.);
+  return addSolveX(vecin, vecout);
+}
+
+int ACholesky::LX(const constvect whitenoise, vect vecout) const
+{
+  std::fill(vecout.begin(), vecout.end(), 0.);
+  return addLX(whitenoise, vecout);
+}
+
+int ACholesky::InvLX(const constvect whitenoise, vect vecout) const
+{
+  std::fill(vecout.begin(), vecout.end(), 0.);
+  return addInvLX(whitenoise, vecout);
+}
+
+int ACholesky::InvLtX(const constvect whitenoise, vect vecout) const
+{
+  std::fill(vecout.begin(), vecout.end(), 0.);
+  return addInvLtX(whitenoise, vecout);
+}
+
+int ACholesky::LtX(const constvect whitenoise, vect vecout) const
+{
+  std::fill(vecout.begin(), vecout.end(), 0.);
+  return addLtX(whitenoise, vecout);
 }

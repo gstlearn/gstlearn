@@ -1,4 +1,37 @@
-Matrix used to demonstrate Cholesky Algebra
-Product Mat^{-1} * V is validated
-Standard Deviation is validated
+>>> Function 'solve' is validated
+Initial vector
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.350     0.323    -0.019     0.964     1.095     0.221    -0.028
+     [  7,]    -1.034    -0.130     1.666
+Function 'InvLX(LX)' (by CholeskySparse)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.350     0.323    -0.019     0.964     1.095     0.221    -0.028
+     [  7,]    -1.034    -0.130     1.666
+Function 'InvLX(LX)' (by CholeskyDense)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.350     0.323    -0.019     0.964     1.095     0.221    -0.028
+     [  7,]    -1.034    -0.130     1.666
+>>> Function 'InvLX(LX)' is validated
+Initial vector
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.350     0.323    -0.019     0.964     1.095     0.221    -0.028
+     [  7,]    -1.034    -0.130     1.666
+Function 'LtX(InvLtX)' (by CholeskySparse)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.350     0.323    -0.019     0.964     1.095     0.221    -0.028
+     [  7,]    -1.034    -0.130     1.666
+Function 'LtX(InvLtX)' (by CholeskyDense)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.350     0.323    -0.019     0.964     1.095     0.221    -0.028
+     [  7,]    -1.034    -0.130     1.666
+>>> Function 'LtX(InvLtX)' is validated
+Standard Deviation (by Matrix)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]   354.210     0.296     2.143     0.168     0.756     1.261   410.072
+     [  7,]     1.146     0.658  2785.184
+Standard Deviation (by Cholesky)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]   354.210     0.296     2.143     0.168     0.756     1.261   410.072
+     [  7,]     1.146     0.658  2785.184
+>>> Standard Deviation is validated
 Log(Det) is validated

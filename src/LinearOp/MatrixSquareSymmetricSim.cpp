@@ -11,126 +11,75 @@
 
 #include "LinearOp/MatrixSquareSymmetricSim.hpp"
 #include "Basic/AStringable.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "LinearOp/CholeskyDense.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "LinearOp/Cholesky.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/AMatrixDense.hpp"
+#include "LinearOp/ACholesky.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
-MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,bool inverse)
-: _mat(m)
-, _inverse(inverse)
-, _empty(true)
-, _factorDense(nullptr)
-, _factorSparse(nullptr)
+MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,
+                                                   bool inverse)
+  : ASimulable()
+  , _inverse(inverse)
+  , _sparse(false)
+  , _factor(nullptr)
+
 {
-  if (m == nullptr) 
-  { messerr("The matrix is null.");
-    return;
-  }
   if (!m->isSquare())
   {
-    messerr("The matrix has to be square!");
+    messerr("The matrix must be square!");
     return;
   }
 
-  _sparse = dynamic_cast<const MatrixSparse*>(m) !=nullptr;
-
-  if (!_sparse)
+  _sparse = m->isSparse();
+  if (m->isSparse())
   {
-    bool symmetric = dynamic_cast<const MatrixSquareSymmetric*>(m) ==nullptr;
-    if (!symmetric)
-    {
-          messerr("Warning, the matrix has to be symmetric.");
-          messerr("You should create it as a MatrixSquareSymmetric class");
-          messerr("instead of MatrixSquare or MatrixDense.");
-    }
+    const MatrixSparse* matCS = dynamic_cast<const MatrixSparse*>(m);
+    if (matCS != nullptr) _factor = new CholeskySparse(matCS);
   }
-  _empty = false;
-}
-
-MatrixSquareSymmetricSim::MatrixSquareSymmetricSim()
-: _mat(nullptr) 
-, _inverse(false)
-, _empty(true)
-, _factorDense(nullptr)
-, _factorSparse(nullptr)
-{
-  _sparse = dynamic_cast<MatrixSparse*>(this) != nullptr;
-}
-
-int MatrixSquareSymmetricSim::_addToDest(const constvect inv, vect outv) const
-{  
-  if (_inverse)
+  else
   {
-    return _mat->addProdMatVecInPlace(inv,outv);
+    const MatrixSquareSymmetric* matSym = dynamic_cast<const MatrixSquareSymmetric*>(m);
+    if (matSym != nullptr) _factor = new CholeskyDense(matSym);
   }
-   
-  messerr("MatrixSquareSymmetricSim::_addToDest not implemented for inverse = false.");
-  return 1;
-}
-int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect whitenoise,
-                                                 vect outv) const
-{
-  _prepare();
-  if (isSparse())
+  if (_factor == nullptr)
   {
-    if (isInverse()) return _factorSparse->addSimulateToDest(whitenoise, outv);
-    return _factorSparse->addToDest(whitenoise, outv);
+    messerr("The Input matrix is not valid");
+    messerr("It should be either:");
+    messerr("- a MatrixSparse");
+    messerr("- a MatrixSquareSymmetric");
+    return;
   }
-
-  if (!isSparse())
-  {
-    Eigen::Map<const Eigen::VectorXd> whitem(whitenoise.data(),whitenoise.size());
-    Eigen::Map<Eigen::VectorXd> outvm(outv.data(),outv.size());
-    if (isInverse())
-    {
-      outvm.noalias() += _factorDense->matrixL().transpose().solve(whitem);
-      return 0;
-    }
-    
-    outvm.noalias() += _factorDense->matrixL() * whitem;
-    return 0;
-  }
-  return 0;
-
 }
 
 MatrixSquareSymmetricSim::~MatrixSquareSymmetricSim()
 {
-  _clear();
+  delete _factor;
+  _factor = nullptr;
 }
 
-void MatrixSquareSymmetricSim::_clear()
+int MatrixSquareSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {
-  delete _factorDense;
-  delete _factorSparse;
-  _factorDense = nullptr;
-  _factorSparse = nullptr;
-} 
+  if (_inverse) return _factor->getMatrix()->addProdMatVecInPlace(inv, outv);
+  return _factor->addSolveX(inv, outv);
+}
 
-void MatrixSquareSymmetricSim::_prepare() const //duplicated from MatrixSquareSymmetric
+int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect whitenoise,
+                                                 vect outv) const
 {
-  if (isEmpty()) 
-  {
-    messerr("Your object is empty.");
-    return;
-  }
-  if (!_sparse)
-  {
-    if (_factorDense == nullptr)
-    {
-      const Eigen::MatrixXd* a = ((AMatrixDense*)_mat)->getTab();
-      _factorDense = new Eigen::LLT<Eigen::MatrixXd>();
-      *_factorDense = a->llt();
-    }
-  }
-  if(_sparse)
-  {
-    if (_factorSparse == nullptr)
-    {
-      _factorSparse = new Cholesky((MatrixSparse*)_mat);
-    }
-  }
+  if (_inverse) return _factor->addInvLtX(whitenoise, outv);
+  return _factor->addLX(whitenoise, outv);
+}
+
+const AMatrix* MatrixSquareSymmetricSim::getMatrix() const
+{
+  if (_factor == nullptr) return nullptr;
+  return _factor->getMatrix();
+}
+
+int MatrixSquareSymmetricSim::getSize() const
+{
+  if (_factor == nullptr) return 0;
+  return _factor->getSize();
 }
