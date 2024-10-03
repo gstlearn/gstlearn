@@ -87,6 +87,23 @@ int main(int argc, char *argv[])
   CholeskyDense cholDense(M);
   Cholesky Qchol(Q);
 
+  // Checking the Cholesky decomposition
+  M->prodMatVecInPlace(vecin, vecref);
+
+  cholSparse.LtX(vecin, vecout);
+  cholSparse.LX(vecout, vecout1);
+  cholDense.LtX(vecin, vecout);
+  cholDense.LX(vecout, vecout2);
+  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecref, vecout1))
+    message(">>> Function 'LLt' is validated\n");
+  else
+  {
+    VH::display("LLt (by Matrix)", vecref);
+    VH::display("LLt (by CholeskySparse)", vecout1);
+    VH::display("LLt (by CholeskyDense)", vecout2);
+    message(">>> Function 'LLt' is INVALID =======================\n");
+  }
+
   // Checking method 'solve'
   (void)M->solve(vecin, vecref);
 
@@ -103,32 +120,36 @@ int main(int argc, char *argv[])
   }
 
   // Checking method 'LX' followed by 'InvLX'
-  VH::display("Initial vector", vecin);
-
   cholSparse.LX(vecin, vecout);
   cholSparse.InvLX(vecout, vecout1);
-  VH::display("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
   cholDense.LX(vecin, vecout);
   cholDense.InvLX(vecout, vecout2);
-  VH::display("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
-  if (VH::isSame(vecout1, vecout2))
+
+  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecout1, vecin))
     message(">>> Function 'InvLX(LX)' is validated\n");
   else
+  {
+    VH::display("Function 'InvLX(LX)' (by Matrix)", vecin);
+    VH::display("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
+    VH::display("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'InvLX(LX)' is INVALID ========================\n");
+  }
 
   // Checking method 'InvLtX' followed by 'LtX'
-  VH::display("Initial vector", vecin);
-
   cholSparse.InvLtX(vecin, vecout);
   cholSparse.LtX(vecout, vecout1);
-  VH::display("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
   cholDense.InvLtX(vecin, vecout);
   cholDense.LtX(vecout, vecout2);
-  VH::display("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
-  if (VH::isSame(vecout1, vecout2))
+
+  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecout1, vecin))
     message(">>> Function 'LtX(InvLtX)' is validated\n");
   else
+  {
+    VH::display("Function 'LtX(InvLtX)' (by Matrix)", vecin);
+    VH::display("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
+    VH::display("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'LtX(InvLtX)' is INVALID ========================\n");
+    }
 
   // Checking the Stdev vector
   MatrixSquareSymmetric MP(*M);
@@ -142,22 +163,26 @@ int main(int argc, char *argv[])
                                                      0);
   Cholesky Qchol2(M2);
   Qchol2.stdev(vecout2);
-  VH::display("Standard Deviation (by Matrix)", vecout1b);
-  VH::display("Standard Deviation (by Cholesky)", vecout2);
-  if (VH::isSame(vecout1b,  vecout2))
-    message(">>> Standard Deviation is validated\n");
+
+  if (VH::isSame(vecout1b, vecout2))
+    message(">>> Function 'stdev' is validated\n");
   else
-    message(">>> Standard Deviation is INVALID =============================\n");
+  {
+    VH::display("Standard Deviation (by Matrix)", vecout1b);
+    VH::display("Standard Deviation (by Cholesky)", vecout2);
+    message(">>> Function 'stdev' is INVALID =============================\n");
+  }
 
   // Checking the calculation of Log(Det)
   double res1 = log(M->determinant());
   double res2 = Qchol.getLogDeterminant();
   if (isZero(res1 - res2))
-    message("Log(Det) is validated\n");
+    message(">>> Log(Det) is validated\n");
   else
   {
     message("Log(Det) (by Matrix) = %lf\n", res1);
     message("Log(Det) (by Cholesky) = %lf\n", res2);
+    message(">>> Log(Det) is INVALID =============================\n");
   }
 
   // Free the pointers
