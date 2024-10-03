@@ -7,10 +7,10 @@ Release 1.5.0
 - Gneiting covariance function has been added
 - SpacePoint has been modified:
   * _coords are replaced by double* instead of VectorDouble 
-  * a method projection has been added to create sub-space point on sub-space of ASpace
+  * a method spacePointOnSubspace has been added to create  point on sub-space of ASpace
   It is only a view on the subset (to avoid copy) and the original space point shouldn't be
-  deleted before its projection
-  * and index and a boolean (target) have been added to the attributes
+  deleted before the original one
+  * an index and a boolean (target) have been added to the attributes
 - Found error in kribayes multivariate: it will not be fixed until pluging the new KrigingCalcul
 which will solve all these problems.
 
