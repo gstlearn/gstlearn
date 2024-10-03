@@ -57,8 +57,11 @@ public:
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const;
   /// Calculate the matrix of covariances for 0-distance (stationary case)
-  virtual void eval0MatInPlace(MatrixSquareSymmetric &mat,
-                               const CovCalcMode *mode = nullptr) const;
+  
+  virtual void eval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                 const CovCalcMode *mode = nullptr) const;
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                            const CovCalcMode *mode = nullptr) const;
   /// Calculate the covariance between two variables and two points (general case)
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
@@ -66,13 +69,13 @@ public:
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const = 0;
   /// Calculate the matrix of covariances between two points (general case)
-  virtual void evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              MatrixSquareSymmetric &mat,
-                              const CovCalcMode *mode = nullptr) const;
   virtual void evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
-                               SpacePoint& pwork1, 
-                               SpacePoint& pwork2,
+                                        const SpacePoint &p1,
+                                        const SpacePoint &p2,
+                                        const CovCalcMode *mode = nullptr) const;
+  virtual void addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                               const SpacePoint& pwork1, 
+                               const SpacePoint& pwork2,
                                const CovCalcMode *mode) const;
 
   virtual void evalCovLHS(MatrixSquareSymmetric &mat,
@@ -125,13 +128,19 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////////
   ///
+
+  virtual void optimizationSetTarget(const SpacePoint &pt) const {DECLARE_UNUSED(pt)};
+  virtual void optimizationSetTarget(int iech) const {DECLARE_UNUSED(iech)};
+  virtual void optimizationPreProcess(const Db* db) const {DECLARE_UNUSED(db)}
+  virtual void optimizationPostProcess() const {}
+
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
                     int jvar = 0,
                     const CovCalcMode* mode = nullptr) const;
-  MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
-  MatrixSquareGeneral evalMat(const SpacePoint& p1,
+  MatrixSquareSymmetric eval0Mat(const CovCalcMode* mode = nullptr) const;
+  MatrixSquareSymmetric evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
   double evalIvarIpas(double step,

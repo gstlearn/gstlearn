@@ -865,7 +865,7 @@ void KrigingSystem::_rhsCalculBlock()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
+    _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     if (_flagPerCell) _blockDiscretize(1);
     covcum.fill(0.);
 
@@ -917,7 +917,7 @@ void KrigingSystem::_rhsCalculDGM()
   _p0.setTarget(true);
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
+    _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtab.fill(0.);
     _p1.setIech(_nbgh[iech]);
     _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
@@ -1464,7 +1464,7 @@ void KrigingSystem::_variance0()
   _dbout->getSampleAsSPInPlace(_p0);
   _cova->optimizationSetTarget(_p0);
 
-  if (_flagNoStat) _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);
+  _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);
 
   switch (_calcul.toEnum())
   {

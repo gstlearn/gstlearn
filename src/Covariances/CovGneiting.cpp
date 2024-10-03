@@ -10,18 +10,41 @@
 /******************************************************************************/
 
 #include "Covariances/CovGneiting.hpp"
+#include "Basic/AStringable.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Space/SpaceRN.hpp"
 #include "geoslib_define.h"
 
-CovGneiting::CovGneiting()
+CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
+: ACov()
+, _covS(covS)
+, _covTemp(covTemp)
+, _separability(separability)
+, _covSCopy(*covS)
 {
-
+  if (separability < 0.0 || separability > 1.0)
+  {
+    _separability = 0;
+    messerr("CovGneiting: Separability must be in [0,1]");
+    messerr("It has been set to 0");
+  }
+  delete _space;
+  ASpace* space = dynamic_cast<ASpace*>(covS->getSpace()->clone());
+  space->addSpaceComponent(covTemp->getSpace()); 
+  _space = space;
 }
+
 
 CovGneiting::CovGneiting(const CovGneiting& r):
 ACov(r)
+, _covS(r._covS)
+, _covTemp(r._covTemp)
+, _separability(r._separability)
+, _covSCopy(*r._covS)
 {
 
 }
@@ -32,6 +55,10 @@ CovGneiting& CovGneiting::operator=(const CovGneiting &r)
   {
     ACov::operator =(r);
     _ctxt = r._ctxt;
+    _covS = r._covS;
+    _covTemp = r._covTemp;
+    _covSCopy = r._covSCopy;
+    _separability = r._separability;
   }
   return *this;
 }
@@ -42,6 +69,29 @@ CovGneiting::~CovGneiting()
 
 }
 
+void CovGneiting::optimizationSetTarget(const SpacePoint &pt) const 
+{
+  _covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
+  _covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
+}
+  
+void CovGneiting::optimizationSetTarget(int iech) const 
+{
+  _covS->optimizationSetTarget(iech);
+  _covTemp->optimizationSetTarget(iech);
+}
+
+void CovGneiting::optimizationPreProcess(const Db* db) const 
+{
+  _covS->optimizationPreProcess(db);
+  _covTemp->optimizationPreProcess(db);
+}
+
+void CovGneiting::optimizationPostProcess() const
+{
+  _covS->optimizationPostProcess();
+  _covTemp->optimizationPostProcess();
+}
 
 double CovGneiting::eval(const SpacePoint& p1,
                     const SpacePoint& p2,
@@ -50,11 +100,19 @@ double CovGneiting::eval(const SpacePoint& p1,
                     const CovCalcMode* mode) const
 {
 
-  auto p1_0 = p1.projection(0);
-  auto p2_0 = p2.projection(0);
-  auto p1_1 = p1.projection(1);
-  auto p2_1 = p2.projection(1);
-  return _covS->eval(p1_0, p2_0, ivar, jvar, mode) * 
-         _covTemp->eval(p1_1, p2_1, ivar, jvar, mode);
+  auto p1_0 = p1.spacePointOnSubspace(0);
+  auto p2_0 = p2.spacePointOnSubspace(0);
+  auto p1_1 = p1.spacePointOnSubspace(1);
+  auto p2_1 = p2.spacePointOnSubspace(1);
+  double ct = _covTemp->eval(p1_1, p2_1, ivar, jvar, mode);
+
+  double scale = pow(ct,_separability/_covSCopy.getNDim(0));
+  for (int i = 0; i < (int) _covSCopy.getNDim(); i++)
+  {
+    _covSCopy.setScale(i, _covS->getScale(i) / scale);
+  }
+  double cs = _covSCopy.eval(p1_0, p2_0, ivar, jvar, mode);
+  
+  return cs * ct; 
 
 }

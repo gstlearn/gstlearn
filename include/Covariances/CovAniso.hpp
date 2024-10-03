@@ -73,6 +73,16 @@ public:
   /// ACov Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
+void evalCovLHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          SpacePoint &pwork2,
+                          const Db* db, 
+                          const CovCalcMode *mode) const override;
+
+void evalCovRHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          const Db* db, SpacePoint& pout,  
+                          const CovCalcMode *mode) const override;
   /// ACov Interface
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -82,11 +92,12 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareSymmetric &mat,
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
+  virtual void addEvalCovMatBiPointInPlace(
                               MatrixSquareSymmetric &mat,
+                              const SpacePoint &p1,
+                              const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
@@ -104,10 +115,10 @@ public:
   virtual double getBallRadius() const { return TEST; }
 
   bool isOptimizationInitialized(const Db* db = nullptr) const;
-  void optimizationPreProcess(const Db* db) const;
-  void optimizationPostProcess() const;
-  void optimizationSetTarget(const SpacePoint& pt) const;
-  void optimizationSetTarget(int iech) const;
+  void optimizationPreProcess(const Db* db) const override;
+  void optimizationPostProcess() const override;
+  void optimizationSetTarget(const SpacePoint& pt) const override;
+  void optimizationSetTarget(int iech) const override;
 
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,
@@ -116,16 +127,7 @@ public:
                         int icol = 0,
                         const CovCalcMode *mode = nullptr,
                         bool flagSym = false) const;
-  virtual void evalCovLHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          SpacePoint &pwork2,
-                          const Db* db = nullptr, 
-                          const CovCalcMode *mode = nullptr) const override;
-  virtual void evalCovRHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          const Db* db,  SpacePoint& pout,  
-                          const CovCalcMode *mode = nullptr) const override;
-
+  
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;

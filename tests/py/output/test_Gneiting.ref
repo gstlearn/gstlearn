@@ -1,0 +1,12 @@
+Gneiting eval 0.02067599923072759
+Displaying the first two coordinates (spatial) of the first space point
+    12.000     3.000     1.000
+Displaying the last coordinate (temporal) of the first space point
+     1.000
+Displaying the first two coordinates (spatial) of the second space point
+     4.000     5.000     2.000
+Displaying the last coordinate (temporal) of the second space point
+     2.000
+Difference for temporal covariance 0.0
+Difference for spatial covariance (corrected) 0.0
+Difference for Gneiting cov 0.0

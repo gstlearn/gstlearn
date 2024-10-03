@@ -27,6 +27,7 @@ class GSTLEARN_EXPORT ASpace : public AStringable, public ICloneable
 {
 public:
   ASpace(unsigned int ndim, bool addTime = false);
+  ASpace(const std::vector<const ASpace*>& vectspace);
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
   virtual ~ASpace();
@@ -94,7 +95,7 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = 0) const;
-  const ASpace* getComponent(int i) const { return _comps[i];}
+  const ASpace* getComponent(int i) const;
 
   int getSpaceRankView() const { return _spaceRankView; }  
   void setSpaceRankView(int spaceRankView)  { _spaceRankView = spaceRankView; }

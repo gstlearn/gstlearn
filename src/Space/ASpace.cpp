@@ -43,6 +43,27 @@ ASpace::ASpace(unsigned int ndim, bool addTime)
   }
 }
 
+ASpace::ASpace(const std::vector<const ASpace*>& vectspace)
+    : AStringable()
+{
+  if (vectspace[0] == nullptr) return;
+
+  _nDim = vectspace[0]->getNDim();
+  _origin = VectorDouble(_nDim, 0.);
+  _iDimOffset = 0;
+  _globalNDim = _nDim;
+  _globalOrigin = VectorDouble(_nDim, 0.);
+  _spaceRankView = 0;
+  _work1.resize(_nDim);
+  _work2.resize(_nDim);
+  
+  for (const auto* sp : vectspace)
+  {
+    addSpaceComponent(sp);
+  }
+}
+
+
 ASpace::ASpace(const ASpace& r)
     : AStringable(r),
       _nDim(r._nDim),
@@ -202,6 +223,15 @@ void ASpace::move(SpacePoint& p1, const VectorDouble& vec) const
   {
     sp->_move(p1, vec);
   }
+}
+
+const ASpace* ASpace::getComponent(int i) const
+{
+  if (i == 0)
+    return this;
+  if (i > 0 && i <= (int)_comps.size())
+    return _comps[i-1];
+  return nullptr;
 }
 
 /// Return the distance between two space points

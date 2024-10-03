@@ -35,7 +35,7 @@ class ACov;
 class GSTLEARN_EXPORT CovGneiting: public ACov, public ICloneable//, public ICloneable
 {
 public:
-  CovGneiting();  
+  CovGneiting(const CovAniso* covS, const CovAniso* covTemp, double separability = 1.0);
   CovGneiting(const CovGneiting& r);
   CovGneiting& operator=(const CovGneiting& r);
   virtual ~CovGneiting();
@@ -54,12 +54,18 @@ public:
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
 
-    virtual int getNVariables() const override { return 1; }
-    
+  virtual int getNVariables() const override { return 1; }
+  void optimizationSetTarget(const SpacePoint &pt) const override;
+  void optimizationSetTarget(int iech) const override;
+  void optimizationPreProcess(const Db* db) const override;
+  void optimizationPostProcess() const override; 
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
-  CovAniso* _covS;
-  CovAniso* _covTemp;
+  const CovAniso* _covS;
+  const CovAniso* _covTemp;
+  double _separability;
+  mutable CovAniso _covSCopy;
+
 
 };
 

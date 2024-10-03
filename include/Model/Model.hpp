@@ -182,7 +182,7 @@ public:
   void eval0MatInPlace(MatrixSquareSymmetric &mat,
                        const CovCalcMode *mode = nullptr) const
   {
-    _cova->eval0MatInPlace(mat, mode);
+    _cova->eval0CovMatBiPointInPlace(mat, mode);
   }
   double eval(const SpacePoint& p1,
               const SpacePoint& p2,
@@ -219,7 +219,7 @@ public:
                       MatrixSquareSymmetric &mat,
                       const CovCalcMode* mode = nullptr) const
   {
-    _cova->evalMatInPlace(p1, p2, mat, mode);
+    _cova->evalCovMatBiPointInPlace(mat,p1, p2, mode);
   }
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const

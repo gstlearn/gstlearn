@@ -26,12 +26,14 @@ public:
   SpacePoint(const VectorDouble& coord,int iech = -1,
              const ASpace* space = nullptr);
   private:
+  #ifndef SWIG
   SpacePoint(vect coord, const ASpace* space, int iech);
+  #endif
   public:
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 
-  SpacePoint projection(int ispace = -1) const;
+  SpacePoint spacePointOnSubspace(int ispace = -1) const;
 
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 

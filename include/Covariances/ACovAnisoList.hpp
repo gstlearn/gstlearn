@@ -66,11 +66,12 @@ public:
                        int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareSymmetric &mat,
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
+  virtual void addEvalCovMatBiPointInPlace(
                               MatrixSquareSymmetric &mat,
+                              const SpacePoint &p1,
+                              const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
   
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)  override;
@@ -128,11 +129,10 @@ public:
   int                getCovaMinIRFOrder() const;
 
   // Methods necessary for Optimization
-  bool isOptimizationInitialized(const Db* db = nullptr) const;
-  void optimizationPreProcess(const Db* db) const;
-  void optimizationPostProcess() const;
-  void optimizationSetTarget(const SpacePoint &pt) const;
-  void optimizationSetTarget(int iech) const;
+  void optimizationPreProcess(const Db* db) const override;
+  void optimizationPostProcess() const override ;
+  void optimizationSetTarget(const SpacePoint &pt) const override;
+  void optimizationSetTarget(int iech) const override;
   MatrixRectangular evalCovMatrixOptim(const Db *db1,
                                        const Db *db2,
                                        int ivar0 = -1,

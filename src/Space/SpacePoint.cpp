@@ -124,15 +124,16 @@ void SpacePoint::setCoords(const VectorDouble& coord)
   }
 }
 
-SpacePoint SpacePoint::projection(int ispace) const
+SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
 {
   if (ispace < 0)
     return *this;
 
   int ndim = getNDim(ispace);
-  SpacePoint p(vect(_coord,_coord+ndim),getSpace()->getComponent(ispace),_iech);
-  p.setIech(_iech);
+  int offset = getSpace()->getOffset(ispace);
+  SpacePoint p(vect(_coord+offset,ndim),getSpace()->getComponent(ispace),_iech);
   p.setTarget(_target);
+  p._deleteCoord = false;
   return p;
 }
 void SpacePoint::setCoords(const double* coord, int size)

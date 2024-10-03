@@ -134,6 +134,39 @@ CovAniso::CovAniso(const CovAniso &r)
 {
 }
 
+void CovAniso::evalCovLHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          SpacePoint &pwork2,
+                          const Db* db, 
+                          const CovCalcMode *mode) const
+{
+  if (!_isOptimEnabled())
+    ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
+  else
+  {
+    SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
+    SpacePoint* p2A = &_p1As[pwork2.getIech()];
+    _evalOptim(p1A,p2A,mat,mode);
+  // Calculate covariance between two points
+  }
+}
+
+void CovAniso::evalCovRHS(MatrixSquareSymmetric &mat,
+                          SpacePoint &pwork1,
+                          const Db* db, SpacePoint& pout,  
+                          const CovCalcMode *mode) const
+{
+  if (!_isOptimEnabled())
+    ACov::evalCovRHS(mat, pwork1, db, pout, mode);
+  else
+  {
+    SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
+    SpacePoint* p2A = &_p2A;
+    _evalOptim(p1A,p2A,mat,mode);
+  }
+}
+
+
 CovAniso& CovAniso::operator=(const CovAniso &r)
 {
   if (this != &r)
@@ -516,7 +549,7 @@ double CovAniso::eval(const SpacePoint &p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAniso::eval0MatInPlace(MatrixSquareSymmetric &mat,
+void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode) const
 {
   double cov = _evalCovFromH(0, mode);
@@ -540,10 +573,10 @@ void CovAniso::eval0MatInPlace(MatrixSquareSymmetric &mat,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAniso::evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              MatrixSquareSymmetric &mat,
-                              const CovCalcMode *mode) const
+void CovAniso::addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                          const SpacePoint &p1,
+                                          const SpacePoint &p2,
+                                          const CovCalcMode *mode) const
 {
   double h = getSpace()->getDistance(p1, p2, _aniso);
   double cov = _evalCovFromH(h, mode);
@@ -607,36 +640,6 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
   }
 }
 
-/**
- * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
- * @param icas1 Origin of the Db containing the first point
- * @param iech1 Rank of the first point
- * @param icas2 Origin of the Db containing the second point
- * @param iech2 Rank of the second point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-
-
-void CovAniso::evalCovLHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          SpacePoint &pwork2,
-                          const Db* db, 
-                          const CovCalcMode *mode) const
-{
-  if (!_isOptimEnabled())
-    ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
-  else
-  {
-    SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
-    SpacePoint* p2A = &_p1As[pwork2.getIech()];
-    _evalOptim(p1A,p2A,mat,mode);
-  // Calculate covariance between two points
-  }
-}
-
 void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
                           MatrixSquareSymmetric &mat,
                           const CovCalcMode *mode) const
@@ -652,21 +655,6 @@ void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
     MatrixSquareSymmetric identity = _sill;
     identity.setIdentity();
     mat.addMatInPlace(identity, 1., cov);
-  }
-}
-
-void CovAniso::evalCovRHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          const Db* db, SpacePoint& pout,  
-                          const CovCalcMode *mode) const
-{
-  if (!_isOptimEnabled())
-    ACov::evalCovRHS(mat, pwork1, db, pout, mode);
-  else
-  {
-    SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
-    SpacePoint* p2A = &_p2A;
-    _evalOptim(p1A,p2A,mat,mode);
   }
 }
 
