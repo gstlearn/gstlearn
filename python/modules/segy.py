@@ -9,6 +9,7 @@
 import numpy as np
 import gstlearn as gl
 
+import sys
 import segyio
 from segyio import BinField
 from segyio import TraceField
@@ -291,7 +292,7 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
             ztop = gl.VectorHelper.maximum(topArray)
             if ztop < zmax:
                 limitZ[1] = int((ztop - z0 + dz/2) // dz + 1)
-    
+
     # Number of nodes
     nx.resize(3)
     nx[2] = limitZ[1] - limitZ[0]
@@ -304,13 +305,21 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
     x0.resize(3)
     x0[2] = z0 + dz * limitZ[0]
     
-    if verbose:
-        print("Creating the 3-D:")
+    flagIncorrect = False
+    if nx[0] <= 0 or nx[1] <= 0 or nx[2] <= 0:
+        flagIncorrect = True
+
+    if verbose or flagIncorrect:
+        print("Creating the 3-D between",botName,"and",topName)
         print("- Origin :", x0)
         print("- Mesh   :", dx)
         print("- Count  :", nx)
         print("- Angle  :", angles[0])
         print("- Limits along Z :", limitZ)
+        print("(This definition takes the SEGY grid characteristics into account)")
+
+    if flagIncorrect:
+        sys.exit("Error in the 3-D Grid characteristics")
     
     # Creating the 3-D Grid
     dbsegy3D = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles, flagAddCoordinates=False)

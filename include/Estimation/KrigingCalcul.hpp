@@ -50,7 +50,7 @@ public:
               const VectorDouble* Means            = nullptr);
   int setVariance00(const MatrixSquareSymmetric* Sigma00 = nullptr);
   int setTarget(const MatrixRectangular* Sigma0 = nullptr,
-                             const MatrixRectangular* X0     = nullptr);
+                const MatrixRectangular* X0     = nullptr);
   int setColCokUnique(const VectorDouble* Zp      = nullptr,
                       const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
