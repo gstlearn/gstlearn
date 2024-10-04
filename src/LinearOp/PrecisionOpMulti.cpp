@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -244,7 +245,7 @@ void PrecisionOpMulti::_computeSize()
 
 int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 {
-   MatrixSquareSymmetric sill = _model->getSillValues(icov);
+  MatrixSquareSymmetric sill = _model->getSillValues(icov);
   if (sill.computeCholesky() != 0) return 1;
   _cholSills[icov] = sill;
    if (sill.invertCholesky() != 0) return 1;

@@ -27,11 +27,12 @@ class MatrixRectangular;
 class GSTLEARN_EXPORT CholeskyDense: public ACholesky
 {
 public:
-  CholeskyDense(const MatrixSquareSymmetric* mat);
+  CholeskyDense(const MatrixSquareSymmetric* mat = nullptr);
   CholeskyDense(const CholeskyDense &m) = delete;
   CholeskyDense& operator=(const CholeskyDense &m) = delete;
   virtual ~CholeskyDense();
 
+  int setMatrix(const MatrixSquareSymmetric* mat);
   double computeLogDeterminant() const override;
 
   VectorDouble getCholeskyTL() const;
@@ -46,20 +47,20 @@ public:
   int addLX(const constvect vecin, vect vecout) const override;
   int addInvLX(const constvect vecin, vect vecout) const override;
 
-  MatrixRectangular productCholeskyInPlace(int mode,
-                                           int neq,
-                                           int nrhs,
-                                           const MatrixRectangular& a);
-  MatrixSquareSymmetric normCholeskyInPlace(int mode,
-                                            int neq,
-                                            const MatrixSquareSymmetric& a);
+  void productCholeskyInPlace(int mode,
+                              const MatrixRectangular& a,
+                              MatrixRectangular& x);
+  void normCholeskyInPlace(int mode,
+                           int neq,
+                           const MatrixSquareSymmetric& a,
+                           MatrixSquareSymmetric& b);
 
 private:
   void _clear();
-  void _prepare() const;
+  int _prepare() const;
   int _getTriangleSize() const;
-  void _computeTL() const;
-  void _computeXL() const;
+  int _computeTL() const;
+  int _computeXL() const;
 
 private:
   mutable VectorDouble _tl; // Lower triangular matrix

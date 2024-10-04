@@ -40,10 +40,6 @@ public:
   PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
   PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
   virtual ~PrecisionOpMulti();
-  MatrixSquareSymmetric getInvCholSill(int icov) const
-  {
-    return _invCholSills[icov];
-  }
   int getSize() const override;
 
 protected:

@@ -28,6 +28,7 @@ static bool storeSparse = true;
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
   , _Cmat(nullptr)
+  , _CmatChol(nullptr)
   , _eps(EPSILON6)
   , _flagStoreInternal(true)
   , _areas()
@@ -41,6 +42,7 @@ GibbsMMulti::GibbsMMulti()
 GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
   , _Cmat(nullptr)
+  , _CmatChol(nullptr)
   , _eps(EPSILON6)
   , _flagStoreInternal(true)
   , _areas()
@@ -51,9 +53,10 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   _allocate();
 }
 
-GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
+GibbsMMulti::GibbsMMulti(const GibbsMMulti& r)
   : GibbsMulti(r)
   , _Cmat(r._Cmat)
+  , _CmatChol(r._CmatChol)
   , _eps(r._eps)
   , _flagStoreInternal(r._flagStoreInternal)
   , _areas(r._areas)
@@ -69,7 +72,8 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
   if (this != &r)
   {
     GibbsMulti::operator=(r);
-    _Cmat  = r._Cmat;
+    _Cmat = r._Cmat;
+    _CmatChol = r._CmatChol;
     _eps = r._eps;
     _flagStoreInternal = r._flagStoreInternal;
     _areas = r._areas;
@@ -83,6 +87,7 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
 GibbsMMulti::~GibbsMMulti()
 {
   delete _Cmat;
+  delete _CmatChol;
   delete _matWgt;
 }
 
@@ -135,13 +140,9 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   // Cholesky decomposition
 
-  if (verbose)
-    message("Cholesky Decomposition of Covariance Matrix\n");
-  if (_Cmat->computeCholesky())
-  {
-    messerr("Fail to perform Cholesky decomposition");
-    return 1;
-  }
+  if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
+  _CmatChol = new CholeskySparse(_Cmat);
+  if (!_CmatChol->isReady()) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Cholesky Decomposition");
 
@@ -260,7 +261,7 @@ void GibbsMMulti::_calculateWeights(int icol,
   b[icol] = 1.;
 
   // Solve the linear system and returns the result in 'x'
-  _Cmat->solveCholesky(b, _weights);
+  _CmatChol->solve(b, _weights);
 
   if (tol <= 0.) return;
 

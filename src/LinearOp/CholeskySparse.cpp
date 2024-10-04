@@ -27,7 +27,7 @@ CholeskySparse::CholeskySparse(const MatrixSparse* mat)
   const MatrixSparse* matCS = dynamic_cast<const MatrixSparse*>(mat);
   _flagEigen                = matCS->isFlagEigen();
 
-  _prepare();
+  (void) _prepare();
 }
 
 CholeskySparse::~CholeskySparse()
@@ -61,6 +61,7 @@ void CholeskySparse::_clean()
  *****************************************************************************/
 int CholeskySparse::stdev(VectorDouble& vcur, bool flagStDev) const
 {
+  if (_mat == nullptr) return 1;
   if (_flagEigen)
   {
     /// TODO : calculate stdev when eigen
@@ -138,6 +139,7 @@ int CholeskySparse::stdev(VectorDouble& vcur, bool flagStDev) const
 
 double CholeskySparse::computeLogDeterminant() const
 {
+  if (! isReady()) return TEST;
   if (_flagEigen)
   {
     double det = 0.;
@@ -153,37 +155,54 @@ double CholeskySparse::computeLogDeterminant() const
   return 2. * det;
 }
 
-void CholeskySparse::_prepare() const
+int CholeskySparse::setMatrix(const MatrixSparse* mat)
 {
-  const MatrixSparse* matCS = dynamic_cast<const MatrixSparse*>(_mat);
-  if (_factor == nullptr)
-  {
-    if (_flagEigen)
-    {
-      _factor = new Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>>;
-      _factor->compute(matCS->getEigenMatrix());
-    }
-    else
-    {
-      _S = cs_schol(matCS->getCS(), 0);
-      if (_S == nullptr)
-      {
-        messerr("Error in cs_schol function");
-        return;
-      }
+  _mat  = mat;
+  _size = mat->getNRows();
+  return _prepare();
+}
 
-      _N = cs_chol(matCS->getCS(), _S);
-      if (_N == nullptr)
-      {
-        messerr("Error in cs_chol function");
-        return;
-      }
+int CholeskySparse::_prepare() const
+{
+  if (_mat == nullptr) return 1;
+  const MatrixSparse* matCS = dynamic_cast<const MatrixSparse*>(_mat);
+
+  if (_flagEigen)
+  {
+    if (_factor != nullptr) return 0;
+
+    _factor = new Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>>;
+    _factor->compute(matCS->getEigenMatrix());
+    if (_factor == nullptr)
+    {
+      messerr("Error when computing Cholesky Decomposition");
+      return 1;
     }
   }
+  else
+  {
+    if (_S != nullptr && _N != nullptr) return 0;
+    _S = cs_schol(matCS->getCS(), 0);
+    if (_S == nullptr)
+    {
+      messerr("Error in cs_schol function");
+      return 1;
+    }
+
+    _N = cs_chol(matCS->getCS(), _S);
+    if (_N == nullptr)
+    {
+      messerr("Error in cs_chol function");
+      return 1;
+    }
+  }
+  _setReady();
+  return 0;
 }
 
 int CholeskySparse::addSolveX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   if (_flagEigen)
   {
     Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), vecin.size());
@@ -203,6 +222,7 @@ int CholeskySparse::addSolveX(const constvect vecin, vect vecout) const
 
 int CholeskySparse::addInvLtX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   if (_flagEigen)
   {
     Eigen::VectorXd temp(vecout.size());
@@ -230,6 +250,7 @@ int CholeskySparse::addInvLtX(const constvect vecin, vect vecout) const
 
 int CholeskySparse::addLtX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   if (_flagEigen)
   {
     Eigen::VectorXd temp(vecout.size());
@@ -253,6 +274,7 @@ int CholeskySparse::addLtX(const constvect vecin, vect vecout) const
 
 int CholeskySparse::addLX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   if (_flagEigen)
   {
     Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
@@ -275,6 +297,7 @@ int CholeskySparse::addLX(const constvect vecin, vect vecout) const
 
 int CholeskySparse::addInvLX(const constvect vecin, vect vecout) const
 {
+  if (!isReady()) return 1;
   if (_flagEigen)
   {
     Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());

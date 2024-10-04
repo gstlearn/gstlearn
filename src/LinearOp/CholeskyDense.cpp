@@ -23,7 +23,7 @@ CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
   , _xl()
   , _factor(nullptr)
 {
-  _prepare();
+  (void) _prepare();
 }
 
 CholeskyDense::~CholeskyDense()
@@ -39,6 +39,7 @@ void CholeskyDense::_clear()
 
 int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
   mvecout.noalias() += _factor->matrixL().transpose().solve(mvecin);
@@ -47,6 +48,7 @@ int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
 
 int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
   mvecout.noalias() += _factor->matrixL().transpose() * mvecin;
@@ -55,6 +57,7 @@ int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
 
 int CholeskyDense::addLX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
   mvecout.noalias() += _factor->matrixL() * mvecin;
@@ -63,6 +66,7 @@ int CholeskyDense::addLX(const constvect vecin, vect vecout) const
 
 int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
   mvecout.noalias() += _factor->matrixL().solve(mvecin);
@@ -71,6 +75,7 @@ int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
 
 int CholeskyDense::addSolveX(const constvect vecin, vect vecout) const
 {
+  if (! isReady()) return 1;
   int size = (int)vecin.size();
   Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), size);
   Eigen::Map<Eigen::VectorXd> xm(vecout.data(), size);
@@ -87,6 +92,7 @@ int CholeskyDense::_getTriangleSize() const
 
 double CholeskyDense::computeLogDeterminant() const
 {
+  if (! isReady()) return TEST;
   auto diag  = _factor->matrixLLT().diagonal();
   double det = 0.;
   for (int i = 0; i < _factor->rows(); i++) det += log(diag[i]);
@@ -95,58 +101,76 @@ double CholeskyDense::computeLogDeterminant() const
 
 VectorDouble CholeskyDense::getCholeskyTL() const
 {
-  _computeTL();
+  if (_computeTL()) return VectorDouble();
   return _tl;
 }
 
 double CholeskyDense::getCholeskyTL(int i, int j) const
 {
-  _computeTL();
+  if (_computeTL()) return TEST;
   int neq = _size;
   return (i >= j) ? _TL(i, j) : 0.;
 }
 
 double CholeskyDense::getCholeskyTL(int iad) const
 {
-  _computeTL();
+  if (_computeTL()) return TEST;;
   return _tl[iad];
 }
 
 VectorDouble CholeskyDense::getCholeskyXL() const
 {
-  _computeXL();
+  if (_computeXL()) return VectorDouble();
   return _xl;
 }
 
 double CholeskyDense::getCholeskyXL(int i, int j) const
 {
-  _computeXL();
+  if (_computeXL()) return TEST;;
   int neq = _size;
   return (i >= j) ? _XL(i, j) : 0.;
 }
 
-void CholeskyDense::_prepare() const
+int CholeskyDense::_prepare() const
 {
+  if (_mat == nullptr) return 1;
   const Eigen::MatrixXd* a = ((AMatrixDense*)_mat)->getTab();
   _factor                  = new Eigen::LLT<Eigen::MatrixXd>();
   *_factor                 = a->llt();
+  if (_factor == nullptr)
+  {
+    messerr("Error when computing the Cholesky Decmposition");
+    return 1;
+  }
+  _setReady();
+  return 0;
 }
 
-void CholeskyDense::_computeTL() const
+int CholeskyDense::setMatrix(const MatrixSquareSymmetric* mat)
 {
-  if (!_tl.empty()) return;
+  _mat = mat;
+  _size = mat->getNRows();
+  return _prepare();
+}
+
+int CholeskyDense::_computeTL() const
+{
+  if (!_tl.empty()) return 0;
+  if (! isReady()) return 1;
   int neq = _size;
 
   _tl.resize(_getTriangleSize());
   Eigen::MatrixXd mymat = _factor->matrixL();
   for (int ip = 0; ip < neq; ip++)
     for (int jp = 0; jp <= ip; jp++) _TL(ip, jp) = mymat(ip, jp);
+  return 0;
 }
 
-void CholeskyDense::_computeXL() const
+int CholeskyDense::_computeXL() const
 {
-  if (!_xl.empty()) return;
-
+  if (!_xl.empty()) return 0;
+  if (! isReady()) return 1;
+  
   int neq = _size;
   _xl.resize(_getTriangleSize());
 
@@ -160,6 +184,7 @@ void CholeskyDense::_computeXL() const
     }
     _XL(i, i) = 1. / _TL(i, i);
   }
+  return 0;
 }
 
 /*****************************************************************************/
@@ -174,81 +199,103 @@ void CholeskyDense::_computeXL() const
  **             3 : X=A%*%TL
  **             4 : X=t(A)%*%TU
  **             5 : X=t(A)%*%TL
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  nrhs number of columns in x
- ** \param[in]  a    matrix (dimension neq * nrhs)
+ ** \param[in]  a    Input matrix
+ ** \param[out] x    Resulting matrix (resized if necessary)
  **
+ ** \remark The dimensions of 'a' and 'x' must match
+ ** \remark Anyhow 'x' is resized to the same dimension as 'a'
+ ** 
  *****************************************************************************/
-MatrixRectangular CholeskyDense::productCholeskyInPlace(int mode,
-                                                        int neq,
-                                                        int nrhs,
-                                                        const MatrixRectangular& a)
+void CholeskyDense::productCholeskyInPlace(int mode,
+                                           const MatrixRectangular& a,
+                                           MatrixRectangular& x)
 {
-  _computeTL();
-  MatrixRectangular x(neq, nrhs);
+  if (_computeTL()) return;
+  int n1 = a.getNRows();
+  int n2 = a.getNCols();
+  x.reset(n1, n2);
 
+  int neq;
+  int nrhs;
   double val = 0.;
   if (mode == 0)
   {
+    neq  = n1;
+    nrhs = n2;
     for (int irhs = 0; irhs < nrhs; irhs++)
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++) val += _TL(j, i) * a.getValue(j, irhs);
+        for (int j = i; j < neq; j++)
+          val += _TL(j, i) * a.getValue(j, irhs);
         x.setValue(i, irhs, val);
       }
   }
   else if (mode == 1)
   {
+    neq  = n1;
+    nrhs = n2;
     for (int irhs = 0; irhs < nrhs; irhs++)
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = 0; j <= i; j++) val += _TL(i, j) * a.getValue(j, irhs);
+        for (int j = 0; j <= i; j++)
+          val += _TL(i, j) * a.getValue(j, irhs);
         x.setValue(i, irhs, val);
       }
   }
   else if (mode == 2)
   {
+    nrhs = n1;
+    neq  = n2;
     for (int irhs = 0; irhs < nrhs; irhs++)
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * _TL(i, j);
+        for (int j = 0; j <= i; j++)
+          val += a.getValue(irhs, j) * _TL(i, j);
         x.setValue(irhs, i, val);
       }
   }
   else if (mode == 3)
   {
+    nrhs = n1;
+    neq  = n2;
     for (int irhs = 0; irhs < nrhs; irhs++)
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * _TL(j, i);
+        for (int j = i; j < neq; j++)
+          val += a.getValue(irhs, j) * _TL(j, i);
         x.setValue(irhs, i, val);
       }
   }
   else if (mode == 4)
   {
+    nrhs = n1;
+    neq  = n2;
     for (int irhs = 0; irhs < nrhs; irhs++)
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * _TL(i, j);
+        for (int j = 0; j <= i; j++)
+          val += a.getValue(irhs, j) * _TL(i, j);
         x.setValue(irhs, i, val);
       }
   }
   else if (mode == 5)
   {
+    nrhs = n1;
+    neq  = n2;
     for (int irhs = 0; irhs < nrhs; irhs++)
       for (int i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * _TL(j, i);
+        for (int j = i; j < neq; j++)
+          val += a.getValue(irhs, j) * _TL(j, i);
         x.setValue(irhs, i, val);
       }
   }
-  return x;
 }
 
 /*****************************************************************************/
@@ -259,13 +306,19 @@ MatrixRectangular CholeskyDense::productCholeskyInPlace(int mode,
  ** \param[in]  mode  0: TL * A * TU; 1: TU * A * TL
  ** \param[in]  neq  number of equations in the system
  ** \param[in]  a    Square symmetric matrix (optional)
+ ** \param[out] b    Square output matrix (resized if needed)
+ **
+ ** \remark The value of 'neq' could be derived from the input matrix 'a'
+ ** \remark but this matrix is optional, hence the presence of argument 'neq' 
  **
  *****************************************************************************/
-MatrixSquareSymmetric CholeskyDense::normCholeskyInPlace(int mode,
-                                                         int neq,
-                                                         const MatrixSquareSymmetric& a)
+void CholeskyDense::normCholeskyInPlace(int mode,
+                                        int neq,
+                                        const MatrixSquareSymmetric& a,
+                                        MatrixSquareSymmetric& b)
 {
-  MatrixSquareSymmetric b(neq);
+  if (_computeTL()) return;
+  b.resize(neq, neq);
   double vala;
 
   for (int i = 0; i < neq; i++)
@@ -298,5 +351,5 @@ MatrixSquareSymmetric CholeskyDense::normCholeskyInPlace(int mode,
       }
       b.setValue(i, j, val);
     }
-  return b;
 }
+

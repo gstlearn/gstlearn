@@ -187,15 +187,15 @@ public:
   void fillRandom(int seed = 432432, double zeroPercent = 0);
 
   // Cholesky functions
-  int    computeCholesky();
-  int    solveCholesky(const VectorDouble& b, VectorDouble& x);
+  int computeCholesky();
+  int solveCholesky(const VectorDouble& b, VectorDouble& x);
 
-  #ifndef SWIG
+#ifndef SWIG
   int solveCholesky(const constvect b, std::vector<double>& x);
   int simulateCholesky(const constvect b, vect x);
   int addVecInPlace(const constvect x, vect y);
 #endif
-  
+
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
   double computeCholeskyLogDeterminant();
 

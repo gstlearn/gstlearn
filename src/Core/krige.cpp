@@ -3278,19 +3278,20 @@ static int st_sampling_krige_data(Db *db,
 
     mat_s = model->evalCovMatrixSymmetric(db);
 
-    if (mat_s.computeCholesky()) goto label_end;
-    VectorDouble tl = mat_s.getCholeskyTL();
+    CholeskyDense mat_s_Chol(&mat_s);
+    if (! mat_s_Chol.isReady()) goto label_end;
+    VectorDouble tl = mat_s_Chol.getCholeskyTL();
 
     MatrixSquareSymmetric* sq = MatrixSquareSymmetric::createFromTriangle(0, nsize2, tl);
 
-    if (mat_s.invertCholesky()) goto label_end;
-    VectorDouble xl = mat_s.getCholeskyXL();
+    VectorDouble xl = mat_s_Chol.getCholeskyXL();
 
     MatrixRectangular mat_c = model->evalCovMatrix(db, db, -1, -1, ranks2, rother);
 
-    MatrixRectangular v = MatrixSquareSymmetric::productCholeskyInPlace(4, nsize2, nother, xl, mat_c);
-
-    MatrixSquareSymmetric tn1 = MatrixSquareSymmetric::normCholeskyInPlace(1, nsize2, tl, MatrixSquareSymmetric());
+    MatrixRectangular v;
+    mat_s_Chol.productCholeskyInPlace(4, mat_c, v);
+    MatrixSquareSymmetric tn1;
+    mat_s_Chol.normCholeskyInPlace(1, nsize2, MatrixSquareSymmetric(), tn1);
 
     MatrixSquareSymmetric* tn2 = dynamic_cast<MatrixSquareSymmetric*>
       (MatrixFactory::prodMatMat(&v, &v, true, false));
