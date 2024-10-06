@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACovAnisoList.hpp"
 
+#include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
@@ -22,6 +23,7 @@
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
 
+#include <algorithm>
 #include <math.h>
 #include <vector>
 
@@ -249,16 +251,16 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
   return mat;
 }
 
-void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
+void ACovAnisoList::_optimizationSetTarget(const SpacePoint& pt) const
 {
   for (int is = 0, ns = getCovaNumber(); is < ns; is++)
     _covs[is]->optimizationSetTarget(pt);
 }
 
-void ACovAnisoList::optimizationSetTarget(int iech) const
+void ACovAnisoList::optimizationSetTargetByIndex(int iech) const
 {
   for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-    _covs[is]->optimizationSetTarget(iech);
+    _covs[is]->optimizationSetTargetByIndex(iech);
 }
 
 /**
@@ -279,8 +281,7 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
 
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
-  for (auto *e : _covs)
-    e->setOptimEnabled(true);
+
   // Prepare the Optimization for covariance calculation
   optimizationPreProcess(db1);
 
@@ -308,7 +309,7 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
     {
       int iech2 = index1[rvar2][rech2];
 
-      optimizationSetTarget(iech2);
+      optimizationSetTargetByIndex(iech2);
 
       // Loop on the basic structures
       for (int i = 0, n = getCovaNumber(); i < n; i++)
@@ -355,7 +356,7 @@ double ACovAnisoList::eval(const SpacePoint& p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACovAnisoList::addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                                 const SpacePoint &p1,
                                                 const SpacePoint &p2,
                                                 const CovCalcMode *mode) const
@@ -373,6 +374,15 @@ void ACovAnisoList::addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
     {
       _covs[mode->getActiveCovList(i)]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
     }
+  }
+}
+
+void ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode) const
+{
+  for (const auto &e : _covs)
+  {
+    e->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
   }
 }
 
@@ -668,38 +678,41 @@ int ACovAnisoList::getRankNugget() const
   return -1;
 }
 
-void ACovAnisoList::evalCovLHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          SpacePoint &pwork2,
-                          const Db* db, 
-                          const CovCalcMode *mode) const
-{
-  for (const auto &e : _covs)
-  {
-    e->evalCovLHS(mat, pwork1, pwork2, db, mode);
-  }
+// void ACovAnisoList::evalCovLHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           SpacePoint &pwork2,
+//                           const Db* db, 
+//                           const CovCalcMode *mode) const
+// {
+//   for (const auto &e : _covs)
+//   {
+//     e->evalCovLHS(mat, pwork1, pwork2, db, mode);
+//   }
 
-}
+// }
 
-void ACovAnisoList::evalCovRHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          const Db* db,  SpacePoint& pout,  
-                          const CovCalcMode *mode) const
-{
-  for (const auto &e : _covs)
-  {
-    e->evalCovRHS(mat, pwork1, db, pout, mode);
-  }
+// void ACovAnisoList::evalCovRHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           const Db* db,  SpacePoint& pout,  
+//                           const CovCalcMode *mode) const
+// {
+//   for (const auto &e : _covs)
+//   {
+//     e->evalCovRHS(mat, pwork1, db, pout, mode);
+//   }
   
-}
+// }
 
-void ACovAnisoList::optimizationPreProcess(const Db* db) const
+void ACovAnisoList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
-	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-		_covs[is]->optimizationPreProcess(db);
+  for (const auto &e :_covs)
+  {
+    e->optimizationPreProcess(p);
+  }
 }
 
-void ACovAnisoList::optimizationPostProcess() const
+
+void ACovAnisoList::_optimizationPostProcess() const
 {
 	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
 		_covs[is]->optimizationPostProcess();

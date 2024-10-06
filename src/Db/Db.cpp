@@ -767,25 +767,24 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 
 void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
 {
-  pvec.resize(getSampleNumber(useSel));
-  for (auto &e : pvec)
-    e = SpacePoint(space);
-  
-  VectorDouble coord(getNDim());
   int iechcur = 0;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
     
     if (isActive(iech))
     {
-      pvec[iechcur].setIech(iech);
-      getSampleAsSPInPlace(pvec[iechcur++]);
+      pvec.push_back(SpacePoint(space));
+      SpacePoint &p = pvec[iechcur++];
+      p.setIech(iech);
+      getSampleAsSPInPlace(p);
     }
     else
     {
       if (useSel) continue;
-      pvec[iechcur].setFFFF();
-      pvec[iechcur++].setIech(iech);
+      pvec.push_back(SpacePoint(space));
+      SpacePoint &p = pvec[iechcur++];
+      p.setIech(iech);
+      p.setFFFF();
     }
   }
 }

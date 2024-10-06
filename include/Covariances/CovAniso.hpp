@@ -29,6 +29,7 @@
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
 #include <array>
+#include <vector>
 
 class Rotation;
 class MatrixSquareGeneral;
@@ -73,16 +74,16 @@ public:
   /// ACov Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
-void evalCovLHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          SpacePoint &pwork2,
-                          const Db* db, 
-                          const CovCalcMode *mode) const override;
+// void evalCovLHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           SpacePoint &pwork2,
+//                           const Db* db, 
+//                           const CovCalcMode *mode) const override;
 
-void evalCovRHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          const Db* db, SpacePoint& pout,  
-                          const CovCalcMode *mode) const override;
+// void evalCovRHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           const Db* db, SpacePoint& pout,  
+//                           const CovCalcMode *mode) const override;
   /// ACov Interface
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -92,13 +93,15 @@ void evalCovRHS(MatrixSquareSymmetric &mat,
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
+  double evalCor(const SpacePoint &p1,
+                 const SpacePoint &p2,
+                 const CovCalcMode* mode = nullptr,
+                 int ivar = 0,
+                 int jvar = 0) const; // let ivar and jvar for the future where the
+                                      // correlation will be different for multivariate
   virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const override;
-  virtual void addEvalCovMatBiPointInPlace(
-                              MatrixSquareSymmetric &mat,
-                              const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              const CovCalcMode *mode = nullptr) const override;
+ 
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
                                  bool flagScaleDistance = true,
@@ -115,10 +118,8 @@ void evalCovRHS(MatrixSquareSymmetric &mat,
   virtual double getBallRadius() const { return TEST; }
 
   bool isOptimizationInitialized(const Db* db = nullptr) const;
-  void optimizationPreProcess(const Db* db) const override;
-  void optimizationPostProcess() const override;
-  void optimizationSetTarget(const SpacePoint& pt) const override;
-  void optimizationSetTarget(int iech) const override;
+  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void optimizationSetTargetByIndex(int iech) const override;
 
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,
@@ -312,13 +313,22 @@ void evalCovRHS(MatrixSquareSymmetric &mat,
   void updateCovByMesh(int imesh,bool aniso = true);
   double getValue(const EConsElem &econs,int iv1,int iv2) const;
   void setOptimEnabled(bool flag) { _optimEnabled = flag; }
+
 protected:
   /// Update internal parameters consistency with the context
+   virtual void _addEvalCovMatBiPointInPlace(
+                              MatrixSquareSymmetric &mat,
+                              const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              const CovCalcMode *mode = nullptr) const override;
   virtual void _updateFromContext();
   virtual void _initFromContext();
+  void _optimizationSetTarget(const SpacePoint& pt) const override;
+
 
 private:
-bool _isOptimEnabled() const 
+
+bool _isOptimEnabled() const override 
 { 
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
@@ -343,7 +353,7 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
   void   _computeCorrec();
   double _getDetTensor() const;
   void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-  double _evalCovFromH(double h, const CovCalcMode *mode) const;
+  double _evalCorFromH(double h, const CovCalcMode *mode) const;
 
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
@@ -356,14 +366,9 @@ private:
                                               EConsElem::SCALE,
                                               EConsElem::TENSOR,
                                               EConsElem::ANGLE};
-  private:
   bool _optimEnabled;
-  mutable bool _isOptimPreProcessed;
-
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
-  mutable std::vector<SpacePoint> _p1As;
-  mutable SpacePoint _p2A;
 };
 
 

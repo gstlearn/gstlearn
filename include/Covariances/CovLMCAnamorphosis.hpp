@@ -48,19 +48,7 @@ public:
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;
-
-  void evalCovLHS(MatrixSquareSymmetric &mat,
-                  SpacePoint &pwork1,
-                  SpacePoint &pwork2,
-                  const Db* db = nullptr, 
-                  const CovCalcMode *mode = nullptr) const override;
-  void evalCovRHS(MatrixSquareSymmetric &mat,
-                  SpacePoint &pwork1,
-                  const Db* db,  SpacePoint& pout,  
-                  const CovCalcMode *mode = nullptr) const override;
-  /// Interface for ACovAnisoList
-  ///
+                      const CovCalcMode* mode = nullptr) const override;                   
   void addCov(const CovAniso* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
@@ -72,7 +60,13 @@ public:
   const EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
+protected:
+    void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                        const SpacePoint& pwork1, 
+                        const SpacePoint& pwork2, 
+                        const CovCalcMode *mode) const override;
 private:
+  
   double _evalHermite(int ivar,
                       int jvar,
                       double h,

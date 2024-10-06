@@ -68,12 +68,11 @@ public:
                        const CovCalcMode* mode = nullptr) const override;
   virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                const CovCalcMode *mode = nullptr) const override;
-  virtual void addEvalCovMatBiPointInPlace(
+  virtual void _addEvalCovMatBiPointInPlace(
                               MatrixSquareSymmetric &mat,
                               const SpacePoint &p1,
                               const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
-  
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)  override;
 
   /// Interface for AStringable Interface
@@ -129,10 +128,10 @@ public:
   int                getCovaMinIRFOrder() const;
 
   // Methods necessary for Optimization
-  void optimizationPreProcess(const Db* db) const override;
-  void optimizationPostProcess() const override ;
-  void optimizationSetTarget(const SpacePoint &pt) const override;
-  void optimizationSetTarget(int iech) const override;
+  void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;
+  void _optimizationPostProcess() const override ;
+  void _optimizationSetTarget(const SpacePoint &pt) const override;
+  void optimizationSetTargetByIndex(int iech) const override;
   MatrixRectangular evalCovMatrixOptim(const Db *db1,
                                        const Db *db2,
                                        int ivar0 = -1,
@@ -145,28 +144,16 @@ public:
                                                     const VectorInt &nbgh1 = VectorInt(),
                                                     const CovCalcMode *mode = nullptr) const;
    
-
-  void evalCovLHS(MatrixSquareSymmetric &mat,
-                  SpacePoint &pwork1,
-                  SpacePoint &pwork2,
-                  const Db* db = nullptr, 
-                  const CovCalcMode *mode = nullptr) const override;
-  void evalCovRHS(MatrixSquareSymmetric &mat,
-                  SpacePoint &pwork1,
-                  const Db* db,  SpacePoint& pout,  
-                  const CovCalcMode *mode = nullptr) const override;
-  ////////////////////////////////////////////////
-
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
   int  getRankNugget() const;
-
   const ACovAnisoList* createReduce(const VectorInt &validVars) const;
 
 
 protected:
-  bool   _isCovarianceIndexValid(int icov) const;
-
+  bool _isCovarianceIndexValid(int icov) const;
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const override;
 private:
   void _manage(const Db* db1,const Db* db2) const override;
   

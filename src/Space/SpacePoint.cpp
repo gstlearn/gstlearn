@@ -28,6 +28,7 @@ SpacePoint::SpacePoint(const ASpace* space)
   _iech(-1),
   _target(false)
 {
+  
   // Initialize the point to the space origin
   // TODO : Not true whatever the space
   for (int i = 0; i < (int)getNDim(); i++)
@@ -38,7 +39,7 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 : ASpaceObject(r)
 ,_coord(new double[getNDim()])
 ,_deleteCoord(true)
-,_iech(-1)
+,_iech(r._iech)
 ,_target(r._target)
 {
   for (int i = 0; i < (int) getNDim(); i++)
@@ -110,6 +111,13 @@ SpacePoint::~SpacePoint()
 void SpacePoint::setCoord(double coord)
 {
   std::fill(_coord,_coord + getNDim(),coord);
+}
+
+void SpacePoint::setCoords(vect coords)
+{
+  if (_deleteCoord) delete[] _coord;
+  _deleteCoord = false;
+  _coord = coords.data();
 }
 
 void SpacePoint::setCoords(const VectorDouble& coord)

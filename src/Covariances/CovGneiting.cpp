@@ -18,6 +18,7 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpaceRN.hpp"
 #include "geoslib_define.h"
+#include <vector>
 
 CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
 : ACov()
@@ -69,25 +70,25 @@ CovGneiting::~CovGneiting()
 
 }
 
-void CovGneiting::optimizationSetTarget(const SpacePoint &pt) const 
+void CovGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
 {
   _covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
   _covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
 }
   
-void CovGneiting::optimizationSetTarget(int iech) const 
+void CovGneiting::optimizationSetTargetByIndex(int iech) const 
 {
-  _covS->optimizationSetTarget(iech);
-  _covTemp->optimizationSetTarget(iech);
+  _covS->optimizationSetTargetByIndex(iech);
+  _covTemp->optimizationSetTargetByIndex(iech);
 }
 
-void CovGneiting::optimizationPreProcess(const Db* db) const 
+void CovGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) const 
 {
-  _covS->optimizationPreProcess(db);
-  _covTemp->optimizationPreProcess(db);
+  _covS->_optimizationPreProcess(p);
+  _covTemp->_optimizationPreProcess(p);
 }
 
-void CovGneiting::optimizationPostProcess() const
+void CovGneiting::_optimizationPostProcess() const
 {
   _covS->optimizationPostProcess();
   _covTemp->optimizationPostProcess();

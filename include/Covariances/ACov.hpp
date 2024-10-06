@@ -72,22 +72,27 @@ public:
   virtual void evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                         const SpacePoint &p1,
                                         const SpacePoint &p2,
-                                        const CovCalcMode *mode = nullptr) const;
+                                        const CovCalcMode *mode = nullptr) const; 
+                                        
   virtual void addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                const SpacePoint& pwork1, 
                                const SpacePoint& pwork2,
                                const CovCalcMode *mode) const;
 
-  virtual void evalCovLHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          SpacePoint &pwork2,
-                          const Db* db = nullptr, 
-                          const CovCalcMode *mode = nullptr) const;
-  virtual void evalCovRHS(MatrixSquareSymmetric &mat,
-                          SpacePoint &pwork1,
-                          const Db* db, SpacePoint& pout,  
-                          const CovCalcMode *mode = nullptr) const;
-
+  // virtual void evalCovLHS(MatrixSquareSymmetric &mat,
+  //                         SpacePoint &pwork1,
+  //                         SpacePoint &pwork2,
+  //                         const Db* db = nullptr, 
+  //                         const CovCalcMode *mode = nullptr) const;
+  // virtual void evalCovRHS(MatrixSquareSymmetric &mat,
+  //                         SpacePoint &pwork1,
+  //                         const Db* dbin, SpacePoint& pout, 
+  //                         const Db* dbout, 
+  //                         const CovCalcMode *mode = nullptr) const;
+  void evalCovKriging(MatrixSquareSymmetric &mat,
+                      SpacePoint &pwork1,
+                      SpacePoint& pout, 
+                      const CovCalcMode *mode = nullptr) const;
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
                                  bool flagScaleDistance = false,
@@ -129,10 +134,13 @@ public:
   /////////////////////////////////////////////////////////////////////////////////
   ///
 
-  virtual void optimizationSetTarget(const SpacePoint &pt) const {DECLARE_UNUSED(pt)};
-  virtual void optimizationSetTarget(int iech) const {DECLARE_UNUSED(iech)};
-  virtual void optimizationPreProcess(const Db* db) const {DECLARE_UNUSED(db)}
-  virtual void optimizationPostProcess() const {}
+  void optimizationSetTarget(const SpacePoint &pt) const;
+  virtual void optimizationSetTargetByIndex(int iech) const {DECLARE_UNUSED(iech)};
+  void optimizationPreProcess(const Db* db) const;
+  void optimizationPreProcess(const std::vector<SpacePoint>& p) const;
+
+  void optimizationPostProcess() const;
+  virtual bool isOptimEnabled() const {return _isOptimEnabled();}
 
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
@@ -143,6 +151,7 @@ public:
   MatrixSquareSymmetric evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
+
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
                       int ivar = 0,
@@ -306,15 +315,34 @@ public:
   {
       _manage(db1, db2);
   }
-protected:
 
+  void load(const SpacePoint& p,bool case1) const;
+
+  void loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const;
+
+  
+protected:
+  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const;
+  virtual void _optimizationSetTarget(const SpacePoint &pt) const;
+
+  void _setOptimEnabled(bool enabled){ _optimEnabled = enabled;}
   VectorInt _getActiveVariables(int ivar0) const;
   static void _updateCovMatrixSymmetricVerr(const Db* db1,
                                             AMatrix* mat,
                                             const VectorInt& ivars,
                                             const VectorVectorInt& index1);
 
+  virtual void _optimizationPreProcess(const std::vector<SpacePoint>& p) const;
+  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                            const SpacePoint& pwork1, 
+                                            const SpacePoint& pwork2,
+                                            const CovCalcMode *mode) const;
 private:
+  virtual void _optimizationPostProcess() const; 
+  virtual bool _isOptimEnabled() const {return _optimEnabled;}
+
   virtual void _manage(const Db* db1,const Db* db2) const 
   {
     DECLARE_UNUSED(db1)
@@ -328,4 +356,11 @@ private:
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
 
+protected:
+  bool _optimEnabled;
+  mutable bool _isOptimPreProcessed;
+  mutable std::vector<SpacePoint> _p1As;
+  mutable SpacePoint _p2A;
+  const mutable SpacePoint* _pw1;
+  const mutable SpacePoint* _pw2;
 };

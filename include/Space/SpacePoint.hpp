@@ -38,10 +38,12 @@ public:
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   constvect getCoords() const;
+  
   vect getCoordRef() { return vect(_coord,getNDim()); }
   double getCoord(int idim) const; 
   void setCoord(double coord);
   void setCoord(int i, double val) { _coord[i] = val; }
+  void setCoords(vect coords);
   void setCoords(const VectorDouble& coord);
   void setCoords(const double* coord, int size);
   void setIech(int iech) const { _iech = iech; }

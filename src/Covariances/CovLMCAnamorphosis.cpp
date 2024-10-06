@@ -72,22 +72,30 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   return *this;
 }
 
-void CovLMCAnamorphosis::evalCovLHS(MatrixSquareSymmetric &mat,
-                                    SpacePoint &pwork1,
-                                    SpacePoint &pwork2,
-                                    const Db* db, 
-                                    const CovCalcMode *mode) const
+void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                                     const SpacePoint &pwork1,
+                                                     const SpacePoint &pwork2,
+                                                     const CovCalcMode *mode) const
 {
-  ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
-void CovLMCAnamorphosis::evalCovRHS(MatrixSquareSymmetric &mat,
-                  SpacePoint &pwork1,
-                  const Db* db,  SpacePoint& pout,  
-                  const CovCalcMode *mode) const
-{
-  ACov::evalCovRHS(mat, pwork1, db, pout, mode);
-}
+// void CovLMCAnamorphosis::evalCovLHS(MatrixSquareSymmetric &mat,
+//                                     SpacePoint &pwork1,
+//                                     SpacePoint &pwork2,
+//                                     const Db* db, 
+//                                     const CovCalcMode *mode) const
+// {
+//   ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
+// }
+
+// void CovLMCAnamorphosis::evalCovRHS(MatrixSquareSymmetric &mat,
+//                   SpacePoint &pwork1,
+//                   const Db* db,  SpacePoint& pout,  
+//                   const CovCalcMode *mode) const
+// {
+//   ACov::evalCovRHS(mat, pwork1, db, pout, mode);
+// }
 
 CovLMCAnamorphosis::~CovLMCAnamorphosis()
 {

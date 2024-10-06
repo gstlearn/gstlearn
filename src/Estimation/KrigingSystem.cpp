@@ -563,7 +563,6 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   DECLARE_UNUSED(icas);
   DECLARE_UNUSED(iech);
-  _covtab.fill(0);
   _model->eval0MatInPlace(_covtab, mode);
 }
 
@@ -626,10 +625,9 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
  *****************************************************************************/
 void KrigingSystem::_lhsCalcul()
 {
-  _lhsf.fill(0.);
-
   /* Establish the covariance part */
-
+  _p1.setTarget(false);
+  _p2.setTarget(false);
   for (int iech = 0; iech < _nech; iech++)
   { 
     _p1.setIech(_nbgh[iech]);
@@ -640,10 +638,8 @@ void KrigingSystem::_lhsCalcul()
         _covtab0Calcul(1, _nbgh[iech], &_calcModeLHS);
       else
       {
-        _covtab.fill(0.);
         _p2.setIech(_nbgh[jech]);
-        _p2.setTarget(false);
-        _cova->evalCovLHS(_covtab, _p1, _p2,_dbin,&_calcModeLHS);
+        _cova->evalCovKriging(_covtab,_p1,_p2,&_calcModeLHS);
       }
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -835,15 +831,15 @@ void KrigingSystem::_rhsStore(int iech)
  *****************************************************************************/
 void KrigingSystem::_rhsCalculPoint()
 {
+  _p1.setTarget(false);
   _p0.setTarget(true);
   _cova->optimizationSetTarget(_p0);
 
   for (int iech = 0; iech < _nech; iech++)
   {
     _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
-    _covtab.fill(0.);
     _p1.setIech(_nbgh[iech]);
-    _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
+    _cova->evalCovKriging(_covtab, _p1, _p0, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -860,6 +856,7 @@ void KrigingSystem::_rhsCalculBlock()
   // - define a new matrix to cumulate '_covtab'  calculations
   _p0_memo = _p0;
   _p0_memo.setTarget(true);
+  _p1.setTarget(false);
   MatrixSquareGeneral covcum(_covtab);
   int ndisc = _getNDisc();
 
@@ -875,9 +872,8 @@ void KrigingSystem::_rhsCalculBlock()
       _p0 = _p0_memo;
       _p0.move(_getDISC1Vec(i));
       _cova->optimizationSetTarget(_p0);
-      _covtab.fill(0.);
       _p1.setIech(_nbgh[iech]);
-      _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
+      _cova->evalCovKriging(_covtab, _p1, _p0, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'
       covcum.addMatInPlace(_covtab);
@@ -914,13 +910,13 @@ void KrigingSystem::_rhsCalculDrift()
 void KrigingSystem::_rhsCalculDGM()
 {
   _cova->optimizationSetTarget(_p0);
+  _p1.setTarget(false);
   _p0.setTarget(true);
   for (int iech = 0; iech < _nech; iech++)
   {
     _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
-    _covtab.fill(0.);
     _p1.setIech(_nbgh[iech]);
-    _cova->evalCovRHS(_covtab, _p1, _dbin, _p0, &_calcModeRHS);
+    _cova->evalCovKriging(_covtab, _p1, _p0,&_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -1644,8 +1640,6 @@ int KrigingSystem::_prepar()
  *****************************************************************************/
 void KrigingSystem::_dualCalcul()
 {
-  _zext.fill(0.);
-
   /* Extract the data */
 
   int ecr = 0;

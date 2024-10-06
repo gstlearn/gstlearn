@@ -1279,7 +1279,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
 {
   int ndim = getNDim();
   int nvertex = amesh->getNApices();
-  int nmeshes = amesh->getNMeshes();
+  //int nmeshes = amesh->getNMeshes();
   auto cova = _getCovAniso();
 
   /* Load global matrices */
@@ -1288,11 +1288,11 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   _Lambda.resize(nvertex, 0.);
 
   MatrixSquareSymmetric hh(ndim);
-  double param = cova->getParam();
+  //double param = cova->getParam();
   bool flagSphere = (amesh->getVariety() == 1);
 
   double correc = cova->getCorrec();
-  double sqdethh = 0.;
+  //double sqdethh = 0.;
   double factor = 1.;
 
  if (flagSphere)
@@ -1309,41 +1309,50 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       factor = sqrt(hh.determinant());
     }
   }
-
   /* Fill the array */
 
-  if (_isNoStat())
-  {
-    VectorDouble cum(nvertex, 0.);
-    for (int imesh = 0; imesh < nmeshes; imesh++)
-    {
-      if (flagSphere && cova->isNoStatForAnisotropy())
-      {
-        _loadHH(amesh, hh, imesh);
-        sqdethh = sqrt(hh.determinant());
-        factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
-      }
+  // if (_isNoStat())
+  // {
+  //   VectorDouble cum(nvertex, 0.);
+  //   for (int imesh = 0; imesh < nmeshes; imesh++)
+  //   {
+  //     // if (flagSphere && cova->isNoStatForAnisotropy())
+  //     // {
+  //     //   _loadHH(amesh, hh, imesh);
+  //     //   sqdethh = sqrt(hh.determinant());
+  //     //   factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
+  //     // }
  
-      for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
-      {
-        int ip = amesh->getApex(imesh, ic);
-        _Lambda[ip] += 1 / factor;
-        cum[ip]++;
-      }
-    }
+  //     for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
+  //     {
+  //       int ip = amesh->getApex(imesh, ic);
+  //       _Lambda[ip] += 1 / factor;
+  //       cum[ip]++;
+  //     }
+  //   }
 
-    for (int ip = 0; ip < nvertex; ip++)
-    {
-      if (cum[ip] > 0.) _Lambda[ip] /= cum[ip];
-      _Lambda[ip] = sqrt(_TildeC[ip] * correc / _Lambda[ip]);
-    }
-  }
-  else
+  //   for (int ip = 0; ip < nvertex; ip++)
+  //   {
+  //     if (cum[ip] > 0.) _Lambda[ip] /= cum[ip];
+  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc / _Lambda[ip]);
+  //   }
+  // }
+  // else
+  // {
+  //   for (int ip = 0; ip < nvertex; ip++)
+  //    {
+  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
+  //    }
+  // }
+
+  //   for (int ip = 0; ip < nvertex; ip++)
+  //    {
+  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
+  //    }
+
+  for (int ip = 0; ip < nvertex; ip++)
   {
-    for (int ip = 0; ip < nvertex; ip++)
-     {
-      _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
-     }
+    _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
   }
 }
 

@@ -17,6 +17,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
+#include <vector>
 
 
 class ACov;
@@ -55,10 +56,14 @@ public:
                       const CovCalcMode* mode = nullptr) const override;
 
   virtual int getNVariables() const override { return 1; }
-  void optimizationSetTarget(const SpacePoint &pt) const override;
-  void optimizationSetTarget(int iech) const override;
-  void optimizationPreProcess(const Db* db) const override;
-  void optimizationPostProcess() const override; 
+  void optimizationSetTargetByIndex(int iech) const override;
+protected:
+    void _optimizationSetTarget(const SpacePoint &pt) const override;
+
+private:
+  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void _optimizationPostProcess() const override;
+
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   const CovAniso* _covS;
