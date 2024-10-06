@@ -32,10 +32,6 @@ int main(int argc, char *argv[])
 
   Db* db = Db::createFillRandom(2, 3);
 
-  DbGrid* grid = DbGrid::create({2, 2});
-
-  CovGneiting cov;
-  
-
+  delete db;
   return(0);
 }

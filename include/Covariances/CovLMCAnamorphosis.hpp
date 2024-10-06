@@ -61,6 +61,9 @@ public:
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
 protected:
+    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const override;
+
     void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 

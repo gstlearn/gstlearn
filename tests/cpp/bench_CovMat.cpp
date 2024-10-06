@@ -137,6 +137,25 @@ int main(int argc, char *argv[])
     VH::divideConstant(cumul, nout);
     VH::displayRange("", cumul);
   }
+  if (option < 0 || option == 4)
+  {
+    // Not Optimized version
+    // =================
+
+    mestitle(1, "Not Optimized solution");
+    message("Use of the default version\n");
+    VH::fill(cumul, 0.);
+
+    timer.reset();
+    MatrixRectangular matvec = model->evalCovMatrix(dbin, dbout);
+    for (int i = 0; i < nout; i++)
+      VH::addInPlace(cumul, matvec.getColumn(i));
+    timer.displayIntervalMilliseconds("Establishing RHS (not optimized)", 300);
+
+    // Some printout for comparison
+    VH::divideConstant(cumul, nout);
+    VH::displayRange("", cumul);
+  }
 
   // Cleaning
   delete dbin;

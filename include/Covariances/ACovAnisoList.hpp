@@ -154,6 +154,11 @@ protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const override;
+  double _loadAndEval(const SpacePoint& p1,
+                          const SpacePoint&p2,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode *mode) const;
 private:
   void _manage(const Db* db1,const Db* db2) const override;
   

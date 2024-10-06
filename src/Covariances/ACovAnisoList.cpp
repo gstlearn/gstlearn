@@ -347,6 +347,19 @@ double ACovAnisoList::eval(const SpacePoint& p1,
   return cov;
 }
 
+double ACovAnisoList::_loadAndEval(const SpacePoint& p1,
+                          const SpacePoint&p2,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode *mode) const
+{ 
+  double res = 0.;
+  for (const auto &e : _covs)
+  {
+    res += e->loadAndEval(p1, p2, ivar, jvar, mode);
+  }
+  return res;
+}
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point

@@ -72,6 +72,11 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   return *this;
 }
 
+void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode) const
+{
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+}
 void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
@@ -80,29 +85,16 @@ void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat
   ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
-// void CovLMCAnamorphosis::evalCovLHS(MatrixSquareSymmetric &mat,
-//                                     SpacePoint &pwork1,
-//                                     SpacePoint &pwork2,
-//                                     const Db* db, 
-//                                     const CovCalcMode *mode) const
-// {
-//   ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
-// }
-
-// void CovLMCAnamorphosis::evalCovRHS(MatrixSquareSymmetric &mat,
-//                   SpacePoint &pwork1,
-//                   const Db* db,  SpacePoint& pout,  
-//                   const CovCalcMode *mode) const
-// {
-//   ACov::evalCovRHS(mat, pwork1, db, pout, mode);
-// }
-
 CovLMCAnamorphosis::~CovLMCAnamorphosis()
 {
 }
 
 int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
 {
+  for (auto &e: _covs)
+  {
+    e->setOptimEnabled(false);
+  }
   if (_anam == nullptr)
   {
     messerr("You must define 'anam' beforehand");

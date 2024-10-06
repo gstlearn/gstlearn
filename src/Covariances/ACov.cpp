@@ -41,7 +41,7 @@ ACov::ACov(const ASpace *space)
 
 ACov::ACov(const ACov &r)
     : ASpaceObject(r),
-      _optimEnabled(true),
+      _optimEnabled(r._optimEnabled),
       _isOptimPreProcessed(false),
       _p1As(),
       _p2A(r.getSpace())
@@ -80,12 +80,13 @@ void ACov::optimizationPreProcess(const Db* db) const
 
 void ACov::optimizationSetTarget(const SpacePoint &pt) const
 {
+  _p2A = pt;
   _optimizationSetTarget(pt);
 }
 
 void ACov::_optimizationSetTarget(const SpacePoint &pt) const
 {
-  _p2A = pt;
+  DECLARE_UNUSED(_p2A);
 }
 
 
@@ -890,6 +891,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
 
   // Play the non-stationarity (if needed)
   manage(db1,db2);
+  
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
   VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
@@ -1021,6 +1023,26 @@ void ACov::loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const S
   _loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
 }
 
+double ACov::loadAndEval(const SpacePoint& p1,
+                          const SpacePoint&p2,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode *mode) const
+{
+  return _loadAndEval(p1,p2,ivar,jvar,mode);
+}
+
+double ACov::_loadAndEval(const SpacePoint& p1,
+                          const SpacePoint&p2,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode *mode) const
+{
+  load(p1,true);
+  load(p2,false);
+  return eval(*_pw1,*_pw2,ivar,jvar,mode);
+
+}
 void ACov::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
                                               const SpacePoint& p1,
                                               const SpacePoint&p2,
