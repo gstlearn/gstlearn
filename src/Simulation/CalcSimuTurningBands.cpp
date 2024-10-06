@@ -491,7 +491,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
 
             default:
               messerr("The structure (%s) cannot be simulated",
-                      type.getDescr().c_str());
+                      type.getDescr().data());
               messerr("using the Turning Bands algorithm");
               return 1;
           }

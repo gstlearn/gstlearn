@@ -247,7 +247,7 @@ void CovLMCTapering::evalMatInPlace(const SpacePoint &p1,
   ACov::evalMatInPlace(p1, p2, mat, mode);
 }
 
-const String& CovLMCTapering::getName() const
+std::string_view CovLMCTapering::getName() const
 {
   return _tapeType.getDescr();
 }
