@@ -31,7 +31,7 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
   if (!require(sf, quietly=TRUE))
     stop("Package 'sf' is mandatory to use this function!")
 
-  val = NULL
+  val = NULL@
   
   # Conversion of polygons
   geo = st_geometry(x)
@@ -81,7 +81,7 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
 #'
 #' @return returns the sf object
 #' 
-#' @remark
+#' @note
 #' The argument 'crs' defines the type of coordinates ("coordinate Reference System") 
 #' using the format "AUTORITY:code".
 #' For example:
