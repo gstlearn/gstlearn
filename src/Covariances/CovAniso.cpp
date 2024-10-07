@@ -544,7 +544,7 @@ double CovAniso::eval(const SpacePoint &p1,
 void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                             const CovCalcMode *mode) const
 {
-  double cov = _evalCorFromH(0, mode);
+  double cov = _evalCorFromH(0, mode); 
 
   if (mode == nullptr || ! mode->getUnitary())
     mat.addMatInPlace(_sill, 1., cov);
