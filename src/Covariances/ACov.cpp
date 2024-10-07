@@ -80,13 +80,12 @@ void ACov::optimizationPreProcess(const Db* db) const
 
 void ACov::optimizationSetTarget(const SpacePoint &pt) const
 {
-  _p2A = pt;
   _optimizationSetTarget(pt);
 }
 
 void ACov::_optimizationSetTarget(const SpacePoint &pt) const
 {
-  DECLARE_UNUSED(pt);
+  _p2A = pt;
 }
 
 

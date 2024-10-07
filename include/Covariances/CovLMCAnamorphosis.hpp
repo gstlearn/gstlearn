@@ -68,6 +68,11 @@ protected:
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 
                         const CovCalcMode *mode) const override;
+    void _optimizationSetTarget(const SpacePoint &pt) const override
+    {
+      ACov::_optimizationSetTarget(pt);
+    }
+
 private:
   
   double _evalHermite(int ivar,
