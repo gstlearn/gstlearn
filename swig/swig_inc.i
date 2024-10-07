@@ -420,6 +420,21 @@
     messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
   }
 }
+%typemap(in, fragment="ToCpp") std::string_view
+{
+  try
+  {
+    static String tmp;
+    int errcode = convertToCpp($input, tmp);
+    $1 = tmp;
+    if (!SWIG_IsOK(errcode))
+      %argument_fail(errcode, "$type", $symname, $argnum);
+  }
+  catch(...)
+  {
+    messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
+  }
+}
 
 // Convert scalar argument by reference
 // Don't add String or char here otherwise "res2 not declared" / "alloc1 not declared"
@@ -598,10 +613,17 @@
 {
   $result = objectFromCpp($1);
 }
+%typemap(out, fragment="FromCpp") std::string_view
+{
+  String tmp{$1};
+  $result = objectFromCpp(tmp);
+}
 
 %typemap(out, fragment="FromCpp") int*,    const int*,    int&,    const int&,
                                   double*, const double*, double&, const double&,
                                   String*, const String*, String&, const String&,
+                                  std::string_view*, const std::string_view*,
+                                  std::string_view&, const std::string_view&,
                                   float*,  const float*,  float&,  const float&,
                                   UChar*,  const UChar*,  UChar&,  const UChar&,
                                   bool*,   const bool*,   bool&,   const bool&

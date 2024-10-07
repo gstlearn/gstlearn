@@ -300,6 +300,10 @@
   {
     return Rf_ScalarString(Rf_mkChar(convertFromCpp(value).c_str()));
   }
+  template <> SEXP objectFromCpp(const std::string_view& value)
+  {
+    return Rf_ScalarString(Rf_mkChar(convertFromCpp(String{value}).c_str()));
+  }
   template <> SEXP objectFromCpp(const float& value)
   {
     return Rf_ScalarReal(static_cast<double>(convertFromCpp(value)));

@@ -20,8 +20,8 @@
 
 GSTLEARN_EXPORT void skipBOM(std::ifstream &ins);
 
-GSTLEARN_EXPORT String toUpper(const String &string);
-GSTLEARN_EXPORT String toLower(const String &string);
+GSTLEARN_EXPORT String toUpper(const std::string_view string);
+GSTLEARN_EXPORT String toLower(const std::string_view string);
 
 GSTLEARN_EXPORT void toUpper(String &string);
 GSTLEARN_EXPORT void toLower(String &string);

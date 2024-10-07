@@ -4458,7 +4458,7 @@ void Db::statisticsBySample(const VectorString& names,
   for (int i = 0; i < noper; i++)
   {
     const EStatOption& oper = opers[i];
-    namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
+    namconv.setNamesAndLocators(this, iuidn + i, String{oper.getKey()});
   }
 }
 

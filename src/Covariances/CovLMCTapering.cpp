@@ -219,7 +219,7 @@ double CovLMCTapering::eval(const SpacePoint& p1,
   return cov;
 }
 
-const String& CovLMCTapering::getName() const
+std::string_view CovLMCTapering::getName() const
 {
   return _tapeType.getDescr();
 }

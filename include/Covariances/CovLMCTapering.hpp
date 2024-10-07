@@ -64,7 +64,7 @@ public:
                       const CovCalcMode* mode = nullptr) const override;
   int init(const ETape& tapetype, double taperange);
 
-  const String& getName() const;
+  std::string_view getName() const;
   double getTapeRange() const { return _tapeRange; }
   void setTapeRange(double range) { _tapeRange = range; }
 

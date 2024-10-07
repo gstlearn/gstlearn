@@ -471,7 +471,7 @@ DbLine* DbLine::createFillRandom(int ndim,
   }
 
   VectorString names = generateMultipleNames("x", ndim);
-  VectorString locnames = generateMultipleNames(ELoc::X.getKey(), ndim, "");
+  VectorString locnames = generateMultipleNames(String{ELoc::X.getKey()}, ndim, "");
   DbLine* dbline = createFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, names, locnames);
 
   return dbline;
