@@ -28,18 +28,17 @@ class GSTLEARN_EXPORT CholeskyDense: public ACholesky
 {
 public:
   CholeskyDense(const MatrixSquareSymmetric* mat = nullptr);
-  CholeskyDense(const CholeskyDense &m) = delete;
-  CholeskyDense& operator=(const CholeskyDense &m) = delete;
+  CholeskyDense(const CholeskyDense &m);
+  CholeskyDense& operator=(const CholeskyDense &m);
   virtual ~CholeskyDense();
 
   int setMatrix(const MatrixSquareSymmetric* mat);
   double computeLogDeterminant() const override;
 
-  VectorDouble getCholeskyTL() const;
-  double getCholeskyTL(int i, int j) const;
-  double getCholeskyTL(int iad) const;
-  VectorDouble getCholeskyXL() const;
-  double getCholeskyXL(int i, int j) const;
+  VectorDouble getLowerTriangle() const;
+  double getLowerTriangle(int i, int j) const;
+  VectorDouble getUpperTriangleInverse() const;
+  double getUpperTriangleInverse(int i, int j) const;
 
   int addSolveX(const constvect vecin, vect vecout) const override;
   int addInvLtX(const constvect vecin, vect vecout) const override;
@@ -47,13 +46,13 @@ public:
   int addLX(const constvect vecin, vect vecout) const override;
   int addInvLX(const constvect vecin, vect vecout) const override;
 
-  void productCholeskyInPlace(int mode,
-                              const MatrixRectangular& a,
-                              MatrixRectangular& x);
-  void normCholeskyInPlace(int mode,
-                           int neq,
-                           const MatrixSquareSymmetric& a,
-                           MatrixSquareSymmetric& b);
+  void matProductInPlace(int mode,
+                         const MatrixRectangular& a,
+                         MatrixRectangular& x);
+  void normMatInPlace(int mode,
+                      int neq,
+                      const MatrixSquareSymmetric& a,
+                      MatrixSquareSymmetric& b);
 
 private:
   void _clear();

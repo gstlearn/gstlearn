@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
 #include "Polynomials/Chebychev.hpp"
@@ -294,7 +293,7 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
   }
   constvect ys(y);
   vect tm1s(tm1);
-  if (T1->addVecInPlace(ys, tm1s)) my_throw("Problem in addVecInPlace");
+  if (T1->addVecInPlace(ys, tm1)) my_throw("Problem in addVecInPlace");
   for (int i=0; i<nvertex; i++)
   {
     px[i]  = _coeffs[0] * y[i] + _coeffs[1] * tm1[i];

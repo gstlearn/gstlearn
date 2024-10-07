@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Matrix/MatrixSparse.hpp"
 #include "Basic/AStringable.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -75,19 +74,22 @@ MatrixSparse::MatrixSparse(const MatrixSparse &m)
     _csMatrix = cs_duplicate(m._csMatrix);
 }
 
-MatrixSparse& MatrixSparse::operator=(const MatrixSparse &m)
+MatrixSparse& MatrixSparse::operator=(const MatrixSparse& m)
 {
   if (this != &m)
   {
     AMatrix::operator=(m);
-    _flagEigen = m._flagEigen;
-    if (_flagEigen)
-      _eigenMatrix = m._eigenMatrix;
-    else
+    if (!m.empty())
     {
-      _csMatrix = cs_duplicate(m._csMatrix);
+      _flagEigen = m._flagEigen;
+      if (_flagEigen)
+        _eigenMatrix = m._eigenMatrix;
+      else
+      {
+        _csMatrix = cs_duplicate(m._csMatrix);
+      }
+      _factor = nullptr; // TODO recompute Cholesky (if needed)
     }
-    _factor = nullptr; // TODO recompute Cholesky (if needed)
   }
   return *this;
 }
@@ -177,87 +179,7 @@ int MatrixSparse::computeCholesky()
   return (_factor == nullptr);
 }
 
-int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
-{
-  int ncols = getNCols();
-  if ((int) b.size() != ncols)
-  {
-    messerr("Dimension of input argument 'b' (%d) does not match",(int) b.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if ((int) x.size() != ncols)
-  {
-    messerr("Dimension of output argument 'x' (%d) does not match",(int) x.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if (_factor == nullptr)
-    _factor = new Cholesky(this);
-  return _factor->solve(b, x);
-}
-
-int MatrixSparse::solveCholesky(const constvect b, std::vector<double>& x)
-{
-  int ncols = getNCols();
-  if ((int) b.size() != ncols)
-  {
-    messerr("Dimension of input argument 'b' (%d) does not match",(int) b.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if ((int) x.size() != ncols)
-  {
-    messerr("Dimension of output argument 'x' (%d) does not match",(int) x.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if (_factor == nullptr)
-    _factor = new Cholesky(this);
-  return _factor->solve(b, x);
-}
-
-
-int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
-{
-  int ncols = getNCols();
-  if ((int) b.size() != ncols)
-  {
-    messerr("Dimension of input argument 'b' (%d) does not match", (int) b.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if ((int) x.size() != ncols)
-  {
-    messerr("Dimension of output argument 'x' (%d) does not match", (int) x.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if (_factor == nullptr)
-    _factor = new Cholesky(this);
-  return _factor->simulate(b, x);
-}
-int MatrixSparse::simulateCholesky(const constvect b, vect x)
-{
-  int ncols = getNCols();
-  if ((int) b.size() != ncols)
-  {
-    messerr("Dimension of input argument 'b' (%d) does not match", (int) b.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if ((int) x.size() != ncols)
-  {
-    messerr("Dimension of output argument 'x' (%d) does not match", (int) x.size());
-    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
-    return 1;
-  }
-  if (_factor == nullptr)
-    _factor = new Cholesky(this);
-  return _factor->simulate(b, x);
-}
-
-double MatrixSparse::computeCholeskyLogDeterminant()
+double MatrixSparse::computeLogDeterminant()
 {
   if (_factor == nullptr)
     _factor = new Cholesky(this);
@@ -829,8 +751,8 @@ VectorDouble MatrixSparse::extractDiag(int oper_choice) const
   return diag;
 }
 
-int MatrixSparse::addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
-                                Eigen::Map<Eigen::VectorXd>& ym) const
+int MatrixSparse::addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
+                                     Eigen::Map<Eigen::VectorXd>& ym) const
 {
   if (isFlagEigen())
   {
@@ -840,7 +762,19 @@ int MatrixSparse::addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
   return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
 }
 
-int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
+int MatrixSparse::addVecInPlace(const constvect xm, vect ym) const
+{
+  if (isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> xmm(xm.data(), xm.size());
+    Eigen::Map<Eigen::VectorXd> ymm(ym.data(), ym.size());
+    ymm = _eigenMatrix * xmm + ymm;
+    return 0;
+  }
+  return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
+}
+
+int MatrixSparse::addVecInPlaceVD(const VectorDouble& x, VectorDouble& y) const
 {
   if (isFlagEigen())
   {
@@ -852,17 +786,6 @@ int MatrixSparse::addVecInPlace(const VectorDouble& x, VectorDouble& y)
   return (!cs_gaxpy(_csMatrix, x.data(), y.data()));
 }
 
-int MatrixSparse::addVecInPlace(const constvect xm, vect ym)
-{
-  if (isFlagEigen())
-  {
-    Eigen::Map<const Eigen::VectorXd> xmm(xm.data(),xm.size());
-    Eigen::Map<Eigen::VectorXd> ymm(ym.data(),ym.size());
-    ymm = _eigenMatrix * xmm + ymm;
-    return 0;
-  }
-  return (!cs_gaxpy(_csMatrix, xm.data(), ym.data()));
-}
 void MatrixSparse::setConstant(double value)
 {
   if (isFlagEigen())
@@ -1723,10 +1646,11 @@ void MatrixSparse::gibbs(int iech,
 }
 
 int MatrixSparse::_addToDest(const constvect inv, vect outv) const
-{   Eigen::Map<const Eigen::VectorXd> inm(inv.data(),inv.size());
-    Eigen::Map<Eigen::VectorXd> outm(outv.data(),outv.size());
-    outm += _eigenMatrix * inm;
-    return 0;
+{
+  Eigen::Map<const Eigen::VectorXd> inm(inv.data(), inv.size());
+  Eigen::Map<Eigen::VectorXd> outm(outv.data(), outv.size());
+  outm += _eigenMatrix * inm;
+  return 0;
 }
 
 void MatrixSparse::setDiagonal(const constvect tab)

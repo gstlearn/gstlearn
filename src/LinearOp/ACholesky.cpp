@@ -19,6 +19,22 @@ ACholesky::ACholesky(const AMatrix* mat)
   if (mat != nullptr) _size = mat->getNRows();
 }
 
+ACholesky::ACholesky(const ACholesky& m)
+  : _mat(m._mat)
+  , _size(m._size)
+  , _ready(m._ready){}
+
+ACholesky& ACholesky::operator=(const ACholesky& m)
+{
+  if (this != &m)
+  {
+    _mat   = m._mat;
+    _size  = m._size;
+    _ready = m._ready;
+  }
+  return *this;
+}
+
 int ACholesky::_addToDest(const constvect vecin, vect vecout) const
 {
   if (! isReady()) return 1;

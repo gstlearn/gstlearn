@@ -501,8 +501,8 @@ VectorDouble AnamDiscreteDD::factors_mod()
     }
 
   if (c_sChol.setMatrix(&c_s)) return VectorDouble();
-  VectorDouble tri1 = c_sChol.getCholeskyTL();
-  c_sChol.productCholeskyInPlace(2, ptab, q_s);
+  VectorDouble tri1 = c_sChol.getLowerTriangle();
+  c_sChol.matProductInPlace(2, ptab, q_s);
 
   for (int jclass=nclass-1; jclass>=0; jclass--)
     for (int iclass=0; iclass<nclass; iclass++)

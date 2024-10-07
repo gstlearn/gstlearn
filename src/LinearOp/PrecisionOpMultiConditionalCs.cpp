@@ -14,7 +14,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "LinearOp/Cholesky.hpp"
 
 #include <math.h>
 #include <vector>
@@ -56,8 +55,8 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu) const
   DECLARE_UNUSED(nbsimu);
 
   if (_chol == nullptr)
-    _chol = new Cholesky(_Q);
-  return _chol->getLogDeterminant();
+    _chol = new CholeskySparse(_Q);
+  return _chol->computeLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
@@ -146,7 +145,6 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   delete Qmult;
   delete AtAsVar;
 
-
   return 0;
 }
 
@@ -154,7 +152,7 @@ void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<std::vector<do
                                                 std::vector<std::vector<double>> &vecout) const
 {
   if (_chol == nullptr)
-    _chol = new Cholesky(_Q);
+    _chol = new CholeskySparse(_Q);
   std::vector<double> locVecin = VH::flatten(vecin);
   std::vector<double> locVecout(locVecin.size());
   _chol->solve(locVecin, locVecout);

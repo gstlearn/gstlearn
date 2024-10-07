@@ -39,8 +39,8 @@ class GSTLEARN_EXPORT CholeskySparse: public ACholesky
 {
 public:
   CholeskySparse(const MatrixSparse* mat = nullptr);
-  CholeskySparse(const CholeskySparse& m)            = delete;
-  CholeskySparse& operator=(const CholeskySparse& m) = delete;
+  CholeskySparse(const CholeskySparse& m);
+  CholeskySparse& operator=(const CholeskySparse& m);
   virtual ~CholeskySparse();
 
   int setMatrix(const MatrixSparse* mat);

@@ -10,8 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ASimulable.hpp"
 #include "gstlearn_export.hpp"
+
+#include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
 
 class MatrixRectangular;
@@ -20,8 +21,8 @@ class GSTLEARN_EXPORT ACholesky: public ASimulable
 {
 public:
   ACholesky(const AMatrix* mat);
-  ACholesky(const ACholesky& m)            = delete;
-  ACholesky& operator=(const ACholesky& m) = delete;
+  ACholesky(const ACholesky& m);
+  ACholesky& operator=(const ACholesky& m);
   virtual ~ACholesky() {}
 
   int getSize() const override { return _size; }

@@ -26,6 +26,35 @@ CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
   (void) _prepare();
 }
 
+CholeskyDense::CholeskyDense(const CholeskyDense& m)
+  : ACholesky(m)
+  , _tl(m._tl)
+  , _xl(m._xl)
+  , _factor()
+{
+  if (m._factor != nullptr)
+  {
+    _factor = new Eigen::LLT<Eigen::MatrixXd>();
+    _factor = m._factor;
+  }
+}
+
+CholeskyDense& CholeskyDense::operator=(const CholeskyDense& m)
+{
+  if (this != &m)
+  {
+    ACholesky::operator=(m);
+    _tl   = m._tl;
+    _xl   = m._xl;
+    if (m._factor != nullptr)
+    {
+      _factor = new Eigen::LLT<Eigen::MatrixXd>();
+      _factor = m._factor;
+    }
+  }
+  return *this;
+}
+
 CholeskyDense::~CholeskyDense()
 {
   _clear();
@@ -99,32 +128,26 @@ double CholeskyDense::computeLogDeterminant() const
   return 2. * det;
 }
 
-VectorDouble CholeskyDense::getCholeskyTL() const
+VectorDouble CholeskyDense::getLowerTriangle() const
 {
   if (_computeTL()) return VectorDouble();
   return _tl;
 }
 
-double CholeskyDense::getCholeskyTL(int i, int j) const
+double CholeskyDense::getLowerTriangle(int i, int j) const
 {
   if (_computeTL()) return TEST;
   int neq = _size;
   return (i >= j) ? _TL(i, j) : 0.;
 }
 
-double CholeskyDense::getCholeskyTL(int iad) const
-{
-  if (_computeTL()) return TEST;;
-  return _tl[iad];
-}
-
-VectorDouble CholeskyDense::getCholeskyXL() const
+VectorDouble CholeskyDense::getUpperTriangleInverse() const
 {
   if (_computeXL()) return VectorDouble();
   return _xl;
 }
 
-double CholeskyDense::getCholeskyXL(int i, int j) const
+double CholeskyDense::getUpperTriangleInverse(int i, int j) const
 {
   if (_computeXL()) return TEST;;
   int neq = _size;
@@ -169,7 +192,8 @@ int CholeskyDense::_computeTL() const
 int CholeskyDense::_computeXL() const
 {
   if (!_xl.empty()) return 0;
-  if (! isReady()) return 1;
+  if (!isReady()) return 1;
+  if (_computeTL()) return 1;
   
   int neq = _size;
   _xl.resize(_getTriangleSize());
@@ -206,9 +230,9 @@ int CholeskyDense::_computeXL() const
  ** \remark Anyhow 'x' is resized to the same dimension as 'a'
  ** 
  *****************************************************************************/
-void CholeskyDense::productCholeskyInPlace(int mode,
-                                           const MatrixRectangular& a,
-                                           MatrixRectangular& x)
+void CholeskyDense::matProductInPlace(int mode,
+                                      const MatrixRectangular& a,
+                                      MatrixRectangular& x)
 {
   if (_computeTL()) return;
   int n1 = a.getNRows();
@@ -312,7 +336,7 @@ void CholeskyDense::productCholeskyInPlace(int mode,
  ** \remark but this matrix is optional, hence the presence of argument 'neq' 
  **
  *****************************************************************************/
-void CholeskyDense::normCholeskyInPlace(int mode,
+void CholeskyDense::normMatInPlace(int mode,
                                         int neq,
                                         const MatrixSquareSymmetric& a,
                                         MatrixSquareSymmetric& b)

@@ -3248,7 +3248,7 @@ void KrigingSystem::_bayesPreSimulate()
   }
   else
   {
-    VectorDouble trimat = _postCovChol.getCholeskyTL();
+    VectorDouble trimat = _postCovChol.getLowerTriangle();
     for (int isimu = 0; isimu < _nbsimu; isimu++)
     {
 
@@ -3259,7 +3259,7 @@ void KrigingSystem::_bayesPreSimulate()
 
       /* Product of the Lower triangular matrix by the random vector */
 
-      _postCovChol.productCholeskyInPlace(1, rndmat, simu);
+      _postCovChol.matProductInPlace(1, rndmat, simu);
 
       /* Add the mean */
 

@@ -10,12 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/Cholesky.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
-
 class AMesh;
-class Cholesky;
 class ShiftOpCs;
 class CovAniso;
 class Model;
@@ -72,5 +70,5 @@ private:
 
 private:
   MatrixSparse* _Q;
-  mutable Cholesky* _chol;
+  mutable CholeskySparse* _chol;
 };

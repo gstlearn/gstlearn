@@ -30,6 +30,51 @@ CholeskySparse::CholeskySparse(const MatrixSparse* mat)
   (void) _prepare();
 }
 
+CholeskySparse::CholeskySparse(const CholeskySparse& m)
+  : ACholesky(m)
+  , _flagEigen(m._flagEigen)
+  , _S(nullptr)
+  , _N(nullptr)
+  , _factor(nullptr)
+{
+  if (_flagEigen)
+  {
+    _S = m._S;
+    _N = m._N;
+  }
+  else
+  {
+    if (m._factor != nullptr)
+    {
+      _factor = new Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>>;
+      _factor = m._factor;
+    }
+  }
+}
+
+CholeskySparse& CholeskySparse::operator=(const CholeskySparse& m)
+{
+  if (this != &m)
+  {
+    ACholesky::operator=(m);
+    _flagEigen = m._flagEigen;
+    if (_flagEigen)
+    {
+      _S = m._S;
+      _N = m._N;
+    }
+    else
+    {
+      if (m._factor != nullptr)
+      {
+        _factor = new Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>>;
+        _factor = m._factor;
+      }
+    }
+  }
+  return *this;
+}
+
 CholeskySparse::~CholeskySparse()
 {
   _clean();

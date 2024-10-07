@@ -75,8 +75,8 @@ public:
                 bool flagCheck = true) override;
 
 #ifndef SWIG
-  int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
-                    Eigen::Map<Eigen::VectorXd>& ym) const;
+  int addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
+                         Eigen::Map<Eigen::VectorXd>& ym) const;
   void addProdMatVecInPlaceToDest(const constvect in,
                                   vect out,
                                   bool transpose = false) const;
@@ -188,23 +188,17 @@ public:
 
   // Cholesky functions
   int computeCholesky();
-  int solveCholesky(const VectorDouble& b, VectorDouble& x);
-
 #ifndef SWIG
-  int solveCholesky(const constvect b, std::vector<double>& x);
-  int simulateCholesky(const constvect b, vect x);
-  int addVecInPlace(const constvect x, vect y);
+  int addVecInPlace(const constvect x, vect y) const;
 #endif
-
-  int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
-  double computeCholeskyLogDeterminant();
+  double computeLogDeterminant();
 
   void   addValue(int row, int col, double value);
 
   double L1Norm() const;
   void   getStats(int *nrows, int *ncols, int *count, double *percent) const;
   int    scaleByDiag();
-  int    addVecInPlace(const VectorDouble& x, VectorDouble& y);
+  int    addVecInPlaceVD(const VectorDouble& x, VectorDouble& y) const;
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);

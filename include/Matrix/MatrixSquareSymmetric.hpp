@@ -78,28 +78,13 @@ public:
   // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
   // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
   // triangular storage.
-  // This is temporarily ensured as a VectorDouble handelde within this class. It should probably
-  // become a sperate class in the future.
   int computeCholesky();
   int invertCholesky();
-  int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
-  int solveCholesky(const VectorDouble& b, VectorDouble& x);
   
   VectorDouble getCholeskyTL() const;
   double getCholeskyTL(int i, int j) const;
-  double getCholeskyTL(int iad) const;
   VectorDouble getCholeskyXL() const;
   double getCholeskyXL(int i, int j) const;
-  static MatrixRectangular productCholeskyInPlace(int mode,
-                                                  int neq,
-                                                  int nrhs,
-                                                  const VectorDouble &tl,
-                                                  const MatrixRectangular &a);
-  static MatrixSquareSymmetric normCholeskyInPlace(int mode,
-                                                   int neq,
-                                                   const VectorDouble &tl,
-                                                   const MatrixSquareSymmetric &a);
-  double computeCholeskyLogDeterminant() const;
   
   virtual bool _isPhysicallyPresent(int irow, int icol) const override;
   virtual void _setValues(const double* values, bool byCol = true) override;
