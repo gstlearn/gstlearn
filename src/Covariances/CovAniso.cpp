@@ -1265,7 +1265,8 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
   if (_isOptimEnabled())
 	{
      _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
-  
+    ptout.setIech(ptin.getIech());
+    ptout.setTarget(ptin.isTarget()); 
   }
      
   bool isTarget = ptin.isTarget(); 
@@ -1292,9 +1293,9 @@ void CovAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
      return;
   }
   int n = (int) p.size();
+  SpacePoint pt(_space);
 	for(int i = 0; i < n ; i++)
 	{
-    SpacePoint pt(_space);
     pt.setIech(p[i].getIech());
     if (! p[i].isFFFF())
 		{
