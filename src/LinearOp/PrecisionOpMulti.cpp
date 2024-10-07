@@ -69,7 +69,7 @@
           {\
             constvect i1(XORY);\
             vect i2(OUT);\
-            VectorHelper::addMultiplyConstantInPlace(TAB[icov].getmat(IVAR,JVAR),i1,i2,iad_y);\
+            VectorHelper::addMultiplyConstantInPlace(TAB##Stat[icov].getmat(IVAR,JVAR),i1,i2,iad_y);\
           }\
           iad_y += napices;\
         }\
@@ -87,8 +87,8 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
   , _isNoStatForVariance(false)
   , _invCholSillsNoStat()
   , _cholSillsNoStat()
-  , _invCholSills()
-  , _cholSills()
+  , _invCholSillsStat()
+  , _cholSillsStat()
   , _model(nullptr)
   , _meshes()
   , _size(0)
@@ -250,10 +250,10 @@ void PrecisionOpMulti::_computeSize()
 
 int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 {
-  _invCholSills[icov].setMatrix(&_model->getSillValues(icov)); // TODO: a nettoyer
-  if (!_invCholSills[icov].isReady()) return 1;
-  _cholSills[icov].setMatrix(&_model->getSillValues(icov));
-  if (!_cholSills[icov].isReady()) return 1;
+  _invCholSillsStat[icov].setMatrix(&_model->getSillValues(icov)); // TODO: a nettoyer
+  if (!_invCholSillsStat[icov].isReady()) return 1;
+  _cholSillsStat[icov].setMatrix(&_model->getSillValues(icov));
+  if (!_cholSillsStat[icov].isReady()) return 1;
   return 0;
 }
 
@@ -301,9 +301,9 @@ int PrecisionOpMulti::_buildMatrices()
   int ncov = _getNCov();
 
   // Do nothing if the array has already been calculated (correct dimension)
-  if (ncov == (int)_cholSills.size()) return 0;
-  _invCholSills.resize(ncov);
-  _cholSills.resize(ncov);
+  if (ncov == (int)_cholSillsStat.size()) return 0;
+  _invCholSillsStat.resize(ncov);
+  _cholSillsStat.resize(ncov);
   _cholSillsNoStat.resize(ncov);
   _invCholSillsNoStat.resize(ncov);
  

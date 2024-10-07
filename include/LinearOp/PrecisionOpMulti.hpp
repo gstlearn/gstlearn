@@ -81,8 +81,8 @@ protected:
   VectorBool _isNoStatForVariance;
   std::vector<VectorVectorDouble> _invCholSillsNoStat;
   std::vector<VectorVectorDouble> _cholSillsNoStat;
-  std::vector<CholeskyDense> _invCholSills; // Stationary Sills
-  std::vector<CholeskyDense> _cholSills; // Cholesky of the Sills
+  std::vector<CholeskyDense> _invCholSillsStat; // Stationary Sills
+  std::vector<CholeskyDense> _cholSillsStat; // Cholesky of the Sills
   Model* _model; // Not to be deleted. TODO : make it const
   std::vector<const AMesh*> _meshes; // Not to be deleted
   int _size;

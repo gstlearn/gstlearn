@@ -27,7 +27,7 @@ PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
 
 MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
 {
-  MatrixSquareSymmetric sills = *_invCholSills[icov].getMatrix();
+  MatrixSquareSymmetric sills = *_invCholSillsStat[icov].getMatrix();
   sills.invert();
     
   MatrixSparse current = MatrixSparse(0,0);
