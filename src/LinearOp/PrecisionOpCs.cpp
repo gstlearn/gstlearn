@@ -152,8 +152,7 @@ void PrecisionOpCs::evalInverse(const constvect vecin,
 double PrecisionOpCs::getLogDeterminant(int nbsimu)
 {
   DECLARE_UNUSED(nbsimu);
-
-  return _Q->computeLogDeterminant();
+  return _chol->computeLogDeterminant();
 }
 
 void PrecisionOpCs::evalDeriv(

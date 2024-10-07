@@ -26,7 +26,6 @@ DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 DISABLE_WARNING_POP
 #endif
 
-class Cholesky;
 class cs;
 class EOperator;
 
@@ -186,13 +185,9 @@ public:
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0);
 
-  // Cholesky functions
-  int computeCholesky();
 #ifndef SWIG
   int addVecInPlace(const constvect x, vect y) const;
 #endif
-  double computeLogDeterminant();
-
   void   addValue(int row, int col, double value);
 
   double L1Norm() const;
@@ -268,7 +263,6 @@ private:
   cs* _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 #endif
-  Cholesky* _factor; // Cholesky decomposition
   bool _flagEigen;
 };
 

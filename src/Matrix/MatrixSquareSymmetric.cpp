@@ -17,46 +17,21 @@
 
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
 #define SQ(i,j,neq)   ((j) * neq + (i))
-#define AT(i,j)        at[TRI(j)+(i)] /* for j >= i */
-#define AL(i,j)        al[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-#define BS(i,j)        b[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
-#define XS(i,j)        x[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
-#define AS(i,j)        a[SQ(i,j,neq)]
 #define TL(i,j)        tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-
-#define _TL(i,j)       _tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-#define _XL(i,j)       _xl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-
 #define HA(i,j)        ha[SQ(i,j,neq)]
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
-  : AMatrixSquare(nrow),
-    _flagCholeskyDecompose(false),
-    _flagCholeskyInverse(false),
-    _tl(),
-    _xl(),
-    _factor()
+  : AMatrixSquare(nrow)
 {
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &m) 
-  : AMatrixSquare(m),
-   _flagCholeskyDecompose(m._flagCholeskyDecompose),
-   _flagCholeskyInverse(m._flagCholeskyInverse),
-   _tl(),
-   _xl(),
-   _factor()
+MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric& m)
+  : AMatrixSquare(m)
 {
-  _recopy(m);
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
-  : AMatrixSquare(m),
-    _flagCholeskyDecompose(false),
-    _flagCholeskyInverse(false),
-    _tl(),
-    _xl(),
-    _factor()
+MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix& m)
+  : AMatrixSquare(m)
 {
   if (!m.isSymmetric())
   {
@@ -72,7 +47,6 @@ MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymme
   if (this != &m)
   {
     AMatrixSquare::operator=(m);
-    _recopy(m);
   }
   return *this;
 }
@@ -282,16 +256,6 @@ int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
   return 0;
 }
 
-void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric& r)
-{
-  _tl = r._tl;
-  _xl = r._xl;
-  _flagCholeskyDecompose = r._flagCholeskyDecompose;
-  _flagCholeskyInverse   = r._flagCholeskyInverse;
-  _flagEigenDecompose    = r._flagEigenDecompose;
-  _factor                = r._factor;
-}
-
 /****************************************************************************/
 /*!
  **  Check if a matrix is definite positive
@@ -387,102 +351,6 @@ int MatrixSquareSymmetric::_getTriangleSize() const
   int neq = getNRows();
   int size = neq * (neq + 1) / 2;
   return size;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the Cholesky triangular decomposition of a definite
- **  positive symmetric matrix
- **         A = t(TL) * TL
- **
- ** \return  Error return code
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::computeCholesky()
-{
-  _flagCholeskyDecompose = false;
-
-  _factor = _eigenMatrix.llt();
-  int neq = getNRows();
-
-  _tl.resize(_getTriangleSize());
-  Eigen::MatrixXd mymat = _factor.matrixL();
-  for (int ip = 0; ip < neq; ip++)
-    for (int jp = 0; jp <= ip; jp++)
-      _TL(ip,jp) = mymat(ip,jp);
-
-  _flagCholeskyDecompose = true;
-  return 0;
-}
-
-bool MatrixSquareSymmetric::_checkCholeskyAlreadyPerformed(int status) const
-{
-  if (status == 1 && ! _flagCholeskyDecompose)
-  {
-    messerr("This operation requires a previous call to choleskyDecompose()");
-    return false;
-  }
-  if (status == 2 && ! _flagCholeskyInverse)
-  {
-    messerr("This operation requires a previous call to choleskyInvert()");
-    return false;
-  }
-  return true;
-}
-
-VectorDouble MatrixSquareSymmetric::getCholeskyTL() const
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return VectorDouble();
-  return _tl;
-}
-
-double MatrixSquareSymmetric::getCholeskyTL(int i, int j) const
-{
-  if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
-  int neq = getNRows();
-  return (i >= j) ? _TL(i,j) : 0.;
-}
-
-VectorDouble MatrixSquareSymmetric::getCholeskyXL() const
-{
-  if (! _checkCholeskyAlreadyPerformed(2)) return VectorDouble();
-  return _xl;
-}
-
-double MatrixSquareSymmetric::getCholeskyXL(int i, int j) const
-{
-  if (!_checkCholeskyAlreadyPerformed(2)) return TEST;
-  int neq = getNRows();
-  return (i >= j) ? _XL(i, j) : 0.;
-}
-
-/*****************************************************************************/
-/*!
- **  Invert the Cholesky matrix
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::invertCholesky()
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return 1;
-
-  int neq = getNRows();
-  _xl.resize(_getTriangleSize());
-  _flagCholeskyInverse = false;
-
-  for (int i = 0; i < neq; i++)
-  {
-    for (int j = 0; j < i; j++)
-    {
-      double sum = 0.;
-      for (int l = j; l < i; l++)
-        sum += _TL(i,l) * _XL(l,j);
-      _XL(i,j)= - sum / _TL(i,i);
-    }
-    _XL(i,i) = 1. / _TL(i,i);
-  }
-
-  _flagCholeskyInverse = true;
-  return 0;
 }
 
 /*****************************************************************************/

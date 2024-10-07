@@ -42,7 +42,6 @@ MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
   : AMatrix(nrow, ncol),
     _csMatrix(nullptr),
     _eigenMatrix(),
-    _factor(nullptr),
     _flagEigen(false)
 {
   _flagEigen = _defineFlagEigen(opt_eigen);
@@ -54,7 +53,6 @@ MatrixSparse::MatrixSparse(const cs *A)
   : AMatrix(cs_get_nrow(A), cs_get_ncol(A)),
     _csMatrix(nullptr),
     _eigenMatrix(),
-    _factor(nullptr),
     _flagEigen(false)
 {
   _csMatrix = cs_duplicate(A);
@@ -65,7 +63,6 @@ MatrixSparse::MatrixSparse(const MatrixSparse &m)
     : AMatrix(m),
       _csMatrix(nullptr),
       _eigenMatrix(),
-      _factor(nullptr), // recompute cholesky (if needed)
       _flagEigen(m._flagEigen)
 {
   if (isFlagEigen())
@@ -88,7 +85,6 @@ MatrixSparse& MatrixSparse::operator=(const MatrixSparse& m)
       {
         _csMatrix = cs_duplicate(m._csMatrix);
       }
-      _factor = nullptr; // TODO recompute Cholesky (if needed)
     }
   }
   return *this;
@@ -165,25 +161,6 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
     }
   NF_T.force(nrow,ncol);
   resetFromTriplet(NF_T);
-}
-
-int MatrixSparse::computeCholesky()
-{
-  if (! isSquare())
-  {
-    messerr("The 'Cholesky' decomposition is not possible as the matrix is not square");
-    return 1;
-  }
-  if (_factor != nullptr) return 0;
-  _factor = new Cholesky(this);
-  return (_factor == nullptr);
-}
-
-double MatrixSparse::computeLogDeterminant()
-{
-  if (_factor == nullptr)
-    _factor = new Cholesky(this);
-  return _factor->getLogDeterminant();
 }
 
 void MatrixSparse::_transposeInPlace()
@@ -1330,11 +1307,6 @@ void MatrixSparse::_deallocate()
   else
   {
     _csMatrix = cs_spfree2(_csMatrix);
-  }
-  if (_factor != nullptr)
-  {
-    delete _factor;
-    _factor = nullptr;
   }
 }
 

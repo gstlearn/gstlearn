@@ -75,22 +75,9 @@ public:
                                      const VectorDouble& bimat,
                                      VectorDouble& xmat);
 
-  // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
-  // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
-  // triangular storage.
-  int computeCholesky();
-  int invertCholesky();
-  
-  VectorDouble getCholeskyTL() const;
-  double getCholeskyTL(int i, int j) const;
-  VectorDouble getCholeskyXL() const;
-  double getCholeskyXL(int i, int j) const;
-  
   virtual bool _isPhysicallyPresent(int irow, int icol) const override;
   virtual void _setValues(const double* values, bool byCol = true) override;
   virtual int  _invert() override;
-
-  void    _recopy(const MatrixSquareSymmetric& r);
 
   // Local functions (old style algebra)
   int _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
@@ -121,7 +108,6 @@ public:
                                        const VectorDouble& tabimat,
                                        VectorDouble& tabout);
   static int _constraintsCount(int nai, VectorInt& active);
-  bool _checkCholeskyAlreadyPerformed(int status) const;
   int _terminateEigen(const VectorDouble &eigenValues,
                       const VectorDouble &eigenVectors,
                       bool optionPositive = true,
@@ -129,11 +115,4 @@ public:
 
 private:
   int _getTriangleSize() const;
-
-private:
-  bool _flagCholeskyDecompose;
-  bool _flagCholeskyInverse;
-  VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
-  VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
-  Eigen::LLT<Eigen::MatrixXd> _factor; // Cholesky decomposition (Eigen format)
 };
