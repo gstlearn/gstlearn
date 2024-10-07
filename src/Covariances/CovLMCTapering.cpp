@@ -53,9 +53,25 @@ CovLMCTapering::~CovLMCTapering()
 {
 }
 
+void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode) const
+{
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+}
+void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                                     const SpacePoint &pwork1,
+                                                     const SpacePoint &pwork2,
+                                                     const CovCalcMode *mode) const
+{
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+}
+
 int CovLMCTapering::init(const ETape& tapetype, double taperange)
 {
-
+  for (auto &e: _covs)
+  {
+    e->setOptimEnabled(false);
+  }
   /* Preliminary check */
 
   if (taperange <= 0)

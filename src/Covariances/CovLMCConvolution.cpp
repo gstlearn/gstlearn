@@ -72,11 +72,27 @@ CovLMCConvolution::~CovLMCConvolution()
 {
 }
 
+void CovLMCConvolution::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode) const
+{
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+}
+void CovLMCConvolution::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                                                     const SpacePoint &pwork1,
+                                                     const SpacePoint &pwork2,
+                                                     const CovCalcMode *mode) const
+{
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+}
 int CovLMCConvolution::init(const EConvType& conv_type,
                             const EConvDir&  conv_idir,
                             double conv_range,
                             int conv_ndisc)
 {
+  for (auto &e: _covs)
+  {
+    e->setOptimEnabled(false);
+  }
   if (conv_ndisc < 1)
   {
     messerr("The number of discretization points must be larger than 1");

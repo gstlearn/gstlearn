@@ -50,7 +50,14 @@ public:
                          const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const;
 
+protected:
+    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const override;
 
+    void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                        const SpacePoint& pwork1, 
+                        const SpacePoint& pwork2, 
+                        const CovCalcMode *mode) const override;
 private:
   void _initGradients(double& covVal,
                       VectorDouble& covGp,

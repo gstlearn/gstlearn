@@ -73,7 +73,15 @@ public:
   const MatrixRectangular& getConvIncr() const { return _convIncr; }
   VectorDouble getConvIncr(int rank) const { return _convIncr.getColumn(rank); }
   int getConvNumber() const { return _convNumber; }
+  
+protected:
+    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const override;
 
+    void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+                        const SpacePoint& pwork1, 
+                        const SpacePoint& pwork2, 
+                        const CovCalcMode *mode) const override;
 private:
   EConvType _convType; /* Convolution type */
   EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */

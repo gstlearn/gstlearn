@@ -78,17 +78,7 @@ public:
                                const SpacePoint& pwork1, 
                                const SpacePoint& pwork2,
                                const CovCalcMode *mode) const;
-
-  // virtual void evalCovLHS(MatrixSquareSymmetric &mat,
-  //                         SpacePoint &pwork1,
-  //                         SpacePoint &pwork2,
-  //                         const Db* db = nullptr, 
-  //                         const CovCalcMode *mode = nullptr) const;
-  // virtual void evalCovRHS(MatrixSquareSymmetric &mat,
-  //                         SpacePoint &pwork1,
-  //                         const Db* dbin, SpacePoint& pout, 
-  //                         const Db* dbout, 
-  //                         const CovCalcMode *mode = nullptr) const;
+                               
   void evalCovKriging(MatrixSquareSymmetric &mat,
                       SpacePoint &pwork1,
                       SpacePoint& pout, 
