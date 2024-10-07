@@ -74,16 +74,7 @@ public:
   /// ACov Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
-// void evalCovLHS(MatrixSquareSymmetric &mat,
-//                           SpacePoint &pwork1,
-//                           SpacePoint &pwork2,
-//                           const Db* db, 
-//                           const CovCalcMode *mode) const override;
 
-// void evalCovRHS(MatrixSquareSymmetric &mat,
-//                           SpacePoint &pwork1,
-//                           const Db* db, SpacePoint& pout,  
-//                           const CovCalcMode *mode) const override;
   /// ACov Interface
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -99,7 +90,7 @@ public:
                  int ivar = 0,
                  int jvar = 0) const; // let ivar and jvar for the future where the
                                       // correlation will be different for multivariate
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode = nullptr) const override;
  
   virtual double evalCovOnSphere(double alpha,
@@ -312,12 +303,12 @@ public:
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
   void updateCovByMesh(int imesh,bool aniso = true);
   double getValue(const EConsElem &econs,int iv1,int iv2) const;
-  void setOptimEnabled(bool flag) { _optimEnabled = flag; }
+  void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
 
 protected:
   /// Update internal parameters consistency with the context
    virtual void _addEvalCovMatBiPointInPlace(
-                              MatrixSquareSymmetric &mat,
+                              MatrixSquareGeneral &mat,
                               const SpacePoint &p1,
                               const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
@@ -333,7 +324,7 @@ bool _isOptimEnabled() const override
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
 void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
-                 MatrixSquareSymmetric &mat,
+                 MatrixSquareGeneral &mat,
                  const CovCalcMode *mode) const;
  void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                       const AFunctional* func = nullptr, 
@@ -366,7 +357,7 @@ private:
                                               EConsElem::SCALE,
                                               EConsElem::TENSOR,
                                               EConsElem::ANGLE};
-  bool _optimEnabled;
+  mutable bool _optimEnabled;
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
 };

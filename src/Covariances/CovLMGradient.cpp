@@ -29,10 +29,6 @@ CovLMGradient::CovLMGradient(const CovLMGradient &r)
 CovLMGradient::CovLMGradient(const ACovAnisoList& r)
     : ACovAnisoList()
 {
-  for (auto &e: _covs)
-  {
-    e->setOptimEnabled(false);
-  }
 
   for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)
   {
@@ -48,6 +44,10 @@ CovLMGradient::CovLMGradient(const ACovAnisoList& r)
       addCov(dynamic_cast<const CovAniso*>(newcov));
       delete newcov;
     }
+  }
+  for (auto &e: _covs)
+  {
+    e->setOptimEnabled(false);
   }
 }
 
@@ -65,18 +65,7 @@ CovLMGradient::~CovLMGradient()
   /// TODO : Delete pointers ?
 }
 
-void CovLMGradient::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
-{
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-}
-void CovLMGradient::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
-                                                     const SpacePoint &pwork1,
-                                                     const SpacePoint &pwork2,
-                                                     const CovCalcMode *mode) const
-{
-  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
-}
+
 void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
                                       const SpacePoint& p2,
                                       double& covVal,
@@ -119,7 +108,9 @@ void CovLMGradient::addCov(const CovAniso* cov)
     messerr("This covariance cannot be added");
     return;
   }
+  cov->setOptimEnabled(false);
   ACovAnisoList::addCov(cov);
+
 }
 
 /**

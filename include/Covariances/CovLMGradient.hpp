@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/ACovAnisoList.hpp"
@@ -51,13 +52,24 @@ public:
                          bool flagGrad = false) const;
 
 protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
-
-    void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                            const SpacePoint& p1,const SpacePoint& p2,
+                                            const CovCalcMode *mode = nullptr) const override
+    {
+      ACov::_loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);  
+    }
+    void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const override
+    {
+      ACov::addEval0CovMatBiPointInPlace(mat,mode);
+    }
+    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const override;
+                        const CovCalcMode *mode = nullptr) const override
+    {
+      ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+    }
+
     void _optimizationSetTarget(const SpacePoint &pt) const override
     {
       ACov::_optimizationSetTarget(pt);

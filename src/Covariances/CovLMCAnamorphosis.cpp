@@ -72,12 +72,12 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   return *this;
 }
 
-void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
   ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
-void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const

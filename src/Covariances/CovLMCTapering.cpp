@@ -53,12 +53,12 @@ CovLMCTapering::~CovLMCTapering()
 {
 }
 
-void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
   ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
-void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const

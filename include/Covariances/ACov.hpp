@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -25,7 +25,7 @@
 
 class Db;
 class DbGrid;
-class MatrixRectangular;
+class MatrixSquareGeneral;
 class MatrixSparse;
 
 /**
@@ -58,9 +58,9 @@ public:
                        const CovCalcMode* mode = nullptr) const;
   /// Calculate the matrix of covariances for 0-distance (stationary case)
   
-  virtual void eval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void eval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                  const CovCalcMode *mode = nullptr) const;
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                             const CovCalcMode *mode = nullptr) const;
   /// Calculate the covariance between two variables and two points (general case)
   virtual double eval(const SpacePoint& p1,
@@ -69,17 +69,17 @@ public:
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const = 0;
   /// Calculate the matrix of covariances between two points (general case)
-  virtual void evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                         const SpacePoint &p1,
                                         const SpacePoint &p2,
                                         const CovCalcMode *mode = nullptr) const; 
                                         
-  virtual void addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                const SpacePoint& pwork1, 
                                const SpacePoint& pwork2,
                                const CovCalcMode *mode) const;
                                
-  void evalCovKriging(MatrixSquareSymmetric &mat,
+  void evalCovKriging(MatrixSquareGeneral &mat,
                       SpacePoint &pwork1,
                       SpacePoint& pout, 
                       const CovCalcMode *mode = nullptr) const;
@@ -137,8 +137,8 @@ public:
                     int ivar = 0,
                     int jvar = 0,
                     const CovCalcMode* mode = nullptr) const;
-  MatrixSquareSymmetric eval0Mat(const CovCalcMode* mode = nullptr) const;
-  MatrixSquareSymmetric evalMat(const SpacePoint& p1,
+  MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
+  MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
 
@@ -308,7 +308,7 @@ public:
 
   void load(const SpacePoint& p,bool case1) const;
 
-  void loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+  void loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const;
 
   double loadAndEval(const SpacePoint& p1,
@@ -317,7 +317,7 @@ public:
                           int jvar,
                           const CovCalcMode *mode) const;
 protected:
-  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const;
   virtual void _optimizationSetTarget(const SpacePoint &pt) const;
 
@@ -329,7 +329,7 @@ protected:
                                             const VectorVectorInt& index1);
 
   virtual void _optimizationPreProcess(const std::vector<SpacePoint>& p) const;
-  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                             const SpacePoint& pwork1, 
                                             const SpacePoint& pwork2,
                                             const CovCalcMode *mode) const;

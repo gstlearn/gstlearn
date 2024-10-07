@@ -541,8 +541,8 @@ double CovAniso::eval(const SpacePoint &p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
-                               const CovCalcMode *mode) const
+void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                            const CovCalcMode *mode) const
 {
   double cov = _evalCorFromH(0, mode);
 
@@ -550,7 +550,7 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
     mat.addMatInPlace(_sill, 1., cov);
   else
   {
-    MatrixSquareSymmetric identity = _sill;
+    MatrixSquareGeneral identity = _sill;
     identity.setIdentity();
     mat.addMatInPlace(identity, 1., cov);
   }
@@ -565,7 +565,7 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAniso::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void CovAniso::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                           const SpacePoint &p1,
                                           const SpacePoint &p2,
                                           const CovCalcMode *mode) const
@@ -577,7 +577,7 @@ void CovAniso::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
     mat.addMatInPlace(_sill, 1., cor);
   else
   {
-    MatrixSquareSymmetric identity = _sill;
+    MatrixSquareGeneral identity = _sill;
     identity.setIdentity();
     mat.addMatInPlace(identity, 1., cor);
   }
@@ -633,7 +633,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
 }
 
 void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
-                          MatrixSquareSymmetric &mat,
+                          MatrixSquareGeneral &mat,
                           const CovCalcMode *mode) const
 {
   // Calculate covariance between two points
@@ -644,7 +644,7 @@ void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
     mat.addMatInPlace(_sill, 1., cov);
   else
   {
-    MatrixSquareSymmetric identity = _sill;
+    MatrixSquareGeneral identity = _sill;
     identity.setIdentity();
     mat.addMatInPlace(identity, 1., cov);
   }
@@ -847,7 +847,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
     if (getNVariables() > 1)
     {
-      MatrixSquareSymmetric slopes = _sill;
+      MatrixSquareGeneral slopes = _sill;
       double range = getRange(0);
       for (int ivar = 0; ivar < getNVariables(); ivar++)
         for (int jvar = 0; jvar < getNVariables(); jvar++)

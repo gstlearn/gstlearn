@@ -111,10 +111,10 @@ void ACov::_optimizationPostProcess() const
     _p1As.clear();
 }
 
-MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
+MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSquareGeneral mat(nvar);
   eval0CovMatBiPointInPlace(mat,mode);
   return mat;
 }
@@ -126,7 +126,7 @@ MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const
+void ACov::eval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
 {
   mat.fill(0.);
   addEval0CovMatBiPointInPlace(mat, mode);
@@ -139,12 +139,12 @@ void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMo
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::addEval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const
+void ACov::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
 
   for (int ivar=0; ivar<nvar; ivar++)
-    for (int jvar=ivar; jvar<nvar; jvar++)
+    for (int jvar=0; jvar<nvar; jvar++)
         mat.addValue(ivar, jvar, eval0(ivar, jvar, mode)); // pure virtual method
 }
 
@@ -169,12 +169,12 @@ double ACov::eval0(int ivar,
   SpacePoint p1(getSpace()->getOrigin(),-1);
   return eval(p1,p1,ivar,jvar,mode); // pure virtual method
 }
-MatrixSquareSymmetric ACov::evalMat(const SpacePoint& p1,
+MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSquareGeneral mat(nvar);
   evalCovMatBiPointInPlace(mat,p1, p2,mode);
   return mat;
 }
@@ -187,7 +187,7 @@ MatrixSquareSymmetric ACov::evalMat(const SpacePoint& p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::evalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACov::evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                     const SpacePoint &p1,
                                     const SpacePoint &p2,
                                     const CovCalcMode* mode) const
@@ -989,7 +989,7 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   }
 }
 
-void ACov::addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 
                         const CovCalcMode *mode) const
@@ -997,17 +997,17 @@ void ACov::addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
   _addEvalCovMatBiPointInPlace(mat, pwork1, pwork2,mode);
 }
 
-void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 
                         const CovCalcMode *mode) const
 {
   for (int ivar = 0, nvar = getNVariables(); ivar < nvar; ivar++)
-    for (int jvar = ivar; jvar < nvar; jvar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
       mat.addValue(ivar, jvar, eval(pwork1,pwork2,ivar,jvar,mode)); 
 }
 
-void ACov::evalCovKriging(MatrixSquareSymmetric &mat,
+void ACov::evalCovKriging(MatrixSquareGeneral &mat,
                           SpacePoint &pwork1,
                           SpacePoint& pout, 
                           const CovCalcMode *mode) const
@@ -1016,7 +1016,7 @@ void ACov::evalCovKriging(MatrixSquareSymmetric &mat,
   loadAndAddEvalCovMatBiPointInPlace(mat,pwork1,pout,mode);
 }
 
-void ACov::loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+void ACov::loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
   _loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
@@ -1042,7 +1042,7 @@ double ACov::_loadAndEval(const SpacePoint& p1,
   return eval(*_pw1,*_pw2,ivar,jvar,mode);
 
 }
-void ACov::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACov::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                               const SpacePoint& p1,
                                               const SpacePoint&p2,
                                               const CovCalcMode *mode) const

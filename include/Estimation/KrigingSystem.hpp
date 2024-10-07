@@ -301,7 +301,7 @@ private:
   /// Working arrays
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable MatrixSquareSymmetric  _covtab;
+  mutable MatrixSquareGeneral    _covtab;
   mutable VectorDouble           _drftab;
   mutable MatrixSquareSymmetric  _lhsf;
   mutable MatrixSquareSymmetric  _lhsc;

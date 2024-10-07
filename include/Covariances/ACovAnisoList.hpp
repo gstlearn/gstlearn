@@ -24,7 +24,7 @@
 
 class ASpace;
 class SpacePoint;
-class MatrixSquareSymmetric;
+class MatrixSquareGeneral;
 class CovAniso;
 class CovContext;
 class AStringFormat;
@@ -66,10 +66,10 @@ public:
                        int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode = nullptr) const override;
   virtual void _addEvalCovMatBiPointInPlace(
-                              MatrixSquareSymmetric &mat,
+                              MatrixSquareGeneral &mat,
                               const SpacePoint &p1,
                               const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
@@ -152,7 +152,7 @@ public:
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const override;
   double _loadAndEval(const SpacePoint& p1,
                           const SpacePoint&p2,

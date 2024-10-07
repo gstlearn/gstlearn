@@ -11,7 +11,7 @@
 #include "Covariances/ACovAnisoList.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -162,7 +162,7 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                     const CovCalcMode *mode) const
 {
   if (_considerAllCovariances(mode))
@@ -369,7 +369,7 @@ double ACovAnisoList::_loadAndEval(const SpacePoint& p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
+void ACovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                 const SpacePoint &p1,
                                                 const SpacePoint &p2,
                                                 const CovCalcMode *mode) const
@@ -390,7 +390,7 @@ void ACovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,
   }
 }
 
-void ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareSymmetric &mat,const SpacePoint& p1,const SpacePoint&p2,
+void ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
   for (const auto &e : _covs)

@@ -179,7 +179,7 @@ public:
    *
    * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
    */
-  void eval0MatInPlace(MatrixSquareSymmetric &mat,
+  void eval0MatInPlace(MatrixSquareGeneral &mat,
                        const CovCalcMode *mode = nullptr) const
   {
     _cova->eval0CovMatBiPointInPlace(mat, mode);
@@ -216,7 +216,7 @@ public:
    */
   void evalMatInPlace(const SpacePoint &p1,
                       const SpacePoint &p2,
-                      MatrixSquareSymmetric &mat,
+                      MatrixSquareGeneral &mat,
                       const CovCalcMode* mode = nullptr) const
   {
     _cova->evalCovMatBiPointInPlace(mat,p1, p2, mode);
