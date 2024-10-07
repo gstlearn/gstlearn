@@ -86,7 +86,7 @@ void ACov::optimizationSetTarget(const SpacePoint &pt) const
 
 void ACov::_optimizationSetTarget(const SpacePoint &pt) const
 {
-  DECLARE_UNUSED(_p2A);
+  DECLARE_UNUSED(pt);
 }
 
 
