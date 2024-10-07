@@ -1456,10 +1456,11 @@ VectorInt MatrixSparse::colorCoding() const
   }
   return colors;
 }
-void MatrixSparse::glueInPlace(MatrixSparse *A1,
-                        const MatrixSparse *A2,
-                        bool flagShiftRow,
-                        bool flagShiftCol)
+
+void MatrixSparse::glueInPlace(MatrixSparse* A1,
+                               const MatrixSparse* A2,
+                               bool flagShiftRow,
+                               bool flagShiftCol)
 {
   int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
   int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;

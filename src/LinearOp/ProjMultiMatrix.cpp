@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "Db/Db.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "Basic/AStringable.hpp"
@@ -149,29 +148,27 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
 , _Proj(MatrixSparse(0,0))
 , _toClean(toClean)
 {
-    if (ProjMulti::empty()) return;
-    const VectorInt& pointNumbers = getPointNumbers();
-    const VectorInt& apexNumbers  = getApexNumbers();
+  if (ProjMulti::empty()) return;
+  const VectorInt& pointNumbers = getPointNumbers();
+  const VectorInt& apexNumbers  = getApexNumbers();
 
+  for (int i = 0; i < getNVariable(); i++)
+  {
     MatrixSparse currentrow;
-    for (int i = 0; i < getNVariable(); i++)
-    {   
-        currentrow = MatrixSparse(0,0);
-        for (int j = 0; j < getNLatent(); j++)
-        {
-            if (_projs[i][j] != nullptr)
-            {
-                MatrixSparse::glueInPlace(&currentrow,((MatrixSparse*)proj[i][j]),0,1);
-            }
-            else 
-            {
-                auto tempMat = MatrixSparse(pointNumbers[i],apexNumbers[j]);
-                MatrixSparse::glueInPlace(&currentrow,&tempMat,0,1);
-            }
-         
-        }
-        MatrixSparse::glueInPlace(&_Proj,&currentrow,1,0);
-    }   
+    for (int j = 0; j < getNLatent(); j++)
+    {
+      if (_projs[i][j] != nullptr)
+      {
+        MatrixSparse::glueInPlace(&currentrow, ((MatrixSparse*)proj[i][j]), 0, 1);
+      }
+      else
+      {
+        auto tempMat = MatrixSparse(pointNumbers[i], apexNumbers[j]);
+        MatrixSparse::glueInPlace(&currentrow, &tempMat, 0, 1);
+      }
+    }
+    MatrixSparse::glueInPlace(&_Proj, &currentrow, 1, 0);
+  }
 }
 
 int ProjMultiMatrix::_addPoint2mesh(const constvect inv, vect outv) const

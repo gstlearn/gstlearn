@@ -177,6 +177,7 @@ print("---------------------")
 print("Difference with manual computation " + \
       str(np.round(np.sum(np.abs(aM.getProj().toTL() @ gaussA - resnumpyM2P)),15)))
 
+
 # %%
 print("---------------------")
 print("Test 13: point2mesh from the matrix in python (with toTL()):")

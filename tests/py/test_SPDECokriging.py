@@ -24,17 +24,17 @@ mesh1 = gl.MeshETurbo(nx1,[1.,1.],[-20,-20])
 meshes = gl.VectorMeshes([mesh1,mesh1])
 
 # %%
-resultFree = gl.krigingSPDENew(dat,grid,model,meshes,0)
-
-ax = plt.scatter(ref,resultFree,s=1)
-plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
-#plt.show()
-print("Difference with classical kriging (matrix free version) = " + str (np.round(np.max(np.abs(ref-resultFree))/totalSill,5)))
-
-# %%
 resultMat = gl.krigingSPDENew(dat,grid,model,meshes,1)
 
 ax = plt.scatter(ref,resultMat,s=1)
 plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
 #plt.show()
 print("Difference with classical kriging (matricial version) = " + str (np.round(np.max(np.abs(ref-resultMat))/totalSill,5)))
+
+# %%
+resultFree = gl.krigingSPDENew(dat,grid,model,meshes,0)
+
+ax = plt.scatter(ref,resultFree,s=1)
+plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
+#plt.show()
+print("Difference with classical kriging (matrix free version) = " + str (np.round(np.max(np.abs(ref-resultFree))/totalSill,5)))
