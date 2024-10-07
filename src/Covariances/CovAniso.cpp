@@ -1282,7 +1282,7 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
  * The set of resulting Space Points are stored as private member of this.
  * Note that ALL samples are processed, independently from the presence of a selection
  * or checking for heterotopy.
- * @param db Input Db
+ * @param p vector of SpacePoints
  */
 void CovAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
