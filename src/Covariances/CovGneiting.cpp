@@ -14,10 +14,9 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Space/ASpace.hpp"
+#include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Space/SpaceRN.hpp"
-#include "geoslib_define.h"
 #include <vector>
 
 CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
@@ -34,7 +33,8 @@ CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double se
     messerr("It has been set to 0");
   }
   delete _space;
-  ASpace* space = dynamic_cast<ASpace*>(covS->getSpace()->clone());
+  SpaceComposite* space = new SpaceComposite();
+  space->addSpaceComponent(covS->getSpace());
   space->addSpaceComponent(covTemp->getSpace()); 
   _space = space;
 }
@@ -47,7 +47,6 @@ ACov(r)
 , _separability(r._separability)
 , _covSCopy(*r._covS)
 {
-
 }
 
 CovGneiting& CovGneiting::operator=(const CovGneiting &r)
@@ -64,10 +63,8 @@ CovGneiting& CovGneiting::operator=(const CovGneiting &r)
   return *this;
 }
 
-
 CovGneiting::~CovGneiting()
 {
-
 }
 
 void CovGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
@@ -100,7 +97,6 @@ double CovGneiting::eval(const SpacePoint& p1,
                     int jvar,
                     const CovCalcMode* mode) const
 {
-
   auto p1_0 = p1.spacePointOnSubspace(0);
   auto p2_0 = p2.spacePointOnSubspace(0);
   auto p1_1 = p1.spacePointOnSubspace(1);
@@ -115,5 +111,4 @@ double CovGneiting::eval(const SpacePoint& p1,
   double cs = _covSCopy.eval(p1_0, p2_0, ivar, jvar, mode);
   
   return cs * ct; 
-
 }

@@ -23,27 +23,38 @@
 
 SpacePoint::SpacePoint(const ASpace* space)
 : ASpaceObject(space),
-  _coord(new double[getNDim()]),
-  _deleteCoord(true),
+  _coord(),
   _iech(-1),
   _target(false)
 {
   
   // Initialize the point to the space origin
   // TODO : Not true whatever the space
-  for (int i = 0; i < (int)getNDim(); i++)
-    _coord[i] = getOrigin().getVector()[i];
+  _coord = getOrigin();
 }
 
 SpacePoint::SpacePoint(const SpacePoint& r)
 : ASpaceObject(r)
-,_coord(new double[getNDim()])
-,_deleteCoord(true)
+,_coord(r._coord)
 ,_iech(r._iech)
 ,_target(r._target)
 {
-  for (int i = 0; i < (int) getNDim(); i++)
-    _coord[i] = r._coord[i];
+}
+
+SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpace* space)
+  : ASpaceObject(space)
+  , _coord(coord)
+  , _iech(iech)
+  , _target(false)
+{
+  if (coord.size() == 0 || coord.size() != getNDim())
+  {
+    // Use a valid default SpacePoint (origin ?)
+    // TODO : Not true whatever the space
+    messerr("Problem with the number of coordinates. \n");
+    messerr("Point not created.\n");
+    _coord = getOrigin();
+  }
 }
 
 double SpacePoint::getCoord(int idim) const
@@ -53,100 +64,54 @@ double SpacePoint::getCoord(int idim) const
 
 constvect SpacePoint::getCoords() const
 {
-  return constvect(_coord, getNDim());
-}
-
-SpacePoint::SpacePoint(vect coord, const ASpace* space,int iech)
-: ASpaceObject(space)
-{
-  _coord = coord.data();
-  _iech = iech;
-  _target = false;
-}
-SpacePoint::SpacePoint(const VectorDouble& coord,int iech,
-                       const ASpace* space)
-: ASpaceObject(space),
-  _coord(new double[getNDim()]),
-  _deleteCoord(true),
-  _iech(iech),
-  _target(false)
-{
-  if (coord.size() == 0 || coord.size() != getNDim())
-  {
-    // Use a valid default SpacePoint (origin ?)
-    // TODO : Not true whatever the spac
-    messerr("Problem with the number of coordinates. \n");
-    messerr("Point not created.\n");
-    for (int i = 0; i < (int) getNDim(); i++)
-      _coord[i] = getOrigin().getVector()[i];
-  }
-  else
-  {
-    for (int i = 0; i < (int)getNDim(); i++)
-      _coord[i] = coord[i];
-  }
+  return constvect(_coord.data(), getNDim());
 }
 
 SpacePoint& SpacePoint::operator=(const SpacePoint& r)
 {
-  _coord = new double[getNDim()];
-  _iech = r._iech;
-  _target = r._target;
-  _deleteCoord = true;
   if (this != &r)
   {
     ASpaceObject::operator=(r);
-    for (int i = 0; i < (int) getNDim(); i++)
-      _coord[i] = r._coord[i];
+    _coord  = r._coord;
+    _iech   = r._iech;
+    _target = r._target;
   }
   return *this;
 }
 
 SpacePoint::~SpacePoint()
 {
-  if (_deleteCoord)
-    delete [] _coord;
 }
 
 void SpacePoint::setCoord(double coord)
 {
-  std::fill(_coord,_coord + getNDim(),coord);
-}
-
-void SpacePoint::setCoords(vect coords)
-{
-  if (_deleteCoord) delete[] _coord;
-  _deleteCoord = false;
-  _coord = coords.data();
+  _coord.fill(coord);
 }
 
 void SpacePoint::setCoords(const VectorDouble& coord)
 {
-
   if ((int)getNDim() != (int)coord.size())
-    std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
+    std::cout << "Error: Wrong number of coordinates. Point not modified."
+              << std::endl;
   else
-  {
-    for (int idim = 0; idim < (int)getNDim(); idim++)
-      _coord[idim] = coord[idim];
-  }
+    _coord = coord;
 }
 
 SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
 {
-  if (ispace < 0)
+  if (ispace < 0 || ispace >= (int)getNDim())
     return *this;
 
-  int ndim = getNDim(ispace);
-  int offset = getSpace()->getOffset(ispace);
-  SpacePoint p(vect(_coord+offset,ndim),getSpace()->getComponent(ispace),_iech);
+  /// TODO : Memory copies
+  VectorDouble vec = getSpace()->projCoord(_coord, ispace);
+  const ASpace* sp = getSpace()->getComponent(ispace);
+  SpacePoint p(vec, _iech, sp);
   p.setTarget(_target);
-  p._deleteCoord = false;
   return p;
 }
+
 void SpacePoint::setCoords(const double* coord, int size)
 {
- 
   if ((int)getNDim() != size)
     std::cout << "Error: Wrong number of coordinates. Point not modified."
               << std::endl;
@@ -158,8 +123,7 @@ void SpacePoint::setCoords(const double* coord, int size)
 bool SpacePoint::isConsistent(const ASpace* space) const
 {
   DECLARE_UNUSED(space)
-  //return (space->getNDim() == _coord.size());
-  return true;
+  return (space->getNDim() == _coord.size());
 }
 
 void SpacePoint::move(const VectorDouble& vec)
@@ -177,11 +141,6 @@ VectorDouble SpacePoint::getDistances(const SpacePoint& pt) const
   return ASpaceObject::getDistances(*this, pt);
 }
 
-double SpacePoint::getDistance1D(const SpacePoint &pt, int idim) const
-{
-  return ASpaceObject::getDistance1D(*this, pt, idim);
-}
-
 VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
 {
   return ASpaceObject::getIncrement(*this, pt, ispace);
@@ -189,7 +148,7 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  return VH::toStringAsSpan(constvect(_coord,getNDim()));
+  return VH::toStringAsSpan(constvect(_coord.data(),getNDim()));
 }
 
 void SpacePoint::setFFFF()
@@ -199,7 +158,6 @@ void SpacePoint::setFFFF()
 
 bool SpacePoint::isFFFF() const
 {
-
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     if (! FFFF(_coord[idim])) return false;
   return true;

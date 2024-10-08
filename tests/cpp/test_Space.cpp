@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Space/ASpace.hpp"
+#include "Space/SpaceComposite.hpp"
+#include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include <iostream>
 
@@ -23,14 +24,16 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  defineDefaultSpace(ESpaceType::RN, 2, 0., true); // 2D RN space with time
-  const auto* sp = getDefaultSpace();
+  // 2D Space + Time (for example)
+  SpaceComposite sp({new SpaceRN(2), new SpaceRN(1)});
+  defineDefaultSpace(&sp);
 
-  sp->display();
-  sp->display(0);
+  const ASpace* psp = getDefaultSpace();
+  psp->display();  // Long description (level 1)
+  psp->display(0); // Short description (level 0)
 
-  SpacePoint pt1({4.5, 6.5, 10},-1);
-  SpacePoint pt2({3.0, 2.5, 15},-1);
+  SpacePoint pt1({4.5, 6.5, 10});
+  SpacePoint pt2({3.0, 2.5, 15});
 
   std::cout << "Global dimension: " << pt1.getNDim() << std::endl;
   std::cout << "Dimension space #0: " << pt1.getNDim(0) << std::endl;
@@ -45,10 +48,6 @@ int main(int argc, char *argv[])
 
   std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0).toString() << std::endl;
   std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1).toString() << std::endl;
-
-  std::cout << "Distance dim#0: " << pt1.getDistance1D(pt2, 0) << std::endl;
-  std::cout << "Distance dim#1: " << pt1.getDistance1D(pt2, 1) << std::endl;
-  std::cout << "Distance dim#2: " << pt1.getDistance1D(pt2, 2) << std::endl;
 
   return 0;
 }

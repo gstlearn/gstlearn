@@ -104,13 +104,6 @@ VectorDouble ASpaceObject::getDistances(const SpacePoint& p1,
   return (_space->getDistances(p1, p2));
 }
 
-double ASpaceObject::getDistance1D(const SpacePoint& p1,
-                                   const SpacePoint& p2,
-                                   int idim) const
-{
-  return (_space->getDistance1D(p1, p2, idim));
-}
-
 VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1,
                                         const SpacePoint& p2,
                                         int ispace) const
@@ -123,7 +116,6 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1,
  * (To be used only during creation ... in particular when reading NF)
  * @param ndim
  */
-// TODO: this function should be removed as dangerous
 void ASpaceObject::setNDim(int ndim)
 {
   if (_space->getType() != ESpaceType::RN)
@@ -140,9 +132,8 @@ void ASpaceObject::setNDim(int ndim)
  * @param type Space type (RN, SN, ...)
  * @param ndim Number of dimensions
  * @param param Optional space parameter (ex: radius of the sphere)
- * @param addtime Optional add time dimension (composit space)
  */
-void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param, bool addtime)
+void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
 {
   delete defaultSpace;
 
@@ -152,12 +143,12 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param,
     {
       ndim = 2;
       if (param <= 0.) param = EARTH_RADIUS;
-      defaultSpace = new SpaceSN(ndim, param, addtime);
+      defaultSpace = new SpaceSN(ndim, param);
       break;
     }
     case ESpaceType::E_RN:
     {
-      defaultSpace = new SpaceRN(ndim, addtime);
+      defaultSpace = new SpaceRN(ndim);
       break;
     }
     default:
@@ -165,6 +156,17 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param,
       my_throw("Unknown space type!");
     }
   }
+}
+
+/**
+ * @brief Defining the default space from another one
+ * 
+ * @param space 
+ */
+void defineDefaultSpace(const ASpace* space)
+{
+  delete defaultSpace;
+  defaultSpace = dynamic_cast<ASpace*>(space->clone());
 }
 
 const ASpace* cloneDefaultSpace()
