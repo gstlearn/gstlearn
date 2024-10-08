@@ -60,7 +60,7 @@ VectorString CovHelper::getAllCovariances(int  ndim,
 
     // Check if the covariance is valid
     if (_isSelected(cov, ndim, minorder, hasrange, flagSimtub, flagSimuSpectral))
-      vs.push_back(it.getKey());
+      vs.push_back(String{it.getKey()});
 
     delete cov;
     it.toNext();
