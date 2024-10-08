@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -85,7 +84,6 @@ int main(int argc, char *argv[])
   // Creating the Cholesky objects
   CholeskySparse cholSparse(Q);
   CholeskyDense cholDense(M);
-  Cholesky Qchol(Q);
 
   // Checking the Cholesky decomposition
   M->prodMatVecInPlace(vecin, vecref);
@@ -158,11 +156,10 @@ int main(int argc, char *argv[])
 
   // We use a Tim Davis sparse matrix cs as long as Qchol
   // stdev calculation is not available with eigen underlying matrix
-  MatrixSparse* M2 = MatrixSparse::createFromTriplet(M->getMatrixToTriplet(),
-                                                     M->getNRows(), M->getNCols(),
-                                                     0);
-  Cholesky Qchol2(M2);
-  Qchol2.stdev(vecout2);
+  MatrixSparse* M2 = MatrixSparse::createFromTriplet(
+    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), 0);
+  CholeskySparse Qchol(M2);
+  Qchol.stdev(vecout2, false);
 
   if (VH::isSame(vecout1b, vecout2))
     message(">>> Function 'stdev' is validated\n");
@@ -175,7 +172,7 @@ int main(int argc, char *argv[])
 
   // Checking the calculation of Log(Det)
   double res1 = log(M->determinant());
-  double res2 = Qchol.getLogDeterminant();
+  double res2 = Qchol.computeLogDeterminant();
   if (isZero(res1 - res2))
     message(">>> Log(Det) is validated\n");
   else

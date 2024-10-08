@@ -146,12 +146,14 @@ int PrecisionOpCs::_addSimulateToDest(const constvect whitenoise,
 void PrecisionOpCs::evalInverse(const constvect vecin,
                                 std::vector<double>& vecout)
 {
+  if (_chol == nullptr) _chol = new CholeskySparse(_Q);
   _chol->solve(vecin, vecout);
 }
 
 double PrecisionOpCs::getLogDeterminant(int nbsimu)
 {
   DECLARE_UNUSED(nbsimu);
+  if (_chol == nullptr) _chol = new CholeskySparse(_Q);
   return _chol->computeLogDeterminant();
 }
 

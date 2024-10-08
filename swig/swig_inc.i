@@ -158,7 +158,6 @@
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
   #include "LinearOp/ProjConvolution.hpp"
-  #include "LinearOp/Cholesky.hpp"
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
   #include "LinearOp/MatrixSquareSymmetricSim.hpp"
