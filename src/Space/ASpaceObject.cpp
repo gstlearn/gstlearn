@@ -163,7 +163,7 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
  * 
  * @param space 
  */
-void defineDefaultSpace(const ASpace* space)
+void setDefaultSpace(const ASpace* space)
 {
   delete defaultSpace;
   defaultSpace = dynamic_cast<ASpace*>(space->clone());

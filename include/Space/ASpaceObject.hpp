@@ -91,8 +91,8 @@ protected:
 GSTLEARN_EXPORT void defineDefaultSpace(const ESpaceType& type,
                                         unsigned int ndim = 2,
                                         double param      = 0.);
-/// (Re)Defining the unique default global space
-GSTLEARN_EXPORT void defineDefaultSpace(const ASpace* space);
+/// Set the unique default global space from another one
+GSTLEARN_EXPORT void setDefaultSpace(const ASpace* space);
 
 /// Return a clone of the unique default global space
 GSTLEARN_EXPORT const ASpace* cloneDefaultSpace();

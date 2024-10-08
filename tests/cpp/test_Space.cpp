@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
   // 2D Space + Time (for example)
   SpaceComposite sp({new SpaceRN(2), new SpaceRN(1)});
-  defineDefaultSpace(&sp);
+  setDefaultSpace(&sp);
 
   const ASpace* psp = getDefaultSpace();
   psp->display();  // Long description (level 1)
