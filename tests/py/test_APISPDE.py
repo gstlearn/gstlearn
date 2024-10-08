@@ -34,7 +34,6 @@ x1 = resultDb['x1']
 x2 = resultDb['x2']
 theta = spirale(resultDb)
 iatt = resultDb['theta'] = theta
-resultDb.setLocator("theta",gl.ELoc.NOSTAT)
 resultDb
 
 np.random.seed(124)
@@ -50,13 +49,13 @@ model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
 mesh = gl.MeshETurbo(workingDb)
 
-NoStat = gl.NoStatArrayCov(["A"], resultDb)
 cova = model.getCova(0)
-cova.addNoStat(NoStat)
+cova.makeAngleNoStatDb("theta",0,resultDb)
 S = gl.ShiftOpCs(mesh, cova, resultDb)
 
 
 Qsimu = gl.PrecisionOp(S, cova, False)
+
 result = Qsimu.simulateOne()
 workingDb.addColumns(result,"Simu",gl.ELoc.X)
 
@@ -70,6 +69,7 @@ data.setLocator('z',gl.ELoc.Z)
 data
 
 spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND,None,0)
+gl.law_set_random_seed(131351)
 spde.compute(workingDb)
 
 dbfmt = gl.DbStringFormat()

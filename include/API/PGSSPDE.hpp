@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 
 #include "Basic/NamingConvention.hpp"
 
@@ -36,7 +35,6 @@ public:
   virtual ~PGSSPDE();
 
   void compute(Db *dbout,
-               int seed = 131351,
                int nitergibbs = 0,
                const NamingConvention &namconv = NamingConvention("Facies"));
 

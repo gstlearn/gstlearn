@@ -12,7 +12,6 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
-
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -76,9 +75,11 @@ public:
                 bool flagCheck = true) override;
 
 #ifndef SWIG
-int addVecInPlace(const Eigen::VectorXd& xm, Eigen::VectorXd& ym) const;
-void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
-                                bool transpose = false) const;
+  int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
+                    Eigen::Map<Eigen::VectorXd>& ym) const;
+  void addProdMatVecInPlaceToDest(const constvect in,
+                                  vect out,
+                                  bool transpose = false) const;
 #endif
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
@@ -158,9 +159,9 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
                                      const MatrixSparse* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const MatrixSparse* a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const MatrixSparse* a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
@@ -190,10 +191,10 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
   int    solveCholesky(const VectorDouble& b, VectorDouble& x);
 
   #ifndef SWIG
-    int  solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x);
-    int  simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x);
-    int  addVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y);
-  #endif
+  int solveCholesky(const constvect b, std::vector<double>& x);
+  int simulateCholesky(const constvect b, vect x);
+  int addVecInPlace(const constvect x, vect y);
+#endif
   
   int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
   double computeCholeskyLogDeterminant();
@@ -224,13 +225,13 @@ void addProdMatVecInPlaceToDest(const Eigen::VectorXd& in, Eigen::VectorXd& out,
 
 #ifndef SWIG
   protected:
-  virtual int _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
+    virtual int _addToDest(const constvect inv, vect outv) const override;
 #endif
 
 #ifndef SWIG
-  public : 
-  void setDiagonal(const Eigen::VectorXd& tab);
+  public :
+  void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
+  void setDiagonal(const constvect tab);
 #endif
 protected:
   /// Interface for AMatrix

@@ -11,73 +11,40 @@
 
 #include "LinearOp/IProjMatrix.hpp"
 
-#include "Matrix/VectorEigen.hpp"
-
-#include <Eigen/Core>
-#include <Eigen/Dense>
+#include "geoslib_define.h"
 
 int IProjMatrix::mesh2point(const VectorDouble& inv,
-                           VectorDouble& outv) const
+                                  VectorDouble& outv) const
 {
-    Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
-    outv.resize(getPointNumber());
-    Eigen::VectorXd myOut(outv.size());
-    
-    // Assume outv has the good size
-    int error = mesh2point(myInv, myOut);
-    
-    Eigen::Map<Eigen::VectorXd>(outv.data(), outv.size()) = myOut;
-    return error;
+  outv.resize(getPointNumber());
+  return mesh2point(inv.getVector(), outv.getVector());
 }
 
 int IProjMatrix::point2mesh(const VectorDouble& inv,
                            VectorDouble& outv) const
 {
-    outv.resize(getApexNumber());
-    Eigen::Map<const Eigen::VectorXd> myInv(inv.data(), inv.size());
-    Eigen::VectorXd myOut(outv.size());
-    
-    // Assume outv has the good size
-    int error= point2mesh(myInv, myOut);
-    
-    Eigen::Map<Eigen::VectorXd>(outv.data(), outv.size()) = myOut;
-    return error;
+  outv.resize(getApexNumber());
+  return point2mesh(inv.getVector(), outv.getVector());
 }
 
-int IProjMatrix::mesh2point(const VectorEigen& inv, VectorEigen& outv) const
-{
-    return mesh2point(inv.getVector(), outv.getVector());
-}
-
-int IProjMatrix::point2mesh(const VectorEigen& inv, VectorEigen& outv) const
-{
-    return point2mesh(inv.getVector(), outv.getVector());
-}
-
-int IProjMatrix::addPoint2mesh(const Eigen::VectorXd& inv,
-                                  Eigen::VectorXd& outv) const
-{
-  return _addPoint2mesh(inv,outv);
-
-}
-
-int IProjMatrix::addMesh2point(const Eigen::VectorXd& inv,
-                                  Eigen::VectorXd& outv) const
+int IProjMatrix::addMesh2point(const constvect inv, vect outv) const
 {
   return _addMesh2point(inv,outv);
 }
 
-int IProjMatrix::point2mesh(const Eigen::VectorXd& inv,
-                                  Eigen::VectorXd& outv) const
+int IProjMatrix::addPoint2mesh(const constvect inv, vect outv) const
 {
-  VectorEigen::fill(outv, 0.);
-  return addPoint2mesh(inv,outv);
-
+  return _addPoint2mesh(inv, outv);
 }
 
-int IProjMatrix::mesh2point(const Eigen::VectorXd& inv,
-                                  Eigen::VectorXd& outv) const
+int IProjMatrix::mesh2point(const constvect inv, vect outv) const
 {
-  VectorEigen::fill(outv, 0.);
-  return addMesh2point(inv,outv);
+  std::fill(outv.begin(),outv.end(),0.);
+  return _addMesh2point(inv,outv);
+}
+
+int IProjMatrix::point2mesh(const constvect inv, vect outv) const
+{ 
+  std::fill(outv.begin(),outv.end(),0.);
+  return _addPoint2mesh(inv, outv);
 }

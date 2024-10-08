@@ -11,15 +11,14 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
 #include "Enum/ESPDECalcMode.hpp"
-
+#include "Basic/NamingConvention.hpp"
 #include "API/SPDEParam.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
-#include <Eigen/src/Core/Matrix.h>
+#include <vector>
 
 class ShiftOpCs;
 class Db;
@@ -64,12 +63,11 @@ public:
 
   int compute(Db *dbout,
               int nbsimu = 1,
-              int seed = 131351,
               const NamingConvention &namconv = NamingConvention("spde"));
 
-  double computeLogDet(int nbsimu = 1,int seed = 1234) const;
+  double computeLogDet(int nbsimu = 1) const;
   double computeQuad() const;
-  double computeLogLikelihood(int nbsimu = 1, int seed = 131323) const;
+  double computeLogLikelihood(int nbsimu = 1) const;
   VectorDouble getCoeffs();
 
   void setDriftCoeffs(const VectorDouble& coeffs);
@@ -98,11 +96,11 @@ private:
   void _addNuggetOnResult(VectorDouble &result) const;
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
-  double _computeLogLikelihood(int nbsimu = 1, int seed = 131323) const;
+  double _computeLogLikelihood(int nbsimu = 1) const;
   #ifndef SWIG
     static void _projecLocal(Db* dbout,
                              const AMesh* meshing,
-                             Eigen::VectorXd& working,
+                             std::vector<double>& working,
                              VectorDouble& result);
   #endif
 
@@ -117,10 +115,10 @@ private:
   std::vector<const AMesh*>    _meshingKrig;    // Dimension: number of valid covariances
   mutable VectorDouble         _driftCoeffs;
   Model*                       _model; // External pointer
-  mutable std::vector<Eigen::VectorXd>   _workingKrig;     // Number of Mesh apices * Number of valid covariances
-  mutable std::vector<Eigen::VectorXd>   _workingSimu;     // Number of Mesh apices * Number of valid covariances
-  mutable VectorDouble                   _workingData;     // Number of valid data
-  mutable VectorDouble                   _workingDataInit; // Number of valid data
+  mutable std::vector<std::vector<double>>   _workingKrig;     // Number of Mesh apices * Number of valid covariances
+  mutable std::vector<std::vector<double>>   _workingSimu;     // Number of Mesh apices * Number of valid covariances
+  mutable std::vector<double>                _workingData;     // Number of valid data
+  mutable std::vector<double>                _workingDataInit; // Number of valid data
   std::vector<ProjMatrix*>     _projOnDbOut;
   VectorInt                    _adressesICov;
   double _nugget;
@@ -142,7 +140,6 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 int useCholesky = -1,
                                 const SPDEParam& params = SPDEParam(),
                                 int nbMC = 10,
-                                int seed = 42331,
                                 bool verbose = false,
                                 bool showStats = false,
                                 const NamingConvention &namconv = NamingConvention("KrigingSPDE"));
@@ -153,7 +150,6 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  const AMesh *mesh = nullptr,
                                  int useCholesky = -1,
                                  const SPDEParam& params = SPDEParam(),
-                                 int seed = 121423,
                                  bool verbose = false,
                                  bool showStats = false,
                                  const NamingConvention &namconv = NamingConvention("SimuSPDE"));
@@ -163,7 +159,6 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
                                          const AMesh *mesh = nullptr,
                                          int useCholesky = -1,
                                          int nbsimu = 1,
-                                         int seed = 131323,
                                          const SPDEParam& params = SPDEParam(),
                                          bool verbose = false);
 GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam& params = SPDEParam());

@@ -1542,6 +1542,12 @@ bool Model::isFlagLinked() const
   return _driftList->isFlagLinked();
 }
 
+bool Model::hasDrift() const
+{
+  if (_driftList == nullptr) return false;
+  return _driftList->hasDrift();
+}
+
 bool Model::isFlagGradient() const
 {
   if (_cova == nullptr) return false;
@@ -2257,7 +2263,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     VectorDouble beta;
     if (XtCm1X->solveCholesky(ZtCm1X, beta) != 0)
     {
-      messerr("Error when calculating Maximum Likelihood criterion");
+      messerr("Error when calculating Likelihood");
       delete XtCm1X;
       return TEST;
     }

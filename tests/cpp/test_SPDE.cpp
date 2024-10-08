@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Law.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/ELoadBy.hpp"
 
@@ -70,8 +71,9 @@ int main(int argc, char *argv[])
   int seed        = 31415;
   int nsimu       = 10;
   int useCholesky = 1;
+  law_set_random_seed(seed);
   (void) simulateSPDE(NULL, dbgrid, model, nsimu, NULL, useCholesky,
-                      SPDEParam(), seed, verbose);
+                      SPDEParam(), verbose);
 
   // Print statistics on the results
 

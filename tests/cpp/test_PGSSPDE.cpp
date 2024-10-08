@@ -11,6 +11,7 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Law.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ECov.hpp"
@@ -87,10 +88,12 @@ int main(int argc, char *argv[])
   dat->addColumns(z,"variable",ELoc::Z);
 
   PGSSPDE sNonCond(models,grid,ruleprop);
-  sNonCond.compute(grid, 133672, 0, NamingConvention("Facies-NC"));
+  law_set_random_seed(133672);
+  sNonCond.compute(grid, 0, NamingConvention("Facies-NC"));
 
   PGSSPDE sCond(models,grid,ruleprop,dat);
-  sCond.compute(grid, 133272, 0, NamingConvention("Facies-CD"));
+  law_set_random_seed(133272);
+  sCond.compute(grid, 0, NamingConvention("Facies-CD"));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Facies"});
   grid->display(&dbfmt);

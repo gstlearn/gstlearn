@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Mesh/LinkSphTriangle.hpp"
 #include "Mesh/MeshSpherical.hpp"
 

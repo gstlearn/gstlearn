@@ -1181,25 +1181,31 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
 }
 
 /**
- * @brief Create an output Square Symmetric Matrix by selecting some rows (and columns)
+ * @brief Create an output Square Symmetric Matrix by selecting some rows (and
+columns)
  *        of the Input matrix 'A'
  *
  * @param A        Input Square Symmetric Matrix
  * @param rowKeep  Set of Rows (same for columns) to be kept
+ * @param flagInvert when True, transform 'rowKeep' into 'rowDrop' 
  * @return Pointer to the newly created Square Symmetric Matrix
  */
-MatrixSquareSymmetric* MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
-                                                     const VectorInt& rowKeep)
+MatrixSquareSymmetric*
+MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
+                              const VectorInt& rowKeep,
+                              bool flagInvert)
 {
+  int ntotal = A->getNRows();
   VectorInt rows = rowKeep;
-  if (rows.empty()) rows = VH::sequence(A->getNRows());
+  if (rows.empty()) rows = VH::sequence(ntotal);
+  if (flagInvert) rows = VH::complement(VH::sequence(ntotal), rows);
 
   int nrows = (int)rows.size();
   if (nrows <= 0) return nullptr;
 
   for (int irow = 0; irow < nrows; irow++)
   {
-    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+    if (!checkArg("Selected Row index", rows[irow], ntotal)) return nullptr;
   }
 
   MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrows);

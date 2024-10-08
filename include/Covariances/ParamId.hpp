@@ -59,3 +59,20 @@ private:
   int       _iv1;        /* Rank of the first variable */
   int       _iv2;        /* Rank of the second variable */
 };
+
+struct ParamIdHash {
+    std::size_t operator() (const ParamId& p) const {
+              std::size_t hash_a = std::hash<int>()(p.getType().toEnum());
+              std::size_t hash_b = std::hash<int>()(p.getIV1());
+              std::size_t hash_c = std::hash<int>()(p.getIV2());        
+        // Combinaison des hachages avec une méthode simple (exemple: XOR et décalage)
+              return hash_a ^ (hash_b << 1) ^ (hash_c << 2);
+              }
+};
+
+struct ParamIdEqual {
+    bool operator() (const ParamId& lhs, const ParamId& rhs) const {
+        return lhs.getType() == rhs.getType() && lhs.getIV1() == rhs.getIV1() &&
+               lhs.getIV2() == lhs.getIV2();
+    }
+};

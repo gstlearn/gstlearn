@@ -13,7 +13,6 @@
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
-#include "Covariances/NoStatFunctionalCov.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/DbGrid.hpp"
@@ -46,8 +45,7 @@ int main(int argc, char *argv[])
 
   // Creating non-stationarity field (spiral) and attaching it to the Model
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  NoStatFunctionalCov NoStat(&spirale);
-  model->getCova(0)->addNoStat(&NoStat);
+  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
   model->display();
 
   // Creating Data
@@ -55,16 +53,20 @@ int main(int argc, char *argv[])
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 43246);
   VectorDouble z = VH::simulateGaussian(ndata);
   int useCholesky = 0;
-  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), 132341, false, false,
+  law_set_random_seed(132341);
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), false, false,
                       NamingConvention("variable", false, false));
   dat->display();
 
   // Estimation and simulations
   (void) krigingSPDE(dat,grid,model, true, false, nullptr, useCholesky, SPDEParam(),
-                     0, 0, false, false, NamingConvention("K-spirale"));
-  (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, useCholesky, SPDEParam(), 132341, false, false,
+                     0, false, false, NamingConvention("K-spirale"));
+  law_set_random_seed(132341);
+                   
+  (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, useCholesky, SPDEParam(), false, false,
                       NamingConvention("NCS-spirale"));
-  (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, useCholesky, SPDEParam(), 132341,false, false,
+  law_set_random_seed(132341);
+  (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, useCholesky, SPDEParam(), false, false,
                       NamingConvention("CDS-spirale"));
 
   (void) grid->dumpToNF("grid.ascii");

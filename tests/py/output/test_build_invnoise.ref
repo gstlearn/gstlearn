@@ -1,0 +1,39 @@
+---------------------------------
+Hetero without measurement error
+---------------------------------
+General Case
+Error =  1e-13
+-----------------------------------------------------------------------
+Hetero with measurement errors (not the same for all the observations)
+-----------------------------------------------------------------------
+General Case
+Error =  1e-13
+----------------------------------------------------------------
+Hetero with the same measurement error for all the observations
+----------------------------------------------------------------
+General Case
+Error =  1e-13
+------------------------------
+Iso without measurement error
+------------------------------
+---------------------------------------------------------
+Isotopic and Stationary and Measurement error identical:
+---------------------------------------------------------
+Error =  1e-13
+----------------------------------------------------------------------
+Iso,  with measurement errors (not the same for all the observations)
+----------------------------------------------------------------------
+General Case
+Error =  1e-13
+-------------------------------------------------------------
+Iso,with the same measurement error for all the observations
+-------------------------------------------------------------
+---------------------------------------------------------
+Isotopic and Stationary and Measurement error identical:
+---------------------------------------------------------
+Error =  1e-13
+---------------------------------------------------------------------
+Iso,with the same measurement error for all the observations, nostat
+---------------------------------------------------------------------
+General Case
+Error =  1e-13

@@ -10,17 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include <vector>
 
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class Chebychev;
 /**
@@ -37,7 +32,7 @@ public:
   /// Interface for PrecisionOpMultiConditional
   virtual void makeReady(){};
   virtual int push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
-  virtual double computeLogDetOp(int nbsimu = 1, int seed = 123) const;
+  virtual double computeLogDetOp(int nbsimu = 1) const;
 
   /// Interface for ALinearOpMulti
   int  sizes() const override { return static_cast<int> (_multiPrecisionOp.size()); }
@@ -53,8 +48,8 @@ public:
   double getMaxEigenValProj() const;
   double sumLogVar() const;
 
-  double computeLogDetQ(int nbsimu = 1, int seed = 123) const;
-  double computeTotalLogDet(int nbsimu = 1, int seed = 123) const;
+  double computeLogDetQ(int nbsimu = 1) const;
+  double computeTotalLogDet(int nbsimu = 1) const;
   void preparePoly(Chebychev& logPoly) const;
   
   const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*) _multiProjData[i];}
@@ -69,32 +64,30 @@ protected:
 
 #ifndef SWIG
   private:
-    void _AtA(const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
-    void _evalDirect(const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const override;
+    void _AtA(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const;
+    void _evalDirect(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const override;
 
   public:  
-    std::vector<Eigen::VectorXd> computeRhs(const Eigen::VectorXd& datVal) const;
-    void computeRhsInPlace(const Eigen::VectorXd& datVal,std::vector<Eigen::VectorXd>& rhs) const;
-    void simulateOnMeshings(std::vector<Eigen::VectorXd> &result) const;
-    void simulateOnMeshing(Eigen::VectorXd& result,int icov = 0) const;
-    void simulateOnDataPointFromMeshings(const std::vector<Eigen::VectorXd>& simus,Eigen::VectorXd& result) const;
-    void evalInvCov(const Eigen::VectorXd& inv, Eigen::VectorXd& result) const;
-    double computeQuadratic(const Eigen::VectorXd& x) const;
+    std::vector<std::vector<double>> computeRhs(const std::vector<double>& datVal) const;
+    void computeRhsInPlace(const std::vector<double>& datVal,std::vector<std::vector<double>>& rhs) const;
+    void simulateOnMeshings(std::vector<std::vector<double>> &result) const;
+    void simulateOnMeshing(std::vector<double>& result,int icov = 0) const;
+    void simulateOnDataPointFromMeshings(const std::vector<std::vector<double>>& simus,std::vector<double>& result) const;
+    void evalInvCov(const constvect inv, std::vector<double>& result) const;
+    double computeQuadratic(const std::vector<double>& x) const;
 
 #endif
-public : 
-  VectorVectorDouble computeRhs(const VectorDouble &datVal) const;
 
 private:
-  mutable std::vector<PrecisionOp*>    _multiPrecisionOp; // Pointers are simply stored; do not delete
-  std::vector<IProjMatrix*>            _multiProjData; // Pointers are simply stored; do not delete
-  VectorDouble                         _varianceData; // Dimension: _ndat
-  int                                  _ndat;
-  int                                  _ncova;
-  mutable Eigen::VectorXd              _work1;
-  mutable Eigen::VectorXd              _work1bis;
-  mutable Eigen::VectorXd              _work1ter;
-  mutable Eigen::VectorXd              _workdata;
-  mutable std::vector<Eigen::VectorXd> _work2;
-  mutable std::vector<Eigen::VectorXd> _work3;
+  mutable std::vector<PrecisionOp*>        _multiPrecisionOp; // Pointers are simply stored; do not delete
+  std::vector<IProjMatrix*>                _multiProjData; // Pointers are simply stored; do not delete
+  VectorDouble                             _varianceData; // Dimension: _ndat
+  int                                      _ndat;
+  int                                      _ncova;
+  mutable std::vector<double>              _work1;
+  mutable std::vector<double>              _work1bis;
+  mutable std::vector<double>              _work1ter;
+  mutable std::vector<double>              _workdata;
+  mutable std::vector<std::vector<double>> _work2;
+  mutable std::vector<std::vector<double>> _work3;
 };

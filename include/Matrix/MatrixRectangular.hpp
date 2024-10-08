@@ -51,9 +51,14 @@ public:
                                    const VectorInt& rowKeep = VectorInt(),
                                    const VectorInt& colKeep = VectorInt());
   static MatrixRectangular* matrixTest(const MatrixRectangular* mytest = nullptr);
+                                   const VectorInt& colKeep = VectorInt(),
+                                   bool flagInvertRow       = false,
+                                   bool flagInvertCol       = false);
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
-                const VectorInt& colFetch);
+                const VectorInt& colFetch,
+                bool flagInvertRow = false,
+                bool flagInvertCol = false);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
    */

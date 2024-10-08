@@ -62,8 +62,8 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = sel - Locator = sel
-Column = 4 - Name = aniso - Locator = nostat1
-Column = 5 - Name = ratio - Locator = nostat2
+Column = 4 - Name = aniso - Locator = NA
+Column = 5 - Name = ratio - Locator = NA
 ----
 
 
@@ -99,8 +99,8 @@ Matern (Third Parameter = 1)
 
 Non-Stationary Parameters
 -------------------------
-1 - Angle      : IdAngle=1
-2 - Range      : IDir=2
+1 - Range      : IDir=2
+2 - Angle      : IdAngle=1
 
 Total Sill     =      1.000
 Known Mean(s)     0.000

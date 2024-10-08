@@ -37,22 +37,18 @@ PGSSPDE::PGSSPDE(const std::vector<Model*>& models,
 }
 
 void PGSSPDE::compute(Db *dbout,
-                      int seed,
                       int /*nitergibbs*/,
                       const NamingConvention &namconv)
 {
   // Set the seed for random number generator
-  law_set_random_seed(seed);
 
   int ngrf = (int) _spdeTab.size();
   VectorInt iuids(ngrf);
 
   VectorString namesG = generateMultipleNames("simuGauss", ngrf);
-  int seed_loc = seed;
   for(int igrf = 0; igrf < ngrf; igrf++)
   {
-    iuids[igrf] = _spdeTab[igrf]->compute(dbout, 1, seed_loc);
-    seed_loc = 0;
+    iuids[igrf] = _spdeTab[igrf]->compute(dbout, 1);
   }
   dbout->setLocatorsByUID(iuids, ELoc::SIMU);
 

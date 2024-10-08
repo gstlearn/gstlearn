@@ -34,9 +34,8 @@
 #include "Db/Db.hpp"
 #include "geoslib_define.h"
 
-#include <Eigen/src/Core/Map.h>
-#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
+#include <vector>
 
 /**
  * The class constructor with the following arguments:
@@ -193,8 +192,6 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 
 int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool showStats)
 {
-  const ANoStatCov* nostat = nullptr;
-
   if (_isKrigingRequested() && _data == nullptr)
   {
     messerr("You must define 'data' when performing Kriging or Conditional Simulations");
@@ -231,11 +228,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
     bool flagNoStatRot = false;
-    if (cova->isNoStat())
-    {
-      nostat = cova->getNoStat();
-      flagNoStatRot = nostat->isDefinedforAnisotropy();
-    }
+    
+    flagNoStatRot = cova->isNoStatForAnisotropy();
 
     if (cova->getType() == ECov::NUGGET)
     {
@@ -266,7 +260,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
 
         if (_precisionsSimu->push_back(precision, proj) != 0) return 1;
         _precisionsSimu->setVarianceDataVector(varianceData);
-        _workingSimu.push_back(Eigen::VectorXd(precision->getSize()));
+        _workingSimu.push_back(std::vector<double>(precision->getSize()));
       }
 
       if (_isKrigingRequested() || _requireCoeffs)
@@ -290,7 +284,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _pileProjMatrix.push_back(proj);
 
         if (_precisionsKrig->push_back(precision, proj) != 0) return 1;
-        _workingKrig.push_back(Eigen::VectorXd(precision->getSize()));
+        _workingKrig.push_back(std::vector<double>(precision->getSize()));
       }
     }
     else
@@ -341,16 +335,13 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
 
 void SPDE::_computeLk() const
 {
-  Eigen::Map<const Eigen::VectorXd> wm(_workingData.data(),_workingData.size());
-  std::vector<Eigen::VectorXd> rhs = _precisionsKrig->computeRhs(wm);
-
+  std::vector<std::vector<double>> rhs = _precisionsKrig->computeRhs(_workingData);
   _precisionsKrig->initLk(rhs, _workingKrig); // Same as evalInverse but with just one iteration
 }
 
 void SPDE::_computeKriging() const
 {
-  Eigen::Map<const Eigen::VectorXd> wm(_workingData.data(),_workingData.size());
-  std::vector<Eigen::VectorXd> rhs = _precisionsKrig->computeRhs(wm);
+  std::vector<std::vector<double>> rhs = _precisionsKrig->computeRhs(_workingData);
   _precisionsKrig->evalInverse(rhs, _workingKrig);
 }
 
@@ -373,7 +364,7 @@ void SPDE::_computeSimuCond() const
   _computeSimuNonCond();
 
   // Perform the non conditional simulation on data
-  Eigen::VectorXd temp_dat(_data->getSampleNumber(true));
+  std::vector<double> temp_dat(_data->getSampleNumber(true));
   _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu, temp_dat);
 
   // Calculate the simulation error
@@ -422,7 +413,6 @@ void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
 
 int SPDE::compute(Db *dbout,
                   int nbsimu,
-                  int seed,
                   const NamingConvention &namconv)
 {
   VectorDouble dataVect;
@@ -451,9 +441,6 @@ int SPDE::compute(Db *dbout,
       return 1;
     }
   }
-
-  if (_isSimulationRequested())
-    law_set_random_seed(seed);
 
   if (_isKrigingRequested())
     _precisionsKrig->makeReady();
@@ -579,12 +566,14 @@ int SPDE::compute(Db *dbout,
 
 void SPDE::_projecLocal(Db* dbout,
                         const AMesh* meshing,
-                        Eigen::VectorXd& working,
+                        std::vector<double>& working,
                         VectorDouble& result)
 {
-  Eigen::VectorXd temp_out(dbout->getSampleNumber(true));
+  std::vector<double> temp_out(dbout->getSampleNumber(true));
+  vect tempoutm(temp_out);
+  constvect workingm(working);
   ProjMatrix proj(dbout,meshing);
-  proj.mesh2point(working,temp_out);
+  proj.mesh2point(working,tempoutm);
   for (int i = 0; i < (int)result.size(); i++)
   {
     result[i]+= temp_out[i];
@@ -612,7 +601,7 @@ bool SPDE::_isKrigingRequested() const
       || _calcul == ESPDECalcMode::KRIGVAR;
 }
 
-double SPDE::computeLogDet(int nbsimu,int seed) const
+double SPDE::computeLogDet(int nbsimu) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -620,7 +609,7 @@ double SPDE::computeLogDet(int nbsimu,int seed) const
     return TEST;
   }
 
-  return _precisionsKrig->computeTotalLogDet(nbsimu,seed);
+  return _precisionsKrig->computeTotalLogDet(nbsimu);
 }
 
 double SPDE::computeQuad() const
@@ -640,11 +629,10 @@ double SPDE::computeQuad() const
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
   _centerByDrift(dataVect,ivar,useSel);
-  Eigen::Map<const Eigen::VectorXd>wm(_workingData.data(),_workingData.size());
-  return _precisionsKrig->computeQuadratic(wm);
+  return _precisionsKrig->computeQuadratic(_workingData);
 }
 
-double SPDE::_computeLogLikelihood(int nbsimu, int seed) const
+double SPDE::_computeLogLikelihood(int nbsimu) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -656,13 +644,13 @@ double SPDE::_computeLogLikelihood(int nbsimu, int seed) const
   {
     _computeDriftCoeffs();
   }
-  return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad() +_workingData.size() * log (2. * GV_PI));
+  return - 0.5 * (computeLogDet(nbsimu) + computeQuad() +_workingData.size() * log (2. * GV_PI));
 }
 
 /**
  * Calculate the Log-Likelihood profiling the Drift parameters
  */
-double SPDE::computeLogLikelihood(int nbsimu, int seed) const
+double SPDE::computeLogLikelihood(int nbsimu) const
 {
   VectorDouble dataVect;
   bool useSel = true;
@@ -704,7 +692,7 @@ double SPDE::computeLogLikelihood(int nbsimu, int seed) const
   // so driftCoeffs have to be recomputed
   _isCoeffsComputed = false;
 
-  return _computeLogLikelihood(nbsimu,seed);
+  return _computeLogLikelihood(nbsimu);
 }
 
 void SPDE::_computeDriftCoeffs() const
@@ -745,7 +733,6 @@ VectorDouble SPDE::getCoeffs()
  * @param useCholesky Define the choice regarding Cholesky
  * @param params Set of parameters
  * @param nbMC Number of Monte-Carlo simulations used for variance calculation
- * @param seed Seed used for the Random Number generator
  * @param verbose Verbose flag
  * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
@@ -768,7 +755,6 @@ int krigingSPDE(Db *dbin,
                 int useCholesky,
                 const SPDEParam& params,
                 int nbMC,
-                int seed,
                 bool verbose,
                 bool showStats,
                 const NamingConvention &namconv)
@@ -778,7 +764,7 @@ int krigingSPDE(Db *dbin,
       ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
   SPDE spde(model, dbout, dbin, mode, mesh,
             useCholesky, params, verbose, showStats);
-  return spde.compute(dbout, nbMC, seed, namconv);
+  return spde.compute(dbout, nbMC, namconv);
 }
 
 /**
@@ -791,7 +777,6 @@ int krigingSPDE(Db *dbin,
  * @param mesh Mesh description (optional)
  * @param useCholesky Define the choice regarding Cholesky
  * @param params Set of parametes
- * @param seed Seed used for the Random Number generator
  * @param verbose Verbose flag
  * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
@@ -810,7 +795,6 @@ int simulateSPDE(Db *dbin,
                  const AMesh *mesh,
                  int useCholesky,
                  const SPDEParam& params,
-                 int seed,
                  bool verbose,
                  bool showStats,
                  const NamingConvention &namconv)
@@ -819,7 +803,7 @@ int simulateSPDE(Db *dbin,
       ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose,
             showStats);
-  return spde.compute(dbout, nbsimu, seed, namconv);
+  return spde.compute(dbout, nbsimu, namconv);
 }
 
 double logLikelihoodSPDE(Db *dbin,
@@ -828,13 +812,12 @@ double logLikelihoodSPDE(Db *dbin,
                          const AMesh *mesh,
                          int useCholesky,
                          int nbsimu,
-                         int seed,
                          const SPDEParam& params,
                          bool verbose)
 {
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
             params, verbose, false);
-  return spde.computeLogLikelihood(nbsimu, seed);
+  return spde.computeLogLikelihood(nbsimu);
 }
 
 static int _loadPositions(int iech,
@@ -952,12 +935,9 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
     minNug[ivar] = eps * model->getTotalSill(ivar, ivar);
 
   // Play the non-stationarity (if needed)
-  const ANoStatCov *nostat = cova->getNoStat(); 
-  bool flag_nostat_sill = (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL));
+  bool flag_nostat_sill = cova->isNoStatForVariance();
   if (flag_nostat_sill)
-  {
-    if (nostat->manageInfo(1, db, nullptr) != 0) return mat;
-  }
+    cova->informDbInForSills(db);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
@@ -1081,7 +1061,6 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   mat = MatrixSparse::createFromTriplet(NF_T);
 
   // Free the non-stationary specific allocation
-  cova->manage(db,nullptr,-1);
   if (!hasnugget)
     delete cova;
   return mat;
@@ -1119,6 +1098,7 @@ VectorDouble krigingSPDENew(Db* dbin,
  DECLARE_UNUSED(namconv);
  if (dbin == nullptr) return 1;
  if (dbout == nullptr) return 1;
+ if (model == nullptr) return 1;
  auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
  auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,meshes);
  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,meshes);

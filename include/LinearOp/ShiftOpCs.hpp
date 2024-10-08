@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
 #include "Enum/EPowerPT.hpp"
 
 #include "Mesh/AMesh.hpp"
@@ -20,7 +18,6 @@
 
 #include "Matrix/MatrixSparse.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 #include <map>
 #include <memory>
 
@@ -31,7 +28,6 @@
 #endif
 
 class CovAniso;
-class NoStatArrayCov;
 class EConsElem;
 class AMatrix;
 class AMatrixSquare;
@@ -66,8 +62,9 @@ class GSTLEARN_EXPORT ShiftOpCs:
     ShiftOpCs& operator=(const ShiftOpCs& shift);
     virtual ~ShiftOpCs();
     void normalizeLambdaBySills(const AMesh*);
-    int _addToDest(const Eigen::VectorXd& inv,
-                   Eigen::VectorXd& outv) const override;
+#ifndef SWIG
+    int _addToDest(const constvect inv, vect outv) const override;
+#endif
 
     static ShiftOpCs* create(const AMesh* amesh, const CovAniso* cova,
                              const Db* dbout = nullptr, 
@@ -102,13 +99,11 @@ class GSTLEARN_EXPORT ShiftOpCs:
     void prodLambda(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
   #ifndef SWIG
-    void prodLambda(const Eigen::VectorXd& x, Eigen::VectorXd& y,
-                    const EPowerPT& power) const;
-    void prodLambda(const VectorDouble& x, Eigen::VectorXd& y,
-                    const EPowerPT& power) const;
-    void prodLambda(const Eigen::VectorXd& x, VectorDouble& y,
-                    const EPowerPT& power) const;
-  #endif
+    void prodLambda(const constvect x, vect y, const EPowerPT& power) const;
+    void prodLambda(const VectorDouble& x, vect y, const EPowerPT& power) const;
+    void
+    prodLambda(const constvect x, VectorDouble& y, const EPowerPT& power) const;
+#endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
     double getMaxEigenValue() const;
@@ -187,7 +182,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
                                VectorVectorDouble& coords,
                                AMatrixSquare& matMs,
                                double* deter) const;
-    void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
+    static void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
     VectorT<std::map<int, double>> _mapCreate() const;
     VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
     VectorT<std::map<int, double>> _mapTildeCCreate() const;

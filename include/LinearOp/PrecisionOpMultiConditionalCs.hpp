@@ -11,13 +11,9 @@
 #pragma once
 
 #include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
-
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include <vector>
 
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class PrecisionOp;
 class IProjMatrix;
@@ -36,11 +32,11 @@ public:
   /// Interface to PrecisionOpMultiConditional
   void makeReady() override;
   int push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
-  double computeLogDetOp(int nbsimu = 1, int seed = 123) const override;
+  double computeLogDetOp(int nbsimu = 1) const override;
 
   /// Interface to ALinearOp
-  void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
-                   std::vector<Eigen::VectorXd> &vecout) const override;
+  void evalInverse(const std::vector<std::vector<double>> &vecin,
+                   std::vector<std::vector<double>> &vecout) const override;
 
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
 private :

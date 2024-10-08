@@ -1,4 +1,6 @@
 %feature(director) IProjMatrix;
+%feature(director) AFunctional;
+
 //%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
 
@@ -46,6 +48,7 @@
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
   #include "Basic/VectorHelper.hpp"
+  #include "Basic/AFunctional.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"
@@ -183,10 +186,12 @@
   #include "Model/CovParamId.hpp"
   
   #include "Covariances/ParamId.hpp"
+  #include "Covariances/TabNoStat.hpp"
+  #include "Covariances/TabNoStatCovAniso.hpp"
+  #include "Covariances/ANoStat.hpp"
+  #include "Covariances/NoStatArray.hpp"
+  #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
-  #include "Covariances/ANoStatCov.hpp"
-  #include "Covariances/NoStatArrayCov.hpp"
-  #include "Covariances/NoStatFunctionalCov.hpp"
   #include "Covariances/ACovFunc.hpp"
   #include "Covariances/ACovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
@@ -250,7 +255,6 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
-  #include "Matrix/VectorEigen.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
@@ -385,7 +389,6 @@
 %template(VectorSpacePoint)        std::vector< SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< ProjMatrix* >;
-%template(VectorVectorEigen)       std::vector< VectorEigen >;
 %template(VectorConstProjMatrix)   std::vector< const ProjMatrix*>;
 %template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
@@ -409,6 +412,21 @@
   try
   {
     int errcode = convertToCpp($input, $1);
+    if (!SWIG_IsOK(errcode))
+      %argument_fail(errcode, "$type", $symname, $argnum);
+  }
+  catch(...)
+  {
+    messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
+  }
+}
+%typemap(in, fragment="ToCpp") std::string_view
+{
+  try
+  {
+    static String tmp;
+    int errcode = convertToCpp($input, tmp);
+    $1 = tmp;
     if (!SWIG_IsOK(errcode))
       %argument_fail(errcode, "$type", $symname, $argnum);
   }
@@ -666,10 +684,17 @@
 {
   $result = objectFromCpp($1);
 }
+%typemap(out, fragment="FromCpp") std::string_view
+{
+  String tmp{$1};
+  $result = objectFromCpp(tmp);
+}
 
 %typemap(out, fragment="FromCpp") int*,    const int*,    int&,    const int&,
                                   double*, const double*, double&, const double&,
                                   String*, const String*, String&, const String&,
+                                  std::string_view*, const std::string_view*,
+                                  std::string_view&, const std::string_view&,
                                   float*,  const float*,  float&,  const float&,
                                   UChar*,  const UChar*,  UChar&,  const UChar&,
                                   bool*,   const bool*,   bool&,   const bool&

@@ -10,17 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
 #include "geoslib_define.h"
 
 #include <functional>
 
-#ifndef SWIG
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#endif
 
 class AFunction;
 class ALinearOpMulti;
@@ -37,8 +33,8 @@ public:
 
   /// Interface for Apolynomial
 #ifndef SWIG
-  void evalOp(MatrixSparse* S,const Eigen::VectorXd& x, Eigen::VectorXd& y) const override;
-  void addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  void evalOp(MatrixSparse* S, const constvect x, vect y) const override;
+  void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
 
   /* void evalOp(const ALinearOpMulti *Op,
               const std::vector<Eigen::VectorXd> &inv,

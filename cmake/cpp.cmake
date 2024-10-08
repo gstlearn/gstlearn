@@ -11,8 +11,8 @@ if(NOT IS_MULTI_CONFIG)
   message(STATUS "BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
 endif()
 
-# Add c++11 support whatever the compiler
-set(CMAKE_CXX_STANDARD 11)
+# Add c++20 support whatever the compiler
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Warning fiesta!
@@ -37,6 +37,9 @@ else()
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
   endif()
 endif()
+
+#add_compile_options(-fsanitize=address -O0 -ggdb)
+#add_link_options(-fsanitize=address)
 
 # C++ header location (keep the trailing '/')
 set(INCLUDES 

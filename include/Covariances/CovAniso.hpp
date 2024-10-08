@@ -10,8 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/ANoStatCov.hpp"
+#include "Basic/AFunctional.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Covariances/TabNoStatCovAniso.hpp"
+#include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ECov.hpp"
@@ -24,12 +28,11 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
-#include <memory>
+#include <array>
 
 class Rotation;
 class MatrixSquareGeneral;
 class MatrixRectangular;
-class ANoStatCov;
 class CovInternal;
 /**
  * \brief
@@ -204,8 +207,6 @@ public:
   const CovContext& getContext() const { return _ctxt; }
   const ECov& getType() const { return _cova->getType(); }
   double getParam() const;
-  const ANoStatCov* getNoStat() const  {return _noStat.get();}
-  ANoStatCov* getNoStatModify()  {return _noStat.get();}
   double getScadef() const { return _cova->getScadef(); }
   double getParMax() const { return _cova->getParMax(); }
   int    getMaxNDim() const { return _cova->getMaxNDim(); }
@@ -228,9 +229,44 @@ public:
   bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
-  void   delNoStat();
-  int    addNoStat(ANoStatCov *anostat);
+  //////////////////////// New NoStat methods //////////////////////////
+  void   attachNoStatDb(const Db* db);
+ 
+  void   makeRangeNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
+  void   makeScaleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
+  void   makeAngleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
+  void   makeSillNoStatDb(  const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
+  void   makeTensorNoStatDb(const String &namecol, int idim = 0, int jdim = 0,const Db* db = nullptr);
+  void   makeParamNoStatDb( const String &namecol,                            const Db* db = nullptr);
+  
+  void   makeRangeNoStatFunctional( const AFunctional *func, int idim = 0);
+  void   makeScaleNoStatFunctional( const AFunctional *func, int idim = 0);
+  void   makeAngleNoStatFunctional( const AFunctional *func, int idim = 0);
+  void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
+  void   makeTensorNoStatFunctional(const AFunctional *func, int idim = 0, int jdim = 0);
+  void   makeParamNoStatFunctional( const AFunctional *func);
+  
 
+  void   makeRangeStationary(int idim = 0);
+  void   makeScaleStationary(int idim = 0);
+  void   makeAngleStationary(int idim = 0);
+  void   makeSillStationary( int ivar = 0, int jvar = 0);
+  void   makeTensorStationary(int idim, int jdim);
+  void   makeParamStationary();
+
+
+  void   makeStationary();
+  int getNAngles() const {return _tabNoStat.getNAngles();}
+  int getNRanges() const {return _tabNoStat.getNRanges();}
+  int getNScales() const {return _tabNoStat.getNScales();}
+  int getNSills()  const {return _tabNoStat.getNSills();}
+  bool isNoStatForParam()   const {return _tabNoStat.isParam();}
+  bool isNoStatForTensor()  const {return _tabNoStat.isDefinedForTensor();}
+  bool isNoStatForAnisotropy() const { return _tabNoStat.isDefinedForAnisotropy();}
+  bool isNoStatForVariance()   const { return _tabNoStat.isDefinedForVariance();}
+  bool isNoStatForRotation()   const { return _tabNoStat.isDefinedForRotation();}
+
+  
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
                                   int degree = 50,
                                   bool flagScaleDistance = false,
@@ -247,11 +283,27 @@ public:
   void nostatUpdate(CovInternal *covint);
 
   CovAniso* createReduce(const VectorInt &validVars) const;
-  bool isNoStat() const override { return _noStat != nullptr; }
+  bool isNoStat() const  override{ return _tabNoStat.isNoStat(); };
+  void informMeshByMesh(const AMesh* amesh) const;
+  void informMeshByApex(const AMesh* amesh) const;
+  VectorDouble informCoords(const VectorVectorDouble& coords, 
+                            const EConsElem& econs,
+                            int iv1 = 0, int iv2 = 0) const;
+  void informDbIn(const Db* dbin) const;
+  void informDbOut(const Db* dbout) const;
+  void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
+  void informMeshByApexForAnisotropy(const AMesh* amesh) const;
+  void informDbInForAnisotropy(const Db* dbin) const;
+  void informDbOutForAnisotropy(const Db* dbout) const;
+  void informMeshByMeshForSills(const AMesh* amesh) const;
+  void informMeshByApexForSills(const AMesh* amesh) const;
+  void informDbInForSills(const Db* dbin) const;
+  void informDbOutForSills(const Db* dbout) const;
+
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh) ;
-  
+  void updateCovByMesh(int imesh,bool aniso = true);
+  double getValue(const EConsElem &econs,int iv1,int iv2) const;
 
 protected:
   /// Update internal parameters consistency with the context
@@ -259,7 +311,20 @@ protected:
   virtual void _initFromContext();
 
 private:
-  void _manage(Db* db1,Db* db2,int mode) const override;
+ void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
+                      const AFunctional* func = nullptr, 
+                      const Db* db = nullptr,const String& namecol = String());
+
+  void _manage(const Db* db1,const Db* db2) const override;
+
+  bool _checkSill(int ivar = 0, int jvar = 0) const;
+  bool _checkDims(int idim, int jdim) const;
+  bool _checkTensor() const;
+  bool _checkRotation() const;
+  bool _checkParam() const;
+
+  void _setNoStatDbIfNecessary(const Db*& db);
+  bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
@@ -269,12 +334,18 @@ private:
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc *_cova;                     /// Covariance basic function
-  mutable MatrixSquareSymmetric _sill;         /// Sill matrix (nvar x nvar)
+  mutable MatrixSquareSymmetric _sill;                                /// Sill matrix (nvar x nvar)
   mutable Tensor _aniso;                       /// Anisotropy parameters
-  mutable std::shared_ptr<ANoStatCov> _noStat; /// Description of Non-stationary Model
+  TabNoStatCovAniso _tabNoStat;
   mutable double _noStatFactor;                /// Correcting factor for non-stationarity
+  const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
+                                              EConsElem::SCALE,
+                                              EConsElem::TENSOR,
+                                              EConsElem::ANGLE};
 };
+
 
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);
 GSTLEARN_EXPORT double range2scale(const ECov& type, double range, double param = 1.);
 
+  

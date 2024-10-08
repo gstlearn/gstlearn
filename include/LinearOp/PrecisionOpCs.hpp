@@ -11,12 +11,8 @@
 #pragma once
 
 #include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 
 class AMesh;
 class Cholesky;
@@ -41,21 +37,32 @@ public:
 
   // Interface for PrecisionOp class
   #ifndef SWIG
-  void evalInverse(const Eigen::VectorXd& vecin, Eigen::VectorXd& vecout) override;
-  int _addSimulateToDest(const Eigen::VectorXd &whitenoise, Eigen::VectorXd& outv) const override;
-  int _addToDest(const Eigen::VectorXd &inv, Eigen::VectorXd& outv) const override;
+  void evalInverse(const constvect vecin, std::vector<double>& vecout) override;
+  int _addSimulateToDest(const constvect whitenoise, vect outv) const override;
+  int _addToDest(const constvect inv, vect outv) const override;
   #endif
 
-  double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
+  double getLogDeterminant(int nbsimu = 1) override;
   
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   #ifndef SWIG
-  void evalDeriv(const Eigen::VectorXd& inv, Eigen::VectorXd& outv,int iapex,int igparam,const EPowerPT& power) override;
-  void evalDerivOptim(Eigen::VectorXd& outv,int iapex,int igparam, const EPowerPT& power) override;
-  void gradYQX(const Eigen::VectorXd & X, 
-               const Eigen::VectorXd &Y,
-               Eigen::VectorXd& result, const EPowerPT& power) override;
-  void gradYQXOptim(const Eigen::VectorXd & X, const Eigen::VectorXd &Y,Eigen::VectorXd& result, const EPowerPT& power) override;
+  void evalDeriv(const constvect inv,
+                 vect outv,
+                 int iapex,
+                 int igparam,
+                 const EPowerPT& power) override;
+  void evalDerivOptim(vect outv,
+                      int iapex,
+                      int igparam,
+                      const EPowerPT& power) override;
+  void gradYQX(const constvect X,
+               const constvect Y,
+               vect result,
+               const EPowerPT& power) override;
+  void gradYQXOptim(const constvect X,
+                    const constvect Y,
+                    vect result,
+                    const EPowerPT& power) override;
   #endif
   const MatrixSparse* getQ() const { return _Q; }
 

@@ -207,7 +207,7 @@ void argumentTestStringOverload(const VectorString& values)
 
 void argumentTestEnum(const ETests& value)
 {
-  message("Case : Value = %d - Descr = %s\n", value.getValue(),value.getDescr().c_str());
+  message("Case : Value = %d - Descr = %s\n", value.getValue(),value.getDescr().data());
 }
 
 int argumentReturnInt(int value)

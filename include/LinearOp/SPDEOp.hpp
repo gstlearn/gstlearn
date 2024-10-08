@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
@@ -49,29 +49,35 @@ public:
   void setTolerance(double tol) {_solver.setTolerance(tol);}
   int  getIterations() const { return _solver.getIterations();}
   double getError() const { return  _solver.getError();}
+  VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
+                                  const MatrixRectangular& drifts) const;
 #ifndef SWIG
 public:
-  int kriging(const Eigen::VectorXd& inv,
-                    Eigen::VectorXd& out) const;
-  int krigingWithGuess(const Eigen::VectorXd& inv,
-                       const Eigen::VectorXd& guess,
-                             Eigen::VectorXd& out) const;
+  int kriging(const constvect inv, vect out) const;
+  int krigingWithGuess(const constvect inv,
+                       const constvect guess,
+                       vect out) const;
+  void evalInvCov(const constvect inv, vect result) const;
+
 protected:
-  int _addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
-  int _addSimulateToDest(const Eigen::VectorXd& whitenoise, Eigen::VectorXd& outv) const override;
+  int _addToDest(const constvect inv, vect outv) const override;
+  int _addSimulateToDest(const constvect whitenoise, vect outv) const override;
 
 private: 
-  virtual int _solve(const Eigen::VectorXd& in,Eigen::VectorXd& out) const;
-  int _solveWithGuess(const Eigen::VectorXd& in,const Eigen::VectorXd &guess,Eigen::VectorXd& out) const;
+  int _getNDat() const {return _ndat;}
+  virtual int _solve(const constvect in, vect out) const;
+  int _solveWithGuess(const constvect in,
+                      const constvect guess,
+                      vect out) const;
 
-  int _buildRhs(const Eigen::VectorXd& inv) const;
+  int _buildRhs(const constvect inv) const;
 #endif
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
 #ifndef SWIG
 private:
-  virtual int _addToDestImpl(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
+  virtual int _addToDestImpl(const constvect inv, vect outv) const;
 #endif
 
 protected:
@@ -81,9 +87,11 @@ protected:
 
 private:
   bool    _noiseToDelete;
-  mutable Eigen::VectorXd _workdat1; 
-  mutable Eigen::VectorXd _workdat2;
-  mutable Eigen::VectorXd _rhs;
+  int     _ndat;
+  mutable VectorDouble _workdat1; 
+  mutable VectorDouble _workdat2;
+  mutable VectorDouble _rhs;
+  mutable VectorDouble _workmesh;
   mutable LinearOpCGSolver<SPDEOp> _solver;
 
 };

@@ -20,7 +20,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
-
 #include <math.h>
 
 OptimCostBinary::OptimCostBinary()

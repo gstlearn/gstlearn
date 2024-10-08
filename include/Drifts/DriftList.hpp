@@ -52,6 +52,7 @@ public:
 
   int getNVariables() const { return _ctxt.getNVar(); }
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
+  bool hasDrift() const { return !_drifts.empty(); }
 
   // Add one elementary drift structure
   void addDrift(const ADrift* drift);
