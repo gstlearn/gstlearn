@@ -35,8 +35,8 @@ jobs:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         # Only last version of R for Linux (fake source package)
         r_version: [4.4.1]
-        # Only one old Linux
-        os: [ubuntu-20.04]
+        # Only one "old" Linux
+        os: [ubuntu-22.04]
 
     steps:
     - uses: actions/checkout@v4
