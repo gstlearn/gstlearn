@@ -105,6 +105,7 @@
   #include "Boolean/ModelBoolean.hpp"
   
   #include "Space/ASpace.hpp"
+  #include "Space/SpaceComposite.hpp"
   #include "Space/ASpaceObject.hpp"
   #include "Space/SpacePoint.hpp"
   #include "Space/SpaceTarget.hpp"

@@ -16,34 +16,27 @@
 #include "Basic/VectorNumT.hpp"
 #include "Space/ASpaceObject.hpp"
 
-//#include "Basic/VectorT.hpp"
-
 class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 {
 public:
   SpacePoint(const ASpace* space = nullptr);
   SpacePoint(const SpacePoint& r);
-  SpacePoint(const VectorDouble& coord,int iech = -1,
+  SpacePoint(const VectorDouble& coord, int iech = -1,
              const ASpace* space = nullptr);
-  private:
-  #ifndef SWIG
-  SpacePoint(vect coord, const ASpace* space, int iech);
-  #endif
-  public:
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 
   SpacePoint spacePointOnSubspace(int ispace = -1) const;
 
+  /// TODO : should aslo test the space definition
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   constvect getCoords() const;
   
-  vect getCoordRef() { return vect(_coord,getNDim()); }
+  vect getCoordRef() { return vect(_coord.data(), getNDim()); }
   double getCoord(int idim) const; 
   void setCoord(double coord);
   void setCoord(int i, double val) { _coord[i] = val; }
-  void setCoords(vect coords);
   void setCoords(const VectorDouble& coord);
   void setCoords(const double* coord, int size);
   void setIech(int iech) const { _iech = iech; }
@@ -56,13 +49,11 @@ public:
   /// Move me by the given vector
   void move(const VectorDouble& vec);
   /// Return the distance between me and another point
-  double getDistance(const SpacePoint& pt, int ispace = 0) const;
+  double getDistance(const SpacePoint& pt, int ispace = -1) const;
   /// Return all the distance (space composits) between me and another point
   VectorDouble getDistances(const SpacePoint& pt) const;
-  /// Return the distance along one direction between me and another point
-  double getDistance1D(const SpacePoint &pt, int idim = 0) const;
   /// Return the increment vector between me and another point
-  VectorDouble getIncrement(const SpacePoint& pt, int ispace = 0) const;
+  VectorDouble getIncrement(const SpacePoint& pt, int ispace = -1) const;
   /// Fill with TEST values to simulate a missing Space Point
   void setFFFF();
   /// Check if the SpacePoint is actually defined
@@ -82,8 +73,7 @@ public:
 
 protected:
   /// Points coordinates (whatever the space context)
-  double* _coord;
-  bool _deleteCoord;
+  VectorDouble _coord;
   mutable int _iech;
   mutable bool _target;
 };

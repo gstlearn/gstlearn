@@ -15,8 +15,8 @@
 
 #include <math.h>
 
-SpaceRN::SpaceRN(unsigned int ndim, bool addtime)
-    : ASpace(ndim, addtime)
+SpaceRN::SpaceRN(unsigned int ndim)
+  : ASpace(ndim)
 {
 }
 
@@ -38,14 +38,11 @@ SpaceRN::~SpaceRN()
 {
 }
 
-SpaceRN* SpaceRN::create(unsigned int ndim, bool addtime)
-{
-  return new SpaceRN(ndim, addtime);
-}
-
 void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const
 {
-  for (unsigned int i = _iDimOffset; i < _nDim + _iDimOffset; i++)
+  unsigned int offset = getOffset();
+  unsigned int ndim = getNDim();
+  for (unsigned int i = offset; i < ndim + offset; i++)
   {
     p1.setCoord(i, p1.getCoord(i) + vec[i]);
   }
@@ -61,11 +58,16 @@ void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const
  \note The code has been optimized in order to avoid using '_work1' for storing
  \note temporary results
  */
-double SpaceRN::_getDistance(const SpacePoint &p1, const SpacePoint &p2) const
+double SpaceRN::_getDistance(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             int ispace) const
 {
+  DECLARE_UNUSED(ispace);
   double dist = 0.;
   double delta = 0.;
-  for (unsigned int i = _iDimOffset; i < _nDim + _iDimOffset; i++)
+  unsigned int offset = getOffset();
+  unsigned int ndim   = getNDim();
+  for (unsigned int i = offset; i < ndim + offset; i++)
   {
     delta = p2.getCoord(i) - p1.getCoord(i);
     dist += delta * delta;
@@ -73,10 +75,12 @@ double SpaceRN::_getDistance(const SpacePoint &p1, const SpacePoint &p2) const
   return sqrt(dist);
 }
 
-double SpaceRN::_getDistance(const SpacePoint &p1,
-                             const SpacePoint &p2,
-                             const Tensor &tensor) const
+double SpaceRN::_getDistance(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             const Tensor& tensor,
+                             int ispace) const
 {
+  DECLARE_UNUSED(ispace);
   _getIncrementInPlace(p1, p2, _work1);
 
   if (!tensor.isFlagDefinedByInverse2())
@@ -88,32 +92,35 @@ double SpaceRN::_getDistance(const SpacePoint &p1,
   return sqrt(VH::innerProduct(_work1, _work2));
 }
 
-double SpaceRN::_getDistance1D(double c1, double c2) const
+double SpaceRN::_getFrequentialDistance(const SpacePoint& p1,
+                                        const SpacePoint& p2,
+                                        const Tensor& tensor,
+                                        int ispace) const
 {
-  return c2 - c1;
-}
-
-double SpaceRN::_getFrequentialDistance(const SpacePoint &p1,
-                                        const SpacePoint &p2,
-                                        const Tensor &tensor) const
-{
+  DECLARE_UNUSED(ispace);
   _getIncrementInPlace(p1, p2, _work1);
   tensor.applyDirectSwapInPlace(_work1, _work2);
   return VH::norm(_work2);
 }
 
-VectorDouble SpaceRN::_getIncrement(const SpacePoint &p1,
-                                    const SpacePoint &p2) const
+VectorDouble SpaceRN::_getIncrement(const SpacePoint& p1,
+                                    const SpacePoint& p2,
+                                    int ispace) const
 {
+  DECLARE_UNUSED(ispace);
   _getIncrementInPlace(p1, p2, _work1);
   return _work1;
 }
 
-void SpaceRN::_getIncrementInPlace(const SpacePoint &p1,
-                                   const SpacePoint &p2,
-                                   VectorDouble &ptemp) const
+void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
+                                   const SpacePoint& p2,
+                                   VectorDouble& ptemp,
+                                   int ispace) const
 {
+  DECLARE_UNUSED(ispace);
   int j = 0;
-  for (unsigned int i = _iDimOffset; i < _nDim + _iDimOffset; i++)
+  unsigned int offset = getOffset();
+  unsigned int ndim   = getNDim();
+  for (unsigned int i = offset; i < ndim + offset; i++)
     ptemp[j++] = p2.getCoord(i) - p1.getCoord(i);
 }

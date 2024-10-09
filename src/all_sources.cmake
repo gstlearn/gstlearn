@@ -193,6 +193,7 @@ set(SRC
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
+  Space/SpaceComposite.cpp
   Spatial/Projection.cpp
   Spatial/SpatialIndices.cpp
   Variogram/AVario.cpp

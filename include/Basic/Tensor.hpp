@@ -16,7 +16,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
-class GSTLEARN_EXPORT Tensor : public AStringable/// TODO : public ASpaceObject
+class GSTLEARN_EXPORT Tensor : public AStringable /// TODO : public ASpaceObject
 {
 public:
   Tensor(unsigned int ndim = 2);
