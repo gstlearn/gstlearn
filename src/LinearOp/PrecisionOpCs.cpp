@@ -8,35 +8,31 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorNumT.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "geoslib_define.h"
 
+#include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
-#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/AException.hpp"
-
+#include "Basic/VectorNumT.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
                              bool verbose)
-    : PrecisionOp(shiftop, cova,verbose),
-      _Q(nullptr),
-      _chol(nullptr)
+  : PrecisionOp(shiftop, cova, verbose)
+  , _Q(nullptr)
+  , _chol(nullptr)
 {
   _buildQ();
 }
 
-PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
-                             CovAniso *cova,
-                             bool verbose)
-    : PrecisionOp(mesh, cova, verbose),
-      _Q(nullptr),
-      _chol(nullptr)
+PrecisionOpCs::PrecisionOpCs(const AMesh* mesh, CovAniso* cova, bool verbose)
+  : PrecisionOp(mesh, cova, verbose)
+  , _Q(nullptr)
+  , _chol(nullptr)
 {
   _buildQ();
 }
@@ -59,31 +55,32 @@ void PrecisionOpCs::gradYQX(const constvect X,
   vect w2s(_work2);
   vect w3s(_work3);
   vect w4s(_work4);
-  evalPower(X,w3s, power);
-  evalPower(Y,w4s, power);
-  double temp,val;
+  evalPower(X, w3s, power);
+  evalPower(Y, w4s, power);
+  double temp, val;
   int iadress;
 
-  for(int igparam = 0;igparam<getShiftOp()->getNCovAnisoGradParam();igparam++)
+  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam();
+       igparam++)
   {
-    for(int iapex=0;iapex<getSize();iapex++)
+    for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress = getShiftOp()->getSGradAddress(iapex,igparam);
-      if(igparam < getShiftOp()->getLambdaGradSize()) // range parameters
+      iadress = getShiftOp()->getSGradAddress(iapex, igparam);
+      if (igparam < getShiftOp()->getLambdaGradSize()) // range parameters
       {
-        val = getShiftOp()->getLambda(iapex);
-        temp = getShiftOp()->getLambdaGrad(igparam,iapex);
-        result[iadress]= (X[iapex] * _work4[iapex] + Y[iapex] * _work3[iapex]) * temp / val;
-
+        val  = getShiftOp()->getLambda(iapex);
+        temp = getShiftOp()->getLambdaGrad(igparam, iapex);
+        result[iadress] =
+          (X[iapex] * _work4[iapex] + Y[iapex] * _work3[iapex]) * temp / val;
       }
       else
       {
         result[iadress] = 0.;
       }
-      evalDeriv(X,w2s,iapex,igparam, power);
-      for(int i = 0;i<getSize();i++)
+      evalDeriv(X, w2s, iapex, igparam, power);
+      for (int i = 0; i < getSize(); i++)
       {
-        result[iadress] += _work2[i]*Y[i];
+        result[iadress] += _work2[i] * Y[i];
       }
     }
   }
@@ -102,24 +99,26 @@ void PrecisionOpCs::gradYQXOptim(const constvect X,
   vect w3s(_work3);
   vect w4s(_work4);
   setTraining(false);
-  evalPower(Y,w3s, power);
+  evalPower(Y, w3s, power);
   setTraining(true);
-  evalPower(X,w4s, power);
+  evalPower(X, w4s, power);
 
-  double temp,val;
+  double temp, val;
   int iadress;
 
-  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam(); igparam++)
+  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam();
+       igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress = getShiftOp()->getSGradAddress(iapex, igparam);
+      iadress         = getShiftOp()->getSGradAddress(iapex, igparam);
       result[iadress] = 0.;
       if (igparam < getShiftOp()->getLambdaGradSize())
       {
-        val = getShiftOp()->getLambda(iapex);
+        val  = getShiftOp()->getLambda(iapex);
         temp = getShiftOp()->getLambdaGrad(igparam, iapex);
-        result[iadress] = (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
+        result[iadress] =
+          (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
       }
 
       evalDerivOptim(w2s, iapex, igparam, power);
@@ -139,23 +138,23 @@ int PrecisionOpCs::_addToDest(const constvect inv, vect outv) const
 int PrecisionOpCs::_addSimulateToDest(const constvect whitenoise,
                                       vect outv) const
 {
-  if (_chol == nullptr)
-    _chol = new Cholesky(_Q);
-  _chol->addSimulateToDest(whitenoise,outv);
+  if (_chol == nullptr) _chol = new CholeskySparse(_Q);
+  _chol->addSimulateToDest(whitenoise, outv);
   return 0;
 }
 
 void PrecisionOpCs::evalInverse(const constvect vecin,
                                 std::vector<double>& vecout)
 {
-  _Q->solveCholesky(vecin, vecout);
+  if (_chol == nullptr) _chol = new CholeskySparse(_Q);
+  _chol->solve(vecin, vecout);
 }
 
 double PrecisionOpCs::getLogDeterminant(int nbsimu)
 {
   DECLARE_UNUSED(nbsimu);
-
-  return _Q->computeCholeskyLogDeterminant();
+  if (_chol == nullptr) _chol = new CholeskySparse(_Q);
+  return _chol->computeLogDeterminant();
 }
 
 void PrecisionOpCs::evalDeriv(
@@ -230,16 +229,14 @@ void PrecisionOpCs::evalDerivOptim(vect outv,
 void PrecisionOpCs::_buildQ()
 {
   delete _Q;
-  if (! isCovaDefined()) return;
+  if (!isCovaDefined()) return;
 
   // Calculate the Vector of coefficients (blin)
   //VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
-  
-  _Q = _build_Q();
-  
 
+  _Q = _build_Q();
 }
 
 /****************************************************************************/
@@ -278,7 +275,7 @@ MatrixSparse* PrecisionOpCs::_build_Q()
 
   /* First step */
 
-  MatrixSparse* Q = MatrixSparse::diagConstant(nvertex,  blin[0]);
+  MatrixSparse* Q  = MatrixSparse::diagConstant(nvertex, blin[0]);
   MatrixSparse* Bi = S->clone();
 
   /* Loop on the different terms */
@@ -286,8 +283,7 @@ MatrixSparse* PrecisionOpCs::_build_Q()
   for (int iterm = 1; iterm < nblin; iterm++)
   {
     Q->addMatInPlace(*Bi, 1., blin[iterm]);
-    if (iterm < nblin - 1)
-      Bi->prodMatInPlace(S);
+    if (iterm < nblin - 1) Bi->prodMatInPlace(S);
   }
   delete Bi;
 

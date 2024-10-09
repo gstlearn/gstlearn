@@ -13,12 +13,12 @@
 #include "gstlearn_export.hpp"
 
 #include "Gibbs/GibbsMulti.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "Basic/HDF5format.hpp"
 
 class MatrixSparse;
 class Db;
 class Model;
-class cs; // TODO to be removed
 
 class GSTLEARN_EXPORT GibbsMMulti: public GibbsMulti
 {
@@ -56,9 +56,10 @@ private:
   void _updateStatWeights(int* nzero);
 
 private:
-  MatrixSparse* _Cmat;
-  double        _eps;
-  bool          _flagStoreInternal;
+  MatrixSparse*   _Cmat;
+  CholeskySparse* _CmatChol;
+  double          _eps;
+  bool            _flagStoreInternal;
 
   VectorVectorDouble _areas;
   HDF5format         _hdf5;

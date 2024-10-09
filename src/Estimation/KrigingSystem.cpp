@@ -47,97 +47,98 @@ KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const Model* model,
                              ANeigh* neigh)
-    : _dbin(dbin),
-      _dbout(dbout),
-      _modelInit(nullptr),
-      _neigh(neigh),
-      _anam(nullptr),
-      _isReady(false),
-      _model(nullptr),
-      _iptrEst(-1),
-      _iptrStd(-1),
-      _iptrVarZ(-1),
-      _flagEst(false),
-      _flagStd(false),
-      _flagVarZ(false),
-      _flagGlobal(false),
-      _flagDataChanged(false),
-      _calcul(EKrigOpt::POINT),
-      _iptrWeights(-1),
-      _flagWeights(false),
-      _flagSet(true),
-      _flagSimu(false),
-      _nbsimu(0),
-      _rankPGS(-1),
-      _flagCode(false),
-      _flagPerCell(false),
-      _ndiscNumber(0),
-      _ndiscs(),
-      _disc1(),
-      _disc2(),
-      _xvalidEstim(true),
-      _xvalidStdev(true),
-      _xvalidVarZ(false),
-      _rankColCok(),
-      _flagBayes(false),
-      _seedForBayes(123456),
-      _priorMean(),
-      _priorCov(),
-      _postMean(),
-      _postCov(),
-      _postSimu(),
-      _varCorrec(),
-      _modelSimple(nullptr),
-      _flagDGM(false),
-      _flagFactorKriging(false),
-      _nclasses(0),
-      _matLC(nullptr),
-      _flagLTerm(false),
-      _lterm(0.),
-      _flagAnam(false),
-      _seedForImage(14351),
-      _dbaux(),
-      _flagKeypairWeights(false),
-      _flagNeighOnly(false),
-      _iptrNeigh(-1),
-      _iechOut(-1),
-      _ndim(0),
-      _nvar(0),
-      _nvarCL(0),
-      _nech(0),
-      _nbfl(0),
-      _nfeq(0),
-      _nfex(0),
-      _neq(0),
-      _nred(0),
-      _flagIsotopic(true),
-      _nbgh(),
-      _flag(),
-      _covtab(),
-      _drftab(),
-      _lhsf(),
-      _lhsc(),
-      _lhs(nullptr),
-      _lhsinv(),
-      _rhsf(),
-      _rhsc(),
-      _rhs(nullptr),
-      _wgt(),
-      _zam(),
-      _zext(),
-      _var0(),
-      _results(),
-      _dbinUidToBeDeleted(),
-      _dboutUidToBeDeleted(),
-      _space(2), // empty constructor does not exist. Anyhow it will be overwritten next.
-      _p0(),
-      _p1(),
-      _p2(),
-      _p0_memo(),
-      _flagNoMatLC(true),
-      _flagVerr(false),
-      _flagNoStat(false),
-      _cova(nullptr)
+  : _dbin(dbin)
+  , _dbout(dbout)
+  , _modelInit(nullptr)
+  , _neigh(neigh)
+  , _anam(nullptr)
+  , _isReady(false)
+  , _model(nullptr)
+  , _iptrEst(-1)
+  , _iptrStd(-1)
+  , _iptrVarZ(-1)
+  , _flagEst(false)
+  , _flagStd(false)
+  , _flagVarZ(false)
+  , _flagGlobal(false)
+  , _flagDataChanged(false)
+  , _calcul(EKrigOpt::POINT)
+  , _iptrWeights(-1)
+  , _flagWeights(false)
+  , _flagSet(true)
+  , _flagSimu(false)
+  , _nbsimu(0)
+  , _rankPGS(-1)
+  , _flagCode(false)
+  , _flagPerCell(false)
+  , _ndiscNumber(0)
+  , _ndiscs()
+  , _disc1()
+  , _disc2()
+  , _xvalidEstim(true)
+  , _xvalidStdev(true)
+  , _xvalidVarZ(false)
+  , _rankColCok()
+  , _flagBayes(false)
+  , _seedForBayes(123456)
+  , _priorMean()
+  , _priorCov()
+  , _postMean()
+  , _postCov()
+  , _postSimu()
+  , _varCorrec()
+  , _modelSimple(nullptr)
+  , _flagDGM(false)
+  , _flagFactorKriging(false)
+  , _nclasses(0)
+  , _matLC(nullptr)
+  , _flagLTerm(false)
+  , _lterm(0.)
+  , _flagAnam(false)
+  , _seedForImage(14351)
+  , _dbaux()
+  , _flagKeypairWeights(false)
+  , _flagNeighOnly(false)
+  , _iptrNeigh(-1)
+  , _iechOut(-1)
+  , _ndim(0)
+  , _nvar(0)
+  , _nvarCL(0)
+  , _nech(0)
+  , _nbfl(0)
+  , _nfeq(0)
+  , _nfex(0)
+  , _neq(0)
+  , _nred(0)
+  , _flagIsotopic(true)
+  , _nbgh()
+  , _flag()
+  , _covtab()
+  , _drftab()
+  , _lhsf()
+  , _lhsc()
+  , _lhs(nullptr)
+  , _lhsinv()
+  , _rhsf()
+  , _rhsc()
+  , _rhs(nullptr)
+  , _wgt()
+  , _zam()
+  , _zext()
+  , _var0()
+  , _results()
+  , _dbinUidToBeDeleted()
+  , _dboutUidToBeDeleted()
+  , _space(2)
+  , // empty constructor does not exist. Anyhow it will be overwritten next.
+  _p0()
+  , _p1()
+  , _p2()
+  , _p0_memo()
+  , _flagNoMatLC(true)
+  , _flagVerr(false)
+  , _flagNoStat(false)
+  , _cova(nullptr)
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
   if (model != nullptr)
@@ -3192,12 +3193,12 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Core allocation */
 
-  VectorDouble rndmat(_nfeq);
-  VectorDouble simu(_nfeq);
+  MatrixRectangular rndmat(_nfeq, 1);
+  MatrixRectangular simu(_nfeq, 1);
 
   /* Cholesky decomposition */
 
-  if (_postCov.computeCholesky())
+  if (_postCovChol.setMatrix(&_postCov))
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
     messerr("The Drift coefficients have been set to their posterior mean");
@@ -3207,22 +3208,23 @@ void KrigingSystem::_bayesPreSimulate()
   }
   else
   {
-    VectorDouble trimat = _postCov.getCholeskyTL();
+    VectorDouble trimat = _postCovChol.getLowerTriangle();
     for (int isimu = 0; isimu < _nbsimu; isimu++)
     {
 
       /* Draw a vector of gaussian independent values */
 
-      for (int il = 0; il < _nfeq; il++) rndmat[il] = law_gaussian();
+      for (int il = 0; il < _nfeq; il++)
+        rndmat.setValue(il, 0, law_gaussian());
 
       /* Product of the Lower triangular matrix by the random vector */
 
-      matrix_cholesky_product(1, _nfeq, 1, trimat.data(), rndmat.data(), simu.data());
+      _postCovChol.matProductInPlace(1, rndmat, simu);
 
       /* Add the mean */
 
       for (int il = 0; il < _nfeq; il++)
-        _postSimu.setValue(il, isimu, simu[il] + _postMean[il]);
+        _postSimu.setValue(il, isimu, simu.getValue(il, 0) + _postMean[il]);
     }
   }
 

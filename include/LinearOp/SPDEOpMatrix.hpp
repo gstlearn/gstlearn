@@ -10,8 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/Cholesky.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -35,7 +34,7 @@ private:
 
 private:
   mutable MatrixSparse _QpAinvNoiseAt; //mutable is required to perform the Cholesky decompositions
-  mutable Cholesky*    _chol;         // when needed, e.g in a const method.
+  mutable CholeskySparse* _chol;         // when needed, e.g in a const method.
 };
                                
 

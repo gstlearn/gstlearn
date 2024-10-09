@@ -35,6 +35,7 @@
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADrift.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 
 #include "Db/Db.hpp"
 
@@ -2191,7 +2192,8 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
  
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
-  if (cov.computeCholesky() != 0)
+  CholeskyDense covChol(&cov);
+  if (! covChol.isReady())
   {
     messerr("Cholesky decomposition of Covariance matrix failed");
     return TEST;
@@ -2225,21 +2227,20 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
     // Calculate Cm1X = Cm1 * X
     MatrixRectangular Cm1X;
-    if (cov.solveCholeskyMat(X, Cm1X) != 0)
+    if (covChol.solveMatrix(X, Cm1X))
     {
-      messerr(
-        "Problem when solving a Linear System after Cholesky decomposition");
+      messerr("Problem when solving a Linear System after Cholesky decomposition");
       return TEST;
     }
 
     // Calculate XtCm1X = Xt * Cm1 * X
     MatrixSquareSymmetric* XtCm1X =
       MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
-
    
     // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
     VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
-    if (XtCm1X->computeCholesky() != 0)
+    CholeskyDense XtCm1XChol(XtCm1X);
+    if (! XtCm1XChol.isReady())
     {
       messerr("Cholesky decomposition of XtCm1X matrix failed");
       delete XtCm1X;
@@ -2247,8 +2248,8 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     }
 
     // Calculate beta = (XtCm1X)-1 * ZtCm1X
-    VectorDouble beta;
-    if (XtCm1X->solveCholesky(ZtCm1X, beta) != 0)
+    VectorDouble beta(nDrift);
+    if (XtCm1XChol.solve(ZtCm1X, beta))
     {
       messerr("Error when calculating Likelihood");
       delete XtCm1X;
@@ -2267,15 +2268,15 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   }
 
    // Calculate Cm1Z = Cm1 * Z
-  VectorDouble Cm1Z;
-  if (cov.solveCholesky(Z, Cm1Z) != 0)
+  VectorDouble Cm1Z(Z.size());
+  if (covChol.solve(Z, Cm1Z))
   {
     messerr("Error when calculating Cm1Z");
     return TEST;
   }
 
   // Calculate the log-determinant
-  double logdet = cov.computeCholeskyLogDeterminant();
+  double logdet = covChol.computeLogDeterminant();
 
   // Calculate quad = Zt * Cm1Z
   double quad = VH::innerProduct(Z, Cm1Z);

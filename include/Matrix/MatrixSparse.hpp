@@ -26,7 +26,6 @@ DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 DISABLE_WARNING_POP
 #endif
 
-class Cholesky;
 class cs;
 class EOperator;
 
@@ -75,8 +74,8 @@ public:
                 bool flagCheck = true) override;
 
 #ifndef SWIG
-  int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
-                    Eigen::Map<Eigen::VectorXd>& ym) const;
+  int addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
+                         Eigen::Map<Eigen::VectorXd>& ym) const;
   void addProdMatVecInPlaceToDest(const constvect in,
                                   vect out,
                                   bool transpose = false) const;
@@ -186,25 +185,15 @@ public:
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0);
 
-  // Cholesky functions
-  int    computeCholesky();
-  int    solveCholesky(const VectorDouble& b, VectorDouble& x);
-
-  #ifndef SWIG
-  int solveCholesky(const constvect b, std::vector<double>& x);
-  int simulateCholesky(const constvect b, vect x);
-  int addVecInPlace(const constvect x, vect y);
+#ifndef SWIG
+  int addVecInPlace(const constvect x, vect y) const;
 #endif
-  
-  int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
-  double computeCholeskyLogDeterminant();
-
   void   addValue(int row, int col, double value);
 
   double L1Norm() const;
   void   getStats(int *nrows, int *ncols, int *count, double *percent) const;
   int    scaleByDiag();
-  int    addVecInPlace(const VectorDouble& x, VectorDouble& y);
+  int    addVecInPlaceVD(const VectorDouble& x, VectorDouble& y) const;
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
@@ -274,7 +263,6 @@ private:
   cs* _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 #endif
-  Cholesky* _factor; // Cholesky decomposition
   bool _flagEigen;
 };
 

@@ -18,16 +18,6 @@ VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
   return res;
 }
 
-
-/*****************************************************************************/
-/*!
-**  Evaluate the product: 'outv' = Q * 'inv'
-**
-** \param[in]  whitenoise     Array of input values
-**
-** \param[out] outv           Array of output values
-**
-*****************************************************************************/
 int ASimulable::evalSimulate(const VectorDouble& whitenoise,
                              VectorDouble& outv) const
 {
@@ -43,3 +33,7 @@ int ASimulable::evalSimulate(const constvect whitenoise, vect result) const
   return _addSimulateToDest(whitenoise, result);
 }
 
+int ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
+{
+  return _addSimulateToDest(whitenoise, outv);
+}

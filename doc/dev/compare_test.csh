@@ -1,10 +1,9 @@
-# This script is meant to compare a resulting test file to its reference (Release mode only)
-#
 #!/bin/csh -f
 
-# Reference directory
-set command_location = `dirname $0`
-set DIR = $command_location/../..
+# This script is meant to compare a resulting test file to its reference (Release mode only)
+# This script requires the environment variable GSTLEARN_DIR
+#
+set DIR = $GSTLEARN_DIR/gstlearn
 
 set nargs = $#argv
 if ($nargs < 2) then
@@ -96,6 +95,6 @@ if ($ajout == "full") then
 else if ($ajout == "large") then 
 	diff -b $FILETMP $FILECMP --width=200 --side | more
 else
-	diff -b $FILETMP $FILECMP $ajout
+	diff -b $FILETMP $FILECMP
 endif
 

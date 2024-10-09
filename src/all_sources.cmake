@@ -182,7 +182,9 @@ set(SRC
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
-  LinearOp/Cholesky.cpp
+  LinearOp/ACholesky.cpp
+  LinearOp/CholeskySparse.cpp
+  LinearOp/CholeskyDense.cpp
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp

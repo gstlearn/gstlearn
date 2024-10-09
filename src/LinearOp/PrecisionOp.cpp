@@ -164,7 +164,6 @@ int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 {
     _addEvalPower(whitenoise, outv, EPowerPT::MINUSHALF);
     return 0;
-
 }
 
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force) const

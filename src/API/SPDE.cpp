@@ -1089,46 +1089,38 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 VectorDouble krigingSPDENew(Db* dbin,
                             Db* dbout,
                             Model* model,
-                            bool flag_est,
-                            bool flag_std,
                             const VectorMeshes& meshes,
                             int useCholesky,
-                            const SPDEParam& params,
-                            int nbMC,
                             bool verbose,
                             const NamingConvention& namconv)
 {
- DECLARE_UNUSED(verbose);
- DECLARE_UNUSED(namconv);
- DECLARE_UNUSED(nbMC)
- DECLARE_UNUSED(params)
- DECLARE_UNUSED(flag_est,flag_std)
-
- if (dbin == nullptr) return 1;
- if (dbout == nullptr) return 1;
- if (model == nullptr) return 1;
- auto Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
- auto AM = ProjMultiMatrix::createFromDbAndMeshes(dbin,meshes);
- auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout,meshes);
- MatrixSparse *invnoise = buildInvNugget(dbin,model);
- VectorDouble result;
- if (useCholesky)
- {
-  PrecisionOpMultiMatrix Qop(model,meshes);
-  SPDEOpMatrix spdeop(&Qop,&AM,invnoise);
-  auto resultmesh = spdeop.kriging(Z);
-  Aout.mesh2point(resultmesh,result);
- }
- else 
- {
-  PrecisionOpMulti Qop(model,meshes);
-  MatrixSquareSymmetricSim invnoisep(invnoise);
-  SPDEOp spdeop(&Qop,&AM,&invnoisep);
-  spdeop.setMaxIterations(1000);
-  spdeop.setTolerance(1e-5);
-  auto resultmesh = spdeop.kriging(Z);
-  Aout.mesh2point(resultmesh,result);
- }
- delete invnoise;
- return result;
+  DECLARE_UNUSED(verbose);
+  DECLARE_UNUSED(namconv);
+  if (dbin == nullptr) return 1;
+  if (dbout == nullptr) return 1;
+  if (model == nullptr) return 1;
+  auto Z    = dbin->getColumnsActiveAndDefined(ELoc::Z);
+  auto AM   = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes);
+  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes);
+  MatrixSparse* invnoise = buildInvNugget(dbin, model);
+  VectorDouble result;
+  if (useCholesky)
+  {
+    PrecisionOpMultiMatrix Qop(model, meshes);
+    SPDEOpMatrix spdeop(&Qop, &AM, invnoise);
+    auto resultmesh = spdeop.kriging(Z);
+    Aout.mesh2point(resultmesh, result);
+  }
+  else
+  {
+    PrecisionOpMulti Qop(model, meshes);
+    MatrixSquareSymmetricSim invnoisep(invnoise);
+    SPDEOp spdeop(&Qop, &AM, &invnoisep);
+    spdeop.setMaxIterations(1000);
+    spdeop.setTolerance(1e-5);
+    auto resultmesh = spdeop.kriging(Z);
+    Aout.mesh2point(resultmesh, result);
+  }
+  delete invnoise;
+  return result;
 }

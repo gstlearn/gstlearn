@@ -13,14 +13,13 @@
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Selectivity.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 
 #include <math.h>
 
 #define EIGVEC(i,j)      eigvec[(i)*nclass+(j)]
 #define CHI(i,j)         chi[(i)*nclass+(j)]
-#define PTAB(i,j)        ptab[(i)*nclass+(j)]
 #define C_S(i,j)         c_s[(i)*nclass+(j)]
-#define Q_S(i,j)         q_s[(i)*nclass+(j)]
 
 AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
     : AnamDiscrete(),
@@ -467,10 +466,11 @@ VectorDouble AnamDiscreteDD::factors_mod()
   /* Core allocation */
 
   VectorDouble q2_s(nclass);
-  VectorDouble q_s(nclass * nclass);
   VectorDouble tri2(ntri);
-  VectorDouble ptab(nclass * nclass);
   MatrixSquareSymmetric c_s(nclass);
+  MatrixRectangular ptab(nclass, nclass);
+  MatrixRectangular q_s(nclass * nclass);
+  CholeskyDense c_sChol;
 
   VectorDouble veca(nclass);
   VectorDouble vecb(nclass);
@@ -486,7 +486,7 @@ VectorDouble AnamDiscreteDD::factors_mod()
       double value = 0.;
       for (int ic=0; ic<nclass; ic++)
         value += getDDStatU(ic) * pow(getDDStatLambda(ic),iclass);
-      PTAB(iclass,jclass) = pow(getDDStatLambda(jclass),iclass) / sqrt(value);
+      ptab.setValue(iclass,jclass,pow(getDDStatLambda(jclass),iclass) / sqrt(value));
     }
 
   /* Covariance of monomials in L2(R,u) */
@@ -496,25 +496,24 @@ VectorDouble AnamDiscreteDD::factors_mod()
     {
       double value = 0.;
       for (int ic=0; ic<nclass; ic++)
-        value += PTAB(iclass,ic) * getDDStatU(ic) * PTAB(jclass,ic);
+        value += ptab.getValue(iclass,ic) * getDDStatU(ic) * ptab.getValue(jclass,ic);
       c_s.setValue(iclass,jclass,value);
     }
 
-  if (c_s.computeCholesky()) return VectorDouble();
-  VectorDouble tri1 = c_s.getCholeskyTL();
-  matrix_cholesky_invert(nclass,tri1.data(),tri2.data());
-  matrix_cholesky_product(2,nclass,nclass,tri2.data(),ptab.data(),q_s.data());
+  if (c_sChol.setMatrix(&c_s)) return VectorDouble();
+  VectorDouble tri1 = c_sChol.getLowerTriangle();
+  c_sChol.matProductInPlace(2, ptab, q_s);
 
   for (int jclass=nclass-1; jclass>=0; jclass--)
     for (int iclass=0; iclass<nclass; iclass++)
-      Q_S(iclass,jclass) /= Q_S(iclass,0);
+      q_s.setValue(iclass,jclass, q_s.getValue(iclass, jclass) / q_s.getValue(iclass,0));
 
   double sum = 0.;
   for (int iclass=0; iclass<nclass; iclass++)
   {
     double value = 0.;
     for (int ic=0; ic<nclass; ic++)
-      value += Q_S(iclass,ic) * getDDStatU(ic) * Q_S(iclass,ic);
+      value += q_s.getValue(iclass,ic) * getDDStatU(ic) * q_s.getValue(iclass,ic);
     q2_s[iclass] = value;
     sum += 1. / q2_s[iclass];
   }
@@ -530,7 +529,8 @@ VectorDouble AnamDiscreteDD::factors_mod()
   {
     double local = 0.;
     for (int ic = 0; ic < nclass; ic++)
-      local -= (getDDStatLambda(ic)* Q_S(iclass,ic) * getDDStatU(ic) * Q_S(iclass+1,ic));
+      local -= (getDDStatLambda(ic) * q_s.getValue(iclass, ic) *
+                getDDStatU(ic) * q_s.getValue(iclass + 1, ic));
     veca[iclass] = local / q2_s[iclass + 1];
   }
   veca[nclass-1] = 0.;
@@ -540,7 +540,8 @@ VectorDouble AnamDiscreteDD::factors_mod()
   {
     double local = 0.;
     for (int ic = 0; ic < nclass; ic++)
-      local -= (getDDStatLambda(ic) * Q_S(iclass,ic) * getDDStatU(ic) * Q_S(iclass-1,ic));
+      local -= (getDDStatLambda(ic) * q_s.getValue(iclass, ic) *
+                getDDStatU(ic) * q_s.getValue(iclass - 1, ic));
     vecb[iclass] = local / q2_s[iclass - 1];
   }
 

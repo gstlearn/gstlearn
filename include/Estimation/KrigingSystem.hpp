@@ -20,6 +20,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
@@ -253,6 +254,7 @@ private:
   MatrixSquareSymmetric _priorCov;  // Dimension NF * NF
   VectorDouble          _postMean;
   MatrixSquareSymmetric _postCov;
+  CholeskyDense         _postCovChol;
   MatrixRectangular     _postSimu; // Dimension NF * NBSIMU
   MatrixSquareSymmetric _varCorrec;
   Model* _modelSimple;

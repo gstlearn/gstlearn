@@ -115,8 +115,7 @@ String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
 bool ACovFunc::hasCovOnSphere() const
 {
   // If a spectrum is available, the covariance can be calculated
-  if (hasSpectrumOnSphere()) return true;
-  return false;
+  return hasSpectrumOnSphere();
 }
 
 /// Test consistency with the current context
