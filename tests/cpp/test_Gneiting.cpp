@@ -12,8 +12,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovGneiting.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
-#include "Db/DbHelper.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"

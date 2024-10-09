@@ -16,7 +16,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
-class GSTLEARN_EXPORT Tensor : public AStringable/// TODO : public ASpaceObject
+class GSTLEARN_EXPORT Tensor : public AStringable /// TODO : public ASpaceObject
 {
 public:
   Tensor(unsigned int ndim = 2);
@@ -56,6 +56,8 @@ public:
 
   VectorDouble applyDirect (const VectorDouble& vec) const;
   VectorDouble applyInverse(const VectorDouble& vec) const;
+  void applyInverseInPlace(constvect vec, vect out) const;
+
   void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;
   void applyInverse2InPlace(const VectorDouble& vec, VectorDouble& out) const;
   void applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const;

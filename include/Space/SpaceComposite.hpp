@@ -13,38 +13,67 @@
 #include "gstlearn_export.hpp"
 
 #include "Space/ASpace.hpp"
-#include "Basic/VectorNumT.hpp"
+#include "Enum/ESpaceType.hpp"
+
+#include <vector>
 
 class SpacePoint;
+class Tensor;
 
-class GSTLEARN_EXPORT SpaceSN: public ASpace
+class GSTLEARN_EXPORT SpaceComposite : public ASpace
 {
 public:
-  SpaceSN(unsigned int ndim, double radius);
-  SpaceSN(const SpaceSN &r);
-  SpaceSN& operator=(const SpaceSN &r);
-  virtual ~SpaceSN();
+  SpaceComposite();
+  SpaceComposite(const std::vector<const ASpace*>& vectspace);
+  SpaceComposite(const SpaceComposite& r);
+  SpaceComposite& operator=(const SpaceComposite& r);
+  virtual ~SpaceComposite();
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(SpaceSN)
+  IMPLEMENT_CLONING(SpaceComposite)
 
   /// Return the concrete space type
-  ESpaceType getType() const override { return ESpaceType::SN; };
+  ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 
-  /// Return the sphere radius
-  double getRadius() const { return _radius; }
+  /// Update the origin of the space
+  void setOrigin(const VectorDouble& origin) override;
 
-  /// Dump a space in a string
-  virtual String toString(const AStringFormat* strfmt,
-                          int idx = -1) const override;
+  /// Get the number of dimensions
+  unsigned int getNDim(int ispace = -1) const override;
 
-  /// Return true if the given space is equal to me
-  virtual bool isEqual(const ASpace *space) const override;
+  /// Get the offset index for coordinates
+  unsigned int getOffset(int ispace = -1) const override;
+  
+  /// Return the space origin coordinates
+  const VectorDouble& getOrigin(int ispace = -1) const override;
+
+  /// Get the number of space components
+  unsigned int getNComponents() const override;
+
+  /// Return the space component at index ispace
+  const ASpace* getComponent(int ispace = -1) const override;
+
+  /// Dump a space in a string (given the space index)
+  String toString(const AStringFormat* strfmt, int ispace) const override;
+
+  /// Return true if the given space is equal to me (same dimension and space
+  /// definition)
+  bool isEqual(const ASpace* space) const override;
+
+  /// Return all the distances (one by space component) between two space points
+  VectorDouble getDistances(const SpacePoint& p1,
+                            const SpacePoint& p2) const override;
+  
+  /////////////////////////////////////////////
+  
+  /// Add a space component to me (for exemple RN(1) for time dimension)
+  /// Note: The given argument is cloned
+  void addSpaceComponent(const ASpace* comp);
 
 protected:
 
   /// Move the given space point by the given vector
-  void _move(SpacePoint &p1, const VectorDouble &vec) const override;
+  void _move(SpacePoint& p1, const VectorDouble& vec) const override;
 
   /// Return the distance between two space points
   double _getDistance(const SpacePoint& p1,
@@ -57,17 +86,19 @@ protected:
                       const Tensor& tensor,
                       int ispace = -1) const override;
 
-  /// Return the distance in frequential domain between two space points with the given tensor
+  /// Return the distance in frequential domain between two space points with
+  /// the given tensor
   double _getFrequentialDistance(const SpacePoint& p1,
                                  const SpacePoint& p2,
                                  const Tensor& tensor,
                                  int ispace = -1) const override;
 
-  /// Return the increment vector between two space points for the current space context
+  /// Return the increment vector between two space points for the current space
+  /// context
   VectorDouble _getIncrement(const SpacePoint& p1,
                              const SpacePoint& p2,
                              int ispace = -1) const override;
-  
+
   /// Return the increment vector between two space points in a given vector
   void _getIncrementInPlace(const SpacePoint& p1,
                             const SpacePoint& p2,
@@ -75,7 +106,10 @@ protected:
                             int ispace = -1) const override;
 
 private:
-  /// Sphere radius
-  double _radius;
-};
+  /// Destroy components and empty vector
+  void _destroyComponents();
 
+private:
+  /// Space composits list
+  std::vector<ASpace *> _comps;
+};

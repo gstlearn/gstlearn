@@ -122,7 +122,7 @@ KNN Ball::queryOneAsVDFromSP(const SpacePoint& Pt, int n_neighbors)
 {
   KNN knn;
   int n_features = Pt.getNDim();
-  const double* internal = Pt.getCoord().data();
+  const double* internal = Pt.getCoords().data();
   (void)knn.btree_query(_tree, (const double**)&internal, 1, n_features,
                         n_neighbors);
   return knn;

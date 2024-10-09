@@ -232,7 +232,7 @@ void PrecisionOpCs::_buildQ()
   if (!isCovaDefined()) return;
 
   // Calculate the Vector of coefficients (blin)
-  VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
+  //VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
 

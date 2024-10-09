@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/ACov.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Enum/ETape.hpp"
 
 #include "Covariances/CovLMCTapering.hpp"
@@ -22,7 +24,7 @@
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
                                const ASpace* space)
-    : CovLMC(space),
+    : ACovAnisoList(space),
       _tapeType(),
       _tapeRange(0)
 {
@@ -30,7 +32,7 @@ CovLMCTapering::CovLMCTapering(const ETape& tapetype,
 }
 
 CovLMCTapering::CovLMCTapering(const CovLMCTapering &r)
-    : CovLMC(r),
+    : ACovAnisoList(r),
       _tapeType(r._tapeType),
       _tapeRange(r._tapeRange)
 {
@@ -40,7 +42,7 @@ CovLMCTapering& CovLMCTapering::operator=(const CovLMCTapering &r)
 {
   if (this != &r)
   {
-    CovLMC::operator=(r);
+    ACovAnisoList::operator=(r);
     _tapeType = r._tapeType;
     _tapeRange = r._tapeRange;
   }
@@ -51,9 +53,25 @@ CovLMCTapering::~CovLMCTapering()
 {
 }
 
+void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode) const
+{
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+}
+void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                                     const SpacePoint &pwork1,
+                                                     const SpacePoint &pwork2,
+                                                     const CovCalcMode *mode) const
+{
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+}
+
 int CovLMCTapering::init(const ETape& tapetype, double taperange)
 {
-
+  for (auto &e: _covs)
+  {
+    e->setOptimEnabled(false);
+  }
   /* Preliminary check */
 
   if (taperange <= 0)
@@ -182,7 +200,7 @@ double CovLMCTapering::eval0(int ivar,
                              int jvar,
                              const CovCalcMode* mode) const
 {
-  double cov0 = CovLMC::eval0(ivar, jvar, mode);
+  double cov0 = ACovAnisoList::eval0(ivar, jvar, mode);
   return cov0;
 }
 
@@ -199,15 +217,15 @@ double CovLMCTapering::eval(const SpacePoint& p1,
   bool asVario = false;
   if (mode == nullptr)
   {
-    cov = CovLMC::eval(p1, p2, ivar, jvar);
+    cov = ACovAnisoList::eval(p1, p2, ivar, jvar);
   }
   else
   {
     CovCalcMode modeloc(*mode);
     asVario = mode->getAsVario();
     modeloc.setAsVario(false);
-    cov = CovLMC::eval(p1, p2, ivar, jvar, &modeloc);
-    cov0 = CovLMC::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
+    cov = ACovAnisoList::eval(p1, p2, ivar, jvar, &modeloc);
+    cov0 = ACovAnisoList::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
   }
 
   double h = getSpace()->getDistance(p1, p2) / _tapeRange;
@@ -215,36 +233,6 @@ double CovLMCTapering::eval(const SpacePoint& p1,
 
   if (asVario) cov = cov0 - cov;
   return cov;
-}
-/**
- * Calculate the Matrix of covariance for zero distance
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMCTapering::eval0MatInPlace(MatrixSquareGeneral &mat,
-                                     const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::eval0MatInPlace(mat, mode);
-}
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMCTapering::evalMatInPlace(const SpacePoint &p1,
-                                    const SpacePoint &p2,
-                                    MatrixSquareGeneral &mat,
-                                    const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::evalMatInPlace(p1, p2, mat, mode);
 }
 
 std::string_view CovLMCTapering::getName() const

@@ -15,6 +15,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
+#include "geoslib_define.h"
 
 #include <math.h>
 #include <omp.h>
@@ -429,6 +430,12 @@ VectorDouble AMatrixDense::getColumn(int icol) const
   {
     res[i] = _eigenMatrix.col(icol)[i];
   }
+  return res;
+}
+
+constvect AMatrixDense::getViewOnColumn(int icol) const
+{
+  constvect res(_eigenMatrix.col(icol).data(),getNRows());
   return res;
 }
 

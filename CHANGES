@@ -4,11 +4,11 @@ This file contains the logs between consecutive releases
 
 Release 1.5.0
 =============
-- Found error in kribayes multivariate: it will not be fixed until pluging the new KrigingCalcul
-which will solve all these problems.
-
-Miscellaneous
--------------
+- Gneiting covariance function has been added (with its test)
+- New SpaceComposite class added (with its test)
+- A method SpacePopint::spacePointOnSubspace has been added to project a
+  point on a sub-space of a SpaceComposite (there is still Memory copies!)
+- A sample index (in the Db) and a boolean (target) have been added to the SpacePoint members
 - Adding the BASH version for files "compare_test" and "update_test" used to handle non-regression output files.
 
 Release 1.4.1

@@ -133,6 +133,7 @@
 %include Boolean/ModelBoolean.hpp
 
 %include Space/ASpace.hpp
+%include Space/SpaceComposite.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
 %include Space/SpaceTarget.hpp
@@ -226,7 +227,7 @@
 %include Covariances/ACovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
-%include Covariances/CovLMC.hpp
+%include Covariances/CovGneiting.hpp
 %include Covariances/CovLMCTapering.hpp
 %include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMCAnamorphosis.hpp

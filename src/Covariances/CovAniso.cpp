@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Arrays/Array.hpp"
 #include "Basic/AFunctional.hpp"
+#include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
@@ -29,15 +30,15 @@
 #include "Basic/Utilities.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/SpacePoint.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "geoslib_define.h"
-
-#include <array>
 #include <math.h>
 #include <functional>
 #include <memory>
+#include <vector>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
@@ -53,7 +54,8 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStat(),
-      _noStatFactor(1.)
+      _noStatFactor(1.),
+      _optimEnabled(true)
 {
   _initFromContext();
 }
@@ -65,7 +67,8 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStat(),
-      _noStatFactor(1.)
+      _noStatFactor(1.),
+      _optimEnabled(true)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
@@ -84,8 +87,9 @@ CovAniso::CovAniso(const ECov &type,
       _sill(),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStat(),
-      _noStatFactor(1.)
-{
+      _noStatFactor(1.),
+      _optimEnabled(true)
+  {
   _initFromContext();
 
   // Sill
@@ -116,9 +120,43 @@ CovAniso::CovAniso(const CovAniso &r)
       _sill(r._sill),
       _aniso(r._aniso),
       _tabNoStat(r._tabNoStat),
-      _noStatFactor(r._noStatFactor)
+      _noStatFactor(r._noStatFactor),
+      _optimEnabled(r._optimEnabled)
 {
 }
+
+// void CovAniso::evalCovLHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           SpacePoint &pwork2,
+//                           const Db* db, 
+//                           const CovCalcMode *mode) const
+// {
+//   if (!_isOptimEnabled())
+//     ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
+//   else
+//   {
+//     SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
+//     SpacePoint* p2A = &_p1As[pwork2.getIech()];
+//     _evalOptim(p1A,p2A,mat,mode);
+//   // Calculate covariance between two points
+//   }
+// }
+
+// void CovAniso::evalCovRHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           const Db* db, SpacePoint& pout,  
+//                           const CovCalcMode *mode) const
+// {
+//   if (!_isOptimEnabled())
+//     ACov::evalCovRHS(mat, pwork1, db, pout, mode);
+//   else
+//   {
+//     SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
+//     SpacePoint* p2A = &_p2A;
+//     _evalOptim(p1A,p2A,mat,mode);
+//   }
+// }
+
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
 {
@@ -131,6 +169,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _aniso = r._aniso;
     _tabNoStat = r._tabNoStat;
     _noStatFactor = r._noStatFactor;
+    _optimEnabled = r._optimEnabled;
   }
   return *this;
 }
@@ -418,7 +457,7 @@ bool CovAniso::isConsistent(const ASpace* space) const
  * @param mode Pointer to CovCalcMode structure (optional)
  * @return The covariance value
  */
-double CovAniso::_evalCovFromH(double h, const CovCalcMode *mode) const
+double CovAniso::_evalCorFromH(double h, const CovCalcMode *mode) const
 {
   double cov = 0.;
   if (mode != nullptr)
@@ -428,7 +467,7 @@ double CovAniso::_evalCovFromH(double h, const CovCalcMode *mode) const
     {
 
       // Traditional Covariance or Variogram
-      cov = _cova->evalCov(h);
+      cov = _cova->evalCov(h) * _noStatFactor;
 
       // Convert into a variogram
       if (mode->getAsVario()) cov = _cova->evalCov(0) - cov;
@@ -448,18 +487,39 @@ double CovAniso::_evalCovFromH(double h, const CovCalcMode *mode) const
   }
   else
   {
-    cov =  _cova->evalCov(h);
+    cov =  _cova->evalCov(h) * _noStatFactor;
   }
   return cov;
 }
 
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov = _evalCovFromH(0, mode);
+  double cov = _evalCorFromH(0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
   return (cov);
+}
+
+
+double CovAniso::evalCor(const SpacePoint &p1,
+                         const SpacePoint &p2,
+                         const CovCalcMode* mode,
+                         int ivar,
+                         int jvar) const
+{
+  DECLARE_UNUSED(ivar,jvar);
+  double h;
+  if (!_isOptimPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
+  {
+    h = getSpace()->getDistance(p1, p2, _aniso);
+  }
+  else
+  {
+    h = p2.getDistance(p1);
+  }
+
+  return _evalCorFromH(h, mode);
 }
 
 double CovAniso::eval(const SpacePoint &p1,
@@ -468,12 +528,11 @@ double CovAniso::eval(const SpacePoint &p1,
                       int jvar,
                       const CovCalcMode* mode) const
 {
-  double h = getSpace()->getDistance(p1, p2, _aniso);
-  double cov = _evalCovFromH(h, mode);
-
+  double cov = evalCor(p1,p2,mode);
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
   return (cov);
+
 }
 /**
  * Calculate the Matrix of covariance for zero distance
@@ -482,16 +541,16 @@ double CovAniso::eval(const SpacePoint &p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode) const
+void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                            const CovCalcMode *mode) const
 {
-  double cov = _evalCovFromH(0, mode);
+  double cov = _evalCorFromH(0, mode); 
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
+    mat.addMatInPlace(_sill, 1., cov);
   else
   {
-    MatrixSquareSymmetric identity = _sill;
+    MatrixSquareGeneral identity = _sill;
     identity.setIdentity();
     mat.addMatInPlace(identity, 1., cov);
   }
@@ -506,21 +565,21 @@ void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAniso::evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
-                              const CovCalcMode *mode) const
+void CovAniso::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                          const SpacePoint &p1,
+                                          const SpacePoint &p2,
+                                          const CovCalcMode *mode) const
 {
-  double h = getSpace()->getDistance(p1, p2, _aniso);
-  double cov = _evalCovFromH(h, mode);
+  
+  double cor = evalCor(p1,p2,mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
+    mat.addMatInPlace(_sill, 1., cor);
   else
   {
-    MatrixSquareSymmetric identity = _sill;
+    MatrixSquareGeneral identity = _sill;
     identity.setIdentity();
-    mat.addMatInPlace(identity, 1., cov);
+    mat.addMatInPlace(identity, 1., cor);
   }
 }
 
@@ -565,7 +624,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
       {
         int iech1 = index1[rvar1][rech1];
         hoptim = _p2A.getDistance(_p1As[iech1]);
-        cov = _evalCovFromH(hoptim, mode);
+        cov = _evalCorFromH(hoptim, mode);
         res.updValue(irow, icol, EOperator::ADD, sill * cov);
       }
       irow++;
@@ -573,40 +632,24 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
   }
 }
 
-/**
- * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
- * @param icas1 Origin of the Db containing the first point
- * @param iech1 Rank of the first point
- * @param icas2 Origin of the Db containing the second point
- * @param iech2 Rank of the second point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovAniso::evalMatOptimInPlace(int icas1,
-                                   int iech1,
-                                   int icas2,
-                                   int iech2,
-                                   MatrixSquareGeneral &mat,
-                                   const CovCalcMode *mode) const
+void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
+                          MatrixSquareGeneral &mat,
+                          const CovCalcMode *mode) const
 {
-  SpacePoint* p1A = (icas1 == 1) ? &_p1As[iech1] : &_p2A;
-  SpacePoint* p2A = (icas2 == 1) ? &_p1As[iech2] : &_p2A;
-
   // Calculate covariance between two points
   double hoptim = p2A->getDistance(*p1A);
-  double cov = _evalCovFromH(hoptim, mode);
+  double cov = _evalCorFromH(hoptim, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
+    mat.addMatInPlace(_sill, 1., cov);
   else
   {
-    MatrixSquareSymmetric identity = _sill;
+    MatrixSquareGeneral identity = _sill;
     identity.setIdentity();
     mat.addMatInPlace(identity, 1., cov);
   }
 }
+
 
 double CovAniso::evalCovOnSphere(double alpha,
                                  int degree,
@@ -804,7 +847,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
     if (getNVariables() > 1)
     {
-      MatrixSquareSymmetric slopes = _sill;
+      MatrixSquareGeneral slopes = _sill;
       double range = getRange(0);
       for (int ivar = 0; ivar < getNVariables(); ivar++)
         for (int jvar = 0; jvar < getNVariables(); jvar++)
@@ -853,7 +896,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  return _sill.getValue(ivar, jvar) * _noStatFactor;
+  return _sill.getValue(ivar, jvar);
 }
 
 /*****************************************************************************/
@@ -882,7 +925,7 @@ double CovAniso::getSlope(int ivar, int jvar) const
 {
   if (hasRange() == 0) return TEST;
   double range = getRange(0);
-  return _sill.getValue(ivar, jvar) * _noStatFactor / range;
+  return _sill.getValue(ivar, jvar) / range;
 }
 
 VectorDouble CovAniso::getRanges() const
@@ -968,7 +1011,7 @@ void CovAniso::_updateFromContext()
 double CovAniso::getIntegralRange(int ndisc, double hmax) const
 {
   int ndim = getNDim();
-  VectorDouble dd(ndim);
+  SpacePoint dd(VectorDouble(ndim),-1);
   double delta = hmax / ndisc;
   double total = 0.;
   switch (ndim)
@@ -976,7 +1019,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
     case 1:
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
       {
-        dd[0] = delta * j1;
+        dd.setCoord(0, delta * j1);
         total += delta * eval(dd, SpacePoint());
       }
       break;
@@ -985,8 +1028,8 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
         for (int j2 = -ndisc; j2 <= ndisc; j2++)
         {
-          dd[0] = delta * j1;
-          dd[1] = delta * j2;
+          dd.setCoord(0 , delta * j1);
+          dd.setCoord(1, delta * j2);
           total += delta * delta * eval(dd, SpacePoint());
         }
       break;
@@ -996,9 +1039,9 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
         for (int j2 = -ndisc; j2 <= ndisc; j2++)
           for (int j3 = -ndisc; j3 <= ndisc; j3++)
           {
-            dd[0] = delta * j1;
-            dd[1] = delta * j2;
-            dd[2] = delta * j3;
+            dd.setCoord(0, delta * j1);
+            dd.setCoord(1, delta * j2);
+            dd.setCoord(2, delta * j3);
             total += delta * delta * delta * eval(dd, SpacePoint());
           }
       break;
@@ -1184,9 +1227,16 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
  *
  * @param pt Target sample provided as a Space Point
  */
-void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
+void CovAniso::_optimizationSetTarget(const SpacePoint& pt) const
 {
-  _optimizationTransformSP(pt, _p2A);
+  if (_isOptimEnabled())
+  {  
+    _optimizationTransformSP(pt, _p2A);
+  }
+  else 
+  {
+    _p2A = pt;
+  }  
 }
 
 /**
@@ -1196,9 +1246,13 @@ void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
  *
  * @param iech Rank of the sample among the recorded Space Points
  */
-void CovAniso::optimizationSetTarget(int iech) const
+void CovAniso::optimizationSetTargetByIndex(int iech) const
 {
-  _p2A = _p1As[iech];
+  if (_isOptimPreProcessed)
+  {
+    _p2A = _p1As[iech];
+    _p2A.setTarget(true);
+  }
 }
 
 /**
@@ -1208,7 +1262,19 @@ void CovAniso::optimizationSetTarget(int iech) const
  */
 void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 {
-	_aniso.applyInverseInPlace(ptin.getCoord(), ptout.getCoordRef());
+  if (_isOptimEnabled())
+	{
+     _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+    ptout.setIech(ptin.getIech());
+    ptout.setTarget(ptin.isTarget()); 
+  }
+     
+  bool isTarget = ptin.isTarget(); 
+  if (!isTarget) 
+  {
+    ptout.setIech(ptin.getIech());
+
+  }
 }
 
 /**
@@ -1216,30 +1282,33 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
  * The set of resulting Space Points are stored as private member of this.
  * Note that ALL samples are processed, independently from the presence of a selection
  * or checking for heterotopy.
- * @param db Input Db
+ * @param p vector of SpacePoints
  */
-void CovAniso::optimizationPreProcess(const Db* db) const
+void CovAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
-  if (isOptimizationInitialized(db)) return;
-  const std::vector<SpacePoint>& p1s = db->getSamplesAsSP();
-  int n = (int) p1s.size();
-	_p1As.resize(n);
+
+  if (!isOptimEnabled())
+  {
+     ACov::_optimizationPreProcess(p);
+     return;
+  }
+  int n = (int) p.size();
+  SpacePoint pt(_space);
 	for(int i = 0; i < n ; i++)
 	{
-		_p1As[i] = SpacePoint(_space);
-		if (! p1s[i].isFFFF())
-		  _optimizationTransformSP(p1s[i], _p1As[i]);
-		else
-		  _p1As[i].setFFFF();
+    pt.setIech(p[i].getIech());
+    if (! p[i].isFFFF())
+		{
+      _optimizationTransformSP(p[i], pt);
+    }
+    else
+    {
+		  pt.setFFFF();
+    }
+    _p1As.push_back(pt);
 	}
-  _p2A = SpacePoint(_space);
 }
 
-void CovAniso::optimizationPostProcess() const
-{
-  if (! isOptimizationInitialized()) return;
-	_p1As.clear();
-}
 
 /**
  * Checks that the Optimization has already been initiated, by:

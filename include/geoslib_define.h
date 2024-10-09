@@ -86,7 +86,7 @@ typedef unsigned char UChar;
 DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
 DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
 
-typedef const std::span<const double> constvect;
+typedef std::span<const double> constvect;
 typedef std::span<double> vect ;
 
 #endif

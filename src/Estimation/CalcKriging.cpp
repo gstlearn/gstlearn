@@ -83,7 +83,7 @@ bool CalcKriging::_check()
 
   if (_flagVarZ)
   {
-    if (! getModel()->isStationary())
+    if (! getModel()->getCovAnisoList()->isStationary())
     {
       messerr("Variance of Estimator is limited to Stationary Covariance");
       return false;

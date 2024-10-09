@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Matrix/AMatrix.hpp"
@@ -152,6 +153,10 @@ private:
                        bool optionPositive = true,
                        bool changeOrder = false);
 
+#ifndef SWIG
+  public:
+  constvect getViewOnColumn(int icol) const;
+#endif
 #ifndef SWIG
   public:
   const Eigen::MatrixXd* getTab() const

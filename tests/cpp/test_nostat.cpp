@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "API/SPDE.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"

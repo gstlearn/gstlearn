@@ -15,7 +15,7 @@
 #include "Enum/EConvDir.hpp"
 #include "Enum/EConvType.hpp"
 
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 class ASpace;
@@ -38,7 +38,7 @@ GSTLEARN_EXPORT double _conv_sincard(double v);
 
 GSTLEARN_EXPORT Def_Convolution& D_CONV(int rank);
 
-class GSTLEARN_EXPORT CovLMCConvolution : public CovLMC
+class GSTLEARN_EXPORT CovLMCConvolution : public ACovAnisoList
 {
 public:
   CovLMCConvolution(const EConvType& conv_type,
@@ -65,15 +65,7 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
-                              const CovCalcMode *mode = nullptr) const override;
-  /// Tell if the use of Optimization is enabled or not
-  virtual bool isOptimEnabled() const override { return false; }
-
+  
   int init(const EConvType& conv_type, const EConvDir& conv_idir, double conv_range, int conv_ndisc);
 
   double getConvRange() const { return _convRange; }
@@ -82,6 +74,18 @@ public:
   VectorDouble getConvIncr(int rank) const { return _convIncr.getColumn(rank); }
   int getConvNumber() const { return _convNumber; }
 
+protected:
+    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const override;
+
+    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                        const SpacePoint& pwork1, 
+                        const SpacePoint& pwork2, 
+                        const CovCalcMode *mode) const override;
+        void _optimizationSetTarget(const SpacePoint &pt) const override
+    {
+      ACov::_optimizationSetTarget(pt);
+    }
 private:
   EConvType _convType; /* Convolution type */
   EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */

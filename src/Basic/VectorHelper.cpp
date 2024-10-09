@@ -149,6 +149,10 @@ String VectorHelper::toStringAsVD(const VectorDouble &vec)
   return toVector(String(), vec);
 }
 
+String VectorHelper::toStringAsSpan(constvect vec)
+{
+  return toVector(String(), vec);
+}
 String VectorHelper::toStringAsVVD(const VectorVectorDouble &vec)
 {
   return toVector(String(), vec);
@@ -1332,6 +1336,23 @@ void VectorHelper::addInPlace(const VectorVectorDouble &in1,
       outv[is][i] = in2[is][i] + in1[is][i];
     }
   }
+}
+
+/**
+ * Return a vector containing vecb - veca
+ * @param veca Input Vector
+ * @param vecb Input Vector
+ * @return
+ */
+VectorDouble VectorHelper::subtract(constvect veca,
+                                    constvect vecb)
+{
+  VectorDouble res(veca.size());
+  for (int i = 0; i < (int)veca.size(); i++)
+  {
+    res[i] = vecb[i] - veca[i];
+  }
+  return res;
 }
 
 void VectorHelper::addInPlace(const std::vector<std::vector<double>> &in1,
