@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/WarningMacro.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "LinearOp/ACholesky.hpp"
 #include "Basic/VectorNumT.hpp"
 
 #ifndef SWIG
@@ -35,44 +35,35 @@ class css; /// TODO : Dependency to csparse to be removed
 class csn;
 class MatrixSparse;
 
-/// TODO : Inherit from ALinearOpEigenCG and remove evalInverse ?
-class GSTLEARN_EXPORT Cholesky: public ALinearOp
+class GSTLEARN_EXPORT CholeskySparse: public ACholesky
 {
 public:
-  Cholesky(const MatrixSparse* mat);
-  Cholesky(const Cholesky &m) = delete;
-  Cholesky& operator=(const Cholesky &m) = delete;
-  virtual ~Cholesky();
+  CholeskySparse(const MatrixSparse* mat = nullptr);
+  CholeskySparse(const CholeskySparse& m);
+  CholeskySparse& operator=(const CholeskySparse& m);
+  virtual ~CholeskySparse();
 
-  int getSize() const override;
-  void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const;
+  int setMatrix(const MatrixSparse* mat);
+  int stdev(VectorDouble& vcur, bool flagStDev = false) const;
 
-  bool isValid() const { return _matCS != nullptr; }
-
-  int  solve(const VectorDouble& b, VectorDouble& x) const;
-  int  simulate(const VectorDouble& b, VectorDouble& x) const;
-  #ifndef SWIG
-  int solve(const constvect b, std::vector<double>& x) const;
-  int solve(const constvect b, vect x) const;
-  int simulate(const constvect b, vect x) const;
-  int addSimulateToDest(const constvect b, vect x) const;
-#endif
-  int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
-  double getLogDeterminant() const;
-
-#ifndef SWIG
-protected:
-  int _addToDest(const constvect inv, vect outv) const override;
+  double computeLogDeterminant() const override;
+  int addSolveX(const constvect vecin, vect vecout) const override;
+  int addInvLtX(const constvect vecin, vect vecout) const override;
+  int addLtX(const constvect vecin, vect vecout) const override;
+  int addLX(const constvect vecin, vect vecout) const override;
+  int addInvLX(const constvect vecin, vect vecout) const override;
 
 private:
   void _clean();
-  void _compute();
+  int _prepare() const;
 
 private:
-  css *_S; // Cholesky decomposition (for Old-style Csparse storage)
-  csn *_N; // Cholesky decomposition (for Old-style Csparse storage)
-  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > _cholSolver; // (for Eigen library storage)
-  
-  const MatrixSparse* _matCS; // Stored by compliance with ALinearOp. Not to be deleted
-#endif
+  bool _flagEigen;
+
+  // Old-style storage
+  mutable css *_S; // Cholesky decomposition (for Old-style Csparse storage)
+  mutable csn* _N; // Cholesky decomposition (for Old-style Csparse storage)
+
+  // Eigen storage
+  mutable Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > *_factor; // (Eigen library)
 };

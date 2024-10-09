@@ -7,6 +7,10 @@ Release 1.5.0
 - Found error in kribayes multivariate: it will not be fixed until pluging the new KrigingCalcul
 which will solve all these problems.
 
+Miscellaneous
+-------------
+- Adding the BASH version for files "compare_test" and "update_test" used to handle non-regression output files.
+
 Release 1.4.1
 =============
 - Fix Zenodo configuration to restore DOI generation

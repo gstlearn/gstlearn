@@ -24,17 +24,18 @@ class GSTLEARN_EXPORT ALinearOp
 public:
   virtual ~ALinearOp() {}
   virtual int getSize() const = 0;
-  
+
   int evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
   VectorDouble evalDirect(const VectorDouble& in) const;
 
 #ifndef SWIG
-  public:
-    int evalDirect(constvect inv, vect outv) const;
-    int addToDest(const constvect inv, vect outv) const;
-    int addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
 
-  protected:
-    virtual int _addToDest(constvect inv, vect outv) const = 0;
+public:
+  int evalDirect(constvect inv, vect outv) const;
+  int addToDest(const constvect inv, vect outv) const;
+  int addToDest(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
+
+protected:
+  virtual int _addToDest(constvect inv, vect outv) const = 0;
 #endif
 };

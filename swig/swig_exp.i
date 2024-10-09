@@ -190,7 +190,6 @@
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
-%include LinearOp/Cholesky.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
 
 %include Neigh/ANeigh.hpp

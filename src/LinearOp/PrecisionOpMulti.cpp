@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -68,7 +69,7 @@
           {\
             constvect i1(XORY);\
             vect i2(OUT);\
-            VectorHelper::addMultiplyConstantInPlace(TAB[icov].getmat(IVAR,JVAR),i1,i2,iad_y);\
+            VectorHelper::addMultiplyConstantInPlace(TAB##Stat[icov].getmat(IVAR,JVAR),i1,i2,iad_y);\
           }\
           iad_y += napices;\
         }\
@@ -83,12 +84,17 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
                                    const VectorMeshes& meshes,
                                    bool buildOp)
   : _pops()
-  , _invCholSills()
-  , _cholSills()
+  , _isNoStatForVariance(false)
+  , _invCholSillsNoStat()
+  , _cholSillsNoStat()
+  , _invCholSillsStat()
+  , _cholSillsStat()
   , _model(nullptr)
   , _meshes()
+  , _size(0)
   , _isValid(false)
   , _covList()
+  , _nmeshList()
   , _allStat(true)
   , _ready(false)
 {
@@ -244,11 +250,10 @@ void PrecisionOpMulti::_computeSize()
 
 int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 {
-   MatrixSquareSymmetric sill = _model->getSillValues(icov);
-  if (sill.computeCholesky() != 0) return 1;
-  _cholSills[icov] = sill;
-   if (sill.invertCholesky() != 0) return 1;
-  _invCholSills[icov] = sill;
+  _invCholSillsStat[icov].setMatrix(&_model->getSillValues(icov)); // TODO: a nettoyer
+  if (!_invCholSillsStat[icov].isReady()) return 1;
+  _cholSillsStat[icov].setMatrix(&_model->getSillValues(icov));
+  if (!_cholSillsStat[icov].isReady()) return 1;
   return 0;
 }
 
@@ -271,16 +276,16 @@ int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
   {
     cova->updateCovByMesh(imesh,false);
     MatrixSquareSymmetric sills = cova->getSill();
-    if (sills.computeCholesky() != 0) return 1;
-    if (sills.invertCholesky()  != 0) return 1;
+    CholeskyDense sillsChol(&sills);
+    if (! sillsChol.isReady()) return 1;
 
     int s = 0;
     for (int icol = 0; icol < nvar; icol++)
     {
       for (int irow = icol; irow < nvar; irow++)
       {
-        _cholSillsNoStat[icov][s][imesh] = sills.getCholeskyTL(irow,icol);
-        _invCholSillsNoStat[icov][s][imesh]  = sills.getCholeskyXL(irow,icol);
+        _cholSillsNoStat[icov][s][imesh] = sillsChol.getLowerTriangle(irow,icol);
+        _invCholSillsNoStat[icov][s][imesh] = sillsChol.getUpperTriangleInverse(irow, icol);
          s++;
       }
     }
@@ -296,9 +301,9 @@ int PrecisionOpMulti::_buildMatrices()
   int ncov = _getNCov();
 
   // Do nothing if the array has already been calculated (correct dimension)
-  if (ncov == (int)_cholSills.size()) return 0;
-  _cholSills.resize(ncov);
-  _invCholSills.resize(ncov);
+  if (ncov == (int)_cholSillsStat.size()) return 0;
+  _invCholSillsStat.resize(ncov);
+  _cholSillsStat.resize(ncov);
   _cholSillsNoStat.resize(ncov);
   _invCholSillsNoStat.resize(ncov);
  
@@ -352,22 +357,25 @@ int PrecisionOpMulti::_addToDestImpl(const constvect vecin, vect vecout) const
   if (_getNVar() > 1)
   {
     _workTot.resize(vecin.size());
-    std::fill(_workTot.begin(),_workTot.end(),0.);
-  
-   EVALOP(vecin,_workTot ,_invCholSills,getCholeskyXL,addToDest,iad_struct + jvar * napices,false,x,jvar,nvar,ivar,jvar)
-   EVALOP(_workTot, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,y,0,(jvar+1),jvar,ivar)
+    std::fill(_workTot.begin(), _workTot.end(), 0.);
+
+    EVALOP(vecin, _workTot, _invCholSills, getUpperTriangleInverse, addToDest,
+           iad_struct + jvar * napices, false, x, jvar, nvar, ivar, jvar)
+    EVALOP(_workTot, vecout, _invCholSills, getUpperTriangleInverse, addToDest,
+           iad_struct, true, y, 0, (jvar + 1), jvar, ivar)
   }
-  else 
+  else
   {
-    EVALOP(vecin, vecout ,_invCholSills,getCholeskyXL,addToDest,iad_struct,true,y,0,1,0,0)
+    EVALOP(vecin, vecout, _invCholSills, getUpperTriangleInverse, addToDest,
+           iad_struct, true, y, 0, 1, 0, 0)
   }
 }
 
 int PrecisionOpMulti::_addToDest(const constvect vecin, vect vecout) const
 {
   return _addToDestImpl(vecin,vecout);
-  
 }
+
 /**
  * Simulate based on an input random gaussian vector (Matrix free version)
  * @param vecin  Input array
@@ -378,18 +386,6 @@ int PrecisionOpMulti::_addSimulateToDest(const constvect vecin,
                                          vect vecout) const
 {
   if (!_checkReady()) return 1;
-  EVALOP(vecin,vecout,_cholSills,getCholeskyTL,evalSimulate,iad_struct + jvar * napices,true,y,jvar,nvar,ivar,jvar)
+  EVALOP(vecin, vecout, _cholSills, getLowerTriangle, evalSimulate,
+         iad_struct + jvar * napices, true, y, jvar, nvar, ivar, jvar)
 }
-
-VectorDouble PrecisionOpMulti::evalSimulate(const VectorDouble& vec)
-{
-  if (!_checkReady()) return VectorDouble(); 
-  constvect vecm(vec.data(),vec.size());
-  std::vector<double> out(vec.size());
-  std::fill(out.begin(),out.end(),0.);
-  vect outs(out);
-  _addSimulateToDest(vecm,outs);
-  return out;
-}
-
-                                            
