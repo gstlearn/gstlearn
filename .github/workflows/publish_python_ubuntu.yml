@@ -41,8 +41,8 @@ jobs:
             {py: "3.11"},
             {py: "3.12"}
           ]
-        # Only one old Linux and a generic platform name BUILD_PLAT
-        os: [ubuntu-20.04]
+        # Only one "old"" Linux and a generic platform name BUILD_PLAT
+        os: [ubuntu-22.04]
 
     steps:
     - uses: actions/checkout@v4
