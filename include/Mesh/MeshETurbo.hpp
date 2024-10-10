@@ -118,12 +118,12 @@ public:
 private:
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
-  int  _getPolarized(const VectorInt &indg) const;
+  int  _getPolarized(const std::span<const int> indg) const;
   int  _addWeights(int icas,
-                   const VectorInt &indg0,
-                   const VectorDouble &coor,
-                   VectorInt &indices,
-                   VectorDouble &lambda,
+                   const std::span<const int> indg0,
+                   const constvect coor,
+                   const std::span<int> indices,
+                   const vect lambda,
                    bool verbose = false) const;
   void _deallocate();
   void _getGridFromMesh(int imesh, int *node, int *icas) const;
