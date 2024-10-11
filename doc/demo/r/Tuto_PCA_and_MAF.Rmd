@@ -279,7 +279,7 @@ data_gsPCA = matrix(data$getColumns(names = "PCA.*"),
                     nrow = data$getSampleNumber(), ncol = nv)
 
 # Statistics (mean and variance) compared to the values of eigen
-apply(X = data_gsPCA, MARGIN = 2, mean)
+round(apply(X = data_gsPCA, MARGIN = 2, mean), 8)
 round(t(data_gsPCA) %*% data_gsPCA / (np-1), 8)
 # The factors are centered, normalized, and with a null correlation for h = 0
 
@@ -334,7 +334,7 @@ round(range(abs(abs(maf$getEigVals()) - abs(res_maf$values[sequence]))),8)
 data_gsMAF = matrix(data$getColumns(names = "MAF.*"), 
                     nrow = data$getSampleNumber(), ncol = nv)
 # Statistics (mean and variance)
-apply(X = data_gsMAF, MARGIN = 2, mean)
+round(apply(X = data_gsMAF, MARGIN = 2, mean), 8)
 round(t(data_gsMAF) %*% data_gsMAF / (np -1), 8)
 
 for (i in 1:nv) {
