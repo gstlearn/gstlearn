@@ -67,4 +67,5 @@ private:
   VectorDouble    _angles;
   MatrixSquare _rotMat;
   MatrixSquare _rotInv;
+  mutable VectorDouble _local;
 };

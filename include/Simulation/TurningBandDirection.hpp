@@ -63,4 +63,7 @@ private:
   double _dyp; /* Increment along Y */
   double _dzp; /* Increment along Z */
   VectorDouble _ang; /* Angles for the line orientation */
+
+  mutable VectorInt _indg;
+  mutable VectorDouble _xyz;
 };

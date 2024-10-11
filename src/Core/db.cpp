@@ -736,6 +736,9 @@ int point_to_point(Db* db, const double* coor)
   return (iechmin);
 }
 
+static VectorDouble work1;
+static VectorDouble work2;
+
 /*****************************************************************************/
 /*!
  **  Converts from point coordinates to nearest grid node indices
@@ -763,8 +766,8 @@ int point_to_grid(const DbGrid* db,
                   int* indg)
 {
   int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
+  work1.resize(ndim);
+  work2.resize(ndim);
 
   /* Check if all coordinates are defined */
 

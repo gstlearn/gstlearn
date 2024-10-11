@@ -205,6 +205,10 @@ public:
   static void concatenateInPlace(VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble power(const VectorDouble& vec, double power);
   static VectorDouble inverse(const VectorDouble& vec);
+#ifndef SWIG
+  static void power(VectorDouble& res, const constvect vec, double power);
+  static void inverse(VectorDouble& res, const constvect vec);
+#endif // !SWIG
 
   static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb, int size = -1);
   static double innerProduct(const double* veca, const double* vecb, int size);
