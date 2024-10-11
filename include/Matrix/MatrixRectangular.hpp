@@ -49,11 +49,9 @@ public:
                                  bool flagShiftCol);
   static MatrixRectangular* sample(const AMatrix* A,
                                    const VectorInt& rowKeep = VectorInt(),
-                                   const VectorInt& colKeep = VectorInt());
-  static MatrixRectangular* matrixTest(const MatrixRectangular* mytest = nullptr);
                                    const VectorInt& colKeep = VectorInt(),
-                                   bool flagInvertRow       = false,
-                                   bool flagInvertCol       = false);
+                                   bool flagInvertRow = false,
+                                   bool flagInvertCol = false);
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
                 const VectorInt& colFetch,
@@ -64,4 +62,6 @@ public:
    */
   void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
+
+  MatrixRectangular* matrixTest(const MatrixRectangular* mytest);
 };
