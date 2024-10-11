@@ -5,6 +5,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 3
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix     0.994
 
 Direction #1
@@ -40,13 +41,12 @@ Covariance Part
 ---------------
 Nugget Effect
 - Sill         =      0.193
-Gaussian
-- Sill         =   1435.502
-- Range        =   1592.950
-- Theo. Range  =    920.345
+Cubic
+- Sill         =   3009.934
+- Range        =   3520.190
 Spherical
 - Sill         =      0.575
 - Range        =      2.815
-Total Sill     =   1436.270
+Total Sill     =   3010.702
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

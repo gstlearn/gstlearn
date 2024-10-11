@@ -5,6 +5,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 3
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix   107.340
 
 Direction #1
@@ -55,7 +56,7 @@ Gaussian
 - Theo. Range  =   3025.985
 Cubic
 - Sill         =    104.489
-- Range        =  63806.217
+- Range        =  63806.214
 Total Sill     =    140.220
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #3 (1 for very good)
