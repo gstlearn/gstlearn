@@ -11,6 +11,10 @@ Release 1.5.0
 - A sample index (in the Db) and a boolean (target) have been added to the SpacePoint members
 - Adding the BASH version for files "compare_test" and "update_test" used to handle non-regression output files.
 
+Miscellaneous
+-------------
+- Add the location of non-regression specific files if needed in compare_test and update_test
+
 Release 1.4.1
 =============
 - Fix Zenodo configuration to restore DOI generation
