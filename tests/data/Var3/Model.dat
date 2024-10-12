@@ -1,10 +1,8 @@
 Model 
 3 1 0.000000 # General parameters
-5 # Number of basic covariance terms
+4 # Number of basic covariance terms
 0 # Number of drift terms
 0 1.000000 1.000000 # Covariance characteristics
-0 # Anisotropy Flag
-3 1.000000 1.000000 # Covariance characteristics
 0 # Anisotropy Flag
 4 1.000000 1.000000 # Covariance characteristics
 0 # Anisotropy Flag
