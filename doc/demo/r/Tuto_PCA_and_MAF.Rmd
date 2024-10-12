@@ -242,7 +242,7 @@ data$setLocators("F*", ELoc_Z())
 vario_MAF  = Vario_computeFromDb(varioparam, db=data)
 model_MAF = Model_create()
 err = model_MAF$fit(vario_MAF, 
-                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "CUBIC"))
+                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "SPHERICAL"))
                     )
 model_MAF$display()
 multi.varmod(vario_MAF, model_MAF)

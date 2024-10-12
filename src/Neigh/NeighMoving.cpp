@@ -97,6 +97,7 @@ NeighMoving::~NeighMoving()
 {
   int number = _getBiPtsNumber();
   for (int ipt = 0; ipt < number; ipt++) delete _bipts[ipt];
+  delete _biPtDist;
 }
 
 String NeighMoving::toString(const AStringFormat* strfmt) const
