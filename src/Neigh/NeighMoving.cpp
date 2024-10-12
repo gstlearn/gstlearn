@@ -95,11 +95,8 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
 
 NeighMoving::~NeighMoving()
 {
-  /*
   int number = _getBiPtsNumber();
-  for (int ipt = 0; ipt < number; ipt++)
-    delete _bipts[ipt];
-    */
+  for (int ipt = 0; ipt < number; ipt++) delete _bipts[ipt];
 }
 
 String NeighMoving::toString(const AStringFormat* strfmt) const

@@ -148,6 +148,8 @@ Vario& Vario::operator=(const Vario& r)
 
 Vario::~Vario()
 {
+  for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+    delete _bipts[ipt];
 }
 
 Vario* Vario::create(const VarioParam& varioparam)
