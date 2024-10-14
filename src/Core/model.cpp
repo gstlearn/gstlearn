@@ -163,7 +163,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
 
   DriftList* drifts = DriftFactory::createDriftListForGradients(model->getDriftList(), ctxt);
   new_model->setDriftList(drifts);
-
+  delete drifts;
   return (new_model);
 }
 

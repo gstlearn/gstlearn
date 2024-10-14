@@ -160,8 +160,8 @@ Vario* Vario::create(const VarioParam& varioparam)
 Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
 {
   std::ifstream is;
-  VarioParam* varioparam = new VarioParam();
-  Vario* vario = new Vario(*varioparam);
+  VarioParam varioparam = VarioParam();
+  Vario* vario = new Vario(varioparam);
   bool success = false;
   if (vario->_fileOpenRead(neutralFilename, is, verbose))
   {
@@ -170,7 +170,6 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   if (! success)
   {
     delete vario;
-    delete varioparam;
     vario = nullptr;
   }
   return vario;

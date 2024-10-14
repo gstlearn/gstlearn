@@ -49,23 +49,27 @@ NeighMoving::NeighMoving(bool flag_xvalid,
 }
 
 NeighMoving::NeighMoving(const NeighMoving& r)
-    : ANeigh(r),
-      _nMini(r._nMini),
-      _nMaxi(r._nMaxi),
-      _nSect(r._nSect),
-      _nSMax(r._nSMax),
-      _distCont(r._distCont),
-      _biPtDist(r._biPtDist),
-      _movingInd(r._movingInd),
-      _movingIsect(r._movingIsect),
-      _movingNsect(r._movingNsect),
-      _movingDst(r._movingDst),
-      _T1(r._T1),
-      _T2(r._T2)
+  : ANeigh(r)
+  , _nMini(r._nMini)
+  , _nMaxi(r._nMaxi)
+  , _nSect(r._nSect)
+  , _nSMax(r._nSMax)
+  , _distCont(r._distCont)
+  , _biPtDist(nullptr)
+  , _bipts()
+  , _movingInd(r._movingInd)
+  , _movingIsect(r._movingIsect)
+  , _movingNsect(r._movingNsect)
+  , _movingDst(r._movingDst)
+  , _T1(r._T1)
+  , _T2(r._T2)
 {
   for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
     //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
     _bipts.push_back(r._bipts[ipt]);
+
+  // _biPtDist = r._biPtDist;
+  _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
 }
 
 NeighMoving& NeighMoving::operator=(const NeighMoving& r)
@@ -74,30 +78,35 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
   {
     ANeigh::operator=(r);
     _nMini = r._nMini;
-    _nMaxi = r._nMaxi;
-    _nSect = r._nSect;
-    _nSMax = r._nSMax;
-    _distCont = r._distCont;
-    _biPtDist = r._biPtDist;
-    _movingInd = r._movingInd;
+    _nMaxi       = r._nMaxi;
+    _nSect       = r._nSect;
+    _nSMax       = r._nSMax;
+    _distCont    = r._distCont;
+    _movingInd   = r._movingInd;
     _movingIsect = r._movingIsect;
     _movingNsect = r._movingNsect;
-    _movingDst = r._movingDst;
-    _T1 = r._T1;
-    _T2 = r._T2;
+    _movingDst   = r._movingDst;
+    _T1          = r._T1;
+    _T2          = r._T2;
 
     for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
       //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
       _bipts.push_back(r._bipts[ipt]);
-   }
+    delete _biPtDist;
+  //  _biPtDist = r._biPtDist;
+    _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
+  }
   return *this;
 }
 
 NeighMoving::~NeighMoving()
 {
   int number = _getBiPtsNumber();
-  for (int ipt = 0; ipt < number; ipt++) delete _bipts[ipt];
+  for (int ipt = 0; ipt < number; ipt++)
+    delete _bipts[ipt];
+  _bipts.clear();
   delete _biPtDist;
+  _biPtDist = nullptr;
 }
 
 String NeighMoving::toString(const AStringFormat* strfmt) const
@@ -182,6 +191,7 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
 
   setNSect((getFlagSector()) ? MAX(_nSect, 1) : 1);
 
+  delete _biPtDist;
   _biPtDist = BiTargetCheckDistance::create(dmax, nbgh_coeffs);
   if (! nbgh_rotmat.empty())
     _biPtDist->setAnisoRotMat(nbgh_rotmat);

@@ -85,12 +85,11 @@ ANeigh::~ANeigh()
 int ANeigh::attach(const Db *dbin, const Db *dbout)
 {
   if (dbin == nullptr || dbout == nullptr) return 1;
-  _dbin = dbin;
+  _dbin  = dbin;
   _dbout = dbout;
 
   // Check if the output Db is defined and is a grid
-  if (_dbout != nullptr)
-    _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+  if (_dbout != nullptr) _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
   // Attach the Ball Tree search (if relevant)
 
@@ -124,10 +123,10 @@ void ANeigh::reset()
   _flagIsUnchanged = false;
   _nbghMemo.clear();
   _rankColCok.clear();
-  _iechMemo = -1;
-  _flagSimu = false;
+  _iechMemo   = -1;
+  _flagSimu   = false;
   _flagXvalid = false;
-  _flagKFold = false;
+  _flagKFold  = false;
 }
 
 /**

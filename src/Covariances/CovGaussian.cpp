@@ -46,15 +46,16 @@ double CovGaussian::getScadef() const
 
 double CovGaussian::_evaluateCov(double h) const
 {
-  if (h > MAX_EXP2) return (0.);
-  double cov = exp(-h * h);
+  double r2 = h * h;
+  if (r2 > MAX_EXP) return 0.;
+  double cov = exp(-r2);
   return (cov);
 }
 
 double CovGaussian::_evaluateCovDerivative(int degree, double h) const
 {
-  if (h > MAX_EXP2) return (0.);
   double r2 = h * h;
+  if (r2 > MAX_EXP) return 0.;
 
   double cov = 0.;
   switch (degree)

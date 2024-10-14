@@ -29,9 +29,10 @@ public:
 
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
-  static BiTargetCheckDistance* create(double radius = TEST,
-                                      const VectorDouble& coeffs = VectorDouble(),
-                                      const VectorDouble& angles = VectorDouble());
+  static BiTargetCheckDistance*
+  create(double radius              = TEST,
+         const VectorDouble& coeffs = VectorDouble(),
+         const VectorDouble& angles = VectorDouble());
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -45,6 +46,7 @@ public:
   int getFlagRotation() const { return _flagRotation; }
   double getRadius() const { return _radius; }
 
+  void setNDim(int ndim) { _ndim = ndim; }
   void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
   void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }
   void setFlagAniso(int flagAniso) { _flagAniso = flagAniso; }

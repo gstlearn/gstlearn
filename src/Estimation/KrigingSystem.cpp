@@ -2893,11 +2893,11 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
 
-  NeighUnique neighU = NeighUnique::create(false);
-  neighU.attach(dbaux, dbaux);
+  NeighUnique* neighU = NeighUnique::create(false);
+  neighU->attach(dbaux, dbaux);
 
   _iechOut = dbaux->getSampleNumber() / 2;
-  neighU.select(_iechOut, _nbgh);
+  neighU->select(_iechOut, _nbgh);
   if (_setInternalShortCutVariablesNeigh()) return error;
 
   /* Establish the L.H.S. */
@@ -2923,6 +2923,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   label_end:
   _dbin  = dbin_loc;
   _dbout = dbout_loc;
+  delete neighU;
   return error;
 }
 
