@@ -13,6 +13,7 @@ Release 1.5.0
 
 Miscellaneous
 -------------
+- No more Leak in non-regression tests for Data
 - Add the location of non-regression specific files if needed in compare_test and update_test
 
 Release 1.4.1

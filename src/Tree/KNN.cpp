@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Tree/KNN.hpp"
 #include "Tree/ball_algorithm.h"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 
 KNN::KNN()
@@ -47,8 +46,11 @@ KNN::~KNN()
 {
 }
 
-t_nheap* KNN::_query(
-  t_btree* tree, const double** x, int n_samples, int n_features, int n_neigh)
+t_nheap* KNN::_query(t_btree* tree,
+                     const double** x,
+                     int n_samples,
+                     int n_features,
+                     int n_neigh)
 {
   t_nheap* heap = nullptr;
 
@@ -75,20 +77,21 @@ t_nheap* KNN::_query(
   return heap;
 }
 
-int KNN::btree_query(
-  t_btree* tree, const double** x, int n_samples, int n_features, int n_neigh)
+int KNN::btree_query(t_btree* tree,
+                     const double** x,
+                     int n_samples,
+                     int n_features,
+                     int n_neigh)
 {
   t_nheap* heap = _query(tree, x, n_samples, n_features, n_neigh);
   if (heap == nullptr) return 1;
 
-  // Returned arguments
   _distances = copy_double_toVVD((const double**)heap->distances, heap->n_pts,
                                  heap->n_nbrs);
-  _indices =
-    copy_int_toVVI((const int**)heap->indices, heap->n_pts, heap->n_nbrs);
+  _indices = copy_int_toVVI((const int**)heap->indices, heap->n_pts, heap->n_nbrs);
   _n_samples   = heap->n_pts;
   _n_neighbors = heap->n_nbrs;
-  free(heap);
+  heap = nheap_free(heap);
 
   return 0;
 }
@@ -115,7 +118,7 @@ int KNN::btree_query_inPlace(t_btree* tree,
       indices[j]   = heap->indices[rank][j];
       distances[j] = heap->distances[rank][j];
     }
-    free(heap);
+    heap = nheap_free(heap);
   }
   return 0;
 }

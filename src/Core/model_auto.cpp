@@ -2153,6 +2153,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       {
         MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
         cova->setSill(*mat);
+        delete mat;
       }
       flag_rot = flag_aic = 0;
     }
@@ -2225,6 +2226,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     {
       MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
       cova->setSill(*mat);
+      delete mat;
     }
     flag_aic = 0;
   }

@@ -26,7 +26,6 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
-#include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"

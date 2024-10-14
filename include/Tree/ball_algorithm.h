@@ -109,8 +109,9 @@ double euclidean_distance(const double* x1, const double* x2, int size);
 ** neighbors_heap.c
 */
 
-t_nheap	*nheap_init(int n_pts, int n_nbrs);
-double	 nheap_largest(t_nheap *h, int row);
+t_nheap* nheap_init(int n_pts, int n_nbrs);
+t_nheap* nheap_free(t_nheap* heap);
+double   nheap_largest(t_nheap* h, int row);
 int		   nheap_push(t_nheap *h, int row, double val, int i_val);
 void     nheap_sort(t_nheap *h);
 void     nheap_load(t_nheap *heap, t_btree *b, const double **x);
