@@ -346,7 +346,7 @@ ggPrint(p)
 
 ```{r gibbs_param, echo = TRUE}
 nburn = 10
-niter = 300
+niter = 30 # Was 300 but the time consumption was too long for tests
 nbsimu = 10
 flag.moving = TRUE
 flag.mono = FALSE

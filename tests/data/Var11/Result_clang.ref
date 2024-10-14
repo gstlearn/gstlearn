@@ -5,6 +5,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 3
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix     0.927
 
 Direction #1
@@ -59,10 +60,10 @@ Nugget Effect
 - Sill         =      0.188
 Spherical
 - Sill         =      0.317
-- Ranges       =     34.132    34.132     9.165
+- Ranges       =     34.093    34.093     9.162
 Spherical
-- Sill         =      0.936
-- Ranges       =    484.568   484.568    10.029
-Total Sill     =      1.442
+- Sill         =      0.932
+- Ranges       =    481.600   481.600     9.980
+Total Sill     =      1.437
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)

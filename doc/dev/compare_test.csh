@@ -85,7 +85,7 @@ set FILEAUX = $RADIX_AUX/$directaux/$nameref
 set FILETMP = $FILEREF
 if (-e $FILEAUX) then
 	set FILETMP = $FILEAUX
-	echo ">>> Using non-standard reference"
+	echo ">>> Using non-standard reference (" $FILETMP ")"
 endif
 
 set FILECMP = $RADIX_TO/$option/$directest/$namecmp

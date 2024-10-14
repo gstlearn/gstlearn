@@ -35,8 +35,8 @@ Ball::Ball(const VectorVectorDouble& data,
            int default_distance_function)
   : _tree(nullptr)
 {
-  int n_samples = (int) data[0].size();
-  int n_features = (int) data.size();
+  int n_samples     = (int)data[0].size();
+  int n_features    = (int)data.size();
   double** internal = copy_double_arrAsVVD(data);
   _tree = btree_init((const double**)internal, n_samples, n_features,
                      dist_function, leaf_size, default_distance_function);
@@ -53,12 +53,13 @@ Ball::Ball(const Db* db,
   : _tree(nullptr)
 {
   VectorVectorDouble data = db->getAllCoordinates(useSel);
-  int n_samples = (int) data[0].size();
-  int n_features = (int) data.size();
-  double** internal = copy_double_arrAsVVD(data);
+  int n_samples           = (int)data[0].size();
+  int n_features          = (int)data.size();
+  double** internal       = copy_double_arrAsVVD(data);
   _tree = btree_init((const double**)internal, n_samples, n_features,
                      dist_function, leaf_size, default_distance_function);
-  free_2d_double(internal, n_features);
+  //free_2d_double(internal, n_features);
+  free_2d_double(internal, n_samples);
 }
 
 void Ball::init(const Db* db,
@@ -69,13 +70,15 @@ void Ball::init(const Db* db,
                 int default_distance_function,
                 bool useSel)
 {
+  if (_tree != nullptr) free_tree(_tree);
   VectorVectorDouble data = db->getAllCoordinates(useSel);
   int n_samples           = (int)data[0].size();
   int n_features          = (int)data.size();
   double** internal       = copy_double_arrAsVVD(data);
   _tree = btree_init((const double**)internal, n_samples, n_features,
                      dist_function, leaf_size, default_distance_function);
-  free_2d_double(internal, n_features);
+  // free_2d_double(internal, n_features);
+  free_2d_double(internal, n_samples);
 }
 
 Ball::~Ball()
@@ -98,7 +101,8 @@ KNN Ball::queryAsVVD(const VectorVectorDouble& test, int n_neighbors)
   int n_features = (int) test.size();
   double** internal = copy_double_arrAsVVD(test);
   (void) knn.btree_query(_tree, (const double**) internal, n_samples, n_features, n_neighbors);
-  free_2d_double(internal, n_features);
+  //  free_2d_double(internal, n_features);
+  free_2d_double(internal, n_samples);
   return knn;
 }
 

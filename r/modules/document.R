@@ -114,7 +114,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
 #' TODO: the color does not function... to be fixed.
 #' remark: the returned string must be displayed in a RMarkdown chunk as follows:
 #'   {r, echo=FALSE, result='asis'}
-#'    cat(XXX, sep='\n')
+#'    cat(XXX, sep='new_line')
 loadDoc <- function(filename, verbose=FALSE)
 {
   if (!require("stringr", quietly=TRUE))

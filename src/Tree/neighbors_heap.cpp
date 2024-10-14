@@ -54,6 +54,19 @@ t_nheap* nheap_init(int n_pts, int n_nbrs)
   return (h);
 }
 
+t_nheap* nheap_free(t_nheap* heap)
+{
+  if (heap == nullptr) return heap;
+  int n_pts = heap->n_pts;
+  for (int i = 0; i < n_pts; i++) free(heap->distances[i]);
+  free(heap->distances);
+  for (int i = 0; i < n_pts; i++) free(heap->indices[i]);
+  free(heap->indices);
+  free(heap);
+  heap = nullptr;
+  return heap;
+}
+
 void nheap_load(t_nheap* heap, t_btree* b, const double** x)
 {
   double dist;

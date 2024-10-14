@@ -46,6 +46,7 @@ jobs:
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev \
+          libpng-dev \
           pandoc
 
     - name: Setup Python Version

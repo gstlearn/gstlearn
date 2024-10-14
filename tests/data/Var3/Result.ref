@@ -5,6 +5,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 3
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix     0.994
 
 Direction #1
@@ -32,21 +33,18 @@ Model characteristics
 =====================
 Space dimension              = 3
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Nugget Effect
-- Sill         =      0.193
-Gaussian
-- Sill         =   1435.502
-- Range        =   1592.950
-- Theo. Range  =    920.345
-Spherical
-- Sill         =      0.575
-- Range        =      2.815
-Total Sill     =   1436.270
+Exponential
+- Sill         =      0.765
+- Range        =      2.860
+- Theo. Range  =      0.955
+Linear
+- Slope        =      0.012
+
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

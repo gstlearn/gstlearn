@@ -48,7 +48,7 @@ double CovExponential::getScadef() const
 
 double CovExponential::_evaluateCov(double h) const
 {
-  if (h > 100) return (0.);
+  if (h > MAX_EXP) return (0.);
   double cov = exp(-h);
   return (cov);
 }
