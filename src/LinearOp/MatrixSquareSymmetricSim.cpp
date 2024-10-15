@@ -22,7 +22,6 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,
                                                    bool inverse)
   : ASimulable()
   , _inverse(inverse)
-  , _sparse(false)
   , _factor(nullptr)
 
 {
@@ -32,7 +31,6 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,
     return;
   }
 
-  _sparse = m->isSparse();
   if (m->isSparse())
   {
     const MatrixSparse* matCS = dynamic_cast<const MatrixSparse*>(m);

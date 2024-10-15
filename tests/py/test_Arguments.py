@@ -111,19 +111,21 @@ print(gl.argumentReturnMatrixSparse(3,4))
 #   (instead of using the typemap which would convert it to a numpy array)
 
 # Principle applied to a Dense rectangular matrix
-
 mat = np.array([[1,2,3],[2,1,2],[3,2,1]])
 print(mat)
-newmat = gl.MatrixRectangular.create(mat)
-newmat.display()
+newmatd = gl.MatrixRectangular.create(mat)
+newmatd.display()
 
 # Same applied to a Sparse matrix
-
 rows = np.array([0,3,1,0,1])
 cols = np.array([0,3,1,2,0])
 data = np.array([4,5,7,9,2])
 A = sc.csr_array((data,(rows,cols)),shape=(4,5))
-newmat = gl.MatrixSparse.create(A)   
-newmat.display() 
+newmats = gl.MatrixSparse.create(A)   
+newmats.display() 
+
+# Entering in the 'create' module with an already existing pointer
+bismat = gl.MatrixRectangular.create(newmatd)
+bismat.display()
 
 print("Test successfully performed")

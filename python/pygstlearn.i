@@ -299,7 +299,10 @@
       }
     }
     // Convert VVD to Matrix
-    mat.resetFromVVD(vvec);
+    if (! vvec.empty())
+      mat.resetFromVVD(vvec);
+    else
+      myres = SWIG_TypeError;
     
     // else size is zero (empty vector)
     return myres;
@@ -309,6 +312,7 @@
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+
     PyArrayObject* data_array = nullptr;
     PyArrayObject* rows_array = nullptr;
     PyArrayObject* cols_array = nullptr;
@@ -341,8 +345,6 @@
     int nnz = PyArray_DIM(data_array, 0);
 
     // Reading 'row' and 'col' or 'indices' and 'indptr' information
-
-    
     VectorInt Vrows(nnz);
     VectorInt Vcols(nnz);
     int* rows = nullptr;

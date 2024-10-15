@@ -38,7 +38,6 @@ public:
   const AMatrix* getMatrix() const;
   int  getSize() const override;
   bool isEmpty() const { return _factor == nullptr; }
-  bool isSparse() const { return _sparse; }
   
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
@@ -49,6 +48,5 @@ protected:
 
 private:
   bool _inverse;
-  bool _sparse;
   ACholesky* _factor;
 };
