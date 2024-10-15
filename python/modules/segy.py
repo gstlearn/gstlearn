@@ -98,7 +98,7 @@ def getGridCharacteristics(f, verbose=False):
     bin = f.bin
     nz  = bin.__getitem__(BinField.Samples)
     dz  = bin.__getitem__(BinField.Interval) / 1000
-    z00 = -dz * nz
+    z00 = -dz * nz - f.header[0][segyio.tracefield.TraceField.DelayRecordingTime]
     
     # Coordinates of the several key nodes
     x00, y00 = getCoordinates(f, 0)

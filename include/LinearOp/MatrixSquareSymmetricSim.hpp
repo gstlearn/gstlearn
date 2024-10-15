@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
 #include "LinearOp/ACholesky.hpp"
 #include "Matrix/AMatrix.hpp"

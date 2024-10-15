@@ -24,7 +24,7 @@ endif()
 # Include directories
 target_include_directories(shared PUBLIC
   # Installed includes are made PUBLIC for client who links the shared library
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
 )
 
 # Install the shared library

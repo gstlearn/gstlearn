@@ -73,7 +73,7 @@ FILETMP="$FILEREF"
 
 if [ -e "$FILEAUX" ]; then
     FILETMP="$FILEAUX"
-    echo ">>> Using non-standard reference"
+    echo ">>> Using non-standard reference (" $FILETMP ")"
 fi
 
 FILECMP="$RADIX_TO/$option/$directest/$namecmp"
