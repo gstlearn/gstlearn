@@ -37,6 +37,7 @@ public:
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
 
+  static MatrixRectangular* create(const MatrixRectangular* mat);
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
@@ -62,6 +63,4 @@ public:
    */
   void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
-
-  MatrixRectangular* matrixTest(const MatrixRectangular* mytest);
 };

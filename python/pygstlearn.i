@@ -266,8 +266,6 @@
 
   int matrixDenseToCpp(PyObject* obj, MatrixRectangular& mat)
   {
-    message("On passe par matrixDenseToCpp\n");
-
     // Type definitions
     VectorVectorDouble vvec;
     mat.resize(0, 0);
@@ -533,7 +531,6 @@
     int myres = SWIG_TypeError;
     using SizeType = typename Vector::size_type;
     using InputType = typename Vector::value_type;
-    message("On passe dans VectorFromCpp\n");
 
     // Conversion
     if (hasFixedSize<InputType>()) // Convert to 1D NumPy array
@@ -634,8 +631,6 @@
   //template <typename MatrixTemp>
   int matrixDenseFromCpp(PyObject** obj, const AMatrixDense& mat)
   {
-    message("On passe par matrixDenseFromCpp\n");
-
     // Conversion to a 2D numpy array
     npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
     *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
@@ -651,6 +646,13 @@
       }
     }
     return SWIG_OK;
+  }
+
+  int matrixDenseFromCppCreate(PyObject** obj, const MatrixRectangular& mat)
+  {
+    *obj = SWIG_NewPointerObj((void*) new MatrixRectangular(mat), SWIGTYPE_p_MatrixRectangular, 0);
+    int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
+    return myres;
   }
 
   int matrixSparseFromCpp(PyObject** obj, const MatrixSparse& mat)
@@ -706,6 +708,12 @@
     return SWIG_OK;
   }
 
+  int matrixSparseFromCppCreate(PyObject** obj, const MatrixSparse& mat)
+  {
+    *obj = SWIG_NewPointerObj((void*) new MatrixSparse(mat), SWIGTYPE_p_MatrixSparse, 0);
+    int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
+    return myres;
+  }
 }
 
 //////////////////////////////////////////////////////////////

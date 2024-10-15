@@ -127,6 +127,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   // Static functions
+  static MatrixSparse* create(const MatrixSparse* mat);
   static MatrixSparse* createFromTriplet(const NF_Triplet &NF_T,
                                          int nrow = 0,
                                          int ncol = 0,

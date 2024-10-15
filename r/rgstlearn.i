@@ -459,10 +459,15 @@
     return SWIG_OK;
   }
 
+  int matrixDenseFromCppCreate(SEXP* obj, const MatrixRectangular& mat)
+  {
+    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixRectangular, 0 |  0 );
+    int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
+    return myres;
+  }
+
   int matrixSparseFromCpp(SEXP* obj, const MatrixSparse& mat)
   {
-    printf("On passe dans matrixsparse from Cpp\n");
-
     // Type definitions
     int nrows = mat.getNRows();
     int ncols = mat.getNCols();
@@ -506,6 +511,13 @@
 
     UNPROTECT(6); // Unprotect R objects (R_i, R_j, R_x, R_dim, and classDef)
     return SWIG_OK;
+  }
+
+  int matrixSparseFromCppCreate(SEXP* obj, const MatrixSparse& mat)
+  {
+    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixSparse, 0 |  0 );
+    int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
+    return myres;
   }
 
 }
@@ -1098,6 +1110,32 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
+
+"MatrixRectangular_create" <- function(mat)
+{
+  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+  ;ans = .Call('R_swig_MatrixRectangular_create', mat, PACKAGE='gstlearn');
+  ans <- if (is.null(ans)) ans
+  else new("_p_Plane", ref=ans);
+  
+  ans
+}
+attr(`MatrixRectangular_create`, 'returnType') = '_p_MatrixRectangular'
+attr(`MatrixRectangular_create`, "inputTypes") = c('_p_MatrixRectangular')
+class(`MatrixRectangular_create`) = c("SWIGFunction", class('MatrixRectangular_create'))
+
+"MatrixSparse_create" <- function(mat)
+{
+  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+  ;ans = .Call('R_swig_MatrixSparse_create', mat, PACKAGE='gstlearn');
+  ans <- if (is.null(ans)) ans
+  else new("_p_Plane", ref=ans);
+  
+  ans
+}
+attr(`MatrixSparse_create`, 'returnType') = '_p_MatrixSparse'
+attr(`MatrixSparse_create`, "inputTypes") = c('_p_MatrixSparse')
+class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
 
 "MatrixRectangular_fromTL" <- function(Robj)
 {

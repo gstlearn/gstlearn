@@ -568,6 +568,11 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
 }
 #endif
 
+MatrixSparse* MatrixSparse::create(const MatrixSparse* mat)
+{
+  return new MatrixSparse(*mat);
+}
+
 MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
                                               int nrow,
                                               int ncol,

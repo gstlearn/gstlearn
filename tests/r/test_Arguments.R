@@ -112,6 +112,31 @@ data = c(4,5,7,9)
 A = sparseMatrix(i = rows, j = cols, x = data, dims = c(4, 4))
 mat = argumentTestMatrixSparse(A)
 
-print(argumentReturnMatrixSparse(3,4))
+print(argumentReturnMatrixSparse(3, 4))
+
+# Testing the typemap for in and not out
+# - A matrix is constructed a a R 'matrix' format
+# - It is passed to create() method of MatrixRectangular which expects a MatrixRectangular
+#   (this requires the typemap 'toCpp')
+# - This method returns a copy of the input matrix as a MatrixRectangular*
+# - This is the ONLY method which returns a gstlearn pointer 
+#   (instead of using the typemap which would convert it to a 'matrix' array)
+
+# Principle applied to Dense Rectangular matrix
+
+mat = matrix(c(1,2,3,4,5,6), nrow=3, ncol=2)
+print(mat)
+newmat = MatrixRectangular_create(mat)
+newmat$display()
+
+# Same applied to a Sparse matrix
+
+rows = c(1,4,2,1)
+cols = c(1,4,2,3)
+data = c(4,5,7,9)
+A = sparseMatrix(i = rows, j = cols, x = data, dims = c(4, 4))
+mat = argumentTestMatrixSparse(A)
+newmat = MatrixSparse_create(A)   
+newmat$display() 
 
 cat("Test successfully performed\n")

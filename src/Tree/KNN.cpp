@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Tree/KNN.hpp"
 #include "Tree/ball_algorithm.h"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 
 KNN::KNN()
