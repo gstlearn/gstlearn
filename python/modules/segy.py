@@ -230,6 +230,7 @@ def checkCompatible(fileSEGYs, verbose=False):
     
     return True
 
+
 def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = None, 
                  verbose=False):
     '''

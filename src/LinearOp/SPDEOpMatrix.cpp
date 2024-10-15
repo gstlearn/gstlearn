@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/SPDEOpMatrix.hpp"
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "LinearOp/MatrixSquareSymmetricSim.hpp"
@@ -37,9 +35,9 @@ int SPDEOpMatrix::_solve(const constvect inv, vect outv) const
 {
   if (_chol == nullptr)
   {
-    _chol = new Cholesky(&_QpAinvNoiseAt);
+    _chol = new CholeskySparse(&_QpAinvNoiseAt);
   }
-  return _chol->solve(inv,outv);
+  return _chol->solve(inv, outv);
 }
 
 /*****************************************************************************/

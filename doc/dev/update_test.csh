@@ -1,11 +1,9 @@
 #!/bin/csh -f
 
 # This script is meant to update the reference output file starting from the resulting test file output file Release mode only)
+# This script requires the environment variable GSTLEARN_DIR
 # 
-
-# Reference directory
-set command_location = `dirname $0`
-set DIR = $command_location/../..
+set DIR = $GSTLEARN_DIR/gstlearn
 
 set nargs = $#argv
 if ($nargs < 2) then

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Matrix/AMatrix.hpp"
@@ -68,13 +69,13 @@ public:
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
                          const VectorDouble &tab,
-                         bool flagCheck = true) override;
+                         bool flagCheck = false) override;
   /*! Set the contents of a Row */
   virtual void setRow(int irow,
                       const VectorDouble &tab,
-                      bool flagCheck = true) override;
+                      bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true) override;
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) override;
   /*! Add a value to each matrix component */
@@ -152,6 +153,10 @@ private:
                        bool optionPositive = true,
                        bool changeOrder = false);
 
+#ifndef SWIG
+  public:
+  constvect getViewOnColumn(int icol) const;
+#endif
 #ifndef SWIG
   public:
   const Eigen::MatrixXd* getTab() const

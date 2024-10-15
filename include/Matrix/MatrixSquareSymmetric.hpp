@@ -74,38 +74,9 @@ public:
                                      const VectorDouble& bimat,
                                      VectorDouble& xmat);
 
-  // Next methods regards the Cholesky decomposition. They also focus on the specific storage mode
-  // used for symmetric matrices, i.e. the Cholesky decomposition, giving room to the upper or lower
-  // triangular storage.
-  // This is temporarily ensured as a VectorDouble handelde within this class. It should probably
-  // become a sperate class in the future.
-  int getTriangleSize() const;
-  int computeCholesky();
-  int invertCholesky();
-  int solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x);
-  int solveCholesky(const VectorDouble& b, VectorDouble& x);
-  
-  VectorDouble getCholeskyTL() const;
-  double getCholeskyTL(int i, int j) const;
-  double getCholeskyTL(int iad) const;
-  VectorDouble getCholeskyXL() const;
-  double getCholeskyXL(int i, int j) const;
-  static MatrixRectangular productCholeskyInPlace(int mode,
-                                                  int neq,
-                                                  int nrhs,
-                                                  const VectorDouble &tl,
-                                                  const MatrixRectangular &a);
-  static MatrixSquareSymmetric normCholeskyInPlace(int mode,
-                                                   int neq,
-                                                   const VectorDouble &tl,
-                                                   const MatrixSquareSymmetric &a);
-  double computeCholeskyLogDeterminant() const;
-  
-  virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
-  virtual void    _setValues(const double* values, bool byCol = true) override;
-  virtual int     _invert() override;
-
-  void    _recopy(const MatrixSquareSymmetric& r);
+  virtual bool _isPhysicallyPresent(int irow, int icol) const override;
+  virtual void _setValues(const double* values, bool byCol = true) override;
+  virtual int  _invert() override;
 
   // Local functions (old style algebra)
   int _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
@@ -136,16 +107,11 @@ public:
                                        const VectorDouble& tabimat,
                                        VectorDouble& tabout);
   static int _constraintsCount(int nai, VectorInt& active);
-  bool _checkCholeskyAlreadyPerformed(int status) const;
   int _terminateEigen(const VectorDouble &eigenValues,
                       const VectorDouble &eigenVectors,
                       bool optionPositive = true,
                       bool changeOrder = false);
 
 private:
-  bool _flagCholeskyDecompose;
-  bool _flagCholeskyInverse;
-  VectorDouble _tl; // Lower triangular matrix (after Cholesky decomposition)
-  VectorDouble _xl; // Lower triangular matrix (inverse of _tl)
-  Eigen::LLT<Eigen::MatrixXd> _factor; // Cholesky decomposition (Eigen format)
+  int _getTriangleSize() const;
 };

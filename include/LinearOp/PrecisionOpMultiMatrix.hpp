@@ -10,8 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/Cholesky.hpp"
-
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 

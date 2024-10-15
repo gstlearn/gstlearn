@@ -200,6 +200,10 @@ void Tensor::applyInverseInPlace(const VectorDouble &vec, VectorDouble &out) con
   _tensorInverse.prodMatVecInPlace(vec, out);
 }
 
+void Tensor::applyInverseInPlace(constvect vec, vect out) const
+{
+  _tensorInverse.prodMatVecInPlace(vec, out);
+}
 void Tensor::applyInverse2InPlace(const VectorDouble &vec, VectorDouble &out) const
 {
   _tensorInverse2.prodMatVecInPlace(vec, out);

@@ -1362,7 +1362,7 @@ int spde_attach_model(Model *model)
     if (cova->getType() == ECov::NUGGET)
     {
       if (model->getCova(icov)->getSill(0, 0) > 0)
-        st_set_filnug(model->isCovaFiltered(icov));
+        st_set_filnug(model->getCovAnisoList()->isFiltered(icov));
     }
     else
     {
@@ -1484,7 +1484,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     {
       flag_nugget = 1;
       if (model->getSill(icov, 0, 0) > 0)
-        st_set_filnug(model->isCovaFiltered(icov));
+        st_set_filnug(model->getCovAnisoList()->isFiltered(icov));
     }
     else
     {
@@ -3703,10 +3703,10 @@ int spde_chebychev_operate(MatrixSparse *S,
 
   /* Core allocation */
 
-  VectorDouble tm1(nvertex);
   VectorDouble tm2(nvertex);
   VectorDouble px(nvertex);
   VectorDouble tx(nvertex);
+  VectorDouble tm1(nvertex);
 
   /* Create the T1 sparse matrix */
 
@@ -3721,7 +3721,7 @@ int spde_chebychev_operate(MatrixSparse *S,
     tm1[i] = 0.;
     y[i] = x[i];
   }
-  if (T1->addVecInPlace(y, tm1)) goto label_end;
+  if (T1->addVecInPlaceVD(y, tm1)) goto label_end;
   for (int i = 0; i < nvertex; i++)
   {
     px[i] = coeffs[0] * y[i] + coeffs[1] * tm1[i];

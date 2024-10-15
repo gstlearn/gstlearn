@@ -10,13 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include <vector>
 
-
 class PrecisionOp;
 class IProjMatrix;
+class CholeskySparse;
 
 /**
  * Class to store objects for SPDE
@@ -47,5 +46,5 @@ private:
   int _buildQpAtA();
 
   MatrixSparse* _Q;
-  mutable Cholesky* _chol;
+  mutable CholeskySparse* _chol;
 };

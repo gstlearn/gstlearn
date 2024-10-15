@@ -36,7 +36,7 @@ public:
   static void display(const String &title, const VectorString &vect, bool skipLine = true);
   static void display(const String &title, const VectorInt &vect, bool skipLine = true);
   static void dump(const String &title, const VectorDouble& vect);
-
+  static String toStringAsSpan(constvect vec);
   static String toStringAsVD(const VectorDouble& vec); // TODO rename
   static String toStringAsVVD(const VectorVectorDouble& vec);
   static String toStringAsVS(const VectorString& vec);
@@ -129,6 +129,7 @@ public:
                          VectorVectorDouble &outv);
   static void addSquareInPlace(VectorDouble &dest, const VectorDouble &src);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
+  static VectorDouble subtract(constvect veca,constvect vecb);
   static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);

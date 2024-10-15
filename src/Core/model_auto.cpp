@@ -31,6 +31,7 @@
 #include "Variogram/Vario.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Core/Keypair.hpp"
 
 #include <math.h>
@@ -4321,16 +4322,19 @@ static void st_vario_varchol_manage(const Vario *vario,
       for (int jvar = 0; jvar <= ivar; jvar++)
         mat.setValue(ivar, jvar, vario->getVar(ivar, jvar));
   }
-  if (mat.computeCholesky())
+
+  CholeskyDense matChol(&mat);
+  if (! matChol.isReady())
   {
     /* The matrix is filled arbitrarily */
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
         mat.setValue(ivar, jvar, (ivar == jvar));
-    if (mat.computeCholesky())
+    matChol.setMatrix(&mat);
+    if (! matChol.isReady())
       messageAbort("Error in st_vario_varchol_manage(): This should never happen");
   }
-  varchol = mat.getCholeskyTL();
+  varchol = matChol.getLowerTriangle();
 }
 
 /****************************************************************************/

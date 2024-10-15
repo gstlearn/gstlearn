@@ -65,7 +65,7 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 def setNoScroll():
     display(Javascript(disable_js))
 
-def locateFile(filename, where='references', directory=None, verbose=False):
+def locateFile(filename, where='references', directory=None, verbose=False, version=package_version):
     '''
     Return the absolute path of a file:
     - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
@@ -115,7 +115,7 @@ def locateFile(filename, where='references', directory=None, verbose=False):
         return None
     
     # Download from Internet in a temporary file
-    localname = urlGST + '/' + package_version + '/' + where + '/' + filename
+    localname = urlGST + '/' + version + '/' + where + '/' + filename
     try:
         fullname, head = urllib.request.urlretrieve(localname)
         if (verbose):
@@ -179,7 +179,7 @@ def displayDoc(filename, verbose=False):
 
     return Markdown(result)
 
-def loadData(directory, filename, verbose=False):
+def loadData(directory, filename, verbose=False, version = package_version):
     '''
     This function loads a file named 'filename' in the 'directory' (from the web site)
     
@@ -189,4 +189,4 @@ def loadData(directory, filename, verbose=False):
     filename: Name of the file of interest
     '''
     
-    return locateFile(filename, "data", directory, verbose=verbose)
+    return locateFile(filename, "data", directory, verbose=verbose, version=version)

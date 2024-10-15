@@ -20,6 +20,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
@@ -132,11 +133,9 @@ private:
   void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
   void _covtab0Calcul(int icas, int iech, const CovCalcMode *mode);
-  void _covtabCalcul(int icas1,
-                     int iech1,
-                     int icas2,
-                     int iech2,
-                     const CovCalcMode* mode);
+  // void _covtabCalcul(int iech1,
+  //                    int iech2,
+  //                    const CovCalcMode* mode);
   void _covCvvCalcul(const CovCalcMode* mode);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
@@ -255,6 +254,7 @@ private:
   MatrixSquareSymmetric _priorCov;  // Dimension NF * NF
   VectorDouble          _postMean;
   MatrixSquareSymmetric _postCov;
+  CholeskyDense         _postCovChol;
   MatrixRectangular     _postSimu; // Dimension NF * NBSIMU
   MatrixSquareSymmetric _varCorrec;
   Model* _modelSimple;

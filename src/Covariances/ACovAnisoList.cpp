@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Covariances/ACovAnisoList.hpp"
 
+#include "Covariances/CovCalcMode.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -19,7 +21,9 @@
 #include "Covariances/CovLMGradient.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Db/Db.hpp"
+#include "Space/SpacePoint.hpp"
 
+#include <algorithm>
 #include <math.h>
 #include <vector>
 
@@ -158,21 +162,21 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
+void ACovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                     const CovCalcMode *mode) const
 {
   if (_considerAllCovariances(mode))
   {
     for (int i=0, n=getCovaNumber(); i<n; i++)
     {
-      _covs[i]->eval0MatInPlace(mat, mode);
+      _covs[i]->addEval0CovMatBiPointInPlace(mat, mode);
     }
   }
   else
   {
     for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovList(i)]->eval0MatInPlace(mat, mode);
+      _covs[mode->getActiveCovList(i)]->addEval0CovMatBiPointInPlace(mat, mode);
     }
   }
 }
@@ -198,7 +202,6 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
 {
   MatrixRectangular mat;
   SpacePoint p2;
-
   if (db2 == nullptr) db2 = db1;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
@@ -233,7 +236,8 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
     for (int rech2 = 0; rech2 < nech2s; rech2++)
     {
       int iech2 = index2[rvar2][rech2];
-      db2->getSampleAsSPInPlace(iech2, p2);
+      p2.setIech(iech2);
+      db2->getSampleAsSPInPlace(p2);
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
@@ -245,6 +249,18 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
 
   optimizationPostProcess();
   return mat;
+}
+
+void ACovAnisoList::_optimizationSetTarget(const SpacePoint& pt) const
+{
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    _covs[is]->optimizationSetTarget(pt);
+}
+
+void ACovAnisoList::optimizationSetTargetByIndex(int iech) const
+{
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    _covs[is]->optimizationSetTargetByIndex(iech);
 }
 
 /**
@@ -293,7 +309,7 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
     {
       int iech2 = index1[rvar2][rech2];
 
-      optimizationSetTarget(iech2);
+      optimizationSetTargetByIndex(iech2);
 
       // Loop on the basic structures
       for (int i = 0, n = getCovaNumber(); i < n; i++)
@@ -308,41 +324,6 @@ MatrixSquareSymmetric ACovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
 
   optimizationPostProcess();
   return mat;
-}
-
-
-/**
- * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
- * @param icas1 Origin of the Db containing the first point
- * @param iech1 Rank of the first point
- * @param icas2 Origin of the Db containing the second point
- * @param iech2 Rank of the second point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void ACovAnisoList::evalMatOptimInPlace(int icas1,
-                                        int iech1,
-                                        int icas2,
-                                        int iech2,
-                                        MatrixSquareGeneral &mat,
-                                        const CovCalcMode *mode) const
-{
-  if (_considerAllCovariances(mode))
-  {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
-    {
-      _covs[i]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
-    }
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      _covs[mode->getActiveCovList(i)]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
-    }
-  }
 }
 
 double ACovAnisoList::eval(const SpacePoint& p1,
@@ -366,6 +347,19 @@ double ACovAnisoList::eval(const SpacePoint& p1,
   return cov;
 }
 
+double ACovAnisoList::_loadAndEval(const SpacePoint& p1,
+                          const SpacePoint&p2,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode *mode) const
+{ 
+  double res = 0.;
+  for (const auto &e : _covs)
+  {
+    res += e->loadAndEval(p1, p2, ivar, jvar, mode);
+  }
+  return res;
+}
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point
@@ -375,24 +369,33 @@ double ACovAnisoList::eval(const SpacePoint& p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
-                                   const SpacePoint &p2,
-                                   MatrixSquareGeneral &mat,
-                                   const CovCalcMode *mode) const
+void ACovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                                const SpacePoint &p1,
+                                                const SpacePoint &p2,
+                                                const CovCalcMode *mode) const
 {
   if (_considerAllCovariances(mode))
   {
     for (int i=0, n=getCovaNumber(); i<n; i++)
     {
-      _covs[i]->evalMatInPlace(p1, p2, mat, mode);
+      _covs[i]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
     }
   }
   else
   {
     for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovList(i)]->evalMatInPlace(p1, p2, mat, mode);
+      _covs[mode->getActiveCovList(i)]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
     }
+  }
+}
+
+void ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode) const
+{
+  for (const auto &e : _covs)
+  {
+    e->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
   }
 }
 
@@ -688,32 +691,41 @@ int ACovAnisoList::getRankNugget() const
   return -1;
 }
 
-bool ACovAnisoList::isOptimizationInitialized(const Db* db) const
+// void ACovAnisoList::evalCovLHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           SpacePoint &pwork2,
+//                           const Db* db, 
+//                           const CovCalcMode *mode) const
+// {
+//   for (const auto &e : _covs)
+//   {
+//     e->evalCovLHS(mat, pwork1, pwork2, db, mode);
+//   }
+
+// }
+
+// void ACovAnisoList::evalCovRHS(MatrixSquareSymmetric &mat,
+//                           SpacePoint &pwork1,
+//                           const Db* db,  SpacePoint& pout,  
+//                           const CovCalcMode *mode) const
+// {
+//   for (const auto &e : _covs)
+//   {
+//     e->evalCovRHS(mat, pwork1, db, pout, mode);
+//   }
+  
+// }
+
+void ACovAnisoList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-    if (! _covs[is]->isOptimizationInitialized(db)) return false;
-  return true;
+  for (const auto &e :_covs)
+  {
+    e->optimizationPreProcess(p);
+  }
 }
 
-void ACovAnisoList::optimizationPreProcess(const Db* db) const
-{
-	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-		_covs[is]->optimizationPreProcess(db);
-}
 
-void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
-{
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-    _covs[is]->optimizationSetTarget(pt);
-}
-
-void ACovAnisoList::optimizationSetTarget(int iech) const
-{
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
-    _covs[is]->optimizationSetTarget(iech);
-}
-
-void ACovAnisoList::optimizationPostProcess() const
+void ACovAnisoList::_optimizationPostProcess() const
 {
 	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
 		_covs[is]->optimizationPostProcess();

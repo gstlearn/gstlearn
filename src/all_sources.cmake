@@ -81,11 +81,11 @@ set(SRC
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
   Covariances/CovSincard.cpp
-  Covariances/CovLMC.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
+  Covariances/CovGneiting.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp
@@ -182,7 +182,9 @@ set(SRC
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
-  LinearOp/Cholesky.cpp
+  LinearOp/ACholesky.cpp
+  LinearOp/CholeskySparse.cpp
+  LinearOp/CholeskyDense.cpp
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
@@ -193,6 +195,7 @@ set(SRC
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
+  Space/SpaceComposite.cpp
   Spatial/Projection.cpp
   Spatial/SpatialIndices.cpp
   Variogram/AVario.cpp

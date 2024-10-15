@@ -11,6 +11,8 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/ACov.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
@@ -22,7 +24,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
-  CovLMC covs(ctxt.getSpace());
+  ACovAnisoList covs(ctxt.getSpace());
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs.addCov(&cova1);

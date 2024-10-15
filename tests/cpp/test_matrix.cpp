@@ -16,6 +16,8 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
+#include "LinearOp/CholeskyDense.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -625,7 +627,7 @@ int main(int argc, char *argv[])
   // *********************
 
   // Compute Cholesky factorization (only for comparison)
-  (void) MEig->computeCholesky();
+  CholeskyDense MEigChol(MEig);
 
   // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
   mestitle(0,"Cholesky Decomposition for Sparse matrices");
@@ -644,27 +646,30 @@ int main(int argc, char *argv[])
   VectorDouble XEig(ntemp);
   VectorDouble XNoEig(ntemp);
 
-  MSEig->computeCholesky();
-  MSEig->solveCholesky(B, XEig);
+  CholeskySparse MSEigChol(MSEig);
+  MSEigChol.solve(B, XEig);
   VH::display("Cholesky Solve (Eigen Library)",XEig);
   VectorDouble resEig = MSEig->prodVecMat(XEig);
-  VH::display("Verification (Eigen Library)",resEig);
-  MSEig->simulateCholesky(B, XEig);
+  VH::display("Verification (Eigen Library)", resEig);
+  MSEigChol.addSimulateToDest(B, XEig);
   // Simulation using Cholesky cannot be compared due to different choices in embedded permutations
   //  VH::display("Cholesky Simulate (Eigen Library)", XEig);
 
-  MSNoEig->computeCholesky();
-  MSNoEig->solveCholesky(B, XNoEig);
+  CholeskySparse MSNoEigChol(MSNoEig);
+  MSNoEigChol.solve(B, XNoEig);
   VH::display("Cholesky Solve (No Eigen Library)",XNoEig);
   VectorDouble resNoEig = MSNoEig->prodVecMat(XNoEig);
   VH::display("Verification (no Eigen Library)",resNoEig);
-  MSNoEig->simulateCholesky(B, XNoEig);
+  MSNoEigChol.addSimulateToDest(B, XNoEig);
 
   // Log Determinant
   mestitle(0,"Cholesky Log Determinant");
-  message("Log Determinant Sparse (No Eigen Library)   = %lf\n", MSNoEig->computeCholeskyLogDeterminant());
-  message("Log Determinant Dense  (traditional method) = %lf\n", log(MEig->determinant()));
-  message("Log Determinant Dense  (Eigen Library)      = %lf\n", MEig->computeCholeskyLogDeterminant());
+  message("Log Determinant Sparse (No Eigen Library)   = %lf\n",
+          MSNoEigChol.computeLogDeterminant());
+  message("Log Determinant Dense  (traditional method) = %lf\n",
+          log(MEig->determinant()));
+  message("Log Determinant Dense  (Eigen Library)      = %lf\n",
+          MEigChol.computeLogDeterminant());
 
   // Compute Cholesky factorization (for dense matrix (Eigen library)
   mestitle(0,"Cholesky Decomposition for Dense matrices");
@@ -674,7 +679,7 @@ int main(int argc, char *argv[])
   // Solving a Linear system after Cholesky decomposition
   mestitle(0,"Solving a Linear system after Cholesky decomposition");
   VH::display("Input Vector B =", B);
-  (void) MEig->solveCholesky(B, XEig);
+  MEigChol.solve(B, XEig);
   VH::display("Result Vector X =", XEig);
   message("Is M * X = B: %d\n",(int) VH::isSame(B,MEig->prodMatVec(XEig)));
 
@@ -688,7 +693,7 @@ int main(int argc, char *argv[])
     Bmat.setColumn(icol, B);
   message("Input Matrix B =\n");
   Bmat.display();
-  (void) MEig->solveCholeskyMat(Bmat, Bres);
+  (void) MEigChol.solveMatrix(Bmat, Bres);
   message("Result Matrix X =\n");
   Bres.display();
 

@@ -175,9 +175,7 @@ public:
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
   #ifndef SWIG
-  int prodMatVecInPlace(const constvect x,
-                        vect y,
-                        bool transpose = false) const;
+  int  prodMatVecInPlace(const constvect x, vect y, bool transpose = false) const;
 #endif
   void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */

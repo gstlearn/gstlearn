@@ -26,7 +26,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
@@ -35,6 +35,7 @@
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADrift.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 
 #include "Db/Db.hpp"
 
@@ -497,20 +498,7 @@ double Model::getParam(int icov) const
   if (covalist == nullptr) return TEST;
   return covalist->getParam(icov);
 }
-bool Model::isCovaFiltered(int icov) const
-{
-  if (_cova == nullptr) return false;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return false;
-  return covalist->isFiltered(icov);
-}
-bool Model::isStationary() const
-{
-  if (_cova == nullptr) return false;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return false;
-  return covalist->isStationary();
-}
+
 String Model::getCovName(int icov) const
 {
   if (_cova == nullptr) return String();
@@ -682,7 +670,7 @@ double Model::evalCov(const VectorDouble &incr,
   const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
 
-  if (member != ECalcMember::LHS && isCovaFiltered(icov))
+  if (member != ECalcMember::LHS && covalist->isFiltered(icov))
     return (0.);
   return getCova(icov)->evalIvarIpas(1., incr);
 }
@@ -690,7 +678,7 @@ double Model::evalCov(const VectorDouble &incr,
 
 /**
  * Switch to a Model dedicated to Gradients
- * (transforms it from CovLMC to CovLMGradient)
+ * (transforms it from ACovAnisoList to CovLMGradient)
  */
 void Model::switchToGradient()
 {
@@ -712,7 +700,7 @@ void Model::switchToGradient()
 
 /**
  * Defining an Anamorphosis information for the Model
- * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
+ * (in fact, this is added to ACovAnisoList part and transforms it from ACovAnisoList to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
  * @param strcnt Array of covariance description used for IR case
  * @return
@@ -737,11 +725,11 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   }
   else
   {
-    CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
+    ACovAnisoList* cov = dynamic_cast<ACovAnisoList*>(_cova);
     if (cov == nullptr)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
-      messerr("The original covariance is probably not a 'CovLMC'");
+      messerr("The original covariance is probably not a 'ACovAnisoList'");
       return 1;
     }
 
@@ -770,7 +758,7 @@ int Model::unsetAnam()
     // ACovAnisoList does not have any Anam: do nothing
     return 0;
   }
-    CovLMC* cov = dynamic_cast<CovLMC*>(_cova);
+    ACovAnisoList* cov = dynamic_cast<ACovAnisoList*>(_cova);
     if (cov == nullptr)
     {
       messerr("Impossible to unset 'anam' from the covariance part of the Model");
@@ -778,13 +766,13 @@ int Model::unsetAnam()
       return 1;
     }
 
-  // Initiate a new CovLMC class
-  CovLMC* newcov = new CovLMC(*cov);
+  // Initiate a new ACovAnisoList class
+  ACovAnisoList* newcov = new ACovAnisoList(*cov);
 
   // Delete the current ACovAnisoList structure
   delete _cova;
 
-    // Replace it by the newly create one (CovLMC)
+    // Replace it by the newly create one (ACovAnisoList)
     _cova = newcov;
   return 0;
 }
@@ -1146,9 +1134,9 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   _clear();
   _create();
 
-  /* Reading the covariance part and store it into a CovLMC */
+  /* Reading the covariance part and store it into a ACovAnisoList */
 
-  CovLMC covs(_ctxt.getSpace());
+  ACovAnisoList covs(_ctxt.getSpace());
   for (int icova = 0; ret && icova < ncova; icova++)
   {
     flag_aniso = flag_rotation = 0;
@@ -1337,7 +1325,7 @@ void Model::_create()
   // TODO: The next two lines are there in order to allow direct call to
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
-  _cova = new CovLMC(_ctxt.getSpace());
+  _cova = new ACovAnisoList(_ctxt.getSpace());
   _driftList = new DriftList(_ctxt);
 }
 
@@ -2204,7 +2192,8 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
  
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
-  if (cov.computeCholesky() != 0)
+  CholeskyDense covChol(&cov);
+  if (! covChol.isReady())
   {
     messerr("Cholesky decomposition of Covariance matrix failed");
     return TEST;
@@ -2238,21 +2227,20 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
 
     // Calculate Cm1X = Cm1 * X
     MatrixRectangular Cm1X;
-    if (cov.solveCholeskyMat(X, Cm1X) != 0)
+    if (covChol.solveMatrix(X, Cm1X))
     {
-      messerr(
-        "Problem when solving a Linear System after Cholesky decomposition");
+      messerr("Problem when solving a Linear System after Cholesky decomposition");
       return TEST;
     }
 
     // Calculate XtCm1X = Xt * Cm1 * X
     MatrixSquareSymmetric* XtCm1X =
       MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
-
    
     // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
     VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
-    if (XtCm1X->computeCholesky() != 0)
+    CholeskyDense XtCm1XChol(XtCm1X);
+    if (! XtCm1XChol.isReady())
     {
       messerr("Cholesky decomposition of XtCm1X matrix failed");
       delete XtCm1X;
@@ -2260,8 +2248,8 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
     }
 
     // Calculate beta = (XtCm1X)-1 * ZtCm1X
-    VectorDouble beta;
-    if (XtCm1X->solveCholesky(ZtCm1X, beta) != 0)
+    VectorDouble beta(nDrift);
+    if (XtCm1XChol.solve(ZtCm1X, beta))
     {
       messerr("Error when calculating Likelihood");
       delete XtCm1X;
@@ -2280,15 +2268,15 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
   }
 
    // Calculate Cm1Z = Cm1 * Z
-  VectorDouble Cm1Z;
-  if (cov.solveCholesky(Z, Cm1Z) != 0)
+  VectorDouble Cm1Z(Z.size());
+  if (covChol.solve(Z, Cm1Z))
   {
     messerr("Error when calculating Cm1Z");
     return TEST;
   }
 
   // Calculate the log-determinant
-  double logdet = cov.computeCholeskyLogDeterminant();
+  double logdet = covChol.computeLogDeterminant();
 
   // Calculate quad = Zt * Cm1Z
   double quad = VH::innerProduct(Z, Cm1Z);
