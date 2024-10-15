@@ -573,6 +573,11 @@ MatrixSparse* MatrixSparse::create(const MatrixSparse* mat)
   return new MatrixSparse(*mat);
 }
 
+MatrixSparse* MatrixSparse::create(int nrow, int ncol)
+{
+  return new MatrixSparse(nrow, ncol);
+}
+
 MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
                                               int nrow,
                                               int ncol,

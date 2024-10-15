@@ -743,3 +743,64 @@
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular, 
+//                                  MatrixSquareGeneral, 
+//                                  MatrixSquareSymmetric
+//{
+//  int errcode = matrixDenseFromCpp(&($result), $1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular* MatrixRectangular::create
+//{
+//  int errcode = matrixDenseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular& MatrixRectangular::create
+//{
+//  int errcode = matrixDenseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular*,     MatrixRectangular&,
+//                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
+//                                  MatrixSquareSymmetric*, MatrixSquareSymmetric&
+//{
+//  int errcode = matrixDenseFromCpp(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse 
+//{
+//  int errcode = matrixSparseFromCpp(&($result), $1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse*,     MatrixSparse&
+//{
+//  int errcode = matrixSparseFromCpp(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse* MatrixSparse::create
+//{
+//  int errcode = matrixSparseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse& MatrixSparse::create
+//{
+//  int errcode = matrixSparseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+

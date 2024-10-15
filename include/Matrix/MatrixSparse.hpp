@@ -128,6 +128,7 @@ public:
 
   // Static functions
   static MatrixSparse* create(const MatrixSparse* mat);
+  static MatrixSparse* create(int nrow, int ncol);
   static MatrixSparse* createFromTriplet(const NF_Triplet &NF_T,
                                          int nrow = 0,
                                          int ncol = 0,

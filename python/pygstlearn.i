@@ -322,7 +322,10 @@
     // Extract dimension of matrices
     PyObject *shape = PyObject_GetAttrString(obj, "shape");
     if (!shape || !PyTuple_Check(shape) || PyTuple_Size(shape) != 2) {
-      messerr("Could not extract shape from sparse matrix");
+    //  messerr("Could not extract shape from sparse matrix");
+    // Note: The above message is not printed as this is the test which enables 
+    // returning from this typemap with an error...
+    // The rest is treated in swig_inc.i
       return SWIG_TypeError;
     }
     int nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
@@ -630,7 +633,6 @@
     return myres;
   }
 
-  //template <typename MatrixTemp>
   int matrixDenseFromCpp(PyObject** obj, const AMatrixDense& mat)
   {
     // Conversion to a 2D numpy array
@@ -836,6 +838,9 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend MatrixSquareSymmetric {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixSparse {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend ASpace {

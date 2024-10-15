@@ -45,6 +45,10 @@ MatrixRectangular* MatrixRectangular::create(const MatrixRectangular* mat)
 {
   return new MatrixRectangular(*mat);
 }
+MatrixRectangular* MatrixRectangular::create(int nrow, int ncol)
+{
+  return new MatrixRectangular(nrow, ncol);
+}
 
 /**
  * Converts a VectorVectorDouble into a Matrix

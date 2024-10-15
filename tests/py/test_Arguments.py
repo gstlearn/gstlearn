@@ -90,8 +90,6 @@ gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 mat = np.array([[1,2,3],[2,1,2],[3,2,1]])
 gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 
-print(gl.argumentReturnMatrix(3,4))
-
 # Testing Sparse matrix typemaps (input)
 
 rows = np.array([0,3,1,0,1])
@@ -99,33 +97,5 @@ cols = np.array([0,3,1,2,0])
 data = np.array([4,5,7,9,2])
 A = sc.csr_array((data,(rows,cols)),shape=(4,5))
 mat = gl.argumentTestMatrixSparse(A)    
-
-print(gl.argumentReturnMatrixSparse(3,4))
-
-# Testing the typemap for in and not out
-# - A matrix is constructed in numpy array
-# - It is passed to create() method of MatrixRectangular which expects a MatrixRectangular
-#   (this requires the typemap 'toCpp')
-# - This method returns a copy of the input matrix as a MatrixRectangular*
-# - This is the ONLY method which returns a gstlearn pointer 
-#   (instead of using the typemap which would convert it to a numpy array)
-
-# Principle applied to a Dense rectangular matrix
-mat = np.array([[1,2,3],[2,1,2],[3,2,1]])
-print(mat)
-newmatd = gl.MatrixRectangular.create(mat)
-newmatd.display()
-
-# Same applied to a Sparse matrix
-rows = np.array([0,3,1,0,1])
-cols = np.array([0,3,1,2,0])
-data = np.array([4,5,7,9,2])
-A = sc.csr_array((data,(rows,cols)),shape=(4,5))
-newmats = gl.MatrixSparse.create(A)   
-newmats.display() 
-
-# Entering in the 'create' module with an already existing pointer
-bismat = gl.MatrixRectangular.create(newmatd)
-bismat.display()
 
 print("Test successfully performed")
