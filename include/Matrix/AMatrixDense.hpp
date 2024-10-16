@@ -15,7 +15,6 @@
 
 #include "Matrix/AMatrix.hpp"
 #include "Basic/WarningMacro.hpp"
-#include <span>
 
 #ifndef SWIG
 DISABLE_WARNING_PUSH
@@ -102,7 +101,7 @@ public:
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
-  std::span<const double> getColumnPtr(int icol) const;
+  constvect getColumnPtr(int icol) const;
   /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
