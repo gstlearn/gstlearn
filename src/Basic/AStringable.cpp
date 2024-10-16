@@ -14,7 +14,6 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/OptCst.hpp"
 
-#include <span>
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
