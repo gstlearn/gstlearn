@@ -606,7 +606,11 @@
 {
   // Try to convert from any target language vector
   int errcode = matrixDenseToCpp($input, mat);
-  if (!SWIG_IsOK(errcode))
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
   {
     try
     {
@@ -616,8 +620,10 @@
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
+          $1 = nullptr;
         }
-        $1 = %reinterpret_cast(argp, $ltype);
+        else
+          $1 = %reinterpret_cast(argp, $ltype);
       }
       else {
         %argument_fail(errcode, "$type", $symname, $argnum);
@@ -639,7 +645,11 @@
 {
   // Try to convert from any target language vector
   int errcode = matrixSparseToCpp($input, mat);
-  if (!SWIG_IsOK(errcode))
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
   {
     try
     {
@@ -649,8 +659,10 @@
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
+          $1 = nullptr;
         }
-        $1 = %reinterpret_cast(argp, $ltype);
+        else
+          $1 = %reinterpret_cast(argp, $ltype);
       }
       else {
         %argument_fail(errcode, "$type", $symname, $argnum);

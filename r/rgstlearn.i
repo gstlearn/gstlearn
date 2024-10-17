@@ -222,17 +222,21 @@
 
   int matrixDenseToCpp(SEXP obj, MatrixRectangular& mat)
   {
+    mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
     if (!Rf_isMatrix(obj)) return SWIG_TypeError;
 
     // Conversion
-    int myres = SWIG_OK;
     int size = (int)Rf_length(obj);
+    if (size <= 0) return SWIG_TypeError;
+
+    int myres = SWIG_OK;
     int nrows = Rf_nrows(obj);
     int ncols = Rf_ncols(obj);
     mat.resize(nrows, ncols);
-    if (!mat.empty() && size > 0)
+    if (!mat.empty())
     {
       int lec = 0;
       for (int icol = 0; icol < ncols; icol++)
@@ -250,11 +254,17 @@
 
   int matrixSparseToCpp(SEXP obj, MatrixSparse& mat)
   {
+    mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == REALSXP) return SWIG_TypeError;
+
+    int size = (int)Rf_length(obj);
+    if (size <= 0) return SWIG_TypeError;
 
     // Extract the dimensions of the Matrix
     SEXP R_dims = Rf_getAttrib(obj, Rf_install("Dim"));
+    if (R_dims == R_NilValue) return SWIG_TypeError;
     int* dims = INTEGER(R_dims);
     int nrows = dims[0];
     int ncols = dims[1];
@@ -536,11 +546,11 @@
                      VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
  %{    %}
 
-%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
-                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
-                     MatrixSquareSymmetric, MatrixSquareSymmetric*, MatrixSquareSymmetric&,
-                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
- %{    %}
+//%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
+//                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
+//                     MatrixSquareSymmetric, MatrixSquareSymmetric*, MatrixSquareSymmetric&,
+//                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
+// %{    %}
 
 // This for automatically convert R string to NamingConvention
 %typemap(scoercein) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
@@ -1111,31 +1121,31 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
 
-"MatrixRectangular_create" <- function(mat)
-{
-  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
-  ;ans = .Call('R_swig_MatrixRectangular_create', mat, PACKAGE='gstlearn');
-  ans <- if (is.null(ans)) ans
-  else new("_p_Plane", ref=ans);
-  
-  ans
-}
-attr(`MatrixRectangular_create`, 'returnType') = '_p_MatrixRectangular'
-attr(`MatrixRectangular_create`, "inputTypes") = c('_p_MatrixRectangular')
-class(`MatrixRectangular_create`) = c("SWIGFunction", class('MatrixRectangular_create'))
+#"MatrixRectangular_create" <- function(mat)
+#{
+#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+#  ;ans = .Call('R_swig_MatrixRectangular_create', mat, PACKAGE='gstlearn');
+#  ans <- if (is.null(ans)) ans
+#  else new("_p_Plane", ref=ans);
+#  
+#  ans
+#}
+#attr(`MatrixRectangular_create`, 'returnType') = '_p_MatrixRectangular'
+#attr(`MatrixRectangular_create`, "inputTypes") = c('_p_MatrixRectangular')
+#class(`MatrixRectangular_create`) = c("SWIGFunction", class('MatrixRectangular_create'))
 
-"MatrixSparse_create" <- function(mat)
-{
-  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
-  ;ans = .Call('R_swig_MatrixSparse_create', mat, PACKAGE='gstlearn');
-  ans <- if (is.null(ans)) ans
-  else new("_p_Plane", ref=ans);
-  
-  ans
-}
-attr(`MatrixSparse_create`, 'returnType') = '_p_MatrixSparse'
-attr(`MatrixSparse_create`, "inputTypes") = c('_p_MatrixSparse')
-class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
+#"MatrixSparse_create" <- function(mat)
+#{
+#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+#  ;ans = .Call('R_swig_MatrixSparse_create', mat, PACKAGE='gstlearn');
+#  ans <- if (is.null(ans)) ans
+#  else new("_p_Plane", ref=ans);
+#  
+#  ans
+#}
+#attr(`MatrixSparse_create`, 'returnType') = '_p_MatrixSparse'
+#attr(`MatrixSparse_create`, "inputTypes") = c('_p_MatrixSparse')
+#class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
 
 "MatrixRectangular_fromTL" <- function(Robj)
 {

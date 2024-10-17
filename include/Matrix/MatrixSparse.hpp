@@ -10,8 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
+
+#include "LinearOp/ALinearOp.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
