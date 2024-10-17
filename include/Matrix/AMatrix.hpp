@@ -10,14 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-
-#include <Eigen/src/Core/Matrix.h>
 
 /// TODO : Transform into template for storing something else than double
 

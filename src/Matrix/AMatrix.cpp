@@ -16,7 +16,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "LinearOp/ALinearOp.hpp"
 
 #include <iostream>
 

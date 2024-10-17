@@ -16,10 +16,6 @@
 #include "LinearOp/ACholesky.hpp"
 #include "Matrix/AMatrix.hpp"
 
-#ifndef SWIG
-  #include <Eigen/Sparse>
-#endif
-
 class AMatrix;
 class Cholesky;
 

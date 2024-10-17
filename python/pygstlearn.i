@@ -194,6 +194,7 @@
 
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == Py_None) return SWIG_NullReferenceError;
 
     // Conversion
     int myres = SWIG_OK;
@@ -234,6 +235,7 @@
 
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == Py_None) return SWIG_NullReferenceError;
 
     // Conversion
     int myres = SWIG_OK;
@@ -266,14 +268,12 @@
 
   int matrixDenseToCpp(PyObject* obj, MatrixRectangular& mat)
   {
-    // Type definitions
-    VectorVectorDouble vvec;
     mat.resize(0, 0);
-
-    // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == Py_None) return SWIG_NullReferenceError;
 
     // Conversion
+    VectorVectorDouble vvec;
     int myres = SWIG_OK;
     int size = (int)PySequence_Length(obj);
     if (size < 0)
@@ -310,8 +310,9 @@
 
   int matrixSparseToCpp(PyObject* obj, MatrixSparse& mat)
   {
-    // Test argument
+    mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == Py_None) return SWIG_NullReferenceError;
 
     PyArrayObject* data_array = nullptr;
     PyArrayObject* rows_array = nullptr;
@@ -320,12 +321,15 @@
     PyArrayObject* indptr_array = nullptr;
   
     // Extract dimension of matrices
+
+    if (! PyObject_HasAttrString(obj, "shape")) {
+      // Not an object to be translated
+      return SWIG_TypeError;
+    }
+
     PyObject *shape = PyObject_GetAttrString(obj, "shape");
     if (!shape || !PyTuple_Check(shape) || PyTuple_Size(shape) != 2) {
-    //  messerr("Could not extract shape from sparse matrix");
-    // Note: The above message is not printed as this is the test which enables 
-    // returning from this typemap with an error...
-    // The rest is treated in swig_inc.i
+      messerr("Could not extract shape from sparse matrix");
       return SWIG_TypeError;
     }
     int nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
@@ -1357,6 +1361,7 @@ setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 setattr(gl.ProjMatrix, "toTL", matrix_toTL)
 setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)
 setattr(gl.ProjMultiMatrix, "toTL", matrix_toTL)
+
 def Triplet_toTL(self):
   return sc.csc_matrix((np.array(self.getValues()), 
                        (np.array(self.getRows()), np.array(self.getCols()))),
