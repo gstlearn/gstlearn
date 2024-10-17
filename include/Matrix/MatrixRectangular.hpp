@@ -37,6 +37,9 @@ public:
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
 
+  static MatrixRectangular* create(const MatrixRectangular* mat);
+  static MatrixRectangular* create(int nrow, int ncol);
+
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
@@ -50,8 +53,8 @@ public:
   static MatrixRectangular* sample(const AMatrix* A,
                                    const VectorInt& rowKeep = VectorInt(),
                                    const VectorInt& colKeep = VectorInt(),
-                                   bool flagInvertRow       = false,
-                                   bool flagInvertCol       = false);
+                                   bool flagInvertRow = false,
+                                   bool flagInvertCol = false);
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
                 const VectorInt& colFetch,

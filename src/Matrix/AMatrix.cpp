@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -130,7 +129,7 @@ void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool by
  */
 void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 {
-  if (byCol)
+  if (!byCol)
   {
     int nrows = (int) tab.size();
     int ncols = (int) tab[0].size();
@@ -246,13 +245,13 @@ bool AMatrix::isSame(const AMatrix& m, double eps, bool printWhyNot)
 /**
  * Indicate if the current matrix is symmetric
  *
- * @param printWhyNot Print the message is the answer is false
  * @param eps Epsilon for double equality comparison
+ * @param printWhyNot Print the message is the answer is false
  * @return true if the current matrix is symmetric
  */
-bool AMatrix::isSymmetric(bool printWhyNot, double eps) const // TODO swap argument as for isSame ?
+bool AMatrix::isSymmetric(double eps, bool printWhyNot) const
 {
-  if (empty() || ! isSquare()) return false;
+  if (empty() || !isSquare()) return false;
 
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)

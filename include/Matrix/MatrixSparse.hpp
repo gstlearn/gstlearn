@@ -10,8 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
+
+#include "LinearOp/ALinearOp.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -127,6 +128,8 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   // Static functions
+  static MatrixSparse* create(const MatrixSparse* mat);
+  static MatrixSparse* create(int nrow, int ncol);
   static MatrixSparse* createFromTriplet(const NF_Triplet &NF_T,
                                          int nrow = 0,
                                          int ncol = 0,

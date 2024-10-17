@@ -57,6 +57,20 @@ void AMatrixSquare::_setNSize(int nval)
   _setNCols(nval);
 }
 
+void AMatrixSquare::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
+{
+  if (tab.empty()) return;
+  int n1 = (int)tab.size();
+  int n2 = (int) tab[0].size();
+  if (n1 != n2)
+  {
+    messerr("The Matrix should be square");
+    messerr("Loading is not performed");
+    return;
+  }
+  AMatrix::resetFromVVD(tab, byCol);
+}
+
 double AMatrixSquare::trace() const
 {
   double res = 0.;

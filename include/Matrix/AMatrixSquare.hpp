@@ -32,6 +32,7 @@ public:
 
   /*! Returns the size of the matrix (nrows=ncols) */
   int getNSize() const { return getNRows(); }
+  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
 
   double trace() const;
 

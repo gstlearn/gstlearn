@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/AMatrix.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -100,19 +99,6 @@ void _printVectorVectorDouble(const VectorVectorDouble& values)
   }
 }
 
-void _printMatrix(const AMatrix& mat)
-{
-  for (int i = 0; i < mat.getNRows(); i++)
-  {
-    for (int j = 0; j < mat.getNCols(); j++)
-    {
-      message("[%d][%d] : ",j+1,i+1);
-      _printDouble(mat.getValue(i,j));
-      _endOfLine();
-    }
-  }
-}
-
 /**
  * Function to test Integer argument
  * @param value Integer input argument
@@ -172,15 +158,8 @@ void argumentTestVectorVectorDouble(const VectorVectorDouble& values)
 
 void argumentTestVectorString(const VectorString& values)
 {
-  _introduction("VectorString");
+  _introduction("VectorString", true);
   _printVectorString(values);
-  _endOfLine();
-}
-
-void argumentTestMatrix(const AMatrix& mat)
-{
-  _introduction("Matrix",true);
-  _printMatrix(mat);
   _endOfLine();
 }
 
@@ -263,6 +242,22 @@ GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& valu
   return values;
 }
 
+GSTLEARN_EXPORT VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values)
+{
+  _introduction("VectorVectorInt", true);
+  _printVectorVectorInt(values);
+  _endOfLine();
+  return values;
+}
+
+GSTLEARN_EXPORT VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values)
+{
+  _introduction("VectorVectorDouble", true);
+  _printVectorVectorDouble(values);
+  _endOfLine();
+  return values;
+}
+
 GSTLEARN_EXPORT void argumentDefTestInt(int argInt)
 {
   _introduction("Integer");
@@ -312,4 +307,41 @@ GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt)
 {
   _introduction("Vector Vector Int");
   if (argVVInt.empty() || argVVInt[0].empty()) _printEmpty();
+}
+
+GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat)
+{
+  if (!mat.empty()) mat.display();
+}
+GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
+{
+  if (!mat.empty()) mat.display();
+}
+GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
+{
+  if (!mat.empty()) mat.display();
+}
+GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows,
+                                                       int ncols,
+                                                       int seed)
+{
+  MatrixRectangular mat(nrows, ncols);
+  mat.fillRandom(seed);
+  return mat;
+}
+
+GSTLEARN_EXPORT void argumentTestMatrixSparse(const MatrixSparse& mat)
+{
+  if (!mat.empty()) mat.display();
+}
+
+GSTLEARN_EXPORT MatrixSparse argumentReturnMatrixSparse(int nrows,
+                                                        int ncols,
+                                                        double zeroPercent,
+                                                        int seed)
+{
+  MatrixSparse mat(nrows, ncols);
+  mat.fillRandom(seed, zeroPercent);
+  mat.display();
+  return mat;
 }

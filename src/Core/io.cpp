@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_io.h"
-#include "geoslib_old_f.h"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"

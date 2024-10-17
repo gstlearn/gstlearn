@@ -13,9 +13,8 @@
 #include "geoslib_define.h"
 #include "Basic/VectorNumT.hpp"
 
-#ifndef swig
+#ifndef SWIG
 #include <Eigen/Core>
-#include <Eigen/Dense>
 #include <Eigen/src/Core/Matrix.h>
 #endif
 

@@ -53,8 +53,6 @@ Plane::~Plane()
 String Plane::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-
-
   return sstr.str();
 }
 

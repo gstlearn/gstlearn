@@ -92,8 +92,8 @@ double CovMatern::_oldMatern(double h) const
   cov = 1.;
   if (h > 0)
   {
-    if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
-      cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
+    if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return 0.;
+    cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
   }
   return (cov);
 }

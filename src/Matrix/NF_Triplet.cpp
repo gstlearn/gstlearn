@@ -140,7 +140,7 @@ VectorInt NF_Triplet::getRows(bool flag_from_1) const
   int n = getNumber();
   int shift = (flag_from_1) ? 1 : 0;
   VectorInt vec(n);
-  for (int i = 0; i< n; i++)
+  for (int i = 0; i < n; i++)
     vec[i] = _eigenT[i].row() + shift;
   return vec;
 }
@@ -150,7 +150,7 @@ VectorInt NF_Triplet::getCols(bool flag_from_1) const
   int n = getNumber();
   int shift = (flag_from_1) ? 1 : 0;
   VectorInt vec(n);
-  for (int i = 0; i< n; i++)
+  for (int i = 0; i < n; i++)
     vec[i] = _eigenT[i].col() + shift;
   return vec;
 }

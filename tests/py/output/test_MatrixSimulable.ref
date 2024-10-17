@@ -1,6 +1,5 @@
 ------------------
 -- Test --A with inverse True
-Sparse True
 0.0
 ------------------
 -- Test --B with inverse True
@@ -16,14 +15,12 @@ It should be either:
 - a MatrixSquareSymmetric
 ------------------
 -- Test --D with inverse True
-Sparse False
 0.0
 ------------------
 -- Test --E with inverse True
 The matrix must be square!
 ------------------
 -- Test --A with inverse False
-Sparse True
 0.0
 ------------------
 -- Test --B with inverse False
@@ -39,7 +36,6 @@ It should be either:
 - a MatrixSquareSymmetric
 ------------------
 -- Test --D with inverse False
-Sparse False
 0.0
 ------------------
 -- Test --E with inverse False
