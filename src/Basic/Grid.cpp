@@ -447,8 +447,8 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 }
 
 double Grid::indiceToCoordinate(int idim0,
-                                const VectorInt& indice,
-                                const VectorDouble& percent,
+                                const constvectint indice,
+                                const constvect percent,
                                 bool flag_rotate) const
 {
   /* Calculate the coordinates in the grid system */
@@ -526,7 +526,7 @@ void Grid::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDo
   return indicesToCoordinateInPlace(_iwork0, coor, percent);
 }
 
-int Grid::indiceToRank(const VectorInt& indice) const
+int Grid::indiceToRank(const constvectint indice) const
 {
   int ival = indice[_nDim-1];
   if (ival < 0 || ival >= _nx[_nDim-1]) return(-1);
@@ -548,12 +548,11 @@ int Grid::indiceToRank(const VectorInt& indice) const
  * \remarks: The number of nodes in the grid per direction
  * \remarks: must be adapted (subtracting 1) due to interval.
  */
-void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
+void Grid::rankToIndice(int rank, vectint indices, bool minusOne) const
 {
   int minus = (minusOne) ? 1 : 0;
 
   const int* nxadd = _nx.data(); // for optimization, use address rather than []
-  int* indadd      = indices.data();
   int nval         = 1;
   for (int idim = 0; idim < _nDim; idim++)
     nval *= (*(nxadd + idim) - minus);
@@ -563,7 +562,7 @@ void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
   {
     nval /= (*(nxadd + idim) - minus);
     newind           = rank / nval;
-    *(indadd + idim) = newind;
+    indices[idim] = newind;
     rank -= newind * nval;
   }
 }
