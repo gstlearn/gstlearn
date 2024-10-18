@@ -47,6 +47,7 @@ jobs:
           libboost-dev \
           libeigen3-dev \
           libpng-dev \
+          libnlopt-dev \
           pandoc
 
     - name: Setup Python Version
