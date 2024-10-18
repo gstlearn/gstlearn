@@ -129,9 +129,9 @@ foreach(FLAVOR ${FLAVORS})
   # PUBLIC is mandatory for tests and packages (no need to install)
   target_include_directories(${FLAVOR} PUBLIC
     # Add includes path for compiling the library
-    $<BUILD_INTERFACE: ${INCLUDES}>
+    "$<BUILD_INTERFACE:${INCLUDES}>"
     # Add binary directory to find generated version.h and export.hpp
-    $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
   )
 
   # Set some target properties

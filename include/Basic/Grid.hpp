@@ -77,10 +77,12 @@ public:
   VectorDouble getCellCoordinatesByCorner(int node,
                                           const VectorInt& shift = VectorInt(),
                                           const VectorDouble& dxsPerCell = VectorDouble()) const;
+#ifndef SWIG
   double indiceToCoordinate(int idim0,
-                            const VectorInt& indice,
-                            const VectorDouble& percent = VectorDouble(),
-                            bool flag_rotate=true) const;
+                            const constvectint indice,
+                            const constvect percent = {},
+                            bool flag_rotate        = true) const;
+#endif // SWIG
   VectorDouble indicesToCoordinate(const VectorInt& indice,
                                    const VectorDouble& percent = VectorDouble()) const;
   void indicesToCoordinateInPlace(const VectorInt& indice,
@@ -95,8 +97,10 @@ public:
   void rankToCoordinatesInPlace(int rank,
                                 VectorDouble& coor,
                                 const VectorDouble& percent = VectorDouble()) const;
-  int     indiceToRank(const VectorInt& indice) const;
-  void    rankToIndice(int rank,VectorInt& indices, bool minusOne = false) const;
+#ifndef SWIG
+  int     indiceToRank(const constvectint indice) const;
+  void    rankToIndice(int rank, vectint indices, bool minusOne = false) const;
+#endif // SWIG
   VectorInt coordinateToIndices(const VectorDouble &coor,
                                 bool centered = false,
                                 double eps = EPSILON6) const;
@@ -179,5 +183,5 @@ private:
   // Some working vectors, defined in order to avoid too many allocations
   mutable VectorInt    _iwork0;
   mutable VectorDouble _work1;
-  mutable VectorDouble _work2;
+  mutable std::vector<double> _work2;
 };

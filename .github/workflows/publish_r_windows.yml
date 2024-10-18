@@ -35,7 +35,7 @@ env:
 jobs:
 
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
@@ -74,6 +74,7 @@ jobs:
       uses: fabien-ors/install-swig-windows-action@v2
       with:
         swig-root: ${{env.SWIG_ROOT}}
+        generator: "Visual Studio 17 2022"
 
     - name : Configure build directory
       run : |

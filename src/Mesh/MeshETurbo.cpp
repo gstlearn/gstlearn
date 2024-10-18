@@ -137,7 +137,7 @@ double MeshETurbo::getMeshSize(int /*imesh*/) const
   return size;
 }
 
-static VectorInt indg;
+static std::vector<int> indg;
 
 /****************************************************************************/
 /*!
@@ -181,7 +181,7 @@ double MeshETurbo::getCoor(int imesh, int rank, int idim) const
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
   _grid.rankToIndice(iabs, indg);
-  return _grid.indiceToCoordinate(idim, indg, VectorDouble());
+  return _grid.indiceToCoordinate(idim, indg);
 }
 
 void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
@@ -193,7 +193,7 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
   _grid.rankToIndice(iabs, indg);
 
   for (int idim = 0; idim < getNDim(); idim++)
-    coords[idim] = _grid.indiceToCoordinate(idim, indg, VectorDouble());
+    coords[idim] = _grid.indiceToCoordinate(idim, indg);
 }
 
 double MeshETurbo::getApexCoor(int i, int idim) const
@@ -202,7 +202,7 @@ double MeshETurbo::getApexCoor(int i, int idim) const
 
   int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
-  return _grid.indiceToCoordinate(idim, indg, VectorDouble());
+  return _grid.indiceToCoordinate(idim, indg);
 }
 
 void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
@@ -213,7 +213,7 @@ void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
   _grid.rankToIndice(iabs, indg);
 
   for (int idim = 0; idim < getNDim(); idim++)
-    coords[idim] = _grid.indiceToCoordinate(idim, indg, VectorDouble());
+    coords[idim] = _grid.indiceToCoordinate(idim, indg);
 }
 
 int MeshETurbo::initFromGridByAngles(const VectorInt& nx,
@@ -475,6 +475,9 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   return 0;
 }
 
+static std::vector<int> indices;
+static std::vector<double> lambda;
+
 bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
                                       int iech,
                                       const VectorDouble &coor,
@@ -482,8 +485,8 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
                                       bool verbose) const
 {
   int ncorner = getNApexPerMesh();
-  VectorInt indices(ncorner);
-  VectorDouble lambda(ncorner);
+  indices.resize(ncorner);
+  lambda.resize(ncorner);
 
   for (int icas = 0; icas < _nPerCell; icas++)
   {
@@ -681,6 +684,9 @@ void MeshETurbo::_setNumberElementPerCell()
     _nPerCell = 6;
 }
 
+static std::vector<double> rhs;
+static std::vector<int> indgg;
+
 /**
  * Return the weights assigned to the corners
  * @param icas   Corner indication
@@ -695,19 +701,20 @@ void MeshETurbo::_setNumberElementPerCell()
  * @remark - the grid node corresponding to a mesh apex is outside the grid
  * @remark - the grid node corresponding to a mesh apex is not active
  */
-int MeshETurbo::_addWeights(int icas,
-                            const VectorInt& indg0,
-                            const VectorDouble& coor,
-                            VectorInt& indices, // Returned indices (active grid nodes)
-                            VectorDouble& lambda,
-                            bool verbose) const
+int MeshETurbo::_addWeights(
+  int icas,
+  const constvectint indg0,
+  const constvect coor,
+  const vectint indices, // Returned indices (active grid nodes)
+  const vect lambda,
+  bool verbose) const
 {
   int ndim    =  getNDim();
   int ncorner =  getNApexPerMesh();
   int ipol    = _getPolarized(indg0);
   MatrixSquareGeneral lhs;
-  VectorDouble rhs(ncorner);
-  VectorInt indgg(ndim);
+  rhs.resize(ncorner);
+  indgg.resize(ndim);
 
   // Build the LHS matrix
 
@@ -738,7 +745,7 @@ int MeshETurbo::_addWeights(int icas,
   if (lhs.invert()) return 1;
 
   // Calculate the weights
-  lhs.prodMatVecInPlace(rhs,lambda);
+  lhs.prodMatVecInPlace(rhs, lambda);
 
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)
@@ -760,7 +767,7 @@ int MeshETurbo::_addWeights(int icas,
   return 0;
 }
 
-int MeshETurbo::_getPolarized(const VectorInt &indg) const
+int MeshETurbo::_getPolarized(const constvectint indg) const
 {
   int ndim = getNDim();
   if (! _isPolarized) return(0);

@@ -73,8 +73,7 @@ typedef unsigned char UChar;
 
 #define MAX_INT     1000000000
 #define MAX_PARAM   1000
-#define MAX_EXP     5      // Maximum value for exp(-h)
-#define MAX_EXP2    10     // Maximum value for exp(-h^2)
+#define MAX_EXP     100    // Maximum value of h for exp(-h)
 
 #define THRESH_INF      -10
 #define THRESH_SUP       10
@@ -88,6 +87,8 @@ DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
 
 typedef std::span<const double> constvect;
 typedef std::span<double> vect ;
+using constvectint = std::span<const int>;
+using vectint = std::span<int>;
 
 #endif
 
