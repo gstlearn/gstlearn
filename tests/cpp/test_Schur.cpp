@@ -61,7 +61,8 @@ static Db* _dataAsIs(Db* data)
   DbStringFormat* dbfmt =
     DbStringFormat::createFromFlags(false, false, false, false, true);
   datap->display(dbfmt);
-
+  delete dbfmt;
+  
   return datap;
 }
 
@@ -136,6 +137,8 @@ static void _firstTest(Db* data,
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
   VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
   if (debugSchur) Kcalc.printStatus();
+
+  delete dataP;
 }
 
 /****************************************************************************/

@@ -302,7 +302,6 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
 
   /* Core allocation */
 
-
   if (isSparse)
   {
     const MatrixSparse* aloc1 = dynamic_cast<const MatrixSparse*>(a1);
@@ -310,7 +309,8 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
     a = MatrixSparse::glue(aloc1, aloc2, flagShiftRow, flagShiftCol);
   }
   else
+  {
     a = MatrixRectangular::glue(a1, a2, flagShiftRow, flagShiftCol);
-
+  }
   return a;
 }

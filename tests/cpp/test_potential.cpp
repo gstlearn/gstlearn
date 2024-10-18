@@ -96,6 +96,8 @@ int main(int argc, char *argv[])
   delete dbgrd;
   delete dbtgt;
   delete grid;
+  delete model;
+  delete neighU;
 
   //============================================================//
   // Exemple in 1-D
@@ -152,6 +154,8 @@ int main(int argc, char *argv[])
   delete dbiso;
   delete dbgrd;
   delete grid;
+  delete model;
+  delete neighU;
 
   return (0);
 }

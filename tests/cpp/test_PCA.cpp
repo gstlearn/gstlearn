@@ -98,5 +98,7 @@ int main(int argc, char *argv[])
     (void) db->areSame(names1[i], names2[i], eps);
 
   delete db;
+  delete models;
+  
   return (error);
 }

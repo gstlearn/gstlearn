@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int size = 10;
-  double proba    = 0.05;
-  MatrixSparse* Q = _createSparseMatrix(size, proba);
+  int size                 = 10;
+  double proba             = 0.05;
+  MatrixSparse* Q          = _createSparseMatrix(size, proba);
   MatrixSquareSymmetric* M = _createDenseMatrix(size, Q);
 
   // Create a vector random gaussian values
@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
     VH::display("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
     VH::display("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'LtX(InvLtX)' is INVALID ========================\n");
-    }
+  }
 
   // Checking the Stdev vector
   MatrixSquareSymmetric MP(*M);
-  (void) MP.invert();
+  (void)MP.invert();
   VectorDouble vecout1b = MP.getDiagonal();
 
   // We use a Tim Davis sparse matrix cs as long as Qchol
@@ -185,5 +185,7 @@ int main(int argc, char *argv[])
   // Free the pointers
   delete Q;
   delete M;
+  delete M2;
+
   return(0);
 }

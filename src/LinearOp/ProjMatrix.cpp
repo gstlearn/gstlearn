@@ -14,24 +14,27 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-ProjMatrix::ProjMatrix() 
-    : MatrixSparse()
+ProjMatrix::ProjMatrix()
+  : MatrixSparse()
 {
 }
 
-ProjMatrix::ProjMatrix(const Db* db, const AMesh* a_mesh, int rankZ, bool verbose)
-    : MatrixSparse()
+ProjMatrix::ProjMatrix(const Db* db,
+                       const AMesh* a_mesh,
+                       int rankZ,
+                       bool verbose)
+  : MatrixSparse()
 {
   resetFromMeshAndDb(db, a_mesh, rankZ, verbose);
 }
 
 ProjMatrix::ProjMatrix(const ProjMatrix& m)
-    : MatrixSparse(m)
+  : MatrixSparse(m)
 {
 }
 
 ProjMatrix::ProjMatrix(const MatrixSparse* m)
-    : MatrixSparse(*m)
+  : MatrixSparse(*m)
 {
 }
 

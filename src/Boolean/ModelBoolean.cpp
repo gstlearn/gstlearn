@@ -43,8 +43,9 @@ ModelBoolean& ModelBoolean::operator=(const ModelBoolean &r)
 
 ModelBoolean::~ModelBoolean()
 {
-  for (int itok = 0; itok < (int) _shapes.size(); itok++)
+  for (int itok = 0, ntok = (int) _shapes.size(); itok < ntok; itok++)
     delete _shapes[itok];
+  _shapes.clear();
 }
 
 void ModelBoolean::addToken(const AShape& token)
