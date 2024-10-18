@@ -48,7 +48,7 @@ jobs:
     - name: Install dependencies
       run: |
         echo '{
-          "dependencies": [ "boost-math", "eigen3" ],
+          "dependencies": [ "boost-math", "eigen3", "nlopt" ],
           "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
         }' > vcpkg.json
         vcpkg install
