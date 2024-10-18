@@ -40,7 +40,8 @@ jobs:
           libhdf5-dev \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev
+          libeigen3-dev \
+          libnlopt-dev
 
     - name: Setup Python Version
       uses: actions/setup-python@v5

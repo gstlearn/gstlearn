@@ -37,6 +37,7 @@ jobs:
         brew install llvm
         brew install boost
         brew install eigen
+        brew install nlopt
 
     - name: Setup Python Version
       uses: actions/setup-python@v5
