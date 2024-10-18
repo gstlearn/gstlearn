@@ -13,52 +13,16 @@
  * This file is meant to perform any test that needs to be coded for a quick trial
  * It will be compiled but not run nor diff'ed.
  */
-#include <iostream>
-#include "geoslib_define.h"
-#include <nlopt.h>
-#include <vector>
+#include <sstream>
+#include "Basic/File.hpp"
 // Définir la fonction à optimiser
-double myfunc(unsigned n, const double *x, double *grad, void *my_func_data)
+
+
+int main(int argc, char *argv[])
 {
-    // Si le gradient est demandé, le calculer
-    if (grad) {
-        grad[0] = 2 * (x[0] - 3);
-    }
-    return (x[0] - 3) * (x[0] - 3);
-}
-
-int main()
-{
-    // Définir le type d'optimisation (minimisation) et la dimension du problème (1D)
-    nlopt_opt opt= nlopt_create(NLOPT_LD_LBFGS, 2);
-    // Définir les bornes inférieures et supérieures pour la variable x
-    
-    nlopt_set_lower_bound(opt, 0, 1);
-    nlopt_set_lower_bound(opt, 1, -10);
-    nlopt_set_upper_bound(opt, 0, 1);
-    nlopt_set_upper_bound(opt, 1, 10);
-
-
-    nlopt_set_min_objective(opt, myfunc, nullptr);
-    // Définir la fonction objective à minimiser
-
-    // Définir la tolérance pour la convergence
-    nlopt_set_xtol_rel(opt,EPSILON4);
-
-    // Définir le point de départ pour l'optimisation
-    double x[2] = {1., 5.0}; // Point de départ initial
-
-    // Exécuter l'optimisation
-    double minf; // Valeur minimale de la fonction objective
-    try {
-        nlopt_optimize(opt,x, &minf);
-        std::cout << "Optimisation réussie!" << std::endl;
-        std::cout << "x = " << x[0] << std::endl;
-        std::cout << "Valeur minimale de la fonction objective = " << minf << std::endl;
-    }
-    catch (std::exception &e) {
-        std::cerr << "Erreur d'optimisation: " << e.what() << std::endl;
-    }
+    std::stringstream sfn;
+    sfn << gslBaseName(__FILE__) << ".out";
+    StdoutRedirect sr(sfn.str(), argc, argv);
 
     return 0;
 }
