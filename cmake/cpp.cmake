@@ -187,7 +187,7 @@ foreach(FLAVOR ${FLAVORS})
   endif()
 
   #Nlopt include 
-  target_include_directories(${FLAVOR} PRIVATE ${NLopt_INCLUDE_DIRS})
+  #target_include_directories(${FLAVOR} PRIVATE ${NLopt_INCLUDE_DIRS})
 
   # Build a cmake file to be imported by library users
   export(TARGETS ${FLAVOR}
