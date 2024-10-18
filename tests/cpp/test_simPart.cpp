@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
   (void) grid->dumpToNF("grid.ascii");
 
   delete grid;
+  delete model;
 
   return (0);
 }

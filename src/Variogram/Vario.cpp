@@ -616,6 +616,8 @@ int Vario::transformZToY(const AAnam *anam)
   // Modify the variance array
   setVar(1., 0,  0);
 
+  delete anamH;
+  
   return 0;
 }
 

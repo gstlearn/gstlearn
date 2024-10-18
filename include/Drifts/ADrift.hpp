@@ -65,5 +65,4 @@ public:
   virtual double eval(const Db* db,int iech) const = 0;
   virtual int    getDriftNDimMax() const { return 0; }
   virtual bool   isDriftExternal() const { return false; }
-
 };

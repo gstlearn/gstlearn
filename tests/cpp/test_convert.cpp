@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
 {
   String filename;
-  DbGrid* gridnew;
+  DbGrid* gridnew = nullptr;
 
   // Global parameters
   int ndim = 2;
@@ -66,7 +66,8 @@ int main(int argc, char *argv[])
   filename = ASerializable::buildFileName(2, "Zycor.grid");
   db_grid_write_zycor(filename.c_str(), grid, icol);
 
-  mestitle(1,"Reading Zycor Grid");
+  mestitle(1, "Reading Zycor Grid");
+  delete gridnew;
   gridnew = db_grid_read_zycor(filename.c_str());
   gridnew->display(&dbfmt);
 
@@ -74,7 +75,8 @@ int main(int argc, char *argv[])
   filename = ASerializable::buildFileName(2, "Bmp.grid");
   db_grid_write_bmp(filename.c_str(), grid, icol, 1, 1, 10);
 
-  mestitle(1,"Reading BMP Grid");
+  mestitle(1, "Reading BMP Grid");
+  delete gridnew;
   gridnew = db_grid_read_bmp(filename.c_str());
   gridnew->display(&dbfmt);
 
@@ -86,7 +88,8 @@ int main(int argc, char *argv[])
   filename = ASerializable::buildFileName(2, "IfpEn.grid");
   db_grid_write_ifpen(filename.c_str(), grid, 1, &icol);
 
-  mestitle(1,"Reading IfpEn Grid");
+  mestitle(1, "Reading IfpEn Grid");
+  delete gridnew;
   gridnew = db_grid_read_ifpen(filename.c_str());
   gridnew->display(&dbfmt);
 
@@ -109,6 +112,7 @@ int main(int argc, char *argv[])
   // Free the pointers
   delete grid;
   delete model;
+  delete gridnew;
 
   return (0);
 }

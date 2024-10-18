@@ -105,5 +105,8 @@ int main(int argc, char *argv[])
   delete dat;
   delete rule;
   delete ruleprop;
+  delete model1;
+  delete model2;
+
   return(error);
 }

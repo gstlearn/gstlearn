@@ -46,20 +46,13 @@ int main(int argc, char *argv[])
   grid->display();
 
   // Creating the Model
-  Model* model = Model::createFromDb(grid);
-  model->display();
-  CovContext ctxt = model->getContext();
-  ACovAnisoList covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::CUBIC,ctxt);
-  cova.setRanges({10,45});
-  cova.setAnisoAngles({30.,0.});
-  covs.addCov(&cova);
-  model->setCovList(&covs);
+  Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
+                                        VectorDouble(), {30., 0.});
   model->display();
 
   // Creating the MeshTurbo which contains the Db
   MeshETurbo mesh;
-  mesh.initFromCova(cova,grid,10,2,true,false,true);
+  mesh.initFromCova(*model->getCova(0),grid,10,2,true,false,true);
 
   /////////////////////////
   // Testing the selections
@@ -95,6 +88,7 @@ int main(int argc, char *argv[])
 
   delete grid;
   delete model;
+
   return 0;
 }
 

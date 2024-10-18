@@ -51,8 +51,8 @@ Constraints& Constraints::operator=(const Constraints &m)
 
 Constraints::~Constraints()
 {
-  for (int i=0; i<(int) _consItems.size(); i++)
-    delete _consItems[i];
+  for (int i = 0, n = (int)_consItems.size(); i < n; i++) delete _consItems[i];
+  _consItems.clear();
 }
 
 void Constraints::addItem(const ConsItem* item)

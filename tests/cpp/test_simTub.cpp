@@ -117,6 +117,10 @@ int st_mini_test()
 
   OptDbg::setReference(0);
 
+  delete db;
+  delete model;
+  delete grid;
+  
   return end_test;
 }
 
@@ -140,7 +144,7 @@ int main(int argc, char *argv[])
   int ndim = 2;
   int nvar = 1;
   int nbsimu = 3;
-  DbGrid* grid_res;
+  DbGrid* grid_res = nullptr;
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS,{"Simu*"});
 
@@ -172,12 +176,14 @@ int main(int argc, char *argv[])
   Timer timer;
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation (Moving Neighborhood) ----->\n");
+  delete grid_res;
   grid_res = grid->clone();
   simtub(data, grid_res, model, neighM, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Moving.ascii",verbose);
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
+  delete grid_res;
   grid_res = grid->clone();
   simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);

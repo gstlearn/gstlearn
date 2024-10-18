@@ -405,6 +405,7 @@ std::vector<DirParam> DirParam::createMultipleInSpace(int npas, double dpas, con
     codir[idim] = 1;
     DirParam* dirparam = DirParam::create(npas, dpas, 0.5, 0., 0, 0, TEST, TEST, 0., VectorDouble(), codir, TEST, space);
     dirs.push_back(*dirparam);
+    delete dirparam;
   }
   return dirs;
 }

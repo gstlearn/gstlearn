@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
 
   delete data;
   delete grid;
+  delete model_raw;
   delete model_init;
   delete model;
   delete model_b1_Y;
@@ -294,10 +295,12 @@ int main(int argc, char *argv[])
   delete anam_b2;
   delete varioparam;
   delete vario;
+  delete vario_raw;
   delete vario_b1_Z;
   delete vario_b1_Y;
   delete vario_b2_Y;
   delete neighM;
+  delete selectivity;
 
   return (0);
 }

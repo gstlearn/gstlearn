@@ -34,7 +34,8 @@
 class GSTLEARN_EXPORT KrigingCalcul
 {
 public:
-  KrigingCalcul(const VectorDouble* Z                = nullptr,
+  KrigingCalcul(bool flagDual                        = false,
+                const VectorDouble* Z                = nullptr,
                 const MatrixSquareSymmetric* Sigma   = nullptr,
                 const MatrixRectangular* X           = nullptr,
                 const MatrixSquareSymmetric* Sigma00 = nullptr,
@@ -43,14 +44,13 @@ public:
   KrigingCalcul& operator=(const KrigingCalcul& r) = delete;
   virtual ~KrigingCalcul();
 
-  int setData(const VectorDouble* Z                = nullptr,
-              const MatrixSquareSymmetric* Sigma   = nullptr,
-              const MatrixRectangular* X           = nullptr,
-              const MatrixSquareSymmetric* Sigma00 = nullptr,
-              const VectorDouble* Means            = nullptr);
-  int setVariance00(const MatrixSquareSymmetric* Sigma00 = nullptr);
-  int setTarget(const MatrixRectangular* Sigma0 = nullptr,
-                const MatrixRectangular* X0     = nullptr);
+  int setData(const VectorDouble* Z     = nullptr,
+              const VectorDouble* Means = nullptr);
+  int setLHS(const MatrixSquareSymmetric* Sigma = nullptr,
+             const MatrixRectangular* X         = nullptr);
+  int setRHS(const MatrixRectangular* Sigma0 = nullptr,
+             const MatrixRectangular* X0     = nullptr);
+  int setVar(const MatrixSquareSymmetric* Sigma00 = nullptr);
   int setColCokUnique(const VectorDouble* Zp      = nullptr,
                       const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
@@ -132,6 +132,8 @@ private:
   int _needZp();
   int _needColCok();
   int _needXvalid();
+  int _needDual();
+
   int _patchRHSForXvalidUnique();
   int _patchColCokVarianceZstar(MatrixSquareSymmetric* varZK);
 
@@ -168,10 +170,12 @@ private:
   void _deleteZp();
   void _deleteColCok();
   void _deleteXvalid();
+  void _deleteDual();
 
   static void _printMatrix(const String& name, const AMatrix* mat);
   static void _printVector(const String& name, const VectorDouble* vec);
 
+  bool _validForDual() const;
   void _resetAll();
 
 private:
@@ -201,22 +205,26 @@ private:
   MatrixSquareSymmetric* _VarZUK;       // Estimator variance in UK (Dim: _nrhs * _nrhs)
 
   // Following elements are defined for internal storage
-  MatrixRectangular* _XtInvSigma;       // X^t * InvSigma (Dim: _nbfl * _neq);
+  MatrixRectangular* _XtInvSigma;       // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
   MatrixRectangular* _Y0;               // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-  MatrixRectangular* _InvSigmaSigma0;   // InvSigma * Sigma0 (Dim: _neq * _nrhs)
-  MatrixSquareSymmetric* _InvSigma;     // (Sigma)^{-1} (Dim: _neq * _neq)
-  MatrixSquareSymmetric* _Sigmac;       // (X^t * Sigma^{-1} * X)^{-1} (Dim: _nbfl * _nbfl)
-  MatrixSquareSymmetric* _InvPriorCov;  // (PriorCov)^{-1} (Dim: _nbfl * _nbfl)
+  MatrixRectangular* _InvSigmaSigma0;   // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
+  MatrixSquareSymmetric* _InvSigma;     // Inv{Sigma} (Dim: _neq * _neq)
+  MatrixSquareSymmetric* _Sigmac;       // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
+  MatrixSquareSymmetric* _InvPriorCov;  // Inv{PriorCov} (Dim: _nbfl * _nbfl)
 
   // Following elements are defined for internal storage (collocated case in UN)
   MatrixSquareSymmetric* _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
   MatrixRectangular* _Sigma00p;      // ColCok Variance D-T (Dim: _ncck * _nrhs)
   MatrixRectangular* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
   MatrixRectangular* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
-  MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * InvSigma * X (Dim: _ncck *_nbfl)
+  MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
   VectorDouble _Z0p;                 // Vector of (active) collocated values
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 
+  // Following elements are defined for Dual programming
+  VectorDouble _bDual;               // Fake Covariance part in Dual (Dim: _neq)
+  VectorDouble _cDual;               // Fake Drift part in Dual (Dim: _nbfl) 
+   
   // Following elements are defined for internal storage (Cross-validation in UN)
   MatrixRectangular* _C_RHS;         // Fictitious Right-hand side (covariance part)
   MatrixRectangular* _X_RHS;         // Fictitious Right-hand side (drift part)
@@ -229,4 +237,5 @@ private:
   int _nxvalid;
   bool _flagSK;
   bool _flagBayes;
+  bool _flagDual;
 };

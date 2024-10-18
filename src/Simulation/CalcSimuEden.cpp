@@ -183,6 +183,8 @@ bool CalcSimuEden::_simulate()
 
   if (_verbose) skin->skinPrint();
 
+  delete skin;
+  
   return true;
 }
 

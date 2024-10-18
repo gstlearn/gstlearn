@@ -15,7 +15,8 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
 
-KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
+KrigingCalcul::KrigingCalcul(bool flagDual,
+                             const VectorDouble* Z,
                              const MatrixSquareSymmetric* Sigma,
                              const MatrixRectangular* X,
                              const MatrixSquareSymmetric* Sigma00,
@@ -55,6 +56,8 @@ KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
   , _Y0p(nullptr)
   , _Z0p()
   , _Lambda0(nullptr)
+  , _bDual()
+  , _cDual()
   , _C_RHS(nullptr)
   , _X_RHS(nullptr)
 
@@ -65,8 +68,11 @@ KrigingCalcul::KrigingCalcul(const VectorDouble* Z,
   , _nxvalid(0)
   , _flagSK(true)
   , _flagBayes(false)
+  , _flagDual(flagDual)
 {
-  (void) setData(Z, Sigma, X, Sigma00, Means);
+  (void)setData(Z, Means);
+  (void)setLHS(Sigma, X);
+  (void)setVar(Sigma00);
 }
 
 KrigingCalcul::~KrigingCalcul()
@@ -93,6 +99,7 @@ void KrigingCalcul::resetLinkedToLHS()
 {
   _deleteSigma();
   _deleteX();
+  _deleteDual();
 }
 void KrigingCalcul::resetLinkedToRHS()
 {
@@ -199,6 +206,7 @@ void KrigingCalcul::_deleteSigmac()
   _deleteLambda0();
   _deleteBeta();
   _deleteMuUK();
+  _deleteDual();
 
   delete _Sigmac;
   _Sigmac = nullptr;
@@ -206,7 +214,7 @@ void KrigingCalcul::_deleteSigmac()
 void KrigingCalcul::_deleteZstar()
 {
   _Zstar.clear();
-  }
+}
 void KrigingCalcul::_deleteY0()
 {
   _deleteZstar();
@@ -332,6 +340,8 @@ void KrigingCalcul::_deleteZ()
   _deleteZstar();
   _deleteBeta();
   // Cannot delete _Z due to constness
+
+  _deleteDual();
 }
 void KrigingCalcul::_deleteZp()
 {
@@ -356,29 +366,26 @@ void KrigingCalcul::_deleteXvalid()
   delete _X_RHS;
   _X_RHS = nullptr;
 }
+void KrigingCalcul::_deleteDual()
+{
+  if (! _flagDual) return;
+  _bDual.clear();
+  _cDual.clear();
+}
 
 /**
- * @brief Modify the Data-dependent elements
+ * @brief Modify the Data Values (and Means)
  *
- * @param Z Data flattened vector (possibly multivariate) 
- * @param Sigma Data-Data Covariance matrix
- * @param X     Data Drift Matrix
- * @param Sigma00  Target-target Variance Matrix
+ * @param Z Data flattened vector (possibly multivariate)
  * @param Means  Vector of known Drift coefficients
  * @return int
  *
  * @note If one element is not provided, its address (if already defined) is
  * @note kept unchanged (even if its contents may have been updated)
  */
-int KrigingCalcul::setData(const VectorDouble* Z,
-                           const MatrixSquareSymmetric* Sigma,
-                           const MatrixRectangular* X,
-                           const MatrixSquareSymmetric* Sigma00,
-                           const VectorDouble* Means)
+int KrigingCalcul::setData(const VectorDouble* Z, const VectorDouble* Means)
 {
   resetLinkedToZ();
-  resetLinkedToLHS();
-  resetLinkedtoVar0();
 
   // Argument Z
   if (Z != nullptr)
@@ -386,6 +393,31 @@ int KrigingCalcul::setData(const VectorDouble* Z,
     if (!_checkDimensionVector("Z", Z, &_neq)) return 1;
     _Z = Z;
   }
+
+  // Argument Means
+  if (Means != nullptr)
+  {
+    int local_nvar = 0;
+    if (!_checkDimensionVector("Means", Means, &local_nvar)) return 1;
+    _Means = Means;
+  }
+  return 0;
+}
+
+/**
+ * @brief Modify the elements linked to the LHS
+ *
+ * @param Sigma Data-Data Covariance matrix
+ * @param X     Data Drift Matrix
+ * @return int
+ *
+ * @note If one element is not provided, its address (if already defined) is
+ * @note kept unchanged (even if its contents may have been updated)
+ */
+int KrigingCalcul::setLHS(const MatrixSquareSymmetric* Sigma,
+                          const MatrixRectangular* X)
+{
+  resetLinkedToLHS();
 
   // Argument Sigma
   if (Sigma != nullptr)
@@ -407,24 +439,10 @@ int KrigingCalcul::setData(const VectorDouble* Z,
     _flagSK = (_nbfl <= 0);
   }
 
-  // Argument Sigma00
-  if (Sigma00 != nullptr)
-  {
-    if (!_checkDimensionMatrix("Sigma00", Sigma00, &_nrhs, &_nrhs)) return 1;
-    _Sigma00 = Sigma00;
-  }
-
-  // Argument Means
-  if (Means != nullptr)
-  {
-    int local_nbfl = 0;
-    if (!_checkDimensionVector("Means", Means, &local_nbfl)) return 1;
-    _Means = Means;
-  }
   return 0;
 }
 
-int KrigingCalcul::setVariance00(const MatrixSquareSymmetric* Sigma00)
+int KrigingCalcul::setVar(const MatrixSquareSymmetric* Sigma00)
 {
   if (Sigma00 != nullptr)
   {
@@ -434,7 +452,7 @@ int KrigingCalcul::setVariance00(const MatrixSquareSymmetric* Sigma00)
   return 0;
 }
 
-int KrigingCalcul::setTarget(const MatrixRectangular* Sigma0,
+int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
                              const MatrixRectangular* X0)
 {
   resetLinkedToRHS();
@@ -524,6 +542,11 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
     _ncck = 0;
     return 0;
   }
+  if (_flagDual)
+  {
+    messerr("Colocated Cokriging is incompatible with 'Dual'");
+    return 1;
+  }
 
   // Argument Zp
   if (!_checkDimensionVector("Zp", Zp, &_nrhs)) return 1;
@@ -575,6 +598,11 @@ int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
     _flagBayes = false;
     return 0;
   }
+  if (_flagDual)
+  {
+    messerr("Bayesian option is incompatible with 'Dual'");
+    return 1;
+  }
   
   if (!_checkDimensionVector("PriorMean", PriorMean, &_nbfl)) return 1;
   if (!_checkDimensionMatrix("PriorCov", PriorCov, &_nbfl, &_nbfl)) return 1;
@@ -597,20 +625,30 @@ VectorDouble KrigingCalcul::getPostMean()
   return _Beta;
 }
 
+bool KrigingCalcul::_validForDual() const
+{
+  if (!_flagDual) return true;
+  messerr("This option is not available has 'Dual' is switched ON");
+  return false;
+}
+
 VectorDouble KrigingCalcul::getStdv()
 {
+  if (! _validForDual()) return VectorDouble();
   if (_needStdv()) return VectorDouble();
   return _Stdv->getDiagonal();
 }
 
 const MatrixSquareSymmetric* KrigingCalcul::getStdvMat()
 {
+  if (! _validForDual()) return nullptr;
   if (_needStdv()) return nullptr;
   return _Stdv;
 }
 
 VectorDouble KrigingCalcul::getVarianceZstar()
 {
+  if (! _validForDual()) return VectorDouble();
   if (_flagSK)
   {
     if (_needVarZSK()) return VectorDouble();
@@ -622,6 +660,7 @@ VectorDouble KrigingCalcul::getVarianceZstar()
 
 const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
 {
+  if (! _validForDual()) return nullptr;
   if (_flagSK)
   {
     if (_needVarZSK()) return nullptr;
@@ -633,6 +672,7 @@ const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
 
 const MatrixRectangular* KrigingCalcul::getLambda()
 {
+  if (_validForDual()) return nullptr;
   if (_flagSK)
   {
     if (_needLambdaSK()) return nullptr;
@@ -718,7 +758,21 @@ int KrigingCalcul::_needInvPriorCov()
 
 int KrigingCalcul::_needZstar()
 {
-  if (! _Zstar.empty()) return 0;
+  if (!_Zstar.empty()) return 0;
+  if (_flagDual)
+  {
+    // Particular Dual case
+    if (_needDual()) return 1;
+    if (_needSigma0()) return 1;
+
+    _Zstar = _Sigma0->prodMatVec(_bDual);
+    if (_nbfl > 0)
+    {
+      VectorDouble ext = _X->prodMatVec(_cDual);
+      VH::linearCombinationInPlace(1., _Zstar, 1., ext, _Zstar);
+    }
+    return 0;
+  }
   if (_needZ()) return 1;
   if (_flagSK || _flagBayes)
   {
@@ -1147,9 +1201,9 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
   _C_RHS = MatrixRectangular::sample(_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
   _C_RHS->unsample(omega, *_rankXvalidEqs, VectorInt());
 
-  setTarget(_C_RHS, _X_RHS);
+  setRHS(_C_RHS, _X_RHS);
 
-  setVariance00(S00->clone());
+  setVar(S00->clone());
   delete alpha;
   delete omega;
 
@@ -1231,6 +1285,27 @@ int KrigingCalcul::_needLambdaUK()
   p1->prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
   _LambdaUK->linearCombination(1., _LambdaSK, 1., p1);
   delete p1;
+
+  return 0;
+}
+
+int KrigingCalcul::_needDual()
+{
+  if (!_flagDual) return 1;
+  if (_needZ()) return 1;
+  if (_needInvSigma()) return 1;
+  if (_needSigmac()) return 1;
+  if (_needXtInvSigma()) return 1;
+
+  _bDual = _InvSigma->prodMatVec(*_Z, true);
+  if (_nbfl > 0)
+  {
+    VectorDouble wp  = _XtInvSigma->prodMatVec(*_Z, true);
+    VectorDouble _cDual = _Sigmac->prodMatVec(wp);
+
+    VectorDouble p1 = _XtInvSigma->prodMatVec(_cDual);
+    VH::linearCombinationInPlace(1., _bDual, 1., p1, _bDual);
+  }
 
   return 0;
 }

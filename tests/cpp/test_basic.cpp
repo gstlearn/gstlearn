@@ -113,6 +113,9 @@ int main(int argc, char *argv[])
   delete mygrid;
   delete mymodel;
   delete mypoints;
+  delete myvario;
+  delete varioparam;
+  delete myneigh;
 
   return 0;
 }

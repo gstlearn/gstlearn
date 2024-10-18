@@ -79,6 +79,13 @@ int main(int argc, char *argv[])
   anam->fit(data, "Z");
   anam->display();
 
+  delete blocs;
+  delete anam;
+  delete data;
+  delete model_init;
+  delete grid;
+  delete panel;
+
   return 0;
 }
 

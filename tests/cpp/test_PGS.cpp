@@ -165,5 +165,8 @@ int main(int argc, char *argv[])
   delete ruleprop2;
   delete model1;
   delete model2;
+  delete vario;
+  delete varioDerived;
+
   return error;
 }
