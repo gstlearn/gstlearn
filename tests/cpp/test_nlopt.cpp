@@ -10,54 +10,56 @@
 /******************************************************************************/
 
 /**
- * This file is meant to perform any test that needs to be coded for a quick trial
- * It will be compiled but not run nor diff'ed.
+ * This test aims to test the use of the nlopt library for optimization. 
+ * Only a quadratic function is minimized in this example.
  */
 #include <iostream>
+#include "Basic/File.hpp"
 #include "geoslib_define.h"
+#include <sstream>
 #include <nlopt.h>
-#include <vector>
-// Définir la fonction à optimiser
+
+// Function to minimize
 double myfunc(unsigned n, const double *x, double *grad, void *my_func_data)
 {
-    // Si le gradient est demandé, le calculer
+    DECLARE_UNUSED(n, my_func_data);
     if (grad) {
         grad[0] = 2 * (x[0] - 3);
     }
     return (x[0] - 3) * (x[0] - 3);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    // Définir le type d'optimisation (minimisation) et la dimension du problème (1D)
+    std::stringstream sfn;
+    sfn << gslBaseName(__FILE__) << ".out";
+    StdoutRedirect sr(sfn.str(), argc, argv);
     nlopt_opt opt= nlopt_create(NLOPT_LD_LBFGS, 2);
-    // Définir les bornes inférieures et supérieures pour la variable x
-    
+
+    // Bounds for each parameter
     nlopt_set_lower_bound(opt, 0, 1);
     nlopt_set_lower_bound(opt, 1, -10);
-    nlopt_set_upper_bound(opt, 0, 1);
+    nlopt_set_upper_bound(opt, 0, 5);
     nlopt_set_upper_bound(opt, 1, 10);
 
 
     nlopt_set_min_objective(opt, myfunc, nullptr);
-    // Définir la fonction objective à minimiser
 
-    // Définir la tolérance pour la convergence
+    // Set the tolerance for the stopping criteria
     nlopt_set_xtol_rel(opt,EPSILON4);
 
-    // Définir le point de départ pour l'optimisation
-    double x[2] = {1., 5.0}; // Point de départ initial
+    // Starting point
+    double x[2] = {1., 5.0}; 
 
-    // Exécuter l'optimisation
-    double minf; // Valeur minimale de la fonction objective
+    double minf; // minimum value of the objective function
     try {
         nlopt_optimize(opt,x, &minf);
-        std::cout << "Optimisation réussie!" << std::endl;
-        std::cout << "x = " << x[0] << std::endl;
-        std::cout << "Valeur minimale de la fonction objective = " << minf << std::endl;
+        std::cout << "End optimization" << std::endl;
+        std::cout << "x = " << x[0] << " " << x[1] << std::endl;
+        std::cout << "Minimum value of the objective " << minf << std::endl;
     }
     catch (std::exception &e) {
-        std::cerr << "Erreur d'optimisation: " << e.what() << std::endl;
+        std::cerr << "Error in the optimization: " << e.what() << std::endl;
     }
 
     return 0;
