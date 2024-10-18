@@ -20,9 +20,10 @@
 #include <nlopt.h>
 
 // Function to minimize
-double myfunc(unsigned n, const double *x, double *grad, void *my_func_data)
+double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nullptr)
 {
-    DECLARE_UNUSED(n, my_func_data);
+    DECLARE_UNUSED(n);
+    DECLARE_UNUSED(my_func_data);
     if (grad) {
         grad[0] = 2 * (x[0] - 3);
     }
