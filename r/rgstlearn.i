@@ -254,7 +254,6 @@
 
   int matrixSparseToCpp(SEXP obj, MatrixSparse& mat)
   {
-    mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
     if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == REALSXP) return SWIG_TypeError;
@@ -302,7 +301,7 @@
     for (int i = 0; i < nnz; i++) 
       NFT.add(rows[i], cols[i], data[i]);
     NFT.force(nrows, ncols);
-
+    mat.resize(nrows, ncols);
     mat.resetFromTriplet(NFT);
 
     return SWIG_OK;

@@ -107,7 +107,7 @@ argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 rows = c(1,4,2,1)
 cols = c(1,4,2,3)
 data = c(4,5,7,9)
-A = sparseMatrix(i = rows, j = cols, x = data, dims = c(4, 4))
+A = sparseMatrix(i = rows, j = cols, x = data, dims = c(5, 5)) # bigger size (for the test)
 mat = argumentTestMatrixSparse(A)
 
 cat("Test successfully performed\n")

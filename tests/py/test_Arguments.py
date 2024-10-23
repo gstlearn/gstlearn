@@ -93,7 +93,7 @@ gl.argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
 rows = np.array([0,3,1,0,1])
 cols = np.array([0,3,1,2,0])
 data = np.array([4,5,7,9,2])
-A = sc.csr_array((data,(rows,cols)),shape=(4,5))
+A = sc.csr_array((data,(rows,cols)),shape=(5,6)) # bigger size (for the test)
 mat = gl.argumentTestMatrixSparse(A)
 
 print("Test successfully performed")
