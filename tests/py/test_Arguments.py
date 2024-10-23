@@ -7,8 +7,6 @@
 import gstlearn as gl
 import scipy.sparse as sc
 import numpy as np
-import os
-import sys
 
 # Testing main argument types
 
@@ -96,6 +94,6 @@ rows = np.array([0,3,1,0,1])
 cols = np.array([0,3,1,2,0])
 data = np.array([4,5,7,9,2])
 A = sc.csr_array((data,(rows,cols)),shape=(4,5))
-mat = gl.argumentTestMatrixSparse(A)    
+mat = gl.argumentTestMatrixSparse(A)
 
 print("Test successfully performed")

@@ -25,6 +25,16 @@
 //    Specific typemaps and fragments for Python language   //
 //////////////////////////////////////////////////////////////
 
+// Include numpy interface for creating arrays
+
+%{
+  #define SWIG_FILE_WITH_INIT
+%}
+%include numpy.i
+%init %{
+  import_array(); // Mandatory for using PyArray_* functions
+%}
+
 %begin %{
 // For converting NumPy integers to C++ integers
 // https://github.com/swig/swig/issues/888
@@ -308,17 +318,50 @@
     return myres;
   }
 
+  void convertIndices(PyObject* obj, VectorInt& vec)
+  {
+    // Initialize output vector
+    vec.clear();
+
+    // Get the dtype
+    PyArrayObject* array = reinterpret_cast<PyArrayObject*>(obj);
+    if (array == nullptr) return;
+    int npt = PyArray_TYPE(array);
+
+    PyArrayObject* indices_array = (PyArrayObject *) PyArray_FROM_OTF(obj, npt, NPY_ARRAY_IN_ARRAY);
+    switch(npt)
+    {
+      case NPY_INT32 :
+      {
+        int32_t* indices = (int32_t*) PyArray_DATA(indices_array);
+        auto ni = PyArray_Size((PyObject*)(indices_array));
+        vec.resize(ni);
+        for (int i=0 ; i < ni; i++)
+          vec[i] = indices[i];
+        break;
+      }
+      case NPY_INT64 :
+      {
+        int64_t* indices = (int64_t*) PyArray_DATA(indices_array);
+        auto ni = PyArray_Size((PyObject*)(indices_array));
+        vec.resize(ni);
+        for (int i=0 ; i < ni; i++)
+          vec[i] = (int)indices[i];
+        break;
+      }
+      default :
+      {
+        messerr("Wrong types in numpy array of indices");
+        break;
+      }
+    }
+    Py_XDECREF(indices_array);
+  }
+
   int matrixSparseToCpp(PyObject* obj, MatrixSparse& mat)
   {
-    mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
     if (obj == Py_None) return SWIG_NullReferenceError;
-
-    PyArrayObject* data_array = nullptr;
-    PyArrayObject* rows_array = nullptr;
-    PyArrayObject* cols_array = nullptr;
-    PyArrayObject* indices_array = nullptr;
-    PyArrayObject* indptr_array = nullptr;
   
     // Extract dimension of matrices
 
@@ -326,7 +369,6 @@
       // Not an object to be translated
       return SWIG_TypeError;
     }
-
     PyObject *shape = PyObject_GetAttrString(obj, "shape");
     if (!shape || !PyTuple_Check(shape) || PyTuple_Size(shape) != 2) {
       messerr("Could not extract shape from sparse matrix");
@@ -334,7 +376,7 @@
     }
     int nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
     int ncols = PyLong_AsLong(PyTuple_GetItem(shape, 1));
-
+    
     // Reading the storage format
     PyObject* format_obj = PyObject_GetAttrString(obj, "format");
     if (!format_obj) return SWIG_TypeError; 
@@ -347,40 +389,38 @@
       messerr("Could not extract information from sparse matrix");
       return SWIG_TypeError;
     }
+    PyArrayObject* data_array = nullptr;
     data_array = (PyArrayObject *) PyArray_FROM_OTF(data_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     double* values = (double*) PyArray_DATA(data_array);
+
+    // Number of non empty cells
     int nnz = PyArray_DIM(data_array, 0);
 
     // Reading 'row' and 'col' or 'indices' and 'indptr' information
-    VectorInt Vrows(nnz);
-    VectorInt Vcols(nnz);
-    int* rows = nullptr;
-    int* cols = nullptr;
+    // And build rows and cols indices vectors for creating triplets
+    VectorInt rows(nnz);
+    VectorInt cols(nnz);
     if (strcmp(format_str, "coo") != 0) 
     {
-
       // The format is CSC or CSR
-
+      VectorInt vindc;
+      VectorInt viptr;
       PyObject* indices_obj = PyObject_GetAttrString(obj, "indices");
       PyObject* indptr_obj  = PyObject_GetAttrString(obj, "indptr");
-      indices_array = (PyArrayObject *) PyArray_FROM_OTF(indices_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
-      indptr_array  = (PyArrayObject *) PyArray_FROM_OTF(indptr_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
-      int* indices = (int*) PyArray_DATA(indices_array);
-      int* indptr  = (int*) PyArray_DATA(indptr_array);
-
+      
       if (strcmp(format_str, "csc") == 0)
       {
         // The format is CSC
-        rows = indices;
-        cols = Vcols.data();
-        convertIndptrToIndices(ncols, indptr, cols);
+        convertIndices(indices_obj, rows);
+        convertIndices(indptr_obj, viptr);
+        convertIndptrToIndices(ncols, viptr.data(), cols.data());
       }
       else
       {
         // The format is CSR
-        cols = indices;
-        rows = Vrows.data();
-        convertIndptrToIndices(nrows, indptr, rows);
+        convertIndices(indices_obj, cols);
+        convertIndices(indptr_obj, viptr);
+        convertIndptrToIndices(nrows, viptr.data(), rows.data());
       }
     }
     else
@@ -388,23 +428,25 @@
       // The format is COO
       PyObject* rows_obj = PyObject_GetAttrString(obj, "row");
       PyObject* cols_obj = PyObject_GetAttrString(obj, "col");
-      rows_array = (PyArrayObject *) PyArray_FROM_OTF(rows_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
-      cols_array = (PyArrayObject *) PyArray_FROM_OTF(cols_obj, NPY_INT, NPY_ARRAY_IN_ARRAY);
-      rows = (int*) PyArray_DATA(rows_array);
-      cols = (int*) PyArray_DATA(cols_array);
+
+      convertIndices(rows_obj, rows);
+      convertIndices(cols_obj, cols);
+    }
+
+    if (rows.size() != cols.size() || (int)rows.size() != nnz) {
+      // Strange error that should never occur
+      messerr("Wrong sparse matrix format");
+      return SWIG_TypeError;
     }
 
     NF_Triplet NFT;
     for (int i = 0; i < nnz; i++)
       NFT.add(rows[i], cols[i], values[i]);
     NFT.force(nrows, ncols);
+    mat.resize(nrows, ncols);
     mat.resetFromTriplet(NFT);
 
     Py_XDECREF(data_array);
-    Py_XDECREF(indices_array);
-    Py_XDECREF(indptr_array);
-    Py_XDECREF(rows_array);
-    Py_XDECREF(cols_array);
 
     return SWIG_OK;
   }
@@ -427,25 +469,15 @@
   $1 = SWIG_CheckState(isStringVector($input));
 }
 
-// Include numpy interface for creating arrays
-
-%{
-  #define SWIG_FILE_WITH_INIT
-%}
-%include numpy.i
-%init %{
-  import_array(); // Mandatory for using PyArray_* functions
-%}
-
 %fragment("FromCpp", "header")
 {
   template <typename Type> NPY_TYPES numpyType();
-  template <> NPY_TYPES numpyType<int>()    { return NPY_INT_TYPE; }
-  template <> NPY_TYPES numpyType<double>() { return NPY_DOUBLE; }
-  template <> NPY_TYPES numpyType<String>() { return NPY_STRING; }
-  template <> NPY_TYPES numpyType<float>()  { return NPY_FLOAT; }
-  template <> NPY_TYPES numpyType<UChar>()  { return NPY_UBYTE; }
-  template <> NPY_TYPES numpyType<bool>()   { return NPY_BOOL; }
+  template <> NPY_TYPES numpyType<int>()     { return NPY_INT_TYPE; }
+  template <> NPY_TYPES numpyType<double>()  { return NPY_DOUBLE; }
+  template <> NPY_TYPES numpyType<String>()  { return NPY_STRING; }
+  template <> NPY_TYPES numpyType<float>()   { return NPY_FLOAT; }
+  template <> NPY_TYPES numpyType<UChar>()   { return NPY_UBYTE; }
+  template <> NPY_TYPES numpyType<bool>()    { return NPY_BOOL; }
   
   template<typename Type> struct TypeHelper;
   template <> struct TypeHelper<int>    { static bool hasFixedSize() { return true; } };

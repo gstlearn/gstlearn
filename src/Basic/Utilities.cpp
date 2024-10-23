@@ -1196,6 +1196,7 @@ void print_range(const char* title,
   message(" (%d/%d)\n", stats.nvalid, ntab);
 }
 
+/// TODO: transfer this in swig_inc.i
 void convertIndptrToIndices(int ncumul, const int* cumul, int* tab)
 {
   for (int i = 0; i < ncumul; i++)
