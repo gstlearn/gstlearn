@@ -398,7 +398,7 @@
 // Conversion Target language => C++
 
 // Note : Before including this file :
-//        - vectorToCpp, vectorVectorToCpp and convertToCpp 
+//        - vectorToCpp, vectorVectorToCpp, matrixDenseToCpp, matrixSparseToCpp and convertToCpp 
 //          functions must be defined in ToCpp fragment
 
 // Convert scalar arguments by value
@@ -597,11 +597,94 @@
   }
 }
 
+%typemap(in, fragment="ToCpp") const MatrixRectangular&     (void *argp, MatrixRectangular mat),
+                               const MatrixRectangular*     (void *argp, MatrixRectangular mat),
+                               const MatrixSquareGeneral&   (void *argp, MatrixSquareGeneral mat),
+                               const MatrixSquareGeneral*   (void *argp, MatrixSquareGeneral mat),
+                               const MatrixSquareSymmetric& (void *argp, MatrixSquareSymmetric mat),
+                               const MatrixSquareSymmetric* (void *argp, MatrixSquareSymmetric mat)
+{
+  // Try to convert from any target language vector
+  int errcode = matrixDenseToCpp($input, mat);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of Matrices by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+          $1 = nullptr;
+        }
+        else
+          $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = &mat;
+  }
+}
+
+%typemap(in, fragment="ToCpp") const MatrixSparse&     (void *argp, MatrixSparse mat),
+                               const MatrixSparse*     (void *argp, MatrixSparse mat)
+{
+  // Try to convert from any target language vector
+  int errcode = matrixSparseToCpp($input, mat);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of Matrices by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+          $1 = nullptr;
+        }
+        else
+          $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = &mat;
+  }
+}
+
 ////////////////////////////////////////////////
 // Conversion C++ => Target language
-
+//
 // Note : Before including this file :
-//        - vectorFromCpp, vectorVectorFromCpp and objectFromCpp 
+//        - vectorFromCpp, vectorVectorFromCpp, 
+//        - matrixDenseFromCpp, matrixSparseFromCpp, objectFromCpp 
 //          functions must be defined in FromCpp fragment
 
 %typemap(out, fragment="FromCpp") int,
@@ -666,12 +749,72 @@
 
 %typemap(out, fragment="FromCpp") VectorVectorInt*,    VectorVectorInt&,
                                   VectorVectorDouble*, VectorVectorDouble&,
-                                  VectorVectorFloat*, VectorVectorFloat&
+                                  VectorVectorFloat*,  VectorVectorFloat&
 {
   int errcode = vectorVectorFromCpp(&($result), *$1);
   if (!SWIG_IsOK(errcode))
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular, 
+//                                  MatrixSquareGeneral, 
+//                                  MatrixSquareSymmetric
+//{
+//  int errcode = matrixDenseFromCpp(&($result), $1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular* MatrixRectangular::create
+//{
+//  int errcode = matrixDenseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular& MatrixRectangular::create
+//{
+//  int errcode = matrixDenseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixRectangular*,     MatrixRectangular&,
+//                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
+//                                  MatrixSquareSymmetric*, MatrixSquareSymmetric&
+//{
+//  int errcode = matrixDenseFromCpp(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse 
+//{
+//  int errcode = matrixSparseFromCpp(&($result), $1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse*,     MatrixSparse&
+//{
+//  int errcode = matrixSparseFromCpp(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse* MatrixSparse::create
+//{
+//  int errcode = matrixSparseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
+
+//%typemap(out, fragment="FromCpp") MatrixSparse& MatrixSparse::create
+//{
+//  int errcode = matrixSparseFromCppCreate(&($result), *$1);
+//  if (!SWIG_IsOK(errcode))
+//    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
+//}
 
 %extend Grid {
   double indiceToCoordinate(int idim0, const VectorInt& indice,

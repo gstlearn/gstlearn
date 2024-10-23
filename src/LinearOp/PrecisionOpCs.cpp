@@ -17,7 +17,6 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorNumT.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,

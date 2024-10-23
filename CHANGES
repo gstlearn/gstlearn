@@ -30,6 +30,7 @@ Release 1.4.0
 - Improve R package stability
 - Reduce drastically moving neighborhood computation time
 - Correcting severe bug in quick interpolators (movingAverage, inverseDistance, ...)
+- Fix a bug in AMatrix::resetFromVVD (byCol logic was inverted)
 - law_exp_sample() now returns a VectorDouble (instead of double *)
 - In Db::createFilLRandom, use of 'ncode' has been corrected
 - Method computeLogLike() is renamed in computeLogLikelihood()
