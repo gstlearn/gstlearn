@@ -145,6 +145,7 @@ VarioParam* VarioParam::createOmniDirection(int npas,
                                                 tolcode, breaks, space);
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addDir(*dir);
+  delete dir;
   return varioparam;
 }
 

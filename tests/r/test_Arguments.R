@@ -5,6 +5,7 @@
 # Loading the package
 
 suppressWarnings(suppressMessages(library(gstlearn)))
+suppressWarnings(suppressMessages(library(Matrix)))
 
 # Testing direct argument of main type
 
@@ -17,8 +18,6 @@ argumentTestVectorString("my_String")
 argumentTestVectorString(c("my_String1","my_String2","my_String3"))
 argumentTestVectorVectorInt(list( c(2,3),c(1, 5) ))
 argumentTestVectorVectorDouble(list( c(2.,3.),c(1., 5 ) ))
-mat = MatrixRectangular_createFromVD(c(1., 2., 3., 4., 5., 6.),2,3)
-argumentTestMatrix(mat)
 
 # Testing Vector arguments using external factory
 
@@ -59,6 +58,10 @@ print(argumentReturnInt(12))
 print(argumentReturnInt(NA))
 print(argumentReturnDouble(21.4))
 print(argumentReturnDouble(NA))
+print(argumentReturnVectorDouble(c(1., 2., 3.)))
+print(argumentReturnVectorInt(c(3,2,8)))
+print(argumentReturnVectorVectorInt(list(c(1,2),c(3,4))))
+print(argumentReturnVectorVectorDouble(list(c(1,2),c(3,4))))
 
 # Testing assessors (instead of relevant functions) to access the elements of a class
 
@@ -84,5 +87,27 @@ argumentDefTestVInt(c())
 argumentDefTestVDbl(c())
 argumentDefTestVString(c())
 argumentDefTestVVDbl(c())
+
+# Testing Matrix typemaps
+
+mat = matrix(c(1,2,3,4,5,6), nrow=3, ncol=2)
+argumentTestMatrixRectangular(mat) # Should be correct
+argumentTestMatrixSquareGeneral(mat) # Should provoke an error
+argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
+
+mat = matrix(c(1,2,3,4,5,6,7,8,9), nrow=3, ncol=3)
+argumentTestMatrixSquareGeneral(mat) # Should provoke an error
+argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
+
+mat = matrix(c(1,2,3,2,1,2,3,2,1), nrow=3, ncol=3)
+argumentTestMatrixSquareSymmetric(mat) # Should provoke an error
+
+# Testing Sparse matrix typemaps
+
+rows = c(1,4,2,1)
+cols = c(1,4,2,3)
+data = c(4,5,7,9)
+A = sparseMatrix(i = rows, j = cols, x = data, dims = c(5, 5)) # bigger size (for the test)
+mat = argumentTestMatrixSparse(A)
 
 cat("Test successfully performed\n")

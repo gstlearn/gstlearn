@@ -38,8 +38,11 @@ else()
   endif()
 endif()
 
+# For sanitizer
 #add_compile_options(-fsanitize=address -O0 -ggdb)
 #add_link_options(-fsanitize=address)
+# For valgrind usage (use Debug)
+#add_compile_options(-O0)
 
 # C++ header location (keep the trailing '/')
 set(INCLUDES 
