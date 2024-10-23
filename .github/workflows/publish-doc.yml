@@ -38,7 +38,8 @@ jobs:
         sudo apt-get install -yq \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev
+          libeigen3-dev \
+          libnlopt-dev
 
     - name: Install Python dependencies
       run: |

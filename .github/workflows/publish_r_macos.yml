@@ -55,6 +55,7 @@ jobs:
         brew install llvm
         brew install boost
         brew install eigen
+        brew install nlopt
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
