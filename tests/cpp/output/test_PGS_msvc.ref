@@ -486,7 +486,7 @@ Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.048
+         0   277.000     0.009     0.049
          1  2009.000     0.029     0.082
          2  3964.000     0.053     0.108
          3  5931.000     0.079     0.128
@@ -530,7 +530,7 @@ For variables 2 and 1
 
 For variable 2
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.058
+         0   277.000     0.009     0.059
          1  2009.000     0.029     0.110
          2  3964.000     0.053     0.158
          3  5931.000     0.079     0.195
@@ -596,7 +596,7 @@ For variables 3 and 2
 
 For variable 3
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.022
+         0   277.000     0.009     0.023
          1  2009.000     0.029     0.066
          2  3964.000     0.053     0.116
          3  5931.000     0.079     0.157
@@ -616,16 +616,7 @@ For variable 3
         17 18068.000     0.447     0.210
         18 17948.000     0.474     0.210
 
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
+Model characteristics>
 Matern (Third Parameter = 99.4094)
 - Sill         =      1.000
 - Range        =      0.145
