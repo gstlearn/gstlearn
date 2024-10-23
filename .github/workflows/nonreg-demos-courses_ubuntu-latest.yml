@@ -1,12 +1,12 @@
 name: nonreg-demos-courses_ubuntu-latest
 
 on:
-  # Activate the workflow at each push on main branch
+  # Activate the workflow at each push on dev branch
   push:
-    branches: [ main ]
-  # Activate the workflow at each pull request on main branch
+    branches: [ dev ]
+  # Activate the workflow at each pull request on dev branch
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
   # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
   schedule:
     # * is a special character in YAML so you have to quote the string
