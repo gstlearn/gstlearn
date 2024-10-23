@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   constraints.addItem(&consParam);
 
   //OptDbg::define(EDbg::CONVERGE);
-  (void) model->fit(vario,structs,constraints);
+  (void)model->fit(vario, structs, constraints);
   model->display();
 
   NeighUnique* neighU = NeighUnique::create();
@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
   delete grid;
   delete model;
   delete neighU;
+  delete vario;
 
   return 0;
 }

@@ -61,7 +61,7 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const std::vector<double>& d
     temp[i] = datVal[i] / getVarianceData(i);
   }
 
-  for(int i = 0; i < sizes(); i++)
+  for(int i = 0, n = sizes(); i < n; i++)
   {
     constvect tempm(temp);
     vect rhsm(rhs[i]);

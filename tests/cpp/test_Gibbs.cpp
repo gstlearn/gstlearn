@@ -375,5 +375,7 @@ int main(int argc, char *argv[])
   delete dbgrid;
   delete model1;
   delete model2;
+  delete Q;
+  
   return(0);
 }

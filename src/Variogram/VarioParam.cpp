@@ -197,6 +197,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
     grincr[idim] = 1;
     DirParam* dirparam = DirParam::createFromGrid(dbgrid, npas, grincr, space);
     varioparam->addDir(*dirparam);
+    delete dirparam;
   }
   return varioparam;
 }
