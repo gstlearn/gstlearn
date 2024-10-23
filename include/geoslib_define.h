@@ -87,6 +87,8 @@ DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
 
 typedef std::span<const double> constvect;
 typedef std::span<double> vect ;
+using constvectint = std::span<const int>;
+using vectint = std::span<int>;
 
 #endif
 
