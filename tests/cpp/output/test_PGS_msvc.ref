@@ -616,7 +616,16 @@ For variable 3
         17 18068.000     0.447     0.210
         18 17948.000     0.474     0.210
 
-Model characteristics>
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
 Matern (Third Parameter = 99.4094)
 - Sill         =      1.000
 - Range        =      0.145
