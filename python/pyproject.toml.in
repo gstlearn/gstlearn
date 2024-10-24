@@ -28,6 +28,7 @@ dependencies = [
     "scipy",
     "plotly",
     "pandas",
+    "nlopt==@NLOPT_VERSION@",
 ]
 
 [project.urls]

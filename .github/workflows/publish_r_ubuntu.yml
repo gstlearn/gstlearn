@@ -50,7 +50,8 @@ jobs:
           libhdf5-dev \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev
+          libeigen3-dev \
+          libnlopt-dev
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2

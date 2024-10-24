@@ -54,6 +54,7 @@ jobs:
         conda install -c conda-forge boost
         conda install -c conda-forge eigen
         conda install -c conda-forge ninja
+        conda install -c conda-forge nlopt
         # don't interfere with pre-installed Python
         rm C:\Miniconda\python.exe
 
