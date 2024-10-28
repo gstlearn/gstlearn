@@ -264,12 +264,13 @@ cmake --build build --target check_ipynb --config Release
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * The Windows C++ Compiler used must be the same that the one used for compiling Python (Visual C++). Using another compiler than Visual C++ is not supported.
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost, Eigen3, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
+* You may need to precise the location of Boost, Eigen3, SWIG, Doxygen, HDF5 or NLopt installation directory. In that case, add the following variables in the first cmake command above:
   * `-DBoost_ROOT="path/to/boost"`
   * `-DEigen3_ROOT="path/to/eigen3"`
   * `-DSWIG_ROOT="path/to/swig"`
   * `-DDoxygen_ROOT="path/to/doxygen"`
   * `-DHDF5_ROOT="path/to/hdf5"`
+  * `-DNLopt_ROOT="path/to/nlopt"`
 
 
 ### Remove Installed Package

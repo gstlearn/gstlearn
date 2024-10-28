@@ -139,6 +139,9 @@ endif
 ifdef BOOST_ROOT
   CMAKE_DEFINES := $(CMAKE_DEFINES) -DBoost_ROOT=$(BOOST_ROOT)
 endif
+ifdef NLOPT_ROOT
+  CMAKE_DEFINES := $(CMAKE_DEFINES) -DNLopt_ROOT=$(NLOPT_ROOT)
+endif
 
 .PHONY: all cmake cmake-python cmake-r cmake-python-r cmake-doxygen print_version static shared build_tests doxygen install uninstall
 
