@@ -96,8 +96,45 @@ jobs:
         name: ubuntu-python-package-${{matrix.os}}-${{matrix.python.py}}
         path: ${{env.MY_PKG}}
 
-  publish:
+  test:
     needs: build
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        python: [
+        # Double quote for version is needed otherwise 3.10 => 3.1
+            {py: "3.9"},
+            {py: "3.10"},
+            {py: "3.11"},
+            {py: "3.12"},
+            {py: "3.13"}
+          ]
+        os: [ubuntu-22.04]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: ubuntu-python-package-${{matrix.os}}-${{matrix.python.py}}
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{matrix.python.py}}
+
+    - name: Install gstlearn Python package
+      run: pip install ./$(ls *.whl)
+
+    - name: Test installed Python package
+      run: |
+        python -c "import gstlearn as gl; gl.acknowledge_gstlearn()"
+        python tests/py/test_Arguments.py
+        python tests/py/test_Assessors.py
+        python tests/py/test_Matrix.py
+
+  publish:
+    needs: test
     if: ${{inputs.dry_publish == false}}
 
     # Only ubuntu can upload via ssh
