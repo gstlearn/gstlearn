@@ -60,7 +60,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew install swig
-        brew install doxygen
+        brew install --formula doxygen
         brew install llvm
         brew install boost
         brew install eigen
