@@ -115,5 +115,9 @@ int main(int argc, char *argv[])
   delete grid;
   delete varioparamP;
   delete variop;
+  delete variog;
+  delete vmapG;
+  delete vmapP;
+
   return (error);
 }

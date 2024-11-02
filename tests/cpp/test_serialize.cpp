@@ -180,15 +180,17 @@ int main(int argc, char *argv[])
   int npolyline = 100;
   VectorDouble xpolyline = VH::simulateGaussian(npolyline);
   VectorDouble ypolyline = VH::simulateGaussian(npolyline);
-  PolyLine2D* polyline = new PolyLine2D(xpolyline, ypolyline);
-  polyline->display(new AStringFormat(3));
+  PolyLine2D* polyline   = new PolyLine2D(xpolyline, ypolyline);
+  AStringFormat afmt(3);
+  polyline->display(&afmt);
 
   // Serialize
   (void) polyline->dumpToNF("Neutral.Polyline.ascii");
 
   // Deserialize
-  PolyLine2D* polyline2 = PolyLine2D::createFromNF("Neutral.Polyline.ascii", verbose);
-  polyline2->display(new AStringFormat(3));
+  PolyLine2D* polyline2 =
+    PolyLine2D::createFromNF("Neutral.Polyline.ascii", verbose);
+  polyline2->display(&afmt);
 
   delete db1;
   delete db2;

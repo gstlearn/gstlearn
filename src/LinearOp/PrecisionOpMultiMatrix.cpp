@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"

@@ -1,4 +1,3 @@
-# %%
 import gstlearn as gl
 import numpy as np
 
@@ -32,7 +31,6 @@ def test(A,inverse,name= ""):
     ua = gl.MatrixSquareSymmetricSim(A,inverse)
     if ua.isEmpty():
         return
-    print("Sparse " + str(ua.isSparse()))
     a = ua.evalSimulate(x)
     if inverse:
         y = simuinv

@@ -49,5 +49,7 @@ int main(int argc, char *argv[])
   std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0).toString() << std::endl;
   std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1).toString() << std::endl;
 
+  delete psp;
+  
   return 0;
 }

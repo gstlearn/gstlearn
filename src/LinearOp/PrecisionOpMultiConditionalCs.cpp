@@ -33,8 +33,8 @@ PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
 void PrecisionOpMultiConditionalCs::_clear()
 {
   delete _chol;
-  delete _Q;
   _chol = nullptr;
+  delete _Q;
   _Q = nullptr;
 }
 
@@ -119,6 +119,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
       msref = mstemp;
     }
     Pmult = new ProjMatrix(mstemp);
+    delete mstemp;
   }
   return Pmult;
 }
