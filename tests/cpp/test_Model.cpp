@@ -110,11 +110,14 @@ int main(int argc, char *argv[])
   // Creating Covariance and Drift matrices
   Model* modelS = Model::createFromEnvironment(1, 3);
   modelS->addCovFromParam(ECov::CUBIC, 10., 12.);
-  modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.}, VectorDouble(),
-                          {10., 20., 30.});
-  modelS->addDrift(new DriftM());
-  modelS->addDrift(new DriftM(VectorInt({1})));
-  modelS->addDrift(new DriftM(VectorInt({2})));
+  modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.},
+                          VectorDouble(), {10., 20., 30.});
+  DriftM FF;
+  modelS->addDrift(&FF);
+  FF = DriftM(VectorInt({1}));
+  modelS->addDrift(&FF);
+  FF = DriftM(VectorInt({2}));
+  modelS->addDrift(&FF);
   modelS->display();
 
   /////////////////////////////
@@ -131,9 +134,12 @@ int main(int argc, char *argv[])
 
   Model* modelM = Model::createFromEnvironment(2, 2);
   modelM->addCovFromParam(ECov::CUBIC, 10., TEST, 0., {}, {2., 1., 1., 4.});
-  modelM->addDrift(new DriftM());                  // Universality Condition
-  modelM->addDrift(new DriftM(VectorInt({1})));    // Drift: X
-  modelM->addDrift(new DriftM(VectorInt({0,1})));  // Dirft: Y
+  FF = DriftM(); // Universality Condition
+  modelM->addDrift(&FF);
+  FF = DriftM(VectorInt({1})); // Drift: X
+  modelM->addDrift(&FF); 
+  FF = DriftM(VectorInt({0,1})); // Drift: Y
+  modelM->addDrift(&FF);
   modelM->display();
 
   int nsample = workingDbc->getSampleNumber();
@@ -236,6 +242,14 @@ int main(int argc, char *argv[])
                                            VectorDouble(), nullptr, false);
   VH::display("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
   VH::display("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));
+
+
+  delete workingDbc;
+  delete modelM;
+  delete modelSS;
+  delete modelS;
+  delete modelSph;
+  delete dbfmt;
 
   return 0;
 }

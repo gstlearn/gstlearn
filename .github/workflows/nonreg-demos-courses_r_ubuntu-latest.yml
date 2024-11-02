@@ -1,0 +1,117 @@
+name: nonreg-demos-courses_r_ubuntu-latest
+
+on:
+  # Permit calling trigger
+  workflow_call:
+  # Activate the workflow at each push on dev branch
+  #push:
+  #  branches: [ dev ]
+  # Activate the workflow at each pull request on dev branch
+  #pull_request:
+  #  branches: [ dev ]
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  CMAKE_BUILD_TYPE : Release
+  BUILD_DIR : build
+  R_VERSION : "4.3.2"
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  SCCACHE_IDLE_TIMEOUT: 0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libsuitesparse-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev \
+          libpng-dev \
+          pandoc
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{env.R_VERSION}}
+
+    # Separate installation from roxygen2 (pak dependency conflicts)
+    - name: Install R dependencies
+      run: |
+        Rscript -e "install.packages (
+          c('ggplot2', 
+            'vctrs', 
+            'ggpubr', 
+            'ggrepel', 
+            'ggnewscale', 
+            'lares', 
+            'Matrix', 
+            'FNN', 
+            'rgl', 
+            'tidyr', 
+            'geigen', 
+            'callr'),
+            repos='https://cloud.r-project.org/')"
+
+    - name: Install roxygen2
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: roxygen2
+        install-pandoc: false
+
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
+
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.5
+
+    - name: Configure build directory
+      run: |
+        cmake \
+          -B${{ env.BUILD_DIR }} \
+          -DBUILD_TESTING=ON \
+          -DBUILD_R=ON \
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        CMAKE_CC_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
+
+    - name: Build the package
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3
+
+    - name: Execute R demos and courses
+      if: success() || failure()
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
+
+    - name: Compress output logs
+      if: success() || failure()
+      run: |
+        cd ${{env.BUILD_DIR}}/tests
+        find . -type f \( -name "*.out" \) -print0 | tar -czvf demos-courses-r-logs.tar.gz --null -T -
+
+    - name: Publish output logs as artefact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: demos-courses-r-logs
+        path: ${{env.BUILD_DIR}}/tests/demos-courses-r-logs.tar.gz

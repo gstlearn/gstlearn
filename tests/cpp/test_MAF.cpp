@@ -8,24 +8,22 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /*                                                                            */
-/* This file is meant to demonstrate the process of using PGS                 */
+/* This file is meant to demonstrate the PCA feature                          */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
-#include "Variogram/Vario.hpp"
-#include "Variogram/VMap.hpp"
+#include "Enum/EDbg.hpp"
 #include "Model/Model.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Basic/File.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "Basic/OptDbg.hpp"
+#include "geoslib_define.h"
 
 /****************************************************************************/
 /*!
-** Main Program for testing the sparse matrix algebra
+** Main Program for testing MAF
 **
 *****************************************************************************/
 int main(int argc, char *argv[])
@@ -34,39 +32,34 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("Vmap3D-");
+  DECLARE_UNUSED(argc, argv)
+  int nlag = 10;
+  double lag = 0.025;
+  VarioParam* varioparam = VarioParam::createOmniDirection(nlag, lag);
 
-  int ndim = 3;
-  defineDefaultSpace(ESpaceType::RN, ndim);
-  CovContext ctxt(1,ndim,1.); // use default space
+  String filename;
+  filename = ASerializable::getTestData("MAF", "data_for_MAF.dat");
+  Db* data = Db::createFromNF(filename);
+  data->display();
 
-  // Creating a grid
-  VectorInt nx = { 50, 40, 20 };
-  DbGrid* grid = DbGrid::create(nx);
-  grid->display();
+  Vario* vario_MAF = Vario::computeFromDb(*varioparam, data);
+  vario_MAF->display();
 
-  // Creating the Model(s) of the Underlying GRF(s)
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 0., 1., 0., {1., 1., 0.1});
-  model->display();
+  Model* model_MAF = Model::create();
+  Constraints ctr;
+  Option_VarioFit ovf;
+  Option_AutoFit oaf;
+  oaf.setVerbose(true);
+  auto types = ECov::fromKeys({"NUGGET", "EXPONENTIAL", "SPHERICAL"});
+  bool verbose = true;
+  OptDbg::define(EDbg::CONVERGE);
+  int err = model_MAF->fit(vario_MAF, types, ctr, ovf, oaf, verbose);
+  model_MAF->display();
 
-  // Perform a non-conditional simulation on the Db and on the Grid
-  (void) simtub(nullptr,grid,model);
-  grid->display();
+  delete varioparam;
+  delete data;
+  delete vario_MAF;
+  delete model_MAF;
 
-  // =================================
-  // Calculating Variogram Map on Grid
-  // =================================
-
-  DbGrid* vmap = db_vmap(grid, ECalcVario::VARIOGRAM,{10,10,3});
-  DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
-  vmap->display(&dbfmt);
-
-  (void) vmap->dumpToNF("vmap.ascii");
-
-  delete grid;
-  delete vmap;
-  delete model;
-  
-  return 0;
+  return (err);
 }

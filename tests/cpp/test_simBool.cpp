@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
 
   delete grid;
   delete data;
+  delete tokens;
 
   return (0);
 }

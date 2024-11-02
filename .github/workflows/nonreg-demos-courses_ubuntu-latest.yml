@@ -1,8 +1,6 @@
 name: nonreg-demos-courses_ubuntu-latest
 
 on:
-  # Permit calling trigger
-  workflow_call:
   # Activate the workflow at each push on dev branch
   push:
     branches: [ dev ]
@@ -21,126 +19,8 @@ on:
         required: false
         default: ''
 
-env:
-  CMAKE_BUILD_TYPE : Release
-  BUILD_DIR : build
-  PYTHON_VERSION : "3.11"
-  R_VERSION : "4.3.2"
-  SWIG_ROOT : ${{github.workspace}}/swig_420b
-  SCCACHE_IDLE_TIMEOUT: 0
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
-        sudo apt-get update
-        sudo apt-get install -yq \
-          libhdf5-dev \
-          libsuitesparse-dev \
-          libopenmpi-dev \
-          libboost-dev \
-          libeigen3-dev \
-          libpng-dev \
-          libnlopt-dev \
-          pandoc
-
-    - name: Setup Python Version
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{env.PYTHON_VERSION}}
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy
-        python -m pip install jupyter
-        python -m pip install notebook==6.1.6
-        python -m pip install matplotlib
-        python -m pip install plotly
-        python -m pip install pandas
-        python -m pip install scipy
-        python -m pip install dash
-        python -m pip install scikit-sparse
-
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: ${{env.R_VERSION}}
-
-    # Separate installation from roxygen2 (pak dependency conflicts)
-    - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (
-          c('ggplot2', 
-            'vctrs', 
-            'ggpubr', 
-            'ggrepel', 
-            'ggnewscale', 
-            'lares', 
-            'Matrix', 
-            'FNN', 
-            'rgl', 
-            'tidyr', 
-            'geigen', 
-            'callr'),
-            repos='https://cloud.r-project.org/')"
-
-    - name: Install roxygen2
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: roxygen2
-        install-pandoc: false
-
-    - name: Install the customized SWIG from source
-      uses: fabien-ors/install-swig-unix-action@v1
-      with:
-        swig-root: ${{env.SWIG_ROOT}}
-        generator: "Unix Makefiles"
-
-    - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.5
-
-    - name: Configure build directory
-      run: |
-        cmake \
-          -B${{ env.BUILD_DIR }} \
-          -DBUILD_TESTING=ON \
-          -DBUILD_PYTHON=ON \
-          -DBUILD_R=ON \
-          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
-      env:
-        SCCACHE_GHA_ENABLED: "true"
-        CMAKE_CC_COMPILER_LAUNCHER: sccache
-        CMAKE_CXX_COMPILER_LAUNCHER: sccache
-
-    - name: Build the package
-      run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3
-
-    - name: Execute Python demos and courses
-      run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_ipynb
-
-    - name: Execute R demos and courses
-      if: success() || failure()
-      run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
-
-    - name: Compress output logs
-      if: success() || failure()
-      run: |
-        cd ${{env.BUILD_DIR}}/tests
-        find . -type f \( -name "*.asciidoc" -o -name "*.out" \) -print0 | tar -czvf demos-courses-logs.tar.gz --null -T -
-
-    - name: Publish output logs as artefact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: demos-courses-logs
-        path: ${{env.BUILD_DIR}}/tests/demos-courses-logs.tar.gz
+  call-python:
+    uses: ./.github/workflows/nonreg-demos-courses_python_ubuntu-latest.yml
+  call-r:
+    uses: ./.github/workflows/nonreg-demos-courses_r_ubuntu-latest.yml
