@@ -57,6 +57,7 @@ set(SRC
   Calculators/CalcSimuPost.cpp
   Calculators/CalcSimuPostDemo.cpp
   Calculators/CalcSimuPostPropByLayer.cpp
+  Covariances/ParamInfo.cpp
   Covariances/TabNoStatCovAniso.cpp
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
