@@ -68,7 +68,7 @@ static Db* _dataAsIs(Db* data)
 
 /****************************************************************************/
 /*!
- ** Testing Bayes option
+ ** Testing the Bayesian option
  **
  *****************************************************************************/
 static void _firstTest(Db* data,
@@ -92,7 +92,7 @@ static void _firstTest(Db* data,
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
   // Title
-  mestitle(0, "Checking Bayes option");
+  mestitle(0, "Bayes option");
   message("Compare:\n");
   message("- Kriging with traditional code\n");
   message("- Estimation performed with 'KrigingCalcul'\n");
@@ -150,18 +150,16 @@ static void _secondTest(Db* data, Db* target, Model* model, const VectorDouble& 
 {
   // Local parameters
   int nvar = model->getVariableNumber();
+  VectorInt varColCok = {0, 2}; // Ranks of collcated variables
+  bool debugSchur     = false;
   if (nvar <= 1)
   {
     messerr("The collocated Test only makes sense for more than 1 variable");
     return;
   }
-  // Set of ranks of collocated variables
-  VectorInt varColCok = {0,2};
-  AStringFormat format;
-  bool debugSchur = false;
 
   // Title
-  mestitle(0,"Compare the Collocated Option (in Unique Neighborhood):");
+  mestitle(0,"Collocated Option (in Unique Neighborhood):");
   message("- using 'KrigingCalcul' on the Complemented Data Set\n");
   message(
     "- using 'KrigingCalcul' on Standard Data Set adding Collocated Option\n");
@@ -241,19 +239,17 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   VectorInt rankXvalidVars = Db::getMultipleSelectedVariables(index, varXvalid, {iech0});
 
   // Title
-  mestitle(0, "Cross-Validation in Unique Neighborhood");
+  mestitle(0, "Cross-Validation (in Unique Neighborhood)");
   message("Compare the Cross-validation Option (in Unique Neighborhood):\n");
   message("- using Standard Kriging on the Deplemented Data Set\n");
   message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
-  VH::display("- Cross-validated equation ranks", rankXvalidEqs, false);
-  VH::display("- Cross-validated variable ranks", rankXvalidVars, false);
 
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
   Db* dataP = _dataTargetDeplement(data, varXvalid, iech0);
 
-  // ---------------------- With deplemented Data Base ---------------------
-  mestitle(1, "With deplemented input Data Base");
+  // ----------------------With Deplemented Data Base ---------------------
+  mestitle(1, "With Deplemented input Data Base");
 
   MatrixSquareSymmetric Sigma00P = model->getSillValues(0);
   MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
@@ -304,15 +300,59 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
 
 /****************************************************************************/
 /*!
+ ** Testing Dual option
+ **
+ ** Note: Means are set to 0 to check SK option
+ **
+ *****************************************************************************/
+static void _fourthTest(Db* data, Db* target, Model* model, const VectorDouble& means)
+{
+  // Title
+  mestitle(0, "Estimation using Dual option or not (in Unique Neighborhood):");
+
+  // ---------------------- Without Dual option ---------------------
+  mestitle(1, "Without Dual option");
+
+  MatrixSquareSymmetric Sigma00 = model->getSillValues(0);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
+  MatrixRectangular X           = model->evalDriftMatrix(data);
+  MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
+  MatrixRectangular X0          = model->evalDriftMatrix(target);
+  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+
+  KrigingCalcul Kcalc1(false);
+  Kcalc1.setData(&Z, &means);
+  Kcalc1.setLHS(&Sigma, &X);
+  Kcalc1.setRHS(&Sigma0, &X0);
+  Kcalc1.setVar(&Sigma00);
+
+  VH::display("Kriging Value(s)", Kcalc1.getEstimation());
+  VH::display("Standard Deviation of Estimation Error", Kcalc1.getStdv());
+  VH::display("Variance of Estimator", Kcalc1.getVarianceZstar());
+
+  // ---------------------- With Dual Option -------------------------
+  mestitle(1, "With Dual Option (only Estimation is available)");
+
+  KrigingCalcul Kcalc2(true);
+  Kcalc2.setData(&Z, &means);
+  Kcalc2.setLHS(&Sigma, &X);
+  Kcalc2.setRHS(&Sigma0, &X0);
+
+  VH::display("Kriging Value(s)", Kcalc2.getEstimation());
+}
+
+/****************************************************************************/
+/*!
  ** Main Program
  **
- ** This test is composed of two parts:
- ** 1) Comparing the results of traditional Kriging with the results
- **    provided by the Algebraic calculations provided within 'KrigingCalcul'
- ** 2) Comparing the results for Collocated CoKriging or KFold Cross-validation
- **    in 'Unique' Neighborhood, whether they are programmed in the plain
- **    manner, or if they benefit from the inversion of the permanent part
- **     of the Kriging System (performed a single time)
+ ** This test is composed of several parts, comparing the results of
+ ** traditional Kriging with the results of the Algebraic calculations
+ ** provided within 'KrigingCalcul'.
+ ** Different scenarios are elaborated:
+ ** 1) Bayesian case
+ ** 2) Test on Collocated CoKriging in Unique Neighborhood
+ ** 3) Test on Cross-Validation in Unique Neighborhood
+ ** 4) Test on Estimation using the Dual option or not
  **
  *****************************************************************************/
 int main(int argc, char* argv[])
@@ -334,11 +374,11 @@ int main(int argc, char* argv[])
   // Parameters
   bool debugPrint   = false;
   int nech          = 3;
-  int nvar          = 2;
+  int nvar          = 3;
   int nfex          = 0;
   int nbfl          = (nfex + 1) * nvar;
   bool flagSK       = false;
-  int mode = 1;
+  int mode = 0;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, nfex);
@@ -393,6 +433,14 @@ int main(int argc, char* argv[])
   {
     Db* dataLocal = data->clone();
     _thirdTest(dataLocal, model, means);
+    delete dataLocal;
+  }
+
+  // Test on Estimation using the Dual option or not
+  if (mode == 0 || mode == 4)
+  {
+    Db* dataLocal = data->clone();
+    _fourthTest(dataLocal, target, model, means);
     delete dataLocal;
   }
 

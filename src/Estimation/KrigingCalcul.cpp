@@ -377,7 +377,7 @@ void KrigingCalcul::_deleteDual()
  * @brief Modify the Data Values (and Means)
  *
  * @param Z Data flattened vector (possibly multivariate)
- * @param Means  Vector of known Drift coefficients
+ * @param Means  Vector of known Drift coefficients (optional)
  * @return int
  *
  * @note If one element is not provided, its address (if already defined) is
@@ -488,9 +488,8 @@ bool KrigingCalcul::_checkDimensionVector(const String& name,
   int size = (int)vec->size();
   if (*sizeRef > 0 && size != *sizeRef)
   {
-    messerr(
-      "Dimension of %s (%d) incorrect: it should be (%d)",
-      name.c_str(),size, *sizeRef);
+    messerr("Dimension of %s (%d) incorrect: it should be (%d)",
+            name.c_str(),size, *sizeRef);
     return false;
   }
   if (size > 0) *sizeRef = size;
@@ -506,9 +505,8 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
   int ncols = mat->getNCols();
   if (*nrowsRef > 0 && nrows != *nrowsRef)
   {
-    messerr(
-      "Number of Rows of %s (%d) incorrect: it should be (%d)",
-      name.c_str(), nrows, *nrowsRef);
+    messerr("Number of Rows of %s (%d) incorrect: it should be (%d)",
+            name.c_str(), nrows, *nrowsRef);
     return false;
   }
   if (*ncolsRef > 0 && ncols != *ncolsRef)
@@ -765,11 +763,17 @@ int KrigingCalcul::_needZstar()
     if (_needDual()) return 1;
     if (_needSigma0()) return 1;
 
-    _Zstar = _Sigma0->prodMatVec(_bDual);
+    _Zstar = _Sigma0->prodMatVec(_bDual, true);
     if (_nbfl > 0)
     {
-      VectorDouble ext = _X->prodMatVec(_cDual);
+      if (_needX0()) return 1;
+      VectorDouble ext = _X0->prodMatVec(_cDual);
       VH::linearCombinationInPlace(1., _Zstar, 1., ext, _Zstar);
+    }
+    else
+    {
+      if (!_Means->empty())
+        VH::linearCombinationInPlace(1., _Zstar, 1., *_Means, _Zstar);
     }
     return 0;
   }
@@ -780,7 +784,7 @@ int KrigingCalcul::_needZstar()
     _Zstar = _LambdaSK->prodMatVec(*_Z, true);
 
     // Adding Mean per Variable
-    if (_flagSK)
+    if (_flagSK && _Means->empty())
     {
       VectorDouble localMeans = *_Means;
       if (_nxvalid > 0) localMeans = VH::sample(*_Means, *_rankXvalidVars);
@@ -1294,17 +1298,18 @@ int KrigingCalcul::_needDual()
   if (!_flagDual) return 1;
   if (_needZ()) return 1;
   if (_needInvSigma()) return 1;
-  if (_needSigmac()) return 1;
-  if (_needXtInvSigma()) return 1;
 
   _bDual = _InvSigma->prodMatVec(*_Z, true);
   if (_nbfl > 0)
   {
-    VectorDouble wp  = _XtInvSigma->prodMatVec(*_Z, true);
-    VectorDouble _cDual = _Sigmac->prodMatVec(wp);
+    if (_needSigmac()) return 1;
+    if (_needXtInvSigma()) return 1;
 
-    VectorDouble p1 = _XtInvSigma->prodMatVec(_cDual);
-    VH::linearCombinationInPlace(1., _bDual, 1., p1, _bDual);
+    VectorDouble wp  = _XtInvSigma->prodMatVec(*_Z, false);
+    _cDual = _Sigmac->prodMatVec(wp, false);
+
+    VectorDouble p1 = _XtInvSigma->prodMatVec(_cDual, true);
+    VH::linearCombinationInPlace(1., _bDual, -1., p1, _bDual);
   }
 
   return 0;
