@@ -20,7 +20,6 @@ set(SRC
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
-  Matrix/VectorEigen.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -46,7 +45,6 @@ set(SRC
   Model/ElemNoStat.cpp
   Model/CovInternal.cpp
   Model/Option_AutoFit.cpp
-  Model/ModelNostat.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Calculators/ACalculator.cpp
@@ -83,11 +81,11 @@ set(SRC
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
   Covariances/CovSincard.cpp
-  Covariances/CovLMC.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
+  Covariances/CovGneiting.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp
@@ -184,7 +182,9 @@ set(SRC
   LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
-  LinearOp/Cholesky.cpp
+  LinearOp/ACholesky.cpp
+  LinearOp/CholeskySparse.cpp
+  LinearOp/CholeskyDense.cpp
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
@@ -195,6 +195,7 @@ set(SRC
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
+  Space/SpaceComposite.cpp
   Spatial/Projection.cpp
   Spatial/SpatialIndices.cpp
   Variogram/AVario.cpp

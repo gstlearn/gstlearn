@@ -164,7 +164,7 @@ round(apply(data_PCA, 2, mean), 8)
 ZZ = outer(X = rep(1.0, np), Y = mZ) + data_PCA %*% M_Y2Z
 
 # Back transform must give the initial values back
-range(abs(data_Z - ZZ))
+round(range(abs(data_Z - ZZ)),8)
 
 # adding the transform to the data base
 data$setColumn(tab = data_PCA[, 1], name = "U1")
@@ -230,7 +230,7 @@ round(apply(data_MAF, 2, mean), 8)
 ZZ = outer(X = rep(1.0, np), Y = mZ) + data_MAF %*% M_F2Z
 
 # Back transform must give the initial values back
-range(abs(data_Z - ZZ))
+round(range(abs(data_Z - ZZ)),8)
 
 # adding the transform to the data base
 data$setColumn(tab = data_MAF[, 1], name = "F1")
@@ -242,7 +242,7 @@ data$setLocators("F*", ELoc_Z())
 vario_MAF  = Vario_computeFromDb(varioparam, db=data)
 model_MAF = Model_create()
 err = model_MAF$fit(vario_MAF, 
-                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "CUBIC"))
+                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "SPHERICAL"))
                     )
 model_MAF$display()
 multi.varmod(vario_MAF, model_MAF)
@@ -272,14 +272,14 @@ err = pca$pca_compute(db = data, verbose = FALSE)
 err = pca$dbZ2F(data, verbose = FALSE, namconv = NamingConvention(prefix = "PCA", FALSE))
 
 # the eigen values are identical
-range(abs(abs(pca$getEigVals()) - abs(res$values)))
+round(range(abs(abs(pca$getEigVals()) - abs(res$values))),8)
 
 # getting the computed factors
 data_gsPCA = matrix(data$getColumns(names = "PCA.*"), 
                     nrow = data$getSampleNumber(), ncol = nv)
 
 # Statistics (mean and variance) compared to the values of eigen
-apply(X = data_gsPCA, MARGIN = 2, mean)
+round(apply(X = data_gsPCA, MARGIN = 2, mean), 8)
 round(t(data_gsPCA) %*% data_gsPCA / (np-1), 8)
 # The factors are centered, normalized, and with a null correlation for h = 0
 
@@ -328,13 +328,13 @@ reorder = (abs(maf$getEigVal(0)) - abs(res_maf$values[1])) > 0.001
 sequence = seq(1, nv)
 if (reorder) 
   sequence = seq(nv, 1)
-range(abs(abs(maf$getEigVals()) - abs(res_maf$values[sequence])))
+round(range(abs(abs(maf$getEigVals()) - abs(res_maf$values[sequence]))),8)
 
 # computing the factors
 data_gsMAF = matrix(data$getColumns(names = "MAF.*"), 
                     nrow = data$getSampleNumber(), ncol = nv)
 # Statistics (mean and variance)
-apply(X = data_gsMAF, MARGIN = 2, mean)
+round(apply(X = data_gsMAF, MARGIN = 2, mean), 8)
 round(t(data_gsMAF) %*% data_gsMAF / (np -1), 8)
 
 for (i in 1:nv) {

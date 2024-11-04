@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Gibbs/AGibbs.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -833,6 +834,8 @@ int simpgs(Db* dbin,
 
       if (gibbs->run(y, ipgs, isimu, verbose)) goto label_end;
     }
+
+    delete gibbs;
   }
 
   /***************************************************/
@@ -1257,6 +1260,8 @@ int simbipgs(Db *dbin,
         if (rules[ipgs]->gaus2facData(propdef, dbin, dbout, flag_used[ipgs],
                                       ipgs, isimu, nbsimu)) goto label_end;
       }
+
+      delete gibbs;
     }
 
     /***************************************************/
@@ -1602,6 +1607,8 @@ int gibbs_sampler(Db *dbin,
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
       if (gibbs->run(y, 0, isimu)) goto label_end;
+
+    delete gibbs;
   }
 
   /* Convert the simulations */
@@ -2596,6 +2603,8 @@ int simcond(Db *dbin,
     {
       if (gibbs->run(y, 0, isimu, verbose)) goto label_end;
     }
+
+    delete gibbs;
   }
 
   /* Processing the Turning Bands algorithm */

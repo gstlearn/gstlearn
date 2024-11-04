@@ -1,16 +1,19 @@
+Space Type      = COMPOSITE
+Space Dimension = 3
+Space Type      [0] = RN
+Space Dimension [0] = 2
 Space Type      [1] = RN
-Space Dimension [1] = 2
-Space Type      [2] = RN
-Space Dimension [2] = 1
-RN(2) + RN(1)
+Space Dimension [1] = 1
+COMPOSITE(3): RN(2) + RN(1)
+
 Global dimension: 3
 Dimension space #0: 2
 Dimension space #1: 1
 Global distances: [4.272 5]
+
 Distance space #0: 4.272
 Distance space #1: 5
-Increments space #0: [-1.5 -4 0]
+Increments space #0: [-1.5 -4]
+
 Increments space #1: [5]
-Distance dim#0: -1.5
-Distance dim#1: -4
-Distance dim#2: 5
+

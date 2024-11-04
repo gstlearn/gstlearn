@@ -100,10 +100,12 @@ double DbLine::getLineLength(int iline) const
   double total = 0.;
   SpacePoint P1;
   SpacePoint P2;
-  getSampleAsSPInPlace(_lineAdds[iline][0], P1);
+  P1.setIech(_lineAdds[iline][0]);
+  getSampleAsSPInPlace(P1);
   for (int iech = 1, nech = getLineSampleCount(iline); iech < nech; iech++)
   {
-    getSampleAsSPInPlace(_lineAdds[iline][iech], P2);
+    P2.setIech(_lineAdds[iline][iech]);
+    getSampleAsSPInPlace(P2);
     total += P2.getDistance(P1);
     P1 = P2;
   }
@@ -469,7 +471,7 @@ DbLine* DbLine::createFillRandom(int ndim,
   }
 
   VectorString names = generateMultipleNames("x", ndim);
-  VectorString locnames = generateMultipleNames(ELoc::X.getKey(), ndim, "");
+  VectorString locnames = generateMultipleNames(String{ELoc::X.getKey()}, ndim, "");
   DbLine* dbline = createFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, names, locnames);
 
   return dbline;

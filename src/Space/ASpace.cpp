@@ -10,53 +10,29 @@
 /******************************************************************************/
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
-#include "Space/SpaceRN.hpp"
+#include "geoslib_define.h"
 
 #include <iostream>
 #include <sstream>
-#include <vector>
 
-ASpace::ASpace(unsigned int ndim, bool addTime)
-    : AStringable(),
-      _nDim(ndim),
-      _origin(VectorDouble(ndim, 0.)),
-      _iDimOffset(0),
-      _comps(),
-      _globalNDim(ndim),
-      _globalOrigin(VectorDouble(ndim, 0.)),
-      _work1(ndim),
-      _work2(ndim)
+ASpace::ASpace(unsigned int ndim)
+  : AStringable()
+  , _nDim(ndim)
+  , _origin(VectorDouble(ndim, 0.))
+  , _offset(0)
+  , _work1(ndim)
+  , _work2(ndim)
 {
-  if (ndim <= 0)
-  {
-    _nDim = 2;
-  }
-
-  if(addTime)
-  {
-    // Time dimension is Euclidean
-    // neglecting Eistein's relativity theory :-)
-    SpaceRN* ts = new SpaceRN(1);
-    addSpaceComponent(ts); // ts is cloned, so delete it
-    delete ts;
-  }
 }
 
 ASpace::ASpace(const ASpace& r)
-    : AStringable(r),
-      _nDim(r._nDim),
-      _origin(r._origin),
-      _iDimOffset(r._iDimOffset),
-      _comps(),
-      _globalNDim(r._globalNDim),
-      _globalOrigin(r._globalOrigin),
-      _work1(r._globalNDim), // No need to copy the contents, just allocate
-      _work2(r._globalNDim)
+  : AStringable(r)
+  , _nDim(r._nDim)
+  , _origin(r._origin)
+  , _offset(r._offset)
+  , _work1(r._nDim) // No need to copy the contents, just allocate
+  , _work2(r._nDim)
 {
-  for(auto* c : r._comps)
-  {
-    _comps.push_back(dynamic_cast<ASpace*>(c->clone()));
-  }
 }
 
 ASpace& ASpace::operator=(const ASpace& r)
@@ -66,119 +42,130 @@ ASpace& ASpace::operator=(const ASpace& r)
     AStringable::operator=(r);
     _nDim = r._nDim;
     _origin = r._origin;
-    _iDimOffset = r._iDimOffset;
-    _globalNDim = r._globalNDim;
-    _globalOrigin = r._globalOrigin;
+    _offset = r._offset;
     _work1 = r._work1;
     _work2 = r._work2;
-    for(auto* c : r._comps)
-    {
-      _comps.push_back(dynamic_cast<ASpace*>(c->clone()));
-    }
   }
   return *this;
 }
 
-ASpace::~ASpace()
-{
-  for(auto* c : _comps)
-  {
-    delete c;
-  }
-}
+ASpace::~ASpace() {}
 
-void ASpace::addSpaceComponent(const ASpace* comp)
-{
-  ASpace* sp = dynamic_cast<ASpace*>(comp->clone());
-  sp->_setDimOffset(_globalNDim);
-  _comps.push_back(sp);
-  _globalNDim += sp->getNDim(0);
-  const VectorDouble& o = sp->getOrigin(0);
-  _globalOrigin.insert(_globalOrigin.end(), o.begin(), o.end());
-}
-
-unsigned int ASpace::getNComponents() const
-{
-  return (int)_comps.size() + 1;
-}
-
+/// Interface for AStringable
 String ASpace::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  int idx = getNComponents() > 1 ? 1 : -1;
-  sstr << _toString(strfmt, idx);
-  for(auto* c : _comps)
-  {
-    if (strfmt != nullptr && strfmt->getLevel() == 0)
-      sstr << " + ";
-    idx++;
-    sstr << c->_toString(strfmt, idx);
-  }
-  if (strfmt != nullptr && strfmt->getLevel() == 0)
-    sstr << std::endl;
+  sstr << toString(strfmt, -1);
+  if (strfmt != nullptr && strfmt->getLevel() == 0) sstr << std::endl;
   return sstr.str();
 }
 
+/// Update the origin of the space
 void ASpace::setOrigin(const VectorDouble& origin)
 {
-  /// TODO : not true whatever the space
-  if (origin.size() != _globalNDim)
+  if (origin.size() != getNDim())
   {
     std::cout << "Error: Inconsistent space origin. Origin not changed." << std::endl;
     return;
   }
-  _globalOrigin = origin;
-  auto first = origin.cbegin();
-  auto last = origin.cbegin() + _origin.size();
-  _origin.assign(first, last);
-  for(auto* c : _comps)
-  {
-    first = last;
-    last = last + c->getNDim();
-    c->setOrigin(VectorDouble(first, last));
-  }
+  _origin = origin;
 }
 
+/// Get the number of dimensions
 unsigned int ASpace::getNDim(int ispace) const
 {
-  if (ispace < 0 || ispace >= (int)getNComponents())
-    return _globalNDim;
-  if (ispace == 0)
-    return _nDim;
-  return _comps[ispace - 1]->getNDim(0);
+  DECLARE_UNUSED(ispace)
+  return _nDim;
 }
 
+/// Get the offset index for coordinates
+unsigned int ASpace::getOffset(int ispace) const
+{
+  DECLARE_UNUSED(ispace)
+  return _offset;
+}
+
+/// Return the space origin coordinates
 const VectorDouble& ASpace::getOrigin(int ispace) const
 {
-  if (ispace < 0 || ispace >= (int)getNComponents())
-    return _globalOrigin;
-  if (ispace == 0)
-    return _origin;
-  return _comps[ispace-1]->getOrigin(0);
+  DECLARE_UNUSED(ispace)
+  return _origin;
 }
 
+/// Get the number of space components
+unsigned int ASpace::getNComponents() const
+{
+  return 1;
+}
+
+/// Return the space component at index ispace
+const ASpace* ASpace::getComponent(int ispace) const
+{
+  DECLARE_UNUSED(ispace)
+  return this;
+}
+
+/// Dump a space in a string (given the space index)
+String ASpace::toString(const AStringFormat* strfmt, int ispace) const
+{
+  std::stringstream sstr;
+  if (strfmt != nullptr && strfmt->getLevel() == 0)
+  {
+    sstr << getType().getKey() << "(" << getNDim() << ")";
+  }
+  else
+  {
+    if (ispace < 0)
+    {
+      sstr << "Space Type      = " << getType().getKey() << std::endl;
+      sstr << "Space Dimension = " << getNDim() << std::endl;
+    }
+    else
+    {
+      sstr << "Space Type      [" << ispace << "] = " << getType().getKey() << std::endl;
+      sstr << "Space Dimension [" << ispace << "] = " << getNDim() << std::endl;
+    }
+  }
+  return sstr.str();
+}
+
+/// Return true if the given space is equal to me (same dimension and space definition)
 bool ASpace::isEqual(const ASpace* space) const
 {
-  bool equal = getNComponents() == space->getNComponents() && _isEqual(space);
-  for(unsigned int i = 0; equal && i < _comps.size(); i++)
-  {
-    equal &= _comps[i]->isEqual(space->_comps[i]);
-  }
-  return equal;
+  return (getNComponents() == space->getNComponents() &&
+          getType() == space->getType() &&
+          getNDim() == space->getNDim() &&
+          getOrigin() == space->getOrigin() &&
+          getOffset() == space->getOffset());
 }
 
+/// Return all the distances (one by space component) between two space points
+VectorDouble ASpace::getDistances(const SpacePoint& p1,
+                                  const SpacePoint& p2) const
+{
+  VectorDouble dis;
+  if (p1.getNDim() != p2.getNDim())
+  {
+    std::cout << "Error: Inconsistent point dimension. Return empty distances"
+              << std::endl;
+    return dis;
+  }
+  dis.push_back(_getDistance(p1, p2));
+  return dis;
+}
+
+/// Move the given space point by the given vector
 void ASpace::move(SpacePoint& p1, const VectorDouble& vec) const
 {
-  if (vec.size() != _globalNDim)
+  if (vec.size() <= 0 ||
+      vec.size() < getOffset() + getNDim() ||
+      vec.size() != p1.getNDim())
   {
-    std::cout << "Error: Inconsistent vector dimension. Point not moved." << std::endl;
+    std::cout << "Error: Inconsistent vector dimension. Point not moved."
+              << std::endl;
     return;
   }
   _move(p1, vec);
-  for (auto* sp : _comps)
-  {
-    sp->_move(p1, vec);
-  }
 }
 
 /// Return the distance between two space points
@@ -186,9 +173,13 @@ double ASpace::getDistance(const SpacePoint &p1,
                            const SpacePoint &p2,
                            int ispace) const
 {
-  if (ispace <= 0 || ispace >= (int)getNComponents())
-    return _getDistance(p1, p2);
-  return _comps[ispace-1]->_getDistance(p1, p2);
+  if (p1.getNDim() != p2.getNDim())
+  {
+    std::cout << "Error: Inconsistent space dimension. Return TEST."
+              << std::endl;
+    return TEST;
+  }
+  return _getDistance(p1, p2, ispace);
 }
 
 /// Return the distance between two space points with the given tensor
@@ -197,49 +188,14 @@ double ASpace::getDistance(const SpacePoint& p1,
                            const Tensor& tensor,
                            int ispace) const
 {
-  if (ispace <= 0 || ispace >= (int)getNComponents())
-    return _getDistance(p1, p2, tensor);
-  return _comps[ispace-1]->_getDistance(p1, p2, tensor);
-}
-
-/// Return all the distances (one by space component) between two space points
-VectorDouble ASpace::getDistances(const SpacePoint &p1,
-                                  const SpacePoint &p2) const
-{
-  VectorDouble dis;
-  dis.push_back(_getDistance(p1, p2));
-  for (auto* sp : _comps)
-  {
-    dis.push_back(sp->_getDistance(p1, p2));
-  }
-  return dis;
-}
-
-/// Return the distance along one direction between two space points
-double ASpace::getDistance1D(const SpacePoint &p1,
-                             const SpacePoint &p2,
-                             unsigned int idim) const
-{
-  if (idim >= _globalNDim)
+  if (p1.getNDim() != p2.getNDim())
+  /// TODO : test Tensor dimension
   {
     std::cout << "Error: Inconsistent space dimension. Return TEST."
               << std::endl;
     return TEST;
   }
-
-  if (idim < _nDim)
-    return _getDistance1D(p1.getCoord(idim), p2.getCoord(idim));
-
-  unsigned int jdim = idim - _nDim;
-  for (auto* sp : _comps)
-  {
-    unsigned int ndim = sp->getNDim(0);
-    if (jdim < ndim)
-      return sp->_getDistance1D(p1.getCoord(idim), p2.getCoord(idim));
-    jdim -= ndim;
-  }
-
-  return TEST;
+  return _getDistance(p1, p2, tensor, ispace);
 }
 
 /// Return the distance in frequential domain between two space points with the given tensor
@@ -248,9 +204,14 @@ double ASpace::getFrequentialDistance(const SpacePoint& p1,
                                       const Tensor& tensor,
                                       int ispace) const
 {
-  if (ispace <= 0 || ispace >= (int)getNComponents())
-    return _getFrequentialDistance(p1, p2, tensor);
-  return _comps[ispace - 1]->_getFrequentialDistance(p1, p2, tensor);
+  if (p1.getNDim() != p2.getNDim())
+  /// TODO : test tensor size
+  {
+    std::cout << "Error: Inconsistent point dimensions. Return TEST."
+              << std::endl;
+    return TEST;
+  }
+  return _getFrequentialDistance(p1, p2, tensor, ispace);
 }
 
 /// Return the increment vector between two space points
@@ -258,40 +219,24 @@ VectorDouble ASpace::getIncrement(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   int ispace) const
 {
-  if (ispace <= 0 || ispace >= (int)getNComponents())
-    return _getIncrement(p1, p2);
-  return _comps[ispace - 1]->_getIncrement(p1, p2);
+  if (p1.getNDim() != p2.getNDim())
+  /// TODO : test tensor size
+  {
+    std::cout << "Error: Inconsistent point dimensions. Return empty vector."
+              << std::endl;
+    return VectorDouble();
+  }
+  return _getIncrement(p1, p2, ispace);
+}
+
+VectorDouble ASpace::projCoord(const VectorDouble& coord, int ispace) const
+{
+  if (ispace < 0 || ispace >= (int)getNComponents()) return coord;
+  const ASpace* sp = getComponent(ispace);
+  auto first       = coord.cbegin() + sp->getOffset();
+  auto last        = first          + sp->getNDim();
+  /// TODO : Memory copies !
+  return VectorDouble(first, last);
 }
 
 /////////////////////////////////////////////////////////
-
-String ASpace::_toString(const AStringFormat* strfmt, int idx) const
-{
-  std::stringstream sstr;
-  if (strfmt != nullptr && strfmt->getLevel() == 0)
-  {
-    sstr << getType().getKey() << "(" << getNDim(0) << ")";
-  }
-  else
-  {
-    if (idx < 0)
-    {
-      sstr << "Space Type      = " << getType().getKey() << std::endl;
-      sstr << "Space Dimension = " << getNDim(0) << std::endl;
-    }
-    else
-    {
-      sstr << "Space Type      [" << idx << "] = " << getType().getKey() << std::endl;
-      sstr << "Space Dimension [" << idx << "] = " << getNDim(0) << std::endl;
-    }
-  }
-  return sstr.str();
-}
-
-bool ASpace::_isEqual(const ASpace* space) const
-{
-  return (getNDim()      == space->getNDim()   &&
-          getType()      == space->getType()   &&
-          getOrigin()    == space->getOrigin() &&
-          getDimOffset() == space->getDimOffset());
-}

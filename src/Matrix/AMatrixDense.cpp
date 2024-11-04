@@ -15,6 +15,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
+#include "geoslib_define.h"
 
 #include <math.h>
 #include <omp.h>
@@ -92,6 +93,12 @@ double AMatrixDense::_getValueByRank(int irank) const
   return *(_eigenMatrix.data() + irank);
 }
 
+constvect AMatrixDense::getColumnPtr(int icol) const
+{
+  const auto a = _eigenMatrix.col(icol);
+  size_t n = getNRows();
+  return {a.data(), n};
+}
 void AMatrixDense::_setValueByRank(int irank, double value)
 {
   *(_eigenMatrix.data() + irank) = value;
@@ -288,7 +295,9 @@ void AMatrixDense::prodMatMatInPlace(const AMatrix* x,
 }
 
 /**
- * Product of matrices: 'a' * 'm' (possibly transposed) stored in 'this'
+ * Product of matrices, stored in 'this'
+ * - transpose = true: t('a') * 'm' * 'a'
+ * - transpose = false:  'a' * 'm' * t('a')
  *
  * @param a First input matrix
  * @param m Second input matrix
@@ -317,7 +326,7 @@ void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense* a,
  * @param vec Input vector
  * @param transpose When True, the input Matrix is transposed
  */
-void AMatrixDense::prodNormMatInPlace(const AMatrixDense &a, const VectorDouble& vec, bool transpose)
+void AMatrixDense::prodNormMatVecInPlace(const AMatrixDense &a, const VectorDouble& vec, bool transpose)
 {
   if (transpose)
   {
@@ -421,6 +430,12 @@ VectorDouble AMatrixDense::getColumn(int icol) const
   {
     res[i] = _eigenMatrix.col(icol)[i];
   }
+  return res;
+}
+
+constvect AMatrixDense::getViewOnColumn(int icol) const
+{
+  constvect res(_eigenMatrix.col(icol).data(),getNRows());
   return res;
 }
 

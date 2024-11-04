@@ -24,7 +24,7 @@
 /*!
  **  Performs the product of two matrices: X * Y
  **
- ** \return Pointer to the newly created AMatrix matrix
+ ** \return Pointer to the newly created AMatrix matrix or nullptr (in case of error)
  **
  ** \param[in]  x          First AMatrix matrix
  ** \param[in]  y          Second AMatrix matrix
@@ -43,7 +43,10 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
   int nrow2 = (transposeY) ? y->getNCols() : y->getNRows();
   if (ncol1 != nrow2)
   {
-    my_throw("Incompatible dimensions when making product of two matrices");
+    messerr("Matrix dimensions inconsistency:");
+    messerr("- Second dimension of the First matrix = %d", ncol1);
+    messerr("- First dimension of the Second matrix = %d", nrow2);
+    return nullptr;
   }
 
   const MatrixSparse* mxsparse = dynamic_cast<const MatrixSparse*>(x);
@@ -299,7 +302,6 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
 
   /* Core allocation */
 
-
   if (isSparse)
   {
     const MatrixSparse* aloc1 = dynamic_cast<const MatrixSparse*>(a1);
@@ -307,7 +309,8 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
     a = MatrixSparse::glue(aloc1, aloc2, flagShiftRow, flagShiftCol);
   }
   else
+  {
     a = MatrixRectangular::glue(a1, a2, flagShiftRow, flagShiftCol);
-
+  }
   return a;
 }

@@ -49,6 +49,7 @@ NeighBench& NeighBench::operator=(const NeighBench& r)
 
 NeighBench::~NeighBench()
 {
+  delete _biPtBench;
 }
 
 int NeighBench::attach(const Db *dbin, const Db *dbout)

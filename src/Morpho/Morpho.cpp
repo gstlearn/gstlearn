@@ -1036,7 +1036,7 @@ int db_morpho_calc(DbGrid *dbgrid,
 
   if (verbose)
   {
-    message("Morphological operation = %s\n",oper.getDescr().c_str());
+    message("Morphological operation = %s\n", oper.getDescr().data());
     message("Initial image = %d/%d\n",morpho_count(image),ntotal);
   }
 

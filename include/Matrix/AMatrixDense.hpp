@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Matrix/AMatrix.hpp"
@@ -67,13 +68,13 @@ public:
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
                          const VectorDouble &tab,
-                         bool flagCheck = true) override;
+                         bool flagCheck = false) override;
   /*! Set the contents of a Row */
   virtual void setRow(int irow,
                       const VectorDouble &tab,
-                      bool flagCheck = true) override;
+                      bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true) override;
+  virtual void setDiagonal(const VectorDouble& tab, bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) override;
   /*! Add a value to each matrix component */
@@ -100,6 +101,7 @@ public:
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
+  constvect getColumnPtr(int icol) const;
   /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   virtual void prodMatMatInPlace(const AMatrix *x,
                                  const AMatrix *y,
@@ -117,9 +119,9 @@ public:
                                      const AMatrixDense* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const AMatrixDense &a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const AMatrixDense& a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
   VectorDouble               getEigenValues()  const { return _eigenValues; }
   const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
@@ -150,6 +152,10 @@ private:
                        bool optionPositive = true,
                        bool changeOrder = false);
 
+#ifndef SWIG
+  public:
+  constvect getViewOnColumn(int icol) const;
+#endif
 #ifndef SWIG
   public:
   const Eigen::MatrixXd* getTab() const

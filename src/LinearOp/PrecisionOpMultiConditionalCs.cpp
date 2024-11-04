@@ -14,11 +14,9 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "LinearOp/Cholesky.hpp"
-#include "Matrix/VectorEigen.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
 #include <math.h>
+#include <vector>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
     : _Q(nullptr)
@@ -35,8 +33,8 @@ PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
 void PrecisionOpMultiConditionalCs::_clear()
 {
   delete _chol;
-  delete _Q;
   _chol = nullptr;
+  delete _Q;
   _Q = nullptr;
 }
 
@@ -57,8 +55,8 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu) const
   DECLARE_UNUSED(nbsimu);
 
   if (_chol == nullptr)
-    _chol = new Cholesky(_Q);
-  return _chol->getLogDeterminant();
+    _chol = new CholeskySparse(_Q);
+  return _chol->computeLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
@@ -121,6 +119,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
       msref = mstemp;
     }
     Pmult = new ProjMatrix(mstemp);
+    delete mstemp;
   }
   return Pmult;
 }
@@ -147,19 +146,18 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   delete Qmult;
   delete AtAsVar;
 
-
   return 0;
 }
 
-void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<Eigen::VectorXd> &vecin,
-                                                std::vector<Eigen::VectorXd> &vecout) const
+void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<std::vector<double>> &vecin,
+                                                std::vector<std::vector<double>> &vecout) const
 {
   if (_chol == nullptr)
-    _chol = new Cholesky(_Q);
-  Eigen::VectorXd locVecin = VectorEigen::flatten(vecin);
-  Eigen::VectorXd locVecout(locVecin.size());
+    _chol = new CholeskySparse(_Q);
+  std::vector<double> locVecin = VH::flatten(vecin);
+  std::vector<double> locVecout(locVecin.size());
   _chol->solve(locVecin, locVecout);
-  VectorEigen::unflattenInPlace(locVecout, vecout);
+  VH::unflattenInPlace(locVecout, vecout);
 }
 
 void PrecisionOpMultiConditionalCs::makeReady()

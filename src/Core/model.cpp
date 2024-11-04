@@ -15,11 +15,10 @@
 #include "Drifts/ADrift.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
-#include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -164,7 +163,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
 
   DriftList* drifts = DriftFactory::createDriftListForGradients(model->getDriftList(), ctxt);
   new_model->setDriftList(drifts);
-
+  delete drifts;
   return (new_model);
 }
 

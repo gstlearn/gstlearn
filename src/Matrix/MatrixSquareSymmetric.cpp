@@ -17,46 +17,21 @@
 
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
 #define SQ(i,j,neq)   ((j) * neq + (i))
-#define AT(i,j)        at[TRI(j)+(i)] /* for j >= i */
-#define AL(i,j)        al[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-#define BS(i,j)        b[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
-#define XS(i,j)        x[SQ(i,j,neq)] // Proposition a valider: c'etait j,i
-#define AS(i,j)        a[SQ(i,j,neq)]
 #define TL(i,j)        tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-
-#define _TL(i,j)       _tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-#define _XL(i,j)       _xl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-
 #define HA(i,j)        ha[SQ(i,j,neq)]
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
-  : AMatrixSquare(nrow),
-    _flagCholeskyDecompose(false),
-    _flagCholeskyInverse(false),
-    _tl(),
-    _xl(),
-    _factor()
+  : AMatrixSquare(nrow)
 {
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &m) 
-  : AMatrixSquare(m),
-   _flagCholeskyDecompose(m._flagCholeskyDecompose),
-   _flagCholeskyInverse(m._flagCholeskyInverse),
-   _tl(),
-   _xl(),
-   _factor()
+MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric& m)
+  : AMatrixSquare(m)
 {
-  _recopy(m);
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
-  : AMatrixSquare(m),
-    _flagCholeskyDecompose(false),
-    _flagCholeskyInverse(false),
-    _tl(),
-    _xl(),
-    _factor()
+MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix& m)
+  : AMatrixSquare(m)
 {
   if (!m.isSymmetric())
   {
@@ -67,13 +42,11 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
   copyElements(m);
 }
 
-
 MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &m)
 {
   if (this != &m)
   {
     AMatrixSquare::operator=(m);
-    _recopy(m);
   }
   return *this;
 }
@@ -165,6 +138,21 @@ int MatrixSquareSymmetric::_invert()
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
   return (icol <= irow);
+}
+void MatrixSquareSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
+{
+  if (tab.empty()) return;
+  // First load into a temporary rectangular matrix,
+  // in order to check if it is square and symmetric
+  MatrixRectangular local;
+  local.resetFromVVD(tab, byCol);
+  if (!local.isSquare() || !local.isSymmetric())
+  {
+    messerr("The Matrix should be square and symmetric");
+    messerr("Loading is not performed");
+    return;
+  }
+  AMatrixSquare::resetFromVVD(tab, byCol);
 }
 
 /**
@@ -283,16 +271,6 @@ int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
   return 0;
 }
 
-void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric& r)
-{
-  _tl = r._tl;
-  _xl = r._xl;
-  _flagCholeskyDecompose = r._flagCholeskyDecompose;
-  _flagCholeskyInverse   = r._flagCholeskyInverse;
-  _flagEigenDecompose    = r._flagEigenDecompose;
-  _factor                = r._factor;
-}
-
 /****************************************************************************/
 /*!
  **  Check if a matrix is definite positive
@@ -383,299 +361,11 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
   return mat;
 }
 
-int MatrixSquareSymmetric::getTriangleSize() const
+int MatrixSquareSymmetric::_getTriangleSize() const
 {
   int neq = getNRows();
   int size = neq * (neq + 1) / 2;
   return size;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the Cholesky triangular decomposition of a definite
- **  positive symmetric matrix
- **         A = t(TL) * TL
- **
- ** \return  Error return code
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::computeCholesky()
-{
-  _flagCholeskyDecompose = false;
-
-  _factor = _eigenMatrix.llt();
-  int neq = getNRows();
-
-  _tl.resize(getTriangleSize());
-  Eigen::MatrixXd mymat = _factor.matrixL();
-  for (int ip = 0; ip < neq; ip++)
-    for (int jp = 0; jp <= ip; jp++)
-      _TL(ip,jp) = mymat(ip,jp);
-
-  _flagCholeskyDecompose = true;
-  return 0;
-}
-
-bool MatrixSquareSymmetric::_checkCholeskyAlreadyPerformed(int status) const
-{
-  if (status == 1 && ! _flagCholeskyDecompose)
-  {
-    messerr("This operation requires a previous call to choleskyDecompose()");
-    return false;
-  }
-  if (status == 2 && ! _flagCholeskyInverse)
-  {
-    messerr("This operation requires a previous call to choleskyInvert()");
-    return false;
-  }
-  return true;
-}
-
-VectorDouble MatrixSquareSymmetric::getCholeskyTL() const
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return VectorDouble();
-  return _tl;
-}
-
-double MatrixSquareSymmetric::getCholeskyTL(int i, int j) const
-{
-  if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
-  int neq = getNRows();
-  return (i >= j) ? _TL(i,j) : 0.;
-
-}
-
-double MatrixSquareSymmetric::getCholeskyTL(int iad) const
-{
-  if (!_checkCholeskyAlreadyPerformed(1)) return TEST;
-  return _tl[iad];
-}
-
-VectorDouble MatrixSquareSymmetric::getCholeskyXL() const
-{
-  if (! _checkCholeskyAlreadyPerformed(2)) return VectorDouble();
-  return _xl;
-}
-
-double MatrixSquareSymmetric::getCholeskyXL(int i, int j) const
-{
-  if (!_checkCholeskyAlreadyPerformed(2)) return TEST;
-  int neq = getNRows();
-  return (i >= j) ? _XL(i, j) : 0.;
-}
-
-/*****************************************************************************/
-/*!
- **  Invert the Cholesky matrix
- **
- *****************************************************************************/
-int MatrixSquareSymmetric::invertCholesky()
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return 1;
-
-  int neq = getNRows();
-  _xl.resize(getTriangleSize());
-  _flagCholeskyInverse = false;
-
-  for (int i = 0; i < neq; i++)
-  {
-    for (int j = 0; j < i; j++)
-    {
-      double sum = 0.;
-      for (int l = j; l < i; l++)
-        sum += _TL(i,l) * _XL(l,j);
-      _XL(i,j)= - sum / _TL(i,i);
-    }
-    _XL(i,i) = 1. / _TL(i,i);
-  }
-
-  _flagCholeskyInverse = true;
-  return 0;
-}
-
-int MatrixSquareSymmetric::solveCholeskyMat(const MatrixRectangular& b, MatrixRectangular& x)
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return 1;
-
-  int nrows = b.getNRows();
-  int ncols = b.getNCols();
-  x.resize(nrows, ncols);
-
-  VectorDouble xcol(nrows);
-  for (int icol = 0; icol < ncols; icol++)
-  {
-    VectorDouble bcol = b.getColumn(icol);
-    solveCholesky(bcol, xcol);
-    x.setColumn(icol, xcol);
-  }
-  return 0;
-}
-
-int MatrixSquareSymmetric::solveCholesky(const VectorDouble& b, VectorDouble& x)
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return 1;
-
-  int size = (int) b.size();
-  Eigen::Map<const Eigen::VectorXd> bm(b.data(), size);
-  Eigen::VectorXd xm = _factor.solve(bm);
-
-  x.resize(size);
-  Eigen::Map<Eigen::VectorXd>(x.data(), size) = xm;
-
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the product between a triangular and a square matrix
- **  TL is the lower triangular matrix and X is a square matrix
- **
- ** \param[in]  mode Type of calculations:
- **             0 : X=TU%*%A
- **             1 : X=TL%*%A
- **             2 : X=A%*%TU
- **             3 : X=A%*%TL
- **             4 : X=t(A)%*%TU
- **             5 : X=t(A)%*%TL
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  nrhs number of columns in x
- ** \param[in]  tl   Triangular matrix defined by column
- ** \param[in]  a    matrix (dimension neq * nrhs)
- **
- *****************************************************************************/
-MatrixRectangular MatrixSquareSymmetric::productCholeskyInPlace(int mode,
-                                                                int neq,
-                                                                int nrhs,
-                                                                const VectorDouble &tl,
-                                                                const MatrixRectangular &a)
-{
-  MatrixRectangular x(neq, nrhs);
-
-  double val = 0.;
-  if (mode == 0)
-  {
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
-      {
-        val = 0.;
-        for (int j = i; j < neq; j++) val += TL(j, i) * a.getValue(j, irhs);
-        x.setValue(i, irhs, val);
-      }
-  }
-  else if (mode == 1)
-  {
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
-      {
-        val = 0.;
-        for (int j = 0; j <= i; j++) val += TL(i, j) * a.getValue(j, irhs);
-        x.setValue(i, irhs, val);
-      }
-  }
-  else if (mode == 2)
-  {
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
-      {
-        val = 0.;
-        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * TL(i, j);
-        x.setValue(irhs, i, val);
-      }
-  }
-  else if (mode == 3)
-  {
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
-      {
-        val = 0.;
-        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * TL(j, i);
-        x.setValue(irhs, i, val);
-      }
-  }
-  else if (mode == 4)
-  {
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
-      {
-        val = 0.;
-        for (int j = 0; j <= i; j++) val += a.getValue(irhs, j) * TL(i, j);
-        x.setValue(irhs, i, val);
-      }
-  }
-  else if (mode == 5)
-  {
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
-      {
-        val = 0.;
-        for (int j = i; j < neq; j++) val += a.getValue(irhs, j) * TL(j, i);
-        x.setValue(irhs, i, val);
-      }
-  }
-  return x;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the product B = TL * A * TU or TU * A * TL
- **  where TL,TU is a triangular matrix and A a square symmetric matrix
- **
- ** \param[in]  mode  0: TL * A * TU; 1: TU * A * TL
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  tl   Triangular matrix defined by column
- ** \param[in]  a    Square symmetric matrix (optional)
- **
- *****************************************************************************/
-MatrixSquareSymmetric MatrixSquareSymmetric::normCholeskyInPlace(int mode,
-                                                                 int neq,
-                                                                 const VectorDouble &tl,
-                                                                 const MatrixSquareSymmetric &a)
-{
-  MatrixSquareSymmetric b(neq);
-  double vala;
-
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-    {
-      double val = 0.;
-      if (mode == 0)
-      {
-        for (int l = 0; l <= j; l++)
-          for (int k = 0; k <= i; k++)
-          {
-            if (!a.empty())
-              vala = a.getValue(k, l);
-            else
-              vala = (double)(k == l);
-            val += TL(i, k) * vala * TL(j, l);
-          }
-      }
-      else
-      {
-        for (int l = j; l < neq; l++)
-          for (int k = i; k < neq; k++)
-          {
-            if (!a.empty())
-              vala = a.getValue(k, l);
-            else
-              vala = (double)(k == l);
-            val += TL(k, i) * vala * TL(l, j);
-          }
-      }
-      b.setValue(i, j, val);
-    }
-  return b;
-}
-
-double MatrixSquareSymmetric::computeCholeskyLogDeterminant() const
-{
-  if (! _checkCholeskyAlreadyPerformed(1)) return TEST;
-
-  auto diag = _factor.matrixLLT().diagonal();
-  double det = 0.;
-  for (int i = 0; i < _factor.rows(); i++)
-    det += log(diag[i]);
-  return 2. * det;
 }
 
 /*****************************************************************************/
@@ -1166,25 +856,31 @@ int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabo
 }
 
 /**
- * @brief Create an output Square Symmetric Matrix by selecting some rows (and columns)
+ * @brief Create an output Square Symmetric Matrix by selecting some rows (and
+columns)
  *        of the Input matrix 'A'
  *
  * @param A        Input Square Symmetric Matrix
  * @param rowKeep  Set of Rows (same for columns) to be kept
+ * @param flagInvert when True, transform 'rowKeep' into 'rowDrop' 
  * @return Pointer to the newly created Square Symmetric Matrix
  */
-MatrixSquareSymmetric* MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
-                                                     const VectorInt& rowKeep)
+MatrixSquareSymmetric*
+MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
+                              const VectorInt& rowKeep,
+                              bool flagInvert)
 {
+  int ntotal = A->getNRows();
   VectorInt rows = rowKeep;
-  if (rows.empty()) rows = VH::sequence(A->getNRows());
+  if (rows.empty()) rows = VH::sequence(ntotal);
+  if (flagInvert) rows = VH::complement(VH::sequence(ntotal), rows);
 
   int nrows = (int)rows.size();
   if (nrows <= 0) return nullptr;
 
   for (int irow = 0; irow < nrows; irow++)
   {
-    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+    if (!checkArg("Selected Row index", rows[irow], ntotal)) return nullptr;
   }
 
   MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrows);

@@ -17,11 +17,9 @@
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Tree/Ball.hpp"
-#include "Tree/KNN.hpp"
 
-VectorDouble getSortedDistance(Db* data,
-                               const VectorInt& ranks,
-                               const SpaceTarget& Pt)
+VectorDouble
+getSortedDistance(Db* data, const VectorInt& ranks, const SpaceTarget& Pt)
 {
   int size = (int)ranks.size();
   SpaceTarget Dt;
@@ -43,8 +41,6 @@ VectorDouble getSortedDistance(Db* data,
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
-  bool verbose = false;
-
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
@@ -57,10 +53,12 @@ int main(int argc, char *argv[])
   Timer timer;
 
   // Main parameters
-  int ndat    = 100000;
-  int ntarget = 1000;
-  int nmaxi   = 20;
-  int mode    = 0;
+  int ndat      = 100000;
+  int ntarget   = 1000;
+  int nmaxi     = 20;
+  int leaf_size = 20;
+  int mode      = 0;
+  bool verbose = false;
 
   // Generate the input data base
   int ndim = 2;
@@ -76,7 +74,7 @@ int main(int argc, char *argv[])
   neigh1->attach(data, target);
 
   NeighMoving* neigh2 = NeighMoving::create(false, nmaxi, radius);
-  neigh2->setBallSearch(true);
+  neigh2->setBallSearch(true, leaf_size);
   neigh2->attach(data, target);
 
   // General printout
@@ -88,6 +86,7 @@ int main(int argc, char *argv[])
   message("- Number of data = %d\n", ndat);
   message("- Number of targets = %d\n", ntarget);
   message("- Number of neighboring samples = %d\n", nmaxi);
+  message("- Leaf Size for KNN = %d\n", leaf_size);
   message("Computing time includes Data to Target distance evaluation for comparison\n");
 
   SpaceTarget Pt;
@@ -110,7 +109,7 @@ int main(int argc, char *argv[])
       checkDistances1.push_back(dists);
       if (verbose) VH::display("", indices1);
     }
-    timer.displayIntervalMilliseconds("Standard Neighborhood", 19000);
+    timer.displayIntervalMilliseconds("Standard Neighborhood", 17000);
   }
 
   // Using Neighborhood with Ball Tree option
@@ -145,6 +144,7 @@ int main(int argc, char *argv[])
   }
 
   delete neigh1;
+  delete neigh2;
   delete data;
   delete target;
 

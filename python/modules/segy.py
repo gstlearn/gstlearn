@@ -9,6 +9,7 @@
 import numpy as np
 import gstlearn as gl
 
+import sys
 import segyio
 from segyio import BinField
 from segyio import TraceField
@@ -97,7 +98,7 @@ def getGridCharacteristics(f, verbose=False):
     bin = f.bin
     nz  = bin.__getitem__(BinField.Samples)
     dz  = bin.__getitem__(BinField.Interval) / 1000
-    z00 = -dz * nz
+    z00 = -dz * nz - f.header[0][segyio.tracefield.TraceField.DelayRecordingTime]
     
     # Coordinates of the several key nodes
     x00, y00 = getCoordinates(f, 0)
@@ -192,28 +193,43 @@ def readAllTraceHeaders(f):
     
     return x, y
 
-def checkCompatible(fileSEGYs):
+def checkCompatible(fileSEGYs, verbose=False):
     nfileSEGY = len(fileSEGYs)
     if nfileSEGY <= 1:
         return True
     
+    # Optional printout
+    if verbose:
+        print("Printout of the", nfileSEGY, "SEGY files")
+        for iseg in range(0,nfileSEGY):
+            print("SEG File #", iseg+1)
+            fi = open(fileSEGYs[iseg])
+            _, _, _, _, _, _, _, _, _, _, _ =  getGridCharacteristics(fi, verbose=True)
+  
     # Getting the file characteristics of the first file (used as reference)
-    
     f0 = open(fileSEGYs[0])
     x0r, y0r, z0r, dxr, dyr, dzr, nxr, nyr, nzr, thetar, thetaDr = getGridCharacteristics(f0)
-    
+
+    # Compare with the other SEGY files
     for iseg in range(1,nfileSEGY):
         fi = open(fileSEGYs[iseg])
         x0, y0, z0, dx, dy, dz, nx, ny, nz, theta, thetaD = getGridCharacteristics(fi)
         
         if x0 != x0r or y0 != y0r or z0 != z0r or dx != dxr or dy != dyr or dz != dzr or nx != nxr or ny != nyr or nz != nzr or thetaD != thetaDr:
-            print("SEGY File #", iseg+1, " ...")
+            print("\nWarning: SEGY File #", iseg+1, " ...")
             _, _, _, _, _, _, _, _, _, _, _ = getGridCharacteristics(fi, verbose= True)
-            print("... is not compatible with SEGY File # 1")
-            _, _, _, _, _, _, _, _, _, _, _ = getGridCharacteristics(f0, verbose= True)           
+            print("... is not 'strictly' compatible with SEGY File # 1.")
+            _, _, _, _, _, _, _, _, _, _, _ = getGridCharacteristics(f0, verbose= True) 
+
+            if nx == nxr and ny == nyr and nz == nzr:
+                print("However, the count of grid nodes being similar, the difference is considered as minor.")
+                print("The SEGYS are considered as compatible: the information of SEGY#1 is used")
+                return True
+                  
             return False
     
     return True
+
 
 def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = None, 
                  verbose=False):
@@ -276,7 +292,7 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
             ztop = gl.VectorHelper.maximum(topArray)
             if ztop < zmax:
                 limitZ[1] = int((ztop - z0 + dz/2) // dz + 1)
-    
+
     # Number of nodes
     nx.resize(3)
     nx[2] = limitZ[1] - limitZ[0]
@@ -289,13 +305,21 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
     x0.resize(3)
     x0[2] = z0 + dz * limitZ[0]
     
-    if verbose:
-        print("Creating the 3-D:")
+    flagIncorrect = False
+    if nx[0] <= 0 or nx[1] <= 0 or nx[2] <= 0:
+        flagIncorrect = True
+
+    if verbose or flagIncorrect:
+        print("Creating the 3-D between",botName,"and",topName)
         print("- Origin :", x0)
         print("- Mesh   :", dx)
         print("- Count  :", nx)
         print("- Angle  :", angles[0])
         print("- Limits along Z :", limitZ)
+        print("(This definition takes the SEGY grid characteristics into account)")
+
+    if flagIncorrect:
+        sys.exit("Error in the 3-D Grid characteristics")
     
     # Creating the 3-D Grid
     dbsegy3D = gl.DbGrid.create(nx=nx, x0=x0, dx=dx, angles=angles, flagAddCoordinates=False)

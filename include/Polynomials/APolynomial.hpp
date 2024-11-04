@@ -10,22 +10,16 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "LinearOp/ALinearOp.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
-#ifndef SWIG
-#  include <Eigen/Core>
-#  include <Eigen/Dense>
-#endif
-#include <Eigen/src/Core/Matrix.h>
+
 #include <functional>
 
 class MatrixSparse;
-class ALinearOp;
-//class ALinearOpMulti;
 class cs;
 
 class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
@@ -46,17 +40,22 @@ public:
   virtual void evalOp(MatrixSparse* Op,
                       const VectorDouble& inv,
                       VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv);} //TODO write it by calling Eigen version;
-  virtual void evalOp(MatrixSparse* Op, const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const = 0;
+  virtual void
+  evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
 
   virtual void evalOpTraining(MatrixSparse* Op,
-                      const Eigen::VectorXd& inv,
-                      std::vector<Eigen::VectorXd>& outv,
-                      Eigen::VectorXd& work) const { DECLARE_UNUSED(Op,inv,outv,work); };
-  Eigen::VectorXd evalOp(MatrixSparse* Op, const Eigen::VectorXd& inv) const;
-  
+                              const constvect inv,
+                              std::vector<std::vector<double>>& outv,
+                              std::vector<double>& work) const
+  {
+    DECLARE_UNUSED(Op, inv, outv, work);
+  };
+  VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
+
   //virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
 
-  virtual void addEvalOp(ALinearOp* Op,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const = 0;
+  virtual void
+  addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const = 0;
 #endif
   VectorDouble getCoeffs() const { return _coeffs; }
   void setCoeffs(const VectorDouble& coeffs) {_coeffs = coeffs;}

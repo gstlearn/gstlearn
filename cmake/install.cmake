@@ -24,7 +24,8 @@ endif()
 # Include directories
 target_include_directories(shared PUBLIC
   # Installed includes are made PUBLIC for client who links the shared library
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}/${PROJECT_NAME}>"
 )
 
 # Install the shared library
@@ -39,18 +40,18 @@ install(
 # Install the includes
 install(
   DIRECTORY   ${INCLUDES}
-  DESTINATION include/${PROJECT_NAME}
+  DESTINATION include/${PROJECT_NAME}/${PROJECT_NAME}
 )
 
 # Install the export header file
 install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.hpp
-        DESTINATION include/${PROJECT_NAME}
+        DESTINATION include/${PROJECT_NAME}/${PROJECT_NAME}
 )
 
 # Install the version header file
 install(
   FILES ${PROJECT_BINARY_DIR}/version.h
-  DESTINATION include/${PROJECT_NAME}
+  DESTINATION include/${PROJECT_NAME}/${PROJECT_NAME}
 )
 
 # Install doxygen html directories (optional)

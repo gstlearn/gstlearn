@@ -8,32 +8,33 @@
 #include "Db/Db.hpp"
 
 TabNoStat::TabNoStat()
-:_items()
-,_dbNoStatRef(nullptr)
-,_nSills(0)
-{}
-
-TabNoStat::TabNoStat(const TabNoStat &m)
-:AStringable(m)
+  : _items()
+  , _dbNoStatRef(nullptr)
+  , _definedForVariance(false)
+  , _nSills(0)
 {
-    this->_nSills = m._nSills;
-    this->_dbNoStatRef = m._dbNoStatRef;
-    this->_definedForVariance = m._definedForVariance;
-    this->_items = m._items;
 }
 
-TabNoStat& TabNoStat::operator= (const TabNoStat &m)
+TabNoStat::TabNoStat(const TabNoStat& m)
+  : AStringable(m)
 {
-    if (this != &m)
-    {
-        _nSills = m._nSills;
-        _dbNoStatRef = m._dbNoStatRef;
-        _definedForVariance = m._definedForVariance;
-        _items = m._items;
-    }
-    return *this;
+  this->_nSills             = m._nSills;
+  this->_dbNoStatRef        = m._dbNoStatRef;
+  this->_definedForVariance = m._definedForVariance;
+  this->_items              = m._items;
 }
 
+TabNoStat& TabNoStat::operator=(const TabNoStat& m)
+{
+  if (this != &m)
+  {
+    _nSills             = m._nSills;
+    _dbNoStatRef        = m._dbNoStatRef;
+    _definedForVariance = m._definedForVariance;
+    _items              = m._items;
+  }
+  return *this;
+}
 
 int TabNoStat::removeElem(const EConsElem &econs, int iv1, int iv2)
 {

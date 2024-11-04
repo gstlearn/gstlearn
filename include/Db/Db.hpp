@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ELoadBy.hpp"
@@ -24,6 +25,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/Limits.hpp"
 
+class ASpace;
 class DbGrid;
 class Interval;
 class SpacePoint;
@@ -94,6 +96,8 @@ public:
   virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
+  virtual void getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate = true) const;
+
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
@@ -433,7 +437,7 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-          void getSampleAsSPInPlace(int iech, SpacePoint& P) const;
+          void getSampleAsSPInPlace(SpacePoint& P) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
   void getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
@@ -463,7 +467,7 @@ public:
   VectorDouble getArrayBySample(int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
-  std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
+  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space,bool useSel = false) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
   int    getFromLocatorNumber(const ELoc& locatorType) const;
@@ -557,9 +561,15 @@ public:
                           const VectorDouble& means = VectorDouble(),
                           bool useSel               = true,
                           bool useVerr              = false) const;
-  static VectorInt getMultipleRanks(const VectorVectorInt& index,
-                                    const VectorInt& ivars = VectorInt(),
-                                    const VectorInt& nbgh  = VectorInt());
+  static VectorInt
+  getMultipleSelectedIndices(const VectorVectorInt& index,
+                             const VectorInt& ivars = VectorInt(),
+                             const VectorInt& nbgh  = VectorInt());
+  static VectorInt
+  getMultipleSelectedVariables(const VectorVectorInt& index,
+                               const VectorInt& ivars = VectorInt(),
+                               const VectorInt& nbgh  = VectorInt());
+
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 

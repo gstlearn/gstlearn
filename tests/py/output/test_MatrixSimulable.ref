@@ -1,46 +1,42 @@
 ------------------
 -- Test --A with inverse True
-Sparse True
 0.0
 ------------------
 -- Test --B with inverse True
-Sparse False
-0.0
+The Input matrix is not valid
+It should be either:
+- a MatrixSparse
+- a MatrixSquareSymmetric
 ------------------
 -- Test --C with inverse True
-Sparse False
-0.0
+The Input matrix is not valid
+It should be either:
+- a MatrixSparse
+- a MatrixSquareSymmetric
 ------------------
 -- Test --D with inverse True
-Warning, the matrix has to be symmetric.
-You should create it as a MatrixSquareSymmetric class
-instead of MatrixSquare or MatrixDense.
-Sparse False
 0.0
 ------------------
 -- Test --E with inverse True
-The matrix has to be square!
-Invalid matrix
+The matrix must be square!
 ------------------
 -- Test --A with inverse False
-Sparse True
 0.0
 ------------------
 -- Test --B with inverse False
-Sparse False
-0.0
+The Input matrix is not valid
+It should be either:
+- a MatrixSparse
+- a MatrixSquareSymmetric
 ------------------
 -- Test --C with inverse False
-Sparse False
-0.0
+The Input matrix is not valid
+It should be either:
+- a MatrixSparse
+- a MatrixSquareSymmetric
 ------------------
 -- Test --D with inverse False
-Warning, the matrix has to be symmetric.
-You should create it as a MatrixSquareSymmetric class
-instead of MatrixSquare or MatrixDense.
-Sparse False
 0.0
 ------------------
 -- Test --E with inverse False
-The matrix has to be square!
-Invalid matrix
+The matrix must be square!

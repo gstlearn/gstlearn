@@ -41,6 +41,15 @@ MatrixRectangular::~MatrixRectangular()
 {
 }
 
+MatrixRectangular* MatrixRectangular::create(const MatrixRectangular* mat)
+{
+  return new MatrixRectangular(*mat);
+}
+MatrixRectangular* MatrixRectangular::create(int nrow, int ncol)
+{
+  return new MatrixRectangular(nrow, ncol);
+}
+
 /**
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
@@ -153,20 +162,28 @@ void MatrixRectangular::addColumn(int ncolumn_added)
 /**
  * @brief Create an output Rectangular Matrix by selecting some rows and columns
  *        of the Input matrix 'A'
- * 
+ *
  * @param A        Input Rectangular Matrix
  * @param rowKeep  Set of Rows to be kept (all if not defined)
  * @param colKeep  Set of Columns to be kept (all if not defined)
+ * @param flagInvertRow when True, transform 'rowKeep' into 'rowDrop'
+ * @param flagInvertCol when True, transform 'colKeep' into 'colDrop'
  * @return Pointer to the newly created Rectangular Matrix
  */
 MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
                                              const VectorInt& rowKeep,
-                                             const VectorInt& colKeep)
+                                             const VectorInt& colKeep,
+                                             bool flagInvertRow,
+                                             bool flagInvertCol)
 {
+  int nrowtotal = A->getNRows();
+  int ncoltotal = A->getNCols();
   VectorInt rows = rowKeep;
-  if (rows.empty()) rows = VH::sequence(A->getNRows());
+  if (rows.empty()) rows = VH::sequence(nrowtotal);
+  if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
   VectorInt cols = colKeep;
-  if (cols.empty()) cols = VH::sequence(A->getNCols());
+  if (cols.empty()) cols = VH::sequence(ncoltotal);
+  if (flagInvertCol) cols = VH::complement(VH::sequence(ncoltotal), cols);
 
   int nrows = (int)rows.size();
   int ncols = (int)cols.size();
@@ -174,11 +191,11 @@ MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
 
   for (int irow = 0; irow < nrows; irow++)
   {
-    if (!checkArg("Selected Row index", rows[irow], A->getNRows())) return nullptr;
+    if (!checkArg("Selected Row index", rows[irow], nrowtotal)) return nullptr;
   }
   for (int icol = 0; icol < ncols; icol++)
   {
-    if (!checkArg("Selected Column index", cols[icol], A->getNCols())) return nullptr;
+    if (!checkArg("Selected Column index", cols[icol], ncoltotal)) return nullptr;
   }
 
   MatrixRectangular* mat = new MatrixRectangular(nrows, ncols);
@@ -190,19 +207,27 @@ MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
 
 /**
  * @brief Set the values contained in 'A' into the current matrix
- * 
+ *
  * @param A Input Matrix
  * @param rowFetch Set of row indices of 'this' where values of 'A' should be stored
  * @param colFetch Set of column indices of'this' where values of 'A' should be stored
+ * @param flagInvertRow when True, transform 'rowFetch' into 'rowAvoid'
+ * @param flagInvertCol when True, transform 'colFetch' into 'colAvoid'
  */
 void MatrixRectangular::unsample(const AMatrix* A,
                                  const VectorInt& rowFetch,
-                                 const VectorInt& colFetch)
+                                 const VectorInt& colFetch,
+                                 bool flagInvertRow,
+                                 bool flagInvertCol)
 {
+  int nrowtotal = getNRows();
+  int ncoltotal = getNCols();
   VectorInt rows = rowFetch;
-  if (rows.empty()) rows = VH::sequence(A->getNRows());
+  if (rows.empty()) rows = VH::sequence(nrowtotal);
+  if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
   VectorInt cols = colFetch;
-  if (cols.empty()) cols = VH::sequence(A->getNCols());
+  if (cols.empty()) cols = VH::sequence(ncoltotal);
+  if (flagInvertCol) cols = VH::complement(VH::sequence(ncoltotal), cols);
 
   int nrows = (int)rows.size();
   int ncols = (int)cols.size();

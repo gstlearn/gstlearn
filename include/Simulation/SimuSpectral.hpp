@@ -12,10 +12,11 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "ACalcSimulation.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
+class MatrixRectangular;
 
 typedef struct
 {
@@ -28,9 +29,6 @@ typedef struct
 /**
  * Class for operating the Spectral simulations
  */
-
-class Model;
-
 class GSTLEARN_EXPORT SimuSpectral
 {
 public:
@@ -39,21 +37,23 @@ public:
   SimuSpectral& operator=(const SimuSpectral &r);
   virtual ~SimuSpectral();
 
-  int simulate(int nb, int seed = 4273);
-  int simulateOnSphere(int ns, int nd, int seed = 4273, bool verbose = false);
+  int simulate(int ns, int seed = 4273, bool verbose = false, int nd = 100);
   int compute(Db *dbout,
-              const VectorDouble &xref = VectorDouble(),
+              int iuid = 0,
               bool verbose = false,
               const NamingConvention& namconv = NamingConvention("Simu"));
-  int computeOnSphere(Db *dbout,
-                      bool verbose = false,
-                      const NamingConvention& namconv = NamingConvention("Simu"));
-  void setModel(const Model *&model) { _model = model; }
 
-  static bool isValidForSpectral(const Model *model);
+  bool isValidForSpectral(const Model *model)const;
+
+  void setModel(const Model *&model) { _model = model; }
+  void setNdim(int ndim) { _ndim = ndim; }
+  void setNs(int ns) { _ns = ns; }
 
 private:
-  void _simulateOnSphere(bool verbose = false);
+  void _simulateOnSphere(int nd = 100, bool verbose = false);
+  void _simulateOnRn();
+  void _computeOnSphere(Db* dbout, int iuid, bool verbose = false);
+  void _computeOnRn(Db *dbout, int iuid, bool verbose = false);
 
   void _printSpSim(const spSim& spsim, int status = 0) const;
   void _printSpSims(int status = 0);
@@ -65,14 +65,22 @@ private:
 
 private:
   int _ndim;    // Space dimension
-  int _nb;      // Number of spectral components
-  int _nd;      // Number of degrees considered in the spectrum
   int _ns;      // Number of simulated harmonic components
   bool _isPrepared;
   VectorDouble _phi;
   VectorDouble _gamma;
-  MatrixRectangular _omega; // Matrix nrows=nb, ncols=ndim
+  MatrixRectangular _omega; // Matrix nrows=_ns, ncols=ndim
   std::vector<spSim> _spSims;
 
   const Model* _model; // Storing the pointer (not to be deleted)
 };
+
+GSTLEARN_EXPORT int simuSpectral(Db *dbin = nullptr,
+                                 Db *dbout = nullptr,
+                                 Model *model = nullptr,
+                                 int nbsimu = 1,
+                                 int seed = 43431,
+                                 int ns = 100,
+                                 int nd = 100,
+                                 bool verbose = false,
+                                 const NamingConvention &namconv = NamingConvention("Simu"));

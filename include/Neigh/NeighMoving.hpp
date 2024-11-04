@@ -142,7 +142,7 @@ private:
   mutable VectorInt    _movingNsect;
   mutable VectorDouble _movingDst;
 
-  mutable const DbGrid* _dbgrid;
+  mutable const DbGrid* _dbgrid; // Pointer not to be deleted
   mutable SpaceTarget  _T1;
   mutable SpaceTarget  _T2;
 };

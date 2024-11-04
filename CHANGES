@@ -2,8 +2,32 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.5.1
+=============
+- Fix old GLIBC compatibility under Ubuntu
+
+Release 1.5.0
+=============
+- Gneiting covariance function has been added (with its test)
+- New SpaceComposite class added (with its test)
+- A method SpacePopint::spacePointOnSubspace has been added to project a
+  point on a sub-space of a SpaceComposite (there is still Memory copies!)
+- A sample index (in the Db) and a boolean (target) have been added to the SpacePoint members
+- Adding the BASH version for files "compare_test" and "update_test" used to handle non-regression output files.
+- Re-export acknoledge_gstlearn function in packages
+
+Miscellaneous
+-------------
+- No more Leak in non-regression tests for Data
+- Add the location of non-regression specific files if needed in compare_test and update_test
+
+Release 1.4.1
+=============
+- Fix Zenodo configuration to restore DOI generation
+
 Release 1.4.0
 =============
+- AMatrix: Correction in linearCombination (when processing Symmetric matrices and if this coincides with mat*)
 - Seed has been removed for arguments in all SPDE functions. Use law_set_random_seed before a call instead).
 - Bug with K-Bessel function (problem for large values) has been fixed (by using std::cyl_bessel_k for Windows and Linux and a trick for MacOS for which std::cyl_bessel_k is not available).
 - The interfaces to deal with non stationarity of covariances parameters (angles, ranges, sills, ...) have been totally changed. See Tuto_NoStat.ipynb for a full description.
@@ -11,6 +35,7 @@ Release 1.4.0
 - Improve R package stability
 - Reduce drastically moving neighborhood computation time
 - Correcting severe bug in quick interpolators (movingAverage, inverseDistance, ...)
+- Fix a bug in AMatrix::resetFromVVD (byCol logic was inverted)
 - law_exp_sample() now returns a VectorDouble (instead of double *)
 - In Db::createFilLRandom, use of 'ncode' has been corrected
 - Method computeLogLike() is renamed in computeLogLikelihood()

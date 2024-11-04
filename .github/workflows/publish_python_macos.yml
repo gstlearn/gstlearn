@@ -37,20 +37,21 @@ jobs:
         # Python version + Numpy version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
-            {py: "3.8",  nu: 1.20.3},
-            {py: "3.9",  nu: 1.20.3},
-            {py: "3.10", nu: 1.22.4},
-            {py: "3.11", nu: 1.23.5},
-            {py: "3.12", nu: 1.26.3}
+            {py: "3.9"},
+            {py: "3.10"},
+            {py: "3.11"},
+            {py: "3.12"},
+            {py: "3.13"}
           ]
         arch: [
-            {ar: x86_64, os: macos-12, pat: /usr/local},
-            {ar: arm64,  os: macos-14, pat: /opt/homebrew}
+            {ar: x86_64, os: macos-13, pat: /usr/local},
+            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
+            {ar: arm64,  os: macos-15, pat: /opt/homebrew}
           ]
         exclude:
           - arch: {os: macos-14}
-            python: {py: "3.8"}
-          - arch: {os: macos-14}
+            python: {py: "3.9"}
+          - arch: {os: macos-15}
             python: {py: "3.9"}
 
     steps:
@@ -72,7 +73,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==${{matrix.python.nu}} twine build
+        python -m pip install numpy twine build
 
 #    - name : Download and install HDF5
 #      run : |
@@ -120,8 +121,57 @@ jobs:
         name: macos-python-package-${{matrix.arch.os}}-${{matrix.python.py}}
         path: ${{env.MY_PKG}}
 
-  publish:
+  test:
     needs: build
+    runs-on: ${{matrix.arch.os}}
+    strategy:
+      matrix:
+        python: [
+        # Double quote for version is needed otherwise 3.10 => 3.1
+            {py: "3.9"},
+            {py: "3.10"},
+            {py: "3.11"},
+            {py: "3.12"},
+            {py: "3.13"}
+          ]
+        arch: [
+            {ar: x86_64, os: macos-13},
+            {ar: arm64,  os: macos-14},
+            {ar: arm64,  os: macos-15}
+          ]
+        exclude:
+          - arch: {os: macos-14}
+            python: {py: "3.9"}
+          - arch: {os: macos-15}
+            python: {py: "3.9"}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: macos-python-package-${{matrix.arch.os}}-${{matrix.python.py}}
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{matrix.python.py}}
+
+    - name: Install macOS dependencies
+      run: brew install llvm
+
+    - name: Install gstlearn Python package
+      run: pip install ./$(ls *.whl)
+
+    - name: Test installed Python package
+      run: |
+        python -c "import gstlearn as gl; gl.acknowledge_gstlearn()"
+        python tests/py/test_Arguments.py
+        python tests/py/test_Assessors.py
+        python tests/py/test_Matrix.py
+
+  publish:
+    needs: test
     if: ${{inputs.dry_publish == false}}
 
     # Only ubuntu can upload via ssh

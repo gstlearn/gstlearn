@@ -66,5 +66,7 @@ int main(int argc, char *argv[])
 
   delete grid;
   delete vmap;
+  delete model;
+  
   return 0;
 }

@@ -13,6 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "Enum/AEnum.hpp"
 #include "Basic/Utilities.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 #define ENUM_TESTS ETests, CASE0,\
                    CASE0 , 0, "Enum test case 0",\
@@ -55,7 +59,6 @@ GSTLEARN_EXPORT void argumentTestVectorVectorInt(const VectorVectorInt& values);
 GSTLEARN_EXPORT void argumentTestVectorVectorDouble(const VectorVectorDouble& values);
 GSTLEARN_EXPORT void argumentTestString(const String& value);
 GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values);
-GSTLEARN_EXPORT void argumentTestMatrix(const AMatrix& mat);
 
 GSTLEARN_EXPORT void argumentTestIntOverload(int value);
 GSTLEARN_EXPORT void argumentTestIntOverload(const VectorInt& values);
@@ -70,6 +73,8 @@ GSTLEARN_EXPORT int argumentReturnInt(int value);
 GSTLEARN_EXPORT double argumentReturnDouble(double value);
 GSTLEARN_EXPORT VectorInt argumentReturnVectorInt(const VectorInt& values);
 GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& values);
+GSTLEARN_EXPORT VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values);
+GSTLEARN_EXPORT VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values);
 
 GSTLEARN_EXPORT void argumentDefTestInt(int argInt = 2);
 GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl = 2.);
@@ -79,3 +84,17 @@ GSTLEARN_EXPORT void argumentDefTestVDbl(const VectorDouble& argdVDbl = VectorDo
 GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString = VectorString());
 GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVectorInt());
 GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());
+
+GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat = MatrixRectangular());
+GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat = MatrixSquareGeneral());
+GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat = MatrixSquareSymmetric());
+
+GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows = 2,
+                                                       int ncols = 3,
+                                                       int seed  = 1312);
+
+GSTLEARN_EXPORT void argumentTestMatrixSparse(const MatrixSparse& mat = MatrixSparse());
+GSTLEARN_EXPORT MatrixSparse argumentReturnMatrixSparse(int nrows = 2,
+                                                        int ncols = 3,
+                                                        double zeroPercent = 0.1,
+                                                        int seed = 1356);

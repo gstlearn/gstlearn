@@ -133,6 +133,7 @@
 %include Boolean/ModelBoolean.hpp
 
 %include Space/ASpace.hpp
+%include Space/SpaceComposite.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
 %include Space/SpaceTarget.hpp
@@ -152,7 +153,6 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
-%include Matrix/VectorEigen.hpp
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
@@ -191,7 +191,6 @@
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
-%include LinearOp/Cholesky.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
 
 %include Neigh/ANeigh.hpp
@@ -228,7 +227,7 @@
 %include Covariances/ACovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
-%include Covariances/CovLMC.hpp
+%include Covariances/CovGneiting.hpp
 %include Covariances/CovLMCTapering.hpp
 %include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMCAnamorphosis.hpp
@@ -374,7 +373,9 @@
 %include Spatial/Projection.hpp
 %include Spatial/SpatialIndices.hpp
 
+%include Core/Acknowledge.hpp
 %include Core/Potential.hpp
+%include Core/Seismic.hpp
 
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511

@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 
+#include "LinearOp/ALinearOp.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -27,7 +27,6 @@ DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 DISABLE_WARNING_POP
 #endif
 
-class Cholesky;
 class cs;
 class EOperator;
 
@@ -76,10 +75,10 @@ public:
                 bool flagCheck = true) override;
 
 #ifndef SWIG
-  int addVecInPlace(const Eigen::Map<const Eigen::VectorXd>& xm,
-                    Eigen::Map<Eigen::VectorXd>& ym) const;
-  void addProdMatVecInPlaceToDest(const Eigen::Map<const Eigen::VectorXd>& in,
-                                  Eigen::Map<Eigen::VectorXd>& out,
+  int addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
+                         Eigen::Map<Eigen::VectorXd>& ym) const;
+  void addProdMatVecInPlaceToDest(const constvect in,
+                                  vect out,
                                   bool transpose = false) const;
 #endif
   /*! Set the contents of a Column */
@@ -129,6 +128,8 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   // Static functions
+  static MatrixSparse* create(const MatrixSparse* mat);
+  static MatrixSparse* create(int nrow, int ncol);
   static MatrixSparse* createFromTriplet(const NF_Triplet &NF_T,
                                          int nrow = 0,
                                          int ncol = 0,
@@ -160,9 +161,9 @@ public:
                                      const MatrixSparse* m,
                                      bool transpose = false);
   /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
-  virtual void prodNormMatInPlace(const MatrixSparse* a,
-                                  const VectorDouble& vec = VectorDouble(),
-                                  bool transpose = false);
+  virtual void prodNormMatVecInPlace(const MatrixSparse* a,
+                                     const VectorDouble& vec = VectorDouble(),
+                                     bool transpose          = false);
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
@@ -187,25 +188,15 @@ public:
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0);
 
-  // Cholesky functions
-  int    computeCholesky();
-  int    solveCholesky(const VectorDouble& b, VectorDouble& x);
-
-  #ifndef SWIG
-    int  solveCholesky(const Eigen::VectorXd& b, Eigen::VectorXd& x);
-    int  simulateCholesky(const Eigen::VectorXd &b, Eigen::VectorXd &x);
-    int  addVecInPlace(const Eigen::VectorXd& x, Eigen::VectorXd& y);
-  #endif
-  
-  int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
-  double computeCholeskyLogDeterminant();
-
+#ifndef SWIG
+  int addVecInPlace(const constvect x, vect y) const;
+#endif
   void   addValue(int row, int col, double value);
 
   double L1Norm() const;
   void   getStats(int *nrows, int *ncols, int *count, double *percent) const;
   int    scaleByDiag();
-  int    addVecInPlace(const VectorDouble& x, VectorDouble& y);
+  int    addVecInPlaceVD(const VectorDouble& x, VectorDouble& y) const;
   void   setConstant(double value);
   VectorDouble extractDiag(int oper_choice = 1) const;
   void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
@@ -226,13 +217,13 @@ public:
 
 #ifndef SWIG
   protected:
-  virtual int _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
+    virtual int _addToDest(const constvect inv, vect outv) const override;
 #endif
 
 #ifndef SWIG
   public :
   void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
+  void setDiagonal(const constvect tab);
 #endif
 protected:
   /// Interface for AMatrix
@@ -275,7 +266,6 @@ private:
   cs* _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 #endif
-  Cholesky* _factor; // Cholesky decomposition
   bool _flagEigen;
 };
 

@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/Cholesky.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -28,13 +28,13 @@ public:
 
 #ifndef SWIG
 private:
-  int _addToDestImpl(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
-  int _solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const override;
+  int _addToDestImpl(const constvect inv, vect outv) const override;
+  int _solve(const constvect inv, vect outv) const override;
 #endif
 
 private:
   mutable MatrixSparse _QpAinvNoiseAt; //mutable is required to perform the Cholesky decompositions
-  mutable Cholesky*    _chol;         // when needed, e.g in a const method.
+  mutable CholeskySparse* _chol;         // when needed, e.g in a const method.
 };
                                
 

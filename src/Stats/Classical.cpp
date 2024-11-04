@@ -342,7 +342,7 @@ VectorString statOptionToName(const std::vector<EStatOption>& opers)
   for (int i = 0; i < (int) opers.size(); i++)
   {
     const EStatOption& oper = opers[i];
-    names.push_back(oper.getKey());
+    names.push_back(String{oper.getKey()});
   }
   return names;
 }
@@ -599,7 +599,7 @@ Table dbStatisticsMono(Db *db,
           tab.push_back(median);
         else
         {
-          messerr("The operator %s is not calculated yet", opers[i].getKey().c_str());
+          messerr("The operator %s is not calculated yet", opers[i].getKey());
           return table;
         }
       }
@@ -623,8 +623,7 @@ Table dbStatisticsMono(Db *db,
           tab.push_back(TEST);
         else
         {
-          messerr("The operator %s is not calculated yet",
-                  opers[i].getKey().c_str());
+          messerr("The operator %s is not calculated yet", opers[i].getKey());
           return table;
         }
       }
@@ -641,7 +640,7 @@ Table dbStatisticsMono(Db *db,
   for (int irow=0; irow<niuid; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
   for (int icol=0; icol<noper; icol++)
-    table.setColumnName(icol, opers[icol].getDescr());
+    table.setColumnName(icol, String{opers[icol].getDescr()});
 
   return table;
 }
@@ -1735,9 +1734,9 @@ Table dbStatisticsMulti(Db *db,
 
   Table table;
   if (title.empty())
-    table.setTitle(oper.getDescr());
+    table.setTitle(String{oper.getDescr()});
   else
-    table.setTitle(concatenateStrings(":",title,oper.getDescr()));
+    table.setTitle(concatenateStrings(":",title,String{oper.getDescr()}));
   table.setSkipDescription(true);
 
   if (flagMono)

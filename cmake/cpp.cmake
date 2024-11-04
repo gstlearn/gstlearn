@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
   # Warning level 4 (4 = maximum, 0 = none)
-  add_compile_options(/bigobj /W4 /wd4251 /wd4244) # Except those two warnings
+  add_compile_options(/bigobj /W4 /wd4251 /wd4244 /wd4127) # Except those two warnings
   # Silence MSVC warnings about unsafe C standard library functions
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
@@ -38,8 +38,11 @@ else()
   endif()
 endif()
 
+# For sanitizer
 #add_compile_options(-fsanitize=address -O0 -ggdb)
 #add_link_options(-fsanitize=address)
+# For valgrind usage (use Debug)
+#add_compile_options(-O0)
 
 # C++ header location (keep the trailing '/')
 set(INCLUDES 
@@ -119,9 +122,9 @@ foreach(FLAVOR ${FLAVORS})
   # PUBLIC is mandatory for tests and packages (no need to install)
   target_include_directories(${FLAVOR} PUBLIC
     # Add includes path for compiling the library
-    $<BUILD_INTERFACE: ${INCLUDES}>
+    "$<BUILD_INTERFACE:${INCLUDES}>"
     # Add binary directory to find generated version.h and export.hpp
-    $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>"
   )
 
   # Set some target properties

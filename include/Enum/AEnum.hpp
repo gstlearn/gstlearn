@@ -19,18 +19,19 @@
 #include "Basic/String.hpp"
 #include <iostream>
 #include <map>
+#include <string_view>
 
 class GSTLEARN_EXPORT AEnum
 {
 public:
   //! Return the enum key as a string (max 10 characters)
-  inline const String& getKey() const { return _key; }
+  inline const std::string_view getKey() const { return _key; }
 
   //! Return enum value as an integer value (max 32 enum)
   inline int getValue() const { return _value; }
 
   //! Return the enum description as a string
-  inline const String& getDescr() const { return _descr; }
+  inline const std::string_view& getDescr() const { return _descr; }
 
 #ifndef SWIG
   // Remove this: too much dangerous (implicit casts)
@@ -55,7 +56,7 @@ public:
   void printEnum() const;
 
 protected:
-  AEnum(const String& key, int value, const String& descr)
+  AEnum(const std::string_view key, int value, const std::string_view descr)
   : _key(key), _value(value), _descr(descr)
   {
   }
@@ -70,9 +71,9 @@ protected:
   // would be embarked in SWIG... who does not know it.
  
 private:
-  String _key;
+  std::string_view _key;
   int    _value;
-  String _descr;
+  std::string_view _descr;
 };
 
 #define ENUM_ITEM(NAME, x,y,z) E_ ## x = y,
@@ -109,8 +110,8 @@ public:\
   const NAME& toFront();\
   const NAME& getEnum() const;\
   int getValue() const;\
-  const String& getKey() const;\
-  const String& getDescr() const;\
+  const std::string_view getKey() const;\
+  const std::string_view getDescr() const;\
 \
 private:\
   NAME ## Map::iterator _stditer;\
@@ -125,7 +126,7 @@ public:\
   ~NAME();\
   NAME(const NAME&) = default;\
   NAME(int value);\
-  NAME(const String& key);\
+  NAME(const std::string_view key);\
   NAME& operator=(const NAME&) = default;\
 \
   static size_t getSize();\
@@ -134,15 +135,15 @@ public:\
   static VectorString getAllKeys();\
   static VectorString getAllDescr();\
 \
-  static bool existsKey(const String& key);\
+  static bool existsKey(const std::string_view key);\
   static bool existsValue(int value);\
-  static const NAME& fromKey(const String& key);\
+  static const NAME& fromKey(const std::string_view key);\
   static const NAME& fromValue(int value);\
   static std::vector<NAME> fromKeys(const VectorString& keys);\
   static std::vector<NAME> fromValues(const VectorInt& values);\
 \
 private:\
-  NAME(const String& key, int value, const String& descr);\
+  NAME(const std::string_view key, int value, const std::string_view descr);\
 \
   static NAME ## Map      _map;\
   static NAME ## Iterator _iterator;\
@@ -178,12 +179,12 @@ NAME::NAME(int value)\
 {\
 }\
 \
-NAME::NAME(const String& key)\
+NAME::NAME(const std::string_view key)\
 : AEnum(fromKey(key))\
 {\
 }\
 \
-NAME::NAME(const String& key, int value, const String& descr)\
+NAME::NAME(const std::string_view key, int value, const std::string_view descr)\
 : AEnum(key, value, descr)\
 {\
   if (_map.find(value) != _map.end())\
@@ -223,7 +224,7 @@ VectorString NAME::getAllKeys()\
   auto it(getIterator());\
   while (it.hasNext())\
   {\
-    keys.push_back((*it).getKey());\
+    keys.push_back(String{(*it).getKey()});\
     it.toNext();\
   }\
   return keys;\
@@ -235,13 +236,13 @@ VectorString NAME::getAllDescr()\
   auto it(getIterator());\
   while (it.hasNext())\
   {\
-    descr.push_back((*it).getDescr());\
+    descr.push_back(String{(*it).getDescr()});\
     it.toNext();\
   }\
   return descr;\
 }\
 \
-bool NAME::existsKey(const String& key)\
+bool NAME::existsKey(const std::string_view key)\
 {\
   auto it = _map.begin();\
   while (it != _map.end())\
@@ -258,7 +259,7 @@ bool NAME::existsValue(int value)\
   return (_map.find(value) != _map.end());\
 }\
 \
-const NAME& NAME::fromKey(const String& key)\
+const NAME& NAME::fromKey(const std::string_view key)\
 {\
   auto it = _map.begin();\
   while (it != _map.end())\
@@ -339,12 +340,12 @@ int NAME ## Iterator::getValue() const\
   return (_stditer->second->getValue());\
 }\
 \
-const String& NAME ## Iterator::getKey() const\
+const std::string_view NAME ## Iterator::getKey() const\
 {\
   return (_stditer->second->getKey());\
 }\
 \
-const String& NAME ## Iterator::getDescr() const\
+const std::string_view NAME ## Iterator::getDescr() const\
 {\
   return (_stditer->second->getDescr());\
 }\

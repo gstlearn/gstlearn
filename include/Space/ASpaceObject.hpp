@@ -60,7 +60,6 @@ public:
 
   /// Return the number of dimension of the current space context
   unsigned int getNDim(int ispace = -1) const;
-
   /// Return the current space context origin coordinates
   const VectorDouble& getOrigin(int ispace = -1) const;
 
@@ -72,11 +71,6 @@ public:
   /// Return all the distances (space composits) between two space points for the current space context
   VectorDouble getDistances(const SpacePoint& p1,
                             const SpacePoint& p2) const;
-
-  /// Return the distance along one direction between two space points
-  double getDistance1D(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       int idim) const;
 
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1,
@@ -96,8 +90,10 @@ protected:
 /// (Re)Defining the unique default global space
 GSTLEARN_EXPORT void defineDefaultSpace(const ESpaceType& type,
                                         unsigned int ndim = 2,
-                                        double param = 0.,
-                                        bool addtime = false);
+                                        double param      = 0.);
+/// Set the unique default global space from another one
+GSTLEARN_EXPORT void setDefaultSpace(const ASpace* space);
+
 /// Return a clone of the unique default global space
 GSTLEARN_EXPORT const ASpace* cloneDefaultSpace();
 

@@ -347,7 +347,7 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble &Y_p,
     stat_table.setSkipDescription(true);
 
     for (int istat = 0; istat < nstat; istat++)
-      stat_table.setColumnName(istat, _stats[istat].getDescr());
+      stat_table.setColumnName(istat, String{_stats[istat].getDescr()});
 
     for (int ivar = 0; ivar < _getNEff(); ivar++)
     {

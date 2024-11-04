@@ -1,0 +1,337 @@
+---
+  title: "Spectral simulation on S2"
+  author: "Ch. Lantuejoul, X. Freulon, and the gstlearn Core Team"
+  date: "2024-04-04"
+  output: html_document
+---
+  
+# Introduction
+
+The objective of this notebook is the simulation of second order isotropic random fields defined on the three dimensional sphere using the spectral algorithm proposed in Ch. Lantuéjoul et al. (2019).
+
+Any point on the sphere $\mathbb{S}_2$ can be defined by two spherical coordinates, its colatitude $\theta \in [0, \pi]$ and its longitude $\varphi \in [0, 2\pi]$. If we consider the points of the sphere as points of $\mathbb{R}^3$ the relationship between its Cartesian coordinates and its spherical coordinates is:
+$$
+\left\{ 
+\begin{array}{ccl}
+x & = & \sin (\theta) \, \cos (\varphi) \\
+y & = & \sin (\theta) \, \sin (\varphi) \\
+z & = & \cos (\theta)
+\end{array}
+\right.
+$$
+
+The ingredients of the simulation method are:
+
+* The Schoenberg's theorem which tells that any isotropic covariance can be written as summable series of non negative coefficients $(a_n)$ such that
+
+$$
+C(t) = \sum_{n = 0}^{+\infty} a_n P_n(\cos t) \text{ with } t \in [0, \pi].
+$$
+
+* The spectral component $Z(s) = 2\sqrt{2\pi} \, \Re(Y_{N, K}(s)\, e^{i\Phi})$  is a standardized random field with covariance function $C$ with,
+
+  i) $N \sim \nu_C = \sum_{n = 0}^{+\infty} a_n \delta_n$, 
+  ii) $K|N \sim \mathcal{U}(\{-N, \dots, +N\})$, and 
+  iii) $\Phi \sim \mathcal{U}([0, 2\pi[)$.
+
+In the previous equations, 
+
+* $P_n(t)$, $-1 \leq t \leq 1$ are the Legendre polynomials,
+
+* $Y_{n, k}(\theta, \varphi)$ are the spherical harmonics, acting on the sphere exactly like trigonometric functions on the unit circle.
+
+# The Legendre polynomials
+
+The Legendre polynomials are defined by the Rodrigues'formula:
+
+$$
+P_n(x) = \frac{(-1)^n}{2^n n!} \frac{d^n}{dx^n}(1-x^2)^n.
+$$
+They can be computed using the recursion formula:
+
+$$
+(n+1) P_{n+1}(x) = (2n+1)\,x\, P_{n}(x) - n P_{n-1}(x),
+$$
+with the initial values $P_0(x) = 1$ and $P_1(x) = x$.
+
+The Legendre polynomials are orthogonal but not normalized: 
+
+$$
+\int_{-1}^{+1} P_m(u)P_n(u)du = \frac{2}{2n+1}\delta_{m,n}.
+$$
+
+For numerical stability, we use normalized polynomials 
+$\tilde{P}_l(x) = P_l(x)\times \sqrt{2n+1}$. 
+In this case, the recursion formula is:
+$$
+\tilde{P}_{n+1}(x) = \frac{\sqrt{(2n+3)(2n+1)}}{n+1}\,x\, \tilde{P}_{n}(x) - \frac{n}{n+1}\sqrt{\frac{2n+3}{2n-1}} \tilde{P}_{n-1}(x),
+$$
+with the initial values $\tilde{P}_0(x) = 1$ and $\tilde{P}_1(x) = x\sqrt{3}$.
+
+## The associated Legendre functions
+
+The associated Legendre functions denoted $P_l^m(x)$ with $x \in [-1,1]$ and $-l \leq m \leq l$ are defined by the equation:
+$$
+P_l^m(x) = (-1)^m \, (1 - x^2)^{m/2} \frac{d^m}{dx^m}(P_l(x)),
+$$
+where $P_l$ is the Legendre polynomial of degree $l$ ($P_l = P_l^0$), and $m$ its order.
+
+We consider also normalized Legendre functions as,
+
+$$
+\tilde{P}_l^m(x) = P_l^m(x) \times \sqrt{(2l+1)\frac{(l-m)!}{(l+m)!}},
+$$
+which can be compute using the two recursion formulae:
+
+$$
+\tilde{P}_{l+1}^{l+1}(x) = -\sqrt{\frac{2l+3}{2l+2}} \, (1-x^2)^{1/2} \, \tilde{P}_{l}^{l}(x)
+$$
+and
+
+$$
+\tilde{P}_{l+1}^{m}(x) = \sqrt{\frac{(2l+3)(2l+1)}{(l+m+1)(l-m+1)}} \, x \, \tilde{P}_{l}^{m}(x) -  \sqrt{\frac{(l+m)(l-m)(2l+3)}{(l+m+1)(l-m+1)(2l-1)}} \, \tilde{P}_{l-1}^{m}(x)
+$$
+with the initial conditions, $\tilde{P}_0^0 = 1$ and $\tilde{P}_1^0 = x \sqrt{3}$.
+
+Note: The recursion for the Legendre functions boils down to the recursion for the Legendre polynomials with $l = 0$.
+
+## Spherical harmonics
+
+The spherical harmonics act on the sphere $\mathbb{S}_2$ exactly like trigonometric functions on the unit circle, they are defined using the normalized Legendre functions:
+
+$$
+Y_{n, k}(\theta, \varphi) = \frac{1}{\sqrt{4\pi}} \tilde{P}_n^l (\cos \theta) e^{ik\varphi}.
+$$
+In addition, the value for negative order can is ($k\geq0$):
+
+$$
+Y_{n, -k}(\theta, \varphi) = (-1)^k \, \bar{Y}_{n, k}(\theta, \varphi).
+$$
+
+## Simulation algorithm
+
+The simulation of the isotropic random function on the sphere with a spectrum $a_n$ is:
+
+i)   simulate $P$ i.i.d. spectral components and random phases $(N_p, K_p, \Phi_p)_{p \in 1:P}$
+ii)  compute the simulation values $Z(x) = \frac{1}{\sqrt{P}} \sum_{p \in 1:P} 2 \sqrt{2\pi} \, \Re(Y_{N_p, K_p}(\theta, \varphi)\, e^{i\Phi_p})$
+
+# Auxiliary functions
+
+```{r echo=FALSE, message=FALSE}
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+library(rgl) # used for 3D vizualisation
+rm(list = ls())
+```
+
+# Defining the sphere
+
+### Initialisation of the sphere
+
+```{r create_S2, echo=TRUE, eval = TRUE}
+defineDefaultSpace(ESpaceType_SN(),param=6371)
+nx = c(360, 180)
+dx = nx/(nx-1)*pi/180
+x0 = c(0,0)
+grd = DbGrid_create(nx = nx, x0 = x0, dx = dx)
+err = grd$setName("x1", "phi")
+err = grd$setName("x2", "theta")
+```
+
+## Display 
+
+Initialization of S2 for 3d viewer
+
+```{r display_S2, echo = TRUE, eval = TRUE}
+viz_S2_in_3D = IniView_S2_in_3D(grd)
+
+# display of the real part of the spherical harmonics using rgl
+val = ut_sphericalHarmonicVec(n = 15, k = 5, theta = grd["theta"], phi = grd["phi"])
+err = viz_S2_in_3D$display(val = Re(val), ncol = 50, palette = "rainbow")
+rglwidget()
+```
+
+# Spectral simulation on the sphere
+
+```{r model_on_S2, echo = TRUE, eval = TRUE}
+# defining the parameters for covariance and spectrum
+rho = 0.9    # for the geometric model
+lambda = 10  # for the Poisson model
+nu = 5.0     # for the exponential model
+mu = 1.0; kappa = 2.0 # for the SPDE model
+ns = 10000
+```
+
+
+```{r model_definition, echo=TRUE, eval = TRUE}
+err = defineDefaultSpace(ESpaceType_SN())
+# modelSph = Model_createFromParam(ECov_LINEARSPH())
+# modelSph = Model_createFromParam(ECov_GEOMETRIC(), rho)
+# modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
+# modelSph = Model_createFromParam(ECov_EXPONENTIAL(), nu, 1., 0., flagRange=TRUE)
+modelSph = Model_createFromParam(ECov_MATERN(), 1./kappa, 1., mu, flagRange=FALSE)
+
+cova = modelSph$getCova(0)
+covname = cova$getCovName()
+```
+
+## Variogram of the model
+
+```{r model, echo=TRUE, eval = TRUE}
+alpha   = seq(from = 0, to = pi, length.out = 100)
+
+mode = CovCalcMode()
+mode$setAsVario(TRUE)
+covvec = cova$evalCovOnSphereVec(alpha,50, FALSE, mode=mode)
+ggplot() + 
+  plot.XY(alpha, covvec) +
+  plot.decoration(title=paste0(covname, " model on S2"),
+                  xlab = "Geodetic distance (rad)", ylab = "Variogram") 
+```
+
+## Spectrum of the model
+
+```{r spectrum, echo=TRUE, eval = TRUE}
+nd = 100
+spevec = cova$evalSpectrumOnSphere(nd, flagCumul=TRUE)
+ggplot() + 
+  plot.XY(seq(nd+1), spevec) +
+  plot.decoration(title=paste0(covname, " spectrum on S2"),
+                  xlab = "Degrees", ylab = "Cumulated spectrum") + 
+  plot.geometry(ylim=c(0,NA))
+```
+
+## Simulation
+
+```{r one_simulation, echo=TRUE, eval = TRUE}
+err = simuSpectral(NULL, grd, modelSph, ns=ns)
+```
+
+## QC
+
+Statistics
+
+```{r Statistics}
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+tab = dbStatisticsMono(grd, names = "Simu", opers = opers)$toTL()
+knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ", 
+                                               covname, " model on S2"))
+```
+
+Visualization 2D
+
+```{r Visu2D}
+p = ggDefaultGeographic() +
+  plot.grid(grd, nameRaster = "Simu", flagLegendRaster = TRUE, legendNameRaster = "Y", 
+            palette = "Spectral") +
+  plot.decoration(xlab = "Longitude", ylab = "Colatitutde", 
+                  title = paste0(covname, " model on S2"))
+ggPrint(p) 
+```
+
+Visualization 3D
+
+```{r Visu3D}
+err = viz_S2_in_3D$display(val = grd["Simu"], ncol = 25, palette = "terrain")
+rglwidget()
+```
+
+Experimental variogram
+
+```{r Dirs}
+# defining the variogram directions
+dir_list = list()
+dir_list[[1+length(dir_list)]] = list(lag = c(1,0))
+dir_list[[1+length(dir_list)]] = list(lag = c(0,1))
+dir_list[[1+length(dir_list)]] = list(lag = c(1,1))
+dir_col = c("orange", "skyblue", "red")
+ndisc   = 30
+
+alpha   = seq(from = 0, to = pi, length.out = 100)
+```
+
+```{r Vario}
+# computing the variograms
+var_list = list()
+for (idir in 1:length(dir_list)) {
+  var_list[[1+length(var_list)]] = vario_on_S2(grd = grd, nm_var = "Simu", 
+         lag = dir_list[[idir]]$lag, nlag = 90, ndisc = ndisc, dmax = pi)
+}
+
+# covariance model
+mode = CovCalcMode()
+mode$setAsVario(TRUE)
+mod_vario = cova$evalCovOnSphereVec(alpha, FALSE, mode = mode)
+plot(NULL, NULL, xlim = range(alpha), ylim = 1.1 * range(c(0, mod_vario)), 
+     xlab = "Geodetic distance (rad)", ylab = "Variogram",
+     main = paste0(covname, " model on S2"))
+abline(h = c(0, 1), col = "gray", lty = 2)
+abline(v = c(0), col = "gray", lty = 2)
+lines(alpha, mod_vario , col = "black", lw = 2, lty = 1)
+
+leg = c("model")
+for (ivar in 1:length(var_list)) {
+  lines(var_list[[ivar]]$hh, var_list[[ivar]]$gg, col = dir_col[ivar], lw = 1, lty = 3)
+  points(var_list[[ivar]]$hh, var_list[[ivar]]$gg, col = dir_col[ivar], pch = 1)
+  leg = c(leg, paste0("[", dir_list[[ivar]]$lag[1], ",", dir_list[[ivar]]$lag[2],"]"))
+}
+  
+legend("bottomright", 
+       legend = leg, 
+       col = c("black", dir_col), 
+       pch = c(NA_integer_, rep(1, length(dir_col))), 
+       lty = c(1, rep(3, length(dir_col))),
+       lw  = c(2, rep(1, length(dir_col)))
+)
+```
+
+## Quantification of the fluctuations on the variogram
+
+```{r multi_simulations, echo = TRUE, eval = TRUE}
+err = grd$deleteColumns(names = "Simu.*")
+nsim = 20 # number of simulation
+err = simuSpectral(NULL, grd, modelSph, ns=ns, nbsimu=nsim)
+
+# simulation and experimental variograms
+varios <- matrix(NaN, nrow = nsim, ncol = ndisc)
+for (s in 1:nsim) {
+  nm  = paste("Simu", s, sep = ".")
+  vs = vario_on_S2(grd = grd, nm_var = nm, lag = c(1,0), nlag = 90, ndisc = ndisc, dmax = pi)
+  varios[s, 1:length(vs$hh)] <- vs$gg
+}
+dist = vs$hh
+
+# plot
+plot(NULL, NULL, xlim = range(dist, na.rm = TRUE), ylim = range(varios, na.rm = TRUE),
+     xlab = "Geodetic distance (rad)", ylab = "Variogram", 
+     main = paste0(covname, " model on S2"))
+abline(h = c(0), lty = 3, col = "gray")
+abline(v = c(0, pi/2, pi), lty = 3, col = "gray")
+
+# model
+abline(h = c(1), lw = 1, lty = 2)
+lines(alpha, mod_vario , col = "black", lw = 2, lty = 1)
+
+# experimental variograms
+for(s in 1:nsim) {
+  lines(dist, varios[s,1:length(dist)], col = "gray", lw = 1, lty = 2 )
+}
+
+# mean variogam and quantiles
+v_moy = apply(X = varios, MARGIN = 2, FUN = mean, na.rm = TRUE)
+v_Q10 = apply(X = varios, MARGIN = 2, FUN = quantile, probs = 0.10, na.rm = TRUE)
+v_Q90 = apply(X = varios, MARGIN = 2, FUN = quantile, probs = 0.90, na.rm = TRUE)
+
+lines(dist, v_moy[1:length(dist)], col = "orange", lw = 2, lty = 2)
+lines(dist, v_Q10[1:length(dist)], col = "green", lw = 1, lty = 1)
+lines(dist, v_Q90[1:length(dist)], col = "blue", lw = 1, lty = 1)
+
+# position of the legend to be adapted?
+legend("topright", 
+       legend = c("model", "experiment", "mean", "Q10", "Q90"),
+       col = c("black", "gray", "orange", "green", "blue"),
+       lw = c(2, 1, 2, 1, 1),
+       lty = c(1, 2, 2, 1, 1)
+       )
+```

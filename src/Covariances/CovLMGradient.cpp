@@ -23,11 +23,13 @@ CovLMGradient::CovLMGradient(const ASpace* space)
 CovLMGradient::CovLMGradient(const CovLMGradient &r)
 : ACovAnisoList(r)
 {
+
 }
 
 CovLMGradient::CovLMGradient(const ACovAnisoList& r)
     : ACovAnisoList()
 {
+
   for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)
   {
     const CovAniso *cov = r.getCova(icov);
@@ -42,6 +44,10 @@ CovLMGradient::CovLMGradient(const ACovAnisoList& r)
       addCov(dynamic_cast<const CovAniso*>(newcov));
       delete newcov;
     }
+  }
+  for (auto &e: _covs)
+  {
+    e->setOptimEnabled(false);
   }
 }
 
@@ -59,36 +65,6 @@ CovLMGradient::~CovLMGradient()
   /// TODO : Delete pointers ?
 }
 
-/**
- * Calculate the Matrix of covariance for zero distance
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMGradient::eval0MatInPlace(MatrixSquareGeneral &mat,
-                                    const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::eval0MatInPlace(mat,mode);
-}
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovLMGradient::evalMatInPlace(const SpacePoint &p1,
-                                   const SpacePoint &p2,
-                                   MatrixSquareGeneral &mat,
-                                   const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::evalMatInPlace(p1, p2, mat,mode);
-}
 
 void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
                                       const SpacePoint& p2,
@@ -116,8 +92,8 @@ void CovLMGradient::evalZAndGradients(const VectorDouble& vec,
                                       bool flagGrad) const
 {
   /// TODO : Not true whatever the space
-  SpacePoint p1(getOrigin());
-  SpacePoint p2(getOrigin());
+  SpacePoint p1(getOrigin(),-1);
+  SpacePoint p2(getOrigin(),-1);
   p2.move(vec);
 
   evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
@@ -132,7 +108,9 @@ void CovLMGradient::addCov(const CovAniso* cov)
     messerr("This covariance cannot be added");
     return;
   }
+  cov->setOptimEnabled(false);
   ACovAnisoList::addCov(cov);
+
 }
 
 /**

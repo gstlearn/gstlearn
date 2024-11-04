@@ -12,19 +12,12 @@
 
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ASimulable.hpp"
-#include "gstlearn_export.hpp"
 
 #include "Enum/EPowerPT.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include <map>
-
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-#endif
 
 class APolynomial;
 class AMesh;
@@ -51,8 +44,8 @@ public:
   // Interface functions for using PrecisionOp
 
   #ifndef SWIG
-    virtual void evalInverse(const  Eigen::VectorXd& vecin, Eigen::VectorXd& vecout);
-  #endif
+  virtual void evalInverse(const constvect vecin, std::vector<double>& vecout);
+#endif
 
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
 
@@ -69,31 +62,24 @@ public:
 
   virtual double getLogDeterminant(int nbsimu = 1);
   #ifndef SWIG
-    virtual void gradYQX(const Eigen::VectorXd& /*X*/,
-                         const Eigen::VectorXd& /*Y*/,
-                         Eigen::VectorXd& /*result*/,
-                         const EPowerPT& /*power*/)
-    {};
-    virtual void gradYQXOptim(const Eigen::VectorXd& /*X*/,
-                              const Eigen::VectorXd& /*Y*/,
-                              Eigen::VectorXd& /*result*/,
-                              const EPowerPT& /*power*/)
-    {
-    };
-  virtual void evalDeriv(const Eigen::VectorXd& /*inv*/,
-                         Eigen::VectorXd& /*outv*/,
+  virtual void gradYQX(const constvect /*X*/,
+                       const constvect /*Y*/,
+                       vect /*result*/,
+                       const EPowerPT& /*power*/) {};
+  virtual void gradYQXOptim(const constvect /*X*/,
+                            const constvect /*Y*/,
+                            vect /*result*/,
+                            const EPowerPT& /*power*/) {};
+  virtual void evalDeriv(const constvect /*inv*/,
+                         vect /*outv*/,
                          int /*iapex*/,
                          int /*igparam*/,
-                         const EPowerPT& /*power*/)
-  {
-  };
-  virtual void evalDerivOptim(Eigen::VectorXd& /*outv*/,
+                         const EPowerPT& /*power*/) {};
+  virtual void evalDerivOptim(vect /*outv*/,
                               int /*iapex*/,
                               int /*igparam*/,
-                              const EPowerPT& /*power*/)
-  {
-  };
-  std::vector<Eigen::VectorXd> simulate(int nbsimu = 1);
+                              const EPowerPT& /*power*/) {};
+  VectorVectorDouble simulate(int nbsimu = 1);
 
   #endif
   
@@ -103,8 +89,10 @@ public:
 //                             int /*igparam*/){};
 
   #ifndef SWIG
-  void evalPower(const Eigen::VectorXd &inm, Eigen::VectorXd &outm, const EPowerPT& power = EPowerPT::fromKey("ONE"));
-  #endif
+  void evalPower(const constvect inm,
+                 vect outm,
+                 const EPowerPT& power = EPowerPT::fromKey("ONE"));
+#endif
   VectorDouble evalCov(int imesh);
   VectorDouble simulateOne();
 
@@ -128,11 +116,11 @@ public:
 void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
 
 protected:
-  virtual int  _addToDest(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const override;
-  virtual int  _addSimulateToDest(const Eigen::VectorXd& whitenoise,
-                          Eigen::VectorXd& outv) const override;
-  void _addEvalPower(const Eigen::VectorXd& inv, Eigen::VectorXd& outv, const EPowerPT& power) const;
+  virtual int _addToDest(const constvect inv, vect outv) const override;
+  virtual int _addSimulateToDest(const constvect whitenoise,
+                                 vect outv) const override;
+  void
+  _addEvalPower(const constvect inv, vect outv, const EPowerPT& power) const;
 
 #endif
 
@@ -141,7 +129,7 @@ private:
   int  _prepareChebychev(const EPowerPT& power) const;
   int  _preparePrecisionPoly() const;
 #ifndef SWIG
-  int  _evalPoly(const EPowerPT& power,const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const;
+  int _evalPoly(const EPowerPT& power, const constvect inv, vect outv) const;
 #endif
   void _purge();
 
@@ -156,12 +144,12 @@ private:
 
 #ifndef SWIG
 protected :
-  mutable Eigen::VectorXd              _work;
-  mutable Eigen::VectorXd              _work2;
-  mutable Eigen::VectorXd              _work3;
-  mutable Eigen::VectorXd              _work4;
-  mutable Eigen::VectorXd              _work5;
-  mutable std::vector<Eigen::VectorXd> _workPoly;
+  mutable std::vector<double>              _work;
+  mutable std::vector<double>              _work2;
+  mutable std::vector<double>              _work3;
+  mutable std::vector<double>              _work4;
+  mutable std::vector<double>              _work5;
+  mutable std::vector<std::vector<double>> _workPoly;
 #endif
 
 };

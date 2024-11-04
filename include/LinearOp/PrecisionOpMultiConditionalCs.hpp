@@ -10,17 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/Cholesky.hpp"
-#include "gstlearn_export.hpp"
-
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
-
-#ifndef SWIG
-  #include <Eigen/src/Core/Matrix.h>
-#endif
+#include <vector>
 
 class PrecisionOp;
 class IProjMatrix;
+class CholeskySparse;
 
 /**
  * Class to store objects for SPDE
@@ -39,8 +34,8 @@ public:
   double computeLogDetOp(int nbsimu = 1) const override;
 
   /// Interface to ALinearOp
-  void evalInverse(const std::vector<Eigen::VectorXd> &vecin,
-                   std::vector<Eigen::VectorXd> &vecout) const override;
+  void evalInverse(const std::vector<std::vector<double>> &vecin,
+                   std::vector<std::vector<double>> &vecout) const override;
 
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
 private :
@@ -51,5 +46,5 @@ private:
   int _buildQpAtA();
 
   MatrixSparse* _Q;
-  mutable Cholesky* _chol;
+  mutable CholeskySparse* _chol;
 };

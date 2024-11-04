@@ -11,11 +11,9 @@
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/VectorEigen.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-#include "Matrix/MatrixSparse.hpp"
-#include <Eigen/src/Core/Matrix.h>
+#include <vector>
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
@@ -128,8 +126,8 @@ void ProjConvolution::_buildShiftVector()
   }
 }
 
-bool ProjConvolution::_isVecDimCorrect(const Eigen::VectorXd &valonseismic,
-                                       const Eigen::VectorXd &valonvertex) const
+bool ProjConvolution::_isVecDimCorrect(const constvect valonseismic,
+                                       const constvect valonvertex) const
 {
   if ((int) valonvertex.size() != getApexNumber())
   {
@@ -158,8 +156,8 @@ bool ProjConvolution::_isVecDimCorrect(const Eigen::VectorXd &valonseismic,
  * @param valonvertex  Output vector defined on the Coarse Grid
  * @return
  */
-int ProjConvolution::_addPoint2mesh(const Eigen::VectorXd &valonseismic,
-                                Eigen::VectorXd &valonvertex) const
+int ProjConvolution::_addPoint2mesh(const constvect valonseismic,
+                                    vect valonvertex) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
@@ -171,17 +169,13 @@ int ProjConvolution::_addPoint2mesh(const Eigen::VectorXd &valonseismic,
    // Get the characteristics of the S-S grid
    int slice_S = _gridSeis2D->getSampleNumber();
 
-   Eigen::VectorXd vec_R(slice_R);
-
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
    {
-     Eigen::Map<const Eigen::VectorXd> vec_S(valonseismic.data()+ iz * slice_S, slice_S);
+     constvect vec_S(valonseismic.data()+ iz * slice_S, slice_S);
+     vect vec_R(_work.data() + iz * slice_R, slice_R);
      _AProjHoriz->prodMatVecInPlace(vec_S, vec_R, true);
-     Eigen::Map<Eigen::VectorXd> temp(_work.data() + iz * slice_R, slice_R );
-     VectorEigen::copy(vec_R,temp);
    }
-
    _convolveT(_work,valonvertex);
    return 0;
 }
@@ -193,8 +187,8 @@ int ProjConvolution::_addPoint2mesh(const Eigen::VectorXd &valonseismic,
  * @param valonseismic  Output vector defined on the Seismic grid
  * @return
  */
-int ProjConvolution::_addMesh2point(const Eigen::VectorXd &valonvertex,
-                                Eigen::VectorXd &valonseismic) const
+int ProjConvolution::_addMesh2point(const constvect valonvertex,
+                                    vect valonseismic) const
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
@@ -205,26 +199,24 @@ int ProjConvolution::_addMesh2point(const Eigen::VectorXd &valonvertex,
 
   // Get the characteristics of the R-S grid
   int slice_S = _gridSeis2D->getSampleNumber();
-  Eigen::VectorXd vec_S(slice_S);
 
   // Convolution
-  _convolve(valonvertex, _work);
+  vect ws(_work);
+  _convolve(valonvertex, ws);
 
   // Mesh barycenter on 'ndim-1' slices
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    Eigen::Map<const Eigen::VectorXd> vec_R(_work.data()+ iz * slice_R, slice_R);
+     constvect vec_R(_work.data()+ iz * slice_R, slice_R);
+     vect vec_S(valonseismic.data() + iz * slice_S, slice_S);
     _AProjHoriz->prodMatVecInPlace(vec_R, vec_S, false);
-
-    Eigen::Map<Eigen::VectorXd> temp(valonseismic.data() + iz * slice_S, slice_S);
-    VectorEigen::copy(vec_S,temp);
   }
 
   return 0;
 }
 
-void ProjConvolution::_convolve(const Eigen::VectorXd &valonvertex,
-                                Eigen::VectorXd &valonseismic) const
+void ProjConvolution::_convolve(const constvect valonvertex,
+                                vect valonseismic) const
 {
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
@@ -249,10 +241,10 @@ void ProjConvolution::_convolve(const Eigen::VectorXd &valonvertex,
   }
 }
 
-void ProjConvolution::_convolveT(const Eigen::VectorXd &valonseismic,
-                                 Eigen::VectorXd &valonvertex) const
+void ProjConvolution::_convolveT(const constvect valonseismic,
+                                 vect valonvertex) const
 {
-  VectorEigen::fill(valonvertex, 0.);
+  std::fill(valonvertex.begin(),valonvertex.end(), 0.);
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valm = 0.;

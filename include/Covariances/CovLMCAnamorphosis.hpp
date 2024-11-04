@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/ACovAnisoList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
 class ASpace;
@@ -21,13 +21,13 @@ class SpacePoint;
 class CovAniso;
 class Model;
 
-class GSTLEARN_EXPORT CovLMCAnamorphosis : public CovLMC
+class GSTLEARN_EXPORT CovLMCAnamorphosis : public ACovAnisoList
 {
 public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
                      const ASpace* space = nullptr);
-  CovLMCAnamorphosis(const CovLMC& lmc,
+  CovLMCAnamorphosis(const ACovAnisoList& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);
@@ -48,18 +48,7 @@ public:
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;
-  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatInPlace(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              MatrixSquareGeneral &mat,
-                              const CovCalcMode *mode = nullptr) const override;
-  /// Tell if the use of Optimization is enabled or not
-  virtual bool isOptimEnabled() const override { return false; }
-
-  /// Interface for ACovAnisoList
-  ///
+                      const CovCalcMode* mode = nullptr) const override;                   
   void addCov(const CovAniso* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
@@ -71,7 +60,21 @@ public:
   const EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
+protected:
+    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
+                                              const CovCalcMode *mode = nullptr) const override;
+
+    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                        const SpacePoint& pwork1, 
+                        const SpacePoint& pwork2, 
+                        const CovCalcMode *mode) const override;
+    void _optimizationSetTarget(const SpacePoint &pt) const override
+    {
+      ACov::_optimizationSetTarget(pt);
+    }
+
 private:
+  
   double _evalHermite(int ivar,
                       int jvar,
                       double h,

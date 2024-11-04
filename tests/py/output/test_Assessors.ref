@@ -21,7 +21,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
- 
+
 Data Base Grid Characteristics
 ==============================
 
@@ -44,7 +44,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = NA
- [ 0.28847906 -0.46295408 -1.33800442  2.31701567]
+[ 0.28847906 -0.46295408 -1.33800442  2.31701567]
 [-1.46737593 -0.74854769 -1.01752136  1.6350668 ]
 
 Data Base Grid Characteristics
@@ -70,7 +70,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = NA
 Column = 4 - Name = var2 - Locator = NA
- [[-1.46737593  0.92254561]
+[[-1.46737593  0.92254561]
  [-0.74854769 -0.71988132]
  [-1.01752136 -0.96488339]
  [ 1.6350668   0.25358279]]
@@ -105,7 +105,7 @@ Column = 4 - Name = var2 - Locator = NA
 Column = 5 - Name = newvar-1 - Locator = NA
 Column = 6 - Name = newvar-2 - Locator = NA
 Column = 7 - Name = newvar-3 - Locator = NA
- [[ 0.3080074  -0.071606   -1.13548051]
+[[ 0.3080074  -0.071606   -1.13548051]
  [-0.1022454   0.80818623  0.23199239]
  [-1.40035848  0.71590778 -2.12456763]
  [ 1.24141343  0.23631196 -1.08889182]]
@@ -122,9 +122,7 @@ Column = 7 - Name = newvar-3 - Locator = NA
 Testing Table
 <class 'pandas.core.frame.DataFrame'>
 Testing Matrix
-
 Case of a Standard Matrix
-
 - Number of rows    = 4
 - Number of columns = 5
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
@@ -132,11 +130,10 @@ Case of a Standard Matrix
      [  1,]     0.245     0.558     0.457     0.374     0.733
      [  2,]     0.702     0.626     0.945     0.302     0.998
      [  3,]     0.707     0.678     0.268     0.728     0.771
- <class 'numpy.ndarray'>
+<class 'gstlearn.MatrixRectangular'>
+<class 'numpy.ndarray'>
 (4, 5)
-
 Case of a Sparse Matrix
-
 - Number of rows    = 4
 - Number of columns = 5
 - Sparse Format
@@ -146,4 +143,6 @@ Case of a Sparse Matrix
      [  2,]     0.702     0.626     0.945     0.302     0.998
      [  3,]     0.707     0.678     0.268     0.728     0.771
 
- (4, 5)
+<class 'gstlearn.MatrixRectangular'>
+<class 'numpy.ndarray'>
+(4, 5)

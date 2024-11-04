@@ -702,17 +702,17 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
-void Db::getSampleAsSPInPlace(int iech, SpacePoint& P) const
+void Db::getSampleAsSPInPlace(SpacePoint& P) const
 {
-  getCoordinatesPerSampleInPlace(iech, P.getCoordRef());
+  getCoordinatesPerSampleInPlace(P.getIech(),P.getCoordRef());
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
 {
   VectorVectorDouble tab;
   int ndim = getNDim();
-  SpacePoint P1(ndim);
-  SpacePoint P2(ndim);
+  SpacePoint P1(ndim,-1);
+  SpacePoint P2(ndim,-1);
 
   int number = (int) iechs.size();
   if ((int) jechs.size() != number)
@@ -728,8 +728,10 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    getSampleAsSPInPlace(iechs[ip], P1);
-    getSampleAsSPInPlace(jechs[ip], P2);
+    P1.setIech(iechs[ip]);
+    P2.setIech(jechs[ip]);
+    getSampleAsSPInPlace(P1);
+    getSampleAsSPInPlace(P2);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -746,7 +748,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  getSampleAsSPInPlace(iech, P);
+  P.setIech(iech);
+  getSampleAsSPInPlace(P);
 
   // Load the code (optional)
   if (P.checkCode())
@@ -762,26 +765,28 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
 {
-  std::vector<SpacePoint> pvec;
-  VectorDouble coord(getNDim());
-  SpacePoint p;
+  int iechcur = 0;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
+    
     if (isActive(iech))
     {
-      getSampleAsSPInPlace(iech, p);
-      pvec.push_back(p);
+      pvec.push_back(SpacePoint(space));
+      SpacePoint &p = pvec[iechcur++];
+      p.setIech(iech);
+      getSampleAsSPInPlace(p);
     }
     else
     {
       if (useSel) continue;
+      pvec.push_back(SpacePoint(space));
+      SpacePoint &p = pvec[iechcur++];
+      p.setIech(iech);
       p.setFFFF();
-      pvec.push_back(p);
     }
   }
-  return pvec;
 }
 
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
@@ -820,6 +825,11 @@ void Db::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_
     coor[idim] = getCoordinate(iech, idim, flag_rotate);
 }
 
+void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) const
+{
+  for (int idim = 0; idim < getNDim(); idim++)
+    coor[idim] = getCoordinate(iech, idim, flag_rotate);
+}
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 {
   double v1 = getCoordinate(iech, idim);
@@ -3411,9 +3421,19 @@ VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
   return vec;
 }
 
-VectorInt Db::getMultipleRanks(const VectorVectorInt& index,
-                               const VectorInt& ivars,
-                               const VectorInt& nbgh)
+/**
+ * @brief Return the vector of the ranks within 'index' of data beloging:
+ * - to the variable indices 'ivars' (default: all samples)
+ * - to the sample indices 'nbgh' (default: all samples)
+ * 
+ * @param index Input data information ranks
+ * @param ivars Vector of selection variables
+ * @param nbgh  Vector of selection samples
+ * @return VectorInt 
+ */
+VectorInt Db::getMultipleSelectedIndices(const VectorVectorInt& index,
+                                         const VectorInt& ivars,
+                                         const VectorInt& nbgh)
 {
   VectorInt vec;
 
@@ -3435,13 +3455,36 @@ VectorInt Db::getMultipleRanks(const VectorVectorInt& index,
   return vec;
 }
 
+VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
+                                           const VectorInt& ivars,
+                                           const VectorInt& nbgh)
+{
+  VectorInt vec;
+
+  int nvar        = (int)index.size();
+  VectorInt jvars = ivars;
+  if (jvars.empty()) jvars = VH::sequence(nvar);
+
+  int lec = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    const VectorInt& local = index[ivar];
+    for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
+    {
+      if (VH::isInList(jvars, ivar) && VH::isInList(nbgh, iech))
+        vec.push_back(ivar);
+      lec++;
+    }
+  }
+  return vec;
+}
+
 /**
  * Returns the list of indices 'index' for valid samples for the set of
  * variables 'ivars' as well as the count of samples (per variable)
  *
  * @param ivars   Vector giving the indices of the variables of interest
- * @param nbgh    Vector giving the ranks of the elligible samples
- * (optional)
+ * @param nbgh    Vector giving the ranks of the elligible samples (optional)
  * @param useSel  Discard the masked samples (if True)
  * @param useVerr Discard the samples where Verr (if it exists) is not
  * correctly defined
@@ -4415,7 +4458,7 @@ void Db::statisticsBySample(const VectorString& names,
   for (int i = 0; i < noper; i++)
   {
     const EStatOption& oper = opers[i];
-    namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
+    namconv.setNamesAndLocators(this, iuidn + i, String{oper.getKey()});
   }
 }
 

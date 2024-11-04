@@ -80,31 +80,31 @@ Vario::Vario(const VarioParam& varioparam)
 }
 
 Vario::Vario(const Vario& r)
-    : AVario(r),
-      ASerializable(r),
-      _nVar(r._nVar),
-      _varioparam(r._varioparam),
-      _means(r._means),
-      _vars(r._vars),
-      _flagSample(r._flagSample),
-      _db(r._db),
-      _sw(r._sw),
-      _gg(r._gg),
-      _hh(r._hh),
-      _utilize(r._utilize),
-      _biPtsPerDirection(r._biPtsPerDirection),
-      _flagAsym(r._flagAsym),
-      _verbose(r._verbose),
-      _flag_UK(r._flag_UK),
-      _niter_UK(r._niter_UK),
-      _variableNames(r._variableNames),
-      _model(r._model),
-      _BETA(r._BETA),
-      _DRFDIAG(r._DRFDIAG),
-      _DRFXA(r._DRFXA),
-      _DRFGX(r._DRFGX),
-      _DRFTAB(r._DRFTAB),
-      _DRFXGX(r._DRFXGX)
+  : AVario(r)
+  , ASerializable(r)
+  , _nVar(r._nVar)
+  , _varioparam(r._varioparam)
+  , _means(r._means)
+  , _vars(r._vars)
+  , _flagSample(r._flagSample)
+  , _db(r._db)
+  , _sw(r._sw)
+  , _gg(r._gg)
+  , _hh(r._hh)
+  , _utilize(r._utilize)
+  , _biPtsPerDirection(r._biPtsPerDirection)
+  , _flagAsym(r._flagAsym)
+  , _verbose(r._verbose)
+  , _flag_UK(r._flag_UK)
+  , _niter_UK(r._niter_UK)
+  , _variableNames(r._variableNames)
+  , _model(r._model)
+  , _BETA(r._BETA)
+  , _DRFDIAG(r._DRFDIAG)
+  , _DRFXA(r._DRFXA)
+  , _DRFGX(r._DRFGX)
+  , _DRFTAB(r._DRFTAB)
+  , _DRFXGX(r._DRFXGX)
 {
   for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
     _bipts.push_back(r._bipts[ipt]);
@@ -148,6 +148,8 @@ Vario& Vario::operator=(const Vario& r)
 
 Vario::~Vario()
 {
+  for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+    delete _bipts[ipt];
 }
 
 Vario* Vario::create(const VarioParam& varioparam)
@@ -157,10 +159,9 @@ Vario* Vario::create(const VarioParam& varioparam)
 
 Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
 {
-  Vario* vario = nullptr;
   std::ifstream is;
-  VarioParam* varioparam = new VarioParam();
-  vario = new Vario(*varioparam);
+  VarioParam varioparam = VarioParam();
+  Vario* vario = new Vario(varioparam);
   bool success = false;
   if (vario->_fileOpenRead(neutralFilename, is, verbose))
   {
@@ -169,7 +170,6 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   if (! success)
   {
     delete vario;
-    delete varioparam;
     vario = nullptr;
   }
   return vario;
@@ -616,6 +616,8 @@ int Vario::transformZToY(const AAnam *anam)
   // Modify the variance array
   setVar(1., 0,  0);
 
+  delete anamH;
+  
   return 0;
 }
 

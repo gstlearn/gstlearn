@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/SPDEOpMatrix.hpp"
-#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "LinearOp/MatrixSquareSymmetricSim.hpp"
@@ -32,13 +31,13 @@ SPDEOpMatrix::~SPDEOpMatrix()
   delete _chol; 
 }
 
-int SPDEOpMatrix::_solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) const
+int SPDEOpMatrix::_solve(const constvect inv, vect outv) const
 {
   if (_chol == nullptr)
   {
-    _chol = new Cholesky(&_QpAinvNoiseAt);
+    _chol = new CholeskySparse(&_QpAinvNoiseAt);
   }
-  return _chol->solve(inv,outv);
+  return _chol->solve(inv, outv);
 }
 
 /*****************************************************************************/
@@ -50,8 +49,7 @@ int SPDEOpMatrix::_solve(const Eigen::VectorXd& inv, Eigen::VectorXd& outv) cons
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOpMatrix::_addToDestImpl(const Eigen::VectorXd& inv,
-                          Eigen::VectorXd& outv) const
+int SPDEOpMatrix::_addToDestImpl(const constvect inv, vect outv) const
 {
  return _QpAinvNoiseAt.addToDest(inv,outv);
 }

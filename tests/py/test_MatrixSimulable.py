@@ -1,4 +1,3 @@
-# %%
 import gstlearn as gl
 import numpy as np
 
@@ -6,12 +5,6 @@ ndig = 13
 np.random.seed(12334)
 
 # %%
-A = gl.MatrixSquareSymmetric(2)
-B = gl.MatrixSquareGeneral(2)
-C = gl.MatrixRectangular(4,5)
-D = gl.MatrixRectangular(4,4)
-
-
 A = gl.MatrixSparse(4,4)
 A.fillRandom()
 A.prodMatInPlace(A.transpose())
@@ -32,15 +25,12 @@ D = gl.MatrixSquareSymmetric(C)
 E = gl.MatrixRectangular(4,5)
 E.fillRandom()
 
-
 def test(A,inverse,name= ""):
     print("------------------")
     print("-- Test --" + name + " with inverse " + str(inverse))
     ua = gl.MatrixSquareSymmetricSim(A,inverse)
     if ua.isEmpty():
-        print("Invalid matrix")
         return
-    print("Sparse " + str(ua.isSparse()))
     a = ua.evalSimulate(x)
     if inverse:
         y = simuinv

@@ -18,11 +18,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-#ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-  #include <Eigen/src/Core/Matrix.h>
-#endif
 /**
  * Projection matrix for vertical convolution
  */
@@ -62,30 +57,29 @@ private:
 
   
 
-  #ifndef SWIG        
+#ifndef SWIG
   private:
-  void _convolve(const Eigen::VectorXd &valonvertex,
-                 Eigen::VectorXd &valonseismic) const;
-  void _convolveT(const Eigen::VectorXd &valonseismic,
-                   Eigen::VectorXd &valonvertex) const;
-  bool _isVecDimCorrect(const Eigen::VectorXd &valonseismic,
-                        const Eigen::VectorXd &valonvertex) const;   
+    void _convolve(const constvect valonvertex, vect valonseismic) const;
+    void _convolveT(const constvect valonseismic, vect valonvertex) const;
+    bool _isVecDimCorrect(const constvect valonseismic,
+                          const constvect valonvertex) const;
+
   protected:
-  int _addPoint2mesh(const Eigen::VectorXd& valonseismic,
-                        Eigen::VectorXd& valonvertex) const override;
-  int _addMesh2point(const Eigen::VectorXd& valonvertex,
-                        Eigen::VectorXd& valonseismic) const override;
-  #endif
+    int _addPoint2mesh(const constvect valonseismic,
+                       vect valonvertex) const override;
+    int _addMesh2point(const constvect valonvertex,
+                       vect valonseismic) const override;
+#endif
 
 private:
-  VectorDouble            _convolution;
-  const DbGrid*           _gridSeismic;
-  VectorInt               _nodeRes2D;
-  VectorDouble            _gext;
-  VectorInt               _shiftVector;
-  DbGrid*                 _gridSeis2D;
-  DbGrid*                 _gridRes2D;
-  MatrixSparse*           _AProjHoriz;
-  mutable Eigen::VectorXd _work;
+  VectorDouble                _convolution;
+  const DbGrid*               _gridSeismic;
+  VectorInt                   _nodeRes2D;
+  VectorDouble                _gext;
+  VectorInt                   _shiftVector;
+  DbGrid*                     _gridSeis2D;
+  DbGrid*                     _gridRes2D;
+  MatrixSparse*               _AProjHoriz;
+  mutable std::vector<double> _work;
 };
 

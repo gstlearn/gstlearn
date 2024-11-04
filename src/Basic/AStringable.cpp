@@ -785,6 +785,45 @@ String toVector(const String& title, const VectorDouble& tab, bool flagOverride)
   return sstr.str();
 }
 
+String toVector(const String& title, constvect tab, bool flagOverride)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  int ncols = static_cast<int> (tab.size());
+  int ncutil = ncols;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  bool multi_row = ncutil > _getNBatch();
+
+  /* Print the title (optional) */
+
+  if (! title.empty())
+  {
+    sstr << title;
+    if (multi_row) sstr << std::endl;
+  }
+
+  int lec = 0;
+  if (multi_row) sstr << _printColumnHeader(VectorString(), 0, _getNBatch());
+
+  for (int i = 0; i < ncutil; i += _getNBatch())
+  {
+    if (multi_row) sstr << _printRowHeader(VectorString(), i);
+
+    for (int j = 0; j < _getNBatch(); j++)
+    {
+      if (lec >= ncutil) continue;
+      sstr << toDouble(tab[lec]);
+      lec++;
+    }
+    sstr << std::endl;
+  }
+
+  // Print the trailer
+  sstr << _printTrailer(ncols, 0, ncutil, 0);
+
+  return sstr.str();
+}
 /**
  * Printout a list of vectors in a formatted manner
  * @param title Title of the printout (or empty string)

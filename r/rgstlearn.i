@@ -219,6 +219,94 @@
     // else length = 0, empty vector
     return myres;
   }
+
+  int matrixDenseToCpp(SEXP obj, MatrixRectangular& mat)
+  {
+    mat.resize(0, 0);
+    if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
+    if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
+    if (!Rf_isMatrix(obj)) return SWIG_TypeError;
+
+    // Conversion
+    int size = (int)Rf_length(obj);
+    if (size <= 0) return SWIG_TypeError;
+
+    int myres = SWIG_OK;
+    int nrows = Rf_nrows(obj);
+    int ncols = Rf_ncols(obj);
+    mat.resize(nrows, ncols);
+    if (!mat.empty())
+    {
+      int lec = 0;
+      for (int icol = 0; icol < ncols; icol++)
+        for (int irow = 0; irow < nrows; irow++, lec++)
+        {
+          SEXP item = getElem(obj,lec);
+          if (TYPEOF(item) == NILSXP) continue; // If NIL, no error
+          double value;
+          myres = convertToCpp(item, value);
+          mat.setValue(irow, icol, value);
+        }
+    }
+    return myres;
+  }
+
+  int matrixSparseToCpp(SEXP obj, MatrixSparse& mat)
+  {
+    if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
+    if (TYPEOF(obj) == REALSXP) return SWIG_TypeError;
+
+    int size = (int)Rf_length(obj);
+    if (size <= 0) return SWIG_TypeError;
+
+    // Extract the dimensions of the Matrix
+    SEXP R_dims = Rf_getAttrib(obj, Rf_install("Dim"));
+    if (R_dims == R_NilValue) return SWIG_TypeError;
+    int* dims = INTEGER(R_dims);
+    int nrows = dims[0];
+    int ncols = dims[1];
+
+    // Assuming 'obj' is of class "CsparseMatrix" in R, extract non-zero elements
+    SEXP R_i = Rf_getAttrib(obj, Rf_install("i"));
+    SEXP R_j = Rf_getAttrib(obj, Rf_install("j"));
+    SEXP R_p = Rf_getAttrib(obj, Rf_install("p"));
+    SEXP R_x = Rf_getAttrib(obj, Rf_install("x"));
+
+    int nnz = Rf_length(R_x);
+    double* data = REAL(R_x);
+
+    VectorInt Vrows(nnz);
+    int* rows = nullptr;
+    if (R_i != R_NilValue)
+      rows = INTEGER(R_i);
+    else
+    {
+      rows = Vrows.data();
+      convertIndptrToIndices(nrows, INTEGER(R_p), rows);
+    }
+
+    VectorInt Vcols(nnz);
+    int* cols = nullptr;
+    if (R_j != R_NilValue)
+      cols = INTEGER(R_j);
+    else
+    {
+      cols = Vcols.data();
+      convertIndptrToIndices(ncols, INTEGER(R_p), cols);
+    }
+
+    NF_Triplet NFT;
+    for (int i = 0; i < nnz; i++) 
+      NFT.add(rows[i], cols[i], data[i]);
+    NFT.force(nrows, ncols);
+    mat.resize(nrows, ncols);
+    mat.resetFromTriplet(NFT);
+
+    return SWIG_OK;
+  }
+
 }
 
 // Add typecheck typemaps for dispatching functions
@@ -300,6 +388,10 @@
   {
     return Rf_ScalarString(Rf_mkChar(convertFromCpp(value).c_str()));
   }
+  template <> SEXP objectFromCpp(const std::string_view& value)
+  {
+    return Rf_ScalarString(Rf_mkChar(convertFromCpp(String{value}).c_str()));
+  }
   template <> SEXP objectFromCpp(const float& value)
   {
     return Rf_ScalarReal(static_cast<double>(convertFromCpp(value)));
@@ -357,6 +449,86 @@
     UNPROTECT(1);
     return myres;
   }
+
+  int matrixDenseFromCpp(SEXP* obj, const MatrixRectangular& mat)
+  {
+    // Local definitions
+    int nrows = mat.getNRows();
+    int ncols = mat.getNCols();
+
+    // Create a Matrix
+    PROTECT(*obj = Rf_allocMatrix(REALSXP, nrows, ncols));
+    if (*obj != NULL)
+    {
+      double* r_data = REAL(*obj);
+      VectorDouble values = mat.getValues();
+      std::copy(values.begin(), values.end(), r_data);
+    }
+    UNPROTECT(1);
+    return SWIG_OK;
+  }
+
+  int matrixDenseFromCppCreate(SEXP* obj, const MatrixRectangular& mat)
+  {
+    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixRectangular, 0 |  0 );
+    int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
+    return myres;
+  }
+
+  int matrixSparseFromCpp(SEXP* obj, const MatrixSparse& mat)
+  {
+    // Type definitions
+    int nrows = mat.getNRows();
+    int ncols = mat.getNCols();
+    int nnz   = mat.getNonZeros();
+
+    // Transform the input Matrix into a Triplet
+    NF_Triplet NFT = mat.getMatrixToTriplet();
+
+    // Create numpy arrays for indices, indptr, and data
+    SEXP R_i   = PROTECT(Rf_allocVector(INTSXP, nnz));      // row indices
+    SEXP R_j   = PROTECT(Rf_allocVector(INTSXP, nnz));      // column indices
+    SEXP R_x   = PROTECT(Rf_allocVector(REALSXP, nnz));     // non-zero values
+    SEXP R_dim = PROTECT(Rf_allocVector(INTSXP, 2));        // dimensions
+    
+    int* dims = INTEGER(R_dim);    // Pointer to 'R_dim'
+    int* rows = INTEGER(R_i);      // Pointer to 'R_i'
+    int* cols = INTEGER(R_j);      // Pointer to 'R_j'
+    double* data = REAL(R_x);      // Pointer to 'R_x'
+
+    dims[0] = nrows;
+    dims[1] = ncols;
+    for (int i = 0; i < nnz; ++i) 
+    {
+      rows[i] = NFT.getRow(i);
+      cols[i] = NFT.getCol(i);
+      data[i] = NFT.getValue(i);
+    }
+
+    // Create a dgTMatrix object in R
+    SEXP classDef = PROTECT(R_getClassDef("dgTMatrix"));
+    if (classDef == R_NilValue) {
+        UNPROTECT(5);
+        Rf_error("Could not find class definition for 'dgTMatrix'. Make sure the 'Matrix' package is loaded.");
+    }
+
+    PROTECT(*obj = NEW_OBJECT(classDef));
+    SET_SLOT(*obj, Rf_install("i"), R_i);
+    SET_SLOT(*obj, Rf_install("j"), R_j);
+    SET_SLOT(*obj, Rf_install("x"), R_x);
+    SET_SLOT(*obj, Rf_install("Dim"), R_dim);
+
+    UNPROTECT(6); // Unprotect R objects (R_i, R_j, R_x, R_dim, and classDef)
+    return SWIG_OK;
+  }
+
+  int matrixSparseFromCppCreate(SEXP* obj, const MatrixSparse& mat)
+  {
+    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixSparse, 0 |  0 );
+    int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
+    return myres;
+  }
+
 }
 
 // This for automatically convert R lists to externalptr
@@ -372,6 +544,12 @@
                      VectorVectorDouble, VectorVectorDouble*, VectorVectorDouble&,
                      VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
  %{    %}
+
+//%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
+//                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
+//                     MatrixSquareSymmetric, MatrixSquareSymmetric*, MatrixSquareSymmetric&,
+//                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
+// %{    %}
 
 // This for automatically convert R string to NamingConvention
 %typemap(scoercein) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
@@ -402,6 +580,8 @@
   
   #include <R_ext/Print.h>
   #include <R_ext/Error.h>
+  #include <R.h>
+  #include <Rinternals.h>     
   
   // https://stackoverflow.com/a/70586898
   void replace_all(std::string& s,
@@ -939,6 +1119,32 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
+
+#"MatrixRectangular_create" <- function(mat)
+#{
+#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+#  ;ans = .Call('R_swig_MatrixRectangular_create', mat, PACKAGE='gstlearn');
+#  ans <- if (is.null(ans)) ans
+#  else new("_p_Plane", ref=ans);
+#  
+#  ans
+#}
+#attr(`MatrixRectangular_create`, 'returnType') = '_p_MatrixRectangular'
+#attr(`MatrixRectangular_create`, "inputTypes") = c('_p_MatrixRectangular')
+#class(`MatrixRectangular_create`) = c("SWIGFunction", class('MatrixRectangular_create'))
+
+#"MatrixSparse_create" <- function(mat)
+#{
+#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+#  ;ans = .Call('R_swig_MatrixSparse_create', mat, PACKAGE='gstlearn');
+#  ans <- if (is.null(ans)) ans
+#  else new("_p_Plane", ref=ans);
+#  
+#  ans
+#}
+#attr(`MatrixSparse_create`, 'returnType') = '_p_MatrixSparse'
+#attr(`MatrixSparse_create`, "inputTypes") = c('_p_MatrixSparse')
+#class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
 
 "MatrixRectangular_fromTL" <- function(Robj)
 {

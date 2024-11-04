@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/ACovAnisoList.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
@@ -17,7 +18,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
@@ -93,7 +94,7 @@ int main()
 
   CovContext ctxt(nvar,2,1.); // use default space
   Model model(ctxt);
-  CovLMC covs(ctxt.getSpace());
+  ACovAnisoList covs(ctxt.getSpace());
   CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill(sill);

@@ -12,7 +12,6 @@
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovLMC.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"

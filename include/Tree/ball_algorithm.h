@@ -40,13 +40,13 @@ License: BSD 3-clause
 # define TRUE 1
 # define FALSE 0
 
-typedef struct
+struct t_nheap
 {
   double **distances;
   int **indices;
   int n_pts;
   int n_nbrs;
-} t_nheap;
+};
 
 typedef struct
 {
@@ -76,8 +76,14 @@ struct t_btree
 */
 
 GSTLEARN_EXPORT double **copy_double_arrAsVVD(const VectorVectorDouble& arr);
-GSTLEARN_EXPORT double **copy_double_arr(const double **arr, int row, int col);
-GSTLEARN_EXPORT int    **copy_int_arr(const int **arr, int row, int col);
+GSTLEARN_EXPORT double** copy_double_arr(const double** arr, int row, int col);
+GSTLEARN_EXPORT VectorVectorDouble copy_double_toVVD(const double** arr,
+                                                     int row,
+                                                     int col);
+GSTLEARN_EXPORT VectorVectorInt copy_int_toVVI(const int** arr,
+                                               int row,
+                                               int col);
+GSTLEARN_EXPORT int** copy_int_arr(const int** arr, int row, int col);
 GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     int n_samples,
                                     int n_features,
@@ -103,8 +109,9 @@ double euclidean_distance(const double* x1, const double* x2, int size);
 ** neighbors_heap.c
 */
 
-t_nheap	*nheap_init(int n_pts, int n_nbrs);
-double	 nheap_largest(t_nheap *h, int row);
+t_nheap* nheap_init(int n_pts, int n_nbrs);
+t_nheap* nheap_free(t_nheap* heap);
+double   nheap_largest(t_nheap* h, int row);
 int		   nheap_push(t_nheap *h, int row, double val, int i_val);
 void     nheap_sort(t_nheap *h);
 void     nheap_load(t_nheap *heap, t_btree *b, const double **x);

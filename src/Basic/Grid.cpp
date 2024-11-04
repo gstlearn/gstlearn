@@ -14,6 +14,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "geoslib_define.h"
 
 #include <math.h>
 
@@ -139,7 +140,7 @@ int Grid::resetFromVector(const VectorInt& nx,
   {
     if (nx[idim] < 0)
     {
-      messerr("The number of grid mesh (%d) is direction (%d) may not be negative",
+      messerr("The number of grid mesh (%d) in direction (%d) may not be negative",
               nx[idim],idim+1);
       return 1;
     }
@@ -446,8 +447,8 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 }
 
 double Grid::indiceToCoordinate(int idim0,
-                                const VectorInt& indice,
-                                const VectorDouble& percent,
+                                const constvectint indice,
+                                const constvect percent,
                                 bool flag_rotate) const
 {
   /* Calculate the coordinates in the grid system */
@@ -525,7 +526,7 @@ void Grid::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDo
   return indicesToCoordinateInPlace(_iwork0, coor, percent);
 }
 
-int Grid::indiceToRank(const VectorInt& indice) const
+int Grid::indiceToRank(const constvectint indice) const
 {
   int ival = indice[_nDim-1];
   if (ival < 0 || ival >= _nx[_nDim-1]) return(-1);
@@ -547,12 +548,11 @@ int Grid::indiceToRank(const VectorInt& indice) const
  * \remarks: The number of nodes in the grid per direction
  * \remarks: must be adapted (subtracting 1) due to interval.
  */
-void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
+void Grid::rankToIndice(int rank, vectint indices, bool minusOne) const
 {
   int minus = (minusOne) ? 1 : 0;
 
   const int* nxadd = _nx.data(); // for optimization, use address rather than []
-  int* indadd      = indices.data();
   int nval         = 1;
   for (int idim = 0; idim < _nDim; idim++)
     nval *= (*(nxadd + idim) - minus);
@@ -562,7 +562,7 @@ void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
   {
     nval /= (*(nxadd + idim) - minus);
     newind           = rank / nval;
-    *(indadd + idim) = newind;
+    indices[idim] = newind;
     rank -= newind * nval;
   }
 }
@@ -1156,8 +1156,8 @@ int Grid::generateMirrorIndex(int nx, int ix)
  *
  * @remark Samples located exactly on the edge are considered as INSIDE
  */
-bool Grid::sampleBelongsToCell(const VectorDouble& coor,
-                               const VectorDouble& center,
+bool Grid::sampleBelongsToCell(constvect coor,
+                               constvect center,
                                const VectorDouble& dxsPerCell) const
 {
   if (_rotation.isRotated())
@@ -1192,6 +1192,13 @@ bool Grid::sampleBelongsToCell(const VectorDouble& coor,
     }
   }
   return true;
+}
+
+bool Grid::sampleBelongsToCell(const VectorDouble& coor,
+                               const VectorDouble& center,
+                               const VectorDouble& dxsPerCell) const
+{
+ return sampleBelongsToCell(constvect(coor),constvect(center),dxsPerCell);
 }
 
 /**
