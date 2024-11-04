@@ -36,7 +36,7 @@ jobs:
         # Only last version of R for Linux (fake source package)
         r_version: [4.4.1]
         # Only one "old" Linux
-        os: [ubuntu-22.04]
+        os: [ubuntu-20.04]
 
     steps:
     - uses: actions/checkout@v4
@@ -77,6 +77,9 @@ jobs:
           -DBUILD_R=ON \
           -DBUILD_DOXYGEN=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      env:
+        CC: gcc-10
+        CXX: g++-10
 
     - name : Build the package and save generated file name in the environment
       run : |
@@ -96,7 +99,7 @@ jobs:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.4.1]
         # Only one "old" Linux
-        os: [ubuntu-22.04]
+        os: [ubuntu-20.04]
 
     steps:
     - uses: actions/checkout@v4
