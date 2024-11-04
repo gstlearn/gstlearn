@@ -30,6 +30,8 @@ jobs:
           - os: windows-2022
             r_version: 4.1.3
           - os: windows-2019
+            r_version: 4.0.5
+          - os: windows-2019
             r_version: 4.1.3
 
     steps:
