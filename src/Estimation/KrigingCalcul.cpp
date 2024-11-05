@@ -820,29 +820,25 @@ int KrigingCalcul::_patchColCokVarianceZstar(MatrixSquareSymmetric *varZK)
   if (_needLambda0()) return 1;
   if (_needSigma0p()) return 1;
   if (_needSigma00pp()) return 1;
-  MatrixSquareSymmetric* L0tCL0 = new MatrixSquareSymmetric(_nrhs);
-  L0tCL0->prodNormMatMatInPlace(_Lambda0, _Sigma00pp, true);
+  MatrixSquareSymmetric L0tCL0(_nrhs);
+  L0tCL0.prodNormMatMatInPlace(_Lambda0, _Sigma00pp, true);
 
-  MatrixRectangular* p2 = new MatrixRectangular(_nrhs, _ncck);
-  p2->prodMatMatInPlace(_Lambda0, _Sigma0p, true, true);
-  MatrixSquareSymmetric* L0tCLK = new MatrixSquareSymmetric(_nrhs);
+  MatrixRectangular p2(_nrhs, _ncck);
+  p2.prodMatMatInPlace(_Lambda0, _Sigma0p, true, true);
+  MatrixSquareSymmetric L0tCLK(_nrhs);
 
   if (_flagSK)
   {
     if (_needLambdaSK()) return 1;
-    L0tCLK->prodMatMatInPlace(p2, _LambdaSK);
+    L0tCLK.prodMatMatInPlace(&p2, _LambdaSK);
   }
   else
   {
     if (_needLambdaUK()) return 1;
-    L0tCLK->prodMatMatInPlace(p2, _LambdaUK);
+    L0tCLK.prodMatMatInPlace(&p2, _LambdaUK);
   }
-  delete p2;
 
-  varZK->linearCombination(1., varZK, 2., L0tCLK, 1., L0tCL0);
-  delete L0tCL0;
-  delete L0tCLK;
-
+  varZK->linearCombination(1., varZK, 2., &L0tCLK, 1., &L0tCL0);
   return 0;
 }
 
@@ -880,7 +876,6 @@ int KrigingCalcul::_needStdv()
 {
   if (_Stdv != nullptr) return 0;
   if (_needSigma00()) return 1;
-
   _Stdv = new MatrixSquareSymmetric(_nrhs);
 
   if (_flagSK)
@@ -894,21 +889,18 @@ int KrigingCalcul::_needStdv()
     if (_needSigma0()) return 1;
     if (_needMuUK()) return 1;
     _Stdv                 = _Sigma00->clone();
-    MatrixRectangular* p1 = new MatrixRectangular(_nrhs, _nrhs);
-    p1->prodMatMatInPlace(_LambdaUK, _Sigma0, true);
-    MatrixRectangular* p2 = new MatrixRectangular(_nrhs, _nrhs);
-    p2->prodMatMatInPlace(_MuUK, _X0, true, true);
-    _Stdv->linearCombination(1, _Stdv, -1., p1, +1., p2);
-    delete p1;
-    delete p2;
+    MatrixRectangular p1(_nrhs, _nrhs);
+    p1.prodMatMatInPlace(_LambdaUK, _Sigma0, true);
+    MatrixRectangular p2(_nrhs, _nrhs);
+    p2.prodMatMatInPlace(_MuUK, _X0, true, true);
+    _Stdv->linearCombination(1, _Stdv, -1., &p1, +1., &p2);
 
     if (_ncck > 0)
     {
       if (_needSigma00p()) return 1;
-      MatrixSquareSymmetric* p1 = new MatrixSquareSymmetric(_nrhs);
-      p1->prodMatMatInPlace(_Sigma00p, _Lambda0, true);
-      _Stdv->linearCombination(1., _Stdv, -1., p1);
-      delete p1;
+      MatrixSquareSymmetric p1(_nrhs);
+      p1.prodMatMatInPlace(_Sigma00p, _Lambda0, true);
+      _Stdv->linearCombination(1., _Stdv, -1., &p1);
     }
   }
 
@@ -1063,12 +1055,11 @@ int KrigingCalcul::_needY0()
   if (_needX0()) return 1;
   if (_needInvSigmaSigma0()) return 1;
 
-  MatrixRectangular* LambdaSKtX = new MatrixRectangular(_nrhs, _nbfl);
-  LambdaSKtX->prodMatMatInPlace(_InvSigmaSigma0, _X, true, false);
+  MatrixRectangular LambdaSKtX(_nrhs, _nbfl);
+  LambdaSKtX.prodMatMatInPlace(_InvSigmaSigma0, _X, true, false);
 
   _Y0 = new MatrixRectangular(_nrhs, _nbfl);
-  _Y0->linearCombination(1., _X0, -1., LambdaSKtX);
-  delete LambdaSKtX;
+  _Y0->linearCombination(1., _X0, -1., &LambdaSKtX);
   return 0;
 }
 
@@ -1099,12 +1090,11 @@ int KrigingCalcul::_needMuUK()
     if (_needY0p()) return 1;
     if (_needLambda0()) return 1;
 
-    MatrixRectangular* LtY = new MatrixRectangular(_nrhs, _nbfl);
-    LtY->prodMatMatInPlace(_Lambda0, _Y0p, true);
-    LtY->linearCombination(1., _Y0, -1., LtY);
+    MatrixRectangular LtY(_nrhs, _nbfl);
+    LtY.prodMatMatInPlace(_Lambda0, _Y0p, true);
+    LtY.linearCombination(1., _Y0, -1., &LtY);
 
-    _MuUK->prodMatMatInPlace(_Sigmac, LtY, false, true);
-    delete LtY;
+    _MuUK->prodMatMatInPlace(_Sigmac, &LtY, false, true);
   }
   else
   {
@@ -1145,8 +1135,8 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
   InvAlpha->invert();
 
   // Calculate a1 term
-  MatrixSquareSymmetric* omega = new MatrixSquareSymmetric(_nxvalid);
-  omega->linearCombination(1., S00, -1., InvAlpha);
+  MatrixSquareSymmetric omega(_nxvalid);
+  omega.linearCombination(1., S00, -1., InvAlpha);
 
   if (_nbfl > 0)
   {
@@ -1167,35 +1157,29 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
       MatrixRectangular::sample(_X, *_rankXvalidEqs, VectorInt(), true);
 
     // Compute epsilon (up to its sign); inv(alpha) * beta
-    AMatrix* p1                = MatrixFactory::prodMatMat(InvAlpha, beta);
-    MatrixRectangular* epsilon = new MatrixRectangular(_nxvalid, _nbfl);
-    epsilon->prodMatMatInPlace(p1, X);
+    AMatrix* p1               = MatrixFactory::prodMatMat(InvAlpha, beta);
+    MatrixRectangular epsilon(_nxvalid, _nbfl);
+    epsilon.prodMatMatInPlace(p1, X);
     delete p1;
     
     // Compute a3 (transpose)
-    MatrixRectangular* a3 = new MatrixRectangular(_nxvalid, _nbfl);
-    a3->linearCombination(1., X0, 1., epsilon);
-    delete X0;
+    MatrixRectangular a3(_nxvalid, _nbfl);
+    a3.linearCombination(1., X0, 1., &epsilon);
 
     // Compute a2 (inverted)
-    MatrixSquareSymmetric* a2 = new MatrixSquareSymmetric(_nbfl);
-    a2->prodNormMatMatInPlace(X, delta, true);
-    MatrixSquareSymmetric* p3 = new MatrixSquareSymmetric(_nbfl);
-    p3->prodNormMatMatInPlace(epsilon, alpha, true);
-    a2->linearCombination(1., a2, -1., p3);
-    a2->invert();
+    MatrixSquareSymmetric a2(_nbfl);
+    a2.prodNormMatMatInPlace(X, delta, true);
+    MatrixSquareSymmetric p3(_nbfl);
+    p3.prodNormMatMatInPlace(&epsilon, alpha, true);
+    a2.linearCombination(1., &a2, -1., &p3);
+    a2.invert();
     delete delta;
-    delete epsilon;
-    delete p3;
     delete X;
 
     // Compute omega
-    MatrixSquareSymmetric* p4    = new MatrixSquareSymmetric(_nxvalid);
-    p4->prodNormMatMatInPlace(a3, a2);
-    omega->linearCombination(1., omega, -1., p4);
-    delete p4;
-    delete a2;
-    delete a3;
+    MatrixSquareSymmetric p4(_nxvalid);
+    p4.prodNormMatMatInPlace(&a3, &a2);
+    omega.linearCombination(1., &omega, -1., &p4);
 
     // Patch the Right-hand side vector (Drift part)
     _X_RHS = MatrixRectangular::sample(_X, *_rankXvalidEqs, VectorInt());
@@ -1203,13 +1187,12 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
 
   // Patch the Right-hand side vector (Covariance part)
   _C_RHS = MatrixRectangular::sample(_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
-  _C_RHS->unsample(omega, *_rankXvalidEqs, VectorInt());
+  _C_RHS->unsample(&omega, *_rankXvalidEqs, VectorInt());
 
   setRHS(_C_RHS, _X_RHS);
 
   setVar(S00->clone());
   delete alpha;
-  delete omega;
 
   return 0;
 }
@@ -1261,12 +1244,11 @@ int KrigingCalcul::_needLambdaSK()
     if (_needSigma0p()) return 1;
     if (_needLambda0()) return 1;
 
-    MatrixRectangular* S = new MatrixRectangular(_neq, _nrhs);
-    S->prodMatMatInPlace(_Sigma0p, _Lambda0);
-    S->linearCombination(1., _Sigma0, -1., S);
+    MatrixRectangular S(_neq, _nrhs);
+    S.prodMatMatInPlace(_Sigma0p, _Lambda0);
+    S.linearCombination(1., _Sigma0, -1., &S);
     _LambdaSK = new MatrixRectangular(_neq, _nrhs);
-    _LambdaSK->prodMatMatInPlace(_InvSigma, S);
-    delete S;
+    _LambdaSK->prodMatMatInPlace(_InvSigma, &S);
   }
   else
   {
@@ -1285,10 +1267,9 @@ int KrigingCalcul::_needLambdaUK()
   if (_needLambdaSK()) return 1;
   if (_needMuUK()) return 1;
 
-  MatrixRectangular* p1 = new MatrixRectangular(_neq, _nrhs);
-  p1->prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
-  _LambdaUK->linearCombination(1., _LambdaSK, 1., p1);
-  delete p1;
+  MatrixRectangular p1(_neq, _nrhs);
+  p1.prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
+  _LambdaUK->linearCombination(1., _LambdaSK, 1., &p1);
 
   return 0;
 }
@@ -1431,62 +1412,55 @@ int KrigingCalcul::_needLambda0()
     if (_needY0()) return 1;
   }
 
-  MatrixRectangular* Sigma0ptInvSigma = new MatrixRectangular(_ncck, _neq);
-  Sigma0ptInvSigma->prodMatMatInPlace(_Sigma0p, _InvSigma, true);
+  MatrixRectangular Sigma0ptInvSigma(_ncck, _neq);
+  Sigma0ptInvSigma.prodMatMatInPlace(_Sigma0p, _InvSigma, true);
 
   // Determine the Bottom part of the ratio
   MatrixSquareSymmetric* bot = _Sigma00pp->clone();
   
-  MatrixSquareSymmetric* bot1 = new MatrixSquareSymmetric(_ncck);
-  bot1->prodMatMatInPlace(Sigma0ptInvSigma, _Sigma0p);
+  MatrixSquareSymmetric bot1(_ncck);
+  bot1.prodMatMatInPlace(&Sigma0ptInvSigma, _Sigma0p);
 
-  MatrixRectangular* Y0pSigmac = nullptr;
+  MatrixRectangular Y0pSigmac;
   if (_nbfl > 0)
   {
-    Y0pSigmac = new MatrixRectangular(_ncck, _nbfl);
-    Y0pSigmac->prodMatMatInPlace(_Y0p, _Sigmac);
+    Y0pSigmac = MatrixRectangular(_ncck, _nbfl);
+    Y0pSigmac.prodMatMatInPlace(_Y0p, _Sigmac);
   }
   
-  MatrixSquareSymmetric* bot2 = nullptr;
+  MatrixSquareSymmetric bot2;
   if (_nbfl > 0)
   {
-    bot2 = new MatrixSquareSymmetric(_ncck);
-    bot2->prodMatMatInPlace(Y0pSigmac, _Y0p, false, true);
+    bot2 = MatrixSquareSymmetric(_ncck);
+    bot2.prodMatMatInPlace(&Y0pSigmac, _Y0p, false, true);
   }
-  bot->linearCombination(1., bot, -1., bot1, +1., bot2);
-  delete bot1;
-  delete bot2;
+  bot->linearCombination(1., bot, -1., &bot1, +1., &bot2);
 
   if (bot->invert())
   {
     delete bot;
-    delete Sigma0ptInvSigma;
     return 1;
   }
 
   // Determine the Top part of the ratio
   MatrixRectangular* top = _Sigma00p->clone();
   
-  MatrixRectangular* top1 = new MatrixRectangular(_ncck, _nrhs);
-  top1->prodMatMatInPlace(Sigma0ptInvSigma, _Sigma0);
+  MatrixRectangular top1(_ncck, _nrhs);
+  top1.prodMatMatInPlace(&Sigma0ptInvSigma, _Sigma0);
 
-  MatrixRectangular* top2 = nullptr;
+  MatrixRectangular top2;
   if (_nbfl > 0)
   {
-    top2 = new MatrixRectangular(_ncck, _nrhs);
-    top2->prodMatMatInPlace(Y0pSigmac, _Y0, false, true);
+    top2 = MatrixRectangular(_ncck, _nrhs);
+    top2.prodMatMatInPlace(&Y0pSigmac, _Y0, false, true);
   }
-  top->linearCombination(1., top, -1., top1, +1., top2);
-  delete top1;
-  delete top2;
+  top->linearCombination(1., top, -1., &top1, +1., &top2);
 
   _Lambda0 = new MatrixRectangular(_ncck, _nrhs);
   _Lambda0->prodMatMatInPlace(bot, top);
 
   delete bot;
   delete top;
-  delete Sigma0ptInvSigma;
-  delete Y0pSigmac;
 
   return 0;
   }
