@@ -42,7 +42,7 @@ jobs:
             {py: "3.13"}
           ]
         # Only one "old"" Linux and a generic platform name BUILD_PLAT
-        os: [ubuntu-22.04]
+        os: [ubuntu-20.04]
 
     steps:
     - uses: actions/checkout@v4
@@ -77,6 +77,9 @@ jobs:
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
           -DBUILD_DOXYGEN=ON
+      env:
+        CC: gcc-10
+        CXX: g++-10
 
     - name : Build the package
       run : |
@@ -109,7 +112,7 @@ jobs:
             {py: "3.12"},
             {py: "3.13"}
           ]
-        os: [ubuntu-22.04]
+        os: [ubuntu-20.04]
 
     steps:
     - uses: actions/checkout@v4
