@@ -157,7 +157,6 @@ int PrecisionOp::_addToDest(const constvect inv, vect outv) const
 {
     _addEvalPower(inv, outv, EPowerPT::ONE);
     return 0;
-
 }
 
 int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
@@ -321,18 +320,19 @@ void PrecisionOp::_addEvalPower(const constvect inv,
 {
   const constvect* inPtr = &inv;
   if (_work.size() == 0) _work.resize(getSize());
-  vect worksp(_work); 
+  vect worksp(_work);
+  
   // Pre-processing
 
   if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodLambda(inv, worksp,power);
+    _shiftOp->prodLambda(inv, worksp, power);
     inPtr = (constvect*)&worksp;
   }
 
   // Polynomial evaluation
 
-  if (_evalPoly(power,*inPtr,outv) != 0)
+  if (_evalPoly(power, *inPtr, outv) != 0)
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing
@@ -353,7 +353,7 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 {
   constvect invs(inv);
   if (_preparePoly(power) != 0) return 1;
-  if(getTraining())
+  if (getTraining())
   {
     int degree = _polynomials[power]->getDegree();
 
@@ -372,7 +372,7 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
                                                                 invs,_workPoly,
                                                                 _work5);
 
-    for(int i=0;i<(int)inv.size();i++)
+    for (int i = 0; i < (int)inv.size(); i++)
     {
       outv[i] = _workPoly[0][i];
     }
@@ -380,7 +380,7 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
   else
   {
     vect outvs(outv);
-    _polynomials[power]->evalOp(_shiftOp->getS(),invs,outvs);
+    _polynomials[power]->evalOp(_shiftOp->getS(), invs, outvs);
   }
   return 0;
 }

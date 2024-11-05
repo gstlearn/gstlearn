@@ -149,7 +149,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
     void _buildLambda(const AMesh* amesh);
     bool _buildLambdaGrad(const AMesh* amesh);
 
-    void _loadAux(VectorDouble & tab, const EConsElem& type, int imesh = 0);
+    static void _loadAux(VectorDouble & tab, const EConsElem& type, int imesh = 0);
     void _loadHH(const AMesh* amesh, MatrixSquareSymmetric& hh, int imesh = 0);
     void _loadHHRegular(MatrixSquareSymmetric & hh, int imesh);
     void _loadHHVariety(MatrixSquareSymmetric & hh, int imesh);

@@ -53,8 +53,8 @@ public:
   static MatrixRectangular* sample(const AMatrix* A,
                                    const VectorInt& rowKeep = VectorInt(),
                                    const VectorInt& colKeep = VectorInt(),
-                                   bool flagInvertRow = false,
-                                   bool flagInvertCol = false);
+                                   bool flagInvertRow       = false,
+                                   bool flagInvertCol       = false);
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
                 const VectorInt& colFetch,
