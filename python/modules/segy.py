@@ -362,3 +362,26 @@ def restrict2DGrid(dblabel, topName, botName):
     
     return gl.DbGrid.createSubGrid(dblabel, Limits2D, False)
 
+def SaveSegy(source, destination, prob) :
+
+    # Read the extension of the input array 'prob1'
+    nX, nY, nSamples = prob.shape
+    with segyio.open(source, ignore_geometry=True) as src:
+        spec = segyio.tools.metadata(src)
+        spec.samples = spec.samples[:nSamples]
+        with segyio.create(destination, spec) as dst:
+            dst.text[0] = src.text[0]
+            dst.bin = src.bin
+            dst.bin.update(hns=len(spec.samples))
+            dst.header = src.header
+            for h in dst.header :
+                h[segyio.TraceField.TRACE_SAMPLE_COUNT] = nSamples
+            dst.trace = src.trace
+
+        # Here we assign the at each segy trace the probability
+
+            iGlobal = 0
+            for iy in range(nY) :
+                for ix in range(nX) :
+                    dst.trace[iGlobal] = np.array(prob[ix, iy], dtype=np.float32)
+                    iGlobal += 1
