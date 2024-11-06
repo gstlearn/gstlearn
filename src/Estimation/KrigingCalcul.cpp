@@ -1131,12 +1131,12 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
   // Extract alpha and invert it
   MatrixSquareSymmetric* alpha =
     MatrixSquareSymmetric::sample(_InvSigma, *_rankXvalidEqs);
-  MatrixSquareSymmetric* InvAlpha = alpha->clone();
-  InvAlpha->invert();
+  MatrixSquareSymmetric InvAlpha = *alpha;
+  InvAlpha.invert();
 
   // Calculate a1 term
   MatrixSquareSymmetric omega(_nxvalid);
-  omega.linearCombination(1., S00, -1., InvAlpha);
+  omega.linearCombination(1., S00, -1., &InvAlpha);
 
   if (_nbfl > 0)
   {
@@ -1157,7 +1157,7 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
       MatrixRectangular::sample(_X, *_rankXvalidEqs, VectorInt(), true);
 
     // Compute epsilon (up to its sign); inv(alpha) * beta
-    AMatrix* p1               = MatrixFactory::prodMatMat(InvAlpha, beta);
+    AMatrix* p1               = MatrixFactory::prodMatMat(&InvAlpha, beta);
     MatrixRectangular epsilon(_nxvalid, _nbfl);
     epsilon.prodMatMatInPlace(p1, X);
     delete p1;
@@ -1416,7 +1416,7 @@ int KrigingCalcul::_needLambda0()
   Sigma0ptInvSigma.prodMatMatInPlace(_Sigma0p, _InvSigma, true);
 
   // Determine the Bottom part of the ratio
-  MatrixSquareSymmetric* bot = _Sigma00pp->clone();
+  MatrixSquareSymmetric bot = *_Sigma00pp;
   
   MatrixSquareSymmetric bot1(_ncck);
   bot1.prodMatMatInPlace(&Sigma0ptInvSigma, _Sigma0p);
@@ -1434,16 +1434,12 @@ int KrigingCalcul::_needLambda0()
     bot2 = MatrixSquareSymmetric(_ncck);
     bot2.prodMatMatInPlace(&Y0pSigmac, _Y0p, false, true);
   }
-  bot->linearCombination(1., bot, -1., &bot1, +1., &bot2);
+  bot.linearCombination(1., &bot, -1., &bot1, +1., (_nbfl > 0) ? &bot2 : nullptr);
 
-  if (bot->invert())
-  {
-    delete bot;
-    return 1;
-  }
+  if (bot.invert()) return 1;
 
   // Determine the Top part of the ratio
-  MatrixRectangular* top = _Sigma00p->clone();
+  MatrixRectangular top = *_Sigma00p;
   
   MatrixRectangular top1(_ncck, _nrhs);
   top1.prodMatMatInPlace(&Sigma0ptInvSigma, _Sigma0);
@@ -1454,13 +1450,10 @@ int KrigingCalcul::_needLambda0()
     top2 = MatrixRectangular(_ncck, _nrhs);
     top2.prodMatMatInPlace(&Y0pSigmac, _Y0, false, true);
   }
-  top->linearCombination(1., top, -1., &top1, +1., &top2);
+  top.linearCombination(1., &top, -1., &top1, +1., (_nbfl > 0) ? &top2 : nullptr);
 
   _Lambda0 = new MatrixRectangular(_ncck, _nrhs);
-  _Lambda0->prodMatMatInPlace(bot, top);
-
-  delete bot;
-  delete top;
+  _Lambda0->prodMatMatInPlace(&bot, &top);
 
   return 0;
-  }
+}
