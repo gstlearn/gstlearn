@@ -59,6 +59,7 @@
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
+#  - NLOPT_ROOT=<path>  Path to NLopt library (optional)
 #  - LLVM_ROOT=<path>   Path to llvm compiler for MacOS only (optional)
 #  - SWIG_EXEC=<path>   Path to swig executable (optional)
 #
