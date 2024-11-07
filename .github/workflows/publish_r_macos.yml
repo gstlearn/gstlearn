@@ -50,7 +50,7 @@ jobs:
 
     - name : Install dependencies
       run: |
-        brew install doxygen
+        brew install --formula doxygen
         brew install llvm
         brew install boost
         brew install eigen
@@ -71,6 +71,9 @@ jobs:
       with:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
+
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_unix
 
     - name : Configure build directory
       run : |

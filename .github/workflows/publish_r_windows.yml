@@ -31,6 +31,7 @@ env:
   DOXYGEN_ROOT : ${{github.workspace}}\doxygen
   DOXYGEN_VERSION : "1.9.8"
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+  VCPKG_LIBRARY_LINKAGE: static
 
 jobs:
 
@@ -60,7 +61,7 @@ jobs:
     - name: Install dependencies
       run: |
         echo '{
-          "dependencies": [ "boost-math", "eigen3" ],
+          "dependencies": [ "boost-math", "eigen3", "nlopt" ],
           "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
         }' > vcpkg.json
         vcpkg install

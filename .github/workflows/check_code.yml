@@ -86,6 +86,7 @@ jobs:
           libopenmpi-dev \
           libboost-system-dev \
           libeigen3-dev \
+          libnlopt-dev \
           libomp-dev \
           clang-tools
 
@@ -131,6 +132,7 @@ jobs:
           libopenmpi-dev \
           libboost-system-dev \
           libeigen3-dev \
+          libnlopt-dev \
           libomp-dev \
           clang-tools \
           clang-tidy \
