@@ -70,6 +70,9 @@ jobs:
         python -m pip install numpy
         python -m pip install build
 
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_unix
+
     - name : Configure build directory
       run : |
         cmake \

@@ -41,6 +41,7 @@ jobs:
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev \
+          libnlopt-dev \
           libpng-dev \
           pandoc
 

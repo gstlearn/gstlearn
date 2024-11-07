@@ -59,6 +59,7 @@
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
+#  - NLOPT_ROOT=<path>  Path to NLopt library (optional)
 #  - LLVM_ROOT=<path>   Path to llvm compiler for MacOS only (optional)
 #  - SWIG_EXEC=<path>   Path to swig executable (optional)
 #
@@ -138,6 +139,9 @@ ifdef EIGEN3_ROOT
 endif
 ifdef BOOST_ROOT
   CMAKE_DEFINES := $(CMAKE_DEFINES) -DBoost_ROOT=$(BOOST_ROOT)
+endif
+ifdef NLOPT_ROOT
+  CMAKE_DEFINES := $(CMAKE_DEFINES) -DNLopt_ROOT=$(NLOPT_ROOT)
 endif
 
 .PHONY: all cmake cmake-python cmake-r cmake-python-r cmake-doxygen print_version static shared build_tests doxygen install uninstall

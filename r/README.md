@@ -285,12 +285,13 @@ make check_r
 * Under Windows, using RTools is mandatory for compiling R packages
 * Under Windows, you may need to add `-G "MSYS Makefiles"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost, Eigen3, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
+* You may need to precise the location of Boost, Eigen3, SWIG, Doxygen, HDF5 or NLopt installation directory. In that case, add the following variables in the first cmake command above:
   * `-DBoost_ROOT="path/to/boost"`
   * `-DEigen3_ROOT="path/to/eigen3"`
   * `-DSWIG_ROOT="path/to/swig"`
   * `-DDoxygen_ROOT="path/to/doxygen"`
-  * `-DHDF5_ROOT="path/to/hdf5"``
+  * `-DHDF5_ROOT="path/to/hdf5"`
+  * `-DNLopt_ROOT="path/to/nlopt"`
 
 ### Remove Installed Package
 
