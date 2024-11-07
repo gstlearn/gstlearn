@@ -40,9 +40,8 @@ public:
   virtual void evalOp(MatrixSparse* Op,
                       const VectorDouble& inv,
                       VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv);} //TODO write it by calling Eigen version;
-  virtual void
-  evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
-
+  virtual void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
+  VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
   virtual void evalOpTraining(MatrixSparse* Op,
                               const constvect inv,
                               std::vector<std::vector<double>>& outv,
@@ -50,7 +49,13 @@ public:
   {
     DECLARE_UNUSED(Op, inv, outv, work);
   };
-  VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
+
+  virtual double evalOpByRank(MatrixSparse* Op, int rank) const
+  {
+    DECLARE_UNUSED(Op);
+    DECLARE_UNUSED(rank);
+    return 0.;
+  }
 
   //virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
 

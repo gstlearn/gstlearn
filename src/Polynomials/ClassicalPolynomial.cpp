@@ -149,6 +149,15 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
   }
 }
 
+/**
+ * @brief Returns the rank-th term of the Diagonal of 'Op'
+ * in its Polynomail expression through Horner mechanism
+ * It is similar to the method 'evalOp' but targets the diagonal only
+ * 
+ * @param Op Target Sparse matrix (possibly not even concretized)
+ * @param rank Rank of the target
+ * @return double 
+ */
 double ClassicalPolynomial::evalOpByRank(MatrixSparse* Op, int rank) const
 {
   int nrow = Op->getNRows();
@@ -156,23 +165,36 @@ double ClassicalPolynomial::evalOpByRank(MatrixSparse* Op, int rank) const
 
   NF_Triplet NF_T_inv;
   NF_T_inv.add(rank, 0, 1.);
+  NF_T_inv.force(nrow, 1);
   MatrixSparse* inv = MatrixSparse::createFromTriplet(NF_T_inv, nrow, 1);
 
   NF_Triplet NF_T_outv;
   NF_T_outv.add(rank, 0, _coeffs.back());
+  NF_T_outv.force(nrow, 1);
   MatrixSparse* outv = MatrixSparse::createFromTriplet(NF_T_outv, nrow, 1);
 
   int degree = (int)_coeffs.size();
+  message("\n pour rank=%d\n", rank);
+  message("Inv\n");
+  inv->display();
   for (int j = degree - 2; j >= 0; j--)
   {
-    Op->prodMatMatInPlace(outv, work);
+    message("Avant produit\n");
+    outv->display();
+    work->prodMatMatInPlace(Op, outv);
+    message("Apres produit\n");
+    work->display();
     delete outv;
+    message("Avant add coeff=%f\n", _coeffs[j]);
     outv = MatrixSparse::addMatMat(inv, work, _coeffs[j], 1.);
+    message("Apres add\n");
+    outv->display();
   }
 
   double retval = outv->getValue(rank,0);
   delete inv;
   delete outv;
+  delete work;
   return retval;
 }
 

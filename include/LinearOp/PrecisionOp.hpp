@@ -105,23 +105,24 @@ public:
   bool isCovaDefined() const { return _cova != nullptr; }
   VectorDouble getCoeffs();
 
+  virtual VectorDouble extractDiag() const;
+
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
-  const CovAniso* getCova() const {return _cova;}
+  const CovAniso*  getCova() const {return _cova;}
 
 #ifndef SWIG
 
 public:
-void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
+  void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
 
 protected:
   virtual int _addToDest(const constvect inv, vect outv) const override;
   virtual int _addSimulateToDest(const constvect whitenoise,
                                  vect outv) const override;
-  void
-  _addEvalPower(const constvect inv, vect outv, const EPowerPT& power) const;
 
+  void _addEvalPower(const constvect inv, vect outv, const EPowerPT& power) const;
 #endif
 
 private:
@@ -129,7 +130,7 @@ private:
   int  _prepareChebychev(const EPowerPT& power) const;
   int  _preparePrecisionPoly() const;
 #ifndef SWIG
-  int _evalPoly(const EPowerPT& power, const constvect inv, vect outv) const;
+  int  _evalPoly(const EPowerPT& power, const constvect inv, vect outv) const;
 #endif
   void _purge();
 

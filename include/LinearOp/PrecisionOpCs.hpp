@@ -34,16 +34,17 @@ public:
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
-  #ifndef SWIG
+#ifndef SWIG
   void evalInverse(const constvect vecin, std::vector<double>& vecout) override;
   int _addSimulateToDest(const constvect whitenoise, vect outv) const override;
   int _addToDest(const constvect inv, vect outv) const override;
-  #endif
+#endif
 
   double getLogDeterminant(int nbsimu = 1) override;
-  
+  VectorDouble extractDiag() const override;
+
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
-  #ifndef SWIG
+#ifndef SWIG
   void evalDeriv(const constvect inv,
                  vect outv,
                  int iapex,
@@ -61,7 +62,7 @@ public:
                     const constvect Y,
                     vect result,
                     const EPowerPT& power) override;
-  #endif
+#endif
   const MatrixSparse* getQ() const { return _Q; }
 
 private:

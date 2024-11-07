@@ -291,3 +291,8 @@ MatrixSparse* PrecisionOpCs::_build_Q()
   Q->prodNormDiagVecInPlace(Lambda, 1);
   return Q;
 }
+
+VectorDouble PrecisionOpCs::extractDiag() const
+{
+  return _Q->extractDiag();
+}
