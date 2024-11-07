@@ -33,14 +33,12 @@ def summary(f, verbose=False):
 
 
 def getScale(head):
-    
     scale = head[0].__getitem__(TraceField.SourceGroupScalar)
     if scale < 0:
         scale = 1. / (-scale)
     return scale
 
 def getCoordinates(f, rank):
-    
     head = f.header
     
     scale = getScale(head)
@@ -159,7 +157,7 @@ def getCornersFromGrid(nx, ny, x0, y0, dx, dy, theta):
 
 def create2DGrid(fileSEGY, verbose=False):
     
-        # Open the SEGY file
+    # Open the SEGY file
     f = open(fileSEGY)
 
     # Retrieve the grid characteristics
@@ -183,7 +181,6 @@ def create2DGrid(fileSEGY, verbose=False):
     return grid
 
 def readAllTraceHeaders(f):
-    
     head = f.header
     scale = getScale(head)
     
