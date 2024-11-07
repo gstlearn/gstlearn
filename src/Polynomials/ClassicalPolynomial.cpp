@@ -12,6 +12,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
 
 ClassicalPolynomial::ClassicalPolynomial()
@@ -146,6 +147,33 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
       outv[i] = _coeffs[j] * inv[i] + work[i];
     }
   }
+}
+
+double ClassicalPolynomial::evalOpByRank(MatrixSparse* Op, int rank) const
+{
+  int nrow = Op->getNRows();
+  MatrixSparse* work = new MatrixSparse(nrow, 1);
+
+  NF_Triplet NF_T_inv;
+  NF_T_inv.add(rank, 0, 1.);
+  MatrixSparse* inv = MatrixSparse::createFromTriplet(NF_T_inv, nrow, 1);
+
+  NF_Triplet NF_T_outv;
+  NF_T_outv.add(rank, 0, _coeffs.back());
+  MatrixSparse* outv = MatrixSparse::createFromTriplet(NF_T_outv, nrow, 1);
+
+  int degree = (int)_coeffs.size();
+  for (int j = degree - 2; j >= 0; j--)
+  {
+    Op->prodMatMatInPlace(outv, work);
+    delete outv;
+    outv = MatrixSparse::addMatMat(inv, work, _coeffs[j], 1.);
+  }
+
+  double retval = outv->getValue(rank,0);
+  delete inv;
+  delete outv;
+  return retval;
 }
 
 // Classical Hörner scheme starting from the highest degree
