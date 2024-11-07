@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
   }
 
   delete neigh1;
+  delete neigh2;
   delete data;
   delete target;
 

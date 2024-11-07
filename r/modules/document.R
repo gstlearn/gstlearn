@@ -110,7 +110,10 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
 }
 
 #' Returns the decorated documentation (Markdown file) from 'references' directory
+#' 
 #' @param filename Name of the Markdown file containing the text to be displayed
+#' @param verbose Verbose flag
+#' 
 #' TODO: the color does not function... to be fixed.
 #' remark: the returned string must be displayed in a RMarkdown chunk as follows:
 #'   {r, echo=FALSE, result='asis'}

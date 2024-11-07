@@ -1,0 +1,202 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 12
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Z1 - Locator = NA
+Column = 4 - Name = Z2 - Locator = NA
+Column = 5 - Name = Z3 - Locator = NA
+Column = 6 - Name = U1 - Locator = NA
+Column = 7 - Name = U2 - Locator = NA
+Column = 8 - Name = U3 - Locator = NA
+Column = 9 - Name = F1 - Locator = z1
+Column = 10 - Name = F2 - Locator = z2
+Column = 11 - Name = F3 - Locator = z3
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 3
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [F1 F2 F3]
+
+Variance-Covariance Matrix
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.998     0.000     0.000
+     [  1,]     0.000     0.998     0.000
+     [  2,]     0.000     0.000     0.998
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    46.000     0.010     0.299
+         1   485.000     0.027     0.508
+         2   900.000     0.051     0.544
+         3  1346.000     0.075     0.728
+         4  1713.000     0.101     0.763
+         5  2019.000     0.126     0.888
+         6  2440.000     0.150     0.952
+         7  2747.000     0.175     1.000
+         8  3035.000     0.200     1.005
+         9  3092.000     0.225     1.062
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         0    46.000     0.010    -0.015
+         1   485.000     0.027     0.041
+         2   900.000     0.051     0.000
+         3  1346.000     0.075     0.064
+         4  1713.000     0.101    -0.012
+         5  2019.000     0.126    -0.062
+         6  2440.000     0.150    -0.042
+         7  2747.000     0.175    -0.024
+         8  3035.000     0.200    -0.007
+         9  3092.000     0.225    -0.032
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         0    46.000     0.010     0.594
+         1   485.000     0.027     0.520
+         2   900.000     0.051     0.681
+         3  1346.000     0.075     0.848
+         4  1713.000     0.101     0.955
+         5  2019.000     0.126     1.005
+         6  2440.000     0.150     1.039
+         7  2747.000     0.175     1.026
+         8  3035.000     0.200     1.022
+         9  3092.000     0.225     1.033
+
+For variables 3 and 1
+      Rank    Npairs  Distance     Value
+         0    46.000     0.010     0.021
+         1   485.000     0.027     0.010
+         2   900.000     0.051     0.000
+         3  1346.000     0.075     0.015
+         4  1713.000     0.101     0.093
+         5  2019.000     0.126     0.035
+         6  2440.000     0.150     0.011
+         7  2747.000     0.175     0.013
+         8  3035.000     0.200     0.018
+         9  3092.000     0.225     0.020
+
+For variables 3 and 2
+      Rank    Npairs  Distance     Value
+         0    46.000     0.010     0.021
+         1   485.000     0.027     0.008
+         2   900.000     0.051     0.000
+         3  1346.000     0.075    -0.004
+         4  1713.000     0.101     0.008
+         5  2019.000     0.126    -0.027
+         6  2440.000     0.150    -0.010
+         7  2747.000     0.175    -0.021
+         8  3035.000     0.200    -0.022
+         9  3092.000     0.225    -0.052
+
+For variable 3
+      Rank    Npairs  Distance     Value
+         0    46.000     0.010     0.237
+         1   485.000     0.027     0.634
+         2   900.000     0.051     0.789
+         3  1346.000     0.075     0.797
+         4  1713.000     0.101     1.010
+         5  2019.000     0.126     0.939
+         6  2440.000     0.150     1.012
+         7  2747.000     0.175     1.079
+         8  3035.000     0.200     1.028
+         9  3092.000     0.225     1.027
+
+Optimization Conditions
+=======================
+- Number of variables       3  
+- Space dimension           2  
+- Number of experiments     60  
+- Number of parameters      2  
+- Constrained Minimization  OFF
+- Intrinsic option          OFF
+- Anisotropy                OFF
+- Anisotropy Rotation       OFF
+- Global Rotation           OFF
+- Rotation around Z only    OFF
+- Lock third dimension      OFF
+- Lock 2-D Isotropy         OFF
+- Keep Intrinsic structure  OFF
+- Use the Goulard option    ON
+- Keep all structures       OFF
+
+Model
+-----
+Structure : Exponential
+ 1 - Range U : 0.112645 [0.000000,NA[
+Structure : Spherical
+ 2 - Range U : 0.168968 [0.000000,NA[
+
+Trajectory of parameters in Foxleg Algorithm
+--------------------------------------------
+  Iteration      Score      Delta      Par-1      Par-2
+          1   1.77e+28          1      0.113      0.169
+          2   1.76e+28        0.5      0.116      0.179
+
+Model
+-----
+Structure : Exponential
+ 1 - Range U : 0.144277 [0.000000,NA[
+Structure : Spherical
+ 2 - Range U : 0.150355 [0.000000,NA[
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.212     0.033     0.023
+     [  1,]     0.033     0.370     0.033
+     [  2,]     0.023     0.033     0.220
+Exponential
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.142     0.100    -0.067
+     [  1,]     0.100     0.070    -0.035
+     [  2,]    -0.067    -0.035     0.822
+- Range        =      0.144
+- Theo. Range  =      0.048
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.612    -0.156     0.072
+     [  1,]    -0.156     0.593    -0.020
+     [  2,]     0.072    -0.020     0.008
+- Range        =      0.150
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.965    -0.024     0.028
+     [  1,]    -0.024     1.033    -0.022
+     [  2,]     0.028    -0.022     1.051
+
+Known Mean(s)     0.000     0.000     0.000

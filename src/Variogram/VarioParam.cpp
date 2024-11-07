@@ -145,6 +145,7 @@ VarioParam* VarioParam::createOmniDirection(int npas,
                                                 tolcode, breaks, space);
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addDir(*dir);
+  delete dir;
   return varioparam;
 }
 
@@ -196,6 +197,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
     grincr[idim] = 1;
     DirParam* dirparam = DirParam::createFromGrid(dbgrid, npas, grincr, space);
     varioparam->addDir(*dirparam);
+    delete dirparam;
   }
   return varioparam;
 }

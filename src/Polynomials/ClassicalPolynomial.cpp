@@ -11,7 +11,7 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "geoslib_define.h"
 
 ClassicalPolynomial::ClassicalPolynomial()
@@ -137,7 +137,8 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
   for (int i = 0; i < n; i++)
     outv[i] = _coeffs.back() * inv[i];
 
-  for (int j = static_cast<int>(_coeffs.size()) - 2; j >= 0; j--)
+  int degree = (int) _coeffs.size();
+  for (int j = degree - 2; j >= 0; j--)
   {
     Op->prodMatVecInPlace(outv, ws);
     for (int i = 0; i < n; i++)

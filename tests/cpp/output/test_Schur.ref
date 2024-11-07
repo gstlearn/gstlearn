@@ -1,6 +1,6 @@
 
-Checking Bayes option
-=====================
+Bayes option
+============
 Compare:
 - Kriging with traditional code
 - Estimation performed with 'KrigingCalcul'
@@ -11,52 +11,144 @@ Data Base Characteristics
 
 Data Base Contents
 ------------------
-                 rank       x-1       x-2       z-1       z-2
-     [  0,]     1.000     0.652     0.015     0.753    -0.454
-     [  1,]     2.000     0.483     0.557    -0.774    -0.872
-     [  2,]     3.000     0.762     0.433     0.793     0.744
+                 rank       x-1       x-2       z-1       z-2       z-3
+     [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
+     [  1,]     2.000     0.483     0.557    -0.774    -0.872     0.080
+     [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
 
 Using Standard Kriging procedure
 --------------------------------
 
 Bayesian Drift coefficients
 ===========================
-Prior Mean       0.353     -0.127
+Prior Mean      -0.504     -1.222      0.290
 Prior Variance-Covariance
-                  [,1]       [,2]
-       [1,]      0.187      0.000
-       [2,]      0.000      0.433
-Posterior Mean       1.080     -1.050
+                  [,1]       [,2]       [,3]
+       [1,]      0.223      0.000      0.000
+       [2,]      0.000      0.173      0.000
+       [3,]      0.000      0.000      0.213
+Posterior Mean      -0.269     -0.191      0.364
 Posterior Variance-Covariance
-                  [,1]       [,2]
-       [1,]      0.516     -0.503
-       [2,]     -0.503      0.646
-Bayes.z-1.estim      0.198
-Bayes.z-2.estim      0.074
-Bayes.z-1.stdev      0.981
-Bayes.z-2.stdev      1.130
+                  [,1]       [,2]       [,3]
+       [1,]     -0.005      0.003     -0.005
+       [2,]      0.003     -0.003     -0.004
+       [3,]     -0.005     -0.004     -0.009
+Bayes.z-1.estim      0.184
+Bayes.z-2.estim      0.082
+Bayes.z-3.estim      0.195
+Bayes.z-1.stdev      1.028
+Bayes.z-2.stdev      0.883
+Bayes.z-3.stdev      1.114
 
 Using Schur class
 -----------------
 Prior Mean
-     0.353    -0.127
+    -0.504    -1.222     0.290
 Prior Variance-Covariance Matrix
-- Number of rows    = 2
-- Number of columns = 2
-               [,  0]    [,  1]
-     [  0,]     0.187     0.000
-     [  1,]     0.000     0.433
+- Number of rows    = 3
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.223     0.000     0.000
+     [  1,]     0.000     0.173     0.000
+     [  2,]     0.000     0.000     0.213
 Posterior Mean
-     0.299    -0.279
+     0.289    -0.444    -0.294
 Posterior Variance-Covariance Matrix
-- Number of rows    = 2
-- Number of columns = 2
-               [,  0]    [,  1]
-     [  0,]     0.154    -0.075
-     [  1,]    -0.075     0.192
+- Number of rows    = 3
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.138    -0.074     0.056
+     [  1,]    -0.074     0.095     0.055
+     [  2,]     0.056     0.055     0.164
 Kriging Value(s)
-     0.190     0.081
+     0.190     0.080     0.189
 Standard Deviation of Estimation Error
-     0.981     0.794
+     1.028     0.885     1.118
 Variance of Estimator
-     3.748     2.457
+     4.113     3.049     4.864
+
+Collocated Option (in Unique Neighborhood):
+===========================================
+- using 'KrigingCalcul' on the Complemented Data Set
+- using 'KrigingCalcul' on Standard Data Set adding Collocated Option
+- Collocated Variable ranks:         0         2
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2       z-3
+     [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
+     [  1,]     2.000     0.483     0.557    -0.774    -0.872     0.080
+     [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
+     [  3,]       N/A     0.652     0.483     0.438       N/A     0.186
+
+With Complemented input Data Base
+---------------------------------
+Kriging Value(s)
+     0.438    -0.121     0.186
+Standard Deviation of Estimation Error
+     0.000     0.040     0.000
+Variance of Estimator
+     5.167     3.830     6.110
+
+With Collocated Option
+----------------------
+Kriging Value(s)
+     0.438    -0.121     0.186
+Standard Deviation of Estimation Error
+     0.000     0.040     0.000
+Variance of Estimator
+     5.167     3.830     6.110
+
+Cross-Validation (in Unique Neighborhood)
+=========================================
+Compare the Cross-validation Option (in Unique Neighborhood):
+- using Standard Kriging on the Deplemented Data Set
+- using 'KrigingCalcul' on Initial Set with Cross-validation option
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2       z-3
+     [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
+     [  1,]     2.000     0.483     0.557    -0.774       N/A       N/A
+     [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
+
+With Deplemented input Data Base
+--------------------------------
+Kriging Value(s)
+    -0.774     1.311    -0.536
+Standard Deviation of Estimation Error
+     0.000     1.150     1.858
+Variance of Estimator
+     5.167     3.442     5.096
+
+With Cross-Validation Option
+----------------------------
+Kriging Value(s)
+     1.311    -0.536
+Standard Deviation of Estimation Error
+     1.150     1.858
+Variance of Estimator
+     3.442     5.096
+
+Estimation using Dual option or not (in Unique Neighborhood):
+=============================================================
+
+Without Dual option
+-------------------
+Kriging Value(s)
+     0.189     0.081     0.190
+Standard Deviation of Estimation Error
+     1.028     0.885     1.118
+Variance of Estimator
+     4.180     3.099     4.943
+
+With Dual Option (only Estimation is available)
+-----------------------------------------------
+Kriging Value(s)
+     0.189     0.081     0.190

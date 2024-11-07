@@ -37,6 +37,9 @@ public:
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
 
+  static MatrixRectangular* create(const MatrixRectangular* mat);
+  static MatrixRectangular* create(int nrow, int ncol);
+
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,

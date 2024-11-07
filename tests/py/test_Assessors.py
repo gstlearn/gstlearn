@@ -71,27 +71,27 @@ newtab
 #
 
 print("Testing Matrix")
-
-# Creating a vector of Uniform values to fill the Rectangular Matrix
 nrow = 4
 ncol = 5
 vec = gl.VectorHelper.simulateUniform(nrow * ncol)
 
 # Creating the Rectangular Matrix (standard format)
-print("\nCase of a Standard Matrix\n")
+print("Case of a Standard Matrix")
 mat = gl.MatrixRectangular.createFromVD(vec, nrow, ncol)
 mat.display()
+print(type(mat))
 
-matnew = mat.toTL()
-print(type(matnew))
-print(matnew.shape)
+mat2 = mat.toTL()
+print(type(mat2))
+print(mat2.shape)
 
 # Creating the Rectangular Matrix (sparse format)
-print("\nCase of a Sparse Matrix\n")
+print("Case of a Sparse Matrix")
 matS = gl.MatrixSparse(nrow, ncol)
 matS.setValues(vec)
 matS.display()
+print(type(mat))
 
-matSnew = matS.toTL()
-print(matSnew.shape)
-
+matS2 = mat.toTL()
+print(type(matS2))
+print(matS2.shape)

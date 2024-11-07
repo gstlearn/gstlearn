@@ -41,6 +41,15 @@ MatrixRectangular::~MatrixRectangular()
 {
 }
 
+MatrixRectangular* MatrixRectangular::create(const MatrixRectangular* mat)
+{
+  return new MatrixRectangular(*mat);
+}
+MatrixRectangular* MatrixRectangular::create(int nrow, int ncol)
+{
+  return new MatrixRectangular(nrow, ncol);
+}
+
 /**
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
@@ -159,7 +168,7 @@ void MatrixRectangular::addColumn(int ncolumn_added)
  * @param colKeep  Set of Columns to be kept (all if not defined)
  * @param flagInvertRow when True, transform 'rowKeep' into 'rowDrop'
  * @param flagInvertCol when True, transform 'colKeep' into 'colDrop'
- * @return Pointer to the newly created Rectangular Matrix
+ * @return Newly created Rectangular Matrix
  */
 MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
                                              const VectorInt& rowKeep,
