@@ -501,9 +501,14 @@ VectorDouble PrecisionOp::extractDiag() const
   VectorDouble vec(size, 0.);
   const EPowerPT& power = EPowerPT::ONE;
 
+  VectorDouble lambdas = _shiftOp->getLambdas();
+
   if (_preparePoly(power) != 0) return vec;
 
   for (int i = 0; i < size; i++)
-    vec[i] = _polynomials[power]->evalOpByRank(_shiftOp->getS(), i);
+  {
+    double lambda = lambdas[i];
+    vec[i] = _polynomials[power]->evalOpByRank(_shiftOp->getS(), i) * lambda * lambda;
+  }
   return vec;
 }

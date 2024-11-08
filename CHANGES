@@ -4,7 +4,9 @@ This file contains the logs between consecutive releases
 
 Release 1.6.0
 =============
-
+- ExtractDiag() of a PrecisionOp in Matrix-free version (test_PrecisionOp.py)
+- Function areEqual() is renamed in isEqual()
+- Functions isEqualExtended() are added to compare 2 scalar or 2 vectors
 
 Release 1.5.1
 =============

@@ -1691,7 +1691,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     int icode = -1;
     for (int i = 0; i < ncode && icode < 0; i++)
-      if (areEqual(code,codes[i])) icode = i;
+      if (isEqual(code,codes[i])) icode = i;
     if (icode < 0) continue;
 
     // Load the coordinates

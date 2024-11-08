@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   if (mode <= 0)
   {
     for (int i = 0; i < ntarget; i++)
-      if (!VH::isSame(checkDistances1[i], checkDistances2[i], 0.01))
+      if (!VH::isEqual(checkDistances1[i], checkDistances2[i], 0.01))
       {
         messerr("Vector of indices are different at rank %d", i);
         VH::display("- Standard search", checkDistances1[i]);

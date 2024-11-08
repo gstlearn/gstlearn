@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
   VH::display("Sorted values", VoutVal);
 
   VectorDouble VsortVal = VH::reorder(VinVal, order, size);
-  if (! VH::isSame(VoutVal, VsortVal))
+  if (! VH::isEqual(VoutVal, VsortVal))
     VH::display("Results are different: Re-ordered values", VsortVal);
 
   VectorInt VsortRank = VH::reorder(VinRank, order, size);
@@ -188,10 +188,10 @@ int main(int argc, char *argv[])
 
   VH::arrangeInPlace(0, VinRank, VinVal, true, size);
   VinVal.resize(size);
-  if (! VH::isSame(VoutVal, VinVal))
+  if (! VH::isEqual(VoutVal, VinVal))
     VH::display("Results are different: Re-arranged values", VinVal);
   VinRank.resize(size);
-  if (! VH::isSame(VsortRank, VinRank))
+  if (! VH::isEqual(VsortRank, VinRank))
     VH::display("Re-arranged ranks", VinRank);
   return (0);
 }

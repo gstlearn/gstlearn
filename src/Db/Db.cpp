@@ -5013,7 +5013,7 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
   if (combine == "xor")
   {
     for (int iech = 0; iech < nech; iech++)
-      sel[iech] = !areEqual(sel[iech], oldsel[iech]);
+      sel[iech] = !isEqual(sel[iech], oldsel[iech]);
     return;
   }
 

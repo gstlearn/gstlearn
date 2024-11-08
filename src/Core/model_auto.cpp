@@ -2739,11 +2739,11 @@ static double st_minimize_P4(int icov0,
         xt[k] = MAX(0., MIN(xrmax, xx[k]));
         xest[k] = (a * xt[k] * xt[k] * xt[k] * xt[k] + c * xt[k] * xt[k]
                    + d * xt[k]) / 2.;
-        if (areEqual(xt[k], xx[k])) nin++;
+        if (isEqual(xt[k], xx[k])) nin++;
       }
       if (nin == 1)
       {
-        retval = (areEqual(xt[0], xx[0])) ? xx[0] : xx[1];
+        retval = (isEqual(xt[0], xx[0])) ? xx[0] : xx[1];
       }
       else
       {

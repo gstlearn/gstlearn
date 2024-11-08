@@ -1646,6 +1646,45 @@ void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)
   _eigenMatrix = tab.asDiagonal();
 }
 
+/*! Extract a Row */
+MatrixSparse* MatrixSparse::getRowAsMatrixSparse(int irow, double coeff) const
+{
+  int ncols = getNCols();
+  MatrixSparse* res = new MatrixSparse(1, ncols);
+  if (isFlagEigen())
+  {
+    // res->_eigenMatrix = Eigen::VectorXf(_eigenMatrix.row(irow));
+    // The input sparse matrix being symmetrical, we benefit from its
+    // column-major storage (setting icol = irow)
+    int icol = irow;
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, icol); it; ++it)
+      res->_eigenMatrix.coeffRef(0, it.row()) = coeff * it.value();
+  }
+  else
+  {
+    messageAbort("Not available in CS format");
+  }
+  return res;
+}
+
+/*! Extract a Column */
+MatrixSparse* MatrixSparse::getColumnAsMatrixSparse(int icol, double coeff) const
+{
+  int nrows = getNRows();
+  MatrixSparse* res = new MatrixSparse(nrows, 1);
+  if (isFlagEigen())
+  {
+    // res->_eigenMatrix = Eigen::VectorXf(_eigenMatrix.col(icol));
+
+    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, icol); it; ++it)
+      res->_eigenMatrix.coeffRef(it.row(), 0) = coeff * it.value();
+  }
+  else
+  {
+    messageAbort("Not available in CS format");
+  }
+  return res;
+}
 
 ///////////////Not exported //////////
 

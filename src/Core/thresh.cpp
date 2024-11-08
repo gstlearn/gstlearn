@@ -211,7 +211,7 @@ static int st_proportion_changed(PropDef *propdef)
 {
   /* Compare with the memory proportion array */
 
-  int modify = ! VH::isSame(propdef->proploc, propdef->propmem);
+  int modify = ! VH::isEqual(propdef->proploc, propdef->propmem);
   if (!modify) return (1);
 
   /* Print the proportions (optional) */
