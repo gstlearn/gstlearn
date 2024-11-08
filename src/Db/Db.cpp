@@ -643,13 +643,14 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   return tab;
 }
 
-VectorDouble Db::getArrayBySample(int iech) const
+static std::vector<int> uids;
+
+void Db::getArrayBySample(std::vector<double>& vals, int iech) const
 {
-  VectorInt uids = getAllUIDs();
-  VectorDouble vals;
+  getAllUIDs(uids);
+  vals.resize(uids.size());
   for (int iuid = 0; iuid < (int) uids.size(); iuid++)
-    vals.push_back(getArray(iech, uids[iuid]));
-  return vals;
+    vals[iuid] = getArray(iech, uids[iuid]);
 }
 
 void Db::setArrayBySample(int iech, const VectorDouble& vec)
@@ -4300,6 +4301,13 @@ VectorInt Db::getAllUIDs() const
   return iuids;
 }
 
+void Db::getAllUIDs(std::vector<int>& iuids) const
+{
+  iuids.clear();
+  for (int i = 0; i < (int)_uidcol.size(); i++)
+    if (_uidcol[i] >= 0) iuids.push_back(i);
+}
+
 void Db::_loadData(const VectorDouble& tab,
                    const VectorString& names,
                    const VectorString& locatorNames,
@@ -4524,6 +4532,7 @@ bool Db::_serialize(std::ostream& os, bool /*verbose*/) const
   int ncol              = getColumnNumber();
   VectorString locators = getLocators(true);
   VectorString names    = getName("*");
+  std::vector<double> vals;
 
   bool ret = true;
   ret      = ret && _recordWrite<int>(os, "Number of variables", ncol);
@@ -4533,8 +4542,8 @@ bool Db::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _commentWrite(os, "Array of values");
   for (int iech = 0, nech = getSampleNumber(); ret && iech < nech; iech++)
   {
-    VectorDouble vals = getArrayBySample(iech);
-    ret               = ret && _recordWriteVec<double>(os, "", vals);
+    getArrayBySample(vals, iech);
+    ret = ret && _recordWriteVec<double>(os, "", vals);
   }
   return ret;
 }
