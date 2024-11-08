@@ -75,7 +75,7 @@ protected:
   template <typename T>
   static bool _recordWriteVec(std::ostream& os,
                                const String& title,
-                               const VectorT<T>& vec);
+                               const std::vector<T>& vec);
 
   template <typename T>
   static bool _recordRead(std::istream& is,
@@ -139,7 +139,7 @@ bool ASerializable::_recordWrite(std::ostream& os,
 template <typename T>
 bool ASerializable::_recordWriteVec(std::ostream& os,
                                     const String& title,
-                                    const VectorT<T>& vec)
+                                    const std::vector<T>& vec)
 {
   if (os.good())
   {
