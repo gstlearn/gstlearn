@@ -45,6 +45,10 @@ if gl.VH.isEqualExtended(ref1, ref2, string="Vector are not equal"):
 # depending on whether we use the Matrix-Free PrecisionOp or not.
 # It is meant to evaluate the elapsed time
 
+print_Time = False
+if not print_Time:
+    print("\nNote: Time is not printed in order not to generate conflicts in non-regression files)")
+
 gl.mestitle(0,"Large Data Set")
 nx = 350
 print("(Based on the Turbo Meshing derived from a", nx ,"x", nx, "grid)")
@@ -59,14 +63,16 @@ start_time = time.time()
 QOpCs = gl.PrecisionOpCs(mesh, model.getCova(0))
 ref1 = QOpCs.extractDiag()
 checkpointOpCs = str((time.time() - start_time))
-print("Time with explicit Matrix =", checkpointOpCs)
+if print_Time:
+    print("Time with explicit Matrix =", checkpointOpCs)
 
 # Creating the Matrix-free PrecisionOp
 start_time = time.time()
 Qop = gl.PrecisionOp(mesh, model.getCova(0))
 ref2 = Qop.extractDiag()
 checkpointOp = str((time.time() - start_time))
-print("Time Matrix-free version =",checkpointOp)
+if print_Time:
+    print("Time Matrix-free version =",checkpointOp)
 
 # Comparing the two resulting vectors
 if gl.VH.isEqualExtended(ref1, ref2, string="Vector are not equal"):
@@ -91,5 +97,6 @@ start_time = time.time()
 Qop = gl.PrecisionOp(mesh, model.getCova(0))
 ref = Qop.extractDiag()
 checkpointOp3D = str((time.time() - start_time))
-print("Time Matrix-free version =",checkpointOp3D)
+if print_Time:
+    print("Time Matrix-free version =",checkpointOp3D)
 

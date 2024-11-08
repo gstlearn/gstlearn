@@ -501,7 +501,6 @@ int SPDE::compute(Db *dbout,
     namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
                                 "estim", 1);
 
-
     // Standard Deviation using Monte-Carlo simulations
     VectorDouble temp_mean(dbout->getSampleNumber(true), 0.);
     VectorDouble temp_mean2(dbout->getSampleNumber(true), 0.);

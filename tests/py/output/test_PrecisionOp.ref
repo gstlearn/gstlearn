@@ -11,16 +11,15 @@ Using the Matrix-free version
  0.36030911 0.69837521 0.3343359 ]
 --> Vectors are identical
 
+Note: Time is not printed in order not to generate conflicts in non-regression files)
+
 Large Data Set
 ==============
 (Based on the Turbo Meshing derived from a 350 x 350 grid)
 Number of apices =  122500
-Time with explicit Matrix = 0.7764256000518799
-Time Matrix-free version = 1.1029164791107178
 --> Vectors are identical
 
 3-D Data Set
 ============
 (Based on the Turbo Meshing derived from a 50 x 50 x 50 grid)
 Number of apices =  125000
-Time Matrix-free version = 4.163537979125977
