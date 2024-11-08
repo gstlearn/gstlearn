@@ -1,0 +1,26 @@
+
+Small Data Set
+==============
+(Based on the Turbo Mahing derived from a 3 x 3 grid)
+Number of apices =  9
+Using the version with explicit Matrix
+[0.3343359  0.69837521 0.36030911 0.69837521 1.41913158 0.69837521
+ 0.36030911 0.69837521 0.3343359 ]
+Using the Matrix-free version
+[0.3343359  0.69837521 0.36030911 0.69837521 1.41913158 0.69837521
+ 0.36030911 0.69837521 0.3343359 ]
+--> Vectors are identical
+
+Large Data Set
+==============
+(Based on the Turbo Meshing derived from a 350 x 350 grid)
+Number of apices =  122500
+Time with explicit Matrix = 0.7764256000518799
+Time Matrix-free version = 1.1029164791107178
+--> Vectors are identical
+
+3-D Data Set
+============
+(Based on the Turbo Meshing derived from a 50 x 50 x 50 grid)
+Number of apices =  125000
+Time Matrix-free version = 4.163537979125977
