@@ -742,7 +742,7 @@ double CalcSimuTurningBands::_power1DInit(int ibs,
   static double alpha_mem = -1.;
 
   double param = getModel()->getParam(is);
-  if (ibs == 0 || ! areEqual(param,alpha_mem))
+  if (ibs == 0 || ! isEqual(param,alpha_mem))
   {
     double scale = _getCodirScale(ibs);
     as2 = param / 2.;

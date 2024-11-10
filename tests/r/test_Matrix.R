@@ -162,31 +162,31 @@ V1   = MSP$getDiagonal()
 
 print(paste0("Main Diagonal:"))
 print(Vref)
-print(paste0("Are results for MRR and MSP similar: ", VectorHelper_isSame(Vref, V1)))
+print(paste0("Are results for MRR and MSP similar: ", VectorHelper_isEqual(Vref, V1)))
 
 Vref = MRR$getDiagonal(1)
 V1   = MSP$getDiagonal(1)
 print(paste0("Second Diagonal Below:"))
 print(Vref)
-print(paste0("Are results for MRR and MSP similar: ", VectorHelper_isSame(Vref, V1)))
+print(paste0("Are results for MRR and MSP similar: ", VectorHelper_isEqual(Vref, V1)))
 
 Vref = MRR$getDiagonal(-2)
 V1   = MSP$getDiagonal(-2)
 print(paste0("Third Diagonal Above:"))
 print(Vref)
-print(paste0("Are results for MRR and MSP similar: ", VectorHelper_isSame(Vref, V1)))
+print(paste0("Are results for MRR and MSP similar: ", VectorHelper_isEqual(Vref, V1)))
 
 Vref = MRR$getRow(2)
 V1   = MSP$getRow(2)
 print(paste0("Third Row:"))
 print(Vref)
-print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V1)))
+print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isEqual(Vref, V1)))
 
 Vref = MRR$getColumn(3)
 V1   = MSP$getColumn(3)
 print(paste0("Fourth Column:"))
 print(Vref)
-print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V1)))
+print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isEqual(Vref, V1)))
 
 #
 # Product of the matrix by a vector
@@ -201,11 +201,11 @@ V2   = VectorDouble(nrow)
 
 err = MRR$prodMatVecInPlace(V1, Vref)
 err = MSG$prodMatVecInPlace(V1, V2)
-print(paste0("Are results for MRR and MSG similar: ",  VectorHelper_isSame(Vref, V2)))
+print(paste0("Are results for MRR and MSG similar: ",  VectorHelper_isEqual(Vref, V2)))
 err = MSS$prodMatVecInPlace(V1, V2)
-print(paste0("Are results for MRR and MSS similar: ",  VectorHelper_isSame(Vref, V2)))
+print(paste0("Are results for MRR and MSS similar: ",  VectorHelper_isEqual(Vref, V2)))
 err = MSP$prodMatVecInPlace(V1, V2)
-print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V2)))
+print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isEqual(Vref, V2)))
 
 #
 # Linear solver
@@ -218,11 +218,11 @@ print(paste0("Solve X from A*X=B. Compute A*X and compare with B"))
 
 err = MSS$solve(b = V1, x = V2)
 err = MSS$prodMatVecInPlace(V2, V3)
-print(paste0("Are results correct for MSS: ",  VectorHelper_isSame(V1, V3)))
+print(paste0("Are results correct for MSS: ",  VectorHelper_isEqual(V1, V3)))
 
 err = MSP$solve(b = V1, x = V2)
 err = MSP$prodMatVecInPlace(V2, V3)
-print(paste0("Are results correct for MSP: ", VectorHelper_isSame(V1, V3)))
+print(paste0("Are results correct for MSP: ", VectorHelper_isEqual(V1, V3)))
 
 #
 # Inversion

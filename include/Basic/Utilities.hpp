@@ -38,11 +38,18 @@ GSTLEARN_EXPORT bool   isOdd(int number);
 GSTLEARN_EXPORT bool   isEven(int number);
 GSTLEARN_EXPORT bool   isZero(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT bool   isOne(double value, double eps = EPSILON10);
-GSTLEARN_EXPORT bool   areEqual(double v1, double v2, double eps = EPSILON10);
+GSTLEARN_EXPORT bool   isEqual(double v1, double v2, double eps = EPSILON10);
 GSTLEARN_EXPORT double getMin(double val1, double val2);
 GSTLEARN_EXPORT double getMax(double val1, double val2);
 GSTLEARN_EXPORT double ut_deg2rad(double angle);
 GSTLEARN_EXPORT double ut_rad2deg(double angle);
+
+GSTLEARN_EXPORT bool isEqualExtended(double v1,
+                                     double v2,
+                                     double eps           = EPSILON10,
+                                     bool flagRelative    = true,
+                                     bool flagAbsolute    = false,
+                                     const String& string = "");
 
 // No need this stuff through SWIG (because we use target language NAs)
 #ifndef SWIG

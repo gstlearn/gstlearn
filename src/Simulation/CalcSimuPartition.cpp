@@ -232,7 +232,7 @@ double CalcSimuPartition::_stackSearch(const std::vector<Stack> &stacks,
 {
   for (int i = 0; i < (int) stacks.size(); i++)
   {
-    if (areEqual(stacks[i].valref,valref)) return stacks[i].valsim;
+    if (isEqual(stacks[i].valref,valref)) return stacks[i].valsim;
   }
   return TEST;
 }

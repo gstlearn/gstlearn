@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   cholSparse.LX(vecout, vecout1);
   cholDense.LtX(vecin, vecout);
   cholDense.LX(vecout, vecout2);
-  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecref, vecout1))
+  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecref, vecout1))
     message(">>> Function 'LLt' is validated\n");
   else
   {
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 
   cholSparse.solve(vecin, vecout1);
   cholDense.solve(vecin, vecout2);
-  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecref, vecout1))
+  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecref, vecout1))
     message(">>> Function 'solve' is validated\n");
   else
   {
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   cholDense.LX(vecin, vecout);
   cholDense.InvLX(vecout, vecout2);
 
-  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecout1, vecin))
+  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecout1, vecin))
     message(">>> Function 'InvLX(LX)' is validated\n");
   else
   {
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   cholDense.InvLtX(vecin, vecout);
   cholDense.LtX(vecout, vecout2);
 
-  if (VH::isSame(vecout1, vecout2) && VH::isSame(vecout1, vecin))
+  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecout1, vecin))
     message(">>> Function 'LtX(InvLtX)' is validated\n");
   else
   {
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
   CholeskySparse Qchol(M2);
   Qchol.stdev(vecout2, false);
 
-  if (VH::isSame(vecout1b, vecout2))
+  if (VH::isEqual(vecout1b, vecout2))
     message(">>> Function 'stdev' is validated\n");
   else
   {

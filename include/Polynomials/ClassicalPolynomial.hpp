@@ -61,6 +61,7 @@ public:
   void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
   void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
   void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
+  double evalOpByRank(MatrixSparse* S, int rank) const override;
 #endif
   
 #ifndef SWIG

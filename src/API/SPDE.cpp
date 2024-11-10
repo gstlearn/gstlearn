@@ -501,7 +501,6 @@ int SPDE::compute(Db *dbout,
     namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr,
                                 "estim", 1);
 
-
     // Standard Deviation using Monte-Carlo simulations
     VectorDouble temp_mean(dbout->getSampleNumber(true), 0.);
     VectorDouble temp_mean2(dbout->getSampleNumber(true), 0.);
@@ -959,7 +958,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_verr = (nverr > 0);
   bool flag_isotopic = true;
   for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)
-    if (! VH::isSame(index1[ivar], index1[0])) flag_isotopic = false;
+    if (! VH::isEqual(index1[ivar], index1[0])) flag_isotopic = false;
   bool flag_uniqueVerr = true;
   VectorDouble verrDef(nverr, 0.);
   if (flag_verr)

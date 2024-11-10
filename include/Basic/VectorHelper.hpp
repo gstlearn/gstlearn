@@ -80,10 +80,16 @@ public:
 
   static bool isConstant(const VectorDouble& vect, double refval = TEST);
   static bool isConstant(const VectorInt& vect, int refval = ITEST);
-  static bool isSame(const VectorDouble &v1,
+  static bool isEqual(const VectorDouble &v1,
                      const VectorDouble &v2,
                      double eps = EPSILON10);
-  static bool isSame(const VectorInt &v1, const VectorInt &v2);
+  static bool isEqual(const VectorInt& v1, const VectorInt& v2);
+  static bool isEqualExtended(const VectorDouble& v1,
+                              const VectorDouble& v2,
+                              double eps           = EPSILON10,
+                              bool flagRelative    = true,
+                              bool flagAbsolute    = false,
+                              const String& string = "");
 
   static VectorInt sequence(int number, int ideb = 0, int step = 1);
   static VectorDouble sequence(double valFrom,

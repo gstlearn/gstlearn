@@ -883,7 +883,7 @@ bool VectorHelper::isConstant(const VectorInt& vect, int refval)
   return true;
 }
 
-bool VectorHelper::isSame(const VectorDouble &v1, const VectorDouble &v2, double eps)
+bool VectorHelper::isEqual(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
   VectorDouble::const_iterator it1(v1.begin());
@@ -897,7 +897,7 @@ bool VectorHelper::isSame(const VectorDouble &v1, const VectorDouble &v2, double
   return true;
 }
 
-bool VectorHelper::isSame(const VectorInt &v1, const VectorInt &v2)
+bool VectorHelper::isEqual(const VectorInt &v1, const VectorInt &v2)
 {
   if (v1.size() != v2.size()) return false;
   VectorInt::const_iterator it1(v1.begin());
@@ -2710,4 +2710,67 @@ VectorDouble VectorHelper::sample(const VectorDouble& vecin,
   for (int i = 0; i < nindices; i++)
       vecout[i] = vecin[indices[i]];
   return vecout;
+}
+
+/**
+ * @brief Function checking that two values are equal
+ * This verbose option is essentially used in tests
+ *
+ * @param v1 First value to be compared
+ * @param v2  Second value to be compared
+ * @param eps Tolerance used for comparison
+ * @param flagRelative when True, the values are compared without paying
+ * attention to their sign
+ * @param flagAbsolute when True, test is run on absolute difference
+ * @param string Message to be displayed when the vectors are not similar
+ * @return Boolean
+ *
+ * @note: When the two vectors do not share the same dimension, the test is not
+ * performed and a message is printed.
+ */
+bool VectorHelper::isEqualExtended(const VectorDouble& v1,
+                                   const VectorDouble& v2,
+                                   double eps,
+                                   bool flagRelative,
+                                   bool flagAbsolute,
+                                   const String& string)
+{
+  // Check that the two vectors have the same dimension
+  if (v1.size() != v2.size())
+  {
+    if (!string.empty()) message("%s : ", string.c_str());
+    message("Impossible to compare vectors of different dimensions\n");
+    return false;
+  }
+  int size = (int)v1.size();
+  VectorDouble vec1 = v1;
+  VectorDouble vec2 = v2;
+  
+  // Check is performed on the absolute value of each term of each vector
+  if (flagAbsolute)
+  {
+    for (int i = 0; i < size; i++)
+    {
+      vec1[i] = ABS(vec1[i]);
+      vec2[i] = ABS(vec2[i]);
+    }
+  }
+
+  // Evaluate the comparison test
+  double diff = 0.;
+  for (int i = 0; i < size; i++)
+  {
+    double value = (vec1[i] - vec2[i]);
+    if (flagRelative) value /= (vec1[i] + vec2[i] + eps);
+    diff += value * value;
+  }
+  diff = sqrt(diff) / size;
+
+  if (diff >= eps)
+  {
+    if (!string.empty()) message("%s : ", string.c_str());
+    message("Experimental value = %lf is larger than tolerance (%lf)\n", diff, eps);
+    return false;
+  }
+  return true;
 }

@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Enum/EOperator.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
 
 ClassicalPolynomial::ClassicalPolynomial()
@@ -146,6 +148,36 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
       outv[i] = _coeffs[j] * inv[i] + work[i];
     }
   }
+}
+
+/**
+ * @brief Returns the rank-th term of the Diagonal of 'Op'
+ * in its Polynomail expression through Horner mechanism
+ * It is similar to the method 'evalOp' but targets the diagonal only
+ * 
+ * @param S Target Sparse matrix (possibly not even concretized)
+ * @param rank Rank of the target
+ * @return double 
+ */
+double ClassicalPolynomial::evalOpByRank(MatrixSparse* S, int rank) const
+{
+  int degree = (int)_coeffs.size();
+  
+  MatrixSparse* work = S->getColumnAsMatrixSparse(rank, _coeffs.back());
+  MatrixSparse* outv = nullptr;
+  for (int j = degree - 2; j >= 0; j--)
+  {
+    if (j != degree - 2) work->prodMatMatInPlace(S, outv);
+    if (j == 0) break;
+    delete outv;
+    outv = work->clone();
+    outv->setValue(rank, 0, outv->getValue(rank, 0) + _coeffs[j]);
+  }
+
+  double retval = work->getValue(rank,0) + _coeffs[0];
+  delete outv;
+  delete work;
+  return retval;
 }
 
 // Classical Hörner scheme starting from the highest degree

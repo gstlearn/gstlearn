@@ -70,9 +70,12 @@ public:
   /*! Modifies the contents of a matrix cell */
   void updValue(int irow,
                 int icol,
-                const EOperator &oper,
+                const EOperator& oper,
                 double value,
                 bool flagCheck = true) override;
+
+  MatrixSparse* getRowAsMatrixSparse(int irow, double coeff = 1.) const;
+  MatrixSparse* getColumnAsMatrixSparse(int icol, double coeff = 1.) const;
 
 #ifndef SWIG
   int addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
@@ -291,7 +294,6 @@ GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
 /// Manage global flag for EIGEN
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
-
 
 // Not exported method
 

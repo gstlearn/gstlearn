@@ -107,10 +107,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
     double getMaxEigenValue() const;
-    MatrixSparse* getS() const
-    {
-      return _S;
-    }
+    MatrixSparse* getS() const { return _S; }
     MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
     MatrixSparse* getSGrad(int iapex, int igparam) const;
 
