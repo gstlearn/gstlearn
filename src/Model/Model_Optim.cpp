@@ -102,7 +102,8 @@ int Model_Optim::fit(Model* model, int wmode)
   // Define the cost function
   nlopt_set_min_objective(opt, evalCost, &_algorithm);
 
-  double minf; // minimum value of the objective function
+  // Perform the optimization (store the minimized value in 'minf')
+  double minf;
   nlopt_optimize(opt, _tabval.data(), &minf);
   return 0;
 }
