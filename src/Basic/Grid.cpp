@@ -475,9 +475,9 @@ VectorDouble Grid::indicesToCoordinate(const VectorInt& indice,
   return _work1;
 }
 
-void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
-                                      VectorDouble& coor,
-                                      const VectorDouble& percent,
+void Grid::indicesToCoordinateInPlace(const constvectint indice,
+                                      const vect coor,
+                                      const constvect percent,
                                       bool flag_rotate) const
 {
   if ((int)coor.size() < _nDim)
@@ -817,7 +817,7 @@ void Grid::iteratorInit(const VectorInt& order)
       {
         messerr("When provided, 'order' should contain all Space dimensions. Iterator cancelled.");
         _iter = 0;
-        _counts = VectorInt();
+        _counts = {};
         _order = VectorInt();
         return;
       }
@@ -837,11 +837,19 @@ void Grid::iteratorInit(const VectorInt& order)
  */
 VectorInt Grid::iteratorNext(void)
 {
+
+  VectorInt indices(_nDim);
+  iteratorNext(indices.getVector());
+  return indices;
+}
+
+void Grid::iteratorNext(std::vector<int>& indices)
+{
   int idim;
   int iech = _iter;
   int nval = _nprod;
 
-  VectorInt indices(_nDim);
+  indices.resize(_nDim);
   for (int jdim = _nDim - 1; jdim >= 0; jdim--)
   {
     int order = _order[jdim];
@@ -854,7 +862,6 @@ VectorInt Grid::iteratorNext(void)
 
   // Increment the iterator
   if (_iter < _nprod - 1) _iter++;
-  return indices;
 }
 
 bool Grid::empty() const

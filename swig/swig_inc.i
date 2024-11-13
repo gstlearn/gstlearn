@@ -835,4 +835,12 @@
   {
     return $self->rankToIndice(rank, indices.getVector(), minusOne);
   }
+
+  void indicesToCoordinateInPlace(const VectorInt& indice,
+                                  VectorDouble& coor,
+                                  const VectorDouble& percent = VectorDouble(),
+                                  bool flag_rotate=true) const
+  {
+    return $self->indicesToCoordinateInPlace(indice, coor, percent, flag_rotate);
+  }
 };
