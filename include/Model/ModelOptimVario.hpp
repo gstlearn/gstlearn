@@ -10,90 +10,81 @@
 /******************************************************************************/
 #pragma once
 
-
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Model/ModelOptim.hpp"
 
 class Model;
 class Vario;
-
-typedef struct
-{
-  int _ivar;
-  int _jvar;
-  double _weight;
-  double _gg;
-  SpacePoint _P;
-} OneLag;
-
-typedef struct
-{
-  int _icov;
-  int _type;
-  int _rank;
-} OneParam;
-
-typedef struct
-{
-  // Pointer to the Model structure (updated by algorithm()
-  Model* _model;
-
-  // Experimental quantities
-  std::vector<OneLag> _lags;
-
-  // Model parametrization
-  std::vector<OneParam> _params;
-} Algorithm;
 
 /**
  * \brief
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT Model_Optim
+class GSTLEARN_EXPORT ModelOptimVario: public ModelOptim
 {
 public:
-  Model_Optim(const Vario* vario = nullptr);
-  Model_Optim(const Model_Optim& m);
-  Model_Optim& operator=(const Model_Optim& m);
-  virtual ~Model_Optim();
+  ModelOptimVario();
+  ModelOptimVario(const ModelOptimVario& m);
+  ModelOptimVario& operator=(const ModelOptimVario& m);
+  virtual ~ModelOptimVario();
 
-  int fit(Model* model, int wmode = 2);
+  typedef struct
+  {
+    int _ivar;
+    int _jvar;
+    double _weight;
+    double _gg;
+    SpacePoint _P;
+  } OneLag;
+
+  typedef struct
+  {
+    // Pointer to the Vario structure
+    const Vario* _vario;
+
+    int _wmode;
+
+    // Experimental quantities
+    std::vector<OneLag> _lags;
+
+  } Vario_Part;
+
+  typedef struct
+  {
+    // Part of the structure dedicated to the Model
+    Model_Part& _modelPart;
+
+    // Part relative to the Experimental variograms
+    Vario_Part& _varioPart;
+
+  } AlgorithmVario;
+
+  int fit(const Vario* vario, Model* model, int wmode = 2, bool verbose = false);
 
   static double evalCost(unsigned int nparams,
                          const double* current,
                          double* grad,
                          void* my_func_data);
 
-  Model* getModel();
-
 private:
   int _buildExperimental();
-  int _buildModelParamList();
-  bool _isLagCorrect(int idir, int k);
-  double _getC00(int idir, int ivar, int jvar);
+  bool _isLagCorrect(int idir, int k) const;
+  double _getC00(int idir, int ivar, int jvar) const;
   VectorDouble _computeWeight();
   VectorDouble _computeWeightPerDirection();
   int _getTotalLagsPerDirection() const;
+  int _getParamNumber() const { return (int) _modelPart._params.size(); }
 
-  static void _patchModel(Algorithm* algo, const double* current);
+  void _copyVarioPart(const Vario_Part& varioPart);
+  bool _checkConsistency();
 
-  OneLag
-  _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist);
-  void
-  _addOneModelParam(int icov, int type, int rank, double lbound, double ubound);
+  OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
 private:
-  const Vario* _vario;
-  int _wmode;
-
-  // Model parametrization
-  VectorDouble _tabval;
-  VectorDouble _tablow;
-  VectorDouble _tabupp;
-
-  // Minimization algorithm
-  Algorithm _algorithm;
+  // Part relative to the Experimental variograms
+  Vario_Part _varioPart;
 };

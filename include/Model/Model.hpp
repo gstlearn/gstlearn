@@ -376,7 +376,7 @@ public:
     if (_cova == nullptr) return MatrixRectangular();
     return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
   }
-  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
+  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
                                                int ivar0 = -1,
                                                const VectorInt &nbgh1 = VectorInt(),
                                                const CovCalcMode *mode = nullptr)
@@ -682,7 +682,7 @@ public:
                         double factor = 1.,
                         const CovCalcMode *mode = nullptr);
 
-  double computeLogLikelihood(Db* db, bool verbose = false);
+  double computeLogLikelihood(const Db* db, bool verbose = false);
 
 protected:
   /// Interface to ASerializable

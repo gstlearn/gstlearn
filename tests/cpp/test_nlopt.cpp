@@ -24,7 +24,8 @@
 #include "Db/DbStringFormat.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Model/Model_Optim.hpp"
+#include "Model/ModelOptimVario.hpp"
+#include "Model/ModelOptimLikelihood.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
@@ -79,6 +80,7 @@ static void _firstTest()
 static void _secondTest()
 {
   bool verbose = true;
+  bool converge = true;
 
   // Creating the Model
   double sill_nugget = 2.;
@@ -104,19 +106,54 @@ static void _secondTest()
   double dpas = 0.3 / npas;
   VarioParam* varioparam = VarioParam::createOmniDirection(npas, dpas);
   Vario* vario           = Vario::computeFromDb(*varioparam, db);
-  (void)vario->dumpToNF("vario.ascii");
+  (void)vario->dumpToNF("vario2.ascii");
   if (verbose) vario->display();
 
   // Fit the Model
-  Model_Optim model_opt(vario);
-  model_opt.fit(model, 2);
-  (void) model->dumpToNF("model.ascii");
+  ModelOptimVario model_opt;
+  model_opt.fit(vario, model, 2, converge);
+  (void) model->dumpToNF("model2.ascii");
   if (verbose) model->display();
 
   delete model;
   delete db;
   delete varioparam;
   delete vario;
+}
+
+static void _thirdTest()
+{
+  bool verbose = true;
+  bool converge = true;
+
+  // Creating the Model
+  double sill_nugget = 2.;
+  Model* model       = new Model();
+  ;
+  model->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
+  double range_spherical = 0.2;
+  double sill_spherical  = 3.;
+  model->addCovFromParam(ECov::SPHERICAL, range_spherical, sill_spherical);
+  if (verbose) model->display();
+
+  // Creating the Data set
+  int nech = 500.;
+  Db* db   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
+  (void)simtub(nullptr, db, model);
+  if (verbose)
+  {
+    DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, true, true);
+    db->display(dbfmt);
+  }
+
+  // Fit the Model
+  ModelOptimLikelihood model_opt;
+  model_opt.fit(db, model, converge);
+  (void)model->dumpToNF("model3.ascii");
+  if (verbose) model->display();
+
+  delete model;
+  delete db;
 }
 
 int main(int argc, char *argv[])
@@ -127,11 +164,13 @@ int main(int argc, char *argv[])
     ASerializable::setContainerName(true);
     ASerializable::setPrefixName("NlOpt-");
 
-    int mode = 2;
+    int mode = 3;
 
     if (mode == 0 || mode == 1) _firstTest();
 
     if (mode == 0 || mode == 2) _secondTest();
-    
+
+    if (mode == 0 || mode == 3) _thirdTest();
+
     return 0;
 }

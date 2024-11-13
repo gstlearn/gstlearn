@@ -1,0 +1,58 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.000
+Spherical
+- Sill         =      3.000
+- Range        =      0.200
+Total Sill     =      5.000
+Known Mean(s)     0.000
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 500
+
+Data Base Extension
+-------------------
+Coor #1 - Min =      0.004 - Max =      1.000 - Ext = 0.995776
+Coor #2 - Min =      0.002 - Max =      0.999 - Ext = 0.997674
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = Simu - Locator = z1
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =        N/A
+Spherical
+- Sill         =        N/A
+- Range        =      0.010
+Total Sill     =        N/A
+Known Mean(s)     0.000
