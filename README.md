@@ -272,7 +272,7 @@ cd C:\NLopt_src\nlopt
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=C:/NLopt
-cmake --build . --target install
+cmake --build . --config Release --target install
 ```
 
 ##### Update the Path environment variable
