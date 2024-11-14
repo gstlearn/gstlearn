@@ -53,16 +53,6 @@ public:
 
   } Vario_Part;
 
-  typedef struct
-  {
-    // Part of the structure dedicated to the Model
-    Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
-    Vario_Part& _varioPart;
-
-  } AlgorithmVario;
-
   int fit(const Vario* vario, Model* model, int wmode = 2, bool verbose = false);
 
   static double evalCost(unsigned int nparams,

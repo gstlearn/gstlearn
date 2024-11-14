@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/VectorNumT.hpp"
 #include "Model/ModelOptim.hpp"
 
 class Model;
@@ -33,22 +32,16 @@ public:
 
   typedef struct
   {
+    // If TRUE: use SPDE approach
+    // otherwise: use the Covariance Matrix approach
+    bool _flagSPDE;
+
     // Pointer to the Vario structure
-    const Db* _db;
+    Db* _db;
 
   } Db_Part;
 
-  typedef struct
-  {
-    // Part of the structure dedicated to the Model
-    Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
-    Db_Part& _dbPart;
-
-  } AlgorithmLikelihood;
-
-  int fit(const Db* db, Model* model, bool verbose = false);
+  int fit(Db* db, Model* model, bool flagSPDE = false, bool verbose = false);
 
   static double evalCost(unsigned int nparams,
                          const double* current,

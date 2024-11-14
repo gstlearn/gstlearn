@@ -101,7 +101,7 @@ public:
   void   setCovList(const ACovAnisoList* covalist);
   void   addCov(const CovAniso* cov);
   void   addCovFromParam(const ECov& type,
-                         double range = 0.,
+                         double range = EPSILON6,
                          double sill = 1.,
                          double param = 1.,
                          const VectorDouble& ranges = VectorDouble(),

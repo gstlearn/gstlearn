@@ -20,6 +20,16 @@
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
+typedef struct
+{
+  // Part of the structure dedicated to the Model
+  ModelOptim::Model_Part& _modelPart;
+
+  // Part relative to the Experimental variograms
+  ModelOptimVario::Vario_Part& _varioPart;
+
+} AlgorithmVario;
+
 ModelOptimVario::ModelOptimVario()
   : ModelOptim()
   , _varioPart()
@@ -89,16 +99,18 @@ int ModelOptimVario::fit(const Vario* vario, Model* model, int wmode, bool verbo
   // Check consistency
   if (! _checkConsistency()) return 1;
 
-  // Perform the optimization
-  int npar = _getParamNumber();
+    
+    // Define the optimization criterion
+  int npar    = _getParamNumber();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
-
-  // Define the bounds
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
 
-  // Define the cost function
-  AlgorithmVario algorithm{_modelPart, _varioPart};
+  // Update the initial optimization values (due to variogram)
+  updateModelParamList(vario->getMaximumDistance(), vario->getVarMatrix());
+
+    // Define the cost function
+  AlgorithmVario algorithm {_modelPart, _varioPart};
   nlopt_set_min_objective(opt, evalCost, &algorithm);
 
   // Perform the optimization (store the minimized value in 'minf')
@@ -245,12 +257,6 @@ bool ModelOptimVario::_isLagCorrect(int idir, int k) const
   return !FFFF(gg);
 }
 
-/*****************************************************************************/
-/*!
- **  Calculates the weighting factors for each experimental variogram
- **  value of each directional variogram
- **
- *****************************************************************************/
 VectorDouble ModelOptimVario::_computeWeight()
 {
   int ipadir;
@@ -467,11 +473,6 @@ VectorDouble ModelOptimVario::_computeWeight()
   return wt;
 }
 
-/*****************************************************************************/
-/*!
- **  Calculates the sum of weighting factors per direction
- **
- *****************************************************************************/
 VectorDouble ModelOptimVario::_computeWeightPerDirection()
 {
   const Vario* vario = _varioPart._vario;
@@ -521,15 +522,14 @@ int ModelOptimVario::_getTotalLagsPerDirection() const
 
 double ModelOptimVario::evalCost(unsigned int nparams,
                                  const double* current,
-                                 double* grad,
+                                 double* /*grad*/,
                                  void* my_func_data)
 {
   DECLARE_UNUSED(nparams);
-  DECLARE_UNUSED(grad);
-  AlgorithmVario* algorithm = (AlgorithmVario*)(my_func_data);
+  AlgorithmVario* algorithm = static_cast<AlgorithmVario*>(my_func_data);
   if (algorithm == nullptr) return TEST;
-  Model_Part modelPart = algorithm->_modelPart;
-  Vario_Part varioPart = algorithm->_varioPart;
+  Model_Part& modelPart = algorithm->_modelPart;
+  Vario_Part& varioPart = algorithm->_varioPart;
   
   // Update the Model
   _patchModel(modelPart, current);
@@ -548,7 +548,7 @@ double ModelOptimVario::evalCost(unsigned int nparams,
     double delta = vexp - vtheo;
     total += lag._weight * delta * delta;
   }
-  if (modelPart._verbose) message("Cost Function = %lf\n", total);
+  _printResult("Cost Function (Variogram Fit)", modelPart, total);
   
   return total;
 }

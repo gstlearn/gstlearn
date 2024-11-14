@@ -349,10 +349,10 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc *_cova;                     /// Covariance basic function
-  mutable MatrixSquareSymmetric _sill;                                /// Sill matrix (nvar x nvar)
-  mutable Tensor _aniso;                       /// Anisotropy parameters
+  mutable MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
+  mutable Tensor _aniso;               /// Anisotropy parameters
   TabNoStatCovAniso _tabNoStat;
-  mutable double _noStatFactor;                /// Correcting factor for non-stationarity
+  mutable double _noStatFactor;        /// Correcting factor for non-stationarity
   const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
                                               EConsElem::SCALE,
                                               EConsElem::TENSOR,

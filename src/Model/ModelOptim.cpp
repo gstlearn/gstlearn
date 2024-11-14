@@ -17,7 +17,9 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 
+#include <cmath>
 #include <nlopt.h>
 
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
@@ -82,11 +84,12 @@ int ModelOptim::_buildModelParamList()
       // Add the 'Range' (scalar) attribute
       _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
     }
-    if (cova->hasParam())
-    {
-      // Add the 'Param' (scalar) attribute
-      _addOneModelParam(icov, EConsElem::PARAM, 0, 0., 2.);
-    }
+    // TODO: inference of PARAM is deactivated (DR on 2024/11/14)
+    // if (cova->hasParam())
+    // {
+    //   // Add the 'Param' (scalar) attribute
+    //   _addOneModelParam(icov, EConsElem::PARAM, 0, 0., 2.);
+    // }
 
     // Add the 'Sill' (vectorial)attribute
     int ijvar = 0;
@@ -107,11 +110,12 @@ void ModelOptim::_addOneModelParam(int icov,
   param._icov = icov;
   param._type = type;
   param._rank = rank;
+  param._scale = 1.;
   _modelPart._params.push_back(param);
   _modelPart._tabval.push_back(1.);
-  if (FFFF(lbound)) lbound = -1.e30;
+  if (FFFF(lbound)) lbound = -HUGE_VAL;
   _modelPart._tablow.push_back(lbound);
-  if (FFFF(ubound)) ubound = 1.e30;
+  if (FFFF(ubound)) ubound = +HUGE_VAL;
   _modelPart._tabupp.push_back(ubound);
 }
 
@@ -158,4 +162,91 @@ void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
       cova->setParam(current[iparam++]);
     }
   }
+
+  // Add 1 to the internal counter
+  modelPart._niter++;
+}
+
+void ModelOptim::updateModelParamList(double hmax,
+                                      const MatrixSquareSymmetric& vars)
+{
+  double value = TEST;
+  double scale = 1.;
+  int nparams  = _getParamNumber();
+  Model* model = _modelPart._model;
+  int ncov     = model->getCovaNumber(true);
+
+  // Cholesky decomposition of the matrix of variances
+  CholeskyDense cholesky(&vars);
+  VectorDouble varchol = cholesky.getLowerTriangle();
+
+    for (int iparam = 0; iparam < nparams; iparam++)
+  {
+    OneParam& param      = _modelPart._params[iparam];
+    int icov             = param._icov;
+    const CovAniso* cova = model->getCova(icov);
+
+    switch (param._type.toEnum())
+    {
+      case EConsElem::E_SILL:
+      {
+        value = varchol[param._rank] / sqrt(ncov);
+        scale = ABS(value);
+        break;
+      }
+
+      case EConsElem::E_RANGE:
+      {
+        double dunit = hmax / ncov / 2.;
+        value        = dunit * (icov + 1);
+        scale        = dunit;
+
+        break;
+      }
+
+      case EConsElem::E_PARAM:
+      {
+        value = 1.;
+        if (cova->getType() == ECov::COSEXP) value = hmax / 3.;
+        scale = 1.;
+        break;
+      }
+
+      case EConsElem::E_ANGLE:
+      {
+        value = 0.;
+        scale = 1800.;
+        break;
+      }
+
+        default: break;
+    }
+
+    _modelPart._tabval[iparam] = value;
+    param._scale = scale;
+  }
+}
+
+void ModelOptim::dumpParamList() const
+{
+  mestitle(1, "Model Optimization parameters");
+  int nparams = _getParamNumber();
+  for (int iparam = 0; iparam < nparams; iparam++)
+  {
+    _dumpOneModelParam(_modelPart._params[iparam], _modelPart._tabval[iparam]);
+  }
+}
+
+void ModelOptim::_dumpOneModelParam(const OneParam& param, double value)
+{
+  message("Covariance %d - Type = %s - Rank = %d - Scale = %lf - Current = %lf\n",
+    param._icov, param._type.getDescr().data(), param._rank, param._scale, value);
+}
+
+void ModelOptim::_printResult(const String& title,
+                              const Model_Part& modelPart,
+                              double result)
+{
+  if (!modelPart._verbose) return;
+  message("Iteration %3d - %s = %lf\n", modelPart._niter, title.c_str(), result);
 }

@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(13243);
-        (void) krigingSPDE(dat, grid, model, true, true, nullptr,
+        (void) krigingSPDE(dat, grid, model, nullptr, true, true, nullptr,
                            useCholesky, SPDEParam(), nbMC, verbose, showStats,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
+        (void) simulateSPDE(NULL, grid, model, nullptr, nsim, NULL, useCholesky,
                             SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
+        (void) simulateSPDE(dat, grid, model, nullptr, nsim, NULL, useCholesky,
                             SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);

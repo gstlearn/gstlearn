@@ -325,8 +325,8 @@ int main(int argc, char *argv[])
   law_set_random_seed(seed);
   int nsimu = 2;
   int useCholesky = 1;
-  (void) simulateSPDE(NULL, dbgrid, model2, nsimu, NULL, useCholesky,
-                      SPDEParam(),  verbose);
+  (void)simulateSPDE(NULL, dbgrid, model2, nullptr, nsimu, NULL, useCholesky,
+                     SPDEParam(), verbose);
 
   int rank = dbgrid->getColumnNumber();
   for (int i=0; i<nvertex; i++)

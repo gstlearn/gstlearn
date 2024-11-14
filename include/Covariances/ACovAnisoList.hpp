@@ -117,7 +117,7 @@ public:
   void               setType(int icov, const ECov& type);
   void               setParam(int icov, double value);
   void               setSill(int icov, int ivar, int jvar, double value);
-  void               setMarkovCoeffs(int icov, VectorDouble coeffs);
+  void               setMarkovCoeffs(int icov, const VectorDouble& coeffs);
   double             getParam(int icov) const;
   double             getRange(int icov) const;
   VectorDouble       getRanges(int icov) const;
@@ -162,7 +162,7 @@ protected:
 private:
   void _manage(const Db* db1,const Db* db2) const override;
   
-  bool _considerAllCovariances(const CovCalcMode* mode) const;
+  static bool _considerAllCovariances(const CovCalcMode* mode);
 
 #ifndef SWIG
 protected:

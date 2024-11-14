@@ -1,3 +1,4 @@
+Model used for simulating the Data
 
 Model characteristics
 =====================
@@ -11,64 +12,13 @@ Covariance Part
 ---------------
 Nugget Effect
 - Sill         =      2.000
-Spherical
+Matern (Third Parameter = 1)
 - Sill         =      3.000
-- Range        =      0.200
+- Range        =      0.250
+- Theo. Range  =      0.072
 Total Sill     =      5.000
 Known Mean(s)     0.000
-
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 4
-Total number of samples      = 500
-
-Data Base Extension
--------------------
-Coor #1 - Min =      0.004 - Max =      1.000 - Ext = 0.995776
-Coor #2 - Min =      0.002 - Max =      0.999 - Ext = 0.997674
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x-1 - Locator = x1
-Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = Simu - Locator = z1
-
-Variogram characteristics
-=========================
-Number of variable(s)       = 1
-Number of direction(s)      = 1
-Space dimension             = 2
-Variable(s)                 = [Simu]
-
-Variance-Covariance Matrix     4.774
-
-Direction #1
-------------
-Number of lags              = 10
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =      0.030
-Tolerance on distance       =     50.000 (Percent of the lag value)
-
-For variable 1
-      Rank    Npairs  Distance     Value
-         0    90.000     0.010     1.767
-         1   672.000     0.032     2.549
-         2  1322.000     0.061     3.208
-         3  1828.000     0.090     4.047
-         4  2422.000     0.121     4.457
-         5  2889.000     0.151     4.803
-         6  3198.000     0.180     5.379
-         7  3650.000     0.210     5.271
-         8  3788.000     0.240     5.157
-         9  4268.000     0.270     4.828
+Model used for simulating the Data
 
 Model characteristics
 =====================
@@ -81,9 +31,60 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.683
-Spherical
-- Sill         =      3.455
-- Range        =      0.192
-Total Sill     =      5.138
+- Sill         =      1.000
+Matern (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.000
+- Theo. Range  =      0.000
+Total Sill     =      2.000
+Known Mean(s)     0.000
+
+Minimization of a simple function
+=================================
+End optimization
+x = 1 5
+Minimum value of the objective inf
+
+Fitting a Model from a Variogram
+================================
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      1.908
+Matern (Third Parameter = 1)
+- Sill         =      1.704
+- Range        =      0.314
+- Theo. Range  =      0.091
+Total Sill     =      3.612
+Known Mean(s)     0.000
+
+Fitting a Model using Loglikelihood (Covariance)
+================================================
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.407
+Matern (Third Parameter = 1)
+- Sill         =      0.915
+- Range        =      0.406
+- Theo. Range  =      0.117
+Total Sill     =      3.321
 Known Mean(s)     0.000

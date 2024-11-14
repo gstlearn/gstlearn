@@ -21,7 +21,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Model/ModelOptimVario.hpp"
@@ -46,6 +45,7 @@ double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nu
 
 static void _firstTest()
 {
+  mestitle(0,"Minimization of a simple function");
   int npar      = 2;
   nlopt_opt opt = nlopt_create(NLOPT_LD_LBFGS, npar);
 
@@ -77,83 +77,40 @@ static void _firstTest()
   }
 }
 
-static void _secondTest()
+static void _secondTest(Db* db, Model* model, bool converge)
 {
-  bool verbose = true;
-  bool converge = true;
-
-  // Creating the Model
-  double sill_nugget = 2.;
-  Model* model = new Model();;
-  model->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
-  double range_spherical = 0.2;
-  double sill_spherical  = 3.;
-  model->addCovFromParam(ECov::SPHERICAL, range_spherical, sill_spherical);
-  if (verbose) model->display();
-
-  // Creating the Data set
-  int nech = 500.;
-  Db* db   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
-  (void) simtub(nullptr, db, model);
-  if (verbose)
-  {
-    DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, true, true);
-    db->display(dbfmt);
-  }
+  mestitle(0, "Fitting a Model from a Variogram");
 
   // Calculating the experimental variogram
+  double hmax = db->getExtensionDiagonal();
   int npas = 10;
-  double dpas = 0.3 / npas;
+  double dpas = hmax / 2. / npas;
   VarioParam* varioparam = VarioParam::createOmniDirection(npas, dpas);
   Vario* vario           = Vario::computeFromDb(*varioparam, db);
   (void)vario->dumpToNF("vario2.ascii");
-  if (verbose) vario->display();
 
   // Fit the Model
   ModelOptimVario model_opt;
   model_opt.fit(vario, model, 2, converge);
   (void) model->dumpToNF("model2.ascii");
-  if (verbose) model->display();
+  model->display();
 
-  delete model;
-  delete db;
   delete varioparam;
   delete vario;
 }
 
-static void _thirdTest()
+static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
 {
-  bool verbose = true;
-  bool converge = true;
-
-  // Creating the Model
-  double sill_nugget = 2.;
-  Model* model       = new Model();
-  ;
-  model->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
-  double range_spherical = 0.2;
-  double sill_spherical  = 3.;
-  model->addCovFromParam(ECov::SPHERICAL, range_spherical, sill_spherical);
-  if (verbose) model->display();
-
-  // Creating the Data set
-  int nech = 500.;
-  Db* db   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
-  (void)simtub(nullptr, db, model);
-  if (verbose)
-  {
-    DbStringFormat* dbfmt = DbStringFormat::createFromFlags(true, true, true);
-    db->display(dbfmt);
-  }
+  if (flagSPDE)
+    mestitle(0, "Fitting a Model using Loglikelihood (SPDE)");
+  else
+    mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
 
   // Fit the Model
   ModelOptimLikelihood model_opt;
-  model_opt.fit(db, model, converge);
+  model_opt.fit(db, model, flagSPDE, converge);
   (void)model->dumpToNF("model3.ascii");
-  if (verbose) model->display();
-
-  delete model;
-  delete db;
+  model->display();
 }
 
 int main(int argc, char *argv[])
@@ -164,13 +121,43 @@ int main(int argc, char *argv[])
     ASerializable::setContainerName(true);
     ASerializable::setPrefixName("NlOpt-");
 
-    int mode = 3;
+       // Creating the Model used to simulate the Data
+    double sill_nugget = 2.;
+    Model* model_simu  = new Model();
+    model_simu->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
+    double range1 = 0.25;
+    double sill1  = 3.;
+    double param1 = 1.;
+    model_simu->addCovFromParam(ECov::MATERN, range1, sill1, param1);
+    message("Model used for simulating the Data\n");
+    model_simu->display();
+
+    // Data set
+    int nech = 100;
+    Db* db   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
+    (void)simtub(nullptr, db, model_simu);
+    (void)db->dumpToNF("db.ascii");
+
+    // Creating the testing Model
+    Model* model_test  = new Model();
+    model_test->addCovFromParam(ECov::NUGGET);
+    model_test->addCovFromParam(ECov::MATERN);
+    // model_test->setDriftIRF(0);
+    message("Model used for simulating the Data\n");
+    model_test->display();
+
+    // Optimization tests
+    int mode      = 0;
+    bool converge = false;
+    bool flagSPDE = false;
 
     if (mode == 0 || mode == 1) _firstTest();
 
-    if (mode == 0 || mode == 2) _secondTest();
+    if (mode == 0 || mode == 2) _secondTest(db, model_test, converge);
 
-    if (mode == 0 || mode == 3) _thirdTest();
+    if (mode == 0 || mode == 3) _thirdTest(db, model_test, flagSPDE, converge);
 
+    delete db;
+    delete model_simu;
     return 0;
 }

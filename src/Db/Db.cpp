@@ -3465,7 +3465,6 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
   VectorInt jvars = ivars;
   if (jvars.empty()) jvars = VH::sequence(nvar);
 
-  int lec = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     const VectorInt& local = index[ivar];
@@ -3473,7 +3472,6 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
     {
       if (VH::isInList(jvars, ivar) && VH::isInList(nbgh, iech))
         vec.push_back(ivar);
-      lec++;
     }
   }
   return vec;

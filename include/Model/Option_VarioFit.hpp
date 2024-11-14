@@ -23,8 +23,6 @@
  *                  if their importance is considered as too small.
  *                  The current option forbids this simplification, which ensures
  *                  that all the basic structures are kept and their number remains unchanged.
- * - flag_ckec_bounds: Do not infer one parameter as soon as the two corresponding
- *                  bounds are equal.
  * - flag_goulard_used: This very efficient algorithm can be used for inferring
  *                  the sill matrix for each basic structure. This option can be
  *                  switched OFF on purpose (and replaced by the FOXLEG algorithm).
@@ -55,8 +53,6 @@ class GSTLEARN_EXPORT Option_VarioFit : public AStringable
   void setAuthAniso(bool authAniso) { _auth_aniso = authAniso; }
   bool getAuthRotation() const { return _auth_rotation; }
   void setAuthRotation(bool authRotation) { _auth_rotation = authRotation; }
-  bool getFlagCheckBounds() const { return _flag_check_bounds; }
-  void setFlagCheckBounds(bool flagCheckBounds) { _flag_check_bounds = flagCheckBounds; }
   bool getFlagGoulardUsed() const { return _flag_goulard_used; }
   void setFlagGoulardUsed(bool flagGoulardUsed) { _flag_goulard_used = flagGoulardUsed; }
   bool getFlagNoreduce() const { return _flag_noreduce; }
@@ -74,7 +70,6 @@ class GSTLEARN_EXPORT Option_VarioFit : public AStringable
 
  private:
    bool _flag_noreduce; /* Forbid discarding useless basic structures */
-   bool _flag_check_bounds; /* Do not infer parameter when bounds are equal */
    bool _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
    /* This is switch OFF when ANAM properties are defined */
    bool _auth_aniso; /* Authorize the anisotropy */

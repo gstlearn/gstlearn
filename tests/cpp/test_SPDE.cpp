@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   int nsimu       = 10;
   int useCholesky = 1;
   law_set_random_seed(seed);
-  (void) simulateSPDE(NULL, dbgrid, model, nsimu, NULL, useCholesky,
+  (void) simulateSPDE(NULL, dbgrid, model, nullptr, nsimu, NULL, useCholesky,
                       SPDEParam(), verbose);
 
   // Print statistics on the results

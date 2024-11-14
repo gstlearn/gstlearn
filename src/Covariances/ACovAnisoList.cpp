@@ -13,17 +13,13 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
 
-#include <algorithm>
 #include <math.h>
 #include <vector>
 
@@ -131,7 +127,7 @@ int ACovAnisoList::getNVariables() const
   return 0;
 }
 
-bool ACovAnisoList::_considerAllCovariances(const CovCalcMode* mode) const
+bool ACovAnisoList::_considerAllCovariances(const CovCalcMode* mode)
 {
   if (mode == nullptr) return true;
   if (mode->isAllActiveCov()) return true;
@@ -582,7 +578,7 @@ void ACovAnisoList::setParam(int icov, double value)
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setParam(value);
 }
-void ACovAnisoList::setMarkovCoeffs(int icov, VectorDouble coeffs)
+void ACovAnisoList::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setMarkovCoeffs(coeffs);

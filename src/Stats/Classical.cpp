@@ -14,6 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
+#include "Enum/EOperator.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
@@ -830,6 +831,63 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
     table.setRowName(ivar, db->getNameByUID(iuids[ivar]));
 
   return table;
+}
+
+/**
+ * @brief Calculate the variance-covariance matrix on the isotopic data set
+ * from the Z-locator variables
+ * 
+ * @param db Target Data Base
+ */
+MatrixSquareSymmetric dbVarianceMatrix(const Db* db)
+{
+  int nvar = db->getLocNumber(ELoc::Z);
+  VectorDouble data(nvar, 0.);
+  VectorDouble mean(nvar, 0.);
+  MatrixSquareSymmetric mat(nvar);
+
+  /* Loop on the samples */
+
+  int numiso = 0;
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+
+    /* Look for isotopic sample */
+
+    int nundef = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      data[ivar] = db->getLocVariable(ELoc::Z, iech, ivar);
+      if (FFFF(data[ivar])) nundef++;
+    }
+    if (nundef > 0) continue;
+
+    // Update the 1-point statistics
+    for (int ivar = 0; ivar < nvar; ivar++) mean[ivar] += data[ivar];
+
+    // Update the variance-covariance matrix
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
+        mat.updValue(ivar, jvar, EOperator::ADD, data[ivar] * data[jvar]);
+    numiso++;
+  }
+  if (numiso <= 0) return mat;
+
+  /* Normalization */
+
+  for (int ivar = 0; ivar < nvar; ivar++) mean[ivar] /= numiso;
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      double value = mat.getValue(ivar, jvar);
+      value /= numiso;
+      value = value / numiso - mean[ivar] * mean[jvar];
+      mat.setValue(ivar, jvar, value);
+    }
+
+  return mat;
 }
 
 /****************************************************************************/

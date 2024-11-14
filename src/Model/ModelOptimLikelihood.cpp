@@ -15,8 +15,20 @@
 
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
+#include "Stats/Classical.hpp"
+#include "API/SPDE.hpp"
 
 #include <nlopt.h>
+
+typedef struct
+{
+  // Part of the structure dedicated to the Model
+  ModelOptim::Model_Part& _modelPart;
+
+  // Part relative to the Experimental variograms
+  ModelOptimLikelihood::Db_Part& _dbPart;
+
+} AlgorithmLikelihood;
 
 ModelOptimLikelihood::ModelOptimLikelihood()
   : ModelOptim()
@@ -69,11 +81,12 @@ bool ModelOptimLikelihood::_checkConsistency()
   return true;
 }
 
-int ModelOptimLikelihood::fit(const Db* db, Model* model, bool verbose)
+int ModelOptimLikelihood::fit(Db* db, Model* model, bool flagSPDE, bool verbose)
 {
   _modelPart._model   = model;
   _modelPart._verbose = verbose;
   _dbPart._db         = db;
+  _dbPart._flagSPDE   = flagSPDE;
 
   // Constitute the list of parameters
   if (_buildModelParamList()) return 1;
@@ -81,20 +94,21 @@ int ModelOptimLikelihood::fit(const Db* db, Model* model, bool verbose)
   // Check consistency
   if (! _checkConsistency()) return 1;
 
-  // Perform the optimization
+  // Define the optimization criterion
   int npar = _getParamNumber();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
-
-  // Define the bounds
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
 
+  // Update the initial optimization values (due to variogram)
+  updateModelParamList(db->getExtensionDiagonal(), dbVarianceMatrix(db));
+
   // Define the cost function
-  AlgorithmLikelihood algorithm{_modelPart, _dbPart};
+  AlgorithmLikelihood algorithm {_modelPart, _dbPart};
   nlopt_set_min_objective(opt, evalCost, &algorithm);
 
   // Perform the optimization (store the minimized value in 'minf')
-  if (_modelPart._verbose) mestitle(1, "Model Fitting from Likelihood");
+  if (_modelPart._verbose) mestitle(1, "Model Fitting using Likelihood");
   double minf;
   nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
   return 0;
@@ -102,23 +116,26 @@ int ModelOptimLikelihood::fit(const Db* db, Model* model, bool verbose)
 
 double ModelOptimLikelihood::evalCost(unsigned int nparams,
                                       const double* current,
-                                      double* grad,
+                                      double* /*grad*/,
                                       void* my_func_data)
 {
   DECLARE_UNUSED(nparams);
-  DECLARE_UNUSED(grad);
-  AlgorithmLikelihood* algorithm = (AlgorithmLikelihood*)(my_func_data);
+  AlgorithmLikelihood* algorithm = static_cast<AlgorithmLikelihood*>(my_func_data);
   if (algorithm == nullptr) return TEST;
-  Model_Part modelPart = algorithm->_modelPart;
-  Db_Part dbPart       = algorithm->_dbPart;
+  Model_Part& modelPart = algorithm->_modelPart;
+  Db_Part& dbPart       = algorithm->_dbPart;
 
   // Update the Model
   _patchModel(modelPart, current);
 
   // Evaluate the Cost function
-  double total = -modelPart._model->computeLogLikelihood(dbPart._db);
+  double total;
+  if (dbPart._flagSPDE)
+    total = -logLikelihoodSPDE(dbPart._db, modelPart._model);
+  else
+    total = -modelPart._model->computeLogLikelihood(dbPart._db);
 
-  if (modelPart._verbose) message("Cost Function = %lf\n", total);
+  _printResult("Cost Function (Likelihood)", modelPart, total);
 
   return total;
 }

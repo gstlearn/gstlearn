@@ -17,6 +17,7 @@
 #include <vector>
 
 class Model;
+class MatrixSquareSymmetric;
 
 /**
  * \brief
@@ -36,6 +37,7 @@ public:
     int _icov;
     EConsElem _type;
     int _rank;
+    double _scale;
   } OneParam;
 
   typedef struct
@@ -53,17 +55,26 @@ public:
 
     // Verbosity flag
     bool _verbose;
+    int _niter;
   } Model_Part;
 
 protected:
   int _buildModelParamList();
   int _getParamNumber() const { return (int) _modelPart._params.size(); }
-
+  void updateModelParamList(double hmax, const MatrixSquareSymmetric& vars);
+  void dumpParamList() const;
   static void _patchModel(Model_Part& modelPart, const double* current);
+  static void _printResult(const String& title, const Model_Part& modelPart, double result);
+
+private:
+  static void _dumpOneModelParam(const OneParam& param, double value);
+  void _addOneModelParam(int icov,
+                         const EConsElem& type,
+                         int rank,
+                         double lbound = TEST,
+                         double ubound = TEST);
   void _copyModelPart(const Model_Part& modelPart);
 
-  void _addOneModelParam(int icov, const EConsElem& type, int rank, double lbound, double ubound);
-  
 protected:
   // Part of the structure dedicated to the Model
   Model_Part _modelPart;
