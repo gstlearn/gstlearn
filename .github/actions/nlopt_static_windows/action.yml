@@ -1,5 +1,5 @@
-name: 'NLopt static Unix'
-description: 'Build & install NLopt static libraries on Ubuntu & macOS'
+name: 'NLopt static Windows'
+description: 'Build & install NLopt static libraries on Windows'
 runs:
   using: "composite"
   steps:
@@ -20,7 +20,6 @@ runs:
           -DNLOPT_SWIG=OFF \
           -DNLOPT_TESTS=OFF \
           ..
-        cmake --build . --parallel 3
-        sudo cmake --build . --target install
+        cmake --build . --config Release --parallel 3 --target install
       env:
         CMAKE_BUILD_TYPE: Release
