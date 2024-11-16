@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
     // Optimization tests
     int mode      = 0;
-    bool converge = false;
+    bool converge = true;
     bool flagSPDE = false;
 
     if (mode == 0 || mode == 1) _firstTest();

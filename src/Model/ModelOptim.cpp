@@ -248,5 +248,10 @@ void ModelOptim::_printResult(const String& title,
                               double result)
 {
   if (!modelPart._verbose) return;
-  message("Iteration %3d - %s = %lf\n", modelPart._niter, title.c_str(), result);
+  int nparams = (int)modelPart._params.size();
+
+  message("Iteration %3d - %s (", modelPart._niter, title.c_str());
+  for (int iparam = 0; iparam < nparams; iparam++)
+    message("%lf ", modelPart._tabval[iparam]);
+  message(") = %lf\n", result);
 }
