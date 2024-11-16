@@ -99,6 +99,7 @@ int ModelOptimLikelihood::fit(Db* db, Model* model, bool flagSPDE, bool verbose)
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
+  nlopt_set_xtol_rel(opt, 1e-4);
 
   // Update the initial optimization values (due to variogram)
   updateModelParamList(db->getExtensionDiagonal(), dbVarianceMatrix(db));
@@ -111,6 +112,7 @@ int ModelOptimLikelihood::fit(Db* db, Model* model, bool flagSPDE, bool verbose)
   if (_modelPart._verbose) mestitle(1, "Model Fitting using Likelihood");
   double minf;
   nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
+  nlopt_destroy(opt);
   return 0;
 }
 

@@ -118,6 +118,7 @@ int ModelOptimVario::fit(const Vario* vario, Model* model, int wmode, bool verbo
   double minf;
   if (_modelPart._verbose) mestitle(1, "Model Fitting from Variogram");
   nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
+  nlopt_destroy(opt);
   return 0;
 }
 
