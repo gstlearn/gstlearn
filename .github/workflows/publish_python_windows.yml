@@ -29,7 +29,6 @@ env:
   DOXYGEN_ROOT : ${{github.workspace}}\doxygen
   DOXYGEN_VERSION : "1.9.8"
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
-  VCPKG_LIBRARY_LINKAGE: static
   #HDF5_ROOT : hdf5 #do not use "." in the name
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
@@ -65,7 +64,7 @@ jobs:
     - name: Install dependencies
       run: |
         echo '{
-          "dependencies": [ "boost-math", "eigen3", "nlopt" ],
+          "dependencies": [ "boost-math", "eigen3" ],
           "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
         }' > vcpkg.json
         vcpkg install
@@ -83,6 +82,11 @@ jobs:
       with:
         doxygen-root: ${{env.DOXYGEN_ROOT}}
         doxygen-version: ${{env.DOXYGEN_VERSION}}
+
+    - name: Build & install nlopt static libraries
+      uses: ./.github/actions/nlopt_static_windows
+      env:
+        CMAKE_GENERATOR_PLATFORM: ${{ matrix.arch.of }}
 
 #    - name : Download and install HDF5
 #      run: |

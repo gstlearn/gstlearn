@@ -85,10 +85,12 @@ public:
 #endif // SWIG
   VectorDouble indicesToCoordinate(const VectorInt& indice,
                                    const VectorDouble& percent = VectorDouble()) const;
-  void indicesToCoordinateInPlace(const VectorInt& indice,
-                                  VectorDouble& coor,
-                                  const VectorDouble& percent = VectorDouble(),
-                                  bool flag_rotate=true) const;
+#ifndef SWIG
+  void indicesToCoordinateInPlace(const constvectint indice,
+                                  const vect coor,
+                                  const constvect percent = {},
+                                  bool flag_rotate        = true) const;
+#endif // SWIG
   double rankToCoordinate(int idim0,
                           int rank,
                           const VectorDouble& percent = VectorDouble()) const;
@@ -140,6 +142,7 @@ public:
 
   void iteratorInit(const VectorInt& order = VectorInt());
   VectorInt iteratorNext(void);
+  void iteratorNext(std::vector<int>& indices);
   bool empty() const;
 
   void dilate(int mode,
@@ -176,7 +179,7 @@ private:
   // Iterator
   int       _iter;
   int       _nprod;
-  VectorInt _counts;
+  std::vector<int> _counts;
   VectorInt _order;
   VectorInt _indices;
 

@@ -644,11 +644,12 @@ void DbGrid::_createGridCoordinates(int icol0)
 
   // Generate the vector of coordinates
 
-  VectorDouble coors(ndim);
+  std::vector<double> coors(ndim);
+  std::vector<int> indices;
   _grid.iteratorInit();
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    VectorInt indices = _grid.iteratorNext();
+    _grid.iteratorNext(indices);
     _grid.indicesToCoordinateInPlace(indices, coors);
     for (int idim = 0; idim < ndim; idim++)
       setArray(iech, icol0 + idim, coors[idim]);

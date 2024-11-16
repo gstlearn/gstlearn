@@ -219,7 +219,7 @@ public:
                               bool flagAddSampleRank = true);
   /**@}*/
 
-  const VectorDouble& getArrays() const { return _array; }
+  const std::vector<double>& getArrays() const { return _array; }
 
   /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
    * \ingroup DB
@@ -427,6 +427,7 @@ public:
   VectorInt getUIDsByLocator(const ELoc& locatorType) const;
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
+  void getAllUIDs(std::vector<int>& iuids) const;
 
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
@@ -464,7 +465,7 @@ public:
   void   updArray(int iech, int iuid, const EOperator& oper, double value);
   void   updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, VectorDouble& values);
   VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
-  VectorDouble getArrayBySample(int iech) const;
+  void getArrayBySample(std::vector<double>& vals, int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
   void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space,bool useSel = false) const;
@@ -904,7 +905,7 @@ protected:
   String _summaryString(void) const;
 
 private:
-  const VectorInt& _getUIDcol() const { return _uidcol; }
+  const std::vector<int>& _getUIDcol() const { return _uidcol; }
   VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
@@ -953,8 +954,8 @@ protected:
 private:
   int _ncol;                 //!< Number of Columns of data
   int _nech;                 //!< Number of samples
-  VectorDouble _array;       //!< Array of values
-  VectorInt _uidcol;         //!< UID to Column
+  std::vector<double> _array; //!< Array of values
+  std::vector<int> _uidcol;   //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
   std::vector<PtrGeos> _p;   //!< Locator characteristics
 };

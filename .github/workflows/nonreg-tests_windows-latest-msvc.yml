@@ -54,7 +54,6 @@ jobs:
         conda install -c conda-forge boost
         conda install -c conda-forge eigen
         conda install -c conda-forge ninja
-        conda install -c conda-forge nlopt
         # don't interfere with pre-installed Python
         rm C:\Miniconda\python.exe
 
@@ -63,6 +62,9 @@ jobs:
 
     - name: Set up Visual Studio shell
       uses: egor-tensin/vs-shell@v2
+
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_windows
 
     - name: Configure build directory
       run: |
