@@ -99,18 +99,18 @@ int ModelOptimVario::fit(const Vario* vario, Model* model, int wmode, bool verbo
   // Check consistency
   if (! _checkConsistency()) return 1;
 
-    
-    // Define the optimization criterion
+  // Define the optimization criterion
   int npar    = _getParamNumber();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
-  nlopt_set_xtol_rel(opt, 1e-4);
+  nlopt_srand(12345);
+  nlopt_set_ftol_rel(opt, 1e-5);
 
   // Update the initial optimization values (due to variogram)
   updateModelParamList(vario->getMaximumDistance(), vario->getVarMatrix());
 
-    // Define the cost function
+  // Define the cost function
   AlgorithmVario algorithm {_modelPart, _varioPart};
   nlopt_set_min_objective(opt, evalCost, &algorithm);
 

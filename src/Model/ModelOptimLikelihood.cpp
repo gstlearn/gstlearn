@@ -99,7 +99,8 @@ int ModelOptimLikelihood::fit(Db* db, Model* model, bool flagSPDE, bool verbose)
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
-  nlopt_set_xtol_rel(opt, 1e-4);
+  nlopt_srand(12345);
+  nlopt_set_ftol_rel(opt, 1e-5);
 
   // Update the initial optimization values (due to variogram)
   updateModelParamList(db->getExtensionDiagonal(), dbVarianceMatrix(db));
