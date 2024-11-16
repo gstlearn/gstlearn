@@ -105,7 +105,7 @@ int ModelOptimVario::fit(const Vario* vario, Model* model, int wmode, bool verbo
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
   nlopt_srand(12345);
-  nlopt_set_ftol_rel(opt, 1e-5);
+  nlopt_set_ftol_rel(opt, 1e-6);
 
   // Update the initial optimization values (due to variogram)
   updateModelParamList(vario->getMaximumDistance(), vario->getVarMatrix());

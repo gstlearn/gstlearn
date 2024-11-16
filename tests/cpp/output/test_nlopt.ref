@@ -217,17 +217,6 @@ Iteration 164 - Cost Function (Variogram Fit) (1.381339 0.314188 1.305357 ) = 0.
 Iteration 165 - Cost Function (Variogram Fit) (1.381339 0.314188 1.305357 ) = 0.131498
 Iteration 166 - Cost Function (Variogram Fit) (1.381339 0.314188 1.305357 ) = 0.131498
 Iteration 167 - Cost Function (Variogram Fit) (1.381339 0.314188 1.305357 ) = 0.131498
-Iteration 168 - Cost Function (Variogram Fit) (1.381091 0.314138 1.305610 ) = 0.131498
-Iteration 169 - Cost Function (Variogram Fit) (1.381091 0.314138 1.305610 ) = 0.131498
-Iteration 170 - Cost Function (Variogram Fit) (1.381057 0.314075 1.305612 ) = 0.131498
-Iteration 171 - Cost Function (Variogram Fit) (1.381057 0.314075 1.305612 ) = 0.131498
-Iteration 172 - Cost Function (Variogram Fit) (1.381057 0.314075 1.305612 ) = 0.131498
-Iteration 173 - Cost Function (Variogram Fit) (1.381232 0.314156 1.305465 ) = 0.131498
-Iteration 174 - Cost Function (Variogram Fit) (1.381232 0.314156 1.305465 ) = 0.131498
-Iteration 175 - Cost Function (Variogram Fit) (1.381177 0.314142 1.305531 ) = 0.131498
-Iteration 176 - Cost Function (Variogram Fit) (1.381177 0.314142 1.305531 ) = 0.131498
-Iteration 177 - Cost Function (Variogram Fit) (1.381177 0.314142 1.305531 ) = 0.131498
-Iteration 178 - Cost Function (Variogram Fit) (1.381177 0.314142 1.305531 ) = 0.131498
 
 Model characteristics
 =====================
@@ -498,59 +487,6 @@ Iteration 242 - Cost Function (Likelihood) (-1.552495 0.404047 -0.957115 ) = 197
 Iteration 243 - Cost Function (Likelihood) (-1.552495 0.404047 -0.957115 ) = 197.478529
 Iteration 244 - Cost Function (Likelihood) (-1.550177 0.406094 -0.958641 ) = 197.478719
 Iteration 245 - Cost Function (Likelihood) (-1.550177 0.406094 -0.958641 ) = 197.478569
-Iteration 246 - Cost Function (Likelihood) (-1.550177 0.406094 -0.958641 ) = 197.478690
-Iteration 247 - Cost Function (Likelihood) (-1.550177 0.406094 -0.958641 ) = 197.478546
-Iteration 248 - Cost Function (Likelihood) (-1.550177 0.406094 -0.958641 ) = 197.478521
-Iteration 249 - Cost Function (Likelihood) (-1.551199 0.407670 -0.957490 ) = 197.478677
-Iteration 250 - Cost Function (Likelihood) (-1.551199 0.407670 -0.957490 ) = 197.478541
-Iteration 251 - Cost Function (Likelihood) (-1.551199 0.407670 -0.957490 ) = 197.478870
-Iteration 252 - Cost Function (Likelihood) (-1.551199 0.407670 -0.957490 ) = 197.478482
-Iteration 253 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478537
-Iteration 254 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478504
-Iteration 255 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478527
-Iteration 256 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478500
-Iteration 257 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478515
-Iteration 258 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478495
-Iteration 259 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478495
-Iteration 260 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478509
-Iteration 261 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478490
-Iteration 262 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478497
-Iteration 263 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478489
-Iteration 264 - Cost Function (Likelihood) (-1.551490 0.405850 -0.956711 ) = 197.478481
-Iteration 265 - Cost Function (Likelihood) (-1.551655 0.406231 -0.956068 ) = 197.478484
-Iteration 266 - Cost Function (Likelihood) (-1.551655 0.406231 -0.956068 ) = 197.478483
-Iteration 267 - Cost Function (Likelihood) (-1.551655 0.406231 -0.956068 ) = 197.478481
-Iteration 268 - Cost Function (Likelihood) (-1.551140 0.405759 -0.956355 ) = 197.478489
-Iteration 269 - Cost Function (Likelihood) (-1.551140 0.405759 -0.956355 ) = 197.478480
-Iteration 270 - Cost Function (Likelihood) (-1.551392 0.406336 -0.956687 ) = 197.478487
-Iteration 271 - Cost Function (Likelihood) (-1.551392 0.406336 -0.956687 ) = 197.478482
-Iteration 272 - Cost Function (Likelihood) (-1.551392 0.406336 -0.956687 ) = 197.478480
-Iteration 273 - Cost Function (Likelihood) (-1.551443 0.405980 -0.956540 ) = 197.478483
-Iteration 274 - Cost Function (Likelihood) (-1.551443 0.405980 -0.956540 ) = 197.478479
-Iteration 275 - Cost Function (Likelihood) (-1.551490 0.406128 -0.956298 ) = 197.478486
-Iteration 276 - Cost Function (Likelihood) (-1.551490 0.406128 -0.956298 ) = 197.478479
-Iteration 277 - Cost Function (Likelihood) (-1.551291 0.405954 -0.956432 ) = 197.478481
-Iteration 278 - Cost Function (Likelihood) (-1.551291 0.405954 -0.956432 ) = 197.478479
-Iteration 279 - Cost Function (Likelihood) (-1.551291 0.405954 -0.956432 ) = 197.478479
-Iteration 280 - Cost Function (Likelihood) (-1.551291 0.405954 -0.956432 ) = 197.478479
-Iteration 281 - Cost Function (Likelihood) (-1.551291 0.405954 -0.956432 ) = 197.478479
-Iteration 282 - Cost Function (Likelihood) (-1.551418 0.406118 -0.956366 ) = 197.478479
-Iteration 283 - Cost Function (Likelihood) (-1.551418 0.406118 -0.956366 ) = 197.478479
-Iteration 284 - Cost Function (Likelihood) (-1.551375 0.406134 -0.956463 ) = 197.478479
-Iteration 285 - Cost Function (Likelihood) (-1.551375 0.406134 -0.956463 ) = 197.478479
-Iteration 286 - Cost Function (Likelihood) (-1.551353 0.406131 -0.956368 ) = 197.478480
-Iteration 287 - Cost Function (Likelihood) (-1.551353 0.406131 -0.956368 ) = 197.478479
-Iteration 288 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 289 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 290 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 291 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 292 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 293 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 294 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 295 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 296 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 297 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
-Iteration 298 - Cost Function (Likelihood) (-1.551336 0.406041 -0.956416 ) = 197.478479
 
 Model characteristics
 =====================
@@ -563,10 +499,10 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.407
+- Sill         =      2.411
 Matern (Third Parameter = 1)
-- Sill         =      0.915
+- Sill         =      0.917
 - Range        =      0.406
 - Theo. Range  =      0.117
-Total Sill     =      3.321
+Total Sill     =      3.328
 Known Mean(s)     0.000
