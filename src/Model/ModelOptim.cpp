@@ -132,12 +132,13 @@ void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
   {
     const OneParam& param = modelPart._params[iparam];
     int icov              = param._icov;
+    double scale          = param._scale;
     CovAniso* cova        = modelPart._model->getCova(icov);
 
     if (param._type == EConsElem::RANGE)
     {
       // Range
-      cova->setRangeIsotropic(current[iparam++]);
+      cova->setRangeIsotropic(scale * current[iparam++]);
     }
 
     if (param._type == EConsElem::SILL)
@@ -147,7 +148,7 @@ void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          aic.setValue(ivar, jvar, current[iparam++]);
+          aic.setValue(ivar, jvar, scale * current[iparam++]);
       if (ijvar == nvs2)
       {
         MatrixSquareSymmetric sills(nvar);
@@ -159,7 +160,7 @@ void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
     if (param._type == EConsElem::PARAM)
     {
       // Set the 'param' attribute
-      cova->setParam(current[iparam++]);
+      cova->setParam(scale * current[iparam++]);
     }
   }
 
@@ -222,7 +223,7 @@ void ModelOptim::updateModelParamList(double hmax,
         default: break;
     }
 
-    _modelPart._tabval[iparam] = value;
+    _modelPart._tabval[iparam] = value / scale;
     param._scale = scale;
   }
 }
@@ -252,6 +253,6 @@ void ModelOptim::_printResult(const String& title,
 
   message("Iteration %3d - %s (", modelPart._niter, title.c_str());
   for (int iparam = 0; iparam < nparams; iparam++)
-    message("%lf ", modelPart._tabval[iparam]);
+    message("%lf ", modelPart._params[iparam]._scale * modelPart._tabval[iparam]);
   message(") = %lf\n", result);
 }
