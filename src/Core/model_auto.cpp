@@ -86,8 +86,6 @@
    isZero(vario->getSwByIndex(idir, k)) ||                                     \
    FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
 
-#define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
-#define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define AIRKV(ipadir,ivar)       Airk_v[(ipadir)*nvar + (ivar)]
 #define BIRKV(ipadir,ivar)       Birk_v[(ipadir)*nvar + (ivar)]
 #define ALPHA(icov,ivar,jvar)    alpha[(icov)*nvar*nvar + AD(ivar,jvar)]
@@ -1308,41 +1306,6 @@ static void st_goulard_debug_title(int nvar, int ncova)
 
 /****************************************************************************/
 /*!
- **  Display the current status for the Goulard algorithm
- **
- ** \param[in]  nvar        Number of variables
- ** \param[in]  ncova       Number of basic structures
- ** \param[in]  iter        Rank of the iteration
- ** \param[in]  sill        Matrix of sills
- ** \param[in]  crit        Valeu for the convergence criterion
- **
- *****************************************************************************/
-static void st_goulard_debug_current(int nvar,
-                                     int ncova,
-                                     int iter,
-                                     VectorDouble &sill,
-                                     double crit)
-{
-  if (!OptDbg::query(EDbg::CONVERGE)) return;
-  int nvs2 = nvar * (nvar + 1) / 2;
-  tab_printi(NULL, iter + 1);
-  if (FFFF(crit))
-    tab_prints(NULL, "     ");
-  else
-    tab_printd(NULL, crit);
-
-  for (int icov = 0; icov < ncova; icov++)
-  {
-    int ijvar = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        tab_printg(NULL, SILL(icov, ijvar));
-  }
-  message("\n");
-}
-
-/****************************************************************************/
-/*!
  **  Save the sill matrices in the keypair mechanism
  **
  ** \param[in]  mode      1 for setting; -1 for deleting
@@ -1610,10 +1573,6 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           crit += value * WT(ijvar,ipadir) * temp * temp;
        }
     }
-
-    /* Optional printout */
-
-    st_goulard_debug_current(nvar,ncova,iter,sill,crit);
 
     /* Stopping criterion */
 
@@ -2468,14 +2427,14 @@ static int st_check_definite_positive(Model *model)
  *****************************************************************************/
 static int st_truncate_negative_eigen(int nvar,
                                       int icov0,
-                                      VectorDouble &matcor,
-                                      VectorDouble &matcoru)
+                                      std::vector<MatrixSquareSymmetric> &matcor,
+                                      std::vector<MatrixSquareSymmetric> &matcoru)
 
 {
   MatrixSquareSymmetric cc(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      cc.setValue(ivar,jvar,MATCOR(icov0,ivar,jvar));
+    for (int jvar = 0; jvar <= ivar; jvar++)
+      cc.setValue(ivar, jvar, matcor[icov0].getValue(ivar, jvar));
 
   if (cc.computeEigen())
     messageAbort("st_truncate_negative_eigen");
@@ -2494,20 +2453,20 @@ static int st_truncate_negative_eigen(int nvar,
     /* Calculate the new coregionalization matrix */
 
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
       {
         double sum = 0.;
         for (int kvar = 0; kvar < nvar; kvar++)
           sum += MAX(valpro[kvar], 0.) * vecpro->getValue(ivar, kvar) *
                  vecpro->getValue(jvar, kvar);
-        MATCORU(icov0, ivar, jvar) = sum;
+        matcoru[icov0].setValue(ivar, jvar, sum);
       }
   }
   else
   {
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        MATCORU(icov0, ivar, jvar) = MATCOR(icov0, ivar, jvar);
+      for (int jvar = 0; jvar <= ivar; jvar++)
+        matcoru[icov0].setValue(ivar, jvar, matcor[icov0].getValue(ivar, jvar));
   }
 
   return flag_positive;
@@ -2557,7 +2516,7 @@ static double st_score(int nvar,
                        VectorDouble &wt,
                        VectorDouble &gg,
                        VectorDouble &ge,
-                       VectorDouble &matcor)
+                       std::vector<MatrixSquareSymmetric> &matcor)
 {
   double score = 0.;
   int ijvar = 0;
@@ -2570,7 +2529,7 @@ static double st_score(int nvar,
         double dd = GG(ijvar, ipadir);
         if (FFFF(dd)) continue;
         for (int icov = 0; icov < ncova; icov++)
-          dd -= MATCOR(icov,ivar,jvar) * GE(icov,ijvar,ipadir);
+          dd -= matcor[icov].getValue(ivar,jvar) * GE(icov,ijvar,ipadir);
         score += coeff * WT(ijvar, ipadir) * dd * dd;
       }
     }
@@ -2808,15 +2767,16 @@ static void st_updateOtherSills(int icov0,
                                 int nvar,
                                 VectorDouble &alpha,
                                 VectorDouble &xr,
-                                VectorDouble &matcor)
+                                std::vector<MatrixSquareSymmetric> &matcor)
 {
   for (int jcov = 0; jcov < ncova; jcov++)
   {
     if (jcov == icov0) continue;
     for (int ivar = 0; ivar < nvar; ivar++)
     {
-      MATCOR(jcov,ivar0, ivar)= MATCOR(jcov,ivar, ivar0) =
-          ALPHA(jcov,ivar0, ivar) * xr[ivar0] * xr[ivar];
+      double value = ALPHA(jcov, ivar0, ivar) * xr[ivar0] * xr[ivar];
+      matcor[jcov].setValue(ivar0, ivar, value);
+      matcor[jcov].setValue(ivar, ivar0, value);
     }
   }
 }
@@ -2847,7 +2807,7 @@ static void st_updateCurrentSillGoulard(int icov0,
                                         VectorDouble &ge,
                                         VectorDouble &gg,
                                         const VectorDouble &consSill,
-                                        VectorDouble &matcor)
+                                        std::vector<MatrixSquareSymmetric> &matcor)
 {
   VectorDouble mv(npadir);
   int nvs2 = nvar * (nvar + 1) / 2;
@@ -2864,7 +2824,7 @@ static void st_updateCurrentSillGoulard(int icov0,
       for (int icov = 0; icov < ncova; icov++)
       {
         if (icov == icov0) continue;
-        mv[ilagdir] += MATCOR(icov,ivar0,ivar) * GE(icov,0,ilagdir);
+        mv[ilagdir] += matcor[icov].getValue(ivar0,ivar) * GE(icov,0,ilagdir);
       }
     }
 
@@ -2884,8 +2844,9 @@ static void st_updateCurrentSillGoulard(int icov0,
         tot2 += wtloc * geloc * geloc;
       }
     }
-
-    MATCOR(icov0,ivar0, ivar)= MATCOR(icov0,ivar, ivar0) = tot1 / tot2;
+    double value = tot1 / tot2;
+    matcor[icov0].setValue(ivar0, ivar, value);
+    matcor[icov0].setValue(ivar, ivar0, value);
   }
 }
 
@@ -2907,13 +2868,13 @@ static void st_updateAlphaNoDiag(int icov0,
                                  int nvar,
                                  VectorDouble &xr,
                                  const VectorDouble &consSill,
-                                 VectorDouble &matcor,
+                                 std::vector<MatrixSquareSymmetric> &matcor,
                                  VectorDouble &alpha)
 {
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     if (ivar == ivar0 && !FFFF(consSill[ivar0])) continue;
-    double value = MATCOR(icov0,ivar0,ivar)/ (xr[ivar0] * xr[ivar]);
+    double value = matcor[icov0].getValue(ivar0, ivar) / (xr[ivar0] * xr[ivar]);
     ALPHA(icov0,ivar0,ivar)= ALPHA(icov0,ivar,ivar0) = value;
   }
 }
@@ -2936,11 +2897,11 @@ static void st_updateCurrentSillDiag(int icov0,
                                      int nvar,
                                      VectorDouble &alpha,
                                      VectorDouble &xr,
-                                     VectorDouble &matcor)
+                                     std::vector<MatrixSquareSymmetric> &matcor)
 {
   double value = xr[ivar0] * xr[ivar0] * ALPHA(icov0, ivar0, ivar0);
   if (value < 0.) value = 0.;
-  MATCOR(icov0,ivar0,ivar0)= value;
+  matcor[icov0].setValue(ivar0, ivar0, value);
 }
 
 /*****************************************************************************/
@@ -2957,13 +2918,13 @@ static void st_updateCurrentSillDiag(int icov0,
 static int st_makeDefinitePositive(int icov0,
                                    int nvar,
                                    const VectorDouble &consSill,
-                                   VectorDouble &matcor)
+                                   std::vector<MatrixSquareSymmetric> &matcor)
 {
   VectorDouble muold(nvar);
   VectorDouble norme1(nvar);
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    muold[ivar] = MATCOR(icov0, ivar, ivar);
+    muold[ivar] = matcor[icov0].getValue(ivar, ivar);
 
   int flag_positive = st_truncate_negative_eigen(nvar, icov0, matcor, matcor);
 
@@ -2975,16 +2936,17 @@ static int st_makeDefinitePositive(int icov0,
       norme1[ivar] = 1.;
     else
     {
-      if (ABS(MATCOR(icov0,ivar, ivar)) > EpsFit)
-        norme1[ivar] = sqrt(muold[ivar] / MATCOR(icov0, ivar, ivar));
+      if (ABS(matcor[icov0].getValue(ivar, ivar)) > EpsFit)
+        norme1[ivar] = sqrt(muold[ivar] / matcor[icov0].getValue(ivar, ivar));
       else
         norme1[ivar] = (ABS(muold[ivar]) < EpsFit) ? 1. : 0.;
     }
   }
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      MATCOR(icov0,ivar, jvar)*= norme1[ivar] * norme1[jvar];
+    for (int jvar = 0; jvar <= ivar; jvar++)
+      matcor[icov0].setValue(ivar, jvar,
+                             matcor[icov0].getValue(ivar, jvar) * norme1[ivar] * norme1[jvar]);
 
   return flag_positive;
 }
@@ -3018,7 +2980,7 @@ static int st_optimize_under_constraints(int nvar,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
                                          VectorDouble &ge,
-                                         VectorDouble &matcor,
+                                         std::vector<MatrixSquareSymmetric> &matcor,
                                          double *score)
 {
   double score_old, xrmax;
@@ -3036,7 +2998,7 @@ static int st_optimize_under_constraints(int nvar,
   for (int icov = 0; icov < ncova; icov++)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        ALPHA(icov,ivar,jvar)= MATCOR(icov,ivar,jvar);
+        ALPHA(icov, ivar, jvar) = matcor[icov].getValue(ivar, jvar);
 
         /***********************/
         /* Iterative procedure */
@@ -3045,7 +3007,6 @@ static int st_optimize_under_constraints(int nvar,
         /* Optional printout */
 
   st_goulard_debug_title(nvar, ncova);
-  st_goulard_debug_current(nvar, ncova, 0, matcor, TEST);
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
@@ -3128,7 +3089,6 @@ static int st_optimize_under_constraints(int nvar,
 
   /* Optional printout */
 
-  st_goulard_debug_current(nvar, ncova, iter, matcor, score_new);
   *score = score_new;
   return (iter);
 }
@@ -3159,7 +3119,7 @@ static int st_initialize_goulard(int nvar,
                                  VectorDouble &gg,
                                  VectorDouble &ge,
                                  const VectorDouble &consSill,
-                                 VectorDouble &matcor)
+                                 std::vector<MatrixSquareSymmetric> &matcor)
 {
   MatrixSquareSymmetric aa(ncova);
   VectorDouble bb(ncova);
@@ -3239,7 +3199,7 @@ static int st_initialize_goulard(int nvar,
       /* Store in the output matrix */
 
       for (int icov=0; icov<ncova; icov++)
-        MATCOR(icov,ivar,jvar) = MATCOR(icov,jvar,ivar) = res[icov];
+        matcor[icov].setValue(ivar, jvar, res[icov]);
     }
   return 0;
 }
@@ -3309,7 +3269,9 @@ static int st_goulard_with_constraints(const Constraints& constraints,
 
   /* Core allocation */
 
-  VectorDouble matcor(nvar * nvar * ncova);
+  std::vector<MatrixSquareSymmetric> matcor;
+  for (int icova = 0; icova < ncova; icova++)
+    matcor.push_back((MatrixSquareSymmetric(nvar)));
 
   /* Initialize the Goulard system */
 
@@ -3329,12 +3291,12 @@ static int st_goulard_with_constraints(const Constraints& constraints,
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         if (!FFFF(constraints.getConstantSills(ivar)))
-          MATCOR(icov,ivar,ivar)= constraints.getConstantSills(ivar) / ncova;
+          matcor[icov].setValue(ivar, ivar, constraints.getConstantSills(ivar) / ncova);
         else
-          MATCOR(icov,ivar,ivar)=1.;
+          matcor[icov].setValue(ivar, ivar, 1.);
 
-        for (int jvar=0;jvar<ivar;jvar++)
-          MATCOR(icov,ivar,jvar) = MATCOR(icov,jvar,ivar)=0.;
+        for (int jvar = 0; jvar < ivar; jvar++)
+          matcor[icov].setValue(ivar, jvar, 0.);
       }
 
         /* Perform the optimization under constraints */
@@ -3354,7 +3316,7 @@ static int st_goulard_with_constraints(const Constraints& constraints,
     int ijvar = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        SILL(icov,ijvar)= MATCOR(icov,ivar,jvar);
+        SILL(icov,ijvar)= matcor[icov].getValue(ivar,jvar);
   }
   return (0);
 }
