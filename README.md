@@ -271,7 +271,7 @@ Assume that you have cloned the [NLopt GitHub repository](https://github.com/ste
 cd C:\NLopt_src\nlopt
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=C:/NLopt
+cmake .. -DCMAKE_INSTALL_PREFIX=C:/NLopt -DBUILD_SHARED_LIBS=OFF -DNLOPT_GUILE=OFF -DNLOPT_MATLAB=OFF -DNLOPT_OCTAVE=OFF -DNLOPT_PYTHON=OFF -DNLOPT_SWIG=OFF -DNLOPT_TESTS=OFF
 cmake --build . --config Release --target install
 ```
 
