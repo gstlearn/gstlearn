@@ -3304,7 +3304,7 @@ static int st_goulard_with_constraints(const Constraints& constraints,
  ** \param[in]  ge          Array of model values (Dimension: npadir)
  ** \param[in]  wt2         Array of weights (Dimension: npadir)
  ** \param[in]  ge1         Matrix of model values
- ** \param[in]  ge2         Array of model values (Dimension: npadir)
+ ** \param[in]  ge2         Matrix of model values
  ** \param[in]  gg2         Array of experimental values (Dimension: npadir)
  **
  ** \param[out] alphau      Array
