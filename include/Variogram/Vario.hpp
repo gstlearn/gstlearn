@@ -155,8 +155,9 @@ public:
   double getMean(int ivar) const;
 
   double getVar(int ivar, int jvar) const;
+  MatrixSquareSymmetric getVarMatrix() const;
   double getVarIndex(int ijvar) const;
-  const  VectorDouble& getVars()  const { return _vars; }
+  const VectorDouble& getVars() const { return _vars; }
   void setMeans(const VectorDouble& means);
   void setMean(double mean, int ivar=0);
   void setVar(double value, int ivar=0, int jvar=0);
@@ -336,6 +337,7 @@ public:
   VectorDouble getCodirs(int idir) const;
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
+  double getMaximumDistance() const;
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
   VectorInt getGrincrs(int idir) const { return getDirParam(idir).getGrincrs(); }
   double getGrincr(int idir, int idim) const { return getDirParam(idir).getGrincr(idim); }

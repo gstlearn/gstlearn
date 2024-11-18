@@ -20,7 +20,6 @@ Option_VarioFit::Option_VarioFit(bool flag_noreduce,
                                  bool lock_iso2d)
     : AStringable(),
       _flag_noreduce(flag_noreduce),
-      _flag_check_bounds(false),
       _flag_goulard_used(true),
       _auth_aniso(auth_aniso),
       _auth_rotation(auth_rotation),
@@ -35,7 +34,6 @@ Option_VarioFit::Option_VarioFit(bool flag_noreduce,
 Option_VarioFit::Option_VarioFit(const Option_VarioFit &m)
     : AStringable(m),
       _flag_noreduce(m._flag_noreduce),
-      _flag_check_bounds(m._flag_check_bounds),
       _flag_goulard_used(m._flag_goulard_used),
       _auth_aniso(m._auth_aniso),
       _auth_rotation(m._auth_rotation),
@@ -54,7 +52,6 @@ Option_VarioFit& Option_VarioFit::operator=(const Option_VarioFit &m)
   {
     AStringable::operator=(m);
     _flag_noreduce = m._flag_noreduce;
-    _flag_check_bounds = m._flag_check_bounds;
     _flag_goulard_used = m._flag_goulard_used;
     _auth_aniso = m._auth_aniso;
     _auth_rotation = m._auth_rotation;

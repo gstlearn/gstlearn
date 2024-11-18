@@ -12,20 +12,14 @@
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "API/SPDE.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -72,17 +66,16 @@ int main(int argc, char *argv[])
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;
   law_set_random_seed(13256);
-  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), false, false,
-                      NamingConvention("Data", true, false));
+  (void)simulateSPDE(nullptr, dat, model, nullptr, 1, nullptr, useCholesky,
+                     SPDEParam(), false, false,
+                     NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 
   // Testing Kriging (with SPDE)
-  (void) krigingSPDE(dat, grid, model, true, false, nullptr, useCholesky, SPDEParam());
+  (void) krigingSPDE(dat, grid, model, nullptr, true, false, nullptr, useCholesky, SPDEParam());
 
   // Testing Kriging (traditional method)
   (void) kriging(dat, grid, model, neighU);
-
-  
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");

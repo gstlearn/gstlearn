@@ -69,8 +69,7 @@ GSTLEARN_EXPORT int dbStatisticsOnGrid(Db *db,
                                        DbGrid *dbgrid,
                                        const EStatOption &oper,
                                        int radius = 0,
-                                       const NamingConvention &namconv = NamingConvention(
-                                           "Stats"));
+                                       const NamingConvention &namconv = NamingConvention("Stats"));
 GSTLEARN_EXPORT int dbRegression(Db *db1,
                                  const String& nameResp,
                                  const VectorString& nameAux,
@@ -78,5 +77,4 @@ GSTLEARN_EXPORT int dbRegression(Db *db1,
                                  bool flagCst = true,
                                  Db *db2 = nullptr,
                                  const Model* model = nullptr,
-                                 const NamingConvention &namconv = NamingConvention(
-                                     "Regr"));
+                                 const NamingConvention &namconv = NamingConvention("Regr"));

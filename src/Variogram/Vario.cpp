@@ -520,7 +520,7 @@ void Vario::resetReduce(const VectorInt &varcols,
   else
   {
     _means = vario_in.getMeans();
-    _vars = vario_in.getVars();
+    _vars  = vario_in.getVars();
   }
 
   // Add the directions
@@ -1088,6 +1088,15 @@ double Vario::getVar(int ivar, int jvar) const
   int iad = getVarAddress(ivar, jvar);
   if (IFFFF(iad)) return TEST;
   return _vars[iad];
+}
+
+MatrixSquareSymmetric Vario::getVarMatrix() const
+{
+  MatrixSquareSymmetric mat(_nVar);
+  for (int ivar = 0; ivar < _nVar; ivar++)
+    for (int jvar = 0; jvar < _nVar; jvar++)
+      mat.setValue(ivar, jvar, getVar(ivar, jvar));
+  return mat;
 }
 
 double Vario::getVarIndex(int ijvar) const
@@ -2170,6 +2179,17 @@ void Vario::setCalculByName(const String& calcul_name)
 {
   AVario::setCalculByName(calcul_name);
   _setFlagAsym();
+}
+
+double Vario::getMaximumDistance() const
+{
+  double distmax = 0.;
+  for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
+  {
+    double dist = getMaximumDistance(idir);
+    if (dist > distmax) distmax = dist;
+  }
+  return distmax;
 }
 
 /**

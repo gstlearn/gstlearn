@@ -2179,7 +2179,7 @@ double Model::calculateStdev(Db *db1,
  * @remarks The algorithm is stopped (with a message) in the heterotopic case
  * // TODO; improve for heterotopic case
  */
-double Model::computeLogLikelihood(Db* db, bool verbose)
+double Model::computeLogLikelihood(const Db* db, bool verbose)
 {
   int nvar = db->getLocatorNumber(ELoc::Z);
   if (nvar < 1)
@@ -2218,7 +2218,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
       VH::display("Constant Mean(s)", getMeans());
   }
 
-  // If Drift functions are present, evaluate the optimal Drift coefficients first
+  // If Drift functions are present, evaluate the optimal Drift coefficients
   if (nDrift > 0)
   {
     // Extract the matrix of drifts at samples X

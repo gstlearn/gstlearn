@@ -8,7 +8,7 @@ import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 from attr._make import NOTHING
 from pandas.core.sorting import nargsort
-from numpy.core.defchararray import isnumeric
+from numpy._core.defchararray import isnumeric
 
 def getVariableNames(db, ranks):
     names = []
