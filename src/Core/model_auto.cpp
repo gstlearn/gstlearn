@@ -12,7 +12,6 @@
 #include "geoslib_f.h"
 
 #include "Enum/EAnam.hpp"
-
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -52,7 +51,6 @@
 
 #define COMP_INDEX(i,j)          ((i) * ((i)+1) / 2 + (j))
 #define IJDIR(ijvar,ipadir)      ((ijvar) * npadir + (ipadir))
-#define SILL(icov,ijvar)         sill[(ijvar) + (icov) * nvs2]
 #define GG(ijvar,ipadir)         gg[IJDIR(ijvar,ipadir)]
 #define GG2(ijvar,ipadir)        gg2[IJDIR(ijvar,ipadir)]
 #define GE1(ijvar,ipadir)        ge1[IJDIR(ijvar,ipadir)]
@@ -68,12 +66,6 @@
 #define AD(ivar,jvar)            (ivar) + nvar * (jvar)
 #define VARS(ivar,jvar)          vario->vars[(ivar) * vario->getNVar() + (jvar)]
 #define VARCHOL(ivar,jvar)       varchol[COMP_INDEX(ivar,jvar)]
-
-#define AA(icov,jcov)            aa[(icov) * ncova + (jcov)]
-#define AUX(ivar,jvar)           aux[AD(ivar,jvar)]
-
-#define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
-#define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
 #define CORRECT(idir, k)                                                       \
   (!isZero(vario->getHhByIndex(idir, k)) &&                                    \
@@ -91,13 +83,13 @@
 #define ALPHA(icov,ivar,jvar)    alpha[(icov)*nvar*nvar + AD(ivar,jvar)]
 #define MUOLD(ivar,jvar)         muold[AD(ivar,jvar)]
 
-typedef struct
+  typedef struct
 {
   int npadir;
   VectorDouble gg;
   VectorDouble ge;
   VectorDouble wt;
-  VectorDouble sill;
+  std::vector<MatrixSquareSymmetric> sill;
   VectorDouble covtab;
   VectorDouble wtc;
   VectorDouble ggc;
@@ -106,8 +98,8 @@ typedef struct
   VectorDouble ge1;
   VectorDouble ge2;
   VectorDouble gg2;
-  VectorDouble alphau;
-  VectorDouble sill1;
+  std::vector<MatrixSquareSymmetric> alphau;
+  std::vector<MatrixSquareSymmetric> sill1;
 } Recint;
 
 typedef struct
@@ -1378,16 +1370,14 @@ static void st_keypair_results(int mode,
  ** \param[out] sill        Array of resulting sills
  **
  *****************************************************************************/
-static void st_sill_reset(int nvar, int ncova, VectorDouble &sill)
+static void st_sill_reset(int nvar,
+                          int ncova,
+                          std::vector<MatrixSquareSymmetric>& sill)
 {
-  int nvs2 = nvar * (nvar + 1) / 2;
   for (int icov = 0; icov < ncova; icov++)
-  {
-    int ijvar = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        SILL(icov,ijvar)= (ivar == jvar);
-  }
+      for (int jvar = 0; jvar <= ivar; jvar++)
+        sill[icov].setValue(ivar, jvar, ivar == jvar);
 }
 
 /****************************************************************************/
@@ -1418,7 +1408,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
                                          VectorDouble &ge,
-                                         VectorDouble &sill,
+                                         std::vector<MatrixSquareSymmetric> &sill,
                                          double *crit_arg)
 {
   int allpos;
@@ -1437,11 +1427,18 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   /* Core allocation */
 
-  VectorDouble aic(ncova * nvs2);
   VectorDouble mp(npadir * nvs2);
   VectorDouble fk(npadir * nvs2 * ncova, 0.);
-  VectorDouble alphak(ncova * nvs2);
   MatrixSquareSymmetric cc(nvar);
+
+  std::vector<MatrixSquareSymmetric> aic;
+  aic.reserve(ncova);
+  for (int icova = 0; icova < ncova; icova++)
+    aic.push_back(MatrixSquareSymmetric(nvar));
+  std::vector<MatrixSquareSymmetric> alphak;
+  alphak.reserve(ncova);
+  for (int icova = 0; icova < ncova; icova++)
+    alphak.push_back(MatrixSquareSymmetric(nvar));
 
   /********************/
   /* Pre-calculations */
@@ -1452,9 +1449,9 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
-        MP(ijvar,ipadir)= 0.;
-        for (int icov=0; icov<ncova; icov++)
-        MP(ijvar,ipadir) += SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
+        MP(ijvar, ipadir) = 0.;
+        for (int icov = 0; icov < ncova; icov++)
+          MP(ijvar, ipadir) += sill[icov].getValue(ivar, jvar) * GE(icov, ijvar, ipadir);
       }
 
   for (int icov = 0; icov < ncova; icov++)
@@ -1463,7 +1460,8 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        sum1 = sum2 = AIC(icov,ijvar)= 0;
+        sum1 = sum2 = 0;
+        aic[icov].setValue(ivar, jvar, 0.);
         for (int ipadir=0; ipadir<npadir; ipadir++)
         {
           if (FFFF(WT(ijvar,ipadir))) continue;
@@ -1472,8 +1470,8 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           sum1 += temp * GG(ijvar,ipadir);
           sum2 += temp * GE(icov,ijvar,ipadir);
         }
-        ALPHAK(icov,ijvar) = 1. / sum2;
-        AIC(icov,ijvar) = sum1 * ALPHAK(icov,ijvar);
+        alphak[icov].setValue(ivar, jvar, 1. / sum2);
+        aic[icov].setValue(ivar, jvar, sum1 * alphak[icov].getValue(ivar, jvar));
       }
   }
 
@@ -1512,10 +1510,10 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           sum = 0;
           for (int ipadir = 0; ipadir < npadir; ipadir++)
           {
-            MP(ijvar,ipadir)-= SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
+            MP(ijvar,ipadir)-= sill[icov].getValue(ivar, jvar) * GE(icov,ijvar,ipadir);
             sum += FK(icov,ijvar,ipadir) * MP(ijvar,ipadir);
           }
-          value = AIC(icov,ijvar) - ALPHAK(icov,ijvar) * sum;
+          value = aic[icov].getValue(ivar, jvar) - alphak[icov].getValue(ivar, jvar) * sum;
           cc.setValue(ivar, jvar, value);
           cc.setValue(jvar, ivar, value);
         }
@@ -1542,17 +1540,17 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
         {
           if (allpos)
           {
-            SILL(icov,ijvar) = cc.getValue(ivar,jvar);
+            sill[icov].setValue(ivar, jvar, cc.getValue(ivar,jvar));
           }
           else
           {
             sum = 0.;
             for (kvar=0; kvar<nvar; kvar++)
               sum += (MAX(valpro[kvar],0.) * vecpro->getValue(ivar,kvar) * vecpro->getValue(jvar,kvar));
-            SILL(icov,ijvar) = sum;
+            sill[icov].setValue(ivar, jvar, sum);
           }
           for (int ipadir=0; ipadir<npadir; ipadir++)
-            MP(ijvar,ipadir) += SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
+            MP(ijvar,ipadir) += sill[icov].getValue(ivar, jvar) * GE(icov,ijvar,ipadir);
         }
       }
     }
@@ -3100,7 +3098,6 @@ static int st_optimize_under_constraints(int nvar,
  ** \return Error return code
  **
  ** \param[in]  nvar        Number of variables
- ** \param[in]  nvs2        Dimension of the triangular matrix (Dimension: nvar)
  ** \param[in]  ncova       Number of basic structures
  ** \param[in]  npadir      Total number of lags
  ** \param[in]  wt          Array of weights attached to variogram lags
@@ -3112,7 +3109,6 @@ static int st_optimize_under_constraints(int nvar,
  **
  *****************************************************************************/
 static int st_initialize_goulard(int nvar,
-                                 int nvs2,
                                  int ncova,
                                  int npadir,
                                  VectorDouble &wt,
@@ -3123,12 +3119,12 @@ static int st_initialize_goulard(int nvar,
 {
   MatrixSquareSymmetric aa(ncova);
   VectorDouble bb(ncova);
-
   MatrixRectangular Ae(ncova, 1);
   VectorDouble be(1);
   MatrixRectangular Ai(ncova, ncova);
   VectorDouble bi(ncova);
   VectorDouble res(ncova);
+  int nvs2 = nvar * (nvar + 1) / 2;
 
   /* Initialize the constraints matrices */
 
@@ -3217,17 +3213,16 @@ static int st_initialize_goulard(int nvar,
  *****************************************************************************/
 static void st_goulard_sill_to_model(int nvar,
                                      int ncova,
-                                     VectorDouble &sill,
+                                     std::vector<MatrixSquareSymmetric> &sill,
                                      Model *model)
 {
-  int nvs2 = nvar * (nvar + 1) / 2;
   for (int icov = 0; icov < ncova; icov++)
   {
     int ijvar = 0;
     for (int ivar = ijvar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        model->setSill(icov, ivar, jvar, SILL(icov, ijvar));
+        model->setSill(icov, ivar, jvar, sill[icov].getValue(ivar, jvar));
       }
   }
 }
@@ -3258,10 +3253,9 @@ static int st_goulard_with_constraints(const Constraints& constraints,
                                        VectorDouble &wt,
                                        VectorDouble &gg,
                                        VectorDouble &ge,
-                                       VectorDouble &sill)
+                                       std::vector<MatrixSquareSymmetric> &sill)
 {
   double crit;
-  int flag_positive, iter;
 
   /* Initializations */
 
@@ -3270,20 +3264,21 @@ static int st_goulard_with_constraints(const Constraints& constraints,
   /* Core allocation */
 
   std::vector<MatrixSquareSymmetric> matcor;
+  matcor.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
     matcor.push_back((MatrixSquareSymmetric(nvar)));
 
   /* Initialize the Goulard system */
 
-  st_initialize_goulard(nvar, nvs2, ncova, npadir, wt, gg, ge,
+  st_initialize_goulard(nvar, ncova, npadir, wt, gg, ge,
                         constraints.getConstantSills(), matcor);
 
   /* Update according to the eigen values */
 
-  flag_positive = 1;
+  bool flag_positive = true;
   for (int icov = 0; icov < ncova; icov++)
     if (!st_makeDefinitePositive(icov, nvar, constraints.getConstantSills(), matcor))
-      flag_positive = 0;
+      flag_positive = false;
 
   if (!flag_positive)
   {
@@ -3291,7 +3286,8 @@ static int st_goulard_with_constraints(const Constraints& constraints,
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         if (!FFFF(constraints.getConstantSills(ivar)))
-          matcor[icov].setValue(ivar, ivar, constraints.getConstantSills(ivar) / ncova);
+          matcor[icov].setValue(ivar, ivar,
+                                constraints.getConstantSills(ivar) / ncova);
         else
           matcor[icov].setValue(ivar, ivar, 1.);
 
@@ -3299,25 +3295,20 @@ static int st_goulard_with_constraints(const Constraints& constraints,
           matcor[icov].setValue(ivar, jvar, 0.);
       }
 
-        /* Perform the optimization under constraints */
+    /* Perform the optimization under constraints */
 
-        iter = st_optimize_under_constraints(nvar,nvs2,ncova,npadir,constraints,mauto,
-            wt,gg,ge,matcor,&crit);
+    int iter = st_optimize_under_constraints(nvar, nvs2, ncova, npadir, constraints,
+                                         mauto, wt, gg, ge, matcor, &crit);
 
-        /* Optional printout */
+    /* Optional printout */
 
-        st_goulard_score(mauto,1,ncova,iter,crit);
-      }
-
-      /* Load the parameters in the final model */
-
-  for (int icov = 0; icov < ncova; icov++)
-  {
-    int ijvar = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        SILL(icov,ijvar)= matcor[icov].getValue(ivar,jvar);
+    st_goulard_score(mauto, 1, ncova, iter, crit);
   }
+
+  /* Load the parameters in the final model */
+
+  for (int icov = 0; icov < ncova; icov++) sill[icov] = matcor[icov];
+  
   return (0);
 }
 
@@ -3356,8 +3347,8 @@ static int st_sill_fitting_int(Model *model,
                                VectorDouble &ge1,
                                VectorDouble &ge2,
                                VectorDouble &gg2,
-                               VectorDouble &alphau,
-                               VectorDouble &sill1)
+                               std::vector<MatrixSquareSymmetric> &alphau,
+                               std::vector<MatrixSquareSymmetric> &sill1)
 {
   double newval, crit;
 
@@ -3389,7 +3380,7 @@ static int st_sill_fitting_int(Model *model,
         {
           double sum = 0.;
           for (int icov = 0; icov < ncova; icov++)
-            sum += alphau[icov] * GE(icov, ijvar, ipadir);
+            sum += alphau[icov].getValue(0,0) * GE(icov, ijvar, ipadir);
           GE1(ijvar,ipadir)= sum;
         }
       }
@@ -3398,8 +3389,8 @@ static int st_sill_fitting_int(Model *model,
     /* Call Goulard with 1 structure (no constraint) */
 
     st_sill_reset(nvar,1,sill1);
-    if (st_goulard_without_constraint(mauto_new,nvar,1,npadir,
-            wt,gg,ge1,sill1,&crit)) goto label_end;
+    if (st_goulard_without_constraint(mauto_new, nvar, 1, npadir, wt, gg, ge1,
+                                      sill1, &crit)) goto label_end;
 
     /* Initialize the arrays for the second pass */
 
@@ -3407,7 +3398,7 @@ static int st_sill_fitting_int(Model *model,
     for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<=ivar; jvar++, ijvar++)
       {
-        double pivot = sill1[ijvar];
+        double pivot = sill1[0].getValue(ivar, jvar);
         for (int ipadir=0; ipadir<npadir; ipadir++)
         {
           GG2(ijvar,ipadir) = (isZero(pivot)) ? 0. : GG(ijvar,ipadir) / pivot;
@@ -3419,8 +3410,8 @@ static int st_sill_fitting_int(Model *model,
 
     /* Call Goulard with 1 variable (no constraint) */
 
-    if (st_goulard_without_constraint(mauto_new,1,ncova,npadir*nvs2,
-                                      wt2,gg2,ge2,alphau,&crit)) goto label_end;
+    if (st_goulard_without_constraint(mauto_new, 1, ncova, npadir * nvs2,
+                                      wt2, gg2, ge2, alphau, &crit)) goto label_end;
 
     /* Stopping criterion */
 
@@ -3437,7 +3428,7 @@ static int st_sill_fitting_int(Model *model,
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        newval = alphau[icov] * sill1[ijvar];
+        newval = alphau[icov].getValue(0,0) * sill1[0].getValue(ivar, jvar);
         model->setSill(icov, ivar, jvar, newval);
         model->setSill(icov, jvar, ivar, newval);
       }
@@ -3471,14 +3462,12 @@ static int st_goulard_fitting(int flag_reset,
                               const Constraints& constraints,
                               const Option_AutoFit& mauto)
 {
-  int status;
   double crit;
 
   /* Initialize the array of sills */
 
   if (flag_reset)
-    st_sill_reset(model->getVariableNumber(), model->getCovaNumber(),
-                  RECINT.sill);
+    st_sill_reset(model->getVariableNumber(), model->getCovaNumber(), RECINT.sill);
 
   /* Print the debug title (optional) */
 
@@ -3487,6 +3476,7 @@ static int st_goulard_fitting(int flag_reset,
 
   /* Dispatch */
 
+  int status;
   if (!mauto.getFlagIntrinsic())
   {
 
@@ -4314,19 +4304,18 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 {
   int nvar = dbmap->getLocNumber(ELoc::Z);
   int size = nvar * (nvar + 1) / 2;
-  int nvar2 = nvar * nvar;
 
   /* Allocation */
 
-  VectorDouble aux(nvar2,0.);
+  MatrixSquareSymmetric aux(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     String name = dbmap->getNameByLocator(ELoc::Z, ivar);
     VectorDouble ranges = dbmap->getRange(name);
-    AUX(ivar,ivar)= ranges[1] - ranges[0];
+    aux.setValue(ivar, ivar, ranges[1] - ranges[0]);
   }
   varchol.resize(size);
-  if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))
+  if (matrix_cholesky_decompose(aux.getValues().data(), varchol.data(), nvar))
     messageAbort("Error in the Cholesky decomposition of the variance matrix");
 }
 
@@ -4388,10 +4377,13 @@ static int st_manage_recint(const Option_AutoFit &mauto,
   int nvs2 = nvar * (nvar + 1) / 2;
 
   RECINT.npadir = npadir;
-  RECINT.wt.fill(TEST, npadir * nvs2);
-  RECINT.gg.fill(TEST, npadir * nvs2);
-  RECINT.ge.fill(TEST, npadir * nvs2 * ncova);
-  RECINT.sill.fill(TEST, nvs2 * ncova);
+  RECINT.wt.resize(npadir * nvs2, TEST);
+  RECINT.gg.resize(npadir * nvs2, TEST);
+  RECINT.ge.resize(npadir * nvs2 * ncova, TEST);
+  RECINT.sill.clear();
+  for (int icova = 0; icova < ncova; icova++)
+    RECINT.sill.push_back(MatrixSquareSymmetric(nvar));
+
   RECINT.covtab.resize(nv2);
 
   if (flag_exp)
@@ -4403,8 +4395,12 @@ static int st_manage_recint(const Option_AutoFit &mauto,
 
   if (mauto.getFlagIntrinsic())
   {
-    RECINT.alphau.fill(TEST, ncova);
-    RECINT.sill1.fill(TEST, nvs2);
+    RECINT.alphau.clear();
+    for (int icova = 0; icova < ncova; icova++)
+      RECINT.alphau.push_back(MatrixSquareSymmetric(1));
+    RECINT.alphau.clear();
+    for (int icova = 0; icova < ncova; icova++)
+      RECINT.alphau.push_back(MatrixSquareSymmetric(nvar));
     RECINT.ge1.fill(TEST, nvs2 * npadir);
     RECINT.ge2.fill(TEST, nvs2 * npadir * ncova);
     RECINT.wt2.fill(TEST, nvs2 * npadir);
