@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Enum/ECalcMember.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"

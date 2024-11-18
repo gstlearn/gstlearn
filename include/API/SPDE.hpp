@@ -67,7 +67,7 @@ public:
 
   double computeLogDet(int nbsimu = 1) const;
   double computeQuad() const;
-  double computeLogLikelihood(int nbsimu = 1) const;
+  double computeLogLikelihood(int nbsimu = 1, bool verbose = false) const;
   VectorDouble getCoeffs();
 
   void setDriftCoeffs(const VectorDouble& coeffs);
@@ -96,7 +96,7 @@ private:
   void _addNuggetOnResult(VectorDouble &result) const;
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
-  double _computeLogLikelihood(int nbsimu = 1) const;
+  double _computeLogLikelihood(int nbsimu = 1, bool verbose = false) const;
   #ifndef SWIG
     static void _projecLocal(Db* dbout,
                              const AMesh* meshing,
@@ -131,38 +131,40 @@ private:
   SPDEParam _params;
 };
 
-GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
-                                Db *dbout,
-                                Model *model,
-                                bool flag_est = true,
-                                bool flag_std = false,
-                                const AMesh* mesh = nullptr,
-                                int useCholesky = -1,
-                                const SPDEParam& params = SPDEParam(),
-                                int nbMC = 10,
-                                bool verbose = false,
-                                bool showStats = false,
-                                const NamingConvention &namconv = NamingConvention("KrigingSPDE"));
-GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
-                                 Db *dbout,
-                                 Model *model,
-                                 int nbsimu = 1,
-                                 const AMesh *mesh = nullptr,
-                                 int useCholesky = -1,
-                                 const SPDEParam& params = SPDEParam(),
-                                 bool verbose = false,
-                                 bool showStats = false,
-                                 const NamingConvention &namconv = NamingConvention("SimuSPDE"));
-GSTLEARN_EXPORT double logLikelihoodSPDE(Db *dbin,
-                                         Db *dbout,
-                                         Model *model,
-                                         const AMesh *mesh = nullptr,
-                                         int useCholesky = -1,
-                                         int nbsimu = 1,
+GSTLEARN_EXPORT int
+krigingSPDE(Db* dbin,
+            Db* dbout,
+            Model* model,
+            Db* domain                      = nullptr,
+            bool flag_est                   = true,
+            bool flag_std                   = false,
+            const AMesh* mesh               = nullptr,
+            int useCholesky                 = -1,
+            const SPDEParam& params         = SPDEParam(),
+            int nbMC                        = 10,
+            bool verbose                    = false,
+            bool showStats                  = false,
+            const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
+GSTLEARN_EXPORT int
+simulateSPDE(Db* dbin,
+             Db* dbout,
+             Model* model,
+             Db* domain                      = nullptr,
+             int nbsimu                      = 1,
+             const AMesh* mesh               = nullptr,
+             int useCholesky                 = -1,
+             const SPDEParam& params         = SPDEParam(),
+             bool verbose                    = false,
+             bool showStats                  = false,
+             const NamingConvention& namconv = NamingConvention("SimuSPDE"));
+GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
+                                         Model* model,
+                                         Db* domain              = nullptr,
+                                         const AMesh* mesh       = nullptr,
+                                         int useCholesky         = -1,
+                                         int nbsimu              = 1,
                                          const SPDEParam& params = SPDEParam(),
-                                         bool verbose = false);
-GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db *dbin, Model *model, const SPDEParam& params = SPDEParam());
-
+                                         bool verbose            = false);
 GSTLEARN_EXPORT VectorDouble krigingSPDENew(
   Db* dbin,
   Db* dbout,
@@ -171,3 +173,5 @@ GSTLEARN_EXPORT VectorDouble krigingSPDENew(
   int useCholesky                 = -1,
   bool verbose                    = false,
   const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
+GSTLEARN_EXPORT MatrixSparse*
+buildInvNugget(Db* dbin, Model* model, const SPDEParam& params = SPDEParam());

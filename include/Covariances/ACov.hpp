@@ -16,8 +16,6 @@
 #include "geoslib_define.h"
 
 #include "Space/ASpaceObject.hpp"
-
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
