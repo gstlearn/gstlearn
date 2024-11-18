@@ -1229,37 +1229,6 @@ static void st_load_wt(const Vario *vario,
 
 /****************************************************************************/
 /*!
- **  Display the Goulard final score
- **
- ** \param[in]  mode        0 without; 1 with constraints
- ** \param[in]  mauto       Option_AutoFit structure
- ** \param[in]  ncova       Number of basic structures
- ** \param[in]  iter        Number of iterations
- ** \param[in]  crit        Convergence criterion
- **
- *****************************************************************************/
-static void st_goulard_score(const Option_AutoFit &mauto,
-                             int mode,
-                             int ncova,
-                             int iter,
-                             double crit)
-{
-  if (mauto.getVerbose())
-  {
-    if (mode == 0)
-      mestitle(1, "Statistics for Goulard algorithm");
-    else
-      mestitle(1, "Statistics for Goulard algorithm (with sill constraints)");
-    message("Number of sills fitted   = %d\n", ncova);
-    message("Number of iterations     = %d/%d\n", iter, mauto.getMaxiter());
-    message("Conv. criterion          = %f\n", mauto.getTolstop());
-    message("Conv. criterion (scaled) = %f\n", mauto.getTolred());
-    message("Convergence score        = %f\n", ABS(crit));
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Display the title for the Goulard algorithm
  **
  ** \param[in]  nvar        Number of variables
@@ -1415,6 +1384,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   MatrixRectangular mp(nvs2, npadir);
   std::vector<MatrixRectangular> fk;
+  fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
     fk.push_back(MatrixRectangular(nvs2, npadir));
   MatrixSquareSymmetric cc(nvar);
@@ -1568,8 +1538,6 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
     if (ABS(crit) < mauto.getTolred() ||
         ABS(crit-crit_mem) / ABS(crit) < mauto.getTolred()) break;
   }
-
-  st_goulard_score(mauto, 0, ncova, iter, crit);
 
   *crit_arg = crit;
   return (0);
@@ -2971,7 +2939,8 @@ static int st_optimize_under_constraints(int nvar,
 
   VectorDouble xr(nvar);
   std::vector<MatrixSquareSymmetric> alpha;
-  for (int icova = 0; icova < ncova; icova++)
+  alpha.reserve(ncova);
+for (int icova = 0; icova < ncova; icova++)
     alpha.push_back(MatrixSquareSymmetric(nvar));
   int iter = 0;
 
@@ -3258,23 +3227,17 @@ static int st_goulard_with_constraints(const VectorDouble& consSill,
     for (int icov = 0; icov < ncova; icov++)
       for (int ivar = 0; ivar < nvar; ivar++)
       {
+        matcor[icov].fill(0.);
         if (!FFFF(consSill[ivar]))
           matcor[icov].setValue(ivar, ivar, consSill[ivar] / ncova);
         else
           matcor[icov].setValue(ivar, ivar, 1.);
-
-        for (int jvar = 0; jvar < ivar; jvar++)
-          matcor[icov].setValue(ivar, jvar, 0.);
       }
 
     /* Perform the optimization under constraints */
 
-    int iter = st_optimize_under_constraints(nvar, ncova, npadir, consSill,
-                                             mauto, wt, gg, ge, matcor, &crit);
-
-    /* Optional printout */
-
-    st_goulard_score(mauto, 1, ncova, iter, crit);
+    (void)st_optimize_under_constraints(nvar, ncova, npadir, consSill, mauto,
+                                        wt, gg, ge, matcor, &crit);
   }
 
   /* Load the parameters in the final model */
