@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Enum/EOperator.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 
@@ -55,8 +56,6 @@
 #define GG2(ijvar,ipadir)        gg2[IJDIR(ijvar,ipadir)]
 #define WT(ijvar,ipadir)         wt[IJDIR(ijvar,ipadir)]
 #define WT2(ijvar,ipadir)        wt2[IJDIR(ijvar,ipadir)]
-#define MP(ijvar,ipadir)         mp[IJDIR(ijvar,ipadir)]
-#define FK(icov,ijvar,ipadir)    fk[IJDIR(ijvar,ipadir)  + (icov)*nvs2*npadir]
 #define DD(idim,ijvar,ipadir)    dd[IJDIR(ijvar,ipadir)  + (idim)*nvs2*npadir]
 #define TAB(ijvar,ipadir)        tabin[IJDIR(ijvar,ipadir)]
 
@@ -1387,9 +1386,6 @@ static void st_sill_reset(int nvar,
  ** \param[out] sill        Array of resulting sills
  ** \param[out] crit_arg    Convergence criterion
  **
- ** \remark  Internal arrays:
- ** \remark  MP : Contains the current Model (ijvar,ipadir)
- **
  *****************************************************************************/
 static int st_goulard_without_constraint(const Option_AutoFit &mauto,
                                          int nvar,
@@ -1417,8 +1413,10 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   /* Core allocation */
 
-  VectorDouble mp(npadir * nvs2);
-  VectorDouble fk(npadir * nvs2 * ncova, 0.);
+  MatrixRectangular mp(nvs2, npadir);
+  std::vector<MatrixRectangular> fk;
+  for (int icova = 0; icova < ncova; icova++)
+    fk.push_back(MatrixRectangular(nvs2, npadir));
   MatrixSquareSymmetric cc(nvar);
 
   std::vector<MatrixSquareSymmetric> aic;
@@ -1439,9 +1437,10 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
-        MP(ijvar, ipadir) = 0.;
+        mp.setValue(ijvar, ipadir, 0.);
         for (int icov = 0; icov < ncova; icov++)
-          MP(ijvar, ipadir) += sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar, ipadir);
+          mp.setValue(ijvar, ipadir, mp.getValue(ijvar, ipadir) +
+                      sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar, ipadir));
       }
 
   for (int icov = 0; icov < ncova; icov++)
@@ -1456,7 +1455,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
         {
           if (FFFF(WT(ijvar,ipadir))) continue;
           temp = WT(ijvar,ipadir) * ge[icov].getValue(ijvar,ipadir);
-          FK(icov,ijvar,ipadir) = temp;
+          fk[icov].setValue(ijvar,ipadir,temp);
           sum1 += temp * GG(ijvar,ipadir);
           sum2 += temp * ge[icov].getValue(ijvar,ipadir);
         }
@@ -1472,7 +1471,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
         if (FFFF(WT(ijvar, ipadir))) continue;
-        temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
+        temp = GG(ijvar,ipadir) - mp.getValue(ijvar,ipadir);
         value = (ivar != jvar) ? 2. : 1.;
         crit += value * WT(ijvar, ipadir) * temp * temp;
       }
@@ -1500,8 +1499,9 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           sum = 0;
           for (int ipadir = 0; ipadir < npadir; ipadir++)
           {
-            MP(ijvar,ipadir)-= sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar,ipadir);
-            sum += FK(icov,ijvar,ipadir) * MP(ijvar,ipadir);
+            mp.setValue(ijvar, ipadir, mp.getValue(ijvar, ipadir)
+                        - sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar,ipadir));
+            sum += fk[icov].getValue(ijvar,ipadir) * mp.getValue(ijvar,ipadir);
           }
           value = aic[icov].getValue(ivar, jvar) - alphak[icov].getValue(ivar, jvar) * sum;
           cc.setValue(ivar, jvar, value);
@@ -1540,7 +1540,8 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
             sill[icov].setValue(ivar, jvar, sum);
           }
           for (int ipadir=0; ipadir<npadir; ipadir++)
-            MP(ijvar,ipadir) += sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar,ipadir);
+            mp.setValue(ijvar, ipadir, mp.getValue(ijvar, ipadir) +
+                          sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar,ipadir));
         }
       }
     }
@@ -1556,7 +1557,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
         for (int jvar=0; jvar<=ivar; jvar++, ijvar++)
         {
           if (FFFF(WT(ijvar,ipadir))) continue;
-          temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
+          temp  = GG(ijvar,ipadir) - mp.getValue(ijvar,ipadir);
           value = (ivar != jvar) ? 2. : 1.;
           crit += value * WT(ijvar,ipadir) * temp * temp;
        }
@@ -2943,7 +2944,7 @@ static int st_makeDefinitePositive(int icov0,
  ** \param[in]  nvar        Number of variables
  ** \param[in]  ncova       Number of basic structures
  ** \param[in]  npadir      Total number of lags
- ** \param[in]  constraints Constraints structure
+ ** \param[in]  consSill    Constrainted sills
  ** \param[in]  mauto       Option_AutoFit structure
  ** \param[in]  wt          Array of weights attached to variogram lags
  ** \param[in]  gg          Array of experimental values
@@ -2956,7 +2957,7 @@ static int st_makeDefinitePositive(int icov0,
 static int st_optimize_under_constraints(int nvar,
                                          int ncova,
                                          int npadir,
-                                         const Constraints& constraints,
+                                         const VectorDouble& consSill,
                                          const Option_AutoFit &mauto,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
@@ -2991,11 +2992,10 @@ static int st_optimize_under_constraints(int nvar,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    if (FFFF(constraints.getConstantSills(ivar)))
+    if (FFFF(consSill[ivar]))
       xr[ivar] = 1.;
     else
-      xr[ivar] = sqrt(
-          constraints.getConstantSills(ivar) / st_sum_sills(ivar, ncova, alpha));
+      xr[ivar] = sqrt(consSill[ivar] / st_sum_sills(ivar, ncova, alpha));
   }
 
   for (iter = 0; iter < mauto.getMaxiter(); iter++)
@@ -3005,13 +3005,12 @@ static int st_optimize_under_constraints(int nvar,
       for (int ivar0 = 0; ivar0 < nvar; ivar0++)
       {
         double denom = st_sum_sills(ivar0, ncova, alpha) - alpha[icov0].getValue(ivar0,ivar0);
-        if (!FFFF(constraints.getConstantSills(ivar0)) && denom < 1e-30) continue;
-        if (!FFFF(constraints.getConstantSills(ivar0)))
+        if (!FFFF(consSill[ivar0]) && denom < 1e-30) continue;
+        if (!FFFF(consSill[ivar0]))
         {
-          xrmax = sqrt(constraints.getConstantSills(ivar0) / denom);
+          xrmax = sqrt(consSill[ivar0] / denom);
           xr[ivar0] = st_minimize_P4(icov0, ivar0, ncova, nvar, npadir, xrmax,
-                                     xr, alpha, wt, gg, ge,
-                                     constraints.getConstantSills());
+                                     xr, alpha, wt, gg, ge, consSill);
 
           if (isZero(xr[ivar0]))
           {
@@ -3027,9 +3026,8 @@ static int st_optimize_under_constraints(int nvar,
 
           /* Update 'alpha' (diagonal only) */
 
-        if (!FFFF(constraints.getConstantSills(ivar0)))
-          st_updateAlphaDiag(icov0, ivar0, ncova, xr, alpha,
-                             constraints.getConstantSills());
+        if (!FFFF(consSill[ivar0]))
+          st_updateAlphaDiag(icov0, ivar0, ncova, xr, alpha, consSill);
 
         /* Update 'sills' for the structures other than the current one */
 
@@ -3039,24 +3037,22 @@ static int st_optimize_under_constraints(int nvar,
         /* (except diagonal in the constrained case)        */
 
         st_updateCurrentSillGoulard(icov0, ivar0, npadir, nvar, ncova, wt, ge,
-                                    gg, constraints.getConstantSills(), matcor);
+                                    gg, consSill, matcor);
 
         /* Update sill matrix for the current structure (for diagonal) */
 
-        if (!FFFF(constraints.getConstantSills(ivar0)))
+        if (!FFFF(consSill[ivar0]))
           st_updateCurrentSillDiag(icov0, ivar0, alpha, xr, matcor);
 
         /* Make sure the current matrix of sills if definite positive */
         /* (diagonal unchanged)                                       */
 
-        (void) st_makeDefinitePositive(icov0, nvar, constraints.getConstantSills(),
-                                       matcor);
+        (void)st_makeDefinitePositive(icov0, nvar, consSill, matcor);
 
         /* Update 'alpha' for the current structure */
 
         for (int ivar = 0; ivar < nvar; ivar++)
-          st_updateAlphaNoDiag(icov0, ivar, nvar, xr, constraints.getConstantSills(),
-                               matcor, alpha);
+          st_updateAlphaNoDiag(icov0, ivar, nvar, xr, consSill, matcor, alpha);
       }
     }
 
@@ -3214,7 +3210,7 @@ static void st_goulard_sill_to_model(int nvar,
  **
  ** \return  Error returned code
  **
- ** \param[in]  constraints Constraints structure
+ ** \param[in]  consSill    Constrainted sills
  ** \param[in]  mauto       Option_AutoFit structure
  ** \param[in]  nvar        Number of variables
  ** \param[in]  ncova       Number of covariances
@@ -3226,7 +3222,7 @@ static void st_goulard_sill_to_model(int nvar,
  ** \param[out] sill        Array of resulting sills
  **
  *****************************************************************************/
-static int st_goulard_with_constraints(const Constraints& constraints,
+static int st_goulard_with_constraints(const VectorDouble& consSill,
                                        const Option_AutoFit &mauto,
                                        int nvar,
                                        int ncova,
@@ -3248,13 +3244,13 @@ static int st_goulard_with_constraints(const Constraints& constraints,
   /* Initialize the Goulard system */
 
   st_initialize_goulard(nvar, ncova, npadir, wt, gg, ge,
-                        constraints.getConstantSills(), matcor);
+                        consSill, matcor);
 
   /* Update according to the eigen values */
 
   bool flag_positive = true;
   for (int icov = 0; icov < ncova; icov++)
-    if (!st_makeDefinitePositive(icov, nvar, constraints.getConstantSills(), matcor))
+    if (!st_makeDefinitePositive(icov, nvar, consSill, matcor))
       flag_positive = false;
 
   if (!flag_positive)
@@ -3262,9 +3258,8 @@ static int st_goulard_with_constraints(const Constraints& constraints,
     for (int icov = 0; icov < ncova; icov++)
       for (int ivar = 0; ivar < nvar; ivar++)
       {
-        if (!FFFF(constraints.getConstantSills(ivar)))
-          matcor[icov].setValue(ivar, ivar,
-                                constraints.getConstantSills(ivar) / ncova);
+        if (!FFFF(consSill[ivar]))
+          matcor[icov].setValue(ivar, ivar, consSill[ivar] / ncova);
         else
           matcor[icov].setValue(ivar, ivar, 1.);
 
@@ -3274,7 +3269,7 @@ static int st_goulard_with_constraints(const Constraints& constraints,
 
     /* Perform the optimization under constraints */
 
-    int iter = st_optimize_under_constraints(nvar, ncova, npadir, constraints,
+    int iter = st_optimize_under_constraints(nvar, ncova, npadir, consSill,
                                              mauto, wt, gg, ge, matcor, &crit);
 
     /* Optional printout */
@@ -3310,22 +3305,19 @@ static int st_goulard_with_constraints(const Constraints& constraints,
  ** \param[out] alphau      Array
  ** \param[out] sill1       Array of resulting sills
  **
- ** \remark  Internal arrays:
- ** \remark  MP : Contains the current Model (ijvar,ipadir)
- **
  *****************************************************************************/
-static int st_sill_fitting_int(Model *model,
-                               const Option_AutoFit& mauto,
-                               int npadir,
-                               VectorDouble &wt,
-                               VectorDouble &gg,
-                               std::vector<MatrixRectangular> &ge,
-                               VectorDouble &wt2,
-                               std::vector<MatrixRectangular> &ge1,
-                               std::vector<MatrixRectangular> &ge2,
-                               VectorDouble &gg2,
-                               std::vector<MatrixSquareSymmetric> &alphau,
-                               std::vector<MatrixSquareSymmetric> &sill1)
+static int st_sill_fitting_intrinsic(Model* model,
+                                     const Option_AutoFit& mauto,
+                                     int npadir,
+                                     VectorDouble& wt,
+                                     VectorDouble& gg,
+                                     std::vector<MatrixRectangular>& ge,
+                                     VectorDouble& wt2,
+                                     std::vector<MatrixRectangular>& ge1,
+                                     std::vector<MatrixRectangular>& ge2,
+                                     VectorDouble& gg2,
+                                     std::vector<MatrixSquareSymmetric>& alphau,
+                                     std::vector<MatrixSquareSymmetric>& sill1)
 {
   double newval, crit;
 
@@ -3426,15 +3418,13 @@ static int st_sill_fitting_int(Model *model,
  **
  ** \return  Error return code
  **
- ** \param[in]  flag_reset  1 to reset the array of sill before usage
  ** \param[in]  flag_title  1 to print the title
  ** \param[in]  model       Model to be fitted
  ** \param[in]  constraints Constraints structure
  ** \param[in]  mauto       Option_AutoFit structure
  **
  *****************************************************************************/
-static int st_goulard_fitting(int flag_reset,
-                              int flag_title,
+static int st_goulard_fitting(int flag_title,
                               Model *model,
                               const Constraints& constraints,
                               const Option_AutoFit& mauto)
@@ -3443,8 +3433,7 @@ static int st_goulard_fitting(int flag_reset,
 
   /* Initialize the array of sills */
 
-  if (flag_reset)
-    st_sill_reset(model->getVariableNumber(), model->getCovaNumber(), RECINT.sill);
+  st_sill_reset(model->getVariableNumber(), model->getCovaNumber(), RECINT.sill);
 
   /* Print the debug title (optional) */
 
@@ -3474,11 +3463,10 @@ static int st_goulard_fitting(int flag_reset,
 
       /* With constraint on the sill */
 
-      status = st_goulard_with_constraints(constraints, mauto,
-                                           model->getVariableNumber(),
-                                           model->getCovaNumber(),
-                                           RECINT.npadir, RECINT.wt, RECINT.gg,
-                                           RECINT.ge, RECINT.sill);
+      status = st_goulard_with_constraints(
+        constraints.getConstantSills(), mauto, model->getVariableNumber(),
+        model->getCovaNumber(), RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
+        RECINT.sill);
     }
 
     /* Copy the array 'sill' in the Model */
@@ -3488,10 +3476,9 @@ static int st_goulard_fitting(int flag_reset,
   }
   else
   {
-    status = st_sill_fitting_int(model, mauto, RECINT.npadir, RECINT.wt,
-                                 RECINT.gg, RECINT.ge, RECINT.wt2, RECINT.ge1,
-                                 RECINT.ge2, RECINT.gg2, RECINT.alphau,
-                                 RECINT.sill1);
+    status = st_sill_fitting_intrinsic(
+      model, mauto, RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge, RECINT.wt2,
+      RECINT.ge1, RECINT.ge2, RECINT.gg2, RECINT.alphau, RECINT.sill1);
   }
 
   return (status);
@@ -3582,7 +3569,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
     for (imod = 0; imod < strmod->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(1, 1, STRMOD->models[imod], constraints, mauto);
+      (void) st_goulard_fitting(1, STRMOD->models[imod], constraints, mauto);
     }
   st_goulard_verbose(1, mauto);
 
@@ -4108,7 +4095,7 @@ static void st_strmod_vario_evaluate(int nbexp,
     for (int imod = 0; imod < STRMOD->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(1, 0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
+      (void) st_goulard_fitting(0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
     }
   st_goulard_verbose(1, MAUTO);
 
@@ -4195,7 +4182,7 @@ static void st_strmod_vmap_evaluate(int /*nbexp*/,
     for (int imod = 0; imod < STRMOD->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(1, 0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
+      (void) st_goulard_fitting(0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
     }
   st_goulard_verbose(1, MAUTO);
 
@@ -4565,7 +4552,7 @@ int model_auto_fit(Vario *vario,
     }
     else
     {
-      status = st_goulard_fitting(1, 1, model, constraints, mauto);
+      status = st_goulard_fitting(1, model, constraints, mauto);
     }
     if (status > 0) goto label_end;
 
@@ -4676,7 +4663,7 @@ int model_fitting_sills(Vario *vario,
 
   /* Automatic Sill Fitting procedure */
 
-  if (st_goulard_fitting(1, 1, model, constraints, mauto)) return 1;
+  if (st_goulard_fitting(1, model, constraints, mauto)) return 1;
 
   /* Store the sills in the keypair mechanism */
 
