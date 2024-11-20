@@ -18,7 +18,7 @@
 #include <nlopt.h>
 
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
-#define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
+#define WT(ijvar, ipadir)    _wt[IJDIR(ijvar, ipadir)]
 
 typedef struct
 {
@@ -33,12 +33,14 @@ typedef struct
 ModelOptimVario::ModelOptimVario()
   : ModelOptim()
   , _varioPart()
+  , _wt()
 {
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   : ModelOptim(m)
   , _varioPart()
+  , _wt(m._wt)
 {
    _copyVarioPart(m._varioPart);
 }
@@ -54,7 +56,9 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
 {
   if (this != &m)
   {
+    ModelOptim::operator=(m);
     _copyVarioPart(m._varioPart);
+    _wt = m._wt;
   }
   return (*this);
 }
@@ -83,7 +87,7 @@ bool ModelOptimVario::_checkConsistency()
   return true;
 }
 
-int ModelOptimVario::fit(const Vario* vario, Model* model, int wmode, bool verbose)
+int ModelOptimVario::fit(Vario* vario, Model* model, int wmode, bool verbose)
 {
   _modelPart._model   = model;
   _modelPart._verbose = verbose;
@@ -190,7 +194,7 @@ int ModelOptimVario::_buildExperimental()
   }
 
   // Update the weight
-  VectorDouble wt = _computeWeight();
+  _computeWt();
   int npadir      = _getTotalLagsPerDirection();
   int ecr         = 0;
   int ipadir      = 0;
@@ -259,19 +263,15 @@ bool ModelOptimVario::_isLagCorrect(int idir, int k) const
   return !FFFF(gg);
 }
 
-VectorDouble ModelOptimVario::_computeWeight()
+void ModelOptimVario::_computeWt()
 {
-  int ipadir;
-
-  /* Initializations */
   const Vario* vario = _varioPart._vario;
   int ndir           = vario->getDirectionNumber();
   int nvar           = vario->getVariableNumber();
   int nvs2           = nvar * (nvar + 1) / 2;
+  int npadir         = _getTotalLagsPerDirection();
   VectorDouble count = _computeWeightPerDirection();
-
-  int npadir = _getTotalLagsPerDirection();
-  VectorDouble wt(npadir * nvs2, 0.);
+  _wt.resize(npadir * nvs2, 0.);
 
   /* Determine the count of significant directions */
 
@@ -301,6 +301,7 @@ VectorDouble ModelOptimVario::_computeWeight()
       }
   }
 
+  int ipadir = 0;
   switch (_varioPart._wmode)
   {
     case 1:
@@ -471,8 +472,6 @@ VectorDouble ModelOptimVario::_computeWeight()
           if (!FFFF(WT(ijvar0, ipadir))) WT(ijvar0, ipadir) /= ratio;
       }
     }
-
-  return wt;
 }
 
 VectorDouble ModelOptimVario::_computeWeightPerDirection()

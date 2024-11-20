@@ -329,7 +329,7 @@ static void st_covsrt(int *n,
     i__1 = *n - *infis;
     for (i = 1; i <= i__1; ++i) {
 
-      /* Determine the integration limits for variable with minimum */
+      /* Determine the integratio  n limits for variable with minimum */
       /* expected probability and interchange that variable with Ith. */
 
       dmin_ = 0.;

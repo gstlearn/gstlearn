@@ -55,7 +55,7 @@ public:
 
     // Verbosity flag
     bool _verbose;
-    int _niter;
+    int  _niter;
   } Model_Part;
 
 protected:

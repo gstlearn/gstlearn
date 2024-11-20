@@ -44,8 +44,9 @@ public:
   typedef struct
   {
     // Pointer to the Vario structure
-    const Vario* _vario;
+    Vario* _vario;
 
+    // Parametrization
     int _wmode;
 
     // Experimental quantities
@@ -53,7 +54,7 @@ public:
 
   } Vario_Part;
 
-  int fit(const Vario* vario, Model* model, int wmode = 2, bool verbose = false);
+  int fit(Vario* vario, Model* model, int wmode = 2, bool verbose = false);
 
   static double evalCost(unsigned int nparams,
                          const double* current,
@@ -62,19 +63,24 @@ public:
 
 private:
   int _buildExperimental();
-  bool _isLagCorrect(int idir, int k) const;
-  double _getC00(int idir, int ivar, int jvar) const;
-  VectorDouble _computeWeight();
-  VectorDouble _computeWeightPerDirection();
   int _getTotalLagsPerDirection() const;
-  int _getParamNumber() const { return (int) _modelPart._params.size(); }
+  int _getParamNumber() const { return (int)_modelPart._params.size(); }
+
+  VectorDouble _computeWeightPerDirection();
 
   void _copyVarioPart(const Vario_Part& varioPart);
   bool _checkConsistency();
+  bool _isLagCorrect(int idir, int k) const;
 
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
-private:
+protected:
+  void _computeWt();
+  double _getC00(int idir, int ivar, int jvar) const;
+
+protected:
   // Part relative to the Experimental variograms
   Vario_Part _varioPart;
+
+  VectorDouble _wt;
 };

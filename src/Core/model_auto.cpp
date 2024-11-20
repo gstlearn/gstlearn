@@ -76,19 +76,18 @@ typedef struct
 {
   int npadir;
   VectorDouble gg;
-  std::vector<MatrixRectangular> ge;
-  VectorDouble wt;
-  std::vector<MatrixSquareSymmetric> sill;
-  VectorDouble covtab;
-  VectorDouble wtc;
   VectorDouble ggc;
-  VectorDouble dd;
+  VectorDouble wt;
+  VectorDouble wtc;
   VectorDouble wt2;
+  VectorDouble dd;
+  VectorDouble gg2;
+  std::vector<MatrixRectangular> ge;
   std::vector<MatrixRectangular> ge1;
   std::vector<MatrixRectangular> ge2;
-  VectorDouble gg2;
   std::vector<MatrixSquareSymmetric> alphau;
   std::vector<MatrixSquareSymmetric> sill1;
+  std::vector<MatrixSquareSymmetric> sill;
 } Recint;
 
 typedef struct
@@ -4298,7 +4297,6 @@ static int st_manage_recint(const Option_AutoFit &mauto,
                             int ncova,
                             int npadir)
 {
-  int nv2 = nvar * nvar;
   int nvs2 = nvar * (nvar + 1) / 2;
 
   RECINT.npadir = npadir;
@@ -4310,8 +4308,6 @@ static int st_manage_recint(const Option_AutoFit &mauto,
   RECINT.sill.clear();
   for (int icova = 0; icova < ncova; icova++)
     RECINT.sill.push_back(MatrixSquareSymmetric(nvar));
-
-  RECINT.covtab.resize(nv2);
 
   if (flag_exp)
   {
@@ -4488,7 +4484,6 @@ int model_auto_fit(Vario *vario,
   st_load_gg(vario, npadir, strexps, RECINT.gg);
   st_compress_array(vario, npadir, RECINT.gg, RECINT.ggc);
   st_load_ge(vario, model, npadir, RECINT.dd, RECINT.ge);
-
   if (npar > 0) scale.resize(npar);
 
   /* Set the default values and bounds */

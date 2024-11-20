@@ -84,6 +84,7 @@ int ModelOptim::_buildModelParamList()
       // Add the 'Range' (scalar) attribute
       _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
     }
+    
     // TODO: inference of PARAM is deactivated (DR on 2024/11/14)
     // if (cova->hasParam())
     // {
