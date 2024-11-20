@@ -383,7 +383,7 @@ int ModelOptimSills::_getDimensions()
         // for the first lag is arbitrarily set to 1.
         if (isZero(hh0) && sw0 > 1.)
         {
-          int iad    = vario->getNext(idir, ivar, jvar);
+          int iad    = vario->getNext(ivar, jvar, idir);
           double sw1 = vario->getSwByIndex(idir, iad);
           double hh1 = vario->getHhByIndex(idir, iad);
 

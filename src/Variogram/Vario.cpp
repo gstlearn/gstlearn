@@ -1878,7 +1878,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
   _nVar = nvar;
   internalDirectionResize(ndir,false);
   setVars(vars);
-  setCalculByName("vg");
+  setCalculByName("vg"); // TODO: read this information from NF file and treat accordingly
   setScale(scale);
   int isDefinedForGrid = 0;
 
@@ -1943,6 +1943,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
+// TODO: add the type of calculation which has been performed
 bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   double value;
