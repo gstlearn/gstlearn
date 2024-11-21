@@ -271,7 +271,8 @@ void ModelOptimVario::_computeWt()
   int nvs2           = nvar * (nvar + 1) / 2;
   int npadir         = _getTotalLagsPerDirection();
   VectorDouble count = _computeWeightPerDirection();
-  _wt.resize(npadir * nvs2, 0.);
+  _wt.resize(npadir * nvs2);
+  _wt.fill(0.);
 
   /* Determine the count of significant directions */
 

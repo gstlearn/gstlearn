@@ -17,9 +17,13 @@
 #include "Model/Constraints.hpp"
 #include "Basic/MathFunc.hpp"
 
-#define IJDIR(ijvar, ipadir)    ((ijvar)*_npadir + (ipadir))
-#define WT(ijvar, ipadir)       _wt[IJDIR(ijvar, ipadir)]
-#define GG(ijvar, ipadir)       _gg[IJDIR(ijvar, ipadir)]
+#define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
+#define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
+#define GG(ijvar, ipadir)       gg[IJDIR(ijvar, ipadir)]
+#define _WT(ijvar, ipadir)       _wt[IJDIR(ijvar, ipadir)]
+#define _GG(ijvar, ipadir)       _gg[IJDIR(ijvar, ipadir)]
+#define _WT2(ijvar, ipadir) _wt2[IJDIR(ijvar, ipadir)]
+#define _GG2(ijvar, ipadir)      _gg2[IJDIR(ijvar, ipadir)]
 #define TAB(ijvar, ipadir)      tabin[IJDIR(ijvar, ipadir)]
 #define DD(idim, ijvar, ipadir) _dd[idim][IJDIR(ijvar, ipadir)]
 
@@ -89,8 +93,7 @@ int ModelOptimSills::fit(Vario* vario,
   // Allocate internal arrays
   _allocateInternalArrays();
 
-  /* Load the arrays */
-
+  // Load the arrays
   _computeWt();
   _compressArray(_wt, _wtc);
   _computeGg();
@@ -98,20 +101,13 @@ int ModelOptimSills::fit(Vario* vario,
   _computeGe();
 
   // Initialize the array of sills
-
-  std::vector<MatrixSquareSymmetric> sills;
-  for (int icova = 0; icova < _ncova; icova++)
-  {
-    sills.push_back(MatrixSquareSymmetric(_nvar));
-    for (int ivar = 0; ivar < _nvar; ivar++)
-      sills[icova].setValue(ivar, ivar, 1);
-  }
+  _resetSill(_ncova, _sill);
 
   /* Dispatch */
 
   int status = 0;
   double crit = 0.;
-  if (!mauto->getFlagIntrinsic())
+  if (!optvar->getFlagIntrinsic())
   {
 
     /* No intrinsic hypothesis */
@@ -120,235 +116,47 @@ int ModelOptimSills::fit(Vario* vario,
     {
       /* Without constraint on the sill */
 
-      status = _goulardWithoutConstraint(&crit);
+      status = _goulardWithoutConstraint(_mauto, _nvar, _ncova, _npadir,
+                                         _wt, _gg, _ge, _sill, &crit);
     }
     else
     {
 
-  //     /* With constraint on the sill */
+      /* With constraint on the sill */
 
-  //     status = st_goulard_with_constraints(constraints.getConstantSills(), mauto, nvar,
-  //       ncova, RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
-  //       RECINT.sill);
+      status = _goulardWithConstraints();
     }
 
-  //   /* Copy the array 'sill' in the Model */
-
-  //   st_goulard_sill_to_model(nvar, ncova, RECINT.sill, model);
+    // Store the sills into the Model
+    _storeSillsInModel();
   }
   else
   {
-  //   status = st_sill_fitting_intrinsic(
-  //     model, mauto, RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge, RECINT.wt2,
-  //     RECINT.ge1, RECINT.ge2, RECINT.gg2, RECINT.alphau, RECINT.sill1);
+    status = _sillFittingIntrinsic();
   }
 
   return (status);
 }
 
-int ModelOptimSills::_goulardWithoutConstraint(double* crit_arg)
+void ModelOptimSills::_storeSillsInModel() const
 {
-  int allpos;
-  double temp, crit, crit_mem, value;
-  VectorDouble valpro;
-  const MatrixSquareGeneral* vecpro;
-
-  /*******************/
-  /* Initializations */
-  /*******************/
-
-  double sum  = 0.;
-  double sum1 = 0.;
-  double sum2 = 0.;
-  int nvs2    = _nvar * (_nvar + 1) / 2;
-
-  /* Core allocation */
-
-  MatrixRectangular mp(nvs2, _npadir);
-  std::vector<MatrixRectangular> fk;
-  fk.reserve(_ncova);
-  for (int icova = 0; icova < _ncova; icova++)
-    fk.push_back(MatrixRectangular(nvs2, _npadir));
-  MatrixSquareSymmetric cc(_nvar);
-
-  std::vector<MatrixSquareSymmetric> aic;
-  aic.reserve(_ncova);
-  for (int icova = 0; icova < _ncova; icova++)
-    aic.push_back(MatrixSquareSymmetric(_nvar));
-  std::vector<MatrixSquareSymmetric> alphak;
-  alphak.reserve(_ncova);
-  for (int icova = 0; icova < _ncova; icova++)
-    alphak.push_back(MatrixSquareSymmetric(_nvar));
-
-  /********************/
-  /* Pre-calculations */
-  /********************/
-
-  int ijvar = 0;
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-      for (int ipadir = 0; ipadir < _npadir; ipadir++)
-      {
-        mp.setValue(ijvar, ipadir, 0.);
-        for (int icov = 0; icov < _ncova; icov++)
-          mp.setValue(ijvar, ipadir,
-                      mp.getValue(ijvar, ipadir) +
-                        _sill[icov].getValue(ivar, jvar) *
-                          _ge[icov].getValue(ijvar, ipadir));
-      }
-
   for (int icov = 0; icov < _ncova; icov++)
   {
-    ijvar = 0;
-    for (int ivar = 0; ivar < _nvar; ivar++)
+    int ijvar = 0;
+    for (int ivar = ijvar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-      {
-        sum1 = sum2 = 0;
-        aic[icov].setValue(ivar, jvar, 0.);
-        for (int ipadir = 0; ipadir < _npadir; ipadir++)
-        {
-          if (FFFF(WT(ijvar, ipadir))) continue;
-          temp = WT(ijvar, ipadir) * _ge[icov].getValue(ijvar, ipadir);
-          fk[icov].setValue(ijvar, ipadir, temp);
-          sum1 += temp * GG(ijvar, ipadir);
-          sum2 += temp * _ge[icov].getValue(ijvar, ipadir);
-        }
-        alphak[icov].setValue(ivar, jvar, 1. / sum2);
-        aic[icov].setValue(ivar, jvar, sum1 * alphak[icov].getValue(ivar, jvar));
-      }
+        _setSill(icov, ivar, jvar, _sill[icov].getValue(ivar, jvar));
   }
-
-  crit  = 0.;
-  ijvar = 0;
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-      for (int ipadir = 0; ipadir < _npadir; ipadir++)
-      {
-        if (FFFF(WT(ijvar, ipadir))) continue;
-        temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
-        value = (ivar != jvar) ? 2. : 1.;
-        crit += value * WT(ijvar, ipadir) * temp * temp;
-      }
-
-  /***********************/
-  /* Iterative procedure */
-  /***********************/
-
-  int iter;
-  for (iter = 0; iter < _mauto->getMaxiter(); iter++)
-  {
-
-    /* Loop on the elementary structures */
-
-    for (int icov = 0; icov < _ncova; icov++)
-    {
-
-      /* Establish the coregionalization matrix */
-
-      ijvar = 0;
-      for (int ivar = 0; ivar < _nvar; ivar++)
-      {
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        {
-          sum = 0;
-          for (int ipadir = 0; ipadir < _npadir; ipadir++)
-          {
-            mp.setValue(ijvar, ipadir,
-                        mp.getValue(ijvar, ipadir) -
-                          _sill[icov].getValue(ivar, jvar) *
-                            _ge[icov].getValue(ijvar, ipadir));
-            sum +=
-              fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
-          }
-          value = aic[icov].getValue(ivar, jvar) -
-                  alphak[icov].getValue(ivar, jvar) * sum;
-          cc.setValue(ivar, jvar, value);
-          cc.setValue(jvar, ivar, value);
-        }
-      }
-      /* Computing and sorting the eigen values and eigen vectors */
-
-      if (cc.computeEigen()) return 1;
-      valpro = cc.getEigenValues();
-      vecpro = cc.getEigenVectors();
-
-      int kvar = 0;
-      allpos   = 1;
-      while ((kvar < _nvar) && allpos)
-      {
-        if (valpro[kvar++] < 0) allpos = 0;
-      }
-
-      /* Calculate the new coregionalization matrix */
-
-      ijvar = 0;
-      for (int ivar = 0; ivar < _nvar; ivar++)
-      {
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        {
-          if (allpos)
-          {
-            _sill[icov].setValue(ivar, jvar, cc.getValue(ivar, jvar));
-          }
-          else
-          {
-            sum = 0.;
-            for (kvar = 0; kvar < _nvar; kvar++)
-              sum += (MAX(valpro[kvar], 0.) * vecpro->getValue(ivar, kvar) *
-                      vecpro->getValue(jvar, kvar));
-            _sill[icov].setValue(ivar, jvar, sum);
-          }
-          for (int ipadir = 0; ipadir < _npadir; ipadir++)
-            mp.setValue(ijvar, ipadir,
-                        mp.getValue(ijvar, ipadir) +
-                          _sill[icov].getValue(ivar, jvar) *
-                            _ge[icov].getValue(ijvar, ipadir));
-        }
-      }
-    }
-
-    /* Update the global criterion */
-
-    crit_mem = crit;
-    crit     = 0.;
-    for (int ipadir = 0; ipadir < _npadir; ipadir++)
-    {
-      ijvar = 0;
-      for (int ivar = 0; ivar < _nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        {
-          if (FFFF(WT(ijvar, ipadir))) continue;
-          temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
-          value = (ivar != jvar) ? 2. : 1.;
-          crit += value * WT(ijvar, ipadir) * temp * temp;
-        }
-    }
-
-    /* Stopping criterion */
-
-    if (ABS(crit) < _mauto->getTolred() ||
-        ABS(crit - crit_mem) / ABS(crit) < _mauto->getTolred())
-      break;
-  }
-
-  *crit_arg = crit;
-  return (0);
 }
 
-int ModelOptimSills::_constraintsCheck()
+void ModelOptimSills::_resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const
 {
-  if (_constraints->isConstraintSillDefined())
+  for (int icova = 0; icova < ncova; icova++)
   {
-    if (!_optvar->getFlagGoulardUsed())
-    {
-      messerr("When Constraints on the sum of Sills are defined");
-      messerr("The Goulard option must be switched ON");
-      return 1;
-    }
-    if (!FFFF(_constraints->getConstantSillValue()))
-      _constraints->expandConstantSill(_nvar);
+    for (int ivar = 0; ivar < _nvar; ivar++)
+      for (int jvar = 0; jvar < _nvar; jvar++)
+        sill[icova].setValue(ivar, jvar, ivar == jvar);
   }
-  return 0;
 }
 
 /****************************************************************************/
@@ -434,8 +242,10 @@ void ModelOptimSills::_allocateInternalArrays(bool flag_exp)
 {
   int nvs2 = _nvar * (_nvar + 1) / 2;
 
-  _wt.resize(_npadir * nvs2, TEST);
-  _gg.resize(_npadir * nvs2, TEST);
+  _wt.resize(_npadir * nvs2);
+  _wt.fill(TEST);
+  _gg.resize(_npadir * nvs2);
+  _gg.fill(TEST);
   _ge.clear();
   for (int icova = 0; icova < _ncova; icova++)
     _ge.push_back(MatrixRectangular(nvs2, _npadir));
@@ -452,7 +262,7 @@ void ModelOptimSills::_allocateInternalArrays(bool flag_exp)
       _dd.push_back(VectorDouble(_npadir * nvs2, TEST));
   }
 
-  if (_mauto->getFlagIntrinsic())
+  if (_optvar->getFlagIntrinsic())
   {
     _alphau.clear();
     for (int icova = 0; icova < _ncova; icova++)
@@ -466,222 +276,6 @@ void ModelOptimSills::_allocateInternalArrays(bool flag_exp)
     _gg2.fill(TEST, nvs2 * _npadir);
   }
 }
-
-/****************************************************************************/
-/*!
- **  Routine for fitting a model using an experimental variogram
- **
- ** \return  Error return code
- **
- ** \param[in]  mauto       Option_AutoFit structure
- ** \param[in]  nvar        Number of variables
- ** \param[in]  ncova       Number of covariances
- ** \param[in]  npadir      Maximum number of lags for all directions
- ** \param[in]  wt          Array of weights (Dimension: npadir)
- ** \param[in]  gg          Array of experimental values (Dimension: npadir)
- ** \param[in]  ge          Matrix of model values
- **
- ** \param[out] sill        Array of resulting sills
- ** \param[out] crit_arg    Convergence criterion
- **
- *****************************************************************************/
-// int ModelOptimSills::_goulard_without_constraint(const Option_AutoFit& mauto,
-//                               int nvar,
-//                               int ncova,
-//                               int npadir,
-//                               VectorDouble& wt,
-//                               VectorDouble& gg,
-//                               std::vector<MatrixRectangular>& ge,
-//                               std::vector<MatrixSquareSymmetric>& sill,
-//                               double* crit_arg)
-// {
-//   int allpos;
-//   double temp, crit, crit_mem, value;
-//   VectorDouble valpro;
-//   const MatrixSquareGeneral* vecpro;
-
-//   /*******************/
-//   /* Initializations */
-//   /*******************/
-
-//   double sum  = 0.;
-//   double sum1 = 0.;
-//   double sum2 = 0.;
-//   int nvs2    = nvar * (nvar + 1) / 2;
-
-//   /* Core allocation */
-
-//   MatrixRectangular mp(nvs2, npadir);
-//   std::vector<MatrixRectangular> fk;
-//   fk.reserve(ncova);
-//   for (int icova = 0; icova < ncova; icova++)
-//     fk.push_back(MatrixRectangular(nvs2, npadir));
-//   MatrixSquareSymmetric cc(nvar);
-
-//   std::vector<MatrixSquareSymmetric> aic;
-//   aic.reserve(ncova);
-//   for (int icova = 0; icova < ncova; icova++)
-//     aic.push_back(MatrixSquareSymmetric(nvar));
-//   std::vector<MatrixSquareSymmetric> alphak;
-//   alphak.reserve(ncova);
-//   for (int icova = 0; icova < ncova; icova++)
-//     alphak.push_back(MatrixSquareSymmetric(nvar));
-
-//   /********************/
-//   /* Pre-calculations */
-//   /********************/
-
-//   int ijvar = 0;
-//   for (int ivar = 0; ivar < nvar; ivar++)
-//     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-//       for (int ipadir = 0; ipadir < npadir; ipadir++)
-//       {
-//         mp.setValue(ijvar, ipadir, 0.);
-//         for (int icov = 0; icov < ncova; icov++)
-//           mp.setValue(ijvar, ipadir,
-//                       mp.getValue(ijvar, ipadir) +
-//                         sill[icov].getValue(ivar, jvar) *
-//                           ge[icov].getValue(ijvar, ipadir));
-//       }
-
-//   for (int icov = 0; icov < ncova; icov++)
-//   {
-//     ijvar = 0;
-//     for (int ivar = 0; ivar < nvar; ivar++)
-//       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-//       {
-//         sum1 = sum2 = 0;
-//         aic[icov].setValue(ivar, jvar, 0.);
-//         for (int ipadir = 0; ipadir < npadir; ipadir++)
-//         {
-//           if (FFFF(WT(ijvar, ipadir))) continue;
-//           temp = WT(ijvar, ipadir) * ge[icov].getValue(ijvar, ipadir);
-//           fk[icov].setValue(ijvar, ipadir, temp);
-//           sum1 += temp * GG(ijvar, ipadir);
-//           sum2 += temp * ge[icov].getValue(ijvar, ipadir);
-//         }
-//         alphak[icov].setValue(ivar, jvar, 1. / sum2);
-//         aic[icov].setValue(ivar, jvar,
-//                            sum1 * alphak[icov].getValue(ivar, jvar));
-//       }
-//   }
-
-//   crit  = 0.;
-//   ijvar = 0;
-//   for (int ivar = 0; ivar < nvar; ivar++)
-//     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-//       for (int ipadir = 0; ipadir < npadir; ipadir++)
-//       {
-//         if (FFFF(WT(ijvar, ipadir))) continue;
-//         temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
-//         value = (ivar != jvar) ? 2. : 1.;
-//         crit += value * WT(ijvar, ipadir) * temp * temp;
-//       }
-
-//   /***********************/
-//   /* Iterative procedure */
-//   /***********************/
-
-//   int iter;
-//   for (iter = 0; iter < mauto.getMaxiter(); iter++)
-//   {
-
-//     /* Loop on the elementary structures */
-
-//     for (int icov = 0; icov < ncova; icov++)
-//     {
-
-//       /* Establish the coregionalization matrix */
-
-//       ijvar = 0;
-//       for (int ivar = 0; ivar < nvar; ivar++)
-//       {
-//         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-//         {
-//           sum = 0;
-//           for (int ipadir = 0; ipadir < npadir; ipadir++)
-//           {
-//             mp.setValue(ijvar, ipadir,
-//                         mp.getValue(ijvar, ipadir) -
-//                           sill[icov].getValue(ivar, jvar) *
-//                             ge[icov].getValue(ijvar, ipadir));
-//             sum +=
-//               fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
-//           }
-//           value = aic[icov].getValue(ivar, jvar) -
-//                   alphak[icov].getValue(ivar, jvar) * sum;
-//           cc.setValue(ivar, jvar, value);
-//           cc.setValue(jvar, ivar, value);
-//         }
-//       }
-//       /* Computing and sorting the eigen values and eigen vectors */
-
-//       if (cc.computeEigen()) return 1;
-//       valpro = cc.getEigenValues();
-//       vecpro = cc.getEigenVectors();
-
-//       int kvar = 0;
-//       allpos   = 1;
-//       while ((kvar < nvar) && allpos)
-//       {
-//         if (valpro[kvar++] < 0) allpos = 0;
-//       }
-
-//       /* Calculate the new coregionalization matrix */
-
-//       ijvar = 0;
-//       for (int ivar = 0; ivar < nvar; ivar++)
-//       {
-//         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-//         {
-//           if (allpos)
-//           {
-//             sill[icov].setValue(ivar, jvar, cc.getValue(ivar, jvar));
-//           }
-//           else
-//           {
-//             sum = 0.;
-//             for (kvar = 0; kvar < nvar; kvar++)
-//               sum += (MAX(valpro[kvar], 0.) * vecpro->getValue(ivar, kvar) *
-//                       vecpro->getValue(jvar, kvar));
-//             sill[icov].setValue(ivar, jvar, sum);
-//           }
-//           for (int ipadir = 0; ipadir < npadir; ipadir++)
-//             mp.setValue(ijvar, ipadir,
-//                         mp.getValue(ijvar, ipadir) +
-//                           sill[icov].getValue(ivar, jvar) *
-//                             ge[icov].getValue(ijvar, ipadir));
-//         }
-//       }
-//     }
-
-//     /* Update the global criterion */
-
-//     crit_mem = crit;
-//     crit     = 0.;
-//     for (int ipadir = 0; ipadir < npadir; ipadir++)
-//     {
-//       ijvar = 0;
-//       for (int ivar = 0; ivar < nvar; ivar++)
-//         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-//         {
-//           if (FFFF(WT(ijvar, ipadir))) continue;
-//           temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
-//           value = (ivar != jvar) ? 2. : 1.;
-//           crit += value * WT(ijvar, ipadir) * temp * temp;
-//         }
-//     }
-
-//     /* Stopping criterion */
-
-//     if (ABS(crit) < mauto.getTolred() ||
-//         ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred())
-//       break;
-//   }
-
-//   *crit_arg = crit;
-//   return (0);
-// }
 
 /****************************************************************************/
 /*!
@@ -704,7 +298,7 @@ void ModelOptimSills::_computeGg()
 
           // Calculate the variogram value 
           double dist       = 0.;
-          GG(ijvar, ipadir) = TEST;
+          _GG(ijvar, ipadir) = TEST;
           if (vario->getFlagAsym())
           {
             int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
@@ -718,7 +312,7 @@ void ModelOptimSills::_computeGg()
               double g2 = vario->getGgByIndex(idir, jad);
               if (CORRECT(idir, iad) && CORRECT(idir, jad))
               {
-                GG(ijvar, ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
+                _GG(ijvar, ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
                 dist              = (ABS(vario->getHhByIndex(idir, iad)) +
                         ABS(vario->getHhByIndex(idir, jad))) / 2.;
               }
@@ -729,7 +323,7 @@ void ModelOptimSills::_computeGg()
             int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
             if (CORRECT(idir, iad))
             {
-              GG(ijvar, ipadir) = vario->getGgByIndex(idir, iad);
+              _GG(ijvar, ipadir) = vario->getGgByIndex(idir, iad);
               dist              = ABS(vario->getHhByIndex(idir, iad));
             }
           }
@@ -983,8 +577,8 @@ void ModelOptimSills::_initializeGoulard()
 
       for (int ipadir = 0; ipadir < _npadir; ipadir++)
       {
-        double wtloc = WT(ijvar, ipadir);
-        double ggloc = GG(ijvar, ipadir);
+        double wtloc = _WT(ijvar, ipadir);
+        double ggloc = _GG(ijvar, ipadir);
         if (FFFF(wtloc) || FFFF(ggloc)) continue;
         for (int icov = 0; icov < _ncova; icov++)
         {
@@ -1223,18 +817,19 @@ double ModelOptimSills::_score()
       double coeff = (ivar == jvar) ? 1 : 2;
       for (int ipadir = 0; ipadir < _npadir; ipadir++)
       {
-        double dd = GG(ijvar, ipadir);
+        double dd = _GG(ijvar, ipadir);
         if (FFFF(dd)) continue;
         for (int icov = 0; icov < _ncova; icov++)
           dd -= _sill[icov].getValue(ivar, jvar) *
                 _ge[icov].getValue(ijvar, ipadir);
-        score += coeff * WT(ijvar, ipadir) * dd * dd;
+        score += coeff * _WT(ijvar, ipadir) * dd * dd;
       }
     }
   return (score);
 }
 
-double ModelOptimSills::_sumSills(int ivar0, std::vector<MatrixSquareSymmetric>& alpha)
+double ModelOptimSills::_sumSills(int ivar0,
+                                  std::vector<MatrixSquareSymmetric>& alpha) const
 {
   double Sr = 0;
   for (int icov = 0; icov < _ncova; icov++)
@@ -1284,7 +879,7 @@ double ModelOptimSills::_minimizeP4(int icov0,
     Nir_v[ivar] = 0.;
     for (int k = 0; k < _npadir; k++)
       Nir_v[ivar] +=
-        WT(irl, k) * _ge[icov0].getValue(0, k) * _ge[icov0].getValue(0, k);
+        _WT(irl, k) * _ge[icov0].getValue(0, k) * _ge[icov0].getValue(0, k);
   }
 
   for (int k = 0; k < _npadir; k++)
@@ -1304,9 +899,9 @@ double ModelOptimSills::_minimizeP4(int icov0,
       int irl      = _combineVariables(ivar0, ivar);
       double value = 0.;
       for (int l = 0; l < _npadir; l++)
-        value += WT(irl, l) * GG(irl, l) * _ge[icov0].getValue(0, l);
+        value += _WT(irl, l) * _GG(irl, l) * _ge[icov0].getValue(0, l);
       value *= _ge[icov0].getValue(0, k) / Nir_v[ivar];
-      Airk_v.setValue(k, ivar, GG(irl, k) - value);
+      Airk_v.setValue(k, ivar, _GG(irl, k) - value);
     }
 
   for (int k = 0; k < _npadir; k++)
@@ -1319,7 +914,7 @@ double ModelOptimSills::_minimizeP4(int icov0,
         if (icov == icov0) continue;
         double value = 0.;
         for (int l = 0; l < _npadir; l++)
-          value += WT(irl, l) * _ge[icov].getValue(0, l) * _ge[icov].getValue(0, l);
+          value += _WT(irl, l) * _ge[icov].getValue(0, l) * _ge[icov].getValue(0, l);
         Birk_v.setValue(
           k, ivar,
           Birk_v.getValue(k, ivar) +
@@ -1330,10 +925,10 @@ double ModelOptimSills::_minimizeP4(int icov0,
     }
 
   for (int k = 0; k < _npadir; k++)
-    Crr_v[k] = GG(irr, k) - consSill[ivar0] * _ge[icov0].getValue(0, k);
+    Crr_v[k] = _GG(irr, k) - consSill[ivar0] * _ge[icov0].getValue(0, k);
 
   a = 0.;
-  for (int k = 0; k < _npadir; k++) a += WT(irr, k) * Mrr_v[k] * Mrr_v[k];
+  for (int k = 0; k < _npadir; k++) a += _WT(irr, k) * Mrr_v[k] * Mrr_v[k];
 
   c = 0.;
   for (int k = 0; k < _npadir; k++)
@@ -1343,11 +938,11 @@ double ModelOptimSills::_minimizeP4(int icov0,
       {
         int irl = _combineVariables(ivar0, ivar);
         s       = xr[ivar] * Birk_v.getValue(k, ivar);
-        c += WT(irl, k) * s * s;
+        c += _WT(irl, k) * s * s;
       }
       else
       {
-        c -= WT(irr, k) * Mrr_v[k] * Crr_v[k];
+        c -= _WT(irr, k) * Mrr_v[k] * Crr_v[k];
       }
     }
   c *= 2.;
@@ -1358,7 +953,7 @@ double ModelOptimSills::_minimizeP4(int icov0,
     {
       if (ivar == ivar0) continue;
       int irl = _combineVariables(ivar0, ivar);
-      d -= WT(irl, k) * Airk_v.getValue(k, ivar) * xr[ivar] *
+      d -= _WT(irl, k) * Airk_v.getValue(k, ivar) * xr[ivar] *
            Birk_v.getValue(k, ivar);
     }
 
@@ -1461,8 +1056,8 @@ void ModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
 
     for (int ilagdir = 0; ilagdir < _npadir; ilagdir++)
     {
-      double wtloc = WT(ivs2, ilagdir);
-      double ggloc = GG(ivs2, ilagdir);
+      double wtloc = _WT(ivs2, ilagdir);
+      double ggloc = _GG(ivs2, ilagdir);
       double geloc = _ge[icov0].getValue(0, ilagdir);
 
       if (!FFFF(ggloc))
@@ -1505,4 +1100,285 @@ int ModelOptimSills::_combineVariables(int ivar0, int jvar0)
 {
   if (ivar0 > jvar0) return (ivar0 + jvar0 * (jvar0 + 1) / 2);
   return (jvar0 + ivar0 * (ivar0 + 1) / 2);
+}
+
+int ModelOptimSills::_sillFittingIntrinsic()
+{
+  int nvs2 = _nvar * (_nvar + 1) / 2;
+  double crit = 0.;
+  double crit_mem = 1.e30;
+  for (int icov = 0; icov < _ncova; icov++) _alphau[icov] = 1. / (double)_ncova;
+
+  /* Iterative procedure */
+
+  Option_AutoFit mauto_new(*_mauto);
+  mauto_new.setMaxiter(1);
+  for (int iter = 0; iter < _mauto->getMaxiter(); iter++)
+  {
+
+    /* Initialize the arrays for the first pass */
+
+    for (int ipadir = 0; ipadir < _npadir; ipadir++)
+    {
+      int ijvar = 0;
+      for (int ivar = 0; ivar < _nvar; ivar++)
+      {
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+        {
+          double sum = 0.;
+          for (int icov = 0; icov < _ncova; icov++)
+            sum += _alphau[icov].getValue(0, 0) * _ge[icov].getValue(ijvar, ipadir);
+          _ge1[0].setValue(ijvar, ipadir, sum);
+        }
+      }
+    }
+
+    /* Call Goulard with 1 structure (no constraint) */
+
+    _resetSill(1, _sill1);
+    if (_goulardWithoutConstraint(&mauto_new, _nvar, 1, _npadir, _wt, _gg, _ge1,
+                                  _sill1, &crit)) return 1;
+
+    /* Initialize the arrays for the second pass */
+
+    int ijvar = 0;
+    for (int ivar = 0; ivar < _nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      {
+        double pivot = _sill1[0].getValue(ivar, jvar);
+        for (int ipadir = 0; ipadir < _npadir; ipadir++)
+        {
+          _GG2(ijvar, ipadir) = (isZero(pivot)) ? 0. : _GG(ijvar, ipadir) / pivot;
+          _WT2(ijvar, ipadir) = _WT(ijvar, ipadir) * pivot * pivot;
+          for (int icov = 0; icov < _ncova; icov++)
+            _ge2[icov].setValue(ijvar, ipadir, _ge[icov].getValue(ijvar, ipadir));
+        }
+      }
+
+    /* Call Goulard with 1 variable (no constraint) */
+
+    if (_goulardWithoutConstraint(&mauto_new, 1, _ncova, _npadir * nvs2, _wt2,
+                                  _gg2, _ge2, _alphau, &crit)) return 1;
+
+    /* Stopping criterion */
+
+    if (ABS(crit) < _mauto->getTolred() ||
+        ABS(crit - crit_mem) / ABS(crit) < _mauto->getTolred())
+      break;
+    crit_mem = crit;
+  }
+
+  /* Patch the final model */
+
+  for (int icov = 0; icov < _ncova; icov++)
+  {
+    int ijvar = 0;
+    for (int ivar = 0; ivar < _nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      {
+        double newval = _alphau[icov].getValue(0, 0) * _sill1[0].getValue(ivar, jvar);
+        _setSill(icov, ivar, jvar, newval);
+        _setSill(icov, jvar, ivar, newval);
+      }
+  }
+  return 0;
+}
+
+int ModelOptimSills::_goulardWithoutConstraint(
+  const Option_AutoFit* mauto,
+  int nvar,
+  int ncova,
+  int npadir,
+  VectorDouble& wt,
+  VectorDouble& gg,
+  std::vector<MatrixRectangular>& ge,
+  std::vector<MatrixSquareSymmetric>& sill,
+  double* crit_arg) const
+{
+  int allpos;
+  double temp, crit, crit_mem, value;
+  VectorDouble valpro;
+  const MatrixSquareGeneral* vecpro;
+
+  /*******************/
+  /* Initializations */
+  /*******************/
+
+  double sum  = 0.;
+  double sum1 = 0.;
+  double sum2 = 0.;
+  int nvs2    = nvar * (nvar + 1) / 2;
+
+  /* Core allocation */
+
+  MatrixRectangular mp(nvs2, npadir);
+  std::vector<MatrixRectangular> fk;
+  fk.reserve(ncova);
+  for (int icova = 0; icova < ncova; icova++)
+    fk.push_back(MatrixRectangular(nvs2, npadir));
+  MatrixSquareSymmetric cc(nvar);
+
+  std::vector<MatrixSquareSymmetric> aic;
+  aic.reserve(ncova);
+  for (int icova = 0; icova < ncova; icova++)
+    aic.push_back(MatrixSquareSymmetric(nvar));
+  std::vector<MatrixSquareSymmetric> alphak;
+  alphak.reserve(ncova);
+  for (int icova = 0; icova < ncova; icova++)
+    alphak.push_back(MatrixSquareSymmetric(nvar));
+
+  /********************/
+  /* Pre-calculations */
+  /********************/
+
+  int ijvar = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      for (int ipadir = 0; ipadir < npadir; ipadir++)
+      {
+        mp.setValue(ijvar, ipadir, 0.);
+        for (int icov = 0; icov < ncova; icov++)
+          mp.setValue(ijvar, ipadir,
+                      mp.getValue(ijvar, ipadir) +
+                        sill[icov].getValue(ivar, jvar) *
+                          ge[icov].getValue(ijvar, ipadir));
+      }
+
+  for (int icov = 0; icov < ncova; icov++)
+  {
+    ijvar = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      {
+        sum1 = sum2 = 0;
+        aic[icov].setValue(ivar, jvar, 0.);
+        for (int ipadir = 0; ipadir < npadir; ipadir++)
+        {
+          if (FFFF(WT(ijvar, ipadir))) continue;
+          temp = WT(ijvar, ipadir) * ge[icov].getValue(ijvar, ipadir);
+          fk[icov].setValue(ijvar, ipadir, temp);
+          sum1 += temp * GG(ijvar, ipadir);
+          sum2 += temp * ge[icov].getValue(ijvar, ipadir);
+        }
+        alphak[icov].setValue(ivar, jvar, 1. / sum2);
+        aic[icov].setValue(ivar, jvar,
+                           sum1 * alphak[icov].getValue(ivar, jvar));
+      }
+  }
+
+  crit  = 0.;
+  ijvar = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      for (int ipadir = 0; ipadir < npadir; ipadir++)
+      {
+        if (FFFF(WT(ijvar, ipadir))) continue;
+        temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
+        value = (ivar != jvar) ? 2. : 1.;
+        crit += value * WT(ijvar, ipadir) * temp * temp;
+      }
+
+  /***********************/
+  /* Iterative procedure */
+  /***********************/
+
+  int iter;
+  for (iter = 0; iter < mauto->getMaxiter(); iter++)
+  {
+
+    /* Loop on the elementary structures */
+
+    for (int icov = 0; icov < ncova; icov++)
+    {
+
+      /* Establish the coregionalization matrix */
+
+      ijvar = 0;
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+        {
+          sum = 0;
+          for (int ipadir = 0; ipadir < npadir; ipadir++)
+          {
+            mp.setValue(ijvar, ipadir,
+                        mp.getValue(ijvar, ipadir) -
+                          sill[icov].getValue(ivar, jvar) *
+                            ge[icov].getValue(ijvar, ipadir));
+            sum +=
+              fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
+          }
+          value = aic[icov].getValue(ivar, jvar) -
+                  alphak[icov].getValue(ivar, jvar) * sum;
+          cc.setValue(ivar, jvar, value);
+          cc.setValue(jvar, ivar, value);
+        }
+      }
+      /* Computing and sorting the eigen values and eigen vectors */
+
+      if (cc.computeEigen()) return 1;
+      valpro = cc.getEigenValues();
+      vecpro = cc.getEigenVectors();
+
+      int kvar = 0;
+      allpos   = 1;
+      while ((kvar < nvar) && allpos)
+      {
+        if (valpro[kvar++] < 0) allpos = 0;
+      }
+
+      /* Calculate the new coregionalization matrix */
+
+      ijvar = 0;
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+        {
+          if (allpos)
+          {
+            sill[icov].setValue(ivar, jvar, cc.getValue(ivar, jvar));
+          }
+          else
+          {
+            sum = 0.;
+            for (kvar = 0; kvar < nvar; kvar++)
+              sum += (MAX(valpro[kvar], 0.) * vecpro->getValue(ivar, kvar) *
+                      vecpro->getValue(jvar, kvar));
+            sill[icov].setValue(ivar, jvar, sum);
+          }
+          for (int ipadir = 0; ipadir < npadir; ipadir++)
+            mp.setValue(ijvar, ipadir,
+                        mp.getValue(ijvar, ipadir) +
+                          sill[icov].getValue(ivar, jvar) *
+                            ge[icov].getValue(ijvar, ipadir));
+        }
+      }
+    }
+
+    /* Update the global criterion */
+
+    crit_mem = crit;
+    crit     = 0.;
+    for (int ipadir = 0; ipadir < npadir; ipadir++)
+    {
+      ijvar = 0;
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+        {
+          if (FFFF(WT(ijvar, ipadir))) continue;
+          temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
+          value = (ivar != jvar) ? 2. : 1.;
+          crit += value * WT(ijvar, ipadir) * temp * temp;
+        }
+    }
+
+    /* Stopping criterion */
+
+    if (ABS(crit) < mauto->getTolred() ||
+        ABS(crit - crit_mem) / ABS(crit) < mauto->getTolred())
+      break;
+  }
+
+  *crit_arg = crit;
+  return (0);
 }

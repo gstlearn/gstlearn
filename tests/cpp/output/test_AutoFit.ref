@@ -90,7 +90,9 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Linear
-- Slope        =      0.052
-
+Gaussian
+- Sill         =      1.282
+- Range        =      2.408
+- Theo. Range  =      1.391
+Total Sill     =      1.282
 Known Mean(s)     0.000

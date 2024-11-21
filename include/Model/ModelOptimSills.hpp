@@ -53,14 +53,22 @@ private:
   void _computeGe();
   void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
   void _preparGoulardVario();
-  int  _goulardWithoutConstraint(double* crit_arg);
-  int  _goulardWithConstraints();
+  int _goulardWithoutConstraint(const Option_AutoFit* mauto,
+                                int nvar,
+                                int ncova,
+                                int npadir,
+                                VectorDouble& wt,
+                                VectorDouble& gg,
+                                std::vector<MatrixRectangular>& ge,
+                                std::vector<MatrixSquareSymmetric>& sill,
+                                double* crit_arg) const;
+  int _goulardWithConstraints();
   void _initializeGoulard();
   int _makeDefinitePositive(int icov0, double eps = EPSILON12);
   int _optimizeUnderConstraints(double* score);
   int _truncateNegativeEigen(int icov0);
   double _score();
-  double _sumSills(int ivar0, std::vector<MatrixSquareSymmetric>& alpha);
+  double _sumSills(int ivar0, std::vector<MatrixSquareSymmetric>& alpha) const;
   double _minimizeP4(int icov0,
                      int ivar0,
                      double xrmax,
@@ -83,9 +91,13 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSquareSymmetric>& alpha);
-  int _combineVariables(int ivar0, int jvar0);
+  static int _combineVariables(int ivar0, int jvar0);
+  void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
+  void _storeSillsInModel() const;
+  int _sillFittingIntrinsic();
 
-    private: Constraints* _constraints;
+private:
+  Constraints* _constraints;
   const Option_AutoFit* _mauto;
   const Option_VarioFit* _optvar;
 

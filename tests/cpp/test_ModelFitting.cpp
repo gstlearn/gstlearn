@@ -56,18 +56,14 @@ static void _firstTest(Db* db, Model* model, const ECalcVario& calcul)
   Vario* vario = _computeVariogram(db, calcul);
 
   Constraints* constraints = new Constraints();
-  Option_AutoFit* mauto    = new Option_AutoFit();
-  Option_VarioFit* optvar  = new Option_VarioFit();
 
   // Fit the Model
-  (void) model_fitting_sills(vario, model, *constraints, *mauto);
+  (void) model_fitting_sills(vario, model, *constraints);
   (void)model->dumpToNF("Goulard.ascii");
   model->display();
 
   delete vario;
   delete constraints;
-  delete mauto;
-  delete optvar;
 }
 
 static void _secondTest(Db* db, Model* model, const ECalcVario& calcul)

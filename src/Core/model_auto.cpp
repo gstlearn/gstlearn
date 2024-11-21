@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/EOperator.hpp"
+#include "Model/Option_VarioFit.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 
@@ -116,7 +117,8 @@ static double EpsFit = 1.e-12;
 
 static Regularize REGULARIZE;
 static std::vector<StrExp> STREXPS;
-static StrMod *STRMOD = nullptr;
+static StrMod* STRMOD = nullptr;
+static Option_VarioFit OPTVAR;
 static Option_AutoFit MAUTO;
 static Constraints CONSTRAINTS;
 static VectorInt INDG1;
@@ -732,6 +734,8 @@ static void st_compress_array(const Vario *vario,
 
   int ecr = 0;
   int ipadir = 0;
+  int sizein = (int)tabin.size();
+  int sizeout = tabout.size();
   for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
     for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
     {
@@ -739,8 +743,20 @@ static void st_compress_array(const Vario *vario,
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
-          if (FFFF(TAB(ijvar, ipadir))) continue;
-          tabout[ecr++] = TAB(ijvar, ipadir);
+          int lec = IJDIR(ijvar, ipadir);
+          if (lec > sizein)
+          {
+            messerr("st_compress_array: lec (%d) exceeds maximum (%d)", lec, sizein);
+            continue;
+          }
+          double value = tabin[lec];
+          if (FFFF(value)) continue;
+          if (ecr > sizeout)
+          {
+            messerr("st_compress_array: ecr (%d) exceeds maximum (%d)", ecr, sizeout);
+            continue;
+          }
+          tabout[ecr++] = value;
         }
     }
 }
@@ -1741,8 +1757,6 @@ static void st_model_auto_strmod_print(int flag_title,
     message("- Number of parameters      %d  \n", npar);
     message("- Constrained Minimization  %s\n",
             NOK[!FFFF(constraints.getConstantSillValue())]);
-    message("- Intrinsic option          %s\n",
-            NOK[mauto.getFlagIntrinsic()]);
     messageFlush(optvar.toString());
   }
 
@@ -3383,12 +3397,14 @@ static int st_sill_fitting_intrinsic(Model* model,
  ** \param[in]  flag_title  1 to print the title
  ** \param[in]  model       Model to be fitted
  ** \param[in]  constraints Constraints structure
+ ** \param[in]  optvar      Option_VarioFit structure
  ** \param[in]  mauto       Option_AutoFit structure
  **
  *****************************************************************************/
 static int st_goulard_fitting(int flag_title,
-                              Model *model,
+                              Model* model,
                               const Constraints& constraints,
+                              const Option_VarioFit& optvar,
                               const Option_AutoFit& mauto)
 {
   double crit;
@@ -3405,7 +3421,7 @@ static int st_goulard_fitting(int flag_title,
   /* Dispatch */
 
   int status;
-  if (!mauto.getFlagIntrinsic())
+  if (!optvar.getFlagIntrinsic())
   {
 
     /* No intrinsic hypothesis */
@@ -3531,7 +3547,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
     for (imod = 0; imod < strmod->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(1, STRMOD->models[imod], constraints, mauto);
+      (void) st_goulard_fitting(1, STRMOD->models[imod], constraints, optvar, mauto);
     }
   st_goulard_verbose(1, mauto);
 
@@ -4057,7 +4073,7 @@ static void st_strmod_vario_evaluate(int nbexp,
     for (int imod = 0; imod < STRMOD->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
+      (void) st_goulard_fitting(0, STRMOD->models[imod], CONSTRAINTS, OPTVAR, MAUTO);
     }
   st_goulard_verbose(1, MAUTO);
 
@@ -4144,7 +4160,7 @@ static void st_strmod_vmap_evaluate(int /*nbexp*/,
     for (int imod = 0; imod < STRMOD->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
+      (void) st_goulard_fitting(0, STRMOD->models[imod], CONSTRAINTS, OPTVAR, MAUTO);
     }
   st_goulard_verbose(1, MAUTO);
 
@@ -4280,7 +4296,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
  **
  ** \return  Error returned code
  **
- ** \param[in]  mauto     Option_AutoFit structure
+ ** \param[in]  optvar    Option_VarioFit structure
  ** \param[in]  flag_exp  1 for experimental variogram
  ** \param[in]  ndim      Space dimension
  ** \param[in]  nvar      Number of variables
@@ -4289,7 +4305,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
  ** \param[in]  npadir    Total number of lags
  **
  *****************************************************************************/
-static int st_manage_recint(const Option_AutoFit &mauto,
+static int st_manage_recint(const Option_VarioFit& optvar,
                             int flag_exp,
                             int ndim,
                             int nvar,
@@ -4301,7 +4317,9 @@ static int st_manage_recint(const Option_AutoFit &mauto,
 
   RECINT.npadir = npadir;
   RECINT.wt.resize(npadir * nvs2, TEST);
+  RECINT.wt.fill(TEST);
   RECINT.gg.resize(npadir * nvs2, TEST);
+  RECINT.gg.fill(TEST);
   RECINT.ge.clear();
   for (int icova = 0; icova < ncova; icova++)
     RECINT.ge.push_back(MatrixRectangular(nvs2, npadir));
@@ -4316,7 +4334,7 @@ static int st_manage_recint(const Option_AutoFit &mauto,
     RECINT.dd.fill(TEST, npadir * nvs2 * ndim);
   }
 
-  if (mauto.getFlagIntrinsic())
+  if (optvar.getFlagIntrinsic())
   {
     RECINT.alphau.clear();
     for (int icova = 0; icova < ncova; icova++)
@@ -4464,7 +4482,7 @@ int model_auto_fit(Vario *vario,
 
   /* Fill the weight and experimental tabulated arrays */
 
-  if (st_manage_recint(mauto, 1, ndim, nvar, nbexp, ncova, npadir)) goto label_end;
+  if (st_manage_recint(optvar, 1, ndim, nvar, nbexp, ncova, npadir)) goto label_end;
 
   /* Generate the default values */
 
@@ -4496,7 +4514,8 @@ int model_auto_fit(Vario *vario,
 
   STREXPS = strexps;
   STRMOD = strmod;
-  MAUTO = mauto;
+  MAUTO   = mauto;
+  OPTVAR = optvar;
   CONSTRAINTS = constraints;
   ST_PREPAR_GOULARD = st_prepar_goulard_vario;
   do
@@ -4510,7 +4529,7 @@ int model_auto_fit(Vario *vario,
     }
     else
     {
-      status = st_goulard_fitting(1, model, constraints, mauto);
+      status = st_goulard_fitting(1, model, constraints, optvar, mauto);
     }
     if (status > 0) goto label_end;
 
@@ -4570,12 +4589,14 @@ int model_auto_fit(Vario *vario,
  ** \param[in]     vario       Vario structure
  ** \param[in,out] model       Model to be fitted
  ** \param[in]     constraints Constraints structure
+ ** \param[in]     optvar      Option_VarioFit structure
  ** \param[in]     mauto       Option_AutoFit structure
  **
  *****************************************************************************/
-int model_fitting_sills(Vario *vario,
-                        Model *model,
+int model_fitting_sills(Vario* vario,
+                        Model* model,
                         const Constraints& constraints,
+                        const Option_VarioFit& optvar,
                         const Option_AutoFit& mauto)
 {
   int nbexp, npadir;
@@ -4607,7 +4628,7 @@ int model_fitting_sills(Vario *vario,
 
   /* Core allocation */
 
-  if (st_manage_recint(mauto, 0, ndim, nvar, 0, ncova, npadir)) return 1;
+  if (st_manage_recint(optvar, 0, ndim, nvar, 0, ncova, npadir)) return 1;
 
   /* Free the keypair mechanism strings */
 
@@ -4621,7 +4642,7 @@ int model_fitting_sills(Vario *vario,
 
   /* Automatic Sill Fitting procedure */
 
-  if (st_goulard_fitting(1, model, constraints, mauto)) return 1;
+  if (st_goulard_fitting(1, model, constraints, optvar, mauto)) return 1;
 
   /* Store the sills in the keypair mechanism */
 
@@ -4891,10 +4912,11 @@ int vmap_auto_fit(const DbGrid* dbmap,
   DBMAP = dbmap;
   INDG1.resize(ndim, 0);
   INDG2.resize(ndim);
+  INDG1.fill(0.);
 
   /* Core allocation */
 
-  if (st_manage_recint(mauto, 0, ndim, nvar, 0, ncova, npadir)) goto label_end;
+  if (st_manage_recint(optvar, 0, ndim, nvar, 0, ncova, npadir)) goto label_end;
   st_load_vmap(npadir, RECINT.gg, RECINT.wt);
 
   /* Generate the default values */

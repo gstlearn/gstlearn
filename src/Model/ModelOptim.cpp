@@ -257,3 +257,8 @@ void ModelOptim::_printResult(const String& title,
     message("%lf ", modelPart._params[iparam]._scale * modelPart._tabval[iparam]);
   message(") = %lf\n", result);
 }
+
+void ModelOptim::_setSill(int icov, int ivar, int jvar, double value) const
+{
+  _modelPart._model->setSill(icov, ivar, jvar, value);
+}
