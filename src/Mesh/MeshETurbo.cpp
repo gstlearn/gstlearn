@@ -190,10 +190,7 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
 
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
-  _grid.rankToIndice(iabs, indg);
-
-  for (int idim = 0; idim < getNDim(); idim++)
-    coords[idim] = _grid.indiceToCoordinate(idim, indg);
+  _grid.rankToCoordinatesInPlace(iabs, coords);
 }
 
 double MeshETurbo::getApexCoor(int i, int idim) const
