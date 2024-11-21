@@ -13,6 +13,7 @@
 /* Version numbers and date */
 
 #define GSTLEARN_VERSION "@gstlearn_VERSION@"     // gstlearn version (for acknowledge and identification)
+#define GSTLEARN_VERSION_NUMBER @gstlearn_VERSION_NUMBER@     // gstlearn version (for acknowledge and identification)
 #define GSTLEARN_DATE    "@gstlearn_DATE@"        // gstlearn git commit date (for acknowledge and identification)
 #define GSTLEARN_COMMIT  "@gstlearn_COMMIT@"      // gstlearn git commit hash (for acknowledge and identification)
 
