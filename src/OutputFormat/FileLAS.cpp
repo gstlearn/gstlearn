@@ -14,6 +14,7 @@
 #include "Basic/String.hpp"
 
 #include <string.h>
+#include <cctype>
 
 #if defined(_WIN32) || defined(_WIN64)
 namespace
