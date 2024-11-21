@@ -15,6 +15,10 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if(USE_BOOST_SPAN)
+  add_definitions(-DUSE_BOOST_SPAN)
+endif()
+
 # Warning fiesta!
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)

@@ -16,7 +16,11 @@
 
 // WARNING: Make this include list as small as possible!
 #include <string>
+#ifdef USE_BOOST_SPAN
+#include <boost/core/span.hpp>
+#else
 #include <span>
+#endif
 typedef std::string String;
 typedef unsigned char UChar;
 
@@ -85,10 +89,17 @@ typedef unsigned char UChar;
 DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
 DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
 
+#ifdef USE_BOOST_SPAN
+typedef boost::span<const double> constvect;
+typedef boost::span<double> vect ;
+using constvectint = boost::span<const int>;
+using vectint = boost::span<int>;
+#else
 typedef std::span<const double> constvect;
 typedef std::span<double> vect ;
 using constvectint = std::span<const int>;
 using vectint = std::span<int>;
+#endif
 
 #endif
 
