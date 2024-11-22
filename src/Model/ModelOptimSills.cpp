@@ -242,10 +242,8 @@ void ModelOptimSills::_allocateInternalArrays(bool flag_exp)
 {
   int nvs2 = _nvar * (_nvar + 1) / 2;
 
-  _wt.resize(_npadir * nvs2);
-  _wt.fill(TEST);
-  _gg.resize(_npadir * nvs2);
-  _gg.fill(TEST);
+  _wt.fill(TEST, _npadir * nvs2);
+  _gg.fill(TEST, _npadir * nvs2);
   _ge.clear();
   for (int icova = 0; icova < _ncova; icova++)
     _ge.push_back(MatrixRectangular(nvs2, _npadir));

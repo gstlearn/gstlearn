@@ -4316,10 +4316,8 @@ static int st_manage_recint(const Option_VarioFit& optvar,
   int nvs2 = nvar * (nvar + 1) / 2;
 
   RECINT.npadir = npadir;
-  RECINT.wt.resize(npadir * nvs2, TEST);
-  RECINT.wt.fill(TEST);
-  RECINT.gg.resize(npadir * nvs2, TEST);
-  RECINT.gg.fill(TEST);
+  RECINT.wt.fill(TEST, npadir * nvs2);
+  RECINT.gg.fill(TEST, npadir * nvs2);
   RECINT.ge.clear();
   for (int icova = 0; icova < ncova; icova++)
     RECINT.ge.push_back(MatrixRectangular(nvs2, npadir));
@@ -4910,9 +4908,8 @@ int vmap_auto_fit(const DbGrid* dbmap,
 
   hmax /= 2.;
   DBMAP = dbmap;
-  INDG1.resize(ndim, 0);
+  INDG1.fill(0., ndim);
   INDG2.resize(ndim);
-  INDG1.fill(0.);
 
   /* Core allocation */
 
