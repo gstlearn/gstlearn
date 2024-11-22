@@ -213,6 +213,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Z]
+
 Variance-Covariance Matrix     0.721
 
 Direction #1
@@ -278,6 +279,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Gauss.Z]
+
 Variance-Covariance Matrix     0.997
 
 Direction #1

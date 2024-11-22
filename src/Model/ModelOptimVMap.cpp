@@ -8,12 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ModelOptimVario.hpp"
+#include "Model/ModelOptimVMap.hpp"
 
 #include "geoslib_define.h"
 
 #include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
+#include "Variogram/VMap.hpp"
 
 #include <nlopt.h>
 
@@ -26,18 +26,18 @@ typedef struct
   ModelOptim::Model_Part& _modelPart;
 
   // Part relative to the Experimental variograms
-  ModelOptimVario::Vario_Part& _varioPart;
+  ModelOptimVmap::Vario_Part& _varioPart;
 
 } AlgorithmVario;
 
-ModelOptimVario::ModelOptimVario()
+ModelOptimVmap::ModelOptimVmap()
   : ModelOptim()
   , _varioPart()
   , _wt()
 {
 }
 
-ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
+ModelOptimVmap::ModelOptimVmap(const ModelOptimVmap& m)
   : ModelOptim(m)
   , _varioPart()
   , _wt(m._wt)
@@ -45,14 +45,14 @@ ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
    _copyVarioPart(m._varioPart);
 }
 
-void ModelOptimVario::_copyVarioPart(const Vario_Part& varioPart)
+void ModelOptimVmap::_copyVarioPart(const Vario_Part& varioPart)
 {
   _varioPart._vario = varioPart._vario;
   _varioPart._wmode = varioPart._wmode;
   _varioPart._lags  = varioPart._lags;
 }
 
-ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
+ModelOptimVmap& ModelOptimVmap::operator=(const ModelOptimVmap& m)
 {
   if (this != &m)
   {
@@ -63,11 +63,11 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
   return (*this);
 }
 
-ModelOptimVario::~ModelOptimVario()
+ModelOptimVmap::~ModelOptimVmap()
 {
 }
 
-bool ModelOptimVario::_checkConsistency()
+bool ModelOptimVmap::_checkConsistency()
 {
   const Model* model = _modelPart._model;
   const Vario* vario = _varioPart._vario;
@@ -87,7 +87,7 @@ bool ModelOptimVario::_checkConsistency()
   return true;
 }
 
-int ModelOptimVario::fit(Vario* vario, Model* model, int wmode, bool verbose)
+int ModelOptimVmap::fit(Vario* vario, Model* model, int wmode, bool verbose)
 {
   _modelPart._model   = model;
   _modelPart._verbose = verbose;
@@ -126,7 +126,7 @@ int ModelOptimVario::fit(Vario* vario, Model* model, int wmode, bool verbose)
   return 0;
 }
 
-int ModelOptimVario::_buildExperimental()
+int ModelOptimVmap::_buildExperimental()
 {
   if (_varioPart._vario == nullptr)
   {
@@ -212,7 +212,7 @@ int ModelOptimVario::_buildExperimental()
   return 0;
 }
 
-ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
+ModelOptimVmap::OneLag ModelOptimVmap::_createOneLag(int ndim,
                                                        int idir,
                                                        int ivar,
                                                        int jvar,
@@ -231,7 +231,7 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
   return onelag;
 }
 
-double ModelOptimVario::_getC00(int idir, int ivar, int jvar) const
+double ModelOptimVmap::_getC00(int idir, int ivar, int jvar) const
 {
   const Vario* vario = _varioPart._vario;
   int iad0   = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
@@ -252,7 +252,7 @@ double ModelOptimVario::_getC00(int idir, int ivar, int jvar) const
   return (vario->getGgByIndex(idir, iad));
 }
 
-bool ModelOptimVario::_isLagCorrect(int idir, int k) const
+bool ModelOptimVmap::_isLagCorrect(int idir, int k) const
 {
   const Vario* vario = _varioPart._vario;
   double hh = vario->getHhByIndex(idir, k);
@@ -263,7 +263,7 @@ bool ModelOptimVario::_isLagCorrect(int idir, int k) const
   return !FFFF(gg);
 }
 
-void ModelOptimVario::_computeWt()
+void ModelOptimVmap::_computeWt()
 {
   const Vario* vario = _varioPart._vario;
   int ndir           = vario->getDirectionNumber();
@@ -475,7 +475,7 @@ void ModelOptimVario::_computeWt()
     }
 }
 
-VectorDouble ModelOptimVario::_computeWeightPerDirection()
+VectorDouble ModelOptimVmap::_computeWeightPerDirection()
 {
   const Vario* vario = _varioPart._vario;
   int ndir = vario->getDirectionNumber();
@@ -512,7 +512,7 @@ VectorDouble ModelOptimVario::_computeWeightPerDirection()
   return count;
 }
 
-int ModelOptimVario::_getTotalLagsPerDirection() const
+int ModelOptimVmap::_getTotalLagsPerDirection() const
 {
   const Vario* vario = _varioPart._vario;
   int npatot = 0;
@@ -522,7 +522,7 @@ int ModelOptimVario::_getTotalLagsPerDirection() const
   return npatot;
 }
 
-double ModelOptimVario::evalCost(unsigned int nparams,
+double ModelOptimVmap::evalCost(unsigned int nparams,
                                  const double* current,
                                  double* /*grad*/,
                                  void* my_func_data)
@@ -553,4 +553,158 @@ double ModelOptimVario::evalCost(unsigned int nparams,
   _printResult("Cost Function (Variogram Fit)", modelPart, total);
   
   return total;
+}
+
+int vmap_auto_fit(const DbGrid* dbmap,
+                  Model* model,
+                  bool verbose,
+                  const Option_AutoFit& mauto_arg,
+                  const Constraints& cons_arg,
+                  const Option_VarioFit& optvar_arg)
+{
+  int npar0, npar, flag_reduce;
+  VectorDouble varchol, scale, param, lower, upper;
+
+  // Copy of const referencse into local classes
+
+  Option_AutoFit mauto    = mauto_arg;
+  Constraints constraints = cons_arg;
+  Option_VarioFit optvar  = optvar_arg;
+
+  /* Initializations */
+
+  int error      = 1;
+  int nbexp      = 0;
+  int status     = 0;
+  int norder     = 0;
+  int npadir     = 0;
+  int ncova      = model->getCovaNumber();
+  int nvar       = model->getVariableNumber();
+  int ndim       = model->getDimensionNumber();
+  double hmax    = 0.;
+  double gmax    = 0.;
+  StrMod* strmod = nullptr;
+  VectorDouble angles(ndim, 0.);
+  mauto.setVerbose(verbose);
+
+  /* Preliminary checks */
+
+  if (nvar != dbmap->getLocNumber(ELoc::Z))
+  {
+    messerr("Number of variables in Db (%d) must match the one in Model (%d)",
+            model->getVariableNumber(), dbmap->getLocNumber(ELoc::Z));
+    goto label_end;
+  }
+  if (constraints.isConstraintSillDefined())
+  {
+    if (!optvar.getFlagGoulardUsed())
+    {
+      messerr("When Constraints on the sum of Sills are defined");
+      messerr("The Goulard option must be switched ON");
+      goto label_end;
+    }
+    if (!FFFF(constraints.getConstantSillValue()))
+      constraints.expandConstantSill(nvar);
+  }
+  if (st_get_vmap_dimension(dbmap, nvar, &npadir, &nbexp)) goto label_end;
+  hmax = dbmap->getExtensionDiagonal();
+  st_vmap_varchol_manage(dbmap, varchol);
+
+  /* Scale the parameters in the Option_AutoFit structure */
+
+  st_mauto_rescale(nvar, varchol, mauto);
+
+  /* Free the keypair mechanism strings */
+
+  st_keypair_sill(-1, model);
+  st_keypair_results(-1, 0, 0, NULL, NULL);
+
+  /* Create the experimental structures */
+
+  hmax /= 2.;
+  DBMAP = dbmap;
+  INDG1.fill(0., ndim);
+  INDG2.resize(ndim);
+
+  /* Core allocation */
+
+  if (st_manage_recint(optvar, 0, ndim, nvar, 0, ncova, npadir)) goto label_end;
+  st_load_vmap(npadir, RECINT.gg, RECINT.wt);
+
+  /* Generate the default values */
+
+  npar0 =
+    st_vmap_auto_count(dbmap, model, constraints, optvar, param, lower, upper);
+
+  /* Create the Model structures */
+
+  strmod = st_model_auto_strmod_alloc(model, NULL, npar0, norder, hmax, angles,
+                                      optvar, &npar);
+  if (strmod == nullptr) goto label_end;
+  if (npar == 0)
+  {
+    messerr("The VMAP Automatic Fitting procedure");
+    messerr("does not allow using Goulard algorithm only");
+    goto label_end;
+  }
+  scale.resize(npar);
+
+  /* Set the default values and bounds */
+
+  st_model_auto_pardef(strmod, npar, hmax, varchol, angles, param, lower,
+                       upper);
+  st_model_auto_scldef(strmod, npar, hmax, varchol, scale);
+  st_model_auto_constraints_apply(strmod, npar, constraints, param, lower,
+                                  upper);
+
+  /* Minimization algorithm */
+
+  STRMOD            = strmod;
+  MAUTO             = mauto;
+  CONSTRAINTS       = constraints;
+  ST_PREPAR_GOULARD = st_prepar_goulard_vmap;
+  do
+  {
+    st_model_auto_strmod_print(1, strmod, constraints, mauto, param, lower,
+                               upper, npar, nbexp);
+    status =
+      foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper, scale,
+               mauto, 0, st_strmod_vmap_evaluate, RECINT.gg, RECINT.wt);
+    if (status > 0) goto label_end;
+
+    st_model_auto_strmod_print(0, strmod, constraints, mauto, param, lower,
+                               upper, npar, nbexp);
+    flag_reduce = st_model_auto_strmod_reduce(strmod, &npar, hmax, gmax, param,
+                                              lower, upper, constraints, mauto);
+
+    /* Reset the parameters to their default values */
+
+    if (status < 0)
+    {
+      for (int i = 0; i < npar; i++) param[i] = lower[i] = upper[i] = TEST;
+      st_model_auto_pardef(strmod, npar, hmax, varchol, angles, param, lower,
+                           upper);
+    }
+    st_model_auto_scldef(strmod, npar, hmax, varchol, scale);
+  } while (flag_reduce && npar > 0);
+
+  /* Perform the last cosmetic updates */
+
+  st_model_post_update(strmod, optvar);
+
+  /* Set the returned error code */
+
+  if (mauto.getVerbose() && status < 0)
+    messerr("Convergence not reached after %d iterations (%d parameters)",
+            mauto.getMaxiter(), npar);
+
+  /* Store the sills in the keypair mechanism */
+
+  st_keypair_sill(1, model);
+
+  error = 0;
+
+label_end:
+  st_model_auto_strmod_free(strmod);
+  return (error);
 }

@@ -131,7 +131,6 @@ Optimization Conditions
 - Number of experiments     60  
 - Number of parameters      2  
 - Constrained Minimization  OFF
-- Intrinsic option          OFF
 - Anisotropy                OFF
 - Anisotropy Rotation       OFF
 - Global Rotation           OFF

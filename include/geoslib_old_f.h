@@ -190,10 +190,11 @@ GSTLEARN_EXPORT int spill_point(DbGrid* dbgrid,
 /* Prototyping the functions in model.c */
 /****************************************/
 
-GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
-                                        Model *model,
+GSTLEARN_EXPORT int model_fitting_sills(Vario* vario,
+                                        Model* model,
                                         const Constraints& constraints,
-                                        const Option_AutoFit& mauto);
+                                        const Option_VarioFit& optvar = Option_VarioFit(),
+                                        const Option_AutoFit& mauto = Option_AutoFit());
 GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         Db *db,
                                         Model *model,

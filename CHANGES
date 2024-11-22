@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.6.0
 =============
+- The library 'nlopt' is know used to perform optimization. At time, it should replace FOXLEG in the Automatic Structure Recognition (model_auto).
 - The argument 'domain' has been added to API functions 'krigingSPDE', 'simulateSPDE' and 'logLikelihoddSPDE'. It allows specifying the extension of the domain covered by the SPDE meshing. If not defined, it is elaborated starting from argument 'dbin' and/or 'dbout'.
 - ExtractDiag() of a PrecisionOp in Matrix-free version (test_PrecisionOp.py)
 - Function areEqual() is renamed in isEqual()

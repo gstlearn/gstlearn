@@ -310,7 +310,7 @@ GM_LN_Cov_nh <- function(lambda, nh)
 }
 ```
 
-The next paragraph initiates a data set and runs the previous functions. The output will serve as reference for comparison with rgstlearn functions.
+The next paragraph initiates a data set and runs the previous functions. The output will serve as reference for comparison with gstlearn functions.
 
 ```{r}
 np <- 10000

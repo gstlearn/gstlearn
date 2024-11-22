@@ -330,9 +330,12 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
 
+  // Define the Third parameter
   double parmax = cov.getParMax();
   if (param > parmax) param = parmax;
   cov.setParam(param);
+
+  // Define the range
   if (! ranges.empty())
   {
     if (flagRange)
@@ -347,10 +350,21 @@ void Model::addCovFromParam(const ECov& type,
     else
       cov.setScale(range);
   }
-  if (! sills.empty())
+
+  // Define the sill
+  if (!sills.empty())
     cov.setSill(sills);
   else
-    cov.setSill(sill);
+  {
+    if (nvar <= 1)
+      cov.setSill(sill);
+    else
+    {
+      MatrixSquareSymmetric locsills(nvar);
+      locsills.setIdentity(sill);
+      cov.setSill(locsills);
+    }
+  }
 
   if (! angles.empty())
     cov.setAnisoAngles(angles);

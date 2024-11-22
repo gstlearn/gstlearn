@@ -30,6 +30,7 @@ typedef unsigned char UChar;
 #define EPSILON8   1.e-8
 #define EPSILON9   1.e-9
 #define EPSILON10  1.e-10
+#define EPSILON12  1.e-12
 #define EPSILON13  1.e-13
 #define EPSILON20  1.e-20
 
