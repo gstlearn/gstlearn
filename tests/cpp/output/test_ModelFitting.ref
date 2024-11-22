@@ -107,8 +107,8 @@ Covariance Part
 Nugget Effect
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     4.918     0.551
-     [  1,]     0.551     2.130
+     [  0,]     4.961     0.565
+     [  1,]     0.565     2.170
 Matern (Third Parameter = 1)
 - Sill matrix:
                [,  0]    [,  1]
@@ -118,7 +118,7 @@ Matern (Third Parameter = 1)
 - Theo. Range  =      0.000
 Total Sill
                [,  0]    [,  1]
-     [  0,]     5.918     0.551
-     [  1,]     0.551     3.130
+     [  0,]     5.961     0.565
+     [  1,]     0.565     3.170
 
 Known Mean(s)     0.000     0.000
