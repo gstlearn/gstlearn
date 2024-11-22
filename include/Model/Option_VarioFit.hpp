@@ -33,8 +33,10 @@
  * - lock_no3D: When True, the inference parameters are limited to the 2-D space.
  * - lock_iso2d: When True, the inference looks for a 2-D isotropic model
  * - keep_instr: When True, at least ONE basic structure must be kept in the Model
+ * - flag_instrinsic: When True, fit a Model which includes at least one Intrinsic basic Structure
  */
-class GSTLEARN_EXPORT Option_VarioFit : public AStringable
+
+class GSTLEARN_EXPORT Option_VarioFit: public AStringable
 {
  public:
   Option_VarioFit(bool flag_noreduce = false,
@@ -67,16 +69,19 @@ class GSTLEARN_EXPORT Option_VarioFit : public AStringable
   void setLockRot2d(bool lockRot2d) { _lock_rot2d = lockRot2d; }
   bool getLockSamerot() const { return _lock_samerot; }
   void setLockSamerot(bool lockSamerot) { _lock_samerot = lockSamerot; }
+  bool getFlagIntrinsic() const { return _flag_intrinsic; }
+  void setFlagIntrinsic(bool flagIntrinsic) { _flag_intrinsic = flagIntrinsic; }
 
- private:
-   bool _flag_noreduce; /* Forbid discarding useless basic structures */
-   bool _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
-   /* This is switch OFF when ANAM properties are defined */
-   bool _auth_aniso; /* Authorize the anisotropy */
-   bool _auth_rotation; /* Authorize the rotation of the anisotropy */
-   bool _lock_samerot; /* Lock the anisotropy rotation for all str */
-   bool _lock_rot2d; /* Lock the anisotropy rotation around Z only */
-   bool _lock_no3d; /* Lock the parameters in 2-D */
-   bool _lock_iso2d; /* Lock isotropy for 2-D */
-   bool _keep_intstr; /* Keep at least one intrinsic structure */
+private:
+  bool _flag_noreduce;     /* Forbid discarding useless basic structures */
+  bool _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
+  /* This is switch OFF when ANAM properties are defined */
+  bool _auth_aniso;    /* Authorize the anisotropy */
+  bool _auth_rotation; /* Authorize the rotation of the anisotropy */
+  bool _lock_samerot;  /* Lock the anisotropy rotation for all str */
+  bool _lock_rot2d;    /* Lock the anisotropy rotation around Z only */
+  bool _lock_no3d;     /* Lock the parameters in 2-D */
+  bool _lock_iso2d;    /* Lock isotropy for 2-D */
+  bool _keep_intstr;   /* Keep at least one intrinsic structure */
+  bool _flag_intrinsic; /* Ask for an intrinsic model */
 };

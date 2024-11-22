@@ -55,7 +55,7 @@ public:
 
     // Verbosity flag
     bool _verbose;
-    int _niter;
+    int  _niter;
   } Model_Part;
 
 protected:
@@ -65,6 +65,7 @@ protected:
   void dumpParamList() const;
   static void _patchModel(Model_Part& modelPart, const double* current);
   static void _printResult(const String& title, const Model_Part& modelPart, double result);
+  void _setSill(int icov, int ivar, int jvar, double value) const;
 
 private:
   static void _dumpOneModelParam(const OneParam& param, double value);

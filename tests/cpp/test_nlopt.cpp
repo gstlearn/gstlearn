@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     model_test->addCovFromParam(ECov::NUGGET);
     model_test->addCovFromParam(ECov::MATERN);
     // model_test->setDriftIRF(0);
-    message("Model used for simulating the Data\n");
+    message("Model used for Test\n");
     model_test->display();
 
     // Optimization tests

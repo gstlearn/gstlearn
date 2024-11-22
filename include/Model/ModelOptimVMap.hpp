@@ -24,13 +24,13 @@ class Vario;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVario: public ModelOptim
+class GSTLEARN_EXPORT ModelOptimVmap: public ModelOptim
 {
 public:
-  ModelOptimVario();
-  ModelOptimVario(const ModelOptimVario& m);
-  ModelOptimVario& operator=(const ModelOptimVario& m);
-  virtual ~ModelOptimVario();
+  ModelOptimVmap();
+  ModelOptimVmap(const ModelOptimVmap& m);
+  ModelOptimVmap& operator=(const ModelOptimVmap& m);
+  virtual ~ModelOptimVmap();
 
   typedef struct
   {

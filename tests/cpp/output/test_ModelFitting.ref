@@ -1,0 +1,124 @@
+Model used for simulating the Data
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     2.000     0.000
+     [  1,]     0.000     2.000
+Matern (Third Parameter = 1)
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     3.000     0.000
+     [  1,]     0.000     3.000
+- Range        =      0.250
+- Theo. Range  =      0.072
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     5.000     0.000
+     [  1,]     0.000     5.000
+
+Known Mean(s)     0.000     0.000
+Model used for Test
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+Matern (Third Parameter = 1)
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+- Range        =      0.000
+- Theo. Range  =      0.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     2.000     0.000
+     [  1,]     0.000     2.000
+
+Known Mean(s)     0.000     0.000
+
+Using Goulard
+=============
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.918     0.551
+     [  1,]     0.551     2.130
+Matern (Third Parameter = 1)
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+- Range        =      0.000
+- Theo. Range  =      0.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     5.918     0.551
+     [  1,]     0.551     3.130
+
+Known Mean(s)     0.000     0.000
+
+Using ModelOptimSills
+=====================
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.961     0.565
+     [  1,]     0.565     2.170
+Matern (Third Parameter = 1)
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+- Range        =      0.000
+- Theo. Range  =      0.000
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     5.961     0.565
+     [  1,]     0.565     3.170
+
+Known Mean(s)     0.000     0.000
