@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{matrix.arch.os}}
     strategy:
       matrix:
-        # Python version + Numpy version
+        # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
             {py: "3.9"},
