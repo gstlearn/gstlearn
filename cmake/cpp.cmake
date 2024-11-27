@@ -151,7 +151,11 @@ foreach(FLAVOR ${FLAVORS})
   
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
-  
+
+  if(USE_BOOST_SPAN)
+    target_compile_definitions(${FLAVOR} PUBLIC USE_BOOST_SPAN)
+  endif()
+
   # Enable OpenMP
   target_link_libraries(${FLAVOR} PRIVATE OpenMP::OpenMP_CXX)
 

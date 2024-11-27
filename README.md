@@ -357,6 +357,7 @@ pacman -Sy mingw-w64-x86_64-nlopt
    * `-DHDF5_ROOT="path/to/hdf5"`
    * `-DDoxygen_ROOT="path/to/doxygen"`
    * `-DNLopt_ROOT="path/to/nlopt"`
+* By default the *gstlearn* C++ library requires a C++20 compiler. However this is currently only needed for `std::span<>`. If you are using Boost 1.78 or higher, the use of `std::span<>` can be replaced by `boost::span<>` by adding `-DUSE_BOOST_SPAN=ON` to the first cmake command above. The library can then be compiled with a C++17 or older compiler.
 
 ### Uninstall the Library
 
