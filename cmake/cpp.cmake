@@ -167,8 +167,14 @@ foreach(FLAVOR ${FLAVORS})
 
   # Link to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
-  target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
-  
+  # Currently Boost headers are only used in .cpp so a PRIVATE link minimizes
+  # dependencies for projects using gstlearn, except with USE_BOOST_SPAN.
+  if(USE_BOOST_SPAN)
+    target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
+  else()
+    target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
+  endif()
+
   # Link to NLopt
   target_link_libraries(${FLAVOR} PUBLIC NLopt::nlopt)
 
