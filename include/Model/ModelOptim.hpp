@@ -14,10 +14,16 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/CovCalcMode.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
 #include <vector>
 
+#include <nlopt.h>
+
 class Model;
-class MatrixSquareSymmetric;
+class Constraints;
 
 /**
  * \brief
@@ -27,7 +33,10 @@ class MatrixSquareSymmetric;
 class GSTLEARN_EXPORT ModelOptim
 {
 public:
-  ModelOptim();
+  ModelOptim(Model* model,
+             Constraints* constraints      = nullptr,
+             const Option_AutoFit& mauto   = Option_AutoFit(),
+             const Option_VarioFit& optvar = Option_VarioFit());
   ModelOptim(const ModelOptim& m);
   ModelOptim& operator=(const ModelOptim& m);
   virtual ~ModelOptim();
@@ -56,16 +65,22 @@ public:
     // Verbosity flag
     bool _verbose;
     int  _niter;
+    CovCalcMode _calcmode;
   } Model_Part;
 
 protected:
   int _buildModelParamList();
   int _getParamNumber() const { return (int) _modelPart._params.size(); }
-  void updateModelParamList(double hmax, const MatrixSquareSymmetric& vars);
+  void updateModelParamList(double distmax_def = TEST, const MatrixSquareSymmetric& vars_def = MatrixSquareSymmetric());
   void dumpParamList() const;
   static void _patchModel(Model_Part& modelPart, const double* current);
   static void _printResult(const String& title, const Model_Part& modelPart, double result);
   void _setSill(int icov, int ivar, int jvar, double value) const;
+
+  void _performOptimization(nlopt_func f,
+                            void* f_data,
+                            double distmax_def = TEST,
+                            const MatrixSquareSymmetric& vars_def = MatrixSquareSymmetric());
 
 private:
   static void _dumpOneModelParam(const OneParam& param, double value);
@@ -79,4 +94,8 @@ private:
 protected:
   // Part of the structure dedicated to the Model
   Model_Part _modelPart;
+
+  Constraints* _constraints;
+  Option_AutoFit _mauto;
+  Option_VarioFit _optvar;
 };

@@ -15,9 +15,12 @@
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Model/Model.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
+#include "Model/Constraints.hpp"
 
 #include <cmath>
 #include <nlopt.h>
@@ -25,13 +28,23 @@
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
-ModelOptim::ModelOptim()
+ModelOptim::ModelOptim(Model* model,
+                       Constraints* constraints,
+                       const Option_AutoFit& mauto,
+                       const Option_VarioFit& optvar)
   : _modelPart()
+  , _constraints(constraints)
+  , _mauto(mauto)
+  , _optvar(optvar)
 {
+  _modelPart._model = model;
 }
 
 ModelOptim::ModelOptim(const ModelOptim& m)
   : _modelPart()
+  , _constraints(m._constraints)
+  , _mauto(m._mauto)
+  , _optvar(m._optvar)
 {
    _copyModelPart(m._modelPart);
 }
@@ -51,6 +64,9 @@ ModelOptim& ModelOptim::operator=(const ModelOptim& m)
   if (this != &m)
   {
     _copyModelPart(m._modelPart);
+    _constraints = m._constraints;
+    _mauto       = m._mauto;
+    _optvar      = m._optvar;
   }
   return (*this);
 }
@@ -98,6 +114,8 @@ int ModelOptim::_buildModelParamList()
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         _addOneModelParam(icov, EConsElem::SILL, ijvar, TEST, TEST);
   }
+
+  _modelPart._calcmode.setAsVario(true);
   return 0;
 }
 
@@ -169,8 +187,8 @@ void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
   modelPart._niter++;
 }
 
-void ModelOptim::updateModelParamList(double hmax,
-                                      const MatrixSquareSymmetric& vars)
+void ModelOptim::updateModelParamList(double distmax_def,
+                                      const MatrixSquareSymmetric& vars_def)
 {
   double value = TEST;
   double scale = 1.;
@@ -179,8 +197,12 @@ void ModelOptim::updateModelParamList(double hmax,
   int ncov     = model->getCovaNumber(true);
 
   // Cholesky decomposition of the matrix of variances
-  CholeskyDense cholesky(&vars);
-  VectorDouble varchol = cholesky.getLowerTriangle();
+  VectorDouble varchol;
+  if (!vars_def.empty())
+  {
+    CholeskyDense cholesky(&vars_def);
+    varchol = cholesky.getLowerTriangle();
+  }
 
     for (int iparam = 0; iparam < nparams; iparam++)
   {
@@ -188,29 +210,37 @@ void ModelOptim::updateModelParamList(double hmax,
     int icov             = param._icov;
     const CovAniso* cova = model->getCova(icov);
 
+    value = 1.;
+    scale = 1.;
     switch (param._type.toEnum())
     {
       case EConsElem::E_SILL:
       {
-        value = varchol[param._rank] / sqrt(ncov);
-        scale = ABS(value);
+        if (!vars_def.empty())
+        {
+          value = varchol[param._rank] / sqrt(ncov);
+          scale = ABS(value);
+        }
         break;
       }
 
       case EConsElem::E_RANGE:
       {
-        double dunit = hmax / ncov / 2.;
-        value        = dunit * (icov + 1);
-        scale        = dunit;
-
+        if (!FFFF(distmax_def))
+        {
+          double dunit = distmax_def / ncov / 2.;
+          value        = dunit * (icov + 1);
+          scale        = dunit;
+        }
         break;
       }
 
       case EConsElem::E_PARAM:
       {
-        value = 1.;
-        if (cova->getType() == ECov::COSEXP) value = hmax / 3.;
-        scale = 1.;
+        if (!FFFF(distmax_def))
+        {
+          if (cova->getType() == ECov::COSEXP) value = distmax_def / 3.;
+        }
         break;
       }
 
@@ -261,4 +291,30 @@ void ModelOptim::_printResult(const String& title,
 void ModelOptim::_setSill(int icov, int ivar, int jvar, double value) const
 {
   _modelPart._model->setSill(icov, ivar, jvar, value);
+}
+
+void ModelOptim::_performOptimization(nlopt_func f,
+                                      void* f_data,
+                                      double distmax_def,
+                                      const MatrixSquareSymmetric& vars_def)
+{
+  // Define the optimization criterion
+  int npar      = _getParamNumber();
+  nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
+  nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
+  nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
+  nlopt_srand(12345);
+  nlopt_set_ftol_rel(opt, 1e-6);
+
+  // Update the initial optimization values (due to variogram)
+  updateModelParamList(distmax_def, vars_def);
+
+  // Define the cost function
+  nlopt_set_min_objective(opt, f, f_data);
+
+  // Perform the optimization (store the minimized value in 'minf')
+  double minf;
+  if (_modelPart._verbose) mestitle(1, "Model Fitting from Variogram");
+  nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
+  nlopt_destroy(opt);
 }

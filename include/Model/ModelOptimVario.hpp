@@ -10,11 +10,15 @@
 /******************************************************************************/
 #pragma once
 
+
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Model/ModelOptim.hpp"
+#include "Model/ModelOptimSillsVario.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
 
 class Model;
 class Vario;
@@ -27,11 +31,24 @@ class Vario;
 class GSTLEARN_EXPORT ModelOptimVario: public ModelOptim
 {
 public:
-  ModelOptimVario();
+  ModelOptimVario(Model* model,
+                  Constraints* constraints      = nullptr,
+                  const Option_AutoFit& mauto   = Option_AutoFit(),
+                  const Option_VarioFit& optvar = Option_VarioFit());
   ModelOptimVario(const ModelOptimVario& m);
   ModelOptimVario& operator=(const ModelOptimVario& m);
   virtual ~ModelOptimVario();
 
+  int fit(Vario* vario, bool flagGoulard = true, int wmode = 2, bool verbose = false);
+
+#ifndef SWIG
+  static double evalCost(unsigned int nparams,
+                         const double* current,
+                         double* grad,
+                         void* my_func_data);
+#endif
+
+protected:
   typedef struct
   {
     int _ivar;
@@ -54,33 +71,28 @@ public:
 
   } Vario_Part;
 
-  int fit(Vario* vario, Model* model, int wmode = 2, bool verbose = false);
+  typedef struct
+  {
+    // Part of the structure dedicated to the Model
+    Model_Part& _modelPart;
 
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
+    // Part relative to the Experimental variograms
+    Vario_Part& _varioPart;
+
+  } AlgorithmVario;
 
 private:
   int _buildExperimental();
-  int _getTotalLagsPerDirection() const;
-  int _getParamNumber() const { return (int)_modelPart._params.size(); }
-
-  VectorDouble _computeWeightPerDirection();
-
   void _copyVarioPart(const Vario_Part& varioPart);
   bool _checkConsistency();
-  bool _isLagCorrect(int idir, int k) const;
 
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
-
-protected:
-  void _computeWt();
-  double _getC00(int idir, int ivar, int jvar) const;
 
 protected:
   // Part relative to the Experimental variograms
   Vario_Part _varioPart;
 
-  VectorDouble _wt;
+  // Only used for Goulard Option
+  bool _flagGoulard;
+  ModelOptimSillsVario _optGoulard;
 };

@@ -13,74 +13,71 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Model/ModelOptim.hpp"
+#include "Model/ModelOptimSillsVMap.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
 
 class Model;
-class Vario;
+class DbGrid;
+class Constraints;
 
 /**
  * \brief
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVmap: public ModelOptim
+class GSTLEARN_EXPORT ModelOptimVMap: public ModelOptim
 {
 public:
-  ModelOptimVmap();
-  ModelOptimVmap(const ModelOptimVmap& m);
-  ModelOptimVmap& operator=(const ModelOptimVmap& m);
-  virtual ~ModelOptimVmap();
+  ModelOptimVMap(Model* model,
+                 Constraints* constraints      = nullptr,
+                 const Option_AutoFit& mauto   = Option_AutoFit(),
+                 const Option_VarioFit& optvar = Option_VarioFit());
+  ModelOptimVMap(const ModelOptimVMap& m);
+  ModelOptimVMap& operator=(const ModelOptimVMap& m);
+  virtual ~ModelOptimVMap();
 
-  typedef struct
-  {
-    int _ivar;
-    int _jvar;
-    double _weight;
-    double _gg;
-    SpacePoint _P;
-  } OneLag;
+  int fit(const DbGrid* dbmap, bool flagGoulard = true, bool verbose = false);
 
-  typedef struct
-  {
-    // Pointer to the Vario structure
-    Vario* _vario;
-
-    // Parametrization
-    int _wmode;
-
-    // Experimental quantities
-    std::vector<OneLag> _lags;
-
-  } Vario_Part;
-
-  int fit(Vario* vario, Model* model, int wmode = 2, bool verbose = false);
-
+#ifndef SWIG
   static double evalCost(unsigned int nparams,
                          const double* current,
                          double* grad,
                          void* my_func_data);
+#endif
 
 private:
-  int _buildExperimental();
-  int _getTotalLagsPerDirection() const;
-  int _getParamNumber() const { return (int)_modelPart._params.size(); }
+  typedef struct
+  {
+    const DbGrid* _dbmap;
+    VectorInt _indg1;
+    VectorInt _indg2;
+    int _npadir;
+  } VMap_Part;
 
-  VectorDouble _computeWeightPerDirection();
+  typedef struct
+  {
+    // Part of the structure dedicated to the Model
+    Model_Part& _modelPart;
 
-  void _copyVarioPart(const Vario_Part& varioPart);
+    // Part relative to the Experimental variograms
+    VMap_Part& _vmapPart;
+
+  } AlgorithmVMap;
+
+  void _copyVMapPart(const VMap_Part& vmapPart);
+
   bool _checkConsistency();
-  bool _isLagCorrect(int idir, int k) const;
-
-  OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
-
-protected:
-  void _computeWt();
-  double _getC00(int idir, int ivar, int jvar) const;
+  int  _getDimensions();
+  void _allocateInternalArrays();
+  void _computeFromVMap();
 
 protected:
-  // Part relative to the Experimental variograms
-  Vario_Part _varioPart;
+  // Part relative to the Experimental VMap
+  VMap_Part _vmapPart;
 
-  VectorDouble _wt;
+  // Only used for Goulard Option
+  bool _flagGoulard;
+  ModelOptimSillsVMap _optGoulard;
 };

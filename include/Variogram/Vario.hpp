@@ -359,7 +359,13 @@ public:
 
   int transformCut(int nh, double ycut);
   int transformZToY(const AAnam *anam);
-  int transformYToZ(const AAnam *anam);
+  int transformYToZ(const AAnam* anam);
+
+  bool isLagCorrect(int idir, int k) const;
+  double getC00(int idir, int ivar, int jvar) const;
+  VectorDouble computeWeightPerDirection() const;
+  int getTotalLagsPerDirection() const;
+  VectorDouble computeWeightsFromVario(int wmode);
 
 protected:
   /// Interface for ASerializable

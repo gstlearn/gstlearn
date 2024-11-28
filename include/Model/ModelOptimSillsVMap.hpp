@@ -10,49 +10,48 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
+
+#include "Matrix/MatrixRectangular.hpp"
 #include "gstlearn_export.hpp"
 
-#include "Model/ModelOptim.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Model/ModelOptimSills.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
 
 class Model;
-class Db;
+class DbGrid;
+class Constraints;
+class MatrixRectangular;
+class MatrixSquareSYmmetric;
 
 /**
  * \brief
  * Class which, starting from an experimental variogram, enables fitting the
- * various parameters of a Covariance part of a Model
+ * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT ModelOptimLikelihood: public ModelOptim
+class GSTLEARN_EXPORT ModelOptimSillsVMap: public ModelOptimSills
 {
 public:
-  ModelOptimLikelihood(Model* model);
-  ModelOptimLikelihood(const ModelOptimLikelihood& m);
-  ModelOptimLikelihood& operator=(const ModelOptimLikelihood& m);
-  virtual ~ModelOptimLikelihood();
+  ModelOptimSillsVMap(Model* model,
+                      Constraints* constraints      = nullptr,
+                      const Option_AutoFit& mauto   = Option_AutoFit(),
+                      const Option_VarioFit& optvar = Option_VarioFit());
+  ModelOptimSillsVMap(const ModelOptimSillsVMap& m);
+  ModelOptimSillsVMap& operator=(const ModelOptimSillsVMap& m);
+  virtual ~ModelOptimSillsVMap();
 
-  typedef struct
-  {
-    // If TRUE: use SPDE approach
-    // otherwise: use the Covariance Matrix approach
-    bool _flagSPDE;
-
-    // Pointer to the Vario structure
-    Db* _db;
-
-  } Db_Part;
-
-  int fit(Db* db, bool flagSPDE = false, bool verbose = false);
-
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
+  int fit(DbGrid* dbmap);
 
 private:
-  void _copyDbPart(const Db_Part& dbPart);
-  bool _checkConsistency();
+  int  _getDimensions();
+  void _computeVMap();
+  void _computeGe();
 
 private:
-  // Part relative to the Db
-  Db_Part _dbPart;
+  DbGrid* _dbmap;
+  VectorInt _indg1;
+  VectorInt _indg2;
+  int _nech;
 };

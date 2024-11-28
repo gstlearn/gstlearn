@@ -16,44 +16,35 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/ModelOptimVario.hpp"
+#include "Model/ModelOptim.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
 
 class Model;
-class Vario;
 class Constraints;
-class Option_AutoFit;
-class Option_VarioFit;
 class MatrixRectangular;
 class MatrixSquareSYmmetric;
 
 /**
  * \brief
- * Class which, starting from an experimental variogram, enables fitting the
+ * Class which, starting from experimental quantities, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT ModelOptimSills: public ModelOptimVario
+class GSTLEARN_EXPORT ModelOptimSills: public ModelOptim
 {
 public:
-  ModelOptimSills();
+  ModelOptimSills(Model* model,
+                  Constraints* constraints      = nullptr,
+                  const Option_AutoFit& mauto   = Option_AutoFit(),
+                  const Option_VarioFit& optvar = Option_VarioFit());
   ModelOptimSills(const ModelOptimSills& m);
   ModelOptimSills& operator=(const ModelOptimSills& m);
   virtual ~ModelOptimSills();
 
-  int fit(Vario* vario,
-          Model* model,
-          Constraints* constraints,
-          const Option_AutoFit* mauto,
-          const Option_VarioFit* optvar);
-
-private:
-  int  _getDimensions();
-  void _allocateInternalArrays(bool flag_exp = true);
-  int  _constraintsCheck();
-  void _computeGg();
-  void _computeGe();
-  void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
-  void _preparGoulardVario();
-  int _goulardWithoutConstraint(const Option_AutoFit* mauto,
+protected:
+  bool _hasConstraints() const { return _constraints != nullptr; }
+  int _goulardWithConstraints();
+  int _goulardWithoutConstraint(const Option_AutoFit& mauto,
                                 int nvar,
                                 int ncova,
                                 int npadir,
@@ -62,13 +53,19 @@ private:
                                 std::vector<MatrixRectangular>& ge,
                                 std::vector<MatrixSquareSymmetric>& sill,
                                 double* crit_arg) const;
-  int _goulardWithConstraints();
-  void _initializeGoulard();
-  int _makeDefinitePositive(int icov0, double eps = EPSILON12);
+  void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
+  void _storeSillsInModel() const;
+  int _sillFittingIntrinsic();
+  void _allocateInternalArrays(bool flag_exp = true);
+
+private:
   int _optimizeUnderConstraints(double* score);
+  int _makeDefinitePositive(int icov0, double eps = EPSILON12);
+  void _initializeGoulard();
   int _truncateNegativeEigen(int icov0);
-  double _score();
   double _sumSills(int ivar0, std::vector<MatrixSquareSymmetric>& alpha) const;
+  double _score();
+  static int _combineVariables(int ivar0, int jvar0);
   double _minimizeP4(int icov0,
                      int ivar0,
                      double xrmax,
@@ -91,21 +88,14 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSquareSymmetric>& alpha);
-  static int _combineVariables(int ivar0, int jvar0);
-  void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
-  void _storeSillsInModel() const;
-  int _sillFittingIntrinsic();
 
-private:
-  Constraints* _constraints;
-  const Option_AutoFit* _mauto;
-  const Option_VarioFit* _optvar;
-
+protected:
   int _ndim;
   int _nvar;
   int _ncova;
   int _nbexp;
   int _npadir;
+  VectorDouble _wt;
   VectorDouble _gg;
   VectorDouble _ggc;
   VectorDouble _wtc;
