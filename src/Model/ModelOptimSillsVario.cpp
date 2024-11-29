@@ -16,15 +16,12 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/Constraints.hpp"
-#include "Basic/MathFunc.hpp"
 
-#define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
-#define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
-#define GG(ijvar, ipadir)       gg[IJDIR(ijvar, ipadir)]
-#define _WT(ijvar, ipadir)       _wt[IJDIR(ijvar, ipadir)]
-#define _GG(ijvar, ipadir)       _gg[IJDIR(ijvar, ipadir)]
-#define _WT2(ijvar, ipadir) _wt2[IJDIR(ijvar, ipadir)]
-#define _GG2(ijvar, ipadir)      _gg2[IJDIR(ijvar, ipadir)]
+#define IJDIR(ijvar, ipadir)    ((ijvar)*_npadir + (ipadir))
+#define _WT(ijvar, ipadir)      _wt[IJDIR(ijvar, ipadir)]
+#define _GG(ijvar, ipadir)      _gg[IJDIR(ijvar, ipadir)]
+#define _WT2(ijvar, ipadir)     _wt2[IJDIR(ijvar, ipadir)]
+#define _GG2(ijvar, ipadir)     _gg2[IJDIR(ijvar, ipadir)]
 #define TAB(ijvar, ipadir)      tabin[IJDIR(ijvar, ipadir)]
 #define DD(idim, ijvar, ipadir) _dd[idim][IJDIR(ijvar, ipadir)]
 

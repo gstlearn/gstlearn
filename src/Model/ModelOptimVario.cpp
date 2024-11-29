@@ -97,6 +97,10 @@ int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose
   // Check consistency
   if (! _checkConsistency()) return 1;
 
+  // Instantiate Goulard algorithm (optional)
+  if (_flagGoulard)
+    _optGoulard = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto, _optvar);
+
   // Perform the optimization
   AlgorithmVario algorithm {_modelPart, _varioPart};
   _performOptimization(evalCost, &algorithm, vario->getMaximumDistance(),

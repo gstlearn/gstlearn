@@ -165,6 +165,10 @@ int ModelOptimVMap::fit(const DbGrid* dbmap, bool flagGoulard, bool verbose)
   // Check consistency
   if (!_checkConsistency()) return 1;
 
+  // Instantiate Goulard algorithm (optional)
+  if (_flagGoulard)
+    _optGoulard = ModelOptimSillsVMap(_modelPart._model, _constraints, _mauto, _optvar);
+
   // Perform the optimization
   AlgorithmVMap algorithm {_modelPart, _vmapPart};
   _performOptimization(evalCost, &algorithm);

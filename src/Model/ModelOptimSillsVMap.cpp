@@ -15,7 +15,6 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Basic/MathFunc.hpp"
 #include "Db/DbGrid.hpp"
 
 #include "geoslib_old_f.h"

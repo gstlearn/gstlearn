@@ -304,7 +304,7 @@ void AModelOptim::_performOptimization(nlopt_func f,
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
   nlopt_srand(12345);
-  nlopt_set_ftol_rel(opt, 1e-6);
+  nlopt_set_ftol_rel(opt, EPSILON6);
 
   // Update the initial optimization values (due to variogram)
   updateModelParamList(distmax_def, vars_def);
@@ -314,7 +314,6 @@ void AModelOptim::_performOptimization(nlopt_func f,
 
   // Perform the optimization (store the minimized value in 'minf')
   double minf;
-  if (_modelPart._verbose) mestitle(1, "Model Fitting from Variogram");
   nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
   nlopt_destroy(opt);
 }

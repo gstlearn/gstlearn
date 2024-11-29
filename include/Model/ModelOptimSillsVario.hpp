@@ -10,9 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
-
-#include "Matrix/MatrixRectangular.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
