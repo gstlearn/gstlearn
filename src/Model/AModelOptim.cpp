@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ModelOptim.hpp"
+#include "Model/AModelOptim.hpp"
 
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
@@ -28,7 +28,7 @@
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
-ModelOptim::ModelOptim(Model* model,
+AModelOptim::AModelOptim(Model* model,
                        Constraints* constraints,
                        const Option_AutoFit& mauto,
                        const Option_VarioFit& optvar)
@@ -40,7 +40,7 @@ ModelOptim::ModelOptim(Model* model,
   _modelPart._model = model;
 }
 
-ModelOptim::ModelOptim(const ModelOptim& m)
+AModelOptim::AModelOptim(const AModelOptim& m)
   : _modelPart()
   , _constraints(m._constraints)
   , _mauto(m._mauto)
@@ -49,7 +49,7 @@ ModelOptim::ModelOptim(const ModelOptim& m)
    _copyModelPart(m._modelPart);
 }
 
-void ModelOptim::_copyModelPart(const Model_Part& modelPart)
+void AModelOptim::_copyModelPart(const Model_Part& modelPart)
 {
   _modelPart._model   = modelPart._model;
   _modelPart._params  = modelPart._params;
@@ -59,7 +59,7 @@ void ModelOptim::_copyModelPart(const Model_Part& modelPart)
   _modelPart._verbose = modelPart._verbose;
 }
 
-ModelOptim& ModelOptim::operator=(const ModelOptim& m)
+AModelOptim& AModelOptim::operator=(const AModelOptim& m)
 {
   if (this != &m)
   {
@@ -71,11 +71,11 @@ ModelOptim& ModelOptim::operator=(const ModelOptim& m)
   return (*this);
 }
 
-ModelOptim::~ModelOptim()
+AModelOptim::~AModelOptim()
 {
 }
 
-int ModelOptim::_buildModelParamList()
+int AModelOptim::_buildModelParamList()
 {
   if (_modelPart._model == nullptr)
   {
@@ -119,7 +119,7 @@ int ModelOptim::_buildModelParamList()
   return 0;
 }
 
-void ModelOptim::_addOneModelParam(int icov,
+void AModelOptim::_addOneModelParam(int icov,
                                    const EConsElem& type,
                                    int rank,
                                    double lbound,
@@ -138,7 +138,7 @@ void ModelOptim::_addOneModelParam(int icov,
   _modelPart._tabupp.push_back(ubound);
 }
 
-void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
+void AModelOptim::_patchModel(Model_Part& modelPart, const double* current)
 {
   // Initializations
   int nvar    = modelPart._model->getVariableNumber();
@@ -187,7 +187,7 @@ void ModelOptim::_patchModel(Model_Part& modelPart, const double* current)
   modelPart._niter++;
 }
 
-void ModelOptim::updateModelParamList(double distmax_def,
+void AModelOptim::updateModelParamList(double distmax_def,
                                       const MatrixSquareSymmetric& vars_def)
 {
   double value = TEST;
@@ -259,7 +259,7 @@ void ModelOptim::updateModelParamList(double distmax_def,
   }
 }
 
-void ModelOptim::dumpParamList() const
+void AModelOptim::dumpParamList() const
 {
   mestitle(1, "Model Optimization parameters");
   int nparams = _getParamNumber();
@@ -269,13 +269,13 @@ void ModelOptim::dumpParamList() const
   }
 }
 
-void ModelOptim::_dumpOneModelParam(const OneParam& param, double value)
+void AModelOptim::_dumpOneModelParam(const OneParam& param, double value)
 {
   message("Covariance %d - Type = %s - Rank = %d - Scale = %lf - Current = %lf\n",
     param._icov, param._type.getDescr().data(), param._rank, param._scale, value);
 }
 
-void ModelOptim::_printResult(const String& title,
+void AModelOptim::_printResult(const String& title,
                               const Model_Part& modelPart,
                               double result)
 {
@@ -288,12 +288,12 @@ void ModelOptim::_printResult(const String& title,
   message(") = %lf\n", result);
 }
 
-void ModelOptim::_setSill(int icov, int ivar, int jvar, double value) const
+void AModelOptim::_setSill(int icov, int ivar, int jvar, double value) const
 {
   _modelPart._model->setSill(icov, ivar, jvar, value);
 }
 
-void ModelOptim::_performOptimization(nlopt_func f,
+void AModelOptim::_performOptimization(nlopt_func f,
                                       void* f_data,
                                       double distmax_def,
                                       const MatrixSquareSymmetric& vars_def)

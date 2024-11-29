@@ -16,7 +16,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/ModelOptimSills.hpp"
+#include "Model/AModelOptimSills.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 
@@ -31,7 +31,7 @@ class MatrixSquareSYmmetric;
  * Class which, starting from an experimental variogram, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT ModelOptimSillsVario: public ModelOptimSills
+class GSTLEARN_EXPORT ModelOptimSillsVario: public AModelOptimSills
 {
 public:
   ModelOptimSillsVario(Model* model,

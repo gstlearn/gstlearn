@@ -21,7 +21,7 @@
 typedef struct
 {
   // Part of the structure dedicated to the Model
-  ModelOptim::Model_Part& _modelPart;
+  AModelOptim::Model_Part& _modelPart;
 
   // Part relative to the Experimental variograms
   ModelOptimLikelihood::Db_Part& _dbPart;
@@ -29,13 +29,13 @@ typedef struct
 } AlgorithmLikelihood;
 
 ModelOptimLikelihood::ModelOptimLikelihood(Model* model)
-  : ModelOptim(model)
+  : AModelOptim(model)
   , _dbPart()
 {
 }
 
 ModelOptimLikelihood::ModelOptimLikelihood(const ModelOptimLikelihood& m)
-  : ModelOptim(m)
+  : AModelOptim(m)
   , _dbPart()
 {
    _copyDbPart(m._dbPart);

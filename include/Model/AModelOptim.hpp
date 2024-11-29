@@ -30,16 +30,16 @@ class Constraints;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptim
+class GSTLEARN_EXPORT AModelOptim
 {
 public:
-  ModelOptim(Model* model,
+  AModelOptim(Model* model,
              Constraints* constraints      = nullptr,
              const Option_AutoFit& mauto   = Option_AutoFit(),
              const Option_VarioFit& optvar = Option_VarioFit());
-  ModelOptim(const ModelOptim& m);
-  ModelOptim& operator=(const ModelOptim& m);
-  virtual ~ModelOptim();
+  AModelOptim(const AModelOptim& m);
+  AModelOptim& operator=(const AModelOptim& m);
+  virtual ~AModelOptim();
 
   typedef struct
   {

@@ -13,9 +13,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/VectorNumT.hpp"
 #include "Space/SpacePoint.hpp"
-#include "Model/ModelOptim.hpp"
+#include "Model/AModelOptim.hpp"
 #include "Model/ModelOptimSillsVario.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
@@ -28,7 +27,7 @@ class Vario;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVario: public ModelOptim
+class GSTLEARN_EXPORT ModelOptimVario: public AModelOptim
 {
 public:
   ModelOptimVario(Model* model,

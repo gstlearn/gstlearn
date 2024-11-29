@@ -23,7 +23,7 @@ ModelOptimVMap::ModelOptimVMap(Model* model,
                                Constraints* constraints,
                                const Option_AutoFit& mauto,
                                const Option_VarioFit& optvar)
-  : ModelOptim(model, constraints, mauto, optvar)
+  : AModelOptim(model, constraints, mauto, optvar)
   , _vmapPart()
   , _flagGoulard(false)
   , _optGoulard(model)
@@ -31,7 +31,7 @@ ModelOptimVMap::ModelOptimVMap(Model* model,
 }
 
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
-  : ModelOptim(m)
+  : AModelOptim(m)
   , _vmapPart()
   , _flagGoulard(m._flagGoulard)
   , _optGoulard(m._optGoulard)
@@ -43,7 +43,7 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
 {
   if (this != &m)
   {
-    ModelOptim::operator=(m);
+    AModelOptim::operator=(m);
     _flagGoulard = m._flagGoulard;
     _optGoulard = m._optGoulard;
     _copyVMapPart(m._vmapPart);

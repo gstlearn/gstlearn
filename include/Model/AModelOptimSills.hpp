@@ -16,7 +16,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/ModelOptim.hpp"
+#include "Model/AModelOptim.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 
@@ -30,16 +30,16 @@ class MatrixSquareSYmmetric;
  * Class which, starting from experimental quantities, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT ModelOptimSills: public ModelOptim
+class GSTLEARN_EXPORT AModelOptimSills: public AModelOptim
 {
 public:
-  ModelOptimSills(Model* model,
+  AModelOptimSills(Model* model,
                   Constraints* constraints      = nullptr,
                   const Option_AutoFit& mauto   = Option_AutoFit(),
                   const Option_VarioFit& optvar = Option_VarioFit());
-  ModelOptimSills(const ModelOptimSills& m);
-  ModelOptimSills& operator=(const ModelOptimSills& m);
-  virtual ~ModelOptimSills();
+  AModelOptimSills(const AModelOptimSills& m);
+  AModelOptimSills& operator=(const AModelOptimSills& m);
+  virtual ~AModelOptimSills();
 
 protected:
   bool _hasConstraints() const { return _constraints != nullptr; }

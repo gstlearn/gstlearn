@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ModelOptimSills.hpp"
+#include "Model/AModelOptimSills.hpp"
 
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
@@ -38,33 +38,33 @@
    isZero(vario->getSwByIndex(idir, k)) ||                                     \
    FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
 
-ModelOptimSills::ModelOptimSills(Model* model,
+AModelOptimSills::AModelOptimSills(Model* model,
                                  Constraints* constraints,
                                  const Option_AutoFit& mauto,
                                  const Option_VarioFit& optvar)
-  : ModelOptim(model, constraints, mauto, optvar)
+  : AModelOptim(model, constraints, mauto, optvar)
 {
 }
 
-ModelOptimSills::ModelOptimSills(const ModelOptimSills& m)
-  : ModelOptim(m)
+AModelOptimSills::AModelOptimSills(const AModelOptimSills& m)
+  : AModelOptim(m)
 {
 }
 
-ModelOptimSills& ModelOptimSills::operator=(const ModelOptimSills& m)
+AModelOptimSills& AModelOptimSills::operator=(const AModelOptimSills& m)
 {
   if (this != &m)
   {
-    ModelOptim::operator=(m);
+    AModelOptim::operator=(m);
   }
   return (*this);
 }
 
-ModelOptimSills::~ModelOptimSills()
+AModelOptimSills::~AModelOptimSills()
 {
 }
 
-void ModelOptimSills::_storeSillsInModel() const
+void AModelOptimSills::_storeSillsInModel() const
 {
   for (int icov = 0; icov < _ncova; icov++)
   {
@@ -75,7 +75,7 @@ void ModelOptimSills::_storeSillsInModel() const
   }
 }
 
-void ModelOptimSills::_resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const
+void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const
 {
   for (int icova = 0; icova < ncova; icova++)
   {
@@ -94,7 +94,7 @@ void ModelOptimSills::_resetSill(int ncova, std::vector<MatrixSquareSymmetric>& 
  ** \param[in]  flag_exp  1 for experimental variogram
  **
  *****************************************************************************/
-void ModelOptimSills::_allocateInternalArrays(bool flag_exp)
+void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
 {
   int nvs2 = _nvar * (_nvar + 1) / 2;
 
@@ -131,7 +131,7 @@ void ModelOptimSills::_allocateInternalArrays(bool flag_exp)
   }
 }
 
-int ModelOptimSills::_goulardWithConstraints()
+int AModelOptimSills::_goulardWithConstraints()
 {
   double crit;
   VectorDouble consSill = _constraints->getConstantSills();
@@ -178,7 +178,7 @@ int ModelOptimSills::_goulardWithConstraints()
  **  Initialize the system for Goulard algorithm
  **
  *****************************************************************************/
-void ModelOptimSills::_initializeGoulard()
+void AModelOptimSills::_initializeGoulard()
 {
   MatrixSquareSymmetric aa(_ncova);
   VectorDouble bb(_ncova);
@@ -268,7 +268,7 @@ void ModelOptimSills::_initializeGoulard()
  ** \param[in]      eps      Tolerance
  **
  *****************************************************************************/
-int ModelOptimSills::_makeDefinitePositive(int icov0, double eps)
+int AModelOptimSills::_makeDefinitePositive(int icov0, double eps)
 {
   VectorDouble muold(_nvar);
   VectorDouble norme1(_nvar);
@@ -303,7 +303,7 @@ int ModelOptimSills::_makeDefinitePositive(int icov0, double eps)
   return flag_positive;
 }
 
-int ModelOptimSills::_optimizeUnderConstraints(double* score)
+int AModelOptimSills::_optimizeUnderConstraints(double* score)
 {
   double score_old, xrmax;
 
@@ -406,7 +406,7 @@ int ModelOptimSills::_optimizeUnderConstraints(double* score)
   return (iter);
 }
 
-int ModelOptimSills::_truncateNegativeEigen(int icov0)
+int AModelOptimSills::_truncateNegativeEigen(int icov0)
 {
   MatrixSquareSymmetric cc(_nvar);
   for (int ivar = 0; ivar < _nvar; ivar++)
@@ -440,7 +440,7 @@ int ModelOptimSills::_truncateNegativeEigen(int icov0)
   return flag_positive;
 }
 
-double ModelOptimSills::_score()
+double AModelOptimSills::_score()
 {
   double score = 0.;
   int ijvar    = 0;
@@ -461,7 +461,7 @@ double ModelOptimSills::_score()
   return (score);
 }
 
-double ModelOptimSills::_sumSills(int ivar0,
+double AModelOptimSills::_sumSills(int ivar0,
                                   std::vector<MatrixSquareSymmetric>& alpha) const
 {
   double Sr = 0;
@@ -483,7 +483,7 @@ double ModelOptimSills::_sumSills(int ivar0,
  ** \param[in] alpha    Current auxiliary matrices alpha
  **
  *****************************************************************************/
-double ModelOptimSills::_minimizeP4(int icov0,
+double AModelOptimSills::_minimizeP4(int icov0,
                                     int ivar0,
                                     double xrmax,
                                     VectorDouble& xr,
@@ -633,7 +633,7 @@ double ModelOptimSills::_minimizeP4(int icov0,
   return retval;
 }
 
-void ModelOptimSills::_updateAlphaDiag(int icov0,
+void AModelOptimSills::_updateAlphaDiag(int icov0,
                                        int ivar0,
                                        VectorDouble& xr,
                                        std::vector<MatrixSquareSymmetric>& alpha)
@@ -644,7 +644,7 @@ void ModelOptimSills::_updateAlphaDiag(int icov0,
   alpha[icov0].setValue(ivar0, ivar0, MAX(0., value));
 }
 
-void ModelOptimSills::_updateOtherSills(int icov0,
+void AModelOptimSills::_updateOtherSills(int icov0,
                                         int ivar0,
                                         std::vector<MatrixSquareSymmetric>& alpha,
                                         VectorDouble& xr)
@@ -661,7 +661,7 @@ void ModelOptimSills::_updateOtherSills(int icov0,
   }
 }
 
-void ModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
+void AModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
 {
   VectorDouble mv(_npadir);
   VectorDouble consSill = _constraints->getConstantSills();
@@ -705,7 +705,7 @@ void ModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
   }
 }
 
-void ModelOptimSills::_updateCurrentSillDiag(int icov0,
+void AModelOptimSills::_updateCurrentSillDiag(int icov0,
                                              int ivar0,
                                              std::vector<MatrixSquareSymmetric>& alpha,
                                              VectorDouble& xr)
@@ -715,7 +715,7 @@ void ModelOptimSills::_updateCurrentSillDiag(int icov0,
   _sill[icov0].setValue(ivar0, ivar0, value);
 }
 
-void ModelOptimSills::_updateAlphaNoDiag(int icov0,
+void AModelOptimSills::_updateAlphaNoDiag(int icov0,
                                          int ivar0,
                                          VectorDouble& xr,
                                          std::vector<MatrixSquareSymmetric>& alpha)
@@ -729,13 +729,13 @@ void ModelOptimSills::_updateAlphaNoDiag(int icov0,
   }
 }
 
-int ModelOptimSills::_combineVariables(int ivar0, int jvar0)
+int AModelOptimSills::_combineVariables(int ivar0, int jvar0)
 {
   if (ivar0 > jvar0) return (ivar0 + jvar0 * (jvar0 + 1) / 2);
   return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
-int ModelOptimSills::_sillFittingIntrinsic()
+int AModelOptimSills::_sillFittingIntrinsic()
 {
   int nvs2 = _nvar * (_nvar + 1) / 2;
   double crit = 0.;
@@ -817,7 +817,7 @@ int ModelOptimSills::_sillFittingIntrinsic()
   return 0;
 }
 
-int ModelOptimSills::_goulardWithoutConstraint(
+int AModelOptimSills::_goulardWithoutConstraint(
   const Option_AutoFit& mauto,
   int nvar,
   int ncova,

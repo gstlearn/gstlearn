@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Model/ModelOptim.hpp"
+#include "Model/AModelOptim.hpp"
 
 class Model;
 class Db;
@@ -22,7 +22,7 @@ class Db;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimLikelihood: public ModelOptim
+class GSTLEARN_EXPORT ModelOptimLikelihood: public AModelOptim
 {
 public:
   ModelOptimLikelihood(Model* model);

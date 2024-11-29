@@ -13,9 +13,9 @@
  *
  * The example contains several subsets:
  * - Fitting sills only using old technology (Goulard)
- * - Fitting sills only using new technology (ModelOptimSills)
+ * - Fitting sills only using new technology (AModelOptimSills)
  * - Fitting a Model using the old technology (Foxleg based)
- * - Fitting using the new technology (ModelOptim*)
+ * - Fitting using the new technology (AModelOptim*)
  *
  * As options, you can define:
  * - nvar: to run a Monovariate or a Multivariate (independent variables) case
@@ -72,7 +72,7 @@ static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul)
 // New style Sill fitting (Goulard) from Variogram
 static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul)
 {
-  mestitle(0, "Using ModelOptimSills");
+  mestitle(0, "Using ModelOptimSillsVario");
 
   // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
@@ -80,7 +80,7 @@ static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul)
   // Fit the Model
   ModelOptimSillsVario model_opt(model);
   model_opt.fit(vario);
-  (void) model->dumpToNF("ModelOptimSills.ascii");
+  (void) model->dumpToNF("ModelOptimSillsVario.ascii");
   model->display();
 
   delete vario;

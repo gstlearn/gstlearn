@@ -22,7 +22,7 @@ ModelOptimVario::ModelOptimVario(Model* model,
                                  Constraints* constraints,
                                  const Option_AutoFit& mauto,
                                  const Option_VarioFit& optvar)
-  : ModelOptim(model, constraints, mauto, optvar)
+  : AModelOptim(model, constraints, mauto, optvar)
   , _varioPart()
   , _flagGoulard(false)
   , _optGoulard(model)
@@ -30,7 +30,7 @@ ModelOptimVario::ModelOptimVario(Model* model,
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
-  : ModelOptim(m)
+  : AModelOptim(m)
   , _varioPart()
   , _flagGoulard(m._flagGoulard)
   , _optGoulard(m._optGoulard)
@@ -42,7 +42,7 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
 {
   if (this != &m)
   {
-    ModelOptim::operator=(m);
+    AModelOptim::operator=(m);
     _flagGoulard = m._flagGoulard;
     _optGoulard  = m._optGoulard;
     _copyVarioPart(m._varioPart);

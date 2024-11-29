@@ -45,12 +45,12 @@ ModelOptimSillsVMap::ModelOptimSillsVMap(Model* model,
                                          Constraints* constraints,
                                          const Option_AutoFit& mauto,
                                          const Option_VarioFit& optvar)
-  : ModelOptimSills(model, constraints, mauto, optvar)
+  : AModelOptimSills(model, constraints, mauto, optvar)
 {
 }
 
 ModelOptimSillsVMap::ModelOptimSillsVMap(const ModelOptimSillsVMap& m)
-  : ModelOptimSills(m)
+  : AModelOptimSills(m)
 {
 }
 
@@ -58,7 +58,7 @@ ModelOptimSillsVMap& ModelOptimSillsVMap::operator=(const ModelOptimSillsVMap& m
 {
   if (this != &m)
   {
-    ModelOptimSills::operator=(m);
+    AModelOptimSills::operator=(m);
   }
   return (*this);
 }

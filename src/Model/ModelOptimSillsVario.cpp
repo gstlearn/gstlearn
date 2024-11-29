@@ -43,13 +43,13 @@ ModelOptimSillsVario::ModelOptimSillsVario(Model* model,
                                            Constraints* constraints,
                                            const Option_AutoFit& mauto,
                                            const Option_VarioFit& optvar)
-  : ModelOptimSills(model, constraints, mauto, optvar)
+  : AModelOptimSills(model, constraints, mauto, optvar)
   , _vario()
 {
 }
 
 ModelOptimSillsVario::ModelOptimSillsVario(const ModelOptimSillsVario& m)
-  : ModelOptimSills(m)
+  : AModelOptimSills(m)
   , _vario(m._vario)
   , _wmode(m._wmode)
 {
@@ -59,7 +59,7 @@ ModelOptimSillsVario& ModelOptimSillsVario::operator=(const ModelOptimSillsVario
 {
   if (this != &m)
   {
-    ModelOptimSills::operator=(m);
+    AModelOptimSills::operator=(m);
     _vario = m._vario;
     _wmode = m._wmode;
   }
