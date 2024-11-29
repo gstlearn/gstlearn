@@ -90,8 +90,8 @@ static void _secondTest(Db* db, Model* model, bool converge)
   (void)vario->dumpToNF("vario2.ascii");
 
   // Fit the Model
-  ModelOptimVario model_opt(model);
-  model_opt.fit(vario, false, 2, converge);
+  ModelOptimVario model_optim_vario(model);
+  model_optim_vario.fit(vario, false, 2, converge);
   (void) model->dumpToNF("model2.ascii");
   model->display();
 
@@ -107,8 +107,8 @@ static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
     mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
 
   // Fit the Model
-  ModelOptimLikelihood model_opt(model);
-  model_opt.fit(db, flagSPDE, converge);
+  ModelOptimLikelihood model_optim_likelihood(model);
+  model_optim_likelihood.fit(db, flagSPDE, converge);
   (void)model->dumpToNF("model3.ascii");
   model->display();
 }
