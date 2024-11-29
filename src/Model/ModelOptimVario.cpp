@@ -81,7 +81,10 @@ bool ModelOptimVario::_checkConsistency()
   return true;
 }
 
-int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose)
+int ModelOptimVario::loadEnvironment(Vario* vario,
+                                     bool flagGoulard,
+                                     int wmode,
+                                     bool verbose)
 {
   _modelPart._verbose = verbose;
   _varioPart._vario   = vario;
@@ -95,11 +98,20 @@ int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose
   if (_buildModelParamList()) return 1;
 
   // Check consistency
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
 
   // Instantiate Goulard algorithm (optional)
   if (_flagGoulard)
-    _optGoulard = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto, _optvar);
+    _optGoulard =
+      ModelOptimSillsVario(_modelPart._model, _constraints, _mauto, _optvar);
+
+  return 0;
+}
+
+int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose)
+{
+  // Load the Environment
+  if (loadEnvironment(vario, flagGoulard, wmode, verbose)) return 1;
 
   // Perform the optimization
   AlgorithmVario algorithm {_modelPart, _varioPart};

@@ -40,6 +40,8 @@ public:
 
   int fit(const DbGrid* dbmap, bool flagGoulard = true, bool verbose = false);
 
+  int loadEnvironment(const DbGrid* dbmap, bool flagGoulard = true, bool verbose = false);
+
 #ifndef SWIG
   static double evalCost(unsigned int nparams,
                          const double* current,

@@ -66,6 +66,25 @@ ModelOptimSillsVMap::~ModelOptimSillsVMap()
 {
 }
 
+int ModelOptimSillsVMap::loadEnvironment(DbGrid* dbmap)
+{
+  _dbmap = dbmap;
+
+  // Get internal dimension
+  if (_getDimensions()) return 1;
+
+  // Allocate arrays
+  _allocateInternalArrays(false);
+
+  // Initialize Model-free quantities
+  _computeVMap();
+
+  // Initialize the array of sills
+  _resetSill(_ncova, _sill);
+
+  return 0;
+}
+
 /****************************************************************************/
 /*!
  **  General Routine for fitting a model using an experimental variogram
@@ -77,57 +96,17 @@ ModelOptimSillsVMap::~ModelOptimSillsVMap()
  *****************************************************************************/
 int ModelOptimSillsVMap::fit(DbGrid* dbmap)
 {
-  _dbmap  = dbmap;
+  // Define the environment
+  if (loadEnvironment(dbmap)) return 1;
 
-  // Get internal dimension
-  if (_getDimensions()) return 1;
+  // Initialize Model-dependent quantities
+  _updateFromModel();
 
-  // Allocate internal arrays
-  _allocateInternalArrays(false);
-
-  // Load the arrays
-  _computeVMap();
-  _computeGe();
-
-  // Initialize the array of sills
-  _resetSill(_ncova, _sill);
-
-  /* Dispatch */
-
-  int status = 0;
-  double crit = 0.;
-  if (!_optvar.getFlagIntrinsic())
-  {
-
-    /* No intrinsic hypothesis */
-
-    if (FFFF(_constraints->getConstantSillValue()))
-    {
-      /* Without constraint on the sill */
-
-      status = _goulardWithoutConstraint(_mauto, _nvar, _ncova, _npadir,
-                                         _wt, _gg, _ge, _sill, &crit);
-    }
-    else
-    {
-
-      /* With constraint on the sill */
-
-      status = _goulardWithConstraints();
-    }
-
-    // Store the sills into the Model
-    _storeSillsInModel();
-  }
-  else
-  {
-    status = _sillFittingIntrinsic();
-  }
-
-  return (status);
+  // Perform the sill fitting
+  return _fitPerform();
 }
 
-/****************************************************************************/
+ /****************************************************************************/
 /*!
  **  Fill the array of pointers on the experimental conditions
  **
@@ -135,7 +114,7 @@ int ModelOptimSillsVMap::fit(DbGrid* dbmap)
 void ModelOptimSillsVMap::_computeVMap()
 {
   const DbGrid* dbmap = _dbmap;
-  int nvs2 = _nvar * (_nvar + 1) / 2;
+  int nvs2            = _nvar * (_nvar + 1) / 2;
   dbmap->rankToIndice(_nech / 2, _indg1);
 
   /* Load the Experimental conditions structure */
@@ -174,7 +153,7 @@ void ModelOptimSillsVMap::_computeVMap()
  **  Fill the array of pointers on the moded
  **
  *****************************************************************************/
-void ModelOptimSillsVMap::_computeGe()
+void ModelOptimSillsVMap::_updateFromModel()
 {
   Model* model = _modelPart._model;
   VectorDouble d0(_ndim);

@@ -150,7 +150,7 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
   return total;
 }
 
-int ModelOptimVMap::fit(const DbGrid* dbmap, bool flagGoulard, bool verbose)
+int ModelOptimVMap::loadEnvironment(const DbGrid* dbmap, bool flagGoulard, bool verbose)
 {
   _modelPart._verbose = verbose;
   _vmapPart._dbmap    = dbmap;
@@ -167,7 +167,16 @@ int ModelOptimVMap::fit(const DbGrid* dbmap, bool flagGoulard, bool verbose)
 
   // Instantiate Goulard algorithm (optional)
   if (_flagGoulard)
-    _optGoulard = ModelOptimSillsVMap(_modelPart._model, _constraints, _mauto, _optvar);
+    _optGoulard =
+      ModelOptimSillsVMap(_modelPart._model, _constraints, _mauto, _optvar);
+
+  return 0;
+}
+
+int ModelOptimVMap::fit(const DbGrid* dbmap, bool flagGoulard, bool verbose)
+{
+  // Load the environment
+  if (loadEnvironment(dbmap, flagGoulard, verbose)) return 1;
 
   // Perform the optimization
   AlgorithmVMap algorithm {_modelPart, _vmapPart};

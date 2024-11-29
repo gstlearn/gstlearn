@@ -1015,3 +1015,38 @@ int AModelOptimSills::_goulardWithoutConstraint(
   *crit_arg = crit;
   return (0);
 }
+
+int AModelOptimSills::_fitPerform()
+{
+  int status  = 0;
+  double crit = 0.;
+  if (!_optvar.getFlagIntrinsic())
+  {
+
+    /* No intrinsic hypothesis */
+
+    if (FFFF(_constraints->getConstantSillValue()))
+    {
+      /* Without constraint on the sill */
+
+      status = _goulardWithoutConstraint(_mauto, _nvar, _ncova, _npadir, _wt,
+                                         _gg, _ge, _sill, &crit);
+    }
+    else
+    {
+
+      /* With constraint on the sill */
+
+      status = _goulardWithConstraints();
+    }
+
+    // Store the sills into the Model
+    _storeSillsInModel();
+  }
+  else
+  {
+    status = _sillFittingIntrinsic();
+  }
+
+  return (status);
+}

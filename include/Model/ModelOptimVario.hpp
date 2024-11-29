@@ -40,6 +40,11 @@ public:
 
   int fit(Vario* vario, bool flagGoulard = true, int wmode = 2, bool verbose = false);
 
+  int loadEnvironment(Vario* vario,
+                      bool flagGoulard = true,
+                      int wmode        = 2,
+                      bool verbose     = false);
+
 #ifndef SWIG
   static double evalCost(unsigned int nparams,
                          const double* current,

@@ -40,11 +40,12 @@ public:
   virtual ~ModelOptimSillsVario();
 
   int fit(Vario* vario, int wmode = 2);
+  int loadEnvironment(Vario* vario, int wmode = 2);
 
 private:
   int  _getDimensions();
   void _computeGg();
-  void _computeGe();
+  void _updateFromModel();
   void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
   void _prepareGoulard();
 

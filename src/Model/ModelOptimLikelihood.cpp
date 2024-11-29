@@ -18,16 +18,6 @@
 #include "Stats/Classical.hpp"
 #include "API/SPDE.hpp"
 
-typedef struct
-{
-  // Part of the structure dedicated to the Model
-  AModelOptim::Model_Part& _modelPart;
-
-  // Part relative to the Experimental variograms
-  ModelOptimLikelihood::Db_Part& _dbPart;
-
-} AlgorithmLikelihood;
-
 ModelOptimLikelihood::ModelOptimLikelihood(Model* model)
   : AModelOptim(model)
   , _dbPart()
@@ -79,7 +69,7 @@ bool ModelOptimLikelihood::_checkConsistency()
   return true;
 }
 
-int ModelOptimLikelihood::fit(Db* db, bool flagSPDE, bool verbose)
+int ModelOptimLikelihood::loadEnvironment(Db* db, bool flagSPDE, bool verbose)
 {
   _modelPart._verbose = verbose;
   _dbPart._db         = db;
@@ -89,7 +79,15 @@ int ModelOptimLikelihood::fit(Db* db, bool flagSPDE, bool verbose)
   if (_buildModelParamList()) return 1;
 
   // Check consistency
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
+
+  return 0;
+}
+
+int ModelOptimLikelihood::fit(Db* db, bool flagSPDE, bool verbose)
+{
+  // Load the environment
+  if (loadEnvironment(db, flagSPDE, verbose)) return 1;
 
   // Perform the optimization
   AlgorithmLikelihood algorithm {_modelPart, _dbPart};

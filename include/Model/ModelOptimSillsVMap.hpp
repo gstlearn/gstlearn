@@ -40,11 +40,12 @@ public:
   virtual ~ModelOptimSillsVMap();
 
   int fit(DbGrid* dbmap);
+  int loadEnvironment(DbGrid* dbmap);
 
 private:
   int  _getDimensions();
   void _computeVMap();
-  void _computeGe();
+  void _updateFromModel();
 
 private:
   DbGrid* _dbmap;

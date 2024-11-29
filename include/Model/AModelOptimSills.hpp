@@ -34,15 +34,21 @@ class GSTLEARN_EXPORT AModelOptimSills: public AModelOptim
 {
 public:
   AModelOptimSills(Model* model,
-                  Constraints* constraints      = nullptr,
-                  const Option_AutoFit& mauto   = Option_AutoFit(),
-                  const Option_VarioFit& optvar = Option_VarioFit());
+                   Constraints* constraints      = nullptr,
+                   const Option_AutoFit& mauto   = Option_AutoFit(),
+                   const Option_VarioFit& optvar = Option_VarioFit());
   AModelOptimSills(const AModelOptimSills& m);
   AModelOptimSills& operator=(const AModelOptimSills& m);
   virtual ~AModelOptimSills();
 
 protected:
-  bool _hasConstraints() const { return _constraints != nullptr; }
+  void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
+  void _allocateInternalArrays(bool flag_exp = true);
+  int _fitPerform();
+
+private:
+  int _sillFittingIntrinsic();
+  void _storeSillsInModel() const;
   int _goulardWithConstraints();
   int _goulardWithoutConstraint(const Option_AutoFit& mauto,
                                 int nvar,
@@ -53,12 +59,6 @@ protected:
                                 std::vector<MatrixRectangular>& ge,
                                 std::vector<MatrixSquareSymmetric>& sill,
                                 double* crit_arg) const;
-  void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
-  void _storeSillsInModel() const;
-  int _sillFittingIntrinsic();
-  void _allocateInternalArrays(bool flag_exp = true);
-
-private:
   int _optimizeUnderConstraints(double* score);
   int _makeDefinitePositive(int icov0, double eps = EPSILON12);
   void _initializeGoulard();
