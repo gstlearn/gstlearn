@@ -62,8 +62,6 @@ protected:
   {
     // Pointer to the Vario structure
     Vario* _vario;
-
-    // Parametrization
     int _wmode;
 
     // Experimental quantities
