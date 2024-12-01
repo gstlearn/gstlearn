@@ -303,8 +303,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode)
                 int jad = shift + vario->getLagNumber(idir) - ipas - 1;
                 if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
                 dist = (ABS(vario->getHhByIndex(idir, iad)) +
-                        ABS(vario->getHhByIndex(idir, jad))) /
-                       2.;
+                        ABS(vario->getHhByIndex(idir, jad))) / 2.;
               }
               else
               {
@@ -326,36 +325,6 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode)
         }
       }
     }
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Compress the weights for the experimental variograms
-   **
-   ** \param[in]  tabin     Uncompressed array
-   **
-   ** \param[out] tabout    Compressed array
-   **
-   *****************************************************************************/
-  void ModelOptimSillsVario::_compressArray(const VectorDouble& tabin,
-                                            VectorDouble& tabout)
-  {
-    Vario* vario = _vario;
-
-    int ecr    = 0;
-    int ipadir = 0;
-    for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
-      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas;
-           ipas++, ipadir++)
-      {
-        int ijvar = 0;
-        for (int ivar = 0; ivar < _nvar; ivar++)
-          for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          {
-            double tabval = TAB(ijvar, ipadir);
-            if (!FFFF(tabval)) tabout[ecr++] = tabval;
-          }
-      }
   }
 
   /****************************************************************************/
@@ -406,4 +375,34 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode)
           }
       }
     }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Compress the weights for the experimental variograms
+   **
+   ** \param[in]  tabin     Uncompressed array
+   **
+   ** \param[out] tabout    Compressed array
+   **
+   *****************************************************************************/
+  void ModelOptimSillsVario::_compressArray(const VectorDouble& tabin,
+                                            VectorDouble& tabout)
+  {
+    Vario* vario = _vario;
+
+    int ecr    = 0;
+    int ipadir = 0;
+    for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas;
+           ipas++, ipadir++)
+      {
+        int ijvar = 0;
+        for (int ivar = 0; ivar < _nvar; ivar++)
+          for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+          {
+            double tabval = TAB(ijvar, ipadir);
+            if (!FFFF(tabval)) tabout[ecr++] = tabval;
+          }
+      }
   }

@@ -1025,7 +1025,7 @@ int AModelOptimSills::_fitPerform()
 
     /* No intrinsic hypothesis */
 
-    if (FFFF(_constraints->getConstantSillValue()))
+    if (_constraints == nullptr || FFFF(_constraints->getConstantSillValue()))
     {
       /* Without constraint on the sill */
 

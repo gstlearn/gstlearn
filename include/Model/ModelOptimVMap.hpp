@@ -69,7 +69,6 @@ private:
   } AlgorithmVMap;
 
   void _copyVMapPart(const VMap_Part& vmapPart);
-
   bool _checkConsistency();
   int  _getDimensions();
   void _allocateInternalArrays();

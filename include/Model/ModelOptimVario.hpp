@@ -84,10 +84,9 @@ protected:
   } AlgorithmVario;
 
 private:
-  int _buildExperimental();
+  int  _buildExperimental();
   void _copyVarioPart(const Vario_Part& varioPart);
   bool _checkConsistency();
-
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
 protected:
