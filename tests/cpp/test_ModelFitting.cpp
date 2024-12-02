@@ -37,8 +37,6 @@
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
-#include <nlopt.h>
-
 static Vario* _computeVariogram(Db* db2D, const ECalcVario& calcul)
 {
   double hmax            = db2D->getExtensionDiagonal();

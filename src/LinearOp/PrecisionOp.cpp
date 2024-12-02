@@ -168,7 +168,7 @@ int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force) const
 {
   // Polynomial already exists. Nothing to be done
-  if (_polynomials.contains(power)  && !force) return 0;
+  if (_polynomials.count(power) > 0 && !force) return 0;
 
   // Prepare Polynomial for EPowerPT::ONE
   if (_preparePrecisionPoly() != 0 && !force) return 1;
@@ -198,7 +198,7 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
 
 int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 {
-  if (_cova == nullptr && _polynomials.contains(EPowerPT::ONE)) return 1;
+  if (_cova == nullptr && _polynomials.count(EPowerPT::ONE) > 0) return 1;
   if (_shiftOp == nullptr) return 1;
 
   double b = _shiftOp->getMaxEigenValue();

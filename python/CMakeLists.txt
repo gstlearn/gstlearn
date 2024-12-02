@@ -150,6 +150,10 @@ if (MSVC OR APPLE)
   target_link_libraries(python_build PRIVATE Python3::Module)
 endif()
 
+if(USE_BOOST_SPAN)
+  target_compile_definitions(python_build PUBLIC USE_BOOST_SPAN)
+endif()
+
 ########################################
 # PACKAGING (target independent)
 
