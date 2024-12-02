@@ -205,7 +205,7 @@ int Db::resetFromBox(int nech,
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -235,7 +235,7 @@ int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -341,8 +341,6 @@ int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 
 int Db::getLocatorNumber(const ELoc& locatorType) const
 {
-  int number = locatorType.getValue();
-  if (number < 0) return 0;
   const PtrGeos& p = _p[locatorType.getValue()];
   return p.getLocatorNumber();
 }
@@ -980,12 +978,6 @@ bool Db::hasLocator(const ELoc& locatorType) const
   return p.hasLocator();
 }
 
-int Db::getFromLocatorNumber(const ELoc& locatorType) const
-{
-  const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getLocatorNumber();
-}
-
 int Db::getNEloc()
 {
   int number = 0;
@@ -1068,13 +1060,6 @@ void Db::clearLocators(const ELoc& locatorType)
   p.clear();
 }
 
-int Db::_getNextLocator(const ELoc& locatorType) const
-{
-  int number = getLocatorNumber(locatorType);
-
-  return number;
-}
-
 /**
  * Setting the locator for a set of variables designated by their names
  * @param names        Vector of variable names
@@ -1092,8 +1077,6 @@ void Db::setLocators(const VectorString &names,
   if (iuids.empty()) return;
 
   if (cleanSameLocator) clearLocators(locatorType);
-
-  if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
 
   for (unsigned int i = 0; i < iuids.size(); i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
@@ -1116,8 +1099,6 @@ void Db::setLocator(const String &name,
 
   if (cleanSameLocator) clearLocators(locatorType);
 
-  if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
   for (unsigned int i = 0; i < iuids.size(); i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
@@ -1128,10 +1109,9 @@ void Db::setLocator(const String &name,
  * @param locatorType   Type of locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
- * @remark: 1) At this stage, no check is performed to see if items
- * @remark: are consecutive and all defined. This allow using this function in any order.
- * @remark: Argument 'locatorIndex' can be set to a negative value: in that case,
- * @remark: the next index of the same 'locatorType' is generated automatically
+ * @remark: At this stage, no check is performed to see if items
+ * @remark: are consecutive and all defined
+ * @remark: This allow using this function in any order.
  */
 void Db::setLocatorByUID(int iuid,
                          const ELoc& locatorType,
@@ -1139,12 +1119,11 @@ void Db::setLocatorByUID(int iuid,
                          bool cleanSameLocator)
 {
   if (!isUIDValid(iuid)) return;
+  if (locatorIndex < 0) return;
 
   // Optional clean
 
   if (cleanSameLocator) clearLocators(locatorType);
-
-  if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
 
   /* Cancel any locator referring to this column */
 
@@ -1209,8 +1188,6 @@ void Db::setLocatorsByUID(int number,
 {
   if (cleanSameLocator) clearLocators(locatorType);
 
-  if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
   for (int i = 0; i < number; i++)
     setLocatorByUID(iuid+i, locatorType, locatorIndex + i);
 }
@@ -1222,9 +1199,8 @@ void Db::setLocatorsByUID(const VectorInt& iuids,
 {
   if (cleanSameLocator) clearLocators(locatorType);
 
-  if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-  for (int i = 0, number = (int) iuids.size(); i < number; i++)
+  int number = (int) iuids.size();
+  for (int i = 0; i < number; i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
 
@@ -1235,9 +1211,7 @@ void Db::setLocatorsByColIdx(const VectorInt& icols,
 {
   if (cleanSameLocator) clearLocators(locatorType);
 
-  if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-  for (int icol = 0, ncol = (int) icols.size(); icol < ncol; icol++)
+  for (int icol = 0; icol < (int) icols.size(); icol++)
   {
     int iuid = getUIDByColIdx(icol);
     setLocatorByUID(iuid, locatorType, locatorIndex + icol);
@@ -2286,8 +2260,8 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
 {
   PtrGeos& p_in  = _p[locatorType_in.getValue()];
   PtrGeos& p_out = _p[locatorType_out.getValue()];
-  int n_in  = getFromLocatorNumber(locatorType_in);
-  int n_out = getFromLocatorNumber(locatorType_out);
+  int n_in  = getLocatorNumber(locatorType_in);
+  int n_out = getLocatorNumber(locatorType_out);
 
   /* Move the gradient components into additional variables */
   p_out.resize(n_in + n_out);
@@ -2447,7 +2421,7 @@ double Db::getZVariable(int iech, int item) const
 VectorDouble Db::getLocVariables(const ELoc& loctype, int iech, int nitemax) const
 {
   VectorDouble vec;
-  int number = getFromLocatorNumber(loctype);
+  int number = getLocatorNumber(loctype);
   if (number <= 0) return vec;
   int nitem = (nitemax > 0) ? MIN(nitemax, number) : number;
 
@@ -2474,7 +2448,7 @@ void Db::setLocVariables(const ELoc& loctype,
                          int iech,
                          const VectorDouble& values)
 {
-  int number = getFromLocatorNumber(loctype);
+  int number = getLocatorNumber(loctype);
   int size = (int) values.size();
   if (number != size)
   {
@@ -3025,7 +2999,7 @@ String Db::getNameByUID(int iuid) const
 VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 {
   VectorString namelist;
-  int count = getFromLocatorNumber(locatorType);
+  int count = getLocatorNumber(locatorType);
   if (count <= 0) return namelist;
   for (int i = 0; i < count; i++)
   {
@@ -3144,7 +3118,7 @@ void Db::setName(const VectorString& list, const String& name)
 void Db::setNameByLocator(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
-  int count = getFromLocatorNumber(locatorType);
+  int count = getLocatorNumber(locatorType);
   if (count <= 0) return;
   for (int i = 0; i < count; i++)
   {

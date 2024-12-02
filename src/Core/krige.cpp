@@ -191,10 +191,7 @@ static int* st_icore(int nli, int nco)
  *****************************************************************************/
 static int* st_relative_position_array(int mode, int neq, int *rel_arg)
 {
-  int *rel, i, j;
-
-  /* Dispatch */
-
+  int *rel = nullptr;
   if (mode > 0)
   {
 
@@ -202,7 +199,8 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
 
     rel = (int*) st_icore(neq, 1);
     if (rel == nullptr) return (rel);
-    for (i = j = 0; i < neq; i++)
+    int j = 0;
+    for (int i = 0; i < neq; i++)
     {
       if (flag_global != NULL && flag_global[i])
         rel[j++] = i + 1;
