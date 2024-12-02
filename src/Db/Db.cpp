@@ -1125,11 +1125,12 @@ void Db::setLocatorByUID(int iuid,
                          bool cleanSameLocator)
 {
   if (!isUIDValid(iuid)) return;
-  if (locatorIndex < 0) return;
 
   // Optional clean
 
   if (cleanSameLocator) clearLocators(locatorType);
+
+  if (locatorIndex < 0) locatorIndex = getLocatorNumber(locatorType);
 
   /* Cancel any locator referring to this column */
 
