@@ -170,7 +170,7 @@ foreach(FLAVOR ${FLAVORS})
   target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
   
   # Link to NLopt
-  target_link_libraries(${FLAVOR} PUBLIC NLopt::nlopt)
+  target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
 
   # Link to HDF5
   if (USE_HDF5)
