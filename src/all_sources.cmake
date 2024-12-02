@@ -176,6 +176,7 @@ set(SRC
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
   LinearOp/ScaleOp.cpp
+  LinearOp/AShiftOp.cpp
   LinearOp/ShiftOpCs.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
