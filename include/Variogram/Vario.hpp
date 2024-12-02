@@ -83,7 +83,6 @@ class AAnam;
  * - in the multivariate case (NV variables), the number of rows is multiplied by NV*(NV+1)/2.
  * In order to avoid any indexing problem, the user should use the assessors provided in order to access to the information
  * relative to the target pair of variables.
- .
  *
  */
 class GSTLEARN_EXPORT Vario : public AVario, public ASerializable
