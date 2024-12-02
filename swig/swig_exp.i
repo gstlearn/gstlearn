@@ -174,7 +174,8 @@
 %include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/ScaleOp.hpp
-%include LinearOp/ShiftOpCs.hpp
+%include LinearOp/AShiftOp.hpp
+%include LinearOp/ShiftOpMatrix.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpCs.hpp
 %include LinearOp/SPDEOp.hpp

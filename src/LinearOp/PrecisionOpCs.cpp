@@ -12,13 +12,13 @@
 
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/AException.hpp"
 
-PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
+PrecisionOpCs::PrecisionOpCs(ShiftOpMatrix* shiftop,
                              const CovAniso* cova,
                              bool verbose)
   : PrecisionOp(shiftop, cova, verbose)
@@ -253,7 +253,7 @@ void PrecisionOpCs::_buildQ()
 MatrixSparse* PrecisionOpCs::_build_Q()
 {
   // Preliminary checks
-  auto *S = getShiftOpCs()->getS();
+  auto *S = getShiftOpMatrix()->getS();
   auto Lambda = getShiftOp()->getLambdas();
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
   int nblin = static_cast<int>(blin.size());

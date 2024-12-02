@@ -27,7 +27,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Stats/Classical.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "API/SPDE.hpp"
 
 /****************************************************************************/
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
       for (int icov = 0; icov <= ncov; icov++)
       {
         timer.reset();
-        ShiftOpCs shiftop(&mesh, model->getCova(icov), nullptr);
+        ShiftOpMatrix shiftop(&mesh, model->getCova(icov), nullptr);
         timer.displayIntervalMilliseconds("Establishing S", 150);
       }
     }

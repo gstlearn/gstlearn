@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   // Creating the Precision Operator for simulation
   
   CovAniso* cova = model->getCova(0);
-  ShiftOpCs S(&mesh, cova, workingDbc);
+  ShiftOpMatrix S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 
   // /////////////////////////

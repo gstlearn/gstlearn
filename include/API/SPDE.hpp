@@ -20,7 +20,7 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include <vector>
 
-class ShiftOpCs;
+class ShiftOpMatrix;
 class Db;
 class DbGrid;
 class PrecisionOp;

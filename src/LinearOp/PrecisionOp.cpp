@@ -11,7 +11,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
@@ -33,7 +33,7 @@ PrecisionOp::PrecisionOp()
 {
 }
 
-PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
+PrecisionOp::PrecisionOp(ShiftOpMatrix* shiftop,
                          const CovAniso* cova,
                          bool verbose)
   : _shiftOp(shiftop)
@@ -70,7 +70,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work3()
 { 
   
-  _shiftOp = new ShiftOpCs(mesh,cova,nullptr,verbose);
+  _shiftOp = new ShiftOpMatrix(mesh,cova,nullptr,verbose);
   if (_cova->getNVariables() == 1)
   {
     _shiftOp->normalizeLambdaBySills(mesh);
@@ -93,7 +93,7 @@ PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
   , _work3(pmat._work3)
 {
   if (_destroyShiftOp)
-    _shiftOp = new ShiftOpCs(*pmat._shiftOp);
+    _shiftOp = new ShiftOpMatrix(*pmat._shiftOp);
   else
     _shiftOp = pmat._shiftOp;
 }
@@ -113,7 +113,7 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
     _work3 = pmat._work3;
 
     if (_destroyShiftOp)
-      _shiftOp = new ShiftOpCs(*pmat._shiftOp);
+      _shiftOp = new ShiftOpMatrix(*pmat._shiftOp);
     else
       _shiftOp = pmat._shiftOp;
   }
@@ -139,7 +139,7 @@ PrecisionOp::~PrecisionOp()
   }
 }
 
-PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
+PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpMatrix *shiftop,
                                             const CovAniso *cova,
                                             bool verbose)
 {
@@ -262,7 +262,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu)
   return val1;
 }
 
-int PrecisionOp::reset(const ShiftOpCs* shiftop,
+int PrecisionOp::reset(const ShiftOpMatrix* shiftop,
                        const CovAniso* cova,
                        bool verbose)
 {
@@ -273,14 +273,14 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
   try
   {
     // Store the pointer to the ShiftOp
-    if (shiftop == (ShiftOpCs *) NULL)
+    if (shiftop == (ShiftOpMatrix *) NULL)
       my_throw("The argument 'shiftop'must be provided");
 
     // Store the members
 
     _cova    = cova;
     _verbose = verbose;
-    _shiftOp = new ShiftOpCs(*shiftop);
+    _shiftOp = new ShiftOpMatrix(*shiftop);
 
     _purge();
   }

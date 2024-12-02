@@ -12,7 +12,7 @@
 #include "geoslib_old_f.h"
 
 #include "Mesh/MeshETurbo.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/OptimCostColored.hpp"
@@ -2112,7 +2112,7 @@ int db_proportion_estimate(Db *dbin,
   // Define the environment
 
   MeshETurbo mesh = MeshETurbo(dbout);
-  ShiftOpCs S = ShiftOpCs(&mesh, model->getCova(0), dbout);
+  ShiftOpMatrix S = ShiftOpMatrix(&mesh, model->getCova(0), dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0));
   ProjMatrix AprojDat = ProjMatrix(dbin, &mesh);
   ProjMatrix AprojOut = ProjMatrix(dbout, &mesh);

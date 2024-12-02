@@ -14,7 +14,7 @@
 #include "LinearOp/PrecisionOp.hpp"
 
 class AMesh;
-class ShiftOpCs;
+class ShiftOpMatrix;
 class CovAniso;
 class Model;
 
@@ -25,7 +25,7 @@ class Model;
 class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 {
 public:
-  PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
+  PrecisionOpCs(ShiftOpMatrix* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
                 bool verbose = false);
   PrecisionOpCs(const AMesh* mesh,

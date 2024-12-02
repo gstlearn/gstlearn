@@ -211,7 +211,7 @@ void ClassicalPolynomial::evalOpTraining(
   }
 }
 #endif
-// void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOp(ShiftOpMatrix* shiftOp,
 //                                       const constvect& inv,
 //                                       vect& outv,
 //                                       int iapex,
@@ -258,7 +258,7 @@ void ClassicalPolynomial::evalOpTraining(
 //    delete polycur;
 // }
 
-// void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOp(ShiftOpMatrix* shiftOp,
 //                                       const VectorDouble& inv,
 //                                       VectorDouble& outv,
 //                                       int iapex,
@@ -273,7 +273,7 @@ void ClassicalPolynomial::evalOpTraining(
 //  messerr("evalDerivOp is not implemented for vectorsDouble");
 // }
 
-//void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+//void ClassicalPolynomial::evalDerivOpOptim(ShiftOpMatrix* shiftOp,
 //                                           const Eigen::VectorXd& in1,
 //                                           Eigen::VectorXd& in2,
 //                                           Eigen::VectorXd& outv,
@@ -304,7 +304,7 @@ void ClassicalPolynomial::evalOpTraining(
 //    }
 //}
 
-// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpMatrix* shiftOp,
 //                                            VectorDouble& temp1,
 //                                            VectorDouble& temp2,
 //                                            VectorDouble& outv,
@@ -324,7 +324,7 @@ void ClassicalPolynomial::evalOpTraining(
 // }
 
 
-// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpMatrix* shiftOp,
 //                                            vect& temp1,
 //                                            vect& temp2,
 //                                            vect& outv,

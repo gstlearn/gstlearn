@@ -24,7 +24,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Model/Model.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
