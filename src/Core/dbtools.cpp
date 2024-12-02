@@ -1759,11 +1759,11 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   if (dbnew == nullptr) goto label_end;
 
   ecr = 0;
-  dbnew->setLocatorsByUID(ndim, ecr, ELoc::X);
+  dbnew->setLocatorsByUID(ndim, ecr, ELoc::X, 0);
   ecr += ndim;
-  dbnew->setLocatorByUID(ecr, ELoc::C);
+  dbnew->setLocatorByUID(ecr, ELoc::C, 0);
   ecr += 1;
-  dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z);
+  dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z, 0);
   ecr += nvar;
   DECLARE_UNUSED(ecr);
 

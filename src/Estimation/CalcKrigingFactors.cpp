@@ -36,7 +36,7 @@ bool CalcKrigingFactors::_check()
 {
   // Turn the problem to Monovariate before checking consistency with 'Model'
   getDbin()->clearLocators(ELoc::Z);
-  getDbin()->setLocatorByUID(_iuidFactors[0], ELoc::Z);
+  getDbin()->setLocatorByUID(_iuidFactors[0], ELoc::Z, 0);
 
   if (! ACalcInterpolator::_check()) return false;
 
@@ -130,7 +130,7 @@ bool CalcKrigingFactors::_postprocess()
   /* Free the temporary variables */
   _cleanVariableDb(2);
 
-  getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z);
+  getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z, 0);
 
   int nfactor = _getNFactors();
   _renameVariable(2, VectorString(), ELoc::Z, nfactor, _iptrStd, "stdev", 1);
@@ -138,7 +138,7 @@ bool CalcKrigingFactors::_postprocess()
 
   // Centering the information (only when a change of support is defined)
   if (_hasChangeSupport() && ! _nameCoord.empty())
-    getDbin()->setLocators(_nameCoord, ELoc::X);
+    getDbin()->setLocators(_nameCoord, ELoc::X, 0);
 
   return true;
 }
@@ -177,7 +177,7 @@ bool CalcKrigingFactors::_run()
     int jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
     int jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
     getDbin()->clearLocators(ELoc::Z);
-    getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z);
+    getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z, 0);
     if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
     if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 

@@ -264,32 +264,32 @@ public:
   void clearSelection() { clearLocators(ELoc::SEL); }
   void setLocatorByUID(int iuid,
                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                       int locatorIndex = 0,
+                       int locatorIndex = -1,
                        bool cleanSameLocator = false);
   void setLocatorByColIdx(int icol,
                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                          int locatorIndex = 0,
+                          int locatorIndex = -1,
                           bool cleanSameLocator = false);
   void setLocator(const String& name,
                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                  int locatorIndex = 0,
+                  int locatorIndex = -1,
                   bool cleanSameLocator = false);
   void setLocators(const VectorString &names,
                    const ELoc &locatorType = ELoc::fromKey("UNKNOWN"),
-                   int locatorIndex = 0,
+                   int locatorIndex = -1,
                    bool cleanSameLocator = false);
   void setLocatorsByUID(int number,
                         int iuid,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                        int locatorIndex = 0,
+                        int locatorIndex = -1,
                         bool cleanSameLocator = false);
   void setLocatorsByUID(const VectorInt& iuids,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                        int locatorIndex = 0,
+                        int locatorIndex = -1,
                         bool cleanSameLocator = false);
   void setLocatorsByColIdx(const VectorInt& icols,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                           int locatorIndex = 0,
+                           int locatorIndex = -1,
                            bool cleanSameLocator = false);
 
   void addColumnsByVVD(const VectorVectorDouble& tab,
@@ -905,6 +905,7 @@ protected:
   String _summaryString(void) const;
 
 private:
+  int _getNextLocator(const ELoc& locatorType) const;
   const std::vector<int>& _getUIDcol() const { return _uidcol; }
   VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;

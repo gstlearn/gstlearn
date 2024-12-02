@@ -50,7 +50,7 @@ void PGSSPDE::compute(Db *dbout,
   {
     iuids[igrf] = _spdeTab[igrf]->compute(dbout, 1);
   }
-  dbout->setLocatorsByUID(iuids, ELoc::SIMU);
+  dbout->setLocatorsByUID(iuids, ELoc::SIMU, 0);
 
   if (_calcul == ESPDECalcMode::SIMUCOND)
     _ruleProp->categoryToThresh(_data);

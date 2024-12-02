@@ -660,7 +660,7 @@ bool CalcMigrate::_postprocess()
                     _iattOut, String(), 1);
 
   if (_flagLocate)
-    getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType);
+    getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType, 0);
 
   return true;
 }

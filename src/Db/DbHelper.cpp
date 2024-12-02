@@ -921,7 +921,7 @@ int DbHelper::dbgrid_filling(DbGrid *dbgrid,
   int iatt_in = dbgrid->getUIDByLocator(ELoc::Z, 0);
   int iatt_out = dbgrid->addColumnsByConstant(1);
   dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
-  dbgrid->setLocatorByUID(iatt_out, ELoc::Z);
+  dbgrid->setLocatorByUID(iatt_out, ELoc::Z, 0);
 
   /* Global variables */
 

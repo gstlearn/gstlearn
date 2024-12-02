@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
   driftM.display();
 
   // Adding the selection
-  workingDbc->setLocator("Sel", ELoc::SEL);
+  workingDbc->setLocator("Sel", ELoc::SEL, 0);
   message("Covariance Matrix (with selection)\n");
   covM = modelM->evalCovMatrixSymmetric(workingDbc);
   covM.display();
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   driftM.display();
 
   // Adding the variables (heterotopic multivariate)
-  workingDbc->setLocators({"Z*"}, ELoc::Z);
+  workingDbc->setLocators({"Z*"}, ELoc::Z, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate)\n");
   covM = modelM->evalCovMatrixSymmetric(workingDbc);
   covM.display();
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
   driftM.display();
 
   // Adding the variables (heterotopic multivariate & Verr)
-  workingDbc->setLocators({"V*"}, ELoc::V);
+  workingDbc->setLocators({"V*"}, ELoc::V, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate & verr)\n");
   covM = modelM->evalCovMatrixSymmetric(workingDbc);
   covM.display();
