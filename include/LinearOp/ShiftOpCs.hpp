@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Enum/EPowerPT.hpp"
-
+#include "LinearOp/AShiftOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
@@ -35,23 +35,8 @@ class MatrixSquareGeneral;
 class MatrixRectangular;
 class MatrixSquareSymmetric;
 
-/**
- * \brief Shift Operator for performing the basic tasks of SPDE
- */
 
-#ifndef SWIG
-#  include "LinearOp/ALinearOpEigenCG.hpp"
-DECLARE_EIGEN_TRAITS(ShiftOpCs)
-#else
-#  include "LinearOp/ALinearOp.hpp"
-#endif
-
-class GSTLEARN_EXPORT ShiftOpCs:
-#ifndef SWIG
-  public ALinearOpEigenCG<ShiftOpCs>
-#else
-  public ALinearOp
-#endif
+class GSTLEARN_EXPORT ShiftOpCs: public AShiftOp
 {
   public:
     ShiftOpCs();
@@ -223,6 +208,3 @@ class GSTLEARN_EXPORT ShiftOpCs:
     int _napices;
   };
 
-#ifndef SWIG
-  DECLARE_EIGEN_PRODUCT(ShiftOpCs)
-#endif

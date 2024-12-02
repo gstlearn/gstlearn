@@ -11,6 +11,7 @@
 #include "LinearOp/ShiftOpCs.hpp"
 
 #include "Enum/EConsElem.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -47,7 +48,8 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
                      const CovAniso* cova,
                      const Db* dbout,
                      bool verbose)
-  : _TildeC()
+  : AShiftOp() 
+  , _TildeC()
   , _Lambda()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
@@ -83,7 +85,8 @@ ShiftOpCs::ShiftOpCs(const MatrixSparse* S,
 }
 
 ShiftOpCs::ShiftOpCs(const ShiftOpCs& shift)
-  : _TildeC()
+  : AShiftOp()
+  , _TildeC()
   , _Lambda()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
