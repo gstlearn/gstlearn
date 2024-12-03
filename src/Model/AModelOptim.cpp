@@ -27,11 +27,21 @@
 
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
+#define TAKE_ROT                                                               \
+  ((_optvar.getLockSamerot() && first_covrot < 0) || !_optvar.getLockSamerot())
+#define DEFINE_THIRD   (cova->hasParam())
+#define DEFINE_RANGE   (cova->hasRange() > 0)
+#define DEFINE_ANICOEF (cova->hasRange() != 0 && _optvar.getAuthAniso())
+#define DEFINE_ANIROT                                                          \
+  (cova->hasRange() != 0 && _optvar.getAuthAniso() && _optvar.getAuthRotation())
+#define UNDEFINE_ANIROT                                                        \
+  (cova->hasRange() == 0 || !_optvar.getAuthAniso() ||                         \
+   !_optvar.getAuthRotation())
 
 AModelOptim::AModelOptim(Model* model,
-                       Constraints* constraints,
-                       const Option_AutoFit& mauto,
-                       const Option_VarioFit& optvar)
+                         Constraints* constraints,
+                         const Option_AutoFit& mauto,
+                         const Option_VarioFit& optvar)
   : _modelPart()
   , _constraints(constraints)
   , _mauto(mauto)
@@ -90,31 +100,79 @@ int AModelOptim::_buildModelParamList()
 
   // Loop on the covariances
   const Model* model = _modelPart._model;
-  int nvar = model->getVariableNumber();
+  int nvar           = model->getVariableNumber();
+  // int ndim           = model->getDimensionNumber();
+  // int first_covrot   = -1;
   for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = model->getCova(icov);
 
-    if (cova->hasRange())
+    // Add the 'Sill' (vectorial)attribute
+    if (!_optvar.getFlagGoulardUsed())
     {
-      // Add the 'Range' (scalar) attribute
+      int ijvar = 0;
+      for (int ivar = ijvar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+          _addOneModelParam(icov, EConsElem::SILL, ijvar, TEST, TEST);
+    }
+
+    // Add the 'Range' (scalar) attribute
+    if (DEFINE_RANGE)
+    {
       _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
     }
-    
-    // TODO: inference of PARAM is deactivated (DR on 2024/11/14)
-    // if (cova->hasParam())
+
+    // Anisotropy
+    // if (DEFINE_ANICOEF)
     // {
-    //   // Add the 'Param' (scalar) attribute
-    //   _addOneModelParam(icov, EConsElem::PARAM, 0, 0., 2.);
+    //   if (ndim == 2)
+    //     _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
+
+    //   else if (ndim == 3)
+    //   {
+    //     if (!_optvar.getLockIso2d())
+    //       _addOneModelParam(icov, EConsElem::RANGE, 1);
+    //     if (!_optvar.getLockNo3d())
+    //       _addOneModelParam(icov, EConsElem::RANGE, 2);
+    //   }
+    //   else
+    //   {
+    //     {
+    //       for (int idim = 1; idim < ndim; idim++)
+    //         _addOneModelParam(icov, EConsElem::RANGE, idim);
+    //     }
+    //   }
+
+    //   /* Anisotropy angles */
+    //   if (DEFINE_ANIROT)
+    //   {
+    //     if ((ndim == 2) || (ndim == 3 && _optvar.getLockRot2d()))
+    //     {
+    //       if (TAKE_ROT)
+    //       {
+    //         first_covrot = icov;
+    //         _addOneModelParam(icov, EConsElem::ANGLE, 0);
+    //       }
+    //     }
+    //     else
+    //     {
+    //       if (TAKE_ROT)
+    //       {
+    //         first_covrot = icov;
+    //         for (int idim = 0; idim < ndim; idim++)
+    //           _addOneModelParam(icov, EConsElem::ANGLE, idim);
+    //       }
+    //     }
+    //   }
+
+    //   // TODO: inference of PARAM is deactivated (DR on 2024/11/14)
+    //   // if (DEFINE_THIRD)
+    //   // {
+    //   //   // Add the 'Param' (scalar) attribute
+    //   //   _addOneModelParam(icov, EConsElem::PARAM, 0, 0., 2.);
+    //   // }
     // }
-
-    // Add the 'Sill' (vectorial)attribute
-    int ijvar = 0;
-    for (int ivar = ijvar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        _addOneModelParam(icov, EConsElem::SILL, ijvar, TEST, TEST);
   }
-
   _modelPart._calcmode.setAsVario(true);
   return 0;
 }
