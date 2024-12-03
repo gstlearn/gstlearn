@@ -2,6 +2,7 @@
 import gstlearn as gl
 import numpy as np
 
+np.random.seed(123)
 dbg = gl.DbGrid.create(nx = [11,11])
 mesh = gl.MeshETurbo(dbg)
 model = gl.Model.createFromParam(gl.ECov.MATERN,ranges = [3.,4.],param=1)
