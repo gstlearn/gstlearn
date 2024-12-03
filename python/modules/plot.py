@@ -656,7 +656,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
                    **kwargs):
     if __isNotCorrect(object=modelobj, types=["Model"]):
         return None
-
+    
     if codir is None:
         if vario is None:
             codir = [0] * modelobj.getDimensionNumber()
@@ -700,6 +700,11 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
         ggm = modelobj.envelop(hh, ivar, jvar, -1, codir,mode)
         ax.plot(hh[istart:], ggm[istart:], c = envColor, linestyle = envLinestyle)
     
+    # Representation bounds
+    if ivar == jvar:
+        ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
+
     # Draw the Legend (optional)
     if flagLegend:
         ax.legend()

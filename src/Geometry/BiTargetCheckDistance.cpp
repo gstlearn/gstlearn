@@ -20,31 +20,32 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
                                              const VectorDouble& coeffs,
                                              const VectorDouble& angles)
   : ABiTargetCheck(),
-    _ndim(2),
+    _ndim(0),
     _flagAniso(false),
     _flagRotation(false),
-    _radius(TEST),
+    _radius(radius),
     _anisoCoeffs(),
     _anisoRotMat(),
     _dist(TEST),
     _movingIncr(),
     _movingAux()
 {
-  _radius = radius;
-  _anisoCoeffs.resize(_ndim);
-  _anisoRotMat.resize(_ndim * _ndim);
   if (! coeffs.empty())
   {
     _ndim = (int) coeffs.size();
 
     //    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
     _flagAniso = true;
+    _anisoCoeffs.resize(_ndim);
+    _anisoRotMat.resize(_ndim * _ndim);
     _anisoCoeffs = coeffs;
 
     if (! angles.empty())
     {
-      _flagRotation = (! VH::isConstant(angles, 0.));
-      GH::rotationMatrixInPlace(_ndim, angles, _anisoRotMat);
+      VectorDouble angles_local = angles;
+      angles_local.resize(_ndim, 0.);
+      _flagRotation = (! VH::isConstant(angles_local, 0.));
+      GH::rotationMatrixInPlace(_ndim, angles_local, _anisoRotMat);
     }
     else
     {
@@ -53,6 +54,9 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
   }
   else
   {
+    _ndim = 2;
+    _anisoCoeffs.resize(_ndim);
+    _anisoRotMat.resize(_ndim * _ndim);
     VH::fill(_anisoCoeffs, 1., _ndim);
     GH::rotationMatrixIdentityInPlace(_ndim, _anisoRotMat);
   }

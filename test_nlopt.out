@@ -41,17 +41,12 @@ Known Mean(s)     0.000
 
 Minimization of a simple function
 =================================
-Optimum: x = 3 -> Minimum value = 0
+End optimization
+x = 3 10
+Minimum value of the objective 0
 
 Fitting a Model from a Variogram
 ================================
-
-List of the Model parameters to be infered
-------------------------------------------
-Covariance 0 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Range - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-
 Iteration   1 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 33.332715
 Iteration   2 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 1245.485669
 Iteration   3 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 13.669548
@@ -206,6 +201,7 @@ Iteration 151 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.
 Iteration 152 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
 Iteration 153 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
 Iteration 154 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
+optimized value0.132422
 
 Model characteristics
 =====================
@@ -228,13 +224,6 @@ Known Mean(s)     0.000
 
 Fitting a Model using Loglikelihood (Covariance)
 ================================================
-
-List of the Model parameters to be infered
-------------------------------------------
-Covariance 0 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Range - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-
 Iteration   1 - Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) = 204640.781437
 Iteration   2 - Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) = 57654.628963
 Iteration   3 - Cost Function (Likelihood) (-0.049838 1.397211 -0.024919 ) = 60470.926916
@@ -477,6 +466,7 @@ Iteration 239 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197
 Iteration 240 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.480091
 Iteration 241 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.478705
 Iteration 242 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.478719
+optimized value197.479
 
 Model characteristics
 =====================

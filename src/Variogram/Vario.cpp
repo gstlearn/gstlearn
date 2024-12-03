@@ -38,11 +38,9 @@ static int IECH1, IECH2, IDIRLOC;
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
-static int VARWGT[4][5] = { { 1, -1, 0, 0, 0 },
-                            { 1, -2, 1, 0, 0 },
-                            { 1, -3, 3, -1, 0 },
-                            { 1, -4, 6, -4, 1 } };
-
+static int VARWGT[4][5] = {{1, -1, 0, 0, 0}, {1, -2, 1, 0, 0}, {1, -3, 3, -1, 0}, {1, -4, 6, -4, 1}};
+#define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
+#define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
 /**
  * Build a Vario object by calculating the experimental variogram
@@ -4777,4 +4775,305 @@ String Vario::getVariableName(int ivar) const
 {
   if (! _isVariableValid(ivar)) return String();
   return _variableNames[ivar];
+}
+
+bool Vario::isLagCorrect(int idir, int k) const
+{
+  double hh = getHhByIndex(idir, k);
+  if (isZero(hh) || FFFF(hh)) return false;
+  double sw = getSwByIndex(idir, k);
+  if (isZero(sw) || FFFF(sw)) return false;
+  double gg = getGgByIndex(idir, k);
+  return !FFFF(gg);
+}
+
+double Vario::getC00(int idir, int ivar, int jvar) const
+{
+  int iad0           = getDirAddress(idir, ivar, jvar, 0, false, 0);
+  int iad            = iad0;
+  double c00         = getSwByIndex(idir, iad);
+  if (!isZero(c00) || getSwByIndex(idir, iad) > 0) return c00;
+
+  for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
+  {
+    iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+    if (!isZero(getGgByIndex(idir, iad)))
+      return getGgByIndex(idir, iad);
+    iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+    if (!isZero(getGgByIndex(idir, iad)))
+      return getGgByIndex(idir, iad);
+  }
+  iad = iad0;
+  return (getGgByIndex(idir, iad));
+}
+
+VectorDouble Vario::computeWeightPerDirection() const
+{
+  int ndir = getDirectionNumber();
+  int nvar = getVariableNumber();
+  int nvs2 = nvar * (nvar + 1) / 2;
+  VectorDouble count(ndir);
+
+  /* Determine the count of significant directions */
+
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    count[idir] = 0.;
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
+      for (int ijvar = 0; ijvar < nvs2; ijvar++)
+      {
+        int shift = ijvar * getLagTotalNumber(idir);
+        if (getFlagAsym())
+        {
+          int iad   = shift + getLagNumber(idir) + ipas + 1;
+          int jad   = shift + getLagNumber(idir) - ipas - 1;
+          double n1 = getSwByIndex(idir, iad);
+          double n2 = getSwByIndex(idir, jad);
+          if (isLagCorrect(idir, iad)) count[idir] += n1;
+          if (isLagCorrect(idir, jad)) count[idir] += n2;
+        }
+        else
+        {
+          int iad   = shift + ipas;
+          double nn = getSwByIndex(idir, iad);
+          if (isLagCorrect(idir, iad)) count[idir] += nn;
+        }
+      }
+  }
+  return count;
+}
+
+int Vario::getTotalLagsPerDirection() const
+{
+  int npatot = 0;
+  int ndir   = getDirectionNumber();
+  for (int idir = 0; idir < ndir; idir++)
+    npatot += getLagTotalNumber(idir);
+  return npatot;
+}
+
+VectorDouble Vario::computeWeightsFromVario(int wmode)
+{
+  int ndir           = getDirectionNumber();
+  int nvar           = getVariableNumber();
+  int npadir         = getTotalLagsPerDirection();
+  VectorDouble count = computeWeightPerDirection();
+  int nvs2           = nvar * (nvar + 1) / 2;
+  VectorDouble wt(npadir * nvs2, 0.);
+
+  /* Determine the count of significant directions */
+
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    count[idir] = 0.;
+    int npas    = getLagNumber(idir);
+    for (int ipas = 0; ipas < npas; ipas++)
+      for (int ijvar = 0; ijvar < nvs2; ijvar++)
+      {
+        int shift = ijvar * getLagTotalNumber(idir);
+        if (getFlagAsym())
+        {
+          int iad   = shift + getLagNumber(idir) + ipas + 1;
+          int jad   = shift + getLagNumber(idir) - ipas - 1;
+          double n1 = getSwByIndex(idir, iad);
+          double n2 = getSwByIndex(idir, jad);
+          if (isLagCorrect(idir, iad)) count[idir] += n1;
+          if (isLagCorrect(idir, jad)) count[idir] += n2;
+        }
+        else
+        {
+          int iad   = shift + ipas;
+          double nn = getSwByIndex(idir, iad);
+          if (isLagCorrect(idir, iad)) count[idir] += nn;
+        }
+      }
+  }
+
+  int ipadir = 0;
+  switch (wmode)
+  {
+    case 1:
+      ipadir = 0;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+        int npas = getLagNumber(idir);
+        for (int ipas = 0; ipas < npas; ipas++, ipadir++)
+        {
+          if (isZero(count[idir])) continue;
+          for (int ijvar = 0; ijvar < nvs2; ijvar++)
+          {
+            int shift = ijvar * getLagTotalNumber(idir);
+            if (getFlagAsym())
+            {
+              int iad = shift + getLagNumber(idir) + ipas + 1;
+              int jad = shift + getLagNumber(idir) - ipas - 1;
+              if (isLagCorrect(idir, iad) &&
+                  isLagCorrect(idir, jad))
+                WT(ijvar, ipadir) = count[idir];
+            }
+            else
+            {
+              int iad = shift + ipas;
+              if (isLagCorrect(idir, iad))
+                WT(ijvar, ipadir) = count[idir];
+            }
+          }
+        }
+      }
+      break;
+
+    case 2:
+      ipadir = 0;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+        int npas = getLagNumber(idir);
+        for (int ipas = 0; ipas < npas; ipas++, ipadir++)
+        {
+          if (isZero(count[idir])) continue;
+          for (int ijvar = 0; ijvar < nvs2; ijvar++)
+          {
+            int shift = ijvar * getLagTotalNumber(idir);
+            if (getFlagAsym())
+            {
+              int iad = shift + getLagNumber(idir) + ipas + 1;
+              int jad = shift + getLagNumber(idir) - ipas - 1;
+              if (isLagCorrect(idir, iad) ||
+                  isLagCorrect(idir, jad))
+                continue;
+              double n1 = getSwByIndex(idir, iad);
+              double n2 = getSwByIndex(idir, jad);
+              double d1 = ABS(getHhByIndex(idir, iad));
+              double d2 = ABS(getHhByIndex(idir, jad));
+              if (d1 > 0 && d2 > 0)
+                WT(ijvar, ipadir) =
+                  sqrt((n1 + n2) * (n1 + n2) / (n1 * d1 + n2 * d2) / 2.);
+            }
+            else
+            {
+              int iad = shift + ipas;
+              if (!isLagCorrect(idir, iad)) continue;
+              double nn = getSwByIndex(idir, iad);
+              double dd = ABS(getHhByIndex(idir, iad));
+              if (dd > 0) WT(ijvar, ipadir) = nn / dd;
+            }
+          }
+        }
+      }
+      break;
+
+    case 3:
+      ipadir = 0;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+        int npas = getLagNumber(idir);
+        for (int ipas = 0; ipas < npas; ipas++, ipadir++)
+        {
+          if (isZero(count[idir])) continue;
+          for (int ijvar = 0; ijvar < nvs2; ijvar++)
+          {
+            int shift = ijvar * getLagTotalNumber(idir);
+            if (getFlagAsym())
+            {
+              int iad = shift + getLagNumber(idir) + ipas + 1;
+              int jad = shift + getLagNumber(idir) - ipas - 1;
+              if (isLagCorrect(idir, iad) &&
+                  isLagCorrect(idir, jad))
+                WT(ijvar, ipadir) = 1. / getLagNumber(idir);
+            }
+            else
+            {
+              int iad = shift + ipas;
+              if (isLagCorrect(idir, iad))
+                WT(ijvar, ipadir) = 1. / getLagNumber(idir);
+            }
+          }
+        }
+      }
+      break;
+
+    default:
+      ipadir = 0;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+        int npas = getLagNumber(idir);
+        for (int ipas = 0; ipas < npas; ipas++, ipadir++)
+        {
+          if (isZero(count[idir])) continue;
+          for (int ijvar = 0; ijvar < nvs2; ijvar++)
+          {
+            int shift = ijvar * getLagTotalNumber(idir);
+            if (getFlagAsym())
+            {
+              int iad = shift + getLagNumber(idir) + ipas + 1;
+              int jad = shift + getLagNumber(idir) - ipas - 1;
+              if (isLagCorrect(idir, iad) &&
+                  isLagCorrect(idir, jad))
+                WT(ijvar, ipadir) = 1.;
+            }
+            else
+            {
+              int iad = shift + ipas;
+              if (isLagCorrect(idir, iad)) WT(ijvar, ipadir) = 1.;
+            }
+          }
+        }
+      }
+      break;
+  }
+
+  /* Scaling by direction and by variable */
+
+  for (int ijvar = 0; ijvar < nvs2; ijvar++)
+  {
+    ipadir = 0;
+    for (int idir = 0; idir < ndir; idir++)
+    {
+      double total = 0.;
+      int npas     = getLagNumber(idir);
+      for (int ipas = 0; ipas < npas; ipas++, ipadir++)
+      {
+        if (isZero(count[idir])) continue;
+        if (WT(ijvar, ipadir) > 0 && !FFFF(WT(ijvar, ipadir)))
+          total += WT(ijvar, ipadir);
+      }
+      if (isZero(total)) continue;
+      ipadir -= getLagNumber(idir);
+      for (int ipas = 0, npas = getLagNumber(idir); ipas < npas;
+           ipas++, ipadir++)
+      {
+        if (isZero(count[idir])) continue;
+        if (WT(ijvar, ipadir) > 0 && !FFFF(WT(ijvar, ipadir)))
+          WT(ijvar, ipadir) /= total;
+      }
+    }
+  }
+
+  /* Scaling by variable variances */
+
+  int ijvar0 = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++, ijvar0++)
+    {
+      double ratio =
+        (getVar(ivar, jvar) > 0 && getVar(jvar, ivar) > 0)
+          ? sqrt(getVar(ivar, jvar) * getVar(jvar, ivar))
+          : 1.;
+      ipadir = 0;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+        int npas = getLagNumber(idir);
+        for (int ipas = 0; ipas < npas; ipas++, ipadir++)
+          if (!FFFF(WT(ijvar0, ipadir))) WT(ijvar0, ipadir) /= ratio;
+      }
+    }
+
+  // Ultimate check
+
+  double total = VH::cumul(wt);
+  if (ABS(total) <= 0.)
+  {
+    messerr("The sum of the weight is 0. This must be an error");
+    wt.clear();
+  }
+  return wt;
 }

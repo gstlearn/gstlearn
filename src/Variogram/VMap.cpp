@@ -104,7 +104,7 @@ void VMap::_setResult(int iech1,
  **
  ** \param[in]  db          Db containing the data
  ** \param[in]  calcul_type Type of calculation (ECalcVario)
- ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points
+ ** \param[in]  radius      Dilation radius (smooth resulting maps) only on points
  ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
  ** \param[in]  namconv     Naming convention
  **

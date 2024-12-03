@@ -219,7 +219,7 @@ public:
                       MatrixSquareGeneral &mat,
                       const CovCalcMode* mode = nullptr) const
   {
-    _cova->evalCovMatBiPointInPlace(mat,p1, p2, mode);
+    _cova->evalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const
