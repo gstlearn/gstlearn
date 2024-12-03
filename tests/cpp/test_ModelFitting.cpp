@@ -44,50 +44,62 @@ static Vario* _computeVariogram(Db* db2D, const ECalcVario& calcul)
   double dpas            = hmax / 2. / npas;
   VarioParam* varioparam = VarioParam::createOmniDirection(npas, dpas);
   Vario* vario           = Vario::computeFromDb(*varioparam, db2D, calcul);
-  (void)vario->dumpToNF("vario.ascii");
+  (void)vario->dumpToNF("Vario.ascii");
   delete varioparam;
   return vario;
 }
 
-// Old style Sill fitting (Goulard) from Variogram
-static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul)
+static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
 {
-  mestitle(0, "Using Goulard");
+  DECLARE_UNUSED(converge);
+  mestitle(0, "Sill fitting from Variogram (old version)");
 
   // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
 
-  Constraints constraints;
-
   // Fit the Model
-  (void) model_fitting_sills(vario, model, constraints);
-  (void)model->dumpToNF("Goulard.ascii");
+  (void) model_fitting_sills(vario, model);
+  (void)model->dumpToNF("SillsFromVario_Old.ascii");
   model->display();
 
   delete vario;
 }
 
-// New style Sill fitting (Goulard) from Variogram
-static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul)
+static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
 {
-  mestitle(0, "Using ModelOptimSillsVario");
+  mestitle(0, "Sill fitting from Variogram (new version)");
 
   // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
 
   // Fit the Model
   ModelOptimSillsVario model_opt(model);
-  model_opt.fit(vario);
-  (void) model->dumpToNF("ModelOptimSillsVario.ascii");
+  model_opt.fit(vario, 2, converge);
+  (void) model->dumpToNF("SillsFromVario.ascii");
   model->display();
 
   delete vario;
 }
 
-// New style Sill fitting (Goulard) from VMap
-static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul)
+static void _thirdTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
 {
-  mestitle(0, "Using Variogram Map");
+  mestitle(0, "Model fitting from Variogram (new version)");
+
+  // Calculating the experimental variogram
+  Vario* vario = _computeVariogram(db2D, calcul);
+
+  // Fit the Model
+  ModelOptimVario model_opt(model);
+  model_opt.fit(vario, true, 2, converge);
+  (void)model->dumpToNF("ModelFromVario.ascii");
+  model->display();
+
+  delete vario;
+}
+
+static void _fourthTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, bool converge)
+{
+  mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
   // Calculating the experimental variogram
   DbGrid* dbmap = db_vmap(dbgrid, calcul, {50,50});
@@ -97,8 +109,8 @@ static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul)
   Option_VarioFit* optvar  = new Option_VarioFit();
   optvar->setFlagGoulardUsed(false);
   ModelOptimVMap model_opt(model);
-  model_opt.fit(dbmap, true);
-  (void)model->dumpToNF("ModelVMap.ascii");
+  model_opt.fit(dbmap, false, converge);
+  (void)model->dumpToNF("SillsFromVMap.ascii");
   model->display();
 
   delete dbmap;
@@ -114,9 +126,9 @@ static VectorDouble _buildSillMatrix(int nvar, double value)
       mat[ecr] = (ivar == jvar) ? value : 0.;
   return mat;
 }
-  
-int main(int argc, char *argv[])
-{
+
+int main(int argc, char* argv[])
+  {
     std::stringstream sfn;
     sfn << gslBaseName(__FILE__) << ".out";
     StdoutRedirect sr(sfn.str(), argc, argv);
@@ -126,7 +138,7 @@ int main(int argc, char *argv[])
     // Global parameters
     int nvar = 1;
     const ECalcVario calcul = ECalcVario::VARIOGRAM;
-    bool verbose = false;
+    bool verbose            = false;
 
     // Creating the Model used to simulate the Data
     VectorDouble sill_nugget = _buildSillMatrix(nvar, 2.);
@@ -160,9 +172,7 @@ int main(int argc, char *argv[])
     (void)dbgrid->dumpToNF("dbgrid.ascii");
 
     // Creating the testing Model
-    Model* model_test  = new Model(nvar);
-    model_test->addCovFromParam(ECov::NUGGET);
-    model_test->addCovFromParam(ECov::SPHERICAL);
+    Model* model_test  = model_simu->clone();
     if (verbose)
     {
       message("Model used for Test\n");
@@ -170,13 +180,16 @@ int main(int argc, char *argv[])
     }
 
     // Optimization tests
-    int mode = 0;
+    int mode      = 0;
+    bool converge = true;
 
-    if (mode == 0 || mode == 1) _firstTest(db2D, model_test, calcul);
+    if (mode == 0 || mode == 1) _firstTest(db2D, model_test, calcul, converge);
 
-    if (mode == 0 || mode == 2) _secondTest(db2D, model_test, calcul);
+    if (mode == 0 || mode == 2) _secondTest(db2D, model_test, calcul, converge);
 
-    if (mode == 0 || mode == 3) _thirdTest(dbgrid, model_test, calcul);
+    if (mode == 0 || mode == 3) _thirdTest(db2D, model_test, calcul, converge);
+
+    if (mode == 0 || mode == 4) _fourthTest(dbgrid, model_test, calcul, converge);
 
     delete db2D;
     delete dbgrid;

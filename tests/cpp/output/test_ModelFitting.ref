@@ -1,6 +1,6 @@
 
-Using Goulard
-=============
+Sill fitting from Variogram (old version)
+=========================================
 
 Model characteristics
 =====================
@@ -13,15 +13,17 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.647
+- Sill         =      1.457
 Spherical
-- Sill         =      1.000
-- Range        =      0.000
-Total Sill     =      3.647
+- Sill         =      2.688
+- Range        =      0.250
+Total Sill     =      4.145
 Known Mean(s)     0.000
 
-Using ModelOptimSillsVario
-==========================
+Sill fitting from Variogram (new version)
+=========================================
+Cost Function (Sill Fitting) (1.456801 ) : 0.017891
+Cost Function (Sill Fitting) (2.688220 ) : 0.017891
 
 Model characteristics
 =====================
@@ -34,15 +36,320 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.647
+- Sill         =      1.457
 Spherical
-- Sill         =      1.000
-- Range        =      0.000
-Total Sill     =      3.647
+- Sill         =      2.688
+- Range        =      0.250
+Total Sill     =      4.145
 Known Mean(s)     0.000
 
-Using Variogram Map
-===================
+Model fitting from Variogram (new version)
+==========================================
+
+List of the Model parameters to be infered
+------------------------------------------
+Covariance 1 - Range(0) - Scale = 1.000000 - Current = 1.000000
+
+Cost Function (Sill Fitting) (2.561000 ) : 0.063776
+Cost Function (Sill Fitting) (2.148499 ) : 0.063776
+Cost Function (Variogram Fit) (0.733536 ) : 2.200225 (1)
+Cost Function (Sill Fitting) (2.697376 ) : 0.073691
+Cost Function (Sill Fitting) (3.025892 ) : 0.073691
+Cost Function (Variogram Fit) (0.733536 ) : 2.448143 (2)
+Cost Function (Sill Fitting) (1.220100 ) : 0.035870
+Cost Function (Sill Fitting) (2.811102 ) : 0.035870
+Cost Function (Variogram Fit) (0.733536 ) : 1.206583 (3)
+Cost Function (Sill Fitting) (0.835634 ) : 0.158790
+Cost Function (Sill Fitting) (2.811102 ) : 0.158790
+Cost Function (Variogram Fit) (0.186135 ) : 3.858430 (4)
+Cost Function (Sill Fitting) (0.835634 ) : 0.158790
+Cost Function (Sill Fitting) (2.811102 ) : 0.158790
+Cost Function (Variogram Fit) (0.186135 ) : 3.858430 (5)
+Cost Function (Sill Fitting) (2.171701 ) : 0.037171
+Cost Function (Sill Fitting) (2.209369 ) : 0.037171
+Cost Function (Variogram Fit) (0.186135 ) : 1.412773 (6)
+Cost Function (Sill Fitting) (1.437367 ) : 0.158790
+Cost Function (Sill Fitting) (2.209369 ) : 0.158790
+Cost Function (Variogram Fit) (0.186135 ) : 3.858430 (7)
+Cost Function (Sill Fitting) (1.735933 ) : 0.016532
+Cost Function (Sill Fitting) (2.509699 ) : 0.016532
+Cost Function (Variogram Fit) (0.186135 ) : 0.693332 (8)
+Cost Function (Sill Fitting) (2.171558 ) : 0.037171
+Cost Function (Sill Fitting) (2.209544 ) : 0.037171
+Cost Function (Variogram Fit) (0.322985 ) : 1.412857 (9)
+Cost Function (Sill Fitting) (1.474155 ) : 0.017303
+Cost Function (Sill Fitting) (2.678310 ) : 0.017303
+Cost Function (Variogram Fit) (0.322985 ) : 0.657005 (10)
+Cost Function (Sill Fitting) (1.226302 ) : 0.035870
+Cost Function (Sill Fitting) (2.804481 ) : 0.035870
+Cost Function (Variogram Fit) (0.254560 ) : 1.208691 (11)
+Cost Function (Sill Fitting) (1.603106 ) : 0.015049
+Cost Function (Sill Fitting) (2.598909 ) : 0.015049
+Cost Function (Variogram Fit) (0.254560 ) : 0.615529 (12)
+Cost Function (Sill Fitting) (1.733697 ) : 0.016532
+Cost Function (Sill Fitting) (2.512235 ) : 0.016532
+Cost Function (Variogram Fit) (0.288772 ) : 0.693401 (13)
+Cost Function (Sill Fitting) (1.539729 ) : 0.015723
+Cost Function (Sill Fitting) (2.638828 ) : 0.015723
+Cost Function (Variogram Fit) (0.288772 ) : 0.622086 (14)
+Cost Function (Sill Fitting) (1.668941 ) : 0.015396
+Cost Function (Sill Fitting) (2.555572 ) : 0.015396
+Cost Function (Variogram Fit) (0.288772 ) : 0.642220 (15)
+Cost Function (Sill Fitting) (1.572610 ) : 0.015266
+Cost Function (Sill Fitting) (2.617784 ) : 0.015266
+Cost Function (Variogram Fit) (0.288772 ) : 0.615129 (16)
+Cost Function (Sill Fitting) (1.539713 ) : 0.015723
+Cost Function (Sill Fitting) (2.638846 ) : 0.015723
+Cost Function (Variogram Fit) (0.280219 ) : 0.622084 (17)
+Cost Function (Sill Fitting) (1.586625 ) : 0.015120
+Cost Function (Sill Fitting) (2.609710 ) : 0.015120
+Cost Function (Variogram Fit) (0.280219 ) : 0.613948 (18)
+Cost Function (Sill Fitting) (1.603194 ) : 0.015049
+Cost Function (Sill Fitting) (2.598811 ) : 0.015049
+Cost Function (Variogram Fit) (0.284496 ) : 0.615538 (19)
+Cost Function (Sill Fitting) (1.580776 ) : 0.015184
+Cost Function (Sill Fitting) (2.612458 ) : 0.015184
+Cost Function (Variogram Fit) (0.284496 ) : 0.614364 (20)
+Cost Function (Sill Fitting) (1.594900 ) : 0.015075
+Cost Function (Sill Fitting) (2.604270 ) : 0.015075
+Cost Function (Variogram Fit) (0.284496 ) : 0.614447 (21)
+Cost Function (Sill Fitting) (1.585027 ) : 0.015149
+Cost Function (Sill Fitting) (2.609607 ) : 0.015149
+Cost Function (Variogram Fit) (0.284496 ) : 0.614228 (22)
+Cost Function (Sill Fitting) (1.590719 ) : 0.015095
+Cost Function (Sill Fitting) (2.607038 ) : 0.015095
+Cost Function (Variogram Fit) (0.284496 ) : 0.614117 (23)
+Cost Function (Sill Fitting) (1.589883 ) : 0.015107
+Cost Function (Sill Fitting) (2.607026 ) : 0.015107
+Cost Function (Variogram Fit) (0.284496 ) : 0.614148 (24)
+Cost Function (Sill Fitting) (1.587050 ) : 0.015134
+Cost Function (Sill Fitting) (2.608296 ) : 0.015134
+Cost Function (Variogram Fit) (0.284496 ) : 0.614207 (25)
+Cost Function (Sill Fitting) (1.589011 ) : 0.015107
+Cost Function (Sill Fitting) (2.607997 ) : 0.015107
+Cost Function (Variogram Fit) (0.284496 ) : 0.614051 (26)
+Cost Function (Sill Fitting) (1.588656 ) : 0.015113
+Cost Function (Sill Fitting) (2.607921 ) : 0.015113
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (27)
+Cost Function (Sill Fitting) (1.587585 ) : 0.015127
+Cost Function (Sill Fitting) (2.608171 ) : 0.015127
+Cost Function (Variogram Fit) (0.284496 ) : 0.614157 (28)
+Cost Function (Sill Fitting) (1.588535 ) : 0.015113
+Cost Function (Sill Fitting) (2.608055 ) : 0.015113
+Cost Function (Variogram Fit) (0.284496 ) : 0.614075 (29)
+Cost Function (Sill Fitting) (1.588329 ) : 0.015117
+Cost Function (Sill Fitting) (2.608049 ) : 0.015117
+Cost Function (Variogram Fit) (0.284496 ) : 0.614095 (30)
+Cost Function (Sill Fitting) (1.587777 ) : 0.015123
+Cost Function (Sill Fitting) (2.608192 ) : 0.015123
+Cost Function (Variogram Fit) (0.284496 ) : 0.614127 (31)
+Cost Function (Sill Fitting) (1.588239 ) : 0.015117
+Cost Function (Sill Fitting) (2.608149 ) : 0.015117
+Cost Function (Variogram Fit) (0.284496 ) : 0.614085 (32)
+Cost Function (Sill Fitting) (1.588131 ) : 0.015118
+Cost Function (Sill Fitting) (2.608152 ) : 0.015118
+Cost Function (Variogram Fit) (0.284496 ) : 0.614095 (33)
+Cost Function (Sill Fitting) (1.587846 ) : 0.015122
+Cost Function (Sill Fitting) (2.608233 ) : 0.015122
+Cost Function (Variogram Fit) (0.284496 ) : 0.614110 (34)
+Cost Function (Sill Fitting) (1.588064 ) : 0.015118
+Cost Function (Sill Fitting) (2.608226 ) : 0.015118
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (35)
+Cost Function (Sill Fitting) (1.588008 ) : 0.015119
+Cost Function (Sill Fitting) (2.608230 ) : 0.015119
+Cost Function (Variogram Fit) (0.284496 ) : 0.614093 (36)
+Cost Function (Sill Fitting) (1.587881 ) : 0.015121
+Cost Function (Sill Fitting) (2.608253 ) : 0.015121
+Cost Function (Variogram Fit) (0.284496 ) : 0.614102 (37)
+Cost Function (Sill Fitting) (1.587986 ) : 0.015119
+Cost Function (Sill Fitting) (2.608254 ) : 0.015119
+Cost Function (Variogram Fit) (0.284496 ) : 0.614090 (38)
+Cost Function (Sill Fitting) (1.587955 ) : 0.015120
+Cost Function (Sill Fitting) (2.608259 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614093 (39)
+Cost Function (Sill Fitting) (1.587888 ) : 0.015120
+Cost Function (Sill Fitting) (2.608274 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614097 (40)
+Cost Function (Sill Fitting) (1.587939 ) : 0.015120
+Cost Function (Sill Fitting) (2.608277 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614091 (41)
+Cost Function (Sill Fitting) (1.587921 ) : 0.015120
+Cost Function (Sill Fitting) (2.608282 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614092 (42)
+Cost Function (Sill Fitting) (1.587886 ) : 0.015120
+Cost Function (Sill Fitting) (2.608292 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614094 (43)
+Cost Function (Sill Fitting) (1.587909 ) : 0.015120
+Cost Function (Sill Fitting) (2.608295 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614091 (44)
+Cost Function (Sill Fitting) (1.587899 ) : 0.015120
+Cost Function (Sill Fitting) (2.608300 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614091 (45)
+Cost Function (Sill Fitting) (1.587880 ) : 0.015120
+Cost Function (Sill Fitting) (2.608306 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614092 (46)
+Cost Function (Sill Fitting) (1.587890 ) : 0.015120
+Cost Function (Sill Fitting) (2.608309 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614090 (47)
+Cost Function (Sill Fitting) (1.587884 ) : 0.015120
+Cost Function (Sill Fitting) (2.608312 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614090 (48)
+Cost Function (Sill Fitting) (1.587874 ) : 0.015120
+Cost Function (Sill Fitting) (2.608316 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614090 (49)
+Cost Function (Sill Fitting) (1.587878 ) : 0.015120
+Cost Function (Sill Fitting) (2.608319 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (50)
+Cost Function (Sill Fitting) (1.587874 ) : 0.015120
+Cost Function (Sill Fitting) (2.608321 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (51)
+Cost Function (Sill Fitting) (1.587869 ) : 0.015120
+Cost Function (Sill Fitting) (2.608324 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (52)
+Cost Function (Sill Fitting) (1.587869 ) : 0.015120
+Cost Function (Sill Fitting) (2.608326 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (53)
+Cost Function (Sill Fitting) (1.587866 ) : 0.015120
+Cost Function (Sill Fitting) (2.608328 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (54)
+Cost Function (Sill Fitting) (1.587865 ) : 0.015120
+Cost Function (Sill Fitting) (2.608329 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614089 (55)
+Cost Function (Sill Fitting) (1.587865 ) : 0.015120
+Cost Function (Sill Fitting) (2.608331 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (56)
+Cost Function (Sill Fitting) (1.587863 ) : 0.015120
+Cost Function (Sill Fitting) (2.608332 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (57)
+Cost Function (Sill Fitting) (1.587862 ) : 0.015120
+Cost Function (Sill Fitting) (2.608333 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (58)
+Cost Function (Sill Fitting) (1.587861 ) : 0.015120
+Cost Function (Sill Fitting) (2.608334 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (59)
+Cost Function (Sill Fitting) (1.587861 ) : 0.015120
+Cost Function (Sill Fitting) (2.608335 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (60)
+Cost Function (Sill Fitting) (1.587860 ) : 0.015120
+Cost Function (Sill Fitting) (2.608336 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (61)
+Cost Function (Sill Fitting) (1.587859 ) : 0.015120
+Cost Function (Sill Fitting) (2.608336 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (62)
+Cost Function (Sill Fitting) (1.587859 ) : 0.015120
+Cost Function (Sill Fitting) (2.608337 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (63)
+Cost Function (Sill Fitting) (1.587858 ) : 0.015120
+Cost Function (Sill Fitting) (2.608337 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (64)
+Cost Function (Sill Fitting) (1.587858 ) : 0.015120
+Cost Function (Sill Fitting) (2.608338 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (65)
+Cost Function (Sill Fitting) (1.587857 ) : 0.015120
+Cost Function (Sill Fitting) (2.608338 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (66)
+Cost Function (Sill Fitting) (1.587857 ) : 0.015120
+Cost Function (Sill Fitting) (2.608339 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (67)
+Cost Function (Sill Fitting) (1.587857 ) : 0.015120
+Cost Function (Sill Fitting) (2.608339 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614088 (68)
+Cost Function (Sill Fitting) (1.587857 ) : 0.015120
+Cost Function (Sill Fitting) (2.608339 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (69)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608339 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (70)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (71)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (72)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (73)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (74)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (75)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (76)
+Cost Function (Sill Fitting) (1.587856 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (77)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (78)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608340 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (79)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (80)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (81)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (82)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (83)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (84)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (85)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (86)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (87)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (88)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (89)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (90)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (91)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (92)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (93)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (94)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (95)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (96)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (97)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (98)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (99)
+Cost Function (Sill Fitting) (1.587855 ) : 0.015120
+Cost Function (Sill Fitting) (2.608341 ) : 0.015120
+Cost Function (Variogram Fit) (0.284496 ) : 0.614087 (100)
 
 Model characteristics
 =====================
@@ -55,9 +362,259 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.647
+- Sill         =      1.588
 Spherical
-- Sill         =      1.000
-- Range        =      0.010
-Total Sill     =      3.647
+- Sill         =      2.608
+- Range        =      0.284
+Total Sill     =      4.196
+Known Mean(s)     0.000
+
+Sill Fitting from Variogram Map (new version)
+=============================================
+
+List of the Model parameters to be infered
+------------------------------------------
+Covariance 0 - Sill(0) - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Range(0) - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Sill(0) - Scale = 1.000000 - Current = 1.000000
+
+Cost Function (VMap Fit) (1.000000 1.000000 1.000000 ) : 98273.823131 (1)
+Cost Function (VMap Fit) (1.000000 1.000000 1.000000 ) : 2699.941021 (2)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 3426.673321 (3)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 31191.938718 (4)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 305495.704543 (5)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 31813.120687 (6)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 70219.184183 (7)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 9565.391234 (8)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 18194.219702 (9)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 11606.020632 (10)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 4788.973645 (11)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 9648.286459 (12)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 4876.236202 (13)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 4078.574376 (14)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 2706.231225 (15)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 6432.875532 (16)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 2726.553533 (17)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 2973.081620 (18)
+Cost Function (VMap Fit) (2.000000 1.000000 1.000000 ) : 2676.365337 (19)
+Cost Function (VMap Fit) (2.090856 1.116445 0.777199 ) : 3005.608796 (20)
+Cost Function (VMap Fit) (2.090856 1.116445 0.777199 ) : 2641.349848 (21)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 4775.414221 (22)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 2680.348610 (23)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 3090.309378 (24)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 2657.412833 (25)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 2815.509300 (26)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 2647.779185 (27)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 2773.330139 (28)
+Cost Function (VMap Fit) (2.068962 1.314603 0.888214 ) : 2637.791632 (29)
+Cost Function (VMap Fit) (2.076054 1.178334 0.817657 ) : 2699.768128 (30)
+Cost Function (VMap Fit) (2.076054 1.178334 0.817657 ) : 2640.820574 (31)
+Cost Function (VMap Fit) (2.076054 1.178334 0.817657 ) : 2657.215293 (32)
+Cost Function (VMap Fit) (2.076054 1.178334 0.817657 ) : 2638.747403 (33)
+Cost Function (VMap Fit) (2.076054 1.178334 0.817657 ) : 2636.265888 (34)
+Cost Function (VMap Fit) (2.066807 1.101177 0.781668 ) : 2645.649451 (35)
+Cost Function (VMap Fit) (2.066807 1.101177 0.781668 ) : 2639.164034 (36)
+Cost Function (VMap Fit) (2.066807 1.101177 0.781668 ) : 2634.745527 (37)
+Cost Function (VMap Fit) (2.078485 1.168610 0.778610 ) : 2627.748354 (38)
+Cost Function (VMap Fit) (2.076709 1.047226 0.762759 ) : 2624.974366 (39)
+Cost Function (VMap Fit) (2.079637 0.945077 0.732874 ) : 2626.194939 (40)
+Cost Function (VMap Fit) (2.079637 0.945077 0.732874 ) : 2634.213367 (41)
+Cost Function (VMap Fit) (2.079637 0.945077 0.732874 ) : 2597.785779 (42)
+Cost Function (VMap Fit) (2.082454 0.738861 0.650754 ) : 2540.781304 (43)
+Cost Function (VMap Fit) (2.084439 0.523987 0.586827 ) : 2567.191684 (44)
+Cost Function (VMap Fit) (2.084439 0.523987 0.586827 ) : 2520.422508 (45)
+Cost Function (VMap Fit) (2.082669 0.462086 0.604564 ) : 2593.662339 (46)
+Cost Function (VMap Fit) (2.082669 0.462086 0.604564 ) : 2661.842678 (47)
+Cost Function (VMap Fit) (2.082669 0.462086 0.604564 ) : 2597.850257 (48)
+Cost Function (VMap Fit) (2.082669 0.462086 0.604564 ) : 2501.935735 (49)
+Cost Function (VMap Fit) (2.079124 0.356212 0.556164 ) : 2661.842678 (50)
+Cost Function (VMap Fit) (2.079124 0.356212 0.556164 ) : 2596.393125 (51)
+Cost Function (VMap Fit) (2.079124 0.356212 0.556164 ) : 2534.202481 (52)
+Cost Function (VMap Fit) (2.079124 0.356212 0.556164 ) : 2477.308723 (53)
+Cost Function (VMap Fit) (2.074375 0.394498 0.599102 ) : 2464.495936 (54)
+Cost Function (VMap Fit) (2.069343 0.329753 0.605240 ) : 2571.135573 (55)
+Cost Function (VMap Fit) (2.069343 0.329753 0.605240 ) : 2502.698075 (56)
+Cost Function (VMap Fit) (2.069343 0.329753 0.605240 ) : 2495.778881 (57)
+Cost Function (VMap Fit) (2.069343 0.329753 0.605240 ) : 2594.421173 (58)
+Cost Function (VMap Fit) (2.069343 0.329753 0.605240 ) : 2481.659239 (59)
+Cost Function (VMap Fit) (2.069343 0.329753 0.605240 ) : 2443.898536 (60)
+Cost Function (VMap Fit) (2.061653 0.337397 0.622384 ) : 2415.209908 (61)
+Cost Function (VMap Fit) (2.052918 0.327990 0.655494 ) : 2446.132414 (62)
+Cost Function (VMap Fit) (2.052918 0.327990 0.655494 ) : 2411.074942 (63)
+Cost Function (VMap Fit) (2.049558 0.301652 0.691384 ) : 2430.592338 (64)
+Cost Function (VMap Fit) (2.049558 0.301652 0.691384 ) : 2381.106182 (65)
+Cost Function (VMap Fit) (2.041383 0.354564 0.734175 ) : 2375.014950 (66)
+Cost Function (VMap Fit) (2.027403 0.366969 0.798642 ) : 2360.394118 (67)
+Cost Function (VMap Fit) (2.022973 0.267574 0.768101 ) : 2414.285585 (68)
+Cost Function (VMap Fit) (2.022973 0.267574 0.768101 ) : 2422.418188 (69)
+Cost Function (VMap Fit) (2.022973 0.267574 0.768101 ) : 2382.401219 (70)
+Cost Function (VMap Fit) (2.022973 0.267574 0.768101 ) : 2318.009337 (71)
+Cost Function (VMap Fit) (2.012769 0.334728 0.822513 ) : 2309.747809 (72)
+Cost Function (VMap Fit) (1.994374 0.351266 0.888078 ) : 2394.522137 (73)
+Cost Function (VMap Fit) (1.994374 0.351266 0.888078 ) : 2345.919134 (74)
+Cost Function (VMap Fit) (1.994374 0.351266 0.888078 ) : 2311.625157 (75)
+Cost Function (VMap Fit) (1.994374 0.351266 0.888078 ) : 2280.786699 (76)
+Cost Function (VMap Fit) (1.994957 0.357348 0.873366 ) : 2302.688605 (77)
+Cost Function (VMap Fit) (1.994957 0.357348 0.873366 ) : 2268.720140 (78)
+Cost Function (VMap Fit) (1.966209 0.322628 0.955066 ) : 2365.841417 (79)
+Cost Function (VMap Fit) (1.966209 0.322628 0.955066 ) : 2443.547162 (80)
+Cost Function (VMap Fit) (1.966209 0.322628 0.955066 ) : 2272.642775 (81)
+Cost Function (VMap Fit) (1.966209 0.322628 0.955066 ) : 2229.199074 (82)
+Cost Function (VMap Fit) (1.975966 0.303901 0.903690 ) : 2210.078821 (83)
+Cost Function (VMap Fit) (1.966762 0.280218 0.911496 ) : 2251.296616 (84)
+Cost Function (VMap Fit) (1.966762 0.280218 0.911496 ) : 2226.426181 (85)
+Cost Function (VMap Fit) (1.966762 0.280218 0.911496 ) : 2268.557336 (86)
+Cost Function (VMap Fit) (1.966762 0.280218 0.911496 ) : 2229.293407 (87)
+Cost Function (VMap Fit) (1.966762 0.280218 0.911496 ) : 2168.569907 (88)
+Cost Function (VMap Fit) (1.938996 0.271799 0.978295 ) : 2135.155223 (89)
+Cost Function (VMap Fit) (1.930201 0.284498 0.995532 ) : 2170.059231 (90)
+Cost Function (VMap Fit) (1.930201 0.284498 0.995532 ) : 2168.613230 (91)
+Cost Function (VMap Fit) (1.930201 0.284498 0.995532 ) : 2115.601064 (92)
+Cost Function (VMap Fit) (1.921127 0.338596 1.023834 ) : 2123.157835 (93)
+Cost Function (VMap Fit) (1.921127 0.338596 1.023834 ) : 2113.988284 (94)
+Cost Function (VMap Fit) (1.932955 0.313910 0.967407 ) : 2127.211439 (95)
+Cost Function (VMap Fit) (1.932955 0.313910 0.967407 ) : 2085.583208 (96)
+Cost Function (VMap Fit) (1.895968 0.299328 1.074007 ) : 2131.251650 (97)
+Cost Function (VMap Fit) (1.895968 0.299328 1.074007 ) : 2080.085182 (98)
+Cost Function (VMap Fit) (1.903166 0.350058 1.047967 ) : 2102.283399 (99)
+Cost Function (VMap Fit) (1.903166 0.350058 1.047967 ) : 2053.239155 (100)
+Cost Function (VMap Fit) (1.900266 0.303600 1.035752 ) : 2045.311437 (101)
+Cost Function (VMap Fit) (1.889835 0.286102 1.041711 ) : 2035.413622 (102)
+Cost Function (VMap Fit) (1.859690 0.309748 1.141717 ) : 2118.517865 (103)
+Cost Function (VMap Fit) (1.859690 0.309748 1.141717 ) : 2025.192556 (104)
+Cost Function (VMap Fit) (1.872493 0.331278 1.080256 ) : 2066.955799 (105)
+Cost Function (VMap Fit) (1.872493 0.331278 1.080256 ) : 1979.372721 (106)
+Cost Function (VMap Fit) (1.844846 0.268028 1.127823 ) : 2001.235298 (107)
+Cost Function (VMap Fit) (1.844846 0.268028 1.127823 ) : 1992.154543 (108)
+Cost Function (VMap Fit) (1.844846 0.268028 1.127823 ) : 1983.201733 (109)
+Cost Function (VMap Fit) (1.844846 0.268028 1.127823 ) : 1939.385913 (110)
+Cost Function (VMap Fit) (1.801078 0.262749 1.215723 ) : 2020.214373 (111)
+Cost Function (VMap Fit) (1.801078 0.262749 1.215723 ) : 2048.098009 (112)
+Cost Function (VMap Fit) (1.801078 0.262749 1.215723 ) : 1952.455534 (113)
+Cost Function (VMap Fit) (1.801078 0.262749 1.215723 ) : 2045.500064 (114)
+Cost Function (VMap Fit) (1.801078 0.262749 1.215723 ) : 1951.074605 (115)
+Cost Function (VMap Fit) (1.801078 0.262749 1.215723 ) : 1924.828770 (116)
+Cost Function (VMap Fit) (1.795169 0.299651 1.230877 ) : 1950.300231 (117)
+Cost Function (VMap Fit) (1.795169 0.299651 1.230877 ) : 1906.563439 (118)
+Cost Function (VMap Fit) (1.790183 0.269208 1.222990 ) : 1896.288093 (119)
+Cost Function (VMap Fit) (1.771291 0.254340 1.247596 ) : 1962.258129 (120)
+Cost Function (VMap Fit) (1.771291 0.254340 1.247596 ) : 1923.558474 (121)
+Cost Function (VMap Fit) (1.771291 0.254340 1.247596 ) : 1894.145220 (122)
+Cost Function (VMap Fit) (1.783281 0.293935 1.229909 ) : 1903.800180 (123)
+Cost Function (VMap Fit) (1.783281 0.293935 1.229909 ) : 1916.139848 (124)
+Cost Function (VMap Fit) (1.783281 0.293935 1.229909 ) : 1869.379775 (125)
+Cost Function (VMap Fit) (1.747146 0.253296 1.271102 ) : 1855.600608 (126)
+Cost Function (VMap Fit) (1.715679 0.239426 1.311666 ) : 1852.154358 (127)
+Cost Function (VMap Fit) (1.732236 0.271911 1.312005 ) : 1873.717360 (128)
+Cost Function (VMap Fit) (1.732236 0.271911 1.312005 ) : 1832.484031 (129)
+Cost Function (VMap Fit) (1.716174 0.282508 1.321457 ) : 1832.448771 (130)
+Cost Function (VMap Fit) (1.688615 0.296592 1.358387 ) : 1800.506862 (131)
+Cost Function (VMap Fit) (1.641072 0.244684 1.424796 ) : 1889.450238 (132)
+Cost Function (VMap Fit) (1.641072 0.244684 1.424796 ) : 1857.815562 (133)
+Cost Function (VMap Fit) (1.641072 0.244684 1.424796 ) : 1822.646533 (134)
+Cost Function (VMap Fit) (1.641072 0.244684 1.424796 ) : 1768.964332 (135)
+Cost Function (VMap Fit) (1.621884 0.259103 1.435694 ) : 1746.020415 (136)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1842.373156 (137)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1794.710522 (138)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1766.029257 (139)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1776.249068 (140)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1809.168344 (141)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1767.665488 (142)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1784.500352 (143)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1757.704440 (144)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1756.188481 (145)
+Cost Function (VMap Fit) (1.566708 0.252700 1.497538 ) : 1743.913794 (146)
+Cost Function (VMap Fit) (1.541510 0.257290 1.518721 ) : 1762.277900 (147)
+Cost Function (VMap Fit) (1.541510 0.257290 1.518721 ) : 1737.559002 (148)
+Cost Function (VMap Fit) (1.518722 0.238593 1.550804 ) : 1753.577605 (149)
+Cost Function (VMap Fit) (1.518722 0.238593 1.550804 ) : 1764.091228 (150)
+Cost Function (VMap Fit) (1.518722 0.238593 1.550804 ) : 1740.338474 (151)
+Cost Function (VMap Fit) (1.518722 0.238593 1.550804 ) : 1731.508653 (152)
+Cost Function (VMap Fit) (1.489589 0.245082 1.581184 ) : 1739.418306 (153)
+Cost Function (VMap Fit) (1.489589 0.245082 1.581184 ) : 1771.236223 (154)
+Cost Function (VMap Fit) (1.489589 0.245082 1.581184 ) : 1734.778215 (155)
+Cost Function (VMap Fit) (1.489589 0.245082 1.581184 ) : 1727.823220 (156)
+Cost Function (VMap Fit) (1.498777 0.239031 1.565734 ) : 1726.730520 (157)
+Cost Function (VMap Fit) (1.486058 0.233151 1.574321 ) : 1726.421263 (158)
+Cost Function (VMap Fit) (1.482494 0.247600 1.579167 ) : 1732.191898 (159)
+Cost Function (VMap Fit) (1.482494 0.247600 1.579167 ) : 1721.450574 (160)
+Cost Function (VMap Fit) (1.445918 0.232833 1.616997 ) : 1728.193086 (161)
+Cost Function (VMap Fit) (1.445918 0.232833 1.616997 ) : 1724.584580 (162)
+Cost Function (VMap Fit) (1.445918 0.232833 1.616997 ) : 1719.122572 (163)
+Cost Function (VMap Fit) (1.435143 0.240899 1.622548 ) : 1722.474222 (164)
+Cost Function (VMap Fit) (1.435143 0.240899 1.622548 ) : 1720.628493 (165)
+Cost Function (VMap Fit) (1.435143 0.240899 1.622548 ) : 1725.791586 (166)
+Cost Function (VMap Fit) (1.435143 0.240899 1.622548 ) : 1719.473948 (167)
+Cost Function (VMap Fit) (1.435143 0.240899 1.622548 ) : 1719.058363 (168)
+Cost Function (VMap Fit) (1.409868 0.229935 1.638405 ) : 1725.827540 (169)
+Cost Function (VMap Fit) (1.409868 0.229935 1.638405 ) : 1728.306100 (170)
+Cost Function (VMap Fit) (1.409868 0.229935 1.638405 ) : 1717.442662 (171)
+Cost Function (VMap Fit) (1.417971 0.228009 1.635792 ) : 1716.114395 (172)
+Cost Function (VMap Fit) (1.400593 0.234622 1.650565 ) : 1716.939858 (173)
+Cost Function (VMap Fit) (1.400593 0.234622 1.650565 ) : 1720.173515 (174)
+Cost Function (VMap Fit) (1.400593 0.234622 1.650565 ) : 1717.051689 (175)
+Cost Function (VMap Fit) (1.400593 0.234622 1.650565 ) : 1716.826759 (176)
+Cost Function (VMap Fit) (1.400593 0.234622 1.650565 ) : 1720.574045 (177)
+Cost Function (VMap Fit) (1.400593 0.234622 1.650565 ) : 1716.111477 (178)
+Cost Function (VMap Fit) (1.415700 0.231710 1.638426 ) : 1715.381057 (179)
+Cost Function (VMap Fit) (1.400139 0.232169 1.654290 ) : 1716.016459 (180)
+Cost Function (VMap Fit) (1.400139 0.232169 1.654290 ) : 1715.877054 (181)
+Cost Function (VMap Fit) (1.400139 0.232169 1.654290 ) : 1716.249494 (182)
+Cost Function (VMap Fit) (1.400139 0.232169 1.654290 ) : 1715.515428 (183)
+Cost Function (VMap Fit) (1.400139 0.232169 1.654290 ) : 1714.825866 (184)
+Cost Function (VMap Fit) (1.381352 0.231654 1.667683 ) : 1715.059239 (185)
+Cost Function (VMap Fit) (1.381352 0.231654 1.667683 ) : 1716.012141 (186)
+Cost Function (VMap Fit) (1.381352 0.231654 1.667683 ) : 1715.190295 (187)
+Cost Function (VMap Fit) (1.381352 0.231654 1.667683 ) : 1714.623499 (188)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.886489 (189)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1715.237837 (190)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.845779 (191)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.658973 (192)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1715.025303 (193)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.623609 (194)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.642723 (195)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.656108 (196)
+Cost Function (VMap Fit) (1.381804 0.230332 1.668839 ) : 1714.550697 (197)
+Cost Function (VMap Fit) (1.381005 0.229900 1.669062 ) : 1714.900713 (198)
+Cost Function (VMap Fit) (1.381005 0.229900 1.669062 ) : 1714.526877 (199)
+Cost Function (VMap Fit) (1.374911 0.229824 1.674513 ) : 1714.992243 (200)
+Cost Function (VMap Fit) (1.374911 0.229824 1.674513 ) : 1714.526216 (201)
+Cost Function (VMap Fit) (1.378437 0.230333 1.670825 ) : 1714.459092 (202)
+Cost Function (VMap Fit) (1.374431 0.229706 1.674094 ) : 1714.455462 (203)
+Cost Function (VMap Fit) (1.370745 0.229393 1.676721 ) : 1714.489044 (204)
+Cost Function (VMap Fit) (1.370745 0.229393 1.676721 ) : 1714.651155 (205)
+Cost Function (VMap Fit) (1.370745 0.229393 1.676721 ) : 1714.471229 (206)
+Cost Function (VMap Fit) (1.370745 0.229393 1.676721 ) : 1714.455204 (207)
+Cost Function (VMap Fit) (1.363464 0.229018 1.682980 ) : 1714.519716 (208)
+Cost Function (VMap Fit) (1.363464 0.229018 1.682980 ) : 1714.415927 (209)
+Cost Function (VMap Fit) (1.370228 0.229029 1.677497 ) : 1714.416305 (210)
+Cost Function (VMap Fit) (1.370228 0.229029 1.677497 ) : 1714.468156 (211)
+Cost Function (VMap Fit) (1.370228 0.229029 1.677497 ) : 1714.439126 (212)
+Cost Function (VMap Fit) (1.370228 0.229029 1.677497 ) : 1714.432083 (213)
+Cost Function (VMap Fit) (1.370228 0.229029 1.677497 ) : 1714.405644 (214)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.422003 (215)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.416955 (216)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.461296 (217)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.409681 (218)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.431275 (219)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.407243 (220)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.406047 (221)
+Cost Function (VMap Fit) (1.368232 0.228543 1.678965 ) : 1714.405996 (222)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      1.872
+Spherical
+- Sill         =      2.819
+- Range        =      0.228
+Total Sill     =      4.691
 Known Mean(s)     0.000

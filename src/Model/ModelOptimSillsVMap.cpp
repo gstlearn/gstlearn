@@ -66,9 +66,10 @@ ModelOptimSillsVMap::~ModelOptimSillsVMap()
 {
 }
 
-int ModelOptimSillsVMap::loadEnvironment(DbGrid* dbmap)
+int ModelOptimSillsVMap::loadEnvironment(const DbGrid* dbmap, bool verbose)
 {
   _dbmap = dbmap;
+  _modelPart._verbose = verbose;
 
   // Get internal dimension
   if (_getDimensions()) return 1;
@@ -92,18 +93,19 @@ int ModelOptimSillsVMap::loadEnvironment(DbGrid* dbmap)
  ** \return  Error return code
  **
  ** \param[in]  dbmap       Experimental Variogram Map
+ ** \param[in]  verbose     Verbose flag
  **
  *****************************************************************************/
-int ModelOptimSillsVMap::fit(DbGrid* dbmap)
+int ModelOptimSillsVMap::fit(const DbGrid* dbmap, bool verbose)
 {
   // Define the environment
-  if (loadEnvironment(dbmap)) return 1;
+  if (loadEnvironment(dbmap, verbose)) return 1;
 
   // Initialize Model-dependent quantities
-  _updateFromModel();
+  updateFromModel();
 
   // Perform the sill fitting
-  return _fitPerform();
+  return fitPerform();
 }
 
  /****************************************************************************/
@@ -153,7 +155,7 @@ void ModelOptimSillsVMap::_computeVMap()
  **  Fill the array of pointers on the moded
  **
  *****************************************************************************/
-void ModelOptimSillsVMap::_updateFromModel()
+void ModelOptimSillsVMap::updateFromModel()
 {
   Model* model = _modelPart._model;
   VectorDouble d0(_ndim);

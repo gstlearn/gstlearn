@@ -42,6 +42,7 @@ ModelOptimSillsVario::ModelOptimSillsVario(Model* model,
                                            const Option_VarioFit& optvar)
   : AModelOptimSills(model, constraints, mauto, optvar)
   , _vario()
+  , _wmode(2)
 {
 }
 
@@ -67,10 +68,11 @@ ModelOptimSillsVario::~ModelOptimSillsVario()
 {
 }
 
-int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode)
+int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 {
   _vario = vario;
   _wmode = wmode;
+  _modelPart._verbose = verbose;
 
   // Get internal dimension
   if (_getDimensions()) return 1;
@@ -91,25 +93,26 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode)
 }
 
   /****************************************************************************/
-  /*!
-   **  General Routine for fitting a model using an experimental variogram
-   **
-   ** \return  Error return code
-   **
-   ** \param[in]  vario       Experimental variogram
-   ** \param[in]  wmode       Weighting mode
+/*!
+ **  General Routine for fitting a model using an experimental variogram
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  vario       Experimental variogram
+ ** \param[in]  wmode       Weighting mode
+ ** \param[in]  verbose     Verbose flag
    **
    *****************************************************************************/
-  int ModelOptimSillsVario::fit(Vario * vario, int wmode)
+  int ModelOptimSillsVario::fit(Vario * vario, int wmode, bool verbose)
   {
     // Define the environment
-    if (loadEnvironment(vario, wmode)) return 1;
+    if (loadEnvironment(vario, wmode, verbose)) return 1;
 
     // Initialize Model-dependent quantities
-    _updateFromModel();
+    updateFromModel();
 
     // Perform the sill fitting
-    return _fitPerform();
+    return fitPerform();
   }
 
   /****************************************************************************/
@@ -258,7 +261,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode)
    ** \param[out] ge      Array of generic covariance values (optional)
    **
    *****************************************************************************/
-  void ModelOptimSillsVario::_updateFromModel()
+  void ModelOptimSillsVario::updateFromModel()
   {
     Model* model = _modelPart._model;
     Vario* vario = _vario;

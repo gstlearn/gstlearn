@@ -81,6 +81,9 @@ protected:
     // Part relative to the Experimental variograms
     Vario_Part& _varioPart;
 
+    // Part relative to Sill fitting procedure 
+    ModelOptimSillsVario& _goulardPart;
+
   } AlgorithmVario;
 
 private:
@@ -94,6 +97,5 @@ protected:
   Vario_Part _varioPart;
 
   // Only used for Goulard Option
-  bool _flagGoulard;
   ModelOptimSillsVario _optGoulard;
 };

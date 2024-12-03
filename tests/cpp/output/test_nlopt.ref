@@ -48,164 +48,164 @@ Fitting a Model from a Variogram
 
 List of the Model parameters to be infered
 ------------------------------------------
-Covariance 0 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Range - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+Covariance 0 - Sill(0) - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Range(0) - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Sill(0) - Scale = 1.000000 - Current = 1.000000
 
-Iteration   1 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 33.332715
-Iteration   2 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 1245.485669
-Iteration   3 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 13.669548
-Iteration   4 - Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) = 249.279915
-Iteration   5 - Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) = 18.421205
-Iteration   6 - Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) = 65.218865
-Iteration   7 - Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) = 22.396529
-Iteration   8 - Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) = 35.218297
-Iteration   9 - Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) = 3.858859
-Iteration  10 - Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) = 29.998191
-Iteration  11 - Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) = 10.450905
-Iteration  12 - Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) = 197.109828
-Iteration  13 - Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) = 11.860266
-Iteration  14 - Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) = 14.451004
-Iteration  15 - Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) = 2.615294
-Iteration  16 - Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) = 7.946143
-Iteration  17 - Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) = 49.088657
-Iteration  18 - Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) = 3.175872
-Iteration  19 - Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) = 8.748936
-Iteration  20 - Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) = 2.617865
-Iteration  21 - Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) = 1.194558
-Iteration  22 - Cost Function (Variogram Fit) (1.471500 1.245726 1.679255 ) = 1.032113
-Iteration  23 - Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) = 4.979912
-Iteration  24 - Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) = 1.825911
-Iteration  25 - Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) = 4.124856
-Iteration  26 - Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) = 1.474745
-Iteration  27 - Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) = 1.127515
-Iteration  28 - Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) = 0.522808
-Iteration  29 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 1.464017
-Iteration  30 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 1.192943
-Iteration  31 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.944583
-Iteration  32 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.532956
-Iteration  33 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.826472
-Iteration  34 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 1.697632
-Iteration  35 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.577516
-Iteration  36 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.785499
-Iteration  37 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.598920
-Iteration  38 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.578187
-Iteration  39 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.528055
-Iteration  40 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.682116
-Iteration  41 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.524511
-Iteration  42 - Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) = 0.498514
-Iteration  43 - Cost Function (Variogram Fit) (1.674060 1.273789 1.215058 ) = 0.486801
-Iteration  44 - Cost Function (Variogram Fit) (1.678448 1.164343 1.147429 ) = 0.475508
-Iteration  45 - Cost Function (Variogram Fit) (1.649470 1.183543 1.244233 ) = 0.451237
-Iteration  46 - Cost Function (Variogram Fit) (1.631552 1.067568 1.240521 ) = 0.456624
-Iteration  47 - Cost Function (Variogram Fit) (1.631552 1.067568 1.240521 ) = 0.387519
-Iteration  48 - Cost Function (Variogram Fit) (1.646718 0.804512 1.068467 ) = 0.387063
-Iteration  49 - Cost Function (Variogram Fit) (1.638704 0.543386 0.945138 ) = 0.290878
-Iteration  50 - Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) = 0.583761
-Iteration  51 - Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) = 0.324612
-Iteration  52 - Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) = 1.599024
-Iteration  53 - Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) = 0.363338
-Iteration  54 - Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) = 0.327980
-Iteration  55 - Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) = 0.277216
-Iteration  56 - Cost Function (Variogram Fit) (1.562029 0.340536 1.081963 ) = 1.092177
-Iteration  57 - Cost Function (Variogram Fit) (1.562029 0.340536 1.081963 ) = 0.595210
-Iteration  58 - Cost Function (Variogram Fit) (1.562029 0.340536 1.081963 ) = 0.260804
-Iteration  59 - Cost Function (Variogram Fit) (1.581827 0.565718 1.136560 ) = 0.482694
-Iteration  60 - Cost Function (Variogram Fit) (1.581827 0.565718 1.136560 ) = 0.254261
-Iteration  61 - Cost Function (Variogram Fit) (1.589224 0.482007 1.055240 ) = 0.224908
-Iteration  62 - Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) = 0.312571
-Iteration  63 - Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) = 0.294693
-Iteration  64 - Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) = 0.230257
-Iteration  65 - Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) = 0.392027
-Iteration  66 - Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) = 0.231708
-Iteration  67 - Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) = 0.219736
-Iteration  68 - Cost Function (Variogram Fit) (1.540416 0.366421 1.126844 ) = 0.287603
-Iteration  69 - Cost Function (Variogram Fit) (1.540416 0.366421 1.126844 ) = 0.323751
-Iteration  70 - Cost Function (Variogram Fit) (1.540416 0.366421 1.126844 ) = 0.217184
-Iteration  71 - Cost Function (Variogram Fit) (1.564344 0.437548 1.101806 ) = 0.197514
-Iteration  72 - Cost Function (Variogram Fit) (1.535750 0.377364 1.120089 ) = 0.186373
-Iteration  73 - Cost Function (Variogram Fit) (1.519624 0.362556 1.136892 ) = 0.204526
-Iteration  74 - Cost Function (Variogram Fit) (1.519624 0.362556 1.136892 ) = 0.190659
-Iteration  75 - Cost Function (Variogram Fit) (1.519624 0.362556 1.136892 ) = 0.168795
-Iteration  76 - Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) = 0.175916
-Iteration  77 - Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) = 0.179447
-Iteration  78 - Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) = 0.195731
-Iteration  79 - Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) = 0.177553
-Iteration  80 - Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) = 0.160926
-Iteration  81 - Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) = 0.164059
-Iteration  82 - Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) = 0.183617
-Iteration  83 - Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) = 0.168104
-Iteration  84 - Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) = 0.151279
-Iteration  85 - Cost Function (Variogram Fit) (1.471873 0.359776 1.214161 ) = 0.149502
-Iteration  86 - Cost Function (Variogram Fit) (1.447202 0.338739 1.246203 ) = 0.156845
-Iteration  87 - Cost Function (Variogram Fit) (1.447202 0.338739 1.246203 ) = 0.143874
-Iteration  88 - Cost Function (Variogram Fit) (1.435070 0.362559 1.267035 ) = 0.159463
-Iteration  89 - Cost Function (Variogram Fit) (1.435070 0.362559 1.267035 ) = 0.141125
-Iteration  90 - Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) = 0.176100
-Iteration  91 - Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) = 0.207458
-Iteration  92 - Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) = 0.142505
-Iteration  93 - Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) = 0.142129
-Iteration  94 - Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) = 0.134607
-Iteration  95 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.135540
-Iteration  96 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.139201
-Iteration  97 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.154082
-Iteration  98 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.136245
-Iteration  99 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.137702
-Iteration 100 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.146385
-Iteration 101 - Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) = 0.134551
-Iteration 102 - Cost Function (Variogram Fit) (1.385717 0.324971 1.309860 ) = 0.138418
-Iteration 103 - Cost Function (Variogram Fit) (1.385717 0.324971 1.309860 ) = 0.135098
-Iteration 104 - Cost Function (Variogram Fit) (1.385717 0.324971 1.309860 ) = 0.132856
-Iteration 105 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.133389
-Iteration 106 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.133655
-Iteration 107 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.134301
-Iteration 108 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.133850
-Iteration 109 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.137031
-Iteration 110 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.132876
-Iteration 111 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.133755
-Iteration 112 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.133009
-Iteration 113 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.133010
-Iteration 114 - Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) = 0.132665
-Iteration 115 - Cost Function (Variogram Fit) (1.380170 0.317637 1.308824 ) = 0.132448
-Iteration 116 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132692
-Iteration 117 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.133722
-Iteration 118 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132520
-Iteration 119 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132787
-Iteration 120 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132531
-Iteration 121 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132573
-Iteration 122 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132462
-Iteration 123 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132519
-Iteration 124 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132626
-Iteration 125 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132448
-Iteration 126 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132479
-Iteration 127 - Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) = 0.132435
-Iteration 128 - Cost Function (Variogram Fit) (1.374034 0.310898 1.313025 ) = 0.132457
-Iteration 129 - Cost Function (Variogram Fit) (1.374034 0.310898 1.313025 ) = 0.132431
-Iteration 130 - Cost Function (Variogram Fit) (1.376289 0.312411 1.310297 ) = 0.132463
-Iteration 131 - Cost Function (Variogram Fit) (1.376289 0.312411 1.310297 ) = 0.132428
-Iteration 132 - Cost Function (Variogram Fit) (1.376544 0.311912 1.310113 ) = 0.132475
-Iteration 133 - Cost Function (Variogram Fit) (1.376544 0.311912 1.310113 ) = 0.132427
-Iteration 134 - Cost Function (Variogram Fit) (1.375171 0.311491 1.311125 ) = 0.132467
-Iteration 135 - Cost Function (Variogram Fit) (1.375171 0.311491 1.311125 ) = 0.132424
-Iteration 136 - Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) = 0.132427
-Iteration 137 - Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) = 0.132424
-Iteration 138 - Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) = 0.132431
-Iteration 139 - Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) = 0.132423
-Iteration 140 - Cost Function (Variogram Fit) (1.374713 0.310980 1.311828 ) = 0.132434
-Iteration 141 - Cost Function (Variogram Fit) (1.374713 0.310980 1.311828 ) = 0.132423
-Iteration 142 - Cost Function (Variogram Fit) (1.374790 0.311239 1.311654 ) = 0.132426
-Iteration 143 - Cost Function (Variogram Fit) (1.374790 0.311239 1.311654 ) = 0.132422
-Iteration 144 - Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) = 0.132425
-Iteration 145 - Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) = 0.132422
-Iteration 146 - Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) = 0.132423
-Iteration 147 - Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) = 0.132422
-Iteration 148 - Cost Function (Variogram Fit) (1.374647 0.311049 1.311891 ) = 0.132424
-Iteration 149 - Cost Function (Variogram Fit) (1.374647 0.311049 1.311891 ) = 0.132422
-Iteration 150 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132423
-Iteration 151 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
-Iteration 152 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
-Iteration 153 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
-Iteration 154 - Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) = 0.132422
+Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) : 33.332715 (1)
+Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) : 1245.485669 (2)
+Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) : 13.669548 (3)
+Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) : 249.279915 (4)
+Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) : 18.421205 (5)
+Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) : 65.218865 (6)
+Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) : 22.396529 (7)
+Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) : 35.218297 (8)
+Cost Function (Variogram Fit) (1.816076 1.280937 1.816076 ) : 3.858859 (9)
+Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) : 29.998191 (10)
+Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) : 10.450905 (11)
+Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) : 197.109828 (12)
+Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) : 11.860266 (13)
+Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) : 14.451004 (14)
+Cost Function (Variogram Fit) (1.362057 1.007237 1.967415 ) : 2.615294 (15)
+Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) : 7.946143 (16)
+Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) : 49.088657 (17)
+Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) : 3.175872 (18)
+Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) : 8.748936 (19)
+Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) : 2.617865 (20)
+Cost Function (Variogram Fit) (1.414605 1.222227 1.961110 ) : 1.194558 (21)
+Cost Function (Variogram Fit) (1.471500 1.245726 1.679255 ) : 1.032113 (22)
+Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) : 4.979912 (23)
+Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) : 1.825911 (24)
+Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) : 4.124856 (25)
+Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) : 1.474745 (26)
+Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) : 1.127515 (27)
+Cost Function (Variogram Fit) (1.526222 1.364971 1.535175 ) : 0.522808 (28)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 1.464017 (29)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 1.192943 (30)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.944583 (31)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.532956 (32)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.826472 (33)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 1.697632 (34)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.577516 (35)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.785499 (36)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.598920 (37)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.578187 (38)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.528055 (39)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.682116 (40)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.524511 (41)
+Cost Function (Variogram Fit) (1.662746 1.326763 1.315124 ) : 0.498514 (42)
+Cost Function (Variogram Fit) (1.674060 1.273789 1.215058 ) : 0.486801 (43)
+Cost Function (Variogram Fit) (1.678448 1.164343 1.147429 ) : 0.475508 (44)
+Cost Function (Variogram Fit) (1.649470 1.183543 1.244233 ) : 0.451237 (45)
+Cost Function (Variogram Fit) (1.631552 1.067568 1.240521 ) : 0.456624 (46)
+Cost Function (Variogram Fit) (1.631552 1.067568 1.240521 ) : 0.387519 (47)
+Cost Function (Variogram Fit) (1.646718 0.804512 1.068467 ) : 0.387063 (48)
+Cost Function (Variogram Fit) (1.638704 0.543386 0.945138 ) : 0.290878 (49)
+Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) : 0.583761 (50)
+Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) : 0.324612 (51)
+Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) : 1.599024 (52)
+Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) : 0.363338 (53)
+Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) : 0.327980 (54)
+Cost Function (Variogram Fit) (1.604522 0.552961 1.101301 ) : 0.277216 (55)
+Cost Function (Variogram Fit) (1.562029 0.340536 1.081963 ) : 1.092177 (56)
+Cost Function (Variogram Fit) (1.562029 0.340536 1.081963 ) : 0.595210 (57)
+Cost Function (Variogram Fit) (1.562029 0.340536 1.081963 ) : 0.260804 (58)
+Cost Function (Variogram Fit) (1.581827 0.565718 1.136560 ) : 0.482694 (59)
+Cost Function (Variogram Fit) (1.581827 0.565718 1.136560 ) : 0.254261 (60)
+Cost Function (Variogram Fit) (1.589224 0.482007 1.055240 ) : 0.224908 (61)
+Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) : 0.312571 (62)
+Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) : 0.294693 (63)
+Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) : 0.230257 (64)
+Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) : 0.392027 (65)
+Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) : 0.231708 (66)
+Cost Function (Variogram Fit) (1.550865 0.372547 1.081208 ) : 0.219736 (67)
+Cost Function (Variogram Fit) (1.540416 0.366421 1.126844 ) : 0.287603 (68)
+Cost Function (Variogram Fit) (1.540416 0.366421 1.126844 ) : 0.323751 (69)
+Cost Function (Variogram Fit) (1.540416 0.366421 1.126844 ) : 0.217184 (70)
+Cost Function (Variogram Fit) (1.564344 0.437548 1.101806 ) : 0.197514 (71)
+Cost Function (Variogram Fit) (1.535750 0.377364 1.120089 ) : 0.186373 (72)
+Cost Function (Variogram Fit) (1.519624 0.362556 1.136892 ) : 0.204526 (73)
+Cost Function (Variogram Fit) (1.519624 0.362556 1.136892 ) : 0.190659 (74)
+Cost Function (Variogram Fit) (1.519624 0.362556 1.136892 ) : 0.168795 (75)
+Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) : 0.175916 (76)
+Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) : 0.179447 (77)
+Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) : 0.195731 (78)
+Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) : 0.177553 (79)
+Cost Function (Variogram Fit) (1.494734 0.365628 1.191522 ) : 0.160926 (80)
+Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) : 0.164059 (81)
+Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) : 0.183617 (82)
+Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) : 0.168104 (83)
+Cost Function (Variogram Fit) (1.492435 0.396898 1.190972 ) : 0.151279 (84)
+Cost Function (Variogram Fit) (1.471873 0.359776 1.214161 ) : 0.149502 (85)
+Cost Function (Variogram Fit) (1.447202 0.338739 1.246203 ) : 0.156845 (86)
+Cost Function (Variogram Fit) (1.447202 0.338739 1.246203 ) : 0.143874 (87)
+Cost Function (Variogram Fit) (1.435070 0.362559 1.267035 ) : 0.159463 (88)
+Cost Function (Variogram Fit) (1.435070 0.362559 1.267035 ) : 0.141125 (89)
+Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) : 0.176100 (90)
+Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) : 0.207458 (91)
+Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) : 0.142505 (92)
+Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) : 0.142129 (93)
+Cost Function (Variogram Fit) (1.406858 0.322681 1.290632 ) : 0.134607 (94)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.135540 (95)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.139201 (96)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.154082 (97)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.136245 (98)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.137702 (99)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.146385 (100)
+Cost Function (Variogram Fit) (1.410212 0.330953 1.275506 ) : 0.134551 (101)
+Cost Function (Variogram Fit) (1.385717 0.324971 1.309860 ) : 0.138418 (102)
+Cost Function (Variogram Fit) (1.385717 0.324971 1.309860 ) : 0.135098 (103)
+Cost Function (Variogram Fit) (1.385717 0.324971 1.309860 ) : 0.132856 (104)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.133389 (105)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.133655 (106)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.134301 (107)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.133850 (108)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.137031 (109)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.132876 (110)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.133755 (111)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.133009 (112)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.133010 (113)
+Cost Function (Variogram Fit) (1.387492 0.319187 1.298366 ) : 0.132665 (114)
+Cost Function (Variogram Fit) (1.380170 0.317637 1.308824 ) : 0.132448 (115)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132692 (116)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.133722 (117)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132520 (118)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132787 (119)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132531 (120)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132573 (121)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132462 (122)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132519 (123)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132626 (124)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132448 (125)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132479 (126)
+Cost Function (Variogram Fit) (1.374720 0.311242 1.311105 ) : 0.132435 (127)
+Cost Function (Variogram Fit) (1.374034 0.310898 1.313025 ) : 0.132457 (128)
+Cost Function (Variogram Fit) (1.374034 0.310898 1.313025 ) : 0.132431 (129)
+Cost Function (Variogram Fit) (1.376289 0.312411 1.310297 ) : 0.132463 (130)
+Cost Function (Variogram Fit) (1.376289 0.312411 1.310297 ) : 0.132428 (131)
+Cost Function (Variogram Fit) (1.376544 0.311912 1.310113 ) : 0.132475 (132)
+Cost Function (Variogram Fit) (1.376544 0.311912 1.310113 ) : 0.132427 (133)
+Cost Function (Variogram Fit) (1.375171 0.311491 1.311125 ) : 0.132467 (134)
+Cost Function (Variogram Fit) (1.375171 0.311491 1.311125 ) : 0.132424 (135)
+Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) : 0.132427 (136)
+Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) : 0.132424 (137)
+Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) : 0.132431 (138)
+Cost Function (Variogram Fit) (1.375018 0.311418 1.311769 ) : 0.132423 (139)
+Cost Function (Variogram Fit) (1.374713 0.310980 1.311828 ) : 0.132434 (140)
+Cost Function (Variogram Fit) (1.374713 0.310980 1.311828 ) : 0.132423 (141)
+Cost Function (Variogram Fit) (1.374790 0.311239 1.311654 ) : 0.132426 (142)
+Cost Function (Variogram Fit) (1.374790 0.311239 1.311654 ) : 0.132422 (143)
+Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) : 0.132425 (144)
+Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) : 0.132422 (145)
+Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) : 0.132423 (146)
+Cost Function (Variogram Fit) (1.374167 0.310888 1.312352 ) : 0.132422 (147)
+Cost Function (Variogram Fit) (1.374647 0.311049 1.311891 ) : 0.132424 (148)
+Cost Function (Variogram Fit) (1.374647 0.311049 1.311891 ) : 0.132422 (149)
+Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) : 0.132423 (150)
+Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) : 0.132422 (151)
+Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) : 0.132422 (152)
+Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) : 0.132422 (153)
+Cost Function (Variogram Fit) (1.374662 0.311147 1.311844 ) : 0.132422 (154)
 
 Model characteristics
 =====================
@@ -231,252 +231,252 @@ Fitting a Model using Loglikelihood (Covariance)
 
 List of the Model parameters to be infered
 ------------------------------------------
-Covariance 0 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Range - Rank = 0 - Scale = 1.000000 - Current = 1.000000
-Covariance 1 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+Covariance 0 - Sill(0) - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Range(0) - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Sill(0) - Scale = 1.000000 - Current = 1.000000
 
-Iteration   1 - Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) = 204640.781437
-Iteration   2 - Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) = 57654.628963
-Iteration   3 - Cost Function (Likelihood) (-0.049838 1.397211 -0.024919 ) = 60470.926916
-Iteration   4 - Cost Function (Likelihood) (-0.049838 1.397211 -0.024919 ) = 51029.722166
-Iteration   5 - Cost Function (Likelihood) (-0.049838 1.397211 -0.049838 ) = 26182.475643
-Iteration   6 - Cost Function (Likelihood) (-0.074758 2.092324 -0.041532 ) = 15033.777660
-Iteration   7 - Cost Function (Likelihood) (-0.099677 2.439880 -0.049838 ) = 18854.275781
-Iteration   8 - Cost Function (Likelihood) (-0.099677 2.439880 -0.049838 ) = 12469.827773
-Iteration   9 - Cost Function (Likelihood) (-0.105214 1.860620 -0.080295 ) = 7832.419444
-Iteration  10 - Cost Function (Likelihood) (-0.132902 2.092324 -0.107983 ) = 5641.323328
-Iteration  11 - Cost Function (Likelihood) (-0.160590 2.324028 -0.094139 ) = 3182.631957
-Iteration  12 - Cost Function (Likelihood) (-0.215966 2.787437 -0.116290 ) = 3232.920273
-Iteration  13 - Cost Function (Likelihood) (-0.215966 2.787437 -0.116290 ) = 1930.431905
-Iteration  14 - Cost Function (Likelihood) (-0.276880 3.366697 -0.182741 ) = 1129.236874
-Iteration  15 - Cost Function (Likelihood) (-0.365481 3.830106 -0.249192 ) = 984.798347
-Iteration  16 - Cost Function (Likelihood) (-0.398707 4.872775 -0.218735 ) = 591.805860
-Iteration  17 - Cost Function (Likelihood) (-0.531609 6.263000 -0.274111 ) = 592.453046
-Iteration  18 - Cost Function (Likelihood) (-0.531609 6.263000 -0.274111 ) = 357.957720
-Iteration  19 - Cost Function (Likelihood) (-0.732809 7.112582 -0.433778 ) = 255.978656
-Iteration  20 - Cost Function (Likelihood) (-0.991230 9.275155 -0.592523 ) = 254.684159
-Iteration  21 - Cost Function (Likelihood) (-1.000459 9.699946 -0.529764 ) = 214.772467
-Iteration  22 - Cost Function (Likelihood) (-1.317948 12.634866 -0.670049 ) = 211.931089
-Iteration  23 - Cost Function (Likelihood) (-1.367787 14.025091 -0.722657 ) = 202.907815
-Iteration  24 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 206.366937
-Iteration  25 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 212.383837
-Iteration  26 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 222.580161
-Iteration  27 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 202.955482
-Iteration  28 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 217.344352
-Iteration  29 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 206.781534
-Iteration  30 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 204.430561
-Iteration  31 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 222.661287
-Iteration  32 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 203.509854
-Iteration  33 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 204.564121
-Iteration  34 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 203.133163
-Iteration  35 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 205.518170
-Iteration  36 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 202.955008
-Iteration  37 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 203.052974
-Iteration  38 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 202.920962
-Iteration  39 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 203.200428
-Iteration  40 - Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) = 202.882774
-Iteration  41 - Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) = 202.963250
-Iteration  42 - Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) = 202.904380
-Iteration  43 - Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) = 202.934473
-Iteration  44 - Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) = 202.894412
-Iteration  45 - Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) = 202.894504
-Iteration  46 - Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) = 202.865088
-Iteration  47 - Cost Function (Likelihood) (-1.799760 17.646596 -0.924660 ) = 202.864253
-Iteration  48 - Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) = 202.943050
-Iteration  49 - Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) = 202.873010
-Iteration  50 - Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) = 202.871412
-Iteration  51 - Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) = 202.836497
-Iteration  52 - Cost Function (Likelihood) (-1.795638 16.816255 -0.908236 ) = 202.814228
-Iteration  53 - Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) = 202.875857
-Iteration  54 - Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) = 202.852871
-Iteration  55 - Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) = 202.844638
-Iteration  56 - Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) = 202.834129
-Iteration  57 - Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) = 202.812586
-Iteration  58 - Cost Function (Likelihood) (-1.828893 15.976761 -0.895596 ) = 202.808212
-Iteration  59 - Cost Function (Likelihood) (-1.842733 15.314511 -0.882348 ) = 202.773564
-Iteration  60 - Cost Function (Likelihood) (-1.828578 14.982233 -0.884419 ) = 202.735278
-Iteration  61 - Cost Function (Likelihood) (-1.833862 13.921710 -0.870178 ) = 202.714847
-Iteration  62 - Cost Function (Likelihood) (-1.823512 13.872718 -0.852446 ) = 202.645589
-Iteration  63 - Cost Function (Likelihood) (-1.821572 12.560897 -0.821171 ) = 202.692738
-Iteration  64 - Cost Function (Likelihood) (-1.821572 12.560897 -0.821171 ) = 202.519073
-Iteration  65 - Cost Function (Likelihood) (-1.838015 10.038794 -0.789993 ) = 202.281253
-Iteration  66 - Cost Function (Likelihood) (-1.835655 7.400936 -0.743815 ) = 202.282520
-Iteration  67 - Cost Function (Likelihood) (-1.835655 7.400936 -0.743815 ) = 202.121513
-Iteration  68 - Cost Function (Likelihood) (-1.804519 6.483480 -0.704777 ) = 201.608198
-Iteration  69 - Cost Function (Likelihood) (-1.773934 3.951545 -0.648585 ) = 202.599028
-Iteration  70 - Cost Function (Likelihood) (-1.773934 3.951545 -0.648585 ) = 201.308797
-Iteration  71 - Cost Function (Likelihood) (-1.818049 2.937998 -0.644575 ) = 200.952100
-Iteration  72 - Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) = 201.223939
-Iteration  73 - Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) = 202.437219
-Iteration  74 - Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) = 201.929684
-Iteration  75 - Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) = 199.456250
-Iteration  76 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 202.437219
-Iteration  77 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 199.604048
-Iteration  78 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 202.434138
-Iteration  79 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 200.778439
-Iteration  80 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 202.528891
-Iteration  81 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 200.475852
-Iteration  82 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 202.449152
-Iteration  83 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 200.283909
-Iteration  84 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 201.925826
-Iteration  85 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 200.035892
-Iteration  86 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 200.424139
-Iteration  87 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 199.861552
-Iteration  88 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 199.547178
-Iteration  89 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 202.472387
-Iteration  90 - Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) = 199.335326
-Iteration  91 - Cost Function (Likelihood) (-1.781296 0.857036 -0.604244 ) = 199.697948
-Iteration  92 - Cost Function (Likelihood) (-1.781296 0.857036 -0.604244 ) = 198.947428
-Iteration  93 - Cost Function (Likelihood) (-1.784508 0.490151 -0.600615 ) = 199.903674
-Iteration  94 - Cost Function (Likelihood) (-1.784508 0.490151 -0.600615 ) = 198.927161
-Iteration  95 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 199.615800
-Iteration  96 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 199.207674
-Iteration  97 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 199.149009
-Iteration  98 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 201.509796
-Iteration  99 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 198.985754
-Iteration 100 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 199.171701
-Iteration 101 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 198.941975
-Iteration 102 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 199.184859
-Iteration 103 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 198.935825
-Iteration 104 - Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) = 198.902745
-Iteration 105 - Cost Function (Likelihood) (-1.771744 0.530544 -0.591024 ) = 198.892848
-Iteration 106 - Cost Function (Likelihood) (-1.765362 0.550741 -0.586228 ) = 198.988908
-Iteration 107 - Cost Function (Likelihood) (-1.765362 0.550741 -0.586228 ) = 198.912250
-Iteration 108 - Cost Function (Likelihood) (-1.765362 0.550741 -0.586228 ) = 198.891167
-Iteration 109 - Cost Function (Likelihood) (-1.768398 0.491999 -0.587037 ) = 198.893417
-Iteration 110 - Cost Function (Likelihood) (-1.768398 0.491999 -0.587037 ) = 198.867308
-Iteration 111 - Cost Function (Likelihood) (-1.761174 0.500403 -0.582246 ) = 198.849078
-Iteration 112 - Cost Function (Likelihood) (-1.752477 0.487724 -0.575452 ) = 198.847291
-Iteration 113 - Cost Function (Likelihood) (-1.748306 0.523807 -0.571958 ) = 198.842384
-Iteration 114 - Cost Function (Likelihood) (-1.734533 0.537460 -0.561010 ) = 198.848664
-Iteration 115 - Cost Function (Likelihood) (-1.734533 0.537460 -0.561010 ) = 198.841993
-Iteration 116 - Cost Function (Likelihood) (-1.715105 0.498600 -0.545785 ) = 198.912863
-Iteration 117 - Cost Function (Likelihood) (-1.715105 0.498600 -0.545785 ) = 198.866852
-Iteration 118 - Cost Function (Likelihood) (-1.715105 0.498600 -0.545785 ) = 198.834704
-Iteration 119 - Cost Function (Likelihood) (-1.740886 0.493325 -0.565987 ) = 198.854452
-Iteration 120 - Cost Function (Likelihood) (-1.740886 0.493325 -0.565987 ) = 198.834640
-Iteration 121 - Cost Function (Likelihood) (-1.734209 0.485255 -0.560182 ) = 198.853894
-Iteration 122 - Cost Function (Likelihood) (-1.734209 0.485255 -0.560182 ) = 198.833494
-Iteration 123 - Cost Function (Likelihood) (-1.732300 0.514926 -0.559164 ) = 198.859735
-Iteration 124 - Cost Function (Likelihood) (-1.732300 0.514926 -0.559164 ) = 198.832510
-Iteration 125 - Cost Function (Likelihood) (-1.725451 0.498218 -0.553781 ) = 198.839013
-Iteration 126 - Cost Function (Likelihood) (-1.725451 0.498218 -0.553781 ) = 198.832048
-Iteration 127 - Cost Function (Likelihood) (-1.735770 0.496395 -0.561848 ) = 198.833611
-Iteration 128 - Cost Function (Likelihood) (-1.735770 0.496395 -0.561848 ) = 198.831854
-Iteration 129 - Cost Function (Likelihood) (-1.729656 0.512142 -0.557305 ) = 198.831091
-Iteration 130 - Cost Function (Likelihood) (-1.728285 0.489577 -0.556126 ) = 198.834029
-Iteration 131 - Cost Function (Likelihood) (-1.728285 0.489577 -0.556126 ) = 198.831585
-Iteration 132 - Cost Function (Likelihood) (-1.728285 0.489577 -0.556126 ) = 198.830197
-Iteration 133 - Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) = 198.831893
-Iteration 134 - Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) = 198.830785
-Iteration 135 - Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) = 198.834156
-Iteration 136 - Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) = 198.830025
-Iteration 137 - Cost Function (Likelihood) (-1.733188 0.496819 -0.560089 ) = 198.829147
-Iteration 138 - Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) = 198.829918
-Iteration 139 - Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) = 198.831937
-Iteration 140 - Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) = 198.829542
-Iteration 141 - Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) = 198.832248
-Iteration 142 - Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) = 198.829384
-Iteration 143 - Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) = 198.828453
-Iteration 144 - Cost Function (Likelihood) (-1.730663 0.500151 -0.558415 ) = 198.827928
-Iteration 145 - Cost Function (Likelihood) (-1.729401 0.501818 -0.557579 ) = 198.828920
-Iteration 146 - Cost Function (Likelihood) (-1.729401 0.501818 -0.557579 ) = 198.827686
-Iteration 147 - Cost Function (Likelihood) (-1.732075 0.507795 -0.559869 ) = 198.827208
-Iteration 148 - Cost Function (Likelihood) (-1.733000 0.511151 -0.560852 ) = 198.827625
-Iteration 149 - Cost Function (Likelihood) (-1.733000 0.511151 -0.560852 ) = 198.825519
-Iteration 150 - Cost Function (Likelihood) (-1.730006 0.507857 -0.558689 ) = 198.823841
-Iteration 151 - Cost Function (Likelihood) (-1.729831 0.506774 -0.558861 ) = 198.825242
-Iteration 152 - Cost Function (Likelihood) (-1.729831 0.506774 -0.558861 ) = 198.823752
-Iteration 153 - Cost Function (Likelihood) (-1.734576 0.511011 -0.562894 ) = 198.823321
-Iteration 154 - Cost Function (Likelihood) (-1.737792 0.509591 -0.565780 ) = 198.819594
-Iteration 155 - Cost Function (Likelihood) (-1.732915 0.512670 -0.562449 ) = 198.815823
-Iteration 156 - Cost Function (Likelihood) (-1.732872 0.513430 -0.563248 ) = 198.817395
-Iteration 157 - Cost Function (Likelihood) (-1.732872 0.513430 -0.563248 ) = 198.816403
-Iteration 158 - Cost Function (Likelihood) (-1.732872 0.513430 -0.563248 ) = 198.808356
-Iteration 159 - Cost Function (Likelihood) (-1.735362 0.505631 -0.566654 ) = 198.801011
-Iteration 160 - Cost Function (Likelihood) (-1.734147 0.503650 -0.567091 ) = 198.804557
-Iteration 161 - Cost Function (Likelihood) (-1.734147 0.503650 -0.567091 ) = 198.800640
-Iteration 162 - Cost Function (Likelihood) (-1.727796 0.513699 -0.562380 ) = 198.798062
-Iteration 163 - Cost Function (Likelihood) (-1.721138 0.516096 -0.558342 ) = 198.782588
-Iteration 164 - Cost Function (Likelihood) (-1.728210 0.510951 -0.566318 ) = 198.766268
-Iteration 165 - Cost Function (Likelihood) (-1.725879 0.509712 -0.567853 ) = 198.775995
-Iteration 166 - Cost Function (Likelihood) (-1.725879 0.509712 -0.567853 ) = 198.769154
-Iteration 167 - Cost Function (Likelihood) (-1.725879 0.509712 -0.567853 ) = 198.739331
-Iteration 168 - Cost Function (Likelihood) (-1.713992 0.502542 -0.564855 ) = 198.711188
-Iteration 169 - Cost Function (Likelihood) (-1.710419 0.495765 -0.568112 ) = 198.717669
-Iteration 170 - Cost Function (Likelihood) (-1.710419 0.495765 -0.568112 ) = 198.700394
-Iteration 171 - Cost Function (Likelihood) (-1.723460 0.495637 -0.579444 ) = 198.679494
-Iteration 172 - Cost Function (Likelihood) (-1.730667 0.485741 -0.590666 ) = 198.631633
-Iteration 173 - Cost Function (Likelihood) (-1.709817 0.485374 -0.583800 ) = 198.569638
-Iteration 174 - Cost Function (Likelihood) (-1.701785 0.473206 -0.591773 ) = 198.592605
-Iteration 175 - Cost Function (Likelihood) (-1.701785 0.473206 -0.591773 ) = 198.534411
-Iteration 176 - Cost Function (Likelihood) (-1.721964 0.449321 -0.619068 ) = 198.487343
-Iteration 177 - Cost Function (Likelihood) (-1.727737 0.426099 -0.644546 ) = 198.415327
-Iteration 178 - Cost Function (Likelihood) (-1.699763 0.419584 -0.632435 ) = 198.328809
-Iteration 179 - Cost Function (Likelihood) (-1.684312 0.386506 -0.653319 ) = 198.306776
-Iteration 180 - Cost Function (Likelihood) (-1.693099 0.398525 -0.661427 ) = 198.215970
-Iteration 181 - Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) = 198.358903
-Iteration 182 - Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) = 198.297311
-Iteration 183 - Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) = 198.233392
-Iteration 184 - Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) = 198.155718
-Iteration 185 - Cost Function (Likelihood) (-1.631732 0.303711 -0.742588 ) = 198.253877
-Iteration 186 - Cost Function (Likelihood) (-1.631732 0.303711 -0.742588 ) = 198.227003
-Iteration 187 - Cost Function (Likelihood) (-1.631732 0.303711 -0.742588 ) = 198.117786
-Iteration 188 - Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) = 198.153987
-Iteration 189 - Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) = 198.413868
-Iteration 190 - Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) = 198.145739
-Iteration 191 - Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) = 198.061545
-Iteration 192 - Cost Function (Likelihood) (-1.626646 0.314975 -0.750030 ) = 198.076459
-Iteration 193 - Cost Function (Likelihood) (-1.626646 0.314975 -0.750030 ) = 198.102712
-Iteration 194 - Cost Function (Likelihood) (-1.626646 0.314975 -0.750030 ) = 198.050091
-Iteration 195 - Cost Function (Likelihood) (-1.651682 0.320881 -0.772041 ) = 198.100922
-Iteration 196 - Cost Function (Likelihood) (-1.651682 0.320881 -0.772041 ) = 197.975042
-Iteration 197 - Cost Function (Likelihood) (-1.631481 0.337548 -0.750754 ) = 197.926869
-Iteration 198 - Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) = 198.172057
-Iteration 199 - Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) = 198.024178
-Iteration 200 - Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) = 197.941298
-Iteration 201 - Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) = 197.923754
-Iteration 202 - Cost Function (Likelihood) (-1.624827 0.377678 -0.728731 ) = 197.955114
-Iteration 203 - Cost Function (Likelihood) (-1.624827 0.377678 -0.728731 ) = 197.828321
-Iteration 204 - Cost Function (Likelihood) (-1.606910 0.358236 -0.765139 ) = 197.765294
-Iteration 205 - Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) = 197.887353
-Iteration 206 - Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) = 197.833585
-Iteration 207 - Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) = 197.840955
-Iteration 208 - Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) = 197.710447
-Iteration 209 - Cost Function (Likelihood) (-1.552630 0.388829 -0.796943 ) = 197.656185
-Iteration 210 - Cost Function (Likelihood) (-1.546963 0.405337 -0.818703 ) = 197.741658
-Iteration 211 - Cost Function (Likelihood) (-1.546963 0.405337 -0.818703 ) = 197.610679
-Iteration 212 - Cost Function (Likelihood) (-1.593594 0.389100 -0.831557 ) = 197.584344
-Iteration 213 - Cost Function (Likelihood) (-1.605529 0.386281 -0.872372 ) = 197.559332
-Iteration 214 - Cost Function (Likelihood) (-1.592804 0.441821 -0.860945 ) = 197.565525
-Iteration 215 - Cost Function (Likelihood) (-1.592804 0.441821 -0.860945 ) = 197.485916
-Iteration 216 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.515053
-Iteration 217 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.600299
-Iteration 218 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.535216
-Iteration 219 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.513783
-Iteration 220 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.491249
-Iteration 221 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.587952
-Iteration 222 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.492801
-Iteration 223 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.500614
-Iteration 224 - Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) = 197.482781
-Iteration 225 - Cost Function (Likelihood) (-1.557271 0.396168 -0.964045 ) = 197.494990
-Iteration 226 - Cost Function (Likelihood) (-1.557271 0.396168 -0.964045 ) = 197.482127
-Iteration 227 - Cost Function (Likelihood) (-1.563361 0.416093 -0.950557 ) = 197.504574
-Iteration 228 - Cost Function (Likelihood) (-1.563361 0.416093 -0.950557 ) = 197.480905
-Iteration 229 - Cost Function (Likelihood) (-1.551234 0.412921 -0.972314 ) = 197.502426
-Iteration 230 - Cost Function (Likelihood) (-1.551234 0.412921 -0.972314 ) = 197.479429
-Iteration 231 - Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) = 197.485214
-Iteration 232 - Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) = 197.479845
-Iteration 233 - Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) = 197.480005
-Iteration 234 - Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) = 197.480445
-Iteration 235 - Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) = 197.478916
-Iteration 236 - Cost Function (Likelihood) (-1.551732 0.401951 -0.950851 ) = 197.483116
-Iteration 237 - Cost Function (Likelihood) (-1.551732 0.401951 -0.950851 ) = 197.478652
-Iteration 238 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.481188
-Iteration 239 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.478761
-Iteration 240 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.480091
-Iteration 241 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.478705
-Iteration 242 - Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) = 197.478719
+Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) : 204640.781437 (1)
+Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) : 57654.628963 (2)
+Cost Function (Likelihood) (-0.049838 1.397211 -0.024919 ) : 60470.926916 (3)
+Cost Function (Likelihood) (-0.049838 1.397211 -0.024919 ) : 51029.722166 (4)
+Cost Function (Likelihood) (-0.049838 1.397211 -0.049838 ) : 26182.475643 (5)
+Cost Function (Likelihood) (-0.074758 2.092324 -0.041532 ) : 15033.777660 (6)
+Cost Function (Likelihood) (-0.099677 2.439880 -0.049838 ) : 18854.275781 (7)
+Cost Function (Likelihood) (-0.099677 2.439880 -0.049838 ) : 12469.827773 (8)
+Cost Function (Likelihood) (-0.105214 1.860620 -0.080295 ) : 7832.419444 (9)
+Cost Function (Likelihood) (-0.132902 2.092324 -0.107983 ) : 5641.323328 (10)
+Cost Function (Likelihood) (-0.160590 2.324028 -0.094139 ) : 3182.631957 (11)
+Cost Function (Likelihood) (-0.215966 2.787437 -0.116290 ) : 3232.920273 (12)
+Cost Function (Likelihood) (-0.215966 2.787437 -0.116290 ) : 1930.431905 (13)
+Cost Function (Likelihood) (-0.276880 3.366697 -0.182741 ) : 1129.236874 (14)
+Cost Function (Likelihood) (-0.365481 3.830106 -0.249192 ) : 984.798347 (15)
+Cost Function (Likelihood) (-0.398707 4.872775 -0.218735 ) : 591.805860 (16)
+Cost Function (Likelihood) (-0.531609 6.263000 -0.274111 ) : 592.453046 (17)
+Cost Function (Likelihood) (-0.531609 6.263000 -0.274111 ) : 357.957720 (18)
+Cost Function (Likelihood) (-0.732809 7.112582 -0.433778 ) : 255.978656 (19)
+Cost Function (Likelihood) (-0.991230 9.275155 -0.592523 ) : 254.684159 (20)
+Cost Function (Likelihood) (-1.000459 9.699946 -0.529764 ) : 214.772467 (21)
+Cost Function (Likelihood) (-1.317948 12.634866 -0.670049 ) : 211.931089 (22)
+Cost Function (Likelihood) (-1.367787 14.025091 -0.722657 ) : 202.907815 (23)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 206.366937 (24)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 212.383837 (25)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 222.580161 (26)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 202.955482 (27)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 217.344352 (28)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 206.781534 (29)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 204.430561 (30)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 222.661287 (31)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 203.509854 (32)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 204.564121 (33)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 203.133163 (34)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 205.518170 (35)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 202.955008 (36)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 203.052974 (37)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 202.920962 (38)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 203.200428 (39)
+Cost Function (Likelihood) (-1.788644 18.659176 -0.933085 ) : 202.882774 (40)
+Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) : 202.963250 (41)
+Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) : 202.904380 (42)
+Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) : 202.934473 (43)
+Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) : 202.894412 (44)
+Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) : 202.894504 (45)
+Cost Function (Likelihood) (-1.787399 17.813974 -0.927433 ) : 202.865088 (46)
+Cost Function (Likelihood) (-1.799760 17.646596 -0.924660 ) : 202.864253 (47)
+Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) : 202.943050 (48)
+Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) : 202.873010 (49)
+Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) : 202.871412 (50)
+Cost Function (Likelihood) (-1.785263 17.318263 -0.907425 ) : 202.836497 (51)
+Cost Function (Likelihood) (-1.795638 16.816255 -0.908236 ) : 202.814228 (52)
+Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) : 202.875857 (53)
+Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) : 202.852871 (54)
+Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) : 202.844638 (55)
+Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) : 202.834129 (56)
+Cost Function (Likelihood) (-1.799758 16.317395 -0.898637 ) : 202.812586 (57)
+Cost Function (Likelihood) (-1.828893 15.976761 -0.895596 ) : 202.808212 (58)
+Cost Function (Likelihood) (-1.842733 15.314511 -0.882348 ) : 202.773564 (59)
+Cost Function (Likelihood) (-1.828578 14.982233 -0.884419 ) : 202.735278 (60)
+Cost Function (Likelihood) (-1.833862 13.921710 -0.870178 ) : 202.714847 (61)
+Cost Function (Likelihood) (-1.823512 13.872718 -0.852446 ) : 202.645589 (62)
+Cost Function (Likelihood) (-1.821572 12.560897 -0.821171 ) : 202.692738 (63)
+Cost Function (Likelihood) (-1.821572 12.560897 -0.821171 ) : 202.519073 (64)
+Cost Function (Likelihood) (-1.838015 10.038794 -0.789993 ) : 202.281253 (65)
+Cost Function (Likelihood) (-1.835655 7.400936 -0.743815 ) : 202.282520 (66)
+Cost Function (Likelihood) (-1.835655 7.400936 -0.743815 ) : 202.121513 (67)
+Cost Function (Likelihood) (-1.804519 6.483480 -0.704777 ) : 201.608198 (68)
+Cost Function (Likelihood) (-1.773934 3.951545 -0.648585 ) : 202.599028 (69)
+Cost Function (Likelihood) (-1.773934 3.951545 -0.648585 ) : 201.308797 (70)
+Cost Function (Likelihood) (-1.818049 2.937998 -0.644575 ) : 200.952100 (71)
+Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) : 201.223939 (72)
+Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) : 202.437219 (73)
+Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) : 201.929684 (74)
+Cost Function (Likelihood) (-1.770345 2.442573 -0.640063 ) : 199.456250 (75)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 202.437219 (76)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 199.604048 (77)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 202.434138 (78)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 200.778439 (79)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 202.528891 (80)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 200.475852 (81)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 202.449152 (82)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 200.283909 (83)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 201.925826 (84)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 200.035892 (85)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 200.424139 (86)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 199.861552 (87)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 199.547178 (88)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 202.472387 (89)
+Cost Function (Likelihood) (-1.763336 0.965590 -0.594704 ) : 199.335326 (90)
+Cost Function (Likelihood) (-1.781296 0.857036 -0.604244 ) : 199.697948 (91)
+Cost Function (Likelihood) (-1.781296 0.857036 -0.604244 ) : 198.947428 (92)
+Cost Function (Likelihood) (-1.784508 0.490151 -0.600615 ) : 199.903674 (93)
+Cost Function (Likelihood) (-1.784508 0.490151 -0.600615 ) : 198.927161 (94)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 199.615800 (95)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 199.207674 (96)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 199.149009 (97)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 201.509796 (98)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 198.985754 (99)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 199.171701 (100)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 198.941975 (101)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 199.184859 (102)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 198.935825 (103)
+Cost Function (Likelihood) (-1.778567 0.525759 -0.595833 ) : 198.902745 (104)
+Cost Function (Likelihood) (-1.771744 0.530544 -0.591024 ) : 198.892848 (105)
+Cost Function (Likelihood) (-1.765362 0.550741 -0.586228 ) : 198.988908 (106)
+Cost Function (Likelihood) (-1.765362 0.550741 -0.586228 ) : 198.912250 (107)
+Cost Function (Likelihood) (-1.765362 0.550741 -0.586228 ) : 198.891167 (108)
+Cost Function (Likelihood) (-1.768398 0.491999 -0.587037 ) : 198.893417 (109)
+Cost Function (Likelihood) (-1.768398 0.491999 -0.587037 ) : 198.867308 (110)
+Cost Function (Likelihood) (-1.761174 0.500403 -0.582246 ) : 198.849078 (111)
+Cost Function (Likelihood) (-1.752477 0.487724 -0.575452 ) : 198.847291 (112)
+Cost Function (Likelihood) (-1.748306 0.523807 -0.571958 ) : 198.842384 (113)
+Cost Function (Likelihood) (-1.734533 0.537460 -0.561010 ) : 198.848664 (114)
+Cost Function (Likelihood) (-1.734533 0.537460 -0.561010 ) : 198.841993 (115)
+Cost Function (Likelihood) (-1.715105 0.498600 -0.545785 ) : 198.912863 (116)
+Cost Function (Likelihood) (-1.715105 0.498600 -0.545785 ) : 198.866852 (117)
+Cost Function (Likelihood) (-1.715105 0.498600 -0.545785 ) : 198.834704 (118)
+Cost Function (Likelihood) (-1.740886 0.493325 -0.565987 ) : 198.854452 (119)
+Cost Function (Likelihood) (-1.740886 0.493325 -0.565987 ) : 198.834640 (120)
+Cost Function (Likelihood) (-1.734209 0.485255 -0.560182 ) : 198.853894 (121)
+Cost Function (Likelihood) (-1.734209 0.485255 -0.560182 ) : 198.833494 (122)
+Cost Function (Likelihood) (-1.732300 0.514926 -0.559164 ) : 198.859735 (123)
+Cost Function (Likelihood) (-1.732300 0.514926 -0.559164 ) : 198.832510 (124)
+Cost Function (Likelihood) (-1.725451 0.498218 -0.553781 ) : 198.839013 (125)
+Cost Function (Likelihood) (-1.725451 0.498218 -0.553781 ) : 198.832048 (126)
+Cost Function (Likelihood) (-1.735770 0.496395 -0.561848 ) : 198.833611 (127)
+Cost Function (Likelihood) (-1.735770 0.496395 -0.561848 ) : 198.831854 (128)
+Cost Function (Likelihood) (-1.729656 0.512142 -0.557305 ) : 198.831091 (129)
+Cost Function (Likelihood) (-1.728285 0.489577 -0.556126 ) : 198.834029 (130)
+Cost Function (Likelihood) (-1.728285 0.489577 -0.556126 ) : 198.831585 (131)
+Cost Function (Likelihood) (-1.728285 0.489577 -0.556126 ) : 198.830197 (132)
+Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) : 198.831893 (133)
+Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) : 198.830785 (134)
+Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) : 198.834156 (135)
+Cost Function (Likelihood) (-1.727539 0.505101 -0.555820 ) : 198.830025 (136)
+Cost Function (Likelihood) (-1.733188 0.496819 -0.560089 ) : 198.829147 (137)
+Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) : 198.829918 (138)
+Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) : 198.831937 (139)
+Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) : 198.829542 (140)
+Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) : 198.832248 (141)
+Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) : 198.829384 (142)
+Cost Function (Likelihood) (-1.733694 0.501477 -0.560729 ) : 198.828453 (143)
+Cost Function (Likelihood) (-1.730663 0.500151 -0.558415 ) : 198.827928 (144)
+Cost Function (Likelihood) (-1.729401 0.501818 -0.557579 ) : 198.828920 (145)
+Cost Function (Likelihood) (-1.729401 0.501818 -0.557579 ) : 198.827686 (146)
+Cost Function (Likelihood) (-1.732075 0.507795 -0.559869 ) : 198.827208 (147)
+Cost Function (Likelihood) (-1.733000 0.511151 -0.560852 ) : 198.827625 (148)
+Cost Function (Likelihood) (-1.733000 0.511151 -0.560852 ) : 198.825519 (149)
+Cost Function (Likelihood) (-1.730006 0.507857 -0.558689 ) : 198.823841 (150)
+Cost Function (Likelihood) (-1.729831 0.506774 -0.558861 ) : 198.825242 (151)
+Cost Function (Likelihood) (-1.729831 0.506774 -0.558861 ) : 198.823752 (152)
+Cost Function (Likelihood) (-1.734576 0.511011 -0.562894 ) : 198.823321 (153)
+Cost Function (Likelihood) (-1.737792 0.509591 -0.565780 ) : 198.819594 (154)
+Cost Function (Likelihood) (-1.732915 0.512670 -0.562449 ) : 198.815823 (155)
+Cost Function (Likelihood) (-1.732872 0.513430 -0.563248 ) : 198.817395 (156)
+Cost Function (Likelihood) (-1.732872 0.513430 -0.563248 ) : 198.816403 (157)
+Cost Function (Likelihood) (-1.732872 0.513430 -0.563248 ) : 198.808356 (158)
+Cost Function (Likelihood) (-1.735362 0.505631 -0.566654 ) : 198.801011 (159)
+Cost Function (Likelihood) (-1.734147 0.503650 -0.567091 ) : 198.804557 (160)
+Cost Function (Likelihood) (-1.734147 0.503650 -0.567091 ) : 198.800640 (161)
+Cost Function (Likelihood) (-1.727796 0.513699 -0.562380 ) : 198.798062 (162)
+Cost Function (Likelihood) (-1.721138 0.516096 -0.558342 ) : 198.782588 (163)
+Cost Function (Likelihood) (-1.728210 0.510951 -0.566318 ) : 198.766268 (164)
+Cost Function (Likelihood) (-1.725879 0.509712 -0.567853 ) : 198.775995 (165)
+Cost Function (Likelihood) (-1.725879 0.509712 -0.567853 ) : 198.769154 (166)
+Cost Function (Likelihood) (-1.725879 0.509712 -0.567853 ) : 198.739331 (167)
+Cost Function (Likelihood) (-1.713992 0.502542 -0.564855 ) : 198.711188 (168)
+Cost Function (Likelihood) (-1.710419 0.495765 -0.568112 ) : 198.717669 (169)
+Cost Function (Likelihood) (-1.710419 0.495765 -0.568112 ) : 198.700394 (170)
+Cost Function (Likelihood) (-1.723460 0.495637 -0.579444 ) : 198.679494 (171)
+Cost Function (Likelihood) (-1.730667 0.485741 -0.590666 ) : 198.631633 (172)
+Cost Function (Likelihood) (-1.709817 0.485374 -0.583800 ) : 198.569638 (173)
+Cost Function (Likelihood) (-1.701785 0.473206 -0.591773 ) : 198.592605 (174)
+Cost Function (Likelihood) (-1.701785 0.473206 -0.591773 ) : 198.534411 (175)
+Cost Function (Likelihood) (-1.721964 0.449321 -0.619068 ) : 198.487343 (176)
+Cost Function (Likelihood) (-1.727737 0.426099 -0.644546 ) : 198.415327 (177)
+Cost Function (Likelihood) (-1.699763 0.419584 -0.632435 ) : 198.328809 (178)
+Cost Function (Likelihood) (-1.684312 0.386506 -0.653319 ) : 198.306776 (179)
+Cost Function (Likelihood) (-1.693099 0.398525 -0.661427 ) : 198.215970 (180)
+Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) : 198.358903 (181)
+Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) : 198.297311 (182)
+Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) : 198.233392 (183)
+Cost Function (Likelihood) (-1.681587 0.368446 -0.692975 ) : 198.155718 (184)
+Cost Function (Likelihood) (-1.631732 0.303711 -0.742588 ) : 198.253877 (185)
+Cost Function (Likelihood) (-1.631732 0.303711 -0.742588 ) : 198.227003 (186)
+Cost Function (Likelihood) (-1.631732 0.303711 -0.742588 ) : 198.117786 (187)
+Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) : 198.153987 (188)
+Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) : 198.413868 (189)
+Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) : 198.145739 (190)
+Cost Function (Likelihood) (-1.669477 0.344503 -0.734213 ) : 198.061545 (191)
+Cost Function (Likelihood) (-1.626646 0.314975 -0.750030 ) : 198.076459 (192)
+Cost Function (Likelihood) (-1.626646 0.314975 -0.750030 ) : 198.102712 (193)
+Cost Function (Likelihood) (-1.626646 0.314975 -0.750030 ) : 198.050091 (194)
+Cost Function (Likelihood) (-1.651682 0.320881 -0.772041 ) : 198.100922 (195)
+Cost Function (Likelihood) (-1.651682 0.320881 -0.772041 ) : 197.975042 (196)
+Cost Function (Likelihood) (-1.631481 0.337548 -0.750754 ) : 197.926869 (197)
+Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) : 198.172057 (198)
+Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) : 198.024178 (199)
+Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) : 197.941298 (200)
+Cost Function (Likelihood) (-1.612483 0.334071 -0.759024 ) : 197.923754 (201)
+Cost Function (Likelihood) (-1.624827 0.377678 -0.728731 ) : 197.955114 (202)
+Cost Function (Likelihood) (-1.624827 0.377678 -0.728731 ) : 197.828321 (203)
+Cost Function (Likelihood) (-1.606910 0.358236 -0.765139 ) : 197.765294 (204)
+Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) : 197.887353 (205)
+Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) : 197.833585 (206)
+Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) : 197.840955 (207)
+Cost Function (Likelihood) (-1.584520 0.359722 -0.781272 ) : 197.710447 (208)
+Cost Function (Likelihood) (-1.552630 0.388829 -0.796943 ) : 197.656185 (209)
+Cost Function (Likelihood) (-1.546963 0.405337 -0.818703 ) : 197.741658 (210)
+Cost Function (Likelihood) (-1.546963 0.405337 -0.818703 ) : 197.610679 (211)
+Cost Function (Likelihood) (-1.593594 0.389100 -0.831557 ) : 197.584344 (212)
+Cost Function (Likelihood) (-1.605529 0.386281 -0.872372 ) : 197.559332 (213)
+Cost Function (Likelihood) (-1.592804 0.441821 -0.860945 ) : 197.565525 (214)
+Cost Function (Likelihood) (-1.592804 0.441821 -0.860945 ) : 197.485916 (215)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.515053 (216)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.600299 (217)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.535216 (218)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.513783 (219)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.491249 (220)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.587952 (221)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.492801 (222)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.500614 (223)
+Cost Function (Likelihood) (-1.550037 0.411597 -0.929096 ) : 197.482781 (224)
+Cost Function (Likelihood) (-1.557271 0.396168 -0.964045 ) : 197.494990 (225)
+Cost Function (Likelihood) (-1.557271 0.396168 -0.964045 ) : 197.482127 (226)
+Cost Function (Likelihood) (-1.563361 0.416093 -0.950557 ) : 197.504574 (227)
+Cost Function (Likelihood) (-1.563361 0.416093 -0.950557 ) : 197.480905 (228)
+Cost Function (Likelihood) (-1.551234 0.412921 -0.972314 ) : 197.502426 (229)
+Cost Function (Likelihood) (-1.551234 0.412921 -0.972314 ) : 197.479429 (230)
+Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) : 197.485214 (231)
+Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) : 197.479845 (232)
+Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) : 197.480005 (233)
+Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) : 197.480445 (234)
+Cost Function (Likelihood) (-1.553663 0.409996 -0.945701 ) : 197.478916 (235)
+Cost Function (Likelihood) (-1.551732 0.401951 -0.950851 ) : 197.483116 (236)
+Cost Function (Likelihood) (-1.551732 0.401951 -0.950851 ) : 197.478652 (237)
+Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) : 197.481188 (238)
+Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) : 197.478761 (239)
+Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) : 197.480091 (240)
+Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) : 197.478705 (241)
+Cost Function (Likelihood) (-1.549190 0.403876 -0.960211 ) : 197.478719 (242)
 
 Model characteristics
 =====================

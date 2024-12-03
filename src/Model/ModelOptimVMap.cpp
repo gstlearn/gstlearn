@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Model/ModelOptimSillsVMap.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
@@ -25,7 +26,6 @@ ModelOptimVMap::ModelOptimVMap(Model* model,
                                const Option_VarioFit& optvar)
   : AModelOptim(model, constraints, mauto, optvar)
   , _vmapPart()
-  , _flagGoulard(false)
   , _optGoulard(model)
 {
 }
@@ -33,7 +33,6 @@ ModelOptimVMap::ModelOptimVMap(Model* model,
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
   : AModelOptim(m)
   , _vmapPart()
-  , _flagGoulard(m._flagGoulard)
   , _optGoulard(m._optGoulard)
 {
   _copyVMapPart(m._vmapPart);
@@ -44,7 +43,6 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
   if (this != &m)
   {
     AModelOptim::operator=(m);
-    _flagGoulard = m._flagGoulard;
     _optGoulard = m._optGoulard;
     _copyVMapPart(m._vmapPart);
   }
@@ -110,8 +108,9 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
   DECLARE_UNUSED(nparams);
   AlgorithmVMap* algorithm = static_cast<AlgorithmVMap*>(my_func_data);
   if (algorithm == nullptr) return TEST;
-  Model_Part& modelPart = algorithm->_modelPart;
-  VMap_Part& vmapPart   = algorithm->_vmapPart;
+  Model_Part& modelPart           = algorithm->_modelPart;
+  VMap_Part& vmapPart             = algorithm->_vmapPart;
+  ModelOptimSillsVMap& optGoulard = algorithm->_goulardPart;
   const DbGrid* dbmap   = vmapPart._dbmap;
   int ndim              = dbmap->getLocNumber(ELoc::X);
   int nvar              = dbmap->getLocNumber(ELoc::Z);
@@ -119,6 +118,13 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
 
   // Update the Model
   _patchModel(modelPart, current);
+
+  // Perform sill fitting using Goulard (optional)
+  if (modelPart._optvar.getFlagGoulardUsed())
+  {
+    optGoulard.updateFromModel();
+    optGoulard.fitPerform();
+  }
 
   // Evaluate the Cost function
   double total = 0.;
@@ -153,9 +159,8 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
 int ModelOptimVMap::loadEnvironment(const DbGrid* dbmap, bool flagGoulard, bool verbose)
 {
   _modelPart._verbose = verbose;
+  _modelPart._optvar.setFlagGoulardUsed(flagGoulard);
   _vmapPart._dbmap    = dbmap;
-  _flagGoulard        = flagGoulard;
-  _optvar.setFlagGoulardUsed(flagGoulard);
 
   // Get internal dimension
   if (_getDimensions()) return 1;
@@ -167,9 +172,12 @@ int ModelOptimVMap::loadEnvironment(const DbGrid* dbmap, bool flagGoulard, bool 
   if (!_checkConsistency()) return 1;
 
   // Instantiate Goulard algorithm (optional)
-  if (_flagGoulard)
-    _optGoulard =
-      ModelOptimSillsVMap(_modelPart._model, _constraints, _mauto, _optvar);
+  if (flagGoulard)
+  {
+    _optGoulard = ModelOptimSillsVMap(_modelPart._model, _constraints, _mauto,
+                                      _modelPart._optvar);
+    _optGoulard.loadEnvironment(dbmap, verbose);
+  }
 
   return 0;
 }
@@ -180,7 +188,7 @@ int ModelOptimVMap::fit(const DbGrid* dbmap, bool flagGoulard, bool verbose)
   if (loadEnvironment(dbmap, flagGoulard, verbose)) return 1;
 
   // Perform the optimization
-  AlgorithmVMap algorithm {_modelPart, _vmapPart};
+  AlgorithmVMap algorithm {_modelPart, _vmapPart, _optGoulard};
   _performOptimization(evalCost, &algorithm);
     
   return 0;
