@@ -178,6 +178,7 @@ set(SRC
   LinearOp/ScaleOp.cpp
   LinearOp/AShiftOp.cpp
   LinearOp/ShiftOpMatrix.cpp
+  LinearOp/ShiftOpStencil.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
   LinearOp/IProjMatrix.cpp

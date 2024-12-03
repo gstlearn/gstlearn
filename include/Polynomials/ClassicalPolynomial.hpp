@@ -18,7 +18,7 @@
 
 #include <vector>
 
-class ShiftOpMatrix;
+class AShiftOp;
 class ALinearOp;
 
 class GSTLEARN_EXPORT ClassicalPolynomial : public APolynomial

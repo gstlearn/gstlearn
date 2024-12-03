@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/AStringable.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "geoslib_define.h"
 
 #include "Covariances/CovAniso.hpp"
@@ -58,17 +60,24 @@ void PrecisionOpCs::gradYQX(const constvect X,
   evalPower(Y, w4s, power);
   double temp, val;
   int iadress;
+  const AShiftOp* sopt = getShiftOp();
+  const auto *soptmat = dynamic_cast<const ShiftOpMatrix*>(sopt);
+  if (soptmat == nullptr)
+  {
+    messerr("Method only available for ShiftOpMatrix\n");
+    return;
+  }
 
-  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam();
+  for (int igparam = 0; igparam < soptmat->getNCovAnisoGradParam();
        igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress = getShiftOp()->getSGradAddress(iapex, igparam);
-      if (igparam < getShiftOp()->getLambdaGradSize()) // range parameters
+      iadress = soptmat->getSGradAddress(iapex, igparam);
+      if (igparam < soptmat->getLambdaGradSize()) // range parameters
       {
         val  = getShiftOp()->getLambda(iapex);
-        temp = getShiftOp()->getLambdaGrad(igparam, iapex);
+        temp = soptmat->getLambdaGrad(igparam, iapex);
         result[iadress] =
           (X[iapex] * _work4[iapex] + Y[iapex] * _work3[iapex]) * temp / val;
       }
@@ -105,17 +114,24 @@ void PrecisionOpCs::gradYQXOptim(const constvect X,
   double temp, val;
   int iadress;
 
-  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam();
+  const AShiftOp* sopt = getShiftOp();
+  const auto *soptmat = dynamic_cast<const ShiftOpMatrix*>(sopt);
+  if (soptmat == nullptr)
+  {
+    messerr("Method only available for ShiftOpMatrix\n");
+    return;
+  }
+  for (int igparam = 0; igparam < soptmat->getNCovAnisoGradParam();
        igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress         = getShiftOp()->getSGradAddress(iapex, igparam);
+      iadress         = soptmat->getSGradAddress(iapex, igparam);
       result[iadress] = 0.;
-      if (igparam < getShiftOp()->getLambdaGradSize())
+      if (igparam < soptmat->getLambdaGradSize())
       {
         val  = getShiftOp()->getLambda(iapex);
-        temp = getShiftOp()->getLambdaGrad(igparam, iapex);
+        temp = soptmat->getLambdaGrad(igparam, iapex);
         result[iadress] =
           (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
       }
@@ -253,7 +269,7 @@ void PrecisionOpCs::_buildQ()
 MatrixSparse* PrecisionOpCs::_build_Q()
 {
   // Preliminary checks
-  auto *S = getShiftOpMatrix()->getS();
+  auto *S = ((ShiftOpMatrix*)getShiftOp())->getS();
   auto Lambda = getShiftOp()->getLambdas();
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
   int nblin = static_cast<int>(blin.size());
