@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
       message("Model used for simulating the Data\n");
       model_simu->display();
     }
+    model_simu->dumpToNF("Reference_Model.ascii");
 
     // Data set
     int nech = 100;

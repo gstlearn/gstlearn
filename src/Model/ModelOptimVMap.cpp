@@ -155,6 +155,7 @@ int ModelOptimVMap::loadEnvironment(const DbGrid* dbmap, bool flagGoulard, bool 
   _modelPart._verbose = verbose;
   _vmapPart._dbmap    = dbmap;
   _flagGoulard        = flagGoulard;
+  _optvar.setFlagGoulardUsed(flagGoulard);
 
   // Get internal dimension
   if (_getDimensions()) return 1;

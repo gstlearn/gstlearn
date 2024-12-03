@@ -90,6 +90,7 @@ int ModelOptimVario::loadEnvironment(Vario* vario,
   _varioPart._vario   = vario;
   _varioPart._wmode   = wmode;
   _flagGoulard        = flagGoulard;
+  _optvar.setFlagGoulardUsed(flagGoulard);
 
   // Constitute the experimental material (using '_vario')
   if (_buildExperimental()) return 1;
@@ -102,8 +103,7 @@ int ModelOptimVario::loadEnvironment(Vario* vario,
 
   // Instantiate Goulard algorithm (optional)
   if (_flagGoulard)
-    _optGoulard =
-      ModelOptimSillsVario(_modelPart._model, _constraints, _mauto, _optvar);
+    _optGoulard = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto, _optvar);
 
   return 0;
 }

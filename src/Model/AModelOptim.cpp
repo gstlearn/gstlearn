@@ -85,98 +85,6 @@ AModelOptim::~AModelOptim()
 {
 }
 
-int AModelOptim::_buildModelParamList()
-{
-  if (_modelPart._model == nullptr)
-  {
-    messerr("Argument '_model' must be defined beforehand");
-    return 1;
-  }
-
-  // Clear previous contents
-  _modelPart._tabval.clear();
-  _modelPart._tablow.clear();
-  _modelPart._tabupp.clear();
-
-  // Loop on the covariances
-  const Model* model = _modelPart._model;
-  int nvar           = model->getVariableNumber();
-  // int ndim           = model->getDimensionNumber();
-  // int first_covrot   = -1;
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
-  {
-    const CovAniso* cova = model->getCova(icov);
-
-    // Add the 'Sill' (vectorial)attribute
-    if (!_optvar.getFlagGoulardUsed())
-    {
-      int ijvar = 0;
-      for (int ivar = ijvar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          _addOneModelParam(icov, EConsElem::SILL, ijvar, TEST, TEST);
-    }
-
-    // Add the 'Range' (scalar) attribute
-    if (DEFINE_RANGE)
-    {
-      _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
-    }
-
-    // Anisotropy
-    // if (DEFINE_ANICOEF)
-    // {
-    //   if (ndim == 2)
-    //     _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
-
-    //   else if (ndim == 3)
-    //   {
-    //     if (!_optvar.getLockIso2d())
-    //       _addOneModelParam(icov, EConsElem::RANGE, 1);
-    //     if (!_optvar.getLockNo3d())
-    //       _addOneModelParam(icov, EConsElem::RANGE, 2);
-    //   }
-    //   else
-    //   {
-    //     {
-    //       for (int idim = 1; idim < ndim; idim++)
-    //         _addOneModelParam(icov, EConsElem::RANGE, idim);
-    //     }
-    //   }
-
-    //   /* Anisotropy angles */
-    //   if (DEFINE_ANIROT)
-    //   {
-    //     if ((ndim == 2) || (ndim == 3 && _optvar.getLockRot2d()))
-    //     {
-    //       if (TAKE_ROT)
-    //       {
-    //         first_covrot = icov;
-    //         _addOneModelParam(icov, EConsElem::ANGLE, 0);
-    //       }
-    //     }
-    //     else
-    //     {
-    //       if (TAKE_ROT)
-    //       {
-    //         first_covrot = icov;
-    //         for (int idim = 0; idim < ndim; idim++)
-    //           _addOneModelParam(icov, EConsElem::ANGLE, idim);
-    //       }
-    //     }
-    //   }
-
-    //   // TODO: inference of PARAM is deactivated (DR on 2024/11/14)
-    //   // if (DEFINE_THIRD)
-    //   // {
-    //   //   // Add the 'Param' (scalar) attribute
-    //   //   _addOneModelParam(icov, EConsElem::PARAM, 0, 0., 2.);
-    //   // }
-    // }
-  }
-  _modelPart._calcmode.setAsVario(true);
-  return 0;
-}
-
 void AModelOptim::_addOneModelParam(int icov,
                                    const EConsElem& type,
                                    int rank,
@@ -196,57 +104,8 @@ void AModelOptim::_addOneModelParam(int icov,
   _modelPart._tabupp.push_back(ubound);
 }
 
-void AModelOptim::_patchModel(Model_Part& modelPart, const double* current)
-{
-  // Initializations
-  int nvar    = modelPart._model->getVariableNumber();
-  int nvs2    = nvar * (nvar + 1) / 2;
-  int nparams = (int)modelPart._params.size();
-
-  // Loop on the parameters
-  int iparam = 0;
-  while (iparam < nparams)
-  {
-    const OneParam& param = modelPart._params[iparam];
-    int icov              = param._icov;
-    double scale          = param._scale;
-    CovAniso* cova        = modelPart._model->getCova(icov);
-
-    if (param._type == EConsElem::RANGE)
-    {
-      // Range
-      cova->setRangeIsotropic(scale * current[iparam++]);
-    }
-
-    if (param._type == EConsElem::SILL)
-    {
-      // Sill (through the AIC matrix)
-      MatrixSquareGeneral aic(nvar);
-      int ijvar = 0;
-      for (int ivar = ijvar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          aic.setValue(ivar, jvar, scale * current[iparam++]);
-      if (ijvar == nvs2)
-      {
-        MatrixSquareSymmetric sills(nvar);
-        sills.prodNormMatVecInPlace(aic, VectorDouble());
-        cova->setSill(sills);
-      }
-    }
-
-    if (param._type == EConsElem::PARAM)
-    {
-      // Set the 'param' attribute
-      cova->setParam(scale * current[iparam++]);
-    }
-  }
-
-  // Add 1 to the internal counter
-  modelPart._niter++;
-}
-
-void AModelOptim::updateModelParamList(double distmax_def,
-                                      const MatrixSquareSymmetric& vars_def)
+void AModelOptim::_updateModelParamList(double distmax_def,
+                                       const MatrixSquareSymmetric& vars_def)
 {
   double value = TEST;
   double scale = 1.;
@@ -317,14 +176,15 @@ void AModelOptim::updateModelParamList(double distmax_def,
   }
 }
 
-void AModelOptim::dumpParamList() const
+void AModelOptim::_dumpParamList() const
 {
-  mestitle(1, "Model Optimization parameters");
+  mestitle(1, "List of the Model parameters to be infered");
   int nparams = _getParamNumber();
   for (int iparam = 0; iparam < nparams; iparam++)
   {
     _dumpOneModelParam(_modelPart._params[iparam], _modelPart._tabval[iparam]);
   }
+  message("\n");
 }
 
 void AModelOptim::_dumpOneModelParam(const OneParam& param, double value)
@@ -351,10 +211,13 @@ void AModelOptim::_setSill(int icov, int ivar, int jvar, double value) const
   _modelPart._model->setSill(icov, ivar, jvar, value);
 }
 
-void AModelOptim::_performOptimization(nlopt_func f,
-                                      void* f_data,
-                                      double distmax_def,
-                                      const MatrixSquareSymmetric& vars_def)
+void AModelOptim::_performOptimization(double (*optim_func)(unsigned n,
+                                                            const double* x,
+                                                            double* gradient,
+                                                            void* func_data),
+                                       void* f_data,
+                                       double distmax_def,
+                                       const MatrixSquareSymmetric& vars_def)
 {
   // Define the optimization criterion
   int npar      = _getParamNumber();
@@ -365,13 +228,164 @@ void AModelOptim::_performOptimization(nlopt_func f,
   nlopt_set_ftol_rel(opt, EPSILON6);
 
   // Update the initial optimization values (due to variogram)
-  updateModelParamList(distmax_def, vars_def);
+  _updateModelParamList(distmax_def, vars_def);
 
   // Define the cost function
-  nlopt_set_min_objective(opt, f, f_data);
+  nlopt_set_min_objective(opt, optim_func, f_data);
 
   // Perform the optimization (store the minimized value in 'minf')
   double minf;
   nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
   nlopt_destroy(opt);
+}
+
+int AModelOptim::_buildModelParamList()
+{
+  if (_modelPart._model == nullptr)
+  {
+    messerr("Argument '_model' must be defined beforehand");
+    return 1;
+  }
+
+  // Clear previous contents
+  _modelPart._tabval.clear();
+  _modelPart._tablow.clear();
+  _modelPart._tabupp.clear();
+
+  // Loop on the covariances
+  const Model* model = _modelPart._model;
+  int nvar           = model->getVariableNumber();
+  // int ndim           = model->getDimensionNumber();
+  // int first_covrot   = -1;
+  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  {
+    const CovAniso* cova = model->getCova(icov);
+    bool flagSill        = true;
+    bool flagRange       = cova->hasRange() > 0;
+    // bool flagAniso       = cova->hasRange() != 0 && _optvar.getAuthAniso();
+    // bool flagAnisoRot    = cova->hasRange() != 0 && _optvar.getAuthAniso() && _optvar.getAuthRotation();
+
+    // Add the 'Range' (scalar) attribute
+    if (flagRange)
+    {
+      _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
+    }
+
+    // Add the 'Sill' (vectorial) attribute
+    if (flagSill)
+    {
+      if (!_optvar.getFlagGoulardUsed())
+      {
+        int ijvar = 0;
+        for (int ivar = ijvar = 0; ivar < nvar; ivar++)
+          for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+            _addOneModelParam(icov, EConsElem::SILL, ijvar, TEST, TEST);
+      }
+
+      // Anisotropy
+      // if (DEFINE_ANICOEF)
+      // {
+      //   if (ndim == 2)
+      //     _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
+
+      //   else if (ndim == 3)
+      //   {
+      //     if (!_optvar.getLockIso2d())
+      //       _addOneModelParam(icov, EConsElem::RANGE, 1);
+      //     if (!_optvar.getLockNo3d())
+      //       _addOneModelParam(icov, EConsElem::RANGE, 2);
+      //   }
+      //   else
+      //   {
+      //     {
+      //       for (int idim = 1; idim < ndim; idim++)
+      //         _addOneModelParam(icov, EConsElem::RANGE, idim);
+      //     }
+      //   }
+
+      //   /* Anisotropy angles */
+      //   if (DEFINE_ANIROT)
+      //   {
+      //     if ((ndim == 2) || (ndim == 3 && _optvar.getLockRot2d()))
+      //     {
+      //       if (TAKE_ROT)
+      //       {
+      //         first_covrot = icov;
+      //         _addOneModelParam(icov, EConsElem::ANGLE, 0);
+      //       }
+      //     }
+      //     else
+      //     {
+      //       if (TAKE_ROT)
+      //       {
+      //         first_covrot = icov;
+      //         for (int idim = 0; idim < ndim; idim++)
+      //           _addOneModelParam(icov, EConsElem::ANGLE, idim);
+      //       }
+      //     }
+      //   }
+
+      //   // TODO: inference of PARAM is deactivated (DR on 2024/11/14)
+      //   // if (DEFINE_THIRD)
+      //   // {
+      //   //   // Add the 'Param' (scalar) attribute
+      //   //   _addOneModelParam(icov, EConsElem::PARAM, 0, 0., 2.);
+      //   // }
+      // }
+    }
+  }
+  _modelPart._calcmode.setAsVario(true);
+
+  // Optional printout
+  if (_modelPart._verbose) _dumpParamList();
+  return 0;
+}
+
+void AModelOptim::_patchModel(Model_Part& modelPart, const double* current)
+{
+  // Initializations
+  int nvar    = modelPart._model->getVariableNumber();
+  int nvs2    = nvar * (nvar + 1) / 2;
+  int nparams = (int)modelPart._params.size();
+
+  // Loop on the parameters
+  int iparam = 0;
+  while (iparam < nparams)
+  {
+    const OneParam& param = modelPart._params[iparam];
+    int icov              = param._icov;
+    double scale          = param._scale;
+    CovAniso* cova        = modelPart._model->getCova(icov);
+
+    if (param._type == EConsElem::RANGE)
+    {
+      // Range
+      cova->setRangeIsotropic(scale * current[iparam++]);
+    }
+
+    if (param._type == EConsElem::SILL)
+    {
+      // Sill (through the AIC matrix)
+      MatrixSquareGeneral aic(nvar);
+      int ijvar = 0;
+      for (int ivar = ijvar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+          aic.setValue(ivar, jvar, scale * current[iparam++]);
+      if (ijvar == nvs2)
+      {
+        MatrixSquareSymmetric sills(nvar);
+        sills.prodNormMatVecInPlace(aic, VectorDouble());
+        cova->setSill(sills);
+      }
+    }
+
+    if (param._type == EConsElem::PARAM)
+    {
+      // Set the 'param' attribute
+      cova->setParam(scale * current[iparam++]);
+    }
+  }
+
+  // Add 1 to the internal counter
+  modelPart._niter++;
 }

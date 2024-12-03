@@ -72,6 +72,7 @@ bool ModelOptimLikelihood::_checkConsistency()
 int ModelOptimLikelihood::loadEnvironment(Db* db, bool flagSPDE, bool verbose)
 {
   _modelPart._verbose = verbose;
+  _optvar.setFlagGoulardUsed(false);
   _dbPart._db         = db;
   _dbPart._flagSPDE   = flagSPDE;
 

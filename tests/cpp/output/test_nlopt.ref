@@ -45,6 +45,13 @@ Optimum: x = 3 -> Minimum value = 0
 
 Fitting a Model from a Variogram
 ================================
+
+List of the Model parameters to be infered
+------------------------------------------
+Covariance 0 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Type = Range - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+
 Iteration   1 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 33.332715
 Iteration   2 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 1245.485669
 Iteration   3 - Cost Function (Variogram Fit) (1.816076 0.733536 1.816076 ) = 13.669548
@@ -221,6 +228,13 @@ Known Mean(s)     0.000
 
 Fitting a Model using Loglikelihood (Covariance)
 ================================================
+
+List of the Model parameters to be infered
+------------------------------------------
+Covariance 0 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Type = Range - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+Covariance 1 - Type = Sill - Rank = 0 - Scale = 1.000000 - Current = 1.000000
+
 Iteration   1 - Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) = 204640.781437
 Iteration   2 - Cost Function (Likelihood) (-0.024919 1.397211 -0.024919 ) = 57654.628963
 Iteration   3 - Cost Function (Likelihood) (-0.049838 1.397211 -0.024919 ) = 60470.926916
