@@ -2264,7 +2264,7 @@ bool CalcSimuTurningBands::_postprocess()
   if (_flagDGM)
   {
     if (!_nameCoord.empty())
-      getDbin()->setLocators(_nameCoord, ELoc::X);
+      getDbin()->setLocators(_nameCoord, ELoc::X, 0);
   }
 
   return true;

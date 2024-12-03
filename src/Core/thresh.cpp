@@ -570,7 +570,7 @@ int db_rule_shadow(Db* db,
   /* Storage of the simulations in the output file */
   iptr = db->addColumnsByConstant(nbsimu, 0.);
   if (iptr < 0) goto label_end;
-  db->setLocatorsByUID(nbsimu, iptr, ELoc::FACIES);
+  db->setLocatorsByUID(nbsimu, iptr, ELoc::FACIES, 0);
 
   /* Identify the Non conditional simulations at target points */
   for (igrf = 0; igrf < 2; igrf++)

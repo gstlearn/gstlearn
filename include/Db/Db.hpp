@@ -905,6 +905,7 @@ protected:
   String _summaryString(void) const;
 
 private:
+  int _getNextLocator(const ELoc& locatorType) const;
   const std::vector<int>& _getUIDcol() const { return _uidcol; }
   VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;

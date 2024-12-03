@@ -143,7 +143,7 @@ int DbGrid::reset(const VectorInt& nx,
   {
     int jcol = 0;
     if (flagAddSampleRank) jcol++;
-    setLocatorsByUID(ndim, jcol, ELoc::X);
+    setLocatorsByUID(ndim, jcol, ELoc::X, 0);
     _defineDefaultLocators(number, locatorNames);
   }
 
@@ -220,7 +220,7 @@ int DbGrid::resetCoveringDb(const Db* db,
   // Create the locators
 
   int jcol = 0;
-  setLocatorsByUID(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
 
   return 0;
 }
@@ -289,7 +289,7 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
 
   return 0;
 }
@@ -640,7 +640,7 @@ void DbGrid::_createGridCoordinates(int icol0)
 
   // Set the locators
 
-  setLocatorsByUID(getNDim(), icol0, ELoc::X);
+  setLocatorsByUID(getNDim(), icol0, ELoc::X, 0);
 
   // Generate the vector of coordinates
 

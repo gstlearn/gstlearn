@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,db,ruleprop,model1,model2,neighU);
-  db->setLocator(db->getLastName(),ELoc::Z);
+  db->setLocator(db->getLastName(),ELoc::Z, 0);
   (void) db->dumpToNF("simupgs.ascii");
   db->display(&dbfmt);
 

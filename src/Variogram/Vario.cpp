@@ -420,7 +420,7 @@ int Vario::computeIndic(Db *db,
 
   // Delete the Indicators (created locally)
   _db->deleteColumnsByLocator(ELoc::Z);
-  _db->setLocatorByUID(iatt, ELoc::Z);
+  _db->setLocatorByUID(iatt, ELoc::Z, 0);
 
   return 0;
 }
@@ -2927,7 +2927,7 @@ int Vario::_calculateOnGrid(DbGrid *db)
     iatt_old = db->getUIDByLocator(ELoc::W, 0);
     iadd_new = db->addColumnsByConstant(1, 0.);
     if (iadd_new < 0) return 1;
-    db->setLocatorByUID(iadd_new, ELoc::W);
+    db->setLocatorByUID(iadd_new, ELoc::W, 0);
     maille = db->getCellSize();
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
       db->setLocVariable(ELoc::W, iech, 0, maille);
@@ -2956,7 +2956,7 @@ int Vario::_calculateOnGrid(DbGrid *db)
   if (getCalcul() == ECalcVario::COVARIOGRAM)
   {
     if (iadd_new > 0) db->deleteColumnByUID(iadd_new);
-    if (iatt_old > 0) db->setLocatorByUID(iatt_old, ELoc::W);
+    if (iatt_old > 0) db->setLocatorByUID(iatt_old, ELoc::W, 0);
   }
   return 0;
 }

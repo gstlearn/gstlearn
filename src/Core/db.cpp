@@ -1075,7 +1075,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
   int iptr = dbgrid->addColumnsByConstant(nclass, 0.);
   if (iptr < 0) return 1;
-  dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P);
+  dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P, 0);
 
   /* Loop on the samples of the input data Db */
 

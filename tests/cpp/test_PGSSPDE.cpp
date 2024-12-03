@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
     dbprop->addColumnsByConstant(1,props[ifac],names[ifac]);
-  dbprop->setLocators(names,ELoc::P);
+  dbprop->setLocators(names,ELoc::P, 0);
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 20;

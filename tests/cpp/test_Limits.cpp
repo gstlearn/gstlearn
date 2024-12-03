@@ -57,13 +57,13 @@ int main(int argc, char *argv[])
   limits.display();
 
   // Other option
-  grid->setLocator("Simu", ELoc::Z);
+  grid->setLocator("Simu", ELoc::Z, 0);
   limits.toIndicator(grid,"Simu",0);
   dbfmt = DbStringFormat(FLAG_ARRAY, {"Simu", "Indicator.Simu.Mean"});
   grid->display(&dbfmt);
 
   // Convert into Indicators
-  grid->setLocator("Simu", ELoc::Z);
+  grid->setLocator("Simu", ELoc::Z, 0);
   limits.toIndicator(grid,"Simu",1);
   dbfmt = DbStringFormat(FLAG_ARRAY, {"Indicator.Simu.Class*"});
   grid->display(&dbfmt);

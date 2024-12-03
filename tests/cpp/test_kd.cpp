@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
   // Data extraction
   int np = 500;
   Db* data = Db::createSamplingDb(grid, 0., np, {"x1","x2","Y","Z"});
-  data->setLocator("Z", ELoc::Z);
+  data->setLocator("Z", ELoc::Z, 0);
   data->display(&dbfmt);
 
   // Gaussian Anamorphosis with 10 coefficients
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 
   // Perform the Point Kriging of the Raw Variable
   data->clearLocators(ELoc::Z);
-  data->setLocator("Z",ELoc::Z);
+  data->setLocator("Z",ELoc::Z, 0);
   data->display();
   (void) kriging(data, blocs, model, neighM, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
                              "Z_PTS*estim", "Z_PTS*stdev",
                              NamingConvention("UC",false));
   blocs->display();
-  data->setLocator("Gauss.Z",ELoc::Z);
+  data->setLocator("Gauss.Z",ELoc::Z, 0);
 
   // ====================== Block Disjunctive Kriging (DGM-1) =====================
 

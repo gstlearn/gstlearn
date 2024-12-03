@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
   // ====================== Image Neighborhood case ===========================
   // Generate the Image
   (void) simtub(nullptr,image,model);
-  image->setLocator("Simu", ELoc::Z);
+  image->setLocator("Simu", ELoc::Z, 0);
   image->display();
 
   // Modify the Model (for filtering)

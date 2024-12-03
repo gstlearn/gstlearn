@@ -7351,7 +7351,7 @@ static void st_define_locators(M2D_Environ *m2denv,
   int ivar;
 
   ivar = 1;
-  db->setLocatorsByUID(ndim, ivar, ELoc::X);
+  db->setLocatorsByUID(ndim, ivar, ELoc::X, 0);
   ivar += ndim;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
@@ -7360,7 +7360,7 @@ static void st_define_locators(M2D_Environ *m2denv,
     if (ilayer < nvar) db->setLocatorByUID(ivar, ELoc::Z, ilayer);
     ivar++;
   }
-  if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F);
+  if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F, 0);
 }
 
 /****************************************************************************/
@@ -8781,7 +8781,7 @@ int m2d_gibbs_spde(Db *dbin,
     {
       // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-      dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC);
+      dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC, 0);
 
       if (db_simulations_to_ce(dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce,
                                &iptr_cstd)) goto label_end;
