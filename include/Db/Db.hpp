@@ -264,32 +264,32 @@ public:
   void clearSelection() { clearLocators(ELoc::SEL); }
   void setLocatorByUID(int iuid,
                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                       int locatorIndex = -1,
+                       int locatorIndex = 0,
                        bool cleanSameLocator = false);
   void setLocatorByColIdx(int icol,
                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                          int locatorIndex = -1,
+                          int locatorIndex = 0,
                           bool cleanSameLocator = false);
   void setLocator(const String& name,
                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                  int locatorIndex = -1,
+                  int locatorIndex = 0,
                   bool cleanSameLocator = false);
   void setLocators(const VectorString &names,
                    const ELoc &locatorType = ELoc::fromKey("UNKNOWN"),
-                   int locatorIndex = -1,
+                   int locatorIndex = 0,
                    bool cleanSameLocator = false);
   void setLocatorsByUID(int number,
                         int iuid,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                        int locatorIndex = -1,
+                        int locatorIndex = 0,
                         bool cleanSameLocator = false);
   void setLocatorsByUID(const VectorInt& iuids,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                        int locatorIndex = -1,
+                        int locatorIndex = 0,
                         bool cleanSameLocator = false);
   void setLocatorsByColIdx(const VectorInt& icols,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                           int locatorIndex = -1,
+                           int locatorIndex = 0,
                            bool cleanSameLocator = false);
 
   void addColumnsByVVD(const VectorVectorDouble& tab,
