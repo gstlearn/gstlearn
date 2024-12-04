@@ -66,6 +66,8 @@ private:
     // Part relative to the Experimental variograms
     VMap_Part& _vmapPart;
 
+    // Only used for Goulard Option
+    ModelOptimSillsVMap& _goulardPart;
   } AlgorithmVMap;
 
   void _copyVMapPart(const VMap_Part& vmapPart);
@@ -79,6 +81,5 @@ protected:
   VMap_Part _vmapPart;
 
   // Only used for Goulard Option
-  bool _flagGoulard;
   ModelOptimSillsVMap _optGoulard;
 };

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/ModelOptimVario.hpp"
 
+#include "Model/ModelOptimSillsVario.hpp"
 #include "geoslib_define.h"
 
 #include "Model/Model.hpp"
@@ -24,7 +25,6 @@ ModelOptimVario::ModelOptimVario(Model* model,
                                  const Option_VarioFit& optvar)
   : AModelOptim(model, constraints, mauto, optvar)
   , _varioPart()
-  , _flagGoulard(false)
   , _optGoulard(model)
 {
 }
@@ -32,7 +32,6 @@ ModelOptimVario::ModelOptimVario(Model* model,
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   : AModelOptim(m)
   , _varioPart()
-  , _flagGoulard(m._flagGoulard)
   , _optGoulard(m._optGoulard)
 {
    _copyVarioPart(m._varioPart);
@@ -43,7 +42,6 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
   if (this != &m)
   {
     AModelOptim::operator=(m);
-    _flagGoulard = m._flagGoulard;
     _optGoulard  = m._optGoulard;
     _copyVarioPart(m._varioPart);
   }
@@ -89,8 +87,7 @@ int ModelOptimVario::loadEnvironment(Vario* vario,
   _modelPart._verbose = verbose;
   _varioPart._vario   = vario;
   _varioPart._wmode   = wmode;
-  _flagGoulard        = flagGoulard;
-  _optvar.setFlagGoulardUsed(flagGoulard);
+  _modelPart._optvar.setFlagGoulardUsed(flagGoulard);
 
   // Constitute the experimental material (using '_vario')
   if (_buildExperimental()) return 1;
@@ -102,8 +99,12 @@ int ModelOptimVario::loadEnvironment(Vario* vario,
   if (!_checkConsistency()) return 1;
 
   // Instantiate Goulard algorithm (optional)
-  if (_flagGoulard)
-    _optGoulard = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto, _optvar);
+  if (flagGoulard)
+  {
+    _optGoulard = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto,
+                                       _modelPart._optvar);
+    _optGoulard.loadEnvironment(vario, wmode, verbose);
+  }
 
   return 0;
 }
@@ -114,7 +115,7 @@ int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose
   if (loadEnvironment(vario, flagGoulard, wmode, verbose)) return 1;
 
   // Perform the optimization
-  AlgorithmVario algorithm {_modelPart, _varioPart};
+  AlgorithmVario algorithm {_modelPart, _varioPart, _optGoulard};
   _performOptimization(evalCost, &algorithm, vario->getMaximumDistance(),
                        vario->getVarMatrix());
 
@@ -235,12 +236,20 @@ double ModelOptimVario::evalCost(unsigned int nparams,
   DECLARE_UNUSED(nparams);
   AlgorithmVario* algorithm = static_cast<AlgorithmVario*>(my_func_data);
   if (algorithm == nullptr) return TEST;
-  Model_Part& modelPart = algorithm->_modelPart;
-  Vario_Part& varioPart = algorithm->_varioPart;
-  
+  Model_Part& modelPart            = algorithm->_modelPart;
+  Vario_Part& varioPart            = algorithm->_varioPart;
+  ModelOptimSillsVario& optGoulard = algorithm->_goulardPart;
+
   // Update the Model
   _patchModel(modelPart, current);
 
+  // Perform sill fitting using Goulard (optional)
+  if (modelPart._optvar.getFlagGoulardUsed())
+  {
+    optGoulard.updateFromModel();
+    optGoulard.fitPerform();
+  }
+  
   // Evaluate the Cost function
   int nlags = (int) varioPart._lags.size();
   double total = 0.;

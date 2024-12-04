@@ -41,15 +41,15 @@ public:
   AModelOptimSills& operator=(const AModelOptimSills& m);
   virtual ~AModelOptimSills();
 
+  int fitPerform();
+
 protected:
   void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
-  int _fitPerform();
 
 private:
-  int _sillFittingIntrinsic();
-  void _storeSillsInModel() const;
-  int _goulardWithConstraints();
+  int _sillFittingIntrinsic(double *crit_arg);
+  int _goulardWithConstraints(double *crit_arg);
   int _goulardWithoutConstraint(const Option_AutoFit& mauto,
                                 int nvar,
                                 int ncova,
@@ -59,7 +59,8 @@ private:
                                 std::vector<MatrixRectangular>& ge,
                                 std::vector<MatrixSquareSymmetric>& sill,
                                 double* crit_arg) const;
-  int _optimizeUnderConstraints(double* score);
+  void _storeSillsInModel() const;
+  void _optimizeUnderConstraints(double* score);
   int _makeDefinitePositive(int icov0, double eps = EPSILON12);
   void _initializeGoulard();
   int _truncateNegativeEigen(int icov0);
@@ -88,6 +89,10 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSquareSymmetric>& alpha);
+  bool _convergenceReached(const Option_AutoFit& mauto,
+                           double crit,
+                           double crit_mem) const;
+  void _printResults(double crit) const;
 
 protected:
   int _ndim;

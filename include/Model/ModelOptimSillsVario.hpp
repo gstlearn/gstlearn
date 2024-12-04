@@ -39,13 +39,13 @@ public:
   ModelOptimSillsVario& operator=(const ModelOptimSillsVario& m);
   virtual ~ModelOptimSillsVario();
 
-  int fit(Vario* vario, int wmode = 2);
-  int loadEnvironment(Vario* vario, int wmode = 2);
+  int fit(Vario* vario, int wmode = 2, bool verbose = false);
+  int loadEnvironment(Vario* vario, int wmode = 2, bool verbose = false);
+  void updateFromModel();
 
 private:
   int  _getDimensions();
   void _computeGg();
-  void _updateFromModel();
   void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
   void _prepareGoulard();
 

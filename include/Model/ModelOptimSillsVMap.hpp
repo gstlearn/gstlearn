@@ -39,16 +39,16 @@ public:
   ModelOptimSillsVMap& operator=(const ModelOptimSillsVMap& m);
   virtual ~ModelOptimSillsVMap();
 
-  int fit(DbGrid* dbmap);
-  int loadEnvironment(DbGrid* dbmap);
+  int fit(const DbGrid* dbmap, bool verbose = false);
+  int loadEnvironment(const DbGrid* dbmap, bool verbose = false);
+  void updateFromModel();
 
 private:
   int  _getDimensions();
   void _computeVMap();
-  void _updateFromModel();
 
 private:
-  DbGrid* _dbmap;
+  const DbGrid* _dbmap;
   VectorInt _indg1;
   VectorInt _indg2;
   int _nech;

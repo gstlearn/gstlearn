@@ -32,9 +32,9 @@ class GSTLEARN_EXPORT AModelOptim
 {
 public:
   AModelOptim(Model* model,
-             Constraints* constraints      = nullptr,
-             const Option_AutoFit& mauto   = Option_AutoFit(),
-             const Option_VarioFit& optvar = Option_VarioFit());
+              Constraints* constraints      = nullptr,
+              const Option_AutoFit& mauto   = Option_AutoFit(),
+              const Option_VarioFit& optvar = Option_VarioFit());
   AModelOptim(const AModelOptim& m);
   AModelOptim& operator=(const AModelOptim& m);
   virtual ~AModelOptim();
@@ -51,6 +51,9 @@ public:
   {
     // Pointer to the Model structure
     Model* _model;
+
+    // Model fitting options
+    Option_VarioFit _optvar;
 
     // Model parametrization
     std::vector<OneParam> _params;
@@ -100,5 +103,5 @@ protected:
 
   Constraints* _constraints;
   Option_AutoFit _mauto;
-  Option_VarioFit _optvar;
+
 };

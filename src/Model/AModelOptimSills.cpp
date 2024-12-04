@@ -116,7 +116,7 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
       _dd.push_back(VectorDouble(_npadir * nvs2, TEST));
   }
 
-  if (_optvar.getFlagIntrinsic())
+  if (_modelPart._optvar.getFlagIntrinsic())
   {
     _alphau.clear();
     for (int icova = 0; icova < _ncova; icova++)
@@ -131,9 +131,9 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
   }
 }
 
-int AModelOptimSills::_goulardWithConstraints()
+int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
 {
-  double crit;
+  double crit = 0.;
   VectorDouble consSill = _constraints->getConstantSills();
 
   /* Core allocation */
@@ -167,9 +167,10 @@ int AModelOptimSills::_goulardWithConstraints()
 
     /* Perform the optimization under constraints */
 
-    (void)_optimizeUnderConstraints(&crit);
+    _optimizeUnderConstraints(&crit);
   }
 
+  *crit_arg = crit;
   return (0);
 }
 
@@ -303,7 +304,7 @@ int AModelOptimSills::_makeDefinitePositive(int icov0, double eps)
   return flag_positive;
 }
 
-int AModelOptimSills::_optimizeUnderConstraints(double* score)
+void AModelOptimSills::_optimizeUnderConstraints(double* score)
 {
   double score_old, xrmax;
 
@@ -397,13 +398,12 @@ int AModelOptimSills::_optimizeUnderConstraints(double* score)
 
     score_old = score_new;
     score_new = _score();
-    if (ABS(score_new - score_old) / score_old < _mauto.getTolred()) break;
+    if (_convergenceReached(_mauto, score_new, score_old)) break;
   }
 
   /* Optional printout */
 
   *score = score_new;
-  return (iter);
 }
 
 int AModelOptimSills::_truncateNegativeEigen(int icov0)
@@ -735,7 +735,7 @@ int AModelOptimSills::_combineVariables(int ivar0, int jvar0)
   return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
-int AModelOptimSills::_sillFittingIntrinsic()
+int AModelOptimSills::_sillFittingIntrinsic(double *crit_arg)
 {
   int nvs2 = _nvar * (_nvar + 1) / 2;
   double crit = 0.;
@@ -795,9 +795,7 @@ int AModelOptimSills::_sillFittingIntrinsic()
 
     /* Stopping criterion */
 
-    if (ABS(crit) < _mauto.getTolred() ||
-        ABS(crit - crit_mem) / ABS(crit) < _mauto.getTolred())
-      break;
+    if (_convergenceReached(_mauto, crit, crit_mem)) break;
     crit_mem = crit;
   }
 
@@ -814,6 +812,8 @@ int AModelOptimSills::_sillFittingIntrinsic()
         _setSill(icov, jvar, ivar, newval);
       }
   }
+
+  *crit_arg = crit;
   return 0;
 }
 
@@ -1007,20 +1007,44 @@ int AModelOptimSills::_goulardWithoutConstraint(
 
     /* Stopping criterion */
 
-    if (ABS(crit) < mauto.getTolred() ||
-        ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred())
-      break;
+    if (_convergenceReached(mauto, crit, crit_mem)) break;
   }
 
   *crit_arg = crit;
   return (0);
 }
 
-int AModelOptimSills::_fitPerform()
+bool AModelOptimSills::_convergenceReached(const Option_AutoFit& mauto,
+                                           double crit,
+                                           double crit_mem) const
+{
+   return (ABS(crit) < mauto.getTolred() ||
+          ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred());
+}
+
+void AModelOptimSills::_printResults(double crit) const
+{
+  if (_modelPart._verbose)
+  {
+    const Model* model = _modelPart._model;
+    int ncov           = model->getCovaNumber();
+    for (int icov = 0; icov < ncov; icov++)
+    {
+      const CovAniso* cova = model->getCova(icov);
+      message("Cost Function (Sill Fitting) (");
+      for (int ivar = 0; ivar < _nvar; ivar++)
+        for (int jvar = 0; jvar < _nvar; jvar++)
+          message("%lf ", cova->getSill(ivar, jvar));
+      message(") : %lf\n", crit);
+    }
+  }
+}
+
+int AModelOptimSills::fitPerform()
 {
   int status  = 0;
   double crit = 0.;
-  if (!_optvar.getFlagIntrinsic())
+  if (!_modelPart._optvar.getFlagIntrinsic())
   {
 
     /* No intrinsic hypothesis */
@@ -1034,10 +1058,9 @@ int AModelOptimSills::_fitPerform()
     }
     else
     {
-
       /* With constraint on the sill */
 
-      status = _goulardWithConstraints();
+      status = _goulardWithConstraints(&crit);
     }
 
     // Store the sills into the Model
@@ -1045,8 +1068,9 @@ int AModelOptimSills::_fitPerform()
   }
   else
   {
-    status = _sillFittingIntrinsic();
+    status = _sillFittingIntrinsic(&crit);
   }
 
+  _printResults(crit);
   return (status);
 }
