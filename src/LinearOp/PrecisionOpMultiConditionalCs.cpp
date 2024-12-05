@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
 
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -38,13 +38,13 @@ void PrecisionOpMultiConditionalCs::_clear()
   _Q = nullptr;
 }
 
-int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
+int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProj* projDataElem)
 {
   _clear();
-  PrecisionOpCs* pmatElemCs = dynamic_cast<PrecisionOpCs*>(pmatElem);
+  PrecisionOpMatrix* pmatElemCs = dynamic_cast<PrecisionOpMatrix*>(pmatElem);
   if (pmatElemCs == nullptr)
   {
-    messerr("The first argument of 'push_back' should be a pointer to PrecisionOpCs");
+    messerr("The first argument of 'push_back' should be a pointer to PrecisionOpMatrix");
     return 1;
   }
   return PrecisionOpMultiConditional::push_back(pmatElem, projDataElem);
@@ -72,17 +72,17 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
   // Particular case of a single registered covariance
   if (number == 1)
   {
-    const PrecisionOpCs* pmatElem = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(0));
+    const PrecisionOpMatrix* pmatElem = dynamic_cast<const PrecisionOpMatrix*>(getMultiPrecisionOp(0));
     if (pmatElem != nullptr) Qmult = pmatElem->getQ()->clone();
   }
   else
   {
-    const PrecisionOpCs* pmat1 = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(0));
+    const PrecisionOpMatrix* pmat1 = dynamic_cast<const PrecisionOpMatrix*>(getMultiPrecisionOp(0));
     const MatrixSparse* Qref = pmat1->getQ();
 
     for (int is = 1; is < number; is++)
     {
-      const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
+      const PrecisionOpMatrix* pmataux = dynamic_cast<const PrecisionOpMatrix*>(getMultiPrecisionOp(is));
       delete Qmult;
       Qmult = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(Qref, pmataux->getQ(), true, true));
       Qref = Qmult;

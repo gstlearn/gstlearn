@@ -13,7 +13,7 @@
 #include "Polynomials/Chebychev.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Core/fftn.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include <math.h>
 #include <functional>
@@ -322,12 +322,65 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
   delete T1;
 }
 
-void Chebychev::addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
+void Chebychev::_addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
 {
-  DECLARE_UNUSED(Op);
-  DECLARE_UNUSED(inv);
-  DECLARE_UNUSED(outv);
-  //TODO implement
+  VectorDouble tm1, tm2, px, tx;
+  int nvertex;
+
+/* Initializations */
+
+  if (!_isReady())
+    my_throw("You must use 'initCoeffs' before 'operate'");
+  nvertex = Op->getSize();
+  double v1 = 2. / (_b - _a);
+  double v2 = -(_b + _a) / (_b - _a);
+  tm1.resize(nvertex);
+  tm2.resize(nvertex);
+  px.resize(nvertex);
+  tx.resize(nvertex);
+
+  /* Create the T1 sparse matrix */
+
+  Op->multiplyByValueAndAddDiagonal(v1, v2);
+  
+/* Initialize the simulation */
+
+  for (int i=0; i<nvertex; i++)
+  {
+    tm1[i] = 0.;
+    outv[i]   = inv[i];
+  }
+  constvect ys(outv);
+  vect tm1s(tm1);
+  if (Op->addToDest(ys, tm1)) my_throw("Problem in addVecInPlace");
+  //Op->addToDest(ys, tm1);
+
+  for (int i=0; i<nvertex; i++)
+  {
+    px[i]  = _coeffs[0] * outv[i] + _coeffs[1] * tm1[i];
+    tm2[i] = outv[i];
+  }
+
+  /* Loop on the AChebychev polynomials */
+
+  for (int ib=2; ib<(int) _coeffs.size(); ib++)
+  {
+    Op->addToDest(tm1, tx);
+    for (int i=0; i<nvertex; i++)
+    {
+      tx[i]  = 2. * tx[i] - tm2[i];
+      px[i] += _coeffs[ib] * tx[i];
+      tm2[i] = tm1[i];
+      tm1[i] = tx[i];
+    }
+  }
+
+/* Return the results */
+
+  for (int i=0; i<nvertex; i++)
+    outv[i] = px[i];
+  
+  Op->resetModif();
 }
 
 #endif

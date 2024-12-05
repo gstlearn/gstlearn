@@ -28,13 +28,13 @@ Problem in initialization of ProjMulti.
 ---------------------
 Test5: Point Numbers different on a row:
 --------
-Inconsistency between the IProjMatrix Point Numbers.
+Inconsistency between the IProj Point Numbers.
 Element [1,1] should have Point Number = 3  instead of 2.
 Problem in initialization of ProjMulti.
 ---------------------
 Test6: Apex Numbers different on a column:
 --------
-Inconsistency between the IProjMatrix Apex Numbers.
+Inconsistency between the IProj Apex Numbers.
 Element [2,1] should have Apex Number = 16  instead of 9.
 Problem in initialization of ProjMulti.
 ---------------------

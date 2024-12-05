@@ -24,10 +24,11 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
     ShiftOpStencil& operator=(const ShiftOpStencil& shift);
     virtual ~ShiftOpStencil();
     void normalizeLambdaBySills(const AMesh* mesh) override;
-    
+    void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
+
     double getMaxEigenValue() const override;
 #ifndef SWIG
-    void prodLambda(const constvect x, vect y, const EPowerPT& power) const override;
+    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
 #endif 
 
 #ifndef SWIG

@@ -172,7 +172,7 @@ set(SRC
   LinearOp/ProjMatrix.cpp
   LinearOp/ProjMulti.cpp
   LinearOp/ProjMultiMatrix.cpp
-  LinearOp/PrecisionOpCs.cpp
+  LinearOp/PrecisionOpMatrix.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
   LinearOp/ScaleOp.cpp
@@ -181,7 +181,7 @@ set(SRC
   LinearOp/ShiftOpStencil.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
-  LinearOp/IProjMatrix.cpp
+  LinearOp/IProj.cpp
   LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiMatrix.cpp
   LinearOp/PrecisionOpMultiConditional.cpp

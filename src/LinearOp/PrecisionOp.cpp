@@ -341,7 +341,6 @@ void PrecisionOp::evalPower(const constvect inm,
                             const EPowerPT& power)
 {
   std::fill(outm.begin(),outm.end(),0.);
-  for (int i = 0; i < (int)outm.size(); i++)
   _addEvalPower(inm, outm, power);
 }
 
@@ -351,8 +350,9 @@ void PrecisionOp::_addEvalPower(const constvect inv,
 {
   const constvect* inPtr = &inv;
   if (_work.size() == 0) _work.resize(getSize());
+  if (_work2.size() == 0) _work2.resize(getSize());
   vect worksp(_work);
-  
+  vect worksp2(_work2);
   // Pre-processing
 
   if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
@@ -363,22 +363,38 @@ void PrecisionOp::_addEvalPower(const constvect inv,
 
   // Polynomial evaluation
 
-  if (_evalPoly(power, *inPtr, outv) != 0)
+  if (_evalPoly(power, *inPtr, worksp2) != 0)
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing
 
   if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodLambda(outv, outv, power);
+    _shiftOp->addProdLambda(worksp2, outv, power);
+    return;
   }
-  else if (power == EPowerPT::MINUSHALF)
+  if (power == EPowerPT::MINUSHALF)
   {
-    _shiftOp->prodLambda(outv, outv, EPowerPT::MINUSONE);
+    _shiftOp->addProdLambda(worksp2, outv, EPowerPT::MINUSONE);
+    return;
   }
+  // if no post-processing is needed
+
+  VH::addInPlace(worksp2,outv);
+  
 }
 
 int PrecisionOp::_evalPoly(const EPowerPT& power,
+                              const constvect inv,
+                              vect outv) const
+{
+  std::fill(outv.begin(),outv.end(),0.);
+  _addEvalPoly(power, inv,outv);
+  return 0;
+}
+
+
+int PrecisionOp::_addEvalPoly(const EPowerPT& power,
                            const constvect inv,
                            vect outv) const
 {
@@ -414,13 +430,13 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 
     for (int i = 0; i < (int)inv.size(); i++)
     {
-      outv[i] = _workPoly[0][i];
+      outv[i] += _workPoly[0][i];
     }
   }
   else
   {
     vect outvs(outv);
-    _polynomials[power]->evalOp(a->getS(), invs, outvs);
+    _polynomials[power]->addEvalOp(_shiftOp, invs, outvs);
   }
   return 0;
 }
@@ -477,8 +493,7 @@ VectorDouble PrecisionOp::simulateOne()
   VectorDouble whitenoise(n);
   VH::simulateGaussianInPlace(whitenoise);
   vect vects(vectv);
-  _evalPoly(EPowerPT::MINUSHALF,whitenoise,vects);
-  _shiftOp->prodLambda(vectv, vectv, EPowerPT::MINUSONE);
+  addSimulateToDest(whitenoise, vects);
   return vectv;
 }
 

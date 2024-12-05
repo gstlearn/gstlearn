@@ -16,7 +16,7 @@
 #include "Enum/ESPDECalcMode.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "API/SPDEParam.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include <vector>
 
@@ -24,7 +24,7 @@ class ShiftOpMatrix;
 class Db;
 class DbGrid;
 class PrecisionOp;
-class PrecisionOpCs;
+class PrecisionOpMatrix;
 class Model;
 class MeshETurbo;
 
@@ -72,7 +72,7 @@ public:
 
   void setDriftCoeffs(const VectorDouble& coeffs);
 
-  const PrecisionOpCs* getPrecisionOpCs(int i = 0) const  { return (PrecisionOpCs*) _pilePrecisions[i];}
+  const PrecisionOpMatrix* getPrecisionOpMatrix(int i = 0) const  { return (PrecisionOpMatrix*) _pilePrecisions[i];}
   const ProjMatrix* getProjMatrix(int i = 0) const  { return _pileProjMatrix[i];}
   const PrecisionOpMultiConditional* getPrecisionKrig() const { return _precisionsKrig;}
   const AMesh* getMeshingKrig(int i = 0) const { return _meshingKrig[i];}

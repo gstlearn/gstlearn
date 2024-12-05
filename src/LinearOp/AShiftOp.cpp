@@ -11,6 +11,7 @@
 #include "LinearOp/AShiftOp.hpp"
 
 #include "Covariances/CovAniso.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 
 #include <math.h>
@@ -60,6 +61,14 @@ void AShiftOp::prodLambda(const constvect x,
 {
     vect yv(y.data(),y.size());
     prodLambda(x,yv,power);
+}
+
+void AShiftOp::prodLambda(const constvect x,
+                           vect y,
+                           const EPowerPT& power) const
+{
+  std::fill(y.begin(),y.end(),0.);
+  addProdLambda(x,y,power);
 }
 
 void AShiftOp::prodLambda(const VectorDouble& x,

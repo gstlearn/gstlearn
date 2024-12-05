@@ -117,6 +117,9 @@ public:
   void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
 
 protected:
+int _addEvalPoly(const EPowerPT& power,
+                 const constvect inv,
+                 vect outv) const;
   virtual int _addToDest(const constvect inv, vect outv) const override;
   virtual int _addSimulateToDest(const constvect whitenoise,
                                  vect outv) const override;

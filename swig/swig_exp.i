@@ -178,11 +178,11 @@
 %include LinearOp/ShiftOpStencil.hpp
 %include LinearOp/ShiftOpMatrix.hpp
 %include LinearOp/PrecisionOp.hpp
-%include LinearOp/PrecisionOpCs.hpp
+%include LinearOp/PrecisionOpMatrix.hpp
 %include LinearOp/SPDEOp.hpp
 %include LinearOp/SPDEOpMatrix.hpp
 %include LinearOp/TurboOptimizer.hpp
-%include LinearOp/IProjMatrix.hpp
+%include LinearOp/IProj.hpp
 %include LinearOp/ProjMatrix.hpp
 %include LinearOp/ProjMulti.hpp
 %include LinearOp/ProjMultiMatrix.hpp

@@ -54,12 +54,17 @@ void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
     DECLARE_UNUSED(mesh)
 }
 
-void ShiftOpStencil::prodLambda(const constvect x, vect y, const EPowerPT& power) const
+void ShiftOpStencil::addProdLambda(const constvect x, vect y, const EPowerPT& power) const
 {
     DECLARE_UNUSED(x,y,power)
+    messerr("ShiftOpStencil::addProdLambda not implemented");
 }
 
 double ShiftOpStencil::getMaxEigenValue() const
 {
     return TEST;
 }
+void ShiftOpStencil::multiplyByValueAndAddDiagonal(double v1, double v2)
+{
+    DECLARE_UNUSED(v1,v2)
+} 

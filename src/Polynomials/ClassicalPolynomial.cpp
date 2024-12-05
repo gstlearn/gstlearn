@@ -11,7 +11,7 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Enum/EOperator.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
@@ -84,7 +84,7 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op,
   }
 }
 
-void ClassicalPolynomial::addEvalOp(ALinearOp* Op,
+void ClassicalPolynomial::_addEvalOp(ALinearOp* Op,
                                     const constvect inv,
                                     vect outv) const
 {
