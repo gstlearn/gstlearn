@@ -1128,7 +1128,7 @@ int simbipgs(Db *dbin,
     if (flag_cond)
     {
       dbin->clearLocators(ELoc::Z);
-      dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z);
+      dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z, 0);
     }
     if (st_check_simtub_environment(dbin, dbout, models[ipgs][0], neigh))
       goto label_end;
@@ -1205,7 +1205,7 @@ int simbipgs(Db *dbin,
     if (flag_cond)
     {
       dbin->clearLocators(ELoc::Z);
-      dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z);
+      dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z, 0);
     }
 
     if (ipgs == 0)

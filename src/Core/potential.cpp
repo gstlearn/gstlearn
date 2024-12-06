@@ -2057,13 +2057,13 @@ static void st_estimate_data(Pot_Env *pot_env,
     if (! uid_pot.empty())
     {
       db_target->setArray(iech, uid_pot[0], result[0]);
-      db_target->setLocatorsByUID(uid_pot, ELoc::Z);
+      db_target->setLocatorsByUID(uid_pot, ELoc::Z, 0);
     }
     if (! uid_grad.empty())
     {
       for (int idim = 0; idim < pot_env->ndim; idim++)
         db_target->setArray(iech, uid_grad[idim], result[idim + 1]);
-      db_target->setLocatorsByUID(uid_grad, ELoc::G);
+      db_target->setLocatorsByUID(uid_grad, ELoc::G, 0);
     }
   }
 }

@@ -18,26 +18,14 @@
 #include "Stats/Classical.hpp"
 #include "API/SPDE.hpp"
 
-#include <nlopt.h>
-
-typedef struct
-{
-  // Part of the structure dedicated to the Model
-  ModelOptim::Model_Part& _modelPart;
-
-  // Part relative to the Experimental variograms
-  ModelOptimLikelihood::Db_Part& _dbPart;
-
-} AlgorithmLikelihood;
-
-ModelOptimLikelihood::ModelOptimLikelihood()
-  : ModelOptim()
+ModelOptimLikelihood::ModelOptimLikelihood(Model* model)
+  : AModelOptim(model)
   , _dbPart()
 {
 }
 
 ModelOptimLikelihood::ModelOptimLikelihood(const ModelOptimLikelihood& m)
-  : ModelOptim(m)
+  : AModelOptim(m)
   , _dbPart()
 {
    _copyDbPart(m._dbPart);
@@ -81,10 +69,10 @@ bool ModelOptimLikelihood::_checkConsistency()
   return true;
 }
 
-int ModelOptimLikelihood::fit(Db* db, Model* model, bool flagSPDE, bool verbose)
+int ModelOptimLikelihood::loadEnvironment(Db* db, bool flagSPDE, bool verbose)
 {
-  _modelPart._model   = model;
   _modelPart._verbose = verbose;
+  _modelPart._optvar.setFlagGoulardUsed(false);
   _dbPart._db         = db;
   _dbPart._flagSPDE   = flagSPDE;
 
@@ -92,28 +80,21 @@ int ModelOptimLikelihood::fit(Db* db, Model* model, bool flagSPDE, bool verbose)
   if (_buildModelParamList()) return 1;
 
   // Check consistency
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
 
-  // Define the optimization criterion
-  int npar = _getParamNumber();
-  nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
-  nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
-  nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
-  nlopt_srand(12345);
-  nlopt_set_ftol_rel(opt, 1e-6);
+  return 0;
+}
 
-  // Update the initial optimization values (due to variogram)
-  updateModelParamList(db->getExtensionDiagonal(), dbVarianceMatrix(db));
+int ModelOptimLikelihood::fit(Db* db, bool flagSPDE, bool verbose)
+{
+  // Load the environment
+  if (loadEnvironment(db, flagSPDE, verbose)) return 1;
 
-  // Define the cost function
+  // Perform the optimization
   AlgorithmLikelihood algorithm {_modelPart, _dbPart};
-  nlopt_set_min_objective(opt, evalCost, &algorithm);
+  _performOptimization(evalCost, &algorithm, db->getExtensionDiagonal(),
+                       dbVarianceMatrix(db));
 
-  // Perform the optimization (store the minimized value in 'minf')
-  if (_modelPart._verbose) mestitle(1, "Model Fitting using Likelihood");
-  double minf;
-  nlopt_optimize(opt, _modelPart._tabval.data(), &minf);
-  nlopt_destroy(opt);
   return 0;
 }
 

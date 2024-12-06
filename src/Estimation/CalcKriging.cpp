@@ -194,7 +194,7 @@ bool CalcKriging::_postprocess()
   }
   else if (_flagDGM)
   {
-    if (!_nameCoord.empty()) getDbin()->setLocators(_nameCoord, ELoc::X);
+    if (!_nameCoord.empty()) getDbin()->setLocators(_nameCoord, ELoc::X, 0);
 
     _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
     _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);

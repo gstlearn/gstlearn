@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
   Db* temperatures = Db::createFromNF(filename,verbose);
-  temperatures->setLocator("January_temp", ELoc::Z);
+  temperatures->setLocator("January_temp", ELoc::Z, 0);
   temperatures->display();
 
   filename = ASerializable::getTestData("Scotland","grid.ascii");

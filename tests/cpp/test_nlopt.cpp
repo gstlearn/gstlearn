@@ -40,14 +40,18 @@ double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nu
     if (grad) {
         grad[0] = 2 * (x[0] - 3);
     }
-    return (x[0] - 3) * (x[0] - 3);
+    double value = (x[0] - 3) * (x[0] - 3);
+    // std::cout << "current value = " << x[0] << " -> Minimum = " << value
+    //           << std::endl;
+    return value;
 }
 
 static void _firstTest()
 {
   mestitle(0,"Minimization of a simple function");
-  int npar      = 2;
-  nlopt_opt opt = nlopt_create(NLOPT_LD_LBFGS, npar);
+  int npar = 1;
+  VectorDouble x = {1.};
+  nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
@@ -58,18 +62,14 @@ static void _firstTest()
   nlopt_set_min_objective(opt, myfunc, nullptr);
 
   // Set the tolerance for the stopping criteria
-  nlopt_set_xtol_rel(opt, EPSILON4);
+  nlopt_set_ftol_rel(opt, EPSILON4);
 
-  // Starting point
-  double x[2] = {1., 5.0};
-
-  double minf; // minimum value of the objective function
+  // Minimization
+  double minf    = 1.e30;
   try
   {
-    nlopt_optimize(opt, x, &minf);
-    std::cout << "End optimization" << std::endl;
-    std::cout << "x = " << x[0] << " " << x[1] << std::endl;
-    std::cout << "Minimum value of the objective " << minf << std::endl;
+    nlopt_optimize(opt, x.data(), &minf);
+    std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
   }
   catch (std::exception& e)
   {
@@ -90,8 +90,8 @@ static void _secondTest(Db* db, Model* model, bool converge)
   (void)vario->dumpToNF("vario2.ascii");
 
   // Fit the Model
-  ModelOptimVario model_opt;
-  model_opt.fit(vario, model, 2, converge);
+  ModelOptimVario model_optim_vario(model);
+  model_optim_vario.fit(vario, false, 2, converge);
   (void) model->dumpToNF("model2.ascii");
   model->display();
 
@@ -107,8 +107,8 @@ static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
     mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
 
   // Fit the Model
-  ModelOptimLikelihood model_opt;
-  model_opt.fit(db, model, flagSPDE, converge);
+  ModelOptimLikelihood model_optim_likelihood(model);
+  model_optim_likelihood.fit(db, flagSPDE, converge);
   (void)model->dumpToNF("model3.ascii");
   model->display();
 }

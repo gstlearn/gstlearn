@@ -695,14 +695,14 @@ int db_trisurf(Db *db,
   }
   iptr_sel = db->addColumnsByConstant(1, 1.);
   if (iptr_sel < 0) goto label_end;
-  db->setLocatorByUID(iptr_sel, ELoc::SEL);
+  db->setLocatorByUID(iptr_sel, ELoc::SEL, 0);
 
   /* Set the new 2-D coordinates and turn the third coordinate into variable */
 
   db->clearLocators(ELoc::X);
   for (int idim = 0; idim < 2; idim++)
     db->setLocatorByUID(iptr_proj[idim], ELoc::X, idim);
-  db->setLocatorByUID(iptr_proj[ndim - 1], ELoc::Z);
+  db->setLocatorByUID(iptr_proj[ndim - 1], ELoc::Z, 0);
 
   /* Loop on the set of points per Fault */
 

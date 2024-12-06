@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Model/ModelOptim.hpp"
+#include "Model/AModelOptim.hpp"
 
 class Model;
 class Db;
@@ -22,14 +22,25 @@ class Db;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimLikelihood: public ModelOptim
+class GSTLEARN_EXPORT ModelOptimLikelihood: public AModelOptim
 {
 public:
-  ModelOptimLikelihood();
+  ModelOptimLikelihood(Model* model);
   ModelOptimLikelihood(const ModelOptimLikelihood& m);
   ModelOptimLikelihood& operator=(const ModelOptimLikelihood& m);
   virtual ~ModelOptimLikelihood();
 
+  int fit(Db* db, bool flagSPDE = false, bool verbose = false);
+  int loadEnvironment(Db* db, bool flagSPDE = false, bool verbose = false);
+
+#ifndef SWIG
+  static double evalCost(unsigned int nparams,
+                         const double* current,
+                         double* grad,
+                         void* my_func_data);
+#endif
+
+private:
   typedef struct
   {
     // If TRUE: use SPDE approach
@@ -38,17 +49,18 @@ public:
 
     // Pointer to the Vario structure
     Db* _db;
-
   } Db_Part;
 
-  int fit(Db* db, Model* model, bool flagSPDE = false, bool verbose = false);
+  typedef struct
+  {
+    // Part of the structure dedicated to the Model
+    AModelOptim::Model_Part& _modelPart;
 
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
+    // Part relative to the Experimental variograms
+    ModelOptimLikelihood::Db_Part& _dbPart;
 
-private:
+  } AlgorithmLikelihood;
+
   void _copyDbPart(const Db_Part& dbPart);
   bool _checkConsistency();
 

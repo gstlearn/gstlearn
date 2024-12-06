@@ -47,9 +47,12 @@ set(SRC
   Model/Option_AutoFit.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
-  Model/ModelOptim.cpp
+  Model/AModelOptim.cpp
   Model/ModelOptimVario.cpp
-  Model/ModelOptimSills.cpp
+  Model/ModelOptimVMap.cpp
+  Model/AModelOptimSills.cpp
+  Model/ModelOptimSillsVario.cpp
+  Model/ModelOptimSillsVMap.cpp
   Model/ModelOptimLikelihood.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp

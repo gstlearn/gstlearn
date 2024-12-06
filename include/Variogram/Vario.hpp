@@ -83,7 +83,6 @@ class AAnam;
  * - in the multivariate case (NV variables), the number of rows is multiplied by NV*(NV+1)/2.
  * In order to avoid any indexing problem, the user should use the assessors provided in order to access to the information
  * relative to the target pair of variables.
- .
  *
  */
 class GSTLEARN_EXPORT Vario : public AVario, public ASerializable
@@ -359,7 +358,13 @@ public:
 
   int transformCut(int nh, double ycut);
   int transformZToY(const AAnam *anam);
-  int transformYToZ(const AAnam *anam);
+  int transformYToZ(const AAnam* anam);
+
+  bool isLagCorrect(int idir, int k) const;
+  double getC00(int idir, int ivar, int jvar) const;
+  VectorDouble computeWeightPerDirection() const;
+  int getTotalLagsPerDirection() const;
+  VectorDouble computeWeightsFromVario(int wmode);
 
 protected:
   /// Interface for ASerializable

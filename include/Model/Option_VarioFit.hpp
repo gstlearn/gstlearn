@@ -74,14 +74,13 @@ class GSTLEARN_EXPORT Option_VarioFit: public AStringable
 
 private:
   bool _flag_noreduce;     /* Forbid discarding useless basic structures */
-  bool _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
-  /* This is switch OFF when ANAM properties are defined */
-  bool _auth_aniso;    /* Authorize the anisotropy */
-  bool _auth_rotation; /* Authorize the rotation of the anisotropy */
-  bool _lock_samerot;  /* Lock the anisotropy rotation for all str */
-  bool _lock_rot2d;    /* Lock the anisotropy rotation around Z only */
-  bool _lock_no3d;     /* Lock the parameters in 2-D */
-  bool _lock_iso2d;    /* Lock isotropy for 2-D */
-  bool _keep_intstr;   /* Keep at least one intrinsic structure */
-  bool _flag_intrinsic; /* Ask for an intrinsic model */
+  bool _flag_goulard_used; /* True if Goulard must be used (for sills) */
+  bool _auth_aniso;        /* Authorize the anisotropy */
+  bool _auth_rotation;     /* Authorize the rotation of the anisotropy */
+  bool _lock_samerot;      /* Lock the anisotropy rotation for all str */
+  bool _lock_rot2d;        /* Lock the anisotropy rotation around Z only */
+  bool _lock_no3d;         /* Lock the parameters in 2-D */
+  bool _lock_iso2d;        /* Lock isotropy for 2-D */
+  bool _keep_intstr;       /* Keep at least one intrinsic structure */
+  bool _flag_intrinsic;    /* Ask for an intrinsic model */
 };

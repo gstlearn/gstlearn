@@ -45,7 +45,7 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// AVMap Interface
+  /// AVario Interface
   double _getIVAR(const Db *db, int iech, int ivar) const override;
   void _setResult(int iech1,
                   int iech2,
