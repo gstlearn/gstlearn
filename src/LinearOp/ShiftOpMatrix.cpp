@@ -44,10 +44,10 @@ ShiftOpMatrix::ShiftOpMatrix()
 }
 
 ShiftOpMatrix::ShiftOpMatrix(const AMesh* amesh,
-                     const CovAniso* cova,
-                     const Db* dbout,
-                     bool verbose)
-  : AShiftOp() 
+                             const CovAniso* cova,
+                             const Db* dbout,
+                             bool verbose)
+  : AShiftOp()
   , _TildeC()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
@@ -64,10 +64,10 @@ ShiftOpMatrix::ShiftOpMatrix(const AMesh* amesh,
 }
 
 ShiftOpMatrix::ShiftOpMatrix(const MatrixSparse* S,
-                     const VectorDouble& TildeC,
-                     const VectorDouble& Lambda,
-                     const CovAniso* cova,
-                     bool verbose)
+                             const VectorDouble& TildeC,
+                             const VectorDouble& Lambda,
+                             const CovAniso* cova,
+                             bool verbose)
   : AShiftOp()
   , _TildeC()
   , _S(nullptr)
@@ -86,7 +86,7 @@ ShiftOpMatrix::ShiftOpMatrix(const MatrixSparse* S,
 }
 
 ShiftOpMatrix::ShiftOpMatrix(const ShiftOpMatrix& shift)
-  : AShiftOp()
+  : AShiftOp(shift)
   , _TildeC()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
@@ -190,7 +190,6 @@ int ShiftOpMatrix::initFromMesh(const AMesh* amesh,
     _reset();
     return 1;
   }
-
   return 0;
 }
 
@@ -249,10 +248,10 @@ int ShiftOpMatrix::initGradFromMesh(const AMesh* amesh,
  * @return
  */
 int ShiftOpMatrix::initFromCS(const MatrixSparse* S,
-                          const VectorDouble& TildeC,
-                          const VectorDouble& Lambda,
-                          const CovAniso* cova,
-                          bool verbose)
+                              const VectorDouble& TildeC,
+                              const VectorDouble& Lambda,
+                              const CovAniso* cova,
+                              bool verbose)
 {
   DECLARE_UNUSED(verbose);
 

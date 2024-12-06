@@ -19,13 +19,13 @@
 #include "Db/DbStringFormat.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 
 #include <vector>
-
 
 #define __USE_MATH_DEFINES
 #include <cmath>

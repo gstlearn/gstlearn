@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "gstlearn_export.hpp"
 #include "LinearOp/IProjMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"

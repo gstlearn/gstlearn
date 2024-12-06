@@ -10,9 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/AShiftOp.hpp"
 
-#include "Covariances/CovAniso.hpp"
-#include "LinearOp/ShiftOpMatrix.hpp"
-
 #include <math.h>
 
 AShiftOp::AShiftOp()

@@ -112,9 +112,10 @@ int MeshETurbo::getNApices() const
 int MeshETurbo::_nmeshInCompleteGrid() const
 {
   int nmesh = 1;
-  for (int idim=0, ndim=getNDim(); idim<ndim; idim++)
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     nmesh *= (_grid.getNX(idim) - 1);
-  nmesh *= _nPerCell; _meshIndirect.getRelSize();
+  nmesh *= _nPerCell;
+  // _meshIndirect.getRelSize();
   return nmesh;
 }
 
@@ -194,12 +195,22 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
 }
 
 double MeshETurbo::getApexCoor(int i, int idim) const
-{ _meshIndirect.getRelSize();
+{
+  // _meshIndirect.getRelSize();
   indg.resize(getNDim());
 
   int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
   return _grid.indiceToCoordinate(idim, indg);
+}
+
+void MeshETurbo::getApexIndicesInPlace(int i, VectorInt& indg) const
+{
+  // _meshIndirect.getRelSize();
+  indg.resize(getNDim());
+
+  int iabs = _gridIndirect.getRToA(i);
+  _grid.rankToIndice(iabs, indg);
 }
 
 void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const

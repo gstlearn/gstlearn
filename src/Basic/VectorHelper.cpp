@@ -1469,9 +1469,9 @@ void VectorHelper::subtractInPlace(const VectorVectorDouble &in1,
   }
 }
 
-void VectorHelper::substractInPlace(const std::vector<std::vector<double>> &in1,
-                                   const std::vector<std::vector<double>> &in2,
-                                   std::vector<std::vector<double>> &outv)
+void VectorHelper::substractInPlace(const std::vector<std::vector<double>>& in1,
+                                    const std::vector<std::vector<double>>& in2,
+                                    std::vector<std::vector<double>>& outv)
 {
   for (int is = 0, ns = (int) in1.size(); is < ns; is++)
   {

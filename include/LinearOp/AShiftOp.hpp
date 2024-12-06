@@ -16,11 +16,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 
-#include "Matrix/MatrixSparse.hpp"
-
-#include <map>
-#include <memory>
-
 #ifndef SWIG
 
 #include <Eigen/Core>
@@ -29,7 +24,6 @@
 
 class CovAniso;
 class EConsElem;
-
 
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE
@@ -49,29 +43,21 @@ class GSTLEARN_EXPORT AShiftOp:
   public ALinearOp
 #endif
 {
-  public:
-    AShiftOp();
-    AShiftOp(const AShiftOp& shift);
-    AShiftOp& operator=(const AShiftOp& shift);
-    virtual void prodLambda(const VectorDouble& x, VectorDouble& y,
-                    const EPowerPT& power) const;
-    virtual ~AShiftOp();
-    virtual double getMaxEigenValue() const = 0;
+public:
+  AShiftOp();
+  AShiftOp(const AShiftOp& shift);
+  AShiftOp& operator=(const AShiftOp& shift);
+  virtual void prodLambda(const VectorDouble& x,
+                          VectorDouble& y,
+                          const EPowerPT& power) const;
+  virtual ~AShiftOp();
+  virtual double getMaxEigenValue() const = 0;
 
-    virtual void normalizeLambdaBySills(const AMesh*) = 0;
-    const VectorDouble& getLambdas() const
-    {
-      return _Lambda;
-    }
-    double getLambda(int iapex) const
-    {
-      return _Lambda[iapex];
-    }
+  virtual void normalizeLambdaBySills(const AMesh*) = 0;
+  const VectorDouble& getLambdas() const { return _Lambda; }
+  double getLambda(int iapex) const { return _Lambda[iapex]; }
 
-    int getSize() const override
-    {
-      return _napices;
-    }
+  int getSize() const override { return _napices; }
 
 #ifndef SWIG
     virtual void prodLambda(const constvect x, vect y, const EPowerPT& power) const = 0;
@@ -85,7 +71,6 @@ class GSTLEARN_EXPORT AShiftOp:
 protected:
     VectorDouble _Lambda;
     int _napices;
-
 };
 
 #ifndef SWIG

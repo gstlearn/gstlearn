@@ -139,9 +139,12 @@ public:
   static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);
-  static void subtractInPlace(const VectorVectorDouble &in1,
-                              const VectorVectorDouble &in2,
-                              VectorVectorDouble &outv);
+  static void subtractInPlace(const VectorVectorDouble& in1,
+                              const VectorVectorDouble& in2,
+                              VectorVectorDouble& outv);
+  static void substractInPlace(const std::vector<std::vector<double>>& in1,
+                               const std::vector<std::vector<double>>& in2,
+                               std::vector<std::vector<double>>& outv);
 
   static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
@@ -303,9 +306,6 @@ public:
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);
   static VectorDouble compress(const VectorDouble &vecin, const VectorInt& vindex);
-  static void  substractInPlace(const std::vector<std::vector<double>> &in1,
-                                   const std::vector<std::vector<double>> &in2,
-                                   std::vector<std::vector<double>> &outv);
   static void truncateDecimalsInPlace(VectorDouble& vec, int ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, int ndec);
   static void simulateGaussianInPlace(std::vector<double> &vec,
