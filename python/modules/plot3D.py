@@ -257,7 +257,7 @@ def IsoSurfaceOnDbGrid(grid, name, useSel=False, levels=None,
                              colorscale=colorscale,
                              showscale = showlegend, 
                              caps = dict(x_show=False, y_show=False)
-                             )
+                            )
     return surfaces
    
 def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):

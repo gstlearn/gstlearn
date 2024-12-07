@@ -1243,6 +1243,25 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
   }
 }
 
+void VectorHelper::addInPlace(VectorInt& dest, const VectorInt& src)
+{
+  if (dest.size() != src.size())
+  {
+    messerr("Arguments 'dest' and 'src' should have the same dimension. "
+            "Nothing is done");
+    return;
+  }
+
+  VectorInt::iterator itd(dest.begin());
+  VectorInt::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd += *its;
+    itd++;
+    its++;
+  }
+}
+
 void VectorHelper::addInPlace(constvect in, vect dest)
 {
   const double* inp = in.data();
@@ -1469,7 +1488,8 @@ void VectorHelper::subtractInPlace(const VectorVectorDouble &in1,
   }
 }
 
-void VectorHelper::substractInPlace(const std::vector<std::vector<double>>& in1,
+// TODO: check why we cannot replace std::vector<std::vecot<double>> by VectorVectorDouble
+void VectorHelper::subtractInPlace(const std::vector<std::vector<double>>& in1,
                                     const std::vector<std::vector<double>>& in2,
                                     std::vector<std::vector<double>>& outv)
 {

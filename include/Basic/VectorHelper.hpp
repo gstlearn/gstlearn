@@ -101,7 +101,7 @@ public:
   static void fill(VectorVectorDouble &vec, double value);
   static void fillUndef(VectorDouble& vec, double repl);
   
-  #ifndef SWIG
+#ifndef SWIG
   static void addMultiplyConstantInPlace(double val1,
                                          const constvect in,
                                          vect out,
@@ -112,16 +112,14 @@ public:
                                          const constvect in2,
                                          vect out,
                                          int iad);
-  static void addInPlace(const std::vector<std::vector<double>> &in1,
-                              const std::vector<std::vector<double>> &in2,
-                              std::vector<std::vector<double>> &outv);
+
   static void addInPlace(constvect in, vect dest);
 
 #endif
   static VectorDouble add(const VectorDouble &veca, const VectorDouble &vecb);
-  static void addInPlace(VectorDouble &dest, const VectorDouble &src);
+  static void addInPlace(VectorDouble& dest, const VectorDouble& src);
+  static void addInPlace(VectorInt& dest, const VectorInt& src);
   static void addInPlace(std::vector<double>& dest, const std::vector<double> &src);
-
   static void addInPlace(const VectorDouble &veca,
                          const VectorDouble &vecb,
                          VectorDouble &res,
@@ -130,21 +128,25 @@ public:
                          const double *vecb,
                          double *res,
                          int size);
-  static void addInPlace(const VectorVectorDouble &in1,
-                         const VectorVectorDouble &in2,
-                         VectorVectorDouble &outv);
+  static void addInPlace(const VectorVectorDouble& in1,
+                         const VectorVectorDouble& in2,
+                         VectorVectorDouble& outv);
+  static void addInPlace(const std::vector<std::vector<double>>& in1,
+                         const std::vector<std::vector<double>>& in2,
+                         std::vector<std::vector<double>>& outv);
+  
   static void addSquareInPlace(VectorDouble &dest, const VectorDouble &src);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble subtract(constvect veca,constvect vecb);
-  static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
+  static VectorInt    subtract(const VectorInt& veca, const VectorInt& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);
   static void subtractInPlace(const VectorVectorDouble& in1,
                               const VectorVectorDouble& in2,
                               VectorVectorDouble& outv);
-  static void substractInPlace(const std::vector<std::vector<double>>& in1,
-                               const std::vector<std::vector<double>>& in2,
-                               std::vector<std::vector<double>>& outv);
+  static void subtractInPlace(const std::vector<std::vector<double>>& in1,
+                              const std::vector<std::vector<double>>& in2,
+                              std::vector<std::vector<double>>& outv);
 
   static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
