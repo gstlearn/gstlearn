@@ -36,19 +36,18 @@ class MeshETurbo;
  */
 class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
 {
-public:
-  ShiftOpStencil(const MeshETurbo* mesh = nullptr,
-                 const CovAniso* cova   = nullptr,
-                 bool verbose           = true);
-  ShiftOpStencil(const ShiftOpStencil& shift);
-  ShiftOpStencil& operator=(const ShiftOpStencil& shift);
-  virtual ~ShiftOpStencil();
-  void normalizeLambdaBySills(const AMesh* mesh) override;
+  public:
+    ShiftOpStencil(const MeshETurbo* mesh = nullptr, const CovAniso* cova = nullptr, bool verbose = false);
+    ShiftOpStencil(const ShiftOpStencil& shift);
+    ShiftOpStencil& operator=(const ShiftOpStencil& shift);
+    virtual ~ShiftOpStencil();
+    void normalizeLambdaBySills(const AMesh* mesh) override;
+    void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
 
-  double getMaxEigenValue() const override;
+    double getMaxEigenValue() const override;
 #ifndef SWIG
-  void prodLambda(const constvect x, vect y, const EPowerPT& power) const override;
-#endif
+    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
+#endif 
 
 #ifndef SWIG
   int _addToDest(const constvect inv, vect outv) const override;

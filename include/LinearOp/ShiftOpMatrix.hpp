@@ -79,7 +79,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
                     const EPowerPT& power) const;
   
   #ifndef SWIG
-    void prodLambda(const constvect x, vect y, const EPowerPT& power) const override;
+    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
   #endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
@@ -104,7 +104,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     int getSGradAddress(int iapex, int igparam) const;
 
     int getLambdaGradSize() const;
-
+    //void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
   private:
     void _setCovAniso(const CovAniso* cova);
     bool _isNoStat();

@@ -11,13 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "LinearOp/IProjMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 #include <vector>
 
-class GSTLEARN_EXPORT ProjMulti : public IProjMatrix
+class GSTLEARN_EXPORT ProjMulti : public IProj
 {
 public:
-  ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs,bool silent = false);
+  ProjMulti(const std::vector<std::vector<const IProj*>> &projs,bool silent = false);
   int getApexNumber() const override;
   int getPointNumber() const override;
   int getNVariable() const { return _nvariable; }
@@ -32,7 +32,7 @@ public:
 #endif
 
 private : 
-  bool _checkArg(const std::vector<std::vector<const IProjMatrix*>> &projs) const;
+  bool _checkArg(const std::vector<std::vector<const IProj*>> &projs) const;
   void _init();
   virtual void _clear(){};
 protected:
@@ -44,7 +44,7 @@ const std::vector<int>& getApexNumbers()  const {return _apexNumbers;}
 
 
 protected:
-std::vector<std::vector<const IProjMatrix*> >_projs; // NOT TO BE DELETED
+std::vector<std::vector<const IProj*> >_projs; // NOT TO BE DELETED
 
 private:
 int _pointNumber;

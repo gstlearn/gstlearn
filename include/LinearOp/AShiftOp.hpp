@@ -60,7 +60,8 @@ public:
   int getSize() const override { return _napices; }
 
 #ifndef SWIG
-    virtual void prodLambda(const constvect x, vect y, const EPowerPT& power) const = 0;
+    virtual void addProdLambda(const constvect x, vect y, const EPowerPT& power) const = 0;
+    void prodLambda(const constvect x, vect y, const EPowerPT& power) const;
     void prodLambda(const VectorDouble& x, vect y, const EPowerPT& power) const;
     void prodLambda(const constvect x, VectorDouble& y, const EPowerPT& power) const;
 #endif

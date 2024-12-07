@@ -87,7 +87,7 @@ class PrecisionOpMulti:
     def __init__(self,model,meshes,matrix = False):
         modelC = model.clone()
         if matrix :
-            createQ = gl.PrecisionOpCs
+            createQ = gl.PrecisionOpMatrix
         else:
             createQ = gl.PrecisionOp
         self.sills = []

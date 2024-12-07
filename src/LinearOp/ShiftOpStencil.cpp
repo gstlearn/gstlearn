@@ -112,9 +112,9 @@ void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
   DECLARE_UNUSED(mesh)
 }
 
-void ShiftOpStencil::prodLambda(const constvect x,
-                                vect y,
-                                const EPowerPT& power) const
+void ShiftOpStencil::addProdLambda(const constvect x,
+                                   vect y,
+                                   const EPowerPT& power) const
 {
   DECLARE_UNUSED(x, y, power)
 }
@@ -138,7 +138,7 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
     return 1;
   }
 
-  // Create a local Turbo Meshing starting from a DbGrid
+  // Create a local Turbo Meshing starting from a DbGrid (Dimension 5 sgould be sufficient)
   const Grid& grid = mesh->getGrid();
   VectorInt NXs    = grid.getNXs();
   VectorInt nxlocal(ndim, 5);

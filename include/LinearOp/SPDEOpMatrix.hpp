@@ -28,7 +28,7 @@ public:
 
 #ifndef SWIG
 private:
-  int _addToDestImpl(const constvect inv, vect outv) const override;
+  int _addToDest(const constvect inv, vect outv) const override;
   int _solve(const constvect inv, vect outv) const override;
 #endif
 

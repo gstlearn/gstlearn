@@ -12,6 +12,7 @@
 
 #include "Enum/EConsElem.hpp"
 #include "LinearOp/AShiftOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -362,29 +363,31 @@ void ShiftOpMatrix::normalizeLambdaBySills(const AMesh* mesh)
   }
 }
 
-void ShiftOpMatrix::prodLambda(const constvect x,
-                               vect y,
-                               const EPowerPT& power) const
+
+
+void ShiftOpMatrix::addProdLambda(const constvect x,
+                                  vect y,
+                                  const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * _Lambda[i];
+      y[i] += x[i] * _Lambda[i];
   }
   else if (power == EPowerPT::MINUSONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / _Lambda[i];
+      y[i] += x[i] / _Lambda[i];
   }
   else if (power == EPowerPT::HALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * sqrt(_Lambda[i]);
+      y[i] += x[i] * sqrt(_Lambda[i]);
   }
   else if (power == EPowerPT::MINUSHALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / sqrt(_Lambda[i]);
+      y[i] += x[i] / sqrt(_Lambda[i]);
   }
   else
   {
@@ -1478,3 +1481,11 @@ void ShiftOpMatrix::_determineFlagNoStatByHH()
   if (! _isNoStat()) return;
   _flagNoStatByHH = _cova->isNoStatForTensor();
 }
+
+// void ShiftOpMatrix::multiplyByValueAndAddDiagonal(double v1,double v2)
+// {
+//   MatrixSparse* T1 = MatrixSparse::diagConstant(getSize(), 1.);
+//   if (T1 == nullptr) my_throw("Problem in cs_eye");
+//   _S->addMatInPlace(*T1, v1, v2);
+//   delete T1;  
+// }

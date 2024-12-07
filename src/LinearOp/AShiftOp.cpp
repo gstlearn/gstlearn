@@ -59,6 +59,14 @@ void AShiftOp::prodLambda(const constvect x,
     prodLambda(x,yv,power);
 }
 
+void AShiftOp::prodLambda(const constvect x,
+                           vect y,
+                           const EPowerPT& power) const
+{
+  std::fill(y.begin(),y.end(),0.);
+  addProdLambda(x,y,power);
+}
+
 void AShiftOp::prodLambda(const VectorDouble& x,
                            VectorDouble& y,
                            const EPowerPT& power) const

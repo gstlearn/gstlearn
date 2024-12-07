@@ -11,13 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "LinearOp/IProjMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 class AMesh;
 class Db;
 
-class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public MatrixSparse
+class GSTLEARN_EXPORT ProjMatrix: public IProj, public MatrixSparse
 {
 public:
   ProjMatrix();
@@ -39,7 +39,7 @@ public:
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// Interface for IProjMatrix
+  /// Interface for IProj
 
 #ifndef SWIG
   protected:

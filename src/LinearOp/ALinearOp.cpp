@@ -11,7 +11,14 @@
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
 
-VectorDouble  ALinearOp::evalDirect(const VectorDouble& in) const
+ALinearOp::ALinearOp()
+: _usefactor(false)
+, _idfactor(0.)
+, _factor(1.)
+{
+}
+
+VectorDouble ALinearOp::evalDirect(const VectorDouble& in) const
 {
   VectorDouble res;
   evalDirect(in,res);
@@ -28,7 +35,19 @@ int ALinearOp::addToDest(const Eigen::VectorXd& inv,
 
 int ALinearOp::addToDest(const constvect inv, vect outv) const
 {
-  return _addToDest(inv, outv);
+  
+  if (!_usefactor)
+    return _addToDest(inv, outv);
+  
+  _temp.resize(outv.size());
+  vect ctemp(_temp.data(),_temp.size());
+  std::fill(ctemp.begin(), ctemp.end(), 0.);
+  int err = _addToDest(inv, ctemp);
+  for (int i = 0; i < (int)outv.size(); i++)
+  {
+    outv[i] = _idfactor * inv[i] + _factor * ctemp[i];
+  }
+  return err;
 }
 
 int ALinearOp::evalDirect(constvect inv, vect outv) const
@@ -43,4 +62,18 @@ int ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
   constvect in(inv);
   vect out(outv);
   return evalDirect(in,out);
+}
+
+void ALinearOp::multiplyByValueAndAddDiagonal(double v1,double v2)
+{
+  _usefactor = true;
+  _idfactor = v2;
+  _factor = v1;
+}
+
+void ALinearOp::resetModif()
+{
+  _usefactor = false;
+  _idfactor = 0.;
+  _factor = 1.;
 }

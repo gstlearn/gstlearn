@@ -1,4 +1,4 @@
-%feature(director) IProjMatrix;
+%feature(director) IProj;
 %feature(director) AFunctional;
 
 //%feature(director) ICLoneable;
@@ -147,9 +147,9 @@
   #include "LinearOp/ShiftOpStencil.hpp"
   #include "LinearOp/ShiftOpMatrix.hpp"
   #include "LinearOp/PrecisionOp.hpp"
-  #include "LinearOp/PrecisionOpCs.hpp"
+  #include "LinearOp/PrecisionOpMatrix.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
-  #include "LinearOp/IProjMatrix.hpp"
+  #include "LinearOp/IProj.hpp"
   #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/ProjMulti.hpp"
@@ -394,9 +394,9 @@
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< ProjMatrix* >;
 %template(VectorConstProjMatrix)   std::vector< const ProjMatrix*>;
-%template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
+%template(VectorConstIProj)  std::vector< const IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
-%template(VVectorConstIProjMatrix) std::vector< std::vector< const IProjMatrix*> >;
+%template(VVectorConstIProj) std::vector< std::vector< const IProj*> >;
 %template(VectorMeshes)            std::vector< const AMesh*>;
 ////////////////////////////////////////////////
 // Conversion Target language => C++

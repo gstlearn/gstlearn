@@ -60,10 +60,15 @@ public:
                       std::vector<double>& work) const override;
   void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
   void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
-  void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
   double evalOpByRank(MatrixSparse* S, int rank) const override;
 #endif
   
+#ifndef SWIG
+
+  void _addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
+
+#endif
+
 #ifndef SWIG
   
 private:
