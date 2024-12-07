@@ -62,7 +62,7 @@ protected:
   int _getNMesh() const;
 
 private:
-  virtual int _addToDestImpl(const constvect vecin, vect vecout) const;
+
   bool _checkReady() const;
   virtual void _buildQop();
   bool _isValidModel(Model* model);

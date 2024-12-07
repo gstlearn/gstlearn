@@ -29,7 +29,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
 #include "Basic/Memory.hpp"
 
 /*****************************************************************************/
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
   // Creating the meshing for extracting Q
 
   MeshETurbo mesh(dbgrid);
-  auto P = PrecisionOpCs(&mesh, model1->getCova(0));
+  auto P = PrecisionOpMatrix(&mesh, model1->getCova(0));
   const MatrixSparse* Qref = P.getQ();
   MatrixSparse* Q = new MatrixSparse(*Qref);
   int nvertex = mesh.getNApices();

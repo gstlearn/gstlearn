@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Db/DbGrid.hpp"
-#include "IProjMatrix.hpp"
+#include "IProj.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -21,7 +21,7 @@
 /**
  * Projection matrix for vertical convolution
  */
-class GSTLEARN_EXPORT ProjConvolution: public IProjMatrix
+class GSTLEARN_EXPORT ProjConvolution: public IProj
 {
 
 public:

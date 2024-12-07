@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -87,7 +87,7 @@ const MatrixSparse* PrecisionOpMultiMatrix::getQ() const
 {
   if (_isSingle())
   {
-    return ((PrecisionOpCs*)_pops[0])->getQ();
+    return ((PrecisionOpMatrix*)_pops[0])->getQ();
   }
   return &_Q;
 }
@@ -99,7 +99,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   MatrixSparse current(0, 0);
   for (int istruct = 0; istruct < _getNCov(); istruct++)
   {
-    const MatrixSparse* Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
+    const MatrixSparse* Q = ((PrecisionOpMatrix*)_pops[istruct])->getQ();
 
     if (_model->getVariableNumber() == 1)
     {
@@ -130,11 +130,11 @@ void PrecisionOpMultiMatrix::_buildQop()
   for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
     CovAniso* cova = _model->getCova(_getCovInd(icov));
-    _pops.push_back(new PrecisionOpCs(_meshes[icov], cova));
+    _pops.push_back(new PrecisionOpMatrix(_meshes[icov], cova));
   }
 }
 
-int PrecisionOpMultiMatrix::_addToDestImpl(const constvect vecin,
+int PrecisionOpMultiMatrix::_addToDest(const constvect vecin,
                                            vect vecout) const
 {
   return getQ()->addToDest(vecin, vecout);

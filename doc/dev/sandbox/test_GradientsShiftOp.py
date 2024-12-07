@@ -33,7 +33,7 @@ workingDb = gl.DbGrid.create([101,101],[1,1])
 mesh = gl.MeshETurbo(workingDb)
 
 # Create shift operator
-S = gl.ShiftOpCs(mesh, model.getCova(0), resultDb)
+S = gl.ShiftOpMatrix(mesh, model.getCova(0), resultDb)
 S.initGradFromMesh(mesh,model.getCova(0))
 S.getSGrad(0,0)
 

@@ -14,7 +14,7 @@
 #include <vector>
 
 class PrecisionOp;
-class IProjMatrix;
+class IProj;
 class CholeskySparse;
 
 /**
@@ -30,7 +30,7 @@ public:
 
   /// Interface to PrecisionOpMultiConditional
   void makeReady() override;
-  int push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
+  int push_back(PrecisionOp* pmatElem, IProj* projDataElem) override;
   double computeLogDetOp(int nbsimu = 1) const override;
 
   /// Interface to ALinearOp

@@ -12,7 +12,7 @@
 #include "LinearOp/ProjMulti.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "LinearOp/IProjMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 
 int ProjMulti::findFirstNoNullOnRow(int j) const
 {
@@ -45,7 +45,7 @@ int ProjMulti::findFirstNoNullOnCol(int j) const
     return i;
 }
 
-bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &projs) const
+bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>> &projs) const
 {
     if (projs.empty())
     {   
@@ -85,7 +85,7 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &pr
             {
                 if ( projs[i][j]->getPointNumber() != npoints)
                 {
-                    messerr("Inconsistency between the IProjMatrix Point Numbers.");
+                    messerr("Inconsistency between the IProj Point Numbers.");
                     messerr("Element [%d,%d] should have Point Number = %d  instead of %d.",
                             i,j,npoints, projs[i][j]->getPointNumber());
                     return true;
@@ -107,7 +107,7 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &pr
             {
                 if (projs[i][j]->getApexNumber() != nvertex)
                 {
-                    messerr("Inconsistency between the IProjMatrix Apex Numbers.");
+                    messerr("Inconsistency between the IProj Apex Numbers.");
                     messerr("Element [%d,%d] should have Apex Number = %d  instead of %d.",
                             i,j,nvertex,projs[i][j]->getApexNumber());
                     return true;
@@ -147,7 +147,7 @@ ProjMulti::~ProjMulti()
      _clear();
 }
 
-ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs, bool silent)
+ProjMulti::ProjMulti(const std::vector<std::vector<const IProj*>> &projs, bool silent)
 : _projs(projs)
 , _pointNumber(0)
 , _apexNumber(0)

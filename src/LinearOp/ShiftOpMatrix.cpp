@@ -8,9 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 
 #include "Enum/EConsElem.hpp"
+#include "LinearOp/AShiftOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -28,9 +30,9 @@
 #include <math.h>
 #include <memory>
 
-ShiftOpCs::ShiftOpCs()
-  : _TildeC()
-  , _Lambda()
+ShiftOpMatrix::ShiftOpMatrix()
+  : AShiftOp()
+  , _TildeC()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
   , _SGrad()
@@ -39,16 +41,15 @@ ShiftOpCs::ShiftOpCs()
   , _flagNoStatByHH(false)
   , _cova(nullptr)
   , _ndim(0)
-  , _napices(0)
 {
 }
 
-ShiftOpCs::ShiftOpCs(const AMesh* amesh,
-                     const CovAniso* cova,
-                     const Db* dbout,
-                     bool verbose)
-  : _TildeC()
-  , _Lambda()
+ShiftOpMatrix::ShiftOpMatrix(const AMesh* amesh,
+                             const CovAniso* cova,
+                             const Db* dbout,
+                             bool verbose)
+  : AShiftOp()
+  , _TildeC()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
   , _SGrad()
@@ -57,18 +58,19 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
   , _flagNoStatByHH(false)
   , _cova(nullptr)
   , _ndim(amesh->getEmbeddedNDim())
-  , _napices(amesh->getNApices())
 {
+  if (amesh != nullptr)
+    _napices = amesh->getNApices();
   (void)initFromMesh(amesh, cova, dbout, verbose);
 }
 
-ShiftOpCs::ShiftOpCs(const MatrixSparse* S,
-                     const VectorDouble& TildeC,
-                     const VectorDouble& Lambda,
-                     const CovAniso* cova,
-                     bool verbose)
-  : _TildeC()
-  , _Lambda()
+ShiftOpMatrix::ShiftOpMatrix(const MatrixSparse* S,
+                             const VectorDouble& TildeC,
+                             const VectorDouble& Lambda,
+                             const CovAniso* cova,
+                             bool verbose)
+  : AShiftOp()
+  , _TildeC()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
   , _SGrad()
@@ -77,14 +79,16 @@ ShiftOpCs::ShiftOpCs(const MatrixSparse* S,
   , _flagNoStatByHH(false)
   , _cova(nullptr)
   , _ndim(0)
-  , _napices(S->getNCols())
 {
+  if (S != nullptr)
+    _napices = S->getNCols();
+  (void)initFromCS(S, TildeC, Lambda, cova, verbose);
   (void)initFromCS(S, TildeC, Lambda, cova, verbose);
 }
 
-ShiftOpCs::ShiftOpCs(const ShiftOpCs& shift)
-  : _TildeC()
-  , _Lambda()
+ShiftOpMatrix::ShiftOpMatrix(const ShiftOpMatrix& shift)
+  : AShiftOp(shift)
+  , _TildeC()
   , _S(nullptr)
   , _nCovAnisoGradParam(0)
   , _SGrad()
@@ -93,12 +97,11 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs& shift)
   , _flagNoStatByHH(false)
   , _cova(nullptr)
   , _ndim(0)
-  , _napices(0)
 {
   _reallocate(shift);
 }
 
-ShiftOpCs& ShiftOpCs::operator=(const ShiftOpCs &shift)
+ShiftOpMatrix& ShiftOpMatrix::operator=(const ShiftOpMatrix &shift)
 {
   if (this != &shift)
   {
@@ -108,26 +111,26 @@ ShiftOpCs& ShiftOpCs::operator=(const ShiftOpCs &shift)
   return *this;
 }
 
-ShiftOpCs::~ShiftOpCs()
+ShiftOpMatrix::~ShiftOpMatrix()
 {
   _reset();
 }
 
-ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
+ShiftOpMatrix* ShiftOpMatrix::create(const AMesh *amesh,
                              const CovAniso *cova,
                              const Db *dbout,
                              bool verbose)
 {
-  return new ShiftOpCs(amesh, cova, dbout, verbose);
+  return new ShiftOpMatrix(amesh, cova, dbout, verbose);
 }
 
-ShiftOpCs* ShiftOpCs::createFromSparse(const MatrixSparse *S,
+ShiftOpMatrix* ShiftOpMatrix::createFromSparse(const MatrixSparse *S,
                                        const VectorDouble &TildeC,
                                        const VectorDouble &Lambda,
                                        const CovAniso *cova,
                                        bool verbose)
 {
-  return new ShiftOpCs(S, TildeC, Lambda, cova, verbose);
+  return new ShiftOpMatrix(S, TildeC, Lambda, cova, verbose);
 }
 
 /**
@@ -139,7 +142,7 @@ ShiftOpCs* ShiftOpCs::createFromSparse(const MatrixSparse *S,
  * @param verbose Verbose flag
  * @return Error return code
  */
-int ShiftOpCs::initFromMesh(const AMesh* amesh,
+int ShiftOpMatrix::initFromMesh(const AMesh* amesh,
                             const CovAniso* cova,
                             const Db* /*dbout*/,
                             bool flagAdvection,
@@ -188,7 +191,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     _reset();
     return 1;
   }
-
   return 0;
 }
 
@@ -200,7 +202,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
  * @param tol Smallest value below which the value is not stored in sparse matrix
  * @return Error return code
  */
-int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
+int ShiftOpMatrix::initGradFromMesh(const AMesh* amesh,
                                 const CovAniso* cova,
                                 bool verbose,
                                 double tol)
@@ -246,11 +248,11 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
  * @param verbose Verbose flag
  * @return
  */
-int ShiftOpCs::initFromCS(const MatrixSparse* S,
-                          const VectorDouble& TildeC,
-                          const VectorDouble& Lambda,
-                          const CovAniso* cova,
-                          bool verbose)
+int ShiftOpMatrix::initFromCS(const MatrixSparse* S,
+                              const VectorDouble& TildeC,
+                              const VectorDouble& Lambda,
+                              const CovAniso* cova,
+                              bool verbose)
 {
   DECLARE_UNUSED(verbose);
 
@@ -298,7 +300,7 @@ int ShiftOpCs::initFromCS(const MatrixSparse* S,
  ** \remarks where 'power' is equal to 1, -1, 0.5 and -0.5
  **
  *****************************************************************************/
-void ShiftOpCs::prodTildeC(const VectorDouble& x,
+void ShiftOpMatrix::prodTildeC(const VectorDouble& x,
                            VectorDouble& y,
                            const EPowerPT& power) const
 {
@@ -333,7 +335,7 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
   }
 }
 
-void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
+void ShiftOpMatrix::normalizeLambdaBySills(const AMesh* mesh)
 {
   VectorDouble tab;
 
@@ -361,29 +363,31 @@ void ShiftOpCs::normalizeLambdaBySills(const AMesh* mesh)
   }
 }
 
-void ShiftOpCs::prodLambda(const constvect x,
-                           vect y,
-                           const EPowerPT& power) const
+
+
+void ShiftOpMatrix::addProdLambda(const constvect x,
+                                  vect y,
+                                  const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * _Lambda[i];
+      y[i] += x[i] * _Lambda[i];
   }
   else if (power == EPowerPT::MINUSONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / _Lambda[i];
+      y[i] += x[i] / _Lambda[i];
   }
   else if (power == EPowerPT::HALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * sqrt(_Lambda[i]);
+      y[i] += x[i] * sqrt(_Lambda[i]);
   }
   else if (power == EPowerPT::MINUSHALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / sqrt(_Lambda[i]);
+      y[i] += x[i] / sqrt(_Lambda[i]);
   }
   else
   {
@@ -391,98 +395,7 @@ void ShiftOpCs::prodLambda(const constvect x,
   }
 }
 
-void ShiftOpCs::prodLambda(const VectorDouble& x,
-                           vect y,
-                           const EPowerPT& power) const
-{
-  if (power == EPowerPT::ONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * _Lambda[i];
-  }
-  else if (power == EPowerPT::MINUSONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / _Lambda[i];
-  }
-  else if (power == EPowerPT::HALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * sqrt(_Lambda[i]);
-  }
-  else if (power == EPowerPT::MINUSHALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / sqrt(_Lambda[i]);
-  }
-  else
-  {
-    my_throw("Unexpected value for argument 'power'");
-  }
-}
-
-void ShiftOpCs::prodLambda(const constvect x,
-                           VectorDouble& y,
-                           const EPowerPT& power) const
-{
-  if (power == EPowerPT::ONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * _Lambda[i];
-  }
-  else if (power == EPowerPT::MINUSONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / _Lambda[i];
-  }
-  else if (power == EPowerPT::HALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * sqrt(_Lambda[i]);
-  }
-  else if (power == EPowerPT::MINUSHALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / sqrt(_Lambda[i]);
-  }
-  else
-  {
-    my_throw("Unexpected value for argument 'power'");
-  }
-}
-
-//TODO replace by a call to the VectorXD version above
-void ShiftOpCs::prodLambda(const VectorDouble& x,
-                           VectorDouble& y,
-                           const EPowerPT& power) const
-{
-  if (power == EPowerPT::ONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * _Lambda[i];
-  }
-  else if (power == EPowerPT::MINUSONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / _Lambda[i];
-  }
-  else if (power == EPowerPT::HALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * sqrt(_Lambda[i]);
-  }
-  else if (power == EPowerPT::MINUSHALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / sqrt(_Lambda[i]);
-  }
-  else
-  {
-    my_throw("Unexpected value for argument 'power'");
-  }
-}
-
-void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
+void ShiftOpMatrix::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
                                      VectorDouble& outv,
                                      double puis) const
 {
@@ -500,13 +413,13 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  ** \remarks 'S' is a member that stands as a sparse matrix
  **
  *****************************************************************************/
-int ShiftOpCs::_addToDest(const constvect inv, vect outv) const
+int ShiftOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
   _S->addProdMatVecInPlaceToDest(inv, outv);
   return 0;
 }
 
-int ShiftOpCs::_resetGrad()
+int ShiftOpMatrix::_resetGrad()
 {
   if (_SGrad.empty()) return 1;
   for (int i = 0; i < (int) _SGrad.size(); i++)
@@ -517,14 +430,14 @@ int ShiftOpCs::_resetGrad()
   return 0;
 }
 
-void ShiftOpCs::_reset()
+void ShiftOpMatrix::_reset()
 {
   delete _S;
   _S = nullptr;
   _resetGrad();
 }
 
-void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
+void ShiftOpMatrix::_reallocate(const ShiftOpMatrix& shift)
 {
   _TildeC = shift._TildeC;
   _Lambda = shift._Lambda;
@@ -541,7 +454,7 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
   _napices = shift._napices;
 }
 
-MatrixSparse* ShiftOpCs::getTildeCGrad(int iapex, int igparam) const
+MatrixSparse* ShiftOpMatrix::getTildeCGrad(int iapex, int igparam) const
 {
 
   if (_TildeCGrad.empty())
@@ -555,7 +468,7 @@ MatrixSparse* ShiftOpCs::getTildeCGrad(int iapex, int igparam) const
     return _TildeCGrad[iad];
 }
 
-MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
+MatrixSparse* ShiftOpMatrix::getSGrad(int iapex, int igparam) const
 {
   if (_SGrad.empty())
   {
@@ -573,13 +486,13 @@ MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
  * @param cova Local CovAniso structure (updated here)
  * @param imesh Rank of the active mesh
  */
-void ShiftOpCs::_updateCova(std::shared_ptr<CovAniso> &cova, int imesh)
+void ShiftOpMatrix::_updateCova(std::shared_ptr<CovAniso> &cova, int imesh)
 {
   cova->updateCovByMesh(imesh,true);
 
 }
 
-void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int imesh)
+void ShiftOpMatrix::_updateHH(MatrixSquareSymmetric& hh, int imesh)
 {
   DECLARE_UNUSED(imesh)
   if (! _isNoStat()) return;
@@ -601,7 +514,7 @@ void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int imesh)
  * @param hh Output Array
  * @param imesh Rank of the active mesh
  */
-void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
+void ShiftOpMatrix::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
 {
   int ndim = getNDim();
   // Locally update the covariance for non-stationarity (if necessary)
@@ -617,7 +530,7 @@ void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
 
 }
 
-void ShiftOpCs::_loadHHVariety(MatrixSquareSymmetric& hh, int imesh)
+void ShiftOpMatrix::_loadHHVariety(MatrixSquareSymmetric& hh, int imesh)
 {
   int ndim = getNDim();
 
@@ -644,7 +557,7 @@ void ShiftOpCs::_loadHHVariety(MatrixSquareSymmetric& hh, int imesh)
  * @details: - ndim:ngparam : rotation angles (=ndim or 1 in 2-D)
  */
 
-void ShiftOpCs::_loadHHGrad(const AMesh *amesh,
+void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
                             MatrixSquareSymmetric &hh,
                             int igparam,
                             int ipref)
@@ -703,7 +616,7 @@ void ShiftOpCs::_loadHHGrad(const AMesh *amesh,
   hh.prodScalar(1. / number);
 }
 
-double ShiftOpCs::_computeGradLogDetHH(const AMesh *amesh,
+double ShiftOpMatrix::_computeGradLogDetHH(const AMesh *amesh,
                                        int igparam,
                                        int ipref,
                                        const MatrixSquareSymmetric &invHH,
@@ -745,7 +658,7 @@ double ShiftOpCs::_computeGradLogDetHH(const AMesh *amesh,
  * @param amesh Pointer to the meshing
  * @param imesh Rank of the mesh
  */
-void ShiftOpCs::_loadHH(const AMesh *amesh,
+void ShiftOpMatrix::_loadHH(const AMesh *amesh,
                         MatrixSquareSymmetric &hh,
                         int imesh)
 {
@@ -762,7 +675,7 @@ void ShiftOpCs::_loadHH(const AMesh *amesh,
   }
 }
 
-void ShiftOpCs::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh)
+void ShiftOpMatrix::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh)
 {
   DECLARE_UNUSED(tab,type,imesh)
   // TODO Repare
@@ -779,7 +692,7 @@ void ShiftOpCs::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh)
   //     tab[i] = nostat->getValue(type, 0, imesh, i, -1);
 }
 
-int ShiftOpCs::_preparMatrices(const AMesh *amesh,
+int ShiftOpMatrix::_preparMatrices(const AMesh *amesh,
                                int imesh,
                                MatrixSquareGeneral& matu,
                                MatrixRectangular& matw) const
@@ -808,7 +721,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
   return 0;
 }
 
-MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) const
+MatrixSparse* ShiftOpMatrix::_BuildTildeCGradfromMap(std::map< int, double> &tab) const
 {
   std::map<int, double>::iterator it;
 
@@ -833,7 +746,7 @@ MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) co
   return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize(), -1);
 }
 
-int ShiftOpCs::_prepareMatricesSVariety(const AMesh *amesh,
+int ShiftOpMatrix::_prepareMatricesSVariety(const AMesh *amesh,
                                         int imesh,
                                         VectorVectorDouble &coords,
                                         MatrixRectangular& matM,
@@ -874,7 +787,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh *amesh,
   return 0;
 }
 
-int ShiftOpCs::_prepareMatricesSphere(const AMesh *amesh,
+int ShiftOpMatrix::_prepareMatricesSphere(const AMesh *amesh,
                                       int imesh,
                                       VectorVectorDouble &coords,
                                       AMatrixSquare &matMs,
@@ -913,7 +826,7 @@ int ShiftOpCs::_prepareMatricesSphere(const AMesh *amesh,
  *
  * @remark TildeC is calculated at the same time
  */
-int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
+int ShiftOpMatrix::_buildS(const AMesh *amesh, double tol)
 {
   DECLARE_UNUSED(tol);
   int error = 1;
@@ -1031,7 +944,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
   return error;
 }
 
-MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh)
+MatrixSparse* ShiftOpMatrix::_prepareSparse(const AMesh *amesh)
 {
   MatrixSparse* Sret = nullptr;
   MatrixSparse* Sl = nullptr;
@@ -1060,7 +973,7 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh)
   return Sret;
 }
 
-bool ShiftOpCs::_cond(int indref, int igparam, int ipref)
+bool ShiftOpMatrix::_cond(int indref, int igparam, int ipref)
 {
   return ipref == indref && igparam == 0;
 }
@@ -1071,7 +984,7 @@ bool ShiftOpCs::_cond(int indref, int igparam, int ipref)
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
+int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
 {
   auto cova = _getCovAniso();
   _nCovAnisoGradParam = cova->getGradParamNumber();
@@ -1228,7 +1141,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   return 0;
 }
 
-void ShiftOpCs::_mapTildeCUpdate(std::map<int, double> &tab,
+void ShiftOpMatrix::_mapTildeCUpdate(std::map<int, double> &tab,
                                  int ip0,
                                  double value,
                                  double tol)
@@ -1240,7 +1153,7 @@ void ShiftOpCs::_mapTildeCUpdate(std::map<int, double> &tab,
   if (!ret.second) ret.first->second += value;
 }
 
-VectorT<std::map<int,double>> ShiftOpCs::_mapTildeCCreate()const
+VectorT<std::map<int,double>> ShiftOpMatrix::_mapTildeCCreate()const
 {
   int number = _ndim * getSize();
   VectorT<std::map<int,double>> tab(number);
@@ -1251,7 +1164,7 @@ VectorT<std::map<int,double>> ShiftOpCs::_mapTildeCCreate()const
   return tab;
 }
 
-VectorT<std::map<int, double>> ShiftOpCs::_mapCreate() const
+VectorT<std::map<int, double>> ShiftOpMatrix::_mapCreate() const
 {
   int size = getSize();
   if (size <= 0) my_throw("_mapCreate");
@@ -1259,7 +1172,7 @@ VectorT<std::map<int, double>> ShiftOpCs::_mapCreate() const
   return tab;
 }
 
-VectorT<VectorT<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
+VectorT<VectorT<std::map<int, double>>> ShiftOpMatrix::_mapVectorCreate() const
 {
   int number = _nCovAnisoGradParam * getSize();
   if (number <= 0) my_throw("_mapVectorCreate");
@@ -1275,7 +1188,7 @@ VectorT<VectorT<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
  * Construct the _Lambda vector (Dimension: _napices)
  * @param amesh Description of the Mesh
  */
-void ShiftOpCs::_buildLambda(const AMesh *amesh)
+void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
 {
   int ndim = getNDim();
   int nvertex = amesh->getNApices();
@@ -1361,7 +1274,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
  * @param amesh Description of the Mesh (New class)
  * @return
  */
-bool ShiftOpCs::_buildLambdaGrad(const AMesh *amesh)
+bool ShiftOpMatrix::_buildLambdaGrad(const AMesh *amesh)
 {
   int nvertex = amesh->getNApices();
   auto cova = cloneAndCast(_cova);
@@ -1399,7 +1312,7 @@ bool ShiftOpCs::_buildLambdaGrad(const AMesh *amesh)
  * @param imesh Rank of the mesh of interest
  * @param coeff Coordinates of the projected vertices
  */
-void ShiftOpCs::_projectMesh(const AMesh *amesh,
+void ShiftOpMatrix::_projectMesh(const AMesh *amesh,
                              const VectorDouble& srot,
                              int imesh,
                              double coeff[3][2])
@@ -1465,7 +1378,7 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
  * @param igparam  Rank of the target parameter
  * @return
  */
-int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
+int ShiftOpMatrix::getSGradAddress(int iapex, int igparam) const
 {
   int ngparam = _nCovAnisoGradParam;
   int napices = getSize();
@@ -1474,48 +1387,48 @@ int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
   return napices * igparam + iapex;
 }
 
-double ShiftOpCs::getMaxEigenValue() const
+double ShiftOpMatrix::getMaxEigenValue() const
 {
   return getS()->L1Norm();
 }
 
-bool ShiftOpCs::_isNoStat()
+bool ShiftOpMatrix::_isNoStat()
 {
   return _getCovAniso()->isNoStat();
 }
 
-bool ShiftOpCs::_isGlobalHH()
+bool ShiftOpMatrix::_isGlobalHH()
 {
   return !_cova->isNoStatForAnisotropy();
 }
 
-int ShiftOpCs::getLambdaGradSize() const
+int ShiftOpMatrix::getLambdaGradSize() const
 {
   return _ndim;
 }
 
-std::shared_ptr<CovAniso> ShiftOpCs::cloneAndCast(const CovAniso* cova)
+std::shared_ptr<CovAniso> ShiftOpMatrix::cloneAndCast(const CovAniso* cova)
 {
     return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
 
 }
 
-std::shared_ptr<CovAniso> ShiftOpCs::cloneAndCast(const std::shared_ptr<CovAniso> &cova)
+std::shared_ptr<CovAniso> ShiftOpMatrix::cloneAndCast(const std::shared_ptr<CovAniso> &cova)
 {
     return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
 
 }
-void ShiftOpCs::_setCovAniso(const CovAniso* cova)
+void ShiftOpMatrix::_setCovAniso(const CovAniso* cova)
 {
   _cova = cloneAndCast(cova);
 }
 
-std::shared_ptr<CovAniso> &ShiftOpCs::_getCovAniso()
+std::shared_ptr<CovAniso> &ShiftOpMatrix::_getCovAniso()
 {
   return _cova;
 }
 
-void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
+void ShiftOpMatrix::_mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
                                int ip0,
                                int ip1,
                                double value,
@@ -1534,7 +1447,7 @@ void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
  * @param tab   Input Map
  * @return
  */
-MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab) const
+MatrixSparse* ShiftOpMatrix::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab) const
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
@@ -1562,9 +1475,17 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
   return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize());
 }
 
-void ShiftOpCs::_determineFlagNoStatByHH()
+void ShiftOpMatrix::_determineFlagNoStatByHH()
 {
   _flagNoStatByHH = false;
   if (! _isNoStat()) return;
   _flagNoStatByHH = _cova->isNoStatForTensor();
 }
+
+// void ShiftOpMatrix::multiplyByValueAndAddDiagonal(double v1,double v2)
+// {
+//   MatrixSparse* T1 = MatrixSparse::diagConstant(getSize(), 1.);
+//   if (T1 == nullptr) my_throw("Problem in cs_eye");
+//   _S->addMatInPlace(*T1, v1, v2);
+//   delete T1;  
+// }

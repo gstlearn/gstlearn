@@ -39,19 +39,20 @@ public:
 
   void setUserInitialValue(bool b) { _userInitialValue = b; }
 
-  #ifndef SWIG
-  protected:
+#ifndef SWIG
 
-    virtual void _evalDirect(const std::vector<std::vector<double>> &inv,
-                             std::vector<std::vector<double>> &outv) const = 0;
-  public: 
-  void evalDirect(const std::vector<std::vector<double>> &inv,
-                  std::vector<std::vector<double>> &outv) const;
-  virtual void evalInverse(const std::vector<std::vector<double>> &vecin,
-                           std::vector<std::vector<double>> &vecout) const;
-  #endif
+protected:
+  virtual void _evalDirect(const std::vector<std::vector<double>>& inv,
+                           std::vector<std::vector<double>>& outv) const = 0;
 
-  protected:
+public:
+  void evalDirect(const std::vector<std::vector<double>>& inv,
+                  std::vector<std::vector<double>>& outv) const;
+  virtual void evalInverse(const std::vector<std::vector<double>>& vecin,
+                           std::vector<std::vector<double>>& vecout) const;
+#endif
+
+protected:
   void _updated() const;
 
 private:

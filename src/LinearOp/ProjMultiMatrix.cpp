@@ -11,22 +11,22 @@
 #include "Db/Db.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "Basic/AStringable.hpp"
-#include "LinearOp/IProjMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-static std::vector<std::vector<const IProjMatrix*>> castToBase(std::vector<std::vector<const ProjMatrix*>> vect)
+static std::vector<std::vector<const IProj*>> castToBase(std::vector<std::vector<const ProjMatrix*>> vect)
 {
-    std::vector<std::vector<const IProjMatrix*>> casted(vect.size());
+    std::vector<std::vector<const IProj*>> casted(vect.size());
     int iv = 0;
     for (auto &e : vect)
     {
-        std::vector<const IProjMatrix*> temp(e.size());
+        std::vector<const IProj*> temp(e.size());
         int ie = 0;
         for (auto &f: e)
         {
-            temp[ie++] = static_cast<const IProjMatrix*>(f);
+            temp[ie++] = static_cast<const IProj*>(f);
         }
         casted[iv++] = temp;
     } 
@@ -93,7 +93,7 @@ void ProjMultiMatrix::_clear()
     {
         for (auto &f : e)
         {
-            delete const_cast<IProjMatrix*>(f);
+            delete const_cast<IProj*>(f);
             f = nullptr;
         }
         e.clear();

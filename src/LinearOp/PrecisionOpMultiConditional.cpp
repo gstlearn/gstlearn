@@ -22,7 +22,7 @@
 
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   :_multiPrecisionOp(std::vector<PrecisionOp*>())
-  ,_multiProjData(std::vector<IProjMatrix*>())
+  ,_multiProjData(std::vector<IProj*>())
   ,_varianceData()
   ,_ndat(0)
   ,_ncova(0)
@@ -71,7 +71,7 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const std::vector<double>& d
 
 
 int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
-                                           IProjMatrix *projDataElem)
+                                           IProj *projDataElem)
 {
   if (sizes() == 0 && projDataElem != nullptr)
   {
@@ -81,7 +81,7 @@ int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
     _workdata.resize(_ndat);
   }
 
-  // Check that '_ndat' is the same for all IProjMatrix
+  // Check that '_ndat' is the same for all IProj
 
   for (int i = 0, n = sizes(); i < n; i++)
   {

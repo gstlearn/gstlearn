@@ -51,7 +51,7 @@ mesh = gl.MeshETurbo(workingDb)
 
 cova = model.getCova(0)
 cova.makeAngleNoStatDb("theta",0,resultDb)
-S = gl.ShiftOpCs(mesh, cova, resultDb)
+S = gl.ShiftOpMatrix(mesh, cova, resultDb)
 
 
 Qsimu = gl.PrecisionOp(S, cova, False)

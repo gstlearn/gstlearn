@@ -49,7 +49,7 @@ int SPDEOpMatrix::_solve(const constvect inv, vect outv) const
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOpMatrix::_addToDestImpl(const constvect inv, vect outv) const
+int SPDEOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
  return _QpAinvNoiseAt.addToDest(inv,outv);
 }

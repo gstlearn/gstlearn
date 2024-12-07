@@ -57,7 +57,7 @@ public:
   void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
   void    resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
-  void   setPolarized(bool flag) { _isPolarized = flag; }
+  void    setPolarized(bool flag) { _isPolarized = flag; }
 
   static MeshETurbo* create(const VectorInt& nx,
                             const VectorDouble& dx = VectorDouble(),
@@ -114,17 +114,18 @@ public:
 
   const Indirection& getGridIndirect() const { return _gridIndirect; }
   const Indirection& getMeshIndirect() const { return _meshIndirect; }
+  void getApexIndicesInPlace(int i, VectorInt& indg) const;
 
 private:
-  int  _defineGrid(const VectorDouble& cellsize);
+  int _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
-  int  _getPolarized(const constvectint indg) const;
-  int  _addWeights(int icas,
-                   const constvectint indg0,
-                   const constvect coor,
-                   const vectint indices,
-                   const vect lambda,
-                   bool verbose = false) const;
+  int _getPolarized(const constvectint indg) const;
+  int _addWeights(int icas,
+                  const constvectint indg0,
+                  const constvect coor,
+                  const vectint indices,
+                  const vect lambda,
+                  bool verbose = false) const;
   void _deallocate();
   void _getGridFromMesh(int imesh, int *node, int *icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);

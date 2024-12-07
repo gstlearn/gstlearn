@@ -1,5 +1,5 @@
 # This test is meant to test the function extractDiag() applied to a PrecisionOp
-# whether the matrix is stored explicitely (PrecisionOpCs) or not (PrecisionOp)
+# whether the matrix is stored explicitely (PrecisionOpMatrix) or not (PrecisionOp)
 
 import gstlearn as gl
 import time
@@ -21,7 +21,7 @@ model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
 print("Number of apices = ", mesh.getNApices())
 
 # Creating the PrecisionOp with Sparse matrix implemented
-QOpCs = gl.PrecisionOpCs(mesh, model.getCova(0))
+QOpCs = gl.PrecisionOpMatrix(mesh, model.getCova(0))
 
 # Printing the complete Precision Matrix to visualize the Diagonal
 Qmat = QOpCs.getQ()
@@ -58,9 +58,9 @@ mesh = gl.MeshETurbo([nx, nx])
 model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
 print("Number of apices = ", mesh.getNApices())
 
-# Creating the PrecisionOpCs with Sparse matrix implemented
+# Creating the PrecisionOpMatrix with Sparse matrix implemented
 start_time = time.time()
-QOpCs = gl.PrecisionOpCs(mesh, model.getCova(0))
+QOpCs = gl.PrecisionOpMatrix(mesh, model.getCova(0))
 ref1 = QOpCs.extractDiag()
 checkpointOpCs = str((time.time() - start_time))
 if print_Time:
