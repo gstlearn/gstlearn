@@ -44,6 +44,7 @@ internetAvailable <- function()
 #' 
 locateFile <- function (filename, where='references', directory=NULL, verbose=FALSE)
 {
+  argfilename = filename
   if (verbose)
     print(paste("Current directory is", getwd()))
   
@@ -96,7 +97,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   }
   
   # Download from Internet in a temporary file
-  localname = paste0(urlGST, '/', package_version, '/', where, '/', filename)
+  localname = paste0(urlGST, '/', package_version, '/', where, '/', directory, '/', argfilename)
   fullname = tempfile()
   if (!download.file(pathname, fullname, quiet=TRUE))
   {
