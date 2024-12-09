@@ -77,6 +77,7 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
     directory: Name of the data file directory (only used for 'where' = "data")
     '''
     
+    argfilename = filename
     if (verbose):
         print("Current directory is", os.getcwd())
 
@@ -115,7 +116,7 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
         return None
     
     # Download from Internet in a temporary file
-    localname = urlGST + '/' + version + '/' + where + '/' + filename
+    localname = urlGST + '/' + version + '/' + where + '/' + directory + '/' + argfilename
     try:
         fullname, head = urllib.request.urlretrieve(localname)
         if (verbose):
