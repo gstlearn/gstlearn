@@ -11,6 +11,7 @@
 #pragma once
 
 #include "LinearOp/AShiftOp.hpp"
+#include "geoslib_define.h"
 
 class CovAniso;
 class MeshETurbo;
@@ -22,27 +23,30 @@ class MeshETurbo;
  * - the covariance is stationary
  *
  * The different members are:
- * _useAccelerator which says if the weighting pattern can be systematically
- *                 applied though a set of shifts calculated on the grid
- *                 This requires that the grid has no selection
  * _relativeShifts For each vector, gives the vector of shifts, with respect
  *                 to the target node (in relative indices)
  * _absoluteShifts Vector of shifts to calculate where the weights should apply
  *                 calculated on the global target grid.
  *                 This can only be used if the grid has no selection
- * _weights Vector of weights (only significative ones are kept)
- * _isInside Vector telling if each node of the grid is located on its edge
- *           and should be bypassed for matrix calculations, or not
+ * _weights        Vector of weights (only significative ones are kept)
+ * _isInside       Vector telling if each node of the grid is located on its edge
+ *                 and should be bypassed for matrix calculations, or not
  */
 class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
 {
   public:
-    ShiftOpStencil(const MeshETurbo* mesh = nullptr, const CovAniso* cova = nullptr, bool verbose = false);
+    ShiftOpStencil(const MeshETurbo* mesh = nullptr,
+                   const CovAniso* cova   = nullptr,
+                   bool verbose           = false);
     ShiftOpStencil(const ShiftOpStencil& shift);
     ShiftOpStencil& operator=(const ShiftOpStencil& shift);
     virtual ~ShiftOpStencil();
     void normalizeLambdaBySills(const AMesh* mesh) override;
-    void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override {};
+    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override
+    {
+      DECLARE_UNUSED(v1);
+      DECLARE_UNUSED(v2);
+    };
 
     double getMaxEigenValue() const override;
 #ifndef SWIG
@@ -59,7 +63,6 @@ private:
   int _getNWeights() const { return (int) _weights.size(); }
 
 private:
-  bool _useAccelerator;
   VectorVectorInt _relativeShifts;
   VectorInt _absoluteShifts;
   VectorDouble _weights;

@@ -11,6 +11,7 @@
 #include "LinearOp/ShiftOpStencil.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Basic/Indirection.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -22,7 +23,6 @@ ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
                                const CovAniso* cova,
                                bool verbose)
   : AShiftOp()
-  , _useAccelerator(true)
   , _relativeShifts()
   , _absoluteShifts()
   , _weights()
@@ -34,7 +34,6 @@ ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
 
 ShiftOpStencil::ShiftOpStencil(const ShiftOpStencil& shift)
   : AShiftOp(shift)
-  , _useAccelerator(shift._useAccelerator)
   , _relativeShifts(shift._relativeShifts)
   , _absoluteShifts(shift._absoluteShifts)
   , _weights(shift._weights)
@@ -47,8 +46,7 @@ ShiftOpStencil& ShiftOpStencil::operator=(const ShiftOpStencil& shift)
 {
   if (this != &shift)
   {
-    _useAccelerator = shift._useAccelerator;
-    _relativeShifts  = shift._relativeShifts;
+    _relativeShifts = shift._relativeShifts;
     _absoluteShifts = shift._absoluteShifts;
     _weights        = shift._weights;
     _isInside       = shift._isInside;
@@ -62,50 +60,54 @@ ShiftOpStencil::~ShiftOpStencil() {}
 int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
 {
   int nw = _getNWeights();
-  int size = _mesh->getNApices();
+  int size = (int) inv.size();
+  const Indirection& indirect = _mesh->getGridIndirect();
 
   double total;
-  if (_useAccelerator)
+  if (!indirect.isDefined())
   {
-    for (int irel = 0; irel < size; irel++)
+    for (int ic = 0; ic < size; ic++)
     {
       total = 0.;
-      if (_isInside[irel])
+      if (_isInside[ic])
       {
         for (int iw = 0; iw < nw; iw++)
         {
-          int iabs = irel + _absoluteShifts[iw];
+          int iabs = ic + _absoluteShifts[iw];
           total += _weights[iw] * inv[iabs];
         }
       }
-      outv[irel] = total;
+      outv[ic] = total;
     }
   }
   else
   {
-    int ndim         = _mesh->getNDim();
     const Grid& grid = _mesh->getGrid();
-    VectorInt center(ndim);
+    int ndim         = _mesh->getNDim();
 
-    for (int irel = 0; irel < size; irel++)
+    VectorInt center(ndim);
+    VectorInt local(ndim);
+    for (int ic = 0; ic < size; ic++)
     {
       total = 0.;
-      if (_isInside[irel])
+
+      // Check if the target point is not on the edge and not masked
+      if (_isInside[ic] && indirect.getAToR(ic) >= 0)
       {
-        grid.rankToIndice(irel, center);
+        grid.rankToIndice(ic, center);
         for (int iw = 0; iw < nw; iw++)
         {
-          VectorInt local = center;
+          local = center;
           VH::addInPlace(local, _relativeShifts[iw]);
-          int iabs = grid.indiceToRank(local);
-          total += _weights[iw] * inv[iabs];
+          int ie = grid.indiceToRank(local);
+          if (indirect.getAToR(ie) >= 0) total += _weights[iw] * inv[ie];
         }
       }
-      outv[irel] = total;
+      outv[ic] = total;
     }
+    }
+    return 0;
   }
-  return 0;
-}
 
 void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
 {
@@ -129,7 +131,7 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
                                    bool verbose)
 {
   _mesh = mesh;
-  int ndim = _mesh->getNDim();
+  int ndim        = _mesh->getNDim();
 
   // Preliminary checks
   if (cova->isNoStat())
@@ -144,8 +146,6 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   VectorInt nxlocal(ndim, 5);
 
   MeshETurbo localMesh(nxlocal, grid.getDXs(), grid.getX0s(), grid.getRotAngles());
-  localMesh.display();
-
   ShiftOpMatrix shiftMat(&localMesh, cova, nullptr, verbose);
 
   // Display the vector of the 'S' matrix for the center Apex

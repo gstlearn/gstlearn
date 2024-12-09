@@ -44,9 +44,7 @@ int ALinearOp::addToDest(const constvect inv, vect outv) const
   std::fill(ctemp.begin(), ctemp.end(), 0.);
   int err = _addToDest(inv, ctemp);
   for (int i = 0; i < (int)outv.size(); i++)
-  {
     outv[i] = _idfactor * inv[i] + _factor * ctemp[i];
-  }
   return err;
 }
 
