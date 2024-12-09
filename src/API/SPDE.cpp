@@ -24,7 +24,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Model/Model.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
@@ -250,7 +250,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingSimu.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, cova, verbose);
+          precision = new PrecisionOpMatrix(mesh, cova, verbose);
         else
           precision = new PrecisionOp(mesh, cova, verbose);
         _pilePrecisions.push_back(precision);
@@ -275,7 +275,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, cova, verbose);
+          precision = new PrecisionOpMatrix(mesh, cova, verbose);
         else
           precision = new PrecisionOp(mesh, cova, verbose);
         _pilePrecisions.push_back(precision);

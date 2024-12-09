@@ -16,7 +16,7 @@
 #include "Enum/EPowerPT.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include <map>
 
 class APolynomial;
@@ -31,7 +31,7 @@ class GSTLEARN_EXPORT PrecisionOp : public ASimulable {
 
 public:
   PrecisionOp();
-  PrecisionOp(ShiftOpCs* shiftop,
+  PrecisionOp(AShiftOp* shiftop,
               const CovAniso* cova,
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
@@ -49,14 +49,14 @@ public:
 
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
 
-  static PrecisionOp* createFromShiftOp(ShiftOpCs *shiftop = nullptr,
+  static PrecisionOp* createFromShiftOp(AShiftOp *shiftop = nullptr,
                                         const CovAniso *cova = nullptr,
                                         bool verbose = false);
   static PrecisionOp* create(const AMesh* mesh,
                              CovAniso* cova,
                              bool verbose = false);
 
-  int reset(const ShiftOpCs *shiftop,
+  int reset(const AShiftOp *shiftop,
             const CovAniso *cova = nullptr,
             bool verbose = false);
 
@@ -99,7 +99,7 @@ public:
   int  getSize() const override { return _shiftOp->getSize(); }
   bool getTraining() const {return _training;}
   void setTraining(bool tr){ _training = tr;}
-  ShiftOpCs* getShiftOp() const { return _shiftOp; }
+  AShiftOp* getShiftOp() const { return _shiftOp; }
   VectorDouble getPolyCoeffs(const EPowerPT& power);
   void setPolynomialFromPoly(APolynomial* polynomial);
   bool isCovaDefined() const { return _cova != nullptr; }
@@ -109,7 +109,6 @@ public:
 
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
-  const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
   const CovAniso*  getCova() const {return _cova;}
 
 #ifndef SWIG
@@ -118,6 +117,9 @@ public:
   void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
 
 protected:
+int _addEvalPoly(const EPowerPT& power,
+                 const constvect inv,
+                 vect outv) const;
   virtual int _addToDest(const constvect inv, vect outv) const override;
   virtual int _addSimulateToDest(const constvect whitenoise,
                                  vect outv) const override;
@@ -135,7 +137,7 @@ private:
   void _purge();
 
 private:
-  mutable ShiftOpCs*                       _shiftOp;
+  mutable AShiftOp*                       _shiftOp;
   const CovAniso*                          _cova; // Not to be deleted
   mutable std::map<EPowerPT, APolynomial*> _polynomials;
   bool                                     _verbose;

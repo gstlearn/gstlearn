@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Space/ASpaceObject.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ECov.hpp"
@@ -139,14 +140,24 @@ Model* Model::createFromParam(const ECov& type,
   if (! sills.empty())
     nvar = (int)  sqrt(sills.size());
 
-  // TODO: Improve this tedious manipulation
   ASpace* spaceloc = nullptr;
-  if (space != nullptr) spaceloc = dynamic_cast<ASpace*>(space->clone());
+  if (space != nullptr)
+    spaceloc = dynamic_cast<ASpace*>(space->clone());
+  else
+    spaceloc = dynamic_cast<ASpace*>(getDefaultSpace()->clone());
 
   if (! ranges.empty())
   {
-    delete spaceloc;
-    spaceloc = new SpaceRN((int) ranges.size());
+    int ndim = spaceloc->getNDim();
+    int ndimRanges = (int)ranges.size();
+    if (ndimRanges != 1 && ndimRanges != ndim)
+    {
+      messerr("Incompatibility between:");
+      messerr("Space Dimension = %d", ndim);
+      messerr("Dimension of argument 'ranges' = %d", ndimRanges);
+      delete spaceloc;
+      return nullptr;
+    }
   }
 
   CovContext ctxt = CovContext(nvar,spaceloc);

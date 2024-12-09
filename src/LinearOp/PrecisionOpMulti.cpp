@@ -34,12 +34,10 @@
       }\
       else\
       {\
-        y = vect();\
         if (COMPUTEOP)\
         {\
           _works[icov].resize(napices);\
           y = vect(_works[icov]);\
-          std::fill(y.begin(),y.end(),0.);\
         }\
       }\
       for (int jvar = 0; jvar < nvar; jvar++)\
@@ -49,7 +47,11 @@
         if (nvar == 1)\
           y = vect(OUT.data() + iad_y, napices);\
         if (COMPUTEOP) \
+        {\
+          if ( (nvar > 1) || (ncov > 1) )\
+            std::fill(y.begin(),y.end(),0.);\
           _pops[icov]->OP(x, y);\
+        }\
         if ( (nvar == 1) && (ncov == 1) ) break;\
         if (nvar == 1)\
         {\
@@ -351,7 +353,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PrecisionOpMulti::_addToDestImpl(const constvect vecin, vect vecout) const
+int PrecisionOpMulti::_addToDest(const constvect vecin, vect vecout) const
 {
   if (!_checkReady()) return 1;
   if (_getNVar() > 1)
@@ -371,10 +373,6 @@ int PrecisionOpMulti::_addToDestImpl(const constvect vecin, vect vecout) const
   }
 }
 
-int PrecisionOpMulti::_addToDest(const constvect vecin, vect vecout) const
-{
-  return _addToDestImpl(vecin,vecout);
-}
 
 /**
  * Simulate based on an input random gaussian vector (Matrix free version)

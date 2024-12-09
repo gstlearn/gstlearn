@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Enum/EPowerPT.hpp"
-
+#include "LinearOp/AShiftOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
@@ -35,41 +35,26 @@ class MatrixSquareGeneral;
 class MatrixRectangular;
 class MatrixSquareSymmetric;
 
-/**
- * \brief Shift Operator for performing the basic tasks of SPDE
- */
 
-#ifndef SWIG
-#  include "LinearOp/ALinearOpEigenCG.hpp"
-DECLARE_EIGEN_TRAITS(ShiftOpCs)
-#else
-#  include "LinearOp/ALinearOp.hpp"
-#endif
-
-class GSTLEARN_EXPORT ShiftOpCs:
-#ifndef SWIG
-  public ALinearOpEigenCG<ShiftOpCs>
-#else
-  public ALinearOp
-#endif
+class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
 {
   public:
-    ShiftOpCs();
-    ShiftOpCs(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool verbose = false);
-    ShiftOpCs(const MatrixSparse* S, const VectorDouble& TildeC,
+    ShiftOpMatrix();
+    ShiftOpMatrix(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool verbose = false);
+    ShiftOpMatrix(const MatrixSparse* S, const VectorDouble& TildeC,
               const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
-    ShiftOpCs(const ShiftOpCs& shift);
-    ShiftOpCs& operator=(const ShiftOpCs& shift);
-    virtual ~ShiftOpCs();
-    void normalizeLambdaBySills(const AMesh*);
+    ShiftOpMatrix(const ShiftOpMatrix& shift);
+    ShiftOpMatrix& operator=(const ShiftOpMatrix& shift);
+    virtual ~ShiftOpMatrix();
+    void normalizeLambdaBySills(const AMesh* mesh) override;
 #ifndef SWIG
     int _addToDest(const constvect inv, vect outv) const override;
 #endif
 
-    static ShiftOpCs* create(const AMesh* amesh, const CovAniso* cova,
+    static ShiftOpMatrix* create(const AMesh* amesh, const CovAniso* cova,
                              const Db* dbout = nullptr, 
                              bool verbose = false);
-    static ShiftOpCs* createFromSparse(
+    static ShiftOpMatrix* createFromSparse(
       const MatrixSparse* S, const VectorDouble& TildeC,
       const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
     int initFromMesh(const AMesh* amesh, const CovAniso* cova,
@@ -81,10 +66,6 @@ class GSTLEARN_EXPORT ShiftOpCs:
     int initFromCS(const MatrixSparse* S, const VectorDouble& TildeC,
                    const VectorDouble& Lambda, const CovAniso* cova,
                    bool verbose = false);
-    int getSize() const override
-    {
-      return _napices;
-    }
 
     int getNDim() const
     {
@@ -96,17 +77,13 @@ class GSTLEARN_EXPORT ShiftOpCs:
     }
     void prodTildeC(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
-    void prodLambda(const VectorDouble& x, VectorDouble& y,
-                    const EPowerPT& power) const;
+  
   #ifndef SWIG
-    void prodLambda(const constvect x, vect y, const EPowerPT& power) const;
-    void prodLambda(const VectorDouble& x, vect y, const EPowerPT& power) const;
-    void
-    prodLambda(const constvect x, VectorDouble& y, const EPowerPT& power) const;
-#endif
+    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
+  #endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
-    double getMaxEigenValue() const;
+    double getMaxEigenValue() const override;
     MatrixSparse* getS() const { return _S; }
     MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
     MatrixSparse* getSGrad(int iapex, int igparam) const;
@@ -115,14 +92,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
     {
       return _TildeC;
     }
-    const VectorDouble& getLambdas() const
-    {
-      return _Lambda;
-    }
-    double getLambda(int iapex) const
-    {
-      return _Lambda[iapex];
-    }
+
     const VectorDouble& getLambdaGrads(int idim) const
     {
       return _LambdaGrad[idim];
@@ -134,7 +104,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
     int getSGradAddress(int iapex, int igparam) const;
 
     int getLambdaGradSize() const;
-
+    //void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
   private:
     void _setCovAniso(const CovAniso* cova);
     bool _isNoStat();
@@ -159,7 +129,7 @@ class GSTLEARN_EXPORT ShiftOpCs:
 
     void _reset();
     int _resetGrad();
-    void _reallocate(const ShiftOpCs& shift);
+    void _reallocate(const ShiftOpMatrix& shift);
     static void _projectMesh(const AMesh* amesh,
                              const VectorDouble& srot,
                              int imesh,
@@ -206,7 +176,6 @@ class GSTLEARN_EXPORT ShiftOpCs:
 
   private:
     VectorDouble _TildeC;
-    VectorDouble _Lambda;
     MatrixSparse* _S;
 
     int _nCovAnisoGradParam;
@@ -220,9 +189,5 @@ class GSTLEARN_EXPORT ShiftOpCs:
     std::shared_ptr<CovAniso> _cova;
 
     int _ndim;
-    int _napices;
   };
 
-#ifndef SWIG
-  DECLARE_EIGEN_PRODUCT(ShiftOpCs)
-#endif

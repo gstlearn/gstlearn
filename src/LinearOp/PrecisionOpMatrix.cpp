@@ -8,17 +8,19 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/AStringable.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "geoslib_define.h"
 
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/AException.hpp"
 
-PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
+PrecisionOpMatrix::PrecisionOpMatrix(ShiftOpMatrix* shiftop,
                              const CovAniso* cova,
                              bool verbose)
   : PrecisionOp(shiftop, cova, verbose)
@@ -28,7 +30,7 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
   _buildQ();
 }
 
-PrecisionOpCs::PrecisionOpCs(const AMesh* mesh, CovAniso* cova, bool verbose)
+PrecisionOpMatrix::PrecisionOpMatrix(const AMesh* mesh, CovAniso* cova, bool verbose)
   : PrecisionOp(mesh, cova, verbose)
   , _Q(nullptr)
   , _chol(nullptr)
@@ -36,13 +38,13 @@ PrecisionOpCs::PrecisionOpCs(const AMesh* mesh, CovAniso* cova, bool verbose)
   _buildQ();
 }
 
-PrecisionOpCs::~PrecisionOpCs()
+PrecisionOpMatrix::~PrecisionOpMatrix()
 {
   delete _Q;
   delete _chol;
 }
 
-void PrecisionOpCs::gradYQX(const constvect X,
+void PrecisionOpMatrix::gradYQX(const constvect X,
                             const constvect Y,
                             vect result,
                             const EPowerPT& power)
@@ -58,17 +60,24 @@ void PrecisionOpCs::gradYQX(const constvect X,
   evalPower(Y, w4s, power);
   double temp, val;
   int iadress;
+  const AShiftOp* sopt = getShiftOp();
+  const auto *soptmat = dynamic_cast<const ShiftOpMatrix*>(sopt);
+  if (soptmat == nullptr)
+  {
+    messerr("Method only available for ShiftOpMatrix\n");
+    return;
+  }
 
-  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam();
+  for (int igparam = 0; igparam < soptmat->getNCovAnisoGradParam();
        igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress = getShiftOp()->getSGradAddress(iapex, igparam);
-      if (igparam < getShiftOp()->getLambdaGradSize()) // range parameters
+      iadress = soptmat->getSGradAddress(iapex, igparam);
+      if (igparam < soptmat->getLambdaGradSize()) // range parameters
       {
         val  = getShiftOp()->getLambda(iapex);
-        temp = getShiftOp()->getLambdaGrad(igparam, iapex);
+        temp = soptmat->getLambdaGrad(igparam, iapex);
         result[iadress] =
           (X[iapex] * _work4[iapex] + Y[iapex] * _work3[iapex]) * temp / val;
       }
@@ -85,7 +94,7 @@ void PrecisionOpCs::gradYQX(const constvect X,
   }
 }
 
-void PrecisionOpCs::gradYQXOptim(const constvect X,
+void PrecisionOpMatrix::gradYQXOptim(const constvect X,
                                  const constvect Y,
                                  vect result,
                                  const EPowerPT& power)
@@ -105,17 +114,24 @@ void PrecisionOpCs::gradYQXOptim(const constvect X,
   double temp, val;
   int iadress;
 
-  for (int igparam = 0; igparam < getShiftOp()->getNCovAnisoGradParam();
+  const AShiftOp* sopt = getShiftOp();
+  const auto *soptmat = dynamic_cast<const ShiftOpMatrix*>(sopt);
+  if (soptmat == nullptr)
+  {
+    messerr("Method only available for ShiftOpMatrix\n");
+    return;
+  }
+  for (int igparam = 0; igparam < soptmat->getNCovAnisoGradParam();
        igparam++)
   {
     for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress         = getShiftOp()->getSGradAddress(iapex, igparam);
+      iadress         = soptmat->getSGradAddress(iapex, igparam);
       result[iadress] = 0.;
-      if (igparam < getShiftOp()->getLambdaGradSize())
+      if (igparam < soptmat->getLambdaGradSize())
       {
         val  = getShiftOp()->getLambda(iapex);
-        temp = getShiftOp()->getLambdaGrad(igparam, iapex);
+        temp = soptmat->getLambdaGrad(igparam, iapex);
         result[iadress] =
           (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
       }
@@ -129,12 +145,12 @@ void PrecisionOpCs::gradYQXOptim(const constvect X,
   }
 }
 
-int PrecisionOpCs::_addToDest(const constvect inv, vect outv) const
+int PrecisionOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
   return _Q->addToDest(inv, outv);
 }
 
-int PrecisionOpCs::_addSimulateToDest(const constvect whitenoise,
+int PrecisionOpMatrix::_addSimulateToDest(const constvect whitenoise,
                                       vect outv) const
 {
   if (_chol == nullptr) _chol = new CholeskySparse(_Q);
@@ -142,21 +158,21 @@ int PrecisionOpCs::_addSimulateToDest(const constvect whitenoise,
   return 0;
 }
 
-void PrecisionOpCs::evalInverse(const constvect vecin,
+void PrecisionOpMatrix::evalInverse(const constvect vecin,
                                 std::vector<double>& vecout)
 {
   if (_chol == nullptr) _chol = new CholeskySparse(_Q);
   _chol->solve(vecin, vecout);
 }
 
-double PrecisionOpCs::getLogDeterminant(int nbsimu)
+double PrecisionOpMatrix::getLogDeterminant(int nbsimu)
 {
   DECLARE_UNUSED(nbsimu);
   if (_chol == nullptr) _chol = new CholeskySparse(_Q);
   return _chol->computeLogDeterminant();
 }
 
-void PrecisionOpCs::evalDeriv(
+void PrecisionOpMatrix::evalDeriv(
   const constvect inv, vect outv, int iapex, int igparam, const EPowerPT& power)
 {
   DECLARE_UNUSED(iapex,igparam)
@@ -183,7 +199,7 @@ void PrecisionOpCs::evalDeriv(
   getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
-void PrecisionOpCs::evalDerivOptim(vect outv,
+void PrecisionOpMatrix::evalDerivOptim(vect outv,
                                    int iapex,
                                    int igparam,
                                    const EPowerPT& power)
@@ -211,7 +227,7 @@ void PrecisionOpCs::evalDerivOptim(vect outv,
 }
 
 
-//void PrecisionOpCs::evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam)
+//void PrecisionOpMatrix::evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam)
 //{
 //
 //  if(getPower() == EPowerPT::ONE)
@@ -225,7 +241,7 @@ void PrecisionOpCs::evalDerivOptim(vect outv,
 //
 //}
 
-void PrecisionOpCs::_buildQ()
+void PrecisionOpMatrix::_buildQ()
 {
   delete _Q;
   if (!isCovaDefined()) return;
@@ -250,10 +266,10 @@ void PrecisionOpCs::_buildQ()
  ** \param[in] blin     Array of coefficients for Linear combinaison
  **
  *****************************************************************************/
-MatrixSparse* PrecisionOpCs::_build_Q()
+MatrixSparse* PrecisionOpMatrix::_build_Q()
 {
   // Preliminary checks
-  auto *S = getShiftOpCs()->getS();
+  auto *S = ((ShiftOpMatrix*)getShiftOp())->getS();
   auto Lambda = getShiftOp()->getLambdas();
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
   int nblin = static_cast<int>(blin.size());
@@ -292,7 +308,7 @@ MatrixSparse* PrecisionOpCs::_build_Q()
   return Q;
 }
 
-VectorDouble PrecisionOpCs::extractDiag() const
+VectorDouble PrecisionOpMatrix::extractDiag() const
 {
   return _Q->extractDiag();
 }

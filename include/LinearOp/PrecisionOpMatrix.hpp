@@ -14,7 +14,7 @@
 #include "LinearOp/PrecisionOp.hpp"
 
 class AMesh;
-class ShiftOpCs;
+class ShiftOpMatrix;
 class CovAniso;
 class Model;
 
@@ -22,16 +22,16 @@ class Model;
 * Operator is built with sparse matrices and therefore algebra can be performed with Cholesky.
 * It allows to return the precision matrix as a Sparse Matrix. */
 
-class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
+class GSTLEARN_EXPORT PrecisionOpMatrix : public PrecisionOp
 {
 public:
-  PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
+  PrecisionOpMatrix(ShiftOpMatrix* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
                 bool verbose = false);
-  PrecisionOpCs(const AMesh* mesh,
+  PrecisionOpMatrix(const AMesh* mesh,
                 CovAniso* cova,
                 bool verbose = false);
-  virtual ~PrecisionOpCs();
+  virtual ~PrecisionOpMatrix();
 
   // Interface for PrecisionOp class
 #ifndef SWIG
