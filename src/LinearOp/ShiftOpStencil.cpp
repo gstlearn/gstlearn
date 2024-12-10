@@ -12,21 +12,25 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Indirection.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/Grid.hpp"
 
 #include "geoslib_define.h"
+#include <memory>
 
 ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
-                               const CovAniso* cova,
+                               CovAniso* cova,
                                bool verbose)
   : AShiftOp()
   , _relativeShifts()
   , _absoluteShifts()
   , _weights()
   , _isInside()
+  , _lambdaVal(0.)
+  , _useLambdaSingleVal(true)
   , _mesh()
 {
   if (_buildInternal(mesh, cova, verbose)) return;
@@ -38,18 +42,23 @@ ShiftOpStencil::ShiftOpStencil(const ShiftOpStencil& shift)
   , _absoluteShifts(shift._absoluteShifts)
   , _weights(shift._weights)
   , _isInside(shift._isInside)
+  , _lambdaVal(shift._lambdaVal)
+  , _useLambdaSingleVal(shift._useLambdaSingleVal)
   , _mesh(shift._mesh)
 {
 }
 
 ShiftOpStencil& ShiftOpStencil::operator=(const ShiftOpStencil& shift)
 {
+  AShiftOp::operator=(shift);
   if (this != &shift)
   {
     _relativeShifts = shift._relativeShifts;
     _absoluteShifts = shift._absoluteShifts;
     _weights        = shift._weights;
     _isInside       = shift._isInside;
+    _lambdaVal      = shift._lambdaVal;
+    _useLambdaSingleVal = shift._useLambdaSingleVal;
     _mesh           = shift._mesh;
   }
   return *this;
@@ -112,23 +121,41 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
 
 void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
 {
-  DECLARE_UNUSED(mesh)
-}
-
-void ShiftOpStencil::addProdLambda(const constvect x,
-                                   vect y,
-                                   const EPowerPT& power) const
-{
-  DECLARE_UNUSED(x, y, power)
+  if (_cova->isNoStatForVariance())
+  {
+    _Lambda.resize(_napices);
+    for (auto &e : _Lambda)
+    {
+      e = _lambdaVal;
+    }
+    AShiftOp::normalizeLambdaBySills(mesh);
+    _useLambdaSingleVal = false;
+  }
+  else 
+  {
+    _lambdaVal /= sqrt(_cova->getSill(0,0));
+  }
 }
 
 double ShiftOpStencil::getMaxEigenValue() const
 {
-  return TEST;
+  double s = 0.;
+  for (auto &e : _weights)
+  {
+    s += ABS(e);
+  }
+  return s;
 }
 
+double ShiftOpStencil::getLambda(int iapex) const
+{
+  if (_useLambdaSingleVal) return _lambdaVal;
+  return AShiftOp::getLambda(iapex);
+}
+
+
 int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
-                                   const CovAniso* cova,
+                                   CovAniso* cova,
                                    bool verbose)
 {
   _mesh = mesh;
@@ -137,7 +164,14 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
     _napices = mesh->getNApices();
 
   // Preliminary checks
-  if (cova->isNoStatForAnisotropy())
+  if (cova == nullptr)
+  {
+    messerr("The argument 'cova' must be provided");
+    return 1;
+  }
+  _cova = std::shared_ptr<CovAniso>(cova);
+
+  if (_cova->isNoStatForAnisotropy())
   {
     messerr("The Shiftop as a Stencil is incompatible with non-stationarity");
     return 1;
@@ -157,7 +191,7 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   VectorDouble centerColumn = S->getColumn(centerApex);
 
   // Fill lambda
-  double lambdaValue = shiftMat.getLambda(centerApex);
+  _lambdaVal = shiftMat.getLambda(centerApex);
 
   // Get the indices of the centerApex
   VectorInt center(ndim);

@@ -80,9 +80,6 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     void prodTildeC(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
   
-  #ifndef SWIG
-    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
-  #endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
     double getMaxEigenValue() const override;
@@ -186,9 +183,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     VectorVectorDouble _LambdaGrad;
     bool _flagNoStatByHH;
 
-    // Following list of members are there to ease the manipulation and reduce
-    // argument list
-    std::shared_ptr<CovAniso> _cova;
+
 
     int _ndim;
   };

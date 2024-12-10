@@ -44,7 +44,7 @@ class GSTLEARN_EXPORT AShiftOp: public ICloneable,
 #endif
 {
 public:
-  AShiftOp(int napices = 0);
+  AShiftOp(CovAniso* cova = nullptr, int napices = 0);
   AShiftOp(const AShiftOp& shift);
   AShiftOp& operator=(const AShiftOp& shift);
   virtual void prodLambda(const VectorDouble& x,
@@ -55,12 +55,12 @@ public:
 
   virtual void normalizeLambdaBySills(const AMesh*) = 0;
   const VectorDouble& getLambdas() const { return _Lambda; }
-  double getLambda(int iapex) const { return _Lambda[iapex]; }
+  virtual double getLambda(int iapex) const { return _Lambda[iapex]; }
 
   int getSize() const override { return _napices; }
 
 #ifndef SWIG
-    virtual void addProdLambda(const constvect x, vect y, const EPowerPT& power) const = 0;
+    virtual void addProdLambda(const constvect x, vect y, const EPowerPT& power) const;
     void prodLambda(const constvect x, vect y, const EPowerPT& power) const;
     void prodLambda(const VectorDouble& x, vect y, const EPowerPT& power) const;
     void prodLambda(const constvect x, VectorDouble& y, const EPowerPT& power) const;
@@ -72,6 +72,9 @@ public:
 protected:
     VectorDouble _Lambda;
     int _napices;
+    // Following list of members are there to ease the manipulation and reduce
+    // argument list
+    std::shared_ptr<CovAniso> _cova;
 };
 
 #ifndef SWIG
