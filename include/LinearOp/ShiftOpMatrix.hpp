@@ -46,6 +46,8 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     ShiftOpMatrix(const ShiftOpMatrix& shift);
     ShiftOpMatrix& operator=(const ShiftOpMatrix& shift);
     virtual ~ShiftOpMatrix();
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ShiftOpMatrix)
     void normalizeLambdaBySills(const AMesh* mesh) override;
 #ifndef SWIG
     int _addToDest(const constvect inv, vect outv) const override;

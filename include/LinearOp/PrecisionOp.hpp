@@ -36,7 +36,8 @@ public:
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
               CovAniso* cova,
-              bool verbose = false);
+              bool verbose = false,
+              bool stencil = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
   virtual ~PrecisionOp();

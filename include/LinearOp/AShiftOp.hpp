@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Enum/EPowerPT.hpp"
-
+#include "Basic/ICloneable.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
@@ -36,7 +36,7 @@ DECLARE_EIGEN_TRAITS(AShiftOp)
 #  include "LinearOp/ALinearOp.hpp"
 #endif
 
-class GSTLEARN_EXPORT AShiftOp:
+class GSTLEARN_EXPORT AShiftOp: public ICloneable,
 #ifndef SWIG
   public ALinearOpEigenCG<AShiftOp>
 #else
@@ -44,7 +44,7 @@ class GSTLEARN_EXPORT AShiftOp:
 #endif
 {
 public:
-  AShiftOp();
+  AShiftOp(int napices = 0);
   AShiftOp(const AShiftOp& shift);
   AShiftOp& operator=(const AShiftOp& shift);
   virtual void prodLambda(const VectorDouble& x,

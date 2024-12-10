@@ -12,9 +12,9 @@
 
 #include <math.h>
 
-AShiftOp::AShiftOp()
+AShiftOp::AShiftOp(int napices)
 : _Lambda()
-, _napices(0)
+, _napices(napices)
 {
 }
 

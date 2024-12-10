@@ -41,6 +41,9 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
     ShiftOpStencil(const ShiftOpStencil& shift);
     ShiftOpStencil& operator=(const ShiftOpStencil& shift);
     virtual ~ShiftOpStencil();
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ShiftOpStencil)
+
     void normalizeLambdaBySills(const AMesh* mesh) override;
     void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override
     {

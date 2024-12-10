@@ -132,11 +132,13 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
 {
   _mesh = mesh;
   int ndim        = _mesh->getNDim();
+  if (_mesh != nullptr)
+    _napices = mesh->getNApices();
 
   // Preliminary checks
   if (cova->isNoStat())
   {
-    messerr("The Shiftp as a Stencil is incompatible with non-stationarity");
+    messerr("The Shiftop as a Stencil is incompatible with non-stationarity");
     return 1;
   }
 
