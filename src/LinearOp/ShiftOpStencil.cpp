@@ -66,6 +66,7 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   double total;
   if (!indirect.isDefined())
   {
+    // Use the fast option when no selection is defined on the Grid
     for (int ic = 0; ic < size; ic++)
     {
       total = 0.;
@@ -131,12 +132,12 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
                                    bool verbose)
 {
   _mesh = mesh;
-  int ndim        = _mesh->getNDim();
+  int ndim = _mesh->getNDim();
 
   // Preliminary checks
-  if (cova->isNoStat())
+  if (cova->isNoStatForAnisotropy())
   {
-    messerr("The Shiftp as a Stencil is incompatible with non-stationarity");
+    messerr("The ShiftOp as a Stencil is incompatible with non-stationarity");
     return 1;
   }
 
@@ -152,6 +153,9 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   MatrixSparse* S           = shiftMat.getS();
   int centerApex            = localMesh.getNApices() / 2;
   VectorDouble centerColumn = S->getColumn(centerApex);
+
+  // Fill lambda
+  double lambdaValue = shiftMat.getLambda(centerApex);
 
   // Get the indices of the centerApex
   VectorInt center(ndim);
