@@ -75,6 +75,8 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
     filename: Name of the file to be located
     where: 'data' or 'references'
     directory: Name of the data file directory (only used for 'where' = "data")
+    verbose: True to activate verbose mode
+    version: Use a specific gstlearn version when searching the file on the web (string)
     '''
     
     argfilename = filename
@@ -128,7 +130,7 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
     print("Cannot access URL:", localname, "!")
     return None
 
-def loadDoc(filename, verbose=False):
+def loadDoc(filename, verbose=False, version=package_version):
     '''
     This function return the contents of a Markdown file from the 'references' directory named 'filename'
     The result is decorated so as to appear as a NOTE in HTML files
@@ -136,9 +138,11 @@ def loadDoc(filename, verbose=False):
     Arguments
     ---------
     filename: Name of the Markdown file of interest
+    verbose: True to activate verbose mode
+    version: Use a specific gstlearn version when searching the file on the web (string)
     '''
     
-    filemd = locateFile(filename, verbose=verbose)
+    filemd = locateFile(filename, verbose=verbose, version=version)
     if filemd is None:
         return "File " + filename + " not found!"
     
@@ -153,7 +157,7 @@ def loadDoc(filename, verbose=False):
         if img is not None:
             beginning = img.group(1)
             imgdesc = img.group(2)
-            imgfile = locateFile(img.group(3), verbose=verbose)
+            imgfile = locateFile(img.group(3), verbose=verbose, version=version)
             ending = img.group(4)
             if imgfile is None:
                 return "File " + img.group(3) + " not found!"
@@ -166,7 +170,7 @@ def loadDoc(filename, verbose=False):
     result = ''.join(header) + '\n'.join(lines) + ''.join(trailer)
     return result
 
-def displayDoc(filename, verbose=False):
+def displayDoc(filename, verbose=False, version=package_version):
     '''
     This function displays the contents of a Markdown file from the 'references' directory named 'filename'
     The result is decorated so as to appear as a NOTE in HTML files
@@ -174,20 +178,24 @@ def displayDoc(filename, verbose=False):
     Arguments
     ---------
     filename: Name of the Markdown file of interest
+    verbose: True to activate verbose mode
+    version: Use a specific gstlearn version when searching the file on the web (string)
     '''
 
-    result = loadDoc(filename, verbose)
+    result = loadDoc(filename, verbose, version)
 
     return Markdown(result)
 
-def loadData(directory, filename, verbose=False, version = package_version):
+def loadData(directory, filename, verbose=False, version=package_version):
     '''
-    This function loads a file named 'filename' in the 'directory' (from the web site)
+    This function returns the path of a file 'filename' in the 'data' directory (locally or from the web site)
     
     Arguments
     ---------
-    directory: Name of the Directory (within /data) containing the file of interest
     filename: Name of the file of interest
+    directory: Name of the sub-directory (within 'data' directory) containing the file of interest
+    verbose: True to activate verbose mode
+    version: Use a specific gstlearn version when searching the file on the web (string)
     '''
     
     return locateFile(filename, "data", directory, verbose=verbose, version=version)
