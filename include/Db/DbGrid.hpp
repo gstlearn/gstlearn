@@ -355,8 +355,7 @@ public:
   void getGridPileInPlace(int iuid,
                           const VectorInt& indg,
                           int idim0,
-                          VectorDouble& vec,
-                          int by = 1) const;
+                          VectorDouble& vec) const;
   void setGridPileInPlace(int iuid,
                             const VectorInt &indg,
                             int idim0,
