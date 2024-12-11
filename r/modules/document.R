@@ -38,11 +38,13 @@ internetAvailable <- function()
 #' - if not, it is assumed to be present locally in './doc/<where>', '../../doc/<where>' or '../../<where>'
 #' - if not, if Internet is available, the file is downloaded from the gstlearn website in a temporary file
 #' 
-#' filename: Name of the file to be located
-#' where: 'data' or 'references'
-#' directory: Name of the data file directory (only used for 'where' = "data")
+#' @param filename: Name of the file to be located
+#' @param where: 'data' or 'references'
+#' @param directory: Name of the data file directory (only used for 'where' = "data")
+#' @param verbose: TRUE to activate verbose mode
+#' @param version: Use a specific gstlearn version when searching the file on the web (string)
 #' 
-locateFile <- function (filename, where='references', directory=NULL, verbose=FALSE)
+locateFile <- function (filename, where='references', directory=NULL, verbose=FALSE, version=package_version)
 {
   argfilename = filename
   if (verbose)
@@ -97,9 +99,9 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   }
   
   # Download from Internet in a temporary file
-  localname = paste0(urlGST, '/', package_version, '/', where, '/', directory, '/', argfilename)
+  localname = paste0(urlGST, '/', version, '/', where, '/', directory, '/', argfilename)
   fullname = tempfile()
-  if (!download.file(pathname, fullname, quiet=TRUE))
+  if (!download.file(localname, fullname, quiet=TRUE))
   {
     if (verbose)
       print(paste(localname, "found... Full path is", fullname))
@@ -113,13 +115,14 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
 #' Returns the decorated documentation (Markdown file) from 'references' directory
 #' 
 #' @param filename Name of the Markdown file containing the text to be displayed
-#' @param verbose Verbose flag
+#' @param verbose: TRUE to activate verbose mode
+#' @param version: Use a specific gstlearn version when searching the file on the web (string)
 #' 
 #' TODO: the color does not function... to be fixed.
 #' remark: the returned string must be displayed in a RMarkdown chunk as follows:
 #'   {r, echo=FALSE, result='asis'}
 #'    cat(XXX, sep='new_line')
-loadDoc <- function(filename, verbose=FALSE)
+loadDoc <- function(filename, verbose=FALSE, version=package_version)
 {
   if (!require("stringr", quietly=TRUE))
   {
@@ -127,7 +130,7 @@ loadDoc <- function(filename, verbose=FALSE)
     return("")
   }
     
-  filepath = locateFile(filename, verbose=verbose)
+  filepath = locateFile(filename, verbose=verbose, version=version)
   if (is.null(filepath))
     return(paste("File ", filename, "not found!"))
   
@@ -143,7 +146,7 @@ loadDoc <- function(filename, verbose=FALSE)
     {
       beginning = img[2]
       imgdesc = img[3]
-      imgfile = locateFile(img[4], verbose=verbose)
+      imgfile = locateFile(img[4], verbose=verbose, version=version)
       ending = img[5]
       if (is.null(imgfile))
         return(paste("File", img[4], "not found!"))
@@ -158,11 +161,13 @@ loadDoc <- function(filename, verbose=FALSE)
   result
 }
 
-#' Load and returns the contents of the data file 'filename' located within 'data/directory'
-#' @param directory Name of the Directory located in the 'data' sub-directory of the URL
+#' Returns path of a data file 'filename' located within the 'data' directory (locally or from the web site)
+#' @param directory Name of the sub-irectory located in the 'data' directory
 #' @param filename Name of the data file to be loaded
+#' @param verbose: TRUE to activate verbose mode
+#' @param version: Use a specific gstlearn version when searching the file on the web (string)
 #' @return The name of the returned data file
-loadData <- function(directory, filename, verbose=FALSE)
+loadData <- function(directory, filename, verbose=FALSE, version=package_version)
 {
-  locateFile(filename, "data", directory, verbose=verbose)
+  locateFile(filename, "data", directory, verbose=verbose, version=version)
 }
