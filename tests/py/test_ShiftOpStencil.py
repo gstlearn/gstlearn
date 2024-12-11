@@ -44,3 +44,5 @@ resultNew = Ssten.evalDirect(newvar)
 # %%
 print("Difference =", np.max(np.abs(resultNew-result)))
 
+
+# %%

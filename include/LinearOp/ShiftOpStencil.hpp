@@ -36,7 +36,7 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
 {
   public:
     ShiftOpStencil(const MeshETurbo* mesh = nullptr,
-                   CovAniso* cova   = nullptr,
+                   const CovAniso* cova   = nullptr,
                    bool verbose     = false);
     ShiftOpStencil(const ShiftOpStencil& shift);
     ShiftOpStencil& operator=(const ShiftOpStencil& shift);
@@ -45,12 +45,8 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
     IMPLEMENT_CLONING(ShiftOpStencil)
 
     void normalizeLambdaBySills(const AMesh* mesh) override;
-    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override
-    {
-      //TODO : optimize this
-      AShiftOp::multiplyByValueAndAddDiagonal(v1, v2);
-    };
-
+    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override;
+    void resetModif() override;
     double getMaxEigenValue() const override;
     double getLambda(int iapex) const override;
 
@@ -60,7 +56,7 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
 #endif
 
 private:
-  int _buildInternal(const MeshETurbo* mesh, CovAniso* cova, bool verbose);
+  int _buildInternal(const MeshETurbo* mesh, const CovAniso* cova, bool verbose);
   void _printStencil() const;
   int _getNWeights() const { return (int) _weights.size(); }
 
@@ -68,8 +64,10 @@ private:
   VectorVectorInt _relativeShifts;
   VectorInt _absoluteShifts;
   VectorDouble _weights;
+  mutable VectorDouble _weightsSimu;
   VectorBool _isInside; 
   double _lambdaVal;
   bool _useLambdaSingleVal;
+  bool _useModifiedShift;
   const MeshETurbo* _mesh; // not to be deleted
 };

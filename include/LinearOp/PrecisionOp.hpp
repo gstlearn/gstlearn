@@ -36,8 +36,8 @@ public:
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
               CovAniso* cova,
-              bool verbose = false,
-              bool stencil = false);
+              bool stencil = false,
+              bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
   virtual ~PrecisionOp();
@@ -55,6 +55,7 @@ public:
                                         bool verbose = false);
   static PrecisionOp* create(const AMesh* mesh,
                              CovAniso* cova,
+                             bool stencil = false,
                              bool verbose = false);
 
   int reset(const AShiftOp *shiftop,

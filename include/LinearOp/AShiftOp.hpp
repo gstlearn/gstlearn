@@ -57,6 +57,8 @@ public:
   const VectorDouble& getLambdas() const { return _Lambda; }
   virtual double getLambda(int iapex) const { return _Lambda[iapex]; }
 
+  static std::shared_ptr<CovAniso> cloneAndCast(const CovAniso* cova);
+  static std::shared_ptr<CovAniso> cloneAndCast(const std::shared_ptr<CovAniso> &cova);
   int getSize() const override { return _napices; }
 
 #ifndef SWIG
@@ -68,6 +70,12 @@ public:
 #ifndef SWIG
     int _addToDest(const constvect inv, vect outv) const override = 0;
 #endif
+
+protected:
+    std::shared_ptr<CovAniso>& _getCovAniso();
+    void _setCovAniso(const CovAniso* cova);
+    bool _isNoStat();
+    bool _isGlobalHH();
 
 protected:
     VectorDouble _Lambda;

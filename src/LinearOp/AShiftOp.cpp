@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/AShiftOp.hpp"  
 #include "Covariances/CovAniso.hpp"
+#include "LinearOp/ALinearOp.hpp"
 #include <math.h>
 
 AShiftOp::AShiftOp(CovAniso* cova, int napices)
@@ -108,6 +109,18 @@ void AShiftOp::addProdLambda(const constvect x,
   }
 }
 
+std::shared_ptr<CovAniso> AShiftOp::cloneAndCast(const std::shared_ptr<CovAniso> &cova)
+{
+    return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
+
+}
+
+std::shared_ptr<CovAniso> AShiftOp::cloneAndCast(const CovAniso* cova)
+{
+    return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
+
+}
+
 void AShiftOp::normalizeLambdaBySills(const AMesh* mesh)
 {
   VectorDouble tab;
@@ -134,4 +147,25 @@ void AShiftOp::normalizeLambdaBySills(const AMesh* mesh)
       e *= invsillsq;
     }
   }
+}
+
+bool AShiftOp::_isNoStat()
+{
+  return _getCovAniso()->isNoStat();
+}
+
+bool AShiftOp::_isGlobalHH()
+{
+  return !_cova->isNoStatForAnisotropy();
+}
+
+
+void AShiftOp::_setCovAniso(const CovAniso* cova)
+{
+  _cova = cloneAndCast(cova);
+}
+
+std::shared_ptr<CovAniso> &AShiftOp::_getCovAniso()
+{
+  return _cova;
 }

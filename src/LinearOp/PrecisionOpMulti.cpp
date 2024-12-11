@@ -84,6 +84,7 @@
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
                                    const VectorMeshes& meshes,
+                                   bool stencil,
                                    bool buildOp)
   : _pops()
   , _isNoStatForVariance(false)
@@ -123,13 +124,13 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if(buildOp)
   {
-    buildQop();
+    buildQop(stencil);
   }
 }
 
-void PrecisionOpMulti::buildQop()
+void PrecisionOpMulti::buildQop(bool stencil)
 {
-  _buildQop();
+  _buildQop(stencil);
   _ready = true;
 }
 
@@ -144,12 +145,12 @@ bool PrecisionOpMulti::_checkReady() const
 }
 
 
-void PrecisionOpMulti::_buildQop()
+void PrecisionOpMulti::_buildQop(bool stencil)
 {
   for (int i = 0, number = _getNCov(); i < number; i++)
   {
      CovAniso* cova = _model->getCova(_covList[i]);
-    _pops.push_back(PrecisionOp::create(_meshes[i], cova));
+    _pops.push_back(PrecisionOp::create(_meshes[i], cova, stencil));
   }
 }
 PrecisionOpMulti::~PrecisionOpMulti()

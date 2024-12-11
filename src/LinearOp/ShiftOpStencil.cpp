@@ -12,6 +12,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Indirection.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -22,7 +23,7 @@
 #include <memory>
 
 ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
-                               CovAniso* cova,
+                               const CovAniso* cova,
                                bool verbose)
   : AShiftOp()
   , _relativeShifts()
@@ -31,6 +32,7 @@ ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
   , _isInside()
   , _lambdaVal(0.)
   , _useLambdaSingleVal(true)
+  , _useModifiedShift(false)
   , _mesh()
 {
   if (_buildInternal(mesh, cova, verbose)) return;
@@ -41,9 +43,11 @@ ShiftOpStencil::ShiftOpStencil(const ShiftOpStencil& shift)
   , _relativeShifts(shift._relativeShifts)
   , _absoluteShifts(shift._absoluteShifts)
   , _weights(shift._weights)
+  , _weightsSimu(shift._weightsSimu)
   , _isInside(shift._isInside)
   , _lambdaVal(shift._lambdaVal)
   , _useLambdaSingleVal(shift._useLambdaSingleVal)
+  , _useModifiedShift(shift._useModifiedShift)
   , _mesh(shift._mesh)
 {
 }
@@ -56,9 +60,11 @@ ShiftOpStencil& ShiftOpStencil::operator=(const ShiftOpStencil& shift)
     _relativeShifts = shift._relativeShifts;
     _absoluteShifts = shift._absoluteShifts;
     _weights        = shift._weights;
+    _weightsSimu    = shift._weightsSimu;
     _isInside       = shift._isInside;
     _lambdaVal      = shift._lambdaVal;
     _useLambdaSingleVal = shift._useLambdaSingleVal;
+    _useModifiedShift   = shift._useModifiedShift;
     _mesh           = shift._mesh;
   }
   return *this;
@@ -68,6 +74,16 @@ ShiftOpStencil::~ShiftOpStencil() {}
 
 int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
 {
+  const VectorDouble* currentWeights;
+  if (_useModifiedShift)
+  {
+    currentWeights = &_weightsSimu;
+  }
+  else 
+  {
+    currentWeights = &_weights;
+  }
+
   int nw = _getNWeights();
   int size = (int) inv.size();
   const Indirection& indirect = _mesh->getGridIndirect();
@@ -85,7 +101,7 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
         {
           int iabs = ic + _absoluteShifts[iw];
           double value = _isInside[iabs] ? inv[iabs] : 0.;
-          total += _weights[iw] * value;
+          total += (*currentWeights)[iw] * value;
         }
       }
       outv[ic] = total;
@@ -111,14 +127,19 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
           local = center;
           VH::addInPlace(local, _relativeShifts[iw]);
           int ie = grid.indiceToRank(local);
-          if (indirect.getAToR(ie) >= 0) total += _weights[iw] * inv[ie];
+          if (indirect.getAToR(ie) >= 0) total += (*currentWeights)[iw] * inv[ie];
         }
       }
       outv[ic] = total;
     }
-    }
-    return 0;
   }
+  return 0;
+}
+
+void ShiftOpStencil::resetModif()
+{
+  _useModifiedShift = false;
+}
 
 void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
 {
@@ -141,7 +162,7 @@ void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
 double ShiftOpStencil::getMaxEigenValue() const
 {
   double s = 0.;
-  for (auto &e : _weights)
+  for (const auto &e : _weights)
   {
     s += ABS(e);
   }
@@ -154,23 +175,38 @@ double ShiftOpStencil::getLambda(int iapex) const
   return AShiftOp::getLambda(iapex);
 }
 
+void ShiftOpStencil::multiplyByValueAndAddDiagonal(double v1, double v2) 
+{
+  _weightsSimu = VectorDouble(_weights.size());
+  for (int i = 0; i < (int)_weights.size(); i++)
+    _weightsSimu[i] = v1 * _weights[i];
+  int center = _relativeShifts.size() / 2;
+  _weightsSimu[center] += v2;
+  _useModifiedShift = true;
+}
 
 int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
-                                   CovAniso* cova,
+                                   const CovAniso* cova,
                                    bool verbose)
 {
-  _mesh = mesh;
-  int ndim        = _mesh->getNDim();
-  if (_mesh != nullptr)
-    _napices = mesh->getNApices();
-
   // Preliminary checks
+
   if (cova == nullptr)
   {
     messerr("The argument 'cova' must be provided");
     return 1;
   }
-  _cova = std::shared_ptr<CovAniso>(cova);
+  if (mesh == nullptr)
+  {
+    messerr("The argument 'mesh' must be provided");
+    return 1;
+  }
+
+  _mesh = mesh;
+  _napices = mesh->getNApices();
+  int ndim        = _mesh->getNDim();
+
+  _setCovAniso(cova);
 
   if (_cova->isNoStatForAnisotropy())
   {

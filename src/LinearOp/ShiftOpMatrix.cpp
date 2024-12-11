@@ -1360,41 +1360,12 @@ double ShiftOpMatrix::getMaxEigenValue() const
   return getS()->L1Norm();
 }
 
-bool ShiftOpMatrix::_isNoStat()
-{
-  return _getCovAniso()->isNoStat();
-}
-
-bool ShiftOpMatrix::_isGlobalHH()
-{
-  return !_cova->isNoStatForAnisotropy();
-}
 
 int ShiftOpMatrix::getLambdaGradSize() const
 {
   return _ndim;
 }
 
-std::shared_ptr<CovAniso> ShiftOpMatrix::cloneAndCast(const CovAniso* cova)
-{
-    return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
-
-}
-
-std::shared_ptr<CovAniso> ShiftOpMatrix::cloneAndCast(const std::shared_ptr<CovAniso> &cova)
-{
-    return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
-
-}
-void ShiftOpMatrix::_setCovAniso(const CovAniso* cova)
-{
-  _cova = cloneAndCast(cova);
-}
-
-std::shared_ptr<CovAniso> &ShiftOpMatrix::_getCovAniso()
-{
-  return _cova;
-}
 
 void ShiftOpMatrix::_mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
                                int ip0,
