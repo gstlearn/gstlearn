@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
+#include "Basic/AStringable.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
@@ -17,10 +18,10 @@
 
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
                                    const VectorMeshes& meshes)
-  : PrecisionOpMulti(model,meshes,false)
+  : PrecisionOpMulti(model,meshes,false,false)
   , _Q(MatrixSparse(0,0))
 {
-  buildQop();
+  buildQop(false);
   _prepareMatrix();
 }
 
@@ -125,8 +126,12 @@ PrecisionOpMultiMatrix::~PrecisionOpMultiMatrix()
 
 }
 
-void PrecisionOpMultiMatrix::_buildQop()
+void PrecisionOpMultiMatrix::_buildQop(bool stencil)
 {
+  if (stencil)
+  {
+    messerr("PrecisionOpMultiMatrix does not support stencil option\n");
+  }
   for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
     CovAniso* cova = _model->getCova(_getCovInd(icov));
@@ -135,7 +140,7 @@ void PrecisionOpMultiMatrix::_buildQop()
 }
 
 int PrecisionOpMultiMatrix::_addToDest(const constvect vecin,
-                                           vect vecout) const
+                                       vect vecout) const
 {
   return getQ()->addToDest(vecin, vecout);
 }

@@ -15,6 +15,8 @@
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/ShiftOpStencil.hpp"
 #include "LinearOp/AShiftOp.hpp"
+#include "Mesh/MeshEStandard.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
@@ -60,6 +62,7 @@ PrecisionOp::PrecisionOp(AShiftOp* shiftop,
 
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          CovAniso* cova,
+                         bool stencil,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(cova)
@@ -72,8 +75,21 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work2()
   , _work3()
 { 
-  //TODO : allow to build ShiftOpStencil
-  _shiftOp = new ShiftOpMatrix(mesh,cova,nullptr,verbose);
+  const MeshETurbo* meshTurbo = dynamic_cast<const MeshETurbo*>(mesh);
+
+  if (stencil && meshTurbo == nullptr)
+  {
+    messerr("Mesh is not a TurboMeshing. Stencil cannot be used.");
+    messerr("Stencil option is ignored.");
+  }
+  if (stencil && meshTurbo != nullptr)
+  {
+    _shiftOp = new ShiftOpStencil(meshTurbo,cova,verbose);
+  }
+  else
+  {
+      _shiftOp = new ShiftOpMatrix(mesh,cova,nullptr,verbose);
+  }
   if (_cova->getNVariables() == 1)
   {
     _shiftOp->normalizeLambdaBySills(mesh);
@@ -96,18 +112,7 @@ PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
   , _work3(pmat._work3)
 {
   if (_destroyShiftOp)
-  {
-    //TODO use clone is probably better...
-    const auto *a = dynamic_cast<const ShiftOpMatrix*>(pmat._shiftOp);
-    if(a!=nullptr)
-      _shiftOp = new ShiftOpMatrix(*a);
-    else
-    {
-       const auto *b = dynamic_cast<const ShiftOpStencil*>(pmat._shiftOp);
-       _shiftOp = new ShiftOpStencil(*b);
-    }
-
-  }
+    _shiftOp = dynamic_cast<AShiftOp*>(pmat._shiftOp->clone());
   else
     _shiftOp = pmat._shiftOp;
 }
@@ -128,14 +133,8 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
 
     if (_destroyShiftOp)
     {
-      const auto *a = dynamic_cast<const ShiftOpMatrix*>(pmat._shiftOp);
-      if(a!=nullptr)
-        _shiftOp = new ShiftOpMatrix(*a);
-      else
-      {
-        const auto *b = dynamic_cast<const ShiftOpStencil*>(pmat._shiftOp);
-        _shiftOp = new ShiftOpStencil(*b);
-      }
+      _shiftOp = (AShiftOp*)pmat._shiftOp->clone();
+    
     }
     else
       _shiftOp = pmat._shiftOp;
@@ -171,9 +170,10 @@ PrecisionOp* PrecisionOp::createFromShiftOp(AShiftOp *shiftop,
 
 PrecisionOp* PrecisionOp::create(const AMesh* mesh,
                                  CovAniso* cova,
+                                 bool stencil,
                                  bool verbose)
 {
-  return new PrecisionOp(mesh, cova, verbose);
+  return new PrecisionOp(mesh, cova, stencil, verbose);
 }
 
 int PrecisionOp::_addToDest(const constvect inv, vect outv) const
@@ -303,15 +303,7 @@ int PrecisionOp::reset(const AShiftOp* shiftop,
 
     _cova    = cova;
     _verbose = verbose;
-      //TODO use clone is probably better...
-    const auto *a = dynamic_cast<const ShiftOpMatrix*>(shiftop);
-    if(a!=nullptr)
-      _shiftOp = new ShiftOpMatrix(*a);
-    else
-    {
-       const auto *b = dynamic_cast<const ShiftOpStencil*>(shiftop);
-       _shiftOp = new ShiftOpStencil(*b);
-    }
+    _shiftOp = (AShiftOp*)shiftop->clone();
 
     _purge();
   }
