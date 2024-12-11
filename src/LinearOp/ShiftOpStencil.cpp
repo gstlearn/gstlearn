@@ -20,7 +20,6 @@
 #include "Basic/Grid.hpp"
 
 #include "geoslib_define.h"
-#include <memory>
 
 ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
                                const CovAniso* cova,
