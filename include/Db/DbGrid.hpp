@@ -353,9 +353,10 @@ public:
                                          int seed = 132433) const;
 
   void getGridPileInPlace(int iuid,
-                            const VectorInt &indg,
-                            int idim0,
-                            VectorDouble &vec) const;
+                          const VectorInt& indg,
+                          int idim0,
+                          VectorDouble& vec,
+                          int by = 1) const;
   void setGridPileInPlace(int iuid,
                             const VectorInt &indg,
                             int idim0,
