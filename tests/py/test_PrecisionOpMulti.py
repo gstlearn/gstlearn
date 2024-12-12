@@ -200,7 +200,7 @@ def computeAll(model,mesh,seed = 12344):
     poprMatrix =          PrecisionOpMulti(modelCrMatrix,mesh,True)
     popr       =          PrecisionOpMulti(modelCr      ,mesh,False)
     popsMatrix = gl.PrecisionOpMultiMatrix(modelCsMatrix,mesh)
-    pops       =       gl.PrecisionOpMulti(modelCs      ,mesh)
+    pops       = gl.PrecisionOpMulti(modelCs      ,mesh)
     result = dict()
 
     result["reseval"] = pops.evalDirect(u)
