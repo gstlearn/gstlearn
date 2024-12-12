@@ -4,7 +4,10 @@ This file contains the logs between consecutive releases
 
 Release 1.6.0
 =============
+- Add version in functions loadDoc and loadData (Python and R)
+- Fix loadData in R when trying to download the data file from the web (require 'lares' package)
 - in Model::createFromParam, use Default Space when given space argument is null.
+- Fix loadData under windows ('\' was added in the URL)
 - in Db::setLocator, if locatorIndex is set to -1, the new locator is ADDED to already existing ones.
 - Class IProjMatrix renamed as IProj
 - Class ShiftOpCs renamed as ShiftOpMatrix
