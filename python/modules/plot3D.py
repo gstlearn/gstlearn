@@ -123,8 +123,9 @@ def Meshing(mesh, color='black', width=1, **plot_args):
     return meshing
     
 def ScatterOnDb(db, mode='lines', color='black', width=1, 
-            m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
-            **plot_args):
+                m_symbol = 'circle', m_color='black', m_line = 'black', 
+                m_size=15, m_width=2,
+                **plot_args):
     
     if __invalidFileDimension(db, 3):
         return None
