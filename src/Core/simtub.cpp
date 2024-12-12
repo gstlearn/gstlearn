@@ -622,8 +622,7 @@ static void st_init_gibbs_params(double rho)
  ** \param[in]  gibbs_nburn Number of bootstrap iterations
  ** \param[in]  gibbs_niter Maximum number of iterations
  ** \param[in]  percent     Amount of nugget effect added to too much continous
- **                         model (expressed in percentage of the total
-variance)
+ **                         model (expressed in percentage of the total variance)
  ** \param[in]  namconv     Naming convention
  **
  ** \remark  The argument 'dbin' is optional: it must be defined only for
