@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.6.0
 =============
+- Migrate: in Grid to Grid, perform interpolation if flag_inter is True
 - Add version in functions loadDoc and loadData (Python and R)
 - Fix loadData in R when trying to download the data file from the web (require 'lares' package)
 - in Model::createFromParam, use Default Space when given space argument is null.
