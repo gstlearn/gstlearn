@@ -87,6 +87,7 @@ set(SRC
   Covariances/CovExponential.cpp
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
+  Covariances/ACor.cpp
   Covariances/CovSincard.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
@@ -103,6 +104,7 @@ set(SRC
   Covariances/CovCosExp.cpp
   Covariances/CovReg1D.cpp
   Covariances/ACovFunc.cpp
+  Covariances/CorAniso.cpp
   Covariances/CovAniso.cpp
   Covariances/CovGradientNumerical.cpp
   Covariances/CovCubic.cpp
