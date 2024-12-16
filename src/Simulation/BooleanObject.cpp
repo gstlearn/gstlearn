@@ -122,7 +122,7 @@ void BooleanObject::_defineBoundingBox(double eps)
   _box[1][0] = _center[1] - dy / 2;
   _box[1][1] = _center[1] + dy / 2;
 
-  if (_token->getFlagCutZ())
+  if (!_token->getFlagCutZ())
   {
     _box[2][0] = _center[2] - dz / 2;
     _box[2][1] = _center[2] + dz / 2;
@@ -155,10 +155,10 @@ void BooleanObject::_drawCoordinate(const DbGrid *dbout,
  **
  *****************************************************************************/
 BooleanObject* BooleanObject::generate(const DbGrid* dbout,
-                         const VectorDouble& cdgrain,
-                         const ModelBoolean* tokens,
-                         const SimuBooleanParam& boolparam,
-                         double eps)
+                                       const VectorDouble& cdgrain,
+                                       const ModelBoolean* tokens,
+                                       const SimuBooleanParam& boolparam,
+                                       double eps)
 {
   int ndim = dbout->getNDim();
 
@@ -178,7 +178,7 @@ BooleanObject* BooleanObject::generate(const DbGrid* dbout,
       if (iter > boolparam.getMaxiter()) return nullptr;
       _drawCoordinate(dbout, boolparam, coor);
     }
-    while (_checkIntensity(dbout, tokens, coor));
+    while (_invalidTokenFromIntensity(dbout, tokens, coor));
   }
 
   // Generate an object of the correct Token type
@@ -210,7 +210,7 @@ BooleanObject* BooleanObject::generate(const DbGrid* dbout,
         }
         else
         {
-          if (object->getToken()->getFlagCutZ())
+          if (!object->getToken()->getFlagCutZ())
             valrand = law_uniform(0., 1.) - 0.5;
           else
             valrand = law_uniform(0., 1.);
@@ -253,14 +253,14 @@ BooleanObject* BooleanObject::generate(const DbGrid* dbout,
   **  This Intensity can be local or not (if Flag_stat)
   **
   ** \return  Error return code:
-  ** \return  0 the token is created
-  ** \return  1 the token may not be created
+  ** \return  FALSE the token is created
+  ** \return  TRUE  the token may not be created
   **
   *****************************************************************************/
-bool BooleanObject::_checkIntensity(const DbGrid* dbout,
-                             const ModelBoolean* tokens,
-                             const VectorDouble& coor,
-                             double eps)
+ bool BooleanObject::_invalidTokenFromIntensity(const DbGrid* dbout,
+                                                const ModelBoolean* tokens,
+                                                const VectorDouble& coor,
+                                                double eps)
  {
    double theta;
    if (tokens->isFlagStat())
@@ -270,7 +270,7 @@ bool BooleanObject::_checkIntensity(const DbGrid* dbout,
    else
    {
      int iech = dbout->coordinateToRank(coor, false, eps);
-     theta = dbout->getLocVariable(ELoc::P,iech, 0);
+     theta    = dbout->getLocVariable(ELoc::P, iech, 0);
    }
    return (law_uniform(0., 1.) > theta);
  }
@@ -306,10 +306,9 @@ bool BooleanObject::_isInObject(const VectorDouble& coor, int ndim)
 
   if (ABS(incr[0]) > _extension[0] / 2.) return false;
   if (ABS(incr[1]) > _extension[1] / 2.) return false;
-
   if (ndim > 2)
   {
-    if (_token->getFlagCutZ())
+    if (!_token->getFlagCutZ())
     {
       if (ABS(incr[2]) > _extension[2] / 2.) return false;
     }
@@ -567,8 +566,9 @@ void BooleanObject::projectToGrid(DbGrid *dbout,
         }
         if (iptr_rank >= 0)
         {
-          if (FFFF(dbout->getArray(iad, iptr_rank)))
-            dbout->setArray(iad, iptr_rank, (double) (rank + 1));
+          double value = dbout->getArray(iad, iptr_rank);
+          if (FFFF(value) || value == 0)
+            dbout->setArray(iad, iptr_rank, (double) (rank));
         }
       }
 }

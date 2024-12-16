@@ -24,6 +24,19 @@ class BooleanObject;
 class DbGrid;
 class Db;
 
+/**
+ * @brief Class for performing Boolean simulation
+ *
+ * A Boolean simulation results in drawing random object into a Field
+ * conditionally to existing samples or not
+ * These objects are called tokens and are generated according to:
+ * - their type (extension, orientation, ...)
+ * - their proportion: fix or variable
+ *
+ * The samples (used for conditional simulations) are defined in input Db
+ * (as Z Locator variable) and are set to 0 (pore) or 1 (grain)
+ * If the proportion is variable, it uses Proportion locator in output DbGrid
+ */
 class GSTLEARN_EXPORT SimuBoolean: public ACalcSimulation, public AStringable
 {
 public:

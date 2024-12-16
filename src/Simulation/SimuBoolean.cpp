@@ -480,7 +480,7 @@ int simbool(Db* dbin,
   int iptr_rank = -1;
   if (flag_rank)
   {
-    iptr_rank = dbout->addColumnsByConstant(1, TEST);
+    iptr_rank = dbout->addColumnsByConstant(1, boolparam.getBackground());
     if (iptr_rank < 0) return 1;
   }
 
