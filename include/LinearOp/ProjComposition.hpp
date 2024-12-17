@@ -13,6 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "LinearOp/IProj.hpp"
 
+#include <memory>
+
 class GSTLEARN_EXPORT ProjComposition : public IProj
 {
 public:

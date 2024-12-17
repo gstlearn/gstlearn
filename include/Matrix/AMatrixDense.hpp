@@ -16,6 +16,8 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/WarningMacro.hpp"
 
+#include <memory>
+
 #ifndef SWIG
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
