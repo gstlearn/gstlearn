@@ -35,7 +35,7 @@ public:
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
   void _prepareMatrix();
-  void _buildQop() override;
+  void _buildQop(bool stencil = false) override;
   bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}
 
 private:

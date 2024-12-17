@@ -880,9 +880,9 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
 }
 
 void DbGrid::getGridPileInPlace(int iuid,
-                                const VectorInt &indg,
+                                const VectorInt& indg,
                                 int idim0,
-                                VectorDouble &vec) const
+                                VectorDouble& vec) const
 {
   int nz = getNX(idim0);
   if (nz != (int) vec.size()) vec.resize(nz);

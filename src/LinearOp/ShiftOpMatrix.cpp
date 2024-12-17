@@ -39,7 +39,6 @@ ShiftOpMatrix::ShiftOpMatrix()
   , _TildeCGrad()
   , _LambdaGrad()
   , _flagNoStatByHH(false)
-  , _cova(nullptr)
   , _ndim(0)
 {
 }
@@ -56,7 +55,6 @@ ShiftOpMatrix::ShiftOpMatrix(const AMesh* amesh,
   , _TildeCGrad()
   , _LambdaGrad()
   , _flagNoStatByHH(false)
-  , _cova(nullptr)
   , _ndim(amesh->getEmbeddedNDim())
 {
   if (amesh != nullptr)
@@ -77,7 +75,6 @@ ShiftOpMatrix::ShiftOpMatrix(const MatrixSparse* S,
   , _TildeCGrad()
   , _LambdaGrad()
   , _flagNoStatByHH(false)
-  , _cova(nullptr)
   , _ndim(0)
 {
   if (S != nullptr)
@@ -95,7 +92,6 @@ ShiftOpMatrix::ShiftOpMatrix(const ShiftOpMatrix& shift)
   , _TildeCGrad()
   , _LambdaGrad()
   , _flagNoStatByHH(false)
-  , _cova(nullptr)
   , _ndim(0)
 {
   _reallocate(shift);
@@ -365,35 +361,7 @@ void ShiftOpMatrix::normalizeLambdaBySills(const AMesh* mesh)
 
 
 
-void ShiftOpMatrix::addProdLambda(const constvect x,
-                                  vect y,
-                                  const EPowerPT& power) const
-{
-  if (power == EPowerPT::ONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] * _Lambda[i];
-  }
-  else if (power == EPowerPT::MINUSONE)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] / _Lambda[i];
-  }
-  else if (power == EPowerPT::HALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] * sqrt(_Lambda[i]);
-  }
-  else if (power == EPowerPT::MINUSHALF)
-  {
-    for (int i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] / sqrt(_Lambda[i]);
-  }
-  else
-  {
-    my_throw("Unexpected value for argument 'power'");
-  }
-}
+
 
 void ShiftOpMatrix::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
                                      VectorDouble& outv,
@@ -1392,41 +1360,12 @@ double ShiftOpMatrix::getMaxEigenValue() const
   return getS()->L1Norm();
 }
 
-bool ShiftOpMatrix::_isNoStat()
-{
-  return _getCovAniso()->isNoStat();
-}
-
-bool ShiftOpMatrix::_isGlobalHH()
-{
-  return !_cova->isNoStatForAnisotropy();
-}
 
 int ShiftOpMatrix::getLambdaGradSize() const
 {
   return _ndim;
 }
 
-std::shared_ptr<CovAniso> ShiftOpMatrix::cloneAndCast(const CovAniso* cova)
-{
-    return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
-
-}
-
-std::shared_ptr<CovAniso> ShiftOpMatrix::cloneAndCast(const std::shared_ptr<CovAniso> &cova)
-{
-    return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
-
-}
-void ShiftOpMatrix::_setCovAniso(const CovAniso* cova)
-{
-  _cova = cloneAndCast(cova);
-}
-
-std::shared_ptr<CovAniso> &ShiftOpMatrix::_getCovAniso()
-{
-  return _cova;
-}
 
 void ShiftOpMatrix::_mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
                                int ip0,
