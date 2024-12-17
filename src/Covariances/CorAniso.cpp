@@ -56,7 +56,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
       _noStatFactor(1.),
       _optimEnabled(true)
 {
-  _initFromContext();
+  initFromContext();
 }
 
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
@@ -70,7 +70,7 @@ CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
-  _initFromContext();
+  initFromContext();
 }
 
 CorAniso::CorAniso(const ECov &type,
@@ -85,8 +85,8 @@ CorAniso::CorAniso(const ECov &type,
       _tabNoStat(),
       _noStatFactor(1.),
       _optimEnabled(true)
-  {
-  _initFromContext();
+{
+  initFromContext();
 
   // Param
   setParam(param);
@@ -162,7 +162,7 @@ CorAniso::~CorAniso()
   delete _cova;
 }
 
-void CorAniso::_computeCorrec()
+void CorAniso::computeCorrec()
 {
   _cova->computeCorrec(getNDim());
 }
@@ -175,14 +175,14 @@ void CorAniso::computeMarkovCoeffs()
 void CorAniso::setContext(const CovContext &ctxt)
 {
   _ctxt = ctxt;
-  _updateFromContext();
+  updateFromContext();
 }
 
 void CorAniso::setParam(double param)
 {
   if (!_cova->hasParam()) return;
   _cova->setParam(param);
-  _updateFromContext();
+  updateFromContext();
 }
 
 
@@ -398,7 +398,7 @@ bool CorAniso::isConsistent(const ASpace* space) const
  * @param mode Pointer to CovCalcMode structure (optional)
  * @return The covariance value
  */
-double CorAniso::_evalCorFromH(double h, const CovCalcMode *mode) const
+double CorAniso::evalCorFromH(double h, const CovCalcMode *mode) const
 {
   double cov = 0.;
   if (mode != nullptr)
@@ -450,7 +450,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
     h = p2.getDistance(p1);
   }
 
-  return _evalCorFromH(h, mode);
+  return evalCorFromH(h, mode);
 }
 
 double CorAniso::eval(const SpacePoint &p1,
@@ -512,7 +512,7 @@ VectorDouble CorAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
 void CorAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 {
   _cova->setMarkovCoeffs(coeffs);
-  _computeCorrec();
+  computeCorrec();
 }
 
 /* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
@@ -551,10 +551,10 @@ double CorAniso::getCorrec() const
 
 double CorAniso::getFullCorrec() const
 {
-  return  _cova->getCorrec() / _getDetTensor();
+  return  _cova->getCorrec() / getDetTensor();
 }
 
-double CorAniso::_getDetTensor() const
+double CorAniso::getDetTensor() const
 {
   VectorDouble scales = getScales();
   double detTensor = 1.;
@@ -607,12 +607,10 @@ VectorDouble CorAniso::evalCovOnSphereVec(const VectorDouble &alpha,
   return vec;
 }
 
-String CorAniso::toString(const AStringFormat* /*strfmt*/) const
+String CorAniso::toStringParams() const
 {
   std::stringstream sstr;
-  // Covariance Name
-  sstr << _cova->toString();
-
+  
   if (_cova->hasRange() > 0)
   {
 
@@ -654,6 +652,15 @@ String CorAniso::toString(const AStringFormat* /*strfmt*/) const
       }
     }
   }
+  return sstr.str();
+}
+
+String CorAniso::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+  // Covariance Name
+  sstr << _cova->toString();
+  sstr << toStringParams();
   
    
   // Non-stationary parameters
@@ -740,17 +747,23 @@ double CorAniso::getParam() const
   return _cova->getParam();
 }
 
-void CorAniso::_initFromContext()
+void CorAniso::initFromContext()
 {
   int ndim = getNDim();
   _aniso.init(ndim);
-  _updateFromContext();
+  updateFromContext();
 }
 
-void CorAniso::_updateFromContext()
+void CorAniso::optimizationSetTarget(const SpacePoint& pt) const
+{
+  _optimizationSetTarget(pt);
+}
+
+
+void CorAniso::updateFromContext()
 {
   computeMarkovCoeffs();
-  _computeCorrec();
+  computeCorrec();
 }
 
 /**
@@ -928,7 +941,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble &freq)
   {
-    return evalSpectrum(freq, ivar, jvar) * _getDetTensor();
+    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
   };
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
@@ -956,7 +969,7 @@ void CorAniso::_optimizationSetTarget(const SpacePoint& pt) const
 {
   if (_isOptimEnabled())
   {  
-    _optimizationTransformSP(pt, _p2A);
+    optimizationTransformSP(pt, _p2A);
   }
   else 
   {
@@ -985,7 +998,7 @@ void CorAniso::optimizationSetTargetByIndex(int iech) const
  * @param ptin  Input Space Point
  * @param ptout Output Space Point
  */
-void CorAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
+void CorAniso::optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 {
   if (_isOptimEnabled())
 	{
@@ -998,7 +1011,6 @@ void CorAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
   if (!isTarget) 
   {
     ptout.setIech(ptin.getIech());
-
   }
 }
 
@@ -1009,6 +1021,10 @@ void CorAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
  * or checking for heterotopy.
  * @param p vector of SpacePoints
  */
+void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p) const
+{
+  _optimizationPreProcess(p);
+}
 void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
 
@@ -1024,7 +1040,7 @@ void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
     pt.setIech(p[i].getIech());
     if (! p[i].isFFFF())
 		{
-      _optimizationTransformSP(p[i], pt);
+      optimizationTransformSP(p[i], pt);
     }
     else
     {

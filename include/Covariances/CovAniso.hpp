@@ -12,12 +12,12 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/CorAniso.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-
 #include "Enum/ECov.hpp"
 
 #include "Basic/ICloneable.hpp"
@@ -84,12 +84,7 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
-  double evalCor(const SpacePoint &p1,
-                 const SpacePoint &p2,
-                 const CovCalcMode* mode = nullptr,
-                 int ivar = 0,
-                 int jvar = 0) const; // let ivar and jvar for the future where the
-                                      // correlation will be different for multivariate
+ 
   virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode = nullptr) const override;
  
@@ -105,7 +100,7 @@ public:
                               int jvar = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
-  virtual String getFormula() const { return _cova->getFormula(); }
+  virtual String getFormula() const { return _cor.getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
   bool isOptimizationInitialized(const Db* db = nullptr) const;
@@ -185,8 +180,8 @@ public:
   double getSill(int ivar, int jvar) const;
   double getSlope(int ivar, int jvar) const;
   VectorDouble getRanges() const;
-  const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
-  const VectorDouble& getScales() const { return _aniso.getRadius(); }
+  const Rotation& getAnisoRotation() const { return _cor.getAniso().getRotation(); }
+  const VectorDouble& getScales() const { return _cor.getAniso().getRadius(); }
 
   void   setType(const ECov& type);
   double getRange() const;
@@ -195,37 +190,37 @@ public:
   bool   getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
-  VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
-  const MatrixSquareGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
-  const MatrixSquareGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
+  VectorDouble getAnisoAngles() const { return _cor.getAniso().getAngles(); }
+  const MatrixSquareGeneral& getAnisoRotMat() const { return _cor.getAniso().getMatrixDirect(); }
+  const MatrixSquareGeneral& getAnisoInvMat() const { return _cor.getAniso().getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
-  double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
+  double getAnisoRotMat(int idim, int jdim) const { return _cor.getAniso().getMatrixDirect().getValue(idim,jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
   const CovContext& getContext() const { return _ctxt; }
-  const ECov& getType() const { return _cova->getType(); }
+  const ECov& getType() const { return _cor.getType(); }
   double getParam() const;
-  double getScadef() const { return _cova->getScadef(); }
-  double getParMax() const { return _cova->getParMax(); }
-  int    getMaxNDim() const { return _cova->getMaxNDim(); }
-  int    getMinOrder() const { return _cova->getMinOrder(); }
-  bool   hasInt1D() const { return _cova->hasInt1D(); }
-  bool   hasInt2D() const { return _cova->hasInt2D(); }
-  int    hasRange() const { return _cova->hasRange(); }
-  int    hasParam() const  { return _cova->hasParam(); }
-  String getCovName() const { return _cova->getCovName(); }
-  bool   isIsotropic() const { return _aniso.isIsotropic(); }
+  double getScadef() const { return _cor.getScadef(); }
+  double getParMax() const { return _cor.getParMax(); }
+  int    getMaxNDim() const { return _cor.getMaxNDim(); }
+  int    getMinOrder() const { return _cor.getMinOrder(); }
+  bool   hasInt1D() const { return _cor.hasInt1D(); }
+  bool   hasInt2D() const { return _cor.hasInt2D(); }
+  int    hasRange() const { return _cor.hasRange(); }
+  int    hasParam() const  { return _cor.hasParam(); }
+  String getCovName() const { return _cor.getCovName(); }
+  bool   isIsotropic() const { return _cor.getAniso().isIsotropic(); }
   bool   isAsymptotic() const { return getScadef() != 1.; }
-  bool   hasRotation() const { return _aniso.hasRotation(); }
-  const Tensor& getAniso() const { return _aniso; }
-  void   setAniso(const Tensor& aniso) { _aniso = aniso; }
-  const ACovFunc* getCova() const { return _cova; }
+  bool   hasRotation() const { return _cor.getAniso().hasRotation(); }
+  const Tensor& getAniso() const { return _cor.getAniso(); }
+  void   setAniso(const Tensor& aniso) { _cor.setAniso(aniso); }
+  const ACovFunc* getCova() const { return _cor.getCova(); }
   int    getGradParamNumber() const;
-  bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
-  bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
-  bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
-  bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
-  bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
+  bool   hasCovDerivative() const { return _cor.hasCovDerivative(); }
+  bool   hasCovOnSphere() const { return _cor.hasCovOnSphere(); }
+  bool   hasSpectrumOnSphere() const { return _cor.hasSpectrumOnSphere(); }
+  bool   hasMarkovCoeffs() const { return _cor.hasMarkovCoeffs(); }
+  bool   hasSpectrumOnRn() const { return _cor.hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
   //////////////////////// New NoStat methods //////////////////////////
   void   attachNoStatDb(const Db* db);
@@ -344,13 +339,11 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
   void   _computeCorrec();
   double _getDetTensor() const;
   void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-  double _evalCorFromH(double h, const CovCalcMode *mode) const;
 
 private:
+  CorAniso _cor;
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
-  ACovFunc *_cova;                     /// Covariance basic function
   mutable MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
-  mutable Tensor _aniso;               /// Anisotropy parameters
   TabNoStatCovAniso _tabNoStat;
   mutable double _noStatFactor;        /// Correcting factor for non-stationarity
   const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,

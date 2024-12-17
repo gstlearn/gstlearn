@@ -102,6 +102,8 @@ public:
   virtual double getBallRadius() const { return TEST; }
 
   bool isOptimizationInitialized(const Db* db = nullptr) const;
+  void optimizationPreProcess(const std::vector<SpacePoint>& p) const;
+
   void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
   void optimizationSetTargetByIndex(int iech) const override;
 
@@ -268,11 +270,18 @@ public:
   void updateCovByMesh(int imesh,bool aniso = true);
   double getValue(const EConsElem &econs,int iv1,int iv2) const;
   void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
+  void computeCorrec();
+  double evalCorFromH(double h, const CovCalcMode *mode) const;
+  double getDetTensor() const;
+  virtual void updateFromContext();
+  virtual void initFromContext();
+  void optimizationSetTarget(const SpacePoint& pt) const;
+  void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
+  String toStringParams() const;
 
 protected:
   /// Update internal parameters consistency with the context
-  virtual void _updateFromContext();
-  virtual void _initFromContext();
+
   void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 
@@ -297,10 +306,7 @@ bool _isOptimEnabled() const override
   void _setNoStatDbIfNecessary(const Db*& db);
   bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool   _isVariableValid(int ivar) const;
-  void   _computeCorrec();
-  double _getDetTensor() const;
-  void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-  double _evalCorFromH(double h, const CovCalcMode *mode) const;
+  
 
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
