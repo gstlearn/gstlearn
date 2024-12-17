@@ -889,6 +889,11 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
   _cor.optimizationTransformSP(ptin, ptout);
 }
 
+void CovAniso::_optimizationPostProcess() const 
+{
+  _cor.optimizationPostProcess();
+}
+
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
@@ -898,7 +903,12 @@ void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptou
  */
 void CovAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
-  _cor._optimizationPreProcess(p);
+  if (!isOptimEnabled())
+  {
+     ACov::_optimizationPreProcess(p);
+     return;
+  }
+  _cor.optimizationPreProcess(p,_p1As);
 }
 
 

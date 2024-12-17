@@ -21,7 +21,6 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -54,6 +53,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStat(),
       _noStatFactor(1.),
+      _isOptimizationPreProcessed(false),
       _optimEnabled(true)
 {
   initFromContext();
@@ -66,6 +66,7 @@ CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStat(),
       _noStatFactor(1.),
+      _isOptimizationPreProcessed(false),
       _optimEnabled(true)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -84,6 +85,7 @@ CorAniso::CorAniso(const ECov &type,
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStat(),
       _noStatFactor(1.),
+      _isOptimizationPreProcessed(false),
       _optimEnabled(true)
 {
   initFromContext();
@@ -105,6 +107,7 @@ CorAniso::CorAniso(const CorAniso &r)
       _aniso(r._aniso),
       _tabNoStat(r._tabNoStat),
       _noStatFactor(r._noStatFactor),
+      _isOptimizationPreProcessed(r._isOptimizationPreProcessed),
       _optimEnabled(r._optimEnabled)
 {
 }
@@ -152,6 +155,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
     _aniso = r._aniso;
     _tabNoStat = r._tabNoStat;
     _noStatFactor = r._noStatFactor;
+    _isOptimizationPreProcessed = r._isOptimizationPreProcessed;
     _optimEnabled = r._optimEnabled;
   }
   return *this;
@@ -441,7 +445,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
 {
   DECLARE_UNUSED(ivar,jvar);
   double h;
-  if (!_isOptimPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
+  if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
   {
     h = getSpace()->getDistance(p1, p2, _aniso);
   }
@@ -754,12 +758,6 @@ void CorAniso::initFromContext()
   updateFromContext();
 }
 
-void CorAniso::optimizationSetTarget(const SpacePoint& pt) const
-{
-  _optimizationSetTarget(pt);
-}
-
-
 void CorAniso::updateFromContext()
 {
   computeMarkovCoeffs();
@@ -965,15 +963,15 @@ CorAniso* CorAniso::createReduce(const VectorInt &validVars) const
  *
  * @param pt Target sample provided as a Space Point
  */
-void CorAniso::_optimizationSetTarget(const SpacePoint& pt) const
+void CorAniso::optimizationSetTarget(const SpacePoint& pt,SpacePoint& p2A) const
 {
   if (_isOptimEnabled())
   {  
-    optimizationTransformSP(pt, _p2A);
+    optimizationTransformSP(pt, p2A);
   }
   else 
   {
-    _p2A = pt;
+    p2A = pt;
   }  
 }
 
@@ -984,15 +982,21 @@ void CorAniso::_optimizationSetTarget(const SpacePoint& pt) const
  *
  * @param iech Rank of the sample among the recorded Space Points
  */
-void CorAniso::optimizationSetTargetByIndex(int iech) const
+void CorAniso::optimizationSetTargetByIndex(int iech,
+                                            const std::vector<SpacePoint> &p1As,
+                                            SpacePoint &p2A) const
 {
-  if (_isOptimPreProcessed)
+  if (_isOptimizationPreProcessed)
   {
-    _p2A = _p1As[iech];
-    _p2A.setTarget(true);
+    p2A = p1As[iech];
+    p2A.setTarget(true);
   }
 }
 
+void CorAniso::optimizationPostProcess() const
+{
+  _isOptimizationPreProcessed = false;
+}
 /**
  * Transform a space point using the anisotropy tensor
  * @param ptin  Input Space Point
@@ -1021,18 +1025,11 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout
  * or checking for heterotopy.
  * @param p vector of SpacePoints
  */
-void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p) const
-{
-  _optimizationPreProcess(p);
-}
-void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
+
+void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
+                                      std::vector<SpacePoint> &p1As) const
 {
 
-  if (!isOptimEnabled())
-  {
-     ACor::_optimizationPreProcess(p);
-     return;
-  }
   int n = (int) p.size();
   SpacePoint pt(_space);
 	for(int i = 0; i < n ; i++)
@@ -1046,8 +1043,9 @@ void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
     {
 		  pt.setFFFF();
     }
-    _p1As.push_back(pt);
+    p1As.push_back(pt);
 	}
+  _isOptimizationPreProcessed = true;
 }
 
 
@@ -1058,11 +1056,12 @@ void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
  * - checking that the dimension of this storage is correct (only if 'db' is provided):
  * in particular, this check is not necessary when freeing this storage.
  */
-bool CorAniso::isOptimizationInitialized(const Db* db) const
+bool CorAniso::isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
+                                         const Db* db)
 {
-  if (_p1As.empty()) return false;
+  if (p1As.empty()) return false;
   if (db == nullptr) return true;
-  int n = (int) _p1As.size();
+  int n = (int) p1As.size();
   return n == db->getSampleNumber();
 }
 

@@ -101,13 +101,16 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  bool isOptimizationInitialized(const Db* db = nullptr) const;
-  void optimizationPreProcess(const std::vector<SpacePoint>& p) const;
+  static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
+                                        const Db* db = nullptr);
 
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
-  void optimizationSetTargetByIndex(int iech) const override;
+  void optimizationPreProcess(const std::vector<SpacePoint>& p,
+                               std::vector<SpacePoint> &p1As) const;
+  void optimizationSetTargetByIndex(int iech,
+                                    const std::vector<SpacePoint> &p1As,
+                                    SpacePoint & p2A) const;
 
- 
+  void optimizationPostProcess() const;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;
@@ -275,19 +278,20 @@ public:
   double getDetTensor() const;
   virtual void updateFromContext();
   virtual void initFromContext();
-  void optimizationSetTarget(const SpacePoint& pt) const;
+  void optimizationSetTarget(const SpacePoint& pt,
+                              SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams() const;
 
 protected:
   /// Update internal parameters consistency with the context
 
-  void _optimizationSetTarget(const SpacePoint& pt) const override;
+  
 
 
 private:
 
-bool _isOptimEnabled() const override 
+bool _isOptimEnabled() const  
 { 
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
@@ -318,6 +322,7 @@ private:
                                               EConsElem::SCALE,
                                               EConsElem::TENSOR,
                                               EConsElem::ANGLE};
+  mutable bool _isOptimizationPreProcessed;
   mutable bool _optimEnabled;
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy

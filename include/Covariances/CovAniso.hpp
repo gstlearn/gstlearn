@@ -313,6 +313,7 @@ protected:
 
 
 private:
+void _optimizationPostProcess() const override; 
 
 bool _isOptimEnabled() const override 
 { 
@@ -341,6 +342,7 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
   void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
 
 private:
+
   CorAniso _cor;
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   mutable MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
