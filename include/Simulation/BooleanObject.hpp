@@ -64,7 +64,7 @@ public:
   VectorDouble getValues() const;
 
 private:
-  static bool _checkIntensity(const DbGrid* dbout,
+  static bool _invalidTokenFromIntensity(const DbGrid* dbout,
                               const ModelBoolean* tokens,
                               const VectorDouble& coor,
                               double eps = EPSILON3);

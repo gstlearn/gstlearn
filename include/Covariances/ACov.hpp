@@ -310,10 +310,11 @@ public:
                                               const CovCalcMode *mode = nullptr) const;
 
   double loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const;
+                     const SpacePoint& p2,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode* mode) const;
+
 protected:
   virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const;
@@ -331,11 +332,12 @@ protected:
                                             const SpacePoint& pwork1, 
                                             const SpacePoint& pwork2,
                                             const CovCalcMode *mode) const;
-double _loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar = 0,
-                          int jvar = 0,
-                          const CovCalcMode *mode = nullptr) const;
+  double _loadAndEval(const SpacePoint& p1,
+                      const SpacePoint& p2,
+                      int ivar                = 0,
+                      int jvar                = 0,
+                      const CovCalcMode* mode = nullptr) const;
+
 private:
   virtual void _optimizationPostProcess() const; 
   virtual bool _isOptimEnabled() const {return _optimEnabled;}

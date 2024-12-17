@@ -2312,3 +2312,28 @@ DbGrid* DbGrid::createDivider(DbGrid* dbin,
 
   return dbout;
 }
+
+VectorDouble DbGrid::getDistanceToOrigin(const VectorInt& origin,
+                                         const VectorDouble& radius)
+{
+  int ndim           = getNDim();
+  int nech           = getSampleNumber();
+  VectorDouble coor0 = getCoordinatesByIndice(origin);
+  VectorDouble radloc   = radius;
+  if (ndim != (int) radloc.size()) radloc = VectorDouble(ndim, 1.);
+  
+  VectorDouble coor(ndim);
+  VectorDouble distvec(nech, 0.);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    getCoordinatesPerSampleInPlace(iech, coor);
+    double dist = 0.;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double delta = (coor[idim] - coor0[idim]) / radloc[idim];
+      dist += delta * delta;
+    }
+    distvec[iech] = sqrt(dist);
+  }
+  return distvec;
+}

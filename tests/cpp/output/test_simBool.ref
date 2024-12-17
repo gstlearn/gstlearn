@@ -124,8 +124,8 @@ Data Base Statistics
 5 - Name Boolean.Rank - Locator NA
  Nb of data          =      10000
  Nb of active values =       4767
- Minimum value       =      2.000
- Maximum value       =    102.000
- Mean value          =     43.353
+ Minimum value       =      1.000
+ Maximum value       =    101.000
+ Mean value          =     42.353
  Standard Deviation  =     28.101
  Variance            =    789.644

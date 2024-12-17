@@ -360,7 +360,9 @@ public:
                             const VectorInt &indg,
                             int idim0,
                             const VectorDouble &vec);
-
+  VectorDouble getDistanceToOrigin(const VectorInt& origin,
+                                   const VectorDouble& radius = VectorDouble());
+  
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
