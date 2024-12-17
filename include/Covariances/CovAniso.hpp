@@ -302,8 +302,8 @@ public:
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
   void updateCovByMesh(int imesh,bool aniso = true);
-  double getValue(const EConsElem &econs,int iv1,int iv2) const;
   void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
+  double getValue(const EConsElem& econs, int iv1, int iv2) const;
 
 protected:
   /// Update internal parameters consistency with the context
