@@ -93,12 +93,14 @@ public:
   Db* createStatToHeader() const;
 
   int getLineNumber() const;
-  int getLineSampleCount(int iline) const;
+  int getLineSampleNumber(int iline) const;
   double getLineLength(int iline) const;
   int getNTotal() const;
   int getLineBySample(int iech) const;
   VectorDouble _getHeaderCoordinate(int idim) const;
   VectorDouble getCoordinates(int iline, int idim) const;
+  VectorDouble getLineLengths() const;
+  int getLineSampleRank(int iline, int isample) const;
 
 protected:
   /// Interface for ASerializable

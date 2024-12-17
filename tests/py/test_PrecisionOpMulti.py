@@ -85,7 +85,7 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
 
 
 # %%
-class PrecisionOpMulti:
+class PrecisionOpMultiLocal:
     def __init__(self,model,meshes,matrix = False):
         modelC = model.clone()
         if matrix :
@@ -199,22 +199,23 @@ def computeAll(model,mesh,seed = 12344):
     modelCsMatrix = model.clone()
     modelCs       = model.clone()
 
-    poprMatrix =          PrecisionOpMulti(modelCrMatrix,mesh,True)
-    popr       =          PrecisionOpMulti(modelCr      ,mesh,False)
+    poprMatrix =    PrecisionOpMultiLocal(modelCrMatrix,mesh,True)
+    popr       =    PrecisionOpMultiLocal(modelCr      ,mesh,False)
     popsMatrix = gl.PrecisionOpMultiMatrix(modelCsMatrix,mesh)
-    pops       =       gl.PrecisionOpMulti(modelCs      ,mesh)
+    pops       = gl.PrecisionOpMulti(modelCs      ,mesh)
     result = dict()
-    result["ressimu"] = pops.evalSimulate(u)
-    result["refsimu"] = popr.evalSimulate(u)
 
     result["reseval"] = pops.evalDirect(u)
     result["refeval"] = popr.evalDirect(u)
 
-    result["ressimumat"] = popsMatrix.evalSimulate(u)
-    result["refsimumat"] = poprMatrix.evalSimulate(u)
+    result["ressimu"] = pops.evalSimulate(u)
+    result["refsimu"] = popr.evalSimulate(u)
 
     result["resevalmat"] = popsMatrix.evalDirect(u)
     result["refevalmat"] = poprMatrix.evalDirect(u)
+
+    result["ressimumat"] = popsMatrix.evalSimulate(u)
+    result["refsimumat"] = poprMatrix.evalSimulate(u)
 
     return result
 

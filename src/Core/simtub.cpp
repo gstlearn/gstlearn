@@ -625,10 +625,10 @@ static void st_init_gibbs_params(double rho)
  **                         model (expressed in percentage of the total variance)
  ** \param[in]  namconv     Naming convention
  **
+ ** \remark  The argument 'dbin' is optional: it must be defined only for
+ ** \remark  conditional simulations.
  ** \remark  When conditional, the unique variable in the input Db structure
  ** \remark  should correspond to the facies index (starting from 1)
- ** \remark  The argument 'dbin' is optional: it must be defined only for
- ** \remark  conditional simulations
  **
  *****************************************************************************/
 int simpgs(Db* dbin,

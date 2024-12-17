@@ -37,21 +37,19 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
   public:
     ShiftOpStencil(const MeshETurbo* mesh = nullptr,
                    const CovAniso* cova   = nullptr,
-                   bool verbose           = false);
+                   bool verbose     = false);
     ShiftOpStencil(const ShiftOpStencil& shift);
     ShiftOpStencil& operator=(const ShiftOpStencil& shift);
     virtual ~ShiftOpStencil();
-    void normalizeLambdaBySills(const AMesh* mesh) override;
-    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override
-    {
-      DECLARE_UNUSED(v1);
-      DECLARE_UNUSED(v2);
-    };
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ShiftOpStencil)
 
+    void normalizeLambdaBySills(const AMesh* mesh) override;
+    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override;
+    void resetModif() override;
     double getMaxEigenValue() const override;
-#ifndef SWIG
-    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
-#endif 
+    double getLambda(int iapex) const override;
+
 
 #ifndef SWIG
   int _addToDest(const constvect inv, vect outv) const override;
@@ -66,7 +64,10 @@ private:
   VectorVectorInt _relativeShifts;
   VectorInt _absoluteShifts;
   VectorDouble _weights;
+  mutable VectorDouble _weightsSimu;
   VectorBool _isInside; 
-
+  double _lambdaVal;
+  bool _useLambdaSingleVal;
+  bool _useModifiedShift;
   const MeshETurbo* _mesh; // not to be deleted
 };

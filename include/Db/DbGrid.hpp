@@ -353,14 +353,16 @@ public:
                                          int seed = 132433) const;
 
   void getGridPileInPlace(int iuid,
-                            const VectorInt &indg,
-                            int idim0,
-                            VectorDouble &vec) const;
+                          const VectorInt& indg,
+                          int idim0,
+                          VectorDouble& vec) const;
   void setGridPileInPlace(int iuid,
                             const VectorInt &indg,
                             int idim0,
                             const VectorDouble &vec);
-
+  VectorDouble getDistanceToOrigin(const VectorInt& origin,
+                                   const VectorDouble& radius = VectorDouble());
+  
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
