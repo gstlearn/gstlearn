@@ -396,7 +396,7 @@ int main(int argc, char* argv[])
   MatrixSquareSymmetric* sills =
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
   model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                                 sills->getValues(), VectorDouble(), nullptr, false);
+                                 *sills, VectorDouble(), nullptr, false);
   model->setMeans(means);
   if (!flagSK) model->setDriftIRF(0, nfex);
 

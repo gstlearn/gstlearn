@@ -131,10 +131,52 @@ Model* Model::createFromParam(const ECov& type,
                               double sill,
                               double param,
                               const VectorDouble& ranges,
-                              const VectorDouble& sills,
+                              const MatrixSquareSymmetric& sills,
                               const VectorDouble& angles,
                               const ASpace* space,
                               bool flagRange)
+{
+  int nvar = 1;
+  if (!sills.empty()) nvar = sills.getNRows();
+
+  ASpace* spaceloc = nullptr;
+  if (space != nullptr)
+    spaceloc = dynamic_cast<ASpace*>(space->clone());
+  else
+    spaceloc = dynamic_cast<ASpace*>(getDefaultSpace()->clone());
+
+  if (!ranges.empty())
+  {
+    int ndim       = spaceloc->getNDim();
+    int ndimRanges = (int)ranges.size();
+    if (ndimRanges != 1 && ndimRanges != ndim)
+    {
+      messerr("Incompatibility between:");
+      messerr("Space Dimension = %d", ndim);
+      messerr("Dimension of argument 'ranges' = %d", ndimRanges);
+      delete spaceloc;
+      return nullptr;
+    }
+  }
+
+  CovContext ctxt = CovContext(nvar, spaceloc);
+  Model* model    = new Model(ctxt);
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
+                         flagRange);
+
+  delete spaceloc;
+  return model;
+}
+
+Model* Model::createFromParamOldStyle(const ECov& type,
+                                      double range,
+                                      double sill,
+                                      double param,
+                                      const VectorDouble& ranges,
+                                      const VectorDouble& sills,
+                                      const VectorDouble& angles,
+                                      const ASpace* space,
+                                      bool flagRange)
 {
   int nvar = 1;
   if (! sills.empty())
@@ -162,7 +204,8 @@ Model* Model::createFromParam(const ECov& type,
 
   CovContext ctxt = CovContext(nvar,spaceloc);
   Model* model = new Model(ctxt);
-  model->addCovFromParam(type, range, sill, param, ranges, sills, angles, flagRange);
+  model->addCovFromParamOldStyle(type, range, sill, param, ranges, sills,
+                                 angles, flagRange);
 
   delete spaceloc;
   return model;
@@ -288,14 +331,14 @@ void Model::addCov(const CovAniso *cov)
   covalist->addCov(cov);
 }
 
-void Model::addCovFromParam(const ECov& type,
-                            double range,
-                            double sill,
-                            double param,
-                            const VectorDouble& ranges,
-                            const VectorDouble& sills,
-                            const VectorDouble& angles,
-                            bool flagRange)
+void Model::addCovFromParamOldStyle(const ECov& type,
+                                    double range,
+                                    double sill,
+                                    double param,
+                                    const VectorDouble& ranges,
+                                    const VectorDouble& sills,
+                                    const VectorDouble& angles,
+                                    bool flagRange)
 {
   // Check consistency with parameters of the model
 
@@ -379,6 +422,101 @@ void Model::addCovFromParam(const ECov& type,
 
   if (! angles.empty())
     cov.setAnisoAngles(angles);
+  addCov(&cov);
+}
+
+void Model::addCovFromParam(const ECov& type,
+                            double range,
+                            double sill,
+                            double param,
+                            const VectorDouble& ranges,
+                            const MatrixSquareSymmetric& sills,
+                            const VectorDouble& angles,
+                            bool flagRange)
+{
+  // Check consistency with parameters of the model
+
+  int ndim = getDimensionNumber();
+  if (!ranges.empty())
+  {
+    if (ndim > 0 && (int)ranges.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'ranges' (%d)",
+              (int)ranges.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return;
+    }
+    ndim = (int)ranges.size();
+  }
+  if (!angles.empty())
+  {
+    if (ndim > 0 && (int)angles.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'angles' (%d)",
+              (int)angles.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return;
+    }
+    ndim = (int)angles.size();
+  }
+  int nvar = getVariableNumber();
+  if (!sills.empty())
+  {
+    if (nvar > 0 && nvar != sills.getNCols())
+    {
+      messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
+      messerr("and the Number of variables stored in the Model (%d)", nvar);
+      messerr("Operation is cancelled");
+      return;
+    }
+    nvar = (int)sqrt((double)sills.size());
+  }
+
+  // Define the covariance
+
+  SpaceRN space = SpaceRN(ndim);
+  _ctxt         = CovContext(nvar, &space);
+  CovAniso cov(type, _ctxt);
+
+  // Define the Third parameter
+  double parmax = cov.getParMax();
+  if (param > parmax) param = parmax;
+  cov.setParam(param);
+
+  // Define the range
+  if (!ranges.empty())
+  {
+    if (flagRange)
+      cov.setRanges(ranges);
+    else
+      cov.setScales(ranges);
+  }
+  else
+  {
+    if (flagRange)
+      cov.setRangeIsotropic(range);
+    else
+      cov.setScale(range);
+  }
+
+  // Define the sill
+  if (!sills.empty())
+    cov.setSill(sills);
+  else
+  {
+    if (nvar <= 1)
+      cov.setSill(sill);
+    else
+    {
+      MatrixSquareSymmetric locsills(nvar);
+      locsills.setIdentity(sill);
+      cov.setSill(locsills);
+    }
+  }
+
+  if (!angles.empty()) cov.setAnisoAngles(angles);
   addCov(&cov);
 }
 

@@ -89,8 +89,9 @@ int st_mini_test()
   DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
   db->display(dbfmt);
 
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1,
-                                        VectorDouble(), {3,1,1,2});
+  MatrixSquareSymmetric* sills = MatrixSquareSymmetric::createFromVD({3,1,1,2});
+  Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), *sills);
+  delete sills;
   model->setMeans(means);
 
   NeighMoving* neigh = NeighMoving::create(false, 100, 10);

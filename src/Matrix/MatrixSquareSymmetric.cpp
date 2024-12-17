@@ -77,15 +77,11 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
   return mat;
 }
 
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X,
-                                                           int nrow)
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X)
 {
-  int ncol = nrow;
-  if (nrow * ncol != (int) X.size())
-  {
-    messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
-    messerr("and the dimension of the input Vector (%d)", (int) X.size());
-  }
+  int ncol = sqrt((int)X.size());
+  int nrow = ncol;
+
   // Check symmetry
   MatrixRectangular* mattemp = MatrixRectangular::createFromVD(X, nrow, ncol);
   if (! mattemp->isSymmetric())

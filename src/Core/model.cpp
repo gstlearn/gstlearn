@@ -423,7 +423,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   VectorDouble mean(2);
   VectorDouble cova0(4);
-  VectorDouble sill(4);
+  MatrixSquareSymmetric sill(2);
   mean[0] = model1->getContext().getMean(0);
   mean[1] = model2->getContext().getMean(0);
   cova0[0] = 1.;
@@ -442,9 +442,9 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   for (int i = 0; i < model1->getCovaNumber(); i++)
   {
     const CovAniso* cova = model1->getCova(i);
-    sill[0] = cova->getSill(0, 0);
-    sill[1] = sill[2] = r * cova->getSill(0, 0);
-    sill[3] = r * r * cova->getSill(0, 0);
+    sill.setValue(0, 0, cova->getSill(0, 0));
+    sill.setValue(1, 0, r * cova->getSill(0, 0));
+    sill.setValue(1, 1, r * r * cova->getSill(0, 0));
     model->addCovFromParam(cova->getType(), cova->getRange(), 0., cova->getParam(),
                            cova->getRanges(), sill, cova->getAnisoAngles());
   }
@@ -454,9 +454,9 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   for (int i = 0; i < model2->getCovaNumber(); i++)
   {
     const CovAniso* cova = model2->getCova(i);
-    sill[0] = 0.;
-    sill[1] = sill[2] = 0.;
-    sill[3] = (1. - r * r) * cova->getSill(0, 0);
+    sill.setValue(0,0, 0.);
+    sill.setValue(0,1, 0.);
+    sill.setValue(1,1, (1. - r * r) * cova->getSill(0, 0));
     model->addCovFromParam(cova->getType(), cova->getRange(), 0., cova->getParam(),
                            cova->getRanges(), sill, cova->getAnisoAngles());
   }
