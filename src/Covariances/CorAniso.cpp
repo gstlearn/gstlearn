@@ -113,39 +113,6 @@ CorAniso::CorAniso(const CorAniso &r)
 {
 }
 
-// void CorAniso::evalCovLHS(MatrixSquareSymmetric &mat,
-//                           SpacePoint &pwork1,
-//                           SpacePoint &pwork2,
-//                           const Db* db, 
-//                           const CovCalcMode *mode) const
-// {
-//   if (!_isOptimEnabled())
-//     ACov::evalCovLHS(mat, pwork1, pwork2, db, mode);
-//   else
-//   {
-//     SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
-//     SpacePoint* p2A = &_p1As[pwork2.getIech()];
-//     _evalOptim(p1A,p2A,mat,mode);
-//   // Calculate covariance between two points
-//   }
-// }
-
-// void CorAniso::evalCovRHS(MatrixSquareSymmetric &mat,
-//                           SpacePoint &pwork1,
-//                           const Db* db, SpacePoint& pout,  
-//                           const CovCalcMode *mode) const
-// {
-//   if (!_isOptimEnabled())
-//     ACov::evalCovRHS(mat, pwork1, db, pout, mode);
-//   else
-//   {
-//     SpacePoint* p1A = &_p1As[pwork1.getIech()]; 
-//     SpacePoint* p2A = &_p2A;
-//     _evalOptim(p1A,p2A,mat,mode);
-//   }
-// }
-
-
 CorAniso& CorAniso::operator=(const CorAniso &r)
 {
   if (this != &r)
@@ -189,10 +156,6 @@ void CorAniso::setParam(double param)
   _cova->setParam(param);
   updateFromContext();
 }
-
-
-
-
 
 void CorAniso::setRangeIsotropic(double range)
 {
@@ -522,6 +485,7 @@ void CorAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 
 /* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
  * P(x) = P1(x)^2 + x * P2(x)^2 + eps
+ * This formula characterizes all the positive polynomials on R+.
  */
 void CorAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
                                                    VectorDouble coeffs2,
@@ -1069,14 +1033,14 @@ void CorAniso::attachNoStatDb(const Db* db)
   _tabNoStat.setDbNoStatRef(db);
 }
 
-bool CorAniso::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
+bool CorAniso::checkAndManageNoStatDb(const Db*&  db, const String& namecol)
 {
  if (_tabNoStat.getDbNoStatRef() == nullptr && db == nullptr)
  {
   messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");  
   return false;
  }
-  _setNoStatDbIfNecessary(db);
+  setNoStatDbIfNecessary(db);
 
  if (db->getUID(namecol)< 0)
  {
@@ -1086,7 +1050,7 @@ bool CorAniso::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
  return true;
 }
 
-void CorAniso::_setNoStatDbIfNecessary(const Db*& db)
+void CorAniso::setNoStatDbIfNecessary(const Db*& db)
 {
   if (_tabNoStat.getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
@@ -1099,7 +1063,7 @@ int CorAniso::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFun
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
   {
-    if(!_checkAndManageNoStatDb(db,namecol)) return 1;
+    if(!checkAndManageNoStatDb(db,namecol)) return 1;
     ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
   }
   else 
@@ -1114,11 +1078,10 @@ bool CorAniso::isNoStat() const
 {
   return isNoStatForAnisotropy() || isNoStatForParam();
 }
-String CorAniso::toStringNoStat(const AStringFormat* strfmt) const
+String CorAniso::toStringNoStat(const AStringFormat* strfmt,int i) const
 {
-  DECLARE_UNUSED(strfmt)
   String sstr;
-  sstr = _tabNoStat.toString(strfmt);
+  sstr = _tabNoStat.toStringInside(strfmt,i);
   return sstr;
 }
 ///////////////////// Range ////////////////////////

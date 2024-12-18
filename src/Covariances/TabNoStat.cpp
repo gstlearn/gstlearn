@@ -1,5 +1,6 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Enum/EConsElem.hpp"
@@ -81,10 +82,13 @@ std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem &econs, int iv1, int
 
 String TabNoStat::toString(const AStringFormat* strfmt) const
 {
+    return toStringInside(strfmt,0);
+}
+String TabNoStat::toStringInside(const AStringFormat* strfmt,int i) const
+{
     std::stringstream sstr;
     if (_items.empty()) return sstr.str();
     
-    int i = 0;
     for (const auto &e: getTable())
     {
         sstr << std::to_string(i+1) << " - ";

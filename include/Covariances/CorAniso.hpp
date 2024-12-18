@@ -267,6 +267,8 @@ public:
   void informDbInForAnisotropy(const Db* dbin) const;
   void informDbOutForAnisotropy(const Db* dbout) const;
 
+  bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
+
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
@@ -282,10 +284,11 @@ public:
                               SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
-  String toStringNoStat(const AStringFormat* strfmt = nullptr) const;
+  String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
   int makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                      const AFunctional* func = nullptr, 
                      const Db* db = nullptr,const String& namecol = String());
+  void setNoStatDbIfNecessary(const Db*& db);
 
 protected:
   /// Update internal parameters consistency with the context
@@ -307,8 +310,6 @@ bool _isOptimEnabled() const
   bool _checkRotation() const;
   bool _checkParam() const;
 
-  void _setNoStatDbIfNecessary(const Db*& db);
-  bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool   _isVariableValid(int ivar) const;
   
 

@@ -555,7 +555,8 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   { 
     sstr << toTitle(1, "Non-Stationary Parameters");
     sstr << _tabNoStat.toString(strfmt);
-    sstr << _cor.toStringNoStat(strfmt);
+    int i = _tabNoStat.getNSills();
+    sstr << _cor.toStringNoStat(strfmt,i);
   }
 
   return sstr.str();
@@ -951,16 +952,21 @@ void CovAniso::_setNoStatDbIfNecessary(const Db*& db)
 
 void CovAniso::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
 {
+  if (func == nullptr)
+  {
+    if(!_checkAndManageNoStatDb(db,namecol)) return;
+  }
+
   if (econs != EConsElem::SILL)
   {
     _cor.makeElemNoStat(econs,iv1,iv2,func,db,namecol);
     return;
   }
   
+
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
   {
-    if(!_checkAndManageNoStatDb(db,namecol)) return;
     ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
   }
   else 
@@ -975,7 +981,10 @@ void CovAniso::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AF
 ///////////////////// Range ////////////////////////
 void CovAniso::makeRangeNoStatDb(const String &namecol, int idim, const Db* db)
 {   
-  _cor.makeRangeNoStatDb(namecol,idim,db);
+  if(_checkAndManageNoStatDb(db,namecol))
+  {
+    _cor.makeRangeNoStatDb(namecol,idim,db);
+  }
  
 }
 
@@ -994,7 +1003,10 @@ void CovAniso::makeRangeStationary(int idim)
 
 void CovAniso::makeScaleNoStatDb(const String &namecol, int idim, const Db* db)
 {   
-  _cor.makeScaleNoStatDb(namecol,idim,db);
+  if(_checkAndManageNoStatDb(db,namecol))
+  {
+    _cor.makeScaleNoStatDb(namecol,idim,db);
+  }
 }
 
 
@@ -1013,7 +1025,10 @@ void CovAniso::makeScaleStationary(int idim)
 
 void CovAniso::makeAngleNoStatDb(const String &namecol, int idim, const Db* db)
 {
+  if(_checkAndManageNoStatDb(db,namecol))
+  {
    _cor.makeAngleNoStatDb(namecol,idim,db);
+  }
 }
 
 void CovAniso::makeAngleNoStatFunctional(const AFunctional *func, int idim)
@@ -1030,7 +1045,10 @@ void CovAniso::makeAngleStationary(int idim)
 
 void CovAniso::makeTensorNoStatDb(const String &namecol, int idim, int jdim,const Db* db)
 {
-  _cor.makeTensorNoStatDb(namecol, idim, jdim,db);
+ if(_checkAndManageNoStatDb(db,namecol))
+ {
+    _cor.makeTensorNoStatDb(namecol,idim,jdim,db);
+ } 
 }
 
 void CovAniso::makeTensorNoStatFunctional(const AFunctional  *func, int idim, int jdim)
@@ -1048,7 +1066,7 @@ void CovAniso::makeSillNoStatDb(const String &namecol, int ivar, int jvar,const 
 {
   if (!_checkSill(ivar,jvar)) return;
   _makeElemNoStat(EConsElem::SILL, ivar, jvar,nullptr,db, namecol);
-
+  _cor.checkAndManageNoStatDb(db,namecol);
 }
 
 void CovAniso::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int jvar)
@@ -1071,7 +1089,10 @@ void CovAniso::makeSillStationary(int ivar, int jvar)
 
 void CovAniso::makeParamNoStatDb(const String &namecol, const Db* db)
 {
- _cor.makeParamNoStatDb(namecol,db);
+ if(_checkAndManageNoStatDb(db,namecol))
+ {
+    _cor.makeParamNoStatDb(namecol,db);
+ } 
 
 }
 
