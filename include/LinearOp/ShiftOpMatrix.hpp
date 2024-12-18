@@ -46,6 +46,8 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     ShiftOpMatrix(const ShiftOpMatrix& shift);
     ShiftOpMatrix& operator=(const ShiftOpMatrix& shift);
     virtual ~ShiftOpMatrix();
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ShiftOpMatrix)
     void normalizeLambdaBySills(const AMesh* mesh) override;
 #ifndef SWIG
     int _addToDest(const constvect inv, vect outv) const override;
@@ -78,9 +80,6 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     void prodTildeC(const VectorDouble& x, VectorDouble& y,
                     const EPowerPT& power) const;
   
-  #ifndef SWIG
-    void addProdLambda(const constvect x, vect y, const EPowerPT& power) const override;
-  #endif
     void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv,
                                 double puis = 2) const;
     double getMaxEigenValue() const override;
@@ -106,11 +105,8 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     int getLambdaGradSize() const;
     //void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
   private:
-    void _setCovAniso(const CovAniso* cova);
-    bool _isNoStat();
-    bool _isGlobalHH();
+
   
-    std::shared_ptr<CovAniso>& _getCovAniso();
     int _buildS(const AMesh* amesh, double tol = EPSILON10);
     int _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
     void _buildLambda(const AMesh* amesh);
@@ -171,8 +167,6 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     void _determineFlagNoStatByHH();
     void _updateHH(MatrixSquareSymmetric & hh, int imesh);
     static MatrixSparse* _prepareSparse(const AMesh* amesh);
-    static std::shared_ptr<CovAniso> cloneAndCast(const CovAniso* cova);
-    static std::shared_ptr<CovAniso> cloneAndCast(const std::shared_ptr<CovAniso> &cova);
 
   private:
     VectorDouble _TildeC;
@@ -184,9 +178,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     VectorVectorDouble _LambdaGrad;
     bool _flagNoStatByHH;
 
-    // Following list of members are there to ease the manipulation and reduce
-    // argument list
-    std::shared_ptr<CovAniso> _cova;
+
 
     int _ndim;
   };

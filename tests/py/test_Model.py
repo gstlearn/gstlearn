@@ -31,7 +31,8 @@ model.setDriftIRF(order=1, nfex=2)
 model.display()
 
 # Using the shortcut to create a bivariate anisotropic model
-model = gl.Model.createFromParam(gl.ECov.GAUSSIAN, ranges=[3.,1.],sills=[2.,1.,1.,4.])
+model = gl.Model.createFromParam(gl.ECov.GAUSSIAN, ranges=[3.,1.],
+                                 sills=np.array([[2.,1.],[1.,4.]]))
 
 model.display()
 

@@ -75,8 +75,8 @@ protected:
       ACov::_optimizationSetTarget(pt);
     }
 private:
-  void _initGradients(double& covVal,
-                      VectorDouble& covGp,
-                      VectorDouble& covGG,
-                      bool flagGrad) const;
+  static void _initGradients(double& covVal,
+                             VectorDouble& covGp,
+                             VectorDouble& covGG,
+                             bool flagGrad);
 };

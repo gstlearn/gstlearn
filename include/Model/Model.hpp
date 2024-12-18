@@ -87,27 +87,45 @@ public:
   static Model* createFromEnvironment(int nvar, int ndim = 2);
   static Model* createNugget(int nvar, int ndim = 2, double sill = 1.);
   static Model* createFromParam(const ECov& type = ECov::fromKey("NUGGET"),
-                                double range = 1.,
-                                double sill = 1.,
-                                double param = 1.,
+                                double range     = 1.,
+                                double sill      = 1.,
+                                double param     = 1.,
                                 const VectorDouble& ranges = VectorDouble(),
-                                const VectorDouble& sills = VectorDouble(),
+                                const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const ASpace* space = nullptr,
-                                bool flagRange = true);
+                                const ASpace* space        = nullptr,
+                                bool flagRange             = true);
+  static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
+                          double range               = 1.,
+                          double sill                = 1.,
+                          double param               = 1.,
+                          const VectorDouble& ranges = VectorDouble(),
+                          const VectorDouble& sills  = VectorDouble(),
+                          const VectorDouble& angles = VectorDouble(),
+                          const ASpace* space        = nullptr,
+                          bool flagRange             = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename, bool verbose = true);
 
   void   setCovList(const ACovAnisoList* covalist);
-  void   addCov(const CovAniso* cov);
-  void   addCovFromParam(const ECov& type,
-                         double range = EPSILON6,
-                         double sill = 1.,
-                         double param = 1.,
-                         const VectorDouble& ranges = VectorDouble(),
-                         const VectorDouble& sills  = VectorDouble(),
-                         const VectorDouble& angles = VectorDouble(),
-                         bool flagRange = true);
+  void addCov(const CovAniso* cov);
+  void
+  addCovFromParam(const ECov& type,
+                  double range                       = EPSILON6,
+                  double sill                        = 1.,
+                  double param                       = 1.,
+                  const VectorDouble& ranges         = VectorDouble(),
+                  const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                  const VectorDouble& angles         = VectorDouble(),
+                  bool flagRange                     = true);
+  void addCovFromParamOldStyle(const ECov& type,
+                               double range               = EPSILON6,
+                               double sill                = 1.,
+                               double param               = 1.,
+                               const VectorDouble& ranges = VectorDouble(),
+                               const VectorDouble& sills  = VectorDouble(),
+                               const VectorDouble& angles = VectorDouble(),
+                               bool flagRange             = true);
   void   delCova(int icov);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);

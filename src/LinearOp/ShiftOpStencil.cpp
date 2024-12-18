@@ -12,6 +12,8 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Indirection.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -27,6 +29,9 @@ ShiftOpStencil::ShiftOpStencil(const MeshETurbo* mesh,
   , _absoluteShifts()
   , _weights()
   , _isInside()
+  , _lambdaVal(0.)
+  , _useLambdaSingleVal(true)
+  , _useModifiedShift(false)
   , _mesh()
 {
   if (_buildInternal(mesh, cova, verbose)) return;
@@ -37,19 +42,28 @@ ShiftOpStencil::ShiftOpStencil(const ShiftOpStencil& shift)
   , _relativeShifts(shift._relativeShifts)
   , _absoluteShifts(shift._absoluteShifts)
   , _weights(shift._weights)
+  , _weightsSimu(shift._weightsSimu)
   , _isInside(shift._isInside)
+  , _lambdaVal(shift._lambdaVal)
+  , _useLambdaSingleVal(shift._useLambdaSingleVal)
+  , _useModifiedShift(shift._useModifiedShift)
   , _mesh(shift._mesh)
 {
 }
 
 ShiftOpStencil& ShiftOpStencil::operator=(const ShiftOpStencil& shift)
 {
+  AShiftOp::operator=(shift);
   if (this != &shift)
   {
     _relativeShifts = shift._relativeShifts;
     _absoluteShifts = shift._absoluteShifts;
     _weights        = shift._weights;
+    _weightsSimu    = shift._weightsSimu;
     _isInside       = shift._isInside;
+    _lambdaVal      = shift._lambdaVal;
+    _useLambdaSingleVal = shift._useLambdaSingleVal;
+    _useModifiedShift   = shift._useModifiedShift;
     _mesh           = shift._mesh;
   }
   return *this;
@@ -59,6 +73,16 @@ ShiftOpStencil::~ShiftOpStencil() {}
 
 int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
 {
+  const VectorDouble* currentWeights;
+  if (_useModifiedShift)
+  {
+    currentWeights = &_weightsSimu;
+  }
+  else 
+  {
+    currentWeights = &_weights;
+  }
+
   int nw = _getNWeights();
   int size = (int) inv.size();
   const Indirection& indirect = _mesh->getGridIndirect();
@@ -66,6 +90,7 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   double total;
   if (!indirect.isDefined())
   {
+    // Use the fast option when no selection is defined on the Grid
     for (int ic = 0; ic < size; ic++)
     {
       total = 0.;
@@ -74,7 +99,8 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
         for (int iw = 0; iw < nw; iw++)
         {
           int iabs = ic + _absoluteShifts[iw];
-          total += _weights[iw] * inv[iabs];
+          double value = _isInside[iabs] ? inv[iabs] : 0.;
+          total += (*currentWeights)[iw] * value;
         }
       }
       outv[ic] = total;
@@ -100,43 +126,90 @@ int ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
           local = center;
           VH::addInPlace(local, _relativeShifts[iw]);
           int ie = grid.indiceToRank(local);
-          if (indirect.getAToR(ie) >= 0) total += _weights[iw] * inv[ie];
+          if (indirect.getAToR(ie) >= 0) total += (*currentWeights)[iw] * inv[ie];
         }
       }
       outv[ic] = total;
     }
-    }
-    return 0;
   }
+  return 0;
+}
+
+void ShiftOpStencil::resetModif()
+{
+  _useModifiedShift = false;
+}
 
 void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
 {
-  DECLARE_UNUSED(mesh)
-}
-
-void ShiftOpStencil::addProdLambda(const constvect x,
-                                   vect y,
-                                   const EPowerPT& power) const
-{
-  DECLARE_UNUSED(x, y, power)
+  if (_cova->isNoStatForVariance())
+  {
+    _Lambda.resize(_napices);
+    for (auto &e : _Lambda)
+    {
+      e = _lambdaVal;
+    }
+    AShiftOp::normalizeLambdaBySills(mesh);
+    _useLambdaSingleVal = false;
+  }
+  else 
+  {
+    _lambdaVal /= sqrt(_cova->getSill(0,0));
+  }
 }
 
 double ShiftOpStencil::getMaxEigenValue() const
 {
-  return TEST;
+  double s = 0.;
+  for (const auto &e : _weights)
+  {
+    s += ABS(e);
+  }
+  return s;
+}
+
+double ShiftOpStencil::getLambda(int iapex) const
+{
+  if (_useLambdaSingleVal) return _lambdaVal;
+  return AShiftOp::getLambda(iapex);
+}
+
+void ShiftOpStencil::multiplyByValueAndAddDiagonal(double v1, double v2) 
+{
+  _weightsSimu = VectorDouble(_weights.size());
+  for (int i = 0; i < (int)_weights.size(); i++)
+    _weightsSimu[i] = v1 * _weights[i];
+  int center = _relativeShifts.size() / 2;
+  _weightsSimu[center] += v2;
+  _useModifiedShift = true;
 }
 
 int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
                                    const CovAniso* cova,
                                    bool verbose)
 {
+  // Preliminary checks
+
+  if (cova == nullptr)
+  {
+    messerr("The argument 'cova' must be provided");
+    return 1;
+  }
+  if (mesh == nullptr)
+  {
+    messerr("The argument 'mesh' must be provided");
+    return 1;
+  }
+
   _mesh = mesh;
+  _napices = mesh->getNApices();
   int ndim        = _mesh->getNDim();
 
-  // Preliminary checks
-  if (cova->isNoStat())
+  _setCovAniso(cova);
+
+  if (_cova->isNoStatForAnisotropy())
   {
-    messerr("The Shiftp as a Stencil is incompatible with non-stationarity");
+    messerr("The Shiftop as a Stencil is incompatible with non-stationarity");
     return 1;
   }
 
@@ -152,6 +225,9 @@ int ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   MatrixSparse* S           = shiftMat.getS();
   int centerApex            = localMesh.getNApices() / 2;
   VectorDouble centerColumn = S->getColumn(centerApex);
+
+  // Fill lambda
+  _lambdaVal = shiftMat.getLambda(centerApex);
 
   // Get the indices of the centerApex
   VectorInt center(ndim);

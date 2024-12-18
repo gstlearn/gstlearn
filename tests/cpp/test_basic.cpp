@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   VectorDouble ranges = { 50., 30.};
   VectorDouble angles = { 30., 0.};
   Model *mymodel = Model::createFromParam(ECov::SPHERICAL, 1., sill, 1., ranges,
-                                          VectorDouble(), angles);
+                                          MatrixSquareSymmetric(), angles);
   mymodel->display();
 
   // We perform one non-conditional simulation using the Turning Band method

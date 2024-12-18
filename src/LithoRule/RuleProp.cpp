@@ -156,13 +156,13 @@ String RuleProp::toString(const AStringFormat* strfmt) const
   else
     mestitle(0,"RuleProp in Non-Stationary Case");
 
-  // Constant proportions (Stationary case)
+  // Proportions
   if (_flagStat)
-    sstr << "Constant Proportions" << VH::toStringAsVD(_propcst) << std::endl;
-
-  // Db file (Non-Stationary case)
-  if (! _flagStat)
-    sstr << _dbprop->toString(strfmt);
+    sstr << "- Constant Proportions" << VH::toStringAsVD(_propcst) << std::endl;
+  else
+    sstr << "- Non-Stationary Proportions are read from Db" << std::endl;
+  // if (! _flagStat)
+  //   sstr << _dbprop->toString(strfmt);
 
   // Rules
   for (int ir = 0; ir < getRuleNumber(); ir++)

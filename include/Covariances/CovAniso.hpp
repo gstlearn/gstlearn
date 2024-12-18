@@ -221,6 +221,7 @@ public:
   bool   hasMarkovCoeffs() const { return _cor.hasMarkovCoeffs(); }
   bool   hasSpectrumOnRn() const { return _cor.hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
+  
   //////////////////////// New NoStat methods //////////////////////////
   void   attachNoStatDb(const Db* db);
  
@@ -230,15 +231,12 @@ public:
   void   makeSillNoStatDb(  const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
   void   makeTensorNoStatDb(const String &namecol, int idim = 0, int jdim = 0,const Db* db = nullptr);
   void   makeParamNoStatDb( const String &namecol,                            const Db* db = nullptr);
-  
   void   makeRangeNoStatFunctional( const AFunctional *func, int idim = 0);
   void   makeScaleNoStatFunctional( const AFunctional *func, int idim = 0);
   void   makeAngleNoStatFunctional( const AFunctional *func, int idim = 0);
   void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
   void   makeTensorNoStatFunctional(const AFunctional *func, int idim = 0, int jdim = 0);
   void   makeParamNoStatFunctional( const AFunctional *func);
-  
-
   void   makeRangeStationary(int idim = 0);
   void   makeScaleStationary(int idim = 0);
   void   makeAngleStationary(int idim = 0);
@@ -271,7 +269,6 @@ public:
   Array evalCovFFT(const VectorDouble& hmax, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(const VectorDouble& coeffs);
-
   void setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
@@ -301,20 +298,18 @@ public:
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
   void updateCovByMesh(int imesh,bool aniso = true);
-  double getValue(const EConsElem &econs,int iv1,int iv2) const;
   void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
+  double getValue(const EConsElem& econs, int iv1, int iv2) const;
 
 protected:
   /// Update internal parameters consistency with the context
-   virtual void _addEvalCovMatBiPointInPlace(
-                              MatrixSquareGeneral &mat,
-                              const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              const CovCalcMode *mode = nullptr) const override;
+  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                            const SpacePoint& p1,
+                                            const SpacePoint& p2,
+                                            const CovCalcMode* mode = nullptr) const override;
   virtual void _updateFromContext();
   virtual void _initFromContext();
   void _optimizationSetTarget(const SpacePoint& pt) const override;
-
 
 private:
 void _optimizationPostProcess() const override; 

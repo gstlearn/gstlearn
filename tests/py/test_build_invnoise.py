@@ -117,7 +117,7 @@ def IsoStat(dat,model):
     #Pour éviter de tout casser (notamment les typemaps qui permettent de fournir un float dans le cas
     #monovariable), peut-être qu'un createMultivariateFromParam serait le bienvenu. Ou alors voir avec Fabien 
     #si on peut faire un typemap qui convertit les floats en matrice 1x1.
-    modeltrick = gl.Model.createFromParam(gl.ECov.NUGGET,sills = invAic.reshape(-1))
+    modeltrick = gl.Model.createFromParam(gl.ECov.NUGGET,sills = invAic)
     
     #J'ai utilisé une matrice Sparse. Ca fonctionne bien (je ne pensais pas qu'on utiliserait si vite 
     #cette fonction).
@@ -282,7 +282,7 @@ def testInvNoise(dat,model, debug=False):
 ndat= 10
 
 sills = np.array([[1,0.2,0.1], [0.2,2,0.3], [0.1,0.3,3]])
-model = gl.Model.createFromParam(gl.ECov.NUGGET,sills = sills.reshape(-1))
+model = gl.Model.createFromParam(gl.ECov.NUGGET,sills = sills)
 debug = False
 
 

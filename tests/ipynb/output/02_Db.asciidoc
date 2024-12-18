@@ -106,7 +106,7 @@ Column = 1 - Name = Longitude - Locator = x1
 Column = 2 - Name = Latitude - Locator = x2
 Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -148,7 +148,7 @@ Column = 1 - Name = Longitude - Locator = x1
 Column = 2 - Name = Latitude - Locator = x2
 Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -158,13 +158,15 @@ January_temp      2.815      0.600      5.200----
 
 
 #NO_DIFF#XXX
-----array([[  1. , 372.1, 658.9, 255. ,   1.7],
-       [  2. , 303.5, 665.9, 125. ,   2. ],
-       [  3. , 218.4, 597.9,   8. ,   4.6],
-       ...,
-       [234. , 185. , 655. , 115. ,   nan],
-       [235. , 259.8, 587.9, 119. ,   2.1],
-       [236. , 260.8, 668.6, 107. ,   2.6]], shape=(236, 5))----
+----
+[[  1.  372.1 658.9 255.    1.7]
+ [  2.  303.5 665.9 125.    2. ]
+ [  3.  218.4 597.9   8.    4.6]
+ ...
+ [234.  185.  655.  115.    nan]
+ [235.  259.8 587.9 119.    2.1]
+ [236.  260.8 668.6 107.    2.6]]
+----
 
 
 #NO_DIFF#XXX
@@ -269,7 +271,7 @@ Column = 1 - Name = Longitude - Locator = x1
 Column = 2 - Name = Latitude - Locator = x2
 Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -296,36 +298,36 @@ Column = 4 - Name = January_temp - Locator = z1----
 #NO_DIFF#XXX
 ----
   -1 -     UNKNOWN : Unknown locator
-    0 -           X : Coordinate
-    1 -           Z : Variable
-    2 -           V : Variance of measurement error
-    3 -           F : External Drift
-    4 -           G : Gradient component
-    5 -           L : Lower bound of an inequality
-    6 -           U : Upper bound of an inequality
-    7 -           P : Proportion
-    8 -           W : Weight
-    9 -           C : Code
-   10 -         SEL : Selection
-   11 -         DOM : Domain
-   12 -        BLEX : Block Extension
-   13 -        ADIR : Dip direction Angle
-   14 -        ADIP : Dip Angle
-   15 -        SIZE : Object height
-   16 -          BU : Fault UP termination
-   17 -          BD : Fault DOWN termination
-   18 -        TIME : Time variable
-   19 -       LAYER : Layer rank
-   20 -      NOSTAT : Non-stationary parameter
-   21 -        TGTE : Tangent
-   22 -        SIMU : Conditional or non-conditional simulations
-   23 -      FACIES : Facies simulated
-   24 -     GAUSFAC : Gaussian value for Facies
-   25 -        DATE : Date
-   26 -       RKLOW : Rank for lower bound (when discretized)
-   27 -        RKUP : Rank for upper bound (when discretized)
-   28 -         SUM : Constraints on the Sum
- ----
+   0 -           X : Coordinate
+   1 -           Z : Variable
+   2 -           V : Variance of measurement error
+   3 -           F : External Drift
+   4 -           G : Gradient component
+   5 -           L : Lower bound of an inequality
+   6 -           U : Upper bound of an inequality
+   7 -           P : Proportion
+   8 -           W : Weight
+   9 -           C : Code
+  10 -         SEL : Selection
+  11 -         DOM : Domain
+  12 -        BLEX : Block Extension
+  13 -        ADIR : Dip direction Angle
+  14 -        ADIP : Dip Angle
+  15 -        SIZE : Object height
+  16 -          BU : Fault UP termination
+  17 -          BD : Fault DOWN termination
+  18 -        TIME : Time variable
+  19 -       LAYER : Layer rank
+  20 -      NOSTAT : Non-stationary parameter
+  21 -        TGTE : Tangent
+  22 -        SIMU : Conditional or non-conditional simulations
+  23 -      FACIES : Facies simulated
+  24 -     GAUSFAC : Gaussian value for Facies
+  25 -        DATE : Date
+  26 -       RKLOW : Rank for lower bound (when discretized)
+  27 -        RKUP : Rank for upper bound (when discretized)
+  28 -         SUM : Constraints on the Sum
+----
 
 
 #NO_DIFF#XXX

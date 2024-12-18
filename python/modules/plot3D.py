@@ -122,6 +122,25 @@ def Meshing(mesh, color='black', width=1, **plot_args):
                    line=dict(color=color, width=width), **plot_args)
     return meshing
     
+def ScatterOnDb(db, mode='lines', color='black', width=1, 
+                m_symbol = 'circle', m_color='black', m_line = 'black', 
+                m_size=15, m_width=2,
+                **plot_args):
+    
+    if __invalidFileDimension(db, 3):
+        return None
+                      
+    meshing = dict(type='scatter3d',
+                   x=db.getCoordinates(0), 
+                   y=db.getCoordinates(1),
+                   z=db.getCoordinates(2),
+                   mode=mode,marker_symbol=m_symbol,
+                   marker_line_color=m_line, marker_color=m_color, 
+                   marker_line_width=m_width, marker_size=m_size,
+                   line=dict(color=color, width=width),
+                   **plot_args)
+    return meshing
+
 def Scatter(x, y, z, mode='lines', color='black', width=1, 
             m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
             **plot_args):

@@ -111,10 +111,10 @@ int main(int argc, char *argv[])
     // Generate the Model
     Model *model;
     model = Model::createFromParam(ECov::MATERN, TEST, 1, matern_param,
-                                   { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
+                                   { 0.1, 0.3 }, MatrixSquareSymmetric(), { 30., 0. });
     if (ncov >= 1)
       model->addCovFromParam(ECov::MATERN, TEST, 1, matern_param,
-                             { 0.3, 0.2 }, VectorDouble(), { -10., 0.});
+                             { 0.3, 0.2 }, MatrixSquareSymmetric(), { -10., 0.});
     String sncov = (ncov == 0) ? "1" : "2";
 
     // Printout of general environment
