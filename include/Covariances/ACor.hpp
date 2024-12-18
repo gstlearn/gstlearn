@@ -103,9 +103,6 @@ public:
       _manage(db1, db2);
   }
 
-
-
- 
 private:
 
   virtual void _manage(const Db* db1,const Db* db2) const 

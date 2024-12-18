@@ -111,6 +111,7 @@ public:
                                     SpacePoint & p2A) const;
 
   void optimizationPostProcess() const;
+  bool isNoStat() const;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;
@@ -254,7 +255,6 @@ public:
   int getDimensionNumber() const { return _ctxt.getNDim(); }
   void nostatUpdate(CovInternal *covint);
 
-  CorAniso* createReduce(const VectorInt &validVars) const;
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
   VectorDouble informCoords(const VectorVectorDouble& coords, 
@@ -281,7 +281,11 @@ public:
   void optimizationSetTarget(const SpacePoint& pt,
                               SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-  String toStringParams() const;
+  String toStringParams(const AStringFormat* strfmt = nullptr) const;
+  String toStringNoStat(const AStringFormat* strfmt = nullptr) const;
+  int makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
+                     const AFunctional* func = nullptr, 
+                     const Db* db = nullptr,const String& namecol = String());
 
 protected:
   /// Update internal parameters consistency with the context
@@ -295,10 +299,6 @@ bool _isOptimEnabled() const
 { 
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
-
- void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
-                      const AFunctional* func = nullptr, 
-                      const Db* db = nullptr,const String& namecol = String());
 
   void _manage(const Db* db1,const Db* db2) const override;
 

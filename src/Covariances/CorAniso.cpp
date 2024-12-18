@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Arrays/Array.hpp"
 #include "Basic/AFunctional.hpp"
+#include "Basic/AStringFormat.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
@@ -611,8 +612,9 @@ VectorDouble CorAniso::evalCovOnSphereVec(const VectorDouble &alpha,
   return vec;
 }
 
-String CorAniso::toStringParams() const
+String CorAniso::toStringParams(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt)
   std::stringstream sstr;
   
   if (_cova->hasRange() > 0)
@@ -659,12 +661,12 @@ String CorAniso::toStringParams() const
   return sstr.str();
 }
 
-String CorAniso::toString(const AStringFormat* /*strfmt*/) const
+String CorAniso::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   // Covariance Name
-  sstr << _cova->toString();
-  sstr << toStringParams();
+  sstr << _cova->toString(strfmt);
+  sstr << toStringParams(strfmt);
   
    
   // Non-stationary parameters
@@ -944,18 +946,6 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
 
-CorAniso* CorAniso::createReduce(const VectorInt &validVars) const
-{
-  CorAniso* newCorAniso = this->clone();
-
-  // Modify the CovContext
-  int nvar = (int) validVars.size();
-  CovContext ctxt = CovContext(nvar);
-
-  // Modify the Matrix of sills
-  newCorAniso->setContext(ctxt);
-  return newCorAniso;
-}
 
 /**
  * Define the second Space Point by transforming the input Space Point 'pt'
@@ -1104,33 +1094,45 @@ void CorAniso::_setNoStatDbIfNecessary(const Db*& db)
     db = _tabNoStat.getDbNoStatRef();
 }
 
-void CorAniso::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+int CorAniso::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
 {
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
   {
-    if(!_checkAndManageNoStatDb(db,namecol)) return;
+    if(!_checkAndManageNoStatDb(db,namecol)) return 1;
     ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
   }
   else 
   {
     ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
   }
-   _tabNoStat.addElem(ns, econs,iv1,iv2);
+   return _tabNoStat.addElem(ns, econs,iv1,iv2);
   
+}
+
+bool CorAniso::isNoStat() const
+{
+  return isNoStatForAnisotropy() || isNoStatForParam();
+}
+String CorAniso::toStringNoStat(const AStringFormat* strfmt) const
+{
+  DECLARE_UNUSED(strfmt)
+  String sstr;
+  sstr = _tabNoStat.toString(strfmt);
+  return sstr;
 }
 ///////////////////// Range ////////////////////////
 void CorAniso::makeRangeNoStatDb(const String &namecol, int idim, const Db* db)
 {   
   if(!_checkTensor()) return;
-  _makeElemNoStat(EConsElem::RANGE, idim, 0,nullptr,db, namecol);
+  makeElemNoStat(EConsElem::RANGE, idim, 0,nullptr,db, namecol);
  
 }
 
 void CorAniso::makeRangeNoStatFunctional(const AFunctional *func, int idim)
 {
   if(!_checkTensor()) return;
-  _makeElemNoStat(EConsElem::RANGE, idim, 0,func);
+  makeElemNoStat(EConsElem::RANGE, idim, 0,func);
 }
 
 
@@ -1148,14 +1150,14 @@ void CorAniso::makeRangeStationary(int idim)
 void CorAniso::makeScaleNoStatDb(const String &namecol, int idim, const Db* db)
 {   
   if(!_checkTensor()) return;
-  _makeElemNoStat(EConsElem::SCALE, idim, 0,nullptr,db, namecol);
+  makeElemNoStat(EConsElem::SCALE, idim, 0,nullptr,db, namecol);
 }
 
 
 void CorAniso::makeScaleNoStatFunctional(const AFunctional *func, int idim)
 {
   if(!_checkTensor()) return;
-  _makeElemNoStat(EConsElem::SCALE, idim, 0,func);
+  makeElemNoStat(EConsElem::SCALE, idim, 0,func);
 }
 
 void CorAniso::makeScaleStationary(int idim)
@@ -1169,14 +1171,14 @@ void CorAniso::makeScaleStationary(int idim)
 void CorAniso::makeAngleNoStatDb(const String &namecol, int idim, const Db* db)
 {
   if(!_checkTensor()) return;
-  _makeElemNoStat(EConsElem::ANGLE, idim, 0,nullptr,db, namecol);
+  makeElemNoStat(EConsElem::ANGLE, idim, 0,nullptr,db, namecol);
 
 }
 
 void CorAniso::makeAngleNoStatFunctional(const AFunctional *func, int idim)
 {
   if(!_checkTensor()) return;
-  _makeElemNoStat(EConsElem::ANGLE, idim, 0,func);
+  makeElemNoStat(EConsElem::ANGLE, idim, 0,func);
 
 }
 
@@ -1194,7 +1196,7 @@ void CorAniso::makeTensorNoStatDb(const String &namecol, int idim, int jdim,cons
 {
   if(!_checkRotation()) return;
   if (!_checkDims(idim,jdim)) return;
-  _makeElemNoStat(EConsElem::TENSOR, idim, jdim,nullptr,db, namecol);
+  makeElemNoStat(EConsElem::TENSOR, idim, jdim,nullptr,db, namecol);
 
 }
 
@@ -1202,7 +1204,7 @@ void CorAniso::makeTensorNoStatFunctional(const AFunctional  *func, int idim, in
 {
     if(!_checkRotation()) return;
     if (!_checkDims(idim,jdim)) return;
-     _makeElemNoStat(EConsElem::TENSOR, idim, jdim,func);
+     makeElemNoStat(EConsElem::TENSOR, idim, jdim,func);
 
 }
 
@@ -1220,14 +1222,14 @@ void CorAniso::makeTensorStationary(int idim, int jdim)
 void CorAniso::makeParamNoStatDb(const String &namecol, const Db* db)
 {
   if(!_checkParam()) return;
-   _makeElemNoStat(EConsElem::PARAM, 0, 0,nullptr,db, namecol);
+   makeElemNoStat(EConsElem::PARAM, 0, 0,nullptr,db, namecol);
 
 }
 
 void CorAniso::makeParamNoStatFunctional(const AFunctional *func)
 {
   if(!_checkParam()) return;
-  _makeElemNoStat(EConsElem::PARAM, 0, 0,func);
+  makeElemNoStat(EConsElem::PARAM, 0, 0,func);
 
 }
 
@@ -1368,7 +1370,7 @@ void CorAniso::informDbOutForAnisotropy(const Db* dbout) const
 void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
 {
   // If no non-stationary parameter is defined, simply skip
-  if (_tabNoStat.isNoStat()) return;
+  if (!_tabNoStat.isNoStat()) return;
   double val1, val2;
 
   
@@ -1499,7 +1501,7 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 void CorAniso::updateCovByMesh(int imesh,bool aniso)
 {
   // If no non-stationary parameter is defined, simply skip
-  if (_tabNoStat.isNoStat()) return;
+  if (!_tabNoStat.isNoStat()) return;
 
   int ndim = getNDim();
 

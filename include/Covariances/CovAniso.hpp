@@ -150,7 +150,6 @@ public:
   void setContext(const CovContext& ctxt);
   void setParam(double param);
   void copyCovContext(const CovContext& ctxt);
-  void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
   void setSill(double sill); /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill);
@@ -246,18 +245,23 @@ public:
   void   makeSillStationary( int ivar = 0, int jvar = 0);
   void   makeTensorStationary(int idim, int jdim);
   void   makeParamStationary();
-
-
   void   makeStationary();
-  int getNAngles() const {return _tabNoStat.getNAngles();}
-  int getNRanges() const {return _tabNoStat.getNRanges();}
-  int getNScales() const {return _tabNoStat.getNScales();}
+
+
+
+  int getNAngles() const {return _cor.getNAngles();}
+  int getNRanges() const {return _cor.getNRanges();}
+  int getNScales() const {return _cor.getNScales();}
   int getNSills()  const {return _tabNoStat.getNSills();}
-  bool isNoStatForParam()   const {return _tabNoStat.isParam();}
-  bool isNoStatForTensor()  const {return _tabNoStat.isDefinedForTensor();}
-  bool isNoStatForAnisotropy() const { return _tabNoStat.isDefinedForAnisotropy();}
+  bool isNoStat() const  override
+  { 
+    return _tabNoStat.isNoStat() || _cor.isNoStat(); 
+  };
+  bool isNoStatForParam()   const {return _cor.isNoStatForParam();}
+  bool isNoStatForTensor()  const {return _cor.isNoStatForTensor();}
+  bool isNoStatForAnisotropy() const { return _cor.isNoStatForAnisotropy();}
   bool isNoStatForVariance()   const { return _tabNoStat.isDefinedForVariance();}
-  bool isNoStatForRotation()   const { return _tabNoStat.isDefinedForRotation();}
+  bool isNoStatForRotation()   const { return _cor.isNoStatForRotation();}
 
   
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
@@ -276,7 +280,7 @@ public:
   void nostatUpdate(CovInternal *covint);
 
   CovAniso* createReduce(const VectorInt &validVars) const;
-  bool isNoStat() const  override{ return _tabNoStat.isNoStat(); };
+
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
   VectorDouble informCoords(const VectorVectorDouble& coords, 
@@ -330,9 +334,6 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
 
   bool _checkSill(int ivar = 0, int jvar = 0) const;
   bool _checkDims(int idim, int jdim) const;
-  bool _checkTensor() const;
-  bool _checkRotation() const;
-  bool _checkParam() const;
 
   void _setNoStatDbIfNecessary(const Db*& db);
   bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
@@ -346,12 +347,7 @@ private:
   CorAniso _cor;
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   mutable MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
-  TabNoStatCovAniso _tabNoStat;
-  mutable double _noStatFactor;        /// Correcting factor for non-stationarity
-  const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
-                                              EConsElem::SCALE,
-                                              EConsElem::TENSOR,
-                                              EConsElem::ANGLE};
+  TabNoStat _tabNoStat;
   mutable bool _optimEnabled;
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
