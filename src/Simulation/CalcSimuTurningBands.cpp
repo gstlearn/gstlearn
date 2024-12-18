@@ -1786,7 +1786,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     for (int ip = 0; ip < dbin->getSampleNumber(); ip++)
     {
       if (!activeArrayIn[ip]) continue;
-      dbin->getSampleCoordinatesInPlace(ip, coor2);
+      dbin->getCoordinatesPerSampleInPlace(ip, coor2);
       int rank = dbgrid->coordinateToRank(coor2, false, eps);
       if (rank < 0 || !activeArrayOut[rank]) continue;
       dbgrid->rankToCoordinatesInPlace(rank, coor1);
@@ -1828,7 +1828,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     for (int ik = 0; ik < dbout->getSampleNumber(); ik++)
     {
       if (!activeArrayOut[ik]) continue;
-      dbin->getSampleCoordinatesInPlace(ik, coor1);
+      dbin->getCoordinatesPerSampleInPlace(ik, coor1);
 
       /* Look for the closest data point */
 
@@ -1836,7 +1836,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
       for (int ip = 0; ip < dbin->getSampleNumber() && ip_close < 0; ip++)
       {
         if (!activeArrayIn[ip]) continue;
-        dbin->getSampleCoordinatesInPlace(ip, coor2);
+        dbin->getCoordinatesPerSampleInPlace(ip, coor2);
 
         /* Get the distance to the target point */
 

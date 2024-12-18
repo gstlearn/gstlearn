@@ -1,0 +1,184 @@
+<IPython.core.display.Javascript object>
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      3.000
+- Range        =      0.300
+- Theo. Range  =      0.087
+Total Sill     =      3.000
+Known Mean(s)     0.000
+[[ 1.          0.65222331  0.40810306  0.08007801]
+ [ 2.          0.48344806  0.85082084  0.31853151]
+ [ 3.          0.76204594  0.33618778  0.9224694 ]
+ [ 4.          0.01482388  0.29971662  1.10247838]
+ [ 5.          0.55650763  0.47024481 -0.06148045]
+ [ 6.          0.43330071  0.37570521 -2.07125452]
+ [ 7.          0.49657405  0.44904738 -0.06281758]
+ [ 8.          0.14027548  0.14997491  1.55933912]
+ [ 9.          0.72892591  0.74736531 -1.53700908]
+ [10.          0.53722003  0.47335739  0.3890081 ]]
+Correlation =  1.0
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+[[ 1.          0.65222331  0.40810306  0.08007801]
+ [ 2.          0.48344806  0.85082084  0.31853151]
+ [ 3.          0.76204594  0.33618778         nan]
+ [ 4.          0.01482388  0.29971662  1.10247838]
+ [ 5.          0.55650763  0.47024481 -0.06148045]
+ [ 6.          0.43330071  0.37570521         nan]
+ [ 7.          0.49657405  0.44904738 -0.06281758]
+ [ 8.          0.14027548  0.14997491         nan]
+ [ 9.          0.72892591  0.74736531 -1.53700908]
+ [10.          0.53722003  0.47335739  0.3890081 ]]
+Correlation =  0.999
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 10
+Number of active samples     = 8
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel
+Column = 4 - Name = z - Locator = z1
+[[ 1.          0.65222331  0.40810306  1.         -2.07125452]
+ [ 2.          0.48344806  0.85082084  1.         -0.06281758]
+ [ 3.          0.76204594  0.33618778  1.                 nan]
+ [ 4.          0.01482388  0.29971662  0.         -1.53700908]
+ [ 5.          0.55650763  0.47024481  1.          0.3890081 ]
+ [ 6.          0.43330071  0.37570521  0.                 nan]
+ [ 7.          0.49657405  0.44904738  1.          0.40544542]
+ [ 8.          0.14027548  0.14997491  1.                 nan]
+ [ 9.          0.72892591  0.74736531  1.         -2.30115685]
+ [10.          0.53722003  0.47335739  1.          0.2357421 ]]
+Correlation =  1.0
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 10
+Number of active samples     = 8
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel
+Column = 4 - Name = z - Locator = z1
+[[ 1.          0.65222331  0.40810306  1.         -2.07125452]
+ [ 2.          0.48344806  0.85082084  1.         -0.06281758]
+ [ 3.          0.76204594  0.33618778  1.                 nan]
+ [ 4.          0.01482388  0.29971662  0.         -1.53700908]
+ [ 5.          0.55650763  0.47024481  1.          0.3890081 ]
+ [ 6.          0.43330071  0.37570521  0.                 nan]
+ [ 7.          0.49657405  0.44904738  1.          0.40544542]
+ [ 8.          0.14027548  0.14997491  1.                 nan]
+ [ 9.          0.72892591  0.74736531  1.         -2.30115685]
+ [10.          0.53722003  0.47335739  1.          0.2357421 ]]
+Correlation =  1.0
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+[[ 1.          0.65222331  0.40810306  0.08007801]
+ [ 2.          0.48344806  0.85082084  0.31853151]
+ [ 3.          1.5         0.33618778  0.9224694 ]
+ [ 4.          0.01482388  0.29971662  1.10247838]
+ [ 5.          0.55650763  0.47024481 -0.06148045]
+ [ 6.          0.43330071 -0.8        -2.07125452]
+ [ 7.          0.49657405  0.44904738 -0.06281758]
+ [ 8.          0.14027548  0.14997491  1.55933912]
+ [ 9.          0.72892591  0.74736531 -1.53700908]
+ [10.          0.53722003  0.47335739  0.3890081 ]]
+Sample #3 does not belong to the Turbo Meshing internal Grid
+Sample #6 does not belong to the Turbo Meshing internal Grid
+Correlation =  0.999
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+[[ 1.          0.65222331  0.40810306  0.08007801]
+ [ 2.          0.48344806  0.85082084  0.31853151]
+ [ 3.          0.76204594  0.33618778         nan]
+ [ 4.          0.01482388  0.29971662  1.10247838]
+ [ 5.          0.55650763  0.47024481 -0.06148045]
+ [ 6.          0.43330071  0.37570521         nan]
+ [ 7.          0.49657405  0.44904738 -0.06281758]
+ [ 8.          0.14027548  0.14997491         nan]
+ [ 9.          0.72892591  0.74736531 -1.53700908]
+ [10.          0.53722003  0.47335739  0.3890081 ]]
+[[ 1.          0.65222331  0.40810306  0.08007801  0.07633971]
+ [ 2.          0.48344806  0.85082084  0.31853151  0.31368131]
+ [ 3.          0.76204594  0.33618778         nan  0.03904725]
+ [ 4.          0.01482388  0.29971662  1.10247838  1.09160066]
+ [ 5.          0.55650763  0.47024481 -0.06148045 -0.01912215]
+ [ 6.          0.43330071  0.37570521         nan -0.14160632]
+ [ 7.          0.49657405  0.44904738 -0.06281758 -0.04562491]
+ [ 8.          0.14027548  0.14997491         nan  0.24907351]
+ [ 9.          0.72892591  0.74736531 -1.53700908 -1.52149513]
+ [10.          0.53722003  0.47335739  0.3890081   0.33157687]]
