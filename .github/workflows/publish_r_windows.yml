@@ -120,7 +120,7 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install gstlearn R package
+    - name: Install R package
       run: Rscript -e "install.packages(""'""./$(ls *.zip)""'"", repos=NULL, type='source')"
       shell: bash
 
@@ -139,6 +139,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Publish packages to our CRAN
     - uses: fabien-ors/cran-publish-action@v4
       with:
         host: ${{secrets.CG_HOST}}

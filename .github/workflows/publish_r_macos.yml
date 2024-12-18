@@ -131,7 +131,7 @@ jobs:
     - name: Install macOS dependencies
       run: brew install llvm
 
-    - name: Install gstlearn R package
+    - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tgz)\", repos=NULL, type='source')"
 
     - name: Test installed R package
@@ -149,6 +149,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Publish packages to our CRAN
     - uses: fabien-ors/cran-publish-action@v4
       with:
         host: ${{secrets.CG_HOST}}

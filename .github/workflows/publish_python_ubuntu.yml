@@ -32,7 +32,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        # Python version + Numpy version
+        # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
             {py: "3.9"},
@@ -92,7 +92,7 @@ jobs:
       run : |
         cd ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
-        python -m build --wheel -C="--build-option=--plat-name=${{env.BUILD_PLAT}}"
+        python3 -m build --wheel -C="--build-option=--plat-name=${{env.BUILD_PLAT}}"
         cd ../../..
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
 
@@ -129,7 +129,7 @@ jobs:
       with:
         python-version: ${{matrix.python.py}}
 
-    - name: Install gstlearn Python package
+    - name: Install Python package
       run: pip install ./$(ls *.whl)
 
     - name: Test installed Python package
@@ -147,6 +147,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Upload packages to pypi
     - uses: fabien-ors/pypi-publish-action@v2
       with:
         repo: pypi
