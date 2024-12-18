@@ -1,4 +1,4 @@
-name: publish-doc
+name: publish_doc
 
 on:
   # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
