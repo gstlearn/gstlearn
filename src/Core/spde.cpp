@@ -1506,11 +1506,9 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (S_DECIDE.flag_mesh_dbin && !flag_nugget)
   {
     nugval = silltot / 1000.;
-    VectorDouble sill(nvar * nvar, 0.);
-    int ecr = 0;
+    MatrixSquareSymmetric sill(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        sill[ecr++] = (ivar == jvar) ? nugval : 0.;
+      sill.setValue(ivar, ivar, nugval);
     model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), sill);
   }
 

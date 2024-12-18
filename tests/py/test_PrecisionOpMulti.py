@@ -32,13 +32,13 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
         s11 = 2
         s21 = 1
         s121 = r1 * np.sqrt(s11*s21)
-        sills1 = np.array([s11,s121,s121,s21])
+        sills1 = np.array([[s11,s121],[s121,s21]])
       
         r2 = 0.3
         s12 = .01
         s22 = .3
         s122 = r2 * np.sqrt(s12*s22)
-        sills2 = np.array([s11,s121,s121,s21])
+        sills2 = np.array([[s11,s121],[s121,s21]])
         
     if nvar == 3:
         np.random.seed(14556)
@@ -47,11 +47,13 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
 
         sills2 = np.random.normal(size=[3,3])
         sills2 = sills2@sills2.T
-        
-    modelMulti = gl.Model.createFromParam(gl.ECov.MATERN,param=1,sills = sills1.reshape(-1),range = 20)
+    
+    modelMulti = gl.Model.createFromParam(gl.ECov.MATERN,param=1,
+                                          sills = sills1,range = 20)
 
     if multistruct:
-        modelMulti2 = gl.Model.createFromParam(gl.ECov.MATERN,param=2,sills = sills2.reshape(-1),range = 10)
+        modelMulti2 = gl.Model.createFromParam(gl.ECov.MATERN,param=2,
+                                               sills = sills2,range = 10)
         modelMulti.addCov(modelMulti2.getCova(0))
 
     if nostat:
@@ -113,7 +115,7 @@ class PrecisionOpMultiLocal:
             modelMono = gl.Model.createFromParam(cova.getType(),
                                                  param = cova.getParam(),
                                                  range = cova.getRange(),
-                                                 sills = 1)
+                                                 sill = 1)
             covatemp = modelMono.getCova(0)
             self.Qop += [createQ(meshes[i],covatemp)]
             self.temp += [gl.VectorDouble(np.zeros(shape=self.nvertex[i]))]  

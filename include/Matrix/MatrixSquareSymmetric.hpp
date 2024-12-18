@@ -49,8 +49,7 @@ public:
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
   static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X);
-  static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
-                                             int nrow);
+  static MatrixSquareSymmetric* createFromVD(const VectorDouble &X);
   static MatrixSquareSymmetric* createFromTLTU(int neq,
                                                const VectorDouble &tl);
   static MatrixSquareSymmetric* createFromTriangle(int mode,

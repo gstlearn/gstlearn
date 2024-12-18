@@ -6,11 +6,12 @@ import numpy as np
 dat = gl.Db.createFillRandom(100,2,0,coormin=[0,0],coormax=[100,100],seed=234)
 grid = gl.DbGrid.create([50,50],[2,2])
 
-modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET,sills = [4,-2,-2,6])
-model = gl.Model.createFromParam(gl.ECov.MATERN,param = 1, sills = [50,10,10,40],range=10)
-
-model.addCovFromParam(gl.ECov.MATERN,param = 1, sills = [30,-10,-10,10],
-                      range=20)
+modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET,
+                                     sills = np.array([[4,-2],[-2,6]]))
+model = gl.Model.createFromParam(gl.ECov.MATERN,param = 1, range=10,
+                                 sills = np.array([[50,10],[10,40]]))
+model.addCovFromParam(gl.ECov.MATERN,param = 1, range=20,
+                      sills = ([[30,-10],[-10,10]]))
 model.addCov(modelNugg.getCova(0))
 totalSill = np.max(model.getTotalSills().toTL())
 

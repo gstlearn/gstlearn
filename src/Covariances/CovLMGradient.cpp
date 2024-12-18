@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/ACovAnisoList.hpp"
@@ -123,7 +122,7 @@ void CovLMGradient::addCov(const CovAniso* cov)
 void CovLMGradient::_initGradients(double& covVal,
                                    VectorDouble& covGp,
                                    VectorDouble& covGG,
-                                   bool flagGrad) const
+                                   bool flagGrad)
 {
   covVal = 0.;
   for (int i = 0; i < 3; i++) covGp[i] = 0.;

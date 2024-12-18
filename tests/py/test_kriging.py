@@ -8,7 +8,7 @@ def cova(x,sills=1):
 
 np.random.seed(1234)
 A = np.random.normal(size=(3,3))
-sills = gl.VectorDouble((A@A.T).reshape(1,-1)[0])
+sills = (A@A.T)
 model = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
 
 nx = [10,10]

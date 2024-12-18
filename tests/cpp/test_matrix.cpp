@@ -604,9 +604,9 @@ int main(int argc, char *argv[])
   // Get a Dense matrix
   VectorDouble temp = MSS.getValues();
   int ntemp = MSS.getNRows();
-  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp, ntemp);
+  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp);
   MEig->display();
-  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp, ntemp);
+  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp);
   MNoEig->display();
 
   // Extract the Eigen values and vectors (both matrix types)
