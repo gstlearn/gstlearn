@@ -4337,6 +4337,19 @@ void Db::_loadData(const VectorDouble& tab,
     return;
   }
   int ntab = static_cast<int>(tab.size()) / _nech;
+  if (!names.empty() && (int)names.size() != ntab)
+  {
+    messerr("Dimension of names (%d) should be equal to ntab (%d)",
+            (int)names.size(), ntab);
+    return;
+  }
+  if (!locatorNames.empty() && (int)locatorNames.size() != ntab)
+  {
+    messerr("Dimension of locatorNames (%d) should be equal to ntab (%d)",
+            (int)locatorNames.size(), ntab);
+    return;
+  }
+
   int ecr  = 0;
   for (int icol = 0; icol < ntab; icol++)
   {

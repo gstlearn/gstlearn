@@ -134,6 +134,7 @@ String DbLine::toString(const AStringFormat* strfmt) const
   sstr << toTitle(0, "Data Base Line Characteristics");
 
   sstr << "Number of Lines = " << getLineNumber() << std::endl;
+  sstr << "Number of samples = " << getSampleNumber() << std::endl;
   sstr << "Line length = ";
   for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
   {
@@ -690,6 +691,99 @@ DbLine* DbLine::createVerticalFromGrid(const DbGrid& grid,
   DbLine* dbline = new DbLine;
   if (dbline->resetFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, locnames))
     return nullptr;
+
+  return dbline;
+}
+
+DbLine* DbLine::createMarkersFromGrid(const DbGrid& grid,
+                                      const String& name,
+                                      const VectorInt& xranks,
+                                      const VectorInt& yranks,
+                                      const VectorDouble& cuts)
+{
+  // Preliminary checks
+  int ndim = grid.getNDim();
+  if (ndim != 3)
+  {
+    messerr("This method is coded to extract wells from a 3-D Grid only");
+    return nullptr;
+  }
+  if ((int)xranks.size() != (int)yranks.size())
+  {
+    messerr("Arguments 'xranks' and 'yranks' should have same dimensions");
+    return nullptr;
+  }
+  int ncuts = (int) cuts.size();
+  int nwells  = (int)xranks.size();
+  int nz      = grid.getNX(2);
+  VectorDouble tab;
+  VectorInt lineCounts(nwells);
+
+  VectorDouble coor(3);
+  VectorDouble cooriz(3);
+  VectorDouble coorjz(3);
+
+  VectorDouble well(nz);
+  VectorInt indg(3);
+
+  // Loop on the wells
+  int nech = 0;
+  for (int iwell = 0; iwell < nwells; iwell++)
+  {
+    indg[0] = xranks[iwell];
+    indg[1] = yranks[iwell];
+
+    // Loop on the samples
+    for (int iz = 0; iz < nz; iz++)
+    {
+      indg[2] = iz;
+      int rank = grid.indiceToRank(indg);
+      well[iz] = grid.getValue(name, rank);
+    }
+
+    // Find the markers
+    int nmark = 0;
+    for (int iz = 1; iz < nz; iz++)
+    {
+      int jz = iz - 1;
+
+      // Loop on the cuts
+      for (int icut = 0; icut < ncuts; icut++)
+      {
+        double zcut = cuts[icut];
+        double delta = zcut - well[jz];
+        if ((zcut - well[iz]) * delta > 0) continue;
+
+        // Define the marker by interpolation
+        double dist = well[iz] - well[jz];
+        double ratio = (dist > 0) ? delta / dist : 0.;
+
+        // Interpolate the coordinates
+        indg[2] = jz;
+        grid.indicesToCoordinateInPlace(indg, coorjz);
+        indg[2] = iz;
+        grid.indicesToCoordinateInPlace(indg, cooriz);
+        for (int idim = 0; idim < ndim; idim++)
+          coor[idim] = coorjz[idim] * (1. - ratio) + cooriz[idim] * ratio;
+
+        // Add the sample
+        for (int idim = 0; idim < ndim; idim++) tab.push_back(coor[idim]);
+        tab.push_back(zcut);
+        nech++;
+        nmark++;
+      }
+    }
+    lineCounts[iwell] = nmark;
+  }
+
+  // Constitute the list of names
+  VectorString locnames = generateMultipleNames("x", ndim);
+  VectorString auxnames = generateMultipleNames("cut", ncuts);
+  for (int icut = 0; icut < ncuts; icut++) locnames.push_back(auxnames[icut]);
+
+  DbLine* dbline = new DbLine;
+  if (dbline->resetFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts,
+                               locnames)) return nullptr;
 
   return dbline;
 }
