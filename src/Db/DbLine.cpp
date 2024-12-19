@@ -651,7 +651,7 @@ DbLine* DbLine::createVerticalFromGrid(const DbGrid& grid,
   int nbywell = nz / byZ;
   int nsample = nwells * nbywell;
   VectorDouble tab(nsample * (3 + nvar));
-  VectorInt lineCounts(nsample);
+  VectorInt lineCounts(nwells);
 
   VectorDouble coor(3);
   VectorInt indg(3);
@@ -665,24 +665,30 @@ DbLine* DbLine::createVerticalFromGrid(const DbGrid& grid,
     indg[1] = yranks[iwell];
 
     // Loop on the samples
-    for (int iz = 0; iz < nbywell; iz++) indg[2] = iz * byZ;
+    for (int iz = 0; iz < nbywell; iz++)
+    {
+      indg[2] = iz * byZ;
 
-    // Assign the coordinates
-    grid.indicesToCoordinateInPlace(indg, coor);
-    for (int idim = 0; idim < ndim; idim++) tab[ecr++] = coor[idim];
+      // Assign the coordinates
+      grid.indicesToCoordinateInPlace(indg, coor);
+      for (int idim = 0; idim < ndim; idim++) tab[ecr++] = coor[idim];
 
-    // Assign the variable values
-    int rank = grid.indiceToRank(indg);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      tab[ecr++] = grid.getValue(names[ivar], rank);
-
-    // Concatenate to the array
-    lineCounts[nech] = nech;
-    nech++;
+      // Assign the variable values
+      int rank = grid.indiceToRank(indg);
+      for (int ivar = 0; ivar < nvar; ivar++)
+        tab[ecr++] = grid.getValue(names[ivar], rank);
+      nech++;
+    }
+    lineCounts[iwell] = nbywell;
   }
 
+  // Constitute the list of names
+  VectorString locnames = generateMultipleNames("x", ndim);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    locnames.push_back((names[ivar]));
+
   DbLine* dbline = new DbLine;
-  if (dbline->resetFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, names))
+  if (dbline->resetFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, locnames))
     return nullptr;
 
   return dbline;
