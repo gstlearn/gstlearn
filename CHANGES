@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.6.0
 =============
+- new method in DbLine: createVerticalFromGrid()
 - Migrate: in Grid to Grid, perform interpolation if flag_inter is True
 - Add version in functions loadDoc and loadData (Python and R)
 - Fix loadData in R when trying to download the data file from the web (require 'lares' package)
@@ -22,6 +23,7 @@ Release 1.6.0
 
 Graphics
 --------
+- A new entry in plot3D.py: Slice3DOnDbGrid() which draws three slices around a corner.
 - A new entry in plot3D.py: ScatterOnDb() to draw a set of points in 3D as a scatter
 
 Release 1.5.1

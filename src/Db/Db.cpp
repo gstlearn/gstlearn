@@ -701,7 +701,7 @@ void Db::updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, Ve
 VectorDouble Db::getSampleCoordinates(int iech) const
 {
   VectorDouble coor(getNDim());
-  getSampleCoordinatesInPlace(iech, coor);
+  getCoordinatesPerSampleInPlace(iech, coor);
   return coor;
 }
 
@@ -801,12 +801,6 @@ VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
   for (int i = 0; i < number; i++)
     vec[i] = getFromLocator(locatorType, iech, i);
   return vec;
-}
-
-void Db::getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const
-{
-  for (int idim = 0, ndim=getNDim(); idim < ndim; idim++)
-    coor[idim] = getCoordinate(iech, idim);
 }
 
 /**
@@ -5281,7 +5275,7 @@ VectorInt Db::getSampleRanks() const
  * @param nfex Number of external drift functions
  * @param ncode Number of codes (no code when 0)
  * @param varmax Maximum value for the measurement error
- * @param selRatio Percentage of samples that must be masked off
+ * @param selRatio Percentage of samples that must be masked off (between 0 and 1)
  * @param heteroRatio Vector of proportions of NA to be generated per
  * variable
  * @param coormin Vector of minima of the rectangle containing data (0s if

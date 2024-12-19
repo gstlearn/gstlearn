@@ -10,13 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "Matrix/MatrixRectangular.hpp"
 #include "gstlearn_export.hpp"
 
-#include "ACalcSimulation.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
-
-class MatrixRectangular;
 
 typedef struct
 {
@@ -25,6 +23,8 @@ typedef struct
   int _countM;
   std::map<int, std::map<int, int>> _tab;
 } spSim;
+
+class Model;
 
 /**
  * Class for operating the Spectral simulations
@@ -43,7 +43,7 @@ public:
               bool verbose = false,
               const NamingConvention& namconv = NamingConvention("Simu"));
 
-  bool isValidForSpectral(const Model *model)const;
+  static bool isValidForSpectral(const Model *model);
 
   void setModel(const Model *&model) { _model = model; }
   void setNdim(int ndim) { _ndim = ndim; }
@@ -55,13 +55,13 @@ private:
   void _computeOnSphere(Db* dbout, int iuid, bool verbose = false);
   void _computeOnRn(Db *dbout, int iuid, bool verbose = false);
 
-  void _printSpSim(const spSim& spsim, int status = 0) const;
+  static void _printSpSim(const spSim& spsim, int status = 0);
   void _printSpSims(int status = 0);
-  int _getKey1Maximum(const spSim& spsim) const;
-  int _getSumValue(const spSim& spsim) const;
-  VectorInt _getKeys1(const spSim& spsim) const;
-  VectorInt _getKeys2(const spSim& spsim, int key1) const;
-  VectorInt _getValues2(const spSim& spsim, int key1) const;
+  static int _getKey1Maximum(const spSim& spsim);
+  static int _getSumValue(const spSim& spsim);
+  static VectorInt _getKeys1(const spSim& spsim);
+  static VectorInt _getKeys2(const spSim& spsim, int key1);
+  static VectorInt _getValues2(const spSim& spsim, int key1);
 
 private:
   int _ndim;    // Space dimension

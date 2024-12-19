@@ -89,9 +89,9 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSquareSymmetric>& alpha);
-  bool _convergenceReached(const Option_AutoFit& mauto,
+  static bool _convergenceReached(const Option_AutoFit& mauto,
                            double crit,
-                           double crit_mem) const;
+                           double crit_mem);
   void _printResults(double crit) const;
 
 protected:

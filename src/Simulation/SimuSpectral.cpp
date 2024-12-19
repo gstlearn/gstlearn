@@ -15,6 +15,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Db/Db.hpp"
 
 #include <math.h>
 
@@ -225,7 +226,7 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   for (int jech = 0; jech < nech; jech++)
   {
     int iech = ranks[jech];
-    dbout->getSampleCoordinatesInPlace(iech, coor);
+    dbout->getCoordinatesPerSampleInPlace(iech, coor);
     VectorDouble u = res->prodMatVec(coor);
 
     double value = 0.;
@@ -291,23 +292,23 @@ int SimuSpectral::compute(Db *dbout,
   return 0;
 }
 
-VectorInt SimuSpectral::_getKeys1(const spSim& spsim) const
+VectorInt SimuSpectral::_getKeys1(const spSim& spsim)
 {
   VectorInt keys;
-  for (auto e: spsim._tab)
+  for (const auto& e: spsim._tab)
     keys.push_back(e.first);
   return keys;
 }
 
-int SimuSpectral::_getKey1Maximum(const spSim& spsim) const
+int SimuSpectral::_getKey1Maximum(const spSim& spsim)
 {
   double maxi = -9999;
-  for (auto e: spsim._tab)
+  for (const auto& e: spsim._tab)
     if (e.first > maxi) maxi = e.first;
   return maxi;
 }
 
-int SimuSpectral::_getSumValue(const spSim& spsim) const
+int SimuSpectral::_getSumValue(const spSim& spsim)
 {
   double sum = 0;
   for (const auto& e1: spsim._tab)
@@ -318,10 +319,10 @@ int SimuSpectral::_getSumValue(const spSim& spsim) const
   return sum;
 }
 
-VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1) const
+VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1)
 {
   VectorInt keys;
-  for (auto e1: spsim._tab)
+  for (const auto& e1: spsim._tab)
   {
     if (e1.first != key1) continue;
 
@@ -333,10 +334,10 @@ VectorInt SimuSpectral::_getKeys2(const spSim& spsim, int key1) const
   return keys;
 }
 
-VectorInt SimuSpectral::_getValues2(const spSim& spsim, int key1) const
+VectorInt SimuSpectral::_getValues2(const spSim& spsim, int key1)
 {
   VectorInt keys;
-  for (auto e1: spsim._tab)
+  for (const auto& e1: spsim._tab)
   {
     if (e1.first != key1) continue;
 
@@ -348,7 +349,7 @@ VectorInt SimuSpectral::_getValues2(const spSim& spsim, int key1) const
   return keys;
 }
 
-void SimuSpectral::_printSpSim(const spSim& spsim, int status) const
+void SimuSpectral::_printSpSim(const spSim& spsim, int status)
 {
   message("Component %2d (%2d / %2d)\n", spsim._k, spsim._countP, spsim._countM);
   if (status == 0) return;
@@ -528,7 +529,7 @@ void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-bool SimuSpectral::isValidForSpectral(const Model* model) const
+bool SimuSpectral::isValidForSpectral(const Model* model)
 {
   ESpaceType type = getDefaultSpaceType();
   if (model->getCovaNumber() != 1)
