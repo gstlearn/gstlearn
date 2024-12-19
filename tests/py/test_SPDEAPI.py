@@ -11,11 +11,6 @@ import gstlearn.plot as gp
 import numpy as np
 import matplotlib.pyplot as plt
 
-import gstlearn.document as gdoc
-
-gdoc.setNoScroll()
-
-
 # This script is meant to demonstrate the robustness of the SPDE interface against:
 # - undefined data
 # - selection on input data
