@@ -34,6 +34,7 @@
 #include <math.h>
 #include <functional>
 #include <memory>
+#include <ostream>
 #include <vector>
 
 
@@ -558,7 +559,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     int i = _tabNoStat.getNSills();
     sstr << _cor.toStringNoStat(strfmt,i);
   }
-
+  sstr << std::endl;
   return sstr.str();
 }
 
