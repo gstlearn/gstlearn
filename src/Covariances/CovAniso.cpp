@@ -559,7 +559,6 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     int i = _tabNoStat.getNSills();
     sstr << _cor.toStringNoStat(strfmt,i);
   }
-  sstr << std::endl;
   return sstr.str();
 }
 
