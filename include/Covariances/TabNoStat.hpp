@@ -52,6 +52,7 @@ class GSTLEARN_EXPORT TabNoStat : public AStringable
                     int iv2, 
                     VectorDouble& result) const;
   String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toStringInside(const AStringFormat* strfmt = nullptr,int i = 0) const;
   bool isElemDefined(const EConsElem &econs, int iv1 = 0, int iv2 = 0) const;
   std::shared_ptr<ANoStat> getElem(const EConsElem &econs, int iv1 = 0, int iv2 =0);
 protected:
