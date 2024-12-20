@@ -26,6 +26,10 @@ Graphics
 - A new entry in plot3D.py: Slice3DOnDbGrid() which draws three slices around a corner.
 - A new entry in plot3D.py: ScatterOnDb() to draw a set of points in 3D as a scatter
 
+gstMarimo
+---------
+New module (adjacent to gstlearn) to develop interfaces using MARINO plateform
+
 Release 1.5.1
 =============
 - Fix old GLIBC compatibility under Ubuntu
