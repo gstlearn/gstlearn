@@ -21,7 +21,7 @@ import copy
 
 import marimo as mo
 
-def getCovarianceOptions():
+def getCovarianceDict():
     keys = gl.ECov.getAllKeys(0)
     names = gl.ECov.getAllDescr(0)
     options = {}
@@ -29,43 +29,40 @@ def getCovarianceOptions():
         options[names[k]] = keys[k]
     return options
 
-def WgetOneStructure(ic, ncovmax, distmax, varmax):
+def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     '''
     Returns the widgets for enquiring the parameters for a single Basic structure
     '''
-
-    # Calculate the default values
     typeRef = "Spherical"
     distRef = distmax / (ncovmax + 1)
     varRef  = varmax / ncovmax
 
-    # Instantiate the widgets
     WRange = mo.ui.slider(1, 100, value = (ic+1) * distRef, label="Range")
-    WSill  = mo.ui.slider(1,50, value=varRef, label="Sill")
-    WType  = mo.ui.dropdown(options=getCovarianceOptions(), 
+    WSill  = mo.ui.slider(1, 100, value=varRef, label="Sill")
+    WType  = mo.ui.dropdown(options=getCovarianceDict(), 
                             value=typeRef, label="Structure")
 
     return WRange, WSill, WType
 
-def WgetStructures(ncovmax, distmax, varmax):
+def WCovariances(ncovmax, distmax, varmax):
     '''
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     '''
 
-    TWRange = [None] * ncovmax
-    TWSill = [None] * ncovmax
-    TWType = [None] * ncovmax
+    TWRanges = [None] * ncovmax
+    TWSills = [None] * ncovmax
+    TWTypes = [None] * ncovmax
     for ic in range(ncovmax):
-        TWRange[ic], TWSill[ic], TWType[ic] = WgetOneStructure(ic, ncovmax, distmax, varmax)
-    WRange = mo.ui.array(TWRange)
-    WSill = mo.ui.array(TWSill)
-    WType = mo.ui.array(TWType)
+        TWRanges[ic], TWSills[ic], TWTypes[ic] = WCovariance(ic, ncovmax, distmax, varmax)
+    WRanges = mo.ui.array(TWRanges)
+    WSills  = mo.ui.array(TWSills)
+    WTypes  = mo.ui.array(TWTypes)
 
-    return WRange, WSill, WType
+    return WRanges, WSills, WTypes
 
-def WStructures(ncovmax, distmax, varmax):
+def WModel(ncovmax, distmax, varmax):
 
-    WAll = WgetStructures(ncovmax, distmax, varmax)
+    WAll = WCovariances(ncovmax, distmax, varmax)
 
     UI = mo.accordion({"Covariance #"+str(i+1): mo.md(            
             f"""
@@ -79,7 +76,7 @@ def WStructures(ncovmax, distmax, varmax):
     )
     return UI, WAll
 
-def getModelFromW(WAll):
+def getWModel(WAll):
     model = gl.Model()
     ncovmax = len(WAll[0])
     for ic in range(ncovmax):
@@ -87,3 +84,29 @@ def getModelFromW(WAll):
                                range= WAll[0][ic].value, 
                                sill = WAll[1][ic].value)
     return model
+
+def WGrid():
+    WNX = mo.ui.slider(1, 100, value = 10, label="NX")
+    WNY = mo.ui.slider(1, 100, value = 10, label="NY")
+    WDX = mo.ui.number(1, 100, value = 1,  label="DX")
+    WDY = mo.ui.number(1, 100, value = 1,  label="DY")
+    WX0 = mo.ui.number(0, 100, value = 0,  label="X0")
+    WY0 = mo.ui.number(0, 100, value = 0,  label="Y0")
+
+    UI = mo.accordion({"Grid Parameters": mo.md(            
+            f"""
+            {WNX} {WNY}
+
+            {WDX} {WDY}
+
+            {WX0} {WY0}
+            """)})
+    WAll = mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
+    return UI, WAll
+
+def getWGrid(WAll):
+    print(WAll[0].value, WAll[1].value)
+    grid = gl.DbGrid.create(nx = [WAll[0].value, WAll[1].value],
+                            dx = [WAll[2].value, WAll[3].value],
+                            x0 = [WAll[4].value, WAll[5].value])
+    return grid
