@@ -37,25 +37,27 @@ def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     varmax: Maximum Variance value
     '''
     typeRef = "Spherical"
-    distRef = distmax / (ncovmax + 1)
+    distRef = distmax * (ic+1) / (ncovmax + 1)
     varRef  = varmax / ncovmax
 
-    WRange = mo.ui.slider(1, distmax, value = (ic+1) * distRef, label="Range")
-    WSill  = mo.ui.slider(0, varmax, value=varRef, label="Sill")
-    WType  = mo.ui.dropdown(options=getCovarianceDict(), 
+    WUsed   = mo.ui.switch(True, label="Basic Structure Used")
+    WType   = mo.ui.dropdown(options=getCovarianceDict(), 
                             value=typeRef, label="Structure")
-    WAll = mo.ui.array([WRange, WSill, WType])
+    WRange  = mo.ui.slider(1, distmax, value = distRef, label="Range")
+    WSill   = mo.ui.slider(0, varmax, value=varRef, label="Sill")
+    WAniso  = mo.ui.switch(label="Anisotropy")
+    WRange2 = mo.ui.slider(1, distmax, value = distRef, label="Range Aux.")
+    WAngle  = mo.ui.slider(0, 180, value = 0, label="Angle")
+
+    WAll = mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
     return WAll
 
 def WCovariances(ncovmax=1, distmax=100, varmax=100):
     '''
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     '''
-
-    WAlls = [None] * ncovmax
-    for ic in range(ncovmax):
-        WAlls[ic] = WCovariance(ic, ncovmax, distmax, varmax)
-
+    WAlls = mo.ui.array([WCovariance(ic, ncovmax, distmax, varmax) 
+                         for ic in range(ncovmax)])
     return WAlls
 
 def WModel(ncovmax=1, distmax=100, varmax=100):
@@ -80,9 +82,20 @@ def getWModel(WAlls):
     '''
     model = gl.Model()
     for WAll in WAlls:
-         model.addCovFromParam(type=gl.ECov.fromKey(WAll.value[2]), 
-                               range= WAll.value[0], 
-                               sill = WAll.value[1])
+        used   = WAll.value[0]
+        type   = gl.ECov.fromKey(WAll.value[1])
+        range  = WAll.value[2]
+        sill   = WAll.value[3]
+        aniso  = WAll.value[4]
+        range2 = WAll.value[5]
+        angle  = WAll.value[6]
+        if used:
+            if aniso:
+                model.addCovFromParam(type=type, sill=sill,
+                                      angles = [angle, 0],
+                                      ranges = [range, range2])
+            else:
+                model.addCovFromParam(type=type, range=range, sill=sill)
     return model
 
 def WGrid(nxdef = 50):
