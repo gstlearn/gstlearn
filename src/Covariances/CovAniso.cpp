@@ -39,7 +39,7 @@
 
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
-    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+    : CovBase(), /// TODO : shared pointer
       _cor(type, ctxt),
       _ctxt(ctxt),
       _sill(),
@@ -50,7 +50,7 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
 }
 
 CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
-    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+    :CovBase(), /// TODO : shared pointer
       _cor(symbol, ctxt),
       _ctxt(ctxt),
       _sill(),
@@ -67,7 +67,7 @@ CovAniso::CovAniso(const ECov &type,
                    double sill,
                    const CovContext &ctxt,
                    bool flagRange)
-    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+    : CovBase(MatrixSquareSymmetric(),nullptr), /// TODO : shared pointer
       _cor(type, range,param, ctxt, flagRange),
       _ctxt(ctxt),
       _sill(),
@@ -98,7 +98,7 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    : ACov(r),
+    : CovBase(r),
       _cor(r._cor),
       _ctxt(r._ctxt),
       _sill(r._sill),
@@ -639,6 +639,7 @@ double CovAniso::getParam() const
 void CovAniso::_initFromContext()
 {
   _cor.initFromContext();
+  _space = (const ASpace*)_cor.getSpace()->clone();
   _sill.reset(_ctxt.getNVar(), _ctxt.getNVar());
 }
 

@@ -11,8 +11,9 @@
 
 #include "Covariances/CovGneiting.hpp"
 #include "Basic/AStringable.hpp"
-#include "Covariances/ACov.hpp"
+#include "Covariances/CovBase.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovBase.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
@@ -20,7 +21,7 @@
 #include <vector>
 
 CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
-: ACov()
+: CovBase()
 , _covS(covS)
 , _covTemp(covTemp)
 , _separability(separability)
@@ -41,7 +42,7 @@ CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double se
 
 
 CovGneiting::CovGneiting(const CovGneiting& r):
-ACov(r)
+CovBase(r)
 , _covS(r._covS)
 , _covTemp(r._covTemp)
 , _separability(r._separability)
@@ -53,7 +54,7 @@ CovGneiting& CovGneiting::operator=(const CovGneiting &r)
 {
   if (this != &r)
   {
-    ACov::operator =(r);
+    CovBase::operator =(r);
     _ctxt = r._ctxt;
     _covS = r._covS;
     _covTemp = r._covTemp;

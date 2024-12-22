@@ -33,7 +33,7 @@ class ACov;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovGneiting: public ACov, public ICloneable//, public ICloneable
+class GSTLEARN_EXPORT CovGneiting: public CovBase, public ICloneable//, public ICloneable
 {
 public:
   CovGneiting(const CovAniso* covS, const CovAniso* covTemp, double separability = 1.0);

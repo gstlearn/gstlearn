@@ -194,6 +194,7 @@
   #include "Covariances/NoStatArray.hpp"
   #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
+  #include "Covariances/CovBase.hpp"
   #include "Covariances/ACor.hpp"
   #include "Covariances/CorAniso.hpp"
   #include "Covariances/ACovFunc.hpp"

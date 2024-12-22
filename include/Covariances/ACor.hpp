@@ -12,9 +12,8 @@
 
 #include "Basic/AStringable.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-
+#include "Covariances/ACov.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
