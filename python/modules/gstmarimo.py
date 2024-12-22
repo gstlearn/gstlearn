@@ -31,82 +31,102 @@ def getCovarianceDict():
 
 def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     '''
-    Returns the widgets for enquiring the parameters for a single Basic structure
+    Returns the widget for enquiring the parameters for a single Basic structure
+    ncovmax: Maximum number of Basic structures (used for defaulting range)
+    distmax: Maximum distance
+    varmax: Maximum Variance value
     '''
     typeRef = "Spherical"
     distRef = distmax / (ncovmax + 1)
     varRef  = varmax / ncovmax
 
-    WRange = mo.ui.slider(1, 100, value = (ic+1) * distRef, label="Range")
-    WSill  = mo.ui.slider(1, 100, value=varRef, label="Sill")
+    WRange = mo.ui.slider(1, distmax, value = (ic+1) * distRef, label="Range")
+    WSill  = mo.ui.slider(0, varmax, value=varRef, label="Sill")
     WType  = mo.ui.dropdown(options=getCovarianceDict(), 
                             value=typeRef, label="Structure")
+    WAll = mo.ui.array([WRange, WSill, WType])
+    return WAll
 
-    return WRange, WSill, WType
-
-def WCovariances(ncovmax, distmax, varmax):
+def WCovariances(ncovmax=1, distmax=100, varmax=100):
     '''
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     '''
 
-    TWRanges = [None] * ncovmax
-    TWSills = [None] * ncovmax
-    TWTypes = [None] * ncovmax
+    WAlls = [None] * ncovmax
     for ic in range(ncovmax):
-        TWRanges[ic], TWSills[ic], TWTypes[ic] = WCovariance(ic, ncovmax, distmax, varmax)
-    WRanges = mo.ui.array(TWRanges)
-    WSills  = mo.ui.array(TWSills)
-    WTypes  = mo.ui.array(TWTypes)
+        WAlls[ic] = WCovariance(ic, ncovmax, distmax, varmax)
 
-    return WRanges, WSills, WTypes
+    return WAlls
 
-def WModel(ncovmax, distmax, varmax):
+def WModel(ncovmax=1, distmax=100, varmax=100):
+    '''
+    Returns the array of widgets for inquiring a series of Basic structures
+    (displayed as an accordion)
+    '''
 
-    WAll = WCovariances(ncovmax, distmax, varmax)
+    WAlls = WCovariances(ncovmax, distmax, varmax)
 
     UI = mo.accordion({"Covariance #"+str(i+1): mo.md(            
             f"""
-            {WAll[0][i]} # Range
-
-            {WAll[1][i]} # Sill
-
-            {WAll[2][i]} # Type
+            {WAlls[i]}
             """) for i in range(ncovmax)
         }
     )
-    return UI, WAll
+    return WAlls, UI
 
-def getWModel(WAll):
+def getWModel(WAlls):
+    '''
+    Create a gstlearn Model from the WCovariances widget
+    '''
     model = gl.Model()
-    ncovmax = len(WAll[0])
-    for ic in range(ncovmax):
-         model.addCovFromParam(type=gl.ECov.fromKey(WAll[2][ic].selected_key), 
-                               range= WAll[0][ic].value, 
-                               sill = WAll[1][ic].value)
+    for WAll in WAlls:
+         model.addCovFromParam(type=gl.ECov.fromKey(WAll.value[2]), 
+                               range= WAll.value[0], 
+                               sill = WAll.value[1])
     return model
 
-def WGrid():
-    WNX = mo.ui.slider(1, 100, value = 10, label="NX")
-    WNY = mo.ui.slider(1, 100, value = 10, label="NY")
-    WDX = mo.ui.number(1, 100, value = 1,  label="DX")
-    WDY = mo.ui.number(1, 100, value = 1,  label="DY")
-    WX0 = mo.ui.number(0, 100, value = 0,  label="X0")
-    WY0 = mo.ui.number(0, 100, value = 0,  label="Y0")
+def WGrid(nxdef = 50):
+    '''
+    Widget to inquire the parameters for constructing a Grid
+    '''
+    WNX = mo.ui.slider(start=1, stop=200, value = nxdef, label="NX")
+    WNY = mo.ui.slider(start=1, stop=200, value = nxdef, label="NY")
+    WDX = mo.ui.number(start=1, stop=None, value = 1,  label="DX")
+    WDY = mo.ui.number(start=1, stop=None, value = 1,  label="DY")
+    WX0 = mo.ui.number(start=0, stop=None, value = 0,  label="X0")
+    WY0 = mo.ui.number(start=0, stop=None, value = 0,  label="Y0")
 
-    UI = mo.accordion({"Grid Parameters": mo.md(            
-            f"""
-            {WNX} {WNY}
-
-            {WDX} {WDY}
-
-            {WX0} {WY0}
-            """)})
     WAll = mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
-    return UI, WAll
+    UI = mo.vstack(WAll)
+    return WAll, UI
 
 def getWGrid(WAll):
-    print(WAll[0].value, WAll[1].value)
+    '''
+    Create the gstlearn Grid from the widget WGrid
+    '''
     grid = gl.DbGrid.create(nx = [WAll[0].value, WAll[1].value],
                             dx = [WAll[2].value, WAll[3].value],
                             x0 = [WAll[4].value, WAll[5].value])
     return grid
+
+def WSimtub(seed = 13134):
+    '''
+    Inquire for performing a Simulation using Turning Bands Method
+    '''
+    WNbtuba = mo.ui.number(start=1, stop=None, value = 100, 
+                          label = "Number of Turning Bands")
+    WSeed = mo.ui.number(start=0, stop=None, value = seed, 
+                         label = "Seed")
+    
+    WAll = mo.ui.array([WNbtuba, WSeed])
+    UI = mo.vstack(WAll)
+    return WAll, UI
+
+def getWSimtub(WAll):
+    '''
+    Returns the parameters for simulation using Turning Bands Method
+    '''
+
+    nbtuba = WAll[0].value
+    seed = WAll[1].value
+    return nbtuba, seed
