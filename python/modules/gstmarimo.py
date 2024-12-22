@@ -49,36 +49,18 @@ def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     WRange2 = mo.ui.slider(1, distmax, value = distRef, label="Range Aux.")
     WAngle  = mo.ui.slider(0, 180, value = 0, label="Angle")
 
-    WAll = mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
-    return WAll
-
-def WCovariances(ncovmax=1, distmax=100, varmax=100):
-    '''
-    Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
-    '''
-    WAlls = mo.ui.array([WCovariance(ic, ncovmax, distmax, varmax) 
-                         for ic in range(ncovmax)])
-    return WAlls
+    return mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
 
 def WModel(ncovmax=1, distmax=100, varmax=100):
     '''
-    Returns the array of widgets for inquiring a series of Basic structures
-    (displayed as an accordion)
+    Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     '''
-
-    WAlls = WCovariances(ncovmax, distmax, varmax)
-
-    UI = mo.accordion({"Covariance #"+str(i+1): mo.md(            
-            f"""
-            {WAlls[i]}
-            """) for i in range(ncovmax)
-        }
-    )
-    return WAlls, UI
+    return mo.ui.array([WCovariance(ic, ncovmax, distmax, varmax) 
+                         for ic in range(ncovmax)])
 
 def getWModel(WAlls):
     '''
-    Create a gstlearn Model from the WCovariances widget
+    Create a gstlearn Model from the WModel widget
     '''
     model = gl.Model()
     for WAll in WAlls:
@@ -109,9 +91,7 @@ def WGrid(nxdef = 50):
     WX0 = mo.ui.number(start=0, stop=None, value = 0,  label="X0")
     WY0 = mo.ui.number(start=0, stop=None, value = 0,  label="Y0")
 
-    WAll = mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
-    UI = mo.vstack(WAll)
-    return WAll, UI
+    return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
 
 def getWGrid(WAll):
     '''
@@ -131,15 +111,12 @@ def WSimtub(seed = 13134):
     WSeed = mo.ui.number(start=0, stop=None, value = seed, 
                          label = "Seed")
     
-    WAll = mo.ui.array([WNbtuba, WSeed])
-    UI = mo.vstack(WAll)
-    return WAll, UI
+    return mo.ui.array([WNbtuba, WSeed])
 
 def getWSimtub(WAll):
     '''
     Returns the parameters for simulation using Turning Bands Method
     '''
-
     nbtuba = WAll[0].value
     seed = WAll[1].value
     return nbtuba, seed
