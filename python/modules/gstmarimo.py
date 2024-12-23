@@ -31,7 +31,7 @@ def getCovarianceDict():
 
 def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     '''
-    Returns the widget for enquiring the parameters for a single Basic structure
+    Returns the widget for inquiring the parameters for a single Basic structure
     ncovmax: Maximum number of Basic structures (used for defaulting range)
     distmax: Maximum distance
     varmax: Maximum Variance value
@@ -106,17 +106,107 @@ def WSimtub(seed = 13134):
     '''
     Inquire for performing a Simulation using Turning Bands Method
     '''
+
     WNbtuba = mo.ui.number(start=1, stop=None, value = 100, 
                           label = "Number of Turning Bands")
+    WDefineSeed = mo.ui.switch(True, label="Define Seed")
     WSeed = mo.ui.number(start=0, stop=None, value = seed, 
                          label = "Seed")
-    
-    return mo.ui.array([WNbtuba, WSeed])
+    WNewSimu = mo.ui.button(label="Perform a New Simulation")
+
+    return mo.ui.array([WNbtuba, WDefineSeed, WSeed, WNewSimu])
 
 def getWSimtub(WAll):
     '''
     Returns the parameters for simulation using Turning Bands Method
     '''
     nbtuba = WAll[0].value
-    seed = WAll[1].value
+    defineSeed = WAll[1].value
+    seed = 0
+    if defineSeed:
+        seed = WAll[2].value
     return nbtuba, seed
+
+def WDbRandom(nech = 100, nvar = 1, xmin = 0, ymin = 0, xmax = 100, ymax = 100, seed = 14543):
+    '''
+    Inquiry the parameters for generating a Random Data Base
+    '''
+    WNech = mo.ui.number(start=1, stop=None, value = nech, 
+                         label = "Number of Samples")
+    WNvar = mo.ui.number(start=1, stop=None, value = nvar, 
+                         label = "Number of Variables")
+    WXmin = mo.ui.number(start=None, stop=None, value = xmin, 
+                         label = "Minimum along X")
+    WYmin = mo.ui.number(start=None, stop=None, value = ymin, 
+                         label = "Minimum along Y")
+    WXmax = mo.ui.number(start=None, stop=None, value = xmax, 
+                         label = "Maximum along X")
+    WYmax = mo.ui.number(start=None, stop=None, value = ymax, 
+                         label = "Maximum along Y")
+    WSeed = mo.ui.number(start=None, stop=None, value=seed,
+                         label="Seed")
+    
+    return mo.ui.array([WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed])
+
+def getWDbRandom(WAll):
+    '''
+    Create a Db with Radom Samples 
+    '''
+    coormin = [WAll[2].value, WAll[3].value]
+    coormax = [WAll[4].value, WAll[5].value]
+    db = gl.Db.createFillRandom(ndat = WAll[0].value, 
+                                ndim = 2,  
+                                nvar = WAll[1].value, 
+                                nfex = 0,
+                                ncode = 0,
+                                varmax = 0.,
+                                selRatio = 0.,
+                                heteroRatio = gl.VectorDouble(),
+                                coormin = coormin,
+                                coormax = coormax,
+                                seed = WAll[6].value)
+    return db
+
+def WDbNFFile():
+    '''
+    Inquiry to load a file from a Neutral File
+    '''
+    WFile = mo.ui.file_browser(label="Select a Db Neutral File")
+
+    return mo.ui.array([WFile])
+
+def getWDbNFFile(WAll):
+    '''
+    Create the gstlearn Db from the widget WDbNFFile
+    '''
+    filename = WAll[0].name()
+    if filename is None:
+        return None
+    db = gl.Db.createFromNF(filename)
+
+    return db
+
+def WDbGridRandom(nxdef = 10):
+    '''
+    Widget to inquire the parameters for constructing a Db as a randomized grid
+    '''
+    WNX = mo.ui.number(start=1, stop=100, value = nxdef, label="NX")
+    WNY = mo.ui.number(start=1, stop=100, value = nxdef, label="NY")
+    WDX = mo.ui.number(start=1, stop=None, value = 1,  label="DX")
+    WDY = mo.ui.number(start=1, stop=None, value = 1,  label="DY")
+    WX0 = mo.ui.number(start=0, stop=None, value = 0,  label="X0")
+    WY0 = mo.ui.number(start=0, stop=None, value = 0,  label="Y0")
+    WPerc = mo.ui.number(start=0, stop=100, value=10, 
+                         label="Randomization percentage")
+
+    return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0, WPerc])
+
+def getWDbGridRandom(WAll):
+    '''
+    Create the gstlearn Grid from the widget WDbRandomGrid
+    '''
+    grid = gl.DbGrid.create(nx = [WAll[0].value, WAll[1].value],
+                            dx = [WAll[2].value, WAll[3].value],
+                            x0 = [WAll[4].value, WAll[5].value])
+    db = gl.Db.createFromGridRandomized(grid, WAll[6].value);
+    return db

@@ -145,10 +145,13 @@ public:
                       int seed = 23241,
                       bool verbose = false,
                       bool flagAddSampleRank = true);
-  int resetReduce(const Db *dbin,
-                  const VectorString &names = VectorString(),
-                  const VectorInt &ranks = VectorInt(),
-                  bool verbose = false);
+  int resetReduce(const Db* dbin,
+                  const VectorString& names = VectorString(),
+                  const VectorInt& ranks    = VectorInt(),
+                  bool verbose              = false);
+  int resetFromGridRandomized(const DbGrid* dbin,
+                              double randperc = 0.,
+                              bool flagAddSampleRank = true);
   /**@}*/
 
   /** @addtogroup DB_Creators Creating a Db structure
@@ -206,17 +209,20 @@ public:
                           const VectorInt &ranks = VectorInt(),
                           bool verbose = false);
   static Db* createFillRandom(int ndat,
-                              int ndim = 2,
-                              int nvar = 1,
-                              int nfex = 0,
-                              int ncode = 0,
-                              double varmax = 0.,
-                              double selRatio = 0.,
+                              int ndim                        = 2,
+                              int nvar                        = 1,
+                              int nfex                        = 0,
+                              int ncode                       = 0,
+                              double varmax                   = 0.,
+                              double selRatio                 = 0.,
                               const VectorDouble& heteroRatio = VectorDouble(),
-                              const VectorDouble& coormin = VectorDouble(),
-                              const VectorDouble& coormax = VectorDouble(),
-                              int seed = 124234,
-                              bool flagAddSampleRank = true);
+                              const VectorDouble& coormin     = VectorDouble(),
+                              const VectorDouble& coormax     = VectorDouble(),
+                              int seed                        = 124234,
+                              bool flagAddSampleRank          = true);
+  static Db* createFromGridRandomized(DbGrid* dbgrid,
+                                      double randperc        = 0.,
+                                      bool flagAddSampleRank = true);
   /**@}*/
 
   const std::vector<double>& getArrays() const { return _array; }
