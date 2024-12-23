@@ -929,7 +929,6 @@ void DbGrid::generateCoordinates(const String& radix)
   int ndim = getNDim();
   VectorDouble coors(ndim);
   (void) addColumnsByConstant(ndim, 0., radix, ELoc::X);
-  display();
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     _grid.rankToCoordinatesInPlace(iech, coors);
