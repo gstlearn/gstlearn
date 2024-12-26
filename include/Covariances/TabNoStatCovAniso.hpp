@@ -34,6 +34,7 @@ class GSTLEARN_EXPORT TabNoStatCovAniso : public TabNoStat
   int removeElem(const EConsElem &econs, int iv1=0, int iv2 = 0) override;
 
   private:
+    void _clear() override;
     void _updateDescription() override;
     bool _isValid(const EConsElem &econs) const override;
 

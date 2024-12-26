@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ANoStat.hpp"
 #include "Covariances/ParamId.hpp"
@@ -21,8 +22,9 @@
 class Db;
 typedef std::unordered_map<ParamId,std::shared_ptr<ANoStat>,ParamIdHash,ParamIdEqual> mapNoStat;
 
-class GSTLEARN_EXPORT TabNoStat : public AStringable
+class GSTLEARN_EXPORT TabNoStat : public AStringable, public ICloneable
 {
+  IMPLEMENT_CLONING(TabNoStat)
   public:
   TabNoStat();
   TabNoStat(const TabNoStat &m);
@@ -44,6 +46,7 @@ class GSTLEARN_EXPORT TabNoStat : public AStringable
   virtual int addElem(std::shared_ptr<ANoStat> &nostat, const EConsElem &econs, int iv1=0, int iv2 = 0);
   virtual int removeElem(const EConsElem &econs, int iv1=0, int iv2 = 0);
   virtual ~TabNoStat();
+  void clear();
   void setDbNoStatRef(const Db* dbref){ _dbNoStatRef = dbref;}
   const Db* getDbNoStatRef() const {return _dbNoStatRef;}
   void informCoords(const VectorVectorDouble &coords,
@@ -57,6 +60,7 @@ class GSTLEARN_EXPORT TabNoStat : public AStringable
   std::shared_ptr<ANoStat> getElem(const EConsElem &econs, int iv1 = 0, int iv2 =0);
 protected:
 private:
+  virtual void _clear(){};
   virtual void _updateDescription() {};
   virtual bool _isValid(const EConsElem &econs) const;
 private :

@@ -11,6 +11,8 @@
 #include "Arrays/Array.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CorAniso.hpp"
+#include "Covariances/CovBase.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
@@ -40,21 +42,16 @@
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
     : CovBase(), /// TODO : shared pointer
-      _cor(type, ctxt),
-      _ctxt(ctxt),
-      _sill(),
-      _tabNoStat(),
+      _corAniso(new CorAniso(type, ctxt)),
       _optimEnabled(true)
 {
+  CovBase::setCor(_corAniso);
   _initFromContext();
 }
 
 CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
-    :CovBase(), /// TODO : shared pointer
-      _cor(symbol, ctxt),
-      _ctxt(ctxt),
-      _sill(),
-      _tabNoStat(),
+    :CovBase(new CorAniso(symbol, ctxt)), /// TODO : shared pointer
+      _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -67,13 +64,10 @@ CovAniso::CovAniso(const ECov &type,
                    double sill,
                    const CovContext &ctxt,
                    bool flagRange)
-    : CovBase(MatrixSquareSymmetric(),nullptr), /// TODO : shared pointer
-      _cor(type, range,param, ctxt, flagRange),
-      _ctxt(ctxt),
-      _sill(),
-      _tabNoStat(),
+    : CovBase(new CorAniso(type, range,param, ctxt, flagRange)), /// TODO : shared pointer
+      _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
-  {
+{
   _initFromContext();
 
   // Sill
@@ -98,11 +92,8 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    : CovBase(r),
-      _cor(r._cor),
-      _ctxt(r._ctxt),
-      _sill(r._sill),
-      _tabNoStat(r._tabNoStat),
+    : CovBase(r._corAniso->clone(),r._sill), /// TODO : shared pointer
+      _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
 }
@@ -111,11 +102,10 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
 {
   if (this != &r)
   {
-    ACov::operator =(r);
-    _cor = r._cor;
+     setCor(r._corAniso->clone());
+    _corAniso = (CorAniso*)getCor();
     _ctxt = r._ctxt;
     _sill = r._sill;
-    _tabNoStat = r._tabNoStat;
     _optimEnabled = r._optimEnabled;
   }
   return *this;
@@ -123,159 +113,103 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
 
 CovAniso::~CovAniso()
 {
-
+  delete _corAniso;
 }
 
 void CovAniso::_computeCorrec()
 {
-  _cor.computeCorrec();
+  _corAniso->computeCorrec();
 }
 
 void CovAniso::computeMarkovCoeffs()
 {
-  _cor.computeMarkovCoeffs();
-}
-
-void CovAniso::setContext(const CovContext &ctxt)
-{
-  _ctxt = ctxt;
-  _updateFromContext();
+  _corAniso->computeMarkovCoeffs();
 }
 
 void CovAniso::setParam(double param)
 {
-  _cor.setParam(param);
+  _corAniso->setParam(param);
 }
 
-void CovAniso::setSill(double sill)
-{
-  if (getNVariables() != 1)
-  {
-    messerr("Number of provided sill doesn't match number of variables");
-    return;
-  }
-  _sill.resetFromValue(1, 1, sill);
-}
-
-void CovAniso::setSill(const MatrixSquareSymmetric &sill)
-{
-  if (getNVariables() != sill.getNSize())
-  {
-    messerr("Number of provided sills doesn't match number of variables");
-    return;
-  }
-  _sill = sill;
-}
-
-void CovAniso::setSill(const VectorDouble &sill)
-{
-  int size = static_cast<int>(sill.size());
-  int nvar = getNVariables();
-  if (size != nvar * nvar)
-  {
-    messerr("Number of provided sills doesn't match number of variables");
-    return;
-  }
-  _sill.setValues(sill);
-}
-
-void CovAniso::setSill(int ivar, int jvar, double sill)
-{
-  if (!_isVariableValid(ivar)) return;
-  if (!_isVariableValid(jvar)) return;
-  /// TODO : Test if sill matrix is positive definite (if not, generate a warning)
-  if (!_sill.isValid(ivar, jvar)) return;
-  _sill.setValue(ivar, jvar, sill);
-}
-
-void CovAniso::initSill(double value)
-{
-  _sill.fill(value);
-}
 
 void CovAniso::setRangeIsotropic(double range)
 {
-  _cor.setRangeIsotropic(range);
+  _corAniso->setRangeIsotropic(range);
 }
 
 void CovAniso::setRanges(const VectorDouble &ranges)
 {
-  _cor.setRanges(ranges);
+  _corAniso->setRanges(ranges);
 }
 
 void CovAniso::setRange(int idim, double range)
 {
-  _cor.setRange(idim, range);
+  _corAniso->setRange(idim, range);
 }
 
 void CovAniso::setScale(double scale)
 {
-  _cor.setScale(scale);
+  _corAniso->setScale(scale);
 }
 
 void CovAniso::setScales(const VectorDouble &scales)
 {
-  _cor.setScales(scales);
+  _corAniso->setScales(scales);
 }
 
 void CovAniso::setScale(int idim, double scale)
 {
-  _cor.setScale(idim, scale);
+  _corAniso->setScale(idim, scale);
 }
 
 void CovAniso::setAnisoRotation(const Rotation &rot)
 {
-  _cor.setAnisoRotation(rot);
+  _corAniso->setAnisoRotation(rot);
 }
 
 void CovAniso::setAnisoRotation(const VectorDouble &rot)
 {
-  _cor.setAnisoRotation(rot);
+  _corAniso->setAnisoRotation(rot);
 }
 
 void CovAniso::setAnisoAngles(const VectorDouble &angles)
 {
-  _cor.setAnisoAngles(angles);
+  _corAniso->setAnisoAngles(angles);
 }
 
 void CovAniso::setAnisoAngle(int idim, double angle)
 {
-  _cor.setAnisoAngle(idim, angle);
+  _corAniso->setAnisoAngle(idim, angle);
 }
 
 void CovAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
                                           const VectorDouble &ranges,
                                           const VectorDouble &scales)
 {
-  _cor.setRotationAnglesAndRadius(angles, ranges, scales);
+  _corAniso->setRotationAnglesAndRadius(angles, ranges, scales);
 }
 
 bool CovAniso::isValidForTurningBand() const
 {
-  return _cor.isValidForTurningBand();
+  return _corAniso->isValidForTurningBand();
 }
 double CovAniso::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return _cor.simulateTurningBand(t0, operTB);
+  return _corAniso->simulateTurningBand(t0, operTB);
 }
 bool CovAniso::isValidForSpectral() const
 {
-  return _cor.isValidForSpectral();
+  return _corAniso->isValidForSpectral();
 }
 MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
 {
-  return _cor.simulateSpectralOmega(nb);
+  return _corAniso->simulateSpectralOmega(nb);
 }
-bool CovAniso::isConsistent(const ASpace* space) const
-{
-  return _cor.isConsistent(space);
-}
-
 
 
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov = _cor.evalCorFromH(0, mode);
+  double cov = _corAniso->evalCorFromH(0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
@@ -290,7 +224,7 @@ double CovAniso::eval(const SpacePoint &p1,
                       int jvar,
                       const CovCalcMode* mode) const
 {
-  double cov = _cor.evalCor(p1,p2,mode);
+  double cov = _corAniso->evalCor(p1,p2,mode);
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
   return (cov);
@@ -306,7 +240,7 @@ double CovAniso::eval(const SpacePoint &p1,
 void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                             const CovCalcMode *mode) const
 {
-  double cov = _cor.evalCorFromH(0, mode); 
+  double cov = _corAniso->evalCorFromH(0, mode); 
 
   if (mode == nullptr || ! mode->getUnitary())
     mat.addMatInPlace(_sill, 1., cov);
@@ -318,32 +252,6 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
   }
 }
 
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovAniso::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                          const SpacePoint &p1,
-                                          const SpacePoint &p2,
-                                          const CovCalcMode *mode) const
-{
-  
-  double cor = _cor.evalCor(p1,p2,mode);
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cor);
-  else
-  {
-    MatrixSquareGeneral identity = _sill;
-    identity.setIdentity();
-    mat.addMatInPlace(identity, 1., cor);
-  }
-}
 
 /**
  * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
@@ -386,7 +294,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
       {
         int iech1 = index1[rvar1][rech1];
         hoptim = _p2A.getDistance(_p1As[iech1]);
-        cov = _cor.evalCorFromH(hoptim, mode);
+        cov = _corAniso->evalCorFromH(hoptim, mode);
         res.updValue(irow, icol, EOperator::ADD, sill * cov);
       }
       irow++;
@@ -394,23 +302,6 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
   }
 }
 
-void CovAniso::_evalOptim(SpacePoint* p1A, SpacePoint* p2A,
-                          MatrixSquareGeneral &mat,
-                          const CovCalcMode *mode) const
-{
-  // Calculate covariance between two points
-  double hoptim = p2A->getDistance(*p1A);
-  double cov = _cor.evalCorFromH(hoptim, mode);
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cov);
-  else
-  {
-    MatrixSquareGeneral identity = _sill;
-    identity.setIdentity();
-    mat.addMatInPlace(identity, 1., cov);
-  }
-}
 
 
 double CovAniso::evalCovOnSphere(double alpha,
@@ -418,7 +309,7 @@ double CovAniso::evalCovOnSphere(double alpha,
                                  bool flagScaleDistance,
                                  const CovCalcMode* mode) const
 {
-  double value = _cor.evalCovOnSphere(alpha, degree, flagScaleDistance,mode);
+  double value = _corAniso->evalCovOnSphere(alpha, degree, flagScaleDistance,mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     value *= getSill(0,0);
@@ -428,12 +319,12 @@ double CovAniso::evalCovOnSphere(double alpha,
 
 VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
 {
-  return _cor.evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
+  return _corAniso->evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
 }
 
 void CovAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 {
-  _cor.setMarkovCoeffs(coeffs);
+  _corAniso->setMarkovCoeffs(coeffs);
 }
 
 /* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
@@ -443,38 +334,38 @@ void CovAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
                                                    VectorDouble coeffs2,
                                                    double eps)
 {
-  _cor.setMarkovCoeffsBySquaredPolynomials(coeffs1, coeffs2, eps);
+  _corAniso->setMarkovCoeffsBySquaredPolynomials(coeffs1, coeffs2, eps);
 }
 
 double CovAniso::getCorrec() const
 {
-  return _cor.getCorrec();
+  return _corAniso->getCorrec();
 }
 
 double CovAniso::getFullCorrec() const
 {
-  return  _cor.getFullCorrec();
+  return  _corAniso->getFullCorrec();
 }
 
 double CovAniso::_getDetTensor() const
 {
-  return _cor.getDetTensor();
+  return _corAniso->getDetTensor();
 }
 
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
-  if (!_cor.hasSpectrumOnRn()) return TEST;
-  return _sill.getValue(ivar, jvar) * _cor.evalSpectrum(freq, ivar, jvar);
+  if (!_corAniso->hasSpectrumOnRn()) return TEST;
+  return _sill.getValue(ivar, jvar) * _corAniso->evalSpectrum(freq, ivar, jvar);
 }
 
 double CovAniso::normalizeOnSphere(int n) const
 { 
-  return _cor.normalizeOnSphere(n);
+  return _corAniso->normalizeOnSphere(n);
 }
 
 VectorDouble CovAniso::getMarkovCoeffs() const
 {
-  return _cor.getMarkovCoeffs();
+  return _corAniso->getMarkovCoeffs();
 }
 
 VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble &alpha,
@@ -493,10 +384,10 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
  
-  sstr << _cor.getCova()->toString();
+  sstr << _corAniso->getCova()->toString();
 
   // Sill - Factor / Slope information
-  if (_cor.hasRange() > 0)
+  if (_corAniso->hasRange() > 0)
   {
     // A sill is defined
 
@@ -513,7 +404,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     // Isotropy vs anisotropy
 
   }
-  else if (_cor.hasRange() < 0)
+  else if (_corAniso->hasRange() < 0)
   {
     // The sill is not defined: use slope instead
 
@@ -548,7 +439,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   }
 
    // Covariance Parameters
-  sstr << _cor.toStringParams(strfmt);
+  sstr << _corAniso->toStringParams(strfmt);
 
   // Non-stationary parameters
 
@@ -557,31 +448,12 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     sstr << toTitle(1, "Non-Stationary Parameters");
     sstr << _tabNoStat.toString(strfmt);
     int i = _tabNoStat.getNSills();
-    sstr << _cor.toStringNoStat(strfmt,i);
+    sstr << _corAniso->toStringNoStat(strfmt,i);
   }
   return sstr.str();
 }
 
-double CovAniso::getSill(int ivar, int jvar) const
-{
-  return _sill.getValue(ivar, jvar);
-}
 
-/*****************************************************************************/
-/*!
- **  Update the Model in the case of Non-stationary parameters
- **  This requires the knowledge of the two end-points
- **
- ** \param[in]  covint       Internal structure for non-stationarity
- **                          or NULL (for stationary case)
- **
- *****************************************************************************/
-void CovAniso::nostatUpdate(CovInternal *covint)
-{
-  if (covint == NULL) return;
-  updateCovByPoints(covint->getIcas1(), covint->getIech1(),
-                    covint->getIcas2(), covint->getIech2());
-}
 
 /**
  * Return the Slope calculated as the sill / range(idim=0)
@@ -598,12 +470,12 @@ double CovAniso::getSlope(int ivar, int jvar) const
 
 VectorDouble CovAniso::getRanges() const
 {
-  return _cor.getRanges();
+  return _corAniso->getRanges();
 }
 
 void CovAniso::setType(const ECov &type)
 {
- _cor.setType(type);
+ _corAniso->setType(type);
 }
 
 /**
@@ -613,17 +485,17 @@ void CovAniso::setType(const ECov &type)
  */
 double CovAniso::getRange() const
 {
- return _cor.getRange();
+ return _corAniso->getRange();
 }
 
 double CovAniso::getScale() const
 {
- return _cor.getScale();
+ return _corAniso->getScale();
 }
 
 VectorDouble CovAniso::getAnisoCoeffs() const
 {
-  return _cor.getAnisoCoeffs();
+  return _corAniso->getAnisoCoeffs();
 }
 
 /**
@@ -633,19 +505,7 @@ VectorDouble CovAniso::getAnisoCoeffs() const
  */
 double CovAniso::getParam() const
 {
-  return _cor.getParam();
-}
-
-void CovAniso::_initFromContext()
-{
-  _cor.initFromContext();
-  _space = (const ASpace*)_cor.getSpace()->clone();
-  _sill.reset(_ctxt.getNVar(), _ctxt.getNVar());
-}
-
-void CovAniso::_updateFromContext()
-{
-  _cor.updateFromContext();
+  return _corAniso->getParam();
 }
 
 /**
@@ -654,17 +514,13 @@ void CovAniso::_updateFromContext()
  */
 double CovAniso::getIntegralRange(int ndisc, double hmax) const
 {
-  return _sill.getValue(0, 0) * _cor.getIntegralRange(ndisc, hmax);
+  return _sill.getValue(0, 0) * _corAniso->getIntegralRange(ndisc, hmax);
 }
 
-bool CovAniso::_isVariableValid(int ivar) const
-{
-  return checkArg("Rank of the Variable", ivar, getNVariables());
-}
 
 int CovAniso::getGradParamNumber() const
 {
-  return _cor.getGradParamNumber();
+  return _corAniso->getGradParamNumber();
 }
 
 CovAniso* CovAniso::createIsotropic(const CovContext &ctxt,
@@ -775,11 +631,6 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext &ctxt,
   return cov;
 }
 
-void CovAniso::copyCovContext(const CovContext &ctxt)
-{
-  _ctxt.copyCovContext(ctxt);
-  _cor.copyCovContext(ctxt);
-}
 
 Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            int N,
@@ -811,87 +662,7 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
   return newCovAniso;
 }
 
-/**
- * Define the second Space Point by transforming the input Space Point 'pt'
- * on the basis of the current covariance
- *
- * @param pt Target sample provided as a Space Point
- */
-void CovAniso::_optimizationSetTarget(const SpacePoint& pt) const
-{
-  if (_isOptimEnabled())
-  {  
-    _optimizationTransformSP(pt, _p2A);
-  }
-  else 
-  {
-    _p2A = pt;
-  }  
-}
 
-/**
- * Define the Second Space Point as coinciding with the Input Space Point 'iech'.
- * Note that, as the Input Space Points are already transformed in the basis
- * of the current structure, it is just an assignment.
- *
- * @param iech Rank of the sample among the recorded Space Points
- */
-void CovAniso::optimizationSetTargetByIndex(int iech) const
-{
-  if (_isOptimPreProcessed)
-  {
-    _p2A = _p1As[iech];
-    _p2A.setTarget(true);
-  }
-}
-
-/**
- * Transform a space point using the anisotropy tensor
- * @param ptin  Input Space Point
- * @param ptout Output Space Point
- */
-void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
-{
-  _cor.optimizationTransformSP(ptin, ptout);
-}
-
-void CovAniso::_optimizationPostProcess() const 
-{
-  _cor.optimizationPostProcess();
-}
-
-/**
- * Transform a set of Space Points using the anisotropy tensor
- * The set of resulting Space Points are stored as private member of this.
- * Note that ALL samples are processed, independently from the presence of a selection
- * or checking for heterotopy.
- * @param p vector of SpacePoints
- */
-void CovAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
-{
-  if (!isOptimEnabled())
-  {
-     ACov::_optimizationPreProcess(p);
-     return;
-  }
-  _cor.optimizationPreProcess(p,_p1As);
-}
-
-
-/**
- * Checks that the Optimization has already been initiated, by:
- * - checking that the storage (for Sample Points projected in the Covariance
- * rotation system) is already allocated
- * - checking that the dimension of this storage is correct (only if 'db' is provided):
- * in particular, this check is not necessary when freeing this storage.
- */
-bool CovAniso::isOptimizationInitialized(const Db* db) const
-{
-  if (_p1As.empty()) return false;
-  if (db == nullptr) return true;
-  int n = (int) _p1As.size();
-  return n == db->getSampleNumber();
-}
 
 double scale2range(const ECov &type, double scale, double param)
 {
@@ -911,93 +682,26 @@ double range2scale(const ECov &type, double range, double param)
   return range / scadef;
 }
 
-  
-// Set of functions to make parameters no stationary (or to make them back stationary).
-// There is to types of non stationarities : NoStatDb in which the parameters are read in a
-// DbGrid or NoStatFunctional for which you have to provide a function of the coordinates.
-// Each parameter can have its own type of No stationarity and its own DbGrid in case
-// of NoStatDb. 
-// For specifying the NoStat DbGrid, you can first attach it by using attachNoStatDb.
-// If not, you have to specify the DbGrid when you make the first parameter non stationary.
-
-void CovAniso::attachNoStatDb(const Db* db)
-{
-  _tabNoStat.setDbNoStatRef(db);
-  _cor.attachNoStatDb(db);
-}
-
-bool CovAniso::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
-{
- if (_tabNoStat.getDbNoStatRef() == nullptr && db == nullptr)
- {
-  messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");  
-  return false;
- }
-  _setNoStatDbIfNecessary(db);
-
- if (db->getUID(namecol)< 0)
- {
-    messerr("You have to specified a name of a column of the reference Db");
-    return false;
- }
- return true;
-}
-
-void CovAniso::_setNoStatDbIfNecessary(const Db*& db)
-{
-  if (_tabNoStat.getDbNoStatRef() == nullptr)
-    attachNoStatDb(db);
-  if (db == nullptr)
-    db = _tabNoStat.getDbNoStatRef();
-}
-
-void CovAniso::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
-{
-  if (func == nullptr)
-  {
-    if(!_checkAndManageNoStatDb(db,namecol)) return;
-  }
-
-  if (econs != EConsElem::SILL)
-  {
-    _cor.makeElemNoStat(econs,iv1,iv2,func,db,namecol);
-    return;
-  }
-  
-
-  std::shared_ptr<ANoStat> ns;
-  if (func == nullptr)
-  {
-    ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
-  }
-  else 
-  {
-    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
-  }
-  
-  _tabNoStat.addElem(ns, econs,iv1,iv2);
-
-
-}
+ 
 ///////////////////// Range ////////////////////////
 void CovAniso::makeRangeNoStatDb(const String &namecol, int idim, const Db* db)
 {   
   if(_checkAndManageNoStatDb(db,namecol))
   {
-    _cor.makeRangeNoStatDb(namecol,idim,db);
+    _corAniso->makeRangeNoStatDb(namecol,idim,db);
   }
  
 }
 
 void CovAniso::makeRangeNoStatFunctional(const AFunctional *func, int idim)
 {
-  _cor.makeRangeNoStatFunctional(func,idim);
+  _corAniso->makeRangeNoStatFunctional(func,idim);
 }
 
 
 void CovAniso::makeRangeStationary(int idim)
 {
-  _cor.makeRangeStationary(idim);
+  _corAniso->makeRangeStationary(idim);
 }
 
 ///////////////////// Scale ////////////////////////
@@ -1006,19 +710,19 @@ void CovAniso::makeScaleNoStatDb(const String &namecol, int idim, const Db* db)
 {   
   if(_checkAndManageNoStatDb(db,namecol))
   {
-    _cor.makeScaleNoStatDb(namecol,idim,db);
+    _corAniso->makeScaleNoStatDb(namecol,idim,db);
   }
 }
 
 
 void CovAniso::makeScaleNoStatFunctional(const AFunctional *func, int idim)
 {
-  _cor.makeScaleNoStatFunctional(func,idim);
+  _corAniso->makeScaleNoStatFunctional(func,idim);
 }
 
 void CovAniso::makeScaleStationary(int idim)
 {
-  _cor.makeScaleStationary(idim);
+  _corAniso->makeScaleStationary(idim);
 }
 
 ///////////////////// Angle ////////////////////////
@@ -1028,18 +732,18 @@ void CovAniso::makeAngleNoStatDb(const String &namecol, int idim, const Db* db)
 {
   if(_checkAndManageNoStatDb(db,namecol))
   {
-   _cor.makeAngleNoStatDb(namecol,idim,db);
+   _corAniso->makeAngleNoStatDb(namecol,idim,db);
   }
 }
 
 void CovAniso::makeAngleNoStatFunctional(const AFunctional *func, int idim)
 {
-  _cor.makeAngleNoStatFunctional(func,idim);
+  _corAniso->makeAngleNoStatFunctional(func,idim);
 }
 
 void CovAniso::makeAngleStationary(int idim)
 {
-  _cor.makeAngleStationary(idim);
+  _corAniso->makeAngleStationary(idim);
 }
 ///////////////////// Tensor ////////////////////////
 
@@ -1048,42 +752,18 @@ void CovAniso::makeTensorNoStatDb(const String &namecol, int idim, int jdim,cons
 {
  if(_checkAndManageNoStatDb(db,namecol))
  {
-    _cor.makeTensorNoStatDb(namecol,idim,jdim,db);
+    _corAniso->makeTensorNoStatDb(namecol,idim,jdim,db);
  } 
 }
 
 void CovAniso::makeTensorNoStatFunctional(const AFunctional  *func, int idim, int jdim)
 {
-   _cor.makeTensorNoStatFunctional(func,idim,jdim);
+   _corAniso->makeTensorNoStatFunctional(func,idim,jdim);
 }
 
 void CovAniso::makeTensorStationary(int idim, int jdim)
 {
-  _cor.makeTensorStationary(idim,jdim);
-}
-///////////////////// Sill ////////////////////////
-
-void CovAniso::makeSillNoStatDb(const String &namecol, int ivar, int jvar,const Db* db)
-{
-  if (!_checkSill(ivar,jvar)) return;
-  _makeElemNoStat(EConsElem::SILL, ivar, jvar,nullptr,db, namecol);
-  _cor.checkAndManageNoStatDb(db,namecol);
-}
-
-void CovAniso::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int jvar)
-{
-  if (!_checkSill(ivar,jvar)) return;
-  _makeElemNoStat(EConsElem::SILL, ivar, jvar,func);
-
-}
-  
-void CovAniso::makeSillStationary(int ivar, int jvar)
-{
-  if (!_checkSill(ivar,jvar)) return;
-  if(_tabNoStat.removeElem(EConsElem::SILL, ivar,jvar) == 0)
-  {
-    messerr("This parameter was already stationary!");
-  }
+  _corAniso->makeTensorStationary(idim,jdim);
 }
 
 ///////////////////// Param ////////////////////////
@@ -1092,207 +772,57 @@ void CovAniso::makeParamNoStatDb(const String &namecol, const Db* db)
 {
  if(_checkAndManageNoStatDb(db,namecol))
  {
-    _cor.makeParamNoStatDb(namecol,db);
+    _corAniso->makeParamNoStatDb(namecol,db);
  } 
 
 }
 
 void CovAniso::makeParamNoStatFunctional(const AFunctional *func)
 {
-  _cor.makeParamNoStatFunctional(func);
+  _corAniso->makeParamNoStatFunctional(func);
 
 }
 
 void CovAniso::makeParamStationary()
 {
-  _cor.makeParamStationary();
-}
-
-/////////////////////////// Check functions ////////////////////:
-
-bool CovAniso::_checkSill(int ivar, int jvar) const
-{
-  int nvar = getNVariables();
-  if ((ivar > nvar) || (jvar > nvar))
-  {
-    messerr("Your model has only %d variables.",nvar);
-    return false;
-  }
-  return true;
-}
-
-bool CovAniso::_checkDims(int idim, int jdim) const
-{
-  int ndim = getNDim();
-  if ((idim > ndim) || (jdim > ndim))
-  {
-    messerr("Your model is only in dimension %d.",ndim);
-    return false;
-  }
-  return true;
-}
-
-
-/////////////  Functions to attach no stat information on various supports ////////
-void CovAniso::informMeshByMesh(const AMesh* amesh) const
-{
-  _tabNoStat.informMeshByMesh(amesh);
-  _cor.informMeshByMesh(amesh);
-}
-void CovAniso::informMeshByApex(const AMesh* amesh) const
-{
-  _tabNoStat.informMeshByMesh(amesh);
-  _cor.informMeshByMesh(amesh);
-}
-void CovAniso::informDbIn(const Db* dbin) const
-{
-  _tabNoStat.informDbIn(dbin);
-  _cor.informDbIn(dbin);
-}
-void CovAniso::informDbOut(const Db* dbout) const
-{
-  _tabNoStat.informDbOut(dbout);
-  _cor.informDbOut(dbout);
-}
-
-double CovAniso::getValue(const EConsElem &econs,int iv1,int iv2) const
-{
-  double val = _cor.getValue(econs,iv1,iv2);
-  if (val == TEST)
-  {
-    if (econs == EConsElem::SILL)
-    return getSill(iv1,iv2);
-  }
-  return val;
-}
-
-VectorDouble CovAniso::informCoords(const VectorVectorDouble& coords, 
-                                    const EConsElem& econs,
-                                    int iv1,
-                                    int iv2) const
-{
-  if (econs == EConsElem::SILL)
-  {
-    VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
-    _tabNoStat.informCoords(coords,econs,iv1,iv2,result);
-    return result;
-  }
- 
-  return _cor.informCoords(coords,econs,iv1,iv2);
- 
+  _corAniso->makeParamStationary();
 }
 
 
 void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
-  _cor.informMeshByMeshForAnisotropy(amesh);
+  _corAniso->informMeshByMeshForAnisotropy(amesh);
 
 }
 
 void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
 {
-   _cor.informMeshByApexForAnisotropy(amesh);
+   _corAniso->informMeshByApexForAnisotropy(amesh);
 }
 
 void CovAniso::informDbInForAnisotropy(const Db* dbin) const
 {
-  _cor.informDbInForAnisotropy(dbin);
+  _corAniso->informDbInForAnisotropy(dbin);
 
 }
 void CovAniso::informDbOutForAnisotropy(const Db* dbout) const
 {
-   _cor.informDbOutForAnisotropy(dbout);  
+   _corAniso->informDbOutForAnisotropy(dbout);  
 }
 
-void CovAniso::informMeshByMeshForSills(const AMesh* amesh) const
+void CovAniso::_optimizationSetTarget(const SpacePoint& pt) const
 {
-   _tabNoStat.informMeshByMesh(amesh,EConsElem::SILL);
-}
-
-void CovAniso::informMeshByApexForSills(const AMesh* amesh) const
-{
-   _tabNoStat.informMeshByApex(amesh,EConsElem::SILL);
-}
-
-void CovAniso::informDbInForSills(const Db* dbin) const
-{
-   _tabNoStat.informDbIn(dbin,EConsElem::SILL);
-}
-
-void CovAniso::informDbOutForSills(const Db* dbout) const
-{
-  _tabNoStat.informDbOut(dbout,EConsElem::SILL);
-}
-
-
-
-/**
- * Update the Model according to the Non-stationary parameters
- * @param icas1 Type of first Db: 1 for Input; 2 for Output
- * @param iech1 Rank of the target within Db1 (or -1)
- * @param icas2 Type of first Db: 1 for Input; 2 for Output
- * @param iech2 Rank of the target within Dbout (or -2)
- */
-void CovAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
-{
-  // If no non-stationary parameter is defined, simply skip
-  if (! isNoStat()) return;
-  double val1, val2;
-
-  const auto paramsnostat = _tabNoStat.getTable();
-  // Loop on the elements that can be updated one-by-one
-
-  for (const auto &e : paramsnostat)
-  {
-    EConsElem type = e.first.getType();
-    e.second->getValuesOnDb( icas1, iech1, &val1, icas2, iech2, &val2);
-
-    if (type == EConsElem::SILL)
-    {
-      int iv1 = e.first.getIV1();
-      int iv2 = e.first.getIV2();
-      setSill(iv1, iv2, sqrt(val1 * val2));
-    }  
+  if (_isOptimEnabled())
+  {  
+    _optimizationTransformSP(pt, _p2A);
   }
-  _cor.updateCovByPoints(icas1, iech1 , icas2, iech2); 
-}
-
-
-void CovAniso::updateCovByMesh(int imesh,bool aniso)
-{
-  // If no non-stationary parameter is defined, simply skip
-  if (! isNoStat()) return;
-
-  // Loop on the elements that can be updated one-by-one
-  if (!aniso)
+  else 
   {
-    const auto paramsnostat = _tabNoStat.getTable();
-    for (const auto &e : paramsnostat)
-    {
-      EConsElem type = e.first.getType();
-      if (type == EConsElem::SILL)
-      {
-        double sill = e.second->getValueOnMeshByApex(imesh);
-        int iv1 = e.first.getIV1();
-        int iv2 = e.first.getIV2();
-        setSill(iv1, iv2, sill);
-      }
-    }
-  }
- _cor.updateCovByMesh(imesh,aniso);
+    _p2A = pt;
+  }  
 }
 
-void CovAniso::makeStationary()
+void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 {
-  _tabNoStat = TabNoStatCovAniso();
-  _cor.makeStationary();
-}
-
-void CovAniso::_manage(const Db* db1,const Db* db2) const
-{
-  if (db1!=nullptr)
-    informDbIn(db1);
-  if (db2!=nullptr)
-    informDbOut(db2);
-  _cor.manage(db1,db2);
+  _corAniso->optimizationTransformSP(ptin, ptout);
 }
