@@ -21,6 +21,9 @@ import matplotlib.pyplot as plt
 import marimo as mo
 
 def _getCovarianceDict():
+    '''
+    Returns the list of covariances available as a Dictionary
+    '''
     keys = gl.ECov.getAllKeys(0)
     names = gl.ECov.getAllDescr(0)
     options = {}
@@ -48,7 +51,7 @@ def WdefineCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     Returns the widget for inquiring the parameters for a single Basic structure
     ncovmax: Maximum number of Basic structures (used for defaulting range)
     distmax: Maximum distance
-    varmax: Maximum Variance value
+    varmax:  Maximum Variance value
     '''
     typeRef = "Spherical"
     distRef = distmax * (ic+1) / (ncovmax + 1)
@@ -65,6 +68,9 @@ def WdefineCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     return mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
 
 def WshowCovariance(WAll):
+    '''
+    Returns the contents of the Covariance Widget as HTML, ready to be displayed
+    '''
     [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
 
     WTypeupd   = _WLock(WType, not WUsed.value)
@@ -77,6 +83,9 @@ def WshowCovariance(WAll):
     return mo.vstack([WUsed, WTypeupd, WRangeupd, WSillupd, WAnisoupd, WRange2upd, WAngleupd])
 
 def WgetCovariance(WAll):
+    '''
+    Uses the contents of the Covariance Widget to produce a CovAniso item
+    '''
     [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
 
     type = gl.ECov.fromKey(WType.value)
