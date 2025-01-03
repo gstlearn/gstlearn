@@ -17,11 +17,10 @@ import gstlearn.plot as gp
 
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
 
 import marimo as mo
 
-def getCovarianceDict():
+def _getCovarianceDict():
     keys = gl.ECov.getAllKeys(0)
     names = gl.ECov.getAllDescr(0)
     options = {}
@@ -29,7 +28,22 @@ def getCovarianceDict():
         options[names[k]] = keys[k]
     return options
 
-def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
+
+def _WLock(WTest, condition, colorBackground = "white", colorText = "black"):
+    '''
+    Turns the Widget to grey (as if it was locked if 'condition' is fulfilled)
+    '''
+    if not condition:
+        newWTest = WTest.style({"backgroundColor": colorBackground, 
+            "color": colorText
+        })
+    else:
+        newWTest = WTest.style({"backgroundColor": "#f0f0f0",
+            "color": "#a0a0a0"
+        })
+    return newWTest
+
+def WdefineCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     '''
     Returns the widget for inquiring the parameters for a single Basic structure
     ncovmax: Maximum number of Basic structures (used for defaulting range)
@@ -41,8 +55,7 @@ def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
     varRef  = varmax / ncovmax
 
     WUsed   = mo.ui.switch(True, label="Basic Structure Used")
-    WType   = mo.ui.dropdown(options=getCovarianceDict(), 
-                            value=typeRef, label="Structure")
+    WType   = mo.ui.dropdown(options=_getCovarianceDict(), value=typeRef, label="Structure")
     WRange  = mo.ui.slider(1, distmax, value = distRef, label="Range")
     WSill   = mo.ui.slider(0, varmax, value=varRef, label="Sill")
     WAniso  = mo.ui.switch(label="Anisotropy")
@@ -51,36 +64,62 @@ def WCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100):
 
     return mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
 
-def WModel(ncovmax=1, distmax=100, varmax=100):
+def WshowCovariance(WAll):
+    [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
+
+    WTypeupd   = _WLock(WType, not WUsed.value)
+    WRangeupd  = _WLock(WRange, not WUsed.value)
+    WSillupd   = _WLock(WSill, not WUsed.value)
+    WAnisoupd  = _WLock(WAniso, not WUsed.value)
+    WRange2upd = _WLock(WRange2, not WUsed.value or not WAniso.value)
+    WAngleupd  = _WLock(WAngle, not WUsed.value or not WAniso.value)
+
+    return mo.vstack([WUsed, WTypeupd, WRangeupd, WSillupd, WAnisoupd, WRange2upd, WAngleupd])
+
+def WgetCovariance(WAll):
+    [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
+
+    type = gl.ECov.fromKey(WType.value)
+    cova = None
+    if WUsed.value:
+        ctxt = gl.CovContext(1, 2)
+        if not WAniso.value:
+            cova = gl.CovAniso.createIsotropic(ctxt, type = type,
+                                 range = WRange.value, sill = WSill.value,
+                                 param = 1., flagRange= True)
+        else:
+            cova = gl.CovAniso.createAnisotropic(ctxt, type = type,
+                                   ranges = [WRange.value, WRange2.value], sill = WSill.value,
+                                   param = 1.,
+                                   angles = [WAngle.value, 0.],
+                                   flagRange = True)
+    return cova
+
+def WdefineModel(ncovmax=1, distmax=100, varmax=100):
     '''
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     '''
-    return mo.ui.array([WCovariance(ic, ncovmax, distmax, varmax) 
+    return mo.ui.array([WdefineCovariance(ic, ncovmax, distmax, varmax) 
                          for ic in range(ncovmax)])
 
-def getWModel(WAlls):
+def WshowModel(WAlls):
+    ncov = len(WAlls)
+    UI = mo.accordion({
+        "Covariance "+str(ic+1) : WshowCovariance(WAlls[ic]) for ic in range(ncov)
+    })
+    return UI
+
+def WgetModel(WAlls):
     '''
-    Create a gstlearn Model from the WModel widget
+    Create a gstlearn Model
     '''
     model = gl.Model()
     for WAll in WAlls:
-        used   = WAll.value[0]
-        type   = gl.ECov.fromKey(WAll.value[1])
-        range  = WAll.value[2]
-        sill   = WAll.value[3]
-        aniso  = WAll.value[4]
-        range2 = WAll.value[5]
-        angle  = WAll.value[6]
-        if used:
-            if aniso:
-                model.addCovFromParam(type=type, sill=sill,
-                                      angles = [angle, 0],
-                                      ranges = [range, range2])
-            else:
-                model.addCovFromParam(type=type, range=range, sill=sill)
+        cova = WgetCovariance(WAll)
+        model.addCov(cova)
     return model
 
-def WGrid(nxdef = 50):
+def WdefineGrid(nxdef = 50):
     '''
     Widget to inquire the parameters for constructing a Grid
     '''
@@ -93,41 +132,45 @@ def WGrid(nxdef = 50):
 
     return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
 
-def getWGrid(WAll):
+def WshowGrid(WAll):
+    [WNX, WNY, WDX, WDY, WX0, WY0] = WAll
+    return mo.vstack([mo.hstack([WNX, WNY],justify='start'),
+                      mo.hstack([WDX, WDY],justify='start'),
+                      mo.hstack([WX0, WY0],justify='start')])
+    
+def WgetGrid(WAll):
     '''
-    Create the gstlearn Grid from the widget WGrid
+    Create the gstlearn Grid
     '''
-    grid = gl.DbGrid.create(nx = [WAll[0].value, WAll[1].value],
-                            dx = [WAll[2].value, WAll[3].value],
-                            x0 = [WAll[4].value, WAll[5].value])
+    [WNX, WNY, WDX, WDY, WX0, WY0] = WAll
+    grid = gl.DbGrid.create(nx = [WNX.value, WNY.value],
+                            dx = [WDX.value, WDY.value],
+                            x0 = [WX0.value, WY0.value])
     return grid
 
-def WSimtub(seed = 13134):
+def WdefineSimtub(seed = 13134):
     '''
     Inquire for performing a Simulation using Turning Bands Method
     '''
-
     WNbtuba = mo.ui.number(start=1, stop=None, value = 100, 
                           label = "Number of Turning Bands")
-    WDefineSeed = mo.ui.switch(True, label="Define Seed")
     WSeed = mo.ui.number(start=0, stop=None, value = seed, 
                          label = "Seed")
-    WNewSimu = mo.ui.button(label="Perform a New Simulation")
 
-    return mo.ui.array([WNbtuba, WDefineSeed, WSeed, WNewSimu])
 
-def getWSimtub(WAll):
+    return mo.ui.array([WNbtuba, WSeed])
+
+def WshowSimtub(WAll):
+    return mo.vstack(WAll)
+
+def WgetSimtub(WAll):
     '''
     Returns the parameters for simulation using Turning Bands Method
     '''
-    nbtuba = WAll[0].value
-    defineSeed = WAll[1].value
-    seed = 0
-    if defineSeed:
-        seed = WAll[2].value
-    return nbtuba, seed
+    [WNbtuba, WSeed] = WAll
+    return WNbtuba.value, WSeed.value
 
-def WDbRandom(nech = 100, nvar = 1, xmin = 0, ymin = 0, xmax = 100, ymax = 100, seed = 14543):
+def WdefineDbFromBox(nech = 100, nvar = 1, xmin = 0, ymin = 0, xmax = 100, ymax = 100, seed = 14543):
     '''
     Inquiry the parameters for generating a Random Data Base
     '''
@@ -145,18 +188,18 @@ def WDbRandom(nech = 100, nvar = 1, xmin = 0, ymin = 0, xmax = 100, ymax = 100, 
                          label = "Maximum along Y")
     WSeed = mo.ui.number(start=None, stop=None, value=seed,
                          label="Seed")
-    
     return mo.ui.array([WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed])
 
-def getWDbRandom(WAll):
+def WgetDbFromBox(WAll):
     '''
     Create a Db with Radom Samples 
     '''
-    coormin = [WAll[2].value, WAll[3].value]
-    coormax = [WAll[4].value, WAll[5].value]
-    db = gl.Db.createFillRandom(ndat = WAll[0].value, 
+    [WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed] = WAll
+    coormin = [WXmin.value, WYmin.value]
+    coormax = [WXmax.value, WYmax.value]
+    return gl.Db.createFillRandom(ndat = WNech.value, 
                                 ndim = 2,  
-                                nvar = WAll[1].value, 
+                                nvar = WNvar.value, 
                                 nfex = 0,
                                 ncode = 0,
                                 varmax = 0.,
@@ -164,10 +207,9 @@ def getWDbRandom(WAll):
                                 heteroRatio = gl.VectorDouble(),
                                 coormin = coormin,
                                 coormax = coormax,
-                                seed = WAll[6].value)
-    return db
+                                seed = WSeed.value)
 
-def WDbNFFile():
+def WdefineDbFromNF():
     '''
     Inquiry to load a file from a Neutral File
     '''
@@ -175,18 +217,17 @@ def WDbNFFile():
 
     return mo.ui.array([WFile])
 
-def getWDbNFFile(WAll):
+def WgetDbFromNF(WAll):
     '''
-    Create the gstlearn Db from the widget WDbNFFile
+    Create the gstlearn Db 
     '''
-    filename = WAll[0].name()
+    [WFile] = WAll
+    filename = WFile.name()
     if filename is None:
         return None
-    db = gl.Db.createFromNF(filename)
+    return gl.Db.createFromNF(filename)
 
-    return db
-
-def WDbGridRandom(nxdef = 10):
+def WdefineDbFromGrid(nxdef = 10):
     '''
     Widget to inquire the parameters for constructing a Db as a randomized grid
     '''
@@ -198,15 +239,75 @@ def WDbGridRandom(nxdef = 10):
     WY0 = mo.ui.number(start=0, stop=None, value = 0,  label="Y0")
     WPerc = mo.ui.number(start=0, stop=100, value=10, 
                          label="Randomization percentage")
-
     return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0, WPerc])
 
-def getWDbGridRandom(WAll):
+def WgetDbFromGrid(WAll):
     '''
     Create the gstlearn Grid from the widget WDbRandomGrid
     '''
-    grid = gl.DbGrid.create(nx = [WAll[0].value, WAll[1].value],
-                            dx = [WAll[2].value, WAll[3].value],
-                            x0 = [WAll[4].value, WAll[5].value])
-    db = gl.Db.createFromGridRandomized(grid, WAll[6].value);
-    return db
+    [WNX, WNY, WDX, WDY, WX0, WY0, WPerc] = WAll
+    grid = gl.DbGrid.create(nx = [WNX.value, WNY.value],
+                            dx = [WDX.value, WDY.value],
+                            x0 = [WX0.value, WY0.value])
+    return gl.Db.createFromGridRandomized(grid, WPerc.value);
+
+def WdefineVarioParamOmni(nlag = 10, dlag = 1):
+    '''
+    Widget to define the Omnidirectional variogram
+    '''
+    WNlag = mo.ui.number(start=1, stop=100, value = nlag, 
+                         label="Number of Lags")
+    WDlag = mo.ui.number(start=1, stop=100, value = dlag, 
+                         label="Lag Value")
+    WToldis = mo.ui.number(start=0, stop=1, value = 0.5, 
+                           label="Tolerance on Distance")
+    WCylrad = mo.ui.number(start=0, stop=None, value = 0, 
+                           label="Cylinder Radius")
+    return mo.ui.array([WNlag, WDlag, WToldis, WCylrad])
+
+def WshowVarioParamOmni(WAll):
+    mo.vstack(WAll)
+
+def WgetVarioParamOmni(WAll):
+    [WNlag, WDlag, WToldis, WCylrad] = WAll
+    if WCylrad.value > 0:
+        varioparam = gl.VarioParam.createOmniDirection(npas = WNlag.value,
+                                                       dpas = WDlag.value,
+                                                       toldis = WToldis.value,
+                                                       cylrad = WCylrad.value)
+    else:
+        varioparam = gl.VarioParam.createOmniDirection(npas = WNlag.value,
+                                                       dpas = WDlag.value,
+                                                       toldis = WToldis.value)
+    return varioparam
+
+def WshowVarioParamOmni(WAll):
+    return mo.vstack(WAll)
+
+def WdefineVarioParamMulti(ndir = 4, nlag = 10, dlag = 1):
+    '''
+    Widget to define the Multi-directional (regular) variogram
+    '''
+    WNdir = mo.ui.number(start=1, stop=10, value = ndir, 
+                         label="Number of Directions")
+    WNlag = mo.ui.number(start=1, stop=100, value = nlag, 
+                         label="Number of Lags")
+    WDlag = mo.ui.number(start=1, stop=100, value = dlag, 
+                         label="Lag Value")
+    WAngref = mo.ui.number(start=0, stop=180, value = 0., 
+                           label="Reference angle (degree)")
+    WToldis = mo.ui.number(start=0, stop=1, value = 0.5, 
+                           label="Tolerance on Distance")
+    return mo.ui.array([WNdir, WNlag, WDlag, WAngref, WToldis])
+
+def WshowVarioParamMulti(WAll):
+    return mo.vstack(WAll)
+
+def WgetVarioParamMulti(WAll):
+    [WNdir, WNlag, WDlag, WAngref, WToldis] = WAll
+    varioparam = gl.VarioParam.createMultiple(ndir = WNdir.value,
+                                              npas = WNlag.value,
+                                              dpas = WDlag.value,
+                                              toldis = WToldis.value,
+                                              angref = WAngref.value)
+    return varioparam
