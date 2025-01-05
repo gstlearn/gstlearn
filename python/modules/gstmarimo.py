@@ -132,20 +132,21 @@ def WdefineGrid(nxdef = 50):
     '''
     Widget to inquire the parameters for constructing a Grid
     '''
-    WNX = mo.ui.slider(start=1, stop=200, value = nxdef, label="NX")
-    WNY = mo.ui.slider(start=1, stop=200, value = nxdef, label="NY")
-    WDX = mo.ui.number(start=1, stop=None, value = 1,  label="DX")
-    WDY = mo.ui.number(start=1, stop=None, value = 1,  label="DY")
-    WX0 = mo.ui.number(start=0, stop=None, value = 0,  label="X0")
-    WY0 = mo.ui.number(start=0, stop=None, value = 0,  label="Y0")
+    WNX = mo.ui.slider(start=1, stop=200, value = nxdef)
+    WNY = mo.ui.slider(start=1, stop=200, value = nxdef)
+    WDX = mo.ui.number(start=1, stop=None, value = 1)
+    WDY = mo.ui.number(start=1, stop=None, value = 1)
+    WX0 = mo.ui.number(start=0, stop=None, value = 0)
+    WY0 = mo.ui.number(start=0, stop=None, value = 0)
 
     return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
 
 def WshowGrid(WAll):
     [WNX, WNY, WDX, WDY, WX0, WY0] = WAll
-    return mo.vstack([mo.hstack([WNX, WNY],justify='start'),
-                      mo.hstack([WDX, WDY],justify='start'),
-                      mo.hstack([WX0, WY0],justify='start')])
+
+    return mo.hstack([mo.vstack([mo.md("Grid"), mo.md("Number"), mo.md("Mesh"), mo.md("Origin")]),
+                      mo.vstack([mo.md("along X"), WNX, WDX, WX0],align='end'),
+                      mo.vstack([mo.md("along Y"), WNY, WDY, WY0],align='end')],justify='start')
     
 def WgetGrid(WAll):
     '''
@@ -222,7 +223,7 @@ def WdefineDbFromNF():
     '''
     Inquiry to load a file from a Neutral File
     '''
-    WFile = mo.ui.file_browser(label="Select a Db Neutral File")
+    WFile = mo.ui.file_browser(label="Select a Db Neutral File", multiple=False)
 
     return mo.ui.array([WFile])
 
@@ -320,3 +321,42 @@ def WgetVarioParamMulti(WAll):
                                               toldis = WToldis.value,
                                               angref = WAngref.value)
     return varioparam
+
+def WdefineDb(nech = 100, nvar = 1, xmin = 0, ymin = 0, xmax = 100, ymax = 100, 
+              nxdef = 10, seed = 14543):
+     
+    WidgetDbFromBox = WdefineDbFromBox(nech = nech, nvar = nvar, 
+                                  xmin = xmin, ymin = ymin, 
+                                  xmax = xmax, ymax = ymax, seed = seed)
+
+    WidgetDbFromNF = WdefineDbFromNF()
+
+    WidgetDbFromGrid = WdefineDbFromGrid(nxdef = nxdef)
+
+    return mo.ui.array([WidgetDbFromBox, WidgetDbFromNF, WidgetDbFromGrid])
+
+def WshowDb(WAll):
+    [WidgetDbFromBox, WidgetDbFromNF, WidgetDbFromGrid] = WAll
+
+    return mo.ui.tabs(
+        tabs = {
+            "Random in Box":  mo.vstack(WidgetDbFromBox),
+            "Random on Grid": mo.vstack(WidgetDbFromGrid),
+            "From File":      mo.vstack(WidgetDbFromNF)
+        })
+
+def WgetDb(WAll, DbLayout):
+    [WidgetDbFromBox, WidgetDbFromNF, WidgetDbFromGrid] = WAll
+
+    db = None
+    if DbLayout == "From File":
+        db = WgetDbFromNF(WidgetDbFromNF)
+    if DbLayout == "Random in Box":
+        db = WgetDbFromBox(WidgetDbFromBox)
+    if DbLayout == "Random on Grid":
+        db = WgetDbFromGrid(WidgetDbFromGrid)
+
+    if db is None:
+        print("You must define a valid Db")
+
+    return db
