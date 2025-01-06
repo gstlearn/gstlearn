@@ -105,7 +105,14 @@ public:
                           const ASpace* space        = nullptr,
                           bool flagRange             = true);
   static Model* createFromDb(const Db* db);
-  static Model* createFromNF(const String& neutralFilename, bool verbose = true);
+  static Model* createFromNF(const String& neutralFilename,
+                             bool verbose = true);
+  static Model* createFromVario(Vario* vario,
+                  const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
+                  const Constraints& constraints = Constraints(),
+                  const Option_VarioFit& optvar  = Option_VarioFit(),
+                  const Option_AutoFit& mauto    = Option_AutoFit(),
+                  bool verbose                   = false);
 
   void   setCovList(const ACovAnisoList* covalist);
   void addCov(const CovAniso* cov);

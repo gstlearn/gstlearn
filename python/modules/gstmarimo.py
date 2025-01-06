@@ -360,3 +360,67 @@ def WgetDb(WAll, DbLayout):
         print("You must define a valid Db")
 
     return db
+
+def WdefineVario(nlag = 10, dlag = 1, ndir = 4):
+     
+    WidgetVarioParamOmni = WdefineVarioParamOmni(nlag = nlag, dlag = dlag)
+
+    WidgetVarioParamMulti = WdefineVarioParamMulti(ndir = ndir, nlag = nlag, dlag = dlag)
+
+    return mo.ui.array([WidgetVarioParamOmni, WidgetVarioParamMulti])
+
+def WshowVario(WAll):
+    [WidgetVarioParamOmni, WidgetVarioParamMulti] = WAll
+
+    return mo.ui.tabs(
+        tabs = {
+            "Omni-directional":    mo.vstack(WidgetVarioParamOmni),
+            "Multiple Directions": mo.vstack(WidgetVarioParamMulti)
+        })
+
+def WgetVario(WAll, VarioLayout, db):
+    [WidgetVarioParamOmni, WidgetVarioParamMulti] = WAll
+
+    varioparam = None
+    if VarioLayout == "Omni-directional":
+        varioparam = WgetVarioParamOmni(WidgetVarioParamOmni)
+    if VarioLayout == "Multiple Directions":
+        varioparam = WgetVarioParamMulti(WidgetVarioParamMulti)
+
+    if varioparam is None:
+        print("You must define a valid VarioParam")
+        return None
+
+    if db is None:
+        print("You must define a valid Db")
+        return None
+    
+    vario = gl.Vario.computeFromDb(varioparam, db, 
+                                   calcul = gl.ECalcVario.VARIOGRAM, 
+                                   verbose = True)
+    return vario
+
+def WdefineCovList():
+    '''
+    Returns the widget for inquiring the list of basic structures to be used
+    for fitting a Model to an Experimental variogram
+    '''
+    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value = ["Nugget effect"])
+
+    return mo.ui.array([WTypes])
+
+def WshowCovList(WAll):
+    [WTypes] = WAll
+
+    return mo.hstack([WTypes])
+
+def WgetCovList(WAll, vario):
+    [WTypes] = WAll
+
+    if vario is None:
+        print("You must define a valid Vario")
+        return None
+    
+    # Create a list of ECov from 'options'
+    model = gl.Model.createFromVario(vario, gl.ECov.fromKeys(WTypes.value))
+    return model

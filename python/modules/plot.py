@@ -2341,6 +2341,7 @@ setattr(plt.Axes, "table",         gp.__ax_table)
 setattr(plt.Axes, "model",         gp.__ax_model)
 setattr(plt.Axes, "mesh",          gp.__ax_mesh)
 setattr(plt.Axes, "variogram",     gp.__ax_variogram)
+setattr(plt.Axes, "varmod",        gp.__ax_varmod)
 
 setattr(plt.Axes, "neigh",         gp.neigh)
 setattr(plt.Axes, "neighWeights",  gp.neighWeights)
