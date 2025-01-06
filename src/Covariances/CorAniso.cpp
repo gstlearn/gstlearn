@@ -12,12 +12,12 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringFormat.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/NoStatFunctional.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Enum/EConsElem.hpp"
@@ -81,7 +81,7 @@ CorAniso::CorAniso(const ECov &type,
     : ACor(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
-      _tabNoStatCovAniso((TabNoStatCovAniso*)_tabNoStat),
+      _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
       _optimEnabled(true)
@@ -102,7 +102,7 @@ CorAniso::CorAniso(const CorAniso &r)
     : ACor(r),
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _aniso(r._aniso),
-      _tabNoStatCovAniso((TabNoStatCovAniso*)_tabNoStat),
+      _tabNoStatCovAniso(new TabNoStatCovAniso(*r._tabNoStatCovAniso)),
       _noStatFactor(r._noStatFactor),
       _isOptimizationPreProcessed(r._isOptimizationPreProcessed),
       _optimEnabled(r._optimEnabled)
@@ -116,7 +116,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
     ACor::operator =(r);
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _aniso = r._aniso;
-    _tabNoStatCovAniso = (TabNoStatCovAniso*)_tabNoStat;
+    _tabNoStatCovAniso = new TabNoStatCovAniso(*_tabNoStatCovAniso);
     _noStatFactor = r._noStatFactor;
     _isOptimizationPreProcessed = r._isOptimizationPreProcessed;
     _optimEnabled = r._optimEnabled;
@@ -129,10 +129,10 @@ CorAniso::~CorAniso()
   delete _cova;
 }
 
-void CorAniso::createNoStatTab()
+TabNoStat* CorAniso::_createNoStatTab()
 {
   _tabNoStatCovAniso = new TabNoStatCovAniso();
-  _tabNoStat = _tabNoStatCovAniso;
+  return _tabNoStatCovAniso;
 }
 void CorAniso::computeCorrec()
 {
@@ -722,12 +722,16 @@ void CorAniso::initFromContext()
   int ndim = getNDim();
   _aniso.init(ndim);
   updateFromContext();
+  createNoStatTab();
+
+
 }
 
 void CorAniso::updateFromContext()
 {
   computeMarkovCoeffs();
   computeCorrec();
+
 }
 
 /**

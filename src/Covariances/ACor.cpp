@@ -13,6 +13,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
+#include "Covariances/TabNoStat.hpp"
 #include "Db/Db.hpp"
 
 #include "Space/ASpace.hpp"
@@ -33,7 +34,7 @@ ACor::ACor(const CovContext &ctxt)
 ACor::ACor(const ACor &r)
     : ASpaceObject(r),
       _nvar(r._nvar),
-      _tabNoStat(r._tabNoStat == nullptr? nullptr:r._tabNoStat->clone())
+      _tabNoStat(r._tabNoStat == nullptr? nullptr:new TabNoStat(*r._tabNoStat))
 {
 }
 
@@ -55,7 +56,13 @@ ACor::~ACor()
 
 void ACor::createNoStatTab()
 {
-  _tabNoStat = new TabNoStat();
+  delete _tabNoStat;
+  _tabNoStat = _createNoStatTab();
+}
+
+TabNoStat* ACor::_createNoStatTab()
+{
+  return new TabNoStat();
 }
 double ACor::eval0(int ivar,
                    int jvar,

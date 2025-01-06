@@ -133,7 +133,7 @@ virtual double evalCovOnSphere(double alpha,
   }
   virtual void makeStationary();
 
-  virtual void createNoStatTab();
+  void createNoStatTab();
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
   VectorDouble informCoords(const VectorVectorDouble& coords, 
@@ -168,6 +168,8 @@ private:
 
   void setNoStatDbIfNecessary(const Db*& db);
 private : 
+ virtual TabNoStat* _createNoStatTab();
+
  virtual void _copyCovContext(const CovContext &ctxt)
  {
   DECLARE_UNUSED(ctxt)

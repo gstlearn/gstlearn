@@ -35,7 +35,6 @@
 #include "geoslib_define.h"
 #include <math.h>
 #include <functional>
-#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -92,7 +91,7 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    : CovBase(r._corAniso->clone(),r._sill), /// TODO : shared pointer
+    : CovBase(new CorAniso(*r._corAniso),r._sill), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
@@ -102,7 +101,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
 {
   if (this != &r)
   {
-     setCor(r._corAniso->clone());
+     setCor(new CorAniso(*r._corAniso));
     _corAniso = (CorAniso*)getCor();
     _ctxt = r._ctxt;
     _sill = r._sill;

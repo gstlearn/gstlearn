@@ -77,7 +77,7 @@ void ACovAnisoList::addCov(const CovAniso* cov)
       return;
     }
   }
-  _covs.push_back(cov->clone());
+  _covs.push_back(new CovAniso(*cov));
   _filtered.push_back(false);
 }
 
