@@ -361,25 +361,46 @@ def WgetDb(WAll, DbLayout):
 
     return db
 
+def WdefineVarioFromNF():
+    '''
+    Inquiry to load a Variogram File from a Neutral File
+    '''
+    WFile = mo.ui.file_browser(label="Select a Vario Neutral File", multiple=False)
+
+    return mo.ui.array([WFile])
+
+def WgetVarioFromNF(WAll):
+    '''
+    Create the gstlearn Vario 
+    '''
+    [WFile] = WAll
+    filename = WFile.name()
+    if filename is None:
+        return None
+    return gl.Vario.createFromNF(filename)
+
 def WdefineVario(nlag = 10, dlag = 1, ndir = 4):
      
     WidgetVarioParamOmni = WdefineVarioParamOmni(nlag = nlag, dlag = dlag)
 
     WidgetVarioParamMulti = WdefineVarioParamMulti(ndir = ndir, nlag = nlag, dlag = dlag)
 
-    return mo.ui.array([WidgetVarioParamOmni, WidgetVarioParamMulti])
+    WidgetVarioFromNF = WdefineVarioFromNF()
+
+    return mo.ui.array([WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF])
 
 def WshowVario(WAll):
-    [WidgetVarioParamOmni, WidgetVarioParamMulti] = WAll
+    [WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF] = WAll
 
     return mo.ui.tabs(
         tabs = {
             "Omni-directional":    mo.vstack(WidgetVarioParamOmni),
-            "Multiple Directions": mo.vstack(WidgetVarioParamMulti)
+            "Multiple Directions": mo.vstack(WidgetVarioParamMulti),
+            "Read from NF":        mo.vstack(WidgetVarioFromNF)
         })
 
 def WgetVario(WAll, VarioLayout, db):
-    [WidgetVarioParamOmni, WidgetVarioParamMulti] = WAll
+    [WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF] = WAll
 
     varioparam = None
     if VarioLayout == "Omni-directional":
@@ -387,17 +408,20 @@ def WgetVario(WAll, VarioLayout, db):
     if VarioLayout == "Multiple Directions":
         varioparam = WgetVarioParamMulti(WidgetVarioParamMulti)
 
-    if varioparam is None:
-        print("You must define a valid VarioParam")
-        return None
+    if VarioLayout == "Read from NF":
+        vario = WgetVarioFromNF(WidgetVarioFromNF)
+    else:
+        if varioparam is None:
+            print("You must define a valid VarioParam")
+            return None
 
-    if db is None:
-        print("You must define a valid Db")
-        return None
+        if db is None:
+            print("You must define a valid Db")
+            return None
     
-    vario = gl.Vario.computeFromDb(varioparam, db, 
-                                   calcul = gl.ECalcVario.VARIOGRAM, 
-                                   verbose = True)
+        vario = gl.Vario.computeFromDb(varioparam, db, 
+                                       calcul = gl.ECalcVario.VARIOGRAM, 
+                                       verbose = True)
     return vario
 
 def WdefineCovList():
@@ -412,7 +436,8 @@ def WdefineCovList():
 def WshowCovList(WAll):
     [WTypes] = WAll
 
-    return mo.hstack([WTypes])
+    title = mo.md("Select the Basic Structures used for Fitting:")
+    return mo.vstack([title, WTypes])
 
 def WgetCovList(WAll, vario):
     [WTypes] = WAll
@@ -422,5 +447,8 @@ def WgetCovList(WAll, vario):
         return None
     
     # Create a list of ECov from 'options'
-    model = gl.Model.createFromVario(vario, gl.ECov.fromKeys(WTypes.value))
+    model = None
+    types = WTypes.value
+    if types:
+        model = gl.Model.createFromVario(vario, gl.ECov.fromKeys(types))
     return model
