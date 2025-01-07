@@ -22,85 +22,82 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _(gmo):
-    WidgetDb = gmo.WdefineDb()
-    return (WidgetDb,)
+def _():
+    # Parametrization for the Model
+    ncovmax = 2
+    distmax = 100
+    varmax  = 50
+    return distmax, ncovmax, varmax
 
 
 @app.cell(hide_code=True)
-def _(WidgetDb, gmo):
-    WDbLayout = gmo.WshowDb(WidgetDb)
-    WDbLayout
-    return (WDbLayout,)
-
-
-@app.cell(hide_code=True)
-def _(WDbLayout, WidgetDb, gmo):
-    db = gmo.WgetDb(WidgetDb, WDbLayout.value)
-    return (db,)
-
-
-@app.cell(hide_code=True)
-def _(gmo):
-    WidgetVario = gmo.WdefineVario()
-    return (WidgetVario,)
-
-
-@app.cell(hide_code=True)
-def _(WidgetVario, gmo):
-    WVarioLayout = gmo.WshowVario(WidgetVario)
-    WVarioLayout
-    return (WVarioLayout,)
-
-
-@app.cell(hide_code=True)
-def _(WVarioLayout, WidgetVario, db, gmo):
-    vario = gmo.WgetVario(WidgetVario, WVarioLayout.value, db)
-    return (vario,)
-
-
-@app.cell(hide_code=True)
-def _(gmo):
-    WidgetCovList = gmo.WdefineCovList()
-    return (WidgetCovList,)
-
-
-@app.cell(hide_code=True)
-def _(WidgetCovList, gmo):
-    gmo.WshowCovList(WidgetCovList)
+def _():
+    # Version gstlearn a faire marcher
+    #Markdown(gdoc.loadDoc("Statistics_mean.md"))
+    # version decortiquee qui fonctionne
+    #filename = "/home/drenard/project_gstlearn/gstlearn/doc/references/Cvv.md"
+    #Markdown(filename)
     return
 
 
 @app.cell(hide_code=True)
-def _(WidgetCovList, gmo, vario):
-    model = gmo.WgetCovList(WidgetCovList, vario)
-    return (model,)
+def _(distmax, gmo, ncovmax, varmax):
+    WidgetModel = gmo.WdefineModel(ncovmax, distmax, varmax)
+    return (WidgetModel,)
 
 
 @app.cell(hide_code=True)
-def _(db, model, plt, vario):
-    def myplot():
+def _(WidgetModel, gmo):
+    gmo.WshowModel(WidgetModel)
+    return
+
+
+@app.cell(hide_code=True)
+def _(gmo):
+    WidgetGrid = gmo.WdefineGrid(100)
+    return (WidgetGrid,)
+
+
+@app.cell(hide_code=True)
+def _(WidgetGrid, gmo):
+    gmo.WshowGrid(WidgetGrid)
+    return
+
+
+@app.cell(hide_code=True)
+def _(gmo):
+    WidgetSimtub = gmo.WdefineSimtub()
+    return (WidgetSimtub,)
+
+
+@app.cell(hide_code=True)
+def _(WidgetSimtub, gmo):
+    gmo.WshowSimtub(WidgetSimtub)
+    return
+
+
+@app.cell(hide_code=True)
+def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, plt):
+    def mareaction():
+
+        model = gmo.WgetModel(WidgetModel)
+        grid = gmo.WgetGrid(WidgetGrid)
+        nbtuba, seed = gmo.WgetSimtub(WidgetSimtub)
+        err = gl.simtub(None, dbout=grid, model=model, nbtuba=nbtuba, seed=int(seed))
 
         fig = plt.figure(figsize=(20,6))
-        if db is not None:
-            ax1 = fig.add_subplot(1,2,1)
-            ax1.symbol(db)
-
-        if vario is not None and model is None:
-            ax2 = fig.add_subplot(1,2,2)
-            ax2.variogram(vario, idir=-1)
-
-        if vario is not None and model is not None:
-            ax2 = fig.add_subplot(1,2,2)
-            ax2.varmod(vario, model)
-
+        ax1 = fig.add_subplot(1,2,1)
+        ax1.model(model, hmax=100)
+        ax2 = fig.add_subplot(1,2,2)
+        ax2.raster(grid)
+        ax2.axis("equal")
         return fig
-    return (myplot,)
+    return (mareaction,)
 
 
 @app.cell(hide_code=True)
-def _(mo, myplot):
-    mo.md(f"Data Base and Experimental Variogram {mo.as_html(myplot())}")
+def _(mareaction, mo):
+    mo.md(f"A non-conditional simulation corresponding to a Model: {mo.as_html(mareaction())}")
     return
 
 
