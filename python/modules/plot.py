@@ -1771,7 +1771,7 @@ def __projection(geometry, crsFrom="EPSG:4326", crsTo="EPSG:3857"):
     gdf = gdf.to_crs(crsTo) 
     return gdf
 
-def dbBaseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
+def baseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
               box=None, flagBaseMap=True, 
               color='blue', size=10,
               *args, **kwargs):
@@ -1780,10 +1780,10 @@ def dbBaseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
     '''
     ax = __getNewAxes(None, 1)
 
-    return __ax_dbBaseMap(ax, db, crsFrom, crsTo, box, flagBaseMap, 
+    return __ax_baseMap(ax, db, crsFrom, crsTo, box, flagBaseMap, 
               color, size, *args, **kwargs)
 
-def __ax_dbBaseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
+def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
               box=None, flagBaseMap=True, color='blue', size=10,
               *args, **kwargs):
     '''
@@ -2431,8 +2431,8 @@ setattr(gl.Db,    "tangent",       gp.tangent)
 setattr(gl.DbGrid,"tangent",       gp.tangent)
 setattr(plt.Axes, "tangent",       gp.__ax_tangent)
 
-setattr(gl.Db,    "baseMap",       gp.dbBaseMap)
-setattr(plt.Axes, "baseMap",       gp.__ax_dbBaseMap)
+setattr(gl.Db,    "baseMap",       gp.baseMap)
+setattr(plt.Axes, "baseMap",       gp.__ax_baseMap)
 
 setattr(gl.DbGrid,"raster",        gp.raster)
 setattr(plt.Axes, "raster",        gp.__ax_raster)
