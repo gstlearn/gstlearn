@@ -18,6 +18,7 @@
 
 #include "Db/PtrGeos.hpp"
 #include "Matrix/Table.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
@@ -451,8 +452,8 @@ public:
 
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
-  MatrixRectangular getAllCoordinatesMat() const;
-  void   setCoordinate(int iech, int idim, double value);
+  MatrixRectangular getAllCoordinatesMat(const MatrixRectangular& box = MatrixRectangular()) const;
+  void setCoordinate(int iech, int idim, double value);
   void setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
   void setSampleCoordinates(int iech, const VectorDouble& coor);
 

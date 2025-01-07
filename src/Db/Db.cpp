@@ -901,20 +901,50 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
  * - one column by Space Dimension
  * @return
  */
-MatrixRectangular Db::getAllCoordinatesMat() const
+MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
 {
   int nech = getSampleNumber(true);
   int ndim = getNDim();
 
-  MatrixRectangular mat(nech, ndim);
-
   VectorInt ranks = getRanksActive();
+
+  // Suppress some data due to bounds
+  int nechValid = 0;
+  if (! box.empty())
+  {
+    for (int jech = 0; jech < nech; jech++)
+    {
+      int iech           = ranks[jech];
+      VectorDouble coors = getSampleCoordinates(iech);
+
+      bool flagIn = true;
+      for (int idim = 0; idim < ndim && flagIn; idim++)
+      {
+        double coor = coors[idim];
+        if (coor < box.getValue(idim,0)) flagIn = false;
+        if (coor > box.getValue(idim,1)) flagIn = false;
+      }
+      if (flagIn)
+        nechValid++;
+      else
+        ranks[jech] = -1;
+    }
+  }
+  else
+  {
+    nechValid = nech;
+  }
+
+  MatrixRectangular mat(nechValid, ndim);
+
+  int kech = 0;
   for (int jech = 0; jech < nech; jech++)
   {
     int iech = ranks[jech];
-    VectorDouble coors = getSampleCoordinates(iech);
-    mat.setRow(iech, coors);
+    if (iech < 0) continue;
+    mat.setRow(kech++, getSampleCoordinates(iech));
   }
+
   return mat;
 }
 

@@ -15,14 +15,18 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
+import contextily            as ctx
+import geopandas             as gpd
+import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy                   import shape
 from pandas.io               import orc
 from plotly.matplotlylib     import mpltools
-import math
+from matplotlib.pyplot       import axes
+from shapely.geometry        import Point
+
 from plotly.validators.layout.scene import aspectratio
-from matplotlib.pyplot import axes
 
 #Set of global values
 defaultDims = [[5,5], [8,8]]
@@ -741,7 +745,7 @@ def __readCoorPoint(db, nameCoorX=None, nameCoorY=None, useSel=True, posX=0, pos
     return tabx, taby
     
 def symbol(db, nameColor=None, nameSize=None, *args, **kwargs):
-    ax = __getNewAxes(None, 0)
+    ax = __getNewAxes(None, 1)
     return __ax_symbol(ax, db, nameColor=nameColor, nameSize=nameSize, 
                        *args, **kwargs)
     
@@ -1758,7 +1762,65 @@ def correlation(db, namex, namey, *args, **kwargs):
     '''
     ax = __getNewAxes(None, 0)
     return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
-    
+
+def __projection(geometry, crsFrom="EPSG:4326", crsTo="EPSG:3857"):
+    '''
+    Create a GeoPanda DataFrame in order to perform a projection between two CRS
+    '''
+    gdf = gpd.GeoDataFrame(geometry=geometry, crs=crsFrom) 
+    gdf = gdf.to_crs(crsTo) 
+    return gdf
+
+def dbBaseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
+              box=None, flagBaseMap=True, 
+              color='blue', size=10,
+              *args, **kwargs):
+    '''
+    Plotting a variable from a Db using BaseMap
+    '''
+    ax = __getNewAxes(None, 1)
+
+    return __ax_dbBaseMap(ax, db, crsFrom, crsTo, box, flagBaseMap, 
+              color, size, *args, **kwargs)
+
+def __ax_dbBaseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
+              box=None, flagBaseMap=True, color='blue', size=10,
+              *args, **kwargs):
+    '''
+    Plotting a variable from a Db using BaseMap
+
+    db: Db defining the data to be plotted
+    crsFrom Input projection characteristics
+    crsTo Output projection charactieristics
+    box Optional VVD for bounds (Dimension: [ndim][2])
+    flagBaseMap True to represent the corresponding Base Map
+    color Color used for displaying the data samples
+    size Size used for displaying the data samples
+    **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
+    '''
+    # Draw the data points
+    if box is not None:
+        pts = db.getAllCoordinatesMat(box).toTL()
+    else:
+        pts = db.getAllCoordinatesMat().toTL()
+
+    if len(pts) > 0:
+        points = [Point(i) for i in pts]
+        data = __projection(points, crsFrom, crsTo)
+        data.plot(ax=ax, color=color, markersize=size)
+
+    # Display bounding points (optional)
+    if box is not None:
+        extPoints = [[box[0,0], box[1,0]],
+                     [box[0,1], box[1,1]]]
+        geometry = [Point(xy) for xy in extPoints]
+        gdf = __projection(geometry, crsFrom, crsTo)
+        gdf.plot(ax=ax, color='white', markersize=size)
+
+    # Draw the Base Map
+    if flagBaseMap:
+        ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+
 def __ax_correlation(ax, db, namex, namey, db2=None, 
                      asPoint = False,  flagSameAxes=False,
                      diagLine=False, diagColor="black", diagLineStyle='-',
@@ -2004,7 +2066,9 @@ def lagDefine(i, lag, tol=0):
     return mini, center, maxi  
 
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
-    
+    '''
+    Generic Plot function which can be used whatever its first argument 'object'.
+    '''
     filetype = type(object).__name__
 
     if filetype == "Db":
@@ -2044,6 +2108,9 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         print("Unknown type:",filetype)
 
 def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
+    '''
+    Generic function to plot the contents of any NF function
+    '''
     filetype = gl.ASerializable.getFileIdentity(filename)
     if filetype == "":
         exit()
@@ -2363,6 +2430,9 @@ setattr(plt.Axes, "gradient",      gp.__ax_gradient)
 setattr(gl.Db,    "tangent",       gp.tangent)
 setattr(gl.DbGrid,"tangent",       gp.tangent)
 setattr(plt.Axes, "tangent",       gp.__ax_tangent)
+
+setattr(gl.Db,    "baseMap",       gp.dbBaseMap)
+setattr(plt.Axes, "baseMap",       gp.__ax_dbBaseMap)
 
 setattr(gl.DbGrid,"raster",        gp.raster)
 setattr(plt.Axes, "raster",        gp.__ax_raster)
