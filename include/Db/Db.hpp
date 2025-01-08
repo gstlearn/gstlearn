@@ -440,7 +440,6 @@ public:
   VectorDouble getSampleCoordinates(int iech) const;
           void getSampleAsSPInPlace(SpacePoint& P) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
-  void getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
 

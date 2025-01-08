@@ -236,7 +236,8 @@ def PolygonOnSphere(poly, flagClose=False,
 
 def SliceOnDbGrid(grid, name, section=0, rank=0, useSel=False, 
                   cmin = None, cmax = None):
-    
+
+
     if __invalidFileDimension(grid, 3):
         return None
                       
@@ -254,7 +255,28 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, useSel=False,
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values, 
                        coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
-   
+
+def Slice3DOnDbGrid(grid, name, corner=None, 
+                       useSel=False, cmin=None, cmax=None):
+    
+    '''
+    Represent a series of three slices (XoY, YoZ, XoZ)
+    performed around the corner (given by its grid indices)
+
+    Returns a go.Figure element
+    '''
+    if __invalidFileDimension(grid, 3):
+        return None
+    if corner is None:
+        corner = grid.getNXs() / 2
+    
+    data = [SliceOnDbGrid(grid,name,0,corner[2]),
+            SliceOnDbGrid(grid,name,1,corner[1]),
+            SliceOnDbGrid(grid,name,2,corner[0])
+       ]
+    fig = go.Figure(data=data)
+    return fig
+    
 def IsoSurfaceOnDbGrid(grid, name, useSel=False, levels=None, 
                        colorscale='BlueRed', isomin=0, isomax=1, surface_count = 1, 
                        showlegend=False):

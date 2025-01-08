@@ -163,7 +163,7 @@ jobs:
     - name: Install macOS dependencies
       run: brew install llvm
 
-    - name: Install gstlearn Python package
+    - name: Install Python package
       run: pip install ./$(ls *.whl)
 
     - name: Test installed Python package
@@ -181,6 +181,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Upload packages to pypi
     - uses: fabien-ors/pypi-publish-action@v2
       with:
         repo: pypi

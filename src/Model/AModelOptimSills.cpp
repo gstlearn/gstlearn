@@ -1016,7 +1016,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
 
 bool AModelOptimSills::_convergenceReached(const Option_AutoFit& mauto,
                                            double crit,
-                                           double crit_mem) const
+                                           double crit_mem)
 {
    return (ABS(crit) < mauto.getTolred() ||
           ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred());

@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
+#include "Enum/ELoadBy.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
 #include "Db/DbLine.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -623,4 +625,65 @@ int DbLine::getLineSampleRank(int iline, int isample) const
     return -1;
   }
   return _lineAdds[iline][isample];
+}
+
+DbLine* DbLine::createVerticalFromGrid(const DbGrid& grid,
+                                       const VectorString& names,
+                                       const VectorInt& xranks,
+                                       const VectorInt& yranks,
+                                       int byZ)
+{
+  // Preliminary checks
+  int ndim = grid.getNDim();
+  if (ndim != 3)
+  {
+    messerr("This method is coded to extract wells from a 3-D Grid only");
+    return nullptr;
+    }
+  if ((int)xranks.size() != (int)yranks.size())
+  {
+    messerr("Arguments 'xranks' and 'yranks' should have same dimensions");
+    return nullptr;
+  }
+  int nvar    = (int)names.size();
+  int nwells  = (int)xranks.size();
+  int nz      = grid.getNX(2);
+  int nbywell = nz / byZ;
+  int nsample = nwells * nbywell;
+  VectorDouble tab(nsample * (3 + nvar));
+  VectorInt lineCounts(nsample);
+
+  VectorDouble coor(3);
+  VectorInt indg(3);
+
+  // Loop on the wells
+  int nech = 0;
+  int ecr = 0;
+  for (int iwell = 0; iwell < nwells; iwell++)
+  {
+    indg[0] = xranks[iwell];
+    indg[1] = yranks[iwell];
+
+    // Loop on the samples
+    for (int iz = 0; iz < nbywell; iz++) indg[2] = iz * byZ;
+
+    // Assign the coordinates
+    grid.indicesToCoordinateInPlace(indg, coor);
+    for (int idim = 0; idim < ndim; idim++) tab[ecr++] = coor[idim];
+
+    // Assign the variable values
+    int rank = grid.indiceToRank(indg);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      tab[ecr++] = grid.getValue(names[ivar], rank);
+
+    // Concatenate to the array
+    lineCounts[nech] = nech;
+    nech++;
+  }
+
+  DbLine* dbline = new DbLine;
+  if (dbline->resetFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, names))
+    return nullptr;
+
+  return dbline;
 }

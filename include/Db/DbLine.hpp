@@ -89,7 +89,12 @@ public:
                                   const VectorDouble& delta = VectorDouble(),
                                   double unifDelta          = 0.3,
                                   int seed                  = 13422);
-
+  static DbLine* createVerticalFromGrid(const DbGrid& grid,
+                                        const VectorString& names,
+                                        const VectorInt& xranks,
+                                        const VectorInt& yranks,
+                                        int byZ = 1);
+  
   Db* createStatToHeader() const;
 
   int getLineNumber() const;
