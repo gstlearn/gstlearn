@@ -15,7 +15,7 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
-import gstlearn.proj         as prj
+# import gstlearn.proj         as prj
 import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -1763,19 +1763,19 @@ def correlation(db, namex, namey, *args, **kwargs):
     return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
 
 def baseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
-            box=None, flagBaseMap=True, color='blue', size=10,
+            box=None, flagProj = False, color='blue', size=10, 
             *args, **kwargs):
     '''
     Plotting a variable from a Db using BaseMap
     '''
     ax = __getNewAxes(None, 1)
 
-    return __ax_baseMap(ax, db, crsFrom, crsTo, box, flagBaseMap, 
-              color, size, *args, **kwargs)
+    return __ax_baseMap(ax, db, crsFrom, crsTo, box,   flagProj, 
+                        color, size, *args, **kwargs)
 
 def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
-              box=None, flagBaseMap=True, color='blue', size=10,
-              *args, **kwargs):
+                 box=None, flagProj = False, color='blue', size=10,
+                 *args, **kwargs):
     '''
     Plotting a variable from a Db using BaseMap
 
@@ -1783,15 +1783,18 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
     crsFrom Input projection characteristics
     crsTo Output projection charactieristics
     box Optional VVD for bounds (Dimension: [ndim][2])
-    flagBaseMap True to represent the corresponding Base Map
+    flagProj True if projection should be involved (using crsX)
     color Color used for displaying the data samples
     size Size used for displaying the data samples
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
 
     Note: to add a basemap, simply add a sentence such as:
         import contextily as ctx
-        ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
-    on the Axis returned by this function
+          ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
+        on the Axis returned by this function
+
+    Note: the dependency to projection (and therefore to geopanda)
+       has been made conditional to 'flagProj'
     '''
     # Draw the data points
     if box is not None:
@@ -1800,17 +1803,24 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
         pts = db.getAllCoordinatesMat().toTL()
 
     if len(pts) > 0:
-        points = [Point(i) for i in pts]
-        data = prj.projGP(points, crsFrom, crsTo)
-        data.plot(ax=ax, color=color, markersize=size)
+        if flagProj:
+            import gstlearn.proj as prj
+            points = [Point(i) for i in pts]
+            data = prj.projGP(points, crsFrom, crsTo)
+            data.plot(ax=ax, color=color, markersize=size)
+        else:
+            plt.scatter(pts[:,0], pts[:,1], c=color, s=size)
 
     # Display bounding points (optional)
     if box is not None:
-        extPoints = [[box[0,0], box[1,0]],
-                     [box[0,1], box[1,1]]]
-        geometry = [Point(xy) for xy in extPoints]
-        gdf = prj.projGP(geometry, crsFrom, crsTo)
-        gdf.plot(ax=ax, color='white', markersize=size)
+        extPoints = np.array([[box[0,0], box[1,0]],
+                              [box[0,1], box[1,1]]])
+        if flagProj:
+            geometry = [Point(xy) for xy in extPoints]
+            gdf = prj.projGP(geometry, crsFrom, crsTo)
+            gdf.plot(ax=ax, color='white', markersize=0.1)
+        else:
+            plt.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
 
 def __ax_correlation(ax, db, namex, namey, db2=None, 
                      asPoint = False,  flagSameAxes=False,

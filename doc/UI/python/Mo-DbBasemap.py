@@ -54,24 +54,25 @@ def _(Wlatitude, Wlongitude, box, ctx, db, plt):
     box[1,0] = Wlatitude.value[0]
     box[1,1] = Wlatitude.value[1]
 
-    fig = plt.figure(figsize=(20,6))
+    fig = plt.figure(figsize=(8,3))
 
     ax1 = fig.add_subplot(1,2,1)
-    ax1.baseMap(db)
+    ax1.baseMap(db, flagProj=True)
     ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
     ax1.decoration(title="Based on Db contents")
 
     ax2 = fig.add_subplot(1,2,2)
-    ax2.baseMap(db, box=box)
+    ax2.baseMap(db, box=box, flagProj=True)
     ctx.add_basemap(ax2, source=ctx.providers.OpenStreetMap.Mapnik)
     ax2.decoration(title="Based on your Area Definition")
 
-    plt.show()
+    #plt.show()
     return ax1, ax2, fig
 
 
 @app.cell
-def _():
+def _(fig, mo):
+    mo.mpl.interactive(fig)
     return
 
 
