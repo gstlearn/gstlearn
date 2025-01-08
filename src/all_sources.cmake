@@ -67,6 +67,7 @@ set(SRC
   Covariances/TabNoStatCovAniso.cpp
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
+  Covariances/CovBase.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp
@@ -93,7 +94,7 @@ set(SRC
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
-  Covariances/CovGneiting.cpp
+  Covariances/CorGneiting.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp

@@ -48,12 +48,19 @@ int TabNoStat::removeElem(const EConsElem &econs, int iv1, int iv2)
 
 }
 
+void TabNoStat::clear()
+{
+    _items.clear();
+    _nSills = 0;
+    _clear();
+}
 bool TabNoStat::isValid(const EConsElem& econs) const
 {
     bool res = _isValid(econs);
     if (!res)
-    {
-        messerr("Invalid type of parameters for this covariance structure");
+    {   
+        messerr("%s is an invalid parameter for this covariance structure",
+            std::string(econs.getKey()).c_str());
     }
     return res ;
 }

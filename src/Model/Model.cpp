@@ -476,7 +476,7 @@ void Model::addCovFromParam(const ECov& type,
 
   // Define the covariance
 
-  SpaceRN space = SpaceRN(ndim);
+  SpaceRN space = SpaceRN(ndim); //TODO check if it is the right space
   _ctxt         = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
 
@@ -516,6 +516,9 @@ void Model::addCovFromParam(const ECov& type,
     }
   }
 
+ 
+  _ctxt.setNVar(cov.getNVariables());
+  _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCov(&cov);
 }
