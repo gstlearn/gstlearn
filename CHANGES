@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.6.0
 =============
-- in db::getAllCoordinatesMao, adding possibility to select within a Box.
+- in db::getAllCoordinatesMap, adding possibility to select within a Box.
 - new method in DbLine: createVerticalFromGrid()
 - Migrate: in Grid to Grid, perform interpolation if flag_inter is True
 - Add version in functions loadDoc and loadData (Python and R)
@@ -26,7 +26,8 @@ Graphics
 --------
 - A new entry in plot3D.py: Slice3DOnDbGrid() which draws three slices around a corner.
 - A new entry in plot3D.py: ScatterOnDb() to draw a set of points in 3D as a scatter
-- A new entry in plot.py: baseMap() to display samples of a Db with a Base Map as background.
+- A new entry in plot.py: baseMap() to display samples of a Db with a Base Map as background. Note that the dependency with library 'contextily' has been removed (left to the user... see Marimo workflow Mo-DbBaseMap.py for example)
+- The seperate extension 'proj.py' has been retrieved in order to offer projections.
 
 gstMarimo
 ---------

@@ -15,8 +15,7 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
-# import contextily            as ctx
-import geopandas             as gpd
+import gstlearn.proj         as prj
 import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -1763,14 +1762,6 @@ def correlation(db, namex, namey, *args, **kwargs):
     ax = __getNewAxes(None, 0)
     return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
 
-def __projection(geometry, crsFrom="EPSG:4326", crsTo="EPSG:3857"):
-    '''
-    Create a GeoPanda DataFrame in order to perform a projection between two CRS
-    '''
-    gdf = gpd.GeoDataFrame(geometry=geometry, crs=crsFrom) 
-    gdf = gdf.to_crs(crsTo) 
-    return gdf
-
 def baseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
             box=None, flagBaseMap=True, color='blue', size=10,
             *args, **kwargs):
@@ -1810,7 +1801,7 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
 
     if len(pts) > 0:
         points = [Point(i) for i in pts]
-        data = __projection(points, crsFrom, crsTo)
+        data = prj.projGP(points, crsFrom, crsTo)
         data.plot(ax=ax, color=color, markersize=size)
 
     # Display bounding points (optional)
@@ -1818,7 +1809,7 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
         extPoints = [[box[0,0], box[1,0]],
                      [box[0,1], box[1,1]]]
         geometry = [Point(xy) for xy in extPoints]
-        gdf = __projection(geometry, crsFrom, crsTo)
+        gdf = prj.projGP(geometry, crsFrom, crsTo)
         gdf.plot(ax=ax, color='white', markersize=size)
 
 def __ax_correlation(ax, db, namex, namey, db2=None, 
