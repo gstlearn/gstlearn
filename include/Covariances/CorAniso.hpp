@@ -280,8 +280,7 @@ public:
   double getDetTensor() const;
   virtual void updateFromContext();
   virtual void initFromContext();
-  void optimizationSetTarget(const SpacePoint& pt,
-                              SpacePoint& p2A) const;
+  void optimizationSetTarget(const SpacePoint& pt, SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;

@@ -916,6 +916,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
  * on the basis of the current covariance
  *
  * @param pt Target sample provided as a Space Point
+ * @param p2A SpacePoint used as output
  */
 void CorAniso::optimizationSetTarget(const SpacePoint& pt,SpacePoint& p2A) const
 {
@@ -930,11 +931,14 @@ void CorAniso::optimizationSetTarget(const SpacePoint& pt,SpacePoint& p2A) const
 }
 
 /**
- * Define the Second Space Point as coinciding with the Input Space Point 'iech'.
+ * Define the Second Space Point as coinciding with the Input Space Point
+'iech'.
  * Note that, as the Input Space Points are already transformed in the basis
  * of the current structure, it is just an assignment.
  *
  * @param iech Rank of the sample among the recorded Space Points
+ * @param p1As Vector of SpacePoints
+ * @param p2A Current space point
  */
 void CorAniso::optimizationSetTargetByIndex(int iech,
                                             const std::vector<SpacePoint> &p1As,
@@ -975,11 +979,11 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
- * Note that ALL samples are processed, independently from the presence of a selection
- * or checking for heterotopy.
+ * Note that ALL samples are processed, independently from the presence of a
+ * selection or checking for heterotopy.
  * @param p vector of SpacePoints
+ * @param p1As Vector of SpacePoints (used in output)
  */
-
 void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
                                       std::vector<SpacePoint> &p1As) const
 {
