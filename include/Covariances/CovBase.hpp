@@ -44,9 +44,11 @@ public:
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
+  void setCor(ACor* cor);
+  ACor* getCor() { return _cor; }
+  
   double getSill(int ivar, int jvar) const;
   void   attachNoStatDb(const Db* db);
-  void setCor(ACor* cor);
   
   void   makeSillNoStatDb(  const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
   void   makeSillStationary( int ivar = 0, int jvar = 0);
@@ -78,7 +80,7 @@ public:
 
   double getValue(const EConsElem& econs, int iv1, int iv2) const;
   void nostatUpdate(CovInternal *covint);
-  ACor* getCor() { return _cor; }
+
 protected:
     void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                       const AFunctional* func = nullptr, 

@@ -25,8 +25,9 @@ CovBase::CovBase(ACor* cor,
 {
   if (cor != nullptr)
   {
-    _ctxt = cor->getContext();
+    _ctxt = cor->getContextCopy();
   }
+  _ctxt.setNVar(sill.getNSize());
 }
 
 CovBase::~CovBase()
@@ -37,9 +38,11 @@ CovBase::~CovBase()
 void CovBase::setCor(ACor* cor)
 {
   _cor = cor;
+  int nvar = getNVariables();
   if (cor != nullptr)
   {
-    _ctxt = cor->getContext();
+    _ctxt = cor->getContextCopy();
+    _ctxt.setNVar(nvar);
   }
 }
 void CovBase::setContext(const CovContext &ctxt)
@@ -49,22 +52,26 @@ void CovBase::setContext(const CovContext &ctxt)
 }
 void CovBase::setSill(double sill)
 {
-  if (getNVariables() != 1)
+  int nvar = getNVariables();
+  if (nvar > 0 && nvar!= 1)
   {
     messerr("Number of provided sill doesn't match number of variables");
     return;
   }
+  _ctxt.setNVar(nvar);
   _sill.resetFromValue(1, 1, sill);
 }
 
 void CovBase::setSill(const MatrixSquareSymmetric &sill)
 {
-  if (getNVariables() != sill.getNSize())
+  int nvar = getNVariables();
+  if (nvar > 0 && nvar != sill.getNCols())
   {
     messerr("Number of provided sills doesn't match number of variables");
     return;
   }
   _sill = sill;
+  _ctxt.setNVar(nvar);
 }
 
 void CovBase::setSill(const VectorDouble &sill)

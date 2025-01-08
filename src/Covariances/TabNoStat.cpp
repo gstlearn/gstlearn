@@ -56,10 +56,11 @@ void TabNoStat::clear()
 }
 bool TabNoStat::isValid(const EConsElem& econs) const
 {
-    bool res = _isValid(econs);// || TabNoStat::isValid(econs);
+    bool res = _isValid(econs);
     if (!res)
-    {
-        messerr("Invalid type of parameters for this covariance structure");
+    {   
+        messerr("%s is an invalid parameter for this covariance structure",
+            std::string(econs.getKey()).c_str());
     }
     return res ;
 }

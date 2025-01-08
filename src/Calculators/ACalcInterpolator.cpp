@@ -104,7 +104,7 @@ bool ACalcInterpolator::_check()
     {
       if (nvar != _model->getVariableNumber())
       {
-        messerr("Inconsistent the Variable Number:");
+        messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d",nvar);
         messerr("- Number of variables in 'model' = %d",_model->getVariableNumber());
         return false;

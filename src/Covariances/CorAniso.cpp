@@ -107,6 +107,7 @@ CorAniso::CorAniso(const CorAniso &r)
       _isOptimizationPreProcessed(r._isOptimizationPreProcessed),
       _optimEnabled(r._optimEnabled)
 {
+  _tabNoStat = _tabNoStatCovAniso;
 }
 
 CorAniso& CorAniso::operator=(const CorAniso &r)
@@ -120,6 +121,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
     _noStatFactor = r._noStatFactor;
     _isOptimizationPreProcessed = r._isOptimizationPreProcessed;
     _optimEnabled = r._optimEnabled;
+    _tabNoStat = _tabNoStatCovAniso;
   }
   return *this;
 }
@@ -719,6 +721,7 @@ double CorAniso::getParam() const
 
 void CorAniso::initFromContext()
 {
+  _ctxt.setNVar(1);
   int ndim = getNDim();
   _aniso.init(ndim);
   updateFromContext();
@@ -729,6 +732,7 @@ void CorAniso::initFromContext()
 
 void CorAniso::updateFromContext()
 {
+  
   computeMarkovCoeffs();
   computeCorrec();
 

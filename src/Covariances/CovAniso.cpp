@@ -40,7 +40,7 @@
 
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
-    : CovBase(), /// TODO : shared pointer
+    : CovBase(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
       _corAniso(new CorAniso(type, ctxt)),
       _optimEnabled(true)
 {
@@ -63,7 +63,7 @@ CovAniso::CovAniso(const ECov &type,
                    double sill,
                    const CovContext &ctxt,
                    bool flagRange)
-    : CovBase(new CorAniso(type, range,param, ctxt, flagRange)), /// TODO : shared pointer
+    : CovBase(new CorAniso(type, range,param, ctxt, flagRange), MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
 {

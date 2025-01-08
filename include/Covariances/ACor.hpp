@@ -76,8 +76,8 @@ virtual int makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                      const AFunctional* func = nullptr, 
                      const Db* db = nullptr,const String& namecol = String());
 
-  const CovContext& getContext() const { return _ctxt; }
-
+const CovContext& getContext() const { return _ctxt; }
+CovContext  getContextCopy() const { return CovContext(_ctxt); }
 virtual void initFromContext()
 {
 }
@@ -177,7 +177,6 @@ private :
 protected:
   int _nvar;
   TabNoStat* _tabNoStat;
-
-private:
   CovContext _ctxt;
+
 };

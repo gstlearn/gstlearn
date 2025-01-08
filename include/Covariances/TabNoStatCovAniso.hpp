@@ -17,6 +17,7 @@ class NoStatElem;
 
 class GSTLEARN_EXPORT TabNoStatCovAniso : public TabNoStat
 {
+  IMPLEMENT_CLONING(TabNoStatCovAniso)
   public:
   TabNoStatCovAniso();
   TabNoStatCovAniso(const TabNoStatCovAniso &m);

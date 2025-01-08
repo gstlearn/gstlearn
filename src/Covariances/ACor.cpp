@@ -36,6 +36,7 @@ ACor::ACor(const ACor &r)
       _nvar(r._nvar),
       _tabNoStat(r._tabNoStat == nullptr? nullptr:new TabNoStat(*r._tabNoStat))
 {
+  _ctxt = r._ctxt;
 }
 
 ACor& ACor::operator=(const ACor &r)
@@ -45,6 +46,7 @@ ACor& ACor::operator=(const ACor &r)
     ASpaceObject::operator=(r);
     _nvar = r._nvar;
     _tabNoStat = r._tabNoStat->clone();
+    _ctxt = r._ctxt;
   }
   return *this;
 }
