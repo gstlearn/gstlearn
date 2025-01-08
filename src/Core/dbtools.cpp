@@ -17,7 +17,6 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/OptimCostColored.hpp"
 #include "Stats/Classical.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
@@ -873,7 +872,7 @@ static VectorDouble st_point_init_homogeneous(int number,
  **
  ** \remarks Thinning can only be defined in 2-D.
  ** \remarks If the thinning is regionalized, its parameters are stored
- ** \remarks  as NOSTAT variables: Range-1, Range-2 and Angle
+ ** \remarks as NOSTAT variables: Range-1, Range-2 and Angle
  **
  *****************************************************************************/
 static VectorDouble st_point_init_inhomogeneous(int number,
