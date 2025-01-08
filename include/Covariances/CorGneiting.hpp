@@ -11,14 +11,12 @@
 #pragma once
 
 #include "Covariances/CovAniso.hpp"
-#include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
 #include <vector>
-
 
 class ACov;
 /**

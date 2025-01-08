@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovGradientFunctional.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"

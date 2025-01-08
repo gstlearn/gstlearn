@@ -14,8 +14,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CorAniso.hpp"
-#include "Covariances/TabNoStatCovAniso.hpp"
-#include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -28,8 +26,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
-#include <array>
-#include <vector>
 
 class Rotation;
 class MatrixSquareGeneral;

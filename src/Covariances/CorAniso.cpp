@@ -37,7 +37,6 @@
 #include "geoslib_define.h"
 #include <math.h>
 #include <functional>
-#include <memory>
 #include <vector>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
