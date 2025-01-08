@@ -1,6 +1,18 @@
+
+Preparing the Environment
+=========================
+
+Creating a data file
+====================
 Number of sample = 25
+
+Names
+=====
 Attribute corresponding to 'first' = 3
 Attribute corresponding to the first variable named 'second-x' = 4
+
+Difference between Column and Attribute
+=======================================
 
 Data Base Grid Characteristics
 ==============================
@@ -44,7 +56,7 @@ List of locators
 - Attributes = 4 5 6 
 - Columns    = 4 5 6 
 
- 
+
 Data Base Grid Characteristics
 ==============================
 
@@ -86,34 +98,13 @@ List of locators
 - Attributes = 4 5 6 
 - Columns    = 3 4 5 
 
- 
-Data Base Grid Characteristics
-==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 8
-Total number of samples      = 25
+Remark on Space Dimension
+=========================
 
-Grid characteristics:
----------------------
-Origin :     10.000    20.000
-Mesh   :      1.000     1.000
-Number :          5         5
+Conclusion
+==========
 
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x2 - Locator = NA
-Column = 2 - Name = first - Locator = NA
-Column = 3 - Name = second-1 - Locator = z1
-Column = 4 - Name = first.1 - Locator = z2
-Column = 5 - Name = first.1.1 - Locator = z3
-Column = 6 - Name = X-1 - Locator = x1
-Column = 7 - Name = X-2 - Locator = x2
- 
 Data Base Grid Characteristics
 ==============================
 
@@ -161,4 +152,3 @@ Column = 5 - Name = first.1.1 - Locator = z3
 Column = 6 - Name = X-1 - Locator = x1
 Column = 7 - Name = X-2 - Locator = x2
 Column = 8 - Name = RANK - Locator = NA
- 

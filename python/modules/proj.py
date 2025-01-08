@@ -11,7 +11,6 @@
 
 # TODO : 1. geopandas datasets are soon deprecated
 #        2. geopandas dependency should be optionnal (issue #68)
-#            => remove gstlearn.proj module and look for a new solution 
 #            => Do not restore without reading this: https://github.com/gstlearn/gstlearn/issues/68
 
 
@@ -34,6 +33,14 @@ def proj(x, y, crsFrom="EPSG:4326", crsTo="EPSG:2154"):
     a = a.to_crs(crsTo)
 
     return a
+
+def projGP(geometry, crsFrom="EPSG:4326", crsTo="EPSG:3857"):
+    '''
+    Create a GeoPanda DataFrame in order to perform a projection between two CRS
+    '''
+    gdf = gpd.GeoDataFrame(geometry=geometry, crs=crsFrom) 
+    gdf = gdf.to_crs(crsTo) 
+    return gdf
 
 '''
     Define the world contour line, possibly intersectd by a Bounding Box

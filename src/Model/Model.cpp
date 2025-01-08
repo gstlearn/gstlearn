@@ -242,6 +242,23 @@ Model* Model::createFromNF(const String &neutralFilename, bool verbose)
   return model;
 }
 
+Model* Model::createFromVario(Vario* vario,
+                              const VectorECov& types,
+                              const Constraints& constraints,
+                              const Option_VarioFit& optvar,
+                              const Option_AutoFit& mauto,
+                              bool verbose)
+{
+  Model* model = new Model();
+  if (model->fit(vario, types, constraints, optvar, mauto, verbose) != 0)
+  {
+    messerr("Problem when creating Model from fitting an Experimental variogram");
+    delete model;
+    return nullptr;
+  }
+  return model;
+}
+
 String Model::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;

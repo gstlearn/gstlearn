@@ -901,20 +901,50 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
  * - one column by Space Dimension
  * @return
  */
-MatrixRectangular Db::getAllCoordinatesMat() const
+MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
 {
   int nech = getSampleNumber(true);
   int ndim = getNDim();
 
-  MatrixRectangular mat(nech, ndim);
-
   VectorInt ranks = getRanksActive();
+
+  // Suppress some data due to bounds
+  int nechValid = 0;
+  if (! box.empty())
+  {
+    for (int jech = 0; jech < nech; jech++)
+    {
+      int iech           = ranks[jech];
+      VectorDouble coors = getSampleCoordinates(iech);
+
+      bool flagIn = true;
+      for (int idim = 0; idim < ndim && flagIn; idim++)
+      {
+        double coor = coors[idim];
+        if (coor < box.getValue(idim,0)) flagIn = false;
+        if (coor > box.getValue(idim,1)) flagIn = false;
+      }
+      if (flagIn)
+        nechValid++;
+      else
+        ranks[jech] = -1;
+    }
+  }
+  else
+  {
+    nechValid = nech;
+  }
+
+  MatrixRectangular mat(nechValid, ndim);
+
+  int kech = 0;
   for (int jech = 0; jech < nech; jech++)
   {
     int iech = ranks[jech];
-    VectorDouble coors = getSampleCoordinates(iech);
-    mat.setRow(iech, coors);
+    if (iech < 0) continue;
+    mat.setRow(kech++, getSampleCoordinates(iech));
   }
+
   return mat;
 }
 
@@ -4961,6 +4991,52 @@ int Db::resetReduce(const Db* dbin,
   return 0;
 }
 
+int Db::resetFromGridRandomized(const DbGrid* dbin,
+                                double randperc,
+                                bool flagAddSampleRank)
+{
+  // Creating the vector of selected samples
+
+  _nech = dbin->getSampleNumber();
+  VectorInt ranks = VH::sequence(_nech);
+
+  // Creating the vector of variables
+
+  VectorString namloc = dbin->getAllNames();
+  _ncol = static_cast<int>(namloc.size());
+
+  // Create the (empty) architecture
+
+  int ncol = (flagAddSampleRank) ? _ncol + 1 : _ncol;
+  resetDims(ncol, _nech);
+
+  if (flagAddSampleRank) _createRank(0);
+
+  // Define the variables and the Locators
+
+  _defineVariableAndLocators(dbin, namloc, (int)flagAddSampleRank);
+
+  // Load samples
+
+  _loadValues(dbin, namloc, ranks, (int)flagAddSampleRank);
+
+  // Perturbate the coordinates
+
+  double perc = 0.5 * randperc / 100;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    double dx = dbin->getDX(idim);
+    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    {
+      double coor = getCoordinate(iech, idim);
+      coor += dx * law_uniform(-perc, perc);
+      setCoordinate(iech, idim, coor);
+    }
+  }
+
+  return 0;
+  }
+
 /*****************************************************************************/
 /*!
  **  Create a new Data Base with points generated at random
@@ -4990,6 +5066,20 @@ Db* Db::createFromDbGrid(int nech,
   Db* db =
     db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid, flag_exact,
                   flag_repulsion, range, beta, 0., seed, flagAddSampleRank);
+  return db;
+}
+
+Db* Db::createFromGridRandomized(DbGrid* dbgrid,
+                                 double randperc,
+                                 bool flagAddSampleRank)
+{
+  Db* db = new Db;
+  if (db->resetFromGridRandomized(dbgrid, randperc, flagAddSampleRank) != 0)
+  {
+    messerr("Error when creating Db from Randomized Grid");
+    delete db;
+    return nullptr;
+  }
   return db;
 }
 

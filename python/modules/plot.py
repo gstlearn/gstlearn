@@ -15,14 +15,17 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
+# import gstlearn.proj         as prj
+import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy                   import shape
 from pandas.io               import orc
 from plotly.matplotlylib     import mpltools
-import math
+from matplotlib.pyplot       import axes
+
+
 from plotly.validators.layout.scene import aspectratio
-from matplotlib.pyplot import axes
 
 #Set of global values
 defaultDims = [[5,5], [8,8]]
@@ -741,7 +744,7 @@ def __readCoorPoint(db, nameCoorX=None, nameCoorY=None, useSel=True, posX=0, pos
     return tabx, taby
     
 def symbol(db, nameColor=None, nameSize=None, *args, **kwargs):
-    ax = __getNewAxes(None, 0)
+    ax = __getNewAxes(None, 1)
     return __ax_symbol(ax, db, nameColor=nameColor, nameSize=nameSize, 
                        *args, **kwargs)
     
@@ -1758,7 +1761,70 @@ def correlation(db, namex, namey, *args, **kwargs):
     '''
     ax = __getNewAxes(None, 0)
     return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
-    
+
+def baseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
+            box=None, flagProj = False, color='blue', size=10, 
+            *args, **kwargs):
+    '''
+    Plotting a variable from a Db using BaseMap
+    '''
+    ax = __getNewAxes(None, 1)
+
+    return __ax_baseMap(ax, db, crsFrom, crsTo, box,   flagProj, 
+                        color, size, *args, **kwargs)
+
+def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
+                 box=None, flagProj = False, color='blue', size=10,
+                 *args, **kwargs):
+    '''
+    Plotting a variable from a Db using BaseMap
+
+    db: Db defining the data to be plotted
+    crsFrom Input projection characteristics
+    crsTo Output projection charactieristics
+    box Optional VVD for bounds (Dimension: [ndim][2])
+    flagProj True if projection should be involved (using crsX)
+    color Color used for displaying the data samples
+    size Size used for displaying the data samples
+    **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
+
+    Note: to add a basemap, simply add a sentence such as:
+        import contextily as ctx
+          ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
+        on the Axis returned by this function
+
+    Note: the dependency to projection (and therefore to geopanda)
+       has been made conditional to
+    '''
+    # Draw the data points
+    if box is not None:
+        pts = db.getAllCoordinatesMat(box).toTL()
+    else:
+        pts = db.getAllCoordinatesMat().toTL()
+
+    if len(pts) > 0:
+        if flagProj:
+            import gstlearn.proj as prj
+            from shapely.geometry import Point
+            points = [Point(i) for i in pts]
+            data = prj.projGP(points, crsFrom, crsTo)
+            data.plot(ax=ax, color=color, markersize=size)
+        else:
+            plt.scatter(pts[:,0], pts[:,1], c=color, s=size)
+
+    # Display bounding points (optional)
+    if box is not None:
+        extPoints = np.array([[box[0,0], box[1,0]],
+                              [box[0,1], box[1,1]]])
+        if flagProj:
+            import gstlearn.proj as prj
+            from shapely.geometry import Point
+            geometry = [Point(xy) for xy in extPoints]
+            gdf = prj.projGP(geometry, crsFrom, crsTo)
+            gdf.plot(ax=ax, color='white', markersize=0.1)
+        else:
+            plt.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
+
 def __ax_correlation(ax, db, namex, namey, db2=None, 
                      asPoint = False,  flagSameAxes=False,
                      diagLine=False, diagColor="black", diagLineStyle='-',
@@ -2004,7 +2070,9 @@ def lagDefine(i, lag, tol=0):
     return mini, center, maxi  
 
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
-    
+    '''
+    Generic Plot function which can be used whatever its first argument 'object'.
+    '''
     filetype = type(object).__name__
 
     if filetype == "Db":
@@ -2044,6 +2112,9 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         print("Unknown type:",filetype)
 
 def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
+    '''
+    Generic function to plot the contents of any NF function
+    '''
     filetype = gl.ASerializable.getFileIdentity(filename)
     if filetype == "":
         exit()
@@ -2341,6 +2412,7 @@ setattr(plt.Axes, "table",         gp.__ax_table)
 setattr(plt.Axes, "model",         gp.__ax_model)
 setattr(plt.Axes, "mesh",          gp.__ax_mesh)
 setattr(plt.Axes, "variogram",     gp.__ax_variogram)
+setattr(plt.Axes, "varmod",        gp.__ax_varmod)
 
 setattr(plt.Axes, "neigh",         gp.neigh)
 setattr(plt.Axes, "neighWeights",  gp.neighWeights)
@@ -2362,6 +2434,9 @@ setattr(plt.Axes, "gradient",      gp.__ax_gradient)
 setattr(gl.Db,    "tangent",       gp.tangent)
 setattr(gl.DbGrid,"tangent",       gp.tangent)
 setattr(plt.Axes, "tangent",       gp.__ax_tangent)
+
+setattr(gl.Db,    "baseMap",       gp.baseMap)
+setattr(plt.Axes, "baseMap",       gp.__ax_baseMap)
 
 setattr(gl.DbGrid,"raster",        gp.raster)
 setattr(plt.Axes, "raster",        gp.__ax_raster)
