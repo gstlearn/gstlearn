@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovGneiting.hpp"
+#include "Covariances/CorGneiting.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
                                     
   CovAniso* covT = mT->getCova(0);
   CovAniso* covS = mS->getCova(0);
-  CovGneiting gneiting = CovGneiting(covS,covT,sep);
+  CorGneiting gneiting = CorGneiting(covS,covT,sep);
   SpacePoint p1(gneiting.getSpace());
   SpacePoint p2(gneiting.getSpace());
   p1.setCoords(coords1);

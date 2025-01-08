@@ -23,24 +23,17 @@
 class ACov;
 /**
  * \brief
- * This class describes an **elementary covariance**.
+ * This class describes the Gneiting correlation function.
  *
- * This covariance is described through the following list of parameters:
- * - the covariance **type**: the list of these types is provided in ECov.hpp
- * - the largest set of parameters for any covariance: **range(s)**, **anisotropy angle(s)**, **third parameter**. Some of these parameters
- * do not make sense, depending on the covariance type: e.g. the range for nugget effect, the third parameter for a spherical
- * structure, ...
- * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
- * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovGneiting: public ACov, public ICloneable//, public ICloneable
+class GSTLEARN_EXPORT CorGneiting: public ACor, public ICloneable//, public ICloneable
 {
 public:
-  CovGneiting(const CovAniso* covS, const CovAniso* covTemp, double separability = 1.0);
-  CovGneiting(const CovGneiting& r);
-  CovGneiting& operator=(const CovGneiting& r);
-  virtual ~CovGneiting();
-  IMPLEMENT_CLONING(CovGneiting)
+  CorGneiting(const CovAniso* covS, const CovAniso* covTemp, double separability = 1.0);
+  CorGneiting(const CorGneiting& r);
+  CorGneiting& operator=(const CorGneiting& r);
+  virtual ~CorGneiting();
+  IMPLEMENT_CLONING(CorGneiting)
 
   bool isConsistent(const ASpace* space) const override 
   {
@@ -56,13 +49,13 @@ public:
                       const CovCalcMode* mode = nullptr) const override;
 
   virtual int getNVariables() const override { return 1; }
-  void optimizationSetTargetByIndex(int iech) const override;
+  void optimizationSetTargetByIndex(int iech) const;
 protected:
-    void _optimizationSetTarget(const SpacePoint &pt) const override;
+    void _optimizationSetTarget(const SpacePoint &pt) const;
 
 private:
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
-  void _optimizationPostProcess() const override;
+  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const;
+  void optimizationPostProcess() const override;
 
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?

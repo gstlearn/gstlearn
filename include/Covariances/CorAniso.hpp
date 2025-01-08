@@ -12,6 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
@@ -105,12 +106,12 @@ public:
                                         const Db* db = nullptr);
 
   void optimizationPreProcess(const std::vector<SpacePoint>& p,
-                               std::vector<SpacePoint> &p1As) const;
+                               std::vector<SpacePoint> &p1As) const override;
   void optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
 
-  void optimizationPostProcess() const;
+  void optimizationPostProcess() const override;
   bool isNoStat() const;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
@@ -142,7 +143,6 @@ public:
 
   void setContext(const CovContext& ctxt);
   void setParam(double param);
-  void copyCovContext(const CovContext& ctxt);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
   /// Practical range
@@ -181,7 +181,6 @@ public:
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
-  const CovContext& getContext() const { return _ctxt; }
   const ECov& getType() const { return _cova->getType(); }
   double getParam() const;
   double getScadef() const { return _cova->getScadef(); }
@@ -207,7 +206,7 @@ public:
   bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
   //////////////////////// New NoStat methods //////////////////////////
-  void   attachNoStatDb(const Db* db);
+
  
   void   makeRangeNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
   void   makeScaleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
@@ -228,16 +227,14 @@ public:
   void   makeTensorStationary(int idim, int jdim);
   void   makeParamStationary();
 
-
-  void   makeStationary();
-  int getNAngles() const {return _tabNoStat.getNAngles();}
-  int getNRanges() const {return _tabNoStat.getNRanges();}
-  int getNScales() const {return _tabNoStat.getNScales();}
-  bool isNoStatForParam()   const {return _tabNoStat.isParam();}
-  bool isNoStatForTensor()  const {return _tabNoStat.isDefinedForTensor();}
-  bool isNoStatForAnisotropy() const { return _tabNoStat.isDefinedForAnisotropy();}
-  bool isNoStatForVariance()   const { return _tabNoStat.isDefinedForVariance();}
-  bool isNoStatForRotation()   const { return _tabNoStat.isDefinedForRotation();}
+  int getNAngles() const {return _tabNoStatCovAniso->getNAngles();}
+  int getNRanges() const {return _tabNoStatCovAniso->getNRanges();}
+  int getNScales() const {return _tabNoStatCovAniso->getNScales();}
+  bool isNoStatForParam()   const {return _tabNoStatCovAniso->isParam();}
+  bool isNoStatForTensor()  const {return _tabNoStatCovAniso->isDefinedForTensor();}
+  bool isNoStatForAnisotropy() const { return _tabNoStatCovAniso->isDefinedForAnisotropy();}
+  bool isNoStatForVariance()   const { return _tabNoStatCovAniso->isDefinedForVariance();}
+  bool isNoStatForRotation()   const { return _tabNoStatCovAniso->isDefinedForRotation();}
 
   
   VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
@@ -252,50 +249,38 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  int getDimensionNumber() const { return _ctxt.getNDim(); }
   void nostatUpdate(CovInternal *covint);
 
-  void informMeshByMesh(const AMesh* amesh) const;
-  void informMeshByApex(const AMesh* amesh) const;
-  VectorDouble informCoords(const VectorVectorDouble& coords, 
-                            const EConsElem& econs,
-                            int iv1 = 0, int iv2 = 0) const;
-  void informDbIn(const Db* dbin) const;
-  void informDbOut(const Db* dbout) const;
+  
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;
   void informDbInForAnisotropy(const Db* dbin) const;
   void informDbOutForAnisotropy(const Db* dbout) const;
 
-  bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
-
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh,bool aniso = true);
-  double getValue(const EConsElem &econs,int iv1,int iv2) const;
+  void updateCovByMesh(int imesh,bool aniso = true) override;
+  double getValue(const EConsElem &econs,int iv1,int iv2) const override;
   void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
   void computeCorrec();
   double evalCorFromH(double h, const CovCalcMode *mode) const;
   double getDetTensor() const;
-  virtual void updateFromContext();
-  virtual void initFromContext();
-  void optimizationSetTarget(const SpacePoint& pt, SpacePoint& p2A) const;
+  void updateFromContext() override;
+  void initFromContext() override;
+  void optimizationSetTarget(const SpacePoint& pt,
+                              SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
-  int makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
-                     const AFunctional* func = nullptr, 
-                     const Db* db = nullptr,const String& namecol = String());
-  void setNoStatDbIfNecessary(const Db*& db);
 
 protected:
   /// Update internal parameters consistency with the context
 
-  
-
 
 private:
+  TabNoStat* _createNoStatTab() override;
+  void _copyCovContext(const CovContext &ctxt) override;
 
 bool _isOptimEnabled() const  
 { 
@@ -304,7 +289,7 @@ bool _isOptimEnabled() const
 
   void _manage(const Db* db1,const Db* db2) const override;
 
-  bool _checkDims(int idim, int jdim) const;
+ 
   bool _checkTensor() const;
   bool _checkRotation() const;
   bool _checkParam() const;
@@ -313,10 +298,9 @@ bool _isOptimEnabled() const
   
 
 private:
-  CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc *_cova;                     /// Covariance basic function
   mutable Tensor _aniso;               /// Anisotropy parameters
-  TabNoStatCovAniso _tabNoStat;
+  TabNoStatCovAniso* _tabNoStatCovAniso;
   mutable double _noStatFactor;        /// Correcting factor for non-stationarity
   const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
                                               EConsElem::SCALE,

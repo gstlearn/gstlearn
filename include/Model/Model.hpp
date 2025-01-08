@@ -613,14 +613,14 @@ public:
   {
     // TODO/ the strange next line have been commented out.
     // There should be either validated or suppressed
-    //    if (isFlagGradient())
+    //if (isFlagGradient())
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
     // However, note used for Gradient (Functional type) in Potential
-    int ncov = _cova->getNVariables();
-    if (ncov <= 0)
-      ncov = _ctxt.getNVar();
-    return ncov;
+    int nvar = _cova->getNVariables();
+    if (nvar <= 0)
+      nvar = _ctxt.getNVar();
+    return nvar;
   }
 
   int hasExternalCov() const;
