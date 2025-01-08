@@ -15,7 +15,7 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
-import contextily            as ctx
+# import contextily            as ctx
 import geopandas             as gpd
 import math
 
@@ -1772,9 +1772,8 @@ def __projection(geometry, crsFrom="EPSG:4326", crsTo="EPSG:3857"):
     return gdf
 
 def baseMap(db, crsFrom="EPSG:4326", crsTo="EPSG:3857", 
-              box=None, flagBaseMap=True, 
-              color='blue', size=10,
-              *args, **kwargs):
+            box=None, flagBaseMap=True, color='blue', size=10,
+            *args, **kwargs):
     '''
     Plotting a variable from a Db using BaseMap
     '''
@@ -1797,6 +1796,11 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
     color Color used for displaying the data samples
     size Size used for displaying the data samples
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
+
+    Note: to add a basemap, simply add a sentence such as:
+        import contextily as ctx
+        ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
+    on the Axis returned by this function
     '''
     # Draw the data points
     if box is not None:
@@ -1816,10 +1820,6 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
         geometry = [Point(xy) for xy in extPoints]
         gdf = __projection(geometry, crsFrom, crsTo)
         gdf.plot(ax=ax, color='white', markersize=size)
-
-    # Draw the Base Map
-    if flagBaseMap:
-        ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
 def __ax_correlation(ax, db, namex, namey, db2=None, 
                      asPoint = False,  flagSameAxes=False,

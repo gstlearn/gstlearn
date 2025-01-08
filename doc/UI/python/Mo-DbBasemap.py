@@ -10,10 +10,11 @@ def _():
     import gstlearn as gl
     import gstlearn.plot as gp
     import matplotlib.pyplot as plt
+    import contextily as ctx
 
     import numpy as np
     import pandas as pd
-    return gl, gp, mo, np, pd, plt
+    return ctx, gl, gp, mo, np, pd, plt
 
 
 @app.cell(hide_code=True)
@@ -47,7 +48,7 @@ def _(box, mo):
 
 
 @app.cell(hide_code=True)
-def _(Wlatitude, Wlongitude, box, db, plt):
+def _(Wlatitude, Wlongitude, box, ctx, db, plt):
     box[0,0] = Wlongitude.value[0]
     box[0,1] = Wlongitude.value[1]
     box[1,0] = Wlatitude.value[0]
@@ -57,14 +58,21 @@ def _(Wlatitude, Wlongitude, box, db, plt):
 
     ax1 = fig.add_subplot(1,2,1)
     ax1.baseMap(db)
+    ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
     ax1.decoration(title="Based on Db contents")
 
     ax2 = fig.add_subplot(1,2,2)
     ax2.baseMap(db, box=box)
+    ctx.add_basemap(ax2, source=ctx.providers.OpenStreetMap.Mapnik)
     ax2.decoration(title="Based on your Area Definition")
 
     plt.show()
     return ax1, ax2, fig
+
+
+@app.cell
+def _():
+    return
 
 
 if __name__ == "__main__":
