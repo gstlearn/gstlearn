@@ -23,7 +23,7 @@ from numpy                   import shape
 from pandas.io               import orc
 from plotly.matplotlylib     import mpltools
 from matplotlib.pyplot       import axes
-from shapely.geometry        import Point
+
 
 from plotly.validators.layout.scene import aspectratio
 
@@ -1794,7 +1794,7 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
         on the Axis returned by this function
 
     Note: the dependency to projection (and therefore to geopanda)
-       has been made conditional to 'flagProj'
+       has been made conditional to
     '''
     # Draw the data points
     if box is not None:
@@ -1805,6 +1805,7 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
     if len(pts) > 0:
         if flagProj:
             import gstlearn.proj as prj
+            from shapely.geometry import Point
             points = [Point(i) for i in pts]
             data = prj.projGP(points, crsFrom, crsTo)
             data.plot(ax=ax, color=color, markersize=size)
@@ -1816,6 +1817,8 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
         extPoints = np.array([[box[0,0], box[1,0]],
                               [box[0,1], box[1,1]]])
         if flagProj:
+            import gstlearn.proj as prj
+            from shapely.geometry import Point
             geometry = [Point(xy) for xy in extPoints]
             gdf = prj.projGP(geometry, crsFrom, crsTo)
             gdf.plot(ax=ax, color='white', markersize=0.1)
