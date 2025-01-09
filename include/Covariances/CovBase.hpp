@@ -12,6 +12,7 @@
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
@@ -37,10 +38,10 @@ public:
   void setContext(const CovContext& ctxt);
   void copyCovContext(const CovContext& ctxt);
 
-  void setSill(double sill); /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixSquareSymmetric& sill);
-  void setSill(const VectorDouble& sill);
-  void setSill(int ivar, int jvar, double sill);
+  void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
+  void setSill(const MatrixSquareSymmetric& sill) const;
+  void setSill(const VectorDouble& sill) const;
+  void setSill(int ivar, int jvar, double sill) const;
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
@@ -75,8 +76,8 @@ public:
 
   /// Tell if the use of Optimization is enabled or not
 
-  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh,bool aniso = true);
+  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
+  void updateCovByMesh(int imesh,bool aniso = true) const;
 
   double getValue(const EConsElem& econs, int iv1, int iv2) const;
   void nostatUpdate(CovInternal *covint);
@@ -116,9 +117,9 @@ void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 
 protected:
     TabNoStat _tabNoStat;
-    MatrixSquareSymmetric _sill;
+    mutable MatrixSquareSymmetric _sill;
     CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?    
-
+    mutable MatrixSquareGeneral _workMat;
 private :
     ACor* _cor;
 };

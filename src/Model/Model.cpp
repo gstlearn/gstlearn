@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Model/ModelGeneric.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_f.h"
 
@@ -44,9 +45,7 @@
 Model::Model(const CovContext &ctxt)
     : AStringable(),
       ASerializable(),
-      _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt(ctxt)
+      ModelGeneric(ctxt)
 {
   _create();
 }
@@ -54,9 +53,7 @@ Model::Model(const CovContext &ctxt)
 Model::Model(int nvar, int ndim)
     : AStringable(),
       ASerializable(),
-      _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt()
+      ModelGeneric()
 {
   SpaceRN space = SpaceRN(ndim);
   _ctxt = CovContext(nvar, &space);
@@ -66,9 +63,7 @@ Model::Model(int nvar, int ndim)
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
-      _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt(m._ctxt)
+      ModelGeneric(m._ctxt)
 {
   ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);
   if (mcovalist != nullptr)
@@ -80,7 +75,7 @@ Model::Model(const Model &m)
 Model& Model::operator=(const Model &m)
 {
   if (this != &m)
-  {
+  { 
     AStringable::operator=(m);
     ASerializable::operator=(m);
     ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);

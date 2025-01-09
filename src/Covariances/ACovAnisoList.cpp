@@ -756,7 +756,7 @@ void ACovAnisoList::_manage(const Db* db1,const Db* db2)  const
  * @param iech2 Rank of the target within Dbout (or -2)
  */
 
-void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
+void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
   for (const auto &e : _covs)
   {

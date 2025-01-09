@@ -28,6 +28,8 @@ CovBase::CovBase(ACor* cor,
     _ctxt = cor->getContextCopy();
   }
   _ctxt.setNVar(sill.getNSize());
+  _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
+  _workMat.setIdentity();
 }
 
 CovBase::~CovBase()
@@ -50,7 +52,7 @@ void CovBase::setContext(const CovContext &ctxt)
   _ctxt = ctxt;
   _updateFromContext();
 }
-void CovBase::setSill(double sill)
+void CovBase::setSill(double sill) const
 {
   int nvar = getNVariables();
   if (nvar > 0 && nvar!= 1)
@@ -58,11 +60,10 @@ void CovBase::setSill(double sill)
     messerr("Number of provided sill doesn't match number of variables");
     return;
   }
-  _ctxt.setNVar(nvar);
   _sill.resetFromValue(1, 1, sill);
 }
 
-void CovBase::setSill(const MatrixSquareSymmetric &sill)
+void CovBase::setSill(const MatrixSquareSymmetric &sill) const
 {
   int nvar = getNVariables();
   if (nvar > 0 && nvar != sill.getNCols())
@@ -71,10 +72,9 @@ void CovBase::setSill(const MatrixSquareSymmetric &sill)
     return;
   }
   _sill = sill;
-  _ctxt.setNVar(nvar);
 }
 
-void CovBase::setSill(const VectorDouble &sill)
+void CovBase::setSill(const VectorDouble &sill) const 
 {
   int size = static_cast<int>(sill.size());
   int nvar = getNVariables();
@@ -86,7 +86,7 @@ void CovBase::setSill(const VectorDouble &sill)
   _sill.setValues(sill);
 }
 
-void CovBase::setSill(int ivar, int jvar, double sill)
+void CovBase::setSill(int ivar, int jvar, double sill) const
 {
   if (!_isVariableValid(ivar)) return;
   if (!_isVariableValid(jvar)) return;
@@ -394,7 +394,7 @@ void CovBase::informDbOutForSills(const Db* dbout) const
  * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void CovBase::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
+void CovBase::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! isNoStat()) return;
@@ -419,7 +419,7 @@ void CovBase::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 }
 
 
-void CovBase::updateCovByMesh(int imesh,bool aniso)
+void CovBase::updateCovByMesh(int imesh,bool aniso) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! isNoStat()) return;
@@ -479,9 +479,7 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
     mat.addMatInPlace(_sill, 1., cor);
   else
   {
-    MatrixSquareGeneral identity = _sill;
-    identity.setIdentity();
-    mat.addMatInPlace(identity, 1., cor);
+    mat.addMatInPlace(_workMat, 1., cor);
   }
 }
 

@@ -245,9 +245,7 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
     mat.addMatInPlace(_sill, 1., cov);
   else
   {
-    MatrixSquareGeneral identity = _sill;
-    identity.setIdentity();
-    mat.addMatInPlace(identity, 1., cov);
+    mat.addMatInPlace(_workMat, 1., cov);
   }
 }
 
@@ -263,7 +261,7 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
  * @param mode CovCalcMode structure
  * @param flagSym True if used for a Symmetric matrix (should only fill upper triangle)
  *
- * @remark: The optimized version is not compatible with Franck's non-stationarity.
+ * @remark: The optimized version is not compatible with non-stationarity (except sills).
  * Then no correction must be applied to cov(h)
  */
 void CovAniso::evalOptimInPlace(MatrixRectangular& res,
