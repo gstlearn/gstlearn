@@ -115,9 +115,9 @@ static void _firstTest(Db* data,
   mestitle(1, "Using Schur class");
 
   MatrixSquareSymmetric Sigma00 = modelc->getSillValues(0);
-  MatrixSquareSymmetric Sigma   = modelc->evalCovMatrixSymmetric(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = modelc->evalCovMatrix(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
   VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
   KrigingCalcul Kcalc;
@@ -177,7 +177,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With complemented Data Base ---------------------
   mestitle(1, "With Complemented input Data Base");
 
-  MatrixSquareSymmetric Sigma00P = modelc->getSillValues(0);
+  MatrixSquareSymmetric Sigma00P = model->eval0Mat();
   MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
   MatrixRectangular XP           = model->evalDriftMatrix(dataP);
   MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, target);
@@ -255,7 +255,7 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   // ----------------------With Deplemented Data Base ---------------------
   mestitle(1, "With Deplemented input Data Base");
 
-  MatrixSquareSymmetric Sigma00P = modelc->getSillValues(0);
+  MatrixSquareSymmetric Sigma00P = model->eval0Mat();
   MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetricOptim(dataP);
   MatrixRectangular XP           = model->evalDriftMatrix(dataP);
   MatrixRectangular Sigma0P      = model->evalCovMatrixOptim(dataP, targetP, -1, -1, VectorInt(), {iech0});
@@ -278,7 +278,7 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   // ---------------------- With Cross-validation Option -------------------------
   mestitle(1, "With Cross-Validation Option");
 
-  MatrixSquareSymmetric Sigma00 = modelc->getSillValues(0);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, targetP);
@@ -318,7 +318,7 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- Without Dual option ---------------------
   mestitle(1, "Without Dual option");
 
-  MatrixSquareSymmetric Sigma00 = modelc->getSillValues(0);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);

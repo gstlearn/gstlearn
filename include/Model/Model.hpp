@@ -162,7 +162,7 @@ public:
   CovAniso* getCova(int icov);
   int getCovaNumber(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
-  const MatrixSquareSymmetric& getSillValues(int icov) const;
+  const MatrixSquareSymmetric& getSillValues(int icov) const override;
   double getSill(int icov, int ivar, int jvar) const;
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;

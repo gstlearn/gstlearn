@@ -34,6 +34,13 @@ MatrixRectangular ModelGeneric::evalDriftMatrix(const Db *db,
     return _driftList->evalDriftMatrix(db, ivar0, nbgh, member);
 }
 
+MatrixSquareGeneral ModelGeneric::eval0Mat(const CovCalcMode* mode) const
+{
+    if (_cova == nullptr) return MatrixSquareGeneral();
+    return _cova->eval0Mat(mode);
+}
+
+
 MatrixRectangular ModelGeneric::evalCovMatrix(Db* db1,
                                   Db* db2 ,
                                   int ivar0,

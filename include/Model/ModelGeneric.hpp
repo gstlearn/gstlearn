@@ -82,7 +82,8 @@ public:
                                        const VectorInt& nbgh2 = VectorInt(),
                                        const CovCalcMode* mode = nullptr);
 
-
+  
+  MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
   MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
                                                     int ivar0 = -1,
                                                     const VectorInt &nbgh1 = VectorInt(),
@@ -95,7 +96,6 @@ public:
                                     const VectorInt &nbgh2 = VectorInt(),
                                     const CovCalcMode *mode = nullptr,
                                     double eps = EPSILON3);
-
 protected: //TODO : pass into private to finish clean
   ACov*      _cova;         /* Generic Covariance structure */
   DriftList* _driftList;    /* Series of Drift functions */
