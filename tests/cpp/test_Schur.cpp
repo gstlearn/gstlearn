@@ -114,7 +114,7 @@ static void _firstTest(Db* data,
   // ---------------------- Using Schur Class ------------------------------
   mestitle(1, "Using Schur class");
 
-  MatrixSquareSymmetric Sigma00 = modelc->getSillValues(0);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
@@ -199,7 +199,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With Collocated Option -------------------------
   mestitle(1, "With Collocated Option");
 
-  MatrixSquareSymmetric Sigma00 = modelc->getSillValues(0);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
@@ -231,7 +231,6 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
  *****************************************************************************/
 static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
 {
-  Model* modelc = dynamic_cast<Model*>(model);
   // Set of ranks of cross-validated information
   VectorInt varXvalid = {1,2};
   int iech0           = 1;
@@ -313,8 +312,6 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 {
   // Title
   mestitle(0, "Estimation using Dual option or not (in Unique Neighborhood):");
-
-  Model* modelc = dynamic_cast<Model*>(model);
   // ---------------------- Without Dual option ---------------------
   mestitle(1, "Without Dual option");
 
