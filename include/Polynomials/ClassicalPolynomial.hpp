@@ -18,7 +18,7 @@
 
 #include <vector>
 
-class ShiftOpCs;
+class AShiftOp;
 class ALinearOp;
 
 class GSTLEARN_EXPORT ClassicalPolynomial : public APolynomial
@@ -32,12 +32,12 @@ public:
   IMPLEMENT_CLONING(ClassicalPolynomial)
 
   double eval(double x) const override;
-  // void evalDerivOp(ShiftOpCs* shiftOp,
+  // void evalDerivOp(ShiftOpMatrix* shiftOp,
   //                         const constvect& inv,
   //                         vect& outv,
   //                         int iapex,
   //                         int igparam);
-  // static void evalDerivOpOptim(ShiftOpCs* shiftOp,
+  // static void evalDerivOpOptim(ShiftOpMatrix* shiftOp,
   //                              vect& temp1,
   //                              vect& temp2,
   //                              vect& outv,
@@ -45,10 +45,10 @@ public:
   //                              int iapex,
   //                              int igparam);
 #ifndef SWIG
-  // void evalDerivOp(ShiftOpCs* shiftOp,const std::vector<double>& inv,
+  // void evalDerivOp(ShiftOpMatrix* shiftOp,const std::vector<double>& inv,
   //                  std::vector<double>& outv,int iapex,int igparam)const;
   
-  // void evalDerivOpOptim(ShiftOpCs* shiftOp,Eigen::VectorXd& temp1,Eigen::VectorXd& temp2,
+  // void evalDerivOpOptim(ShiftOpMatrix* shiftOp,Eigen::VectorXd& temp1,Eigen::VectorXd& temp2,
   //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,int iapex,int igparam)const;
   // void evalOp(const ALinearOpMulti* /*Op*/,
   //            const std::vector<Eigen::VectorXd>& /*inv*/,
@@ -60,9 +60,15 @@ public:
                       std::vector<double>& work) const override;
   void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
   void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
-  void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
+  double evalOpByRank(MatrixSparse* S, int rank) const override;
 #endif
   
+#ifndef SWIG
+
+  void _addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
+
+#endif
+
 #ifndef SWIG
   
 private:

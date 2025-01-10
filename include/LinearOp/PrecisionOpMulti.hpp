@@ -35,6 +35,7 @@ class GSTLEARN_EXPORT PrecisionOpMulti : public AStringable, public ASimulable
 public:
   PrecisionOpMulti(Model* model               = nullptr,
                    const VectorMeshes& meshes = VectorMeshes(),
+                   bool stencil               = false,
                    bool buildOp               = true);
   PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
   PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
@@ -42,7 +43,7 @@ public:
   int getSize() const override;
 
 protected:
-  void buildQop();
+  void buildQop(bool stencil = false);
 #ifndef SWIG
 
 protected:
@@ -62,9 +63,9 @@ protected:
   int _getNMesh() const;
 
 private:
-  virtual int _addToDestImpl(const constvect vecin, vect vecout) const;
+
   bool _checkReady() const;
-  virtual void _buildQop();
+  virtual void _buildQop(bool stencil = false);
   bool _isValidModel(Model* model);
   bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
   bool _isNoStat(int istruct) const { return _isNoStatForVariance[istruct]; }

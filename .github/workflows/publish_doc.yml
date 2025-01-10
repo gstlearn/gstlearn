@@ -1,4 +1,4 @@
-name: publish-doc
+name: publish_doc
 
 on:
   # Activate the workflow every 15 days at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
@@ -38,7 +38,8 @@ jobs:
         sudo apt-get install -yq \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev
+          libeigen3-dev \
+          libnlopt-dev
 
     - name: Install Python dependencies
       run: |

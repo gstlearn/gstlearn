@@ -23,8 +23,6 @@
  *                  if their importance is considered as too small.
  *                  The current option forbids this simplification, which ensures
  *                  that all the basic structures are kept and their number remains unchanged.
- * - flag_ckec_bounds: Do not infer one parameter as soon as the two corresponding
- *                  bounds are equal.
  * - flag_goulard_used: This very efficient algorithm can be used for inferring
  *                  the sill matrix for each basic structure. This option can be
  *                  switched OFF on purpose (and replaced by the FOXLEG algorithm).
@@ -35,8 +33,10 @@
  * - lock_no3D: When True, the inference parameters are limited to the 2-D space.
  * - lock_iso2d: When True, the inference looks for a 2-D isotropic model
  * - keep_instr: When True, at least ONE basic structure must be kept in the Model
+ * - flag_instrinsic: When True, fit a Model which includes at least one Intrinsic basic Structure
  */
-class GSTLEARN_EXPORT Option_VarioFit : public AStringable
+
+class GSTLEARN_EXPORT Option_VarioFit: public AStringable
 {
  public:
   Option_VarioFit(bool flag_noreduce = false,
@@ -55,8 +55,6 @@ class GSTLEARN_EXPORT Option_VarioFit : public AStringable
   void setAuthAniso(bool authAniso) { _auth_aniso = authAniso; }
   bool getAuthRotation() const { return _auth_rotation; }
   void setAuthRotation(bool authRotation) { _auth_rotation = authRotation; }
-  bool getFlagCheckBounds() const { return _flag_check_bounds; }
-  void setFlagCheckBounds(bool flagCheckBounds) { _flag_check_bounds = flagCheckBounds; }
   bool getFlagGoulardUsed() const { return _flag_goulard_used; }
   void setFlagGoulardUsed(bool flagGoulardUsed) { _flag_goulard_used = flagGoulardUsed; }
   bool getFlagNoreduce() const { return _flag_noreduce; }
@@ -71,17 +69,18 @@ class GSTLEARN_EXPORT Option_VarioFit : public AStringable
   void setLockRot2d(bool lockRot2d) { _lock_rot2d = lockRot2d; }
   bool getLockSamerot() const { return _lock_samerot; }
   void setLockSamerot(bool lockSamerot) { _lock_samerot = lockSamerot; }
+  bool getFlagIntrinsic() const { return _flag_intrinsic; }
+  void setFlagIntrinsic(bool flagIntrinsic) { _flag_intrinsic = flagIntrinsic; }
 
- private:
-   bool _flag_noreduce; /* Forbid discarding useless basic structures */
-   bool _flag_check_bounds; /* Do not infer parameter when bounds are equal */
-   bool _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
-   /* This is switch OFF when ANAM properties are defined */
-   bool _auth_aniso; /* Authorize the anisotropy */
-   bool _auth_rotation; /* Authorize the rotation of the anisotropy */
-   bool _lock_samerot; /* Lock the anisotropy rotation for all str */
-   bool _lock_rot2d; /* Lock the anisotropy rotation around Z only */
-   bool _lock_no3d; /* Lock the parameters in 2-D */
-   bool _lock_iso2d; /* Lock isotropy for 2-D */
-   bool _keep_intstr; /* Keep at least one intrinsic structure */
+private:
+  bool _flag_noreduce;     /* Forbid discarding useless basic structures */
+  bool _flag_goulard_used; /* True if Goulard must be used (for sills) */
+  bool _auth_aniso;        /* Authorize the anisotropy */
+  bool _auth_rotation;     /* Authorize the rotation of the anisotropy */
+  bool _lock_samerot;      /* Lock the anisotropy rotation for all str */
+  bool _lock_rot2d;        /* Lock the anisotropy rotation around Z only */
+  bool _lock_no3d;         /* Lock the parameters in 2-D */
+  bool _lock_iso2d;        /* Lock isotropy for 2-D */
+  bool _keep_intstr;       /* Keep at least one intrinsic structure */
+  bool _flag_intrinsic;    /* Ask for an intrinsic model */
 };

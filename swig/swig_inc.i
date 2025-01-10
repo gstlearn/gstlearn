@@ -1,4 +1,4 @@
-%feature(director) IProjMatrix;
+%feature(director) IProj;
 %feature(director) AFunctional;
 
 //%feature(director) ICLoneable;
@@ -143,11 +143,13 @@
   #include "LinearOp/ASimulable.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
-  #include "LinearOp/ShiftOpCs.hpp"
+  #include "LinearOp/AShiftOp.hpp"
+  #include "LinearOp/ShiftOpStencil.hpp"
+  #include "LinearOp/ShiftOpMatrix.hpp"
   #include "LinearOp/PrecisionOp.hpp"
-  #include "LinearOp/PrecisionOpCs.hpp"
+  #include "LinearOp/PrecisionOpMatrix.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
-  #include "LinearOp/IProjMatrix.hpp"
+  #include "LinearOp/IProj.hpp"
   #include "LinearOp/ScaleOp.hpp"
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/ProjMulti.hpp"
@@ -177,6 +179,7 @@
   #include "Variogram/VMap.hpp"
   #include "Variogram/VCloud.hpp"
   
+  #include "Model/ModelGeneric.hpp"
   #include "Model/Model.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
@@ -192,11 +195,14 @@
   #include "Covariances/NoStatArray.hpp"
   #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
+  #include "Covariances/CovBase.hpp"
+  #include "Covariances/ACor.hpp"
+  #include "Covariances/CorAniso.hpp"
   #include "Covariances/ACovFunc.hpp"
   #include "Covariances/ACovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
-  #include "Covariances/CovGneiting.hpp"
+  #include "Covariances/CorGneiting.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"
@@ -392,9 +398,9 @@
 %template(VectorABiTargetCheck)    std::vector< ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< ProjMatrix* >;
 %template(VectorConstProjMatrix)   std::vector< const ProjMatrix*>;
-%template(VectorConstIProjMatrix)  std::vector< const IProjMatrix*>;
+%template(VectorConstIProj)  std::vector< const IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
-%template(VVectorConstIProjMatrix) std::vector< std::vector< const IProjMatrix*> >;
+%template(VVectorConstIProj) std::vector< std::vector< const IProj*> >;
 %template(VectorMeshes)            std::vector< const AMesh*>;
 ////////////////////////////////////////////////
 // Conversion Target language => C++
@@ -834,5 +840,13 @@
   void rankToIndice(int rank, VectorInt &indices, bool minusOne = false) const
   {
     return $self->rankToIndice(rank, indices.getVector(), minusOne);
+  }
+
+  void indicesToCoordinateInPlace(const VectorInt& indice,
+                                  VectorDouble& coor,
+                                  const VectorDouble& percent = VectorDouble(),
+                                  bool flag_rotate=true) const
+  {
+    return $self->indicesToCoordinateInPlace(indice, coor, percent, flag_rotate);
   }
 };

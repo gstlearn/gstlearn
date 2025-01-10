@@ -8,10 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
+#include "LinearOp/ShiftOpStencil.hpp"
+#include "LinearOp/AShiftOp.hpp"
+#include "Mesh/MeshEStandard.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
@@ -33,7 +38,7 @@ PrecisionOp::PrecisionOp()
 {
 }
 
-PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
+PrecisionOp::PrecisionOp(AShiftOp* shiftop,
                          const CovAniso* cova,
                          bool verbose)
   : _shiftOp(shiftop)
@@ -57,6 +62,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          CovAniso* cova,
+                         bool stencil,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(cova)
@@ -69,8 +75,21 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work2()
   , _work3()
 { 
-  
-  _shiftOp = new ShiftOpCs(mesh,cova,nullptr,verbose);
+  const MeshETurbo* meshTurbo = dynamic_cast<const MeshETurbo*>(mesh);
+
+  if (stencil && meshTurbo == nullptr)
+  {
+    messerr("Mesh is not a TurboMeshing. Stencil cannot be used.");
+    messerr("Stencil option is ignored.");
+  }
+  if (stencil && meshTurbo != nullptr)
+  {
+    _shiftOp = new ShiftOpStencil(meshTurbo,cova,verbose);
+  }
+  else
+  {
+      _shiftOp = new ShiftOpMatrix(mesh,cova,nullptr,verbose);
+  }
   if (_cova->getNVariables() == 1)
   {
     _shiftOp->normalizeLambdaBySills(mesh);
@@ -93,7 +112,7 @@ PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
   , _work3(pmat._work3)
 {
   if (_destroyShiftOp)
-    _shiftOp = new ShiftOpCs(*pmat._shiftOp);
+    _shiftOp = dynamic_cast<AShiftOp*>(pmat._shiftOp->clone());
   else
     _shiftOp = pmat._shiftOp;
 }
@@ -113,7 +132,10 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
     _work3 = pmat._work3;
 
     if (_destroyShiftOp)
-      _shiftOp = new ShiftOpCs(*pmat._shiftOp);
+    {
+      _shiftOp = (AShiftOp*)pmat._shiftOp->clone();
+    
+    }
     else
       _shiftOp = pmat._shiftOp;
   }
@@ -139,7 +161,7 @@ PrecisionOp::~PrecisionOp()
   }
 }
 
-PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
+PrecisionOp* PrecisionOp::createFromShiftOp(AShiftOp *shiftop,
                                             const CovAniso *cova,
                                             bool verbose)
 {
@@ -148,16 +170,16 @@ PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
 
 PrecisionOp* PrecisionOp::create(const AMesh* mesh,
                                  CovAniso* cova,
+                                 bool stencil,
                                  bool verbose)
 {
-  return new PrecisionOp(mesh, cova, verbose);
+  return new PrecisionOp(mesh, cova, stencil, verbose);
 }
 
 int PrecisionOp::_addToDest(const constvect inv, vect outv) const
 {
     _addEvalPower(inv, outv, EPowerPT::ONE);
     return 0;
-
 }
 
 int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
@@ -169,7 +191,7 @@ int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force) const
 {
   // Polynomial already exists. Nothing to be done
-  if (_polynomials.contains(power)  && !force) return 0;
+  if (_polynomials.count(power) > 0 && !force) return 0;
 
   // Prepare Polynomial for EPowerPT::ONE
   if (_preparePrecisionPoly() != 0 && !force) return 1;
@@ -199,7 +221,7 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
 
 int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 {
-  if (_cova == nullptr && _polynomials.contains(EPowerPT::ONE)) return 1;
+  if (_cova == nullptr && _polynomials.count(EPowerPT::ONE) > 0) return 1;
   if (_shiftOp == nullptr) return 1;
 
   double b = _shiftOp->getMaxEigenValue();
@@ -263,7 +285,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu)
   return val1;
 }
 
-int PrecisionOp::reset(const ShiftOpCs* shiftop,
+int PrecisionOp::reset(const AShiftOp* shiftop,
                        const CovAniso* cova,
                        bool verbose)
 {
@@ -274,14 +296,14 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
   try
   {
     // Store the pointer to the ShiftOp
-    if (shiftop == (ShiftOpCs *) NULL)
+    if (shiftop == (ShiftOpMatrix *) NULL)
       my_throw("The argument 'shiftop'must be provided");
 
     // Store the members
 
     _cova    = cova;
     _verbose = verbose;
-    _shiftOp = new ShiftOpCs(*shiftop);
+    _shiftOp = (AShiftOp*)shiftop->clone();
 
     _purge();
   }
@@ -311,7 +333,6 @@ void PrecisionOp::evalPower(const constvect inm,
                             const EPowerPT& power)
 {
   std::fill(outm.begin(),outm.end(),0.);
-  for (int i = 0; i < (int)outm.size(); i++)
   _addEvalPower(inm, outm, power);
 }
 
@@ -321,39 +342,60 @@ void PrecisionOp::_addEvalPower(const constvect inv,
 {
   const constvect* inPtr = &inv;
   if (_work.size() == 0) _work.resize(getSize());
-  vect worksp(_work); 
+  if (_work2.size() == 0) _work2.resize(getSize());
+  vect worksp(_work);
+  vect worksp2(_work2);
   // Pre-processing
 
   if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodLambda(inv, worksp,power);
+    _shiftOp->prodLambda(inv, worksp, power);
     inPtr = (constvect*)&worksp;
   }
 
   // Polynomial evaluation
 
-  if (_evalPoly(power,*inPtr,outv) != 0)
+  if (_evalPoly(power, *inPtr, worksp2) != 0)
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing
 
   if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodLambda(outv, outv, power);
+    _shiftOp->addProdLambda(worksp2, outv, power);
+    return;
   }
-  else if (power == EPowerPT::MINUSHALF)
+  if (power == EPowerPT::MINUSHALF)
   {
-    _shiftOp->prodLambda(outv, outv, EPowerPT::MINUSONE);
+    _shiftOp->addProdLambda(worksp2, outv, EPowerPT::MINUSONE);
+    return;
   }
+  // if no post-processing is needed
+
+  VH::addInPlace(worksp2,outv);
+  
 }
 
 int PrecisionOp::_evalPoly(const EPowerPT& power,
+                              const constvect inv,
+                              vect outv) const
+{
+  std::fill(outv.begin(),outv.end(),0.);
+  _addEvalPoly(power, inv,outv);
+  return 0;
+}
+
+
+int PrecisionOp::_addEvalPoly(const EPowerPT& power,
                            const constvect inv,
                            vect outv) const
 {
   constvect invs(inv);
+
+  const auto *a = dynamic_cast<const ShiftOpMatrix*>(_shiftOp);
+
   if (_preparePoly(power) != 0) return 1;
-  if(getTraining())
+  if (getTraining())
   {
     int degree = _polynomials[power]->getDegree();
 
@@ -368,19 +410,25 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 
     if (_work5.size() == 0) _work5.resize(getSize());
     
-    ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),
+      //TODO use clone is probably better...
+    if (a == nullptr)
+    {
+      messerr("only available for ShiftOpMatrix\n");
+      return 1;
+    }
+    ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(a->getS(),
                                                                 invs,_workPoly,
                                                                 _work5);
 
-    for(int i=0;i<(int)inv.size();i++)
+    for (int i = 0; i < (int)inv.size(); i++)
     {
-      outv[i] = _workPoly[0][i];
+      outv[i] += _workPoly[0][i];
     }
   }
   else
   {
     vect outvs(outv);
-    _polynomials[power]->evalOp(_shiftOp->getS(),invs,outvs);
+    _polynomials[power]->addEvalOp(_shiftOp, invs, outvs);
   }
   return 0;
 }
@@ -437,8 +485,7 @@ VectorDouble PrecisionOp::simulateOne()
   VectorDouble whitenoise(n);
   VH::simulateGaussianInPlace(whitenoise);
   vect vects(vectv);
-  _evalPoly(EPowerPT::MINUSHALF,whitenoise,vects);
-  _shiftOp->prodLambda(vectv, vectv, EPowerPT::MINUSONE);
+  addSimulateToDest(whitenoise, vects);
   return vectv;
 }
 
@@ -495,3 +542,26 @@ VectorDouble PrecisionOp::getCoeffs()
   return coeffs;
 }
 
+VectorDouble PrecisionOp::extractDiag() const
+{
+  const auto *a = dynamic_cast<const ShiftOpMatrix*>(_shiftOp);
+  if (a == nullptr)
+  {
+    messerr("Only available for ShiftOpMatrix\n");
+    return VectorDouble();
+  }
+  int size = getSize();
+  VectorDouble vec(size, 0.);
+  const EPowerPT& power = EPowerPT::ONE;
+
+  VectorDouble lambdas = _shiftOp->getLambdas();
+
+  if (_preparePoly(power) != 0) return vec;
+
+  for (int i = 0; i < size; i++)
+  {
+    double lambda = lambdas[i];
+    vec[i] = _polynomials[power]->evalOpByRank(a->getS(), i) * lambda * lambda;
+  }
+  return vec;
+}

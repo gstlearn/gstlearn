@@ -1506,11 +1506,9 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (S_DECIDE.flag_mesh_dbin && !flag_nugget)
   {
     nugval = silltot / 1000.;
-    VectorDouble sill(nvar * nvar, 0.);
-    int ecr = 0;
+    MatrixSquareSymmetric sill(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        sill[ecr++] = (ivar == jvar) ? nugval : 0.;
+      sill.setValue(ivar, ivar, nugval);
     model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), sill);
   }
 
@@ -7351,7 +7349,7 @@ static void st_define_locators(M2D_Environ *m2denv,
   int ivar;
 
   ivar = 1;
-  db->setLocatorsByUID(ndim, ivar, ELoc::X);
+  db->setLocatorsByUID(ndim, ivar, ELoc::X, 0);
   ivar += ndim;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
@@ -7360,7 +7358,7 @@ static void st_define_locators(M2D_Environ *m2denv,
     if (ilayer < nvar) db->setLocatorByUID(ivar, ELoc::Z, ilayer);
     ivar++;
   }
-  if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F);
+  if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F, 0);
 }
 
 /****************************************************************************/
@@ -8781,7 +8779,7 @@ int m2d_gibbs_spde(Db *dbin,
     {
       // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-      dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC);
+      dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC, 0);
 
       if (db_simulations_to_ce(dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce,
                                &iptr_cstd)) goto label_end;

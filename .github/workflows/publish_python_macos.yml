@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{matrix.arch.os}}
     strategy:
       matrix:
-        # Python version + Numpy version
+        # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
             {py: "3.9"},
@@ -60,7 +60,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew install swig
-        brew install doxygen
+        brew install --formula doxygen
         brew install llvm
         brew install boost
         brew install eigen
@@ -74,6 +74,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install numpy twine build
+
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_unix
 
 #    - name : Download and install HDF5
 #      run : |
@@ -160,7 +163,7 @@ jobs:
     - name: Install macOS dependencies
       run: brew install llvm
 
-    - name: Install gstlearn Python package
+    - name: Install Python package
       run: pip install ./$(ls *.whl)
 
     - name: Test installed Python package
@@ -178,6 +181,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Upload packages to pypi
     - uses: fabien-ors/pypi-publish-action@v2
       with:
         repo: pypi

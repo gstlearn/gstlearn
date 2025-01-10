@@ -143,7 +143,7 @@ int DbGrid::reset(const VectorInt& nx,
   {
     int jcol = 0;
     if (flagAddSampleRank) jcol++;
-    setLocatorsByUID(ndim, jcol, ELoc::X);
+    setLocatorsByUID(ndim, jcol, ELoc::X, 0);
     _defineDefaultLocators(number, locatorNames);
   }
 
@@ -220,7 +220,7 @@ int DbGrid::resetCoveringDb(const Db* db,
   // Create the locators
 
   int jcol = 0;
-  setLocatorsByUID(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
 
   return 0;
 }
@@ -289,7 +289,7 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
 
   return 0;
 }
@@ -640,15 +640,16 @@ void DbGrid::_createGridCoordinates(int icol0)
 
   // Set the locators
 
-  setLocatorsByUID(getNDim(), icol0, ELoc::X);
+  setLocatorsByUID(getNDim(), icol0, ELoc::X, 0);
 
   // Generate the vector of coordinates
 
-  VectorDouble coors(ndim);
+  std::vector<double> coors(ndim);
+  std::vector<int> indices;
   _grid.iteratorInit();
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    VectorInt indices = _grid.iteratorNext();
+    _grid.iteratorNext(indices);
     _grid.indicesToCoordinateInPlace(indices, coors);
     for (int idim = 0; idim < ndim; idim++)
       setArray(iech, icol0 + idim, coors[idim]);
@@ -879,9 +880,9 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
 }
 
 void DbGrid::getGridPileInPlace(int iuid,
-                                const VectorInt &indg,
+                                const VectorInt& indg,
                                 int idim0,
-                                VectorDouble &vec) const
+                                VectorDouble& vec) const
 {
   int nz = getNX(idim0);
   if (nz != (int) vec.size()) vec.resize(nz);
@@ -928,7 +929,6 @@ void DbGrid::generateCoordinates(const String& radix)
   int ndim = getNDim();
   VectorDouble coors(ndim);
   (void) addColumnsByConstant(ndim, 0., radix, ELoc::X);
-  display();
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     _grid.rankToCoordinatesInPlace(iech, coors);
@@ -2310,4 +2310,29 @@ DbGrid* DbGrid::createDivider(DbGrid* dbin,
                          flagAddSampleRank);
 
   return dbout;
+}
+
+VectorDouble DbGrid::getDistanceToOrigin(const VectorInt& origin,
+                                         const VectorDouble& radius)
+{
+  int ndim           = getNDim();
+  int nech           = getSampleNumber();
+  VectorDouble coor0 = getCoordinatesByIndice(origin);
+  VectorDouble radloc   = radius;
+  if (ndim != (int) radloc.size()) radloc = VectorDouble(ndim, 1.);
+  
+  VectorDouble coor(ndim);
+  VectorDouble distvec(nech, 0.);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    getCoordinatesPerSampleInPlace(iech, coor);
+    double dist = 0.;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double delta = (coor[idim] - coor0[idim]) / radloc[idim];
+      dist += delta * delta;
+    }
+    distvec[iech] = sqrt(dist);
+  }
+  return distvec;
 }

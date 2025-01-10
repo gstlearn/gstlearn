@@ -258,23 +258,23 @@ int main(int argc, char *argv[])
 
   V1 = MSP->getDiagonal();
   print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isEqual(Vref,V1));
   Vref = MRR.getDiagonal(1);
   V1 = MSP->getDiagonal(1);
   print_vector("Second Diagonal Below",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isEqual(Vref,V1));
   Vref = MRR.getDiagonal(-2);
   V1 = MSP->getDiagonal(-2);
   print_vector("Third Diagonal Above",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isEqual(Vref,V1));
   Vref = MRR.getRow(2);
   V1 = MSP->getRow(2);
   print_vector("Third Row",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isEqual(Vref,V1));
   Vref = MRR.getColumn(3);
   V1 = MSP->getColumn(3);
   print_vector("Fourth Column",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isEqual(Vref,V1));
 
   /**
    * Product of the matrix by a vector
@@ -290,11 +290,11 @@ int main(int argc, char *argv[])
   VH::display("Reference Output Vector",Vref);
 
   MSG.prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSG similar: %d\n",(int) VH::isSame(Vref,V2));
+  message("Are results for MRR and MSG similar: %d\n",(int) VH::isEqual(Vref,V2));
   MSS.prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSS similar: %d\n",(int) VH::isSame(Vref,V2));
+  message("Are results for MRR and MSS similar: %d\n",(int) VH::isEqual(Vref,V2));
   MSP->prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSP similar: %d\n",(int) VH::isSame(Vref,V2));
+  message("Are results for MRR and MSP similar: %d\n",(int) VH::isEqual(Vref,V2));
 
   /**
    * Linear solver
@@ -313,10 +313,10 @@ int main(int argc, char *argv[])
   VH::display("Reference Output Vector",V2);
 
   MSS.prodMatVecInPlace(V2, V3);
-  message("Are results correct for MSS: %d\n",(int) VH::isSame(V1,V3));
+  message("Are results correct for MSS: %d\n",(int) VH::isEqual(V1,V3));
   MSP->solve(V1, V2);
   MSP->prodMatVecInPlace(V2, V3);
-  message("Are results correct for MSP: %d\n",(int) VH::isSame(V1,V3));
+  message("Are results correct for MSP: %d\n",(int) VH::isEqual(V1,V3));
 
   /**
    * Inversion
@@ -604,9 +604,9 @@ int main(int argc, char *argv[])
   // Get a Dense matrix
   VectorDouble temp = MSS.getValues();
   int ntemp = MSS.getNRows();
-  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp, ntemp);
+  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp);
   MEig->display();
-  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp, ntemp);
+  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp);
   MNoEig->display();
 
   // Extract the Eigen values and vectors (both matrix types)
@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
   VH::display("Input Vector B =", B);
   MEigChol.solve(B, XEig);
   VH::display("Result Vector X =", XEig);
-  message("Is M * X = B: %d\n",(int) VH::isSame(B,MEig->prodMatVec(XEig)));
+  message("Is M * X = B: %d\n",(int) VH::isEqual(B,MEig->prodMatVec(XEig)));
 
   // Solving a linear system after Cholesky decomposition (matrix RHS)
   mestitle(0,"Solving a Linear system after Cholesky decomposition (matrix RHS)");

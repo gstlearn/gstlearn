@@ -9,18 +9,21 @@
 /*                                                                            */
 /******************************************************************************/
 
-#include "Covariances/CovGneiting.hpp"
+#include "Covariances/CorGneiting.hpp"
 #include "Basic/AStringable.hpp"
-#include "Covariances/ACov.hpp"
+#include "Covariances/ACor.hpp"
+#include "Covariances/CovBase.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovBase.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include <vector>
 
-CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
-: ACov()
+CorGneiting::CorGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
+: ACor(CovContext())
 , _covS(covS)
 , _covTemp(covTemp)
 , _separability(separability)
@@ -29,7 +32,7 @@ CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double se
   if (separability < 0.0 || separability > 1.0)
   {
     _separability = 0;
-    messerr("CovGneiting: Separability must be in [0,1]");
+    messerr("CorGneiting: Separability must be in [0,1]");
     messerr("It has been set to 0");
   }
   delete _space;
@@ -40,8 +43,8 @@ CovGneiting::CovGneiting(const CovAniso* covS,const CovAniso* covTemp, double se
 }
 
 
-CovGneiting::CovGneiting(const CovGneiting& r):
-ACov(r)
+CorGneiting::CorGneiting(const CorGneiting& r):
+ACor(r)
 , _covS(r._covS)
 , _covTemp(r._covTemp)
 , _separability(r._separability)
@@ -49,11 +52,11 @@ ACov(r)
 {
 }
 
-CovGneiting& CovGneiting::operator=(const CovGneiting &r)
+CorGneiting& CorGneiting::operator=(const CorGneiting &r)
 {
   if (this != &r)
   {
-    ACov::operator =(r);
+    ACor::operator =(r);
     _ctxt = r._ctxt;
     _covS = r._covS;
     _covTemp = r._covTemp;
@@ -63,35 +66,35 @@ CovGneiting& CovGneiting::operator=(const CovGneiting &r)
   return *this;
 }
 
-CovGneiting::~CovGneiting()
+CorGneiting::~CorGneiting()
 {
 }
 
-void CovGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
+void CorGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
 {
   _covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
   _covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
 }
   
-void CovGneiting::optimizationSetTargetByIndex(int iech) const 
+void CorGneiting::optimizationSetTargetByIndex(int iech) const 
 {
   _covS->optimizationSetTargetByIndex(iech);
   _covTemp->optimizationSetTargetByIndex(iech);
 }
 
-void CovGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) const 
+void CorGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) const 
 {
   _covS->_optimizationPreProcess(p);
   _covTemp->_optimizationPreProcess(p);
 }
 
-void CovGneiting::_optimizationPostProcess() const
+void CorGneiting::optimizationPostProcess() const
 {
   _covS->optimizationPostProcess();
   _covTemp->optimizationPostProcess();
 }
 
-double CovGneiting::eval(const SpacePoint& p1,
+double CorGneiting::eval(const SpacePoint& p1,
                     const SpacePoint& p2,
                     int ivar,
                     int jvar,

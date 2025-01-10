@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Enum/ECalcMember.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -876,7 +875,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
                                       int jvar0,
                                       const VectorInt& nbgh1,
                                       const VectorInt& nbgh2,
-                                      const CovCalcMode* mode)
+                                      const CovCalcMode* mode) const 
 {
   MatrixRectangular mat;
 
@@ -989,6 +988,25 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   }
 }
 
+MatrixRectangular ACov::evalCovMatrixOptim(const Db *db1,
+                                           const Db *db2,
+                                           int ivar0,
+                                           int jvar0,
+                                           const VectorInt& nbgh1,
+                                           const VectorInt& nbgh2,
+                                           const CovCalcMode *mode) const
+{
+  return evalCovMatrix(db1,db2,ivar0,jvar0,nbgh1,nbgh2,mode);                                
+}
+
+MatrixSquareSymmetric ACov::evalCovMatrixSymmetricOptim(const Db *db1,
+                                                        int ivar0 ,
+                                                        const VectorInt &nbgh1,
+                                                        const CovCalcMode *mode) const
+{
+  return evalCovMatrixSymmetric(db1,ivar0,nbgh1,mode); 
+}
+
 void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 
@@ -1083,7 +1101,7 @@ void ACov::load(const SpacePoint& p,bool case1) const
 MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
                                                    int ivar0,
                                                    const VectorInt &nbgh1,
-                                                   const CovCalcMode *mode)
+                                                   const CovCalcMode *mode) const
 {
   MatrixSquareSymmetric mat;
 

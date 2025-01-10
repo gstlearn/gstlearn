@@ -31,8 +31,10 @@ We simulate two random variables linked by a joint model
 
 ```{r}
 model = Model(nvar=2,ndim=2)
-err = model$addCovFromParam(ECov_EXPONENTIAL(),range=0.8,sills=c(2,1,1,2))
-err = model$addCovFromParam(ECov_EXPONENTIAL(),range=0.2,sills=c(1.1,-1,-1,1.1))
+sills  = matrix(c(2,1,1,2), nrow = 2, ncol = 2)
+err = model$addCovFromParam(ECov_EXPONENTIAL(), range = 0.8, sills = sills)
+sills  = matrix(c(1.1,-1,-1,1.1), nrow = 2, ncol = 2)
+err = model$addCovFromParam(ECov_EXPONENTIAL(),range=0.2,sills = sills)
 ggplot() + plot.model(model, ivar=0, jvar=1, hmax=1)
 ```
 

@@ -122,6 +122,25 @@ def Meshing(mesh, color='black', width=1, **plot_args):
                    line=dict(color=color, width=width), **plot_args)
     return meshing
     
+def ScatterOnDb(db, mode='lines', color='black', width=1, 
+                m_symbol = 'circle', m_color='black', m_line = 'black', 
+                m_size=15, m_width=2,
+                **plot_args):
+    
+    if __invalidFileDimension(db, 3):
+        return None
+                      
+    meshing = dict(type='scatter3d',
+                   x=db.getCoordinates(0), 
+                   y=db.getCoordinates(1),
+                   z=db.getCoordinates(2),
+                   mode=mode,marker_symbol=m_symbol,
+                   marker_line_color=m_line, marker_color=m_color, 
+                   marker_line_width=m_width, marker_size=m_size,
+                   line=dict(color=color, width=width),
+                   **plot_args)
+    return meshing
+
 def Scatter(x, y, z, mode='lines', color='black', width=1, 
             m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
             **plot_args):
@@ -217,7 +236,8 @@ def PolygonOnSphere(poly, flagClose=False,
 
 def SliceOnDbGrid(grid, name, section=0, rank=0, useSel=False, 
                   cmin = None, cmax = None):
-    
+
+
     if __invalidFileDimension(grid, 3):
         return None
                       
@@ -235,7 +255,28 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, useSel=False,
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values, 
                        coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
-   
+
+def Slice3DOnDbGrid(grid, name, corner=None, 
+                       useSel=False, cmin=None, cmax=None):
+    
+    '''
+    Represent a series of three slices (XoY, YoZ, XoZ)
+    performed around the corner (given by its grid indices)
+
+    Returns a go.Figure element
+    '''
+    if __invalidFileDimension(grid, 3):
+        return None
+    if corner is None:
+        corner = grid.getNXs() / 2
+    
+    data = [SliceOnDbGrid(grid,name,0,corner[2]),
+            SliceOnDbGrid(grid,name,1,corner[1]),
+            SliceOnDbGrid(grid,name,2,corner[0])
+       ]
+    fig = go.Figure(data=data)
+    return fig
+    
 def IsoSurfaceOnDbGrid(grid, name, useSel=False, levels=None, 
                        colorscale='BlueRed', isomin=0, isomax=1, surface_count = 1, 
                        showlegend=False):
@@ -257,7 +298,7 @@ def IsoSurfaceOnDbGrid(grid, name, useSel=False, levels=None,
                              colorscale=colorscale,
                              showscale = showlegend, 
                              caps = dict(x_show=False, y_show=False)
-                             )
+                            )
     return surfaces
    
 def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):

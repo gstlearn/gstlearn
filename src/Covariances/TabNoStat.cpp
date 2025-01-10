@@ -1,5 +1,6 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Enum/EConsElem.hpp"
@@ -47,19 +48,25 @@ int TabNoStat::removeElem(const EConsElem &econs, int iv1, int iv2)
 
 }
 
+void TabNoStat::clear()
+{
+    _items.clear();
+    _nSills = 0;
+    _clear();
+}
 bool TabNoStat::isValid(const EConsElem& econs) const
 {
-    bool res = (econs == EConsElem::SILL) || _isValid(econs);
+    bool res = _isValid(econs);
     if (!res)
-    {
-        messerr("Invalid type of parameters for this covariance structure");
+    {   
+        messerr("%s is an invalid parameter for this covariance structure",
+            std::string(econs.getKey()).c_str());
     }
     return res ;
 }
 bool TabNoStat::_isValid(const EConsElem& econs) const
 {
-    DECLARE_UNUSED(econs)
-    return false;
+     return (econs == EConsElem::SILL);
 }
 
 void TabNoStat::updateDescription()
@@ -82,10 +89,13 @@ std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem &econs, int iv1, int
 
 String TabNoStat::toString(const AStringFormat* strfmt) const
 {
+    return toStringInside(strfmt,0);
+}
+String TabNoStat::toStringInside(const AStringFormat* strfmt,int i) const
+{
     std::stringstream sstr;
     if (_items.empty()) return sstr.str();
-    sstr << toTitle(1, "Non-Stationary Parameters");
-    int i = 0;
+    
     for (const auto &e: getTable())
     {
         sstr << std::to_string(i+1) << " - ";

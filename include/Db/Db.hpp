@@ -18,6 +18,7 @@
 
 #include "Db/PtrGeos.hpp"
 #include "Matrix/Table.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
@@ -145,10 +146,13 @@ public:
                       int seed = 23241,
                       bool verbose = false,
                       bool flagAddSampleRank = true);
-  int resetReduce(const Db *dbin,
-                  const VectorString &names = VectorString(),
-                  const VectorInt &ranks = VectorInt(),
-                  bool verbose = false);
+  int resetReduce(const Db* dbin,
+                  const VectorString& names = VectorString(),
+                  const VectorInt& ranks    = VectorInt(),
+                  bool verbose              = false);
+  int resetFromGridRandomized(const DbGrid* dbin,
+                              double randperc = 0.,
+                              bool flagAddSampleRank = true);
   /**@}*/
 
   /** @addtogroup DB_Creators Creating a Db structure
@@ -206,20 +210,23 @@ public:
                           const VectorInt &ranks = VectorInt(),
                           bool verbose = false);
   static Db* createFillRandom(int ndat,
-                              int ndim = 2,
-                              int nvar = 1,
-                              int nfex = 0,
-                              int ncode = 0,
-                              double varmax = 0.,
-                              double selRatio = 0.,
+                              int ndim                        = 2,
+                              int nvar                        = 1,
+                              int nfex                        = 0,
+                              int ncode                       = 0,
+                              double varmax                   = 0.,
+                              double selRatio                 = 0.,
                               const VectorDouble& heteroRatio = VectorDouble(),
-                              const VectorDouble& coormin = VectorDouble(),
-                              const VectorDouble& coormax = VectorDouble(),
-                              int seed = 124234,
-                              bool flagAddSampleRank = true);
+                              const VectorDouble& coormin     = VectorDouble(),
+                              const VectorDouble& coormax     = VectorDouble(),
+                              int seed                        = 124234,
+                              bool flagAddSampleRank          = true);
+  static Db* createFromGridRandomized(DbGrid* dbgrid,
+                                      double randperc        = 0.,
+                                      bool flagAddSampleRank = true);
   /**@}*/
 
-  const VectorDouble& getArrays() const { return _array; }
+  const std::vector<double>& getArrays() const { return _array; }
 
   /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
    * \ingroup DB
@@ -427,6 +434,7 @@ public:
   VectorInt getUIDsByLocator(const ELoc& locatorType) const;
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
+  void getAllUIDs(std::vector<int>& iuids) const;
 
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
@@ -439,14 +447,13 @@ public:
   VectorDouble getSampleCoordinates(int iech) const;
           void getSampleAsSPInPlace(SpacePoint& P) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
-  void getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
 
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
-  MatrixRectangular getAllCoordinatesMat() const;
-  void   setCoordinate(int iech, int idim, double value);
+  MatrixRectangular getAllCoordinatesMat(const MatrixRectangular& box = MatrixRectangular()) const;
+  void setCoordinate(int iech, int idim, double value);
   void setCoordinates(int idim, const VectorDouble& coor, bool useSel = false);
   void setSampleCoordinates(int iech, const VectorDouble& coor);
 
@@ -464,7 +471,7 @@ public:
   void   updArray(int iech, int iuid, const EOperator& oper, double value);
   void   updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, VectorDouble& values);
   VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
-  VectorDouble getArrayBySample(int iech) const;
+  void getArrayBySample(std::vector<double>& vals, int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
   void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space,bool useSel = false) const;
@@ -904,7 +911,8 @@ protected:
   String _summaryString(void) const;
 
 private:
-  const VectorInt& _getUIDcol() const { return _uidcol; }
+  int _getNextLocator(const ELoc& locatorType) const;
+  const std::vector<int>& _getUIDcol() const { return _uidcol; }
   VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
@@ -953,8 +961,8 @@ protected:
 private:
   int _ncol;                 //!< Number of Columns of data
   int _nech;                 //!< Number of samples
-  VectorDouble _array;       //!< Array of values
-  VectorInt _uidcol;         //!< UID to Column
+  std::vector<double> _array; //!< Array of values
+  std::vector<int> _uidcol;   //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
   std::vector<PtrGeos> _p;   //!< Locator characteristics
 };

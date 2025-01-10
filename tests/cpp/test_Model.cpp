@@ -23,6 +23,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
 #include "Enum/ESpaceType.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /****************************************************************************/
 /*!
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
   Model* modelS = Model::createFromEnvironment(1, 3);
   modelS->addCovFromParam(ECov::CUBIC, 10., 12.);
   modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.},
-                          VectorDouble(), {10., 20., 30.});
+                          MatrixSquareSymmetric(), {10., 20., 30.});
   DriftM FF;
   modelS->addDrift(&FF);
   FF = DriftM(VectorInt({1}));
@@ -133,7 +134,10 @@ int main(int argc, char *argv[])
   MatrixRectangular driftM;
 
   Model* modelM = Model::createFromEnvironment(2, 2);
-  modelM->addCovFromParam(ECov::CUBIC, 10., TEST, 0., {}, {2., 1., 1., 4.});
+  MatrixSquareSymmetric* sills =
+    MatrixSquareSymmetric::createFromVD({2., 1., 1., 4.});
+  modelM->addCovFromParam(ECov::CUBIC, 10., TEST, 0., VectorDouble(), *sills);
+  delete sills;
   FF = DriftM(); // Universality Condition
   modelM->addDrift(&FF);
   FF = DriftM(VectorInt({1})); // Drift: X
@@ -181,7 +185,7 @@ int main(int argc, char *argv[])
   driftM.display();
 
   // Adding the selection
-  workingDbc->setLocator("Sel", ELoc::SEL);
+  workingDbc->setLocator("Sel", ELoc::SEL, 0);
   message("Covariance Matrix (with selection)\n");
   covM = modelM->evalCovMatrixSymmetric(workingDbc);
   covM.display();
@@ -191,7 +195,7 @@ int main(int argc, char *argv[])
   driftM.display();
 
   // Adding the variables (heterotopic multivariate)
-  workingDbc->setLocators({"Z*"}, ELoc::Z);
+  workingDbc->setLocators({"Z*"}, ELoc::Z, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate)\n");
   covM = modelM->evalCovMatrixSymmetric(workingDbc);
   covM.display();
@@ -201,7 +205,7 @@ int main(int argc, char *argv[])
   driftM.display();
 
   // Adding the variables (heterotopic multivariate & Verr)
-  workingDbc->setLocators({"V*"}, ELoc::V);
+  workingDbc->setLocators({"V*"}, ELoc::V, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate & verr)\n");
   covM = modelM->evalCovMatrixSymmetric(workingDbc);
   covM.display();
@@ -235,10 +239,10 @@ int main(int argc, char *argv[])
 //  Model* modelSph = Model::createFromParam(ECov::GEOMETRIC, 0.9);
 //  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
 //  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
-//                                           VectorDouble(), VectorDouble(), VectorDouble(),
+//                                           VectorDouble(), MatrixSquareSymmetric(), VectorDouble(),
 //                                           nullptr, true);
   Model *modelSph = Model::createFromParam(ECov::MATERN, 1./kappa, 1., mu,
-                                           VectorDouble(), VectorDouble(),
+                                           VectorDouble(), MatrixSquareSymmetric(),
                                            VectorDouble(), nullptr, false);
   VH::display("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
   VH::display("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));

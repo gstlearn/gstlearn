@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   for (int isimu=0; isimu<nbsimu; isimu++)
   {
     db->clearLocators(ELoc::Z);
-    db->setLocator(names[isimu],ELoc::Z);
+    db->setLocator(names[isimu],ELoc::Z, 0);
     vario.compute(db, ECalcVario::VARIOGRAM);
     (void) vario.dumpToNF(incrementStringVersion("Vario",isimu+1));
   }

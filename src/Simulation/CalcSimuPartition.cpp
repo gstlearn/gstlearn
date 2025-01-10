@@ -83,7 +83,7 @@ bool CalcSimuPartition::_voronoi()
   /* Create the Point Data Base */
 
   Db* dbpoint = Db::createFromSamples(nbpoints, ELoadBy::SAMPLE, coor);
-  dbpoint->setLocatorsByUID(ndim, 0, ELoc::X);
+  dbpoint->setLocatorsByUID(ndim, 0, ELoc::X, 0);
   VectorDouble simpoint(dbpoint->getSampleNumber());
 
   /* Perform the simulation at the seed points */
@@ -232,7 +232,7 @@ double CalcSimuPartition::_stackSearch(const std::vector<Stack> &stacks,
 {
   for (int i = 0; i < (int) stacks.size(); i++)
   {
-    if (areEqual(stacks[i].valref,valref)) return stacks[i].valsim;
+    if (isEqual(stacks[i].valref,valref)) return stacks[i].valsim;
   }
   return TEST;
 }

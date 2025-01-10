@@ -333,7 +333,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   return result;
 }
 
-void ACovFunc::computeCorrec(int ndim)
+void ACovFunc::computeCorrec(int ndim) 
 {
   if (! hasSpectrumOnRn()) return;
   int N = (int) pow(2,8);

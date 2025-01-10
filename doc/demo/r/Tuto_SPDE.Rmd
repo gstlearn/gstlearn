@@ -170,7 +170,7 @@ A_g  = ProjMatrix(grid, mesh)$toTL()
 
 ```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
 # Cholesky decomposition of precision matrix of the latent vector
-Q = spde$getPrecisionOpCs()$getQ()$toTL()
+Q = spde$getPrecisionOpMatrix()$getQ()$toTL()
 cholQ = Matrix::Cholesky(Q, LDL = FALSE)
 ```
 

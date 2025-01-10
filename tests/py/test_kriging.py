@@ -8,7 +8,7 @@ def cova(x,sills=1):
 
 np.random.seed(1234)
 A = np.random.normal(size=(3,3))
-sills = gl.VectorDouble((A@A.T).reshape(1,-1)[0])
+sills = (A@A.T)
 model = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
 
 nx = [10,10]
@@ -46,7 +46,7 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
     for i in range(ndim):
         db["x" +str(i)] = np.random.uniform(size = ndat)
      
-    db.setLocators(["x*"],gl.ELoc.X)
+    db.setLocators(["x*"],gl.ELoc.X,0)
         
     indIn = np.arange(ndat)
     if selDbin:
@@ -56,7 +56,7 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
         sel = np.zeros(shape=ndat)
         sel[indIn] = 1
         db["sel"] = sel
-        db.setLocator("sel",gl.ELoc.SEL)
+        db.setLocator("sel",gl.ELoc.SEL, 0)
       
     #Creation of an heterotopic data set
     indList = [] 
@@ -72,7 +72,7 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
         vect[ind] = np.random.normal(size = len(ind))
         db["z"+str(i)]=vect
           
-    db.setLocators(["z*"],gl.ELoc.Z)
+    db.setLocators(["z*"],gl.ELoc.Z, 0)
     
     indF = []
     
@@ -83,12 +83,12 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
         for i in range(nvar):
             db["err"+str(i)] = 0.1 * np.random.uniform(size = ndat)
             
-        db.setLocators(["err*"],gl.ELoc.V)
+        db.setLocators(["err*"],gl.ELoc.V, 0)
     
     if ndrift>0:
         for i in range(ndrift):
             db["ff" + str(i)] = np.random.normal(size = ndat)
-        db.setLocator("ff*",gl.ELoc.F)
+        db.setLocator("ff*",gl.ELoc.F, 0)
     
     return db,indF
 
@@ -154,7 +154,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
         sel = np.zeros(shape = target.getSampleNumber())
         sel[indOut] = 1
         target["sel"] = sel
-        target.setLocator("sel",gl.ELoc.SEL)
+        target.setLocator("sel",gl.ELoc.SEL, 0)
                   
     if irf is not None:
         modeln.setDriftIRF(irf)
@@ -162,7 +162,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     if drift :
         target["ff"] = np.random.normal(size = target.getSampleNumber())
         
-        target.setLocator("ff",gl.ELoc.F)
+        target.setLocator("ff",gl.ELoc.F, 0)
         modeln.addDrift(gl.DriftF(0))
       
     v = np.array([db["x0"],db["x1"]]).T

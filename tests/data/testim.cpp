@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
   Vario     *vario;
   Model     *model,*new_model;
   ANeigh    *neigh;
-  Option_AutoFit mauto;
   Constraints constraints;
   DbStringFormat dbfmt;
   int        nbsimu,seed,nbtuba;
@@ -148,7 +147,7 @@ int main(int argc, char *argv[])
   if (model == nullptr) goto label_end;
   if (vario != nullptr) 
   {
-    if (model_fitting_sills(vario,model,constraints,mauto)) goto label_end;
+    if (model_fitting_sills(vario,model,constraints)) goto label_end;
     ascii_filename("Model",0,1,filename);
     if (! model->dumpToNF(filename,verbose))
       messageAbort("ascii_model_write");
@@ -182,7 +181,7 @@ int main(int argc, char *argv[])
                       5.,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
-    dbin->setLocatorByUID(dbin->getColumnNumber()-1,ELoc::Z);
+    dbin->setLocatorByUID(dbin->getColumnNumber()-1,ELoc::Z, 0);
   }
 
   /* Perform the estimation */

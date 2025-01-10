@@ -45,7 +45,7 @@ Perform several non-conditional simulations on the grid, using the Model and the
 
 ```{r Non-conditional_simulations}
 nbsimu = 4
-iuid = simulateSPDE(NULL,grid,model,nbsimu)
+iuid = simulateSPDE(NULL,grid,model,NULL,nbsimu)
 grid
 ```
 
@@ -88,7 +88,7 @@ Performing several conditional simulation
 
 ```{r Conditional_simulations}
 nbsimu = 4
-iuid = simulateSPDE(data,grid,model,nbsimu)
+iuid = simulateSPDE(data,grid,model,NULL,nbsimu)
 grid
 ```
 

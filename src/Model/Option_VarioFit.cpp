@@ -18,32 +18,32 @@ Option_VarioFit::Option_VarioFit(bool flag_noreduce,
                                  bool lock_rot2d,
                                  bool lock_no3d,
                                  bool lock_iso2d)
-    : AStringable(),
-      _flag_noreduce(flag_noreduce),
-      _flag_check_bounds(false),
-      _flag_goulard_used(true),
-      _auth_aniso(auth_aniso),
-      _auth_rotation(auth_rotation),
-      _lock_samerot(lock_samerot),
-      _lock_rot2d(lock_rot2d),
-      _lock_no3d(lock_no3d),
-      _lock_iso2d(lock_iso2d),
-      _keep_intstr(false)
+  : AStringable()
+  , _flag_noreduce(flag_noreduce)
+  , _flag_goulard_used(true)
+  , _auth_aniso(auth_aniso)
+  , _auth_rotation(auth_rotation)
+  , _lock_samerot(lock_samerot)
+  , _lock_rot2d(lock_rot2d)
+  , _lock_no3d(lock_no3d)
+  , _lock_iso2d(lock_iso2d)
+  , _keep_intstr(false)
+  , _flag_intrinsic(false)
 {
 }
 
-Option_VarioFit::Option_VarioFit(const Option_VarioFit &m)
-    : AStringable(m),
-      _flag_noreduce(m._flag_noreduce),
-      _flag_check_bounds(m._flag_check_bounds),
-      _flag_goulard_used(m._flag_goulard_used),
-      _auth_aniso(m._auth_aniso),
-      _auth_rotation(m._auth_rotation),
-      _lock_samerot(m._lock_samerot),
-      _lock_rot2d(m._lock_rot2d),
-      _lock_no3d(m._lock_no3d),
-      _lock_iso2d(m._lock_iso2d),
-      _keep_intstr(m._keep_intstr)
+Option_VarioFit::Option_VarioFit(const Option_VarioFit& m)
+  : AStringable(m)
+  , _flag_noreduce(m._flag_noreduce)
+  , _flag_goulard_used(m._flag_goulard_used)
+  , _auth_aniso(m._auth_aniso)
+  , _auth_rotation(m._auth_rotation)
+  , _lock_samerot(m._lock_samerot)
+  , _lock_rot2d(m._lock_rot2d)
+  , _lock_no3d(m._lock_no3d)
+  , _lock_iso2d(m._lock_iso2d)
+  , _keep_intstr(m._keep_intstr)
+  , _flag_intrinsic(m._flag_intrinsic)
 {
 
 }
@@ -53,16 +53,16 @@ Option_VarioFit& Option_VarioFit::operator=(const Option_VarioFit &m)
   if (this != &m)
   {
     AStringable::operator=(m);
-    _flag_noreduce = m._flag_noreduce;
-    _flag_check_bounds = m._flag_check_bounds;
+    _flag_noreduce     = m._flag_noreduce;
     _flag_goulard_used = m._flag_goulard_used;
-    _auth_aniso = m._auth_aniso;
-    _auth_rotation = m._auth_rotation;
-    _lock_samerot = m._lock_samerot;
-    _lock_rot2d = m._lock_rot2d;
-    _lock_no3d = m._lock_no3d;
-    _lock_iso2d = m._lock_iso2d;
-    _keep_intstr = m._keep_intstr;
+    _auth_aniso        = m._auth_aniso;
+    _auth_rotation     = m._auth_rotation;
+    _lock_samerot      = m._lock_samerot;
+    _lock_rot2d        = m._lock_rot2d;
+    _lock_no3d         = m._lock_no3d;
+    _lock_iso2d        = m._lock_iso2d;
+    _keep_intstr       = m._keep_intstr;
+    _flag_intrinsic    = m._flag_intrinsic;
   }
   return *this;
 }
@@ -85,7 +85,9 @@ String Option_VarioFit::toString(const AStringFormat* /*strfmt*/) const
   sstr << "- Lock 2-D Isotropy         " << NOK[getLockIso2d()]       << std::endl;
   sstr << "- Keep Intrinsic structure  " << NOK[getKeepIntstr()]      << std::endl;
   sstr << "- Use the Goulard option    " << NOK[getFlagGoulardUsed()] << std::endl;
-  sstr << "- Keep all structures       " << NOK[getFlagNoreduce()]    << std::endl;
+  sstr << "- Keep all structures       " << NOK[getFlagNoreduce()] << std::endl;
+  if (getFlagIntrinsic())
+    sstr << "- Resulting Multivariate Model should be Intrinsic" << std::endl;
 
   return sstr.str();
 }

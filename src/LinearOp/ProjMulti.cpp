@@ -12,7 +12,7 @@
 #include "LinearOp/ProjMulti.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "LinearOp/IProjMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 
 int ProjMulti::findFirstNoNullOnRow(int j) const
 {
@@ -45,7 +45,7 @@ int ProjMulti::findFirstNoNullOnCol(int j) const
     return i;
 }
 
-bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &projs) const
+bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>> &projs) const
 {
     if (projs.empty())
     {   
@@ -85,7 +85,7 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &pr
             {
                 if ( projs[i][j]->getPointNumber() != npoints)
                 {
-                    messerr("Inconsistency between the IProjMatrix Point Numbers.");
+                    messerr("Inconsistency between the IProj Point Numbers.");
                     messerr("Element [%d,%d] should have Point Number = %d  instead of %d.",
                             i,j,npoints, projs[i][j]->getPointNumber());
                     return true;
@@ -107,7 +107,7 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProjMatrix*>> &pr
             {
                 if (projs[i][j]->getApexNumber() != nvertex)
                 {
-                    messerr("Inconsistency between the IProjMatrix Apex Numbers.");
+                    messerr("Inconsistency between the IProj Apex Numbers.");
                     messerr("Element [%d,%d] should have Apex Number = %d  instead of %d.",
                             i,j,nvertex,projs[i][j]->getApexNumber());
                     return true;
@@ -147,7 +147,7 @@ ProjMulti::~ProjMulti()
      _clear();
 }
 
-ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs, bool silent)
+ProjMulti::ProjMulti(const std::vector<std::vector<const IProj*>> &projs, bool silent)
 : _projs(projs)
 , _pointNumber(0)
 , _apexNumber(0)
@@ -169,65 +169,66 @@ ProjMulti::ProjMulti(const std::vector<std::vector<const IProjMatrix*>> &projs, 
 }
 
 int ProjMulti::_addPoint2mesh(const constvect inv, vect outv) const
-{   
-    vect wms;
-    int iadvar = 0;
-    for (int i = 0; i < _nlatent; i++)
-    {   
-        int iad = 0;
-        int nvertex = _apexNumbers[i];
-        _workmesh.resize(nvertex);
-        std::fill(_workmesh.begin(),_workmesh.end(),0.);
-        for(int j = 0; j < _nvariable; j++)
-        {
-            if (_projs[j][i] != nullptr)
-            {
-                 constvect view(inv.data()+iad,_pointNumbers[j]);
-                 wms = vect(_workmesh);
-                _projs[j][i]->addPoint2mesh(view,wms);
-            }
-            iad += _pointNumbers[j];
-        }
-
-        vect outs(outv.data()+iadvar,_workmesh.size()); 
-        VectorHelper::addInPlace(wms,outs);
-        iadvar += _apexNumbers[i];
+{
+  vect wms;
+  int iadvar = 0;
+  for (int i = 0; i < _nlatent; i++)
+  {
+    int iad     = 0;
+    int nvertex = _apexNumbers[i];
+    _workmesh.resize(nvertex);
+    std::fill(_workmesh.begin(), _workmesh.end(), 0.);
+    for (int j = 0; j < _nvariable; j++)
+    {
+      if (_projs[j][i] != nullptr)
+      {
+        constvect view(inv.data() + iad, _pointNumbers[j]);
+        wms = vect(_workmesh);
+        _projs[j][i]->addPoint2mesh(view, wms);
+      }
+      iad += _pointNumbers[j];
     }
-    return 0;
+
+    vect outs(outv.data() + iadvar, _workmesh.size());
+    VectorHelper::addInPlace(wms, outs);
+    iadvar += _apexNumbers[i];
+  }
+  return 0;
 }
+
 int ProjMulti::_addMesh2point(const constvect inv, vect outv) const
 {
-    vect ws;
-    int iadvar = 0;
-    for (int i = 0; i < _nvariable; i++)
-    {   
-        int iad = 0;
-        int npoint = _pointNumbers[i];
-        _work.resize(npoint);
-        std::fill(_work.begin(),_work.end(),0.);
-        for(int j = 0; j < _nlatent; j++)
-        {
-            if (_projs[i][j] != nullptr)
-            {
-                constvect view(inv.data()+iad,_apexNumbers[j]);
-                ws = vect(_work);
-                _projs[i][j]->addMesh2point(view,ws);
-            }
-            iad += _apexNumbers[j];
-        }
-        vect outs(outv.data()+iadvar,_work.size()); 
-        VectorHelper::addInPlace(ws,outs);
-        iadvar += _pointNumbers[i];
+  vect ws;
+  int iadvar = 0;
+  for (int i = 0; i < _nvariable; i++)
+  {
+    int iad    = 0;
+    int npoint = _pointNumbers[i];
+    _work.resize(npoint);
+    std::fill(_work.begin(), _work.end(), 0.);
+    for (int j = 0; j < _nlatent; j++)
+    {
+      if (_projs[i][j] != nullptr)
+      {
+        constvect view(inv.data() + iad, _apexNumbers[j]);
+        ws = vect(_work);
+        _projs[i][j]->addMesh2point(view, ws);
+      }
+      iad += _apexNumbers[j];
     }
-    return 0;
+    vect outs(outv.data() + iadvar, _work.size());
+    VectorHelper::addInPlace(ws, outs);
+    iadvar += _pointNumbers[i];
+  }
+  return 0;
 }
 
-int ProjMulti::getApexNumber() const 
+int ProjMulti::getApexNumber() const
 {
-    return _apexNumber;
+  return _apexNumber;
 }
 
 int ProjMulti::getPointNumber() const
 {
-    return _pointNumber;
+  return _pointNumber;
 }

@@ -63,6 +63,9 @@ jobs:
     - name: Set up Visual Studio shell
       uses: egor-tensin/vs-shell@v2
 
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_windows
+
     - name: Configure build directory
       run: |
         cmake `

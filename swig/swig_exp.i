@@ -174,13 +174,15 @@
 %include LinearOp/LinearOpCGSolver.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/ScaleOp.hpp
-%include LinearOp/ShiftOpCs.hpp
+%include LinearOp/AShiftOp.hpp
+%include LinearOp/ShiftOpStencil.hpp
+%include LinearOp/ShiftOpMatrix.hpp
 %include LinearOp/PrecisionOp.hpp
-%include LinearOp/PrecisionOpCs.hpp
+%include LinearOp/PrecisionOpMatrix.hpp
 %include LinearOp/SPDEOp.hpp
 %include LinearOp/SPDEOpMatrix.hpp
 %include LinearOp/TurboOptimizer.hpp
-%include LinearOp/IProjMatrix.hpp
+%include LinearOp/IProj.hpp
 %include LinearOp/ProjMatrix.hpp
 %include LinearOp/ProjMulti.hpp
 %include LinearOp/ProjMultiMatrix.hpp
@@ -208,6 +210,7 @@
 %include Variogram/VMap.hpp
 %include Variogram/VCloud.hpp
 
+%include Model/ModelGeneric.hpp
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
@@ -223,11 +226,14 @@
 %include Covariances/NoStatArray.hpp
 %include Covariances/NoStatFunctional.hpp
 %include Covariances/ACov.hpp
+%include Covariances/CovBase.hpp
+%include Covariances/ACor.hpp
+%include Covariances/CorAniso.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
-%include Covariances/CovGneiting.hpp
+%include Covariances/CorGneiting.hpp
 %include Covariances/CovLMCTapering.hpp
 %include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMCAnamorphosis.hpp

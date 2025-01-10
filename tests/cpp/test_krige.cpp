@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
   // ====================== Image Neighborhood case ===========================
   // Generate the Image
   (void) simtub(nullptr,image,model);
-  image->setLocator("Simu", ELoc::Z);
+  image->setLocator("Simu", ELoc::Z, 0);
   image->display();
 
   // Modify the Model (for filtering)
@@ -355,11 +355,12 @@ int main(int argc, char *argv[])
 
   // ====================== Testing Multivariate===============================
   // Create the Local Data Base
+  message("\n<----- Test Kriging Multiple Variables with matLC ----->\n");
+
   nvar = 3;
   data = createLocalDb(10, 2, 3, 4901);
   model = createModel(nvar, 1, 0, 0);
 
-  message("\n<----- Test Kriging Multiple Variables with matLC ----->\n");
   delete grid_res;
   grid_res = grid->clone();
   MatrixRectangular* matLC = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);

@@ -23,7 +23,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "numpy>=@Python3_NumPy_VERSION@,<@Python3_NumPy_NEXT_MAJOR@",
+    # from the oldest supported numpy to the next major version of the
+    # numpy install used in building gstlearn
+    "numpy>=1.24,<@Python3_NumPy_NEXT_MAJOR@",
     "matplotlib",
     "scipy",
     "plotly",

@@ -112,9 +112,10 @@ int MeshETurbo::getNApices() const
 int MeshETurbo::_nmeshInCompleteGrid() const
 {
   int nmesh = 1;
-  for (int idim=0, ndim=getNDim(); idim<ndim; idim++)
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     nmesh *= (_grid.getNX(idim) - 1);
-  nmesh *= _nPerCell; _meshIndirect.getRelSize();
+  nmesh *= _nPerCell;
+  // _meshIndirect.getRelSize();
   return nmesh;
 }
 
@@ -190,19 +191,26 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
 
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
-  _grid.rankToIndice(iabs, indg);
-
-  for (int idim = 0; idim < getNDim(); idim++)
-    coords[idim] = _grid.indiceToCoordinate(idim, indg);
+  _grid.rankToCoordinatesInPlace(iabs, coords);
 }
 
 double MeshETurbo::getApexCoor(int i, int idim) const
-{ _meshIndirect.getRelSize();
+{
+  // _meshIndirect.getRelSize();
   indg.resize(getNDim());
 
   int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
   return _grid.indiceToCoordinate(idim, indg);
+}
+
+void MeshETurbo::getApexIndicesInPlace(int i, VectorInt& indg) const
+{
+  // _meshIndirect.getRelSize();
+  indg.resize(getNDim());
+
+  int iabs = _gridIndirect.getRToA(i);
+  _grid.rankToIndice(iabs, indg);
 }
 
 void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
@@ -509,9 +517,9 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 ** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
 ** \param[in]  verbose   Verbose flag
 **
-** \remarks If rankZ>=0, a sample is only considered if the value
-** \remarks of the corresponding variable is defined
-**
+** \remarks If rankZ>=0, a sample is only considered if:
+**          - the value of the corresponding variable is defined
+**          - the sample is covered by the grid of the Turbo Meshing
 *****************************************************************************/
 void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
 {
@@ -541,8 +549,7 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
     if (! db->isActive(jech)) continue;
     if (rankZ >= 0)
     {
-      double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
-      if (FFFF(testval)) continue;
+      if (FFFF(db->getFromLocator(ELoc::Z, jech, rankZ))) continue;
     }
     nvalid++;
 
@@ -555,7 +562,9 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
 
     if (_grid.coordinateToIndicesInPlace(coor,indg0) != 0)
     {
-      messerr("Sample #%d does not belong to the grid",jech+1);
+      messerr("Sample #%d does not belong to the Turbo Meshing internal Grid",
+              jech + 1);
+      iech++;
       continue;
     }
 
@@ -566,7 +575,6 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
               jech+1,_grid.indiceToRank(indg0)+1);
 
     // Finding the active mesh to which the sample belongs
-
     bool found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
 
     // In the case the target coordinate is on the edge of the grid

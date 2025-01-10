@@ -27,7 +27,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Stats/Classical.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "API/SPDE.hpp"
 
 /****************************************************************************/
@@ -111,10 +111,10 @@ int main(int argc, char *argv[])
     // Generate the Model
     Model *model;
     model = Model::createFromParam(ECov::MATERN, TEST, 1, matern_param,
-                                   { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
+                                   { 0.1, 0.3 }, MatrixSquareSymmetric(), { 30., 0. });
     if (ncov >= 1)
       model->addCovFromParam(ECov::MATERN, TEST, 1, matern_param,
-                             { 0.3, 0.2 }, VectorDouble(), { -10., 0.});
+                             { 0.3, 0.2 }, MatrixSquareSymmetric(), { -10., 0.});
     String sncov = (ncov == 0) ? "1" : "2";
 
     // Printout of general environment
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
       for (int icov = 0; icov <= ncov; icov++)
       {
         timer.reset();
-        ShiftOpCs shiftop(&mesh, model->getCova(icov), nullptr);
+        ShiftOpMatrix shiftop(&mesh, model->getCova(icov), nullptr);
         timer.displayIntervalMilliseconds("Establishing S", 150);
       }
     }
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(13243);
-        (void) krigingSPDE(dat, grid, model, true, true, nullptr,
+        (void) krigingSPDE(dat, grid, model, nullptr, true, true, nullptr,
                            useCholesky, SPDEParam(), nbMC, verbose, showStats,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
+        (void) simulateSPDE(NULL, grid, model, nullptr, nsim, NULL, useCholesky,
                             SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
+        (void) simulateSPDE(dat, grid, model, nullptr, nsim, NULL, useCholesky,
                             SPDEParam(), verbose, showStats,
                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);

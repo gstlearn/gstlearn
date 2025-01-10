@@ -34,12 +34,10 @@
       }\
       else\
       {\
-        y = vect();\
         if (COMPUTEOP)\
         {\
           _works[icov].resize(napices);\
           y = vect(_works[icov]);\
-          std::fill(y.begin(),y.end(),0.);\
         }\
       }\
       for (int jvar = 0; jvar < nvar; jvar++)\
@@ -49,7 +47,11 @@
         if (nvar == 1)\
           y = vect(OUT.data() + iad_y, napices);\
         if (COMPUTEOP) \
+        {\
+          if ( (nvar > 1) || (ncov > 1) )\
+            std::fill(y.begin(),y.end(),0.);\
           _pops[icov]->OP(x, y);\
+        }\
         if ( (nvar == 1) && (ncov == 1) ) break;\
         if (nvar == 1)\
         {\
@@ -82,6 +84,7 @@
 
 PrecisionOpMulti::PrecisionOpMulti(Model* model,
                                    const VectorMeshes& meshes,
+                                   bool stencil,
                                    bool buildOp)
   : _pops()
   , _isNoStatForVariance(false)
@@ -121,13 +124,13 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if(buildOp)
   {
-    buildQop();
+    buildQop(stencil);
   }
 }
 
-void PrecisionOpMulti::buildQop()
+void PrecisionOpMulti::buildQop(bool stencil)
 {
-  _buildQop();
+  _buildQop(stencil);
   _ready = true;
 }
 
@@ -142,12 +145,12 @@ bool PrecisionOpMulti::_checkReady() const
 }
 
 
-void PrecisionOpMulti::_buildQop()
+void PrecisionOpMulti::_buildQop(bool stencil)
 {
   for (int i = 0, number = _getNCov(); i < number; i++)
   {
      CovAniso* cova = _model->getCova(_covList[i]);
-    _pops.push_back(PrecisionOp::create(_meshes[i], cova));
+    _pops.push_back(PrecisionOp::create(_meshes[i], cova, stencil));
   }
 }
 PrecisionOpMulti::~PrecisionOpMulti()
@@ -351,7 +354,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PrecisionOpMulti::_addToDestImpl(const constvect vecin, vect vecout) const
+int PrecisionOpMulti::_addToDest(const constvect vecin, vect vecout) const
 {
   if (!_checkReady()) return 1;
   if (_getNVar() > 1)
@@ -371,10 +374,6 @@ int PrecisionOpMulti::_addToDestImpl(const constvect vecin, vect vecout) const
   }
 }
 
-int PrecisionOpMulti::_addToDest(const constvect vecin, vect vecout) const
-{
-  return _addToDestImpl(vecin,vecout);
-}
 
 /**
  * Simulate based on an input random gaussian vector (Matrix free version)

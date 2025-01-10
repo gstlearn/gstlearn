@@ -19,13 +19,13 @@
 #include "Db/DbStringFormat.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include <vector>
-
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   // Creating the Precision Operator for simulation
   
   CovAniso* cova = model->getCova(0);
-  ShiftOpCs S(&mesh, cova, workingDbc);
+  ShiftOpMatrix S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 
   // /////////////////////////

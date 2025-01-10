@@ -14,7 +14,7 @@
 #include "LinearOp/PrecisionOp.hpp"
 
 class AMesh;
-class ShiftOpCs;
+class ShiftOpMatrix;
 class CovAniso;
 class Model;
 
@@ -22,28 +22,29 @@ class Model;
 * Operator is built with sparse matrices and therefore algebra can be performed with Cholesky.
 * It allows to return the precision matrix as a Sparse Matrix. */
 
-class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
+class GSTLEARN_EXPORT PrecisionOpMatrix : public PrecisionOp
 {
 public:
-  PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
+  PrecisionOpMatrix(ShiftOpMatrix* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
                 bool verbose = false);
-  PrecisionOpCs(const AMesh* mesh,
+  PrecisionOpMatrix(const AMesh* mesh,
                 CovAniso* cova,
                 bool verbose = false);
-  virtual ~PrecisionOpCs();
+  virtual ~PrecisionOpMatrix();
 
   // Interface for PrecisionOp class
-  #ifndef SWIG
+#ifndef SWIG
   void evalInverse(const constvect vecin, std::vector<double>& vecout) override;
   int _addSimulateToDest(const constvect whitenoise, vect outv) const override;
   int _addToDest(const constvect inv, vect outv) const override;
-  #endif
+#endif
 
   double getLogDeterminant(int nbsimu = 1) override;
-  
+  VectorDouble extractDiag() const override;
+
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
-  #ifndef SWIG
+#ifndef SWIG
   void evalDeriv(const constvect inv,
                  vect outv,
                  int iapex,
@@ -61,7 +62,7 @@ public:
                     const constvect Y,
                     vect result,
                     const EPowerPT& power) override;
-  #endif
+#endif
   const MatrixSparse* getQ() const { return _Q; }
 
 private:

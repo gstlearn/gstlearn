@@ -21,13 +21,11 @@
  * - verbose: Ask for a verbose option during the Automatic Model fitting
  * - wmode: Weighting option (see comments on the setWMode() function)
  * - maxiter: Maximum number of iterations
- * - flag_intrinsic: When True, fit a Model which includes at least one Intrinsic basic structure
  * - tolstop: Define an absolute criterion used for stopping the iterations
  * - tolred: Define the relative criterion used for stopping the iterations
  * - epsdelta: Define the tolerance used for the search
  * - tolsigma: Percentage of the variance below which a basic structure is discarded
  * - initdelta: Initial radius of the trusting area
- * - useEigenLibrary: Use or discard use of Eigen library when calculating Eigen Values
  */
 class GSTLEARN_EXPORT Option_AutoFit : public AStringable
 {
@@ -40,7 +38,7 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getEpsdelta() const { return _epsdelta; }
-  int getFlagIntrinsic() const { return _flag_intrinsic; }
+
   double getInitdelta() const { return _initdelta; }
   int getMaxiter() const { return _maxiter; }
   double getTolred() const { return _tolred; }
@@ -48,9 +46,7 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   double getTolstop() const { return _tolstop; }
   bool getVerbose() const { return _verbose; }
   int getWmode() const { return _wmode; }
-
   void setEpsdelta(double epsdelta) { _epsdelta = epsdelta; }
-  void setFlagIntrinsic(int flagIntrinsic) { _flag_intrinsic = flagIntrinsic; }
   void setInitdelta(double initdelta) { _initdelta = initdelta; }
   void setMaxiter(int maxiter) { _maxiter = maxiter; }
   void setTolred(double tolred) { _tolred = tolred; }
@@ -74,7 +70,6 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
    bool   _verbose;                 /* Verbose option */
    int    _wmode;                   /* Weighting option (used in Goulard) */
    int    _maxiter;                 /* Maximum number of iterations */
-   int    _flag_intrinsic;          /* Ask for an intrinsic model */
    double _tolstop;                 /* Tolerance for the stopping criterion */
    double _tolred;                  /* Scaled tolerance (used in calculations) */
    double _epsdelta;                /* Tolerance for the search */

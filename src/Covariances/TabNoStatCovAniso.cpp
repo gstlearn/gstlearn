@@ -13,7 +13,10 @@ TabNoStatCovAniso::TabNoStatCovAniso()
 , _definedByAnglesAndScales(false)
 , _definedForRotation(false)
 , _definedForTensor(false)
-{}   
+{
+
+    
+}   
 
 TabNoStatCovAniso::TabNoStatCovAniso(const TabNoStatCovAniso &m):
     TabNoStat(m)
@@ -69,6 +72,18 @@ bool TabNoStatCovAniso::isDefinedForRotation() const
     return _definedForRotation;
 }
 
+void TabNoStatCovAniso::_clear()
+{
+    _nAngles = 0;
+    _nRanges = 0;
+    _nScales = 0;
+    _nTensor = 0;
+    _param = false;
+    _definedForAnisotropy = false;
+    _definedByAnglesAndScales = false;
+    _definedForRotation = false;
+    _definedForTensor = false;
+}
 void TabNoStatCovAniso::_updateDescription()
 {
   _definedForRotation = (_nAngles > 0) || (_nRanges > 0) || (_nScales > 0);

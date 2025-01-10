@@ -83,7 +83,6 @@ class AAnam;
  * - in the multivariate case (NV variables), the number of rows is multiplied by NV*(NV+1)/2.
  * In order to avoid any indexing problem, the user should use the assessors provided in order to access to the information
  * relative to the target pair of variables.
- .
  *
  */
 class GSTLEARN_EXPORT Vario : public AVario, public ASerializable
@@ -155,8 +154,9 @@ public:
   double getMean(int ivar) const;
 
   double getVar(int ivar, int jvar) const;
+  MatrixSquareSymmetric getVarMatrix() const;
   double getVarIndex(int ijvar) const;
-  const  VectorDouble& getVars()  const { return _vars; }
+  const VectorDouble& getVars() const { return _vars; }
   void setMeans(const VectorDouble& means);
   void setMean(double mean, int ivar=0);
   void setVar(double value, int ivar=0, int jvar=0);
@@ -336,6 +336,7 @@ public:
   VectorDouble getCodirs(int idir) const;
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
+  double getMaximumDistance() const;
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
   VectorInt getGrincrs(int idir) const { return getDirParam(idir).getGrincrs(); }
   double getGrincr(int idir, int idim) const { return getDirParam(idir).getGrincr(idim); }
@@ -357,7 +358,13 @@ public:
 
   int transformCut(int nh, double ycut);
   int transformZToY(const AAnam *anam);
-  int transformYToZ(const AAnam *anam);
+  int transformYToZ(const AAnam* anam);
+
+  bool isLagCorrect(int idir, int k) const;
+  double getC00(int idir, int ivar, int jvar) const;
+  VectorDouble computeWeightPerDirection() const;
+  int getTotalLagsPerDirection() const;
+  VectorDouble computeWeightsFromVario(int wmode);
 
 protected:
   /// Interface for ASerializable

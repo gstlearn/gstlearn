@@ -12,12 +12,11 @@
 #include "geoslib_old_f.h"
 
 #include "Mesh/MeshETurbo.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/OptimCostColored.hpp"
 #include "Stats/Classical.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
@@ -873,7 +872,7 @@ static VectorDouble st_point_init_homogeneous(int number,
  **
  ** \remarks Thinning can only be defined in 2-D.
  ** \remarks If the thinning is regionalized, its parameters are stored
- ** \remarks  as NOSTAT variables: Range-1, Range-2 and Angle
+ ** \remarks as NOSTAT variables: Range-1, Range-2 and Angle
  **
  *****************************************************************************/
 static VectorDouble st_point_init_inhomogeneous(int number,
@@ -1691,7 +1690,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     int icode = -1;
     for (int i = 0; i < ncode && icode < 0; i++)
-      if (areEqual(code,codes[i])) icode = i;
+      if (isEqual(code,codes[i])) icode = i;
     if (icode < 0) continue;
 
     // Load the coordinates
@@ -1759,11 +1758,11 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   if (dbnew == nullptr) goto label_end;
 
   ecr = 0;
-  dbnew->setLocatorsByUID(ndim, ecr, ELoc::X);
+  dbnew->setLocatorsByUID(ndim, ecr, ELoc::X, 0);
   ecr += ndim;
-  dbnew->setLocatorByUID(ecr, ELoc::C);
+  dbnew->setLocatorByUID(ecr, ELoc::C, 0);
   ecr += 1;
-  dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z);
+  dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z, 0);
   ecr += nvar;
   DECLARE_UNUSED(ecr);
 
@@ -2112,7 +2111,7 @@ int db_proportion_estimate(Db *dbin,
   // Define the environment
 
   MeshETurbo mesh = MeshETurbo(dbout);
-  ShiftOpCs S = ShiftOpCs(&mesh, model->getCova(0), dbout);
+  ShiftOpMatrix S = ShiftOpMatrix(&mesh, model->getCova(0), dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0));
   ProjMatrix AprojDat = ProjMatrix(dbin, &mesh);
   ProjMatrix AprojOut = ProjMatrix(dbout, &mesh);

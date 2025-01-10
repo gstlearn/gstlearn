@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
   // Extracting a subset
   int np = 500;
   Db* data = Db::createSamplingDb(grid, 0., np, {"x1","x2","Y","Z"});
-  data->setLocator("Z", ELoc::Z);
+  data->setLocator("Z", ELoc::Z, 0);
   data->display();
 
   // Gaussian Anamorphosis

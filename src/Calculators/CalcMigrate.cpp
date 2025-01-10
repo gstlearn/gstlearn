@@ -660,7 +660,7 @@ bool CalcMigrate::_postprocess()
                     _iattOut, String(), 1);
 
   if (_flagLocate)
-    getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType);
+    getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType, 0);
 
   return true;
 }
@@ -1687,7 +1687,6 @@ int CalcMigrate::_migrate(Db *db1,
   VectorDouble tab(size, TEST);
 
   if (db2->isGrid())
-
   {
     DbGrid* db2grid = dynamic_cast<DbGrid*>(db2);
 
@@ -1699,9 +1698,18 @@ int CalcMigrate::_migrate(Db *db1,
       // Grid to Grid
       if (flag_fill)
       {
-        // Grid to Grid (flag_fill = TRUE)
-        if (_expandGridToGrid(db1grid, db2grid, iatt1, distType, dmax, tab))
-          return 1;
+        if (!flag_inter)
+        {
+          // Grid to Grid (flag_fill = TRUE)
+          if (_expandGridToGrid(db1grid, db2grid, iatt1, distType, dmax, tab))
+            return 1;
+        }
+        else
+        {
+          // Interpolate Grid to Grid
+          if (_interpolateGridToPoint(db1grid, db2grid, iatt1, distType, dmax, tab))
+            return 1;
+        }
       }
       else
       {

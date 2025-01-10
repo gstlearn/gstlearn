@@ -39,6 +39,7 @@ set(SRC
   LithoRule/RuleShadow.cpp
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
+  Model/ModelGeneric.cpp
   Model/ConsItem.cpp
   Model/CovParamId.cpp
   Model/Constraints.cpp
@@ -47,6 +48,13 @@ set(SRC
   Model/Option_AutoFit.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
+  Model/AModelOptim.cpp
+  Model/ModelOptimVario.cpp
+  Model/ModelOptimVMap.cpp
+  Model/AModelOptimSills.cpp
+  Model/ModelOptimSillsVario.cpp
+  Model/ModelOptimSillsVMap.cpp
+  Model/ModelOptimLikelihood.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp
   Calculators/CalcMigrate.cpp
@@ -60,6 +68,7 @@ set(SRC
   Covariances/TabNoStatCovAniso.cpp
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
+  Covariances/CovBase.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp
@@ -80,12 +89,13 @@ set(SRC
   Covariances/CovExponential.cpp
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
+  Covariances/ACor.cpp
   Covariances/CovSincard.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
-  Covariances/CovGneiting.cpp
+  Covariances/CorGneiting.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp
@@ -96,6 +106,7 @@ set(SRC
   Covariances/CovCosExp.cpp
   Covariances/CovReg1D.cpp
   Covariances/ACovFunc.cpp
+  Covariances/CorAniso.cpp
   Covariances/CovAniso.cpp
   Covariances/CovGradientNumerical.cpp
   Covariances/CovCubic.cpp
@@ -168,14 +179,16 @@ set(SRC
   LinearOp/ProjMatrix.cpp
   LinearOp/ProjMulti.cpp
   LinearOp/ProjMultiMatrix.cpp
-  LinearOp/PrecisionOpCs.cpp
+  LinearOp/PrecisionOpMatrix.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
   LinearOp/ScaleOp.cpp
-  LinearOp/ShiftOpCs.cpp
+  LinearOp/AShiftOp.cpp
+  LinearOp/ShiftOpMatrix.cpp
+  LinearOp/ShiftOpStencil.cpp
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
-  LinearOp/IProjMatrix.cpp
+  LinearOp/IProj.cpp
   LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiMatrix.cpp
   LinearOp/PrecisionOpMultiConditional.cpp

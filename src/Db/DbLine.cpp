@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
+#include "Enum/ELoadBy.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
 #include "Db/DbLine.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -80,7 +82,7 @@ int DbLine::getLineNumber() const
   return (int) _lineAdds.size();
 }
 
-int DbLine::getLineSampleCount(int iline) const
+int DbLine::getLineSampleNumber(int iline) const
 {
   if (! _isLineNumberValid(iline)) return -1;
   return (int) _lineAdds[iline].size();
@@ -90,7 +92,7 @@ int DbLine::getNTotal() const
 {
   int ntotal = 0;
   for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
-    ntotal += getLineSampleCount(iline);
+    ntotal += getLineSampleNumber(iline);
   return ntotal;
 }
 
@@ -102,7 +104,7 @@ double DbLine::getLineLength(int iline) const
   SpacePoint P2;
   P1.setIech(_lineAdds[iline][0]);
   getSampleAsSPInPlace(P1);
-  for (int iech = 1, nech = getLineSampleCount(iline); iech < nech; iech++)
+  for (int iech = 1, nech = getLineSampleNumber(iline); iech < nech; iech++)
   {
     P2.setIech(_lineAdds[iline][iech]);
     getSampleAsSPInPlace(P2);
@@ -110,6 +112,15 @@ double DbLine::getLineLength(int iline) const
     P1 = P2;
   }
   return total;
+}
+
+VectorDouble DbLine::getLineLengths() const
+{
+  int nline = getLineNumber();
+  VectorDouble lengths(nline);
+  for (int iline = 0; iline < nline; iline++)
+    lengths[iline] = getLineLength(iline);
+  return lengths;
 }
 
 String DbLine::toString(const AStringFormat* strfmt) const
@@ -127,7 +138,7 @@ String DbLine::toString(const AStringFormat* strfmt) const
   for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
   {
     if (iline > 0) sstr << " / ";
-    sstr << getLineSampleCount(iline);
+    sstr << getLineSampleNumber(iline);
   }
   sstr << std::endl;
 
@@ -208,7 +219,7 @@ int DbLine::_lineLinkageById(const VectorInt& linesId,
 {
   int nech = getSampleNumber();
 
-  // Preliniary checks by dimensions
+  // Preliminary checks by dimensions
   if ((int)linesId.size() != nech)
   {
     messerr("Dimension of 'linesId' (%d) should match Number of samples (%d)",
@@ -372,7 +383,7 @@ bool DbLine::_serialize(std::ostream& os, bool verbose) const
   ret      = ret && _recordWrite<int>(os, "Number of Lines", getLineNumber());
   for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
   {
-    ret = ret && _recordWrite<int>(os, "Number of Samples", getLineSampleCount(iline));
+    ret = ret && _recordWrite<int>(os, "Number of Samples", getLineSampleNumber(iline));
     ret = ret && _recordWriteVec<int>(os, "", _lineAdds[iline]);
   }
 
@@ -499,7 +510,7 @@ bool DbLine::isConsistent() const
   VectorBool isReached(nech, false);
   for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
   {
-    for (int i = 0, number = getLineSampleCount(iline); i < number; i++)
+    for (int i = 0, number = getLineSampleNumber(iline); i < number; i++)
     {
       int iadd = _lineAdds[iline][i];
       if (isReached[iadd])
@@ -550,7 +561,7 @@ VectorDouble DbLine::getCoordinates(int iline, int idim) const
   VectorDouble vec;
   if (!_isLineNumberValid(iline)) return vec;
 
-  int number = getLineSampleCount(iline);
+  int number = getLineSampleNumber(iline);
   vec.resize(number);
   for (int i = 0; i < number; i++)
     vec[i] = getCoordinate(_lineAdds[iline][i], idim);
@@ -583,8 +594,96 @@ Db* DbLine::createStatToHeader() const
   int nbline = getLineNumber();
   VectorDouble tab(nbline);
   for (int iline = 0; iline < nbline; iline++)
-    tab[iline] = getLineSampleCount(iline);
+    tab[iline] = getLineSampleNumber(iline);
   db->addColumns(tab, "Count");
 
   return db;
+}
+
+/**
+ * @brief Returns the absolute rank of the sample 'isample' or the line 'iline'
+ * within the Db structure (ir -1 if an error occurs)
+ * 
+ * @param iline 
+ * @param isample 
+ * @return int 
+ */
+int DbLine::getLineSampleRank(int iline, int isample) const
+{
+  if (iline < 0 || iline >= getLineNumber())
+  {
+    messerr("Error in Line number (%d): it must lie within [0, %d]\n",
+            iline, getLineNumber());
+    return -1;
+  }
+  int nsample = getLineSampleNumber(iline);
+  if (isample < 0 || isample >= nsample)
+  {
+    messerr(
+      "Error in Sample number (%d) in line (%d): it must lie within [0, %d]\n",
+      isample, iline, nsample);
+    return -1;
+  }
+  return _lineAdds[iline][isample];
+}
+
+DbLine* DbLine::createVerticalFromGrid(const DbGrid& grid,
+                                       const VectorString& names,
+                                       const VectorInt& xranks,
+                                       const VectorInt& yranks,
+                                       int byZ)
+{
+  // Preliminary checks
+  int ndim = grid.getNDim();
+  if (ndim != 3)
+  {
+    messerr("This method is coded to extract wells from a 3-D Grid only");
+    return nullptr;
+    }
+  if ((int)xranks.size() != (int)yranks.size())
+  {
+    messerr("Arguments 'xranks' and 'yranks' should have same dimensions");
+    return nullptr;
+  }
+  int nvar    = (int)names.size();
+  int nwells  = (int)xranks.size();
+  int nz      = grid.getNX(2);
+  int nbywell = nz / byZ;
+  int nsample = nwells * nbywell;
+  VectorDouble tab(nsample * (3 + nvar));
+  VectorInt lineCounts(nsample);
+
+  VectorDouble coor(3);
+  VectorInt indg(3);
+
+  // Loop on the wells
+  int nech = 0;
+  int ecr = 0;
+  for (int iwell = 0; iwell < nwells; iwell++)
+  {
+    indg[0] = xranks[iwell];
+    indg[1] = yranks[iwell];
+
+    // Loop on the samples
+    for (int iz = 0; iz < nbywell; iz++) indg[2] = iz * byZ;
+
+    // Assign the coordinates
+    grid.indicesToCoordinateInPlace(indg, coor);
+    for (int idim = 0; idim < ndim; idim++) tab[ecr++] = coor[idim];
+
+    // Assign the variable values
+    int rank = grid.indiceToRank(indg);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      tab[ecr++] = grid.getValue(names[ivar], rank);
+
+    // Concatenate to the array
+    lineCounts[nech] = nech;
+    nech++;
+  }
+
+  DbLine* dbline = new DbLine;
+  if (dbline->resetFromSamples(nech, ELoadBy::SAMPLE, tab, lineCounts, names))
+    return nullptr;
+
+  return dbline;
 }

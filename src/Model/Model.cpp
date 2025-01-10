@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Model/ModelGeneric.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ECov.hpp"
@@ -43,9 +45,7 @@
 Model::Model(const CovContext &ctxt)
     : AStringable(),
       ASerializable(),
-      _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt(ctxt)
+      ModelGeneric(ctxt)
 {
   _create();
 }
@@ -53,9 +53,7 @@ Model::Model(const CovContext &ctxt)
 Model::Model(int nvar, int ndim)
     : AStringable(),
       ASerializable(),
-      _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt()
+      ModelGeneric()
 {
   SpaceRN space = SpaceRN(ndim);
   _ctxt = CovContext(nvar, &space);
@@ -65,9 +63,7 @@ Model::Model(int nvar, int ndim)
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
-      _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt(m._ctxt)
+      ModelGeneric(m._ctxt)
 {
   ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);
   if (mcovalist != nullptr)
@@ -79,7 +75,7 @@ Model::Model(const Model &m)
 Model& Model::operator=(const Model &m)
 {
   if (this != &m)
-  {
+  { 
     AStringable::operator=(m);
     ASerializable::operator=(m);
     ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);
@@ -130,28 +126,81 @@ Model* Model::createFromParam(const ECov& type,
                               double sill,
                               double param,
                               const VectorDouble& ranges,
-                              const VectorDouble& sills,
+                              const MatrixSquareSymmetric& sills,
                               const VectorDouble& angles,
                               const ASpace* space,
                               bool flagRange)
 {
   int nvar = 1;
+  if (!sills.empty()) nvar = sills.getNRows();
+
+  ASpace* spaceloc = nullptr;
+  if (space != nullptr)
+    spaceloc = dynamic_cast<ASpace*>(space->clone());
+  else
+    spaceloc = dynamic_cast<ASpace*>(getDefaultSpace()->clone());
+
+  if (!ranges.empty())
+  {
+    int ndim       = spaceloc->getNDim();
+    int ndimRanges = (int)ranges.size();
+    if (ndimRanges != 1 && ndimRanges != ndim)
+    {
+      messerr("Incompatibility between:");
+      messerr("Space Dimension = %d", ndim);
+      messerr("Dimension of argument 'ranges' = %d", ndimRanges);
+      delete spaceloc;
+      return nullptr;
+    }
+  }
+
+  CovContext ctxt = CovContext(nvar, spaceloc);
+  Model* model    = new Model(ctxt);
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
+                         flagRange);
+
+  delete spaceloc;
+  return model;
+}
+
+Model* Model::createFromParamOldStyle(const ECov& type,
+                                      double range,
+                                      double sill,
+                                      double param,
+                                      const VectorDouble& ranges,
+                                      const VectorDouble& sills,
+                                      const VectorDouble& angles,
+                                      const ASpace* space,
+                                      bool flagRange)
+{
+  int nvar = 1;
   if (! sills.empty())
     nvar = (int)  sqrt(sills.size());
 
-  // TODO: Improve this tedious manipulation
   ASpace* spaceloc = nullptr;
-  if (space != nullptr) spaceloc = dynamic_cast<ASpace*>(space->clone());
+  if (space != nullptr)
+    spaceloc = dynamic_cast<ASpace*>(space->clone());
+  else
+    spaceloc = dynamic_cast<ASpace*>(getDefaultSpace()->clone());
 
   if (! ranges.empty())
   {
-    delete spaceloc;
-    spaceloc = new SpaceRN((int) ranges.size());
+    int ndim = spaceloc->getNDim();
+    int ndimRanges = (int)ranges.size();
+    if (ndimRanges != 1 && ndimRanges != ndim)
+    {
+      messerr("Incompatibility between:");
+      messerr("Space Dimension = %d", ndim);
+      messerr("Dimension of argument 'ranges' = %d", ndimRanges);
+      delete spaceloc;
+      return nullptr;
+    }
   }
 
   CovContext ctxt = CovContext(nvar,spaceloc);
   Model* model = new Model(ctxt);
-  model->addCovFromParam(type, range, sill, param, ranges, sills, angles, flagRange);
+  model->addCovFromParamOldStyle(type, range, sill, param, ranges, sills,
+                                 angles, flagRange);
 
   delete spaceloc;
   return model;
@@ -184,6 +233,23 @@ Model* Model::createFromNF(const String &neutralFilename, bool verbose)
   {
     delete model;
     model = nullptr;
+  }
+  return model;
+}
+
+Model* Model::createFromVario(Vario* vario,
+                              const VectorECov& types,
+                              const Constraints& constraints,
+                              const Option_VarioFit& optvar,
+                              const Option_AutoFit& mauto,
+                              bool verbose)
+{
+  Model* model = new Model();
+  if (model->fit(vario, types, constraints, optvar, mauto, verbose) != 0)
+  {
+    messerr("Problem when creating Model from fitting an Experimental variogram");
+    delete model;
+    return nullptr;
   }
   return model;
 }
@@ -277,14 +343,14 @@ void Model::addCov(const CovAniso *cov)
   covalist->addCov(cov);
 }
 
-void Model::addCovFromParam(const ECov& type,
-                            double range,
-                            double sill,
-                            double param,
-                            const VectorDouble& ranges,
-                            const VectorDouble& sills,
-                            const VectorDouble& angles,
-                            bool flagRange)
+void Model::addCovFromParamOldStyle(const ECov& type,
+                                    double range,
+                                    double sill,
+                                    double param,
+                                    const VectorDouble& ranges,
+                                    const VectorDouble& sills,
+                                    const VectorDouble& angles,
+                                    bool flagRange)
 {
   // Check consistency with parameters of the model
 
@@ -330,9 +396,12 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
 
+  // Define the Third parameter
   double parmax = cov.getParMax();
   if (param > parmax) param = parmax;
   cov.setParam(param);
+
+  // Define the range
   if (! ranges.empty())
   {
     if (flagRange)
@@ -347,13 +416,122 @@ void Model::addCovFromParam(const ECov& type,
     else
       cov.setScale(range);
   }
-  if (! sills.empty())
+
+  // Define the sill
+  if (!sills.empty())
     cov.setSill(sills);
   else
-    cov.setSill(sill);
+  {
+    if (nvar <= 1)
+      cov.setSill(sill);
+    else
+    {
+      MatrixSquareSymmetric locsills(nvar);
+      locsills.setIdentity(sill);
+      cov.setSill(locsills);
+    }
+  }
 
   if (! angles.empty())
     cov.setAnisoAngles(angles);
+  addCov(&cov);
+}
+
+void Model::addCovFromParam(const ECov& type,
+                            double range,
+                            double sill,
+                            double param,
+                            const VectorDouble& ranges,
+                            const MatrixSquareSymmetric& sills,
+                            const VectorDouble& angles,
+                            bool flagRange)
+{
+  // Check consistency with parameters of the model
+
+  int ndim = getDimensionNumber();
+  if (!ranges.empty())
+  {
+    if (ndim > 0 && (int)ranges.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'ranges' (%d)",
+              (int)ranges.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return;
+    }
+    ndim = (int)ranges.size();
+  }
+  if (!angles.empty())
+  {
+    if (ndim > 0 && (int)angles.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'angles' (%d)",
+              (int)angles.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return;
+    }
+    ndim = (int)angles.size();
+  }
+  int nvar = getVariableNumber();
+  if (!sills.empty())
+  {
+    if (nvar > 0 && nvar != sills.getNCols())
+    {
+      messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
+      messerr("and the Number of variables stored in the Model (%d)", nvar);
+      messerr("Operation is cancelled");
+      return;
+    }
+    nvar = (int)sqrt((double)sills.size());
+  }
+
+  // Define the covariance
+
+  SpaceRN space = SpaceRN(ndim); //TODO check if it is the right space
+  _ctxt         = CovContext(nvar, &space);
+  CovAniso cov(type, _ctxt);
+
+  // Define the Third parameter
+  double parmax = cov.getParMax();
+  if (param > parmax) param = parmax;
+  cov.setParam(param);
+
+  // Define the range
+  if (!ranges.empty())
+  {
+    if (flagRange)
+      cov.setRanges(ranges);
+    else
+      cov.setScales(ranges);
+  }
+  else
+  {
+    if (flagRange)
+      cov.setRangeIsotropic(range);
+    else
+      cov.setScale(range);
+  }
+
+  // Define the sill
+  if (!sills.empty())
+    cov.setSill(sills);
+  else
+  {
+    if (nvar <= 1)
+      cov.setSill(sill);
+    else
+    {
+      MatrixSquareSymmetric locsills(nvar);
+      locsills.setIdentity(sill);
+      cov.setSill(locsills);
+    }
+  }
+
+ 
+  _ctxt.setNVar(cov.getNVariables());
+  _copyCovContext();
+  if (!angles.empty()) cov.setAnisoAngles(angles);
   addCov(&cov);
 }
 
@@ -2179,7 +2357,7 @@ double Model::calculateStdev(Db *db1,
  * @remarks The algorithm is stopped (with a message) in the heterotopic case
  * // TODO; improve for heterotopic case
  */
-double Model::computeLogLikelihood(Db* db, bool verbose)
+double Model::computeLogLikelihood(const Db* db, bool verbose)
 {
   int nvar = db->getLocatorNumber(ELoc::Z);
   if (nvar < 1)
@@ -2218,7 +2396,7 @@ double Model::computeLogLikelihood(Db* db, bool verbose)
       VH::display("Constant Mean(s)", getMeans());
   }
 
-  // If Drift functions are present, evaluate the optimal Drift coefficients first
+  // If Drift functions are present, evaluate the optimal Drift coefficients
   if (nDrift > 0)
   {
     // Extract the matrix of drifts at samples X

@@ -78,3 +78,8 @@ void APolynomial::init(const VectorDouble& coeffs)
 {
   _coeffs = coeffs;
 }
+
+void APolynomial::addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
+{
+  _addEvalOp(Op, inv, outv);
+}

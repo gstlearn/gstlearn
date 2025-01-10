@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
@@ -65,7 +66,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ICloneable
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ModelGeneric
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -87,27 +88,52 @@ public:
   static Model* createFromEnvironment(int nvar, int ndim = 2);
   static Model* createNugget(int nvar, int ndim = 2, double sill = 1.);
   static Model* createFromParam(const ECov& type = ECov::fromKey("NUGGET"),
-                                double range = 1.,
-                                double sill = 1.,
-                                double param = 1.,
+                                double range     = 1.,
+                                double sill      = 1.,
+                                double param     = 1.,
                                 const VectorDouble& ranges = VectorDouble(),
-                                const VectorDouble& sills = VectorDouble(),
+                                const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const ASpace* space = nullptr,
-                                bool flagRange = true);
+                                const ASpace* space        = nullptr,
+                                bool flagRange             = true);
+  static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
+                          double range               = 1.,
+                          double sill                = 1.,
+                          double param               = 1.,
+                          const VectorDouble& ranges = VectorDouble(),
+                          const VectorDouble& sills  = VectorDouble(),
+                          const VectorDouble& angles = VectorDouble(),
+                          const ASpace* space        = nullptr,
+                          bool flagRange             = true);
   static Model* createFromDb(const Db* db);
-  static Model* createFromNF(const String& neutralFilename, bool verbose = true);
+  static Model* createFromNF(const String& neutralFilename,
+                             bool verbose = true);
+  static Model* createFromVario(Vario* vario,
+                  const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
+                  const Constraints& constraints = Constraints(),
+                  const Option_VarioFit& optvar  = Option_VarioFit(),
+                  const Option_AutoFit& mauto    = Option_AutoFit(),
+                  bool verbose                   = false);
 
   void   setCovList(const ACovAnisoList* covalist);
-  void   addCov(const CovAniso* cov);
-  void   addCovFromParam(const ECov& type,
-                         double range = 0.,
-                         double sill = 1.,
-                         double param = 1.,
-                         const VectorDouble& ranges = VectorDouble(),
-                         const VectorDouble& sills  = VectorDouble(),
-                         const VectorDouble& angles = VectorDouble(),
-                         bool flagRange = true);
+  void addCov(const CovAniso* cov);
+  void
+  addCovFromParam(const ECov& type,
+                  double range                       = EPSILON6,
+                  double sill                        = 1.,
+                  double param                       = 1.,
+                  const VectorDouble& ranges         = VectorDouble(),
+                  const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                  const VectorDouble& angles         = VectorDouble(),
+                  bool flagRange                     = true);
+  void addCovFromParamOldStyle(const ECov& type,
+                               double range               = EPSILON6,
+                               double sill                = 1.,
+                               double param               = 1.,
+                               const VectorDouble& ranges = VectorDouble(),
+                               const VectorDouble& sills  = VectorDouble(),
+                               const VectorDouble& angles = VectorDouble(),
+                               bool flagRange             = true);
   void   delCova(int icov);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
@@ -219,7 +245,7 @@ public:
                       MatrixSquareGeneral &mat,
                       const CovCalcMode* mode = nullptr) const
   {
-    _cova->evalCovMatBiPointInPlace(mat,p1, p2, mode);
+    _cova->evalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const
@@ -365,37 +391,6 @@ public:
    *
    *  @{
    */
-  MatrixRectangular evalCovMatrix(Db* db1,
-                                  Db* db2 = nullptr,
-                                  int ivar0 = -1,
-                                  int jvar0 = -1,
-                                  const VectorInt& nbgh1 = VectorInt(),
-                                  const VectorInt& nbgh2 = VectorInt(),
-                                  const CovCalcMode* mode = nullptr)
-  {
-    if (_cova == nullptr) return MatrixRectangular();
-    return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
-  }
-  MatrixSquareSymmetric evalCovMatrixSymmetric(Db *db1,
-                                               int ivar0 = -1,
-                                               const VectorInt &nbgh1 = VectorInt(),
-                                               const CovCalcMode *mode = nullptr)
-  {
-    if (_cova == nullptr) return MatrixSquareSymmetric();
-    return _cova->evalCovMatrixSymmetric(db1, ivar0, nbgh1, mode);
-  }
-  MatrixSparse* evalCovMatrixSparse(Db *db1,
-                                    Db *db2 = nullptr,
-                                    int ivar0 = -1,
-                                    int jvar0 = -1,
-                                    const VectorInt &nbgh1 = VectorInt(),
-                                    const VectorInt &nbgh2 = VectorInt(),
-                                    const CovCalcMode *mode = nullptr,
-                                    double eps = EPSILON3)
-  {
-    if (_cova == nullptr) return nullptr;
-    return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
-  }
   VectorDouble evalCovMatrixV(Db *db1,
                               Db *db2 = nullptr,
                               int ivar0 = -1,
@@ -550,14 +545,7 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMatrix(const Db *db,
-                                    int ivar0 = -1,
-                                    const VectorInt& nbgh = VectorInt(),
-                                    const ECalcMember &member = ECalcMember::fromKey("LHS")) const
-  {
-    if (_driftList == nullptr) return MatrixRectangular();
-    return _driftList->evalDriftMatrix(db, ivar0, nbgh, member);
-  }
+
 
   double evalDriftVarCoef(const Db *db,
                           int iech,
@@ -595,14 +583,14 @@ public:
   {
     // TODO/ the strange next line have been commented out.
     // There should be either validated or suppressed
-    //    if (isFlagGradient())
+    //if (isFlagGradient())
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
     // However, note used for Gradient (Functional type) in Potential
-    int ncov = _cova->getNVariables();
-    if (ncov <= 0)
-      ncov = _ctxt.getNVar();
-    return ncov;
+    int nvar = _cova->getNVariables();
+    if (nvar <= 0)
+      nvar = _ctxt.getNVar();
+    return nvar;
   }
 
   int hasExternalCov() const;
@@ -682,7 +670,7 @@ public:
                         double factor = 1.,
                         const CovCalcMode *mode = nullptr);
 
-  double computeLogLikelihood(Db* db, bool verbose = false);
+  double computeLogLikelihood(const Db* db, bool verbose = false);
 
 protected:
   /// Interface to ASerializable
@@ -697,11 +685,6 @@ private:
   void _clear();
   void _create();
   void _copyCovContext();
-
-private:
-  ACov*      _cova;         /* Generic Covariance structure */
-  DriftList* _driftList;    /* Series of Drift functions */
-  CovContext _ctxt;         /* Context */
 
   MatrixSquareSymmetric _dummy;
 };

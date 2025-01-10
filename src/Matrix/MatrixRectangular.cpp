@@ -168,7 +168,7 @@ void MatrixRectangular::addColumn(int ncolumn_added)
  * @param colKeep  Set of Columns to be kept (all if not defined)
  * @param flagInvertRow when True, transform 'rowKeep' into 'rowDrop'
  * @param flagInvertCol when True, transform 'colKeep' into 'colDrop'
- * @return Pointer to the newly created Rectangular Matrix
+ * @return Newly created Rectangular Matrix
  */
 MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
                                              const VectorInt& rowKeep,

@@ -92,6 +92,14 @@ if(Eigen3_FOUND)
     message(STATUS "Found Eigen3 version ${Eigen3_VERSION} in ${Eigen3_DIR}")
 endif()
 
+# Look for NLOPT
+find_package(NLopt REQUIRED)
+if (NLopt_FOUND)
+    message(STATUS "Found NLopt ${NLOPT_VERSION} from ${NLOPT_CONFIG_FILE}")
+else()
+    message(FATAL_ERROR "NLopt not found")
+endif()
+
 # Look for HDF5
 if (USE_HDF5)
   # Use static library for HDF5 under Windows (no more issue with DLL location)
@@ -143,7 +151,11 @@ foreach(FLAVOR ${FLAVORS})
   
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
-  
+
+  if(USE_BOOST_SPAN)
+    target_compile_definitions(${FLAVOR} PUBLIC USE_BOOST_SPAN)
+  endif()
+
   # Enable OpenMP
   target_link_libraries(${FLAVOR} PRIVATE OpenMP::OpenMP_CXX)
 
@@ -155,8 +167,17 @@ foreach(FLAVOR ${FLAVORS})
 
   # Link to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
-  target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
-  
+  # Currently Boost headers are only used in .cpp so a PRIVATE link minimizes
+  # dependencies for projects using gstlearn, except with USE_BOOST_SPAN.
+  if(USE_BOOST_SPAN)
+    target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
+  else()
+    target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
+  endif()
+
+  # Link to NLopt
+  target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
+
   # Link to HDF5
   if (USE_HDF5)
     # Define _USE_HDF5 macro

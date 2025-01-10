@@ -9,18 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
+#include "Basic/AStringable.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
                                    const VectorMeshes& meshes)
-  : PrecisionOpMulti(model,meshes,false)
+  : PrecisionOpMulti(model,meshes,false,false)
   , _Q(MatrixSparse(0,0))
 {
-  buildQop();
+  buildQop(false);
   _prepareMatrix();
 }
 
@@ -87,7 +88,7 @@ const MatrixSparse* PrecisionOpMultiMatrix::getQ() const
 {
   if (_isSingle())
   {
-    return ((PrecisionOpCs*)_pops[0])->getQ();
+    return ((PrecisionOpMatrix*)_pops[0])->getQ();
   }
   return &_Q;
 }
@@ -99,7 +100,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   MatrixSparse current(0, 0);
   for (int istruct = 0; istruct < _getNCov(); istruct++)
   {
-    const MatrixSparse* Q = ((PrecisionOpCs*)_pops[istruct])->getQ();
+    const MatrixSparse* Q = ((PrecisionOpMatrix*)_pops[istruct])->getQ();
 
     if (_model->getVariableNumber() == 1)
     {
@@ -125,17 +126,21 @@ PrecisionOpMultiMatrix::~PrecisionOpMultiMatrix()
 
 }
 
-void PrecisionOpMultiMatrix::_buildQop()
+void PrecisionOpMultiMatrix::_buildQop(bool stencil)
 {
+  if (stencil)
+  {
+    messerr("PrecisionOpMultiMatrix does not support stencil option\n");
+  }
   for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
     CovAniso* cova = _model->getCova(_getCovInd(icov));
-    _pops.push_back(new PrecisionOpCs(_meshes[icov], cova));
+    _pops.push_back(new PrecisionOpMatrix(_meshes[icov], cova));
   }
 }
 
-int PrecisionOpMultiMatrix::_addToDestImpl(const constvect vecin,
-                                           vect vecout) const
+int PrecisionOpMultiMatrix::_addToDest(const constvect vecin,
+                                       vect vecout) const
 {
   return getQ()->addToDest(vecin, vecout);
 }

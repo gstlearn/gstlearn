@@ -16,8 +16,6 @@
 #include "geoslib_define.h"
 
 #include "Space/ASpaceObject.hpp"
-
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
@@ -113,7 +111,7 @@ public:
     return TEST;
   }
 
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const 
   {
     DECLARE_UNUSED(icas1);
     DECLARE_UNUSED(iech1);
@@ -142,6 +140,17 @@ public:
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
 
+  virtual MatrixRectangular evalCovMatrixOptim(const Db *db1,
+                                       const Db *db2,
+                                       int ivar0 = -1,
+                                       int jvar0 = -1,
+                                       const VectorInt& nbgh1 = VectorInt(),
+                                       const VectorInt& nbgh2 = VectorInt(),
+                                       const CovCalcMode *mode = nullptr) const;
+  virtual MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
+                                                    int ivar0 = -1,
+                                                    const VectorInt &nbgh1 = VectorInt(),
+                                                    const CovCalcMode *mode = nullptr) const;
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
                       int ivar = 0,
@@ -246,11 +255,11 @@ public:
                                   int jvar0 = -1,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
-                                  const CovCalcMode* mode = nullptr);
+                                  const CovCalcMode* mode = nullptr) const;
   MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
                                                int ivar0,
                                                const VectorInt &nbgh1,
-                                               const CovCalcMode *mode);
+                                               const CovCalcMode *mode) const;
   MatrixSparse* evalCovMatrixSparse(const Db *db1_arg,
                                     const Db *db2_arg = nullptr,
                                     int ivar0 = -1,
@@ -312,10 +321,11 @@ public:
                                               const CovCalcMode *mode = nullptr) const;
 
   double loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const;
+                     const SpacePoint& p2,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode* mode) const;
+
 protected:
   virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const;
@@ -333,11 +343,12 @@ protected:
                                             const SpacePoint& pwork1, 
                                             const SpacePoint& pwork2,
                                             const CovCalcMode *mode) const;
-double _loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar = 0,
-                          int jvar = 0,
-                          const CovCalcMode *mode = nullptr) const;
+  double _loadAndEval(const SpacePoint& p1,
+                      const SpacePoint& p2,
+                      int ivar                = 0,
+                      int jvar                = 0,
+                      const CovCalcMode* mode = nullptr) const;
+
 private:
   virtual void _optimizationPostProcess() const; 
   virtual bool _isOptimEnabled() const {return _optimEnabled;}

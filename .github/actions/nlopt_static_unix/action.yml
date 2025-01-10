@@ -1,0 +1,26 @@
+name: 'NLopt static Unix'
+description: 'Build & install NLopt static libraries on Ubuntu & macOS'
+runs:
+  using: "composite"
+  steps:
+
+    - name: Build & install nlopt static libraries
+      shell: bash
+      run: |
+        curl -OL https://github.com/stevengj/nlopt/archive/v2.7.1.tar.gz
+        tar xvfz v2.7.1.tar.gz
+        cd nlopt-2.7.1
+        mkdir build && cd build
+        cmake \
+          -DBUILD_SHARED_LIBS=OFF \
+          -DNLOPT_GUILE=OFF \
+          -DNLOPT_MATLAB=OFF \
+          -DNLOPT_OCTAVE=OFF \
+          -DNLOPT_PYTHON=OFF \
+          -DNLOPT_SWIG=OFF \
+          -DNLOPT_TESTS=OFF \
+          ..
+        cmake --build . --parallel 3
+        sudo cmake --build . --target install
+      env:
+        CMAKE_BUILD_TYPE: Release

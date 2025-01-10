@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/IProjMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT TestInheritance : public AStringable
@@ -25,9 +25,9 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void setIproj(IProjMatrix* ipr){ _iproj = ipr;}
+  void setIproj(IProj* ipr){ _iproj = ipr;}
   virtual ~TestInheritance();
 
 private:
- IProjMatrix* _iproj;
+ IProj* _iproj;
 };

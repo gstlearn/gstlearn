@@ -34,7 +34,7 @@ jobs:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         # Only last version of R for Linux (fake source package)
-        r_version: [4.4.1]
+        r_version: [4.4.2]
         # Only one "old" Linux
         os: [ubuntu-20.04]
 
@@ -69,6 +69,9 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Unix Makefiles"
 
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_unix
+
     - name : Configure build directory
       run : |
         cmake \
@@ -97,7 +100,7 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.4.1]
+        r_version: [4.4.2]
         # Only one "old" Linux
         os: [ubuntu-20.04]
 
@@ -113,7 +116,7 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install gstlearn R package
+    - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tar.gz)\", repos=NULL, type='source')"
 
     - name: Test installed R package
@@ -131,6 +134,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Publish packages to our CRAN
     - uses: fabien-ors/cran-publish-action@v4
       with:
         host: ${{secrets.CG_HOST}}

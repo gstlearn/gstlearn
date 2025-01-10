@@ -12,11 +12,11 @@
 
 #include <Basic/VectorNumT.hpp>
 
-class GSTLEARN_EXPORT IProjMatrix
+class GSTLEARN_EXPORT IProj
 {
 public:
-  IProjMatrix() { }
-  virtual ~IProjMatrix() { }
+  IProj() { }
+  virtual ~IProj() { }
   int point2mesh(const VectorDouble& inv, VectorDouble& outv) const;
   int mesh2point(const VectorDouble& inv, VectorDouble& outv) const;
 #ifndef SWIG

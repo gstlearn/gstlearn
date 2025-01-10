@@ -75,7 +75,7 @@ protected:
   template <typename T>
   static bool _recordWriteVec(std::ostream& os,
                                const String& title,
-                               const VectorT<T>& vec);
+                               const std::vector<T>& vec);
 
   template <typename T>
   static bool _recordRead(std::istream& is,
@@ -120,7 +120,7 @@ bool ASerializable::_recordWrite(std::ostream& os,
       if (title.empty())
         os << STRING_NA << " ";
       else
-        os << STRING_NA << " # " << title << std::endl;
+        os << STRING_NA << " # " << title << '\n';
     }
     else
     {
@@ -129,7 +129,7 @@ bool ASerializable::_recordWrite(std::ostream& os,
       if (title.empty())
         os << val << " ";
       else
-        os << val << " # " << title << std::endl;
+        os << val << " # " << title << '\n';
       os.precision(prec);
     }
   }
@@ -139,12 +139,12 @@ bool ASerializable::_recordWrite(std::ostream& os,
 template <typename T>
 bool ASerializable::_recordWriteVec(std::ostream& os,
                                     const String& title,
-                                    const VectorT<T>& vec)
+                                    const std::vector<T>& vec)
 {
   if (os.good())
   {
     if (!title.empty())
-      os << "# " << title << std::endl;
+      os << "# " << title << '\n';
 
     int prec = os.precision();
     os.precision(15);
@@ -155,7 +155,7 @@ bool ASerializable::_recordWriteVec(std::ostream& os,
       else
         os << val << " ";
     }
-    os << std::endl;
+    os << '\n';
     os.precision(prec);
   }
   return os.good();

@@ -470,7 +470,7 @@ bool AGibbs::_isConstraintTight(int icase,
   double vmin = _db->getLocVariable(ELoc::L,iech, icase);
   double vmax = _db->getLocVariable(ELoc::U,iech, icase);
 
-  bool isActive = !FFFF(vmin) && !FFFF(vmax) && areEqual(vmin,vmax);
+  bool isActive = !FFFF(vmin) && !FFFF(vmax) && isEqual(vmin,vmax);
   if (isActive)
     *value = vmin;
   else

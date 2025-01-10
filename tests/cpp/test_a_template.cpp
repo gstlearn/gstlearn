@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovGneiting.hpp"
+#include "Covariances/CorGneiting.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbHelper.hpp"
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
                                      1.,
                                      1.,
                                      VectorDouble(),
-                                     VectorDouble(),
+                                     MatrixSquareSymmetric(),
                                      VectorDouble(),
                                      &space1d,
                                      false);
@@ -49,14 +49,14 @@ int main(int argc, char *argv[])
                                      1.,
                                      1.,
                                      scales,
-                                     VectorDouble(),
+                                     MatrixSquareSymmetric(),
                                      VectorDouble(),
                                      nullptr,
                                      false);
                                     
   CovAniso* covT = mT->getCova(0);
   CovAniso* covS = mS->getCova(0);
-  CovGneiting gneiting = CovGneiting(covS,covT,sep);
+  CorGneiting gneiting = CorGneiting(covS,covT,sep);
   SpacePoint p1(gneiting.getSpace());
   SpacePoint p2(gneiting.getSpace());
   p1.setCoords(coords1);

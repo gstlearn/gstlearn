@@ -65,7 +65,7 @@ bool isZero(double value, double eps)
   return (ABS(value) <= eps);
 }
 
-bool areEqual(double v1, double v2, double eps)
+bool isEqual(double v1, double v2, double eps)
 {
   return (ABS(v1 - v2) <= eps);
 }
@@ -1205,4 +1205,45 @@ void convertIndptrToIndices(int ncumul, const int* cumul, int* tab)
     int end   = cumul[i + 1];
     for (int j = start; j < end; j++) tab[j] = i;
   }
+}
+
+/**
+ * @brief Function checking that two values are equal
+ * This verbose method is essentially used in tests.
+ *
+ * @param v1 First value to be compared
+ * @param v2  Second value to be compared
+ * @param eps Tolerance used for comparison
+ * @param flagRelative when True, the values are compared without paying
+ * attention to their sign
+ * @param flagAbsolute when True, test is run on absolute difference
+ * @param string Message to be displayed when the vectors are not similar
+ * @return Boolean
+ */
+bool isEqualExtended(double v1,
+                     double v2,
+                     double eps,
+                     bool flagRelative,
+                     bool flagAbsolute,
+                     const String& string)
+{
+  // Check is performed on the absolute value of each term of each vector
+  if (flagAbsolute)
+  {
+    v1 = ABS(v1);
+    v2 = ABS(v2);
+  }
+
+  // Evaluate the comparison test
+  double diff = (v1 - v2);
+  if (flagRelative) diff /= (v1 + v2 + eps);
+
+  //
+  if (diff >= eps)
+  {
+    if (! string.empty()) message("%s : ", string.c_str());
+    message("Experimental value = %lf is larger than tolerance (%lf)\n", diff, eps);
+    return false;
+  }
+  return true;
 }

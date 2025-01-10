@@ -73,9 +73,8 @@ public:
   inline const VectorNumT<T>& divide(const T& v);
 };
 
-template <typename T>
-bool VectorNumT<T>::isSame(const VectorNumT& other,
-                           double eps) const
+template<typename T>
+bool VectorNumT<T>::isSame(const VectorNumT& other, double eps) const
 {
   if (other.size() != VectorNumT::size()) return false;
   for (size_type i = 0, n = VectorNumT::size(); i < n; i++)

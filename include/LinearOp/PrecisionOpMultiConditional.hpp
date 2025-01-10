@@ -31,7 +31,7 @@ public:
 
   /// Interface for PrecisionOpMultiConditional
   virtual void makeReady(){};
-  virtual int push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
+  virtual int push_back(PrecisionOp *pmatElem, IProj *projDataElem = nullptr);
   virtual double computeLogDetOp(int nbsimu = 1) const;
 
   /// Interface for ALinearOpMulti
@@ -80,7 +80,7 @@ protected:
 
 private:
   mutable std::vector<PrecisionOp*>        _multiPrecisionOp; // Pointers are simply stored; do not delete
-  std::vector<IProjMatrix*>                _multiProjData; // Pointers are simply stored; do not delete
+  std::vector<IProj*>                _multiProjData; // Pointers are simply stored; do not delete
   VectorDouble                             _varianceData; // Dimension: _ndat
   int                                      _ndat;
   int                                      _ncova;

@@ -13,17 +13,13 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
 
-#include <algorithm>
 #include <math.h>
 #include <vector>
 
@@ -131,7 +127,7 @@ int ACovAnisoList::getNVariables() const
   return 0;
 }
 
-bool ACovAnisoList::_considerAllCovariances(const CovCalcMode* mode) const
+bool ACovAnisoList::_considerAllCovariances(const CovCalcMode* mode)
 {
   if (mode == nullptr) return true;
   if (mode->isAllActiveCov()) return true;
@@ -582,7 +578,7 @@ void ACovAnisoList::setParam(int icov, double value)
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setParam(value);
 }
-void ACovAnisoList::setMarkovCoeffs(int icov, VectorDouble coeffs)
+void ACovAnisoList::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setMarkovCoeffs(coeffs);
@@ -663,7 +659,7 @@ void ACovAnisoList::normalize(double sill, int ivar, int jvar)
   for (int i=0, n=getCovaNumber(); i<n; i++)
     covval += _covs[i]->eval0(ivar, jvar);
 
-  if (covval <= 0. || areEqual(covval, sill)) return;
+  if (covval <= 0. || isEqual(covval, sill)) return;
   double ratio = sill / covval;
 
   for (int i=0, n=getCovaNumber(); i<n; i++)
@@ -760,7 +756,7 @@ void ACovAnisoList::_manage(const Db* db1,const Db* db2)  const
  * @param iech2 Rank of the target within Dbout (or -2)
  */
 
-void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) 
+void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
   for (const auto &e : _covs)
   {

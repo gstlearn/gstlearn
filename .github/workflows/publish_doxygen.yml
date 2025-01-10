@@ -43,7 +43,8 @@ jobs:
           doxygen \
           libopenmpi-dev \
           libboost-dev \
-          libeigen3-dev
+          libeigen3-dev \
+          libnlopt-dev
 
     - name: Configure build directory
       run: |

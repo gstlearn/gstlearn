@@ -3078,7 +3078,7 @@ int krigsum(Db *dbin,
 
   // Locally turn the problem to a Monovariate case to have it accepted
   dbin->clearLocators(ELoc::Z);
-  dbin->setLocatorByUID(iuids[0], ELoc::Z);
+  dbin->setLocatorByUID(iuids[0], ELoc::Z, 0);
   KrigingSystem ksys(dbin, dbout, model, neigh);
   if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptFlagLTerm(true)) return 1;
@@ -3089,7 +3089,7 @@ int krigsum(Db *dbin,
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     dbin->clearLocators(ELoc::Z);
-    dbin->setLocatorByUID(iuids[ivar], ELoc::Z);
+    dbin->setLocatorByUID(iuids[ivar], ELoc::Z, 0);
     if (ksys.updKrigOptEstim(iptr_est + ivar, -1, -1)) return 1;
     (void) gslSPrintf(string, "Kriging of variable #%d at sample", ivar + 1);
 

@@ -68,6 +68,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
     * R users: MinGW 7 (RTools 4.2) or higher
 * Boost header files 1.65 or higher
 * Eigen3 header files 3.4 or higher
+* NLopt library 2.7 or higher
 * Doxygen [Optional] 1.8.3 or higher with LaTeX and Ghostscripts
 * HDF5 [Optional] C++ library and header files 1.8 or higher
 
@@ -198,6 +199,7 @@ sudo apt install doxygen
 sudo apt install libboost-all-dev
 sudo apt install libeigen3-dev
 sudo apt install libhdf5-dev
+sudo apt install libnlopt-dev
 ```
 
 #### MacOS
@@ -214,6 +216,7 @@ brew install doxygen
 brew install libboost-all-dev
 brew install libeigen3-dev
 brew install libhdf5-dev
+brew install nlopt
 ```
 
 Define environment variables for the appropriate clang compiler (adapt llvm installation path):
@@ -246,6 +249,7 @@ Download and install the following tools using default options during installati
 6. Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder, we assume it is `C:\Program Files\doxygen`)
 7. LaTeX and Ghostscripts following instructions [here](https://www.doxygen.nl/manual/install.html#install_bin_windows)
 8. Eigen3 library [from here](https://eigen.tuxfamily.org) (Clone the repository in a folder of your choice and follow the instructions below)
+9. NLopt library [from here](https://nlopt.readthedocs.io/en/latest/) (Clone the repository in a folder of your choice and follow the instructions below)
 
 ##### Install Eigen3 headers using CMake
 
@@ -257,6 +261,18 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=C:/eigen_3_4_0
 cmake --build . --target install
+```
+
+##### Install NLopt using CMake
+
+Assume that you have cloned the [NLopt GitHub repository](https://github.com/stevengj/nlopt) in the following folder: `C:\NLopt_src\nlopt`. Open a command prompt by running `cmd.exe` and execute the following commands (adapt the NLopt source code path in the first command and the NLopt version in the INSTALL_PREFIX below):
+
+```
+cd C:\NLopt_src\nlopt
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=C:/NLopt -DBUILD_SHARED_LIBS=OFF -DNLOPT_GUILE=OFF -DNLOPT_MATLAB=OFF -DNLOPT_OCTAVE=OFF -DNLOPT_PYTHON=OFF -DNLOPT_SWIG=OFF -DNLOPT_TESTS=OFF
+cmake --build . --config Release --target install
 ```
 
 ##### Update the Path environment variable
@@ -319,6 +335,7 @@ pacman -Sy mingw-w64-x86_64-hdf5
 pacman -Sy mingw-w64-x86_64-texlive-latex-recommended
 pacman -Sy mingw-w64-x86_64-texlive-science
 pacman -Sy mingw-w64-x86_64-doxygen
+pacman -Sy mingw-w64-x86_64-nlopt
 ````
 
 ### Important Notes
@@ -334,11 +351,13 @@ pacman -Sy mingw-w64-x86_64-doxygen
 * Using MinGW on a Windows where another compiler is also installed may need to add `-G "MSYS Makefiles"` in the first cmake command above.
 * Using Visual Studio on a Windows where another compiler is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above. If you use the shortcut Makefile, you can use `DEBUG=1` after the `make` command
-* You may need to precise the location of Boost, Eigen3, HDF5 or Doxygen installation directory. In that case, add the following variables in the first cmake command above:
+* You may need to precise the location of Boost, Eigen3, HDF5, Doxygen or NLopt installation directory. In that case, add the following variables in the first cmake command above:
    * `-DBoost_ROOT="path/to/boost"`
    * `-DEigen3_ROOT="path/to/eigen3"`
    * `-DHDF5_ROOT="path/to/hdf5"`
    * `-DDoxygen_ROOT="path/to/doxygen"`
+   * `-DNLopt_ROOT="path/to/nlopt"`
+* By default the *gstlearn* C++ library requires a C++20 compiler. However this is currently only needed for `std::span<>`. If you are using Boost 1.78 or higher, the use of `std::span<>` can be replaced by `boost::span<>` by adding `-DUSE_BOOST_SPAN=ON` to the first cmake command above. The library can then be compiled with a C++17 or older compiler.
 
 ### Uninstall the Library
 
@@ -415,6 +434,7 @@ The *gstlearn* C++ library also depends on the following third-party libraries (
 | Boost          | see licenses   | https://www.boost.org                                          | see Boost headers
 | Eigen3         | MPL2           | https://eigen.tuxfamily.org                                    | see Eigen headers
 | HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
+| NLopt          | see licenses   | https://nlopt.readthedocs.io/en/latest/                        | see NLopt headers
 
 
 ### Data files
@@ -452,4 +472,4 @@ Here are the credits and licenses for the different data files available in each
 
 BSD 3-clause
 
-2024 Team gstlearn
+2025 Team gstlearn

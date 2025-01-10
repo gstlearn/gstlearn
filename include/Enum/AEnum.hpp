@@ -132,8 +132,8 @@ public:\
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
   static void printAll();\
-  static VectorString getAllKeys();\
-  static VectorString getAllDescr();\
+  static VectorString getAllKeys(int from = -10);\
+  static VectorString getAllDescr(int from = -10);\
 \
   static bool existsKey(const std::string_view key);\
   static bool existsValue(int value);\
@@ -218,25 +218,27 @@ void NAME::printAll()\
   }\
 }\
 \
-VectorString NAME::getAllKeys()\
+VectorString NAME::getAllKeys(int from)\
 {\
   VectorString keys;\
   auto it(getIterator());\
   while (it.hasNext())\
   {\
-    keys.push_back(String{(*it).getKey()});\
+    if ((*it).getValue() >= from)\
+      keys.push_back(String{(*it).getKey()});\
     it.toNext();\
   }\
   return keys;\
 }\
 \
-VectorString NAME::getAllDescr()\
+VectorString NAME::getAllDescr(int from)\
 {\
   VectorString descr;\
   auto it(getIterator());\
   while (it.hasNext())\
   {\
-    descr.push_back(String{(*it).getDescr()});\
+    if ((*it).getValue() >= from)\
+      descr.push_back(String{(*it).getDescr()});\
     it.toNext();\
   }\
   return descr;\

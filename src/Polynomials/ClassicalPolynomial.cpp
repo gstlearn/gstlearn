@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
+#include "Enum/EOperator.hpp"
+#include "LinearOp/AShiftOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
 
 ClassicalPolynomial::ClassicalPolynomial()
@@ -82,7 +84,7 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op,
   }
 }
 
-void ClassicalPolynomial::addEvalOp(ALinearOp* Op,
+void ClassicalPolynomial::_addEvalOp(ALinearOp* Op,
                                     const constvect inv,
                                     vect outv) const
 {
@@ -137,7 +139,8 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
   for (int i = 0; i < n; i++)
     outv[i] = _coeffs.back() * inv[i];
 
-  for (int j = static_cast<int>(_coeffs.size()) - 2; j >= 0; j--)
+  int degree = (int) _coeffs.size();
+  for (int j = degree - 2; j >= 0; j--)
   {
     Op->prodMatVecInPlace(outv, ws);
     for (int i = 0; i < n; i++)
@@ -145,6 +148,36 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
       outv[i] = _coeffs[j] * inv[i] + work[i];
     }
   }
+}
+
+/**
+ * @brief Returns the rank-th term of the Diagonal of 'Op'
+ * in its Polynomail expression through Horner mechanism
+ * It is similar to the method 'evalOp' but targets the diagonal only
+ * 
+ * @param S Target Sparse matrix (possibly not even concretized)
+ * @param rank Rank of the target
+ * @return double 
+ */
+double ClassicalPolynomial::evalOpByRank(MatrixSparse* S, int rank) const
+{
+  int degree = (int)_coeffs.size();
+  
+  MatrixSparse* work = S->getColumnAsMatrixSparse(rank, _coeffs.back());
+  MatrixSparse* outv = nullptr;
+  for (int j = degree - 2; j >= 0; j--)
+  {
+    if (j != degree - 2) work->prodMatMatInPlace(S, outv);
+    if (j == 0) break;
+    delete outv;
+    outv = work->clone();
+    outv->setValue(rank, 0, outv->getValue(rank, 0) + _coeffs[j]);
+  }
+
+  double retval = work->getValue(rank,0) + _coeffs[0];
+  delete outv;
+  delete work;
+  return retval;
 }
 
 // Classical Hörner scheme starting from the highest degree
@@ -178,7 +211,7 @@ void ClassicalPolynomial::evalOpTraining(
   }
 }
 #endif
-// void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOp(ShiftOpMatrix* shiftOp,
 //                                       const constvect& inv,
 //                                       vect& outv,
 //                                       int iapex,
@@ -225,7 +258,7 @@ void ClassicalPolynomial::evalOpTraining(
 //    delete polycur;
 // }
 
-// void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOp(ShiftOpMatrix* shiftOp,
 //                                       const VectorDouble& inv,
 //                                       VectorDouble& outv,
 //                                       int iapex,
@@ -240,7 +273,7 @@ void ClassicalPolynomial::evalOpTraining(
 //  messerr("evalDerivOp is not implemented for vectorsDouble");
 // }
 
-//void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+//void ClassicalPolynomial::evalDerivOpOptim(ShiftOpMatrix* shiftOp,
 //                                           const Eigen::VectorXd& in1,
 //                                           Eigen::VectorXd& in2,
 //                                           Eigen::VectorXd& outv,
@@ -271,7 +304,7 @@ void ClassicalPolynomial::evalOpTraining(
 //    }
 //}
 
-// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpMatrix* shiftOp,
 //                                            VectorDouble& temp1,
 //                                            VectorDouble& temp2,
 //                                            VectorDouble& outv,
@@ -291,7 +324,7 @@ void ClassicalPolynomial::evalOpTraining(
 // }
 
 
-// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+// void ClassicalPolynomial::evalDerivOpOptim(ShiftOpMatrix* shiftOp,
 //                                            vect& temp1,
 //                                            vect& temp2,
 //                                            vect& outv,

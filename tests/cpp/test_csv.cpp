@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
   mydb->setLocator("X", ELoc::X, 0);
   mydb->setLocator("Y", ELoc::X, 1);
-  mydb->setLocator("Zn", ELoc::Z);
+  mydb->setLocator("Zn", ELoc::Z, 0);
   DbStringFormat dbfmt(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
   mydb->display(&dbfmt);
 
