@@ -73,7 +73,7 @@ public:
                               const SpacePoint &p1,
                               const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)  override;
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -138,11 +138,11 @@ public:
                                        int jvar0 = -1,
                                        const VectorInt& nbgh1 = VectorInt(),
                                        const VectorInt& nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr) const;
+                                       const CovCalcMode *mode = nullptr) const override;
   MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
                                                     int ivar0 = -1,
                                                     const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr) const;
+                                                    const CovCalcMode *mode = nullptr) const override;
    
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;

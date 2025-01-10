@@ -73,17 +73,19 @@ static Db* _dataAsIs(Db* data)
  *****************************************************************************/
 static void _firstTest(Db* data,
                        Db* target,
-                       Model* model,
+                       ModelGeneric* model,
                        ANeigh* neigh,
                        const VectorDouble& means,
                        const VectorDouble& PriorMean,
                        MatrixSquareSymmetric& PriorCov)
 {
-  if (!model->hasDrift())
+  Model* modelc = dynamic_cast<Model*>(model);
+  if (!modelc->hasDrift())
   {
     messerr("The 'Model' must have drift defined to check 'Bayesian' option");
     return;
   }
+  
   
   // Local parameters
   bool debugPrint = false;
@@ -104,7 +106,7 @@ static void _firstTest(Db* data,
   // ---------------------- Using Standard Kriging procedure ---------------
   mestitle(1, "Using Standard Kriging procedure");
   Table table;
-  kribayes(dataP, target, model, neigh, PriorMean, PriorCov, true, true);
+  kribayes(dataP, target, modelc, neigh, PriorMean, PriorCov, true, true);
   table = target->printOneSample(iech0, {"Bayes*"}, true, true);
   target->deleteColumn("Bayes*");
   table.display();
@@ -112,7 +114,7 @@ static void _firstTest(Db* data,
   // ---------------------- Using Schur Class ------------------------------
   mestitle(1, "Using Schur class");
 
-  MatrixSquareSymmetric Sigma00 = model->getSillValues(0);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
@@ -146,10 +148,11 @@ static void _firstTest(Db* data,
  ** Testing Collocated option
  **
  *****************************************************************************/
-static void _secondTest(Db* data, Db* target, Model* model, const VectorDouble& means)
+static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorDouble& means)
 {
+  Model* modelc = dynamic_cast<Model*>(model);
   // Local parameters
-  int nvar = model->getVariableNumber();
+  int nvar = modelc->getVariableNumber();
   VectorInt varColCok = {0, 2}; // Ranks of collcated variables
   bool debugSchur     = false;
   if (nvar <= 1)
@@ -174,7 +177,7 @@ static void _secondTest(Db* data, Db* target, Model* model, const VectorDouble& 
   // ---------------------- With complemented Data Base ---------------------
   mestitle(1, "With Complemented input Data Base");
 
-  MatrixSquareSymmetric Sigma00P = model->getSillValues(0);
+  MatrixSquareSymmetric Sigma00P = model->eval0Mat();
   MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
   MatrixRectangular XP           = model->evalDriftMatrix(dataP);
   MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, target);
@@ -196,10 +199,10 @@ static void _secondTest(Db* data, Db* target, Model* model, const VectorDouble& 
   // ---------------------- With Collocated Option -------------------------
   mestitle(1, "With Collocated Option");
 
-  MatrixSquareSymmetric Sigma00 = model->getSillValues(0);
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
+  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
   VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
 
@@ -226,7 +229,7 @@ static void _secondTest(Db* data, Db* target, Model* model, const VectorDouble& 
  ** Testing Cross-validation option
  **
  *****************************************************************************/
-static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
+static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
 {
   // Set of ranks of cross-validated information
   VectorInt varXvalid = {1,2};
@@ -251,10 +254,10 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   // ----------------------With Deplemented Data Base ---------------------
   mestitle(1, "With Deplemented input Data Base");
 
-  MatrixSquareSymmetric Sigma00P = model->getSillValues(0);
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
+  MatrixSquareSymmetric Sigma00P = model->eval0Mat();
+  MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetricOptim(dataP);
   MatrixRectangular XP           = model->evalDriftMatrix(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, targetP, -1, -1, VectorInt(), {iech0});
+  MatrixRectangular Sigma0P      = model->evalCovMatrixOptim(dataP, targetP, -1, -1, VectorInt(), {iech0});
   MatrixRectangular X0P          = model->evalDriftMatrix(targetP, -1, {iech0});
   VectorDouble ZP =
     dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
@@ -274,10 +277,10 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
   // ---------------------- With Cross-validation Option -------------------------
   mestitle(1, "With Cross-Validation Option");
 
-  MatrixSquareSymmetric Sigma00 = model->getSillValues(0);
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
+  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrix(data, targetP);
+  MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, targetP);
   MatrixRectangular X0          = model->evalDriftMatrix(targetP);
   VectorDouble Z =
     data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
@@ -305,18 +308,17 @@ static void _thirdTest(Db* data, Model* model, const VectorDouble& means)
  ** Note: Means are set to 0 to check SK option
  **
  *****************************************************************************/
-static void _fourthTest(Db* data, Db* target, Model* model, const VectorDouble& means)
+static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorDouble& means)
 {
   // Title
   mestitle(0, "Estimation using Dual option or not (in Unique Neighborhood):");
-
   // ---------------------- Without Dual option ---------------------
   mestitle(1, "Without Dual option");
 
-  MatrixSquareSymmetric Sigma00 = model->getSillValues(0);
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
+  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
+  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
   MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
   VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
 
@@ -391,14 +393,16 @@ int main(int argc, char* argv[])
   if (flagSK) means = VH::simulateGaussian(nvar);
 
   // Create the Model
-  Model* model;
+  ModelGeneric* model;
+  
   double scale = 0.7;
   MatrixSquareSymmetric* sills =
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
   model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
                                  *sills, VectorDouble(), nullptr, false);
-  model->setMeans(means);
-  if (!flagSK) model->setDriftIRF(0, nfex);
+  Model* modelc = dynamic_cast<Model*>(model);
+  modelc->setMeans(means);
+  if (!flagSK) modelc->setDriftIRF(0, nfex);
 
   // Create the Bayesian Priors for Drift coefficients
   VectorDouble PriorMean = VH::simulateGaussian(nbfl);
