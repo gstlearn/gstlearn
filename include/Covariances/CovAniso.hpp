@@ -163,6 +163,8 @@ public:
 
 
   
+  const CorAniso* getCorAniso() const { return dynamic_cast<const CorAniso*>(getCor()); } 
+
   double getSlope(int ivar, int jvar) const;
   VectorDouble getRanges() const;
   const Rotation& getAnisoRotation() const { return _corAniso->getAniso().getRotation(); }

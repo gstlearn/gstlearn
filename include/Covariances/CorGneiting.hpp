@@ -29,7 +29,7 @@ class ACov;
 class GSTLEARN_EXPORT CorGneiting: public ACor, public ICloneable//, public ICloneable
 {
 public:
-  CorGneiting(const CovAniso* covS, const CovAniso* covTemp, double separability = 1.0);
+  CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability = 1.0);
   CorGneiting(const CorGneiting& r);
   CorGneiting& operator=(const CorGneiting& r);
   virtual ~CorGneiting();
@@ -59,10 +59,10 @@ private:
 
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
-  const CovAniso* _covS;
-  const CovAniso* _covTemp;
+  const CorAniso* _covS;
+  const CorAniso* _covTemp;
   double _separability;
-  mutable CovAniso _covSCopy;
+  mutable CorAniso _covSCopy;
 
 
 };

@@ -20,9 +20,10 @@
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "geoslib_define.h"
 #include <vector>
 
-CorGneiting::CorGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
+CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double separability)
 : ACor(CovContext())
 , _covS(covS)
 , _covTemp(covTemp)
@@ -72,26 +73,29 @@ CorGneiting::~CorGneiting()
 
 void CorGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
 {
-  _covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
-  _covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
+  DECLARE_UNUSED(pt)
+  //_covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
+  //_covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
 }
   
 void CorGneiting::optimizationSetTargetByIndex(int iech) const 
 {
-  _covS->optimizationSetTargetByIndex(iech);
-  _covTemp->optimizationSetTargetByIndex(iech);
+  DECLARE_UNUSED(iech)
+  //_covS->optimizationSetTargetByIndex(iech);
+  //_covTemp->optimizationSetTargetByIndex(iech);
 }
 
 void CorGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) const 
 {
-  _covS->_optimizationPreProcess(p);
-  _covTemp->_optimizationPreProcess(p);
+  DECLARE_UNUSED(p)
+ // _covS->_optimizationPreProcess(p);
+ // _covTemp->_optimizationPreProcess(p);
 }
 
 void CorGneiting::optimizationPostProcess() const
 {
-  _covS->optimizationPostProcess();
-  _covTemp->optimizationPostProcess();
+  //_covS->optimizationPostProcess();
+  //_covTemp->optimizationPostProcess();
 }
 
 double CorGneiting::eval(const SpacePoint& p1,

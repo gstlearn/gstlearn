@@ -13,7 +13,7 @@ space1D = gl.SpaceRN(1)
 sep = 1
 covtemp = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,ranges =scaleT,flagRange = False, space = space1D).getCova(0)
 covspat = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,ranges =scales,flagRange = False).getCova(0)
-gneiting = gl.CorGneiting(covspat,covtemp,sep)
+gneiting = gl.CorGneiting(covspat.getCorAniso(),covtemp.getCorAniso(),sep)
 p1 = gl.SpacePoint(gneiting.getSpace())
 p2 = gl.SpacePoint(gneiting.getSpace())
 p1.setCoords(coords1)

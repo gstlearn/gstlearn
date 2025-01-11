@@ -82,6 +82,8 @@ public:
   double getValue(const EConsElem& econs, int iv1, int iv2) const;
   void nostatUpdate(CovInternal *covint);
 
+  ACor* getCor() const {return _cor;}
+
 protected:
     void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
                       const AFunctional* func = nullptr, 
