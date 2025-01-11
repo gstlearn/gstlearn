@@ -14,6 +14,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CorAniso.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
@@ -47,7 +48,7 @@ class CovInternal;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovAniso: public CovBase, public ICloneable
+class GSTLEARN_EXPORT CovAniso: public CovProportional, public ICloneable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);

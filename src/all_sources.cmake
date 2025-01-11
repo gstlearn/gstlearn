@@ -68,7 +68,7 @@ set(SRC
   Covariances/TabNoStatCovAniso.cpp
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
-  Covariances/CovBase.cpp
+  Covariances/CovProportional.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp

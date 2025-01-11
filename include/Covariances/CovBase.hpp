@@ -45,7 +45,7 @@ public:
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
-  void setCor(ACor* cor);
+  virtual void setCor(ACor* cor);
   ACor* getCor() { return _cor; }
   
   double getSill(int ivar, int jvar) const;

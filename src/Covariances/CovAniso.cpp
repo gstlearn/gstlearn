@@ -12,7 +12,7 @@
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
-#include "Covariances/CovBase.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
@@ -40,16 +40,16 @@
 
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
-    : CovBase(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
+    : CovProportional(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
       _corAniso(new CorAniso(type, ctxt)),
       _optimEnabled(true)
 {
-  CovBase::setCor(_corAniso);
+  CovProportional::setCor(_corAniso);
   _initFromContext();
 }
 
 CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
-    :CovBase(new CorAniso(symbol, ctxt)), /// TODO : shared pointer
+    :CovProportional(new CorAniso(symbol, ctxt)), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
 {
@@ -63,7 +63,7 @@ CovAniso::CovAniso(const ECov &type,
                    double sill,
                    const CovContext &ctxt,
                    bool flagRange)
-    : CovBase(new CorAniso(type, range,param, ctxt, flagRange), MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
+    : CovProportional(new CorAniso(type, range,param, ctxt, flagRange), MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
 {
@@ -91,7 +91,7 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    : CovBase(new CorAniso(*r._corAniso),r._sill), /// TODO : shared pointer
+    : CovProportional(new CorAniso(*r._corAniso),r._sill), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
