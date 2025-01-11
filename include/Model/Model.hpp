@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
@@ -65,7 +66,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ICloneable
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ModelGeneric
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -390,37 +391,6 @@ public:
    *
    *  @{
    */
-  MatrixRectangular evalCovMatrix(Db* db1,
-                                  Db* db2 = nullptr,
-                                  int ivar0 = -1,
-                                  int jvar0 = -1,
-                                  const VectorInt& nbgh1 = VectorInt(),
-                                  const VectorInt& nbgh2 = VectorInt(),
-                                  const CovCalcMode* mode = nullptr)
-  {
-    if (_cova == nullptr) return MatrixRectangular();
-    return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
-  }
-  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
-                                               int ivar0 = -1,
-                                               const VectorInt &nbgh1 = VectorInt(),
-                                               const CovCalcMode *mode = nullptr)
-  {
-    if (_cova == nullptr) return MatrixSquareSymmetric();
-    return _cova->evalCovMatrixSymmetric(db1, ivar0, nbgh1, mode);
-  }
-  MatrixSparse* evalCovMatrixSparse(Db *db1,
-                                    Db *db2 = nullptr,
-                                    int ivar0 = -1,
-                                    int jvar0 = -1,
-                                    const VectorInt &nbgh1 = VectorInt(),
-                                    const VectorInt &nbgh2 = VectorInt(),
-                                    const CovCalcMode *mode = nullptr,
-                                    double eps = EPSILON3)
-  {
-    if (_cova == nullptr) return nullptr;
-    return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
-  }
   VectorDouble evalCovMatrixV(Db *db1,
                               Db *db2 = nullptr,
                               int ivar0 = -1,
@@ -575,14 +545,7 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMatrix(const Db *db,
-                                    int ivar0 = -1,
-                                    const VectorInt& nbgh = VectorInt(),
-                                    const ECalcMember &member = ECalcMember::fromKey("LHS")) const
-  {
-    if (_driftList == nullptr) return MatrixRectangular();
-    return _driftList->evalDriftMatrix(db, ivar0, nbgh, member);
-  }
+
 
   double evalDriftVarCoef(const Db *db,
                           int iech,
@@ -722,11 +685,6 @@ private:
   void _clear();
   void _create();
   void _copyCovContext();
-
-private:
-  ACov*      _cova;         /* Generic Covariance structure */
-  DriftList* _driftList;    /* Series of Drift functions */
-  CovContext _ctxt;         /* Context */
 
   MatrixSquareSymmetric _dummy;
 };
