@@ -200,7 +200,7 @@
   #include "Covariances/ACor.hpp"
   #include "Covariances/CorAniso.hpp"
   #include "Covariances/ACovFunc.hpp"
-  #include "Covariances/ACovAnisoList.hpp"
+  #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
   #include "Covariances/CorGneiting.hpp"

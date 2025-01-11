@@ -140,7 +140,6 @@ void CovBase::nostatUpdate(CovInternal *covint)
 
 
 
-
 void CovBase::copyCovContext(const CovContext &ctxt)
 {
   _ctxt.copyCovContext(ctxt);
@@ -472,15 +471,13 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                           const SpacePoint &p2,
                                           const CovCalcMode *mode) const
 {
-  
-  double cor = _cor->eval(p1,p2,0,0,mode);
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cor);
-  else
-  {
-    mat.addMatInPlace(_workMat, 1., cor);
-  }
+  int nvar = getNVariables();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double cor = _cor->eval(p1,p2,ivar,jvar,mode);
+      mat.addValue(ivar, jvar, _sill.getValue(ivar, jvar) * cor);
+    }
 }
 
 void CovBase::_optimizationPostProcess() const 

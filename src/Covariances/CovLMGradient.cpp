@@ -11,22 +11,22 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovLMGradient.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
 
 CovLMGradient::CovLMGradient(const ASpace* space)
-: ACovAnisoList(space)
+: CovAnisoList(space)
 {
 }
 
 CovLMGradient::CovLMGradient(const CovLMGradient &r)
-: ACovAnisoList(r)
+: CovAnisoList(r)
 {
 
 }
 
-CovLMGradient::CovLMGradient(const ACovAnisoList& r)
-    : ACovAnisoList()
+CovLMGradient::CovLMGradient(const CovAnisoList& r)
+    : CovAnisoList()
 {
 
   for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)
@@ -54,7 +54,7 @@ CovLMGradient& CovLMGradient::operator=(const CovLMGradient &r)
 {
   if (this != &r)
   {
-    ACovAnisoList::operator=(r);
+    CovAnisoList::operator=(r);
   }
   return *this;
 }
@@ -108,7 +108,7 @@ void CovLMGradient::addCov(const CovAniso* cov)
     return;
   }
   cov->setOptimEnabled(false);
-  ACovAnisoList::addCov(cov);
+  CovAnisoList::addCov(cov);
 
 }
 

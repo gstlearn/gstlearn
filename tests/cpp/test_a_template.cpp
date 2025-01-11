@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
   VectorDouble coords1 = {12.,3.,1.};
   VectorDouble coords2 = {4.,5.,2.};
   auto space1d = SpaceRN(1);
-  double sep = 1.;
   Model* mT = Model::createFromParam(ECov::EXPONENTIAL,
                                      scaleT,
                                      1.,

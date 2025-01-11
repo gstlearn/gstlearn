@@ -34,7 +34,7 @@ class MatrixSparse;
  * (in order to let the user defined its own version if necessary): it must simply be able to return its value
  * between two end-point (see eval method).
  *
- * It is mainly implemented in CovAniso.hpp or ACovAnisoList.hpp
+ * It is mainly implemented in CovAniso.hpp or CovAnisoList.hpp
  */
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {

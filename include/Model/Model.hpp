@@ -21,7 +21,7 @@
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 
 #include "Drifts/DriftList.hpp"
@@ -115,7 +115,7 @@ public:
                   const Option_AutoFit& mauto    = Option_AutoFit(),
                   bool verbose                   = false);
 
-  void   setCovList(const ACovAnisoList* covalist);
+  void   setCovList(const CovAnisoList* covalist);
   void addCov(const CovAniso* cov);
   void
   addCovFromParam(const ECov& type,
@@ -154,9 +154,9 @@ public:
   bool   hasDrift() const;
 
   ////////////////////////////////////////////////
-  /// TODO : to be removed (encapsulation of ACovAnisoList)
-  const ACovAnisoList* getCovAnisoList() const;
-  ACovAnisoList* getCovAnisoListModify();
+  /// TODO : to be removed (encapsulation of CovAnisoList)
+  const CovAnisoList* getCovAnisoList() const;
+  CovAnisoList* getCovAnisoListModify();
 
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
@@ -410,7 +410,7 @@ public:
                                        const VectorInt &nbgh2 = VectorInt(),
                                        const CovCalcMode *mode = nullptr)
   {
-    const ACovAnisoList *covalist = _castInCovAnisoListConst();
+    const CovAnisoList *covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return MatrixRectangular();
     return covalist->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
   }
@@ -420,7 +420,7 @@ public:
                                                     const VectorInt &nbgh1 = VectorInt(),
                                                     const CovCalcMode *mode = nullptr)
   {
-    const ACovAnisoList *covalist = _castInCovAnisoListConst();
+    const CovAnisoList *covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return MatrixRectangular();
     return covalist->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode);
   }
@@ -678,8 +678,8 @@ protected:
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Model"; }
 
-  const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
-  ACovAnisoList*       _castInCovAnisoList(int icov = -1);
+  const CovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
+  CovAnisoList*       _castInCovAnisoList(int icov = -1);
 
 private:
   void _clear();

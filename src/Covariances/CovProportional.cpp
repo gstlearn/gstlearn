@@ -22,6 +22,14 @@ CovProportional::CovProportional(ACor* cor,
 {
   _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
   _workMat.setIdentity();
+  if (cor != nullptr)
+    if (cor->getNVariables() != 1)
+    {
+        messerr("Correlation function should have only 1 variable");
+        messerr("You should use CovBase instead of CovProportional");
+        messerr("Undefined behaviour");
+        return;
+    }
 }
 
 CovProportional::~CovProportional()
@@ -36,5 +44,31 @@ void CovProportional::setCor(ACor* cor)
     messerr("Correlation function should have only 1 variable");
     return;
   }
-  setCor(cor);
+  CovBase::setCor(cor);
+}
+
+
+/**
+ * Calculate the Matrix of covariance between two space points
+ * @param p1 Reference of the first space point
+ * @param p2 Reference of the second space point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
+void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
+                                          const SpacePoint &p1,
+                                          const SpacePoint &p2,
+                                          const CovCalcMode *mode) const
+{
+  
+  double cor = getCor()->eval(p1,p2,0,0,mode);
+
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatInPlace(_sill, 1., cor);
+  else
+  {
+    mat.addMatInPlace(_workMat, 1., cor);
+  }
 }

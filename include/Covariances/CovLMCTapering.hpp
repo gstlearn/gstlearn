@@ -13,7 +13,7 @@
 #include "Enum/ETape.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 class ASpace;
 class SpacePoint;
 class CovAniso;
@@ -37,7 +37,7 @@ GSTLEARN_EXPORT double _tape_wendland2(double);
 
 GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
 
-class GSTLEARN_EXPORT CovLMCTapering : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
 {
 public:
   CovLMCTapering(const ETape& tapetype,

@@ -13,19 +13,19 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 
 class ASpace;
 class SpacePoint;
 class CovGradientNumerical;
 class CovCalcMode;
 
-class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMGradient : public CovAnisoList
 {
 public:
   CovLMGradient(const ASpace* space = nullptr);
   CovLMGradient(const CovLMGradient& r);
-  CovLMGradient(const ACovAnisoList& r);
+  CovLMGradient(const CovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);
   virtual ~CovLMGradient();
 

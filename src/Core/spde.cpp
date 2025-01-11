@@ -22,7 +22,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
