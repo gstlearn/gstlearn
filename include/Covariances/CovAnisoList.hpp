@@ -16,7 +16,7 @@
 #include "Enum/ECov.hpp"
 
 #include "Basic/ICloneable.hpp"
-#include "Covariances/ACov.hpp"
+#include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
@@ -40,7 +40,7 @@ class AAnam;
  * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
  * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
  */
-class GSTLEARN_EXPORT CovAnisoList : public ACov, public ICloneable
+class GSTLEARN_EXPORT CovAnisoList : public CovList, public ICloneable
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
@@ -61,11 +61,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       int ivar = 0,
-                       int jvar = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  
   virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode = nullptr) const override;
   virtual void _addEvalCovMatBiPointInPlace(
@@ -79,7 +75,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// CovAnisoList Interface
-  virtual void addCov(const CovAniso* cov);
+  virtual void addCovAniso(const CovAniso* cov);
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
   virtual void setActiveFactor(int /*iclass*/) { }
@@ -99,7 +95,7 @@ public:
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
-  double          getTotalSill(int ivar, int jvar) const;
+  double          getTotalSill(int ivar, int jvar) const override;
   MatrixSquareSymmetric getTotalSill() const;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
@@ -110,9 +106,9 @@ public:
   ////////////////////////////////////////////////
   const CovAniso*    getCova(int icov) const;
   CovAniso*          getCova(int icov); // TODO : beurk :(
-  void               setCova(int icov, CovAniso* covs);
-  const ECov&        getType(int icov) const;
-  String             getCovName(int icov) const;
+  void               setCovAniso(int icov, CovAniso* covs);
+  const ECov&        getType(int icov) const override;
+  String             getCovName(int icov) const override;
   void               setRangeIsotropic(int icov, double range);
   void               setType(int icov, const ECov& type);
   void               setParam(int icov, double value);
@@ -121,8 +117,6 @@ public:
   double             getParam(int icov) const;
   double             getRange(int icov) const;
   VectorDouble       getRanges(int icov) const;
-  const MatrixSquareSymmetric& getSill(int icov) const;
-  double             getSill(int icov, int ivar, int jvar) const;
   int                getGradParamNumber(int icov) const;
   CovAniso           extractCova(int icov) const;
   int                getCovaMinIRFOrder() const;
@@ -151,6 +145,8 @@ public:
 
 
 protected:
+  void _pushCov(const CovAniso* cov);
+
   bool _isCovarianceIndexValid(int icov) const;
   void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const override;
@@ -166,7 +162,7 @@ private:
 
 #ifndef SWIG
 protected:
-  std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
-  VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+ std::vector<CovAniso*> _covAnisos;     /// Vector of elementary covariances
+ // VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
 #endif
 };

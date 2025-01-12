@@ -68,7 +68,7 @@ void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
 
 int CovLMCTapering::init(const ETape& tapetype, double taperange)
 {
-  for (auto &e: _covs)
+  for (auto &e: _covAnisos)
   {
     e->setOptimEnabled(false);
   }

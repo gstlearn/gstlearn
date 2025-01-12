@@ -340,7 +340,7 @@ void Model::addCov(const CovAniso *cov)
   if (_cova == nullptr) return;
   CovAnisoList* covalist = _castInCovAnisoList();
   if (covalist == nullptr) return;
-  covalist->addCov(cov);
+  covalist->addCovAniso(cov);
 }
 
 void Model::addCovFromParamOldStyle(const ECov& type,
@@ -1358,7 +1358,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     }
     else
       cova.setRangeIsotropic(range);
-    covs.addCov(&cova);
+    covs.addCovAniso(&cova);
   }
   setCovList(&covs);
 

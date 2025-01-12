@@ -17,6 +17,7 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
 
 #include <vector>
@@ -45,9 +46,11 @@ public:
   virtual ~ACov();
 
   /// ACov Interface
-  virtual int getNVariables() const = 0;
+  virtual int getNVariables() const {return _ctxt.getNVar();};
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
+
+  const CovContext& getContext() const { return _ctxt; }
 
  
   /// Calculate the covariance between two variables for 0-distance (stationary case)
@@ -373,4 +376,8 @@ protected:
   mutable SpacePoint _p2A;
   const mutable SpacePoint* _pw1;
   const mutable SpacePoint* _pw2;
+
+private:
+  CovContext _ctxt;         /* Context */
+
 };

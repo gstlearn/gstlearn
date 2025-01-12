@@ -231,6 +231,7 @@
 %include Covariances/ACor.hpp
 %include Covariances/CorAniso.hpp
 %include Covariances/ACovFunc.hpp
+%include Covariances/CovList.hpp
 %include Covariances/CovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp

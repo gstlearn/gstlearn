@@ -89,7 +89,7 @@ int CovLMCConvolution::init(const EConvType& conv_type,
                             double conv_range,
                             int conv_ndisc)
 {
-  for (auto &e: _covs)
+  for (auto &e: _covAnisos)
   {
     e->setOptimEnabled(false);
   }

@@ -91,7 +91,7 @@ CovLMCAnamorphosis::~CovLMCAnamorphosis()
 
 int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
 {
-  for (auto &e: _covs)
+  for (auto &e: _covAnisos)
   {
     e->setOptimEnabled(false);
   }
@@ -612,7 +612,7 @@ const EAnam CovLMCAnamorphosis::getAnamType() const
   return _anam->getType();
 }
 
-void CovLMCAnamorphosis::addCov(const CovAniso* cov)
+void CovLMCAnamorphosis::addCovAniso(const CovAniso* cov)
 {
   // In this context, check that the Covariance is monovariate
 

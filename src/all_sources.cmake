@@ -84,6 +84,7 @@ set(SRC
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp
   Covariances/CovGC5.cpp
+  Covariances/CovList.cpp
   Covariances/CovAnisoList.cpp
   Covariances/CovPenta.cpp
   Covariances/CovGamma.cpp

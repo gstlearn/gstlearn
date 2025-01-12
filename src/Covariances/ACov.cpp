@@ -34,8 +34,10 @@ ACov::ACov(const ASpace *space)
       _optimEnabled(true),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(space)
+      _p2A(space),
+      _ctxt(1,space)
 {
+
 }
 
 ACov::ACov(const ACov &r)
@@ -43,7 +45,8 @@ ACov::ACov(const ACov &r)
       _optimEnabled(r._optimEnabled),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(r.getSpace())
+      _p2A(r.getSpace()),
+      _ctxt(r.getContext())
 {
 }
 
@@ -55,6 +58,7 @@ ACov& ACov::operator=(const ACov &r)
     _optimEnabled = r._optimEnabled;
     _isOptimPreProcessed = r._isOptimPreProcessed;
     _p2A = SpacePoint(r._space);
+    _ctxt = r.getContext();
   }
   return *this;
 }
