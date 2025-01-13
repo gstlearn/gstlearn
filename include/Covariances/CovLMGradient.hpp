@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/ACovAnisoList.hpp"

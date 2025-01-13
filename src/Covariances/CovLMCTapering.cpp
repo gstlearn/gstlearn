@@ -14,7 +14,6 @@
 
 #include "Covariances/CovLMCTapering.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -56,14 +55,14 @@ CovLMCTapering::~CovLMCTapering()
 void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
-  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  ACovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 int CovLMCTapering::init(const ETape& tapetype, double taperange)
