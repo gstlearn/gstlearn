@@ -12,7 +12,6 @@
 #include "Enum/EConvType.hpp"
 
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovAniso.hpp"

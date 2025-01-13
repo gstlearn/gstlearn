@@ -57,7 +57,7 @@ public:
   int getAnamNClass() const override { return _anam->getNClass(); }
 
   int init(const VectorInt& strcnt = VectorInt());
-  const EAnam getAnamType() const;
+  EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
 protected:

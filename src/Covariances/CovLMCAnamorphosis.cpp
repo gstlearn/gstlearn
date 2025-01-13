@@ -71,7 +71,7 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis& r)
 void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 
 void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
@@ -79,7 +79,7 @@ void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
-  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  ACovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 CovLMCAnamorphosis::~CovLMCAnamorphosis()
@@ -411,28 +411,20 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
    }
    return cov;
   }
-  else
+
+  // Structure for the factor 'iclass'
+
+  double li  = anamDD->getDDStatLambda(iclass);
+  double mui = anamDD->getDDStatMul(iclass);
+
+  double coeff = 0.;
+  switch (mode->getMember().getValue())
   {
-    // Structure for the factor 'iclass'
-
-    double li  = anamDD->getDDStatLambda(iclass);
-    double mui = anamDD->getDDStatMul(iclass);
-
-    double coeff = 0.;
-    switch (mode->getMember().getValue())
-    {
-      case ECalcMember::E_LHS:
-        return 1.;
-        break;
-      case ECalcMember::E_RHS:
-        return mui;
-        break;
-      case ECalcMember::E_VAR:
-        return 1.;
-        break;
-    }
-    return coeff * exp(-li * gamma);
+    case ECalcMember::E_LHS: return 1.; break;
+    case ECalcMember::E_RHS: return mui; break;
+    case ECalcMember::E_VAR: return 1.; break;
   }
+  return coeff * exp(-li * gamma);
 }
 
 double CovLMCAnamorphosis::_evalDiscreteDD0(int /*ivar*/,
@@ -595,7 +587,7 @@ void CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
   _activeFactor = anam_iclass;
 }
 
-const EAnam CovLMCAnamorphosis::getAnamType() const
+EAnam CovLMCAnamorphosis::getAnamType() const
 {
   if (_anam == nullptr) return EAnam::UNKNOWN;
   return _anam->getType();
