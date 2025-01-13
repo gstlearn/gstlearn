@@ -109,7 +109,7 @@ private:
   void   _transformCovCalcModeIR(CovCalcMode* mode, int iclass) const;
 
 private:
-  int    _activeFactor;       /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
+  int       _activeFactor;    /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
   VectorInt _anamStrCount;    /* List of covariances in the Model (for RI only) */
   const AAnam* _anam;
 };

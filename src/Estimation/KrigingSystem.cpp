@@ -21,6 +21,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Model/Model.hpp"
+#include "Model/ModelGeneric.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
@@ -45,11 +46,13 @@
 
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
-                             const Model* model,
+                             const ModelGeneric* model,
                              ANeigh* neigh)
-  : _dbin(dbin)
+  : _oldStyle(true)
+  , _dbin(dbin)
   , _dbout(dbout)
   , _modelInit(nullptr)
+  , _modelCovAniso(nullptr)
   , _neigh(neigh)
   , _anam(nullptr)
   , _isReady(false)
@@ -130,8 +133,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _dbinUidToBeDeleted()
   , _dboutUidToBeDeleted()
   , _space(2)
-  , // empty constructor does not exist. Anyhow it will be overwritten next.
-  _p0()
+  , _p0()
   , _p1()
   , _p2()
   , _p0_memo()
@@ -141,23 +143,22 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _cova(nullptr)
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
-  if (model != nullptr)
-    _modelInit = model->clone();
+  if (model != nullptr) _modelInit = (ModelGeneric*)model->clone();
+  _model = _modelInit;
 
-  if (model->getCovaNumber()>0)
-    _cova = _modelInit->getCovAnisoListModify();
+  // Store the pointer casting the input ModelGeneric* into Model*
+  // in order to avoid too many dynamic casts in the code
+  if (model != nullptr) _modelCovAniso = dynamic_cast<const Model*>(model);
+
+  if (_model->getCovaNumber() > 0)
+    _cova = _model->getCovAnisoListModify();
   
   if (model != nullptr)
     _flagNoStat = _cova->isNoStat();
 
-  // Set the current Model to _modelInit
-  _model = _modelInit;
-
   // Reset the neighborhood
   if (neigh != nullptr)
-  {
     neigh->reset();
-  }
 
   // Define local constants
   _flagNoMatLC = _matLC == nullptr;
@@ -214,7 +215,16 @@ KrigingSystem::~KrigingSystem()
     delete _modelInit;
     _modelInit = nullptr;
   }
+}
 
+/**
+ * @brief Set the style
+ * 
+ * @param status True for New style and False for Old Style
+ */
+void KrigingSystem::setKrigingSystemNewStyle(bool status)
+{
+  _oldStyle = status;
 }
 
 int KrigingSystem::_getNVar() const
@@ -433,17 +443,17 @@ double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 
   if (_flagNoMatLC || flagLHS)
   {
-    double mean = _model->getMean(ivar);
+    double mean = _modelCovAniso->getMean(ivar);
     if (_flagBayes)
-      mean = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
+      mean = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
     return mean;
   }
   double value = 0.;
   for (int jvar = 0; jvar < _nvar; jvar++)
   {
-    double mean = _model->getMean(jvar);
+    double mean = _modelCovAniso->getMean(jvar);
     if (_flagBayes)
-      mean = _model->evalDriftVarCoef(_dbout, _iechOut, jvar, _postMean);
+      mean = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, jvar, _postMean);
     value += _matLC->getValue(ivar, jvar) * mean;
   }
   return value;
@@ -512,7 +522,7 @@ void KrigingSystem::_flagDefine()
 
   for (int ib = 0; ib < _nfeq; ib++)
   {
-    if (! _model->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
+    if (! _modelCovAniso->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
       _setFlag(_nech + ib, _nvar - 1, 0);
   }
 
@@ -564,7 +574,7 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   DECLARE_UNUSED(icas);
   DECLARE_UNUSED(iech);
-  _model->eval0MatInPlace(_covtab, mode);
+  _modelCovAniso->eval0MatInPlace(_covtab, mode);
 }
 
 
@@ -689,7 +699,7 @@ void KrigingSystem::_lhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = _model->evalDriftValue(_dbin, _nbgh[iech], ivar, ib, ECalcMember::LHS);
+        double value = _modelCovAniso->evalDriftValue(_dbin, _nbgh[iech], ivar, ib, ECalcMember::LHS);
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
@@ -975,7 +985,7 @@ int KrigingSystem::_rhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = _model->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
+        double value = _modelCovAniso->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
         if (FFFF(value)) return 1;
         _setRHSF(ib,_nvar,ivar,value);
       }
@@ -988,7 +998,7 @@ int KrigingSystem::_rhsCalcul()
       for (int jvar = 0; jvar < _nvar; jvar++)
         for (int jl = 0; jl < _nbfl; jl++, ib++)
         {
-          double value = _model->evalDriftValue(_dbout, _iechOut, jvar, ib, ECalcMember::RHS);
+          double value = _modelCovAniso->evalDriftValue(_dbout, _iechOut, jvar, ib, ECalcMember::RHS);
           if (FFFF(value)) return 1;
           value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
@@ -1218,7 +1228,7 @@ void KrigingSystem::_simulateCalcul(int status)
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
+          simu = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
         int lec = 0;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1684,11 +1694,13 @@ bool KrigingSystem::isReady()
 
   // Define the calculation modes
   _calcModeLHS = CovCalcMode(ECalcMember::LHS);
-  _calcModeLHS.setActiveCovList(_model->getAllActiveCovList(), true);
+  _calcModeLHS.setActiveCovList(_modelCovAniso->getAllActiveCovList(), true);
   _calcModeRHS = CovCalcMode(ECalcMember::RHS);
-  _calcModeRHS.setActiveCovList(_model->getActiveCovList(), _model->isAllActiveCovList());
+  _calcModeRHS.setActiveCovList(_modelCovAniso->getActiveCovList(),
+                                _modelCovAniso->isAllActiveCovList());
   _calcModeVAR = CovCalcMode(ECalcMember::VAR);
-  _calcModeVAR.setActiveCovList(_model->getActiveCovList(), _model->isAllActiveCovList());
+  _calcModeVAR.setActiveCovList(_modelCovAniso->getActiveCovList(),
+                                _modelCovAniso->isAllActiveCovList());
 
   // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)
@@ -2289,7 +2301,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 
     // Duplicate the Model and suppress any Drift component
 
-    _modelSimple = _modelInit->clone();
+    _modelSimple = (ModelGeneric*) _modelInit->clone();
     _modelSimple->delAllDrifts();
   }
   _flagBayes = flag_bayes;
@@ -2481,7 +2493,7 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
   }
   else
   {
-    if (! _model->hasAnam())
+    if (! _modelCovAniso->hasAnam())
     {
       messerr("You may not use this option as there is no Anamorphosis defined");
       return 1;
@@ -2716,9 +2728,8 @@ bool KrigingSystem::_isCorrect()
 
 bool KrigingSystem::_preparNoStat()
 {
-  const auto* const cova = _model->getCovAnisoList();
+  const auto* const cova = _modelCovAniso->getCovAnisoList();
   cova->manage(_dbin, _dbout);
-
   return true;
 }
 
@@ -3152,7 +3163,7 @@ void KrigingSystem::_bayesCorrectVariance()
     for (int il = 0; il < _nfeq; il++)
     {
       FF(ib, il) =
-        _model->evalDriftValue(_dbin, _nbgh[ib], 0, il, ECalcMember::LHS);
+        _modelCovAniso->evalDriftValue(_dbin, _nbgh[ib], 0, il, ECalcMember::LHS);
     }
 
   // Establish the drift vector at target
@@ -3161,7 +3172,7 @@ void KrigingSystem::_bayesCorrectVariance()
     for (int il = 0; il < _nfeq; il++)
     {
       double X0 =
-        _model->evalDriftValue(_dbout, _iechOut, ivar, il, ECalcMember::RHS);
+        _modelCovAniso->evalDriftValue(_dbout, _iechOut, ivar, il, ECalcMember::RHS);
       for (int ib = 0; ib < shift; ib++)
         X0 -= FF(ib, il) * _wgt.getValue(ib, ivar, false);
       FF0(il, ivar) = X0;
@@ -3302,7 +3313,7 @@ int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
  * Note: It also modifies the shortcut variables consequently
  * @param model Pointer to the new model
  */
-void KrigingSystem::_setLocalModel(Model* model)
+void KrigingSystem::_setLocalModel(ModelGeneric* model)
 {
   _model = model;
   _setInternalShortCutVariablesModel();

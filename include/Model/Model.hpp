@@ -592,7 +592,6 @@ public:
       nvar = _ctxt.getNVar();
     return nvar;
   }
-
   int hasExternalCov() const;
 
   VectorDouble sampleUnitary(const VectorDouble &hh,

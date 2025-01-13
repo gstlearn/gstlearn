@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Covariances/CovGC1.hpp"
 
-#include "Basic/Law.hpp"
 #include "Simulation/TurningBandOperate.hpp"
 #include "Covariances/CovContext.hpp"
 

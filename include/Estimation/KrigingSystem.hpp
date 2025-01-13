@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Covariances/ACovAnisoList.hpp"
+#include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Space/SpaceRN.hpp"
@@ -26,6 +27,7 @@
 class Db;
 class DbGrid;
 class Model;
+class ModelGeneric;
 class ANeigh;
 class CovCalcMode;
 class ECalcMember;
@@ -38,12 +40,13 @@ class GSTLEARN_EXPORT KrigingSystem
 public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
-                const Model* model,
+                const ModelGeneric* model,
                 ANeigh* neigh);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
 
+  void setKrigingSystemNewStyle(bool status = false);
   int  setKrigOptCalcul(const EKrigOpt& calcul,
                         const VectorInt& ndiscs = VectorInt(),
                         bool flag_per_cell = false);
@@ -181,22 +184,24 @@ private:
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
 
-  void   _setLocalModel(Model* model);
+  void   _setLocalModel(ModelGeneric* model);
   void   _setInternalShortCutVariablesGeneral();
   void   _setInternalShortCutVariablesModel();
   int    _setInternalShortCutVariablesNeigh();
 
 private:
+  bool                 _oldStyle;
   // Aggregated classes
   Db*                  _dbin;
   Db*                  _dbout;
-  Model*               _modelInit; // Copy of the input model
+  ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
+  const Model*         _modelCovAniso; // Used to replace _model when used for covaniso explicitly
   ANeigh*              _neigh;
   const AAnam*         _anam;
   bool                 _isReady;
 
   // Pointer to the Model currently used (must not be freed)
-  Model*               _model;
+  ModelGeneric*        _model;
   bool                 _optimEnabled;
 
   // Calculation modes
@@ -257,14 +262,14 @@ private:
   CholeskyDense         _postCovChol;
   MatrixRectangular     _postSimu; // Dimension NF * NBSIMU
   MatrixSquareSymmetric _varCorrec;
-  Model* _modelSimple;
+  ModelGeneric*         _modelSimple; // Copy of the input ModelGeneric (all drifts removed)
 
-  /// Option for Discrete Gaussian Model
+  /// Option for Discrete Gaussian case
   bool   _flagDGM;
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
-  int _nclasses;
+  int  _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
   const MatrixRectangular* _matLC;

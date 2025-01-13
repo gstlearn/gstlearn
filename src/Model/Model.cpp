@@ -798,14 +798,16 @@ bool Model::isAllActiveCovList() const
 }
 void Model::setActiveFactor(int iclass)
 {
-  ACovAnisoList* covalist = _castInCovAnisoList();
+  if (_cova == nullptr) return;
+  CovLMCAnamorphosis* covalist = dynamic_cast<CovLMCAnamorphosis*>(_cova);
   if (covalist == nullptr) return;
   covalist->setActiveFactor(iclass);
 }
 int Model::getActiveFactor() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return ITEST;
+  if (_cova == nullptr) return 0;
+  CovLMCAnamorphosis* covalist = dynamic_cast<CovLMCAnamorphosis*>(_cova);
+  if (covalist == nullptr) return 0;
   return covalist->getActiveFactor();
 }
 int Model::getAnamNClass() const
@@ -1006,12 +1008,7 @@ int Model::getDriftNumber() const
 int Model::getExternalDriftNumber() const
 {
   if (_driftList == nullptr) return 0;
-  int nfex = 0;
-  for (int il = 0; il < getDriftNumber(); il++)
-  {
-    if (getDrift(il)->isDriftExternal()) nfex++;
-  }
-  return nfex;
+  return _driftList->getExternalDriftNumber();
 }
 int Model::getRankFext(int il) const
 {
