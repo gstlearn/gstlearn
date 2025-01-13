@@ -20,6 +20,7 @@ CovProportional::CovProportional(ACor* cor,
                 const MatrixSquareSymmetric &sill)
 : CovBase(cor,sill)
 {
+  _ctxt.setNVar(sill.getNCols());
   _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
   _workMat.setIdentity();
   if (cor != nullptr)

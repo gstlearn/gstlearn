@@ -39,7 +39,8 @@ class MatrixSparse;
  */
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
-public:
+  public :
+  
   ACov(const ASpace* space = nullptr);
   ACov(const ACov &r);
   ACov& operator=(const ACov &r);
@@ -330,6 +331,7 @@ public:
                      const CovCalcMode* mode) const;
 
 protected:
+  void setNVar(int nvar) { _ctxt.setNVar(nvar); }
   virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const;
   virtual void _optimizationSetTarget(const SpacePoint &pt) const;
@@ -376,8 +378,6 @@ protected:
   mutable SpacePoint _p2A;
   const mutable SpacePoint* _pw1;
   const mutable SpacePoint* _pw2;
-
-private:
   CovContext _ctxt;         /* Context */
 
 };

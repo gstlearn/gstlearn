@@ -45,7 +45,11 @@ void CovList::addCovList(const CovList* covs)
 
 void CovList::addCov(const CovBase* cov)
 {
-  if (getCovaNumber() > 0)
+  if (getCovaNumber() == 0)
+  {
+    setNVar(cov->getNVariables());
+  }
+  else
   {
     // A covariance has already been considered.
     // Check that the current Context is similar to the one of the newly

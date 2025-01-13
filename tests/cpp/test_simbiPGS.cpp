@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   CovAnisoList covs1(ctxt.getSpace());
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
-  covs1.addCov(&cova1);
+  covs1.addCovAniso(&cova1);
   model1.setCovList(&covs1);
   model1.display();
   (void) model1.dumpToNF("PGSmodel1.ascii");
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   CovAnisoList covs2(ctxt.getSpace());
   double range2 = 0.3;
   CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
-  covs2.addCov(&cova2);
+  covs2.addCovAniso(&cova2);
   model2.setCovList(&covs2);
   model2.display();
   (void) model2.dumpToNF("PGSmodel2.ascii");
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   CovAnisoList covs3(ctxt.getSpace());
   double range3 = 0.2;
   CovAniso cova3(ECov::MATERN,range3,1.,1.,ctxt);
-  covs3.addCov(&cova3);
+  covs3.addCovAniso(&cova3);
   model3.setCovList(&covs3);
   model3.display();
   (void) model3.dumpToNF("PGSmodel3.ascii");
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   CovAnisoList covs4(ctxt.getSpace());
   double range4 = 0.1;
   CovAniso cova4(ECov::SPHERICAL,range4,1.,1.,ctxt);
-  covs4.addCov(&cova4);
+  covs4.addCovAniso(&cova4);
   model4.setCovList(&covs4);
   model4.display();
   (void) model4.dumpToNF("PGSmodel4.ascii");

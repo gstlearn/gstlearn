@@ -108,7 +108,7 @@ void CovLMGradient::addCovAniso(const CovAniso* cov)
     return;
   }
   cov->setOptimEnabled(false);
-  CovAnisoList::addCov(cov);
+  CovAnisoList::addCovAniso(cov);
 
 }
 

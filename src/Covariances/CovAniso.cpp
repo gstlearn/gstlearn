@@ -95,12 +95,13 @@ CovAniso::CovAniso(const CovAniso &r)
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
+  _ctxt.setNVar(r.getNVariables());
 }
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
 {
   if (this != &r)
-  {
+  { 
      setCor(new CorAniso(*r._corAniso));
     _corAniso = (CorAniso*)getCor();
     _ctxt = r._ctxt;

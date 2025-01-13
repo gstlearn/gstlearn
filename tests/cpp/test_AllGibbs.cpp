@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill(sill);
-  covs.addCov(&cova);
+  covs.addCovAniso(&cova);
   model->setCovList(&covs);
   model->display();
 

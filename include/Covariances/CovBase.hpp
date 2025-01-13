@@ -120,7 +120,6 @@ void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 protected:
     TabNoStat _tabNoStat;
     mutable MatrixSquareSymmetric _sill;
-    CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?    
     mutable MatrixSquareGeneral _workMat;
 private :
     ACor* _cor;

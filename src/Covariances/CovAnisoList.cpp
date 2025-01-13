@@ -66,9 +66,22 @@ void CovAnisoList::addCovList(const CovAnisoList* covs)
     addCov(covs->getCova(icov));
 }
 
+void CovAnisoList::addCov(const CovBase* cov)
+{
+  const CovAniso* covaniso = dynamic_cast<const CovAniso*>(cov);
+  if (covaniso != nullptr)
+    addCovAniso(covaniso);
+  else
+    messerr("Error: CovAnisoList::addCov: Covariance is not of type CovAniso");
+}
+
 void CovAnisoList::addCovAniso(const CovAniso* cov)
 {
-  if (getCovaNumber() > 0)
+  if (getCovaNumber() == 0)
+  {
+    setNVar(cov->getNVariables());
+  }
+  else
   {
     // A covariance has already been considered.
     // Check that the current Context is similar to the one of the newly
@@ -140,12 +153,6 @@ int CovAnisoList::getNVariables() const
   return 0;
 }
 
-bool CovAnisoList::_considerAllCovariances(const CovCalcMode* mode)
-{
-  if (mode == nullptr) return true;
-  if (mode->isAllActiveCov()) return true;
-  return false;
-}
 
 double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
@@ -335,19 +342,6 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
   return mat;
 }
 
-double CovAnisoList::_loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const
-{ 
-  double res = 0.;
-  for (const auto &e : _covs)
-  {
-    res += e->loadAndEval(p1, p2, ivar, jvar, mode);
-  }
-  return res;
-}
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point
@@ -375,15 +369,6 @@ void CovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
     {
       _covs[mode->getActiveCovList(i)]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
     }
-  }
-}
-
-void CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
-{
-  for (const auto &e : _covs)
-  {
-    e->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
   }
 }
 
@@ -698,28 +683,6 @@ const CovAnisoList* CovAnisoList::createReduce(const VectorInt &validVars) const
   return newcovlist;
 }
 
-void CovAnisoList::_manage(const Db* db1,const Db* db2)  const
-{
-  for (const auto &e : _covs)
-  {
-    e->manage(db1,db2);
-  }
-}
 
 
-/**
- * Update the Model according to the Non-stationary parameters
- * @param icas1 Type of first Db: 1 for Input; 2 for Output
- * @param iech1 Rank of the target within Db1 (or -1)
- * @param icas2 Type of first Db: 1 for Input; 2 for Output
- * @param iech2 Rank of the target within Dbout (or -2)
- */
-
-void CovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
-{
-  for (const auto &e : _covs)
-  {
-    e->updateCovByPoints(icas1,iech1,icas2,iech2);
-  }
-}
 

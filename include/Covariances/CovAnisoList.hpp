@@ -69,13 +69,14 @@ public:
                               const SpacePoint &p1,
                               const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// CovAnisoList Interface
   virtual void addCovAniso(const CovAniso* cov);
+  void addCov(const CovBase* cov) override;
+
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
   virtual void setActiveFactor(int /*iclass*/) { }
@@ -146,20 +147,8 @@ public:
 
 protected:
   void _pushCov(const CovAniso* cov);
-
   bool _isCovarianceIndexValid(int icov) const;
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
-  double _loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const;
-private:
-  void _manage(const Db* db1,const Db* db2) const override;
   
-  static bool _considerAllCovariances(const CovCalcMode* mode);
-
 #ifndef SWIG
 protected:
  std::vector<CovAniso*> _covAnisos;     /// Vector of elementary covariances

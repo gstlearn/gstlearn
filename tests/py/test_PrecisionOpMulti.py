@@ -286,3 +286,4 @@ ndig = 8
 for nvar in [1,2,3]:
     for multistruct in [False,True]:
         rr = test(nvar,multistruct,ndig)
+# %%

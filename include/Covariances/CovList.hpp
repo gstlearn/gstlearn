@@ -115,10 +115,13 @@ protected:
                           int ivar,
                           int jvar,
                           const CovCalcMode *mode) const;
+
+protected:
+ static bool _considerAllCovariances(const CovCalcMode* mode);
+
 private:
   void _manage(const Db* db1,const Db* db2) const override;
   
-  static bool _considerAllCovariances(const CovCalcMode* mode);
 
 #ifndef SWIG
 protected:

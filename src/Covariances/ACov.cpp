@@ -37,7 +37,6 @@ ACov::ACov(const ASpace *space)
       _p2A(space),
       _ctxt(1,space)
 {
-
 }
 
 ACov::ACov(const ACov &r)
