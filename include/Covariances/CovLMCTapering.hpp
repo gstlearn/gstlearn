@@ -77,7 +77,7 @@ protected:
                         const CovCalcMode *mode) const override;
     void _optimizationSetTarget(const SpacePoint &pt) const override
     {
-      ACov::_optimizationSetTarget(pt);
+      ACovAnisoList::_optimizationSetTarget(pt);
     }
 private:
   ETape  _tapeType;
