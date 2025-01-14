@@ -66,13 +66,12 @@ public:
                        int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
-  virtual void _addEvalCovMatBiPointInPlace(
-                              MatrixSquareGeneral &mat,
-                              const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              const CovCalcMode *mode = nullptr) const override;
+  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                            const CovCalcMode *mode = nullptr) const override;
+  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                            const SpacePoint& p1,
+                                            const SpacePoint& p2,
+                                            const CovCalcMode *mode = nullptr) const override;
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
 
   /// Interface for AStringable Interface
@@ -152,8 +151,10 @@ public:
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode *mode = nullptr) const override;
   double _loadAndEval(const SpacePoint& p1,
                           const SpacePoint&p2,
                           int ivar,

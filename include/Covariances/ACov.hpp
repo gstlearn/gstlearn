@@ -323,8 +323,10 @@ public:
                      const CovCalcMode* mode) const;
 
 protected:
-  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const;
+  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                   const SpacePoint& p1,
+                                                   const SpacePoint& p2,
+                                                   const CovCalcMode *mode = nullptr) const;
   virtual void _optimizationSetTarget(const SpacePoint &pt) const;
 
   void _setOptimEnabled(bool enabled){ _optimEnabled = enabled;}

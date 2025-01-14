@@ -68,10 +68,13 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis& r)
   return *this;
 }
 
-void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
+void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(
+  MatrixSquareGeneral& mat,
+  const SpacePoint& p1,
+  const SpacePoint& p2,
+  const CovCalcMode* mode) const
 {
-  CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 
 void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
@@ -79,7 +82,7 @@ void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
-  CovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 CovLMCAnamorphosis::~CovLMCAnamorphosis()
@@ -579,7 +582,8 @@ void CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
   if (anam_iclass != 0 && anam_iclass > _anam->getNFactor())
   {
     messerr("The rank of the active factor (%d) is incorrect", anam_iclass);
-    messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);
+    messerr("It should lie between 1 and the number of factors (%d)",
+            _anam->getNFactor() - 1);
     messerr("or be set to 0 to estimate the whole discretized grade");
     messerr("The rank is set back to 0 (Gaussian Variable)");
     return;
@@ -599,10 +603,10 @@ void CovLMCAnamorphosis::addCov(const CovAniso* cov)
 
   if (cov->getNVariables() != 1)
   {
-    messerr("You can only add Monovariate Covariances in 'CovLMCAnamorphosis' object");
+    messerr("You can only add Monovariate Covariances in 'CovLMCAnamorphosis' "
+            "object");
     messerr("Operation bypassed");
     return;
   }
   CovAnisoList::addCov(cov);
 }
-

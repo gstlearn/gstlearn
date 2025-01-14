@@ -93,7 +93,7 @@ protected:
 
   void _setNoStatDbIfNecessary(const Db*& db);
   bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
-  bool   _isVariableValid(int ivar) const;
+  bool _isVariableValid(int ivar) const;
 
 protected:
   /// Update internal parameters consistency with the context

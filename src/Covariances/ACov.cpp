@@ -1006,22 +1006,22 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetricOptim(const Db *db1,
   return evalCovMatrixSymmetric(db1,ivar0,nbgh1,mode); 
 }
 
-void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const
+void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                       const SpacePoint& pwork1,
+                                       const SpacePoint& pwork2,
+                                       const CovCalcMode* mode) const
 {
   _addEvalCovMatBiPointInPlace(mat, pwork1, pwork2,mode);
 }
 
-void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const
+void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                        const SpacePoint& pwork1,
+                                        const SpacePoint& pwork2,
+                                        const CovCalcMode* mode) const
 {
   for (int ivar = 0, nvar = getNVariables(); ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      mat.addValue(ivar, jvar, eval(pwork1,pwork2,ivar,jvar,mode)); 
+      mat.addValue(ivar, jvar, eval(pwork1, pwork2, ivar, jvar, mode));
 }
 
 void ACov::evalCovKriging(MatrixSquareGeneral& mat,

@@ -23,17 +23,17 @@
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
                                const ASpace* space)
-    : CovAnisoList(space),
-      _tapeType(),
-      _tapeRange(0)
+  : CovAnisoList(space)
+  , _tapeType()
+  , _tapeRange(0)
 {
   init(tapetype, taperange);
 }
 
-CovLMCTapering::CovLMCTapering(const CovLMCTapering &r)
-    : CovAnisoList(r),
-      _tapeType(r._tapeType),
-      _tapeRange(r._tapeRange)
+CovLMCTapering::CovLMCTapering(const CovLMCTapering& r)
+  : CovAnisoList(r)
+  , _tapeType(r._tapeType)
+  , _tapeRange(r._tapeRange)
 {
 }
 
@@ -55,14 +55,14 @@ CovLMCTapering::~CovLMCTapering()
 void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
-  CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
-  CovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 int CovLMCTapering::init(const ETape& tapetype, double taperange)

@@ -74,14 +74,14 @@ CovLMCConvolution::~CovLMCConvolution()
 void CovLMCConvolution::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
-  CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 void CovLMCConvolution::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
-  CovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 int CovLMCConvolution::init(const EConvType& conv_type,
                             const EConvDir&  conv_idir,
