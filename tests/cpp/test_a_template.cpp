@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
   VectorDouble coords1 = {12.,3.,1.};
   VectorDouble coords2 = {4.,5.,2.};
   auto space1d = SpaceRN(1);
-  double sep = 1.;
   Model* mT = Model::createFromParam(ECov::EXPONENTIAL,
                                      scaleT,
                                      1.,
@@ -54,15 +53,8 @@ int main(int argc, char *argv[])
                                      nullptr,
                                      false);
                                     
-  CovAniso* covT = mT->getCova(0);
-  CovAniso* covS = mS->getCova(0);
-  CorGneiting gneiting = CorGneiting(covS,covT,sep);
-  SpacePoint p1(gneiting.getSpace());
-  SpacePoint p2(gneiting.getSpace());
-  p1.setCoords(coords1);
-  p2.setCoords(coords2);
-  double cres = gneiting.eval(p1,p2);
-  std::cout << "Value of Gneiting " << cres <<std::endl;
+ 
+
   delete mT;
   delete mS;
   return(0);
