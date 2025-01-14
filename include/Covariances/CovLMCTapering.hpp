@@ -68,17 +68,19 @@ public:
   double getTapeRange() const { return _tapeRange; }
   void setTapeRange(double range) { _tapeRange = range; }
 protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode* mode = nullptr) const override;
+  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                    const SpacePoint& pwork1,
+                                    const SpacePoint& pwork2,
+                                    const CovCalcMode* mode) const override;
+  void _optimizationSetTarget(const SpacePoint& pt) const override
+  {
+    ACov::_optimizationSetTarget(pt);
+  }
 
-    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const override;
-    void _optimizationSetTarget(const SpacePoint &pt) const override
-    {
-      ACov::_optimizationSetTarget(pt);
-    }
 private:
   ETape  _tapeType;
   double _tapeRange;

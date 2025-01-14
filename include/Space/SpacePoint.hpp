@@ -74,6 +74,6 @@ public:
 protected:
   /// Points coordinates (whatever the space context)
   VectorDouble _coord;
-  mutable int _iech;
+  mutable int  _iech;
   mutable bool _target;
 };

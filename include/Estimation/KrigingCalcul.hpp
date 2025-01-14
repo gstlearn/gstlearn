@@ -44,6 +44,7 @@ public:
   KrigingCalcul& operator=(const KrigingCalcul& r) = delete;
   virtual ~KrigingCalcul();
 
+  void resetNewData();
   int setData(const VectorDouble* Z     = nullptr,
               const VectorDouble* Means = nullptr);
   int setLHS(const MatrixSquareSymmetric* Sigma = nullptr,
@@ -59,17 +60,19 @@ public:
                       const VectorInt* rankXvalidVars = nullptr);
 
   void printStatus() const;
+  void dumpLHS(int nbypas) const;
+  void dumpRHS() const;
 
-  VectorDouble getEstimation();
+    VectorDouble getEstimation();
   VectorDouble getStdv();
   VectorDouble getVarianceZstar();
   VectorDouble getPostMean();
   const MatrixSquareSymmetric* getStdvMat();
   const MatrixSquareSymmetric* getVarianceZstarMat();
   const MatrixSquareSymmetric* getPostCov();
-  const MatrixRectangular* getLambda();
-  const MatrixRectangular* getLambda0();
-  const MatrixRectangular* getMu();
+  const MatrixRectangular*     getLambda();
+  const MatrixRectangular*     getLambda0();
+  const MatrixRectangular*     getMu();
 
   // Some debugging functions. Should be deleted later
   const MatrixRectangular* getX0();
@@ -78,14 +81,6 @@ public:
   const MatrixRectangular* getY0p();
   const MatrixRectangular* getSigma0();
   const MatrixRectangular* getSigma0p();
-
-  void resetLinkedToZ();
-  void resetLinkedToLHS();
-  void resetLinkedToRHS();
-  void resetLinkedtoVar0();
-  void resetLinkedToBayes();
-  void resetLinkedToColCok();
-  void resetLinkedToXvalid();
 
 private:
   static bool _checkDimensionMatrix(const String& name,
@@ -99,6 +94,14 @@ private:
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
   static bool _isPresentVector(const String& name, const VectorDouble* vec);
   static bool _isPresentIVector(const String& name, const VectorInt* vec);
+
+  void _resetLinkedToZ();
+  void _resetLinkedToLHS();
+  void _resetLinkedToRHS();
+  void _resetLinkedtoVar0();
+  void _resetLinkedToBayes();
+  void _resetLinkedToColCok();
+  void _resetLinkedToXvalid();
 
   int _needX();
   int _needX0();

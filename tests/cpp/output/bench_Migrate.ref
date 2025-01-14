@@ -44,14 +44,14 @@ Migrations
 - with a Grid  data base with 40000 nodes
 
 #NO_DIFF# Migrate Grid to Point (no interpolation): 2 ms. (Ref = 5 ms.)
-#NO_DIFF# Migrate Grid to Point (with interpolation): 12 ms. (Ref = 5 ms.)
-#NO_DIFF# Migrate Grid to Grid: 32 ms. (Ref = 30 ms.)
-#NO_DIFF# Expand Grid to Grid: 32 ms. (Ref = 30 ms.)
-#NO_DIFF# Migrate Point to Grid: 5 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Grid: 1978 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Grid (with balltree): 18227 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Point: 42995 ms. (Ref = 19000 ms.)
-#NO_DIFF# Expand Point to Point (with balltree): 1944 ms. (Ref = 19000 ms.)
+#NO_DIFF# Migrate Grid to Point (with interpolation): 12 ms. (Ref = 10 ms.)
+#NO_DIFF# Migrate Grid to Grid: 32 ms. (Ref = 15 ms.)
+#NO_DIFF# Expand Grid to Grid: 32 ms. (Ref = 15 ms.)
+#NO_DIFF# Migrate Point to Grid: 5 ms. (Ref = 10 ms.)
+#NO_DIFF# Expand Point to Grid: 1978 ms. (Ref = 800 ms.)
+#NO_DIFF# Expand Point to Grid (with balltree): 18227 ms. (Ref = 3000 ms.)
+#NO_DIFF# Expand Point to Point: 42995 ms. (Ref = 14000 ms.)
+#NO_DIFF# Expand Point to Point (with balltree): 1944 ms. (Ref = 1000 ms.)
 
 Data Base Characteristics
 =========================

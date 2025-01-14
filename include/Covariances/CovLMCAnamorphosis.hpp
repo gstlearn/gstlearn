@@ -57,21 +57,22 @@ public:
   int getAnamNClass() const override { return _anam->getNClass(); }
 
   int init(const VectorInt& strcnt = VectorInt());
-  const EAnam getAnamType() const;
+  EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
-
+  
 protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
-
-    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const override;
-    void _optimizationSetTarget(const SpacePoint &pt) const override
-    {
-      ACov::_optimizationSetTarget(pt);
-    }
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode* mode = nullptr) const override;
+  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                    const SpacePoint& pwork1,
+                                    const SpacePoint& pwork2,
+                                    const CovCalcMode* mode) const override;
+  void _optimizationSetTarget(const SpacePoint& pt) const override
+  {
+    ACov::_optimizationSetTarget(pt);
+  }
 
 private:
   
@@ -109,7 +110,7 @@ private:
   void   _transformCovCalcModeIR(CovCalcMode* mode, int iclass) const;
 
 private:
-  int    _activeFactor;       /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
+  int       _activeFactor;    /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
   VectorInt _anamStrCount;    /* List of covariances in the Model (for RI only) */
   const AAnam* _anam;
 };

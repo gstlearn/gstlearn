@@ -434,6 +434,16 @@ bool DriftList::hasExternalDrift() const
   return false;
 }
 
+int DriftList::getExternalDriftNumber() const
+{
+  int nfex = 0;
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (getDrift(il)->isDriftExternal()) nfex++;
+  }
+  return nfex;
+}
+
 VectorInt DriftList::_getActiveVariables(int ivar0) const
 {
   int nvar = getNVariables();

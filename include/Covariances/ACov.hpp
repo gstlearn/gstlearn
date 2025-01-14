@@ -313,11 +313,7 @@ class GSTLEARN_EXPORT ACov : public ASpaceObject
                                int ivar = 0,
                                int jvar = 0) const;
 
-
-  void manage(const Db* db1,const Db* db2) const
-  {
-      _manage(db1, db2);
-  }
+  void manage(const Db* db1, const Db* db2) const { _manage(db1, db2); }
 
   void load(const SpacePoint& p,bool case1) const;
 

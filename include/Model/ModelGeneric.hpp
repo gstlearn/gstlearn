@@ -12,22 +12,18 @@
 
 #include "gstlearn_export.hpp"
 
-
 #include "Enum/ECov.hpp"
-
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
-
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Drifts/DriftList.hpp"
-
-
 #include "Basic/ICloneable.hpp"
 
 class Model;
 class Db;
 class CovInternal;
 class CovCalcMode;
+class CovAnisoList;
 class Vario;
 class ADrift;
 class AnamContinuous;
@@ -57,17 +53,17 @@ public:
   ModelGeneric& operator= (const ModelGeneric &m) = delete;
   virtual ~ModelGeneric();
 
-  MatrixRectangular evalDriftMatrix(const Db *db,  int ivar0 = -1,
+  MatrixRectangular evalDriftMatrix(const Db* db,
+                                    int ivar0             = -1,
                                     const VectorInt& nbgh = VectorInt(),
-                                    const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
+                                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   MatrixRectangular evalCovMatrix(Db* db1,
-                                  Db* db2 = nullptr,
-                                  int ivar0 = -1,
-                                  int jvar0 = -1,
-                                  const VectorInt& nbgh1 = VectorInt(),
-                                  const VectorInt& nbgh2 = VectorInt(),
+                                  Db* db2                 = nullptr,
+                                  int ivar0               = -1,
+                                  int jvar0               = -1,
+                                  const VectorInt& nbgh1  = VectorInt(),
+                                  const VectorInt& nbgh2  = VectorInt(),
                                   const CovCalcMode* mode = nullptr);
-
 
   MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
                                                int ivar0 = -1,
@@ -81,23 +77,50 @@ public:
                                        const VectorInt& nbgh1 = VectorInt(),
                                        const VectorInt& nbgh2 = VectorInt(),
                                        const CovCalcMode* mode = nullptr);
-
   
   MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
-  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
-                                                    int ivar0 = -1,
-                                                    const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr);
-  MatrixSparse* evalCovMatrixSparse(Db *db1,
-                                    Db *db2 = nullptr,
-                                    int ivar0 = -1,
-                                    int jvar0 = -1,
-                                    const VectorInt &nbgh1 = VectorInt(),
-                                    const VectorInt &nbgh2 = VectorInt(),
-                                    const CovCalcMode *mode = nullptr,
-                                    double eps = EPSILON3);
-protected:
-  ACov*      _cova;         /* Generic Covariance structure */
-  DriftList* _driftList;    /* Series of Drift functions */
-  CovContext _ctxt;         /* Context */
+  MatrixSquareSymmetric
+  evalCovMatrixSymmetricOptim(const Db* db1,
+                              int ivar0               = -1,
+                              const VectorInt& nbgh1  = VectorInt(),
+                              const CovCalcMode* mode = nullptr);
+
+  MatrixSparse* evalCovMatrixSparse(Db* db1,
+                                    Db* db2                 = nullptr,
+                                    int ivar0               = -1,
+                                    int jvar0               = -1,
+                                    const VectorInt& nbgh1  = VectorInt(),
+                                    const VectorInt& nbgh2  = VectorInt(),
+                                    const CovCalcMode* mode = nullptr,
+                                    double eps              = EPSILON3);
+
+  void setField(double field);
+  bool isValid() const;
+
+  // Pipes for the private members
+  // Case of _ctxt
+  int getVariableNumber() const;
+  int getDimensionNumber() const;
+  const VectorDouble& getMeans() const;
+
+  // Case of _driftList
+  int getDriftNumber() const;
+  int getDriftEquationNumber() const;
+  int getExternalDriftNumber() const;
+  int getDriftMaxIRFOrder(void) const;
+  void delAllDrifts();
+
+    // Case of _cova
+  const CovAnisoList* getCovAnisoList() const;
+  CovAnisoList* getCovAnisoListModify() const;
+  int getCovaMinIRFOrder() const;
+  int getCovaNumber(bool skipNugget = false) const;
+  double getTotalSill(int ivar = 0, int jvar = 0) const;
+  void setActiveFactor(int iclass);
+  int  getActiveFactor() const;
+
+protected:               // TODO : pass into private to finish clean
+  ACov* _cova;           /* Generic Covariance structure */
+  DriftList* _driftList; /* Series of Drift functions */
+  CovContext _ctxt;      /* Context */
 };

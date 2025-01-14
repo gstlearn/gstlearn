@@ -12,7 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/CovBase.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovProportional.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
@@ -29,8 +29,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
-#include <array>
-#include <vector>
 
 class Rotation;
 class MatrixSquareGeneral;
@@ -248,7 +246,9 @@ public:
   Array evalCovFFT(const VectorDouble& hmax, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(const VectorDouble& coeffs);
-  void setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
+  void setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
+                                           const VectorDouble& coeffs2,
+                                           double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;

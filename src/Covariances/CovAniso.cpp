@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_define.h"
+
 #include "Arrays/Array.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
@@ -18,12 +20,9 @@
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/NoStatFunctional.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Enum/EConsElem.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/FFT.hpp"
@@ -32,12 +31,12 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "geoslib_define.h"
+#include "Matrix/MatrixFactory.hpp"
+
 #include <math.h>
 #include <functional>
 #include <ostream>
 #include <vector>
-
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
     : CovProportional(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
@@ -216,8 +215,6 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return (cov);
 }
 
-
-
 double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
                       int ivar,
@@ -228,8 +225,8 @@ double CovAniso::eval(const SpacePoint &p1,
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
   return (cov);
-
 }
+
 /**
  * Calculate the Matrix of covariance for zero distance
  * @param mat   Covariance matrix (Dimension: nvar * nvar)
@@ -328,8 +325,8 @@ void CovAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 /* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
  * P(x) = P1(x)^2 + x * P2(x)^2 + eps
  */
-void CovAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
-                                                   VectorDouble coeffs2,
+void CovAniso::setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
+                                                   const VectorDouble& coeffs2,
                                                    double eps)
 {
   _corAniso->setMarkovCoeffsBySquaredPolynomials(coeffs1, coeffs2, eps);
@@ -659,8 +656,6 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }
-
-
 
 double scale2range(const ECov &type, double scale, double param)
 {

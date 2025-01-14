@@ -885,6 +885,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
       messerr("The original covariance is probably not a 'CovAnisoList'");
+      messerr("The original covariance is probably not a 'CovAnisoList'");
       return 1;
     }
 
@@ -976,12 +977,7 @@ int Model::getDriftNumber() const
 int Model::getExternalDriftNumber() const
 {
   if (_driftList == nullptr) return 0;
-  int nfex = 0;
-  for (int il = 0; il < getDriftNumber(); il++)
-  {
-    if (getDrift(il)->isDriftExternal()) nfex++;
-  }
-  return nfex;
+  return _driftList->getExternalDriftNumber();
 }
 int Model::getRankFext(int il) const
 {

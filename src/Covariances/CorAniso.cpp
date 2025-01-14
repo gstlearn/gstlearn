@@ -37,7 +37,6 @@
 #include "geoslib_define.h"
 #include <math.h>
 #include <functional>
-#include <memory>
 #include <vector>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
@@ -429,10 +428,9 @@ double CorAniso::eval(const SpacePoint &p1,
                       int jvar,
                       const CovCalcMode* mode) const
 {
-  DECLARE_UNUSED(ivar,jvar)
-  double cov = evalCor(p1,p2,mode);
+  DECLARE_UNUSED(ivar, jvar)
+  double cov = evalCor(p1, p2, mode);
   return (cov);
-
 }
 
 double CorAniso::evalCovOnSphere(double alpha,
@@ -493,8 +491,8 @@ void CorAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
                                                    VectorDouble coeffs2,
                                                    double eps)
 {
-  int size1 = (int) coeffs1.size();
-  int size2 = (int) coeffs2.size();
+  int size1 = (int)coeffs1.size();
+  int size2 = (int)coeffs2.size();
 
   int size = MAX(2 * size1 - 1, 2 * size2);
   VectorDouble coeffs;
@@ -967,17 +965,18 @@ void CorAniso::optimizationPostProcess() const
  * @param ptin  Input Space Point
  * @param ptout Output Space Point
  */
-void CorAniso::optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
+void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
+                                       SpacePoint& ptout) const
 {
   if (_isOptimEnabled())
-	{
-     _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+  {
+    _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
     ptout.setIech(ptin.getIech());
-    ptout.setTarget(ptin.isTarget()); 
+    ptout.setTarget(ptin.isTarget());
   }
-     
-  bool isTarget = ptin.isTarget(); 
-  if (!isTarget) 
+
+  bool isTarget = ptin.isTarget();
+  if (!isTarget)
   {
     ptout.setIech(ptin.getIech());
   }
@@ -992,29 +991,27 @@ selection
  * @param p Vector of SpacePoints
  * @param p1As Vector of SpacePoints after projection
  */
-
 void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
-                                      std::vector<SpacePoint> &p1As) const
+                                      std::vector<SpacePoint>& p1As) const
 {
 
-  int n = (int) p.size();
+  int n = (int)p.size();
   SpacePoint pt(_space);
-	for(int i = 0; i < n ; i++)
-	{
+  for (int i = 0; i < n; i++)
+  {
     pt.setIech(p[i].getIech());
-    if (! p[i].isFFFF())
-		{
+    if (!p[i].isFFFF())
+    {
       optimizationTransformSP(p[i], pt);
     }
     else
     {
-		  pt.setFFFF();
+      pt.setFFFF();
     }
     p1As.push_back(pt);
-	}
+  }
   _isOptimizationPreProcessed = true;
 }
-
 
 /**
  * Checks that the Optimization has already been initiated, by:

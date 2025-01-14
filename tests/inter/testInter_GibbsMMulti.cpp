@@ -19,6 +19,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
@@ -94,6 +95,7 @@ int main()
 
   CovContext ctxt(nvar,2,1.); // use default space
   Model model(ctxt);
+  CovAnisoList covs(ctxt.getSpace());
   CovAnisoList covs(ctxt.getSpace());
   CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);

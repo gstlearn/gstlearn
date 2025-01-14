@@ -68,12 +68,13 @@ public:
   int  getDriftEquationNumber() const;
   bool hasExternalDrift() const;
   bool isValid() const;
+  int  getExternalDriftNumber() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const ADrift*  getDrift(int il) const;
-  int            getRankFex(int il) const;
-  String         getDriftName(int il) const;
+  const ADrift* getDrift(int il) const;
+  int getRankFex(int il) const;
+  String getDriftName(int il) const;
   ////////////////////////////////////////////////
 
   const VectorDouble& getBetaHats() const { return _betaHat; }

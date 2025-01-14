@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.7.0
+=============
+
+
 Release 1.6.0
 =============
 - in db::getAllCoordinatesMap, adding possibility to select within a Box.
@@ -281,7 +285,7 @@ Release 0.2.0
 - Modification of the names of the getDriftXXX functions
 - Correction for Variance of Measurement error in Kriging and covMatrix functions
 - Reorganization of the Class diagram for AMatrix
-- Adding method "reduce" to AMatrix (and related classes) and to Model, ACovAnisoList and CovAniso
+- Adding method "reduce" to AMatrix (and related classes) and to Model, CovAnisoList and CovAniso
 - option flag_varZ in Kriging() is restricted to stationary covariances
 - new function db_variogram which returns the information on variogram pairs (in a vmap setup)
 

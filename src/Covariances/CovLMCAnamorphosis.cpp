@@ -10,20 +10,17 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Enum/EAnam.hpp"
 #include "Enum/ECalcMember.hpp"
-#include "Enum/EConvDir.hpp"
-#include "Enum/EConvType.hpp"
 
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Anamorphosis/AAnam.hpp"
-#include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
@@ -33,10 +30,10 @@
 CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
                                        const VectorInt& strcnt,
                                        const ASpace* space)
-    : CovAnisoList(space),
-      _activeFactor(0),
-      _anamStrCount(),
-      _anam(anam)
+  : CovAnisoList(space)
+  , _activeFactor(0)
+  , _anamStrCount()
+  , _anam(anam)
 {
   init(strcnt);
 }
@@ -44,39 +41,43 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovAnisoList& lmc,
                                        const AAnam* anam,
                                        const VectorInt& strcnt)
-    : CovAnisoList(lmc),
-      _activeFactor(0),
-      _anamStrCount(),
-      _anam(anam)
+  : CovAnisoList(lmc)
+  , _activeFactor(0)
+  , _anamStrCount()
+  , _anam(anam)
 {
   init(strcnt);
 }
 
-CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis &r)
-    : CovAnisoList(r),
-      _activeFactor(r._activeFactor),
-      _anamStrCount(r._anamStrCount),
-      _anam(r._anam)
+CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis& r)
+  : CovAnisoList(r)
+  , _activeFactor(r._activeFactor)
+  , _anamStrCount(r._anamStrCount)
+  , _anam(r._anam)
 {
 }
 
-CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
+CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis& r)
 {
   if (this != &r)
   {
     CovAnisoList::operator=(r);
     _activeFactor = r._activeFactor;
     _anamStrCount = r._anamStrCount;
-    _anam = r._anam;
+    _anam         = r._anam;
   }
   return *this;
 }
 
-void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
+void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(
+  MatrixSquareGeneral& mat,
+  const SpacePoint& p1,
+  const SpacePoint& p2,
+  const CovCalcMode* mode) const
 {
   ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
+
 void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
@@ -414,28 +415,20 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
    }
    return cov;
   }
-  else
+
+  // Structure for the factor 'iclass'
+
+  double li  = anamDD->getDDStatLambda(iclass);
+  double mui = anamDD->getDDStatMul(iclass);
+
+  double coeff = 0.;
+  switch (mode->getMember().getValue())
   {
-    // Structure for the factor 'iclass'
-
-    double li  = anamDD->getDDStatLambda(iclass);
-    double mui = anamDD->getDDStatMul(iclass);
-
-    double coeff = 0.;
-    switch (mode->getMember().getValue())
-    {
-      case ECalcMember::E_LHS:
-        return 1.;
-        break;
-      case ECalcMember::E_RHS:
-        return mui;
-        break;
-      case ECalcMember::E_VAR:
-        return 1.;
-        break;
-    }
-    return coeff * exp(-li * gamma);
+    case ECalcMember::E_LHS: return 1.; break;
+    case ECalcMember::E_RHS: return mui; break;
+    case ECalcMember::E_VAR: return 1.; break;
   }
+  return coeff * exp(-li * gamma);
 }
 
 double CovLMCAnamorphosis::_evalDiscreteDD0(int /*ivar*/,
@@ -539,20 +532,18 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
     }
     return cov;
   }
-  else
-  {
 
-    // Structure for the factor 'iclass´
+  // Structure for the factor 'iclass´
 
-    _transformCovCalcModeIR(&modeloc, iclass - 1);
-    double cov1 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
-                      anamIR->getIRStatR(iclass - 1), r);
-    _transformCovCalcModeIR(&modeloc, iclass);
-    double cov2 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
-                      anamIR->getIRStatR(iclass), r);
-    return (cov2 - cov1);
-  }
-  return TEST;
+  _transformCovCalcModeIR(&modeloc, iclass - 1);
+  double cov1 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
+                           anamIR->getIRStatR(iclass - 1),
+                    r);
+  _transformCovCalcModeIR(&modeloc, iclass);
+  double cov2 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
+                           anamIR->getIRStatR(iclass),
+                    r);
+  return (cov2 - cov1);
 }
 
 double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
@@ -576,37 +567,32 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
     double cov = 0.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
-      double bi = anamIR->getIRStatB(jclass);
+      double bi   = anamIR->getIRStatB(jclass);
       double cov2 = pow(anamIR->getIRStatR(jclass), r);
       cov += bi * bi * cov2;
     }
     return cov;
   }
-  else
-  {
 
-    // Structure for the factor 'iclass´
-
-    return pow(anamIR->getIRStatR(iclass - 1), r);
-  }
-  return TEST;
+  // Structure for the factor 'iclass´
+  return pow(anamIR->getIRStatR(iclass - 1), r);
 }
 
 void CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
 {
-  if (! (anam_iclass == 0 || anam_iclass <= _anam->getNFactor()))
+  if (anam_iclass != 0 && anam_iclass > _anam->getNFactor())
   {
     messerr("The rank of the active factor (%d) is incorrect", anam_iclass);
-    messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);
+    messerr("It should lie between 1 and the number of factors (%d)",
+            _anam->getNFactor() - 1);
     messerr("or be set to 0 to estimate the whole discretized grade");
     messerr("The rank is set back to 0 (Gaussian Variable)");
     return;
   }
   _activeFactor = anam_iclass;
-  return;
 }
 
-const EAnam CovLMCAnamorphosis::getAnamType() const
+EAnam CovLMCAnamorphosis::getAnamType() const
 {
   if (_anam == nullptr) return EAnam::UNKNOWN;
   return _anam->getType();
@@ -618,10 +604,10 @@ void CovLMCAnamorphosis::addCovAniso(const CovAniso* cov)
 
   if (cov->getNVariables() != 1)
   {
-    messerr("You can only add Monovariate Covariances in 'CovLMCAnamorphosis' object");
+    messerr("You can only add Monovariate Covariances in 'CovLMCAnamorphosis' "
+            "object");
     messerr("Operation bypassed");
     return;
   }
   CovAnisoList::addCov(cov);
 }
-

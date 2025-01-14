@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   NeighBench* neighB = NeighBench::create(false, width);
 
   // Print the test environment
-  message("This test is mean to test Kriging using Moving Neighborhood\n");
+  message("This test is meant to test Kriging using Moving Neighborhood\n");
   message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
   message("- the Output Grid contains %d nodes\n", grid->getSampleNumber(true));
   message("- the Bench Neighborhood is required:\n");

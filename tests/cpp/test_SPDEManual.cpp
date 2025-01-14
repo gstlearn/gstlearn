@@ -24,7 +24,6 @@
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "LinearOp/ShiftOpMatrix.hpp"
 #include <vector>
 
 #define __USE_MATH_DEFINES

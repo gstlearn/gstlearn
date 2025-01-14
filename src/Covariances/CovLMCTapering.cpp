@@ -10,11 +10,11 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Enum/ETape.hpp"
 
 #include "Covariances/CovLMCTapering.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -24,17 +24,17 @@
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
                                const ASpace* space)
-    : CovAnisoList(space),
-      _tapeType(),
-      _tapeRange(0)
+  : CovAnisoList(space)
+  , _tapeType()
+  , _tapeRange(0)
 {
   init(tapetype, taperange);
 }
 
-CovLMCTapering::CovLMCTapering(const CovLMCTapering &r)
-    : CovAnisoList(r),
-      _tapeType(r._tapeType),
-      _tapeRange(r._tapeRange)
+CovLMCTapering::CovLMCTapering(const CovLMCTapering& r)
+  : CovAnisoList(r)
+  , _tapeType(r._tapeType)
+  , _tapeRange(r._tapeRange)
 {
 }
 

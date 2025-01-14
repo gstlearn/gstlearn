@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovGradientFunctional.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
@@ -96,8 +95,6 @@ void CovGradientFunctional::_calculateTrTtr(const VectorDouble& d,
   u[0] = Tr[0] * h[0] + Tr[3] * h[1] + Tr[6] * h[2];
   u[1] = Tr[1] * h[0] + Tr[4] * h[1] + Tr[7] * h[2];
   u[2] = Tr[2] * h[0] + Tr[5] * h[1] + Tr[8] * h[2];
-
-  return;
  }
 
 /**
