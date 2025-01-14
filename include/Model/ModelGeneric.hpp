@@ -23,7 +23,7 @@ class Model;
 class Db;
 class CovInternal;
 class CovCalcMode;
-class ACovAnisoList;
+class CovAnisoList;
 class Vario;
 class ADrift;
 class AnamContinuous;
@@ -101,6 +101,7 @@ public:
   // Case of _ctxt
   int getVariableNumber() const;
   int getDimensionNumber() const;
+  const VectorDouble& getMeans() const;
 
   // Case of _driftList
   int getDriftNumber() const;
@@ -110,8 +111,8 @@ public:
   void delAllDrifts();
 
     // Case of _cova
-  const ACovAnisoList* getCovAnisoList() const;
-  ACovAnisoList* getCovAnisoListModify() const;
+  const CovAnisoList* getCovAnisoList() const;
+  CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;
   int getCovaNumber(bool skipNugget = false) const;
   double getTotalSill(int ivar = 0, int jvar = 0) const;

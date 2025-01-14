@@ -16,7 +16,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
   CovContext ctxt(nvar,2,1.);
   Model* model = new Model(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpace());
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill(sill);

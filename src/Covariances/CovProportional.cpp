@@ -2,14 +2,13 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c3) MINES Paris / ARMINES                                        */
+/* Copyright (c3) MINES Paris / ARMINES                                       */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
-#include "Covariances/CovBase.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Covariances/ACor.hpp"
 #include "Covariances/ACov.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -17,7 +16,7 @@
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 
-CovBase::CovBase(ACor* cor,
+CovProportional::CovProportional(ACor* cor,
                 const MatrixSquareSymmetric &sill)
 : ACov(cor == nullptr? nullptr : cor->getSpace())
 , _sill(sill)
@@ -32,12 +31,12 @@ CovBase::CovBase(ACor* cor,
   _workMat.setIdentity();
 }
 
-CovBase::~CovBase()
+CovProportional::~CovProportional()
 {
 
 }
 
-void CovBase::setCor(ACor* cor)
+void CovProportional::setCor(ACor* cor)
 {
   _cor = cor;
   int nvar = getNVariables();
@@ -47,12 +46,12 @@ void CovBase::setCor(ACor* cor)
     _ctxt.setNVar(nvar);
   }
 }
-void CovBase::setContext(const CovContext &ctxt)
+void CovProportional::setContext(const CovContext &ctxt)
 {
   _ctxt = ctxt;
   _updateFromContext();
 }
-void CovBase::setSill(double sill) const
+void CovProportional::setSill(double sill) const
 {
   int nvar = getNVariables();
   if (nvar > 0 && nvar!= 1)
@@ -63,7 +62,7 @@ void CovBase::setSill(double sill) const
   _sill.resetFromValue(1, 1, sill);
 }
 
-void CovBase::setSill(const MatrixSquareSymmetric &sill) const
+void CovProportional::setSill(const MatrixSquareSymmetric &sill) const
 {
   int nvar = getNVariables();
   if (nvar > 0 && nvar != sill.getNCols())
@@ -74,7 +73,7 @@ void CovBase::setSill(const MatrixSquareSymmetric &sill) const
   _sill = sill;
 }
 
-void CovBase::setSill(const VectorDouble &sill) const 
+void CovProportional::setSill(const VectorDouble &sill) const 
 {
   int size = static_cast<int>(sill.size());
   int nvar = getNVariables();
@@ -86,7 +85,7 @@ void CovBase::setSill(const VectorDouble &sill) const
   _sill.setValues(sill);
 }
 
-void CovBase::setSill(int ivar, int jvar, double sill) const
+void CovProportional::setSill(int ivar, int jvar, double sill) const
 {
   if (!_isVariableValid(ivar)) return;
   if (!_isVariableValid(jvar)) return;
@@ -95,29 +94,29 @@ void CovBase::setSill(int ivar, int jvar, double sill) const
   _sill.setValue(ivar, jvar, sill);
 }
 
-bool CovBase::_isVariableValid(int ivar) const
+bool CovProportional::_isVariableValid(int ivar) const
 {
   return checkArg("Rank of the Variable", ivar, getNVariables());
 }
 
-void CovBase::_initFromContext()
+void CovProportional::_initFromContext()
 {
   _cor->initFromContext();
   _sill.reset(_ctxt.getNVar(), _ctxt.getNVar());
 }
-void CovBase::initSill(double value)
+void CovProportional::initSill(double value)
 {
   _sill.fill(value);
 }
 
-bool CovBase::isConsistent(const ASpace* space) const
+bool CovProportional::isConsistent(const ASpace* space) const
 {
   return _cor->isConsistent(space);
 }
 
 
 
-double CovBase::getSill(int ivar, int jvar) const
+double CovProportional::getSill(int ivar, int jvar) const
 {
   return _sill.getValue(ivar, jvar);
 }
@@ -131,17 +130,14 @@ double CovBase::getSill(int ivar, int jvar) const
  **                          or NULL (for stationary case)
  **
  *****************************************************************************/
-void CovBase::nostatUpdate(CovInternal *covint)
+void CovProportional::nostatUpdate(CovInternal *covint) const
 {
   if (covint == NULL) return;
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                     covint->getIcas2(), covint->getIech2());
 }
 
-
-
-
-void CovBase::copyCovContext(const CovContext &ctxt)
+void CovProportional::copyCovContext(const CovContext &ctxt)
 {
   _ctxt.copyCovContext(ctxt);
   _cor->copyCovContext(ctxt);
@@ -154,7 +150,7 @@ void CovBase::copyCovContext(const CovContext &ctxt)
  *
  * @param iech Rank of the sample among the recorded Space Points
  */
-void CovBase::optimizationSetTargetByIndex(int iech) const
+void CovProportional::optimizationSetTargetByIndex(int iech) const
 {
   if (_isOptimPreProcessed)
   {
@@ -170,7 +166,7 @@ void CovBase::optimizationSetTargetByIndex(int iech) const
  * or checking for heterotopy.
  * @param p vector of SpacePoints
  */
-void CovBase::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
+void CovProportional::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
   if (!isOptimEnabled())
   {
@@ -180,7 +176,6 @@ void CovBase::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
   _cor->optimizationPreProcess(p,_p1As);
 }
 
-
 /**
  * Checks that the Optimization has already been initiated, by:
  * - checking that the storage (for Sample Points projected in the Covariance
@@ -188,7 +183,7 @@ void CovBase::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
  * - checking that the dimension of this storage is correct (only if 'db' is provided):
  * in particular, this check is not necessary when freeing this storage.
  */
-bool CovBase::isOptimizationInitialized(const Db* db) const
+bool CovProportional::isOptimizationInitialized(const Db* db) const
 {
   if (_p1As.empty()) return false;
   if (db == nullptr) return true;
@@ -205,13 +200,13 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
 // For specifying the NoStat DbGrid, you can first attach it by using attachNoStatDb.
 // If not, you have to specify the DbGrid when you make the first parameter non stationary.
 
-void CovBase::attachNoStatDb(const Db* db)
+void CovProportional::attachNoStatDb(const Db* db)
 {
   _tabNoStat.setDbNoStatRef(db);
   _cor->attachNoStatDb(db);
 }
 
-bool CovBase::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
+bool CovProportional::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
 {
  if (_tabNoStat.getDbNoStatRef() == nullptr && db == nullptr)
  {
@@ -228,7 +223,7 @@ bool CovBase::_checkAndManageNoStatDb(const Db*&  db, const String& namecol)
  return true;
 }
 
-void CovBase::_setNoStatDbIfNecessary(const Db*& db)
+void CovProportional::_setNoStatDbIfNecessary(const Db*& db)
 {
   if (_tabNoStat.getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
@@ -236,7 +231,7 @@ void CovBase::_setNoStatDbIfNecessary(const Db*& db)
     db = _tabNoStat.getDbNoStatRef();
 }
 
-void CovBase::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+void CovProportional::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
 {
   if (func == nullptr)
   {
@@ -267,21 +262,21 @@ void CovBase::_makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFu
 
 ///////////////////// Sill ////////////////////////
 
-void CovBase::makeSillNoStatDb(const String &namecol, int ivar, int jvar,const Db* db)
+void CovProportional::makeSillNoStatDb(const String &namecol, int ivar, int jvar,const Db* db)
 {
   if (!_checkSill(ivar,jvar)) return;
   _makeElemNoStat(EConsElem::SILL, ivar, jvar,nullptr,db, namecol);
   _cor->checkAndManageNoStatDb(db,namecol);
 }
 
-void CovBase::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int jvar)
+void CovProportional::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int jvar)
 {
   if (!_checkSill(ivar,jvar)) return;
   _makeElemNoStat(EConsElem::SILL, ivar, jvar,func);
 
 }
   
-void CovBase::makeSillStationary(int ivar, int jvar)
+void CovProportional::makeSillStationary(int ivar, int jvar)
 {
   if (!_checkSill(ivar,jvar)) return;
   if(_tabNoStat.removeElem(EConsElem::SILL, ivar,jvar) == 0)
@@ -292,7 +287,7 @@ void CovBase::makeSillStationary(int ivar, int jvar)
 
 /////////////////////////// Check functions ////////////////////:
 
-bool CovBase::_checkSill(int ivar, int jvar) const
+bool CovProportional::_checkSill(int ivar, int jvar) const
 {
   int nvar = getNVariables();
   if ((ivar > nvar) || (jvar > nvar))
@@ -303,7 +298,7 @@ bool CovBase::_checkSill(int ivar, int jvar) const
   return true;
 }
 
-bool CovBase::_checkDims(int idim, int jdim) const
+bool CovProportional::_checkDims(int idim, int jdim) const
 {
   int ndim = getNDim();
   if ((idim > ndim) || (jdim > ndim))
@@ -316,28 +311,28 @@ bool CovBase::_checkDims(int idim, int jdim) const
 
 
 /////////////  Functions to attach no stat information on various supports ////////
-void CovBase::informMeshByMesh(const AMesh* amesh) const
+void CovProportional::informMeshByMesh(const AMesh* amesh) const
 {
   _tabNoStat.informMeshByMesh(amesh);
   _cor->informMeshByMesh(amesh);
 }
-void CovBase::informMeshByApex(const AMesh* amesh) const
+void CovProportional::informMeshByApex(const AMesh* amesh) const
 {
   _tabNoStat.informMeshByApex(amesh);
   _cor->informMeshByApex(amesh);
 }
-void CovBase::informDbIn(const Db* dbin) const
+void CovProportional::informDbIn(const Db* dbin) const
 {
   _tabNoStat.informDbIn(dbin);
   _cor->informDbIn(dbin);
 }
-void CovBase::informDbOut(const Db* dbout) const
+void CovProportional::informDbOut(const Db* dbout) const
 {
   _tabNoStat.informDbOut(dbout);
   _cor->informDbOut(dbout);
 }
 
-double CovBase::getValue(const EConsElem &econs,int iv1,int iv2) const
+double CovProportional::getValue(const EConsElem &econs,int iv1,int iv2) const
 {
   double val = _cor->getValue(econs,iv1,iv2);
   if (val == TEST)
@@ -348,7 +343,7 @@ double CovBase::getValue(const EConsElem &econs,int iv1,int iv2) const
   return val;
 }
 
-VectorDouble CovBase::informCoords(const VectorVectorDouble& coords, 
+VectorDouble CovProportional::informCoords(const VectorVectorDouble& coords, 
                                     const EConsElem& econs,
                                     int iv1,
                                     int iv2) const
@@ -365,22 +360,22 @@ VectorDouble CovBase::informCoords(const VectorVectorDouble& coords,
 }
 
 
-void CovBase::informMeshByMeshForSills(const AMesh* amesh) const
+void CovProportional::informMeshByMeshForSills(const AMesh* amesh) const
 {
    _tabNoStat.informMeshByMesh(amesh,EConsElem::SILL);
 }
 
-void CovBase::informMeshByApexForSills(const AMesh* amesh) const
+void CovProportional::informMeshByApexForSills(const AMesh* amesh) const
 {
    _tabNoStat.informMeshByApex(amesh,EConsElem::SILL);
 }
 
-void CovBase::informDbInForSills(const Db* dbin) const
+void CovProportional::informDbInForSills(const Db* dbin) const
 {
    _tabNoStat.informDbIn(dbin,EConsElem::SILL);
 }
 
-void CovBase::informDbOutForSills(const Db* dbout) const
+void CovProportional::informDbOutForSills(const Db* dbout) const
 {
   _tabNoStat.informDbOut(dbout,EConsElem::SILL);
 }
@@ -394,7 +389,7 @@ void CovBase::informDbOutForSills(const Db* dbout) const
  * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void CovBase::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
+void CovProportional::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! isNoStat()) return;
@@ -419,7 +414,7 @@ void CovBase::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) cons
 }
 
 
-void CovBase::updateCovByMesh(int imesh,bool aniso) const
+void CovProportional::updateCovByMesh(int imesh,bool aniso) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! isNoStat()) return;
@@ -443,12 +438,12 @@ void CovBase::updateCovByMesh(int imesh,bool aniso) const
  _cor->updateCovByMesh(imesh,aniso);
 }
 
-void CovBase::makeStationary()
+void CovProportional::makeStationary()
 {
   _cor->makeStationary();
 }
 
-void CovBase::_manage(const Db* db1,const Db* db2) const
+void CovProportional::_manage(const Db* db1,const Db* db2) const
 {
   if (db1!=nullptr)
     informDbIn(db1);
@@ -467,15 +462,14 @@ void CovBase::_manage(const Db* db1,const Db* db2) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                          const SpacePoint &p1,
-                                          const SpacePoint &p2,
-                                          const CovCalcMode *mode) const
+void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                   const SpacePoint& p1,
+                                                   const SpacePoint& p2,
+                                                   const CovCalcMode* mode) const
 {
-  
-  double cor = _cor->eval(p1,p2,0,0,mode);
+  double cor = _cor->eval(p1, p2, 0, 0, mode);
 
-  if (mode == nullptr || ! mode->getUnitary())
+  if (mode == nullptr || !mode->getUnitary())
     mat.addMatInPlace(_sill, 1., cor);
   else
   {
@@ -483,12 +477,12 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
   }
 }
 
-void CovBase::_optimizationPostProcess() const 
+void CovProportional::_optimizationPostProcess() const 
 {
   _cor->optimizationPostProcess();
 }
 
-void CovBase::_updateFromContext()
+void CovProportional::_updateFromContext()
 {
   _cor->updateFromContext();
 }

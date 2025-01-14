@@ -12,7 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/CovBase.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
@@ -43,7 +43,7 @@ class CovInternal;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovAniso: public CovBase, public ICloneable
+class GSTLEARN_EXPORT CovAniso: public CovProportional, public ICloneable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -241,7 +241,9 @@ public:
   Array evalCovFFT(const VectorDouble& hmax, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(const VectorDouble& coeffs);
-  void setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
+  void setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
+                                           const VectorDouble& coeffs2,
+                                           double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;

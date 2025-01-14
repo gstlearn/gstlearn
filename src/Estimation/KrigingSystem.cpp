@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/AStringable.hpp"
 #include "geoslib_old_f.h"
 
 #include "Estimation/KrigingSystem.hpp"
@@ -31,12 +32,14 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Core/Keypair.hpp"
+#include "Estimation/KrigingCalcul.hpp"
+#include "Basic/OptCustom.hpp"
 
 #include <math.h>
 
@@ -57,6 +60,17 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _anam(nullptr)
   , _isReady(false)
   , _model(nullptr)
+  , _algebra()
+  , _Sigma00()
+  , _Sigma()
+  , _X()
+  , _Sigma0()
+  , _X0()
+  , _Z()
+  , _means()
+  , _calcModeLHS()
+  , _calcModeRHS()
+  , _calcModeVAR()
   , _iptrEst(-1)
   , _iptrStd(-1)
   , _iptrVarZ(-1)
@@ -142,9 +156,13 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagNoStat(false)
   , _cova(nullptr)
 {
-  // _modelInit is a copy of the input model (const) to allow modifying it
-  if (model != nullptr) _modelInit = (ModelGeneric*)model->clone();
-  _model = _modelInit;
+  _oldStyle = OptCustom::query("oldStyle", 1.) == 1.;
+
+  // _model is a copy of input model to allow modification (still used???)
+  if (model != nullptr) _model = (ModelGeneric*) model->clone();
+
+  if (_oldStyle && model != nullptr)
+    _modelInit = (ModelGeneric*)model->clone();
 
   // Store the pointer casting the input ModelGeneric* into Model*
   // in order to avoid too many dynamic casts in the code
@@ -163,6 +181,19 @@ KrigingSystem::KrigingSystem(Db* dbin,
   // Define local constants
   _flagNoMatLC = _matLC == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
+
+  // Define the vector of data
+  if (!_oldStyle)
+  {
+    _means = _model->getMeans();
+    if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
+    {
+      _Z = _dbin->getMultipleValuesActive(VectorInt(), VectorInt(), _means);
+      _algebra.setData(&_Z, &_means);
+    }
+    _Sigma00 = _model->eval0Mat();
+    _algebra.setVar(&_Sigma00);
+  }
 
   _resetMemoryGeneral();
 }
@@ -202,10 +233,13 @@ KrigingSystem::~KrigingSystem()
 
   // Clean auxiliary Model (if available)
 
-  if (_modelSimple != nullptr)
+  if (_oldStyle)
   {
-    delete _modelSimple;
-    _modelSimple = nullptr;
+    if (_modelSimple != nullptr)
+    {
+      delete _modelSimple;
+      _modelSimple = nullptr;
+    }
   }
 
   // Clean elements from _modelInit
@@ -215,6 +249,12 @@ KrigingSystem::~KrigingSystem()
     delete _modelInit;
     _modelInit = nullptr;
   }
+}
+
+void KrigingSystem::_mustBeOldStyle(const String& title) const
+{
+  if (!_oldStyle)
+    messageAbort("KrigingSystem: this part requires OldStyle in %s", title.c_str());
 }
 
 /**
@@ -636,6 +676,8 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
  *****************************************************************************/
 void KrigingSystem::_lhsCalcul()
 {
+  _mustBeOldStyle("_lhsCalcul");
+
   /* Establish the covariance part */
   _p1.setTarget(false);
   _p2.setTarget(false);
@@ -709,6 +751,7 @@ void KrigingSystem::_lhsCalcul()
 void KrigingSystem::_lhsIsoToHetero()
 {
   if (_flagIsotopic) return;
+  _mustBeOldStyle("_lhsIsoToHetero");
   int ecri = 0;
   int ecrj = 0;
 
@@ -745,7 +788,6 @@ VectorInt KrigingSystem::_getRelativePosition()
 
 void KrigingSystem::_lhsDump(int nbypas)
 {
-  VectorInt rel = _getRelativePosition();
   int npass = (_nred - 1) / nbypas + 1;
 
   /* General Header */
@@ -756,42 +798,47 @@ void KrigingSystem::_lhsDump(int nbypas)
   message("Reduced number of equations = %d\n", _nred);
 
   /* Loop on the passes */
-
-  for (int ipass = 0; ipass < npass; ipass++)
+  if (_oldStyle)
   {
-    int ideb = ipass * nbypas;
-    int ifin = MIN(_nred, ideb + nbypas);
-    message("\n");
-
-    /* Header line */
-
-    tab_prints(NULL, "Rank");
-    tab_prints(NULL, "    ");
-    for (int j = ideb; j < ifin; j++)
-      tab_printi(NULL, j + 1);
-    message("\n");
-
-    /* Flag line */
-
-    if (! _flag.empty())
+    VectorInt rel = _getRelativePosition();
+    for (int ipass = 0; ipass < npass; ipass++)
     {
+      int ideb = ipass * nbypas;
+      int ifin = MIN(_nred, ideb + nbypas);
+      message("\n");
+
+      /* Header line */
+
+      tab_prints(NULL, "Rank");
       tab_prints(NULL, "    ");
-      tab_prints(NULL, "Flag");
-      for (int j = ideb; j < ifin; j++)
-        tab_printi(NULL, rel[j]);
+      for (int j = ideb; j < ifin; j++) tab_printi(NULL, j + 1);
       message("\n");
-    }
 
-    /* Matrix lines */
+      /* Flag line */
 
-    for (int i = 0; i < _nred; i++)
-    {
-      tab_printi(NULL, i + 1);
-      tab_printi(NULL, rel[i]);
-      for (int j = ideb; j < ifin; j++)
-        tab_printg(NULL, _lhs->getValue(i,j,false));
-      message("\n");
+      if (!_flag.empty())
+      {
+        tab_prints(NULL, "    ");
+        tab_prints(NULL, "Flag");
+        for (int j = ideb; j < ifin; j++) tab_printi(NULL, rel[j]);
+        message("\n");
+      }
+
+      /* Matrix lines */
+
+      for (int i = 0; i < _nred; i++)
+      {
+        tab_printi(NULL, i + 1);
+        tab_printi(NULL, rel[i]);
+        for (int j = ideb; j < ifin; j++)
+          tab_printg(NULL, _lhs->getValue(i, j, false));
+        message("\n");
+      }
     }
+  }
+  else
+  {
+    _algebra.dumpLHS(nbypas);
   }
 }
 
@@ -842,6 +889,7 @@ void KrigingSystem::_rhsStore(int iech)
  *****************************************************************************/
 void KrigingSystem::_rhsCalculPoint()
 {
+  _mustBeOldStyle("_rhsCalculPoint");
   _p1.setTarget(false);
   _p0.setTarget(true);
   _cova->optimizationSetTarget(_p0);
@@ -862,6 +910,7 @@ void KrigingSystem::_rhsCalculPoint()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculBlock()
 {
+  _mustBeOldStyle("_rhsCalculBlock");
   // The Block calculation needs:
   // - to memorize the location of the target (center) before its randomization
   // - define a new matrix to cumulate '_covtab'  calculations
@@ -906,6 +955,7 @@ void KrigingSystem::_rhsCalculBlock()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDrift()
 {
+  _mustBeOldStyle("_rhsCalculDrift");
   _cova->optimizationSetTarget(_p0);
   _p0.setTarget(true);
   _covtab.fill(0.);
@@ -920,6 +970,7 @@ void KrigingSystem::_rhsCalculDrift()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDGM()
 {
+  _mustBeOldStyle("_rhsCalculDGM");
   _cova->optimizationSetTarget(_p0);
   _p1.setTarget(false);
   _p0.setTarget(true);
@@ -943,6 +994,7 @@ void KrigingSystem::_rhsCalculDGM()
  *****************************************************************************/
 int KrigingSystem::_rhsCalcul()
 {
+  _mustBeOldStyle("_rhsCalcul");
   _p0.setIech(_iechOut);
   _p0.setTarget(true);
   _dbout->getSampleAsSPInPlace(_p0);
@@ -1010,6 +1062,7 @@ int KrigingSystem::_rhsCalcul()
 
 void KrigingSystem::_rhsIsoToHetero()
 {
+  _mustBeOldStyle("_rhsIsoToHetero");
   if (_flagIsotopic) return;
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
   {
@@ -1026,8 +1079,6 @@ void KrigingSystem::_rhsIsoToHetero()
 
 void KrigingSystem::_rhsDump()
 {
-  VectorInt rel = _getRelativePosition();
-
   /* General Header */
 
   mestitle(0, "RHS of Kriging matrix (compressed)");
@@ -1064,23 +1115,32 @@ void KrigingSystem::_rhsDump()
   }
   message("\n");
 
-  /* Header line */
-
-  tab_prints(NULL, "Rank");
-  if (! _flag.empty()) tab_prints(NULL, "Flag");
-  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    tab_printi(NULL, ivarCL + 1);
-  message("\n");
-
-  /* Matrix lines */
-
-  for (int i = 0; i < _nred; i++)
+  if (_oldStyle)
   {
-    tab_printi(NULL, i + 1);
-    if (! _flag.empty()) tab_printi(NULL, rel[i]);
+    VectorInt rel = _getRelativePosition();
+
+    /* Header line */
+
+    tab_prints(NULL, "Rank");
+    if (!_flag.empty()) tab_prints(NULL, "Flag");
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      tab_printg(NULL, _rhs->getValue(i,ivarCL,false));
+      tab_printi(NULL, ivarCL + 1);
     message("\n");
+
+    /* Matrix lines */
+
+    for (int i = 0; i < _nred; i++)
+    {
+      tab_printi(NULL, i + 1);
+      if (!_flag.empty()) tab_printi(NULL, rel[i]);
+      for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+        tab_printg(NULL, _rhs->getValue(i, ivarCL, false));
+      message("\n");
+    }
+  }
+  else
+  {
+    _algebra.dumpRHS();
   }
 }
 
@@ -1219,6 +1279,7 @@ void KrigingSystem::_wgtDump(int status)
  *****************************************************************************/
 void KrigingSystem::_simulateCalcul(int status)
 {
+  _mustBeOldStyle("_simulateCalcul");
   int ecr = 0;
   for (int isimu = ecr = 0; isimu < _nbsimu; isimu++)
     for (int ivar = 0; ivar < _nvar; ivar++, ecr++)
@@ -1283,7 +1344,7 @@ void KrigingSystem::_estimateCalcul(int status)
 
   // Modification specific to Cross-validation options
 
-  if (_neigh->getFlagXvalid())
+  if (_oldStyle && _neigh->getFlagXvalid())
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
@@ -1361,7 +1422,8 @@ void KrigingSystem::_neighCalcul(int status, const VectorDouble& tab)
 
 void KrigingSystem::_estimateCalculImage(int status)
 {
-  if (! _flagEst) return;
+  if (!_flagEst) return;
+  _mustBeOldStyle("_estimateCalculImage");
 
   const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
@@ -1416,6 +1478,7 @@ void KrigingSystem::_estimateCalculImage(int status)
 
 void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 {
+  _mustBeOldStyle("_estimateCalculXvalidUnique");
   int iech  = _iechOut;
   int iiech = _getFlagAddress(iech, 0);
 
@@ -1522,10 +1585,17 @@ void KrigingSystem::_variance0()
  *****************************************************************************/
 void KrigingSystem::_estimateEstim(int status)
 {
+  if (!_oldStyle)
+  {
+    VectorDouble local = _algebra.getEstimation();
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
+    return;
+  }
+  
   // Calculate the solution
 
-  if (status == 0)
-    _results.prodMatMatInPlace(_rhs, &_zam, true, false);
+  if (status == 0) _results.prodMatMatInPlace(_rhs, &_zam, true, false);
 
   // Loop for writing the estimation
 
@@ -1533,7 +1603,8 @@ void KrigingSystem::_estimateEstim(int status)
   {
     double estim0 = _getMean(ivarCL);
     if (status == 0)
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, _results.getValue(ivarCL,0,false) + estim0);
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL,
+                       _results.getValue(ivarCL, 0, false) + estim0);
     else
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, TEST);
   }
@@ -1548,9 +1619,18 @@ void KrigingSystem::_estimateEstim(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateStdv(int status)
 {
+  if (!_oldStyle)
+  {
+    VectorDouble local = _algebra.getStdv();
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
+    return;
+  }
+
   // Calculate the solution
 
-  if (status == 0) _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
+  if (status == 0)
+    _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
 
   // Loop for writing the estimation
 
@@ -1586,6 +1666,14 @@ void KrigingSystem::_estimateStdv(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateVarZ(int status)
 {
+  if (_oldStyle)
+  {
+    VectorDouble local = _algebra.getVarianceZstar();
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
+    return;
+  }
+
   int cumflag = _nred - _nfeq;
 
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
@@ -1624,19 +1712,32 @@ int KrigingSystem::_prepar()
 
   _resetMemoryCompressedPerNeigh();
 
-  /* Check if the number of points is compatible with the model */
+  // Check if the number of points is compatible with the model //
 
   if (! _isAuthorized()) return 1;
 
   /* Establish the Kriging L.H.S. */
 
-  _lhsCalcul();
-  _lhsIsoToHetero();
+  if (_oldStyle)
+  {
+    _lhsCalcul();
+    _lhsIsoToHetero();
+
+    // Invert the L.H.S. matrix
+    if (_lhsInvert()) return 1;
+  }
+  else
+  {
+    _algebra.resetNewData();
+    _Z = _dbin->getMultipleValuesActive(VectorInt(), _nbgh, _means);
+    _algebra.setData(&_Z, &_means);
+    _Sigma = _model->evalCovMatrixSymmetricOptim(_dbin, -1, _nbgh);
+    // _Sigma = _model->evalCovMatrixSymmetric(_dbin, -1, _nbgh);
+    _X     = _model->evalDriftMatrix(_dbin, -1, _nbgh);
+    _algebra.setLHS(&_Sigma, &_X);
+  }
+
   if (OptDbg::query(EDbg::KRIGING)) _lhsDump();
-
-  /* Invert the L.H.S. matrix */
-
-  if (_lhsInvert()) return 1;
 
   return 0;
 }
@@ -1726,12 +1827,15 @@ bool KrigingSystem::isReady()
   }
   else
   {
+    if (_oldStyle)
+    {
       // Prepare the projection of data on different covariances of the Model
-    if (_cova != nullptr && _dbin != nullptr)
-      _cova->optimizationPreProcess(_dbin);
+      if (_cova != nullptr && _dbin != nullptr)
+        _cova->optimizationPreProcess(_dbin);
 
-    if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
-      _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin);
+      if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
+        _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin);
+    }
   }
 
   // Attach the Input and Output Db
@@ -1807,17 +1911,17 @@ int KrigingSystem::estimate(int iech_out)
 
   if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
   {
-    if (_flagBayes) _setLocalModel(_modelSimple);
+    if (_oldStyle && _flagBayes) _setLocalModel(_modelSimple);
     status = _prepar();
     if (status) goto label_store;
-    if (_flagBayes) _setLocalModel(_modelInit);
+    if (_oldStyle && _flagBayes) _setLocalModel(_modelInit);
   }
 
   // Establish the pre-calculation involving the data information
 
   if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || _flagDataChanged || OptDbg::force())
   {
-    _dualCalcul();
+    if (_oldStyle) _dualCalcul();
   }
 
   if (caseXvalidUnique) _neigh->setFlagXvalid(true);
@@ -1826,19 +1930,30 @@ int KrigingSystem::estimate(int iech_out)
 
   if (caseXvalidUnique) goto label_store;
 
-  if (_flagBayes) _setLocalModel(_modelSimple);
-  _rhsCalcul();
-  if (_flagBayes) _setLocalModel(_modelInit);
+  if (_oldStyle && _flagBayes) _setLocalModel(_modelSimple);
+  if (_oldStyle) _rhsCalcul();
+  else
+  {
+    VectorInt nbghTarget = {iech_out};
+    _Sigma0 = _model->evalCovMatrixOptim(_dbin, _dbout, -1, -1, _nbgh, nbghTarget);
+    // _Sigma0 = _model->evalCovMatrix(_dbin, _dbout, -1, -1, _nbgh, nbghTarget);
+    _X0     = _model->evalDriftMatrix(_dbout, -1, nbghTarget);
+    _algebra.setRHS(&_Sigma0, &_X0);
+  }
+  if (_oldStyle &&_flagBayes) _setLocalModel(_modelInit);
 
   if (status != 0) goto label_store;
-  _rhsIsoToHetero();
+  if (_oldStyle) _rhsIsoToHetero();
   if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
 
   /* Derive the kriging weights */
 
-  if (_flagStd || _flagVarZ || _flagSimu || _flagWeights || _flagKeypairWeights)
-    _wgtCalcul();
-  if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
+  if (_oldStyle)
+  {
+    if (_flagStd || _flagVarZ || _flagSimu || _flagWeights || _flagKeypairWeights)
+      _wgtCalcul();
+    if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
+  }
 
   // Optional Save of the Kriging weights
   if (_flagKeypairWeights) _saveWeights(status);
@@ -1851,7 +1966,7 @@ int KrigingSystem::estimate(int iech_out)
 
   // Correct the Variance in Bayesian case
 
-  if (_flagBayes) _bayesCorrectVariance();
+  if (_oldStyle && _flagBayes) _bayesCorrectVariance();
 
   // Store the results in the output Db
 
@@ -2019,6 +2134,7 @@ void KrigingSystem::_krigingDump(int status)
 
 void KrigingSystem::_simulateDump(int status)
 {
+  _mustBeOldStyle("_simulateDump");
   mestitle(0, "Simulation results");
 
   /* Loop on the results */
@@ -2301,8 +2417,11 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 
     // Duplicate the Model and suppress any Drift component
 
-    _modelSimple = (ModelGeneric*) _modelInit->clone();
-    _modelSimple->delAllDrifts();
+    if (_oldStyle)
+    {
+      _modelSimple = (ModelGeneric*)_modelInit->clone();
+      _modelSimple->delAllDrifts();
+    }
   }
   _flagBayes = flag_bayes;
   _seedForBayes = seed;
@@ -3151,6 +3270,8 @@ int KrigingSystem::_bayesPreCalculations()
  *****************************************************************************/
 void KrigingSystem::_bayesCorrectVariance()
 {
+  _mustBeOldStyle("_bayesCorrectVariance");
+
   /* Establish the Drift matrix */
 
   if (_nbfl <= 0 || _nfeq <= 0) return;

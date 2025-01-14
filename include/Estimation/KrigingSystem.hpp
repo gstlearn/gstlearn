@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/ACovAnisoList.hpp"
-#include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
+#include "Covariances/CovAnisoList.hpp"
+#include "Estimation/KrigingCalcul.hpp"
+#include "Model/ModelGeneric.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
@@ -34,6 +35,7 @@ class ECalcMember;
 class NeighImage;
 class AAnam;
 class ACov;
+class KrigingCalcul;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -189,9 +191,11 @@ private:
   void   _setInternalShortCutVariablesModel();
   int    _setInternalShortCutVariablesNeigh();
 
+  void _mustBeOldStyle(const String& title) const;
+
 private:
-  bool                 _oldStyle;
-  // Aggregated classes
+  bool _oldStyle;
+
   Db*                  _dbin;
   Db*                  _dbout;
   ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
@@ -202,12 +206,21 @@ private:
 
   // Pointer to the Model currently used (must not be freed)
   ModelGeneric*        _model;
-  bool                 _optimEnabled;
+
+  // Pointers used when plugging KrigingCalcul (not to be deleted)
+  KrigingCalcul         _algebra;
+  MatrixSquareSymmetric _Sigma00; // Covariance part for variance
+  MatrixSquareSymmetric _Sigma;   // Covariance part for LHS
+  MatrixRectangular     _X;       // Drift part for LHS
+  MatrixRectangular     _Sigma0;  // Covariance part for RHS
+  MatrixRectangular     _X0;      // Drift par for RHS
+  VectorDouble          _Z;       // Vector of Data
+  VectorDouble          _means;   // Means of the variables (used to center variables)
 
   // Calculation modes
-  CovCalcMode          _calcModeLHS;
-  CovCalcMode          _calcModeRHS;
-  CovCalcMode          _calcModeVAR;
+  CovCalcMode _calcModeLHS;
+  CovCalcMode _calcModeRHS;
+  CovCalcMode _calcModeVAR;
 
   // Options
 
@@ -336,5 +349,5 @@ private:
   mutable bool _flagNoMatLC;
   mutable bool _flagVerr;
   mutable bool _flagNoStat;
-  mutable ACovAnisoList* _cova;
+  mutable CovAnisoList* _cova;
 };

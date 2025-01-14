@@ -21,14 +21,13 @@ class ACor;
 class AFunctional;
 class CovInternal;
 
-class GSTLEARN_EXPORT CovBase: public ACov
+class GSTLEARN_EXPORT CovProportional: public ACov
 {
 public:
-    
-  CovBase(ACor* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
-  CovBase(const CovBase &r) = delete;
-  CovBase& operator=(const CovBase &r) = delete;
-  virtual ~CovBase();
+  CovProportional(ACor* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
+  CovProportional(const CovProportional &r) = delete;
+  CovProportional& operator=(const CovProportional &r) = delete;
+  virtual ~CovProportional();
 
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
@@ -80,7 +79,7 @@ public:
   void updateCovByMesh(int imesh,bool aniso = true) const;
 
   double getValue(const EConsElem& econs, int iv1, int iv2) const;
-  void nostatUpdate(CovInternal *covint);
+  void nostatUpdate(CovInternal *covint) const;
 
 protected:
     void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,

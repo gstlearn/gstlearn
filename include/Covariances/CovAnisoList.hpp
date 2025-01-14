@@ -40,17 +40,17 @@ class AAnam;
  * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
  * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
  */
-class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
+class GSTLEARN_EXPORT CovAnisoList : public ACov, public ICloneable
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
-  ACovAnisoList(const ASpace* space = nullptr);
-  ACovAnisoList(const ACovAnisoList &r);
-  ACovAnisoList& operator= (const ACovAnisoList &r);
-  virtual ~ACovAnisoList();
+  CovAnisoList(const ASpace* space = nullptr);
+  CovAnisoList(const CovAnisoList &r);
+  CovAnisoList& operator= (const CovAnisoList &r);
+  virtual ~CovAnisoList();
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(ACovAnisoList)
+  IMPLEMENT_CLONING(CovAnisoList)
 
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
@@ -78,7 +78,7 @@ public:
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ACovAnisoList Interface
+  /// CovAnisoList Interface
   virtual void addCov(const CovAniso* cov);
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
@@ -86,7 +86,7 @@ public:
   virtual int getActiveFactor() const { return 0; }
   virtual int getAnamNClass() const { return 0; }
 
-  void addCovList(const ACovAnisoList* covs);
+  void addCovList(const CovAnisoList* covs);
   // Remove an elementary covariance structure
   void delCov(int icov);
   // Remove all elementary covariance structures
@@ -147,7 +147,7 @@ public:
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
   int  getRankNugget() const;
-  const ACovAnisoList* createReduce(const VectorInt &validVars) const;
+  const CovAnisoList* createReduce(const VectorInt &validVars) const;
 
 
 protected:

@@ -12,19 +12,19 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 
 class ASpace;
 class SpacePoint;
 class CovGradientNumerical;
 class CovCalcMode;
 
-class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMGradient : public CovAnisoList
 {
 public:
   CovLMGradient(const ASpace* space = nullptr);
   CovLMGradient(const CovLMGradient& r);
-  CovLMGradient(const ACovAnisoList& r);
+  CovLMGradient(const CovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);
   virtual ~CovLMGradient();
 
@@ -55,23 +55,23 @@ protected:
                                             const SpacePoint& p1,const SpacePoint& p2,
                                             const CovCalcMode *mode = nullptr) const override
     {
-      ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);  
+      CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);  
     }
     void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const override
     {
-      ACovAnisoList::addEval0CovMatBiPointInPlace(mat,mode);
+      CovAnisoList::addEval0CovMatBiPointInPlace(mat,mode);
     }
     void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                         const SpacePoint& pwork1, 
                         const SpacePoint& pwork2, 
                         const CovCalcMode *mode = nullptr) const override
     {
-      ACovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+      CovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
     }
 
     void _optimizationSetTarget(const SpacePoint &pt) const override
     {
-      ACovAnisoList::_optimizationSetTarget(pt);
+      CovAnisoList::_optimizationSetTarget(pt);
     }
 private:
   static void _initGradients(double& covVal,

@@ -11,12 +11,9 @@
 #pragma once
 
 #include "Basic/AFunctional.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Covariances/TabNoStat.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Mesh/AMesh.hpp"
 #include "geoslib_define.h"
 #include "Covariances/ACov.hpp"

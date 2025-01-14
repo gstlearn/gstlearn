@@ -8,9 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "Model/ModelGeneric.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 
 ModelGeneric::ModelGeneric(const CovContext &ctxt)
@@ -93,7 +92,7 @@ MatrixSparse* ModelGeneric::evalCovMatrixSparse(Db* db1,
 void ModelGeneric::setField(double field)
 {
   _ctxt.setField(field);
-  ACovAnisoList* covalist = dynamic_cast<ACovAnisoList*>(_cova);
+  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
   if (covalist != nullptr) covalist->copyCovContext(_ctxt);
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
@@ -136,6 +135,10 @@ int ModelGeneric::getDimensionNumber() const
 {
   return _ctxt.getNDim();
 }
+const VectorDouble& ModelGeneric::getMeans() const
+{
+  return _ctxt.getMean();
+}
 
 // Pipes method to _driftList
 int ModelGeneric::getDriftNumber() const
@@ -165,33 +168,33 @@ void ModelGeneric::delAllDrifts()
 }
 
 // Pipes method to _ACov
-const ACovAnisoList* ModelGeneric::getCovAnisoList() const
+const CovAnisoList* ModelGeneric::getCovAnisoList() const
 {
   if (_cova == nullptr) return nullptr;
-  const ACovAnisoList* covalist = dynamic_cast<const ACovAnisoList*>(_cova);
+  const CovAnisoList* covalist = dynamic_cast<const CovAnisoList*>(_cova);
   return covalist;
 }
-ACovAnisoList* ModelGeneric::getCovAnisoListModify() const
+CovAnisoList* ModelGeneric::getCovAnisoListModify() const
 {
   if (_cova == nullptr) return nullptr;
-  ACovAnisoList* covalist = dynamic_cast<ACovAnisoList*>(_cova);
+  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
   return covalist;
 }
 int ModelGeneric::getCovaMinIRFOrder() const
 {
-  const ACovAnisoList* covalist = getCovAnisoList();
+  const CovAnisoList* covalist = getCovAnisoList();
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaMinIRFOrder();
 }
 double ModelGeneric::getTotalSill(int ivar, int jvar) const
 {
-  const ACovAnisoList* covalist = getCovAnisoList();
+  const CovAnisoList* covalist = getCovAnisoList();
   if (covalist == nullptr) return ITEST;
   return covalist->getTotalSill(ivar, jvar);
 }
 int ModelGeneric::getCovaNumber(bool skipNugget) const
 {
-  const ACovAnisoList* covalist = getCovAnisoList();
+  const CovAnisoList* covalist = getCovAnisoList();
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaNumber(skipNugget);
 }

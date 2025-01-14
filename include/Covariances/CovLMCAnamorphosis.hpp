@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
@@ -21,13 +21,13 @@ class SpacePoint;
 class CovAniso;
 class Model;
 
-class GSTLEARN_EXPORT CovLMCAnamorphosis : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMCAnamorphosis : public CovAnisoList
 {
 public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
                      const ASpace* space = nullptr);
-  CovLMCAnamorphosis(const ACovAnisoList& lmc,
+  CovLMCAnamorphosis(const CovAnisoList& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);
@@ -70,7 +70,7 @@ protected:
                         const CovCalcMode *mode) const override;
     void _optimizationSetTarget(const SpacePoint &pt) const override
     {
-      ACovAnisoList::_optimizationSetTarget(pt);
+      CovAnisoList::_optimizationSetTarget(pt);
     }
 
 private:

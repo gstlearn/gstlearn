@@ -15,7 +15,7 @@
 #include "Enum/EConvDir.hpp"
 #include "Enum/EConvType.hpp"
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 class ASpace;
@@ -38,7 +38,7 @@ GSTLEARN_EXPORT double _conv_sincard(double v);
 
 GSTLEARN_EXPORT Def_Convolution& D_CONV(int rank);
 
-class GSTLEARN_EXPORT CovLMCConvolution : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMCConvolution : public CovAnisoList
 {
 public:
   CovLMCConvolution(const EConvType& conv_type,
@@ -86,7 +86,7 @@ protected:
                                     const CovCalcMode* mode) const override;
   void _optimizationSetTarget(const SpacePoint& pt) const override
   {
-    ACovAnisoList::_optimizationSetTarget(pt);
+    CovAnisoList::_optimizationSetTarget(pt);
   }
 
 private:

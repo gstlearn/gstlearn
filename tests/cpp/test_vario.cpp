@@ -12,7 +12,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpace());
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs.addCov(&cova1);

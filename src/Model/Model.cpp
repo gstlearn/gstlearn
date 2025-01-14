@@ -27,7 +27,7 @@
 #include "Matrix/MatrixFactory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
@@ -65,9 +65,9 @@ Model::Model(const Model &m)
       ASerializable(m),
       ModelGeneric(m._ctxt)
 {
-  ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);
+  CovAnisoList* mcovalist = dynamic_cast<CovAnisoList*>(m._cova);
   if (mcovalist != nullptr)
-    _cova = dynamic_cast<ACovAnisoList*>(mcovalist->clone());
+    _cova = dynamic_cast<CovAnisoList*>(mcovalist->clone());
   if (m._driftList != nullptr)
     _driftList = m._driftList->clone();
 }
@@ -78,9 +78,9 @@ Model& Model::operator=(const Model &m)
   { 
     AStringable::operator=(m);
     ASerializable::operator=(m);
-    ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);
+    CovAnisoList* mcovalist = dynamic_cast<CovAnisoList*>(m._cova);
     if (mcovalist != nullptr)
-      _cova = dynamic_cast<ACovAnisoList*>(mcovalist->clone());
+      _cova = dynamic_cast<CovAnisoList*>(mcovalist->clone());
     if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
     _ctxt = m._ctxt;
@@ -304,7 +304,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 void Model::delCova(int icov)
 {
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return;
   covalist->delCov(icov);
 }
@@ -312,7 +312,7 @@ void Model::delCova(int icov)
 void Model::delAllCovas()
 {
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList();
+  CovAnisoList* covalist = _castInCovAnisoList();
   if (covalist == nullptr) return;
   covalist->delAllCov();
 }
@@ -321,7 +321,7 @@ void Model::delAllCovas()
  * Add a list of Covariances. This operation cleans any previously stored covariance
  * @param covalist List of Covariances to be added
  */
-void Model::setCovList(const ACovAnisoList* covalist)
+void Model::setCovList(const CovAnisoList* covalist)
 {
   if (covalist == nullptr) return;
   delete _cova;
@@ -338,7 +338,7 @@ void Model::addCov(const CovAniso *cov)
     return;
   }
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList();
+  CovAnisoList* covalist = _castInCovAnisoList();
   if (covalist == nullptr) return;
   covalist->addCov(cov);
 }
@@ -615,63 +615,63 @@ void Model::delAllDrifts()
 const CovAniso* Model::getCova(int icov) const
 {
   if (_cova == nullptr) return nullptr;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
 }
 CovAniso* Model::getCova(int icov)
 {
   if (_cova == nullptr) return nullptr;
-  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
 }
 int Model::getCovaNumber(bool skipNugget) const
 {
   if (_cova == nullptr) return 0;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaNumber(skipNugget);
 }
 const ECov& Model::getCovaType(int icov) const
 {
   if (_cova == nullptr) return ECov::UNKNOWN;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return ECov::UNKNOWN;
   return covalist->getType(icov);
 }
 const MatrixSquareSymmetric& Model::getSillValues(int icov) const
 {
   if (_cova == nullptr) return _dummy;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return _dummy;
   return covalist->getSill(icov);
 }
 double Model::getSill(int icov, int ivar, int jvar) const
 {
   if (_cova == nullptr) return TEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
   return covalist->getSill(icov, ivar, jvar);
 }
 double Model::getRange(int icov) const
 {
   if (_cova == nullptr) return TEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
   return covalist->getRange(icov);
 }
 VectorDouble Model::getRanges(int icov) const
 {
   if (_cova == nullptr) return VectorDouble();
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return VectorDouble();
   return covalist->getRanges(icov);
 }
 double Model::getParam(int icov) const
 {
   if (_cova == nullptr) return TEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
   return covalist->getParam(icov);
 }
@@ -679,35 +679,35 @@ double Model::getParam(int icov) const
 String Model::getCovName(int icov) const
 {
   if (_cova == nullptr) return String();
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return String();
   return covalist->getCovName(icov);
 }
 int Model::getGradParamNumber(int icov) const
 {
   if (_cova == nullptr) return ITEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return ITEST;
   return covalist->getGradParamNumber(icov);
 }
 void Model::setSill(int icov, int ivar, int jvar, double value)
 {
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return;
   covalist->setSill(icov, ivar, jvar, value);
 }
 void Model::setRangeIsotropic(int icov, double range)
 {
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return;
   covalist->setRangeIsotropic(icov, range);
 }
 void Model::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 {
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return;
   covalist->setMarkovCoeffs(icov, coeffs);
 }
@@ -715,14 +715,14 @@ void Model::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 void Model::setCovaFiltered(int icov, bool filtered)
 {
   if (_cova == nullptr) return;
-  ACovAnisoList* covalist = _castInCovAnisoList(icov);
+  CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return;
   covalist->setFiltered(icov, filtered);
 }
 int Model::hasExternalCov() const
 {
   if (_cova == nullptr) return 0;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return 0;
   for (int icov = 0; icov < (int) covalist->getCovaNumber(); icov++)
   {
@@ -732,67 +732,67 @@ int Model::hasExternalCov() const
 }
 double Model::getMaximumDistance() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return TEST;
   return covalist->getMaximumDistance();
 }
 int Model::getCovaMinIRFOrder() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaMinIRFOrder();
 }
 bool Model::hasAnam() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return false;
   return covalist->hasAnam();
 }
 const AAnam* Model::getAnam() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return nullptr;
   return covalist->getAnam();
 }
 bool Model::isChangeSupportDefined() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return false;
   return covalist->getAnam()->isChangeSupportDefined();
 }
 void Model::normalize(double sill)
 {
-  ACovAnisoList* covalist = _castInCovAnisoList();
+  CovAnisoList* covalist = _castInCovAnisoList();
   if (covalist == nullptr) return;
   covalist->normalize(sill);
 }
 bool Model::hasNugget() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return false;
   return covalist->hasNugget();
 }
 int Model::getRankNugget() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return -1;
   return covalist->getRankNugget();
 }
 VectorInt Model::getActiveCovList() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return VectorInt();
   return covalist->getActiveCovList();
 }
 VectorInt Model::getAllActiveCovList() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return VectorInt();
   return covalist->getAllActiveCovList();
 }
 bool Model::isAllActiveCovList() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return false;
   return covalist->isAllActiveCovList();
 }
@@ -812,7 +812,7 @@ int Model::getActiveFactor() const
 }
 int Model::getAnamNClass() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
   return covalist->getAnamNClass();
 }
@@ -846,7 +846,7 @@ double Model::evalCov(const VectorDouble &incr,
                       const ECalcMember &member) const
 {
   if (_cova == nullptr) return TEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return TEST;
 
   if (member != ECalcMember::LHS && covalist->isFiltered(icov))
@@ -857,7 +857,7 @@ double Model::evalCov(const VectorDouble &incr,
 
 /**
  * Switch to a Model dedicated to Gradients
- * (transforms it from ACovAnisoList to CovLMGradient)
+ * (transforms it from CovAnisoList to CovLMGradient)
  */
 void Model::switchToGradient()
 {
@@ -871,7 +871,7 @@ void Model::switchToGradient()
   }
   else
   {
-    const ACovAnisoList* covalist = _castInCovAnisoListConst();
+    const CovAnisoList* covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return;
     _cova = new CovLMGradient(*covalist);
   }
@@ -879,7 +879,7 @@ void Model::switchToGradient()
 
 /**
  * Defining an Anamorphosis information for the Model
- * (in fact, this is added to ACovAnisoList part and transforms it from ACovAnisoList to CovLMCAnamorphosis
+ * (in fact, this is added to CovAnisoList part and transforms it from CovAnisoList to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
  * @param strcnt Array of covariance description used for IR case
  * @return
@@ -893,7 +893,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   }
   if (hasAnam())
   {
-    // ACovAnisoList is already a covLMCAnamorphosis, simply update the anamorphosis
+    // CovAnisoList is already a covLMCAnamorphosis, simply update the anamorphosis
     CovLMCAnamorphosis* cov = dynamic_cast<CovLMCAnamorphosis*>(_cova);
     if (cov == nullptr)
     {
@@ -904,18 +904,18 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   }
   else
   {
-    ACovAnisoList* cov = dynamic_cast<ACovAnisoList*>(_cova);
+    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_cova);
     if (cov == nullptr)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
-      messerr("The original covariance is probably not a 'ACovAnisoList'");
+      messerr("The original covariance is probably not a 'CovAnisoList'");
       return 1;
     }
 
     // Initiate a new CovLMCAnamorphosis class
     CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(*cov, anam, strcnt);
 
-    // Delete the current ACovAnisoList structure
+    // Delete the current CovAnisoList structure
     delete _cova;
 
     // Replace it by the newly create one (CovLMCAnamorphosis)
@@ -934,10 +934,10 @@ int Model::unsetAnam()
 {
   if (!hasAnam())
   {
-    // ACovAnisoList does not have any Anam: do nothing
+    // CovAnisoList does not have any Anam: do nothing
     return 0;
   }
-    ACovAnisoList* cov = dynamic_cast<ACovAnisoList*>(_cova);
+    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_cova);
     if (cov == nullptr)
     {
       messerr("Impossible to unset 'anam' from the covariance part of the Model");
@@ -945,13 +945,13 @@ int Model::unsetAnam()
       return 1;
     }
 
-  // Initiate a new ACovAnisoList class
-  ACovAnisoList* newcov = new ACovAnisoList(*cov);
+  // Initiate a new CovAnisoList class
+  CovAnisoList* newcov = new CovAnisoList(*cov);
 
-  // Delete the current ACovAnisoList structure
+  // Delete the current CovAnisoList structure
   delete _cova;
 
-    // Replace it by the newly create one (ACovAnisoList)
+    // Replace it by the newly create one (CovAnisoList)
     _cova = newcov;
   return 0;
 }
@@ -959,7 +959,7 @@ int Model::unsetAnam()
 void Model::_copyCovContext()
 {
   if (_cova == nullptr) return;
-  ACovAnisoList *covalist = _castInCovAnisoList();
+  CovAnisoList *covalist = _castInCovAnisoList();
   if (covalist != nullptr) covalist->copyCovContext(_ctxt);
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
@@ -1308,9 +1308,9 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   _clear();
   _create();
 
-  /* Reading the covariance part and store it into a ACovAnisoList */
+  /* Reading the covariance part and store it into a CovAnisoList */
 
-  ACovAnisoList covs(_ctxt.getSpace());
+  CovAnisoList covs(_ctxt.getSpace());
   for (int icova = 0; ret && icova < ncova; icova++)
   {
     flag_aniso = flag_rotation = 0;
@@ -1499,7 +1499,7 @@ void Model::_create()
   // TODO: The next two lines are there in order to allow direct call to
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
-  _cova = new ACovAnisoList(_ctxt.getSpace());
+  _cova = new CovAnisoList(_ctxt.getSpace());
   _driftList = new DriftList(_ctxt);
 }
 
@@ -1522,7 +1522,7 @@ double Model::getBallRadius() const
   if (_cova == nullptr) return TEST;
 
   // Check is performed on the first covariance
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return ITEST;
   const CovAniso* cova = covalist->getCova(0);
   double ball_radius = cova->getBallRadius();
@@ -1532,7 +1532,7 @@ double Model::getBallRadius() const
 
 const AnamHermite* Model::getAnamHermite() const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return nullptr;
   const AAnam* anam = covalist->getAnam();
   if (anam == nullptr) return nullptr;
@@ -1680,7 +1680,7 @@ void Model::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
 
 const EModelProperty& Model::getCovMode() const
 {
-  ACovAnisoList* covs;
+  CovAnisoList* covs;
   if (_cova == nullptr) return EModelProperty::NONE;
 
   covs = dynamic_cast<CovLMCTapering*>(_cova);
@@ -1721,7 +1721,7 @@ bool Model::isFlagGradientNumerical() const
   if (! isFlagGradient()) return false;
 
   // Check is performed on the first covariance
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
   const CovGradientNumerical* cova = dynamic_cast<const CovGradientNumerical*>(covalist->getCova(0));
   return (cova != nullptr);
@@ -1732,7 +1732,7 @@ bool Model::isFlagGradientFunctional() const
   if (! isFlagGradient()) return false;
 
   // Check is performed on the first covariance
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
   const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCova(0));
   return (cova != nullptr);
@@ -1852,26 +1852,26 @@ bool Model::isValid() const
   return true;
 }
 
-const ACovAnisoList* Model::getCovAnisoList() const
+const CovAnisoList* Model::getCovAnisoList() const
 {
   return _castInCovAnisoListConst();
 }
 
-ACovAnisoList* Model::getCovAnisoListModify()
+CovAnisoList* Model::getCovAnisoListModify()
 {
   return _castInCovAnisoList();
 }
 
 /**
- * This internal function tries to cast the member '_cova' into a pointer to ACovAnisoList
+ * This internal function tries to cast the member '_cova' into a pointer to CovAnisoList
  * and checks the validity of the argument 'icov' which gives the rank within this list
  * @param icov Rank of the CovAniso (to be checked if >= 0)
  * @return 'nullptr' if not valid cast (the error message is printed internally)
  */
-const ACovAnisoList* Model::_castInCovAnisoListConst(int icov) const
+const CovAnisoList* Model::_castInCovAnisoListConst(int icov) const
 {
   // Check the cast procedure
-  const ACovAnisoList* covalist = dynamic_cast<const ACovAnisoList*>(_cova);
+  const CovAnisoList* covalist = dynamic_cast<const CovAnisoList*>(_cova);
   if (covalist == nullptr)
   {
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
@@ -1889,10 +1889,10 @@ const ACovAnisoList* Model::_castInCovAnisoListConst(int icov) const
   return covalist;
 }
 
-ACovAnisoList* Model::_castInCovAnisoList(int icov)
+CovAnisoList* Model::_castInCovAnisoList(int icov)
 {
   // Check the cast procedure
-  ACovAnisoList* covalist = dynamic_cast<ACovAnisoList*>(_cova);
+  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
   if (covalist == nullptr)
   {
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
@@ -1912,7 +1912,7 @@ ACovAnisoList* Model::_castInCovAnisoList(int icov)
 
 CovAniso Model::extractCova(int icov) const
 {
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return CovAniso(ECov::UNKNOWN, _ctxt);
   return covalist->extractCova(icov);
 }

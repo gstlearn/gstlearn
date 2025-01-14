@@ -1,14 +1,87 @@
-This test is mean to test Kriging using Moving Neighborhood
+This test is meant to test Kriging using Moving Neighborhood
 - the Data Set contains 1000 samples
 - the Output Grid contains 10000 nodes
 - the Moving Neighborhood is required:
   . Radius dimension = 1.000000
   . Maximum number of neighbors = 20
-  . Minimum number of neighbors = 2
+  . Minimum number of neiNumber of Rowsghbors = 2
   . Number of angular sectors   = 8
   . Maxmimum number of neighbors per sector = 3
   . Leaf Size for Ball Tree algorithm = 30
-#NO_DIFF# Kriging in Moving Neighborhood: 1123 ms. (Ref = 1500 ms.)
+
+Target location
+---------------
+Sample #1 (from 10000)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         40      0.033      0.020          5
+          2        110      0.059      0.032          5
+          3        574      0.031      0.040          6
+          4        672      0.014      0.012          5
+          5        721      0.039      0.057          6
+          6        852      0.008      0.033          6
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 6
+Total number of equations   = 6
+Reduced number of equations = 6
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      2.000      1.557      1.700      1.703      1.446
+          2          2      1.557      2.000      1.562      1.271      1.524
+          3          3      1.700      1.562      2.000      1.516      1.724
+          4          4      1.703      1.271      1.516      2.000      1.253
+          5          5      1.446      1.524      1.724      1.253      2.000
+          6          6      1.582      1.242      1.638      1.671      1.424
+
+       Rank                     6
+                  Flag          6
+          1          1      1.582
+          2          2      1.242
+          3          3      1.638
+          4          4      1.671
+          5          5      1.424
+          6          6      2.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 6
+Total number of equations   = 6
+Reduced number of equations = 6
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank       Flag          1
+          1          1      1.435
+          2          2      1.022
+          3          3      1.258
+          4          4      1.721
+          5          5      1.011
+          6          6      1.497
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*
+          1      0.033      0.020      0.332      0.000
+          2      0.059      0.032      1.499      0.000
+          3      0.031      0.040     -0.258      0.000
+          4      0.014      0.012     -0.083      0.000
+          5      0.039      0.057      0.437      0.000
+          6      0.008      0.033      1.800      0.000
+Sum of weights                                    0.000
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       0.223
+#NO_DIFF# Kriging in Moving Neighborhood: 1112 ms. (Ref = 1500 ms.)
 
 Data Base Grid Characteristics
 ==============================

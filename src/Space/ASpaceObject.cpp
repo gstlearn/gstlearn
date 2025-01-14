@@ -80,7 +80,6 @@ VectorDouble ASpaceObject::getUnitaryVector() const
   return uni;
 }
 
-
 unsigned int ASpaceObject::getNDim(int ispace) const
 {
   return (_space->getNDim(ispace));

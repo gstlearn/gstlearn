@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Enum/ETape.hpp"
 
 #include "Covariances/CovLMCTapering.hpp"
@@ -23,7 +23,7 @@
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
                                const ASpace* space)
-    : ACovAnisoList(space),
+    : CovAnisoList(space),
       _tapeType(),
       _tapeRange(0)
 {
@@ -31,7 +31,7 @@ CovLMCTapering::CovLMCTapering(const ETape& tapetype,
 }
 
 CovLMCTapering::CovLMCTapering(const CovLMCTapering &r)
-    : ACovAnisoList(r),
+    : CovAnisoList(r),
       _tapeType(r._tapeType),
       _tapeRange(r._tapeRange)
 {
@@ -41,7 +41,7 @@ CovLMCTapering& CovLMCTapering::operator=(const CovLMCTapering &r)
 {
   if (this != &r)
   {
-    ACovAnisoList::operator=(r);
+    CovAnisoList::operator=(r);
     _tapeType = r._tapeType;
     _tapeRange = r._tapeRange;
   }
@@ -55,14 +55,14 @@ CovLMCTapering::~CovLMCTapering()
 void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
-  ACovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork1,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
-  ACovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  CovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 int CovLMCTapering::init(const ETape& tapetype, double taperange)
@@ -188,7 +188,7 @@ String CovLMCTapering::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << ACovAnisoList::toString(strfmt);
+  sstr << CovAnisoList::toString(strfmt);
 
   sstr << "Tapering Function     = " << getName() << std::endl;
   sstr << "Tapering Scale        = " << _tapeRange << std::endl;
@@ -199,7 +199,7 @@ double CovLMCTapering::eval0(int ivar,
                              int jvar,
                              const CovCalcMode* mode) const
 {
-  double cov0 = ACovAnisoList::eval0(ivar, jvar, mode);
+  double cov0 = CovAnisoList::eval0(ivar, jvar, mode);
   return cov0;
 }
 
@@ -216,15 +216,15 @@ double CovLMCTapering::eval(const SpacePoint& p1,
   bool asVario = false;
   if (mode == nullptr)
   {
-    cov = ACovAnisoList::eval(p1, p2, ivar, jvar);
+    cov = CovAnisoList::eval(p1, p2, ivar, jvar);
   }
   else
   {
     CovCalcMode modeloc(*mode);
     asVario = mode->getAsVario();
     modeloc.setAsVario(false);
-    cov = ACovAnisoList::eval(p1, p2, ivar, jvar, &modeloc);
-    cov0 = ACovAnisoList::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
+    cov = CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc);
+    cov0 = CovAnisoList::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
   }
 
   double h = getSpace()->getDistance(p1, p2) / _tapeRange;

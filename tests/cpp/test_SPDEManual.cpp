@@ -13,7 +13,7 @@
 #include "Basic/File.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -24,7 +24,6 @@
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "LinearOp/ShiftOpMatrix.hpp"
 #include <vector>
 
 #define __USE_MATH_DEFINES

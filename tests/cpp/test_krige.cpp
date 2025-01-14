@@ -17,7 +17,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Drifts/DriftM.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -78,7 +78,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 {
   CovContext ctxt(nvar); // use default space
   Model* model = Model::create(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpace());
 
   if (typecov == 1)
   {

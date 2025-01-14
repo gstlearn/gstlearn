@@ -768,16 +768,18 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
+                        const ASpace* space,
+                        bool useSel) const
 {
+  pvec.clear();
   int iechcur = 0;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
-    
     if (isActive(iech))
     {
       pvec.push_back(SpacePoint(space));
-      SpacePoint &p = pvec[iechcur++];
+      SpacePoint& p = pvec[iechcur++];
       p.setIech(iech);
       getSampleAsSPInPlace(p);
     }
@@ -785,7 +787,7 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool 
     {
       if (useSel) continue;
       pvec.push_back(SpacePoint(space));
-      SpacePoint &p = pvec[iechcur++];
+      SpacePoint& p = pvec[iechcur++];
       p.setIech(iech);
       p.setFFFF();
     }
@@ -827,6 +829,7 @@ void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) c
   for (int idim = 0; idim < getNDim(); idim++)
     coor[idim] = getCoordinate(iech, idim, flag_rotate);
 }
+
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 {
   double v1 = getCoordinate(iech, idim);
