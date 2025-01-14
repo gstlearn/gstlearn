@@ -1666,7 +1666,7 @@ void KrigingSystem::_estimateStdv(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateVarZ(int status)
 {
-  if (_oldStyle)
+  if (!_oldStyle)
   {
     VectorDouble local = _algebra.getVarianceZstar();
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)

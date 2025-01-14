@@ -256,7 +256,7 @@ percent = [0.5,0.9,1.]
 ndat = 40
 nbtests = 0
 verbose = False
-general = False
+general = True
 
 if general:
     for irf in [None,0,1]:
@@ -288,7 +288,7 @@ if not general:
     irf = 0
     drift = False
     measurement_error = True
-    compute_vars = False
+    compute_vars = True
     selDbin = True
     selDbout = True
     nx = [5,5]
