@@ -1,0 +1,52 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://gstlearn.org                                              */
+/* License: BSD 3-clause                                                      */
+/*                                                                            */
+/******************************************************************************/
+#pragma once
+
+#include "Covariances/CovBase.hpp"
+#include "Covariances/CovList.hpp"
+#include "Model/ModelGeneric.hpp"
+#include "gstlearn_export.hpp"
+
+/**
+ * \brief
+ * Class containing the ModelCovList Information describing the formal Spatial (or Temporal) Characteristics
+ * of the (set of) random variable(s) under study.
+ *
+ * The ModelCovList is essentially a container with two main contents:
+ * - the **covariance** part: see CovList.hpp for more information
+ */
+class GSTLEARN_EXPORT ModelCovList : public ModelGeneric
+{
+public:
+  ModelCovList(const CovContext& ctxt = CovContext());
+  ModelCovList(const ModelCovList &m) = delete;
+  ModelCovList& operator= (const ModelCovList &m) = delete;
+  virtual ~ModelCovList();
+
+  void   delCova(int icov);
+  void   delAllCovas();
+  const MatrixSquareSymmetric& getSillValues(int icov) const;
+  double getSill(int icov, int ivar, int jvar) const;
+  double getTotalSill(int ivar=0, int jvar=0) const;
+  MatrixSquareSymmetric getTotalSills() const;
+  VectorInt getActiveCovList() const;
+  VectorInt getAllActiveCovList() const;
+  bool isAllActiveCovList() const;
+  void setCovList(CovList* covs);
+
+
+protected:
+  CovList* _covList;
+
+private :
+  MatrixSquareSymmetric _dummy;
+
+};

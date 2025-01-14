@@ -96,7 +96,7 @@ public:
                                     const VectorInt &nbgh2 = VectorInt(),
                                     const CovCalcMode *mode = nullptr,
                                     double eps = EPSILON3);
-protected: //TODO : pass into private to finish clean
+protected:
   ACov*      _cova;         /* Generic Covariance structure */
   DriftList* _driftList;    /* Series of Drift functions */
   CovContext _ctxt;         /* Context */

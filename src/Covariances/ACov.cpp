@@ -77,7 +77,7 @@ void ACov::optimizationPreProcess(const Db* db) const
   if (_isOptimPreProcessed) return;
   db->getSamplesAsSP(_p1As,_space);
   _optimizationPreProcess(_p1As);
-  
+  //TODO : _isOptimPreProcessed = true;
 }
 
 void ACov::optimizationSetTarget(const SpacePoint &pt) const

@@ -8,7 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ModelGeneric.hpp"
+#include "Basic/AStringable.hpp"
+#include "Model/ModelCovList.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_f.h"
 
@@ -45,7 +46,7 @@
 Model::Model(const CovContext &ctxt)
     : AStringable(),
       ASerializable(),
-      ModelGeneric(ctxt)
+      ModelCovList(ctxt)
 {
   _create();
 }
@@ -53,7 +54,7 @@ Model::Model(const CovContext &ctxt)
 Model::Model(int nvar, int ndim)
     : AStringable(),
       ASerializable(),
-      ModelGeneric()
+      ModelCovList()
 {
   SpaceRN space = SpaceRN(ndim);
   _ctxt = CovContext(nvar, &space);
@@ -63,11 +64,11 @@ Model::Model(int nvar, int ndim)
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
-      ModelGeneric(m._ctxt)
+      ModelCovList(m._ctxt)
 {
-  CovAnisoList* mcovalist = dynamic_cast<CovAnisoList*>(m._cova);
+  CovAnisoList* mcovalist = dynamic_cast<CovAnisoList*>(m._covList);
   if (mcovalist != nullptr)
-    _cova = dynamic_cast<CovAnisoList*>(mcovalist->clone());
+    ModelCovList::setCovList(dynamic_cast<CovAnisoList*>(mcovalist->clone()));
   if (m._driftList != nullptr)
     _driftList = m._driftList->clone();
 }
@@ -78,9 +79,7 @@ Model& Model::operator=(const Model &m)
   { 
     AStringable::operator=(m);
     ASerializable::operator=(m);
-    CovAnisoList* mcovalist = dynamic_cast<CovAnisoList*>(m._cova);
-    if (mcovalist != nullptr)
-      _cova = dynamic_cast<CovAnisoList*>(mcovalist->clone());
+   setCovList(dynamic_cast<CovAnisoList*>(m._covList));
     if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
     _ctxt = m._ctxt;
@@ -275,7 +274,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (ncov > 0)
   {
     sstr << toTitle(1, "Covariance Part");
-    sstr << _cova->toString();
+    sstr << _covList->toString();
   }
 
   /* Drift part */
@@ -301,21 +300,6 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-void Model::delCova(int icov)
-{
-  if (_cova == nullptr) return;
-  CovAnisoList* covalist = _castInCovAnisoList(icov);
-  if (covalist == nullptr) return;
-  covalist->delCov(icov);
-}
-
-void Model::delAllCovas()
-{
-  if (_cova == nullptr) return;
-  CovAnisoList* covalist = _castInCovAnisoList();
-  if (covalist == nullptr) return;
-  covalist->delAllCov();
-}
 
 /**
  * Add a list of Covariances. This operation cleans any previously stored covariance
@@ -323,21 +307,35 @@ void Model::delAllCovas()
  */
 void Model::setCovList(const CovAnisoList* covalist)
 {
-  if (covalist == nullptr) return;
-  delete _cova;
-  _cova = dynamic_cast<ACov*>(covalist->clone());
+  
+  if (covalist == nullptr)
+  {
+    messerr("Warning, the covariance is nullptr.");
+    return;
+  }
+  
+  delete _covList;
+  ModelCovList::setCovList(covalist->clone());
 }
 
 void Model::addCov(const CovAniso *cov)
 {
-  if (cov == nullptr) return;
+  if (cov == nullptr) 
+  {
+    messerr("Error: Covariance is nullptr");
+    return;
+  }
   if (! cov->getContext().isEqual(_ctxt))
   {
     messerr("Error: Covariance should share the same Context as 'Model'");
     messerr("Operation is cancelled");
     return;
   }
-  if (_cova == nullptr) return;
+  if (_covList == nullptr)
+  {
+    messerr("Error: Covariance List is nullptr");
+    return;
+  }
   CovAnisoList* covalist = _castInCovAnisoList();
   if (covalist == nullptr) return;
   covalist->addCovAniso(cov);
@@ -621,7 +619,11 @@ const CovAniso* Model::getCova(int icov) const
 }
 CovAniso* Model::getCova(int icov)
 {
-  if (_cova == nullptr) return nullptr;
+  if (_cova == nullptr)
+  {
+    messerr("Error: Covariance is nullptr");  
+    return nullptr;
+  } 
   CovAnisoList* covalist = _castInCovAnisoList(icov);
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
@@ -640,20 +642,7 @@ const ECov& Model::getCovaType(int icov) const
   if (covalist == nullptr) return ECov::UNKNOWN;
   return covalist->getType(icov);
 }
-const MatrixSquareSymmetric& Model::getSillValues(int icov) const
-{
-  if (_cova == nullptr) return _dummy;
-  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return _dummy;
-  return covalist->getSill(icov);
-}
-double Model::getSill(int icov, int ivar, int jvar) const
-{
-  if (_cova == nullptr) return TEST;
-  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
-  if (covalist == nullptr) return TEST;
-  return covalist->getSill(icov, ivar, jvar);
-}
+
 double Model::getRange(int icov) const
 {
   if (_cova == nullptr) return TEST;
@@ -778,24 +767,13 @@ int Model::getRankNugget() const
   if (covalist == nullptr) return -1;
   return covalist->getRankNugget();
 }
-VectorInt Model::getActiveCovList() const
+
+void Model::setTapeRange(double range)
 {
-  const CovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return VectorInt();
-  return covalist->getActiveCovList();
+  CovLMCTapering* covtape = dynamic_cast<CovLMCTapering*>(_cova);
+  if (covtape != nullptr) covtape->setTapeRange(range);
 }
-VectorInt Model::getAllActiveCovList() const
-{
-  const CovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return VectorInt();
-  return covalist->getAllActiveCovList();
-}
-bool Model::isAllActiveCovList() const
-{
-  const CovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return false;
-  return covalist->isAllActiveCovList();
-}
+
 void Model::setActiveFactor(int iclass)
 {
   CovAnisoList* covalist = _castInCovAnisoList();
@@ -865,13 +843,13 @@ void Model::switchToGradient()
   // If no covariance has been defined yet: do nothing
   if (_cova == nullptr)
   {
-    _cova = new CovLMGradient(_ctxt.getSpace());
+    ModelCovList::setCovList(new CovLMGradient(_ctxt.getSpace()));
   }
   else
   {
     const CovAnisoList* covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return;
-    _cova = new CovLMGradient(*covalist);
+    ModelCovList::setCovList(new CovLMGradient(*covalist));
   }
 }
 
@@ -902,7 +880,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   }
   else
   {
-    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_cova);
+    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_covList);
     if (cov == nullptr)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
@@ -913,19 +891,12 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     // Initiate a new CovLMCAnamorphosis class
     CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(*cov, anam, strcnt);
 
-    // Delete the current CovAnisoList structure
-    delete _cova;
+    // Replace the current list by the newly create one (CovLMCAnamorphosis)
 
-    // Replace it by the newly create one (CovLMCAnamorphosis)
-    _cova = newcov;
+    ModelCovList::setCovList(newcov);
+
   }
   return 0;
-}
-
-void Model::setTapeRange(double range)
-{
-  CovLMCTapering* covtape = dynamic_cast<CovLMCTapering*>(_cova);
-  if (covtape != nullptr) covtape->setTapeRange(range);
 }
 
 int Model::unsetAnam()
@@ -946,11 +917,10 @@ int Model::unsetAnam()
   // Initiate a new CovAnisoList class
   CovAnisoList* newcov = new CovAnisoList(*cov);
 
-  // Delete the current CovAnisoList structure
-  delete _cova;
+  // Replace the current list by the newly create one (CovLMCAnamorphosis)
 
-    // Replace it by the newly create one (CovAnisoList)
-    _cova = newcov;
+  ModelCovList::setCovList(newcov);
+
   return 0;
 }
 
@@ -1491,8 +1461,8 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
 void Model::_clear()
 {
-  delete _cova;
   _cova = nullptr;
+  _covList = nullptr;
   delete _driftList;
   _driftList = nullptr;
 }
@@ -1502,19 +1472,11 @@ void Model::_create()
   // TODO: The next two lines are there in order to allow direct call to
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
-  _cova = new CovAnisoList(_ctxt.getSpace());
+
+  setCovList(new CovAnisoList(_ctxt.getSpace()));
   _driftList = new DriftList(_ctxt);
 }
 
-double Model::getTotalSill(int ivar, int jvar) const
-{
-  return getCovAnisoList()->getTotalSill(ivar, jvar);
-}
-
-MatrixSquareSymmetric Model::getTotalSills() const
-{
-  return getCovAnisoList()->getTotalSill();
-}
 
 /**
  * Returns the Ball radius (from the first covariance of _covaList)
@@ -1895,10 +1857,10 @@ const CovAnisoList* Model::_castInCovAnisoListConst(int icov) const
 CovAnisoList* Model::_castInCovAnisoList(int icov)
 {
   // Check the cast procedure
-  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
+  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_covList);
   if (covalist == nullptr)
   {
-    messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
+    messerr("The member '_covList' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
   if (icov < 0) return covalist;
@@ -2470,3 +2432,4 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
   }
   return loglike;
 }
+

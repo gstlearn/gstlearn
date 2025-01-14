@@ -72,6 +72,7 @@ void CovList::delCov(int icov)
   delete _covs[icov];
   _covs.erase(_covs.begin() + icov);
   _filtered.erase(_filtered.begin() + icov);
+  _delCov(icov);
 }
 
 void CovList::delAllCov()
@@ -82,6 +83,7 @@ void CovList::delAllCov()
   }
   _covs.clear();
   _filtered.clear();
+  _delAllCov();
 }
 
 bool CovList::isNoStat() const
@@ -328,7 +330,7 @@ String CovList::getCovName(int icov) const
   ECov unknown = ECov::UNKNOWN;
   return std::string(unknown.getKey());
 }
-
+  
 const MatrixSquareSymmetric& CovList::getSill(int icov) const
 {
   return _covs[icov]->getSill();

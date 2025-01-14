@@ -84,10 +84,7 @@ public:
   virtual int getAnamNClass() const { return 0; }
 
   void addCovList(const CovAnisoList* covs);
-  // Remove an elementary covariance structure
-  void delCov(int icov);
-  // Remove all elementary covariance structures
-  void delAllCov();
+
   // Filter a covariance
   void setFiltered(int icov, bool filtered);
 
@@ -144,6 +141,11 @@ public:
   int  getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt &validVars) const;
 
+private:
+  // Remove an elementary covariance structure
+  void _delCov(int icov) override;
+  // Remove all elementary covariance structures
+  void _delAllCov() override;
 
 protected:
   void _pushCov(const CovAniso* cov);

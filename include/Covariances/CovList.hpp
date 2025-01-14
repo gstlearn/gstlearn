@@ -120,6 +120,12 @@ protected:
  static bool _considerAllCovariances(const CovCalcMode* mode);
 
 private:
+  virtual void _delCov(int icov)
+  {
+    DECLARE_UNUSED(icov)
+  };
+  // Remove all elementary covariance structures
+  virtual void _delAllCov(){};
   void _manage(const Db* db1,const Db* db2) const override;
   
 

@@ -211,6 +211,7 @@
 %include Variogram/VCloud.hpp
 
 %include Model/ModelGeneric.hpp
+%include Model/ModelCovList.hpp
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp

@@ -40,6 +40,7 @@ set(SRC
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
   Model/ModelGeneric.cpp
+  Model/ModelCovList.cpp
   Model/ConsItem.cpp
   Model/CovParamId.cpp
   Model/Constraints.cpp

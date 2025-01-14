@@ -105,24 +105,14 @@ void CovAnisoList::_pushCov(const CovAniso* cov)
   _covAnisos.push_back(covcopy);
 }
 
-void CovAnisoList::delCov(int icov)
+void CovAnisoList::_delCov(int icov)
 {
-  if (! _isCovarianceIndexValid(icov)) return;
-  delete _covAnisos[icov];
-  _covs.erase(_covs.begin() + icov);
-  _covAnisos.erase(_covAnisos.begin() + icov);
-  _filtered.erase(_filtered.begin() + icov);
+   _covAnisos.erase(_covAnisos.begin() + icov);
 }
 
-void CovAnisoList::delAllCov()
+void CovAnisoList::_delAllCov()
 {
-  for (auto &e: _covAnisos)
-  {
-    delete e;
-  }
-  _covs.clear();
   _covAnisos.clear();
-  _filtered.clear();
 }
 
 bool CovAnisoList::isNoStat() const

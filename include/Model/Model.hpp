@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Model/ModelGeneric.hpp"
+#include "Model/ModelCovList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
@@ -66,7 +66,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ModelGeneric
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ModelCovList
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -134,8 +134,7 @@ public:
                                const VectorDouble& sills  = VectorDouble(),
                                const VectorDouble& angles = VectorDouble(),
                                bool flagRange             = true);
-  void   delCova(int icov);
-  void   delAllCovas();
+ 
   void   setDriftList(const DriftList* driftlist);
   void   setDriftIRF(int order = 0, int nfex = 0);
   void   setFlagLinked(bool flagLinked);
@@ -162,15 +161,14 @@ public:
   CovAniso* getCova(int icov);
   int getCovaNumber(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
-  const MatrixSquareSymmetric& getSillValues(int icov) const;
-  double getSill(int icov, int ivar, int jvar) const;
+  
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
   double getParam(int icov) const;
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
-  double getTotalSill(int ivar=0, int jvar=0) const;
-  MatrixSquareSymmetric getTotalSills() const;
+  
+
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
 
@@ -182,9 +180,7 @@ public:
   void normalize(double sill);
   bool hasNugget() const;
   int  getRankNugget() const;
-  VectorInt getActiveCovList() const;
-  VectorInt getAllActiveCovList() const;
-  bool isAllActiveCovList() const;
+
   void setTapeRange(double range);
 
   double eval0(int ivar = 0,

@@ -96,3 +96,4 @@ MatrixRectangular ModelGeneric::evalCovMatrixOptim(Db* db1,
     return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
   }
   
+  
