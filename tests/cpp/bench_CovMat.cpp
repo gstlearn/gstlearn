@@ -80,8 +80,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      p2.setIech(i);
-      dbout->getSampleAsSPInPlace(p2);
+      dbout->getSampleAsSPInPlace(p2, i);
       VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -105,8 +104,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      p2.setIech(i);
-      dbout->getSampleAsSPInPlace(p2);
+      dbout->getSampleAsSPInPlace(p2, i);
       VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }

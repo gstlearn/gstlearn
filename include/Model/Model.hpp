@@ -398,27 +398,30 @@ public:
     if (_cova == nullptr) return VectorDouble();
     return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
   }
-  MatrixRectangular evalCovMatrixOptim(const Db *db1,
-                                       const Db *db2 = nullptr,
-                                       int ivar0 = -1,
-                                       int jvar0 = -1,
-                                       const VectorInt &nbgh1 = VectorInt(),
-                                       const VectorInt &nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr)
+  MatrixRectangular evalCovMatrixOptim(const Db* db1,
+                                       const Db* db2           = nullptr,
+                                       int ivar0               = -1,
+                                       int jvar0               = -1,
+                                       const VectorInt& nbgh1  = VectorInt(),
+                                       const VectorInt& nbgh2  = VectorInt(),
+                                       const CovCalcMode* mode = nullptr,
+                                       bool cleanOptim         = true)
   {
     const CovAnisoList *covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return MatrixRectangular();
-    return covalist->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
+    return covalist->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
   }
 
-  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
-                                                    int ivar0 = -1,
-                                                    const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr)
+  MatrixSquareSymmetric
+  evalCovMatrixSymmetricOptim(const Db* db1,
+                              int ivar0               = -1,
+                              const VectorInt& nbgh1  = VectorInt(),
+                              const CovCalcMode* mode = nullptr,
+                              bool cleanOptim         = true)
   {
     const CovAnisoList *covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return MatrixRectangular();
-    return covalist->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode);
+    return covalist->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode, cleanOptim);
   }
   
   double extensionVariance(const Db* db,

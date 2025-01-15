@@ -188,7 +188,8 @@ void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
 }
 
 /**
- * Evaluate the covariance rectangular matrix between samples of input 'db1' and 'db2'
+ * Evaluate the covariance rectangular matrix between samples of input 'db1' and
+'db2'
  * @param db1 Input Db
  * @param db2 Output db
  * @param ivar0 Rank of the first variable (-1 for all variables)
@@ -196,15 +197,17 @@ void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
  * @param nbgh1 Vector of indices of active samples in db1 (optional)
  * @param nbgh2 Vector of indices of active samples in db2 (optional)
  * @param mode CovCalcMode structure
+ * @param cleanOptim True if Optimization internal arrays must be cleaned at end
  * @return
  */
-MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db *db1,
-                                                    const Db *db2,
-                                                    int ivar0,
-                                                    int jvar0,
-                                                    const VectorInt& nbgh1,
-                                                    const VectorInt& nbgh2,
-                                                    const CovCalcMode *mode) const
+MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db* db1,
+                                                   const Db* db2,
+                                                   int ivar0,
+                                                   int jvar0,
+                                                   const VectorInt& nbgh1,
+                                                   const VectorInt& nbgh2,
+                                                   const CovCalcMode* mode,
+                                                   bool cleanOptim) const
 {
   MatrixRectangular mat;
   SpacePoint p2;
@@ -242,8 +245,7 @@ MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db *db1,
     for (int rech2 = 0; rech2 < nech2s; rech2++)
     {
       int iech2 = index2[rvar2][rech2];
-      p2.setIech(iech2);
-      db2->getSampleAsSPInPlace(p2);
+      db2->getSampleAsSPInPlace(p2, iech2);
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
@@ -253,7 +255,7 @@ MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db *db1,
     }
   }
 
-  optimizationPostProcess();
+  if (cleanOptim) optimizationPostProcess();
   return mat;
 }
 
@@ -275,12 +277,15 @@ void CovAnisoList::optimizationSetTargetByIndex(int iech) const
  * @param ivar0 Rank of the first variable (-1 for all variables)
  * @param nbgh1 Vector of indices of active samples in db1 (optional)
  * @param mode CovCalcMode structure
+ * @param cleanOptim When True, clean Optimization internal arrays at end
  * @return
  */
-MatrixSquareSymmetric CovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
-                                                                 int ivar0,
-                                                                 const VectorInt &nbgh1,
-                                                                 const CovCalcMode *mode) const
+MatrixSquareSymmetric
+CovAnisoList::evalCovMatrixSymmetricOptim(const Db* db1,
+                                          int ivar0,
+                                          const VectorInt& nbgh1,
+                                          const CovCalcMode* mode,
+                                          bool cleanOptim) const
 {
   MatrixSquareSymmetric mat;
   SpacePoint p2;
@@ -328,7 +333,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatrixSymmetricOptim(const Db *db1,
   // Update the matrix due to presence of Variance of Measurement Error
   _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
 
-  optimizationPostProcess();
+  if (cleanOptim) optimizationPostProcess();
   return mat;
 }
 

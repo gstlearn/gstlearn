@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/CovAnisoList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/CovAnisoList.hpp"

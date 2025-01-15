@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovAnisoList.hpp"
 #include "Enum/ETape.hpp"
 
 #include "Covariances/CovLMCTapering.hpp"
@@ -56,6 +55,7 @@ CovLMCTapering::~CovLMCTapering()
 void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
+  // TODO: cannot replace by CovAnisoList???
   ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
@@ -63,6 +63,7 @@ void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
+  // TODO: cannot replace by CovAnisoList???
   ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 

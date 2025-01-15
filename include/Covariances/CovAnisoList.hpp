@@ -124,17 +124,20 @@ public:
   void _optimizationPostProcess() const override ;
   void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
-  MatrixRectangular evalCovMatrixOptim(const Db *db1,
-                                       const Db *db2,
-                                       int ivar0 = -1,
-                                       int jvar0 = -1,
-                                       const VectorInt& nbgh1 = VectorInt(),
-                                       const VectorInt& nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr) const override;
-  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
-                                                    int ivar0 = -1,
-                                                    const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr) const override;
+  MatrixRectangular evalCovMatrixOptim(const Db* db1,
+                                       const Db* db2,
+                                       int ivar0               = -1,
+                                       int jvar0               = -1,
+                                       const VectorInt& nbgh1  = VectorInt(),
+                                       const VectorInt& nbgh2  = VectorInt(),
+                                       const CovCalcMode* mode = nullptr,
+                                       bool cleanOptim = true) const override;
+  MatrixSquareSymmetric
+  evalCovMatrixSymmetricOptim(const Db* db1,
+                              int ivar0               = -1,
+                              const VectorInt& nbgh1  = VectorInt(),
+                              const CovCalcMode* mode = nullptr,
+                              bool cleanOptim         = true) const override;
    
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;

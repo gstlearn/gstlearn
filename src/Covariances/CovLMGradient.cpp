@@ -12,7 +12,6 @@
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
 
 CovLMGradient::CovLMGradient(const ASpace* space)

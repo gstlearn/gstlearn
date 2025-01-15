@@ -74,6 +74,7 @@ CovLMCConvolution::~CovLMCConvolution()
 void CovLMCConvolution::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
+  // TODO: cannot replace by CovAnisoList???
   ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 void CovLMCConvolution::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
@@ -81,6 +82,7 @@ void CovLMCConvolution::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
+  // TODO: cannot replace by CovAnisoList???
   ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 int CovLMCConvolution::init(const EConvType& conv_type,

@@ -995,9 +995,8 @@ void KrigingSystem::_rhsCalculDGM()
 int KrigingSystem::_rhsCalcul()
 {
   _mustBeOldStyle("_rhsCalcul");
-  _p0.setIech(_iechOut);
   _p0.setTarget(true);
-  _dbout->getSampleAsSPInPlace(_p0);
+  _dbout->getSampleAsSPInPlace(_p0, _iechOut);
 
   /* Establish the covariance part */
 
@@ -1187,59 +1186,64 @@ void KrigingSystem::_wgtDump(int status)
 
   /* Display the information and the weights */
 
-  int lec = 0;
-  int cumflag = 0;
-  for (int jvarCL = 0; jvarCL < _nvarCL; jvarCL++)
+  if (_oldStyle)
   {
-    if (_nvarCL > 1) message("Using variable Z%-2d\n", jvarCL + 1);
-
-    /* Loop on the samples */
-
-    sum.fill(0.);
-    for (int iech = 0; iech < _nech; iech++, lec++)
+    int lec     = 0;
+    int cumflag = 0;
+    for (int jvarCL = 0; jvarCL < _nvarCL; jvarCL++)
     {
-      int flag_value = (! _flag.empty()) ? _flag[lec] : 1;
-      tab_printi(NULL, iech + 1);
-      for (int idim = 0; idim < _ndim; idim++)
-        tab_printg(NULL, _getIdim(_nbgh[iech], idim));
-      if (_dbin->hasLocVariable(ELoc::C))
-        tab_printg(NULL, _dbin->getLocVariable(ELoc::C,_nbgh[iech],0));
-      if (_dbin->getLocNumber(ELoc::V) > 0)
-        tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
-      if (ndisc > 0)
-      {
-        for (int idim = 0; idim < _ndim; idim++)
-          if (! _flagPerCell)
-            tab_printg(NULL, dbgrid->getDX(idim));
-          else
-            tab_printg(NULL, dbgrid->getLocVariable(ELoc::BLEX,_nbgh[iech], idim));
-      }
-      if (_rankPGS < 0)
-        tab_printg(NULL, _getIvar(_nbgh[iech], jvarCL));
-      else
-        tab_prints(NULL,  "    ");
+      if (_nvarCL > 1) message("Using variable Z%-2d\n", jvarCL + 1);
 
+      /* Loop on the samples */
+
+      sum.fill(0.);
+      for (int iech = 0; iech < _nech; iech++, lec++)
+      {
+        int flag_value = (!_flag.empty()) ? _flag[lec] : 1;
+        tab_printi(NULL, iech + 1);
+        for (int idim = 0; idim < _ndim; idim++)
+          tab_printg(NULL, _getIdim(_nbgh[iech], idim));
+        if (_dbin->hasLocVariable(ELoc::C))
+          tab_printg(NULL, _dbin->getLocVariable(ELoc::C, _nbgh[iech], 0));
+        if (_dbin->getLocNumber(ELoc::V) > 0)
+          tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
+        if (ndisc > 0)
+        {
+          for (int idim = 0; idim < _ndim; idim++)
+            if (!_flagPerCell)
+              tab_printg(NULL, dbgrid->getDX(idim));
+            else
+              tab_printg(NULL,
+                         dbgrid->getLocVariable(ELoc::BLEX, _nbgh[iech], idim));
+        }
+        if (_rankPGS < 0)
+          tab_printg(NULL, _getIvar(_nbgh[iech], jvarCL));
+        else
+          tab_prints(NULL, "    ");
+
+        for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+        {
+          double value = (!_wgt.empty() && status == 0 && flag_value)
+                         ? _wgt.getValue(cumflag, ivarCL, false)
+                         : TEST;
+          if (!FFFF(value)) sum[ivarCL] += value;
+          tab_printg(NULL, value);
+        }
+        if (flag_value) cumflag++;
+        message("\n");
+      }
+
+      int number = 1 + _ndim + 1;
+      if (_dbin->getLocNumber(ELoc::V) > 0) number++;
+      if (ndisc > 0) number += _ndim;
+      tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
       for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       {
-        double value = (! _wgt.empty() && status == 0 && flag_value) ?
-            _wgt.getValue(cumflag, ivarCL, false) : TEST;
-        if (!FFFF(value)) sum[ivarCL] += value;
+        double value = (status == 0) ? sum[ivarCL] : TEST;
         tab_printg(NULL, value);
       }
-      if (flag_value) cumflag++;
       message("\n");
     }
-
-    int number = 1 + _ndim + 1;
-    if (_dbin->getLocNumber(ELoc::V) > 0) number++;
-    if (ndisc > 0) number += _ndim;
-    tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double value = (status == 0) ? sum[ivarCL] : TEST;
-      tab_printg(NULL, value);
-    }
-    message("\n");
   }
   if (_nfeq <= 0) return;
 
@@ -1256,17 +1260,20 @@ void KrigingSystem::_wgtDump(int status)
 
   /* Loop on the drift coefficients */
 
-  cumflag = _nred - _nfeq;
-  for (int ib = 0; ib < _nfeq; ib++)
+  if (_oldStyle)
   {
-    int iwgt = ib + cumflag;
-    tab_printi(NULL, ib + 1);
-    tab_printg(NULL, (status == 0) ? _wgt.getValue(iwgt,0,false) : TEST);
-    if (_flagSimu)
-      tab_printg(NULL, 0.);
-    else
-      tab_printg(NULL, (status == 0) ? _zam.getValue(iwgt,0,false) : TEST);
-    message("\n");
+    int startDrift = _nred - _nfeq;
+    for (int ib = 0; ib < _nfeq; ib++)
+    {
+      int iwgt = ib + startDrift;
+      tab_printi(NULL, ib + 1);
+      tab_printg(NULL, (status == 0) ? _wgt.getValue(iwgt, 0, false) : TEST);
+      if (_flagSimu)
+        tab_printg(NULL, 0.);
+      else
+        tab_printg(NULL, (status == 0) ? _zam.getValue(iwgt, 0, false) : TEST);
+      message("\n");
+    }
   }
 }
 
@@ -1529,9 +1536,8 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  _p0.setIech(_iechOut);
   _p0.setTarget(true);
-  _dbout->getSampleAsSPInPlace(_p0);
+  _dbout->getSampleAsSPInPlace(_p0, _iechOut);
   _cova->optimizationSetTarget(_p0);
 
   _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);
@@ -1731,8 +1737,7 @@ int KrigingSystem::_prepar()
     _algebra.resetNewData();
     _Z = _dbin->getMultipleValuesActive(VectorInt(), _nbgh, _means);
     _algebra.setData(&_Z, &_means);
-    _Sigma = _model->evalCovMatrixSymmetricOptim(_dbin, -1, _nbgh);
-    // _Sigma = _model->evalCovMatrixSymmetric(_dbin, -1, _nbgh);
+    _Sigma = _model->evalCovMatrixSymmetricOptim(_dbin, -1, _nbgh, nullptr, false);
     _X     = _model->evalDriftMatrix(_dbin, -1, _nbgh);
     _algebra.setLHS(&_Sigma, &_X);
   }
@@ -1935,8 +1940,7 @@ int KrigingSystem::estimate(int iech_out)
   else
   {
     VectorInt nbghTarget = {iech_out};
-    _Sigma0 = _model->evalCovMatrixOptim(_dbin, _dbout, -1, -1, _nbgh, nbghTarget);
-    // _Sigma0 = _model->evalCovMatrix(_dbin, _dbout, -1, -1, _nbgh, nbghTarget);
+    _Sigma0 = _model->evalCovMatrixOptim(_dbin, _dbout, -1, -1, _nbgh, nbghTarget, nullptr, false);
     _X0     = _model->evalDriftMatrix(_dbout, -1, nbghTarget);
     _algebra.setRHS(&_Sigma0, &_X0);
   }
@@ -1952,8 +1956,8 @@ int KrigingSystem::estimate(int iech_out)
   {
     if (_flagStd || _flagVarZ || _flagSimu || _flagWeights || _flagKeypairWeights)
       _wgtCalcul();
-    if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
   }
+  if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
 
   // Optional Save of the Kriging weights
   if (_flagKeypairWeights) _saveWeights(status);

@@ -705,9 +705,16 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
-void Db::getSampleAsSPInPlace(SpacePoint& P) const
+/**
+ * @brief In the SpacePoint 'P', define the sample rank and coordinates
+ * 
+ * @param P SpacePoint reference (output)
+ * @param iech Rank of the sample
+ */
+void Db::getSampleAsSPInPlace(SpacePoint& P, int iech) const
 {
-  getCoordinatesPerSampleInPlace(P.getIech(),P.getCoordRef());
+  P.setIech(iech);
+  getCoordinatesPerSampleInPlace(iech,P.getCoordRef());
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -731,10 +738,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    P1.setIech(iechs[ip]);
-    P2.setIech(jechs[ip]);
-    getSampleAsSPInPlace(P1);
-    getSampleAsSPInPlace(P2);
+    getSampleAsSPInPlace(P1, iechs[ip]);
+    getSampleAsSPInPlace(P2, jechs[ip]);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -751,8 +756,7 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  P.setIech(iech);
-  getSampleAsSPInPlace(P);
+  getSampleAsSPInPlace(P, iech);
 
   // Load the code (optional)
   if (P.checkCode())
@@ -780,8 +784,7 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
     {
       pvec.push_back(SpacePoint(space));
       SpacePoint& p = pvec[iechcur++];
-      p.setIech(iech);
-      getSampleAsSPInPlace(p);
+      getSampleAsSPInPlace(p, iech);
     }
     else
     {

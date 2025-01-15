@@ -63,17 +63,22 @@ MatrixRectangular ModelGeneric::evalCovMatrixOptim(Db* db1,
                                                    int jvar0,
                                                    const VectorInt& nbgh1,
                                                    const VectorInt& nbgh2,
-                                                   const CovCalcMode* mode)
+                                                   const CovCalcMode* mode,
+                                                   bool cleanOptim)
 {
   if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
+  return _cova->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
 }
 
-MatrixSquareSymmetric ModelGeneric::evalCovMatrixSymmetricOptim(
-  const Db* db1, int ivar0, const VectorInt& nbgh1, const CovCalcMode* mode)
+MatrixSquareSymmetric
+ModelGeneric::evalCovMatrixSymmetricOptim(const Db* db1,
+                                          int ivar0,
+                                          const VectorInt& nbgh1,
+                                          const CovCalcMode* mode,
+                                          bool cleanOptim)
 {
   if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode);
+  return _cova->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode, cleanOptim);
 }
 
 MatrixSparse* ModelGeneric::evalCovMatrixSparse(Db* db1,

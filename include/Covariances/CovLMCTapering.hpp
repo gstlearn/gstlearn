@@ -78,7 +78,7 @@ protected:
                                     const CovCalcMode* mode) const override;
   void _optimizationSetTarget(const SpacePoint& pt) const override
   {
-    ACov::_optimizationSetTarget(pt);
+    ACov::_optimizationSetTarget(pt); // TODO: cannot replace by CovAnisoList???
   }
 
 private:

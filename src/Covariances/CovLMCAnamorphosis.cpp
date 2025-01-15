@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovAnisoList.hpp"
 #include "Enum/EAnam.hpp"
 #include "Enum/ECalcMember.hpp"
 
@@ -75,7 +74,8 @@ void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(
   const SpacePoint& p2,
   const CovCalcMode* mode) const
 {
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  // TODO: cannot replace by CovAnisoList???
+  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode); 
 }
 
 void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
@@ -83,6 +83,7 @@ void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                                      const SpacePoint &pwork2,
                                                      const CovCalcMode *mode) const
 {
+  // TODO: cannot replace by CovAnisoList???
   ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
