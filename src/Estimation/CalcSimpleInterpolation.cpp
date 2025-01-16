@@ -364,7 +364,7 @@ int CalcSimpleInterpolation::_nearest(Db *dbin,
         || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
     VectorDouble weights;
 
@@ -410,7 +410,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
         || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
     VectorDouble weights;
 
@@ -461,7 +461,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
      {
        mestitle(1, "Target location");
-       db_sample_print(dbout, iech, 1, 0, 0);
+       db_sample_print(dbout, iech, 1, 0, 0, 0);
      }
      VectorDouble weights;
      VectorInt nbghmed;
@@ -515,7 +515,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
      {
        mestitle(1, "Target location");
-       db_sample_print(dbout, iech, 1, 0, 0);
+       db_sample_print(dbout, iech, 1, 0, 0, 0);
      }
 
      // Find the neighborhood
@@ -612,7 +612,7 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
     VectorInt nbgh;
     VectorDouble weights;
@@ -679,7 +679,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
 
     /* Find the grid index corresponding to the target */

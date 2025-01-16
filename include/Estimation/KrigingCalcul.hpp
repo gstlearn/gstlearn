@@ -62,8 +62,9 @@ public:
   void printStatus() const;
   void dumpLHS(int nbypas) const;
   void dumpRHS() const;
+  void dumpWGT();
 
-    VectorDouble getEstimation();
+  VectorDouble getEstimation();
   VectorDouble getStdv();
   VectorDouble getVarianceZstar();
   VectorDouble getPostMean();

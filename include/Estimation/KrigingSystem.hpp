@@ -192,6 +192,7 @@ private:
   int    _setInternalShortCutVariablesNeigh();
 
   void _mustBeOldStyle(const String& title) const;
+  Model* _castInOldModel();
 
 private:
   bool _oldStyle;

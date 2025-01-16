@@ -37,7 +37,7 @@ public:
   double normalizeOnSphere(int n = 50,double scale = 1.) const override;
   double evaluateSpectrum(double freq) const override;
   VectorDouble getMarkovCoeffs() const override {return _markovCoeffs;}
-  void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
+  void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
   double getCorrec() const override { return _correc; }
   void   setCorrec(double val) override { _correc = val;}
 

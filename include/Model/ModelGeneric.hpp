@@ -115,7 +115,6 @@ public:
   CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;
   int getCovaNumber(bool skipNugget = false) const;
-  double getTotalSill(int ivar = 0, int jvar = 0) const;
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
 

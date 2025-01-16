@@ -102,7 +102,7 @@ public:
   void    copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
   virtual double evaluateSpectrum(double freq) const;
   virtual VectorDouble getMarkovCoeffs() const;
-  virtual void setMarkovCoeffs(VectorDouble coeffs);
+  virtual void setMarkovCoeffs(const VectorDouble& coeffs);
   virtual double getCorrec() const {return 1.;}
   virtual void setCorrec(double val)
   {
@@ -130,7 +130,7 @@ protected:
   virtual VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const;
 
 private:
-  Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;
+  Array _evalCovFFT(const VectorDouble& hmax, int N = 128) const;
   ECov        _type;    /*! Covariance function type */
   CovContext  _ctxt;    /*! Context (space, number of variables, ...) */
   double      _param;   /*! Third parameter (TEST if not used) */

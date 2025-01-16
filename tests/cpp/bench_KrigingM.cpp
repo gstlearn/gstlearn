@@ -107,8 +107,9 @@ int main(int argc, char *argv[])
   // Create the Model
   double range = 1. / 5.;
   double sill  = 2.;
-  bool verbose = false;
+  bool verbose = true;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
+  model->setDriftIRF(1);
 
   if (onlyOne)
   {

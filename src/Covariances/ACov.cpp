@@ -49,7 +49,7 @@ ACov::ACov(const ACov& r)
   , _p2A(r.getSpace())
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-  , _ctxt(r.getContext())
+  , _ctxt(r._ctxt)
 {
 }
 
@@ -64,7 +64,7 @@ ACov& ACov::operator=(const ACov &r)
     _p2A                 = r._p2A;
     _pw1                 = r._pw1;
     _pw2                 = r._pw2;
-    _ctxt                = r.getContext();
+    _ctxt                = r._ctxt;
   }
   return *this;
 }

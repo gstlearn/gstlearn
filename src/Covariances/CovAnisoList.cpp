@@ -34,12 +34,11 @@ CovAnisoList::CovAnisoList(const CovAnisoList &r)
 : CovList(r._space),
   _covAnisos()
 {
-  _filtered = r._filtered;
-
   for (auto* e: r._covAnisos)
   {
     _pushCov(e->clone());
   }
+  _filtered = r._filtered;
 }
 
 CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)

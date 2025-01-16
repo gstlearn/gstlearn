@@ -122,10 +122,10 @@ bool ACovFunc::hasCovOnSphere() const
 bool ACovFunc::isConsistent() const
 {
   unsigned int maxndim = getMaxNDim();
-  if ((maxndim > 0 && (maxndim < _ctxt.getNDim())))
+  if (maxndim <= 0.) return true;
+  if (maxndim >= _ctxt.getNDim()) return true;
     /// TODO : Test irfDegree vs getMinOrder in CovElem because zonal anisotropies
-    return false;
-  return true;
+  return false;
 }
 
 bool ACovFunc::hasInt1D() const
@@ -161,7 +161,7 @@ double ACovFunc::_evaluateCovDerivative(int degree, double h) const
   return 0.;
 }
 
-void ACovFunc::setMarkovCoeffs(VectorDouble coeffs)
+void ACovFunc::setMarkovCoeffs(const VectorDouble& coeffs)
 {
   DECLARE_UNUSED(coeffs);
   if (! hasMarkovCoeffs())

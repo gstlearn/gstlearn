@@ -191,12 +191,6 @@ int ModelGeneric::getCovaMinIRFOrder() const
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaMinIRFOrder();
 }
-double ModelGeneric::getTotalSill(int ivar, int jvar) const
-{
-  const CovAnisoList* covalist = getCovAnisoList();
-  if (covalist == nullptr) return ITEST;
-  return covalist->getTotalSill(ivar, jvar);
-}
 int ModelGeneric::getCovaNumber(bool skipNugget) const
 {
   const CovAnisoList* covalist = getCovAnisoList();
