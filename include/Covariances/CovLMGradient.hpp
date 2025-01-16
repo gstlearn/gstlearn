@@ -58,19 +58,19 @@ protected:
                                            const SpacePoint& p2,
                                            const CovCalcMode *mode = nullptr) const override
   {
-    CovAnisoList::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+    ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
   void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                     const CovCalcMode* mode) const override
   {
-    CovAnisoList::addEval0CovMatBiPointInPlace(mat, mode);
+    ACov::addEval0CovMatBiPointInPlace(mat, mode);
   }
   void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                     const SpacePoint& pwork1,
                                     const SpacePoint& pwork2,
                                     const CovCalcMode* mode = nullptr) const override
   {
-    CovAnisoList::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+    ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
   }
   void _optimizationSetTarget(const SpacePoint& pt) const override
   {
