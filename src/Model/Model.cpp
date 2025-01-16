@@ -1469,7 +1469,7 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovList(new CovAnisoList(_ctxt.getSpace()));
+  setCovList(new CovAnisoList(_ctxt));
   _driftList = new DriftList(_ctxt);
 }
 

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -41,6 +42,18 @@ ACov::ACov(const ASpace* space)
 {
 }
 
+ACov::ACov(const CovContext &ctxt)
+  : ASpaceObject(ctxt.getASpace())
+  , _optimEnabled(true)
+  , _isOptimPreProcessed(false)
+  , _p1As()
+  , _p2A(ctxt.getASpace())
+  , _pw1(nullptr)
+  , _pw2(nullptr)
+  , _ctxt(ctxt)
+{
+}
+
 ACov::ACov(const ACov& r)
   : ASpaceObject(r)
   , _optimEnabled(r._optimEnabled)
@@ -49,7 +62,7 @@ ACov::ACov(const ACov& r)
   , _p2A(r.getSpace())
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-  , _ctxt(r.getContext())
+  , _ctxt(r._ctxt)
 {
 }
 
@@ -64,7 +77,7 @@ ACov& ACov::operator=(const ACov &r)
     _p2A                 = r._p2A;
     _pw1                 = r._pw1;
     _pw2                 = r._pw2;
-    _ctxt                = r.getContext();
+    _ctxt                = r._ctxt;
   }
   return *this;
 }

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovContext.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/CovAnisoList.hpp"
@@ -23,6 +24,7 @@ class GSTLEARN_EXPORT CovLMGradient : public CovAnisoList
 {
 public:
   CovLMGradient(const ASpace* space = nullptr);
+  CovLMGradient(const CovContext& ctxt);
   CovLMGradient(const CovLMGradient& r);
   CovLMGradient(const CovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);

@@ -95,7 +95,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Create the basic covariance structures
   // **************************************
 
-  CovAnisoList* covs = new CovLMGradient();
+  CovAnisoList* covs = new CovLMGradient(ctxt);
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)

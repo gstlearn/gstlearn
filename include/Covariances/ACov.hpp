@@ -42,6 +42,7 @@ class GSTLEARN_EXPORT ACov : public ASpaceObject
   public :
   
   ACov(const ASpace* space = nullptr);
+  ACov(const CovContext &ctxt); 
   ACov(const ACov &r);
   ACov& operator=(const ACov &r);
   virtual ~ACov();

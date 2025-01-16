@@ -30,8 +30,14 @@ CovAnisoList::CovAnisoList(const ASpace* space)
 {
 }
 
+CovAnisoList::CovAnisoList(const CovContext& ctxt)
+: CovList(ctxt),
+  _covAnisos()
+{
+
+}
 CovAnisoList::CovAnisoList(const CovAnisoList &r)
-: CovList(r._space),
+: CovList(r._ctxt),
   _covAnisos()
 {
   _filtered = r._filtered;
@@ -46,6 +52,7 @@ CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
 {
   if (this != &r)
   {
+    _ctxt = r._ctxt;
     for (auto *e: r._covAnisos)
     {
      _pushCov(e->clone());

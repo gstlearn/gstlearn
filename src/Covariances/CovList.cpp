@@ -31,6 +31,12 @@ CovList::CovList(const ASpace* space)
 {
 }
 
+CovList::CovList(const CovContext& ctxt)
+: ACov(ctxt),
+  _covs(),
+  _filtered()
+{
+}
 
 CovList::~CovList()
 {

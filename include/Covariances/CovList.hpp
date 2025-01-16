@@ -40,6 +40,7 @@ class GSTLEARN_EXPORT CovList : public ACov
 {
 public:
   CovList(const ASpace* space = nullptr);
+  CovList(const CovContext& ctxt);
   CovList(const CovList &r) = delete;
   CovList& operator= (const CovList &r) = delete;
   virtual ~CovList();
