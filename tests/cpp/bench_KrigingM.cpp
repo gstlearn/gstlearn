@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  OptCustom::define("oldStyle", 0.);
+  OptCustom::define("oldStyle", 1.);
 
   // Generate the output grid
   int ncell       = 100;
@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
   double sill  = 2.;
   bool verbose = true;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
-  model->setDriftIRF(1);
 
   if (onlyOne)
   {

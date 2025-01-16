@@ -1475,7 +1475,7 @@ void KrigingCalcul::dumpLHS(int nbypas) const
   for (int ipass = 0; ipass < npass; ipass++)
   {
     int ideb = ipass * nbypas;
-    int ifin = MIN(_neq, ideb + nbypas);
+    int ifin = MIN(size, ideb + nbypas);
     message("\n");
 
     // Header line 
@@ -1487,39 +1487,70 @@ void KrigingCalcul::dumpLHS(int nbypas) const
     for (int i = 0; i < size; i++)
     {
       tab_printi(NULL, i + 1);
-      for (int j = ideb; j < ifin; j++)
+      if (i < _neq)
       {
-        if (j < _neq)
-          tab_printg(NULL, _Sigma->getValue(i, j, false));
-        else
-          tab_printg(NULL, _X->getValue(i, j-_neq, false));
+        for (int j = ideb; j < ifin; j++)
+        {
+          if (j < _neq)
+            tab_printg(NULL, _Sigma->getValue(i, j, false));
+          else
+            tab_printg(NULL, _X->getValue(i, j - _neq, false));
+        }
+        message("\n");
       }
-      message("\n");
+      else
+      {
+        for (int j = ideb; j < ifin; j++)
+        {
+          if (j < _neq)
+            tab_printg(NULL, _X->getValue(j, i - _neq, false));
+          else
+            tab_printg(NULL, 0.);
+        }
+        message("\n");
+      }
     }
   }
 }
 
 void KrigingCalcul::dumpRHS() const
 {
-  /* Header line */
+  int size = _neq + _nbfl;
 
+  // Header line 
   tab_prints(NULL, "Rank");
   for (int irhs = 0; irhs < _nrhs; irhs++) tab_printi(NULL, irhs + 1);
   message("\n");
 
-  /* Matrix lines */
-
-  for (int i = 0; i < _neq; i++)
+  // RHS Matrix
+  for (int i = 0; i < size; i++)
   {
     tab_printi(NULL, i + 1);
-    for (int irhs = 0; irhs < _nrhs; irhs++)
-      tab_printg(NULL, _Sigma0->getValue(i, irhs, false));
+    if (i < _neq)
+    {
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+        tab_printg(NULL, _Sigma0->getValue(i, irhs, false));
+    }
+    else
+    {
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+        tab_printg(NULL, _X0->getValue(i - _neq, irhs, false));
+    }
     message("\n");
   }
 }
 
+// This method cannot be const as it may compute _lambda internally upon request
 void KrigingCalcul::dumpWGT()
 {
+  if (_flagSK)
+  {
+    if (_needLambdaSK()) return;
+  }
+  else
+  {
+    if (_needLambdaUK()) return;
+  }
   char string[20];
 
   /* Header Line */
@@ -1533,20 +1564,8 @@ void KrigingCalcul::dumpWGT()
   }
   message("\n");
 
-  // Prepare matrices for printout (optional)
-
-  if (_flagSK)
-  {
-    if (_needLambdaSK()) return;
-  }
-  else
-  {
-    if (_needLambdaUK()) return;
-  }
+  // Matrix lines 
   VectorDouble sum(_nrhs, 0.);
-
-  /* Matrix lines */
-
   for (int i = 0; i < _neq; i++)
   {
     tab_printi(NULL, i + 1);
@@ -1565,8 +1584,35 @@ void KrigingCalcul::dumpWGT()
   }
 
   // Display sum of weights
-
   tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
   for (int irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
   message("\n");
+}
+
+void KrigingCalcul::dumpAux()
+{
+  if (_nbfl <= 0) return;
+  if (_needMuUK()) return;
+  char string[20];
+
+  // Header Line
+  tab_prints(NULL, "Rank");
+  for (int irhs = 0; irhs < _nrhs; irhs++)
+  {
+    (void)gslSPrintf(string, "Mu%d*", irhs + 1);
+    tab_prints(NULL, string);
+  }
+  tab_prints(NULL, "Coeff");
+  message("\n");
+
+
+  for (int ibfl = 0; ibfl < _nbfl; ibfl++)
+  {
+    tab_printi(NULL, ibfl + 1);
+    for (int irhs = 0; irhs < _nrhs; irhs++)
+      tab_printg(NULL, _MuUK->getValue(ibfl, irhs, false));
+    // tab_printg(NULL, _zam.getValue(ibfl, 0, false));
+    tab_printg(NULL, 0.);
+    message("\n");
+  }
 }
