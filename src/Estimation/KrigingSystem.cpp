@@ -1157,37 +1157,41 @@ void KrigingSystem::_wgtDump(int status)
   /* Header */
 
   mestitle(0, "(Co-) Kriging weights");
-  const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-
-  /* First line */
-
-  tab_prints(NULL, "Rank");
-  for (int idim = 0; idim < _ndim; idim++)
-  {
-    String strloc = getLocatorName(ELoc::X, idim);
-    tab_prints(NULL, strloc.c_str());
-  }
-  if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
-  if (_dbin->getLocNumber(ELoc::V) > 0)
-    tab_prints(NULL, "Err.");
-  if (ndisc > 0)
-    for (int idim = 0; idim < _ndim; idim++)
-    {
-      (void) gslSPrintf(string, "Size%d", idim + 1);
-      tab_prints(NULL, string);
-    }
-  tab_prints(NULL, "Data");
-  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-  {
-    (void) gslSPrintf(string, "Z%d*", ivarCL + 1);
-    tab_prints(NULL, string);
-  }
-  message("\n");
-
-  /* Display the information and the weights */
 
   if (_oldStyle)
   {
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+
+    // Rank
+    tab_prints(NULL, "Rank");
+    // Coordinates
+    for (int idim = 0; idim < _ndim; idim++)
+    {
+      String strloc = getLocatorName(ELoc::X, idim);
+      tab_prints(NULL, strloc.c_str());
+    }
+    // Code
+    if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
+    // Variance of measurement error
+    if (_dbin->getLocNumber(ELoc::V) > 0) tab_prints(NULL, "Err.");
+    // Block Extension
+    if (ndisc > 0)
+      for (int idim = 0; idim < _ndim; idim++)
+      {
+        (void)gslSPrintf(string, "Size%d", idim + 1);
+        tab_prints(NULL, string);
+      }
+    // Variables
+    tab_prints(NULL, "Data");
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+    {
+      (void)gslSPrintf(string, "Z%d*", ivarCL + 1);
+      tab_prints(NULL, string);
+    }
+    message("\n");
+
+    /* Display the information and the weights */
+
     int lec     = 0;
     int cumflag = 0;
     for (int jvarCL = 0; jvarCL < _nvarCL; jvarCL++)
@@ -1245,6 +1249,12 @@ void KrigingSystem::_wgtDump(int status)
       message("\n");
     }
   }
+  else
+  {
+    _algebra.dumpWGT();
+  }
+
+  // Drift part
   if (_nfeq <= 0) return;
 
   /* Header */
@@ -1901,7 +1911,7 @@ int KrigingSystem::estimate(int iech_out)
       message("\nProcessing Factor %d / %d\n",_model->getActiveFactor(), _nclasses);
 
     mestitle(1, "Target location");
-    db_sample_print(_dbout, _iechOut, 1, 0, 0);
+    db_sample_print(_dbout, _iechOut, 1, 1, 1, 1);
   }
 
   // Elaborate the Neighborhood
@@ -2536,7 +2546,9 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     messerr("The DGM option is limited to the Monovariate case");
     return 1;
   }
-  if (ABS(_model->getTotalSill(0,0) - 1.) > eps)
+  Model* model_old = _castInOldModel();
+  if (model_old == nullptr) return 1;
+  if (ABS(model_old->getTotalSill(0,0) - 1.) > eps)
   {
     messerr("The DGM option requires a Model with Total Sill equal to 1.");
     return 1;
@@ -2579,6 +2591,16 @@ int KrigingSystem::setKrigOptFlagLTerm(bool flag_lterm)
   return 0;
 }
 
+Model* KrigingSystem::_castInOldModel()
+{
+  Model* model_old = dynamic_cast<Model*>(_model);
+  if (model_old == nullptr)
+  {
+    messerr("This method is only implemented for Model(old_style)");
+  }
+  return model_old;
+}
+
 /**
  * Perform Gaussian Anamoprhosis kriging
  * @param anam Pointer to the AAnam structure
@@ -2586,6 +2608,7 @@ int KrigingSystem::setKrigOptFlagLTerm(bool flag_lterm)
  */
 int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
 {
+
   _isReady = false;
   int nvar = _getNVar();
   if (nvar != 1)
@@ -2595,7 +2618,9 @@ int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
   }
 
   // Check that sill of the (monovariate) Model is smaller or equal to 1
-  double total = _model->getTotalSill(0, 0);
+  Model* model_old = _castInOldModel();
+  if (model_old == nullptr) return 1;
+  double total = model_old->getTotalSill(0, 0);
   if (total > 1.)
   {
     messerr("This procedure requires the Sill of the Model (%lf)",total);

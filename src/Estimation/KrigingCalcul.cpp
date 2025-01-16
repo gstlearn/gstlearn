@@ -14,6 +14,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/String.hpp"
+#include "Basic/AStringable.hpp"
 
 KrigingCalcul::KrigingCalcul(bool flagDual,
                              const VectorDouble* Z,
@@ -1468,26 +1470,30 @@ int KrigingCalcul::_needLambda0()
 
 void KrigingCalcul::dumpLHS(int nbypas) const
 {
-  int npass = (_neq - 1) / nbypas + 1;
+  int size = _neq + _nbfl;
+  int npass = (size - 1) / nbypas + 1;
   for (int ipass = 0; ipass < npass; ipass++)
   {
     int ideb = ipass * nbypas;
     int ifin = MIN(_neq, ideb + nbypas);
     message("\n");
 
-    /* Header line */
-
+    // Header line 
     tab_prints(NULL, "Rank");
     for (int j = ideb; j < ifin; j++) tab_printi(NULL, j + 1);
     message("\n");
 
-    /* Matrix lines */
-
-    for (int i = 0; i < _neq; i++)
+    // LHS Matrix
+    for (int i = 0; i < size; i++)
     {
       tab_printi(NULL, i + 1);
       for (int j = ideb; j < ifin; j++)
-        tab_printg(NULL, _Sigma->getValue(i, j, false));
+      {
+        if (j < _neq)
+          tab_printg(NULL, _Sigma->getValue(i, j, false));
+        else
+          tab_printg(NULL, _X->getValue(i, j-_neq, false));
+      }
       message("\n");
     }
   }
@@ -1510,4 +1516,57 @@ void KrigingCalcul::dumpRHS() const
       tab_printg(NULL, _Sigma0->getValue(i, irhs, false));
     message("\n");
   }
+}
+
+void KrigingCalcul::dumpWGT()
+{
+  char string[20];
+
+  /* Header Line */
+
+  tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Data");
+  for (int irhs = 0; irhs < _nrhs; irhs++)
+  {
+    (void)gslSPrintf(string, "Z%d*", irhs + 1);
+    tab_prints(NULL, string);
+  }
+  message("\n");
+
+  // Prepare matrices for printout (optional)
+
+  if (_flagSK)
+  {
+    if (_needLambdaSK()) return;
+  }
+  else
+  {
+    if (_needLambdaUK()) return;
+  }
+  VectorDouble sum(_nrhs, 0.);
+
+  /* Matrix lines */
+
+  for (int i = 0; i < _neq; i++)
+  {
+    tab_printi(NULL, i + 1);
+    tab_printg(NULL, (*_Z)[i]);
+    for (int irhs = 0; irhs < _nrhs; irhs++)
+    {
+      double value;
+      if (_flagSK)
+        value = _LambdaSK->getValue(i, irhs, false);
+      else
+        value = _LambdaUK->getValue(i, irhs, false);
+      tab_printg(NULL, value);
+      sum[irhs] += value;
+    }
+    message("\n");
+  }
+
+  // Display sum of weights
+
+  tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
+  for (int irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
+  message("\n");
 }

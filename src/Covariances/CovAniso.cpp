@@ -15,7 +15,6 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovProportional.hpp"
-#include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/CovAniso.hpp"

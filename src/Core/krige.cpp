@@ -2126,7 +2126,7 @@ int anakexp_f(DbGrid *db,
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(db, IECH_OUT, 1, 0, 0);
+      db_sample_print(db, IECH_OUT, 1, 0, 0, 0);
     }
 
     /* Discard the grid nodes which doe not belong to the processed area */
@@ -2857,7 +2857,7 @@ int anakexp_3D(DbGrid* db,
             || OptDbg::query(EDbg::RESULTS))
         {
           mestitle(1, "Target location");
-          db_sample_print(db, IECH_OUT, 1, 0, 0);
+          db_sample_print(db, IECH_OUT, 1, 0, 0, 0);
         }
 
         /* Look for the neighborhood */
@@ -3843,7 +3843,7 @@ int krigsampling_f(Db *dbin,
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
+      db_sample_print(dbout, IECH_OUT, 1, 0, 0, 0);
     }
 
     VectorInt vech = { IECH_OUT };
@@ -4991,7 +4991,7 @@ int inhomogeneous_kriging(Db *dbdat,
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
+      db_sample_print(dbout, IECH_OUT, 1, 0, 0, 0);
     }
 
     // Neighborhood search

@@ -38,7 +38,7 @@ public:
   bool   hasSpectrumOnRn() const override { return true; }
   bool   hasMarkovCoeffs() const override { return true; }
   double evaluateSpectrum(double freq) const override;
-  void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
+  void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
   VectorDouble getMarkovCoeffs() const override;
   double getCorrec() const override { return _correc;}
   void   computeCorrec(int ndim) override;

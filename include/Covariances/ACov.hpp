@@ -53,7 +53,6 @@ class GSTLEARN_EXPORT ACov : public ASpaceObject
   virtual bool isNoStat() const { return false; }
 
   const CovContext& getContext() const { return _ctxt; }
-
  
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,

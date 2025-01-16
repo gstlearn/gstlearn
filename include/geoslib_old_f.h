@@ -252,11 +252,12 @@ GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
 GSTLEARN_EXPORT void db_grid_print(Db *db);
 
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
-GSTLEARN_EXPORT void db_sample_print(Db *db,
+GSTLEARN_EXPORT void db_sample_print(Db* db,
                                      int iech,
-                                     int flag_ndim,
-                                     int flag_nvar,
-                                     int flag_nerr);
+                                     int flag_ndim = 1,
+                                     int flag_nvar = 0,
+                                     int flag_nerr = 0,
+                                     int flag_blk  = 0);
 GSTLEARN_EXPORT int db_center(Db *db, double *center);
 GSTLEARN_EXPORT void db_extension_rotated(Db *db,
                                           double *rotmat,

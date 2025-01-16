@@ -1474,7 +1474,7 @@ static void st_estimate(LMlayers *lmlayers,
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iechout, 1, 0, 0);
+      db_sample_print(dbout, iechout, 1, 0, 0, 0);
     }
 
     /* Correction in the case of collocation of the bottom surface */

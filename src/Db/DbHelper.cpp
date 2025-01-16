@@ -651,8 +651,8 @@ int DbHelper::findDuplicates(Db *db1,
       if (verbose)
       {
         message("Sample %d too close to sample %d\n", iech1 + 1, iech2 + 1);
-        db_sample_print(db1, iech1, 1, 0, 0);
-        db_sample_print(db2, iech2, 1, 0, 0);
+        db_sample_print(db1, iech1, 1, 0, 0, 0);
+        db_sample_print(db2, iech2, 1, 0, 0, 0);
         message("\n");
       }
     }

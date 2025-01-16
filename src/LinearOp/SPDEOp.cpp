@@ -14,7 +14,6 @@
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "geoslib_define.h"
-#include <vector>
 
 SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
                const ProjMulti* const proj,
