@@ -1,0 +1,191 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2       z-3
+     [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
+     [  1,]     2.000     0.483     0.557       N/A    -0.872     0.080
+     [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.483448
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1      0.652      0.015
+          2          2      0.483      0.557
+          3          3      0.762      0.433
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 12
+Reduced number of equations = 11
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      5.167      2.785     -3.000     -1.334     -1.617
+          2          2      2.785      5.167     -1.617     -1.942     -3.000
+          3          3     -3.000     -1.617      3.831      1.703      2.065
+          4          4     -1.334     -1.942      1.703      3.831      2.479
+          5          5     -1.617     -3.000      2.065      2.479      3.831
+          6          6      1.843      0.993      2.299      1.022      1.239
+          7          7      0.820      1.193      1.022      2.299      1.488
+          8          8      0.993      1.843      1.239      1.488      2.299
+          9          9      1.000      1.000      0.000      0.000      0.000
+         10         10      0.000      0.000      1.000      1.000      1.000
+         11         11      0.000      0.000      0.000      0.000      0.000
+
+       Rank                     6          7          8          9         10
+                  Flag          6          7          8          9         10
+          1          1      1.843      0.820      0.993      1.000      0.000
+          2          2      0.993      1.193      1.843      1.000      0.000
+          3          3      2.299      1.022      1.239      0.000      1.000
+          4          4      1.022      2.299      1.488      0.000      1.000
+          5          5      1.239      1.488      2.299      0.000      1.000
+          6          6      6.110      2.717      3.293      0.000      0.000
+          7          7      2.717      6.110      3.954      0.000      0.000
+          8          8      3.293      3.954      6.110      0.000      0.000
+          9          9      0.000      0.000      0.000      0.000      0.000
+         10         10      0.000      0.000      0.000      0.000      0.000
+         11         11      1.000      1.000      1.000      0.000      0.000
+
+       Rank                    11
+                  Flag         11
+          1          1      0.000
+          2          2      0.000
+          3          3      0.000
+          4          4      0.000
+          5          5      0.000
+          6          6      1.000
+          7          7      1.000
+          8          8      1.000
+          9          9      0.000
+         10         10      0.000
+         11         11      0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 12
+Reduced number of equations = 11
+Number of right-hand sides  = 3
+Punctual Estimation
+
+       Rank       Flag          1          2          3
+          1          1      2.645     -1.536      0.944
+          2          2      4.348     -2.525      1.551
+          3          3     -1.536      1.961      1.177
+          4          4     -2.307      2.946      1.767
+          5          5     -2.525      3.224      1.934
+          6          6      0.944      1.177      3.128
+          7          7      1.417      1.767      4.698
+          8          8      1.551      1.934      5.142
+          9          9      1.000      0.000      0.000
+         10         10      0.000      1.000      0.000
+         11         11      0.000      0.000      1.000
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*        Z2*        Z3*
+Using variable Z1 
+          1      0.652      0.015      0.753      0.143      0.000      0.000
+          2      0.483      0.557        N/A        N/A        N/A        N/A
+          3      0.762      0.433      0.793      0.857      0.000      0.000
+Sum of weights                                    1.000      0.000      0.000
+Using variable Z2 
+          1      0.652      0.015     -0.454      0.134      0.035      0.000
+          2      0.483      0.557     -0.872     -0.479      0.384      0.000
+          3      0.762      0.433      0.744      0.344      0.581      0.000
+Sum of weights                                    0.000      1.000      0.000
+Using variable Z3 
+          1      0.652      0.015     -0.752     -0.083      0.000      0.035
+          2      0.483      0.557      0.080      0.296      0.000      0.384
+          3      0.762      0.433      0.319     -0.213      0.000      0.581
+Sum of weights                                    0.000      0.000      1.000
+
+Drift coefficients
+==================
+       Rank   Lagrange      Coeff
+          1     -0.036      1.352
+          2      0.020     -0.307
+          3     -0.012     -0.195
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       1.418
+ - Std. Dev. =       1.029
+ - Variance  =       1.058
+ - Cov(h=0)  =       5.167
+Variable Z2 
+ - Estimate  =       0.081
+ - Std. Dev. =       0.885
+ - Variance  =       0.784
+ - Cov(h=0)  =       3.831
+Variable Z3 
+ - Estimate  =       0.190
+ - Std. Dev. =       1.118
+ - Variance  =       1.250
+ - Cov(h=0)  =       6.110
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+4 - Name Kriging.z-1.estim - Locator z1
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      1.418
+ Maximum value       =      1.418
+ Mean value          =      1.418
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Kriging.z-2.estim - Locator z2
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.081
+ Maximum value       =      0.081
+ Mean value          =      0.081
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Kriging.z-3.estim - Locator z3
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.190
+ Maximum value       =      0.190
+ Mean value          =      0.190
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+7 - Name Kriging.z-1.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      1.029
+ Maximum value       =      1.029
+ Mean value          =      1.029
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+8 - Name Kriging.z-2.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.885
+ Maximum value       =      0.885
+ Mean value          =      0.885
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+9 - Name Kriging.z-3.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      1.118
+ Maximum value       =      1.118
+ Mean value          =      1.118
+ Standard Deviation  =      0.000
+ Variance            =      0.000
