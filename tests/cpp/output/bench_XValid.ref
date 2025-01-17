@@ -1,0 +1,143 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2
+     [  0,]     1.000     0.652     0.557    -0.774     0.744
+     [  1,]     2.000     0.483     0.433       N/A    -0.752
+     [  2,]     3.000     0.762     0.497    -0.454     0.080
+     [  3,]     4.000     0.015     0.140    -0.872     0.319
+
+Target location
+---------------
+Sample #1 (from 4)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.556508
+Variable   #1 = -0.773568
+Variable   #2 = 0.743949
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1          2      0.483      0.433          1
+          2          3      0.762      0.497          1
+          3          4      0.015      0.140          1
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 8
+Reduced number of equations = 7
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      4.708      1.443     -2.384     -3.586     -1.099
+          2          2      1.443      4.708     -1.628     -1.099     -3.586
+          3          3     -2.384     -1.628      3.084      2.050      1.400
+          4          4     -3.586     -1.099      2.050      3.084      0.945
+          5          5     -1.099     -3.586      1.400      0.945      3.084
+          6          6      1.000      1.000      0.000      0.000      0.000
+          7          7      0.000      0.000      1.000      1.000      1.000
+
+       Rank                     6          7
+                  Flag          6          7
+          1          1      1.000      0.000
+          2          2      1.000      0.000
+          3          3      0.000      1.000
+          4          4      0.000      1.000
+          5          5      0.000      1.000
+          6          6      0.000      0.000
+          7          7      0.000      0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 8
+Reduced number of equations = 7
+Number of right-hand sides  = 2
+Punctual Estimation
+
+       Rank       Flag          1          2
+          1          1      3.937     -2.999
+          2          2      1.587     -1.209
+          3          3     -2.660      2.288
+          4          4     -2.999      2.579
+          5          5     -1.209      1.039
+          6          6      1.000      0.000
+          7          7      0.000      1.000
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*        Z2*
+Using variable Z1 
+          1      0.483      0.433        N/A        N/A        N/A
+          2      0.762      0.497     -0.454      0.860      0.000
+          3      0.015      0.140     -0.872      0.140      0.000
+Sum of weights                                    1.000      0.000
+Using variable Z2 
+          1      0.483      0.433     -0.752     -0.401      0.345
+          2      0.762      0.497      0.080      0.261      0.635
+          3      0.015      0.140      0.319      0.139      0.020
+Sum of weights                                    0.000      1.000
+
+Drift coefficients
+==================
+       Rank   Lagrange      Coeff
+          1     -0.179     -0.464
+          2      0.123      0.028
+
+Cross-validation results
+========================
+Target Sample = 1
+Variable Z1 
+ - True value        =      -0.774
+ - Estimated value   =      -0.145
+ - Estimation Error  =       0.628
+ - Std. deviation    =       1.079
+ - Normalized Error  =       0.582
+Variable Z2 
+ - True value        =       0.744
+ - Estimated value   =      -0.202
+ - Estimation Error  =      -0.946
+ - Std. deviation    =       0.861
+ - Normalized Error  =      -1.099
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+6 - Name Xvalid.z-1.esterr - Locator z1
+ Nb of data          =          4
+ Nb of active values =          3
+ Minimum value       =     -0.139
+ Maximum value       =      1.287
+ Mean value          =      0.592
+ Standard Deviation  =      0.583
+ Variance            =      0.339
+7 - Name Xvalid.z-2.esterr - Locator z2
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     -0.946
+ Maximum value       =      1.279
+ Mean value          =      0.009
+ Standard Deviation  =      0.910
+ Variance            =      0.827
+8 - Name Xvalid.z-1.stderr - Locator NA
+ Nb of data          =          4
+ Nb of active values =          3
+ Minimum value       =     -0.115
+ Maximum value       =      0.582
+ Mean value          =      0.347
+ Standard Deviation  =      0.327
+ Variance            =      0.107
+9 - Name Xvalid.z-2.stderr - Locator NA
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     -1.099
+ Maximum value       =      1.148
+ Mean value          =      0.024
+ Standard Deviation  =      0.854
+ Variance            =      0.730

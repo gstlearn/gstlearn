@@ -1257,21 +1257,17 @@ void KrigingSystem::_wgtDump(int status)
   // Drift part
   if (_nfeq <= 0) return;
 
-  /* Header */
+  /* Auxiliary results for Drift */
 
   mestitle(0, "Drift coefficients");
 
-  /* First line */
-
-  tab_prints(NULL, "Rank");
-  tab_prints(NULL, "Lagrange");
-  tab_prints(NULL, "Coeff");
-  message("\n");
-
-  /* Loop on the drift coefficients */
-
   if (_oldStyle)
   {
+    tab_prints(NULL, "Rank");
+    tab_prints(NULL, "Lagrange");
+    tab_prints(NULL, "Coeff");
+    message("\n");
+
     int startDrift = _nred - _nfeq;
     for (int ib = 0; ib < _nfeq; ib++)
     {
@@ -1284,6 +1280,10 @@ void KrigingSystem::_wgtDump(int status)
         tab_printg(NULL, (status == 0) ? _zam.getValue(iwgt, 0, false) : TEST);
       message("\n");
     }
+  }
+  else
+  {
+    _algebra.dumpAux();
   }
 }
 

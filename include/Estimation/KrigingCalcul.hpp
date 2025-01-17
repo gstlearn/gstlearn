@@ -62,6 +62,7 @@ public:
   void dumpLHS(int nbypas) const;
   void dumpRHS() const;
   void dumpWGT();
+  void dumpAux();
 
   VectorDouble getEstimation();
   VectorDouble getStdv();

@@ -214,7 +214,7 @@ double distance_grid(DbGrid *db,
  ** \param[in]  flag_ndim 1 if the coordinates must be printed
  ** \param[in]  flag_nvar 1 if the variables must be printed
  ** \param[in]  flag_nerr 1 if the error measurement variance must be printed
- ** \param[in]  flag_blc  1 if the variable block extension must be printed
+ ** \param[in]  flag_blk  1 if the variable block extension must be printed
  **
  *****************************************************************************/
 void db_sample_print(Db* db,

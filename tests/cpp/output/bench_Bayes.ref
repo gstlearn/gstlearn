@@ -1,0 +1,12 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2       z-3
+     [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
+     [  1,]     2.000     0.483     0.557       N/A    -0.872     0.080
+     [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
+Size of argument 'prior_mean'(2)
+should be equal to the Number of Drift Equations(3)
