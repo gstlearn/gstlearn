@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   cova.setRanges(ranges);
   cova.setSill(sill);
   covs.addCovAniso(&cova);
-  model->setCovList(&covs);
+  model->setCovAnisoList(&covs);
   model->display();
 
   // Gibbs

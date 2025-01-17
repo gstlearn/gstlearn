@@ -94,8 +94,7 @@ public:
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
-  double          getTotalSill(int ivar, int jvar) const override;
-  MatrixSquareSymmetric getTotalSill() const;
+  double          getTotalSill(int ivar = 0, int jvar = 0) const override;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;

@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   cov2.setSill(0.5);
   covlmc.addCovAniso(&cov2);
   // Assembling the Model
-  modellmc.setCovList(&covlmc);
+  modellmc.setCovAnisoList(&covlmc);
   modellmc.display();
 
   // Building the Covariance Matrix
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   covtape.addCovAniso(&cov2);
   // Building the Model
   Model modeltape = Model(ctxt);
-  modeltape.setCovList(&covtape);
+  modeltape.setCovAnisoList(&covtape);
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   covconv.addCovAniso(&cov2);
   // Building the Model
   Model modelconv = Model(ctxt);
-  modelconv.setCovList(&covconv);
+  modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
   VH::display("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));

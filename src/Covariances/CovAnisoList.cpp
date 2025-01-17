@@ -396,7 +396,7 @@ String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
     {
       sstr << toMatrix("Total Sill",VectorString(),VectorString(),0,
                        getNVariables(),getNVariables(),
-                       getTotalSill().getValues());
+                       getTotalSills().getValues());
     }
   }
   sstr << std::endl;
@@ -582,16 +582,6 @@ double CovAnisoList::getTotalSill(int ivar, int jvar) const
     sill_total += cova->getSill(ivar, jvar);
   }
   return sill_total;
-}
-
-MatrixSquareSymmetric CovAnisoList::getTotalSill() const
-{
-  int nvar = getNVariables();
-  MatrixSquareSymmetric mat(nvar);
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar <= ivar; jvar++)
-      mat.setValue(ivar,jvar,getTotalSill(ivar,jvar));
-  return mat;
 }
 
 bool CovAnisoList::_isCovarianceIndexValid(int icov) const

@@ -154,7 +154,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
       delete covnew;
     }
   }
-  new_model->setCovList(covs);
+  new_model->setCovAnisoList(covs);
   delete covs;
 
   // *********************************

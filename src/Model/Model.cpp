@@ -79,7 +79,7 @@ Model& Model::operator=(const Model &m)
   { 
     AStringable::operator=(m);
     ASerializable::operator=(m);
-   setCovList(dynamic_cast<CovAnisoList*>(m._covList));
+   setCovAnisoList(dynamic_cast<CovAnisoList*>(m._covList));
     if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
     _ctxt = m._ctxt;
@@ -305,7 +305,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
  * Add a list of Covariances. This operation cleans any previously stored covariance
  * @param covalist List of Covariances to be added
  */
-void Model::setCovList(const CovAnisoList* covalist)
+void Model::setCovAnisoList(const CovAnisoList* covalist)
 {
   
   if (covalist == nullptr)
@@ -747,6 +747,10 @@ bool Model::isChangeSupportDefined() const
 {
   const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return false;
+  if (covalist->getAnam() == nullptr)
+  {
+     return false;
+  }
   return covalist->getAnam()->isChangeSupportDefined();
 }
 void Model::normalize(double sill)
@@ -1326,7 +1330,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
       cova.setRangeIsotropic(range);
     covs.addCovAniso(&cova);
   }
-  setCovList(&covs);
+  setCovAnisoList(&covs);
 
   /* Reading the drift part */
 
@@ -1469,7 +1473,7 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovList(new CovAnisoList(_ctxt));
+  setCovAnisoList(new CovAnisoList(_ctxt));
   _driftList = new DriftList(_ctxt);
 }
 
@@ -1507,7 +1511,7 @@ Model* Model::duplicate() const
 
   /* Add the list of Covariances */
 
-  model->setCovList(getCovAnisoList());
+  model->setCovAnisoList(getCovAnisoList());
 
   /* Add the list of Drifts */
 
@@ -1530,7 +1534,7 @@ Model* Model::createReduce(const VectorInt& validVars) const
 
   /* Add the list of Covariances */
 
-  model->setCovList(getCovAnisoList()->createReduce(validVars));
+  model->setCovAnisoList(getCovAnisoList()->createReduce(validVars));
 
   /* Add the list of Drifts */
 

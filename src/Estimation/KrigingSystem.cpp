@@ -1911,7 +1911,7 @@ int KrigingSystem::estimate(int iech_out)
       message("\nProcessing Factor %d / %d\n",_model->getActiveFactor(), _nclasses);
 
     mestitle(1, "Target location");
-    db_sample_print(_dbout, _iechOut, 1, 1, 1, 1);
+    db_sample_print(_dbout, _iechOut, 1, 0, 1, 1);
   }
 
   // Elaborate the Neighborhood

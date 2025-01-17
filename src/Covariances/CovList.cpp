@@ -368,7 +368,7 @@ double CovList::getTotalSill(int ivar, int jvar) const
   return sill_total;
 }
 
-MatrixSquareSymmetric CovList::getTotalSill() const
+MatrixSquareSymmetric CovList::getTotalSills() const
 {
   int nvar = getNVariables();
   MatrixSquareSymmetric mat(nvar);

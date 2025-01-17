@@ -325,7 +325,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   CovLMGradient covs(ctxt.getSpace());
   CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
   covs.addCov(&cov);
-  pot_ext->model->setCovList(&covs);
+  pot_ext->model->setCovAnisoList(&covs);
 
   // Drift part
   DriftList drifts(ctxt);

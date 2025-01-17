@@ -168,7 +168,7 @@ for (idir in 1:ndir) {
   dir = var_param$getDirParam(idir - 1)$getCodirs()
   sdir = sprintf("Direction = [%1d, %1d]", dir[1], dir[2])
   plot(NULL, NULL, xlim = c(0, dx[idir]*nlags), 
-       ylim = 1.2*c(0, var_model$getTotalSill(ivar = 0, jvar = 0)),
+       ylim = 1.2*c(0, ModelCovList_getTotalSill(var_model,ivar = 0, jvar = 0)),
        xlab = "Distance", ylab = "Variogram", main = paste0(titre, "\n", sdir),
        xaxs="i", yaxs="i")
   abline(h = 0, lty = 1, col = "black")
