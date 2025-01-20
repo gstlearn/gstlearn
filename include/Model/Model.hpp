@@ -94,7 +94,7 @@ public:
                                 const VectorDouble& ranges = VectorDouble(),
                                 const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const ASpace* space        = nullptr,
+                                const std::shared_ptr<const ASpace>  space = nullptr,
                                 bool flagRange             = true);
   static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
                           double range               = 1.,
@@ -103,7 +103,7 @@ public:
                           const VectorDouble& ranges = VectorDouble(),
                           const VectorDouble& sills  = VectorDouble(),
                           const VectorDouble& angles = VectorDouble(),
-                          const ASpace* space        = nullptr,
+                          std::shared_ptr<const ASpace> space = nullptr,
                           bool flagRange             = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename,
@@ -560,7 +560,9 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   const CovContext& getContext() const { return _ctxt; }
-  const ASpace*     getASpace() const { return _ctxt.getASpace(); }
+  std::shared_ptr<const ASpace>     getASpaceSh() const { return _ctxt.getSpaceSh(); }
+  std::shared_ptr<const ASpace>    getASpace() const { return getASpaceSh(); }
+
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }

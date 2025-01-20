@@ -29,7 +29,7 @@
 #include <vector>
 #include <math.h>
 
-ACov::ACov(const ASpace *space)
+ACov::ACov(std::shared_ptr<const ASpace> space)
     : ASpaceObject(space),
       _optimEnabled(true),
       _isOptimPreProcessed(false),
@@ -37,13 +37,12 @@ ACov::ACov(const ASpace *space)
       _p2A(space)
 {
 }
-
 ACov::ACov(const ACov &r)
     : ASpaceObject(r),
       _optimEnabled(r._optimEnabled),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(r.getSpace())
+      _p2A(r.getSpaceSh())
 {
 }
 
@@ -54,7 +53,7 @@ ACov& ACov::operator=(const ACov &r)
     ASpaceObject::operator=(r);
     _optimEnabled = r._optimEnabled;
     _isOptimPreProcessed = r._isOptimPreProcessed;
-    _p2A = SpacePoint(r._space);
+    _p2A = SpacePoint(r.getSpaceSh());
   }
   return *this;
 }
@@ -72,7 +71,7 @@ void ACov::optimizationPostProcess() const
 void ACov::optimizationPreProcess(const Db* db) const
 {
   if (_isOptimPreProcessed) return;
-  db->getSamplesAsSP(_p1As,_space);
+  db->getSamplesAsSP(_p1As,getSpaceSh());
   _optimizationPreProcess(_p1As);
   
 }
@@ -165,7 +164,7 @@ double ACov::eval0(int ivar,
                    int jvar,
                    const CovCalcMode* mode) const
 {
-  SpacePoint p1(getSpace()->getOrigin(),-1);
+  SpacePoint p1(getSpaceSh()->getOrigin(),-1);
   return eval(p1,p1,ivar,jvar,mode); // pure virtual method
 }
 MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
@@ -211,7 +210,7 @@ double ACov::evalIvarIpas(double step,
                           const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  const ASpace* space = getSpace();
+  std::shared_ptr<const ASpace> space = getSpaceSh();
   SpacePoint p1(space);
   SpacePoint p2(space);
 
@@ -238,8 +237,8 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(VectorDouble(_space->getNDim()),-1,_space);
-  SpacePoint p2(VectorDouble(_space->getNDim()),-1,_space);
+  SpacePoint p1(VectorDouble(_space->getNDim()),-1,getSpaceSh());
+  SpacePoint p2(VectorDouble(_space->getNDim()),-1,getSpaceSh());
   p2.move(dincr);
   return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
@@ -438,13 +437,13 @@ double ACov::evalAverageIncrToIncr(const VectorVectorDouble &d1,
   double total = 0.;
   for (int iech1 = 0; iech1 < nech1; iech1++)
   {
-    SpacePoint p1(d1[iech1],-1,getSpace());
+    SpacePoint p1(d1[iech1],-1,getSpaceSh());
 
     /* Loop on the second sample */
 
     for (int iech2 = 0; iech2 < nech2; iech2++)
     {
-      SpacePoint p2(d2[iech2],-1,getSpace());
+      SpacePoint p2(d2[iech2],-1,getSpaceSh());
       total += eval(p1, p2, ivar, jvar, mode);
     }
   }
@@ -483,7 +482,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
     if (isZero(w2)) continue;
-    SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
+    SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpaceSh());
 
     /* Loop on the dimension of the space */
 
@@ -551,14 +550,14 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
     int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
     if (! nbgh2.empty())
     {
-      SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
+      SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpaceSh());
       values.push_back(eval(p1, p2, ivar, jvar, mode));
     }
     else
     {
       if (db2->isActive(iech2))
       {
-        SpacePoint p2(db2->getSampleCoordinates(iech2),iech2, getSpace());
+        SpacePoint p2(db2->getSampleCoordinates(iech2),iech2, getSpaceSh());
         values.push_back(eval(p1, p2, ivar, jvar, mode));
 
       }
@@ -905,8 +904,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   mat.resize(neq1, neq2);
 
   // Define the two space points
-  SpacePoint p1(getSpace());
-  SpacePoint p2(getSpace());
+  SpacePoint p1(getSpaceSh());
+  SpacePoint p2(getSpaceSh());
 
   // Loop on the first variable
   int irow = 0;
@@ -1127,8 +1126,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
   mat.resize(neq1, neq1);
 
   // Define the two space points
-  SpacePoint p1(getSpace());
-  SpacePoint p2(getSpace());
+  SpacePoint p1(getSpaceSh());
+  SpacePoint p2(getSpaceSh());
 
   // Loop on the first variable
   int irow = 0;
@@ -1250,8 +1249,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
   NF_Triplet NF_T;
 
   // Define the two space points
-  SpacePoint p1(getSpace());
-  SpacePoint p2(getSpace());
+  SpacePoint p1(getSpaceSh());
+  SpacePoint p2(getSpaceSh());
 
   // Loop on the first variable
   int irow = 0;

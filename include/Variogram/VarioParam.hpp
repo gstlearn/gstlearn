@@ -66,7 +66,7 @@ public:
                                          const VectorDouble& breaks = VectorDouble(),
                                          double scale = 0.,
                                          const VectorDouble& dates = VectorDouble(),
-                                         const ASpace* space = nullptr);
+                                         const std::shared_ptr<const ASpace>& space = nullptr);
   static VarioParam* createMultiple(int ndir,
                                     int npas = 10,
                                     double dpas = 1.,
@@ -74,13 +74,13 @@ public:
                                     double angref = 0.,
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
-                                    const ASpace* space = nullptr);
+                                    const std::shared_ptr<const ASpace>& space = nullptr);
   static VarioParam*
   createMultipleFromGrid(const DbGrid* dbgrid,
                          int npas,
                          double scale              = 0.,
                          const VectorDouble& dates = VectorDouble(),
-                         const ASpace* space       = nullptr,
+                         const std::shared_ptr<const ASpace>& space       = nullptr,
                          int ndimax = 0);
   static VarioParam* createFromSpaceDimension(int npas = 10,
                                               double dpas = 1.,
@@ -88,7 +88,7 @@ public:
                                               double tolang = 45.,
                                               double scale = 0.,
                                               const VectorDouble &dates = VectorDouble(),
-                                              const ASpace *space = nullptr);
+                                              const std::shared_ptr<const ASpace>& space = nullptr);
   static VarioParam* createSeveral2D(const VectorDouble &angles,
                                      int npas = 10,
                                      double dpas = 1.,
@@ -96,14 +96,14 @@ public:
                                      double tolang = TEST,
                                      double scale = 0.,
                                      const VectorDouble& dates = VectorDouble(),
-                                     const ASpace *space = nullptr);
+                                     const std::shared_ptr<const ASpace> &space = nullptr);
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);
   void delDir(int rank);
   void delAllDirs();
 
-  const ASpace* getSpace() const { return _dirparams[0].getSpace(); }
+  std::shared_ptr<const ASpace> getSpace() const { return _dirparams[0].getSpaceSh(); }
   double getScale() const { return _scale; }
   int    getDateNumber() const { return (int) _dates.size() / 2; }
   int    getDirectionNumber() const { return (int) _dirparams.size(); }

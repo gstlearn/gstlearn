@@ -78,7 +78,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 {
   CovContext ctxt(nvar); // use default space
   Model* model = Model::create(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  ACovAnisoList covs(ctxt.getSpaceSh());
 
   if (typecov == 1)
   {

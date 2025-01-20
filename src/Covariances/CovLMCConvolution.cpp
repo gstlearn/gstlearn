@@ -21,11 +21,12 @@
 
 #include <math.h>
 
+
 CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
                                      const EConvDir&  conv_dir,
                                      double conv_range,
                                      int conv_ndisc,
-                                     const ASpace* space)
+                                     const std::shared_ptr<const ASpace>& space)
     : ACovAnisoList(space),
       _convType(conv_type),
       _convDir(conv_dir),

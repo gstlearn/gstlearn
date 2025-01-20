@@ -40,7 +40,7 @@ class GSTLEARN_EXPORT NeighImage: public ANeigh
 public:
   NeighImage(const VectorInt &radius = VectorInt(),
              int skip = 0,
-             const ASpace *space = nullptr);
+             const std::shared_ptr<const ASpace>& space = nullptr);
   NeighImage(const NeighImage& r);
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
@@ -54,7 +54,7 @@ public:
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NeighImage* create(const VectorInt& image, int skip = 0, const ASpace* space = nullptr);
+  static NeighImage* create(const VectorInt& image, int skip = 0, const std::shared_ptr<const ASpace>& space = nullptr);
   static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);
 
   int getSkip() const { return _skip; }

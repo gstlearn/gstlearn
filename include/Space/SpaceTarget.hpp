@@ -19,7 +19,7 @@
 class GSTLEARN_EXPORT SpaceTarget : public SpacePoint
 {
 public:
-  SpaceTarget(const ASpace* space = nullptr,
+  SpaceTarget(const std::shared_ptr<const ASpace>& space = nullptr,
               bool checkExtend    = true,
               bool checkCode      = true,
               bool checkDate      = true);
@@ -31,7 +31,7 @@ public:
                              const VectorDouble &extend = VectorDouble(),
                              double code = TEST,
                              double date = TEST,
-                             const ASpace *space = nullptr);
+                             const std::shared_ptr<const ASpace>& space = nullptr);
 
 //  SpacePoint& getCoordAsSP() { return _center; }
   const SpacePoint& getCoordAsSP() const { return *this; }

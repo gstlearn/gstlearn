@@ -55,7 +55,7 @@ class Ball;
 class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
 {
 public:
-  ANeigh(const ASpace* space = nullptr);
+  ANeigh(const std::shared_ptr<const ASpace>& space = nullptr);
   ANeigh(const ANeigh& r);
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();

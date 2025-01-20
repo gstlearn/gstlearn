@@ -37,7 +37,7 @@ class Db;
 class GSTLEARN_EXPORT NeighCell: public ANeigh
 {
 public:
-  NeighCell(bool flag_xvalid = false, int nmini = 1, const ASpace* space = nullptr);
+  NeighCell(bool flag_xvalid = false, int nmini = 1, const std::shared_ptr<const ASpace>& space = nullptr);
   NeighCell(const NeighCell& r);
   NeighCell& operator=(const NeighCell& r);
   virtual ~NeighCell();
@@ -57,7 +57,7 @@ public:
 
   static NeighCell* create(bool flag_xvalid = false,
                            int nmini = 1,
-                           const ASpace *space = nullptr);
+                           const std::shared_ptr<const ASpace>& space = nullptr);
   static NeighCell* createFromNF(const String& neutralFilename, bool verbose = true);
 
   int getNMini() const { return _nMini; }

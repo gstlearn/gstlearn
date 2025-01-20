@@ -30,16 +30,6 @@
 
 #include <math.h>
 
-CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
-                                       const VectorInt& strcnt,
-                                       const ASpace* space)
-    : ACovAnisoList(space),
-      _activeFactor(0),
-      _anamStrCount(),
-      _anam(anam)
-{
-  init(strcnt);
-}
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const ACovAnisoList& lmc,
                                        const AAnam* anam,

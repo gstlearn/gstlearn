@@ -52,7 +52,7 @@ public:
               int nsmax = ITEST,
               const VectorDouble& coeffs = VectorDouble(),
               const VectorDouble& angles = VectorDouble(),
-              const ASpace* space = nullptr);
+              const std::shared_ptr<const ASpace>& space = nullptr);
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
@@ -77,7 +77,7 @@ public:
                              int nsmax = ITEST,
                              const VectorDouble& coeffs = VectorDouble(),
                              const VectorDouble& angles = VectorDouble(),
-                             const ASpace* space = nullptr);
+                             const std::shared_ptr<const ASpace>& space = nullptr);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
   void addBiTargetCheck(ABiTargetCheck* abpc);

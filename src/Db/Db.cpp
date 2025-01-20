@@ -768,7 +768,7 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<const ASpace> &space, bool useSel) const
 {
   int iechcur = 0;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)

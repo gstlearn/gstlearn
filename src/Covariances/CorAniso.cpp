@@ -50,7 +50,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
 CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
     : ACor(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
-      _aniso(ctxt.getSpace()->getNDim()),
+      _aniso(ctxt.getSpaceSh()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -62,7 +62,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
     : ACor(ctxt), /// TODO : shared pointer
       _cova(),
-      _aniso(ctxt.getSpace()->getNDim()),
+      _aniso(ctxt.getSpaceSh()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -80,7 +80,7 @@ CorAniso::CorAniso(const ECov &type,
                    bool flagRange)
     : ACor(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
-      _aniso(ctxt.getSpace()->getNDim()),
+      _aniso(ctxt.getSpaceSh()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -413,7 +413,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
   double h;
   if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
   {
-    h = getSpace()->getDistance(p1, p2, _aniso);
+    h = getSpaceSh()->getDistance(p1, p2, _aniso);
   }
   else
   {
@@ -441,7 +441,7 @@ double CorAniso::evalCovOnSphere(double alpha,
                                  const CovCalcMode* mode) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
-  const ASpace* space = getDefaultSpace();
+  const ASpace* space = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return TEST;
 
@@ -464,7 +464,7 @@ double CorAniso::evalCovOnSphere(double alpha,
 VectorDouble CorAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
 {
   if (!_cova->hasSpectrumOnSphere()) return VectorDouble();
-  const ASpace* space = getDefaultSpace();
+  const ASpace* space = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return VectorDouble();
 
@@ -544,14 +544,14 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) cons
   SpacePoint p1;
   SpacePoint p2;
   p2.setCoords(freq);
-  double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
+  double freqnorm = getSpaceSh()->getFrequentialDistance(p1, p2, _aniso);
   double val = _cova->evaluateSpectrum(freqnorm * freqnorm);
   return   val / getCorrec();
 }
 
 double CorAniso::normalizeOnSphere(int n) const
 { 
-  const ASpace* space = getDefaultSpace();
+  const ASpace* space = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   double scale = getScale();
   double radius = spaceSn->getRadius();
@@ -998,7 +998,7 @@ void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
 {
 
   int n = (int) p.size();
-  SpacePoint pt(_space);
+  SpacePoint pt(getSpaceSh());
 	for(int i = 0; i < n ; i++)
 	{
     pt.setIech(p[i].getIech());

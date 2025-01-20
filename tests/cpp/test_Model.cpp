@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model modellmc = Model(ctxt);
   // Build the List of Covariances
-  ACovAnisoList covlmc = ACovAnisoList(ctxt.getSpace());
+  ACovAnisoList covlmc = ACovAnisoList(ctxt.getSpaceSh());
   // Build the Elementary Covariances
   CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
   cov1.setRanges({1.2,2.1});
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
   /////////////////////////////
   // Creating the Tapered Model
-  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt.getSpace());
+  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt.getSpaceSh());
   // Build the Covariance list
   covtape.addCov(&cov1);
   covtape.addCov(&cov2);
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
   /////////////////////////////
   // Creating the Convoluted Model
-  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt.getSpace());
+  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt.getSpaceSh());
   // Build the Covariance list
   covconv.addCov(&cov1);
   covconv.addCov(&cov2);

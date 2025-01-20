@@ -94,7 +94,7 @@ int main()
 
   CovContext ctxt(nvar,2,1.); // use default space
   Model model(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  ACovAnisoList covs(ctxt.getSpaceSh());
   CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill(sill);

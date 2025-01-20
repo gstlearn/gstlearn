@@ -24,9 +24,6 @@ class Model;
 class GSTLEARN_EXPORT CovLMCAnamorphosis : public ACovAnisoList
 {
 public:
-  CovLMCAnamorphosis(const AAnam* anam,
-                     const VectorInt& strcnt = VectorInt(),
-                     const ASpace* space = nullptr);
   CovLMCAnamorphosis(const ACovAnisoList& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);

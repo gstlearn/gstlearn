@@ -38,7 +38,7 @@ class Db;
 class GSTLEARN_EXPORT NeighBench: public ANeigh
 {
 public:
-  NeighBench(bool flag_xvalid = false, double width = 0., const ASpace* space = nullptr);
+  NeighBench(bool flag_xvalid = false, double width = 0., const std::shared_ptr<const ASpace> &space = nullptr);
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
@@ -55,7 +55,7 @@ public:
 
   static NeighBench* create(bool flag_xvalid = false,
                             double width = 0,
-                            const ASpace *space = nullptr);
+                            const std::shared_ptr<const ASpace>& space = nullptr);
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
 
   double getWidth() const { return _width; }

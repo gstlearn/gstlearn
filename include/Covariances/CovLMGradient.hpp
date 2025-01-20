@@ -23,7 +23,7 @@ class CovCalcMode;
 class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
 {
 public:
-  CovLMGradient(const ASpace* space = nullptr);
+  CovLMGradient(const std::shared_ptr<const ASpace>& space = nullptr);
   CovLMGradient(const CovLMGradient& r);
   CovLMGradient(const ACovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);

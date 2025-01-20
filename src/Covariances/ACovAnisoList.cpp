@@ -21,9 +21,11 @@
 #include "Space/SpacePoint.hpp"
 
 #include <math.h>
+#include <memory>
 #include <vector>
 
-ACovAnisoList::ACovAnisoList(const ASpace* space)
+
+ACovAnisoList::ACovAnisoList(const std::shared_ptr<const ASpace> &space)
 : ACov(space),
   _covs(),
   _filtered()
@@ -197,7 +199,7 @@ MatrixRectangular ACovAnisoList::evalCovMatrixOptim(const Db *db1,
                                                     const CovCalcMode *mode) const
 {
   MatrixRectangular mat;
-  SpacePoint p2;
+  SpacePoint p2(getSpaceSh());
   if (db2 == nullptr) db2 = db1;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;

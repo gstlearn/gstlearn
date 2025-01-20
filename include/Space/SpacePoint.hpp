@@ -19,10 +19,12 @@
 class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 {
 public:
-  SpacePoint(const ASpace* space = nullptr);
+  SpacePoint(const std::shared_ptr<const ASpace>& space = nullptr);
+
   SpacePoint(const SpacePoint& r);
+
   SpacePoint(const VectorDouble& coord, int iech = -1,
-             const ASpace* space = nullptr);
+             std::shared_ptr<const ASpace> space = nullptr);
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 

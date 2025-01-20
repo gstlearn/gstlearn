@@ -320,7 +320,7 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
 
   if (variety_sphere)
   {
-    const ASpace* space = getDefaultSpace();
+    const ASpace* space = getDefaultSpaceSh().get();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) r = spaceSn->getRadius();
   }
@@ -338,7 +338,7 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
   bool variety_sphere = isDefaultSpaceSphere();
   if (variety_sphere)
   {
-    const ASpace* space = getDefaultSpace();
+    const ASpace* space = getDefaultSpaceSh().get();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) r = spaceSn->getRadius();
   }

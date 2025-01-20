@@ -24,7 +24,7 @@ class GSTLEARN_EXPORT SpaceComposite : public ASpace
 {
 public:
   SpaceComposite();
-  SpaceComposite(const std::vector<const ASpace*>& vectspace);
+  SpaceComposite(const std::vector<std::shared_ptr<const ASpace>>& vectspace);
   SpaceComposite(const SpaceComposite& r);
   SpaceComposite& operator=(const SpaceComposite& r);
   virtual ~SpaceComposite();
@@ -36,7 +36,7 @@ public:
   ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 
   /// Update the origin of the space
-  void setOrigin(const VectorDouble& origin) override;
+  void setOrigin(const VectorDouble& origin) const override;
 
   /// Get the number of dimensions
   unsigned int getNDim(int ispace = -1) const override;
@@ -51,7 +51,7 @@ public:
   unsigned int getNComponents() const override;
 
   /// Return the space component at index ispace
-  const ASpace* getComponent(int ispace = -1) const override;
+  std::shared_ptr<const ASpace> getComponent(int ispace = -1) const override;
 
   /// Dump a space in a string (given the space index)
   String toString(const AStringFormat* strfmt, int ispace) const override;
@@ -67,8 +67,7 @@ public:
   /////////////////////////////////////////////
   
   /// Add a space component to me (for exemple RN(1) for time dimension)
-  /// Note: The given argument is cloned
-  void addSpaceComponent(const ASpace* comp);
+  void addSpaceComponent(std::shared_ptr<const ASpace> comp);
 
 protected:
 
@@ -105,11 +104,8 @@ protected:
                             VectorDouble& ptemp,
                             int ispace = -1) const override;
 
-private:
-  /// Destroy components and empty vector
-  void _destroyComponents();
 
 private:
   /// Space composits list
-  std::vector<ASpace *> _comps;
+  std::vector<std::shared_ptr<const ASpace>> _comps;
 };

@@ -129,7 +129,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _results()
   , _dbinUidToBeDeleted()
   , _dboutUidToBeDeleted()
-  , _space(2)
+  , _space(SpaceRN::create(2))
   , // empty constructor does not exist. Anyhow it will be overwritten next.
   _p0()
   , _p1()
@@ -331,11 +331,11 @@ void KrigingSystem::_resetMemoryGeneral()
   // Only the diagonal terms are used, but the matrix must be square.
   _results.reset(_nvarCL,_nvarCL);
 
-  _space = SpaceRN(_ndim);
-  _p0 = SpacePoint(&_space);
-  _p1 = SpacePoint(&_space);
-  _p2 = SpacePoint(&_space);
-  _p0_memo = SpacePoint(&_space);
+  _space = SpaceRN::create(_ndim);
+  _p0 = SpacePoint(_space);
+  _p1 = SpacePoint(_space);
+  _p2 = SpacePoint(_space);
+  _p0_memo = SpacePoint(_space);
 }
 
 /****************************************************************************/

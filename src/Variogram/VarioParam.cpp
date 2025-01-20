@@ -138,7 +138,7 @@ VarioParam* VarioParam::createOmniDirection(int npas,
                                             const VectorDouble& breaks,
                                             double scale,
                                             const VectorDouble& dates,
-                                            const ASpace* space)
+                                            const std::shared_ptr<const ASpace>& space)
 {
   DirParam* dir = DirParam::createOmniDirection(npas, dpas, toldis,
                                                 opt_code, idate, bench, cylrad,
@@ -156,7 +156,7 @@ VarioParam* VarioParam::createMultiple(int ndir,
                                        double angref,
                                        double scale,
                                        const VectorDouble &dates,
-                                       const ASpace* space)
+                                       const std::shared_ptr<const ASpace>& space)
 {
   std::vector<DirParam> dirs = DirParam::createMultiple(ndir, npas, dpas,
                                                         toldis, angref, space);
@@ -184,7 +184,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
                                                int npas,
                                                double scale,
                                                const VectorDouble& dates,
-                                               const ASpace* space,
+                                               const std::shared_ptr<const ASpace>& space,
                                                int ndimax)
 {
   VarioParam* varioparam = new VarioParam(scale, dates);
@@ -221,7 +221,7 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
                                                  double tolang,
                                                  double scale,
                                                  const VectorDouble &dates,
-                                                 const ASpace *space)
+                                                 const std::shared_ptr<const ASpace>& space)
 {
   int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();
@@ -248,7 +248,7 @@ VarioParam* VarioParam::createSeveral2D(const VectorDouble &angles,
                                         double tolang,
                                         double scale,
                                         const VectorDouble& dates,
-                                        const ASpace *space)
+                                        const std::shared_ptr<const ASpace> &space)
 {
   std::vector<DirParam> dirs = DirParam::createSeveral2D(angles, npas, dpas,
                                                          toldis, tolang, space);

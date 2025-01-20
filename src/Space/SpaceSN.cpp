@@ -42,6 +42,11 @@ SpaceSN::~SpaceSN()
 {
 }
 
+std::shared_ptr<const ASpace> SpaceSN::create(int ndim, double radius)
+{
+  return std::make_shared<const SpaceSN>(ndim, radius);
+}
+
 String SpaceSN::toString(const AStringFormat* strfmt, int idx) const
 {
   std::stringstream sstr;

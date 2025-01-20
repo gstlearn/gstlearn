@@ -718,6 +718,7 @@ void PCA::_variogramh(Db *db,
                       bool verbose)
 {
   double dist;
+  
   SpaceTarget T1;
   SpaceTarget T2;
   Vario* vario = nullptr;
