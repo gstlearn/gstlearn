@@ -37,14 +37,15 @@ int main(int argc, char* argv[])
   // Global parameters
   int ndim = 2;
   law_set_random_seed(32131);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1;
-  bool debug      = true;
+  double oldstyle = 0;
+  bool debug      = false;
   bool flagSK     = false;
-  bool flagUnique = false;
-  int nech        = 4;
-  int nvar        = (oldstyle != 0. && flagUnique) ? 1 : 2;
+  bool flagUnique = true;
+  int nech        = 3;
+  int nvar        = (flagUnique) ? 1 : 2;
   OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
@@ -55,8 +56,7 @@ int main(int argc, char* argv[])
 
   // Create the Model
   double scale = 0.7;
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+  MatrixSquareSymmetric* sills = MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
   Model* model =
     Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
                            *sills, VectorDouble(), nullptr, false);
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
   // Unique Neighborhood
   ANeigh* neigh;
-  int nmaxi     = 4;
+  int nmaxi     = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();
@@ -84,7 +84,8 @@ int main(int argc, char* argv[])
   xvalid(data, model, neigh);
 
   // Produce some statistics for comparison
-  dbfmt = DbStringFormat::create(FLAG_STATS, {"Xvalid.*"});
+  // dbfmt = DbStringFormat::create(FLAG_STATS, {"Xvalid.*"});
+  dbfmt = DbStringFormat::create(FLAG_ARRAY, {"Xvalid.*"});
   data->display(dbfmt);
 
   // Free pointers

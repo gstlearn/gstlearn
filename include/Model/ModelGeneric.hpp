@@ -57,6 +57,10 @@ public:
                                     int ivar0             = -1,
                                     const VectorInt& nbgh = VectorInt(),
                                     const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  MatrixRectangular evalDriftTargetMatrix(const Db* db,
+                                          int ivar0             = -1,
+                                          int iech2 = 0,
+                                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   MatrixRectangular evalCovMatrix(Db* db1,
                                   Db* db2                 = nullptr,
                                   int ivar0               = -1,
@@ -72,19 +76,26 @@ public:
                                        const VectorInt& nbgh2  = VectorInt(),
                                        const CovCalcMode* mode = nullptr,
                                        bool cleanOptim         = true);
-  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
-                                               int ivar0 = -1,
-                                               const VectorInt &nbgh1 = VectorInt(),
-                                               const CovCalcMode *mode = nullptr);
-  MatrixSquareSymmetric
-  evalCovMatrixSymmetricOptim(const Db* db1,
+  MatrixRectangular
+  evalCovMatrixTargetOptim(const Db* db1,
+                           const Db* db2,
+                           const VectorVectorInt& sampleRanks1,
+                           int ivar0               = -1,
+                           int jvar0               = -1,
+                           const int iech2         = 0,
+                           const CovCalcMode* mode = nullptr,
+                           bool cleanOptim         = true) const;
+  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db* db1,
+                         int ivar0               = -1,
+                         const VectorInt& nbgh1  = VectorInt(),
+                         const CovCalcMode* mode = nullptr,
+                         bool cleanOptim         = true) const;
+  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db* db1,
                               int ivar0               = -1,
                               const VectorInt& nbgh1  = VectorInt(),
                               const CovCalcMode* mode = nullptr,
                               bool cleanOptim         = true);
-  
   MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
-
   MatrixSparse* evalCovMatrixSparse(Db* db1,
                                     Db* db2                 = nullptr,
                                     int ivar0               = -1,

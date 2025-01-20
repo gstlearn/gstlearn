@@ -384,8 +384,6 @@ void CovBase::informDbOutForSills(const Db* dbout) const
   _tabNoStat.informDbOut(dbout,EConsElem::SILL);
 }
 
-
-
 /**
  * Update the Model according to the Non-stationary parameters
  * @param icas1 Type of first Db: 1 for Input; 2 for Output

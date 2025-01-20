@@ -94,7 +94,6 @@ public:
   virtual String getFormula() const { return _corAniso->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,
                         const VectorVectorInt& index,
@@ -135,8 +134,6 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
 
-
- 
   void setParam(double param);
 
   /// Practical range
@@ -279,7 +276,6 @@ public:
   double _getDetTensor() const;
   void _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   void _optimizationSetTarget(const SpacePoint& pt) const override;
-
 
 private:
 

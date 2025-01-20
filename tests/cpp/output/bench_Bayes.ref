@@ -4,9 +4,53 @@ Data Base Characteristics
 
 Data Base Contents
 ------------------
-                 rank       x-1       x-2       z-1       z-2       z-3
-     [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
-     [  1,]     2.000     0.483     0.557       N/A    -0.872     0.080
-     [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
-Size of argument 'prior_mean'(2)
-should be equal to the Number of Drift Equations(3)
+                 rank       x-1       x-2         z
+     [  0,]     1.000     0.652     0.015     0.753
+     [  1,]     2.000     0.483     0.557       N/A
+     [  2,]     3.000     0.762     0.433     0.793
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+2 - Name x-1 - Locator x1
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.652
+ Maximum value       =      0.652
+ Mean value          =      0.652
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+3 - Name x-2 - Locator x2
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.483
+ Maximum value       =      0.483
+ Mean value          =      0.483
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+4 - Name Bayes.z.estim - Locator z1
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.957
+ Maximum value       =      0.957
+ Mean value          =      0.957
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Bayes.z.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.805
+ Maximum value       =      0.805
+ Mean value          =      0.805
+ Standard Deviation  =      0.000
+ Variance            =      0.000

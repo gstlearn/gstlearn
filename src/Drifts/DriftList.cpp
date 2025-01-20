@@ -485,10 +485,9 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
   int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return drfmat;
-  bool useVerr = (member == ECalcMember::LHS);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index = db->getMultipleRanksActive(ivars, nbgh, true, useVerr);
+  VectorVectorInt index = db->getMultipleRanksActive(ivars, nbgh, true, true, true);
 
   // Creating the matrix
   int neq = VH::count(index);
@@ -531,6 +530,89 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
           {
             int jb = jl + jvar * nbfl;
             drfmat.setValue(irow, icol, evalDriftValue(db, iech, ivar1, jb, member));
+            icol++;
+          }
+      }
+      irow++;
+    }
+  }
+  return drfmat;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the drift rectangular matrix for a given Db
+ **
+ ** \return Returned matrix (Dimension/ nrows = nvar * nech; ncols = nfeq *
+ *nvar)
+ **
+ ** \param[in]  db     Db structure
+ ** \param[in]  ivar0  Rank of the variable (-1 for all variables)
+ ** \param[in]  iech2  Index of active samples in db
+ ** \param[in]  member Member of the Kriging System (ECalcMember)
+ **
+ *****************************************************************************/
+MatrixRectangular DriftList::evalDriftTargetMatrix(const Db* db,
+                                             int ivar0,
+                                             int iech2,
+                                             const ECalcMember& member)
+{
+  MatrixRectangular drfmat;
+  int nvar        = getNVariables();
+  int nbfl        = getDriftNumber();
+  int nfeq        = getDriftEquationNumber();
+  int ncols       = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return drfmat;
+
+  // Create the sets of Vector of valid sample indices per variable
+  // (not masked and defined)
+  VectorVectorInt index =
+    db->getMultipleRanksActive(ivars, {iech2}, true, false, false);
+
+  // Creating the matrix
+  int neq = VH::count(index);
+  if (neq <= 0)
+  {
+    messerr("The returned matrix does not have any valid sample for any valid "
+            "variable");
+    return drfmat;
+  }
+  drfmat.resize(neq, ncols);
+
+  /* Loop on the variables */
+
+  int irow = 0;
+  for (int ivar = 0, nvars = (int)ivars.size(); ivar < nvars; ivar++)
+  {
+    int ivar1 = ivars[ivar];
+
+    /* Loop on the samples */
+
+    int nechs = (int)index[ivar].size();
+    for (int jech = 0; jech < nechs; jech++)
+    {
+      int iech = index[ivar][jech];
+
+      /* Loop on the drift functions */
+
+      if (isFlagLinked())
+      {
+        VectorDouble drftab = evalDriftBySample(db, iech, member);
+        for (int ib = 0; ib < nfeq; ib++)
+        {
+          drfmat.setValue(irow, ib, drftab[ib]); // TODO: to be generalized
+        }
+      }
+      else
+      {
+        int icol = 0;
+        for (int jvar = 0; jvar < nvar; jvar++)
+          for (int jl = 0; jl < nbfl; jl++)
+          {
+            int jb = jl + jvar * nbfl;
+            drfmat.setValue(irow, icol,
+                            evalDriftValue(db, iech, ivar1, jb, member));
             icol++;
           }
       }

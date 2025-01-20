@@ -86,7 +86,6 @@ static void _firstTest(Db* data,
     return;
   }
   
-  
   // Local parameters
   bool debugPrint = false;
   bool debugSchur = false;
@@ -119,11 +118,11 @@ static void _firstTest(Db* data,
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), means);
   KrigingCalcul Kcalc;
   Kcalc.setData(&Z, &means);
   Kcalc.setLHS(&Sigma, &X);
-  Kcalc.setVar(&Sigma00);
+  Kcalc.setVariance(&Sigma00);
   Kcalc.setRHS(&Sigma0, &X0);
   Kcalc.setBayes(&PriorMean, &PriorCov);
 
@@ -182,13 +181,13 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   MatrixRectangular XP           = model->evalDriftMatrix(dataP);
   MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, target);
   MatrixRectangular X0P          = model->evalDriftMatrix(target);
-  VectorDouble ZP = dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  VectorDouble ZP = dataP->getMultipleValuesActive(VectorInt(), means);
 
   KrigingCalcul KcalcP;
   KcalcP.setData(&ZP, &means);
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
-  KcalcP.setVar(&Sigma00P);
+  KcalcP.setVariance(&Sigma00P);
 
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
@@ -204,13 +203,13 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), means);
 
   KrigingCalcul Kcalc;
   Kcalc.setData(&Z, &means);
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setRHS(&Sigma0, &X0);
-  Kcalc.setVar(&Sigma00);
+  Kcalc.setVariance(&Sigma00);
   // Subtract the mean (non zero for SK only) from the Collocated values
   VH::subtractInPlace(valuesTarget, means);
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
@@ -260,13 +259,13 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   MatrixRectangular Sigma0P      = model->evalCovMatrixOptim(dataP, targetP, -1, -1, VectorInt(), {iech0});
   MatrixRectangular X0P          = model->evalDriftMatrix(targetP, -1, {iech0});
   VectorDouble ZP =
-    dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+    dataP->getMultipleValuesActive(VectorInt(), means);
 
   KrigingCalcul KcalcP;
   KcalcP.setData(&ZP, &means);
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
-  KcalcP.setVar(&Sigma00P);
+  KcalcP.setVariance(&Sigma00P);
 
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
@@ -283,12 +282,12 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, targetP);
   MatrixRectangular X0          = model->evalDriftMatrix(targetP);
   VectorDouble Z =
-    data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+    data->getMultipleValuesActive(VectorInt(), means);
 
   KrigingCalcul Kcalc;
   Kcalc.setData(&Z, &means);
   Kcalc.setLHS(&Sigma, &X);
-  Kcalc.setVar(&Sigma00);
+  Kcalc.setVariance(&Sigma00);
   Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
@@ -320,13 +319,13 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   MatrixRectangular X           = model->evalDriftMatrix(data);
   MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
   MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), means);
 
   KrigingCalcul Kcalc1(false);
   Kcalc1.setData(&Z, &means);
   Kcalc1.setLHS(&Sigma, &X);
   Kcalc1.setRHS(&Sigma0, &X0);
-  Kcalc1.setVar(&Sigma00);
+  Kcalc1.setVariance(&Sigma00);
 
   VH::display("Kriging Value(s)", Kcalc1.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc1.getStdv());

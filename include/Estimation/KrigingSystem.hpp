@@ -154,6 +154,7 @@ private:
   void _rhsCalculDGM();
   void _rhsStore(int iech);
   void _rhsIsoToHetero();
+  void _dumpOptions() const;
   void _rhsDump();
   void _wgtCalcul();
   void _wgtDump(int status);
@@ -193,11 +194,12 @@ private:
 
   void _mustBeOldStyle(const String& title) const;
   Model* _castInOldModel();
+  VectorInt _xvalidUniqueIndices() const;
 
 private:
   bool _oldStyle;
 
-  Db*                  _dbin;
+  Db* _dbin;
   Db*                  _dbout;
   ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
   const Model*         _modelCovAniso; // Used to replace _model when used for covaniso explicitly
@@ -210,6 +212,7 @@ private:
 
   // Pointers used when plugging KrigingCalcul (not to be deleted)
   KrigingCalcul         _algebra;
+  VectorVectorInt       _sampleIndices; // Vector of vector of sample indices
   MatrixSquareSymmetric _Sigma00; // Covariance part for variance
   MatrixSquareSymmetric _Sigma;   // Covariance part for LHS
   MatrixRectangular     _X;       // Drift part for LHS

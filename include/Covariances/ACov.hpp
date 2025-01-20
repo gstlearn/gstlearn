@@ -132,7 +132,8 @@ class GSTLEARN_EXPORT ACov : public ASpaceObject
 
   void optimizationPostProcess() const;
   virtual bool isOptimEnabled() const {return _isOptimEnabled();}
-  virtual MatrixRectangular evalCovMatrixOptim(const Db* db1,
+  virtual MatrixRectangular
+  evalCovMatrixOptim(const Db* db1,
                      const Db* db2,
                      int ivar0               = -1,
                      int jvar0               = -1,
@@ -140,6 +141,15 @@ class GSTLEARN_EXPORT ACov : public ASpaceObject
                      const VectorInt& nbgh2  = VectorInt(),
                      const CovCalcMode* mode = nullptr,
                      bool cleanOptim         = true) const;
+  virtual MatrixRectangular
+  evalCovMatrixTargetOptim(const Db* db1,
+                           const Db* db2,
+                           const VectorVectorInt& sampleRanks1,
+                           int ivar0               = -1,
+                           int jvar0               = -1,
+                           int iech2               = -1,
+                           const CovCalcMode* mode = nullptr,
+                           bool cleanOptim         = true) const;
   virtual MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db* db1,
                               int ivar0               = -1,
                               const VectorInt& nbgh1  = VectorInt(),
@@ -155,28 +165,27 @@ class GSTLEARN_EXPORT ACov : public ASpaceObject
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
-
-  MatrixRectangular evalCovMatrix(const Db* db1_arg,
-                                  const Db* db2_arg       = nullptr,
-                                  int ivar0               = -1,
-                                  int jvar0               = -1,
-                                  const VectorInt& nbgh1  = VectorInt(),
-                                  const VectorInt& nbgh2  = VectorInt(),
+  MatrixRectangular evalCovMatrix(const Db* db1,
+                                  const Db* db2 = nullptr,
+                                  int ivar0 = -1,
+                                  int jvar0 = -1,
+                                  const VectorInt& nbgh1 = VectorInt(),
+                                  const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr,
                                   bool cleanOptim         = true) const;
   MatrixRectangular evalCovMatrixTarget(const Db* db1,
-                      const Db* db2           = nullptr,
-                      int ivar0               = -1,
-                      int jvar0               = -1,
-                      const VectorInt& nbgh1  = VectorInt(),
-                      const int iech2         = 0,
-                      const CovCalcMode* mode = nullptr) const;
+                                        const Db* db2,
+                                        const VectorVectorInt& sampleRanks1,
+                                        int ivar0               = -1,
+                                        int jvar0               = -1,
+                                        const int iech2         = 0,
+                                        const CovCalcMode* mode = nullptr,
+                                        bool cleanOptim         = true) const;
   MatrixSquareSymmetric evalCovMatrixSymmetric(const Db* db1,
                          int ivar0               = -1,
                          const VectorInt& nbgh1  = VectorInt(),
                          const CovCalcMode* mode = nullptr,
                          bool cleanOptim         = true) const;
-
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
                       int ivar = 0,

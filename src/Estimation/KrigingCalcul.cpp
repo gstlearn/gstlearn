@@ -18,6 +18,7 @@
 #include "Basic/AStringable.hpp"
 
 KrigingCalcul::KrigingCalcul(bool flagDual,
+                             const VectorVectorInt* sampleIndices,
                              const VectorDouble* Z,
                              const MatrixSquareSymmetric* Sigma,
                              const MatrixRectangular* X,
@@ -36,6 +37,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _rankColCok(nullptr)
   , _rankXvalidEqs(nullptr)
   , _rankXvalidVars(nullptr)
+  , _sampleIndices(nullptr)
   , _Zstar()
   , _Beta()
   , _LambdaSK(nullptr)
@@ -72,9 +74,10 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _flagBayes(false)
   , _flagDual(flagDual)
 {
+  (void)setSampleIndices(sampleIndices);
   (void)setData(Z, Means);
   (void)setLHS(Sigma, X);
-  (void)setVar(Sigma00);
+  (void)setVariance(Sigma00);
 }
 
 KrigingCalcul::~KrigingCalcul()
@@ -93,6 +96,15 @@ void KrigingCalcul::_resetAll()
   _resetLinkedToXvalid();
 }
 
+void KrigingCalcul::setDual(bool status)
+{
+  _resetAll();
+  _flagDual = status;
+}
+void KrigingCalcul::_resetLinkedToIndices()
+{
+  _deleteIndices();
+}
 void KrigingCalcul::_resetLinkedToZ()
 {
   _deleteZ();
@@ -337,6 +349,10 @@ void KrigingCalcul::_deletePriorMean()
   _deleteBeta();
   // Cannot delete _PriorMean due to constness
 }
+void KrigingCalcul::_deleteIndices()
+{
+  _deleteZ();
+}
 void KrigingCalcul::_deleteZ()
 {
   _deleteZstar();
@@ -381,6 +397,14 @@ void KrigingCalcul::_deleteDual()
 void KrigingCalcul::resetNewData()
 {
   _neq = 0;
+}
+
+int KrigingCalcul::setSampleIndices(const VectorVectorInt* indices)
+{
+  _resetLinkedToIndices();
+
+  _sampleIndices = indices;
+  return 0;
 }
 
 /**
@@ -452,7 +476,7 @@ int KrigingCalcul::setLHS(const MatrixSquareSymmetric* Sigma,
   return 0;
 }
 
-int KrigingCalcul::setVar(const MatrixSquareSymmetric* Sigma00)
+int KrigingCalcul::setVariance(const MatrixSquareSymmetric* Sigma00)
 {
   if (Sigma00 != nullptr)
   {
@@ -463,7 +487,7 @@ int KrigingCalcul::setVar(const MatrixSquareSymmetric* Sigma00)
 }
 
 int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
-                             const MatrixRectangular* X0)
+                          const MatrixRectangular* X0)
 {
   _resetLinkedToRHS();
 
@@ -791,10 +815,10 @@ int KrigingCalcul::_needZstar()
   if (_flagSK || _flagBayes)
   {
     if (_needLambdaSK()) return 1;
-    _Zstar = _LambdaSK->prodMatVec(*_Z, true);
+    _Zstar = _LambdaSK->prodVecMat(*_Z, false);
 
     // Adding Mean per Variable
-    if (_flagSK && _Means->empty())
+    if (_flagSK && !_Means->empty())
     {
       VectorDouble localMeans = *_Means;
       if (_nxvalid > 0) localMeans = VH::sample(*_Means, *_rankXvalidVars);
@@ -812,7 +836,7 @@ int KrigingCalcul::_needZstar()
   else
   {
     if (_needLambdaUK()) return 1;
-    _Zstar = _LambdaUK->prodMatVec(*_Z, true);
+    _Zstar = _LambdaUK->prodVecMat(*_Z, false);
   }
 
   // Collocated case
@@ -1201,7 +1225,7 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
 
   setRHS(_C_RHS, _X_RHS);
 
-  setVar(S00->clone());
+  setVariance(S00->clone());
   delete alpha;
 
   return 0;
@@ -1210,6 +1234,12 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
 int KrigingCalcul::_needPriorCov()
 {
   if (!_isPresentMatrix("PriorCov", _PriorCov)) return 1;
+  return 0;
+}
+
+int KrigingCalcul::_needSampleIndices()
+{
+  if (!_isPresentIIVector("SampleIndices", _sampleIndices)) return 1;
   return 0;
 }
 
@@ -1405,6 +1435,14 @@ bool KrigingCalcul::_isPresentIVector(const String& name,
   return false;
 }
 
+bool KrigingCalcul::_isPresentIIVector(const String& name, const VectorVectorInt* vec)
+{
+  if (vec != nullptr) return true;
+  messerr(">>> VectorVector %s is missing (required)", name.c_str());
+  messerr("    (generated in KrigingCalcul::_isIIPresentVector)");
+  return false;
+}
+
 int KrigingCalcul::_needLambda0()
 {
   if (_Lambda0 != nullptr) return 0;
@@ -1470,8 +1508,19 @@ int KrigingCalcul::_needLambda0()
 
 void KrigingCalcul::dumpLHS(int nbypas) const
 {
-  int size = _neq + _nbfl;
+  int size = _neq;
+  if (! _flagSK && ! _flagBayes) size += _nbfl;
   int npass = (size - 1) / nbypas + 1;
+
+  /* General Header */
+
+  mestitle(0, "LHS of Kriging matrix");
+  if (_Sigma != nullptr)
+    message("Dimension of the Covariance Matrix  = %d\n", _Sigma->getNRows());
+  if (_X != nullptr && ! _flagSK && ! _flagBayes)
+    message("Dimension of the Drift Matrix       = %d\n", _nbfl);
+
+  // LHS matrices
   for (int ipass = 0; ipass < npass; ipass++)
   {
     int ideb = ipass * nbypas;
@@ -1515,7 +1564,8 @@ void KrigingCalcul::dumpLHS(int nbypas) const
 
 void KrigingCalcul::dumpRHS() const
 {
-  int size = _neq + _nbfl;
+  int size = _neq;
+  if (!_flagSK && !_flagBayes) size += _nbfl;
 
   // Header line 
   tab_prints(NULL, "Rank");
@@ -1543,18 +1593,23 @@ void KrigingCalcul::dumpRHS() const
 // This method cannot be const as it may compute _lambda internally upon request
 void KrigingCalcul::dumpWGT()
 {
-  if (_flagSK)
+  const MatrixRectangular* lambda;
+  if (_flagSK || _flagBayes)
   {
     if (_needLambdaSK()) return;
+    lambda = _LambdaSK;
   }
   else
   {
     if (_needLambdaUK()) return;
+    lambda = _LambdaUK;
   }
+  if (_needSampleIndices()) return;
   char string[20];
 
   /* Header Line */
 
+  int nvar = _sampleIndices->size();
   tab_prints(NULL, "Rank");
   tab_prints(NULL, "Data");
   for (int irhs = 0; irhs < _nrhs; irhs++)
@@ -1564,36 +1619,72 @@ void KrigingCalcul::dumpWGT()
   }
   message("\n");
 
-  // Matrix lines 
-  VectorDouble sum(_nrhs, 0.);
-  for (int i = 0; i < _neq; i++)
+  // Matrix lines
+  VectorDouble sum(_nrhs);
+  int lec = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    tab_printi(NULL, i + 1);
-    tab_printg(NULL, (*_Z)[i]);
-    for (int irhs = 0; irhs < _nrhs; irhs++)
+    if (nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
+    int nbyvar = (*_sampleIndices)[ivar].size();
+    sum.fill(0.);
+
+    for (int j = 0; j < nbyvar; j++)
     {
-      double value;
-      if (_flagSK)
-        value = _LambdaSK->getValue(i, irhs, false);
-      else
-        value = _LambdaUK->getValue(i, irhs, false);
+      tab_printi(NULL, lec + 1);
+      double value = (*_Z)[lec];
+      // Correct printout by the mean locally in case of SK
+      if (_flagSK && !_Means->empty()) value += (*_Means)[ivar]; 
       tab_printg(NULL, value);
-      sum[irhs] += value;
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+      {
+        double value = lambda->getValue(lec, irhs, false);
+        tab_printg(NULL, value);
+        sum[irhs] += value;
+      }
+      message("\n");
+      lec++;
     }
+
+    // Display sum of weights
+    tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
+    for (int irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
     message("\n");
   }
-
-  // Display sum of weights
-  tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
-  for (int irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
-  message("\n");
 }
 
 void KrigingCalcul::dumpAux()
 {
-  if (_nbfl <= 0) return;
-  if (_needMuUK()) return;
+  if (_needSampleIndices()) return;
   char string[20];
+  int nvar = _sampleIndices->size();
+
+  // For Simple Kriging, dump the information on Means
+  if (_nbfl <= 0)
+  {
+    if (!_Means->empty())
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        message("Mean for Variable Z%d = %lf\n", ivar + 1, (*_Means)[ivar]);
+    }
+    return;
+  }
+
+  // In Bayesian case, dump the Prior and Posterior information
+  if (_flagBayes)
+  {
+    VH::display("Prior Mean", *_PriorMean);
+    VectorDouble postmean = getPostMean();
+    VH::display("Posterior Mean", postmean);
+    message("Prior Covariance Matrix\n");
+    _PriorCov->display();
+    message("Posterior Covariance Matrix\n");
+    const MatrixSquareSymmetric* postcov = getPostCov();
+    postcov->display();
+    return;
+  }
+
+  if (_needMuUK()) return;
+  if (_needBeta()) return;
 
   // Header Line
   tab_prints(NULL, "Rank");
@@ -1605,14 +1696,12 @@ void KrigingCalcul::dumpAux()
   tab_prints(NULL, "Coeff");
   message("\n");
 
-
   for (int ibfl = 0; ibfl < _nbfl; ibfl++)
   {
     tab_printi(NULL, ibfl + 1);
     for (int irhs = 0; irhs < _nrhs; irhs++)
       tab_printg(NULL, _MuUK->getValue(ibfl, irhs, false));
-    // tab_printg(NULL, _zam.getValue(ibfl, 0, false));
-    tab_printg(NULL, 0.);
+    tab_printg(NULL, _Beta[ibfl]);
     message("\n");
   }
 }

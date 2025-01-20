@@ -13,7 +13,6 @@
 // - in Multivariate (heterotopic) case
 // - in Unique or Moving neighborhood
 
-#include "Basic/AStringFormat.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
@@ -39,14 +38,13 @@ int main(int argc, char* argv[])
   // Global parameters
   int ndim = 2;
   law_set_random_seed(32131);
-  AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1.;
-  bool debug      = true;
+  double oldstyle = 0.;
+  bool verbose    = false;
   int nech        = 3;
-  int nvar        = 3;
+  int nvar        = 1;
   OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
@@ -76,7 +74,7 @@ int main(int argc, char* argv[])
   PriorCov.setDiagonal(VH::simulateUniform(nvar, 0.1, 0.5));
 
   // Define the verbose option
-  if (debug) OptDbg::setReference(1);
+  if (verbose) OptDbg::setReference(1);
 
   // Test on Bayesian
   kribayes(data, target, model, neigh, PriorMean, PriorCov);

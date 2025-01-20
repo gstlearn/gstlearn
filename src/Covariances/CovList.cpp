@@ -13,14 +13,12 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/Utilities.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 
-#include "Basic/VectorHelper.hpp"
 #include <math.h>
 #include <vector>
 

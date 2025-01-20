@@ -15,18 +15,21 @@ AlignOperands: AlignAfterOperator
 #  AcrossEmptyLines: false
 #  AcrossComments: true
 #  AlignCaseColons: false
+AlwaysBreakAfterReturnType: None
 BinPackArguments: true
 BinPackParameters: false
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeComma
 ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
+ColumnLimit: 120 # Give the maxsize of a line before breaking list of arguments
 EmptyLineBeforeAccessModifier: Always
 IndentCaseLabels: true
 IndentWidth: 2
 IndentPPDirectives: AfterHash
 NamespaceIndentation: All
 PackConstructorInitializers: Never
+PenaltyReturnTypeOnItsOwnLine: 10
 PPIndentWidth: 2
 PointerAlignment: Left
 ReferenceAlignment: Left

@@ -43,12 +43,12 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1.;
-  bool debug      = true;
+  double oldstyle = 0.;
+  bool verbose    = false;
   int nech        = 3;
   int nvar        = 2;
   bool flagSK     = false;
-  bool flagUnique = true;
+  bool flagUnique = false;
   OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
   // Neighborhood
   ANeigh* neigh;
-  int nmaxi     = 4;
+  int nmaxi     = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     neigh = NeighMoving::create(false, nmaxi, radius);
 
   // Define the verbose option
-  if (debug) OptDbg::setReference(1);
+  if (verbose) OptDbg::setReference(1);
 
   // Test on Collocated CoKriging in Unique Neighborhood
   kriging(data, target, model, neigh);

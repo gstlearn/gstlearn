@@ -61,6 +61,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _isReady(false)
   , _model(nullptr)
   , _algebra()
+  , _sampleIndices()
   , _Sigma00()
   , _Sigma()
   , _X()
@@ -188,11 +189,13 @@ KrigingSystem::KrigingSystem(Db* dbin,
     _means = _model->getMeans();
     if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
     {
-      _Z = _dbin->getMultipleValuesActive(VectorInt(), VectorInt(), _means);
+      _sampleIndices = _dbin->getMultipleRanksActive();
+      _Z = _dbin->getMultipleValuesActive(VectorInt(), _means);
       _algebra.setData(&_Z, &_means);
+      _algebra.setSampleIndices(&_sampleIndices);
     }
     _Sigma00 = _model->eval0Mat();
-    _algebra.setVar(&_Sigma00);
+    _algebra.setVariance(&_Sigma00);
   }
 
   _resetMemoryGeneral();
@@ -562,7 +565,7 @@ void KrigingSystem::_flagDefine()
 
   for (int ib = 0; ib < _nfeq; ib++)
   {
-    if (! _modelCovAniso->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
+    if (!_modelCovAniso->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
       _setFlag(_nech + ib, _nvar - 1, 0);
   }
 
@@ -788,19 +791,17 @@ VectorInt KrigingSystem::_getRelativePosition()
 
 void KrigingSystem::_lhsDump(int nbypas)
 {
-  int npass = (_nred - 1) / nbypas + 1;
-
-  /* General Header */
-
-  mestitle(0, "LHS of Kriging matrix (compressed)");
-  if (_nech > 0) message("Number of active samples    = %d\n", _nech);
-  message("Total number of equations   = %d\n", _neq);
-  message("Reduced number of equations = %d\n", _nred);
-
-  /* Loop on the passes */
   if (_oldStyle)
   {
+    /* General Header */
+
+    mestitle(0, "LHS of Kriging matrix (compressed)");
+    if (_nech > 0) message("Number of active samples    = %d\n", _nech);
+    message("Total number of equations   = %d\n", _neq);
+    message("Reduced number of equations = %d\n", _nred);
+
     VectorInt rel = _getRelativePosition();
+    int npass     = (_nred - 1) / nbypas + 1;
     for (int ipass = 0; ipass < npass; ipass++)
     {
       int ideb = ipass * nbypas;
@@ -1076,23 +1077,13 @@ void KrigingSystem::_rhsIsoToHetero()
   _rhs = &_rhsc;
 }
 
-void KrigingSystem::_rhsDump()
+void KrigingSystem::_dumpOptions() const
 {
-  /* General Header */
-
-  mestitle(0, "RHS of Kriging matrix (compressed)");
-  if (_nech > 0) message("Number of active samples    = %d\n", _nech);
-  message("Total number of equations   = %d\n", _neq);
-  message("Reduced number of equations = %d\n", _nred);
-  message("Number of right-hand sides  = %d\n", _nvarCL);
-
   /* Kriging option */
 
   switch (_calcul.toEnum())
   {
-    case EKrigOpt::E_POINT:
-      message("Punctual Estimation\n");
-      break;
+    case EKrigOpt::E_POINT: message("Punctual Estimation\n"); break;
 
     case EKrigOpt::E_BLOCK:
       message("Block Estimation : Discretization = ");
@@ -1104,18 +1095,27 @@ void KrigingSystem::_rhsDump()
       message("\n");
       break;
 
-    case EKrigOpt::E_DRIFT:
-      message("Drift Estimation\n");
-      break;
+    case EKrigOpt::E_DRIFT: message("Drift Estimation\n"); break;
 
-    case EKrigOpt::E_DGM:
-      message("Discrete Gaussian Model\n");
-      break;
+    case EKrigOpt::E_DGM: message("Discrete Gaussian Model\n"); break;
   }
   message("\n");
+}
+
+void KrigingSystem::_rhsDump()
+{
 
   if (_oldStyle)
   {
+    /* General Header */
+
+    mestitle(0, "RHS of Kriging matrix (compressed)");
+    if (_nech > 0) message("Number of active samples    = %d\n", _nech);
+    message("Total number of equations   = %d\n", _neq);
+    message("Reduced number of equations = %d\n", _nred);
+    message("Number of right-hand sides  = %d\n", _nvarCL);
+    _dumpOptions();
+
     VectorInt rel = _getRelativePosition();
 
     /* Header line */
@@ -1139,6 +1139,12 @@ void KrigingSystem::_rhsDump()
   }
   else
   {
+    mestitle(0, "RHS of Kriging matrix");
+    if (_nech > 0) message("Number of active samples    = %d\n", _nech);
+    message("Total number of equations   = %d\n", _neq);
+    message("Reduced number of equations = %d\n", _nred);
+    message("Number of right-hand sides  = %d\n", _nvarCL);
+    _dumpOptions();
     _algebra.dumpRHS();
   }
 }
@@ -1254,15 +1260,12 @@ void KrigingSystem::_wgtDump(int status)
     _algebra.dumpWGT();
   }
 
-  // Drift part
-  if (_nfeq <= 0) return;
-
   /* Auxiliary results for Drift */
-
-  mestitle(0, "Drift coefficients");
 
   if (_oldStyle)
   {
+    if (_nfeq <= 0) return;
+    mestitle(0, "Drift or Mean Information");
     tab_prints(NULL, "Rank");
     tab_prints(NULL, "Lagrange");
     tab_prints(NULL, "Coeff");
@@ -1283,6 +1286,7 @@ void KrigingSystem::_wgtDump(int status)
   }
   else
   {
+    mestitle(0, "Drift or Mean Information");
     _algebra.dumpAux();
   }
 }
@@ -1361,7 +1365,7 @@ void KrigingSystem::_estimateCalcul(int status)
 
   // Modification specific to Cross-validation options
 
-  if (_oldStyle && _neigh->getFlagXvalid())
+  if (_neigh->getFlagXvalid())
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
@@ -1639,7 +1643,7 @@ void KrigingSystem::_estimateStdv(int status)
   {
     VectorDouble local = _algebra.getStdv();
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
+      _dbout->setArray(_iechOut, _iptrStd + ivarCL, local[ivarCL]);
     return;
   }
 
@@ -1686,7 +1690,7 @@ void KrigingSystem::_estimateVarZ(int status)
   {
     VectorDouble local = _algebra.getVarianceZstar();
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
+      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, local[ivarCL]);
     return;
   }
 
@@ -1745,8 +1749,10 @@ int KrigingSystem::_prepar()
   else
   {
     _algebra.resetNewData();
-    _Z = _dbin->getMultipleValuesActive(VectorInt(), _nbgh, _means);
+    _sampleIndices = _dbin->getMultipleRanksActive(VectorInt(), _nbgh);
+    _Z = _dbin->getMultipleValuesActive(_nbgh, _means);
     _algebra.setData(&_Z, &_means);
+    _algebra.setSampleIndices(&_sampleIndices);
     _Sigma = _model->evalCovMatrixSymmetricOptim(_dbin, -1, _nbgh, nullptr, false);
     _X     = _model->evalDriftMatrix(_dbin, -1, _nbgh);
     _algebra.setLHS(&_Sigma, &_X);
@@ -1893,9 +1899,7 @@ int KrigingSystem::estimate(int iech_out)
   if (_neigh->getType() == ENeigh::IMAGE) skipCalculAll = true;
 
   // In case of Cross-validation in Unique Neighborhood, do not establish the RHS
-  bool caseXvalidUnique = false;
-  if (_neigh->getType() == ENeigh::UNIQUE &&
-      _neigh->getFlagXvalid()) caseXvalidUnique = true;
+  bool caseXvalidUnique = (_neigh->getType() == ENeigh::UNIQUE && _neigh->getFlagXvalid());
 
   // Store the Rank of the Target sample
   _iechOut = iech_out;
@@ -1911,11 +1915,11 @@ int KrigingSystem::estimate(int iech_out)
       message("\nProcessing Factor %d / %d\n",_model->getActiveFactor(), _nclasses);
 
     mestitle(1, "Target location");
-    db_sample_print(_dbout, _iechOut, 1, 1, 1, 1);
+    db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
   }
 
   // Elaborate the Neighborhood
-
+  // For XValid in Unique Neighborhood, turn the Xvalid option OFF during neighborhood search
   if (caseXvalidUnique) _neigh->setFlagXvalid(false);
   _neigh->select(_iechOut, _nbgh);
   status = _setInternalShortCutVariablesNeigh();
@@ -1943,21 +1947,29 @@ int KrigingSystem::estimate(int iech_out)
 
   /* Establish the Kriging R.H.S. */
 
-  if (caseXvalidUnique) goto label_store;
-
-  if (_oldStyle && _flagBayes) _setLocalModel(_modelSimple);
-  if (_oldStyle) _rhsCalcul();
+  if (_oldStyle)
+  {
+    if (caseXvalidUnique) goto label_store;
+    if (_flagBayes) _setLocalModel(_modelSimple);
+    _rhsCalcul();
+    _rhsIsoToHetero();
+    if (_flagBayes) _setLocalModel(_modelInit);
+  }
   else
   {
-    VectorInt nbghTarget = {iech_out};
-    _Sigma0 = _model->evalCovMatrixOptim(_dbin, _dbout, -1, -1, _nbgh, nbghTarget, nullptr, false);
-    _X0     = _model->evalDriftMatrix(_dbout, -1, nbghTarget);
-    _algebra.setRHS(&_Sigma0, &_X0);
+    if (caseXvalidUnique)
+    {
+      VectorInt xvalidEqs = _xvalidUniqueIndices();
+      VectorInt xvalidVars = VH::sequence(_getNVar());
+      _algebra.setXvalidUnique(&xvalidEqs, &xvalidVars);
+      }
+    else
+    {
+      _Sigma0 = _model->evalCovMatrixTargetOptim(_dbin, _dbout, _sampleIndices, -1, -1, iech_out, nullptr, false);
+      _X0     = _model->evalDriftTargetMatrix(_dbout, -1, iech_out);
+      _algebra.setRHS(&_Sigma0, &_X0);
+    };
   }
-  if (_oldStyle &&_flagBayes) _setLocalModel(_modelInit);
-
-  if (status != 0) goto label_store;
-  if (_oldStyle) _rhsIsoToHetero();
   if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
 
   /* Derive the kriging weights */
@@ -2000,12 +2012,16 @@ int KrigingSystem::estimate(int iech_out)
     // Unique Neighborhood case
 
     if (_neigh->getFlagXvalid())
-      _estimateCalculXvalidUnique(status);
-
+    {
+      if (_oldStyle)
+        _estimateCalculXvalidUnique(status);
+      else
+        _estimateCalcul(status);
+    }
     else if (_flagSimu)
       _simulateCalcul(status);
 
-    else if (! _flagGlobal)
+    else if (!_flagGlobal)
       _estimateCalcul(status);
   }
   else
@@ -2031,6 +2047,25 @@ int KrigingSystem::estimate(int iech_out)
       _krigingDump(status);
   }
   return 0;
+}
+
+/**
+ * @brief Identify the list of equations involving the target sample
+ *        within the vector of vector of data indices.
+ *        THis is used to mask off equations in the Xvalidation in Unique Neighborhood
+ * 
+ * @return VectorInt Vector of indices to be masked in the Co-Kriging system due to XValid
+ */
+VectorInt KrigingSystem::_xvalidUniqueIndices() const
+{
+  VectorInt ranks;
+  int lec = 0;
+  for (int ivar = 0, nvar = (int)_sampleIndices.size(); ivar < nvar; ivar++)
+  {
+    for (int i = 0, n = (int) _sampleIndices[ivar].size(); i < n; i++, lec++)
+      if (i == _iechOut) ranks.push_back(lec);
+  }
+  return ranks;
 }
 
 /****************************************************************************/
@@ -2169,20 +2204,26 @@ void KrigingSystem::_simulateDump(int status)
  * @param iptrEst  UID for storing the estimation(s)
  * @param iptrStd  UID for storing the Standard deviations(s)
  * @param iptrVarZ UID for storing the Variance(s) of estimator
- * @return
+ * @return Error returned code
  * @remark If a term must not be calculated, its UID must be negative
  */
 int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 {
   _iptrEst = iptrEst;
-  _iptrStd = iptrStd;
+  _iptrStd  = iptrStd;
   _iptrVarZ = iptrVarZ;
 
-  _flagEst = _iptrEst >= 0 || (_neigh->getFlagXvalid() && _iptrStd >= 0);
-  _flagStd = (_iptrStd >= 0);
+  _flagEst  = _iptrEst >= 0 || (_neigh->getFlagXvalid() && _iptrStd >= 0);
+  _flagStd  = (_iptrStd >= 0);
   _flagVarZ = (_iptrVarZ >= 0);
 
   _flagDataChanged = true;
+
+  if (!_flagStd && !_flagVarZ)
+  {
+    if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
+      _algebra.setDual(true);
+  }
 
   return 0;
 }
@@ -2436,6 +2477,9 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
       _modelSimple = (ModelGeneric*)_modelInit->clone();
       _modelSimple->delAllDrifts();
     }
+
+    // Pass the Bayesian information to '_algebra'
+    _algebra.setBayes(&_priorMean, &_priorCov);
   }
   _flagBayes = flag_bayes;
   _seedForBayes = seed;

@@ -258,6 +258,80 @@ MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db* db1,
   return mat;
 }
 
+/**
+ * Evaluate the covariance rectangular matrix between samples of input 'db1' and
+'db2'
+ * @param db1 Input Db
+ * @param db2 Output db
+ * @param sampleRanks1 Vector of Vector indices on input Db
+ * @param ivar0 Rank of the first variable (-1 for all variables)
+ * @param jvar0 Rank of the second variable (-1 for all variables)
+ * @param iech2 Index of active samples in db2
+ * @param mode CovCalcMode structure
+ * @param cleanOptim True if Optimization internal arrays must be cleaned at end
+ * @return
+ */
+MatrixRectangular
+CovAnisoList::evalCovMatrixTargetOptim(const Db* db1,
+                                       const Db* db2,
+                                       const VectorVectorInt& sampleRanks1,
+                                       int ivar0,
+                                       int jvar0,
+                                       int iech2,
+                                       const CovCalcMode* mode,
+                                       bool cleanOptim) const
+{
+  MatrixRectangular mat;
+  SpacePoint p2;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return mat;
+
+  // Prepare the Optimization for covariance calculation
+  optimizationPreProcess(db1);
+
+  // Create the sets of Vector of valid sample indices per variable (not masked
+  // and defined)
+  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, {iech2}, true, false, false);
+
+  // Creating the matrix
+  int neq1 = VH::count(sampleRanks1);
+  int neq2 = VH::count(index2);
+  if (neq1 <= 0 || neq2 <= 0)
+  {
+    messerr("The returned matrix does not have any valid sample for any valid "
+            "variable");
+    return mat;
+  }
+  mat.resize(neq1, neq2);
+
+  // Loop on the second variable
+  int icol = 0;
+  for (int rvar2 = 0, nvar2 = (int)jvars.size(); rvar2 < nvar2; rvar2++)
+  {
+    int ivar2 = jvars[rvar2];
+
+    // Loop on the second sample
+    int nech2s = (int)index2[rvar2].size();
+    for (int rech2 = 0; rech2 < nech2s; rech2++)
+    {
+      int iech2 = index2[rvar2][rech2];
+      db2->getSampleAsSPInPlace(p2, iech2);
+      optimizationSetTarget(p2);
+
+      // Loop on the basic structures
+      for (int i = 0, n = getCovaNumber(); i < n; i++)
+        _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
+                                        false);
+      icol++;
+    }
+  }
+
+  if (cleanOptim) optimizationPostProcess();
+  return mat;
+}
+
 void CovAnisoList::_optimizationSetTarget(const SpacePoint& pt) const
 {
   for (int is = 0, ns = getCovaNumber(); is < ns; is++)
@@ -296,7 +370,7 @@ CovAnisoList::evalCovMatrixSymmetricOptim(const Db* db1,
   optimizationPreProcess(db1);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true);
+  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true, true);
 
   // Creating the matrix
   int neq1 = VH::count(index1);

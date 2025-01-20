@@ -554,28 +554,27 @@ public:
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
-                           int item = -1,
-                           bool useSel = true,
-                           bool useVerr = false) const;
-  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars = VectorInt(),
-                                         const VectorInt &nbgh = VectorInt(),
-                                         bool useSel = true,
-                                         bool useVerr = false) const;
-  VectorDouble
-  getMultipleValuesActive(const VectorInt& ivars    = VectorInt(),
-                          const VectorInt& nbgh     = VectorInt(),
-                          const VectorDouble& means = VectorDouble(),
-                          bool useSel               = true,
-                          bool useVerr              = false) const;
-  static VectorInt
-  getMultipleSelectedIndices(const VectorVectorInt& index,
-                             const VectorInt& ivars = VectorInt(),
-                             const VectorInt& nbgh  = VectorInt());
-  static VectorInt
-  getMultipleSelectedVariables(const VectorVectorInt& index,
-                               const VectorInt& ivars = VectorInt(),
-                               const VectorInt& nbgh  = VectorInt());
+  VectorInt getRanksActive(const VectorInt& nbgh = VectorInt(),
+                           int item              = -1,
+                           bool useSel           = true,
+                           bool useZ             = true,
+                           bool useVerr          = false) const;
+  VectorVectorInt getMultipleRanksActive(const VectorInt& ivars = VectorInt(),
+                                         const VectorInt& nbgh  = VectorInt(),
+                                         bool useSel            = true,
+                                         bool useZ              = true,
+                                         bool useVerr           = false) const;
+  VectorDouble getMultipleValuesActive(const VectorInt& nbgh     = VectorInt(),
+                                       const VectorDouble& means = VectorDouble(),
+                                       bool useSel               = true,
+                                       bool useZ                 = true,
+                                       bool useVerr              = false) const;
+  static VectorInt getMultipleSelectedIndices(const VectorVectorInt& index,
+                                              const VectorInt& ivars = VectorInt(),
+                                              const VectorInt& nbgh  = VectorInt());
+  static VectorInt getMultipleSelectedVariables(const VectorVectorInt& index,
+                                                const VectorInt& ivars = VectorInt(),
+                                                const VectorInt& nbgh  = VectorInt());
 
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;

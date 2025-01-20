@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1.;
-  bool debug      = true;
+  double oldstyle = 0.;
+  bool debug      = false;
   int nech        = 3;
   int nvar        = 3;
   bool flagSK     = false;
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
   // Neighborhood
   ANeigh* neigh;
-  int nmaxi     = 4;
+  int nmaxi     = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();
