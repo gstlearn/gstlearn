@@ -98,7 +98,7 @@ int main()
   cova.setRanges(ranges);
   cova.setSill(sill);
   covs.addCov(&cova);
-  model.setCovList(&covs);
+  model.setCovAnisoList(&covs);
   model.display();
 
   // Initialize Gibbs

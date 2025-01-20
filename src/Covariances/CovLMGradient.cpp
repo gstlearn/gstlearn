@@ -19,6 +19,11 @@ CovLMGradient::CovLMGradient(const ASpace* space)
 {
 }
 
+CovLMGradient::CovLMGradient(const CovContext& ctxt)
+: CovAnisoList(ctxt)
+{
+}
+
 CovLMGradient::CovLMGradient(const CovLMGradient &r)
 : CovAnisoList(r)
 {

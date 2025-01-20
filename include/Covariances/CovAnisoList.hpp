@@ -45,6 +45,7 @@ class GSTLEARN_EXPORT CovAnisoList : public CovList, public ICloneable
 {
 public:
   CovAnisoList(const ASpace* space = nullptr);
+  CovAnisoList(const CovContext& ctxt);
   CovAnisoList(const CovAnisoList &r);
   CovAnisoList& operator= (const CovAnisoList &r);
   virtual ~CovAnisoList();
@@ -93,8 +94,7 @@ public:
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
-  double          getTotalSill(int ivar, int jvar) const override;
-  MatrixSquareSymmetric getTotalSill() const;
+  double          getTotalSill(int ivar = 0, int jvar = 0) const override;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;

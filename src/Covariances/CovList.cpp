@@ -29,6 +29,12 @@ CovList::CovList(const ASpace* space)
 {
 }
 
+CovList::CovList(const CovContext& ctxt)
+: ACov(ctxt),
+  _covs(),
+  _filtered()
+{
+}
 
 CovList::~CovList()
 {
@@ -360,7 +366,7 @@ double CovList::getTotalSill(int ivar, int jvar) const
   return sill_total;
 }
 
-MatrixSquareSymmetric CovList::getTotalSill() const
+MatrixSquareSymmetric CovList::getTotalSills() const
 {
   int nvar = getNVariables();
   MatrixSquareSymmetric mat(nvar);

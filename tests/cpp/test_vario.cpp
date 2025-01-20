@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs.addCovAniso(&cova1);
-  models.setCovList(&covs);
+  models.setCovAnisoList(&covs);
   models.display();
 
   // Perform a non-conditional simulation on the Db and on the Grid

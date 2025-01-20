@@ -40,6 +40,7 @@ class GSTLEARN_EXPORT CovList : public ACov
 {
 public:
   CovList(const ASpace* space = nullptr);
+  CovList(const CovContext& ctxt);
   CovList(const CovList &r) = delete;
   CovList& operator= (const CovList &r) = delete;
   virtual ~CovList();
@@ -83,8 +84,8 @@ public:
 
   int             getCovaNumber() const;
   bool            isFiltered(int icov) const;
-  virtual double  getTotalSill(int ivar, int jvar) const;
-  MatrixSquareSymmetric getTotalSill() const;
+  virtual double  getTotalSill(int ivar = 0, int jvar = 0) const;
+  MatrixSquareSymmetric getTotalSills() const;
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;
   bool            isAllActiveCovList() const;

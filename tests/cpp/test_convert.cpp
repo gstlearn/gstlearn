@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   CovAnisoList covs(ctxt.getSpace());
   CovAniso cova(ECov::SPHERICAL, 25., 0., 2., ctxt);
   covs.addCov(&cova);
-  model->setCovList(&covs);
+  model->setCovAnisoList(&covs);
 
   // Perform a non-conditional simulation
   simtub(nullptr, grid, model);

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -38,6 +39,18 @@ ACov::ACov(const ASpace* space)
   , _pw1(nullptr)
   , _pw2(nullptr)
   , _ctxt(1,space)
+{
+}
+
+ACov::ACov(const CovContext &ctxt)
+  : ASpaceObject(ctxt.getASpace())
+  , _optimEnabled(true)
+  , _isOptimPreProcessed(false)
+  , _p1As()
+  , _p2A(ctxt.getASpace())
+  , _pw1(nullptr)
+  , _pw2(nullptr)
+  , _ctxt(ctxt)
 {
 }
 
