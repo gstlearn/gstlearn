@@ -17,6 +17,7 @@
 #include "Enum/ESpaceType.hpp"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
   Model* model =
     Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                           *sills, VectorDouble(), nullptr, false);
+                           *sills, VectorDouble(), ASpaceSharedPtr(), false);
   model->setDriftIRF(0, 0);
 
   // Neighborhood
