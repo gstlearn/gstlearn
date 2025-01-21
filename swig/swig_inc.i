@@ -855,8 +855,8 @@
   #include <memory>
 %}
 
+
 %include <std_shared_ptr.i>
 
-%template(SharedPtrASpace)            std::shared_ptr<const ASpace>;
-
-//%newobject SpaceRN::create;
+%template(ASpaceSharedPtr)            std::shared_ptr<const ASpace>;
+%newobject Model::createFromParam;

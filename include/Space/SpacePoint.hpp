@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -19,12 +20,12 @@
 class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 {
 public:
-  SpacePoint(const std::shared_ptr<const ASpace>& space = nullptr);
+  SpacePoint(const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
   SpacePoint(const SpacePoint& r);
 
   SpacePoint(const VectorDouble& coord, int iech = -1,
-             std::shared_ptr<const ASpace> space = nullptr);
+             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 

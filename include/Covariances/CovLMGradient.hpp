@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -23,7 +24,7 @@ class CovCalcMode;
 class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
 {
 public:
-  CovLMGradient(const std::shared_ptr<const ASpace>& space = nullptr);
+  CovLMGradient(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovLMGradient(const CovLMGradient& r);
   CovLMGradient(const ACovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);

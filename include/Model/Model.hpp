@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Model/ModelGeneric.hpp"
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
@@ -94,7 +95,7 @@ public:
                                 const VectorDouble& ranges = VectorDouble(),
                                 const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const std::shared_ptr<const ASpace>  space = nullptr,
+                                const ASpaceSharedPtr &space = ASpaceSharedPtr(),
                                 bool flagRange             = true);
   static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
                           double range               = 1.,
@@ -103,7 +104,7 @@ public:
                           const VectorDouble& ranges = VectorDouble(),
                           const VectorDouble& sills  = VectorDouble(),
                           const VectorDouble& angles = VectorDouble(),
-                          std::shared_ptr<const ASpace> space = nullptr,
+                          const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                           bool flagRange             = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename,

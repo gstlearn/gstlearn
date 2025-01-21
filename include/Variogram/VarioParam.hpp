@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Variogram/DirParam.hpp"
@@ -66,7 +67,7 @@ public:
                                          const VectorDouble& breaks = VectorDouble(),
                                          double scale = 0.,
                                          const VectorDouble& dates = VectorDouble(),
-                                         const std::shared_ptr<const ASpace>& space = nullptr);
+                                         const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createMultiple(int ndir,
                                     int npas = 10,
                                     double dpas = 1.,
@@ -74,13 +75,13 @@ public:
                                     double angref = 0.,
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
-                                    const std::shared_ptr<const ASpace>& space = nullptr);
+                                    const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam*
   createMultipleFromGrid(const DbGrid* dbgrid,
                          int npas,
                          double scale              = 0.,
                          const VectorDouble& dates = VectorDouble(),
-                         const std::shared_ptr<const ASpace>& space       = nullptr,
+                         const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
                          int ndimax = 0);
   static VarioParam* createFromSpaceDimension(int npas = 10,
                                               double dpas = 1.,
@@ -88,7 +89,7 @@ public:
                                               double tolang = 45.,
                                               double scale = 0.,
                                               const VectorDouble &dates = VectorDouble(),
-                                              const std::shared_ptr<const ASpace>& space = nullptr);
+                                              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createSeveral2D(const VectorDouble &angles,
                                      int npas = 10,
                                      double dpas = 1.,
@@ -96,7 +97,7 @@ public:
                                      double tolang = TEST,
                                      double scale = 0.,
                                      const VectorDouble& dates = VectorDouble(),
-                                     const std::shared_ptr<const ASpace> &space = nullptr);
+                                     const ASpaceSharedPtr &space = ASpaceSharedPtr());
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);

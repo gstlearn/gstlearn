@@ -21,7 +21,7 @@
 #include <iostream>
 #include <math.h>
 
-SpacePoint::SpacePoint(const std::shared_ptr<const ASpace>& space)
+SpacePoint::SpacePoint(const ASpaceSharedPtr& space)
 : ASpaceObject(space),
   _coord(),
   _iech(-1),
@@ -41,7 +41,7 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 {
 }
 
-SpacePoint::SpacePoint(const VectorDouble& coord, int iech, std::shared_ptr<const ASpace> space)
+SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPtr& space)
   : ASpaceObject(space)
   , _coord(coord)
   , _iech(iech)

@@ -11,6 +11,7 @@
 #pragma once
 
 #include <Geometry/BiTargetCheckCell.hpp>
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -37,7 +38,7 @@ class Db;
 class GSTLEARN_EXPORT NeighCell: public ANeigh
 {
 public:
-  NeighCell(bool flag_xvalid = false, int nmini = 1, const std::shared_ptr<const ASpace>& space = nullptr);
+  NeighCell(bool flag_xvalid = false, int nmini = 1, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighCell(const NeighCell& r);
   NeighCell& operator=(const NeighCell& r);
   virtual ~NeighCell();
@@ -57,7 +58,7 @@ public:
 
   static NeighCell* create(bool flag_xvalid = false,
                            int nmini = 1,
-                           const std::shared_ptr<const ASpace>& space = nullptr);
+                           const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighCell* createFromNF(const String& neutralFilename, bool verbose = true);
 
   int getNMini() const { return _nMini; }

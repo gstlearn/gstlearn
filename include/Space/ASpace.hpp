@@ -112,7 +112,7 @@ public:
   /// TODO : to be made private
   void setOffset(unsigned int offset) { _offset = offset; }
 
-  static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(std::shared_ptr<const ASpace> space = nullptr);
+  static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
 protected:
 
   /// Move the given space point by the given vector

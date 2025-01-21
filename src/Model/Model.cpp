@@ -130,7 +130,7 @@ Model* Model::createFromParam(const ECov& type,
                               const VectorDouble& ranges,
                               const MatrixSquareSymmetric& sills,
                               const VectorDouble& angles,
-                              std::shared_ptr<const ASpace> space,
+                              const ASpaceSharedPtr& space,
                               bool flagRange)
 {
   int nvar = 1;
@@ -166,7 +166,7 @@ Model* Model::createFromParamOldStyle(const ECov& type,
                                       const VectorDouble& ranges,
                                       const VectorDouble& sills,
                                       const VectorDouble& angles,
-                                      std::shared_ptr<const ASpace> space,
+                                      const ASpaceSharedPtr& space,
                                       bool flagRange)
 {
   int nvar = 1;

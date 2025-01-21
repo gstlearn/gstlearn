@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/ASpace.hpp"
+#include "Basic/AStringable.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
@@ -50,7 +51,10 @@ ASpace& ASpace::operator=(const ASpace& r)
   return *this;
 }
 
-ASpace::~ASpace() {}
+ASpace::~ASpace() 
+{
+  //messerr("coucou");
+}
 
 /// Interface for AStringable
 String ASpace::toString(const AStringFormat* strfmt) const
@@ -93,7 +97,7 @@ const VectorDouble& ASpace::getOrigin(int ispace) const
   return _origin;
 }
 
-ASpaceSharedPtr ASpace::getDefaultSpaceIfNull(ASpaceSharedPtr space)
+ASpaceSharedPtr ASpace::getDefaultSpaceIfNull(const ASpaceSharedPtr& space)
 {
   if (space == nullptr) return getDefaultSpaceSh();
   return space;
