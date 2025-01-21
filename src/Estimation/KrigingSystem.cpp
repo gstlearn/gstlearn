@@ -3248,9 +3248,9 @@ int KrigingSystem::_bayesPreCalculations()
 
     // Create the array of variables
 
+    int ind = 0;
   for (int iech = 0; iech < _dbin->getSampleNumber(); iech++)
   {
-    int ind = 0;
     if (! _dbin->isActive(iech)) continue;
     for (int ivar = 0; ivar < _nvar; ivar++)
     {
