@@ -267,7 +267,7 @@ def WdefineVarioParamOmni(nlag = 10, dlag = 1):
     '''
     WNlag = mo.ui.number(start=1, stop=100, value = nlag, 
                          label="Number of Lags")
-    WDlag = mo.ui.number(start=1, stop=100, value = dlag, 
+    WDlag = mo.ui.number(start=0, stop=100, value = dlag, 
                          label="Lag Value")
     WToldis = mo.ui.number(start=0, stop=1, value = 0.5, 
                            label="Tolerance on Distance")
@@ -302,7 +302,7 @@ def WdefineVarioParamMulti(ndir = 4, nlag = 10, dlag = 1):
                          label="Number of Directions")
     WNlag = mo.ui.number(start=1, stop=100, value = nlag, 
                          label="Number of Lags")
-    WDlag = mo.ui.number(start=1, stop=100, value = dlag, 
+    WDlag = mo.ui.number(start=0, stop=100, value = dlag, 
                          label="Lag Value")
     WAngref = mo.ui.number(start=0, stop=180, value = 0., 
                            label="Reference angle (degree)")
@@ -429,7 +429,7 @@ def WdefineCovList():
     Returns the widget for inquiring the list of basic structures to be used
     for fitting a Model to an Experimental variogram
     '''
-    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value = ["Nugget effect"])
+    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value = ["Spherical"])
 
     return mo.ui.array([WTypes])
 

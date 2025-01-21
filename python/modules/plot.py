@@ -864,7 +864,7 @@ def literal(db, *args, **kwargs):
     
 def __ax_literal(ax, db, name=None, nameCoorX=None, nameCoorY=None, 
                  useSel=True, flagLegend=True, legendName=None, 
-                 posX=0, posY=1, **kwargs):
+                 posX=0, posY=1, fontsize=10, **kwargs):
     name = __defaultVariable(db, name)
     
     if len(ax.get_title()) <= 0:
@@ -883,7 +883,7 @@ def __ax_literal(ax, db, name=None, nameCoorX=None, nameCoorY=None,
     
     for i, txt in enumerate(labval):
         if not np.isnan(txt):
-            ax.annotate(round(txt,2), (tabx[i], taby[i]))
+            ax.annotate(round(txt,2), (tabx[i], taby[i]), fontsize=fontsize)
   
     if legendName is None:
         legendName = name
@@ -1793,8 +1793,7 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
           ctx.add_basemap(ax1, source=ctx.providers.OpenStreetMap.Mapnik)
         on the Axis returned by this function
 
-    Note: the dependency to projection (and therefore to geopanda)
-       has been made conditional to
+    Note: the dependency to projection (and therefore to geopanda) is conditional
     '''
     # Draw the data points
     if box is not None:
@@ -1811,6 +1810,11 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
             data.plot(ax=ax, color=color, markersize=size)
         else:
             plt.scatter(pts[:,0], pts[:,1], c=color, s=size)
+    #         if literal:
+    #             plt.annotate()
+    # for i, txt in enumerate(labval):
+    #     if not np.isnan(txt):
+    #         ax.annotate(round(txt,2), (tabx[i], taby[i]))
 
     # Display bounding points (optional)
     if box is not None:
