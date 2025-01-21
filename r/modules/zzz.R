@@ -21,7 +21,6 @@ function(libname, pkgname)
 ".onLoad" <- function(libname, pkgname)
 {
 
-
 getMethodsOfClass = function(name)
 {
   x=ls(envir=asNamespace("gstlearn"))
@@ -35,7 +34,6 @@ getMethodsOfClass = function(name)
 
 addMethods = function(base,derived)
 {
-  
   setMethod('$', paste0('_p_',derived), 
   function(x, name)
   {
