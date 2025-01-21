@@ -22,11 +22,11 @@ SpaceComposite::SpaceComposite()
 {
 }
 
-SpaceComposite::SpaceComposite(const std::vector<const ASpace*>& vectspace)
+SpaceComposite::SpaceComposite(const std::vector<std::shared_ptr<const ASpace>>& vectspace)
   : ASpace(0)
   , _comps()
 {
-  for (const auto* sp : vectspace)
+  for (const auto &sp : vectspace)
   {
     addSpaceComponent(sp);
   }
@@ -36,9 +36,9 @@ SpaceComposite::SpaceComposite(const SpaceComposite& r)
   : ASpace(r)
   , _comps()
 {
-  for(auto* c : r._comps)
+  for(const auto& c : r._comps)
   {
-    _comps.push_back(dynamic_cast<ASpace*>(c->clone()));
+    _comps.push_back(c);
   }
 }
 
@@ -46,11 +46,10 @@ SpaceComposite& SpaceComposite::operator=(const SpaceComposite& r)
 {
   if (this != &r)
   {
-    _destroyComponents();
     ASpace::operator=(r);
-    for(auto* c : r._comps)
+    for(const auto& c : r._comps)
     {
-      _comps.push_back(dynamic_cast<ASpace*>(c->clone()));
+      _comps.push_back(c);
     }
   }
   return *this;
@@ -58,10 +57,9 @@ SpaceComposite& SpaceComposite::operator=(const SpaceComposite& r)
 
 SpaceComposite::~SpaceComposite()
 {
-  _destroyComponents();
 }
 
-void SpaceComposite::setOrigin(const VectorDouble& origin)
+void SpaceComposite::setOrigin(const VectorDouble& origin) const 
 {
   if (origin.size() != ASpace::getNDim())
   {
@@ -71,7 +69,7 @@ void SpaceComposite::setOrigin(const VectorDouble& origin)
   _origin = origin;
   auto first = origin.cbegin();
   auto last = origin.cbegin();
-  for(auto* c : _comps)
+  for(const auto& c : _comps)
   {
     first = last;
     last = last + c->getNDim();
@@ -105,7 +103,7 @@ unsigned int SpaceComposite::getNComponents() const
   return (int)_comps.size();
 }
 
-const ASpace* SpaceComposite::getComponent(int ispace) const
+std::shared_ptr<const ASpace> SpaceComposite::getComponent(int ispace) const
 {
   if (ispace < 0 || ispace >= (int)getNComponents())
     return ASpace::getComponent(); // Return this if wrong ispace
@@ -121,7 +119,7 @@ String SpaceComposite::toString(const AStringFormat* strfmt, int ispace) const
   unsigned int nc = getNComponents();
   for (unsigned int idx = 0; idx < nc; idx++)
   {
-    const auto* c = getComponent(idx);
+    const auto c = getComponent(idx);
     sstr << c->toString(strfmt, idx);
     if (idx < nc - 1 && strfmt != nullptr && strfmt->getLevel() == 0) sstr << " + ";
   }
@@ -135,9 +133,9 @@ bool SpaceComposite::isEqual(const ASpace* space) const
   unsigned int nc = getNComponents();
   for (unsigned int idx = 0; idx < nc; idx++)
   {
-    const auto* c1 = getComponent(idx);
-    const auto* c2 = space->getComponent(idx);
-    if (!c1->isEqual(c2)) return false;
+    const auto c1 = getComponent(idx);
+    const auto c2 = space->getComponent(idx);
+    if (!c1->isEqual(c2.get())) return false;
   }
   return true;
 }
@@ -152,7 +150,7 @@ VectorDouble SpaceComposite::getDistances(const SpacePoint& p1,
               << std::endl;
     return dis;
   }
-  for (auto* sp: _comps)
+  for (const auto& sp: _comps)
   {
     dis.push_back(sp->getDistance(p1, p2));
   }
@@ -161,9 +159,9 @@ VectorDouble SpaceComposite::getDistances(const SpacePoint& p1,
 
 /////////////////////////////////////////////////////////
 
-void SpaceComposite::addSpaceComponent(const ASpace* comp)
+void SpaceComposite::addSpaceComponent(std::shared_ptr<const ASpace> comp)
 {
-  ASpace* sp = dynamic_cast<ASpace*>(comp->clone());
+  std::shared_ptr<ASpace> sp = std::shared_ptr<ASpace>(dynamic_cast<ASpace*>(comp->clone()));
   sp->ASpace::setOffset(getNDim()); // TODO : I want this to be private and me a friend of ASpace
   _comps.push_back(sp);
   _nDim += sp->getNDim();
@@ -177,7 +175,7 @@ void SpaceComposite::addSpaceComponent(const ASpace* comp)
 
 void SpaceComposite::_move(SpacePoint& p1, const VectorDouble& vec) const
 {
-  for (auto* sp: _comps)
+  for (const auto& sp: _comps)
   {
     sp->move(p1, vec);
   }
@@ -242,7 +240,7 @@ void SpaceComposite::_getIncrementInPlace(const SpacePoint& p1,
   ptemp.clear();
   if (ispace < 0 || ispace >= (int)getNComponents())
   {
-    for (auto* sp: _comps)
+    for (const auto& sp: _comps)
     {
       VectorDouble inc = sp->getIncrement(p1, p2);
       ptemp.insert(ptemp.begin(), inc.begin(), inc.end());
@@ -251,14 +249,5 @@ void SpaceComposite::_getIncrementInPlace(const SpacePoint& p1,
   else
   {
     ptemp = _comps[ispace]->getIncrement(p1, p2);
-  }
-}
-
-/// Destroy components and empty vector
-void SpaceComposite::_destroyComponents()
-{
-  for (auto* c: _comps)
-  {
-    delete c;
   }
 }

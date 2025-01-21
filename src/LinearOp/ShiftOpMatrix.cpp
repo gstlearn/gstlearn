@@ -1178,7 +1178,7 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
 
  if (flagSphere)
   {
-    const ASpace *space = getDefaultSpace();
+    const ASpace *space = getDefaultSpaceSh().get();
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();

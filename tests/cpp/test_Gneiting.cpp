@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   double scaleT = 5.3;
   VectorDouble coords1 = {12.,3.,1.};
   VectorDouble coords2 = {4.,5.,2.};
-  auto space1d = SpaceRN(1);
+  auto space1d = std::make_shared<const SpaceRN>(1);
   double sep = 1.;
   Model* mT = Model::createFromParam(ECov::EXPONENTIAL,
                                      scaleT,
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
                                      VectorDouble(),
                                      MatrixSquareSymmetric(),
                                      VectorDouble(),
-                                     &space1d,
+                                     space1d,
                                      false);
                                     
   Model* mS = Model::createFromParam(ECov::EXPONENTIAL,
@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
   CovAniso* covS = mS->getCova(0);
   CorGneiting gneiting = CorGneiting(covS->getCorAniso(),
                                      covT->getCorAniso(),sep);
-  SpacePoint p1(gneiting.getSpace());
-  SpacePoint p2(gneiting.getSpace());
+  SpacePoint p1(gneiting.getSpaceSh());
+  SpacePoint p2(gneiting.getSpaceSh());
   p1.setCoords(coords1);
   p2.setCoords(coords2);
   double cres = gneiting.eval(p1,p2);

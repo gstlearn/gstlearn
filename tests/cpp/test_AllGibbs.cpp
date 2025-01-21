@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
   CovContext ctxt(nvar,2,1.);
   Model* model = new Model(ctxt);
-  CovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpaceSh());
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill(sill);

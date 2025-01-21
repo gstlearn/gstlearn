@@ -474,7 +474,7 @@ public:
   void getArrayBySample(std::vector<double>& vals, int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
-  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space,bool useSel = false) const;
+  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<const ASpace>& space,bool useSel = false) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
   int    getFromLocatorNumber(const ELoc& locatorType) const;

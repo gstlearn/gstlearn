@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
-  CovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpaceSh());
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs.addCovAniso(&cova1);

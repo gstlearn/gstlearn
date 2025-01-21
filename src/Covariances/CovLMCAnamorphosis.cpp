@@ -28,7 +28,7 @@
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
                                        const VectorInt& strcnt,
-                                       const ASpace* space)
+                                       const ASpaceSharedPtr& space)
   : CovAnisoList(space)
   , _activeFactor(0)
   , _anamStrCount()

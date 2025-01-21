@@ -131,7 +131,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
   // Calculate the isotropic distance
 
-  double h = getSpace()->getDistance(p1, p2, getAniso());
+  double h = getSpaceSh()->getDistance(p1, p2, getAniso());
   VectorDouble d1 = VH::subtract(p1.getCoords(), p2.getCoords());
   for (int i=0; i < 3; i++)
     d[i] = (i < (int) d1.size()) ? d1[i] : 0.;

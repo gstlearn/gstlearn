@@ -853,3 +853,13 @@
     return $self->indicesToCoordinateInPlace(indice, coor, percent, flag_rotate);
   }
 };
+
+%{
+  #include <memory>
+%}
+
+
+%include <std_shared_ptr.i>
+
+%template(ASpaceSharedPtr)            std::shared_ptr<const ASpace>;
+%newobject Model::createFromParam;

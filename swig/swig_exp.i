@@ -396,3 +396,4 @@
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
 %template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;
+

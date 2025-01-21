@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Model/ModelCovList.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_f.h"
 
@@ -42,6 +43,7 @@
 #include "Db/Db.hpp"
 
 #include <math.h>
+#include <memory>
 
 Model::Model(const CovContext &ctxt)
     : AStringable(),
@@ -56,8 +58,8 @@ Model::Model(int nvar, int ndim)
       ASerializable(),
       ModelCovList()
 {
-  SpaceRN space = SpaceRN(ndim);
-  _ctxt = CovContext(nvar, &space);
+  auto space = SpaceRN::create(ndim);
+  _ctxt = CovContext(nvar, space);
   _create();
 }
 
@@ -97,8 +99,8 @@ int Model::resetFromDb(const Db *db)
   int ndim = db->getNDim();
   int nvar = db->getLocNumber(ELoc::Z);
   if (nvar <= 0) nvar = 1;
-  SpaceRN space = SpaceRN(ndim);
-  _ctxt = CovContext(nvar, &space);
+  auto space = SpaceRN::create(ndim);
+  _ctxt = CovContext(nvar, space);
   _create();
   return 0;
 }
@@ -127,17 +129,13 @@ Model* Model::createFromParam(const ECov& type,
                               const VectorDouble& ranges,
                               const MatrixSquareSymmetric& sills,
                               const VectorDouble& angles,
-                              const ASpace* space,
+                              const ASpaceSharedPtr& space,
                               bool flagRange)
 {
   int nvar = 1;
   if (!sills.empty()) nvar = sills.getNRows();
 
-  ASpace* spaceloc = nullptr;
-  if (space != nullptr)
-    spaceloc = dynamic_cast<ASpace*>(space->clone());
-  else
-    spaceloc = dynamic_cast<ASpace*>(getDefaultSpace()->clone());
+  auto spaceloc = ASpace::getDefaultSpaceIfNull(space);
 
   if (!ranges.empty())
   {
@@ -148,17 +146,15 @@ Model* Model::createFromParam(const ECov& type,
       messerr("Incompatibility between:");
       messerr("Space Dimension = %d", ndim);
       messerr("Dimension of argument 'ranges' = %d", ndimRanges);
-      delete spaceloc;
       return nullptr;
     }
   }
 
-  CovContext ctxt = CovContext(nvar, spaceloc);
+  CovContext ctxt = CovContext(nvar, space);
   Model* model    = new Model(ctxt);
   model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
                          flagRange);
 
-  delete spaceloc;
   return model;
 }
 
@@ -169,19 +165,15 @@ Model* Model::createFromParamOldStyle(const ECov& type,
                                       const VectorDouble& ranges,
                                       const VectorDouble& sills,
                                       const VectorDouble& angles,
-                                      const ASpace* space,
+                                      const ASpaceSharedPtr& space,
                                       bool flagRange)
 {
   int nvar = 1;
   if (! sills.empty())
     nvar = (int)  sqrt(sills.size());
 
-  ASpace* spaceloc = nullptr;
-  if (space != nullptr)
-    spaceloc = dynamic_cast<ASpace*>(space->clone());
-  else
-    spaceloc = dynamic_cast<ASpace*>(getDefaultSpace()->clone());
-
+  auto spaceloc = ASpace::getDefaultSpaceIfNull(space);
+ 
   if (! ranges.empty())
   {
     int ndim = spaceloc->getNDim();
@@ -191,7 +183,6 @@ Model* Model::createFromParamOldStyle(const ECov& type,
       messerr("Incompatibility between:");
       messerr("Space Dimension = %d", ndim);
       messerr("Dimension of argument 'ranges' = %d", ndimRanges);
-      delete spaceloc;
       return nullptr;
     }
   }
@@ -201,7 +192,6 @@ Model* Model::createFromParamOldStyle(const ECov& type,
   model->addCovFromParamOldStyle(type, range, sill, param, ranges, sills,
                                  angles, flagRange);
 
-  delete spaceloc;
   return model;
 }
 
@@ -390,8 +380,8 @@ void Model::addCovFromParamOldStyle(const ECov& type,
 
   // Define the covariance
 
-  SpaceRN space = SpaceRN(ndim);
-  _ctxt = CovContext(nvar, &space);
+  auto space = SpaceRN::create(ndim);
+  _ctxt = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 
   // Define the Third parameter
@@ -486,8 +476,8 @@ void Model::addCovFromParam(const ECov& type,
 
   // Define the covariance
 
-  SpaceRN space = SpaceRN(ndim); //TODO check if it is the right space
-  _ctxt         = CovContext(nvar, &space);
+  auto space = std::shared_ptr<const ASpace>(new SpaceRN(ndim)); //TODO check if it is the right space
+  _ctxt         = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 
   // Define the Third parameter
@@ -847,7 +837,7 @@ void Model::switchToGradient()
   // If no covariance has been defined yet: do nothing
   if (_cova == nullptr)
   {
-    ModelCovList::setCovList(new CovLMGradient(_ctxt.getSpace()));
+    ModelCovList::setCovList(new CovLMGradient(_ctxt.getSpaceSh()));
   }
   else
   {
@@ -1283,7 +1273,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Reading the covariance part and store it into a CovAnisoList */
 
-  CovAnisoList covs(_ctxt.getSpace());
+  CovAnisoList covs(_ctxt.getSpaceSh());
   for (int icova = 0; ret && icova < ncova; icova++)
   {
     flag_aniso = flag_rotation = 0;
@@ -1473,7 +1463,7 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovAnisoList(new CovAnisoList(_ctxt));
+  setCovAnisoList(new CovAnisoList(_ctxt.getSpaceSh()));
   _driftList = new DriftList(_ctxt);
 }
 

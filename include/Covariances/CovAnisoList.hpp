@@ -44,8 +44,7 @@ class GSTLEARN_EXPORT CovAnisoList : public CovList, public ICloneable
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
-  CovAnisoList(const ASpace* space = nullptr);
-  CovAnisoList(const CovContext& ctxt);
+  CovAnisoList(const ASpaceSharedPtr &space);
   CovAnisoList(const CovAnisoList &r);
   CovAnisoList& operator= (const CovAnisoList &r);
   virtual ~CovAnisoList();

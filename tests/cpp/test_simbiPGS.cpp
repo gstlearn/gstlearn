@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
-  CovAnisoList covs1(ctxt.getSpace());
+  CovAnisoList covs1(ctxt.getSpaceSh());
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
   covs1.addCovAniso(&cova1);
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
   (void) model1.dumpToNF("PGSmodel1.ascii");
 
   Model model2(ctxt);
-  CovAnisoList covs2(ctxt.getSpace());
+  CovAnisoList covs2(ctxt.getSpaceSh());
   double range2 = 0.3;
   CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
   covs2.addCovAniso(&cova2);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   (void) model2.dumpToNF("PGSmodel2.ascii");
 
   Model model3(ctxt);
-  CovAnisoList covs3(ctxt.getSpace());
+  CovAnisoList covs3(ctxt.getSpaceSh());
   double range3 = 0.2;
   CovAniso cova3(ECov::MATERN,range3,1.,1.,ctxt);
   covs3.addCovAniso(&cova3);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   (void) model3.dumpToNF("PGSmodel3.ascii");
 
   Model model4(ctxt);
-  CovAnisoList covs4(ctxt.getSpace());
+  CovAnisoList covs4(ctxt.getSpaceSh());
   double range4 = 0.1;
   CovAniso cova4(ECov::SPHERICAL,range4,1.,1.,ctxt);
   covs4.addCovAniso(&cova4);

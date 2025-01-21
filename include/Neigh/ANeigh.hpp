@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ENeigh.hpp"
@@ -55,7 +56,7 @@ class Ball;
 class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
 {
 public:
-  ANeigh(const ASpace* space = nullptr);
+  ANeigh(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   ANeigh(const ANeigh& r);
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();

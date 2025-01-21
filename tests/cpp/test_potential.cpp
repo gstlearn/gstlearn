@@ -133,8 +133,8 @@ int main(int argc, char *argv[])
   model->switchToGradient();
 
   // Create the Neighborhood (unique)
-  SpaceRN space(ndim);
-  neighU = NeighUnique::create(false, &space);
+  auto space = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
+  neighU = NeighUnique::create(false, space);
 
   // Launch the Potential estimation
   // In case we would like to examine the calculation details,

@@ -1911,10 +1911,10 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
     }
     if (! ret) return ret;
 
-    SpaceRN space(ndim);
+    auto space  = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
                                  TEST, TEST, tolcode, VectorDouble(), codir, TEST,
-                                 &space);
+                                 space);
     if (isDefinedForGrid)
       dirparam.setGrincr(grincr);
     _varioparam.addDir(dirparam);
