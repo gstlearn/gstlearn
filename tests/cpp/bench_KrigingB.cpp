@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("BenchKrigingB-");
-  OptCustom::define("oldStyle", 0.);
+  OptCustom::define("oldStyle", 1.);
 
   // Global parameters
   int ndim = 2;
