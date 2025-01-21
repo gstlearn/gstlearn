@@ -110,7 +110,7 @@ void ASpaceObject::setNDim(int ndim)
   if (_space->getType() != ESpaceType::RN)
     my_throw("Object is not in Space RN");
 
-  _space = std::shared_ptr<ASpace>(new SpaceRN(ndim));
+  _space = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
 }
 
 /**
@@ -130,12 +130,12 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
     {
       ndim = 2;
       if (param <= 0.) param = EARTH_RADIUS;
-      defaultSpace = std::shared_ptr<ASpace>(new SpaceSN(ndim, param));
+      defaultSpace = std::shared_ptr<const ASpace>(new SpaceSN(ndim, param));
       break;
     }
     case ESpaceType::E_RN:
     {
-      defaultSpace = std::shared_ptr<ASpace>(new SpaceRN(ndim));
+      defaultSpace = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
       break;
     }
     default:
