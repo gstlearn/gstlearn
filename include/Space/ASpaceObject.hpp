@@ -45,7 +45,7 @@ public:
 
 public:
   /// Accessor to the current object space context
-  ASpaceSharedPtr getSpaceSh() const { return _space; }
+  ASpaceSharedPtr getSpace() const { return _space; }
   /// Indicate if I am consistent with my current space context
   bool isConsistent() const { return isConsistent(_space); }
 

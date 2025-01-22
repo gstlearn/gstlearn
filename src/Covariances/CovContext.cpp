@@ -143,7 +143,7 @@ bool CovContext::isConsistent(const ASpace* space) const
  */
 bool CovContext::isEqual(const CovContext &r) const
 {
-  return (_nVar == r.getNVar() && _space->isEqual(r.getSpaceSh().get()));
+  return (_nVar == r.getNVar() && _space->isEqual(r.getSpace().get()));
 }
 
 double CovContext::getMean(int ivar) const

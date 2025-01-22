@@ -837,7 +837,7 @@ void Model::switchToGradient()
   // If no covariance has been defined yet: do nothing
   if (_cova == nullptr)
   {
-    ModelCovList::setCovList(new CovLMGradient(_ctxt.getSpaceSh()));
+    ModelCovList::setCovList(new CovLMGradient(_ctxt.getSpace()));
   }
   else
   {
@@ -1273,7 +1273,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Reading the covariance part and store it into a CovAnisoList */
 
-  CovAnisoList covs(_ctxt.getSpaceSh());
+  CovAnisoList covs(_ctxt.getSpace());
   for (int icova = 0; ret && icova < ncova; icova++)
   {
     flag_aniso = flag_rotation = 0;
@@ -1463,7 +1463,7 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovAnisoList(new CovAnisoList(_ctxt.getSpaceSh()));
+  setCovAnisoList(new CovAnisoList(_ctxt.getSpace()));
   _driftList = new DriftList(_ctxt);
 }
 

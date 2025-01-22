@@ -37,8 +37,8 @@ CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double se
     messerr("It has been set to 0");
   }
   auto space = SpaceComposite::create();
-  space->addSpaceComponent(covS->getSpaceSh());
-  space->addSpaceComponent(covTemp->getSpaceSh()); 
+  space->addSpaceComponent(covS->getSpace());
+  space->addSpaceComponent(covTemp->getSpace()); 
   _space = space;
 }
 

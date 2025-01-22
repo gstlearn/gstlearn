@@ -33,7 +33,7 @@ CovAnisoList::CovAnisoList(const ASpaceSharedPtr& space)
 }
 
 CovAnisoList::CovAnisoList(const CovAnisoList &r)
-: CovList(r.getSpaceSh()),
+: CovList(r.getSpace()),
   _covAnisos()
 {
   for (auto* e: r._covAnisos)
@@ -212,7 +212,7 @@ MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db* db1,
                                                    bool cleanOptim) const
 {
   MatrixRectangular mat;
-  SpacePoint p2(getSpaceSh());
+  SpacePoint p2(getSpace());
   if (db2 == nullptr) db2 = db1;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;

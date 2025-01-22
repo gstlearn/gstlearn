@@ -27,7 +27,7 @@ CovLMGradient::CovLMGradient(const CovLMGradient &r)
 }
 
 CovLMGradient::CovLMGradient(const CovAnisoList& r)
-    : CovAnisoList(r.getSpaceSh())
+    : CovAnisoList(r.getSpace())
 {
 
   for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)

@@ -22,7 +22,7 @@
 #include <math.h>
 
 ACor::ACor(const CovContext &ctxt)
-    : ASpaceObject(ctxt.getSpaceSh()),
+    : ASpaceObject(ctxt.getSpace()),
       _nvar(ctxt.getNVar()),
       _tabNoStat(nullptr),
       _ctxt(ctxt)

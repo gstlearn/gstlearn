@@ -19,7 +19,7 @@
 
 CovBase::CovBase(ACor* cor,
                 const MatrixSquareSymmetric &sill)
-: ACov(cor == nullptr? nullptr : cor->getSpaceSh())
+: ACov(cor == nullptr? nullptr : cor->getSpace())
 , _sill(sill)
 , _cor(cor)
 {

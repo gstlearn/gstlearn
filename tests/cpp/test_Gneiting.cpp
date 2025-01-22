@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
   CovAniso* covS = mS->getCova(0);
   CorGneiting gneiting = CorGneiting(covS->getCorAniso(),
                                      covT->getCorAniso(),sep);
-  SpacePoint p1(gneiting.getSpaceSh());
-  SpacePoint p2(gneiting.getSpaceSh());
+  SpacePoint p1(gneiting.getSpace());
+  SpacePoint p2(gneiting.getSpace());
   p1.setCoords(coords1);
   p2.setCoords(coords2);
   double cres = gneiting.eval(p1,p2);

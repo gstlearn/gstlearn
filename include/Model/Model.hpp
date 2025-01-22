@@ -559,7 +559,7 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   const CovContext& getContext() const { return _ctxt; }
-  ASpaceSharedPtr     getASpaceSh() const { return _ctxt.getSpaceSh(); }
+  ASpaceSharedPtr     getASpaceSh() const { return _ctxt.getSpace(); }
   ASpaceSharedPtr    getASpace() const { return getASpaceSh(); }
 
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }

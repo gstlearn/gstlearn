@@ -49,7 +49,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
 CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
     : ACor(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
-      _aniso(ctxt.getSpaceSh()->getNDim()),
+      _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -61,7 +61,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
     : ACor(ctxt), /// TODO : shared pointer
       _cova(),
-      _aniso(ctxt.getSpaceSh()->getNDim()),
+      _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -79,7 +79,7 @@ CorAniso::CorAniso(const ECov &type,
                    bool flagRange)
     : ACor(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
-      _aniso(ctxt.getSpaceSh()->getNDim()),
+      _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -412,7 +412,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
   double h;
   if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
   {
-    h = getSpaceSh()->getDistance(p1, p2, _aniso);
+    h = getSpace()->getDistance(p1, p2, _aniso);
   }
   else
   {
@@ -542,7 +542,7 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) cons
   SpacePoint p1;
   SpacePoint p2;
   p2.setCoords(freq);
-  double freqnorm = getSpaceSh()->getFrequentialDistance(p1, p2, _aniso);
+  double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
   double val = _cova->evaluateSpectrum(freqnorm * freqnorm);
   return   val / getCorrec();
 }
@@ -996,7 +996,7 @@ void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
 {
 
   int n = (int)p.size();
-  SpacePoint pt(getSpaceSh());
+  SpacePoint pt(getSpace());
   for (int i = 0; i < n; i++)
   {
     pt.setIech(p[i].getIech());
