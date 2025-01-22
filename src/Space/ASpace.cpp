@@ -66,7 +66,7 @@ String ASpace::toString(const AStringFormat* strfmt) const
 }
 
 /// Update the origin of the space
-void ASpace::setOrigin(const VectorDouble& origin) const
+void ASpace::setOrigin(const VectorDouble& origin) 
 {
   if (origin.size() != getNDim())
   {
@@ -110,10 +110,10 @@ unsigned int ASpace::getNComponents() const
 }
 
 /// Return the space component at index ispace
-std::shared_ptr<const ASpace> ASpace::getComponent(int ispace) const
+ASpaceSharedPtr ASpace::getComponent(int ispace) const
 {
   DECLARE_UNUSED(ispace)
-  return std::shared_ptr<const ASpace>(this);
+  return ASpaceSharedPtr(this);
 }
 
 /// Dump a space in a string (given the space index)

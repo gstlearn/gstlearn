@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Space/SpaceComposite.hpp"
 
+#include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 
 #include <iostream>
@@ -22,7 +23,7 @@ SpaceComposite::SpaceComposite()
 {
 }
 
-SpaceComposite::SpaceComposite(const std::vector<std::shared_ptr<const ASpace>>& vectspace)
+SpaceComposite::SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace)
   : ASpace(0)
   , _comps()
 {
@@ -59,7 +60,7 @@ SpaceComposite::~SpaceComposite()
 {
 }
 
-void SpaceComposite::setOrigin(const VectorDouble& origin) const 
+void SpaceComposite::setOrigin(const VectorDouble& origin) 
 {
   if (origin.size() != ASpace::getNDim())
   {
@@ -103,7 +104,7 @@ unsigned int SpaceComposite::getNComponents() const
   return (int)_comps.size();
 }
 
-std::shared_ptr<const ASpace> SpaceComposite::getComponent(int ispace) const
+ASpaceSharedPtr SpaceComposite::getComponent(int ispace) const
 {
   if (ispace < 0 || ispace >= (int)getNComponents())
     return ASpace::getComponent(); // Return this if wrong ispace
@@ -159,7 +160,7 @@ VectorDouble SpaceComposite::getDistances(const SpacePoint& p1,
 
 /////////////////////////////////////////////////////////
 
-void SpaceComposite::addSpaceComponent(std::shared_ptr<const ASpace> comp)
+void SpaceComposite::addSpaceComponent(const ASpaceSharedPtr& comp)
 {
   std::shared_ptr<ASpace> sp = std::shared_ptr<ASpace>(dynamic_cast<ASpace*>(comp->clone()));
   sp->ASpace::setOffset(getNDim()); // TODO : I want this to be private and me a friend of ASpace

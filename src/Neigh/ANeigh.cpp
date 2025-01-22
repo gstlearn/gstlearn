@@ -19,7 +19,7 @@
 #include <math.h>
 #include <algorithm>
 
-ANeigh::ANeigh(const std::shared_ptr<const ASpace>& space)
+ANeigh::ANeigh(const ASpaceSharedPtr& space)
   : ASpaceObject(space)
   , ASerializable()
   , _dbin(nullptr)

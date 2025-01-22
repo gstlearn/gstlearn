@@ -25,7 +25,7 @@
  * @param nvar         Number of variables
  * @param space        Space definition
  */
-CovContext::CovContext(int nvar, std::shared_ptr<const ASpace> space)
+CovContext::CovContext(int nvar, const ASpaceSharedPtr& space)
 
     : ASpaceObject(space),
       _nVar(nvar),
@@ -57,7 +57,7 @@ CovContext::CovContext(int nvar,
   _update();
 }
 
-CovContext::CovContext(const Db *db, const std::shared_ptr<const ASpace>& space)
+CovContext::CovContext(const Db *db, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
@@ -71,7 +71,7 @@ CovContext::CovContext(const Db *db, const std::shared_ptr<const ASpace>& space)
   _update();
 }
 
-CovContext::CovContext(const Vario *vario, const std::shared_ptr<const ASpace>& space)
+CovContext::CovContext(const Vario *vario, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),

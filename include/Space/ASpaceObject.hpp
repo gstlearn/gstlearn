@@ -45,7 +45,7 @@ public:
 
 public:
   /// Accessor to the current object space context
-  std::shared_ptr<const ASpace> getSpaceSh() const { return _space; }
+  ASpaceSharedPtr getSpaceSh() const { return _space; }
   /// Indicate if I am consistent with my current space context
   bool isConsistent() const { return isConsistent(_space); }
 
@@ -53,7 +53,7 @@ public:
   VectorDouble getUnitaryVector() const;
 
   /// Indicate if I am consistent with the provided space
-  bool isConsistent(std::shared_ptr<const ASpace> space) const;
+  bool isConsistent(const ASpaceSharedPtr& space) const;
   virtual bool isConsistent(const ASpace* space) const = 0;
 
   //////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ protected:
 
 protected:
   /// Current space context of the object
-  std::shared_ptr<const ASpace> _space;
+  ASpaceSharedPtr _space;
 
 private:
   /// Dummy vector for the origin
@@ -97,13 +97,13 @@ GSTLEARN_EXPORT void defineDefaultSpace(const ESpaceType& type,
                                         unsigned int ndim = 2,
                                         double param      = 0.);
 /// Set the unique default global space from another one
-GSTLEARN_EXPORT void setDefaultSpace(const std::shared_ptr<const ASpace> &space);
+GSTLEARN_EXPORT void setDefaultSpace(const ASpaceSharedPtr& space);
 
 /// Return a clone of the unique default global space
 
 GSTLEARN_EXPORT ESpaceType getDefaultSpaceType();
 GSTLEARN_EXPORT int getDefaultSpaceDimension();
 GSTLEARN_EXPORT const ASpace* getDefaultSpace();
-GSTLEARN_EXPORT std::shared_ptr<const ASpace> getDefaultSpaceSh();
+GSTLEARN_EXPORT ASpaceSharedPtr getDefaultSpaceSh();
 
 GSTLEARN_EXPORT bool isDefaultSpaceSphere();

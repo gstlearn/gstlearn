@@ -32,12 +32,13 @@ class Tensor;
 class GSTLEARN_EXPORT ASpace: public AStringable,
                               public ICloneable
 {
-public:
+protected:
   ASpace(unsigned int ndim);
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
   virtual ~ASpace();
 
+public:
   /// Interface for AStringable
   String toString(const AStringFormat* strfmt = nullptr) const final;
 
@@ -48,7 +49,7 @@ public:
   // Default behavior that can be overriden
 
   /// Update the origin of the space
-  virtual void setOrigin(const VectorDouble& origin) const;
+  virtual void setOrigin(const VectorDouble& origin);
 
   /// Get the number of dimensions
   virtual unsigned int getNDim(int ispace = -1) const;
@@ -154,7 +155,7 @@ protected:
   /// Number of space dimensions
   unsigned int _nDim;
   /// Coordinates of the origin (size = _nDim)
-  mutable VectorDouble _origin;
+  VectorDouble _origin;
   /// Dimension offset index (0 if single space, relative if sub-space)
   unsigned int _offset;
 

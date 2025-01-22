@@ -43,7 +43,7 @@ class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
 public:
   CovLMCTapering(const ETape& tapetype,
                  double taperange,
-                 const ASpaceSharedPtr &space = ASpaceSharedPtr());
+                 const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovLMCTapering(const CovLMCTapering &r);
   CovLMCTapering& operator= (const CovLMCTapering &r);
   virtual ~CovLMCTapering();

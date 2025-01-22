@@ -32,7 +32,7 @@ DirParam::DirParam(int npas,
                    const VectorDouble& breaks,
                    const VectorDouble& codir,
                    double angle2D,
-                   const ASpaceSharedPtr &space)
+                   const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nPas(npas),
       _optionCode(opt_code),
@@ -53,7 +53,7 @@ DirParam::DirParam(int npas,
 DirParam::DirParam(const DbGrid *dbgrid,
                    int npas,
                    const VectorInt &grincr,
-                   const ASpaceSharedPtr &space)
+                   const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nPas(npas),
       _optionCode(0),
@@ -329,7 +329,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
                                                double dpas,
                                                double toldis,
                                                double angref,
-                                               const std::shared_ptr<const ASpace>& space)
+                                               const ASpaceSharedPtr& space)
 {
   int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();
@@ -354,7 +354,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
                                                 double dpas,
                                                 double toldis,
                                                 double tolang,
-                                                const std::shared_ptr<const ASpace>& space)
+                                                const ASpaceSharedPtr& space)
 {
   std::vector<DirParam> dirs;
   int ndim = getDefaultSpaceDimension();
@@ -392,7 +392,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
  *
  * @remark: the angular tolerance is set equal to 0
  */
-std::vector<DirParam> DirParam::createMultipleInSpace(int npas, double dpas, const std::shared_ptr<const ASpace>& space)
+std::vector<DirParam> DirParam::createMultipleInSpace(int npas, double dpas, const ASpaceSharedPtr& space)
 {
   int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();

@@ -219,7 +219,7 @@ double ACov::evalIvarIpas(double step,
                           const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  std::shared_ptr<const ASpace> space = getSpaceSh();
+  ASpaceSharedPtr space = getSpaceSh();
   SpacePoint p1(space);
   SpacePoint p2(space);
 

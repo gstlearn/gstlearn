@@ -861,5 +861,5 @@
 
 %include <std_shared_ptr.i>
 
-%template(ASpaceSharedPtr)            std::shared_ptr<const ASpace>;
+%template(ASpaceSharedPtr)            ASpaceSharedPtr;
 %newobject Model::createFromParam;

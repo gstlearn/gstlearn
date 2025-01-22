@@ -31,7 +31,7 @@ public:
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::SN; };
 
-  static std::shared_ptr<const ASpace> create(int ndim, double radius);
+  static ASpaceSharedPtr create(int ndim, double radius);
   /// Return the sphere radius
   double getRadius() const { return _radius; }
 

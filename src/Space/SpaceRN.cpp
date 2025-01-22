@@ -38,9 +38,9 @@ SpaceRN::~SpaceRN()
 {
 }
 
-std::shared_ptr<const ASpace> SpaceRN::create(int ndim)
+ASpaceSharedPtr SpaceRN::create(int ndim)
 {
-  return std::shared_ptr<const ASpace>(new SpaceRN(ndim));
+  return ASpaceSharedPtr(new SpaceRN(ndim));
 }
 
 void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const

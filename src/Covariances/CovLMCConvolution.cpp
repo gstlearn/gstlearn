@@ -25,7 +25,7 @@ CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
                                      const EConvDir&  conv_dir,
                                      double conv_range,
                                      int conv_ndisc,
-                                     const std::shared_ptr<const ASpace>& space)
+                                     const ASpaceSharedPtr& space)
     : CovAnisoList(space),
       _convType(conv_type),
       _convDir(conv_dir),

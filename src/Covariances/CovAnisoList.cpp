@@ -26,7 +26,7 @@
 #include <vector>
 
 
-CovAnisoList::CovAnisoList(const ASpaceSharedPtr &space)
+CovAnisoList::CovAnisoList(const ASpaceSharedPtr& space)
 : CovList(space),
   _covAnisos()
 {

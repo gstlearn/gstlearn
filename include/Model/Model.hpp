@@ -94,7 +94,7 @@ public:
                                 const VectorDouble& ranges = VectorDouble(),
                                 const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const ASpaceSharedPtr &space = ASpaceSharedPtr(),
+                                const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                                 bool flagRange             = true);
   static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
                           double range               = 1.,
@@ -559,8 +559,8 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   const CovContext& getContext() const { return _ctxt; }
-  std::shared_ptr<const ASpace>     getASpaceSh() const { return _ctxt.getSpaceSh(); }
-  std::shared_ptr<const ASpace>    getASpace() const { return getASpaceSh(); }
+  ASpaceSharedPtr     getASpaceSh() const { return _ctxt.getSpaceSh(); }
+  ASpaceSharedPtr    getASpace() const { return getASpaceSh(); }
 
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }

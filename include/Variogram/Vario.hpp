@@ -325,7 +325,7 @@ public:
   int getDateNumber() const { return _varioparam.getDateNumber(); }
   double getScale() const { return _varioparam.getScale(); }
   int getDimensionNumber() const { return getDirParam(0).getNDim(); }
-  std::shared_ptr<const ASpace> getSpace() const { return getDirParam(0).getSpaceSh(); }
+  ASpaceSharedPtr getSpace() const { return getDirParam(0).getSpaceSh(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
   void addDirs(const DirParam& dirparam) { _varioparam.addDir(dirparam); }

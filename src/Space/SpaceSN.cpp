@@ -42,7 +42,7 @@ SpaceSN::~SpaceSN()
 {
 }
 
-std::shared_ptr<const ASpace> SpaceSN::create(int ndim, double radius)
+ASpaceSharedPtr SpaceSN::create(int ndim, double radius)
 {
   return std::make_shared<const SpaceSN>(ndim, radius);
 }

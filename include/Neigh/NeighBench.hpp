@@ -39,7 +39,7 @@ class Db;
 class GSTLEARN_EXPORT NeighBench: public ANeigh
 {
 public:
-  NeighBench(bool flag_xvalid = false, double width = 0., const ASpaceSharedPtr &space = ASpaceSharedPtr());
+  NeighBench(bool flag_xvalid = false, double width = 0., const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();

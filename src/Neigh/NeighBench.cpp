@@ -14,7 +14,7 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/OptDbg.hpp"
 
-NeighBench::NeighBench(bool flag_xvalid, double width, const std::shared_ptr<const ASpace> &space)
+NeighBench::NeighBench(bool flag_xvalid, double width, const ASpaceSharedPtr& space)
     : ANeigh(space),
       _width(width),
       _biPtBench(),
@@ -94,7 +94,7 @@ bool NeighBench::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighBench* NeighBench::create(bool flag_xvalid, double width, const std::shared_ptr<const ASpace>& space)
+NeighBench* NeighBench::create(bool flag_xvalid, double width, const ASpaceSharedPtr& space)
 {
   return new NeighBench(flag_xvalid, width, space);
 }

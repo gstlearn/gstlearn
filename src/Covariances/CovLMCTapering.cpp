@@ -22,7 +22,7 @@
 
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
-                               const std::shared_ptr<const ASpace>& space)
+                               const ASpaceSharedPtr& space)
   : CovAnisoList(space)
   , _tapeType()
   , _tapeRange(0)

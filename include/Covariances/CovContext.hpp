@@ -19,7 +19,7 @@ class Db;
 class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
-  CovContext(int nvar = 1 , ASpaceSharedPtr space = ASpaceSharedPtr());
+  CovContext(int nvar = 1 , const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovContext(int nvar,
              int ndim,
              const VectorDouble& mean = VectorDouble(),
