@@ -15,7 +15,7 @@
 #include "Drifts/ADrift.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -95,7 +95,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Create the basic covariance structures
   // **************************************
 
-  ACovAnisoList* covs = new CovLMGradient();
+  CovAnisoList* covs = new CovLMGradient(ctxt.getSpaceSh());
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -154,7 +154,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
       delete covnew;
     }
   }
-  new_model->setCovList(covs);
+  new_model->setCovAnisoList(covs);
   delete covs;
 
   // *********************************

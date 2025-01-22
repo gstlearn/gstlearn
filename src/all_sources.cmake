@@ -40,6 +40,7 @@ set(SRC
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
   Model/ModelGeneric.cpp
+  Model/ModelCovList.cpp
   Model/ConsItem.cpp
   Model/CovParamId.cpp
   Model/Constraints.cpp
@@ -69,6 +70,7 @@ set(SRC
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
   Covariances/CovBase.cpp
+  Covariances/CovProportional.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp
@@ -83,7 +85,8 @@ set(SRC
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp
   Covariances/CovGC5.cpp
-  Covariances/ACovAnisoList.cpp
+  Covariances/CovList.cpp
+  Covariances/CovAnisoList.cpp
   Covariances/CovPenta.cpp
   Covariances/CovGamma.cpp
   Covariances/CovExponential.cpp

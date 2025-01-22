@@ -15,10 +15,11 @@
 #include "Enum/EConvDir.hpp"
 #include "Enum/EConvType.hpp"
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class ASpace;
+#include "Space/ASpace.hpp"
+
 class SpacePoint;
 class CovAniso;
 class Model;
@@ -38,14 +39,14 @@ GSTLEARN_EXPORT double _conv_sincard(double v);
 
 GSTLEARN_EXPORT Def_Convolution& D_CONV(int rank);
 
-class GSTLEARN_EXPORT CovLMCConvolution : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMCConvolution : public CovAnisoList
 {
 public:
   CovLMCConvolution(const EConvType& conv_type,
                     const EConvDir& conv_dir,
                     double conv_range,
                     int conv_ndisc,
-                    const ASpace* space = nullptr);
+                    const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovLMCConvolution(const CovLMCConvolution &r);
   CovLMCConvolution& operator= (const CovLMCConvolution &r);
   virtual ~CovLMCConvolution();
@@ -75,17 +76,19 @@ public:
   int getConvNumber() const { return _convNumber; }
 
 protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode* mode = nullptr) const override;
+  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                    const SpacePoint& pwork1,
+                                    const SpacePoint& pwork2,
+                                    const CovCalcMode* mode) const override;
+  void _optimizationSetTarget(const SpacePoint& pt) const override
+  {
+    ACov::_optimizationSetTarget(pt); // TODO: cannot replace by CovAnisoList???
+  }
 
-    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const override;
-        void _optimizationSetTarget(const SpacePoint &pt) const override
-    {
-      ACov::_optimizationSetTarget(pt);
-    }
 private:
   EConvType _convType; /* Convolution type */
   EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */

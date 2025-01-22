@@ -45,7 +45,7 @@ public:
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
-  void setCor(ACor* cor);
+  virtual void setCor(ACor* cor);
   ACor* getCor() { return _cor; }
   
   double getSill(int ivar, int jvar) const;
@@ -120,7 +120,6 @@ void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 protected:
     TabNoStat _tabNoStat;
     mutable MatrixSquareSymmetric _sill;
-    CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?    
     mutable MatrixSquareGeneral _workMat;
 private :
     ACor* _cor;

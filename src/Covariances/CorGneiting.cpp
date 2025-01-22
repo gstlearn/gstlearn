@@ -12,15 +12,15 @@
 #include "Covariances/CorGneiting.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/ACor.hpp"
-#include "Covariances/CovBase.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovBase.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "geoslib_define.h"
+#include <memory>
 #include <vector>
 
 CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double separability)
@@ -36,10 +36,9 @@ CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double se
     messerr("CorGneiting: Separability must be in [0,1]");
     messerr("It has been set to 0");
   }
-  delete _space;
-  SpaceComposite* space = new SpaceComposite();
-  space->addSpaceComponent(covS->getSpace());
-  space->addSpaceComponent(covTemp->getSpace()); 
+  auto space = std::shared_ptr<SpaceComposite>(new SpaceComposite());
+  space->addSpaceComponent(covS->getSpaceSh());
+  space->addSpaceComponent(covTemp->getSpaceSh()); 
   _space = space;
 }
 

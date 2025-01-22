@@ -1,0 +1,20 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2         z
+     [  0,]     1.000     0.652     0.015     0.753
+     [  1,]     2.000     0.483     0.557       N/A
+     [  2,]     3.000     0.762     0.433     0.793
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+            *d.z.esterr *d.z.stderr
+     [  0,]       0.040       0.028
+     [  1,]         N/A         N/A
+     [  2,]      -0.040      -0.028

@@ -68,12 +68,13 @@ public:
   int  getDriftEquationNumber() const;
   bool hasExternalDrift() const;
   bool isValid() const;
+  int  getExternalDriftNumber() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const ADrift*  getDrift(int il) const;
-  int            getRankFex(int il) const;
-  String         getDriftName(int il) const;
+  const ADrift* getDrift(int il) const;
+  int getRankFex(int il) const;
+  String getDriftName(int il) const;
   ////////////////////////////////////////////////
 
   const VectorDouble& getBetaHats() const { return _betaHat; }
@@ -116,10 +117,14 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMatrix(const Db *db,
-                                    int ivar0 = -1,
-                                    const VectorInt &nbgh = VectorInt(),
-                                    const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMatrix(const Db* db,
+                                    int ivar0             = -1,
+                                    const VectorInt& nbgh = VectorInt(),
+                                    const ECalcMember& member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftTargetMatrix(const Db* db,
+                                          int ivar0             = -1,
+                                          int iech2 = 0,
+                                          const ECalcMember& member = ECalcMember::fromKey("LHS"));
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,

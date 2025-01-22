@@ -445,7 +445,7 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-          void getSampleAsSPInPlace(SpacePoint& P) const;
+  void getSampleAsSPInPlace(SpacePoint& P, int iech) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
@@ -474,7 +474,7 @@ public:
   void getArrayBySample(std::vector<double>& vals, int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
-  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space,bool useSel = false) const;
+  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<const ASpace>& space,bool useSel = false) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
   int    getFromLocatorNumber(const ELoc& locatorType) const;
@@ -554,28 +554,27 @@ public:
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
-                           int item = -1,
-                           bool useSel = true,
-                           bool useVerr = false) const;
-  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars = VectorInt(),
-                                         const VectorInt &nbgh = VectorInt(),
-                                         bool useSel = true,
-                                         bool useVerr = false) const;
-  VectorDouble
-  getMultipleValuesActive(const VectorInt& ivars    = VectorInt(),
-                          const VectorInt& nbgh     = VectorInt(),
-                          const VectorDouble& means = VectorDouble(),
-                          bool useSel               = true,
-                          bool useVerr              = false) const;
-  static VectorInt
-  getMultipleSelectedIndices(const VectorVectorInt& index,
-                             const VectorInt& ivars = VectorInt(),
-                             const VectorInt& nbgh  = VectorInt());
-  static VectorInt
-  getMultipleSelectedVariables(const VectorVectorInt& index,
-                               const VectorInt& ivars = VectorInt(),
-                               const VectorInt& nbgh  = VectorInt());
+  VectorInt getRanksActive(const VectorInt& nbgh = VectorInt(),
+                           int item              = -1,
+                           bool useSel           = true,
+                           bool useZ             = true,
+                           bool useVerr          = false) const;
+  VectorVectorInt getMultipleRanksActive(const VectorInt& ivars = VectorInt(),
+                                         const VectorInt& nbgh  = VectorInt(),
+                                         bool useSel            = true,
+                                         bool useZ              = true,
+                                         bool useVerr           = false) const;
+  VectorDouble getMultipleValuesActive(const VectorInt& nbgh     = VectorInt(),
+                                       const VectorDouble& means = VectorDouble(),
+                                       bool useSel               = true,
+                                       bool useZ                 = true,
+                                       bool useVerr              = false) const;
+  static VectorInt getMultipleSelectedIndices(const VectorVectorInt& index,
+                                              const VectorInt& ivars = VectorInt(),
+                                              const VectorInt& nbgh  = VectorInt());
+  static VectorInt getMultipleSelectedVariables(const VectorVectorInt& index,
+                                                const VectorInt& ivars = VectorInt(),
+                                                const VectorInt& nbgh  = VectorInt());
 
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;

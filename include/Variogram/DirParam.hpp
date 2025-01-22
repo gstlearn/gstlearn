@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -58,11 +59,11 @@ public:
            const VectorDouble& breaks = VectorDouble(),
            const VectorDouble& codir  = VectorDouble(),
            double angle2D = TEST,
-           const ASpace* space = nullptr);
+           const ASpaceSharedPtr& space = ASpaceSharedPtr());
   DirParam(const DbGrid *dbgrid,
            int npas,
            const VectorInt &grincr,
-           const ASpace *space);
+           const ASpaceSharedPtr& space);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();
@@ -79,7 +80,7 @@ public:
                           const VectorDouble& breaks = VectorDouble(),
                           const VectorDouble& codir = VectorDouble(),
                           double angle2D = TEST,
-                          const ASpace* space = nullptr);
+                          const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static DirParam* createOmniDirection(int npas = 10,
                                        double dpas = 1., // TODO : translate
                                        double toldis = 0.5,
@@ -89,26 +90,26 @@ public:
                                        double cylrad = TEST,
                                        double tolcode = 0.,
                                        const VectorDouble& breaks = VectorDouble(),
-                                       const ASpace* space = nullptr);
+                                       const ASpaceSharedPtr &space = ASpaceSharedPtr());
   static DirParam* createFromGrid(const DbGrid* dbgrid,
                                   int npas = 10,
                                   const VectorInt& grincr = VectorInt(),
-                                  const ASpace* space = nullptr);
+                                  const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static std::vector<DirParam> createMultiple(int ndir,
                                               int npas = 10,
                                               double dpas = 1.,
                                               double toldis = 0.5,
                                               double angref = 0.,
-                                              const ASpace* space = nullptr);
+                                              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static std::vector<DirParam> createSeveral2D(const VectorDouble& angles,
                                                int npas = 10,
                                                double dpas = 1.,
                                                double toldis = 0.5,
                                                double tolang = TEST,
-                                               const ASpace *space = nullptr);
+                                               const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static std::vector<DirParam> createMultipleInSpace(int npas,
                                                      double dpas = 1.,
-                                                     const ASpace *space = nullptr);
+                                                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
 public:
   /// AStringable Interface
@@ -116,8 +117,6 @@ public:
 
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;
-
-  const ASpace* getSpace() const { return _space; }
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }

@@ -132,7 +132,7 @@ static void st_modify_optvar_for_anam(Model* model, Option_VarioFit &optvar)
   const CovLMCAnamorphosis* covanam = dynamic_cast<const CovLMCAnamorphosis*>(model->getCovAnisoList());
   if (covanam != nullptr)
   {
-    const EAnam anamtype = covanam->getAnamType();
+    EAnam anamtype = covanam->getAnamType();
     if (anamtype != EAnam::HERMITIAN && optvar.getFlagGoulardUsed())
       optvar.setFlagGoulardUsed(0);
   }

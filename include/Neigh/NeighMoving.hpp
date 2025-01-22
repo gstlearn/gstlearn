@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -52,7 +53,7 @@ public:
               int nsmax = ITEST,
               const VectorDouble& coeffs = VectorDouble(),
               const VectorDouble& angles = VectorDouble(),
-              const ASpace* space = nullptr);
+              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
@@ -77,7 +78,7 @@ public:
                              int nsmax = ITEST,
                              const VectorDouble& coeffs = VectorDouble(),
                              const VectorDouble& angles = VectorDouble(),
-                             const ASpace* space = nullptr);
+                             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
   void addBiTargetCheck(ABiTargetCheck* abpc);

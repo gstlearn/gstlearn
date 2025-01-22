@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Db/Db.hpp"
@@ -57,17 +57,17 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model modellmc = Model(ctxt);
   // Build the List of Covariances
-  ACovAnisoList covlmc = ACovAnisoList(ctxt.getSpace());
+  CovAnisoList covlmc = CovAnisoList(ctxt.getSpaceSh());
   // Build the Elementary Covariances
   CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
   cov1.setRanges({1.2,2.1});
   cov1.setSill(1.5);
-  covlmc.addCov(&cov1);
+  covlmc.addCovAniso(&cov1);
   CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);
   cov2.setSill(0.5);
-  covlmc.addCov(&cov2);
+  covlmc.addCovAniso(&cov2);
   // Assembling the Model
-  modellmc.setCovList(&covlmc);
+  modellmc.setCovAnisoList(&covlmc);
   modellmc.display();
 
   // Building the Covariance Matrix
@@ -82,13 +82,13 @@ int main(int argc, char *argv[])
 
   /////////////////////////////
   // Creating the Tapered Model
-  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt.getSpace());
+  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt.getSpaceSh());
   // Build the Covariance list
-  covtape.addCov(&cov1);
-  covtape.addCov(&cov2);
+  covtape.addCovAniso(&cov1);
+  covtape.addCovAniso(&cov2);
   // Building the Model
   Model modeltape = Model(ctxt);
-  modeltape.setCovList(&covtape);
+  modeltape.setCovAnisoList(&covtape);
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
@@ -96,13 +96,13 @@ int main(int argc, char *argv[])
 
   /////////////////////////////
   // Creating the Convoluted Model
-  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt.getSpace());
+  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt.getSpaceSh());
   // Build the Covariance list
-  covconv.addCov(&cov1);
-  covconv.addCov(&cov2);
+  covconv.addCovAniso(&cov1);
+  covconv.addCovAniso(&cov2);
   // Building the Model
   Model modelconv = Model(ctxt);
-  modelconv.setCovList(&covconv);
+  modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
   VH::display("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));

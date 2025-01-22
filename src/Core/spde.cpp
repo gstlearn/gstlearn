@@ -22,7 +22,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -1246,7 +1246,7 @@ static void st_calcul_init(int ndim)
   Calcul.hh.resize(ndim * ndim, 0.);
   if (Calcul.flag_sphere)
   {
-    const ASpace* space = getDefaultSpace();
+    const ASpace* space = getDefaultSpaceSh().get();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     Calcul.R = spaceSn->getRadius();
     Calcul.srot.resize(2, 0.);

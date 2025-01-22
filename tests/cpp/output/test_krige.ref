@@ -341,6 +341,7 @@ Data Base Statistics
  Variance            =     22.016
 
 <----- Bayesian Simulations in Unique Neighborhood ----->
+Bayesian option is incompatible with 'Dual'
 
 Data Base Grid Characteristics
 ==============================
@@ -654,8 +655,8 @@ Punctual Estimation
           4    -34.253    -39.276     -0.211      0.000
 Sum of weights                                    1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.156
 
@@ -722,8 +723,8 @@ Punctual Estimation
           4    -34.253    -39.276     -0.211      0.550
 Sum of weights                                    1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      8.426      0.156
 

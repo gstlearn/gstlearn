@@ -27,7 +27,7 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nsmax,
                          const VectorDouble& coeffs,
                          const VectorDouble& angles,
-                         const ASpace *space)
+                         const std::shared_ptr<const ASpace>& space)
     : ANeigh(space),
       _nMini(nmini),
       _nMaxi(nmaxi),
@@ -243,7 +243,7 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nsmax,
                                  const VectorDouble& coeffs,
                                  const VectorDouble& angles,
-                                 const ASpace* space)
+                                 const std::shared_ptr<const ASpace>& space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
                          coeffs, angles, space);

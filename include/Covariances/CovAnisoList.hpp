@@ -16,7 +16,7 @@
 #include "Enum/ECov.hpp"
 
 #include "Basic/ICloneable.hpp"
-#include "Covariances/ACov.hpp"
+#include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
@@ -40,17 +40,17 @@ class AAnam;
  * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
  * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
  */
-class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
+class GSTLEARN_EXPORT CovAnisoList : public CovList, public ICloneable
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
-  ACovAnisoList(const ASpace* space = nullptr);
-  ACovAnisoList(const ACovAnisoList &r);
-  ACovAnisoList& operator= (const ACovAnisoList &r);
-  virtual ~ACovAnisoList();
+  CovAnisoList(const ASpaceSharedPtr &space);
+  CovAnisoList(const CovAnisoList &r);
+  CovAnisoList& operator= (const CovAnisoList &r);
+  virtual ~CovAnisoList();
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(ACovAnisoList)
+  IMPLEMENT_CLONING(CovAnisoList)
 
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
@@ -61,11 +61,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       int ivar = 0,
-                       int jvar = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  
   virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode = nullptr) const override;
   virtual void _addEvalCovMatBiPointInPlace(
@@ -73,24 +69,22 @@ public:
                               const SpacePoint &p1,
                               const SpacePoint &p2,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ACovAnisoList Interface
-  virtual void addCov(const CovAniso* cov);
+  /// CovAnisoList Interface
+  virtual void addCovAniso(const CovAniso* cov);
+  void addCov(const CovBase* cov) override;
+
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
   virtual void setActiveFactor(int /*iclass*/) { }
   virtual int getActiveFactor() const { return 0; }
   virtual int getAnamNClass() const { return 0; }
 
-  void addCovList(const ACovAnisoList* covs);
-  // Remove an elementary covariance structure
-  void delCov(int icov);
-  // Remove all elementary covariance structures
-  void delAllCov();
+  void addCovList(const CovAnisoList* covs);
+
   // Filter a covariance
   void setFiltered(int icov, bool filtered);
 
@@ -99,8 +93,7 @@ public:
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
-  double          getTotalSill(int ivar, int jvar) const;
-  MatrixSquareSymmetric getTotalSill() const;
+  double          getTotalSill(int ivar = 0, int jvar = 0) const override;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;
@@ -110,9 +103,9 @@ public:
   ////////////////////////////////////////////////
   const CovAniso*    getCova(int icov) const;
   CovAniso*          getCova(int icov); // TODO : beurk :(
-  void               setCova(int icov, CovAniso* covs);
-  const ECov&        getType(int icov) const;
-  String             getCovName(int icov) const;
+  void               setCovAniso(int icov, CovAniso* covs);
+  const ECov&        getType(int icov) const override;
+  String             getCovName(int icov) const override;
   void               setRangeIsotropic(int icov, double range);
   void               setType(int icov, const ECov& type);
   void               setParam(int icov, double value);
@@ -121,8 +114,6 @@ public:
   double             getParam(int icov) const;
   double             getRange(int icov) const;
   VectorDouble       getRanges(int icov) const;
-  const MatrixSquareSymmetric& getSill(int icov) const;
-  double             getSill(int icov, int ivar, int jvar) const;
   int                getGradParamNumber(int icov) const;
   CovAniso           extractCova(int icov) const;
   int                getCovaMinIRFOrder() const;
@@ -132,41 +123,46 @@ public:
   void _optimizationPostProcess() const override ;
   void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
-  MatrixRectangular evalCovMatrixOptim(const Db *db1,
-                                       const Db *db2,
-                                       int ivar0 = -1,
-                                       int jvar0 = -1,
-                                       const VectorInt& nbgh1 = VectorInt(),
-                                       const VectorInt& nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr) const override;
-  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
-                                                    int ivar0 = -1,
-                                                    const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr) const override;
-   
+  MatrixRectangular evalCovMatrixOptim(const Db* db1,
+                                       const Db* db2,
+                                       int ivar0               = -1,
+                                       int jvar0               = -1,
+                                       const VectorInt& nbgh1  = VectorInt(),
+                                       const VectorInt& nbgh2  = VectorInt(),
+                                       const CovCalcMode* mode = nullptr,
+                                       bool cleanOptim         = true) const override;
+  MatrixRectangular evalCovMatrixTargetOptim(const Db* db1,
+                                             const Db* db2,
+                                             const VectorVectorInt& sampleRanks1,
+                                             int ivar0               = -1,
+                                             int jvar0               = -1,
+                                             int iech2               = 0,
+                                             const CovCalcMode* mode = nullptr,
+                                             bool cleanOptim         = true) const override;
+  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db* db1,
+                                                    int ivar0               = -1,
+                                                    const VectorInt& nbgh1  = VectorInt(),
+                                                    const CovCalcMode* mode = nullptr,
+                                                    bool cleanOptim         = true) const override;
+
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
   int  getRankNugget() const;
-  const ACovAnisoList* createReduce(const VectorInt &validVars) const;
+  const CovAnisoList* createReduce(const VectorInt &validVars) const;
 
+private:
+  // Remove an elementary covariance structure
+  void _delCov(int icov) override;
+  // Remove all elementary covariance structures
+  void _delAllCov() override;
 
 protected:
+  void _pushCov(const CovAniso* cov);
   bool _isCovarianceIndexValid(int icov) const;
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
-  double _loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const;
-private:
-  void _manage(const Db* db1,const Db* db2) const override;
   
-  static bool _considerAllCovariances(const CovCalcMode* mode);
-
 #ifndef SWIG
 protected:
-  std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
-  VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+ std::vector<CovAniso*> _covAnisos;     /// Vector of elementary covariances
+ // VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
 #endif
 };

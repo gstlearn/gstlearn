@@ -2055,9 +2055,9 @@ VectorVectorInt correlationPairs(Db *db1,
   int nech = db1->getSampleNumber();
   int ndim = db1->getNDim();
   int shift = (flagFrom1) ? 1 : 0;
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  auto space = SpaceRN::create(ndim);
+  SpaceTarget T1(space);
+  SpaceTarget T2(space);
 
   /* Regular correlation */
 
@@ -2134,9 +2134,9 @@ VectorVectorInt hscatterPairs(Db *db,
   const DirParam dirparam = varioparam->getDirParam(idir);
   int nech = db->getSampleNumber();
   int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  auto space = SpaceRN::create(ndim);
+  SpaceTarget T1(space);
+  SpaceTarget T2(space);
   indices.resize(2);
 
   // Creating a local Vario structure from VarioParam (in order to constitute the BiTargetCheck list)

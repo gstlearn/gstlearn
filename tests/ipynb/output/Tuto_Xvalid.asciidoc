@@ -214,8 +214,8 @@ Punctual Estimation
           9     64.591     82.042     -0.157      0.063
 Sum of weights                                    1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.256      0.289
 
@@ -344,8 +344,8 @@ Punctual Estimation
          10     64.591     82.042     -0.157      0.000
 Sum of weights                                    1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.446
 
@@ -525,8 +525,8 @@ Punctual Estimation
          10     64.591     82.042     -0.157      0.000
 Sum of weights                                    1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.488
 

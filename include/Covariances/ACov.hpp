@@ -17,7 +17,9 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/ASpace.hpp"
 
 #include <vector>
 
@@ -34,21 +36,22 @@ class MatrixSparse;
  * (in order to let the user defined its own version if necessary): it must simply be able to return its value
  * between two end-point (see eval method).
  *
- * It is mainly implemented in CovAniso.hpp or ACovAnisoList.hpp
+ * It is mainly implemented in CovAniso.hpp or CovAnisoList.hpp
  */
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
 public:
-  ACov(const ASpace* space = nullptr);
+  ACov(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   ACov(const ACov &r);
   ACov& operator=(const ACov &r);
   virtual ~ACov();
 
   /// ACov Interface
-  virtual int getNVariables() const = 0;
+  virtual int getNVariables() const {return _ctxt.getNVar();};
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
 
+  const CovContext& getContext() const { return _ctxt; }
  
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
@@ -129,7 +132,30 @@ public:
 
   void optimizationPostProcess() const;
   virtual bool isOptimEnabled() const {return _isOptimEnabled();}
-
+  virtual MatrixRectangular
+  evalCovMatrixOptim(const Db* db1,
+                     const Db* db2,
+                     int ivar0               = -1,
+                     int jvar0               = -1,
+                     const VectorInt& nbgh1  = VectorInt(),
+                     const VectorInt& nbgh2  = VectorInt(),
+                     const CovCalcMode* mode = nullptr,
+                     bool cleanOptim         = true) const;
+  virtual MatrixRectangular
+  evalCovMatrixTargetOptim(const Db* db1,
+                           const Db* db2,
+                           const VectorVectorInt& sampleRanks1,
+                           int ivar0               = -1,
+                           int jvar0               = -1,
+                           int iech2               = -1,
+                           const CovCalcMode* mode = nullptr,
+                           bool cleanOptim         = true) const;
+  virtual MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db* db1,
+                              int ivar0               = -1,
+                              const VectorInt& nbgh1  = VectorInt(),
+                              const CovCalcMode* mode = nullptr,
+                              bool cleanOptim         = true) const;
+  
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
@@ -139,18 +165,27 @@ public:
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
-
-  virtual MatrixRectangular evalCovMatrixOptim(const Db *db1,
-                                       const Db *db2,
-                                       int ivar0 = -1,
-                                       int jvar0 = -1,
-                                       const VectorInt& nbgh1 = VectorInt(),
-                                       const VectorInt& nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr) const;
-  virtual MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
-                                                    int ivar0 = -1,
-                                                    const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr) const;
+  MatrixRectangular evalCovMatrix(const Db* db1,
+                                  const Db* db2 = nullptr,
+                                  int ivar0 = -1,
+                                  int jvar0 = -1,
+                                  const VectorInt& nbgh1 = VectorInt(),
+                                  const VectorInt& nbgh2 = VectorInt(),
+                                  const CovCalcMode* mode = nullptr,
+                                  bool cleanOptim         = true) const;
+  MatrixRectangular evalCovMatrixTarget(const Db* db1,
+                                        const Db* db2,
+                                        const VectorVectorInt& sampleRanks1,
+                                        int ivar0               = -1,
+                                        int jvar0               = -1,
+                                        const int iech2         = 0,
+                                        const CovCalcMode* mode = nullptr,
+                                        bool cleanOptim         = true) const;
+  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db* db1,
+                         int ivar0               = -1,
+                         const VectorInt& nbgh1  = VectorInt(),
+                         const CovCalcMode* mode = nullptr,
+                         bool cleanOptim         = true) const;
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
                       int ivar = 0,
@@ -249,17 +284,6 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  MatrixRectangular evalCovMatrix(const Db* db1_arg,
-                                  const Db* db2_arg = nullptr,
-                                  int ivar0 = -1,
-                                  int jvar0 = -1,
-                                  const VectorInt& nbgh1 = VectorInt(),
-                                  const VectorInt& nbgh2 = VectorInt(),
-                                  const CovCalcMode* mode = nullptr) const;
-  MatrixSquareSymmetric evalCovMatrixSymmetric(const Db *db1,
-                                               int ivar0,
-                                               const VectorInt &nbgh1,
-                                               const CovCalcMode *mode) const;
   MatrixSparse* evalCovMatrixSparse(const Db *db1_arg,
                                     const Db *db2_arg = nullptr,
                                     int ivar0 = -1,
@@ -309,11 +333,7 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
-
-  void manage(const Db* db1,const Db* db2) const
-  {
-      _manage(db1, db2);
-  }
+  void manage(const Db* db1, const Db* db2) const { _manage(db1, db2); }
 
   void load(const SpacePoint& p,bool case1) const;
 
@@ -327,6 +347,7 @@ public:
                      const CovCalcMode* mode) const;
 
 protected:
+  void setNVar(int nvar) { _ctxt.setNVar(nvar); }
   virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode = nullptr) const;
   virtual void _optimizationSetTarget(const SpacePoint &pt) const;
@@ -373,4 +394,5 @@ protected:
   mutable SpacePoint _p2A;
   const mutable SpacePoint* _pw1;
   const mutable SpacePoint* _pw2;
+  CovContext _ctxt;         /* Context */
 };

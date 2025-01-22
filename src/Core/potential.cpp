@@ -322,10 +322,10 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   if (pot_ext->model == nullptr) return 1;
 
   // Covariance part
-  CovLMGradient covs(ctxt.getSpace());
+  CovLMGradient covs(ctxt.getSpaceSh());
   CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
   covs.addCov(&cov);
-  pot_ext->model->setCovList(&covs);
+  pot_ext->model->setCovAnisoList(&covs);
 
   // Drift part
   DriftList drifts(ctxt);
@@ -1898,7 +1898,7 @@ static void st_calc_point(Pot_Env *pot_env,
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH))
   {
     mestitle(1, "Target location");
-    db_sample_print(db_target, iech0, 1, 0, 0);
+    db_sample_print(db_target, iech0, 1, 0, 0, 0);
   }
 
   /* Establish the R.H.S */

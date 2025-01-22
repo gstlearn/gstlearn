@@ -705,9 +705,16 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
-void Db::getSampleAsSPInPlace(SpacePoint& P) const
+/**
+ * @brief In the SpacePoint 'P', define the sample rank and coordinates
+ * 
+ * @param P SpacePoint reference (output)
+ * @param iech Rank of the sample
+ */
+void Db::getSampleAsSPInPlace(SpacePoint& P, int iech) const
 {
-  getCoordinatesPerSampleInPlace(P.getIech(),P.getCoordRef());
+  P.setIech(iech);
+  getCoordinatesPerSampleInPlace(iech,P.getCoordRef());
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -731,10 +738,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    P1.setIech(iechs[ip]);
-    P2.setIech(jechs[ip]);
-    getSampleAsSPInPlace(P1);
-    getSampleAsSPInPlace(P2);
+    getSampleAsSPInPlace(P1, iechs[ip]);
+    getSampleAsSPInPlace(P2, jechs[ip]);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -751,8 +756,7 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  P.setIech(iech);
-  getSampleAsSPInPlace(P);
+  getSampleAsSPInPlace(P, iech);
 
   // Load the code (optional)
   if (P.checkCode())
@@ -768,24 +772,25 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<
+                        const ASpace> &space,
+                        bool useSel) const
 {
+  pvec.clear();
   int iechcur = 0;
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
-    
     if (isActive(iech))
     {
       pvec.push_back(SpacePoint(space));
-      SpacePoint &p = pvec[iechcur++];
-      p.setIech(iech);
-      getSampleAsSPInPlace(p);
+      SpacePoint& p = pvec[iechcur++];
+      getSampleAsSPInPlace(p, iech);
     }
     else
     {
       if (useSel) continue;
       pvec.push_back(SpacePoint(space));
-      SpacePoint &p = pvec[iechcur++];
+      SpacePoint& p = pvec[iechcur++];
       p.setIech(iech);
       p.setFFFF();
     }
@@ -827,6 +832,7 @@ void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) c
   for (int idim = 0; idim < getNDim(); idim++)
     coor[idim] = getCoordinate(iech, idim, flag_rotate);
 }
+
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 {
   double v1 = getCoordinate(iech, idim);
@@ -3427,13 +3433,13 @@ VectorDouble Db::getSelections(void) const
 }
 
 /**
- * Returns a one_dimensional vector of values for valid samples for the set of
- * variables 'ivars'
+ * Returns a one_dimensional vector of values for valid samples for the
+ * all sets of variables
  *
- * @param ivars   Vector giving the indices of the variables of interest
  * @param nbgh    Vector giving the ranks of the elligible samples (optional)
  * @param means   Vector of Means per variable (optional)
  * @param useSel  Discard the masked samples (if True)
+ * @param useZ    Discard if a Z-variable is undefined
  * @param useVerr Discard the samples where Verr (if it exists) is not correctly
  * defined
  *
@@ -3442,19 +3448,17 @@ VectorDouble Db::getSelections(void) const
  * @note: If argumennt 'Mean' is provided, the mean is subtracted from the output vector
  */
 
-VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
-                                         const VectorInt& nbgh,
+VectorDouble Db::getMultipleValuesActive(const VectorInt& nbgh,
                                          const VectorDouble& means,
                                          bool useSel,
+                                         bool useZ,
                                          bool useVerr) const
 {
-  VectorDouble vec;
+  int nvar = getLocatorNumber(ELoc::Z);
+  VectorInt jvars = VH::sequence(nvar);
+  const VectorVectorInt index = getMultipleRanksActive(jvars, nbgh, useSel, useZ, useVerr);
 
-  VectorInt jvars = ivars;
-  if (jvars.empty()) jvars = VH::sequence(getLocatorNumber(ELoc::Z));
-  const VectorVectorInt index = getMultipleRanksActive(jvars, nbgh, useSel, useVerr);
-    
-  int nvar = (int)jvars.size();
+  VectorDouble vec;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar = jvars[ivar];
@@ -3529,16 +3533,16 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  * @param ivars   Vector giving the indices of the variables of interest
  * @param nbgh    Vector giving the ranks of the elligible samples (optional)
  * @param useSel  Discard the masked samples (if True)
- * @param useVerr Discard the samples where Verr (if it exists) is not
- * correctly defined
+ * @param useZ    Discard samples when Z is not defined
+ * @param useVerr Discard the samples where Verr (optional) is not defined
  *
  * @note: if the current 'db' has some Z-variable defined, only samples
- * where
- * @note a variable is defined is considered (search for heterotopy).
+ * @note: where a variable is defined is considered (search for heterotopy).
  */
 VectorVectorInt Db::getMultipleRanksActive(const VectorInt& ivars,
                                            const VectorInt& nbgh,
                                            bool useSel,
+                                           bool useZ, 
                                            bool useVerr) const
 {
   VectorInt jvars = ivars;
@@ -3549,7 +3553,7 @@ VectorVectorInt Db::getMultipleRanksActive(const VectorInt& ivars,
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar    = jvars[ivar];
-    index[ivar] = getRanksActive(nbgh, jvar, useSel, useVerr);
+    index[ivar] = getRanksActive(nbgh, jvar, useSel, useZ, useVerr);
   }
   return index;
 }
@@ -3557,6 +3561,7 @@ VectorVectorInt Db::getMultipleRanksActive(const VectorInt& ivars,
 VectorInt Db::getRanksActive(const VectorInt& nbgh,
                              int item,
                              bool useSel,
+                             bool useZ,
                              bool useVerr) const
 {
   double value;
@@ -3577,8 +3582,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
   // Update the search for variable, if no variable is defined
   if (getLocNumber(ELoc::Z) <= 0) item = -1;
 
-  // Check the presence of variance of measurement error variable (only if
-  // 'useVerr')
+  // Check the presence of variance of measurement error (when 'useVerr')
   bool useV = false;
   if (useVerr && item >= 0)
   {
@@ -3602,7 +3606,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
     if (item >= 0)
     {
       value = getZVariable(iech, item);
-      if (FFFF(value)) continue;
+      if (useZ && FFFF(value)) continue;
     }
 
     // Check against the validity of the Variance of Measurement Error

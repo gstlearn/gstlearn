@@ -16,15 +16,15 @@
 #include "LinearOp/ProjMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-static std::vector<std::vector<const IProj*>> castToBase(std::vector<std::vector<const ProjMatrix*>> vect)
+static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::vector<const ProjMatrix*>>& vect)
 {
     std::vector<std::vector<const IProj*>> casted(vect.size());
     int iv = 0;
-    for (auto &e : vect)
+    for (const auto &e : vect)
     {
         std::vector<const IProj*> temp(e.size());
         int ie = 0;
-        for (auto &f: e)
+        for (const auto &f: e)
         {
             temp[ie++] = static_cast<const IProj*>(f);
         }

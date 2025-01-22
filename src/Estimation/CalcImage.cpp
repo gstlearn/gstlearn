@@ -17,6 +17,7 @@
 #include "Neigh/NeighImage.hpp"
 #include "Db/DbGrid.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Model/Model.hpp"
 
 CalcImage::CalcImage()
     : ACalcInterpolator(),
@@ -141,7 +142,8 @@ bool CalcImage::_run()
 
   if (_flagFilter)
   {
-    KrigingSystem ksys(dbgrid, dbgrid, getModel(), getNeigh());
+    const ModelGeneric* modelgeneric = dynamic_cast<const ModelGeneric*>(getModel());
+    KrigingSystem ksys(dbgrid, dbgrid, modelgeneric, getNeigh());
     if (ksys.updKrigOptEstim(_iattOut, -1, -1)) return false;
     if (! ksys.isReady()) return false;
 

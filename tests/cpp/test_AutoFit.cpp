@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   vario->dumpToNF("Vario2D");
 
   // Fitting an omni-directional model
-  Model* model_fit = Model::createFromEnvironment(1, ndim);
+  Model* model_fit = new Model(1, ndim);
   model_fit->fit(vario, {ECov::GAUSSIAN, ECov::LINEAR});
   model_fit->display();
   model_fit->dumpToNF("Model2D");

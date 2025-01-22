@@ -215,8 +215,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.000      0.000      0.000
 Sum of weights                                    0.000      0.000      1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.023
           2      0.000      0.948
@@ -300,8 +300,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.000      0.000      0.000
 Sum of weights                                    0.000      0.000      1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.023
           2      0.000      0.948
@@ -385,8 +385,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.000      0.000      0.000
 Sum of weights                                    0.000      0.000      1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.023
           2      0.000      0.948
@@ -470,8 +470,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.000      0.000      1.000
 Sum of weights                                    0.000      0.000      1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.023
           2      0.000      0.948
@@ -555,8 +555,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.006      0.037      0.015
 Sum of weights                                    0.238      0.046     -0.292
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.285      0.023
           2      0.116      0.948
@@ -640,8 +640,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.008     -0.061      0.019
 Sum of weights                                    0.224     -0.018     -0.414
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.144      0.023
           2      0.024      0.948
@@ -725,8 +725,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.012      0.173      0.024
 Sum of weights                                    0.268      0.086     -0.254
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.014      0.023
           2     -0.067      0.948
@@ -810,8 +810,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.253      0.131     -0.205
 Sum of weights                                    0.306     -0.046     -0.120
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.122      0.023
           2     -0.161      0.948
@@ -895,8 +895,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.020     -0.004      0.019
 Sum of weights                                    0.023     -0.206     -0.283
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.381      0.023
           2      0.175      0.948
@@ -980,8 +980,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.012     -0.010     -0.004
 Sum of weights                                   -0.139      0.007     -0.512
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.128      0.023
           2      0.021      0.948
@@ -1065,8 +1065,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.031      0.061      0.019
 Sum of weights                                    0.071      0.288     -0.284
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.059      0.023
           2     -0.122      0.948
@@ -1150,8 +1150,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.100      0.038     -0.210
 Sum of weights                                    0.250      0.069     -0.093
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.304      0.023
           2     -0.302      0.948
@@ -1235,8 +1235,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.034     -0.044      0.019
 Sum of weights                                    0.147     -0.192      0.547
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1     -0.230      0.023
           2      0.140      0.948
@@ -1320,8 +1320,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.000      0.000      0.000
 Sum of weights                                    0.000      0.000      1.000
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.000      0.023
           2      0.000      0.948
@@ -1405,8 +1405,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.044      0.062      0.019
 Sum of weights                                    0.191      0.263      0.547
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.170      0.023
           2     -0.130      0.948
@@ -1490,8 +1490,8 @@ Using variable Z3
           5      3.000      0.000      1.000      0.085      0.020      0.020
 Sum of weights                                    0.360      0.083      0.184
 
-Drift coefficients
-==================
+Drift or Mean Information
+=========================
        Rank   Lagrange      Coeff
           1      0.456      0.023
           2     -0.336      0.948

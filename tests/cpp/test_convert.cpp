@@ -13,7 +13,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "OutputFormat/AOF.hpp"
 
@@ -46,10 +46,10 @@ int main(int argc, char *argv[])
   // Create the Model
   CovContext ctxt(nvar);
   Model* model = Model::create(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpaceSh());
   CovAniso cova(ECov::SPHERICAL, 25., 0., 2., ctxt);
   covs.addCov(&cova);
-  model->setCovList(&covs);
+  model->setCovAnisoList(&covs);
 
   // Perform a non-conditional simulation
   simtub(nullptr, grid, model);

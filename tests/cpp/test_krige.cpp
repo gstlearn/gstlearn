@@ -17,11 +17,12 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Drifts/DriftM.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -78,7 +79,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 {
   CovContext ctxt(nvar); // use default space
   Model* model = Model::create(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt.getSpaceSh());
 
   if (typecov == 1)
   {
@@ -86,19 +87,19 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
     covs.addCov(&cova1);
     CovAniso cova2(ECov::NUGGET, 0., 0., 12., ctxt);
     covs.addCov(&cova2);
-    model->setCovList(&covs);
+    model->setCovAnisoList(&covs);
   }
   else if (typecov == 2)
   {
     CovAniso covaL(ECov::LINEAR, 1., 0., 1., ctxt);
     covs.addCov(&covaL);
-    model->setCovList(&covs);
+    model->setCovAnisoList(&covs);
   }
   else if (typecov == 3)
   {
     CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
     covs.addCov(&cova1);
-    model->setCovList(&covs);
+    model->setCovAnisoList(&covs);
   }
 
   if (typedrift == 1)
@@ -146,7 +147,9 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   int nvar = 1;
+  int oldstyle = 1;
   law_set_random_seed(32131);
+  OptCustom::define("oldStyle", oldstyle);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
@@ -327,8 +330,7 @@ int main(int argc, char *argv[])
   // Create the Local Data Base
   data = createLocalDb(10, 2, 3, 4901);
 
-  message(
-    "\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
+  message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
   delete grid_res;
   grid_res = grid->clone();
   tab = VH::simulateUniform(grid->getSampleNumber(), 10., 20.);

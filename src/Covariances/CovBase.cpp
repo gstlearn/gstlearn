@@ -19,7 +19,7 @@
 
 CovBase::CovBase(ACor* cor,
                 const MatrixSquareSymmetric &sill)
-: ACov(cor == nullptr? nullptr : cor->getSpace())
+: ACov(cor == nullptr? nullptr : cor->getSpaceSh())
 , _sill(sill)
 , _cor(cor)
 {
@@ -137,7 +137,6 @@ void CovBase::nostatUpdate(CovInternal *covint)
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                     covint->getIcas2(), covint->getIech2());
 }
-
 
 
 
@@ -385,8 +384,6 @@ void CovBase::informDbOutForSills(const Db* dbout) const
   _tabNoStat.informDbOut(dbout,EConsElem::SILL);
 }
 
-
-
 /**
  * Update the Model according to the Non-stationary parameters
  * @param icas1 Type of first Db: 1 for Input; 2 for Output
@@ -472,15 +469,13 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                           const SpacePoint &p2,
                                           const CovCalcMode *mode) const
 {
-  
-  double cor = _cor->eval(p1,p2,0,0,mode);
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cor);
-  else
-  {
-    mat.addMatInPlace(_workMat, 1., cor);
-  }
+  int nvar = getNVariables();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double cor = _cor->eval(p1,p2,ivar,jvar,mode);
+      mat.addValue(ivar, jvar, _sill.getValue(ivar, jvar) * cor);
+    }
 }
 
 void CovBase::_optimizationPostProcess() const 

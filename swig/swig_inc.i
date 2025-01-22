@@ -180,6 +180,7 @@
   #include "Variogram/VCloud.hpp"
   
   #include "Model/ModelGeneric.hpp"
+  #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
@@ -196,10 +197,12 @@
   #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
   #include "Covariances/CovBase.hpp"
+  #include "Covariances/CovProportional.hpp"
   #include "Covariances/ACor.hpp"
   #include "Covariances/CorAniso.hpp"
   #include "Covariances/ACovFunc.hpp"
-  #include "Covariances/ACovAnisoList.hpp"
+  #include "Covariances/CovAnisoList.hpp"
+  #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
   #include "Covariances/CorGneiting.hpp"
@@ -850,3 +853,13 @@
     return $self->indicesToCoordinateInPlace(indice, coor, percent, flag_rotate);
   }
 };
+
+%{
+  #include <memory>
+%}
+
+
+%include <std_shared_ptr.i>
+
+%template(ASpaceSharedPtr)            std::shared_ptr<const ASpace>;
+%newobject Model::createFromParam;

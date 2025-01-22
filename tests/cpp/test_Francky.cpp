@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
 
   model->getCova(0)->makeAngleNoStatFunctional(&spirale);
 
-
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;
   law_set_random_seed(13256);
