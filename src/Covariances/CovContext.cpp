@@ -16,6 +16,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include <memory>
+
 
 /**
  * Create a covariances context giving the number dimensions of a predefined space RN
@@ -23,7 +25,7 @@
  * @param nvar         Number of variables
  * @param space        Space definition
  */
-CovContext::CovContext(int nvar, const ASpace *space)
+CovContext::CovContext(int nvar, std::shared_ptr<const ASpace> space)
 
     : ASpaceObject(space),
       _nVar(nvar),
@@ -46,7 +48,7 @@ CovContext::CovContext(int nvar,
                        int ndim,
                        const VectorDouble &mean,
                        const VectorDouble &covar0)
-    : ASpaceObject(SpaceRN(ndim)),
+    : ASpaceObject(std::make_shared<const SpaceRN>(ndim)),
       _nVar(nvar),
       _field(TEST),
       _mean(mean),
@@ -55,7 +57,7 @@ CovContext::CovContext(int nvar,
   _update();
 }
 
-CovContext::CovContext(const Db *db, const ASpace* space)
+CovContext::CovContext(const Db *db, const std::shared_ptr<const ASpace>& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
@@ -69,7 +71,7 @@ CovContext::CovContext(const Db *db, const ASpace* space)
   _update();
 }
 
-CovContext::CovContext(const Vario *vario, const ASpace *space)
+CovContext::CovContext(const Vario *vario, const std::shared_ptr<const ASpace>& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
@@ -141,7 +143,7 @@ bool CovContext::isConsistent(const ASpace* space) const
  */
 bool CovContext::isEqual(const CovContext &r) const
 {
-  return (_nVar == r.getNVar() && _space->isEqual(r.getSpace()));
+  return (_nVar == r.getNVar() && _space->isEqual(r.getSpaceSh().get()));
 }
 
 double CovContext::getMean(int ivar) const

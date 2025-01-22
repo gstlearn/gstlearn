@@ -12,8 +12,9 @@
 #include "Mesh/AMesh.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
+#include "Space/ASpace.hpp"
 
-NeighUnique::NeighUnique(bool flag_xvalid, const ASpace* space)
+NeighUnique::NeighUnique(bool flag_xvalid,  const std::shared_ptr<const ASpace>& space)
     : ANeigh(space)
 {
   setFlagXvalid(flag_xvalid);
@@ -61,7 +62,7 @@ bool NeighUnique::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighUnique* NeighUnique::create(bool flag_xvalid, const ASpace* space)
+NeighUnique* NeighUnique::create(bool flag_xvalid, const ASpaceSharedPtr& space)
 {
   return new NeighUnique(flag_xvalid, space);
 }

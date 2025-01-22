@@ -22,22 +22,18 @@
 #include "Space/SpacePoint.hpp"
 
 #include <math.h>
+#include <memory>
 #include <vector>
 
-CovAnisoList::CovAnisoList(const ASpace* space)
+
+CovAnisoList::CovAnisoList(const ASpaceSharedPtr &space)
 : CovList(space),
   _covAnisos()
 {
 }
 
-CovAnisoList::CovAnisoList(const CovContext& ctxt)
-: CovList(ctxt),
-  _covAnisos()
-{
-
-}
 CovAnisoList::CovAnisoList(const CovAnisoList &r)
-: CovList(r._ctxt),
+: CovList(r.getSpaceSh()),
   _covAnisos()
 {
   for (auto* e: r._covAnisos)
@@ -216,7 +212,7 @@ MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db* db1,
                                                    bool cleanOptim) const
 {
   MatrixRectangular mat;
-  SpacePoint p2;
+  SpacePoint p2(getSpaceSh());
   if (db2 == nullptr) db2 = db1;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;

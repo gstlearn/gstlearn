@@ -18,7 +18,8 @@
 #include "Covariances/CovAnisoList.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class ASpace;
+#include "Space/ASpace.hpp"
+
 class SpacePoint;
 class CovAniso;
 class Model;
@@ -45,7 +46,7 @@ public:
                     const EConvDir& conv_dir,
                     double conv_range,
                     int conv_ndisc,
-                    const ASpace* space = nullptr);
+                    const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovLMCConvolution(const CovLMCConvolution &r);
   CovLMCConvolution& operator= (const CovLMCConvolution &r);
   virtual ~CovLMCConvolution();

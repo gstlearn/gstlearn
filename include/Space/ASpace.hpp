@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
+#include <memory>
 
 class SpacePoint;
 class Tensor;
@@ -47,7 +48,7 @@ public:
   // Default behavior that can be overriden
 
   /// Update the origin of the space
-  virtual void setOrigin(const VectorDouble& origin);
+  virtual void setOrigin(const VectorDouble& origin) const;
 
   /// Get the number of dimensions
   virtual unsigned int getNDim(int ispace = -1) const;
@@ -62,7 +63,7 @@ public:
   virtual unsigned int getNComponents() const;
 
   /// Return the space component at index ispace
-  virtual const ASpace* getComponent(int ispace = -1) const;
+  virtual std::shared_ptr<const ASpace> getComponent(int ispace = -1) const;
 
   /// Dump a space in a string (given the space index)
   virtual String toString(const AStringFormat* strfmt, int ispace) const;
@@ -111,6 +112,7 @@ public:
   /// TODO : to be made private
   void setOffset(unsigned int offset) { _offset = offset; }
 
+  static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
 protected:
 
   /// Move the given space point by the given vector
@@ -152,7 +154,7 @@ protected:
   /// Number of space dimensions
   unsigned int _nDim;
   /// Coordinates of the origin (size = _nDim)
-  VectorDouble _origin;
+  mutable VectorDouble _origin;
   /// Dimension offset index (0 if single space, relative if sub-space)
   unsigned int _offset;
 
@@ -163,3 +165,5 @@ protected:
   /// Privilege to SpaceComposit only
   //friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
 };
+
+typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;

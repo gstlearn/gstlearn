@@ -19,6 +19,7 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/ASpace.hpp"
 
 #include <vector>
 
@@ -39,10 +40,8 @@ class MatrixSparse;
  */
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
-  public :
-  
-  ACov(const ASpace* space = nullptr);
-  ACov(const CovContext &ctxt); 
+public:
+  ACov(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   ACov(const ACov &r);
   ACov& operator=(const ACov &r);
   virtual ~ACov();

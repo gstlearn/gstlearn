@@ -9,6 +9,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Enum/ECov.hpp"
@@ -39,8 +40,7 @@ class AAnam;
 class GSTLEARN_EXPORT CovList : public ACov
 {
 public:
-  CovList(const ASpace* space = nullptr);
-  CovList(const CovContext& ctxt);
+  CovList(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovList(const CovList &r) = delete;
   CovList& operator= (const CovList &r) = delete;
   virtual ~CovList();

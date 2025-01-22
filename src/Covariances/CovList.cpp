@@ -22,19 +22,13 @@
 #include <math.h>
 #include <vector>
 
-CovList::CovList(const ASpace* space)
+CovList::CovList(const ASpaceSharedPtr& space)
 : ACov(space),
   _covs(),
   _filtered()
 {
 }
 
-CovList::CovList(const CovContext& ctxt)
-: ACov(ctxt),
-  _covs(),
-  _filtered()
-{
-}
 
 CovList::~CovList()
 {

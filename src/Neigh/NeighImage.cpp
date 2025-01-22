@@ -13,7 +13,7 @@
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
 
-NeighImage::NeighImage(const VectorInt& radius, int skip, const ASpace* space)
+NeighImage::NeighImage(const VectorInt& radius, int skip, const std::shared_ptr<const ASpace>& space)
     : ANeigh(space),
       _skip(skip),
       _imageRadius(radius)
@@ -84,7 +84,7 @@ bool NeighImage::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighImage* NeighImage::create(const VectorInt& image, int skip, const ASpace* space)
+NeighImage* NeighImage::create(const VectorInt& image, int skip, const std::shared_ptr<const ASpace>& space)
 {
   return new NeighImage(image, skip, space);
 }

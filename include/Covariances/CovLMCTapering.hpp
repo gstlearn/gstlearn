@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Enum/ETape.hpp"
+#include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Covariances/CovAnisoList.hpp"
@@ -42,7 +43,7 @@ class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
 public:
   CovLMCTapering(const ETape& tapetype,
                  double taperange,
-                 const ASpace* space = nullptr);
+                 const ASpaceSharedPtr &space = ASpaceSharedPtr());
   CovLMCTapering(const CovLMCTapering &r);
   CovLMCTapering& operator= (const CovLMCTapering &r);
   virtual ~CovLMCTapering();

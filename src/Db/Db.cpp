@@ -772,8 +772,8 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
-                        const ASpace* space,
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<
+                        const ASpace> &space,
                         bool useSel) const
 {
   pvec.clear();
