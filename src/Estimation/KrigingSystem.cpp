@@ -3246,12 +3246,11 @@ int KrigingSystem::_bayesPreCalculations()
   VectorDouble vars(shift);
   MatrixSquareSymmetric sigma(shift);
 
-    // Create the array of variables
+  // Create the array of variables
 
-    int ind = 0;
-  for (int iech = 0; iech < _dbin->getSampleNumber(); iech++)
+  int ind = 0;
+  for (int iech = 0, nnbgh = (int) _nbgh.size(); iech < nnbgh; iech++)
   {
-    if (! _dbin->isActive(iech)) continue;
     for (int ivar = 0; ivar < _nvar; ivar++)
     {
       double value = _dbin->getZVariable(_nbgh[iech], ivar);
@@ -3533,7 +3532,7 @@ int KrigingSystem::_setInternalShortCutVariablesNeigh()
 }
 void KrigingSystem::_setInternalShortCutVariablesGeneral()
 {
-  _ndim = getNDim();
+  _ndim   = getNDim();
   _nvarCL = _getNVarCL();
   _setInternalShortCutVariablesModel();
 }
