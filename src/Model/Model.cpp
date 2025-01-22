@@ -668,6 +668,13 @@ VectorDouble Model::getRanges(int icov) const
   if (covalist == nullptr) return VectorDouble();
   return covalist->getRanges(icov);
 }
+VectorDouble Model::getAngles(int icov) const
+{
+  if (_cova == nullptr) return VectorDouble();
+  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  if (covalist == nullptr) return VectorDouble();
+  return covalist->getAngles(icov);
+}
 double Model::getParam(int icov) const
 {
   if (_cova == nullptr) return TEST;

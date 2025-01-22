@@ -121,6 +121,7 @@ public:
   double             getParam(int icov) const;
   double             getRange(int icov) const;
   VectorDouble       getRanges(int icov) const;
+  VectorDouble       getAngles(int icov) const;
   const MatrixSquareSymmetric& getSill(int icov) const;
   double             getSill(int icov, int ivar, int jvar) const;
   int                getGradParamNumber(int icov) const;

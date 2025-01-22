@@ -554,6 +554,11 @@ VectorDouble ACovAnisoList::getRanges(int icov) const
   if (! _isCovarianceIndexValid(icov)) return 0.;
   return _covs[icov]->getRanges();
 }
+VectorDouble ACovAnisoList::getAngles(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0.;
+  return _covs[icov]->getAnisoAngles();
+}
 const MatrixSquareSymmetric& ACovAnisoList::getSill(int icov) const
 {
   return _covs[icov]->getSill();
