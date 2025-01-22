@@ -25,7 +25,7 @@ public:
   CovProportional& operator=(const CovProportional &r) = delete;
   virtual ~CovProportional();
 
-  void setCor(ACor* cor) override;
+  void setCor(ACov* cor) override;
 protected:
     
   void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,

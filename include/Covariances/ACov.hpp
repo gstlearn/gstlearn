@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AFunctional.hpp"
 #include "Basic/AStringable.hpp"
+#include "Covariances/TabNoStat.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -27,6 +29,8 @@ class Db;
 class DbGrid;
 class MatrixSquareGeneral;
 class MatrixSparse;
+class TabNoStat;
+class AFunctional;
 
 /**
  * \brief
@@ -52,7 +56,11 @@ public:
   virtual bool isNoStat() const { return false; }
 
   const CovContext& getContext() const { return _ctxt; }
- 
+  void setContext(const CovContext& ctxt) { _ctxt = ctxt; }
+  void updateFromContext() { _updateFromContext(); }
+  void copyCovContext(const CovContext& ctxt){ _copyCovContext(ctxt);}
+  void initFromContext(){   _initFromContext(); }
+  CovContext  getContextCopy() const { return CovContext(_ctxt); }
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -121,9 +129,15 @@ public:
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
   }
-
+  void   attachNoStatDb(const Db* db);
   /////////////////////////////////////////////////////////////////////////////////
   ///
+
+  virtual void optimizationPreProcess(const std::vector<SpacePoint>& p,
+                               std::vector<SpacePoint> &p1As) const
+  {
+    DECLARE_UNUSED(p,p1As)
+  }
 
   void optimizationSetTarget(const SpacePoint &pt) const;
   virtual void optimizationSetTargetByIndex(int iech) const {DECLARE_UNUSED(iech)};
@@ -346,6 +360,53 @@ public:
                      int jvar,
                      const CovCalcMode* mode) const;
 
+  bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
+  virtual void updateCovByMesh(int imesh,bool aniso = true) 
+  {
+    DECLARE_UNUSED(imesh,aniso)
+  }
+  virtual double getValue(const EConsElem &econs,int iv1,int iv2) const
+  {
+    DECLARE_UNUSED(econs,iv1,iv2)
+    return TEST;
+  }
+  virtual void makeStationary();
+  virtual int makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
+                     const AFunctional* func = nullptr, 
+                     const Db* db = nullptr,const String& namecol = String());
+  void createNoStatTab();
+  void informMeshByMesh(const AMesh* amesh) const;
+  void informMeshByApex(const AMesh* amesh) const;
+  VectorDouble informCoords(const VectorVectorDouble& coords, 
+                            const EConsElem& econs,
+                            int iv1 = 0, int iv2 = 0) const;
+  void informDbIn(const Db* dbin) const;
+  void informDbOut(const Db* dbout) const;
+
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+  {
+    DECLARE_UNUSED(icas1);
+    DECLARE_UNUSED(iech1);
+    DECLARE_UNUSED(icas2);
+    DECLARE_UNUSED(iech2);
+  }
+
+  int getDimensionNumber() const { return _ctxt.getNDim(); }
+
+private:
+
+  virtual void _manage(const Db* db1,const Db* db2) const 
+  {
+    DECLARE_UNUSED(db1)
+    DECLARE_UNUSED(db2)
+  }
+
+ 
+
+  void setNoStatDbIfNecessary(const Db*& db);
+private : 
+ virtual TabNoStat* _createNoStatTab();
+
 protected:
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
   virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
@@ -371,14 +432,12 @@ protected:
                       const CovCalcMode* mode = nullptr) const;
 
 private:
+  virtual void _copyCovContext(const CovContext& ctxt) ;
+
+  virtual void _updateFromContext() {};
+  virtual void _initFromContext() {};
   virtual void _optimizationPostProcess() const; 
   virtual bool _isOptimEnabled() const {return _optimEnabled;}
-
-  virtual void _manage(const Db* db1,const Db* db2) const 
-  {
-    DECLARE_UNUSED(db1)
-    DECLARE_UNUSED(db2)
-  }
 
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -395,4 +454,5 @@ protected:
   const mutable SpacePoint* _pw1;
   const mutable SpacePoint* _pw2;
   CovContext _ctxt;         /* Context */
+  TabNoStat* _tabNoStat;
 };

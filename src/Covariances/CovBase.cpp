@@ -10,14 +10,13 @@
 /******************************************************************************/
 
 #include "Covariances/CovBase.hpp"
-#include "Covariances/ACor.hpp"
 #include "Covariances/ACov.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 
-CovBase::CovBase(ACor* cor,
+CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
 : ACov(cor == nullptr? nullptr : cor->getSpace())
 , _sill(sill)
@@ -37,7 +36,7 @@ CovBase::~CovBase()
 
 }
 
-void CovBase::setCor(ACor* cor)
+void CovBase::setCor(ACov* cor)
 {
   _cor = cor;
   int nvar = getNVariables();
@@ -140,7 +139,7 @@ void CovBase::nostatUpdate(CovInternal *covint)
 
 
 
-void CovBase::copyCovContext(const CovContext &ctxt)
+void CovBase::_copyCovContext(const CovContext &ctxt)
 {
   _ctxt.copyCovContext(ctxt);
   _cor->copyCovContext(ctxt);

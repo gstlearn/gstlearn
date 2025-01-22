@@ -46,7 +46,7 @@ class CovInternal;
  * structure, ...
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  */
-class GSTLEARN_EXPORT CorAniso: public ACor, public ICloneable
+class GSTLEARN_EXPORT CorAniso: public ACov, public ICloneable
 {
 public:
   CorAniso(const ECov& type, const CovContext& ctxt);
@@ -111,8 +111,8 @@ public:
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
 
-  void optimizationPostProcess() const override;
-  bool isNoStat() const;
+  void _optimizationPostProcess() const override;
+  bool isNoStat() const override;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;
@@ -266,8 +266,7 @@ public:
   void computeCorrec();
   double evalCorFromH(double h, const CovCalcMode *mode) const;
   double getDetTensor() const;
-  void updateFromContext() override;
-  void initFromContext() override;
+
   void optimizationSetTarget(const SpacePoint& pt,
                               SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
@@ -296,6 +295,8 @@ bool _isOptimEnabled() const
 
   bool   _isVariableValid(int ivar) const;
   
+  void _updateFromContext() override;
+  void _initFromContext() override;
 
 private:
   ACovFunc *_cova;                     /// Covariance basic function

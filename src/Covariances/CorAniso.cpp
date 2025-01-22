@@ -47,7 +47,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
                             { 70, -112, 56, -16, 2 } };
 
 CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
-    : ACor(ctxt), /// TODO : shared pointer
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
@@ -59,7 +59,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
 }
 
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
-    : ACor(ctxt), /// TODO : shared pointer
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
       _cova(),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
@@ -77,7 +77,7 @@ CorAniso::CorAniso(const ECov &type,
                    double param,
                    const CovContext &ctxt,
                    bool flagRange)
-    : ACor(ctxt), /// TODO : shared pointer
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
@@ -98,7 +98,7 @@ CorAniso::CorAniso(const ECov &type,
 }
 
 CorAniso::CorAniso(const CorAniso &r)
-    : ACor(r),
+    : ACov(r),
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _aniso(r._aniso),
       _tabNoStatCovAniso(new TabNoStatCovAniso(*r._tabNoStatCovAniso)),
@@ -113,7 +113,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
 {
   if (this != &r)
   {
-    ACor::operator =(r);
+    ACov::operator =(r);
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _aniso = r._aniso;
     _tabNoStatCovAniso = new TabNoStatCovAniso(*_tabNoStatCovAniso);
@@ -147,7 +147,7 @@ void CorAniso::computeMarkovCoeffs()
 
 void CorAniso::setContext(const CovContext &ctxt)
 {
-  ACor::setContext(ctxt);
+  ACov::setContext(ctxt);
   updateFromContext();
 }
 
@@ -728,7 +728,7 @@ void CorAniso::initFromContext()
 
 }
 
-void CorAniso::updateFromContext()
+void CorAniso::_updateFromContext()
 {
   
   computeMarkovCoeffs();
@@ -956,7 +956,7 @@ void CorAniso::optimizationSetTargetByIndex(int iech,
   }
 }
 
-void CorAniso::optimizationPostProcess() const
+void CorAniso::_optimizationPostProcess() const
 {
   _isOptimizationPreProcessed = false;
 }

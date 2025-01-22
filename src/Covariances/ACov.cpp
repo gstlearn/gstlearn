@@ -26,18 +26,23 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
-
+#include "Covariances/NoStatArray.hpp"
+#include "Covariances/NoStatFunctional.hpp"
 #include <vector>
 #include <math.h>
+
 
 ACov::ACov(const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _optimEnabled(true),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(space)
+      _p2A(space),
+      _tabNoStat(nullptr)
 {
+    createNoStatTab();
 }
+
 ACov::ACov(const ACov& r)
   : ASpaceObject(r)
   , _optimEnabled(r._optimEnabled)
@@ -47,6 +52,7 @@ ACov::ACov(const ACov& r)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
   , _ctxt(r._ctxt)
+  , _tabNoStat(r._tabNoStat == nullptr? nullptr:new TabNoStat(*r._tabNoStat))
 {
 }
 
@@ -63,6 +69,7 @@ ACov& ACov::operator=(const ACov &r)
     _pw2                 = r._pw2;
     _ctxt                = r._ctxt;
     _p2A = SpacePoint(r.getSpace());
+    _tabNoStat = r._tabNoStat->clone();
   }
   return *this;
 }
@@ -1598,3 +1605,51 @@ double ACov::_getVolume(const VectorDouble& ext) const
   return maille;
 }
 
+
+
+/////////////  Functions to attach no stat information on various supports ////////
+void ACov::informMeshByMesh(const AMesh* amesh) const
+{
+  _tabNoStat->informMeshByMesh(amesh);
+}
+void ACov::informMeshByApex(const AMesh* amesh) const
+{
+  _tabNoStat->informMeshByApex(amesh);
+}
+void ACov::informDbIn(const Db* dbin) const
+{
+  _tabNoStat->informDbIn(dbin);
+}
+void ACov::informDbOut(const Db* dbout) const
+{
+  _tabNoStat->informDbOut(dbout);
+}
+
+
+void ACov::setNoStatDbIfNecessary(const Db*& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+  if (db == nullptr)
+    db = _tabNoStat->getDbNoStatRef();
+}
+
+void ACov::makeStationary()
+{
+  _tabNoStat->clear();
+}
+int ACov::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+{
+  std::shared_ptr<ANoStat> ns;
+  if (func == nullptr)
+  {
+    if(!checkAndManageNoStatDb(db,namecol)) return 1;
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
+  }
+  else 
+  {
+    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
+  }
+   return _tabNoStat->addElem(ns, econs,iv1,iv2);
+  
+}

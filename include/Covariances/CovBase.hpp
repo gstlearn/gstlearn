@@ -25,7 +25,7 @@ class GSTLEARN_EXPORT CovBase: public ACov
 {
 public:
     
-  CovBase(ACor* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
+  CovBase(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
   CovBase(const CovBase &r) = delete;
   CovBase& operator=(const CovBase &r) = delete;
   virtual ~CovBase();
@@ -36,7 +36,6 @@ public:
   void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
   void optimizationSetTargetByIndex(int iech) const override;
   void setContext(const CovContext& ctxt);
-  void copyCovContext(const CovContext& ctxt);
 
   void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill) const;
@@ -45,8 +44,8 @@ public:
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
-  virtual void setCor(ACor* cor);
-  ACor* getCor() { return _cor; }
+  virtual void setCor(ACov* cor);
+  ACov* getCor() { return _cor; }
   
   double getSill(int ivar, int jvar) const;
   void   attachNoStatDb(const Db* db);
@@ -82,7 +81,6 @@ public:
   double getValue(const EConsElem& econs, int iv1, int iv2) const;
   void nostatUpdate(CovInternal *covint);
 
-  ACor* getCor() const {return _cor;}
 
 protected:
     void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
@@ -104,8 +102,10 @@ protected:
                                             const SpacePoint& p1,
                                             const SpacePoint& p2,
                                             const CovCalcMode* mode = nullptr) const override;
-  virtual void _updateFromContext();
-  virtual void _initFromContext();
+  virtual void _updateFromContext() override;
+  virtual void _initFromContext() override;
+  void _copyCovContext(const CovContext& ctxt) override;
+
 
 private:
 void _optimizationPostProcess() const override; 
@@ -122,5 +122,5 @@ protected:
     mutable MatrixSquareSymmetric _sill;
     mutable MatrixSquareGeneral _workMat;
 private :
-    ACor* _cor;
+    ACov* _cor;
 };
