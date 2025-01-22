@@ -36,6 +36,8 @@ protected:
   ASpace(unsigned int ndim);
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
+
+public: 
   virtual ~ASpace();
 
 public:

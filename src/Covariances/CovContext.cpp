@@ -48,7 +48,7 @@ CovContext::CovContext(int nvar,
                        int ndim,
                        const VectorDouble &mean,
                        const VectorDouble &covar0)
-    : ASpaceObject(std::make_shared<const SpaceRN>(ndim)),
+    : ASpaceObject(SpaceRN::create(ndim)),
       _nVar(nvar),
       _field(TEST),
       _mean(mean),

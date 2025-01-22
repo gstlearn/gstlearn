@@ -348,7 +348,7 @@ void model_cova_characteristics(const ECov &type,
                                 double *scale,
                                 double *parmax)
 {
-  SpaceRN space(1); // Use 1-D in order to retrieve all covariances
+  auto space = SpaceRN::create(1); // Use 1-D in order to retrieve all covariances
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
   (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());

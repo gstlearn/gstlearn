@@ -476,7 +476,7 @@ void Model::addCovFromParam(const ECov& type,
 
   // Define the covariance
 
-  auto space = ASpaceSharedPtr(new SpaceRN(ndim)); //TODO check if it is the right space
+  auto space = SpaceRN::create(ndim);
   _ctxt         = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 

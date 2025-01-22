@@ -14,6 +14,7 @@
 #include "Basic/VectorHelper.hpp"
 
 #include <math.h>
+#include <memory>
 
 SpaceRN::SpaceRN(unsigned int ndim)
   : ASpace(ndim)
@@ -38,9 +39,9 @@ SpaceRN::~SpaceRN()
 {
 }
 
-ASpaceSharedPtr SpaceRN::create(int ndim)
+std::shared_ptr<SpaceRN> SpaceRN::create(int ndim)
 {
-  return ASpaceSharedPtr(new SpaceRN(ndim));
+  return std::shared_ptr<SpaceRN>(new SpaceRN(ndim));
 }
 
 void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const

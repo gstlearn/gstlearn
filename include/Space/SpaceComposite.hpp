@@ -15,6 +15,7 @@
 #include "Space/ASpace.hpp"
 #include "Enum/ESpaceType.hpp"
 
+#include <memory>
 #include <vector>
 
 class SpacePoint;
@@ -22,16 +23,18 @@ class Tensor;
 
 class GSTLEARN_EXPORT SpaceComposite : public ASpace
 {
-public:
-  SpaceComposite();
-  SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace);
+private:
+  SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
   SpaceComposite(const SpaceComposite& r);
   SpaceComposite& operator=(const SpaceComposite& r);
+  
+public:
   virtual ~SpaceComposite();
 
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceComposite)
 
+  static std::shared_ptr<SpaceComposite> create(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 

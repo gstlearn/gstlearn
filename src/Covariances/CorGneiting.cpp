@@ -36,7 +36,7 @@ CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double se
     messerr("CorGneiting: Separability must be in [0,1]");
     messerr("It has been set to 0");
   }
-  auto space = std::shared_ptr<SpaceComposite>(new SpaceComposite());
+  auto space = SpaceComposite::create();
   space->addSpaceComponent(covS->getSpaceSh());
   space->addSpaceComponent(covTemp->getSpaceSh()); 
   _space = space;

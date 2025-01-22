@@ -14,14 +14,9 @@
 #include "Space/SpacePoint.hpp"
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <vector>
-
-SpaceComposite::SpaceComposite()
-  : ASpace(0)
-  , _comps()
-{
-}
 
 SpaceComposite::SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace)
   : ASpace(0)
@@ -102,6 +97,11 @@ const VectorDouble& SpaceComposite::getOrigin(int ispace) const
 unsigned int SpaceComposite::getNComponents() const
 {
   return (int)_comps.size();
+}
+
+std::shared_ptr<SpaceComposite> SpaceComposite::create(const std::vector<ASpaceSharedPtr>& vectspace)
+{
+  return std::shared_ptr<SpaceComposite>(new SpaceComposite(vectspace));
 }
 
 ASpaceSharedPtr SpaceComposite::getComponent(int ispace) const
