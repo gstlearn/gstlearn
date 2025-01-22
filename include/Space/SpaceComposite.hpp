@@ -34,7 +34,7 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceComposite)
 
-  static std::shared_ptr<SpaceComposite> create(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
+  static std::shared_ptr<SpaceComposite> create(const ASpaceSharedPtrVector& vectspace = ASpaceSharedPtrVector());
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 

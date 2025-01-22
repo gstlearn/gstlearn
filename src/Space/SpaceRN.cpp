@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpaceRN.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -38,10 +39,9 @@ SpaceRN& SpaceRN::operator=(const SpaceRN &r)
 SpaceRN::~SpaceRN()
 {
 }
-
-std::shared_ptr<SpaceRN> SpaceRN::create(int ndim)
+ASpaceSharedPtr SpaceRN::create(int ndim)
 {
-  return std::shared_ptr<SpaceRN>(new SpaceRN(ndim));
+  return std::shared_ptr<const SpaceRN>(new SpaceRN(ndim));
 }
 
 void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const

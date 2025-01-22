@@ -35,7 +35,7 @@ public:
 
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::RN; }
-  static std::shared_ptr<SpaceRN> create(int ndim);
+  static ASpaceSharedPtr create(int ndim);
 protected:
   /// Move the given space point by the given vector
   void _move(SpacePoint &p1, const VectorDouble &vec) const override;

@@ -170,3 +170,4 @@ protected:
 };
 
 typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;
+typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector;
