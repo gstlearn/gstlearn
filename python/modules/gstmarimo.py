@@ -194,7 +194,6 @@ def WdefineSimtub(nbtuba=100, seed = 13134):
     WSeed = mo.ui.number(start=0, stop=None, value = seed, 
                          label = "Seed")
 
-
     return mo.ui.array([WNbtuba, WSeed])
 
 def WshowSimtub(WAll, flagTitle=True):
