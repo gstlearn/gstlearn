@@ -11,12 +11,11 @@
 
 #include "Covariances/CovProportional.hpp"
 #include "Basic/AStringable.hpp"
-#include "Covariances/ACor.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
-CovProportional::CovProportional(ACor* cor,
+CovProportional::CovProportional(ACov* cor,
                 const MatrixSquareSymmetric &sill)
 : CovBase(cor,sill)
 {
@@ -38,7 +37,7 @@ CovProportional::~CovProportional()
 
 }
 
-void CovProportional::setCor(ACor* cor)
+void CovProportional::setCor(ACov* cor)
 {
   if (cor->getNVariables() != 1)
   {

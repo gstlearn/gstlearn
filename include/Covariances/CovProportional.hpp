@@ -20,7 +20,7 @@ class GSTLEARN_EXPORT CovProportional: public CovBase
 {
 public:
     
-  CovProportional(ACor* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
+  CovProportional(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
   CovProportional(const CovProportional &r) = delete;
   CovProportional& operator=(const CovProportional &r) = delete;
   virtual ~CovProportional();

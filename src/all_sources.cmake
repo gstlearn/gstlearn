@@ -92,7 +92,6 @@ set(SRC
   Covariances/CovExponential.cpp
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
-  Covariances/ACor.cpp
   Covariances/CovSincard.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp

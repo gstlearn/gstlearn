@@ -24,7 +24,7 @@ class ACov;
  * This class describes the Gneiting correlation function.
  *
  */
-class GSTLEARN_EXPORT CorGneiting: public ACor, public ICloneable//, public ICloneable
+class GSTLEARN_EXPORT CorGneiting: public ACov, public ICloneable//, public ICloneable
 {
 public:
   CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability = 1.0);
@@ -53,7 +53,7 @@ protected:
 
 private:
   void _optimizationPreProcess(const std::vector<SpacePoint>& p) const;
-  void optimizationPostProcess() const override;
+  void optimizationPostProcess() const;
 
 private:
   CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?

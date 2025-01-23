@@ -430,12 +430,15 @@ protected:
                       int ivar                = 0,
                       int jvar                = 0,
                       const CovCalcMode* mode = nullptr) const;
+  bool _checkDims(int idim, int jdim) const;
+
+  protected:
+    virtual void _initFromContext() {};
 
 private:
   virtual void _copyCovContext(const CovContext& ctxt) ;
 
   virtual void _updateFromContext() {};
-  virtual void _initFromContext() {};
   virtual void _optimizationPostProcess() const; 
   virtual bool _isOptimEnabled() const {return _optimEnabled;}
 
@@ -445,6 +448,7 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
+  
 
 protected:
   bool _optimEnabled;

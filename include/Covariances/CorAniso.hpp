@@ -12,6 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/ACor.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
@@ -23,7 +24,6 @@
 
 #include "Basic/ICloneable.hpp"
 #include "Basic/Tensor.hpp"
-#include "Covariances/ACor.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
@@ -272,7 +272,7 @@ public:
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
-
+  void initFromContext();
 protected:
   /// Update internal parameters consistency with the context
 
@@ -281,7 +281,7 @@ private:
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext &ctxt) override;
 
-bool _isOptimEnabled() const  
+bool _isOptimEnabled() const override
 { 
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
@@ -296,7 +296,6 @@ bool _isOptimEnabled() const
   bool   _isVariableValid(int ivar) const;
   
   void _updateFromContext() override;
-  void _initFromContext() override;
 
 private:
   ACovFunc *_cova;                     /// Covariance basic function

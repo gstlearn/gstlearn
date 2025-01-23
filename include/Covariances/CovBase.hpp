@@ -17,7 +17,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
-class ACor;
+
 class AFunctional;
 class CovInternal;
 
@@ -45,7 +45,7 @@ public:
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
   virtual void setCor(ACov* cor);
-  ACov* getCor() { return _cor; }
+  const ACov* getCor() const { return _cor; }
   
   double getSill(int ivar, int jvar) const;
   void   attachNoStatDb(const Db* db);

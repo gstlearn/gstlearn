@@ -11,20 +11,16 @@
 
 #include "Covariances/CorGneiting.hpp"
 #include "Basic/AStringable.hpp"
-#include "Covariances/ACor.hpp"
-#include "Covariances/CovProportional.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "geoslib_define.h"
-#include <memory>
 #include <vector>
 
 CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double separability)
-: ACor(CovContext())
+: ACov()
 , _covS(covS)
 , _covTemp(covTemp)
 , _separability(separability)
@@ -44,7 +40,7 @@ CorGneiting::CorGneiting(const CorAniso* covS,const CorAniso* covTemp, double se
 
 
 CorGneiting::CorGneiting(const CorGneiting& r):
-ACor(r)
+ACov(r)
 , _covS(r._covS)
 , _covTemp(r._covTemp)
 , _separability(r._separability)
@@ -56,7 +52,7 @@ CorGneiting& CorGneiting::operator=(const CorGneiting &r)
 {
   if (this != &r)
   {
-    ACor::operator =(r);
+    ACov::operator =(r);
     _ctxt = r._ctxt;
     _covS = r._covS;
     _covTemp = r._covTemp;

@@ -119,6 +119,47 @@ void ACov::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
   }
 }
 
+
+void ACov::createNoStatTab()
+{
+  delete _tabNoStat;
+  _tabNoStat = _createNoStatTab();
+}
+
+
+bool ACov::checkAndManageNoStatDb(const Db*&  db, const String& namecol)
+{
+ if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
+ {
+  messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");  
+  return false;
+ }
+  setNoStatDbIfNecessary(db);
+
+ if (db->getUID(namecol)< 0)
+ {
+    messerr("You have to specified a name of a column of the reference Db");
+    return false;
+ }
+ return true;
+}
+
+TabNoStat* ACov::_createNoStatTab()
+{
+  return new TabNoStat();
+}
+
+bool ACov::_checkDims(int idim, int jdim) const
+{
+  int ndim = getNDim();
+  if ((idim > ndim) || (jdim > ndim))
+  {
+    messerr("Your model is only in dimension %d.",ndim);
+    return false;
+  }
+  return true;
+}
+
 void ACov::_optimizationPostProcess() const
 {
   _p1As.clear();
