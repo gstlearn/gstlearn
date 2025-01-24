@@ -16,6 +16,7 @@ import gstlearn as gl
 import gstlearn.plot as gp
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 import marimo as mo
@@ -556,7 +557,6 @@ def WgetBox(WAll):
 def WdefineGridN(nxdef = 50):
     WNX = mo.ui.number(start=1, stop=None, value = nxdef)
     WNY = mo.ui.number(start=1, stop=None, value = nxdef)
-
     return mo.ui.array([WNX, WNY])
 
 def WshowGridN(WAll, flagTitle = True):
@@ -576,4 +576,14 @@ def WgetGridN(WAll, box):
     x0 = box[0,0]
     y0 = box[1,0]
     return gl.DbGrid.create(nx = [nx,ny], dx = [dx,dy], x0 = [x0, y0])
+
+def WdefineDF(db):
+    names = db.getAllNames()
+    df = pd.DataFrame(db[:], columns=names)
+    WDF = mo.ui.table(df)
+    return mo.ui.array([WDF])
+
+def WshowDF(WAll, flagTitle = True):
+    [WDF] = WAll
+    return mo.vstack([WgetTitle("Grid Discretization", flagTitle), WDF])
 
