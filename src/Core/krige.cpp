@@ -3275,7 +3275,7 @@ static int st_sampling_krige_data(Db *db,
       isort.resize(npart, 0);
     }
 
-    mat_s = model->evalCovMatrixSymmetric(db);
+    mat_s = model->evalCovMatSym(db);
 
     CholeskyDense mat_s_Chol(&mat_s);
     if (! mat_s_Chol.isReady()) goto label_end;
@@ -3285,7 +3285,7 @@ static int st_sampling_krige_data(Db *db,
 
     VectorDouble xl = mat_s_Chol.getUpperTriangleInverse();
 
-    MatrixRectangular mat_c = model->evalCovMatrix(db, db, -1, -1, ranks2, rother);
+    MatrixRectangular mat_c = model->evalCovMat(db, db, -1, -1, ranks2, rother);
 
     MatrixRectangular v;
     mat_s_Chol.matProductInPlace(4, mat_c, v);
@@ -3365,7 +3365,7 @@ static int st_sampling_krige_data(Db *db,
       TUTIL(ecr,j) = UTAB(i, j);
     ecr++;
   }
-  mat_s = model->evalCovMatrix(db, db, -1, -1, rutil, rutil);
+  mat_s = model->evalCovMat(db, db, -1, -1, rutil, rutil);
   if (matrix_prod_norme(-1, nutil, ntot, tutil, mat_s.getValues().data(), invsig)) goto label_end;
   if (matrix_invert(invsig, ntot, 0)) goto label_end;
   utab = (double*) mem_free((char* ) utab);
@@ -3458,8 +3458,8 @@ int st_krige_data(Db *db,
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
     VectorInt vech = {iech};
-    c00 = model->evalCovMatrix(db, db, -1, -1, vech, vech).getValues().data();
-    s   = model->evalCovMatrix(db, db, -1, -1, rutil, vech).getValues().data();
+    c00 = model->evalCovMat(db, db, -1, -1, vech, vech).getValues().data();
+    s   = model->evalCovMat(db, db, -1, -1, rutil, vech).getValues().data();
 
     matrix_product_safe(1, nutil, ntot, s, tutil, aux3.data());
     matrix_product_safe(1, ntot, 1, aux2.data(), aux3.data(), &estim);
@@ -3531,7 +3531,7 @@ int st_crit_global(Db *db,
 
   /* Establish the Kriging matrix on the pivot samples */
 
-  invc = model->evalCovMatrix(db, db, -1, -1, ranks1, ranks1).getValues().data();
+  invc = model->evalCovMat(db, db, -1, -1, ranks1, ranks1).getValues().data();
   if (invc == nullptr) return 1;
   if (matrix_invert(invc, nsize1, 0)) return 1;
 
@@ -3550,10 +3550,10 @@ int st_crit_global(Db *db,
     if (rother[iech] < 0) continue;
 
     VectorInt vech = { iech };
-    c00 = model->evalCovMatrix(db, db, -1, -1, vech, vech).getValues().data();
+    c00 = model->evalCovMat(db, db, -1, -1, vech, vech).getValues().data();
     if (c00 == nullptr) return 1;
 
-    cs = model->evalCovMatrix(db, db, -1, -1, ranks1, vech).getValues().data();
+    cs = model->evalCovMat(db, db, -1, -1, ranks1, vech).getValues().data();
     if (cs == nullptr) return 1;
 
     matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
@@ -3577,10 +3577,10 @@ int st_crit_global(Db *db,
     if (rother[iech] < 0) continue;
 
     VectorInt vech = { iech };
-    cs = model->evalCovMatrix(db, db, -1, -1, vech, ranks1).getValues().data();
+    cs = model->evalCovMat(db, db, -1, -1, vech, ranks1).getValues().data();
     if (cs == nullptr) return 1;
 
-    cs1 = model->evalCovMatrix(db, db, -1, -1, vech, rother).getValues().data();
+    cs1 = model->evalCovMat(db, db, -1, -1, vech, rother).getValues().data();
     if (cs1 == nullptr) return 1;
 
     matrix_product_safe(1, nsize1, nutil, cs, temp.data(), aux1.data());
@@ -3847,11 +3847,11 @@ int krigsampling_f(Db *dbin,
     }
 
     VectorInt vech = { IECH_OUT };
-    s = model->evalCovMatrix(dbin, dbout, -1, -1, rutil, vech).getValues().data();
+    s = model->evalCovMat(dbin, dbout, -1, -1, rutil, vech).getValues().data();
     if (s == nullptr) return 1;
     if (FLAG_STD)
     {
-      c00 = model->evalCovMatrix(dbout, dbout, -1, -1, vech, vech).getValues().data();
+      c00 = model->evalCovMat(dbout, dbout, -1, -1, vech, vech).getValues().data();
       if (c00 == nullptr) return 1;
     }
 

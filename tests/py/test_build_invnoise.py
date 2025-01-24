@@ -17,7 +17,7 @@ def computeNew(dat, model, debug=False):
 # %%
 #Fonction pour calculer l'inverse de la matrice de covariance correspondant au bruit. 
 def computeRef(dat,model,debug=False):
-    mat = model.evalCovMatrixSymmetric(db1=dat)
+    mat = model.evalCovMatSym(db1=dat)
 
     #matinv = np.linalg.inv(mat.toTL())
     mat.invert()
@@ -123,7 +123,7 @@ def IsoStat(dat,model):
     #cette fonction).
     datc = dat.clone()
     datc.clearLocators(gl.ELoc.V)
-    result = modeltrick.evalCovMatrixSparse(datc)
+    result = modeltrick.evalCovMatSparse(datc)
 
     return result
 

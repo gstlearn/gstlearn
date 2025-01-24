@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
   modellmc.display();
 
   // Building the Covariance Matrix
-  MatrixSquareSymmetric result = modellmc.evalCovMatrixSymmetric(workingDbc);
+  MatrixSquareSymmetric result = modellmc.evalCovMatSym(workingDbc);
   result.display();
 
   // Sample the Model at regular steps
@@ -168,50 +168,50 @@ int main(int argc, char *argv[])
 
   // Complete Matrices on the whole grid
   message("Covariance Matrix (complete)\n");
-  MatrixSquareSymmetric covMS = modelM->evalCovMatrixSymmetric(workingDbc);
+  MatrixSquareSymmetric covMS = modelM->evalCovMatSym(workingDbc);
   covMS.display();
 
   message("Covariance Matrix Optimal (complete)\n");
-  MatrixSquareSymmetric covMO = modelM->evalCovMatrixSymmetricOptim(workingDbc);
+  MatrixSquareSymmetric covMO = modelM->evalCovMatSymOptim(workingDbc);
   covMO.display();
 
   message("Covariance Matrix Sparse (complete)\n");
-  MatrixSparse* covMSS = modelM->evalCovMatrixSparse(workingDbc);
+  MatrixSparse* covMSS = modelM->evalCovMatSparse(workingDbc);
   covMSS->display();
   delete covMSS;
 
   message("Drift Matrix (complete)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Adding the selection
   workingDbc->setLocator("Sel", ELoc::SEL, 0);
   message("Covariance Matrix (with selection)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
   message("Drift Matrix (with selection)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Adding the variables (heterotopic multivariate)
   workingDbc->setLocators({"Z*"}, ELoc::Z, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
   message("Drift Matrix (with selection & heterotopic multivariate)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Adding the variables (heterotopic multivariate & Verr)
   workingDbc->setLocators({"V*"}, ELoc::V, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate & verr)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
   message("Drift Matrix (with selection & heterotopic multivariate & verr)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Selecting samples
@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
   VH::display("Ranks of selected samples = ",nbgh);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc, -1, nbgh);
+  covM = modelM->evalCovMatSym(workingDbc, -1, nbgh);
   covM.display();
 
   message("Drift Matrix (selection & heterotopic multivariate & sampling)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc, -1, nbgh);
+  driftM = modelM->evalDriftMat(workingDbc, -1, nbgh);
   driftM.display();
 
   // Testing Models on the Sphere

@@ -399,7 +399,7 @@ static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Solve the kriging system */
 
-  MatrixSquareSymmetric a = pot_ext->model->evalCovMatrixSymmetric(pot_ext->db);
+  MatrixSquareSymmetric a = pot_ext->model->evalCovMatSym(pot_ext->db);
   if (a.invert()) return 1;
 
   MatrixRectangular b = st_extdrift_establish(pot_ext, number);

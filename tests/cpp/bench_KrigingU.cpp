@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  OptCustom::define("oldStyle", 1.);
+  OptCustom::define("oldStyle", 0.);
 
   // Generate the data base
   int nech = 100;

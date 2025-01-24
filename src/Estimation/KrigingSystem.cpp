@@ -61,7 +61,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _isReady(false)
   , _model(nullptr)
   , _algebra()
-  , _sampleIndices()
+  , _sampleRanks()
   , _Sigma00()
   , _Sigma()
   , _X()
@@ -189,10 +189,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
     _means = _model->getMeans();
     if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
     {
-      _sampleIndices = _dbin->getMultipleRanksActive();
-      _Z = _dbin->getMultipleValuesActive(VectorInt(), _means);
-      _algebra.setData(&_Z, &_means);
-      _algebra.setSampleIndices(&_sampleIndices);
+      _sampleRanks = _dbin->getSampleRanks();
+      _Z = _dbin->getValuesByRanks(_sampleRanks, _means);
+      _algebra.setData(&_Z, &_sampleRanks, &_means);
     }
     _Sigma00 = _model->eval0Mat();
     _algebra.setVariance(&_Sigma00);
@@ -1748,13 +1747,12 @@ int KrigingSystem::_prepar()
   }
   else
   {
+    _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
+    _Z           = _dbin->getValuesByRanks(_sampleRanks, _means);
+    _Sigma = _model->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, nullptr, false);
+    _X     = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
     _algebra.resetNewData();
-    _sampleIndices = _dbin->getMultipleRanksActive(VectorInt(), _nbgh);
-    _Z = _dbin->getMultipleValuesActive(_nbgh, _means);
-    _algebra.setData(&_Z, &_means);
-    _algebra.setSampleIndices(&_sampleIndices);
-    _Sigma = _model->evalCovMatrixSymmetricOptim(_dbin, -1, _nbgh, nullptr, false);
-    _X     = _model->evalDriftMatrix(_dbin, -1, _nbgh);
+    _algebra.setData(&_Z, &_sampleRanks, &_means);
     _algebra.setLHS(&_Sigma, &_X);
   }
 
@@ -1965,8 +1963,8 @@ int KrigingSystem::estimate(int iech_out)
       }
     else
     {
-      _Sigma0 = _model->evalCovMatrixTargetOptim(_dbin, _dbout, _sampleIndices, -1, -1, iech_out, nullptr, false);
-      _X0     = _model->evalDriftTargetMatrix(_dbout, -1, iech_out);
+      _Sigma0 = _model->evalCovMatOptimByRanks(_dbin, _dbout, _sampleRanks, -1, -1, iech_out, nullptr, false);
+      _X0     = _model->evalDriftMatByTarget(_dbout, -1, iech_out);
       _algebra.setRHS(&_Sigma0, &_X0);
     };
   }
@@ -2060,9 +2058,9 @@ VectorInt KrigingSystem::_xvalidUniqueIndices() const
 {
   VectorInt ranks;
   int lec = 0;
-  for (int ivar = 0, nvar = (int)_sampleIndices.size(); ivar < nvar; ivar++)
+  for (int ivar = 0, nvar = (int)_sampleRanks.size(); ivar < nvar; ivar++)
   {
-    for (int i = 0, n = (int) _sampleIndices[ivar].size(); i < n; i++, lec++)
+    for (int i = 0, n = (int) _sampleRanks[ivar].size(); i < n; i++, lec++)
       if (i == _iechOut) ranks.push_back(lec);
   }
   return ranks;

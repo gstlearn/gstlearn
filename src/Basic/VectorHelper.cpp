@@ -524,6 +524,19 @@ double VectorHelper::cumul(const VectorDouble& vec)
   return total;
 }
 
+VectorInt VectorHelper::cumulIncrement(const VectorVectorInt& vec)
+{
+  int nvar = (int) vec.size();
+  VectorInt cumul(nvar, 0);
+  int number = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    cumul[ivar] = number;
+    number += (int)vec[ivar].size();
+  }
+  return cumul;
+}
+
 double VectorHelper::variance(const VectorDouble &vec, bool scaleByN)
 {
   if (vec.size() <= 0) return 0.;

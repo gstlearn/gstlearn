@@ -23,23 +23,32 @@ ModelGeneric::~ModelGeneric()
 {
 }
 
-MatrixRectangular ModelGeneric::evalDriftMatrix(const Db* db,
+MatrixRectangular ModelGeneric::evalDriftMat(const Db* db,
                                                 int ivar0,
                                                 const VectorInt& nbgh,
                                                 const ECalcMember& member) const
 {
   if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMatrix(db, ivar0, nbgh, member);
+  return _driftList->evalDriftMat(db, ivar0, nbgh, member);
+}
+
+MatrixRectangular ModelGeneric::evalDriftMatByRanks(const Db* db,
+                                                    const VectorVectorInt& sampleRanks,
+                                                    int ivar0,
+                                                    const ECalcMember& member) const
+{
+  if (_driftList == nullptr) return MatrixRectangular();
+  return _driftList->evalDriftMatByRanks(db, sampleRanks, ivar0, member);
 }
 
 MatrixRectangular
-ModelGeneric::evalDriftTargetMatrix(const Db* db,
+ModelGeneric::evalDriftMatByTarget(const Db* db,
                                     int ivar0,
                                     int iech2,
                                     const ECalcMember& member) const
 {
   if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftTargetMatrix(db, ivar0, iech2, member);
+  return _driftList->evalDriftMatByTarget(db, ivar0, iech2, member);
 }
 
 MatrixSquareGeneral ModelGeneric::eval0Mat(const CovCalcMode* mode) const
@@ -48,7 +57,7 @@ MatrixSquareGeneral ModelGeneric::eval0Mat(const CovCalcMode* mode) const
   return _cova->eval0Mat(mode);
 }
 
-MatrixRectangular ModelGeneric::evalCovMatrix(Db* db1,
+MatrixRectangular ModelGeneric::evalCovMat(Db* db1,
                                               Db* db2,
                                               int ivar0,
                                               int jvar0,
@@ -57,59 +66,64 @@ MatrixRectangular ModelGeneric::evalCovMatrix(Db* db1,
                                               const CovCalcMode* mode)
 {
   if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
+  return _cova->evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
 }
 
-MatrixSquareSymmetric
-ModelGeneric::evalCovMatrixSymmetric(const Db* db1,
+MatrixSquareSymmetric ModelGeneric::evalCovMatSym(const Db* db1,
+                                                           int ivar0,
+                                                           const VectorInt& nbgh1,
+                                                           const CovCalcMode* mode,
+                                                           bool cleanOptim) const
+{
+  if (_cova == nullptr) return MatrixSquareSymmetric();
+  return _cova->evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
+}
+
+MatrixRectangular ModelGeneric::evalCovMatOptim(Db* db1,
+                                                Db* db2,
+                                                int ivar0,
+                                                int jvar0,
+                                                const VectorInt& nbgh1,
+                                                const VectorInt& nbgh2,
+                                                const CovCalcMode* mode,
+                                                bool cleanOptim)
+{
+  if (_cova == nullptr) return MatrixRectangular();
+  return _cova->evalCovMatOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+}
+
+MatrixRectangular ModelGeneric::evalCovMatOptimByRanks(const Db* db1,
+                                     const Db* db2,
+                                     const VectorVectorInt& sampleRanks1,
                                      int ivar0,
-                                     const VectorInt& nbgh1,
+                                     int jvar0,
+                                     const int iech2,
                                      const CovCalcMode* mode,
                                      bool cleanOptim) const
 {
-  if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatrixSymmetric(db1, ivar0, nbgh1, mode, cleanOptim);
-}
-
-MatrixRectangular ModelGeneric::evalCovMatrixOptim(Db* db1,
-                                                   Db* db2,
-                                                   int ivar0,
-                                                   int jvar0,
-                                                   const VectorInt& nbgh1,
-                                                   const VectorInt& nbgh2,
-                                                   const CovCalcMode* mode,
-                                                   bool cleanOptim)
-{
   if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+  return _cova->evalCovMatOptimByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
 }
-
-MatrixRectangular
-ModelGeneric::evalCovMatrixTargetOptim(const Db* db1,
-                                  const Db* db2,
-                                  const VectorVectorInt& sampleRanks1,
-                                  int ivar0,
-                                  int jvar0,
-                                  const int iech2,
-                                  const CovCalcMode* mode,
-                                  bool cleanOptim) const
-{
-  if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMatrixTargetOptim(db1, db2, sampleRanks1, ivar0, jvar0, iech2,
-                                    mode, cleanOptim);
-}
-MatrixSquareSymmetric
-ModelGeneric::evalCovMatrixSymmetricOptim(const Db* db1,
-                                          int ivar0,
-                                          const VectorInt& nbgh1,
-                                          const CovCalcMode* mode,
-                                          bool cleanOptim)
+MatrixSquareSymmetric ModelGeneric::evalCovMatSymOptim(const Db* db1,
+                                                                const VectorInt& nbgh1,
+                                                                int ivar0,
+                                                                const CovCalcMode* mode,
+                                                                bool cleanOptim)
 {
   if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode, cleanOptim);
+  return _cova->evalCovMatSymOptim(db1, nbgh1, ivar0, mode, cleanOptim);
+}
+MatrixSquareSymmetric ModelGeneric::evalCovMatSymOptimByRanks(const Db* db1,
+                                                                               const VectorVectorInt& sampleRanks1,
+                                                                               int ivar0,
+                                                                               const CovCalcMode* mode,
+                                                                               bool cleanOptim)
+{
+  if (_cova == nullptr) return MatrixSquareSymmetric();
+  return _cova->evalCovMatSymOptimByRanks(db1, sampleRanks1, ivar0, mode, cleanOptim);
 }
 
-MatrixSparse* ModelGeneric::evalCovMatrixSparse(Db* db1,
+MatrixSparse* ModelGeneric::evalCovMatSparse(Db* db1,
                                                 Db* db2,
                                                 int ivar0,
                                                 int jvar0,
@@ -119,7 +133,7 @@ MatrixSparse* ModelGeneric::evalCovMatrixSparse(Db* db1,
                                                 double eps)
 {
   if (_cova == nullptr) return nullptr;
-  return _cova->evalCovMatrixSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
+  return _cova->evalCovMatSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
 }
 
 void ModelGeneric::setField(double field)

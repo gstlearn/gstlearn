@@ -16,7 +16,7 @@ m.getCova(0).makeScaleNoStatDb("scales2",1)
 m.getCova(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
-covmat_gstlearn = m.evalCovMatrix(db,db).toTL()
+covmat_gstlearn = m.evalCovMat(db,db).toTL()
 
 # Calculating the data covariance matrix (by hand)
 x = db["x1"]
@@ -55,7 +55,7 @@ m.getCova(0).attachNoStatDb(db)
 m.getCova(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
-covmat_gstlearn = m.evalCovMatrixSymmetric(db).toTL()
+covmat_gstlearn = m.evalCovMatSym(db).toTL()
 
 # Calculating the data covariance matrix (by hand)
 x = db["x1"]
@@ -99,7 +99,7 @@ m.getCova(0).makeScaleNoStatDb("scales2",1)
 m.getCova(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
-covmat_gstlearn = m.evalCovMatrixSymmetric(db).toTL()
+covmat_gstlearn = m.evalCovMatSym(db).toTL()
 
 # Calculating the data covariance matrix (by hand)
 x = db["x1"]

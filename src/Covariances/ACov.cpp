@@ -943,7 +943,7 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrix(const Db* db1,
+MatrixRectangular ACov::evalCovMat(const Db* db1,
                                       const Db* db2,
                                       int ivar0,
                                       int jvar0,
@@ -967,8 +967,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   manage(db1,db2);
   
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
-  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
 
   // Creating the matrix
   int neq1 = VH::count(index1);
@@ -1053,14 +1053,14 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrixTarget(const Db* db1,
-                                            const Db* db2,
-                                            const VectorVectorInt& sampleRanks1,
-                                            int ivar0,
-                                            int jvar0,
-                                            int iech2,
-                                            const CovCalcMode* mode,
-                                            bool cleanOptim) const
+MatrixRectangular ACov::evalCovMatByRanks(const Db* db1,
+                                                     const Db* db2,
+                                                     const VectorVectorInt& sampleRanks1,
+                                                     int ivar0,
+                                                     int jvar0,
+                                                     int iech2,
+                                                     const CovCalcMode* mode,
+                                                     bool cleanOptim) const
 {
   DECLARE_UNUSED(cleanOptim)
   MatrixRectangular mat;
@@ -1077,7 +1077,7 @@ MatrixRectangular ACov::evalCovMatrixTarget(const Db* db1,
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
-  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, {iech2}, true, false, false);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, {iech2}, true, false, false);
 
   // Creating the matrix
   int neq1 = VH::count(sampleRanks1);
@@ -1171,7 +1171,7 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   }
 }
 
-MatrixRectangular ACov::evalCovMatrixOptim(const Db* db1,
+MatrixRectangular ACov::evalCovMatOptim(const Db* db1,
                                            const Db* db2,
                                            int ivar0,
                                            int jvar0,
@@ -1180,28 +1180,35 @@ MatrixRectangular ACov::evalCovMatrixOptim(const Db* db1,
                                            const CovCalcMode* mode,
                                            bool cleanOptim) const
 {
-  return evalCovMatrix(db1,db2,ivar0,jvar0,nbgh1,nbgh2,mode, cleanOptim);                                
+  return evalCovMat(db1,db2,ivar0,jvar0,nbgh1,nbgh2,mode, cleanOptim);                                
 }
-
-MatrixRectangular
-ACov::evalCovMatrixTargetOptim(const Db* db1,
-                               const Db* db2,
-                               const VectorVectorInt& sampleRanks1,
-                               int ivar0,
-                               int jvar0,
-                               int iech2,
-                               const CovCalcMode* mode,
-                               bool cleanOptim) const
+MatrixRectangular ACov::evalCovMatOptimByRanks(const Db* db1,
+                                                          const Db* db2,
+                                                          const VectorVectorInt& sampleRanks1,
+                                                          int ivar0,
+                                                          int jvar0,
+                                                          int iech2,
+                                                          const CovCalcMode* mode,
+                                                          bool cleanOptim) const
 {
-  return evalCovMatrixTarget(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
+  return evalCovMatByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
 }
-MatrixSquareSymmetric ACov::evalCovMatrixSymmetricOptim(const Db* db1,
-                                                        int ivar0,
+MatrixSquareSymmetric ACov::evalCovMatSymOptim(const Db* db1,
                                                         const VectorInt& nbgh1,
+                                                        int ivar0,
                                                         const CovCalcMode* mode,
                                                         bool cleanOptim) const
 {
-  return evalCovMatrixSymmetric(db1, ivar0, nbgh1, mode, cleanOptim);
+  return evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
+}
+
+MatrixSquareSymmetric ACov::evalCovMatSymOptimByRanks(const Db* db1,
+                                                                       const VectorVectorInt& sampleRanks1,
+                                                                       int ivar0,
+                                                                       const CovCalcMode* mode,
+                                                                       bool cleanOptim) const
+{
+  return evalCovMatSymByRanks(db1, sampleRanks1, ivar0, mode, cleanOptim);
 }
 
 void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
@@ -1298,9 +1305,9 @@ itself
  ** \remarks by the number of samples where the variable is defined
  **
  *****************************************************************************/
-MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db* db1,
-                                                   int ivar0,
+MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
                                                    const VectorInt& nbgh1,
+                                                   int ivar0,
                                                    const CovCalcMode* mode,
                                                    bool cleanOptim) const
 {
@@ -1308,18 +1315,35 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db* db1,
   MatrixSquareSymmetric mat;
 
   // Preliminary checks
-  if (db1 == nullptr) return MatrixRectangular();
+  if (db1 == nullptr) return mat;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+
+  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
+
+  return evalCovMatSymByRanks(db1, index1, ivar0, mode, cleanOptim);
+}
+
+MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
+                                                                  const VectorVectorInt& sampleRanks1,
+                                                                  int ivar0,
+                                                                  const CovCalcMode* mode,
+                                                                  bool cleanOptim) const
+{
+  DECLARE_UNUSED(cleanOptim)
+  MatrixSquareSymmetric mat;
+
+  // Preliminary checks
+  if (db1 == nullptr) return mat;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
 
   // Apply the non-stationarity (if needed)
-  manage(db1,nullptr);
-
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true, true);
-
+  manage(db1, nullptr);
+  
   // Creating the matrix
-  int neq1 = VH::count(index1);
+  int neq1 = VH::count(sampleRanks1);
   if (neq1 <= 0)
   {
     messerr("The returned matrix does not have any valid sample for any valid variable");
@@ -1333,31 +1357,31 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db* db1,
 
   // Loop on the first variable
   int irow = 0;
-  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
+  for (int rvar1 = 0, nvar1 = (int)ivars.size(); rvar1 < nvar1; rvar1++)
   {
     int ivar1 = ivars[rvar1];
 
     // Loop on the first sample
-    int nech1s = (int) index1[rvar1].size();
+    int nech1s = (int)sampleRanks1[rvar1].size();
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      int iech1 = index1[rvar1][rech1];
+      int iech1 = sampleRanks1[rvar1][rech1];
       db1->getSampleAsSPInPlace(p1, iech1);
 
       // Loop on the second variable
       int icol = 0;
-      for (int rvar2 = 0, nvar2 = (int) ivars.size(); rvar2 < nvar2; rvar2++)
+      for (int rvar2 = 0, nvar2 = (int)ivars.size(); rvar2 < nvar2; rvar2++)
       {
         int ivar2 = ivars[rvar2];
 
         // Loop on the second sample
-        int nech2s = (int) index1[rvar2].size();
+        int nech2s = (int)sampleRanks1[rvar2].size();
         for (int rech2 = 0; rech2 < nech2s; rech2++)
         {
           // Perform calculation only in upper triangle of the Symmetric Matrix
           if (icol >= irow)
           {
-            int iech2 = index1[rvar2][rech2];
+            int iech2 = sampleRanks1[rvar2][rech2];
             db1->getSampleAsSPInPlace(p2, iech2);
 
             // Modify the covariance (if non stationary)
@@ -1375,7 +1399,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db* db1,
   }
 
   // Update the matrix due to presence of Variance of Measurement Error
-  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
+  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, sampleRanks1);
 
   return mat;
 }
@@ -1403,14 +1427,14 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db* db1,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
-                                        const Db *db2,
-                                        int ivar0,
-                                        int jvar0,
-                                        const VectorInt &nbgh1,
-                                        const VectorInt &nbgh2,
-                                        const CovCalcMode *mode,
-                                        double eps)
+MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
+                                     const Db* db2,
+                                     int ivar0,
+                                     int jvar0,
+                                     const VectorInt& nbgh1,
+                                     const VectorInt& nbgh2,
+                                     const CovCalcMode* mode,
+                                     double eps)
 {
   MatrixSparse* mat = nullptr;
   if (db2 == nullptr) db2 = db1;
@@ -1427,8 +1451,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
   
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true, flagSameDb);
-  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2, true, true, flagSameDb);
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, flagSameDb);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2, true, true, flagSameDb);
 
   // Evaluate the matrix of sills
   int nvar1 = (int) ivars.size();
