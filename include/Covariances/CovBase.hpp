@@ -33,7 +33,7 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  
   void optimizationSetTargetByIndex(int iech) const override;
   void setContext(const CovContext& ctxt);
 
@@ -76,10 +76,10 @@ public:
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
-  void updateCovByMesh(int imesh,bool aniso = true) const;
+  void updateCovByMesh(int imesh,bool aniso = true) const override;
 
   double getValue(const EConsElem& econs, int iv1, int iv2) const override;
-  void nostatUpdate(CovInternal *covint);
+  void nostatUpdate(CovInternal *covint) const;
 
 
 protected:
@@ -107,6 +107,7 @@ protected:
 
 
 private:
+void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
 void _optimizationPostProcess() const override; 
 
 

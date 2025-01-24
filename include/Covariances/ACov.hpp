@@ -361,7 +361,8 @@ public:
                      const CovCalcMode* mode) const;
 
   bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
-  virtual void updateCovByMesh(int imesh,bool aniso = true) 
+
+  virtual void updateCovByMesh(int imesh,bool aniso = true) const
   {
     DECLARE_UNUSED(imesh,aniso)
   }

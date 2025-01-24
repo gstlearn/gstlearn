@@ -279,7 +279,7 @@ void CorAniso::setAnisoAngle(int idim, double angle)
 
 void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
                                           const VectorDouble &ranges,
-                                          const VectorDouble &scales)
+                                          const VectorDouble &scales) const
 {
   if (!hasRange()) return;
 
@@ -944,7 +944,7 @@ void CorAniso::optimizationSetTarget(const SpacePoint& pt,SpacePoint& p2A) const
  * @param p1As Vector of Space Points after projection (Data points)
  * @param p2A Space Point for Target
  */
-void CorAniso::optimizationSetTargetByIndex(int iech,
+void CorAniso::_optimizationSetTargetByIndex(int iech,
                                             const std::vector<SpacePoint> &p1As,
                                             SpacePoint &p2A) const
 {
@@ -1382,7 +1382,7 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 }
 
 
-void CorAniso::updateCovByMesh(int imesh,bool aniso)
+void CorAniso::updateCovByMesh(int imesh,bool aniso) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (!_tabNoStatCovAniso->isNoStat()) return;

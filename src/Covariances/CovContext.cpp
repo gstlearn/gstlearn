@@ -16,8 +16,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
-#include <memory>
-
 
 /**
  * Create a covariances context giving the number dimensions of a predefined space RN

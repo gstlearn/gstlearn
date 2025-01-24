@@ -23,7 +23,6 @@
 #include "Space/SpacePoint.hpp"
 
 #include <math.h>
-#include <memory>
 #include <vector>
 
 

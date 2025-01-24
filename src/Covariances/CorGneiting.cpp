@@ -87,7 +87,7 @@ void CorGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) cons
  // _covTemp->_optimizationPreProcess(p);
 }
 
-void CorGneiting::optimizationPostProcess() const
+void CorGneiting::_optimizationPostProcess() const
 {
   //_covS->optimizationPostProcess();
   //_covTemp->optimizationPostProcess();

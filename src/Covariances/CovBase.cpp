@@ -131,7 +131,7 @@ double CovBase::getSill(int ivar, int jvar) const
  **                          or NULL (for stationary case)
  **
  *****************************************************************************/
-void CovBase::nostatUpdate(CovInternal *covint)
+void CovBase::nostatUpdate(CovInternal *covint) const
 {
   if (covint == NULL) return;
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),

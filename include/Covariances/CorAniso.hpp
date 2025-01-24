@@ -107,7 +107,7 @@ public:
 
   void optimizationPreProcess(const std::vector<SpacePoint>& p,
                                std::vector<SpacePoint> &p1As) const override;
-  void optimizationSetTargetByIndex(int iech,
+  void _optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
 
@@ -161,7 +161,7 @@ public:
 
   void setRotationAnglesAndRadius(const VectorDouble& angles = VectorDouble(),
                                   const VectorDouble& ranges = VectorDouble(),
-                                  const VectorDouble& scales = VectorDouble());
+                                  const VectorDouble& scales = VectorDouble()) const;
 
   VectorDouble getRanges() const;
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
@@ -260,7 +260,7 @@ public:
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh,bool aniso = true) override;
+  void updateCovByMesh(int imesh,bool aniso = true) const override;
   double getValue(const EConsElem &econs,int iv1,int iv2) const override;
   void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
   void computeCorrec();

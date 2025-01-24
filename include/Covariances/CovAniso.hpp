@@ -13,12 +13,11 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovProportional.hpp"
-#include "Covariances/CorAniso.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Enum/ECov.hpp"
-
+#include "Covariances/CorAniso.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
