@@ -18,7 +18,7 @@
 #include <memory>
 
 /// Unique default global space
-static std::shared_ptr<const ASpace> defaultSpace = nullptr;
+static ASpaceSharedPtr defaultSpace = nullptr;
 
 ASpaceObject::ASpaceObject(const ASpaceSharedPtr& space)
   : AStringable(),
@@ -34,7 +34,7 @@ ASpaceObject::ASpaceObject(const ASpaceObject& r)
 {
 }
 
-bool ASpaceObject::isConsistent(std::shared_ptr<const ASpace> space) const
+bool ASpaceObject::isConsistent(const ASpaceSharedPtr& space) const
 {
   return (isConsistent(space.get()));
 }
@@ -110,7 +110,7 @@ void ASpaceObject::setNDim(int ndim)
   if (_space->getType() != ESpaceType::RN)
     my_throw("Object is not in Space RN");
 
-  _space = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
+  _space = SpaceRN::create(ndim);
 }
 
 /**
@@ -130,12 +130,12 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
     {
       ndim = 2;
       if (param <= 0.) param = EARTH_RADIUS;
-      defaultSpace = std::shared_ptr<const ASpace>(new SpaceSN(ndim, param));
+      defaultSpace = SpaceSN::create(ndim, param);
       break;
     }
     case ESpaceType::E_RN:
     {
-      defaultSpace = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
+      defaultSpace = SpaceRN::create(ndim);
       break;
     }
     default:
@@ -150,7 +150,7 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
  * 
  * @param space 
  */
-void setDefaultSpace(const std::shared_ptr<const ASpace> &space)
+void setDefaultSpace(const ASpaceSharedPtr& space)
 {
   defaultSpace = space;
 }
@@ -176,7 +176,7 @@ const ASpace* getDefaultSpace()
 }
 
 
-std::shared_ptr<const ASpace> getDefaultSpaceSh()
+ASpaceSharedPtr getDefaultSpaceSh()
 {
   if (nullptr == defaultSpace)
     defineDefaultSpace(ESpaceType::RN, 2);

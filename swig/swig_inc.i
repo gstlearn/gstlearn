@@ -198,7 +198,6 @@
   #include "Covariances/ACov.hpp"
   #include "Covariances/CovBase.hpp"
   #include "Covariances/CovProportional.hpp"
-  #include "Covariances/ACor.hpp"
   #include "Covariances/CorAniso.hpp"
   #include "Covariances/ACovFunc.hpp"
   #include "Covariances/CovAnisoList.hpp"
@@ -861,5 +860,7 @@
 
 %include <std_shared_ptr.i>
 
-%template(ASpaceSharedPtr)            std::shared_ptr<const ASpace>;
+
+%template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
+%template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;
 %newobject Model::createFromParam;

@@ -17,7 +17,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
-class ACor;
+
 class AFunctional;
 class CovInternal;
 
@@ -25,7 +25,7 @@ class GSTLEARN_EXPORT CovBase: public ACov
 {
 public:
     
-  CovBase(ACor* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
+  CovBase(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
   CovBase(const CovBase &r) = delete;
   CovBase& operator=(const CovBase &r) = delete;
   virtual ~CovBase();
@@ -33,10 +33,9 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  
   void optimizationSetTargetByIndex(int iech) const override;
   void setContext(const CovContext& ctxt);
-  void copyCovContext(const CovContext& ctxt);
 
   void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill) const;
@@ -45,8 +44,8 @@ public:
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
-  virtual void setCor(ACor* cor);
-  ACor* getCor() { return _cor; }
+  virtual void setCor(ACov* cor);
+  const ACov* getCor() const { return _cor; }
   
   double getSill(int ivar, int jvar) const;
   void   attachNoStatDb(const Db* db);
@@ -55,7 +54,7 @@ public:
   void   makeSillStationary( int ivar = 0, int jvar = 0);
   void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
 
-  void   makeStationary();
+  void   makeStationary() override;
 
   int getNSills()  const {return _tabNoStat.getNSills();}
 
@@ -77,12 +76,11 @@ public:
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
-  void updateCovByMesh(int imesh,bool aniso = true) const;
+  void updateCovByMesh(int imesh,bool aniso = true) const override;
 
-  double getValue(const EConsElem& econs, int iv1, int iv2) const;
-  void nostatUpdate(CovInternal *covint);
+  double getValue(const EConsElem& econs, int iv1, int iv2) const override;
+  void nostatUpdate(CovInternal *covint) const;
 
-  ACor* getCor() const {return _cor;}
 
 protected:
     void _makeElemNoStat(const EConsElem &econs, int iv1, int iv2,
@@ -98,16 +96,18 @@ protected:
   bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool   _isVariableValid(int ivar) const;
 
-protected:
   /// Update internal parameters consistency with the context
   virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                             const SpacePoint& p1,
                                             const SpacePoint& p2,
                                             const CovCalcMode* mode = nullptr) const override;
-  virtual void _updateFromContext();
-  virtual void _initFromContext();
+  virtual void _updateFromContext() override;
+  virtual void _initFromContext() override;
+  void _copyCovContext(const CovContext& ctxt) override;
+
 
 private:
+void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
 void _optimizationPostProcess() const override; 
 
 
@@ -117,10 +117,12 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
  
 void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
 
+
+
 protected:
     TabNoStat _tabNoStat;
     mutable MatrixSquareSymmetric _sill;
     mutable MatrixSquareGeneral _workMat;
 private :
-    ACor* _cor;
+    ACov* _cor;
 };

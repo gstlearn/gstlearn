@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // 2D Space + Time (for example)
-  auto R2 = std::shared_ptr<const ASpace>(new SpaceRN(2));
-  auto R1 = std::shared_ptr<const ASpace>(new SpaceRN(1));
-  auto sp = std::shared_ptr<const ASpace>(new SpaceComposite({R2 , R1}));
+  auto R2 = SpaceRN::create(2);
+  auto R1 = SpaceRN::create(1);
+  auto sp = SpaceComposite::create({R2 , R1});
   setDefaultSpace(sp);
 
   auto psp = getDefaultSpaceSh();

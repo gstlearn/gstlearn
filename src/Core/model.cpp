@@ -95,7 +95,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Create the basic covariance structures
   // **************************************
 
-  CovAnisoList* covs = new CovLMGradient(ctxt.getSpaceSh());
+  CovAnisoList* covs = new CovLMGradient(ctxt);
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -348,7 +348,7 @@ void model_cova_characteristics(const ECov &type,
                                 double *scale,
                                 double *parmax)
 {
-  SpaceRN space(1); // Use 1-D in order to retrieve all covariances
+  auto space = SpaceRN::create(1); // Use 1-D in order to retrieve all covariances
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
   (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());

@@ -43,7 +43,6 @@
 #include "Db/Db.hpp"
 
 #include <math.h>
-#include <memory>
 
 Model::Model(const CovContext &ctxt)
     : AStringable(),
@@ -315,6 +314,7 @@ void Model::addCov(const CovAniso *cov)
     messerr("Error: Covariance is nullptr");
     return;
   }
+    
   if (! cov->getContext().isEqual(_ctxt))
   {
     messerr("Error: Covariance should share the same Context as 'Model'");
@@ -476,7 +476,7 @@ void Model::addCovFromParam(const ECov& type,
 
   // Define the covariance
 
-  auto space = std::shared_ptr<const ASpace>(new SpaceRN(ndim)); //TODO check if it is the right space
+  auto space = SpaceRN::create(ndim);
   _ctxt         = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 
@@ -837,7 +837,7 @@ void Model::switchToGradient()
   // If no covariance has been defined yet: do nothing
   if (_cova == nullptr)
   {
-    ModelCovList::setCovList(new CovLMGradient(_ctxt.getSpaceSh()));
+    ModelCovList::setCovList(new CovLMGradient(_ctxt));
   }
   else
   {
@@ -1273,7 +1273,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Reading the covariance part and store it into a CovAnisoList */
 
-  CovAnisoList covs(_ctxt.getSpaceSh());
+  CovAnisoList covs(_ctxt);
   for (int icova = 0; ret && icova < ncova; icova++)
   {
     flag_aniso = flag_rotation = 0;
@@ -1463,7 +1463,7 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovAnisoList(new CovAnisoList(_ctxt.getSpaceSh()));
+  setCovAnisoList(new CovAnisoList(_ctxt));
   _driftList = new DriftList(_ctxt);
 }
 

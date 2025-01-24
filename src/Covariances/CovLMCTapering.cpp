@@ -22,8 +22,8 @@
 
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
-                               const std::shared_ptr<const ASpace>& space)
-  : CovAnisoList(space)
+                               const CovContext& ctxt)
+  : CovAnisoList(ctxt)
   , _tapeType()
   , _tapeRange(0)
 {
@@ -229,7 +229,7 @@ double CovLMCTapering::eval(const SpacePoint& p1,
     cov0 = CovAnisoList::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
   }
 
-  double h = getSpaceSh()->getDistance(p1, p2) / _tapeRange;
+  double h = getSpace()->getDistance(p1, p2) / _tapeRange;
   cov *= D_TAPE(_tapeType.getValue()).tapeFunc(h);
 
   if (asVario) cov = cov0 - cov;

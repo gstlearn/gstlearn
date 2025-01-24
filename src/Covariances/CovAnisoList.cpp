@@ -11,6 +11,7 @@
 #include "Covariances/CovAnisoList.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Covariances/CovList.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
@@ -22,18 +23,17 @@
 #include "Space/SpacePoint.hpp"
 
 #include <math.h>
-#include <memory>
 #include <vector>
 
 
-CovAnisoList::CovAnisoList(const ASpaceSharedPtr &space)
-: CovList(space),
+CovAnisoList::CovAnisoList(const CovContext& ctxt)
+: CovList(ctxt),
   _covAnisos()
 {
 }
 
 CovAnisoList::CovAnisoList(const CovAnisoList &r)
-: CovList(r.getSpaceSh()),
+: CovList(r.getContext()),
   _covAnisos()
 {
   for (auto* e: r._covAnisos)
@@ -212,7 +212,7 @@ MatrixRectangular CovAnisoList::evalCovMatrixOptim(const Db* db1,
                                                    bool cleanOptim) const
 {
   MatrixRectangular mat;
-  SpacePoint p2(getSpaceSh());
+  SpacePoint p2(getSpace());
   if (db2 == nullptr) db2 = db1;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;

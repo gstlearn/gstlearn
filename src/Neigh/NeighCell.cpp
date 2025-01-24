@@ -13,7 +13,7 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/OptDbg.hpp"
 
-NeighCell::NeighCell(bool flag_xvalid, int nmini, const std::shared_ptr<const ASpace>& space)
+NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpaceSharedPtr& space)
     : ANeigh(space),
       _nMini(nmini),
       _biPtCell(),
@@ -90,7 +90,7 @@ bool NeighCell::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighCell* NeighCell::create(bool flag_xvalid, int nmini, const std::shared_ptr<const ASpace>& space)
+NeighCell* NeighCell::create(bool flag_xvalid, int nmini, const ASpaceSharedPtr& space)
 {
   return new NeighCell(flag_xvalid, nmini, space);
 }

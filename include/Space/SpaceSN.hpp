@@ -14,15 +14,18 @@
 
 #include "Space/ASpace.hpp"
 #include "Basic/VectorNumT.hpp"
+#include <memory>
 
 class SpacePoint;
 
 class GSTLEARN_EXPORT SpaceSN: public ASpace
 {
-public:
+private:
   SpaceSN(unsigned int ndim, double radius);
   SpaceSN(const SpaceSN &r);
   SpaceSN& operator=(const SpaceSN &r);
+ 
+public:
   virtual ~SpaceSN();
 
   /// ICloneable interface
@@ -31,7 +34,7 @@ public:
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::SN; };
 
-  static std::shared_ptr<const ASpace> create(int ndim, double radius);
+  static ASpaceSharedPtr create(int ndim, double radius);
   /// Return the sphere radius
   double getRadius() const { return _radius; }
 

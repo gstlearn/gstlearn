@@ -97,14 +97,14 @@ public:
                                      double tolang = TEST,
                                      double scale = 0.,
                                      const VectorDouble& dates = VectorDouble(),
-                                     const ASpaceSharedPtr &space = ASpaceSharedPtr());
+                                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);
   void delDir(int rank);
   void delAllDirs();
 
-  std::shared_ptr<const ASpace> getSpace() const { return _dirparams[0].getSpaceSh(); }
+  ASpaceSharedPtr getSpace() const { return _dirparams[0].getSpace(); }
   double getScale() const { return _scale; }
   int    getDateNumber() const { return (int) _dates.size() / 2; }
   int    getDirectionNumber() const { return (int) _dirparams.size(); }

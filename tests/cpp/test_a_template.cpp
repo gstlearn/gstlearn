@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   double scaleT = 5.3;
   VectorDouble coords1 = {12.,3.,1.};
   VectorDouble coords2 = {4.,5.,2.};
-  auto space1d = std::make_shared<const SpaceRN>(1);
+  auto space1d = SpaceRN::create(1);
   Model* mT = Model::createFromParam(ECov::EXPONENTIAL,
                                      scaleT,
                                      1.,

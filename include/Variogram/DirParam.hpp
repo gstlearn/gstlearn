@@ -90,7 +90,7 @@ public:
                                        double cylrad = TEST,
                                        double tolcode = 0.,
                                        const VectorDouble& breaks = VectorDouble(),
-                                       const ASpaceSharedPtr &space = ASpaceSharedPtr());
+                                       const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static DirParam* createFromGrid(const DbGrid* dbgrid,
                                   int npas = 10,
                                   const VectorInt& grincr = VectorInt(),

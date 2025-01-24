@@ -14,7 +14,7 @@
 #include "Db/Db.hpp"
 #include "Space/ASpace.hpp"
 
-NeighUnique::NeighUnique(bool flag_xvalid,  const std::shared_ptr<const ASpace>& space)
+NeighUnique::NeighUnique(bool flag_xvalid,  const ASpaceSharedPtr& space)
     : ANeigh(space)
 {
   setFlagXvalid(flag_xvalid);

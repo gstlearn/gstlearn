@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
@@ -27,7 +28,7 @@ class GSTLEARN_EXPORT CovLMCAnamorphosis : public CovAnisoList
 public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
-                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
+                     const CovContext& ctxt = CovContext());  
   CovLMCAnamorphosis(const CovAnisoList& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);

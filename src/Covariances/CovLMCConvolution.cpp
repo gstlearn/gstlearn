@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/CovContext.hpp"
 #include "Enum/EConvDir.hpp"
 #include "Enum/EConvType.hpp"
 
@@ -25,8 +26,8 @@ CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
                                      const EConvDir&  conv_dir,
                                      double conv_range,
                                      int conv_ndisc,
-                                     const std::shared_ptr<const ASpace>& space)
-    : CovAnisoList(space),
+                                     const CovContext& ctxt)
+    : CovAnisoList(ctxt),
       _convType(conv_type),
       _convDir(conv_dir),
       _convDiscNumber(conv_ndisc),

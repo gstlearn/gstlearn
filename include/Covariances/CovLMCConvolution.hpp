@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovContext.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EConvDir.hpp"
@@ -46,7 +47,7 @@ public:
                     const EConvDir& conv_dir,
                     double conv_range,
                     int conv_ndisc,
-                    const ASpaceSharedPtr& space = ASpaceSharedPtr());
+                    const CovContext& ctxt = CovContext());
   CovLMCConvolution(const CovLMCConvolution &r);
   CovLMCConvolution& operator= (const CovLMCConvolution &r);
   virtual ~CovLMCConvolution();

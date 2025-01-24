@@ -1911,7 +1911,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
     }
     if (! ret) return ret;
 
-    auto space  = std::shared_ptr<const ASpace>(new SpaceRN(ndim));
+    auto space  = SpaceRN::create(ndim);
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
                                  TEST, TEST, tolcode, VectorDouble(), codir, TEST,
                                  space);

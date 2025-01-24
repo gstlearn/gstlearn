@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   // Create the Model
   CovContext ctxt(nvar);
   Model* model = Model::create(ctxt);
-  CovAnisoList covs(ctxt.getSpaceSh());
+  CovAnisoList covs(ctxt);
   CovAniso cova(ECov::SPHERICAL, 25., 0., 2., ctxt);
   covs.addCov(&cova);
   model->setCovAnisoList(&covs);

@@ -10,16 +10,16 @@
 /******************************************************************************/
 
 #include "Covariances/CovBase.hpp"
-#include "Covariances/ACor.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 
-CovBase::CovBase(ACor* cor,
+CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
-: ACov(cor == nullptr? nullptr : cor->getSpaceSh())
+: ACov(cor == nullptr? CovContext() : cor->getContext())
 , _sill(sill)
 , _cor(cor)
 {
@@ -37,7 +37,7 @@ CovBase::~CovBase()
 
 }
 
-void CovBase::setCor(ACor* cor)
+void CovBase::setCor(ACov* cor)
 {
   _cor = cor;
   int nvar = getNVariables();
@@ -131,7 +131,7 @@ double CovBase::getSill(int ivar, int jvar) const
  **                          or NULL (for stationary case)
  **
  *****************************************************************************/
-void CovBase::nostatUpdate(CovInternal *covint)
+void CovBase::nostatUpdate(CovInternal *covint) const
 {
   if (covint == NULL) return;
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
@@ -140,7 +140,7 @@ void CovBase::nostatUpdate(CovInternal *covint)
 
 
 
-void CovBase::copyCovContext(const CovContext &ctxt)
+void CovBase::_copyCovContext(const CovContext &ctxt)
 {
   _ctxt.copyCovContext(ctxt);
   _cor->copyCovContext(ctxt);

@@ -44,7 +44,7 @@ class GSTLEARN_EXPORT CovAnisoList : public CovList, public ICloneable
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
-  CovAnisoList(const ASpaceSharedPtr &space);
+  CovAnisoList(const CovContext& ctxt = CovContext());
   CovAnisoList(const CovAnisoList &r);
   CovAnisoList& operator= (const CovAnisoList &r);
   virtual ~CovAnisoList();
@@ -163,6 +163,5 @@ protected:
 #ifndef SWIG
 protected:
  std::vector<CovAniso*> _covAnisos;     /// Vector of elementary covariances
- // VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
 #endif
 };

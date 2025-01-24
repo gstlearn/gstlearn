@@ -15,6 +15,7 @@
 #include "Space/ASpace.hpp"
 #include "Enum/ESpaceType.hpp"
 
+#include <memory>
 #include <vector>
 
 class SpacePoint;
@@ -22,21 +23,23 @@ class Tensor;
 
 class GSTLEARN_EXPORT SpaceComposite : public ASpace
 {
-public:
-  SpaceComposite();
-  SpaceComposite(const std::vector<std::shared_ptr<const ASpace>>& vectspace);
+private:
+  SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
   SpaceComposite(const SpaceComposite& r);
   SpaceComposite& operator=(const SpaceComposite& r);
+  
+public:
   virtual ~SpaceComposite();
 
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceComposite)
 
+  static std::shared_ptr<SpaceComposite> create(const ASpaceSharedPtrVector& vectspace = ASpaceSharedPtrVector());
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 
   /// Update the origin of the space
-  void setOrigin(const VectorDouble& origin) const override;
+  void setOrigin(const VectorDouble& origin) override;
 
   /// Get the number of dimensions
   unsigned int getNDim(int ispace = -1) const override;
@@ -51,7 +54,7 @@ public:
   unsigned int getNComponents() const override;
 
   /// Return the space component at index ispace
-  std::shared_ptr<const ASpace> getComponent(int ispace = -1) const override;
+  ASpaceSharedPtr getComponent(int ispace = -1) const override;
 
   /// Dump a space in a string (given the space index)
   String toString(const AStringFormat* strfmt, int ispace) const override;
@@ -67,7 +70,7 @@ public:
   /////////////////////////////////////////////
   
   /// Add a space component to me (for exemple RN(1) for time dimension)
-  void addSpaceComponent(std::shared_ptr<const ASpace> comp);
+  void addSpaceComponent(const ASpaceSharedPtr& comp);
 
 protected:
 
@@ -107,5 +110,5 @@ protected:
 
 private:
   /// Space composits list
-  std::vector<std::shared_ptr<const ASpace>> _comps;
+  std::vector<std::shared_ptr<ASpace> > _comps;
 };

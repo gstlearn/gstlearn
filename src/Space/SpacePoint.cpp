@@ -103,8 +103,8 @@ SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
     return *this;
 
   /// TODO : Memory copies
-  VectorDouble vec = getSpaceSh()->projCoord(_coord, ispace);
-  const auto sp = getSpaceSh()->getComponent(ispace);
+  VectorDouble vec = getSpace()->projCoord(_coord, ispace);
+  const auto sp = getSpace()->getComponent(ispace);
   SpacePoint p(vec, _iech, sp);
   p.setTarget(_target);
   return p;
@@ -128,7 +128,7 @@ bool SpacePoint::isConsistent(const ASpace* space) const
 
 void SpacePoint::move(const VectorDouble& vec)
 {
-  getSpaceSh()->move(*this, vec);
+  getSpace()->move(*this, vec);
 }
 
 double SpacePoint::getDistance(const SpacePoint& pt, int ispace) const

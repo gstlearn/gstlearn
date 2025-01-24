@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovContext.hpp"
 #include "Enum/ETape.hpp"
 #include "Space/ASpace.hpp"
 #include "geoslib_define.h"
@@ -43,7 +44,7 @@ class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
 public:
   CovLMCTapering(const ETape& tapetype,
                  double taperange,
-                 const ASpaceSharedPtr &space = ASpaceSharedPtr());
+                 const CovContext& ctxt = CovContext());
   CovLMCTapering(const CovLMCTapering &r);
   CovLMCTapering& operator= (const CovLMCTapering &r);
   virtual ~CovLMCTapering();

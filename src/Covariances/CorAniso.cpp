@@ -47,9 +47,9 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
                             { 70, -112, 56, -16, 2 } };
 
 CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
-    : ACor(ctxt), /// TODO : shared pointer
+    : ACov(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
-      _aniso(ctxt.getSpaceSh()->getNDim()),
+      _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -59,9 +59,9 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
 }
 
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
-    : ACor(ctxt), /// TODO : shared pointer
+    : ACov(ctxt), /// TODO : shared pointer
       _cova(),
-      _aniso(ctxt.getSpaceSh()->getNDim()),
+      _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -77,9 +77,9 @@ CorAniso::CorAniso(const ECov &type,
                    double param,
                    const CovContext &ctxt,
                    bool flagRange)
-    : ACor(ctxt), /// TODO : shared pointer
+    : ACov(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
-      _aniso(ctxt.getSpaceSh()->getNDim()),
+      _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
       _isOptimizationPreProcessed(false),
@@ -98,7 +98,7 @@ CorAniso::CorAniso(const ECov &type,
 }
 
 CorAniso::CorAniso(const CorAniso &r)
-    : ACor(r),
+    : ACov(r),
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _aniso(r._aniso),
       _tabNoStatCovAniso(new TabNoStatCovAniso(*r._tabNoStatCovAniso)),
@@ -113,7 +113,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
 {
   if (this != &r)
   {
-    ACor::operator =(r);
+    ACov::operator =(r);
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _aniso = r._aniso;
     _tabNoStatCovAniso = new TabNoStatCovAniso(*_tabNoStatCovAniso);
@@ -147,7 +147,7 @@ void CorAniso::computeMarkovCoeffs()
 
 void CorAniso::setContext(const CovContext &ctxt)
 {
-  ACor::setContext(ctxt);
+  ACov::setContext(ctxt);
   updateFromContext();
 }
 
@@ -279,7 +279,7 @@ void CorAniso::setAnisoAngle(int idim, double angle)
 
 void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
                                           const VectorDouble &ranges,
-                                          const VectorDouble &scales)
+                                          const VectorDouble &scales) const
 {
   if (!hasRange()) return;
 
@@ -412,7 +412,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
   double h;
   if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
   {
-    h = getSpaceSh()->getDistance(p1, p2, _aniso);
+    h = getSpace()->getDistance(p1, p2, _aniso);
   }
   else
   {
@@ -542,7 +542,7 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) cons
   SpacePoint p1;
   SpacePoint p2;
   p2.setCoords(freq);
-  double freqnorm = getSpaceSh()->getFrequentialDistance(p1, p2, _aniso);
+  double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
   double val = _cova->evaluateSpectrum(freqnorm * freqnorm);
   return   val / getCorrec();
 }
@@ -717,9 +717,8 @@ double CorAniso::getParam() const
   return _cova->getParam();
 }
 
-void CorAniso::initFromContext()
+void CorAniso::_initFromContext()
 {
-  _ctxt.setNVar(1);
   int ndim = getNDim();
   _aniso.init(ndim);
   updateFromContext();
@@ -728,7 +727,7 @@ void CorAniso::initFromContext()
 
 }
 
-void CorAniso::updateFromContext()
+void CorAniso::_updateFromContext()
 {
   
   computeMarkovCoeffs();
@@ -945,7 +944,7 @@ void CorAniso::optimizationSetTarget(const SpacePoint& pt,SpacePoint& p2A) const
  * @param p1As Vector of Space Points after projection (Data points)
  * @param p2A Space Point for Target
  */
-void CorAniso::optimizationSetTargetByIndex(int iech,
+void CorAniso::_optimizationSetTargetByIndex(int iech,
                                             const std::vector<SpacePoint> &p1As,
                                             SpacePoint &p2A) const
 {
@@ -956,7 +955,7 @@ void CorAniso::optimizationSetTargetByIndex(int iech,
   }
 }
 
-void CorAniso::optimizationPostProcess() const
+void CorAniso::_optimizationPostProcess() const
 {
   _isOptimizationPreProcessed = false;
 }
@@ -996,7 +995,7 @@ void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
 {
 
   int n = (int)p.size();
-  SpacePoint pt(getSpaceSh());
+  SpacePoint pt(getSpace());
   for (int i = 0; i < n; i++)
   {
     pt.setIech(p[i].getIech());
@@ -1383,7 +1382,7 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 }
 
 
-void CorAniso::updateCovByMesh(int imesh,bool aniso)
+void CorAniso::updateCovByMesh(int imesh,bool aniso) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (!_tabNoStatCovAniso->isNoStat()) return;

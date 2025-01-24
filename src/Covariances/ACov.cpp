@@ -26,27 +26,35 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
-
+#include "Covariances/NoStatArray.hpp"
+#include "Covariances/NoStatFunctional.hpp"
 #include <vector>
 #include <math.h>
 
-ACov::ACov(const ASpaceSharedPtr& space)
-    : ASpaceObject(space),
+
+ACov::ACov(const CovContext& ctxt)
+    : ASpaceObject(ctxt.getSpace()),
+      _ctxt(ctxt),
       _optimEnabled(true),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(space)
+      _p2A(ctxt.getSpace()),
+      _tabNoStat(nullptr)
 {
+    createNoStatTab();
 }
+
 ACov::ACov(const ACov& r)
   : ASpaceObject(r)
+  , _ctxt(r._ctxt)
   , _optimEnabled(r._optimEnabled)
   , _isOptimPreProcessed(r._isOptimPreProcessed)
   , _p1As()
-  , _p2A(r.getSpaceSh())
+  , _p2A(r.getSpace())
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-  , _ctxt(r._ctxt)
+
+  , _tabNoStat(r._tabNoStat == nullptr? nullptr:new TabNoStat(*r._tabNoStat))
 {
 }
 
@@ -55,14 +63,16 @@ ACov& ACov::operator=(const ACov &r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
+    _ctxt                = r._ctxt;
     _optimEnabled        = r._optimEnabled;
     _isOptimPreProcessed = r._isOptimPreProcessed;
     _p1As                = r._p1As;
     _p2A                 = r._p2A;
     _pw1                 = r._pw1;
     _pw2                 = r._pw2;
-    _ctxt                = r._ctxt;
-    _p2A = SpacePoint(r.getSpaceSh());
+
+    _p2A = SpacePoint(r.getSpace());
+    _tabNoStat = r._tabNoStat->clone();
   }
   return *this;
 }
@@ -80,7 +90,7 @@ void ACov::optimizationPostProcess() const
 void ACov::optimizationPreProcess(const Db* db) const
 {
   if (_isOptimPreProcessed) return;
-  db->getSamplesAsSP(_p1As,getSpaceSh());
+  db->getSamplesAsSP(_p1As,getSpace());
   _optimizationPreProcess(_p1As);
   _isOptimPreProcessed = true;
 }
@@ -110,6 +120,61 @@ void ACov::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
   {
     _p1As.push_back(e);
   }
+}
+
+
+void ACov::createNoStatTab()
+{
+  delete _tabNoStat;
+  _tabNoStat = _createNoStatTab();
+}
+
+void ACov::attachNoStatDb(const Db* db)
+{
+  _tabNoStat->setDbNoStatRef(db);
+}
+
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords, 
+                                    const EConsElem& econs,
+                                    int iv1,
+                                    int iv2) const
+{
+  VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
+  _tabNoStat->informCoords(coords,econs,iv1,iv2,result);
+  return result;
+}
+
+bool ACov::checkAndManageNoStatDb(const Db*&  db, const String& namecol)
+{
+ if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
+ {
+  messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");  
+  return false;
+ }
+  setNoStatDbIfNecessary(db);
+
+ if (db->getUID(namecol)< 0)
+ {
+    messerr("You have to specified a name of a column of the reference Db");
+    return false;
+ }
+ return true;
+}
+
+TabNoStat* ACov::_createNoStatTab()
+{
+  return new TabNoStat();
+}
+
+bool ACov::_checkDims(int idim, int jdim) const
+{
+  int ndim = getNDim();
+  if ((idim > ndim) || (jdim > ndim))
+  {
+    messerr("Your model is only in dimension %d.",ndim);
+    return false;
+  }
+  return true;
 }
 
 void ACov::_optimizationPostProcess() const
@@ -172,7 +237,7 @@ double ACov::eval0(int ivar,
                    int jvar,
                    const CovCalcMode* mode) const
 {
-  SpacePoint p1(getSpaceSh()->getOrigin(),-1);
+  SpacePoint p1(getSpace()->getOrigin(),-1);
   return eval(p1,p1,ivar,jvar,mode); // pure virtual method
 }
 
@@ -219,7 +284,7 @@ double ACov::evalIvarIpas(double step,
                           const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  std::shared_ptr<const ASpace> space = getSpaceSh();
+  ASpaceSharedPtr space = getSpace();
   SpacePoint p1(space);
   SpacePoint p2(space);
 
@@ -246,8 +311,8 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(VectorDouble(_space->getNDim()),-1,getSpaceSh());
-  SpacePoint p2(VectorDouble(_space->getNDim()),-1,getSpaceSh());
+  SpacePoint p1(VectorDouble(_space->getNDim()),-1,getSpace());
+  SpacePoint p2(VectorDouble(_space->getNDim()),-1,getSpace());
   p2.move(dincr);
   return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
@@ -446,13 +511,13 @@ double ACov::evalAverageIncrToIncr(const VectorVectorDouble &d1,
   double total = 0.;
   for (int iech1 = 0; iech1 < nech1; iech1++)
   {
-    SpacePoint p1(d1[iech1],-1,getSpaceSh());
+    SpacePoint p1(d1[iech1],-1,getSpace());
 
     /* Loop on the second sample */
 
     for (int iech2 = 0; iech2 < nech2; iech2++)
     {
-      SpacePoint p2(d2[iech2],-1,getSpaceSh());
+      SpacePoint p2(d2[iech2],-1,getSpace());
       total += eval(p1, p2, ivar, jvar, mode);
     }
   }
@@ -491,7 +556,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
     if (isZero(w2)) continue;
-    SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpaceSh());
+    SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
 
     /* Loop on the dimension of the space */
 
@@ -559,14 +624,14 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
     int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
     if (! nbgh2.empty())
     {
-      SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpaceSh());
+      SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
       values.push_back(eval(p1, p2, ivar, jvar, mode));
     }
     else
     {
       if (db2->isActive(iech2))
       {
-        SpacePoint p2(db2->getSampleCoordinates(iech2),iech2, getSpaceSh());
+        SpacePoint p2(db2->getSampleCoordinates(iech2),iech2, getSpace());
         values.push_back(eval(p1, p2, ivar, jvar, mode));
 
       }
@@ -916,8 +981,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   mat.resize(neq1, neq2);
 
   // Define the two space points
-  SpacePoint p1(getSpaceSh());
-  SpacePoint p2(getSpaceSh());
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
 
   // Loop on the first variable
   int irow = 0;
@@ -1026,8 +1091,8 @@ MatrixRectangular ACov::evalCovMatrixTarget(const Db* db1,
   mat.resize(neq1, neq2);
 
   // Define the two space points
-  SpacePoint p1(getSpaceSh());
-  SpacePoint p2(getSpaceSh());
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
 
   // Loop on the first variable
   int irow = 0;
@@ -1263,8 +1328,8 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db* db1,
   mat.resize(neq1, neq1);
 
   // Define the two space points
-  SpacePoint p1(getSpaceSh());
-  SpacePoint p2(getSpaceSh());
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
 
   // Loop on the first variable
   int irow = 0;
@@ -1384,8 +1449,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
   NF_Triplet NF_T;
 
   // Define the two space points
-  SpacePoint p1(getSpaceSh());
-  SpacePoint p2(getSpaceSh());
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
 
   // Loop on the first variable
   int irow = 0;
@@ -1598,3 +1663,51 @@ double ACov::_getVolume(const VectorDouble& ext) const
   return maille;
 }
 
+
+
+/////////////  Functions to attach no stat information on various supports ////////
+void ACov::informMeshByMesh(const AMesh* amesh) const
+{
+  _tabNoStat->informMeshByMesh(amesh);
+}
+void ACov::informMeshByApex(const AMesh* amesh) const
+{
+  _tabNoStat->informMeshByApex(amesh);
+}
+void ACov::informDbIn(const Db* dbin) const
+{
+  _tabNoStat->informDbIn(dbin);
+}
+void ACov::informDbOut(const Db* dbout) const
+{
+  _tabNoStat->informDbOut(dbout);
+}
+
+
+void ACov::setNoStatDbIfNecessary(const Db*& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+  if (db == nullptr)
+    db = _tabNoStat->getDbNoStatRef();
+}
+
+void ACov::makeStationary()
+{
+  _tabNoStat->clear();
+}
+int ACov::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+{
+  std::shared_ptr<ANoStat> ns;
+  if (func == nullptr)
+  {
+    if(!checkAndManageNoStatDb(db,namecol)) return 1;
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
+  }
+  else 
+  {
+    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
+  }
+   return _tabNoStat->addElem(ns, econs,iv1,iv2);
+  
+}
