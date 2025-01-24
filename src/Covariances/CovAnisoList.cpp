@@ -11,6 +11,7 @@
 #include "Covariances/CovAnisoList.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Covariances/CovList.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
@@ -26,14 +27,14 @@
 #include <vector>
 
 
-CovAnisoList::CovAnisoList(const ASpaceSharedPtr& space)
-: CovList(space),
+CovAnisoList::CovAnisoList(const CovContext& ctxt)
+: CovList(ctxt),
   _covAnisos()
 {
 }
 
 CovAnisoList::CovAnisoList(const CovAnisoList &r)
-: CovList(r.getSpace()),
+: CovList(r.getContext()),
   _covAnisos()
 {
   for (auto* e: r._covAnisos)

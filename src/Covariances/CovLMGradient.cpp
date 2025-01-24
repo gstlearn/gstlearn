@@ -14,8 +14,8 @@
 #include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
 
-CovLMGradient::CovLMGradient(const ASpaceSharedPtr& space)
-: CovAnisoList(space)
+CovLMGradient::CovLMGradient(const CovContext& ctxt)
+: CovAnisoList(ctxt)
 {
 }
 
@@ -27,7 +27,7 @@ CovLMGradient::CovLMGradient(const CovLMGradient &r)
 }
 
 CovLMGradient::CovLMGradient(const CovAnisoList& r)
-    : CovAnisoList(r.getSpace())
+    : CovAnisoList(r.getContext())
 {
 
   for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)

@@ -47,7 +47,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
                             { 70, -112, 56, -16, 2 } };
 
 CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
-    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+    : ACov(ctxt), /// TODO : shared pointer
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
@@ -59,7 +59,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
 }
 
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
-    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+    : ACov(ctxt), /// TODO : shared pointer
       _cova(),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
@@ -77,7 +77,7 @@ CorAniso::CorAniso(const ECov &type,
                    double param,
                    const CovContext &ctxt,
                    bool flagRange)
-    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+    : ACov(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
@@ -717,9 +717,8 @@ double CorAniso::getParam() const
   return _cova->getParam();
 }
 
-void CorAniso::initFromContext()
+void CorAniso::_initFromContext()
 {
-  _ctxt.setNVar(1);
   int ndim = getNDim();
   _aniso.init(ndim);
   updateFromContext();

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -24,7 +25,7 @@ class CovCalcMode;
 class GSTLEARN_EXPORT CovLMGradient : public CovAnisoList
 {
 public:
-  CovLMGradient(const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovLMGradient(const CovContext& ctxt = CovContext());
   CovLMGradient(const CovLMGradient& r);
   CovLMGradient(const CovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);

@@ -322,7 +322,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   if (pot_ext->model == nullptr) return 1;
 
   // Covariance part
-  CovLMGradient covs(ctxt.getSpace());
+  CovLMGradient covs(ctxt);
   CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
   covs.addCov(&cov);
   pot_ext->model->setCovAnisoList(&covs);

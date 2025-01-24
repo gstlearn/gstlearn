@@ -11,6 +11,7 @@
 #include "Covariances/CovList.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -22,8 +23,8 @@
 #include <math.h>
 #include <vector>
 
-CovList::CovList(const ASpaceSharedPtr& space)
-: ACov(space),
+CovList::CovList(const CovContext& ctxt)
+: ACov(ctxt),
   _covs(),
   _filtered()
 {

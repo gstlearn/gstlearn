@@ -45,7 +45,7 @@ class AFunctional;
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
 public:
-  ACov(const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  ACov(const CovContext& ctxt = CovContext());
   ACov(const ACov &r);
   ACov& operator=(const ACov &r);
   virtual ~ACov();
@@ -436,7 +436,10 @@ protected:
     virtual void _initFromContext() {};
 
 private:
-  virtual void _copyCovContext(const CovContext& ctxt) ;
+  virtual void _copyCovContext(const CovContext& ctxt)
+  {
+    DECLARE_UNUSED(ctxt)
+  }
 
   virtual void _updateFromContext() {};
   virtual void _optimizationPostProcess() const; 
@@ -451,12 +454,13 @@ private:
   
 
 protected:
+  CovContext _ctxt;         /* Context */
   bool _optimEnabled;
   mutable bool _isOptimPreProcessed;
   mutable std::vector<SpacePoint> _p1As;
   mutable SpacePoint _p2A;
   const mutable SpacePoint* _pw1;
   const mutable SpacePoint* _pw2;
-  CovContext _ctxt;         /* Context */
+  
   TabNoStat* _tabNoStat;
 };

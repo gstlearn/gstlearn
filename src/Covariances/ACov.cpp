@@ -32,12 +32,13 @@
 #include <math.h>
 
 
-ACov::ACov(const ASpaceSharedPtr& space)
-    : ASpaceObject(space),
+ACov::ACov(const CovContext& ctxt)
+    : ASpaceObject(ctxt.getSpace()),
+      _ctxt(ctxt),
       _optimEnabled(true),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(space),
+      _p2A(ctxt.getSpace()),
       _tabNoStat(nullptr)
 {
     createNoStatTab();
@@ -45,13 +46,14 @@ ACov::ACov(const ASpaceSharedPtr& space)
 
 ACov::ACov(const ACov& r)
   : ASpaceObject(r)
+  , _ctxt(r._ctxt)
   , _optimEnabled(r._optimEnabled)
   , _isOptimPreProcessed(r._isOptimPreProcessed)
   , _p1As()
   , _p2A(r.getSpace())
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-  , _ctxt(r._ctxt)
+
   , _tabNoStat(r._tabNoStat == nullptr? nullptr:new TabNoStat(*r._tabNoStat))
 {
 }
@@ -61,13 +63,14 @@ ACov& ACov::operator=(const ACov &r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
+    _ctxt                = r._ctxt;
     _optimEnabled        = r._optimEnabled;
     _isOptimPreProcessed = r._isOptimPreProcessed;
     _p1As                = r._p1As;
     _p2A                 = r._p2A;
     _pw1                 = r._pw1;
     _pw2                 = r._pw2;
-    _ctxt                = r._ctxt;
+
     _p2A = SpacePoint(r.getSpace());
     _tabNoStat = r._tabNoStat->clone();
   }
@@ -126,6 +129,20 @@ void ACov::createNoStatTab()
   _tabNoStat = _createNoStatTab();
 }
 
+void ACov::attachNoStatDb(const Db* db)
+{
+  _tabNoStat->setDbNoStatRef(db);
+}
+
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords, 
+                                    const EConsElem& econs,
+                                    int iv1,
+                                    int iv2) const
+{
+  VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
+  _tabNoStat->informCoords(coords,econs,iv1,iv2,result);
+  return result;
+}
 
 bool ACov::checkAndManageNoStatDb(const Db*&  db, const String& namecol)
 {

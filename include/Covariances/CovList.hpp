@@ -40,7 +40,7 @@ class AAnam;
 class GSTLEARN_EXPORT CovList : public ACov
 {
 public:
-  CovList(const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovList(const CovContext& ctxt = CovContext());
   CovList(const CovList &r) = delete;
   CovList& operator= (const CovList &r) = delete;
   virtual ~CovList();

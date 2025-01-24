@@ -11,6 +11,7 @@
 
 #include "Covariances/CovBase.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
@@ -18,7 +19,7 @@
 
 CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
-: ACov(cor == nullptr? nullptr : cor->getSpace())
+: ACov(cor == nullptr? CovContext() : cor->getContext())
 , _sill(sill)
 , _cor(cor)
 {

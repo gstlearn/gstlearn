@@ -12,7 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/ACor.hpp"
+#include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
@@ -272,11 +272,11 @@ public:
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
-  void initFromContext();
+  
 protected:
   /// Update internal parameters consistency with the context
 
-
+  void _initFromContext() override;
 private:
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext &ctxt) override;

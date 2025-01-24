@@ -54,7 +54,7 @@ public:
   void   makeSillStationary( int ivar = 0, int jvar = 0);
   void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
 
-  void   makeStationary();
+  void   makeStationary() override;
 
   int getNSills()  const {return _tabNoStat.getNSills();}
 
@@ -78,7 +78,7 @@ public:
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
   void updateCovByMesh(int imesh,bool aniso = true) const;
 
-  double getValue(const EConsElem& econs, int iv1, int iv2) const;
+  double getValue(const EConsElem& econs, int iv1, int iv2) const override;
   void nostatUpdate(CovInternal *covint);
 
 
@@ -96,7 +96,6 @@ protected:
   bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool   _isVariableValid(int ivar) const;
 
-protected:
   /// Update internal parameters consistency with the context
   virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                             const SpacePoint& p1,
@@ -116,6 +115,8 @@ void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
                  const CovCalcMode *mode) const;
  
 void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
+
+
 
 protected:
     TabNoStat _tabNoStat;

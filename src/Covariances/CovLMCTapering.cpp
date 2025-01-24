@@ -22,8 +22,8 @@
 
 CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
-                               const ASpaceSharedPtr& space)
-  : CovAnisoList(space)
+                               const CovContext& ctxt)
+  : CovAnisoList(ctxt)
   , _tapeType()
   , _tapeRange(0)
 {
