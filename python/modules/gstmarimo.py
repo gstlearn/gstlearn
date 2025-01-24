@@ -577,13 +577,13 @@ def WgetGridN(WAll, box):
     y0 = box[1,0]
     return gl.DbGrid.create(nx = [nx,ny], dx = [dx,dy], x0 = [x0, y0])
 
-def WdefineDF(db):
+def WdefineTable(db):
     names = db.getAllNames()
     df = pd.DataFrame(db[:], columns=names)
     WDF = mo.ui.table(df)
     return mo.ui.array([WDF])
 
-def WshowDF(WAll, flagTitle = True):
+def WshowTable(WAll, flagTitle = True):
     [WDF] = WAll
     return mo.vstack([WgetTitle("Grid Discretization", flagTitle), WDF])
 
