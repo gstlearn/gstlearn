@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  OptCustom::define("oldStyle", 1.);
+  OptCustom::define("oldStyle", 0.);
 
   // Generate the output grid
   int ncell       = 100;
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   // Create the Model
   double range = 1. / 5.;
   double sill  = 2.;
-  bool verbose = true;
+  bool verbose = false;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   if (onlyOne)

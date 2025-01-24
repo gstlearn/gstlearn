@@ -473,24 +473,37 @@ VectorInt DriftList::_getActiveVariables(int ivar0) const
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
  *****************************************************************************/
-MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
-                                             int ivar0,
-                                             const VectorInt &nbgh,
-                                             const ECalcMember &member)
+MatrixRectangular DriftList::evalDriftMat(const Db* db,
+                                          int ivar0,
+                                          const VectorInt& nbgh,
+                                          const ECalcMember& member)
 {
   MatrixRectangular drfmat;
-  int nvar = getNVariables();
-  int nbfl = getDriftNumber();
-  int nfeq = getDriftEquationNumber();
-  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return drfmat;
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index = db->getMultipleRanksActive(ivars, nbgh, true, true, true);
+  VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
+
+  return evalDriftMatByRanks(db, index, ivar0, member);
+}
+
+MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
+                                                 const VectorVectorInt& sampleRanks,
+                                                 int ivar0,
+                                                 const ECalcMember& member)
+{
+  MatrixRectangular drfmat;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return drfmat;
+
+  int nvar  = getNVariables();
+  int nbfl  = getDriftNumber();
+  int nfeq  = getDriftEquationNumber();
+  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
 
   // Creating the matrix
-  int neq = VH::count(index);
+  int neq = VH::count(sampleRanks);
   if (neq <= 0)
   {
     messerr("The returned matrix does not have any valid sample for any valid variable");
@@ -501,16 +514,16 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
   /* Loop on the variables */
 
   int irow = 0;
-  for (int ivar = 0, nvars = (int) ivars.size(); ivar < nvars; ivar++)
+  for (int ivar = 0, nvars = (int)ivars.size(); ivar < nvars; ivar++)
   {
     int ivar1 = ivars[ivar];
 
     /* Loop on the samples */
 
-    int nechs = (int) index[ivar].size();
+    int nechs = (int)sampleRanks[ivar].size();
     for (int jech = 0; jech < nechs; jech++)
     {
-      int iech = index[ivar][jech];
+      int iech = sampleRanks[ivar][jech];
 
       /* Loop on the drift functions */
 
@@ -543,8 +556,8 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
 /*!
  **  Establish the drift rectangular matrix for a given Db
  **
- ** \return Returned matrix (Dimension/ nrows = nvar * nech; ncols = nfeq *
- *nvar)
+ ** \return Returned matrix
+ ** (Dimension/ nrows = nvar * nech; ncols = nfeq * nvar)
  **
  ** \param[in]  db     Db structure
  ** \param[in]  ivar0  Rank of the variable (-1 for all variables)
@@ -552,10 +565,10 @@ MatrixRectangular DriftList::evalDriftMatrix(const Db *db,
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
  *****************************************************************************/
-MatrixRectangular DriftList::evalDriftTargetMatrix(const Db* db,
-                                             int ivar0,
-                                             int iech2,
-                                             const ECalcMember& member)
+MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
+                                                   int ivar0,
+                                                   int iech2,
+                                                   const ECalcMember& member)
 {
   MatrixRectangular drfmat;
   int nvar        = getNVariables();
@@ -568,7 +581,7 @@ MatrixRectangular DriftList::evalDriftTargetMatrix(const Db* db,
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
   VectorVectorInt index =
-    db->getMultipleRanksActive(ivars, {iech2}, true, false, false);
+    db->getSampleRanks(ivars, {iech2}, true, false, false);
 
   // Creating the matrix
   int neq = VH::count(index);

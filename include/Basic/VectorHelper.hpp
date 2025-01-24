@@ -66,7 +66,8 @@ public:
   static int    cumul(const VectorInt& vec);
   static int    cumul(const VectorVectorInt& vec);
   static double cumul(const VectorDouble &vec);
-  static double mean(const VectorDouble &vec);
+  static VectorInt cumulIncrement(const VectorVectorInt& vec);
+  static double mean(const VectorDouble& vec);
   static double variance(const VectorDouble &vec, bool scaleByN = false);
   static double stdv(const VectorDouble &vec, bool scaleByN = false);
   static double norm(const VectorDouble &vec);

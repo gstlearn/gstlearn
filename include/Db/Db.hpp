@@ -559,19 +559,16 @@ public:
                            bool useSel           = true,
                            bool useZ             = true,
                            bool useVerr          = false) const;
-  VectorVectorInt getMultipleRanksActive(const VectorInt& ivars = VectorInt(),
-                                         const VectorInt& nbgh  = VectorInt(),
-                                         bool useSel            = true,
-                                         bool useZ              = true,
-                                         bool useVerr           = false) const;
-  VectorDouble getMultipleValuesActive(const VectorInt& nbgh     = VectorInt(),
-                                       const VectorDouble& means = VectorDouble(),
-                                       bool useSel               = true,
-                                       bool useZ                 = true,
-                                       bool useVerr              = false) const;
-  static VectorInt getMultipleSelectedIndices(const VectorVectorInt& index,
-                                              const VectorInt& ivars = VectorInt(),
-                                              const VectorInt& nbgh  = VectorInt());
+  VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
+                                 const VectorInt& nbgh  = VectorInt(),
+                                 bool useSel            = true,
+                                 bool useZ              = true,
+                                 bool useVerr           = false) const;
+  VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
+                                const VectorDouble& means = VectorDouble()) const;
+  static VectorInt getMultipleSelectedRanks(const VectorVectorInt& index,
+                                            const VectorInt& ivars = VectorInt(),
+                                            const VectorInt& nbgh  = VectorInt());
   static VectorInt getMultipleSelectedVariables(const VectorVectorInt& index,
                                                 const VectorInt& ivars = VectorInt(),
                                                 const VectorInt& nbgh  = VectorInt());
@@ -882,7 +879,6 @@ public:
                    int belowRow = ITEST,
                    int aboveRow = ITEST) const;
 
-  VectorInt getSampleRanks() const;
   Table printOneSample(int iech,
                        const VectorString& names = VectorString(),
                        bool excludeCoordinates   = true,

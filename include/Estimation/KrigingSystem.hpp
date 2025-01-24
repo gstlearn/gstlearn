@@ -87,7 +87,7 @@ public:
   int  getNech() const;
   int  getNeq()  const;
   int  getNRed() const { return _nred; }
-  VectorInt             getSampleIndices() const { return _nbgh; }
+  VectorInt             getSampleNbgh() const { return _nbgh; }
   VectorVectorDouble    getSampleCoordinates() const;
   VectorDouble          getSampleData() const;
   MatrixRectangular     getZam() const { return _zam; }
@@ -212,7 +212,7 @@ private:
 
   // Pointers used when plugging KrigingCalcul (not to be deleted)
   KrigingCalcul         _algebra;
-  VectorVectorInt       _sampleIndices; // Vector of vector of sample indices
+  VectorVectorInt       _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric _Sigma00; // Covariance part for variance
   MatrixSquareSymmetric _Sigma;   // Covariance part for LHS
   MatrixRectangular     _X;       // Drift part for LHS

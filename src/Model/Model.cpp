@@ -2320,7 +2320,7 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
   int nDrift = getDriftEquationNumber();
  
   // Calculate the covariance matrix C and perform its Cholesky decomposition
-  MatrixSquareSymmetric cov = evalCovMatrixSymmetric(db);
+  MatrixSquareSymmetric cov = evalCovMatSym(db);
   CholeskyDense covChol(&cov);
   if (! covChol.isReady())
   {
@@ -2352,7 +2352,7 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
   if (nDrift > 0)
   {
     // Extract the matrix of drifts at samples X
-    MatrixRectangular X = evalDriftMatrix(db);
+    MatrixRectangular X = evalDriftMat(db);
 
     // Calculate Cm1X = Cm1 * X
     MatrixRectangular Cm1X;

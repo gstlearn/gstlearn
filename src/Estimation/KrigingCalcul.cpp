@@ -18,7 +18,7 @@
 #include "Basic/AStringable.hpp"
 
 KrigingCalcul::KrigingCalcul(bool flagDual,
-                             const VectorVectorInt* sampleIndices,
+                             const VectorVectorInt* sampleRanks,
                              const VectorDouble* Z,
                              const MatrixSquareSymmetric* Sigma,
                              const MatrixRectangular* X,
@@ -37,7 +37,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _rankColCok(nullptr)
   , _rankXvalidEqs(nullptr)
   , _rankXvalidVars(nullptr)
-  , _sampleIndices(nullptr)
+  , _sampleRanks(nullptr)
   , _Zstar()
   , _Beta()
   , _LambdaSK(nullptr)
@@ -74,8 +74,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _flagBayes(false)
   , _flagDual(flagDual)
 {
-  (void)setSampleIndices(sampleIndices);
-  (void)setData(Z, Means);
+  (void)setData(Z, sampleRanks, Means);
   (void)setLHS(Sigma, X);
   (void)setVariance(Sigma00);
 }
@@ -101,7 +100,7 @@ void KrigingCalcul::setDual(bool status)
   _resetAll();
   _flagDual = status;
 }
-void KrigingCalcul::_resetLinkedToIndices()
+void KrigingCalcul::_resetLinkedToSampleRanks()
 {
   _deleteIndices();
 }
@@ -399,40 +398,43 @@ void KrigingCalcul::resetNewData()
   _neq = 0;
 }
 
-int KrigingCalcul::setSampleIndices(const VectorVectorInt* indices)
-{
-  _resetLinkedToIndices();
-
-  _sampleIndices = indices;
-  return 0;
-}
-
 /**
  * @brief Modify the Data Values (and Means)
  *
  * @param Z Data flattened vector (possibly multivariate)
+ * @param indices Vector Of Vector of sample ranks
  * @param Means  Vector of known Drift coefficients (optional)
  * @return int
  *
  * @note If one element is not provided, its address (if already defined) is
  * @note kept unchanged (even if its contents may have been updated)
  */
-int KrigingCalcul::setData(const VectorDouble* Z, const VectorDouble* Means)
+int KrigingCalcul::setData(const VectorDouble* Z,
+                           const VectorVectorInt* indices,
+                           const VectorDouble* Means)
 {
   _resetLinkedToZ();
+  _resetLinkedToSampleRanks();
 
   // Argument Z
   if (Z != nullptr)
   {
-    if (!_checkDimensionVector("Z", Z, &_neq)) return 1;
+    if (!_checkDimensionVD("Z", Z, &_neq)) return 1;
     _Z = Z;
   }
 
+  // Argument indices
+  if (indices != nullptr)
+  {
+    if (!_checkDimensionVVI("sampleRanks", indices, &_neq)) return 1;
+    _sampleRanks = indices;
+  }
+  
   // Argument Means
   if (Means != nullptr)
   {
     int local_nvar = 0;
-    if (!_checkDimensionVector("Means", Means, &local_nvar)) return 1;
+    if (!_checkDimensionVD("Means", Means, &local_nvar)) return 1;
     _Means = Means;
   }
   return 0;
@@ -515,7 +517,7 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
   return 0;
 }
 
-bool KrigingCalcul::_checkDimensionVector(const String& name,
+bool KrigingCalcul::_checkDimensionVD(const String& name,
                                           const VectorDouble* vec,
                                           int *sizeRef)
 {
@@ -524,6 +526,18 @@ bool KrigingCalcul::_checkDimensionVector(const String& name,
   {
     messerr("Dimension of %s (%d) incorrect: it should be (%d)",
             name.c_str(),size, *sizeRef);
+    return false;
+  }
+  if (size > 0) *sizeRef = size;
+  return true;
+}
+
+bool KrigingCalcul::_checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef)
+{
+  int size = VH::count(*vec);
+  if (*sizeRef > 0 && size != *sizeRef)
+  {
+    messerr("Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size, *sizeRef);
     return false;
   }
   if (size > 0) *sizeRef = size;
@@ -581,7 +595,7 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
   }
 
   // Argument Zp
-  if (!_checkDimensionVector("Zp", Zp, &_nrhs)) return 1;
+  if (!_checkDimensionVD("Zp", Zp, &_nrhs)) return 1;
 
   // Argument rankColCok
   int ncck = (int) rankColCok->size();
@@ -636,7 +650,7 @@ int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
     return 1;
   }
   
-  if (!_checkDimensionVector("PriorMean", PriorMean, &_nbfl)) return 1;
+  if (!_checkDimensionVD("PriorMean", PriorMean, &_nbfl)) return 1;
   if (!_checkDimensionMatrix("PriorCov", PriorCov, &_nbfl, &_nbfl)) return 1;
   _PriorMean = PriorMean;
   _PriorCov  = PriorCov;
@@ -1237,9 +1251,9 @@ int KrigingCalcul::_needPriorCov()
   return 0;
 }
 
-int KrigingCalcul::_needSampleIndices()
+int KrigingCalcul::_needSampleRanks()
 {
-  if (!_isPresentIIVector("SampleIndices", _sampleIndices)) return 1;
+  if (!_isPresentIIVector("SampleRanks", _sampleRanks)) return 1;
   return 0;
 }
 
@@ -1604,12 +1618,12 @@ void KrigingCalcul::dumpWGT()
     if (_needLambdaUK()) return;
     lambda = _LambdaUK;
   }
-  if (_needSampleIndices()) return;
+  if (_needSampleRanks()) return;
   char string[20];
 
   /* Header Line */
 
-  int nvar = _sampleIndices->size();
+  int nvar = _sampleRanks->size();
   tab_prints(NULL, "Rank");
   tab_prints(NULL, "Data");
   for (int irhs = 0; irhs < _nrhs; irhs++)
@@ -1625,7 +1639,7 @@ void KrigingCalcul::dumpWGT()
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     if (nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
-    int nbyvar = (*_sampleIndices)[ivar].size();
+    int nbyvar = (*_sampleRanks)[ivar].size();
     sum.fill(0.);
 
     for (int j = 0; j < nbyvar; j++)
@@ -1654,9 +1668,9 @@ void KrigingCalcul::dumpWGT()
 
 void KrigingCalcul::dumpAux()
 {
-  if (_needSampleIndices()) return;
+  if (_needSampleRanks()) return;
   char string[20];
-  int nvar = _sampleIndices->size();
+  int nvar = _sampleRanks->size();
 
   // For Simple Kriging, dump the information on Means
   if (_nbfl <= 0)

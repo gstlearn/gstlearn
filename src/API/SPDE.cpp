@@ -961,16 +961,10 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   if (flag_nostat_sill)
     cova->informDbInForSills(db);
 
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
+  // Create sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db->getSampleRanks(ivars);
   // 'cumul' counts the number of valid positions for all variables before 'ivar'
-  VectorInt cumul(nvar, 0);
-  int number = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    cumul[ivar] = number;
-    number += (int) index1[ivar].size();
-  }
+  VectorInt cumul        = VH::cumulIncrement(index1);
 
   // Check the various possibilities
   // - flag_verr: True if Variance of Measurement Error variable is defined

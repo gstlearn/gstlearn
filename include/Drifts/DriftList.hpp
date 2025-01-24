@@ -117,14 +117,18 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMatrix(const Db* db,
-                                    int ivar0             = -1,
-                                    const VectorInt& nbgh = VectorInt(),
-                                    const ECalcMember& member = ECalcMember::fromKey("LHS"));
-  MatrixRectangular evalDriftTargetMatrix(const Db* db,
-                                          int ivar0             = -1,
-                                          int iech2 = 0,
-                                          const ECalcMember& member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMat(const Db* db,
+                                 int ivar0                 = -1,
+                                 const VectorInt& nbgh     = VectorInt(),
+                                 const ECalcMember& member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMatByRanks(const Db* db,
+                      const VectorVectorInt& sampleranks,
+                      int ivar0                 = -1,
+                      const ECalcMember& member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMatByTarget(const Db* db,
+                       int ivar0                 = -1,
+                       int iech2                 = 0,
+                       const ECalcMember& member = ECalcMember::fromKey("LHS"));
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,

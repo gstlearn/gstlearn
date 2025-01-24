@@ -34,7 +34,7 @@ class GSTLEARN_EXPORT KrigingCalcul
 {
 public:
   KrigingCalcul(bool flagDual = false,
-                const VectorVectorInt* sampleIndices = nullptr,
+                const VectorVectorInt* sampleRanks   = nullptr,
                 const VectorDouble* Z                = nullptr,
                 const MatrixSquareSymmetric* Sigma   = nullptr,
                 const MatrixRectangular* X           = nullptr,
@@ -46,8 +46,8 @@ public:
 
   void resetNewData();
   void setDual(bool status);
-  int setSampleIndices(const VectorVectorInt* indices = nullptr);
-  int setData(const VectorDouble* Z     = nullptr,
+  int setData(const VectorDouble* Z = nullptr,
+              const VectorVectorInt* indices = nullptr,
               const VectorDouble* Means = nullptr);
   int setLHS(const MatrixSquareSymmetric* Sigma = nullptr,
              const MatrixRectangular* X         = nullptr);
@@ -87,20 +87,16 @@ public:
   const MatrixRectangular* getSigma0p();
 
 private:
-  static bool _checkDimensionMatrix(const String& name,
-                                               const AMatrix* mat,
-                                               int* nrowsRef,
-                                               int* ncolsRef);
-  static bool _checkDimensionVector(const String& name,
-                                    const VectorDouble* vec,
-                                    int* sizeRef);
+  static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, int* nrowsRef, int* ncolsRef);
+  static bool _checkDimensionVD(const String& name, const VectorDouble* vec, int* sizeRef);
+  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef);
 
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
   static bool _isPresentVector(const String& name, const VectorDouble* vec);
   static bool _isPresentIVector(const String& name, const VectorInt* vec);
   static bool _isPresentIIVector(const String& name, const VectorVectorInt* vec);
 
-  void _resetLinkedToIndices();
+  void _resetLinkedToSampleRanks();
   void _resetLinkedToZ();
   void _resetLinkedToLHS();
   void _resetLinkedToRHS();
@@ -137,7 +133,7 @@ private:
   int _needInvSigmaSigma0();
   int _needPriorCov();
   int _needPriorMean();
-  int _needSampleIndices();
+  int _needSampleRanks();
   int _needZ();
   int _needZp();
   int _needColCok();
@@ -204,7 +200,7 @@ private:
   const VectorInt* _rankColCok;           // Ranks of collocated variables
   const VectorInt* _rankXvalidEqs;        // Ranks of the cross-validated Equations
   const VectorInt* _rankXvalidVars;       // Ranks of the cross-validated Variables
-  const VectorVectorInt* _sampleIndices;  // Vector of Vector of sampl indices per variable
+  const VectorVectorInt* _sampleRanks;    // Vector of Vector of sampl indices per variable
 
   // Following elements can be retrieved by Interface functions  
   VectorDouble _Zstar;                  // Estimated values (Dim: _nrhs)

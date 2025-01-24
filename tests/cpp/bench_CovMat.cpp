@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    MatrixRectangular matvec = model->evalCovMatrixOptim(dbin, dbout);
+    MatrixRectangular matvec = model->evalCovMatOptim(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, matvec.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    MatrixRectangular matvec = model->evalCovMatrix(dbin, dbout);
+    MatrixRectangular matvec = model->evalCovMat(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, matvec.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (not optimized)", 300);

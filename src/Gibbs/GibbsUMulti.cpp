@@ -78,7 +78,7 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   /* Establish the covariance matrix and invert it */
 
-  _covmat = model->evalCovMatrixV(db, db, -1, -1);
+  _covmat = model->evalCovMatV(db, db, -1, -1);
 
   // Invert Covariance Matrix
 

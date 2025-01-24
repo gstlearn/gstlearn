@@ -3432,38 +3432,16 @@ VectorDouble Db::getSelections(void) const
   return tab;
 }
 
-/**
- * Returns a one_dimensional vector of values for valid samples for the
- * all sets of variables
- *
- * @param nbgh    Vector giving the ranks of the elligible samples (optional)
- * @param means   Vector of Means per variable (optional)
- * @param useSel  Discard the masked samples (if True)
- * @param useZ    Discard if a Z-variable is undefined
- * @param useVerr Discard the samples where Verr (if it exists) is not correctly
- * defined
- *
- * @note: if the current 'db' has some Z-variable defined, only samples where
- * @note a variable is defined is considered (search for heterotopy).
- * @note: If argumennt 'Mean' is provided, the mean is subtracted from the output vector
- */
-
-VectorDouble Db::getMultipleValuesActive(const VectorInt& nbgh,
-                                         const VectorDouble& means,
-                                         bool useSel,
-                                         bool useZ,
-                                         bool useVerr) const
+VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks, const VectorDouble& means) const
 {
-  int nvar = getLocatorNumber(ELoc::Z);
+  int nvar        = getLocatorNumber(ELoc::Z);
   VectorInt jvars = VH::sequence(nvar);
-  const VectorVectorInt index = getMultipleRanksActive(jvars, nbgh, useSel, useZ, useVerr);
-
   VectorDouble vec;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int jvar = jvars[ivar];
-    double meanlocal = (! means.empty()) ? means[jvar] : 0.;
-    const VectorInt& local = index[ivar];
+    int jvar               = jvars[ivar];
+    double meanlocal       = (!means.empty()) ? means[jvar] : 0.;
+    const VectorInt& local = sampleRanks[ivar];
     for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
       vec.push_back(getZVariable(local[iech], jvar) - meanlocal);
   }
@@ -3480,9 +3458,9 @@ VectorDouble Db::getMultipleValuesActive(const VectorInt& nbgh,
  * @param nbgh  Vector of selection samples
  * @return VectorInt 
  */
-VectorInt Db::getMultipleSelectedIndices(const VectorVectorInt& index,
-                                         const VectorInt& ivars,
-                                         const VectorInt& nbgh)
+VectorInt Db::getMultipleSelectedRanks(const VectorVectorInt& index,
+                                       const VectorInt& ivars,
+                                       const VectorInt& nbgh)
 {
   VectorInt vec;
 
@@ -3539,7 +3517,7 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  * @note: if the current 'db' has some Z-variable defined, only samples
  * @note: where a variable is defined is considered (search for heterotopy).
  */
-VectorVectorInt Db::getMultipleRanksActive(const VectorInt& ivars,
+VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
                                            const VectorInt& nbgh,
                                            bool useSel,
                                            bool useZ, 
@@ -5337,28 +5315,6 @@ VectorInt Db::shrinkToValidCols(const VectorInt& cols) const
     if (cols[i] >= 0 && cols[i] < _ncol) new_cols.push_back(cols[i]);
   }
   return new_cols;
-}
-
-/** Returns the ranks, within the exhaustive loop on variables then samples
- * to be used in the kriging system, knowing that we must discard the masked
- * samples and the samples whose value is not defined
- * @return
- */
-VectorInt Db::getSampleRanks() const
-{
-  VectorInt vec;
-  int nvar = getLocNumber(ELoc::Z);
-  int nech = getSampleNumber();
-
-  int lec = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int iech = 0; iech < nech; iech++, lec++)
-    {
-      if (!isActive(iech)) continue;
-      if (FFFF(getZVariable(iech, ivar))) continue;
-      vec.push_back(lec);
-    }
-  return vec;
 }
 
 /**
