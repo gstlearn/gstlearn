@@ -223,7 +223,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Loop on the basic structures
-  for (int icov = 0, ncov = _model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = _model->getNCov(); icov < ncov; icov++)
   {
     CovAniso* cova = _model->getCova(icov);
     double sill = cova->getSill(0,0);
@@ -322,7 +322,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     else
     {
       VH::fill(varianceData, MAX(_nugget, _params.getEpsNugget() * totalSill),
-               _data->getNumberActiveAndDefined(0));
+               _data->getNSampleActiveAndDefined(0));
     }
     _precisionsKrig->setVarianceDataVector(varianceData);
 
@@ -934,7 +934,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool hasnugget = false;
   CovAniso* cova =nullptr;
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     if (model->getCova(icov)->getType() == ECov::NUGGET)
     {

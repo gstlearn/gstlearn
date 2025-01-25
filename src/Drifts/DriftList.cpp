@@ -268,7 +268,7 @@ bool DriftList::isDriftSampleDefined(const Db *db,
                                      const ELoc &loctype) const
 {
   int nbfl = getDriftNumber();
-  int nvar = db->getLocatorNumber(loctype);
+  int nvar = db->getNLoc(loctype);
 
   if (_flagCombined)
   {

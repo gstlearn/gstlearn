@@ -45,7 +45,7 @@ ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,const std::v
         return empty;
      }
     
-    int nvar = db->getLocatorNumber(ELoc::Z);
+    int nvar = db->getNLoc(ELoc::Z);
 
     int nmeshes = (int)meshes.size();
     if (nmeshes == 0)

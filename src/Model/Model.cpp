@@ -245,7 +245,7 @@ Model* Model::createFromVario(Vario* vario,
 String Model::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  int ncov   = getCovaNumber();
+  int ncov   = getNCov();
   int ndrift = getDriftNumber();
   if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
@@ -618,12 +618,12 @@ CovAniso* Model::getCova(int icov)
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
 }
-int Model::getCovaNumber(bool skipNugget) const
+int Model::getNCov(bool skipNugget) const
 {
   if (_cova == nullptr) return 0;
   const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaNumber(skipNugget);
+  return covalist->getNCov(skipNugget);
 }
 const ECov& Model::getCovaType(int icov) const
 {
@@ -703,7 +703,7 @@ int Model::hasExternalCov() const
   if (_cova == nullptr) return 0;
   const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return 0;
-  for (int icov = 0; icov < (int) covalist->getCovaNumber(); icov++)
+  for (int icov = 0; icov < (int) covalist->getNCov(); icov++)
   {
     if (covalist->getType(icov) == ECov::FUNCTION) return 1;
   }
@@ -1381,12 +1381,12 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "", getDimensionNumber());
   ret = ret && _recordWrite<int>(os, "", getNVar());
   ret = ret && _recordWrite<double>(os, "General parameters", getField());
-  ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getCovaNumber());
+  ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getNCov());
   ret = ret && _recordWrite<int>(os, "Number of drift terms", getDriftNumber());
 
   /* Writing the covariance part */
 
-  for (int icova = 0; ret && icova < getCovaNumber(); icova++)
+  for (int icova = 0; ret && icova < getNCov(); icova++)
   {
     const CovAniso *cova = getCova(icova);
     ret = ret && _recordWrite<int>(os, "", cova->getType().getValue());
@@ -1431,7 +1431,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Writing the matrices of sills (optional) */
 
-  for (int icova = 0; ret && icova < getCovaNumber(); icova++)
+  for (int icova = 0; ret && icova < getNCov(); icova++)
   {
     for (int ivar = 0; ret && ivar < getNVar(); ivar++)
       for (int jvar = 0; ret && jvar < getNVar(); jvar++)
@@ -1835,10 +1835,10 @@ const CovAnisoList* Model::_castInCovAnisoListConst(int icov) const
   if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovaNumber())
+  if (icov >= covalist->getNCov())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovaNumber());
+            icov, covalist->getNCov());
     return nullptr;
   }
   return covalist;
@@ -1856,10 +1856,10 @@ CovAnisoList* Model::_castInCovAnisoList(int icov)
   if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovaNumber())
+  if (icov >= covalist->getNCov())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovaNumber());
+            icov, covalist->getNCov());
     return nullptr;
   }
   return covalist;
@@ -1950,7 +1950,7 @@ int Model::stabilize(double percent, bool verbose)
   int nvar = getNVar();
   if (nvar > 1) return 0;
   if (percent <= 0.) return 0;
-  int ncov = getCovaNumber();
+  int ncov = getNCov();
 
   /* Check if the model only contains GAUSSIAN components */
 
@@ -1992,7 +1992,7 @@ int Model::standardize(bool verbose)
 
 {
   int nvar = getNVar();
-  int ncov = getCovaNumber();
+  int ncov = getNCov();
   VectorDouble total(nvar,0.);
 
   /* Calculate the total sills for each variable */
@@ -2311,7 +2311,7 @@ double Model::calculateStdev(Db *db1,
  */
 double Model::computeLogLikelihood(const Db* db, bool verbose)
 {
-  int nvar = db->getLocatorNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nvar < 1)
   {
     messerr("The 'db' should have at least one variable defined");

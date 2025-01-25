@@ -4059,7 +4059,7 @@ static int st_variogram_pgs_nostat(Db *db,
   /*******************/
 
   ngrf = rule->getGRFNumber();
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule->getNFacies();
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
   if (propdef == nullptr) goto label_end;
@@ -4895,7 +4895,7 @@ Vario* model_pgs(Db *db,
   /*******************/
 
   int error = 1;
-  int nfacies = rule->getFaciesNumber();
+  int nfacies = rule->getNFacies();
   int ngrf = rule->getGRFNumber();
   if (rule->getModeRule() == ERule::SHIFT) ngrf++;
 
@@ -5065,7 +5065,7 @@ static int st_variogram_pgs_stat(Db *db,
   if (st_vario_pgs_check(0, 1, 1, db, NULL, vario, varioind, rule))
     goto label_end;
   ngrf = rule->getGRFNumber();
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule->getNFacies();
 
   /*******************/
   /* Core allocation */
@@ -5173,7 +5173,7 @@ Vario* variogram_pgs(Db *db,
             db->getLocNumber(ELoc::Z));
     return nullptr;
   }
-  int nclass = rule->getFaciesNumber();
+  int nclass = rule->getNFacies();
   if (nclass <= 0)
   {
     messerr("No Facies class have been found");
@@ -5190,7 +5190,7 @@ Vario* variogram_pgs(Db *db,
       if ((int) propcst.size() != nclass)
       {
         messerr("Number of proportions in 'propcst' (%d) should match Number of Facies in 'rule' (%d)",
-                (int) propcst.size(), rule->getFaciesNumber());
+                (int) propcst.size(), rule->getNFacies());
         return nullptr;
       }
       props = propcst;
@@ -5202,7 +5202,7 @@ Vario* variogram_pgs(Db *db,
       if ((int) props.size() != nclass)
       {
         messerr("Number of Facies in 'db' (%d) should match Number of facies in 'rule' (%d)",
-                (int) props.size(), rule->getFaciesNumber());
+                (int) props.size(), rule->getNFacies());
         return nullptr;
       }
     }
@@ -5285,7 +5285,7 @@ Rule* _rule_auto(Db *db,
   Relem *Pile_Relem = (Relem*) NULL;
   PropDef *propdef = nullptr;
 
-  NCOLOR = db->getFaciesNumber();
+  NCOLOR = db->getNFacies();
   NGRF = ngrfmax;
   NRULE = 2 * NCOLOR - 1;
   BASE = 2 * NGRF;

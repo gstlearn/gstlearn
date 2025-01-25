@@ -134,7 +134,7 @@ public:
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;
-  int getCovaNumber(bool skipNugget = false) const;
+  int getNCov(bool skipNugget = false) const;
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
 

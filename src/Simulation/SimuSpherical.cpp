@@ -363,7 +363,7 @@ VectorDouble SimuSpherical::_spectrum_any(Model *model,
     double alpha = DISCRET(idisc);
     dd[0] = 2. * sin(alpha / 2.);
     double ca = 0.;
-    for (int icova = 0; icova < model->getCovaNumber(); icova++)
+    for (int icova = 0; icova < model->getNCov(); icova++)
       ca += model->evalCov(dd, icova, ECalcMember::LHS);
     covs[idisc] = ca;
   }

@@ -30,7 +30,7 @@ CovLMGradient::CovLMGradient(const CovAnisoList& r)
     : CovAnisoList(r.getContext())
 {
 
-  for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)
+  for (int icov = r.getNCov()-1; icov >= 0; icov--)
   {
     const CovAniso *cov = r.getCova(icov);
     if (!cov->hasCovDerivative())
@@ -76,7 +76,7 @@ void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
 {
   _initGradients(covVal, covGp, covGG, flagGrad);
 
-  for (unsigned int i = 0, n = getCovaNumber(); i < n; i++)
+  for (unsigned int i = 0, n = getNCov(); i < n; i++)
   {
     ACovGradient* covloc = dynamic_cast<ACovGradient *>(_covAnisos[i]);
     if (covloc != nullptr)

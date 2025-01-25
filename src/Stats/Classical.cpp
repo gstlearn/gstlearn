@@ -660,15 +660,15 @@ VectorDouble dbStatisticsFacies(Db *db)
 {
   VectorDouble props;
 
-  if (db->getLocatorNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr(
         "This function requires the number of variables (%d) to be equal to 1",
-        db->getLocatorNumber(ELoc::Z));
+        db->getNLoc(ELoc::Z));
     return props;
   }
   int nech = db->getNSample();
-  int nfac = db->getFaciesNumber();
+  int nfac = db->getNFacies();
 
   // Calculate the proportions
 
@@ -705,11 +705,11 @@ VectorDouble dbStatisticsFacies(Db *db)
  *****************************************************************************/
 double dbStatisticsIndicator(Db *db)
 {
-  if (db->getLocatorNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr(
         "This function requires the number of variables (%d) to be equal to 1",
-        db->getLocatorNumber(ELoc::Z));
+        db->getNLoc(ELoc::Z));
     return TEST;
   }
 

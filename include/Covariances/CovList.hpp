@@ -82,7 +82,7 @@ public:
   // Filter a covariance
   void setFiltered(int icov, bool filtered);
 
-  int             getCovaNumber() const;
+  int             getNCov() const;
   bool            isFiltered(int icov) const;
   virtual double  getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;

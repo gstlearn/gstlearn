@@ -937,7 +937,7 @@ int manageExternalInformation(int mode,
   {
     /* If the drift vector is present in the input file, skip the rest */
 
-    if (dbin->getLocatorNumber(locatorType) >= ninfo)
+    if (dbin->getNLoc(locatorType) >= ninfo)
     {
       *flag_created = false;
       return 0;

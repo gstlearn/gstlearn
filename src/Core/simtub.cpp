@@ -392,7 +392,7 @@ static int st_check_simtub_environment(Db *dbin,
       messerr("does not match the number of variables of the Model (%d)", nvar);
       return 1;
     }
-    if (model->getCovaNumber() <= 0)
+    if (model->getNCov() <= 0)
     {
       messerr("The number of covariance must be positive");
       return 1;
@@ -740,7 +740,7 @@ int simpgs(Db* dbin,
   /* Add the attributes */
   /**********************/
 
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule->getNFacies();
 
   /* Storage of the facies proportions */
   if (flag_prop)
@@ -1025,8 +1025,8 @@ int simbipgs(Db *dbin,
   const VectorDouble &propcst = ruleprop->getPropCst();
   const Db *dbprop = ruleprop->getDbprop();
 
-  nfac[0] = rule1.getFaciesNumber();
-  nfac[1] = rule2.getFaciesNumber();
+  nfac[0] = rule1.getNFacies();
+  nfac[1] = rule2.getNFacies();
   rules[0] = &rule1;
   rules[1] = &rule2;
   models[0][0] = model11;
@@ -2020,7 +2020,7 @@ int simmaxstable(Db *dbout,
 
     /* Update the model for next iteration */
 
-    for (icov = 0; icov < model->getCovaNumber(); icov++)
+    for (icov = 0; icov < model->getNCov(); icov++)
       model->setRangeIsotropic(icov, model->getRange(icov) * ratio);
   }
 
@@ -2688,7 +2688,7 @@ int simsph(DbGrid *db,
     messerr("The Simulation on Sphere is restricted to 2-D case");
     return 1;
   }
-  for (int icova = 0; icova < model->getCovaNumber(); icova++)
+  for (int icova = 0; icova < model->getNCov(); icova++)
   {
     if (model->getCova(icova)->getFlagAniso())
     {
@@ -2735,7 +2735,7 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
     return simu;
   }
-  for (int icova = 0; icova < model->getCovaNumber(); icova++)
+  for (int icova = 0; icova < model->getNCov(); icova++)
   {
     if (model->getCova(icova)->getFlagAniso())
     {

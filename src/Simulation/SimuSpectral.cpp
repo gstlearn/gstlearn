@@ -532,7 +532,7 @@ void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 bool SimuSpectral::isValidForSpectral(const Model* model)
 {
   ESpaceType type = getDefaultSpaceType();
-  if (model->getCovaNumber() != 1)
+  if (model->getNCov() != 1)
   {
     messerr("This method only considers Model with a single covariance structure");
     return false;
@@ -540,7 +540,7 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
 
   /* Loop on the structures */
 
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     const CovAniso* cova = model->getCova(is);
     if (! cova->isValidForSpectral())

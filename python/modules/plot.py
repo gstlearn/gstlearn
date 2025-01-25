@@ -670,7 +670,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     # if hmax not specified = 3*maximum range of the model's basic structures
     if hmax is None:
         hmax = 0
-        for icova in range(modelobj.getCovaNumber()):
+        for icova in range(modelobj.getNCov()):
             range_max = np.max(modelobj.getCova(icova).getRanges())
             if 3*range_max > hmax:
                 hmax = 3*range_max
@@ -685,7 +685,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
             label = "model"
 
     istart = 0
-    for i in range(modelobj.getCovaNumber()):
+    for i in range(modelobj.getNCov()):
         if modelobj.getCovName(i) == 'Nugget Effect':
             istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
      
@@ -1667,7 +1667,7 @@ def __ax_rule(ax, ruleobj, proportions=[],cmap=None, maxG=3.):
     if __isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
     
-    nfac = ruleobj.getFaciesNumber()
+    nfac = ruleobj.getNFacies()
     ruleobj.setProportions(proportions)
     
     cols = getColorMap(nfac, cmap)

@@ -172,7 +172,7 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
   if (model == nullptr) return false;
 
   _covList.clear();
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     if (model->getCovaType(icov) == ECov::NUGGET) continue;
     if (model->getCovaType(icov) == ECov::MATERN)

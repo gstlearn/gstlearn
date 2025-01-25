@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
   // Defining a Data Base
   db = Db::createFromBox(100, {0.,0.,0.,0.}, {100., 100., 100., 100.});
-  VectorDouble tab = VH::simulateGaussian(db->getActiveSampleNumber(), 0., 1.);
+  VectorDouble tab = VH::simulateGaussian(db->getNSampleActive(), 0., 1.);
   db->addColumns(tab, "Var", ELoc::Z);
 
   // Calculate the experimental variogram

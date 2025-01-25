@@ -566,7 +566,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   if (.isNotDef(hmax))
   {
     hmax = 0
-    for (icova in 1:model$getCovaNumber())
+    for (icova in 1:model$getNCov())
     {
       range_max = max(model$getCova(icova-1)$getRanges())
       if (3*range_max > hmax)
@@ -583,7 +583,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   }
   
   istart = 0
-  for (icova in 1:model$getCovaNumber())
+  for (icova in 1:model$getNCov())
   {
     if (model$getCovName(icova-1) == 'Nugget Effect')
       istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
@@ -1550,7 +1550,7 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., cols=NA,
 	flagLegend=FALSE, legendName="Facies", ...)
 {
   p = list()
-  nrect = rule$getFaciesNumber()
+  nrect = rule$getNFacies()
   if (! is.null(proportions)) 
     rule$setProportions(proportions)
   else

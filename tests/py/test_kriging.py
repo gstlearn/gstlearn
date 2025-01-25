@@ -26,7 +26,7 @@ def modelReduce(model,var):
     modeln = gl.Model.create(ctxt)
     covlist = model.getCovAnisoList()
     
-    for i in range(covlist.getCovaNumber()):
+    for i in range(covlist.getNCov()):
         cova = covlist.getCova(i)
         sills = matriceReduce(cova.getSill(),var)
         covar = gl.CovAniso.createAnisotropicMulti(ctxt,

@@ -22,17 +22,17 @@ def is_list_type(mylist, types):
 def check_nrows(db, nrows):
     """Check if a number of rows matches with the number of samples of a Db, and returns the flag
     for useSel (whether it matches the number of active samples or the total number of samples)"""
-    if nrows == db.getActiveSampleNumber() :
+    if nrows == db.getNSampleActive() :
         useSel = True
     elif nrows == db.getNSample() or db.getNSample()==0:
         useSel = False
     else:
-        if db.getActiveSampleNumber() != db.getNSample():
+        if db.getNSampleActive() != db.getNSample():
             raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
-                str(db.getActiveSampleNumber()) + " or " + str(db.getNSample()))
+                str(db.getNSampleActive()) + " or " + str(db.getNSample()))
         else :
             raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
-                  str(db.getActiveSampleNumber()))
+                  str(db.getNSampleActive()))
     return useSel
 
 def findColumnNames(self, columns):
@@ -92,7 +92,7 @@ def getNrows(self, useSel=None):
     if useSel is None:
         useSel = self.useSel
     if useSel:
-        nrows = self.getActiveSampleNumber()
+        nrows = self.getNSampleActive()
     else:
         nrows = self.getNSample()
     return nrows

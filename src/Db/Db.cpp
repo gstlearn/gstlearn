@@ -332,26 +332,26 @@ int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  int number = p.getLocatorNumber();
+  int number = p.getNLoc();
   if (number <= 0 || locatorIndex >= number)
     return -1;
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
 
-int Db::getLocatorNumber(const ELoc& locatorType) const
+int Db::getNLoc(const ELoc& locatorType) const
 {
   int number = locatorType.getValue();
   if (number < 0) return 0;
   const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
 
 int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
   if (!isUIDValid(iuid)) return -1;
-  for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+  for (int locatorIndex = 0; locatorIndex < p.getNLoc(); locatorIndex++)
     if (p.getLocatorByIndex(locatorIndex) == iuid) return (locatorIndex);
   return -1;
 }
@@ -377,7 +377,7 @@ bool Db::getLocatorByColIdx(int icol,
   for (int iloc = 0; iloc < number; iloc++)
   {
     const PtrGeos& p = _p[iloc];
-    for (int i = 0; i < p.getLocatorNumber(); i++)
+    for (int i = 0; i < p.getNLoc(); i++)
     {
       int jcol = getColIdxByUID(p.getLocatorByIndex(i));
       if (icol == jcol)
@@ -800,7 +800,7 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
 {
   VectorDouble vec;
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
   if (number <= 0) return vec;
   vec.resize(number);
   for (int i = 0; i < number; i++)
@@ -1013,7 +1013,7 @@ bool Db::hasLocator(const ELoc& locatorType) const
 int Db::getFromLocatorNumber(const ELoc& locatorType) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
 
 int Db::getNEloc()
@@ -1060,11 +1060,11 @@ String Db::_summaryLocators(void) const
   for (int iloc = 0; iloc < number; iloc++)
   {
     const PtrGeos& p = _p[iloc];
-    if (p.getLocatorNumber() > 0)
+    if (p.getNLoc() > 0)
     {
       sstr << p.dumpLocator(rank, ELoc::fromValue(iloc));
       sstr << "- Columns    = ";
-      for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+      for (int locatorIndex = 0; locatorIndex < p.getNLoc(); locatorIndex++)
         sstr << getColIdxByUID(p.getLocatorByIndex(locatorIndex)) << " ";
       sstr << std::endl;
       rank++;
@@ -1100,7 +1100,7 @@ void Db::clearLocators(const ELoc& locatorType)
 
 int Db::_getNextLocator(const ELoc& locatorType) const
 {
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
 
   return number;
 }
@@ -1195,7 +1195,7 @@ void Db::setLocatorByUID(int iuid,
   if (locatorType != ELoc::UNKNOWN)
   {
     PtrGeos& p = _p[locatorType.getValue()];
-    int nitem = p.getLocatorNumber();
+    int nitem = p.getNLoc();
     if (locatorIndex >= nitem)
     {
       p.resize(locatorIndex + 1);
@@ -1951,7 +1951,7 @@ void Db::deleteColumnByUID(int iuid_del)
 void Db::deleteColumnsByLocator(const ELoc& locatorType)
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  int nitem = p.getLocatorNumber();
+  int nitem = p.getNLoc();
   // Loop is performed downwards as PtrGeos is modified by called routine
   for (int locatorIndex = nitem - 1; locatorIndex >= 0; locatorIndex--)
   {
@@ -2250,7 +2250,7 @@ double Db::getCorrelation(const String& name1, const String& name2, bool useSel)
 
 int Db::getNDim() const
 {
-  return _p[ELoc::X.getValue()].getLocatorNumber();
+  return _p[ELoc::X.getValue()].getNLoc();
 }
 
 bool Db::hasSameDimension(const Db* dbaux) const
@@ -2437,12 +2437,12 @@ int Db::getLocNumber(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return 0;
   const PtrGeos& p = _p[loctype.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
 int Db::getZNumber() const
 {
   const PtrGeos& p = _p[ELoc::Z.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
 
 /**
@@ -2747,7 +2747,7 @@ int Db::getSelection(int iech) const
  * @remark This method is deprecated and should be replaced by a call to
  * getNSample()
  */
-GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
+GSTLEARN_DEPRECATED int Db::getNSampleActive() const
 {
   if (!hasLocVariable(ELoc::SEL)) return (getNSample());
 
@@ -2818,7 +2818,7 @@ int Db::getNSample(bool useSel) const
  * @param item Rank of the Z-locator
  * @return
  */
-int Db::getNumberActiveAndDefined(int item) const
+int Db::getNSampleActiveAndDefined(int item) const
 {
   int count = 0;
   for (int iech = 0; iech < getNSample(); iech++)
@@ -3434,7 +3434,7 @@ VectorDouble Db::getSelections(void) const
 
 VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks, const VectorDouble& means) const
 {
-  int nvar        = getLocatorNumber(ELoc::Z);
+  int nvar        = getNLoc(ELoc::Z);
   VectorInt jvars = VH::sequence(nvar);
   VectorDouble vec;
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -3524,7 +3524,7 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
                                            bool useVerr) const
 {
   VectorInt jvars = ivars;
-  if (jvars.empty()) jvars = VH::sequence(getLocatorNumber(ELoc::Z));
+  if (jvars.empty()) jvars = VH::sequence(getNLoc(ELoc::Z));
   int nvar = (int)jvars.size();
 
   VectorVectorInt index(nvar);
@@ -4250,7 +4250,7 @@ VectorInt Db::getColIdxs(const VectorString& names) const
 VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
 {
   VectorInt icols;
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
   if (number <= 0) return icols;
 
   icols.resize(number);
@@ -4302,7 +4302,7 @@ VectorInt Db::getUIDs(const VectorString& names) const
 VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
 {
   VectorInt iuids;
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
   if (number <= 0) return iuids;
   iuids.resize(number);
   for (int i = 0; i < number; i++) iuids[i] = getUIDByLocator(locatorType, i);
@@ -4689,13 +4689,13 @@ bool Db::_isCountValid(const VectorInt& iuids, bool flagOne, bool verbose) const
  * Returns the Number of different facies (labelling starts at 1)
  * The facies variable must be locatorized as ELoc::Z and be unique
  */
-int Db::getFaciesNumber(void) const
+int Db::getNFacies(void) const
 {
-  if (getLocatorNumber(ELoc::Z) != 1)
+  if (getNLoc(ELoc::Z) != 1)
   {
     messerr("This function requires the number of variables (%d) to be "
             "equal to 1",
-            getLocatorNumber(ELoc::Z));
+            getNLoc(ELoc::Z));
     return ITEST;
   }
   int nech = getNSample();
@@ -4942,7 +4942,7 @@ int Db::resetReduce(const Db* dbin,
   // Otherwise, the resulting Db (which is a 'point' Db) will have no
   // coordinate the coordinates are added before reduction
 
-  if (getLocatorNumber(ELoc::X) <= 0)
+  if (getNLoc(ELoc::X) <= 0)
   {
     // Extract vector of coordinates from input 'Db' (converted into a
     // 'DbGrid')

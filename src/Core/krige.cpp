@@ -636,7 +636,7 @@ static int st_check_environment(int flag_in,
       messerr("does not match the number of variables of the Model (%d)", nvar);
       goto label_end;
     }
-    if (model->getCovaNumber() <= 0)
+    if (model->getNCov() <= 0)
     {
       messerr("The number of covariance must be positive");
       goto label_end;

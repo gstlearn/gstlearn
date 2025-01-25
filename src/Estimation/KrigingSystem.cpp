@@ -169,7 +169,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   // in order to avoid too many dynamic casts in the code
   if (model != nullptr) _modelCovAniso = dynamic_cast<const Model*>(model);
 
-  if (_model->getCovaNumber() > 0)
+  if (_model->getNCov() > 0)
     _cova = _model->getCovAnisoListModify();
   
   if (model != nullptr)
@@ -2786,7 +2786,7 @@ bool KrigingSystem::_isCorrect()
 
   if (_model != nullptr)
   {
-    if (_model->getCovaNumber() <= 0)
+    if (_model->getNCov() <= 0)
     {
       messerr("The Model should contain some Covariances defined before Kriging");
       return false;

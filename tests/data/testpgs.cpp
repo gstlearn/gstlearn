@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     if (rule[i] == nullptr) continue;
     npgs++;
     rule[i]->display();
-    nfac[i] = rule[i]->getFaciesNumber();
+    nfac[i] = rule[i]->getNFacies();
 
     /* Define the models */
     

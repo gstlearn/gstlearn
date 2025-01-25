@@ -427,7 +427,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
     messerr("This function can only be calculated in dimension equal to 2 or 3");
     return nullptr;
   }
-  if (db->getActiveSampleNumber() <= 0)
+  if (db->getNSampleActive() <= 0)
   {
     messerr("This function requires your 'Db' to have some active samples");
     return nullptr;

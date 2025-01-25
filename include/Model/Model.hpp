@@ -159,7 +159,7 @@ public:
 
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
-  int getCovaNumber(bool skipNugget = false) const;
+  int getNCov(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
   
   double getRange(int icov) const;

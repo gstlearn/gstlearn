@@ -895,7 +895,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     return tab;
   }
   bool flag_dens = (dbgrid->getLocNumber(ELoc::Z) == 1);
-  bool flag_region = (ndim == 2 && dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
+  bool flag_region = (ndim == 2 && dbgrid->getNLoc(ELoc::NOSTAT) == (ndim+1));
 
   VectorDouble coor(ndim);
   VectorDouble coorbis(ndim);
@@ -913,7 +913,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
   if (flag_dens)
   {
     int ig = 0;
-    for (int jg = 0, ng = dbgrid->getActiveSampleNumber(); jg < ng; jg++)
+    for (int jg = 0, ng = dbgrid->getNSampleActive(); jg < ng; jg++)
     {
       if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
       double densloc = dbgrid->getZVariable(jg, 0);

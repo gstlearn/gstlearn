@@ -75,7 +75,7 @@ bool CalcSimuTurningBands::_resize()
   if (nbsimu > 0 && nbtuba > 0)
   {
     int nvar  = _getNVar();
-    int ncova = _getNCova();
+    int ncova = _getNCov();
 
     /* Allocate the structures for the seeds */
 
@@ -95,7 +95,7 @@ bool CalcSimuTurningBands::_resize()
 
 int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
 {
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nvar = _getNVar();
   return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
 }
@@ -125,7 +125,7 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
 {
   double x[2];
   int ndim = _getNDim();
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nbsimu = getNbSimu();
   int nbands = getNDirs();
 
@@ -410,7 +410,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
   /* Initializations */
 
   _setDensity();
-  int ncova  = _getNCova();
+  int ncova  = _getNCov();
   int nvar   = _getNVar();
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
@@ -898,7 +898,7 @@ double CalcSimuTurningBands::_irfProcessInit(int ibs,
  *****************************************************************************/
 VectorDouble CalcSimuTurningBands::_createAIC()
 {
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nvar  = _getNVar();
 
   VectorDouble aic(ncova * nvar * nvar);
@@ -1072,7 +1072,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                                           int shift)
 {
   int nech   = db->getNSample();
-  int ncova  = _getNCova();
+  int ncova  = _getNCov();
   int nvar   = _getNVar();
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
@@ -1222,7 +1222,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
   int nvar   = _getNVar();
-  int ncova  = _getNCova();
+  int ncova  = _getNCov();
   int ndim   = db->getNDim();
   int nx     = (ndim >= 1) ? db->getNX(0) : 1;
   int ny     = (ndim >= 2) ? db->getNX(1) : 1;
@@ -1555,7 +1555,7 @@ void CalcSimuTurningBands::_getOmegaPhi(int ibs,
 void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
 {
   int nech = db->getNSample();
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nvar = _getNVar();
   int nbsimu = getNbSimu();
   VectorBool activeArray = db->getActiveArray();
@@ -2086,7 +2086,7 @@ bool CalcSimuTurningBands::isValidForTurningBands(const Model *model)
 {
   /* Loop on the structures */
 
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     if (! model->getCova(is)->isValidForTurningBand()) return false;
   }

@@ -129,7 +129,7 @@ bool CalcAnamTransform::_hasSelectivity() const
 
 bool CalcAnamTransform::_hasVariableNumber(bool equal1) const
 {
-  int number = getDb()->getLocatorNumber(ELoc::Z);
+  int number = getDb()->getNLoc(ELoc::Z);
   if (! equal1)
   {
     if (number <= 0)

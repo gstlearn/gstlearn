@@ -2328,7 +2328,7 @@ int Vario::_compute(Db *db,
       // - a nugget effect
       // - an exponential covariance (with initial range set to 1 a,d sill to 1)
       // - a spherical covariance (with initial range set to 2, and sill to 1)
-      int ncov = _model->getCovaNumber();
+      int ncov = _model->getNCov();
       if (ncov <= 0)
       {
         _model->addCovFromParam(ECov::NUGGET);
@@ -2343,7 +2343,7 @@ int Vario::_compute(Db *db,
   _variableNames.resize(nvar, "Unknown");
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    if (ivar < db->getLocatorNumber(ELoc::Z))
+    if (ivar < db->getNLoc(ELoc::Z))
       setVariableName(ivar, db->getNameByLocator(ELoc::Z, ivar));
   }
 

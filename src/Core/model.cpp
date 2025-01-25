@@ -74,7 +74,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   new_model = nullptr;
   int nvar  = model->getNVar();
   int ndim  = model->getDimensionNumber();
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
 
   // Create the new model (linked drift functions)
 
@@ -196,7 +196,7 @@ void model_covupdt(Model *model,
   silltot = range = nullptr;
   rank = nullptr;
   nvar = model->getNVar();
-  ncova = model->getCovaNumber();
+  ncova = model->getNCov();
   flag_update = 0;
 
   /* Core allocation */
@@ -439,7 +439,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Add the covariance of the first Model */
 
-  for (int i = 0; i < model1->getCovaNumber(); i++)
+  for (int i = 0; i < model1->getNCov(); i++)
   {
     const CovAniso* cova = model1->getCova(i);
     sill.setValue(0, 0, cova->getSill(0, 0));
@@ -451,7 +451,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Add the covariance of the second Model */
 
-  for (int i = 0; i < model2->getCovaNumber(); i++)
+  for (int i = 0; i < model2->getNCov(); i++)
   {
     const CovAniso* cova = model2->getCova(i);
     sill.setValue(0,0, 0.);

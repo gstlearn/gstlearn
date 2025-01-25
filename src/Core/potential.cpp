@@ -197,7 +197,7 @@ static int EXT(int iext)
  *****************************************************************************/
 static int st_model_invalid(Model *model)
 {
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     const ECov& type = model->getCovaType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&

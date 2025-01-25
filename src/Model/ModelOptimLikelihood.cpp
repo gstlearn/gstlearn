@@ -54,16 +54,16 @@ bool ModelOptimLikelihood::_checkConsistency()
   const Model* model = _modelPart._model;
   const Db* db       = _dbPart._db;
 
-  if (model->getDimensionNumber() != db->getLocatorNumber(ELoc::X))
+  if (model->getDimensionNumber() != db->getNLoc(ELoc::X))
   {
     messerr("'_model'(%d) and 'db'(%d) should have same Space Dimension",
-            model->getDimensionNumber(), db->getLocatorNumber(ELoc::X));
+            model->getDimensionNumber(), db->getNLoc(ELoc::X));
     return false;
   }
-  if (model->getNVar() != db->getLocatorNumber(ELoc::Z))
+  if (model->getNVar() != db->getNLoc(ELoc::Z))
   {
     messerr("'_model'(%d) and '_db'(%d) should have same number of Variables",
-            model->getNVar(), db->getLocatorNumber(ELoc::Z));
+            model->getNVar(), db->getNLoc(ELoc::Z));
     return false;
   }
   return true;

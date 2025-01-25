@@ -28,7 +28,7 @@ ACalcInterpolator::~ACalcInterpolator()
 {
 }
 
-bool ACalcInterpolator::_setNCova(int ncova)
+bool ACalcInterpolator::_setNCov(int ncova)
 {
   if (ncova <= 0) return true;
   if (_ncova <= 0)
@@ -149,7 +149,7 @@ bool ACalcInterpolator::_check()
 
   if (_model != nullptr)
   {
-    if (_model->getCovaNumber() <= 0)
+    if (_model->getNCov() <= 0)
     {
       messerr("The number of covariance must be positive");
       return false;
@@ -197,7 +197,7 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-     if (!_setNCova(_model->getCovaNumber())) return false;
+     if (!_setNCov(_model->getNCov())) return false;
   }
 
   // Expand information amongst Db if necessary

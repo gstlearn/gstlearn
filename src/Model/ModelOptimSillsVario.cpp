@@ -124,7 +124,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
   {
     _ndim        = _modelPart._model->getDimensionNumber();
     _nvar        = _modelPart._model->getNVar();
-    _ncova       = _modelPart._model->getCovaNumber();
+    _ncova       = _modelPart._model->getNCov();
     Vario* vario = _vario;
 
     int nbexp  = 0;
@@ -278,7 +278,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 
     /* Loop on the basic structures */
 
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getNCov(); icov++)
     {
       ACov* cova = model->getCova(icov);
       for (int idim = 0; idim < _ndim; idim++) d1[idim] = 0.;

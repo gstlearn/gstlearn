@@ -262,8 +262,8 @@ public:
 
   static int getNEloc();
   int getNSample(bool useSel = false) const;
-  int getNumberActiveAndDefined(int item) const;
-  int getActiveSampleNumber() const;
+  int getNSampleActiveAndDefined(int item) const;
+  int getNSampleActive() const;
   int getRankRelativeToAbsolute(int irel) const;
   int getRankAbsoluteToRelative(int iabs) const;
 
@@ -423,7 +423,7 @@ public:
                        int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN")) const;
-  int getLocatorNumber(const ELoc& locatorType) const;
+  int getNLoc(const ELoc& locatorType) const;
   bool isUIDDefined(int iuid) const;
 
   int getUID(const String &name) const;
@@ -439,7 +439,7 @@ public:
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
 
-  int getFaciesNumber(void) const;
+  int getNFacies(void) const;
   bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
   // Accessing elements of the contents

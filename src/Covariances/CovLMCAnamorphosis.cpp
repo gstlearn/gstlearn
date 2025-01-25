@@ -117,7 +117,7 @@ int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
       messerr("Argument 'anam_strcnt' must be dimensioned to the number of factors (%d)",nfact);
       return 1;
     }
-    int ncov = getCovaNumber();
+    int ncov = getNCov();
     for (int i=0; i<nfact; i++)
     {
       if (anam_strcnt[i] < 0 || anam_strcnt[i] >= ncov)

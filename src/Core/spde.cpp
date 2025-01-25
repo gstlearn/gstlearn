@@ -460,7 +460,7 @@ static CovAniso* st_get_nugget(void)
   CovAniso *cova;
 
   model = st_get_model();
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     cova = model->getCova(is);
     if (cova->getType() == ECov::NUGGET) return (cova);
@@ -483,7 +483,7 @@ static CovAniso* st_get_cova(void)
   model = st_get_model();
   is0 = SPDE_CURRENT_ICOV;
 
-  for (int icov = jcov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = jcov = 0; icov < model->getNCov(); icov++)
   {
     cova = model->getCova(icov);
     if (cova->getType() == ECov::NUGGET) continue;
@@ -910,7 +910,7 @@ static int st_get_ncova_max(void)
   for (int igrf = 0; igrf < st_get_number_grf(); igrf++)
   {
     SPDE_CURRENT_IGRF = igrf;
-    ncova = st_get_model()->getCovaNumber();
+    ncova = st_get_model()->getNCov();
     if (ncova > ncova_max) ncova_max = ncova;
   }
   SPDE_CURRENT_IGRF = igrf_memo;
@@ -932,7 +932,7 @@ static int st_get_ncova(void)
   ncova = 0;
   model = st_get_model();
   if (model == nullptr) return (ncova);
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     cova = model->getCova(is);
     if (cova->getType() != ECov::NUGGET) ncova++;
@@ -1347,7 +1347,7 @@ int spde_attach_model(Model *model)
 
   /* Checking the Model contents */
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     cova = model->getCova(icov);
     if (cova->getType() == ECov::MATERN)
@@ -1467,7 +1467,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 
   silltot = 0.;
   flag_nugget = 0;
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     cova = model->getCova(icov);
     silltot += cova->getSill(0, 0);
@@ -2486,7 +2486,7 @@ static int *st_get_vertex_ranks(AMesh *amesh, Db* dbin, Db* dbout)
       ranks[ecr++] = (i + 1);
     }
 
-  for (int i = 0; i < dbout->getActiveSampleNumber(); i++)
+  for (int i = 0; i < dbout->getNSampleActive(); i++)
   {
     if (! dbout->isActive(i)) continue;
     ranks[ecr++] = -(i + 1);

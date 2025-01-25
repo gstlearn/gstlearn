@@ -647,13 +647,13 @@ int _db_rule(Db *db,
   PropDef *propdef = nullptr;
   int ngrf = rule->getGRFNumber();
   VectorInt flagUsed = rule->whichGRFUsed();
-  int nfacies = rule->getFaciesNumber();
+  int nfacies = rule->getNFacies();
   bool flagReturn = false;
 
   /* Preliminary checks */
 
-  int nbsimu = db->getLocatorNumber(ELoc::SIMU);
-  int nvar = db->getLocatorNumber(ELoc::Z);
+  int nbsimu = db->getNLoc(ELoc::SIMU);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nbsimu != ngrf && nvar != ngrf)
   {
     messerr("The Rule specifies the use of %d underlying GRF(s)", ngrf);
@@ -678,7 +678,7 @@ int _db_rule(Db *db,
 
   /* Identify the Non conditional simulations at target points */
 
-  if (db->getLocatorNumber(ELoc::SIMU) != ngrf)
+  if (db->getNLoc(ELoc::SIMU) != ngrf)
   {
     db->switchLocator(ELoc::Z, ELoc::SIMU);
     flagReturn = true;
@@ -846,7 +846,7 @@ int _db_bounds(Db *db,
   PropDef *propdef = nullptr;
 
   VectorInt flagUsed = rule->whichGRFUsed();
-  int nfacies = rule->getFaciesNumber();
+  int nfacies = rule->getNFacies();
   int ngrf = rule->getGRFNumber();
 
   /* Input Db */
@@ -1141,7 +1141,7 @@ int _db_threshold(Db *db,
   /* Core allocation */
   /*******************/
 
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule->getNFacies();
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
   if (propdef == nullptr) goto label_end;

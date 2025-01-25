@@ -233,11 +233,11 @@ int ModelGeneric::getCovaMinIRFOrder() const
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaMinIRFOrder();
 }
-int ModelGeneric::getCovaNumber(bool skipNugget) const
+int ModelGeneric::getNCov(bool skipNugget) const
 {
   const CovAnisoList* covalist = getCovAnisoList();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaNumber(skipNugget);
+  return covalist->getNCov(skipNugget);
 }
 void ModelGeneric::setActiveFactor(int iclass)
 {

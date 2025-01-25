@@ -248,7 +248,7 @@ model_of_LC <- function(model, A) {
   stopifnot(dim(A)[1] == dim(A)[2])
   nv = model$getNVar()
   stopifnot(nv == dim(A)[1])
-  ns = model$getCovaNumber()
+  ns = model$getNCov()
   model_LC = model$clone()
   for (k in 1:ns) {
     CC = A %*% model$getSillValues(k-1)$toTL() %*% t(A)

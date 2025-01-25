@@ -64,7 +64,7 @@ CovAnisoList::~CovAnisoList()
 
 void CovAnisoList::addCovList(const CovAnisoList* covs)
 {
-  for (int icov = 0, ncov = covs->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = covs->getNCov(); icov < ncov; icov++)
     addCov(covs->getCova(icov));
 }
 
@@ -79,7 +79,7 @@ void CovAnisoList::addCov(const CovBase* cov)
 
 void CovAnisoList::addCovAniso(const CovAniso* cov)
 {
-  if (getCovaNumber() == 0)
+  if (getNCov() == 0)
   {
     setNVar(cov->getNVariables());
   }
@@ -140,7 +140,7 @@ bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
 
 int CovAnisoList::getNVariables() const
 {
-  if (getCovaNumber() > 0)
+  if (getNCov() > 0)
     return _covs[0]->getNVariables();
   return 0;
 }
@@ -152,7 +152,7 @@ double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
+    for (int i=0, n=getNCov(); i<n; i++)
       cov += _covs[i]->eval0(ivar, jvar, mode);
   }
   else
@@ -175,7 +175,7 @@ void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
 {
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
+    for (int i=0, n=getNCov(); i<n; i++)
     {
       _covs[i]->addEval0CovMatBiPointInPlace(mat, mode);
     }
@@ -251,7 +251,7 @@ MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
-      for (int i = 0, n = getCovaNumber(); i < n; i++)
+      for (int i = 0, n = getNCov(); i < n; i++)
          _covAnisos[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
       icol++;
     }
@@ -323,7 +323,7 @@ MatrixRectangular CovAnisoList::evalCovMatOptimByRanks(const Db* db1,
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
-      for (int i = 0, n = getCovaNumber(); i < n; i++)
+      for (int i = 0, n = getNCov(); i < n; i++)
         _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
                                         false);
       icol++;
@@ -336,13 +336,13 @@ MatrixRectangular CovAnisoList::evalCovMatOptimByRanks(const Db* db1,
 
 void CovAnisoList::_optimizationSetTarget(const SpacePoint& pt) const
 {
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+  for (int is = 0, ns = getNCov(); is < ns; is++)
     _covs[is]->optimizationSetTarget(pt);
 }
 
 void CovAnisoList::optimizationSetTargetByIndex(int iech) const
 {
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+  for (int is = 0, ns = getNCov(); is < ns; is++)
     _covs[is]->optimizationSetTargetByIndex(iech);
 }
 
@@ -407,7 +407,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
       optimizationSetTargetByIndex(iech2);
 
       // Loop on the basic structures
-      for (int i = 0, n = getCovaNumber(); i < n; i++)
+      for (int i = 0, n = getNCov(); i < n; i++)
         _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
 
       icol++;
@@ -435,7 +435,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   {
     if (_considerAllCovariances(mode))
     {
-      for (int i = 0, n = getCovaNumber(); i < n; i++)
+      for (int i = 0, n = getNCov(); i < n; i++)
       {
         _covs[i]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
       }
@@ -452,9 +452,9 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
   {
     std::stringstream sstr;
-    if (getCovaNumber() <= 0) return sstr.str();
+    if (getNCov() <= 0) return sstr.str();
 
-    for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
+    for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
     {
       sstr << getCova(icov)->toString();
       if (isFiltered(icov)) sstr << "  (This component is Filtered)" << std::endl;
@@ -478,7 +478,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     return sstr.str();
   }
 
-  int CovAnisoList::getCovaNumber(bool skipNugget) const
+  int CovAnisoList::getNCov(bool skipNugget) const
   {
     int ncov = (int)_covs.size();
     if (!skipNugget) return ncov;
@@ -499,7 +499,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   bool CovAnisoList::hasRange() const
   {
-    for (int i = 0, n = getCovaNumber(); i < n; i++)
+    for (int i = 0, n = getNCov(); i < n; i++)
     {
       if (!getCova(i)->hasRange()) return false;
     }
@@ -508,7 +508,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   bool CovAnisoList::isStationary() const
   {
-    for (int i = 0, n = getCovaNumber(); i < n; i++)
+    for (int i = 0, n = getNCov(); i < n; i++)
     {
       if (getCova(i)->getMinOrder() >= 0) return false;
     }
@@ -518,7 +518,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   VectorInt CovAnisoList::getActiveCovList() const
   {
     VectorInt actives;
-    for (int i = 0, n = getCovaNumber(); i < n; i++)
+    for (int i = 0, n = getNCov(); i < n; i++)
     {
       if (_filtered[i]) continue;
       actives.push_back(i);
@@ -528,7 +528,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   bool CovAnisoList::isAllActiveCovList() const
   {
-    for (int i = 0, n = getCovaNumber(); i < n; i++)
+    for (int i = 0, n = getNCov(); i < n; i++)
     {
       if (_filtered[i]) return false;
     }
@@ -538,7 +538,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   VectorInt CovAnisoList::getAllActiveCovList() const
   {
     VectorInt actives;
-    for (int i = 0, n = getCovaNumber(); i < n; i++)
+    for (int i = 0, n = getNCov(); i < n; i++)
     {
       actives.push_back(i);
     }
@@ -556,7 +556,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   int CovAnisoList::getCovaMinIRFOrder() const
   {
     int nmini = -1;
-    for (unsigned i = 0, n = getCovaNumber(); i < n; i++)
+    for (unsigned i = 0, n = getNCov(); i < n; i++)
     {
       int locmini = _covAnisos[i]->getMinOrder();
       if (locmini > nmini) nmini = locmini;
@@ -647,7 +647,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   double CovAnisoList::getTotalSill(int ivar, int jvar) const
   {
     double sill_total = 0.;
-    for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
+    for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
     {
       const CovAniso* cova = getCova(icov);
       if (cova->getMinOrder() >= 0) return TEST;
@@ -658,7 +658,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   bool CovAnisoList::_isCovarianceIndexValid(int icov) const
   {
-    return checkArg("Covariance Index", icov, getCovaNumber());
+    return checkArg("Covariance Index", icov, getNCov());
   }
 
   /**
@@ -669,7 +669,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   {
     double maxdist = 0.;
-    for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
+    for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
     {
       const CovAniso* cova = getCova(icov);
       if (!cova->hasRange()) continue;
@@ -688,12 +688,12 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   void CovAnisoList::normalize(double sill, int ivar, int jvar)
   {
     double covval = 0.;
-    for (int i = 0, n = getCovaNumber(); i < n; i++) covval += _covs[i]->eval0(ivar, jvar);
+    for (int i = 0, n = getNCov(); i < n; i++) covval += _covs[i]->eval0(ivar, jvar);
 
     if (covval <= 0. || isEqual(covval, sill)) return;
     double ratio = sill / covval;
 
-    for (int i = 0, n = getCovaNumber(); i < n; i++)
+    for (int i = 0, n = getNCov(); i < n; i++)
     {
       CovAniso* cov = _covAnisos[i];
       cov->setSill(cov->getSill(ivar, jvar) * ratio);
@@ -702,7 +702,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   bool CovAnisoList::hasNugget() const
   {
-    for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    for (int is = 0, ns = getNCov(); is < ns; is++)
     {
       if (getType(is) == ECov::NUGGET) return true;
     }
@@ -711,7 +711,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   int CovAnisoList::getRankNugget() const
   {
-    for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    for (int is = 0, ns = getNCov(); is < ns; is++)
     {
       if (getType(is) == ECov::NUGGET) return is;
     }
@@ -728,14 +728,14 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   void CovAnisoList::_optimizationPostProcess() const
   {
-    for (int is = 0, ns = getCovaNumber(); is < ns; is++) _covs[is]->optimizationPostProcess();
+    for (int is = 0, ns = getNCov(); is < ns; is++) _covs[is]->optimizationPostProcess();
   }
 
   const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
   {
     CovAnisoList* newcovlist = this->clone();
 
-    for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+    for (int is = 0, ns = getNCov(); is < ns; is++)
     {
       CovAniso* covs = newcovlist->getCova(is);
       newcovlist->setCovAniso(is, covs->createReduce(validVars));

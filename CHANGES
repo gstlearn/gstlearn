@@ -7,6 +7,10 @@ Release 1.7.0
 - Major renaming of variables, such as:
   getVariableNumber() becomes getNVar()
   getSampleNumber() becomes getNSample()
+  getActiveSampleNumber() becomes getNSampleActive()
+  getNumberActiveAndDefined() becomes getNSampleActiveAndDefined()
+  getLocatorNumber() becoles getNLoc()
+  getCovaNumber() becomes getNCov()
 
 Release 1.6.0
 =============
@@ -114,7 +118,7 @@ Release 1.3.0
 - Model::covMatrixMS() is replaced by evalCovMatrixSymmetric()
 - Model::covMatrixM() is replaced by evalCovMatrix()
 - Model::covMatrixV() is replaced by evalCovMatrixV() (option added)
-- Db::getActiveSampleNumber() (deprecated) is replaced by getNSample(true)
+- Db::getNSampleActive() (deprecated) is replaced by getNSample(true)
 - Use Eigen library for content storage of all dense matrices
 
 Release 1.2.3

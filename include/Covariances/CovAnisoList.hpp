@@ -88,7 +88,7 @@ public:
   // Filter a covariance
   void setFiltered(int icov, bool filtered);
 
-  int             getCovaNumber(bool skipNugget = false) const;
+  int             getNCov(bool skipNugget = false) const;
   bool            isFiltered(int icov) const;
   bool            hasRange() const;
   bool            isStationary() const;

@@ -299,7 +299,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 
     /* Loop on the basic structures */
 
-    for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+    for (int jcov = 0; jcov < model->getNCov(); jcov++)
     {
       model_cova_characteristics(model->getCovaType(jcov), cov_name,
                                  &flag_range, &flag_param, &min_order,
@@ -463,13 +463,13 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
     if (model == nullptr) break;
     nmodel++;
     nvar = model->getNVar();
-    if (ncovmax < model->getCovaNumber()) ncovmax = model->getCovaNumber();
+    if (ncovmax < model->getNCov()) ncovmax = model->getNCov();
 
     /* Set the default value for the range */
     /* For models where range is not asked, as it is redundant with sill */
 
     model->setField(hmax);
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getNCov(); icov++)
     {
       // Set the default range
 
@@ -909,7 +909,7 @@ static void st_prepar_goulard_vario(int imod)
 
   /* Loop on the basic structures */
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     mode.setActiveCovListFromOne(icov);
 
@@ -975,7 +975,7 @@ static void st_load_ge(const Vario *vario,
 
   /* Loop on the basic structures */
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     ACov *cova = model->getCova(icov);
     for (int idim = 0; idim < ndim; idim++)
@@ -1282,7 +1282,7 @@ static void st_keypair_sill(int mode, Model *model)
   char loc_string[100];
 
   if (model == nullptr) return;
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
   int nvar  = model->getNVar();
 
   if (mode < 0)
@@ -1860,7 +1860,7 @@ static void st_model_auto_scldef(StrMod *strmod,
       case EConsElem::E_SILL:
       {
         int lec = ivar * (ivar + 1) / 2 + jvar;
-        scale[ntot] = ABS(varchol[lec]) / sqrt(model->getCovaNumber());
+        scale[ntot] = ABS(varchol[lec]) / sqrt(model->getNCov());
         break;
       }
 
@@ -1873,7 +1873,7 @@ static void st_model_auto_scldef(StrMod *strmod,
 
       case EConsElem::E_RANGE:
       {
-        scale[ntot] = hmax / model->getCovaNumber(true) / 2.;
+        scale[ntot] = hmax / model->getNCov(true) / 2.;
         break;
       }
 
@@ -1985,7 +1985,7 @@ static void st_model_auto_pardef(StrMod *strmod,
       case EConsElem::E_SILL:
       {
         int lec = ivar * (ivar + 1) / 2 + jvar;
-        double dvar = varchol[lec] / sqrt(model->getCovaNumber());
+        double dvar = varchol[lec] / sqrt(model->getNCov());
         st_affect(ntot, dvar, TEST, TEST, param, lower, upper);
         break;
       }
@@ -2001,7 +2001,7 @@ static void st_model_auto_pardef(StrMod *strmod,
 
       case EConsElem::E_RANGE:
       {
-        double dunit = hmax / model->getCovaNumber(true) / 2.;
+        double dunit = hmax / model->getNCov(true) / 2.;
         double dmin = hmax / 1.e6;
         double dist = dunit * (icov + 1 - icovm);
         st_affect(ntot, dist, dmin, TEST, param, lower, upper);
@@ -2171,14 +2171,14 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       // Look for the first basic structure with a rotation defined
 
       int found = -1;
-      for (int jcov = 0; jcov < model->getCovaNumber() && found < 0; jcov++)
+      for (int jcov = 0; jcov < model->getNCov() && found < 0; jcov++)
       {
         if (model->getCova(jcov)->hasRange()) found = jcov;
       }
       if (found < 0) continue;
       cova1 = model->getCova(found);
 
-      for (int jcov = 1; jcov < model->getCovaNumber(); jcov++)
+      for (int jcov = 1; jcov < model->getNCov(); jcov++)
       {
         if (jcov == found) continue;
         cova = model->getCova(jcov);
@@ -2365,7 +2365,7 @@ static int st_check_definite_positive(Model *model)
 
   /* Loop on the basic structures */
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     message("\nCheck the Sill Matrix for structure %d\n", icov + 1);
 
@@ -3301,7 +3301,7 @@ static int st_sill_fitting_intrinsic(Model* model,
 
   int error = 1;
   int nvar = model->getNVar();
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
   int nvs2 = nvar * (nvar + 1) / 2;
   double crit_mem = 1.e30;
   for (int icov = 0; icov < ncova; icov++)
@@ -3411,12 +3411,12 @@ static int st_goulard_fitting(int flag_title,
 
   /* Initialize the array of sills */
 
-  st_sill_reset(model->getNVar(), model->getCovaNumber(), RECINT.sill);
+  st_sill_reset(model->getNVar(), model->getNCov(), RECINT.sill);
 
   /* Print the debug title (optional) */
 
   if (flag_title)
-    st_goulard_debug_title(model->getNVar(), model->getCovaNumber());
+    st_goulard_debug_title(model->getNVar(), model->getNCov());
 
   /* Dispatch */
 
@@ -3431,7 +3431,7 @@ static int st_goulard_fitting(int flag_title,
       /* Without constraint on the sill */
 
       status = st_goulard_without_constraint(mauto, model->getNVar(),
-                                             model->getCovaNumber(),
+                                             model->getNCov(),
                                              RECINT.npadir, RECINT.wt,
                                              RECINT.gg, RECINT.ge, RECINT.sill,
                                              &crit);
@@ -3443,13 +3443,13 @@ static int st_goulard_fitting(int flag_title,
 
       status = st_goulard_with_constraints(
         constraints.getConstantSills(), mauto, model->getNVar(),
-        model->getCovaNumber(), RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
+        model->getNCov(), RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
         RECINT.sill);
     }
 
     /* Copy the array 'sill' in the Model */
 
-    st_goulard_sill_to_model(model->getNVar(), model->getCovaNumber(),
+    st_goulard_sill_to_model(model->getNVar(), model->getNCov(),
                              RECINT.sill, model);
   }
   else
@@ -3482,7 +3482,7 @@ static int st_model_has_intrinsic(Model *model, const int *filter)
   /* Loop on the basic structures */
 
   int n_int = 0;
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     if (filter != nullptr && filter[icov]) continue;
     model_cova_characteristics(model->getCovaType(icov), cov_name, &flag_range,
@@ -3557,7 +3557,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   nmodel = strmod->nmodel;
   ncova = 0;
   for (imod = 0; imod < nmodel; imod++)
-    ncova = MAX(ncova, strmod->models[imod]->getCovaNumber());
+    ncova = MAX(ncova, strmod->models[imod]->getNCov());
   if (ncova <= 1) return (0);
   flag_modified = 0;
   flag_compress.resize(ncova * nmodel);
@@ -3569,7 +3569,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   for (imod = 0; imod < strmod->nmodel; imod++)
   {
     model = strmod->models[imod];
-    for (icov = 0; icov < model->getCovaNumber(); icov++)
+    for (icov = 0; icov < model->getNCov(); icov++)
     {
       FLAG_COMPRESS(imod,icov) = st_structure_reduce(strmod, imod, icov, hmax,
                                                      gmax, mauto.getTolsigma());
@@ -3645,7 +3645,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
     for (imod = 0; imod < strmod->nmodel; imod++)
     {
       model = strmod->models[imod];
-      for (icov = 0; icov < model->getCovaNumber(); icov++)
+      for (icov = 0; icov < model->getNCov(); icov++)
       {
         if (FLAG_COMPRESS(imod, icov)) continue;
         model_cova_characteristics(model->getCovaType(icov), cov_name,
@@ -3687,7 +3687,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   for (imod = 0; imod < strmod->nmodel; imod++)
   {
     int jcov = 0;
-    for (icov = 0; icov < strmod->models[imod]->getCovaNumber(); icov++)
+    for (icov = 0; icov < strmod->models[imod]->getNCov(); icov++)
     {
       if (FLAG_COMPRESS(imod, icov)) continue;
 
@@ -3710,7 +3710,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   for (imod = strmod->nmodel - 1; imod >= 0; imod--)
   {
-    ncova = strmod->models[imod]->getCovaNumber();
+    ncova = strmod->models[imod]->getNCov();
     for (icov = ncova - 1; icov >= 0; icov--)
     {
       if (!FLAG_COMPRESS(imod, icov)) continue;
@@ -3741,7 +3741,7 @@ static int st_model_define(Model *model, const Option_VarioFit &optvar)
 
   /* Loop on the basic structures */
 
-  for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+  for (int jcov = 0; jcov < model->getNCov(); jcov++)
   {
     CovAniso* cova = model->getCova(jcov);
     model_cova_characteristics(cova->getType(), cov_name, &flag_range,
@@ -3964,7 +3964,7 @@ static int st_model_auto_count(const Vario *vario,
 
     /* Count the number of parameters */
 
-    for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+    for (int jcov = 0; jcov < model->getNCov(); jcov++)
     {
       model_cova_characteristics(model->getCovaType(jcov), cov_name,
                                  &flag_range, &flag_param, &min_order,
@@ -4097,7 +4097,7 @@ static void st_prepar_goulard_vmap(int imod)
   std::vector<MatrixRectangular> &ge = RECINT.ge;
   int ndim = model->getDimensionNumber();
   int nvar = model->getNVar();
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
   int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
@@ -4273,7 +4273,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
   {
     Model *model = strmod->models[imod];
 
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getNCov(); icov++)
     {
       CovAniso *cova = model->getCova(icov);
       if (!cova->hasRange()) continue;
@@ -4405,7 +4405,7 @@ int model_auto_fit(Vario *vario,
   int nbexp = 0;
   int status = 0;
   int npadir = 0;
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
   int ndim = model->getDimensionNumber();
   int nvar = vario->getNVar();
   VectorDouble angles;
@@ -4609,7 +4609,7 @@ int model_fitting_sills(Vario* vario,
   int ndir = vario->getDirectionNumber();
   int ndim = model->getDimensionNumber();
   int nvar = model->getNVar();
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
 
   /* Reset the coregionalization matrix */
 
@@ -4705,7 +4705,7 @@ static int st_vmap_auto_count(const Db *dbmap,
   /* Count the number of parameters */
 
   int ntot = 0;
-  for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+  for (int jcov = 0; jcov < model->getNCov(); jcov++)
   {
     model_cova_characteristics(model->getCovaType(jcov), cov_name, &flag_range,
                                &flag_param, &min_order, &max_ndim, &flag_int_1d,
@@ -4863,7 +4863,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
   int status = 0;
   int norder = 0;
   int npadir = 0;
-  int ncova = model->getCovaNumber();
+  int ncova = model->getNCov();
   int nvar = model->getNVar();
   int ndim = model->getDimensionNumber();
   double hmax = 0.;

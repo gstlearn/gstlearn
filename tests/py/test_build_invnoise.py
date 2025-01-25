@@ -87,7 +87,7 @@ def update(dat,sillMat,iech):
 # (pour le remplissage de l'inverse de la matrice de covariance
 def startingIndex(dat):
     names = dat.getNamesByLocator(gl.ELoc.Z)
-    nvar = dat.getLocatorNumber(gl.ELoc.Z)
+    nvar = dat.getNLoc(gl.ELoc.Z)
     count = np.array([0 for i in range(nvar)]) #std::vector<int> de zéros de taille nvar
     for iech in np.arange(dat.getNSample(True)): #useSel = True
         count += heterobool(dat,iech)

@@ -38,13 +38,13 @@ CovList::~CovList()
 
 void CovList::addCovList(const CovList* covs)
 {
-  for (int icov = 0, ncov = covs->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = covs->getNCov(); icov < ncov; icov++)
     addCov(covs->getCova(icov));
 }
 
 void CovList::addCov(const CovBase* cov)
 {
-  if (getCovaNumber() == 0)
+  if (getNCov() == 0)
   {
     setNVar(cov->getNVariables());
   }
@@ -108,7 +108,7 @@ bool CovList::isConsistent(const ASpace* /*space*/) const
 
 int CovList::getNVariables() const
 {
-  if (getCovaNumber() > 0)
+  if (getNCov() > 0)
     return _covs[0]->getNVariables();
   return 0;
 }
@@ -126,7 +126,7 @@ double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
+    for (int i=0, n=getNCov(); i<n; i++)
       cov += _covs[i]->eval0(ivar, jvar, mode);
   }
   else
@@ -149,7 +149,7 @@ void CovList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
 {
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
+    for (int i=0, n=getNCov(); i<n; i++)
     {
       _covs[i]->addEval0CovMatBiPointInPlace(mat, mode);
     }
@@ -165,13 +165,13 @@ void CovList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
 
 void CovList::_optimizationSetTarget(const SpacePoint& pt) const
 {
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+  for (int is = 0, ns = getNCov(); is < ns; is++)
     _covs[is]->optimizationSetTarget(pt);
 }
 
 void CovList::optimizationSetTargetByIndex(int iech) const
 {
-  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+  for (int is = 0, ns = getNCov(); is < ns; is++)
     _covs[is]->optimizationSetTargetByIndex(iech);
 }
 
@@ -185,7 +185,7 @@ double CovList::eval(const SpacePoint& p1,
 
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
+    for (int i=0, n=getNCov(); i<n; i++)
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
   }
   else
@@ -225,7 +225,7 @@ void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
 {
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovaNumber(); i<n; i++)
+    for (int i=0, n=getNCov(); i<n; i++)
     {
       _covs[i]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
     }
@@ -251,9 +251,9 @@ void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const
 String CovList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  if (getCovaNumber() <= 0) return sstr.str();
+  if (getNCov() <= 0) return sstr.str();
 
-  for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
     sstr << getCova(icov)->toString();
     if (isFiltered(icov))
@@ -264,7 +264,7 @@ String CovList::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int  CovList::getCovaNumber() const
+int  CovList::getNCov() const
 {
   int ncov = (int) _covs.size();
   return ncov;
@@ -279,7 +279,7 @@ bool CovList::isFiltered(int icov) const
 VectorInt CovList::getActiveCovList() const
 {
   VectorInt actives;
-  for (int i=0, n=getCovaNumber(); i<n; i++)
+  for (int i=0, n=getNCov(); i<n; i++)
   {
     if (_filtered[i]) continue;
     actives.push_back(i);
@@ -289,7 +289,7 @@ VectorInt CovList::getActiveCovList() const
 
 bool CovList::isAllActiveCovList() const
 {
-  for (int i=0, n=getCovaNumber(); i<n; i++)
+  for (int i=0, n=getNCov(); i<n; i++)
   {
     if (_filtered[i]) return false;
   }
@@ -299,7 +299,7 @@ bool CovList::isAllActiveCovList() const
 VectorInt CovList::getAllActiveCovList() const
 {
   VectorInt actives;
-  for (int i=0, n=getCovaNumber(); i<n; i++)
+  for (int i=0, n=getNCov(); i<n; i++)
   {
     actives.push_back(i);
   }
@@ -353,7 +353,7 @@ void CovList::setSill(int icov, int ivar, int jvar, double value)
 double CovList::getTotalSill(int ivar, int jvar) const
 {
   double sill_total = 0.;
-  for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
     const CovBase* cova = getCova(icov);
     sill_total += cova->getSill(ivar, jvar);
@@ -373,7 +373,7 @@ MatrixSquareSymmetric CovList::getTotalSills() const
 
 bool CovList::_isCovarianceIndexValid(int icov) const
 {
-  return checkArg("Covariance Index", icov, getCovaNumber());
+  return checkArg("Covariance Index", icov, getNCov());
 }
 
 void CovList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
@@ -386,7 +386,7 @@ void CovList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 
 void CovList::_optimizationPostProcess() const
 {
-	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
+	for (int is = 0, ns = getNCov(); is < ns; is++)
 		_covs[is]->optimizationPostProcess();
 }
 

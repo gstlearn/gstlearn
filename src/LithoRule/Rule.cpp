@@ -333,7 +333,7 @@ String Rule::displaySpecific() const
   return sstr.str();
 }
 
-int Rule::getFaciesNumber() const
+int Rule::getNFacies() const
 {
   int node_tot, nfac_tot, nmax_tot, ny1_tot, ny2_tot;
   double prop_tot;
@@ -623,7 +623,7 @@ int Rule::setProportions(const VectorDouble& proportions) const
   VectorDouble props = proportions;
   if (props.empty())
   {
-    int nfacies = getFaciesNumber();
+    int nfacies = getNFacies();
     props = VectorDouble(nfacies, 1. / (double) nfacies);
   }
 

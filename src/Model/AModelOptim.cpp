@@ -111,7 +111,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
   double scale = 1.;
   int nparams  = _getParamNumber();
   Model* model = _modelPart._model;
-  int ncov     = model->getCovaNumber(true);
+  int ncov     = model->getNCov(true);
 
   // Cholesky decomposition of the matrix of variances
   VectorDouble varchol;
@@ -258,7 +258,7 @@ int AModelOptim::_buildModelParamList()
   int ndim                 = model->getDimensionNumber();
   bool flagRotationDefined = false;
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     const CovAniso* cova = model->getCova(icov);
     bool flagSill        = true;
@@ -367,7 +367,7 @@ int AModelOptim::_buildModelParamList()
   void AModelOptim::_patchModel(Model_Part & modelPart, const double* current)
   {
     // Initializations
-    int ncov    = modelPart._model->getCovaNumber();
+    int ncov    = modelPart._model->getNCov();
     int nvar    = modelPart._model->getNVar();
     int nvs2    = nvar * (nvar + 1) / 2;
     int nparams = (int)modelPart._params.size();

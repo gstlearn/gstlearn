@@ -185,7 +185,7 @@ bool RuleProp::_checkConsistency()
     // of the number of facies per rule.
     int nfacrule = 1;
     for (int ir = 0; ir < getRuleNumber(); ir++)
-      nfacrule *= _rules[ir]->getFaciesNumber();
+      nfacrule *= _rules[ir]->getNFacies();
     nfacies = nfacrule;
   }
 
@@ -249,7 +249,7 @@ int RuleProp::_getNFacies()
   {
     int nfacies = 1;
     for (int ir = 0; ir < getRuleNumber(); ir++)
-      nfacies *= _rules[ir]->getFaciesNumber();
+      nfacies *= _rules[ir]->getNFacies();
     return nfacies;
   }
 

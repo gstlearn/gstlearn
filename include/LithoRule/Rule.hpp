@@ -96,7 +96,7 @@ public:
                  int *ny2_tot,
                  double *prop_tot) const;
 
-  int  getFaciesNumber() const;
+  int  getNFacies() const;
   int  getGRFNumber() const;
   int  getY1Number() const;
   int  getY2Number() const;

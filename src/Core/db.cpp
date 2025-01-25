@@ -1095,7 +1095,7 @@ int db_proportion(
 
   /* Core allocation */
 
-  VectorDouble coor(db->getLocatorNumber(ELoc::X));
+  VectorDouble coor(db->getNLoc(ELoc::X));
 
   /* Allocate the variables */
 
