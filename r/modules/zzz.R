@@ -58,5 +58,5 @@ addMethods = function(base, derived) {
   )
 }
 
-addMethods("ModelCovList", "ModelGeneric")
+addMethods("Model", "ModelCovList")
 }
