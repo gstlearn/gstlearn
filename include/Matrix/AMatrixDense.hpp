@@ -44,7 +44,7 @@ class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 public:
   AMatrixDense(int nrow = 0, int ncol = 0);
   AMatrixDense(const AMatrixDense &r);
-  AMatrixDense(const AMatrix &m);
+  AMatrixDense(const AMatrix &r);
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
 
@@ -158,9 +158,9 @@ private:
 #endif
 #ifndef SWIG
   public:
-  const Eigen::MatrixXd* getTab() const
+  const Eigen::Map<Eigen::MatrixXd>* getTab() const
   {
-    return &_eigenMatrix;
+    return _eigenMatrix.get();
   }
 #endif
 protected:
@@ -169,6 +169,6 @@ protected:
   MatrixSquareGeneral* _eigenVectors; // Used only when ! flag_eigen()
 
 protected:
-  Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
+  std::unique_ptr<Eigen::Map<Eigen::MatrixXd> > _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };
 

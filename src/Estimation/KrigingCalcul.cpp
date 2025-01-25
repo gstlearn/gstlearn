@@ -518,8 +518,8 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
 }
 
 bool KrigingCalcul::_checkDimensionVD(const String& name,
-                                          const VectorDouble* vec,
-                                          int *sizeRef)
+                                      const VectorDouble* vec,
+                                      int *sizeRef)
 {
   int size = (int)vec->size();
   if (*sizeRef > 0 && size != *sizeRef)
